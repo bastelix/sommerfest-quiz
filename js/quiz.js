@@ -1,4 +1,27 @@
 document.addEventListener('DOMContentLoaded', function(){
+  const cfg = window.quizConfig || {};
+  if(cfg.backgroundColor){
+    document.body.style.backgroundColor = cfg.backgroundColor;
+  }
+  const headerDiv = document.getElementById('quiz-header');
+  if(headerDiv){
+    if(cfg.logoPath){
+      const img = document.createElement('img');
+      img.src = cfg.logoPath;
+      img.alt = 'Logo';
+      img.className = 'uk-margin-small-bottom';
+      headerDiv.appendChild(img);
+    }
+    const h = document.createElement('h2');
+    h.className = 'uk-card-title';
+    h.textContent = cfg.header || '';
+    headerDiv.appendChild(h);
+    const p = document.createElement('p');
+    p.className = 'uk-text-lead';
+    p.textContent = cfg.subheader || '';
+    headerDiv.appendChild(p);
+  }
+
   const container = document.getElementById('quiz');
   const progress = document.getElementById('progress');
   const questions = window.quizQuestions || [];
@@ -24,6 +47,14 @@ document.addEventListener('DOMContentLoaded', function(){
     }else{
       e.target.disabled = true;
       document.body.insertAdjacentHTML('beforeend','<div class="uk-alert-success uk-margin-top">🎉 Danke fürs Mitmachen!</div>');
+    }
+  }
+
+  function styleButton(btn){
+    if(cfg.buttonColor){
+      btn.style.backgroundColor = cfg.buttonColor;
+      btn.style.borderColor = cfg.buttonColor;
+      btn.style.color = '#fff';
     }
   }
 
@@ -55,14 +86,16 @@ document.addEventListener('DOMContentLoaded', function(){
     const btn = document.createElement('button');
     btn.className = 'uk-button uk-button-primary';
     btn.textContent = 'Antwort prüfen';
+    styleButton(btn);
     const feedback = document.createElement('div');
     feedback.className = 'uk-margin-top';
     btn.addEventListener('click', () => checkSort(ul, q.items, feedback));
     div.appendChild(btn);
     div.appendChild(feedback);
     const nextBtn = document.createElement('button');
-    nextBtn.className = 'uk-button uk-button-default uk-margin-top';
+    nextBtn.className = 'uk-button uk-margin-top';
     nextBtn.textContent = 'Weiter';
+    styleButton(nextBtn);
     nextBtn.addEventListener('click', next);
     div.appendChild(nextBtn);
     setupSortHandlers(ul);
@@ -147,14 +180,16 @@ document.addEventListener('DOMContentLoaded', function(){
     const btn = document.createElement('button');
     btn.className = 'uk-button uk-button-primary uk-margin-small-top';
     btn.textContent = 'Antwort prüfen';
+    styleButton(btn);
     const feedback = document.createElement('div');
     feedback.className = 'uk-margin-top';
     btn.addEventListener('click', () => checkAssign(div, feedback));
     div.appendChild(btn);
     div.appendChild(feedback);
     const nextBtn = document.createElement('button');
-    nextBtn.className = 'uk-button uk-button-default uk-margin-top';
+    nextBtn.className = 'uk-button uk-margin-top';
     nextBtn.textContent = 'Weiter';
+    styleButton(nextBtn);
     nextBtn.addEventListener('click', next);
     div.appendChild(nextBtn);
 
@@ -245,6 +280,7 @@ document.addEventListener('DOMContentLoaded', function(){
     submit.className = 'uk-button uk-button-primary uk-margin-top';
     submit.type = 'submit';
     submit.textContent = 'Antwort prüfen';
+    styleButton(submit);
     form.appendChild(submit);
 
     const feedback = document.createElement('div');
@@ -262,8 +298,9 @@ document.addEventListener('DOMContentLoaded', function(){
     div.appendChild(feedback);
 
     const nextBtn = document.createElement('button');
-    nextBtn.className = 'uk-button uk-button-primary uk-margin-top';
+    nextBtn.className = 'uk-button uk-margin-top';
     nextBtn.textContent = 'Fertig';
+    styleButton(nextBtn);
     nextBtn.addEventListener('click', next);
     div.appendChild(nextBtn);
 
