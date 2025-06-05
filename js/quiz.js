@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
   let current = 0;
   const elements = shuffled.map((q, idx) => createQuestion(q, idx));
+  const results = new Array(elements.length).fill(false);
   elements.push(createSummary());
 
   // apply configurable styles
@@ -91,7 +92,29 @@ document.addEventListener('DOMContentLoaded', function(){
     } else if(current === questionCount - 1){
       current++;
       showQuestion(current);
+    }else{
+      e.target.disabled = true;
+      showSummary();
     }
+  }
+
+  function showSummary(){
+    const score = results.filter(r => r).length;
+    const div = document.createElement('div');
+    div.className = 'uk-margin-top uk-text-center';
+    div.innerHTML = `<h3>Ergebnis</h3><p>Du hast ${score} von ${elements.length} richtig.</p>`;
+    const restart = document.createElement('a');
+    restart.href = 'start.html';
+    restart.textContent = 'Neu Starten';
+    restart.className = 'uk-button uk-button-primary uk-margin-top';
+    styleButton(restart);
+    div.appendChild(restart);
+    document.body.appendChild(div);
+
+    const user = sessionStorage.getItem('quizUser') || ('user-' + Math.random().toString(36).substr(2,8));
+    let log = localStorage.getItem('statistical.log') || '';
+    log += `${user} ${score}/${elements.length}\n`;
+    localStorage.setItem('statistical.log', log);
   }
 
   function styleButton(btn){
@@ -135,6 +158,11 @@ document.addEventListener('DOMContentLoaded', function(){
     btn.className = 'uk-button uk-button-primary';
     btn.textContent = 'Antwort prüfen';
     styleButton(btn);
+    const feedback = document.createElement('div');
+    feedback.className = 'uk-margin-top';
+    btn.addEventListener('click', () => checkSort(ul, q.items, feedback, idx));
+    div.appendChild(btn);
+    div.appendChild(feedback);
     btn.addEventListener('click', () => checkSort(ul, q.items, feedback));
     const nextBtn = document.createElement('button');
     nextBtn.className = 'uk-button';
@@ -175,10 +203,12 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   }
 
-  function checkSort(ul, right, feedback){
+  function checkSort(ul, right, feedback, idx){
     const currentOrder = Array.from(ul.querySelectorAll('li')).map(li => li.textContent.trim());
+    const correct = JSON.stringify(currentOrder) === JSON.stringify(right);
+    results[idx] = correct;
     feedback.innerHTML =
-      JSON.stringify(currentOrder) === JSON.stringify(right)
+      correct
         ? '<div class="uk-alert-success" uk-alert>✅ Richtig sortiert!</div>'
         : '<div class="uk-alert-danger" uk-alert>❌ Leider falsch, versuche es nochmal!</div>';
   }
@@ -232,6 +262,11 @@ document.addEventListener('DOMContentLoaded', function(){
     btn.className = 'uk-button uk-button-primary';
     btn.textContent = 'Antwort prüfen';
     styleButton(btn);
+    const feedback = document.createElement('div');
+    feedback.className = 'uk-margin-top';
+    btn.addEventListener('click', () => checkAssign(div, feedback, idx));
+    div.appendChild(btn);
+    div.appendChild(feedback);
     btn.addEventListener('click', () => checkAssign(div, feedback));
     const nextBtn = document.createElement('button');
     nextBtn.className = 'uk-button';
@@ -293,11 +328,12 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   }
 
-  function checkAssign(div, feedback){
+  function checkAssign(div, feedback, idx){
     let allCorrect = true;
     div.querySelectorAll('.dropzone').forEach(zone => {
       if(zone.dataset.term !== zone.dataset.dropped) allCorrect = false;
     });
+    results[idx] = allCorrect;
     feedback.innerHTML = allCorrect
       ? '<div class="uk-alert-success" uk-alert>✅ Alles richtig zugeordnet!</div>'
       : '<div class="uk-alert-danger" uk-alert>❌ Nicht alle Zuordnungen sind korrekt.</div>';
@@ -336,8 +372,10 @@ document.addEventListener('DOMContentLoaded', function(){
     styleButton(checkBtn);
     checkBtn.addEventListener('click', () => {
       const v = div.querySelector('input[name="mc' + idx + '"]:checked');
+      const correct = v && parseInt(v.value,10) === q.answer;
+      results[idx] = correct;
       feedback.innerHTML =
-        v && parseInt(v.value,10) === q.answer
+        correct
           ? '<div class="uk-alert-success" uk-alert>✅ Korrekt! Die besitzende OE hat Schreibrechte.</div>'
           : '<div class="uk-alert-danger" uk-alert>❌ Das ist nicht korrekt.</div>';
     });
