@@ -151,7 +151,7 @@
         const map = {
           sort: 'Items in die richtige Reihenfolge bringen.',
           assign: 'Begriffe den passenden Definitionen zuordnen.',
-          mc: 'Mehrfachauswahl (Multiple Choice).'
+          mc: 'Mehrfachauswahl (Multiple Choice, mehrere Antworten möglich).'
         };
         typeInfo.textContent = map[typeSelect.value] || '';
       }
@@ -219,8 +219,8 @@
         const row = document.createElement('div');
         row.className = 'uk-flex uk-margin-small-bottom option-row';
         const radio = document.createElement('input');
-        radio.type = 'radio';
-        radio.className = 'uk-radio answer';
+        radio.type = 'checkbox';
+        radio.className = 'uk-checkbox answer';
         radio.name = 'ans'+cardIndex;
         radio.checked = checked;
         const input = document.createElement('input');
@@ -259,7 +259,8 @@
           fields.appendChild(add);
         } else {
           const list = document.createElement('div');
-          (q.options || ['','']).forEach((opt,i) => list.appendChild(addOption(opt,i === (q.answer||0))));
+          (q.options || ['','']).forEach((opt,i) =>
+            list.appendChild(addOption(opt,(q.answers || []).includes(i))));
           const add = document.createElement('button');
           add.className = 'uk-button uk-button-small uk-margin-small-top';
           add.textContent = 'Option hinzufügen';
@@ -295,9 +296,9 @@
           return {type, prompt, terms};
         } else {
           const options = Array.from(card.querySelectorAll('.option-row .option')).map(i => i.value.trim()).filter(Boolean);
-          const radios = Array.from(card.querySelectorAll('.option-row .answer'));
-          const answer = radios.findIndex(r => r.checked);
-          return {type, prompt, options, answer: answer < 0 ? 0 : answer};
+          const checks = Array.from(card.querySelectorAll('.option-row .answer'));
+          const answers = checks.map((c,i) => c.checked ? i : -1).filter(i => i >= 0);
+          return {type, prompt, options, answers};
         }
       });
     }
@@ -322,7 +323,7 @@
 
     addBtn.addEventListener('click', function(e){
       e.preventDefault();
-      container.appendChild(createCard({type:'mc',prompt:'',options:['',''],answer:0}));
+      container.appendChild(createCard({type:'mc',prompt:'',options:['',''],answers:[0]}));
     });
 
     let cardIndex = 0;

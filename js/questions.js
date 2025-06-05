@@ -26,6 +26,6 @@ window.quizQuestions = [
       'Die besitzende OE',
       'Alle Nutzer'
     ],
-    answer: 1
+    answers: [1]
   }
 ];
