@@ -46,6 +46,7 @@ createApp({
     const answered = ref(false);
     const userAnswers = reactive({});
 
+
     onMounted(() => {
       const dataEl = document.getElementById('question-data');
       if (dataEl) {
@@ -54,7 +55,6 @@ createApp({
         } catch (e) {
           console.error('Fehler beim Laden der Fragen:', e);
         }
-      }
       loading.value = false;
     });
 

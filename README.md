@@ -9,3 +9,4 @@ Siehe `quiz-app/README.md` für weitere Informationen zur Nutzung und zum Hinzuf
 ## Deploy per GitHub Actions
 
 Im Repository befindet sich ein Workflow `.github/workflows/deploy.yml`. Er lädt den Code, führt `quiz-app/fetch_libs.sh` aus und stellt das komplette `quiz-app/` Verzeichnis als Artefakt bereit. Dadurch kann ein fertiges Offline-Paket direkt aus dem Actions-Bereich heruntergeladen werden.
+
