@@ -41,9 +41,9 @@ document.addEventListener('DOMContentLoaded', function(){
       headerEl.appendChild(img);
     }
     if(cfg.header){
-      const h = document.createElement('h2');
+      const h = document.createElement('h1');
       h.textContent = cfg.header;
-      h.className = 'uk-card-title uk-margin-remove-bottom';
+      h.className = 'uk-margin-remove-bottom';
       headerEl.appendChild(h);
     }
     if(cfg.subheader){
@@ -370,9 +370,6 @@ document.addEventListener('DOMContentLoaded', function(){
   function createStart(){
     const div = document.createElement('div');
     div.className = 'question uk-text-center';
-    const h = document.createElement('h1');
-    h.textContent = 'Quiz Start';
-    h.className = 'uk-margin';
     const stats = document.createElement('div');
     stats.className = 'uk-margin';
     const startBtn = document.createElement('button');
@@ -401,7 +398,6 @@ document.addEventListener('DOMContentLoaded', function(){
       sessionStorage.setItem('quizUser', user);
       next();
     });
-    div.appendChild(h);
     div.appendChild(stats);
     div.appendChild(startBtn);
     return div;
