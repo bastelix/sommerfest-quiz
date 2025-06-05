@@ -41,7 +41,16 @@
           <button id="cfgResetBtn" class="uk-button uk-button-default">Zurücksetzen</button>
           <button id="cfgSaveBtn" class="uk-button uk-button-primary">Speichern</button>
         </div>
-        <p>Die gespeicherte Datei ersetzt <code>js/config.js</code>.</p>
+        <div class="uk-alert-primary" uk-alert>
+          <p>
+            Nach dem Klick auf <strong>Speichern</strong> wird eine neue
+            <code>config.js</code> heruntergeladen. Kopiere diese Datei danach
+            manuell in das Verzeichnis <code>js/</code> deines Projekts und
+            ersetze die vorhandene Datei. Das ist n&ouml;tig, weil das Quiz
+            komplett im Browser l&auml;uft und keinen direkten Schreibzugriff
+            auf dieses Verzeichnis hat.
+          </p>
+        </div>
       </div>
     </li>
     <li>
@@ -55,7 +64,15 @@
           <button id="resetBtn" class="uk-button uk-button-default">Zurücksetzen</button>
           <button id="saveBtn" class="uk-button uk-button-primary">Speichern</button>
         </div>
-        <p>Die gespeicherte Datei ersetzt <code>js/questions.js</code>.</p>
+        <div class="uk-alert-primary" uk-alert>
+          <p>
+            Nach dem Klick auf <strong>Speichern</strong> wird eine neue
+            <code>questions.js</code> heruntergeladen. Lege diese Datei
+            anschlie&szlig;end im Ordner <code>js/</code> ab und ersetze dort die
+            bestehende Datei. Die Admin-Seite kann das Verzeichnis nicht direkt
+            beschreiben, daher muss dieser Schritt manuell erfolgen.
+          </p>
+        </div>
       </div>
     </li>
   </ul>
