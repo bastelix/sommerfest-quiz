@@ -47,9 +47,14 @@ createApp({
     const userAnswers = reactive({});
 
 
-    onMounted(async () => {
-      const res = await fetch('questions.json');
-      questions.value = await res.json();
+    onMounted(() => {
+      const dataEl = document.getElementById('question-data');
+      if (dataEl) {
+        try {
+          questions.value = JSON.parse(dataEl.textContent);
+        } catch (e) {
+          console.error('Fehler beim Laden der Fragen:', e);
+        }
       loading.value = false;
     });
 
