@@ -9,13 +9,18 @@ document.addEventListener('DOMContentLoaded', function(){
   const progress = document.getElementById('progress');
   const questions = window.quizQuestions || [];
 
-  // shuffle the questions so the order differs on every page load
-  const shuffled = questions.slice();
-  const questionCount = shuffled.length;
-  for(let i = shuffled.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  function shuffleArray(arr){
+    const a = arr.slice();
+    for(let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
   }
+
+  // shuffle the questions so the order differs on every page load
+  const shuffled = shuffleArray(questions);
+  const questionCount = shuffled.length;
 
   let current = 0;
   const elements = shuffled.map((q, idx) => createQuestion(q, idx));
@@ -124,7 +129,8 @@ document.addEventListener('DOMContentLoaded', function(){
     div.appendChild(h);
     const ul = document.createElement('ul');
     ul.className = 'uk-list uk-list-divider sortable-list uk-margin';
-    q.items.forEach(text => {
+    const displayItems = shuffleArray(q.items);
+    displayItems.forEach(text => {
       const li = document.createElement('li');
       li.draggable = true;
       li.setAttribute('role','listitem');
@@ -211,7 +217,8 @@ document.addEventListener('DOMContentLoaded', function(){
     const left = document.createElement('div');
     const termList = document.createElement('ul');
     termList.className = 'uk-list uk-list-striped terms';
-    q.terms.forEach(t => {
+    const leftTerms = shuffleArray(q.terms);
+    leftTerms.forEach(t => {
       const li = document.createElement('li');
       li.draggable = true;
       li.setAttribute('role','listitem');
@@ -225,7 +232,8 @@ document.addEventListener('DOMContentLoaded', function(){
     grid.appendChild(left);
 
     const rightCol = document.createElement('div');
-    q.terms.forEach(t => {
+    const rightTerms = shuffleArray(q.terms);
+    rightTerms.forEach(t => {
       const dz = document.createElement('div');
       dz.className = 'dropzone';
       dz.setAttribute('role','listitem');
@@ -321,9 +329,9 @@ document.addEventListener('DOMContentLoaded', function(){
       : '<div class="uk-alert-danger" uk-alert>❌ Nicht alle Zuordnungen sind korrekt.</div>';
   }
 
-  function checkMc(div, q, feedback, idx){
+  function checkMc(div, correctIndex, feedback, idx){
     const v = div.querySelector('input[name="mc' + idx + '"]:checked');
-    const correct = v && parseInt(v.value,10) === q.answer;
+    const correct = v && parseInt(v.value,10) === correctIndex;
     results[idx] = correct;
     feedback.innerHTML =
       correct
@@ -340,7 +348,10 @@ document.addEventListener('DOMContentLoaded', function(){
 
     const options = document.createElement('div');
 
-    q.options.forEach((opt,i) => {
+    const order = shuffleArray(q.options.map((_,i) => i));
+    const correctIndex = order.indexOf(q.answer);
+
+    order.forEach((orig,i) => {
       const label = document.createElement('label');
       const input = document.createElement('input');
       input.className = 'uk-radio';
@@ -348,7 +359,7 @@ document.addEventListener('DOMContentLoaded', function(){
       input.name = 'mc' + idx;
       input.value = i;
       label.appendChild(input);
-      label.append(' ' + opt);
+      label.append(' ' + q.options[orig]);
       options.appendChild(label);
       options.appendChild(document.createElement('br'));
     });
@@ -363,7 +374,7 @@ document.addEventListener('DOMContentLoaded', function(){
     checkBtn.textContent = 'Antwort prüfen';
     styleButton(checkBtn);
     checkBtn.addEventListener('click', () => {
-      checkMc(div, q, feedback, idx);
+      checkMc(div, correctIndex, feedback, idx);
     });
     if(!showCheck) checkBtn.classList.add('uk-hidden');
     const nextBtn = document.createElement('button');
@@ -371,7 +382,7 @@ document.addEventListener('DOMContentLoaded', function(){
     nextBtn.textContent = 'Weiter';
     styleButton(nextBtn);
     nextBtn.addEventListener('click', () => {
-      checkMc(div, q, feedback, idx);
+      checkMc(div, correctIndex, feedback, idx);
       next();
     });
     footer.appendChild(checkBtn);
