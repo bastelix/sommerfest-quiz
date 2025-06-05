@@ -63,6 +63,9 @@ document.addEventListener('DOMContentLoaded', function(){
   elements.forEach((el, i) => {
     if (i !== 0) el.classList.add('uk-hidden');
     container.appendChild(el);
+    if (typeof UIkit !== 'undefined' && UIkit.scrollspy) {
+      UIkit.scrollspy(el);
+    }
   });
   progress.max = questionCount;
   progress.value = 0;
@@ -124,6 +127,7 @@ document.addEventListener('DOMContentLoaded', function(){
   function createSortQuestion(q, idx){
     const div = document.createElement('div');
     div.className = 'question';
+    div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
     const h = document.createElement('h4');
     h.textContent = q.prompt;
     div.appendChild(h);
@@ -205,6 +209,7 @@ document.addEventListener('DOMContentLoaded', function(){
   function createAssignQuestion(q, idx){
     const div = document.createElement('div');
     div.className = 'question';
+    div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
     const h = document.createElement('h4');
     h.textContent = q.prompt;
     div.appendChild(h);
@@ -347,6 +352,7 @@ document.addEventListener('DOMContentLoaded', function(){
   function createMcQuestion(q, idx){
     const div = document.createElement('div');
     div.className = 'question';
+    div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
     const h = document.createElement('h4');
     h.textContent = q.prompt;
     div.appendChild(h);
@@ -403,6 +409,7 @@ document.addEventListener('DOMContentLoaded', function(){
   function createStart(){
     const div = document.createElement('div');
     div.className = 'question uk-text-center';
+    div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
     const stats = document.createElement('div');
     stats.className = 'uk-margin';
     const startBtn = document.createElement('button');
@@ -475,6 +482,7 @@ document.addEventListener('DOMContentLoaded', function(){
   function createSummary(){
     const div = document.createElement('div');
     div.className = 'question uk-text-center';
+    div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
     const h = document.createElement('h3');
     h.textContent = '🎉 Danke fürs Mitmachen!';
     const p = document.createElement('p');
