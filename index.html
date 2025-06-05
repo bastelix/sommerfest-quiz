@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Modernes Quiz mit UIkit</title>
+  <link rel="stylesheet" href="./css/uikit.min.css">
+  <style>
+    .sortable-list li {
+      cursor: grab;
+    }
+    .dropzone {
+      min-height: 2.5em;
+      background: #f3f7fa;
+      border: 1.5px dashed #aaa;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      padding: 4px 8px;
+    }
+    .dropzone.over {
+      border-color: #39f;
+      background: #e0f7fa;
+    }
+  </style>
+</head>
+<body class="uk-background-muted uk-padding uk-flex uk-flex-center">
+  <div class="uk-container uk-width-1-2@s uk-width-2-3@m">
+    <div class="uk-card uk-card-default uk-card-body uk-box-shadow-large uk-margin">
+      <h2 class="uk-card-title">Quiz: Digitales Wissen</h2>
+      <ul uk-tab>
+        <li><a href="#">Sortieren</a></li>
+        <li><a href="#">Zuordnen</a></li>
+        <li><a href="#">Multiple Choice</a></li>
+      </ul>
+      <ul class="uk-switcher uk-margin">
+        <!-- Sortieren -->
+        <li>
+          <h4>Bringe die Schritte zum Serienbrief in die richtige Reihenfolge:</h4>
+          <ul id="sortable" class="uk-list uk-list-divider sortable-list uk-margin">
+            <li draggable="true">Datenquelle (Tabelle) erstellen</li>
+            <li draggable="true">Neues Dokument von Vorlage anlegen</li>
+            <li draggable="true">Serienbrieffunktion in Word starten</li>
+            <li draggable="true">Abgangsvermerk am Dokument anbringen</li>
+          </ul>
+          <button class="uk-button uk-button-primary" onclick="checkSort()">Antwort prüfen</button>
+          <div id="sortFeedback" class="uk-margin-top"></div>
+        </li>
+        <!-- Zuordnen -->
+        <li>
+          <h4>Ordne die Begriffe den Definitionen zu:</h4>
+          <div class="uk-grid-small uk-child-width-1-2" uk-grid>
+            <div>
+              <ul id="terms" class="uk-list uk-list-striped">
+                <li draggable="true" data-term="Akte">Akte</li>
+                <li draggable="true" data-term="OE">OE</li>
+                <li draggable="true" data-term="Snapshot">Snapshot</li>
+              </ul>
+            </div>
+            <div>
+              <div class="dropzone" data-term="OE">Organisationseinheit mit Rechten an der Akte</div>
+              <div class="dropzone" data-term="Akte">Sammlung von Vorgängen und Dokumenten</div>
+              <div class="dropzone" data-term="Snapshot">PDF mit Status zum Zeichnungsprozess</div>
+            </div>
+          </div>
+          <button class="uk-button uk-button-primary uk-margin-small-top" onclick="checkAssign()">Antwort prüfen</button>
+          <div id="assignFeedback" class="uk-margin-top"></div>
+        </li>
+        <!-- Multiple Choice -->
+        <li>
+          <h4>Wer hat automatisch Schreibrechte an einer Akte?</h4>
+          <form id="mcForm">
+            <label><input class="uk-radio" type="radio" name="mc" value="0"> Nur die Fachadministration</label><br>
+            <label><input class="uk-radio" type="radio" name="mc" value="1"> Die besitzende OE</label><br>
+            <label><input class="uk-radio" type="radio" name="mc" value="2"> Alle Nutzer</label><br>
+            <button class="uk-button uk-button-primary uk-margin-top" type="submit">Antwort prüfen</button>
+          </form>
+          <div id="mcFeedback" class="uk-margin-top"></div>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <script src="./js/uikit.min.js"></script>
+  <script>
+    // Sortieren
+    let draggedSortItem;
+    document.querySelectorAll("#sortable li").forEach(li => {
+      li.addEventListener('dragstart', e => draggedSortItem = li);
+      li.addEventListener('dragover', e => e.preventDefault());
+      li.addEventListener('drop', function() {
+        if (draggedSortItem !== this) {
+          this.parentNode.insertBefore(draggedSortItem, this.nextSibling);
+        }
+      });
+    });
+    window.checkSort = function() {
+      const right = [
+        "Datenquelle (Tabelle) erstellen",
+        "Neues Dokument von Vorlage anlegen",
+        "Serienbrieffunktion in Word starten",
+        "Abgangsvermerk am Dokument anbringen"
+      ];
+      const current = Array.from(document.querySelectorAll('#sortable li')).map(li => li.textContent.trim());
+      document.getElementById('sortFeedback').innerHTML =
+        JSON.stringify(right) === JSON.stringify(current)
+        ? '<div class="uk-alert-success" uk-alert>✅ Richtig sortiert!</div>'
+        : '<div class="uk-alert-danger" uk-alert>❌ Leider falsch, versuche es nochmal!</div>';
+    };
+
+    // Zuordnen
+    let draggedTerm = null;
+    document.querySelectorAll("#terms li").forEach(li => {
+      li.addEventListener('dragstart', e => {
+        draggedTerm = li;
+      });
+    });
+    document.querySelectorAll(".dropzone").forEach(zone => {
+      zone.addEventListener('dragover', e => {
+        e.preventDefault();
+        zone.classList.add('over');
+      });
+      zone.addEventListener('dragleave', e => zone.classList.remove('over'));
+      zone.addEventListener('drop', e => {
+        zone.classList.remove('over');
+        if (draggedTerm) {
+          zone.innerHTML = draggedTerm.textContent;
+          zone.dataset.dropped = draggedTerm.getAttribute('data-term');
+          draggedTerm.style.visibility = "hidden";
+          draggedTerm = null;
+        }
+      });
+    });
+    window.checkAssign = function() {
+      let allCorrect = true;
+      document.querySelectorAll(".dropzone").forEach(zone => {
+        if (zone.dataset.term !== zone.dataset.dropped) allCorrect = false;
+      });
+      document.getElementById('assignFeedback').innerHTML =
+        allCorrect
+        ? '<div class="uk-alert-success" uk-alert>✅ Alles richtig zugeordnet!</div>'
+        : '<div class="uk-alert-danger" uk-alert>❌ Nicht alle Zuordnungen sind korrekt.</div>';
+    };
+
+    // Multiple Choice
+    document.getElementById('mcForm').onsubmit = function(e){
+      e.preventDefault();
+      const v = document.querySelector('input[name="mc"]:checked');
+      document.getElementById('mcFeedback').innerHTML =
+        (v && v.value == "1")
+        ? '<div class="uk-alert-success" uk-alert>✅ Korrekt! Die besitzende OE hat Schreibrechte.</div>'
+        : '<div class="uk-alert-danger" uk-alert>❌ Das ist nicht korrekt.</div>';
+    }
+  </script>
+</body>
+</html>
