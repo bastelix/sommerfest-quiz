@@ -182,7 +182,11 @@ document.addEventListener('DOMContentLoaded', function(){
     const score = results.filter(r => r).length;
     const user = sessionStorage.getItem('quizUser') || generateUserName();
     const p = summaryEl.querySelector('p');
-    if(p) p.textContent = `${user} hat ${score} von ${questionCount} richtig.`;
+    if(p) p.textContent = `Du hast ${score} von ${questionCount} richtig.`;
+    if(score === questionCount && typeof window.startConfetti === 'function'){
+      window.startConfetti();
+    }
+    const user = sessionStorage.getItem('quizUser') || ('user-' + Math.random().toString(36).substr(2,8));
     let log = localStorage.getItem('statistical.log') || '';
     log += `${user} ${score}/${questionCount}\n`;
     localStorage.setItem('statistical.log', log);
