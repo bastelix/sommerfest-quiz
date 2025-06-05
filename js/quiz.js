@@ -3,24 +3,6 @@ document.addEventListener('DOMContentLoaded', function(){
   if(cfg.backgroundColor){
     document.body.style.backgroundColor = cfg.backgroundColor;
   }
-  const headerDiv = document.getElementById('quiz-header');
-  if(headerDiv){
-    if(cfg.logoPath){
-      const img = document.createElement('img');
-      img.src = cfg.logoPath;
-      img.alt = 'Logo';
-      img.className = 'uk-margin-small-bottom';
-      headerDiv.appendChild(img);
-    }
-    const h = document.createElement('h2');
-    h.className = 'uk-card-title';
-    h.textContent = cfg.header || '';
-    headerDiv.appendChild(h);
-    const p = document.createElement('p');
-    p.className = 'uk-text-lead';
-    p.textContent = cfg.subheader || '';
-    headerDiv.appendChild(p);
-  }
 
   const container = document.getElementById('quiz');
   const progress = document.getElementById('progress');
