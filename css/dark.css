@@ -1,0 +1,19 @@
+/* Zusätzliche Styles für Dark Mode */
+body.dark-mode {
+  background-color: #121212;
+  color: #eee;
+}
+body.dark-mode .uk-card-default {
+  background-color: #1e1e1e;
+  color: #eee;
+}
+body.dark-mode .uk-card-default a {
+  color: #9dc6ff;
+}
+body.dark-mode .uk-progress {
+  background-color: #333;
+}
+body.dark-mode .uk-button-primary {
+  background-color: #1e87f0;
+  border-color: #1e87f0;
+}

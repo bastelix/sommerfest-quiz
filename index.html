@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Modernes Quiz mit UIkit</title>
   <link rel="stylesheet" href="./css/uikit.min.css">
+  <link rel="stylesheet" href="./css/dark.css">
   <style>
     .sortable-list li {
       cursor: grab;
@@ -50,6 +51,45 @@
       top: 0;
       left: 0;
     }
+    .theme-switch {
+      position: fixed;
+      top: 8px;
+      left: 8px;
+      z-index: 1000;
+    }
+    .theme-switch input {
+      height: 0;
+      width: 0;
+      visibility: hidden;
+    }
+    .theme-switch-label {
+      cursor: pointer;
+      text-indent: -9999px;
+      width: 40px;
+      height: 20px;
+      background: #ccc;
+      display: block;
+      border-radius: 100px;
+      position: relative;
+    }
+    .theme-switch-label:after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 90px;
+      transition: 0.3s;
+    }
+    .theme-switch input:checked + .theme-switch-label {
+      background: #1e87f0;
+    }
+    .theme-switch input:checked + .theme-switch-label:after {
+      left: calc(100% - 2px);
+      transform: translateX(-100%);
+    }
     @keyframes fadeIn {
       from { opacity: 0; }
       to { opacity: 1; }
@@ -58,6 +98,10 @@
 </head>
 <body class="uk-padding uk-flex uk-flex-center">
   <a href="faq.html" class="uk-icon-button uk-position-fixed uk-position-top-right uk-margin-small-right uk-margin-small-top" uk-icon="question" title="Hilfe"></a>
+  <div class="theme-switch">
+    <input type="checkbox" id="theme-toggle">
+    <label for="theme-toggle" class="theme-switch-label">Toggle</label>
+  </div>
   <div class="uk-container uk-width-1-2@s uk-width-2-3@m">
     <div class="uk-card uk-card-default uk-card-body uk-box-shadow-large uk-margin">
       <div id="quiz-header" class="uk-text-center uk-margin"></div>
@@ -71,5 +115,24 @@
   <script src="./js/questions.js"></script>
   <script src="./js/confetti.js"></script>
   <script src="./js/quiz.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      const toggle = document.getElementById('theme-toggle');
+      const isDark = localStorage.getItem('darkMode') === 'true';
+      if(isDark){
+        document.body.classList.add('dark-mode');
+        toggle.checked = true;
+      }
+      toggle.addEventListener('change', function(){
+        if(this.checked){
+          document.body.classList.add('dark-mode');
+          localStorage.setItem('darkMode', 'true');
+        } else {
+          document.body.classList.remove('dark-mode');
+          localStorage.setItem('darkMode', 'false');
+        }
+      });
+    });
+  </script>
 </body>
 </html>
