@@ -38,7 +38,7 @@ Jede Frage besitzt einen Button **Antwort prüfen** sowie **Weiter**, um zur nä
 
 ## Ergebnisse und Statistik
 
-Die erzielten Punkte werden anonym im `localStorage` des Browsers gespeichert. Auf der Startseite wird eine Liste der bisherigen Ergebnisse angezeigt, die als kleine Slideshow rotiert. Über den Button **Statistik herunterladen** lassen sich diese Daten als Datei `statistical.log` exportieren.
+Die erzielten Punkte werden anonym im `localStorage` des Browsers gespeichert. Beim Start bekommt jede Person einen zufällig erzeugten Fantasienamen zugewiesen, der in der Ergebnisliste und auf der Auswertungsseite angezeigt wird. Auf der Startseite wird eine Liste der bisherigen Ergebnisse angezeigt, die als kleine Slideshow rotiert. Über den Button **Statistik herunterladen** lassen sich diese Daten als Datei `statistical.log` exportieren.
 
 ## Konfigurationsoptionen
 
