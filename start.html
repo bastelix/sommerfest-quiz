@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Quiz Start</title>
+  <link rel="stylesheet" href="./css/uikit.min.css">
+</head>
+<body class="uk-padding uk-flex uk-flex-center">
+  <div class="uk-container uk-text-center">
+    <h1 class="uk-margin">Quiz Start</h1>
+    <button id="startBtn" class="uk-button uk-button-primary uk-button-large">UND LOS</button>
+  </div>
+  <script src="./js/uikit.min.js"></script>
+  <script>
+  document.getElementById('startBtn').addEventListener('click', function(){
+    const user = 'user-' + Math.random().toString(36).substr(2,8);
+    sessionStorage.setItem('quizUser', user);
+    window.location.href = 'index.html';
+  });
+  </script>
+</body>
+</html>
