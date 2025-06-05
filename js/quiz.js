@@ -398,8 +398,9 @@ document.addEventListener('DOMContentLoaded', function(){
       sessionStorage.setItem('quizUser', user);
       next();
     });
-    div.appendChild(stats);
+    div.appendChild(h);
     div.appendChild(startBtn);
+    div.appendChild(stats);
     return div;
   }
 
