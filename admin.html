@@ -145,6 +145,18 @@
         typeSelect.appendChild(opt);
       });
       typeSelect.value = q.type || 'mc';
+      const typeInfo = document.createElement('div');
+      typeInfo.className = 'uk-alert-primary uk-margin-small-bottom type-info';
+      function updateInfo(){
+        const map = {
+          sort: 'Items in die richtige Reihenfolge bringen.',
+          assign: 'Begriffe den passenden Definitionen zuordnen.',
+          mc: 'Mehrfachauswahl (Multiple Choice).'
+        };
+        typeInfo.textContent = map[typeSelect.value] || '';
+      }
+      updateInfo();
+      typeSelect.addEventListener('change', () => { renderFields(); updateInfo(); });
       const prompt = document.createElement('textarea');
       prompt.className = 'uk-textarea uk-margin-small-bottom prompt';
       prompt.placeholder = 'Fragetext';
@@ -257,10 +269,10 @@
         }
       }
 
-      typeSelect.onchange = renderFields;
       renderFields();
 
       card.appendChild(typeSelect);
+      card.appendChild(typeInfo);
       card.appendChild(prompt);
       card.appendChild(fields);
       card.appendChild(removeBtn);
