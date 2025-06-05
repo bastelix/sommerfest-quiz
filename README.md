@@ -32,7 +32,7 @@ Nach dem Start erscheint eine Übersicht bisheriger Ergebnisse (sofern welche im
 
 1. **Sortieren** – Elemente per Drag & Drop in die richtige Reihenfolge bringen.
 2. **Zuordnen** – Begriffe den passenden Definitionen zuordnen.
-3. **Multiple Choice** – Eine von mehreren Antworten auswählen.
+3. **Multiple Choice** – Eine oder mehrere Antworten auswählen.
 
 Jede Frage besitzt einen Button **Antwort prüfen** sowie **Weiter**, um zur nächsten Frage zu gelangen. Am Ende wird die erreichte Punktzahl angezeigt.
 
