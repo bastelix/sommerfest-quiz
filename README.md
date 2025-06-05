@@ -5,8 +5,7 @@ Dieses Repository enthält ein kleines clientseitiges Quiz, das komplett offline
 ## Dateien
 
 
-- `start.html` – Einstiegseite mit Startknopf.
-- `index.html` – Quizseite mit drei Beispielaufgaben.
+ - `index.html` – Enthält Startseite und Quiz.
 - `css/` \u2013 enth\u00e4lt die Stylesheets von UIkit.
 - `js/` \u2013 enth\u00e4lt die JavaScript-Dateien von UIkit inklusive Icons.
 - `js/config.js` \u2013 Konfiguration f\u00fcr Logo, Texte und Farben.

@@ -18,8 +18,10 @@ document.addEventListener('DOMContentLoaded', function(){
 
   let current = 0;
   const elements = shuffled.map((q, idx) => createQuestion(q, idx));
-  const results = new Array(elements.length).fill(false);
+  const results = new Array(questionCount).fill(false);
+  const startEl = createStart();
   const summaryEl = createSummary();
+  elements.unshift(startEl);
   elements.push(summaryEl);
   let summaryShown = false;
 
@@ -57,12 +59,17 @@ document.addEventListener('DOMContentLoaded', function(){
     container.appendChild(el);
   });
   progress.max = questionCount;
-  progress.value = 1;
+  progress.value = 0;
+  progress.classList.add('uk-hidden');
 
   function showQuestion(i){
     elements.forEach((el, idx) => el.classList.toggle('uk-hidden', idx !== i));
-    if(i < questionCount){
-      progress.value = i + 1;
+    if(i === 0){
+      progress.classList.add('uk-hidden');
+      progress.value = 0;
+    } else if(i <= questionCount){
+      progress.classList.remove('uk-hidden');
+      progress.value = i;
     } else {
       progress.value = questionCount;
       progress.classList.add('uk-hidden');
@@ -71,10 +78,10 @@ document.addEventListener('DOMContentLoaded', function(){
   }
 
   function next(){
-    if(current < questionCount - 1){
+    if(current < questionCount){
       current++;
       showQuestion(current);
-    } else if(current === questionCount - 1){
+    } else if(current === questionCount){
       current++;
       showQuestion(current);
     }
@@ -360,6 +367,46 @@ document.addEventListener('DOMContentLoaded', function(){
     return div;
   }
 
+  function createStart(){
+    const div = document.createElement('div');
+    div.className = 'question uk-text-center';
+    const h = document.createElement('h1');
+    h.textContent = 'Quiz Start';
+    h.className = 'uk-margin';
+    const stats = document.createElement('div');
+    stats.className = 'uk-margin';
+    const startBtn = document.createElement('button');
+    startBtn.className = 'uk-button uk-button-primary uk-button-large';
+    startBtn.textContent = 'UND LOS';
+    styleButton(startBtn);
+    const log = localStorage.getItem('statistical.log');
+    if(log){
+      const list = document.createElement('ul');
+      list.className = 'uk-list uk-list-divider uk-width-medium uk-margin-auto';
+      log.trim().split('\n').filter(Boolean).forEach(l => {
+        const [user, score] = l.split(' ');
+        const li = document.createElement('li');
+        li.textContent = `${user}: ${score}`;
+        list.appendChild(li);
+      });
+      const h3 = document.createElement('h3');
+      h3.textContent = 'Bisherige Ergebnisse';
+      stats.appendChild(h3);
+      stats.appendChild(list);
+    } else {
+      stats.textContent = 'Noch keine Ergebnisse vorhanden.';
+    }
+    startBtn.addEventListener('click', () => {
+      const user = 'user-' + Math.random().toString(36).substr(2,8);
+      sessionStorage.setItem('quizUser', user);
+      next();
+    });
+    div.appendChild(h);
+    div.appendChild(stats);
+    div.appendChild(startBtn);
+    return div;
+  }
+
   function createSummary(){
     const div = document.createElement('div');
     div.className = 'question uk-text-center';
@@ -367,7 +414,7 @@ document.addEventListener('DOMContentLoaded', function(){
     h.textContent = '🎉 Danke fürs Mitmachen!';
     const p = document.createElement('p');
     const restart = document.createElement('a');
-    restart.href = 'start.html';
+    restart.href = 'index.html';
     restart.textContent = 'Neu starten';
     restart.className = 'uk-button uk-button-primary uk-margin-top';
     styleButton(restart);
