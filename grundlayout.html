@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EL.DOK Sommerfest-Quiz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .bingo-highlight {
+      animation: bingoFlash 1s linear 1;
+      background: repeating-linear-gradient(-45deg, #5eead4, #5eead4 20px, #99f6e4 20px, #99f6e4 40px);
+      color: #0f766e !important;
+      border-radius: 0.75rem;
+      font-weight: bold;
+      box-shadow: 0 0 15px #2dd4bf;
+    }
+    @keyframes bingoFlash {
+      0% { box-shadow: 0 0 0 #2dd4bf; }
+      40% { box-shadow: 0 0 30px #2dd4bf; }
+      100% { box-shadow: 0 0 15px #2dd4bf; }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-blue-100 to-teal-200 min-h-screen flex items-center justify-center">
+  <div class="bg-white shadow-2xl rounded-2xl p-8 max-w-xl w-full" id="quiz-container">
+    <h1 class="text-2xl font-extrabold text-gray-700 mb-4 text-center">EL.DOK Sommerfest-Quiz</h1>
+    <div id="quiz-content">
+      <!-- Quiz wird per JS gerendert -->
+    </div>
+    <div class="mt-8 text-center text-gray-500 text-sm">
+      © 2025 Sommerfest | EL.DOK Lernmodul
+    </div>
+  </div>
+  <script>
+    // Die Fragen als JS-Array
+    const quizQuestions = [
+      {
+        title: "Was passiert, wenn du beim Zeichnungsprozess den Haken bei „Snapshot bei Aufgabenerledigung“ setzt?",
+        options: [
+          "Ein PDF-Snapshot wird in deinem persönlichen Verzeichnis gespeichert.",
+          "Du erhältst eine E-Mail mit allen Zeichnungen.",
+          "Das Dokument wird automatisch finalisiert und gelöscht.",
+          "Der Geschäftsgang wird umbenannt."
+        ],
+        correct: 0,
+        feedback: [
+          "✅ Richtig! Der Snapshot enthält alle relevanten Metadaten und Zeichnungen und liegt in deinem Ordner 'Snapshots'.",
+          "❌ Leider falsch – es wird <strong>kein</strong> E-Mail-Versand ausgelöst.",
+          "❌ Falsch – das Dokument wird <strong>nicht</strong> gelöscht.",
+          "❌ Nein – die Benennung bleibt unverändert."
+        ]
+      },
+      {
+        title: "Berechtigungs-Bingo: Wer hat automatisch Schreibrechte an einer Akte?",
+        options: [
+          "A) Nur die Fachadministration",
+          "B) Die besitzende OE",
+          "C) Alle Nutzer"
+        ],
+        correct: 1,
+        bingo: true,
+        feedback: [
+          "❌ Leider falsch! Schreibrechte liegen nicht exklusiv bei der Fachadministration.",
+          "🎉 <span class='bingo-highlight p-2'>BINGO! Die besitzende OE hat automatisch Schreibrechte an der Akte.</span> <br><span class='text-sm text-gray-600'>Andere OEs können Leserechte erhalten, aber standardmäßig darf nur die besitzende Organisationseinheit (OE) schreiben.</span>",
+          "❌ Falsch – nicht alle Nutzer haben automatisch Schreibrechte."
+        ]
+      },
+      {
+        title: "Wie lange verbleiben gelöschte Dokumente im Papierkorb von EL.DOK, bevor sie endgültig entfernt werden?",
+        options: [
+          "Sofort nach dem Löschen",
+          "7 Tage",
+          "30 Tage",
+          "Bis zum nächsten Monatswechsel"
+        ],
+        correct: 2,
+        feedback: [
+          "❌ Nein, sie bleiben noch eine Zeit lang zur Wiederherstellung erhalten.",
+          "❌ Falsch, die Frist ist länger.",
+          "✅ Richtig! Nach 30 Tagen werden Dokumente im Papierkorb endgültig gelöscht.",
+          "❌ Falsch, das Löschen ist nicht an den Monatswechsel gebunden."
+        ]
+      }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let userAnswers = [];
+
+    function renderQuestion() {
+      const q = quizQuestions[currentQuestion];
+      let html = `
+        <div class="mb-8 text-center">
+          <span class="inline-block bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-sm mb-2">Frage ${currentQuestion + 1} von ${quizQuestions.length}${q.bingo ? " • Berechtigungs-Bingo" : ""}</span>
+          <h2 class="text-lg font-semibold text-gray-800">${q.title}</h2>
+        </div>
+        <form id="quiz-form" class="space-y-4">
+      `;
+      q.options.forEach((opt, idx) => {
+        html += `
+          <div>
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input type="radio" name="answer" value="${idx}" class="accent-teal-500">
+              <span>${opt}</span>
+            </label>
+          </div>
+        `;
+      });
+      html += `
+        <button type="submit" class="mt-6 w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-xl transition-all shadow">
+          Antwort prüfen
+        </button>
+      </form>
+      <div id="feedback" class="mt-6 text-center text-lg font-semibold"></div>
+      `;
+      if (q.bingo) {
+        html += `
+        <div class="mt-4 flex justify-center">
+          <div id="bingo-card" class="grid grid-cols-3 gap-2">
+            <div class="bingo-cell bg-gray-100 rounded-lg px-4 py-2 text-center">A</div>
+            <div class="bingo-cell bg-gray-100 rounded-lg px-4 py-2 text-center">B</div>
+            <div class="bingo-cell bg-gray-100 rounded-lg px-4 py-2 text-center">C</div>
+          </div>
+        </div>
+        <div class="text-center text-xs text-teal-700 mt-1">Bingo-Feld erscheint bei richtiger Antwort!</div>
+        `;
+      }
+      document.getElementById('quiz-content').innerHTML = html;
+      document.getElementById('quiz-form').addEventListener('submit', handleAnswer);
+    }
+
+    function handleAnswer(e) {
+      e.preventDefault();
+      const selected = document.querySelector('input[name="answer"]:checked');
+      const feedback = document.getElementById('feedback');
+      if (!selected) {
+        feedback.innerHTML = "<span class='text-red-500'>Bitte wähle eine Antwort aus.</span>";
+        return;
+      }
+      const idx = parseInt(selected.value, 10);
+      const q = quizQuestions[currentQuestion];
+      feedback.innerHTML = `<span class="${idx === q.correct ? 'text-green-600' : 'text-red-600'}">${q.feedback[idx]}</span>`;
+      document.querySelectorAll('input[name="answer"]').forEach(i => i.disabled = true);
+      if (q.bingo && idx === q.correct) {
+        setTimeout(() => {
+          const bingoCells = document.querySelectorAll('#bingo-card .bingo-cell');
+          if (bingoCells[q.correct]) {
+            bingoCells[q.correct].classList.add('bingo-highlight');
+            bingoCells[q.correct].innerText = 'BINGO!';
+          }
+        }, 100);
+      }
+      const btn = e.target.querySelector('button');
+      btn.disabled = false;
+      btn.innerText = (currentQuestion + 1 === quizQuestions.length) ? "Auswertung anzeigen" : "Nächste Frage";
+      btn.type = "button";
+      btn.onclick = nextQuestion;
+      userAnswers[currentQuestion] = idx;
+      if (idx === q.correct) score++;
+    }
+
+    function nextQuestion() {
+      currentQuestion++;
+      if (currentQuestion < quizQuestions.length) {
+        renderQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      let resultText = `
+        <div class="text-center mb-6">
+          <span class="inline-block bg-teal-100 text-teal-700 px-3 py-1 rounded-full text-sm mb-2">Auswertung</span>
+          <h2 class="text-2xl font-bold mb-4">Du hast ${score} von ${quizQuestions.length} Punkten erreicht!</h2>
+          <div class="mb-4">
+            ${score === quizQuestions.length
+              ? "<span class='text-green-600 font-semibold'>Super gemacht – volle Punktzahl! 🎉</span>"
+              : score > 0
+                ? "<span class='text-yellow-600 font-semibold'>Schon gut – noch ein Versuch?</span>"
+                : "<span class='text-red-600 font-semibold'>Probiere es nochmal und lerne EL.DOK kennen!</span>"
+            }
+          </div>
+        </div>
+        <div class="mb-4">
+          <button onclick="location.reload()" class="bg-teal-500 hover:bg-teal-600 text-white font-bold py-2 px-4 rounded-xl shadow transition-all w-full">
+            Quiz erneut starten
+          </button>
+        </div>
+        <div class="text-left text-sm">
+          <strong>Lösungen:</strong><br>
+      `;
+      quizQuestions.forEach((q, i) => {
+        resultText += `
+          <div class="mb-2">
+            <span class="font-semibold">Frage ${i + 1}:</span> ${q.title}<br>
+            <span>Deine Antwort: <span class="${userAnswers[i] === q.correct ? 'text-green-600' : 'text-red-600'}">${q.options[userAnswers[i]] ?? "-"}</span></span><br>
+            <span class="text-gray-600">Richtig: ${q.options[q.correct]}</span>
+          </div>
+        `;
+      });
+      resultText += "</div>";
+      document.getElementById('quiz-content').innerHTML = resultText;
+    }
+
+    renderQuestion();
+  </script>
+</body>
+</html>
