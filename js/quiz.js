@@ -402,8 +402,8 @@ document.addEventListener('DOMContentLoaded', function(){
       next();
     });
     div.appendChild(h);
-    div.appendChild(stats);
     div.appendChild(startBtn);
+    div.appendChild(stats);
     return div;
   }
 
