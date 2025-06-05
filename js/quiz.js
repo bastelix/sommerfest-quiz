@@ -107,6 +107,13 @@ document.addEventListener('DOMContentLoaded', function(){
     let log = localStorage.getItem('statistical.log') || '';
     log += `${user} ${score}/${questionCount}\n`;
     localStorage.setItem('statistical.log', log);
+
+    // also try to persist result on the server
+    fetch('/log', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user, score, total: questionCount })
+    }).catch(() => {});
   }
 
   function createQuestion(q, idx){
@@ -393,23 +400,29 @@ document.addEventListener('DOMContentLoaded', function(){
     startBtn.className = 'uk-button uk-button-primary uk-button-large';
     startBtn.textContent = 'UND LOS';
     styleButton(startBtn);
-    const log = localStorage.getItem('statistical.log');
-    if(log){
-      const list = document.createElement('ul');
-      list.className = 'uk-list uk-list-divider uk-width-medium uk-margin-auto';
-      log.trim().split('\n').filter(Boolean).forEach(l => {
-        const [user, score] = l.split(' ');
-        const li = document.createElement('li');
-        li.textContent = `${user}: ${score}`;
-        list.appendChild(li);
-      });
-      const h3 = document.createElement('h3');
-      h3.textContent = 'Bisherige Ergebnisse';
-      stats.appendChild(h3);
-      stats.appendChild(list);
-    } else {
-      stats.textContent = 'Noch keine Ergebnisse vorhanden.';
+    function renderLog(text){
+      if(text){
+        const list = document.createElement('ul');
+        list.className = 'uk-list uk-list-divider uk-width-medium uk-margin-auto';
+        text.trim().split('\n').filter(Boolean).forEach(l => {
+          const [user, score] = l.split(' ');
+          const li = document.createElement('li');
+          li.textContent = `${user}: ${score}`;
+          list.appendChild(li);
+        });
+        const h3 = document.createElement('h3');
+        h3.textContent = 'Bisherige Ergebnisse';
+        stats.appendChild(h3);
+        stats.appendChild(list);
+      } else {
+        stats.textContent = 'Noch keine Ergebnisse vorhanden.';
+      }
     }
+
+    fetch('/log').then(r => r.text()).then(renderLog).catch(() => {
+      const log = localStorage.getItem('statistical.log');
+      renderLog(log);
+    });
     startBtn.addEventListener('click', () => {
       const user = 'user-' + Math.random().toString(36).substr(2,8);
       sessionStorage.setItem('quizUser', user);
