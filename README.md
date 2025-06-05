@@ -9,12 +9,11 @@ Dieses Repository enthält ein kleines clientseitiges Quiz, das komplett offline
 - `css/` \u2013 enth\u00e4lt die Stylesheets von UIkit.
 - `js/` \u2013 enth\u00e4lt die JavaScript-Dateien von UIkit inklusive Icons.
 - `js/config.js` \u2013 Konfiguration f\u00fcr Logo, Texte und Farben.
-- `statistical.log` – enthält die bisher erzielten Ergebnisse.
 
 ## Server
 
-Mit `node server.js` lässt sich ein kleiner Server starten, der die
-Ergebnisse bei jedem abgeschlossenen Quiz in `statistical.log` speichert.
+Mit `node server.js` lässt sich ein kleiner Server starten, der lediglich die
+Dateien aus diesem Repository ausliefert.
 
 
 
