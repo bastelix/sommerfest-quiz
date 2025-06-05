@@ -30,6 +30,5 @@ quiz-app/
 ## Automatischer Build
 
 Der Workflow `.github/workflows/deploy.yml` baut eine lauffähige Offline-Version und stellt sie als Download bereit. Bei jedem Push auf `main` oder über einen manuellen Start wird `fetch_libs.sh` ausgeführt und das Ergebnis als Artefakt hochgeladen.
-=======
 
 Viel Spaß beim Erweitern des Quizzes!
