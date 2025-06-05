@@ -342,7 +342,7 @@ document.addEventListener('DOMContentLoaded', function(){
       results[idx] = correct;
       feedback.innerHTML =
         correct
-          ? '<div class="uk-alert-success" uk-alert>✅ Korrekt! Die besitzende OE hat Schreibrechte.</div>'
+          ? '<div class="uk-alert-success" uk-alert>✅ Korrekt!</div>'
           : '<div class="uk-alert-danger" uk-alert>❌ Das ist nicht korrekt.</div>';
     });
     const nextBtn = document.createElement('button');
