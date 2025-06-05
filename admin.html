@@ -7,22 +7,104 @@
   <link rel="stylesheet" href="./css/uikit.min.css">
 </head>
 <body class="uk-background-muted uk-padding">
-  <div class="uk-container uk-container-large">
-    <h2 class="uk-heading-bullet">Fragen bearbeiten</h2>
-    <div id="questions"></div>
-    <div class="uk-margin">
-      <button id="addBtn" class="uk-button uk-button-default">Neue Frage</button>
-    </div>
-    <div class="uk-margin">
-      <button id="saveBtn" class="uk-button uk-button-primary">Herunterladen</button>
-      <button id="resetBtn" class="uk-button uk-button-default">Zur\u00fccksetzen</button>
-    </div>
-    <p>Die heruntergeladene Datei kann die bestehende <code>js/questions.js</code> ersetzen.</p>
-  </div>
+  <ul uk-tab>
+    <li class="uk-active"><a href="#">Veranstaltung konfigurieren</a></li>
+    <li><a href="#">Fragen anpassen</a></li>
+  </ul>
+  <ul class="uk-switcher uk-margin">
+    <li>
+      <div class="uk-container uk-container-large">
+        <h2 class="uk-heading-bullet">Veranstaltung konfigurieren</h2>
+        <form id="configForm" class="uk-form-stacked">
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgLogoPath">Logo Pfad</label>
+            <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgLogoPath"></div>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgHeader">\u00dcberschrift</label>
+            <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgHeader"></div>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgSubheader">Untertitel</label>
+            <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgSubheader"></div>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgBackgroundColor">Hintergrundfarbe</label>
+            <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgBackgroundColor"></div>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgButtonColor">Buttonfarbe</label>
+            <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgButtonColor"></div>
+          </div>
+        </form>
+        <div class="uk-margin uk-flex uk-flex-between">
+          <button id="cfgResetBtn" class="uk-button uk-button-default">Zur\u00fccksetzen</button>
+          <button id="cfgSaveBtn" class="uk-button uk-button-primary">Speichern</button>
+        </div>
+        <p>Die gespeicherte Datei ersetzt <code>js/config.js</code>.</p>
+      </div>
+    </li>
+    <li>
+      <div class="uk-container uk-container-large">
+        <h2 class="uk-heading-bullet">Fragen bearbeiten</h2>
+        <div id="questions"></div>
+        <div class="uk-margin">
+          <button id="addBtn" class="uk-button uk-button-default">Neue Frage</button>
+        </div>
+        <div class="uk-margin uk-flex uk-flex-between">
+          <button id="resetBtn" class="uk-button uk-button-default">Zur\u00fccksetzen</button>
+          <button id="saveBtn" class="uk-button uk-button-primary">Speichern</button>
+        </div>
+        <p>Die gespeicherte Datei ersetzt <code>js/questions.js</code>.</p>
+      </div>
+    </li>
+  </ul>
   <script src="./js/uikit.min.js"></script>
   <script src="./js/questions.js"></script>
+  <script src="./js/config.js"></script>
   <script>
   document.addEventListener('DOMContentLoaded', function(){
+    // config form handling
+    const cfgInitial = window.quizConfig || {};
+    const cfgFields = {
+      logoPath: document.getElementById('cfgLogoPath'),
+      header: document.getElementById('cfgHeader'),
+      subheader: document.getElementById('cfgSubheader'),
+      backgroundColor: document.getElementById('cfgBackgroundColor'),
+      buttonColor: document.getElementById('cfgButtonColor')
+    };
+    function renderCfg(data){
+      cfgFields.logoPath.value = data.logoPath || '';
+      cfgFields.header.value = data.header || '';
+      cfgFields.subheader.value = data.subheader || '';
+      cfgFields.backgroundColor.value = data.backgroundColor || '';
+      cfgFields.buttonColor.value = data.buttonColor || '';
+    }
+    renderCfg(cfgInitial);
+    document.getElementById('cfgResetBtn').addEventListener('click', function(e){
+      e.preventDefault();
+      renderCfg(cfgInitial);
+    });
+    document.getElementById('cfgSaveBtn').addEventListener('click', function(e){
+      e.preventDefault();
+      const data = {
+        logoPath: cfgFields.logoPath.value.trim(),
+        header: cfgFields.header.value.trim(),
+        subheader: cfgFields.subheader.value.trim(),
+        backgroundColor: cfgFields.backgroundColor.value.trim(),
+        buttonColor: cfgFields.buttonColor.value.trim()
+      };
+      const content = 'window.quizConfig = ' + JSON.stringify(data, null, 2) + ';\n';
+      const blob = new Blob([content], {type: 'text/javascript'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'js/config.js';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // question editor handling
     const container = document.getElementById('questions');
     const addBtn = document.getElementById('addBtn');
     const saveBtn = document.getElementById('saveBtn');
@@ -191,21 +273,28 @@
       });
     }
 
-    saveBtn.addEventListener('click', function(){
+    saveBtn.addEventListener('click', function(e){
+      e.preventDefault();
       const data = collect();
       const content = 'window.quizQuestions = ' + JSON.stringify(data, null, 2) + ';\n';
       const blob = new Blob([content], {type: 'text/javascript'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'questions.js';
+      a.download = 'js/questions.js';
       a.click();
       URL.revokeObjectURL(url);
     });
 
-    resetBtn.addEventListener('click', () => renderAll(initial));
+    resetBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      renderAll(initial);
+    });
 
-    addBtn.addEventListener('click', () => container.appendChild(createCard({type:'mc',prompt:'',options:['',''],answer:0})));
+    addBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      container.appendChild(createCard({type:'mc',prompt:'',options:['',''],answer:0}));
+    });
 
     let cardIndex = 0;
     renderAll(initial);
