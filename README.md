@@ -8,4 +8,4 @@ Dieses Repository enth\u00e4lt ein kleines clientseitiges Quiz, das komplett off
 - `css/` \u2013 enth\u00e4lt die Stylesheets von UIkit.
 - `js/` \u2013 enth\u00e4lt die JavaScript-Dateien von UIkit inklusive Icons.
 
-Zum Ausprobieren einfach `index.html` in einem Browser \u00f6ffnen. Da alle Bibliotheken lokal vorhanden sind, wird keine Internetverbindung ben\u00f6tigt.
+
