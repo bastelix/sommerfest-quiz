@@ -158,12 +158,7 @@ document.addEventListener('DOMContentLoaded', function(){
     btn.className = 'uk-button uk-button-primary';
     btn.textContent = 'Antwort prüfen';
     styleButton(btn);
-    const feedback = document.createElement('div');
-    feedback.className = 'uk-margin-top';
     btn.addEventListener('click', () => checkSort(ul, q.items, feedback, idx));
-    div.appendChild(btn);
-    div.appendChild(feedback);
-    btn.addEventListener('click', () => checkSort(ul, q.items, feedback));
     const nextBtn = document.createElement('button');
     nextBtn.className = 'uk-button';
     nextBtn.textContent = 'Weiter';
@@ -262,12 +257,7 @@ document.addEventListener('DOMContentLoaded', function(){
     btn.className = 'uk-button uk-button-primary';
     btn.textContent = 'Antwort prüfen';
     styleButton(btn);
-    const feedback = document.createElement('div');
-    feedback.className = 'uk-margin-top';
     btn.addEventListener('click', () => checkAssign(div, feedback, idx));
-    div.appendChild(btn);
-    div.appendChild(feedback);
-    btn.addEventListener('click', () => checkAssign(div, feedback));
     const nextBtn = document.createElement('button');
     nextBtn.className = 'uk-button';
     nextBtn.textContent = 'Weiter';
