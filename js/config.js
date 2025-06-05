@@ -1,5 +1,5 @@
 window.quizConfig = {
-  logoPath: '',
+  logoPath: '', // Pfad zum Logo oder leer lassen
   header: 'Sommerfest 2024',
   subheader: 'Willkommen beim Veranstaltungsquiz',
   backgroundColor: '#f8f8f8',

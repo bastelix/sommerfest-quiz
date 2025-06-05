@@ -24,9 +24,39 @@ document.addEventListener('DOMContentLoaded', function(){
 
   const container = document.getElementById('quiz');
   const progress = document.getElementById('progress');
+  const cfg = window.quizConfig || {};
   const questions = window.quizQuestions || [];
   let current = 0;
   const elements = questions.map((q, idx) => createQuestion(q, idx));
+
+  // apply configurable styles
+  const styleEl = document.createElement('style');
+  styleEl.textContent = `\n    body { background-color: ${cfg.backgroundColor || '#f8f8f8'}; }\n    .uk-button-primary { background-color: ${cfg.buttonColor || '#1e87f0'}; border-color: ${cfg.buttonColor || '#1e87f0'}; }\n  `;
+  document.head.appendChild(styleEl);
+
+  // build header from config
+  const headerEl = document.getElementById('quiz-header');
+  if(headerEl){
+    if(cfg.logoPath){
+      const img = document.createElement('img');
+      img.src = cfg.logoPath;
+      img.alt = cfg.header || 'Logo';
+      img.className = 'uk-margin-small-bottom';
+      headerEl.appendChild(img);
+    }
+    if(cfg.header){
+      const h = document.createElement('h2');
+      h.textContent = cfg.header;
+      h.className = 'uk-card-title uk-margin-remove-bottom';
+      headerEl.appendChild(h);
+    }
+    if(cfg.subheader){
+      const p = document.createElement('p');
+      p.textContent = cfg.subheader;
+      p.className = 'uk-text-lead';
+      headerEl.appendChild(p);
+    }
+  }
 
   elements.forEach((el, i) => {
     if (i !== 0) el.classList.add('uk-hidden');
