@@ -126,10 +126,10 @@ document.addEventListener('DOMContentLoaded', function(){
     const score = results.filter(r => r).length;
     const p = summaryEl.querySelector('p');
     if(p) p.textContent = `Du hast ${score} von ${questionCount} richtig.`;
-
-    const user = sessionStorage.getItem('quizUser') || (
-      'user-' + Math.random().toString(36).substr(2,8)
-    );
+    if(score === questionCount && typeof window.startConfetti === 'function'){
+      window.startConfetti();
+    }
+    const user = sessionStorage.getItem('quizUser') || ('user-' + Math.random().toString(36).substr(2,8));
     let log = localStorage.getItem('statistical.log') || '';
     log += `${user} ${score}/${questionCount}\n`;
     localStorage.setItem('statistical.log', log);
