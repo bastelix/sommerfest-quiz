@@ -1,19 +1,56 @@
-# sommerfest-quiz
+# Sommerfest-Quiz
 
-Dieses Repository enthält ein kleines clientseitiges Quiz, das komplett offline funktioniert. Alle benötigten Dateien liegen bereits im Projekt.
+Dieses Projekt enthält ein vollständig clientseitiges Quiz, das ohne Serververbindung genutzt werden kann. Alle benötigten Dateien liegen im Repository.
 
-## Dateien
+## Inhalt des Repositories
 
+- **index.html** – Startseite und Quiz.
+- **admin.html** – Admin-Oberfläche zum Anpassen von Fragen und Design.
+- **css/** – Stylesheets von UIkit.
+- **js/** – JavaScript-Dateien von UIkit und die Skripte für das Quiz.
+- **js/config.js** – Einstellungen für Logo, Farben und Texte.
+- **js/questions.js** – Enthält alle Quizfragen.
+- **server.js** – Ein kleiner Node.js-Server zum lokalen Hosten der Dateien.
 
- - `index.html` – Enthält Startseite und Quiz.
-- `css/` \u2013 enth\u00e4lt die Stylesheets von UIkit.
-- `js/` \u2013 enth\u00e4lt die JavaScript-Dateien von UIkit inklusive Icons.
-- `js/config.js` \u2013 Konfiguration f\u00fcr Logo, Texte und Farben.
+## Quiz starten
 
-## Server
+Das Quiz kann direkt durch Öffnen von `index.html` in einem Browser verwendet werden. Optional lässt es sich mit Node.js lokal bereitstellen:
 
-Mit `node server.js` lässt sich ein kleiner Server starten, der lediglich die
-Dateien aus diesem Repository ausliefert.
+```bash
+node server.js
+```
 
+Anschließend ist die Anwendung unter `http://localhost:3000` erreichbar.
 
+## Fragen bearbeiten und Design anpassen
 
+Die Datei `admin.html` stellt eine einfache Administrationsoberfläche bereit. Dort können Fragen hinzugefügt oder angepasst und Farben, Logo sowie Überschriften geändert werden. Beim Klick auf **Speichern** wird jeweils eine neue `config.js` bzw. `questions.js` heruntergeladen. Diese heruntergeladene Datei muss danach manuell in den Ordner `js/` kopiert und dort die vorhandene Datei ersetzen.
+
+## Ablauf des Quiz
+
+Nach dem Start erscheint eine Übersicht bisheriger Ergebnisse (sofern welche im Browser gespeichert sind). Anschließend startet das Quiz. Es gibt drei Fragetypen:
+
+1. **Sortieren** – Elemente per Drag & Drop in die richtige Reihenfolge bringen.
+2. **Zuordnen** – Begriffe den passenden Definitionen zuordnen.
+3. **Multiple Choice** – Eine von mehreren Antworten auswählen.
+
+Jede Frage besitzt einen Button **Antwort prüfen** sowie **Weiter**, um zur nächsten Frage zu gelangen. Am Ende wird die erreichte Punktzahl angezeigt.
+
+## Ergebnisse und Statistik
+
+Die erzielten Punkte werden anonym im `localStorage` des Browsers gespeichert. Auf der Startseite wird eine Liste der bisherigen Ergebnisse angezeigt, die als kleine Slideshow rotiert. Über den Button **Statistik herunterladen** lassen sich diese Daten als Datei `statistical.log` exportieren.
+
+## Konfigurationsoptionen
+
+Die Datei `js/config.js` enthält alle zentralen Einstellungen:
+
+- `logoPath` – Pfad zu einem eigenen Logo (optional).
+- `header` – Überschrift auf der Startseite.
+- `subheader` – Untertitel unterhalb der Überschrift.
+- `backgroundColor` – Hintergrundfarbe der Seite.
+- `buttonColor` – Farbe für Schaltflächen.
+- `CheckAnswerButton` – Wenn auf `"no"` gesetzt, wird der Button **Antwort prüfen** ausgeblendet und nur **Weiter** angezeigt.
+
+## Lizenz
+
+Der Code steht unter der MIT-Lizenz. Siehe die Datei `LICENSE` für Details.
