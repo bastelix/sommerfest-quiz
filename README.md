@@ -12,6 +12,3 @@ Siehe die jeweiligen README-Dateien f\u00fcr weitere Informationen.
 
 Mit `quiz-app/package.sh` l\u00e4sst sich ein ZIP-Archiv erzeugen, das alle Dateien inklusive der JavaScript-Bibliotheken enth\u00e4lt. So kann das Quiz bequem ohne Internetverbindung verteilt werden.
 
-## Deploy per GitHub Actions
-
-Im Repository befindet sich ein Workflow `.github/workflows/deploy.yml`. Er lu00e4dt den Code, richtet Node ein, fu00fchrt `quiz-app/fetch_libs.sh` aus und stellt das komplette `quiz-app/` Verzeichnis als Artefakt bereit. Dadurch kann ein fertiges Offline-Paket direkt aus dem Actions-Bereich heruntergeladen werden.
