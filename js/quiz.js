@@ -329,9 +329,14 @@ document.addEventListener('DOMContentLoaded', function(){
       : '<div class="uk-alert-danger" uk-alert>❌ Nicht alle Zuordnungen sind korrekt.</div>';
   }
 
-  function checkMc(div, correctIndex, feedback, idx){
-    const v = div.querySelector('input[name="mc' + idx + '"]:checked');
-    const correct = v && parseInt(v.value,10) === correctIndex;
+  function checkMc(div, correctIndices, feedback, idx){
+    const selected = Array.from(div.querySelectorAll('input[name="mc' + idx + '"]:checked'))
+      .map(el => parseInt(el.value, 10))
+      .sort((a, b) => a - b);
+    const sortedCorrect = correctIndices.slice().sort((a, b) => a - b);
+    const correct =
+      selected.length === sortedCorrect.length &&
+      selected.every((v, i) => v === sortedCorrect[i]);
     results[idx] = correct;
     feedback.innerHTML =
       correct
@@ -349,13 +354,13 @@ document.addEventListener('DOMContentLoaded', function(){
     const options = document.createElement('div');
 
     const order = shuffleArray(q.options.map((_,i) => i));
-    const correctIndex = order.indexOf(q.answer);
+    const correctIndices = (q.answers || [q.answer || 0]).map(a => order.indexOf(a));
 
     order.forEach((orig,i) => {
       const label = document.createElement('label');
       const input = document.createElement('input');
-      input.className = 'uk-radio';
-      input.type = 'radio';
+      input.className = 'uk-checkbox';
+      input.type = 'checkbox';
       input.name = 'mc' + idx;
       input.value = i;
       label.appendChild(input);
@@ -374,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function(){
     checkBtn.textContent = 'Antwort prüfen';
     styleButton(checkBtn);
     checkBtn.addEventListener('click', () => {
-      checkMc(div, correctIndex, feedback, idx);
+      checkMc(div, correctIndices, feedback, idx);
     });
     if(!showCheck) checkBtn.classList.add('uk-hidden');
     const nextBtn = document.createElement('button');
@@ -382,7 +387,7 @@ document.addEventListener('DOMContentLoaded', function(){
     nextBtn.textContent = 'Weiter';
     styleButton(nextBtn);
     nextBtn.addEventListener('click', () => {
-      checkMc(div, correctIndex, feedback, idx);
+      checkMc(div, correctIndices, feedback, idx);
       next();
     });
     footer.appendChild(checkBtn);
