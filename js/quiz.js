@@ -107,13 +107,6 @@ document.addEventListener('DOMContentLoaded', function(){
     let log = localStorage.getItem('statistical.log') || '';
     log += `${user} ${score}/${questionCount}\n`;
     localStorage.setItem('statistical.log', log);
-
-    // also try to persist result on the server
-    fetch('/log', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user, score, total: questionCount })
-    }).catch(() => {});
   }
 
   function createQuestion(q, idx){
@@ -419,9 +412,21 @@ document.addEventListener('DOMContentLoaded', function(){
       }
     }
 
-    fetch('/log').then(r => r.text()).then(renderLog).catch(() => {
-      const log = localStorage.getItem('statistical.log');
-      renderLog(log);
+    const log = localStorage.getItem('statistical.log');
+    renderLog(log);
+
+    const downloadBtn = document.createElement('button');
+    downloadBtn.className = 'uk-button uk-button-default uk-button-small uk-margin-top';
+    downloadBtn.textContent = 'Statistik herunterladen';
+    downloadBtn.addEventListener('click', () => {
+      const text = localStorage.getItem('statistical.log') || '';
+      const blob = new Blob([text], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'statistical.log';
+      a.click();
+      URL.revokeObjectURL(url);
     });
     startBtn.addEventListener('click', () => {
       const user = 'user-' + Math.random().toString(36).substr(2,8);
@@ -430,6 +435,7 @@ document.addEventListener('DOMContentLoaded', function(){
     });
     div.appendChild(startBtn);
     div.appendChild(stats);
+    div.appendChild(downloadBtn);
     return div;
   }
 
