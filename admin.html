@@ -7,9 +7,12 @@
   <link rel="stylesheet" href="./css/uikit.min.css">
 </head>
 <body class="uk-background-muted uk-padding">
-  <div class="uk-container uk-container-small">
+  <div class="uk-container uk-container-large">
     <h2 class="uk-heading-bullet">Fragen bearbeiten</h2>
-    <textarea id="editor" class="uk-textarea" rows="20"></textarea>
+    <div id="questions"></div>
+    <div class="uk-margin">
+      <button id="addBtn" class="uk-button uk-button-default">Neue Frage</button>
+    </div>
     <div class="uk-margin">
       <button id="saveBtn" class="uk-button uk-button-primary">Herunterladen</button>
       <button id="resetBtn" class="uk-button uk-button-default">Zur\u00fccksetzen</button>
@@ -20,29 +23,192 @@
   <script src="./js/questions.js"></script>
   <script>
   document.addEventListener('DOMContentLoaded', function(){
-    const textarea = document.getElementById('editor');
+    const container = document.getElementById('questions');
+    const addBtn = document.getElementById('addBtn');
     const saveBtn = document.getElementById('saveBtn');
     const resetBtn = document.getElementById('resetBtn');
-    function loadQuestions(){
-      textarea.value = JSON.stringify(window.quizQuestions || [], null, 2);
+    const initial = window.quizQuestions || [];
+
+    function renderAll(data){
+      container.innerHTML = '';
+      data.forEach(q => container.appendChild(createCard(q)));
     }
-    loadQuestions();
-    resetBtn.addEventListener('click', loadQuestions);
-    saveBtn.addEventListener('click', function(){
-      try {
-        const data = JSON.parse(textarea.value);
-        const content = 'window.quizQuestions = ' + JSON.stringify(data, null, 2) + ';\n';
-        const blob = new Blob([content], {type: 'text/javascript'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'questions.js';
-        a.click();
-        URL.revokeObjectURL(url);
-      } catch(err){
-        alert('Fehler im JSON: ' + err.message);
+
+    function createCard(q){
+      const card = document.createElement('div');
+      card.className = 'uk-card uk-card-default uk-card-body uk-margin question-card';
+      const typeSelect = document.createElement('select');
+      typeSelect.className = 'uk-select uk-margin-small-bottom type-select';
+      ['sort','assign','mc'].forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t;
+        opt.textContent = t;
+        typeSelect.appendChild(opt);
+      });
+      typeSelect.value = q.type || 'mc';
+      const prompt = document.createElement('textarea');
+      prompt.className = 'uk-textarea uk-margin-small-bottom prompt';
+      prompt.placeholder = 'Fragetext';
+      prompt.value = q.prompt || '';
+      const fields = document.createElement('div');
+      fields.className = 'fields';
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'uk-button uk-button-danger uk-margin-small-top';
+      removeBtn.textContent = 'Entfernen';
+      removeBtn.onclick = () => card.remove();
+
+      function addItem(value=''){
+        const div = document.createElement('div');
+        div.className = 'uk-flex uk-margin-small-bottom item-row';
+        const input = document.createElement('input');
+        input.className = 'uk-input item';
+        input.type = 'text';
+        input.value = value;
+        const btn = document.createElement('button');
+        btn.className = 'uk-button uk-button-danger uk-button-small uk-margin-left';
+        btn.textContent = '\u00d7';
+        btn.onclick = () => div.remove();
+        div.appendChild(input);
+        div.appendChild(btn);
+        return div;
       }
+
+      function addPair(term='', def=''){
+        const row = document.createElement('div');
+        row.className = 'uk-grid-small uk-margin-small-bottom term-row';
+        row.setAttribute('uk-grid','');
+        const tInput = document.createElement('input');
+        tInput.className = 'uk-input term';
+        tInput.type = 'text';
+        tInput.placeholder = 'Begriff';
+        tInput.value = term;
+        const dInput = document.createElement('input');
+        dInput.className = 'uk-input definition';
+        dInput.type = 'text';
+        dInput.placeholder = 'Definition';
+        dInput.value = def;
+        const rem = document.createElement('button');
+        rem.className = 'uk-button uk-button-danger uk-button-small';
+        rem.textContent = '\u00d7';
+        rem.onclick = () => row.remove();
+        const tDiv = document.createElement('div');
+        tDiv.appendChild(tInput);
+        const dDiv = document.createElement('div');
+        dDiv.appendChild(dInput);
+        const bDiv = document.createElement('div');
+        bDiv.className = 'uk-width-auto';
+        bDiv.appendChild(rem);
+        row.appendChild(tDiv);
+        row.appendChild(dDiv);
+        row.appendChild(bDiv);
+        return row;
+      }
+
+      function addOption(text='', checked=false){
+        const row = document.createElement('div');
+        row.className = 'uk-flex uk-margin-small-bottom option-row';
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.className = 'uk-radio answer';
+        radio.name = 'ans'+cardIndex;
+        radio.checked = checked;
+        const input = document.createElement('input');
+        input.className = 'uk-input option uk-margin-small-left';
+        input.type = 'text';
+        input.value = text;
+        const rem = document.createElement('button');
+        rem.className = 'uk-button uk-button-danger uk-button-small uk-margin-left';
+        rem.textContent = '\u00d7';
+        rem.onclick = () => row.remove();
+        row.appendChild(radio);
+        row.appendChild(input);
+        row.appendChild(rem);
+        return row;
+      }
+
+      function renderFields(){
+        fields.innerHTML = '';
+        if(typeSelect.value === 'sort'){
+          const list = document.createElement('div');
+          (q.items || ['','']).forEach(it => list.appendChild(addItem(it)));
+          const add = document.createElement('button');
+          add.className = 'uk-button uk-button-small uk-margin-small-top';
+          add.textContent = 'Item hinzuf\u00fcgen';
+          add.onclick = e => {e.preventDefault(); list.appendChild(addItem(''));};
+          fields.appendChild(list);
+          fields.appendChild(add);
+        } else if(typeSelect.value === 'assign'){
+          const list = document.createElement('div');
+          (q.terms || [{term:'',definition:''}]).forEach(p => list.appendChild(addPair(p.term,p.definition)));
+          const add = document.createElement('button');
+          add.className = 'uk-button uk-button-small uk-margin-small-top';
+          add.textContent = 'Begriff hinzuf\u00fcgen';
+          add.onclick = e => {e.preventDefault(); list.appendChild(addPair('',''));};
+          fields.appendChild(list);
+          fields.appendChild(add);
+        } else {
+          const list = document.createElement('div');
+          (q.options || ['','']).forEach((opt,i) => list.appendChild(addOption(opt,i === (q.answer||0))));
+          const add = document.createElement('button');
+          add.className = 'uk-button uk-button-small uk-margin-small-top';
+          add.textContent = 'Option hinzuf\u00fcgen';
+          add.onclick = e => {e.preventDefault(); list.appendChild(addOption(''));};
+          fields.appendChild(list);
+          fields.appendChild(add);
+        }
+      }
+
+      typeSelect.onchange = renderFields;
+      renderFields();
+
+      card.appendChild(typeSelect);
+      card.appendChild(prompt);
+      card.appendChild(fields);
+      card.appendChild(removeBtn);
+      cardIndex++;
+      return card;
+    }
+
+    function collect(){
+      return Array.from(container.querySelectorAll('.question-card')).map(card => {
+        const type = card.querySelector('.type-select').value;
+        const prompt = card.querySelector('.prompt').value.trim();
+        if(type === 'sort'){
+          const items = Array.from(card.querySelectorAll('.item-row .item')).map(i => i.value.trim()).filter(Boolean);
+          return {type, prompt, items};
+        } else if(type === 'assign'){
+          const terms = Array.from(card.querySelectorAll('.term-row')).map(r => ({
+            term: r.querySelector('.term').value.trim(),
+            definition: r.querySelector('.definition').value.trim()
+          })).filter(t => t.term || t.definition);
+          return {type, prompt, terms};
+        } else {
+          const options = Array.from(card.querySelectorAll('.option-row .option')).map(i => i.value.trim()).filter(Boolean);
+          const radios = Array.from(card.querySelectorAll('.option-row .answer'));
+          const answer = radios.findIndex(r => r.checked);
+          return {type, prompt, options, answer: answer < 0 ? 0 : answer};
+        }
+      });
+    }
+
+    saveBtn.addEventListener('click', function(){
+      const data = collect();
+      const content = 'window.quizQuestions = ' + JSON.stringify(data, null, 2) + ';\n';
+      const blob = new Blob([content], {type: 'text/javascript'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'questions.js';
+      a.click();
+      URL.revokeObjectURL(url);
     });
+
+    resetBtn.addEventListener('click', () => renderAll(initial));
+
+    addBtn.addEventListener('click', () => container.appendChild(createCard({type:'mc',prompt:'',options:['',''],answer:0})));
+
+    let cardIndex = 0;
+    renderAll(initial);
   });
   </script>
 </body>
