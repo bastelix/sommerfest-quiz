@@ -2,9 +2,18 @@
 
 Dieses Repository enthält ein kleines clientseitiges Quizsystem. Im Verzeichnis `quiz-app` befindet sich die Anwendung, die ohne Build-Prozess direkt im Browser läuft.
 
-Vor dem Start können die Bibliotheken lokal in `quiz-app/libs` abgelegt werden. Führe dazu im Unterordner den Befehl `./fetch_libs.sh` aus und öffne anschließend `quiz-app/index.html` direkt im Browser.
+Die JavaScript- und CSS-Dateien liegen bereits im Ordner `quiz-app/libs`. Das
+Skript `fetch_libs.sh` muss nur ausgeführt werden, wenn du diese Bibliotheken
+aktualisieren möchtest. Anschließend kannst du `quiz-app/index.html` direkt im
+Browser öffnen.
 
 Siehe `quiz-app/README.md` für weitere Informationen zur Nutzung und zum Hinzufügen neuer Fragen.
+
+## Offline-Paket erstellen
+
+Mit `quiz-app/package.sh` lässt sich ein ZIP-Archiv erzeugen, das alle Dateien
+inklusive der JavaScript-Bibliotheken enthält. So kann das Quiz bequem ohne
+Internetverbindung verteilt werden.
 
 ## Deploy per GitHub Actions
 
