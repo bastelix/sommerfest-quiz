@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function(){
   const cfg = window.quizConfig || {};
+  const showCheck = cfg.CheckAnswerButton !== 'no';
   if(cfg.backgroundColor){
     document.body.style.backgroundColor = cfg.backgroundColor;
   }
@@ -142,11 +143,15 @@ document.addEventListener('DOMContentLoaded', function(){
     btn.textContent = 'Antwort prüfen';
     styleButton(btn);
     btn.addEventListener('click', () => checkSort(ul, q.items, feedback, idx));
+    if(!showCheck) btn.classList.add('uk-hidden');
     const nextBtn = document.createElement('button');
     nextBtn.className = 'uk-button';
     nextBtn.textContent = 'Weiter';
     styleButton(nextBtn);
-    nextBtn.addEventListener('click', next);
+    nextBtn.addEventListener('click', () => {
+      checkSort(ul, q.items, feedback, idx);
+      next();
+    });
     footer.appendChild(btn);
     footer.appendChild(nextBtn);
     div.appendChild(feedback);
@@ -241,11 +246,15 @@ document.addEventListener('DOMContentLoaded', function(){
     btn.textContent = 'Antwort prüfen';
     styleButton(btn);
     btn.addEventListener('click', () => checkAssign(div, feedback, idx));
+    if(!showCheck) btn.classList.add('uk-hidden');
     const nextBtn = document.createElement('button');
     nextBtn.className = 'uk-button';
     nextBtn.textContent = 'Weiter';
     styleButton(nextBtn);
-    nextBtn.addEventListener('click', next);
+    nextBtn.addEventListener('click', () => {
+      checkAssign(div, feedback, idx);
+      next();
+    });
     footer.appendChild(btn);
     footer.appendChild(nextBtn);
     div.appendChild(feedback);
@@ -312,6 +321,16 @@ document.addEventListener('DOMContentLoaded', function(){
       : '<div class="uk-alert-danger" uk-alert>❌ Nicht alle Zuordnungen sind korrekt.</div>';
   }
 
+  function checkMc(div, q, feedback, idx){
+    const v = div.querySelector('input[name="mc' + idx + '"]:checked');
+    const correct = v && parseInt(v.value,10) === q.answer;
+    results[idx] = correct;
+    feedback.innerHTML =
+      correct
+        ? '<div class="uk-alert-success" uk-alert>✅ Korrekt!</div>'
+        : '<div class="uk-alert-danger" uk-alert>❌ Das ist nicht korrekt.</div>';
+  }
+
   function createMcQuestion(q, idx){
     const div = document.createElement('div');
     div.className = 'question';
@@ -344,19 +363,17 @@ document.addEventListener('DOMContentLoaded', function(){
     checkBtn.textContent = 'Antwort prüfen';
     styleButton(checkBtn);
     checkBtn.addEventListener('click', () => {
-      const v = div.querySelector('input[name="mc' + idx + '"]:checked');
-      const correct = v && parseInt(v.value,10) === q.answer;
-      results[idx] = correct;
-      feedback.innerHTML =
-        correct
-          ? '<div class="uk-alert-success" uk-alert>✅ Korrekt!</div>'
-          : '<div class="uk-alert-danger" uk-alert>❌ Das ist nicht korrekt.</div>';
+      checkMc(div, q, feedback, idx);
     });
+    if(!showCheck) checkBtn.classList.add('uk-hidden');
     const nextBtn = document.createElement('button');
     nextBtn.className = 'uk-button';
     nextBtn.textContent = 'Weiter';
     styleButton(nextBtn);
-    nextBtn.addEventListener('click', next);
+    nextBtn.addEventListener('click', () => {
+      checkMc(div, q, feedback, idx);
+      next();
+    });
     footer.appendChild(checkBtn);
     footer.appendChild(nextBtn);
 
