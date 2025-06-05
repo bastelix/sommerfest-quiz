@@ -19,7 +19,9 @@ document.addEventListener('DOMContentLoaded', function(){
   let current = 0;
   const elements = shuffled.map((q, idx) => createQuestion(q, idx));
   const results = new Array(elements.length).fill(false);
-  elements.push(createSummary());
+  const summaryEl = createSummary();
+  elements.push(summaryEl);
+  let summaryShown = false;
 
   // apply configurable styles
   const styleEl = document.createElement('style');
@@ -64,6 +66,7 @@ document.addEventListener('DOMContentLoaded', function(){
     } else {
       progress.value = questionCount;
       progress.classList.add('uk-hidden');
+      updateSummary();
     }
   }
 
@@ -74,29 +77,7 @@ document.addEventListener('DOMContentLoaded', function(){
     } else if(current === questionCount - 1){
       current++;
       showQuestion(current);
-    }else{
-      e.target.disabled = true;
-      showSummary();
     }
-  }
-
-  function showSummary(){
-    const score = results.filter(r => r).length;
-    const div = document.createElement('div');
-    div.className = 'uk-margin-top uk-text-center';
-    div.innerHTML = `<h3>Ergebnis</h3><p>Du hast ${score} von ${elements.length} richtig.</p>`;
-    const restart = document.createElement('a');
-    restart.href = 'start.html';
-    restart.textContent = 'Neu Starten';
-    restart.className = 'uk-button uk-button-primary uk-margin-top';
-    styleButton(restart);
-    div.appendChild(restart);
-    document.body.appendChild(div);
-
-    const user = sessionStorage.getItem('quizUser') || ('user-' + Math.random().toString(36).substr(2,8));
-    let log = localStorage.getItem('statistical.log') || '';
-    log += `${user} ${score}/${elements.length}\n`;
-    localStorage.setItem('statistical.log', log);
   }
 
   function styleButton(btn){
@@ -105,6 +86,19 @@ document.addEventListener('DOMContentLoaded', function(){
       btn.style.borderColor = cfg.buttonColor;
       btn.style.color = '#fff';
     }
+  }
+
+  function updateSummary(){
+    if(summaryShown) return;
+    summaryShown = true;
+    const score = results.filter(r => r).length;
+    const p = summaryEl.querySelector('p');
+    if(p) p.textContent = `Du hast ${score} von ${questionCount} richtig.`;
+
+    const user = sessionStorage.getItem('quizUser') || ('user-' + Math.random().toString(36).substr(2,8));
+    let log = localStorage.getItem('statistical.log') || '';
+    log += `${user} ${score}/${questionCount}\n`;
+    localStorage.setItem('statistical.log', log);
   }
 
   function createQuestion(q, idx){
@@ -368,10 +362,18 @@ document.addEventListener('DOMContentLoaded', function(){
 
   function createSummary(){
     const div = document.createElement('div');
-    div.className = 'question';
+    div.className = 'question uk-text-center';
     const h = document.createElement('h3');
     h.textContent = '🎉 Danke fürs Mitmachen!';
+    const p = document.createElement('p');
+    const restart = document.createElement('a');
+    restart.href = 'start.html';
+    restart.textContent = 'Neu starten';
+    restart.className = 'uk-button uk-button-primary uk-margin-top';
+    styleButton(restart);
     div.appendChild(h);
+    div.appendChild(p);
+    div.appendChild(restart);
     return div;
   }
 });
