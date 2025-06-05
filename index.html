@@ -8,7 +8,13 @@
   <style>
     .sortable-list li {
       cursor: grab;
+      background: #f3f7fa;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 8px;
+      margin-bottom: 8px;
     }
+    .sortable-list li:last-child { margin-bottom: 0; }
     .dropzone {
       min-height: 2.5em;
       background: #f3f7fa;
@@ -38,7 +44,7 @@
         <!-- Sortieren -->
         <li>
           <h4>Bringe die Schritte zum Serienbrief in die richtige Reihenfolge:</h4>
-          <ul id="sortable" class="uk-list uk-list-divider sortable-list uk-margin">
+          <ul id="sortable" class="uk-list sortable-list uk-margin">
             <li draggable="true">Datenquelle (Tabelle) erstellen</li>
             <li draggable="true">Neues Dokument von Vorlage anlegen</li>
             <li draggable="true">Serienbrieffunktion in Word starten</li>
