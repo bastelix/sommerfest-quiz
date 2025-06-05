@@ -3,8 +3,16 @@ document.addEventListener('DOMContentLoaded', function(){
   const progress = document.getElementById('progress');
   const cfg = window.quizConfig || {};
   const questions = window.quizQuestions || [];
+
+  // shuffle the questions so the order differs on every page load
+  const shuffled = questions.slice();
+  for(let i = shuffled.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
   let current = 0;
-  const elements = questions.map((q, idx) => createQuestion(q, idx));
+  const elements = shuffled.map((q, idx) => createQuestion(q, idx));
 
   // apply configurable styles
   const styleEl = document.createElement('style');
