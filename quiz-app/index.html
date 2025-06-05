@@ -4,10 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quiz App</title>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vuedraggable@4.1.0/dist/vuedraggable.umd.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="libs/vue.global.prod.js"></script>
+  <script src="libs/Sortable.min.js"></script>
+  <script src="libs/vuedraggable.umd.min.js"></script>
+  <link rel="stylesheet" href="libs/tailwind.min.css" />
+  <script id="question-data" type="application/json" src="questions.json"></script>
 </head>
 <body class="bg-gray-100 p-4">
 <div id="app" class="max-w-3xl mx-auto" v-cloak>
@@ -44,6 +45,7 @@ createApp({
     const score = ref(0);
     const answered = ref(false);
     const userAnswers = reactive({});
+
 
     onMounted(async () => {
       const res = await fetch('questions.json');
