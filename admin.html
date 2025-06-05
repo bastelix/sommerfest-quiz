@@ -90,8 +90,10 @@
   <script src="./js/config.js"></script>
   <script>
   document.addEventListener('DOMContentLoaded', function(){
-    // config form handling
+    // --------- Konfiguration bearbeiten ---------
+    // Ausgangswerte aus der bestehenden config.js
     const cfgInitial = window.quizConfig || {};
+    // Verweise auf die Formularfelder
     const cfgFields = {
       logoPath: document.getElementById('cfgLogoPath'),
       header: document.getElementById('cfgHeader'),
@@ -100,6 +102,7 @@
       buttonColor: document.getElementById('cfgButtonColor'),
       checkAnswerButton: document.getElementById('cfgCheckAnswerButton')
     };
+    // Füllt das Formular mit den Werten aus einem Konfigurationsobjekt
     function renderCfg(data){
       cfgFields.logoPath.value = data.logoPath || '';
       cfgFields.header.value = data.header || '';
@@ -133,18 +136,20 @@
       URL.revokeObjectURL(url);
     });
 
-    // question editor handling
+    // --------- Fragen bearbeiten ---------
     const container = document.getElementById('questions');
     const addBtn = document.getElementById('addBtn');
     const saveBtn = document.getElementById('saveBtn');
     const resetBtn = document.getElementById('resetBtn');
     const initial = window.quizQuestions || [];
 
+    // Rendert alle Fragen im Editor neu
     function renderAll(data){
       container.innerHTML = '';
       data.forEach(q => container.appendChild(createCard(q)));
     }
 
+    // Erstellt ein Bearbeitungsformular für eine Frage
     function createCard(q){
       const card = document.createElement('div');
       card.className = 'uk-card uk-card-default uk-card-body uk-margin question-card';
@@ -159,6 +164,7 @@
       typeSelect.value = q.type || 'mc';
       const typeInfo = document.createElement('div');
       typeInfo.className = 'uk-alert-primary uk-margin-small-bottom type-info';
+      // Infotext passend zum gewählten Fragetyp anzeigen
       function updateInfo(){
         const map = {
           sort: 'Items in die richtige Reihenfolge bringen.',
@@ -180,6 +186,7 @@
       removeBtn.textContent = 'Entfernen';
       removeBtn.onclick = () => card.remove();
 
+      // Hilfsfunktionen zum Anlegen der Eingabefelder
       function addItem(value=''){
         const div = document.createElement('div');
         div.className = 'uk-flex uk-margin-small-bottom item-row';
@@ -249,6 +256,7 @@
         return row;
       }
 
+      // Zeigt je nach Fragetyp die passenden Eingabefelder an
       function renderFields(){
         fields.innerHTML = '';
         if(typeSelect.value === 'sort'){
@@ -293,6 +301,7 @@
       return card;
     }
 
+    // Sammelt alle Eingaben aus den Karten in ein Array von Fragen
     function collect(){
       return Array.from(container.querySelectorAll('.question-card')).map(card => {
         const type = card.querySelector('.type-select').value;
@@ -315,10 +324,11 @@
       });
     }
 
+    // Exportiert die eingegebenen Fragen als neue questions.js
     saveBtn.addEventListener('click', function(e){
       e.preventDefault();
       const data = collect();
-      const content = 'window.quizQuestions = ' + JSON.stringify(data, null, 2) + ';\n';
+      const content = 'window.quizQuestions = ' + JSON.stringify(data, null, 2) + '\n';
       const blob = new Blob([content], {type: 'text/javascript'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -328,17 +338,21 @@
       URL.revokeObjectURL(url);
     });
 
+    // Setzt den Editor auf die Anfangswerte zurück
     resetBtn.addEventListener('click', function(e){
       e.preventDefault();
       renderAll(initial);
     });
 
+    // Fügt eine neue leere Frage hinzu
     addBtn.addEventListener('click', function(e){
       e.preventDefault();
       container.appendChild(createCard({type:'mc',prompt:'',options:['',''],answers:[0]}));
     });
 
+    // Zähler für eindeutige Namen von Eingabefeldern
     let cardIndex = 0;
+    // Startansicht mit vorhandenen Fragen füllen
     renderAll(initial);
   });
   </script>

@@ -1,5 +1,8 @@
+// Hier sind alle Quizfragen hinterlegt.
+// Jede Frage besitzt einen Typ (sort, assign, mc) sowie die benötigten Daten.
 window.quizQuestions = [
   {
+    // Sortier-Aufgabe: Items müssen in die richtige Reihenfolge gebracht werden
     type: 'sort',
     prompt: 'Bringe die Schritte zum Serienbrief in die richtige Reihenfolge:',
     items: [
@@ -10,6 +13,7 @@ window.quizQuestions = [
     ]
   },
   {
+    // Zuordnungs-Aufgabe: Begriffe den Definitionen zuweisen
     type: 'assign',
     prompt: 'Ordne die Begriffe den Definitionen zu:',
     terms: [
@@ -19,6 +23,7 @@ window.quizQuestions = [
     ]
   },
   {
+    // Multiple-Choice-Frage: eine oder mehrere Antworten auswählen
     type: 'mc',
     prompt: 'Wer hat automatisch Schreibrechte an einer Akte?',
     options: [

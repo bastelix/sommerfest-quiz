@@ -1,4 +1,9 @@
+// Hauptskript des Quizzes. Dieses File erzeugt dynamisch alle Fragen,
+// wertet Antworten aus und speichert das Ergebnis im Browser.
+// Der Code wird ausgeführt, sobald das DOM geladen ist.
 document.addEventListener('DOMContentLoaded', function(){
+  // Konfiguration laden und einstellen, ob der "Antwort prüfen"-Button
+  // eingeblendet werden soll
   const cfg = window.quizConfig || {};
   const showCheck = cfg.CheckAnswerButton !== 'no';
   if(cfg.backgroundColor){
@@ -9,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function(){
   const progress = document.getElementById('progress');
   const questions = window.quizQuestions || [];
 
+  // Hilfsfunktion zum Mischen von Arrays (Fisher-Yates)
   function shuffleArray(arr){
     const a = arr.slice();
     for(let i = a.length - 1; i > 0; i--){
@@ -18,20 +24,23 @@ document.addEventListener('DOMContentLoaded', function(){
     return a;
   }
 
-  // shuffle the questions so the order differs on every page load
+  // Fragen mischen, damit die Reihenfolge bei jedem Aufruf variiert
   const shuffled = shuffleArray(questions);
   const questionCount = shuffled.length;
 
   let current = 0;
+  // Zu jedem Eintrag im Array ein DOM-Element erzeugen
   const elements = shuffled.map((q, idx) => createQuestion(q, idx));
+  // Speichert true/false für jede beantwortete Frage
   const results = new Array(questionCount).fill(false);
-  const startEl = createStart();
-  const summaryEl = createSummary();
+  const startEl = createStart();     // Begrüßungsbildschirm
+  const summaryEl = createSummary(); // Abschlussseite
+  // Start- und End-Element einfügen
   elements.unshift(startEl);
   elements.push(summaryEl);
   let summaryShown = false;
 
-  // apply configurable styles
+  // konfigurierbare Farben dynamisch in ein Style-Tag schreiben
   const styleEl = document.createElement('style');
   styleEl.textContent = `\n    body { background-color: ${cfg.backgroundColor || '#f8f8f8'}; }\n    .uk-button-primary { background-color: ${cfg.buttonColor || '#1e87f0'}; border-color: ${cfg.buttonColor || '#1e87f0'}; }\n  `;
   document.head.appendChild(styleEl);
@@ -71,21 +80,26 @@ document.addEventListener('DOMContentLoaded', function(){
   progress.value = 0;
   progress.classList.add('uk-hidden');
 
+  // Zeigt das Element mit dem angegebenen Index an und aktualisiert den Fortschrittsbalken
   function showQuestion(i){
     elements.forEach((el, idx) => el.classList.toggle('uk-hidden', idx !== i));
     if(i === 0){
+      // Vor dem Quiz: kein Fortschrittsbalken
       progress.classList.add('uk-hidden');
       progress.value = 0;
     } else if(i <= questionCount){
+      // Während des Quiz Balken aktualisieren
       progress.classList.remove('uk-hidden');
       progress.value = i;
     } else {
+      // Nach der letzten Frage Zusammenfassung anzeigen
       progress.value = questionCount;
       progress.classList.add('uk-hidden');
       updateSummary();
     }
   }
 
+  // Blendet die nächste Frage ein
   function next(){
     if(current < questionCount){
       current++;
@@ -96,6 +110,7 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   }
 
+  // Wendet die konfigurierte Buttonfarbe an
   function styleButton(btn){
     if(cfg.buttonColor){
       btn.style.backgroundColor = cfg.buttonColor;
@@ -104,23 +119,23 @@ document.addEventListener('DOMContentLoaded', function(){
     }
   }
 
+  // Ermittelt das Ergebnis und schreibt es in localStorage
   function updateSummary(){
     if(summaryShown) return;
     summaryShown = true;
     const score = results.filter(r => r).length;
     const p = summaryEl.querySelector('p');
     if(p) p.textContent = `Du hast ${score} von ${questionCount} richtig.`;
-
     if(score === questionCount && typeof window.startConfetti === 'function'){
       window.startConfetti();
     }
-
     const user = sessionStorage.getItem('quizUser') || ('user-' + Math.random().toString(36).substr(2,8));
     let log = localStorage.getItem('statistical.log') || '';
     log += `${user} ${score}/${questionCount}\n`;
     localStorage.setItem('statistical.log', log);
   }
 
+  // Wählt basierend auf dem Fragetyp die passende Erzeugerfunktion aus
   function createQuestion(q, idx){
     if(q.type === 'sort') return createSortQuestion(q, idx);
     if(q.type === 'assign') return createAssignQuestion(q, idx);
@@ -128,6 +143,7 @@ document.addEventListener('DOMContentLoaded', function(){
     return document.createElement('div');
   }
 
+  // Erstellt das DOM für eine Sortierfrage
   function createSortQuestion(q, idx){
     const div = document.createElement('div');
     div.className = 'question';
@@ -170,10 +186,12 @@ document.addEventListener('DOMContentLoaded', function(){
     footer.appendChild(nextBtn);
     div.appendChild(feedback);
     div.appendChild(footer);
+    // Drag-&-Drop-Handler aktivieren
     setupSortHandlers(ul);
     return div;
   }
 
+  // Drag-&-Drop sowie Tastaturnavigation für Sortierlisten
   function setupSortHandlers(ul){
     let draggedSortItem;
     ul.querySelectorAll('li').forEach(li => {
@@ -200,6 +218,7 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   }
 
+  // Prüft die Reihenfolge der Sortierfrage
   function checkSort(ul, right, feedback, idx){
     const currentOrder = Array.from(ul.querySelectorAll('li')).map(li => li.textContent.trim());
     const correct = JSON.stringify(currentOrder) === JSON.stringify(right);
@@ -210,6 +229,8 @@ document.addEventListener('DOMContentLoaded', function(){
         : '<div class="uk-alert-danger" uk-alert>❌ Leider falsch, versuche es nochmal!</div>';
   }
 
+  // Erstellt das DOM für eine Zuordnungsfrage
+  // Links werden die Begriffe gelistet, rechts die Dropzones für die Definitionen
   function createAssignQuestion(q, idx){
     const div = document.createElement('div');
     div.className = 'question';
@@ -281,6 +302,7 @@ document.addEventListener('DOMContentLoaded', function(){
     return div;
   }
 
+  // Initialisiert Drag-&-Drop und Tastatursteuerung für die Zuordnungsfrage
   function setupAssignHandlers(div){
     let draggedTerm = null;
     let selectedTerm = null;
@@ -327,6 +349,7 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   }
 
+  // Überprüft, ob alle Begriffe korrekt zugeordnet wurden
   function checkAssign(div, feedback, idx){
     let allCorrect = true;
     div.querySelectorAll('.dropzone').forEach(zone => {
@@ -338,6 +361,7 @@ document.addEventListener('DOMContentLoaded', function(){
       : '<div class="uk-alert-danger" uk-alert>❌ Nicht alle Zuordnungen sind korrekt.</div>';
   }
 
+  // Prüft die Auswahl bei einer Multiple-Choice-Frage
   function checkMc(div, correctIndices, feedback, idx){
     const selected = Array.from(div.querySelectorAll('input[name="mc' + idx + '"]:checked'))
       .map(el => parseInt(el.value, 10))
@@ -353,6 +377,7 @@ document.addEventListener('DOMContentLoaded', function(){
         : '<div class="uk-alert-danger" uk-alert>❌ Das ist nicht korrekt.</div>';
   }
 
+  // Erstellt das DOM für eine Multiple-Choice-Frage
   function createMcQuestion(q, idx){
     const div = document.createElement('div');
     div.className = 'question';
@@ -363,7 +388,9 @@ document.addEventListener('DOMContentLoaded', function(){
 
     const options = document.createElement('div');
 
+    // Optionen zufällig anordnen
     const order = shuffleArray(q.options.map((_,i) => i));
+    // Korrekte Antworten auf die neue Reihenfolge abbilden
     const correctIndices = (q.answers || [q.answer || 0]).map(a => order.indexOf(a));
 
     order.forEach((orig,i) => {
@@ -410,6 +437,7 @@ document.addEventListener('DOMContentLoaded', function(){
     return div;
   }
 
+  // Startbildschirm mit Statistik und Startknopf
   function createStart(){
     const div = document.createElement('div');
     div.className = 'question uk-text-center';
@@ -420,6 +448,7 @@ document.addEventListener('DOMContentLoaded', function(){
     startBtn.className = 'uk-button uk-button-primary uk-button-large';
     startBtn.textContent = 'UND LOS';
     styleButton(startBtn);
+    // Zeigt bisherige Ergebnisse als kleine Slideshow an
     function renderLog(text){
       stats.innerHTML = '';
       if(text){
@@ -483,6 +512,7 @@ document.addEventListener('DOMContentLoaded', function(){
     return div;
   }
 
+  // Abschlussbildschirm nach dem Quiz
   function createSummary(){
     const div = document.createElement('div');
     div.className = 'question uk-text-center';
