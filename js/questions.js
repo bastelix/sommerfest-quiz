@@ -13,7 +13,7 @@ window.quizQuestions = [
     type: 'assign',
     prompt: 'Ordne die Begriffe den Definitionen zu:',
     terms: [
-      { term: 'Akte', definition: 'Sammlung von Vorg\u00e4ngen und Dokumenten' },
+      { term: 'Akte', definition: 'Sammlung von Vorgängen und Dokumenten' },
       { term: 'OE', definition: 'Organisationseinheit mit Rechten an der Akte' },
       { term: 'Snapshot', definition: 'PDF mit Status zum Zeichnungsprozess' }
     ]

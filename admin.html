@@ -21,7 +21,7 @@
             <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgLogoPath"></div>
           </div>
           <div class="uk-margin">
-            <label class="uk-form-label" for="cfgHeader">\u00dcberschrift</label>
+            <label class="uk-form-label" for="cfgHeader">Überschrift</label>
             <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgHeader"></div>
           </div>
           <div class="uk-margin">
@@ -38,7 +38,7 @@
           </div>
         </form>
         <div class="uk-margin uk-flex uk-flex-between">
-          <button id="cfgResetBtn" class="uk-button uk-button-default">Zur\u00fccksetzen</button>
+          <button id="cfgResetBtn" class="uk-button uk-button-default">Zurücksetzen</button>
           <button id="cfgSaveBtn" class="uk-button uk-button-primary">Speichern</button>
         </div>
         <p>Die gespeicherte Datei ersetzt <code>js/config.js</code>.</p>
@@ -52,7 +52,7 @@
           <button id="addBtn" class="uk-button uk-button-default">Neue Frage</button>
         </div>
         <div class="uk-margin uk-flex uk-flex-between">
-          <button id="resetBtn" class="uk-button uk-button-default">Zur\u00fccksetzen</button>
+          <button id="resetBtn" class="uk-button uk-button-default">Zurücksetzen</button>
           <button id="saveBtn" class="uk-button uk-button-primary">Speichern</button>
         </div>
         <p>Die gespeicherte Datei ersetzt <code>js/questions.js</code>.</p>
@@ -148,7 +148,7 @@
         input.value = value;
         const btn = document.createElement('button');
         btn.className = 'uk-button uk-button-danger uk-button-small uk-margin-left';
-        btn.textContent = '\u00d7';
+        btn.textContent = '×';
         btn.onclick = () => div.remove();
         div.appendChild(input);
         div.appendChild(btn);
@@ -171,7 +171,7 @@
         dInput.value = def;
         const rem = document.createElement('button');
         rem.className = 'uk-button uk-button-danger uk-button-small';
-        rem.textContent = '\u00d7';
+        rem.textContent = '×';
         rem.onclick = () => row.remove();
         const tDiv = document.createElement('div');
         tDiv.appendChild(tInput);
@@ -200,7 +200,7 @@
         input.value = text;
         const rem = document.createElement('button');
         rem.className = 'uk-button uk-button-danger uk-button-small uk-margin-left';
-        rem.textContent = '\u00d7';
+        rem.textContent = '×';
         rem.onclick = () => row.remove();
         row.appendChild(radio);
         row.appendChild(input);
@@ -215,7 +215,7 @@
           (q.items || ['','']).forEach(it => list.appendChild(addItem(it)));
           const add = document.createElement('button');
           add.className = 'uk-button uk-button-small uk-margin-small-top';
-          add.textContent = 'Item hinzuf\u00fcgen';
+          add.textContent = 'Item hinzufügen';
           add.onclick = e => {e.preventDefault(); list.appendChild(addItem(''));};
           fields.appendChild(list);
           fields.appendChild(add);
@@ -224,7 +224,7 @@
           (q.terms || [{term:'',definition:''}]).forEach(p => list.appendChild(addPair(p.term,p.definition)));
           const add = document.createElement('button');
           add.className = 'uk-button uk-button-small uk-margin-small-top';
-          add.textContent = 'Begriff hinzuf\u00fcgen';
+          add.textContent = 'Begriff hinzufügen';
           add.onclick = e => {e.preventDefault(); list.appendChild(addPair('',''));};
           fields.appendChild(list);
           fields.appendChild(add);
@@ -233,7 +233,7 @@
           (q.options || ['','']).forEach((opt,i) => list.appendChild(addOption(opt,i === (q.answer||0))));
           const add = document.createElement('button');
           add.className = 'uk-button uk-button-small uk-margin-small-top';
-          add.textContent = 'Option hinzuf\u00fcgen';
+          add.textContent = 'Option hinzufügen';
           add.onclick = e => {e.preventDefault(); list.appendChild(addOption(''));};
           fields.appendChild(list);
           fields.appendChild(add);
