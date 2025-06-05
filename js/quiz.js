@@ -401,19 +401,36 @@ document.addEventListener('DOMContentLoaded', function(){
     startBtn.textContent = 'UND LOS';
     styleButton(startBtn);
     function renderLog(text){
+      stats.innerHTML = '';
       if(text){
-        const list = document.createElement('ul');
-        list.className = 'uk-list uk-list-divider uk-width-medium uk-margin-auto';
-        text.trim().split('\n').filter(Boolean).forEach(l => {
-          const [user, score] = l.split(' ');
-          const li = document.createElement('li');
-          li.textContent = `${user}: ${score}`;
-          list.appendChild(li);
-        });
-        const h3 = document.createElement('h3');
-        h3.textContent = 'Bisherige Ergebnisse';
-        stats.appendChild(h3);
-        stats.appendChild(list);
+        const lines = text.trim().split('\n').filter(Boolean);
+        if(lines.length){
+          const h3 = document.createElement('h3');
+          h3.textContent = 'Bisherige Ergebnisse';
+          stats.appendChild(h3);
+          const container = document.createElement('div');
+          container.id = 'results-slideshow';
+          lines.forEach((l, idx) => {
+            const [user, score] = l.split(' ');
+            const slide = document.createElement('div');
+            slide.className = 'result-slide uk-text-large';
+            slide.textContent = `${user}: ${score}`;
+            if(idx !== 0) slide.style.display = 'none';
+            container.appendChild(slide);
+          });
+          if(lines.length > 1){
+            let current = 0;
+            setInterval(() => {
+              const slides = container.children;
+              slides[current].style.display = 'none';
+              current = (current + 1) % slides.length;
+              slides[current].style.display = '';
+            }, 3000);
+          }
+          stats.appendChild(container);
+        } else {
+          stats.textContent = 'Noch keine Ergebnisse vorhanden.';
+        }
       } else {
         stats.textContent = 'Noch keine Ergebnisse vorhanden.';
       }
