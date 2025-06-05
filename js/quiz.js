@@ -24,11 +24,11 @@ document.addEventListener('DOMContentLoaded', function(){
 
   const container = document.getElementById('quiz');
   const progress = document.getElementById('progress');
-  const cfg = window.quizConfig || {};
   const questions = window.quizQuestions || [];
 
   // shuffle the questions so the order differs on every page load
   const shuffled = questions.slice();
+  const questionCount = shuffled.length;
   for(let i = shuffled.length - 1; i > 0; i--){
     const j = Math.floor(Math.random() * (i + 1));
     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function(){
   let current = 0;
   const elements = shuffled.map((q, idx) => createQuestion(q, idx));
   const results = new Array(elements.length).fill(false);
+  elements.push(createSummary());
 
   // apply configurable styles
   const styleEl = document.createElement('style');
@@ -71,16 +72,24 @@ document.addEventListener('DOMContentLoaded', function(){
     if (i !== 0) el.classList.add('uk-hidden');
     container.appendChild(el);
   });
-  progress.max = elements.length;
+  progress.max = questionCount;
   progress.value = 1;
 
   function showQuestion(i){
     elements.forEach((el, idx) => el.classList.toggle('uk-hidden', idx !== i));
-    progress.value = i + 1;
+    if(i < questionCount){
+      progress.value = i + 1;
+    } else {
+      progress.value = questionCount;
+      progress.classList.add('uk-hidden');
+    }
   }
 
-  function next(e){
-    if(current < elements.length - 1){
+  function next(){
+    if(current < questionCount - 1){
+      current++;
+      showQuestion(current);
+    } else if(current === questionCount - 1){
       current++;
       showQuestion(current);
     }else{
@@ -141,6 +150,10 @@ document.addEventListener('DOMContentLoaded', function(){
       ul.appendChild(li);
     });
     div.appendChild(ul);
+    const feedback = document.createElement('div');
+    feedback.className = 'uk-margin-top';
+    const footer = document.createElement('div');
+    footer.className = 'uk-margin-top uk-flex uk-flex-between';
     const btn = document.createElement('button');
     btn.className = 'uk-button uk-button-primary';
     btn.textContent = 'Antwort prüfen';
@@ -150,12 +163,16 @@ document.addEventListener('DOMContentLoaded', function(){
     btn.addEventListener('click', () => checkSort(ul, q.items, feedback, idx));
     div.appendChild(btn);
     div.appendChild(feedback);
+    btn.addEventListener('click', () => checkSort(ul, q.items, feedback));
     const nextBtn = document.createElement('button');
-    nextBtn.className = 'uk-button uk-margin-top';
+    nextBtn.className = 'uk-button';
     nextBtn.textContent = 'Weiter';
     styleButton(nextBtn);
     nextBtn.addEventListener('click', next);
-    div.appendChild(nextBtn);
+    footer.appendChild(btn);
+    footer.appendChild(nextBtn);
+    div.appendChild(feedback);
+    div.appendChild(footer);
     setupSortHandlers(ul);
     return div;
   }
@@ -237,8 +254,12 @@ document.addEventListener('DOMContentLoaded', function(){
     });
     grid.appendChild(rightCol);
 
+    const feedback = document.createElement('div');
+    feedback.className = 'uk-margin-top';
+    const footer = document.createElement('div');
+    footer.className = 'uk-margin-top uk-flex uk-flex-between';
     const btn = document.createElement('button');
-    btn.className = 'uk-button uk-button-primary uk-margin-small-top';
+    btn.className = 'uk-button uk-button-primary';
     btn.textContent = 'Antwort prüfen';
     styleButton(btn);
     const feedback = document.createElement('div');
@@ -246,12 +267,16 @@ document.addEventListener('DOMContentLoaded', function(){
     btn.addEventListener('click', () => checkAssign(div, feedback, idx));
     div.appendChild(btn);
     div.appendChild(feedback);
+    btn.addEventListener('click', () => checkAssign(div, feedback));
     const nextBtn = document.createElement('button');
-    nextBtn.className = 'uk-button uk-margin-top';
+    nextBtn.className = 'uk-button';
     nextBtn.textContent = 'Weiter';
     styleButton(nextBtn);
     nextBtn.addEventListener('click', next);
-    div.appendChild(nextBtn);
+    footer.appendChild(btn);
+    footer.appendChild(nextBtn);
+    div.appendChild(feedback);
+    div.appendChild(footer);
 
     setupAssignHandlers(div);
     return div;
@@ -321,8 +346,7 @@ document.addEventListener('DOMContentLoaded', function(){
     h.textContent = q.prompt;
     div.appendChild(h);
 
-    const form = document.createElement('form');
-    form.id = 'mcForm' + idx;
+    const options = document.createElement('div');
 
     q.options.forEach((opt,i) => {
       const label = document.createElement('label');
@@ -333,21 +357,20 @@ document.addEventListener('DOMContentLoaded', function(){
       input.value = i;
       label.appendChild(input);
       label.append(' ' + opt);
-      form.appendChild(label);
-      form.appendChild(document.createElement('br'));
+      options.appendChild(label);
+      options.appendChild(document.createElement('br'));
     });
-
-    const submit = document.createElement('button');
-    submit.className = 'uk-button uk-button-primary uk-margin-top';
-    submit.type = 'submit';
-    submit.textContent = 'Antwort prüfen';
-    styleButton(submit);
-    form.appendChild(submit);
 
     const feedback = document.createElement('div');
     feedback.className = 'uk-margin-top';
-    form.addEventListener('submit', e => {
-      e.preventDefault();
+
+    const footer = document.createElement('div');
+    footer.className = 'uk-margin-top uk-flex uk-flex-between';
+    const checkBtn = document.createElement('button');
+    checkBtn.className = 'uk-button uk-button-primary';
+    checkBtn.textContent = 'Antwort prüfen';
+    styleButton(checkBtn);
+    checkBtn.addEventListener('click', () => {
       const v = div.querySelector('input[name="mc' + idx + '"]:checked');
       const correct = v && parseInt(v.value,10) === q.answer;
       results[idx] = correct;
@@ -356,17 +379,27 @@ document.addEventListener('DOMContentLoaded', function(){
           ? '<div class="uk-alert-success" uk-alert>✅ Korrekt! Die besitzende OE hat Schreibrechte.</div>'
           : '<div class="uk-alert-danger" uk-alert>❌ Das ist nicht korrekt.</div>';
     });
-
-    div.appendChild(form);
-    div.appendChild(feedback);
-
     const nextBtn = document.createElement('button');
-    nextBtn.className = 'uk-button uk-margin-top';
-    nextBtn.textContent = 'Fertig';
+    nextBtn.className = 'uk-button';
+    nextBtn.textContent = 'Weiter';
     styleButton(nextBtn);
     nextBtn.addEventListener('click', next);
-    div.appendChild(nextBtn);
+    footer.appendChild(checkBtn);
+    footer.appendChild(nextBtn);
 
+    div.appendChild(options);
+    div.appendChild(feedback);
+    div.appendChild(footer);
+
+    return div;
+  }
+
+  function createSummary(){
+    const div = document.createElement('div');
+    div.className = 'question';
+    const h = document.createElement('h3');
+    h.textContent = '🎉 Danke fürs Mitmachen!';
+    div.appendChild(h);
     return div;
   }
 });
