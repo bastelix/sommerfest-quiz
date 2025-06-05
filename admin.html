@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Quiz Verwaltung</title>
+  <link rel="stylesheet" href="./css/uikit.min.css">
+</head>
+<body class="uk-background-muted uk-padding">
+  <div class="uk-container uk-container-small">
+    <h2 class="uk-heading-bullet">Fragen bearbeiten</h2>
+    <textarea id="editor" class="uk-textarea" rows="20"></textarea>
+    <div class="uk-margin">
+      <button id="saveBtn" class="uk-button uk-button-primary">Herunterladen</button>
+      <button id="resetBtn" class="uk-button uk-button-default">Zur\u00fccksetzen</button>
+    </div>
+    <p>Die heruntergeladene Datei kann die bestehende <code>js/questions.js</code> ersetzen.</p>
+  </div>
+  <script src="./js/uikit.min.js"></script>
+  <script src="./js/questions.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function(){
+    const textarea = document.getElementById('editor');
+    const saveBtn = document.getElementById('saveBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    function loadQuestions(){
+      textarea.value = JSON.stringify(window.quizQuestions || [], null, 2);
+    }
+    loadQuestions();
+    resetBtn.addEventListener('click', loadQuestions);
+    saveBtn.addEventListener('click', function(){
+      try {
+        const data = JSON.parse(textarea.value);
+        const content = 'window.quizQuestions = ' + JSON.stringify(data, null, 2) + ';\n';
+        const blob = new Blob([content], {type: 'text/javascript'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'questions.js';
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch(err){
+        alert('Fehler im JSON: ' + err.message);
+      }
+    });
+  });
+  </script>
+</body>
+</html>
