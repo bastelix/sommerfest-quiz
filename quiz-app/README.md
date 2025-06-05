@@ -7,7 +7,6 @@ Führe im Ordner **quiz-app** das Skript `fetch_libs.sh` aus, um die JavaScript-
 ## Fragen bearbeiten
 
 Die Fragen befinden sich in der Datei `questions.json`. Sie besteht aus einem Array von Frageobjekten. Mögliche Typen sind `match`, `choice` und `sort`.
-
 Neue Fragen können hinzugefügt werden, indem ein weiteres Objekt im gleichen Format ergänzt wird. Die Reihenfolge der Objekte entspricht der Reihenfolge im Quiz.
 
 ## Projektstruktur
@@ -25,5 +24,6 @@ quiz-app/
 1. Abhängigkeiten mit `./fetch_libs.sh` herunterladen (einmalig).
 2. `index.html` im Browser öffnen (z. B. per Doppelklick).
 3. Das Quiz lädt automatisch die Fragen aus `questions.json` über ein eingebettetes Skript.
+
 
 Viel Spaß beim Erweitern des Quizzes!

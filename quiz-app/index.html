@@ -46,15 +46,10 @@ createApp({
     const answered = ref(false);
     const userAnswers = reactive({});
 
-    onMounted(() => {
-      const dataEl = document.getElementById('question-data');
-      if (dataEl) {
-        try {
-          questions.value = JSON.parse(dataEl.textContent);
-        } catch (e) {
-          console.error('Fehler beim Laden der Fragen:', e);
-        }
-      }
+
+    onMounted(async () => {
+      const res = await fetch('questions.json');
+      questions.value = await res.json();
       loading.value = false;
     });
 
