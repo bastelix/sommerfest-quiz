@@ -69,6 +69,8 @@ Dieses Tool ist ein reiner Prototyp, der zu 100% mit Codex von OpenAI umgesetzt 
 
 <details>
 <summary>Der Code steht unter der MIT-Lizenz. Siehe die Datei <code>LICENSE</code> für Details.</summary>
+Der Quellcode befindet sich auf GitHub: <https://github.com/bastelix/sommerfest-quiz>
+
 
 ```text
 MIT License
