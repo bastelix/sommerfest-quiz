@@ -183,6 +183,8 @@ document.addEventListener('DOMContentLoaded', function(){
     const user = sessionStorage.getItem('quizUser') || generateUserName();
     const p = summaryEl.querySelector('p');
     if(p) p.textContent = `Du hast ${score} von ${questionCount} richtig.`;
+    const heading = summaryEl.querySelector('h3');
+    if(heading) heading.textContent = `🎉 Danke fürs Mitmachen ${user}!`;
     if(score === questionCount && typeof window.startConfetti === 'function'){
       window.startConfetti();
     }
