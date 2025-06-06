@@ -202,6 +202,7 @@
         const btn = document.createElement('button');
         btn.className = 'uk-button uk-button-danger uk-button-small uk-margin-left';
         btn.textContent = '×';
+        btn.setAttribute('aria-label', 'Entfernen');
         btn.onclick = () => div.remove();
         div.appendChild(input);
         div.appendChild(btn);
@@ -225,6 +226,7 @@
         const rem = document.createElement('button');
         rem.className = 'uk-button uk-button-danger uk-button-small';
         rem.textContent = '×';
+        rem.setAttribute('aria-label', 'Entfernen');
         rem.onclick = () => row.remove();
         const tDiv = document.createElement('div');
         tDiv.appendChild(tInput);
@@ -254,6 +256,7 @@
         const rem = document.createElement('button');
         rem.className = 'uk-button uk-button-danger uk-button-small uk-margin-left';
         rem.textContent = '×';
+        rem.setAttribute('aria-label', 'Entfernen');
         rem.onclick = () => row.remove();
         row.appendChild(radio);
         row.appendChild(input);
