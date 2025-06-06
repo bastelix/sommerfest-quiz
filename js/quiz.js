@@ -453,6 +453,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     order.forEach((orig,i) => {
       const label = document.createElement('label');
+      label.className = 'mc-option';
       const input = document.createElement('input');
       input.className = 'uk-checkbox';
       input.type = 'checkbox';
@@ -461,7 +462,6 @@ document.addEventListener('DOMContentLoaded', function(){
       label.appendChild(input);
       label.append(' ' + q.options[orig]);
       options.appendChild(label);
-      options.appendChild(document.createElement('br'));
     });
 
     const feedback = document.createElement('div');
