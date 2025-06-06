@@ -61,6 +61,10 @@ Die Datei `js/config.js` enthält alle zentralen Einstellungen:
 - `buttonColor` – Farbe für Schaltflächen.
 - `CheckAnswerButton` – Wenn auf `"no"` gesetzt, wird der Button **Antwort prüfen** ausgeblendet und nur **Weiter** angezeigt.
 
+## Datenschutz und DSGVO
+
+Dieses Quiz läuft vollständig im Browser und benötigt keine Serververbindung. Ergebnisse werden ausschließlich lokal im `localStorage` gespeichert. Dabei erhält jede teilnehmende Person einen zufälligen Fantasienamen, sodass keinerlei personenbezogene Daten verarbeitet werden. Der optionale Node.js-Server dient nur zum Ausliefern der statischen Dateien und führt keine Protokollierung durch. Beim Export der Datei `statistical.log` werden lediglich die Pseudonyme samt Punktzahl ausgegeben. Unter diesen Voraussetzungen kann das Tool in der Regel DSGVO-konform eingesetzt werden, eine rechtliche Prüfung für den konkreten Anwendungsfall bleibt jedoch empfohlen.
+
 ## Erstellung
 
 Dieses Tool ist ein reiner Prototyp, der zu 100% mit Codex von OpenAI umgesetzt wurde. Die Arbeit diente ausschließlich der Erprobung des Coding-Assistenten und seiner Möglichkeiten. Sämtliche Dateien in diesem Repository – angefangen bei HTML und CSS über die Skripte bis hin zu dieser Dokumentation – wurden mithilfe des Assistenten generiert. Manuelle Eingriffe beschränkten sich auf minimale Korrekturen sowie die Begleitung des Generierungsprozesses. Die vorliegende Anwendung soll daher insbesondere demonstrieren, wie sich mithilfe von Codex ein funktionsfähiger Prototyp realisieren lässt.
