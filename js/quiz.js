@@ -224,6 +224,7 @@ document.addEventListener('DOMContentLoaded', function(){
     div.appendChild(ul);
     const feedback = document.createElement('div');
     feedback.className = 'uk-margin-top';
+    feedback.setAttribute('role', 'alert');
     const footer = document.createElement('div');
     footer.className = 'uk-margin-top uk-flex uk-flex-between';
     const btn = document.createElement('button');
@@ -335,6 +336,7 @@ document.addEventListener('DOMContentLoaded', function(){
 
     const feedback = document.createElement('div');
     feedback.className = 'uk-margin-top';
+    feedback.setAttribute('role', 'alert');
     const footer = document.createElement('div');
     footer.className = 'uk-margin-top uk-flex uk-flex-between';
     const btn = document.createElement('button');
@@ -465,6 +467,7 @@ document.addEventListener('DOMContentLoaded', function(){
     });
 
     const feedback = document.createElement('div');
+    feedback.setAttribute('role', 'alert');
     feedback.className = 'uk-margin-top';
 
     const footer = document.createElement('div');
@@ -517,6 +520,8 @@ document.addEventListener('DOMContentLoaded', function(){
           stats.appendChild(h3);
           const container = document.createElement('div');
           container.id = 'results-slideshow';
+          container.setAttribute('aria-live', 'polite');
+          container.setAttribute('aria-atomic', 'true');
           lines.forEach((l, idx) => {
             const [user, score] = l.split(' ');
             const slide = document.createElement('div');

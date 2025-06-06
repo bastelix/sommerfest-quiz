@@ -122,15 +122,15 @@
   </style>
 </head>
 <body class="uk-padding uk-flex uk-flex-center">
-  <a href="faq.html" class="uk-icon-button uk-position-fixed uk-position-top-right uk-margin-small-right uk-margin-small-top" uk-icon="question" title="Hilfe"></a>
+  <a href="faq.html" class="uk-icon-button uk-position-fixed uk-position-top-right uk-margin-small-right uk-margin-small-top" uk-icon="question" title="Hilfe" aria-label="Hilfe"></a>
   <div class="theme-switch">
-    <input type="checkbox" id="theme-toggle">
-    <label for="theme-toggle" class="theme-switch-label">Toggle</label>
+    <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
+    <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
   </div>
   <div class="uk-container uk-width-1-2@s uk-width-2-3@m">
     <div class="uk-card uk-card-default uk-card-body uk-box-shadow-large uk-margin">
       <div id="quiz-header" class="uk-text-center uk-margin"></div>
-      <progress id="progress" class="uk-progress" value="0" max="1"></progress>
+      <progress id="progress" class="uk-progress" value="0" max="1" aria-label="Fortschritt"></progress>
       <div id="quiz"></div>
     </div>
   </div>
