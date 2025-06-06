@@ -6,7 +6,9 @@ Dieses Projekt enthält ein vollständig clientseitiges Quiz, das ohne Serverver
 
 - **index.html** – Startseite und Quiz.
 - **admin.html** – Admin-Oberfläche zum Anpassen von Fragen und Design.
+- **faq.html** – Hilfeseite mit häufig gestellten Fragen.
 - **css/** – Stylesheets von UIkit.
+- **css/dark.css** – Zusätzliche Styles für den Dunkelmodus.
 - **js/** – JavaScript-Dateien von UIkit und die Skripte für das Quiz.
 - **js/config.js** – Einstellungen für Logo, Farben und Texte.
 - **js/questions.js** – Enthält alle Quizfragen.
@@ -39,6 +41,14 @@ Jede Frage besitzt einen Button **Antwort prüfen** sowie **Weiter**, um zur nä
 ## Ergebnisse und Statistik
 
 Die erzielten Punkte werden anonym im `localStorage` des Browsers gespeichert. Beim Start bekommt jede Person einen zufällig erzeugten Fantasienamen zugewiesen, der in der Ergebnisliste und auf der Auswertungsseite angezeigt wird. Auf der Startseite wird eine Liste der bisherigen Ergebnisse angezeigt, die als kleine Slideshow rotiert. Über den Button **Statistik herunterladen** lassen sich diese Daten als Datei `statistical.log` exportieren.
+
+## FAQ
+
+Eine Hilfeseite mit häufig gestellten Fragen befindet sich in `faq.html`. Von der Startseite lässt sie sich über das Fragezeichen-Symbol oben rechts aufrufen.
+
+## Dunkelmodus
+
+Das Quiz verfügt über einen optionalen Dunkelmodus. Über den Schalter links oben kann zwischen hellem und dunklem Design gewechselt werden. Die Auswahl wird im Browser gespeichert. Die dazugehörigen Styles stehen in `css/dark.css`.
 
 ## Konfigurationsoptionen
 
