@@ -1,6 +1,6 @@
 # Sommerfest-Quiz
 
-Dieses Projekt enthält ein vollständig clientseitiges Quiz, das ohne Serververbindung genutzt werden kann. Alle benötigten Dateien liegen im Repository.
+Dieses Projekt enthält ein vollständig clientseitiges Quiz, das ohne Serververbindung genutzt werden kann. Alle benötigten Dateien liegen im Repository. Einfach runterladen, anpassen - Fertig!
 
 ## Inhalt des Repositories
 
