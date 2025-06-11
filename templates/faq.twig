@@ -42,8 +42,7 @@
       {% endblock %}
       {% block right %}
         <div class="theme-switch">
-          <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
-          <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
+          <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: sun; ratio: 2" aria-label="Design wechseln"></button>
         </div>
       {% endblock %}
     {% endembed %}
@@ -188,7 +187,9 @@
 {% endblock %}
 
 {% block scripts %}
-  <script src="/js/uikit-icons.min.js"></script>
+  <script src="js/uikit-icons.min.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/custom-icons.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function(){
       const toggle = document.getElementById('theme-toggle');
