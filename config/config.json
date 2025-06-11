@@ -1,0 +1,10 @@
+{
+  "displayErrorDetails": true,
+  "QRUser": true,
+  "logoPath": "",
+  "header": "Sommerfest 2025",
+  "subheader": "Willkommen beim Veranstaltungsquiz",
+  "backgroundColor": "#f8f8f8",
+  "buttonColor": "#1e87f0",
+  "CheckAnswerButton": "no"
+}

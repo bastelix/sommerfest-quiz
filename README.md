@@ -14,7 +14,7 @@ Das **Sommerfest-Quiz** ist eine sofort einsetzbare Web-App, mit der Sie Besuche
 
 - **Einfache Installation**: Nur Composer-Abhängigkeiten installieren und einen PHP-Server starten.
 - **Intuitives UI**: Komplett auf UIkit3 basierendes Frontend mit flüssigen Animationen und responsive Design.
-- **Stark anpassbar**: Farben, Logo und Texte können jederzeit über `public/js/config.js` oder die Admin-Oberfläche geändert werden.
+- **Stark anpassbar**: Farben, Logo und Texte lassen sich über `config/config.json` oder die Admin-Oberfläche anpassen.
 - **Vollständig im Browser**: Das Quiz benötigt keine Serverpersistenz und funktioniert auch offline, sobald die Seite geladen ist.
 
 ## Projektstruktur
@@ -38,7 +38,7 @@ Das **Sommerfest-Quiz** ist eine sofort einsetzbare Web-App, mit der Sie Besuche
 
 ## Anpassung
 
-Alle wichtigen Einstellungen finden Sie in `public/js/config.js`. Ändern Sie hier Logo, Farben oder die Verwendung des QR-Code-Logins. Die Fragen selbst liegen in `kataloge/*.json` und können mit jedem Texteditor angepasst werden. Über die Admin-Seite lassen sich neue Versionen dieser Dateien herunterladen.
+Alle wichtigen Einstellungen finden Sie in `config/config.json`. Ändern Sie hier Logo, Farben oder die Verwendung des QR-Code-Logins. Die Fragen selbst liegen in `kataloge/*.json` und können mit jedem Texteditor angepasst werden. Über die Admin-Seite lassen sich neue Versionen dieser Dateien herunterladen.
 
 ## Tests
 

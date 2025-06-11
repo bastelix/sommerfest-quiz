@@ -64,8 +64,8 @@
         <div class="uk-alert-primary" uk-alert>
           <p>
             Nach dem Klick auf <strong>Speichern</strong> wird eine neue
-            <code>config.js</code> heruntergeladen. Kopiere diese Datei danach
-            manuell in das Verzeichnis <code>js/</code> deines Projekts und
+            <code>config.json</code> heruntergeladen. Kopiere diese Datei danach
+            manuell in das Verzeichnis <code>config/</code> deines Projekts und
             ersetze die vorhandene Datei. Das ist n&ouml;tig, weil das Quiz
             komplett im Browser l&auml;uft und keinen direkten Schreibzugriff
             auf dieses Verzeichnis hat.
@@ -105,6 +105,8 @@
 {% endblock %}
 
 {% block scripts %}
-  <script src="js/config.js"></script>
+  <script>
+    window.quizConfig = {{ config|json_encode|raw }};
+  </script>
   <script src="js/admin.js"></script>
 {% endblock %}

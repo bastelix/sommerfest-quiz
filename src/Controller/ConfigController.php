@@ -19,13 +19,13 @@ class ConfigController
 
     public function get(Request $request, Response $response): Response
     {
-        $content = $this->service->getJs();
+        $content = $this->service->getJson();
         if ($content === null) {
             return $response->withStatus(404);
         }
 
         $response->getBody()->write($content);
-        return $response->withHeader('Content-Type', 'text/javascript');
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
     public function post(Request $request, Response $response): Response

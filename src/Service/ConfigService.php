@@ -13,7 +13,7 @@ class ConfigService
         $this->path = $path;
     }
 
-    public function getJs(): ?string
+    public function getJson(): ?string
     {
         if (!file_exists($this->path)) {
             return null;
@@ -24,26 +24,17 @@ class ConfigService
 
     public function getConfig(): array
     {
-        $content = $this->getJs();
+        $content = $this->getJson();
         if ($content === null) {
             return [];
         }
 
-        $prefix = 'window.quizConfig = ';
-        if (str_starts_with($content, $prefix)) {
-            $json = trim(substr($content, strlen($prefix)));
-        } else {
-            $json = trim($content);
-        }
-
-        $json = rtrim($json, ";\n");
-
-        return json_decode($json, true) ?? [];
+        return json_decode($content, true) ?? [];
     }
 
     public function saveConfig(array $data): void
     {
-        $content = 'window.quizConfig = ' . json_encode($data, JSON_PRETTY_PRINT) . "\n";
-        file_put_contents($this->path, $content);
+        $json = json_encode($data, JSON_PRETTY_PRINT) . "\n";
+        file_put_contents($this->path, $json);
     }
 }
