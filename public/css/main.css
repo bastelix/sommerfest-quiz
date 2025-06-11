@@ -79,7 +79,8 @@ body.uk-padding {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
+  right: 0;
+  box-sizing: border-box;
   z-index: 1000;
   box-sizing: border-box;
 }
