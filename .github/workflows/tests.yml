@@ -26,6 +26,9 @@ jobs:
                   php-version: ${{ matrix.php }}
                   coverage: xdebug
 
+            - name: Configure Composer allow-plugins
+              run: composer config --no-plugins allow-plugins.phpstan/extension-installer true
+
             - name: Install dependencies with Composer
               uses: ramsey/composer-install@v2
 
