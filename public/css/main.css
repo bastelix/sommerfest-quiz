@@ -1,9 +1,14 @@
 body {
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body.uk-padding {
+  padding-top: 56px;
 }
 
 .index-page {
-  padding-top: 48px;
+  padding-top: 56px;
 }
 
 .sortable-list li,
@@ -76,6 +81,7 @@ body {
   left: 0;
   width: 100%;
   z-index: 1000;
+  box-sizing: border-box;
 }
 
 .theme-switch {
@@ -90,8 +96,9 @@ body {
 }
 
 .topbar .uk-navbar-item {
-  margin-left: 0.5mm;
-  margin-right: 0.5mm;
+  margin: 0;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
   display: flex;
   align-items: center;
 }
