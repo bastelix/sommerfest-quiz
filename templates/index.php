@@ -111,6 +111,12 @@
       left: calc(100% - 2px);
       transform: translateX(-100%);
     }
+    .topbar .uk-navbar-item {
+      margin-left: 0.5mm;
+      margin-right: 0.5mm;
+      display: flex;
+      align-items: center;
+    }
     @keyframes fadeIn {
       from { opacity: 0; }
       to { opacity: 1; }
