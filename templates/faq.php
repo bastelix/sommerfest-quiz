@@ -69,7 +69,7 @@
         <a href="/" class="uk-icon-button" uk-icon="arrow-left" title="Zurück" aria-label="Zurück"></a>
       </div>
     </div>
-    <div class="uk-navbar-center">
+    <div class="uk-navbar-right">
       <div class="uk-navbar-item">
         <div class="theme-switch">
           <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
