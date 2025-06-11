@@ -491,6 +491,108 @@ function runQuiz(questions){
     return div;
   }
 
+  // Startbildschirm mit Statistik und Startknopf
+  function createStart(){
+    const div = document.createElement('div');
+    div.className = 'question uk-text-center';
+    div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
+    const stats = document.createElement('div');
+    stats.className = 'uk-margin';
+
+    if(cfg.QRUser){
+      const info = document.createElement('p');
+      info.textContent = 'Bitte QR-Code scannen, um fortzufahren:';
+      const qrDiv = document.createElement('div');
+      qrDiv.id = 'qr-reader';
+      qrDiv.style.width = '250px';
+      qrDiv.className = 'uk-align-center';
+      div.appendChild(info);
+      div.appendChild(qrDiv);
+      // QR-Code-Scanner initialisieren, falls Bibliothek geladen
+      if(typeof Html5QrcodeScanner !== 'undefined'){
+        const scanner = new Html5QrcodeScanner('qr-reader', { fps: 10, qrbox: 250 });
+        scanner.render((text)=>{
+          sessionStorage.setItem('quizUser', text.trim());
+          div.innerHTML = '<div class="uk-alert-success" uk-alert>Angemeldet als '+text+'.</div>';
+          scanner.clear().then(()=>{ next(); });
+        });
+      } else {
+        const warn = document.createElement('p');
+        warn.textContent = 'QR-Scanner nicht verfügbar.';
+        div.appendChild(warn);
+      }
+      return div;
+    }
+
+    const startBtn = document.createElement('button');
+    startBtn.className = 'uk-button uk-button-primary uk-button-large';
+    startBtn.textContent = 'UND LOS';
+    styleButton(startBtn);
+    // Zeigt bisherige Ergebnisse als kleine Slideshow an
+    function renderLog(text){
+      stats.innerHTML = '';
+      if(text){
+        const lines = text.trim().split('\n').filter(Boolean);
+        if(lines.length){
+          const h3 = document.createElement('h3');
+          h3.textContent = 'Bisherige Ergebnisse';
+          stats.appendChild(h3);
+          const container = document.createElement('div');
+          container.id = 'results-slideshow';
+          container.setAttribute('aria-live', 'polite');
+          container.setAttribute('aria-atomic', 'true');
+          lines.forEach((l, idx) => {
+            const [user, score] = l.split(' ');
+            const slide = document.createElement('div');
+            slide.className = 'result-slide uk-text-large';
+            slide.textContent = `${user}: ${score}`;
+            if(idx !== 0) slide.style.display = 'none';
+            container.appendChild(slide);
+          });
+          if(lines.length > 1){
+            let current = 0;
+            setInterval(() => {
+              const slides = container.children;
+              slides[current].style.display = 'none';
+              current = (current + 1) % slides.length;
+              slides[current].style.display = '';
+            }, 3000);
+          }
+          stats.appendChild(container);
+        } else {
+          stats.textContent = 'Noch keine Ergebnisse vorhanden.';
+        }
+      } else {
+        stats.textContent = 'Noch keine Ergebnisse vorhanden.';
+      }
+    }
+
+    const log = localStorage.getItem('statistical.log');
+    renderLog(log);
+
+    const downloadBtn = document.createElement('button');
+    downloadBtn.className = 'uk-button uk-button-default uk-button-small uk-margin-top';
+    downloadBtn.textContent = 'Statistik herunterladen';
+    downloadBtn.addEventListener('click', () => {
+      const text = localStorage.getItem('statistical.log') || '';
+      const blob = new Blob([text], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'statistical.log';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+    startBtn.addEventListener('click', () => {
+      const user = generateUserName();
+      sessionStorage.setItem('quizUser', user);
+      next();
+    });
+    div.appendChild(startBtn);
+    div.appendChild(stats);
+    div.appendChild(downloadBtn);
+    return div;
+  }
 
   // Abschlussbildschirm nach dem Quiz
   function createSummary(){
