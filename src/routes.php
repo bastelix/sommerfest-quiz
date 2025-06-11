@@ -4,9 +4,9 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 return function (\Slim\App $app) {
     $app->get('/', function (Request $request, Response $response) {
-        $path = __DIR__ . '/../templates/index.html';
-        $response->getBody()->write(file_get_contents($path));
-        return $response;
+        $indexPath = __DIR__ . '/../templates/index.html';
+        $response->getBody()->write(file_get_contents($indexPath));
+        return $response->withHeader('Content-Type', 'text/html');
     });
 
     $app->get('/faq', function (Request $request, Response $response) {
