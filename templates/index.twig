@@ -10,27 +10,20 @@
 {% block body_class %}index-page uk-padding uk-flex uk-flex-center{% endblock %}
 
 {% block body %}
-  <nav class="uk-navbar-container topbar" uk-navbar>
-    <div class="uk-navbar-left">
-      <div class="uk-navbar-item">
-        <div class="theme-switch">
-          <input type="checkbox" id="theme-toggle" aria-label="Design wechseln (Hell/Dunkel)">
-          <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
-        </div>
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <div class="theme-switch">
+        <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
+        <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
       </div>
-    </div>
-    <div class="uk-navbar-center">
-      <div class="uk-navbar-item">
-        <span class="uk-navbar-title">Sommerfest 2025</span>
-      </div>
-    </div>
-    <div class="uk-navbar-right">
-      <div class="uk-navbar-item">
-        <a href="/faq" class="uk-icon-button" uk-icon="question" title="Hilfe" aria-label="FAQ öffnen"></a>
-      </div>
-    </div>
-  </nav>
-  <div class="nav-placeholder"></div>
+    {% endblock %}
+    {% block center %}
+      <span class="uk-navbar-title">Sommerfest 2025</span>
+    {% endblock %}
+    {% block right %}
+      <a href="/faq" class="uk-icon-button" uk-icon="question" title="Hilfe" aria-label="Hilfe"></a>
+    {% endblock %}
+  {% endembed %}
   <div class="uk-container uk-width-1-1 uk-width-1-2@s uk-width-2-3@m">
     <div class="uk-card uk-card-default uk-card-body uk-box-shadow-large uk-margin">
       <div id="quiz-header" class="uk-text-center uk-margin"></div>
