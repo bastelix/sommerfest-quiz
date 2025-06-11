@@ -27,7 +27,7 @@ Anschließend ist die Anwendung unter `http://localhost:3000` erreichbar.
 
 ## Fragen bearbeiten und Design anpassen
 
-Die Datei `admin.html` stellt eine einfache Administrationsoberfläche bereit. Dort können Fragen hinzugefügt oder angepasst und Farben, Logo sowie Überschriften geändert werden. Beim Klick auf **Speichern** wird jeweils eine neue `config.js` bzw. `questions.js` heruntergeladen. Diese heruntergeladene Datei muss danach manuell in den Ordner `js/` kopiert und dort die vorhandene Datei ersetzen.
+Die Datei `admin.html` stellt eine einfache Administrationsoberfläche bereit. Dort können Fragenkataloge bearbeitet und das Layout angepasst werden. Beim Klick auf **Speichern** wird eine neue `config.js` sowie für den aktuell geöffneten Katalog eine JSON-Datei heruntergeladen. Die Dateien müssen anschließend manuell in den Ordner `js/` bzw. `kataloge/` kopiert werden, um die vorhandenen Versionen zu ersetzen.
 
 ## Eigene Fragenkataloge
 
