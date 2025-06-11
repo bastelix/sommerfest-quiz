@@ -120,11 +120,18 @@
       div.appendChild(info);
       div.appendChild(qrDiv);
       if(typeof Html5QrcodeScanner !== 'undefined'){
-        const scanner = new Html5QrcodeScanner('login-qr', {fps:10, qrbox:250});
-        scanner.render(text=>{
-          sessionStorage.setItem('quizUser', text.trim());
-          scanner.clear().then(()=> onDone());
-        });
+        try{
+          const scanner = new Html5QrcodeScanner('login-qr', {fps:10, qrbox:250});
+          scanner.render(text=>{
+            sessionStorage.setItem('quizUser', text.trim());
+            scanner.clear().then(()=> onDone());
+          });
+        }catch(err){
+          console.error('QR scanner initialization failed.', err);
+          const warn = document.createElement('p');
+          warn.textContent = 'QR-Scanner konnte nicht gestartet werden. Bitte Kamera freigeben oder QR-Login deaktivieren.';
+          div.appendChild(warn);
+        }
       }else{
         const warn = document.createElement('p');
         warn.textContent = 'QR-Scanner nicht verf\u00fcgbar.';
