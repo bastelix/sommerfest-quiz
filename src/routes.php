@@ -1,9 +1,9 @@
 <?php
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use SommerfestQuiz\Controller\HomeController;
-use SommerfestQuiz\Controller\FaqController;
-use SommerfestQuiz\Controller\AdminController;
+use App\Controller\HomeController;
+use App\Controller\FaqController;
+use App\Controller\AdminController;
 
 require_once __DIR__ . '/Controller/HomeController.php';
 require_once __DIR__ . '/Controller/FaqController.php';
