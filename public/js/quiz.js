@@ -127,11 +127,11 @@ function runQuiz(questions){
     elements.forEach((el, idx) => el.classList.toggle('uk-hidden', idx !== i));
     if(i === 0){
       progress.classList.add('uk-hidden');
-    } else if(i <= questionCount){
+    } else if(i < questionCount){
       // Fragen anzeigen und Fortschritt aktualisieren
       progress.classList.remove('uk-hidden');
       progress.value = i;
-    } else {
+    } else if(i === questionCount){
       // Nach der letzten Frage Zusammenfassung anzeigen
       progress.value = questionCount;
       progress.classList.add('uk-hidden');
@@ -141,7 +141,7 @@ function runQuiz(questions){
 
   // Blendet die nächste Frage ein
   function next(){
-    if(current < questionCount + 1){
+    if(current < questionCount){
       current++;
       showQuestion(current);
     }
@@ -627,7 +627,7 @@ function runQuiz(questions){
     h.textContent = '🎉 Danke fürs Mitmachen!';
     const p = document.createElement('p');
     const restart = document.createElement('a');
-    restart.href = 'index.html';
+    restart.href = '/';
     restart.textContent = 'Neu starten';
     restart.className = 'uk-button uk-button-primary uk-margin-top';
     styleButton(restart);
