@@ -143,12 +143,12 @@
         }
       };
       const startScanner = () => {
-        if(typeof Html5QrCode === 'undefined'){
+        if(typeof Html5Qrcode === 'undefined'){
           document.getElementById('login-qr').textContent = 'QR-Scanner nicht verf\u00fcgbar.';
           return;
         }
-        scanner = new Html5QrCode('login-qr');
-        Html5QrCode.getCameras().then(cams => {
+        scanner = new Html5Qrcode('login-qr');
+        Html5Qrcode.getCameras().then(cams => {
           if(!cams || !cams.length){
             document.getElementById('login-qr').textContent = 'Keine Kamera gefunden.';
             return;

@@ -507,12 +507,12 @@ function runQuiz(questions){
         }
       };
       const startScanner = () => {
-        if(typeof Html5QrCode === 'undefined'){
+        if(typeof Html5Qrcode === 'undefined'){
           document.getElementById('qr-reader').textContent = 'QR-Scanner nicht verfügbar.';
           return;
         }
-        scanner = new Html5QrCode('qr-reader');
-        Html5QrCode.getCameras().then(cams => {
+        scanner = new Html5Qrcode('qr-reader');
+        Html5Qrcode.getCameras().then(cams => {
           if(!cams || !cams.length){
             document.getElementById('qr-reader').textContent = 'Keine Kamera gefunden.';
             return;
