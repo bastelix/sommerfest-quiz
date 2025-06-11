@@ -1,0 +1,25 @@
+name: Build Slim Skeleton
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer
+      - name: Create Slim skeleton
+        run: composer create-project slim/slim-skeleton temp-slim
+      - name: Copy skeleton files
+        run: |
+          rsync -a temp-slim/ ./
+      - name: Clean up
+        run: rm -rf temp-slim

@@ -82,6 +82,10 @@ Dieses Quiz läuft vollständig im Browser und benötigt keine permanente Server
 
 Dieses Tool ist ein reiner Prototyp, der zu 100% mit Codex von OpenAI umgesetzt wurde. Die Arbeit diente ausschließlich der Erprobung des Coding-Assistenten und seiner Möglichkeiten. Sämtliche Dateien in diesem Repository – angefangen bei HTML und CSS über die Skripte bis hin zu dieser Dokumentation – wurden mithilfe des Assistenten generiert. Manuelle Eingriffe beschränkten sich auf minimale Korrekturen sowie die Begleitung des Generierungsprozesses. Die vorliegende Anwendung soll daher insbesondere demonstrieren, wie sich mithilfe von Codex ein funktionsfähiger Prototyp realisieren lässt.
 
+## Build-Slim Workflow
+
+Um das Slim-Skeleton bei Bedarf automatisiert in dieses Repository zu kopieren, existiert der Workflow [`build-slim.yml`](.github/workflows/build-slim.yml). Er installiert PHP samt Composer, führt `composer create-project slim/slim-skeleton temp-slim` aus und übernimmt die erzeugten Dateien per `rsync`. Anschließend wird das temporäre Verzeichnis wieder entfernt. So bleibt das Grundgerüst jederzeit reproduzierbar.
+
 ## Lizenz
 
 <details>
