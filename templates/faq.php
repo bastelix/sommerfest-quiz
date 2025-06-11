@@ -57,21 +57,23 @@
   </style>
 </head>
 <body class="uk-background-muted uk-padding">
-  <div class="uk-navbar-container topbar" uk-navbar>
-    <div class="uk-navbar-left">
-      <div class="uk-navbar-item">
-        <a href="/" class="uk-icon-button" uk-icon="arrow-left" title="Zurück" aria-label="Zurück"></a>
-      </div>
-    </div>
-    <div class="uk-navbar-right">
-      <div class="uk-navbar-item">
-        <div class="theme-switch">
-          <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
-          <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
+  <nav class="uk-navbar-container topbar">
+    <div class="uk-container">
+      <div uk-navbar>
+        <div class="uk-navbar-center">
+          <div class="uk-navbar-item">
+            <a href="/" class="uk-icon-button" uk-icon="arrow-left" title="Zurück" aria-label="Zurück"></a>
+          </div>
+          <div class="uk-navbar-item">
+            <div class="theme-switch">
+              <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
+              <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </nav>
   <div class="uk-container uk-container-small">
     <h1 class="uk-heading-divider uk-hidden">FAQ</h1>
     <p class="uk-text-lead">Auf dieser Seite findest du Antworten auf häufig gestellte Fragen rund um die Anwendung und Administration des Quiz.</p>

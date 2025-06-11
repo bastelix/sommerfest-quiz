@@ -69,6 +69,11 @@ body.dark-mode .mc-option input {
   margin-right: 8px;
 }
 
+body.dark-mode .topbar {
+  background-color: #1e1e1e;
+  border-color: #444;
+}
+
 /* Hoverfarbe für Katalogkarten im Dunkelmodus */
 body.dark-mode .uk-card-hover:hover {
   background-color: #333;

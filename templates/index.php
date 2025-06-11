@@ -150,21 +150,23 @@
   </style>
 </head>
 <body class="uk-padding uk-flex uk-flex-center">
-  <div class="uk-navbar-container topbar" uk-navbar>
-    <div class="uk-navbar-left">
-      <div class="uk-navbar-item">
-        <div class="theme-switch">
-          <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
-          <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
+  <nav class="uk-navbar-container topbar">
+    <div class="uk-container">
+      <div uk-navbar>
+        <div class="uk-navbar-center">
+          <div class="uk-navbar-item">
+            <div class="theme-switch">
+              <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
+              <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
+            </div>
+          </div>
+          <div class="uk-navbar-item">
+            <a href="/faq" class="uk-icon-button" uk-icon="question" title="Hilfe" aria-label="Hilfe"></a>
+          </div>
         </div>
       </div>
     </div>
-    <div class="uk-navbar-right">
-      <div class="uk-navbar-item">
-        <a href="/faq" class="uk-icon-button" uk-icon="question" title="Hilfe" aria-label="Hilfe"></a>
-      </div>
-    </div>
-  </div>
+  </nav>
   <div class="uk-container uk-width-1-1 uk-width-1-2@s uk-width-2-3@m">
     <div class="uk-card uk-card-default uk-card-body uk-box-shadow-large uk-margin">
       <div id="quiz-header" class="uk-text-center uk-margin"></div>
