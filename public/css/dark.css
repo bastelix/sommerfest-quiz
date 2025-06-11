@@ -74,6 +74,11 @@ body.dark-mode .topbar {
   border-color: #444;
 }
 
+body.dark-mode .bottombar {
+  background-color: #1e1e1e;
+  border-color: #444;
+}
+
 /* Hoverfarbe für Katalogkarten im Dunkelmodus */
 body.dark-mode .uk-card-hover:hover {
   background-color: #333;
