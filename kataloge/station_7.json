@@ -1,0 +1,22 @@
+[
+  {
+    "type": "mc",
+    "prompt": "Welche Tastenkombination kopiert markierten Text?",
+    "options": ["Strg+C", "Strg+V", "Strg+X"],
+    "answers": [0]
+  },
+  {
+    "type": "assign",
+    "prompt": "Ordne die Netzwerkbegriffe zu:",
+    "terms": [
+      {"term": "Router", "definition": "verbindet Netzwerke"},
+      {"term": "LAN", "definition": "lokales Netzwerk"},
+      {"term": "WLAN", "definition": "kabelloses Netzwerk"}
+    ]
+  },
+  {
+    "type": "sort",
+    "prompt": "Sortiere die Internet-Geschwindigkeiten (langsam zu schnell):",
+    "items": ["ISDN", "DSL", "Glasfaser"]
+  }
+]
