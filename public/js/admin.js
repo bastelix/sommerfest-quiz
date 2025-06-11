@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const cat = catalogs.find(c => c.id === id);
     if (!cat) return;
     catalogFile = cat.file;
-    fetch('/kataloge/' + catalogFile)
+    fetch('/kataloge/' + catalogFile, { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(data => {
         initial = data;
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
-  fetch('/kataloge/catalogs.json')
+  fetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } })
     .then(r => r.json())
     .then(list => {
       catalogs = list;

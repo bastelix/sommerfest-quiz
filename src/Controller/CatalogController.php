@@ -20,9 +20,9 @@ class CatalogController
     public function get(Request $request, Response $response, array $args): Response
     {
         $file = basename($args['file']);
-        $accept = $request->getHeaderLine('Accept');
+        $accept = strtolower($request->getHeaderLine('Accept'));
 
-        if (strpos($accept, 'text/html') !== false) {
+        if ($accept === '' || strpos($accept, 'application/json') === false) {
             $id = pathinfo($file, PATHINFO_FILENAME);
             return $response
                 ->withHeader('Location', '/?katalog=' . urlencode($id))
