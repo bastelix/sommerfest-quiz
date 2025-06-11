@@ -1,9 +1,10 @@
 body {
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .index-page {
-  padding-top: 48px;
+  padding-top: 56px;
 }
 
 .sortable-list li,
@@ -74,7 +75,8 @@ body {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
+  right: 0;
+  box-sizing: border-box;
   z-index: 1000;
 }
 
