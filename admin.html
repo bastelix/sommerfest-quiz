@@ -50,6 +50,15 @@
               </select>
             </div>
           </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgQRUser">QR-Code-Login verwenden</label>
+            <div class="uk-form-controls">
+              <select class="uk-select" id="cfgQRUser">
+                <option value="false">Nein</option>
+                <option value="true">Ja</option>
+              </select>
+            </div>
+          </div>
         </form>
         <div class="uk-margin uk-flex uk-flex-between">
           <button id="cfgResetBtn" class="uk-button uk-button-default">Zurücksetzen</button>
@@ -104,7 +113,8 @@
       subheader: document.getElementById('cfgSubheader'),
       backgroundColor: document.getElementById('cfgBackgroundColor'),
       buttonColor: document.getElementById('cfgButtonColor'),
-      checkAnswerButton: document.getElementById('cfgCheckAnswerButton')
+      checkAnswerButton: document.getElementById('cfgCheckAnswerButton'),
+      qrUser: document.getElementById('cfgQRUser')
     };
     // Füllt das Formular mit den Werten aus einem Konfigurationsobjekt
     function renderCfg(data){
@@ -114,6 +124,7 @@
       cfgFields.backgroundColor.value = data.backgroundColor || '';
       cfgFields.buttonColor.value = data.buttonColor || '';
       cfgFields.checkAnswerButton.value = data.CheckAnswerButton || 'yes';
+      cfgFields.qrUser.value = String(data.QRUser) || 'false';
     }
     renderCfg(cfgInitial);
     document.getElementById('cfgResetBtn').addEventListener('click', function(e){
@@ -128,7 +139,8 @@
         subheader: cfgFields.subheader.value.trim(),
         backgroundColor: cfgFields.backgroundColor.value.trim(),
         buttonColor: cfgFields.buttonColor.value.trim(),
-        CheckAnswerButton: cfgFields.checkAnswerButton.value
+        CheckAnswerButton: cfgFields.checkAnswerButton.value,
+        QRUser: cfgFields.qrUser.value === 'true'
       };
       const content = 'window.quizConfig = ' + JSON.stringify(data, null, 2) + ';\n';
       const blob = new Blob([content], {type: 'text/javascript'});

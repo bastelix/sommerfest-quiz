@@ -67,6 +67,13 @@ Die Datei `js/config.js` enthält alle zentralen Einstellungen:
 - `backgroundColor` – Hintergrundfarbe der Seite.
 - `buttonColor` – Farbe für Schaltflächen.
 - `CheckAnswerButton` – Wenn auf `"no"` gesetzt, wird der Button **Antwort prüfen** ausgeblendet und nur **Weiter** angezeigt.
+- `QRUser` – Bei `true` startet das Quiz mit einem QR-Code-Login. Der Inhalt des Codes wird als Nutzername verwendet.
+
+## QR-Code-Login
+
+Ist die Option `QRUser` aktiviert, erscheint vor dem Quiz ein einfacher QR-Scanner. 
+Der eingelesene Text dient als eindeutiger Benutzername für diese Sitzung. 
+Zur Erzeugung des Codes kann jedes gängige Tool verwendet werden (z.B. Online-Generatoren oder Apps).
 
 ## Datenschutz und DSGVO
 

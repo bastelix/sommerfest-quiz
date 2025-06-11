@@ -504,6 +504,32 @@ function runQuiz(questions){
     div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
     const stats = document.createElement('div');
     stats.className = 'uk-margin';
+
+    if(cfg.QRUser){
+      const info = document.createElement('p');
+      info.textContent = 'Bitte QR-Code scannen, um fortzufahren:';
+      const qrDiv = document.createElement('div');
+      qrDiv.id = 'qr-reader';
+      qrDiv.style.width = '250px';
+      qrDiv.className = 'uk-align-center';
+      div.appendChild(info);
+      div.appendChild(qrDiv);
+      // QR-Code-Scanner initialisieren, falls Bibliothek geladen
+      if(typeof Html5QrcodeScanner !== 'undefined'){
+        const scanner = new Html5QrcodeScanner('qr-reader', { fps: 10, qrbox: 250 });
+        scanner.render((text)=>{
+          sessionStorage.setItem('quizUser', text.trim());
+          div.innerHTML = '<div class="uk-alert-success" uk-alert>Angemeldet als '+text+'.</div>';
+          scanner.clear().then(()=>{ next(); });
+        });
+      } else {
+        const warn = document.createElement('p');
+        warn.textContent = 'QR-Scanner nicht verfügbar.';
+        div.appendChild(warn);
+      }
+      return div;
+    }
+
     const startBtn = document.createElement('button');
     startBtn.className = 'uk-button uk-button-primary uk-button-large';
     startBtn.textContent = 'UND LOS';
