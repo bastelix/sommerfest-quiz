@@ -103,16 +103,71 @@
     container.appendChild(grid);
   }
 
+  function showLogin(onDone){
+    const cfg = window.quizConfig || {};
+    const container = document.getElementById('quiz');
+    if(!container) return;
+    container.innerHTML = '';
+    const div = document.createElement('div');
+    div.className = 'uk-text-center';
+    if(cfg.QRUser){
+      const info = document.createElement('p');
+      info.textContent = 'Scanne deinen QR Code ein:';
+      const qrDiv = document.createElement('div');
+      qrDiv.id = 'login-qr';
+      qrDiv.style.width = '250px';
+      qrDiv.className = 'uk-align-center';
+      div.appendChild(info);
+      div.appendChild(qrDiv);
+      if(typeof Html5QrcodeScanner !== 'undefined'){
+        const scanner = new Html5QrcodeScanner('login-qr', {fps:10, qrbox:250});
+        scanner.render(text=>{
+          sessionStorage.setItem('quizUser', text.trim());
+          scanner.clear().then(()=> onDone());
+        });
+      }else{
+        const warn = document.createElement('p');
+        warn.textContent = 'QR-Scanner nicht verf\u00fcgbar.';
+        div.appendChild(warn);
+      }
+    }else{
+      const btn = document.createElement('button');
+      btn.className = 'uk-button uk-button-primary';
+      btn.textContent = 'Starten';
+      if(cfg.buttonColor){
+        btn.style.backgroundColor = cfg.buttonColor;
+        btn.style.borderColor = cfg.buttonColor;
+        btn.style.color = '#fff';
+      }
+      btn.addEventListener('click', () => {
+        sessionStorage.setItem('quizUser', generateUserName());
+        onDone();
+      });
+      div.appendChild(btn);
+    }
+    container.appendChild(div);
+  }
+
   document.addEventListener('DOMContentLoaded', async () => {
     applyConfig();
     const catalogs = await loadCatalogList();
     const params = new URLSearchParams(window.location.search);
     const id = params.get('katalog');
-    const selected = catalogs.find(c => c.id === id);
-    if(selected){
-      loadQuestions(selected.id, selected.file);
+    const proceed = () => {
+      const selected = catalogs.find(c => c.id === id);
+      if(selected){
+        loadQuestions(selected.id, selected.file);
+      }else{
+        showSelection(catalogs);
+      }
+    };
+    if((window.quizConfig || {}).QRUser){
+      showLogin(proceed);
     }else{
-      showSelection(catalogs);
+      if(!sessionStorage.getItem('quizUser')){
+        sessionStorage.setItem('quizUser', generateUserName());
+      }
+      proceed();
     }
   });
 })();

@@ -1,21 +1,8 @@
 // Hauptskript des Quizzes. Dieses File erzeugt dynamisch alle Fragen,
 // wertet Antworten aus und speichert das Ergebnis im Browser.
 // Der Code wird ausgeführt, sobald das DOM geladen ist.
-function runQuiz(questions){
-  // Konfiguration laden und einstellen, ob der "Antwort prüfen"-Button
-  // eingeblendet werden soll
-  const cfg = window.quizConfig || {};
-  const showCheck = cfg.CheckAnswerButton !== 'no';
-  if(cfg.backgroundColor){
-    document.body.style.backgroundColor = cfg.backgroundColor;
-  }
-
-  const container = document.getElementById('quiz');
-  const progress = document.getElementById('progress');
-  // Vorhandene Inhalte entfernen (z.B. Katalogauswahl)
-  if (container) container.innerHTML = '';
-
-  // Liste wohlklingender Namen für die Teilnehmer
+// Utility zum Generieren zufälliger Nutzernamen
+(function(){
   const melodicNames = [
     'Sonnenklang', 'Mondmelodie', 'Sturmserenade', 'Himmelsklang', 'Seewindlied', 'Sternenchor',
     'Fliederduft', 'Traumtänzer', 'Herbstleuchten', 'Sommernacht', 'Funkelpfad', 'Lichtklang',
@@ -56,8 +43,7 @@ function runQuiz(questions){
     'Meeresreigen', 'Lichtglanz', 'Wintersegen', 'Feuerschimmer'
   ];
 
-  // Erzeugt einen eindeutigen Namen und merkt bereits vergebene
-  function generateUserName(){
+  window.generateUserName = function(){
     const used = JSON.parse(localStorage.getItem('usedNames') || '[]');
     const available = melodicNames.filter(n => !used.includes(n));
     let name;
@@ -69,7 +55,23 @@ function runQuiz(questions){
       name = 'Gast-' + Math.random().toString(36).substr(2,5);
     }
     return name;
+  };
+})();
+
+function runQuiz(questions){
+  // Konfiguration laden und einstellen, ob der "Antwort prüfen"-Button
+  // eingeblendet werden soll
+  const cfg = window.quizConfig || {};
+  const showCheck = cfg.CheckAnswerButton !== 'no';
+  if(cfg.backgroundColor){
+    document.body.style.backgroundColor = cfg.backgroundColor;
   }
+
+  const container = document.getElementById('quiz');
+  const progress = document.getElementById('progress');
+  // Vorhandene Inhalte entfernen (z.B. Katalogauswahl)
+  if (container) container.innerHTML = '';
+
 
   // Hilfsfunktion zum Mischen von Arrays (Fisher-Yates)
   function shuffleArray(arr){
@@ -91,14 +93,10 @@ function runQuiz(questions){
   // Speichert true/false für jede beantwortete Frage
   const results = new Array(questionCount).fill(false);
   const summaryEl = createSummary(); // Abschlussseite
-  const startEl = createStart(); // Startbildschirm
-  // Elemente in der richtigen Reihenfolge zusammenstellen
-  elements.unshift(startEl);
   elements.push(summaryEl);
   let summaryShown = false;
 
-  // neuen Teilnehmernamen speichern, falls kein QR-Code-Login
-  if(!cfg.QRUser){
+  if(!sessionStorage.getItem('quizUser')){
     sessionStorage.setItem('quizUser', generateUserName());
   }
 
