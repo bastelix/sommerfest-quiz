@@ -49,7 +49,7 @@ python3 tests/test_html_validity.py
 
 ## Composer-Abhaengigkeiten aktualisieren
 
-Mit dem manuellen Workflow **Manual Composer Install** laesst sich `composer install` direkt auf GitHub ausfuehren. Der Workflow schreibt bei Bedarf eine aktualisierte `composer.lock` mit dem Benutzer *GH_PAT* zurueck ins Repository. Gestartet wird er im Actions-Menue.
+Mit dem manuellen Workflow **Manual Composer Install** laesst sich `composer install` direkt auf GitHub ausfuehren. Hinterlege dazu ein Repository Secret **GH_PAT** mit einem Personal Access Token, das mindestens die Rechte `repo` und `workflow` besitzt. Der Workflow verwendet dieses Token beim Push und schreibt bei Bedarf eine aktualisierte `composer.lock` zurueck ins Repository. Gestartet wird er im Actions-Menue.
 
 ## Datenschutz
 
