@@ -16,8 +16,11 @@ return function (App $app) {
     });
 
     $app->get('/', function (Request $request, Response $response) {
-        $response->getBody()->write('Hello world!');
-        return $response;
+        ob_start();
+        include __DIR__ . '/../templates/index.php';
+        $output = ob_get_clean();
+        $response->getBody()->write($output);
+        return $response->withHeader('Content-Type', 'text/html');
     });
 
     $app->group('/users', function (Group $group) {
