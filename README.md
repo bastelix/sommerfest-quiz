@@ -84,7 +84,7 @@ Dieses Tool ist ein reiner Prototyp, der zu 100% mit Codex von OpenAI umgesetzt 
 
 ## Build-Slim Workflow
 
-Um das Slim-Skeleton bei Bedarf automatisiert in dieses Repository zu kopieren, existiert der Workflow [`build-slim.yml`](.github/workflows/build-slim.yml). Er installiert PHP samt Composer, führt `composer create-project slim/slim-skeleton temp-slim` aus und übernimmt die erzeugten Dateien per `rsync`. Anschließend wird das temporäre Verzeichnis wieder entfernt. So bleibt das Grundgerüst jederzeit reproduzierbar.
+Um das Slim-Skeleton bei Bedarf automatisiert in dieses Repository zu kopieren, existiert der Workflow [`build-slim.yml`](.github/workflows/build-slim.yml). Er installiert PHP samt Composer, führt `composer create-project slim/slim-skeleton temp-slim` aus und übernimmt die erzeugten Dateien per `rsync`. Anschließend wird das temporäre Verzeichnis entfernt. Sind Änderungen vorhanden, erstellt der Workflow einen Commit und pusht ihn direkt auf den aktuellen Branch. So bleibt das Grundgerüst jederzeit reproduzierbar und aktuell.
 
 ## Lizenz
 
