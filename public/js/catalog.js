@@ -24,10 +24,32 @@
         p.className = 'uk-text-lead';
         headerEl.appendChild(p);
       }
+      // Benutzername wird nach erfolgreichem Login ergänzt
     }
     const styleEl = document.createElement('style');
     styleEl.textContent = `\n      body { background-color: ${cfg.backgroundColor || '#f8f8f8'}; }\n      .uk-button-primary { background-color: ${cfg.buttonColor || '#1e87f0'}; border-color: ${cfg.buttonColor || '#1e87f0'}; }\n    `;
     document.head.appendChild(styleEl);
+  }
+
+  function updateUserName(){
+    const headerEl = document.getElementById('quiz-header');
+    if(!headerEl) return;
+    let nameEl = document.getElementById('quiz-user-name');
+    const user = sessionStorage.getItem('quizUser');
+    if(!nameEl){
+      if(!user) return;
+      nameEl = document.createElement('p');
+      nameEl.id = 'quiz-user-name';
+      nameEl.className = 'uk-text-lead';
+      headerEl.appendChild(nameEl);
+    }
+    if(user){
+      nameEl.textContent = user;
+      nameEl.classList.remove('uk-hidden');
+    }else{
+      nameEl.textContent = '';
+      nameEl.classList.add('uk-hidden');
+    }
   }
   async function loadCatalogList(){
     try{
@@ -126,12 +148,14 @@
       bypass.addEventListener('click', (e)=>{
         e.preventDefault();
         sessionStorage.setItem('quizUser', generateUserName());
+        updateUserName();
         onDone();
       });
       const modal = document.createElement('div');
       modal.id = 'qr-modal';
       modal.setAttribute('uk-modal', '');
       modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">'+
+        '<h3 class="uk-modal-title">YOUR NAME IS?</h3>'+
         '<div id="login-qr" class="uk-margin" style="max-width:320px;width:100%"></div>'+
         '<button id="login-qr-stop" class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Abbrechen</button>'+
       '</div>';
@@ -158,6 +182,7 @@
           if(back) cam = back.id;
           scanner.start(cam, { fps:10, qrbox:250 }, text => {
             sessionStorage.setItem('quizUser', text.trim());
+            updateUserName();
             stopScanner();
             UIkit.modal(modal).hide();
             onDone();
@@ -195,6 +220,7 @@
       }
       btn.addEventListener('click', () => {
         sessionStorage.setItem('quizUser', generateUserName());
+        updateUserName();
         onDone();
       });
       div.appendChild(btn);
@@ -204,6 +230,7 @@
 
   async function init(){
     applyConfig();
+    updateUserName();
     const catalogs = await loadCatalogList();
     const params = new URLSearchParams(window.location.search);
     const id = params.get('katalog');
@@ -221,6 +248,7 @@
       if(!sessionStorage.getItem('quizUser')){
         sessionStorage.setItem('quizUser', generateUserName());
       }
+      updateUserName();
       proceed();
     }
   }
