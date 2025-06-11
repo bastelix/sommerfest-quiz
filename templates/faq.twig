@@ -35,26 +35,19 @@
 
 {% block body_class %}uk-background-muted uk-padding{% endblock %}
 
-{% block body %}
-  {% embed 'topbar.twig' %}
-    {% block left %}
-      <a href="../" class="uk-icon-button" uk-icon="arrow-left" title="Zurück" aria-label="Zurück"></a>
-    {% endblock %}
-    {% block right %}
-      <div class="theme-switch">
-        <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
-        <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
-      </div>
-    </div>
-    <div class="uk-navbar-right">
-      <div class="uk-navbar-item">
+  {% block body %}
+    {% embed 'topbar.twig' %}
+      {% block left %}
+        <a href="../" class="uk-icon-button" uk-icon="arrow-left" title="Zurück" aria-label="Zurück"></a>
+      {% endblock %}
+      {% block right %}
         <div class="theme-switch">
-          <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: sun; ratio: 2" aria-label="Design wechseln"></button>
+          <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
+          <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
         </div>
-      </div>
-    </div>
-  </nav>
-  <div class="uk-container uk-container-small">
+      {% endblock %}
+    {% endembed %}
+    <div class="uk-container uk-container-small">
     <h1 class="uk-heading-divider uk-hidden">FAQ</h1>
     <p class="uk-text-lead">Auf dieser Seite findest du Antworten auf häufig gestellte Fragen rund um die Anwendung und Administration des Quiz.</p>
 
