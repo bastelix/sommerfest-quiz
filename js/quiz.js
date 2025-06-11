@@ -12,6 +12,8 @@ function runQuiz(questions){
 
   const container = document.getElementById('quiz');
   const progress = document.getElementById('progress');
+  // Vorhandene Inhalte entfernen (z.B. Katalogauswahl)
+  if (container) container.innerHTML = '';
 
   // Liste wohlklingender Namen für die Teilnehmer
   const melodicNames = [
@@ -104,6 +106,7 @@ function runQuiz(questions){
   // build header from config
   const headerEl = document.getElementById('quiz-header');
   if(headerEl){
+    headerEl.innerHTML = '';
     if(cfg.logoPath){
       const img = document.createElement('img');
       img.src = cfg.logoPath;
