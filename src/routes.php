@@ -6,9 +6,9 @@ use SommerfestQuiz\Controller\FaqController;
 use SommerfestQuiz\Controller\AdminController;
 
 return function (\Slim\App $app) {
-    $app->get('/', HomeController::class);
-    $app->get('/faq', FaqController::class);
-    $app->get('/admin', AdminController::class);
+    $app->get('/', new HomeController());
+    $app->get('/faq', new FaqController());
+    $app->get('/admin', new AdminController());
     $app->get('/config.js', function (Request $request, Response $response) {
         $path = __DIR__ . '/../public/js/config.js';
         if (!file_exists($path)) {
