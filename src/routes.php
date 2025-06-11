@@ -20,7 +20,6 @@ return function (\Slim\App $app) {
         $response->getBody()->write(file_get_contents($path));
         return $response;
     });
-
     $app->get('/config.js', function (Request $request, Response $response) {
         $path = __DIR__ . '/../public/js/config.js';
         if (!file_exists($path)) {

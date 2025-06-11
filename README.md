@@ -1,6 +1,6 @@
-# Sommerfest-Quiz
+# Slim Framework 4 Skeleton Application
 
-![HTML Validity](https://img.shields.io/badge/HTML%20validity-passing-brightgreen)
+[![Coverage Status](https://coveralls.io/repos/github/slimphp/Slim-Skeleton/badge.svg?branch=master)](https://coveralls.io/github/slimphp/Slim-Skeleton?branch=master)
 
 Dieses Projekt stellt ein kleines Quiz dar, das nun mit [Slim](https://www.slimframework.com/) als leichtgewichtiger PHP‑Anwendung betrieben wird. Das komplette Frontend basiert auf [UIkit3](https://getuikit.com/), sodass sämtliche Seiten reine UIkit‑HTML‑Strukturen verwenden.
 
@@ -58,9 +58,10 @@ Eine Hilfeseite mit häufig gestellten Fragen befindet sich in `faq.html`. Von d
 
 Das Quiz verfügt über einen optionalen Dunkelmodus. Über den Schalter links oben kann zwischen hellem und dunklem Design gewechselt werden. Die Auswahl wird im Browser gespeichert. Die dazugehörigen Styles stehen in `css/dark.css`.
 
-## Konfigurationsoptionen
+* Point your virtual host document root to your new application's `public/` directory.
+* Ensure `logs/` is web writable.
 
-Die Datei `js/config.js` enthält alle zentralen Einstellungen:
+To run the application in development, you can run these commands 
 
 - `logoPath` – Pfad zu einem eigenen Logo (optional).
 - `header` – Überschrift auf der Startseite.
@@ -97,23 +98,17 @@ MIT License
 
 Copyright (c) 2025 calhelp
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Or you can use `docker-compose` to run the app with `docker`, so you can run these commands:
+```bash
+cd [my-app-name]
+docker-compose up -d
+```
+After that, open `http://localhost:8080` in your browser.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Run this command in the application directory to run the test suite
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+```bash
+composer test
 ```
 
-</details>
+That's it! Now go build something cool.
