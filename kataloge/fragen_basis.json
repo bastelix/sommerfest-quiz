@@ -27,5 +27,16 @@
       "Alle Nutzer"
     ],
     "answers": [1]
+  },
+  {
+    "type": "mc",
+    "prompt": "In welchem Monat beginnt der Sommer?",
+    "options": ["Januar", "März", "Juni", "September"],
+    "answers": [2]
+  },
+  {
+    "type": "sort",
+    "prompt": "Sortiere die Jahreszeiten chronologisch:",
+    "items": ["Fr\u00fchling", "Sommer", "Herbst", "Winter"]
   }
 ]

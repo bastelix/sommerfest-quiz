@@ -18,5 +18,16 @@
       {"term": "CPU", "definition": "Zentrale Recheneinheit"},
       {"term": "GPU", "definition": "Grafikprozessor"}
     ]
+  },
+  {
+    "type": "mc",
+    "prompt": "Welches Betriebssystem ist quelloffen?",
+    "options": ["Windows", "macOS", "Linux"],
+    "answers": [2]
+  },
+  {
+    "type": "sort",
+    "prompt": "Bringe die Netzwerkger\u00e4te nach Reichweite in die richtige Reihenfolge:",
+    "items": ["Bluetooth", "WLAN", "Mobilfunk"]
   }
 ]
