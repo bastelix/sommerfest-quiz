@@ -105,29 +105,11 @@ function runQuiz(questions){
   styleEl.textContent = `\n    body { background-color: ${cfg.backgroundColor || '#f8f8f8'}; }\n    .uk-button-primary { background-color: ${cfg.buttonColor || '#1e87f0'}; border-color: ${cfg.buttonColor || '#1e87f0'}; }\n  `;
   document.head.appendChild(styleEl);
 
-  // build header from config
+  // hide header once the quiz starts
   const headerEl = document.getElementById('quiz-header');
-  if(headerEl){
+  if (headerEl) {
     headerEl.innerHTML = '';
-    if(cfg.logoPath){
-      const img = document.createElement('img');
-      img.src = cfg.logoPath;
-      img.alt = cfg.header || 'Logo';
-      img.className = 'uk-margin-small-bottom';
-      headerEl.appendChild(img);
-    }
-    if(cfg.header){
-      const h = document.createElement('h1');
-      h.textContent = cfg.header;
-      h.className = 'uk-margin-remove-bottom';
-      headerEl.appendChild(h);
-    }
-    if(cfg.subheader){
-      const p = document.createElement('p');
-      p.textContent = cfg.subheader;
-      p.className = 'uk-text-lead';
-      headerEl.appendChild(p);
-    }
+    headerEl.classList.add('uk-hidden');
   }
 
   elements.forEach((el, i) => {

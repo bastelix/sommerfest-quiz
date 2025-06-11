@@ -141,9 +141,10 @@
       }
     }
     @media (max-width: 639px) {
-      .uk-container {
-        padding-left: 1px;
-        padding-right: 1px;
+      .uk-container,
+      body.uk-padding {
+        padding-left: 0;
+        padding-right: 0;
       }
     }
   </style>
@@ -151,13 +152,17 @@
 <body class="uk-padding uk-flex uk-flex-center">
   <div class="uk-navbar-container topbar" uk-navbar>
     <div class="uk-navbar-left">
-      <div class="theme-switch">
-        <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
-        <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
+      <div class="uk-navbar-item">
+        <div class="theme-switch">
+          <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
+          <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
+        </div>
       </div>
     </div>
     <div class="uk-navbar-right">
-      <a href="/faq" class="uk-icon-button" uk-icon="question" title="Hilfe" aria-label="Hilfe"></a>
+      <div class="uk-navbar-item">
+        <a href="/faq" class="uk-icon-button" uk-icon="question" title="Hilfe" aria-label="Hilfe"></a>
+      </div>
     </div>
   </div>
   <div class="uk-container uk-width-1-1 uk-width-1-2@s uk-width-2-3@m">
