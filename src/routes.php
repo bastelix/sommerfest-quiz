@@ -3,6 +3,24 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 return function (\Slim\App $app) {
+    $app->get('/', function (Request $request, Response $response) {
+        $path = __DIR__ . '/../templates/index.html';
+        $response->getBody()->write(file_get_contents($path));
+        return $response;
+    });
+
+    $app->get('/faq', function (Request $request, Response $response) {
+        $path = __DIR__ . '/../templates/faq.html';
+        $response->getBody()->write(file_get_contents($path));
+        return $response;
+    });
+
+    $app->get('/admin', function (Request $request, Response $response) {
+        $path = __DIR__ . '/../templates/admin.html';
+        $response->getBody()->write(file_get_contents($path));
+        return $response;
+    });
+
     $app->get('/config.js', function (Request $request, Response $response) {
         $path = __DIR__ . '/../public/js/config.js';
         if (!file_exists($path)) {
@@ -25,7 +43,7 @@ return function (\Slim\App $app) {
 
     $app->get('/kataloge/{file}', function (Request $request, Response $response, array $args) {
         $file = basename($args['file']);
-        $path = __DIR__ . '/../public/kataloge/' . $file;
+        $path = __DIR__ . '/../kataloge/' . $file;
         if (!file_exists($path)) {
             return $response->withStatus(404);
         }
@@ -35,7 +53,7 @@ return function (\Slim\App $app) {
 
     $app->post('/kataloge/{file}', function (Request $request, Response $response, array $args) {
         $file = basename($args['file']);
-        $path = __DIR__ . '/../public/kataloge/' . $file;
+        $path = __DIR__ . '/../kataloge/' . $file;
         $data = $request->getParsedBody();
         if ($request->getHeaderLine('Content-Type') === 'application/json') {
             $data = json_decode((string)$request->getBody(), true);
