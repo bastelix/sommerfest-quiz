@@ -506,27 +506,41 @@ function runQuiz(questions){
     stats.className = 'uk-margin';
 
     if(cfg.QRUser){
-      const info = document.createElement('p');
-      info.textContent = 'Bitte QR-Code scannen, um fortzufahren:';
-      const qrDiv = document.createElement('div');
-      qrDiv.id = 'qr-reader';
-      qrDiv.style.width = '250px';
-      qrDiv.className = 'uk-align-center';
-      div.appendChild(info);
-      div.appendChild(qrDiv);
-      // QR-Code-Scanner initialisieren, falls Bibliothek geladen
-      if(typeof Html5QrcodeScanner !== 'undefined'){
-        const scanner = new Html5QrcodeScanner('qr-reader', { fps: 10, qrbox: 250 });
+      const scanBtn = document.createElement('button');
+      scanBtn.className = 'uk-button uk-button-primary uk-button-large';
+      scanBtn.textContent = 'QR-Code scannen';
+      styleButton(scanBtn);
+      const modal = document.createElement('div');
+      modal.id = 'quiz-qr-modal';
+      modal.setAttribute('uk-modal', '');
+      modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">'+
+        '<button class="uk-modal-close-default" type="button" uk-close></button>'+
+        '<div id="qr-reader" class="uk-margin" style="width:250px"></div>'+
+      '</div>';
+      let scanner;
+      const startScanner = () => {
+        if(typeof Html5QrcodeScanner === 'undefined'){
+          document.getElementById('qr-reader').textContent = 'QR-Scanner nicht verfügbar.';
+          return;
+        }
+        scanner = new Html5QrcodeScanner('qr-reader', { fps: 10, qrbox: 250 });
         scanner.render((text)=>{
           sessionStorage.setItem('quizUser', text.trim());
-          div.innerHTML = '<div class="uk-alert-success" uk-alert>Angemeldet als '+text+'.</div>';
-          scanner.clear().then(()=>{ next(); });
+          scanner.clear().then(()=>{ UIkit.modal(modal).hide(); next(); });
         });
-      } else {
-        const warn = document.createElement('p');
-        warn.textContent = 'QR-Scanner nicht verfügbar.';
-        div.appendChild(warn);
-      }
+      };
+      scanBtn.addEventListener('click', () => {
+        UIkit.modal(modal).show();
+        startScanner();
+      });
+      UIkit.util.on(modal, 'hidden', () => {
+        if(scanner){
+          scanner.clear().catch(()=>{});
+          scanner = null;
+        }
+      });
+      div.appendChild(scanBtn);
+      document.body.appendChild(modal);
       return div;
     }
 
