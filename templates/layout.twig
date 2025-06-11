@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}Quiz{% endblock %}</title>
+  <link rel="stylesheet" href="/css/uikit.min.css">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+{% block body %}{% endblock %}
+<script src="/js/uikit.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
