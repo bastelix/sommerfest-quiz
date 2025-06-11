@@ -67,13 +67,19 @@
     <div class="uk-container">
       <div uk-navbar>
         <div class="uk-navbar-center">
-          <div class="uk-navbar-item">
-            <a href="/" class="uk-icon-button" uk-icon="arrow-left" title="Zurück" aria-label="Zurück"></a>
-          </div>
-          <div class="uk-navbar-item">
-            <div class="theme-switch">
-              <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
-              <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
+          <div class="uk-flex uk-flex-middle">
+            <div class="uk-flex uk-flex-middle uk-margin-right">
+              <div class="uk-navbar-item">
+                <a href="/" class="uk-icon-button" uk-icon="arrow-left" title="Zurück" aria-label="Zurück"></a>
+              </div>
+            </div>
+            <div class="uk-flex uk-flex-middle">
+              <div class="uk-navbar-item">
+                <div class="theme-switch">
+                  <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
+                  <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
+                </div>
+              </div>
             </div>
           </div>
         </div>
