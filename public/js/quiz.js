@@ -496,30 +496,51 @@ function runQuiz(questions){
       modal.id = 'quiz-qr-modal';
       modal.setAttribute('uk-modal', '');
       modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">'+
-        '<button class="uk-modal-close-default" type="button" uk-close></button>'+
-        '<div id="qr-reader" class="uk-margin" style="width:250px"></div>'+
+        '<div id="qr-reader" class="uk-margin" style="max-width:320px;width:100%"></div>'+
+        '<button id="qr-reader-stop" class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Abbrechen</button>'+
       '</div>';
       let scanner;
+      const stopScanner = () => {
+        if(scanner){
+          scanner.stop().then(()=>scanner.clear()).catch(()=>{});
+          scanner = null;
+        }
+      };
       const startScanner = () => {
-        if(typeof Html5QrcodeScanner === 'undefined'){
+        if(typeof Html5QrCode === 'undefined'){
           document.getElementById('qr-reader').textContent = 'QR-Scanner nicht verfügbar.';
           return;
         }
-        scanner = new Html5QrcodeScanner('qr-reader', { fps: 10, qrbox: 250 });
-        scanner.render((text)=>{
-          sessionStorage.setItem('quizUser', text.trim());
-          scanner.clear().then(()=>{ UIkit.modal(modal).hide(); next(); });
+        scanner = new Html5QrCode('qr-reader');
+        Html5QrCode.getCameras().then(cams => {
+          if(!cams || !cams.length){
+            document.getElementById('qr-reader').textContent = 'Keine Kamera gefunden.';
+            return;
+          }
+          let cam = cams[0].id;
+          const back = cams.find(c => /back|rear|environment/i.test(c.label));
+          if(back) cam = back.id;
+          scanner.start(cam, { fps: 10, qrbox: 250 }, text => {
+            sessionStorage.setItem('quizUser', text.trim());
+            stopScanner();
+            UIkit.modal(modal).hide();
+            next();
+          }).catch(err => {
+            console.error('QR scanner start failed.', err);
+            document.getElementById('qr-reader').textContent = 'QR-Scanner konnte nicht gestartet werden.';
+          });
+        }).catch(err => {
+          console.error('Camera list error.', err);
+          document.getElementById('qr-reader').textContent = 'Kamera konnte nicht initialisiert werden.';
         });
       };
       scanBtn.addEventListener('click', () => {
         UIkit.modal(modal).show();
         startScanner();
       });
-      UIkit.util.on(modal, 'hidden', () => {
-        if(scanner){
-          scanner.clear().catch(()=>{});
-          scanner = null;
-        }
+      UIkit.util.on(modal, 'hidden', stopScanner);
+      modal.querySelector('#qr-reader-stop').addEventListener('click', () => {
+        UIkit.modal(modal).hide();
       });
       div.appendChild(scanBtn);
       document.body.appendChild(modal);
