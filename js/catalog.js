@@ -32,11 +32,21 @@
   async function loadCatalogList(){
     try{
       const res = await fetch('kataloge/catalogs.json');
-      return await res.json();
+      if(res.ok){
+        return await res.json();
+      }
     }catch(e){
-      console.error('Katalogliste konnte nicht geladen werden.', e);
-      return [];
+      console.warn('Katalogliste konnte nicht geladen werden.', e);
     }
+    const inline = document.getElementById('catalogs-data');
+    if(inline){
+      try{
+        return JSON.parse(inline.textContent);
+      }catch(err){
+        console.error('Inline-Katalogliste ung\u00fcltig.', err);
+      }
+    }
+    return [];
   }
 
   async function loadQuestions(file){
