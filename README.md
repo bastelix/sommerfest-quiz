@@ -1,8 +1,9 @@
-# Slim Framework 4 Skeleton Application
+# Sommerfest-Quiz 2025
 
 [![Coverage Status](https://coveralls.io/repos/github/slimphp/Slim-Skeleton/badge.svg?branch=master)](https://coveralls.io/github/slimphp/Slim-Skeleton?branch=master)
 
 Dieses Projekt stellt ein kleines Quiz dar, das nun mit [Slim](https://www.slimframework.com/) als leichtgewichtiger PHP‑Anwendung betrieben wird. Das komplette Frontend basiert auf [UIkit3](https://getuikit.com/), sodass sämtliche Seiten reine UIkit‑HTML‑Strukturen verwenden.
+Diese Version ist für das Sommerfest 2025 vorbereitet und verwendet standardmäßig den Titel "Sommerfest 2025".
 
 ## Projektstruktur
 

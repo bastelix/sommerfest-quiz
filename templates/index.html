@@ -77,6 +77,7 @@
     .theme-switch {
       display: inline-block;
       margin-left: 8px;
+      margin-top: -2mm;
     }
     .theme-switch input {
       height: 0;
@@ -116,6 +117,9 @@
       margin-right: 0.5mm;
       display: flex;
       align-items: center;
+    }
+    .nav-placeholder {
+      height: 56px;
     }
     @keyframes fadeIn {
       from { opacity: 0; }
@@ -167,7 +171,7 @@
     </div>
     <div class="uk-navbar-center">
       <div class="uk-navbar-item">
-        <span class="uk-navbar-title">Sommerfest 2024</span>
+        <span class="uk-navbar-title">Sommerfest 2025</span>
       </div>
     </div>
     <div class="uk-navbar-right">
@@ -176,6 +180,7 @@
       </div>
     </div>
   </nav>
+  <div class="nav-placeholder"></div>
   <div class="uk-container uk-width-1-1 uk-width-1-2@s uk-width-2-3@m">
     <div class="uk-card uk-card-default uk-card-body uk-box-shadow-large uk-margin">
       <div id="quiz-header" class="uk-text-center uk-margin"></div>

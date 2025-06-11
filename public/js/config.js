@@ -6,7 +6,7 @@ window.quizConfig = {
   logoPath: '',
 
   // Überschrift und Untertitel auf der Startseite
-  header: 'Sommerfest 2024',
+  header: 'Sommerfest 2025',
   subheader: 'Willkommen beim Veranstaltungsquiz',
 
   // Farbschema der Anwendung
