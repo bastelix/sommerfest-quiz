@@ -1,0 +1,76 @@
+{% extends 'layout.twig' %}
+
+{% block title %}Impressum{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="/css/dark.css">
+  <link rel="stylesheet" href="/css/main.css">
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <a href="/" class="uk-icon-button" uk-icon="arrow-left" title="Zur\u00fcck" aria-label="Zur\u00fcck"></a>
+    {% endblock %}
+    {% block right %}
+      <div class="theme-switch">
+        <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
+        <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
+      </div>
+    {% endblock %}
+  {% endembed %}
+  <div class="uk-container uk-container-small">
+    <h1 class="uk-heading-divider uk-hidden">Impressum</h1>
+
+    <p>Angaben gem\u00e4\u00df \u00a7 5 TMG</p>
+    <p>Ren\u00e9 Buske<br>
+    Weidenbusch 8<br>
+    14532 Kleinmachnow<br>
+    Deutschland</p>
+    <p>E-Mail: <a href="mailto:office@calhelp.de">office@calhelp.de</a></p>
+
+    <p><strong>Verantwortlich f\u00fcr den Inhalt nach \u00a7 55 Abs. 2 RStV:</strong><br>
+    Ren\u00e9 Buske<br>
+    Weidenbusch 8<br>
+    14532 Kleinmachnow</p>
+
+    <p>Umsatzsteuer-Identifikationsnummer gem\u00e4\u00df \u00a7 27 a Umsatzsteuergesetz: DE 259645623</p>
+
+    <h2 class="uk-heading-bullet">Haftungsausschluss</h2>
+    <p>Trotz sorgf\u00e4ltiger inhaltlicher Kontrolle \u00fcbernehmen wir keine Haftung f\u00fcr die Inhalte externer Links. F\u00fcr den Inhalt der verlinkten Seiten sind ausschlie\u00dflich deren Betreiber verantwortlich.</p>
+
+    <h2 class="uk-heading-bullet">Urheberrecht</h2>
+    <p>Die durch den Seitenbetreiber erstellten Inhalte und Werke auf dieser Website unterliegen dem deutschen Urheberrecht. Beitr\u00e4ge Dritter sind als solche gekennzeichnet.</p>
+
+    <h2 class="uk-heading-bullet">Quellcode</h2>
+    <p>Der Quellcode dieser Anwendung ist unter der MIT-Lizenz auf GitHub verf\u00fcgbar:<br>
+    <a href="https://github.com/bastelix/sommerfest-quiz">https://github.com/bastelix/sommerfest-quiz</a></p>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/js/uikit-icons.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      const toggle = document.getElementById('theme-toggle');
+      const isDark = localStorage.getItem('darkMode') === 'true';
+      if(isDark){
+        document.body.classList.add('dark-mode','uk-light');
+        if(toggle) toggle.checked = true;
+      }
+      if(toggle){
+        toggle.addEventListener('change', function(){
+          if(this.checked){
+            document.body.classList.add('dark-mode','uk-light');
+            localStorage.setItem('darkMode', 'true');
+          } else {
+            document.body.classList.remove('dark-mode','uk-light');
+            localStorage.setItem('darkMode', 'false');
+          }
+        });
+      }
+    });
+  </script>
+{% endblock %}
