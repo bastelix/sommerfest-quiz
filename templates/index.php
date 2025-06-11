@@ -142,8 +142,8 @@
     }
     @media (max-width: 639px) {
       .uk-container {
-        padding-left: 8px;
-        padding-right: 8px;
+        padding-left: 1px;
+        padding-right: 1px;
       }
     }
   </style>
