@@ -1,0 +1,22 @@
+[
+  {
+    "type": "mc",
+    "prompt": "Welches Protokoll wird für verschlüsselte Webseiten verwendet?",
+    "options": ["FTP", "HTTP", "HTTPS"],
+    "answers": [2]
+  },
+  {
+    "type": "sort",
+    "prompt": "Sortiere die Speichermedien nach Geschwindigkeit (langsam zu schnell):",
+    "items": ["DVD", "HDD", "SSD"]
+  },
+  {
+    "type": "assign",
+    "prompt": "Ordne die Begriffe den passenden Erklärungen zu:",
+    "terms": [
+      {"term": "RAM", "definition": "Flüchtiger Arbeitsspeicher"},
+      {"term": "CPU", "definition": "Zentrale Recheneinheit"},
+      {"term": "GPU", "definition": "Grafikprozessor"}
+    ]
+  }
+]
