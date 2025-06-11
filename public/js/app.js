@@ -4,15 +4,21 @@ document.addEventListener('DOMContentLoaded', function () {
   const isDark = localStorage.getItem('darkMode') === 'true';
   if (isDark) {
     document.body.classList.add('dark-mode', 'uk-light');
-    toggle.checked = true;
+    toggle.setAttribute('uk-icon', 'icon: moon; ratio: 2');
+  } else {
+    toggle.setAttribute('uk-icon', 'icon: sun; ratio: 2');
   }
-  toggle.addEventListener('change', function () {
-    if (this.checked) {
-      document.body.classList.add('dark-mode', 'uk-light');
+  UIkit.icon(toggle);
+  toggle.addEventListener('click', function () {
+    const dark = document.body.classList.toggle('dark-mode');
+    document.body.classList.toggle('uk-light', dark);
+    if (dark) {
       localStorage.setItem('darkMode', 'true');
+      toggle.setAttribute('uk-icon', 'icon: moon; ratio: 2');
     } else {
-      document.body.classList.remove('dark-mode', 'uk-light');
       localStorage.setItem('darkMode', 'false');
+      toggle.setAttribute('uk-icon', 'icon: sun; ratio: 2');
     }
+    UIkit.icon(toggle);
   });
 });
