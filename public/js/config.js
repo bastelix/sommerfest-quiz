@@ -17,5 +17,5 @@ window.quizConfig = {
   CheckAnswerButton: 'no',
 
   // QR-Code-Login aktivieren (true/false)
-  QRUser: true
+  QRUser: false
 };
