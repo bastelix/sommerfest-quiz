@@ -3,6 +3,8 @@ version: '3.7'
 volumes:
     logs:
         driver: local
+    certbot-etc:
+    certbot-var:
 
 services:
     slim:
@@ -11,8 +13,33 @@ services:
         command: php -S 0.0.0.0:8080 -t public
         environment:
             docker: "true"
-        ports:
-            - "8080:8080"
+        expose:
+            - "8080"
         volumes:
             - .:/var/www
             - logs:/var/www/logs
+
+    nginx:
+        image: nginx:alpine
+        depends_on:
+            - slim
+        environment:
+            DOMAIN: ${CERTBOT_DOMAIN:-example.com}
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - .:/var/www
+            - ./nginx/default.conf.template:/etc/nginx/conf.d/default.conf.template
+            - ./certbot/www:/var/www/certbot
+            - certbot-etc:/etc/letsencrypt
+            - certbot-var:/var/lib/letsencrypt
+        command: /bin/sh -c "envsubst '$$DOMAIN' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+
+    certbot:
+        image: certbot/certbot
+        volumes:
+            - ./certbot/www:/var/www/certbot
+            - certbot-etc:/etc/letsencrypt
+            - certbot-var:/var/lib/letsencrypt
+        entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet; sleep 12h & wait $${!}; done'"

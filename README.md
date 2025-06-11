@@ -101,9 +101,11 @@ Copyright (c) 2025 calhelp
 Or you can use `docker-compose` to run the app with `docker`, so you can run these commands:
 ```bash
 cd [my-app-name]
+export CERTBOT_DOMAIN=example.com
+export CERTBOT_EMAIL=admin@example.com
 docker-compose up -d
 ```
-After that, open `http://localhost:8080` in your browser.
+After that, open `http://localhost` or `https://localhost` in your browser.
 
 Run this command in the application directory to run the test suite
 
