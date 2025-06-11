@@ -14,6 +14,8 @@ use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Headers;
 use Slim\Psr7\Request as SlimRequest;
 use Slim\Psr7\Uri;
+use Slim\Views\Twig;
+use Slim\Views\TwigMiddleware;
 
 class TestCase extends PHPUnit_TestCase
 {
@@ -30,6 +32,9 @@ class TestCase extends PHPUnit_TestCase
 
         // Instantiate the app
         $app = AppFactory::create();
+
+        $twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
+        $app->add(TwigMiddleware::create($app, $twig));
 
         // Register error middleware
         $app->addErrorMiddleware($settings['displayErrorDetails'], true, true);
@@ -52,7 +57,7 @@ class TestCase extends PHPUnit_TestCase
     protected function createRequest(
         string $method,
         string $path,
-        array $headers = ['HTTP_ACCEPT' => 'application/json'],
+        array $headers = ['HTTP_ACCEPT' => 'text/html'],
         array $cookies = [],
         array $serverParams = []
     ): Request {
