@@ -1,13 +1,14 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Quiz Verwaltung</title>
-  <link rel="stylesheet" href="/css/uikit.min.css">
+{% extends 'layout.twig' %}
+
+{% block title %}Quiz Verwaltung{% endblock %}
+
+{% block head %}
   <link rel="stylesheet" href="/css/main.css">
-  </head>
-<body class="uk-background-muted uk-padding">
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding{% endblock %}
+
+{% block body %}
   <ul uk-tab>
     <li class="uk-active"><a href="#">Veranstaltung konfigurieren</a></li>
     <li><a href="#">Fragen anpassen</a></li>
@@ -38,7 +39,7 @@
             <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgButtonColor"></div>
           </div>
           <div class="uk-margin">
-            <label class="uk-form-label" for="cfgCheckAnswerButton">Antwort-Pr&uuml;fen-Button anzeigen</label>
+            <label class="uk-form-label" for="cfgCheckAnswerButton">Antwort-Prüfen-Button anzeigen</label>
             <div class="uk-form-controls">
               <select class="uk-select" id="cfgCheckAnswerButton">
                 <option value="yes">Ja</option>
@@ -101,8 +102,9 @@
       </div>
     </li>
   </ul>
-  <script src="/js/uikit.min.js"></script>
+{% endblock %}
+
+{% block scripts %}
   <script src="/js/config.js"></script>
   <script src="/js/admin.js"></script>
-  </body>
-</html>
+{% endblock %}
