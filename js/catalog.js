@@ -49,7 +49,7 @@
     return [];
   }
 
-  async function loadQuestions(file){
+  async function loadQuestions(id, file){
     try{
       const res = await fetch('kataloge/' + file);
       const data = await res.json();
@@ -57,8 +57,21 @@
       if(window.startQuiz){
         window.startQuiz(data);
       }
+      return;
     }catch(e){
-      console.error('Fragen konnten nicht geladen werden.', e);
+      console.warn('Fragen konnten nicht geladen werden, versuche inline Daten', e);
+    }
+    const inline = document.getElementById(id + '-data');
+    if(inline){
+      try{
+        const data = JSON.parse(inline.textContent);
+        window.quizQuestions = data;
+        if(window.startQuiz){
+          window.startQuiz(data);
+        }
+      }catch(err){
+        console.error('Inline-Daten ung\u00fcltig.', err);
+      }
     }
   }
 
@@ -76,7 +89,7 @@
       card.style.cursor = 'pointer';
       card.addEventListener('click', () => {
         history.replaceState(null, '', '?katalog=' + cat.id);
-        loadQuestions(cat.file);
+        loadQuestions(cat.id, cat.file);
       });
       const title = document.createElement('h3');
       title.textContent = cat.name || cat.id;
@@ -97,7 +110,7 @@
     const id = params.get('katalog');
     const selected = catalogs.find(c => c.id === id);
     if(selected){
-      loadQuestions(selected.file);
+      loadQuestions(selected.id, selected.file);
     }else{
       showSelection(catalogs);
     }
