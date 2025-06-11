@@ -10,5 +10,53 @@
     "file": "fragen_it.json",
     "name": "IT-Katalog",
     "description": "Fragen rund um Computer und Technik"
+  },
+  {
+    "id": "station_1",
+    "file": "station_1.json",
+    "name": "Station-1",
+    "description": "Einfache IT-Fragen"
+  },
+  {
+    "id": "station_2",
+    "file": "station_2.json",
+    "name": "Station-2",
+    "description": "Einfache IT-Fragen"
+  },
+  {
+    "id": "station_3",
+    "file": "station_3.json",
+    "name": "Station-3",
+    "description": "Einfache IT-Fragen"
+  },
+  {
+    "id": "station_4",
+    "file": "station_4.json",
+    "name": "Station-4",
+    "description": "Einfache IT-Fragen"
+  },
+  {
+    "id": "station_5",
+    "file": "station_5.json",
+    "name": "Station-5",
+    "description": "Einfache IT-Fragen"
+  },
+  {
+    "id": "station_6",
+    "file": "station_6.json",
+    "name": "Station-6",
+    "description": "Einfache IT-Fragen"
+  },
+  {
+    "id": "station_7",
+    "file": "station_7.json",
+    "name": "Station-7",
+    "description": "Einfache IT-Fragen"
+  },
+  {
+    "id": "station_8",
+    "file": "station_8.json",
+    "name": "Station-8",
+    "description": "Einfache IT-Fragen"
   }
 ]
