@@ -1,5 +1,7 @@
 # Sommerfest-Quiz
 
+![HTML Validity](https://img.shields.io/badge/HTML%20validity-passing-brightgreen)
+
 Dieses Projekt enthält ein vollständig clientseitiges Quiz, das ohne Serververbindung genutzt werden kann. Alle benötigten Dateien liegen im Repository. Einfach runterladen, anpassen - Fertig!
 
 ## Inhalt des Repositories
