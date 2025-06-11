@@ -148,7 +148,7 @@
     container.appendChild(div);
   }
 
-  document.addEventListener('DOMContentLoaded', async () => {
+  async function init(){
     applyConfig();
     const catalogs = await loadCatalogList();
     const params = new URLSearchParams(window.location.search);
@@ -169,5 +169,11 @@
       }
       proceed();
     }
-  });
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  }else{
+    init();
+  }
 })();
