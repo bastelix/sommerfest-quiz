@@ -1,5 +1,18 @@
 // Lädt die verfügbaren Fragenkataloge und startet nach Auswahl das Quiz
 (function(){
+  function setSubHeader(text){
+    const headerEl = document.getElementById('quiz-header');
+    if(!headerEl) return;
+    let el = headerEl.querySelector('p[data-role="subheader"]');
+    if(!el){
+      el = document.createElement('p');
+      el.dataset.role = 'subheader';
+      el.className = 'uk-text-lead';
+      headerEl.appendChild(el);
+    }
+    el.textContent = text || '';
+  }
+
   function applyConfig(){
     const cfg = window.quizConfig || {};
     const headerEl = document.getElementById('quiz-header');
@@ -18,12 +31,7 @@
         h.className = 'uk-margin-remove-bottom';
         headerEl.appendChild(h);
       }
-      if(cfg.subheader){
-        const p = document.createElement('p');
-        p.textContent = cfg.subheader;
-        p.className = 'uk-text-lead';
-        headerEl.appendChild(p);
-      }
+      setSubHeader(cfg.subheader || '');
       // Benutzername wird nach erfolgreichem Login ergänzt
     }
     const styleEl = document.createElement('style');
@@ -53,7 +61,7 @@
   }
   async function loadCatalogList(){
     try{
-      const res = await fetch('kataloge/catalogs.json');
+      const res = await fetch('/kataloge/catalogs.json');
       if(res.ok){
         return await res.json();
       }
@@ -73,7 +81,7 @@
 
   async function loadQuestions(id, file){
     try{
-      const res = await fetch('kataloge/' + file);
+      const res = await fetch('/kataloge/' + file);
       const data = await res.json();
       window.quizQuestions = data;
       if(window.startQuiz){
@@ -102,7 +110,7 @@
     if(!container) return;
     container.innerHTML = '';
     const grid = document.createElement('div');
-    grid.className = 'uk-child-width-expand@s uk-text-center';
+    grid.className = 'uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-4@m uk-grid-small uk-text-center';
     grid.setAttribute('uk-grid', '');
     catalogs.forEach(cat => {
       const cardWrap = document.createElement('div');
@@ -111,6 +119,7 @@
       card.style.cursor = 'pointer';
       card.addEventListener('click', () => {
         history.replaceState(null, '', '?katalog=' + cat.id);
+        setSubHeader(cat.description || '');
         loadQuestions(cat.id, cat.file);
       });
       const title = document.createElement('h3');

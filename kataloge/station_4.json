@@ -1,0 +1,22 @@
+[
+  {
+    "type": "mc",
+    "prompt": "Was zeigt der Mauszeiger beim Laden?",
+    "options": ["Sanduhr", "Smiley", "Kreuz"],
+    "answers": [0]
+  },
+  {
+    "type": "assign",
+    "prompt": "Ordne die Begriffe der passenden Erkl\u00e4rung zu:",
+    "terms": [
+      {"term": "Browser", "definition": "Programm zum Surfen"},
+      {"term": "E-Mail", "definition": "Elektronischer Brief"},
+      {"term": "Firewall", "definition": "Sch\u00fctzt vor unerw\u00fcnschten Zugriffen"}
+    ]
+  },
+  {
+    "type": "sort",
+    "prompt": "Ordne die Ger\u00e4te nach Gr\u00f6\u00dfe (klein zu gro\u00df):",
+    "items": ["Smartphone", "Laptop", "Desktop-PC"]
+  }
+]
