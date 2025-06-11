@@ -10,8 +10,11 @@ return function (\Slim\App $app) {
     });
 
     $app->get('/faq', function (Request $request, Response $response) {
-        $path = __DIR__ . '/../templates/faq.html';
-        $response->getBody()->write(file_get_contents($path));
+        $path = __DIR__ . '/../templates/faq.php';
+        ob_start();
+        include $path;
+        $content = ob_get_clean();
+        $response->getBody()->write($content);
         return $response;
     });
 
