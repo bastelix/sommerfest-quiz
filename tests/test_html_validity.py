@@ -41,7 +41,7 @@ def validate_html_file(path):
 
 class TestHTMLValidity(unittest.TestCase):
     def test_index_html_is_valid(self):
-        errors = validate_html_file('templates/index.html')
+        errors = validate_html_file('templates/index.twig')
         self.assertEqual(errors, [], msg='\n'.join(errors))
 
 if __name__ == '__main__':

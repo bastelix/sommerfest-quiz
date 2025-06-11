@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>FAQ</title>
-  <link rel="stylesheet" href="/css/uikit.min.css">
+{% extends 'layout.twig' %}
+
+{% block title %}FAQ{% endblock %}
+
+{% block head %}
   <link rel="stylesheet" href="/css/dark.css">
   <style>
     body {
@@ -62,8 +60,11 @@
       align-items: center;
     }
   </style>
-</head>
-<body class="uk-background-muted uk-padding">
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding{% endblock %}
+
+{% block body %}
   <nav class="uk-navbar-container topbar" uk-navbar>
     <div class="uk-navbar-left">
       <div class="uk-navbar-item">
@@ -217,8 +218,9 @@
       </li>
     </ul>
   </div>
+{% endblock %}
 
-  <script src="/js/uikit.min.js"></script>
+{% block scripts %}
   <script src="/js/uikit-icons.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function(){
@@ -241,5 +243,4 @@
       }
     });
   </script>
-</body>
-</html>
+{% endblock %}
