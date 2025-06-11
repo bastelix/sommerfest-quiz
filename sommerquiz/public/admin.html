@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Quiz Verwaltung</title>
+  <link rel="stylesheet" href="./css/uikit.min.css">
+  <style>
+    body {
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body class="uk-background-muted uk-padding">
+  <ul uk-tab>
+    <li class="uk-active"><a href="#">Veranstaltung konfigurieren</a></li>
+    <li><a href="#">Fragen anpassen</a></li>
+  </ul>
+  <ul class="uk-switcher uk-margin">
+    <li>
+      <div class="uk-container uk-container-large">
+        <h2 class="uk-heading-bullet">Veranstaltung konfigurieren</h2>
+        <form id="configForm" class="uk-form-stacked">
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgLogoPath">Logo Pfad</label>
+            <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgLogoPath"></div>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgHeader">Überschrift</label>
+            <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgHeader"></div>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgSubheader">Untertitel</label>
+            <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgSubheader"></div>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgBackgroundColor">Hintergrundfarbe</label>
+            <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgBackgroundColor"></div>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgButtonColor">Buttonfarbe</label>
+            <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgButtonColor"></div>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgCheckAnswerButton">Antwort-Pr&uuml;fen-Button anzeigen</label>
+            <div class="uk-form-controls">
+              <select class="uk-select" id="cfgCheckAnswerButton">
+                <option value="yes">Ja</option>
+                <option value="no">Nein</option>
+              </select>
+            </div>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="cfgQRUser">QR-Code-Login verwenden</label>
+            <div class="uk-form-controls">
+              <select class="uk-select" id="cfgQRUser">
+                <option value="false">Nein</option>
+                <option value="true">Ja</option>
+              </select>
+            </div>
+          </div>
+        </form>
+        <div class="uk-margin uk-flex uk-flex-between">
+          <button id="cfgResetBtn" class="uk-button uk-button-default">Zurücksetzen</button>
+          <button id="cfgSaveBtn" class="uk-button uk-button-primary">Speichern</button>
+        </div>
+        <div class="uk-alert-primary" uk-alert>
+          <p>
+            Die Einstellungen werden direkt auf dem Server gespeichert.
+          </p>
+        </div>
+      </div>
+    </li>
+    <li>
+      <div class="uk-container uk-container-large">
+        <h2 class="uk-heading-bullet">Fragen bearbeiten</h2>
+        <div class="uk-margin">
+          <label class="uk-form-label" for="catalogSelect">Fragenkatalog</label>
+          <div class="uk-form-controls">
+            <select id="catalogSelect" class="uk-select"></select>
+          </div>
+        </div>
+        <div id="questions"></div>
+        <div class="uk-margin">
+          <button id="addBtn" class="uk-button uk-button-default">Neue Frage</button>
+        </div>
+        <div class="uk-margin uk-flex uk-flex-between">
+          <button id="resetBtn" class="uk-button uk-button-default">Zurücksetzen</button>
+          <button id="saveBtn" class="uk-button uk-button-primary">Speichern</button>
+        </div>
+        <div class="uk-alert-primary" uk-alert>
+          <p>
+            Fragenkataloge werden nach dem Speichern automatisch auf dem Server aktualisiert.
+          </p>
+        </div>
+      </div>
+    </li>
+  </ul>
+  <script src="./js/uikit.min.js"></script>
+  <script src="/config.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function(){
+    // --------- Konfiguration bearbeiten ---------
+    // Ausgangswerte aus der bestehenden config.js
+    const cfgInitial = window.quizConfig || {};
+    // Verweise auf die Formularfelder
+    const cfgFields = {
+      logoPath: document.getElementById('cfgLogoPath'),
+      header: document.getElementById('cfgHeader'),
+      subheader: document.getElementById('cfgSubheader'),
+      backgroundColor: document.getElementById('cfgBackgroundColor'),
+      buttonColor: document.getElementById('cfgButtonColor'),
+      checkAnswerButton: document.getElementById('cfgCheckAnswerButton'),
+      qrUser: document.getElementById('cfgQRUser')
+    };
+    // Füllt das Formular mit den Werten aus einem Konfigurationsobjekt
+    function renderCfg(data){
+      cfgFields.logoPath.value = data.logoPath || '';
+      cfgFields.header.value = data.header || '';
+      cfgFields.subheader.value = data.subheader || '';
+      cfgFields.backgroundColor.value = data.backgroundColor || '';
+      cfgFields.buttonColor.value = data.buttonColor || '';
+      cfgFields.checkAnswerButton.value = data.CheckAnswerButton || 'yes';
+      cfgFields.qrUser.value = String(data.QRUser) || 'false';
+    }
+    renderCfg(cfgInitial);
+    document.getElementById('cfgResetBtn').addEventListener('click', function(e){
+      e.preventDefault();
+      renderCfg(cfgInitial);
+    });
+    document.getElementById('cfgSaveBtn').addEventListener('click', function(e){
+      e.preventDefault();
+      const data = {
+        logoPath: cfgFields.logoPath.value.trim(),
+        header: cfgFields.header.value.trim(),
+        subheader: cfgFields.subheader.value.trim(),
+        backgroundColor: cfgFields.backgroundColor.value.trim(),
+        buttonColor: cfgFields.buttonColor.value.trim(),
+        CheckAnswerButton: cfgFields.checkAnswerButton.value,
+        QRUser: cfgFields.qrUser.value === 'true'
+      };
+      fetch('/config.js', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      }).then(() => alert('Konfiguration gespeichert'));
+    });
+
+    // --------- Fragen bearbeiten ---------
+    const container = document.getElementById('questions');
+    const addBtn = document.getElementById('addBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const catSelect = document.getElementById('catalogSelect');
+    let catalogs = [];
+    let catalogFile = '';
+    let initial = [];
+
+    function loadCatalog(id){
+      const cat = catalogs.find(c => c.id === id);
+      if(!cat) return;
+      catalogFile = cat.file;
+      fetch('/kataloge/' + catalogFile)
+        .then(r => r.json())
+        .then(data => { initial = data; renderAll(initial); })
+        .catch(() => { initial = []; renderAll(initial); });
+    }
+
+    fetch('/kataloge/catalogs.json')
+      .then(r => r.json())
+      .then(list => {
+        catalogs = list;
+        catalogs.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.name || c.id;
+          catSelect.appendChild(opt);
+        });
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('katalog') || (catalogs[0] && catalogs[0].id);
+        if(id){
+          catSelect.value = id;
+          loadCatalog(id);
+        }
+      });
+
+    catSelect.addEventListener('change', () => loadCatalog(catSelect.value));
+
+    // Rendert alle Fragen im Editor neu
+    function renderAll(data){
+      container.innerHTML = '';
+      data.forEach(q => container.appendChild(createCard(q)));
+    }
+
+    // Erstellt ein Bearbeitungsformular für eine Frage
+    function createCard(q){
+      const card = document.createElement('div');
+      card.className = 'uk-card uk-card-default uk-card-body uk-margin question-card';
+      const typeSelect = document.createElement('select');
+      typeSelect.className = 'uk-select uk-margin-small-bottom type-select';
+      ['sort','assign','mc'].forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t;
+        opt.textContent = t;
+        typeSelect.appendChild(opt);
+      });
+      typeSelect.value = q.type || 'mc';
+      const typeInfo = document.createElement('div');
+      typeInfo.className = 'uk-alert-primary uk-margin-small-bottom type-info';
+      // Infotext passend zum gewählten Fragetyp anzeigen
+      function updateInfo(){
+        const map = {
+          sort: 'Items in die richtige Reihenfolge bringen.',
+          assign: 'Begriffe den passenden Definitionen zuordnen.',
+          mc: 'Mehrfachauswahl (Multiple Choice, mehrere Antworten möglich).'
+        };
+        typeInfo.textContent = map[typeSelect.value] || '';
+      }
+      updateInfo();
+      typeSelect.addEventListener('change', () => { renderFields(); updateInfo(); });
+      const prompt = document.createElement('textarea');
+      prompt.className = 'uk-textarea uk-margin-small-bottom prompt';
+      prompt.placeholder = 'Fragetext';
+      prompt.value = q.prompt || '';
+      const fields = document.createElement('div');
+      fields.className = 'fields';
+      const removeBtn = document.createElement('button');
+      removeBtn.className = 'uk-button uk-button-danger uk-margin-small-top uk-align-right';
+      removeBtn.textContent = 'Entfernen';
+      removeBtn.onclick = () => card.remove();
+
+      // Hilfsfunktionen zum Anlegen der Eingabefelder
+      function addItem(value=''){
+        const div = document.createElement('div');
+        div.className = 'uk-flex uk-margin-small-bottom item-row';
+        const input = document.createElement('input');
+        input.className = 'uk-input item';
+        input.type = 'text';
+        input.value = value;
+        const btn = document.createElement('button');
+        btn.className = 'uk-button uk-button-danger uk-button-small uk-margin-left';
+        btn.textContent = '×';
+        btn.setAttribute('aria-label', 'Entfernen');
+        btn.onclick = () => div.remove();
+        div.appendChild(input);
+        div.appendChild(btn);
+        return div;
+      }
+
+      function addPair(term='', def=''){
+        const row = document.createElement('div');
+        row.className = 'uk-grid-small uk-margin-small-bottom term-row';
+        row.setAttribute('uk-grid','');
+        const tInput = document.createElement('input');
+        tInput.className = 'uk-input term';
+        tInput.type = 'text';
+        tInput.placeholder = 'Begriff';
+        tInput.value = term;
+        const dInput = document.createElement('input');
+        dInput.className = 'uk-input definition';
+        dInput.type = 'text';
+        dInput.placeholder = 'Definition';
+        dInput.value = def;
+        const rem = document.createElement('button');
+        rem.className = 'uk-button uk-button-danger uk-button-small';
+        rem.textContent = '×';
+        rem.setAttribute('aria-label', 'Entfernen');
+        rem.onclick = () => row.remove();
+        const tDiv = document.createElement('div');
+        tDiv.appendChild(tInput);
+        const dDiv = document.createElement('div');
+        dDiv.appendChild(dInput);
+        const bDiv = document.createElement('div');
+        bDiv.className = 'uk-width-auto';
+        bDiv.appendChild(rem);
+        row.appendChild(tDiv);
+        row.appendChild(dDiv);
+        row.appendChild(bDiv);
+        return row;
+      }
+
+      function addOption(text='', checked=false){
+        const row = document.createElement('div');
+        row.className = 'uk-flex uk-margin-small-bottom option-row';
+        const radio = document.createElement('input');
+        radio.type = 'checkbox';
+        radio.className = 'uk-checkbox answer';
+        radio.name = 'ans'+cardIndex;
+        radio.checked = checked;
+        const input = document.createElement('input');
+        input.className = 'uk-input option uk-margin-small-left';
+        input.type = 'text';
+        input.value = text;
+        const rem = document.createElement('button');
+        rem.className = 'uk-button uk-button-danger uk-button-small uk-margin-left';
+        rem.textContent = '×';
+        rem.setAttribute('aria-label', 'Entfernen');
+        rem.onclick = () => row.remove();
+        row.appendChild(radio);
+        row.appendChild(input);
+        row.appendChild(rem);
+        return row;
+      }
+
+      // Zeigt je nach Fragetyp die passenden Eingabefelder an
+      function renderFields(){
+        fields.innerHTML = '';
+        if(typeSelect.value === 'sort'){
+          const list = document.createElement('div');
+          (q.items || ['','']).forEach(it => list.appendChild(addItem(it)));
+          const add = document.createElement('button');
+          add.className = 'uk-button uk-button-small uk-margin-small-top';
+          add.textContent = 'Item hinzufügen';
+          add.onclick = e => {e.preventDefault(); list.appendChild(addItem(''));};
+          fields.appendChild(list);
+          fields.appendChild(add);
+        } else if(typeSelect.value === 'assign'){
+          const list = document.createElement('div');
+          (q.terms || [{term:'',definition:''}]).forEach(p => list.appendChild(addPair(p.term,p.definition)));
+          const add = document.createElement('button');
+          add.className = 'uk-button uk-button-small uk-margin-small-top';
+          add.textContent = 'Begriff hinzufügen';
+          add.onclick = e => {e.preventDefault(); list.appendChild(addPair('',''));};
+          fields.appendChild(list);
+          fields.appendChild(add);
+        } else {
+          const list = document.createElement('div');
+          (q.options || ['','']).forEach((opt,i) =>
+            list.appendChild(addOption(opt,(q.answers || []).includes(i))));
+          const add = document.createElement('button');
+          add.className = 'uk-button uk-button-small uk-margin-small-top';
+          add.textContent = 'Option hinzufügen';
+          add.onclick = e => {e.preventDefault(); list.appendChild(addOption(''));};
+          fields.appendChild(list);
+          fields.appendChild(add);
+        }
+      }
+
+      renderFields();
+
+      card.appendChild(typeSelect);
+      card.appendChild(typeInfo);
+      card.appendChild(prompt);
+      card.appendChild(fields);
+      card.appendChild(removeBtn);
+      cardIndex++;
+      return card;
+    }
+
+    // Sammelt alle Eingaben aus den Karten in ein Array von Fragen
+    function collect(){
+      return Array.from(container.querySelectorAll('.question-card')).map(card => {
+        const type = card.querySelector('.type-select').value;
+        const prompt = card.querySelector('.prompt').value.trim();
+        if(type === 'sort'){
+          const items = Array.from(card.querySelectorAll('.item-row .item')).map(i => i.value.trim()).filter(Boolean);
+          return {type, prompt, items};
+        } else if(type === 'assign'){
+          const terms = Array.from(card.querySelectorAll('.term-row')).map(r => ({
+            term: r.querySelector('.term').value.trim(),
+            definition: r.querySelector('.definition').value.trim()
+          })).filter(t => t.term || t.definition);
+          return {type, prompt, terms};
+        } else {
+          const options = Array.from(card.querySelectorAll('.option-row .option')).map(i => i.value.trim()).filter(Boolean);
+          const checks = Array.from(card.querySelectorAll('.option-row .answer'));
+          const answers = checks.map((c,i) => c.checked ? i : -1).filter(i => i >= 0);
+          return {type, prompt, options, answers};
+        }
+      });
+    }
+
+    // Exportiert die eingegebenen Fragen als JSON-Datei
+    saveBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      const data = collect();
+      fetch('/kataloge/' + catalogFile, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      }).then(() => alert('Katalog gespeichert'));
+    });
+
+    // Setzt den Editor auf die Anfangswerte zurück
+    resetBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      renderAll(initial);
+    });
+
+    // Fügt eine neue leere Frage hinzu
+    addBtn.addEventListener('click', function(e){
+      e.preventDefault();
+      container.appendChild(createCard({type:'mc',prompt:'',options:['',''],answers:[0]}));
+    });
+
+    // Zähler für eindeutige Namen von Eingabefeldern
+    let cardIndex = 0;
+  });
+  </script>
+</body>
+</html>

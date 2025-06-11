@@ -1,0 +1,97 @@
+/* Zusätzliche Styles für Dark Mode */
+body.dark-mode {
+  background-color: #000 !important;
+  color: #f5f5f5;
+}
+body.dark-mode a {
+  color: #9dc6ff;
+}
+body.dark-mode .uk-card-default {
+  background-color: #1e1e1e;
+  color: #f5f5f5;
+}
+body.dark-mode .uk-card-default a {
+  color: #9dc6ff;
+}
+body.dark-mode .uk-card h3,
+body.dark-mode .uk-card p {
+  color: #f5f5f5;
+}
+body.dark-mode .uk-progress {
+  background-color: #333;
+  color: #1e87f0;
+}
+body.dark-mode .uk-button-primary {
+  background-color: #1e87f0;
+  border-color: #1e87f0;
+}
+body.dark-mode .uk-button,
+body.dark-mode .uk-button-default {
+  color: #fff;
+  background-color: #333;
+  border-color: #555;
+}
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+  background-color: #1e1e1e;
+  color: #f5f5f5;
+  border-color: #555;
+}
+body.dark-mode .sortable-list li,
+body.dark-mode .terms li,
+body.dark-mode .dropzone,
+body.dark-mode .mc-option {
+  background-color: #1e1e1e;
+  border-color: #444;
+  color: #f5f5f5;
+  font-size: 1rem;
+  padding: 16px;
+}
+body.dark-mode .dropzone.over {
+  background-color: #2a2a2a;
+}
+body.dark-mode .uk-alert-success {
+  background-color: #145214;
+  color: #fff;
+}
+body.dark-mode .uk-alert-danger {
+  background-color: #5a1a1a;
+  color: #fff;
+}
+body.dark-mode .uk-alert-primary {
+  background-color: #003366;
+  color: #fff;
+}
+
+body.dark-mode .mc-option input {
+  transform: scale(1.3);
+  margin-right: 8px;
+}
+
+/* Hoverfarbe für Katalogkarten im Dunkelmodus */
+body.dark-mode .uk-card-hover:hover {
+  background-color: #333;
+  color: #f5f5f5;
+}
+
+@media (min-width: 640px) {
+  body.dark-mode .sortable-list li,
+  body.dark-mode .terms li,
+  body.dark-mode .dropzone,
+  body.dark-mode .mc-option {
+    font-size: 1.3rem;
+  }
+}
+
+@media (min-width: 960px) {
+  body.dark-mode .sortable-list li,
+  body.dark-mode .terms li,
+  body.dark-mode .dropzone,
+  body.dark-mode .mc-option {
+    font-size: 1.5rem;
+  }
+  body.dark-mode .mc-option input {
+    transform: scale(1.3);
+  }
+}
