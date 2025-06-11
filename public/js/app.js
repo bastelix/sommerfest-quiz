@@ -4,9 +4,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const isDark = localStorage.getItem('darkMode') === 'true';
   if (isDark) {
     document.body.classList.add('dark-mode', 'uk-light');
-    toggle.setAttribute('uk-icon', 'icon: moon; ratio: 2');
-  } else {
+    // show sun icon when dark mode is active
     toggle.setAttribute('uk-icon', 'icon: sun; ratio: 2');
+  } else {
+    // show moon icon when light mode is active
+    toggle.setAttribute('uk-icon', 'icon: moon; ratio: 2');
   }
   UIkit.icon(toggle);
   toggle.addEventListener('click', function () {
@@ -14,10 +16,12 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.classList.toggle('uk-light', dark);
     if (dark) {
       localStorage.setItem('darkMode', 'true');
-      toggle.setAttribute('uk-icon', 'icon: moon; ratio: 2');
+      // after enabling dark mode show sun icon
+      toggle.setAttribute('uk-icon', 'icon: sun; ratio: 2');
     } else {
       localStorage.setItem('darkMode', 'false');
-      toggle.setAttribute('uk-icon', 'icon: sun; ratio: 2');
+      // after disabling dark mode show moon icon
+      toggle.setAttribute('uk-icon', 'icon: moon; ratio: 2');
     }
     UIkit.icon(toggle);
   });
