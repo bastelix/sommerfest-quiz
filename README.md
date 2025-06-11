@@ -2,30 +2,29 @@
 
 ![HTML Validity](https://img.shields.io/badge/HTML%20validity-passing-brightgreen)
 
-Dieses Projekt enthält ein vollständig clientseitiges Quiz, das ohne Serververbindung genutzt werden kann. Alle benötigten Dateien liegen im Repository. Einfach runterladen, anpassen - Fertig!
+Dieses Projekt stellt ein kleines Quiz dar, das nun mit [Slim](https://www.slimframework.com/) als leichtgewichtiger PHP‑Anwendung betrieben wird. Das komplette Frontend basiert auf [UIkit3](https://getuikit.com/), sodass sämtliche Seiten reine UIkit‑HTML‑Strukturen verwenden.
 
-## Inhalt des Repositories
+## Projektstruktur
 
-- **index.html** – Startseite und Quiz.
-- **admin.html** – Admin-Oberfläche zum Anpassen von Fragen und Design.
-- **faq.html** – Hilfeseite mit häufig gestellten Fragen.
-- **css/** – Stylesheets von UIkit.
-- **css/dark.css** – Zusätzliche Styles für den Dunkelmodus.
-- **js/** – JavaScript-Dateien von UIkit und die Skripte für das Quiz.
-- **js/config.js** – Einstellungen für Logo, Farben und Texte.
-- **kataloge/** – Enthält einzelne Fragenkataloge als JSON-Dateien.
-- **kataloge/catalogs.json** – Indexdatei mit allen verfügbaren Katalogen.
+- **public/** – Enthält `index.php`, alle UIkit3‑Assets sowie die JavaScript‑Dateien.
+- **templates/** – UIkit3‑basierte HTML‑Dateien (`index.html`, `admin.html`, `faq.html`).
+- **src/** – PHP‑Routen und sonstige Logik.
+- **kataloge/** – Fragenkataloge im JSON‑Format.
+- **config/** – Einstellungen der Anwendung.
+- **vendor/** – Von Composer installierte Abhängigkeiten.
 
-## Quiz starten
+## Anwendung starten
 
-Die Anwendung wird nun mit [Slim](https://www.slimframework.com/) betrieben. Nach dem Klonen des Repositories kann das Skeleton mit Composer erstellt und ein lokaler PHP-Server gestartet werden:
+Nach dem Klonen des Repositories werden die Abhängigkeiten installiert und ein lokaler PHP‑Server gestartet:
 
 ```bash
-composer create-project slim/slim-skeleton sommerquiz
-php -S localhost:8080 -t sommerquiz/public
+composer install
+php -S localhost:8080 -t public
 ```
 
-Anschließend ist die Anwendung unter `http://localhost:8080` erreichbar.
+Stelle sicher, dass [Composer](https://getcomposer.org) installiert ist und
+führe die Befehle im Wurzelverzeichnis des Repositories aus. Danach ist die
+Anwendung unter `http://localhost:8080` erreichbar.
 
 ## Fragen bearbeiten und Design anpassen
 
@@ -79,7 +78,7 @@ Zur Erzeugung des Codes kann jedes gängige Tool verwendet werden (z.B. Online-G
 
 ## Datenschutz und DSGVO
 
-Dieses Quiz läuft vollständig im Browser und benötigt keine Serververbindung. Ergebnisse werden ausschließlich lokal im `localStorage` gespeichert. Dabei erhält jede teilnehmende Person einen zufälligen Fantasienamen, sodass keinerlei personenbezogene Daten verarbeitet werden. Der optionale Node.js-Server dient nur zum Ausliefern der statischen Dateien und führt keine Protokollierung durch. Beim Export der Datei `statistical.log` werden lediglich die Pseudonyme samt Punktzahl ausgegeben. Unter diesen Voraussetzungen kann das Tool in der Regel DSGVO-konform eingesetzt werden, eine rechtliche Prüfung für den konkreten Anwendungsfall bleibt jedoch empfohlen.
+Dieses Quiz läuft vollständig im Browser und benötigt keine permanente Serververbindung. Ergebnisse werden ausschließlich lokal im `localStorage` gespeichert. Dabei erhält jede teilnehmende Person einen zufälligen Fantasienamen, sodass keinerlei personenbezogene Daten verarbeitet werden. Der integrierte PHP‑Server dient lediglich zum Ausliefern der Dateien und führt keine Protokollierung durch. Beim Export der Datei `statistical.log` werden lediglich die Pseudonyme samt Punktzahl ausgegeben. Unter diesen Voraussetzungen kann das Tool in der Regel DSGVO‑konform eingesetzt werden, eine rechtliche Prüfung für den konkreten Anwendungsfall bleibt jedoch empfohlen.
 
 ## Erstellung
 
