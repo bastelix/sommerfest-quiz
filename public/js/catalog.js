@@ -135,7 +135,7 @@
     if(cfg.QRUser){
       const scanBtn = document.createElement('button');
       scanBtn.className = 'uk-button uk-button-primary';
-      scanBtn.textContent = 'QR-Code scannen';
+      scanBtn.textContent = 'Name mit QR-Code scannen';
       if(cfg.buttonColor){
         scanBtn.style.backgroundColor = cfg.buttonColor;
         scanBtn.style.borderColor = cfg.buttonColor;
@@ -155,7 +155,7 @@
       modal.id = 'qr-modal';
       modal.setAttribute('uk-modal', '');
       modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">'+
-        '<h3 class="uk-modal-title">YOUR NAME IS?</h3>'+
+        '<h3 class="uk-modal-title">Who I AM</h3>'+
         '<div id="login-qr" class="uk-margin" style="max-width:320px;width:100%"></div>'+
         '<button id="login-qr-stop" class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Abbrechen</button>'+
       '</div>';
