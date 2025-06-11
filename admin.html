@@ -80,18 +80,17 @@
         </div>
         <div class="uk-alert-primary" uk-alert>
           <p>
-            Nach dem Klick auf <strong>Speichern</strong> wird eine neue
-            <code>questions.js</code> heruntergeladen. Lege diese Datei
-            anschlie&szlig;end im Ordner <code>js/</code> ab und ersetze dort die
-            bestehende Datei. Die Admin-Seite kann das Verzeichnis nicht direkt
-            beschreiben, daher muss dieser Schritt manuell erfolgen.
+            Nach dem Klick auf <strong>Speichern</strong> wird eine JSON-Datei
+            f&uuml;r den aktuell bearbeiteten Fragenkatalog heruntergeladen.
+            Kopiere sie danach in den Ordner <code>kataloge/</code>, um den
+            vorhandenen Katalog zu ersetzen. Die Admin-Seite kann das
+            Verzeichnis nicht automatisch beschreiben.
           </p>
         </div>
       </div>
     </li>
   </ul>
   <script src="./js/uikit.min.js"></script>
-  <script src="./js/questions.js"></script>
   <script src="./js/config.js"></script>
   <script>
   document.addEventListener('DOMContentLoaded', function(){
@@ -146,7 +145,12 @@
     const addBtn = document.getElementById('addBtn');
     const saveBtn = document.getElementById('saveBtn');
     const resetBtn = document.getElementById('resetBtn');
-    const initial = window.quizQuestions || [];
+    const catalogFile = 'fragen_basis.json';
+    let initial = [];
+    fetch('kataloge/' + catalogFile)
+      .then(r => r.json())
+      .then(data => { initial = data; renderAll(initial); })
+      .catch(() => renderAll(initial));
 
     // Rendert alle Fragen im Editor neu
     function renderAll(data){
@@ -332,16 +336,16 @@
       });
     }
 
-    // Exportiert die eingegebenen Fragen als neue questions.js
+    // Exportiert die eingegebenen Fragen als JSON-Datei
     saveBtn.addEventListener('click', function(e){
       e.preventDefault();
       const data = collect();
-      const content = 'window.quizQuestions = ' + JSON.stringify(data, null, 2) + '\n';
-      const blob = new Blob([content], {type: 'text/javascript'});
+      const content = JSON.stringify(data, null, 2);
+      const blob = new Blob([content], {type: 'application/json'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'js/questions.js';
+      a.download = catalogFile;
       a.click();
       URL.revokeObjectURL(url);
     });
@@ -360,8 +364,6 @@
 
     // Zähler für eindeutige Namen von Eingabefeldern
     let cardIndex = 0;
-    // Startansicht mit vorhandenen Fragen füllen
-    renderAll(initial);
   });
   </script>
 </body>
