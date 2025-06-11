@@ -61,7 +61,7 @@
   }
   async function loadCatalogList(){
     try{
-      const res = await fetch('/kataloge/catalogs.json');
+      const res = await fetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } });
       if(res.ok){
         return await res.json();
       }
@@ -81,7 +81,7 @@
 
   async function loadQuestions(id, file){
     try{
-      const res = await fetch('/kataloge/' + file);
+      const res = await fetch('/kataloge/' + file, { headers: { 'Accept': 'application/json' } });
       const data = await res.json();
       window.quizQuestions = data;
       if(window.startQuiz){
