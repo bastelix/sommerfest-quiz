@@ -163,7 +163,7 @@ function runQuiz(questions){
     const score = results.filter(r => r).length;
     const user = sessionStorage.getItem('quizUser') || generateUserName();
     const p = summaryEl.querySelector('p');
-    if(p) p.textContent = `Du hast ${score} von ${questionCount} richtig.`;
+    if(p) p.textContent = `${user} hat ${score} von ${questionCount} Punkten erreicht.`;
     const heading = summaryEl.querySelector('h3');
     if(heading) heading.textContent = `🎉 Danke fürs Mitmachen ${user}!`;
     if(score === questionCount && typeof window.startConfetti === 'function'){
@@ -496,6 +496,7 @@ function runQuiz(questions){
       modal.id = 'quiz-qr-modal';
       modal.setAttribute('uk-modal', '');
       modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">'+
+        '<h3 class="uk-modal-title">YOUR NAME IS?</h3>'+
         '<div id="qr-reader" class="uk-margin" style="max-width:320px;width:100%"></div>'+
         '<button id="qr-reader-stop" class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Abbrechen</button>'+
       '</div>';
