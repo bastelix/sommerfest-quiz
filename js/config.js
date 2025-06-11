@@ -14,8 +14,8 @@ window.quizConfig = {
   buttonColor: '#1e87f0',
 
   // Falls "no", wird der Button "Antwort prüfen" ausgeblendet
-  CheckAnswerButton: 'yes',
+  CheckAnswerButton: 'no',
 
   // QR-Code-Login aktivieren (true/false)
-  QRUser: false
+  QRUser: true
 };
