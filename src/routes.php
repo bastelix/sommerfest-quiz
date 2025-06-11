@@ -22,7 +22,7 @@ require_once __DIR__ . '/Controller/ConfigController.php';
 require_once __DIR__ . '/Controller/CatalogController.php';
 
 return function (\Slim\App $app) {
-    $configService = new ConfigService(__DIR__ . '/../public/js/config.js');
+    $configService = new ConfigService(__DIR__ . '/../config/config.json');
     $catalogService = new CatalogService(__DIR__ . '/../kataloge');
 
     $configController = new ConfigController($configService);
@@ -34,8 +34,8 @@ return function (\Slim\App $app) {
     $app->get('/impressum', ImpressumController::class);
     $app->get('/lizenz', LizenzController::class);
     $app->get('/admin', AdminController::class);
-    $app->get('/config.js', [$configController, 'get']);
-    $app->post('/config.js', [$configController, 'post']);
+    $app->get('/config.json', [$configController, 'get']);
+    $app->post('/config.json', [$configController, 'post']);
     $app->get('/kataloge/{file}', [$catalogController, 'get']);
     $app->post('/kataloge/{file}', [$catalogController, 'post']);
 };

@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
   // --------- Konfiguration bearbeiten ---------
-  // Ausgangswerte aus der bestehenden config.js
+  // Ausgangswerte aus der bestehenden Konfiguration
   const cfgInitial = window.quizConfig || {};
   // Verweise auf die Formularfelder
   const cfgFields = {
@@ -38,12 +38,12 @@ document.addEventListener('DOMContentLoaded', function () {
       CheckAnswerButton: cfgFields.checkAnswerButton.value,
       QRUser: cfgFields.qrUser.value === 'true'
     };
-    const content = 'window.quizConfig = ' + JSON.stringify(data, null, 2) + ';\n';
-    const blob = new Blob([content], { type: 'text/javascript' });
+    const content = JSON.stringify(data, null, 2) + '\n';
+    const blob = new Blob([content], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'js/config.js';
+    a.download = 'config/config.json';
     a.click();
     URL.revokeObjectURL(url);
   });

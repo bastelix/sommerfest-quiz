@@ -16,7 +16,7 @@ class ConfigControllerTest extends TestCase
         $tmp = tempnam(sys_get_temp_dir(), 'config');
         unlink($tmp);
         $controller = new ConfigController(new ConfigService($tmp));
-        $request = $this->createRequest('GET', '/config.js');
+        $request = $this->createRequest('GET', '/config.json');
         $response = $controller->get($request, new Response());
 
         $this->assertEquals(404, $response->getStatusCode());
@@ -28,12 +28,12 @@ class ConfigControllerTest extends TestCase
         $service = new ConfigService($tmp);
         $controller = new ConfigController($service);
 
-        $request = $this->createRequest('POST', '/config.js');
+        $request = $this->createRequest('POST', '/config.json');
         $request = $request->withParsedBody(['foo' => 'bar']);
         $postResponse = $controller->post($request, new Response());
         $this->assertEquals(204, $postResponse->getStatusCode());
 
-        $getResponse = $controller->get($this->createRequest('GET', '/config.js'), new Response());
+        $getResponse = $controller->get($this->createRequest('GET', '/config.json'), new Response());
         $this->assertEquals(200, $getResponse->getStatusCode());
         $this->assertStringContainsString('foo', (string) $getResponse->getBody());
 

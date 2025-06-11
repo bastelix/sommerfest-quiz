@@ -17,20 +17,20 @@ class ConfigServiceTest extends TestCase
 
         $service->saveConfig($data);
         $this->assertFileExists($tmp);
-        $expected = 'window.quizConfig = ' . json_encode($data, JSON_PRETTY_PRINT) . "\n";
-        $this->assertSame($expected, $service->getJs());
+        $expected = json_encode($data, JSON_PRETTY_PRINT) . "\n";
+        $this->assertSame($expected, $service->getJson());
         $this->assertEquals($data, $service->getConfig());
 
         unlink($tmp);
     }
 
-    public function testGetJsReturnsNullIfFileMissing(): void
+    public function testGetJsonReturnsNullIfFileMissing(): void
     {
         $tmp = tempnam(sys_get_temp_dir(), 'config');
         unlink($tmp);
         $service = new ConfigService($tmp);
 
-        $this->assertNull($service->getJs());
+        $this->assertNull($service->getJson());
         $this->assertEquals([], $service->getConfig());
     }
 }

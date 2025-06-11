@@ -7,12 +7,14 @@ namespace App\Controller;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
+use App\Service\ConfigService;
 
 class AdminController
 {
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'admin.twig');
+        $cfg = (new ConfigService(__DIR__ . '/../../config/config.json'))->getConfig();
+        return $view->render($response, 'admin.twig', ['config' => $cfg]);
     }
 }
