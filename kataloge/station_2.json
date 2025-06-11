@@ -1,0 +1,22 @@
+[
+  {
+    "type": "mc",
+    "prompt": "Welche Taste schlie\u00dft ein Fenster?",
+    "options": ["Esc", "Enter", "F1"],
+    "answers": [0]
+  },
+  {
+    "type": "assign",
+    "prompt": "Ordne die Symbole dem richtigen Zweck zu:",
+    "terms": [
+      {"term": "Ordner", "definition": "Ablage f\u00fcr Dateien"},
+      {"term": "Papierkorb", "definition": "Hier landen gel\u00f6schte Dateien"},
+      {"term": "Lupe", "definition": "Suchfunktion"}
+    ]
+  },
+  {
+    "type": "sort",
+    "prompt": "Bringe die Schritte beim Starten eines Computers in die richtige Reihenfolge:",
+    "items": ["Einschalten", "Betriebssystem l\u00e4dt", "Anmelden"]
+  }
+]
