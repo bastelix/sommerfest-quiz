@@ -10,11 +10,12 @@
 {% block body_class %}index-page uk-padding uk-flex uk-flex-center{% endblock %}
 
 {% block body %}
-  {% embed 'topbar.twig' %}
-    {% block left %}
-      <div class="theme-switch">
-        <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
-        <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
+  <nav class="uk-navbar-container topbar" uk-navbar>
+    <div class="uk-navbar-left">
+      <div class="uk-navbar-item">
+        <div class="theme-switch">
+          <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: sun; ratio: 2" aria-label="Design wechseln"></button>
+        </div>
       </div>
     {% endblock %}
     {% block center %}

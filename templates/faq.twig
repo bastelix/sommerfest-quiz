@@ -4,7 +4,33 @@
 
 {% block head %}
   <link rel="stylesheet" href="/css/dark.css">
-  <link rel="stylesheet" href="/css/main.css">
+  <style>
+    body {
+      padding-top: 96px;
+    }
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+    .theme-switch {
+      display: inline-block;
+      margin-left: 8px;
+      margin-top: -2mm;
+    }
+    .theme-switch button {
+      border: none;
+      background: transparent;
+    }
+    .topbar .uk-navbar-item {
+      margin-left: 0.5mm;
+      margin-right: 0.5mm;
+      display: flex;
+      align-items: center;
+    }
+  </style>
 {% endblock %}
 
 {% block body_class %}uk-background-muted uk-padding{% endblock %}
@@ -19,8 +45,15 @@
         <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
         <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
       </div>
-    {% endblock %}
-  {% endembed %}
+    </div>
+    <div class="uk-navbar-right">
+      <div class="uk-navbar-item">
+        <div class="theme-switch">
+          <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: sun; ratio: 2" aria-label="Design wechseln"></button>
+        </div>
+      </div>
+    </div>
+  </nav>
   <div class="uk-container uk-container-small">
     <h1 class="uk-heading-divider uk-hidden">FAQ</h1>
     <p class="uk-text-lead">Auf dieser Seite findest du Antworten auf häufig gestellte Fragen rund um die Anwendung und Administration des Quiz.</p>
@@ -166,22 +199,27 @@
   <script>
     document.addEventListener('DOMContentLoaded', function(){
       const toggle = document.getElementById('theme-toggle');
+      if(!toggle) return;
       const isDark = localStorage.getItem('darkMode') === 'true';
       if(isDark){
         document.body.classList.add('dark-mode','uk-light');
-        if(toggle) toggle.checked = true;
+        toggle.setAttribute('uk-icon','icon: moon; ratio: 2');
+      } else {
+        toggle.setAttribute('uk-icon','icon: sun; ratio: 2');
       }
-      if(toggle){
-        toggle.addEventListener('change', function(){
-          if(this.checked){
-            document.body.classList.add('dark-mode','uk-light');
-            localStorage.setItem('darkMode', 'true');
-          } else {
-            document.body.classList.remove('dark-mode','uk-light');
-            localStorage.setItem('darkMode', 'false');
-          }
-        });
-      }
+      UIkit.icon(toggle);
+      toggle.addEventListener('click', function(){
+        const dark = document.body.classList.toggle('dark-mode');
+        document.body.classList.toggle('uk-light', dark);
+        if(dark){
+          localStorage.setItem('darkMode','true');
+          toggle.setAttribute('uk-icon','icon: moon; ratio: 2');
+        } else {
+          localStorage.setItem('darkMode','false');
+          toggle.setAttribute('uk-icon','icon: sun; ratio: 2');
+        }
+        UIkit.icon(toggle);
+      });
     });
   </script>
 {% endblock %}
