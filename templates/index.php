@@ -141,9 +141,10 @@
       }
     }
     @media (max-width: 639px) {
-      .uk-container {
-        padding-left: 1px;
-        padding-right: 1px;
+      .uk-container,
+      body.uk-padding {
+        padding-left: 0;
+        padding-right: 0;
       }
     }
   </style>
