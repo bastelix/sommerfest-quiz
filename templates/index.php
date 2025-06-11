@@ -156,26 +156,23 @@
   </style>
 </head>
 <body class="uk-padding uk-flex uk-flex-center">
-  <nav class="uk-navbar-container topbar">
-    <div class="uk-container">
-      <div uk-navbar>
-        <div class="uk-navbar-center">
-          <div class="uk-flex uk-flex-middle">
-            <div class="uk-flex uk-flex-middle uk-margin-right">
-              <div class="uk-navbar-item">
-                <div class="theme-switch">
-                  <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
-                  <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
-                </div>
-              </div>
-            </div>
-            <div class="uk-flex uk-flex-middle">
-              <div class="uk-navbar-item">
-                <a href="/faq" class="uk-icon-button" uk-icon="question" title="Hilfe" aria-label="Hilfe"></a>
-              </div>
-            </div>
-          </div>
+  <nav class="uk-navbar-container topbar" uk-navbar>
+    <div class="uk-navbar-left">
+      <div class="uk-navbar-item">
+        <div class="theme-switch">
+          <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
+          <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
         </div>
+      </div>
+    </div>
+    <div class="uk-navbar-center">
+      <div class="uk-navbar-item">
+        <span class="uk-navbar-title">Sommerfest 2024</span>
+      </div>
+    </div>
+    <div class="uk-navbar-right">
+      <div class="uk-navbar-item">
+        <a href="/faq" class="uk-icon-button" uk-icon="question" title="Hilfe" aria-label="Hilfe"></a>
       </div>
     </div>
   </nav>
