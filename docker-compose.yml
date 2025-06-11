@@ -1,18 +1,54 @@
-version: '3.7'
-
-volumes:
-    logs:
-        driver: local
+version: '3'
 
 services:
-    slim:
-        image: php:8.2-alpine
-        working_dir: /var/www
-        command: php -S 0.0.0.0:8080 -t public
-        environment:
-            docker: "true"
-        ports:
-            - "8080:8080"
-        volumes:
-            - .:/var/www
-            - logs:/var/www/logs
+  nginx-proxy:
+    image: jwilder/nginx-proxy:alpine
+    container_name: nginx-proxy
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./certs:/etc/nginx/certs:rw
+      - ./vhost.d:/etc/nginx/vhost.d
+      - ./html:/usr/share/nginx/html
+    networks:
+      - webproxy
+
+  letsencrypt:
+    image: nginxproxy/acme-companion
+    container_name: nginx-proxy-letsencrypt
+    restart: always
+    depends_on:
+      - nginx-proxy
+    environment:
+      - NGINX_PROXY_CONTAINER=nginx-proxy
+      - DEFAULT_EMAIL=${LETSENCRYPT_EMAIL}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./certs:/etc/nginx/certs:rw
+      - ./vhost.d:/etc/nginx/vhost.d
+      - ./html:/usr/share/nginx/html
+    networks:
+      - webproxy
+
+  slim:
+    image: php:8.2-alpine
+    container_name: slim
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    environment:
+      - VIRTUAL_HOST=${DOMAIN}
+      - LETSENCRYPT_HOST=${DOMAIN}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+    command: php -S 0.0.0.0:8080 -t public
+    expose:
+      - "8080"
+    networks:
+      - webproxy
+
+networks:
+  webproxy:
+    external: false
