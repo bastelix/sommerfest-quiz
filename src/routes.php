@@ -2,27 +2,14 @@
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
+use SommerfestQuiz\Controller\HomeController;
+use SommerfestQuiz\Controller\FaqController;
+use SommerfestQuiz\Controller\AdminController;
+
 return function (\Slim\App $app) {
-    $app->get('/', function (Request $request, Response $response) {
-        $indexPath = __DIR__ . '/../templates/index.html';
-        $response->getBody()->write(file_get_contents($indexPath));
-        return $response->withHeader('Content-Type', 'text/html');
-    });
-
-    $app->get('/faq', function (Request $request, Response $response) {
-        $path = __DIR__ . '/../templates/faq.php';
-        ob_start();
-        include $path;
-        $content = ob_get_clean();
-        $response->getBody()->write($content);
-        return $response;
-    });
-
-    $app->get('/admin', function (Request $request, Response $response) {
-        $path = __DIR__ . '/../templates/admin.html';
-        $response->getBody()->write(file_get_contents($path));
-        return $response;
-    });
+    $app->get('/', HomeController::class);
+    $app->get('/faq', FaqController::class);
+    $app->get('/admin', AdminController::class);
     $app->get('/config.js', function (Request $request, Response $response) {
         $path = __DIR__ . '/../public/js/config.js';
         if (!file_exists($path)) {
