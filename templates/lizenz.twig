@@ -1,0 +1,54 @@
+{% extends 'layout.twig' %}
+
+{% block title %}Lizenz{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="/css/dark.css">
+  <link rel="stylesheet" href="/css/main.css">
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <a href="/" class="uk-icon-button" uk-icon="arrow-left" title="Zur\u00fcck" aria-label="Zur\u00fcck"></a>
+    {% endblock %}
+    {% block right %}
+      <div class="theme-switch">
+        <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
+        <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
+      </div>
+    {% endblock %}
+  {% endembed %}
+  <div class="uk-container uk-container-small">
+    <h1 class="uk-heading-divider uk-hidden">Lizenz</h1>
+
+    <p>Diese Anwendung steht unter der <a href="https://opensource.org/licenses/MIT">MIT-Lizenz</a>. Den vollst\u00e4ndigen Text finden Sie in der Datei <code>LICENSE</code>.</p>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/js/uikit-icons.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      const toggle = document.getElementById('theme-toggle');
+      const isDark = localStorage.getItem('darkMode') === 'true';
+      if(isDark){
+        document.body.classList.add('dark-mode','uk-light');
+        if(toggle) toggle.checked = true;
+      }
+      if(toggle){
+        toggle.addEventListener('change', function(){
+          if(this.checked){
+            document.body.classList.add('dark-mode','uk-light');
+            localStorage.setItem('darkMode', 'true');
+          } else {
+            document.body.classList.remove('dark-mode','uk-light');
+            localStorage.setItem('darkMode', 'false');
+          }
+        });
+      }
+    });
+  </script>
+{% endblock %}
