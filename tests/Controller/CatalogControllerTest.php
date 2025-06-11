@@ -16,7 +16,7 @@ class CatalogControllerTest extends TestCase
         $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
         mkdir($dir);
         $controller = new CatalogController(new CatalogService($dir));
-        $request = $this->createRequest('GET', '/kataloge/missing.json');
+        $request = $this->createRequest('GET', '/kataloge/missing.json', ['HTTP_ACCEPT' => 'application/json']);
         $response = $controller->get($request, new Response(), ['file' => 'missing.json']);
         $this->assertEquals(404, $response->getStatusCode());
         rmdir($dir);
@@ -34,7 +34,11 @@ class CatalogControllerTest extends TestCase
         $postResponse = $controller->post($request, new Response(), ['file' => 'test.json']);
         $this->assertEquals(204, $postResponse->getStatusCode());
 
-        $getResponse = $controller->get($this->createRequest('GET', '/kataloge/test.json'), new Response(), ['file' => 'test.json']);
+        $getResponse = $controller->get(
+            $this->createRequest('GET', '/kataloge/test.json', ['HTTP_ACCEPT' => 'application/json']),
+            new Response(),
+            ['file' => 'test.json']
+        );
         $this->assertEquals(200, $getResponse->getStatusCode());
         $this->assertJsonStringEqualsJsonString('{"a":1}', (string) $getResponse->getBody());
 
