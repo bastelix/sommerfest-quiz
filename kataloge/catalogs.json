@@ -1,14 +1,50 @@
 [
   {
-    "id": "fragen_basis",
-    "file": "fragen_basis.json",
-    "name": "Basisfragen",
-    "description": "Beispielkatalog mit allgemeinen Fragen"
+    "id": "station_1",
+    "file": "station_1.json",
+    "name": "Station-1",
+    "description": "Speicher und Geraete"
   },
   {
-    "id": "fragen_it",
-    "file": "fragen_it.json",
-    "name": "IT-Katalog",
-    "description": "Fragen rund um Computer und Technik"
+    "id": "station_2",
+    "file": "station_2.json",
+    "name": "Station-2",
+    "description": "Bedienung und Symbole"
+  },
+  {
+    "id": "station_3",
+    "file": "station_3.json",
+    "name": "Station-3",
+    "description": "WWW und Speicherarten"
+  },
+  {
+    "id": "station_4",
+    "file": "station_4.json",
+    "name": "Station-4",
+    "description": "Begriffe und Geraetegroessen"
+  },
+  {
+    "id": "station_5",
+    "file": "station_5.json",
+    "name": "Station-5",
+    "description": "Programme und Binaersystem"
+  },
+  {
+    "id": "station_6",
+    "file": "station_6.json",
+    "name": "Station-6",
+    "description": "Dateien und URLs"
+  },
+  {
+    "id": "station_7",
+    "file": "station_7.json",
+    "name": "Station-7",
+    "description": "Netzwerke und Kuerzel"
+  },
+  {
+    "id": "station_8",
+    "file": "station_8.json",
+    "name": "Station-8",
+    "description": "Cloud und Steuerung"
   }
 ]

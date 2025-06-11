@@ -1,0 +1,22 @@
+[
+  {
+    "type": "mc",
+    "prompt": "Was ist eine URL?",
+    "options": ["Webadresse", "Programmiersprache", "Grafikformat"],
+    "answers": [0]
+  },
+  {
+    "type": "assign",
+    "prompt": "Ordne die Dateitypen dem Programm zu:",
+    "terms": [
+      {"term": ".docx", "definition": "Textverarbeitung"},
+      {"term": ".jpg", "definition": "Bilddatei"},
+      {"term": ".mp3", "definition": "Audio"}
+    ]
+  },
+  {
+    "type": "sort",
+    "prompt": "Bringe die Schritte zum Speichern einer Datei in die richtige Reihenfolge:",
+    "items": ["Datei-Men\u00fc \u00f6ffnen", "Speichern anklicken", "Name w\u00e4hlen und best\u00e4tigen"]
+  }
+]
