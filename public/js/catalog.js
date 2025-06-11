@@ -125,7 +125,7 @@
     container.appendChild(grid);
   }
 
-  function showLogin(onDone){
+  function showLogin(onDone, autoScan){
     const cfg = window.quizConfig || {};
     const container = document.getElementById('quiz');
     if(!container) return;
@@ -206,9 +206,10 @@
       div.appendChild(scanBtn);
       div.appendChild(bypass);
       container.appendChild(modal);
-      div.appendChild(scanBtn);
-      div.appendChild(bypass);
-      container.appendChild(modal);
+      if(autoScan){
+        UIkit.modal(modal).show();
+        startScanner();
+      }
     }else{
       const btn = document.createElement('button');
       btn.className = 'uk-button uk-button-primary';
@@ -243,7 +244,7 @@
       }
     };
     if((window.quizConfig || {}).QRUser){
-      showLogin(proceed);
+      showLogin(proceed, !!id);
     }else{
       if(!sessionStorage.getItem('quizUser')){
         sessionStorage.setItem('quizUser', generateUserName());
