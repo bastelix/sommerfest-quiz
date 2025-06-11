@@ -45,7 +45,7 @@ body.dark-mode .mc-option {
   background-color: #1e1e1e;
   border-color: #444;
   color: #f5f5f5;
-  font-size: 1.5em;
+  font-size: 1rem;
   padding: 16px;
 }
 body.dark-mode .dropzone.over {
@@ -73,4 +73,25 @@ body.dark-mode .mc-option input {
 body.dark-mode .uk-card-hover:hover {
   background-color: #333;
   color: #f5f5f5;
+}
+
+@media (min-width: 640px) {
+  body.dark-mode .sortable-list li,
+  body.dark-mode .terms li,
+  body.dark-mode .dropzone,
+  body.dark-mode .mc-option {
+    font-size: 1.3rem;
+  }
+}
+
+@media (min-width: 960px) {
+  body.dark-mode .sortable-list li,
+  body.dark-mode .terms li,
+  body.dark-mode .dropzone,
+  body.dark-mode .mc-option {
+    font-size: 1.5rem;
+  }
+  body.dark-mode .mc-option input {
+    transform: scale(1.3);
+  }
 }
