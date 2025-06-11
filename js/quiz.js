@@ -88,12 +88,13 @@ function runQuiz(questions){
   const elements = shuffled.map((q, idx) => createQuestion(q, idx));
   // Speichert true/false für jede beantwortete Frage
   const results = new Array(questionCount).fill(false);
-  const startEl = createStart();     // Begrüßungsbildschirm
   const summaryEl = createSummary(); // Abschlussseite
-  // Start- und End-Element einfügen
-  elements.unshift(startEl);
+  // Abschluss-Element einfügen
   elements.push(summaryEl);
   let summaryShown = false;
+
+  // neuen Teilnehmernamen speichern
+  sessionStorage.setItem('quizUser', generateUserName());
 
   // konfigurierbare Farben dynamisch in ein Style-Tag schreiben
   const styleEl = document.createElement('style');
@@ -132,20 +133,16 @@ function runQuiz(questions){
     }
   });
   progress.max = questionCount;
-  progress.value = 0;
-  progress.classList.add('uk-hidden');
+  progress.classList.remove('uk-hidden');
+  showQuestion(current);
 
   // Zeigt das Element mit dem angegebenen Index an und aktualisiert den Fortschrittsbalken
   function showQuestion(i){
     elements.forEach((el, idx) => el.classList.toggle('uk-hidden', idx !== i));
-    if(i === 0){
-      // Vor dem Quiz: kein Fortschrittsbalken
-      progress.classList.add('uk-hidden');
-      progress.value = 0;
-    } else if(i <= questionCount){
-      // Während des Quiz Balken aktualisieren
+    if(i < questionCount){
+      // Fragen anzeigen und Fortschritt aktualisieren
       progress.classList.remove('uk-hidden');
-      progress.value = i;
+      progress.value = i + 1;
     } else {
       // Nach der letzten Frage Zusammenfassung anzeigen
       progress.value = questionCount;
@@ -157,9 +154,6 @@ function runQuiz(questions){
   // Blendet die nächste Frage ein
   function next(){
     if(current < questionCount){
-      current++;
-      showQuestion(current);
-    } else if(current === questionCount){
       current++;
       showQuestion(current);
     }
@@ -497,82 +491,6 @@ function runQuiz(questions){
     return div;
   }
 
-  // Startbildschirm mit Statistik und Startknopf
-  function createStart(){
-    const div = document.createElement('div');
-    div.className = 'question uk-text-center';
-    div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
-    const stats = document.createElement('div');
-    stats.className = 'uk-margin';
-    const startBtn = document.createElement('button');
-    startBtn.className = 'uk-button uk-button-primary uk-button-large';
-    startBtn.textContent = 'UND LOS';
-    styleButton(startBtn);
-    // Zeigt bisherige Ergebnisse als kleine Slideshow an
-    function renderLog(text){
-      stats.innerHTML = '';
-      if(text){
-        const lines = text.trim().split('\n').filter(Boolean);
-        if(lines.length){
-          const h3 = document.createElement('h3');
-          h3.textContent = 'Bisherige Ergebnisse';
-          stats.appendChild(h3);
-          const container = document.createElement('div');
-          container.id = 'results-slideshow';
-          container.setAttribute('aria-live', 'polite');
-          container.setAttribute('aria-atomic', 'true');
-          lines.forEach((l, idx) => {
-            const [user, score] = l.split(' ');
-            const slide = document.createElement('div');
-            slide.className = 'result-slide uk-text-large';
-            slide.textContent = `${user}: ${score}`;
-            if(idx !== 0) slide.style.display = 'none';
-            container.appendChild(slide);
-          });
-          if(lines.length > 1){
-            let current = 0;
-            setInterval(() => {
-              const slides = container.children;
-              slides[current].style.display = 'none';
-              current = (current + 1) % slides.length;
-              slides[current].style.display = '';
-            }, 3000);
-          }
-          stats.appendChild(container);
-        } else {
-          stats.textContent = 'Noch keine Ergebnisse vorhanden.';
-        }
-      } else {
-        stats.textContent = 'Noch keine Ergebnisse vorhanden.';
-      }
-    }
-
-    const log = localStorage.getItem('statistical.log');
-    renderLog(log);
-
-    const downloadBtn = document.createElement('button');
-    downloadBtn.className = 'uk-button uk-button-default uk-button-small uk-margin-top';
-    downloadBtn.textContent = 'Statistik herunterladen';
-    downloadBtn.addEventListener('click', () => {
-      const text = localStorage.getItem('statistical.log') || '';
-      const blob = new Blob([text], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'statistical.log';
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-    startBtn.addEventListener('click', () => {
-      const user = generateUserName();
-      sessionStorage.setItem('quizUser', user);
-      next();
-    });
-    div.appendChild(startBtn);
-    div.appendChild(stats);
-    div.appendChild(downloadBtn);
-    return div;
-  }
 
   // Abschlussbildschirm nach dem Quiz
   function createSummary(){
