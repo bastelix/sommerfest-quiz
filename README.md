@@ -15,21 +15,21 @@ Dieses Projekt enthält ein vollständig clientseitiges Quiz, das ohne Serverver
 - **js/config.js** – Einstellungen für Logo, Farben und Texte.
 - **kataloge/** – Enthält einzelne Fragenkataloge als JSON-Dateien.
 - **kataloge/catalogs.json** – Indexdatei mit allen verfügbaren Katalogen.
-- **server.js** – Ein kleiner Node.js-Server zum lokalen Hosten der Dateien.
 
 ## Quiz starten
 
-Das Quiz kann direkt durch Öffnen von `index.html` in einem Browser verwendet werden. Optional lässt es sich mit Node.js lokal bereitstellen:
+Die Anwendung wird nun mit [Slim](https://www.slimframework.com/) betrieben. Nach dem Klonen des Repositories kann das Skeleton mit Composer erstellt und ein lokaler PHP-Server gestartet werden:
 
 ```bash
-node server.js
+composer create-project slim/slim-skeleton sommerquiz
+php -S localhost:8080 -t sommerquiz/public
 ```
 
-Anschließend ist die Anwendung unter `http://localhost:3000` erreichbar.
+Anschließend ist die Anwendung unter `http://localhost:8080` erreichbar.
 
 ## Fragen bearbeiten und Design anpassen
 
-Die Datei `admin.html` stellt eine einfache Administrationsoberfläche bereit. Dort können Fragenkataloge bearbeitet und das Layout angepasst werden. Beim Klick auf **Speichern** wird eine neue `config.js` sowie für den aktuell geöffneten Katalog eine JSON-Datei heruntergeladen. Die Dateien müssen anschließend manuell in den Ordner `js/` bzw. `kataloge/` kopiert werden, um die vorhandenen Versionen zu ersetzen.
+Die Datei `admin.html` stellt eine Administrationsoberfläche bereit. Änderungen an den Einstellungen und Fragen werden über AJAX direkt an den Slim‑Server geschickt und dort gespeichert. Ein manuelles Kopieren der erzeugten Dateien ist nicht mehr nötig.
 
 ## Eigene Fragenkataloge
 
