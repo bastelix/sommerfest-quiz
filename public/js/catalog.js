@@ -102,7 +102,7 @@
     if(!container) return;
     container.innerHTML = '';
     const grid = document.createElement('div');
-    grid.className = 'uk-child-width-expand@s uk-text-center';
+    grid.className = 'uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-4@m uk-grid-small uk-text-center';
     grid.setAttribute('uk-grid', '');
     catalogs.forEach(cat => {
       const cardWrap = document.createElement('div');

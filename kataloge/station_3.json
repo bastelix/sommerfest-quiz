@@ -1,0 +1,22 @@
+[
+  {
+    "type": "mc",
+    "prompt": "Wof\u00fcr steht die Abk\u00fcrzung 'WWW'?",
+    "options": ["World Wide Web", "Warm Water World", "Wild West War"],
+    "answers": [0]
+  },
+  {
+    "type": "assign",
+    "prompt": "Ordne die Speicherarten zu:",
+    "terms": [
+      {"term": "RAM", "definition": "Kurzzeit-Speicher"},
+      {"term": "Festplatte", "definition": "Langzeit-Speicher"},
+      {"term": "Cache", "definition": "Zwischenspeicher"}
+    ]
+  },
+  {
+    "type": "sort",
+    "prompt": "Sortiere die Kabeltypen nach Datenrate (langsam zu schnell):",
+    "items": ["USB 2.0", "USB 3.0", "Thunderbolt"]
+  }
+]
