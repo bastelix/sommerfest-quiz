@@ -4,53 +4,29 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Controller\HomeController;
 use App\Controller\FaqController;
 use App\Controller\AdminController;
+use App\Controller\ConfigController;
+use App\Controller\CatalogController;
+use App\Service\ConfigService;
+use App\Service\CatalogService;
 
 require_once __DIR__ . '/Controller/HomeController.php';
 require_once __DIR__ . '/Controller/FaqController.php';
 require_once __DIR__ . '/Controller/AdminController.php';
+require_once __DIR__ . '/Controller/ConfigController.php';
+require_once __DIR__ . '/Controller/CatalogController.php';
 
 return function (\Slim\App $app) {
+    $configService = new ConfigService(__DIR__ . '/../public/js/config.js');
+    $catalogService = new CatalogService(__DIR__ . '/../kataloge');
+
+    $configController = new ConfigController($configService);
+    $catalogController = new CatalogController($catalogService);
+
     $app->get('/', HomeController::class);
     $app->get('/faq', FaqController::class);
     $app->get('/admin', AdminController::class);
-    $app->get('/config.js', function (Request $request, Response $response) {
-        $path = __DIR__ . '/../public/js/config.js';
-        if (!file_exists($path)) {
-            return $response->withStatus(404);
-        }
-        $response->getBody()->write(file_get_contents($path));
-        return $response->withHeader('Content-Type', 'text/javascript');
-    });
-
-    $app->post('/config.js', function (Request $request, Response $response) {
-        $path = __DIR__ . '/../public/js/config.js';
-        $data = $request->getParsedBody();
-        if ($request->getHeaderLine('Content-Type') === 'application/json') {
-            $data = json_decode((string)$request->getBody(), true);
-        }
-        $content = 'window.quizConfig = ' . json_encode($data, JSON_PRETTY_PRINT) . "\n";
-        file_put_contents($path, $content);
-        return $response->withStatus(204);
-    });
-
-    $app->get('/kataloge/{file}', function (Request $request, Response $response, array $args) {
-        $file = basename($args['file']);
-        $path = __DIR__ . '/../kataloge/' . $file;
-        if (!file_exists($path)) {
-            return $response->withStatus(404);
-        }
-        $response->getBody()->write(file_get_contents($path));
-        return $response->withHeader('Content-Type', 'application/json');
-    });
-
-    $app->post('/kataloge/{file}', function (Request $request, Response $response, array $args) {
-        $file = basename($args['file']);
-        $path = __DIR__ . '/../kataloge/' . $file;
-        $data = $request->getParsedBody();
-        if ($request->getHeaderLine('Content-Type') === 'application/json') {
-            $data = json_decode((string)$request->getBody(), true);
-        }
-        file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT));
-        return $response->withStatus(204);
-    });
+    $app->get('/config.js', [$configController, 'get']);
+    $app->post('/config.js', [$configController, 'post']);
+    $app->get('/kataloge/{file}', [$catalogController, 'get']);
+    $app->post('/kataloge/{file}', [$catalogController, 'post']);
 };
