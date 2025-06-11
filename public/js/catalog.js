@@ -111,32 +111,60 @@
     const div = document.createElement('div');
     div.className = 'uk-text-center';
     if(cfg.QRUser){
-      const info = document.createElement('p');
-      info.textContent = 'Scanne deinen QR Code ein:';
-      const qrDiv = document.createElement('div');
-      qrDiv.id = 'login-qr';
-      qrDiv.style.width = '250px';
-      qrDiv.className = 'uk-align-center';
-      div.appendChild(info);
-      div.appendChild(qrDiv);
-      if(typeof Html5QrcodeScanner !== 'undefined'){
+      const scanBtn = document.createElement('button');
+      scanBtn.className = 'uk-button uk-button-primary';
+      scanBtn.textContent = 'QR-Code scannen';
+      if(cfg.buttonColor){
+        scanBtn.style.backgroundColor = cfg.buttonColor;
+        scanBtn.style.borderColor = cfg.buttonColor;
+        scanBtn.style.color = '#fff';
+      }
+      const bypass = document.createElement('a');
+      bypass.href = '#';
+      bypass.textContent = 'Kataloge anzeigen';
+      bypass.className = 'uk-display-block uk-margin-top';
+      bypass.addEventListener('click', (e)=>{
+        e.preventDefault();
+        sessionStorage.setItem('quizUser', generateUserName());
+        onDone();
+      });
+      const modal = document.createElement('div');
+      modal.id = 'qr-modal';
+      modal.setAttribute('uk-modal', '');
+      modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">'+
+        '<button class="uk-modal-close-default" type="button" uk-close></button>'+
+        '<div id="login-qr" class="uk-margin" style="width:250px"></div>'+
+      '</div>';
+      let scanner;
+      const startScanner = () => {
+        if(typeof Html5QrcodeScanner === 'undefined'){
+          document.getElementById('login-qr').textContent = 'QR-Scanner nicht verf\u00fcgbar.';
+          return;
+        }
         try{
-          const scanner = new Html5QrcodeScanner('login-qr', {fps:10, qrbox:250});
+          scanner = new Html5QrcodeScanner('login-qr', {fps:10, qrbox:250});
           scanner.render(text=>{
             sessionStorage.setItem('quizUser', text.trim());
-            scanner.clear().then(()=> onDone());
+            scanner.clear().then(()=>{ UIkit.modal(modal).hide(); onDone(); });
           });
         }catch(err){
           console.error('QR scanner initialization failed.', err);
-          const warn = document.createElement('p');
-          warn.textContent = 'QR-Scanner konnte nicht gestartet werden. Bitte Kamera freigeben oder QR-Login deaktivieren.';
-          div.appendChild(warn);
+          document.getElementById('login-qr').textContent = 'QR-Scanner konnte nicht gestartet werden.';
         }
-      }else{
-        const warn = document.createElement('p');
-        warn.textContent = 'QR-Scanner nicht verf\u00fcgbar.';
-        div.appendChild(warn);
-      }
+      };
+      scanBtn.addEventListener('click', () => {
+        UIkit.modal(modal).show();
+        startScanner();
+      });
+      UIkit.util.on(modal, 'hidden', () => {
+        if(scanner){
+          scanner.clear().catch(()=>{});
+          scanner = null;
+        }
+      });
+      div.appendChild(scanBtn);
+      div.appendChild(bypass);
+      container.appendChild(modal);
     }else{
       const btn = document.createElement('button');
       btn.className = 'uk-button uk-button-primary';
