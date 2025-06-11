@@ -9,14 +9,6 @@ require_once __DIR__ . '/Controller/HomeController.php';
 require_once __DIR__ . '/Controller/FaqController.php';
 require_once __DIR__ . '/Controller/AdminController.php';
 
-use SommerfestQuiz\Controller\HomeController;
-use SommerfestQuiz\Controller\FaqController;
-use SommerfestQuiz\Controller\AdminController;
-
-use SommerfestQuiz\Controller\HomeController;
-use SommerfestQuiz\Controller\FaqController;
-use SommerfestQuiz\Controller\AdminController;
-
 return function (\Slim\App $app) {
     $app->get('/', HomeController::class);
     $app->get('/faq', FaqController::class);
