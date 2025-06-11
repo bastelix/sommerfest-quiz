@@ -44,5 +44,9 @@ class TestHTMLValidity(unittest.TestCase):
         errors = validate_html_file('templates/index.twig')
         self.assertEqual(errors, [], msg='\n'.join(errors))
 
+    def test_datenschutz_html_is_valid(self):
+        errors = validate_html_file('templates/datenschutz.twig')
+        self.assertEqual(errors, [], msg='\n'.join(errors))
+
 if __name__ == '__main__':
     unittest.main()
