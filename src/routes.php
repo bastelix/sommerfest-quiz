@@ -20,23 +20,6 @@ return function (\Slim\App $app) {
         $response->getBody()->write(file_get_contents($path));
         return $response;
     });
-
-    // Legacy Vue.js quiz
-    $app->get('/vuequiz', function (Request $request, Response $response) {
-        $path = __DIR__ . '/../templates/vuequiz/index.html';
-        $response->getBody()->write(file_get_contents($path));
-        return $response;
-    });
-
-    $app->get('/vuequiz/questions.json', function (Request $request, Response $response) {
-        $path = __DIR__ . '/../templates/vuequiz/questions.json';
-        if (!file_exists($path)) {
-            return $response->withStatus(404);
-        }
-        $response->getBody()->write(file_get_contents($path));
-        return $response->withHeader('Content-Type', 'application/json');
-    });
-
     $app->get('/config.js', function (Request $request, Response $response) {
         $path = __DIR__ . '/../public/js/config.js';
         if (!file_exists($path)) {
