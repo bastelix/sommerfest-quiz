@@ -5,12 +5,21 @@ on:
     branches: [ main ]
   pull_request:
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Optional tag version to push'
+        required: false
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          persist-credentials: false
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -24,14 +33,26 @@ jobs:
       - name: Clean up
         run: rm -rf temp-slim
       - name: Commit and push changes
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
           git add -A
           if git diff-index --quiet HEAD; then
             echo "No changes to commit"
           else
             git commit -m "Update Slim skeleton"
-            git push
+            git remote set-url origin https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}
+            git push origin HEAD:${{ github.ref }}
           fi
-
+      - name: Create Tag with PAT
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.version != ''
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git tag ${{ github.event.inputs.version }}
+          git remote set-url origin https://x-access-token:${GH_PAT}@github.com/${{ github.repository }}
+          git push origin ${{ github.event.inputs.version }}
