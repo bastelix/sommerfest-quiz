@@ -20,6 +20,15 @@ class CatalogController
     public function get(Request $request, Response $response, array $args): Response
     {
         $file = basename($args['file']);
+        $accept = $request->getHeaderLine('Accept');
+
+        if (strpos($accept, 'text/html') !== false) {
+            $id = pathinfo($file, PATHINFO_FILENAME);
+            return $response
+                ->withHeader('Location', '/?katalog=' . urlencode($id))
+                ->withStatus(302);
+        }
+
         $content = $this->service->read($file);
         if ($content === null) {
             return $response->withStatus(404);
