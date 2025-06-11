@@ -3,8 +3,8 @@
 {% block title %}Datenschutz{% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="/css/dark.css">
-  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="css/dark.css">
+  <link rel="stylesheet" href="css/main.css">
 {% endblock %}
 
 {% block body_class %}uk-background-muted uk-padding{% endblock %}
@@ -12,7 +12,7 @@
 {% block body %}
   {% embed 'topbar.twig' %}
     {% block left %}
-      <a href="/" class="uk-icon-button" uk-icon="arrow-left" title="Zurück" aria-label="Zurück"></a>
+      <a href="../" class="uk-icon-button" uk-icon="arrow-left" title="Zurück" aria-label="Zurück"></a>
     {% endblock %}
     {% block right %}
       <div class="theme-switch">
@@ -61,7 +61,7 @@
 {% endblock %}
 
 {% block scripts %}
-  <script src="/js/uikit-icons.min.js"></script>
+  <script src="js/uikit-icons.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function(){
       const toggle = document.getElementById('theme-toggle');
