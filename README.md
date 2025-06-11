@@ -8,7 +8,7 @@ This skeleton application was built for Composer. This makes setting up a new Sl
 
 ## Install the Application
 
-Run this command from the directory in which you want to install your new Slim Framework application. You will require PHP 7.4 or newer.
+Run this command from the directory in which you want to install your new Slim Framework application. You will require PHP 8.0 or newer.
 
 ```bash
 composer create-project slim/slim-skeleton [my-app-name]
@@ -30,6 +30,12 @@ Or you can use `docker-compose` to run the app with `docker`, so you can run the
 ```bash
 cd [my-app-name]
 docker-compose up -d
+```
+Make sure your Docker Compose installation supports version 3 compose files.
+Older versions may fail with a `KeyError: 'ContainerConfig'` when starting the containers.
+If your local PHP version is lower than 8.0, run Composer commands through this container:
+```
+docker-compose run --rm slim composer install
 ```
 After that, open `http://localhost:8080` in your browser.
 
