@@ -16,8 +16,7 @@
     {% endblock %}
     {% block right %}
       <div class="theme-switch">
-        <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
-        <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
+        <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: sun; ratio: 2" aria-label="Design wechseln"></button>
       </div>
     {% endblock %}
   {% endembed %}
@@ -30,25 +29,5 @@
 
 {% block scripts %}
   <script src="/js/uikit-icons.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function(){
-      const toggle = document.getElementById('theme-toggle');
-      const isDark = localStorage.getItem('darkMode') === 'true';
-      if(isDark){
-        document.body.classList.add('dark-mode','uk-light');
-        if(toggle) toggle.checked = true;
-      }
-      if(toggle){
-        toggle.addEventListener('change', function(){
-          if(this.checked){
-            document.body.classList.add('dark-mode','uk-light');
-            localStorage.setItem('darkMode', 'true');
-          } else {
-            document.body.classList.remove('dark-mode','uk-light');
-            localStorage.setItem('darkMode', 'false');
-          }
-        });
-      }
-    });
-  </script>
+  <script src="/js/app.js"></script>
 {% endblock %}
