@@ -133,6 +133,25 @@ body {
   height: 56px;
 }
 
+.bottombar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.bottombar .uk-navbar-item {
+  margin-left: 0.5mm;
+  margin-right: 0.5mm;
+  display: flex;
+  align-items: center;
+}
+
+.footer-placeholder {
+  height: 56px;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }

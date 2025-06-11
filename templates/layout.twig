@@ -9,7 +9,17 @@
 </head>
 <body class="{% block body_class %}{% endblock %}">
 {% block body %}{% endblock %}
-<script src="/js/uikit.min.js"></script>
-{% block scripts %}{% endblock %}
+  <div class="footer-placeholder"></div>
+  <nav class="uk-navbar-container bottombar" uk-navbar>
+    <div class="uk-navbar-center">
+      <ul class="uk-navbar-nav">
+        <li><a href="/Datenschutz.html">Datenschutz</a></li>
+        <li><a href="/Impressum.html">Impressum</a></li>
+        <li><a href="/Lizenz.html">Lizenz</a></li>
+      </ul>
+    </div>
+  </nav>
+  <script src="/js/uikit.min.js"></script>
+  {% block scripts %}{% endblock %}
 </body>
 </html>
