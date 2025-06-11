@@ -138,16 +138,17 @@ function runQuiz(questions){
     }
   });
   progress.max = questionCount;
-  progress.classList.remove('uk-hidden');
   showQuestion(current);
 
   // Zeigt das Element mit dem angegebenen Index an und aktualisiert den Fortschrittsbalken
   function showQuestion(i){
     elements.forEach((el, idx) => el.classList.toggle('uk-hidden', idx !== i));
-    if(i < questionCount){
+    if(i === 0){
+      progress.classList.add('uk-hidden');
+    } else if(i <= questionCount){
       // Fragen anzeigen und Fortschritt aktualisieren
       progress.classList.remove('uk-hidden');
-      progress.value = i + 1;
+      progress.value = i;
     } else {
       // Nach der letzten Frage Zusammenfassung anzeigen
       progress.value = questionCount;
@@ -158,7 +159,7 @@ function runQuiz(questions){
 
   // Blendet die nächste Frage ein
   function next(){
-    if(current < questionCount){
+    if(current < questionCount + 1){
       current++;
       showQuestion(current);
     }
