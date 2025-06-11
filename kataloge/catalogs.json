@@ -1,0 +1,14 @@
+[
+  {
+    "id": "fragen_basis",
+    "file": "fragen_basis.json",
+    "name": "Basisfragen",
+    "description": "Beispielkatalog mit allgemeinen Fragen"
+  },
+  {
+    "id": "fragen_it",
+    "file": "fragen_it.json",
+    "name": "IT-Katalog",
+    "description": "Fragen rund um Computer und Technik"
+  }
+]

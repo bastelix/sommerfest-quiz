@@ -11,7 +11,8 @@ Dieses Projekt enthält ein vollständig clientseitiges Quiz, das ohne Serverver
 - **css/dark.css** – Zusätzliche Styles für den Dunkelmodus.
 - **js/** – JavaScript-Dateien von UIkit und die Skripte für das Quiz.
 - **js/config.js** – Einstellungen für Logo, Farben und Texte.
-- **js/questions.js** – Enthält alle Quizfragen.
+- **kataloge/** – Enthält einzelne Fragenkataloge als JSON-Dateien.
+- **kataloge/catalogs.json** – Indexdatei mit allen verfügbaren Katalogen.
 - **server.js** – Ein kleiner Node.js-Server zum lokalen Hosten der Dateien.
 
 ## Quiz starten
@@ -27,6 +28,12 @@ Anschließend ist die Anwendung unter `http://localhost:3000` erreichbar.
 ## Fragen bearbeiten und Design anpassen
 
 Die Datei `admin.html` stellt eine einfache Administrationsoberfläche bereit. Dort können Fragen hinzugefügt oder angepasst und Farben, Logo sowie Überschriften geändert werden. Beim Klick auf **Speichern** wird jeweils eine neue `config.js` bzw. `questions.js` heruntergeladen. Diese heruntergeladene Datei muss danach manuell in den Ordner `js/` kopiert und dort die vorhandene Datei ersetzen.
+
+## Eigene Fragenkataloge
+
+Alle Fragen liegen als einzelne JSON-Dateien im Unterordner `kataloge/`. Die Datei `catalogs.json` listet die verfügbaren Kataloge samt Anzeigenamen und Beschreibung. Um einen neuen Katalog anzulegen, wird eine weitere JSON-Datei in diesem Ordner gespeichert und `catalogs.json` um einen entsprechenden Eintrag ergänzt.
+
+Beim Aufruf von `index.html` erscheint zunächst eine Übersicht der vorhandenen Kataloge. Nach Auswahl wird der passende Fragenkatalog geladen und das Quiz gestartet. Alternativ kann ein Katalog direkt über den URL‑Parameter `?katalog=<id>` geöffnet werden, z.&nbsp;B. `index.html?katalog=fragen_it`.
 
 ## Ablauf des Quiz
 

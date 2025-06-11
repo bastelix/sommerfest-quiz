@@ -1,7 +1,7 @@
 // Hauptskript des Quizzes. Dieses File erzeugt dynamisch alle Fragen,
 // wertet Antworten aus und speichert das Ergebnis im Browser.
 // Der Code wird ausgeführt, sobald das DOM geladen ist.
-document.addEventListener('DOMContentLoaded', function(){
+function runQuiz(questions){
   // Konfiguration laden und einstellen, ob der "Antwort prüfen"-Button
   // eingeblendet werden soll
   const cfg = window.quizConfig || {};
@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function(){
 
   const container = document.getElementById('quiz');
   const progress = document.getElementById('progress');
-  const questions = window.quizQuestions || [];
 
   // Liste wohlklingender Namen für die Teilnehmer
   const melodicNames = [
@@ -593,4 +592,17 @@ document.addEventListener('DOMContentLoaded', function(){
     div.appendChild(restart);
     return div;
   }
-});
+}
+
+function startQuiz(qs){
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', () => runQuiz(qs));
+  } else {
+    runQuiz(qs);
+  }
+}
+
+window.startQuiz = startQuiz;
+if(window.quizQuestions){
+  startQuiz(window.quizQuestions);
+}
