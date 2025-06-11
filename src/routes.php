@@ -5,10 +5,18 @@ use SommerfestQuiz\Controller\HomeController;
 use SommerfestQuiz\Controller\FaqController;
 use SommerfestQuiz\Controller\AdminController;
 
+require_once __DIR__ . '/Controller/HomeController.php';
+require_once __DIR__ . '/Controller/FaqController.php';
+require_once __DIR__ . '/Controller/AdminController.php';
+
+use SommerfestQuiz\Controller\HomeController;
+use SommerfestQuiz\Controller\FaqController;
+use SommerfestQuiz\Controller\AdminController;
+
 return function (\Slim\App $app) {
-    $app->get('/', new HomeController());
-    $app->get('/faq', new FaqController());
-    $app->get('/admin', new AdminController());
+    $app->get('/', HomeController::class);
+    $app->get('/faq', FaqController::class);
+    $app->get('/admin', AdminController::class);
     $app->get('/config.js', function (Request $request, Response $response) {
         $path = __DIR__ . '/../public/js/config.js';
         if (!file_exists($path)) {
