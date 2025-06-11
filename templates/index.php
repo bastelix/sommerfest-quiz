@@ -9,6 +9,7 @@
   <style>
     body {
       min-height: 100vh;
+      padding-top: 48px;
     }
     .sortable-list li,
     .terms li,
@@ -66,11 +67,16 @@
       top: 0;
       left: 0;
     }
-    .theme-switch {
+    .topbar {
       position: fixed;
-      top: 8px;
-      left: 8px;
+      top: 0;
+      left: 0;
+      width: 100%;
       z-index: 1000;
+    }
+    .theme-switch {
+      display: inline-block;
+      margin-left: 8px;
     }
     .theme-switch input {
       height: 0;
@@ -143,10 +149,16 @@
   </style>
 </head>
 <body class="uk-padding uk-flex uk-flex-center">
-  <a href="faq.html" class="uk-icon-button uk-position-fixed uk-position-top-right uk-margin-small-right uk-margin-small-top" uk-icon="question" title="Hilfe" aria-label="Hilfe"></a>
-  <div class="theme-switch">
-    <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
-    <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
+  <div class="uk-navbar-container topbar" uk-navbar>
+    <div class="uk-navbar-left">
+      <div class="theme-switch">
+        <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
+        <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
+      </div>
+    </div>
+    <div class="uk-navbar-right">
+      <a href="/faq" class="uk-icon-button" uk-icon="question" title="Hilfe" aria-label="Hilfe"></a>
+    </div>
   </div>
   <div class="uk-container uk-width-1-1 uk-width-1-2@s uk-width-2-3@m">
     <div class="uk-card uk-card-default uk-card-body uk-box-shadow-large uk-margin">

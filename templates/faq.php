@@ -6,9 +6,68 @@
   <title>FAQ</title>
   <link rel="stylesheet" href="/css/uikit.min.css">
   <link rel="stylesheet" href="/css/dark.css">
+  <style>
+    body {
+      padding-top: 48px;
+    }
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+    .theme-switch {
+      display: inline-block;
+      margin-left: 8px;
+    }
+    .theme-switch input {
+      height: 0;
+      width: 0;
+      visibility: hidden;
+    }
+    .theme-switch-label {
+      cursor: pointer;
+      text-indent: -9999px;
+      width: 40px;
+      height: 20px;
+      background: #ccc;
+      display: block;
+      border-radius: 100px;
+      position: relative;
+    }
+    .theme-switch-label:after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 90px;
+      transition: 0.3s;
+    }
+    .theme-switch input:checked + .theme-switch-label {
+      background: #1e87f0;
+    }
+    .theme-switch input:checked + .theme-switch-label:after {
+      left: calc(100% - 2px);
+      transform: translateX(-100%);
+    }
+  </style>
 </head>
 <body class="uk-background-muted uk-padding">
-  <a href="#" class="uk-icon-button uk-position-fixed uk-position-top-left uk-margin-small-left uk-margin-small-top" uk-icon="arrow-left" title="Zurück" aria-label="Zurück" onclick="history.back();"></a>
+  <div class="uk-navbar-container topbar" uk-navbar>
+    <div class="uk-navbar-left">
+      <a href="/" class="uk-icon-button" uk-icon="arrow-left" title="Zurück" aria-label="Zurück"></a>
+    </div>
+    <div class="uk-navbar-right">
+      <div class="theme-switch">
+        <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
+        <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
+      </div>
+    </div>
+  </div>
   <div class="uk-container uk-container-small">
     <h1 class="uk-heading-divider">FAQ</h1>
     <p class="uk-text-lead">Auf dieser Seite findest du Antworten auf häufig gestellte Fragen rund um die Anwendung und Administration des Quiz.</p>
@@ -152,9 +211,22 @@
   <script src="/js/uikit-icons.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function(){
+      const toggle = document.getElementById('theme-toggle');
       const isDark = localStorage.getItem('darkMode') === 'true';
       if(isDark){
         document.body.classList.add('dark-mode','uk-light');
+        if(toggle) toggle.checked = true;
+      }
+      if(toggle){
+        toggle.addEventListener('change', function(){
+          if(this.checked){
+            document.body.classList.add('dark-mode','uk-light');
+            localStorage.setItem('darkMode', 'true');
+          } else {
+            document.body.classList.remove('dark-mode','uk-light');
+            localStorage.setItem('darkMode', 'false');
+          }
+        });
       }
     });
   </script>
