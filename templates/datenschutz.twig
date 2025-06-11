@@ -1,0 +1,86 @@
+{% extends 'layout.twig' %}
+
+{% block title %}Datenschutz{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="/css/dark.css">
+  <link rel="stylesheet" href="/css/main.css">
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <a href="/" class="uk-icon-button" uk-icon="arrow-left" title="Zurück" aria-label="Zurück"></a>
+    {% endblock %}
+    {% block right %}
+      <div class="theme-switch">
+        <input type="checkbox" id="theme-toggle" aria-label="Design wechseln">
+        <label for="theme-toggle" class="theme-switch-label">Design wechseln</label>
+      </div>
+    {% endblock %}
+  {% endembed %}
+  <div class="uk-container uk-container-small">
+    <h1 class="uk-heading-divider uk-hidden">Datenschutzerklärung</h1>
+
+    <h2 class="uk-heading-bullet">1. Verantwortlicher</h2>
+    <p>Verantwortlich für die Datenverarbeitung im Rahmen dieser Anwendung ist:<br>
+    René Buske<br>
+    Weidenbusch 8<br>
+    14532 Kleinmachnow<br>
+    E-Mail: <a href="mailto:info@calhelp.de">info@calhelp.de</a></p>
+
+    <h2 class="uk-heading-bullet">2. Zweck der Datenverarbeitung</h2>
+    <p>Die Quiz-App dient der Durchführung eines digitalen Quiz im Rahmen der Sommerfeier 2025. Die Erhebung und Verarbeitung von Daten erfolgt ausschließlich zur Bereitstellung und Verbesserung des Quiz-Angebots.</p>
+
+    <h2 class="uk-heading-bullet">3. Art und Umfang der erhobenen Daten</h2>
+    <p><strong>Keine Erhebung personenbezogener Daten:</strong> Es werden keinerlei personenbezogene Daten (wie Name, E-Mail, Adresse etc.) abgefragt, gespeichert oder verarbeitet.</p>
+    <p><strong>Quiz-Daten:</strong> Bei der Nutzung der App werden lediglich pseudonymisierte Daten wie frei gewählte Benutzernamen, erzielte Punktzahlen und ggf. technische Informationen zum Ablauf des Quiz verarbeitet.</p>
+    <p><strong>Protokolldatei (statistical.log):</strong> Beim optionalen Export werden ausschließlich Pseudonyme und Punktzahlen gespeichert.</p>
+
+    <h2 class="uk-heading-bullet">4. Speicherung und Löschung</h2>
+    <p><strong>Serverseitige Speicherung:</strong> Je nach Konfiguration werden Quiz-Ergebnisse auf dem Server gespeichert. Diese Daten enthalten keine personenbezogenen Informationen.</p>
+    <p><strong>Lokal gespeicherte Daten:</strong> Sofern lokal gespeichert wird (z. B. im Browser-Storage), verbleiben die Daten ausschließlich auf dem Endgerät des Nutzers und werden nicht an Dritte übermittelt.</p>
+    <p><strong>Löschung:</strong> Alle gespeicherten Daten werden spätestens nach Abschluss des Quiz-Events gelöscht oder anonymisiert.</p>
+
+    <h2 class="uk-heading-bullet">5. Keine Weitergabe an Dritte</h2>
+    <p>Es findet keine Übermittlung oder Weitergabe von Daten an Dritte statt.</p>
+
+    <h2 class="uk-heading-bullet">6. Cookies und Tracking</h2>
+    <p>Die App verwendet keine Cookies und kein Tracking zur Nutzerverfolgung.</p>
+
+    <h2 class="uk-heading-bullet">7. Rechte der Nutzer</h2>
+    <p>Da keine personenbezogenen Daten verarbeitet werden, bestehen keine Betroffenenrechte im Sinne der DSGVO bezüglich Auskunft, Berichtigung, Löschung oder Übertragbarkeit.</p>
+
+    <h2 class="uk-heading-bullet">8. Kontakt</h2>
+    <p>Für Fragen zum Datenschutz oder zur Anwendung wenden Sie sich bitte an: <a href="mailto:info@calhelp.de">info@calhelp.de</a></p>
+
+    <p class="uk-text-small">Hinweis: Diese Datenschutzerklärung basiert auf dem aktuellen Stand der Technik und des Projekts. Sollte sich der Funktionsumfang ändern oder die App personenbezogene Daten erheben, ist eine Anpassung erforderlich.</p>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/js/uikit-icons.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      const toggle = document.getElementById('theme-toggle');
+      const isDark = localStorage.getItem('darkMode') === 'true';
+      if(isDark){
+        document.body.classList.add('dark-mode','uk-light');
+        if(toggle) toggle.checked = true;
+      }
+      if(toggle){
+        toggle.addEventListener('change', function(){
+          if(this.checked){
+            document.body.classList.add('dark-mode','uk-light');
+            localStorage.setItem('darkMode', 'true');
+          } else {
+            document.body.classList.remove('dark-mode','uk-light');
+            localStorage.setItem('darkMode', 'false');
+          }
+        });
+      }
+    });
+  </script>
+{% endblock %}
