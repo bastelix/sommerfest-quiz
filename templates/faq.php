@@ -20,6 +20,7 @@
     .theme-switch {
       display: inline-block;
       margin-left: 8px;
+      margin-top: -2mm;
     }
     .theme-switch input {
       height: 0;
