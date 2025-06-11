@@ -134,6 +134,12 @@
         transform: scale(1.3);
       }
     }
+    @media (max-width: 639px) {
+      .uk-container {
+        padding-left: 1px;
+        padding-right: 1px;
+      }
+    }
   </style>
 </head>
 <body class="uk-padding uk-flex uk-flex-center">
