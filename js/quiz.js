@@ -88,12 +88,13 @@ function runQuiz(questions){
   const elements = shuffled.map((q, idx) => createQuestion(q, idx));
   // Speichert true/false für jede beantwortete Frage
   const results = new Array(questionCount).fill(false);
-  const startEl = createStart();     // Begrüßungsbildschirm
   const summaryEl = createSummary(); // Abschlussseite
-  // Start- und End-Element einfügen
-  elements.unshift(startEl);
+  // Abschluss-Element einfügen
   elements.push(summaryEl);
   let summaryShown = false;
+
+  // neuen Teilnehmernamen speichern
+  sessionStorage.setItem('quizUser', generateUserName());
 
   // konfigurierbare Farben dynamisch in ein Style-Tag schreiben
   const styleEl = document.createElement('style');
@@ -132,20 +133,16 @@ function runQuiz(questions){
     }
   });
   progress.max = questionCount;
-  progress.value = 0;
-  progress.classList.add('uk-hidden');
+  progress.classList.remove('uk-hidden');
+  showQuestion(current);
 
   // Zeigt das Element mit dem angegebenen Index an und aktualisiert den Fortschrittsbalken
   function showQuestion(i){
     elements.forEach((el, idx) => el.classList.toggle('uk-hidden', idx !== i));
-    if(i === 0){
-      // Vor dem Quiz: kein Fortschrittsbalken
-      progress.classList.add('uk-hidden');
-      progress.value = 0;
-    } else if(i <= questionCount){
-      // Während des Quiz Balken aktualisieren
+    if(i < questionCount){
+      // Fragen anzeigen und Fortschritt aktualisieren
       progress.classList.remove('uk-hidden');
-      progress.value = i;
+      progress.value = i + 1;
     } else {
       // Nach der letzten Frage Zusammenfassung anzeigen
       progress.value = questionCount;
@@ -157,9 +154,6 @@ function runQuiz(questions){
   // Blendet die nächste Frage ein
   function next(){
     if(current < questionCount){
-      current++;
-      showQuestion(current);
-    } else if(current === questionCount){
       current++;
       showQuestion(current);
     }
