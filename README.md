@@ -32,7 +32,7 @@ Das **Sommerfest-Quiz** ist eine sofort einsetzbare Web-App, mit der Sie Besuche
    ```
 2. Server starten (z.B. für lokale Tests):
    ```bash
-   php -S localhost:8080 -t public router.php
+   php -S localhost:8080 -t public public/router.php
    ```
    Anschließend ist das Quiz unter <http://localhost:8080> aufrufbar.
 
