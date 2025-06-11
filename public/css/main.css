@@ -3,6 +3,10 @@ body {
   overflow-x: hidden;
 }
 
+body.uk-padding {
+  padding-top: 56px;
+}
+
 .index-page {
   padding-top: 56px;
 }
@@ -78,6 +82,7 @@ body {
   right: 0;
   box-sizing: border-box;
   z-index: 1000;
+  box-sizing: border-box;
 }
 
 .theme-switch {
@@ -92,8 +97,9 @@ body {
 }
 
 .topbar .uk-navbar-item {
-  margin-left: 0.5mm;
-  margin-right: 0.5mm;
+  margin: 0;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
   display: flex;
   align-items: center;
 }
