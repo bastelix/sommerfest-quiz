@@ -57,6 +57,10 @@ python3 tests/test_json_validity.py
 
 Das Quiz verzichtet vollständig auf serverseitige Speicherung. Alle Eingaben bleiben im Browser der Teilnehmenden und können bei Bedarf als `statistical.log` heruntergeladen werden.
 
+## Barrierefreiheit
+
+Bei einer Projektprüfung wurden die Vorlagen auf bessere Zugänglichkeit hin optimiert. Unter anderem wurden aussagekräftigere ARIA-Labels vergeben, damit Screenreader alle Bedienelemente korrekt ankündigen.
+
 ## Lizenz
 
 Dieses Projekt steht unter der MIT-Lizenz. Weitere Informationen finden Sie in der Datei `LICENSE`.
