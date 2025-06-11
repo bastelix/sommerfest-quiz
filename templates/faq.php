@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/css/dark.css">
   <style>
     body {
-      padding-top: 48px;
+      padding-top: 96px;
     }
     .topbar {
       position: fixed;
@@ -53,6 +53,12 @@
     .theme-switch input:checked + .theme-switch-label:after {
       left: calc(100% - 2px);
       transform: translateX(-100%);
+    }
+    .topbar .uk-navbar-item {
+      margin-left: 0.5mm;
+      margin-right: 0.5mm;
+      display: flex;
+      align-items: center;
     }
   </style>
 </head>
