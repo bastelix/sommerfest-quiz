@@ -188,3 +188,8 @@ body.dark-mode .sticky-actions {
 .question-preview {
   min-height: 100px;
 }
+
+/* Einheitlicher Kartenrahmen fuer Admin-Tabs */
+.tab-card {
+  margin-top: 16px;
+}
