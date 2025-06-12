@@ -49,7 +49,7 @@ class PdfExportService
         $objects[] = "<< /Length " . strlen($stream) . " >>\nstream\n" . $stream . "\nendstream"; //4
         $objects[] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"; //5
 
-        $pdf = "%PDF-1.4\n";
+        $pdf = "%PDF-1.4\n%\xE2\xE3\xCF\xD3\n";
         $offsets = [];
         foreach ($objects as $i => $obj) {
             $offsets[$i + 1] = strlen($pdf);
@@ -62,7 +62,7 @@ class PdfExportService
             $pdf .= sprintf('%010d 00000 n \n', $off);
         }
         $pdf .= "trailer << /Root 1 0 R /Size " . (count($objects) + 1) . " >>\n";
-        $pdf .= "startxref\n" . $xrefPos . "\n%%EOF";
+        $pdf .= "startxref\n" . $xrefPos . "\n%%EOF\n";
 
         return $pdf;
     }
