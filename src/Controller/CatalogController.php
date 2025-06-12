@@ -42,11 +42,17 @@ class CatalogController
     {
         $file = basename($args['file']);
         $data = $request->getParsedBody();
+
         if ($request->getHeaderLine('Content-Type') === 'application/json') {
             $data = json_decode((string) $request->getBody(), true);
+            if (!is_array($data)) {
+                return $response->withStatus(400);
+            }
+        } elseif (!is_array($data)) {
+            return $response->withStatus(400);
         }
 
-        $this->service->write($file, $data ?? []);
+        $this->service->write($file, $data);
 
         return $response->withStatus(204);
     }
