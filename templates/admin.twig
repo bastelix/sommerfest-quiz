@@ -3,7 +3,7 @@
 {% block title %}Quiz Verwaltung{% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="/css/main.css">
 {% endblock %}
 
 {% block body_class %}uk-background-muted uk-padding{% endblock %}
@@ -108,5 +108,5 @@
   <script>
     window.quizConfig = {{ config|json_encode|raw }};
   </script>
-  <script src="js/admin.js"></script>
+  <script src="/js/admin.js"></script>
 {% endblock %}
