@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
 use App\Service\ConfigService;
+use App\Service\ResultService;
 
 class AdminController
 {
@@ -15,6 +16,10 @@ class AdminController
     {
         $view = Twig::fromRequest($request);
         $cfg = (new ConfigService(__DIR__ . '/../../config/config.json'))->getConfig();
-        return $view->render($response, 'admin.twig', ['config' => $cfg]);
+        $results = (new ResultService(__DIR__ . '/../../data/results.json'))->getAll();
+        return $view->render($response, 'admin.twig', [
+            'config' => $cfg,
+            'results' => $results,
+        ]);
     }
 }
