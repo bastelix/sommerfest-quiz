@@ -435,6 +435,45 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   });
 
+  const resultsResetBtn = document.getElementById('resultsResetBtn');
+  const resultsDownloadBtn = document.getElementById('resultsDownloadBtn');
+
+  resultsResetBtn?.addEventListener('click', function (e) {
+    e.preventDefault();
+    if (!confirm('Alle Ergebnisse löschen?')) return;
+    fetch('/results', { method: 'DELETE' })
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        notify('Ergebnisse gelöscht', 'success');
+        window.location.reload();
+      })
+      .catch(err => {
+        console.error(err);
+        notify('Fehler beim Löschen', 'danger');
+      });
+  });
+
+  resultsDownloadBtn?.addEventListener('click', function (e) {
+    e.preventDefault();
+    fetch('/results/download')
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        return r.blob();
+      })
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'results.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      })
+      .catch(err => {
+        console.error(err);
+        notify('Fehler beim Herunterladen', 'danger');
+      });
+  });
+
   // Zähler für eindeutige Namen von Eingabefeldern
   let cardIndex = 0;
 });

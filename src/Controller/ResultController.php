@@ -25,6 +25,15 @@ class ResultController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    public function download(Request $request, Response $response): Response
+    {
+        $content = json_encode($this->service->getAll(), JSON_PRETTY_PRINT);
+        $response->getBody()->write($content);
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Content-Disposition', 'attachment; filename="results.json"');
+    }
+
     public function post(Request $request, Response $response): Response
     {
         $data = json_decode((string) $request->getBody(), true);
@@ -39,5 +48,11 @@ class ResultController
         $view = Twig::fromRequest($request);
         $results = $this->service->getAll();
         return $view->render($response, 'results.twig', ['results' => $results]);
+    }
+
+    public function delete(Request $request, Response $response): Response
+    {
+        $this->service->clear();
+        return $response->withStatus(204);
     }
 }

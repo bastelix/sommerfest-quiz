@@ -57,7 +57,9 @@ return function (\Slim\App $app) {
     $app->get('/admin', AdminController::class)->add(new AdminAuthMiddleware());
     $app->get('/results', [$resultController, 'page']);
     $app->get('/results.json', [$resultController, 'get']);
+    $app->get('/results/download', [$resultController, 'download']);
     $app->post('/results', [$resultController, 'post']);
+    $app->delete('/results', [$resultController, 'delete']);
     $app->get('/config.json', [$configController, 'get']);
     $app->post('/config.json', [$configController, 'post']);
     $app->get('/kataloge/{file}', [$catalogController, 'get']);
