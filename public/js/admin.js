@@ -76,9 +76,21 @@ document.addEventListener('DOMContentLoaded', function () {
   const catSelect = document.getElementById('catalogSelect');
   const catalogList = document.getElementById('catalogList');
   const newCatBtn = document.getElementById('newCatBtn');
+  const catalogSaveBtn = document.getElementById('catalogSaveBtn');
   let catalogs = [];
   let catalogFile = '';
   let initial = [];
+
+  function saveCatalogs() {
+    fetch('/kataloge/catalogs.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(catalogs)
+    }).catch(err => {
+      console.error(err);
+      notify('Fehler beim Speichern der Katalogliste', 'danger');
+    });
+  }
 
   function loadCatalog(id) {
     const cat = catalogs.find(c => c.id === id);
@@ -137,6 +149,7 @@ document.addEventListener('DOMContentLoaded', function () {
           renderAll(initial);
         }
         renderCatalogs(catalogs);
+        saveCatalogs();
         notify('Katalog gelöscht', 'success');
       })
       .catch(err => {
@@ -145,33 +158,53 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
+  function createCatalogRow(cat) {
+    const row = document.createElement('div');
+    row.className = 'uk-flex uk-flex-middle uk-margin';
+    row.dataset.id = cat.id;
+
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.className = 'uk-input uk-form-width-small';
+    nameInput.value = cat.name || cat.id;
+    nameInput.addEventListener('input', () => {
+      cat.name = nameInput.value.trim();
+      const opt = catSelect.querySelector('option[value="' + cat.id + '"]');
+      if (opt) opt.textContent = cat.name || cat.id;
+    });
+
+    const descInput = document.createElement('input');
+    descInput.type = 'text';
+    descInput.placeholder = 'Beschreibung';
+    descInput.className = 'uk-input uk-width-expand uk-margin-left';
+    descInput.value = cat.description || '';
+    descInput.addEventListener('input', () => {
+      cat.description = descInput.value.trim();
+    });
+
+    const qr = document.createElement('img');
+    qr.className = 'uk-margin-left';
+    qr.width = 64;
+    qr.height = 64;
+    qr.src = qrSrc(window.location.origin + '/?katalog=' + encodeURIComponent(cat.id));
+
+    const del = document.createElement('button');
+    del.className = 'uk-button uk-button-danger uk-margin-left';
+    del.textContent = 'Löschen';
+    del.addEventListener('click', () => deleteCatalog(cat));
+
+    row.appendChild(nameInput);
+    row.appendChild(descInput);
+    row.appendChild(qr);
+    row.appendChild(del);
+    return row;
+  }
+
   function renderCatalogs(list) {
     if (!catalogList) return;
     catalogList.innerHTML = '';
     list.forEach(cat => {
-      const row = document.createElement('div');
-      row.className = 'uk-flex uk-flex-middle uk-margin';
-      const info = document.createElement('div');
-      info.className = 'uk-width-expand';
-      const title = document.createElement('strong');
-      title.textContent = cat.name || cat.id;
-      const desc = document.createElement('div');
-      desc.textContent = cat.description || '';
-      info.appendChild(title);
-      info.appendChild(desc);
-      const qr = document.createElement('img');
-      qr.className = 'uk-margin-left';
-      qr.width = 64;
-      qr.height = 64;
-      qr.src = qrSrc(window.location.origin + '/kataloge/' + cat.file);
-      const del = document.createElement('button');
-      del.className = 'uk-button uk-button-danger uk-margin-left';
-      del.textContent = 'Löschen';
-      del.addEventListener('click', () => deleteCatalog(cat));
-      row.appendChild(info);
-      row.appendChild(qr);
-      row.appendChild(del);
-      catalogList.appendChild(row);
+      catalogList.appendChild(createCatalogRow(cat));
     });
   }
 
@@ -454,12 +487,19 @@ document.addEventListener('DOMContentLoaded', function () {
         catSelect.value = id;
         loadCatalog(id);
         renderCatalogs(catalogs);
+        saveCatalogs();
         notify('Katalog erstellt', 'success');
       })
       .catch(err => {
         console.error(err);
         notify('Fehler beim Erstellen', 'danger');
       });
+  });
+
+  catalogSaveBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    saveCatalogs();
+    notify('Katalogliste gespeichert', 'success');
   });
 
 
