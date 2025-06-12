@@ -21,6 +21,7 @@ use App\Controller\ResultController;
 use App\Controller\TeamController;
 use App\Controller\ExportController;
 use App\Service\PdfExportService;
+use App\Controller\PasswordController;
 
 require_once __DIR__ . '/Controller/HomeController.php';
 require_once __DIR__ . '/Controller/FaqController.php';
@@ -35,6 +36,7 @@ require_once __DIR__ . '/Controller/CatalogController.php';
 require_once __DIR__ . '/Controller/ResultController.php';
 require_once __DIR__ . '/Controller/TeamController.php';
 require_once __DIR__ . '/Controller/ExportController.php';
+require_once __DIR__ . '/Controller/PasswordController.php';
 
 return function (\Slim\App $app) {
     $configService = new ConfigService(__DIR__ . '/../config/config.json');
@@ -49,6 +51,7 @@ return function (\Slim\App $app) {
     $resultController = new ResultController($resultService, $xlsxService);
     $teamController = new TeamController($teamService);
     $exportController = new ExportController($configService, $catalogService, $pdfService);
+    $passwordController = new PasswordController($configService);
 
     $app->get('/', HomeController::class);
     $app->get('/favicon.ico', function (Request $request, Response $response) {
@@ -83,4 +86,5 @@ return function (\Slim\App $app) {
 
     $app->get('/teams.json', [$teamController, 'get']);
     $app->post('/teams.json', [$teamController, 'post']);
+    $app->post('/password', [$passwordController, 'post']);
 };

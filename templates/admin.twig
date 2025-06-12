@@ -22,6 +22,7 @@
     <li><a href="#">Teams/Personen</a></li>
     <li><a href="#">Fragen anpassen</a></li>
     <li><a href="#">Ergebnisse</a></li>
+    <li><a href="#">Passwort ändern</a></li>
   </ul>
   <ul class="uk-switcher uk-margin">
     <li>
@@ -152,6 +153,24 @@
           <button id="resultsResetBtn" class="uk-button uk-button-default">Zurücksetzen</button>
           <button id="resultsDownloadBtn" class="uk-button uk-button-primary">Herunterladen</button>
         </div>
+      </div>
+    </li>
+    <li>
+      <div class="uk-container uk-container-small">
+        <h2 class="uk-heading-bullet">Passwort ändern</h2>
+        <form id="passForm" class="uk-form-stacked">
+          <div class="uk-margin">
+            <label class="uk-form-label" for="newPass">Neues Passwort</label>
+            <div class="uk-form-controls"><input class="uk-input" type="password" id="newPass"></div>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="newPassRepeat">Passwort wiederholen</label>
+            <div class="uk-form-controls"><input class="uk-input" type="password" id="newPassRepeat"></div>
+          </div>
+          <div class="uk-margin">
+            <button id="passSaveBtn" class="uk-button uk-button-primary">Speichern</button>
+          </div>
+        </form>
       </div>
     </li>
   </ul>
