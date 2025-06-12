@@ -19,6 +19,8 @@ use App\Service\XlsxExportService;
 use App\Service\TeamService;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
+use App\Controller\ExportController;
+use App\Service\PdfExportService;
 
 require_once __DIR__ . '/Controller/HomeController.php';
 require_once __DIR__ . '/Controller/FaqController.php';
@@ -32,6 +34,7 @@ require_once __DIR__ . '/Controller/ConfigController.php';
 require_once __DIR__ . '/Controller/CatalogController.php';
 require_once __DIR__ . '/Controller/ResultController.php';
 require_once __DIR__ . '/Controller/TeamController.php';
+require_once __DIR__ . '/Controller/ExportController.php';
 
 return function (\Slim\App $app) {
     $configService = new ConfigService(__DIR__ . '/../config/config.json');
@@ -39,11 +42,13 @@ return function (\Slim\App $app) {
     $resultService = new ResultService(__DIR__ . '/../data/results.json');
     $xlsxService = new XlsxExportService();
     $teamService = new TeamService(__DIR__ . '/../data/teams.json');
+    $pdfService = new PdfExportService();
 
     $configController = new ConfigController($configService);
     $catalogController = new CatalogController($catalogService);
     $resultController = new ResultController($resultService, $xlsxService);
     $teamController = new TeamController($teamService);
+    $exportController = new ExportController($configService, $catalogService, $pdfService);
 
     $app->get('/', HomeController::class);
     $app->get('/favicon.ico', function (Request $request, Response $response) {
@@ -67,6 +72,7 @@ return function (\Slim\App $app) {
     $app->get('/results/download', [$resultController, 'download']);
     $app->post('/results', [$resultController, 'post']);
     $app->delete('/results', [$resultController, 'delete']);
+    $app->get('/export.pdf', [$exportController, 'download']);
     $app->get('/config.json', [$configController, 'get']);
     $app->post('/config.json', [$configController, 'post']);
     $app->get('/kataloge/{file}', [$catalogController, 'get']);
