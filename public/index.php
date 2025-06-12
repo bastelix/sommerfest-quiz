@@ -8,6 +8,9 @@ use App\Application\Middleware\SessionMiddleware;
 $settings = require __DIR__ . '/../config/settings.php';
 $app = \Slim\Factory\AppFactory::create();
 $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+if (basename($basePath) === 'public') {
+    $basePath = dirname($basePath);
+}
 if ($basePath !== '') {
     $app->setBasePath($basePath);
 }
