@@ -80,6 +80,17 @@ document.addEventListener('DOMContentLoaded', function () {
   let catalogFile = '';
   let initial = [];
 
+  function saveCatalogs() {
+    fetch('/kataloge/catalogs.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(catalogs)
+    }).catch(err => {
+      console.error(err);
+      notify('Fehler beim Speichern der Katalogliste', 'danger');
+    });
+  }
+
   function loadCatalog(id) {
     const cat = catalogs.find(c => c.id === id);
     if (!cat) return;
@@ -137,12 +148,27 @@ document.addEventListener('DOMContentLoaded', function () {
           renderAll(initial);
         }
         renderCatalogs(catalogs);
+        saveCatalogs();
         notify('Katalog gelöscht', 'success');
       })
       .catch(err => {
         console.error(err);
         notify('Fehler beim Löschen', 'danger');
       });
+  }
+
+  function editCatalog(cat) {
+    const name = prompt('Name des Katalogs?', cat.name || cat.id);
+    if (name === null) return;
+    const desc = prompt('Beschreibung?', cat.description || '');
+    if (desc === null) return;
+    cat.name = name.trim();
+    cat.description = desc.trim();
+    const opt = catSelect.querySelector('option[value="' + cat.id + '"]');
+    if (opt) opt.textContent = cat.name || cat.id;
+    renderCatalogs(catalogs);
+    saveCatalogs();
+    notify('Katalog aktualisiert', 'success');
   }
 
   function renderCatalogs(list) {
@@ -163,13 +189,18 @@ document.addEventListener('DOMContentLoaded', function () {
       qr.className = 'uk-margin-left';
       qr.width = 64;
       qr.height = 64;
-      qr.src = qrSrc(window.location.origin + '/kataloge/' + cat.file);
+      qr.src = qrSrc(window.location.origin + '/?katalog=' + encodeURIComponent(cat.id));
+      const edit = document.createElement('button');
+      edit.className = 'uk-button uk-button-default uk-margin-left';
+      edit.textContent = 'Bearbeiten';
+      edit.addEventListener('click', () => editCatalog(cat));
       const del = document.createElement('button');
       del.className = 'uk-button uk-button-danger uk-margin-left';
       del.textContent = 'Löschen';
       del.addEventListener('click', () => deleteCatalog(cat));
       row.appendChild(info);
       row.appendChild(qr);
+      row.appendChild(edit);
       row.appendChild(del);
       catalogList.appendChild(row);
     });
@@ -454,6 +485,7 @@ document.addEventListener('DOMContentLoaded', function () {
         catSelect.value = id;
         loadCatalog(id);
         renderCatalogs(catalogs);
+        saveCatalogs();
         notify('Katalog erstellt', 'success');
       })
       .catch(err => {
