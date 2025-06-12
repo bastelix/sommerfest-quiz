@@ -20,7 +20,9 @@ document.addEventListener('DOMContentLoaded', function () {
     backgroundColor: document.getElementById('cfgBackgroundColor'),
     buttonColor: document.getElementById('cfgButtonColor'),
     checkAnswerButton: document.getElementById('cfgCheckAnswerButton'),
-    qrUser: document.getElementById('cfgQRUser')
+    qrUser: document.getElementById('cfgQRUser'),
+    adminUser: document.getElementById('cfgAdminUser'),
+    adminPass: document.getElementById('cfgAdminPass')
   };
   // Füllt das Formular mit den Werten aus einem Konfigurationsobjekt
   function renderCfg(data) {
@@ -32,6 +34,8 @@ document.addEventListener('DOMContentLoaded', function () {
     cfgFields.buttonColor.value = data.buttonColor || '';
     cfgFields.checkAnswerButton.value = data.CheckAnswerButton || 'yes';
     cfgFields.qrUser.value = String(data.QRUser) || 'false';
+    cfgFields.adminUser.value = data.adminUser || '';
+    cfgFields.adminPass.value = data.adminPass || '';
   }
   renderCfg(cfgInitial);
   document.getElementById('cfgResetBtn').addEventListener('click', function (e) {
@@ -48,7 +52,9 @@ document.addEventListener('DOMContentLoaded', function () {
       backgroundColor: cfgFields.backgroundColor.value.trim(),
       buttonColor: cfgFields.buttonColor.value.trim(),
       CheckAnswerButton: cfgFields.checkAnswerButton.value,
-      QRUser: cfgFields.qrUser.value === 'true'
+      QRUser: cfgFields.qrUser.value === 'true',
+      adminUser: cfgFields.adminUser.value.trim(),
+      adminPass: cfgFields.adminPass.value
     };
     fetch(url('config.json'), {
       method: 'POST',
