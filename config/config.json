@@ -8,5 +8,6 @@
   "buttonColor": "#1e87f0",
   "CheckAnswerButton": "no",
   "adminUser": "admin",
-  "adminPass": "password"
+  "adminPass": "password",
+  "QRRestrict": false
 }
