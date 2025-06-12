@@ -17,6 +17,6 @@
   {
     "type": "sort",
     "prompt": "Bringe die Schritte zum Speichern einer Datei in die richtige Reihenfolge:",
-    "items": ["Datei-Men\u00fc \u00f6ffnen", "Speichern anklicken", "Name w\u00e4hlen und best\u00e4tigen"]
+    "items": ["Datei-Menü öffnen", "Speichern anklicken", "Name wählen und bestätigen"]
   }
 ]

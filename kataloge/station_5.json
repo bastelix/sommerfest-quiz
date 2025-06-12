@@ -2,7 +2,7 @@
   {
     "type": "mc",
     "prompt": "Welches Zahlensystem nutzt ein Computer intern?",
-    "options": ["Dezimalsystem", "Bin\u00e4rsystem", "R\u00f6mische Zahlen"],
+    "options": ["Dezimalsystem", "Binärsystem", "Römische Zahlen"],
     "answers": [1]
   },
   {
