@@ -519,23 +519,44 @@ document.addEventListener('DOMContentLoaded', function () {
     input.type = 'text';
     input.className = 'uk-input uk-width-expand';
     input.value = name;
-    const img = document.createElement('img');
-    img.className = 'uk-margin-left';
-    img.width = 64;
-    img.height = 64;
-    function update(){
-      const val = input.value.trim();
-      img.src = val ? qrSrc(val) : '';
+  const img = document.createElement('img');
+  img.className = 'uk-margin-left';
+  img.width = 64;
+  img.height = 64;
+  const dl = document.createElement('button');
+  dl.className = 'uk-button uk-button-default uk-margin-left';
+  dl.innerHTML = '<span uk-icon="download"></span>';
+  dl.setAttribute('aria-label', 'QR-Code herunterladen');
+  function triggerDownload(text) {
+    const a = document.createElement('a');
+    a.href = qrSrc(text);
+    a.download = text + '.png';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+  function update() {
+    const val = input.value.trim();
+    if (val) {
+      img.src = qrSrc(val);
+      dl.disabled = false;
+      dl.onclick = e => { e.preventDefault(); triggerDownload(val); };
+    } else {
+      img.src = '';
+      dl.disabled = true;
+      dl.onclick = null;
     }
-    input.addEventListener('input', update);
-    update();
-    const del = document.createElement('button');
-    del.className = 'uk-button uk-button-danger uk-margin-left';
-    del.textContent = '×';
-    del.onclick = () => div.remove();
-    div.appendChild(input);
-    div.appendChild(img);
-    div.appendChild(del);
+  }
+  input.addEventListener('input', update);
+  update();
+  const del = document.createElement('button');
+  del.className = 'uk-button uk-button-danger uk-margin-left';
+  del.textContent = '×';
+  del.onclick = () => div.remove();
+  div.appendChild(input);
+  div.appendChild(img);
+  div.appendChild(dl);
+  div.appendChild(del);
     return div;
   }
 

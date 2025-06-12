@@ -19,9 +19,9 @@
   <ul uk-tab>
     <li class="uk-active"><a href="#">Veranstaltung konfigurieren</a></li>
     <li><a href="#">Kataloge</a></li>
+    <li><a href="#">Teams/Personen</a></li>
     <li><a href="#">Fragen anpassen</a></li>
     <li><a href="#">Ergebnisse</a></li>
-    <li><a href="#">Teams/Personen</a></li>
   </ul>
   <ul class="uk-switcher uk-margin">
     <li>
@@ -85,6 +85,17 @@
           <button id="newCatBtn" class="uk-button uk-button-default">Neuer Katalog</button>
         </div>
         <div id="catalogList" class="uk-margin"></div>
+        <h2 class="uk-heading-bullet">Teams/Personen</h2>
+        <div id="teamsList" class="uk-margin"></div>
+        <div class="uk-margin">
+          <button id="teamAddBtn" class="uk-button uk-button-default">Hinzufügen</button>
+        </div>
+        <div class="uk-margin">
+          <label><input class="uk-checkbox" type="checkbox" id="teamRestrict"> Nur Teams/Personen aus der Liste dürfen teilnehmen.</label>
+        </div>
+        <div class="uk-margin">
+          <button id="teamsSaveBtn" class="uk-button uk-button-primary">Speichern</button>
+        </div>
       </div>
     </li>
     <li>
@@ -130,21 +141,6 @@
         <div class="uk-margin uk-flex uk-flex-between">
           <button id="resultsResetBtn" class="uk-button uk-button-default">Zurücksetzen</button>
           <button id="resultsDownloadBtn" class="uk-button uk-button-primary">Herunterladen</button>
-        </div>
-      </div>
-    </li>
-    <li>
-      <div class="uk-container uk-container-small">
-        <h2 class="uk-heading-bullet">Teams/Personen</h2>
-        <div id="teamsList" class="uk-margin"></div>
-        <div class="uk-margin">
-          <button id="teamAddBtn" class="uk-button uk-button-default">Hinzufügen</button>
-        </div>
-        <div class="uk-margin">
-          <label><input class="uk-checkbox" type="checkbox" id="teamRestrict"> Nur Teams/Personen aus der Liste dürfen teilnehmen.</label>
-        </div>
-        <div class="uk-margin">
-          <button id="teamsSaveBtn" class="uk-button uk-button-primary">Speichern</button>
         </div>
       </div>
     </li>
