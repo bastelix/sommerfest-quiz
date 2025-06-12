@@ -1,10 +1,9 @@
-{% extends 'layout.twig' %}
+{% extends 'base.twig' %}
 
 {% block title %}Admin Login{% endblock %}
 
-{% block body_class %}uk-section uk-section-muted uk-flex uk-flex-middle uk-animation-fade{% endblock %}
 
-{% block body %}
+{% block content %}
 <div class="uk-width-1-1">
   <div class="uk-container">
     <div class="uk-grid-margin uk-grid uk-grid-stack" uk-grid>
@@ -20,13 +19,13 @@
             <div class="uk-margin">
               <div class="uk-inline uk-width-1-1">
                 <span class="uk-form-icon" uk-icon="icon: user"></span>
-                <input class="uk-input uk-form-large" type="text" name="username" id="username" required>
+                <input class="uk-input uk-form-large" type="text" name="username" id="username" placeholder="Benutzername" required>
               </div>
             </div>
             <div class="uk-margin">
               <div class="uk-inline uk-width-1-1">
                 <span class="uk-form-icon" uk-icon="icon: lock"></span>
-                <input class="uk-input uk-form-large" type="password" name="password" id="password" required>
+                <input class="uk-input uk-form-large" type="password" name="password" id="password" placeholder="Passwort" required>
               </div>
             </div>
             <div class="uk-margin">
