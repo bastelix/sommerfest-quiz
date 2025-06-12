@@ -11,6 +11,9 @@ $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
 if (basename($basePath) === 'public') {
     $basePath = dirname($basePath);
 }
+if ($basePath === '/') {
+    $basePath = '';
+}
 if ($basePath !== '') {
     $app->setBasePath($basePath);
 }
