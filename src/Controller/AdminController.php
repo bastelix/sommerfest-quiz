@@ -9,6 +9,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
 use App\Service\ConfigService;
 use App\Service\ResultService;
+use App\Service\CatalogService;
 
 class AdminController
 {
@@ -17,9 +18,17 @@ class AdminController
         $view = Twig::fromRequest($request);
         $cfg = (new ConfigService(__DIR__ . '/../../config/config.json'))->getConfig();
         $results = (new ResultService(__DIR__ . '/../../data/results.json'))->getAll();
+        $catalogSvc = new CatalogService(__DIR__ . '/../../kataloge');
+        $catalogsJson = $catalogSvc->read('catalogs.json');
+        $catalogs = [];
+        if ($catalogsJson !== null) {
+            $catalogs = json_decode($catalogsJson, true) ?? [];
+        }
+
         return $view->render($response, 'admin.twig', [
             'config' => $cfg,
             'results' => $results,
+            'catalogs' => $catalogs,
         ]);
     }
 }
