@@ -3,7 +3,7 @@
     "description": "Slim-based quiz application using UIkit3",
     "type": "project",
     "require": {
-        "php": ">=8.0",
+        "php": "^8.1",
         "slim/slim": "^4.12",
         "slim/psr7": "^1.6",
         "twig/twig": "^3.8",
