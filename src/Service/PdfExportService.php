@@ -20,18 +20,22 @@ class PdfExportService
         $lines[] = 'BT';
         if ($header !== '') {
             $lines[] = '/F1 24 Tf';
-            $lines[] = sprintf('1 0 0 1 72 %.1f Tm (%s) Tj', $y, $this->escape($header));
+            $lines[] = sprintf('1 0 0 1 72 %.1f Tm (%s) Tj', $y, $this->encode($header));
             $y -= 32.0;
         }
         if ($subheader !== '') {
             $lines[] = '/F1 16 Tf';
-            $lines[] = sprintf('1 0 0 1 72 %.1f Tm (%s) Tj', $y, $this->escape($subheader));
+            $lines[] = sprintf('1 0 0 1 72 %.1f Tm (%s) Tj', $y, $this->encode($subheader));
             $y -= 40.0;
         }
         $lines[] = '/F1 12 Tf';
         foreach ($catalogs as $cat) {
             $name = (string)($cat['name'] ?? $cat['id'] ?? '');
-            $lines[] = sprintf('1 0 0 1 72 %.1f Tm (%s) Tj', $y, $this->escape('• ' . $name));
+            $lines[] = sprintf(
+                '1 0 0 1 72 %.1f Tm (%s) Tj',
+                $y,
+                $this->encode('• ' . $name)
+            );
             $y -= 20.0;
         }
         $lines[] = 'ET';
@@ -66,5 +70,14 @@ class PdfExportService
     private function escape(string $text): string
     {
         return str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $text);
+    }
+
+    private function encode(string $text): string
+    {
+        $encoded = @iconv('UTF-8', 'windows-1252//TRANSLIT', $text);
+        if ($encoded === false) {
+            $encoded = '';
+        }
+        return $this->escape($encoded);
     }
 }
