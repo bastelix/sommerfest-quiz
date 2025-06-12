@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const catSelect = document.getElementById('catalogSelect');
   const catalogList = document.getElementById('catalogList');
   const newCatBtn = document.getElementById('newCatBtn');
+  const catalogsSaveBtn = document.getElementById('catalogsSaveBtn');
   let catalogs = [];
   let catalogFile = '';
   let initial = [];
@@ -118,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   catSelect.addEventListener('change', () => loadCatalog(catSelect.value));
 
-  function deleteCatalog(cat) {
+  function deleteCatalog(cat, row) {
     if (!confirm('Katalog wirklich löschen?')) return;
     fetch('/kataloge/' + cat.file, { method: 'DELETE' })
       .then(r => {
@@ -126,6 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
         catalogs = catalogs.filter(c => c.id !== cat.id);
         const opt = catSelect.querySelector('option[value="' + cat.id + '"]');
         opt?.remove();
+        row.remove();
         if (catalogs[0]) {
           if (catSelect.value === cat.id) {
             catSelect.value = catalogs[0].id;
@@ -136,7 +138,6 @@ document.addEventListener('DOMContentLoaded', function () {
           initial = [];
           renderAll(initial);
         }
-        renderCatalogs(catalogs);
         notify('Katalog gelöscht', 'success');
       })
       .catch(err => {
@@ -145,34 +146,56 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
+  function createCatalogRow(cat) {
+    const row = document.createElement('div');
+    row.className = 'uk-flex uk-flex-middle uk-margin-small catalog-row';
+    row.dataset.id = cat.id;
+    row.dataset.file = cat.file;
+
+    const name = document.createElement('input');
+    name.type = 'text';
+    name.className = 'uk-input uk-width-medium cat-name';
+    name.placeholder = 'Name';
+    name.value = cat.name || '';
+
+    const desc = document.createElement('input');
+    desc.type = 'text';
+    desc.className = 'uk-input uk-width-expand uk-margin-left cat-desc';
+    desc.placeholder = 'Beschreibung';
+    desc.value = cat.description || '';
+
+    const qr = document.createElement('img');
+    qr.className = 'uk-margin-left';
+    qr.width = 64;
+    qr.height = 64;
+    qr.src = qrSrc(window.location.origin + '/kataloge/' + cat.file);
+
+    const del = document.createElement('button');
+    del.className = 'uk-button uk-button-danger uk-margin-left';
+    del.textContent = 'Löschen';
+    del.addEventListener('click', () => deleteCatalog(cat, row));
+
+    row.appendChild(name);
+    row.appendChild(desc);
+    row.appendChild(qr);
+    row.appendChild(del);
+
+    return row;
+  }
+
   function renderCatalogs(list) {
     if (!catalogList) return;
     catalogList.innerHTML = '';
-    list.forEach(cat => {
-      const row = document.createElement('div');
-      row.className = 'uk-flex uk-flex-middle uk-margin';
-      const info = document.createElement('div');
-      info.className = 'uk-width-expand';
-      const title = document.createElement('strong');
-      title.textContent = cat.name || cat.id;
-      const desc = document.createElement('div');
-      desc.textContent = cat.description || '';
-      info.appendChild(title);
-      info.appendChild(desc);
-      const qr = document.createElement('img');
-      qr.className = 'uk-margin-left';
-      qr.width = 64;
-      qr.height = 64;
-      qr.src = qrSrc(window.location.origin + '/kataloge/' + cat.file);
-      const del = document.createElement('button');
-      del.className = 'uk-button uk-button-danger uk-margin-left';
-      del.textContent = 'Löschen';
-      del.addEventListener('click', () => deleteCatalog(cat));
-      row.appendChild(info);
-      row.appendChild(qr);
-      row.appendChild(del);
-      catalogList.appendChild(row);
-    });
+    list.forEach(cat => catalogList.appendChild(createCatalogRow(cat)));
+  }
+
+  function collectCatalogs() {
+    return Array.from(catalogList.querySelectorAll('.catalog-row')).map(row => ({
+      id: row.dataset.id,
+      file: row.dataset.file,
+      name: row.querySelector('.cat-name').value.trim(),
+      description: row.querySelector('.cat-desc').value.trim()
+    }));
   }
 
   // Rendert alle Fragen im Editor neu
@@ -458,7 +481,33 @@ document.addEventListener('DOMContentLoaded', function () {
       })
       .catch(err => {
         console.error(err);
-        notify('Fehler beim Erstellen', 'danger');
+      notify('Fehler beim Erstellen', 'danger');
+      });
+  });
+
+  catalogsSaveBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    const data = collectCatalogs();
+    fetch('/kataloge/catalogs.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        catalogs = data;
+        catSelect.innerHTML = '';
+        catalogs.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.name || c.id;
+          catSelect.appendChild(opt);
+        });
+        notify('Katalogliste gespeichert', 'success');
+      })
+      .catch(err => {
+        console.error(err);
+        notify('Fehler beim Speichern', 'danger');
       });
   });
 
