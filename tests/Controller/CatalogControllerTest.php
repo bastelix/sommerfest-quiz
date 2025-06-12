@@ -45,4 +45,27 @@ class CatalogControllerTest extends TestCase
         unlink($dir . '/test.json');
         rmdir($dir);
     }
+
+    public function testCreateAndDelete(): void
+    {
+        $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
+        mkdir($dir);
+        $service = new CatalogService($dir);
+        $controller = new CatalogController($service);
+
+        $createReq = $this->createRequest('PUT', '/kataloge/new.json');
+        $createRes = $controller->create($createReq, new Response(), ['file' => 'new.json']);
+        $this->assertEquals(204, $createRes->getStatusCode());
+        $this->assertFileExists($dir . '/new.json');
+
+        $deleteRes = $controller->delete(
+            $this->createRequest('DELETE', '/kataloge/new.json'),
+            new Response(),
+            ['file' => 'new.json']
+        );
+        $this->assertEquals(204, $deleteRes->getStatusCode());
+        $this->assertFileDoesNotExist($dir . '/new.json');
+
+        rmdir($dir);
+    }
 }

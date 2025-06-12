@@ -40,4 +40,12 @@ class CatalogService
 
         file_put_contents($path, (string) $data);
     }
+
+    public function delete(string $file): void
+    {
+        $path = $this->path($file);
+        if (file_exists($path)) {
+            unlink($path);
+        }
+    }
 }

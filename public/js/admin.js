@@ -66,6 +66,17 @@ document.addEventListener('DOMContentLoaded', function () {
   const saveBtn = document.getElementById('saveBtn');
   const resetBtn = document.getElementById('resetBtn');
   const catSelect = document.getElementById('catalogSelect');
+  const catControls = document.createElement('div');
+  const newCatBtn = document.createElement('button');
+  newCatBtn.textContent = 'Neuer Katalog';
+  newCatBtn.className = 'uk-button uk-button-default uk-margin-small-right';
+  const delCatBtn = document.createElement('button');
+  delCatBtn.textContent = 'Katalog löschen';
+  delCatBtn.className = 'uk-button uk-button-danger';
+  catControls.className = 'uk-margin';
+  catControls.appendChild(newCatBtn);
+  catControls.appendChild(delCatBtn);
+  container.parentNode.insertBefore(catControls, container);
   let catalogs = [];
   let catalogFile = '';
   let initial = [];
@@ -342,6 +353,56 @@ document.addEventListener('DOMContentLoaded', function () {
     container.appendChild(
       createCard({ type: 'mc', prompt: '', options: ['', ''], answers: [0] })
     );
+  });
+
+  newCatBtn.addEventListener('click', function (e) {
+    e.preventDefault();
+    const id = prompt('ID für neuen Katalog?');
+    if (!id) return;
+    const file = id + '.json';
+    fetch('/kataloge/' + file, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: '[]' })
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        catalogs.push({ id, file });
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = id;
+        catSelect.appendChild(opt);
+        catSelect.value = id;
+        loadCatalog(id);
+        notify('Katalog erstellt', 'success');
+      })
+      .catch(err => {
+        console.error(err);
+        notify('Fehler beim Erstellen', 'danger');
+      });
+  });
+
+  delCatBtn.addEventListener('click', function (e) {
+    e.preventDefault();
+    const id = catSelect.value;
+    const cat = catalogs.find(c => c.id === id);
+    if (!cat || !confirm('Katalog wirklich löschen?')) return;
+    fetch('/kataloge/' + cat.file, { method: 'DELETE' })
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        catalogs = catalogs.filter(c => c.id !== id);
+        const opt = catSelect.querySelector('option[value="' + id + '"]');
+        if (opt) opt.remove();
+        if (catalogs[0]) {
+          catSelect.value = catalogs[0].id;
+          loadCatalog(catalogs[0].id);
+        } else {
+          catalogFile = '';
+          initial = [];
+          renderAll(initial);
+        }
+        notify('Katalog gelöscht', 'success');
+      })
+      .catch(err => {
+        console.error(err);
+        notify('Fehler beim Löschen', 'danger');
+      });
   });
 
   // Zähler für eindeutige Namen von Eingabefeldern
