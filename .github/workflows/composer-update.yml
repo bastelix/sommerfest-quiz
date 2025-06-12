@@ -1,0 +1,34 @@
+name: Manual Composer Update
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Update dependencies
+        run: composer update --no-interaction --no-progress
+
+      - name: Commit updated composer.lock
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          if [ -n "$(git status --porcelain composer.lock)" ]; then
+            git add composer.lock
+            git commit -m "Update composer.lock via workflow"
+            git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}
+            git push
+          else
+            echo "No changes to commit"
+          fi
