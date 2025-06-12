@@ -6,5 +6,7 @@
   "subheader": "Willkommen beim Veranstaltungsquiz",
   "backgroundColor": "#f8f8f8",
   "buttonColor": "#1e87f0",
-  "CheckAnswerButton": "no"
+  "CheckAnswerButton": "no",
+  "adminUser": "admin",
+  "adminPass": "password"
 }
