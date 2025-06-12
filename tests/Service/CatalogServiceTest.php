@@ -34,4 +34,17 @@ class CatalogServiceTest extends TestCase
 
         rmdir($dir);
     }
+
+    public function testDelete(): void
+    {
+        $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
+        mkdir($dir);
+        $service = new CatalogService($dir);
+        $file = 'del.json';
+        $service->write($file, []);
+        $this->assertFileExists($dir . '/' . $file);
+        $service->delete($file);
+        $this->assertFileDoesNotExist($dir . '/' . $file);
+        rmdir($dir);
+    }
 }

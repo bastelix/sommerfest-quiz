@@ -50,4 +50,25 @@ class CatalogController
 
         return $response->withStatus(204);
     }
+
+    public function create(Request $request, Response $response, array $args): Response
+    {
+        $file = basename($args['file']);
+        $data = $request->getParsedBody();
+        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+            $data = json_decode((string) $request->getBody(), true);
+        }
+
+        $this->service->write($file, $data ?? []);
+
+        return $response->withStatus(204);
+    }
+
+    public function delete(Request $request, Response $response, array $args): Response
+    {
+        $file = basename($args['file']);
+        $this->service->delete($file);
+
+        return $response->withStatus(204);
+    }
 }
