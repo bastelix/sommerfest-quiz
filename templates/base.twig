@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.19.3/dist/css/uikit.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.19.3/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.19.3/dist/js/uikit-icons.min.js"></script>
+    <style>
+        body { background: #111; color: #fff; min-height: 100vh; }
+        .custom-card { background: #222; color: #fff; }
+        .uk-navbar { background: #181818; }
+        .sticky-tabs { position: sticky; top: 0; z-index: 10; background: #181818; }
+        .uk-footer { background: #222; color: #ccc; }
+    </style>
+</head>
+<body>
+    <nav class="uk-navbar-container uk-navbar sticky-tabs" uk-navbar>
+        <div class="uk-navbar-left">
+            <a class="uk-navbar-item uk-logo" href="#">Digitalisierung</a>
+        </div>
+        <div class="uk-navbar-center">
+            <ul class="uk-navbar-nav">
+                <li {% if tab == 'konfig' %}class="uk-active"{% endif %}><a href="/admin/konfig">Veranstaltung konfigurieren</a></li>
+                <li {% if tab == 'kataloge' %}class="uk-active"{% endif %}><a href="/admin/kataloge">Kataloge</a></li>
+                <li {% if tab == 'teams' %}class="uk-active"{% endif %}><a href="/admin/teams">Teams/Personen</a></li>
+                <li {% if tab == 'fragen' %}class="uk-active"{% endif %}><a href="/admin/fragen">Fragen anpassen</a></li>
+                <li {% if tab == 'ergebnisse' %}class="uk-active"{% endif %}><a href="/admin/ergebnisse">Ergebnisse</a></li>
+                <li {% if tab == 'pw' %}class="uk-active"{% endif %}><a href="/admin/pw">Passwort ändern</a></li>
+            </ul>
+        </div>
+        <div class="uk-navbar-right">
+            <a class="uk-navbar-toggle" href="#" uk-icon="icon: cog"></a>
+        </div>
+    </nav>
+
+    <main class="uk-section uk-section-small">
+        <div class="uk-container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="uk-section uk-section-xsmall uk-footer">
+        <div class="uk-container uk-text-center">
+            <span>DATENSCHUTZ</span> | <span>IMPRESSUM</span> | <span>LIZENZ</span>
+        </div>
+    </footer>
+</body>
+</html>

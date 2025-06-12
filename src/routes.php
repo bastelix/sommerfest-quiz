@@ -7,6 +7,7 @@ use App\Controller\DatenschutzController;
 use App\Controller\ImpressumController;
 use App\Controller\LizenzController;
 use App\Controller\AdminController;
+use App\Controller\AdminCatalogController;
 use App\Controller\LoginController;
 use App\Controller\LogoutController;
 use App\Controller\ConfigController;
@@ -37,6 +38,7 @@ require_once __DIR__ . '/Controller/ResultController.php';
 require_once __DIR__ . '/Controller/TeamController.php';
 require_once __DIR__ . '/Controller/ExportController.php';
 require_once __DIR__ . '/Controller/PasswordController.php';
+require_once __DIR__ . '/Controller/AdminCatalogController.php';
 
 return function (\Slim\App $app) {
     $configService = new ConfigService(__DIR__ . '/../config/config.json');
@@ -70,6 +72,7 @@ return function (\Slim\App $app) {
     $app->post('/login', [LoginController::class, 'login']);
     $app->get('/logout', LogoutController::class);
     $app->get('/admin', AdminController::class)->add(new AdminAuthMiddleware());
+    $app->get('/admin/kataloge', AdminCatalogController::class)->add(new AdminAuthMiddleware());
     $app->get('/results', [$resultController, 'page']);
     $app->get('/results.json', [$resultController, 'get']);
     $app->get('/results/download', [$resultController, 'download']);
