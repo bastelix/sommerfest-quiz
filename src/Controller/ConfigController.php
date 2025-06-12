@@ -31,11 +31,17 @@ class ConfigController
     public function post(Request $request, Response $response): Response
     {
         $data = $request->getParsedBody();
+
         if ($request->getHeaderLine('Content-Type') === 'application/json') {
             $data = json_decode((string) $request->getBody(), true);
+            if (!is_array($data)) {
+                return $response->withStatus(400);
+            }
+        } elseif (!is_array($data)) {
+            return $response->withStatus(400);
         }
 
-        $this->service->saveConfig($data ?? []);
+        $this->service->saveConfig($data);
 
         return $response->withStatus(204);
     }
