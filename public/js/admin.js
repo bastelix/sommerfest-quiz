@@ -51,8 +51,13 @@ document.addEventListener('DOMContentLoaded', function () {
       body: JSON.stringify(data)
     })
       .then(r => {
-        if (!r.ok) throw new Error(r.statusText);
-        notify('Konfiguration gespeichert', 'success');
+        if (r.ok) {
+          notify('Konfiguration gespeichert', 'success');
+        } else if (r.status === 400) {
+          notify('Ungültige Daten', 'danger');
+        } else {
+          throw new Error(r.statusText);
+        }
       })
       .catch(err => {
         console.error(err);
@@ -351,8 +356,13 @@ document.addEventListener('DOMContentLoaded', function () {
       body: JSON.stringify(data)
     })
       .then(r => {
-        if (!r.ok) throw new Error(r.statusText);
-        notify('Fragen gespeichert', 'success');
+        if (r.ok) {
+          notify('Fragen gespeichert', 'success');
+        } else if (r.status === 400) {
+          notify('Ungültige Daten', 'danger');
+        } else {
+          throw new Error(r.statusText);
+        }
       })
       .catch(err => {
         console.error(err);

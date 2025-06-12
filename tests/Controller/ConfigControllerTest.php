@@ -39,4 +39,23 @@ class ConfigControllerTest extends TestCase
 
         unlink($tmp);
     }
+
+    public function testPostInvalidJson(): void
+    {
+        $tmp = tempnam(sys_get_temp_dir(), 'config');
+        $service = new ConfigService($tmp);
+        $controller = new ConfigController($service);
+
+        $request = $this->createRequest('POST', '/config.json', ['HTTP_CONTENT_TYPE' => 'application/json']);
+        $stream = fopen('php://temp', 'r+');
+        fwrite($stream, '{invalid');
+        rewind($stream);
+        $stream = (new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream);
+        $request = $request->withBody($stream);
+
+        $response = $controller->post($request, new Response());
+        $this->assertEquals(400, $response->getStatusCode());
+
+        unlink($tmp);
+    }
 }

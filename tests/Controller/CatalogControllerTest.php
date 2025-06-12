@@ -89,4 +89,23 @@ class CatalogControllerTest extends TestCase
         unlink($dir . '/cat.json');
         rmdir($dir);
     }
+
+    public function testPostInvalidJson(): void
+    {
+        $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
+        mkdir($dir);
+        $controller = new CatalogController(new CatalogService($dir));
+
+        $request = $this->createRequest('POST', '/kataloge/test.json', ['HTTP_CONTENT_TYPE' => 'application/json']);
+        $stream = fopen('php://temp', 'r+');
+        fwrite($stream, '{invalid');
+        rewind($stream);
+        $stream = (new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream);
+        $request = $request->withBody($stream);
+
+        $response = $controller->post($request, new Response(), ['file' => 'test.json']);
+        $this->assertEquals(400, $response->getStatusCode());
+
+        rmdir($dir);
+    }
 }
