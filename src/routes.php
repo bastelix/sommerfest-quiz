@@ -14,6 +14,8 @@ use App\Controller\CatalogController;
 use App\Application\Middleware\AdminAuthMiddleware;
 use App\Service\ConfigService;
 use App\Service\CatalogService;
+use App\Service\ResultService;
+use App\Controller\ResultController;
 
 require_once __DIR__ . '/Controller/HomeController.php';
 require_once __DIR__ . '/Controller/FaqController.php';
@@ -25,13 +27,16 @@ require_once __DIR__ . '/Controller/LoginController.php';
 require_once __DIR__ . '/Controller/LogoutController.php';
 require_once __DIR__ . '/Controller/ConfigController.php';
 require_once __DIR__ . '/Controller/CatalogController.php';
+require_once __DIR__ . '/Controller/ResultController.php';
 
 return function (\Slim\App $app) {
     $configService = new ConfigService(__DIR__ . '/../config/config.json');
     $catalogService = new CatalogService(__DIR__ . '/../kataloge');
+    $resultService = new ResultService(__DIR__ . '/../data/results.json');
 
     $configController = new ConfigController($configService);
     $catalogController = new CatalogController($catalogService);
+    $resultController = new ResultController($resultService);
 
     $app->get('/', HomeController::class);
     $app->get('/favicon.ico', function (Request $request, Response $response) {
@@ -49,8 +54,10 @@ return function (\Slim\App $app) {
     $app->get('/login', [LoginController::class, 'show']);
     $app->post('/login', [LoginController::class, 'login']);
     $app->get('/logout', LogoutController::class);
-
     $app->get('/admin', AdminController::class)->add(new AdminAuthMiddleware());
+    $app->get('/results', [$resultController, 'page']);
+    $app->get('/results.json', [$resultController, 'get']);
+    $app->post('/results', [$resultController, 'post']);
     $app->get('/config.json', [$configController, 'get']);
     $app->post('/config.json', [$configController, 'post']);
     $app->get('/kataloge/{file}', [$catalogController, 'get']);

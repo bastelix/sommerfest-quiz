@@ -80,6 +80,7 @@
   }
 
   async function loadQuestions(id, file){
+    sessionStorage.setItem('quizCatalog', id);
     try{
       const res = await fetch('/kataloge/' + file, { headers: { 'Accept': 'application/json' } });
       const data = await res.json();

@@ -12,6 +12,7 @@
   <ul uk-tab>
     <li class="uk-active"><a href="#">Veranstaltung konfigurieren</a></li>
     <li><a href="#">Fragen anpassen</a></li>
+    <li><a href="#">Ergebnisse</a></li>
   </ul>
   <ul class="uk-switcher uk-margin">
     <li>
@@ -99,6 +100,28 @@
             Verzeichnis nicht automatisch beschreiben.
           </p>
         </div>
+      </div>
+    </li>
+    <li>
+      <div class="uk-container uk-container-small">
+        <h2 class="uk-heading-bullet">Ergebnisse</h2>
+        <table class="uk-table uk-table-divider">
+          <thead>
+            <tr><th>Name</th><th>Versuch</th><th>Katalog</th><th>Richtige</th></tr>
+          </thead>
+          <tbody>
+            {% for r in results %}
+            <tr>
+              <td>{{ r.name }}</td>
+              <td>{{ r.attempt }}</td>
+              <td>{{ r.catalog }}</td>
+              <td>{{ r.correct }}/{{ r.total }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4">Keine Daten</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
     </li>
   </ul>
