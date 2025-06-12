@@ -29,6 +29,14 @@ return function (\Slim\App $app) {
     $catalogController = new CatalogController($catalogService);
 
     $app->get('/', HomeController::class);
+    $app->get('/favicon.ico', function (Request $request, Response $response) {
+        $iconPath = __DIR__ . '/../public/favicon.svg';
+        if (file_exists($iconPath)) {
+            $response->getBody()->write(file_get_contents($iconPath));
+            return $response->withHeader('Content-Type', 'image/svg+xml');
+        }
+        return $response->withStatus(404);
+    });
     $app->get('/faq', FaqController::class);
     $app->get('/datenschutz', DatenschutzController::class);
     $app->get('/impressum', ImpressumController::class);
