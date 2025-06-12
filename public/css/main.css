@@ -4,11 +4,11 @@ body {
 }
 
 body.uk-padding {
-  padding-top: 56px;
+  padding-top: calc(56px + 1em);
 }
 
 .index-page {
-  padding-top: 56px;
+  padding-top: calc(56px + 1em);
 }
 
 .sortable-list li,
@@ -77,7 +77,7 @@ body.uk-padding {
 
 .topbar {
   position: fixed;
-  top: 0;
+  top: 1em;
   left: 0;
   right: 0;
   box-sizing: border-box;
@@ -105,7 +105,7 @@ body.uk-padding {
 }
 
 .nav-placeholder {
-  height: 56px;
+  height: calc(56px + 1em);
 }
 
 .bottombar {
