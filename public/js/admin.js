@@ -120,13 +120,16 @@ document.addEventListener('DOMContentLoaded', function () {
   // Rendert alle Fragen im Editor neu
   function renderAll(data) {
     container.innerHTML = '';
-    data.forEach(q => container.appendChild(createCard(q)));
+    data.forEach((q, i) => container.appendChild(createCard(q, i)));
   }
 
   // Erstellt ein Bearbeitungsformular für eine Frage
-  function createCard(q) {
+  function createCard(q, index = -1) {
     const card = document.createElement('div');
     card.className = 'uk-card uk-card-default uk-card-body uk-margin question-card';
+    if (index >= 0) {
+      card.dataset.index = String(index);
+    }
     const typeSelect = document.createElement('select');
     typeSelect.className = 'uk-select uk-margin-small-bottom type-select';
     ['sort', 'assign', 'mc'].forEach(t => {
@@ -161,7 +164,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const removeBtn = document.createElement('button');
     removeBtn.className = 'uk-button uk-button-danger uk-margin-small-top uk-align-right';
     removeBtn.textContent = 'Entfernen';
-    removeBtn.onclick = () => card.remove();
+    removeBtn.onclick = () => {
+      const idx = card.dataset.index;
+      if (idx !== undefined) {
+        fetch('/kataloge/' + catalogFile + '/' + idx, { method: 'DELETE' })
+          .then(r => {
+            if (!r.ok) throw new Error(r.statusText);
+            initial.splice(Number(idx), 1);
+            renderAll(initial);
+          })
+          .catch(err => {
+            console.error(err);
+            notify('Fehler beim Löschen', 'danger');
+          });
+      } else {
+        card.remove();
+      }
+    };
 
     // Hilfsfunktionen zum Anlegen der Eingabefelder
     function addItem(value = '') {
@@ -351,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function () {
   addBtn.addEventListener('click', function (e) {
     e.preventDefault();
     container.appendChild(
-      createCard({ type: 'mc', prompt: '', options: ['', ''], answers: [0] })
+      createCard({ type: 'mc', prompt: '', options: ['', ''], answers: [0] }, -1)
     );
   });
 

@@ -47,4 +47,22 @@ class CatalogServiceTest extends TestCase
         $this->assertFileDoesNotExist($dir . '/' . $file);
         rmdir($dir);
     }
+
+    public function testDeleteQuestion(): void
+    {
+        $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
+        mkdir($dir);
+        $service = new CatalogService($dir);
+        $file = 'q.json';
+        $data = [['a' => 1], ['b' => 2]];
+        $service->write($file, $data);
+
+        $service->deleteQuestion($file, 0);
+        $remaining = json_decode($service->read($file), true);
+        $this->assertCount(1, $remaining);
+        $this->assertSame(['b' => 2], $remaining[0]);
+
+        unlink($dir . '/' . $file);
+        rmdir($dir);
+    }
 }

@@ -71,4 +71,13 @@ class CatalogController
 
         return $response->withStatus(204);
     }
+
+    public function deleteQuestion(Request $request, Response $response, array $args): Response
+    {
+        $file = basename($args['file']);
+        $index = (int) $args['index'];
+        $this->service->deleteQuestion($file, $index);
+
+        return $response->withStatus(204);
+    }
 }

@@ -48,4 +48,22 @@ class CatalogService
             unlink($path);
         }
     }
+
+    public function deleteQuestion(string $file, int $index): void
+    {
+        $path = $this->path($file);
+        if (!file_exists($path)) {
+            return;
+        }
+        $json = file_get_contents($path);
+        $data = json_decode($json, true);
+        if (!is_array($data)) {
+            return;
+        }
+        if ($index < 0 || $index >= count($data)) {
+            return;
+        }
+        array_splice($data, $index, 1);
+        file_put_contents($path, json_encode($data, JSON_PRETTY_PRINT));
+    }
 }
