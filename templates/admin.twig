@@ -78,11 +78,7 @@
         <div class="uk-margin">
           <label class="uk-form-label" for="catalogSelect">Fragenkatalog</label>
           <div class="uk-form-controls">
-            <select id="catalogSelect" class="uk-select">
-              {% for c in catalogs %}
-              <option value="{{ c.id }}">{{ c.name ?? c.id }}</option>
-              {% endfor %}
-            </select>
+            <select id="catalogSelect" class="uk-select"></select>
           </div>
         </div>
         <div id="questions"></div>

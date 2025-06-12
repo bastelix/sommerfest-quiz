@@ -106,6 +106,7 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(r => r.json())
     .then(list => {
       catalogs = list;
+      catSelect.innerHTML = '';
       catalogs.forEach(c => {
         const opt = document.createElement('option');
         opt.value = c.id;
