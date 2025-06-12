@@ -29,8 +29,11 @@ Das **Sommerfest-Quiz** ist eine sofort einsetzbare Web-App, mit der Sie Besuche
    ```bash
    composer install
    ```
+   Beim ersten Aufruf legt Composer eine `composer.lock` an und lädt alle
+   benötigten Pakete herunter. Die Datei wird bewusst nicht versioniert,
+   sodass stets die neuesten kompatiblen Abhängigkeiten installiert werden.
    Das Docker-Setup installiert dabei automatisch die PHP-Erweiterung *gd*,
-   welche f"ur die Bibliothek `setasign/fpdf` ben"otigt wird.
+   welche für die Bibliothek `setasign/fpdf` benötigt wird.
 2. Server starten (z.B. für lokale Tests):
    ```bash
    php -S localhost:8080 -t public public/router.php
