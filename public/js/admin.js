@@ -141,6 +141,10 @@ document.addEventListener('DOMContentLoaded', function () {
   catSelect.addEventListener('change', () => loadCatalog(catSelect.value));
 
   function deleteCatalog(cat, row) {
+    if (row.dataset.new === 'true' || !cat.file) {
+      row.remove();
+      return;
+    }
     if (!confirm('Katalog wirklich löschen?')) return;
     fetch('/kataloge/' + cat.file, { method: 'DELETE' })
       .then(r => {
@@ -170,12 +174,22 @@ document.addEventListener('DOMContentLoaded', function () {
   function createCatalogRow(cat) {
     const row = document.createElement('div');
     row.className = 'uk-flex uk-flex-middle uk-margin-small catalog-row';
-    row.dataset.id = cat.id;
-    row.dataset.file = cat.file;
+    if (cat.new) row.dataset.new = 'true';
+    row.dataset.id = cat.id || '';
+    row.dataset.file = cat.file || '';
+
+    const idInput = document.createElement('input');
+    idInput.type = 'text';
+    idInput.className = 'uk-input uk-width-small cat-id';
+    idInput.placeholder = 'ID';
+    idInput.value = cat.id || '';
+    if (cat.id && !cat.new) {
+      idInput.disabled = true;
+    }
 
     const name = document.createElement('input');
     name.type = 'text';
-    name.className = 'uk-input uk-width-medium cat-name';
+    name.className = 'uk-input uk-width-medium uk-margin-left cat-name';
     name.placeholder = 'Name';
     name.value = cat.name || '';
 
@@ -189,13 +203,22 @@ document.addEventListener('DOMContentLoaded', function () {
     qr.className = 'uk-margin-left';
     qr.width = 64;
     qr.height = 64;
-    qr.src = qrSrc(window.location.origin + '/kataloge/' + cat.file);
 
     const del = document.createElement('button');
     del.className = 'uk-button uk-button-danger uk-margin-left';
     del.textContent = 'Löschen';
     del.addEventListener('click', () => deleteCatalog(cat, row));
 
+    function update() {
+      const id = idInput.value.trim();
+      row.dataset.id = id;
+      row.dataset.file = id ? id + '.json' : '';
+      qr.src = id ? qrSrc(window.location.origin + '/kataloge/' + row.dataset.file) : '';
+    }
+    idInput.addEventListener('input', update);
+    update();
+
+    row.appendChild(idInput);
     row.appendChild(name);
     row.appendChild(desc);
     row.appendChild(qr);
@@ -211,12 +234,18 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function collectCatalogs() {
-    return Array.from(catalogList.querySelectorAll('.catalog-row')).map(row => ({
-      id: row.dataset.id,
-      file: row.dataset.file,
-      name: row.querySelector('.cat-name').value.trim(),
-      description: row.querySelector('.cat-desc').value.trim()
-    }));
+    return Array.from(catalogList.querySelectorAll('.catalog-row'))
+      .map(row => {
+        const id = row.querySelector('.cat-id').value.trim();
+        const file = id ? id + '.json' : '';
+        return {
+          id,
+          file,
+          name: row.querySelector('.cat-name').value.trim(),
+          description: row.querySelector('.cat-desc').value.trim()
+        };
+      })
+      .filter(c => c.id);
   }
 
   // Rendert alle Fragen im Editor neu
@@ -539,31 +568,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
   newCatBtn.addEventListener('click', function (e) {
     e.preventDefault();
-    const id = prompt('ID für neuen Katalog?');
-    if (!id) return;
-    const file = id + '.json';
-    fetch('/kataloge/' + file, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: '[]' })
-      .then(r => {
-        if (!r.ok) throw new Error(r.statusText);
-        const cat = { id, file };
-        catalogs.push(cat);
-        const opt = document.createElement('option');
-        opt.value = id;
-        opt.textContent = id;
-        catSelect.appendChild(opt);
-        catSelect.value = id;
-        loadCatalog(id);
-        renderCatalogs(catalogs);
-        notify('Katalog erstellt', 'success');
-      })
-      .catch(err => {
-        console.error(err);
-      notify('Fehler beim Erstellen', 'danger');
-      });
+    catalogList.appendChild(createCatalogRow({ id: '', file: '', name: '', description: '', new: true }));
   });
 
-  catalogsSaveBtn?.addEventListener('click', e => {
+  catalogsSaveBtn?.addEventListener('click', async e => {
     e.preventDefault();
+    const rows = Array.from(catalogList.querySelectorAll('.catalog-row'));
+    for (const row of rows) {
+      if (row.dataset.new === 'true') {
+        const id = row.querySelector('.cat-id').value.trim();
+        if (!id) continue;
+        try {
+          await fetch('/kataloge/' + id + '.json', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: '[]'
+          });
+          row.dataset.new = '';
+        } catch (err) {
+          console.error(err);
+          notify('Fehler beim Erstellen', 'danger');
+        }
+      }
+    }
+
     const data = collectCatalogs();
     fetch('/kataloge/catalogs.json', {
       method: 'POST',
