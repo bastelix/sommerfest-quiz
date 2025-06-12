@@ -29,24 +29,36 @@ class PdfExportService
             $html .= '<h2>' . htmlspecialchars($subheader) . '</h2>';
         }
 
+        $qrAvailable = class_exists(\Endroid\QrCode\QrCode::class) && class_exists(\Endroid\QrCode\Writer\PngWriter::class);
+
         $html .= '<table border="1" cellpadding="8" style="width:100%; border-collapse:collapse;">';
-        $html .= '<tr><th>Name</th><th>Beschreibung</th><th>QR-Code</th></tr>';
+        $html .= '<tr><th>Name</th><th>Beschreibung</th>';
+        if ($qrAvailable) {
+            $html .= '<th>QR-Code</th>';
+        }
+        $html .= '</tr>';
 
         $tmpFiles = [];
         foreach ($catalogs as $catalog) {
             $name = (string)($catalog['name'] ?? $catalog['id'] ?? '');
             $desc = (string)($catalog['description'] ?? $catalog['beschreibung'] ?? '');
-            $url = '?katalog=' . urlencode((string)($catalog['id'] ?? ''));
-            $qrCode = QrCode::create($url);
-            $writer = new PngWriter();
-            $tmp = sys_get_temp_dir() . '/' . uniqid('qr_', true) . '.png';
-            $writer->write($qrCode)->saveToFile($tmp);
-            $tmpFiles[] = $tmp;
+
+            $tmp = null;
+            if ($qrAvailable) {
+                $url = '?katalog=' . urlencode((string)($catalog['id'] ?? ''));
+                $qrCode = QrCode::create($url);
+                $writer = new PngWriter();
+                $tmp = sys_get_temp_dir() . '/' . uniqid('qr_', true) . '.png';
+                $writer->write($qrCode)->saveToFile($tmp);
+                $tmpFiles[] = $tmp;
+            }
 
             $html .= '<tr>';
             $html .= '<td>' . htmlspecialchars($name) . '</td>';
             $html .= '<td>' . htmlspecialchars($desc) . '</td>';
-            $html .= '<td><img src="' . $tmp . '" width="60"/></td>';
+            if ($qrAvailable) {
+                $html .= '<td><img src="' . $tmp . '" width="60"/></td>';
+            }
             $html .= '</tr>';
         }
 
