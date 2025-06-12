@@ -29,46 +29,64 @@
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">Veranstaltung konfigurieren</h2>
         <form id="configForm" class="uk-form-stacked">
-          <div class="uk-margin">
-            <label class="uk-form-label" for="cfgLogoPath">Logo Pfad</label>
-            <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgLogoPath"></div>
-          </div>
-          <div class="uk-margin">
-            <label class="uk-form-label" for="cfgPageTitle">Titel im Browser-Tab</label>
-            <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgPageTitle"></div>
-          </div>
-          <div class="uk-margin">
-            <label class="uk-form-label" for="cfgHeader">Überschrift</label>
-            <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgHeader"></div>
-          </div>
-          <div class="uk-margin">
-            <label class="uk-form-label" for="cfgSubheader">Untertitel</label>
-            <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgSubheader"></div>
-          </div>
-          <div class="uk-margin">
-            <label class="uk-form-label" for="cfgBackgroundColor">Hintergrundfarbe</label>
-            <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgBackgroundColor"></div>
-          </div>
-          <div class="uk-margin">
-            <label class="uk-form-label" for="cfgButtonColor">Buttonfarbe</label>
-            <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgButtonColor"></div>
-          </div>
-          <div class="uk-margin">
-            <label class="uk-form-label" for="cfgCheckAnswerButton">Antwort-Prüfen-Button anzeigen</label>
-            <div class="uk-form-controls">
-              <select class="uk-select" id="cfgCheckAnswerButton">
-                <option value="yes">Ja</option>
-                <option value="no">Nein</option>
-              </select>
+          <div class="uk-child-width-1-1 uk-child-width-1-2@m uk-grid-small" uk-grid>
+            <div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="cfgLogoPath">Logo Pfad</label>
+                <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgLogoPath"></div>
+              </div>
             </div>
-          </div>
-          <div class="uk-margin">
-            <label class="uk-form-label" for="cfgQRUser">QR-Code-Login verwenden</label>
-            <div class="uk-form-controls">
-              <select class="uk-select" id="cfgQRUser">
-                <option value="false">Nein</option>
-                <option value="true">Ja</option>
-              </select>
+            <div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="cfgPageTitle">Titel im Browser-Tab</label>
+                <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgPageTitle"></div>
+              </div>
+            </div>
+            <div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="cfgHeader">Überschrift</label>
+                <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgHeader"></div>
+              </div>
+            </div>
+            <div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="cfgSubheader">Untertitel</label>
+                <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgSubheader"></div>
+              </div>
+            </div>
+            <div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="cfgBackgroundColor">Hintergrundfarbe</label>
+                <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgBackgroundColor"></div>
+              </div>
+            </div>
+            <div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="cfgButtonColor">Buttonfarbe</label>
+                <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgButtonColor"></div>
+              </div>
+            </div>
+            <div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="cfgCheckAnswerButton">Antwort-Prüfen-Button anzeigen</label>
+                <div class="uk-form-controls">
+                  <select class="uk-select" id="cfgCheckAnswerButton">
+                    <option value="yes">Ja</option>
+                    <option value="no">Nein</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="cfgQRUser">QR-Code-Login verwenden</label>
+                <div class="uk-form-controls">
+                  <select class="uk-select" id="cfgQRUser">
+                    <option value="false">Nein</option>
+                    <option value="true">Ja</option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
         </form>
@@ -162,13 +180,19 @@
       <div class="uk-container uk-container-small">
         <h2 class="uk-heading-bullet">Passwort ändern</h2>
         <form id="passForm" class="uk-form-stacked">
-          <div class="uk-margin">
-            <label class="uk-form-label" for="newPass">Neues Passwort</label>
-            <div class="uk-form-controls"><input class="uk-input" type="password" id="newPass"></div>
-          </div>
-          <div class="uk-margin">
-            <label class="uk-form-label" for="newPassRepeat">Passwort wiederholen</label>
-            <div class="uk-form-controls"><input class="uk-input" type="password" id="newPassRepeat"></div>
+          <div class="uk-child-width-1-1 uk-child-width-1-2@m uk-grid-small" uk-grid>
+            <div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="newPass">Neues Passwort</label>
+                <div class="uk-form-controls"><input class="uk-input" type="password" id="newPass"></div>
+              </div>
+            </div>
+            <div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="newPassRepeat">Passwort wiederholen</label>
+                <div class="uk-form-controls"><input class="uk-input" type="password" id="newPassRepeat"></div>
+              </div>
+            </div>
           </div>
           <div class="uk-margin">
             <button id="passSaveBtn" class="uk-button uk-button-primary">Speichern</button>
