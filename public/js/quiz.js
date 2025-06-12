@@ -3,6 +3,8 @@
 // Der Code wird ausgeführt, sobald das DOM geladen ist.
 // Utility zum Generieren zufälliger Nutzernamen
 (function(){
+  const base = window.basePath || '';
+  const url = p => (base ? base + '/' + p.replace(/^\//,'') : '/' + p.replace(/^\//,''));
   const melodicNames = [
     'Sonnenklang', 'Mondmelodie', 'Sturmserenade', 'Himmelsklang', 'Seewindlied', 'Sternenchor',
     'Fliederduft', 'Traumtänzer', 'Herbstleuchten', 'Sommernacht', 'Funkelpfad', 'Lichtklang',
@@ -175,7 +177,7 @@ function runQuiz(questions){
       window.startConfetti();
     }
     const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
-    fetch('/results', {
+    fetch(url('results'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: user, catalog, correct: score, total: questionCount })

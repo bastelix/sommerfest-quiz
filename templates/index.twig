@@ -3,8 +3,8 @@
 {% block title %}{{ config.pageTitle|default('Modernes Quiz mit UIkit') }}{% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="/css/dark.css">
-  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="{{ base_path }}/css/dark.css">
+  <link rel="stylesheet" href="{{ base_path }}/css/main.css">
 {% endblock %}
 
 {% block body_class %}index-page uk-padding{% endblock %}
@@ -41,8 +41,8 @@
 {% endblock %}
 
 {% block scripts %}
-  <script src="/js/uikit-icons.min.js"></script>
-  <script src="/js/custom-icons.js"></script>
+  <script src="{{ base_path }}/js/uikit-icons.min.js"></script>
+  <script src="{{ base_path }}/js/custom-icons.js"></script>
   <script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js"></script>
   <script>
     window.quizConfig = {{ config|json_encode|raw }};
@@ -99,9 +99,9 @@
       }
     ]
   </script>
-  <script src="/js/catalog.js"></script>
-  <script src="/js/confetti.js"></script>
+  <script src="{{ base_path }}/js/catalog.js"></script>
+  <script src="{{ base_path }}/js/confetti.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-  <script src="/js/quiz.js"></script>
-  <script src="/js/app.js"></script>
+  <script src="{{ base_path }}/js/quiz.js"></script>
+  <script src="{{ base_path }}/js/app.js"></script>
 {% endblock %}
