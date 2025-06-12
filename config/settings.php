@@ -1,6 +1,10 @@
 <?php
 $path = __DIR__ . '/config.json';
+$settings = [];
 if (file_exists($path)) {
-    return json_decode(file_get_contents($path), true) ?? [];
+    $settings = json_decode(file_get_contents($path), true) ?? [];
 }
-return [];
+$settings += [
+    'displayErrorDetails' => false,
+];
+return $settings;
