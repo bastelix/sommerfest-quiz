@@ -118,14 +118,17 @@
             <select id="catalogSelect" class="uk-select"></select>
           </div>
         </div>
-        <div id="questions"></div>
-        <div class="uk-margin">
+        <!-- Hauptdatenbereich: Frageneditor -->
+        <div id="questions" class="uk-margin"></div>
+        <!-- Bedienleiste fuer Frageneditor -->
+        <div id="questionActions" class="sticky-actions uk-flex uk-flex-between uk-flex-middle uk-margin">
           <button id="addBtn" class="uk-button uk-button-default">Neue Frage</button>
+          <div>
+            <button id="resetBtn" class="uk-button uk-button-default uk-margin-right">Zurücksetzen</button>
+            <button id="saveBtn" class="uk-button uk-button-primary">Speichern</button>
+          </div>
         </div>
-        <div class="uk-margin uk-flex uk-flex-between">
-          <button id="resetBtn" class="uk-button uk-button-default">Zurücksetzen</button>
-          <button id="saveBtn" class="uk-button uk-button-primary">Speichern</button>
-        </div>
+        <!-- Ende Hauptdatenbereich -->
 
       </div>
     </li>
