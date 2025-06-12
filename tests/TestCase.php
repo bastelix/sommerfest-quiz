@@ -16,6 +16,7 @@ use Slim\Psr7\Request as SlimRequest;
 use Slim\Psr7\Uri;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
+use App\Application\Middleware\SessionMiddleware;
 
 class TestCase extends PHPUnit_TestCase
 {
@@ -35,6 +36,7 @@ class TestCase extends PHPUnit_TestCase
 
         $twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
         $app->add(TwigMiddleware::create($app, $twig));
+        $app->add(new SessionMiddleware());
 
         // Register error middleware
         $app->addErrorMiddleware($settings['displayErrorDetails'], true, true);

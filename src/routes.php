@@ -7,8 +7,11 @@ use App\Controller\DatenschutzController;
 use App\Controller\ImpressumController;
 use App\Controller\LizenzController;
 use App\Controller\AdminController;
+use App\Controller\LoginController;
+use App\Controller\LogoutController;
 use App\Controller\ConfigController;
 use App\Controller\CatalogController;
+use App\Application\Middleware\AdminAuthMiddleware;
 use App\Service\ConfigService;
 use App\Service\CatalogService;
 
@@ -18,6 +21,8 @@ require_once __DIR__ . '/Controller/DatenschutzController.php';
 require_once __DIR__ . '/Controller/ImpressumController.php';
 require_once __DIR__ . '/Controller/LizenzController.php';
 require_once __DIR__ . '/Controller/AdminController.php';
+require_once __DIR__ . '/Controller/LoginController.php';
+require_once __DIR__ . '/Controller/LogoutController.php';
 require_once __DIR__ . '/Controller/ConfigController.php';
 require_once __DIR__ . '/Controller/CatalogController.php';
 
@@ -41,7 +46,11 @@ return function (\Slim\App $app) {
     $app->get('/datenschutz', DatenschutzController::class);
     $app->get('/impressum', ImpressumController::class);
     $app->get('/lizenz', LizenzController::class);
-    $app->get('/admin', AdminController::class);
+    $app->get('/login', [LoginController::class, 'show']);
+    $app->post('/login', [LoginController::class, 'login']);
+    $app->get('/logout', LogoutController::class);
+
+    $app->get('/admin', AdminController::class)->add(new AdminAuthMiddleware());
     $app->get('/config.json', [$configController, 'get']);
     $app->post('/config.json', [$configController, 'post']);
     $app->get('/kataloge/{file}', [$catalogController, 'get']);

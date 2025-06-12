@@ -8,11 +8,23 @@ use Tests\TestCase;
 
 class AdminControllerTest extends TestCase
 {
-    public function testAdminPage(): void
+    public function testRedirectWhenNotLoggedIn(): void
     {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/admin');
         $response = $app->handle($request);
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals('/login', $response->getHeaderLine('Location'));
+    }
+
+    public function testAdminPageAfterLogin(): void
+    {
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['admin'] = true;
+        $request = $this->createRequest('GET', '/admin');
+        $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
+        session_destroy();
     }
 }
