@@ -38,7 +38,14 @@ Das **Sommerfest-Quiz** ist eine sofort einsetzbare Web-App, mit der Sie Besuche
    ```bash
    php -S localhost:8080 -t public public/router.php
    ```
-   Anschließend ist das Quiz unter <http://localhost:8080> aufrufbar.
+  Anschließend ist das Quiz unter <http://localhost:8080> aufrufbar.
+
+## Docker Compose
+
+Das mitgelieferte `docker-compose.yml` startet das Quiz samt Reverse Proxy.
+Die Dateien im Ordner `data/` werden dabei in einem benannten Volume
+`quizdata` gespeichert. So bleiben eingetragene Teams und Ergebnisse auch nach
+`docker-compose down` erhalten.
 
 ## Anpassung
 

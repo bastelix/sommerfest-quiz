@@ -39,6 +39,7 @@ services:
     working_dir: /var/www
     volumes:
       - ./:/var/www
+      - quizdata:/var/www/data
     environment:
       - VIRTUAL_HOST=${DOMAIN}
       - LETSENCRYPT_HOST=${DOMAIN}
@@ -53,3 +54,6 @@ services:
 networks:
   webproxy:
     external: false
+
+volumes:
+  quizdata:
