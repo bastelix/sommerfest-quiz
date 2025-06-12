@@ -5,6 +5,9 @@ window.quizConfig = {
   // optionaler Pfad zu einem eigenen Logo
   logoPath: '',
 
+  // Titel im Browser-Tab
+  pageTitle: 'Modernes Quiz mit UIkit',
+
   // Überschrift und Untertitel auf der Startseite
   header: 'Sommerfest 2025',
   subheader: 'Willkommen beim Veranstaltungsquiz',

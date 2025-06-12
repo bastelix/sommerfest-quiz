@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Verweise auf die Formularfelder
   const cfgFields = {
     logoPath: document.getElementById('cfgLogoPath'),
+    pageTitle: document.getElementById('cfgPageTitle'),
     header: document.getElementById('cfgHeader'),
     subheader: document.getElementById('cfgSubheader'),
     backgroundColor: document.getElementById('cfgBackgroundColor'),
@@ -22,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Füllt das Formular mit den Werten aus einem Konfigurationsobjekt
   function renderCfg(data) {
     cfgFields.logoPath.value = data.logoPath || '';
+    cfgFields.pageTitle.value = data.pageTitle || '';
     cfgFields.header.value = data.header || '';
     cfgFields.subheader.value = data.subheader || '';
     cfgFields.backgroundColor.value = data.backgroundColor || '';
@@ -38,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function () {
     e.preventDefault();
     const data = {
       logoPath: cfgFields.logoPath.value.trim(),
+      pageTitle: cfgFields.pageTitle.value.trim(),
       header: cfgFields.header.value.trim(),
       subheader: cfgFields.subheader.value.trim(),
       backgroundColor: cfgFields.backgroundColor.value.trim(),
