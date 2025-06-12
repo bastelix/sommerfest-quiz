@@ -150,7 +150,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const removeBtn = document.createElement('button');
     removeBtn.className = 'uk-button uk-button-danger uk-margin-small-top uk-align-right';
     removeBtn.textContent = 'Entfernen';
-    removeBtn.onclick = () => card.remove();
+    removeBtn.onclick = () => {
+      const idx = Array.from(container.children).indexOf(card);
+      card.remove();
+      initial.splice(idx, 1);
+      fetch('/kataloge/' + catalogFile + '/' + idx, { method: 'DELETE' })
+        .then(r => {
+          if (!r.ok) throw new Error(r.statusText);
+          notify('Frage gelöscht', 'success');
+        })
+        .catch(err => {
+          console.error(err);
+          notify('Fehler beim Löschen', 'danger');
+        });
+    };
 
     // Hilfsfunktionen zum Anlegen der Eingabefelder
     function addItem(value = '') {
