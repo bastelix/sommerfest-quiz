@@ -21,8 +21,10 @@ class CatalogController
     {
         $file = basename($args['file']);
         $accept = strtolower($request->getHeaderLine('Accept'));
+        $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
 
-        if ($accept === '' || strpos($accept, 'application/json') === false) {
+        // allow direct access to JSON files even if no Accept header is sent
+        if ($ext !== 'json' && ($accept === '' || strpos($accept, 'application/json') === false)) {
             $id = pathinfo($file, PATHINFO_FILENAME);
             return $response
                 ->withHeader('Location', '/?katalog=' . urlencode($id))
