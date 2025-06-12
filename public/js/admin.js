@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const catSelect = document.getElementById('catalogSelect');
   const catalogList = document.getElementById('catalogList');
   const newCatBtn = document.getElementById('newCatBtn');
+  const catalogSaveBtn = document.getElementById('catalogSaveBtn');
   let catalogs = [];
   let catalogFile = '';
   let initial = [];
@@ -157,6 +158,47 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
+  function createCatalogRow(cat) {
+    const row = document.createElement('div');
+    row.className = 'uk-flex uk-flex-middle uk-margin';
+    row.dataset.id = cat.id;
+
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.className = 'uk-input uk-form-width-small';
+    nameInput.value = cat.name || cat.id;
+    nameInput.addEventListener('input', () => {
+      cat.name = nameInput.value.trim();
+      const opt = catSelect.querySelector('option[value="' + cat.id + '"]');
+      if (opt) opt.textContent = cat.name || cat.id;
+    });
+
+    const descInput = document.createElement('input');
+    descInput.type = 'text';
+    descInput.placeholder = 'Beschreibung';
+    descInput.className = 'uk-input uk-width-expand uk-margin-left';
+    descInput.value = cat.description || '';
+    descInput.addEventListener('input', () => {
+      cat.description = descInput.value.trim();
+    });
+
+    const qr = document.createElement('img');
+    qr.className = 'uk-margin-left';
+    qr.width = 64;
+    qr.height = 64;
+    qr.src = qrSrc(window.location.origin + '/?katalog=' + encodeURIComponent(cat.id));
+
+    const del = document.createElement('button');
+    del.className = 'uk-button uk-button-danger uk-margin-left';
+    del.textContent = 'Löschen';
+    del.addEventListener('click', () => deleteCatalog(cat));
+
+    row.appendChild(nameInput);
+    row.appendChild(descInput);
+    row.appendChild(qr);
+    row.appendChild(del);
+    return row;
+
   function editCatalog(cat) {
     const name = prompt('Name des Katalogs?', cat.name || cat.id);
     if (name === null) return;
@@ -175,6 +217,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!catalogList) return;
     catalogList.innerHTML = '';
     list.forEach(cat => {
+      catalogList.appendChild(createCatalogRow(cat));
+
       const row = document.createElement('div');
       row.className = 'uk-flex uk-flex-middle uk-margin';
       const info = document.createElement('div');
@@ -492,6 +536,12 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error(err);
         notify('Fehler beim Erstellen', 'danger');
       });
+  });
+
+  catalogSaveBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    saveCatalogs();
+    notify('Katalogliste gespeichert', 'success');
   });
 
 
