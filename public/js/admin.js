@@ -405,11 +405,67 @@ document.addEventListener('DOMContentLoaded', function () {
 
     renderFields();
 
-    card.appendChild(typeSelect);
-    card.appendChild(typeInfo);
-    card.appendChild(prompt);
-    card.appendChild(fields);
-    card.appendChild(removeBtn);
+    // Vorschau-Bereich anlegen
+    const preview = document.createElement('div');
+    preview.className = 'uk-card uk-card-muted uk-card-body question-preview';
+
+    const formCol = document.createElement('div');
+    formCol.appendChild(typeSelect);
+    formCol.appendChild(typeInfo);
+    formCol.appendChild(prompt);
+    formCol.appendChild(fields);
+    formCol.appendChild(removeBtn);
+
+    const previewCol = document.createElement('div');
+    previewCol.appendChild(preview);
+
+    const grid = document.createElement('div');
+    grid.className = 'uk-grid-small uk-child-width-1-1 uk-child-width-1-2@m';
+    grid.setAttribute('uk-grid', '');
+    grid.appendChild(formCol);
+    grid.appendChild(previewCol);
+
+    card.appendChild(grid);
+
+    function updatePreview() {
+      preview.innerHTML = '';
+      const h = document.createElement('h4');
+      h.textContent = prompt.value || 'Vorschau';
+      preview.appendChild(h);
+      if (typeSelect.value === 'sort') {
+        const ul = document.createElement('ul');
+        Array.from(fields.querySelectorAll('.item')).forEach(i => {
+          const li = document.createElement('li');
+          li.textContent = i.value;
+          ul.appendChild(li);
+        });
+        preview.appendChild(ul);
+      } else if (typeSelect.value === 'assign') {
+        const ul = document.createElement('ul');
+        Array.from(fields.querySelectorAll('.term-row')).forEach(r => {
+          const term = r.querySelector('.term').value;
+          const def = r.querySelector('.definition').value;
+          const li = document.createElement('li');
+          li.textContent = term + ' – ' + def;
+          ul.appendChild(li);
+        });
+        preview.appendChild(ul);
+      } else {
+        const ul = document.createElement('ul');
+        Array.from(fields.querySelectorAll('.option')).forEach(o => {
+          const li = document.createElement('li');
+          li.textContent = o.value;
+          ul.appendChild(li);
+        });
+        preview.appendChild(ul);
+      }
+    }
+
+    prompt.addEventListener('input', updatePreview);
+    fields.addEventListener('input', updatePreview);
+    typeSelect.addEventListener('change', updatePreview);
+    updatePreview();
+
     cardIndex++;
     return card;
   }
