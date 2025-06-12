@@ -48,4 +48,9 @@ class ResultService
         file_put_contents($this->path, json_encode($results, JSON_PRETTY_PRINT) . "\n");
         return $entry;
     }
+
+    public function clear(): void
+    {
+        file_put_contents($this->path, "[]\n");
+    }
 }
