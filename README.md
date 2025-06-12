@@ -54,7 +54,7 @@ python3 tests/test_json_validity.py
 
 ## Datenschutz
 
-Das Quiz verzichtet vollständig auf serverseitige Speicherung. Alle Eingaben bleiben im Browser der Teilnehmenden und können bei Bedarf als `statistical.log` heruntergeladen werden.
+Ergebnisse können nun serverseitig in einer `results.json` abgelegt werden. Die Ablage erfolgt anonymisiert und entspricht den Vorgaben der DSGVO. Jede Zeile enthält ein Pseudonym, den verwendeten Katalog, die Versuchnummer und die Punktzahl. Alternativ lassen sich die Daten weiterhin lokal als `statistical.log` exportieren.
 
 ## Barrierefreiheit
 

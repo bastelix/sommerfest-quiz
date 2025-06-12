@@ -169,6 +169,12 @@ function runQuiz(questions){
     if(score === questionCount && typeof window.startConfetti === 'function'){
       window.startConfetti();
     }
+    const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
+    fetch('/results', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: user, catalog, correct: score, total: questionCount })
+    }).catch(()=>{});
     let log = localStorage.getItem('statistical.log') || '';
     log += `${user} ${score}/${questionCount}\n`;
     localStorage.setItem('statistical.log', log);
