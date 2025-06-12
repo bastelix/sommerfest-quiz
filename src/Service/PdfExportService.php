@@ -47,7 +47,8 @@ class PdfExportService
         $objects[] = "<< /Type /Pages /Kids [3 0 R] /Count 1 >>"; // 2
         $objects[] = "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>"; //3
         $objects[] = "<< /Length " . strlen($stream) . " >>\nstream\n" . $stream . "\nendstream"; //4
-        $objects[] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"; //5
+        // Use WinAnsiEncoding so encoded text renders correctly
+        $objects[] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>"; //5
 
         $pdf = "%PDF-1.4\n%\xE2\xE3\xCF\xD3\n";
         $offsets = [];
