@@ -22,16 +22,29 @@
     {% endembed %}
     <div class="uk-container uk-container-small">
     <h1 class="uk-heading-divider uk-hidden">FAQ</h1>
-    <p class="uk-text-lead">Auf dieser Seite findest du Antworten auf häufig gestellte Fragen rund um die Anwendung und Administration des Quiz.</p>
+    <p class="uk-text-lead">Auf dieser Seite findest du Antworten auf häufig gestellte Fragen rund um die Anwendung des Quiz.</p>
 
     <h2 id="anwendung" class="uk-heading-bullet">Anwendung</h2>
-    <p>Dieser Abschnitt erklärt, wie du das Quiz nutzt, welche Funktionalitäten es bietet und was bei der Durchführung zu beachten ist.</p>
+    <p>Dieser Abschnitt erklärt, wie ihr das Quiz nutzt und was bei der Durchführung zu beachten ist.</p>
     <ul class="uk-accordion" uk-accordion>
       <li>
-        <a class="uk-accordion-title" href="#">Wie starte ich das Quiz?</a>
+        <a class="uk-accordion-title" href="#">Wie funktioniert das Sommerfest-Quiz?</a>
+        <div class="uk-accordion-content">
+          <ol class="uk-list uk-list-decimal">
+            <li><strong>Scanne an jeder Rätselstation den Stations-Code.</strong> Öffne den Link, der erscheint.</li>
+            <li><strong>Gib euren Gruppennamen ein.</strong> Du wirst nach dem Namenscode eurer Gruppe gefragt – scanne oder gib diesen ein.</li>
+            <li><strong>Rätselspaß erleben.</strong> Jetzt startet das Quiz für eure Gruppe an dieser Station.</li>
+            <li><strong>Weiter zur nächsten Station.</strong> Wenn ihr fertig seid, geht zur nächsten Rätselstation und wiederholt die Schritte.</li>
+          </ol>
+        </div>
+      </li>
+      <li>
+        <a class="uk-accordion-title" href="#">Wie starte ich das Quiz lokal?</a>
         <div class="uk-accordion-content">
           <p>
-            Öffne einfach die <code>index.html</code> im Browser oder rufe die gehostete Version auf. Danach folgst du den Anweisungen auf dem Bildschirm.
+            Starte einen PHP-Server mit <code>php -S localhost:8080 -t public public/router.php</code>
+            und rufe <code>http://localhost:8080</code> im Browser auf. Bei einer gehosteten
+            Installation genügt es, die entsprechende URL zu öffnen.
           </p>
         </div>
       </li>
@@ -84,76 +97,33 @@
         </div>
       </li>
       <li>
+        <a class="uk-accordion-title" href="#">Gibt es einen Dunkelmodus?</a>
+        <div class="uk-accordion-content">
+          <p>Ja. Über das Mond-Symbol oben rechts kannst du jederzeit auf ein dunkles
+            Farbschema umschalten.</p>
+        </div>
+      </li>
+      <li>
         <a class="uk-accordion-title" href="#">Wie kann ich meine Antworten überprüfen?</a>
         <div class="uk-accordion-content">
           <p>Bei jeder Frage gibt es den Button <strong>Antwort prüfen</strong>, sofern er nicht vom Administrator deaktiviert wurde.</p>
         </div>
       </li>
-    </ul>
-
-    <h2 id="administration" class="uk-heading-bullet uk-margin-large-top">Administration</h2>
-    <p>Hier erfährst du, wie das Quiz angepasst, Fragen bearbeitet und das Design verändert werden können.</p>
-    <ul class="uk-accordion" uk-accordion>
       <li>
-        <a class="uk-accordion-title" href="#">Wie gelange ich zur Admin-Oberfläche?</a>
+        <a class="uk-accordion-title" href="#">Wie funktioniert der QR-Code-Login?</a>
         <div class="uk-accordion-content">
-          <p>
-            Rufe die Datei <code>admin.html</code> im Browser auf. Dort findest du alle Optionen zur Anpassung des Quizzes.
-          </p>
-        </div>
-      </li>
-      <li>
-        <a class="uk-accordion-title" href="#">Wie ändere ich die Farben und Texte?</a>
-        <div class="uk-accordion-content">
-          <p>Im Tab "Veranstaltung konfigurieren" lassen sich Logo, Überschrift, Farben und weitere Einstellungen anpassen.</p>
-        </div>
-      </li>
-      <li>
-        <a class="uk-accordion-title" href="#">Kann ich eigene Fragen hinzufügen?</a>
-        <div class="uk-accordion-content">
-          <p>Ja, unter "Fragen bearbeiten" kannst du neue Fragen anlegen oder bestehende bearbeiten und löschen.</p>
-        </div>
-      </li>
-      <li>
-        <a class="uk-accordion-title" href="#">Wie speichere ich meine Änderungen?</a>
-        <div class="uk-accordion-content">
-          <p>Nach dem Klick auf <strong>Speichern</strong> wird eine neue <code>config.json</code> sowie eine JSON-Datei f&uuml;r den ausgew&auml;hlten Fragenkatalog erstellt. Kopiere die Dateien anschlie&szlig;end in die Ordner <code>config/</code> bzw. <code>kataloge/</code>.</p>
-        </div>
-      </li>
-      <li>
-        <a class="uk-accordion-title" href="#">Warum werden die Dateien nicht automatisch gespeichert?</a>
-        <div class="uk-accordion-content">
-          <p>Da das Quiz rein im Browser läuft, hat es keinen Schreibzugriff auf das Dateisystem. Deshalb müssen die geänderten Dateien manuell ersetzt werden.</p>
-        </div>
-      </li>
-      <li>
-        <a class="uk-accordion-title" href="#">Wie kann ich das Layout anpassen?</a>
-        <div class="uk-accordion-content">
-          <p>Du kannst eigene CSS-Dateien einbinden oder die vorhandenen UIkit-Klassen nutzen, um das Erscheinungsbild zu verändern.</p>
-        </div>
-      </li>
-      <li>
-        <a class="uk-accordion-title" href="#">Lassen sich Fragen importieren oder exportieren?</a>
-        <div class="uk-accordion-content">
-          <p>Aktuell müssen Fragen manuell in der Admin-Oberfläche erstellt werden. Ein automatischer Import ist nicht vorgesehen.</p>
-        </div>
-      </li>
-      <li>
-        <a class="uk-accordion-title" href="#">Wie setze ich das Quiz auf die Anfangswerte zurück?</a>
-        <div class="uk-accordion-content">
-          <p>Im Admin-Bereich gibt es die Buttons <strong>Zurücksetzen</strong>, die alle Eingaben auf ihre Ausgangswerte bringen.</p>
-        </div>
-      </li>
-      <li>
-        <a class="uk-accordion-title" href="#">Kann ich den Button "Antwort prüfen" ausblenden?</a>
-        <div class="uk-accordion-content">
-          <p>Ja, im Konfigurations-Tab findest du die Option <em>Antwort-Prüfen-Button anzeigen</em>. Setze sie auf "Nein".</p>
+          <p>Ist die Option aktiviert, erscheint auf der Startseite der Button
+            <em>Name mit QR-Code scannen</em>. Damit kannst du deinen Namen aus
+            einem QR-Code übernehmen.</p>
         </div>
       </li>
       <li>
         <a class="uk-accordion-title" href="#">Welche Software wird für das Hosting benötigt?</a>
         <div class="uk-accordion-content">
-          <p>Ein einfacher HTTP-Server reicht aus. Im Repository liegt ein kleines Node.js-Skript (<code>server.js</code>) bei, mit dem sich die Dateien lokal bereitstellen lassen.</p>
+          <p>Für lokale Tests genügt der eingebaute PHP-Server, den du mit
+            <code>php -S localhost:8080 -t public public/router.php</code>
+            startest. Auf einem Webserver reicht jede Umgebung, die PHP-Dateien
+            ausführen kann.</p>
         </div>
       </li>
     </ul>

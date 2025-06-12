@@ -6,7 +6,6 @@ Das **Sommerfest-Quiz** ist eine sofort einsetzbare Web-App, mit der Sie Besuche
 
 - **Flexibel einsetzbar**: Fragenkataloge im JSON-Format lassen sich bequem austauschen oder erweitern.
 - **Drei Fragetypen**: Sortieren, Zuordnen und Multiple Choice bieten Abwechslung für jede Zielgruppe.
-- **Volle Kontrolle**: Ein Admin-Bereich erlaubt das Anpassen von Fragen und Farben sowie das Herunterladen der aktualisierten Konfiguration.
 - **QR-Code-Login & Dunkelmodus**: Optionaler QR-Code-Login für schnelles Anmelden und ein zuschaltbares dunkles Design steigern den Komfort.
 - **Datensparsam**: Alle Ergebnisse verbleiben ausschließlich im Browser und können als Statistikdatei exportiert werden.
 
@@ -14,13 +13,13 @@ Das **Sommerfest-Quiz** ist eine sofort einsetzbare Web-App, mit der Sie Besuche
 
 - **Einfache Installation**: Nur Composer-Abhängigkeiten installieren und einen PHP-Server starten.
 - **Intuitives UI**: Komplett auf UIkit3 basierendes Frontend mit flüssigen Animationen und responsive Design.
-- **Stark anpassbar**: Farben, Logo und Texte lassen sich über `config/config.json` oder die Admin-Oberfläche anpassen.
+- **Stark anpassbar**: Farben, Logo und Texte lassen sich über `config/config.json` anpassen.
 - **Vollständig im Browser**: Das Quiz benötigt keine Serverpersistenz und funktioniert auch offline, sobald die Seite geladen ist.
 
 ## Projektstruktur
 
 - **public/** – Einstiegspunkt `index.php`, alle UIkit-Assets sowie JavaScript-Dateien
-- **templates/** – Twig-Vorlagen für Startseite, FAQ und Admin-Bereich
+- **templates/** – Twig-Vorlagen für Startseite und FAQ
 - **kataloge/** – Fragenkataloge im JSON-Format
 - **src/** – PHP-Code mit Routen, Controllern und Services
 
@@ -38,7 +37,7 @@ Das **Sommerfest-Quiz** ist eine sofort einsetzbare Web-App, mit der Sie Besuche
 
 ## Anpassung
 
-Alle wichtigen Einstellungen finden Sie in `config/config.json`. Ändern Sie hier Logo, Farben oder die Verwendung des QR-Code-Logins. Die Fragen selbst liegen in `kataloge/*.json` und können mit jedem Texteditor angepasst werden. Über die Admin-Seite lassen sich neue Versionen dieser Dateien herunterladen.
+Alle wichtigen Einstellungen finden Sie in `config/config.json`. Ändern Sie hier Logo, Farben oder die Verwendung des QR-Code-Logins. Die Fragen selbst liegen in `kataloge/*.json` und können mit jedem Texteditor angepasst werden.
 
 ## Tests
 
