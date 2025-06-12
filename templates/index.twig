@@ -1,6 +1,6 @@
 {% extends 'layout.twig' %}
 
-{% block title %}Modernes Quiz mit UIkit{% endblock %}
+{% block title %}{{ config.pageTitle|default('Modernes Quiz mit UIkit') }}{% endblock %}
 
 {% block head %}
   <link rel="stylesheet" href="/css/dark.css">

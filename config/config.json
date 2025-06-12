@@ -2,6 +2,7 @@
   "displayErrorDetails": true,
   "QRUser": true,
   "logoPath": "",
+  "pageTitle": "Modernes Quiz mit UIkit",
   "header": "Sommerfest 2025",
   "subheader": "Willkommen beim Veranstaltungsquiz",
   "backgroundColor": "#f8f8f8",
