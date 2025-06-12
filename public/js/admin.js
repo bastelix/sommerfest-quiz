@@ -67,6 +67,27 @@ document.addEventListener('DOMContentLoaded', function () {
         notify('Fehler beim Speichern', 'danger');
       });
   });
+  const cfgExportBtn = document.getElementById('cfgExportBtn');
+  cfgExportBtn?.addEventListener('click', function (e) {
+    e.preventDefault();
+    fetch('/export.pdf')
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        return r.blob();
+      })
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'export.pdf';
+        a.click();
+        URL.revokeObjectURL(url);
+      })
+      .catch(err => {
+        console.error(err);
+        notify('Fehler beim Export', 'danger');
+      });
+  });
 
   // --------- Fragen bearbeiten ---------
   const container = document.getElementById('questions');
