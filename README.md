@@ -37,7 +37,7 @@ Das **Sommerfest-Quiz** ist eine sofort einsetzbare Web-App, mit der Sie Besuche
 
 ## Anpassung
 
-Alle wichtigen Einstellungen finden Sie in `config/config.json`. Ändern Sie hier Logo, Farben oder die Verwendung des QR-Code-Logins. Die Fragen selbst liegen in `kataloge/*.json` und können mit jedem Texteditor angepasst werden.
+Alle wichtigen Einstellungen finden Sie in `config/config.json`. Ändern Sie hier Logo, Farben, die Zugangsdaten für den Adminbereich oder die Verwendung des QR-Code-Logins. Die Fragen selbst liegen in `kataloge/*.json` und können mit jedem Texteditor angepasst werden.
 
 ## Tests
 

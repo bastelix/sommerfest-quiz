@@ -22,6 +22,10 @@ window.quizConfig = {
   // QR-Code-Login aktivieren (true/false)
   QRUser: true,
 
+  // Zugangsdaten für den Admin-Bereich
+  adminUser: 'admin',
+  adminPass: 'password',
+
   // Teilnahme auf bekannte Namen beschränken
   QRRestrict: false
 };
