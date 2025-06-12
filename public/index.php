@@ -7,8 +7,13 @@ use App\Application\Middleware\SessionMiddleware;
 
 $settings = require __DIR__ . '/../config/settings.php';
 $app = \Slim\Factory\AppFactory::create();
+$basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+if ($basePath !== '') {
+    $app->setBasePath($basePath);
+}
 
 $twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
+$twig->getEnvironment()->addGlobal('base_path', $basePath);
 $app->add(TwigMiddleware::create($app, $twig));
 $app->add(new SessionMiddleware());
 

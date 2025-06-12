@@ -3,7 +3,7 @@
 {% block title %}Ergebnisse{% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="{{ base_path }}/css/main.css">
 {% endblock %}
 
 {% block body_class %}uk-background-muted uk-padding{% endblock %}
@@ -11,7 +11,7 @@
 {% block body %}
   {% embed 'topbar.twig' %}
     {% block left %}
-      <a href="/admin" class="uk-icon-button" uk-icon="icon: arrow-left; ratio: 2" title="Zurück" aria-label="Zurück"></a>
+      <a href="{{ base_path }}/admin" class="uk-icon-button" uk-icon="icon: arrow-left; ratio: 2" title="Zurück" aria-label="Zurück"></a>
     {% endblock %}
   {% endembed %}
   <div class="uk-container uk-container-small">
@@ -37,6 +37,6 @@
 {% endblock %}
 
 {% block scripts %}
-  <script src="/js/uikit-icons.min.js"></script>
-  <script src="/js/app.js"></script>
+  <script src="{{ base_path }}/js/uikit-icons.min.js"></script>
+  <script src="{{ base_path }}/js/app.js"></script>
 {% endblock %}

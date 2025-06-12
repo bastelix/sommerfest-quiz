@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
+  const base = window.basePath || '';
+  const url = p => (base ? base + '/' + p.replace(/^\//, '') : '/' + p.replace(/^\//, ''));
   function notify(msg, status = 'primary') {
     if (typeof UIkit !== 'undefined' && UIkit.notification) {
       UIkit.notification({ message: msg, status, pos: 'top-center', timeout: 2000 });
@@ -48,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
       CheckAnswerButton: cfgFields.checkAnswerButton.value,
       QRUser: cfgFields.qrUser.value === 'true'
     };
-    fetch('/config.json', {
+    fetch(url('config.json'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -82,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
   let initial = [];
 
   function saveCatalogs() {
-    fetch('/kataloge/catalogs.json', {
+    fetch(url('kataloge/catalogs.json'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(catalogs)
@@ -96,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const cat = catalogs.find(c => c.id === id);
     if (!cat) return;
     catalogFile = cat.file;
-    fetch('/kataloge/' + catalogFile, { headers: { 'Accept': 'application/json' } })
+    fetch(url('kataloge/' + catalogFile), { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(data => {
         initial = data;
@@ -108,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
-  fetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } })
+  fetch(url('kataloge/catalogs.json'), { headers: { 'Accept': 'application/json' } })
     .then(r => r.json())
     .then(list => {
       catalogs = list;
@@ -132,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function deleteCatalog(cat) {
     if (!confirm('Katalog wirklich löschen?')) return;
-    fetch('/kataloge/' + cat.file, { method: 'DELETE' })
+    fetch(url('kataloge/' + cat.file), { method: 'DELETE' })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
         catalogs = catalogs.filter(c => c.id !== cat.id);
@@ -300,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function () {
     removeBtn.onclick = () => {
       const idx = card.dataset.index;
       if (idx !== undefined) {
-        fetch('/kataloge/' + catalogFile + '/' + idx, { method: 'DELETE' })
+        fetch(url('kataloge/' + catalogFile + '/' + idx), { method: 'DELETE' })
           .then(r => {
             if (!r.ok) throw new Error(r.statusText);
             initial.splice(Number(idx), 1);
@@ -478,7 +480,7 @@ document.addEventListener('DOMContentLoaded', function () {
   saveBtn.addEventListener('click', function (e) {
     e.preventDefault();
     const data = collect();
-    fetch('/kataloge/' + catalogFile, {
+    fetch(url('kataloge/' + catalogFile), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -517,7 +519,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const id = prompt('ID für neuen Katalog?');
     if (!id) return;
     const file = id + '.json';
-    fetch('/kataloge/' + file, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: '[]' })
+    fetch(url('kataloge/' + file), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: '[]' })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
         const cat = { id, file };
@@ -551,7 +553,7 @@ document.addEventListener('DOMContentLoaded', function () {
   resultsResetBtn?.addEventListener('click', function (e) {
     e.preventDefault();
     if (!confirm('Alle Ergebnisse löschen?')) return;
-    fetch('/results', { method: 'DELETE' })
+    fetch(url('results'), { method: 'DELETE' })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
         notify('Ergebnisse gelöscht', 'success');
@@ -565,7 +567,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   resultsDownloadBtn?.addEventListener('click', function (e) {
     e.preventDefault();
-    fetch('/results/download')
+    fetch(url('results/download'))
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
         return r.blob();
@@ -648,7 +650,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if(teamListEl){
-    fetch('/teams.json', { headers: { 'Accept':'application/json' } })
+    fetch(url('teams.json'), { headers: { 'Accept':'application/json' } })
       .then(r => r.json())
       .then(data => { renderTeams(data); })
       .catch(()=>{});
@@ -665,7 +667,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const names = Array.from(teamListEl.querySelectorAll('input.uk-input'))
       .map(i => i.value.trim())
       .filter(Boolean);
-    fetch('/teams.json', {
+    fetch(url('teams.json'), {
       method: 'POST',
       headers: { 'Content-Type':'application/json' },
       body: JSON.stringify(names)
@@ -677,7 +679,7 @@ document.addEventListener('DOMContentLoaded', function () {
       notify('Fehler beim Speichern','danger');
     });
     cfgInitial.QRRestrict = teamRestrict.checked;
-    fetch('/config.json', {
+    fetch(url('config.json'), {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify(cfgInitial)

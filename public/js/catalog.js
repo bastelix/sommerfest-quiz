@@ -1,5 +1,7 @@
 // Lädt die verfügbaren Fragenkataloge und startet nach Auswahl das Quiz
 (function(){
+  const base = window.basePath || '';
+  const url = p => (base ? base + '/' + p.replace(/^\//,'') : '/' + p.replace(/^\//,''));
   function setSubHeader(text){
     const headerEl = document.getElementById('quiz-header');
     if(!headerEl) return;
@@ -61,7 +63,7 @@
   }
   async function loadCatalogList(){
     try{
-      const res = await fetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } });
+      const res = await fetch(url('kataloge/catalogs.json'), { headers: { 'Accept': 'application/json' } });
       if(res.ok){
         return await res.json();
       }
@@ -82,7 +84,7 @@
   async function loadQuestions(id, file){
     sessionStorage.setItem('quizCatalog', id);
     try{
-      const res = await fetch('/kataloge/' + file, { headers: { 'Accept': 'application/json' } });
+      const res = await fetch(url('kataloge/' + file), { headers: { 'Accept': 'application/json' } });
       const data = await res.json();
       window.quizQuestions = data;
       if(window.startQuiz){
@@ -142,7 +144,7 @@
       try{
         allowed = JSON.parse(sessionStorage.getItem('allowedTeams') || 'null');
         if(!allowed){
-          const r = await fetch('/teams.json', {headers:{'Accept':'application/json'}});
+          const r = await fetch(url('teams.json'), {headers:{'Accept':'application/json'}});
           if(r.ok){
             allowed = await r.json();
             sessionStorage.setItem('allowedTeams', JSON.stringify(allowed));
