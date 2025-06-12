@@ -233,19 +233,10 @@ function runQuiz(questions){
 
   // Drag-&-Drop sowie Tastaturnavigation für Sortierlisten
   function setupSortHandlers(ul){
-    let draggedSortItem;
+    if (typeof Sortable !== 'undefined') {
+      Sortable.create(ul, { animation: 150 });
+    }
     ul.querySelectorAll('li').forEach(li => {
-      li.addEventListener('dragstart', () => {
-        draggedSortItem = li;
-        li.setAttribute('aria-grabbed','true');
-      });
-      li.addEventListener('dragend', () => li.setAttribute('aria-grabbed','false'));
-      li.addEventListener('dragover', e => e.preventDefault());
-      li.addEventListener('drop', function(){
-        if(draggedSortItem !== this){
-          this.parentNode.insertBefore(draggedSortItem, this.nextSibling);
-        }
-      });
       li.addEventListener('keydown', e => {
         if(e.key === 'ArrowUp' && li.previousElementSibling){
           li.parentNode.insertBefore(li, li.previousElementSibling);
@@ -345,14 +336,35 @@ function runQuiz(questions){
 
   // Initialisiert Drag-&-Drop und Tastatursteuerung für die Zuordnungsfrage
   function setupAssignHandlers(div){
-    let draggedTerm = null;
+    const list = div.querySelector('.terms');
+    const group = 'assign-' + Math.random().toString(36).substr(2,5);
+
+    if (typeof Sortable !== 'undefined') {
+      Sortable.create(list, {
+        group: { name: group, pull: true, put: false },
+        sort: false,
+        animation: 150,
+        onStart: evt => evt.item.setAttribute('aria-grabbed','true'),
+        onEnd: evt => evt.item.setAttribute('aria-grabbed','false')
+      });
+
+      div.querySelectorAll('.dropzone').forEach(zone => {
+        Sortable.create(zone, {
+          group: { name: group, pull: false, put: true },
+          sort: false,
+          animation: 150,
+          onAdd: evt => {
+            const item = evt.item;
+            zone.textContent = item.textContent;
+            zone.dataset.dropped = item.dataset.term;
+            item.remove();
+          }
+        });
+      });
+    }
+
     let selectedTerm = null;
     div.querySelectorAll('.terms li').forEach(li => {
-      li.addEventListener('dragstart', () => {
-        draggedTerm = li;
-        li.setAttribute('aria-grabbed','true');
-      });
-      li.addEventListener('dragend', () => li.setAttribute('aria-grabbed','false'));
       li.addEventListener('keydown', e => {
         if(e.key === 'Enter' || e.key === ' '){
           selectedTerm = li;
@@ -362,26 +374,11 @@ function runQuiz(questions){
       });
     });
     div.querySelectorAll('.dropzone').forEach(zone => {
-      zone.addEventListener('dragover', e => {
-        e.preventDefault();
-        zone.classList.add('over');
-      });
-      zone.addEventListener('dragleave', () => zone.classList.remove('over'));
-      zone.addEventListener('drop', () => {
-        zone.classList.remove('over');
-        if(draggedTerm){
-          zone.innerHTML = draggedTerm.textContent;
-          zone.dataset.dropped = draggedTerm.dataset.term;
-          draggedTerm.style.visibility = "hidden";
-          draggedTerm.setAttribute('aria-grabbed','false');
-          draggedTerm = null;
-        }
-      });
       zone.addEventListener('keydown', e => {
         if((e.key === 'Enter' || e.key === ' ') && selectedTerm){
-          zone.innerHTML = selectedTerm.textContent;
+          zone.textContent = selectedTerm.textContent;
           zone.dataset.dropped = selectedTerm.dataset.term;
-          selectedTerm.style.visibility = "hidden";
+          selectedTerm.style.visibility = 'hidden';
           selectedTerm.setAttribute('aria-grabbed','false');
           selectedTerm = null;
           e.preventDefault();
