@@ -1,7 +1,7 @@
 [
   {
     "type": "mc",
-    "prompt": "Wof\u00fcr steht die Abk\u00fcrzung 'WWW'?",
+    "prompt": "Wofür steht die Abkürzung 'WWW'?",
     "options": ["World Wide Web", "Warm Water World", "Wild West War"],
     "answers": [0]
   },
