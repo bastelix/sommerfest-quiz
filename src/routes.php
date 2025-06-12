@@ -62,6 +62,7 @@ return function (\Slim\App $app) {
     $app->post('/config.json', [$configController, 'post']);
     $app->get('/kataloge/{file}', [$catalogController, 'get']);
     $app->post('/kataloge/{file}', [$catalogController, 'post']);
+    $app->delete('/kataloge/{file}/{index}', [$catalogController, 'deleteQuestion']);
     $app->put('/kataloge/{file}', [$catalogController, 'create']);
     $app->delete('/kataloge/{file}', [$catalogController, 'delete']);
 };
