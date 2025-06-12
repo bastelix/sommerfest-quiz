@@ -467,7 +467,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'results.json';
+        a.download = 'results.xlsx';
         a.click();
         URL.revokeObjectURL(url);
       })

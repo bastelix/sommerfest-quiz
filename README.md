@@ -62,7 +62,7 @@ python3 tests/test_json_validity.py
 
 ## Datenschutz
 
-Ergebnisse können nun serverseitig in einer `results.json` abgelegt werden. Die Ablage erfolgt anonymisiert und entspricht den Vorgaben der DSGVO. Jede Zeile enthält ein Pseudonym, den verwendeten Katalog, die Versuchnummer und die Punktzahl. Alternativ lassen sich die Daten weiterhin lokal als `statistical.log` exportieren.
+Ergebnisse können nun serverseitig in einer `results.xlsx` abgelegt werden. Die Ablage erfolgt anonymisiert und entspricht den Vorgaben der DSGVO. Jede Zeile enthält ein Pseudonym, den verwendeten Katalog, die Versuchnummer und die Punktzahl. Alternativ lassen sich die Daten weiterhin lokal als `statistical.log` exportieren.
 
 ## Barrierefreiheit
 
