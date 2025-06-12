@@ -7,16 +7,16 @@
   },
   {
     "type": "assign",
-    "prompt": "Ordne die Begriffe der passenden Erkl\u00e4rung zu:",
+    "prompt": "Ordne die Begriffe der passenden Erklärung zu:",
     "terms": [
       {"term": "Browser", "definition": "Programm zum Surfen"},
       {"term": "E-Mail", "definition": "Elektronischer Brief"},
-      {"term": "Firewall", "definition": "Sch\u00fctzt vor unerw\u00fcnschten Zugriffen"}
+      {"term": "Firewall", "definition": "Schützt vor unerwünschten Zugriffen"}
     ]
   },
   {
     "type": "sort",
-    "prompt": "Ordne die Ger\u00e4te nach Gr\u00f6\u00dfe (klein zu gro\u00df):",
+    "prompt": "Ordne die Geräte nach Größe (klein zu groß):",
     "items": ["Smartphone", "Laptop", "Desktop-PC"]
   }
 ]
