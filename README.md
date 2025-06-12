@@ -52,6 +52,14 @@ python3 tests/test_html_validity.py
 python3 tests/test_json_validity.py
 ```
 
+## Teams/Personen
+
+- Neuer Tab "Teams/Personen" in der Administration.
+- Liste mit Name und QR-Code, editierbar.
+- QR-Code-Login auf bekannte Teams/Personen beschränkbar.
+- Aktivierung/Deaktivierung der Beschränkung per Schalter.
+- Zufallsnamen werden bei aktiver Beschränkung unterbunden.
+
 ## Datenschutz
 
 Ergebnisse können nun serverseitig in einer `results.json` abgelegt werden. Die Ablage erfolgt anonymisiert und entspricht den Vorgaben der DSGVO. Jede Zeile enthält ein Pseudonym, den verwendeten Katalog, die Versuchnummer und die Punktzahl. Alternativ lassen sich die Daten weiterhin lokal als `statistical.log` exportieren.

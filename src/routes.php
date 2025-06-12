@@ -15,7 +15,9 @@ use App\Application\Middleware\AdminAuthMiddleware;
 use App\Service\ConfigService;
 use App\Service\CatalogService;
 use App\Service\ResultService;
+use App\Service\TeamService;
 use App\Controller\ResultController;
+use App\Controller\TeamController;
 
 require_once __DIR__ . '/Controller/HomeController.php';
 require_once __DIR__ . '/Controller/FaqController.php';
@@ -28,15 +30,18 @@ require_once __DIR__ . '/Controller/LogoutController.php';
 require_once __DIR__ . '/Controller/ConfigController.php';
 require_once __DIR__ . '/Controller/CatalogController.php';
 require_once __DIR__ . '/Controller/ResultController.php';
+require_once __DIR__ . '/Controller/TeamController.php';
 
 return function (\Slim\App $app) {
     $configService = new ConfigService(__DIR__ . '/../config/config.json');
     $catalogService = new CatalogService(__DIR__ . '/../kataloge');
     $resultService = new ResultService(__DIR__ . '/../data/results.json');
+    $teamService = new TeamService(__DIR__ . '/../data/teams.json');
 
     $configController = new ConfigController($configService);
     $catalogController = new CatalogController($catalogService);
     $resultController = new ResultController($resultService);
+    $teamController = new TeamController($teamService);
 
     $app->get('/', HomeController::class);
     $app->get('/favicon.ico', function (Request $request, Response $response) {
@@ -67,4 +72,7 @@ return function (\Slim\App $app) {
     $app->delete('/kataloge/{file}/{index}', [$catalogController, 'deleteQuestion']);
     $app->put('/kataloge/{file}', [$catalogController, 'create']);
     $app->delete('/kataloge/{file}', [$catalogController, 'delete']);
+
+    $app->get('/teams.json', [$teamController, 'get']);
+    $app->post('/teams.json', [$teamController, 'post']);
 };

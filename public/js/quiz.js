@@ -97,7 +97,9 @@ function runQuiz(questions){
   let summaryShown = false;
 
   if(!sessionStorage.getItem('quizUser')){
-    sessionStorage.setItem('quizUser', generateUserName());
+    if(!cfg.QRRestrict){
+      sessionStorage.setItem('quizUser', generateUserName());
+    }
   }
 
   // konfigurierbare Farben dynamisch in ein Style-Tag schreiben
@@ -161,7 +163,10 @@ function runQuiz(questions){
     if(summaryShown) return;
     summaryShown = true;
     const score = results.filter(r => r).length;
-    const user = sessionStorage.getItem('quizUser') || generateUserName();
+    let user = sessionStorage.getItem('quizUser');
+    if(!user && !cfg.QRRestrict){
+      user = generateUserName();
+    }
     const p = summaryEl.querySelector('p');
     if(p) p.textContent = `${user} hat ${score} von ${questionCount} Punkten erreicht.`;
     const heading = summaryEl.querySelector('h3');
@@ -611,6 +616,10 @@ function runQuiz(questions){
       URL.revokeObjectURL(url);
     });
     startBtn.addEventListener('click', () => {
+      if(cfg.QRRestrict){
+        alert('Nur Registrierung per QR-Code erlaubt');
+        return;
+      }
       const user = generateUserName();
       sessionStorage.setItem('quizUser', user);
       next();

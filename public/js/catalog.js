@@ -135,8 +135,25 @@
     container.appendChild(grid);
   }
 
-  function showLogin(onDone, autoScan){
+  async function showLogin(onDone, autoScan){
     const cfg = window.quizConfig || {};
+    let allowed = [];
+    if(cfg.QRRestrict){
+      try{
+        allowed = JSON.parse(sessionStorage.getItem('allowedTeams') || 'null');
+        if(!allowed){
+          const r = await fetch('/teams.json', {headers:{'Accept':'application/json'}});
+          if(r.ok){
+            allowed = await r.json();
+            sessionStorage.setItem('allowedTeams', JSON.stringify(allowed));
+          } else {
+            allowed = [];
+          }
+        }
+      }catch(e){
+        allowed = [];
+      }
+    }
     const container = document.getElementById('quiz');
     if(!container) return;
     container.innerHTML = '';
@@ -151,16 +168,19 @@
         scanBtn.style.borderColor = cfg.buttonColor;
         scanBtn.style.color = '#fff';
       }
-      const bypass = document.createElement('a');
-      bypass.href = '#';
-      bypass.textContent = 'Kataloge anzeigen';
-      bypass.className = 'uk-display-block uk-margin-top';
-      bypass.addEventListener('click', (e)=>{
-        e.preventDefault();
-        sessionStorage.setItem('quizUser', generateUserName());
-        updateUserName();
-        onDone();
-      });
+      let bypass;
+      if(!cfg.QRRestrict){
+        bypass = document.createElement('a');
+        bypass.href = '#';
+        bypass.textContent = 'Kataloge anzeigen';
+        bypass.className = 'uk-display-block uk-margin-top';
+        bypass.addEventListener('click', (e)=>{
+          e.preventDefault();
+          sessionStorage.setItem('quizUser', generateUserName());
+          updateUserName();
+          onDone();
+        });
+      }
       const modal = document.createElement('div');
       modal.id = 'qr-modal';
       modal.setAttribute('uk-modal', '');
@@ -191,7 +211,12 @@
           const back = cams.find(c => /back|rear|environment/i.test(c.label));
           if(back) cam = back.id;
           scanner.start(cam, { fps:10, qrbox:250 }, text => {
-            sessionStorage.setItem('quizUser', text.trim());
+            const name = text.trim();
+            if(cfg.QRRestrict && allowed.indexOf(name) === -1){
+              alert('Unbekanntes oder nicht berechtigtes Team/Person');
+              return;
+            }
+            sessionStorage.setItem('quizUser', name);
             updateUserName();
             stopScanner();
             UIkit.modal(modal).hide();
@@ -214,7 +239,7 @@
         UIkit.modal(modal).hide();
       });
       div.appendChild(scanBtn);
-      div.appendChild(bypass);
+      if(bypass) div.appendChild(bypass);
       container.appendChild(modal);
       if(autoScan){
         UIkit.modal(modal).show();
@@ -230,6 +255,10 @@
         btn.style.color = '#fff';
       }
       btn.addEventListener('click', () => {
+        if(cfg.QRRestrict){
+          alert('Nur Registrierung per QR-Code erlaubt');
+          return;
+        }
         sessionStorage.setItem('quizUser', generateUserName());
         updateUserName();
         onDone();
@@ -257,7 +286,9 @@
       showLogin(proceed, !!id);
     }else{
       if(!sessionStorage.getItem('quizUser')){
-        sessionStorage.setItem('quizUser', generateUserName());
+        if(!cfg.QRRestrict){
+          sessionStorage.setItem('quizUser', generateUserName());
+        }
       }
       updateUserName();
       proceed();

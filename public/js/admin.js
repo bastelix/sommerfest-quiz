@@ -470,8 +470,87 @@ document.addEventListener('DOMContentLoaded', function () {
       })
       .catch(err => {
         console.error(err);
-        notify('Fehler beim Herunterladen', 'danger');
-      });
+      notify('Fehler beim Herunterladen', 'danger');
+    });
+  });
+
+  // --------- Teams/Personen ---------
+  const teamListEl = document.getElementById('teamsList');
+  const teamAddBtn = document.getElementById('teamAddBtn');
+  const teamSaveBtn = document.getElementById('teamsSaveBtn');
+  const teamRestrict = document.getElementById('teamRestrict');
+
+  function qrSrc(text){
+    return 'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' + encodeURIComponent(text);
+  }
+
+  function createTeamRow(name = ''){
+    const div = document.createElement('div');
+    div.className = 'uk-flex uk-flex-middle uk-margin-small';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'uk-input uk-width-expand';
+    input.value = name;
+    const img = document.createElement('img');
+    img.className = 'uk-margin-left';
+    img.width = 64;
+    img.height = 64;
+    function update(){
+      const val = input.value.trim();
+      img.src = val ? qrSrc(val) : '';
+    }
+    input.addEventListener('input', update);
+    update();
+    const del = document.createElement('button');
+    del.className = 'uk-button uk-button-danger uk-margin-left';
+    del.textContent = '×';
+    del.onclick = () => div.remove();
+    div.appendChild(input);
+    div.appendChild(img);
+    div.appendChild(del);
+    return div;
+  }
+
+  function renderTeams(list){
+    teamListEl.innerHTML = '';
+    list.forEach(n => teamListEl.appendChild(createTeamRow(n)));
+  }
+
+  if(teamListEl){
+    fetch('/teams.json', { headers: { 'Accept':'application/json' } })
+      .then(r => r.json())
+      .then(data => { renderTeams(data); })
+      .catch(()=>{});
+    teamRestrict.checked = !!cfgInitial.QRRestrict;
+  }
+
+  teamAddBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    teamListEl.appendChild(createTeamRow(''));
+  });
+
+  teamSaveBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    const names = Array.from(teamListEl.querySelectorAll('input.uk-input'))
+      .map(i => i.value.trim())
+      .filter(Boolean);
+    fetch('/teams.json', {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify(names)
+    }).then(r => {
+      if(!r.ok) throw new Error(r.statusText);
+      notify('Liste gespeichert','success');
+    }).catch(err => {
+      console.error(err);
+      notify('Fehler beim Speichern','danger');
+    });
+    cfgInitial.QRRestrict = teamRestrict.checked;
+    fetch('/config.json', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(cfgInitial)
+    }).catch(()=>{});
   });
 
   // Zähler für eindeutige Namen von Eingabefeldern
