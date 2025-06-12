@@ -24,7 +24,7 @@ class LoginController
             $data = json_decode((string) $request->getBody(), true);
         }
 
-        $config = (new ConfigService(__DIR__ . '/../../config/config.json'))->getConfig();
+        $config = (new ConfigService(__DIR__ . '/../../data/config.json'))->getConfig();
         $user = $config['adminUser'] ?? 'admin';
         $pass = $config['adminPass'] ?? 'password';
 

@@ -14,7 +14,7 @@ class HomeController
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $cfg = (new ConfigService(__DIR__ . '/../../config/config.json'))->getConfig();
+        $cfg = (new ConfigService(__DIR__ . '/../../data/config.json'))->getConfig();
         return $view->render($response, 'index.twig', ['config' => $cfg]);
     }
 }
