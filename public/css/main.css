@@ -4,11 +4,11 @@ body {
 }
 
 body.uk-padding {
-  padding-top: 56px;
+  padding-top: calc(56px + 1em);
 }
 
 .index-page {
-  padding-top: 56px;
+  padding-top: calc(56px + 1em);
 }
 
 .sortable-list li,
