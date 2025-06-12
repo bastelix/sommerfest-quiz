@@ -12,15 +12,15 @@
 {% block body %}
   {% embed 'topbar.twig' %}
     {% block left %}
-      <div class="theme-switch">
-        <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="Design wechseln"></button>
-      </div>
+      <a href="faq" class="uk-icon-button" uk-icon="icon: question; ratio: 2" title="Hilfe" aria-label="Hilfe"></a>
     {% endblock %}
     {% block center %}
       <span class="uk-navbar-title">Sommerfest 2025</span>
     {% endblock %}
     {% block right %}
-      <a href="faq" class="uk-icon-button" uk-icon="icon: question; ratio: 2" title="Hilfe" aria-label="Hilfe"></a>
+      <div class="theme-switch">
+        <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="Design wechseln"></button>
+      </div>
     {% endblock %}
   {% endembed %}
   <div class="uk-container uk-width-1-1 uk-width-1-2@s uk-width-2-3@m">
