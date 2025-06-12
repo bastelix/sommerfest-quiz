@@ -198,6 +198,7 @@ document.addEventListener('DOMContentLoaded', function () {
     row.appendChild(qr);
     row.appendChild(del);
     return row;
+  }
 
   function editCatalog(cat) {
     const name = prompt('Name des Katalogs?', cat.name || cat.id);
@@ -218,35 +219,6 @@ document.addEventListener('DOMContentLoaded', function () {
     catalogList.innerHTML = '';
     list.forEach(cat => {
       catalogList.appendChild(createCatalogRow(cat));
-
-      const row = document.createElement('div');
-      row.className = 'uk-flex uk-flex-middle uk-margin';
-      const info = document.createElement('div');
-      info.className = 'uk-width-expand';
-      const title = document.createElement('strong');
-      title.textContent = cat.name || cat.id;
-      const desc = document.createElement('div');
-      desc.textContent = cat.description || '';
-      info.appendChild(title);
-      info.appendChild(desc);
-      const qr = document.createElement('img');
-      qr.className = 'uk-margin-left';
-      qr.width = 64;
-      qr.height = 64;
-      qr.src = qrSrc(window.location.origin + '/?katalog=' + encodeURIComponent(cat.id));
-      const edit = document.createElement('button');
-      edit.className = 'uk-button uk-button-default uk-margin-left';
-      edit.textContent = 'Bearbeiten';
-      edit.addEventListener('click', () => editCatalog(cat));
-      const del = document.createElement('button');
-      del.className = 'uk-button uk-button-danger uk-margin-left';
-      del.textContent = 'Löschen';
-      del.addEventListener('click', () => deleteCatalog(cat));
-      row.appendChild(info);
-      row.appendChild(qr);
-      row.appendChild(edit);
-      row.appendChild(del);
-      catalogList.appendChild(row);
     });
   }
 
