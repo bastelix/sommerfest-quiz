@@ -52,7 +52,7 @@ return function (\Slim\App $app) {
     $catalogController = new CatalogController($catalogService);
     $resultController = new ResultController($resultService, $xlsxService);
     $teamController = new TeamController($teamService);
-    $exportController = new ExportController($configService, $catalogService, $pdfService);
+    $exportController = new ExportController($configService, $catalogService, $teamService, $pdfService);
     $passwordController = new PasswordController($configService);
 
     $app->get('/', HomeController::class);

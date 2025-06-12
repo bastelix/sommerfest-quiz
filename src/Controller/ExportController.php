@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Service\CatalogService;
 use App\Service\ConfigService;
 use App\Service\PdfExportService;
+use App\Service\TeamService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -15,11 +16,13 @@ class ExportController
     private ConfigService $config;
     private CatalogService $catalogs;
     private PdfExportService $pdf;
+    private TeamService $teams;
 
-    public function __construct(ConfigService $config, CatalogService $catalogs, PdfExportService $pdf)
+    public function __construct(ConfigService $config, CatalogService $catalogs, TeamService $teams, PdfExportService $pdf)
     {
         $this->config = $config;
         $this->catalogs = $catalogs;
+        $this->teams = $teams;
         $this->pdf = $pdf;
     }
 
@@ -31,7 +34,8 @@ class ExportController
         if ($catJson !== null) {
             $cats = json_decode($catJson, true) ?? [];
         }
-        $content = $this->pdf->build($cfg, $cats);
+        $teams = $this->teams->getAll();
+        $content = $this->pdf->build($cfg, $cats, $teams);
         $response->getBody()->write($content);
         return $response
             ->withHeader('Content-Type', 'application/pdf')
