@@ -34,7 +34,7 @@ services:
       - webproxy
 
   slim:
-    image: php:8.2-alpine
+    build: .
     container_name: slim
     working_dir: /var/www
     volumes:

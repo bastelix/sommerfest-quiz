@@ -9,7 +9,8 @@
         "twig/twig": "^3.8",
         "slim/twig-view": "^3.3",
         "mpdf/mpdf": "^8.2",
-        "endroid/qr-code": "^5.0"
+        "endroid/qr-code": "^5.0",
+        "setasign/fpdf": "^1.8"
     },
     "autoload": {
         "psr-4": {
