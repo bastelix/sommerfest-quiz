@@ -161,11 +161,11 @@ a.uk-accordion-title {
 @media (max-width: 639px) {
   .uk-container,
   body.uk-padding {
-    padding-left: 0;
-    padding-right: 0;
+    padding-left: 8px;
+    padding-right: 8px;
   }
   .legal-container {
-    padding-left: 2px;
-    padding-right: 2px;
+    padding-left: 8px;
+    padding-right: 8px;
   }
 }
