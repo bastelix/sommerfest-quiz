@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', function () {
+  function notify(msg, status = 'primary') {
+    if (typeof UIkit !== 'undefined' && UIkit.notification) {
+      UIkit.notification({ message: msg, status, pos: 'top-center', timeout: 2000 });
+    } else {
+      alert(msg);
+    }
+  }
   // --------- Konfiguration bearbeiten ---------
   // Ausgangswerte aus der bestehenden Konfiguration
   const cfgInitial = window.quizConfig || {};
@@ -38,14 +45,19 @@ document.addEventListener('DOMContentLoaded', function () {
       CheckAnswerButton: cfgFields.checkAnswerButton.value,
       QRUser: cfgFields.qrUser.value === 'true'
     };
-    const content = JSON.stringify(data, null, 2) + '\n';
-    const blob = new Blob([content], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'config/config.json';
-    a.click();
-    URL.revokeObjectURL(url);
+    fetch('/config.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        notify('Konfiguration gespeichert', 'success');
+      })
+      .catch(err => {
+        console.error(err);
+        notify('Fehler beim Speichern', 'danger');
+      });
   });
 
   // --------- Fragen bearbeiten ---------
@@ -299,18 +311,23 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Exportiert die eingegebenen Fragen als JSON-Datei
+  // Speichert die eingegebenen Fragen
   saveBtn.addEventListener('click', function (e) {
     e.preventDefault();
     const data = collect();
-    const content = JSON.stringify(data, null, 2);
-    const blob = new Blob([content], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = catalogFile;
-    a.click();
-    URL.revokeObjectURL(url);
+    fetch('/kataloge/' + catalogFile, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        notify('Fragen gespeichert', 'success');
+      })
+      .catch(err => {
+        console.error(err);
+        notify('Fehler beim Speichern', 'danger');
+      });
   });
 
   // Setzt den Editor auf die Anfangswerte zurück
