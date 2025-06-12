@@ -73,7 +73,7 @@
       try{
         return JSON.parse(inline.textContent);
       }catch(err){
-        console.error('Inline-Katalogliste ung\u00fcltig.', err);
+        console.error('Inline-Katalogliste ungültig.', err);
       }
     }
     return [];
@@ -100,7 +100,7 @@
           window.startQuiz(data);
         }
       }catch(err){
-        console.error('Inline-Daten ung\u00fcltig.', err);
+        console.error('Inline-Daten ungültig.', err);
       }
     }
   }
@@ -177,7 +177,7 @@
       };
       const startScanner = () => {
         if(typeof Html5Qrcode === 'undefined'){
-          document.getElementById('login-qr').textContent = 'QR-Scanner nicht verf\u00fcgbar.';
+          document.getElementById('login-qr').textContent = 'QR-Scanner nicht verfügbar.';
           return;
         }
         scanner = new Html5Qrcode('login-qr');
