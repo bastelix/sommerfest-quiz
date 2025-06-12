@@ -269,6 +269,10 @@
   }
 
   async function init(){
+    const cfg = window.quizConfig || {};
+    if(cfg.QRRestrict){
+      sessionStorage.removeItem('quizUser');
+    }
     applyConfig();
     updateUserName();
     const catalogs = await loadCatalogList();
