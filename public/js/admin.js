@@ -697,7 +697,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'results.xlsx';
+        const name = (window.quizConfig && window.quizConfig.header) ? window.quizConfig.header : 'results';
+        a.download = name + '.csv';
         a.click();
         URL.revokeObjectURL(url);
       })

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\ResultService;
-use App\Service\XlsxExportService;
+use App\Service\ConfigService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -13,12 +13,12 @@ use Slim\Views\Twig;
 class ResultController
 {
     private ResultService $service;
-    private XlsxExportService $xlsx;
+    private ConfigService $config;
 
-    public function __construct(ResultService $service, XlsxExportService $xlsx)
+    public function __construct(ResultService $service, ConfigService $config)
     {
         $this->service = $service;
-        $this->xlsx = $xlsx;
+        $this->config = $config;
     }
 
     public function get(Request $request, Response $response): Response
@@ -42,17 +42,15 @@ class ResultController
                 (int)($r['total'] ?? 0),
             ];
         }
-        $content = $this->xlsx->build($rows);
+        $content = $this->buildCsv($rows);
         $response->getBody()->write($content);
-        if ($this->xlsx->isAvailable()) {
-            return $response
-                ->withHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-                ->withHeader('Content-Disposition', 'attachment; filename="results.xlsx"');
-        }
+
+        $cfg = $this->config->getConfig();
+        $name = ($cfg['header'] ?? 'results') . '.csv';
 
         return $response
             ->withHeader('Content-Type', 'text/csv')
-            ->withHeader('Content-Disposition', 'attachment; filename="results.csv"');
+            ->withHeader('Content-Disposition', 'attachment; filename="' . $name . '"');
     }
 
     public function post(Request $request, Response $response): Response
@@ -75,5 +73,20 @@ class ResultController
     {
         $this->service->clear();
         return $response->withStatus(204);
+    }
+
+    /**
+     * @param list<array<string|int>> $rows
+     */
+    private function buildCsv(array $rows): string
+    {
+        $lines = [];
+        foreach ($rows as $row) {
+            $cells = array_map(static function ($v) {
+                return '"' . str_replace('"', '""', (string) $v) . '"';
+            }, $row);
+            $lines[] = implode(';', $cells);
+        }
+        return implode("\n", $lines) . "\n";
     }
 }
