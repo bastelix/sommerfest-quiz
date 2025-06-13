@@ -10,6 +10,7 @@ use Slim\Views\Twig;
 use App\Service\ConfigService;
 use App\Service\ResultService;
 use App\Service\CatalogService;
+use App\Service\TeamService;
 
 class AdminController
 {
@@ -28,10 +29,13 @@ class AdminController
             $catalogs = json_decode($catalogsJson, true) ?? [];
         }
 
+        $teams = (new TeamService(__DIR__ . '/../../data/teams.json'))->getAll();
+
         return $view->render($response, 'admin.twig', [
             'config' => $cfg,
             'results' => $results,
             'catalogs' => $catalogs,
+            'teams' => $teams,
         ]);
     }
 }
