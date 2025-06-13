@@ -221,7 +221,7 @@
               <p>{{ c.description }}</p>
               {% set link = baseUrl ? baseUrl ~ '/?katalog=' ~ c.id : '?katalog=' ~ c.id %}
               <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ link|url_encode }}" alt="QR" width="96" height="96">
-              <img src="/qr.png?t={{ link|url_encode }}" alt="QR Design" width="96" height="96">
+              <!--<img src="/qr.png?t={{ link|url_encode }}" alt="QR Design" width="96" height="96">-->
             </div>
           </div>
           {% else %}
@@ -238,7 +238,7 @@
             <div class="export-card uk-card uk-card-default uk-card-body">
               <h4 class="uk-card-title">{{ t }}</h4>
               <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ t|url_encode }}" alt="QR" width="96" height="96">
-              <img src="/qr.png?t={{ t|url_encode }}" alt="QR Design" width="96" height="96">
+              <!--<img src="/qr.png?t={{ t|url_encode }}" alt="QR Design" width="96" height="96">-->
             </div>
           </div>
           {% else %}
