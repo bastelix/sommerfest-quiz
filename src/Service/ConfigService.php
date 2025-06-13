@@ -7,15 +7,24 @@ namespace App\Service;
 class ConfigService
 {
     private string $path;
+    private ?string $fallbackPath = null;
 
-    public function __construct(string $path)
+    public function __construct(string $path, ?string $fallbackPath = null)
     {
         $this->path = $path;
+        $this->fallbackPath = $fallbackPath;
     }
 
     public function getJson(): ?string
     {
         if (!file_exists($this->path)) {
+            if ($this->fallbackPath !== null && file_exists($this->fallbackPath)) {
+                $content = file_get_contents($this->fallbackPath);
+                if ($content !== false) {
+                    file_put_contents($this->path, $content);
+                    return $content;
+                }
+            }
             return null;
         }
 

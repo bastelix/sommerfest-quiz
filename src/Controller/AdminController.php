@@ -16,7 +16,10 @@ class AdminController
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $cfg = (new ConfigService(__DIR__ . '/../../data/config.json'))->getConfig();
+        $cfg = (new ConfigService(
+            __DIR__ . '/../../data/config.json',
+            __DIR__ . '/../../config/config.json'
+        ))->getConfig();
         $results = (new ResultService(__DIR__ . '/../../data/results.json'))->getAll();
         $catalogSvc = new CatalogService(__DIR__ . '/../../data/kataloge');
         $catalogsJson = $catalogSvc->read('catalogs.json');
