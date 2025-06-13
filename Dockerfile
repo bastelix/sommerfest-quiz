@@ -12,4 +12,8 @@ WORKDIR /var/www
 COPY . /var/www
 RUN composer install --no-interaction --prefer-dist --no-progress
 
-CMD ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/router.php"]
+# entrypoint to install dependencies if host volume lacks vendor/
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+
