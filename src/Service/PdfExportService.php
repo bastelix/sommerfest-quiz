@@ -47,6 +47,13 @@ class PdfExportService
             $pdf->Ln();
         }
 
+        if ($catalogs !== []) {
+            $pdf->Ln(10);
+            $pdf->SetFont('Arial', 'B', 14);
+            $pdf->Cell(0, 10, $this->enc('Kataloge'));
+            $pdf->Ln();
+        }
+
         $qrAvailable = class_exists(\Endroid\QrCode\QrCode::class)
             && class_exists(\Endroid\QrCode\Writer\PngWriter::class);
 
