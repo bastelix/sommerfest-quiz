@@ -6,11 +6,26 @@ namespace App\Service;
 
 class XlsxExportService
 {
+    public function isAvailable(): bool
+    {
+        return class_exists(\ZipArchive::class);
+    }
+
     /**
      * @param list<array<string|int|float|null>> $rows
      */
     public function build(array $rows): string
     {
+        if (!$this->isAvailable()) {
+            $lines = [];
+            foreach ($rows as $row) {
+                $cells = array_map(static function ($v) {
+                    return '"' . str_replace('"', '""', (string) $v) . '"';
+                }, $row);
+                $lines[] = implode(';', $cells);
+            }
+            return implode("\n", $lines) . "\n";
+        }
         $sheetData = '';
         foreach ($rows as $i => $row) {
             $rowIndex = $i + 1;
