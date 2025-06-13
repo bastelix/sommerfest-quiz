@@ -132,9 +132,10 @@ class PdfExportService
         $rowHeight = 20; // allow enough space for scannable QR codes
         $qrSize = 18;
 
-        $pdf->Cell(60, $rowHeight, $this->enc('Name'), 1);
-        $pdf->Cell(80, $rowHeight, $this->enc('Beschreibung'), 1);
+        $pdf->Cell(40, $rowHeight, $this->enc('Name'), 1);
+        $pdf->Cell(70, $rowHeight, $this->enc('Beschreibung'), 1);
         if ($qrEnabled) {
+            $pdf->Cell(40, $rowHeight, $this->enc('QR-Text'), 1);
             $pdf->Cell(40, $rowHeight, $this->enc('QR-Code'), 1);
         }
         $pdf->Ln();
@@ -144,8 +145,8 @@ class PdfExportService
             $name = $this->enc((string)($catalog['name'] ?? $catalog['id'] ?? ''));
             $desc = $this->enc((string)($catalog['description'] ?? $catalog['beschreibung'] ?? ''));
 
-            $pdf->Cell(60, $rowHeight, $name, 1);
-            $pdf->Cell(80, $rowHeight, $desc, 1);
+            $pdf->Cell(40, $rowHeight, $name, 1);
+            $pdf->Cell(70, $rowHeight, $desc, 1);
 
             if ($qrEnabled) {
                 $qrImage = $catalog['qr_image']
@@ -154,6 +155,8 @@ class PdfExportService
                     ?? $catalog['qrcode']
                     ?? null;
                 $qrImage = $this->loadQrImage($qrImage, $tmpFiles);
+                $qrData = '?katalog=' . urlencode((string)($catalog['id'] ?? ''));
+                $pdf->Cell(40, $rowHeight, $this->enc($qrData), 1);
                 if ($qrImage === null && $qrAvailable) {
                     $url = '?katalog=' . urlencode((string)($catalog['id'] ?? ''));
                     if (method_exists(QrCode::class, 'create')) {
@@ -192,16 +195,17 @@ class PdfExportService
             $pdf->Ln();
 
             $pdf->SetFont('Arial', 'B', 12);
-            $pdf->Cell(60, $rowHeight, $this->enc('Name'), 1);
+            $pdf->Cell(70, $rowHeight, $this->enc('Name'), 1);
             if ($qrEnabled) {
+                $pdf->Cell(80, $rowHeight, $this->enc('QR-Text'), 1);
                 $pdf->Cell(40, $rowHeight, $this->enc('QR-Code'), 1);
             }
             $pdf->Ln();
 
             $pdf->SetFont('Arial', '', 12);
             foreach ($teams as $team) {
-            $name = $this->enc((string)$team);
-            $pdf->Cell(60, $rowHeight, $name, 1);
+            $name = is_array($team) ? $this->enc((string)($team['name'] ?? '')) : $this->enc((string)$team);
+            $pdf->Cell(70, $rowHeight, $name, 1);
                 if ($qrEnabled) {
                     $qrImage = null;
                     if (is_array($team)) {
@@ -212,6 +216,8 @@ class PdfExportService
                             ?? null;
                     }
                     $qrImage = $this->loadQrImage($qrImage, $tmpFiles);
+                    $qrData = is_array($team) ? (string)($team['name'] ?? '') : (string)$team;
+                    $pdf->Cell(80, $rowHeight, $this->enc($qrData), 1);
                     if ($qrImage === null && $qrAvailable) {
                         $url = is_array($team) ? (string)($team['name'] ?? '') : (string)$team;
                         if (method_exists(QrCode::class, 'create')) {
