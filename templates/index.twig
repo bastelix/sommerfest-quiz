@@ -31,11 +31,8 @@
     </div>
     <div class="uk-card uk-card-default uk-card-body uk-margin">
       <h3 class="uk-heading-bullet">Informationen zur Quiz-Anwendung</h3>
-      <p>Die Sommerfeier 2025 Quiz-App ist das Ergebnis einer engen Zusammenarbeit von menschlicher Erfahrung und k&uuml;nstlicher Intelligenz. Die Ideen, das Projektmanagement und die Praxiserfahrung aus vielen Softwareprojekten stammen von Menschenhand &ndash; alle Codezeilen und Optimierungen wurden jedoch bewusst vollst&auml;ndig vom OpenAI Codex Coding-Assistenten generiert.</p>
-      <p>Dieses Projekt zeigt, wie KI-Technologie bereits heute in der Softwareentwicklung eingesetzt werden kann: Menschen liefern Kreativit&auml;t und Struktur, der KI-Assistent &uuml;bernimmt die Umsetzung im Code. So entsteht eine echte Symbiose aus menschlicher Steuerung und maschineller Programmierung.</p>
-      <p>Der Quellcode ist offen auf GitHub verf&uuml;gbar: <a href="https://github.com/bastelix/sommerfest-quiz">https://github.com/bastelix/sommerfest-quiz</a></p>
-      <p>Die Software steht unter der MIT-Lizenz (Details siehe <code>LICENSE</code>-Datei).</p>
-      <p><strong>Datenschutz:</strong> Das Quiz wird zentral &uuml;ber einen Server bereitgestellt. Je nach Einstellung k&ouml;nnen Ergebnisdaten serverseitig verarbeitet oder gespeichert werden. Personenbezogene Daten werden dabei nicht erfasst &ndash; beim Export der Datei <code>statistical.log</code> werden ausschlie&szlig;lich Pseudonyme und Punktzahlen gespeichert. Details zum Datenschutz entnehmen Sie bitte der Datenschutzerkl&auml;rung.</p>
+      <p>Die Sommerfeier 2025 Quiz-App ist das Ergebnis einer engen Zusammenarbeit von menschlicher Erfahrung und k&uuml;nstlicher Intelligenz. Die Ideen, das Projektmanagement und die Praxiserfahrung aus vielen Softwareprojekten stammen von Menschenhand &ndash; alle Codezeilen und Optimierungen wurden jedoch bewusst vollst&auml;ndig vom OpenAI Codex generiert.</p>
+      <p>F&uuml;r die Fehleranalyse kam GitHub Copilot zum Einsatz, f&uuml;r Best-Practice-L&ouml;sungen und Inspirationen wurde GPT-4.1 von ChatGPT genutzt. Das Projekt ist damit nicht nur ein innovatives Quiz, sondern auch ein anschauliches Beispiel f&uuml;r die erfolgreiche Kooperation zwischen menschlicher Expertise und modernen KI-Werkzeugen.</p>
       </div>
   </div>
 {% endblock %}
@@ -48,56 +45,7 @@
     window.quizConfig = {{ config|json_encode|raw }};
   </script>
   <script id="catalogs-data" type="application/json">
-    [
-      {
-        "id": "station_1",
-        "file": "station_1.json",
-        "name": "Station-1",
-        "description": "Speicher und Geraete"
-      },
-      {
-        "id": "station_2",
-        "file": "station_2.json",
-        "name": "Station-2",
-        "description": "Bedienung und Symbole"
-      },
-      {
-        "id": "station_3",
-        "file": "station_3.json",
-        "name": "Station-3",
-        "description": "WWW und Speicherarten"
-      },
-      {
-        "id": "station_4",
-        "file": "station_4.json",
-        "name": "Station-4",
-        "description": "Begriffe und Geraetegroessen"
-      },
-      {
-        "id": "station_5",
-        "file": "station_5.json",
-        "name": "Station-5",
-        "description": "Programme und Binaersystem"
-      },
-      {
-        "id": "station_6",
-        "file": "station_6.json",
-        "name": "Station-6",
-        "description": "Dateien und URLs"
-      },
-      {
-        "id": "station_7",
-        "file": "station_7.json",
-        "name": "Station-7",
-        "description": "Netzwerke und Kuerzel"
-      },
-      {
-        "id": "station_8",
-        "file": "station_8.json",
-        "name": "Station-8",
-        "description": "Cloud und Steuerung"
-      }
-    ]
+    {{ catalogs|json_encode|raw }}
   </script>
   <script src="/js/catalog.js"></script>
   <script src="/js/confetti.js"></script>

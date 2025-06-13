@@ -6,6 +6,17 @@ document.addEventListener('DOMContentLoaded', function () {
       alert(msg);
     }
   }
+
+  function slugify(text) {
+    return text
+      .toString()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/ß/g, 'ss')
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+  }
   // --------- Konfiguration bearbeiten ---------
   // Ausgangswerte aus der bestehenden Konfiguration
   const cfgInitial = window.quizConfig || {};
@@ -18,7 +29,8 @@ document.addEventListener('DOMContentLoaded', function () {
     backgroundColor: document.getElementById('cfgBackgroundColor'),
     buttonColor: document.getElementById('cfgButtonColor'),
     checkAnswerButton: document.getElementById('cfgCheckAnswerButton'),
-    qrUser: document.getElementById('cfgQRUser')
+    qrUser: document.getElementById('cfgQRUser'),
+    teamRestrict: document.getElementById('teamRestrict')
   };
   // Füllt das Formular mit den Werten aus einem Konfigurationsobjekt
   function renderCfg(data) {
@@ -30,6 +42,9 @@ document.addEventListener('DOMContentLoaded', function () {
     cfgFields.buttonColor.value = data.buttonColor || '';
     cfgFields.checkAnswerButton.value = data.CheckAnswerButton || 'yes';
     cfgFields.qrUser.value = String(data.QRUser) || 'false';
+    if (cfgFields.teamRestrict) {
+      cfgFields.teamRestrict.checked = !!data.QRRestrict;
+    }
   }
   renderCfg(cfgInitial);
   document.getElementById('cfgResetBtn').addEventListener('click', function (e) {
@@ -38,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   document.getElementById('cfgSaveBtn').addEventListener('click', function (e) {
     e.preventDefault();
-    const data = {
+    const data = Object.assign({}, cfgInitial, {
       logoPath: cfgFields.logoPath.value.trim(),
       pageTitle: cfgFields.pageTitle.value.trim(),
       header: cfgFields.header.value.trim(),
@@ -46,8 +61,9 @@ document.addEventListener('DOMContentLoaded', function () {
       backgroundColor: cfgFields.backgroundColor.value.trim(),
       buttonColor: cfgFields.buttonColor.value.trim(),
       CheckAnswerButton: cfgFields.checkAnswerButton.value,
-      QRUser: cfgFields.qrUser.value === 'true'
-    };
+      QRUser: cfgFields.qrUser.value === 'true',
+      QRRestrict: cfgFields.teamRestrict ? cfgFields.teamRestrict.checked : cfgInitial.QRRestrict
+    });
     fetch('/config.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -192,6 +208,12 @@ document.addEventListener('DOMContentLoaded', function () {
     name.className = 'uk-input uk-width-medium uk-margin-left cat-name';
     name.placeholder = 'Name';
     name.value = cat.name || '';
+    name.addEventListener('input', () => {
+      if (row.dataset.new === 'true' && idInput.value.trim() === '') {
+        idInput.value = slugify(name.value);
+        update();
+      }
+    });
 
     const desc = document.createElement('input');
     desc.type = 'text';
@@ -576,7 +598,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const rows = Array.from(catalogList.querySelectorAll('.catalog-row'));
     for (const row of rows) {
       if (row.dataset.new === 'true') {
-        const id = row.querySelector('.cat-id').value.trim();
+        let id = row.querySelector('.cat-id').value.trim();
+        if (!id) {
+          const nameEl = row.querySelector('.cat-name');
+          if (nameEl) {
+            id = slugify(nameEl.value);
+            row.querySelector('.cat-id').value = id;
+          }
+        }
         if (!id) continue;
         try {
           await fetch('/kataloge/' + id + '.json', {
@@ -660,7 +689,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamListEl = document.getElementById('teamsList');
   const teamAddBtn = document.getElementById('teamAddBtn');
   const teamSaveBtn = document.getElementById('teamsSaveBtn');
-  const teamRestrict = document.getElementById('teamRestrict');
+  const teamRestrict = cfgFields.teamRestrict;
 
   function qrSrc(text){
     return 'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' + encodeURIComponent(text);
@@ -793,4 +822,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Zähler für eindeutige Namen von Eingabefeldern
   let cardIndex = 0;
+
+  // --------- Hilfe-Seitenleiste ---------
+  const helpBtn = document.getElementById('helpBtn');
+  const helpSidebar = document.getElementById('helpSidebar');
+  const helpContent = document.getElementById('helpContent');
+  const adminTabs = document.getElementById('adminTabs');
+
+  function activeHelpText() {
+    if (!adminTabs) return '';
+    const active = adminTabs.querySelector('li.uk-active');
+    return active ? active.getAttribute('data-help') || '' : '';
+  }
+
+  helpBtn?.addEventListener('click', () => {
+    if (!helpSidebar || !helpContent) return;
+    helpContent.textContent = activeHelpText();
+    UIkit.offcanvas(helpSidebar).show();
+  });
 });

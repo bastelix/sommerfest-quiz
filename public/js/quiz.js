@@ -505,7 +505,7 @@ function runQuiz(questions){
       modal.setAttribute('uk-modal', '');
       modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">'+
         '<h3 class="uk-modal-title uk-text-center">Who I AM</h3>'+
-        '<div id="qr-reader" class="uk-margin" style="max-width:320px;width:100%"></div>'+
+        '<div id="qr-reader" class="uk-margin" style="max-width:320px;margin:0 auto;width:100%"></div>'+
         '<button id="qr-reader-stop" class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Abbrechen</button>'+
       '</div>';
       let scanner;
