@@ -194,7 +194,7 @@ body.dark-mode .sticky-actions {
   margin-top: 16px;
 }
 
-/* Kartenlayout fuer Export-Seite */
+/* Kartenlayout fuer Export- und Zusammenfassungsseiten */
 .card-grid > div {
   break-inside: avoid;
 }
