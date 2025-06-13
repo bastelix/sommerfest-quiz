@@ -14,18 +14,19 @@
     <a href="." class="uk-icon-button" uk-icon="icon: arrow-left; ratio: 2" title="Zurück" aria-label="Zurück"></a>
     <div class="uk-flex">
       <a href="/logout" class="uk-button uk-button-danger uk-margin-right">Logout</a>
-      <div class="theme-switch">
+      <div class="theme-switch uk-margin-right">
         <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="Design wechseln"></button>
       </div>
+      <button id="helpBtn" class="uk-icon-button" uk-icon="icon: question; ratio: 2" aria-label="Hilfe"></button>
     </div>
   </div>
-  <ul uk-tab>
-    <li class="uk-active"><a href="#">Veranstaltung konfigurieren</a></li>
-    <li><a href="#">Kataloge</a></li>
-    <li><a href="#">Teams/Personen</a></li>
-    <li><a href="#">Fragen anpassen</a></li>
-    <li><a href="#">Ergebnisse</a></li>
-    <li><a href="#">Passwort ändern</a></li>
+  <ul id="adminTabs" uk-tab>
+    <li class="uk-active" data-help="Allgemeine Einstellungen wie Logo, Texte und Farben der Veranstaltung."><a href="#">Veranstaltung konfigurieren</a></li>
+    <li data-help="Fragenkataloge erstellen, benennen und beschreiben."><a href="#">Kataloge</a></li>
+    <li data-help="Liste der teilnehmenden Teams oder Personen verwalten."><a href="#">Teams/Personen</a></li>
+    <li data-help="Fragen eines Katalogs bearbeiten und neue Fragen hinzufügen."><a href="#">Fragen anpassen</a></li>
+    <li data-help="Gespeicherte Quiz-Ergebnisse ansehen und herunterladen."><a href="#">Ergebnisse</a></li>
+    <li data-help="Administrationspasswort festlegen."><a href="#">Passwort ändern</a></li>
   </ul>
   <ul class="uk-switcher uk-margin">
     <li>
@@ -230,6 +231,12 @@
       </div>
     </li>
   </ul>
+  <div id="helpSidebar" uk-offcanvas="flip: true; overlay: true">
+    <div class="uk-offcanvas-bar uk-width-medium">
+      <h3 class="uk-margin-remove-top">Hilfe</h3>
+      <div id="helpContent"></div>
+    </div>
+  </div>
 {% endblock %}
 
 {% block scripts %}

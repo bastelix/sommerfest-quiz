@@ -822,4 +822,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Zähler für eindeutige Namen von Eingabefeldern
   let cardIndex = 0;
+
+  // --------- Hilfe-Seitenleiste ---------
+  const helpBtn = document.getElementById('helpBtn');
+  const helpSidebar = document.getElementById('helpSidebar');
+  const helpContent = document.getElementById('helpContent');
+  const adminTabs = document.getElementById('adminTabs');
+
+  function activeHelpText() {
+    if (!adminTabs) return '';
+    const active = adminTabs.querySelector('li.uk-active');
+    return active ? active.getAttribute('data-help') || '' : '';
+  }
+
+  helpBtn?.addEventListener('click', () => {
+    if (!helpSidebar || !helpContent) return;
+    helpContent.textContent = activeHelpText();
+    UIkit.offcanvas(helpSidebar).show();
+  });
 });
