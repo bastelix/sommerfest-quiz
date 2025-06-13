@@ -77,7 +77,7 @@ class PdfExportService
      */
     private function createQrImage(string $text, array &$tmpFiles): string
     {
-        $result = Builder::create()
+        $builder = Builder::create()
             ->writer(new PngWriter())
             ->data($text)
             ->encoding(new Encoding('UTF-8'))
@@ -86,8 +86,13 @@ class PdfExportService
             ->backgroundColor(new Color(255, 255, 255))
             ->foregroundColor(new Color(35, 180, 90))
             ->labelText($text)
-            ->labelFont(new NotoSans(20))
-            ->labelAlignment(LabelAlignment::CENTER)
+            ->labelFont(new NotoSans(20));
+
+        if (class_exists(\Endroid\QrCode\Label\Alignment\LabelAlignmentCenter::class)) {
+            $builder = $builder->labelAlignment(new \Endroid\QrCode\Label\Alignment\LabelAlignmentCenter());
+        }
+
+        $result = $builder
             ->roundBlockSizeMode(RoundBlockSizeMode::ENLARGE)
             ->build();
 
