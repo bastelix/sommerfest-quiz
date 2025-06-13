@@ -104,7 +104,7 @@ function runQuiz(questions){
 
   // konfigurierbare Farben dynamisch in ein Style-Tag schreiben
   const styleEl = document.createElement('style');
-  styleEl.textContent = `\n    body { background-color: ${cfg.backgroundColor || '#f8f8f8'}; }\n    .uk-button-primary { background-color: ${cfg.buttonColor || '#1e87f0'}; border-color: ${cfg.buttonColor || '#1e87f0'}; }\n  `;
+  styleEl.textContent = `\n    body { background-color: ${cfg.backgroundColor || '#ffffff'}; }\n    .uk-button-primary { background-color: ${cfg.buttonColor || '#1e87f0'}; border-color: ${cfg.buttonColor || '#1e87f0'}; }\n  `;
   document.head.appendChild(styleEl);
 
   // hide header once the quiz starts

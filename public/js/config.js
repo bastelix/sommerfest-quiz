@@ -13,7 +13,7 @@ window.quizConfig = {
   subheader: 'Willkommen beim Veranstaltungsquiz',
 
   // Farbschema der Anwendung
-  backgroundColor: '#f8f8f8',
+  backgroundColor: '#ffffff',
   buttonColor: '#1e87f0',
 
   // Falls "no", wird der Button "Antwort prüfen" ausgeblendet
