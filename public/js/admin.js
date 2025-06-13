@@ -17,6 +17,27 @@ document.addEventListener('DOMContentLoaded', function () {
       .replace(/[^a-z0-9]+/g, '_')
       .replace(/^_+|_+$/g, '');
   }
+
+  function getUsedIds() {
+    const set = new Set(catalogs.map(c => c.id));
+    document
+      .querySelectorAll('.catalog-row .cat-id')
+      .forEach(el => set.add(el.value.trim()));
+    return set;
+  }
+
+  function uniqueId(text) {
+    let base = slugify(text);
+    if (!base) return '';
+    const used = getUsedIds();
+    let id = base;
+    let i = 2;
+    while (used.has(id)) {
+      id = base + '_' + i;
+      i++;
+    }
+    return id;
+  }
   // --------- Konfiguration bearbeiten ---------
   // Ausgangswerte aus der bestehenden Konfiguration
   const cfgInitial = window.quizConfig || {};
@@ -210,7 +231,7 @@ document.addEventListener('DOMContentLoaded', function () {
     name.value = cat.name || '';
     name.addEventListener('input', () => {
       if (row.dataset.new === 'true' && idInput.value.trim() === '') {
-        idInput.value = slugify(name.value);
+        idInput.value = uniqueId(name.value);
         update();
       }
     });
@@ -617,7 +638,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!id) {
           const nameEl = row.querySelector('.cat-name');
           if (nameEl) {
-            id = slugify(nameEl.value);
+            id = uniqueId(nameEl.value);
             row.querySelector('.cat-id').value = id;
           }
         }
