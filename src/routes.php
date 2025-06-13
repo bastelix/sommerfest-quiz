@@ -16,7 +16,6 @@ use App\Application\Middleware\AdminAuthMiddleware;
 use App\Service\ConfigService;
 use App\Service\CatalogService;
 use App\Service\ResultService;
-use App\Service\XlsxExportService;
 use App\Service\TeamService;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
@@ -49,13 +48,12 @@ return function (\Slim\App $app) {
     );
     $catalogService = new CatalogService(__DIR__ . '/../data/kataloge');
     $resultService = new ResultService(__DIR__ . '/../data/results.json');
-    $xlsxService = new XlsxExportService();
     $teamService = new TeamService(__DIR__ . '/../data/teams.json');
     $pdfService = new PdfExportService();
 
     $configController = new ConfigController($configService);
     $catalogController = new CatalogController($catalogService);
-    $resultController = new ResultController($resultService, $xlsxService);
+    $resultController = new ResultController($resultService, $configService);
     $teamController = new TeamController($teamService);
     $exportController = new ExportController($configService, $catalogService, $teamService, $pdfService);
     $passwordController = new PasswordController($configService);
