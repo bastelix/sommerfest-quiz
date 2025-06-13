@@ -9,6 +9,7 @@ use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\Label\Font\NotoSans;
+use Endroid\QrCode\Label\Alignment\LabelAlignment;
 use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeMode;
 use FPDF;
 
