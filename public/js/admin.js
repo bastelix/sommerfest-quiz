@@ -6,6 +6,17 @@ document.addEventListener('DOMContentLoaded', function () {
       alert(msg);
     }
   }
+
+  function slugify(text) {
+    return text
+      .toString()
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/ß/g, 'ss')
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+  }
   // --------- Konfiguration bearbeiten ---------
   // Ausgangswerte aus der bestehenden Konfiguration
   const cfgInitial = window.quizConfig || {};
@@ -192,6 +203,12 @@ document.addEventListener('DOMContentLoaded', function () {
     name.className = 'uk-input uk-width-medium uk-margin-left cat-name';
     name.placeholder = 'Name';
     name.value = cat.name || '';
+    name.addEventListener('input', () => {
+      if (row.dataset.new === 'true' && idInput.value.trim() === '') {
+        idInput.value = slugify(name.value);
+        update();
+      }
+    });
 
     const desc = document.createElement('input');
     desc.type = 'text';
@@ -576,7 +593,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const rows = Array.from(catalogList.querySelectorAll('.catalog-row'));
     for (const row of rows) {
       if (row.dataset.new === 'true') {
-        const id = row.querySelector('.cat-id').value.trim();
+        let id = row.querySelector('.cat-id').value.trim();
+        if (!id) {
+          const nameEl = row.querySelector('.cat-name');
+          if (nameEl) {
+            id = slugify(nameEl.value);
+            row.querySelector('.cat-id').value = id;
+          }
+        }
         if (!id) continue;
         try {
           await fetch('/kataloge/' + id + '.json', {
