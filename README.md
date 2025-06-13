@@ -48,6 +48,7 @@ Die Dateien im Ordner `data/` werden dabei in einem benannten Volume
 `docker-compose down` erhalten. Die ACME-Konfiguration des Let's-Encrypt-
 Begleiters landet im Ordner `acme/` und wird dadurch ebenfalls
 persistiert.
+Die verwendete Domain wird aus der Datei `.env` gelesen (Variable `DOMAIN`).
 Beim Start des Containers installiert ein Entrypoint-Skript automatisch alle
 Composer-Abhängigkeiten, sofern das Verzeichnis `vendor/` noch nicht existiert.
 Ein vorheriges `composer install` ist somit nicht mehr erforderlich.

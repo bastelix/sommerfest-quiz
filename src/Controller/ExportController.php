@@ -30,10 +30,15 @@ class ExportController
     {
         $cfg = $this->config->getConfig();
         $uri = $request->getUri();
-        $baseUrl = $uri->getScheme() . '://' . $uri->getHost();
-        $port = $uri->getPort();
-        if ($port !== null && !in_array($port, [80, 443], true)) {
-            $baseUrl .= ':' . $port;
+        $domain = getenv('DOMAIN');
+        if ($domain !== false && $domain !== '') {
+            $baseUrl = $uri->getScheme() . '://' . $domain;
+        } else {
+            $baseUrl = $uri->getScheme() . '://' . $uri->getHost();
+            $port = $uri->getPort();
+            if ($port !== null && !in_array($port, [80, 443], true)) {
+                $baseUrl .= ':' . $port;
+            }
         }
         $cfg['baseUrl'] = $baseUrl;
         $catJson = $this->catalogs->read('catalogs.json');
