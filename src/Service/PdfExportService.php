@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\Color\Color;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\Label\Font\NotoSans;
+use Endroid\QrCode\Label\Alignment\LabelAlignmentCenter;
+use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeMode;
 use FPDF;
 
 class PdfExportService
@@ -64,6 +69,33 @@ class PdfExportService
 
         return null;
     }
+
+    /**
+     * Create a temporary QR code image for the given text.
+     *
+     * @param array<int,string> $tmpFiles
+     */
+    private function createQrImage(string $text, array &$tmpFiles): string
+    {
+        $result = Builder::create()
+            ->writer(new PngWriter())
+            ->data($text)
+            ->encoding(new Encoding('UTF-8'))
+            ->size(300)
+            ->margin(20)
+            ->backgroundColor(new Color(255, 255, 255))
+            ->foregroundColor(new Color(35, 180, 90))
+            ->labelText($text)
+            ->labelFont(new NotoSans(20))
+            ->labelAlignment(new LabelAlignmentCenter())
+            ->roundBlockSizeMode(RoundBlockSizeMode::ENLARGE)
+            ->build();
+
+        $tmp = sys_get_temp_dir() . '/' . uniqid('qr_', true) . '.png';
+        $result->saveToFile($tmp);
+        $tmpFiles[] = $tmp;
+        return $tmp;
+    }
     /**
      * Build PDF listing catalogs with optional QR codes and a team table.
      *
@@ -97,22 +129,7 @@ class PdfExportService
 
             $loginUrl = (string)($config['loginUrl'] ?? $config['login_url'] ?? '');
             if ($loginUrl !== '' && $qrAvailable) {
-                if (method_exists(QrCode::class, 'create')) {
-                    $qrCode = QrCode::create($loginUrl);
-                    $writer = new PngWriter();
-                    $tmp = sys_get_temp_dir() . '/' . uniqid('qr_', true) . '.png';
-                    $writer->write($qrCode)->saveToFile($tmp);
-                } else {
-                    $qrCode = new QrCode($loginUrl);
-                    $writer = new PngWriter();
-                    $tmp = sys_get_temp_dir() . '/' . uniqid('qr_', true) . '.png';
-                    if (method_exists($writer, 'writeFile')) {
-                        $writer->writeFile($qrCode, $tmp);
-                    } else {
-                        $writer->write($qrCode)->saveToFile($tmp);
-                    }
-                }
-                $tmpFiles[] = $tmp;
+                $tmp = $this->createQrImage($loginUrl, $tmpFiles);
                 $x = ($pdf->GetPageWidth() - 30) / 2;
                 $y = $pdf->GetY();
                 $pdf->Image($tmp, $x, $y, 30);
@@ -159,23 +176,7 @@ class PdfExportService
                 $pdf->Cell(40, $rowHeight, $this->enc($qrData), 1);
                 if ($qrImage === null && $qrAvailable) {
                     $url = '?katalog=' . urlencode((string)($catalog['id'] ?? ''));
-                    if (method_exists(QrCode::class, 'create')) {
-                        $qrCode = QrCode::create($url);
-                        $writer = new PngWriter();
-                        $tmp = sys_get_temp_dir() . '/' . uniqid('qr_', true) . '.png';
-                        $writer->write($qrCode)->saveToFile($tmp);
-                    } else {
-                        $qrCode = new QrCode($url);
-                        $writer = new PngWriter();
-                        $tmp = sys_get_temp_dir() . '/' . uniqid('qr_', true) . '.png';
-                        if (method_exists($writer, 'writeFile')) {
-                            $writer->writeFile($qrCode, $tmp);
-                        } else {
-                            $writer->write($qrCode)->saveToFile($tmp);
-                        }
-                    }
-                    $tmpFiles[] = $tmp;
-                    $qrImage = $tmp;
+                    $qrImage = $this->createQrImage($url, $tmpFiles);
                 }
 
                 $x = $pdf->GetX();
@@ -220,23 +221,7 @@ class PdfExportService
                     $pdf->Cell(80, $rowHeight, $this->enc($qrData), 1);
                     if ($qrImage === null && $qrAvailable) {
                         $url = is_array($team) ? (string)($team['name'] ?? '') : (string)$team;
-                        if (method_exists(QrCode::class, 'create')) {
-                            $qrCode = QrCode::create($url);
-                            $writer = new PngWriter();
-                            $tmp = sys_get_temp_dir() . '/' . uniqid('qr_', true) . '.png';
-                            $writer->write($qrCode)->saveToFile($tmp);
-                        } else {
-                            $qrCode = new QrCode($url);
-                            $writer = new PngWriter();
-                            $tmp = sys_get_temp_dir() . '/' . uniqid('qr_', true) . '.png';
-                            if (method_exists($writer, 'writeFile')) {
-                                $writer->writeFile($qrCode, $tmp);
-                            } else {
-                                $writer->write($qrCode)->saveToFile($tmp);
-                            }
-                        }
-                        $tmpFiles[] = $tmp;
-                        $qrImage = $tmp;
+                        $qrImage = $this->createQrImage($url, $tmpFiles);
                     }
                     $x = $pdf->GetX();
                     $y = $pdf->GetY();
