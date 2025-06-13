@@ -734,7 +734,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamRestrict = cfgFields.teamRestrict;
 
   function qrSrc(text){
-    return 'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' + encodeURIComponent(text);
+    return '/qr.png?t=' + encodeURIComponent(text);
   }
 
   function downloadQr(text){
