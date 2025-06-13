@@ -41,7 +41,10 @@ require_once __DIR__ . '/Controller/PasswordController.php';
 require_once __DIR__ . '/Controller/AdminCatalogController.php';
 
 return function (\Slim\App $app) {
-    $configService = new ConfigService(__DIR__ . '/../data/config.json');
+    $configService = new ConfigService(
+        __DIR__ . '/../data/config.json',
+        __DIR__ . '/../config/config.json'
+    );
     $catalogService = new CatalogService(__DIR__ . '/../data/kataloge');
     $resultService = new ResultService(__DIR__ . '/../data/results.json');
     $xlsxService = new XlsxExportService();
