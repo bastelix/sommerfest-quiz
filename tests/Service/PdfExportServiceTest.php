@@ -47,6 +47,39 @@ class PdfExportServiceTest extends TestCase
         $this->assertNotEmpty($pdf);
         $this->assertStringContainsString('PNG', $pdf);
     }
+
+    public function testCleanupOnException(): void
+    {
+        global $dummyImagePath;
+        $dummyImagePath = $this->img;
+
+        FPDF::$throwOnOutput = true;
+
+        $service = new PdfExportService();
+        $config = [];
+        $catalogs = [
+            [
+                'id' => 1,
+                'name' => 'Test',
+                'description' => '',
+                'qr_image' => 'http://example.com/qr.png',
+            ],
+        ];
+
+        $before = glob(sys_get_temp_dir() . '/qr_*');
+
+        try {
+            $service->build($config, $catalogs);
+            $this->fail('No exception thrown');
+        } catch (\RuntimeException $e) {
+            // expected
+        }
+
+        FPDF::$throwOnOutput = false;
+
+        $after = glob(sys_get_temp_dir() . '/qr_*');
+        $this->assertSame($before, $after);
+    }
 }
 
 class DummyHttpStream
@@ -79,5 +112,62 @@ class DummyHttpStream
     public function stream_close(): void
     {
         fclose($this->handle);
+    }
+}
+
+namespace {
+    class FPDF
+    {
+        public static bool $throwOnOutput = false;
+        private string $output = '';
+
+        public function AddPage(): void
+        {
+        }
+
+        public function SetFont(...$args): void
+        {
+        }
+
+        public function Cell(
+            $w,
+            $h = 0,
+            $txt = '',
+            $border = 0,
+            $ln = 0,
+            $align = '',
+            $fill = false,
+            $link = ''
+        ): void {
+            $this->output .= $txt;
+        }
+
+        public function Ln($h = null): void
+        {
+        }
+
+        public function GetX(): int
+        {
+            return 0;
+        }
+
+        public function GetY(): int
+        {
+            return 0;
+        }
+
+        public function Image($file, $x = 0, $y = 0, $size = 0): void
+        {
+            $this->output .= (string)file_get_contents($file);
+        }
+
+        public function Output($dest = '', $name = '')
+        {
+            if (self::$throwOnOutput) {
+                throw new \RuntimeException('fail');
+            }
+
+            return $this->output;
+        }
     }
 }
