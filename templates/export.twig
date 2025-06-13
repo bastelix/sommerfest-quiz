@@ -25,7 +25,10 @@
         <div class="export-card uk-card uk-card-default uk-card-body">
           <h3 class="uk-card-title">{{ c.name }}</h3>
           <p>{{ c.description }}</p>
-          <img src="/qr.png?t={{ ('?katalog=' ~ c.id)|url_encode }}" alt="QR" width="96" height="96">
+          <div class="qr-pair">
+            <img src="/qr.png?t={{ ('?katalog=' ~ c.id)|url_encode }}" alt="QR" width="96" height="96">
+            <img src="/qr.png?t={{ ('?katalog=' ~ c.id)|url_encode }}" alt="QR" width="96" height="96">
+          </div>
         </div>
       </div>
       {% else %}
@@ -41,7 +44,10 @@
       <div class="uk-width-1-1 uk-width-1-2@s">
         <div class="export-card uk-card uk-card-default uk-card-body">
           <h3 class="uk-card-title">{{ t }}</h3>
-          <img src="/qr.png?t={{ t|url_encode }}" alt="QR" width="96" height="96">
+          <div class="qr-pair">
+            <img src="/qr.png?t={{ t|url_encode }}" alt="QR" width="96" height="96">
+            <img src="/qr.png?t={{ t|url_encode }}" alt="QR" width="96" height="96">
+          </div>
         </div>
       </div>
       {% else %}

@@ -208,3 +208,9 @@ body.dark-mode .sticky-actions {
   text-align: center;
   page-break-inside: avoid;
 }
+
+.qr-pair {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
