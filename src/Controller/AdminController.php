@@ -29,6 +29,13 @@ class AdminController
             $catalogs = json_decode($catalogsJson, true) ?? [];
         }
 
+        $uri = $request->getUri();
+        $baseUrl = $uri->getScheme() . '://' . $uri->getHost();
+        $port = $uri->getPort();
+        if ($port !== null && !in_array($port, [80, 443], true)) {
+            $baseUrl .= ':' . $port;
+        }
+
         $teams = (new TeamService(__DIR__ . '/../../data/teams.json'))->getAll();
 
         return $view->render($response, 'admin.twig', [
@@ -36,6 +43,7 @@ class AdminController
             'results' => $results,
             'catalogs' => $catalogs,
             'teams' => $teams,
+            'baseUrl' => $baseUrl,
         ]);
     }
 }

@@ -26,9 +26,16 @@ class AdminCatalogController
         if ($catalogsJson !== null) {
             $catalogs = json_decode($catalogsJson, true) ?? [];
         }
+        $uri = $request->getUri();
+        $baseUrl = $uri->getScheme() . '://' . $uri->getHost();
+        $port = $uri->getPort();
+        if ($port !== null && !in_array($port, [80, 443], true)) {
+            $baseUrl .= ':' . $port;
+        }
 
         return $view->render($response, 'kataloge.twig', [
             'kataloge' => $catalogs,
+            'baseUrl' => $baseUrl,
         ]);
     }
 }

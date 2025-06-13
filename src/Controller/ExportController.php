@@ -29,6 +29,13 @@ class ExportController
     public function download(Request $request, Response $response): Response
     {
         $cfg = $this->config->getConfig();
+        $uri = $request->getUri();
+        $baseUrl = $uri->getScheme() . '://' . $uri->getHost();
+        $port = $uri->getPort();
+        if ($port !== null && !in_array($port, [80, 443], true)) {
+            $baseUrl .= ':' . $port;
+        }
+        $cfg['baseUrl'] = $baseUrl;
         $catJson = $this->catalogs->read('catalogs.json');
         $cats = [];
         if ($catJson !== null) {
