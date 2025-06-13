@@ -132,7 +132,11 @@ class PdfExportService
                 $pdf->Ln();
             }
 
+            $baseUrl = rtrim((string)($config['baseUrl'] ?? $config['base_url'] ?? ''), '/');
             $loginUrl = (string)($config['loginUrl'] ?? $config['login_url'] ?? '');
+            if ($loginUrl !== '' && $baseUrl !== '' && str_starts_with($loginUrl, '/')) {
+                $loginUrl = $baseUrl . $loginUrl;
+            }
             if ($loginUrl !== '' && $qrAvailable) {
                 $tmp = $this->createQrImage($loginUrl, $tmpFiles);
                 $x = ($pdf->GetPageWidth() - 30) / 2;
@@ -177,11 +181,11 @@ class PdfExportService
                     ?? $catalog['qrcode']
                     ?? null;
                 $qrImage = $this->loadQrImage($qrImage, $tmpFiles);
-                $qrData = '?katalog=' . urlencode((string)($catalog['id'] ?? ''));
+                $path = '/?katalog=' . urlencode((string)($catalog['id'] ?? ''));
+                $qrData = $baseUrl !== '' ? $baseUrl . $path : $path;
                 $pdf->Cell(40, $rowHeight, $this->enc($qrData), 1);
                 if ($qrImage === null && $qrAvailable) {
-                    $url = '?katalog=' . urlencode((string)($catalog['id'] ?? ''));
-                    $qrImage = $this->createQrImage($url, $tmpFiles);
+                    $qrImage = $this->createQrImage($qrData, $tmpFiles);
                 }
 
                 $x = $pdf->GetX();
