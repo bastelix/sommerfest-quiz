@@ -1,0 +1,21 @@
+name: Deploy
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  deploy:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute remote deploy commands
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.DOMAIN }}
+          username: ${{ secrets.USER }}
+          password: ${{ secrets.PASSWORD }}
+          script: |
+            cd /var/sommerfest-quiz
+            git pull
+            docker-compose up -d
