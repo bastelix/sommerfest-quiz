@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   document.getElementById('cfgSaveBtn').addEventListener('click', function (e) {
     e.preventDefault();
-    const data = {
+    const data = Object.assign({}, cfgInitial, {
       logoPath: cfgFields.logoPath.value.trim(),
       pageTitle: cfgFields.pageTitle.value.trim(),
       header: cfgFields.header.value.trim(),
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
       buttonColor: cfgFields.buttonColor.value.trim(),
       CheckAnswerButton: cfgFields.checkAnswerButton.value,
       QRUser: cfgFields.qrUser.value === 'true'
-    };
+    });
     fetch('/config.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
