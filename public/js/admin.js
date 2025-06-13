@@ -226,6 +226,11 @@ document.addEventListener('DOMContentLoaded', function () {
     qr.width = 64;
     qr.height = 64;
 
+    const dl = document.createElement('button');
+    dl.className = 'uk-button uk-button-default uk-margin-left';
+    dl.innerHTML = '<span uk-icon="download"></span>';
+    dl.setAttribute('aria-label', 'QR-Code herunterladen');
+
     const del = document.createElement('button');
     del.className = 'uk-button uk-button-danger uk-margin-left';
     del.textContent = 'Löschen';
@@ -235,7 +240,16 @@ document.addEventListener('DOMContentLoaded', function () {
       const id = idInput.value.trim();
       row.dataset.id = id;
       row.dataset.file = id ? id + '.json' : '';
-      qr.src = id ? qrSrc(window.location.origin + '/kataloge/' + row.dataset.file) : '';
+      if (id) {
+        const link = window.location.origin + '/kataloge/' + row.dataset.file;
+        qr.src = qrSrc(link);
+        dl.disabled = false;
+        dl.onclick = e => { e.preventDefault(); downloadQr(link); };
+      } else {
+        qr.src = '';
+        dl.disabled = true;
+        dl.onclick = null;
+      }
     }
     idInput.addEventListener('input', update);
     update();
@@ -244,6 +258,7 @@ document.addEventListener('DOMContentLoaded', function () {
     row.appendChild(name);
     row.appendChild(desc);
     row.appendChild(qr);
+    row.appendChild(dl);
     row.appendChild(del);
 
     return row;
@@ -695,6 +710,23 @@ document.addEventListener('DOMContentLoaded', function () {
     return 'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' + encodeURIComponent(text);
   }
 
+  function downloadQr(text){
+    return fetch('/qr.png?t=' + encodeURIComponent(text))
+      .then(r => {
+        if(!r.ok) throw new Error(r.statusText);
+        return r.blob();
+      })
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = text + '.png';
+        a.click();
+        URL.revokeObjectURL(url);
+      })
+      .catch(err => console.error(err));
+  }
+
   function createTeamRow(name = ''){
     const div = document.createElement('div');
     div.className = 'uk-flex uk-flex-middle uk-margin-small';
@@ -710,28 +742,12 @@ document.addEventListener('DOMContentLoaded', function () {
   dl.className = 'uk-button uk-button-default uk-margin-left';
   dl.innerHTML = '<span uk-icon="download"></span>';
   dl.setAttribute('aria-label', 'QR-Code herunterladen');
-  function triggerDownload(text) {
-    fetch('/qr.png?t=' + encodeURIComponent(text))
-      .then(r => {
-        if (!r.ok) throw new Error(r.statusText);
-        return r.blob();
-      })
-      .then(blob => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = text + '.png';
-        a.click();
-        URL.revokeObjectURL(url);
-      })
-      .catch(err => console.error(err));
-  }
   function update() {
     const val = input.value.trim();
     if (val) {
       img.src = qrSrc(val);
       dl.disabled = false;
-      dl.onclick = e => { e.preventDefault(); triggerDownload(val); };
+      dl.onclick = e => { e.preventDefault(); downloadQr(val); };
     } else {
       img.src = '';
       dl.disabled = true;
