@@ -47,31 +47,17 @@ class PdfExportService
             $pdf->Ln();
         }
 
-        if ($catalogs !== []) {
-            $pdf->Ln(10);
-            $pdf->SetFont('Arial', 'B', 14);
-            $pdf->Cell(0, 10, $this->enc('Kataloge'));
-            $pdf->Ln();
-        }
+        $pdf->Ln(10);
+        $pdf->SetFont('Arial', 'B', 14);
+        $pdf->Cell(0, 10, $this->enc('Kataloge'));
+        $pdf->Ln();
 
         $qrAvailable = class_exists(\Endroid\QrCode\QrCode::class)
             && class_exists(\Endroid\QrCode\Writer\PngWriter::class);
 
-        $qrEnabled = $qrAvailable;
-        foreach ($catalogs as $c) {
-            if (!empty($c['qr_image'] ?? $c['qr'] ?? $c['qrcode_url'] ?? $c['qrcode'] ?? null)) {
-                $qrEnabled = true;
-                break;
-            }
-        }
-        if (!$qrEnabled) {
-            foreach ($teams as $t) {
-                if (is_array($t) && !empty($t['qr_image'] ?? $t['qr'] ?? $t['qrcode_url'] ?? $t['qrcode'] ?? null)) {
-                    $qrEnabled = true;
-                    break;
-                }
-            }
-        }
+        // Always display the QR column. If the QR library is missing the cells
+        // remain empty and no codes are generated.
+        $qrEnabled = true;
 
         $pdf->SetFont('Arial', 'B', 12);
         $pdf->Cell(60, 10, $this->enc('Name'), 1);
