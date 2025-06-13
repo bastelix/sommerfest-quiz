@@ -26,13 +26,17 @@ class AdminCatalogController
         if ($catalogsJson !== null) {
             $catalogs = json_decode($catalogsJson, true) ?? [];
         }
-        $uri = $request->getUri();
+        $uri    = $request->getUri();
         $domain = getenv('DOMAIN');
         if ($domain !== false && $domain !== '') {
-            $baseUrl = $uri->getScheme() . '://' . $domain;
+            if (preg_match('#^https?://#', $domain) === 1) {
+                $baseUrl = rtrim($domain, '/');
+            } else {
+                $baseUrl = 'https://' . $domain;
+            }
         } else {
             $baseUrl = $uri->getScheme() . '://' . $uri->getHost();
-            $port = $uri->getPort();
+            $port    = $uri->getPort();
             if ($port !== null && !in_array($port, [80, 443], true)) {
                 $baseUrl .= ':' . $port;
             }

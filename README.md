@@ -53,6 +53,11 @@ Beim Start des Containers installiert ein Entrypoint-Skript automatisch alle
 Composer-Abhängigkeiten, sofern das Verzeichnis `vendor/` noch nicht existiert.
 Ein vorheriges `composer install` ist somit nicht mehr erforderlich.
 
+Die Anwendung lädt beim Start eine vorhandene `.env`-Datei ein, auch wenn sie
+ohne Docker betrieben wird. Ist `DOMAIN` dort gesetzt, wird für QR-Codes und
+Exportlinks diese Adresse verwendet. Enthält die Variable kein Schema, wird
+standardmäßig `https://` vorangestellt.
+
 ## Anpassung
 
 Alle wichtigen Einstellungen finden Sie in `data/config.json`. Ändern Sie hier Logo, Farben oder die Verwendung des QR-Code-Logins. Die Fragen selbst liegen in `data/kataloge/*.json` und können mit jedem Texteditor angepasst werden. Jede Katalogdefinition enthält ein `id`, das dem Dateinamen ohne Endung entspricht. Bei neuen Katalogen generiert die Verwaltung dieses `id` nun automatisch aus dem eingegebenen Namen.
