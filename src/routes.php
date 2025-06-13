@@ -19,8 +19,6 @@ use App\Service\ResultService;
 use App\Service\TeamService;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
-use App\Controller\ExportController;
-use App\Service\PdfExportService;
 use App\Controller\PasswordController;
 use App\Controller\QrController;
 
@@ -36,7 +34,6 @@ require_once __DIR__ . '/Controller/ConfigController.php';
 require_once __DIR__ . '/Controller/CatalogController.php';
 require_once __DIR__ . '/Controller/ResultController.php';
 require_once __DIR__ . '/Controller/TeamController.php';
-require_once __DIR__ . '/Controller/ExportController.php';
 require_once __DIR__ . '/Controller/PasswordController.php';
 require_once __DIR__ . '/Controller/AdminCatalogController.php';
 require_once __DIR__ . '/Controller/QrController.php';
@@ -49,13 +46,11 @@ return function (\Slim\App $app) {
     $catalogService = new CatalogService(__DIR__ . '/../data/kataloge');
     $resultService = new ResultService(__DIR__ . '/../data/results.json');
     $teamService = new TeamService(__DIR__ . '/../data/teams.json');
-    $pdfService = new PdfExportService();
 
     $configController = new ConfigController($configService);
     $catalogController = new CatalogController($catalogService);
     $resultController = new ResultController($resultService, $configService);
     $teamController = new TeamController($teamService);
-    $exportController = new ExportController($configService, $catalogService, $teamService, $pdfService);
     $passwordController = new PasswordController($configService);
     $qrController = new QrController();
 
@@ -82,7 +77,6 @@ return function (\Slim\App $app) {
     $app->get('/results/download', [$resultController, 'download']);
     $app->post('/results', [$resultController, 'post']);
     $app->delete('/results', [$resultController, 'delete']);
-    $app->get('/export.pdf', [$exportController, 'download']);
     $app->get('/config.json', [$configController, 'get']);
     $app->post('/config.json', [$configController, 'post']);
     $app->get('/kataloge/{file}', [$catalogController, 'get']);
