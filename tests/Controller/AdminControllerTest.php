@@ -25,6 +25,7 @@ class AdminControllerTest extends TestCase
         $request = $this->createRequest('GET', '/admin');
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('export-card', (string) $response->getBody());
         session_destroy();
     }
 }

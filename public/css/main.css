@@ -193,3 +193,15 @@ body.dark-mode .sticky-actions {
 .tab-card {
   margin-top: 16px;
 }
+
+/* Kartenlayout fuer Export- und Zusammenfassungsseiten */
+.card-grid > div {
+  break-inside: avoid;
+}
+
+.export-card {
+  border: 1px solid #ddd;
+  padding: 20px;
+  text-align: center;
+  page-break-inside: avoid;
+}

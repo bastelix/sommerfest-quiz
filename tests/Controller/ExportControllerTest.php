@@ -69,6 +69,6 @@ class ExportControllerTest extends TestCase
         $request = $this->createRequest('GET', '/export.html');
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertStringContainsString('<table', (string) $response->getBody());
+        $this->assertStringContainsString('export-card', (string) $response->getBody());
     }
 }

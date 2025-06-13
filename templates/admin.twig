@@ -215,39 +215,37 @@
         <p>{{ config.subheader }}</p>
 
         <h3 class="uk-heading-bullet">Kataloge</h3>
-        <table class="uk-table uk-table-divider">
-          <thead>
-            <tr><th>Name</th><th>Beschreibung</th><th>QR-Code</th></tr>
-          </thead>
-          <tbody>
-            {% for c in catalogs %}
-            <tr>
-              <td>{{ c.name }}</td>
-              <td>{{ c.description }}</td>
-              <td><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ ('?katalog=' ~ c.id)|url_encode }}" alt="QR" width="64" height="64"></td>
-            </tr>
-            {% else %}
-            <tr><td colspan="3">Keine Kataloge</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div class="card-grid" uk-grid>
+          {% for c in catalogs %}
+          <div class="uk-width-1-1 uk-width-1-2@s">
+            <div class="export-card uk-card uk-card-default uk-card-body">
+              <h4 class="uk-card-title">{{ c.name }}</h4>
+              <p>{{ c.description }}</p>
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ ('?katalog=' ~ c.id)|url_encode }}" alt="QR" width="96" height="96">
+            </div>
+          </div>
+          {% else %}
+          <div class="uk-width-1-1">
+            <div class="export-card uk-card uk-card-default uk-card-body">Keine Kataloge</div>
+          </div>
+          {% endfor %}
+        </div>
 
         <h3 class="uk-heading-bullet">Teams/Personen</h3>
-        <table class="uk-table uk-table-divider">
-          <thead>
-            <tr><th>Name</th><th>QR-Code</th></tr>
-          </thead>
-          <tbody>
-            {% for t in teams %}
-            <tr>
-              <td>{{ t }}</td>
-              <td><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ t|url_encode }}" alt="QR" width="64" height="64"></td>
-            </tr>
-            {% else %}
-            <tr><td colspan="2">Keine Daten</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div class="card-grid" uk-grid>
+          {% for t in teams %}
+          <div class="uk-width-1-1 uk-width-1-2@s">
+            <div class="export-card uk-card uk-card-default uk-card-body">
+              <h4 class="uk-card-title">{{ t }}</h4>
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ t|url_encode }}" alt="QR" width="96" height="96">
+            </div>
+          </div>
+          {% else %}
+          <div class="uk-width-1-1">
+            <div class="export-card uk-card uk-card-default uk-card-body">Keine Daten</div>
+          </div>
+          {% endfor %}
+        </div>
       </div>
     </li>
     <li>
