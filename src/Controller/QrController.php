@@ -9,7 +9,7 @@ use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\Label\Font\NotoSans;
-use Endroid\QrCode\Label\Alignment\LabelAlignmentCenter;
+use Endroid\QrCode\Label\Alignment\LabelAlignment;
 use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeMode;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -33,7 +33,7 @@ class QrController
             ->foregroundColor(new Color(35, 180, 90))
             ->labelText($text)
             ->labelFont(new NotoSans(20))
-            ->labelAlignment(new LabelAlignmentCenter())
+            ->labelAlignment(LabelAlignment::CENTER)
             ->roundBlockSizeMode(RoundBlockSizeMode::ENLARGE)
             ->build();
 
