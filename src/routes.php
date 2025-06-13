@@ -23,6 +23,7 @@ use App\Controller\TeamController;
 use App\Controller\ExportController;
 use App\Service\PdfExportService;
 use App\Controller\PasswordController;
+use App\Controller\QrController;
 
 require_once __DIR__ . '/Controller/HomeController.php';
 require_once __DIR__ . '/Controller/FaqController.php';
@@ -39,6 +40,7 @@ require_once __DIR__ . '/Controller/TeamController.php';
 require_once __DIR__ . '/Controller/ExportController.php';
 require_once __DIR__ . '/Controller/PasswordController.php';
 require_once __DIR__ . '/Controller/AdminCatalogController.php';
+require_once __DIR__ . '/Controller/QrController.php';
 
 return function (\Slim\App $app) {
     $configService = new ConfigService(
@@ -57,6 +59,7 @@ return function (\Slim\App $app) {
     $teamController = new TeamController($teamService);
     $exportController = new ExportController($configService, $catalogService, $teamService, $pdfService);
     $passwordController = new PasswordController($configService);
+    $qrController = new QrController();
 
     $app->get('/', HomeController::class);
     $app->get('/favicon.ico', function (Request $request, Response $response) {
@@ -93,4 +96,5 @@ return function (\Slim\App $app) {
     $app->get('/teams.json', [$teamController, 'get']);
     $app->post('/teams.json', [$teamController, 'post']);
     $app->post('/password', [$passwordController, 'post']);
+    $app->get('/qr.png', [$qrController, 'image']);
 };
