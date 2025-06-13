@@ -60,10 +60,13 @@ class PdfExportService
         $qrEnabled = true;
 
         $pdf->SetFont('Arial', 'B', 12);
-        $pdf->Cell(60, 10, $this->enc('Name'), 1);
-        $pdf->Cell(80, 10, $this->enc('Beschreibung'), 1);
+        $rowHeight = 20; // allow enough space for scannable QR codes
+        $qrSize = 18;
+
+        $pdf->Cell(60, $rowHeight, $this->enc('Name'), 1);
+        $pdf->Cell(80, $rowHeight, $this->enc('Beschreibung'), 1);
         if ($qrEnabled) {
-            $pdf->Cell(40, 10, $this->enc('QR-Code'), 1);
+            $pdf->Cell(40, $rowHeight, $this->enc('QR-Code'), 1);
         }
         $pdf->Ln();
 
@@ -73,8 +76,8 @@ class PdfExportService
             $name = $this->enc((string)($catalog['name'] ?? $catalog['id'] ?? ''));
             $desc = $this->enc((string)($catalog['description'] ?? $catalog['beschreibung'] ?? ''));
 
-            $pdf->Cell(60, 10, $name, 1);
-            $pdf->Cell(80, 10, $desc, 1);
+            $pdf->Cell(60, $rowHeight, $name, 1);
+            $pdf->Cell(80, $rowHeight, $desc, 1);
 
             if ($qrEnabled) {
                 $qrImage = $catalog['qr_image']
@@ -119,9 +122,9 @@ class PdfExportService
 
                 $x = $pdf->GetX();
                 $y = $pdf->GetY();
-                $pdf->Cell(40, 10, '', 1);
+                $pdf->Cell(40, $rowHeight, '', 1);
                 if ($qrImage !== null) {
-                    $pdf->Image($qrImage, $x + 1, $y + 1, 8);
+                    $pdf->Image($qrImage, $x + 1, $y + 1, $qrSize);
                 }
             }
             $pdf->Ln();
@@ -134,16 +137,16 @@ class PdfExportService
             $pdf->Ln();
 
             $pdf->SetFont('Arial', 'B', 12);
-            $pdf->Cell(60, 10, $this->enc('Name'), 1);
+            $pdf->Cell(60, $rowHeight, $this->enc('Name'), 1);
             if ($qrEnabled) {
-                $pdf->Cell(40, 10, $this->enc('QR-Code'), 1);
+                $pdf->Cell(40, $rowHeight, $this->enc('QR-Code'), 1);
             }
             $pdf->Ln();
 
             $pdf->SetFont('Arial', '', 12);
             foreach ($teams as $team) {
             $name = $this->enc((string)$team);
-            $pdf->Cell(60, 10, $name, 1);
+            $pdf->Cell(60, $rowHeight, $name, 1);
                 if ($qrEnabled) {
                     $qrImage = null;
                     if (is_array($team)) {
@@ -189,9 +192,9 @@ class PdfExportService
                     }
                     $x = $pdf->GetX();
                     $y = $pdf->GetY();
-                    $pdf->Cell(40, 10, '', 1);
+                    $pdf->Cell(40, $rowHeight, '', 1);
                     if ($qrImage !== null) {
-                        $pdf->Image($qrImage, $x + 1, $y + 1, 8);
+                        $pdf->Image($qrImage, $x + 1, $y + 1, $qrSize);
                     }
                 }
                 $pdf->Ln();
