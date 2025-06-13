@@ -56,9 +56,6 @@ class TestHTMLValidity(unittest.TestCase):
         errors = validate_html_file('templates/lizenz.twig')
         self.assertEqual(errors, [], msg='\n'.join(errors))
 
-    def test_export_html_is_valid(self):
-        errors = validate_html_file('templates/export.twig')
-        self.assertEqual(errors, [], msg='\n'.join(errors))
 
 if __name__ == '__main__':
     unittest.main()

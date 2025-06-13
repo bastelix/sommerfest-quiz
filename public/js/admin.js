@@ -104,8 +104,8 @@ document.addEventListener('DOMContentLoaded', function () {
         notify('Fehler beim Speichern', 'danger');
       });
   });
-  const cfgExportBtn = document.getElementById('cfgExportBtn');
-  cfgExportBtn?.addEventListener('click', function (e) {
+  const summaryPdfBtn = document.getElementById('summaryPdfBtn');
+  summaryPdfBtn?.addEventListener('click', function (e) {
     e.preventDefault();
     fetch('/export.pdf')
       .then(r => {
@@ -126,10 +126,10 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   });
 
-  const cfgHtmlBtn = document.getElementById('cfgHtmlBtn');
-  cfgHtmlBtn?.addEventListener('click', function (e) {
+  const summaryPrintBtn = document.getElementById('summaryPrintBtn');
+  summaryPrintBtn?.addEventListener('click', function (e) {
     e.preventDefault();
-    window.open('/export.html', '_blank');
+    window.print();
   });
 
   // --------- Fragen bearbeiten ---------
