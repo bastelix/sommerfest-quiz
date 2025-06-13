@@ -46,8 +46,11 @@ Das mitgelieferte `docker-compose.yml` startet das Quiz samt Reverse Proxy.
 Die Dateien im Ordner `data/` werden dabei in einem benannten Volume
 `quizdata` gespeichert. So bleiben eingetragene Teams und Ergebnisse auch nach
 `docker-compose down` erhalten. Die ACME-Konfiguration des Let's-Encrypt-
-Begleiters landet im Ordner `acme/` und wird dadurch ebenfalls 
+Begleiters landet im Ordner `acme/` und wird dadurch ebenfalls
 persistiert.
+Beim Start des Containers installiert ein Entrypoint-Skript automatisch alle
+Composer-Abhängigkeiten, sofern das Verzeichnis `vendor/` noch nicht existiert.
+Ein vorheriges `composer install` ist somit nicht mehr erforderlich.
 
 ## Anpassung
 
