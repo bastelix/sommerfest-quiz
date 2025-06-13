@@ -79,7 +79,26 @@ class PdfExportService
         $pdf = new \FPDF();
         $pdf->AddPage();
 
-        $tmpFiles = [];
+        if ($header !== '') {
+            $pdf->SetFont('Arial', 'B', 16);
+            $pdf->Cell(0, 10, $header);
+            $pdf->Ln();
+        }
+        if ($subheader !== '') {
+            $pdf->SetFont('Arial', '', 12);
+            $pdf->Cell(0, 10, $subheader);
+            $pdf->Ln();
+        }
+
+        if ($catalogs !== []) {
+            $pdf->Ln(10);
+            $pdf->SetFont('Arial', 'B', 14);
+            $pdf->Cell(0, 10, $this->enc('Kataloge'));
+            $pdf->Ln();
+        }
+
+        $qrAvailable = class_exists(\Endroid\QrCode\QrCode::class)
+            && class_exists(\Endroid\QrCode\Writer\PngWriter::class);
 
         try {
             if ($header !== '') {
