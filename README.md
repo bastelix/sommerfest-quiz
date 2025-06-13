@@ -64,7 +64,6 @@ standardmäßig `https://` vorangestellt.
 Alle wichtigen Einstellungen finden Sie in `data/config.json`. Ändern Sie hier Logo, Farben oder die Verwendung des QR-Code-Logins. Die Fragen selbst liegen in `data/kataloge/*.json` und können mit jedem Texteditor angepasst werden. Jede Katalogdefinition enthält ein `id`, das dem Dateinamen ohne Endung entspricht. Bei neuen Katalogen generiert die Verwaltung dieses `id` nun automatisch aus dem eingegebenen Namen.
 
 QR-Codes können pro Eintrag über `qr_image` oder `qrcode_url` hinterlegt werden. Neben Data-URIs und lokalen Pfaden werden dabei nun auch HTTP- oder HTTPS-URLs unterstützt.
-Der PDF-Export platziert nun außerdem einen QR-Code für den Schnellzugriff auf das Quiz am Dokumentanfang.
 
 In der Zusammenfassung erscheint weiterhin der einfache QR-Code. Direkt daneben wird nun ein Beispiel angezeigt, das mit dem PHP-Paket *Endroid\\QrCode* farbig gestaltet und beschriftet ist.
 
@@ -163,8 +162,6 @@ Die Ergebnisse werden in `data/results.json` gespeichert. Wichtige Endpunkte:
 - `DELETE /results` – löscht alle Einträge.
 - `GET /results/download` – erzeugt eine XLSX-Datei (oder CSV) mit allen Resultaten.
 
-### PDF-Export
-`GET /export.pdf` erzeugt eine PDF-Datei mit QR-Codes zu jedem Katalog und optional einer Teamliste. Der `PdfExportService` baut diese Datei auf, unterstützt externe QR-Code-Grafiken und zeigt in einer zusätzlichen Spalte auch den Text, aus dem der QR-Code generiert wird.
 
 ### Passwort ändern
 Ein POST auf `/password` speichert ein neues Admin-Passwort in `config.json`.
@@ -176,7 +173,7 @@ Die Software wird unter der MIT-Lizenz bereitgestellt und erfolgt ohne Gewähr. 
 Die API ermöglicht die komplette Verwaltung eines Quizsystems:
 - Konfiguration, Fragenkataloge, Teams und Ergebnisse werden als JSON-Dateien gepflegt.
 - Über das Admin-Frontend sind diese Bereiche komfortabel zugänglich.
-- Ergebnisse lassen sich als Excel/CSV exportieren oder als PDF drucken.
+- Ergebnisse lassen sich als Excel/CSV exportieren.
 Dieses Handbuch fasst die Nutzung von der Grundkonfiguration über das Anlegen der Fragen und Teams bis zum Abruf der Resultate zusammen.
 Durch den Einsatz von Slim Framework und standardisierten Endpunkten ist die Anwendung sowohl lokal als auch im Netzwerk schnell einsetzbar.
 
