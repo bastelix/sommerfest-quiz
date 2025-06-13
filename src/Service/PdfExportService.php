@@ -59,14 +59,14 @@ class PdfExportService
 
         $qrEnabled = $qrAvailable;
         foreach ($catalogs as $c) {
-            if (!empty($c['qr_image'] ?? $c['qr'] ?? null)) {
+            if (!empty($c['qr_image'] ?? $c['qr'] ?? $c['qrcode_url'] ?? $c['qrcode'] ?? null)) {
                 $qrEnabled = true;
                 break;
             }
         }
         if (!$qrEnabled) {
             foreach ($teams as $t) {
-                if (is_array($t) && !empty($t['qr_image'] ?? $t['qr'] ?? null)) {
+                if (is_array($t) && !empty($t['qr_image'] ?? $t['qr'] ?? $t['qrcode_url'] ?? $t['qrcode'] ?? null)) {
                     $qrEnabled = true;
                     break;
                 }
@@ -91,7 +91,11 @@ class PdfExportService
             $pdf->Cell(80, 10, $desc, 1);
 
             if ($qrEnabled) {
-                $qrImage = $catalog['qr_image'] ?? $catalog['qr'] ?? null;
+                $qrImage = $catalog['qr_image']
+                    ?? $catalog['qr']
+                    ?? $catalog['qrcode_url']
+                    ?? $catalog['qrcode']
+                    ?? null;
                 $tmp = null;
                 if (is_string($qrImage) && $qrImage !== '') {
                     if (preg_match('/^data:image\/(png|jpeg);base64,/', $qrImage)) {
@@ -157,7 +161,11 @@ class PdfExportService
                 if ($qrEnabled) {
                     $qrImage = null;
                     if (is_array($team)) {
-                        $qrImage = $team['qr_image'] ?? $team['qr'] ?? null;
+                        $qrImage = $team['qr_image']
+                            ?? $team['qr']
+                            ?? $team['qrcode_url']
+                            ?? $team['qrcode']
+                            ?? null;
                     }
                     $tmp = null;
                     if (is_string($qrImage) && $qrImage !== '') {
