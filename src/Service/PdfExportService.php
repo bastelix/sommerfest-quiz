@@ -79,16 +79,19 @@ class PdfExportService
         $pdf = new \FPDF();
         $pdf->AddPage();
 
-        if ($header !== '') {
-            $pdf->SetFont('Arial', 'B', 16);
-            $pdf->Cell(0, 10, $header);
-            $pdf->Ln();
-        }
-        if ($subheader !== '') {
-            $pdf->SetFont('Arial', '', 12);
-            $pdf->Cell(0, 10, $subheader);
-            $pdf->Ln();
-        }
+        $tmpFiles = [];
+
+        try {
+            if ($header !== '') {
+                $pdf->SetFont('Arial', 'B', 16);
+                $pdf->Cell(0, 10, $header);
+                $pdf->Ln();
+            }
+            if ($subheader !== '') {
+                $pdf->SetFont('Arial', '', 12);
+                $pdf->Cell(0, 10, $subheader);
+                $pdf->Ln();
+            }
 
         $pdf->Ln(10);
         $pdf->SetFont('Arial', 'B', 14);
@@ -114,7 +117,6 @@ class PdfExportService
         $pdf->Ln();
 
         $pdf->SetFont('Arial', '', 12);
-        $tmpFiles = [];
         foreach ($catalogs as $catalog) {
             $name = $this->enc((string)($catalog['name'] ?? $catalog['id'] ?? ''));
             $desc = $this->enc((string)($catalog['description'] ?? $catalog['beschreibung'] ?? ''));
@@ -218,12 +220,13 @@ class PdfExportService
             }
         }
 
-        foreach ($tmpFiles as $f) {
-            @unlink($f);
-        }
-
         $content = $pdf->Output('', 'S');
 
         return $content;
+        } finally {
+            foreach ($tmpFiles as $f) {
+                @unlink($f);
+            }
+        }
     }
 }
