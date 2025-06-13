@@ -7,6 +7,7 @@ namespace App\Controller;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Service\ConfigService;
+use App\Service\CatalogService;
 use Slim\Views\Twig;
 
 class HomeController
@@ -18,6 +19,17 @@ class HomeController
             __DIR__ . '/../../data/config.json',
             __DIR__ . '/../../config/config.json'
         ))->getConfig();
-        return $view->render($response, 'index.twig', ['config' => $cfg]);
+
+        $catalogService = new CatalogService(__DIR__ . '/../../data/kataloge');
+        $catalogsJson = $catalogService->read('catalogs.json');
+        $catalogs = [];
+        if ($catalogsJson !== null) {
+            $catalogs = json_decode($catalogsJson, true) ?? [];
+        }
+
+        return $view->render($response, 'index.twig', [
+            'config' => $cfg,
+            'catalogs' => $catalogs,
+        ]);
     }
 }
