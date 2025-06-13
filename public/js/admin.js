@@ -711,12 +711,20 @@ document.addEventListener('DOMContentLoaded', function () {
   dl.innerHTML = '<span uk-icon="download"></span>';
   dl.setAttribute('aria-label', 'QR-Code herunterladen');
   function triggerDownload(text) {
-    const a = document.createElement('a');
-    a.href = qrSrc(text);
-    a.download = text + '.png';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    fetch('/qr.png?t=' + encodeURIComponent(text))
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        return r.blob();
+      })
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = text + '.png';
+        a.click();
+        URL.revokeObjectURL(url);
+      })
+      .catch(err => console.error(err));
   }
   function update() {
     const val = input.value.trim();
