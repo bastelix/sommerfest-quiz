@@ -34,6 +34,8 @@ Das **Sommerfest-Quiz** ist eine sofort einsetzbare Web-App, mit der Sie Besuche
    sodass stets die neuesten kompatiblen Abhängigkeiten installiert werden.
    Das Docker-Setup installiert dabei automatisch die PHP-Erweiterung *gd*,
    welche für die Bibliothek `setasign/fpdf` benötigt wird.
+   Composer zieht dabei auch die QR-Code-Bibliothek `endroid/qr-code`,
+   sodass der PDF-Export fehlende Codes selbst erzeugen kann.
 2. Server starten (z.B. für lokale Tests):
    ```bash
    php -S localhost:8080 -t public public/router.php
@@ -46,8 +48,11 @@ Das mitgelieferte `docker-compose.yml` startet das Quiz samt Reverse Proxy.
 Die Dateien im Ordner `data/` werden dabei in einem benannten Volume
 `quizdata` gespeichert. So bleiben eingetragene Teams und Ergebnisse auch nach
 `docker-compose down` erhalten. Die ACME-Konfiguration des Let's-Encrypt-
-Begleiters landet im Ordner `acme/` und wird dadurch ebenfalls 
+Begleiters landet im Ordner `acme/` und wird dadurch ebenfalls
 persistiert.
+Beim Bauen des Containers ruft Docker automatisch `composer install` auf.
+Dadurch wird auch die Bibliothek `endroid/qr-code` eingebunden, sodass
+der PDF-Export fehlende Codes selbst erzeugen kann.
 
 ## Anpassung
 
