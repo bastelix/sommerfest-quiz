@@ -208,3 +208,18 @@ body.dark-mode .sticky-actions {
   text-align: center;
   page-break-inside: avoid;
 }
+@media print {
+  .topbar,
+  .bottombar,
+  .sticky-tabs,
+  .nav-placeholder,
+  .footer-placeholder,
+  .uk-footer,
+  .uk-navbar-container,
+  .uk-navbar,
+  button,
+  .uk-button,
+  .uk-icon-button {
+    display: none !important;
+  }
+}
