@@ -126,6 +126,12 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   });
 
+  const cfgHtmlBtn = document.getElementById('cfgHtmlBtn');
+  cfgHtmlBtn?.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.open('/export.html', '_blank');
+  });
+
   // --------- Fragen bearbeiten ---------
   const container = document.getElementById('questions');
   const addBtn = document.getElementById('addBtn');

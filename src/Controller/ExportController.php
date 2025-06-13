@@ -8,6 +8,7 @@ use App\Service\CatalogService;
 use App\Service\ConfigService;
 use App\Service\PdfExportService;
 use App\Service\TeamService;
+use Slim\Views\Twig;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -40,5 +41,23 @@ class ExportController
         return $response
             ->withHeader('Content-Type', 'application/pdf')
             ->withHeader('Content-Disposition', 'attachment; filename="export.pdf"');
+    }
+
+    public function page(Request $request, Response $response): Response
+    {
+        $view = Twig::fromRequest($request);
+        $cfg = $this->config->getConfig();
+        $catJson = $this->catalogs->read('catalogs.json');
+        $cats = [];
+        if ($catJson !== null) {
+            $cats = json_decode($catJson, true) ?? [];
+        }
+        $teams = $this->teams->getAll();
+
+        return $view->render($response, 'export.twig', [
+            'config' => $cfg,
+            'catalogs' => $cats,
+            'teams' => $teams,
+        ]);
     }
 }
