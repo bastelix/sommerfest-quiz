@@ -126,8 +126,8 @@ Der Zugang zum Administrationsbereich erfolgt über `/login`. Nach erfolgreichem
 Unter `/admin` stehen folgende Tabs zur Verfügung:
 1. **Veranstaltung konfigurieren** – Einstellungen wie Logo, Farben und Texte.
 2. **Kataloge** – Fragenkataloge erstellen und verwalten.
-3. **Teams/Personen** – Teilnehmerlisten pflegen, optional als Login-Beschränkung.
-4. **Fragen anpassen** – Fragen eines Katalogs hinzufügen, bearbeiten oder löschen.
+3. **Fragen anpassen** – Fragen eines Katalogs hinzufügen, bearbeiten oder löschen.
+4. **Teams/Personen** – Teilnehmerlisten pflegen, optional als Login-Beschränkung.
 5. **Ergebnisse** – Spielstände einsehen und herunterladen.
 6. **Passwort ändern** – Administrationspasswort setzen.
 
