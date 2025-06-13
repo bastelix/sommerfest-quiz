@@ -3,48 +3,56 @@
     "id": "station_1",
     "file": "station_1.json",
     "name": "Station-1",
-    "description": "Speicher und Geraete"
+    "description": "Speicher und Geraete",
+    "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_1"
   },
   {
     "id": "station_2",
     "file": "station_2.json",
     "name": "Station-2",
-    "description": "Bedienung und Symbole"
+    "description": "Bedienung und Symbole",
+    "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_2"
   },
   {
     "id": "station_3",
     "file": "station_3.json",
     "name": "Station-3",
-    "description": "WWW und Speicherarten"
+    "description": "WWW und Speicherarten",
+    "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_3"
   },
   {
     "id": "station_4",
     "file": "station_4.json",
     "name": "Station-4",
-    "description": "Begriffe und Geraetegroessen"
+    "description": "Begriffe und Geraetegroessen",
+    "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_4"
   },
   {
     "id": "station_5",
     "file": "station_5.json",
     "name": "Station-5",
-    "description": "Programme und Binaersystem"
+    "description": "Programme und Binaersystem",
+    "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_5"
   },
   {
     "id": "station_6",
     "file": "station_6.json",
     "name": "Station-6",
-    "description": "Dateien und URLs"
+    "description": "Dateien und URLs",
+    "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_6"
   },
   {
     "id": "station_7",
     "file": "station_7.json",
     "name": "Station-7",
-    "description": "Netzwerke und Kuerzel"
+    "description": "Netzwerke und Kuerzel",
+    "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_7"
   },
   {
     "id": "station_8",
     "file": "station_8.json",
     "name": "Station-8",
-    "description": "Cloud und Steuerung"
+    "description": "Cloud und Steuerung",
+    "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_8"
   }
 ]
