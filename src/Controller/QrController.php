@@ -43,6 +43,6 @@ class QrController
         $response->getBody()->write($data);
         return $response
             ->withHeader('Content-Type', 'image/png')
-            ->withHeader('Content-Disposition', 'attachment; filename="qr.png"');
+            ->withHeader('Content-Disposition', 'inline; filename="qr.png"');
     }
 }
