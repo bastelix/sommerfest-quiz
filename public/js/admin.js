@@ -251,7 +251,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const del = document.createElement('button');
     del.className = 'uk-button uk-button-danger uk-margin-left';
-    del.textContent = 'Löschen';
+    del.textContent = '×';
+    del.setAttribute('aria-label', 'Löschen');
     del.addEventListener('click', () => deleteCatalog(cat, row));
 
     function update() {
