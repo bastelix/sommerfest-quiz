@@ -42,14 +42,15 @@ class ResultController
                 (int)($r['total'] ?? 0),
             ];
         }
-        $content = $this->buildCsv($rows);
+        // prepend UTF-8 BOM for better compatibility with spreadsheet tools
+        $content = "\xEF\xBB\xBF" . $this->buildCsv($rows);
         $response->getBody()->write($content);
 
         $cfg = $this->config->getConfig();
         $name = ($cfg['header'] ?? 'results') . '.csv';
 
         return $response
-            ->withHeader('Content-Type', 'text/csv')
+            ->withHeader('Content-Type', 'text/csv; charset=UTF-8')
             ->withHeader('Content-Disposition', 'attachment; filename="' . $name . '"');
     }
 
