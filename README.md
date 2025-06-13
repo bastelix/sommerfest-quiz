@@ -90,7 +90,7 @@ python3 tests/test_json_validity.py
 
 ## Datenschutz
 
-Ergebnisse werden serverseitig in einer CSV-Datei abgelegt. Der Dateiname orientiert sich am Veranstaltungsnamen (z.&nbsp;B. `Sommerfest 2025.csv`). Die Ablage erfolgt anonymisiert und entspricht den Vorgaben der DSGVO. Jede Zeile enthält ein Pseudonym, den verwendeten Katalog, die Versuchnummer und die Punktzahl. Alternativ lassen sich die Daten weiterhin lokal als `statistical.log` exportieren.
+Ergebnisse werden serverseitig in einer CSV-Datei abgelegt. Der Dateiname orientiert sich am Veranstaltungsnamen (z.&nbsp;B. `Sommerfest 2025.csv`). Die Ablage erfolgt anonymisiert und entspricht den Vorgaben der DSGVO. Jede Zeile enthält ein Pseudonym, den verwendeten Katalog, die Versuchnummer und die Punktzahl. Die exportierte Datei ist UTF‑8-kodiert und enthält eine BOM, damit Excel Sonderzeichen korrekt erkennt. Alternativ lassen sich die Daten weiterhin lokal als `statistical.log` exportieren.
 
 ## Barrierefreiheit
 
