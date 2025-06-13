@@ -29,7 +29,8 @@ document.addEventListener('DOMContentLoaded', function () {
     backgroundColor: document.getElementById('cfgBackgroundColor'),
     buttonColor: document.getElementById('cfgButtonColor'),
     checkAnswerButton: document.getElementById('cfgCheckAnswerButton'),
-    qrUser: document.getElementById('cfgQRUser')
+    qrUser: document.getElementById('cfgQRUser'),
+    teamRestrict: document.getElementById('teamRestrict')
   };
   // Füllt das Formular mit den Werten aus einem Konfigurationsobjekt
   function renderCfg(data) {
@@ -41,6 +42,9 @@ document.addEventListener('DOMContentLoaded', function () {
     cfgFields.buttonColor.value = data.buttonColor || '';
     cfgFields.checkAnswerButton.value = data.CheckAnswerButton || 'yes';
     cfgFields.qrUser.value = String(data.QRUser) || 'false';
+    if (cfgFields.teamRestrict) {
+      cfgFields.teamRestrict.checked = !!data.QRRestrict;
+    }
   }
   renderCfg(cfgInitial);
   document.getElementById('cfgResetBtn').addEventListener('click', function (e) {
@@ -57,7 +61,8 @@ document.addEventListener('DOMContentLoaded', function () {
       backgroundColor: cfgFields.backgroundColor.value.trim(),
       buttonColor: cfgFields.buttonColor.value.trim(),
       CheckAnswerButton: cfgFields.checkAnswerButton.value,
-      QRUser: cfgFields.qrUser.value === 'true'
+      QRUser: cfgFields.qrUser.value === 'true',
+      QRRestrict: cfgFields.teamRestrict ? cfgFields.teamRestrict.checked : cfgInitial.QRRestrict
     });
     fetch('/config.json', {
       method: 'POST',
@@ -684,7 +689,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamListEl = document.getElementById('teamsList');
   const teamAddBtn = document.getElementById('teamAddBtn');
   const teamSaveBtn = document.getElementById('teamsSaveBtn');
-  const teamRestrict = document.getElementById('teamRestrict');
+  const teamRestrict = cfgFields.teamRestrict;
 
   function qrSrc(text){
     return 'https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=' + encodeURIComponent(text);
