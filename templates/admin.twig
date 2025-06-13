@@ -35,43 +35,57 @@
           <div class="uk-child-width-1-1 uk-child-width-1-2@m uk-grid-small" uk-grid>
             <div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="cfgLogoPath">Logo Pfad</label>
+                <label class="uk-form-label" for="cfgLogoPath">Logo Pfad
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Pfad zur Bilddatei, die als Logo angezeigt wird.; pos: right"></span>
+                </label>
                 <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgLogoPath"></div>
               </div>
             </div>
             <div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="cfgPageTitle">Titel im Browser-Tab</label>
+                <label class="uk-form-label" for="cfgPageTitle">Titel im Browser-Tab
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Text, der im Browser-Tab angezeigt wird.; pos: right"></span>
+                </label>
                 <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgPageTitle"></div>
               </div>
             </div>
             <div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="cfgHeader">Überschrift</label>
+                <label class="uk-form-label" for="cfgHeader">Überschrift
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Überschrift auf der Startseite.; pos: right"></span>
+                </label>
                 <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgHeader"></div>
               </div>
             </div>
             <div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="cfgSubheader">Untertitel</label>
+                <label class="uk-form-label" for="cfgSubheader">Untertitel
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Text unter der Überschrift.; pos: right"></span>
+                </label>
                 <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgSubheader"></div>
               </div>
             </div>
             <div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="cfgBackgroundColor">Hintergrundfarbe</label>
+                <label class="uk-form-label" for="cfgBackgroundColor">Hintergrundfarbe
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: CSS-Farbwert für die Seite.; pos: right"></span>
+                </label>
                 <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgBackgroundColor"></div>
               </div>
             </div>
             <div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="cfgButtonColor">Buttonfarbe</label>
+                <label class="uk-form-label" for="cfgButtonColor">Buttonfarbe
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: CSS-Farbwert für alle Buttons.; pos: right"></span>
+                </label>
                 <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgButtonColor"></div>
               </div>
             </div>
             <div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="cfgCheckAnswerButton">Antwort-Prüfen-Button anzeigen</label>
+                <label class="uk-form-label" for="cfgCheckAnswerButton">Antwort-Prüfen-Button anzeigen
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Zeigt beim Quiz einen Button zum Prüfen der Antwort.; pos: right"></span>
+                </label>
                 <div class="uk-form-controls">
                   <select class="uk-select" id="cfgCheckAnswerButton">
                     <option value="yes">Ja</option>
@@ -82,7 +96,9 @@
             </div>
             <div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="cfgQRUser">QR-Code-Login verwenden</label>
+                <label class="uk-form-label" for="cfgQRUser">QR-Code-Login verwenden
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Aktiviert den Button 'Name mit QR-Code scannen' auf der Startseite, um den Namen aus einem QR-Code zu übernehmen.; pos: right"></span>
+                </label>
                 <div class="uk-form-controls">
                   <select class="uk-select" id="cfgQRUser">
                     <option value="false">Nein</option>
@@ -94,10 +110,10 @@
           </div>
         </form>
         <div class="uk-margin uk-flex uk-flex-between">
-          <button id="cfgResetBtn" class="uk-button uk-button-default">Zurücksetzen</button>
+          <button id="cfgResetBtn" class="uk-button uk-button-default" uk-tooltip="title: Setzt alle Felder auf gespeicherte Werte zurück; pos: right">Zurücksetzen</button>
           <div>
-            <button id="cfgExportBtn" class="uk-button uk-button-secondary uk-margin-right">PDF Export</button>
-            <button id="cfgSaveBtn" class="uk-button uk-button-primary">Speichern</button>
+            <button id="cfgExportBtn" class="uk-button uk-button-secondary uk-margin-right" uk-tooltip="title: PDF mit QR-Codes erzeugen; pos: right">PDF Export</button>
+            <button id="cfgSaveBtn" class="uk-button uk-button-primary" uk-tooltip="title: Einstellungen speichern; pos: right">Speichern</button>
           </div>
         </div>
 
@@ -109,10 +125,10 @@
           <h2 class="uk-heading-bullet">Kataloge</h2>
           <div id="catalogList" class="uk-margin"></div>
           <div class="uk-margin">
-            <button id="newCatBtn" class="uk-button uk-button-default">Hinzufügen</button>
+            <button id="newCatBtn" class="uk-button uk-button-default" uk-tooltip="title: Neuen Fragenkatalog anlegen; pos: right">Hinzufügen</button>
           </div>
           <div class="uk-margin uk-flex uk-flex-right">
-            <button id="catalogsSaveBtn" class="uk-button uk-button-primary">Speichern</button>
+            <button id="catalogsSaveBtn" class="uk-button uk-button-primary" uk-tooltip="title: Änderungen an den Katalogen speichern; pos: right">Speichern</button>
           </div>
         </div>
       </div>
@@ -122,13 +138,15 @@
         <h2 class="uk-heading-bullet">Teams/Personen</h2>
         <div id="teamsList" class="uk-margin"></div>
         <div class="uk-margin">
-          <button id="teamAddBtn" class="uk-button uk-button-default">Hinzufügen</button>
+          <button id="teamAddBtn" class="uk-button uk-button-default" uk-tooltip="title: Neues Team oder Person hinzufügen; pos: right">Hinzufügen</button>
         </div>
         <div class="uk-margin">
-          <label><input class="uk-checkbox" type="checkbox" id="teamRestrict"> Nur Teams/Personen aus der Liste dürfen teilnehmen.</label>
+          <label><input class="uk-checkbox" type="checkbox" id="teamRestrict"> Nur Teams/Personen aus der Liste dürfen teilnehmen.
+            <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Aktiviert eine Zugangsbeschränkung auf eingetragene Teams; pos: right"></span>
+          </label>
         </div>
         <div class="uk-margin uk-flex uk-flex-right">
-          <button id="teamsSaveBtn" class="uk-button uk-button-primary">Speichern</button>
+          <button id="teamsSaveBtn" class="uk-button uk-button-primary" uk-tooltip="title: Änderungen an Teams oder Personen speichern; pos: right">Speichern</button>
         </div>
       </div>
     </li>
@@ -136,7 +154,9 @@
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">Fragen bearbeiten</h2>
         <div class="uk-margin">
-          <label class="uk-form-label" for="catalogSelect">Fragenkatalog</label>
+          <label class="uk-form-label" for="catalogSelect">Fragenkatalog
+            <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Hier den zu bearbeitenden Katalog wählen.; pos: right"></span>
+          </label>
           <div class="uk-form-controls">
             <select id="catalogSelect" class="uk-select"></select>
           </div>
@@ -145,10 +165,10 @@
         <div id="questions" class="uk-margin"></div>
         <!-- Bedienleiste fuer Frageneditor -->
         <div id="questionActions" class="sticky-actions uk-flex uk-flex-between uk-flex-middle uk-margin">
-          <button id="addBtn" class="uk-button uk-button-default">Neue Frage</button>
+          <button id="addBtn" class="uk-button uk-button-default" uk-tooltip="title: Neue Frage im aktuellen Katalog anlegen; pos: right">Neue Frage</button>
           <div>
-            <button id="resetBtn" class="uk-button uk-button-default uk-margin-right">Zurücksetzen</button>
-            <button id="saveBtn" class="uk-button uk-button-primary">Speichern</button>
+            <button id="resetBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: Änderungen am Fragenkatalog verwerfen; pos: right">Zurücksetzen</button>
+            <button id="saveBtn" class="uk-button uk-button-primary" uk-tooltip="title: Fragenkatalog speichern; pos: right">Speichern</button>
           </div>
         </div>
         <!-- Ende Hauptdatenbereich -->
@@ -176,8 +196,8 @@
           </tbody>
         </table>
         <div class="uk-margin uk-flex uk-flex-between">
-          <button id="resultsResetBtn" class="uk-button uk-button-default">Zurücksetzen</button>
-          <button id="resultsDownloadBtn" class="uk-button uk-button-primary">Herunterladen</button>
+          <button id="resultsResetBtn" class="uk-button uk-button-default" uk-tooltip="title: Löscht alle gespeicherten Ergebnisse; pos: right">Zurücksetzen</button>
+          <button id="resultsDownloadBtn" class="uk-button uk-button-primary" uk-tooltip="title: Ergebnisse als CSV herunterladen; pos: right">Herunterladen</button>
         </div>
       </div>
     </li>
@@ -188,19 +208,23 @@
           <div class="uk-child-width-1-1 uk-child-width-1-2@m uk-grid-small" uk-grid>
             <div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="newPass">Neues Passwort</label>
+                <label class="uk-form-label" for="newPass">Neues Passwort
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Neues Administrationspasswort festlegen.; pos: right"></span>
+                </label>
                 <div class="uk-form-controls"><input class="uk-input" type="password" id="newPass"></div>
               </div>
             </div>
             <div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="newPassRepeat">Passwort wiederholen</label>
+                <label class="uk-form-label" for="newPassRepeat">Passwort wiederholen
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Passwort zur Bestätigung erneut eingeben.; pos: right"></span>
+                </label>
                 <div class="uk-form-controls"><input class="uk-input" type="password" id="newPassRepeat"></div>
               </div>
             </div>
           </div>
           <div class="uk-margin uk-flex uk-flex-right">
-            <button id="passSaveBtn" class="uk-button uk-button-primary">Speichern</button>
+            <button id="passSaveBtn" class="uk-button uk-button-primary" uk-tooltip="title: Neues Passwort speichern; pos: right">Speichern</button>
           </div>
         </form>
       </div>
