@@ -59,6 +59,8 @@ Alle wichtigen Einstellungen finden Sie in `data/config.json`. Ändern Sie hier 
 QR-Codes können pro Eintrag über `qr_image` oder `qrcode_url` hinterlegt werden. Neben Data-URIs und lokalen Pfaden werden dabei nun auch HTTP- oder HTTPS-URLs unterstützt.
 Der PDF-Export platziert nun außerdem einen QR-Code für den Schnellzugriff auf das Quiz am Dokumentanfang.
 
+In der Zusammenfassung erscheint weiterhin der einfache QR-Code. Direkt daneben wird nun ein Beispiel angezeigt, das mit dem PHP-Paket *Endroid\\QrCode* farbig gestaltet und beschriftet ist.
+
 ## Tests
 
 PHP-Tests werden mit PHPUnit ausgeführt:
