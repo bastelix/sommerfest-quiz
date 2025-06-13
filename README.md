@@ -150,7 +150,7 @@ Die Ergebnisse werden in `data/results.json` gespeichert. Wichtige Endpunkte:
 - `GET /results/download` – erzeugt eine XLSX-Datei (oder CSV) mit allen Resultaten.
 
 ### PDF-Export
-`GET /export.pdf` erzeugt eine PDF-Datei mit QR-Codes zu jedem Katalog und optional einer Teamliste. Der `PdfExportService` baut diese Datei auf und unterstützt auch externe QR-Code-Grafiken.
+`GET /export.pdf` erzeugt eine PDF-Datei mit QR-Codes zu jedem Katalog und optional einer Teamliste. Der `PdfExportService` baut diese Datei auf, unterstützt externe QR-Code-Grafiken und zeigt in einer zusätzlichen Spalte auch den Text, aus dem der QR-Code generiert wird.
 
 ### Passwort ändern
 Ein POST auf `/password` speichert ein neues Admin-Passwort in `config.json`.
