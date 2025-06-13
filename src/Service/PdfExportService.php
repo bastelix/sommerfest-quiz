@@ -21,6 +21,49 @@ class PdfExportService
         $converted = @iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $text);
         return $converted !== false ? $converted : $text;
     }
+
+    /**
+     * Resolve a QR code image location.
+     *
+     * @param mixed             $source
+     * @param array<int,string> &$tmpFiles
+     */
+    private function loadQrImage($source, array &$tmpFiles): ?string
+    {
+        if (!is_string($source) || $source === '') {
+            return null;
+        }
+
+        if (preg_match('/^data:image\/(png|jpeg);base64,/', $source)) {
+            $tmp = sys_get_temp_dir() . '/' . uniqid('qr_', true) . '.png';
+            $data = substr($source, strpos($source, ',') + 1);
+            file_put_contents($tmp, base64_decode($data) ?: '');
+            $tmpFiles[] = $tmp;
+            return $tmp;
+        }
+
+        if (preg_match('/^https?:\/\//', $source)) {
+            $tmp = sys_get_temp_dir() . '/' . uniqid('qr_', true);
+            $ext = pathinfo(parse_url($source, PHP_URL_PATH) ?: '', PATHINFO_EXTENSION);
+            if ($ext === '') {
+                $ext = 'png';
+            }
+            $tmp .= '.' . $ext;
+            $data = @file_get_contents($source);
+            if ($data !== false) {
+                file_put_contents($tmp, $data);
+                $tmpFiles[] = $tmp;
+                return $tmp;
+            }
+            return null;
+        }
+
+        if (file_exists($source)) {
+            return $source;
+        }
+
+        return null;
+    }
     /**
      * Build PDF listing catalogs with optional QR codes and a team table.
      *
@@ -85,20 +128,7 @@ class PdfExportService
                     ?? $catalog['qrcode_url']
                     ?? $catalog['qrcode']
                     ?? null;
-                $tmp = null;
-                if (is_string($qrImage) && $qrImage !== '') {
-                    if (preg_match('/^data:image\/(png|jpeg);base64,/', $qrImage)) {
-                        $tmp = sys_get_temp_dir() . '/' . uniqid('qr_', true) . '.png';
-                        $data = substr($qrImage, strpos($qrImage, ',') + 1);
-                        file_put_contents($tmp, base64_decode($data) ?: '');
-                        $tmpFiles[] = $tmp;
-                        $qrImage = $tmp;
-                    } elseif (file_exists($qrImage)) {
-                        $qrImage = $qrImage;
-                    } else {
-                        $qrImage = null;
-                    }
-                }
+                $qrImage = $this->loadQrImage($qrImage, $tmpFiles);
                 if ($qrImage === null && $qrAvailable) {
                     $url = '?katalog=' . urlencode((string)($catalog['id'] ?? ''));
                     if (method_exists(QrCode::class, 'create')) {
@@ -156,20 +186,7 @@ class PdfExportService
                             ?? $team['qrcode']
                             ?? null;
                     }
-                    $tmp = null;
-                    if (is_string($qrImage) && $qrImage !== '') {
-                        if (preg_match('/^data:image\/(png|jpeg);base64,/', $qrImage)) {
-                            $tmp = sys_get_temp_dir() . '/' . uniqid('qr_', true) . '.png';
-                            $data = substr($qrImage, strpos($qrImage, ',') + 1);
-                            file_put_contents($tmp, base64_decode($data) ?: '');
-                            $tmpFiles[] = $tmp;
-                            $qrImage = $tmp;
-                        } elseif (file_exists($qrImage)) {
-                            $qrImage = $qrImage;
-                        } else {
-                            $qrImage = null;
-                        }
-                    }
+                    $qrImage = $this->loadQrImage($qrImage, $tmpFiles);
                     if ($qrImage === null && $qrAvailable) {
                         $url = is_array($team) ? (string)($team['name'] ?? '') : (string)$team;
                         if (method_exists(QrCode::class, 'create')) {
