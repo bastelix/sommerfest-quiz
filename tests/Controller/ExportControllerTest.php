@@ -62,4 +62,13 @@ class ExportControllerTest extends TestCase
         $this->assertEquals('application/pdf', $response->getHeaderLine('Content-Type'));
         $this->assertStringContainsString('PNG', $content);
     }
+
+    public function testExportHtml(): void
+    {
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/export.html');
+        $response = $app->handle($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('<table', (string) $response->getBody());
+    }
 }

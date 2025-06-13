@@ -85,6 +85,7 @@ return function (\Slim\App $app) {
     $app->post('/results', [$resultController, 'post']);
     $app->delete('/results', [$resultController, 'delete']);
     $app->get('/export.pdf', [$exportController, 'download']);
+    $app->get('/export.html', [$exportController, 'page']);
     $app->get('/config.json', [$configController, 'get']);
     $app->post('/config.json', [$configController, 'post']);
     $app->get('/kataloge/{file}', [$catalogController, 'get']);
