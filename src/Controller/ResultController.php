@@ -44,9 +44,15 @@ class ResultController
         }
         $content = $this->xlsx->build($rows);
         $response->getBody()->write($content);
+        if ($this->xlsx->isAvailable()) {
+            return $response
+                ->withHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                ->withHeader('Content-Disposition', 'attachment; filename="results.xlsx"');
+        }
+
         return $response
-            ->withHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-            ->withHeader('Content-Disposition', 'attachment; filename="results.xlsx"');
+            ->withHeader('Content-Type', 'text/csv')
+            ->withHeader('Content-Disposition', 'attachment; filename="results.csv"');
     }
 
     public function post(Request $request, Response $response): Response
