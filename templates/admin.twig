@@ -22,7 +22,7 @@
   </div>
   <ul id="adminTabs" uk-tab>
     <li class="uk-active" data-help="Allgemeine Einstellungen wie Logo, Texte und Farben der Veranstaltung."><a href="#">Veranstaltung konfigurieren</a></li>
-    <li data-help="Fragenkataloge erstellen, benennen und beschreiben."><a href="#">Kataloge</a></li>
+    <li data-help="Fragenkataloge erstellen, benennen und beschreiben. Die drei Felder stehen für ID, Name und Beschreibung. Mit \"Hinzufügen\" legst du einen neuen Katalog an, \"Speichern\" übernimmt Änderungen und \"Löschen\" entfernt einen Eintrag."><a href="#">Kataloge</a></li>
     <li data-help="Liste der teilnehmenden Teams oder Personen verwalten."><a href="#">Teams/Personen</a></li>
     <li data-help="Fragen eines Katalogs bearbeiten und neue Fragen hinzufügen."><a href="#">Fragen anpassen</a></li>
     <li data-help="Gespeicherte Quiz-Ergebnisse ansehen und herunterladen."><a href="#">Ergebnisse</a></li>
@@ -124,6 +124,11 @@
       <div class="uk-container uk-container-large">
         <div>
           <h2 class="uk-heading-bullet">Kataloge</h2>
+          <div class="uk-flex uk-margin-small">
+            <div class="uk-width-small"><strong>ID</strong></div>
+            <div class="uk-width-medium uk-margin-left"><strong>Name</strong></div>
+            <div class="uk-width-expand uk-margin-left"><strong>Beschreibung</strong></div>
+          </div>
           <div id="catalogList" class="uk-margin"></div>
           <div class="uk-margin">
             <button id="newCatBtn" class="uk-button uk-button-default" uk-tooltip="title: Neuen Fragenkatalog anlegen; pos: right">Hinzufügen</button>
