@@ -26,8 +26,8 @@
     <li data-help="Fragen eines Katalogs bearbeiten und neue Fragen hinzufügen."><a href="#">Fragen anpassen</a></li>
     <li data-help="Liste der teilnehmenden Teams oder Personen verwalten. Der Teamname wird beim Scannen an den Stationen verwendet. Die Option 'Nur Teams/Personen aus der Liste dürfen teilnehmen.' beschränkt die Teilnahme auf eingetragene Namen."><a href="#">Teams/Personen</a></li>
     <li data-help="Gespeicherte Quiz-Ergebnisse ansehen und herunterladen."><a href="#">Ergebnisse</a></li>
-    <li data-help="Administrationspasswort festlegen."><a href="#">Passwort ändern</a></li>
     <li data-help="Übersicht aller QR-Codes"><a href="#">Zusammenfassung</a></li>
+    <li data-help="Administrationspasswort festlegen."><a href="#">Passwort ändern</a></li>
   </ul>
   <ul class="uk-switcher uk-margin">
     <li>
@@ -211,6 +211,47 @@
     </li>
     <li>
       <div class="uk-container uk-container-large">
+        <h2 class="uk-heading-bullet">{{ config.header }}</h2>
+        <p>{{ config.subheader }}</p>
+
+        <h3 class="uk-heading-bullet">Kataloge</h3>
+        <table class="uk-table uk-table-divider">
+          <thead>
+            <tr><th>Name</th><th>Beschreibung</th><th>QR-Code</th></tr>
+          </thead>
+          <tbody>
+            {% for c in catalogs %}
+            <tr>
+              <td>{{ c.name }}</td>
+              <td>{{ c.description }}</td>
+              <td><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ ('?katalog=' ~ c.id)|url_encode }}" alt="QR" width="64" height="64"></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="3">Keine Kataloge</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <h3 class="uk-heading-bullet">Teams/Personen</h3>
+        <table class="uk-table uk-table-divider">
+          <thead>
+            <tr><th>Name</th><th>QR-Code</th></tr>
+          </thead>
+          <tbody>
+            {% for t in teams %}
+            <tr>
+              <td>{{ t }}</td>
+              <td><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ t|url_encode }}" alt="QR" width="64" height="64"></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="2">Keine Daten</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </li>
+    <li>
+      <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">Passwort ändern</h2>
         <form id="passForm" class="uk-form-stacked">
           <div class="uk-child-width-1-1 uk-child-width-1-2@m uk-grid-small" uk-grid>
@@ -235,47 +276,6 @@
             <button id="passSaveBtn" class="uk-button uk-button-primary" uk-tooltip="title: Neues Passwort speichern; pos: right">Speichern</button>
           </div>
         </form>
-      </div>
-    </li>
-    <li>
-      <div class="uk-container uk-container-large">
-        <h2 class="uk-heading-bullet">{{ config.header }}</h2>
-        <p>{{ config.subheader }}</p>
-
-        <h3 class="uk-heading-bullet">Kataloge</h3>
-        <table class="uk-table uk-table-divider">
-          <thead>
-            <tr><th>Name</th><th>Beschreibung</th><th>QR-Code</th></tr>
-          </thead>
-          <tbody>
-            {% for c in catalogs %}
-            <tr>
-              <td>{{ c.name }}</td>
-              <td>{{ c.description }}</td>
-              <td><img src="/qr.png?t={{ ('?katalog=' ~ c.id)|url_encode }}" alt="QR" width="64" height="64"></td>
-            </tr>
-            {% else %}
-            <tr><td colspan="3">Keine Kataloge</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-
-        <h3 class="uk-heading-bullet">Teams/Personen</h3>
-        <table class="uk-table uk-table-divider">
-          <thead>
-            <tr><th>Name</th><th>QR-Code</th></tr>
-          </thead>
-          <tbody>
-            {% for t in teams %}
-            <tr>
-              <td>{{ t }}</td>
-              <td><img src="/qr.png?t={{ t|url_encode }}" alt="QR" width="64" height="64"></td>
-            </tr>
-            {% else %}
-            <tr><td colspan="2">Keine Daten</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
       </div>
     </li>
   </ul>
