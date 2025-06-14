@@ -1,0 +1,123 @@
+/* High contrast mode styles */
+body.high-contrast {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+body.high-contrast a {
+  color: #0000ee;
+  text-decoration: underline;
+}
+body.high-contrast .uk-card-default {
+  background-color: #ffffff;
+  color: #000000;
+  border-color: #000000;
+}
+body.high-contrast .uk-button-primary {
+  background-color: #000000;
+  border-color: #000000;
+  color: #ffffff;
+}
+body.high-contrast .uk-button,
+body.high-contrast .uk-button-default {
+  background-color: #ffffff;
+  color: #000000;
+  border-color: #000000;
+}
+body.high-contrast input,
+body.high-contrast textarea,
+body.high-contrast select {
+  background-color: #ffffff;
+  color: #000000;
+  border-color: #000000;
+}
+body.high-contrast .sortable-list li,
+body.high-contrast .terms li,
+body.high-contrast .dropzone,
+body.high-contrast .mc-option {
+  background: #ffffff;
+  border: 2px solid #000000;
+  color: #000000;
+}
+body.high-contrast .dropzone.over {
+  background: #ffffcc;
+  border-color: #000000;
+}
+body.high-contrast .uk-alert-success {
+  background-color: #006400;
+  color: #ffffff;
+}
+body.high-contrast .uk-alert-danger {
+  background-color: #8b0000;
+  color: #ffffff;
+}
+body.high-contrast .uk-alert-primary {
+  background-color: #00008b;
+  color: #ffffff;
+}
+
+/* High contrast styles when dark mode is also enabled */
+body.dark-mode.high-contrast {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+body.dark-mode.high-contrast a {
+  color: #ffff00;
+  text-decoration: underline;
+}
+
+body.dark-mode.high-contrast .uk-card-default {
+  background-color: #000000;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+body.dark-mode.high-contrast .uk-button-primary {
+  background-color: #ffff00;
+  border-color: #ffff00;
+  color: #000000;
+}
+
+body.dark-mode.high-contrast .uk-button,
+body.dark-mode.high-contrast .uk-button-default {
+  background-color: #000000;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+body.dark-mode.high-contrast input,
+body.dark-mode.high-contrast textarea,
+body.dark-mode.high-contrast select {
+  background-color: #000000;
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+body.dark-mode.high-contrast .sortable-list li,
+body.dark-mode.high-contrast .terms li,
+body.dark-mode.high-contrast .dropzone,
+body.dark-mode.high-contrast .mc-option {
+  background: #000000;
+  border: 2px solid #ffffff;
+  color: #ffffff;
+}
+
+body.dark-mode.high-contrast .dropzone.over {
+  background: #333333;
+  border-color: #ffffff;
+}
+
+body.dark-mode.high-contrast .uk-alert-success {
+  background-color: #008000;
+  color: #ffffff;
+}
+
+body.dark-mode.high-contrast .uk-alert-danger {
+  background-color: #8b0000;
+  color: #ffffff;
+}
+
+body.dark-mode.high-contrast .uk-alert-primary {
+  background-color: #00008b;
+  color: #ffffff;
+}

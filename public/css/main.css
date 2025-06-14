@@ -97,6 +97,17 @@ body.uk-padding {
   background: transparent;
 }
 
+.contrast-switch {
+  display: inline-block;
+  margin-left: 8px;
+  margin-top: 0;
+}
+
+.contrast-switch button {
+  border: none;
+  background: transparent;
+}
+
 .topbar .uk-navbar-item {
   margin: 0;
   padding-left: 0.5rem;
