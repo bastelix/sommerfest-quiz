@@ -81,7 +81,9 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(function () {
           bar.setAttribute('hidden', 'hidden');
         }, 1000);
-        cfgFields.logoPreview.src = '/logo.png?' + Date.now();
+        const file = cfgFields.logoFile.files && cfgFields.logoFile.files[0];
+        const ext = file && file.name.toLowerCase().endsWith('.webp') ? 'webp' : 'png';
+        cfgFields.logoPreview.src = '/logo.' + ext + '?' + Date.now();
         logoUploaded = true;
         notify('Logo hochgeladen', 'success');
       }
@@ -111,7 +113,13 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('cfgSaveBtn').addEventListener('click', function (e) {
     e.preventDefault();
     const data = Object.assign({}, cfgInitial, {
-      logoPath: cfgFields.logoPreview && cfgFields.logoPreview.src ? '/logo.png' : cfgInitial.logoPath,
+      logoPath: (function () {
+        if (cfgFields.logoPreview && cfgFields.logoPreview.src) {
+          const m = cfgFields.logoPreview.src.match(/\/logo\.(png|webp)/);
+          if (m) return '/logo.' + m[1];
+        }
+        return cfgInitial.logoPath;
+      })(),
       pageTitle: cfgFields.pageTitle.value.trim(),
       header: cfgFields.header.value.trim(),
       subheader: cfgFields.subheader.value.trim(),
