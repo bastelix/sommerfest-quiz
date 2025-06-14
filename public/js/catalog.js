@@ -17,20 +17,23 @@
     const cfg = window.quizConfig || {};
     const headerEl = document.getElementById('quiz-header');
     if(headerEl){
-      headerEl.innerHTML = '';
-      if(cfg.logoPath){
-        const img = document.createElement('img');
-        img.src = cfg.logoPath;
-        img.alt = cfg.header || 'Logo';
-        img.className = 'uk-margin-small-bottom';
-        headerEl.appendChild(img);
+      const img = headerEl.querySelector('img');
+      let title = headerEl.querySelector('h1');
+      if(img){
+        if(cfg.logoPath){
+          img.src = cfg.logoPath;
+          img.classList.remove('uk-hidden');
+        }else{
+          img.src = '';
+          img.classList.add('uk-hidden');
+        }
       }
-      if(cfg.header){
-        const h = document.createElement('h1');
-        h.textContent = cfg.header;
-        h.className = 'uk-margin-remove-bottom';
-        headerEl.appendChild(h);
+      if(!title){
+        title = document.createElement('h1');
+        title.className = 'uk-margin-remove-bottom';
+        headerEl.appendChild(title);
       }
+      title.textContent = cfg.header || '';
       setSubHeader(cfg.subheader || '');
       // Benutzername wird nach erfolgreichem Login ergänzt
     }
