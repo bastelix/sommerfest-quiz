@@ -166,6 +166,9 @@ function runQuiz(questions){
   function updateSummary(){
     if(summaryShown) return;
     summaryShown = true;
+    if (disclaimerEl) {
+      disclaimerEl.classList.remove('uk-hidden');
+    }
     const score = results.filter(r => r).length;
     let user = sessionStorage.getItem('quizUser');
     if(!user && !cfg.QRRestrict){
