@@ -174,7 +174,7 @@ a.uk-accordion-title {
 /* Fester Bedienbereich im Admin-Editor */
 .sticky-actions {
   position: sticky;
-  bottom: 72px;
+  bottom: calc(56px + 1rem);
   z-index: 900;
   background: rgba(255, 255, 255, 0.95);
   padding-top: 8px;

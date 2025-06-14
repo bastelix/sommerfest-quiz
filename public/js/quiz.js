@@ -115,7 +115,7 @@ function runQuiz(questions){
   }
   const disclaimerEl = document.getElementById('front-disclaimer');
   if (disclaimerEl) {
-    disclaimerEl.classList.add('uk-hidden');
+    disclaimerEl.classList.remove('uk-hidden');
   }
 
   elements.forEach((el, i) => {
