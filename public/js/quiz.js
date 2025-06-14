@@ -212,8 +212,14 @@ function runQuiz(questions){
     const h = document.createElement('h4');
     h.textContent = q.prompt;
     div.appendChild(h);
+    const sortDesc = document.createElement('p');
+    sortDesc.id = 'sort-desc-' + idx;
+    sortDesc.className = 'uk-hidden-visually';
+    sortDesc.textContent = 'Mit Pfeil nach oben oder unten verschiebst du den aktuellen Eintrag.';
+    div.appendChild(sortDesc);
     const ul = document.createElement('ul');
     ul.className = 'uk-list uk-list-divider sortable-list uk-margin';
+    ul.setAttribute('aria-describedby', sortDesc.id);
     const displayItems = shuffleArray(q.items);
     displayItems.forEach(text => {
       const li = document.createElement('li');
@@ -291,6 +297,11 @@ function runQuiz(questions){
     const h = document.createElement('h4');
     h.textContent = q.prompt;
     div.appendChild(h);
+    const assignDesc = document.createElement('p');
+    assignDesc.id = 'assign-desc-' + idx;
+    assignDesc.className = 'uk-hidden-visually';
+    assignDesc.textContent = 'Mit Pfeil nach oben oder unten kannst du Begriffe innerhalb der Liste verschieben.';
+    div.appendChild(assignDesc);
 
     const grid = document.createElement('div');
     grid.className = 'uk-grid-small uk-child-width-1-2';
@@ -300,6 +311,7 @@ function runQuiz(questions){
     const left = document.createElement('div');
     const termList = document.createElement('ul');
     termList.className = 'uk-list uk-list-striped terms';
+    termList.setAttribute('aria-describedby', assignDesc.id);
     const leftTerms = shuffleArray(q.terms);
     div._initialLeftTerms = leftTerms.slice();
     leftTerms.forEach(t => {
@@ -324,7 +336,8 @@ function runQuiz(questions){
       dz.tabIndex = 0;
       dz.dataset.term = t.term;
       dz.dataset.definition = t.definition;
-      dz.setAttribute('aria-label', t.definition);
+      dz.setAttribute('aria-label', 'Dropzone f\u00fcr ' + t.definition);
+      dz.setAttribute('aria-dropeffect', 'move');
       dz.textContent = t.definition;
       rightCol.appendChild(dz);
     });
