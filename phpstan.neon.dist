@@ -2,3 +2,5 @@ parameters:
   level: 4
   paths:
     - src
+  stubFiles:
+    - stubs/endroid_qr.stub
