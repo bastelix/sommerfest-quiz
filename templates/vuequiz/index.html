@@ -128,7 +128,9 @@ createApp({
   template: `
     <div>
       <p class="mb-4">{{ question.question }}</p>
-      <draggable v-model="items" class="bg-white p-2" item-key="text" ghost-class="opacity-50">
+      <p id="sort-desc" class="uk-hidden-visually">Benutze die Pfeiltasten hoch und runter, um Elemente in dieser Liste zu verschieben.</p>
+      <draggable v-model="items" class="bg-white p-2" item-key="text" ghost-class="opacity-50"
+        aria-dropeffect="move" aria-label="Sortierbare Liste" aria-describedby="sort-desc">
         <template #item="{element}">
           <div class="p-2 mb-2 border bg-gray-100 cursor-move">{{ element }}</div>
         </template>
@@ -164,7 +166,9 @@ createApp({
       <div class="flex flex-col md:flex-row gap-4">
         <div class="md:w-1/3">
           <p class="font-semibold mb-2">Begriffe</p>
-          <draggable v-model="pool" group="items" class="min-h-[50px] p-2 bg-gray-100 rounded">
+          <p id="match-pool-desc" class="uk-hidden-visually">Benutze die Pfeiltasten hoch und runter, um Elemente in dieser Liste zu verschieben.</p>
+          <draggable v-model="pool" group="items" class="min-h-[50px] p-2 bg-gray-100 rounded"
+            aria-dropeffect="move" aria-label="Begriffe" aria-describedby="match-pool-desc">
             <template #item="{element}">
               <div class="p-2 m-1 bg-blue-200 rounded cursor-move">{{ element }}</div>
             </template>
@@ -174,7 +178,9 @@ createApp({
           <p class="font-semibold mb-2">Definitionen</p>
           <div v-for="(pair, idx) in question.pairs" :key="idx" class="mb-4">
             <div class="p-2 bg-gray-200 rounded mb-2">{{ pair.definition }}</div>
-            <draggable v-model="answers[idx]" group="items" :animation="150" class="min-h-[40px] p-2 border rounded">
+            <p :id="'match-drop-desc-' + idx" class="uk-hidden-visually">Benutze die Pfeiltasten hoch und runter, um Elemente in dieser Liste zu verschieben.</p>
+            <draggable v-model="answers[idx]" group="items" :animation="150" class="min-h-[40px] p-2 border rounded"
+              aria-dropeffect="move" :aria-label="'Ablagefeld ' + (idx + 1)" :aria-describedby="'match-drop-desc-' + idx">
               <template #item="{element}">
                 <div class="p-2 bg-blue-200 rounded cursor-move">{{ element }}</div>
               </template>
