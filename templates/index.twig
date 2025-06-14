@@ -31,12 +31,14 @@
       <progress id="progress" class="uk-progress" value="0" max="1" aria-label="Fortschritt des Quiz"></progress>
       <div id="quiz"></div>
     </div>
+    {% if showDisclaimer %}
     <div class="uk-card uk-card-default uk-card-body uk-margin">
       <h3 class="uk-heading-bullet">Disclaimer / Hinweis</h3>
       <p>Die Sommerfeier 2025 Quiz-App ist das Ergebnis einer engen Zusammenarbeit von menschlicher Erfahrung und k&uuml;nstlicher Intelligenz. Die Ideen, das Projektmanagement und die Praxiserfahrung aus vielen Softwareprojekten stammen von Menschenhand &ndash; alle Codezeilen wurden jedoch experimentell vollst&auml;ndig mit OpenAI Codex generiert. F&uuml;r die Entwicklung der Konzepte, Ideenfindung und inhaltliche Struktur kam ChatGPT 4.1 zum Einsatz, w&auml;hrend Fehlerbehebung und Optimierungen durch Github Copilot unterst&uuml;tzt wurden. Das Logo der Anwendung wurde mit der KI Sora erstellt.</p>
       <p>Die Anwendung bietet eine moderne, mobile-ready Administrationsumgebung, die eine vollumf&auml;ngliche und intuitive Konfiguration aller Quiz-Inhalte erlaubt.</p>
       <p>Dieses Projekt demonstriert eindrucksvoll die Machbarkeit KI-basierter Softwarel&ouml;sungen und zeigt, wie menschliche Kreativit&auml;t und KI-Agenten wie ChatGPT, Codex, Copilot und Sora in Zukunft gemeinsam neue Wege beschreiten k&ouml;nnen.</p>
       </div>
+    {% endif %}
   </div>
 {% endblock %}
 
