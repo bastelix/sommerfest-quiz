@@ -113,6 +113,10 @@ function runQuiz(questions){
     headerEl.innerHTML = '';
     headerEl.classList.add('uk-hidden');
   }
+  const disclaimerEl = document.getElementById('front-disclaimer');
+  if (disclaimerEl) {
+    disclaimerEl.classList.add('uk-hidden');
+  }
 
   elements.forEach((el, i) => {
     if (i !== 0) el.classList.add('uk-hidden');
