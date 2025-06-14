@@ -37,10 +37,13 @@
           <div class="uk-child-width-1-1 uk-child-width-1-2@m uk-grid-small" uk-grid>
             <div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="cfgLogoPath">Logo Pfad
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Pfad zur Bilddatei, die als Logo angezeigt wird.; pos: right"></span>
+                <label class="uk-form-label" for="cfgLogoFile">Logo hochladen
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: PNG-Datei als Logo für die Startseite hochladen.; pos: right"></span>
                 </label>
-                <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgLogoPath"></div>
+                <div class="uk-form-controls">
+                  <input class="uk-input" type="file" id="cfgLogoFile" accept="image/png">
+                  <img id="cfgLogoPreview" src="{{ config.logoPath|default('') }}" alt="Logo Vorschau" class="uk-margin-small-top" style="max-height:80px">
+                </div>
               </div>
             </div>
             <div>

@@ -224,3 +224,12 @@ body.dark-mode .sticky-actions {
     display: none !important;
   }
 }
+
+.logo-placeholder {
+  height: 120px;
+  object-fit: contain;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 8px;
+}

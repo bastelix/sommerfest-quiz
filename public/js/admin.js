@@ -43,7 +43,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const cfgInitial = window.quizConfig || {};
   // Verweise auf die Formularfelder
   const cfgFields = {
-    logoPath: document.getElementById('cfgLogoPath'),
+    logoFile: document.getElementById('cfgLogoFile'),
+    logoPreview: document.getElementById('cfgLogoPreview'),
     pageTitle: document.getElementById('cfgPageTitle'),
     header: document.getElementById('cfgHeader'),
     subheader: document.getElementById('cfgSubheader'),
@@ -53,9 +54,22 @@ document.addEventListener('DOMContentLoaded', function () {
     qrUser: document.getElementById('cfgQRUser'),
     teamRestrict: document.getElementById('teamRestrict')
   };
+  if (cfgFields.logoFile && cfgFields.logoPreview) {
+    cfgFields.logoFile.addEventListener('change', function () {
+      const file = cfgFields.logoFile.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        cfgFields.logoPreview.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
   // Füllt das Formular mit den Werten aus einem Konfigurationsobjekt
   function renderCfg(data) {
-    cfgFields.logoPath.value = data.logoPath || '';
+    if (cfgFields.logoPreview) {
+      cfgFields.logoPreview.src = data.logoPath || '';
+    }
     cfgFields.pageTitle.value = data.pageTitle || '';
     cfgFields.header.value = data.header || '';
     cfgFields.subheader.value = data.subheader || '';
@@ -75,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('cfgSaveBtn').addEventListener('click', function (e) {
     e.preventDefault();
     const data = Object.assign({}, cfgInitial, {
-      logoPath: cfgFields.logoPath.value.trim(),
+      logoPath: cfgFields.logoPreview && cfgFields.logoPreview.src ? '/logo.png' : cfgInitial.logoPath,
       pageTitle: cfgFields.pageTitle.value.trim(),
       header: cfgFields.header.value.trim(),
       subheader: cfgFields.subheader.value.trim(),
@@ -85,12 +99,12 @@ document.addEventListener('DOMContentLoaded', function () {
       QRUser: cfgFields.qrUser.value === 'true',
       QRRestrict: cfgFields.teamRestrict ? cfgFields.teamRestrict.checked : cfgInitial.QRRestrict
     });
-    fetch('/config.json', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    })
-      .then(r => {
+    const upload = () => {
+      return fetch('/config.json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(r => {
         if (r.ok) {
           notify('Konfiguration gespeichert', 'success');
         } else if (r.status === 400) {
@@ -98,11 +112,28 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
           throw new Error(r.statusText);
         }
-      })
-      .catch(err => {
+      });
+    };
+
+    const file = cfgFields.logoFile.files[0];
+    if (file) {
+      const fd = new FormData();
+      fd.append('file', file);
+      fetch('/logo.png', { method: 'POST', body: fd })
+        .then(r => {
+          if (!r.ok) throw new Error('Upload');
+        })
+        .then(upload)
+        .catch(err => {
+          console.error(err);
+          notify('Fehler beim Speichern', 'danger');
+        });
+    } else {
+      upload().catch(err => {
         console.error(err);
         notify('Fehler beim Speichern', 'danger');
       });
+    }
   });
 
 
