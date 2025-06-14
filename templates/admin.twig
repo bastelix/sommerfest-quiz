@@ -203,7 +203,8 @@
     <li>
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">Ergebnisse</h2>
-        <table class="uk-table uk-table-divider">
+        <div style="overflow-x: auto">
+        <table class="uk-table uk-table-divider uk-table-responsive">
           <thead>
             <tr><th>Name</th><th>Versuch</th><th>Katalog</th><th>Richtige</th><th>Zeit</th></tr>
           </thead>
@@ -221,6 +222,7 @@
             {% endfor %}
           </tbody>
         </table>
+        </div>
         <div class="uk-margin uk-flex uk-flex-between">
           <button id="resultsResetBtn" class="uk-button uk-button-default" uk-tooltip="title: Löscht alle gespeicherten Ergebnisse; pos: right">Zurücksetzen</button>
           <button id="resultsDownloadBtn" class="uk-button uk-button-primary" uk-tooltip="title: Ergebnisse herunterladen; pos: right">Herunterladen</button>
