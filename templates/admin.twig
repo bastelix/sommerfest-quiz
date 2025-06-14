@@ -143,12 +143,19 @@
       <div class="uk-container uk-container-large">
         <div>
           <h2 class="uk-heading-bullet">Kataloge</h2>
-          <div class="uk-flex uk-margin-small">
-            <div class="uk-width-small"><strong>ID</strong></div>
-            <div class="uk-width-medium uk-margin-left"><strong>Name</strong></div>
-            <div class="uk-width-expand uk-margin-left"><strong>Beschreibung</strong></div>
+          <div class="uk-overflow-auto">
+            <table class="uk-table uk-table-divider uk-table-small">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Beschreibung</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="catalogList"></tbody>
+            </table>
           </div>
-          <div id="catalogList" class="uk-margin"></div>
           <div class="uk-margin">
             <button id="newCatBtn" class="uk-button uk-button-default" uk-tooltip="title: Neuen Fragenkatalog anlegen; pos: right">Hinzufügen</button>
           </div>

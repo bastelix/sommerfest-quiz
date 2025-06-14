@@ -239,24 +239,27 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function createCatalogRow(cat) {
-    const row = document.createElement('div');
-    row.className = 'uk-flex uk-flex-middle uk-margin-small catalog-row';
+    const row = document.createElement('tr');
+    row.className = 'catalog-row';
     if (cat.new) row.dataset.new = 'true';
     row.dataset.id = cat.id || '';
     row.dataset.file = cat.file || '';
 
+    const idCell = document.createElement('td');
     const idInput = document.createElement('input');
     idInput.type = 'text';
-    idInput.className = 'uk-input uk-width-small cat-id';
+    idInput.className = 'uk-input cat-id';
     idInput.placeholder = 'ID';
     idInput.value = cat.id || '';
     if (cat.id && !cat.new) {
       idInput.disabled = true;
     }
+    idCell.appendChild(idInput);
 
+    const nameCell = document.createElement('td');
     const name = document.createElement('input');
     name.type = 'text';
-    name.className = 'uk-input uk-width-medium uk-margin-left cat-name';
+    name.className = 'uk-input cat-name';
     name.placeholder = 'Name';
     name.value = cat.name || '';
     name.addEventListener('input', () => {
@@ -265,19 +268,23 @@ document.addEventListener('DOMContentLoaded', function () {
         update();
       }
     });
+    nameCell.appendChild(name);
 
+    const descCell = document.createElement('td');
     const desc = document.createElement('input');
     desc.type = 'text';
-    desc.className = 'uk-input uk-width-expand uk-margin-left cat-desc';
+    desc.className = 'uk-input cat-desc';
     desc.placeholder = 'Beschreibung';
     desc.value = cat.description || '';
+    descCell.appendChild(desc);
 
-
+    const delCell = document.createElement('td');
     const del = document.createElement('button');
-    del.className = 'uk-button uk-button-danger uk-margin-left';
+    del.className = 'uk-button uk-button-danger';
     del.textContent = '×';
     del.setAttribute('aria-label', 'Löschen');
     del.addEventListener('click', () => deleteCatalog(cat, row));
+    delCell.appendChild(del);
 
     function update() {
       const id = idInput.value.trim();
@@ -287,10 +294,10 @@ document.addEventListener('DOMContentLoaded', function () {
     idInput.addEventListener('input', update);
     update();
 
-    row.appendChild(idInput);
-    row.appendChild(name);
-    row.appendChild(desc);
-    row.appendChild(del);
+    row.appendChild(idCell);
+    row.appendChild(nameCell);
+    row.appendChild(descCell);
+    row.appendChild(delCell);
 
     return row;
   }
