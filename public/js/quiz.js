@@ -571,12 +571,14 @@ function runQuiz(questions){
       const modal = document.createElement('div');
       modal.id = 'quiz-qr-modal';
       modal.setAttribute('uk-modal', '');
+      modal.setAttribute('aria-modal', 'true');
       modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">'+
         '<h3 class="uk-modal-title uk-text-center">Who I AM</h3>'+
         '<div id="qr-reader" class="uk-margin" style="max-width:320px;margin:0 auto;width:100%"></div>'+
         '<button id="qr-reader-stop" class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Abbrechen</button>'+
       '</div>';
       let scanner;
+      let opener;
       const stopScanner = () => {
         if(scanner){
           scanner.stop().then(()=>scanner.clear()).catch(()=>{});
@@ -611,12 +613,30 @@ function runQuiz(questions){
           document.getElementById('qr-reader').textContent = 'Kamera konnte nicht initialisiert werden.';
         });
       };
-      scanBtn.addEventListener('click', () => {
+      const stopBtn = modal.querySelector('#qr-reader-stop');
+      const trapFocus = (e) => {
+        if(e.key === 'Tab'){
+          e.preventDefault();
+          stopBtn.focus();
+        }
+      };
+      scanBtn.addEventListener('click', (e) => {
+        opener = e.currentTarget;
         UIkit.modal(modal).show();
         startScanner();
       });
-      UIkit.util.on(modal, 'hidden', stopScanner);
-      modal.querySelector('#qr-reader-stop').addEventListener('click', () => {
+      UIkit.util.on(modal, 'shown', () => {
+        stopBtn.focus();
+        modal.addEventListener('keydown', trapFocus);
+      });
+      UIkit.util.on(modal, 'hidden', () => {
+        stopScanner();
+        modal.removeEventListener('keydown', trapFocus);
+        if(opener){
+          opener.focus();
+        }
+      });
+      stopBtn.addEventListener('click', () => {
         UIkit.modal(modal).hide();
       });
       div.appendChild(scanBtn);
