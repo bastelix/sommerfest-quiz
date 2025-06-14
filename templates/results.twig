@@ -18,7 +18,7 @@
     <h2 class="uk-heading-bullet">Ergebnisse</h2>
     <table class="uk-table uk-table-divider">
       <thead>
-        <tr><th>Name</th><th>Versuch</th><th>Katalog</th><th>Richtige</th></tr>
+        <tr><th>Name</th><th>Versuch</th><th>Katalog</th><th>Richtige</th><th>Zeit</th></tr>
       </thead>
       <tbody>
         {% for r in results %}
@@ -27,9 +27,10 @@
           <td>{{ r.attempt }}</td>
           <td>{{ r.catalog }}</td>
           <td>{{ r.correct }}/{{ r.total }}</td>
+          <td>{{ r.time | date('Y-m-d H:i') }}</td>
         </tr>
         {% else %}
-        <tr><td colspan="4">Keine Daten</td></tr>
+        <tr><td colspan="5">Keine Daten</td></tr>
         {% endfor %}
       </tbody>
     </table>
