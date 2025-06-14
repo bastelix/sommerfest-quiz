@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Füllt das Formular mit den Werten aus einem Konfigurationsobjekt
   function renderCfg(data) {
     if (cfgFields.logoPreview) {
-      cfgFields.logoPreview.src = data.logoPath || '';
+      cfgFields.logoPreview.src = data.logoPath ? data.logoPath + '?' + Date.now() : '';
     }
     cfgFields.pageTitle.value = data.pageTitle || '';
     cfgFields.header.value = data.header || '';

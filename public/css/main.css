@@ -227,7 +227,8 @@ body.dark-mode .sticky-actions {
 }
 
 .logo-placeholder {
-  height: 120px;
+  width: 160px;
+  height: 240px;
   object-fit: contain;
   display: block;
   margin-left: auto;
