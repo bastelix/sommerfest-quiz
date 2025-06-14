@@ -69,6 +69,7 @@ function runQuiz(questions){
 
   const container = document.getElementById('quiz');
   const progress = document.getElementById('progress');
+  const announcer = document.getElementById('question-announcer');
   // Vorhandene Inhalte entfernen (z.B. Katalogauswahl)
   if (container) container.innerHTML = '';
 
@@ -133,13 +134,19 @@ function runQuiz(questions){
     elements.forEach((el, idx) => el.classList.toggle('uk-hidden', idx !== i));
     if(i === 0){
       progress.classList.add('uk-hidden');
+      progress.setAttribute('aria-valuenow', 0);
+      if (announcer) announcer.textContent = '';
     } else if(i < questionCount){
       // Fragen anzeigen und Fortschritt aktualisieren
       progress.classList.remove('uk-hidden');
       progress.value = i;
+      progress.setAttribute('aria-valuenow', i);
+      if (announcer) announcer.textContent = `Frage ${i} von ${questionCount}`;
     } else if(i === questionCount){
       // Nach der letzten Frage Zusammenfassung anzeigen
       progress.value = questionCount;
+      progress.setAttribute('aria-valuenow', questionCount);
+      if (announcer) announcer.textContent = `Frage ${questionCount} von ${questionCount}`;
       progress.classList.add('uk-hidden');
       updateSummary();
     }
