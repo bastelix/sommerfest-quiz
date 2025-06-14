@@ -245,22 +245,33 @@ document.addEventListener('DOMContentLoaded', function () {
     row.dataset.id = cat.id || '';
     row.dataset.file = cat.file || '';
 
+    const uid = 'cat-' + catalogRowIndex++;
+
     const idCell = document.createElement('td');
+    const idLabel = document.createElement('label');
+    idLabel.textContent = 'ID';
     const idInput = document.createElement('input');
     idInput.type = 'text';
     idInput.className = 'uk-input cat-id';
     idInput.placeholder = 'ID';
+    idInput.id = uid + '-id';
+    idLabel.htmlFor = idInput.id;
     idInput.value = cat.id || '';
     if (cat.id && !cat.new) {
       idInput.disabled = true;
     }
+    idCell.appendChild(idLabel);
     idCell.appendChild(idInput);
 
     const nameCell = document.createElement('td');
+    const nameLabel = document.createElement('label');
+    nameLabel.textContent = 'Name';
     const name = document.createElement('input');
     name.type = 'text';
     name.className = 'uk-input cat-name';
     name.placeholder = 'Name';
+    name.id = uid + '-name';
+    nameLabel.htmlFor = name.id;
     name.value = cat.name || '';
     name.addEventListener('input', () => {
       if (row.dataset.new === 'true' && idInput.value.trim() === '') {
@@ -268,14 +279,20 @@ document.addEventListener('DOMContentLoaded', function () {
         update();
       }
     });
+    nameCell.appendChild(nameLabel);
     nameCell.appendChild(name);
 
     const descCell = document.createElement('td');
+    const descLabel = document.createElement('label');
+    descLabel.textContent = 'Beschreibung';
     const desc = document.createElement('input');
     desc.type = 'text';
     desc.className = 'uk-input cat-desc';
     desc.placeholder = 'Beschreibung';
+    desc.id = uid + '-desc';
+    descLabel.htmlFor = desc.id;
     desc.value = cat.description || '';
+    descCell.appendChild(descLabel);
     descCell.appendChild(desc);
 
     const delCell = document.createElement('td');
@@ -396,6 +413,7 @@ document.addEventListener('DOMContentLoaded', function () {
       input.className = 'uk-input item';
       input.type = 'text';
       input.value = value;
+      input.setAttribute('aria-label', 'Item');
       const btn = document.createElement('button');
       btn.className = 'uk-button uk-button-danger uk-button-small uk-margin-left';
       btn.textContent = '×';
@@ -415,11 +433,13 @@ document.addEventListener('DOMContentLoaded', function () {
       tInput.type = 'text';
       tInput.placeholder = 'Begriff';
       tInput.value = term;
+      tInput.setAttribute('aria-label', 'Begriff');
       const dInput = document.createElement('input');
       dInput.className = 'uk-input definition';
       dInput.type = 'text';
       dInput.placeholder = 'Definition';
       dInput.value = def;
+      dInput.setAttribute('aria-label', 'Definition');
       const rem = document.createElement('button');
       rem.className = 'uk-button uk-button-danger uk-button-small';
       rem.textContent = '×';
@@ -450,6 +470,10 @@ document.addEventListener('DOMContentLoaded', function () {
       input.className = 'uk-input option uk-margin-small-left';
       input.type = 'text';
       input.value = text;
+      input.setAttribute('aria-label', 'Antworttext');
+      const optId = 'opt-' + Math.random().toString(36).slice(2, 8);
+      input.id = optId;
+      radio.setAttribute('aria-labelledby', optId);
       const rem = document.createElement('button');
       rem.className = 'uk-button uk-button-danger uk-button-small uk-margin-left';
       rem.textContent = '×';
@@ -753,6 +777,7 @@ document.addEventListener('DOMContentLoaded', function () {
     input.type = 'text';
     input.className = 'uk-input uk-width-expand';
     input.value = name;
+    input.setAttribute('aria-label', 'Name');
     const del = document.createElement('button');
     del.className = 'uk-button uk-button-danger uk-margin-left';
     del.textContent = '×';
@@ -840,6 +865,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Zähler für eindeutige Namen von Eingabefeldern
+  let catalogRowIndex = 0;
   let cardIndex = 0;
 
   // --------- Hilfe-Seitenleiste ---------
