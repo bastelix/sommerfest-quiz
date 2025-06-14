@@ -10,7 +10,7 @@ use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\Label\Font\NotoSans;
 use Endroid\QrCode\Label\Alignment\LabelAlignment;
-use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeMode;
+use Endroid\QrCode\RoundBlockSizeMode;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
