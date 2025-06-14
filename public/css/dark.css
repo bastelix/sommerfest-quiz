@@ -58,6 +58,7 @@ body.dark-mode .mc-option {
   color: #f5f5f5;
   font-size: 1rem;
   padding: 16px;
+  white-space: normal;
 }
 body.dark-mode .dropzone.over {
   background-color: #2a2a2a;
