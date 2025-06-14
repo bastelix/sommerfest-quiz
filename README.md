@@ -95,7 +95,13 @@ Ergebnisse werden serverseitig in einer CSV-Datei abgelegt. Der Dateiname orient
 
 ## Barrierefreiheit
 
-Bei einer Projektprüfung wurden die Vorlagen auf bessere Zugänglichkeit hin optimiert. Unter anderem wurden aussagekräftigere ARIA-Labels vergeben, damit Screenreader alle Bedienelemente korrekt ankündigen.
+Das Frontend bringt mehrere Funktionen mit, die die Nutzung erleichtern:
+
+- Ausführliche ARIA-Beschriftungen auf Bedienelementen und Formularfeldern.
+- Tastatursteuerung für Sortier- und Zuordnungsfragen samt versteckten Hinweisen.
+- Fortschrittsbalken mit `aria-valuenow` und Live-Ansage der aktuellen Frage.
+- Umschaltbarer Dunkel- und Hochkontrastmodus.
+
 
 ## Anwenderhandbuch
 
@@ -171,7 +177,7 @@ Ein POST auf `/password` speichert ein neues Admin-Passwort in `config.json`.
 Das aktuelle Logo wird unter `/logo.png` oder `/logo.webp` bereitgestellt. Über einen POST auf diese URLs lässt sich eine neue PNG- oder WebP-Datei hochladen. Nach dem Upload wird der Pfad automatisch in `config.json` gespeichert.
 
 ### Sicherheit und Haftung
-Die Software wird unter der MIT-Lizenz bereitgestellt und erfolgt ohne Gewähr. Die Urheber haften nicht für Schäden, die aus der Nutzung entstehen.
+Die Software wird unter der MIT-Lizenz bereitgestellt und erfolgt ohne Gewähr. Die Urheber haften nicht für Schäden, die aus der Nutzung entstehen. Die integrierten Maßnahmen zur Barrierefreiheit verbessern die Zugänglichkeit, sie ersetzen jedoch keine individuelle Prüfung.
 
 ### Fazit
 Die API ermöglicht die komplette Verwaltung eines Quizsystems:
