@@ -180,9 +180,6 @@ function runQuiz(questions){
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: user, catalog, correct: score, total: questionCount })
     }).catch(()=>{});
-    let log = localStorage.getItem('statistical.log') || '';
-    log += `${user} ${score}/${questionCount}\n`;
-    localStorage.setItem('statistical.log', log);
   }
 
   // Wählt basierend auf dem Fragetyp die passende Erzeugerfunktion aus
@@ -602,60 +599,7 @@ function runQuiz(questions){
     startBtn.textContent = 'UND LOS';
     styleButton(startBtn);
     // Zeigt bisherige Ergebnisse als kleine Slideshow an
-    function renderLog(text){
-      stats.innerHTML = '';
-      if(text){
-        const lines = text.trim().split('\n').filter(Boolean);
-        if(lines.length){
-          const h3 = document.createElement('h3');
-          h3.textContent = 'Bisherige Ergebnisse';
-          stats.appendChild(h3);
-          const container = document.createElement('div');
-          container.id = 'results-slideshow';
-          container.setAttribute('aria-live', 'polite');
-          container.setAttribute('aria-atomic', 'true');
-          lines.forEach((l, idx) => {
-            const [user, score] = l.split(' ');
-            const slide = document.createElement('div');
-            slide.className = 'result-slide uk-text-large';
-            slide.textContent = `${user}: ${score}`;
-            if(idx !== 0) slide.style.display = 'none';
-            container.appendChild(slide);
-          });
-          if(lines.length > 1){
-            let current = 0;
-            setInterval(() => {
-              const slides = container.children;
-              slides[current].style.display = 'none';
-              current = (current + 1) % slides.length;
-              slides[current].style.display = '';
-            }, 3000);
-          }
-          stats.appendChild(container);
-        } else {
-          stats.textContent = 'Noch keine Ergebnisse vorhanden.';
-        }
-      } else {
-        stats.textContent = 'Noch keine Ergebnisse vorhanden.';
-      }
-    }
-
-    const log = localStorage.getItem('statistical.log');
-    renderLog(log);
-
-    const downloadBtn = document.createElement('button');
-    downloadBtn.className = 'uk-button uk-button-default uk-button-small uk-margin-top';
-    downloadBtn.textContent = 'Statistik herunterladen';
-    downloadBtn.addEventListener('click', () => {
-      const text = localStorage.getItem('statistical.log') || '';
-      const blob = new Blob([text], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'statistical.log';
-      a.click();
-      URL.revokeObjectURL(url);
-    });
+    stats.textContent = 'Noch keine Ergebnisse vorhanden.';
     startBtn.addEventListener('click', () => {
       if(cfg.QRRestrict){
         alert('Nur Registrierung per QR-Code erlaubt');
@@ -667,7 +611,6 @@ function runQuiz(questions){
     });
     div.appendChild(startBtn);
     div.appendChild(stats);
-    div.appendChild(downloadBtn);
     return div;
   }
 
