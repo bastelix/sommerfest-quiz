@@ -748,7 +748,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function createTeamRow(name = ''){
     const div = document.createElement('div');
-    div.className = 'uk-flex uk-flex-middle uk-margin-small';
+    div.className = 'team-row uk-flex uk-flex-middle uk-margin-small';
     const input = document.createElement('input');
     input.type = 'text';
     input.className = 'uk-input uk-width-expand';
