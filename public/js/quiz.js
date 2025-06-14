@@ -215,7 +215,7 @@ function runQuiz(questions){
     const instr = document.createElement('p');
     instr.id = 'sort-desc-' + idx;
     instr.className = 'uk-hidden-visually';
-    instr.textContent = 'Benutze die Pfeiltasten hoch und runter, um Elemente in dieser Liste zu verschieben.';
+    instr.textContent = 'Mit Pfeil nach oben oder unten verschiebst du den aktuellen Eintrag.'; // oder die andere Formulierung
     div.appendChild(instr);
     const ul = document.createElement('ul');
     ul.className = 'uk-list uk-list-divider sortable-list uk-margin';
@@ -299,6 +299,11 @@ function runQuiz(questions){
     const h = document.createElement('h4');
     h.textContent = q.prompt;
     div.appendChild(h);
+    const assignDesc = document.createElement('p');
+    assignDesc.id = 'assign-desc-' + idx;
+    assignDesc.className = 'uk-hidden-visually';
+    assignDesc.textContent = 'Mit Pfeil nach oben oder unten kannst du Begriffe innerhalb der Liste verschieben.';
+    div.appendChild(assignDesc);
 
     const grid = document.createElement('div');
     grid.className = 'uk-grid-small uk-child-width-1-2';
@@ -308,6 +313,7 @@ function runQuiz(questions){
     const left = document.createElement('div');
     const termList = document.createElement('ul');
     termList.className = 'uk-list uk-list-striped terms';
+    termList.setAttribute('aria-describedby', assignDesc.id);
     const leftTerms = shuffleArray(q.terms);
     div._initialLeftTerms = leftTerms.slice();
     leftTerms.forEach(t => {
@@ -333,7 +339,8 @@ function runQuiz(questions){
       dz.setAttribute('aria-dropeffect', 'move');
       dz.dataset.term = t.term;
       dz.dataset.definition = t.definition;
-      dz.setAttribute('aria-label', t.definition);
+      dz.setAttribute('aria-label', 'Dropzone f\u00fcr ' + t.definition);
+      dz.setAttribute('aria-dropeffect', 'move');
       dz.textContent = t.definition;
       rightCol.appendChild(dz);
     });
