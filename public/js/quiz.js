@@ -212,14 +212,16 @@ function runQuiz(questions){
     const h = document.createElement('h4');
     h.textContent = q.prompt;
     div.appendChild(h);
-    const sortDesc = document.createElement('p');
-    sortDesc.id = 'sort-desc-' + idx;
-    sortDesc.className = 'uk-hidden-visually';
-    sortDesc.textContent = 'Mit Pfeil nach oben oder unten verschiebst du den aktuellen Eintrag.';
-    div.appendChild(sortDesc);
+    const instr = document.createElement('p');
+    instr.id = 'sort-desc-' + idx;
+    instr.className = 'uk-hidden-visually';
+    instr.textContent = 'Mit Pfeil nach oben oder unten verschiebst du den aktuellen Eintrag.'; // oder die andere Formulierung
+    div.appendChild(instr);
     const ul = document.createElement('ul');
     ul.className = 'uk-list uk-list-divider sortable-list uk-margin';
-    ul.setAttribute('aria-describedby', sortDesc.id);
+    ul.setAttribute('aria-dropeffect', 'move');
+    ul.setAttribute('aria-label', 'Sortierbare Liste');
+    ul.setAttribute('aria-describedby', instr.id);
     const displayItems = shuffleArray(q.items);
     displayItems.forEach(text => {
       const li = document.createElement('li');
@@ -334,6 +336,7 @@ function runQuiz(questions){
       dz.className = 'dropzone';
       dz.setAttribute('role','listitem');
       dz.tabIndex = 0;
+      dz.setAttribute('aria-dropeffect', 'move');
       dz.dataset.term = t.term;
       dz.dataset.definition = t.definition;
       dz.setAttribute('aria-label', 'Dropzone f\u00fcr ' + t.definition);

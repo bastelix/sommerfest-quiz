@@ -5,6 +5,7 @@
 {% block head %}
   <link rel="stylesheet" href="/css/dark.css">
   <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/highcontrast.css">
 {% endblock %}
 
 {% block body_class %}uk-background-muted uk-padding{% endblock %}
@@ -16,6 +17,9 @@
       <a href="/logout" class="uk-button uk-button-danger uk-margin-right">Logout</a>
       <div class="theme-switch uk-margin-right">
         <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="Design wechseln"></button>
+      </div>
+      <div class="contrast-switch uk-margin-small-right">
+        <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="Kontrastmodus"></button>
       </div>
       <button id="helpBtn" class="uk-icon-button" uk-icon="icon: question; ratio: 2" aria-label="Hilfe"></button>
     </div>
