@@ -296,11 +296,12 @@
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">QR-Code Samples</h2>
         <div class="card-grid" uk-grid>
+          {% set colors = ['ff5733','33c3ff','a433ff','ff33a6','33ff57','ffd433','3380ff','ff3333','33ffd9','7f33ff'] %}
           {% for i in 1..10 %}
           <div class="uk-width-1-1 uk-width-1-2@s">
             <div class="export-card uk-card uk-card-default uk-card-body">
               <h4 class="uk-card-title">Sample {{ i }}</h4>
-              <img src="/qr.png?t={{ ('Sample ' ~ i)|url_encode }}" alt="Sample {{ i }}" width="200" height="200">
+              <img src="/qr.png?t={{ ('Sample ' ~ i)|url_encode }}&fg={{ colors[i-1] }}" alt="Sample {{ i }}" width="200" height="200">
             </div>
           </div>
           {% endfor %}
