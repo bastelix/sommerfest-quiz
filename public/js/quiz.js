@@ -290,6 +290,7 @@ function runQuiz(questions){
     const termList = document.createElement('ul');
     termList.className = 'uk-list uk-list-striped terms';
     const leftTerms = shuffleArray(q.terms);
+    div._initialLeftTerms = leftTerms.slice();
     leftTerms.forEach(t => {
       const li = document.createElement('li');
       li.draggable = true;
@@ -311,6 +312,7 @@ function runQuiz(questions){
       dz.setAttribute('role','listitem');
       dz.tabIndex = 0;
       dz.dataset.term = t.term;
+      dz.dataset.definition = t.definition;
       dz.setAttribute('aria-label', t.definition);
       dz.textContent = t.definition;
       rightCol.appendChild(dz);
@@ -328,6 +330,11 @@ function runQuiz(questions){
     styleButton(btn);
     btn.addEventListener('click', () => checkAssign(div, feedback, idx));
     if(!showCheck) btn.classList.add('uk-hidden');
+    const resetBtn = document.createElement('button');
+    resetBtn.className = 'uk-button';
+    resetBtn.textContent = 'Zurücksetzen';
+    styleButton(resetBtn);
+    resetBtn.addEventListener('click', () => resetAssign(div, feedback));
     const nextBtn = document.createElement('button');
     nextBtn.className = 'uk-button';
     nextBtn.textContent = 'Weiter';
@@ -337,6 +344,7 @@ function runQuiz(questions){
       next();
     });
     footer.appendChild(btn);
+    footer.appendChild(resetBtn);
     footer.appendChild(nextBtn);
     div.appendChild(feedback);
     div.appendChild(footer);
@@ -374,11 +382,11 @@ function runQuiz(questions){
       });
     }
 
-    let selectedTerm = null;
+    div._selectedTerm = null;
     div.querySelectorAll('.terms li').forEach(li => {
       li.addEventListener('keydown', e => {
         if(e.key === 'Enter' || e.key === ' '){
-          selectedTerm = li;
+          div._selectedTerm = li;
           li.setAttribute('aria-grabbed','true');
           e.preventDefault();
         }
@@ -386,12 +394,12 @@ function runQuiz(questions){
     });
     div.querySelectorAll('.dropzone').forEach(zone => {
       zone.addEventListener('keydown', e => {
-        if((e.key === 'Enter' || e.key === ' ') && selectedTerm){
-          zone.textContent = selectedTerm.textContent;
-          zone.dataset.dropped = selectedTerm.dataset.term;
-          selectedTerm.style.visibility = 'hidden';
-          selectedTerm.setAttribute('aria-grabbed','false');
-          selectedTerm = null;
+        if((e.key === 'Enter' || e.key === ' ') && div._selectedTerm){
+          zone.textContent = div._selectedTerm.textContent;
+          zone.dataset.dropped = div._selectedTerm.dataset.term;
+          div._selectedTerm.style.visibility = 'hidden';
+          div._selectedTerm.setAttribute('aria-grabbed','false');
+          div._selectedTerm = null;
           e.preventDefault();
         }
       });
@@ -408,6 +416,37 @@ function runQuiz(questions){
     feedback.innerHTML = allCorrect
       ? '<div class="uk-alert-success" uk-alert>✅ Alles richtig zugeordnet!</div>'
       : '<div class="uk-alert-danger" uk-alert>❌ Nicht alle Zuordnungen sind korrekt.</div>';
+  }
+
+  // Setzt die Zuordnungsfrage auf den Ausgangszustand zurück
+  function resetAssign(div, feedback){
+    const termList = div.querySelector('.terms');
+    termList.innerHTML = '';
+    div._initialLeftTerms.forEach(t => {
+      const li = document.createElement('li');
+      li.draggable = true;
+      li.setAttribute('role','listitem');
+      li.tabIndex = 0;
+      li.setAttribute('aria-grabbed','false');
+      li.dataset.term = t.term;
+      li.textContent = t.term;
+      termList.appendChild(li);
+    });
+    termList.querySelectorAll('li').forEach(li => {
+      li.addEventListener('keydown', e => {
+        if(e.key === 'Enter' || e.key === ' '){
+          div._selectedTerm = li;
+          li.setAttribute('aria-grabbed','true');
+          e.preventDefault();
+        }
+      });
+    });
+    div.querySelectorAll('.dropzone').forEach(zone => {
+      zone.textContent = zone.dataset.definition;
+      delete zone.dataset.dropped;
+    });
+    feedback.textContent = '';
+    div._selectedTerm = null;
   }
 
   // Prüft die Auswahl bei einer Multiple-Choice-Frage
