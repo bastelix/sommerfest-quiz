@@ -54,15 +54,37 @@ document.addEventListener('DOMContentLoaded', function () {
     qrUser: document.getElementById('cfgQRUser'),
     teamRestrict: document.getElementById('teamRestrict')
   };
+  let logoUploaded = false;
   if (cfgFields.logoFile && cfgFields.logoPreview) {
-    cfgFields.logoFile.addEventListener('change', function () {
-      const file = cfgFields.logoFile.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        cfgFields.logoPreview.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+    const bar = document.getElementById('cfgLogoProgress');
+    UIkit.upload('.js-upload', {
+      url: '/logo.png',
+      name: 'file',
+      multiple: false,
+      error: function () {
+        notify('Fehler beim Hochladen', 'danger');
+      },
+      loadStart: function (e) {
+        bar.removeAttribute('hidden');
+        bar.max = e.total;
+        bar.value = e.loaded;
+      },
+      progress: function (e) {
+        bar.max = e.total;
+        bar.value = e.loaded;
+      },
+      loadEnd: function (e) {
+        bar.max = e.total;
+        bar.value = e.loaded;
+      },
+      completeAll: function () {
+        setTimeout(function () {
+          bar.setAttribute('hidden', 'hidden');
+        }, 1000);
+        cfgFields.logoPreview.src = '/logo.png?' + Date.now();
+        logoUploaded = true;
+        notify('Logo hochgeladen', 'success');
+      }
     });
   }
   // Füllt das Formular mit den Werten aus einem Konfigurationsobjekt
@@ -99,12 +121,12 @@ document.addEventListener('DOMContentLoaded', function () {
       QRUser: cfgFields.qrUser.value === 'true',
       QRRestrict: cfgFields.teamRestrict ? cfgFields.teamRestrict.checked : cfgInitial.QRRestrict
     });
-    const upload = () => {
-      return fetch('/config.json', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      }).then(r => {
+    fetch('/config.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+      .then(r => {
         if (r.ok) {
           notify('Konfiguration gespeichert', 'success');
         } else if (r.status === 400) {
@@ -112,28 +134,11 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
           throw new Error(r.statusText);
         }
-      });
-    };
-
-    const file = cfgFields.logoFile.files[0];
-    if (file) {
-      const fd = new FormData();
-      fd.append('file', file);
-      fetch('/logo.png', { method: 'POST', body: fd })
-        .then(r => {
-          if (!r.ok) throw new Error('Upload');
-        })
-        .then(upload)
-        .catch(err => {
-          console.error(err);
-          notify('Fehler beim Speichern', 'danger');
-        });
-    } else {
-      upload().catch(err => {
+      })
+      .catch(err => {
         console.error(err);
         notify('Fehler beim Speichern', 'danger');
       });
-    }
   });
 
 

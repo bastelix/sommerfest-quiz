@@ -41,7 +41,15 @@
                   <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: PNG-Datei als Logo für die Startseite hochladen.; pos: right"></span>
                 </label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" type="file" id="cfgLogoFile" accept="image/png">
+                  <div class="js-upload uk-placeholder uk-text-center">
+                    <span uk-icon="icon: cloud-upload"></span>
+                    <span class="uk-text-middle">Datei hierher ziehen oder </span>
+                    <div uk-form-custom>
+                      <input type="file" id="cfgLogoFile" accept="image/png">
+                      <span class="uk-link">auswählen</span>
+                    </div>
+                  </div>
+                  <progress id="cfgLogoProgress" class="uk-progress" value="0" max="100" hidden></progress>
                   <img id="cfgLogoPreview" src="{{ config.logoPath|default('') }}" alt="Logo Vorschau" class="uk-margin-small-top" style="max-height:80px">
                 </div>
               </div>
