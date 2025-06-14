@@ -372,9 +372,9 @@ function runQuiz(questions){
           group: { name: group, pull: false, put: true },
           sort: false,
           animation: 150,
-          onAdd: evt => {
+            onAdd: evt => {
             const item = evt.item;
-            zone.textContent = item.textContent;
+            zone.textContent = zone.dataset.definition + ' \u2013 ' + item.textContent;
             zone.dataset.dropped = item.dataset.term;
             item.remove();
           }
@@ -395,7 +395,7 @@ function runQuiz(questions){
     div.querySelectorAll('.dropzone').forEach(zone => {
       zone.addEventListener('keydown', e => {
         if((e.key === 'Enter' || e.key === ' ') && div._selectedTerm){
-          zone.textContent = div._selectedTerm.textContent;
+          zone.textContent = zone.dataset.definition + ' \u2013 ' + div._selectedTerm.textContent;
           zone.dataset.dropped = div._selectedTerm.dataset.term;
           div._selectedTerm.style.visibility = 'hidden';
           div._selectedTerm.setAttribute('aria-grabbed','false');
@@ -410,7 +410,9 @@ function runQuiz(questions){
   function checkAssign(div, feedback, idx){
     let allCorrect = true;
     div.querySelectorAll('.dropzone').forEach(zone => {
-      if(zone.dataset.term !== zone.dataset.dropped) allCorrect = false;
+      const parts = zone.textContent.split(' \u2013 ');
+      const dropped = parts.length > 1 ? parts[1].trim() : '';
+      if(zone.dataset.term !== dropped) allCorrect = false;
     });
     results[idx] = allCorrect;
     feedback.innerHTML = allCorrect
