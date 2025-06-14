@@ -28,7 +28,8 @@
       <div id="quiz-header" class="uk-text-center uk-margin">
         <img id="quiz-logo" class="logo-placeholder" src="{{ config.logoPath|default('') }}" alt="Logo">
       </div>
-      <progress id="progress" class="uk-progress" value="0" max="1" aria-label="Fortschritt des Quiz"></progress>
+      <progress id="progress" class="uk-progress" value="0" max="1" aria-label="Fortschritt des Quiz" aria-valuenow="0"></progress>
+      <span id="question-announcer" class="uk-hidden-visually" aria-live="polite"></span>
       <div id="quiz"></div>
     </div>
     {% if showDisclaimer %}
