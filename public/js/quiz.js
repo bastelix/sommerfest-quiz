@@ -236,6 +236,7 @@ function runQuiz(questions){
     const feedback = document.createElement('div');
     feedback.className = 'uk-margin-top';
     feedback.setAttribute('role', 'alert');
+    feedback.setAttribute('aria-live', 'polite');
     const footer = document.createElement('div');
     footer.className = 'uk-margin-top uk-flex uk-flex-between';
     const btn = document.createElement('button');
@@ -286,8 +287,8 @@ function runQuiz(questions){
     results[idx] = correct;
     feedback.innerHTML =
       correct
-        ? '<div class="uk-alert-success" uk-alert>✅ Richtig sortiert!</div>'
-        : '<div class="uk-alert-danger" uk-alert>❌ Leider falsch, versuche es nochmal!</div>';
+        ? '<div class="uk-alert-success" uk-alert><span class="uk-hidden-visually">Richtige Antwort</span> ✅ Richtig sortiert!</div>'
+        : '<div class="uk-alert-danger" uk-alert><span class="uk-hidden-visually">Falsche Antwort</span> ❌ Leider falsch, versuche es nochmal!</div>';
   }
 
   // Erstellt das DOM für eine Zuordnungsfrage
@@ -349,6 +350,7 @@ function runQuiz(questions){
     const feedback = document.createElement('div');
     feedback.className = 'uk-margin-top';
     feedback.setAttribute('role', 'alert');
+    feedback.setAttribute('aria-live', 'polite');
     const footer = document.createElement('div');
     footer.className = 'uk-margin-top uk-flex uk-flex-between';
     const btn = document.createElement('button');
@@ -443,8 +445,8 @@ function runQuiz(questions){
     });
     results[idx] = allCorrect;
     feedback.innerHTML = allCorrect
-      ? '<div class="uk-alert-success" uk-alert>✅ Alles richtig zugeordnet!</div>'
-      : '<div class="uk-alert-danger" uk-alert>❌ Nicht alle Zuordnungen sind korrekt.</div>';
+      ? '<div class="uk-alert-success" uk-alert><span class="uk-hidden-visually">Richtige Antwort</span> ✅ Alles richtig zugeordnet!</div>'
+      : '<div class="uk-alert-danger" uk-alert><span class="uk-hidden-visually">Falsche Antwort</span> ❌ Nicht alle Zuordnungen sind korrekt.</div>';
   }
 
   // Setzt die Zuordnungsfrage auf den Ausgangszustand zurück
@@ -490,8 +492,8 @@ function runQuiz(questions){
     results[idx] = correct;
     feedback.innerHTML =
       correct
-        ? '<div class="uk-alert-success" uk-alert>✅ Korrekt!</div>'
-        : '<div class="uk-alert-danger" uk-alert>❌ Das ist nicht korrekt.</div>';
+        ? '<div class="uk-alert-success" uk-alert><span class="uk-hidden-visually">Richtige Antwort</span> ✅ Korrekt!</div>'
+        : '<div class="uk-alert-danger" uk-alert><span class="uk-hidden-visually">Falsche Antwort</span> ❌ Das ist nicht korrekt.</div>';
   }
 
   // Erstellt das DOM für eine Multiple-Choice-Frage
@@ -525,6 +527,7 @@ function runQuiz(questions){
 
     const feedback = document.createElement('div');
     feedback.setAttribute('role', 'alert');
+    feedback.setAttribute('aria-live', 'polite');
     feedback.className = 'uk-margin-top';
 
     const footer = document.createElement('div');
