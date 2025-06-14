@@ -27,8 +27,7 @@ class HomeController
             $catalogs = json_decode($catalogsJson, true) ?? [];
         }
 
-        $params = $request->getQueryParams();
-        $showDisclaimer = empty($params['katalog']);
+        $showDisclaimer = true;
 
         return $view->render($response, 'index.twig', [
             'config' => $cfg,
