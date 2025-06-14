@@ -168,7 +168,7 @@ Die Ergebnisse werden in `data/results.json` gespeichert. Wichtige Endpunkte:
 Ein POST auf `/password` speichert ein neues Admin-Passwort in `config.json`.
 
 ### Logo hochladen
-Das aktuelle Logo wird unter `/logo.png` bereitgestellt. Über einen POST auf dieselbe URL lässt sich eine neue PNG-Datei hochladen. Nach dem Upload wird der Pfad automatisch in `config.json` gespeichert.
+Das aktuelle Logo wird unter `/logo.png` oder `/logo.webp` bereitgestellt. Über einen POST auf diese URLs lässt sich eine neue PNG- oder WebP-Datei hochladen. Nach dem Upload wird der Pfad automatisch in `config.json` gespeichert.
 
 ### Sicherheit und Haftung
 Die Software wird unter der MIT-Lizenz bereitgestellt und erfolgt ohne Gewähr. Die Urheber haften nicht für Schäden, die aus der Nutzung entstehen.

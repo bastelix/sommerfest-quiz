@@ -46,12 +46,12 @@
                     <span uk-icon="icon: cloud-upload"></span>
                     <span class="uk-text-middle">Datei hierher ziehen oder </span>
                     <div uk-form-custom>
-                      <input type="file" id="cfgLogoFile" accept="image/png">
+                      <input type="file" id="cfgLogoFile" accept="image/png,image/webp">
                       <span class="uk-link">auswählen</span>
                     </div>
                   </div>
                   <progress id="cfgLogoProgress" class="uk-progress" value="0" max="100" hidden></progress>
-                  <img id="cfgLogoPreview" src="{{ config.logoPath|default('') }}" alt="Logo Vorschau" class="uk-margin-small-top" style="max-height:80px">
+                  <img id="cfgLogoPreview" src="{{ config.logoPath|default('') }}" alt="Logo Vorschau" class="uk-margin-small-top" style="max-height:160px">
                 </div>
               </div>
             </div>

@@ -93,6 +93,8 @@ return function (\Slim\App $app) {
     $app->post('/teams.json', [$teamController, 'post']);
     $app->post('/password', [$passwordController, 'post']);
     $app->get('/qr.png', [$qrController, 'image']);
-    $app->get('/logo.png', [$logoController, 'get']);
+    $app->get('/logo.png', [$logoController, 'get'])->setArgument('ext', 'png');
     $app->post('/logo.png', [$logoController, 'post']);
+    $app->get('/logo.webp', [$logoController, 'get'])->setArgument('ext', 'webp');
+    $app->post('/logo.webp', [$logoController, 'post']);
 };
