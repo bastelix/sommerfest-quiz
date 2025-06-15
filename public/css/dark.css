@@ -100,6 +100,7 @@ body.dark-mode .uk-icon-button {
 body.dark-mode .bottombar {
   background-color: #1e1e1e;
   border-color: #444;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 body.dark-mode .uk-icon-button {
