@@ -50,6 +50,12 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
    sodass stets die neuesten kompatiblen Abhängigkeiten installiert werden.
    Das Docker-Setup installiert dabei automatisch die PHP-Erweiterung *gd*,
    welche für die Bibliothek `setasign/fpdf` benötigt wird.
+   Eine Aktualisierung der `composer.lock` kann alternativ 
+   über den GitHub-Workflow **Manual Composer Install** erfolgen
+   (siehe `.github/workflows/composer-install.yml`).
+   Dieser lässt sich im Reiter **Actions** über den Button
+   „Run workflow“ manuell starten und committet bei Bedarf die
+   aktualisierte Datei.
 2. Server starten (z.B. für lokale Tests):
    ```bash
    php -S localhost:8080 -t public public/router.php
