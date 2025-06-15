@@ -199,6 +199,27 @@ function runQuiz(questions){
       solved.push(catalog);
       sessionStorage.setItem('quizSolved', JSON.stringify(solved));
     }
+
+    if(cfg.competitionMode){
+      let total = null;
+      const dataEl = document.getElementById('catalogs-data');
+      if(dataEl){
+        try{
+          const list = JSON.parse(dataEl.textContent);
+          total = Array.isArray(list) ? list.length : null;
+        }catch(e){
+          total = null;
+        }
+      }
+      if(total !== null && solved.length === total){
+        const btn = document.createElement('button');
+        btn.className = 'uk-button uk-button-primary uk-margin-top';
+        btn.textContent = 'Ergebnisübersicht';
+        styleButton(btn);
+        btn.addEventListener('click', () => showResultsOverview(user));
+        summaryEl.appendChild(btn);
+      }
+    }
   }
 
   // Wählt basierend auf dem Fragetyp die passende Erzeugerfunktion aus
@@ -699,6 +720,63 @@ function runQuiz(questions){
       div.appendChild(restart);
     }
     return div;
+  }
+
+  function showResultsOverview(name){
+    const modal = document.createElement('div');
+    modal.setAttribute('uk-modal', '');
+    modal.setAttribute('aria-modal', 'true');
+    modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
+      '<h3 class="uk-modal-title uk-text-center">Ergebnisübersicht</h3>' +
+      '<div id="team-results" class="uk-overflow-auto"></div>' +
+      '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Schließen</button>' +
+      '</div>';
+    const tbodyContainer = modal.querySelector('#team-results');
+    const closeBtn = modal.querySelector('button');
+    document.body.appendChild(modal);
+    const ui = UIkit.modal(modal);
+    UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
+    closeBtn.addEventListener('click', () => ui.hide());
+
+    fetch('/results.json')
+      .then(r => r.json())
+      .then(rows => {
+        const filtered = rows.filter(row => row.name === name);
+        const map = new Map();
+        filtered.forEach(r => {
+          map.set(r.catalog, `${r.correct}/${r.total}`);
+        });
+        const table = document.createElement('table');
+        table.className = 'uk-table uk-table-divider';
+        table.innerHTML = '<thead><tr><th>Katalog</th><th>Ergebnis</th></tr></thead>';
+        const tb = document.createElement('tbody');
+        if(map.size === 0){
+          const tr = document.createElement('tr');
+          const td = document.createElement('td');
+          td.colSpan = 2;
+          td.textContent = 'Keine Daten';
+          tr.appendChild(td);
+          tb.appendChild(tr);
+        }else{
+          map.forEach((res, cat) => {
+            const tr = document.createElement('tr');
+            const td1 = document.createElement('td');
+            td1.textContent = cat;
+            const td2 = document.createElement('td');
+            td2.textContent = res;
+            tr.appendChild(td1);
+            tr.appendChild(td2);
+            tb.appendChild(tr);
+          });
+        }
+        table.appendChild(tb);
+        if(tbodyContainer) tbodyContainer.appendChild(table);
+      })
+      .catch(() => {
+        if(tbodyContainer) tbodyContainer.textContent = 'Fehler beim Laden';
+      });
+
+    ui.show();
   }
 }
 
