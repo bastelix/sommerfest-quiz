@@ -816,7 +816,9 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(r => r.json())
       .then(data => { renderTeams(data); })
       .catch(()=>{});
-    teamRestrictTeams.checked = !!cfgInitial.QRRestrict;
+    if (teamRestrictTeams) {
+      teamRestrictTeams.checked = !!cfgInitial.QRRestrict;
+    }
   }
 
   teamAddBtn?.addEventListener('click', e => {
@@ -840,12 +842,14 @@ document.addEventListener('DOMContentLoaded', function () {
       console.error(err);
       notify('Fehler beim Speichern','danger');
     });
-    cfgInitial.QRRestrict = teamRestrictTeams.checked;
-    fetch('/config.json', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(cfgInitial)
-    }).catch(()=>{});
+    if (teamRestrictTeams) {
+      cfgInitial.QRRestrict = teamRestrictTeams.checked;
+      fetch('/config.json', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(cfgInitial)
+      }).catch(()=>{});
+    }
   });
 
   // --------- Passwort ändern ---------
