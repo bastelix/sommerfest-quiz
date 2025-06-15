@@ -120,8 +120,8 @@
   }
 
   function showCatalogSolvedModal(name, remaining){
-    const msg = 'Der Katalog ' + name + ' wurde von eurem Team bereits abgeschlossen.' +
-      (remaining ? '<br>Folgende Fragenkataloge fehlen euch noch: ' + remaining : '');
+    const msg = 'Der Katalog ' + name + ' wurde bereits abgeschlossen.' +
+      (remaining ? '<br>Folgende Fragenkataloge fehlen noch: ' + remaining : '');
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
     modal.setAttribute('aria-modal', 'true');
