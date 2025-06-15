@@ -163,7 +163,7 @@ Alle wesentlichen Einstellungen finden sich in `data/config.json`. Hier lassen s
 }
 ```
 
-Optional kann `baseUrl` gesetzt werden, um in QR-Codes vollständige Links mit Domain zu erzeugen. Wird dieser Wert nicht angegeben, ermittelt die Anwendung Schema und Host automatisch aus der aktuellen Anfrage. Der Parameter `competitionMode` blendet im Quiz alle Neustart-Schaltflächen aus und verhindert Wiederholungen bereits abgeschlossener Kataloge.
+Optional kann `baseUrl` gesetzt werden, um in QR-Codes vollständige Links mit Domain zu erzeugen. Wird dieser Wert nicht angegeben, ermittelt die Anwendung Schema und Host automatisch aus der aktuellen Anfrage. Der Parameter `competitionMode` blendet im Quiz alle Neustart-Schaltflächen aus, verhindert Wiederholungen bereits abgeschlossener Kataloge und unterbindet die Anzeige der Katalogübersicht. Ein Fragenkatalog kann dann nur über einen direkten QR-Code-Link gestartet werden.
 
 `ConfigService` liest und speichert diese Datei. Ein GET auf `/config.json` liefert den aktuellen Inhalt, ein POST auf dieselbe URL speichert geänderte Werte.
 

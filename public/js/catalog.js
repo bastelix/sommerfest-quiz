@@ -124,6 +124,16 @@
     const container = document.getElementById('quiz');
     if(!container) return;
     container.innerHTML = '';
+    const cfg = window.quizConfig || {};
+    const params = new URLSearchParams(window.location.search);
+    if(cfg.competitionMode && !params.get('katalog')){
+      const p = document.createElement('p');
+      p.textContent = 'Bitte QR-Code verwenden, um einen Fragenkatalog zu starten.';
+      p.className = 'uk-text-center';
+      container.appendChild(p);
+      return;
+    }
+
     const grid = document.createElement('div');
     grid.className = 'uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-4@m uk-grid-small uk-text-center';
     grid.setAttribute('uk-grid', '');
@@ -157,6 +167,8 @@
 
   async function showLogin(onDone, autoScan){
     const cfg = window.quizConfig || {};
+    const params = new URLSearchParams(window.location.search);
+    const hasCatalog = !!params.get('katalog');
     let allowed = [];
     if(cfg.QRRestrict){
       try{
@@ -189,18 +201,18 @@
         scanBtn.style.color = '#fff';
       }
       let bypass;
-      if(!cfg.QRRestrict){
+      if(!cfg.QRRestrict && !cfg.competitionMode){
         bypass = document.createElement('a');
         bypass.href = '#';
         bypass.textContent = 'Kataloge anzeigen';
         bypass.className = 'uk-display-block uk-margin-top';
-          bypass.addEventListener('click', (e)=>{
-            e.preventDefault();
-            sessionStorage.setItem('quizUser', generateUserName());
-            sessionStorage.removeItem('quizSolved');
-            updateUserName();
-            onDone();
-          });
+        bypass.addEventListener('click', (e)=>{
+          e.preventDefault();
+          sessionStorage.setItem('quizUser', generateUserName());
+          sessionStorage.removeItem('quizSolved');
+          updateUserName();
+          onDone();
+        });
       }
       const modal = document.createElement('div');
       modal.id = 'qr-modal';
@@ -288,14 +300,15 @@
         startScanner();
       }
     }else{
-      const btn = document.createElement('button');
-      btn.className = 'uk-button uk-button-primary';
-      btn.textContent = 'Starten';
-      if(cfg.buttonColor){
-        btn.style.backgroundColor = cfg.buttonColor;
-        btn.style.borderColor = cfg.buttonColor;
-        btn.style.color = '#fff';
-      }
+      if(!cfg.competitionMode || hasCatalog){
+        const btn = document.createElement('button');
+        btn.className = 'uk-button uk-button-primary';
+        btn.textContent = 'Starten';
+        if(cfg.buttonColor){
+          btn.style.backgroundColor = cfg.buttonColor;
+          btn.style.borderColor = cfg.buttonColor;
+          btn.style.color = '#fff';
+        }
         btn.addEventListener('click', () => {
           if(cfg.QRRestrict){
             alert('Nur Registrierung per QR-Code erlaubt');
@@ -306,7 +319,12 @@
           updateUserName();
           onDone();
         });
-      div.appendChild(btn);
+        div.appendChild(btn);
+      } else {
+        const p = document.createElement('p');
+        p.textContent = 'Bitte QR-Code verwenden, um das Quiz zu starten.';
+        div.appendChild(p);
+      }
     }
     container.appendChild(div);
   }
