@@ -199,7 +199,17 @@
     <li>
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">Teams/Personen</h2>
-        <div id="teamsList" class="uk-margin"></div>
+        <div class="uk-overflow-auto">
+          <table class="uk-table uk-table-divider uk-table-small">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="teamsList"></tbody>
+          </table>
+        </div>
         <div class="uk-margin">
           <button id="teamAddBtn" class="uk-button uk-button-default" uk-tooltip="title: Neues Team oder Person hinzufügen; pos: right">Hinzufügen</button>
         </div>
