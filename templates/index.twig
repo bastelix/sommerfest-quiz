@@ -16,7 +16,7 @@
       <a href="faq" class="uk-icon-button" uk-icon="icon: question; ratio: 2" title="Hilfe" aria-label="Hilfe"></a>
     {% endblock %}
     {% block center %}
-      <span class="uk-navbar-title">Sommerfest 2025</span>
+      <span id="topbar-title" class="uk-navbar-title" data-default-title="{{ config.header|default('Sommerfest 2025') }}">{{ config.header|default('Sommerfest 2025') }}</span>
     {% endblock %}
     {% block right %}
       <div class="theme-switch">

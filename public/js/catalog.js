@@ -54,12 +54,19 @@
       nameEl.className = 'uk-text-lead';
       headerEl.appendChild(nameEl);
     }
+    const topbar = document.getElementById('topbar-title');
     if(user){
       nameEl.textContent = user;
       nameEl.classList.remove('uk-hidden');
+      if(topbar){
+        topbar.textContent = user;
+      }
     }else{
       nameEl.textContent = '';
       nameEl.classList.add('uk-hidden');
+      if(topbar){
+        topbar.textContent = topbar.dataset.defaultTitle || '';
+      }
     }
   }
   async function loadCatalogList(){
