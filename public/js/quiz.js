@@ -182,9 +182,9 @@ function runQuiz(questions){
       user = generateUserName();
     }
     const p = summaryEl.querySelector('p');
-    if(p) p.textContent = `${user} hat ${score} von ${questionCount} Punkten erreicht.`;
+    if(p) p.textContent = `${score} von ${questionCount} Punkten erreicht.`;
     const heading = summaryEl.querySelector('h3');
-    if(heading) heading.textContent = `🎉 Danke fürs Mitmachen ${user}!`;
+    if(heading) heading.textContent = '🎉 Danke fürs Mitmachen!';
     if(score === questionCount && typeof window.startConfetti === 'function'){
       window.startConfetti();
     }
