@@ -675,21 +675,23 @@ function runQuiz(questions){
     const h = document.createElement('h3');
     h.textContent = '🎉 Danke fürs Mitmachen!';
     const p = document.createElement('p');
-    const restart = document.createElement('a');
-    restart.href = '/';
-    restart.textContent = 'Neu starten';
-    restart.className = 'uk-button uk-button-primary uk-margin-top';
-    styleButton(restart);
-    restart.addEventListener('click', () => {
-      sessionStorage.removeItem('quizUser');
-      const topbar = document.getElementById('topbar-title');
-      if(topbar){
-        topbar.textContent = topbar.dataset.defaultTitle || '';
-      }
-    });
     div.appendChild(h);
     div.appendChild(p);
-    div.appendChild(restart);
+    if(!cfg.competitionMode){
+      const restart = document.createElement('a');
+      restart.href = '/';
+      restart.textContent = 'Neu starten';
+      restart.className = 'uk-button uk-button-primary uk-margin-top';
+      styleButton(restart);
+      restart.addEventListener('click', () => {
+        sessionStorage.removeItem('quizUser');
+        const topbar = document.getElementById('topbar-title');
+        if(topbar){
+          topbar.textContent = topbar.dataset.defaultTitle || '';
+        }
+      });
+      div.appendChild(restart);
+    }
     return div;
   }
 }

@@ -10,5 +10,6 @@
   "CheckAnswerButton": "no",
   "adminUser": "admin",
   "adminPass": "password",
-  "QRRestrict": false
+  "QRRestrict": false,
+  "competitionMode": false
 }

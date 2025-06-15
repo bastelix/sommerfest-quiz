@@ -52,7 +52,8 @@ document.addEventListener('DOMContentLoaded', function () {
     buttonColor: document.getElementById('cfgButtonColor'),
     checkAnswerButton: document.getElementById('cfgCheckAnswerButton'),
     qrUser: document.getElementById('cfgQRUser'),
-    teamRestrict: document.getElementById('teamRestrict')
+    teamRestrict: document.getElementById('teamRestrict'),
+    competitionMode: document.getElementById('cfgCompetitionMode')
   };
   let logoUploaded = false;
   if (cfgFields.logoFile && cfgFields.logoPreview) {
@@ -104,6 +105,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cfgFields.teamRestrict) {
       cfgFields.teamRestrict.checked = !!data.QRRestrict;
     }
+    if (cfgFields.competitionMode) {
+      cfgFields.competitionMode.value = String(data.competitionMode) || 'false';
+    }
   }
   renderCfg(cfgInitial);
   document.getElementById('cfgResetBtn').addEventListener('click', function (e) {
@@ -127,7 +131,8 @@ document.addEventListener('DOMContentLoaded', function () {
       buttonColor: cfgFields.buttonColor.value.trim(),
       CheckAnswerButton: cfgFields.checkAnswerButton.value,
       QRUser: cfgFields.qrUser.value === 'true',
-      QRRestrict: cfgFields.teamRestrict ? cfgFields.teamRestrict.checked : cfgInitial.QRRestrict
+      QRRestrict: cfgFields.teamRestrict ? cfgFields.teamRestrict.checked : cfgInitial.QRRestrict,
+      competitionMode: cfgFields.competitionMode ? cfgFields.competitionMode.value === 'true' : cfgInitial.competitionMode
     });
     fetch('/config.json', {
       method: 'POST',
@@ -137,6 +142,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(r => {
         if (r.ok) {
           notify('Konfiguration gespeichert', 'success');
+          Object.assign(cfgInitial, data);
         } else if (r.status === 400) {
           notify('Ungültige Daten', 'danger');
         } else {
