@@ -193,12 +193,13 @@
         bypass.href = '#';
         bypass.textContent = 'Kataloge anzeigen';
         bypass.className = 'uk-display-block uk-margin-top';
-        bypass.addEventListener('click', (e)=>{
-          e.preventDefault();
-          sessionStorage.setItem('quizUser', generateUserName());
-          updateUserName();
-          onDone();
-        });
+          bypass.addEventListener('click', (e)=>{
+            e.preventDefault();
+            sessionStorage.setItem('quizUser', generateUserName());
+            sessionStorage.removeItem('quizSolved');
+            updateUserName();
+            onDone();
+          });
       }
       const modal = document.createElement('div');
       modal.id = 'qr-modal';
@@ -237,8 +238,9 @@
               alert('Unbekanntes oder nicht berechtigtes Team/Person');
               return;
             }
-            sessionStorage.setItem('quizUser', name);
-            updateUserName();
+              sessionStorage.setItem('quizUser', name);
+              sessionStorage.removeItem('quizSolved');
+              updateUserName();
             stopScanner();
             UIkit.modal(modal).hide();
             onDone();
@@ -293,15 +295,16 @@
         btn.style.borderColor = cfg.buttonColor;
         btn.style.color = '#fff';
       }
-      btn.addEventListener('click', () => {
-        if(cfg.QRRestrict){
-          alert('Nur Registrierung per QR-Code erlaubt');
-          return;
-        }
-        sessionStorage.setItem('quizUser', generateUserName());
-        updateUserName();
-        onDone();
-      });
+        btn.addEventListener('click', () => {
+          if(cfg.QRRestrict){
+            alert('Nur Registrierung per QR-Code erlaubt');
+            return;
+          }
+          sessionStorage.setItem('quizUser', generateUserName());
+          sessionStorage.removeItem('quizSolved');
+          updateUserName();
+          onDone();
+        });
       div.appendChild(btn);
     }
     container.appendChild(div);
@@ -311,11 +314,12 @@
     const cfg = window.quizConfig || {};
     if(cfg.QRRestrict){
       sessionStorage.removeItem('quizUser');
+      sessionStorage.removeItem('quizSolved');
     }
     applyConfig();
     updateUserName();
     const catalogs = await loadCatalogList();
-    let solved = new Set();
+    let solved = new Set(JSON.parse(sessionStorage.getItem('quizSolved') || '[]'));
     if(cfg.competitionMode){
       try{
         const r = await fetch('/results.json', {headers:{'Accept':'application/json'}});
@@ -332,6 +336,7 @@
         console.warn('results not loaded', e);
       }
     }
+    sessionStorage.setItem('quizSolved', JSON.stringify([...solved]));
     const params = new URLSearchParams(window.location.search);
     const id = params.get('katalog');
     const proceed = () => {
@@ -352,10 +357,11 @@
       showLogin(proceed, !!id);
     }else{
       if(!sessionStorage.getItem('quizUser')){
-        if(!cfg.QRRestrict){
-          sessionStorage.setItem('quizUser', generateUserName());
+          if(!cfg.QRRestrict){
+            sessionStorage.setItem('quizUser', generateUserName());
+            sessionStorage.removeItem('quizSolved');
+          }
         }
-      }
       updateUserName();
       proceed();
     }
