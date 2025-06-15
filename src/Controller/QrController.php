@@ -9,7 +9,7 @@ use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\Label\Font\NotoSans;
-use Endroid\QrCode\RoundBlockSizeMode\RoundBlockSizeMode;
+use Endroid\QrCode\BlockSizeMode;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -44,7 +44,7 @@ class QrController
         }
 
         $result = $builder
-            ->roundBlockSizeMode(RoundBlockSizeMode::ENLARGE)
+            ->setBlockSizeMode(BlockSizeMode::ENLARGE)
             ->build();
 
         $data = $result->getString();
