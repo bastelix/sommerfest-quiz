@@ -133,8 +133,9 @@
       card.className = 'uk-card uk-card-default uk-card-body uk-card-hover';
       card.style.cursor = 'pointer';
       card.addEventListener('click', () => {
-        if((window.quizConfig || {}).competitionMode && solved.has(cat.id)){
-          const remaining = catalogs.filter(c => !solved.has(c.id)).map(c => c.name || c.id).join(', ');
+        const localSolved = new Set(JSON.parse(sessionStorage.getItem('quizSolved') || '[]'));
+        if((window.quizConfig || {}).competitionMode && localSolved.has(cat.id)){
+          const remaining = catalogs.filter(c => !localSolved.has(c.id)).map(c => c.name || c.id).join(', ');
           alert('Der Katalog ' + (cat.name || cat.id) + ' wurde von eurem Team bereits abgeschlossen.' + (remaining ? '\nFolgende Fragenkataloge fehlen euch noch: ' + remaining : ''));
           return;
         }
@@ -310,15 +311,7 @@
     container.appendChild(div);
   }
 
-  async function init(){
-    const cfg = window.quizConfig || {};
-    if(cfg.QRRestrict){
-      sessionStorage.removeItem('quizUser');
-      sessionStorage.removeItem('quizSolved');
-    }
-    applyConfig();
-    updateUserName();
-    const catalogs = await loadCatalogList();
+  async function buildSolvedSet(cfg){
     let solved = new Set(JSON.parse(sessionStorage.getItem('quizSolved') || '[]'));
     if(cfg.competitionMode){
       try{
@@ -337,20 +330,33 @@
       }
     }
     sessionStorage.setItem('quizSolved', JSON.stringify([...solved]));
+    return solved;
+  }
+
+  async function init(){
+    const cfg = window.quizConfig || {};
+    if(cfg.QRRestrict){
+      sessionStorage.removeItem('quizUser');
+      sessionStorage.removeItem('quizSolved');
+    }
+    applyConfig();
+    updateUserName();
+    const catalogs = await loadCatalogList();
     const params = new URLSearchParams(window.location.search);
     const id = params.get('katalog');
-    const proceed = () => {
+    const proceed = async () => {
+      const solvedNow = await buildSolvedSet(cfg);
       const selected = catalogs.find(c => c.id === id);
       if(selected){
-        if(cfg.competitionMode && solved.has(selected.id)){
-          const remaining = catalogs.filter(c => !solved.has(c.id)).map(c => c.name || c.id).join(', ');
+        if(cfg.competitionMode && solvedNow.has(selected.id)){
+          const remaining = catalogs.filter(c => !solvedNow.has(c.id)).map(c => c.name || c.id).join(', ');
           alert('Der Katalog ' + (selected.name || selected.id) + ' wurde von eurem Team bereits abgeschlossen.' + (remaining ? '\nFolgende Fragenkataloge fehlen euch noch: ' + remaining : ''));
-          showSelection(catalogs, solved);
+          showSelection(catalogs, solvedNow);
           return;
         }
         loadQuestions(selected.id, selected.file);
       }else{
-        showSelection(catalogs, solved);
+        showSelection(catalogs, solvedNow);
       }
     };
     if((window.quizConfig || {}).QRUser){
