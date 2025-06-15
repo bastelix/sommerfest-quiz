@@ -11,5 +11,6 @@
   "adminUser": "admin",
   "adminPass": "password",
   "QRRestrict": false,
-  "competitionMode": false
+  "competitionMode": false,
+  "teamResults": true
 }

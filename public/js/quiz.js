@@ -200,7 +200,7 @@ function runQuiz(questions){
       sessionStorage.setItem('quizSolved', JSON.stringify(solved));
     }
 
-    if(cfg.competitionMode){
+    if(cfg.teamResults){
       let total = null;
       const dataEl = document.getElementById('catalogs-data');
       if(dataEl){
