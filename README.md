@@ -158,11 +158,12 @@ Alle wesentlichen Einstellungen finden sich in `data/config.json`. Hier lassen s
   "CheckAnswerButton": "no",
   "adminUser": "admin",
   "adminPass": "password",
-  "QRRestrict": false
+  "QRRestrict": false,
+  "competitionMode": false
 }
 ```
 
-Optional kann `baseUrl` gesetzt werden, um in QR-Codes vollständige Links mit Domain zu erzeugen. Wird dieser Wert nicht angegeben, ermittelt die Anwendung Schema und Host automatisch aus der aktuellen Anfrage.
+Optional kann `baseUrl` gesetzt werden, um in QR-Codes vollständige Links mit Domain zu erzeugen. Wird dieser Wert nicht angegeben, ermittelt die Anwendung Schema und Host automatisch aus der aktuellen Anfrage. Der Parameter `competitionMode` blendet im Quiz alle Neustart-Schaltflächen aus und verhindert Wiederholungen bereits abgeschlossener Kataloge.
 
 `ConfigService` liest und speichert diese Datei. Ein GET auf `/config.json` liefert den aktuellen Inhalt, ein POST auf dieselbe URL speichert geänderte Werte.
 

@@ -119,7 +119,8 @@
     }
   }
 
-  function showSelection(catalogs){
+  function showSelection(catalogs, solved){
+    solved = solved || new Set();
     const container = document.getElementById('quiz');
     if(!container) return;
     container.innerHTML = '';
@@ -132,6 +133,11 @@
       card.className = 'uk-card uk-card-default uk-card-body uk-card-hover';
       card.style.cursor = 'pointer';
       card.addEventListener('click', () => {
+        if((window.quizConfig || {}).competitionMode && solved.has(cat.id)){
+          const remaining = catalogs.filter(c => !solved.has(c.id)).map(c => c.name || c.id).join(', ');
+          alert('Der Katalog ' + (cat.name || cat.id) + ' wurde von eurem Team bereits abgeschlossen.' + (remaining ? '\nFolgende Fragenkataloge fehlen euch noch: ' + remaining : ''));
+          return;
+        }
         history.replaceState(null, '', '?katalog=' + cat.id);
         setSubHeader(cat.description || '');
         loadQuestions(cat.id, cat.file);
@@ -309,6 +315,23 @@
     applyConfig();
     updateUserName();
     const catalogs = await loadCatalogList();
+    let solved = new Set();
+    if(cfg.competitionMode){
+      try{
+        const r = await fetch('/results.json', {headers:{'Accept':'application/json'}});
+        if(r.ok){
+          const data = await r.json();
+          const user = sessionStorage.getItem('quizUser');
+          data.forEach(entry => {
+            if(entry.name === user){
+              solved.add(entry.catalog);
+            }
+          });
+        }
+      }catch(e){
+        console.warn('results not loaded', e);
+      }
+    }
     const params = new URLSearchParams(window.location.search);
     const id = params.get('katalog');
     const proceed = () => {
@@ -316,7 +339,7 @@
       if(selected){
         loadQuestions(selected.id, selected.file);
       }else{
-        showSelection(catalogs);
+        showSelection(catalogs, solved);
       }
     };
     if((window.quizConfig || {}).QRUser){

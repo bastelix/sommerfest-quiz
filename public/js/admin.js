@@ -52,7 +52,8 @@ document.addEventListener('DOMContentLoaded', function () {
     buttonColor: document.getElementById('cfgButtonColor'),
     checkAnswerButton: document.getElementById('cfgCheckAnswerButton'),
     qrUser: document.getElementById('cfgQRUser'),
-    teamRestrict: document.getElementById('teamRestrict')
+    teamRestrict: document.getElementById('cfgTeamRestrict'),
+    competitionMode: document.getElementById('cfgCompetitionMode')
   };
   let logoUploaded = false;
   if (cfgFields.logoFile && cfgFields.logoPreview) {
@@ -104,6 +105,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cfgFields.teamRestrict) {
       cfgFields.teamRestrict.checked = !!data.QRRestrict;
     }
+    if (cfgFields.competitionMode) {
+      cfgFields.competitionMode.value = String(data.competitionMode) || 'false';
+    }
   }
   renderCfg(cfgInitial);
   document.getElementById('cfgResetBtn').addEventListener('click', function (e) {
@@ -127,7 +131,8 @@ document.addEventListener('DOMContentLoaded', function () {
       buttonColor: cfgFields.buttonColor.value.trim(),
       CheckAnswerButton: cfgFields.checkAnswerButton.value,
       QRUser: cfgFields.qrUser.value === 'true',
-      QRRestrict: cfgFields.teamRestrict ? cfgFields.teamRestrict.checked : cfgInitial.QRRestrict
+      QRRestrict: cfgFields.teamRestrict ? cfgFields.teamRestrict.checked : cfgInitial.QRRestrict,
+      competitionMode: cfgFields.competitionMode ? cfgFields.competitionMode.value === 'true' : cfgInitial.competitionMode
     });
     fetch('/config.json', {
       method: 'POST',
@@ -137,6 +142,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(r => {
         if (r.ok) {
           notify('Konfiguration gespeichert', 'success');
+          Object.assign(cfgInitial, data);
         } else if (r.status === 400) {
           notify('Ungültige Daten', 'danger');
         } else {
@@ -772,7 +778,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamListEl = document.getElementById('teamsList');
   const teamAddBtn = document.getElementById('teamAddBtn');
   const teamSaveBtn = document.getElementById('teamsSaveBtn');
-  const teamRestrict = cfgFields.teamRestrict;
+  const teamRestrictTeams = document.getElementById('teamRestrict');
 
 
   function createTeamRow(name = ''){
@@ -810,7 +816,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(r => r.json())
       .then(data => { renderTeams(data); })
       .catch(()=>{});
-    teamRestrict.checked = !!cfgInitial.QRRestrict;
+    teamRestrictTeams.checked = !!cfgInitial.QRRestrict;
   }
 
   teamAddBtn?.addEventListener('click', e => {
@@ -834,7 +840,7 @@ document.addEventListener('DOMContentLoaded', function () {
       console.error(err);
       notify('Fehler beim Speichern','danger');
     });
-    cfgInitial.QRRestrict = teamRestrict.checked;
+    cfgInitial.QRRestrict = teamRestrictTeams.checked;
     fetch('/config.json', {
       method:'POST',
       headers:{'Content-Type':'application/json'},

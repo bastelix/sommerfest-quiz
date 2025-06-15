@@ -23,5 +23,8 @@ window.quizConfig = {
   QRUser: true,
 
   // Teilnahme auf bekannte Namen beschränken
-  QRRestrict: false
+  QRRestrict: false,
+
+  // Wettkampfmodus aktivieren
+  competitionMode: false
 };
