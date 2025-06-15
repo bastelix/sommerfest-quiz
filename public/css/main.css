@@ -126,6 +126,7 @@ body.uk-padding {
   left: 0;
   width: 100%;
   z-index: 1000;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .bottombar .uk-navbar-item {
