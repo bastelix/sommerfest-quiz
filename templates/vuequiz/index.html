@@ -24,10 +24,10 @@
     </div>
     <div v-else>
       <h2 class="text-xl font-bold mb-4">Auswertung</h2>
-      <p class="mb-4">Du hast {{ score }} von {{ questions.length }} Punkten erreicht.</p>
+      <p class="mb-4">Es wurden {{ score }} von {{ questions.length }} Punkten erreicht.</p>
       <div v-for="(q, idx) in questions" :key="idx" class="mb-4">
         <p class="font-semibold">{{ q.question }}</p>
-        <p>Deine Antwort: {{ formatAnswer(userAnswers[idx]) }}</p>
+        <p>Gegebene Antwort: {{ formatAnswer(userAnswers[idx]) }}</p>
       </div>
     </div>
   </div>
