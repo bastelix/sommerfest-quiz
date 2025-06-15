@@ -26,7 +26,7 @@ Bei der Erstellung dieser Anwendung standen besonders folgende Punkte im Mittelp
 - **Datenschutz**: Die Daten sind sicher und werden vertraulich behandelt.
 - **Schnelle und stabile Nutzung**: Auch bei vielen Teilnehmenden läuft die App zuverlässig.
 - **Einfache Bedienung**: Die Nutzung ist leicht und selbsterklärend.
-- **Geräteunabhängigkeit**: Egal ob Handy, Tablet oder PC – das Quiz funktioniert überall.
+- **Geräteunabhängigkeit**: Funktioniert auf allen Geräten: Handy, Tablet oder PC – freie Wahl.
 - **Nachhaltigkeit**: Die Umsetzung ist ressourcenschonend gestaltet.
 - **Offene Schnittstellen**: Die App lässt sich problemlos mit anderen Systemen verbinden.
 
