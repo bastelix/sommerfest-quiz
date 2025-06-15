@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
     buttonColor: document.getElementById('cfgButtonColor'),
     checkAnswerButton: document.getElementById('cfgCheckAnswerButton'),
     qrUser: document.getElementById('cfgQRUser'),
-    teamRestrict: document.getElementById('teamRestrict'),
+    teamRestrict: document.getElementById('cfgTeamRestrict'),
     competitionMode: document.getElementById('cfgCompetitionMode')
   };
   let logoUploaded = false;
@@ -778,7 +778,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamListEl = document.getElementById('teamsList');
   const teamAddBtn = document.getElementById('teamAddBtn');
   const teamSaveBtn = document.getElementById('teamsSaveBtn');
-  const teamRestrict = cfgFields.teamRestrict;
+  const teamRestrictTeams = document.getElementById('teamRestrict');
 
 
   function createTeamRow(name = ''){
@@ -816,7 +816,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(r => r.json())
       .then(data => { renderTeams(data); })
       .catch(()=>{});
-    teamRestrict.checked = !!cfgInitial.QRRestrict;
+    teamRestrictTeams.checked = !!cfgInitial.QRRestrict;
   }
 
   teamAddBtn?.addEventListener('click', e => {
@@ -840,7 +840,7 @@ document.addEventListener('DOMContentLoaded', function () {
       console.error(err);
       notify('Fehler beim Speichern','danger');
     });
-    cfgInitial.QRRestrict = teamRestrict.checked;
+    cfgInitial.QRRestrict = teamRestrictTeams.checked;
     fetch('/config.json', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
