@@ -337,6 +337,12 @@
     const proceed = () => {
       const selected = catalogs.find(c => c.id === id);
       if(selected){
+        if(cfg.competitionMode && solved.has(selected.id)){
+          const remaining = catalogs.filter(c => !solved.has(c.id)).map(c => c.name || c.id).join(', ');
+          alert('Der Katalog ' + (selected.name || selected.id) + ' wurde von eurem Team bereits abgeschlossen.' + (remaining ? '\nFolgende Fragenkataloge fehlen euch noch: ' + remaining : ''));
+          showSelection(catalogs, solved);
+          return;
+        }
         loadQuestions(selected.id, selected.file);
       }else{
         showSelection(catalogs, solved);
