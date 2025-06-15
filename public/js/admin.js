@@ -355,10 +355,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     const typeSelect = document.createElement('select');
     typeSelect.className = 'uk-select uk-margin-small-bottom type-select';
+    const labelMap = {
+      mc: 'Multiple Choice',
+      assign: 'Zuordnen',
+      sort: 'Sortieren'
+    };
     ['sort', 'assign', 'mc'].forEach(t => {
       const opt = document.createElement('option');
       opt.value = t;
-      opt.textContent = t;
+      opt.textContent = labelMap[t] || t;
       typeSelect.appendChild(opt);
     });
     typeSelect.value = q.type || 'mc';
