@@ -133,8 +133,9 @@
       card.className = 'uk-card uk-card-default uk-card-body uk-card-hover';
       card.style.cursor = 'pointer';
       card.addEventListener('click', () => {
-        if((window.quizConfig || {}).competitionMode && solved.has(cat.id)){
-          const remaining = catalogs.filter(c => !solved.has(c.id)).map(c => c.name || c.id).join(', ');
+        const localSolved = new Set(JSON.parse(sessionStorage.getItem('quizSolved') || '[]'));
+        if((window.quizConfig || {}).competitionMode && localSolved.has(cat.id)){
+          const remaining = catalogs.filter(c => !localSolved.has(c.id)).map(c => c.name || c.id).join(', ');
           alert('Der Katalog ' + (cat.name || cat.id) + ' wurde von eurem Team bereits abgeschlossen.' + (remaining ? '\nFolgende Fragenkataloge fehlen euch noch: ' + remaining : ''));
           return;
         }
@@ -193,12 +194,13 @@
         bypass.href = '#';
         bypass.textContent = 'Kataloge anzeigen';
         bypass.className = 'uk-display-block uk-margin-top';
-        bypass.addEventListener('click', (e)=>{
-          e.preventDefault();
-          sessionStorage.setItem('quizUser', generateUserName());
-          updateUserName();
-          onDone();
-        });
+          bypass.addEventListener('click', (e)=>{
+            e.preventDefault();
+            sessionStorage.setItem('quizUser', generateUserName());
+            sessionStorage.removeItem('quizSolved');
+            updateUserName();
+            onDone();
+          });
       }
       const modal = document.createElement('div');
       modal.id = 'qr-modal';
@@ -237,8 +239,9 @@
               alert('Unbekanntes oder nicht berechtigtes Team/Person');
               return;
             }
-            sessionStorage.setItem('quizUser', name);
-            updateUserName();
+              sessionStorage.setItem('quizUser', name);
+              sessionStorage.removeItem('quizSolved');
+              updateUserName();
             stopScanner();
             UIkit.modal(modal).hide();
             onDone();
@@ -293,29 +296,23 @@
         btn.style.borderColor = cfg.buttonColor;
         btn.style.color = '#fff';
       }
-      btn.addEventListener('click', () => {
-        if(cfg.QRRestrict){
-          alert('Nur Registrierung per QR-Code erlaubt');
-          return;
-        }
-        sessionStorage.setItem('quizUser', generateUserName());
-        updateUserName();
-        onDone();
-      });
+        btn.addEventListener('click', () => {
+          if(cfg.QRRestrict){
+            alert('Nur Registrierung per QR-Code erlaubt');
+            return;
+          }
+          sessionStorage.setItem('quizUser', generateUserName());
+          sessionStorage.removeItem('quizSolved');
+          updateUserName();
+          onDone();
+        });
       div.appendChild(btn);
     }
     container.appendChild(div);
   }
 
-  async function init(){
-    const cfg = window.quizConfig || {};
-    if(cfg.QRRestrict){
-      sessionStorage.removeItem('quizUser');
-    }
-    applyConfig();
-    updateUserName();
-    const catalogs = await loadCatalogList();
-    let solved = new Set();
+  async function buildSolvedSet(cfg){
+    let solved = new Set(JSON.parse(sessionStorage.getItem('quizSolved') || '[]'));
     if(cfg.competitionMode){
       try{
         const r = await fetch('/results.json', {headers:{'Accept':'application/json'}});
@@ -332,30 +329,45 @@
         console.warn('results not loaded', e);
       }
     }
+    sessionStorage.setItem('quizSolved', JSON.stringify([...solved]));
+    return solved;
+  }
+
+  async function init(){
+    const cfg = window.quizConfig || {};
+    if(cfg.QRRestrict){
+      sessionStorage.removeItem('quizUser');
+      sessionStorage.removeItem('quizSolved');
+    }
+    applyConfig();
+    updateUserName();
+    const catalogs = await loadCatalogList();
     const params = new URLSearchParams(window.location.search);
     const id = params.get('katalog');
-    const proceed = () => {
+    const proceed = async () => {
+      const solvedNow = await buildSolvedSet(cfg);
       const selected = catalogs.find(c => c.id === id);
       if(selected){
-        if(cfg.competitionMode && solved.has(selected.id)){
-          const remaining = catalogs.filter(c => !solved.has(c.id)).map(c => c.name || c.id).join(', ');
+        if(cfg.competitionMode && solvedNow.has(selected.id)){
+          const remaining = catalogs.filter(c => !solvedNow.has(c.id)).map(c => c.name || c.id).join(', ');
           alert('Der Katalog ' + (selected.name || selected.id) + ' wurde von eurem Team bereits abgeschlossen.' + (remaining ? '\nFolgende Fragenkataloge fehlen euch noch: ' + remaining : ''));
-          showSelection(catalogs, solved);
+          showSelection(catalogs, solvedNow);
           return;
         }
         loadQuestions(selected.id, selected.file);
       }else{
-        showSelection(catalogs, solved);
+        showSelection(catalogs, solvedNow);
       }
     };
     if((window.quizConfig || {}).QRUser){
       showLogin(proceed, !!id);
     }else{
       if(!sessionStorage.getItem('quizUser')){
-        if(!cfg.QRRestrict){
-          sessionStorage.setItem('quizUser', generateUserName());
+          if(!cfg.QRRestrict){
+            sessionStorage.setItem('quizUser', generateUserName());
+            sessionStorage.removeItem('quizSolved');
+          }
         }
-      }
       updateUserName();
       proceed();
     }
