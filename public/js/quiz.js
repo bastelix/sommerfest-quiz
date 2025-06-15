@@ -194,6 +194,11 @@ function runQuiz(questions){
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: user, catalog, correct: score, total: questionCount })
     }).catch(()=>{});
+    const solved = JSON.parse(sessionStorage.getItem('quizSolved') || '[]');
+    if(solved.indexOf(catalog) === -1){
+      solved.push(catalog);
+      sessionStorage.setItem('quizSolved', JSON.stringify(solved));
+    }
   }
 
   // Wählt basierend auf dem Fragetyp die passende Erzeugerfunktion aus
@@ -682,6 +687,7 @@ function runQuiz(questions){
     styleButton(restart);
     restart.addEventListener('click', () => {
       sessionStorage.removeItem('quizUser');
+      sessionStorage.removeItem('quizSolved');
       const topbar = document.getElementById('topbar-title');
       if(topbar){
         topbar.textContent = topbar.dataset.defaultTitle || '';
@@ -697,6 +703,7 @@ function runQuiz(questions){
       styleButton(restart);
       restart.addEventListener('click', () => {
         sessionStorage.removeItem('quizUser');
+        sessionStorage.removeItem('quizSolved');
         const topbar = document.getElementById('topbar-title');
         if(topbar){
           topbar.textContent = topbar.dataset.defaultTitle || '';
