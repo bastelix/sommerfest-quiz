@@ -254,30 +254,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const uid = 'cat-' + catalogRowIndex++;
 
     const idCell = document.createElement('td');
-    const idLabel = document.createElement('label');
-    idLabel.textContent = 'ID';
     const idInput = document.createElement('input');
     idInput.type = 'text';
     idInput.className = 'uk-input cat-id';
     idInput.placeholder = 'ID';
     idInput.id = uid + '-id';
-    idLabel.htmlFor = idInput.id;
     idInput.value = cat.id || '';
     if (cat.id && !cat.new) {
       idInput.disabled = true;
     }
-    idCell.appendChild(idLabel);
     idCell.appendChild(idInput);
 
     const nameCell = document.createElement('td');
-    const nameLabel = document.createElement('label');
-    nameLabel.textContent = 'Name';
     const name = document.createElement('input');
     name.type = 'text';
     name.className = 'uk-input cat-name';
     name.placeholder = 'Name';
     name.id = uid + '-name';
-    nameLabel.htmlFor = name.id;
     name.value = cat.name || '';
     name.addEventListener('input', () => {
       if (row.dataset.new === 'true' && idInput.value.trim() === '') {
@@ -285,20 +278,15 @@ document.addEventListener('DOMContentLoaded', function () {
         update();
       }
     });
-    nameCell.appendChild(nameLabel);
     nameCell.appendChild(name);
 
     const descCell = document.createElement('td');
-    const descLabel = document.createElement('label');
-    descLabel.textContent = 'Beschreibung';
     const desc = document.createElement('input');
     desc.type = 'text';
     desc.className = 'uk-input cat-desc';
     desc.placeholder = 'Beschreibung';
     desc.id = uid + '-desc';
-    descLabel.htmlFor = desc.id;
     desc.value = cat.description || '';
-    descCell.appendChild(descLabel);
     descCell.appendChild(desc);
 
     const delCell = document.createElement('td');

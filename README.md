@@ -23,7 +23,7 @@ Das **Sommerfest-Quiz** ist eine sofort einsetzbare Web-App, mit der Sie Besuche
 Bei der Erstellung dieser Anwendung standen besonders folgende Punkte im Mittelpunkt:
 
 - **Barrierefreiheit**: Die App ist für alle zugänglich, auch für Menschen mit Einschränkungen.
-- **Datenschutz**: Die Daten werden vertraulich behandelt.
+- **Datenschutz**: Die Daten sind sicher und werden vertraulich behandelt.
 - **Schnelle und stabile Nutzung**: Auch bei vielen Teilnehmenden läuft die App zuverlässig.
 - **Einfache Bedienung**: Die Nutzung ist leicht und selbsterklärend.
 - **Geräteunabhängigkeit**: Egal ob Handy, Tablet oder PC – das Quiz funktioniert überall.

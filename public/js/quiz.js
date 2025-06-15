@@ -184,7 +184,7 @@ function runQuiz(questions){
     const p = summaryEl.querySelector('p');
     if(p) p.textContent = `${user} hat ${score} von ${questionCount} Punkten erreicht.`;
     const heading = summaryEl.querySelector('h3');
-    if(heading) heading.textContent = `🎉 Danke fürs Mitmachen ${user}!`;
+    if(heading) heading.textContent = `🎉 Danke für die Teilnahme ${user}!`;
     if(score === questionCount && typeof window.startConfetti === 'function'){
       window.startConfetti();
     }
@@ -699,7 +699,7 @@ function runQuiz(questions){
     div.className = 'question uk-text-center';
     div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
     const h = document.createElement('h3');
-    h.textContent = '🎉 Danke fürs Mitmachen!';
+    h.textContent = '🎉 Danke für die Teilnahme!';
     const p = document.createElement('p');
     div.appendChild(h);
     div.appendChild(p);
