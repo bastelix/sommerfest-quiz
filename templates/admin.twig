@@ -225,13 +225,16 @@
     </li>
     <li>
       <div class="uk-container uk-container-large">
-        <h2 class="uk-heading-bullet">Ergebnisse</h2>
+        <div class="uk-flex uk-flex-between uk-flex-middle">
+          <h2 class="uk-heading-bullet">Ergebnisse</h2>
+          <button id="resultsRefreshBtn" class="uk-icon-button" uk-icon="icon: refresh; ratio: 1.2" title="Aktualisieren" aria-label="Aktualisieren"></button>
+        </div>
         <div style="overflow-x: auto">
         <table class="uk-table uk-table-divider uk-table-responsive">
           <thead>
             <tr><th>Name</th><th>Versuch</th><th>Katalog</th><th>Richtige</th><th>Zeit</th></tr>
           </thead>
-          <tbody>
+          <tbody id="resultsTableBody">
             {% for r in results %}
             <tr>
               <td>{{ r.name }}</td>
@@ -358,4 +361,5 @@
   </script>
   <script src="/js/admin.js"></script>
   <script src="/js/app.js"></script>
+  <script src="/js/results.js"></script>
 {% endblock %}
