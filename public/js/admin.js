@@ -100,13 +100,13 @@ document.addEventListener('DOMContentLoaded', function () {
     cfgFields.subheader.value = data.subheader || '';
     cfgFields.backgroundColor.value = data.backgroundColor || '';
     cfgFields.buttonColor.value = data.buttonColor || '';
-    cfgFields.checkAnswerButton.value = data.CheckAnswerButton || 'yes';
-    cfgFields.qrUser.value = String(data.QRUser) || 'false';
+    cfgFields.checkAnswerButton.checked = data.CheckAnswerButton !== 'no';
+    cfgFields.qrUser.checked = !!data.QRUser;
     if (cfgFields.teamRestrict) {
       cfgFields.teamRestrict.checked = !!data.QRRestrict;
     }
     if (cfgFields.competitionMode) {
-      cfgFields.competitionMode.value = String(data.competitionMode) || 'false';
+      cfgFields.competitionMode.checked = !!data.competitionMode;
     }
   }
   renderCfg(cfgInitial);
@@ -129,10 +129,10 @@ document.addEventListener('DOMContentLoaded', function () {
       subheader: cfgFields.subheader.value.trim(),
       backgroundColor: cfgFields.backgroundColor.value.trim(),
       buttonColor: cfgFields.buttonColor.value.trim(),
-      CheckAnswerButton: cfgFields.checkAnswerButton.value,
-      QRUser: cfgFields.qrUser.value === 'true',
+      CheckAnswerButton: cfgFields.checkAnswerButton.checked ? 'yes' : 'no',
+      QRUser: cfgFields.qrUser.checked,
       QRRestrict: cfgFields.teamRestrict ? cfgFields.teamRestrict.checked : cfgInitial.QRRestrict,
-      competitionMode: cfgFields.competitionMode ? cfgFields.competitionMode.value === 'true' : cfgInitial.competitionMode
+      competitionMode: cfgFields.competitionMode ? cfgFields.competitionMode.checked : cfgInitial.competitionMode
     });
     fetch('/config.json', {
       method: 'POST',
