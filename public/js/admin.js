@@ -771,20 +771,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   function createTeamRow(name = ''){
-    const div = document.createElement('div');
-    div.className = 'team-row uk-flex uk-flex-middle uk-margin-small';
+    const row = document.createElement('tr');
+    row.className = 'team-row';
+
+    const nameCell = document.createElement('td');
     const input = document.createElement('input');
     input.type = 'text';
-    input.className = 'uk-input uk-width-expand';
+    input.className = 'uk-input team-name';
     input.value = name;
     input.setAttribute('aria-label', 'Name');
+    nameCell.appendChild(input);
+
+    const delCell = document.createElement('td');
     const del = document.createElement('button');
-    del.className = 'uk-button uk-button-danger uk-margin-left';
+    del.className = 'uk-button uk-button-danger';
     del.textContent = '×';
-    del.onclick = () => div.remove();
-    div.appendChild(input);
-    div.appendChild(del);
-    return div;
+    del.setAttribute('aria-label', 'Löschen');
+    del.onclick = () => row.remove();
+    delCell.appendChild(del);
+
+    row.appendChild(nameCell);
+    row.appendChild(delCell);
+    return row;
   }
 
   function renderTeams(list){
