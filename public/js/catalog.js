@@ -119,6 +119,25 @@
     }
   }
 
+  function showCatalogSolvedModal(name, remaining){
+    const msg = 'Der Katalog ' + name + ' wurde von eurem Team bereits abgeschlossen.' +
+      (remaining ? '<br>Folgende Fragenkataloge fehlen euch noch: ' + remaining : '');
+    const modal = document.createElement('div');
+    modal.setAttribute('uk-modal', '');
+    modal.setAttribute('aria-modal', 'true');
+    modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
+      '<h3 class="uk-modal-title uk-text-center">Katalog bereits gespielt</h3>' +
+      '<p class="uk-text-center">' + msg + '</p>' +
+      '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">OK</button>' +
+      '</div>';
+    const btn = modal.querySelector('button');
+    document.body.appendChild(modal);
+    const ui = UIkit.modal(modal);
+    UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
+    btn.addEventListener('click', () => ui.hide());
+    ui.show();
+  }
+
   function showSelection(catalogs, solved){
     solved = solved || new Set();
     const container = document.getElementById('quiz');
@@ -136,7 +155,7 @@
         const localSolved = new Set(JSON.parse(sessionStorage.getItem('quizSolved') || '[]'));
         if((window.quizConfig || {}).competitionMode && localSolved.has(cat.id)){
           const remaining = catalogs.filter(c => !localSolved.has(c.id)).map(c => c.name || c.id).join(', ');
-          alert('Der Katalog ' + (cat.name || cat.id) + ' wurde von eurem Team bereits abgeschlossen.' + (remaining ? '\nFolgende Fragenkataloge fehlen euch noch: ' + remaining : ''));
+          showCatalogSolvedModal(cat.name || cat.id, remaining);
           return;
         }
         history.replaceState(null, '', '?katalog=' + cat.id);
@@ -350,7 +369,7 @@
       if(selected){
         if(cfg.competitionMode && solvedNow.has(selected.id)){
           const remaining = catalogs.filter(c => !solvedNow.has(c.id)).map(c => c.name || c.id).join(', ');
-          alert('Der Katalog ' + (selected.name || selected.id) + ' wurde von eurem Team bereits abgeschlossen.' + (remaining ? '\nFolgende Fragenkataloge fehlen euch noch: ' + remaining : ''));
+          showCatalogSolvedModal(selected.name || selected.id, remaining);
           showSelection(catalogs, solvedNow);
           return;
         }
