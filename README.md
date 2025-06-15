@@ -18,6 +18,20 @@ Das **Sommerfest-Quiz** ist eine sofort einsetzbare Web-App, mit der Sie Besuche
 - **Stark anpassbar**: Farben, Logo und Texte lassen sich über `data/config.json` anpassen.
 - **Vollständig im Browser**: Das Quiz benötigt keine Serverpersistenz und funktioniert auch offline, sobald die Seite geladen ist.
 
+## Fokus der Entwicklung
+
+Bei der Erstellung dieser Anwendung standen besonders folgende Punkte im Mittelpunkt:
+
+- **Barrierefreiheit**: Die App ist für alle zugänglich, auch für Menschen mit Einschränkungen.
+- **Datenschutz**: Deine Daten sind sicher und werden vertraulich behandelt.
+- **Schnelle und stabile Nutzung**: Auch bei vielen Teilnehmenden läuft die App zuverlässig.
+- **Einfache Bedienung**: Die Nutzung ist leicht und selbsterklärend.
+- **Geräteunabhängigkeit**: Egal ob Handy, Tablet oder PC – das Quiz funktioniert überall.
+- **Nachhaltigkeit**: Die Umsetzung ist ressourcenschonend gestaltet.
+- **Offene Schnittstellen**: Die App lässt sich problemlos mit anderen Systemen verbinden.
+
+Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeiten schaffen können.
+
 ## Projektstruktur
 
 - **public/** – Einstiegspunkt `index.php`, alle UIkit-Assets sowie JavaScript-Dateien
@@ -129,9 +143,16 @@ Alle wesentlichen Einstellungen finden sich in `data/config.json`. Hier lassen s
 {
   "displayErrorDetails": true,
   "QRUser": true,
-  "logoPath": "",
+  "logoPath": "/logo.png",
   "pageTitle": "Modernes Quiz mit UIkit",
-  ...
+  "header": "Sommerfest 2025",
+  "subheader": "Willkommen beim Veranstaltungsquiz",
+  "backgroundColor": "#ffffff",
+  "buttonColor": "#1e87f0",
+  "CheckAnswerButton": "no",
+  "adminUser": "admin",
+  "adminPass": "password",
+  "QRRestrict": false
 }
 ```
 
