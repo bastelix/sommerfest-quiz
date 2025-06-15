@@ -59,7 +59,10 @@
       nameEl.textContent = user;
       nameEl.classList.remove('uk-hidden');
       if(topbar){
-        topbar.textContent = user;
+        topbar.textContent = '';
+        topbar.appendChild(document.createTextNode('Jetzt spielt:'));
+        topbar.appendChild(document.createElement('br'));
+        topbar.appendChild(document.createTextNode(user));
       }
     }else{
       nameEl.textContent = '';
