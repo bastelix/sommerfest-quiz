@@ -26,5 +26,8 @@ window.quizConfig = {
   QRRestrict: false,
 
   // Wettkampfmodus aktivieren
-  competitionMode: false
+  competitionMode: false,
+
+  // Ergebnisübersicht für Teams anzeigen
+  teamResults: true
 };

@@ -53,7 +53,8 @@ document.addEventListener('DOMContentLoaded', function () {
     checkAnswerButton: document.getElementById('cfgCheckAnswerButton'),
     qrUser: document.getElementById('cfgQRUser'),
     teamRestrict: document.getElementById('cfgTeamRestrict'),
-    competitionMode: document.getElementById('cfgCompetitionMode')
+    competitionMode: document.getElementById('cfgCompetitionMode'),
+    teamResults: document.getElementById('cfgTeamResults')
   };
   let logoUploaded = false;
   if (cfgFields.logoFile && cfgFields.logoPreview) {
@@ -108,6 +109,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cfgFields.competitionMode) {
       cfgFields.competitionMode.checked = !!data.competitionMode;
     }
+    if (cfgFields.teamResults) {
+      cfgFields.teamResults.checked = data.teamResults !== false;
+    }
   }
   renderCfg(cfgInitial);
   document.getElementById('cfgResetBtn').addEventListener('click', function (e) {
@@ -132,7 +136,8 @@ document.addEventListener('DOMContentLoaded', function () {
       CheckAnswerButton: cfgFields.checkAnswerButton.checked ? 'yes' : 'no',
       QRUser: cfgFields.qrUser.checked,
       QRRestrict: cfgFields.teamRestrict ? cfgFields.teamRestrict.checked : cfgInitial.QRRestrict,
-      competitionMode: cfgFields.competitionMode ? cfgFields.competitionMode.checked : cfgInitial.competitionMode
+      competitionMode: cfgFields.competitionMode ? cfgFields.competitionMode.checked : cfgInitial.competitionMode,
+      teamResults: cfgFields.teamResults ? cfgFields.teamResults.checked : cfgInitial.teamResults
     });
     fetch('/config.json', {
       method: 'POST',
