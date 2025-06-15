@@ -2,7 +2,7 @@ FROM php:8.2-alpine
 
 RUN apk add --no-cache libpng libjpeg-turbo freetype \
     && apk add --no-cache --virtual .build-deps libpng-dev libjpeg-turbo-dev freetype-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install gd \
     && apk del .build-deps
 
