@@ -10,126 +10,80 @@
 
 {% block body_class %}uk-background-muted uk-padding{% endblock %}
 
-  {% block body %}
-    {% embed 'topbar.twig' %}
-      {% block left %}
-        <a href="." class="uk-icon-button" uk-icon="icon: arrow-left; ratio: 2" title="Zurück" aria-label="Zurück"></a>
-      {% endblock %}
-      {% block right %}
-        <div class="theme-switch">
-          <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="Design wechseln"></button>
-        </div>
-        <div class="contrast-switch uk-margin-small-left">
-          <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="Kontrastmodus"></button>
-        </div>
-      {% endblock %}
-    {% endembed %}
-    <div class="uk-container uk-container-small">
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <a href="." class="uk-icon-button" uk-icon="icon: arrow-left; ratio: 2" title="Zurück" aria-label="Zurück"></a>
+    {% endblock %}
+    {% block right %}
+      <div class="theme-switch">
+        <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="Design wechseln"></button>
+      </div>
+      <div class="contrast-switch uk-margin-small-left">
+        <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="Kontrastmodus"></button>
+      </div>
+    {% endblock %}
+  {% endembed %}
+  <div class="uk-container uk-container-small">
     <h1 class="uk-heading-divider uk-hidden">FAQ</h1>
-    <p class="uk-text-lead">Auf dieser Seite findest du Antworten auf häufig gestellte Fragen rund um die Anwendung des Quiz.</p>
+    <p class="uk-text-lead">Hier beantworten wir häufige Fragen zur Nutzung des Sommerfest-Quiz.</p>
 
-    <h2 id="anwendung" class="uk-heading-bullet">Anwendung</h2>
-    <p>Dieser Abschnitt erklärt, wie ihr das Quiz nutzt und was bei der Durchführung zu beachten ist.</p>
+    <h2 class="uk-heading-bullet">Allgemeines</h2>
     <ul class="uk-accordion" uk-accordion>
       <li>
-        <a class="uk-accordion-title" href="#">Wie funktioniert das Sommerfest-Quiz?</a>
+        <a class="uk-accordion-title" href="#">Wie starte ich das Quiz?</a>
         <div class="uk-accordion-content">
-          <ol class="uk-list uk-list-decimal">
-            <li><strong>Scanne an jeder Rätselstation den Stations-Code.</strong> Öffne den Link, der erscheint.</li>
-            <li><strong>Gib euren Gruppennamen ein.</strong> Du wirst nach dem Namenscode eurer Gruppe gefragt – scanne oder gib diesen ein.</li>
-            <li><strong>Rätselspaß erleben.</strong> Jetzt startet das Quiz für eure Gruppe an dieser Station.</li>
-            <li><strong>Weiter zur nächsten Station.</strong> Wenn ihr fertig seid, geht zur nächsten Rätselstation und wiederholt die Schritte.</li>
-          </ol>
+          <p>Scanne an der ersten Station den QR-Code oder öffne den bereitgestellten Link. Wähle deinen Teamnamen aus und schon geht es los.</p>
         </div>
       </li>
       <li>
-        <a class="uk-accordion-title" href="#">Wie starte ich das Quiz lokal?</a>
+        <a class="uk-accordion-title" href="#">Kann ich das Quiz unterwegs spielen?</a>
         <div class="uk-accordion-content">
-          <p>
-            Starte einen PHP-Server mit <code>php -S localhost:8080 -t public public/router.php</code>
-            und rufe <code>http://localhost:8080</code> im Browser auf. Bei einer gehosteten
-            Installation genügt es, die entsprechende URL zu öffnen.
-          </p>
-        </div>
-      </li>
-      <li>
-        <a class="uk-accordion-title" href="#">Benötige ich eine Internetverbindung?</a>
-        <div class="uk-accordion-content">
-          <p>Nein, alle Dateien liegen lokal vor. Eine Verbindung wird nur benötigt, wenn du das Quiz im Netz bereitstellst.</p>
+          <p>Ja, die Oberfläche passt sich jedem Gerät an – ob Handy, Tablet oder PC.</p>
         </div>
       </li>
       <li>
         <a class="uk-accordion-title" href="#">Welche Fragetypen gibt es?</a>
         <div class="uk-accordion-content">
-          <p>Es stehen die Typen Sortieren, Zuordnen und Multiple Choice zur Verfügung.</p>
+          <p>Das Quiz bietet Sortieren, Zuordnen und Multiple Choice.</p>
         </div>
       </li>
       <li>
-        <a class="uk-accordion-title" href="#">Wie wird meine Punktzahl berechnet?</a>
+        <a class="uk-accordion-title" href="#">Wie bediene ich Drag &amp; Drop?</a>
         <div class="uk-accordion-content">
-          <p>Jede korrekt beantwortete Frage bringt einen Punkt. Am Ende wird die Summe angezeigt.</p>
-        </div>
-      </li>
-      <li>
-        <a class="uk-accordion-title" href="#">Kann ich Fragen überspringen?</a>
-        <div class="uk-accordion-content">
-          <p>Nein, alle Fragen müssen der Reihe nach beantwortet werden, bevor das Ergebnis erscheint.</p>
-        </div>
-      </li>
-      <li>
-        <a class="uk-accordion-title" href="#">Werden meine Ergebnisse gespeichert?</a>
-        <div class="uk-accordion-content">
-          <p>Ja, die erzielten Punkte werden anonym im <code>localStorage</code> deines Browsers gespeichert.</p>
-        </div>
-      </li>
-      <li>
-        <a class="uk-accordion-title" href="#">Kann ich die Statistik herunterladen?</a>
-        <div class="uk-accordion-content">
-          <p>Im Administrationsbereich steht eine Schaltfläche bereit, um alle Ergebnisse als CSV-Datei herunterzuladen.</p>
-        </div>
-      </li>
-      <li>
-        <a class="uk-accordion-title" href="#">Wie funktioniert Drag & Drop beim Sortieren?</a>
-        <div class="uk-accordion-content">
-          <p>Halte ein Element mit der Maus oder dem Finger gedrückt und ziehe es an die gewünschte Position.</p>
-        </div>
-      </li>
-      <li>
-        <a class="uk-accordion-title" href="#">Kann ich das Quiz auf dem Smartphone spielen?</a>
-        <div class="uk-accordion-content">
-          <p>Ja, das Layout ist responsiv und passt sich auch kleinen Bildschirmen an.</p>
+          <p>Halte ein Element gedrückt und ziehe es an die gewünschte Stelle.</p>
         </div>
       </li>
       <li>
         <a class="uk-accordion-title" href="#">Gibt es einen Dunkelmodus?</a>
         <div class="uk-accordion-content">
-          <p>Ja. Über das Mond-Symbol oben rechts kannst du jederzeit auf ein dunkles
-            Farbschema umschalten.</p>
+          <p>Ja. Über das Mond-Symbol oben rechts kannst du die dunkle Ansicht einschalten.</p>
         </div>
       </li>
       <li>
-        <a class="uk-accordion-title" href="#">Wie kann ich meine Antworten überprüfen?</a>
+        <a class="uk-accordion-title" href="#">Was passiert mit meinen Ergebnissen?</a>
         <div class="uk-accordion-content">
-          <p>Bei jeder Frage gibt es den Button <strong>Antwort prüfen</strong>, sofern er nicht vom Administrator deaktiviert wurde.</p>
+          <p>Die Punkte werden anonym gezählt und können am Ende als Statistik exportiert werden.</p>
         </div>
       </li>
       <li>
-        <a class="uk-accordion-title" href="#">Wie funktioniert der QR-Code-Login?</a>
+        <a class="uk-accordion-title" href="#">Warum wurde das Quiz entwickelt?</a>
         <div class="uk-accordion-content">
-          <p>Ist die Option aktiviert, erscheint auf der Startseite der Button
-            <em>Name mit QR-Code scannen</em>. Damit kannst du deinen Namen aus
-            einem QR-Code übernehmen.</p>
+          <p>Es zeigt, wie Menschen und KI gemeinsam neue digitale Möglichkeiten schaffen können.</p>
         </div>
       </li>
-      <li>
-        <a class="uk-accordion-title" href="#">Welche Software wird für das Hosting benötigt?</a>
-        <div class="uk-accordion-content">
-          <p>Für lokale Tests genügt der eingebaute PHP-Server, den du mit
-            <code>php -S localhost:8080 -t public public/router.php</code>
-            startest. Auf einem Webserver reicht jede Umgebung, die PHP-Dateien
-            ausführen kann.</p>
-        </div>
-      </li>
+    </ul>
+
+    <h2 class="uk-heading-bullet">Unser Anspruch</h2>
+    <p>Bei der Entwicklung wurde besonders geachtet auf:</p>
+    <ul class="uk-list uk-list-bullet">
+      <li><strong>Barrierefreiheit:</strong> Die App ist auch für Menschen mit Einschränkungen gut nutzbar.</li>
+      <li><strong>Datenschutz:</strong> Deine Daten werden vertraulich behandelt.</li>
+      <li><strong>Schnelle und stabile Nutzung:</strong> Die Anwendung läuft zuverlässig, auch bei vielen Teilnehmenden.</li>
+      <li><strong>Einfache Bedienung:</strong> Alle Funktionen sind selbsterklärend.</li>
+      <li><strong>Funktioniert auf allen Geräten:</strong> Handy, Tablet oder PC – du hast die Wahl.</li>
+      <li><strong>Nachhaltigkeit:</strong> Die App wurde ressourcenschonend umgesetzt.</li>
+      <li><strong>Offene Schnittstellen:</strong> Sie lässt sich leicht mit anderen Systemen verbinden.</li>
     </ul>
   </div>
 {% endblock %}
