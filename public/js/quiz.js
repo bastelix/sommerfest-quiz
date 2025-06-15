@@ -680,6 +680,13 @@ function runQuiz(questions){
     restart.textContent = 'Neu starten';
     restart.className = 'uk-button uk-button-primary uk-margin-top';
     styleButton(restart);
+    restart.addEventListener('click', () => {
+      sessionStorage.removeItem('quizUser');
+      const topbar = document.getElementById('topbar-title');
+      if(topbar){
+        topbar.textContent = topbar.dataset.defaultTitle || '';
+      }
+    });
     div.appendChild(h);
     div.appendChild(p);
     div.appendChild(restart);
