@@ -32,7 +32,7 @@
     <li data-help="Gespeicherte Ergebnisse mit richtigen Antworten und Zeit einsehen. 'Zurücksetzen' löscht alle Daten, 'Herunterladen' exportiert sie als CSV."><a href="#">Ergebnisse</a></li>
     <li data-help="QR-Codes für alle Kataloge und Teams anzeigen, um Quizlinks oder Anmeldungen weiterzugeben. 'Drucken' erstellt eine übersichtliche Liste."><a href="#">Zusammenfassung</a></li>
     <li data-help="Neues Administrationspasswort eingeben, wiederholen und speichern."><a href="#">Passwort ändern</a></li>
-    <li data-help="Farbige Beispiel-QR-Codes als Designvorlage."><a href="#">QR-Code Samples</a></li>
+    <li data-help="Kreative Beispiel-QR-Codes mit Logo, Label und speziellen Farben."><a href="#">QR-Code Samples</a></li>
   </ul>
   <ul class="uk-switcher uk-margin">
     <li>
@@ -339,15 +339,48 @@
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">QR-Code Samples</h2>
         <div class="card-grid" uk-grid>
-          {% set colors = ['ff5733','33c3ff','a433ff','ff33a6','33ff57','ffd433','3380ff','ff3333','33ffd9','7f33ff'] %}
-          {% for i in 1..10 %}
           <div class="uk-width-1-1 uk-width-1-2@s">
             <div class="export-card uk-card uk-card-default uk-card-body">
-              <h4 class="uk-card-title">Sample {{ i }}</h4>
-              <img src="/qr.png?t={{ ('Sample ' ~ i)|url_encode }}&fg={{ colors[i-1] }}" alt="Sample {{ i }}" width="200" height="200">
+              <h4 class="uk-card-title">Logo</h4>
+              <img src="/qr.png?t=Logo&demo=logo" alt="QR mit Logo" width="200" height="200">
             </div>
           </div>
-          {% endfor %}
+          <div class="uk-width-1-1 uk-width-1-2@s">
+            <div class="export-card uk-card uk-card-default uk-card-body">
+              <h4 class="uk-card-title">Label-Font</h4>
+              <img src="/qr.png?t=Label&demo=label" alt="QR mit Label" width="200" height="200">
+            </div>
+          </div>
+          <div class="uk-width-1-1 uk-width-1-2@s">
+            <div class="export-card uk-card uk-card-default uk-card-body">
+              <h4 class="uk-card-title">Farben</h4>
+              <img src="/qr.png?t=Farben&demo=colors" alt="QR in Farbe" width="200" height="200">
+            </div>
+          </div>
+          <div class="uk-width-1-1 uk-width-1-2@s">
+            <div class="export-card uk-card uk-card-default uk-card-body">
+              <h4 class="uk-card-title">SVG-Rund</h4>
+              <img src="/qr.png?t=SVG&demo=svg" alt="Runde SVG-Pixel" width="200" height="200">
+            </div>
+          </div>
+          <div class="uk-width-1-1 uk-width-1-2@s">
+            <div class="export-card uk-card uk-card-default uk-card-body">
+              <h4 class="uk-card-title">Fehlerkorrektur</h4>
+              <img src="/qr.png?t=Fehler&demo=high" alt="QR mit hoher Fehlerkorrektur" width="200" height="200">
+            </div>
+          </div>
+          <div class="uk-width-1-1 uk-width-1-2@s">
+            <div class="export-card uk-card uk-card-default uk-card-body">
+              <h4 class="uk-card-title">WebP</h4>
+              <img src="/qr.png?t=WebP&demo=webp" alt="WebP-QR" width="200" height="200">
+            </div>
+          </div>
+          <div class="uk-width-1-1 uk-width-1-2@s">
+            <div class="export-card uk-card uk-card-default uk-card-body">
+              <h4 class="uk-card-title">SVG Clean</h4>
+              <img src="/qr.png?t=Clean&demo=svg-clean" alt="SVG ohne Header" width="200" height="200">
+            </div>
+          </div>
         </div>
       </div>
     </li>
