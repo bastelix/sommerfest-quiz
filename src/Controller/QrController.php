@@ -44,7 +44,7 @@ class QrController
         }
 
         $result = $builder
-            ->setBlockSizeMode(BlockSizeMode::ENLARGE)
+            ->withBlockSizeMode(BlockSizeMode::ENLARGE)
             ->build();
 
         $data = $result->getString();
