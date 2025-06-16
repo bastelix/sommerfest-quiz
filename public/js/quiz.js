@@ -232,12 +232,15 @@ function runQuiz(questions){
     }
 
     if(cfg.puzzleWordEnabled){
-      const btn = document.createElement('button');
-      btn.className = 'uk-button uk-button-primary uk-margin-top';
-      btn.textContent = 'Rätselwort überprüfen';
-      styleButton(btn);
-      btn.addEventListener('click', showPuzzleCheck);
-      summaryEl.appendChild(btn);
+      const attemptKey = 'puzzleAttempt-' + catalog;
+      if(!sessionStorage.getItem(attemptKey)){
+        const puzzleBtn = document.createElement('button');
+        puzzleBtn.className = 'uk-button uk-button-primary uk-margin-top';
+        puzzleBtn.textContent = 'Rätselwort überprüfen';
+        styleButton(puzzleBtn);
+        puzzleBtn.addEventListener('click', () => showPuzzleCheck(puzzleBtn, attemptKey));
+        summaryEl.appendChild(puzzleBtn);
+      }
     }
   }
 
@@ -803,7 +806,7 @@ function runQuiz(questions){
     ui.show();
   }
 
-  function showPuzzleCheck(){
+  function showPuzzleCheck(btnEl, attemptKey){
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
     modal.setAttribute('aria-modal', 'true');
@@ -827,9 +830,17 @@ function runQuiz(questions){
         const custom = (window.quizConfig && window.quizConfig.puzzleFeedback) ? window.quizConfig.puzzleFeedback.trim() : '';
         feedback.textContent = custom || 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
         feedback.className = 'uk-margin-top uk-text-center uk-text-success';
+        sessionStorage.setItem('puzzleSolved', 'true');
       }else{
-        feedback.textContent = 'Das ist leider nicht korrekt. Versuch es noch einmal!';
+        feedback.textContent = 'Das ist leider nicht korrekt. Versuch es erneut!';
         feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
+      }
+      input.disabled = true;
+      btn.disabled = true;
+      if(attemptKey) sessionStorage.setItem(attemptKey, 'true');
+      if(btnEl){
+        btnEl.disabled = true;
+        btnEl.style.display = 'none';
       }
     });
     ui.show();
