@@ -43,6 +43,8 @@ class ResultService
             'correct' => (int)($data['correct'] ?? 0),
             'total' => (int)($data['total'] ?? 0),
             'time' => time(),
+            // optional timestamp when the puzzle word was solved
+            'puzzleTime' => isset($data['puzzleTime']) ? (int)$data['puzzleTime'] : null,
         ];
         $results[] = $entry;
         file_put_contents($this->path, json_encode($results, JSON_PRETTY_PRINT) . "\n");
@@ -52,5 +54,19 @@ class ResultService
     public function clear(): void
     {
         file_put_contents($this->path, "[]\n");
+    }
+
+    public function markPuzzle(string $name, string $catalog, int $time): void
+    {
+        $results = $this->getAll();
+        for ($i = count($results) - 1; $i >= 0; $i--) {
+            if (($results[$i]['name'] ?? '') === $name && ($results[$i]['catalog'] ?? '') === $catalog) {
+                if (!isset($results[$i]['puzzleTime'])) {
+                    $results[$i]['puzzleTime'] = $time;
+                    file_put_contents($this->path, json_encode($results, JSON_PRETTY_PRINT) . "\n");
+                }
+                break;
+            }
+        }
     }
 }

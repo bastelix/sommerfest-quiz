@@ -269,7 +269,7 @@
         <div style="overflow-x: auto">
         <table class="uk-table uk-table-divider uk-table-responsive">
           <thead>
-            <tr><th>Name</th><th>Versuch</th><th>Katalog</th><th>Richtige</th><th>Zeit</th></tr>
+            <tr><th>Name</th><th>Versuch</th><th>Katalog</th><th>Richtige</th><th>Zeit</th><th>Rätselwort gelöst</th></tr>
           </thead>
           <tbody id="resultsTableBody">
             {% for r in results %}
@@ -279,9 +279,10 @@
               <td>{{ r.catalog }}</td>
               <td>{{ r.correct }}/{{ r.total }}</td>
               <td>{{ r.time | date('Y-m-d H:i') }}</td>
+              <td>{% if r.puzzleTime is defined %}{{ r.puzzleTime | date('Y-m-d H:i') }}{% endif %}</td>
             </tr>
             {% else %}
-            <tr><td colspan="5">Keine Daten</td></tr>
+            <tr><td colspan="6">Keine Daten</td></tr>
             {% endfor %}
           </tbody>
         </table>
