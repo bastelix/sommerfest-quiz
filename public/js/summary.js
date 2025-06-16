@@ -155,9 +155,8 @@ document.addEventListener('DOMContentLoaded', () => {
       '<p class="uk-text-small">Hinweis zum Hochladen von Gruppenfotos:<br>' +
       'Mit dem Upload eines Gruppenfotos bestätigen Sie, dass alle abgebildeten Teammitglieder der Verwendung des Fotos im Rahmen des Teamtages zustimmen. Das Hochladen ist freiwillig. Die Fotos werden ausschließlich für die Dokumentation des Teamtages verwendet und nach der Veranstaltung von der Onlineplattform gelöscht.' +
       '</p>' +
-      '<select id="team-select" class="uk-select uk-margin-small-top">' +
-      '<option value="">Team wählen</option>' +
-      '</select>' +
+      '<input id="team-select" class="uk-input uk-margin-small-top" list="team-list" placeholder="Team wählen">' +
+      '<datalist id="team-list"></datalist>' +
       '<input id="photo-input" class="uk-input" type="file" accept="image/*" capture="environment">' +
       '<div id="photo-feedback" class="uk-margin-top uk-text-center"></div>' +
       '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top" disabled>Hochladen</button>' +
@@ -165,26 +164,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const input = modal.querySelector('#photo-input');
     const feedback = modal.querySelector('#photo-feedback');
     const select = modal.querySelector('#team-select');
+    const list = modal.querySelector('#team-list');
     const btn = modal.querySelector('button');
     document.body.appendChild(modal);
     const ui = UIkit.modal(modal);
     UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
-    fetch('/teams.json').then(r => r.json()).then(list => {
-      if(Array.isArray(list)){
-        list.forEach(t => {
+    fetch('/teams.json').then(r => r.json()).then(data => {
+      if(Array.isArray(data)){
+        data.forEach(t => {
           const opt = document.createElement('option');
           opt.value = t;
-          opt.textContent = t;
-          select.appendChild(opt);
+          list.appendChild(opt);
         });
       }
     }).catch(()=>{});
 
     function toggleBtn(){
-      btn.disabled = !input.files.length || !select.value;
+      btn.disabled = !input.files.length || !select.value.trim();
     }
     input.addEventListener('change', toggleBtn);
     select.addEventListener('change', toggleBtn);
+    select.addEventListener('input', toggleBtn);
     btn.addEventListener('click', () => {
       const file = input.files && input.files[0];
       if(!file || !select.value) return;
