@@ -274,16 +274,18 @@ function runQuiz(questions){
       }
     }
 
-    const photoBtn = document.createElement('button');
-    photoBtn.className = 'uk-button uk-button-primary uk-margin-top';
-    photoBtn.textContent = 'Beweisfoto einreichen';
-    styleButton(photoBtn);
-    photoBtn.addEventListener('click', () => {
-      const name = sessionStorage.getItem('quizUser') || '';
-      const catalogName = sessionStorage.getItem('quizCatalog') || 'unknown';
-      showPhotoModal(name, catalogName);
-    });
-    summaryEl.appendChild(photoBtn);
+    if(cfg.photoUpload !== false){
+      const photoBtn = document.createElement('button');
+      photoBtn.className = 'uk-button uk-button-primary uk-margin-top';
+      photoBtn.textContent = 'Beweisfoto einreichen';
+      styleButton(photoBtn);
+      photoBtn.addEventListener('click', () => {
+        const name = sessionStorage.getItem('quizUser') || '';
+        const catalogName = sessionStorage.getItem('quizCatalog') || 'unknown';
+        showPhotoModal(name, catalogName);
+      });
+      summaryEl.appendChild(photoBtn);
+    }
   }
 
   // Wählt basierend auf dem Fragetyp die passende Erzeugerfunktion aus

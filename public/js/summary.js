@@ -2,6 +2,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultsBtn = document.getElementById('show-results-btn');
   const puzzleBtn = document.getElementById('check-puzzle-btn');
   const photoBtn = document.getElementById('upload-photo-btn');
+  const photoEnabled = !(window.quizConfig && window.quizConfig.photoUpload === false);
+  if (photoBtn && !photoEnabled) {
+    photoBtn.remove();
+  }
   const puzzleInfo = document.getElementById('puzzle-solved-text');
   const user = sessionStorage.getItem('quizUser') || '';
 
@@ -209,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (resultsBtn) { resultsBtn.addEventListener('click', showResults); }
   if (puzzleBtn) { puzzleBtn.addEventListener('click', showPuzzle); }
-  if (photoBtn) { photoBtn.addEventListener('click', showPhotoModal); }
+  if (photoBtn && photoEnabled) { photoBtn.addEventListener('click', showPhotoModal); }
 
   updatePuzzleInfo();
 });

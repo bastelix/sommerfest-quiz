@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
     teamRestrict: document.getElementById('cfgTeamRestrict'),
     competitionMode: document.getElementById('cfgCompetitionMode'),
     teamResults: document.getElementById('cfgTeamResults'),
+    photoUpload: document.getElementById('cfgPhotoUpload'),
     puzzleEnabled: document.getElementById('cfgPuzzleEnabled'),
     puzzleWord: document.getElementById('cfgPuzzleWord'),
     puzzleWrap: document.getElementById('cfgPuzzleWordWrap')
@@ -134,6 +135,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cfgFields.teamResults) {
       cfgFields.teamResults.checked = data.teamResults !== false;
     }
+    if (cfgFields.photoUpload) {
+      cfgFields.photoUpload.checked = data.photoUpload !== false;
+    }
     if (cfgFields.puzzleEnabled) {
       cfgFields.puzzleEnabled.checked = data.puzzleWordEnabled !== false;
     }
@@ -199,6 +203,7 @@ document.addEventListener('DOMContentLoaded', function () {
       QRRestrict: cfgFields.teamRestrict ? cfgFields.teamRestrict.checked : cfgInitial.QRRestrict,
       competitionMode: cfgFields.competitionMode ? cfgFields.competitionMode.checked : cfgInitial.competitionMode,
       teamResults: cfgFields.teamResults ? cfgFields.teamResults.checked : cfgInitial.teamResults,
+      photoUpload: cfgFields.photoUpload ? cfgFields.photoUpload.checked : cfgInitial.photoUpload,
       puzzleWordEnabled: cfgFields.puzzleEnabled ? cfgFields.puzzleEnabled.checked : cfgInitial.puzzleWordEnabled,
       puzzleWord: cfgFields.puzzleWord ? cfgFields.puzzleWord.value.trim() : cfgInitial.puzzleWord,
       puzzleFeedback: puzzleFeedback
