@@ -265,10 +265,11 @@
           <h2 class="uk-heading-bullet">Ergebnisse</h2>
           <button id="resultsRefreshBtn" class="uk-icon-button" uk-icon="icon: refresh; ratio: 1.2" title="Aktualisieren" aria-label="Aktualisieren"></button>
         </div>
+        <div id="rankingGrid" class="uk-grid-small uk-child-width-1-1 uk-child-width-1-3@m uk-margin-bottom" uk-grid></div>
         <div style="overflow-x: auto">
         <table class="uk-table uk-table-divider uk-table-responsive">
           <thead>
-            <tr><th>Name</th><th>Versuch</th><th>Katalog</th><th>Richtige</th><th>Zeit</th><th>Rätselwort gelöst</th></tr>
+            <tr><th>Name</th><th>Versuch</th><th>Katalog</th><th>Richtige</th><th>Zeit</th><th>Rätselwort gelöst</th><th>Beweisfoto</th></tr>
           </thead>
           <tbody id="resultsTableBody">
             {% for r in results %}
@@ -279,13 +280,15 @@
               <td>{{ r.correct }}/{{ r.total }}</td>
               <td>{{ r.time | date('Y-m-d H:i') }}</td>
               <td>{% if r.puzzleTime is defined %}{{ r.puzzleTime | date('Y-m-d H:i') }}{% endif %}</td>
+              <td>{% if r.photo is defined and r.photo %}<img src="{{ r.photo }}" alt="Beweisfoto" class="proof-thumb">{% endif %}</td>
             </tr>
             {% else %}
-            <tr><td colspan="6">Keine Daten</td></tr>
+            <tr><td colspan="7">Keine Daten</td></tr>
             {% endfor %}
           </tbody>
         </table>
         </div>
+        <ul id="resultsPagination" class="uk-pagination uk-flex-center"></ul>
         <div class="uk-margin uk-flex uk-flex-between">
           <button id="resultsResetBtn" class="uk-button uk-button-default" uk-tooltip="title: Löscht alle gespeicherten Ergebnisse; pos: right">Zurücksetzen</button>
           <button id="resultsDownloadBtn" class="uk-button uk-button-primary" uk-tooltip="title: Ergebnisse herunterladen; pos: right">Herunterladen</button>
