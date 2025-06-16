@@ -146,12 +146,33 @@
     ui.show();
   }
 
+  function showAllSolvedModal(){
+    const modal = document.createElement('div');
+    modal.setAttribute('uk-modal', '');
+    modal.setAttribute('aria-modal', 'true');
+    modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
+      '<h3 class="uk-modal-title uk-text-center">Alle Kataloge gespielt</h3>' +
+      '<p class="uk-text-center">Herzlichen Glückwunsch, alle Kataloge wurden erfolgreich gespielt!</p>' +
+      '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Zur Auswertung wechseln</button>' +
+      '</div>';
+    const btn = modal.querySelector('button');
+    document.body.appendChild(modal);
+    const ui = UIkit.modal(modal);
+    UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
+    btn.addEventListener('click', () => { ui.hide(); window.location.href = "/summary"; });
+    ui.show();
+  }
+
   function showSelection(catalogs, solved){
     solved = solved || new Set();
     const container = document.getElementById('quiz');
     if(!container) return;
     container.innerHTML = '';
     const cfg = window.quizConfig || {};
+    if(catalogs.length && solved.size === catalogs.length){
+      showAllSolvedModal();
+      return;
+    }
     const params = new URLSearchParams(window.location.search);
     if(cfg.competitionMode && !params.get('katalog')){
       const p = document.createElement('p');

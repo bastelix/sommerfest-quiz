@@ -23,6 +23,7 @@ use App\Controller\TeamController;
 use App\Controller\PasswordController;
 use App\Controller\QrController;
 use App\Controller\LogoController;
+use App\Controller\SummaryController;
 
 require_once __DIR__ . '/Controller/HomeController.php';
 require_once __DIR__ . '/Controller/FaqController.php';
@@ -40,6 +41,7 @@ require_once __DIR__ . '/Controller/PasswordController.php';
 require_once __DIR__ . '/Controller/AdminCatalogController.php';
 require_once __DIR__ . '/Controller/QrController.php';
 require_once __DIR__ . '/Controller/LogoController.php';
+require_once __DIR__ . '/Controller/SummaryController.php';
 
 return function (\Slim\App $app) {
     $configService = new ConfigService(
@@ -57,6 +59,7 @@ return function (\Slim\App $app) {
     $passwordController = new PasswordController($configService);
     $qrController = new QrController();
     $logoController = new LogoController($configService);
+    $summaryController = new SummaryController($configService);
 
     $app->get('/', HomeController::class);
     $app->get('/favicon.ico', function (Request $request, Response $response) {
@@ -97,4 +100,5 @@ return function (\Slim\App $app) {
     $app->post('/logo.png', [$logoController, 'post']);
     $app->get('/logo.webp', [$logoController, 'get'])->setArgument('ext', 'webp');
     $app->post('/logo.webp', [$logoController, 'post']);
+    $app->get('/summary', $summaryController);
 };
