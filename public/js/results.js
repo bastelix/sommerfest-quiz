@@ -72,6 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function computeRankings(rows) {
     const puzzle = new Map();
+    const startTimes = new Map();
     const catalogs = new Set();
     const times = new Map();
     const scores = new Map();
@@ -82,6 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (r.puzzleTime) {
         const prev = puzzle.get(r.name);
         if (!prev || r.puzzleTime < prev) puzzle.set(r.name, r.puzzleTime);
+      }
+
+      const st = startTimes.get(r.name);
+      if (st === undefined || r.time < st) {
+        startTimes.set(r.name, r.time);
       }
 
       let tMap = times.get(r.name);
@@ -99,10 +105,16 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    const puzzleList = Array.from(puzzle.entries())
-      .map(([name, time]) => ({ name, value: formatTime(time), raw: time }))
-      .sort((a, b) => a.raw - b.raw)
-      .slice(0, 3);
+    const puzzleArr = [];
+    puzzle.forEach((time, name) => {
+      const start = startTimes.get(name);
+      if (start !== undefined && time >= start) {
+        const duration = time - start;
+        puzzleArr.push({ name, value: formatDuration(duration), raw: duration });
+      }
+    });
+    puzzleArr.sort((a, b) => a.raw - b.raw);
+    const puzzleList = puzzleArr.slice(0, 3);
 
     const totalCats = catalogs.size;
     const catDur = [];
