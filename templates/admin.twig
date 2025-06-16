@@ -152,6 +152,11 @@
                 </label>
                 <div id="cfgPuzzleWordWrap" class="uk-margin-small-top">
                   <input class="uk-input" type="text" id="cfgPuzzleWord" placeholder="Rätselwort">
+                  <button id="puzzleFeedbackBtn" class="uk-button uk-button-default uk-margin-small-top" type="button" uk-toggle="target: #puzzleFeedbackModal">
+                    <span id="puzzleFeedbackIcon" uk-icon="icon: pencil"></span>
+                    <span id="puzzleFeedbackLabel">Feedbacktext eingeben</span>
+                    <span id="puzzleFeedbackBadge" class="uk-label uk-label-danger uk-margin-small-left">Kein Text</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -161,6 +166,17 @@
           <button id="cfgResetBtn" class="uk-button uk-button-default" uk-tooltip="title: Setzt alle Felder auf gespeicherte Werte zurück; pos: right">Zurücksetzen</button>
           <div>
             <button id="cfgSaveBtn" class="uk-button uk-button-primary" uk-tooltip="title: Einstellungen speichern; pos: right">Speichern</button>
+          </div>
+        </div>
+
+        <div id="puzzleFeedbackModal" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">Feedbacktext für das Rätselwort</h2>
+            <textarea id="puzzleFeedbackTextarea" class="uk-textarea" rows="5" placeholder="Feedbacktext eingeben..."></textarea>
+            <div class="uk-flex uk-flex-right uk-margin-top">
+              <button id="puzzleFeedbackSave" class="uk-button uk-button-primary" type="button">Speichern</button>
+              <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>
+            </div>
           </div>
         </div>
 

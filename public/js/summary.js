@@ -81,7 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const expected = (window.quizConfig && window.quizConfig.puzzleWord) ? window.quizConfig.puzzleWord.toLowerCase() : '';
       const val = (input.value || '').trim().toLowerCase();
       if(val && val === expected){
-        feedback.textContent = 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
+        const custom = (window.quizConfig && window.quizConfig.puzzleFeedback) ? window.quizConfig.puzzleFeedback.trim() : '';
+        feedback.textContent = custom || 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
         feedback.className = 'uk-margin-top uk-text-center uk-text-success';
       }else{
         feedback.textContent = 'Das ist leider nicht korrekt. Versuch es noch einmal!';
