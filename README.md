@@ -86,7 +86,7 @@ Alle wichtigen Einstellungen finden Sie in `data/config.json`. Ändern Sie hier 
 
 QR-Codes können pro Eintrag über `qr_image` oder `qrcode_url` hinterlegt werden. Neben Data-URIs und lokalen Pfaden werden dabei nun auch HTTP- oder HTTPS-URLs unterstützt.
 
-In der Zusammenfassung erscheint weiterhin der einfache QR-Code. Ein farbig gestaltetes Beispiel mit dem PHP-Paket *Endroid\\QrCode* ist im Template hinterlegt, aber auskommentiert.
+Die Übersichtsseiten erzeugen ihre QR-Codes jetzt lokal mit der Bibliothek *Endroid\\QrCode*. Katalog-Links erscheinen rot, Team-Links blau.
 
 ## Tests
 
