@@ -64,7 +64,11 @@ return function (\Slim\App $app) {
     $logoController = new LogoController($configService);
     $summaryController = new SummaryController($configService);
     $consentService = new PhotoConsentService(__DIR__ . '/../data/photo_consents.json');
-    $evidenceController = new EvidenceController($resultService, $consentService, __DIR__ . '/../data/pics');
+    $evidenceController = new EvidenceController(
+        $resultService,
+        $consentService,
+        __DIR__ . '/../data/photos'
+    );
 
     $app->get('/', HomeController::class);
     $app->get('/favicon.ico', function (Request $request, Response $response) {

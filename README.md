@@ -77,9 +77,10 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
 Das mitgelieferte `docker-compose.yml` startet das Quiz samt Reverse Proxy.
 Die Dateien im Ordner `data/` werden dabei in einem benannten Volume
 `quizdata` gespeichert. So bleiben eingetragene Teams und Ergebnisse auch nach
-`docker-compose down` erhalten. Die ACME-Konfiguration des Let's-Encrypt-
-Begleiters landet im Ordner `acme/` und wird dadurch ebenfalls
-persistiert.
+`docker-compose down` erhalten. Hochgeladene Beweisfotos landen im Verzeichnis
+`data/photos` und werden durch das Volume ebenfalls dauerhaft gespeichert. Die
+ACME-Konfiguration des Let's-Encrypt-Begleiters landet im Ordner `acme/` und
+wird dadurch ebenfalls persistiert.
 Die verwendete Domain wird aus der Datei `.env` gelesen (Variable `DOMAIN`).
 Beim Start des Containers installiert ein Entrypoint-Skript automatisch alle
 Composer-Abhängigkeiten, sofern das Verzeichnis `vendor/` noch nicht existiert.
