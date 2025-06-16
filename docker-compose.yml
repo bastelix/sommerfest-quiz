@@ -42,6 +42,7 @@ services:
     working_dir: /var/www
     volumes:
       - ./:/var/www
+      - ./config/php.ini:/usr/local/etc/php/conf.d/uploads.ini
       - quizdata:/var/www/data
     environment:
       - VIRTUAL_HOST=${DOMAIN}
