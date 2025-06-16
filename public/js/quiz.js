@@ -233,7 +233,24 @@ function runQuiz(questions){
 
     if(cfg.puzzleWordEnabled){
       const attemptKey = 'puzzleAttempt-' + catalog;
-      if(!sessionStorage.getItem(attemptKey)){
+      const puzzleSolved = sessionStorage.getItem('puzzleSolved') === 'true';
+      if(puzzleSolved){
+        fetch('/results.json').then(r => r.json()).then(list => {
+          if(Array.isArray(list)){
+            const name = sessionStorage.getItem('quizUser') || '';
+            const entry = list.slice().reverse().find(e => e.name === name && e.catalog === catalog && e.puzzleTime);
+            if(entry && entry.puzzleTime){
+              const d = new Date(entry.puzzleTime * 1000);
+              const pad = n => n.toString().padStart(2, '0');
+              const ts = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+              const info = document.createElement('p');
+              info.textContent = `Rätselwort gelöst: ${ts}`;
+              summaryEl.appendChild(info);
+            }
+          }
+        }).catch(()=>{});
+      }
+      if(!puzzleSolved && !sessionStorage.getItem(attemptKey)){
         const puzzleBtn = document.createElement('button');
         puzzleBtn.className = 'uk-button uk-button-primary uk-margin-top';
         puzzleBtn.textContent = 'Rätselwort überprüfen';
