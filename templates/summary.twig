@@ -1,0 +1,32 @@
+{% extends 'layout.twig' %}
+
+{% block title %}Auswertung{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="/css/dark.css">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/highcontrast.css">
+{% endblock %}
+
+{% block body_class %}uk-padding{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <a href="/faq" class="uk-icon-button" uk-icon="icon: question; ratio: 2" title="Hilfe" aria-label="Hilfe"></a>
+    {% endblock %}
+  {% endembed %}
+  <div class="uk-container uk-container-small uk-text-center">
+    <h2 class="uk-heading-bullet">Herzlichen Glückwunsch, du hast alle Kataloge gelöst!</h2>
+    <button id="show-results-btn" class="uk-button uk-button-primary uk-margin-top">Ergebnisse anzeigen</button>
+    {% if config.puzzleWordEnabled %}
+    <button id="check-puzzle-btn" class="uk-button uk-button-primary uk-margin-top">Rätselwort prüfen</button>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/js/uikit-icons.min.js"></script>
+  <script src="/js/custom-icons.js"></script>
+  <script src="/js/summary.js"></script>
+{% endblock %}
