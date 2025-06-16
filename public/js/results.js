@@ -175,17 +175,17 @@ document.addEventListener('DOMContentLoaded', () => {
       {
         title: 'Rätselwort-Bestzeit',
         list: rankings.puzzleList,
-        tooltip: 'Top 3 Platzierungen für das schnellste Lösen des Rätselworts (zeige Namen/Teamnamen, Platzierung und benötigte Zeit)'
+        tooltip: 'Top 3 Platzierungen für das schnellste Lösen des Rätselworts'
       },
       {
         title: 'Katalogmeister',
         list: rankings.catalogList,
-        tooltip: 'Top 3 Teams/Spieler, die alle Kataloge am schnellsten bearbeitet haben (zeige Namen/Teamnamen, Platzierung und benötigte Gesamtzeit)'
+        tooltip: 'Top 3 Teams/Spieler, die alle Fragenkataloge am schnellsten bearbeitet haben'
       },
       {
         title: 'Highscore-Champions',
         list: rankings.pointsList,
-        tooltip: 'Top 3 Teams/Spieler mit den meisten Punkten (zeige Namen/Teamnamen, Platzierung und Punktzahl)'
+        tooltip: 'Top 3 Teams/Spieler mit den meisten Punkten'
       }
     ];
     const MAX_ITEMS = 3;
