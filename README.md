@@ -86,6 +86,21 @@ Um größere Uploads zu erlauben, kann die maximale
 Request-Größe des Reverse Proxys über die Umgebungsvariable
 `CLIENT_MAX_BODY_SIZE` angepasst werden. In der mitgelieferten
 `docker-compose.yml` ist dieser Wert auf `10m` gesetzt.
+Beim Einsatz von **jwilder/nginx-proxy** greift der Wert jedoch nur,
+solange keine eigene Vhost-Konfiguration für die Domain existiert.
+Soll ein höheres Limit dauerhaft gelten, empfiehlt es sich daher,
+eine Datei im Verzeichnis `vhost.d/` anzulegen. Der Dateiname muss
+exakt der bei `VIRTUAL_HOST` hinterlegten Domain entsprechen und kann
+zum Beispiel folgenden Inhalt haben:
+
+```nginx
+client_max_body_size 20m;
+```
+
+Nach dem Anlegen der Datei sollte der Proxy neu gestartet werden,
+damit die Einstellung aktiv wird. Zusätzlich können innerhalb des
+App-Containers die Werte `upload_max_filesize` und `post_max_size`
+angepasst werden, etwa über eine eigene `php.ini`.
 Die verwendete Domain wird aus der Datei `.env` gelesen (Variable `DOMAIN`).
 Beim Start des Containers installiert ein Entrypoint-Skript automatisch alle
 Composer-Abhängigkeiten, sofern das Verzeichnis `vendor/` noch nicht existiert.
