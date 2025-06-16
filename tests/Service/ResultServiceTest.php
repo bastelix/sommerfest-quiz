@@ -36,4 +36,19 @@ class ResultServiceTest extends TestCase
 
         unlink($tmp);
     }
+
+    public function testMarkPuzzleUpdatesEntry(): void
+    {
+        $tmp = tempnam(sys_get_temp_dir(), 'results');
+        $service = new ResultService($tmp);
+
+        $service->add(['name' => 'TeamA', 'catalog' => 'cat1']);
+        $ts = time();
+        $service->markPuzzle('TeamA', 'cat1', $ts);
+        $data = $service->getAll();
+
+        $this->assertSame($ts, $data[0]['puzzleTime']);
+
+        unlink($tmp);
+    }
 }

@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!groups.length) {
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = 5;
+      td.colSpan = 6;
       td.textContent = 'Keine Daten';
       tr.appendChild(td);
       tbody.appendChild(tr);
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     groups.forEach(g => {
       const head = document.createElement('tr');
       const th = document.createElement('th');
-      th.colSpan = 5;
+      th.colSpan = 6;
       th.textContent = g.name;
       head.appendChild(th);
       tbody.appendChild(head);
@@ -34,7 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
           r.attempt,
           r.catalog,
           `${r.correct}/${r.total}`,
-          formatTime(r.time)
+          formatTime(r.time),
+          r.puzzleTime ? formatTime(r.puzzleTime) : ''
         ];
         const nameCell = document.createElement('td');
         nameCell.textContent = r.name;

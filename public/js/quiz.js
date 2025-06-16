@@ -831,6 +831,13 @@ function runQuiz(questions){
         feedback.textContent = custom || 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
         feedback.className = 'uk-margin-top uk-text-center uk-text-success';
         sessionStorage.setItem('puzzleSolved', 'true');
+        const user = sessionStorage.getItem('quizUser') || '';
+        const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
+        fetch('/results', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: user, catalog, puzzleTime: Math.floor(Date.now()/1000) })
+        }).catch(()=>{});
       }else{
         feedback.textContent = 'Das ist leider nicht korrekt. Versuch es erneut!';
         feedback.className = 'uk-margin-top uk-text-center uk-text-danger';

@@ -32,7 +32,7 @@ class ResultController
     {
         $data = $this->service->getAll();
         $rows = [];
-        $rows[] = ['Name', 'Versuch', 'Katalog', 'Richtige', 'Gesamt', 'Zeit'];
+        $rows[] = ['Name', 'Versuch', 'Katalog', 'Richtige', 'Gesamt', 'Zeit', 'Rätselwort'];
         foreach ($data as $r) {
             $rows[] = [
                 (string)($r['name'] ?? ''),
@@ -41,6 +41,7 @@ class ResultController
                 (int)($r['correct'] ?? 0),
                 (int)($r['total'] ?? 0),
                 date('Y-m-d H:i', (int)($r['time'] ?? 0)),
+                isset($r['puzzleTime']) ? date('Y-m-d H:i', (int)$r['puzzleTime']) : ''
             ];
         }
         // prepend UTF-8 BOM for better compatibility with spreadsheet tools
@@ -59,7 +60,14 @@ class ResultController
     {
         $data = json_decode((string) $request->getBody(), true);
         if (is_array($data)) {
-            $this->service->add($data);
+            if (isset($data['puzzleTime'])) {
+                $name = (string)($data['name'] ?? '');
+                $catalog = (string)($data['catalog'] ?? '');
+                $time = (int)$data['puzzleTime'];
+                $this->service->markPuzzle($name, $catalog, $time);
+            } else {
+                $this->service->add($data);
+            }
         }
         return $response->withStatus(204);
     }
