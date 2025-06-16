@@ -59,11 +59,19 @@ document.addEventListener('DOMContentLoaded', () => {
           const td = document.createElement('td');
           if (idx === cells.length - 1) {
             if (r.photo) {
+              const a = document.createElement('a');
+              a.className = 'uk-inline';
+              a.href = r.photo;
+              a.dataset.caption = 'Beweisfoto';
+              a.dataset.attrs = 'class: uk-inverse-light';
+
               const img = document.createElement('img');
               img.src = r.photo;
               img.alt = 'Beweisfoto';
               img.className = 'proof-thumb';
-              td.appendChild(img);
+
+              a.appendChild(img);
+              td.appendChild(a);
             }
           } else {
             td.textContent = c;

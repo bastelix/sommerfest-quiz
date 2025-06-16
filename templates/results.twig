@@ -24,7 +24,7 @@
       <thead>
         <tr><th>Name</th><th>Versuch</th><th>Katalog</th><th>Richtige</th><th>Zeit</th><th>Rätselwort gelöst</th><th>Beweisfoto</th></tr>
       </thead>
-      <tbody id="resultsTableBody">
+      <tbody id="resultsTableBody" uk-lightbox="nav: thumbnav; slidenav: false">
         {% for r in results %}
         <tr>
           <td>{{ r.name }}</td>
@@ -33,7 +33,7 @@
           <td>{{ r.correct }}/{{ r.total }}</td>
           <td>{{ r.time | date('Y-m-d H:i') }}</td>
           <td>{% if r.puzzleTime is defined %}{{ r.puzzleTime | date('Y-m-d H:i') }}{% endif %}</td>
-          <td>{% if r.photo is defined and r.photo %}<img src="{{ r.photo }}" alt="Beweisfoto" class="proof-thumb">{% endif %}</td>
+          <td>{% if r.photo is defined and r.photo %}<a class="uk-inline" href="{{ r.photo }}" data-caption="Beweisfoto" data-attrs="class: uk-inverse-light"><img src="{{ r.photo }}" alt="Beweisfoto" class="proof-thumb"></a>{% endif %}</td>
         </tr>
         {% else %}
         <tr><td colspan="7">Keine Daten</td></tr>
