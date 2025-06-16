@@ -38,6 +38,24 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     return id;
   }
+
+  function updatePuzzleFeedbackUI() {
+    if (!puzzleBadge || !puzzleIcon || !puzzleLabel) return;
+    if (puzzleFeedback.trim().length > 0) {
+      puzzleBadge.textContent = 'Gesetzt';
+      puzzleBadge.classList.remove('uk-label-danger');
+      puzzleBadge.classList.add('uk-label-success');
+      puzzleIcon.setAttribute('uk-icon', 'icon: check');
+      puzzleLabel.textContent = 'Feedbacktext bearbeiten';
+    } else {
+      puzzleBadge.textContent = 'Kein Text';
+      puzzleBadge.classList.remove('uk-label-success');
+      puzzleBadge.classList.add('uk-label-danger');
+      puzzleIcon.setAttribute('uk-icon', 'icon: pencil');
+      puzzleLabel.textContent = 'Feedbacktext eingeben';
+    }
+    UIkit.icon(puzzleIcon, { icon: puzzleIcon.getAttribute('uk-icon').split(': ')[1] });
+  }
   // --------- Konfiguration bearbeiten ---------
   // Ausgangswerte aus der bestehenden Konfiguration
   const cfgInitial = window.quizConfig || {};
@@ -59,6 +77,14 @@ document.addEventListener('DOMContentLoaded', function () {
     puzzleWord: document.getElementById('cfgPuzzleWord'),
     puzzleWrap: document.getElementById('cfgPuzzleWordWrap')
   };
+  const puzzleFeedbackBtn = document.getElementById('puzzleFeedbackBtn');
+  const puzzleBadge = document.getElementById('puzzleFeedbackBadge');
+  const puzzleIcon = document.getElementById('puzzleFeedbackIcon');
+  const puzzleLabel = document.getElementById('puzzleFeedbackLabel');
+  const puzzleTextarea = document.getElementById('puzzleFeedbackTextarea');
+  const puzzleSaveBtn = document.getElementById('puzzleFeedbackSave');
+  const puzzleModal = UIkit.modal('#puzzleFeedbackModal');
+  let puzzleFeedback = '';
   let logoUploaded = false;
   if (cfgFields.logoFile && cfgFields.logoPreview) {
     const bar = document.getElementById('cfgLogoProgress');
@@ -121,6 +147,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cfgFields.puzzleWord) {
       cfgFields.puzzleWord.value = data.puzzleWord || '';
     }
+    puzzleFeedback = data.puzzleFeedback || '';
+    updatePuzzleFeedbackUI();
     if (cfgFields.puzzleWrap) {
       cfgFields.puzzleWrap.style.display = cfgFields.puzzleEnabled.checked ? '' : 'none';
     }
@@ -133,6 +161,17 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   }
+  puzzleFeedbackBtn?.addEventListener('click', () => {
+    if (puzzleTextarea) {
+      puzzleTextarea.value = puzzleFeedback;
+    }
+  });
+  puzzleSaveBtn?.addEventListener('click', () => {
+    if (!puzzleTextarea) return;
+    puzzleFeedback = puzzleTextarea.value;
+    updatePuzzleFeedbackUI();
+    puzzleModal.hide();
+  });
   document.getElementById('cfgResetBtn').addEventListener('click', function (e) {
     e.preventDefault();
     renderCfg(cfgInitial);
@@ -158,7 +197,8 @@ document.addEventListener('DOMContentLoaded', function () {
       competitionMode: cfgFields.competitionMode ? cfgFields.competitionMode.checked : cfgInitial.competitionMode,
       teamResults: cfgFields.teamResults ? cfgFields.teamResults.checked : cfgInitial.teamResults,
       puzzleWordEnabled: cfgFields.puzzleEnabled ? cfgFields.puzzleEnabled.checked : cfgInitial.puzzleWordEnabled,
-      puzzleWord: cfgFields.puzzleWord ? cfgFields.puzzleWord.value.trim() : cfgInitial.puzzleWord
+      puzzleWord: cfgFields.puzzleWord ? cfgFields.puzzleWord.value.trim() : cfgInitial.puzzleWord,
+      puzzleFeedback: puzzleFeedback
     });
     fetch('/config.json', {
       method: 'POST',
