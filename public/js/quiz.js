@@ -185,7 +185,7 @@ function runQuiz(questions){
     if(p) p.textContent = `${user} hat ${score} von ${questionCount} Punkten erreicht.`;
     const heading = summaryEl.querySelector('h3');
     if(heading) heading.textContent = `🎉 Danke für die Teilnahme ${user}!`;
-    const letter = sessionStorage.getItem('quizLetter');
+    const letter = cfg.puzzleWordEnabled ? sessionStorage.getItem('quizLetter') : null;
     const letterEl = summaryEl.querySelector('#quiz-letter');
     if(letterEl){
       if(letter){

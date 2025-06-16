@@ -12,5 +12,7 @@
   "adminPass": "password",
   "QRRestrict": false,
   "competitionMode": false,
-  "teamResults": true
+  "teamResults": true,
+  "puzzleWordEnabled": true,
+  "puzzleWord": ""
 }

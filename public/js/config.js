@@ -29,5 +29,9 @@ window.quizConfig = {
   competitionMode: false,
 
   // Ergebnisübersicht für Teams anzeigen
-  teamResults: true
+  teamResults: true,
+
+  // Rätselwort aktivieren und Begriff festlegen
+  puzzleWordEnabled: true,
+  puzzleWord: ''
 };
