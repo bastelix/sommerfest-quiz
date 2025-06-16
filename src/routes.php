@@ -62,7 +62,7 @@ return function (\Slim\App $app) {
     $qrController = new QrController();
     $logoController = new LogoController($configService);
     $summaryController = new SummaryController($configService);
-    $evidenceController = new EvidenceController($resultService, __DIR__ . '/../data/photos');
+    $evidenceController = new EvidenceController($resultService, __DIR__ . '/../data/pics');
 
     $app->get('/', HomeController::class);
     $app->get('/favicon.ico', function (Request $request, Response $response) {
@@ -104,6 +104,6 @@ return function (\Slim\App $app) {
     $app->get('/logo.webp', [$logoController, 'get'])->setArgument('ext', 'webp');
     $app->post('/logo.webp', [$logoController, 'post']);
     $app->post('/photos', [$evidenceController, 'post']);
-    $app->get('/photo/{name}', [$evidenceController, 'get']);
+    $app->get('/photo/{team}/{file}', [$evidenceController, 'get']);
     $app->get('/summary', $summaryController);
 };

@@ -33,17 +33,24 @@ class EvidenceController
         if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
             return $response->withStatus(400);
         }
-        if (!is_dir($this->dir)) {
-            mkdir($this->dir, 0777, true);
-        }
-        $name = 'photo_' . time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
-        $target = $this->dir . '/' . $name;
-        $file->moveTo($target);
-
         $parsed = $request->getParsedBody() ?? [];
         $user = isset($parsed['name']) ? (string)$parsed['name'] : '';
         $catalog = isset($parsed['catalog']) ? (string)$parsed['catalog'] : '';
-        $path = '/photo/' . $name;
+
+        $safeUser = preg_replace('/[^A-Za-z0-9_-]/', '_', $user);
+        $safeCatalog = preg_replace('/[^A-Za-z0-9_-]/', '_', $catalog);
+        $date = date('Y-m-d_H-i-s');
+        $fileName = $safeCatalog . '_' . $date . '.' . $ext;
+
+        $dir = $this->dir . '/' . $safeUser;
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+
+        $target = $dir . '/' . $fileName;
+        $file->moveTo($target);
+
+        $path = '/photo/' . rawurlencode($safeUser) . '/' . rawurlencode($fileName);
         if ($user !== '' && $catalog !== '') {
             $this->results->setPhoto($user, $catalog, $path);
         }
@@ -54,8 +61,9 @@ class EvidenceController
 
     public function get(Request $request, Response $response, array $args = []): Response
     {
-        $file = basename((string)($args['name'] ?? ''));
-        $path = $this->dir . '/' . $file;
+        $team = isset($args['team']) ? preg_replace('/[^A-Za-z0-9_-]/', '_', (string)$args['team']) : '';
+        $file = basename((string)($args['file'] ?? ''));
+        $path = $this->dir . '/' . $team . '/' . $file;
         if (!is_file($path)) {
             return $response->withStatus(404);
         }
