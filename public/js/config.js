@@ -31,6 +31,9 @@ window.quizConfig = {
   // Ergebnisübersicht für Teams anzeigen
   teamResults: true,
 
+  // Beweisfotos aktivieren
+  photoUpload: true,
+
   // Rätselwort aktivieren und Begriff festlegen
   puzzleWordEnabled: true,
   puzzleWord: '',

@@ -13,6 +13,7 @@
   "QRRestrict": false,
   "competitionMode": false,
   "teamResults": true,
+  "photoUpload": true,
   "puzzleWordEnabled": true,
   "puzzleWord": "",
   "puzzleFeedback": ""
