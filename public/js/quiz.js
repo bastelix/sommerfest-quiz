@@ -851,7 +851,7 @@ function runQuiz(questions){
     const ui = UIkit.modal(modal);
     UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
     UIkit.util.on(modal, 'shown', () => { input.focus(); });
-    btn.addEventListener('click', () => {
+    function handleCheck(){
       const expected = (window.quizConfig && window.quizConfig.puzzleWord) ? window.quizConfig.puzzleWord.toLowerCase() : '';
       const val = (input.value || '').trim().toLowerCase();
       if(val && val === expected){
@@ -870,14 +870,20 @@ function runQuiz(questions){
         feedback.textContent = 'Das ist leider nicht korrekt. Versuch es erneut!';
         feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
       }
+
       input.disabled = true;
-      btn.disabled = true;
       if(attemptKey) sessionStorage.setItem(attemptKey, 'true');
       if(btnEl){
         btnEl.disabled = true;
         btnEl.style.display = 'none';
       }
-    });
+
+      btn.textContent = 'Schließen';
+      btn.removeEventListener('click', handleCheck);
+      btn.addEventListener('click', () => ui.hide());
+    }
+
+    btn.addEventListener('click', handleCheck);
     ui.show();
   }
 
