@@ -182,7 +182,26 @@ document.addEventListener('DOMContentLoaded', () => {
       for (let i = 0; i < MAX_ITEMS; i++) {
         const li = document.createElement('li');
         const item = card.list[i];
-        li.textContent = item ? `${item.name} – ${item.value}` : '-';
+        if (item) {
+          const gridItem = document.createElement('div');
+          gridItem.className = 'uk-grid-small';
+          gridItem.setAttribute('uk-grid', '');
+
+          const teamDiv = document.createElement('div');
+          teamDiv.className = 'uk-width-expand';
+          teamDiv.setAttribute('uk-leader', '');
+          teamDiv.style.setProperty('--uk-leader-fill-content', ' ');
+          teamDiv.textContent = item.name;
+
+          const timeDiv = document.createElement('div');
+          timeDiv.textContent = item.value;
+
+          gridItem.appendChild(teamDiv);
+          gridItem.appendChild(timeDiv);
+          li.appendChild(gridItem);
+        } else {
+          li.textContent = '-';
+        }
         ol.appendChild(li);
       }
       c.appendChild(ol);
