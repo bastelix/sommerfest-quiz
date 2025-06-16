@@ -78,9 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ui = UIkit.modal(modal);
     UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
     if(!solvedBefore) UIkit.util.on(modal, 'shown', () => { input.focus(); });
-
     const expected = (window.quizConfig && window.quizConfig.puzzleWord) ? window.quizConfig.puzzleWord : '';
-
     if(solvedBefore){
       feedback.innerHTML = 'Du hast das Rätselwort bereits gelöst:<br><strong>' + expected + '</strong><br>Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
       feedback.className = 'uk-margin-top uk-text-center uk-text-success';

@@ -826,9 +826,9 @@ function runQuiz(questions){
     btn.addEventListener('click', () => {
       const expected = (window.quizConfig && window.quizConfig.puzzleWord) ? window.quizConfig.puzzleWord.toLowerCase() : '';
       const val = (input.value || '').trim().toLowerCase();
-      const success = val && val === expected;
-      if(success){
-        feedback.textContent = 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
+      if(val && val === expected){
+        const custom = (window.quizConfig && window.quizConfig.puzzleFeedback) ? window.quizConfig.puzzleFeedback.trim() : '';
+        feedback.textContent = custom || 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
         feedback.className = 'uk-margin-top uk-text-center uk-text-success';
         sessionStorage.setItem('puzzleSolved', 'true');
       }else{

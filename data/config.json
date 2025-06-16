@@ -14,5 +14,6 @@
   "competitionMode": false,
   "teamResults": true,
   "puzzleWordEnabled": true,
-  "puzzleWord": ""
+  "puzzleWord": "",
+  "puzzleFeedback": ""
 }

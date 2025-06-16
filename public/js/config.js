@@ -33,5 +33,6 @@ window.quizConfig = {
 
   // Rätselwort aktivieren und Begriff festlegen
   puzzleWordEnabled: true,
-  puzzleWord: ''
+  puzzleWord: '',
+  puzzleFeedback: ''
 };
