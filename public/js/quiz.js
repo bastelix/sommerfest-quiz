@@ -222,12 +222,12 @@ function runQuiz(questions){
         }
       }
       if(total !== null && solved.length === total){
-        const btn = document.createElement('button');
-        btn.className = 'uk-button uk-button-primary uk-margin-top';
-        btn.textContent = 'Ergebnisübersicht';
-        styleButton(btn);
-        btn.addEventListener('click', () => showResultsOverview(user));
-        summaryEl.appendChild(btn);
+        const link = document.createElement('a');
+        link.href = '/summary';
+        link.className = 'uk-button uk-button-primary uk-margin-top';
+        link.textContent = 'Ergebnisübersicht';
+        styleButton(link);
+        summaryEl.appendChild(link);
       }
     }
 
