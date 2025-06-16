@@ -118,6 +118,7 @@ python3 tests/test_json_validity.py
 - QR-Code-Login auf bekannte Teams/Personen beschränkbar.
 - Aktivierung/Deaktivierung der Beschränkung per Schalter.
 - Zufallsnamen werden bei aktiver Beschränkung unterbunden.
+- Die Uploadseite für Beweisfotos bietet jetzt ein Eingabefeld mit Vorschlagsliste für die Teamwahl.
 
 ## Datenschutz
 
