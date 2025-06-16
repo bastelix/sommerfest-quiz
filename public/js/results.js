@@ -208,7 +208,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       c.appendChild(h);
       const ol = document.createElement('ol');
-      ol.className = 'uk-list uk-list-decimal';
+      // show numbering manually, so suppress default list style
+      ol.className = 'uk-list';
       for (let i = 0; i < MAX_ITEMS; i++) {
         const li = document.createElement('li');
         const item = card.list[i];
