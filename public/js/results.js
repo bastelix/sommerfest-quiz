@@ -182,7 +182,19 @@ document.addEventListener('DOMContentLoaded', () => {
       for (let i = 0; i < MAX_ITEMS; i++) {
         const li = document.createElement('li');
         const item = card.list[i];
-        li.textContent = item ? `${item.name} – ${item.value}` : '-';
+        if (item) {
+          li.className = 'uk-flex';
+          const teamDiv = document.createElement('div');
+          teamDiv.className = 'uk-width-expand';
+          teamDiv.setAttribute('uk-leader', 'fill: ');
+          teamDiv.textContent = item.name;
+          const timeDiv = document.createElement('div');
+          timeDiv.textContent = item.value;
+          li.appendChild(teamDiv);
+          li.appendChild(timeDiv);
+        } else {
+          li.textContent = '-';
+        }
         ol.appendChild(li);
       }
       c.appendChild(ol);
