@@ -1,11 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
   const tbody = document.getElementById('resultsTableBody');
   const refreshBtn = document.getElementById('resultsRefreshBtn');
+  const grid = document.getElementById('rankingGrid');
 
   function formatTime(ts) {
     const d = new Date(ts * 1000);
     const pad = n => n.toString().padStart(2, '0');
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  function formatDuration(sec) {
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    const pad = n => n.toString().padStart(2, '0');
+    return (h ? h + ':' + pad(m) : m) + ':' + pad(s);
   }
 
   function render(groups) {
@@ -61,6 +70,98 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function computeRankings(rows) {
+    const puzzle = new Map();
+    const catalogs = new Set();
+    const times = new Map();
+    const scores = new Map();
+
+    rows.forEach(r => {
+      catalogs.add(r.catalog);
+
+      if (r.puzzleTime) {
+        const prev = puzzle.get(r.name);
+        if (!prev || r.puzzleTime < prev) puzzle.set(r.name, r.puzzleTime);
+      }
+
+      let tMap = times.get(r.name);
+      if (!tMap) { tMap = new Map(); times.set(r.name, tMap); }
+      const prevTime = tMap.get(r.catalog);
+      if (prevTime === undefined || r.time < prevTime) {
+        tMap.set(r.catalog, r.time);
+      }
+
+      let sMap = scores.get(r.name);
+      if (!sMap) { sMap = new Map(); scores.set(r.name, sMap); }
+      const prevScore = sMap.get(r.catalog);
+      if (prevScore === undefined || r.correct > prevScore) {
+        sMap.set(r.catalog, r.correct);
+      }
+    });
+
+    const puzzleList = Array.from(puzzle.entries())
+      .map(([name, time]) => ({ name, value: formatTime(time), raw: time }))
+      .sort((a, b) => a.raw - b.raw)
+      .slice(0, 3);
+
+    const totalCats = catalogs.size;
+    const catDur = [];
+    times.forEach((map, name) => {
+      if (map.size === totalCats) {
+        const arr = Array.from(map.values());
+        const duration = Math.max(...arr) - Math.min(...arr);
+        catDur.push({ name, value: formatDuration(duration), raw: duration });
+      }
+    });
+    catDur.sort((a, b) => a.raw - b.raw);
+    const catalogList = catDur.slice(0, 3);
+
+    const totalScores = [];
+    scores.forEach((map, name) => {
+      const total = Array.from(map.values()).reduce((sum, v) => sum + v, 0);
+      totalScores.push({ name, value: total, raw: total });
+    });
+    totalScores.sort((a, b) => b.raw - a.raw);
+    const pointsList = totalScores.slice(0, 3);
+
+    return { puzzleList, catalogList, pointsList };
+  }
+
+  function renderRankings(rankings) {
+    if (!grid) return;
+    grid.innerHTML = '';
+    const cards = [
+      { title: 'Schnellstes Rätselwort', list: rankings.puzzleList },
+      { title: 'Alle Kataloge am schnellsten', list: rankings.catalogList },
+      { title: 'Meiste Punkte', list: rankings.pointsList }
+    ];
+    cards.forEach(card => {
+      const col = document.createElement('div');
+      const c = document.createElement('div');
+      c.className = 'uk-card uk-card-default uk-card-body';
+      const h = document.createElement('h4');
+      h.className = 'uk-card-title';
+      h.textContent = card.title;
+      c.appendChild(h);
+      const ol = document.createElement('ol');
+      ol.className = 'uk-list uk-list-decimal';
+      if (card.list.length === 0) {
+        const li = document.createElement('li');
+        li.textContent = 'Keine Daten';
+        ol.appendChild(li);
+      } else {
+        card.list.forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = `${item.name} – ${item.value}`;
+          ol.appendChild(li);
+        });
+      }
+      c.appendChild(ol);
+      col.appendChild(c);
+      grid.appendChild(col);
+    });
+  }
+
   function load() {
     fetch('/results.json')
       .then(r => r.json())
@@ -78,6 +179,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         groups.sort((a, b) => b.time - a.time);
         render(groups);
+
+        const rankings = computeRankings(rows);
+        renderRankings(rankings);
       })
       .catch(err => console.error(err));
   }
