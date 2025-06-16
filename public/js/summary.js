@@ -155,44 +155,37 @@ document.addEventListener('DOMContentLoaded', () => {
       '<p class="uk-text-small">Hinweis zum Hochladen von Gruppenfotos:<br>' +
       'Mit dem Upload eines Gruppenfotos bestätigen Sie, dass alle abgebildeten Teammitglieder der Verwendung des Fotos im Rahmen des Teamtages zustimmen. Das Hochladen ist freiwillig. Die Fotos werden ausschließlich für die Dokumentation des Teamtages verwendet und nach der Veranstaltung von der Onlineplattform gelöscht.' +
       '</p>' +
-      '<input id="team-select" class="uk-input uk-margin-small-top" list="team-list" placeholder="Team wählen">' +
-      '<datalist id="team-list"></datalist>' +
+      '<label for="consent-select" class="uk-form-label">Einverständnis aller Personen?</label>' +
+      '<select id="consent-select" class="uk-select uk-margin-small-top">' +
+      '<option value="">bitte wählen</option>' +
+      '<option value="yes">Ja</option>' +
+      '<option value="no">Nein</option>' +
+      '</select>' +
       '<input id="photo-input" class="uk-input" type="file" accept="image/*" capture="environment">' +
       '<div id="photo-feedback" class="uk-margin-top uk-text-center"></div>' +
       '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top" disabled>Hochladen</button>' +
       '</div>';
     const input = modal.querySelector('#photo-input');
     const feedback = modal.querySelector('#photo-feedback');
-    const select = modal.querySelector('#team-select');
-    const list = modal.querySelector('#team-list');
+    const consent = modal.querySelector('#consent-select');
     const btn = modal.querySelector('button');
     document.body.appendChild(modal);
     const ui = UIkit.modal(modal);
     UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
-    fetch('/teams.json').then(r => r.json()).then(data => {
-      if(Array.isArray(data)){
-        data.forEach(t => {
-          const opt = document.createElement('option');
-          opt.value = t;
-          list.appendChild(opt);
-        });
-      }
-    }).catch(()=>{});
 
     function toggleBtn(){
-      btn.disabled = !input.files.length || !select.value.trim();
+      btn.disabled = !input.files.length || consent.value !== 'yes';
     }
     input.addEventListener('change', toggleBtn);
-    select.addEventListener('change', toggleBtn);
-    select.addEventListener('input', toggleBtn);
+    consent.addEventListener('change', toggleBtn);
     btn.addEventListener('click', () => {
       const file = input.files && input.files[0];
-      if(!file || !select.value) return;
+      if(!file || consent.value !== 'yes') return;
       const fd = new FormData();
       fd.append('photo', file);
       fd.append('name', user);
       fd.append('catalog', 'summary');
-      fd.append('team', select.value);
+      fd.append('team', user);
       fetch('/photos', { method: 'POST', body: fd })
         .then(r => r.ok ? r.json() : Promise.reject())
         .then(() => {
@@ -200,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
           feedback.className = 'uk-margin-top uk-text-center uk-text-success';
           btn.disabled = true;
           input.disabled = true;
-          select.disabled = true;
+          consent.disabled = true;
         })
         .catch(() => {
           feedback.textContent = 'Fehler beim Hochladen';
