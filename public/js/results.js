@@ -102,27 +102,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function computeRankings(rows) {
-    const puzzle = new Map();
-    const startTimes = new Map();
     const catalogs = new Set();
-    const times = new Map();
+    const puzzleTimes = new Map();
+    const catTimes = new Map();
     const scores = new Map();
 
     rows.forEach(r => {
       catalogs.add(r.catalog);
 
       if (r.puzzleTime) {
-        const prev = puzzle.get(r.name);
-        if (!prev || r.puzzleTime < prev) puzzle.set(r.name, r.puzzleTime);
+        const prev = puzzleTimes.get(r.name);
+        if (!prev || r.puzzleTime < prev) puzzleTimes.set(r.name, r.puzzleTime);
       }
 
-      const st = startTimes.get(r.name);
-      if (st === undefined || r.time < st) {
-        startTimes.set(r.name, r.time);
-      }
-
-      let tMap = times.get(r.name);
-      if (!tMap) { tMap = new Map(); times.set(r.name, tMap); }
+      let tMap = catTimes.get(r.name);
+      if (!tMap) { tMap = new Map(); catTimes.set(r.name, tMap); }
       const prevTime = tMap.get(r.catalog);
       if (prevTime === undefined || r.time < prevTime) {
         tMap.set(r.catalog, r.time);
@@ -137,27 +131,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const puzzleArr = [];
-    puzzle.forEach((time, name) => {
-      const start = startTimes.get(name);
-      if (start !== undefined && time >= start) {
-        const duration = time - start;
-        puzzleArr.push({ name, value: formatDuration(duration), raw: duration });
-      }
+    puzzleTimes.forEach((time, name) => {
+      puzzleArr.push({ name, value: formatTime(time), raw: time });
     });
     puzzleArr.sort((a, b) => a.raw - b.raw);
     const puzzleList = puzzleArr.slice(0, 3);
 
     const totalCats = catalogs.size;
-    const catDur = [];
-    times.forEach((map, name) => {
+    const catFin = [];
+    catTimes.forEach((map, name) => {
       if (map.size === totalCats) {
         const arr = Array.from(map.values());
-        const duration = Math.max(...arr) - Math.min(...arr);
-        catDur.push({ name, value: formatDuration(duration), raw: duration });
+        const finished = Math.max(...arr);
+        catFin.push({ name, value: formatTime(finished), raw: finished });
       }
     });
-    catDur.sort((a, b) => a.raw - b.raw);
-    const catalogList = catDur.slice(0, 3);
+    catFin.sort((a, b) => a.raw - b.raw);
+    const catalogList = catFin.slice(0, 3);
 
     const totalScores = [];
     scores.forEach((map, name) => {
@@ -174,9 +164,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!grid) return;
     grid.innerHTML = '';
     const cards = [
-      { title: 'Schnellstes Rätselwort', list: rankings.puzzleList },
-      { title: 'Alle Kataloge am schnellsten', list: rankings.catalogList },
-      { title: 'Meiste Punkte', list: rankings.pointsList }
+      { title: 'Rätselwort-Bestzeit', list: rankings.puzzleList },
+      { title: 'Katalog-Geschwindigkeitsmeister', list: rankings.catalogList },
+      { title: 'Highscore-Champions', list: rankings.pointsList }
     ];
     cards.forEach(card => {
       const col = document.createElement('div');
