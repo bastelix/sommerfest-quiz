@@ -172,9 +172,21 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!grid) return;
     grid.innerHTML = '';
     const cards = [
-      { title: 'Rätselwort-Bestzeit', list: rankings.puzzleList },
-      { title: 'Katalogmeister', list: rankings.catalogList },
-      { title: 'Highscore-Champions', list: rankings.pointsList }
+      {
+        title: 'Rätselwort-Bestzeit',
+        list: rankings.puzzleList,
+        tooltip: 'Top 3 Platzierungen für das schnellste Lösen des Rätselworts (zeige Namen/Teamnamen, Platzierung und benötigte Zeit)'
+      },
+      {
+        title: 'Katalogmeister',
+        list: rankings.catalogList,
+        tooltip: 'Top 3 Teams/Spieler, die alle Kataloge am schnellsten bearbeitet haben (zeige Namen/Teamnamen, Platzierung und benötigte Gesamtzeit)'
+      },
+      {
+        title: 'Highscore-Champions',
+        list: rankings.pointsList,
+        tooltip: 'Top 3 Teams/Spieler mit den meisten Punkten (zeige Namen/Teamnamen, Platzierung und Punktzahl)'
+      }
     ];
     const MAX_ITEMS = 3;
     cards.forEach(card => {
@@ -183,7 +195,17 @@ document.addEventListener('DOMContentLoaded', () => {
       c.className = 'uk-card uk-card-default uk-card-body';
       const h = document.createElement('h4');
       h.className = 'uk-card-title';
-      h.textContent = card.title;
+      h.append(document.createTextNode(card.title));
+      if (card.tooltip) {
+        const icon = document.createElement('span');
+        icon.className = 'uk-margin-small-left';
+        icon.setAttribute('uk-icon', 'icon: question');
+        icon.setAttribute('uk-tooltip', `title: ${card.tooltip}; pos: right`);
+        h.appendChild(icon);
+        if (typeof UIkit !== 'undefined') {
+          UIkit.icon(icon);
+        }
+      }
       c.appendChild(h);
       const ol = document.createElement('ol');
       ol.className = 'uk-list uk-list-decimal';
