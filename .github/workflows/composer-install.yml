@@ -18,7 +18,7 @@ jobs:
           php-version: '8.2'
 
       - name: Install dependencies
-        run: composer install --no-interaction --no-progress
+        run: composer update --no-interaction --no-progress
 
       - name: Commit updated composer.lock
         run: |
