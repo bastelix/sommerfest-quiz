@@ -416,7 +416,11 @@
       if(selected){
         if(cfg.competitionMode && solvedNow.has(selected.id)){
           const remaining = catalogs.filter(c => !solvedNow.has(c.id)).map(c => c.name || c.id).join(', ');
-          showCatalogSolvedModal(selected.name || selected.id, remaining);
+          if(catalogs.length && solvedNow.size === catalogs.length){
+            showAllSolvedModal();
+          } else {
+            showCatalogSolvedModal(selected.name || selected.id, remaining);
+          }
           showSelection(catalogs, solvedNow);
           return;
         }
