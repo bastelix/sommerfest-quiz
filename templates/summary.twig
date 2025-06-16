@@ -28,5 +28,8 @@
 {% block scripts %}
   <script src="/js/uikit-icons.min.js"></script>
   <script src="/js/custom-icons.js"></script>
+  <script>
+    window.quizConfig = {{ config|json_encode|raw }};
+  </script>
   <script src="/js/summary.js"></script>
 {% endblock %}
