@@ -165,9 +165,10 @@ document.addEventListener('DOMContentLoaded', () => {
     grid.innerHTML = '';
     const cards = [
       { title: 'Rätselwort-Bestzeit', list: rankings.puzzleList },
-      { title: 'Katalog-Geschwindigkeitsmeister', list: rankings.catalogList },
+      { title: 'Katalogmeister', list: rankings.catalogList },
       { title: 'Highscore-Champions', list: rankings.pointsList }
     ];
+    const MAX_ITEMS = 3;
     cards.forEach(card => {
       const col = document.createElement('div');
       const c = document.createElement('div');
@@ -178,16 +179,11 @@ document.addEventListener('DOMContentLoaded', () => {
       c.appendChild(h);
       const ol = document.createElement('ol');
       ol.className = 'uk-list uk-list-decimal';
-      if (card.list.length === 0) {
+      for (let i = 0; i < MAX_ITEMS; i++) {
         const li = document.createElement('li');
-        li.textContent = 'Keine Daten';
+        const item = card.list[i];
+        li.textContent = item ? `${item.name} – ${item.value}` : '-';
         ol.appendChild(li);
-      } else {
-        card.list.forEach(item => {
-          const li = document.createElement('li');
-          li.textContent = `${item.name} – ${item.value}`;
-          ol.appendChild(li);
-        });
       }
       c.appendChild(ol);
       col.appendChild(c);
