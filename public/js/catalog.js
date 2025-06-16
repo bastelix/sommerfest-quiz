@@ -414,16 +414,17 @@
       const solvedNow = await buildSolvedSet(cfg);
       const selected = catalogs.find(c => c.id === id);
       if(selected){
-        if(cfg.competitionMode && solvedNow.has(selected.id)){
-          const remaining = catalogs.filter(c => !solvedNow.has(c.id)).map(c => c.name || c.id).join(', ');
-          if(catalogs.length && solvedNow.size === catalogs.length){
-            showAllSolvedModal();
-          } else {
-            showCatalogSolvedModal(selected.name || selected.id, remaining);
+          if(cfg.competitionMode && solvedNow.has(selected.id)){
+            const remaining = catalogs.filter(c => !solvedNow.has(c.id)).map(c => c.name || c.id).join(', ');
+            if(catalogs.length && solvedNow.size === catalogs.length){
+              showAllSolvedModal();
+              return;
+            } else {
+              showCatalogSolvedModal(selected.name || selected.id, remaining);
+              showSelection(catalogs, solvedNow);
+              return;
+            }
           }
-          showSelection(catalogs, solvedNow);
-          return;
-        }
         loadQuestions(selected.id, selected.file, selected.raetsel_buchstabe);
       }else{
         showSelection(catalogs, solvedNow);
