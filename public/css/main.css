@@ -280,3 +280,11 @@ body.dark-mode .sticky-actions {
   font-weight: bold;
 }
 
+/* Puzzle word input and feedback button */
+#cfgPuzzleWordWrap .uk-input,
+#cfgPuzzleWordWrap .uk-button {
+  height: 44px;
+  line-height: 44px;
+  box-sizing: border-box;
+}
+
