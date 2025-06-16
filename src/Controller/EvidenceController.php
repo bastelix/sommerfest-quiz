@@ -60,16 +60,17 @@ class EvidenceController
         }
 
         $target = $dir . '/' . $fileName;
-        if (class_exists(Image::class)) {
-            $img = Image::make($file->getStream());
-            $img->resize(1500, 1500, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            });
-            $img->save($target, 70);
-        } else {
-            $file->moveTo($target);
+        if (!class_exists('\\Intervention\\Image\\ImageManager')) {
+            $response->getBody()->write('Intervention Image NICHT installiert');
+            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
         }
+
+        $img = Image::make($file->getStream());
+        $img->resize(1500, 1500, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+        });
+        $img->save($target, 70);
 
         $this->consent->add($team, time());
 
