@@ -191,7 +191,7 @@ Unter `/admin` stehen folgende Tabs zur Verfügung:
 6. **Passwort ändern** – Administrationspasswort setzen.
 
 ### Fragenkataloge
-`data/kataloge/catalogs.json` listet verfügbare Kataloge mit `id`, Name und optionaler QR-Code-Adresse. Die API bietet hierzu folgende Endpunkte:
+`data/kataloge/catalogs.json` listet verfügbare Kataloge mit `id`, Name und optionaler QR-Code-Adresse. Jeder Eintrag kann zusätzlich ein Feld `raetsel_buchstabe` enthalten, das den Buchstaben für das Rätselwort festlegt. Die API bietet hierzu folgende Endpunkte:
 - `GET /kataloge/{file}` liefert den JSON-Katalog oder leitet im Browser auf `/?katalog=id` um.
 - `PUT /kataloge/{file}` legt eine neue Datei an.
 - `POST /kataloge/{file}` überschreibt einen Katalog mit gesendeten Daten.
