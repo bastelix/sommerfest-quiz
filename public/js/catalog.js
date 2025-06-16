@@ -95,6 +95,8 @@
   async function loadQuestions(id, file, letter){
     sessionStorage.setItem('quizCatalog', id);
     if(letter){
+    const cfg = window.quizConfig || {};
+    if(cfg.puzzleWordEnabled && letter){
       sessionStorage.setItem('quizLetter', letter);
     }else{
       sessionStorage.removeItem('quizLetter');

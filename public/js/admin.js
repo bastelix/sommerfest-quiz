@@ -54,7 +54,10 @@ document.addEventListener('DOMContentLoaded', function () {
     qrUser: document.getElementById('cfgQRUser'),
     teamRestrict: document.getElementById('cfgTeamRestrict'),
     competitionMode: document.getElementById('cfgCompetitionMode'),
-    teamResults: document.getElementById('cfgTeamResults')
+    teamResults: document.getElementById('cfgTeamResults'),
+    puzzleEnabled: document.getElementById('cfgPuzzleEnabled'),
+    puzzleWord: document.getElementById('cfgPuzzleWord'),
+    puzzleWrap: document.getElementById('cfgPuzzleWordWrap')
   };
   let logoUploaded = false;
   if (cfgFields.logoFile && cfgFields.logoPreview) {
@@ -112,8 +115,24 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cfgFields.teamResults) {
       cfgFields.teamResults.checked = data.teamResults !== false;
     }
+    if (cfgFields.puzzleEnabled) {
+      cfgFields.puzzleEnabled.checked = data.puzzleWordEnabled !== false;
+    }
+    if (cfgFields.puzzleWord) {
+      cfgFields.puzzleWord.value = data.puzzleWord || '';
+    }
+    if (cfgFields.puzzleWrap) {
+      cfgFields.puzzleWrap.style.display = cfgFields.puzzleEnabled.checked ? '' : 'none';
+    }
   }
   renderCfg(cfgInitial);
+  if (cfgFields.puzzleEnabled) {
+    cfgFields.puzzleEnabled.addEventListener('change', () => {
+      if (cfgFields.puzzleWrap) {
+        cfgFields.puzzleWrap.style.display = cfgFields.puzzleEnabled.checked ? '' : 'none';
+      }
+    });
+  }
   document.getElementById('cfgResetBtn').addEventListener('click', function (e) {
     e.preventDefault();
     renderCfg(cfgInitial);
@@ -137,7 +156,9 @@ document.addEventListener('DOMContentLoaded', function () {
       QRUser: cfgFields.qrUser.checked,
       QRRestrict: cfgFields.teamRestrict ? cfgFields.teamRestrict.checked : cfgInitial.QRRestrict,
       competitionMode: cfgFields.competitionMode ? cfgFields.competitionMode.checked : cfgInitial.competitionMode,
-      teamResults: cfgFields.teamResults ? cfgFields.teamResults.checked : cfgInitial.teamResults
+      teamResults: cfgFields.teamResults ? cfgFields.teamResults.checked : cfgInitial.teamResults,
+      puzzleWordEnabled: cfgFields.puzzleEnabled ? cfgFields.puzzleEnabled.checked : cfgInitial.puzzleWordEnabled,
+      puzzleWord: cfgFields.puzzleWord ? cfgFields.puzzleWord.value.trim() : cfgInitial.puzzleWord
     });
     fetch('/config.json', {
       method: 'POST',
