@@ -191,7 +191,12 @@ document.addEventListener('DOMContentLoaded', () => {
       fd.append('catalog', 'summary');
       fd.append('team', user);
       fetch('/photos', { method: 'POST', body: fd })
-        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(async r => {
+          if (!r.ok) {
+            throw new Error(await r.text());
+          }
+          return r.json();
+        })
         .then(() => {
           feedback.textContent = 'Foto gespeichert';
           feedback.className = 'uk-margin-top uk-text-center uk-text-success';
@@ -199,8 +204,8 @@ document.addEventListener('DOMContentLoaded', () => {
           input.disabled = true;
           consent.disabled = true;
         })
-        .catch(() => {
-          feedback.textContent = 'Fehler beim Hochladen';
+        .catch(e => {
+          feedback.textContent = e.message || 'Fehler beim Hochladen';
           feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
         });
     });

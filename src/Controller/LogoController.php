@@ -37,17 +37,20 @@ class LogoController
     {
         $files = $request->getUploadedFiles();
         if (!isset($files['file'])) {
-            return $response->withStatus(400);
+            $response->getBody()->write('missing file');
+            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
 
         $file = $files['file'];
         if ($file->getError() !== UPLOAD_ERR_OK) {
-            return $response->withStatus(400);
+            $response->getBody()->write('upload error');
+            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
 
         $extension = strtolower(pathinfo($file->getClientFilename(), PATHINFO_EXTENSION));
         if (!in_array($extension, ['png', 'webp'], true)) {
-            return $response->withStatus(400);
+            $response->getBody()->write('unsupported file type');
+            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
 
         $target = __DIR__ . "/../../data/logo.$extension";

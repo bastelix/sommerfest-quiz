@@ -26,22 +26,26 @@ class EvidenceController
     {
         $files = $request->getUploadedFiles();
         if (!isset($files['photo'])) {
-            return $response->withStatus(400);
+            $response->getBody()->write('missing file');
+            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
         $file = $files['photo'];
         if ($file->getError() !== UPLOAD_ERR_OK) {
-            return $response->withStatus(400);
+            $response->getBody()->write('upload error');
+            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
         $ext = strtolower(pathinfo($file->getClientFilename(), PATHINFO_EXTENSION));
         if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
-            return $response->withStatus(400);
+            $response->getBody()->write('unsupported file type');
+            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
         $parsed = $request->getParsedBody() ?? [];
         $user = isset($parsed['name']) ? (string)$parsed['name'] : '';
         $catalog = isset($parsed['catalog']) ? (string)$parsed['catalog'] : '';
         $team = isset($parsed['team']) ? (string)$parsed['team'] : '';
         if ($team === '') {
-            return $response->withStatus(400);
+            $response->getBody()->write('missing team');
+            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
 
         $safeUser = preg_replace('/[^A-Za-z0-9_-]/', '_', $user);

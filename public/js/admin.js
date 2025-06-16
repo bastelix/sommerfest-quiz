@@ -85,8 +85,9 @@ document.addEventListener('DOMContentLoaded', function () {
       url: '/logo.png',
       name: 'file',
       multiple: false,
-      error: function () {
-        notify('Fehler beim Hochladen', 'danger');
+      error: function (e) {
+        const msg = (e && e.xhr && e.xhr.responseText) ? e.xhr.responseText : 'Fehler beim Hochladen';
+        notify(msg, 'danger');
       },
       loadStart: function (e) {
         bar.removeAttribute('hidden');
