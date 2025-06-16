@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const solved = sessionStorage.getItem('puzzleSolved') === 'true';
     const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
     if(solved){
-      puzzleBtn?.remove();
+      if (puzzleBtn) puzzleBtn.remove();
       fetchEntry(user, catalog).then(entry => {
         if(entry && entry.puzzleTime){
           puzzleInfo.textContent = `Rätselwort gelöst: ${formatTs(entry.puzzleTime)}`;
@@ -206,9 +206,9 @@ document.addEventListener('DOMContentLoaded', () => {
     ui.show();
   }
 
-  resultsBtn?.addEventListener('click', showResults);
-  puzzleBtn?.addEventListener('click', showPuzzle);
-  photoBtn?.addEventListener('click', showPhotoModal);
+  if (resultsBtn) { resultsBtn.addEventListener('click', showResults); }
+  if (puzzleBtn) { puzzleBtn.addEventListener('click', showPuzzle); }
+  if (photoBtn) { photoBtn.addEventListener('click', showPhotoModal); }
 
   updatePuzzleInfo();
 });
