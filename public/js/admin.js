@@ -164,6 +164,16 @@ document.addEventListener('DOMContentLoaded', function () {
     puzzleFeedback = puzzleTextarea.value;
     updatePuzzleFeedbackUI();
     puzzleModal.hide();
+    cfgInitial.puzzleFeedback = puzzleFeedback;
+    fetch('/config.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cfgInitial)
+    }).then(r => {
+      if (r.ok) {
+        notify('Feedbacktext gespeichert', 'success');
+      }
+    }).catch(() => {});
   });
   document.getElementById('cfgResetBtn').addEventListener('click', function (e) {
     e.preventDefault();
