@@ -269,3 +269,8 @@ body.dark-mode .sticky-actions {
   justify-content: center;
 }
 
+.quiz-letter {
+  font-size: 6rem;
+  font-weight: bold;
+}
+

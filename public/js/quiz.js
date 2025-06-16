@@ -185,6 +185,16 @@ function runQuiz(questions){
     if(p) p.textContent = `${user} hat ${score} von ${questionCount} Punkten erreicht.`;
     const heading = summaryEl.querySelector('h3');
     if(heading) heading.textContent = `🎉 Danke für die Teilnahme ${user}!`;
+    const letter = sessionStorage.getItem('quizLetter');
+    const letterEl = summaryEl.querySelector('#quiz-letter');
+    if(letterEl){
+      if(letter){
+        letterEl.textContent = letter;
+        letterEl.style.display = 'block';
+      }else{
+        letterEl.style.display = 'none';
+      }
+    }
     if(score === questionCount && typeof window.startConfetti === 'function'){
       window.startConfetti();
     }
@@ -701,8 +711,13 @@ function runQuiz(questions){
     const h = document.createElement('h3');
     h.textContent = '🎉 Danke für die Teilnahme!';
     const p = document.createElement('p');
+    const letter = document.createElement('div');
+    letter.id = 'quiz-letter';
+    letter.className = 'quiz-letter uk-margin-top';
+    letter.style.display = 'none';
     div.appendChild(h);
     div.appendChild(p);
+    div.appendChild(letter);
     if(!cfg.competitionMode){
       const restart = document.createElement('a');
       restart.href = '/';
