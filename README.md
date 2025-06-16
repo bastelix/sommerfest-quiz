@@ -4,6 +4,14 @@
 
 Das **Sommerfest-Quiz** ist eine sofort einsetzbare Web-App, mit der Sie Besucherinnen und Besucher spielerisch an Events beteiligen. Dank Slim Framework und UIkit3 funktioniert alles ohne komplizierte Server-Setups direkt im Browser.
 
+## Disclaimer / Hinweis
+
+Die Sommerfeier 2025 Quiz-App ist das Ergebnis einer spannenden Zusammenarbeit zwischen menschlicher Erfahrung und künstlicher Intelligenz. Während Ideen, Organisation und jede Menge Praxiswissen von Menschen stammen, wurden alle Codezeilen experimentell komplett von OpenAI Codex geschrieben. Für die kreativen Konzepte und Inhalte kam ChatGPT 4.1 zum Einsatz, bei der Fehlersuche half GitHub Copilot und das Logo wurde von der KI Sora entworfen.
+
+Uns war wichtig, dass wirklich alle mitmachen können – deshalb ist die App barrierefrei und auch für Menschen mit Einschränkungen einfach zu nutzen. Deine Daten sind selbstverständlich geschützt, denn Datenschutz und Sicherheit nehmen wir ernst. Damit’s Spaß macht, läuft die App flott und bleibt auch bei vielen Teilnehmenden stabil. Die Bedienung ist selbsterklärend, sodass niemand lange suchen muss, und egal ob du am Handy, Tablet oder am Rechner bist – alles sieht gut aus und funktioniert einwandfrei. Außerdem haben wir darauf geachtet, dass die Anwendung ressourcenschonend läuft und einfach mit anderen Systemen zusammenarbeitet.
+
+Mit dieser App zeigen wir, was heute schon möglich ist, wenn Menschen und verschiedene KI-Tools wie ChatGPT, Codex, Copilot und Sora gemeinsam an neuen digitalen Ideen tüfteln.
+
 ## Überblick
 
 - **Flexibel einsetzbar**: Fragenkataloge im JSON-Format lassen sich bequem austauschen oder erweitern.
