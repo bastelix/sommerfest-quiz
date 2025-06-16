@@ -151,20 +151,19 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.setAttribute('uk-modal', '');
     modal.setAttribute('aria-modal', 'true');
     modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
-      '<h3 class="uk-modal-title uk-text-center">Beweisfoto einreichen</h3>' +
-      '<p class="uk-text-small">Hinweis zum Hochladen von Gruppenfotos:<br>' +
-      'Mit dem Upload eines Gruppenfotos bestätigen Sie, dass alle abgebildeten Teammitglieder der Verwendung des Fotos im Rahmen des Teamtages zustimmen. Das Hochladen ist freiwillig. Die Fotos werden ausschließlich für die Dokumentation des Teamtages verwendet und nach der Veranstaltung von der Onlineplattform gelöscht.' +
-      '</p>' +
-      '<label for="consent-select" class="uk-form-label">Einverständnis aller Personen?</label>' +
-      '<select id="consent-select" class="uk-select uk-margin-small-top">' +
-      '<option value="">bitte wählen</option>' +
-      '<option value="yes">Ja</option>' +
-      '<option value="no">Nein</option>' +
-      '</select>' +
-      '<input id="photo-input" class="uk-input" type="file" accept="image/*" capture="environment">' +
-      '<div id="photo-feedback" class="uk-margin-top uk-text-center"></div>' +
-      '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top" disabled>Hochladen</button>' +
-      '</div>';
+      <h3 class="uk-modal-title uk-text-center">Beweisfoto einreichen</h3>
+      <p class="uk-text-small">Hinweis zum Hochladen von Gruppenfotos:<br>
+         Mit dem Upload eines Gruppenfotos bestätigen Sie, dass alle abgebildeten Teammitglieder der Verwendung des Fotos im Rahmen des Teamtages zustimmen. Das Hochladen ist freiwillig. Die Fotos werden ausschließlich für die Dokumentation des Teamtages verwendet und nach der Veranstaltung von der Onlineplattform gelöscht.
+      </p>
+      <input id="team-select" class="uk-input uk-margin-small-top" list="team-list" placeholder="Team wählen">
+      <datalist id="team-list"></datalist>
+      <label class="uk-form-label uk-margin-small-top">
+      <input type="checkbox" id="consent-checkbox" class="uk-checkbox">
+      Einverständnis aller Personen
+    </label>
+    <input id="photo-input" class="uk-input" type="file" accept="image/*" capture="environment">
+    <div id="photo-feedback" class="uk-margin-top uk-text-center"></div>
+    <button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top" disabled>Hochladen</button>   
     const input = modal.querySelector('#photo-input');
     const feedback = modal.querySelector('#photo-feedback');
     const consent = modal.querySelector('#consent-select');
