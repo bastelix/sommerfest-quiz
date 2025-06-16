@@ -29,7 +29,9 @@
   {% endembed %}
   <div class="uk-container uk-container-small uk-text-center">
     <h2 class="uk-heading-bullet">Herzlichen Glückwunsch, du hast alle Kataloge gelöst!</h2>
+    {% if config.teamResults is not defined or config.teamResults %}
     <button id="show-results-btn" class="uk-button uk-button-primary uk-margin-top">Ergebnisse anzeigen</button>
+    {% endif %}
     {% if config.photoUpload is not defined or config.photoUpload %}
     <button id="upload-photo-btn" class="uk-button uk-button-primary uk-margin-top">Beweisfoto einreichen</button>
     {% endif %}
