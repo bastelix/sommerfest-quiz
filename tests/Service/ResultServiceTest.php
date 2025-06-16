@@ -51,4 +51,18 @@ class ResultServiceTest extends TestCase
 
         unlink($tmp);
     }
+
+    public function testSetPhotoUpdatesEntry(): void
+    {
+        $tmp = tempnam(sys_get_temp_dir(), 'results');
+        $service = new ResultService($tmp);
+
+        $service->add(['name' => 'TeamA', 'catalog' => 'cat1']);
+        $service->setPhoto('TeamA', 'cat1', '/photo/test.jpg');
+        $data = $service->getAll();
+
+        $this->assertSame('/photo/test.jpg', $data[0]['photo']);
+
+        unlink($tmp);
+    }
 }

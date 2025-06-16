@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const resultsBtn = document.getElementById('show-results-btn');
   const puzzleBtn = document.getElementById('check-puzzle-btn');
+  const photoBtn = document.getElementById('upload-photo-btn');
   const user = sessionStorage.getItem('quizUser') || '';
 
   function showResults(){
@@ -110,6 +111,46 @@ document.addEventListener('DOMContentLoaded', () => {
     ui.show();
   }
 
+  function showPhotoModal(){
+    const modal = document.createElement('div');
+    modal.setAttribute('uk-modal', '');
+    modal.setAttribute('aria-modal', 'true');
+    modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
+      '<h3 class="uk-modal-title uk-text-center">Beweisfoto einreichen</h3>' +
+      '<input id="photo-input" class="uk-input" type="file" accept="image/*" capture="environment">' +
+      '<div id="photo-feedback" class="uk-margin-top uk-text-center"></div>' +
+      '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Hochladen</button>' +
+      '</div>';
+    const input = modal.querySelector('#photo-input');
+    const feedback = modal.querySelector('#photo-feedback');
+    const btn = modal.querySelector('button');
+    document.body.appendChild(modal);
+    const ui = UIkit.modal(modal);
+    UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
+    btn.addEventListener('click', () => {
+      const file = input.files && input.files[0];
+      if(!file) return;
+      const fd = new FormData();
+      fd.append('photo', file);
+      fd.append('name', user);
+      fd.append('catalog', 'summary');
+      fetch('/photos', { method: 'POST', body: fd })
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(() => {
+          feedback.textContent = 'Foto gespeichert';
+          feedback.className = 'uk-margin-top uk-text-center uk-text-success';
+          btn.disabled = true;
+          input.disabled = true;
+        })
+        .catch(() => {
+          feedback.textContent = 'Fehler beim Hochladen';
+          feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
+        });
+    });
+    ui.show();
+  }
+
   resultsBtn?.addEventListener('click', showResults);
   puzzleBtn?.addEventListener('click', showPuzzle);
+  photoBtn?.addEventListener('click', showPhotoModal);
 });

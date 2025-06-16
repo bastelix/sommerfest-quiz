@@ -32,7 +32,7 @@ class ResultController
     {
         $data = $this->service->getAll();
         $rows = [];
-        $rows[] = ['Name', 'Versuch', 'Katalog', 'Richtige', 'Gesamt', 'Zeit', 'Rätselwort'];
+        $rows[] = ['Name', 'Versuch', 'Katalog', 'Richtige', 'Gesamt', 'Zeit', 'Rätselwort', 'Beweisfoto'];
         foreach ($data as $r) {
             $rows[] = [
                 (string)($r['name'] ?? ''),
@@ -41,7 +41,8 @@ class ResultController
                 (int)($r['correct'] ?? 0),
                 (int)($r['total'] ?? 0),
                 date('Y-m-d H:i', (int)($r['time'] ?? 0)),
-                isset($r['puzzleTime']) ? date('Y-m-d H:i', (int)$r['puzzleTime']) : ''
+                isset($r['puzzleTime']) ? date('Y-m-d H:i', (int)$r['puzzleTime']) : '',
+                (string)($r['photo'] ?? '')
             ];
         }
         // prepend UTF-8 BOM for better compatibility with spreadsheet tools
