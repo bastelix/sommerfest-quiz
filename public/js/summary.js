@@ -2,11 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultsBtn = document.getElementById('show-results-btn');
   const puzzleBtn = document.getElementById('check-puzzle-btn');
   const photoBtn = document.getElementById('upload-photo-btn');
+  const puzzleInfo = document.getElementById('puzzle-solved-text');
   const user = sessionStorage.getItem('quizUser') || '';
-  const puzzleInfo = document.createElement('p');
-  puzzleInfo.id = 'puzzle-info';
-  puzzleInfo.className = 'uk-margin-top';
-  puzzleBtn?.parentNode?.appendChild(puzzleInfo);
 
   const formatTs = window.formatPuzzleTime || function(ts){
     const d = new Date(ts * 1000);
@@ -24,13 +21,18 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   function updatePuzzleInfo(){
-    if(sessionStorage.getItem('puzzleSolved') !== 'true') return;
+    const solved = sessionStorage.getItem('puzzleSolved') === 'true';
     const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
-    fetchEntry(user, catalog).then(entry => {
-      if(entry && entry.puzzleTime){
-        puzzleInfo.textContent = `Rätselwort gelöst: ${formatTs(entry.puzzleTime)}`;
-      }
-    }).catch(()=>{});
+    if(solved){
+      puzzleBtn?.remove();
+      fetchEntry(user, catalog).then(entry => {
+        if(entry && entry.puzzleTime){
+          puzzleInfo.textContent = `Rätselwort gelöst: ${formatTs(entry.puzzleTime)}`;
+        }
+      }).catch(()=>{});
+    }else{
+      if(puzzleInfo) puzzleInfo.textContent = '';
+    }
   }
 
   function showResults(){
@@ -128,11 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: userName, catalog, puzzleTime: Math.floor(Date.now()/1000) })
           }).catch(()=>{});
-          fetchEntry(userName, catalog).then(entry => {
-            if(entry && entry.puzzleTime){
-              puzzleInfo.textContent = `Rätselwort gelöst: ${formatTs(entry.puzzleTime)}`;
-            }
-          }).catch(()=>{});
+          updatePuzzleInfo();
           input.disabled = true;
           btn.textContent = 'Schließen';
         }else{
