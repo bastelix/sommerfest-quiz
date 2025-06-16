@@ -22,7 +22,7 @@
                         </div>
                         <div class="uk-width-auto@s uk-width-1-1">
                             {% set link = baseUrl ? baseUrl ~ '/?katalog=' ~ katalog.id : '?katalog=' ~ katalog.id %}
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ link|url_encode }}" alt="QR" width="48" height="48" class="uk-margin-small-bottom">
+                            <img src="/qr.png?t={{ link|url_encode }}&fg=dc0000" alt="QR" width="48" height="48" class="uk-margin-small-bottom">
                             <button class="uk-button uk-button-danger uk-button-small uk-width-1-1">Löschen</button>
                         </div>
                     </div>
