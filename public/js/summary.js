@@ -211,6 +211,19 @@ document.addEventListener('DOMContentLoaded', () => {
           btn.disabled = true;
           input.disabled = true;
           consent.disabled = true;
+          setTimeout(() => {
+            ui.hide();
+            if (typeof UIkit !== 'undefined' && UIkit.notification) {
+              UIkit.notification({
+                message: 'Bild erfolgreich gespeichert',
+                status: 'success',
+                pos: 'top-center',
+                timeout: 2000
+              });
+            } else {
+              alert('Bild erfolgreich gespeichert');
+            }
+          }, 1000);
         })
         .catch(e => {
           feedback.textContent = e.message || 'Fehler beim Hochladen';
