@@ -27,6 +27,7 @@ Mit dieser App zeigen wir, was heute schon möglich ist, wenn Menschen und versc
 - **Intuitives UI**: Komplett auf UIkit3 basierendes Frontend mit flüssigen Animationen und responsive Design.
 - **Stark anpassbar**: Farben, Logo und Texte lassen sich über `data/config.json` anpassen.
 - **Vollständig im Browser**: Das Quiz benötigt keine Serverpersistenz und funktioniert auch offline, sobald die Seite geladen ist.
+- **Automatische Bildkompression**: Hochgeladene Fotos werden nun standardmäßig verkleinert und komprimiert.
 
 ## Fokus der Entwicklung
 
@@ -92,16 +93,8 @@ Ein vorheriges `composer install` ist somit nicht mehr erforderlich.
 
 ### Bildgrößen anpassen
 
-Damit die Uploads keine übermäßig großen Dateien erzeugen, kann optional die
-Bibliothek [Intervention Image](https://image.intervention.io/) genutzt
-werden.
-Sie lässt sich per
-
-```bash
-composer require intervention/image
-```
-
-einbinden. Die Controller verkleinern Bilder dann automatisch auf eine
+Damit hochgeladene Dateien nicht unnötig groß werden, ist die Bibliothek [Intervention Image](https://image.intervention.io/) nun fest eingebunden.
+Die Controller verkleinern Bilder automatisch auf eine
 maximale Kantenlänge von 1500&nbsp;Pixeln (Beweisfotos) beziehungsweise
 512&nbsp;Pixeln (Logo) und speichern sie mit 70–80&nbsp;% Qualität.
 
