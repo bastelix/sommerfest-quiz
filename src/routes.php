@@ -18,6 +18,7 @@ use App\Service\ConfigService;
 use App\Service\CatalogService;
 use App\Service\ResultService;
 use App\Service\TeamService;
+use App\Service\PhotoConsentService;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
 use App\Controller\PasswordController;
@@ -62,7 +63,8 @@ return function (\Slim\App $app) {
     $qrController = new QrController();
     $logoController = new LogoController($configService);
     $summaryController = new SummaryController($configService);
-    $evidenceController = new EvidenceController($resultService, __DIR__ . '/../data/pics');
+    $consentService = new PhotoConsentService(__DIR__ . '/../data/photo_consents.json');
+    $evidenceController = new EvidenceController($resultService, $consentService, __DIR__ . '/../data/pics');
 
     $app->get('/', HomeController::class);
     $app->get('/favicon.ico', function (Request $request, Response $response) {

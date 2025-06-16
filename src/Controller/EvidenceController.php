@@ -5,17 +5,20 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\ResultService;
+use App\Service\PhotoConsentService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class EvidenceController
 {
     private ResultService $results;
+    private PhotoConsentService $consent;
     private string $dir;
 
-    public function __construct(ResultService $results, string $dir)
+    public function __construct(ResultService $results, PhotoConsentService $consent, string $dir)
     {
         $this->results = $results;
+        $this->consent = $consent;
         $this->dir = rtrim($dir, '/');
     }
 
@@ -36,6 +39,10 @@ class EvidenceController
         $parsed = $request->getParsedBody() ?? [];
         $user = isset($parsed['name']) ? (string)$parsed['name'] : '';
         $catalog = isset($parsed['catalog']) ? (string)$parsed['catalog'] : '';
+        $team = isset($parsed['team']) ? (string)$parsed['team'] : '';
+        if ($team === '') {
+            return $response->withStatus(400);
+        }
 
         $safeUser = preg_replace('/[^A-Za-z0-9_-]/', '_', $user);
         $safeCatalog = preg_replace('/[^A-Za-z0-9_-]/', '_', $catalog);
@@ -49,6 +56,8 @@ class EvidenceController
 
         $target = $dir . '/' . $fileName;
         $file->moveTo($target);
+
+        $this->consent->add($team, time());
 
         $path = '/photo/' . rawurlencode($safeUser) . '/' . rawurlencode($fileName);
         if ($user !== '' && $catalog !== '') {
