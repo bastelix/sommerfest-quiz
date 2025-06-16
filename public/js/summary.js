@@ -153,6 +153,9 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.innerHTML =
       '<div class="uk-modal-dialog uk-modal-body">' +
         '<div class="uk-card uk-card-default uk-card-body uk-padding-small uk-width-1-1">' +
+          '<p class="uk-text-small">Hinweis zum Hochladen von Gruppenfotos:<br>' +
+            'Mit dem Upload eines Fotos bestätigen Sie, dass alle abgebildeten Personen der Verwendung des Fotos im Rahmen der Veranstaltung zustimmen. Das Hochladen ist freiwillig. Die Fotos werden ausschließlich für die Dokumentation der Veranstaltung verwendet und nach der Veranstaltung von der Onlineplattform gelöscht.' +
+          '</p>' +
           '<div class="uk-margin-small-bottom">' +
             '<label class="uk-form-label" for="photo-input">Beweisfoto auswählen</label>' +
             '<input id="photo-input" class="uk-input" type="file" accept="image/*" capture="environment">' +
