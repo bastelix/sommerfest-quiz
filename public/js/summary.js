@@ -150,7 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
       '<h3 class="uk-modal-title uk-text-center">Beweisfoto einreichen</h3>' +
       '<p class="uk-text-small">Hinweis zum Hochladen von Gruppenfotos:<br>' +
-      'Mit dem Upload eines Gruppenfotos bestätigen Sie, dass alle abgebildeten Teammitglieder der Verwendung des Fotos im Rahmen des Teamtages zustimmen. Das Hochladen ist freiwillig. Die Fotos werden ausschließlich für die Dokumentation des Teamtages verwendet und nach der Veranstaltung von der Onlineplattform gelöscht.'</p>' +
+      'Mit dem Upload eines Gruppenfotos bestätigen Sie, dass alle abgebildeten Teammitglieder der Verwendung des Fotos im Rahmen des Teamtages zustimmen. Das Hochladen ist freiwillig. Die Fotos werden ausschließlich für die Dokumentation des Teamtages verwendet und nach der Veranstaltung von der Onlineplattform gelöscht.' +
+      '</p>' +
       '<select id="team-select" class="uk-select uk-margin-small-top">' +
       '<option value="">Team wählen</option>' +
       '</select>' +
