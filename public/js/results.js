@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!groups.length) {
       const tr = document.createElement('tr');
       const td = document.createElement('td');
-      td.colSpan = 6;
+      td.colSpan = 7;
       td.textContent = 'Keine Daten';
       tr.appendChild(td);
       tbody.appendChild(tr);
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     groups.forEach(g => {
       const head = document.createElement('tr');
       const th = document.createElement('th');
-      th.colSpan = 6;
+      th.colSpan = 7;
       th.textContent = g.name;
       head.appendChild(th);
       tbody.appendChild(head);
@@ -35,14 +35,25 @@ document.addEventListener('DOMContentLoaded', () => {
           r.catalog,
           `${r.correct}/${r.total}`,
           formatTime(r.time),
-          r.puzzleTime ? formatTime(r.puzzleTime) : ''
+          r.puzzleTime ? formatTime(r.puzzleTime) : '',
+          null
         ];
         const nameCell = document.createElement('td');
         nameCell.textContent = r.name;
         tr.appendChild(nameCell);
-        cells.forEach(c => {
+        cells.forEach((c, idx) => {
           const td = document.createElement('td');
-          td.textContent = c;
+          if (idx === cells.length - 1) {
+            if (r.photo) {
+              const img = document.createElement('img');
+              img.src = r.photo;
+              img.alt = 'Beweisfoto';
+              img.className = 'proof-thumb';
+              td.appendChild(img);
+            }
+          } else {
+            td.textContent = c;
+          }
           tr.appendChild(td);
         });
         tbody.appendChild(tr);

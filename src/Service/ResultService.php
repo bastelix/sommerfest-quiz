@@ -45,6 +45,7 @@ class ResultService
             'time' => time(),
             // optional timestamp when the puzzle word was solved
             'puzzleTime' => isset($data['puzzleTime']) ? (int)$data['puzzleTime'] : null,
+            'photo' => isset($data['photo']) ? (string)$data['photo'] : null,
         ];
         $results[] = $entry;
         file_put_contents($this->path, json_encode($results, JSON_PRETTY_PRINT) . "\n");
@@ -65,6 +66,18 @@ class ResultService
                     $results[$i]['puzzleTime'] = $time;
                     file_put_contents($this->path, json_encode($results, JSON_PRETTY_PRINT) . "\n");
                 }
+                break;
+            }
+        }
+    }
+
+    public function setPhoto(string $name, string $catalog, string $path): void
+    {
+        $results = $this->getAll();
+        for ($i = count($results) - 1; $i >= 0; $i--) {
+            if (($results[$i]['name'] ?? '') === $name && ($results[$i]['catalog'] ?? '') === $catalog) {
+                $results[$i]['photo'] = $path;
+                file_put_contents($this->path, json_encode($results, JSON_PRETTY_PRINT) . "\n");
                 break;
             }
         }

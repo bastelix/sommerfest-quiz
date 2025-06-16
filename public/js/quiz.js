@@ -242,6 +242,17 @@ function runQuiz(questions){
         summaryEl.appendChild(puzzleBtn);
       }
     }
+
+    const photoBtn = document.createElement('button');
+    photoBtn.className = 'uk-button uk-button-primary uk-margin-top';
+    photoBtn.textContent = 'Beweisfoto einreichen';
+    styleButton(photoBtn);
+    photoBtn.addEventListener('click', () => {
+      const name = sessionStorage.getItem('quizUser') || '';
+      const catalogName = sessionStorage.getItem('quizCatalog') || 'unknown';
+      showPhotoModal(name, catalogName);
+    });
+    summaryEl.appendChild(photoBtn);
   }
 
   // Wählt basierend auf dem Fragetyp die passende Erzeugerfunktion aus
@@ -849,6 +860,45 @@ function runQuiz(questions){
         btnEl.disabled = true;
         btnEl.style.display = 'none';
       }
+    });
+    ui.show();
+  }
+
+  function showPhotoModal(name, catalog){
+    const modal = document.createElement('div');
+    modal.setAttribute('uk-modal', '');
+    modal.setAttribute('aria-modal', 'true');
+    modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
+      '<h3 class="uk-modal-title uk-text-center">Beweisfoto einreichen</h3>' +
+      '<input id="photo-input" class="uk-input" type="file" accept="image/*" capture="environment">' +
+      '<div id="photo-feedback" class="uk-margin-top uk-text-center"></div>' +
+      '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Hochladen</button>' +
+      '</div>';
+    const input = modal.querySelector('#photo-input');
+    const feedback = modal.querySelector('#photo-feedback');
+    const btn = modal.querySelector('button');
+    document.body.appendChild(modal);
+    const ui = UIkit.modal(modal);
+    UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
+    btn.addEventListener('click', () => {
+      const file = input.files && input.files[0];
+      if(!file) return;
+      const fd = new FormData();
+      fd.append('photo', file);
+      fd.append('name', name);
+      fd.append('catalog', catalog);
+      fetch('/photos', { method: 'POST', body: fd })
+        .then(r => r.ok ? r.json() : Promise.reject())
+        .then(() => {
+          feedback.textContent = 'Foto gespeichert';
+          feedback.className = 'uk-margin-top uk-text-center uk-text-success';
+          btn.disabled = true;
+          input.disabled = true;
+        })
+        .catch(() => {
+          feedback.textContent = 'Fehler beim Hochladen';
+          feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
+        });
     });
     ui.show();
   }

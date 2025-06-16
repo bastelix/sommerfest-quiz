@@ -24,6 +24,7 @@ use App\Controller\PasswordController;
 use App\Controller\QrController;
 use App\Controller\LogoController;
 use App\Controller\SummaryController;
+use App\Controller\EvidenceController;
 
 require_once __DIR__ . '/Controller/HomeController.php';
 require_once __DIR__ . '/Controller/FaqController.php';
@@ -42,6 +43,7 @@ require_once __DIR__ . '/Controller/AdminCatalogController.php';
 require_once __DIR__ . '/Controller/QrController.php';
 require_once __DIR__ . '/Controller/LogoController.php';
 require_once __DIR__ . '/Controller/SummaryController.php';
+require_once __DIR__ . '/Controller/EvidenceController.php';
 
 return function (\Slim\App $app) {
     $configService = new ConfigService(
@@ -60,6 +62,7 @@ return function (\Slim\App $app) {
     $qrController = new QrController();
     $logoController = new LogoController($configService);
     $summaryController = new SummaryController($configService);
+    $evidenceController = new EvidenceController($resultService, __DIR__ . '/../data/photos');
 
     $app->get('/', HomeController::class);
     $app->get('/favicon.ico', function (Request $request, Response $response) {
@@ -100,5 +103,7 @@ return function (\Slim\App $app) {
     $app->post('/logo.png', [$logoController, 'post']);
     $app->get('/logo.webp', [$logoController, 'get'])->setArgument('ext', 'webp');
     $app->post('/logo.webp', [$logoController, 'post']);
+    $app->post('/photos', [$evidenceController, 'post']);
+    $app->get('/photo/{name}', [$evidenceController, 'get']);
     $app->get('/summary', $summaryController);
 };

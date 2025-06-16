@@ -262,6 +262,12 @@ body.dark-mode .sticky-actions {
   background-color: #fff;
 }
 
+.proof-thumb {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+}
+
 .js-upload {
   min-height: 240px;
   display: flex;
