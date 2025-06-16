@@ -58,6 +58,27 @@
   };
 })();
 
+function formatPuzzleTime(ts){
+  const d = new Date(ts * 1000);
+  const pad = n => n.toString().padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+async function fetchLatestPuzzleEntry(name, catalog){
+  try{
+    const list = await fetch('/results.json').then(r => r.json());
+    if(Array.isArray(list)){
+      return list.slice().reverse().find(e => e.name === name && e.catalog === catalog && e.puzzleTime);
+    }
+  }catch(e){
+    return null;
+  }
+  return null;
+}
+
+window.formatPuzzleTime = formatPuzzleTime;
+window.fetchLatestPuzzleEntry = fetchLatestPuzzleEntry;
+
 function runQuiz(questions){
   // Konfiguration laden und einstellen, ob der "Antwort prüfen"-Button
   // eingeblendet werden soll
@@ -234,19 +255,12 @@ function runQuiz(questions){
     if(cfg.puzzleWordEnabled){
       const attemptKey = 'puzzleAttempt-' + catalog;
       const puzzleSolved = sessionStorage.getItem('puzzleSolved') === 'true';
-      if(puzzleSolved){
-        fetch('/results.json').then(r => r.json()).then(list => {
-          if(Array.isArray(list)){
-            const name = sessionStorage.getItem('quizUser') || '';
-            const entry = list.slice().reverse().find(e => e.name === name && e.catalog === catalog && e.puzzleTime);
-            if(entry && entry.puzzleTime){
-              const d = new Date(entry.puzzleTime * 1000);
-              const pad = n => n.toString().padStart(2, '0');
-              const ts = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-              const info = document.createElement('p');
-              info.textContent = `Rätselwort gelöst: ${ts}`;
-              summaryEl.appendChild(info);
-            }
+      const puzzleInfo = summaryEl.querySelector('#puzzle-info');
+      if(puzzleSolved && puzzleInfo){
+        const name = sessionStorage.getItem('quizUser') || '';
+        fetchLatestPuzzleEntry(name, catalog).then(entry => {
+          if(entry && entry.puzzleTime){
+            puzzleInfo.textContent = `Rätselwort gelöst: ${formatPuzzleTime(entry.puzzleTime)}`;
           }
         }).catch(()=>{});
       }
@@ -755,9 +769,13 @@ function runQuiz(questions){
     letter.id = 'quiz-letter';
     letter.className = 'quiz-letter uk-margin-top';
     letter.style.display = 'none';
+    const puzzleInfo = document.createElement('p');
+    puzzleInfo.id = 'puzzle-info';
+    puzzleInfo.className = 'uk-margin-top';
     div.appendChild(h);
     div.appendChild(p);
     div.appendChild(letter);
+    div.appendChild(puzzleInfo);
     if(!cfg.competitionMode){
       const restart = document.createElement('a');
       restart.href = '/';
@@ -865,6 +883,12 @@ function runQuiz(questions){
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: user, catalog, puzzleTime: Math.floor(Date.now()/1000) })
+        }).catch(()=>{});
+        const infoEl = summaryEl.querySelector('#puzzle-info');
+        fetchLatestPuzzleEntry(user, catalog).then(entry => {
+          if(entry && entry.puzzleTime && infoEl){
+            infoEl.textContent = `Rätselwort gelöst: ${formatPuzzleTime(entry.puzzleTime)}`;
+          }
         }).catch(()=>{});
       }else{
         feedback.textContent = 'Das ist leider nicht korrekt. Versuch es erneut!';
