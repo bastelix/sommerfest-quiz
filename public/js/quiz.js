@@ -917,21 +917,42 @@ function runQuiz(questions){
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
     modal.setAttribute('aria-modal', 'true');
-    modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
-      '<h3 class="uk-modal-title uk-text-center">Beweisfoto einreichen</h3>' +
-      '<input id="photo-input" class="uk-input" type="file" accept="image/*" capture="environment">' +
-      '<div id="photo-feedback" class="uk-margin-top uk-text-center"></div>' +
-      '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Hochladen</button>' +
+    modal.innerHTML =
+      '<div class="uk-modal-dialog uk-modal-body">' +
+        '<div class="uk-card uk-card-default uk-card-body uk-padding-small uk-width-1-1">' +
+          '<p class="uk-text-small">Hinweis zum Hochladen von Gruppenfotos:<br>' +
+            'Mit dem Upload eines Fotos bestätigen Sie, dass alle abgebildeten Personen der Verwendung des Fotos im Rahmen der Veranstaltung zustimmen. Das Hochladen ist freiwillig. Die Fotos werden ausschließlich für die Dokumentation der Veranstaltung verwendet und nach der Veranstaltung von der Onlineplattform gelöscht.' +
+          '</p>' +
+          '<div class="uk-margin-small-bottom">' +
+            '<label class="uk-form-label" for="photo-input">Beweisfoto auswählen</label>' +
+            '<input id="photo-input" class="uk-input" type="file" accept="image/*" capture="environment">' +
+          '</div>' +
+          '<label class="uk-form-label uk-margin-small-bottom">' +
+            '<input type="checkbox" id="consent-checkbox" class="uk-checkbox uk-margin-small-right">' +
+            'Einverständnis aller abgebildeten Personen wurde eingeholt ' +
+          '</label>' +
+          '<div id="photo-feedback" class="uk-margin-small uk-text-center"></div>' +
+          '<button class="uk-button uk-button-primary uk-width-1-1" disabled>Hochladen</button>' +
+        '</div>' +
       '</div>';
+
     const input = modal.querySelector('#photo-input');
     const feedback = modal.querySelector('#photo-feedback');
+    const consent = modal.querySelector('#consent-checkbox');
     const btn = modal.querySelector('button');
     document.body.appendChild(modal);
     const ui = UIkit.modal(modal);
     UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
+
+    function toggleBtn(){
+      btn.disabled = !input.files.length || !consent.checked;
+    }
+    input.addEventListener('change', toggleBtn);
+    consent.addEventListener('change', toggleBtn);
+
     btn.addEventListener('click', () => {
       const file = input.files && input.files[0];
-      if(!file) return;
+      if(!file || !consent.checked) return;
       const fd = new FormData();
       fd.append('photo', file);
       fd.append('name', name);
@@ -949,6 +970,7 @@ function runQuiz(questions){
           feedback.className = 'uk-margin-top uk-text-center uk-text-success';
           btn.disabled = true;
           input.disabled = true;
+          consent.disabled = true;
         })
         .catch(e => {
           feedback.textContent = e.message || 'Fehler beim Hochladen';
