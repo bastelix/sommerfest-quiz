@@ -891,7 +891,7 @@ function runQuiz(questions){
           }
         }).catch(()=>{});
       }else{
-        feedback.textContent = 'Das ist leider nicht korrekt. Versuch es erneut!';
+        feedback.textContent = 'Das ist leider nicht korrekt. Viel Glück beim nächsten Versuch!';
         feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
       }
 
