@@ -15,6 +15,17 @@
     {% block left %}
       <a href="/faq" class="uk-icon-button" uk-icon="icon: question; ratio: 2" title="Hilfe" aria-label="Hilfe"></a>
     {% endblock %}
+    {% block center %}
+      <span class="uk-navbar-title">{{ config.header|default('Sommerfest 2025') }}</span>
+    {% endblock %}
+    {% block right %}
+      <div class="theme-switch">
+        <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="Design wechseln"></button>
+      </div>
+      <div class="contrast-switch uk-margin-small-left">
+        <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="Kontrastmodus"></button>
+      </div>
+    {% endblock %}
   {% endembed %}
   <div class="uk-container uk-container-small uk-text-center">
     <h2 class="uk-heading-bullet">Herzlichen Glückwunsch, du hast alle Kataloge gelöst!</h2>
@@ -28,6 +39,7 @@
 {% block scripts %}
   <script src="/js/uikit-icons.min.js"></script>
   <script src="/js/custom-icons.js"></script>
+  <script src="/js/app.js"></script>
   <script>
     window.quizConfig = {{ config|json_encode|raw }};
   </script>
