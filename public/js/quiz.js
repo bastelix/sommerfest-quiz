@@ -230,6 +230,15 @@ function runQuiz(questions){
         summaryEl.appendChild(btn);
       }
     }
+
+    if(cfg.puzzleWordEnabled){
+      const btn = document.createElement('button');
+      btn.className = 'uk-button uk-button-primary uk-margin-top';
+      btn.textContent = 'Rätselwort überprüfen';
+      styleButton(btn);
+      btn.addEventListener('click', showPuzzleCheck);
+      summaryEl.appendChild(btn);
+    }
   }
 
   // Wählt basierend auf dem Fragetyp die passende Erzeugerfunktion aus
@@ -791,6 +800,37 @@ function runQuiz(questions){
         if(tbodyContainer) tbodyContainer.textContent = 'Fehler beim Laden';
       });
 
+    ui.show();
+  }
+
+  function showPuzzleCheck(){
+    const modal = document.createElement('div');
+    modal.setAttribute('uk-modal', '');
+    modal.setAttribute('aria-modal', 'true');
+    modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
+      '<h3 class="uk-modal-title uk-text-center">Rätselwort überprüfen</h3>' +
+      '<input id="puzzle-input" class="uk-input" type="text" placeholder="Rätselwort eingeben">' +
+      '<div id="puzzle-feedback" class="uk-margin-top uk-text-center"></div>' +
+      '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Überprüfen</button>' +
+      '</div>';
+    const input = modal.querySelector('#puzzle-input');
+    const feedback = modal.querySelector('#puzzle-feedback');
+    const btn = modal.querySelector('button');
+    document.body.appendChild(modal);
+    const ui = UIkit.modal(modal);
+    UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
+    UIkit.util.on(modal, 'shown', () => { input.focus(); });
+    btn.addEventListener('click', () => {
+      const expected = (window.quizConfig && window.quizConfig.puzzleWord) ? window.quizConfig.puzzleWord.toLowerCase() : '';
+      const val = (input.value || '').trim().toLowerCase();
+      if(val && val === expected){
+        feedback.textContent = 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
+        feedback.className = 'uk-margin-top uk-text-center uk-text-success';
+      }else{
+        feedback.textContent = 'Das ist leider nicht korrekt. Versuch es noch einmal!';
+        feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
+      }
+    });
     ui.show();
   }
 }
