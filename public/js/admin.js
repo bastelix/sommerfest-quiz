@@ -294,6 +294,16 @@ document.addEventListener('DOMContentLoaded', function () {
     desc.value = cat.description || '';
     descCell.appendChild(desc);
 
+    const letterCell = document.createElement('td');
+    const letter = document.createElement('input');
+    letter.type = 'text';
+    letter.className = 'uk-input cat-letter';
+    letter.placeholder = 'Buchstabe';
+    letter.id = uid + '-letter';
+    letter.value = cat.raetsel_buchstabe || '';
+    letter.maxLength = 1;
+    letterCell.appendChild(letter);
+
     const delCell = document.createElement('td');
     const del = document.createElement('button');
     del.className = 'uk-button uk-button-danger';
@@ -313,6 +323,7 @@ document.addEventListener('DOMContentLoaded', function () {
     row.appendChild(idCell);
     row.appendChild(nameCell);
     row.appendChild(descCell);
+    row.appendChild(letterCell);
     row.appendChild(delCell);
 
     return row;
@@ -333,7 +344,8 @@ document.addEventListener('DOMContentLoaded', function () {
           id,
           file,
           name: row.querySelector('.cat-name').value.trim(),
-          description: row.querySelector('.cat-desc').value.trim()
+          description: row.querySelector('.cat-desc').value.trim(),
+          raetsel_buchstabe: row.querySelector('.cat-letter').value.trim()
         };
       })
       .filter(c => c.id);
@@ -671,7 +683,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   newCatBtn.addEventListener('click', function (e) {
     e.preventDefault();
-    catalogList.appendChild(createCatalogRow({ id: '', file: '', name: '', description: '', new: true }));
+    catalogList.appendChild(createCatalogRow({ id: '', file: '', name: '', description: '', raetsel_buchstabe: '', new: true }));
   });
 
   catalogsSaveBtn?.addEventListener('click', async e => {

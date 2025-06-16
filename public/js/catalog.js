@@ -92,8 +92,13 @@
     return [];
   }
 
-  async function loadQuestions(id, file){
+  async function loadQuestions(id, file, letter){
     sessionStorage.setItem('quizCatalog', id);
+    if(letter){
+      sessionStorage.setItem('quizLetter', letter);
+    }else{
+      sessionStorage.removeItem('quizLetter');
+    }
     try{
       const res = await fetch('/kataloge/' + file, { headers: { 'Accept': 'application/json' } });
       const data = await res.json();
@@ -170,7 +175,7 @@
         }
         history.replaceState(null, '', '?katalog=' + cat.id);
         setSubHeader(cat.description || '');
-        loadQuestions(cat.id, cat.file);
+        loadQuestions(cat.id, cat.file, cat.raetsel_buchstabe);
       });
       const title = document.createElement('h3');
       title.textContent = cat.name || cat.id;
@@ -391,7 +396,7 @@
           showSelection(catalogs, solvedNow);
           return;
         }
-        loadQuestions(selected.id, selected.file);
+        loadQuestions(selected.id, selected.file, selected.raetsel_buchstabe);
       }else{
         showSelection(catalogs, solvedNow);
       }
