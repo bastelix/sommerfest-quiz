@@ -81,10 +81,29 @@ Die Dateien im Ordner `data/` werden dabei in einem benannten Volume
 `data/photos` und werden durch das Volume ebenfalls dauerhaft gespeichert. Die
 ACME-Konfiguration des Let's-Encrypt-Begleiters landet im Ordner `acme/` und
 wird dadurch ebenfalls persistiert.
+Um größere Uploads zu erlauben, kann die maximale
+Request-Größe des Reverse Proxys über die Umgebungsvariable
+`CLIENT_MAX_BODY_SIZE` angepasst werden. In der mitgelieferten
+`docker-compose.yml` ist dieser Wert auf `10m` gesetzt.
 Die verwendete Domain wird aus der Datei `.env` gelesen (Variable `DOMAIN`).
 Beim Start des Containers installiert ein Entrypoint-Skript automatisch alle
 Composer-Abhängigkeiten, sofern das Verzeichnis `vendor/` noch nicht existiert.
 Ein vorheriges `composer install` ist somit nicht mehr erforderlich.
+
+### Bildgrößen anpassen
+
+Damit die Uploads keine übermäßig großen Dateien erzeugen, kann optional die
+Bibliothek [Intervention Image](https://image.intervention.io/) genutzt
+werden.
+Sie lässt sich per
+
+```bash
+composer require intervention/image
+```
+
+einbinden. Die Controller verkleinern Bilder dann automatisch auf eine
+maximale Kantenlänge von 1500&nbsp;Pixeln (Beweisfotos) beziehungsweise
+512&nbsp;Pixeln (Logo) und speichern sie mit 70–80&nbsp;% Qualität.
 
 Die Anwendung lädt beim Start eine vorhandene `.env`-Datei ein, auch wenn sie
 ohne Docker betrieben wird. Ist `DOMAIN` dort gesetzt, wird für QR-Codes und

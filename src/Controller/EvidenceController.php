@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Service\ResultService;
 use App\Service\PhotoConsentService;
+use Intervention\Image\ImageManagerStatic as Image;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -59,7 +60,16 @@ class EvidenceController
         }
 
         $target = $dir . '/' . $fileName;
-        $file->moveTo($target);
+        if (class_exists(Image::class)) {
+            $img = Image::make($file->getStream());
+            $img->resize(1500, 1500, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+            $img->save($target, 70);
+        } else {
+            $file->moveTo($target);
+        }
 
         $this->consent->add($team, time());
 
