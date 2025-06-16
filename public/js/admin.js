@@ -40,17 +40,11 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function updatePuzzleFeedbackUI() {
-    if (!puzzleBadge || !puzzleIcon || !puzzleLabel) return;
+    if (!puzzleIcon || !puzzleLabel) return;
     if (puzzleFeedback.trim().length > 0) {
-      puzzleBadge.textContent = 'Gesetzt';
-      puzzleBadge.classList.remove('uk-label-danger');
-      puzzleBadge.classList.add('uk-label-success');
       puzzleIcon.setAttribute('uk-icon', 'icon: check');
       puzzleLabel.textContent = 'Feedbacktext bearbeiten';
     } else {
-      puzzleBadge.textContent = 'Kein Text';
-      puzzleBadge.classList.remove('uk-label-success');
-      puzzleBadge.classList.add('uk-label-danger');
       puzzleIcon.setAttribute('uk-icon', 'icon: pencil');
       puzzleLabel.textContent = 'Feedbacktext eingeben';
     }
@@ -78,7 +72,6 @@ document.addEventListener('DOMContentLoaded', function () {
     puzzleWrap: document.getElementById('cfgPuzzleWordWrap')
   };
   const puzzleFeedbackBtn = document.getElementById('puzzleFeedbackBtn');
-  const puzzleBadge = document.getElementById('puzzleFeedbackBadge');
   const puzzleIcon = document.getElementById('puzzleFeedbackIcon');
   const puzzleLabel = document.getElementById('puzzleFeedbackLabel');
   const puzzleTextarea = document.getElementById('puzzleFeedbackTextarea');
