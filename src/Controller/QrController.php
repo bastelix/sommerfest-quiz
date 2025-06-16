@@ -31,6 +31,8 @@ class QrController
         $size   = (int)($params['s'] ?? 300);
         $margin = (int)($params['m'] ?? 20);
         $demo   = (string)($params['demo'] ?? '');
+        $label  = (string)($params['label'] ?? '1');
+        $useLabel = !in_array(strtolower($label), ['0', 'false', 'no'], true);
 
         $writer  = new PngWriter();
         if ($demo === 'svg' || $demo === 'svg-clean') {
@@ -46,16 +48,20 @@ class QrController
             ->size($size)
             ->margin($margin)
             ->backgroundColor($this->parseColor($bg, new Color(255, 255, 255)))
-            ->foregroundColor($this->parseColor($fg, new Color(35, 180, 90)))
-            ->labelText($text)
-            ->labelFont(new NotoSans(20));
+            ->foregroundColor($this->parseColor($fg, new Color(35, 180, 90)));
+
+        if ($useLabel) {
+            $builder = $builder
+                ->labelText($text)
+                ->labelFont(new NotoSans(20));
+        }
 
         if ($demo === 'logo') {
             $builder = $builder
                 ->logoPath(__DIR__ . '/../../public/favicon.svg')
                 ->logoResizeToWidth(60)
                 ->logoPunchoutBackground(true);
-        } elseif ($demo === 'label') {
+        } elseif ($demo === 'label' && $useLabel) {
             $builder = $builder
                 ->labelText('Jetzt scannen!')
                 ->labelFont(new NotoSans(22));
@@ -76,7 +82,7 @@ class QrController
             ]);
         }
 
-        if (class_exists(\Endroid\QrCode\Label\Alignment\LabelAlignmentCenter::class)) {
+        if ($useLabel && class_exists(\Endroid\QrCode\Label\Alignment\LabelAlignmentCenter::class)) {
             $builder = $builder->labelAlignment(new \Endroid\QrCode\Label\Alignment\LabelAlignmentCenter());
         }
 
