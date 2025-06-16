@@ -91,6 +91,13 @@ document.addEventListener('DOMContentLoaded', () => {
           feedback.textContent = custom || 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
           feedback.className = 'uk-margin-top uk-text-center uk-text-success';
           sessionStorage.setItem('puzzleSolved', 'true');
+          const userName = sessionStorage.getItem('quizUser') || '';
+          const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
+          fetch('/results', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: userName, catalog, puzzleTime: Math.floor(Date.now()/1000) })
+          }).catch(()=>{});
           input.disabled = true;
           btn.textContent = 'Schließen';
         }else{
