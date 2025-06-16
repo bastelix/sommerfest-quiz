@@ -936,6 +936,7 @@ function runQuiz(questions){
       fd.append('photo', file);
       fd.append('name', name);
       fd.append('catalog', catalog);
+      fd.append('team', name);
       fetch('/photos', { method: 'POST', body: fd })
         .then(async r => {
           if (!r.ok) {
