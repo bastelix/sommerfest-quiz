@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
       feedback.className = 'uk-margin-top uk-text-center uk-text-success';
       btn.addEventListener('click', () => ui.hide());
     }else{
-      btn.addEventListener('click', () => {
+      function handleCheck(){
         const val = (input.value || '').trim().toLowerCase();
         if(val && val === expected.toLowerCase()){
           feedback.textContent = custom || 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
@@ -133,12 +133,15 @@ document.addEventListener('DOMContentLoaded', () => {
           updatePuzzleInfo();
           input.disabled = true;
           btn.textContent = 'Schließen';
+          btn.removeEventListener('click', handleCheck);
+          btn.addEventListener('click', () => ui.hide());
         }else{
           feedback.textContent = 'Das ist leider nicht korrekt. Viel Glück beim nächsten Versuch!';
           feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
           return;
         }
-      });
+      }
+      btn.addEventListener('click', handleCheck);
     }
     ui.show();
   }
