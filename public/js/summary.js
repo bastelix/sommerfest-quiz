@@ -61,14 +61,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function showPuzzle(){
+    const solvedBefore = sessionStorage.getItem('puzzleSolved') === 'true';
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
     modal.setAttribute('aria-modal', 'true');
     modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
       '<h3 class="uk-modal-title uk-text-center">Rätselwort überprüfen</h3>' +
-      '<input id="puzzle-input" class="uk-input" type="text" placeholder="Rätselwort eingeben">' +
+      (solvedBefore ? '' : '<input id="puzzle-input" class="uk-input" type="text" placeholder="Rätselwort eingeben">') +
       '<div id="puzzle-feedback" class="uk-margin-top uk-text-center"></div>' +
-      '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Überprüfen</button>' +
+      (solvedBefore ? '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Schließen</button>' : '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Überprüfen</button>') +
       '</div>';
     const input = modal.querySelector('#puzzle-input');
     const feedback = modal.querySelector('#puzzle-feedback');
@@ -76,18 +77,30 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.appendChild(modal);
     const ui = UIkit.modal(modal);
     UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
-    UIkit.util.on(modal, 'shown', () => { input.focus(); });
-    btn.addEventListener('click', () => {
-      const expected = (window.quizConfig && window.quizConfig.puzzleWord) ? window.quizConfig.puzzleWord.toLowerCase() : '';
-      const val = (input.value || '').trim().toLowerCase();
-      if(val && val === expected){
-        feedback.textContent = 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
-        feedback.className = 'uk-margin-top uk-text-center uk-text-success';
-      }else{
-        feedback.textContent = 'Das ist leider nicht korrekt. Versuch es noch einmal!';
-        feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
-      }
-    });
+    if(!solvedBefore) UIkit.util.on(modal, 'shown', () => { input.focus(); });
+
+    const expected = (window.quizConfig && window.quizConfig.puzzleWord) ? window.quizConfig.puzzleWord : '';
+
+    if(solvedBefore){
+      feedback.innerHTML = 'Du hast das Rätselwort bereits gelöst:<br><strong>' + expected + '</strong><br>Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
+      feedback.className = 'uk-margin-top uk-text-center uk-text-success';
+      btn.addEventListener('click', () => ui.hide());
+    }else{
+      btn.addEventListener('click', () => {
+        const val = (input.value || '').trim().toLowerCase();
+        if(val && val === expected.toLowerCase()){
+          feedback.textContent = 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
+          feedback.className = 'uk-margin-top uk-text-center uk-text-success';
+          sessionStorage.setItem('puzzleSolved', 'true');
+          input.disabled = true;
+          btn.textContent = 'Schließen';
+        }else{
+          feedback.textContent = 'Das ist leider nicht korrekt. Versuch es erneut!';
+          feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
+          return;
+        }
+      });
+    }
     ui.show();
   }
 
