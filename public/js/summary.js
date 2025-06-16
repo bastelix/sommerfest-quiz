@@ -2,6 +2,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultsBtn = document.getElementById('show-results-btn');
   const puzzleBtn = document.getElementById('check-puzzle-btn');
   const photoBtn = document.getElementById('upload-photo-btn');
+  const resultsEnabled = !(window.quizConfig && window.quizConfig.teamResults === false);
+  if (resultsBtn && !resultsEnabled) {
+    resultsBtn.remove();
+  }
   const photoEnabled = !(window.quizConfig && window.quizConfig.photoUpload === false);
   if (photoBtn && !photoEnabled) {
     photoBtn.remove();
