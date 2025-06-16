@@ -2,6 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const tbody = document.getElementById('resultsTableBody');
   const refreshBtn = document.getElementById('resultsRefreshBtn');
   const grid = document.getElementById('rankingGrid');
+  const pagination = document.getElementById('resultsPagination');
+
+  const PAGE_SIZE = 10;
+  let groupData = [];
+  let currentPage = 1;
 
   function formatTime(ts) {
     const d = new Date(ts * 1000);
@@ -17,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return (h ? h + ':' + pad(m) : m) + ':' + pad(s);
   }
 
-  function render(groups) {
+  function renderTable(groups) {
     if (!tbody) return;
     tbody.innerHTML = '';
     if (!groups.length) {
@@ -68,6 +73,32 @@ document.addEventListener('DOMContentLoaded', () => {
         tbody.appendChild(tr);
       });
     });
+  }
+
+  function renderPage(page) {
+    const total = Math.ceil(groupData.length / PAGE_SIZE) || 1;
+    if (page < 1) page = 1;
+    if (page > total) page = total;
+    const start = (page - 1) * PAGE_SIZE;
+    const slice = groupData.slice(start, start + PAGE_SIZE);
+    renderTable(slice);
+    currentPage = page;
+  }
+
+  function updatePagination() {
+    if (!pagination) return;
+    const total = Math.ceil(groupData.length / PAGE_SIZE);
+    if (total <= 1) { pagination.innerHTML = ''; return; }
+    let html = '';
+    const prevClass = currentPage === 1 ? 'uk-disabled' : '';
+    html += `<li class="${prevClass}"><a href="#" data-page="${currentPage - 1}">&laquo;</a></li>`;
+    for (let i = 1; i <= total; i++) {
+      const cls = currentPage === i ? 'uk-active' : '';
+      html += `<li class="${cls}"><a href="#" data-page="${i}">${i}</a></li>`;
+    }
+    const nextClass = currentPage === total ? 'uk-disabled' : '';
+    html += `<li class="${nextClass}"><a href="#" data-page="${currentPage + 1}">&raquo;</a></li>`;
+    pagination.innerHTML = html;
   }
 
   function computeRankings(rows) {
@@ -190,7 +221,10 @@ document.addEventListener('DOMContentLoaded', () => {
           return { name, time: list[0]?.time || 0, entries: list };
         });
         groups.sort((a, b) => b.time - a.time);
-        render(groups);
+        groupData = groups;
+        currentPage = 1;
+        renderPage(currentPage);
+        updatePagination();
 
         const rankings = computeRankings(rows);
         renderRankings(rankings);
@@ -201,6 +235,18 @@ document.addEventListener('DOMContentLoaded', () => {
   refreshBtn?.addEventListener('click', e => {
     e.preventDefault();
     load();
+  });
+
+  pagination?.addEventListener('click', e => {
+    const target = e.target;
+    if (target instanceof HTMLElement && target.dataset.page) {
+      e.preventDefault();
+      const page = parseInt(target.dataset.page, 10);
+      if (!Number.isNaN(page)) {
+        renderPage(page);
+        updatePagination();
+      }
+    }
   });
 
   if (refreshBtn && typeof UIkit !== 'undefined') {
