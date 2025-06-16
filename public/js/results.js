@@ -208,7 +208,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       c.appendChild(h);
       const ol = document.createElement('ol');
-      ol.className = 'uk-list uk-list-decimal';
+      // show numbering manually, so suppress default list style
+      ol.className = 'uk-list';
       for (let i = 0; i < MAX_ITEMS; i++) {
         const li = document.createElement('li');
         const item = card.list[i];
@@ -221,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
           teamDiv.className = 'uk-width-expand';
           teamDiv.setAttribute('uk-leader', '');
           teamDiv.style.setProperty('--uk-leader-fill-content', ' ');
-          teamDiv.textContent = item.name;
+          teamDiv.textContent = `${i + 1}. ${item.name}`;
 
           const timeDiv = document.createElement('div');
           timeDiv.textContent = item.value;
