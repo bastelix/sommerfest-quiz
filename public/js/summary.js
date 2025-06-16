@@ -3,6 +3,35 @@ document.addEventListener('DOMContentLoaded', () => {
   const puzzleBtn = document.getElementById('check-puzzle-btn');
   const photoBtn = document.getElementById('upload-photo-btn');
   const user = sessionStorage.getItem('quizUser') || '';
+  const puzzleInfo = document.createElement('p');
+  puzzleInfo.id = 'puzzle-info';
+  puzzleInfo.className = 'uk-margin-top';
+  puzzleBtn?.parentNode?.appendChild(puzzleInfo);
+
+  const formatTs = window.formatPuzzleTime || function(ts){
+    const d = new Date(ts * 1000);
+    const pad = n => n.toString().padStart(2,'0');
+    return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+  const fetchEntry = window.fetchLatestPuzzleEntry || async function(name, catalog){
+    try{
+      const list = await fetch('/results.json').then(r => r.json());
+      if(Array.isArray(list)){
+        return list.slice().reverse().find(e => e.name === name && e.catalog === catalog && e.puzzleTime);
+      }
+    }catch(e){ return null; }
+    return null;
+  };
+
+  function updatePuzzleInfo(){
+    if(sessionStorage.getItem('puzzleSolved') !== 'true') return;
+    const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
+    fetchEntry(user, catalog).then(entry => {
+      if(entry && entry.puzzleTime){
+        puzzleInfo.textContent = `Rätselwort gelöst: ${formatTs(entry.puzzleTime)}`;
+      }
+    }).catch(()=>{});
+  }
 
   function showResults(){
     const modal = document.createElement('div');
@@ -99,6 +128,11 @@ document.addEventListener('DOMContentLoaded', () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name: userName, catalog, puzzleTime: Math.floor(Date.now()/1000) })
           }).catch(()=>{});
+          fetchEntry(userName, catalog).then(entry => {
+            if(entry && entry.puzzleTime){
+              puzzleInfo.textContent = `Rätselwort gelöst: ${formatTs(entry.puzzleTime)}`;
+            }
+          }).catch(()=>{});
           input.disabled = true;
           btn.textContent = 'Schließen';
         }else{
@@ -177,4 +211,6 @@ document.addEventListener('DOMContentLoaded', () => {
   resultsBtn?.addEventListener('click', showResults);
   puzzleBtn?.addEventListener('click', showPuzzle);
   photoBtn?.addEventListener('click', showPhotoModal);
+
+  updatePuzzleInfo();
 });
