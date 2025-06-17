@@ -660,6 +660,26 @@ function runQuiz(questions){
     container.style.touchAction = 'none';
     div.appendChild(container);
 
+    const leftStatic = document.createElement('div');
+    leftStatic.textContent = q.leftLabel || 'Falsch';
+    leftStatic.style.position = 'absolute';
+    leftStatic.style.left = '0';
+    leftStatic.style.top = '50%';
+    leftStatic.style.transform = 'translate(-50%, -50%) rotate(180deg)';
+    leftStatic.style.writingMode = 'vertical-rl';
+    leftStatic.style.pointerEvents = 'none';
+    container.appendChild(leftStatic);
+
+    const rightStatic = document.createElement('div');
+    rightStatic.textContent = q.rightLabel || 'Richtig';
+    rightStatic.style.position = 'absolute';
+    rightStatic.style.right = '0';
+    rightStatic.style.top = '50%';
+    rightStatic.style.transform = 'translate(50%, -50%)';
+    rightStatic.style.writingMode = 'vertical-rl';
+    rightStatic.style.pointerEvents = 'none';
+    container.appendChild(rightStatic);
+
     const label = document.createElement('div');
     label.style.position = 'absolute';
     label.style.top = '8px';
@@ -736,7 +756,7 @@ function runQuiz(questions){
         const dir = offsetX > 0 ? 'right' : 'left';
         const labelText = offsetX > 0 ? (q.rightLabel || 'Ja') : (q.leftLabel || 'Nein');
         const correct = (dir === 'right') === !!card.correct;
-        resultsLocal.push({label: labelText, correct});
+        resultsLocal.push({text: card.text, label: labelText, correct});
         if(cardEl){
           cardEl.style.transform = `translate(${offsetX > 0 ? 1000 : -1000}px,${offsetY}px)`;
         }

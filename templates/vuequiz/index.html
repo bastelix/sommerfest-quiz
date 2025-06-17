@@ -74,7 +74,12 @@ createApp({
     }
 
     function formatAnswer(ans) {
-      if (Array.isArray(ans)) return ans.join(', ');
+      if (Array.isArray(ans)) {
+        if (ans.length && typeof ans[0] === 'object' && ans[0] !== null && 'text' in ans[0] && 'label' in ans[0]) {
+          return ans.map(a => `${a.text}: ${a.label}`).join('; ');
+        }
+        return ans.join(', ');
+      }
       return ans;
     }
 
@@ -162,7 +167,7 @@ createApp({
           offsetY.value = 0;
           if (!cards.value.length) {
             const allCorrect = results.value.every(r => r.correct);
-            emit('answered', { correct: allCorrect, answer: results.value.map(r => r.label) });
+            emit('answered', { correct: allCorrect, answer: results.value.map(r => ({ text: r.text, label: r.label })) });
           }
         }, 300);
       } else {
@@ -190,6 +195,12 @@ createApp({
     <div>
       <p class="mb-4">{{ question.question }}</p>
       <div class="relative w-full h-64 select-none">
+        <div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full pointer-events-none text-red-600" style="writing-mode: vertical-rl; transform: translate(-50%, -50%) rotate(180deg);">
+          {{ question.leftLabel || 'Falsch' }}
+        </div>
+        <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full pointer-events-none text-green-600" style="writing-mode: vertical-rl;">
+          {{ question.rightLabel || 'Richtig' }}
+        </div>
         <div v-for="(c, idx) in cards" :key="idx" class="absolute inset-0 bg-white rounded-lg shadow-md flex items-center justify-center transition-transform duration-300" :style="styleCard(idx)" @pointerdown="idx === cards.length-1 && start($event)" @pointermove="idx === cards.length-1 && move($event)" @pointerup="idx === cards.length-1 && end()" @pointercancel="idx === cards.length-1 && end()">
           <span class="p-4 text-center">{{ c.text }}</span>
         </div>
