@@ -437,9 +437,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const labelMap = {
       mc: 'Multiple Choice',
       assign: 'Zuordnen',
-      sort: 'Sortieren'
+      sort: 'Sortieren',
+      swipe: 'Swipe-Karten'
     };
-    ['sort', 'assign', 'mc'].forEach(t => {
+    ['sort', 'assign', 'mc', 'swipe'].forEach(t => {
       const opt = document.createElement('option');
       opt.value = t;
       opt.textContent = labelMap[t] || t;
@@ -453,7 +454,8 @@ document.addEventListener('DOMContentLoaded', function () {
       const map = {
         sort: 'Items in die richtige Reihenfolge bringen.',
         assign: 'Begriffe den passenden Definitionen zuordnen.',
-        mc: 'Mehrfachauswahl (Multiple Choice, mehrere Antworten möglich).'
+        mc: 'Mehrfachauswahl (Multiple Choice, mehrere Antworten möglich).',
+        swipe: 'Karten nach links oder rechts wischen.'
       };
       typeInfo.textContent = map[typeSelect.value] || '';
     }
@@ -569,6 +571,31 @@ document.addEventListener('DOMContentLoaded', function () {
       return row;
     }
 
+    function addCard(text = '', correct = false) {
+      const row = document.createElement('div');
+      row.className = 'uk-flex uk-margin-small-bottom card-row';
+      const input = document.createElement('input');
+      input.className = 'uk-input card-text';
+      input.type = 'text';
+      input.value = text;
+      input.placeholder = 'Kartentext';
+      input.setAttribute('aria-label', 'Kartentext');
+      const check = document.createElement('input');
+      check.type = 'checkbox';
+      check.className = 'uk-checkbox card-correct uk-margin-left';
+      check.checked = correct;
+      check.setAttribute('aria-label', 'Richtige Antwort (rechts)');
+      const rem = document.createElement('button');
+      rem.className = 'uk-button uk-button-danger uk-button-small uk-margin-left';
+      rem.textContent = '×';
+      rem.setAttribute('aria-label', 'Entfernen');
+      rem.onclick = () => row.remove();
+      row.appendChild(input);
+      row.appendChild(check);
+      row.appendChild(rem);
+      return row;
+    }
+
     // Zeigt je nach Fragetyp die passenden Eingabefelder an
     function renderFields() {
       fields.innerHTML = '';
@@ -596,6 +623,29 @@ document.addEventListener('DOMContentLoaded', function () {
           e.preventDefault();
           list.appendChild(addPair('', ''));
         };
+        fields.appendChild(list);
+        fields.appendChild(add);
+      } else if (typeSelect.value === 'swipe') {
+        const right = document.createElement('input');
+        right.className = 'uk-input uk-margin-small-bottom right-label';
+        right.type = 'text';
+        right.placeholder = 'Label rechts (z.B. Ja)';
+        right.value = q.rightLabel || '';
+        const left = document.createElement('input');
+        left.className = 'uk-input uk-margin-small-bottom left-label';
+        left.type = 'text';
+        left.placeholder = 'Label links (z.B. Nein)';
+        left.value = q.leftLabel || '';
+        fields.appendChild(right);
+        fields.appendChild(left);
+        const list = document.createElement('div');
+        (q.cards || [{ text: '', correct: false }]).forEach(c =>
+          list.appendChild(addCard(c.text, c.correct))
+        );
+        const add = document.createElement('button');
+        add.className = 'uk-button uk-button-small uk-margin-small-top';
+        add.textContent = 'Karte hinzufügen';
+        add.onclick = e => { e.preventDefault(); list.appendChild(addCard('', false)); };
         fields.appendChild(list);
         fields.appendChild(add);
       } else {
@@ -662,6 +712,16 @@ document.addEventListener('DOMContentLoaded', function () {
           ul.appendChild(li);
         });
         preview.appendChild(ul);
+      } else if (typeSelect.value === 'swipe') {
+        const ul = document.createElement('ul');
+        Array.from(fields.querySelectorAll('.card-row')).forEach(r => {
+          const text = r.querySelector('.card-text').value;
+          const check = r.querySelector('.card-correct').checked;
+          const li = document.createElement('li');
+          li.textContent = text + (check ? ' ✓' : '');
+          ul.appendChild(li);
+        });
+        preview.appendChild(ul);
       } else {
         const ul = document.createElement('ul');
         Array.from(fields.querySelectorAll('.option')).forEach(o => {
@@ -698,6 +758,17 @@ document.addEventListener('DOMContentLoaded', function () {
           definition: r.querySelector('.definition').value.trim()
         })).filter(t => t.term || t.definition);
         return { type, prompt, terms };
+      } else if (type === 'swipe') {
+        const cards = Array.from(card.querySelectorAll('.card-row')).map(r => ({
+          text: r.querySelector('.card-text').value.trim(),
+          correct: r.querySelector('.card-correct').checked
+        })).filter(c => c.text);
+        const rightLabel = card.querySelector('.right-label').value.trim();
+        const leftLabel = card.querySelector('.left-label').value.trim();
+        const obj = { type, prompt, cards };
+        if (rightLabel) obj.rightLabel = rightLabel;
+        if (leftLabel) obj.leftLabel = leftLabel;
+        return obj;
       } else {
         const options = Array.from(card.querySelectorAll('.option-row .option'))
           .map(i => i.value.trim())

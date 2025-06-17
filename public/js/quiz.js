@@ -286,6 +286,7 @@ function runQuiz(questions){
     if(q.type === 'sort') return createSortQuestion(q, idx);
     if(q.type === 'assign') return createAssignQuestion(q, idx);
     if(q.type === 'mc') return createMcQuestion(q, idx);
+    if(q.type === 'swipe') return createSwipeQuestion(q, idx);
     return document.createElement('div');
   }
 
@@ -640,6 +641,125 @@ function runQuiz(questions){
     div.appendChild(feedback);
     div.appendChild(footer);
 
+    return div;
+  }
+
+  function createSwipeQuestion(q, idx){
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
+    const h = document.createElement('h4');
+    h.textContent = q.prompt;
+    div.appendChild(h);
+
+    const container = document.createElement('div');
+    container.className = 'swipe-container';
+    container.style.position = 'relative';
+    container.style.height = '250px';
+    container.style.userSelect = 'none';
+    container.style.touchAction = 'none';
+    div.appendChild(container);
+
+    const label = document.createElement('div');
+    label.style.position = 'absolute';
+    label.style.top = '8px';
+    label.style.left = '8px';
+    label.style.fontWeight = 'bold';
+    label.style.pointerEvents = 'none';
+    container.appendChild(label);
+
+    let cards = (q.cards || []).map(c => ({...c}));
+    const resultsLocal = [];
+    let startX=0,startY=0,offsetX=0,offsetY=0,dragging=false;
+
+    function render(){
+      container.querySelectorAll('.swipe-card').forEach(el => el.remove());
+      cards.forEach((c,i) => {
+        const card = document.createElement('div');
+        card.className = 'swipe-card';
+        card.style.position = 'absolute';
+        card.style.inset = '0';
+        card.style.background = 'white';
+        card.style.borderRadius = '8px';
+        card.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+        card.style.display = 'flex';
+        card.style.alignItems = 'center';
+        card.style.justifyContent = 'center';
+        card.style.padding = '1rem';
+        card.style.transition = 'transform 0.3s';
+        const off = (cards.length - i - 1) * 4;
+        card.style.transform = `translate(0,-${off}px)`;
+        card.style.zIndex = i;
+        card.textContent = c.text;
+        if(i === cards.length - 1){
+          card.addEventListener('pointerdown', start);
+          card.addEventListener('pointermove', move);
+          card.addEventListener('pointerup', end);
+          card.addEventListener('pointercancel', end);
+        }
+        container.appendChild(card);
+      });
+    }
+
+    function point(e){ return { x: e.clientX, y: e.clientY }; }
+
+    function start(e){
+      if(!cards.length) return;
+      const p = point(e);
+      startX = p.x; startY = p.y;
+      dragging = true;
+      offsetX = 0; offsetY = 0;
+    }
+
+    function move(e){
+      if(!dragging) return;
+      const p = point(e);
+      offsetX = p.x - startX;
+      offsetY = p.y - startY;
+      const card = container.querySelector('.swipe-card:last-child');
+      if(card){
+        const rot = offsetX / 10;
+        card.style.transform = `translate(${offsetX}px,${offsetY}px) rotate(${rot}deg)`;
+      }
+      label.textContent = offsetX >= 0 ? (q.rightLabel || 'Ja') : (q.leftLabel || 'Nein');
+      label.style.color = offsetX >= 0 ? 'green' : 'red';
+      e.preventDefault();
+    }
+
+    function end(){
+      if(!dragging) return;
+      dragging = false;
+      const cardEl = container.querySelector('.swipe-card:last-child');
+      const card = cards[cards.length-1];
+      const threshold = 80;
+      if(Math.abs(offsetX) > threshold){
+        const dir = offsetX > 0 ? 'right' : 'left';
+        const labelText = offsetX > 0 ? (q.rightLabel || 'Ja') : (q.leftLabel || 'Nein');
+        const correct = (dir === 'right') === !!card.correct;
+        resultsLocal.push({label: labelText, correct});
+        if(cardEl){
+          cardEl.style.transform = `translate(${offsetX > 0 ? 1000 : -1000}px,${offsetY}px)`;
+        }
+        setTimeout(() => {
+          cards.pop();
+          offsetX = offsetY = 0;
+          label.textContent = '';
+          render();
+          if(!cards.length){
+            results[idx] = resultsLocal.every(r => r.correct);
+            next();
+          }
+        },300);
+      } else {
+        if(cardEl){
+          cardEl.style.transform = 'translate(0,0)';
+        }
+        offsetX = offsetY = 0;
+        label.textContent = '';
+      }
+    }
+
+    render();
     return div;
   }
 

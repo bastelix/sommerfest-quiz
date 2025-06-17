@@ -28,5 +28,16 @@
       "Abgangsvermerk am Dokument anbringen"
     ],
     "correctOrder": [0,1,2,3]
+  },
+  {
+    "type": "swipe",
+    "question": "Swipe nach rechts für 'Ja' und links für 'Nein'",
+    "rightLabel": "Ja",
+    "leftLabel": "Nein",
+    "cards": [
+      { "text": "Der Himmel ist blau.", "correct": true },
+      { "text": "Die Sonne geht im Westen auf.", "correct": false },
+      { "text": "Wasser ist nass.", "correct": true }
+    ]
   }
 ]
