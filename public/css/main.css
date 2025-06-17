@@ -115,6 +115,15 @@ body.uk-padding {
   display: flex;
   align-items: center;
 }
+.topbar .uk-navbar-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+.topbar .uk-navbar-center .uk-navbar-item {
+  width: 100%;
+  justify-content: center;
+}
 
 .nav-placeholder {
   height: 56px;
