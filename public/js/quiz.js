@@ -660,24 +660,54 @@ function runQuiz(questions){
     container.style.touchAction = 'none';
     div.appendChild(container);
 
+    const controls = document.createElement('div');
+    controls.className = 'uk-margin-top uk-flex uk-flex-center';
+    const leftBtn = document.createElement('button');
+    leftBtn.className = 'uk-button uk-margin-right';
+    leftBtn.innerHTML = '\u2B05 ' + (q.leftLabel || 'Nein');
+    styleButton(leftBtn);
+    leftBtn.addEventListener('click', () => manualSwipe('left'));
+    leftBtn.addEventListener('keydown', e => {
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        manualSwipe('left');
+      }
+    });
+
+    const rightBtn = document.createElement('button');
+    rightBtn.className = 'uk-button';
+    rightBtn.innerHTML = (q.rightLabel || 'Ja') + ' \u27A1';
+    styleButton(rightBtn);
+    rightBtn.addEventListener('click', () => manualSwipe('right'));
+    rightBtn.addEventListener('keydown', e => {
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        manualSwipe('right');
+      }
+    });
+    controls.appendChild(leftBtn);
+    controls.appendChild(rightBtn);
+
     const leftStatic = document.createElement('div');
-    leftStatic.textContent = q.leftLabel || 'Falsch';
+    leftStatic.textContent = '\u2B05 ' + (q.leftLabel || 'Falsch');
     leftStatic.style.position = 'absolute';
     leftStatic.style.left = '0';
     leftStatic.style.top = '50%';
     leftStatic.style.transform = 'translate(-50%, -50%) rotate(180deg)';
     leftStatic.style.writingMode = 'vertical-rl';
     leftStatic.style.pointerEvents = 'none';
+    leftStatic.style.color = 'red';
     container.appendChild(leftStatic);
 
     const rightStatic = document.createElement('div');
-    rightStatic.textContent = q.rightLabel || 'Richtig';
+    rightStatic.textContent = (q.rightLabel || 'Richtig') + ' \u27A1';
     rightStatic.style.position = 'absolute';
     rightStatic.style.right = '0';
     rightStatic.style.top = '50%';
     rightStatic.style.transform = 'translate(50%, -50%)';
     rightStatic.style.writingMode = 'vertical-rl';
     rightStatic.style.pointerEvents = 'none';
+    rightStatic.style.color = 'green';
     container.appendChild(rightStatic);
 
     const label = document.createElement('div');
@@ -741,7 +771,9 @@ function runQuiz(questions){
         const rot = offsetX / 10;
         card.style.transform = `translate(${offsetX}px,${offsetY}px) rotate(${rot}deg)`;
       }
-      label.textContent = offsetX >= 0 ? (q.rightLabel || 'Ja') : (q.leftLabel || 'Nein');
+      label.textContent = offsetX >= 0
+        ? '\u27A1 ' + (q.rightLabel || 'Ja')
+        : '\u2B05 ' + (q.leftLabel || 'Nein');
       label.style.color = offsetX >= 0 ? 'green' : 'red';
       e.preventDefault();
     }
@@ -779,6 +811,29 @@ function runQuiz(questions){
       }
     }
 
+    function manualSwipe(dir){
+      if(!cards.length) return;
+      const cardEl = container.querySelector('.swipe-card:last-child');
+      const card = cards[cards.length-1];
+      const labelText = dir === 'right' ? (q.rightLabel || 'Ja') : (q.leftLabel || 'Nein');
+      const correct = (dir === 'right') === !!card.correct;
+      resultsLocal.push({text: card.text, label: labelText, correct});
+      if(cardEl){
+        cardEl.style.transform = `translate(${dir === 'right' ? 1000 : -1000}px,0)`;
+      }
+      setTimeout(() => {
+        cards.pop();
+        offsetX = offsetY = 0;
+        label.textContent = '';
+        render();
+        if(!cards.length){
+          results[idx] = resultsLocal.every(r => r.correct);
+          next();
+        }
+      },300);
+    }
+
+    div.appendChild(controls);
     render();
     return div;
   }
