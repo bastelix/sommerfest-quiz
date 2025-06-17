@@ -591,8 +591,8 @@ document.addEventListener('DOMContentLoaded', function () {
       rem.setAttribute('aria-label', 'Entfernen');
       rem.onclick = () => row.remove();
       row.appendChild(input);
-      row.appendChild(check);
       row.appendChild(rem);
+      row.appendChild(check);
       return row;
     }
 
