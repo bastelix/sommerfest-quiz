@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="/css/highcontrast.css">
 {% endblock %}
 
-{% block body_class %}uk-background-muted uk-padding{% endblock %}
+{% block body_class %}uk-padding{% endblock %}
 
 {% block body %}
   {% embed 'topbar.twig' %}
@@ -64,4 +64,13 @@
   <script src="/js/uikit-icons.min.js"></script>
   <script src="/js/app.js"></script>
   <script src="/js/custom-icons.js"></script>
+  <script>
+    window.quizConfig = {{ config|json_encode|raw }};
+    (function(){
+      const cfg = window.quizConfig || {};
+      const styleEl = document.createElement('style');
+      styleEl.textContent = `\n        body { background-color: ${cfg.backgroundColor || '#ffffff'}; }\n        .uk-button-primary { background-color: ${cfg.buttonColor || '#1e87f0'}; border-color: ${cfg.buttonColor || '#1e87f0'}; }\n      `;
+      document.head.appendChild(styleEl);
+    })();
+  </script>
 {% endblock %}
