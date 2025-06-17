@@ -27,6 +27,17 @@ class HomeController
             $catalogs = json_decode($catalogsJson, true) ?? [];
         }
 
+        if (($cfg['competitionMode'] ?? false) === true) {
+            $params = $request->getQueryParams();
+            $id = $params['katalog'] ?? '';
+            $allowedIds = array_map(static fn($c) => $c['id'] ?? '', $catalogs);
+            if ($id === '' || !in_array($id, $allowedIds, true)) {
+                return $response
+                    ->withHeader('Location', '/help')
+                    ->withStatus(302);
+            }
+        }
+
         $showDisclaimer = true;
 
         return $view->render($response, 'index.twig', [
