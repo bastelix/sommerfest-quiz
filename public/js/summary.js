@@ -166,21 +166,25 @@ document.addEventListener('DOMContentLoaded', () => {
           '</p>' +
           '<div class="uk-margin-small-bottom">' +
             '<label class="uk-form-label" for="photo-input">Beweisfoto auswählen</label>' +
-            '<input id="photo-input" class="uk-input" type="file" accept="image/*" capture="environment">' +
+            '<div uk-form-custom="target: true">' +
+              '<input id="photo-input" type="file" accept="image/*" capture="environment" aria-label="Datei auswählen">' +
+              '<input class="uk-input uk-form-width-medium" type="text" placeholder="Keine Datei ausgewählt" disabled>' +
+              '<button class="uk-button uk-button-default" type="button" tabindex="-1">Durchsuchen</button>' +
+            '</div>' +
           '</div>' +
           '<label class="uk-form-label uk-margin-small-bottom">' +
             '<input type="checkbox" id="consent-checkbox" class="uk-checkbox uk-margin-small-right">' +
             'Einverständnis aller abgebildeten Personen wurde eingeholt ' +
           '</label>' +
           '<div id="photo-feedback" class="uk-margin-small uk-text-center"></div>' +
-          '<button class="uk-button uk-button-primary uk-width-1-1" disabled>Hochladen</button>' +
+          '<button id="upload-btn" class="uk-button uk-button-primary uk-width-1-1" disabled>Hochladen</button>' +
         '</div>' +
       '</div>';
 
     const input = modal.querySelector('#photo-input');
     const feedback = modal.querySelector('#photo-feedback');
     const consent = modal.querySelector('#consent-checkbox');
-    const btn = modal.querySelector('button');
+    const btn = modal.querySelector('#upload-btn');
     document.body.appendChild(modal);
     const ui = UIkit.modal(modal);
     UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
