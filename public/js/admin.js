@@ -629,13 +629,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const right = document.createElement('input');
         right.className = 'uk-input uk-margin-small-bottom right-label';
         right.type = 'text';
-        right.placeholder = 'Label rechts (z.B. Ja)';
+        right.placeholder = 'Label rechts (\u27A1, z.B. Ja)';
+        right.style.borderColor = 'green';
         right.value = q.rightLabel || '';
+        right.setAttribute('aria-label', 'Label f\u00fcr Swipe nach rechts');
+        right.setAttribute('uk-tooltip', 'title: Text, der beim Wischen nach rechts angezeigt wird.; pos: right');
+
         const left = document.createElement('input');
         left.className = 'uk-input uk-margin-small-bottom left-label';
         left.type = 'text';
-        left.placeholder = 'Label links (z.B. Nein)';
+        left.placeholder = 'Label links (\u2B05, z.B. Nein)';
+        left.style.borderColor = 'red';
         left.value = q.leftLabel || '';
+        left.setAttribute('aria-label', 'Label f\u00fcr Swipe nach links');
+        left.setAttribute('uk-tooltip', 'title: Text, der beim Wischen nach links angezeigt wird.; pos: right');
+
         fields.appendChild(right);
         fields.appendChild(left);
         const list = document.createElement('div');
