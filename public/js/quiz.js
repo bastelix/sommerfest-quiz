@@ -962,6 +962,11 @@ function runQuiz(questions){
       fd.append('name', name);
       fd.append('catalog', catalog);
       fd.append('team', name);
+
+      const originalHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<div uk-spinner></div>';
+
       fetch('/photos', { method: 'POST', body: fd })
         .then(async r => {
           if (!r.ok) {
@@ -992,6 +997,9 @@ function runQuiz(questions){
         .catch(e => {
           feedback.textContent = e.message || 'Fehler beim Hochladen';
           feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
+        })
+        .finally(() => {
+          btn.innerHTML = originalHtml;
         });
     });
     ui.show();
