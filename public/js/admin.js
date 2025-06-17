@@ -325,6 +325,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cat.new) row.dataset.new = 'true';
     row.dataset.id = cat.id || '';
     row.dataset.file = cat.file || '';
+    row.dataset.initialFile = cat.file || '';
 
     const uid = 'cat-' + catalogRowIndex++;
 
@@ -335,9 +336,6 @@ document.addEventListener('DOMContentLoaded', function () {
     idInput.placeholder = 'ID';
     idInput.id = uid + '-id';
     idInput.value = cat.id || '';
-    if (cat.id && !cat.new) {
-      idInput.disabled = true;
-    }
     idCell.appendChild(idInput);
 
     const nameCell = document.createElement('td');
@@ -760,8 +758,10 @@ document.addEventListener('DOMContentLoaded', function () {
     e.preventDefault();
     const rows = Array.from(catalogList.querySelectorAll('.catalog-row'));
     for (const row of rows) {
+      const currentId = row.querySelector('.cat-id').value.trim();
+      const newFile = currentId ? currentId + '.json' : '';
       if (row.dataset.new === 'true') {
-        let id = row.querySelector('.cat-id').value.trim();
+        let id = currentId;
         if (!id) {
           const nameEl = row.querySelector('.cat-name');
           if (nameEl) {
@@ -777,9 +777,21 @@ document.addEventListener('DOMContentLoaded', function () {
             body: '[]'
           });
           row.dataset.new = '';
+          row.dataset.initialFile = id + '.json';
         } catch (err) {
           console.error(err);
           notify('Fehler beim Erstellen', 'danger');
+        }
+      } else if (currentId && row.dataset.initialFile && row.dataset.initialFile !== newFile) {
+        try {
+          const res = await fetch('/kataloge/' + row.dataset.initialFile, { headers: { 'Accept': 'application/json' } });
+          const content = await res.text();
+          await fetch('/kataloge/' + newFile, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: content });
+          await fetch('/kataloge/' + row.dataset.initialFile, { method: 'DELETE' });
+          row.dataset.initialFile = newFile;
+        } catch (err) {
+          console.error(err);
+          notify('Fehler beim Umbenennen', 'danger');
         }
       }
     }
