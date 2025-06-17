@@ -135,10 +135,6 @@ function runQuiz(questions){
     headerEl.innerHTML = '';
     headerEl.classList.add('uk-hidden');
   }
-  const disclaimerEl = document.getElementById('front-disclaimer');
-  if (disclaimerEl) {
-    disclaimerEl.classList.remove('uk-hidden');
-  }
 
   elements.forEach((el, i) => {
     if (i !== 0) el.classList.add('uk-hidden');
@@ -194,9 +190,6 @@ function runQuiz(questions){
   function updateSummary(){
     if(summaryShown) return;
     summaryShown = true;
-    if (disclaimerEl) {
-      disclaimerEl.classList.remove('uk-hidden');
-    }
     const score = results.filter(r => r).length;
     let user = sessionStorage.getItem('quizUser');
     if(!user && !cfg.QRRestrict){

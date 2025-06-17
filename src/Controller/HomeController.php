@@ -38,12 +38,9 @@ class HomeController
             }
         }
 
-        $showDisclaimer = true;
-
         return $view->render($response, 'index.twig', [
             'config' => $cfg,
             'catalogs' => $catalogs,
-            'showDisclaimer' => $showDisclaimer,
         ]);
     }
 }
