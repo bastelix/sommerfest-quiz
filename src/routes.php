@@ -4,6 +4,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Controller\HomeController;
 use App\Controller\FaqController;
+use App\Controller\HelpController;
 use App\Controller\DatenschutzController;
 use App\Controller\ImpressumController;
 use App\Controller\LizenzController;
@@ -29,6 +30,7 @@ use App\Controller\EvidenceController;
 
 require_once __DIR__ . '/Controller/HomeController.php';
 require_once __DIR__ . '/Controller/FaqController.php';
+require_once __DIR__ . '/Controller/HelpController.php';
 require_once __DIR__ . '/Controller/DatenschutzController.php';
 require_once __DIR__ . '/Controller/ImpressumController.php';
 require_once __DIR__ . '/Controller/LizenzController.php';
@@ -80,6 +82,7 @@ return function (\Slim\App $app) {
         return $response->withStatus(404);
     });
     $app->get('/faq', FaqController::class);
+    $app->get('/help', HelpController::class);
     $app->get('/datenschutz', DatenschutzController::class);
     $app->get('/impressum', ImpressumController::class);
     $app->get('/lizenz', LizenzController::class);

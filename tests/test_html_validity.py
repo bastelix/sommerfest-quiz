@@ -48,6 +48,10 @@ class TestHTMLValidity(unittest.TestCase):
         errors = validate_html_file('templates/datenschutz.twig')
         self.assertEqual(errors, [], msg='\n'.join(errors))
 
+    def test_help_html_is_valid(self):
+        errors = validate_html_file('templates/help.twig')
+        self.assertEqual(errors, [], msg='\n'.join(errors))
+
     def test_impressum_html_is_valid(self):
         errors = validate_html_file('templates/impressum.twig')
         self.assertEqual(errors, [], msg='\n'.join(errors))
