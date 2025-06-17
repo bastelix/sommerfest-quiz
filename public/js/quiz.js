@@ -697,6 +697,7 @@ function runQuiz(questions){
     leftStatic.style.writingMode = 'vertical-rl';
     leftStatic.style.pointerEvents = 'none';
     leftStatic.style.color = 'red';
+    leftStatic.style.zIndex = '10';
     container.appendChild(leftStatic);
 
     const rightStatic = document.createElement('div');
@@ -708,6 +709,7 @@ function runQuiz(questions){
     rightStatic.style.writingMode = 'vertical-rl';
     rightStatic.style.pointerEvents = 'none';
     rightStatic.style.color = 'green';
+    rightStatic.style.zIndex = '10';
     container.appendChild(rightStatic);
 
     const label = document.createElement('div');
@@ -728,7 +730,10 @@ function runQuiz(questions){
         const card = document.createElement('div');
         card.className = 'swipe-card';
         card.style.position = 'absolute';
-        card.style.inset = '0';
+        card.style.left = '2rem';
+        card.style.right = '2rem';
+        card.style.top = '0';
+        card.style.bottom = '0';
         card.style.background = 'white';
         card.style.borderRadius = '8px';
         card.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
