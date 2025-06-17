@@ -176,6 +176,27 @@ createApp({
       }
     }
 
+    function swipe(dir) {
+      if (!cards.value.length) return;
+      const card = cards.value[cards.value.length - 1];
+      const answerLabel = dir === 'right'
+        ? (card.rightLabel || props.question.rightLabel || 'Ja')
+        : (card.leftLabel || props.question.leftLabel || 'Nein');
+      const correct = (dir === 'right') === !!card.correct;
+      results.value.push({ text: card.text, direction: dir, label: answerLabel, correct });
+      offsetX.value = dir === 'right' ? 1000 : -1000;
+      dragging.value = false;
+      setTimeout(() => {
+        cards.value.pop();
+        offsetX.value = 0;
+        offsetY.value = 0;
+        if (!cards.value.length) {
+          const allCorrect = results.value.every(r => r.correct);
+          emit('answered', { correct: allCorrect, answer: results.value.map(r => ({ text: r.text, label: r.label })) });
+        }
+      }, 300);
+    }
+
     function styleCard(idx) {
       if (idx === cards.value.length - 1) {
         const rot = offsetX.value / 10;
@@ -189,7 +210,7 @@ createApp({
       return { transform: `translate(0, -${off}px) scale(${scale})`, zIndex: idx };
     }
 
-    return { cards, start, move, end, styleCard, dragging, label, offsetX };
+    return { cards, start, move, end, swipe, styleCard, dragging, label, offsetX };
   },
   template: `
     <div>
@@ -200,6 +221,16 @@ createApp({
         </div>
         <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full pointer-events-none text-green-600" style="writing-mode: vertical-rl;">
           {{ question.rightLabel || 'Richtig' }}
+        </div>
+        <div class="absolute inset-y-0 left-0 w-1/3 overflow-hidden cursor-pointer" @click="swipe('left')">
+          <div class="absolute inset-0 bg-white rounded-lg shadow-md flex items-center justify-center" style="transform: translateX(-66%);">
+            <span class="text-2xl">&larr;</span>
+          </div>
+        </div>
+        <div class="absolute inset-y-0 right-0 w-1/3 overflow-hidden cursor-pointer" @click="swipe('right')">
+          <div class="absolute inset-0 bg-white rounded-lg shadow-md flex items-center justify-center" style="transform: translateX(66%);">
+            <span class="text-2xl">&rarr;</span>
+          </div>
         </div>
         <div v-for="(c, idx) in cards" :key="idx" class="absolute inset-0 bg-white rounded-lg shadow-md flex items-center justify-center transition-transform duration-300" :style="styleCard(idx)" @pointerdown="idx === cards.length-1 && start($event)" @pointermove="idx === cards.length-1 && move($event)" @pointerup="idx === cards.length-1 && end()" @pointercancel="idx === cards.length-1 && end()">
           <span class="p-4 text-center">{{ c.text }}</span>
