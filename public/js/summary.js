@@ -168,8 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
             '<label class="uk-form-label" for="photo-input">Beweisfoto auswählen</label>' +
             '<div uk-form-custom="target: true">' +
               '<input id="photo-input" type="file" accept="image/*" capture="environment" aria-label="Datei auswählen">' +
-              '<input class="uk-input uk-form-width-medium" type="text" placeholder="Keine Datei ausgewählt" disabled>' +
-              '<button class="uk-button uk-button-default" type="button" tabindex="-1">Durchsuchen</button>' +
+              '<input class="uk-input uk-width-1-1" type="text" placeholder="Keine Datei ausgewählt" disabled>' +
+              '<button class="uk-button uk-button-default uk-width-1-1 uk-margin-small-top" type="button" tabindex="-1">Durchsuchen</button>' +
             '</div>' +
           '</div>' +
           '<label class="uk-form-label uk-margin-small-bottom">' +
