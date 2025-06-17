@@ -1,0 +1,67 @@
+{% extends 'layout.twig' %}
+
+{% block title %}Hilfe{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="/css/dark.css">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/highcontrast.css">
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <a href="/" class="uk-icon-button" uk-icon="icon: arrow-left; ratio: 2" title="Zurück" aria-label="Zurück"></a>
+    {% endblock %}
+    {% block right %}
+      <div class="theme-switch">
+        <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="Design wechseln"></button>
+      </div>
+      <div class="contrast-switch uk-margin-small-left">
+        <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="Kontrastmodus"></button>
+      </div>
+    {% endblock %}
+  {% endembed %}
+  <div class="uk-container uk-container-small">
+    <h1 class="uk-heading-divider">Spielerklärung</h1>
+    <div class="uk-card uk-card-default uk-card-body uk-margin">
+      <p>Es gibt verschiedene Stationen, die auf der Karte markiert sind. An jeder Station scannt ihr mit eurem Handy oder Tablet den dort angebrachten QR-Code und öffnet den Link – und schon kann's losgehen.</p>
+      <h2 class="uk-heading-bullet">So funktioniert das Spiel</h2>
+      <ul class="uk-list uk-list-divider">
+        <li>
+          <h3 class="uk-heading-bullet">QR-Code scannen</h3>
+          <p>Nachdem der Stations-Link geöffnet wurde, scannt ihr euren persönlichen Team-QR-Code. Nur bekannte Teams werden zugelassen – so bleibt alles fair.</p>
+        </li>
+        <li>
+          <h3 class="uk-heading-bullet">Quiz starten</h3>
+          <p>Nach dem erfolgreichen Login startet automatisch der passende Fragenkatalog für die Station. Einmal gelöst, kann ein Katalog während der Rally nicht noch einmal gestartet werden.</p>
+        </li>
+        <li>
+          <h3 class="uk-heading-bullet">Fragen beantworten</h3>
+          <p>Jede Frage zeigt nur den Button „Weiter“. Mit einem Klick wird die Antwort direkt geprüft. Ob sie richtig war, erfahrt ihr am Ende des jeweiligen Fragenkatalogs.</p>
+        </li>
+        <li>
+          <h3 class="uk-heading-bullet">Buchstabe sammeln</h3>
+          <p>Nach jeder Runde wird ein Buchstabe angezeigt – dieser ist Teil des Rätselworts. Stück für Stück ergibt sich so die Lösung.</p>
+        </li>
+        <li>
+          <h3 class="uk-heading-bullet">Rätseln &amp; Foto hochladen</h3>
+          <p>Wer das Rätselwort erraten kann, darf es direkt eingeben. Pro Station gibt’s einen Versuch – also ruhig mal raten, auch wenn noch nicht alle Buchstaben beisammen sind. Es kann außerdem ein Beweisfoto hochgeladen werden – auf dem Handy öffnet sich dafür direkt die Kamera. Die kreativsten und schönsten Teamfotos werden am Ende prämiert!</p>
+        </li>
+        <li>
+          <h3 class="uk-heading-bullet">Ergebnisse &amp; Rangliste</h3>
+          <p>Nach Abschluss aller Stationen erscheint ein Link zur persönlichen Ergebnisübersicht. Dort – oder im Adminbereich – gibt es auch eine Rangliste mit den besten Platzierungen.</p>
+        </li>
+      </ul>
+      <p class="uk-text-lead uk-margin-top">Viel Spaß bei der Rally, beim Raten, Punkte sammeln und natürlich beim gemeinsamen Mitfiebern!</p>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="/js/uikit-icons.min.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/custom-icons.js"></script>
+{% endblock %}
