@@ -35,9 +35,9 @@
     "rightLabel": "Ja",
     "leftLabel": "Nein",
     "cards": [
-      { "text": "Der Himmel ist blau." },
-      { "text": "Die Sonne geht im Westen auf." },
-      { "text": "Wasser ist nass." }
+      { "text": "Der Himmel ist blau.", "correct": true },
+      { "text": "Die Sonne geht im Westen auf.", "correct": false },
+      { "text": "Wasser ist nass.", "correct": true }
     ]
   }
 ]
