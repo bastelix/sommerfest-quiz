@@ -57,6 +57,7 @@ createApp({
         case 'match': return 'match-question';
         case 'choice': return 'choice-question';
         case 'sort': return 'sort-question';
+        case 'swipe': return 'swipe-question';
       }
       return 'div';
     });
@@ -105,6 +106,90 @@ createApp({
         :class="btnClass(idx) + ' w-full text-left p-2 mb-2 rounded'">
         {{ opt }}
       </button>
+    </div>
+  `
+})
+.component('swipe-question', {
+  props: ['question'],
+  setup(props, { emit }) {
+    const cards = ref(props.question.cards.map(c => ({ ...c })));
+    const answers = ref([]);
+    const offsetX = ref(0);
+    const offsetY = ref(0);
+    const dragging = ref(false);
+    const label = ref('');
+    let startX = 0;
+    let startY = 0;
+
+    function point(e) {
+      return e.touches ? { x: e.touches[0].clientX, y: e.touches[0].clientY } : { x: e.clientX, y: e.clientY };
+    }
+
+    function start(e) {
+      if (!cards.value.length) return;
+      const p = point(e);
+      startX = p.x;
+      startY = p.y;
+      dragging.value = true;
+    }
+
+    function move(e) {
+      if (!dragging.value) return;
+      const p = point(e);
+      offsetX.value = p.x - startX;
+      offsetY.value = p.y - startY;
+      const card = cards.value[cards.value.length - 1];
+      label.value = offsetX.value >= 0 ? (card.rightLabel || props.question.rightLabel || 'Ja') : (card.leftLabel || props.question.leftLabel || 'Nein');
+      e.preventDefault();
+    }
+
+    function end() {
+      if (!dragging.value) return;
+      dragging.value = false;
+      const card = cards.value[cards.value.length - 1];
+      const threshold = 80;
+      if (Math.abs(offsetX.value) > threshold) {
+        const dir = offsetX.value > 0 ? 'right' : 'left';
+        const answerLabel = offsetX.value > 0 ? (card.rightLabel || props.question.rightLabel || 'Ja') : (card.leftLabel || props.question.leftLabel || 'Nein');
+        answers.value.push({ text: card.text, direction: dir, label: answerLabel });
+        offsetX.value = dir === 'right' ? 1000 : -1000;
+        setTimeout(() => {
+          cards.value.pop();
+          offsetX.value = 0;
+          offsetY.value = 0;
+          if (!cards.value.length) emit('answered', { correct: true, answer: answers.value });
+        }, 300);
+      } else {
+        offsetX.value = 0;
+        offsetY.value = 0;
+      }
+    }
+
+    function styleCard(idx) {
+      if (idx === cards.value.length - 1) {
+        const rot = offsetX.value / 10;
+        return {
+          transform: `translate(${offsetX.value}px, ${offsetY.value}px) rotate(${rot}deg)`,
+          zIndex: cards.value.length
+        };
+      }
+      const off = (cards.value.length - idx - 1) * 4;
+      const scale = 1 - (cards.value.length - idx - 1) * 0.02;
+      return { transform: `translate(0, -${off}px) scale(${scale})`, zIndex: idx };
+    }
+
+    return { cards, start, move, end, styleCard, dragging, label, offsetX };
+  },
+  template: `
+    <div>
+      <p class="mb-4">{{ question.question }}</p>
+      <div class="relative w-full h-64 select-none">
+        <div v-for="(c, idx) in cards" :key="idx" class="absolute inset-0 bg-white rounded-lg shadow-md flex items-center justify-center transition-transform duration-300" :style="styleCard(idx)" @pointerdown="idx === cards.length-1 && start($event)" @pointermove="idx === cards.length-1 && move($event)" @pointerup="idx === cards.length-1 && end()" @pointercancel="idx === cards.length-1 && end()">
+          <span class="p-4 text-center">{{ c.text }}</span>
+        </div>
+        <div v-if="dragging" class="absolute top-4 left-4 text-2xl font-bold pointer-events-none" :class="offsetX >= 0 ? 'text-green-600' : 'text-red-600'">{{ label }}</div>
+      </div>
+      <p v-if="cards.length === 0" class="mt-4 text-center">Keine Karten mehr</p>
     </div>
   `
 })
