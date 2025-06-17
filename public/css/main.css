@@ -145,6 +145,13 @@ body.uk-padding {
   align-items: center;
 }
 
+/* Reduce footer height */
+.bottombar .uk-navbar-nav > li > a {
+  min-height: 56px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
 .footer-placeholder {
   height: calc(56px + env(safe-area-inset-bottom));
 }
@@ -189,6 +196,12 @@ a.uk-accordion-title {
   .legal-container {
     padding-left: 8px;
     padding-right: 8px;
+  }
+  .bottombar .uk-navbar-nav > li > a {
+    min-height: 48px;
+  }
+  .footer-placeholder {
+    height: calc(48px + env(safe-area-inset-bottom));
   }
 }
 
