@@ -214,30 +214,22 @@ createApp({
   },
   template: `
     <div>
-      <p class="mb-4">{{ question.question }}</p>
+      <p class="mb-4 uk-text-lead">{{ question.question }}</p>
       <div class="relative w-full h-64 select-none">
-        <div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full pointer-events-none text-red-600" style="writing-mode: vertical-rl; transform: translate(-50%, -50%) rotate(180deg);">
+        <div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full pointer-events-none uk-text-danger uk-text-lead" style="writing-mode: vertical-rl; transform: translate(-50%, -50%) rotate(180deg);">
           {{ question.leftLabel || 'Falsch' }}
         </div>
-        <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full pointer-events-none text-green-600" style="writing-mode: vertical-rl;">
+        <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full pointer-events-none uk-text-success uk-text-lead" style="writing-mode: vertical-rl;">
           {{ question.rightLabel || 'Richtig' }}
         </div>
-        <div class="absolute inset-y-0 left-0 w-1/3 overflow-hidden cursor-pointer" @click="swipe('left')">
-          <div class="absolute inset-0 bg-white text-black rounded-lg shadow-md flex items-center justify-center" style="transform: translateX(-66%);">
-            <span class="text-2xl">&larr;</span>
-          </div>
-        </div>
-        <div class="absolute inset-y-0 right-0 w-1/3 overflow-hidden cursor-pointer" @click="swipe('right')">
-          <div class="absolute inset-0 bg-white text-black rounded-lg shadow-md flex items-center justify-center" style="transform: translateX(66%);">
-            <span class="text-2xl">&rarr;</span>
-          </div>
-        </div>
+        <div class="absolute inset-y-0 left-0 w-1/3 overflow-hidden cursor-pointer" @click="swipe('left')"></div>
+        <div class="absolute inset-y-0 right-0 w-1/3 overflow-hidden cursor-pointer" @click="swipe('right')"></div>
         <div v-for="(c, idx) in cards" :key="idx" class="absolute inset-0 bg-white rounded-lg shadow-md flex items-center justify-center transition-transform duration-300" :style="styleCard(idx)" @pointerdown="idx === cards.length-1 && start($event)" @pointermove="idx === cards.length-1 && move($event)" @pointerup="idx === cards.length-1 && end()" @pointercancel="idx === cards.length-1 && end()">
-          <span class="p-4 text-center text-black text-xl">{{ c.text }}</span>
+          <span class="p-4 text-center text-black uk-text-large">{{ c.text }}</span>
         </div>
         <div v-if="dragging" class="absolute top-4 left-4 text-2xl font-bold pointer-events-none" :class="offsetX >= 0 ? 'text-green-600' : 'text-red-600'">{{ label }}</div>
       </div>
-      <p v-if="cards.length === 0" class="mt-4 text-center">Keine Karten mehr</p>
+      <p v-if="cards.length === 0" class="mt-4 text-center uk-text-lead">Keine Karten mehr</p>
     </div>
   `
 })
