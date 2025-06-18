@@ -300,6 +300,16 @@
           <button id="resultsResetBtn" class="uk-button uk-button-default" uk-tooltip="title: Löscht alle gespeicherten Ergebnisse; pos: right">Zurücksetzen</button>
           <button id="resultsDownloadBtn" class="uk-button uk-button-primary" uk-tooltip="title: Ergebnisse herunterladen; pos: right">Herunterladen</button>
         </div>
+
+        <div id="resultsResetModal" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body">
+            <p>Beim Zurücksetzen der Statistik werden auch alle hochgeladenen Beweisfotos unwiderruflich gelöscht. Dieser Vorgang kann nicht rückgängig gemacht werden.<br>Soll die Statistik nun zurückgesetzt werden?</p>
+            <div class="uk-flex uk-flex-right uk-margin-top">
+              <button id="resultsResetConfirm" class="uk-button uk-button-danger" type="button">Löschen</button>
+              <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>
+            </div>
+          </div>
+        </div>
       </div>
     </li>
     <li>

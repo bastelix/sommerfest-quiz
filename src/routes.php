@@ -59,7 +59,11 @@ return function (\Slim\App $app) {
 
     $configController = new ConfigController($configService);
     $catalogController = new CatalogController($catalogService);
-    $resultController = new ResultController($resultService, $configService);
+    $resultController = new ResultController(
+        $resultService,
+        $configService,
+        __DIR__ . '/../data/photos'
+    );
     $teamController = new TeamController($teamService);
     $passwordController = new PasswordController($configService);
     $qrController = new QrController();
