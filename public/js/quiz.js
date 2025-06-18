@@ -1118,7 +1118,7 @@ function runQuiz(questions){
           '</p>' +
           '<div class="uk-margin-small-bottom">' +
             '<label class="uk-form-label" for="photo-input">Beweisfoto auswählen</label>' +
-            '<div uk-form-custom="target: true">' +
+            '<div class="stacked-upload" uk-form-custom="target: true">' +
               '<input id="photo-input" type="file" accept="image/*" capture="environment" aria-label="Datei auswählen">' +
               '<input class="uk-input uk-width-1-1" type="text" placeholder="Keine Datei ausgewählt" disabled>' +
               '<button class="uk-button uk-button-default uk-width-1-1 uk-margin-small-top" type="button" tabindex="-1">Durchsuchen</button>' +
