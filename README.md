@@ -54,14 +54,17 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
 ## Schnellstart
 
 1. Abhängigkeiten installieren:
-   ```bash
-   composer install
-   ```
-   Beim ersten Aufruf legt Composer eine `composer.lock` an und lädt alle
-   benötigten Pakete herunter. Die Datei wird bewusst nicht versioniert,
-   sodass stets die neuesten kompatiblen Abhängigkeiten installiert werden.
-   Das Docker-Setup installiert dabei automatisch die PHP-Erweiterung *gd*,
-   welche für die Bibliothek `setasign/fpdf` benötigt wird.
+  ```bash
+  composer install
+  ```
+  Beim ersten Aufruf legt Composer eine `composer.lock` an und lädt alle
+  benötigten Pakete herunter. Die Datei wird bewusst nicht versioniert,
+  sodass stets die neuesten kompatiblen Abhängigkeiten installiert werden.
+  Wer die Anwendung ohne Docker betreibt, muss diesen Schritt manuell
+  ausführen. Fehlt das Verzeichnis `vendor/`, zeigt die App eine
+  entsprechende Fehlermeldung an.
+  Das Docker-Setup installiert dabei automatisch die PHP-Erweiterung *gd*,
+  welche für die Bibliothek `setasign/fpdf` benötigt wird.
    Wurden neue Pakete in `composer.json` eingetragen, sollte anschließend
    `composer update --lock` ausgeführt werden, um die `composer.lock`
    zu aktualisieren. Andernfalls bricht der Docker-Build mit Hinweis auf
@@ -147,7 +150,8 @@ liegt im Verzeichnis `config/` bereits eine kleine `php.ini` bei, die in
 Die verwendete Domain wird aus der Datei `.env` gelesen (Variable `DOMAIN`).
 Beim Start des Containers installiert ein Entrypoint-Skript automatisch alle
 Composer-Abhängigkeiten, sofern das Verzeichnis `vendor/` noch nicht existiert.
-Ein vorheriges `composer install` ist somit nicht mehr erforderlich.
+Ein vorheriges `composer install` ist somit nicht mehr erforderlich,
+solange die App innerhalb des Docker-Setups gestartet wird.
 
 Ist in der `.env` die Variable `POSTGRES_DSN` gesetzt, legt das Entrypoint-
 Skript beim Start automatisch die Datenbank anhand von `docs/schema.sql` an und

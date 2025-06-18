@@ -1,5 +1,12 @@
 <?php
-require __DIR__ . '/../vendor/autoload.php';
+$autoloader = __DIR__ . '/../vendor/autoload.php';
+if (!is_readable($autoloader)) {
+    http_response_code(500);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "Autoloader not found. Please run 'composer install'.\n";
+    exit(1);
+}
+require $autoloader;
 
 // Load environment variables from .env if available
 $envFile = __DIR__ . '/../.env';
