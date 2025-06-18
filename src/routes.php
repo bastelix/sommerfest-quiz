@@ -122,7 +122,7 @@ return function (\Slim\App $app) {
 
     $app->get('/database', function (Request $request, Response $response) {
         $uri = $request->getUri();
-        $location = 'http://' . $uri->getHost() . ':8081';
+        $location = 'https://adminer.' . $uri->getHost();
         return $response->withHeader('Location', $location)->withStatus(302);
     });
 };

@@ -34,9 +34,10 @@ services:
     image: adminer
     restart: always
     environment:
+      - VIRTUAL_HOST=adminer.${DOMAIN}
+      - LETSENCRYPT_HOST=adminer.${DOMAIN}
+      - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
       - ADMINER_DEFAULT_SERVER=postgres
-    ports:
-      - "8081:8080"
     depends_on:
       - postgres
     networks:
