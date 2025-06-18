@@ -25,7 +25,6 @@ class LoginController
         }
 
         $config = (new ConfigService(
-            __DIR__ . '/../../data/config.json',
             __DIR__ . '/../../config/config.json'
         ))->getConfig();
         $user = $config['adminUser'] ?? 'admin';

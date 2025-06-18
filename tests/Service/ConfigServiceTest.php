@@ -12,7 +12,7 @@ class ConfigServiceTest extends TestCase
     public function testReadWriteConfig(): void
     {
         $tmp = tempnam(sys_get_temp_dir(), 'config');
-        $service = new ConfigService($tmp);
+        $service = new ConfigService();
         $data = ['foo' => 'bar'];
 
         $service->saveConfig($data);
@@ -28,7 +28,7 @@ class ConfigServiceTest extends TestCase
     {
         $tmp = tempnam(sys_get_temp_dir(), 'config');
         unlink($tmp);
-        $service = new ConfigService($tmp);
+        $service = new ConfigService();
 
         $this->assertNull($service->getJson());
         $this->assertEquals([], $service->getConfig());

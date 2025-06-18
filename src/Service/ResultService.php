@@ -9,12 +9,10 @@ use PDO;
 
 class ResultService
 {
-    private string $path;
     private PDO $pdo;
 
-    public function __construct(string $path)
+    public function __construct()
     {
-        $this->path = $path;
         $this->pdo = Database::connect();
     }
 

@@ -12,7 +12,7 @@ class PhotoConsentServiceTest extends TestCase
     public function testAddConsentAppendsEntry(): void
     {
         $tmp = tempnam(sys_get_temp_dir(), 'consent');
-        $svc = new PhotoConsentService($tmp);
+        $svc = new PhotoConsentService();
         $svc->add('TeamA', 123);
         $svc->add('TeamB', 456);
         $data = json_decode(file_get_contents($tmp), true);
