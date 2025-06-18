@@ -2,7 +2,7 @@
 -- Mirrors the JSON structure stored under data/
 
 -- Configuration settings (one row expected)
-CREATE TABLE config (
+CREATE TABLE IF NOT EXISTS config (
     id SERIAL PRIMARY KEY,
     displayErrorDetails BOOLEAN,
     QRUser BOOLEAN,
@@ -25,14 +25,14 @@ CREATE TABLE config (
 );
 
 -- Teams list (names only)
-CREATE TABLE teams (
+CREATE TABLE IF NOT EXISTS teams (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL
 );
 CREATE UNIQUE INDEX idx_team_name ON teams(name);
 
 -- Quiz results
-CREATE TABLE results (
+CREATE TABLE IF NOT EXISTS results (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     catalog TEXT NOT NULL,
@@ -47,7 +47,7 @@ CREATE INDEX idx_results_catalog ON results(catalog);
 CREATE INDEX idx_results_name ON results(name);
 
 -- Catalog definitions
-CREATE TABLE catalogs (
+CREATE TABLE IF NOT EXISTS catalogs (
     uid TEXT PRIMARY KEY,
     id TEXT UNIQUE NOT NULL,
     file TEXT NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE catalogs (
 );
 
 -- Questions belonging to catalogs
-CREATE TABLE questions (
+CREATE TABLE IF NOT EXISTS questions (
     id SERIAL PRIMARY KEY,
     catalog_id TEXT NOT NULL,
     type TEXT NOT NULL,
@@ -72,7 +72,7 @@ CREATE TABLE questions (
 CREATE INDEX idx_questions_catalog ON questions(catalog_id);
 
 -- Photo consents for uploaded evidence
-CREATE TABLE photo_consents (
+CREATE TABLE IF NOT EXISTS photo_consents (
     id SERIAL PRIMARY KEY,
     team TEXT NOT NULL,
     time INTEGER NOT NULL
