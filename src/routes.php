@@ -20,6 +20,7 @@ use App\Service\CatalogService;
 use App\Service\ResultService;
 use App\Service\TeamService;
 use App\Service\PhotoConsentService;
+use PDO;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
 use App\Controller\PasswordController;
@@ -49,13 +50,10 @@ require_once __DIR__ . '/Controller/SummaryController.php';
 require_once __DIR__ . '/Controller/EvidenceController.php';
 
 return function (\Slim\App $app) {
-    $configService = new ConfigService(
-        __DIR__ . '/../data/config.json',
-        __DIR__ . '/../config/config.json'
-    );
-    $catalogService = new CatalogService(__DIR__ . '/../data/kataloge');
-    $resultService = new ResultService(__DIR__ . '/../data/results.json');
-    $teamService = new TeamService(__DIR__ . '/../data/teams.json');
+    $configService = new ConfigService(__DIR__ . '/../config/config.json');
+    $catalogService = new CatalogService();
+    $resultService = new ResultService();
+    $teamService = new TeamService();
 
     $configController = new ConfigController($configService);
     $catalogController = new CatalogController($catalogService);
@@ -69,7 +67,7 @@ return function (\Slim\App $app) {
     $qrController = new QrController();
     $logoController = new LogoController($configService);
     $summaryController = new SummaryController($configService);
-    $consentService = new PhotoConsentService(__DIR__ . '/../data/photo_consents.json');
+    $consentService = new PhotoConsentService();
     $evidenceController = new EvidenceController(
         $resultService,
         $consentService,

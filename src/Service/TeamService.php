@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Infrastructure\Database;
+use PDO;
+
 class TeamService
 {
-    private string $path;
+    private PDO $pdo;
 
-    public function __construct(string $path)
+    public function __construct()
     {
-        $this->path = $path;
+        $this->pdo = Database::connect();
     }
 
     public function getAll(): array
     {
-        if (!file_exists($this->path)) {
-            return [];
-        }
-        $json = file_get_contents($this->path);
-        return json_decode($json, true) ?? [];
+        $stmt = $this->pdo->query('SELECT name FROM teams ORDER BY id');
+        return array_map(static fn($r) => $r['name'], $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
     /**
@@ -27,7 +27,12 @@ class TeamService
      */
     public function saveAll(array $teams): void
     {
-        $data = array_values(array_map('strval', $teams));
-        file_put_contents($this->path, json_encode($data, JSON_PRETTY_PRINT) . "\n");
+        $this->pdo->beginTransaction();
+        $this->pdo->exec('DELETE FROM teams');
+        $stmt = $this->pdo->prepare('INSERT INTO teams(name) VALUES(?)');
+        foreach ($teams as $name) {
+            $stmt->execute([(string)$name]);
+        }
+        $this->pdo->commit();
     }
 }

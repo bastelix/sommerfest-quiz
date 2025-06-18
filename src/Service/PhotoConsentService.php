@@ -4,22 +4,21 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Infrastructure\Database;
+use PDO;
+
 class PhotoConsentService
 {
-    private string $path;
+    private PDO $pdo;
 
-    public function __construct(string $path)
+    public function __construct()
     {
-        $this->path = $path;
+        $this->pdo = Database::connect();
     }
 
     public function add(string $team, int $time): void
     {
-        $entries = [];
-        if (file_exists($this->path)) {
-            $entries = json_decode(file_get_contents($this->path), true) ?? [];
-        }
-        $entries[] = ['team' => $team, 'time' => $time];
-        file_put_contents($this->path, json_encode($entries, JSON_PRETTY_PRINT) . "\n");
+        $stmt = $this->pdo->prepare('INSERT INTO photo_consents(team,time) VALUES(?,?)');
+        $stmt->execute([$team, $time]);
     }
 }

@@ -18,11 +18,10 @@ class AdminController
     {
         $view = Twig::fromRequest($request);
         $cfg = (new ConfigService(
-            __DIR__ . '/../../data/config.json',
             __DIR__ . '/../../config/config.json'
         ))->getConfig();
-        $results = (new ResultService(__DIR__ . '/../../data/results.json'))->getAll();
-        $catalogSvc = new CatalogService(__DIR__ . '/../../data/kataloge');
+        $results = (new ResultService())->getAll();
+        $catalogSvc = new CatalogService();
         $catalogsJson = $catalogSvc->read('catalogs.json');
         $catalogs = [];
         if ($catalogsJson !== null) {
@@ -45,7 +44,7 @@ class AdminController
             }
         }
 
-        $teams = (new TeamService(__DIR__ . '/../../data/teams.json'))->getAll();
+        $teams = (new TeamService())->getAll();
 
         return $view->render($response, 'admin.twig', [
             'config' => $cfg,

@@ -14,7 +14,7 @@ class LogoControllerTest extends TestCase
 {
     public function testGetNotFound(): void
     {
-        $cfg = new ConfigService(sys_get_temp_dir() . '/cfg.json');
+        $cfg = new ConfigService();
         $controller = new LogoController($cfg);
         $request = $this->createRequest('GET', '/logo.png');
         $response = $controller->get($request, new Response());
@@ -25,7 +25,7 @@ class LogoControllerTest extends TestCase
     public function testPostAndGet(): void
     {
         $tmpConfig = tempnam(sys_get_temp_dir(), 'cfg');
-        $cfg = new ConfigService($tmpConfig);
+        $cfg = new ConfigService();
         $controller = new LogoController($cfg);
         $logoFile = tempnam(sys_get_temp_dir(), 'logo');
         imagepng(imagecreatetruecolor(10, 10), $logoFile);
@@ -48,7 +48,7 @@ class LogoControllerTest extends TestCase
     public function testPostAndGetWebp(): void
     {
         $tmpConfig = tempnam(sys_get_temp_dir(), 'cfg');
-        $cfg = new ConfigService($tmpConfig);
+        $cfg = new ConfigService();
         $controller = new LogoController($cfg);
         $logoFile = tempnam(sys_get_temp_dir(), 'logo');
         file_put_contents($logoFile, 'dummy');

@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Infrastructure\Database;
+use PDO;
+
 class ResultService
 {
-    private string $path;
+    private PDO $pdo;
 
-    public function __construct(string $path)
+    public function __construct()
     {
-        $this->path = $path;
+        $this->pdo = Database::connect();
     }
 
     public function getAll(): array
     {
-        if (!file_exists($this->path)) {
-            return [];
-        }
-        $json = file_get_contents($this->path);
-        return json_decode($json, true) ?? [];
+        $stmt = $this->pdo->query('SELECT name,catalog,attempt,correct,total,time,puzzleTime,photo FROM results ORDER BY id');
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -27,15 +27,11 @@ class ResultService
      */
     public function add(array $data): array
     {
-        $results = $this->getAll();
         $name = (string)($data['name'] ?? '');
         $catalog = (string)($data['catalog'] ?? '');
-        $attempt = 1;
-        foreach ($results as $r) {
-            if (($r['name'] ?? '') === $name && ($r['catalog'] ?? '') === $catalog) {
-                $attempt = max($attempt, (int)($r['attempt'] ?? 0) + 1);
-            }
-        }
+        $stmt = $this->pdo->prepare('SELECT MAX(attempt) FROM results WHERE name=? AND catalog=?');
+        $stmt->execute([$name, $catalog]);
+        $attempt = (int)$stmt->fetchColumn() + 1;
         $entry = [
             'name' => $name,
             'catalog' => $catalog,
@@ -47,39 +43,45 @@ class ResultService
             'puzzleTime' => isset($data['puzzleTime']) ? (int)$data['puzzleTime'] : null,
             'photo' => isset($data['photo']) ? (string)$data['photo'] : null,
         ];
-        $results[] = $entry;
-        file_put_contents($this->path, json_encode($results, JSON_PRETTY_PRINT) . "\n");
+        $sql = 'INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo) VALUES(?,?,?,?,?,?,?,?)';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            $entry['name'],
+            $entry['catalog'],
+            $entry['attempt'],
+            $entry['correct'],
+            $entry['total'],
+            $entry['time'],
+            $entry['puzzleTime'],
+            $entry['photo'],
+        ]);
         return $entry;
     }
 
     public function clear(): void
     {
-        file_put_contents($this->path, "[]\n");
+        $this->pdo->exec('DELETE FROM results');
     }
 
     public function markPuzzle(string $name, string $catalog, int $time): void
     {
-        $results = $this->getAll();
-        for ($i = count($results) - 1; $i >= 0; $i--) {
-            if (($results[$i]['name'] ?? '') === $name && ($results[$i]['catalog'] ?? '') === $catalog) {
-                if (!isset($results[$i]['puzzleTime'])) {
-                    $results[$i]['puzzleTime'] = $time;
-                    file_put_contents($this->path, json_encode($results, JSON_PRETTY_PRINT) . "\n");
-                }
-                break;
-            }
+        $stmt = $this->pdo->prepare('SELECT id FROM results WHERE name=? AND catalog=? ORDER BY id DESC LIMIT 1');
+        $stmt->execute([$name, $catalog]);
+        $id = $stmt->fetchColumn();
+        if ($id !== false) {
+            $upd = $this->pdo->prepare('UPDATE results SET puzzleTime=? WHERE id=? AND puzzleTime IS NULL');
+            $upd->execute([$time, $id]);
         }
     }
 
     public function setPhoto(string $name, string $catalog, string $path): void
     {
-        $results = $this->getAll();
-        for ($i = count($results) - 1; $i >= 0; $i--) {
-            if (($results[$i]['name'] ?? '') === $name && ($results[$i]['catalog'] ?? '') === $catalog) {
-                $results[$i]['photo'] = $path;
-                file_put_contents($this->path, json_encode($results, JSON_PRETTY_PRINT) . "\n");
-                break;
-            }
+        $stmt = $this->pdo->prepare('SELECT id FROM results WHERE name=? AND catalog=? ORDER BY id DESC LIMIT 1');
+        $stmt->execute([$name, $catalog]);
+        $id = $stmt->fetchColumn();
+        if ($id !== false) {
+            $upd = $this->pdo->prepare('UPDATE results SET photo=? WHERE id=?');
+            $upd->execute([$path, $id]);
         }
     }
 }
