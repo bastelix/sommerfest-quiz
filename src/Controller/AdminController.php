@@ -11,18 +11,17 @@ use App\Service\ConfigService;
 use App\Service\ResultService;
 use App\Service\CatalogService;
 use App\Service\TeamService;
+use App\Infrastructure\Database;
 
 class AdminController
 {
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $cfg = (new ConfigService(
-            __DIR__ . '/../../data/config.json',
-            __DIR__ . '/../../config/config.json'
-        ))->getConfig();
-        $results = (new ResultService(__DIR__ . '/../../data/results.json'))->getAll();
-        $catalogSvc = new CatalogService(__DIR__ . '/../../data/kataloge');
+        $pdo = Database::connectFromEnv();
+        $cfg = (new ConfigService($pdo))->getConfig();
+        $results = (new ResultService($pdo))->getAll();
+        $catalogSvc = new CatalogService($pdo);
         $catalogsJson = $catalogSvc->read('catalogs.json');
         $catalogs = [];
         if ($catalogsJson !== null) {
@@ -45,7 +44,7 @@ class AdminController
             }
         }
 
-        $teams = (new TeamService(__DIR__ . '/../../data/teams.json'))->getAll();
+        $teams = (new TeamService($pdo))->getAll();
 
         return $view->render($response, 'admin.twig', [
             'config' => $cfg,

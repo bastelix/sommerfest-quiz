@@ -8,16 +8,15 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
 use App\Service\ConfigService;
+use App\Infrastructure\Database;
 
 class HelpController
 {
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $cfg = (new ConfigService(
-            __DIR__ . '/../../data/config.json',
-            __DIR__ . '/../../config/config.json'
-        ))->getConfig();
+        $pdo = Database::connectFromEnv();
+        $cfg = (new ConfigService($pdo))->getConfig();
 
         return $view->render($response, 'help.twig', ['config' => $cfg]);
     }

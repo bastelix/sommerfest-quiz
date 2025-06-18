@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\ConfigService;
+use App\Infrastructure\Database;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -24,10 +25,8 @@ class LoginController
             $data = json_decode((string) $request->getBody(), true);
         }
 
-        $config = (new ConfigService(
-            __DIR__ . '/../../data/config.json',
-            __DIR__ . '/../../config/config.json'
-        ))->getConfig();
+        $pdo = Database::connectFromEnv();
+        $config = (new ConfigService($pdo))->getConfig();
         $user = $config['adminUser'] ?? 'admin';
         $pass = $config['adminPass'] ?? 'password';
 
