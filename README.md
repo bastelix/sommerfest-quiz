@@ -82,6 +82,10 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
    ```bash
    psql -f docs/schema.sql
    ```
+4. Danach einmalig die vorhandenen JSON-Dateien in die Datenbank importieren:
+   ```bash
+   php scripts/import_to_pgsql.php
+   ```
 
 ## Docker Compose
 
