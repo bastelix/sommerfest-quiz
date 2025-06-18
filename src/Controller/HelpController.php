@@ -15,7 +15,6 @@ class HelpController
     {
         $view = Twig::fromRequest($request);
         $cfg = (new ConfigService(
-            __DIR__ . '/../../data/config.json',
             __DIR__ . '/../../config/config.json'
         ))->getConfig();
 

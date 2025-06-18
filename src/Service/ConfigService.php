@@ -9,13 +9,11 @@ use PDO;
 
 class ConfigService
 {
-    private string $path;
     private ?string $fallbackPath = null;
     private PDO $pdo;
 
-    public function __construct(string $path, ?string $fallbackPath = null)
+    public function __construct(?string $fallbackPath = null)
     {
-        $this->path = $path;
         $this->fallbackPath = $fallbackPath;
         $this->pdo = Database::connect();
     }

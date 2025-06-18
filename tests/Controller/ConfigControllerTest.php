@@ -15,7 +15,7 @@ class ConfigControllerTest extends TestCase
     {
         $tmp = tempnam(sys_get_temp_dir(), 'config');
         unlink($tmp);
-        $controller = new ConfigController(new ConfigService($tmp));
+        $controller = new ConfigController(new ConfigService());
         $request = $this->createRequest('GET', '/config.json');
         $response = $controller->get($request, new Response());
 
@@ -25,7 +25,7 @@ class ConfigControllerTest extends TestCase
     public function testPostAndGet(): void
     {
         $tmp = tempnam(sys_get_temp_dir(), 'config');
-        $service = new ConfigService($tmp);
+        $service = new ConfigService();
         $controller = new ConfigController($service);
 
         $request = $this->createRequest('POST', '/config.json');
@@ -43,7 +43,7 @@ class ConfigControllerTest extends TestCase
     public function testPostInvalidJson(): void
     {
         $tmp = tempnam(sys_get_temp_dir(), 'config');
-        $service = new ConfigService($tmp);
+        $service = new ConfigService();
         $controller = new ConfigController($service);
 
         $request = $this->createRequest('POST', '/config.json', ['HTTP_CONTENT_TYPE' => 'application/json']);

@@ -50,22 +50,10 @@ require_once __DIR__ . '/Controller/SummaryController.php';
 require_once __DIR__ . '/Controller/EvidenceController.php';
 
 return function (\Slim\App $app) {
-    $configService = new ConfigService(
-        __DIR__ . '/../data/config.json',
-        __DIR__ . '/../config/config.json'
-    );
-
-    $cfg = $configService->getConfig();
-    $pdo = new PDO(
-        $cfg['postgres_dsn'] ?? '',
-        $cfg['postgres_user'] ?? null,
-        $cfg['postgres_pass'] ?? null,
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
-    );
-
-    $catalogService = new CatalogService($pdo);
-    $resultService = new ResultService($pdo);
-    $teamService = new TeamService($pdo);
+    $configService = new ConfigService(__DIR__ . '/../config/config.json');
+    $catalogService = new CatalogService();
+    $resultService = new ResultService();
+    $teamService = new TeamService();
 
     $configController = new ConfigController($configService);
     $catalogController = new CatalogController($catalogService);
@@ -79,7 +67,7 @@ return function (\Slim\App $app) {
     $qrController = new QrController();
     $logoController = new LogoController($configService);
     $summaryController = new SummaryController($configService);
-    $consentService = new PhotoConsentService($pdo);
+    $consentService = new PhotoConsentService();
     $evidenceController = new EvidenceController(
         $resultService,
         $consentService,

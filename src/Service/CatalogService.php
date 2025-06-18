@@ -9,18 +9,11 @@ use PDO;
 
 class CatalogService
 {
-    private string $basePath;
     private PDO $pdo;
 
-    public function __construct(string $basePath)
+    public function __construct()
     {
-        $this->basePath = rtrim($basePath, '/');
         $this->pdo = Database::connect();
-    }
-
-    private function path(string $file): string
-    {
-        return $this->basePath . '/' . basename($file);
     }
 
     public function read(string $file): ?string
