@@ -304,8 +304,16 @@
     </li>
     <li>
       <div class="uk-container uk-container-large">
-        <h2 class="uk-heading-bullet">{{ config.header }}</h2>
-        <p>{{ config.subheader }}</p>
+        <div class="uk-flex uk-flex-between uk-flex-middle">
+          <div>
+            <h2 class="uk-heading-bullet">{{ config.header }}</h2>
+            <p>{{ config.subheader }}</p>
+          </div>
+          <div class="uk-text-center uk-margin-small-bottom">
+            <img src="/qr.png?t={{ baseUrl|url_encode }}&fg=000000&label=0" alt="QR" width="96" height="96">
+            <div>{{ config.header }}</div>
+          </div>
+        </div>
 
         <h3 class="uk-heading-bullet">Kataloge</h3>
         <div class="card-grid" uk-grid>
