@@ -55,9 +55,19 @@ services:
     networks:
       - webproxy
 
+  mongo:
+    image: mongo:6
+    container_name: mongo
+    restart: always
+    volumes:
+      - mongodata:/data/db
+    networks:
+      - webproxy
+
 networks:
   webproxy:
     external: false
 
 volumes:
   quizdata:
+  mongodata:
