@@ -20,6 +20,7 @@ use App\Service\CatalogService;
 use App\Service\ResultService;
 use App\Service\TeamService;
 use App\Service\PhotoConsentService;
+use PDO;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
 use App\Controller\PasswordController;
