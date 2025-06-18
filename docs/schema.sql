@@ -3,7 +3,7 @@
 
 -- Configuration settings (one row expected)
 CREATE TABLE config (
-    id INTEGER PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     displayErrorDetails BOOLEAN,
     QRUser BOOLEAN,
     logoPath TEXT,
@@ -26,14 +26,14 @@ CREATE TABLE config (
 
 -- Teams list (names only)
 CREATE TABLE teams (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     name TEXT NOT NULL
 );
 CREATE UNIQUE INDEX idx_team_name ON teams(name);
 
 -- Quiz results
 CREATE TABLE results (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     catalog TEXT NOT NULL,
     attempt INTEGER NOT NULL,
@@ -59,14 +59,22 @@ CREATE TABLE catalogs (
 
 -- Questions belonging to catalogs
 CREATE TABLE questions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     catalog_id TEXT NOT NULL,
     type TEXT NOT NULL,
     prompt TEXT NOT NULL,
-    options JSON,
-    answers JSON,
-    terms JSON,
-    items JSON,
+    options JSONB,
+    answers JSONB,
+    terms JSONB,
+    items JSONB,
     FOREIGN KEY (catalog_id) REFERENCES catalogs(id)
 );
 CREATE INDEX idx_questions_catalog ON questions(catalog_id);
+
+-- Photo consents for uploaded evidence
+CREATE TABLE photo_consents (
+    id SERIAL PRIMARY KEY,
+    team TEXT NOT NULL,
+    time INTEGER NOT NULL
+);
+CREATE INDEX idx_photo_consents_team ON photo_consents(team);
