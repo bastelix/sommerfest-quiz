@@ -1,0 +1,22 @@
+[
+  {
+    "type": "mc",
+    "prompt": "Welches Zahlensystem nutzt ein Computer intern?",
+    "options": ["Dezimalsystem", "Binärsystem", "Römische Zahlen"],
+    "answers": [1]
+  },
+  {
+    "type": "assign",
+    "prompt": "Ordne das Programm dem Zweck zu:",
+    "terms": [
+      {"term": "Textverarbeitung", "definition": "Briefe schreiben"},
+      {"term": "Tabellenkalkulation", "definition": "Berechnungen erstellen"},
+      {"term": "Bildbearbeitung", "definition": "Fotos retuschieren"}
+    ]
+  },
+  {
+    "type": "sort",
+    "prompt": "Sortiere die Drahtlos-Techniken nach Reichweite (kurz zu lang):",
+    "items": ["NFC", "WLAN", "Mobilfunk"]
+  }
+]

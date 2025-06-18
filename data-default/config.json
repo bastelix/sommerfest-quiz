@@ -1,0 +1,23 @@
+{
+  "displayErrorDetails": true,
+  "QRUser": true,
+  "logoPath": "/logo.png",
+  "pageTitle": "Modernes Quiz mit UIkit",
+  "header": "Sommerfest 2025",
+  "subheader": "Willkommen beim Veranstaltungsquiz",
+  "backgroundColor": "#ffffff",
+  "buttonColor": "#1e87f0",
+  "CheckAnswerButton": "no",
+  "adminUser": "admin",
+  "adminPass": "password",
+  "QRRestrict": false,
+  "competitionMode": false,
+  "teamResults": true,
+  "photoUpload": true,
+  "puzzleWordEnabled": true,
+  "puzzleWord": "",
+  "puzzleFeedback": "",
+  "postgres_dsn": "pgsql:host=postgres;dbname=quiz",
+  "postgres_user": "quiz",
+  "postgres_pass": "quiz"
+}

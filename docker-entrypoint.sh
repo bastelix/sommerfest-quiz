@@ -16,6 +16,11 @@ if [ ! -d vendor ]; then
     composer install --no-interaction --prefer-dist --no-progress
 fi
 
+# Copy default data if no config exists in /var/www/data
+if [ ! -f /var/www/data/config.json ] && [ -d /var/www/data-default ]; then
+    cp -a /var/www/data-default/. /var/www/data/
+fi
+
 if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
     host=$(echo "$POSTGRES_DSN" | sed -n 's/.*host=\([^;]*\).*/\1/p')
     port=$(echo "$POSTGRES_DSN" | sed -n 's/.*port=\([^;]*\).*/\1/p')
