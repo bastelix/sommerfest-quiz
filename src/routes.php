@@ -119,4 +119,10 @@ return function (\Slim\App $app) {
     $app->post('/photos', [$evidenceController, 'post']);
     $app->get('/photo/{team}/{file}', [$evidenceController, 'get']);
     $app->get('/summary', $summaryController);
+
+    $app->get('/database', function (Request $request, Response $response) {
+        $host = $request->getUri()->getHost();
+        $location = 'http://' . $host . ':8081';
+        return $response->withHeader('Location', $location)->withStatus(302);
+    });
 };

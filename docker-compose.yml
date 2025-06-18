@@ -64,6 +64,19 @@ services:
     networks:
       - webproxy
 
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    restart: always
+    depends_on:
+      - mongo
+    environment:
+      ME_CONFIG_MONGODB_URL: "${MONGO_DSN}/${MONGO_DB}"
+    ports:
+      - "8081:8081"
+    networks:
+      - webproxy
+
 networks:
   webproxy:
     external: false
