@@ -76,7 +76,12 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
    ```bash
    php -S localhost:8080 -t public public/router.php
    ```
-  Anschließend ist das Quiz unter <http://localhost:8080> aufrufbar.
+ Anschließend ist das Quiz unter <http://localhost:8080> aufrufbar.
+
+3. Optional: Tabellen in einer PostgreSQL-Datenbank anlegen:
+   ```bash
+   psql -f docs/schema.sql
+   ```
 
 ## Docker Compose
 
@@ -188,6 +193,8 @@ Das Projekt *Sommerfest-Quiz* ist eine Web-Applikation zur Erstellung und Verwal
    php -S localhost:8080 -t public public/router.php
    ```
    Anschließend ist das Quiz unter `http://localhost:8080` erreichbar.
+
+3. Optional: Tabellen mit `psql` aus `docs/schema.sql` einrichten.
 
 Für Docker-Betrieb steht ein `docker-compose.yml` bereit. Sämtliche Daten im Ordner `data/` werden in einem Volume namens `quizdata` gesichert, damit Ergebnisse erhalten bleiben.
 
