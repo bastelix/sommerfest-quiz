@@ -1,6 +1,16 @@
 #!/bin/sh
 set -e
 
+# Load variables from .env if available and not already set
+if [ -r .env ]; then
+    while IFS='=' read -r key value; do
+        case "$key" in ''|\#*) continue ;; esac
+        if [ -z "$(printenv "$key")" ]; then
+            export "$key=$value"
+        fi
+    done < .env
+fi
+
 # Install composer dependencies if vendor directory is missing
 if [ ! -d vendor ]; then
     composer install --no-interaction --prefer-dist --no-progress

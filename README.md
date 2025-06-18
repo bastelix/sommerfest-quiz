@@ -121,6 +121,11 @@ Beim Start des Containers installiert ein Entrypoint-Skript automatisch alle
 Composer-Abhängigkeiten, sofern das Verzeichnis `vendor/` noch nicht existiert.
 Ein vorheriges `composer install` ist somit nicht mehr erforderlich.
 
+Ist in der `.env` die Variable `POSTGRES_DSN` gesetzt, legt das Entrypoint-
+Skript beim Start automatisch die Datenbank anhand von `docs/schema.sql` an und
+importiert die vorhandenen JSON-Daten. Neben `POSTGRES_DSN` werden dafür auch
+`POSTGRES_USER`, `POSTGRES_PASS` und `POSTGRES_DB` ausgewertet.
+
 ### Bildgrößen anpassen
 
 Damit hochgeladene Dateien nicht unnötig groß werden, ist die Bibliothek [Intervention Image](https://image.intervention.io/) nun fest eingebunden.
