@@ -16,5 +16,8 @@
   "photoUpload": true,
   "puzzleWordEnabled": true,
   "puzzleWord": "",
-  "puzzleFeedback": ""
+  "puzzleFeedback": "",
+  "postgres_dsn": "pgsql:host=postgres;dbname=quiz",
+  "postgres_user": "quiz",
+  "postgres_pass": "quiz"
 }

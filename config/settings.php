@@ -23,6 +23,10 @@ $settings += [
     'displayErrorDetails' => false,
 ];
 
+$settings['postgres_dsn'] = getenv('POSTGRES_DSN') ?: ($settings['postgres_dsn'] ?? null);
+$settings['postgres_user'] = getenv('POSTGRES_USER') ?: ($settings['postgres_user'] ?? null);
+$settings['postgres_pass'] = getenv('POSTGRES_PASS') ?: ($settings['postgres_pass'] ?? null);
+
 
 
 return $settings;
