@@ -121,8 +121,8 @@ return function (\Slim\App $app) {
     $app->get('/summary', $summaryController);
 
     $app->get('/database', function (Request $request, Response $response) {
-        $host = $request->getUri()->getHost();
-        $location = 'http://' . $host . ':8081';
+        $uri = $request->getUri();
+        $location = $uri->getScheme() . '://' . $uri->getHost() . ':8081';
         return $response->withHeader('Location', $location)->withStatus(302);
     });
 };
