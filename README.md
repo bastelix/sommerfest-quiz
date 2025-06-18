@@ -87,10 +87,6 @@ Die Dateien im Ordner `data/` werden dabei in einem benannten Volume
 `data/photos` und werden durch das Volume ebenfalls dauerhaft gespeichert. Die
 ACME-Konfiguration des Let's-Encrypt-Begleiters landet im Ordner `acme/` und
 wird dadurch ebenfalls persistiert.
-Zusätzlich läuft ein Mongo-Express-Container mit, der die Datenbank unter
-`http://<domain>:8081` bereitstellt. Mongo Express ist dabei ausschließlich
-über HTTP erreichbar und nutzt die interne MongoDB-Verbindung
-`mongodb://mongo:27017/quiz`. Er erfordert keine weiteren Einstellungen.
 Um größere Uploads zu erlauben, kann die maximale
 Request-Größe des Reverse Proxys über die Umgebungsvariable
 `CLIENT_MAX_BODY_SIZE` angepasst werden. In der mitgelieferten

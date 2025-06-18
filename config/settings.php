@@ -23,7 +23,6 @@ $settings += [
     'displayErrorDetails' => false,
 ];
 
-$settings['mongo_dsn'] = getenv('MONGO_DSN') ?: ($settings['mongo_dsn'] ?? null);
-$settings['mongo_db']  = getenv('MONGO_DB') ?: ($settings['mongo_db'] ?? null);
+
 
 return $settings;
