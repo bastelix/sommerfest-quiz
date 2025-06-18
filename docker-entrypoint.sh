@@ -20,7 +20,7 @@ if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
     echo "Initializing PostgreSQL schema"
     host=$(echo "$POSTGRES_DSN" | sed -n 's/.*host=\([^;]*\).*/\1/p')
     db=${POSTGRES_DB:-$(echo "$POSTGRES_DSN" | sed -n 's/.*dbname=\([^;]*\).*/\1/p')}
-    export PGPASSWORD="$POSTGRES_PASS"
+    export PGPASSWORD="${POSTGRES_PASSWORD:-$POSTGRES_PASS}"
     psql -h "$host" -U "$POSTGRES_USER" -d "$db" -f docs/schema.sql >/dev/null
     unset PGPASSWORD
     if [ -f scripts/import_to_pgsql.php ]; then
