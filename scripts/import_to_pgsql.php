@@ -1,0 +1,124 @@
+<?php
+declare(strict_types=1);
+
+$base = dirname(__DIR__);
+
+$configFile = "$base/data/config.json";
+$config = [];
+if (is_readable($configFile)) {
+    $config = json_decode(file_get_contents($configFile), true) ?? [];
+}
+
+$dsn = getenv('POSTGRES_DSN') ?: ($config['postgres_dsn'] ?? null);
+$user = getenv('POSTGRES_USER') ?: ($config['postgres_user'] ?? null);
+$pass = getenv('POSTGRES_PASS') ?: ($config['postgres_pass'] ?? null);
+$db   = getenv('POSTGRES_DB') ?: ($config['postgres_db'] ?? null);
+
+if (!$dsn || !$user || !$db) {
+    fwrite(STDERR, "PostgreSQL connection parameters missing\n");
+    exit(1);
+}
+
+try {
+    $pdo = new PDO($dsn, $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+} catch (PDOException $e) {
+    fwrite(STDERR, "Connection failed: " . $e->getMessage() . "\n");
+    exit(1);
+}
+
+$pdo->beginTransaction();
+
+// Import config
+$configData = array_intersect_key($config, array_flip([
+    'displayErrorDetails','QRUser','logoPath','pageTitle','header','subheader','backgroundColor','buttonColor','CheckAnswerButton','adminUser','adminPass','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback'
+]));
+if ($configData) {
+    $cols = array_keys($configData);
+    $placeholders = array_map(fn($c)=>":".$c, $cols);
+    $sql = 'INSERT INTO config(' . implode(',', $cols) . ') VALUES(' . implode(',', $placeholders) . ')';
+    $stmt = $pdo->prepare($sql);
+    foreach ($configData as $k => $v) {
+        $stmt->bindValue(':' . $k, $v);
+    }
+    $stmt->execute();
+}
+
+// Import teams
+$teamsFile = "$base/data/teams.json";
+if (is_readable($teamsFile)) {
+    $teams = json_decode(file_get_contents($teamsFile), true) ?? [];
+    $stmt = $pdo->prepare('INSERT INTO teams(name) VALUES(?)');
+    foreach ($teams as $name) {
+        $stmt->execute([$name]);
+    }
+}
+
+// Import results
+$resultsFile = "$base/data/results.json";
+if (is_readable($resultsFile)) {
+    $results = json_decode(file_get_contents($resultsFile), true) ?? [];
+    $sql = 'INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo) VALUES(?,?,?,?,?,?,?,?)';
+    $stmt = $pdo->prepare($sql);
+    foreach ($results as $r) {
+        $stmt->execute([
+            $r['name'] ?? '',
+            $r['catalog'] ?? '',
+            $r['attempt'] ?? 1,
+            $r['correct'] ?? 0,
+            $r['total'] ?? 0,
+            $r['time'] ?? time(),
+            $r['puzzleTime'] ?? null,
+            $r['photo'] ?? null,
+        ]);
+    }
+}
+
+// Import catalogs and questions
+$catalogDir = "$base/data/kataloge";
+$catalogsFile = "$catalogDir/catalogs.json";
+if (is_readable($catalogsFile)) {
+    $catalogs = json_decode(file_get_contents($catalogsFile), true) ?? [];
+    $catStmt = $pdo->prepare('INSERT INTO catalogs(uid,id,file,name,description,qrcode_url,raetsel_buchstabe) VALUES(?,?,?,?,?,?,?)');
+    $qStmt = $pdo->prepare('INSERT INTO questions(catalog_id,type,prompt,options,answers,terms,items) VALUES(?,?,?,?,?,?,?)');
+    foreach ($catalogs as $cat) {
+        $catStmt->execute([
+            $cat['uid'] ?? '',
+            $cat['id'] ?? '',
+            $cat['file'] ?? '',
+            $cat['name'] ?? '',
+            $cat['description'] ?? null,
+            $cat['qrcode_url'] ?? null,
+            $cat['raetsel_buchstabe'] ?? null
+        ]);
+        $file = $catalogDir . '/' . ($cat['file'] ?? '');
+        if (is_readable($file)) {
+            $questions = json_decode(file_get_contents($file), true) ?? [];
+            foreach ($questions as $q) {
+                $qStmt->execute([
+                    $cat['id'] ?? '',
+                    $q['type'] ?? '',
+                    $q['prompt'] ?? '',
+                    isset($q['options']) ? json_encode($q['options']) : null,
+                    isset($q['answers']) ? json_encode($q['answers']) : null,
+                    isset($q['terms']) ? json_encode($q['terms']) : null,
+                    isset($q['items']) ? json_encode($q['items']) : null
+                ]);
+            }
+        }
+    }
+}
+
+// Import photo consents
+$consentFile = "$base/data/photo_consents.json";
+if (is_readable($consentFile)) {
+    $consents = json_decode(file_get_contents($consentFile), true) ?? [];
+    $stmt = $pdo->prepare('INSERT INTO photo_consents(team,time) VALUES(?,?)');
+    foreach ($consents as $c) {
+        $stmt->execute([ $c['team'] ?? '', $c['time'] ?? 0 ]);
+    }
+}
+
+$pdo->commit();
+
+echo "Import completed\n";
+

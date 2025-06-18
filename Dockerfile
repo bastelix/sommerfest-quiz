@@ -1,6 +1,6 @@
 FROM php:8.2-alpine
 
-RUN apk add --no-cache libpng libjpeg-turbo freetype libwebp \
+RUN apk add --no-cache libpng libjpeg-turbo freetype libwebp postgresql-client \
     && apk add --no-cache --virtual .build-deps libpng-dev libjpeg-turbo-dev freetype-dev libwebp-dev postgresql-dev $PHPIZE_DEPS \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install gd pdo_pgsql \
