@@ -21,9 +21,7 @@ CREATE TABLE config (
     photoUpload BOOLEAN,
     puzzleWordEnabled BOOLEAN,
     puzzleWord TEXT,
-    puzzleFeedback TEXT,
-    mongo_dsn TEXT,
-    mongo_db TEXT
+    puzzleFeedback TEXT
 );
 
 -- Teams list (names only)

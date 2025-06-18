@@ -4,8 +4,6 @@ RUN apk add --no-cache libpng libjpeg-turbo freetype libwebp \
     && apk add --no-cache --virtual .build-deps libpng-dev libjpeg-turbo-dev freetype-dev libwebp-dev $PHPIZE_DEPS \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install gd \
-    && pecl install mongodb \
-    && docker-php-ext-enable mongodb \
     && apk del .build-deps
 
 # install composer

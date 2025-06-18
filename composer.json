@@ -10,8 +10,7 @@
         "slim/twig-view": "^3.3",
         "setasign/fpdf": "^1.8",
         "endroid/qr-code": "^5.0",
-        "intervention/image": "^2.7",
-        "mongodb/mongodb": "^1.15"
+        "intervention/image": "^2.7"
     },
     "autoload": {
         "psr-4": {
