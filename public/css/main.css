@@ -310,3 +310,19 @@ body.dark-mode .sticky-actions {
   box-sizing: border-box;
 }
 
+/* Stacked layout for file upload fields */
+.stacked-upload {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stacked-upload input[type="text"],
+.stacked-upload button {
+  width: 100%;
+}
+
+.stacked-upload button {
+  margin-top: 8px;
+}
+
