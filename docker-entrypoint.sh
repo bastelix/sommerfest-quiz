@@ -17,15 +17,29 @@ if [ ! -d vendor ]; then
 fi
 
 if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
-    echo "Initializing PostgreSQL schema"
     host=$(echo "$POSTGRES_DSN" | sed -n 's/.*host=\([^;]*\).*/\1/p')
+    port=$(echo "$POSTGRES_DSN" | sed -n 's/.*port=\([^;]*\).*/\1/p')
     db=${POSTGRES_DB:-$(echo "$POSTGRES_DSN" | sed -n 's/.*dbname=\([^;]*\).*/\1/p')}
+    port=${port:-5432}
     export PGPASSWORD="${POSTGRES_PASSWORD:-$POSTGRES_PASS}"
-    psql -h "$host" -U "$POSTGRES_USER" -d "$db" -f docs/schema.sql >/dev/null
-    unset PGPASSWORD
+
+    echo "Waiting for PostgreSQL to become available..."
+    timeout=30
+    until psql -h "$host" -p "$port" -U "$POSTGRES_USER" -d "$db" -c '\\q' >/dev/null 2>&1; do
+        if [ $timeout -le 0 ]; then
+            echo "PostgreSQL not reachable, aborting." >&2
+            exit 1
+        fi
+        sleep 1
+        timeout=$((timeout-1))
+    done
+
+    echo "Initializing PostgreSQL schema"
+    psql -h "$host" -p "$port" -U "$POSTGRES_USER" -d "$db" -f docs/schema.sql >/dev/null
     if [ -f scripts/import_to_pgsql.php ]; then
         php scripts/import_to_pgsql.php >/dev/null
     fi
+    unset PGPASSWORD
 fi
 
 exec "$@"
