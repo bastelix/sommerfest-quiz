@@ -41,13 +41,19 @@ if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
 
     echo "PostgreSQL is available"
 
-    echo "Initializing PostgreSQL schema"
-    psql -h "$host" -p "$port" -U "$POSTGRES_USER" -d "$db" -f docs/schema.sql
-    echo "Schema initialized"
-    if [ -f scripts/import_to_pgsql.php ]; then
-        echo "Importing default data"
-        php scripts/import_to_pgsql.php
-        echo "Data import complete"
+    echo "Checking for existing PostgreSQL schema..."
+    schema_present=$(psql -h "$host" -p "$port" -U "$POSTGRES_USER" -d "$db" -tAc "SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname='public' AND tablename='config');")
+    if [ "$schema_present" = "t" ]; then
+        echo "Schema already present, skipping initialization"
+    else
+        echo "Applying PostgreSQL schema"
+        psql -h "$host" -p "$port" -U "$POSTGRES_USER" -d "$db" -f docs/schema.sql
+        echo "Schema initialized"
+        if [ -f scripts/import_to_pgsql.php ]; then
+            echo "Importing default data"
+            php scripts/import_to_pgsql.php
+            echo "Data import complete"
+        fi
     fi
     unset PGPASSWORD
 fi
