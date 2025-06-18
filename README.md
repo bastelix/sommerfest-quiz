@@ -87,7 +87,7 @@ Die Dateien im Ordner `data/` werden dabei in einem benannten Volume
 `data/photos` und werden durch das Volume ebenfalls dauerhaft gespeichert. Die
 ACME-Konfiguration des Let's-Encrypt-Begleiters landet im Ordner `acme/` und
 wird dadurch ebenfalls persistiert. Zusätzlich läuft ein Adminer-Container,
-der die PostgreSQL-Datenbank unter `http://<domain>:8081` bereitstellt. Er
+der die PostgreSQL-Datenbank über die Subdomain `https://adminer.<domain>` bereitstellt. Er
 nutzt intern den Hostnamen `postgres` und erfordert keine weiteren Einstellungen.
 Um größere Uploads zu erlauben, kann die maximale
 Request-Größe des Reverse Proxys über die Umgebungsvariable
