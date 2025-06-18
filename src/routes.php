@@ -20,6 +20,7 @@ use App\Service\CatalogService;
 use App\Service\ResultService;
 use App\Service\TeamService;
 use App\Service\PhotoConsentService;
+use PDO;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
 use App\Controller\PasswordController;
@@ -53,9 +54,18 @@ return function (\Slim\App $app) {
         __DIR__ . '/../data/config.json',
         __DIR__ . '/../config/config.json'
     );
-    $catalogService = new CatalogService(__DIR__ . '/../data/kataloge');
-    $resultService = new ResultService(__DIR__ . '/../data/results.json');
-    $teamService = new TeamService(__DIR__ . '/../data/teams.json');
+
+    $cfg = $configService->getConfig();
+    $pdo = new PDO(
+        $cfg['postgres_dsn'] ?? '',
+        $cfg['postgres_user'] ?? null,
+        $cfg['postgres_pass'] ?? null,
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    );
+
+    $catalogService = new CatalogService($pdo);
+    $resultService = new ResultService($pdo);
+    $teamService = new TeamService($pdo);
 
     $configController = new ConfigController($configService);
     $catalogController = new CatalogController($catalogService);
@@ -69,7 +79,7 @@ return function (\Slim\App $app) {
     $qrController = new QrController();
     $logoController = new LogoController($configService);
     $summaryController = new SummaryController($configService);
-    $consentService = new PhotoConsentService(__DIR__ . '/../data/photo_consents.json');
+    $consentService = new PhotoConsentService($pdo);
     $evidenceController = new EvidenceController(
         $resultService,
         $consentService,
