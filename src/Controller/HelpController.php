@@ -11,13 +11,17 @@ use App\Service\ConfigService;
 
 class HelpController
 {
+    private ConfigService $config;
+
+    public function __construct(ConfigService $config)
+    {
+        $this->config = $config;
+    }
+
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $cfg = (new ConfigService(
-            __DIR__ . '/../../data/config.json',
-            __DIR__ . '/../../config/config.json'
-        ))->getConfig();
+        $cfg = $this->config->getConfig();
 
         return $view->render($response, 'help.twig', ['config' => $cfg]);
     }

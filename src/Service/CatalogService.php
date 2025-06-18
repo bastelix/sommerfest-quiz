@@ -4,23 +4,15 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Infrastructure\Database;
 use PDO;
 
 class CatalogService
 {
-    private string $basePath;
     private PDO $pdo;
 
-    public function __construct(string $basePath)
+    public function __construct(PDO $pdo)
     {
-        $this->basePath = rtrim($basePath, '/');
-        $this->pdo = Database::connect();
-    }
-
-    private function path(string $file): string
-    {
-        return $this->basePath . '/' . basename($file);
+        $this->pdo = $pdo;
     }
 
     public function read(string $file): ?string

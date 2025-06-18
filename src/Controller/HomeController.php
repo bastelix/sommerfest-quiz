@@ -12,16 +12,21 @@ use Slim\Views\Twig;
 
 class HomeController
 {
+    private ConfigService $config;
+    private CatalogService $catalogService;
+
+    public function __construct(ConfigService $config, CatalogService $catalogService)
+    {
+        $this->config = $config;
+        $this->catalogService = $catalogService;
+    }
+
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $cfg = (new ConfigService(
-            __DIR__ . '/../../data/config.json',
-            __DIR__ . '/../../config/config.json'
-        ))->getConfig();
+        $cfg = $this->config->getConfig();
 
-        $catalogService = new CatalogService(__DIR__ . '/../../data/kataloge');
-        $catalogsJson = $catalogService->read('catalogs.json');
+        $catalogsJson = $this->catalogService->read('catalogs.json');
         $catalogs = [];
         if ($catalogsJson !== null) {
             $catalogs = json_decode($catalogsJson, true) ?? [];

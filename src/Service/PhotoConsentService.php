@@ -4,18 +4,15 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Infrastructure\Database;
 use PDO;
 
 class PhotoConsentService
 {
-    private string $path;
     private PDO $pdo;
 
-    public function __construct(string $path)
+    public function __construct(PDO $pdo)
     {
-        $this->path = $path;
-        $this->pdo = Database::connect();
+        $this->pdo = $pdo;
     }
 
     public function add(string $team, int $time): void

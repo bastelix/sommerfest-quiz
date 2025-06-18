@@ -14,16 +14,25 @@ use App\Service\TeamService;
 
 class AdminController
 {
+    private ConfigService $config;
+    private ResultService $results;
+    private CatalogService $catalogs;
+    private TeamService $teams;
+
+    public function __construct(ConfigService $config, ResultService $results, CatalogService $catalogs, TeamService $teams)
+    {
+        $this->config = $config;
+        $this->results = $results;
+        $this->catalogs = $catalogs;
+        $this->teams = $teams;
+    }
+
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $cfg = (new ConfigService(
-            __DIR__ . '/../../data/config.json',
-            __DIR__ . '/../../config/config.json'
-        ))->getConfig();
-        $results = (new ResultService(__DIR__ . '/../../data/results.json'))->getAll();
-        $catalogSvc = new CatalogService(__DIR__ . '/../../data/kataloge');
-        $catalogsJson = $catalogSvc->read('catalogs.json');
+        $cfg = $this->config->getConfig();
+        $results = $this->results->getAll();
+        $catalogsJson = $this->catalogs->read('catalogs.json');
         $catalogs = [];
         if ($catalogsJson !== null) {
             $catalogs = json_decode($catalogsJson, true) ?? [];
@@ -45,7 +54,7 @@ class AdminController
             }
         }
 
-        $teams = (new TeamService(__DIR__ . '/../../data/teams.json'))->getAll();
+        $teams = $this->teams->getAll();
 
         return $view->render($response, 'admin.twig', [
             'config' => $cfg,

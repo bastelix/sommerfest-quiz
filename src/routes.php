@@ -20,6 +20,7 @@ use App\Service\CatalogService;
 use App\Service\ResultService;
 use App\Service\TeamService;
 use App\Service\PhotoConsentService;
+use PDO;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
 use App\Controller\PasswordController;
@@ -48,14 +49,18 @@ require_once __DIR__ . '/Controller/LogoController.php';
 require_once __DIR__ . '/Controller/SummaryController.php';
 require_once __DIR__ . '/Controller/EvidenceController.php';
 
-return function (\Slim\App $app) {
-    $configService = new ConfigService(
-        __DIR__ . '/../data/config.json',
-        __DIR__ . '/../config/config.json'
+return function (\Slim\App $app) use ($settings) {
+    $pdo = new PDO(
+        $settings['postgres_dsn'],
+        $settings['postgres_user'],
+        $settings['postgres_pass'] ?? null,
+        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
     );
-    $catalogService = new CatalogService(__DIR__ . '/../data/kataloge');
-    $resultService = new ResultService(__DIR__ . '/../data/results.json');
-    $teamService = new TeamService(__DIR__ . '/../data/teams.json');
+
+    $configService = new ConfigService($pdo, __DIR__ . '/../config/config.json');
+    $catalogService = new CatalogService($pdo);
+    $resultService = new ResultService($pdo);
+    $teamService = new TeamService($pdo);
 
     $configController = new ConfigController($configService);
     $catalogController = new CatalogController($catalogService);
@@ -69,14 +74,20 @@ return function (\Slim\App $app) {
     $qrController = new QrController();
     $logoController = new LogoController($configService);
     $summaryController = new SummaryController($configService);
-    $consentService = new PhotoConsentService(__DIR__ . '/../data/photo_consents.json');
+    $consentService = new PhotoConsentService($pdo);
     $evidenceController = new EvidenceController(
         $resultService,
         $consentService,
         __DIR__ . '/../data/photos'
     );
 
-    $app->get('/', HomeController::class);
+    $homeController = new HomeController($configService, $catalogService);
+    $helpController = new HelpController($configService);
+    $loginController = new LoginController($configService);
+    $adminController = new AdminController($configService, $resultService, $catalogService, $teamService);
+    $adminCatalogController = new AdminCatalogController($catalogService);
+
+    $app->get('/', $homeController);
     $app->get('/favicon.ico', function (Request $request, Response $response) {
         $iconPath = __DIR__ . '/../public/favicon.svg';
         if (file_exists($iconPath)) {
@@ -86,15 +97,15 @@ return function (\Slim\App $app) {
         return $response->withStatus(404);
     });
     $app->get('/faq', FaqController::class);
-    $app->get('/help', HelpController::class);
+    $app->get('/help', $helpController);
     $app->get('/datenschutz', DatenschutzController::class);
     $app->get('/impressum', ImpressumController::class);
     $app->get('/lizenz', LizenzController::class);
-    $app->get('/login', [LoginController::class, 'show']);
-    $app->post('/login', [LoginController::class, 'login']);
+    $app->get('/login', [$loginController, 'show']);
+    $app->post('/login', [$loginController, 'login']);
     $app->get('/logout', LogoutController::class);
-    $app->get('/admin', AdminController::class)->add(new AdminAuthMiddleware());
-    $app->get('/admin/kataloge', AdminCatalogController::class)->add(new AdminAuthMiddleware());
+    $app->get('/admin', $adminController)->add(new AdminAuthMiddleware());
+    $app->get('/admin/kataloge', $adminCatalogController)->add(new AdminAuthMiddleware());
     $app->get('/results', [$resultController, 'page']);
     $app->get('/results.json', [$resultController, 'get']);
     $app->get('/results/download', [$resultController, 'download']);

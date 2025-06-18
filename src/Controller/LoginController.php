@@ -11,6 +11,13 @@ use Slim\Views\Twig;
 
 class LoginController
 {
+    private ConfigService $config;
+
+    public function __construct(ConfigService $config)
+    {
+        $this->config = $config;
+    }
+
     public function show(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
@@ -24,10 +31,7 @@ class LoginController
             $data = json_decode((string) $request->getBody(), true);
         }
 
-        $config = (new ConfigService(
-            __DIR__ . '/../../data/config.json',
-            __DIR__ . '/../../config/config.json'
-        ))->getConfig();
+        $config = $this->config->getConfig();
         $user = $config['adminUser'] ?? 'admin';
         $pass = $config['adminPass'] ?? 'password';
 

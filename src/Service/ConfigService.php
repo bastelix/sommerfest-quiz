@@ -4,20 +4,17 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Infrastructure\Database;
 use PDO;
 
 class ConfigService
 {
-    private string $path;
-    private ?string $fallbackPath = null;
     private PDO $pdo;
+    private ?string $fallbackPath = null;
 
-    public function __construct(string $path, ?string $fallbackPath = null)
+    public function __construct(PDO $pdo, ?string $fallbackPath = null)
     {
-        $this->path = $path;
+        $this->pdo = $pdo;
         $this->fallbackPath = $fallbackPath;
-        $this->pdo = Database::connect();
     }
 
     public function getJson(): ?string
