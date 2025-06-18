@@ -255,7 +255,8 @@ body.dark-mode .sticky-actions {
   .uk-navbar,
   button,
   .uk-button,
-  .uk-icon-button {
+  .uk-icon-button,
+  .uk-tooltip {
     display: none !important;
   }
 }
