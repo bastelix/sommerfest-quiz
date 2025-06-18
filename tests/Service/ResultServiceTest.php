@@ -12,7 +12,7 @@ class ResultServiceTest extends TestCase
     public function testAddIncrementsAttemptForSameCatalog(): void
     {
         $tmp = tempnam(sys_get_temp_dir(), 'results');
-        $service = new ResultService($tmp);
+        $service = new ResultService();
 
         $first = $service->add(['name' => 'TeamA', 'catalog' => 'cat1']);
         $this->assertSame(1, $first['attempt']);
@@ -26,7 +26,7 @@ class ResultServiceTest extends TestCase
     public function testAddDoesNotIncrementAcrossCatalogs(): void
     {
         $tmp = tempnam(sys_get_temp_dir(), 'results');
-        $service = new ResultService($tmp);
+        $service = new ResultService();
 
         $first = $service->add(['name' => 'TeamA', 'catalog' => 'cat1']);
         $this->assertSame(1, $first['attempt']);
@@ -40,7 +40,7 @@ class ResultServiceTest extends TestCase
     public function testMarkPuzzleUpdatesEntry(): void
     {
         $tmp = tempnam(sys_get_temp_dir(), 'results');
-        $service = new ResultService($tmp);
+        $service = new ResultService();
 
         $service->add(['name' => 'TeamA', 'catalog' => 'cat1']);
         $ts = time();
@@ -55,7 +55,7 @@ class ResultServiceTest extends TestCase
     public function testSetPhotoUpdatesEntry(): void
     {
         $tmp = tempnam(sys_get_temp_dir(), 'results');
-        $service = new ResultService($tmp);
+        $service = new ResultService();
 
         $service->add(['name' => 'TeamA', 'catalog' => 'cat1']);
         $service->setPhoto('TeamA', 'cat1', '/photo/test.jpg');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+
 use PDO;
 
 class CatalogService
@@ -119,6 +120,11 @@ class CatalogService
             $this->pdo->prepare('DELETE FROM questions WHERE catalog_id=?')->execute([$catId]);
             $this->pdo->prepare('DELETE FROM catalogs WHERE id=?')->execute([$catId]);
         }
+        $id = pathinfo($file, PATHINFO_FILENAME);
+        $this->pdo->beginTransaction();
+        $this->pdo->prepare('DELETE FROM questions WHERE catalog_id=?')->execute([$id]);
+        $this->pdo->prepare('DELETE FROM catalogs WHERE id=?')->execute([$id]);
+        $this->pdo->commit();
     }
 
     public function deleteQuestion(string $file, int $index): void
@@ -137,5 +143,6 @@ class CatalogService
         }
         $del = $this->pdo->prepare('DELETE FROM questions WHERE id=?');
         $del->execute([$rows[$index]]);
+
     }
 }

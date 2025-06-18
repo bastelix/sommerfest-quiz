@@ -82,6 +82,10 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
    ```bash
    psql -f docs/schema.sql
    ```
+4. Anschließend einmalig die vorhandenen JSON-Daten importieren:
+   ```bash
+   php scripts/import_to_pgsql.php
+   ```
 
 ## Docker Compose
 
@@ -120,6 +124,12 @@ Die verwendete Domain wird aus der Datei `.env` gelesen (Variable `DOMAIN`).
 Beim Start des Containers installiert ein Entrypoint-Skript automatisch alle
 Composer-Abhängigkeiten, sofern das Verzeichnis `vendor/` noch nicht existiert.
 Ein vorheriges `composer install` ist somit nicht mehr erforderlich.
+
+Ist in der `.env` die Variable `POSTGRES_DSN` gesetzt, legt das Entrypoint-
+Skript beim Start automatisch die Datenbank anhand von `docs/schema.sql` an und
+importiert die vorhandenen JSON-Daten. Neben `POSTGRES_DSN` werden dafür auch
+`POSTGRES_USER`, `POSTGRES_PASSWORD` und `POSTGRES_DB` ausgewertet (zur
+Kompatibilität wird auch `POSTGRES_PASS` noch unterstützt).
 
 ### Bildgrößen anpassen
 

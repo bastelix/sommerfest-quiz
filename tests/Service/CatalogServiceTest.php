@@ -13,7 +13,7 @@ class CatalogServiceTest extends TestCase
     {
         $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
         mkdir($dir);
-        $service = new CatalogService($dir);
+        $service = new CatalogService();
         $file = 'test.json';
         $data = ['a' => 1];
 
@@ -28,7 +28,7 @@ class CatalogServiceTest extends TestCase
     {
         $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
         mkdir($dir);
-        $service = new CatalogService($dir);
+        $service = new CatalogService();
 
         $this->assertNull($service->read('missing.json'));
 
@@ -39,7 +39,7 @@ class CatalogServiceTest extends TestCase
     {
         $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
         mkdir($dir);
-        $service = new CatalogService($dir);
+        $service = new CatalogService();
         $file = 'del.json';
         $service->write($file, []);
         $this->assertFileExists($dir . '/' . $file);
@@ -52,7 +52,7 @@ class CatalogServiceTest extends TestCase
     {
         $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
         mkdir($dir);
-        $service = new CatalogService($dir);
+        $service = new CatalogService();
         $file = 'q.json';
         $data = [['a' => 1], ['b' => 2]];
         $service->write($file, $data);

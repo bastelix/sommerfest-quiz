@@ -27,6 +27,7 @@ class LoginController
 
         $pdo = Database::connectFromEnv();
         $config = (new ConfigService($pdo))->getConfig();
+
         $user = $config['adminUser'] ?? 'admin';
         $pass = $config['adminPass'] ?? 'password';
 

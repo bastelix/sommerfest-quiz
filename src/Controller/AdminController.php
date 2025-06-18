@@ -45,7 +45,6 @@ class AdminController
         }
 
         $teams = (new TeamService($pdo))->getAll();
-
         return $view->render($response, 'admin.twig', [
             'config' => $cfg,
             'results' => $results,

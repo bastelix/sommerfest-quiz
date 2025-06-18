@@ -11,7 +11,7 @@ if (is_readable($configFile)) {
 
 $dsn = getenv('POSTGRES_DSN') ?: ($config['postgres_dsn'] ?? null);
 $user = getenv('POSTGRES_USER') ?: ($config['postgres_user'] ?? null);
-$pass = getenv('POSTGRES_PASS') ?: ($config['postgres_pass'] ?? null);
+$pass = getenv('POSTGRES_PASSWORD') ?: getenv('POSTGRES_PASS') ?: ($config['postgres_pass'] ?? null);
 $db   = getenv('POSTGRES_DB') ?: ($config['postgres_db'] ?? null);
 
 if (!$dsn || !$user || !$db) {
@@ -41,26 +41,40 @@ if ($configData) {
         $stmt->bindValue(':' . $k, $v);
     }
     $stmt->execute();
+    $pdo->exec("SELECT setval(pg_get_serial_sequence('config','id'), (SELECT COALESCE(MAX(id),0) FROM config))");
 }
 
 // Import teams
 $teamsFile = "$base/data/teams.json";
 if (is_readable($teamsFile)) {
     $teams = json_decode(file_get_contents($teamsFile), true) ?? [];
-    $stmt = $pdo->prepare('INSERT INTO teams(name) VALUES(?)');
-    foreach ($teams as $name) {
-        $stmt->execute([$name]);
+    $withId = isset($teams[0]['id']);
+    $sql = $withId ?
+        'INSERT INTO teams(id,name) VALUES(?,?)' :
+        'INSERT INTO teams(name) VALUES(?)';
+    $stmt = $pdo->prepare($sql);
+    foreach ($teams as $t) {
+        if ($withId) {
+            $stmt->execute([$t['id'], $t['name']]);
+        } else {
+            $name = is_array($t) ? ($t['name'] ?? '') : $t;
+            $stmt->execute([$name]);
+        }
     }
+    $pdo->exec("SELECT setval(pg_get_serial_sequence('teams','id'), (SELECT COALESCE(MAX(id),0) FROM teams))");
 }
 
 // Import results
 $resultsFile = "$base/data/results.json";
 if (is_readable($resultsFile)) {
     $results = json_decode(file_get_contents($resultsFile), true) ?? [];
-    $sql = 'INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo) VALUES(?,?,?,?,?,?,?,?)';
+    $withId = isset($results[0]['id']);
+    $sql = $withId
+        ? 'INSERT INTO results(id,name,catalog,attempt,correct,total,time,puzzleTime,photo) VALUES(?,?,?,?,?,?,?,?,?)'
+        : 'INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo) VALUES(?,?,?,?,?,?,?,?)';
     $stmt = $pdo->prepare($sql);
     foreach ($results as $r) {
-        $stmt->execute([
+        $params = [
             $r['name'] ?? '',
             $r['catalog'] ?? '',
             $r['attempt'] ?? 1,
@@ -69,8 +83,13 @@ if (is_readable($resultsFile)) {
             $r['time'] ?? time(),
             $r['puzzleTime'] ?? null,
             $r['photo'] ?? null,
-        ]);
+        ];
+        if ($withId) {
+            array_unshift($params, $r['id']);
+        }
+        $stmt->execute($params);
     }
+    $pdo->exec("SELECT setval(pg_get_serial_sequence('results','id'), (SELECT COALESCE(MAX(id),0) FROM results))");
 }
 
 // Import catalogs and questions
@@ -106,6 +125,7 @@ if (is_readable($catalogsFile)) {
             }
         }
     }
+    $pdo->exec("SELECT setval(pg_get_serial_sequence('questions','id'), (SELECT COALESCE(MAX(id),0) FROM questions))");
 }
 
 // Import photo consents
@@ -116,6 +136,7 @@ if (is_readable($consentFile)) {
     foreach ($consents as $c) {
         $stmt->execute([ $c['team'] ?? '', $c['time'] ?? 0 ]);
     }
+    $pdo->exec("SELECT setval(pg_get_serial_sequence('photo_consents','id'), (SELECT COALESCE(MAX(id),0) FROM photo_consents))");
 }
 
 $pdo->commit();

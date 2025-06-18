@@ -73,6 +73,8 @@ services:
       - VIRTUAL_HOST=${DOMAIN}
       - LETSENCRYPT_HOST=${DOMAIN}
       - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+    depends_on:
+      - postgres
     # Use router.php so that Slim handles routes for non-existent static files
     command: php -S 0.0.0.0:8080 -t public public/router.php
     expose:

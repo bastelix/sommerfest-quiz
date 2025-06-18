@@ -20,6 +20,7 @@ class HomeController
         $cfg = (new ConfigService($pdo))->getConfig();
 
         $catalogService = new CatalogService($pdo);
+
         $catalogsJson = $catalogService->read('catalogs.json');
         $catalogs = [];
         if ($catalogsJson !== null) {

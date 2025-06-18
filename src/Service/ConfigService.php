@@ -13,6 +13,7 @@ class ConfigService
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
+
     }
 
     public function getJson(): ?string
