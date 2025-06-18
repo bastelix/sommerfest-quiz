@@ -1,7 +1,7 @@
 FROM php:8.2-alpine
 
 RUN apk add --no-cache libpng libjpeg-turbo freetype libwebp \
-    && apk add --no-cache --virtual .build-deps $PHPIZE_DEPS libpng-dev libjpeg-turbo-dev freetype-dev libwebp-dev \
+    && apk add --no-cache --virtual .build-deps libpng-dev libjpeg-turbo-dev freetype-dev libwebp-dev $PHPIZE_DEPS \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install gd \
     && pecl install mongodb \
