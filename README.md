@@ -80,12 +80,31 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
 
 3. Optional: Tabellen in einer PostgreSQL-Datenbank anlegen:
    ```bash
-   psql -f docs/schema.sql
+   # Datenbankparameter setzen (Beispielwerte)
+   export POSTGRES_DSN="pgsql:host=localhost;dbname=quiz"
+   export POSTGRES_USER=quiz
+   export POSTGRES_PASSWORD=quiz
+   export POSTGRES_DB=quiz
+
+   # Schema importieren
+   psql -h localhost -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f docs/schema.sql
    ```
+
+   Alternativ lassen sich Schema- und Datenimport direkt im Docker-Container ausführen:
+   ```bash
+   docker-compose exec slim bash -c \
+     'psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f docs/schema.sql && \
+      php scripts/import_to_pgsql.php'
+   ```
+
 4. Anschließend einmalig die vorhandenen JSON-Daten importieren:
    ```bash
    php scripts/import_to_pgsql.php
    ```
+
+   Wird `POSTGRES_DSN` gesetzt und enthält das Verzeichnis `data/` bereits JSON-Dateien,
+   legt das Entrypoint-Skript des Containers die Tabellen automatisch an und importiert
+   die Daten beim Start.
 
 ## Docker Compose
 
@@ -204,7 +223,7 @@ Das Projekt *Sommerfest-Quiz* ist eine Web-Applikation zur Erstellung und Verwal
    ```
    Anschließend ist das Quiz unter `http://localhost:8080` erreichbar.
 
-3. Optional: Tabellen mit `psql` aus `docs/schema.sql` einrichten.
+3. Optional: Tabellen in einer PostgreSQL-Datenbank anlegen und JSON-Daten importieren (siehe Abschnitt "Schnellstart" für ausführliche Befehle).
 
 Für Docker-Betrieb steht ein `docker-compose.yml` bereit. Sämtliche Daten im Ordner `data/` werden in einem Volume namens `quizdata` gesichert, damit Ergebnisse erhalten bleiben.
 
