@@ -1,0 +1,22 @@
+[
+  {
+    "type": "mc",
+    "prompt": "Was bedeutet 'Cloud' in der IT?",
+    "options": ["Speicherung im Internet", "Regenwolke", "Neues Betriebssystem"],
+    "answers": [0]
+  },
+  {
+    "type": "assign",
+    "prompt": "Ordne die Schaltflächen der Bedeutung zu:",
+    "terms": [
+      {"term": "Play", "definition": "Startet die Wiedergabe"},
+      {"term": "Pause", "definition": "Unterbricht"},
+      {"term": "Stop", "definition": "Beendet"}
+    ]
+  },
+  {
+    "type": "sort",
+    "prompt": "Sortiere die Schritte beim Herunterfahren eines PCs:",
+    "items": ["Startmenü öffnen", "Herunterfahren wählen", "Bestätigen"]
+  }
+]

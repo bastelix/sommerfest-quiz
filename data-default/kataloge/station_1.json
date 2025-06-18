@@ -1,0 +1,22 @@
+[
+  {
+    "type": "mc",
+    "prompt": "Womit kann man Daten auf einem USB-Stick speichern?",
+    "options": ["Bilder", "Tintenpatronen", "Wasser"],
+    "answers": [0]
+  },
+  {
+    "type": "assign",
+    "prompt": "Ordne die Geräte der richtigen Funktion zu:",
+    "terms": [
+      {"term": "Maus", "definition": "Zeigergerät"},
+      {"term": "Monitor", "definition": "Bildausgabe"},
+      {"term": "Tastatur", "definition": "Eingabegerät"}
+    ]
+  },
+  {
+    "type": "sort",
+    "prompt": "Sortiere die Dateigrößen (klein zu groß):",
+    "items": ["KB", "MB", "GB"]
+  }
+]
