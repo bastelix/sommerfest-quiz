@@ -233,7 +233,7 @@ createApp({
           </div>
         </div>
         <div v-for="(c, idx) in cards" :key="idx" class="absolute inset-0 bg-white rounded-lg shadow-md flex items-center justify-center transition-transform duration-300" :style="styleCard(idx)" @pointerdown="idx === cards.length-1 && start($event)" @pointermove="idx === cards.length-1 && move($event)" @pointerup="idx === cards.length-1 && end()" @pointercancel="idx === cards.length-1 && end()">
-          <span class="p-4 text-center text-black">{{ c.text }}</span>
+          <span class="p-4 text-center text-black text-xl">{{ c.text }}</span>
         </div>
         <div v-if="dragging" class="absolute top-4 left-4 text-2xl font-bold pointer-events-none" :class="offsetX >= 0 ? 'text-green-600' : 'text-red-600'">{{ label }}</div>
       </div>
