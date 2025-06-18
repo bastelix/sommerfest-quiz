@@ -16,5 +16,7 @@
   "photoUpload": true,
   "puzzleWordEnabled": true,
   "puzzleWord": "",
-  "puzzleFeedback": ""
+  "puzzleFeedback": "",
+  "mongo_dsn": "mongodb://mongo:27017",
+  "mongo_db": "quiz"
 }
