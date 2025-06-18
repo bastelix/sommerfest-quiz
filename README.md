@@ -96,6 +96,11 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
      'psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f docs/schema.sql && \
       php scripts/import_to_pgsql.php'
    ```
+   Für noch bequemere Einrichtung steht das Skript `scripts/run_psql_in_docker.sh`
+   bereit. Es ruft denselben Befehl auf und übernimmt die Variablen aus `.env`:
+   ```bash
+   ./scripts/run_psql_in_docker.sh
+   ```
 
 4. Anschließend einmalig die vorhandenen JSON-Daten importieren:
    ```bash
