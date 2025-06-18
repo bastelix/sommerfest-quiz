@@ -30,7 +30,7 @@ if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
 
     echo "Waiting for PostgreSQL to become available..."
     timeout=30
-    until psql -h "$host" -p "$port" -U "$POSTGRES_USER" -d "$db" -c '\\q' >/dev/null 2>&1; do
+    until psql -h "$host" -p "$port" -U "$POSTGRES_USER" -d "$db" -c '\\q'; do
         if [ $timeout -le 0 ]; then
             echo "PostgreSQL not reachable, aborting." >&2
             exit 1
@@ -39,10 +39,15 @@ if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
         timeout=$((timeout-1))
     done
 
+    echo "PostgreSQL is available"
+
     echo "Initializing PostgreSQL schema"
-    psql -h "$host" -p "$port" -U "$POSTGRES_USER" -d "$db" -f docs/schema.sql >/dev/null
+    psql -h "$host" -p "$port" -U "$POSTGRES_USER" -d "$db" -f docs/schema.sql
+    echo "Schema initialized"
     if [ -f scripts/import_to_pgsql.php ]; then
-        php scripts/import_to_pgsql.php >/dev/null
+        echo "Importing default data"
+        php scripts/import_to_pgsql.php
+        echo "Data import complete"
     fi
     unset PGPASSWORD
 fi
