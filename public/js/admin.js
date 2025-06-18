@@ -328,15 +328,16 @@ document.addEventListener('DOMContentLoaded', function () {
     row.dataset.id = cat.id || '';
     row.dataset.file = cat.file || '';
     row.dataset.initialFile = cat.file || '';
+    row.dataset.uid = cat.uid || crypto.randomUUID();
 
-    const uid = 'cat-' + catalogRowIndex++;
+    const rowId = 'cat-' + catalogRowIndex++;
 
     const idCell = document.createElement('td');
     const idInput = document.createElement('input');
     idInput.type = 'text';
     idInput.className = 'uk-input cat-id';
     idInput.placeholder = 'ID';
-    idInput.id = uid + '-id';
+    idInput.id = rowId + '-id';
     idInput.value = cat.id || '';
     idCell.appendChild(idInput);
 
@@ -345,7 +346,7 @@ document.addEventListener('DOMContentLoaded', function () {
     name.type = 'text';
     name.className = 'uk-input cat-name';
     name.placeholder = 'Name';
-    name.id = uid + '-name';
+    name.id = rowId + '-name';
     name.value = cat.name || '';
     name.addEventListener('input', () => {
       if (row.dataset.new === 'true' && idInput.value.trim() === '') {
@@ -360,7 +361,7 @@ document.addEventListener('DOMContentLoaded', function () {
     desc.type = 'text';
     desc.className = 'uk-input cat-desc';
     desc.placeholder = 'Beschreibung';
-    desc.id = uid + '-desc';
+    desc.id = rowId + '-desc';
     desc.value = cat.description || '';
     descCell.appendChild(desc);
 
@@ -369,7 +370,7 @@ document.addEventListener('DOMContentLoaded', function () {
     letter.type = 'text';
     letter.className = 'uk-input cat-letter';
     letter.placeholder = 'Buchstabe';
-    letter.id = uid + '-letter';
+    letter.id = rowId + '-letter';
     letter.value = cat.raetsel_buchstabe || '';
     letter.maxLength = 1;
     letterCell.appendChild(letter);
@@ -411,6 +412,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const id = row.querySelector('.cat-id').value.trim();
         const file = id ? id + '.json' : '';
         return {
+          uid: row.dataset.uid,
           id,
           file,
           name: row.querySelector('.cat-name').value.trim(),

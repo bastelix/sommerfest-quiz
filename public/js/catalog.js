@@ -92,8 +92,8 @@
     return [];
   }
 
-  async function loadQuestions(id, file, letter){
-    sessionStorage.setItem('quizCatalog', id);
+  async function loadQuestions(id, file, letter, uid){
+    sessionStorage.setItem('quizCatalog', uid || id);
     if(letter){
       const cfg = window.quizConfig || {};
       if(cfg.puzzleWordEnabled && letter){
@@ -192,14 +192,14 @@
       card.style.cursor = 'pointer';
       card.addEventListener('click', () => {
         const localSolved = new Set(JSON.parse(sessionStorage.getItem('quizSolved') || '[]'));
-        if((window.quizConfig || {}).competitionMode && localSolved.has(cat.id)){
-          const remaining = catalogs.filter(c => !localSolved.has(c.id)).map(c => c.name || c.id).join(', ');
+        if((window.quizConfig || {}).competitionMode && localSolved.has(cat.uid)){
+          const remaining = catalogs.filter(c => !localSolved.has(c.uid)).map(c => c.name || c.id).join(', ');
           showCatalogSolvedModal(cat.name || cat.id, remaining);
           return;
         }
         history.replaceState(null, '', '?katalog=' + cat.id);
         setSubHeader(cat.description || '');
-        loadQuestions(cat.id, cat.file, cat.raetsel_buchstabe);
+        loadQuestions(cat.id, cat.file, cat.raetsel_buchstabe, cat.uid);
       });
       const title = document.createElement('h3');
       title.textContent = cat.name || cat.id;
@@ -414,8 +414,8 @@
       const solvedNow = await buildSolvedSet(cfg);
       const selected = catalogs.find(c => c.id === id);
       if(selected){
-          if(cfg.competitionMode && solvedNow.has(selected.id)){
-            const remaining = catalogs.filter(c => !solvedNow.has(c.id)).map(c => c.name || c.id).join(', ');
+          if(cfg.competitionMode && solvedNow.has(selected.uid)){
+            const remaining = catalogs.filter(c => !solvedNow.has(c.uid)).map(c => c.name || c.id).join(', ');
             if(catalogs.length && solvedNow.size === catalogs.length){
               showAllSolvedModal();
               return;
@@ -425,7 +425,7 @@
               return;
             }
           }
-        loadQuestions(selected.id, selected.file, selected.raetsel_buchstabe);
+        loadQuestions(selected.id, selected.file, selected.raetsel_buchstabe, selected.uid);
       }else{
         showSelection(catalogs, solvedNow);
       }

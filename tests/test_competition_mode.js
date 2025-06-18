@@ -17,7 +17,7 @@ const context = {
   },
   fetch: async () => ({
     ok: true,
-    json: async () => [{ name: 'Team1', catalog: 'cat1' }]
+    json: async () => [{ name: 'Team1', catalog: 'uid1' }]
   }),
   console
 };
@@ -27,7 +27,7 @@ context.sessionStorage.setItem('quizUser', 'Team1');
 
 (async () => {
   const res = await buildSolvedSet({ competitionMode: true });
-  assert(res.has('cat1'));
-  assert.deepStrictEqual(JSON.parse(context.sessionStorage.getItem('quizSolved')), ['cat1']);
+  assert(res.has('uid1'));
+  assert.deepStrictEqual(JSON.parse(context.sessionStorage.getItem('quizSolved')), ['uid1']);
   console.log('ok');
 })().catch(err => { console.error(err); process.exit(1); });
