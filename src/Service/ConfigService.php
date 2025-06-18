@@ -4,18 +4,16 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Infrastructure\Database;
 use PDO;
 
 class ConfigService
 {
-    private ?string $fallbackPath = null;
     private PDO $pdo;
 
-    public function __construct(?string $fallbackPath = null)
+    public function __construct(PDO $pdo)
     {
-        $this->fallbackPath = $fallbackPath;
-        $this->pdo = Database::connect();
+        $this->pdo = $pdo;
+
     }
 
     public function getJson(): ?string
@@ -23,41 +21,34 @@ class ConfigService
         $stmt = $this->pdo->query('SELECT * FROM config LIMIT 1');
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
-            if ($this->fallbackPath !== null && file_exists($this->fallbackPath)) {
-                $content = file_get_contents($this->fallbackPath);
-                if ($content !== false) {
-                    $data = json_decode($content, true);
-                    if (is_array($data)) {
-                        $this->saveConfig($data);
-                    }
-                    return $content;
-                }
-            }
             return null;
         }
-        unset($row['id']);
         return json_encode($row, JSON_PRETTY_PRINT);
     }
 
     public function getConfig(): array
     {
-        $content = $this->getJson();
-        if ($content === null) {
-            return [];
-        }
-
-        return json_decode($content, true) ?? [];
+        $stmt = $this->pdo->query('SELECT * FROM config LIMIT 1');
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: [];
     }
 
     public function saveConfig(array $data): void
     {
+        $keys = ['displayErrorDetails','QRUser','logoPath','pageTitle','header','subheader','backgroundColor','buttonColor','CheckAnswerButton','adminUser','adminPass','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback'];
+        $filtered = array_intersect_key($data, array_flip($keys));
         $this->pdo->beginTransaction();
         $this->pdo->exec('DELETE FROM config');
-        $cols = array_keys($data);
-        $placeholders = implode(',', array_fill(0, count($cols), '?'));
-        $sql = 'INSERT INTO config(' . implode(',', $cols) . ') VALUES(' . $placeholders . ')';
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(array_values($data));
+        if ($filtered) {
+            $cols = array_keys($filtered);
+            $params = ':' . implode(', :', $cols);
+            $sql = 'INSERT INTO config(' . implode(',', $cols) . ') VALUES(' . $params . ')';
+            $stmt = $this->pdo->prepare($sql);
+            foreach ($filtered as $k => $v) {
+                $stmt->bindValue(':' . $k, $v);
+            }
+            $stmt->execute();
+        }
         $this->pdo->commit();
     }
 }

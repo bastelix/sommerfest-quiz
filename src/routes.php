@@ -49,11 +49,14 @@ require_once __DIR__ . '/Controller/LogoController.php';
 require_once __DIR__ . '/Controller/SummaryController.php';
 require_once __DIR__ . '/Controller/EvidenceController.php';
 
+use App\Infrastructure\Database;
+
 return function (\Slim\App $app) {
-    $configService = new ConfigService(__DIR__ . '/../config/config.json');
-    $catalogService = new CatalogService();
-    $resultService = new ResultService();
-    $teamService = new TeamService();
+    $pdo = Database::connectFromEnv();
+    $configService = new ConfigService($pdo);
+    $catalogService = new CatalogService($pdo);
+    $resultService = new ResultService($pdo);
+    $teamService = new TeamService($pdo);
 
     $configController = new ConfigController($configService);
     $catalogController = new CatalogController($catalogService);
@@ -67,7 +70,7 @@ return function (\Slim\App $app) {
     $qrController = new QrController();
     $logoController = new LogoController($configService);
     $summaryController = new SummaryController($configService);
-    $consentService = new PhotoConsentService();
+    $consentService = new PhotoConsentService($pdo);
     $evidenceController = new EvidenceController(
         $resultService,
         $consentService,

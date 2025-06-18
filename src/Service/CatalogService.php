@@ -4,39 +4,46 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Infrastructure\Database;
+
 use PDO;
 
 class CatalogService
 {
     private PDO $pdo;
 
-    public function __construct()
+    public function __construct(PDO $pdo)
     {
-        $this->pdo = Database::connect();
+        $this->pdo = $pdo;
     }
 
     public function read(string $file): ?string
     {
         if ($file === 'catalogs.json') {
             $stmt = $this->pdo->query('SELECT uid,id,file,name,description,qrcode_url,raetsel_buchstabe FROM catalogs ORDER BY id');
-            return json_encode($stmt->fetchAll(PDO::FETCH_ASSOC), JSON_PRETTY_PRINT);
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return json_encode($data, JSON_PRETTY_PRINT);
         }
 
-        $id = pathinfo($file, PATHINFO_FILENAME);
-        $stmt = $this->pdo->prepare('SELECT type,prompt,options,answers,terms,items FROM questions WHERE catalog_id=? ORDER BY id');
-        $stmt->execute([$id]);
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        foreach ($rows as &$r) {
-            foreach (['options','answers','terms','items'] as $col) {
-                if ($r[$col] !== null) {
-                    $r[$col] = json_decode((string)$r[$col], true);
+        $stmt = $this->pdo->prepare('SELECT id FROM catalogs WHERE file=?');
+        $stmt->execute([basename($file)]);
+        $catId = $stmt->fetchColumn();
+        if ($catId === false) {
+            return null;
+        }
+        $qStmt = $this->pdo->prepare('SELECT type,prompt,options,answers,terms,items FROM questions WHERE catalog_id=? ORDER BY id');
+        $qStmt->execute([$catId]);
+        $questions = [];
+        while ($row = $qStmt->fetch(PDO::FETCH_ASSOC)) {
+            foreach (["options","answers","terms","items"] as $k) {
+                if ($row[$k] !== null) {
+                    $row[$k] = json_decode((string)$row[$k], true);
                 } else {
-                    unset($r[$col]);
+                    unset($row[$k]);
                 }
             }
+            $questions[] = $row;
         }
-        return json_encode($rows, JSON_PRETTY_PRINT);
+        return json_encode($questions, JSON_PRETTY_PRINT);
     }
 
     /**
@@ -50,11 +57,10 @@ class CatalogService
      */
     public function write(string $file, $data): void
     {
-        if (is_string($data)) {
-            $data = json_decode($data, true) ?? [];
-        }
-
         if ($file === 'catalogs.json') {
+            if (!is_array($data)) {
+                $data = json_decode((string)$data, true) ?? [];
+            }
             $this->pdo->beginTransaction();
             $this->pdo->exec('DELETE FROM catalogs');
             $stmt = $this->pdo->prepare('INSERT INTO catalogs(uid,id,file,name,description,qrcode_url,raetsel_buchstabe) VALUES(?,?,?,?,?,?,?)');
@@ -73,14 +79,22 @@ class CatalogService
             return;
         }
 
-        $id = pathinfo($file, PATHINFO_FILENAME);
+        if (!is_array($data)) {
+            $data = json_decode((string)$data, true) ?? [];
+        }
+        $stmt = $this->pdo->prepare('SELECT id FROM catalogs WHERE file=?');
+        $stmt->execute([basename($file)]);
+        $catId = $stmt->fetchColumn();
+        if ($catId === false) {
+            return;
+        }
         $this->pdo->beginTransaction();
         $del = $this->pdo->prepare('DELETE FROM questions WHERE catalog_id=?');
-        $del->execute([$id]);
-        $stmt = $this->pdo->prepare('INSERT INTO questions(catalog_id,type,prompt,options,answers,terms,items) VALUES(?,?,?,?,?,?,?)');
+        $del->execute([$catId]);
+        $qStmt = $this->pdo->prepare('INSERT INTO questions(catalog_id,type,prompt,options,answers,terms,items) VALUES(?,?,?,?,?,?,?)');
         foreach ($data as $q) {
-            $stmt->execute([
-                $id,
+            $qStmt->execute([
+                $catId,
                 $q['type'] ?? '',
                 $q['prompt'] ?? '',
                 isset($q['options']) ? json_encode($q['options']) : null,
@@ -95,9 +109,16 @@ class CatalogService
     public function delete(string $file): void
     {
         if ($file === 'catalogs.json') {
-            $this->pdo->exec('DELETE FROM catalogs');
             $this->pdo->exec('DELETE FROM questions');
+            $this->pdo->exec('DELETE FROM catalogs');
             return;
+        }
+        $stmt = $this->pdo->prepare('SELECT id FROM catalogs WHERE file=?');
+        $stmt->execute([basename($file)]);
+        $catId = $stmt->fetchColumn();
+        if ($catId !== false) {
+            $this->pdo->prepare('DELETE FROM questions WHERE catalog_id=?')->execute([$catId]);
+            $this->pdo->prepare('DELETE FROM catalogs WHERE id=?')->execute([$catId]);
         }
         $id = pathinfo($file, PATHINFO_FILENAME);
         $this->pdo->beginTransaction();
@@ -108,12 +129,20 @@ class CatalogService
 
     public function deleteQuestion(string $file, int $index): void
     {
-        $id = pathinfo($file, PATHINFO_FILENAME);
-        $stmt = $this->pdo->prepare('SELECT id FROM questions WHERE catalog_id=? ORDER BY id LIMIT 1 OFFSET ?');
-        $stmt->execute([$id, $index]);
-        $qid = $stmt->fetchColumn();
-        if ($qid !== false) {
-            $this->pdo->prepare('DELETE FROM questions WHERE id=?')->execute([$qid]);
+        $stmt = $this->pdo->prepare('SELECT id FROM catalogs WHERE file=?');
+        $stmt->execute([basename($file)]);
+        $catId = $stmt->fetchColumn();
+        if ($catId === false) {
+            return;
         }
+        $qStmt = $this->pdo->prepare('SELECT id FROM questions WHERE catalog_id=? ORDER BY id');
+        $qStmt->execute([$catId]);
+        $rows = $qStmt->fetchAll(PDO::FETCH_COLUMN);
+        if (!isset($rows[$index])) {
+            return;
+        }
+        $del = $this->pdo->prepare('DELETE FROM questions WHERE id=?');
+        $del->execute([$rows[$index]]);
+
     }
 }

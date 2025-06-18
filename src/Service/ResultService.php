@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Infrastructure\Database;
 use PDO;
 
 class ResultService
 {
     private PDO $pdo;
 
-    public function __construct()
+    public function __construct(PDO $pdo)
     {
-        $this->pdo = Database::connect();
+        $this->pdo = $pdo;
     }
 
     public function getAll(): array
@@ -29,7 +28,7 @@ class ResultService
     {
         $name = (string)($data['name'] ?? '');
         $catalog = (string)($data['catalog'] ?? '');
-        $stmt = $this->pdo->prepare('SELECT MAX(attempt) FROM results WHERE name=? AND catalog=?');
+        $stmt = $this->pdo->prepare('SELECT COALESCE(MAX(attempt),0) FROM results WHERE name=? AND catalog=?');
         $stmt->execute([$name, $catalog]);
         $attempt = (int)$stmt->fetchColumn() + 1;
         $entry = [
@@ -43,8 +42,7 @@ class ResultService
             'puzzleTime' => isset($data['puzzleTime']) ? (int)$data['puzzleTime'] : null,
             'photo' => isset($data['photo']) ? (string)$data['photo'] : null,
         ];
-        $sql = 'INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo) VALUES(?,?,?,?,?,?,?,?)';
-        $stmt = $this->pdo->prepare($sql);
+        $stmt = $this->pdo->prepare('INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo) VALUES(?,?,?,?,?,?,?,?)');
         $stmt->execute([
             $entry['name'],
             $entry['catalog'],
@@ -65,12 +63,12 @@ class ResultService
 
     public function markPuzzle(string $name, string $catalog, int $time): void
     {
-        $stmt = $this->pdo->prepare('SELECT id FROM results WHERE name=? AND catalog=? ORDER BY id DESC LIMIT 1');
+        $stmt = $this->pdo->prepare('SELECT id,puzzleTime FROM results WHERE name=? AND catalog=? ORDER BY id DESC LIMIT 1');
         $stmt->execute([$name, $catalog]);
-        $id = $stmt->fetchColumn();
-        if ($id !== false) {
-            $upd = $this->pdo->prepare('UPDATE results SET puzzleTime=? WHERE id=? AND puzzleTime IS NULL');
-            $upd->execute([$time, $id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row && $row['puzzleTime'] === null) {
+            $upd = $this->pdo->prepare('UPDATE results SET puzzleTime=? WHERE id=?');
+            $upd->execute([$time, $row['id']]);
         }
     }
 

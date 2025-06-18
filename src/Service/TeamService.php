@@ -4,22 +4,21 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Infrastructure\Database;
 use PDO;
 
 class TeamService
 {
     private PDO $pdo;
 
-    public function __construct()
+    public function __construct(PDO $pdo)
     {
-        $this->pdo = Database::connect();
+        $this->pdo = $pdo;
     }
 
     public function getAll(): array
     {
         $stmt = $this->pdo->query('SELECT name FROM teams ORDER BY id');
-        return array_map(static fn($r) => $r['name'], $stmt->fetchAll(PDO::FETCH_ASSOC));
+        return array_map(fn($r) => $r['name'], $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
     /**
@@ -31,7 +30,7 @@ class TeamService
         $this->pdo->exec('DELETE FROM teams');
         $stmt = $this->pdo->prepare('INSERT INTO teams(name) VALUES(?)');
         foreach ($teams as $name) {
-            $stmt->execute([(string)$name]);
+            $stmt->execute([$name]);
         }
         $this->pdo->commit();
     }
