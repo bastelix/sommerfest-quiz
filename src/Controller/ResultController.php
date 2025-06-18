@@ -14,11 +14,13 @@ class ResultController
 {
     private ResultService $service;
     private ConfigService $config;
+    private string $photoDir;
 
-    public function __construct(ResultService $service, ConfigService $config)
+    public function __construct(ResultService $service, ConfigService $config, string $photoDir)
     {
         $this->service = $service;
         $this->config = $config;
+        $this->photoDir = rtrim($photoDir, '/');
     }
 
     public function get(Request $request, Response $response): Response
@@ -83,6 +85,19 @@ class ResultController
     public function delete(Request $request, Response $response): Response
     {
         $this->service->clear();
+        if (is_dir($this->photoDir)) {
+            $files = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($this->photoDir, \FilesystemIterator::SKIP_DOTS),
+                \RecursiveIteratorIterator::CHILD_FIRST
+            );
+            foreach ($files as $file) {
+                if ($file->isDir()) {
+                    @rmdir($file->getPathname());
+                } else {
+                    @unlink($file->getPathname());
+                }
+            }
+        }
         return $response->withStatus(204);
     }
 

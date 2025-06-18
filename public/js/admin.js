@@ -78,6 +78,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const puzzleTextarea = document.getElementById('puzzleFeedbackTextarea');
   const puzzleSaveBtn = document.getElementById('puzzleFeedbackSave');
   const puzzleModal = UIkit.modal('#puzzleFeedbackModal');
+  const resultsResetModal = UIkit.modal('#resultsResetModal');
+  const resultsResetConfirm = document.getElementById('resultsResetConfirm');
   let puzzleFeedback = '';
   let logoUploaded = false;
   if (cfgFields.logoFile && cfgFields.logoPreview) {
@@ -905,11 +907,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   resultsResetBtn?.addEventListener('click', function (e) {
     e.preventDefault();
-    if (!confirm('Alle Ergebnisse löschen?')) return;
+    resultsResetModal.show();
+  });
+
+  resultsResetConfirm?.addEventListener('click', function () {
     fetch('/results', { method: 'DELETE' })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
         notify('Ergebnisse gelöscht', 'success');
+        resultsResetModal.hide();
         window.location.reload();
       })
       .catch(err => {
