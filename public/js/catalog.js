@@ -403,7 +403,7 @@
       if(!cfg.competitionMode || hasCatalog){
         const btn = document.createElement('button');
         btn.className = 'uk-button uk-button-primary';
-        btn.textContent = 'Starten';
+        btn.textContent = 'Los geht es!';
         if(cfg.buttonColor){
           btn.style.backgroundColor = cfg.buttonColor;
           btn.style.borderColor = cfg.buttonColor;
