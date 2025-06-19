@@ -111,7 +111,7 @@ function runQuiz(questions){
 
   let current = 0;
   // Zu jedem Eintrag im Array ein DOM-Element erzeugen
-  const elements = shuffled.map((q, idx) => createQuestion(q, idx));
+  const elements = [createStart()].concat(shuffled.map((q, idx) => createQuestion(q, idx)));
   // Speichert true/false für jede beantwortete Frage
   const results = new Array(questionCount).fill(false);
   const summaryEl = createSummary(); // Abschlussseite
@@ -129,12 +129,7 @@ function runQuiz(questions){
   styleEl.textContent = `\n    body { background-color: ${cfg.backgroundColor || '#ffffff'}; }\n    .uk-button-primary { background-color: ${cfg.buttonColor || '#1e87f0'}; border-color: ${cfg.buttonColor || '#1e87f0'}; }\n  `;
   document.head.appendChild(styleEl);
 
-  // hide header once the quiz starts
   const headerEl = document.getElementById('quiz-header');
-  if (headerEl) {
-    headerEl.innerHTML = '';
-    headerEl.classList.add('uk-hidden');
-  }
 
   elements.forEach((el, i) => {
     if (i !== 0) el.classList.add('uk-hidden');
@@ -153,13 +148,13 @@ function runQuiz(questions){
       progress.classList.add('uk-hidden');
       progress.setAttribute('aria-valuenow', 0);
       if (announcer) announcer.textContent = '';
-    } else if(i < questionCount){
+    } else if(i <= questionCount && i > 0){
       // Fragen anzeigen und Fortschritt aktualisieren
       progress.classList.remove('uk-hidden');
       progress.value = i;
       progress.setAttribute('aria-valuenow', i);
       if (announcer) announcer.textContent = `Frage ${i} von ${questionCount}`;
-    } else if(i === questionCount){
+    } else if(i === questionCount + 1){
       // Nach der letzten Frage Zusammenfassung anzeigen
       progress.value = questionCount;
       progress.setAttribute('aria-valuenow', questionCount);
@@ -171,6 +166,10 @@ function runQuiz(questions){
 
   // Blendet die nächste Frage ein
   function next(){
+    if(current === 0 && headerEl){
+      headerEl.innerHTML = '';
+      headerEl.classList.add('uk-hidden');
+    }
     if(current < questionCount){
       current++;
       showQuestion(current);
