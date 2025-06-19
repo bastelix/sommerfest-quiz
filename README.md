@@ -176,7 +176,7 @@ standardmäßig `https://` vorangestellt.
 
 ## Anpassung
 
-Alle wichtigen Einstellungen finden Sie in `data/config.json`. Ändern Sie hier Logo, Farben oder die Verwendung des QR-Code-Logins. Die Fragen selbst liegen in `data/kataloge/*.json` und können mit jedem Texteditor angepasst werden. Jede Katalogdefinition enthält ein `id`, das dem Dateinamen ohne Endung entspricht. Bei neuen Katalogen generiert die Verwaltung dieses `id` automatisch aus dem eingegebenen Namen. Das `id` lässt sich später im Tab „Kataloge“ bei Bedarf ändern.
+Alle wichtigen Einstellungen finden Sie in `data/config.json`. Ändern Sie hier Logo, Farben oder die Verwendung des QR-Code-Logins. Die Fragen selbst liegen in `data/kataloge/*.json` und können mit jedem Texteditor angepasst werden. Jede Katalogdefinition besitzt nun ein `slug`, über das der Katalog im Frontend aufgerufen wird. Das bisherige `id` dient nur noch der Sortierung und kann bei Bedarf angepasst werden.
 
 QR-Codes können pro Eintrag über `qr_image` oder `qrcode_url` hinterlegt werden. Neben Data-URIs und lokalen Pfaden werden dabei nun auch HTTP- oder HTTPS-URLs unterstützt.
 
@@ -283,8 +283,8 @@ Unter `/admin` stehen folgende Tabs zur Verfügung:
 6. **Passwort ändern** – Administrationspasswort setzen.
 
 ### Fragenkataloge
-`data/kataloge/catalogs.json` listet verfügbare Kataloge mit `id`, Name und optionaler QR-Code-Adresse. Jeder Eintrag kann zusätzlich ein Feld `raetsel_buchstabe` enthalten, das den Buchstaben für das Rätselwort festlegt. Die API bietet hierzu folgende Endpunkte:
-- `GET /kataloge/{file}` liefert den JSON-Katalog oder leitet im Browser auf `/?katalog=id` um.
+`data/kataloge/catalogs.json` listet verfügbare Kataloge mit `slug`, Name und optionaler QR-Code-Adresse. Das Feld `id` dient nur noch der internen Sortierung. Jeder Eintrag kann zusätzlich ein Feld `raetsel_buchstabe` enthalten, das den Buchstaben für das Rätselwort festlegt. Die API bietet hierzu folgende Endpunkte:
+- `GET /kataloge/{file}` liefert den JSON-Katalog oder leitet im Browser auf `/?katalog=slug` um.
 - `PUT /kataloge/{file}` legt eine neue Datei an.
 - `POST /kataloge/{file}` überschreibt einen Katalog mit gesendeten Daten.
 - `DELETE /kataloge/{file}` entfernt die Datei.

@@ -346,7 +346,7 @@
             <div class="export-card uk-card uk-card-default uk-card-body">
               <h4 class="uk-card-title">{{ c.name }}</h4>
               <p>{{ c.description }}</p>
-              {% set link = baseUrl ? baseUrl ~ '/?katalog=' ~ c.id : '?katalog=' ~ c.id %}
+              {% set link = baseUrl ? baseUrl ~ '/?katalog=' ~ c.slug : '?katalog=' ~ c.slug %}
               <img src="/qr.png?t={{ link|url_encode }}&fg=dc0000&label=0" alt="QR" width="96" height="96">
             </div>
           </div>

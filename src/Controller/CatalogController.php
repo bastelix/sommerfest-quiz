@@ -23,9 +23,9 @@ class CatalogController
         $accept = strtolower($request->getHeaderLine('Accept'));
 
         if ($accept === '' || strpos($accept, 'application/json') === false) {
-            $id = pathinfo($file, PATHINFO_FILENAME);
+            $slug = $this->service->slugByFile($file) ?? pathinfo($file, PATHINFO_FILENAME);
             return $response
-                ->withHeader('Location', '/?katalog=' . urlencode($id))
+                ->withHeader('Location', '/?katalog=' . urlencode($slug))
                 ->withStatus(302);
         }
 

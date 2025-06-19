@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function getUsedIds() {
-    const set = new Set(catalogs.map(c => c.id));
+    const set = new Set(catalogs.map(c => c.slug || c.id));
     document
       .querySelectorAll('.catalog-row .cat-id')
       .forEach(el => set.add(el.value.trim()));
@@ -268,7 +268,7 @@ document.addEventListener('DOMContentLoaded', function () {
   let initial = [];
 
   function loadCatalog(id) {
-    const cat = catalogs.find(c => c.id === id);
+    const cat = catalogs.find(c => (c.slug || c.id) === id);
     if (!cat) return;
     catalogFile = cat.file;
     fetch('/kataloge/' + catalogFile, { headers: { 'Accept': 'application/json' } })
@@ -290,13 +290,13 @@ document.addEventListener('DOMContentLoaded', function () {
       catSelect.innerHTML = '';
       catalogs.forEach(c => {
         const opt = document.createElement('option');
-        opt.value = c.id;
-        opt.textContent = c.name || c.id;
+        opt.value = c.slug || c.id;
+        opt.textContent = c.name || c.slug || c.id;
         catSelect.appendChild(opt);
       });
       renderCatalogs(catalogs);
       const params = new URLSearchParams(window.location.search);
-      const id = params.get('katalog') || (catalogs[0] && catalogs[0].id);
+      const id = params.get('katalog') || (catalogs[0] && (catalogs[0].slug || catalogs[0].id));
       if (id) {
         catSelect.value = id;
         loadCatalog(id);
@@ -314,14 +314,14 @@ document.addEventListener('DOMContentLoaded', function () {
     fetch('/kataloge/' + cat.file, { method: 'DELETE' })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
-        catalogs = catalogs.filter(c => c.id !== cat.id);
-        const opt = catSelect.querySelector('option[value="' + cat.id + '"]');
+        catalogs = catalogs.filter(c => (c.slug || c.id) !== (cat.slug || cat.id));
+        const opt = catSelect.querySelector('option[value="' + (cat.slug || cat.id) + '"]');
         opt?.remove();
         row.remove();
         if (catalogs[0]) {
-          if (catSelect.value === cat.id) {
-            catSelect.value = catalogs[0].id;
-            loadCatalog(catalogs[0].id);
+          if (catSelect.value === (cat.slug || cat.id)) {
+            catSelect.value = catalogs[0].slug || catalogs[0].id;
+            loadCatalog(catalogs[0].slug || catalogs[0].id);
           }
         } else {
           catalogFile = '';
@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const row = document.createElement('tr');
     row.className = 'catalog-row';
     if (cat.new) row.dataset.new = 'true';
-    row.dataset.id = cat.id || '';
+    row.dataset.id = cat.slug || cat.id || '';
     row.dataset.file = cat.file || '';
     row.dataset.initialFile = cat.file || '';
     row.dataset.uid = cat.uid || crypto.randomUUID();
@@ -359,7 +359,7 @@ document.addEventListener('DOMContentLoaded', function () {
     idInput.className = 'uk-input cat-id';
     idInput.placeholder = 'ID';
     idInput.id = rowId + '-id';
-    idInput.value = cat.id || '';
+    idInput.value = cat.slug || cat.id || '';
     idCell.appendChild(idInput);
 
     const nameCell = document.createElement('td');
@@ -459,6 +459,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return {
           uid: row.dataset.uid,
           id,
+          slug: id,
           file,
           name: row.querySelector('.cat-name').value.trim(),
           description: row.querySelector('.cat-desc').value.trim(),
@@ -938,8 +939,8 @@ document.addEventListener('DOMContentLoaded', function () {
         catSelect.innerHTML = '';
         catalogs.forEach(c => {
           const opt = document.createElement('option');
-          opt.value = c.id;
-          opt.textContent = c.name || c.id;
+          opt.value = c.slug || c.id;
+          opt.textContent = c.name || c.slug || c.id;
           catSelect.appendChild(opt);
         });
         notify('Katalogliste gespeichert', 'success');

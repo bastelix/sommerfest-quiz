@@ -14,7 +14,7 @@ class CatalogServiceTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, id TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT, comment TEXT);');
+        $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, id TEXT UNIQUE NOT NULL, slug TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT, comment TEXT);');
         $pdo->exec('CREATE TABLE questions(id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_id TEXT NOT NULL, type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT);');
         return $pdo;
     }
@@ -23,7 +23,7 @@ class CatalogServiceTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, id TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT);');
+        $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, id TEXT UNIQUE NOT NULL, slug TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT);');
         $pdo->exec('CREATE TABLE questions(id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_id TEXT NOT NULL, type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT);');
         return $pdo;
     }
@@ -36,6 +36,7 @@ class CatalogServiceTest extends TestCase
         $catalog = [[
             'uid' => 'uid1',
             'id' => 'cat1',
+            'slug' => 'cat1',
             'file' => $file,
             'name' => 'Test',
             'comment' => ''
@@ -54,6 +55,7 @@ class CatalogServiceTest extends TestCase
         $catalog = [[
             'uid' => 'uid4',
             'id' => 'nc',
+            'slug' => 'nc',
             'file' => 'nc.json',
             'name' => 'NC',
             'comment' => 'ignored',
@@ -79,6 +81,7 @@ class CatalogServiceTest extends TestCase
         $service->write('catalogs.json', [[
             'uid' => 'uid2',
             'id' => 'del',
+            'slug' => 'del',
             'file' => $file,
             'name' => 'Del',
             'comment' => ''
@@ -99,6 +102,7 @@ class CatalogServiceTest extends TestCase
         $service->write('catalogs.json', [[
             'uid' => 'uid3',
             'id' => 'qid',
+            'slug' => 'qid',
             'file' => $file,
             'name' => 'Q',
             'comment' => ''

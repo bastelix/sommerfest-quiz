@@ -110,12 +110,13 @@ $catalogDir = "$base/data/kataloge";
 $catalogsFile = "$catalogDir/catalogs.json";
 if (is_readable($catalogsFile)) {
     $catalogs = json_decode(file_get_contents($catalogsFile), true) ?? [];
-    $catStmt = $pdo->prepare('INSERT INTO catalogs(uid,id,file,name,description,qrcode_url,raetsel_buchstabe,comment) VALUES(?,?,?,?,?,?,?,?)');
+    $catStmt = $pdo->prepare('INSERT INTO catalogs(uid,id,slug,file,name,description,qrcode_url,raetsel_buchstabe,comment) VALUES(?,?,?,?,?,?,?,?,?)');
     $qStmt = $pdo->prepare('INSERT INTO questions(catalog_id,type,prompt,options,answers,terms,items) VALUES(?,?,?,?,?,?,?)');
     foreach ($catalogs as $cat) {
         $catStmt->execute([
             $cat['uid'] ?? '',
             $cat['id'] ?? '',
+            $cat['slug'] ?? ($cat['id'] ?? ''),
             $cat['file'] ?? '',
             $cat['name'] ?? '',
             $cat['description'] ?? null,

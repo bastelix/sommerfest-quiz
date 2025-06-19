@@ -224,8 +224,10 @@
       return;
     }
     catalogs = catalogs.slice().sort((a,b) => {
-      if(a.id === undefined || b.id === undefined) return 0;
-      return a.id.localeCompare(b.id);
+      const sa = a.slug || a.id;
+      const sb = b.slug || b.id;
+      if(sa === undefined || sb === undefined) return 0;
+      return sa.localeCompare(sb);
     });
 
     const grid = document.createElement('div');
@@ -239,15 +241,15 @@
       card.addEventListener('click', () => {
         const localSolved = new Set(JSON.parse(sessionStorage.getItem('quizSolved') || '[]'));
         if((window.quizConfig || {}).competitionMode && localSolved.has(cat.uid)){
-          const remaining = catalogs.filter(c => !localSolved.has(c.uid)).map(c => c.name || c.id).join(', ');
-          showCatalogSolvedModal(cat.name || cat.id, remaining);
+          const remaining = catalogs.filter(c => !localSolved.has(c.uid)).map(c => c.name || c.slug || c.id).join(', ');
+          showCatalogSolvedModal(cat.name || cat.slug || cat.id, remaining);
           return;
         }
-        history.replaceState(null, '', '?katalog=' + cat.id);
-        loadQuestions(cat.id, cat.file, cat.raetsel_buchstabe, cat.uid, cat.name || cat.id, cat.description || '', cat.comment || '');
+        history.replaceState(null, '', '?katalog=' + (cat.slug || cat.id));
+        loadQuestions(cat.slug || cat.id, cat.file, cat.raetsel_buchstabe, cat.uid, cat.name || cat.slug || cat.id, cat.description || '', cat.comment || '');
       });
       const title = document.createElement('h3');
-      title.textContent = cat.name || cat.id;
+      title.textContent = cat.name || cat.slug || cat.id;
       const desc = document.createElement('p');
       desc.textContent = cat.description || '';
       card.appendChild(title);
@@ -457,20 +459,20 @@
     const id = params.get('katalog');
     const proceed = async () => {
       const solvedNow = await buildSolvedSet(cfg);
-      const selected = catalogs.find(c => c.id === id);
+      const selected = catalogs.find(c => (c.slug || c.id) === id);
       if(selected){
           if(cfg.competitionMode && solvedNow.has(selected.uid)){
-            const remaining = catalogs.filter(c => !solvedNow.has(c.uid)).map(c => c.name || c.id).join(', ');
+            const remaining = catalogs.filter(c => !solvedNow.has(c.uid)).map(c => c.name || c.slug || c.id).join(', ');
             if(catalogs.length && solvedNow.size === catalogs.length){
               showAllSolvedModal();
               return;
             } else {
-              showCatalogSolvedModal(selected.name || selected.id, remaining);
+              showCatalogSolvedModal(selected.name || selected.slug || selected.id, remaining);
               showSelection(catalogs, solvedNow);
               return;
             }
           }
-        loadQuestions(selected.id, selected.file, selected.raetsel_buchstabe, selected.uid, selected.name || selected.id, selected.description || '', selected.comment || '');
+        loadQuestions(selected.slug || selected.id, selected.file, selected.raetsel_buchstabe, selected.uid, selected.name || selected.slug || selected.id, selected.description || '', selected.comment || '');
       }else{
         showSelection(catalogs, solvedNow);
       }
