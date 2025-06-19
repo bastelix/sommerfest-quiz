@@ -302,12 +302,16 @@
       }
       let bypass;
       if(!cfg.QRRestrict && !cfg.competitionMode){
-        bypass = document.createElement('a');
-        bypass.href = '#';
+        bypass = document.createElement('button');
+        bypass.type = 'button';
         bypass.textContent = 'Kataloge anzeigen';
-        bypass.className = 'uk-display-block uk-margin-top';
-        bypass.addEventListener('click', (e)=>{
-          e.preventDefault();
+        bypass.className = 'uk-button uk-button-primary uk-margin-top';
+        if(cfg.buttonColor){
+          bypass.style.backgroundColor = cfg.buttonColor;
+          bypass.style.borderColor = cfg.buttonColor;
+          bypass.style.color = '#fff';
+        }
+        bypass.addEventListener('click', () => {
           sessionStorage.setItem('quizUser', generateUserName());
           sessionStorage.removeItem('quizSolved');
           updateUserName();
