@@ -52,8 +52,11 @@ class CatalogService
             if ($this->hasCommentColumn()) {
                 $fields .= ',comment';
             }
-            $stmt = $this->pdo->query("SELECT $fields FROM catalogs ORDER BY id");
+            $stmt = $this->pdo->query("SELECT $fields FROM catalogs ORDER BY CAST(id AS INTEGER)");
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($data as &$row) {
+                $row['id'] = (int)$row['id'];
+            }
             if (!$this->hasCommentColumn()) {
                 foreach ($data as &$row) {
                     $row['comment'] = '';

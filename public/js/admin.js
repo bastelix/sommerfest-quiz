@@ -372,7 +372,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const row = document.createElement('tr');
     row.className = 'catalog-row';
     if (cat.new) row.dataset.new = 'true';
-    row.dataset.id = cat.slug || cat.id || '';
+    row.dataset.id = cat.id !== undefined ? String(cat.id) : '';
+    row.dataset.slug = cat.slug || '';
     row.dataset.file = cat.file || '';
     row.dataset.initialFile = cat.file || '';
     row.dataset.uid = cat.uid || crypto.randomUUID();
@@ -389,9 +390,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const idInput = document.createElement('input');
     idInput.type = 'text';
     idInput.className = 'uk-input cat-id';
-    idInput.placeholder = 'ID';
+    idInput.placeholder = 'Slug';
     idInput.id = rowId + '-id';
-    idInput.value = cat.slug || cat.id || '';
+    idInput.value = cat.slug || '';
     idCell.appendChild(idInput);
 
     const nameCell = document.createElement('td');
@@ -456,9 +457,9 @@ document.addEventListener('DOMContentLoaded', function () {
     delCell.appendChild(del);
 
     function update() {
-      const id = idInput.value.trim();
-      row.dataset.id = id;
-      row.dataset.file = id ? id + '.json' : '';
+      const slug = idInput.value.trim();
+      row.dataset.slug = slug;
+      row.dataset.file = slug ? slug + '.json' : '';
     }
     idInput.addEventListener('input', update);
     update();
@@ -479,19 +480,20 @@ document.addEventListener('DOMContentLoaded', function () {
     catalogList.innerHTML = '';
     list
       .slice()
-      .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }))
+      .sort((a, b) => (a.id || 0) - (b.id || 0))
       .forEach(cat => catalogList.appendChild(createCatalogRow(cat)));
   }
 
   function collectCatalogs() {
     return Array.from(catalogList.querySelectorAll('.catalog-row'))
-      .map(row => {
-        const id = row.querySelector('.cat-id').value.trim();
-        const file = id ? id + '.json' : '';
+      .map((row, idx) => {
+        const slug = row.querySelector('.cat-id').value.trim();
+        const file = slug ? slug + '.json' : '';
+        row.dataset.id = String(idx + 1);
         return {
           uid: row.dataset.uid,
-          id,
-          slug: id,
+          id: idx + 1,
+          slug,
           file,
           name: row.querySelector('.cat-name').value.trim(),
           description: row.querySelector('.cat-desc').value.trim(),
@@ -499,8 +501,7 @@ document.addEventListener('DOMContentLoaded', function () {
           comment: row.querySelector('.cat-comment').value.trim()
         };
       })
-      .filter(c => c.id)
-      .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+      .filter(c => c.slug);
   }
 
   // Rendert alle Fragen im Editor neu
@@ -914,7 +915,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   newCatBtn.addEventListener('click', function (e) {
     e.preventDefault();
-    catalogList.appendChild(createCatalogRow({ id: '', file: '', name: '', description: '', raetsel_buchstabe: '', new: true }));
+    catalogList.appendChild(createCatalogRow({ id: '', slug: '', file: '', name: '', description: '', raetsel_buchstabe: '', new: true }));
   });
 
   catalogsSaveBtn?.addEventListener('click', async e => {
