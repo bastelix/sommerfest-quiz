@@ -63,8 +63,11 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
   Wer die Anwendung ohne Docker betreibt, muss diesen Schritt manuell
   ausführen. Fehlt das Verzeichnis `vendor/`, zeigt die App eine
   entsprechende Fehlermeldung an.
-  Das Docker-Setup installiert dabei automatisch die PHP-Erweiterung *gd*,
-  welche für die Bibliothek `setasign/fpdf` benötigt wird.
+  Das Docker-Setup installiert dabei automatisch die PHP-Erweiterungen
+  *gd* und *pdo_pgsql*. Ersteres benötigt die Bibliothek
+  `setasign/fpdf`, letzteres stellt die Verbindung zu PostgreSQL her.
+  Wer die Anwendung ohne Docker betreibt, muss *pdo_pgsql* manuell
+  aktivieren, damit die Datenbankanbindung funktioniert.
    Wurden neue Pakete in `composer.json` eingetragen, sollte anschließend
    `composer update --lock` ausgeführt werden, um die `composer.lock`
    zu aktualisieren. Andernfalls bricht der Docker-Build mit Hinweis auf
