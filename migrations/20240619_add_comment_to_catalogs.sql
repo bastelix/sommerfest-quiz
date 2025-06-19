@@ -1,1 +1,1 @@
-ALTER TABLE catalogs ADD COLUMN comment TEXT;
+ALTER TABLE catalogs ADD COLUMN IF NOT EXISTS comment TEXT;
