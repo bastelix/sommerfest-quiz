@@ -6,6 +6,8 @@ namespace App\Controller;
 
 use App\Service\ResultService;
 use App\Service\ConfigService;
+use App\Service\CatalogService;
+use App\Infrastructure\Database;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -79,6 +81,31 @@ class ResultController
     {
         $view = Twig::fromRequest($request);
         $results = $this->service->getAll();
+
+        $pdo = Database::connectFromEnv();
+        $catalogSvc = new CatalogService($pdo);
+        $json = $catalogSvc->read('catalogs.json');
+        $map = [];
+        if ($json !== null) {
+            $list = json_decode($json, true) ?: [];
+            foreach ($list as $c) {
+                $name = $c['name'] ?? ($c['id'] ?? '');
+                if (isset($c['uid'])) {
+                    $map[$c['uid']] = $name;
+                }
+                if (isset($c['id'])) {
+                    $map[$c['id']] = $name;
+                }
+            }
+        }
+        foreach ($results as &$row) {
+            $cat = $row['catalog'] ?? '';
+            if (isset($map[$cat])) {
+                $row['catalog'] = $map[$cat];
+            }
+        }
+        unset($row);
+
         return $view->render($response, 'results.twig', ['results' => $results]);
     }
 

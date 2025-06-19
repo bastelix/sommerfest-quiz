@@ -333,6 +333,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const rowId = 'cat-' + catalogRowIndex++;
 
     const idCell = document.createElement('td');
+    const handleCell = document.createElement('td');
+    const handleSpan = document.createElement('span');
+    handleSpan.className = 'uk-sortable-handle uk-icon';
+    handleSpan.setAttribute('uk-icon', 'icon: table');
+    handleCell.appendChild(handleSpan);
+
     const idInput = document.createElement('input');
     idInput.type = 'text';
     idInput.className = 'uk-input cat-id';
@@ -391,6 +397,7 @@ document.addEventListener('DOMContentLoaded', function () {
     idInput.addEventListener('input', update);
     update();
 
+    row.appendChild(handleCell);
     row.appendChild(idCell);
     row.appendChild(nameCell);
     row.appendChild(descCell);
@@ -963,6 +970,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const row = document.createElement('tr');
     row.className = 'team-row';
 
+    const handleCell = document.createElement('td');
+    const handleSpan = document.createElement('span');
+    handleSpan.className = 'uk-sortable-handle uk-icon';
+    handleSpan.setAttribute('uk-icon', 'icon: table');
+    handleCell.appendChild(handleSpan);
+
     const nameCell = document.createElement('td');
     const input = document.createElement('input');
     input.type = 'text';
@@ -979,6 +992,7 @@ document.addEventListener('DOMContentLoaded', function () {
     del.onclick = () => row.remove();
     delCell.appendChild(del);
 
+    row.appendChild(handleCell);
     row.appendChild(nameCell);
     row.appendChild(delCell);
     return row;
