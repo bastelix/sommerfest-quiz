@@ -49,9 +49,11 @@ require_once __DIR__ . '/Controller/SummaryController.php';
 require_once __DIR__ . '/Controller/EvidenceController.php';
 
 use App\Infrastructure\Database;
+use App\Infrastructure\Migrations\Migrator;
 
 return function (\Slim\App $app) {
     $pdo = Database::connectFromEnv();
+    Migrator::migrate($pdo, __DIR__ . '/../migrations');
     $configService = new ConfigService($pdo);
     $catalogService = new CatalogService($pdo);
     $resultService = new ResultService($pdo);
