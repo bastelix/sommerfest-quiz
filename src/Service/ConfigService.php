@@ -23,6 +23,7 @@ class ConfigService
         if ($row === false) {
             return null;
         }
+        $row = $this->normalizeKeys($row);
         return json_encode($row, JSON_PRETTY_PRINT);
     }
 
@@ -30,7 +31,7 @@ class ConfigService
     {
         $stmt = $this->pdo->query('SELECT * FROM config LIMIT 1');
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ?: [];
+        return $row ? $this->normalizeKeys($row) : [];
     }
 
     public function saveConfig(array $data): void
@@ -54,5 +55,25 @@ class ConfigService
             $stmt->execute();
         }
         $this->pdo->commit();
+    }
+
+    /**
+     * Normalize database column names to expected camelCase keys.
+     *
+     * @param array<string,mixed> $row
+     * @return array<string,mixed>
+     */
+    private function normalizeKeys(array $row): array
+    {
+        $keys = ['displayErrorDetails','QRUser','logoPath','pageTitle','header','subheader','backgroundColor','buttonColor','CheckAnswerButton','adminUser','adminPass','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback'];
+        $map = [];
+        foreach ($keys as $k) {
+            $map[strtolower($k)] = $k;
+        }
+        $normalized = [];
+        foreach ($row as $k => $v) {
+            $normalized[$map[strtolower($k)] ?? $k] = $v;
+        }
+        return $normalized;
     }
 }
