@@ -92,8 +92,25 @@
     return [];
   }
 
-  async function loadQuestions(id, file, letter, uid){
+  async function loadQuestions(id, file, letter, uid, name, desc){
     sessionStorage.setItem('quizCatalog', uid || id);
+    sessionStorage.setItem('quizCatalogName', name || id);
+    if(desc !== undefined){
+      sessionStorage.setItem('quizCatalogDesc', desc);
+    } else {
+      sessionStorage.removeItem('quizCatalogDesc');
+    }
+    const headerEl = document.getElementById('quiz-header');
+    if(headerEl){
+      let title = headerEl.querySelector('h1');
+      if(!title){
+        title = document.createElement('h1');
+        title.className = 'uk-margin-remove-bottom';
+        headerEl.appendChild(title);
+      }
+      title.textContent = name || id;
+    }
+    setSubHeader(desc || '');
     if(letter){
       const cfg = window.quizConfig || {};
       if(cfg.puzzleWordEnabled && letter){
@@ -198,8 +215,7 @@
           return;
         }
         history.replaceState(null, '', '?katalog=' + cat.id);
-        setSubHeader(cat.description || '');
-        loadQuestions(cat.id, cat.file, cat.raetsel_buchstabe, cat.uid);
+        loadQuestions(cat.id, cat.file, cat.raetsel_buchstabe, cat.uid, cat.name || cat.id, cat.description || '');
       });
       const title = document.createElement('h3');
       title.textContent = cat.name || cat.id;
@@ -425,7 +441,7 @@
               return;
             }
           }
-        loadQuestions(selected.id, selected.file, selected.raetsel_buchstabe, selected.uid);
+        loadQuestions(selected.id, selected.file, selected.raetsel_buchstabe, selected.uid, selected.name || selected.id, selected.description || '');
       }else{
         showSelection(catalogs, solvedNow);
       }
