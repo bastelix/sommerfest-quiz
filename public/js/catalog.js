@@ -153,9 +153,7 @@
       const res = await fetch('/kataloge/' + file, { headers: { 'Accept': 'application/json' } });
       const data = await res.json();
       window.quizQuestions = data;
-      if(window.startQuiz){
-        window.startQuiz(data);
-      }
+      showCatalogIntro(data);
       return;
     }catch(e){
       console.warn('Fragen konnten nicht geladen werden, versuche inline Daten', e);
@@ -165,13 +163,32 @@
       try{
         const data = JSON.parse(inline.textContent);
         window.quizQuestions = data;
-        if(window.startQuiz){
-          window.startQuiz(data);
-        }
+        showCatalogIntro(data);
       }catch(err){
         console.error('Inline-Daten ungültig.', err);
       }
     }
+  }
+
+  function showCatalogIntro(data){
+    const container = document.getElementById('quiz');
+    if(!container) return;
+    container.innerHTML = '';
+    const btn = document.createElement('button');
+    btn.className = 'uk-button uk-button-primary uk-button-large';
+    btn.textContent = 'Los geht es!';
+    const cfg = window.quizConfig || {};
+    if(cfg.buttonColor){
+      btn.style.backgroundColor = cfg.buttonColor;
+      btn.style.borderColor = cfg.buttonColor;
+      btn.style.color = '#fff';
+    }
+    btn.addEventListener('click', () => {
+      if(window.startQuiz){
+        window.startQuiz(data);
+      }
+    });
+    container.appendChild(btn);
   }
 
   function showCatalogSolvedModal(name, remaining){
