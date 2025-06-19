@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS questions (
     answers JSONB,
     terms JSONB,
     items JSONB,
-    FOREIGN KEY (catalog_id) REFERENCES catalogs(id)
+    FOREIGN KEY (catalog_id) REFERENCES catalogs(id) ON DELETE CASCADE
 );
 CREATE INDEX idx_questions_catalog ON questions(catalog_id);
 
