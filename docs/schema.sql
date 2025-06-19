@@ -54,7 +54,8 @@ CREATE TABLE IF NOT EXISTS catalogs (
     name TEXT NOT NULL,
     description TEXT,
     qrcode_url TEXT,
-    raetsel_buchstabe TEXT
+    raetsel_buchstabe TEXT,
+    comment TEXT
 );
 
 -- Questions belonging to catalogs
