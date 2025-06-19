@@ -28,6 +28,9 @@ try {
 
 $pdo->beginTransaction();
 
+// Clear existing tables to allow re-import without duplicates
+$pdo->exec('TRUNCATE config, teams, results, catalogs, questions, photo_consents RESTART IDENTITY CASCADE');
+
 // Import config
 $configData = array_intersect_key($config, array_flip([
     'displayErrorDetails','QRUser','logoPath','pageTitle','header','subheader','backgroundColor','buttonColor','CheckAnswerButton','adminUser','adminPass','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback'
