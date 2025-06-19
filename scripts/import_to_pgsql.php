@@ -38,7 +38,11 @@ if ($configData) {
     $sql = 'INSERT INTO config(' . implode(',', $cols) . ') VALUES(' . implode(',', $placeholders) . ')';
     $stmt = $pdo->prepare($sql);
     foreach ($configData as $k => $v) {
-        $stmt->bindValue(':' . $k, $v);
+        if (is_bool($v)) {
+            $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
+        } else {
+            $stmt->bindValue(':' . $k, $v);
+        }
     }
     $stmt->execute();
     $pdo->exec("SELECT setval(pg_get_serial_sequence('config','id'), (SELECT COALESCE(MAX(id),0) FROM config))");
