@@ -19,7 +19,7 @@ class CatalogService
     public function read(string $file): ?string
     {
         if ($file === 'catalogs.json') {
-            $stmt = $this->pdo->query('SELECT uid,id,file,name,description,qrcode_url,raetsel_buchstabe FROM catalogs ORDER BY id');
+            $stmt = $this->pdo->query('SELECT slug AS id, uid, file, name, description, qrcode_url, raetsel_buchstabe FROM catalogs ORDER BY id');
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return json_encode($data, JSON_PRETTY_PRINT);
         }
@@ -63,11 +63,13 @@ class CatalogService
             }
             $this->pdo->beginTransaction();
             $this->pdo->exec('DELETE FROM catalogs');
-            $stmt = $this->pdo->prepare('INSERT INTO catalogs(uid,id,file,name,description,qrcode_url,raetsel_buchstabe) VALUES(?,?,?,?,?,?,?)');
+            $stmt = $this->pdo->prepare('INSERT INTO catalogs(id,slug,uid,file,name,description,qrcode_url,raetsel_buchstabe) VALUES(?,?,?,?,?,?,?,?)');
+            $idx = 1;
             foreach ($data as $cat) {
                 $stmt->execute([
-                    $cat['uid'] ?? '',
+                    $idx++,
                     $cat['id'] ?? '',
+                    $cat['uid'] ?? '',
                     $cat['file'] ?? '',
                     $cat['name'] ?? '',
                     $cat['description'] ?? null,
@@ -116,14 +118,12 @@ class CatalogService
         $stmt = $this->pdo->prepare('SELECT id FROM catalogs WHERE file=?');
         $stmt->execute([basename($file)]);
         $catId = $stmt->fetchColumn();
-        if ($catId !== false) {
-            $this->pdo->prepare('DELETE FROM questions WHERE catalog_id=?')->execute([$catId]);
-            $this->pdo->prepare('DELETE FROM catalogs WHERE id=?')->execute([$catId]);
+        if ($catId === false) {
+            return;
         }
-        $id = pathinfo($file, PATHINFO_FILENAME);
         $this->pdo->beginTransaction();
-        $this->pdo->prepare('DELETE FROM questions WHERE catalog_id=?')->execute([$id]);
-        $this->pdo->prepare('DELETE FROM catalogs WHERE id=?')->execute([$id]);
+        $this->pdo->prepare('DELETE FROM questions WHERE catalog_id=?')->execute([$catId]);
+        $this->pdo->prepare('DELETE FROM catalogs WHERE id=?')->execute([$catId]);
         $this->pdo->commit();
     }
 

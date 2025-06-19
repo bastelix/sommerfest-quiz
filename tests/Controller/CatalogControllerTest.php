@@ -15,7 +15,11 @@ class CatalogControllerTest extends TestCase
     {
         $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
         mkdir($dir);
-        $controller = new CatalogController(new CatalogService());
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE catalogs(id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT UNIQUE NOT NULL, uid TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT);');
+        $pdo->exec('CREATE TABLE questions(id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_id INTEGER NOT NULL, type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT);');
+        $controller = new CatalogController(new CatalogService($pdo));
         $request = $this->createRequest('GET', '/kataloge/missing.json', ['HTTP_ACCEPT' => 'application/json']);
         $response = $controller->get($request, new Response(), ['file' => 'missing.json']);
         $this->assertEquals(404, $response->getStatusCode());
@@ -26,7 +30,11 @@ class CatalogControllerTest extends TestCase
     {
         $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
         mkdir($dir);
-        $service = new CatalogService();
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE catalogs(id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT UNIQUE NOT NULL, uid TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT);');
+        $pdo->exec('CREATE TABLE questions(id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_id INTEGER NOT NULL, type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT);');
+        $service = new CatalogService($pdo);
         $controller = new CatalogController($service);
 
         $request = $this->createRequest('POST', '/kataloge/test.json');
@@ -50,7 +58,11 @@ class CatalogControllerTest extends TestCase
     {
         $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
         mkdir($dir);
-        $service = new CatalogService();
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE catalogs(id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT UNIQUE NOT NULL, uid TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT);');
+        $pdo->exec('CREATE TABLE questions(id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_id INTEGER NOT NULL, type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT);');
+        $service = new CatalogService($pdo);
         $controller = new CatalogController($service);
 
         $createReq = $this->createRequest('PUT', '/kataloge/new.json');
@@ -73,7 +85,11 @@ class CatalogControllerTest extends TestCase
     {
         $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
         mkdir($dir);
-        $service = new CatalogService();
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE catalogs(id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT UNIQUE NOT NULL, uid TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT);');
+        $pdo->exec('CREATE TABLE questions(id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_id INTEGER NOT NULL, type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT);');
+        $service = new CatalogService($pdo);
         $controller = new CatalogController($service);
 
         $service->write('cat.json', [['a' => 1], ['b' => 2]]);
@@ -94,7 +110,11 @@ class CatalogControllerTest extends TestCase
     {
         $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
         mkdir($dir);
-        $controller = new CatalogController(new CatalogService());
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE catalogs(id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT UNIQUE NOT NULL, uid TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT);');
+        $pdo->exec('CREATE TABLE questions(id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_id INTEGER NOT NULL, type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT);');
+        $controller = new CatalogController(new CatalogService($pdo));
 
         $request = $this->createRequest('POST', '/kataloge/test.json', ['HTTP_CONTENT_TYPE' => 'application/json']);
         $stream = fopen('php://temp', 'r+');
