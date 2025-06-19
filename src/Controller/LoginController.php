@@ -29,9 +29,20 @@ class LoginController
         $config = (new ConfigService($pdo))->getConfig();
 
         $user = $config['adminUser'] ?? 'admin';
-        $pass = $config['adminPass'] ?? 'password';
+        $storedPass = $config['adminPass'] ?? 'password';
 
-        if (($data['username'] ?? '') === $user && ($data['password'] ?? '') === $pass) {
+        $valid = false;
+        if (($data['username'] ?? '') === $user) {
+            $pwd = $data['password'] ?? '';
+            $info = password_get_info($storedPass);
+            if ($info['algo'] !== 0) {
+                $valid = password_verify($pwd, $storedPass);
+            } else {
+                $valid = $pwd === $storedPass;
+            }
+        }
+
+        if ($valid) {
             if (session_status() === PHP_SESSION_NONE) {
                 session_start();
             }

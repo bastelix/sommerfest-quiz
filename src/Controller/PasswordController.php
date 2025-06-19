@@ -35,7 +35,7 @@ class PasswordController
         }
 
         $cfg = $this->service->getConfig();
-        $cfg['adminPass'] = $pass;
+        $cfg['adminPass'] = password_hash($pass, PASSWORD_DEFAULT);
         $this->service->saveConfig($cfg);
 
         return $response->withStatus(204);
