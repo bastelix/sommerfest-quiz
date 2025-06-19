@@ -104,7 +104,7 @@ $catalogDir = "$base/data/kataloge";
 $catalogsFile = "$catalogDir/catalogs.json";
 if (is_readable($catalogsFile)) {
     $catalogs = json_decode(file_get_contents($catalogsFile), true) ?? [];
-    $catStmt = $pdo->prepare('INSERT INTO catalogs(uid,id,file,name,description,qrcode_url,raetsel_buchstabe) VALUES(?,?,?,?,?,?,?)');
+    $catStmt = $pdo->prepare('INSERT INTO catalogs(uid,id,file,name,description,qrcode_url,raetsel_buchstabe,comment) VALUES(?,?,?,?,?,?,?,?)');
     $qStmt = $pdo->prepare('INSERT INTO questions(catalog_id,type,prompt,options,answers,terms,items) VALUES(?,?,?,?,?,?,?)');
     foreach ($catalogs as $cat) {
         $catStmt->execute([
@@ -114,7 +114,8 @@ if (is_readable($catalogsFile)) {
             $cat['name'] ?? '',
             $cat['description'] ?? null,
             $cat['qrcode_url'] ?? null,
-            $cat['raetsel_buchstabe'] ?? null
+            $cat['raetsel_buchstabe'] ?? null,
+            $cat['comment'] ?? null
         ]);
         $file = $catalogDir . '/' . ($cat['file'] ?? '');
         if (is_readable($file)) {
