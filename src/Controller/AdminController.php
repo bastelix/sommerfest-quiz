@@ -24,9 +24,26 @@ class AdminController
         $catalogSvc = new CatalogService($pdo);
         $catalogsJson = $catalogSvc->read('catalogs.json');
         $catalogs = [];
+        $catMap = [];
         if ($catalogsJson !== null) {
             $catalogs = json_decode($catalogsJson, true) ?? [];
+            foreach ($catalogs as $c) {
+                $name = $c['name'] ?? ($c['id'] ?? '');
+                if (isset($c['uid'])) {
+                    $catMap[$c['uid']] = $name;
+                }
+                if (isset($c['id'])) {
+                    $catMap[$c['id']] = $name;
+                }
+            }
         }
+        foreach ($results as &$row) {
+            $cat = $row['catalog'] ?? '';
+            if (isset($catMap[$cat])) {
+                $row['catalogName'] = $catMap[$cat];
+            }
+        }
+        unset($row);
 
         $uri    = $request->getUri();
         $domain = getenv('DOMAIN');
