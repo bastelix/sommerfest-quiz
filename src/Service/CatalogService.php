@@ -10,17 +10,42 @@ use PDO;
 class CatalogService
 {
     private PDO $pdo;
+    /** @var bool|null detected presence of the comment column */
+    private ?bool $hasComment = null;
 
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
 
+    private function hasCommentColumn(): bool
+    {
+        if ($this->hasComment !== null) {
+            return $this->hasComment;
+        }
+        try {
+            $this->pdo->query('SELECT comment FROM catalogs LIMIT 1');
+            $this->hasComment = true;
+        } catch (\PDOException $e) {
+            $this->hasComment = false;
+        }
+        return $this->hasComment;
+    }
+
     public function read(string $file): ?string
     {
         if ($file === 'catalogs.json') {
-            $stmt = $this->pdo->query('SELECT uid,id,file,name,description,qrcode_url,raetsel_buchstabe,comment FROM catalogs ORDER BY id');
+            $fields = 'uid,id,file,name,description,qrcode_url,raetsel_buchstabe';
+            if ($this->hasCommentColumn()) {
+                $fields .= ',comment';
+            }
+            $stmt = $this->pdo->query("SELECT $fields FROM catalogs ORDER BY id");
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (!$this->hasCommentColumn()) {
+                foreach ($data as &$row) {
+                    $row['comment'] = '';
+                }
+            }
             return json_encode($data, JSON_PRETTY_PRINT);
         }
 
@@ -63,9 +88,15 @@ class CatalogService
             }
             $this->pdo->beginTransaction();
             $this->pdo->exec('DELETE FROM catalogs');
-            $stmt = $this->pdo->prepare('INSERT INTO catalogs(uid,id,file,name,description,qrcode_url,raetsel_buchstabe,comment) VALUES(?,?,?,?,?,?,?,?)');
+            $fields = 'uid,id,file,name,description,qrcode_url,raetsel_buchstabe';
+            $placeholders = '?,?,?,?,?,?,?';
+            if ($this->hasCommentColumn()) {
+                $fields .= ',comment';
+                $placeholders .= ',?';
+            }
+            $stmt = $this->pdo->prepare("INSERT INTO catalogs($fields) VALUES($placeholders)");
             foreach ($data as $cat) {
-                $stmt->execute([
+                $params = [
                     $cat['uid'] ?? '',
                     $cat['id'] ?? '',
                     $cat['file'] ?? '',
@@ -73,8 +104,11 @@ class CatalogService
                     $cat['description'] ?? null,
                     $cat['qrcode_url'] ?? null,
                     $cat['raetsel_buchstabe'] ?? null,
-                    $cat['comment'] ?? null,
-                ]);
+                ];
+                if ($this->hasCommentColumn()) {
+                    $params[] = $cat['comment'] ?? null;
+                }
+                $stmt->execute($params);
             }
             $this->pdo->commit();
             return;

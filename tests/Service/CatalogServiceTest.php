@@ -19,6 +19,15 @@ class CatalogServiceTest extends TestCase
         return $pdo;
     }
 
+    private function createPdoNoComment(): PDO
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, id TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT);');
+        $pdo->exec('CREATE TABLE questions(id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_id TEXT NOT NULL, type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT);');
+        return $pdo;
+    }
+
     public function testReadWrite(): void
     {
         $pdo = $this->createPdo();
@@ -36,6 +45,22 @@ class CatalogServiceTest extends TestCase
 
         $service->write($file, $data);
         $this->assertJsonStringEqualsJsonString(json_encode($data, JSON_PRETTY_PRINT), $service->read($file));
+    }
+
+    public function testWriteWithoutCommentColumn(): void
+    {
+        $pdo = $this->createPdoNoComment();
+        $service = new CatalogService($pdo);
+        $catalog = [[
+            'uid' => 'uid4',
+            'id' => 'nc',
+            'file' => 'nc.json',
+            'name' => 'NC',
+            'comment' => 'ignored',
+        ]];
+        $service->write('catalogs.json', $catalog);
+        $rows = json_decode($service->read('catalogs.json'), true);
+        $this->assertSame('', $rows[0]['comment']);
     }
 
     public function testReadReturnsNullIfMissing(): void
