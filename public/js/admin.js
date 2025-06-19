@@ -1036,10 +1036,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function renderTeams(list){
     teamListEl.innerHTML = '';
-    list
-      .slice()
-      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
-      .forEach(n => teamListEl.appendChild(createTeamRow(n)));
+    list.forEach(n => teamListEl.appendChild(createTeamRow(n)));
   }
 
   if(teamListEl){
@@ -1061,8 +1058,7 @@ document.addEventListener('DOMContentLoaded', function () {
     e.preventDefault();
     const names = Array.from(teamListEl.querySelectorAll('input.uk-input'))
       .map(i => i.value.trim())
-      .filter(Boolean)
-      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+      .filter(Boolean);
     fetch('/teams.json', {
       method: 'POST',
       headers: { 'Content-Type':'application/json' },
