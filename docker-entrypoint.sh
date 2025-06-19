@@ -30,7 +30,7 @@ if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
 
     echo "Waiting for PostgreSQL to become available..."
     timeout=30
-    until psql -h "$host" -p "$port" -U "$POSTGRES_USER" -d "$db" -c '\\q'; do
+    until psql -h "$host" -p "$port" -U "$POSTGRES_USER" -d "$db" -c 'SELECT 1;' >/dev/null 2>&1; do
         if [ $timeout -le 0 ]; then
             echo "PostgreSQL not reachable, aborting." >&2
             exit 1
