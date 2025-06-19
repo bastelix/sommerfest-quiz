@@ -23,10 +23,15 @@
       el.className = 'uk-margin-remove-top';
       headerEl.appendChild(el);
     }
-    el.textContent = text || '';
     if(text){
+      if(text.indexOf('<') !== -1){
+        el.innerHTML = text;
+      }else{
+        el.innerHTML = text.replace(/\n/g, '<br>');
+      }
       el.classList.remove('uk-hidden');
     }else{
+      el.innerHTML = '';
       el.classList.add('uk-hidden');
     }
   }

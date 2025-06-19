@@ -81,11 +81,43 @@ document.addEventListener('DOMContentLoaded', function () {
   const commentTextarea = document.getElementById('catalogCommentTextarea');
   const commentSaveBtn = document.getElementById('catalogCommentSave');
   const commentModal = UIkit.modal('#catalogCommentModal');
+  const commentToolbar = document.getElementById('catalogCommentToolbar');
   const resultsResetModal = UIkit.modal('#resultsResetModal');
   const resultsResetConfirm = document.getElementById('resultsResetConfirm');
   let puzzleFeedback = '';
   let currentCommentInput = null;
   let logoUploaded = false;
+
+  function wrapSelection(textarea, before, after) {
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const val = textarea.value;
+    textarea.value = val.slice(0, start) + before + val.slice(start, end) + after + val.slice(end);
+    textarea.focus();
+    textarea.selectionStart = start + before.length;
+    textarea.selectionEnd = end + before.length;
+  }
+
+  commentToolbar?.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-format]');
+    if (!btn) return;
+    const fmt = btn.dataset.format;
+    switch (fmt) {
+      case 'h1':
+        wrapSelection(commentTextarea, '<h1>', '</h1>');
+        break;
+      case 'h2':
+        wrapSelection(commentTextarea, '<h2>', '</h2>');
+        break;
+      case 'bold':
+        wrapSelection(commentTextarea, '<strong>', '</strong>');
+        break;
+      case 'italic':
+        wrapSelection(commentTextarea, '<em>', '</em>');
+        break;
+    }
+  });
   if (cfgFields.logoFile && cfgFields.logoPreview) {
     const bar = document.getElementById('cfgLogoProgress');
     UIkit.upload('.js-upload', {
