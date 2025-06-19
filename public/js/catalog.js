@@ -198,6 +198,10 @@
       container.appendChild(p);
       return;
     }
+    catalogs = catalogs.slice().sort((a,b) => {
+      if(a.id === undefined || b.id === undefined) return 0;
+      return a.id.localeCompare(b.id);
+    });
 
     const grid = document.createElement('div');
     grid.className = 'uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-4@m uk-grid-small uk-text-center';
