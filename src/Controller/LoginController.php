@@ -29,7 +29,7 @@ class LoginController
         $config = (new ConfigService($pdo))->getConfig();
 
         $user = $config['adminUser'] ?? 'admin';
-        $pass = $config['adminPass'] ?? 'password';
+        $pass = $config['adminPass'] ?? 'admin';
 
         if (($data['username'] ?? '') === $user && ($data['password'] ?? '') === $pass) {
             if (session_status() === PHP_SESSION_NONE) {
