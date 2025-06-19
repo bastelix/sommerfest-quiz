@@ -35,6 +35,12 @@ $pdo->exec('TRUNCATE config, teams, results, catalogs, questions, photo_consents
 $configData = array_intersect_key($config, array_flip([
     'displayErrorDetails','QRUser','logoPath','pageTitle','header','subheader','backgroundColor','buttonColor','CheckAnswerButton','adminUser','adminPass','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback'
 ]));
+if (isset($configData['adminPass'])) {
+    $info = password_get_info($configData['adminPass']);
+    if ($info['algo'] === 0) {
+        $configData['adminPass'] = password_hash($configData['adminPass'], PASSWORD_DEFAULT);
+    }
+}
 if ($configData) {
     $cols = array_keys($configData);
     $placeholders = array_map(fn($c)=>":".$c, $cols);

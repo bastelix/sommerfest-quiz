@@ -258,7 +258,7 @@ Alle wesentlichen Einstellungen finden sich in `data/config.json`. Hier lassen s
   "buttonColor": "#1e87f0",
   "CheckAnswerButton": "no",
   "adminUser": "admin",
-  "adminPass": "password",
+  "adminPass": "$2b$12$RoNQr1KMGXROQTS1hhqfruEYsr27wiHPgc6hcI71BIpb6./zu6BM2",
   "QRRestrict": false,
   "competitionMode": false,
   "teamResults": true,
