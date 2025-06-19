@@ -32,10 +32,18 @@ class CatalogService
         return $this->hasComment;
     }
 
+    public function slugByFile(string $file): ?string
+    {
+        $stmt = $this->pdo->prepare('SELECT slug FROM catalogs WHERE file=?');
+        $stmt->execute([basename($file)]);
+        $slug = $stmt->fetchColumn();
+        return $slug === false ? null : (string)$slug;
+    }
+
     public function read(string $file): ?string
     {
         if ($file === 'catalogs.json') {
-            $fields = 'uid,id,file,name,description,qrcode_url,raetsel_buchstabe';
+            $fields = 'uid,id,slug,file,name,description,qrcode_url,raetsel_buchstabe';
             if ($this->hasCommentColumn()) {
                 $fields .= ',comment';
             }
@@ -88,8 +96,8 @@ class CatalogService
             }
             $this->pdo->beginTransaction();
             $this->pdo->exec('DELETE FROM catalogs');
-            $fields = 'uid,id,file,name,description,qrcode_url,raetsel_buchstabe';
-            $placeholders = '?,?,?,?,?,?,?';
+            $fields = 'uid,id,slug,file,name,description,qrcode_url,raetsel_buchstabe';
+            $placeholders = '?,?,?,?,?,?,?,?';
             if ($this->hasCommentColumn()) {
                 $fields .= ',comment';
                 $placeholders .= ',?';
@@ -99,6 +107,7 @@ class CatalogService
                 $params = [
                     $cat['uid'] ?? '',
                     $cat['id'] ?? '',
+                    $cat['slug'] ?? ($cat['id'] ?? ''),
                     $cat['file'] ?? '',
                     $cat['name'] ?? '',
                     $cat['description'] ?? null,

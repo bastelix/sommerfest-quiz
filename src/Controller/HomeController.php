@@ -29,9 +29,9 @@ class HomeController
 
         if (($cfg['competitionMode'] ?? false) === true) {
             $params = $request->getQueryParams();
-            $id = $params['katalog'] ?? '';
-            $allowedIds = array_map(static fn($c) => $c['id'] ?? '', $catalogs);
-            if ($id === '' || !in_array($id, $allowedIds, true)) {
+            $slug = $params['katalog'] ?? '';
+            $allowedSlugs = array_map(static fn($c) => $c['slug'] ?? '', $catalogs);
+            if ($slug === '' || !in_array($slug, $allowedSlugs, true)) {
                 return $response
                     ->withHeader('Location', '/help')
                     ->withStatus(302);
