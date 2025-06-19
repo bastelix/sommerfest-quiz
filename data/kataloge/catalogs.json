@@ -6,7 +6,8 @@
     "name": "Station-1",
     "description": "Speicher und Geraete",
     "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_1",
-    "raetsel_buchstabe": "A"
+    "raetsel_buchstabe": "A",
+    "comment": ""
   },
   {
     "uid": "d0e42823-2da0-4858-a827-7d5d5d164d7d",
@@ -15,7 +16,8 @@
     "name": "Station-2",
     "description": "Bedienung und Symbole",
     "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_2",
-    "raetsel_buchstabe": "B"
+    "raetsel_buchstabe": "B",
+    "comment": ""
   },
   {
     "uid": "14a904ff-cfbf-4ac5-85e0-b70222e9b31c",
@@ -24,7 +26,8 @@
     "name": "Station-3",
     "description": "WWW und Speicherarten",
     "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_3",
-    "raetsel_buchstabe": "C"
+    "raetsel_buchstabe": "C",
+    "comment": ""
   },
   {
     "uid": "f1da5d20-c668-44ba-a1a6-7297fe9539c0",
@@ -33,7 +36,8 @@
     "name": "Station-4",
     "description": "Begriffe und Geraetegroessen",
     "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_4",
-    "raetsel_buchstabe": "D"
+    "raetsel_buchstabe": "D",
+    "comment": ""
   },
   {
     "uid": "588eae96-0999-4124-a13a-e282e149c341",
@@ -42,7 +46,8 @@
     "name": "Station-5",
     "description": "Programme und Binaersystem",
     "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_5",
-    "raetsel_buchstabe": "E"
+    "raetsel_buchstabe": "E",
+    "comment": ""
   },
   {
     "uid": "808487f9-eb09-4b41-b887-0baf82b2b92d",
@@ -51,7 +56,8 @@
     "name": "Station-6",
     "description": "Dateien und URLs",
     "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_6",
-    "raetsel_buchstabe": "F"
+    "raetsel_buchstabe": "F",
+    "comment": ""
   },
   {
     "uid": "6dfc8316-45d3-4737-838c-811419709d9c",
@@ -60,7 +66,8 @@
     "name": "Station-7",
     "description": "Netzwerke und Kuerzel",
     "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_7",
-    "raetsel_buchstabe": "G"
+    "raetsel_buchstabe": "G",
+    "comment": ""
   },
   {
     "uid": "0c0dc60a-6d20-4e16-9f71-d926f143c874",
@@ -69,6 +76,7 @@
     "name": "Station-8",
     "description": "Cloud und Steuerung",
     "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_8",
-    "raetsel_buchstabe": "H"
+    "raetsel_buchstabe": "H",
+    "comment": ""
   }
 ]

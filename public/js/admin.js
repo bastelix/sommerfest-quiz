@@ -78,9 +78,13 @@ document.addEventListener('DOMContentLoaded', function () {
   const puzzleTextarea = document.getElementById('puzzleFeedbackTextarea');
   const puzzleSaveBtn = document.getElementById('puzzleFeedbackSave');
   const puzzleModal = UIkit.modal('#puzzleFeedbackModal');
+  const commentTextarea = document.getElementById('catalogCommentTextarea');
+  const commentSaveBtn = document.getElementById('catalogCommentSave');
+  const commentModal = UIkit.modal('#catalogCommentModal');
   const resultsResetModal = UIkit.modal('#resultsResetModal');
   const resultsResetConfirm = document.getElementById('resultsResetConfirm');
   let puzzleFeedback = '';
+  let currentCommentInput = null;
   let logoUploaded = false;
   if (cfgFields.logoFile && cfgFields.logoPreview) {
     const bar = document.getElementById('cfgLogoProgress');
@@ -181,6 +185,17 @@ document.addEventListener('DOMContentLoaded', function () {
         notify('Feedbacktext gespeichert', 'success');
       }
     }).catch(() => {});
+  });
+
+  commentSaveBtn?.addEventListener('click', () => {
+    if(!currentCommentInput || !commentTextarea) return;
+    currentCommentInput.value = commentTextarea.value;
+    const btn = currentCommentInput.previousSibling;
+    if(btn && btn.textContent !== undefined){
+      btn.textContent = commentTextarea.value.trim() ? 'Kommentar bearbeiten' : 'Kommentar eingeben';
+    }
+    commentModal.hide();
+    currentCommentInput = null;
   });
   document.getElementById('cfgResetBtn').addEventListener('click', function (e) {
     e.preventDefault();
@@ -381,6 +396,25 @@ document.addEventListener('DOMContentLoaded', function () {
     letter.maxLength = 1;
     letterCell.appendChild(letter);
 
+    const commentCell = document.createElement('td');
+    const commentBtn = document.createElement('button');
+    commentBtn.className = 'uk-button uk-button-default';
+    const commentField = document.createElement('input');
+    commentField.type = 'hidden';
+    commentField.className = 'cat-comment';
+    commentField.value = cat.comment || '';
+    function updateCommentBtn(){
+      commentBtn.textContent = commentField.value.trim() ? 'Kommentar bearbeiten' : 'Kommentar eingeben';
+    }
+    updateCommentBtn();
+    commentBtn.addEventListener('click', () => {
+      currentCommentInput = commentField;
+      if(commentTextarea) commentTextarea.value = commentField.value;
+      commentModal.show();
+    });
+    commentCell.appendChild(commentBtn);
+    commentCell.appendChild(commentField);
+
     const delCell = document.createElement('td');
     const del = document.createElement('button');
     del.className = 'uk-button uk-button-danger';
@@ -402,6 +436,7 @@ document.addEventListener('DOMContentLoaded', function () {
     row.appendChild(nameCell);
     row.appendChild(descCell);
     row.appendChild(letterCell);
+    row.appendChild(commentCell);
     row.appendChild(delCell);
 
     return row;
@@ -427,7 +462,8 @@ document.addEventListener('DOMContentLoaded', function () {
           file,
           name: row.querySelector('.cat-name').value.trim(),
           description: row.querySelector('.cat-desc').value.trim(),
-          raetsel_buchstabe: row.querySelector('.cat-letter').value.trim()
+          raetsel_buchstabe: row.querySelector('.cat-letter').value.trim(),
+          comment: row.querySelector('.cat-comment').value.trim()
         };
       })
       .filter(c => c.id)

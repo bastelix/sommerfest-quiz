@@ -19,7 +19,7 @@ class CatalogService
     public function read(string $file): ?string
     {
         if ($file === 'catalogs.json') {
-            $stmt = $this->pdo->query('SELECT uid,id,file,name,description,qrcode_url,raetsel_buchstabe FROM catalogs ORDER BY id');
+            $stmt = $this->pdo->query('SELECT uid,id,file,name,description,qrcode_url,raetsel_buchstabe,comment FROM catalogs ORDER BY id');
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             return json_encode($data, JSON_PRETTY_PRINT);
         }
@@ -63,7 +63,7 @@ class CatalogService
             }
             $this->pdo->beginTransaction();
             $this->pdo->exec('DELETE FROM catalogs');
-            $stmt = $this->pdo->prepare('INSERT INTO catalogs(uid,id,file,name,description,qrcode_url,raetsel_buchstabe) VALUES(?,?,?,?,?,?,?)');
+            $stmt = $this->pdo->prepare('INSERT INTO catalogs(uid,id,file,name,description,qrcode_url,raetsel_buchstabe,comment) VALUES(?,?,?,?,?,?,?,?)');
             foreach ($data as $cat) {
                 $stmt->execute([
                     $cat['uid'] ?? '',
@@ -73,6 +73,7 @@ class CatalogService
                     $cat['description'] ?? null,
                     $cat['qrcode_url'] ?? null,
                     $cat['raetsel_buchstabe'] ?? null,
+                    $cat['comment'] ?? null,
                 ]);
             }
             $this->pdo->commit();
