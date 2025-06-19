@@ -13,6 +13,24 @@
     el.textContent = text || '';
   }
 
+  function setComment(text){
+    const headerEl = document.getElementById('quiz-header');
+    if(!headerEl) return;
+    let el = headerEl.querySelector('p[data-role="catalog-comment"]');
+    if(!el){
+      el = document.createElement('p');
+      el.dataset.role = 'catalog-comment';
+      el.className = 'uk-margin-remove-top';
+      headerEl.appendChild(el);
+    }
+    el.textContent = text || '';
+    if(text){
+      el.classList.remove('uk-hidden');
+    }else{
+      el.classList.add('uk-hidden');
+    }
+  }
+
   function applyConfig(){
     const cfg = window.quizConfig || {};
     const headerEl = document.getElementById('quiz-header');
@@ -35,6 +53,7 @@
       }
       title.textContent = cfg.header || '';
       setSubHeader(cfg.subheader || '');
+      setComment('');
       // Benutzername wird nach erfolgreichem Login ergänzt
     }
     const styleEl = document.createElement('style');
@@ -92,13 +111,18 @@
     return [];
   }
 
-  async function loadQuestions(id, file, letter, uid, name, desc){
+  async function loadQuestions(id, file, letter, uid, name, desc, comment){
     sessionStorage.setItem('quizCatalog', uid || id);
     sessionStorage.setItem('quizCatalogName', name || id);
     if(desc !== undefined){
       sessionStorage.setItem('quizCatalogDesc', desc);
     } else {
       sessionStorage.removeItem('quizCatalogDesc');
+    }
+    if(comment !== undefined){
+      sessionStorage.setItem('quizCatalogComment', comment);
+    } else {
+      sessionStorage.removeItem('quizCatalogComment');
     }
     const headerEl = document.getElementById('quiz-header');
     if(headerEl){
@@ -111,6 +135,7 @@
       title.textContent = name || id;
     }
     setSubHeader(desc || '');
+    setComment(comment || '');
     if(letter){
       const cfg = window.quizConfig || {};
       if(cfg.puzzleWordEnabled && letter){
@@ -219,7 +244,7 @@
           return;
         }
         history.replaceState(null, '', '?katalog=' + cat.id);
-        loadQuestions(cat.id, cat.file, cat.raetsel_buchstabe, cat.uid, cat.name || cat.id, cat.description || '');
+        loadQuestions(cat.id, cat.file, cat.raetsel_buchstabe, cat.uid, cat.name || cat.id, cat.description || '', cat.comment || '');
       });
       const title = document.createElement('h3');
       title.textContent = cat.name || cat.id;
@@ -445,7 +470,7 @@
               return;
             }
           }
-        loadQuestions(selected.id, selected.file, selected.raetsel_buchstabe, selected.uid, selected.name || selected.id, selected.description || '');
+        loadQuestions(selected.id, selected.file, selected.raetsel_buchstabe, selected.uid, selected.name || selected.id, selected.description || '', selected.comment || '');
       }else{
         showSelection(catalogs, solvedNow);
       }
