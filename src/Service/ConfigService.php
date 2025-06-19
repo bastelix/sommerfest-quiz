@@ -45,7 +45,11 @@ class ConfigService
             $sql = 'INSERT INTO config(' . implode(',', $cols) . ') VALUES(' . $params . ')';
             $stmt = $this->pdo->prepare($sql);
             foreach ($filtered as $k => $v) {
-                $stmt->bindValue(':' . $k, $v);
+                if (is_bool($v)) {
+                    $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
+                } else {
+                    $stmt->bindValue(':' . $k, $v);
+                }
             }
             $stmt->execute();
         }
