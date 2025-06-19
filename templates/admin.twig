@@ -200,6 +200,7 @@
             <table class="uk-table uk-table-divider uk-table-small">
               <thead>
                 <tr>
+                  <th></th>
                   <th>ID</th>
                   <th>Name</th>
                   <th>Beschreibung</th>
@@ -207,7 +208,7 @@
                   <th></th>
                 </tr>
               </thead>
-              <tbody id="catalogList"></tbody>
+              <tbody id="catalogList" uk-sortable="group: sortable-group"></tbody>
             </table>
           </div>
           <div class="uk-margin">
@@ -251,11 +252,12 @@
           <table class="uk-table uk-table-divider uk-table-small">
             <thead>
               <tr>
+                <th></th>
                 <th>Name</th>
                 <th></th>
               </tr>
             </thead>
-            <tbody id="teamsList"></tbody>
+            <tbody id="teamsList" uk-sortable="group: sortable-group"></tbody>
           </table>
         </div>
         <div class="uk-margin">

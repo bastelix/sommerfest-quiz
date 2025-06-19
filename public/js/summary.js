@@ -13,6 +13,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const puzzleInfo = document.getElementById('puzzle-solved-text');
   const user = sessionStorage.getItem('quizUser') || '';
 
+  let catalogMap = null;
+  function fetchCatalogMap() {
+    if (catalogMap) return Promise.resolve(catalogMap);
+    return fetch('/kataloge/catalogs.json')
+      .then(r => r.json())
+      .then(list => {
+        const map = {};
+        if (Array.isArray(list)) {
+          list.forEach(c => {
+            const name = c.name || c.id || '';
+            if (c.uid) map[c.uid] = name;
+            if (c.id) map[c.id] = name;
+          });
+        }
+        catalogMap = map;
+        return map;
+      })
+      .catch(() => {
+        catalogMap = {};
+        return catalogMap;
+      });
+  }
+
   const formatTs = window.formatPuzzleTime || function(ts){
     const d = new Date(ts * 1000);
     const pad = n => n.toString().padStart(2,'0');
@@ -59,13 +82,13 @@ document.addEventListener('DOMContentLoaded', () => {
     UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
     closeBtn.addEventListener('click', () => ui.hide());
 
-    fetch('/results.json')
-      .then(r => r.json())
-      .then(rows => {
+    Promise.all([fetchCatalogMap(), fetch('/results.json').then(r => r.json())])
+      .then(([catMap, rows]) => {
         const filtered = rows.filter(row => row.name === user);
         const map = new Map();
         filtered.forEach(r => {
-          map.set(r.catalog, `${r.correct}/${r.total}`);
+          const name = catMap[r.catalog] || r.catalog;
+          map.set(name, `${r.correct}/${r.total}`);
         });
         const table = document.createElement('table');
         table.className = 'uk-table uk-table-divider';

@@ -333,6 +333,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const rowId = 'cat-' + catalogRowIndex++;
 
     const idCell = document.createElement('td');
+    const handleCell = document.createElement('td');
+    const handleSpan = document.createElement('span');
+    handleSpan.className = 'uk-sortable-handle uk-icon';
+    handleSpan.setAttribute('uk-icon', 'icon: table');
+    handleCell.appendChild(handleSpan);
+
     const idInput = document.createElement('input');
     idInput.type = 'text';
     idInput.className = 'uk-input cat-id';
@@ -391,6 +397,7 @@ document.addEventListener('DOMContentLoaded', function () {
     idInput.addEventListener('input', update);
     update();
 
+    row.appendChild(handleCell);
     row.appendChild(idCell);
     row.appendChild(nameCell);
     row.appendChild(descCell);
@@ -403,7 +410,10 @@ document.addEventListener('DOMContentLoaded', function () {
   function renderCatalogs(list) {
     if (!catalogList) return;
     catalogList.innerHTML = '';
-    list.forEach(cat => catalogList.appendChild(createCatalogRow(cat)));
+    list
+      .slice()
+      .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }))
+      .forEach(cat => catalogList.appendChild(createCatalogRow(cat)));
   }
 
   function collectCatalogs() {
@@ -420,7 +430,8 @@ document.addEventListener('DOMContentLoaded', function () {
           raetsel_buchstabe: row.querySelector('.cat-letter').value.trim()
         };
       })
-      .filter(c => c.id);
+      .filter(c => c.id)
+      .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
   }
 
   // Rendert alle Fragen im Editor neu
@@ -959,6 +970,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const row = document.createElement('tr');
     row.className = 'team-row';
 
+    const handleCell = document.createElement('td');
+    const handleSpan = document.createElement('span');
+    handleSpan.className = 'uk-sortable-handle uk-icon';
+    handleSpan.setAttribute('uk-icon', 'icon: table');
+    handleCell.appendChild(handleSpan);
+
     const nameCell = document.createElement('td');
     const input = document.createElement('input');
     input.type = 'text';
@@ -975,6 +992,7 @@ document.addEventListener('DOMContentLoaded', function () {
     del.onclick = () => row.remove();
     delCell.appendChild(del);
 
+    row.appendChild(handleCell);
     row.appendChild(nameCell);
     row.appendChild(delCell);
     return row;
@@ -982,7 +1000,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function renderTeams(list){
     teamListEl.innerHTML = '';
-    list.forEach(n => teamListEl.appendChild(createTeamRow(n)));
+    list
+      .slice()
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+      .forEach(n => teamListEl.appendChild(createTeamRow(n)));
   }
 
   if(teamListEl){
@@ -1004,7 +1025,8 @@ document.addEventListener('DOMContentLoaded', function () {
     e.preventDefault();
     const names = Array.from(teamListEl.querySelectorAll('input.uk-input'))
       .map(i => i.value.trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
     fetch('/teams.json', {
       method: 'POST',
       headers: { 'Content-Type':'application/json' },

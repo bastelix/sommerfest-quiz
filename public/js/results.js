@@ -241,10 +241,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function load() {
-    fetch('/results.json')
+  let catalogMap = null;
+
+  function fetchCatalogMap() {
+    if (catalogMap) return Promise.resolve(catalogMap);
+    return fetch('/kataloge/catalogs.json')
       .then(r => r.json())
-      .then(rows => {
+      .then(list => {
+        const map = {};
+        if (Array.isArray(list)) {
+          list.forEach(c => {
+            const name = c.name || c.id || '';
+            if (c.uid) map[c.uid] = name;
+            if (c.id) map[c.id] = name;
+          });
+        }
+        catalogMap = map;
+        return map;
+      })
+      .catch(() => {
+        catalogMap = {};
+        return catalogMap;
+      });
+  }
+
+  function load() {
+    Promise.all([fetchCatalogMap(), fetch('/results.json').then(r => r.json())])
+      .then(([catMap, rows]) => {
+        rows.forEach(r => {
+          if (catMap[r.catalog]) r.catalog = catMap[r.catalog];
+        });
         const map = new Map();
         rows.forEach(row => {
           if (!map.has(row.name)) {
