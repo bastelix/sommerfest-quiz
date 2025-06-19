@@ -27,7 +27,12 @@ class CatalogService
             $this->pdo->query('SELECT comment FROM catalogs LIMIT 1');
             $this->hasComment = true;
         } catch (\PDOException $e) {
-            $this->hasComment = false;
+            try {
+                $this->pdo->exec('ALTER TABLE catalogs ADD COLUMN comment TEXT');
+                $this->hasComment = true;
+            } catch (\PDOException $e2) {
+                $this->hasComment = false;
+            }
         }
         return $this->hasComment;
     }

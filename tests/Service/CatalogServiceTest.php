@@ -62,7 +62,7 @@ class CatalogServiceTest extends TestCase
         ]];
         $service->write('catalogs.json', $catalog);
         $rows = json_decode($service->read('catalogs.json'), true);
-        $this->assertSame('', $rows[0]['comment']);
+        $this->assertSame('ignored', $rows[0]['comment']);
     }
 
     public function testReadReturnsNullIfMissing(): void
