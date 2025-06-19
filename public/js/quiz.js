@@ -933,7 +933,7 @@ function runQuiz(questions){
 
     const startBtn = document.createElement('button');
     startBtn.className = 'uk-button uk-button-primary uk-button-large';
-    startBtn.textContent = 'UND LOS';
+    startBtn.textContent = 'Los geht es!';
     styleButton(startBtn);
     // Zeigt bisherige Ergebnisse als kleine Slideshow an
     stats.textContent = 'Noch keine Ergebnisse vorhanden.';
