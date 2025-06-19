@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const pagination = document.getElementById('resultsPagination');
 
   const PAGE_SIZE = 10;
-  let groupData = [];
+  let resultsData = [];
   let currentPage = 1;
 
   function formatTime(ts) {
@@ -22,10 +22,10 @@ document.addEventListener('DOMContentLoaded', () => {
     return (h ? h + ':' + pad(m) : m) + ':' + pad(s);
   }
 
-  function renderTable(groups) {
+  function renderTable(rows) {
     if (!tbody) return;
     tbody.innerHTML = '';
-    if (!groups.length) {
+    if (!rows.length) {
       const tr = document.createElement('tr');
       const td = document.createElement('td');
       td.colSpan = 7;
@@ -34,68 +34,59 @@ document.addEventListener('DOMContentLoaded', () => {
       tbody.appendChild(tr);
       return;
     }
-    groups.forEach(g => {
-      const head = document.createElement('tr');
-      const th = document.createElement('th');
-      th.colSpan = 7;
-      th.textContent = g.name;
-      head.appendChild(th);
-      tbody.appendChild(head);
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      const cells = [
+        r.attempt,
+        r.catalogName || r.catalog,
+        `${r.correct}/${r.total}`,
+        formatTime(r.time),
+        r.puzzleTime ? formatTime(r.puzzleTime) : '',
+        null
+      ];
+      const nameCell = document.createElement('td');
+      nameCell.textContent = r.name;
+      tr.appendChild(nameCell);
+      cells.forEach((c, idx) => {
+        const td = document.createElement('td');
+        if (idx === cells.length - 1) {
+          if (r.photo) {
+            const a = document.createElement('a');
+            a.className = 'uk-inline';
+            a.href = r.photo;
+            a.dataset.caption = 'Beweisfoto';
+            a.dataset.attrs = 'class: uk-inverse-light';
 
-      g.entries.forEach(r => {
-        const tr = document.createElement('tr');
-        const cells = [
-          r.attempt,
-          r.catalogName || r.catalog,
-          `${r.correct}/${r.total}`,
-          formatTime(r.time),
-          r.puzzleTime ? formatTime(r.puzzleTime) : '',
-          null
-        ];
-        const nameCell = document.createElement('td');
-        nameCell.textContent = r.name;
-        tr.appendChild(nameCell);
-        cells.forEach((c, idx) => {
-          const td = document.createElement('td');
-          if (idx === cells.length - 1) {
-            if (r.photo) {
-              const a = document.createElement('a');
-              a.className = 'uk-inline';
-              a.href = r.photo;
-              a.dataset.caption = 'Beweisfoto';
-              a.dataset.attrs = 'class: uk-inverse-light';
+            const img = document.createElement('img');
+            img.src = r.photo;
+            img.alt = 'Beweisfoto';
+            img.className = 'proof-thumb';
 
-              const img = document.createElement('img');
-              img.src = r.photo;
-              img.alt = 'Beweisfoto';
-              img.className = 'proof-thumb';
-
-              a.appendChild(img);
-              td.appendChild(a);
-            }
-          } else {
-            td.textContent = c;
+            a.appendChild(img);
+            td.appendChild(a);
           }
-          tr.appendChild(td);
-        });
-        tbody.appendChild(tr);
+        } else {
+          td.textContent = c;
+        }
+        tr.appendChild(td);
       });
+      tbody.appendChild(tr);
     });
   }
 
   function renderPage(page) {
-    const total = Math.ceil(groupData.length / PAGE_SIZE) || 1;
+    const total = Math.ceil(resultsData.length / PAGE_SIZE) || 1;
     if (page < 1) page = 1;
     if (page > total) page = total;
     const start = (page - 1) * PAGE_SIZE;
-    const slice = groupData.slice(start, start + PAGE_SIZE);
+    const slice = resultsData.slice(start, start + PAGE_SIZE);
     renderTable(slice);
     currentPage = page;
   }
 
   function updatePagination() {
     if (!pagination) return;
-    const total = Math.ceil(groupData.length / PAGE_SIZE);
+    const total = Math.ceil(resultsData.length / PAGE_SIZE);
     if (total <= 1) { pagination.innerHTML = ''; return; }
     let html = '';
     const prevClass = currentPage === 1 ? 'uk-disabled' : '';
@@ -271,19 +262,8 @@ document.addEventListener('DOMContentLoaded', () => {
         rows.forEach(r => {
           if (catMap[r.catalog]) r.catalog = catMap[r.catalog];
         });
-        const map = new Map();
-        rows.forEach(row => {
-          if (!map.has(row.name)) {
-            map.set(row.name, []);
-          }
-          map.get(row.name).push(row);
-        });
-        const groups = Array.from(map.entries()).map(([name, list]) => {
-          list.sort((a, b) => b.time - a.time);
-          return { name, time: list[0]?.time || 0, entries: list };
-        });
-        groups.sort((a, b) => b.time - a.time);
-        groupData = groups;
+        rows.sort((a, b) => b.time - a.time);
+        resultsData = rows;
         currentPage = 1;
         renderPage(currentPage);
         updatePagination();
