@@ -403,7 +403,10 @@ document.addEventListener('DOMContentLoaded', function () {
   function renderCatalogs(list) {
     if (!catalogList) return;
     catalogList.innerHTML = '';
-    list.forEach(cat => catalogList.appendChild(createCatalogRow(cat)));
+    list
+      .slice()
+      .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }))
+      .forEach(cat => catalogList.appendChild(createCatalogRow(cat)));
   }
 
   function collectCatalogs() {
@@ -420,7 +423,8 @@ document.addEventListener('DOMContentLoaded', function () {
           raetsel_buchstabe: row.querySelector('.cat-letter').value.trim()
         };
       })
-      .filter(c => c.id);
+      .filter(c => c.id)
+      .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
   }
 
   // Rendert alle Fragen im Editor neu
@@ -982,7 +986,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function renderTeams(list){
     teamListEl.innerHTML = '';
-    list.forEach(n => teamListEl.appendChild(createTeamRow(n)));
+    list
+      .slice()
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+      .forEach(n => teamListEl.appendChild(createTeamRow(n)));
   }
 
   if(teamListEl){
@@ -1004,7 +1011,8 @@ document.addEventListener('DOMContentLoaded', function () {
     e.preventDefault();
     const names = Array.from(teamListEl.querySelectorAll('input.uk-input'))
       .map(i => i.value.trim())
-      .filter(Boolean);
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
     fetch('/teams.json', {
       method: 'POST',
       headers: { 'Content-Type':'application/json' },
