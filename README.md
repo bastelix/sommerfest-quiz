@@ -226,13 +226,17 @@ Das Projekt *Sommerfest-Quiz* ist eine Web-Applikation zur Erstellung und Verwal
    composer install
    ```
    Beim ersten Aufruf wird eine `composer.lock` erzeugt und alle benötigten Bibliotheken geladen.
-2. Lokalen Server starten:
+2. Die Beispieldatei `sample.env` in `.env` kopieren und bei Bedarf anpassen:
+   ```bash
+   cp sample.env .env
+   ```
+3. Lokalen Server starten:
    ```bash
    php -S localhost:8080 -t public public/router.php
    ```
    Anschließend ist das Quiz unter `http://localhost:8080` erreichbar.
 
-3. Optional: Tabellen in einer PostgreSQL-Datenbank anlegen und JSON-Daten importieren (siehe Abschnitt "Schnellstart" für ausführliche Befehle).
+4. Optional: Tabellen in einer PostgreSQL-Datenbank anlegen und JSON-Daten importieren (siehe Abschnitt "Schnellstart" für ausführliche Befehle).
 
 Für Docker-Betrieb steht ein `docker-compose.yml` bereit. Sämtliche Daten im Ordner `data/` werden in einem Volume namens `quizdata` gesichert, damit Ergebnisse erhalten bleiben.
 
