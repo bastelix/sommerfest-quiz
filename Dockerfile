@@ -1,5 +1,8 @@
 FROM php:8.2-alpine
 
+# allow Composer to run as root inside the container
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 RUN apk add --no-cache libpng libjpeg-turbo freetype libwebp postgresql-client && \
     apk add --no-cache --virtual .build-deps libpng-dev libjpeg-turbo-dev freetype-dev libwebp-dev postgresql-dev $PHPIZE_DEPS && \
     docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp && \
