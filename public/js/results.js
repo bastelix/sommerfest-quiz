@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const tr = document.createElement('tr');
         const cells = [
           r.attempt,
-          r.catalog,
+          r.catalogName || r.catalog,
           `${r.correct}/${r.total}`,
           formatTime(r.time),
           r.puzzleTime ? formatTime(r.puzzleTime) : '',

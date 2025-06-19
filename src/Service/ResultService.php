@@ -17,7 +17,12 @@ class ResultService
 
     public function getAll(): array
     {
-        $stmt = $this->pdo->query('SELECT name,catalog,attempt,correct,total,time,puzzleTime,photo FROM results ORDER BY id');
+        $sql = 'SELECT r.name, r.catalog, r.attempt, r.correct, r.total, r.time, r.puzzleTime, r.photo, ' .
+            'c.name AS catalogName '
+            . 'FROM results r '
+            . 'LEFT JOIN catalogs c ON c.uid = r.catalog OR c.id = r.catalog '
+            . 'ORDER BY r.id';
+        $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

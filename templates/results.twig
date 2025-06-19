@@ -29,7 +29,7 @@
         <tr>
           <td>{{ r.name }}</td>
           <td>{{ r.attempt }}</td>
-          <td>{{ r.catalog }}</td>
+          <td>{{ r.catalogName ?? r.catalog }}</td>
           <td>{{ r.correct }}/{{ r.total }}</td>
           <td>{{ r.time | date('Y-m-d H:i') }}</td>
           <td>{% if r.puzzleTime is defined %}{{ r.puzzleTime | date('Y-m-d H:i') }}{% endif %}</td>
