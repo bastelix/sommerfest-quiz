@@ -299,6 +299,10 @@ document.addEventListener('DOMContentLoaded', function () {
   let catalogFile = '';
   let initial = [];
 
+  if (catalogList && window.UIkit && UIkit.util) {
+    UIkit.util.on(catalogList, 'moved', saveCatalogOrder);
+  }
+
   function loadCatalog(identifier) {
     const cat = catalogs.find(c => c.uid === identifier || (c.slug || c.id) === identifier);
     if (!cat) return;
@@ -503,6 +507,15 @@ document.addEventListener('DOMContentLoaded', function () {
         };
       })
       .filter(c => c.slug);
+  }
+
+  function saveCatalogOrder() {
+    const data = collectCatalogs();
+    fetch('/kataloge/catalogs.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    }).catch(() => {});
   }
 
   // Rendert alle Fragen im Editor neu
