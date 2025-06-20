@@ -16,23 +16,24 @@
   function setComment(text){
     const headerEl = document.getElementById('quiz-header');
     if(!headerEl) return;
-    let el = headerEl.querySelector('p[data-role="catalog-comment"]');
-    if(!el){
-      el = document.createElement('p');
-      el.dataset.role = 'catalog-comment';
-      el.className = 'uk-margin-remove-top';
-      headerEl.appendChild(el);
+    let block = headerEl.querySelector('div[data-role="catalog-comment-block"]');
+    if(!block){
+      block = document.createElement('div');
+      block.dataset.role = 'catalog-comment-block';
+      block.className = 'uk-card uk-card-secondary uk-card-body uk-margin';
+      block.style.whiteSpace = 'pre-wrap';
+      headerEl.appendChild(block);
     }
     if(text){
       if(text.indexOf('<') !== -1){
-        el.innerHTML = text;
+        block.innerHTML = text;
       }else{
-        el.innerHTML = text.replace(/\n/g, '<br>');
+        block.textContent = text;
       }
-      el.classList.remove('uk-hidden');
+      block.classList.remove('uk-hidden');
     }else{
-      el.innerHTML = '';
-      el.classList.add('uk-hidden');
+      block.innerHTML = '';
+      block.classList.add('uk-hidden');
     }
   }
 
