@@ -26,8 +26,9 @@ CREATE TABLE IF NOT EXISTS config (
 
 -- Teams list (names only)
 CREATE TABLE IF NOT EXISTS teams (
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL
+    sort_order INTEGER UNIQUE NOT NULL,
+    name TEXT NOT NULL,
+    uid UUID DEFAULT gen_random_uuid() PRIMARY KEY NOT NULL
 );
 CREATE UNIQUE INDEX idx_team_name ON teams(name);
 
