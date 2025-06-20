@@ -65,14 +65,14 @@ class CatalogService
             return json_encode($data, JSON_PRETTY_PRINT);
         }
 
-        $stmt = $this->pdo->prepare('SELECT id, slug FROM catalogs WHERE file=?');
+        $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE file=?');
         $stmt->execute([basename($file)]);
         $cat = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($cat === false) {
             return null;
         }
-        $qStmt = $this->pdo->prepare('SELECT type,prompt,options,answers,terms,items FROM questions WHERE catalog_id=? OR catalog_id=? ORDER BY id');
-        $qStmt->execute([$cat['id'], $cat['slug']]);
+        $qStmt = $this->pdo->prepare('SELECT type,prompt,options,answers,terms,items FROM questions WHERE catalog_uid=? ORDER BY id');
+        $qStmt->execute([$cat['uid']]);
         $questions = [];
         while ($row = $qStmt->fetch(PDO::FETCH_ASSOC)) {
             foreach (["options","answers","terms","items"] as $k) {
@@ -200,19 +200,19 @@ class CatalogService
         if (!is_array($data)) {
             $data = json_decode((string)$data, true) ?? [];
         }
-        $stmt = $this->pdo->prepare('SELECT id, slug FROM catalogs WHERE file=?');
+        $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE file=?');
         $stmt->execute([basename($file)]);
         $cat = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($cat === false) {
             return;
         }
         $this->pdo->beginTransaction();
-        $del = $this->pdo->prepare('DELETE FROM questions WHERE catalog_id=? OR catalog_id=?');
-        $del->execute([$cat['id'], $cat['slug']]);
-        $qStmt = $this->pdo->prepare('INSERT INTO questions(catalog_id,type,prompt,options,answers,terms,items) VALUES(?,?,?,?,?,?,?)');
+        $del = $this->pdo->prepare('DELETE FROM questions WHERE catalog_uid=?');
+        $del->execute([$cat['uid']]);
+        $qStmt = $this->pdo->prepare('INSERT INTO questions(catalog_uid,type,prompt,options,answers,terms,items) VALUES(?,?,?,?,?,?,?)');
         foreach ($data as $q) {
             $qStmt->execute([
-                $cat['slug'],
+                $cat['uid'],
                 $q['type'] ?? '',
                 $q['prompt'] ?? '',
                 isset($q['options']) ? json_encode($q['options']) : null,
@@ -231,30 +231,29 @@ class CatalogService
             $this->pdo->exec('DELETE FROM catalogs');
             return;
         }
-        $stmt = $this->pdo->prepare('SELECT id, slug FROM catalogs WHERE file=?');
+        $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE file=?');
         $stmt->execute([basename($file)]);
         $cat = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($cat !== false) {
-            $this->pdo->prepare('DELETE FROM questions WHERE catalog_id=? OR catalog_id=?')->execute([$cat['id'], $cat['slug']]);
-            $this->pdo->prepare('DELETE FROM catalogs WHERE id=?')->execute([$cat['id']]);
+            $this->pdo->prepare('DELETE FROM questions WHERE catalog_uid=?')->execute([$cat['uid']]);
+            $this->pdo->prepare('DELETE FROM catalogs WHERE uid=?')->execute([$cat['uid']]);
         }
-        $id = pathinfo($file, PATHINFO_FILENAME);
         $this->pdo->beginTransaction();
-        $this->pdo->prepare('DELETE FROM questions WHERE catalog_id=? OR catalog_id=?')->execute([$id, $id]);
-        $this->pdo->prepare('DELETE FROM catalogs WHERE id=?')->execute([$id]);
+        $this->pdo->prepare('DELETE FROM questions WHERE catalog_uid=?')->execute([pathinfo($file, PATHINFO_FILENAME)]);
+        $this->pdo->prepare('DELETE FROM catalogs WHERE uid=?')->execute([pathinfo($file, PATHINFO_FILENAME)]);
         $this->pdo->commit();
     }
 
     public function deleteQuestion(string $file, int $index): void
     {
-        $stmt = $this->pdo->prepare('SELECT id, slug FROM catalogs WHERE file=?');
+        $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE file=?');
         $stmt->execute([basename($file)]);
         $cat = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($cat === false) {
             return;
         }
-        $qStmt = $this->pdo->prepare('SELECT id FROM questions WHERE catalog_id=? OR catalog_id=? ORDER BY id');
-        $qStmt->execute([$cat['id'], $cat['slug']]);
+        $qStmt = $this->pdo->prepare('SELECT id FROM questions WHERE catalog_uid=? ORDER BY id');
+        $qStmt->execute([$cat['uid']]);
         $rows = $qStmt->fetchAll(PDO::FETCH_COLUMN);
         if (!isset($rows[$index])) {
             return;
