@@ -110,8 +110,8 @@ $catalogDir = "$base/data/kataloge";
 $catalogsFile = "$catalogDir/catalogs.json";
 if (is_readable($catalogsFile)) {
     $catalogs = json_decode(file_get_contents($catalogsFile), true) ?? [];
-    $catStmt = $pdo->prepare('INSERT INTO catalogs(uid,id,slug,file,name,description,qrcode_url,raetsel_buchstabe,comment) VALUES(?,?,?,?,?,?,?,?,?)');
-    $qStmt = $pdo->prepare('INSERT INTO questions(catalog_uid,type,prompt,options,answers,terms,items) VALUES(?,?,?,?,?,?,?)');
+    $catStmt = $pdo->prepare('INSERT INTO catalogs(uid,sort_order,slug,file,name,description,qrcode_url,raetsel_buchstabe,comment) VALUES(?,?,?,?,?,?,?,?,?)');
+    $qStmt = $pdo->prepare('INSERT INTO questions(catalog_uid,type,prompt,options,answers,terms,items,sort_order) VALUES(?,?,?,?,?,?,?,?)');
     foreach ($catalogs as $cat) {
         $catStmt->execute([
             $cat['uid'] ?? '',
@@ -127,7 +127,7 @@ if (is_readable($catalogsFile)) {
         $file = $catalogDir . '/' . ($cat['file'] ?? '');
         if (is_readable($file)) {
             $questions = json_decode(file_get_contents($file), true) ?? [];
-            foreach ($questions as $q) {
+            foreach ($questions as $i => $q) {
                 $qStmt->execute([
                     $cat['uid'] ?? '',
                     $q['type'] ?? '',
@@ -135,7 +135,8 @@ if (is_readable($catalogsFile)) {
                     isset($q['options']) ? json_encode($q['options']) : null,
                     isset($q['answers']) ? json_encode($q['answers']) : null,
                     isset($q['terms']) ? json_encode($q['terms']) : null,
-                    isset($q['items']) ? json_encode($q['items']) : null
+                    isset($q['items']) ? json_encode($q['items']) : null,
+                    $i + 1
                 ]);
             }
         }
