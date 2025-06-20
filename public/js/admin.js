@@ -299,8 +299,8 @@ document.addEventListener('DOMContentLoaded', function () {
   let catalogFile = '';
   let initial = [];
 
-  function loadCatalog(id) {
-    const cat = catalogs.find(c => (c.slug || c.id) === id);
+  function loadCatalog(identifier) {
+    const cat = catalogs.find(c => c.uid === identifier || (c.slug || c.id) === identifier);
     if (!cat) return;
     catalogFile = cat.file;
     fetch('/kataloge/' + catalogFile, { headers: { 'Accept': 'application/json' } })
@@ -322,16 +322,17 @@ document.addEventListener('DOMContentLoaded', function () {
       catSelect.innerHTML = '';
       catalogs.forEach(c => {
         const opt = document.createElement('option');
-        opt.value = c.slug || c.id;
-        opt.textContent = c.name || c.slug || c.id;
+        opt.value = c.uid || c.slug || c.id;
+        opt.textContent = c.name || c.id || c.slug;
         catSelect.appendChild(opt);
       });
       renderCatalogs(catalogs);
       const params = new URLSearchParams(window.location.search);
-      const id = params.get('katalog') || (catalogs[0] && (catalogs[0].slug || catalogs[0].id));
-      if (id) {
-        catSelect.value = id;
-        loadCatalog(id);
+      const slug = params.get('katalog');
+      const selected = catalogs.find(c => (c.slug || c.id) === slug) || catalogs[0];
+      if (selected) {
+        catSelect.value = selected.uid || selected.slug || selected.id;
+        loadCatalog(selected.uid || selected.slug || selected.id);
       }
     });
 
@@ -346,14 +347,14 @@ document.addEventListener('DOMContentLoaded', function () {
     fetch('/kataloge/' + cat.file, { method: 'DELETE' })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
-        catalogs = catalogs.filter(c => (c.slug || c.id) !== (cat.slug || cat.id));
-        const opt = catSelect.querySelector('option[value="' + (cat.slug || cat.id) + '"]');
+        catalogs = catalogs.filter(c => c.uid !== cat.uid);
+        const opt = catSelect.querySelector('option[value="' + cat.uid + '"]');
         opt?.remove();
         row.remove();
         if (catalogs[0]) {
-          if (catSelect.value === (cat.slug || cat.id)) {
-            catSelect.value = catalogs[0].slug || catalogs[0].id;
-            loadCatalog(catalogs[0].slug || catalogs[0].id);
+          if (catSelect.value === cat.uid) {
+            catSelect.value = catalogs[0].uid || catalogs[0].slug || catalogs[0].id;
+            loadCatalog(catSelect.value);
           }
         } else {
           catalogFile = '';
@@ -972,8 +973,8 @@ document.addEventListener('DOMContentLoaded', function () {
         catSelect.innerHTML = '';
         catalogs.forEach(c => {
           const opt = document.createElement('option');
-          opt.value = c.slug || c.id;
-          opt.textContent = c.name || c.slug || c.id;
+          opt.value = c.uid || c.slug || c.id;
+          opt.textContent = c.name || c.id || c.slug;
           catSelect.appendChild(opt);
         });
         notify('Katalogliste gespeichert', 'success');
