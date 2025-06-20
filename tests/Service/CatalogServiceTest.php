@@ -14,7 +14,7 @@ class CatalogServiceTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, id TEXT UNIQUE NOT NULL, slug TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT, comment TEXT);');
+        $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, id TEXT NOT NULL, slug TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT, comment TEXT);');
         $pdo->exec('CREATE TABLE questions(id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_id TEXT NOT NULL, type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT);');
         return $pdo;
     }
@@ -23,7 +23,7 @@ class CatalogServiceTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, id TEXT UNIQUE NOT NULL, slug TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT);');
+        $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, id TEXT NOT NULL, slug TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT);');
         $pdo->exec('CREATE TABLE questions(id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_id TEXT NOT NULL, type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT);');
         return $pdo;
     }
@@ -117,5 +117,25 @@ class CatalogServiceTest extends TestCase
         $remaining = json_decode($service->read($file), true);
         $this->assertCount(1, $remaining);
         $this->assertSame('B', $remaining[0]['prompt']);
+    }
+
+    public function testReorderCatalogs(): void
+    {
+        $pdo = $this->createPdo();
+        $service = new CatalogService($pdo);
+        $initial = [
+            ['uid' => 'u1', 'id' => 1, 'slug' => 'a', 'file' => 'a.json', 'name' => 'A', 'comment' => ''],
+            ['uid' => 'u2', 'id' => 2, 'slug' => 'b', 'file' => 'b.json', 'name' => 'B', 'comment' => ''],
+        ];
+        $service->write('catalogs.json', $initial);
+
+        $reordered = [
+            ['uid' => 'u1', 'id' => 2, 'slug' => 'a', 'file' => 'a.json', 'name' => 'A', 'comment' => ''],
+            ['uid' => 'u2', 'id' => 1, 'slug' => 'b', 'file' => 'b.json', 'name' => 'B', 'comment' => ''],
+        ];
+        $service->write('catalogs.json', $reordered);
+        $list = json_decode($service->read('catalogs.json'), true);
+        $this->assertSame('b', $list[0]['slug']);
+        $this->assertSame('a', $list[1]['slug']);
     }
 }
