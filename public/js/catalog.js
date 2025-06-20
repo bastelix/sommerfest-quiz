@@ -245,11 +245,15 @@
       container.appendChild(p);
       return;
     }
-    catalogs = catalogs.slice().sort((a,b) => {
+    catalogs = catalogs.slice().sort((a, b) => {
+      const ia = parseInt(a.id, 10);
+      const ib = parseInt(b.id, 10);
+      if(!Number.isNaN(ia) && !Number.isNaN(ib)){
+        return ia - ib;
+      }
       const sa = a.slug || a.id;
       const sb = b.slug || b.id;
-      if(sa === undefined || sb === undefined) return 0;
-      return sa.localeCompare(sb);
+      return String(sa).localeCompare(String(sb));
     });
 
     const grid = document.createElement('div');
