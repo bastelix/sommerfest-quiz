@@ -104,11 +104,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!btn) return;
     const fmt = btn.dataset.format;
     switch (fmt) {
-      case 'h1':
-        wrapSelection(commentTextarea, '<h1>', '</h1>');
-        break;
       case 'h2':
         wrapSelection(commentTextarea, '<h2>', '</h2>');
+        break;
+      case 'h3':
+        wrapSelection(commentTextarea, '<h3>', '</h3>');
         break;
       case 'bold':
         wrapSelection(commentTextarea, '<strong>', '</strong>');
@@ -1117,6 +1117,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // --------- Passwort ändern ---------
   const passSaveBtn = document.getElementById('passSaveBtn');
   const importJsonBtn = document.getElementById('importJsonBtn');
+  const exportJsonBtn = document.getElementById('exportJsonBtn');
   const newPass = document.getElementById('newPass');
   const newPassRepeat = document.getElementById('newPassRepeat');
 
@@ -1160,6 +1161,19 @@ document.addEventListener('DOMContentLoaded', function () {
       .catch(err => {
         console.error(err);
         notify('Fehler beim Import', 'danger');
+      });
+  });
+
+  exportJsonBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    fetch('/export', { method: 'POST' })
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        notify('Export abgeschlossen', 'success');
+      })
+      .catch(err => {
+        console.error(err);
+        notify('Fehler beim Export', 'danger');
       });
   });
 
