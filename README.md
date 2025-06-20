@@ -285,7 +285,7 @@ Unter `/admin` stehen folgende Tabs zur Verfügung:
 6. **Passwort ändern** – Administrationspasswort setzen.
 
 ### Fragenkataloge
-`data/kataloge/catalogs.json` listet verfügbare Kataloge mit `slug`, Name und optionaler QR-Code-Adresse. Das Feld `id` wird automatisch als fortlaufende Zahl vergeben und dient nur der internen Sortierung. Jede Frage speichert die zugehörige `catalog_uid`. Jeder Eintrag kann zusätzlich ein Feld `raetsel_buchstabe` enthalten, das den Buchstaben für das Rätselwort festlegt. Die API bietet hierzu folgende Endpunkte:
+`data/kataloge/catalogs.json` listet verfügbare Kataloge mit `slug`, Name und optionaler QR-Code-Adresse. Das Feld `id` wird dabei als `sort_order` interpretiert und dient nur der internen Sortierung. Jede Frage speichert die zugehörige `catalog_uid`. Jeder Eintrag kann zusätzlich ein Feld `raetsel_buchstabe` enthalten, das den Buchstaben für das Rätselwort festlegt. Die API bietet hierzu folgende Endpunkte:
 - `GET /kataloge/{file}` liefert den JSON-Katalog oder leitet im Browser auf `/?katalog=slug` um.
 - `PUT /kataloge/{file}` legt eine neue Datei an.
 - `POST /kataloge/{file}` überschreibt einen Katalog mit gesendeten Daten.

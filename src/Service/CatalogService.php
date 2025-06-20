@@ -56,11 +56,11 @@ class CatalogService
     public function read(string $file): ?string
     {
         if ($file === 'catalogs.json') {
-            $fields = 'uid,id,slug,file,name,description,qrcode_url,raetsel_buchstabe';
+            $fields = 'uid,sort_order AS id,slug,file,name,description,qrcode_url,raetsel_buchstabe';
             if ($this->hasCommentColumn()) {
                 $fields .= ',comment';
             }
-            $stmt = $this->pdo->query("SELECT $fields FROM catalogs ORDER BY id");
+            $stmt = $this->pdo->query("SELECT $fields FROM catalogs ORDER BY sort_order");
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             foreach ($data as &$row) {
                 $row['id'] = (int)$row['id'];
@@ -79,7 +79,7 @@ class CatalogService
         if ($cat === false) {
             return null;
         }
-        $qStmt = $this->pdo->prepare('SELECT type,prompt,options,answers,terms,items FROM questions WHERE catalog_uid=? ORDER BY id');
+        $qStmt = $this->pdo->prepare('SELECT type,prompt,options,answers,terms,items FROM questions WHERE catalog_uid=? ORDER BY sort_order');
         $qStmt->execute([$cat['uid']]);
         $questions = [];
         while ($row = $qStmt->fetch(PDO::FETCH_ASSOC)) {
@@ -111,7 +111,7 @@ class CatalogService
                 $data = json_decode((string)$data, true) ?? [];
             }
             $this->pdo->beginTransaction();
-            $fields = 'uid,id,slug,file,name,description,qrcode_url,raetsel_buchstabe';
+            $fields = 'uid,sort_order,slug,file,name,description,qrcode_url,raetsel_buchstabe';
             $placeholders = '?,?,?,?,?,?,?,?';
             if ($this->hasCommentColumn()) {
                 $fields .= ',comment';
@@ -124,7 +124,7 @@ class CatalogService
             }
 
             $cols = [
-                'id',
+                'sort_order',
                 'slug',
                 'file',
                 'name',
@@ -146,6 +146,8 @@ class CatalogService
                     $params[] = $uid;
                     if ($col === 'slug') {
                         $params[] = $cat['slug'] ?? ($cat['id'] ?? '');
+                    } elseif ($col === 'sort_order') {
+                        $params[] = $cat['id'] ?? null;
                     } else {
                         $params[] = $cat[$col] ?? null;
                     }
@@ -207,8 +209,8 @@ class CatalogService
         $this->pdo->beginTransaction();
         $del = $this->pdo->prepare('DELETE FROM questions WHERE catalog_uid=?');
         $del->execute([$cat['uid']]);
-        $qStmt = $this->pdo->prepare('INSERT INTO questions(catalog_uid,type,prompt,options,answers,terms,items) VALUES(?,?,?,?,?,?,?)');
-        foreach ($data as $q) {
+        $qStmt = $this->pdo->prepare('INSERT INTO questions(catalog_uid,type,prompt,options,answers,terms,items,sort_order) VALUES(?,?,?,?,?,?,?,?)');
+        foreach ($data as $i => $q) {
             $qStmt->execute([
                 $cat['uid'],
                 $q['type'] ?? '',
@@ -217,6 +219,7 @@ class CatalogService
                 isset($q['answers']) ? json_encode($q['answers']) : null,
                 isset($q['terms']) ? json_encode($q['terms']) : null,
                 isset($q['items']) ? json_encode($q['items']) : null,
+                $i + 1,
             ]);
         }
         $this->pdo->commit();
@@ -253,7 +256,7 @@ class CatalogService
         if ($cat === false) {
             return;
         }
-        $qStmt = $this->pdo->prepare('SELECT id FROM questions WHERE catalog_uid=? ORDER BY id');
+        $qStmt = $this->pdo->prepare('SELECT id FROM questions WHERE catalog_uid=? ORDER BY sort_order');
         $qStmt->execute([$cat['uid']]);
         $rows = $qStmt->fetchAll(PDO::FETCH_COLUMN);
         if (!isset($rows[$index])) {

@@ -49,7 +49,7 @@ CREATE INDEX idx_results_name ON results(name);
 -- Catalog definitions
 CREATE TABLE IF NOT EXISTS catalogs (
     uid TEXT PRIMARY KEY,
-    id TEXT NOT NULL,
+    sort_order INTEGER UNIQUE NOT NULL,
     slug TEXT UNIQUE NOT NULL,
     file TEXT NOT NULL,
     name TEXT NOT NULL,
@@ -63,6 +63,7 @@ CREATE TABLE IF NOT EXISTS catalogs (
 CREATE TABLE IF NOT EXISTS questions (
     id SERIAL PRIMARY KEY,
     catalog_uid TEXT NOT NULL,
+    sort_order INTEGER UNIQUE,
     type TEXT NOT NULL,
     prompt TEXT NOT NULL,
     options JSONB,
