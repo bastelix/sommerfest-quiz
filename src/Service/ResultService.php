@@ -20,7 +20,8 @@ class ResultService
         $sql = 'SELECT r.name, r.catalog, r.attempt, r.correct, r.total, r.time, r.puzzleTime, r.photo, ' .
             'c.name AS catalogName '
             . 'FROM results r '
-            . 'LEFT JOIN catalogs c ON c.uid = r.catalog OR c.id = r.catalog '
+            . 'LEFT JOIN catalogs c ON c.uid = r.catalog '
+            . 'OR CAST(c.sort_order AS TEXT) = r.catalog '
             . 'ORDER BY r.id';
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
