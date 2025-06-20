@@ -24,4 +24,19 @@ class PhotoConsentServiceTest extends TestCase
         $this->assertSame('TeamA', $data[0]['team']);
         $this->assertSame(456, (int)$data[1]['time']);
     }
+
+    public function testGetAllReturnsStoredConsents(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE photo_consents(id INTEGER PRIMARY KEY AUTOINCREMENT, team TEXT NOT NULL, time INTEGER NOT NULL);');
+        $svc = new PhotoConsentService($pdo);
+        $svc->add('TeamA', 1);
+        $svc->add('TeamB', 2);
+
+        $data = $svc->getAll();
+        $this->assertCount(2, $data);
+        $this->assertSame('TeamA', $data[0]['team']);
+        $this->assertSame(2, (int)$data[1]['time']);
+    }
 }
