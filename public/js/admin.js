@@ -1116,6 +1116,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // --------- Passwort ändern ---------
   const passSaveBtn = document.getElementById('passSaveBtn');
+  const importJsonBtn = document.getElementById('importJsonBtn');
   const newPass = document.getElementById('newPass');
   const newPassRepeat = document.getElementById('newPassRepeat');
 
@@ -1145,7 +1146,20 @@ document.addEventListener('DOMContentLoaded', function () {
       })
       .catch(err => {
         console.error(err);
-        notify('Fehler beim Speichern', 'danger');
+      notify('Fehler beim Speichern', 'danger');
+    });
+  });
+
+  importJsonBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    fetch('/import', { method: 'POST' })
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        notify('Import abgeschlossen', 'success');
+      })
+      .catch(err => {
+        console.error(err);
+        notify('Fehler beim Import', 'danger');
       });
   });
 
