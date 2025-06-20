@@ -79,7 +79,7 @@ async function fetchLatestPuzzleEntry(name, catalog){
 window.formatPuzzleTime = formatPuzzleTime;
 window.fetchLatestPuzzleEntry = fetchLatestPuzzleEntry;
 
-function runQuiz(questions){
+function runQuiz(questions, skipIntro){
   // Konfiguration laden und einstellen, ob der "Antwort prüfen"-Button
   // eingeblendet werden soll
   const cfg = window.quizConfig || {};
@@ -140,6 +140,10 @@ function runQuiz(questions){
   });
   progress.max = questionCount;
   showQuestion(current);
+
+  if(skipIntro){
+    next();
+  }
 
   // Zeigt das Element mit dem angegebenen Index an und aktualisiert den Fortschrittsbalken
   function showQuestion(i){
@@ -1198,15 +1202,15 @@ function runQuiz(questions){
   }
 }
 
-function startQuiz(qs){
+function startQuiz(qs, skipIntro){
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', () => runQuiz(qs));
+    document.addEventListener('DOMContentLoaded', () => runQuiz(qs, skipIntro));
   } else {
-    runQuiz(qs);
+    runQuiz(qs, skipIntro);
   }
 }
 
 window.startQuiz = startQuiz;
 if(window.quizQuestions){
-  startQuiz(window.quizQuestions);
+  startQuiz(window.quizQuestions, false);
 }
