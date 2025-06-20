@@ -246,16 +246,7 @@
       container.appendChild(p);
       return;
     }
-    catalogs = catalogs.slice().sort((a, b) => {
-      const ia = parseInt(a.id, 10);
-      const ib = parseInt(b.id, 10);
-      if(!Number.isNaN(ia) && !Number.isNaN(ib)){
-        return ia - ib;
-      }
-      const sa = a.slug || a.id;
-      const sb = b.slug || b.id;
-      return String(sa).localeCompare(String(sb));
-    });
+
 
     const grid = document.createElement('div');
     grid.className = 'uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-4@m uk-grid-small uk-text-center';
