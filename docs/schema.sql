@@ -62,16 +62,16 @@ CREATE TABLE IF NOT EXISTS catalogs (
 -- Questions belonging to catalogs
 CREATE TABLE IF NOT EXISTS questions (
     id SERIAL PRIMARY KEY,
-    catalog_id TEXT NOT NULL,
+    catalog_uid TEXT NOT NULL,
     type TEXT NOT NULL,
     prompt TEXT NOT NULL,
     options JSONB,
     answers JSONB,
     terms JSONB,
     items JSONB,
-    FOREIGN KEY (catalog_id) REFERENCES catalogs(id) ON DELETE CASCADE
+    FOREIGN KEY (catalog_uid) REFERENCES catalogs(uid) ON DELETE CASCADE
 );
-CREATE INDEX idx_questions_catalog ON questions(catalog_id);
+CREATE INDEX idx_questions_catalog ON questions(catalog_uid);
 
 -- Photo consents for uploaded evidence
 CREATE TABLE IF NOT EXISTS photo_consents (
