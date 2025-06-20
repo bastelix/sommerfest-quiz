@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function () {
       catalogs.forEach(c => {
         const opt = document.createElement('option');
         opt.value = c.slug || c.id;
-        opt.textContent = c.name || c.slug || c.id;
+        opt.textContent = c.name || c.id || c.slug;
         catSelect.appendChild(opt);
       });
       renderCatalogs(catalogs);
@@ -973,7 +973,7 @@ document.addEventListener('DOMContentLoaded', function () {
         catalogs.forEach(c => {
           const opt = document.createElement('option');
           opt.value = c.slug || c.id;
-          opt.textContent = c.name || c.slug || c.id;
+          opt.textContent = c.name || c.id || c.slug;
           catSelect.appendChild(opt);
         });
         notify('Katalogliste gespeichert', 'success');
