@@ -104,11 +104,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!btn) return;
     const fmt = btn.dataset.format;
     switch (fmt) {
-      case 'h1':
-        wrapSelection(commentTextarea, '<h1>', '</h1>');
-        break;
       case 'h2':
         wrapSelection(commentTextarea, '<h2>', '</h2>');
+        break;
+      case 'h3':
+        wrapSelection(commentTextarea, '<h3>', '</h3>');
         break;
       case 'bold':
         wrapSelection(commentTextarea, '<strong>', '</strong>');
