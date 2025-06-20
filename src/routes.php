@@ -29,6 +29,7 @@ use App\Controller\QrController;
 use App\Controller\LogoController;
 use App\Controller\SummaryController;
 use App\Controller\EvidenceController;
+use App\Controller\BackupController;
 
 require_once __DIR__ . '/Controller/HomeController.php';
 require_once __DIR__ . '/Controller/FaqController.php';
@@ -50,6 +51,7 @@ require_once __DIR__ . '/Controller/LogoController.php';
 require_once __DIR__ . '/Controller/SummaryController.php';
 require_once __DIR__ . '/Controller/EvidenceController.php';
 require_once __DIR__ . '/Controller/ExportController.php';
+require_once __DIR__ . '/Controller/BackupController.php';
 
 use App\Infrastructure\Database;
 use App\Infrastructure\Migrations\Migrator;
