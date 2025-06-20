@@ -17,7 +17,8 @@ COPY . /var/www
 RUN composer install --no-interaction --prefer-dist --no-progress
 
 # run static analysis during image build
-RUN if [ -f vendor/bin/phpstan ]; then vendor/bin/phpstan --no-progress; fi
+# increase memory limit for phpstan to avoid out-of-memory errors
+RUN if [ -f vendor/bin/phpstan ]; then vendor/bin/phpstan --no-progress --memory-limit=512M; fi
 
 # entrypoint to install dependencies if host volume lacks vendor/
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
