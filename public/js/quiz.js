@@ -79,7 +79,7 @@ async function fetchLatestPuzzleEntry(name, catalog){
 window.formatPuzzleTime = formatPuzzleTime;
 window.fetchLatestPuzzleEntry = fetchLatestPuzzleEntry;
 
-function runQuiz(questions){
+function runQuiz(questions, skipIntro){
   // Konfiguration laden und einstellen, ob der "Antwort prüfen"-Button
   // eingeblendet werden soll
   const cfg = window.quizConfig || {};
@@ -109,7 +109,7 @@ function runQuiz(questions){
   const shuffled = shuffleArray(questions);
   const questionCount = shuffled.length;
 
-  let current = 0;
+  let current = skipIntro ? 1 : 0;
   // Zu jedem Eintrag im Array ein DOM-Element erzeugen
   const elements = [createStart()].concat(shuffled.map((q, idx) => createQuestion(q, idx)));
   // Speichert true/false für jede beantwortete Frage
@@ -131,8 +131,13 @@ function runQuiz(questions){
 
   const headerEl = document.getElementById('quiz-header');
 
+  if(skipIntro && headerEl){
+    headerEl.innerHTML = '';
+    headerEl.classList.add('uk-hidden');
+  }
+
   elements.forEach((el, i) => {
-    if (i !== 0) el.classList.add('uk-hidden');
+    if (i !== current) el.classList.add('uk-hidden');
     container.appendChild(el);
     if (typeof UIkit !== 'undefined' && UIkit.scrollspy) {
       UIkit.scrollspy(el);
@@ -1198,15 +1203,15 @@ function runQuiz(questions){
   }
 }
 
-function startQuiz(qs){
+function startQuiz(qs, skipIntro){
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', () => runQuiz(qs));
+    document.addEventListener('DOMContentLoaded', () => runQuiz(qs, skipIntro));
   } else {
-    runQuiz(qs);
+    runQuiz(qs, skipIntro);
   }
 }
 
 window.startQuiz = startQuiz;
 if(window.quizQuestions){
-  startQuiz(window.quizQuestions);
+  startQuiz(window.quizQuestions, false);
 }

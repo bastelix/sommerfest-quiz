@@ -185,7 +185,7 @@
     }
     btn.addEventListener('click', () => {
       if(window.startQuiz){
-        window.startQuiz(data);
+        window.startQuiz(data, true);
       }
     });
     container.appendChild(btn);
