@@ -74,7 +74,15 @@ return function (\Slim\App $app) {
     $qrController = new QrController();
     $logoController = new LogoController($configService);
     $summaryController = new SummaryController($configService);
-    $importController = new ImportController($catalogService, __DIR__ . '/../data');
+    $importController = new ImportController(
+        $catalogService,
+        $configService,
+        $resultService,
+        $teamService,
+        $consentService,
+        __DIR__ . '/../data',
+        __DIR__ . '/../backup'
+    );
     $consentService = new PhotoConsentService($pdo);
     $exportController = new ExportController(
         $configService,
@@ -82,8 +90,10 @@ return function (\Slim\App $app) {
         $resultService,
         $teamService,
         $consentService,
-        __DIR__ . '/../data'
+        __DIR__ . '/../data',
+        __DIR__ . '/../backup'
     );
+    $backupController = new BackupController(__DIR__ . '/../backup');
     $evidenceController = new EvidenceController(
         $resultService,
         $consentService,
@@ -126,7 +136,11 @@ return function (\Slim\App $app) {
     $app->post('/teams.json', [$teamController, 'post']);
     $app->post('/password', [$passwordController, 'post']);
     $app->post('/import', [$importController, 'post']);
+    $app->post('/import/{name}', [$importController, 'import']);
     $app->post('/export', [$exportController, 'post']);
+    $app->get('/backups', [$backupController, 'list']);
+    $app->get('/backups/{name}/download', [$backupController, 'download']);
+    $app->delete('/backups/{name}', [$backupController, 'delete']);
     $app->get('/qr.png', [$qrController, 'image']);
     $app->get('/logo.png', [$logoController, 'get'])->setArgument('ext', 'png');
     $app->post('/logo.png', [$logoController, 'post']);

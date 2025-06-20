@@ -87,4 +87,32 @@ class ResultService
             $upd->execute([$path, $id]);
         }
     }
+
+    /**
+     * Replace all results with the provided list.
+     *
+     * @param list<array<string, mixed>> $results
+     */
+    public function saveAll(array $results): void
+    {
+        $this->pdo->beginTransaction();
+        $this->pdo->exec('DELETE FROM results');
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo) '
+            . 'VALUES(?,?,?,?,?,?,?,?)'
+        );
+        foreach ($results as $row) {
+            $stmt->execute([
+                (string)($row['name'] ?? ''),
+                (string)($row['catalog'] ?? ''),
+                (int)($row['attempt'] ?? 1),
+                (int)($row['correct'] ?? 0),
+                (int)($row['total'] ?? 0),
+                (int)($row['time'] ?? time()),
+                isset($row['puzzleTime']) ? (int)$row['puzzleTime'] : null,
+                isset($row['photo']) ? (string)$row['photo'] : null,
+            ]);
+        }
+        $this->pdo->commit();
+    }
 }
