@@ -61,20 +61,18 @@ if ($configData) {
 $teamsFile = "$base/data/teams.json";
 if (is_readable($teamsFile)) {
     $teams = json_decode(file_get_contents($teamsFile), true) ?? [];
-    $withId = isset($teams[0]['id']);
-    $sql = $withId ?
-        'INSERT INTO teams(id,name) VALUES(?,?)' :
-        'INSERT INTO teams(name) VALUES(?)';
-    $stmt = $pdo->prepare($sql);
-    foreach ($teams as $t) {
-        if ($withId) {
-            $stmt->execute([$t['id'], $t['name']]);
-        } else {
-            $name = is_array($t) ? ($t['name'] ?? '') : $t;
-            $stmt->execute([$name]);
-        }
+    $key = null;
+    if (isset($teams[0]['sort_order'])) {
+        $key = 'sort_order';
+    } elseif (isset($teams[0]['id'])) {
+        $key = 'id';
     }
-    $pdo->exec("SELECT setval(pg_get_serial_sequence('teams','id'), (SELECT COALESCE(MAX(id),0) FROM teams))");
+    $stmt = $pdo->prepare('INSERT INTO teams(sort_order,name) VALUES(?,?)');
+    foreach ($teams as $i => $t) {
+        $name = is_array($t) ? ($t['name'] ?? (string)$t) : (string)$t;
+        $sort = $key !== null && isset($t[$key]) ? (int)$t[$key] : $i + 1;
+        $stmt->execute([$sort, $name]);
+    }
 }
 
 // Import results
