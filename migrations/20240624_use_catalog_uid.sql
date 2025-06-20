@@ -6,10 +6,12 @@ BEGIN
         SELECT 1 FROM information_schema.columns
         WHERE table_name = 'questions' AND column_name = 'catalog_id'
     ) THEN
-        EXECUTE $$UPDATE questions q
+        EXECUTE $upd$
+            UPDATE questions q
             SET catalog_uid = c.uid
             FROM catalogs c
-            WHERE c.id = q.catalog_id OR c.slug = q.catalog_id$$;
+            WHERE c.id = q.catalog_id OR c.slug = q.catalog_id
+        $upd$;
         ALTER TABLE questions DROP CONSTRAINT IF EXISTS questions_catalog_id_fkey;
         ALTER TABLE questions DROP COLUMN IF EXISTS catalog_id;
     END IF;
