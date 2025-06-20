@@ -129,7 +129,7 @@ if (is_readable($catalogsFile)) {
             $questions = json_decode(file_get_contents($file), true) ?? [];
             foreach ($questions as $q) {
                 $qStmt->execute([
-                    $cat['id'] ?? '',
+                    $cat['slug'] ?? ($cat['id'] ?? ''),
                     $q['type'] ?? '',
                     $q['prompt'] ?? '',
                     isset($q['options']) ? json_encode($q['options']) : null,

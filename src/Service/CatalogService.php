@@ -146,7 +146,7 @@ class CatalogService
         $qStmt = $this->pdo->prepare('INSERT INTO questions(catalog_id,type,prompt,options,answers,terms,items) VALUES(?,?,?,?,?,?,?)');
         foreach ($data as $q) {
             $qStmt->execute([
-                $cat['id'],
+                $cat['slug'],
                 $q['type'] ?? '',
                 $q['prompt'] ?? '',
                 isset($q['options']) ? json_encode($q['options']) : null,
