@@ -1120,6 +1120,76 @@ document.addEventListener('DOMContentLoaded', function () {
   const exportJsonBtn = document.getElementById('exportJsonBtn');
   const newPass = document.getElementById('newPass');
   const newPassRepeat = document.getElementById('newPassRepeat');
+  const backupTableBody = document.getElementById('backupTableBody');
+
+  function loadBackups() {
+    if (!backupTableBody) return;
+    fetch('/backups')
+      .then(r => r.json())
+      .then(list => {
+        backupTableBody.innerHTML = '';
+        if (list.length === 0) {
+          const row = document.createElement('tr');
+          const cell = document.createElement('td');
+          cell.colSpan = 2;
+          cell.textContent = 'Keine Backups';
+          row.appendChild(cell);
+          backupTableBody.appendChild(row);
+          return;
+        }
+        list.forEach(name => {
+          const tr = document.createElement('tr');
+          const nameTd = document.createElement('td');
+          nameTd.textContent = name;
+          const actionTd = document.createElement('td');
+          const imp = document.createElement('button');
+          imp.className = 'uk-button uk-button-primary uk-margin-small-right';
+          imp.textContent = 'Importieren';
+          imp.addEventListener('click', () => {
+            fetch('/import/' + encodeURIComponent(name), { method: 'POST' })
+              .then(r => {
+                if (!r.ok) throw new Error(r.statusText);
+                notify('Import abgeschlossen', 'success');
+              })
+              .catch(() => notify('Fehler beim Import', 'danger'));
+          });
+          const dl = document.createElement('button');
+          dl.className = 'uk-button uk-button-default uk-margin-small-right';
+          dl.textContent = 'Download';
+          dl.addEventListener('click', () => {
+            fetch('/backups/' + encodeURIComponent(name) + '/download')
+              .then(r => r.blob())
+              .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = name + '.zip';
+                a.click();
+                URL.revokeObjectURL(url);
+              })
+              .catch(() => notify('Fehler beim Download', 'danger'));
+          });
+          const del = document.createElement('button');
+          del.className = 'uk-button uk-button-danger';
+          del.textContent = 'Löschen';
+          del.addEventListener('click', () => {
+            fetch('/backups/' + encodeURIComponent(name), { method: 'DELETE' })
+              .then(r => {
+                if (!r.ok) throw new Error(r.statusText);
+                loadBackups();
+              })
+              .catch(() => notify('Fehler beim Löschen', 'danger'));
+          });
+          actionTd.appendChild(imp);
+          actionTd.appendChild(dl);
+          actionTd.appendChild(del);
+          tr.appendChild(nameTd);
+          tr.appendChild(actionTd);
+          backupTableBody.appendChild(tr);
+        });
+      })
+      .catch(() => {});
+  }
 
   passSaveBtn?.addEventListener('click', e => {
     e.preventDefault();
@@ -1170,6 +1240,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
         notify('Export abgeschlossen', 'success');
+        loadBackups();
       })
       .catch(err => {
         console.error(err);
@@ -1198,4 +1269,6 @@ document.addEventListener('DOMContentLoaded', function () {
     helpContent.textContent = activeHelpText();
     UIkit.offcanvas(helpSidebar).show();
   });
+
+  loadBackups();
 });
