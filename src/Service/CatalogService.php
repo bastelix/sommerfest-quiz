@@ -111,47 +111,36 @@ class CatalogService
             }
 
             $uids = [];
-            $updateClauses = [
-                'id' => '',
-                'slug' => '',
-                'file' => '',
-                'name' => '',
-                'description' => '',
-                'qrcode_url' => '',
-                'raetsel_buchstabe' => '',
+            foreach ($data as $cat) {
+                $uids[] = $cat['uid'] ?? '';
+            }
+
+            $cols = [
+                'id',
+                'slug',
+                'file',
+                'name',
+                'description',
+                'qrcode_url',
+                'raetsel_buchstabe',
             ];
             if ($this->hasCommentColumn()) {
-                $updateClauses['comment'] = '';
+                $cols[] = 'comment';
             }
+
+            $updateClauses = [];
             $params = [];
-            foreach ($data as $cat) {
-                $uid = $cat['uid'] ?? '';
-                $uids[] = $uid;
-                $updateClauses['id'] .= ' WHEN ? THEN ?';
-                $params[] = $uid;
-                $params[] = $cat['id'] ?? '';
-                $updateClauses['slug'] .= ' WHEN ? THEN ?';
-                $params[] = $uid;
-                $params[] = $cat['slug'] ?? ($cat['id'] ?? '');
-                $updateClauses['file'] .= ' WHEN ? THEN ?';
-                $params[] = $uid;
-                $params[] = $cat['file'] ?? '';
-                $updateClauses['name'] .= ' WHEN ? THEN ?';
-                $params[] = $uid;
-                $params[] = $cat['name'] ?? '';
-                $updateClauses['description'] .= ' WHEN ? THEN ?';
-                $params[] = $uid;
-                $params[] = $cat['description'] ?? null;
-                $updateClauses['qrcode_url'] .= ' WHEN ? THEN ?';
-                $params[] = $uid;
-                $params[] = $cat['qrcode_url'] ?? null;
-                $updateClauses['raetsel_buchstabe'] .= ' WHEN ? THEN ?';
-                $params[] = $uid;
-                $params[] = $cat['raetsel_buchstabe'] ?? null;
-                if ($this->hasCommentColumn()) {
-                    $updateClauses['comment'] .= ' WHEN ? THEN ?';
+            foreach ($cols as $col) {
+                $updateClauses[$col] = '';
+                foreach ($data as $cat) {
+                    $uid = $cat['uid'] ?? '';
+                    $updateClauses[$col] .= ' WHEN ? THEN ?';
                     $params[] = $uid;
-                    $params[] = $cat['comment'] ?? null;
+                    if ($col === 'slug') {
+                        $params[] = $cat['slug'] ?? ($cat['id'] ?? '');
+                    } else {
+                        $params[] = $cat[$col] ?? null;
+                    }
                 }
             }
 
