@@ -138,4 +138,25 @@ class CatalogServiceTest extends TestCase
         $this->assertSame('b', $list[0]['slug']);
         $this->assertSame('a', $list[1]['slug']);
     }
+
+    public function testNamesRemainAfterReorder(): void
+    {
+        $pdo = $this->createPdo();
+        $service = new CatalogService($pdo);
+        $initial = [
+            ['uid' => 'u1', 'id' => 1, 'slug' => 'a', 'file' => 'a.json', 'name' => 'One', 'comment' => ''],
+            ['uid' => 'u2', 'id' => 2, 'slug' => 'b', 'file' => 'b.json', 'name' => 'Two', 'comment' => ''],
+            ['uid' => 'u3', 'id' => 3, 'slug' => 'c', 'file' => 'c.json', 'name' => 'Three', 'comment' => ''],
+        ];
+        $service->write('catalogs.json', $initial);
+
+        $reordered = [
+            ['uid' => 'u2', 'id' => 1, 'slug' => 'b', 'file' => 'b.json', 'name' => 'Two', 'comment' => ''],
+            ['uid' => 'u1', 'id' => 2, 'slug' => 'a', 'file' => 'a.json', 'name' => 'One', 'comment' => ''],
+            ['uid' => 'u3', 'id' => 3, 'slug' => 'c', 'file' => 'c.json', 'name' => 'Three', 'comment' => ''],
+        ];
+        $service->write('catalogs.json', $reordered);
+        $rows = json_decode($service->read('catalogs.json'), true);
+        $this->assertSame(['Two', 'One', 'Three'], array_column($rows, 'name'));
+    }
 }
