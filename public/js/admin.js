@@ -299,9 +299,6 @@ document.addEventListener('DOMContentLoaded', function () {
   let catalogFile = '';
   let initial = [];
 
-  if (catalogList && window.UIkit && UIkit.util) {
-    UIkit.util.on(catalogList, 'moved', saveCatalogOrder);
-  }
 
   function loadCatalog(identifier) {
     const cat = catalogs.find(c => c.uid === identifier || (c.slug || c.id) === identifier);
@@ -386,11 +383,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const rowId = 'cat-' + catalogRowIndex++;
 
     const idCell = document.createElement('td');
-    const handleCell = document.createElement('td');
-    const handleSpan = document.createElement('span');
-    handleSpan.className = 'uk-sortable-handle uk-icon';
-    handleSpan.setAttribute('uk-icon', 'icon: table');
-    handleCell.appendChild(handleSpan);
 
     const idInput = document.createElement('input');
     idInput.type = 'text';
@@ -469,7 +461,6 @@ document.addEventListener('DOMContentLoaded', function () {
     idInput.addEventListener('input', update);
     update();
 
-    row.appendChild(handleCell);
     row.appendChild(idCell);
     row.appendChild(nameCell);
     row.appendChild(descCell);
@@ -483,10 +474,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function renderCatalogs(list) {
     if (!catalogList) return;
     catalogList.innerHTML = '';
-    list
-      .slice()
-      .sort((a, b) => (a.id || 0) - (b.id || 0))
-      .forEach(cat => catalogList.appendChild(createCatalogRow(cat)));
+    list.forEach(cat => catalogList.appendChild(createCatalogRow(cat)));
   }
 
   function collectCatalogs() {
@@ -509,14 +497,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .filter(c => c.slug);
   }
 
-  function saveCatalogOrder() {
-    const data = collectCatalogs();
-    fetch('/kataloge/catalogs.json', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    }).catch(() => {});
-  }
+
 
   // Rendert alle Fragen im Editor neu
   function renderAll(data) {
