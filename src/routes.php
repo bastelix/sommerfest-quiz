@@ -24,6 +24,7 @@ use App\Controller\ResultController;
 use App\Controller\TeamController;
 use App\Controller\PasswordController;
 use App\Controller\ImportController;
+use App\Controller\ExportController;
 use App\Controller\QrController;
 use App\Controller\LogoController;
 use App\Controller\SummaryController;
@@ -48,6 +49,7 @@ require_once __DIR__ . '/Controller/QrController.php';
 require_once __DIR__ . '/Controller/LogoController.php';
 require_once __DIR__ . '/Controller/SummaryController.php';
 require_once __DIR__ . '/Controller/EvidenceController.php';
+require_once __DIR__ . '/Controller/ExportController.php';
 
 use App\Infrastructure\Database;
 use App\Infrastructure\Migrations\Migrator;
@@ -74,6 +76,14 @@ return function (\Slim\App $app) {
     $summaryController = new SummaryController($configService);
     $importController = new ImportController($catalogService, __DIR__ . '/../data');
     $consentService = new PhotoConsentService($pdo);
+    $exportController = new ExportController(
+        $configService,
+        $catalogService,
+        $resultService,
+        $teamService,
+        $consentService,
+        __DIR__ . '/../data'
+    );
     $evidenceController = new EvidenceController(
         $resultService,
         $consentService,
@@ -116,6 +126,7 @@ return function (\Slim\App $app) {
     $app->post('/teams.json', [$teamController, 'post']);
     $app->post('/password', [$passwordController, 'post']);
     $app->post('/import', [$importController, 'post']);
+    $app->post('/export', [$exportController, 'post']);
     $app->get('/qr.png', [$qrController, 'image']);
     $app->get('/logo.png', [$logoController, 'get'])->setArgument('ext', 'png');
     $app->post('/logo.png', [$logoController, 'post']);
