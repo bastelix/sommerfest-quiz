@@ -23,6 +23,7 @@ use App\Service\PhotoConsentService;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
 use App\Controller\PasswordController;
+use App\Controller\ImportController;
 use App\Controller\QrController;
 use App\Controller\LogoController;
 use App\Controller\SummaryController;
@@ -71,6 +72,7 @@ return function (\Slim\App $app) {
     $qrController = new QrController();
     $logoController = new LogoController($configService);
     $summaryController = new SummaryController($configService);
+    $importController = new ImportController($catalogService, __DIR__ . '/../data');
     $consentService = new PhotoConsentService($pdo);
     $evidenceController = new EvidenceController(
         $resultService,
@@ -113,6 +115,7 @@ return function (\Slim\App $app) {
     $app->get('/teams.json', [$teamController, 'get']);
     $app->post('/teams.json', [$teamController, 'post']);
     $app->post('/password', [$passwordController, 'post']);
+    $app->post('/import', [$importController, 'post']);
     $app->get('/qr.png', [$qrController, 'image']);
     $app->get('/logo.png', [$logoController, 'get'])->setArgument('ext', 'png');
     $app->post('/logo.png', [$logoController, 'post']);
