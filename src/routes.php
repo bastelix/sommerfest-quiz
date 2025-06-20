@@ -61,6 +61,7 @@ return function (\Slim\App $app) {
     $catalogService = new CatalogService($pdo);
     $resultService = new ResultService($pdo);
     $teamService = new TeamService($pdo);
+    $consentService = new PhotoConsentService($pdo);
 
     $configController = new ConfigController($configService);
     $catalogController = new CatalogController($catalogService);
@@ -83,7 +84,6 @@ return function (\Slim\App $app) {
         __DIR__ . '/../data',
         __DIR__ . '/../backup'
     );
-    $consentService = new PhotoConsentService($pdo);
     $exportController = new ExportController(
         $configService,
         $catalogService,
