@@ -103,16 +103,73 @@ class CatalogService
                 $data = json_decode((string)$data, true) ?? [];
             }
             $this->pdo->beginTransaction();
-            $this->pdo->exec('DELETE FROM catalogs');
             $fields = 'uid,id,slug,file,name,description,qrcode_url,raetsel_buchstabe';
             $placeholders = '?,?,?,?,?,?,?,?';
             if ($this->hasCommentColumn()) {
                 $fields .= ',comment';
                 $placeholders .= ',?';
             }
-            $stmt = $this->pdo->prepare("INSERT INTO catalogs($fields) VALUES($placeholders)");
+
+            $uids = [];
+            $updateClauses = [
+                'id' => '',
+                'slug' => '',
+                'file' => '',
+                'name' => '',
+                'description' => '',
+                'qrcode_url' => '',
+                'raetsel_buchstabe' => '',
+            ];
+            if ($this->hasCommentColumn()) {
+                $updateClauses['comment'] = '';
+            }
+            $params = [];
             foreach ($data as $cat) {
-                $params = [
+                $uid = $cat['uid'] ?? '';
+                $uids[] = $uid;
+                $updateClauses['id'] .= ' WHEN ? THEN ?';
+                $params[] = $uid;
+                $params[] = $cat['id'] ?? '';
+                $updateClauses['slug'] .= ' WHEN ? THEN ?';
+                $params[] = $uid;
+                $params[] = $cat['slug'] ?? ($cat['id'] ?? '');
+                $updateClauses['file'] .= ' WHEN ? THEN ?';
+                $params[] = $uid;
+                $params[] = $cat['file'] ?? '';
+                $updateClauses['name'] .= ' WHEN ? THEN ?';
+                $params[] = $uid;
+                $params[] = $cat['name'] ?? '';
+                $updateClauses['description'] .= ' WHEN ? THEN ?';
+                $params[] = $uid;
+                $params[] = $cat['description'] ?? null;
+                $updateClauses['qrcode_url'] .= ' WHEN ? THEN ?';
+                $params[] = $uid;
+                $params[] = $cat['qrcode_url'] ?? null;
+                $updateClauses['raetsel_buchstabe'] .= ' WHEN ? THEN ?';
+                $params[] = $uid;
+                $params[] = $cat['raetsel_buchstabe'] ?? null;
+                if ($this->hasCommentColumn()) {
+                    $updateClauses['comment'] .= ' WHEN ? THEN ?';
+                    $params[] = $uid;
+                    $params[] = $cat['comment'] ?? null;
+                }
+            }
+
+            if ($uids !== []) {
+                $setParts = [];
+                foreach ($updateClauses as $col => $case) {
+                    $setParts[] = "$col = CASE uid$case ELSE $col END";
+                }
+                $sql = 'UPDATE catalogs SET ' . implode(',', $setParts)
+                    . ' WHERE uid IN (' . implode(',', array_fill(0, count($uids), '?')) . ')';
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute(array_merge($params, $uids));
+            }
+
+            $insertSql = "INSERT INTO catalogs($fields) VALUES($placeholders) ON CONFLICT(uid) DO NOTHING";
+            $ins = $this->pdo->prepare($insertSql);
+            foreach ($data as $cat) {
+                $row = [
                     $cat['uid'] ?? '',
                     $cat['id'] ?? '',
                     $cat['slug'] ?? ($cat['id'] ?? ''),
@@ -123,10 +180,19 @@ class CatalogService
                     $cat['raetsel_buchstabe'] ?? null,
                 ];
                 if ($this->hasCommentColumn()) {
-                    $params[] = $cat['comment'] ?? null;
+                    $row[] = $cat['comment'] ?? null;
                 }
-                $stmt->execute($params);
+                $ins->execute($row);
             }
+
+            if ($uids === []) {
+                $this->pdo->exec('DELETE FROM catalogs');
+            } else {
+                $in  = implode(',', array_fill(0, count($uids), '?'));
+                $del = $this->pdo->prepare("DELETE FROM catalogs WHERE uid NOT IN ($in)");
+                $del->execute($uids);
+            }
+
             $this->pdo->commit();
             return;
         }
