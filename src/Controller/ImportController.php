@@ -126,6 +126,7 @@ class ImportController
                 $cat['uid'] = bin2hex(random_bytes(16));
             }
         }
+        unset($cat);
         $this->catalogs->write('catalogs.json', $catalogs);
         foreach ($catalogs as $cat) {
             if (!isset($cat['file'])) {
