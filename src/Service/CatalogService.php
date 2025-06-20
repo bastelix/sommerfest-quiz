@@ -103,14 +103,17 @@ class CatalogService
                 $data = json_decode((string)$data, true) ?? [];
             }
             $this->pdo->beginTransaction();
-            $this->pdo->exec('DELETE FROM catalogs');
             $fields = 'uid,id,slug,file,name,description,qrcode_url,raetsel_buchstabe';
             $placeholders = '?,?,?,?,?,?,?,?';
+            $updates = 'id=excluded.id,slug=excluded.slug,file=excluded.file,name=excluded.name,description=excluded.description,qrcode_url=excluded.qrcode_url,raetsel_buchstabe=excluded.raetsel_buchstabe';
             if ($this->hasCommentColumn()) {
                 $fields .= ',comment';
                 $placeholders .= ',?';
+                $updates .= ',comment=excluded.comment';
             }
-            $stmt = $this->pdo->prepare("INSERT INTO catalogs($fields) VALUES($placeholders)");
+            $sql = "INSERT INTO catalogs($fields) VALUES($placeholders) ON CONFLICT(uid) DO UPDATE SET $updates";
+            $stmt = $this->pdo->prepare($sql);
+            $uids = [];
             foreach ($data as $cat) {
                 $params = [
                     $cat['uid'] ?? '',
@@ -126,7 +129,17 @@ class CatalogService
                     $params[] = $cat['comment'] ?? null;
                 }
                 $stmt->execute($params);
+                $uids[] = $cat['uid'] ?? '';
             }
+
+            if ($uids === []) {
+                $this->pdo->exec('DELETE FROM catalogs');
+            } else {
+                $in  = implode(',', array_fill(0, count($uids), '?'));
+                $del = $this->pdo->prepare("DELETE FROM catalogs WHERE uid NOT IN ($in)");
+                $del->execute($uids);
+            }
+
             $this->pdo->commit();
             return;
         }
