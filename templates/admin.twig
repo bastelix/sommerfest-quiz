@@ -31,7 +31,7 @@
     <li data-help="Teilnehmerliste pflegen. Über 'Hinzufügen' Teams oder Personen ergänzen. Die Checkbox beschränkt die Teilnahme auf gelistete Namen. Speichern aktualisiert die Liste."><a href="#">Teams/Personen</a></li>
     <li data-help="Gespeicherte Ergebnisse mit richtigen Antworten und Zeit einsehen. 'Zurücksetzen' löscht alle Daten, 'Herunterladen' exportiert sie als CSV."><a href="#">Ergebnisse</a></li>
     <li data-help="QR-Codes für alle Kataloge und Teams anzeigen, um Quizlinks oder Anmeldungen weiterzugeben. 'Drucken' erstellt eine übersichtliche Liste."><a href="#">Zusammenfassung</a></li>
-    <li data-help="Neues Administrationspasswort eingeben, wiederholen und speichern."><a href="#">Passwort ändern</a></li>
+    <li data-help="Administrationspasswort ändern und Sicherungen verwalten."><a href="#">Administration</a></li>
   </ul>
   <ul class="uk-switcher uk-margin">
     <li>
@@ -385,7 +385,9 @@
       </li>
       <li>
       <div class="uk-container uk-container-large">
-        <h2 class="uk-heading-bullet">Passwort ändern</h2>
+        <h2 class="uk-heading-bullet">Administration</h2>
+
+        <h3 class="uk-heading-bullet">Passwort ändern</h3>
         <form id="passForm" class="uk-form-stacked">
           <div class="uk-child-width-1-1 uk-child-width-1-2@m uk-grid-small" uk-grid>
             <div>
@@ -406,12 +408,15 @@
             </div>
           </div>
           <div class="uk-margin uk-flex uk-flex-right">
-            <button id="exportJsonBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: Datenbank als JSON exportieren; pos: right">Exportieren</button>
-            <button id="importJsonBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: Fragenkataloge aus JSON importieren; pos: right">Importieren</button>
             <button id="passSaveBtn" class="uk-button uk-button-primary" uk-tooltip="title: Neues Passwort speichern; pos: right">Speichern</button>
           </div>
         </form>
-        <h3 class="uk-heading-bullet">Backups</h3>
+
+        <h3 class="uk-heading-bullet">Sicherungen</h3>
+        <div class="uk-margin uk-flex uk-flex-right">
+          <button id="exportJsonBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: Datenbank als JSON exportieren; pos: right">Backup erstellen</button>
+          <button id="importJsonBtn" class="uk-button uk-button-default" uk-tooltip="title: Fragenkataloge aus JSON importieren; pos: right">Importieren</button>
+        </div>
         <table class="uk-table uk-table-divider">
           <thead>
             <tr><th>Ordner</th><th>Aktionen</th></tr>
