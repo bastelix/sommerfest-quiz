@@ -1117,6 +1117,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // --------- Passwort ändern ---------
   const passSaveBtn = document.getElementById('passSaveBtn');
   const importJsonBtn = document.getElementById('importJsonBtn');
+  const migrateJsonBtn = document.getElementById('migrateJsonBtn');
   const exportJsonBtn = document.getElementById('exportJsonBtn');
   const newPass = document.getElementById('newPass');
   const newPassRepeat = document.getElementById('newPassRepeat');
@@ -1153,6 +1154,17 @@ document.addEventListener('DOMContentLoaded', function () {
               })
               .catch(() => notify('Fehler beim Import', 'danger'));
           });
+          const mig = document.createElement('button');
+          mig.className = 'uk-button uk-button-default uk-margin-small-right';
+          mig.textContent = 'Migrieren';
+          mig.addEventListener('click', () => {
+            fetch('/migrate/' + encodeURIComponent(name), { method: 'POST' })
+              .then(r => {
+                if (!r.ok) throw new Error(r.statusText);
+                notify('Migration abgeschlossen', 'success');
+              })
+              .catch(() => notify('Fehler bei der Migration', 'danger'));
+          });
           const dl = document.createElement('button');
           dl.className = 'uk-button uk-button-default uk-margin-small-right';
           dl.textContent = 'Download';
@@ -1181,6 +1193,7 @@ document.addEventListener('DOMContentLoaded', function () {
               .catch(() => notify('Fehler beim Löschen', 'danger'));
           });
           actionTd.appendChild(imp);
+          actionTd.appendChild(mig);
           actionTd.appendChild(dl);
           actionTd.appendChild(del);
           tr.appendChild(nameTd);
@@ -1231,6 +1244,19 @@ document.addEventListener('DOMContentLoaded', function () {
       .catch(err => {
         console.error(err);
         notify('Fehler beim Import', 'danger');
+      });
+  });
+
+  migrateJsonBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    fetch('/migrate', { method: 'POST' })
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        notify('Migration abgeschlossen', 'success');
+      })
+      .catch(err => {
+        console.error(err);
+        notify('Fehler bei der Migration', 'danger');
       });
   });
 

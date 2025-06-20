@@ -139,6 +139,8 @@ return function (\Slim\App $app) {
     $app->post('/password', [$passwordController, 'post']);
     $app->post('/import', [$importController, 'post']);
     $app->post('/import/{name}', [$importController, 'import']);
+    $app->post('/migrate', [$importController, 'migrate']);
+    $app->post('/migrate/{name}', [$importController, 'migrate']);
     $app->post('/export', [$exportController, 'post']);
     $app->get('/backups', [$backupController, 'list']);
     $app->get('/backups/{name}/download', [$backupController, 'download']);
