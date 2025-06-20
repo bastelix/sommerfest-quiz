@@ -45,6 +45,14 @@ class CatalogService
         return $slug === false ? null : (string)$slug;
     }
 
+    public function uidBySlug(string $slug): ?string
+    {
+        $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE slug=?');
+        $stmt->execute([$slug]);
+        $uid = $stmt->fetchColumn();
+        return $uid === false ? null : (string)$uid;
+    }
+
     public function read(string $file): ?string
     {
         if ($file === 'catalogs.json') {
@@ -189,8 +197,9 @@ class CatalogService
         if (!is_array($data)) {
             $data = json_decode((string)$data, true) ?? [];
         }
-        $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE file=?');
-        $stmt->execute([basename($file)]);
+        $slug = pathinfo($file, PATHINFO_FILENAME);
+        $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE slug=?');
+        $stmt->execute([$slug]);
         $cat = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($cat === false) {
             return;
@@ -220,23 +229,26 @@ class CatalogService
             $this->pdo->exec('DELETE FROM catalogs');
             return;
         }
-        $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE file=?');
-        $stmt->execute([basename($file)]);
+        $slug = pathinfo($file, PATHINFO_FILENAME);
+        $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE slug=?');
+        $stmt->execute([$slug]);
         $cat = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($cat !== false) {
             $this->pdo->prepare('DELETE FROM questions WHERE catalog_uid=?')->execute([$cat['uid']]);
             $this->pdo->prepare('DELETE FROM catalogs WHERE uid=?')->execute([$cat['uid']]);
         }
         $this->pdo->beginTransaction();
-        $this->pdo->prepare('DELETE FROM questions WHERE catalog_uid=?')->execute([pathinfo($file, PATHINFO_FILENAME)]);
-        $this->pdo->prepare('DELETE FROM catalogs WHERE uid=?')->execute([pathinfo($file, PATHINFO_FILENAME)]);
+        $uid = $cat['uid'] ?? $slug;
+        $this->pdo->prepare('DELETE FROM questions WHERE catalog_uid=?')->execute([$uid]);
+        $this->pdo->prepare('DELETE FROM catalogs WHERE uid=?')->execute([$uid]);
         $this->pdo->commit();
     }
 
     public function deleteQuestion(string $file, int $index): void
     {
-        $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE file=?');
-        $stmt->execute([basename($file)]);
+        $slug = pathinfo($file, PATHINFO_FILENAME);
+        $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE slug=?');
+        $stmt->execute([$slug]);
         $cat = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($cat === false) {
             return;
