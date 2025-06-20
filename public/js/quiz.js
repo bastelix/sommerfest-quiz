@@ -146,9 +146,6 @@ function runQuiz(questions, skipIntro){
   progress.max = questionCount;
   showQuestion(current);
 
-  if(skipIntro){
-    next();
-  }
 
   // Zeigt das Element mit dem angegebenen Index an und aktualisiert den Fortschrittsbalken
   function showQuestion(i){
@@ -179,7 +176,7 @@ function runQuiz(questions, skipIntro){
       headerEl.innerHTML = '';
       headerEl.classList.add('uk-hidden');
     }
-    if(current < questionCount){
+    if(current < questionCount + 1){
       current++;
       showQuestion(current);
     }
