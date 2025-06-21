@@ -938,7 +938,7 @@ function runQuiz(questions, skipIntro){
     }
 
     const startBtn = document.createElement('button');
-    startBtn.className = 'uk-button uk-button-primary uk-button-large';
+    startBtn.className = 'uk-button uk-button-primary uk-button-large uk-align-right';
     startBtn.textContent = 'Los geht es!';
     styleButton(startBtn);
     // Zeigt bisherige Ergebnisse als kleine Slideshow an
