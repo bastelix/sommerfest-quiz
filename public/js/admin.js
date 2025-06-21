@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function getUsedIds() {
-    const set = new Set(catalogs.map(c => c.slug || c.id));
+    const set = new Set(catalogs.map(c => c.slug || c.sort_order));
     document
       .querySelectorAll('.catalog-row .cat-id')
       .forEach(el => set.add(el.value.trim()));
@@ -304,7 +304,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function loadCatalog(identifier) {
-    const cat = catalogs.find(c => c.uid === identifier || (c.slug || c.id) === identifier);
+    const cat = catalogs.find(c => c.uid === identifier || (c.slug || c.sort_order) === identifier);
     if (!cat) return;
     catalogFile = cat.file;
     fetch('/kataloge/' + catalogFile, { headers: { 'Accept': 'application/json' } })
@@ -326,17 +326,17 @@ document.addEventListener('DOMContentLoaded', function () {
       catSelect.innerHTML = '';
       catalogs.forEach(c => {
         const opt = document.createElement('option');
-        opt.value = c.uid || c.slug || c.id;
-        opt.textContent = c.name || c.id || c.slug;
+        opt.value = c.uid || c.slug || c.sort_order;
+        opt.textContent = c.name || c.sort_order || c.slug;
         catSelect.appendChild(opt);
       });
       renderCatalogs(catalogs);
       const params = new URLSearchParams(window.location.search);
       const slug = params.get('katalog');
-      const selected = catalogs.find(c => (c.slug || c.id) === slug) || catalogs[0];
+      const selected = catalogs.find(c => (c.slug || c.sort_order) === slug) || catalogs[0];
       if (selected) {
-        catSelect.value = selected.uid || selected.slug || selected.id;
-        loadCatalog(selected.uid || selected.slug || selected.id);
+        catSelect.value = selected.uid || selected.slug || selected.sort_order;
+        loadCatalog(selected.uid || selected.slug || selected.sort_order);
       }
     });
 
@@ -357,7 +357,7 @@ document.addEventListener('DOMContentLoaded', function () {
         row.remove();
         if (catalogs[0]) {
           if (catSelect.value === cat.uid) {
-            catSelect.value = catalogs[0].uid || catalogs[0].slug || catalogs[0].id;
+            catSelect.value = catalogs[0].uid || catalogs[0].slug || catalogs[0].sort_order;
             loadCatalog(catSelect.value);
           }
         } else {
@@ -377,7 +377,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const row = document.createElement('tr');
     row.className = 'catalog-row';
     if (cat.new) row.dataset.new = 'true';
-    row.dataset.id = cat.id !== undefined ? String(cat.id) : '';
+    row.dataset.sortOrder = cat.sort_order !== undefined ? String(cat.sort_order) : '';
     row.dataset.slug = cat.slug || '';
     row.dataset.file = cat.file || '';
     row.dataset.initialFile = cat.file || '';
@@ -485,7 +485,7 @@ document.addEventListener('DOMContentLoaded', function () {
     catalogList.innerHTML = '';
     list
       .slice()
-      .sort((a, b) => (a.id || 0) - (b.id || 0))
+      .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
       .forEach(cat => catalogList.appendChild(createCatalogRow(cat)));
   }
 
@@ -494,10 +494,10 @@ document.addEventListener('DOMContentLoaded', function () {
       .map((row, idx) => {
         const slug = row.querySelector('.cat-id').value.trim();
         const file = slug ? slug + '.json' : '';
-        row.dataset.id = String(idx + 1);
+        row.dataset.sortOrder = String(idx + 1);
         return {
           uid: row.dataset.uid,
-          id: idx + 1,
+          sort_order: idx + 1,
           slug,
           file,
           name: row.querySelector('.cat-name').value.trim(),
@@ -986,8 +986,8 @@ document.addEventListener('DOMContentLoaded', function () {
         catSelect.innerHTML = '';
         catalogs.forEach(c => {
           const opt = document.createElement('option');
-          opt.value = c.uid || c.slug || c.id;
-          opt.textContent = c.name || c.id || c.slug;
+          opt.value = c.uid || c.slug || c.sort_order;
+          opt.textContent = c.name || c.sort_order || c.slug;
           catSelect.appendChild(opt);
         });
         notify('Katalogliste gespeichert', 'success');
@@ -1049,6 +1049,21 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamSaveBtn = document.getElementById('teamsSaveBtn');
   const teamRestrictTeams = document.getElementById('teamRestrict');
 
+  function collectTeams() {
+    return Array.from(teamListEl.querySelectorAll('.team-row input.team-name'))
+      .map(i => i.value.trim())
+      .filter(Boolean);
+  }
+
+  function saveTeamOrder() {
+    const names = collectTeams();
+    fetch('/teams.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(names)
+    }).catch(() => {});
+  }
+
 
   function createTeamRow(name = ''){
     const row = document.createElement('tr');
@@ -1085,6 +1100,10 @@ document.addEventListener('DOMContentLoaded', function () {
   function renderTeams(list){
     teamListEl.innerHTML = '';
     list.forEach(n => teamListEl.appendChild(createTeamRow(n)));
+  }
+
+  if (teamListEl && window.UIkit && UIkit.util) {
+    UIkit.util.on(teamListEl, 'moved', saveTeamOrder);
   }
 
   if(teamListEl){

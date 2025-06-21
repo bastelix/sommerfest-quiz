@@ -35,7 +35,7 @@ class CatalogServiceTest extends TestCase
         $file = 'test.json';
         $catalog = [[
             'uid' => 'uid1',
-            'id' => 'cat1',
+            'sort_order' => 'cat1',
             'slug' => 'cat1',
             'file' => $file,
             'name' => 'Test',
@@ -54,7 +54,7 @@ class CatalogServiceTest extends TestCase
         $service = new CatalogService($pdo);
         $catalog = [[
             'uid' => 'uid4',
-            'id' => 'nc',
+            'sort_order' => 'nc',
             'slug' => 'nc',
             'file' => 'nc.json',
             'name' => 'NC',
@@ -80,7 +80,7 @@ class CatalogServiceTest extends TestCase
         $file = 'del.json';
         $service->write('catalogs.json', [[
             'uid' => 'uid2',
-            'id' => 'del',
+            'sort_order' => 'del',
             'slug' => 'del',
             'file' => $file,
             'name' => 'Del',
@@ -101,7 +101,7 @@ class CatalogServiceTest extends TestCase
         $file = 'q.json';
         $service->write('catalogs.json', [[
             'uid' => 'uid3',
-            'id' => 'qid',
+            'sort_order' => 'qid',
             'slug' => 'qid',
             'file' => $file,
             'name' => 'Q',
@@ -124,14 +124,14 @@ class CatalogServiceTest extends TestCase
         $pdo = $this->createPdo();
         $service = new CatalogService($pdo);
         $initial = [
-            ['uid' => 'u1', 'id' => 1, 'slug' => 'a', 'file' => 'a.json', 'name' => 'A', 'comment' => ''],
-            ['uid' => 'u2', 'id' => 2, 'slug' => 'b', 'file' => 'b.json', 'name' => 'B', 'comment' => ''],
+            ['uid' => 'u1', 'sort_order' => 1, 'slug' => 'a', 'file' => 'a.json', 'name' => 'A', 'comment' => ''],
+            ['uid' => 'u2', 'sort_order' => 2, 'slug' => 'b', 'file' => 'b.json', 'name' => 'B', 'comment' => ''],
         ];
         $service->write('catalogs.json', $initial);
 
         $reordered = [
-            ['uid' => 'u1', 'id' => 2, 'slug' => 'a', 'file' => 'a.json', 'name' => 'A', 'comment' => ''],
-            ['uid' => 'u2', 'id' => 1, 'slug' => 'b', 'file' => 'b.json', 'name' => 'B', 'comment' => ''],
+            ['uid' => 'u1', 'sort_order' => 2, 'slug' => 'a', 'file' => 'a.json', 'name' => 'A', 'comment' => ''],
+            ['uid' => 'u2', 'sort_order' => 1, 'slug' => 'b', 'file' => 'b.json', 'name' => 'B', 'comment' => ''],
         ];
         $service->write('catalogs.json', $reordered);
         $list = json_decode($service->read('catalogs.json'), true);
@@ -144,16 +144,16 @@ class CatalogServiceTest extends TestCase
         $pdo = $this->createPdo();
         $service = new CatalogService($pdo);
         $initial = [
-            ['uid' => 'u1', 'id' => 1, 'slug' => 'a', 'file' => 'a.json', 'name' => 'One', 'comment' => ''],
-            ['uid' => 'u2', 'id' => 2, 'slug' => 'b', 'file' => 'b.json', 'name' => 'Two', 'comment' => ''],
-            ['uid' => 'u3', 'id' => 3, 'slug' => 'c', 'file' => 'c.json', 'name' => 'Three', 'comment' => ''],
+            ['uid' => 'u1', 'sort_order' => 1, 'slug' => 'a', 'file' => 'a.json', 'name' => 'One', 'comment' => ''],
+            ['uid' => 'u2', 'sort_order' => 2, 'slug' => 'b', 'file' => 'b.json', 'name' => 'Two', 'comment' => ''],
+            ['uid' => 'u3', 'sort_order' => 3, 'slug' => 'c', 'file' => 'c.json', 'name' => 'Three', 'comment' => ''],
         ];
         $service->write('catalogs.json', $initial);
 
         $reordered = [
-            ['uid' => 'u2', 'id' => 1, 'slug' => 'b', 'file' => 'b.json', 'name' => 'Two', 'comment' => ''],
-            ['uid' => 'u1', 'id' => 2, 'slug' => 'a', 'file' => 'a.json', 'name' => 'One', 'comment' => ''],
-            ['uid' => 'u3', 'id' => 3, 'slug' => 'c', 'file' => 'c.json', 'name' => 'Three', 'comment' => ''],
+            ['uid' => 'u2', 'sort_order' => 1, 'slug' => 'b', 'file' => 'b.json', 'name' => 'Two', 'comment' => ''],
+            ['uid' => 'u1', 'sort_order' => 2, 'slug' => 'a', 'file' => 'a.json', 'name' => 'One', 'comment' => ''],
+            ['uid' => 'u3', 'sort_order' => 3, 'slug' => 'c', 'file' => 'c.json', 'name' => 'Three', 'comment' => ''],
         ];
         $service->write('catalogs.json', $reordered);
         $rows = json_decode($service->read('catalogs.json'), true);

@@ -242,9 +242,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const map = {};
         if (Array.isArray(list)) {
           list.forEach(c => {
-            const name = c.name || c.id || '';
+            const name = c.name || c.sort_order || '';
             if (c.uid) map[c.uid] = name;
-            if (c.id) map[c.id] = name;
+            if (c.sort_order) map[c.sort_order] = name;
           });
         }
         catalogMap = map;

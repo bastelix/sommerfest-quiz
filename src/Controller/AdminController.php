@@ -28,12 +28,12 @@ class AdminController
         if ($catalogsJson !== null) {
             $catalogs = json_decode($catalogsJson, true) ?? [];
             foreach ($catalogs as $c) {
-                $name = $c['name'] ?? ($c['id'] ?? '');
+                $name = $c['name'] ?? ($c['sort_order'] ?? '');
                 if (isset($c['uid'])) {
                     $catMap[$c['uid']] = $name;
                 }
-                if (isset($c['id'])) {
-                    $catMap[$c['id']] = $name;
+                if (isset($c['sort_order'])) {
+                    $catMap[$c['sort_order']] = $name;
                 }
             }
         }

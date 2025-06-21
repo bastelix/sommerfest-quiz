@@ -259,15 +259,15 @@
       card.addEventListener('click', () => {
         const localSolved = new Set(JSON.parse(sessionStorage.getItem('quizSolved') || '[]'));
         if((window.quizConfig || {}).competitionMode && localSolved.has(cat.uid)){
-          const remaining = catalogs.filter(c => !localSolved.has(c.uid)).map(c => c.name || c.slug || c.id).join(', ');
-          showCatalogSolvedModal(cat.name || cat.slug || cat.id, remaining);
+          const remaining = catalogs.filter(c => !localSolved.has(c.uid)).map(c => c.name || c.slug || c.sort_order).join(', ');
+          showCatalogSolvedModal(cat.name || cat.slug || cat.sort_order, remaining);
           return;
         }
-        history.replaceState(null, '', '?katalog=' + (cat.slug || cat.id));
-        loadQuestions(cat.slug || cat.id, cat.file, cat.raetsel_buchstabe, cat.uid, cat.name || cat.slug || cat.id, cat.description || '', cat.comment || '');
+        history.replaceState(null, '', '?katalog=' + (cat.slug || cat.sort_order));
+        loadQuestions(cat.slug || cat.sort_order, cat.file, cat.raetsel_buchstabe, cat.uid, cat.name || cat.slug || cat.sort_order, cat.description || '', cat.comment || '');
       });
       const title = document.createElement('h3');
-      title.textContent = cat.name || cat.slug || cat.id;
+      title.textContent = cat.name || cat.slug || cat.sort_order;
       const desc = document.createElement('p');
       desc.textContent = cat.description || '';
       card.appendChild(title);
@@ -481,10 +481,10 @@
     const id = params.get('katalog');
     const proceed = async () => {
       const solvedNow = await buildSolvedSet(cfg);
-      const selected = catalogs.find(c => (c.slug || c.id) === id);
+      const selected = catalogs.find(c => (c.slug || c.sort_order) === id);
       if(selected){
           if(cfg.competitionMode && solvedNow.has(selected.uid)){
-            const remaining = catalogs.filter(c => !solvedNow.has(c.uid)).map(c => c.name || c.slug || c.id).join(', ');
+            const remaining = catalogs.filter(c => !solvedNow.has(c.uid)).map(c => c.name || c.slug || c.sort_order).join(', ');
             if(catalogs.length && solvedNow.size === catalogs.length){
               showAllSolvedModal();
               return;

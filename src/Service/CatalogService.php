@@ -56,14 +56,14 @@ class CatalogService
     public function read(string $file): ?string
     {
         if ($file === 'catalogs.json') {
-            $fields = 'uid,sort_order AS id,slug,file,name,description,qrcode_url,raetsel_buchstabe';
+            $fields = 'uid,sort_order,slug,file,name,description,qrcode_url,raetsel_buchstabe';
             if ($this->hasCommentColumn()) {
                 $fields .= ',comment';
             }
             $stmt = $this->pdo->query("SELECT $fields FROM catalogs ORDER BY sort_order");
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             foreach ($data as &$row) {
-                $row['id'] = (int)$row['id'];
+                $row['sort_order'] = (int)$row['sort_order'];
             }
             if (!$this->hasCommentColumn()) {
                 foreach ($data as &$row) {
@@ -145,9 +145,9 @@ class CatalogService
                     $updateClauses[$col] .= ' WHEN ? THEN ?';
                     $params[] = $uid;
                     if ($col === 'slug') {
-                        $params[] = $cat['slug'] ?? ($cat['id'] ?? '');
+                        $params[] = $cat['slug'] ?? '';
                     } elseif ($col === 'sort_order') {
-                        $params[] = $cat['id'] ?? null;
+                        $params[] = $cat['sort_order'] ?? null;
                     } else {
                         $params[] = $cat[$col] ?? null;
                     }
@@ -170,8 +170,8 @@ class CatalogService
             foreach ($data as $cat) {
                 $row = [
                     $cat['uid'] ?? '',
-                    $cat['id'] ?? '',
-                    $cat['slug'] ?? ($cat['id'] ?? ''),
+                    $cat['sort_order'] ?? '',
+                    $cat['slug'] ?? '',
                     $cat['file'] ?? '',
                     $cat['name'] ?? '',
                     $cat['description'] ?? null,
