@@ -176,7 +176,7 @@
     if(!container) return;
     container.innerHTML = '';
     const btn = document.createElement('button');
-    btn.className = 'uk-button uk-button-primary uk-button-large';
+    btn.className = 'uk-button uk-button-primary uk-button-large uk-align-right';
     btn.textContent = 'Los geht es!';
     const cfg = window.quizConfig || {};
     if(cfg.buttonColor){
@@ -419,7 +419,7 @@
     }else{
       if(!cfg.competitionMode || hasCatalog){
         const btn = document.createElement('button');
-        btn.className = 'uk-button uk-button-primary';
+        btn.className = 'uk-button uk-button-primary uk-align-right';
         btn.textContent = 'Los geht es!';
         if(cfg.buttonColor){
           btn.style.backgroundColor = cfg.buttonColor;
