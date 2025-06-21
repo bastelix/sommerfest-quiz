@@ -64,14 +64,15 @@ CREATE TABLE IF NOT EXISTS catalogs (
 CREATE TABLE IF NOT EXISTS questions (
     id SERIAL PRIMARY KEY,
     catalog_uid TEXT NOT NULL,
-    sort_order INTEGER UNIQUE,
+    sort_order INTEGER,
     type TEXT NOT NULL,
     prompt TEXT NOT NULL,
     options JSONB,
     answers JSONB,
     terms JSONB,
     items JSONB,
-    FOREIGN KEY (catalog_uid) REFERENCES catalogs(uid) ON DELETE CASCADE
+    FOREIGN KEY (catalog_uid) REFERENCES catalogs(uid) ON DELETE CASCADE,
+    UNIQUE (catalog_uid, sort_order)
 );
 CREATE INDEX idx_questions_catalog ON questions(catalog_uid);
 
