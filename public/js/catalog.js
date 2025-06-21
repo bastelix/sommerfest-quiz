@@ -303,7 +303,7 @@
     if(!container) return;
     container.innerHTML = '';
     const div = document.createElement('div');
-    div.className = 'uk-text-center';
+    div.className = 'uk-text-center uk-flex uk-flex-column uk-flex-row@s uk-flex-center';
     if(cfg.QRUser){
       const scanBtn = document.createElement('button');
       scanBtn.className = 'uk-button uk-button-primary uk-width-1-1 uk-width-auto@s';
