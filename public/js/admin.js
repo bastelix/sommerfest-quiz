@@ -1177,7 +1177,7 @@ document.addEventListener('DOMContentLoaded', function () {
           const actionTd = document.createElement('td');
           const imp = document.createElement('button');
           imp.className = 'uk-button uk-button-primary uk-margin-small-right';
-          imp.textContent = 'Importieren';
+          imp.textContent = 'Wiederherstellen';
           imp.addEventListener('click', () => {
             fetch('/import/' + encodeURIComponent(name), { method: 'POST' })
               .then(r => {
