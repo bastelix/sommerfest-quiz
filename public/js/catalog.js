@@ -306,7 +306,7 @@
     div.className = 'uk-text-center';
     if(cfg.QRUser){
       const scanBtn = document.createElement('button');
-      scanBtn.className = 'uk-button uk-button-primary';
+      scanBtn.className = 'uk-button uk-button-primary uk-width-1-1 uk-width-auto@s';
       scanBtn.textContent = 'Name mit QR-Code scannen';
       if(cfg.buttonColor){
         scanBtn.style.backgroundColor = cfg.buttonColor;
@@ -318,7 +318,7 @@
         bypass = document.createElement('button');
         bypass.type = 'button';
         bypass.textContent = 'Kataloge anzeigen';
-        bypass.className = 'uk-button uk-button-primary uk-margin-top';
+        bypass.className = 'uk-button uk-button-primary uk-width-1-1 uk-width-auto@s uk-margin-top uk-margin-remove-top@s uk-margin-left@s';
         if(cfg.buttonColor){
           bypass.style.backgroundColor = cfg.buttonColor;
           bypass.style.borderColor = cfg.buttonColor;
