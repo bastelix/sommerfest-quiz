@@ -50,7 +50,7 @@ CREATE INDEX idx_results_name ON results(name);
 -- Catalog definitions
 CREATE TABLE IF NOT EXISTS catalogs (
     uid TEXT PRIMARY KEY,
-    sort_order INTEGER UNIQUE NOT NULL,
+    sort_order INTEGER NOT NULL,
     slug TEXT UNIQUE NOT NULL,
     file TEXT NOT NULL,
     name TEXT NOT NULL,
@@ -59,6 +59,9 @@ CREATE TABLE IF NOT EXISTS catalogs (
     raetsel_buchstabe TEXT,
     comment TEXT
 );
+ALTER TABLE catalogs
+    ADD CONSTRAINT catalogs_unique_sort_order
+    UNIQUE(sort_order) DEFERRABLE INITIALLY DEFERRED;
 
 -- Questions belonging to catalogs
 CREATE TABLE IF NOT EXISTS questions (
