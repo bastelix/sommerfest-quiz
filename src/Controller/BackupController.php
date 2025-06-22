@@ -44,14 +44,20 @@ class BackupController
             $zip->addFile($file->getPathname(), substr($file->getPathname(), strlen($path) + 1));
         }
         $zip->close();
-        $stream = fopen($zipFile, 'rb');
-        if ($stream === false) {
+
+        $data = file_get_contents($zipFile);
+        if ($data === false) {
+            @unlink($zipFile);
             return $response->withStatus(500);
         }
-        $response->getBody()->write((string)file_get_contents($zipFile));
-        unlink($zipFile);
+
+        $size = filesize($zipFile);
+        @unlink($zipFile);
+
+        $response->getBody()->write($data);
         return $response
             ->withHeader('Content-Type', 'application/zip')
+            ->withHeader('Content-Length', (string) $size)
             ->withHeader('Content-Disposition', 'attachment; filename="' . $name . '.zip"');
     }
 
