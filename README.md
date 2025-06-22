@@ -20,15 +20,16 @@ Mit dieser App zeigen wir, was heute schon möglich ist, wenn Menschen und versc
 - **Flexibel einsetzbar**: Fragenkataloge im JSON-Format lassen sich bequem austauschen oder erweitern.
 - **Drei Fragetypen**: Sortieren, Zuordnen und Multiple Choice bieten Abwechslung für jede Zielgruppe.
 - **QR-Code-Login & Dunkelmodus**: Optionaler QR-Code-Login für schnelles Anmelden und ein zuschaltbares dunkles Design steigern den Komfort.
-- **Datensparsam**: Alle Ergebnisse verbleiben ausschließlich im Browser und können als Statistikdatei exportiert werden.
+- **Persistente Speicherung**: Konfigurationen, Kataloge und Ergebnisse liegen in einer PostgreSQL-Datenbank.
 
 ## Highlights
 
 - **Einfache Installation**: Nur Composer-Abhängigkeiten installieren und einen PHP-Server starten.
 - **Intuitives UI**: Komplett auf UIkit3 basierendes Frontend mit flüssigen Animationen und responsive Design.
 - **Stark anpassbar**: Farben, Logo und Texte lassen sich über `data/config.json` anpassen.
-- **Vollständig im Browser**: Das Quiz benötigt keine Serverpersistenz und funktioniert auch offline, sobald die Seite geladen ist.
+- **Backup per JSON**: Alle Daten lassen sich exportieren und wieder importieren.
 - **Automatische Bildkompression**: Hochgeladene Fotos werden nun standardmäßig verkleinert und komprimiert.
+- **Rätselwort und Foto-Einwilligung**: Optionales Puzzlewort-Spiel mit DSGVO-konformen Foto-Uploads.
 
 ## Fokus der Entwicklung
 
@@ -209,7 +210,7 @@ python3 tests/test_json_validity.py
 
 ## Datenschutz
 
-Ergebnisse werden serverseitig in einer CSV-Datei abgelegt. Der Dateiname orientiert sich am Veranstaltungsnamen (z.&nbsp;B. `Sommerfest 2025.csv`). Die Ablage erfolgt anonymisiert und entspricht den Vorgaben der DSGVO. Jede Zeile enthält ein Pseudonym, den verwendeten Katalog, die Versuchnummer, die Punktzahl und den Zeitpunkt des Eintrags. Die exportierte Datei ist UTF‑8-kodiert und enthält eine BOM, damit Excel Sonderzeichen korrekt erkennt.
+Alle Ergebnisse werden in der Datenbank gespeichert. Über die Administrationsoberfläche lassen sie sich als CSV-Datei herunterladen. Jede Zeile enthält ein Pseudonym, den verwendeten Katalog, die Versuchnummer, die Punktzahl, den Zeitpunkt sowie optional die Rätselwort-Bestzeit und den Pfad eines Beweisfotos. Die exportierte Datei ist UTF‑8-kodiert und enthält eine BOM, damit Excel Sonderzeichen korrekt erkennt.
 
 ## Barrierefreiheit
 
@@ -224,7 +225,7 @@ Das Frontend bringt mehrere Funktionen mit, die die Nutzung erleichtern:
 ## Anwenderhandbuch
 
 ### Einleitung
-Das Projekt *Sommerfest-Quiz* ist eine Web-Applikation zur Erstellung und Verwaltung von Quizfragen. Die Anwendung basiert auf dem Slim Framework und verwendet UIkit3 für das Frontend. Konfigurationen und Fragen werden in JSON-Dateien gespeichert; Ergebnisse können sowohl im Browser als auch serverseitig abgelegt werden.
+Das Projekt *Sommerfest-Quiz* ist eine Web-Applikation zur Erstellung und Verwaltung von Quizfragen. Die Anwendung basiert auf dem Slim Framework und verwendet UIkit3 für das Frontend. Konfigurationen, Kataloge, Teams und Ergebnisse liegen in einer PostgreSQL-Datenbank und lassen sich über die Oberfläche als JSON-Dateien exportieren oder importieren.
 
 ### Installation und Start
 1. Abhängigkeiten per Composer installieren:
@@ -247,7 +248,7 @@ Das Projekt *Sommerfest-Quiz* ist eine Web-Applikation zur Erstellung und Verwal
 Für Docker-Betrieb steht ein `docker-compose.yml` bereit. Sämtliche Daten im Ordner `data/` werden in einem Volume namens `quizdata` gesichert, damit Ergebnisse erhalten bleiben.
 
 ### Konfigurationsdatei
-Alle wesentlichen Einstellungen finden sich in `data/config.json`. Hier lassen sich Logo, Titel, Hintergrundfarbe und weitere Optionen definieren:
+Alle wesentlichen Einstellungen stehen in `data/config.json` und werden beim ersten Import in die Datenbank übernommen. Über die Administration können sie später angepasst werden:
 
 ```json
 {
@@ -265,7 +266,13 @@ Alle wesentlichen Einstellungen finden sich in `data/config.json`. Hier lassen s
   "QRRestrict": false,
   "competitionMode": false,
   "teamResults": true,
-  "photoUpload": true
+  "photoUpload": true,
+  "puzzleWordEnabled": true,
+  "puzzleWord": "",
+  "puzzleFeedback": "",
+  "postgres_dsn": "pgsql:host=postgres;dbname=quiz",
+  "postgres_user": "quiz",
+  "postgres_pass": "quiz"
 }
 ```
 
@@ -297,11 +304,11 @@ Unter `/admin` stehen folgende Tabs zur Verfügung:
 In `data/teams.json` können Teilnehmernamen gespeichert werden. `GET /teams.json` ruft die Liste ab, `POST /teams.json` speichert sie. Ein optionales Häkchen „Nur Teams/Personen aus der Liste dürfen teilnehmen“ aktiviert eine Zugangsbeschränkung via QR-Code. QR-Codes lassen sich direkt in der Oberfläche generieren.
 
 ### Ergebnisse
-Die Ergebnisse werden in `data/results.json` gespeichert. Wichtige Endpunkte:
+Alle Resultate werden in der Datenbank abgelegt. Die API bietet folgende Endpunkte:
 - `GET /results.json` – liefert alle gespeicherten Ergebnisse.
 - `POST /results` – fügt ein neues Ergebnis hinzu.
 - `DELETE /results` – löscht alle Einträge.
-- `GET /results/download` – erzeugt eine XLSX-Datei (oder CSV) mit allen Resultaten.
+- `GET /results/download` – erzeugt eine CSV-Datei mit allen Resultaten.
 
 
 ### Passwort ändern
@@ -315,7 +322,7 @@ Die Software wird unter der MIT-Lizenz bereitgestellt und erfolgt ohne Gewähr. 
 
 ### Fazit
 Die API ermöglicht die komplette Verwaltung eines Quizsystems:
-- Konfiguration, Fragenkataloge, Teams und Ergebnisse werden als JSON-Dateien gepflegt.
+- Konfiguration, Fragenkataloge, Teams, Ergebnisse und Fotoeinwilligungen werden in einer PostgreSQL-Datenbank verwaltet.
 - Über das Admin-Frontend sind diese Bereiche komfortabel zugänglich.
 - Ergebnisse lassen sich als Excel/CSV exportieren.
 Dieses Handbuch fasst die Nutzung von der Grundkonfiguration über das Anlegen der Fragen und Teams bis zum Abruf der Resultate zusammen.
