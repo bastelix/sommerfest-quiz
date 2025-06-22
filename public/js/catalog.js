@@ -302,7 +302,8 @@
     const container = document.getElementById('quiz');
     if(!container) return;
     container.innerHTML = '';
-    const div = document.createElement('div');   div.className = 'uk-text-center login-buttons uk-flex uk-flex-column uk-flex-row@s uk-flex-center uk-flex-middle';
+    const div = document.createElement('div');
+    div.className = 'uk-text-center login-buttons uk-flex uk-flex-column uk-flex-row@s uk-flex-center uk-flex-middle';
     if(cfg.QRUser){
       const scanBtn = document.createElement('button');
       scanBtn.className = 'uk-button uk-button-primary uk-width-1-1 uk-width-auto@s uk-flex-1';
