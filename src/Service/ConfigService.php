@@ -6,16 +6,25 @@ namespace App\Service;
 
 use PDO;
 
+/**
+ * Handles reading and writing application configuration values.
+ */
 class ConfigService
 {
     private PDO $pdo;
 
+    /**
+     * Inject PDO instance used for database operations.
+     */
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
 
     }
 
+    /**
+     * Retrieve configuration as pretty printed JSON.
+     */
     public function getJson(): ?string
     {
         $stmt = $this->pdo->query('SELECT * FROM config LIMIT 1');
@@ -27,6 +36,9 @@ class ConfigService
         return json_encode($row, JSON_PRETTY_PRINT);
     }
 
+    /**
+     * Return configuration values as an associative array.
+     */
     public function getConfig(): array
     {
         $stmt = $this->pdo->query('SELECT * FROM config LIMIT 1');
@@ -34,6 +46,9 @@ class ConfigService
         return $row ? $this->normalizeKeys($row) : [];
     }
 
+    /**
+     * Replace stored configuration with new values.
+     */
     public function saveConfig(array $data): void
     {
         $keys = ['displayErrorDetails','QRUser','logoPath','pageTitle','header','subheader','backgroundColor','buttonColor','CheckAnswerButton','adminUser','adminPass','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback'];

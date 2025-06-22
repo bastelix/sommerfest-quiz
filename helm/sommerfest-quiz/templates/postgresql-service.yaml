@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sommerfest-quiz.fullname" . }}-postgresql
+spec:
+  ports:
+    - port: 5432
+  selector:
+    app: {{ include "sommerfest-quiz.name" . }}-postgresql

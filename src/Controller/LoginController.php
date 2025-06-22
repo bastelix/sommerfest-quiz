@@ -10,14 +10,23 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
 
+/**
+ * Handles administrator authentication.
+ */
 class LoginController
 {
+    /**
+     * Display the login form.
+     */
     public function show(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
         return $view->render($response, 'login.twig');
     }
 
+    /**
+     * Verify credentials and start an admin session on success.
+     */
     public function login(Request $request, Response $response): Response
     {
         $data = $request->getParsedBody();

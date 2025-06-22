@@ -16,8 +16,14 @@ use Endroid\QrCode\RoundBlockSizeMode;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
+/**
+ * Generates QR codes with various customization options.
+ */
 class QrController
 {
+    /**
+     * Render a QR code image based on query parameters.
+     */
     public function image(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
@@ -105,6 +111,9 @@ class QrController
             ->withHeader('Content-Disposition', 'inline; filename="qr.' . $extension . '"');
     }
 
+    /**
+     * Parse a hex color string or return the provided default.
+     */
     private function parseColor(string $hex, Color $default): Color
     {
         $hex = ltrim($hex, '#');

@@ -8,8 +8,14 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
 
+/**
+ * Displays the frequently asked questions.
+ */
 class FaqController
 {
+    /**
+     * Render the FAQ page.
+     */
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);

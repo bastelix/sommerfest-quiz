@@ -12,12 +12,18 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
 
+/**
+ * Provides CRUD endpoints for quiz results and exposes a results page.
+ */
 class ResultController
 {
     private ResultService $service;
     private ConfigService $config;
     private string $photoDir;
 
+    /**
+     * Inject dependencies and define photo directory.
+     */
     public function __construct(ResultService $service, ConfigService $config, string $photoDir)
     {
         $this->service = $service;
@@ -25,6 +31,9 @@ class ResultController
         $this->photoDir = rtrim($photoDir, '/');
     }
 
+    /**
+     * Return all stored results as JSON.
+     */
     public function get(Request $request, Response $response): Response
     {
         $content = json_encode($this->service->getAll(), JSON_PRETTY_PRINT);
@@ -32,6 +41,9 @@ class ResultController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    /**
+     * Download all results as a CSV file.
+     */
     public function download(Request $request, Response $response): Response
     {
         $data = $this->service->getAll();
@@ -61,6 +73,9 @@ class ResultController
             ->withHeader('Content-Disposition', 'attachment; filename="' . $name . '"');
     }
 
+    /**
+     * Store a new result or mark a puzzle as solved.
+     */
     public function post(Request $request, Response $response): Response
     {
         $data = json_decode((string) $request->getBody(), true);
@@ -77,6 +92,9 @@ class ResultController
         return $response->withStatus(204);
     }
 
+    /**
+     * Render the HTML results page.
+     */
     public function page(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
@@ -109,6 +127,9 @@ class ResultController
         return $view->render($response, 'results.twig', ['results' => $results]);
     }
 
+    /**
+     * Clear all results and associated photos.
+     */
     public function delete(Request $request, Response $response): Response
     {
         $this->service->clear();
@@ -129,6 +150,11 @@ class ResultController
     }
 
     /**
+     * @param list<array<string|int>> $rows
+     */
+    /**
+     * Convert an array of rows into a semicolon separated CSV string.
+     *
      * @param list<array<string|int>> $rows
      */
     private function buildCsv(array $rows): string

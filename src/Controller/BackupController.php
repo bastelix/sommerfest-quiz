@@ -6,15 +6,24 @@ namespace App\Controller;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 
+/**
+ * Provides endpoints for listing, downloading and deleting backups.
+ */
 class BackupController
 {
     private string $dir;
 
+    /**
+     * Set the backup directory path.
+     */
     public function __construct(string $dir)
     {
         $this->dir = rtrim($dir, '/');
     }
 
+    /**
+     * Return a JSON list of available backups.
+     */
     public function list(Request $request, Response $response): Response
     {
         $dirs = glob($this->dir . '/*', GLOB_ONLYDIR) ?: [];
@@ -24,6 +33,9 @@ class BackupController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    /**
+     * Create a ZIP archive of the requested backup and return it for download.
+     */
     public function download(Request $request, Response $response, array $args): Response
     {
         $name = basename((string)($args['name'] ?? ''));
@@ -44,17 +56,26 @@ class BackupController
             $zip->addFile($file->getPathname(), substr($file->getPathname(), strlen($path) + 1));
         }
         $zip->close();
-        $stream = fopen($zipFile, 'rb');
-        if ($stream === false) {
+
+        $data = file_get_contents($zipFile);
+        if ($data === false) {
+            @unlink($zipFile);
             return $response->withStatus(500);
         }
-        $response->getBody()->write((string)file_get_contents($zipFile));
-        unlink($zipFile);
+
+        $size = filesize($zipFile);
+        @unlink($zipFile);
+
+        $response->getBody()->write($data);
         return $response
             ->withHeader('Content-Type', 'application/zip')
+            ->withHeader('Content-Length', (string) $size)
             ->withHeader('Content-Disposition', 'attachment; filename="' . $name . '.zip"');
     }
 
+    /**
+     * Delete the specified backup directory.
+     */
     public function delete(Request $request, Response $response, array $args): Response
     {
         $name = basename((string)($args['name'] ?? ''));

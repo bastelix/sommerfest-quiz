@@ -1,0 +1,4 @@
+apiVersion: v2
+name: sommerfest-quiz
+version: 0.1.0
+description: Helm chart to deploy the Sommerfest Quiz application with PostgreSQL

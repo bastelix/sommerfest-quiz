@@ -17,6 +17,9 @@ use Slim\Exception\HttpUnauthorizedException;
 use Slim\Handlers\ErrorHandler as SlimErrorHandler;
 use Throwable;
 
+/**
+ * Converts PHP exceptions into JSON HTTP error responses.
+ */
 class HttpErrorHandler extends SlimErrorHandler
 {
     /**

@@ -12,6 +12,9 @@ use App\Service\PhotoConsentService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 
+/**
+ * Exports application data and creates backup directories.
+ */
 class ExportController
 {
     private ConfigService $config;
@@ -22,6 +25,9 @@ class ExportController
     private string $dataDir;
     private string $backupDir;
 
+    /**
+     * Configure dependencies and target directories.
+     */
     public function __construct(
         ConfigService $config,
         CatalogService $catalogs,
@@ -40,6 +46,9 @@ class ExportController
         $this->backupDir = rtrim($backupDir, '/');
     }
 
+    /**
+     * Export current data and create a timestamped backup directory.
+     */
     public function post(Request $request, Response $response): Response
     {
         $timestamp = date('Y-m-d_His');
@@ -49,6 +58,9 @@ class ExportController
         return $response->withStatus(204);
     }
 
+    /**
+     * Write configuration, results, teams and catalogs to the given directory.
+     */
     private function exportToDir(string $dir): void
     {
         if (!is_dir($dir)) {

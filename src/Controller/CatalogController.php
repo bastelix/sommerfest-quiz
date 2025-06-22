@@ -8,15 +8,24 @@ use App\Service\CatalogService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
+/**
+ * CRUD operations for question catalogs.
+ */
 class CatalogController
 {
     private CatalogService $service;
 
+    /**
+     * Inject catalog service dependency.
+     */
     public function __construct(CatalogService $service)
     {
         $this->service = $service;
     }
 
+    /**
+     * Retrieve a catalog JSON file or redirect to its public view.
+     */
     public function get(Request $request, Response $response, array $args): Response
     {
         $file = basename($args['file']);
@@ -38,6 +47,9 @@ class CatalogController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    /**
+     * Update the specified catalog file with the provided data.
+     */
     public function post(Request $request, Response $response, array $args): Response
     {
         $file = basename($args['file']);
@@ -57,6 +69,9 @@ class CatalogController
         return $response->withStatus(204);
     }
 
+    /**
+     * Create a new catalog or overwrite the existing one.
+     */
     public function create(Request $request, Response $response, array $args): Response
     {
         $file = basename($args['file']);
@@ -70,6 +85,9 @@ class CatalogController
         return $response->withStatus(204);
     }
 
+    /**
+     * Delete a catalog file and all its questions.
+     */
     public function delete(Request $request, Response $response, array $args): Response
     {
         $file = basename($args['file']);
@@ -78,6 +96,9 @@ class CatalogController
         return $response->withStatus(204);
     }
 
+    /**
+     * Remove a question from the specified catalog.
+     */
     public function deleteQuestion(Request $request, Response $response, array $args): Response
     {
         $file = basename($args['file']);

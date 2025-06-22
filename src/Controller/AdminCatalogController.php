@@ -9,15 +9,24 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
 use App\Service\CatalogService;
 
+/**
+ * Displays the catalog administration overview page.
+ */
 class AdminCatalogController
 {
     private CatalogService $service;
 
+    /**
+     * Inject dependencies.
+     */
     public function __construct(CatalogService $service)
     {
         $this->service = $service;
     }
 
+    /**
+     * Render the catalog administration page.
+     */
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);

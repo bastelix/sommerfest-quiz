@@ -11,8 +11,14 @@ use App\Service\CatalogService;
 use App\Infrastructure\Database;
 use Slim\Views\Twig;
 
+/**
+ * Entry point for the quiz application home page.
+ */
 class HomeController
 {
+    /**
+     * Display the start page with catalog selection.
+     */
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
