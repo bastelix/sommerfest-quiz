@@ -6,4 +6,14 @@ nav_order: 1
 
 # Willkommen zum Sommerfest-Quiz
 
-Eine kurze Einleitung zum Projekt mit App-Charme und einem zentralen Aufruf zum Mitmachen.
+Das **Sommerfest-Quiz** ist eine leichtgewichtige Web-App für Veranstaltungen. Sie basiert auf dem Slim Framework und nutzt UIkit3 für ein responsives Design. Fragenkataloge, Teams und Ergebnisse werden in einer PostgreSQL-Datenbank gespeichert und können bequem per JSON importiert oder exportiert werden.
+
+Die Anwendung entstand als Machbarkeitsstudie, um das Potenzial moderner Code-Assistenten in der Praxis zu erproben. Besonderer Wert wurde auf Barrierefreiheit, Datenschutz und eine hohe Performance gelegt.
+
+Weitere Highlights sind unter anderem:
+
+- **Flexibel einsetzbar:** Kataloge im JSON-Format lassen sich einfach austauschen oder erweitern.
+- **Drei Fragetypen:** Sortieren, Zuordnen und Multiple Choice bieten Abwechslung für alle Teilnehmer.
+- **QR-Code-Login & Dunkelmodus:** Komfortables Spielen auf allen Geräten.
+- **Persistente Speicherung:** Alle Daten liegen zentral in PostgreSQL.
+
