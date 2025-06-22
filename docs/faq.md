@@ -1,4 +1,7 @@
-# FAQ & Tipps
+---
+layout: default
+title: FAQ
+---
 
 ## Häufige Fragen
 

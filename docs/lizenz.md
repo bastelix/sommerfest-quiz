@@ -1,4 +1,8 @@
-# Lizenz, Haftung, Impressum
+---
+layout: default
+title: Lizenz
+---
+
 Diese Anwendung steht unter der [MIT-Lizenz](https://opensource.org/licenses/MIT). Den vollständigen Text finden Sie auch in der Datei `LICENSE`.
 
 ## Disclaimer / Hinweis
