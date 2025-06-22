@@ -10,8 +10,14 @@ use Slim\Views\Twig;
 use App\Service\ConfigService;
 use App\Infrastructure\Database;
 
+/**
+ * Presents the help page with configuration settings.
+ */
 class HelpController
 {
+    /**
+     * Render the help view.
+     */
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);

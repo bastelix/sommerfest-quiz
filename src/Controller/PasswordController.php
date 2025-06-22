@@ -8,15 +8,24 @@ use App\Service\ConfigService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
+/**
+ * Allows changing the administrator password.
+ */
 class PasswordController
 {
     private ConfigService $service;
 
+    /**
+     * Inject configuration service.
+     */
     public function __construct(ConfigService $service)
     {
         $this->service = $service;
     }
 
+    /**
+     * Update the admin password using the provided request body.
+     */
     public function post(Request $request, Response $response): Response
     {
         $data = $request->getParsedBody();

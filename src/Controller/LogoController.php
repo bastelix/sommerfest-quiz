@@ -9,15 +9,24 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Intervention\Image\ImageManagerStatic as Image;
 
+/**
+ * Manages uploading and serving the site logo image.
+ */
 class LogoController
 {
     private ConfigService $config;
 
+    /**
+     * Inject configuration service.
+     */
     public function __construct(ConfigService $config)
     {
         $this->config = $config;
     }
 
+    /**
+     * Return the stored logo image in the requested format.
+     */
     public function get(Request $request, Response $response, array $args = []): Response
     {
         $ext = $args['ext'] ?? 'png';
@@ -34,6 +43,9 @@ class LogoController
         return $response->withHeader('Content-Type', $contentType);
     }
 
+    /**
+     * Upload and store a new logo image.
+     */
     public function post(Request $request, Response $response): Response
     {
         $files = $request->getUploadedFiles();

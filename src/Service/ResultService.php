@@ -6,15 +6,24 @@ namespace App\Service;
 
 use PDO;
 
+/**
+ * Service for persisting and retrieving quiz results.
+ */
 class ResultService
 {
     private PDO $pdo;
 
+    /**
+     * Inject database connection.
+     */
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
 
+    /**
+     * Fetch all stored results along with catalog names.
+     */
     public function getAll(): array
     {
         $sql = 'SELECT r.name, r.catalog, r.attempt, r.correct, r.total, r.time, r.puzzleTime, r.photo, ' .
@@ -62,11 +71,17 @@ class ResultService
         return $entry;
     }
 
+    /**
+     * Remove all result entries.
+     */
     public function clear(): void
     {
         $this->pdo->exec('DELETE FROM results');
     }
 
+    /**
+     * Mark the puzzle word as solved for the latest entry of the given user.
+     */
     public function markPuzzle(string $name, string $catalog, int $time): void
     {
         $stmt = $this->pdo->prepare('SELECT id,puzzleTime FROM results WHERE name=? AND catalog=? ORDER BY id DESC LIMIT 1');
@@ -78,6 +93,9 @@ class ResultService
         }
     }
 
+    /**
+     * Associate a photo path with the latest result entry for the user.
+     */
     public function setPhoto(string $name, string $catalog, string $path): void
     {
         $stmt = $this->pdo->prepare('SELECT id FROM results WHERE name=? AND catalog=? ORDER BY id DESC LIMIT 1');

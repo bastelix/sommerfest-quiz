@@ -5,8 +5,14 @@ namespace App\Infrastructure;
 
 use PDO;
 
+/**
+ * Utility class for creating database connections.
+ */
 class Database
 {
+    /**
+     * Create a PDO connection using credentials from environment variables.
+     */
     public static function connectFromEnv(): PDO
     {
         $dsn  = getenv('POSTGRES_DSN') ?: '';

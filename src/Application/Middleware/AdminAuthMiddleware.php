@@ -10,8 +10,14 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response as SlimResponse;
 
+/**
+ * Middleware ensuring the user is logged in as administrator.
+ */
 class AdminAuthMiddleware implements MiddlewareInterface
 {
+    /**
+     * {@inheritdoc}
+     */
     public function process(Request $request, RequestHandler $handler): Response
     {
         if (session_status() === PHP_SESSION_NONE) {

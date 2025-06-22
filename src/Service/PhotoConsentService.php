@@ -6,15 +6,24 @@ namespace App\Service;
 
 use PDO;
 
+/**
+ * Stores and retrieves photo consent confirmations.
+ */
 class PhotoConsentService
 {
     private PDO $pdo;
 
+    /**
+     * Inject database connection.
+     */
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
 
+    /**
+     * Add a new photo consent entry.
+     */
     public function add(string $team, int $time): void
     {
         $stmt = $this->pdo->prepare('INSERT INTO photo_consents(team,time) VALUES(?,?)');

@@ -6,15 +6,24 @@ namespace App\Service;
 
 use PDO;
 
+/**
+ * Service layer for managing quiz teams.
+ */
 class TeamService
 {
     private PDO $pdo;
 
+    /**
+     * Inject database connection.
+     */
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
 
+    /**
+     * Retrieve the ordered list of teams.
+     */
     public function getAll(): array
     {
         $stmt = $this->pdo->query('SELECT name FROM teams ORDER BY sort_order');

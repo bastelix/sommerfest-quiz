@@ -7,6 +7,9 @@ namespace App\Application\ResponseEmitter;
 use Psr\Http\Message\ResponseInterface;
 use Slim\ResponseEmitter as SlimResponseEmitter;
 
+/**
+ * Emits HTTP responses with additional CORS headers.
+ */
 class ResponseEmitter extends SlimResponseEmitter
 {
     /**
@@ -14,7 +17,7 @@ class ResponseEmitter extends SlimResponseEmitter
      */
     public function emit(ResponseInterface $response): void
     {
-        // This variable should be set to the allowed host from which your API can be accessed with
+        // Allowed origin for cross-site requests. Adjust as needed for deployment.
         $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
         $response = $response
