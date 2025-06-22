@@ -1,7 +1,4 @@
----
-layout: default
-title: Datenschutzerklärung
----
+# Datenschutz & rechtliche Hinweise
 
 ## 1. Verantwortlicher
 
