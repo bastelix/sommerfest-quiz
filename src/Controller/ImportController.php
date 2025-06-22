@@ -11,6 +11,9 @@ use App\Service\PhotoConsentService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 
+/**
+ * Imports backup data into the running application.
+ */
 class ImportController
 {
     private CatalogService $catalogs;
@@ -21,6 +24,9 @@ class ImportController
     private string $dataDir;
     private string $backupDir;
 
+    /**
+     * Configure dependencies and target directories.
+     */
     public function __construct(
         CatalogService $catalogs,
         ConfigService $config,
@@ -39,11 +45,17 @@ class ImportController
         $this->backupDir = rtrim($backupDir, '/');
     }
 
+    /**
+     * Import data from the default data directory.
+     */
     public function post(Request $request, Response $response): Response
     {
         return $this->importFromDir($this->dataDir, $response);
     }
 
+    /**
+     * Import data from a specified backup folder.
+     */
     public function import(Request $request, Response $response, array $args): Response
     {
         $dir = basename((string)($args['name'] ?? ''));
@@ -53,6 +65,9 @@ class ImportController
         return $this->importFromDir($this->backupDir . '/' . $dir, $response);
     }
 
+    /**
+     * Helper to import configuration, catalogs, results and more from a directory.
+     */
     private function importFromDir(string $dir, Response $response): Response
     {
         $catalogDir = $dir . '/kataloge';

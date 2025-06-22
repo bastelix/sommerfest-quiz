@@ -7,17 +7,26 @@ namespace App\Service;
 
 use PDO;
 
+/**
+ * Provides accessors for reading and writing quiz catalogs.
+ */
 class CatalogService
 {
     private PDO $pdo;
     /** @var bool|null detected presence of the comment column */
     private ?bool $hasComment = null;
 
+    /**
+     * Inject database connection.
+     */
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
     }
 
+    /**
+     * Ensure the optional comment column exists and remember the result.
+     */
     private function hasCommentColumn(): bool
     {
         if ($this->hasComment !== null) {
@@ -37,6 +46,9 @@ class CatalogService
         return $this->hasComment;
     }
 
+    /**
+     * Return the catalog slug for the given file name.
+     */
     public function slugByFile(string $file): ?string
     {
         $stmt = $this->pdo->prepare('SELECT slug FROM catalogs WHERE file=?');
@@ -45,6 +57,9 @@ class CatalogService
         return $slug === false ? null : (string)$slug;
     }
 
+    /**
+     * Find the catalog UID by its slug.
+     */
     public function uidBySlug(string $slug): ?string
     {
         $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE slug=?');
@@ -53,6 +68,9 @@ class CatalogService
         return $uid === false ? null : (string)$uid;
     }
 
+    /**
+     * Read a catalog or the catalog index and return it as JSON.
+     */
     public function read(string $file): ?string
     {
         if ($file === 'catalogs.json') {
@@ -101,6 +119,11 @@ class CatalogService
      * The target directory is created automatically if it does not exist.
      * When an array is provided it will be encoded as pretty printed JSON with
      * a trailing newline to avoid truncated files.
+     *
+     * @param array|string $data
+     */
+    /**
+     * Persist catalog data to disk or database.
      *
      * @param array|string $data
      */
@@ -225,6 +248,9 @@ class CatalogService
         $this->pdo->commit();
     }
 
+    /**
+     * Delete a catalog and all associated questions.
+     */
     public function delete(string $file): void
     {
         if ($file === 'catalogs.json') {
@@ -247,6 +273,9 @@ class CatalogService
         $this->pdo->commit();
     }
 
+    /**
+     * Remove a question at a specific index from a catalog file.
+     */
     public function deleteQuestion(string $file, int $index): void
     {
         $slug = pathinfo($file, PATHINFO_FILENAME);

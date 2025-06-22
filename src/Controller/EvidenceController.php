@@ -10,12 +10,18 @@ use Intervention\Image\ImageManagerStatic as Image;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
+/**
+ * Handles upload and retrieval of photo evidence.
+ */
 class EvidenceController
 {
     private ResultService $results;
     private PhotoConsentService $consent;
     private string $dir;
 
+    /**
+     * Set up controller dependencies and target directory.
+     */
     public function __construct(ResultService $results, PhotoConsentService $consent, string $dir)
     {
         $this->results = $results;
@@ -23,6 +29,9 @@ class EvidenceController
         $this->dir = rtrim($dir, '/');
     }
 
+    /**
+     * Store an uploaded photo and link it to a result entry.
+     */
     public function post(Request $request, Response $response): Response
     {
         $files = $request->getUploadedFiles();
@@ -83,6 +92,9 @@ class EvidenceController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    /**
+     * Serve a stored evidence photo.
+     */
     public function get(Request $request, Response $response, array $args = []): Response
     {
         $team = isset($args['team']) ? preg_replace('/[^A-Za-z0-9_-]/', '_', (string)$args['team']) : '';

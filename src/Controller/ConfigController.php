@@ -8,15 +8,24 @@ use App\Service\ConfigService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
+/**
+ * API endpoints for reading and updating application configuration.
+ */
 class ConfigController
 {
     private ConfigService $service;
 
+    /**
+     * Inject configuration service dependency.
+     */
     public function __construct(ConfigService $service)
     {
         $this->service = $service;
     }
 
+    /**
+     * Return the current configuration as JSON.
+     */
     public function get(Request $request, Response $response): Response
     {
         $content = $this->service->getJson();
@@ -28,6 +37,9 @@ class ConfigController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
+    /**
+     * Persist a new configuration payload.
+     */
     public function post(Request $request, Response $response): Response
     {
         $data = $request->getParsedBody();

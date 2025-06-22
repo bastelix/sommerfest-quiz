@@ -7,8 +7,14 @@ namespace App\Controller;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
+/**
+ * Logs out the current administrator session.
+ */
 class LogoutController
 {
+    /**
+     * Destroy the admin session and redirect to login.
+     */
     public function __invoke(Request $request, Response $response): Response
     {
         if (session_status() === PHP_SESSION_NONE) {

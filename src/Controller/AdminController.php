@@ -13,8 +13,14 @@ use App\Service\CatalogService;
 use App\Service\TeamService;
 use App\Infrastructure\Database;
 
+/**
+ * Shows the main administration dashboard.
+ */
 class AdminController
 {
+    /**
+     * Render the admin dashboard page.
+     */
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
