@@ -1,11 +1,30 @@
-# Sommerfest-Quiz Dokumentation
+---
+layout: default
+title: Projekt
+---
 
-Willkommen bei der Dokumentation des **Sommerfest-Quiz**. Diese Seite wird automatisch
-auf [GitHub Pages](https://pages.github.com/) bereitgestellt und fasst alle wichtigen
-Informationen zum Projekt zusammen.
+# Sommerfest-Quiz
 
-- [Projektüberblick](about.md)
-- [Spielregeln](about.md#spielregeln)
-- [Administration](admin.md)
+Das **Sommerfest-Quiz** ist eine Web-App für Veranstaltungen. Die Anwendung basiert
+auf dem Slim Framework und nutzt UIkit3 für ein responsives Design. Fragenkataloge,
+Teilnehmer und Ergebnisse werden in einer PostgreSQL-Datenbank gespeichert und
+können per JSON importiert oder exportiert werden.
 
-Weitere Hinweise zur Frontend-Gestaltung finden Sie in [Richtlinien zur Worttrennung](frontend-word-break.md).
+Die Entwicklung entstand als Machbarkeitsstudie, um das Potenzial moderner
+Code-Assistenten in der Praxis zu testen. Barrierefreiheit, Datenschutz und eine
+hohe Performance standen dabei im Mittelpunkt.
+
+Weitere Highlights sind:
+
+- **Flexibel einsetzbar**: Kataloge im JSON-Format lassen sich einfach austauschen.
+- **Drei Fragetypen**: Sortieren, Zuordnen und Multiple Choice.
+- **QR-Code-Login & Dunkelmodus** für komfortables Spielen auf allen Geräten.
+- **Persistente Speicherung** in PostgreSQL.
+
+## Weitere Seiten
+
+* [Wie läuft das Spiel?](spielablauf.md)
+* [FAQ](faq.md)
+* [Datenschutz](datenschutz.md)
+* [Impressum](impressum.md)
+* [Lizenz](lizenz.md)
