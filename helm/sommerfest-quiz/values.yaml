@@ -1,0 +1,19 @@
+image:
+  repository: sommerfest-quiz
+  tag: latest
+  pullPolicy: IfNotPresent
+
+database:
+  image: postgres:15
+  user: quiz
+  password: quiz
+  name: quiz
+
+service:
+  type: ClusterIP
+  port: 8080
+
+persistence:
+  enabled: true
+  dataSize: 1Gi
+  dbSize: 1Gi

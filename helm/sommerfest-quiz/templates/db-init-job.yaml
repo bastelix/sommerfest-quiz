@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "sommerfest-quiz.fullname" . }}-db-init
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: init
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: POSTGRES_DSN
+              value: "pgsql:host={{ include \"sommerfest-quiz.fullname\" . }}-postgresql;dbname={{ .Values.database.name }}"
+            - name: POSTGRES_USER
+              value: {{ .Values.database.user | quote }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.database.password | quote }}
+            - name: POSTGRES_DB
+              value: {{ .Values.database.name | quote }}
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h {{ include "sommerfest-quiz.fullname" . }}-postgresql -U {{ .Values.database.user }}; do
+                sleep 2
+              done
+              psql -h {{ include "sommerfest-quiz.fullname" . }}-postgresql -U {{ .Values.database.user }} -d {{ .Values.database.name }} -f docs/schema.sql
+              php scripts/import_to_pgsql.php
