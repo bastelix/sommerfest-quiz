@@ -7,4 +7,36 @@ toc: true
 
 # Installation & Schnellstart
 
-Schritt-für-Schritt: Docker & lokal, Composer, Datenbank, Erststart und Troubleshooting.
+1. **Abhängigkeiten installieren**
+   ```bash
+   composer install
+   ```
+   Beim ersten Aufruf wird eine `composer.lock` angelegt und alle benötigten Pakete werden geladen. Wer die Anwendung ohne Docker betreibt, muss diesen Schritt manuell ausführen.
+
+2. **Server starten** (lokal für Tests)
+   ```bash
+   php -S localhost:8080 -t public public/router.php
+   ```
+   Danach ist das Quiz unter <http://localhost:8080> erreichbar.
+
+3. **Optional: PostgreSQL-Datenbank vorbereiten**
+   ```bash
+   export POSTGRES_DSN="pgsql:host=localhost;dbname=quiz"
+   export POSTGRES_USER=quiz
+   export POSTGRES_PASSWORD=quiz
+   psql -h localhost -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f docs/schema.sql
+   for f in migrations/*.sql; do psql -h localhost -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "$f"; done
+   ```
+   Alternativ lassen sich Schema- und Datenimport auch im Docker-Container ausführen:
+   ```bash
+   docker-compose exec slim bash -c \
+     'psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f docs/schema.sql && php scripts/import_to_pgsql.php'
+   ```
+
+4. **JSON-Daten importieren**
+   ```bash
+   php scripts/import_to_pgsql.php
+   ```
+
+Das mitgelieferte `docker-compose.yml` startet die Anwendung samt Reverse Proxy. Daten werden dauerhaft in einem Volume gesichert, Beweisfotos bleiben im Ordner `data/photos` erhalten. Die Domain und weitere Parameter lassen sich über die Datei `.env` anpassen.
+
