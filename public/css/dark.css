@@ -92,6 +92,10 @@ body.dark-mode .topbar {
   border-color: #444;
 }
 
+body.dark-mode .modern-info-card {
+  border-color: #444;
+}
+
 body.dark-mode .uk-icon,
 body.dark-mode .uk-icon-button {
   color: #f5f5f5;

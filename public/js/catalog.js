@@ -20,7 +20,7 @@
     if(!block){
       block = document.createElement('div');
       block.dataset.role = 'catalog-comment-block';
-      block.className = 'uk-card uk-card-default uk-card-body uk-margin';
+      block.className = 'modern-info-card uk-card uk-card-default uk-card-body uk-box-shadow-medium uk-margin';
       block.style.whiteSpace = 'pre-wrap';
       headerEl.appendChild(block);
     }
