@@ -47,6 +47,19 @@ CREATE TABLE IF NOT EXISTS results (
 CREATE INDEX idx_results_catalog ON results(catalog);
 CREATE INDEX idx_results_name ON results(name);
 
+-- Per-question answer log
+CREATE TABLE IF NOT EXISTS question_results (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    catalog TEXT NOT NULL,
+    question_id INTEGER NOT NULL,
+    attempt INTEGER NOT NULL,
+    correct INTEGER NOT NULL
+);
+CREATE INDEX idx_qresults_catalog ON question_results(catalog);
+CREATE INDEX idx_qresults_name ON question_results(name);
+CREATE INDEX idx_qresults_question ON question_results(question_id);
+
 -- Catalog definitions
 CREATE TABLE IF NOT EXISTS catalogs (
     uid TEXT PRIMARY KEY,

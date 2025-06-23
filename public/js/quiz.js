@@ -218,10 +218,11 @@ function runQuiz(questions, skipIntro){
       window.startConfetti();
     }
     const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
+    const wrong = results.map((r,i)=> r ? null : i+1).filter(v=>v!==null);
     fetch('/results', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: user, catalog, correct: score, total: questionCount })
+      body: JSON.stringify({ name: user, catalog, correct: score, total: questionCount, wrong })
     }).catch(()=>{});
     const solved = JSON.parse(sessionStorage.getItem('quizSolved') || '[]');
     if(solved.indexOf(catalog) === -1){

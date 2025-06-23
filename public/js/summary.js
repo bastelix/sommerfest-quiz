@@ -82,8 +82,12 @@ document.addEventListener('DOMContentLoaded', () => {
     UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
     closeBtn.addEventListener('click', () => ui.hide());
 
-    Promise.all([fetchCatalogMap(), fetch('/results.json').then(r => r.json())])
-      .then(([catMap, rows]) => {
+    Promise.all([
+      fetchCatalogMap(),
+      fetch('/results.json').then(r => r.json()),
+      fetch('/question-results.json').then(r => r.json())
+    ])
+      .then(([catMap, rows, qrows]) => {
         const filtered = rows.filter(row => row.name === user);
         const map = new Map();
         filtered.forEach(r => {
@@ -115,6 +119,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         table.appendChild(tb);
         if(tbodyContainer) tbodyContainer.appendChild(table);
+
+        const wrong = qrows.filter(row => row.name === user && !row.correct);
+        if (wrong.length) {
+          const h = document.createElement('h4');
+          h.textContent = 'Falsch beantwortete Fragen';
+          const ul = document.createElement('ul');
+          wrong.forEach(w => {
+            const li = document.createElement('li');
+            const cat = catMap[w.catalog] || w.catalog;
+            li.textContent = `${cat}: ${w.prompt}`;
+            ul.appendChild(li);
+          });
+          tbodyContainer?.appendChild(h);
+          tbodyContainer?.appendChild(ul);
+        }
       })
       .catch(() => {
         if(tbodyContainer) tbodyContainer.textContent = 'Fehler beim Laden';
