@@ -309,6 +309,7 @@ Alle Resultate werden in der Datenbank abgelegt. Die API bietet folgende Endpunk
 - `POST /results` – fügt ein neues Ergebnis hinzu.
 - `DELETE /results` – löscht alle Einträge.
 - `GET /results/download` – erzeugt eine CSV-Datei mit allen Resultaten.
+- `GET /question-results.json` – listet falsch beantwortete Fragen.
 
 
 ### Passwort ändern

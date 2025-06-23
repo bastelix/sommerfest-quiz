@@ -42,6 +42,16 @@ class ResultController
     }
 
     /**
+     * Return per-question results as JSON.
+     */
+    public function getQuestions(Request $request, Response $response): Response
+    {
+        $content = json_encode($this->service->getQuestionResults(), JSON_PRETTY_PRINT);
+        $response->getBody()->write($content);
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    /**
      * Download all results as a CSV file.
      */
     public function download(Request $request, Response $response): Response

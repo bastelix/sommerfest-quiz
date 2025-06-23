@@ -37,12 +37,29 @@ class ResultService
     }
 
     /**
+     * Retrieve per-question results including prompts.
+     */
+    public function getQuestionResults(): array
+    {
+        $sql = 'SELECT qr.name, qr.catalog, qr.question_id, qr.attempt, qr.correct,' .
+            ' q.prompt, c.name AS catalogName '
+            . 'FROM question_results qr '
+            . 'LEFT JOIN questions q ON q.id = qr.question_id '
+            . 'LEFT JOIN catalogs c ON c.uid = q.catalog_uid '
+            . 'OR CAST(c.sort_order AS TEXT) = qr.catalog '
+            . 'ORDER BY qr.id';
+        $stmt = $this->pdo->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
      * @param array<string, mixed> $data
      */
     public function add(array $data): array
     {
         $name = (string)($data['name'] ?? '');
         $catalog = (string)($data['catalog'] ?? '');
+        $wrong = array_map('intval', $data['wrong'] ?? []);
         $stmt = $this->pdo->prepare('SELECT COALESCE(MAX(attempt),0) FROM results WHERE name=? AND catalog=?');
         $stmt->execute([$name, $catalog]);
         $attempt = (int)$stmt->fetchColumn() + 1;
@@ -68,7 +85,35 @@ class ResultService
             $entry['puzzleTime'],
             $entry['photo'],
         ]);
+        $this->addQuestionResults($name, $catalog, $attempt, $wrong, $entry['total']);
         return $entry;
+    }
+
+    /**
+     * Store individual question results.
+     *
+     * @param list<int> $wrongIdx
+     */
+    private function addQuestionResults(string $name, string $catalog, int $attempt, array $wrongIdx, int $total): void
+    {
+        $uidStmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE uid=? OR CAST(sort_order AS TEXT)=? OR slug=?');
+        $uidStmt->execute([$catalog, $catalog, $catalog]);
+        $uid = $uidStmt->fetchColumn();
+        if ($uid === false) {
+            return;
+        }
+        $qStmt = $this->pdo->prepare('SELECT id FROM questions WHERE catalog_uid=? ORDER BY sort_order');
+        $qStmt->execute([$uid]);
+        $ids = $qStmt->fetchAll(PDO::FETCH_COLUMN);
+        if (!$ids) {
+            return;
+        }
+        $ins = $this->pdo->prepare('INSERT INTO question_results(name,catalog,question_id,attempt,correct) VALUES(?,?,?,?,?)');
+        for ($i = 0; $i < min(count($ids), $total); $i++) {
+            $qid = (int)$ids[$i];
+            $correct = in_array($i + 1, $wrongIdx, true) ? 0 : 1;
+            $ins->execute([$name, $catalog, $qid, $attempt, $correct]);
+        }
     }
 
     /**

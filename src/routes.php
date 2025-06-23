@@ -123,6 +123,7 @@ return function (\Slim\App $app) {
     $app->get('/admin/kataloge', AdminCatalogController::class)->add(new AdminAuthMiddleware());
     $app->get('/results', [$resultController, 'page']);
     $app->get('/results.json', [$resultController, 'get']);
+    $app->get('/question-results.json', [$resultController, 'getQuestions']);
     $app->get('/results/download', [$resultController, 'download']);
     $app->post('/results', [$resultController, 'post']);
     $app->delete('/results', [$resultController, 'delete']);

@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const tbody = document.getElementById('resultsTableBody');
+  const wrongBody = document.getElementById('wrongTableBody');
   const refreshBtn = document.getElementById('resultsRefreshBtn');
   const grid = document.getElementById('rankingGrid');
   const pagination = document.getElementById('resultsPagination');
@@ -71,6 +72,33 @@ document.addEventListener('DOMContentLoaded', () => {
         tr.appendChild(td);
       });
       tbody.appendChild(tr);
+    });
+  }
+
+  function renderWrongTable(rows) {
+    if (!wrongBody) return;
+    wrongBody.innerHTML = '';
+    if (!rows.length) {
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 3;
+      td.textContent = 'Keine Daten';
+      tr.appendChild(td);
+      wrongBody.appendChild(tr);
+      return;
+    }
+    rows.forEach(r => {
+      const tr = document.createElement('tr');
+      const tdName = document.createElement('td');
+      tdName.textContent = r.name;
+      const tdCat = document.createElement('td');
+      tdCat.textContent = r.catalogName || r.catalog;
+      const tdQ = document.createElement('td');
+      tdQ.textContent = r.prompt || '';
+      tr.appendChild(tdName);
+      tr.appendChild(tdCat);
+      tr.appendChild(tdQ);
+      wrongBody.appendChild(tr);
     });
   }
 
@@ -257,8 +285,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function load() {
-    Promise.all([fetchCatalogMap(), fetch('/results.json').then(r => r.json())])
-      .then(([catMap, rows]) => {
+    Promise.all([
+      fetchCatalogMap(),
+      fetch('/results.json').then(r => r.json()),
+      fetch('/question-results.json').then(r => r.json())
+    ])
+      .then(([catMap, rows, qrows]) => {
         rows.forEach(r => {
           if (catMap[r.catalog]) r.catalog = catMap[r.catalog];
         });
@@ -270,6 +302,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const rankings = computeRankings(rows);
         renderRankings(rankings);
+
+        qrows.forEach(r => {
+          if (catMap[r.catalog]) r.catalog = catMap[r.catalog];
+        });
+        const wrongOnly = qrows.filter(r => !r.correct);
+        renderWrongTable(wrongOnly);
       })
       .catch(err => console.error(err));
   }
