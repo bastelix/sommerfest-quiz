@@ -175,6 +175,18 @@
     const container = document.getElementById('quiz');
     if(!container) return;
     container.innerHTML = '';
+    const comment = sessionStorage.getItem('quizCatalogComment');
+    if(comment){
+      const note = document.createElement('div');
+      note.className = 'uk-card uk-card-default uk-card-body uk-margin';
+      note.style.whiteSpace = 'pre-wrap';
+      if(comment.indexOf('<') !== -1){
+        note.innerHTML = comment;
+      } else {
+        note.textContent = comment;
+      }
+      container.appendChild(note);
+    }
     const btn = document.createElement('button');
     btn.className = 'uk-button uk-button-primary uk-button-large uk-align-right';
     btn.textContent = 'Los geht es!';
