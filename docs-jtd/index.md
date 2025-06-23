@@ -2,6 +2,8 @@
 layout: default
 title: Start
 nav_order: 1
+parent: Start & Überblick
+permalink: /
 ---
 
 # Willkommen zum Sommerfest-Quiz

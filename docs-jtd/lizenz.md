@@ -1,7 +1,8 @@
 ---
 layout: default
 title: Lizenz & Haftung
-nav_order: 12
+nav_order: 2
+parent: Hilfe & Rechtliches
 toc: true
 ---
 

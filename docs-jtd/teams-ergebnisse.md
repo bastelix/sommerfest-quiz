@@ -1,7 +1,8 @@
 ---
 layout: default
 title: Teams & Ergebnisse
-nav_order: 8
+nav_order: 2
+parent: Nutzung & Bedienung
 toc: true
 ---
 
