@@ -139,10 +139,19 @@ body.uk-padding {
 }
 
 .bottombar .uk-navbar-item {
-  margin-left: 0.5mm;
-  margin-right: 0.5mm;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
   display: flex;
   align-items: center;
+}
+
+/* Maintain original footer height */
+.bottombar .uk-navbar-item > a {
+  min-height: 56px;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 /* Reduce footer height */
@@ -198,6 +207,9 @@ a.uk-accordion-title {
     padding-right: 8px;
   }
   .bottombar .uk-navbar-nav > li > a {
+    min-height: 48px;
+  }
+  .bottombar .uk-navbar-item > a {
     min-height: 48px;
   }
   .footer-placeholder {
