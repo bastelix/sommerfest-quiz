@@ -220,10 +220,16 @@ function runQuiz(questions, skipIntro){
     }
     const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
     const wrong = results.map((r,i)=> r ? null : i+1).filter(v=>v!==null);
+    const data = { name: user, catalog, correct: score, total: questionCount, wrong };
+    const puzzleSolved = sessionStorage.getItem('puzzleSolved') === 'true';
+    const puzzleTs = sessionStorage.getItem('puzzleTime');
+    if(puzzleSolved && puzzleTs){
+      data.puzzleTime = parseInt(puzzleTs, 10) || Math.floor(Date.now()/1000);
+    }
     fetch('/results', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: user, catalog, correct: score, total: questionCount, wrong })
+      body: JSON.stringify(data)
     }).catch(()=>{});
     const solved = JSON.parse(sessionStorage.getItem('quizSolved') || '[]');
     if(solved.indexOf(catalog) === -1){
@@ -1022,13 +1028,15 @@ function runQuiz(questions, skipIntro){
         const custom = (window.quizConfig && window.quizConfig.puzzleFeedback) ? window.quizConfig.puzzleFeedback.trim() : '';
         feedback.textContent = custom || 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
         feedback.className = 'uk-margin-top uk-text-center uk-text-success';
+        const ts = Math.floor(Date.now()/1000);
         sessionStorage.setItem('puzzleSolved', 'true');
+        sessionStorage.setItem('puzzleTime', String(ts));
         const user = sessionStorage.getItem('quizUser') || '';
         const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
         fetch('/results', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: user, catalog, puzzleTime: Math.floor(Date.now()/1000) })
+          body: JSON.stringify({ name: user, catalog, puzzleTime: ts })
         }).catch(()=>{});
         const infoEl = summaryEl.querySelector('#puzzle-info');
         fetchLatestPuzzleEntry(user, catalog).then(entry => {
