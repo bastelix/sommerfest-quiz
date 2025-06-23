@@ -112,6 +112,9 @@ class ResultController
                 if (isset($c['sort_order'])) {
                     $map[$c['sort_order']] = $name;
                 }
+                if (isset($c['slug'])) {
+                    $map[$c['slug']] = $name;
+                }
             }
         }
         foreach ($results as &$row) {

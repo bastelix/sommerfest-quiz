@@ -31,6 +31,7 @@ class ResultService
             . 'FROM results r '
             . 'LEFT JOIN catalogs c ON c.uid = r.catalog '
             . 'OR CAST(c.sort_order AS TEXT) = r.catalog '
+            . 'OR c.slug = r.catalog '
             . 'ORDER BY r.id';
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -47,6 +48,7 @@ class ResultService
             . 'LEFT JOIN questions q ON q.id = qr.question_id '
             . 'LEFT JOIN catalogs c ON c.uid = q.catalog_uid '
             . 'OR CAST(c.sort_order AS TEXT) = qr.catalog '
+            . 'OR c.slug = qr.catalog '
             . 'ORDER BY qr.id';
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
