@@ -57,20 +57,8 @@ class ResultController
     public function download(Request $request, Response $response): Response
     {
         $data = $this->service->getAll();
-        $rows = [];
-        $rows[] = ['Name', 'Versuch', 'Katalog', 'Richtige', 'Gesamt', 'Zeit', 'Rätselwort', 'Beweisfoto'];
-        foreach ($data as $r) {
-            $rows[] = [
-                (string)($r['name'] ?? ''),
-                (int)($r['attempt'] ?? 0),
-                (string)($r['catalog'] ?? ''),
-                (int)($r['correct'] ?? 0),
-                (int)($r['total'] ?? 0),
-                date('Y-m-d H:i', (int)($r['time'] ?? 0)),
-                isset($r['puzzleTime']) ? date('Y-m-d H:i', (int)$r['puzzleTime']) : '',
-                (string)($r['photo'] ?? '')
-            ];
-        }
+        $rows = array_map([$this, 'mapResultRow'], $data);
+        array_unshift($rows, ['Name', 'Versuch', 'Katalog', 'Richtige', 'Gesamt', 'Zeit', 'Rätselwort', 'Beweisfoto']);
         // prepend UTF-8 BOM for better compatibility with spreadsheet tools
         $content = "\xEF\xBB\xBF" . $this->buildCsv($rows);
         $response->getBody()->write($content);
@@ -157,6 +145,26 @@ class ResultController
             }
         }
         return $response->withStatus(204);
+    }
+
+    /**
+     * Normalize a single result entry for CSV export.
+     *
+     * @param array<string,mixed> $r
+     * @return list<string|int>
+     */
+    private function mapResultRow(array $r): array
+    {
+        return [
+            (string)($r['name'] ?? ''),
+            (int)($r['attempt'] ?? 0),
+            (string)($r['catalog'] ?? ''),
+            (int)($r['correct'] ?? 0),
+            (int)($r['total'] ?? 0),
+            date('Y-m-d H:i', (int)($r['time'] ?? 0)),
+            isset($r['puzzleTime']) ? date('Y-m-d H:i', (int) $r['puzzleTime']) : '',
+            (string)($r['photo'] ?? ''),
+        ];
     }
 
     /**
