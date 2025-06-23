@@ -32,7 +32,7 @@ Alle wesentlichen Optionen stehen in `data/config.json` und werden beim ersten I
   "puzzleFeedback": "",
   "postgres_dsn": "pgsql:host=postgres;dbname=quiz",
   "postgres_user": "quiz",
-  "postgres_pass": "quiz"
+  "postgres_pass": "***"
 }
 ```
 
