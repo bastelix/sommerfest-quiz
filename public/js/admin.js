@@ -87,7 +87,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const resultsResetConfirm = document.getElementById('resultsResetConfirm');
   let puzzleFeedback = '';
   let currentCommentInput = null;
-  let logoUploaded = false;
 
   function wrapSelection(textarea, before, after) {
     if (!textarea) return;
@@ -155,7 +154,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const file = cfgFields.logoFile.files && cfgFields.logoFile.files[0];
         const ext = file && file.name.toLowerCase().endsWith('.webp') ? 'webp' : 'png';
         cfgFields.logoPreview.src = '/logo.' + ext + '?' + Date.now();
-        logoUploaded = true;
         notify('Logo hochgeladen', 'success');
       }
     });

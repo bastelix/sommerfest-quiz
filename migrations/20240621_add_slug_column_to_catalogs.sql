@@ -1,4 +1,9 @@
-ALTER TABLE catalogs ADD COLUMN IF NOT EXISTS slug TEXT;
-UPDATE catalogs SET slug = id WHERE slug IS NULL OR slug = '';
-ALTER TABLE catalogs ALTER COLUMN slug SET NOT NULL;
-ALTER TABLE catalogs ADD CONSTRAINT catalogs_slug_unique UNIQUE(slug);
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_NULLS ON;
+SET NOCOUNT ON;
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
+ALTER TABLE public.catalogs ADD COLUMN IF NOT EXISTS slug TEXT;
+UPDATE public.catalogs SET slug = id WHERE slug IS NULL OR slug = '';
+ALTER TABLE public.catalogs ALTER COLUMN slug SET NOT NULL;
+ALTER TABLE public.catalogs ADD CONSTRAINT catalogs_slug_unique UNIQUE(slug);

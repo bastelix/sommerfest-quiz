@@ -16,14 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
-  function formatDuration(sec) {
-    const h = Math.floor(sec / 3600);
-    const m = Math.floor((sec % 3600) / 60);
-    const s = sec % 60;
-    const pad = n => n.toString().padStart(2, '0');
-    return (h ? h + ':' + pad(m) : m) + ':' + pad(s);
-  }
-
   function renderTable(rows) {
     if (!tbody) return;
     tbody.innerHTML = '';
