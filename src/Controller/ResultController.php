@@ -105,7 +105,7 @@ class ResultController
         if ($json !== null) {
             $list = json_decode($json, true) ?: [];
             foreach ($list as $c) {
-                $name = $c['name'] ?? ($c['sort_order'] ?? '');
+                $name = $c['name'] ?? '';
                 if (isset($c['uid'])) {
                     $map[$c['uid']] = $name;
                 }
