@@ -1,7 +1,8 @@
 ---
 layout: default
 title: Datenschutz
-nav_order: 10
+nav_order: 2
+parent: Besondere Funktionen
 toc: true
 ---
 

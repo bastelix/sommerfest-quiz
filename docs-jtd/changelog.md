@@ -1,7 +1,8 @@
 ---
 layout: default
 title: Changelog
-nav_order: 13
+nav_order: 1
+parent: Entwicklung & Updates
 toc: true
 ---
 

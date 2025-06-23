@@ -1,7 +1,8 @@
 ---
 layout: default
 title: Kontakt
-nav_order: 14
+nav_order: 4
+parent: Hilfe & Rechtliches
 toc: true
 ---
 

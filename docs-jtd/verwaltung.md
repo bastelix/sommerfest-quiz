@@ -1,7 +1,8 @@
 ---
 layout: default
 title: Admin & Nutzerverwaltung
-nav_order: 6
+nav_order: 3
+parent: Nutzung & Bedienung
 toc: true
 ---
 

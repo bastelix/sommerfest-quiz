@@ -1,7 +1,8 @@
 ---
 layout: default
 title: Barrierefreiheit
-nav_order: 9
+nav_order: 1
+parent: Besondere Funktionen
 toc: true
 ---
 

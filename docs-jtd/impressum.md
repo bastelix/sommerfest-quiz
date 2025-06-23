@@ -1,7 +1,8 @@
 ---
 layout: default
 title: Impressum
-nav_order: 15
+nav_order: 3
+parent: Hilfe & Rechtliches
 ---
 
 Angaben gemäß § 5 TMG
