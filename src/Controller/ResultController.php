@@ -85,7 +85,7 @@ class ResultController
                 $answer = (string)($data['puzzleAnswer'] ?? '');
                 $expected = (string)($this->config->getConfig()['puzzleWord'] ?? '');
                 $a = mb_strtolower(trim($answer), 'UTF-8');
-                $e = mb_strtolower($expected, 'UTF-8');
+                $e = mb_strtolower(trim($expected), 'UTF-8');
                 if ($a !== '' && $a === $e) {
                     $this->service->markPuzzle($name, $catalog, $time);
                 }
