@@ -41,6 +41,9 @@ class AdminController
                 if (isset($c['sort_order'])) {
                     $catMap[$c['sort_order']] = $name;
                 }
+                if (isset($c['slug'])) {
+                    $catMap[$c['slug']] = $name;
+                }
             }
         }
         foreach ($results as &$row) {
