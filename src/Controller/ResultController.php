@@ -161,7 +161,7 @@ class ResultController
         return [
             (string)($r['name'] ?? ''),
             (int)($r['attempt'] ?? 0),
-            (string)($r['catalog'] ?? ''),
+            (string)($r['catalogName'] ?? $r['catalog'] ?? ''),
             (int)($r['correct'] ?? 0),
             (int)($r['total'] ?? 0),
             date('Y-m-d H:i', (int)($r['time'] ?? 0)),
