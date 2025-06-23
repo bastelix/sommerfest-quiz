@@ -172,13 +172,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if(val && val === expected.toLowerCase()){
           feedback.textContent = custom || 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
           feedback.className = 'uk-margin-top uk-text-center uk-text-success';
+          const ts = Math.floor(Date.now()/1000);
           sessionStorage.setItem('puzzleSolved', 'true');
+          sessionStorage.setItem('puzzleTime', String(ts));
           const userName = sessionStorage.getItem('quizUser') || '';
           const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
           fetch('/results', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: userName, catalog, puzzleTime: Math.floor(Date.now()/1000) })
+            body: JSON.stringify({ name: userName, catalog, puzzleTime: ts })
           }).catch(()=>{});
           updatePuzzleInfo();
           input.disabled = true;
