@@ -149,20 +149,20 @@ body.uk-padding {
 
 /* Maintain original footer height */
 .bottombar .uk-navbar-item > a {
-  min-height: 56px;
+  min-height: 48px;
   padding-top: 0;
   padding-bottom: 0;
 }
 
 /* Reduce footer height */
 .bottombar .uk-navbar-nav > li > a {
-  min-height: 56px;
+  min-height: 48px;
   padding-top: 0;
   padding-bottom: 0;
 }
 
 .footer-placeholder {
-  height: calc(56px + env(safe-area-inset-bottom));
+  height: calc(48px + env(safe-area-inset-bottom));
 }
 
 @keyframes fadeIn {
