@@ -1,3 +1,4 @@
+/* global UIkit */
 document.addEventListener('DOMContentLoaded', function () {
   function notify(msg, status = 'primary') {
     if (typeof UIkit !== 'undefined' && UIkit.notification) {

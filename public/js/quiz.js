@@ -1,3 +1,4 @@
+/* global UIkit, Html5Qrcode, generateUserName */
 // Hauptskript des Quizzes. Dieses File erzeugt dynamisch alle Fragen,
 // wertet Antworten aus und speichert das Ergebnis im Browser.
 // Der Code wird ausgeführt, sobald das DOM geladen ist.
