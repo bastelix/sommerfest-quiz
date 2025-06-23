@@ -163,12 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(!solvedBefore) UIkit.util.on(modal, 'shown', () => { input.focus(); });
     const expected = (window.quizConfig && window.quizConfig.puzzleWord) ? window.quizConfig.puzzleWord : '';
     const custom = (window.quizConfig && window.quizConfig.puzzleFeedback) ? window.quizConfig.puzzleFeedback.trim() : '';
-    if(solvedBefore){
-      feedback.innerHTML = 'Du hast das Rätselwort bereits gelöst:<br><strong>' + expected + '</strong><br>' + (custom || 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!');
-      feedback.className = 'uk-margin-top uk-text-center uk-text-success';
-      btn.addEventListener('click', () => ui.hide());
-    }else{
-      function handleCheck(){
+    function handleCheck(){
         const val = (input.value || '').trim().toLowerCase();
         if(val && val === expected.toLowerCase()){
           feedback.textContent = custom || 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
@@ -191,7 +186,12 @@ document.addEventListener('DOMContentLoaded', () => {
           feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
           return;
         }
-      }
+    }
+    if(solvedBefore){
+      feedback.innerHTML = 'Du hast das Rätselwort bereits gelöst:<br><strong>' + expected + '</strong><br>' + (custom || 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!');
+      feedback.className = 'uk-margin-top uk-text-center uk-text-success';
+      btn.addEventListener('click', () => ui.hide());
+    }else{
       btn.addEventListener('click', handleCheck);
     }
     ui.show();

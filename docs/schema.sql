@@ -1,6 +1,11 @@
 -- Database schema for Sommerfest Quiz
 -- Mirrors the JSON structure stored under data/
 
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_NULLS ON;
+SET NOCOUNT ON;
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;
+
 -- Configuration settings (one row expected)
 CREATE TABLE IF NOT EXISTS config (
     id SERIAL PRIMARY KEY,
