@@ -31,6 +31,12 @@ class SummaryController
     {
         $view = Twig::fromRequest($request);
         $cfg = $this->config->getConfig();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (empty($_SESSION['admin'])) {
+            $cfg = ConfigService::removePuzzleInfo($cfg);
+        }
         return $view->render($response, 'summary.twig', ['config' => $cfg]);
     }
 }
