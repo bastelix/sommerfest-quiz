@@ -110,6 +110,12 @@ document.addEventListener('DOMContentLoaded', function () {
       case 'h3':
         wrapSelection(commentTextarea, '<h3>', '</h3>');
         break;
+      case 'h4':
+        wrapSelection(commentTextarea, '<h4>', '</h4>');
+        break;
+      case 'h5':
+        wrapSelection(commentTextarea, '<h5>', '</h5>');
+        break;
       case 'bold':
         wrapSelection(commentTextarea, '<strong>', '</strong>');
         break;
