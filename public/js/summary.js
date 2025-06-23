@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const filtered = rows.filter(row => row.name === user);
         const map = new Map();
         filtered.forEach(r => {
-          const name = catMap[r.catalog] || r.catalog;
+          const name = r.catalogName || catMap[r.catalog] || r.catalog;
           map.set(name, `${r.correct}/${r.total}`);
         });
         const table = document.createElement('table');
@@ -125,15 +125,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (wrong.length) {
           const h = document.createElement('h4');
           h.textContent = 'Falsch beantwortete Fragen';
-          const ul = document.createElement('ul');
-          wrong.forEach(w => {
-            const li = document.createElement('li');
-            const cat = catMap[w.catalog] || w.catalog;
-            li.textContent = `${cat}: ${w.prompt}`;
-            ul.appendChild(li);
-          });
           tbodyContainer?.appendChild(h);
-          tbodyContainer?.appendChild(ul);
+          wrong.forEach(w => {
+            const card = document.createElement('div');
+            card.className = 'uk-card uk-card-muted uk-card-body question-preview';
+            const title = document.createElement('h5');
+            const cat = w.catalogName || catMap[w.catalog] || w.catalog;
+            title.textContent = cat;
+            const prompt = document.createElement('p');
+            prompt.textContent = w.prompt || '';
+            card.appendChild(title);
+            card.appendChild(prompt);
+            tbodyContainer?.appendChild(card);
+          });
         }
       })
       .catch(() => {
