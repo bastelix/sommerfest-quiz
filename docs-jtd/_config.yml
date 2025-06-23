@@ -10,3 +10,15 @@ plugins:
 toc:
   min_level: 2
   max_level: 3
+
+# GitHub Repo-Button
+github:
+  url: https://github.com/bastelix/sommerfest-quiz
+
+color:
+  primary: "#5e81ac"
+  accent: "#88c0d0"
+
+# Footer-Text
+footer: |
+  © 2025 Sommerfest Quiz. Made with ❤️ in Potsdam.
