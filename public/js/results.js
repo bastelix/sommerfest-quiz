@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function fetchCatalogMap() {
     if (catalogMap) return Promise.resolve(catalogMap);
-    return fetch('/kataloge/catalogs.json')
+    return fetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(list => {
         const map = {};
