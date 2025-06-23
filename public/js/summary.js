@@ -217,7 +217,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const expected = (window.quizConfig && window.quizConfig.puzzleWord) ? window.quizConfig.puzzleWord : '';
     const custom = (window.quizConfig && window.quizConfig.puzzleFeedback) ? window.quizConfig.puzzleFeedback.trim() : '';
     function handleCheck(){
-        const val = (input.value || '').trim().toLowerCase();
+        const valRaw = (input.value || '').trim();
+        const val = valRaw.toLowerCase();
         if(val && val === expected.toLowerCase()){
           feedback.textContent = custom || 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
           feedback.className = 'uk-margin-top uk-text-center uk-text-success';
@@ -229,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
           fetch('/results', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: userName, catalog, puzzleTime: ts })
+            body: JSON.stringify({ name: userName, catalog, puzzleTime: ts, puzzleAnswer: valRaw })
           }).catch(()=>{});
           updatePuzzleInfo();
           input.disabled = true;

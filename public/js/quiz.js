@@ -1023,7 +1023,8 @@ function runQuiz(questions, skipIntro){
     UIkit.util.on(modal, 'shown', () => { input.focus(); });
     function handleCheck(){
       const expected = (window.quizConfig && window.quizConfig.puzzleWord) ? window.quizConfig.puzzleWord.toLowerCase() : '';
-      const val = (input.value || '').trim().toLowerCase();
+      const valRaw = (input.value || '').trim();
+      const val = valRaw.toLowerCase();
       if(val && val === expected){
         const custom = (window.quizConfig && window.quizConfig.puzzleFeedback) ? window.quizConfig.puzzleFeedback.trim() : '';
         feedback.textContent = custom || 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
@@ -1036,7 +1037,7 @@ function runQuiz(questions, skipIntro){
         fetch('/results', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: user, catalog, puzzleTime: ts })
+          body: JSON.stringify({ name: user, catalog, puzzleTime: ts, puzzleAnswer: valRaw })
         }).catch(()=>{});
         const infoEl = summaryEl.querySelector('#puzzle-info');
         fetchLatestPuzzleEntry(user, catalog).then(entry => {

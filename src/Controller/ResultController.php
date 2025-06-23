@@ -82,7 +82,11 @@ class ResultController
                 $name = (string)($data['name'] ?? '');
                 $catalog = (string)($data['catalog'] ?? '');
                 $time = (int)$data['puzzleTime'];
-                $this->service->markPuzzle($name, $catalog, $time);
+                $answer = (string)($data['puzzleAnswer'] ?? '');
+                $expected = (string)($this->config->getConfig()['puzzleWord'] ?? '');
+                if ($answer !== '' && strcasecmp(trim($answer), $expected) === 0) {
+                    $this->service->markPuzzle($name, $catalog, $time);
+                }
             } else {
                 $this->service->add($data);
             }
