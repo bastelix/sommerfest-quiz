@@ -91,7 +91,7 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
    # Datenbankparameter setzen (Beispielwerte)
    export POSTGRES_DSN="pgsql:host=localhost;dbname=quiz"
    export POSTGRES_USER=quiz
-   export POSTGRES_PASSWORD=quiz
+   export POSTGRES_PASSWORD=***
    export POSTGRES_DB=quiz
 
    # Schema importieren
@@ -262,7 +262,7 @@ Alle wesentlichen Einstellungen stehen in `data/config.json` und werden beim ers
   "buttonColor": "#1e87f0",
   "CheckAnswerButton": "no",
   "adminUser": "admin",
-  "adminPass": "$2b$12$RoNQr1KMGXROQTS1hhqfruEYsr27wiHPgc6hcI71BIpb6./zu6BM2",
+  "adminPass": "***",
   "QRRestrict": false,
   "competitionMode": false,
   "teamResults": true,
@@ -272,7 +272,7 @@ Alle wesentlichen Einstellungen stehen in `data/config.json` und werden beim ers
   "puzzleFeedback": "",
   "postgres_dsn": "pgsql:host=postgres;dbname=quiz",
   "postgres_user": "quiz",
-  "postgres_pass": "quiz"
+  "postgres_pass": "***"
 }
 ```
 
