@@ -327,11 +327,8 @@ body.dark-mode .sticky-actions {
   margin-top: 8px;
 }
 
-/* Equal width start buttons */
-.login-buttons {
-  gap: 8px;
-}
+/* Start buttons layout */
 .login-buttons button {
-  flex: 1;
+  width: 100%;
 }
 
