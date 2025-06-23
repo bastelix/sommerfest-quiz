@@ -24,6 +24,12 @@ class HomeController
         $view = Twig::fromRequest($request);
         $pdo = Database::connectFromEnv();
         $cfg = (new ConfigService($pdo))->getConfig();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (empty($_SESSION['admin'])) {
+            $cfg = ConfigService::removePuzzleInfo($cfg);
+        }
 
         $catalogService = new CatalogService($pdo);
 

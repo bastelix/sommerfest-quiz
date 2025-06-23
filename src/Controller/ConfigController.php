@@ -28,11 +28,18 @@ class ConfigController
      */
     public function get(Request $request, Response $response): Response
     {
-        $content = $this->service->getJson();
-        if ($content === null) {
+        $cfg = $this->service->getConfig();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (empty($_SESSION['admin'])) {
+            $cfg = ConfigService::removePuzzleInfo($cfg);
+        }
+        if ($cfg === []) {
             return $response->withStatus(404);
         }
 
+        $content = json_encode($cfg, JSON_PRETTY_PRINT);
         $response->getBody()->write($content);
         return $response->withHeader('Content-Type', 'application/json');
     }

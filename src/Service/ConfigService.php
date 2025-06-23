@@ -47,6 +47,18 @@ class ConfigService
     }
 
     /**
+     * Remove puzzle word fields from the configuration array.
+     *
+     * @param array<string,mixed> $cfg
+     * @return array<string,mixed>
+     */
+    public static function removePuzzleInfo(array $cfg): array
+    {
+        unset($cfg['puzzleWord'], $cfg['puzzleFeedback']);
+        return $cfg;
+    }
+
+    /**
      * Replace stored configuration with new values.
      */
     public function saveConfig(array $data): void
