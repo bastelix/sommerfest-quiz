@@ -147,22 +147,24 @@ body.uk-padding {
   align-items: center;
 }
 
-/* Maintain original footer height */
+/* Footer item alignment */
 .bottombar .uk-navbar-item > a {
-  min-height: 48px;
+  min-height: 38px;
   padding-top: 0;
   padding-bottom: 0;
+  display: flex;
+  align-items: center;
 }
 
-/* Reduce footer height */
+/* Footer link height */
 .bottombar .uk-navbar-nav > li > a {
-  min-height: 48px;
+  min-height: 38px;
   padding-top: 0;
   padding-bottom: 0;
 }
 
 .footer-placeholder {
-  height: calc(48px + env(safe-area-inset-bottom));
+  height: calc(38px + env(safe-area-inset-bottom));
 }
 
 @keyframes fadeIn {
@@ -207,13 +209,13 @@ a.uk-accordion-title {
     padding-right: 8px;
   }
   .bottombar .uk-navbar-nav > li > a {
-    min-height: 48px;
+    min-height: 38px;
   }
   .bottombar .uk-navbar-item > a {
-    min-height: 48px;
+    min-height: 38px;
   }
   .footer-placeholder {
-    height: calc(48px + env(safe-area-inset-bottom));
+    height: calc(38px + env(safe-area-inset-bottom));
   }
 }
 
