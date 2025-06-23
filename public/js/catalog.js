@@ -303,10 +303,11 @@
     if(!container) return;
     container.innerHTML = '';
     const div = document.createElement('div');
-    div.className = 'uk-text-center login-buttons uk-flex uk-flex-column uk-flex-row@s uk-flex-center uk-flex-middle';
+    div.className = 'uk-text-center login-buttons uk-grid-small';
+    div.setAttribute('uk-grid', '');
     if(cfg.QRUser){
       const scanBtn = document.createElement('button');
-      scanBtn.className = 'uk-button uk-button-primary uk-width-1-1 uk-width-auto@s uk-flex-1';
+      scanBtn.className = 'uk-button uk-button-primary uk-width-1-1';
       scanBtn.textContent = 'Name mit QR-Code scannen';
       if(cfg.buttonColor){
         scanBtn.style.backgroundColor = cfg.buttonColor;
@@ -318,7 +319,7 @@
         bypass = document.createElement('button');
         bypass.type = 'button';
         bypass.textContent = 'Kataloge anzeigen';
-        bypass.className = 'uk-button uk-button-primary uk-width-1-1 uk-width-auto@s uk-flex-1 uk-margin-top uk-margin-remove-top@s uk-margin-left@s';
+        bypass.className = 'uk-button uk-button-primary uk-width-1-1';
         if(cfg.buttonColor){
           bypass.style.backgroundColor = cfg.buttonColor;
           bypass.style.borderColor = cfg.buttonColor;
@@ -409,8 +410,16 @@
       stopBtn.addEventListener('click', () => {
         UIkit.modal(modal).hide();
       });
-      div.appendChild(scanBtn);
-      if(bypass) div.appendChild(bypass);
+      const scanWrap = document.createElement('div');
+      scanWrap.className = bypass ? 'uk-width-1-2@s' : 'uk-width-1-1';
+      scanWrap.appendChild(scanBtn);
+      div.appendChild(scanWrap);
+      if(bypass){
+        const bypassWrap = document.createElement('div');
+        bypassWrap.className = 'uk-width-1-2@s';
+        bypassWrap.appendChild(bypass);
+        div.appendChild(bypassWrap);
+      }
       container.appendChild(modal);
       if(autoScan){
         UIkit.modal(modal).show();
