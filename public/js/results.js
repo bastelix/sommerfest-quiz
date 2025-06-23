@@ -266,6 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const name = c.name || c.sort_order || '';
             if (c.uid) map[c.uid] = name;
             if (c.sort_order) map[c.sort_order] = name;
+            if (c.slug) map[c.slug] = name;
           });
         }
         catalogMap = map;
@@ -285,7 +286,9 @@ document.addEventListener('DOMContentLoaded', () => {
     ])
       .then(([catMap, rows, qrows]) => {
         rows.forEach(r => {
-          if (catMap[r.catalog]) r.catalog = catMap[r.catalog];
+          if (catMap[r.catalog]) {
+            r.catalogName = catMap[r.catalog];
+          }
         });
         rows.sort((a, b) => b.time - a.time);
         resultsData = rows;
@@ -297,7 +300,9 @@ document.addEventListener('DOMContentLoaded', () => {
         renderRankings(rankings);
 
         qrows.forEach(r => {
-          if (catMap[r.catalog]) r.catalog = catMap[r.catalog];
+          if (catMap[r.catalog]) {
+            r.catalogName = catMap[r.catalog];
+          }
         });
         const wrongOnly = qrows.filter(r => !r.correct);
         renderWrongTable(wrongOnly);

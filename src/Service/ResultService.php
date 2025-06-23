@@ -34,7 +34,17 @@ class ResultService
             . 'OR c.slug = r.catalog '
             . 'ORDER BY r.id';
         $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rows as &$row) {
+            foreach (["options","answers","terms","items"] as $k) {
+                if (isset($row[$k]) && $row[$k] !== null) {
+                    $row[$k] = json_decode((string)$row[$k], true);
+                } else {
+                    unset($row[$k]);
+                }
+            }
+        }
+        return $rows;
     }
 
     /**
@@ -43,7 +53,8 @@ class ResultService
     public function getQuestionResults(): array
     {
         $sql = 'SELECT qr.name, qr.catalog, qr.question_id, qr.attempt, qr.correct,' .
-            ' q.prompt, c.name AS catalogName '
+            ' q.type, q.prompt, q.options, q.answers, q.terms, q.items,' .
+            ' c.name AS catalogName '
             . 'FROM question_results qr '
             . 'LEFT JOIN questions q ON q.id = qr.question_id '
             . 'LEFT JOIN catalogs c ON c.uid = q.catalog_uid '
@@ -51,7 +62,17 @@ class ResultService
             . 'OR c.slug = qr.catalog '
             . 'ORDER BY qr.id';
         $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rows as &$row) {
+            foreach (["options", "answers", "terms", "items"] as $k) {
+                if (isset($row[$k]) && $row[$k] !== null) {
+                    $row[$k] = json_decode((string) $row[$k], true);
+                } else {
+                    unset($row[$k]);
+                }
+            }
+        }
+        return $rows;
     }
 
     /**

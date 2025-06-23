@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const name = c.name || c.sort_order || '';
             if (c.uid) map[c.uid] = name;
             if (c.sort_order) map[c.sort_order] = name;
+            if (c.slug) map[c.slug] = name;
           });
         }
         catalogMap = map;
@@ -65,6 +66,61 @@ document.addEventListener('DOMContentLoaded', () => {
     }else{
       if(puzzleInfo) puzzleInfo.textContent = '';
     }
+  }
+
+  function renderQuestionPreview(q, catMap){
+    const card = document.createElement('div');
+    card.className = 'uk-card uk-card-muted uk-card-body question-preview';
+    const title = document.createElement('h5');
+    const cat = q.catalogName || catMap[q.catalog] || q.catalog;
+    title.textContent = cat;
+    card.appendChild(title);
+
+    const h = document.createElement('h4');
+    h.textContent = q.prompt || '';
+    card.appendChild(h);
+
+    const type = q.type || 'mc';
+    if(type === 'sort' && Array.isArray(q.items)){
+      const ul = document.createElement('ul');
+      q.items.forEach(it => {
+        const li = document.createElement('li');
+        li.textContent = it;
+        ul.appendChild(li);
+      });
+      card.appendChild(ul);
+    }else if(type === 'assign' && Array.isArray(q.terms)){
+      const ul = document.createElement('ul');
+      q.terms.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = (p.term || '') + ' – ' + (p.definition || '');
+        ul.appendChild(li);
+      });
+      card.appendChild(ul);
+    }else if(type === 'swipe' && Array.isArray(q.cards)){
+      const ul = document.createElement('ul');
+      q.cards.forEach(c => {
+        const li = document.createElement('li');
+        li.textContent = c.text + (c.correct ? ' ✓' : '');
+        ul.appendChild(li);
+      });
+      card.appendChild(ul);
+    }else{
+      const ul = document.createElement('ul');
+      if(Array.isArray(q.options)){
+        const answers = Array.isArray(q.answers) ? q.answers : [];
+        q.options.forEach((opt, i) => {
+          const li = document.createElement('li');
+          const correct = answers.includes(i);
+          li.textContent = opt + (correct ? ' ✓' : '');
+          if(correct) li.classList.add('uk-text-success');
+          ul.appendChild(li);
+        });
+      }
+      card.appendChild(ul);
+    }
+
+    return card;
   }
 
   function showResults(){
@@ -127,15 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
           h.textContent = 'Falsch beantwortete Fragen';
           tbodyContainer?.appendChild(h);
           wrong.forEach(w => {
-            const card = document.createElement('div');
-            card.className = 'uk-card uk-card-muted uk-card-body question-preview';
-            const title = document.createElement('h5');
-            const cat = w.catalogName || catMap[w.catalog] || w.catalog;
-            title.textContent = cat;
-            const prompt = document.createElement('p');
-            prompt.textContent = w.prompt || '';
-            card.appendChild(title);
-            card.appendChild(prompt);
+            const card = renderQuestionPreview(w, catMap);
             tbodyContainer?.appendChild(card);
           });
         }
