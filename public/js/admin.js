@@ -831,9 +831,12 @@ document.addEventListener('DOMContentLoaded', function () {
         preview.appendChild(ul);
       } else {
         const ul = document.createElement('ul');
-        Array.from(fields.querySelectorAll('.option')).forEach(o => {
+        Array.from(fields.querySelectorAll('.option-row')).forEach(r => {
+          const input = r.querySelector('.option');
+          const check = r.querySelector('.answer').checked;
           const li = document.createElement('li');
-          li.textContent = o.value;
+          li.textContent = input.value + (check ? ' ✓' : '');
+          if (check) li.classList.add('uk-text-success');
           ul.appendChild(li);
         });
         preview.appendChild(ul);
