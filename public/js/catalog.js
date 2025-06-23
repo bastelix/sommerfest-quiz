@@ -1,3 +1,4 @@
+/* global UIkit, Html5Qrcode, generateUserName */
 // Lädt die verfügbaren Fragenkataloge und startet nach Auswahl das Quiz
 (function(){
   function setSubHeader(text){

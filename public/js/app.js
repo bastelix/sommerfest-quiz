@@ -1,3 +1,4 @@
+/* global UIkit */
 document.addEventListener('DOMContentLoaded', function () {
   const themeToggle = document.getElementById('theme-toggle');
   const contrastToggle = document.getElementById('contrast-toggle');

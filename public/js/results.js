@@ -1,3 +1,4 @@
+/* global UIkit */
 document.addEventListener('DOMContentLoaded', () => {
   const tbody = document.getElementById('resultsTableBody');
   const wrongBody = document.getElementById('wrongTableBody');

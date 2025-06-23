@@ -1,3 +1,4 @@
+/* global UIkit */
 document.addEventListener('DOMContentLoaded', () => {
   const resultsBtn = document.getElementById('show-results-btn');
   const puzzleBtn = document.getElementById('check-puzzle-btn');

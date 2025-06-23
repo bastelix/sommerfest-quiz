@@ -1,3 +1,4 @@
+/* global UIkit */
 (function(UIkit){
   const i18n = {
     close: { label: 'Schließen' },
