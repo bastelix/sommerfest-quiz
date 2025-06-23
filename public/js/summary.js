@@ -129,6 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modal.setAttribute('aria-modal', 'true');
     modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
       '<h3 class="uk-modal-title uk-text-center">Ergebnisübersicht</h3>' +
+      '<p class="uk-text-center">' + user + '</p>' +
       '<div id="team-results" class="uk-overflow-auto"></div>' +
       '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Schließen</button>' +
       '</div>';
