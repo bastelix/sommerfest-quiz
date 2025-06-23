@@ -217,13 +217,27 @@
             <table class="uk-table uk-table-divider uk-table-small">
               <thead>
                 <tr>
-                  <th uk-tooltip="title: Zum Sortieren Zeile ziehen; pos: top"></th>
-                  <th uk-tooltip="title: URL-Name; pos: top">Slug</th>
-                  <th uk-tooltip="title: Katalogtitel; pos: top">Name</th>
-                  <th uk-tooltip="title: Katalogbeschreibung; pos: top">Beschreibung</th>
-                  <th uk-tooltip="title: Rätselbuchstabe; pos: top">Buchstabe</th>
-                  <th uk-tooltip="title: Notiz; pos: top">Kommentar</th>
-                  <th uk-tooltip="title: Katalog entfernen; pos: top"></th>
+                  <th>
+                    <span uk-icon="icon: question" uk-tooltip="title: Zum Sortieren Zeile ziehen; pos: top"></span>
+                  </th>
+                  <th>Slug
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Eindeutiger Name in der URL; pos: top"></span>
+                  </th>
+                  <th>Name
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Angezeigter Titel des Katalogs; pos: top"></span>
+                  </th>
+                  <th>Beschreibung
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Beschreibung auf der Startseite des Katalogs; pos: top"></span>
+                  </th>
+                  <th>Buchstabe
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Buchstabe für das Rätselwort; pos: top"></span>
+                  </th>
+                  <th>Kommentar
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Interne Notiz; pos: top"></span>
+                  </th>
+                  <th>
+                    <span uk-icon="icon: question" uk-tooltip="title: Katalog entfernen; pos: top"></span>
+                  </th>
                 </tr>
               </thead>
               <tbody id="catalogList" uk-sortable="group: sortable-group"></tbody>
