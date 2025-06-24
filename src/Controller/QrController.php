@@ -16,6 +16,7 @@ use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\Label\Font\NotoSans;
 use Endroid\QrCode\RoundBlockSizeMode;
 use FPDF;
+use Intervention\Image\ImageManagerStatic as Image;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -165,13 +166,20 @@ class QrController
         $cfg = $this->config->getConfig();
         $title = (string)($cfg['header'] ?? '');
         $subtitle = (string)($cfg['subheader'] ?? '');
-        $logoPath = __DIR__ . '/../../data/logo.png';
+        $logoFile = __DIR__ . '/../../' . ltrim($cfg['logoPath'] ?? '', '/');
+        $logoTemp = null;
         // Height of the header area in which logo, titles and QR code are placed
         $qrSize = 70.0; // mm
         $headerHeight = max(25.0, $qrSize + 10.0); // ensure QR code fits
 
-        if (is_readable($logoPath)) {
-            $pdf->Image($logoPath, 10, 10, 20, 0, 'PNG');
+        if (is_readable($logoFile)) {
+            if (str_ends_with(strtolower($logoFile), '.webp')) {
+                $img = Image::make($logoFile);
+                $logoTemp = tempnam(sys_get_temp_dir(), 'logo') . '.png';
+                $img->encode('png')->save($logoTemp, 80);
+                $logoFile = $logoTemp;
+            }
+            $pdf->Image($logoFile, 10, 10, 20, 0, 'PNG');
         }
 
         $pdf->SetXY(10, 10);
@@ -190,6 +198,10 @@ class QrController
             $qrY = 10.0; // top margin
             $pdf->Image($tmp, $qrX, $qrY, $qrSize, $qrSize, 'PNG');
             unlink($tmp);
+        }
+
+        if ($logoTemp !== null) {
+            unlink($logoTemp);
         }
 
         $pdf->SetXY(10, $y + 5);
