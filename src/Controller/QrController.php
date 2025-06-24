@@ -136,7 +136,7 @@ class QrController
             return $response->withStatus(400);
         }
 
-        $fg     = (string)($params['fg'] ?? '23b45a');
+        $fg     = (string)($params['fg'] ?? '0000ff');
         $bg     = (string)($params['bg'] ?? 'ffffff');
         $size   = (int)($params['s'] ?? 300);
         $margin = (int)($params['m'] ?? 20);
@@ -148,7 +148,7 @@ class QrController
             ->size($size)
             ->margin($margin)
             ->backgroundColor($this->parseColor($bg, new Color(255, 255, 255)))
-            ->foregroundColor($this->parseColor($fg, new Color(35, 180, 90)));
+            ->foregroundColor($this->parseColor($fg, new Color(0, 0, 255)));
 
         $result = $builder
             ->roundBlockSizeMode(RoundBlockSizeMode::Margin)
@@ -169,7 +169,7 @@ class QrController
         $logoFile = __DIR__ . '/../../' . ltrim($cfg['logoPath'] ?? '', '/');
         $logoTemp = null;
         // Height of the header area in which logo, titles and QR code are placed
-        $qrSize = 70.0; // mm
+        $qrSize = 20.0; // mm
         $headerHeight = max(25.0, $qrSize + 10.0); // ensure QR code fits
 
         if (is_readable($logoFile)) {
@@ -212,6 +212,7 @@ class QrController
             $invite = preg_replace('/<p[^>]*>(.*?)<\/p>/i', "$1\n", $invite);
             $invite = strip_tags($invite);
             $invite = html_entity_decode($invite);
+            $invite = $this->sanitizePdfText($invite);
             $pdf->SetFont('Arial', '', 11);
             $pdf->MultiCell($pdf->GetPageWidth() - 20, 6, $invite);
         }
@@ -222,6 +223,16 @@ class QrController
         return $response
             ->withHeader('Content-Type', 'application/pdf')
             ->withHeader('Content-Disposition', 'inline; filename="qr.pdf"');
+    }
+
+    /**
+     * Convert a UTF-8 string to ISO-8859-1 and remove unsupported characters.
+     */
+    private function sanitizePdfText(string $text): string
+    {
+        // Remove characters outside ISO-8859-1
+        $text = preg_replace('/[^\x00-\xFF]/u', '', $text);
+        return utf8_decode($text);
     }
 
     /**
