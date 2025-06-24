@@ -53,11 +53,40 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
 
-  function updatePuzzleInfo(){
-    const solved = sessionStorage.getItem('puzzleSolved') === 'true';
+  async function fetchPuzzleTimeFromResults(name){
+    try{
+      const list = await fetch('/results.json').then(r => r.json());
+      if(Array.isArray(list)){
+        for(let i=list.length-1; i>=0; i--){
+          const e = list[i];
+          if(e.name === name && e.puzzleTime){
+            return parseInt(e.puzzleTime, 10);
+          }
+        }
+      }
+    }catch(e){
+      return null;
+    }
+    return null;
+  }
+
+  async function updatePuzzleInfo(){
+    let solved = sessionStorage.getItem('puzzleSolved') === 'true';
+    let ts = parseInt(sessionStorage.getItem('puzzleTime') || '0', 10);
+    if(!solved){
+      const name = getStored('quizUser') || '';
+      if(name){
+        const t = await fetchPuzzleTimeFromResults(name);
+        if(t){
+          solved = true;
+          ts = t;
+          sessionStorage.setItem('puzzleSolved', 'true');
+          sessionStorage.setItem('puzzleTime', String(t));
+        }
+      }
+    }
     if(solved){
       if (puzzleBtn) puzzleBtn.remove();
-      const ts = parseInt(sessionStorage.getItem('puzzleTime') || '0', 10);
       if(ts && puzzleInfo){
         puzzleInfo.textContent = `Rätselwort gelöst: ${formatTs(ts)}`;
       }
