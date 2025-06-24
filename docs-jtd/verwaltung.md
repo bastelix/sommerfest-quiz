@@ -21,14 +21,15 @@ Unter `/admin` stehen folgende Tabs zur Verfügung:
 4. **Teams/Personen** – Teilnehmerlisten pflegen, optional als Login-Beschränkung.
 5. **Ergebnisse** – Spielstände einsehen und herunterladen.
 6. **Statistik** – Einzelne Antworten analysieren und nach Teams filtern.
-7. **Passwort ändern** – Administrationspasswort setzen.
+7. **Administration** – Passwort ändern und Backups verwalten.
 
 Der Statistik-Tab listet jede Antwort mit Name, Versuch, Katalog, Frage, Antwort, Richtig-Status und optionalem Beweisfoto. Über ein Auswahlfeld lassen sich die Daten nach Teams oder Personen filtern.
 
 
 ## Weitere Funktionen
 
-- **Passwort ändern:** Ein POST auf `/password` speichert ein neues Admin-Passwort in `config.json`.
+- **Administration:** Ein POST auf `/password` speichert ein neues Admin-Passwort in `config.json`. Über `/export` kann ein JSON-Backup erstellt und per `/import` wieder eingespielt werden. 
+  Die Route `/backups` listet vorhandene Sicherungen.
 - **Logo hochladen:** Das aktuelle Logo wird unter `/logo.png` oder `/logo.webp` bereitgestellt. Über einen POST auf diese URLs lässt sich eine neue Datei hochladen.
 - **Ergebnisse exportieren:** Alle Resultate können als CSV-Datei heruntergeladen werden.
 Die API ermöglicht so die komplette Verwaltung eines Quizsystems und ist sowohl lokal als auch im Netzwerk schnell einsatzbereit.
