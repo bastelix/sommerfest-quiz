@@ -213,10 +213,12 @@ class QrController
             }
             $invite = str_ireplace('[team]', $team, $invite);
             $invite = preg_replace('/<br\s*\/>?/i', "\n", $invite);
-            $invite = preg_replace('/<h[1-6]>(.*?)<\/h[1-6]>/i', "$1\n", $invite);
-            $invite = preg_replace('/<p[^>]*>(.*?)<\/p>/i', "$1\n", $invite);
+            $invite = preg_replace('/<h[1-6]>(.*?)<\/h[1-6]>\s*/i', "$1\n", $invite);
+            $invite = preg_replace('/<p[^>]*>\s*(.*?)\s*<\/p>\s*/i', "$1\n", $invite);
             $invite = strip_tags($invite);
             $invite = html_entity_decode($invite);
+            $invite = preg_replace('/\n{2,}/', "\n", $invite);
+            $invite = trim($invite);
             $invite = $this->sanitizePdfText($invite);
             $pdf->SetFont('Arial', '', 11);
             $pdf->MultiCell($pdf->GetPageWidth() - 20, 6, $invite);
