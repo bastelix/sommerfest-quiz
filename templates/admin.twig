@@ -30,6 +30,7 @@
     <li data-help="Nach Auswahl eines Katalogs einzelne Fragen bearbeiten oder neue anlegen. 'Neue Frage' fügt eine weitere hinzu, 'Zurücksetzen' verwirft Änderungen, 'Speichern' sichert den gesamten Katalog."><a href="#">Fragen anpassen</a></li>
     <li data-help="Teilnehmerliste pflegen. Über 'Hinzufügen' Teams oder Personen ergänzen. Die Checkbox beschränkt die Teilnahme auf gelistete Namen. Speichern aktualisiert die Liste."><a href="#">Teams/Personen</a></li>
     <li data-help="Gespeicherte Ergebnisse mit richtigen Antworten und Zeit einsehen. 'Zurücksetzen' löscht alle Daten, 'Herunterladen' exportiert sie als CSV."><a href="#">Ergebnisse</a></li>
+    <li data-help="Einzelne Antworten analysieren. Tabelle filtert nach Teams/Personen."><a href="#">Statistik</a></li>
     <li data-help="QR-Codes für alle Kataloge und Teams anzeigen, um Quizlinks oder Anmeldungen weiterzugeben. 'Drucken' erstellt eine übersichtliche Liste."><a href="#">Zusammenfassung</a></li>
     <li data-help="Administrationspasswort ändern und Sicherungen verwalten."><a href="#">Administration</a></li>
   </ul>
@@ -351,6 +352,24 @@
     <li>
       <div class="uk-container uk-container-large">
         <div class="uk-flex uk-flex-between uk-flex-middle">
+          <h2 class="uk-heading-bullet">Statistik</h2>
+          <select id="statsFilter" class="uk-select uk-width-small">
+            <option value="">Alle</option>
+          </select>
+        </div>
+        <div style="overflow-x: auto">
+        <table class="uk-table uk-table-divider uk-table-responsive">
+          <thead>
+            <tr><th>Name</th><th>Versuch</th><th>Katalog</th><th>Frage</th><th>Antwort</th><th>Richtig</th><th>Beweisfoto</th></tr>
+          </thead>
+          <tbody id="statsTableBody" uk-lightbox="nav: thumbnav; slidenav: false"></tbody>
+        </table>
+        </div>
+      </div>
+    </li>
+    <li>
+      <div class="uk-container uk-container-large">
+        <div class="uk-flex uk-flex-between uk-flex-middle">
           <div>
             <h2 class="uk-heading-bullet">{{ config.header }}</h2>
             <p>{{ config.subheader }}</p>
@@ -461,4 +480,5 @@
   <script src="/js/admin.js"></script>
   <script src="/js/app.js"></script>
   <script src="/js/results.js"></script>
+  <script src="/js/stats.js"></script>
 {% endblock %}
