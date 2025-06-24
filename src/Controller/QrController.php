@@ -200,6 +200,7 @@ class QrController
             $invite = preg_replace('/<p[^>]*>(.*?)<\/p>/i', "$1\n", $invite);
             $invite = strip_tags($invite);
             $invite = html_entity_decode($invite);
+            $invite = $this->sanitizePdfText($invite);
             $pdf->SetFont('Arial', '', 11);
             $pdf->MultiCell($pdf->GetPageWidth() - 20, 6, $invite);
         }
@@ -210,6 +211,16 @@ class QrController
         return $response
             ->withHeader('Content-Type', 'application/pdf')
             ->withHeader('Content-Disposition', 'inline; filename="qr.pdf"');
+    }
+
+    /**
+     * Convert a UTF-8 string to ISO-8859-1 and remove unsupported characters.
+     */
+    private function sanitizePdfText(string $text): string
+    {
+        // Remove characters outside ISO-8859-1
+        $text = preg_replace('/[^\x00-\xFF]/u', '', $text);
+        return utf8_decode($text);
     }
 
     /**
