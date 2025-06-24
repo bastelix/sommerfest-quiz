@@ -103,4 +103,19 @@ class ResultServiceTest extends TestCase
         $this->assertSame('2', (string)$rows[1]['question_id']);
         $this->assertSame('0', (string)$rows[1]['correct']);
     }
+
+    public function testClearRemovesResultsAndQuestionResults(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE results(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, attempt INTEGER NOT NULL, correct INTEGER NOT NULL, total INTEGER NOT NULL, time INTEGER NOT NULL, puzzleTime INTEGER, photo TEXT);');
+        $pdo->exec('CREATE TABLE question_results(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, question_id INTEGER NOT NULL, attempt INTEGER NOT NULL, correct INTEGER NOT NULL, answer_text TEXT, photo TEXT, consent INTEGER);');
+        $service = new ResultService($pdo);
+        $service->add([ 'name' => 'Team', 'catalog' => 'cat1', 'correct' => 1, 'total' => 1 ]);
+        $service->clear();
+        $resCount = (int) $pdo->query('SELECT COUNT(*) FROM results')->fetchColumn();
+        $qresCount = (int) $pdo->query('SELECT COUNT(*) FROM question_results')->fetchColumn();
+        $this->assertSame(0, $resCount);
+        $this->assertSame(0, $qresCount);
+    }
 }
