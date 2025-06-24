@@ -472,7 +472,7 @@
         const r = await fetch('/results.json', {headers:{'Accept':'application/json'}});
         if(r.ok){
           const data = await r.json();
-          const user = sessionStorage.getItem('quizUser') || localStorage.getItem('quizUser');
+          const user = (sessionStorage.getItem('quizUser') || '') || (typeof localStorage !== 'undefined' ? localStorage.getItem('quizUser') : '');
           data.forEach(entry => {
             if(entry.name === user){
               solved.add(entry.catalog);
