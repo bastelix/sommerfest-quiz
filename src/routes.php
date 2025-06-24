@@ -145,6 +145,7 @@ return function (\Slim\App $app) {
     $app->get('/backups/{name}/download', [$backupController, 'download']);
     $app->delete('/backups/{name}', [$backupController, 'delete']);
     $app->get('/qr.png', [$qrController, 'image']);
+    $app->get('/qr.pdf', [$qrController, 'pdf']);
     $app->get('/logo.png', [$logoController, 'get'])->setArgument('ext', 'png');
     $app->post('/logo.png', [$logoController, 'post']);
     $app->get('/logo.webp', [$logoController, 'get'])->setArgument('ext', 'webp');

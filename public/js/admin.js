@@ -291,6 +291,16 @@ document.addEventListener('DOMContentLoaded', function () {
     window.print();
   });
 
+  document.querySelectorAll('.qr-print-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      const team = btn.getAttribute('data-team');
+      if (team) {
+        window.open('/qr.pdf?t=' + encodeURIComponent(team), '_blank');
+      }
+    });
+  });
+
   // --------- Fragen bearbeiten ---------
   const container = document.getElementById('questions');
   const addBtn = document.getElementById('addBtn');

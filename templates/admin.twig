@@ -402,7 +402,8 @@
         <div class="card-grid" uk-grid>
           {% for t in teams %}
           <div class="uk-width-1-1 uk-width-1-2@s">
-            <div class="export-card uk-card uk-card-default uk-card-body">
+            <div class="export-card uk-card uk-card-default uk-card-body uk-position-relative">
+              <button class="qr-print-btn uk-icon-button uk-position-top-right" data-team="{{ t }}" uk-icon="icon: print" aria-label="QR-Code drucken"></button>
               <h4 class="uk-card-title">{{ t }}</h4>
               <img src="/qr.png?t={{ t|url_encode }}&fg=004bc8" alt="QR" width="96" height="96">
             </div>
