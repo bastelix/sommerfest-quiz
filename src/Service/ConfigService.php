@@ -43,7 +43,19 @@ class ConfigService
     {
         $stmt = $this->pdo->query('SELECT * FROM config LIMIT 1');
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ? $this->normalizeKeys($row) : [];
+        if ($row) {
+            return $this->normalizeKeys($row);
+        }
+
+        $path = dirname(__DIR__, 2) . '/data/config.json';
+        if (is_readable($path)) {
+            $json = json_decode(file_get_contents($path), true);
+            if (is_array($json)) {
+                return $json;
+            }
+        }
+
+        return [];
     }
 
     /**
