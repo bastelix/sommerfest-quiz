@@ -1,4 +1,13 @@
 /* global UIkit */
+function getStored(key){
+  return sessionStorage.getItem(key) || localStorage.getItem(key);
+}
+function setStored(key, value){
+  try{
+    sessionStorage.setItem(key, value);
+    localStorage.setItem(key, value);
+  }catch(e){}
+}
 document.addEventListener('DOMContentLoaded', () => {
   const resultsBtn = document.getElementById('show-results-btn');
   const puzzleBtn = document.getElementById('check-puzzle-btn');
@@ -12,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     photoBtn.remove();
   }
   const puzzleInfo = document.getElementById('puzzle-solved-text');
-  const user = sessionStorage.getItem('quizUser') || '';
+  const user = getStored('quizUser') || '';
 
   let catalogMap = null;
   function fetchCatalogMap() {
@@ -55,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updatePuzzleInfo(){
     const solved = sessionStorage.getItem('puzzleSolved') === 'true';
-    const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
+    const catalog = getStored('quizCatalog') || 'unknown';
     if(solved){
       if (puzzleBtn) puzzleBtn.remove();
       fetchEntry(user, catalog).then(entry => {
@@ -217,14 +226,30 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleCheck(){
         const valRaw = (input.value || '').trim();
         const ts = Math.floor(Date.now()/1000);
-        const userName = sessionStorage.getItem('quizUser') || '';
-        const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
-        fetch('/results', {
+        const userName = getStored('quizUser') || '';
+        const catalog = getStored('quizCatalog') || 'unknown';
+        fetch('/results?debug=1', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: userName, catalog, puzzleTime: ts, puzzleAnswer: valRaw })
         })
-        .then(() => fetchEntry(userName, catalog))
+        .then(async r => {
+          if(!r.ok){
+            throw new Error('HTTP ' + r.status);
+          }
+          try{
+            return await r.json();
+          }catch(e){
+            return null;
+          }
+        })
+        .then(debug => {
+          if(debug){
+            feedback.textContent = `Debug: ${debug.normalizedAnswer} vs ${debug.normalizedExpected}`;
+            setTimeout(() => { feedback.textContent = ''; }, 3000);
+          }
+          return fetchEntry(userName, catalog);
+        })
         .then(entry => {
           if(entry && entry.puzzleTime){
             feedback.textContent = 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';

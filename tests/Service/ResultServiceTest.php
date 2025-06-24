@@ -47,9 +47,24 @@ class ResultServiceTest extends TestCase
 
         $service->add(['name' => 'TeamA', 'catalog' => 'cat1']);
         $ts = time();
-        $service->markPuzzle('TeamA', 'cat1', $ts);
+        $res = $service->markPuzzle('TeamA', 'cat1', $ts);
+        $this->assertTrue($res);
         $stmt = $pdo->query('SELECT puzzleTime FROM results');
         $this->assertSame($ts, (int)$stmt->fetchColumn());
+    }
+
+    public function testMarkPuzzleReturnsTrueIfAlreadySolved(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE results(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, attempt INTEGER NOT NULL, correct INTEGER NOT NULL, total INTEGER NOT NULL, time INTEGER NOT NULL, puzzleTime INTEGER, photo TEXT);');
+        $service = new ResultService($pdo);
+
+        $service->add(['name' => 'TeamA', 'catalog' => 'cat1', 'puzzleTime' => 123]);
+        $res = $service->markPuzzle('TeamA', 'cat1', 456);
+        $this->assertTrue($res);
+        $stmt = $pdo->query('SELECT puzzleTime FROM results');
+        $this->assertSame('123', $stmt->fetchColumn());
     }
 
     public function testSetPhotoUpdatesEntry(): void

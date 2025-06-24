@@ -77,6 +77,7 @@ class ResultController
     public function post(Request $request, Response $response): Response
     {
         $data = json_decode((string) $request->getBody(), true);
+        $result = ['success' => false];
         if (is_array($data)) {
             if (isset($data['puzzleTime'])) {
                 $name = (string)($data['name'] ?? '');
@@ -86,14 +87,20 @@ class ResultController
                 $expected = (string)($this->config->getConfig()['puzzleWord'] ?? '');
                 $a = mb_strtolower(trim($answer), 'UTF-8');
                 $e = mb_strtolower(trim($expected), 'UTF-8');
+                $result['answer'] = $answer;
+                $result['expected'] = $expected;
+                $result['normalizedAnswer'] = $a;
+                $result['normalizedExpected'] = $e;
                 if ($a !== '' && $a === $e) {
-                    $this->service->markPuzzle($name, $catalog, $time);
+                    $result['success'] = $this->service->markPuzzle($name, $catalog, $time);
                 }
             } else {
                 $this->service->add($data);
+                $result['success'] = true;
             }
         }
-        return $response->withStatus(204);
+        $response->getBody()->write(json_encode($result));
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
     /**
