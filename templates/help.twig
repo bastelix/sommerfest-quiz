@@ -28,6 +28,11 @@
     {% endblock %}
   {% endembed %}
   <div class="uk-container uk-container-small">
+    {% if config.inviteText %}
+    <div class="uk-card uk-card-default uk-card-body uk-margin">
+      {{ config.inviteText|raw }}
+    </div>
+    {% endif %}
     <div class="uk-card uk-card-default uk-card-body uk-margin">
       <h2 class="uk-heading-bullet">So funktioniert das Spiel</h2>
       <p>Es gibt verschiedene Stationen, die auf der Karte markiert sind. An jeder Station scannt ihr mit eurem Handy oder Tablet den dort angebrachten QR-Code und öffnet den Link – und schon kann's losgehen.</p>
