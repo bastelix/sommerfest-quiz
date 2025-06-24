@@ -281,12 +281,10 @@ function runQuiz(questions, skipIntro){
       const puzzleSolved = sessionStorage.getItem('puzzleSolved') === 'true';
       const puzzleInfo = summaryEl.querySelector('#puzzle-info');
       if(puzzleSolved && puzzleInfo){
-        const name = getStored('quizUser') || '';
-        fetchLatestPuzzleEntry(name, catalog).then(entry => {
-          if(entry && entry.puzzleTime){
-            puzzleInfo.textContent = `Rätselwort gelöst: ${formatPuzzleTime(entry.puzzleTime)}`;
-          }
-        }).catch(()=>{});
+        const ts = parseInt(sessionStorage.getItem('puzzleTime') || '0', 10);
+        if(ts){
+          puzzleInfo.textContent = `Rätselwort gelöst: ${formatPuzzleTime(ts)}`;
+        }
       }
       if(!puzzleSolved && !sessionStorage.getItem(attemptKey)){
         const puzzleBtn = document.createElement('button');
@@ -1060,27 +1058,26 @@ function runQuiz(questions, skipIntro){
           return null;
         }
       })
-      .then(debug => {
-        if(debug){
-          feedback.textContent = `Debug: ${debug.normalizedAnswer} vs ${debug.normalizedExpected}`;
-          setTimeout(() => { feedback.textContent = ''; }, 3000);
-        }
-        return fetchLatestPuzzleEntry(user, catalog);
-      })
-      .then(entry => {
-        if(entry && entry.puzzleTime){
-          feedback.textContent = 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
-          feedback.className = 'uk-margin-top uk-text-center uk-text-success';
-          sessionStorage.setItem('puzzleSolved', 'true');
-          sessionStorage.setItem('puzzleTime', String(entry.puzzleTime));
-          const infoEl = summaryEl.querySelector('#puzzle-info');
-          if(infoEl){
-            infoEl.textContent = `Rätselwort gelöst: ${formatPuzzleTime(entry.puzzleTime)}`;
+      .then(data => {
+        if(data){
+          if(data.normalizedAnswer !== undefined && data.normalizedExpected !== undefined){
+            feedback.textContent = `Debug: ${data.normalizedAnswer} vs ${data.normalizedExpected}`;
+            setTimeout(() => { feedback.textContent = ''; }, 3000);
           }
-        }else{
-          feedback.textContent = 'Das ist leider nicht korrekt. Viel Glück beim nächsten Versuch!';
-          feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
+          if(data.success){
+            feedback.textContent = 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
+            feedback.className = 'uk-margin-top uk-text-center uk-text-success';
+            sessionStorage.setItem('puzzleSolved', 'true');
+            sessionStorage.setItem('puzzleTime', String(ts));
+            const infoEl = summaryEl.querySelector('#puzzle-info');
+            if(infoEl){
+              infoEl.textContent = `Rätselwort gelöst: ${formatPuzzleTime(ts)}`;
+            }
+            return;
+          }
         }
+        feedback.textContent = 'Das ist leider nicht korrekt. Viel Glück beim nächsten Versuch!';
+        feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
       })
       .catch(() => {
         feedback.textContent = 'Fehler bei der Überprüfung.';
