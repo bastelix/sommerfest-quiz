@@ -213,16 +213,8 @@ class QrController
                 $team = 'Team';
             }
             $invite = str_ireplace('[team]', $team, $invite);
-            $invite = preg_replace('/<br\s*\/>?/i', "\n", $invite);
-            $invite = preg_replace('/<h[1-6]>(.*?)<\/h[1-6]>\s*/i', "$1\n", $invite);
-            $invite = preg_replace('/<p[^>]*>\s*(.*?)\s*<\/p>\s*/i', "$1\n", $invite);
-            $invite = strip_tags($invite);
-            $invite = html_entity_decode($invite);
-            $invite = preg_replace('/\n{2,}/', "\n", $invite);
-            $invite = trim($invite);
-            $invite = $this->sanitizePdfText($invite);
             $pdf->SetFont('Arial', '', 11);
-            $pdf->MultiCell($pdf->GetPageWidth() - 20, 6, $invite);
+            $this->renderHtml($pdf, $invite);
         }
 
         $output = $pdf->Output('S');
@@ -241,6 +233,73 @@ class QrController
         // Remove characters outside ISO-8859-1
         $text = preg_replace('/[^\x00-\xFF]/u', '', $text);
         return mb_convert_encoding($text, 'ISO-8859-1', 'UTF-8');
+    }
+
+    /**
+     * Render a limited subset of HTML tags to the PDF.
+     */
+    private function renderHtml(FPDF $pdf, string $html): void
+    {
+        libxml_use_internal_errors(true);
+        $doc = new \DOMDocument();
+        $doc->loadHTML('<div>' . $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        $this->renderHtmlNode($pdf, $doc->documentElement);
+    }
+
+    private function renderHtmlNode(FPDF $pdf, \DOMNode $node): void
+    {
+        foreach ($node->childNodes as $child) {
+            if ($child instanceof \DOMText) {
+                $text = $this->sanitizePdfText($child->nodeValue);
+                if ($text !== '') {
+                    $pdf->Write(6, $text);
+                }
+            } elseif ($child instanceof \DOMElement) {
+                $tag = strtolower($child->nodeName);
+                switch ($tag) {
+                    case 'br':
+                        $pdf->Ln(6);
+                        break;
+                    case 'p':
+                        $this->renderHtmlNode($pdf, $child);
+                        $pdf->Ln(12);
+                        break;
+                    case 'strong':
+                    case 'b':
+                        $style = $pdf->FontStyle;
+                        $size = $pdf->FontSizePt;
+                        $pdf->SetFont('', 'B', $size);
+                        $this->renderHtmlNode($pdf, $child);
+                        $pdf->SetFont('', $style, $size);
+                        break;
+                    case 'em':
+                    case 'i':
+                        $style = $pdf->FontStyle;
+                        $size = $pdf->FontSizePt;
+                        $pdf->SetFont('', 'I', $size);
+                        $this->renderHtmlNode($pdf, $child);
+                        $pdf->SetFont('', $style, $size);
+                        break;
+                    case 'h1':
+                    case 'h2':
+                    case 'h3':
+                    case 'h4':
+                    case 'h5':
+                    case 'h6':
+                        $level = (int)substr($tag, 1);
+                        $sizes = [1 => 16, 2 => 14, 3 => 12, 4 => 11, 5 => 11, 6 => 11];
+                        $prevStyle = $pdf->FontStyle;
+                        $pdf->SetFont('', 'B', $sizes[$level] ?? 11);
+                        $this->renderHtmlNode($pdf, $child);
+                        $pdf->Ln(8);
+                        $pdf->SetFont('', $prevStyle, 11);
+                        break;
+                    default:
+                        $this->renderHtmlNode($pdf, $child);
+                        break;
+                }
+            }
+        }
     }
 
     /**
