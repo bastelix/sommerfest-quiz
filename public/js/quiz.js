@@ -1050,7 +1050,16 @@ function runQuiz(questions, skipIntro){
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: user, catalog, puzzleTime: ts, puzzleAnswer: valRaw })
       })
-      .then(r => r.json())
+      .then(async r => {
+        if(!r.ok){
+          throw new Error('HTTP ' + r.status);
+        }
+        try{
+          return await r.json();
+        }catch(e){
+          return null;
+        }
+      })
       .then(debug => {
         if(debug){
           feedback.textContent = `Debug: ${debug.normalizedAnswer} vs ${debug.normalizedExpected}`;

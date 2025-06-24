@@ -155,9 +155,11 @@ class ResultService
         $stmt = $this->pdo->prepare('SELECT id,puzzleTime FROM results WHERE name=? AND catalog=? ORDER BY id DESC LIMIT 1');
         $stmt->execute([$name, $catalog]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($row && $row['puzzleTime'] === null) {
-            $upd = $this->pdo->prepare('UPDATE results SET puzzleTime=? WHERE id=?');
-            $upd->execute([$time, $row['id']]);
+        if ($row) {
+            if ($row['puzzleTime'] === null) {
+                $upd = $this->pdo->prepare('UPDATE results SET puzzleTime=? WHERE id=?');
+                $upd->execute([$time, $row['id']]);
+            }
             return true;
         }
         return false;
