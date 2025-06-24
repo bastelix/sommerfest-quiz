@@ -225,6 +225,16 @@ class QrController
     }
 
     /**
+     * Convert a UTF-8 string to ISO-8859-1 and remove unsupported characters.
+     */
+    private function sanitizePdfText(string $text): string
+    {
+        // Remove characters outside ISO-8859-1
+        $text = preg_replace('/[^\x00-\xFF]/u', '', $text);
+        return mb_convert_encoding($text, 'ISO-8859-1', 'UTF-8');
+    }
+
+    /**
      * Parse a hex color string or return the provided default.
      */
     private function parseColor(string $hex, Color $default): Color
