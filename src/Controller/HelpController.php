@@ -31,7 +31,7 @@ class HelpController
         }
 
         if (!empty($cfg['inviteText'])) {
-            $cfg['inviteText'] = str_ireplace('[team]', 'Team', (string)$cfg['inviteText']);
+            $cfg['inviteText'] = str_ireplace('[team]', 'Team´s', (string)$cfg['inviteText']);
         }
 
         return $view->render($response, 'help.twig', ['config' => $cfg]);

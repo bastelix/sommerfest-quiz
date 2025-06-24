@@ -35,7 +35,7 @@ class HelpControllerTest extends TestCase
         $request = $this->createRequest('GET', '/help');
         $response = $app->handle($request);
 
-        $this->assertStringContainsString('Hallo Team!', (string)$response->getBody());
+        $this->assertStringContainsString('Hallo Team´s!', (string)$response->getBody());
 
         unlink($dbFile);
     }
