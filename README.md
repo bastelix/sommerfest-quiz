@@ -311,6 +311,10 @@ Alle Resultate werden in der Datenbank abgelegt. Die API bietet folgende Endpunk
 - `GET /results/download` – erzeugt eine CSV-Datei mit allen Resultaten.
 - `GET /question-results.json` – listet falsch beantwortete Fragen.
 
+Die Ergebnisübersicht zeigt drei Ranglisten. Der Titel „Katalogmeister" basiert
+auf dem Zeitpunkt, an dem ein Team seinen letzten noch offenen Fragenkatalog
+abgeschlossen hat. Wer hier die früheste Zeit erreicht, führt die Liste an.
+
 
 ### Passwort ändern
 Ein POST auf `/password` speichert ein neues Admin-Passwort in `config.json`.
