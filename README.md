@@ -290,7 +290,8 @@ Unter `/admin` stehen folgende Tabs zur Verfügung:
 3. **Fragen anpassen** – Fragen eines Katalogs hinzufügen, bearbeiten oder löschen.
 4. **Teams/Personen** – Teilnehmerlisten pflegen, optional als Login-Beschränkung.
 5. **Ergebnisse** – Spielstände einsehen und herunterladen.
-6. **Passwort ändern** – Administrationspasswort setzen.
+6. **Statistik** – Einzelne Antworten analysieren und nach Teams filtern.
+7. **Passwort ändern** – Administrationspasswort setzen.
 
 ### Fragenkataloge
 `data/kataloge/catalogs.json` listet verfügbare Kataloge mit `slug`, Name und optionaler QR-Code-Adresse. Die Reihenfolge wird durch das Feld `sort_order` bestimmt. Jede Frage speichert die zugehörige `catalog_uid`. Jeder Eintrag kann zusätzlich ein Feld `raetsel_buchstabe` enthalten, das den Buchstaben für das Rätselwort festlegt. Die API bietet hierzu folgende Endpunkte:
@@ -314,6 +315,11 @@ Alle Resultate werden in der Datenbank abgelegt. Die API bietet folgende Endpunk
 Die Ergebnisübersicht zeigt drei Ranglisten. Der Titel „Katalogmeister" basiert
 auf dem Zeitpunkt, an dem ein Team seinen letzten noch offenen Fragenkatalog
 abgeschlossen hat. Wer hier die früheste Zeit erreicht, führt die Liste an.
+
+### Statistik
+Im Statistik-Tab lassen sich alle gegebenen Antworten detailliert auswerten. Die Tabelle zeigt Name, Versuch, Katalog,
+Frage, Antwort, ob sie korrekt war, und ein optionales Beweisfoto. Über ein Dropdown lässt sich die Ansicht auf einzelne
+Teams oder Personen beschränken.
 
 
 ### Passwort ändern
