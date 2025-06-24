@@ -8,7 +8,8 @@ Die Administrationsoberfl\u00e4che erreichen Sie \u00fcber `/admin` nach einem e
 4. **Teams/Personen** – Teilnehmerlisten pflegen und optional den Zugang einschr\u00e4nken.
 5. **Ergebnisse** – Spielst\u00e4nde einsehen und als CSV herunterladen.
 6. **Statistik** – Einzelne Antworten analysieren und nach Teams filtern.
-7. **Passwort \u00e4ndern** – Das Administrationspasswort setzen.
+7. **Administration** – Passwort \u00e4ndern und Backups verwalten.
+Im Tab "Administration" lassen sich JSON-Sicherungen exportieren und bei Bedarf wiederherstellen.
 Der Statistik-Tab listet jede Antwort mit Name, Versuch, Katalog, Frage, Antwort, Richtig-Status und optionalem Beweisfoto. Über ein Auswahlfeld lassen sich die Daten nach Teams oder Personen filtern.
 
 Weitere Funktionen wie der QR-Code-Login oder der Wettkampfmodus lassen sich in der Datei `data/config.json` aktivieren.
