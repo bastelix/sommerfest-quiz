@@ -11,7 +11,7 @@ toc: true
 ## Überblick
 
 - **Flexibel einsetzbar:** Fragenkataloge im JSON-Format lassen sich bequem austauschen oder erweitern.
-- **Drei Fragetypen:** Sortieren, Zuordnen und Multiple Choice bieten Abwechslung für jede Zielgruppe.
+- **Fünf Fragetypen:** Sortieren, Zuordnen, Multiple Choice, Swipe-Karten und Foto mit Texteingabe bieten Abwechslung für jede Zielgruppe.
 - **QR-Code-Login & Dunkelmodus:** Optionaler QR-Code-Login für schnelles Anmelden und ein zuschaltbares dunkles Design steigern den Komfort.
 - **Persistente Speicherung:** Konfigurationen, Kataloge und Ergebnisse liegen in einer PostgreSQL-Datenbank.
 

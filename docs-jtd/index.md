@@ -15,7 +15,7 @@ Die Anwendung entstand als Machbarkeitsstudie, um das Potenzial moderner Code-As
 Weitere Highlights sind unter anderem:
 
 - **Flexibel einsetzbar:** Kataloge im JSON-Format lassen sich einfach austauschen oder erweitern.
-- **Drei Fragetypen:** Sortieren, Zuordnen und Multiple Choice bieten Abwechslung für alle Teilnehmer.
+- **Fünf Fragetypen:** Sortieren, Zuordnen, Multiple Choice, Swipe-Karten und Foto mit Texteingabe bieten Abwechslung für alle Teilnehmer.
 - **QR-Code-Login & Dunkelmodus:** Komfortables Spielen auf allen Geräten.
 - **Persistente Speicherung:** Alle Daten liegen zentral in PostgreSQL.
 
