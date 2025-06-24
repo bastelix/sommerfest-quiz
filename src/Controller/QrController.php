@@ -26,6 +26,13 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class QrController
 {
     private ConfigService $config;
+    /**
+     * Stack for keeping track of currently selected PDF font.
+     * Each entry is an array with [family, style, size].
+     *
+     * @var array<int, array{0:string,1:string,2:int}>
+     */
+    private array $fontStack = [];
 
     /**
      * Inject configuration service dependency.
@@ -214,7 +221,7 @@ class QrController
             }
             $invite = str_ireplace('[team]', $team, $invite);
             $pdf->SetFont('Arial', '', 11);
-            $this->renderHtml($pdf, $invite);
+            $this->renderHtml($pdf, $invite, 'Arial', '', 11);
         }
 
         $output = $pdf->Output('S');
@@ -238,8 +245,16 @@ class QrController
     /**
      * Render a limited subset of HTML tags to the PDF.
      */
-    private function renderHtml(FPDF $pdf, string $html): void
-    {
+    private function renderHtml(
+        FPDF $pdf,
+        string $html,
+        string $family = 'Arial',
+        string $style = '',
+        int $size = 11
+    ): void {
+        // Start the font stack with the provided base font.
+        $this->fontStack = [[$family, $style, $size]];
+
         libxml_use_internal_errors(true);
         $doc = new \DOMDocument();
         $doc->loadHTML('<div>' . $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
@@ -266,19 +281,29 @@ class QrController
                         break;
                     case 'strong':
                     case 'b':
-                        $style = $pdf->FontStyle;
-                        $size = $pdf->FontSizePt;
-                        $pdf->SetFont('', 'B', $size);
+                        $current = end($this->fontStack);
+                        $newStyle = $current[1];
+                        if (strpos($newStyle, 'B') === false) {
+                            $newStyle .= 'B';
+                        }
+                        $this->fontStack[] = [$current[0], $newStyle, $current[2]];
+                        $pdf->SetFont($current[0], $newStyle, $current[2]);
                         $this->renderHtmlNode($pdf, $child);
-                        $pdf->SetFont('', $style, $size);
+                        array_pop($this->fontStack);
+                        $pdf->SetFont($current[0], $current[1], $current[2]);
                         break;
                     case 'em':
                     case 'i':
-                        $style = $pdf->FontStyle;
-                        $size = $pdf->FontSizePt;
-                        $pdf->SetFont('', 'I', $size);
+                        $current = end($this->fontStack);
+                        $newStyle = $current[1];
+                        if (strpos($newStyle, 'I') === false) {
+                            $newStyle .= 'I';
+                        }
+                        $this->fontStack[] = [$current[0], $newStyle, $current[2]];
+                        $pdf->SetFont($current[0], $newStyle, $current[2]);
                         $this->renderHtmlNode($pdf, $child);
-                        $pdf->SetFont('', $style, $size);
+                        array_pop($this->fontStack);
+                        $pdf->SetFont($current[0], $current[1], $current[2]);
                         break;
                     case 'h1':
                     case 'h2':
@@ -286,13 +311,15 @@ class QrController
                     case 'h4':
                     case 'h5':
                     case 'h6':
+                        $current = end($this->fontStack);
                         $level = (int)substr($tag, 1);
                         $sizes = [1 => 16, 2 => 14, 3 => 12, 4 => 11, 5 => 11, 6 => 11];
-                        $prevStyle = $pdf->FontStyle;
-                        $pdf->SetFont('', 'B', $sizes[$level] ?? 11);
+                        $this->fontStack[] = [$current[0], $current[1], $current[2]];
+                        $pdf->SetFont($current[0], 'B', $sizes[$level] ?? $current[2]);
                         $this->renderHtmlNode($pdf, $child);
                         $pdf->Ln(8);
-                        $pdf->SetFont('', $prevStyle, 11);
+                        array_pop($this->fontStack);
+                        $pdf->SetFont($current[0], $current[1], $current[2]);
                         break;
                     default:
                         $this->renderHtmlNode($pdf, $child);
