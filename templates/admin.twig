@@ -415,7 +415,29 @@
           {% endfor %}
         </div>
         <div class="uk-margin uk-flex uk-flex-right">
+          <button id="inviteTextBtn" class="uk-button uk-button-default uk-margin-right" type="button" uk-toggle="target: #inviteTextModal">
+            <span id="inviteTextIcon" uk-icon="icon: pencil"></span>
+            <span id="inviteTextLabel">Einladungstext eingeben</span>
+          </button>
           <button id="summaryPrintBtn" class="uk-button uk-button-default" uk-tooltip="title: Zusammenfassung drucken; pos: right">Drucken</button>
+        </div>
+        <div id="inviteTextModal" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">Einladungstext</h2>
+            <div id="inviteTextToolbar" class="uk-margin-small-bottom">
+              <button class="uk-button uk-button-default" type="button" data-format="h2">H2</button>
+              <button class="uk-button uk-button-default" type="button" data-format="h3">H3</button>
+              <button class="uk-button uk-button-default" type="button" data-format="h4">H4</button>
+              <button class="uk-button uk-button-default" type="button" data-format="h5">H5</button>
+              <button class="uk-button uk-button-default" type="button" data-format="bold"><strong>B</strong></button>
+              <button class="uk-button uk-button-default" type="button" data-format="italic"><em>I</em></button>
+            </div>
+            <textarea id="inviteTextTextarea" class="uk-textarea" rows="5" placeholder="Text eingeben..."></textarea>
+            <div class="uk-flex uk-flex-right uk-margin-top">
+              <button id="inviteTextSave" class="uk-button uk-button-primary" type="button">Speichern</button>
+              <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>
+            </div>
+          </div>
         </div>
         </div>
       </li>

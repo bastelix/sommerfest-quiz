@@ -51,6 +51,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     UIkit.icon(puzzleIcon, { icon: puzzleIcon.getAttribute('uk-icon').split(': ')[1] });
   }
+
+  function updateInviteTextUI() {
+    if (!inviteIcon || !inviteLabel) return;
+    if (inviteText.trim().length > 0) {
+      inviteIcon.setAttribute('uk-icon', 'icon: check');
+      inviteLabel.textContent = 'Einladungstext bearbeiten';
+    } else {
+      inviteIcon.setAttribute('uk-icon', 'icon: pencil');
+      inviteLabel.textContent = 'Einladungstext eingeben';
+    }
+    UIkit.icon(inviteIcon, { icon: inviteIcon.getAttribute('uk-icon').split(': ')[1] });
+  }
   // --------- Konfiguration bearbeiten ---------
   // Ausgangswerte aus der bestehenden Konfiguration
   const cfgInitial = window.quizConfig || {};
@@ -79,6 +91,13 @@ document.addEventListener('DOMContentLoaded', function () {
   const puzzleTextarea = document.getElementById('puzzleFeedbackTextarea');
   const puzzleSaveBtn = document.getElementById('puzzleFeedbackSave');
   const puzzleModal = UIkit.modal('#puzzleFeedbackModal');
+  const inviteTextBtn = document.getElementById('inviteTextBtn');
+  const inviteIcon = document.getElementById('inviteTextIcon');
+  const inviteLabel = document.getElementById('inviteTextLabel');
+  const inviteTextarea = document.getElementById('inviteTextTextarea');
+  const inviteSaveBtn = document.getElementById('inviteTextSave');
+  const inviteModal = UIkit.modal('#inviteTextModal');
+  const inviteToolbar = document.getElementById('inviteTextToolbar');
   const commentTextarea = document.getElementById('catalogCommentTextarea');
   const commentSaveBtn = document.getElementById('catalogCommentSave');
   const commentModal = UIkit.modal('#catalogCommentModal');
@@ -86,6 +105,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const resultsResetModal = UIkit.modal('#resultsResetModal');
   const resultsResetConfirm = document.getElementById('resultsResetConfirm');
   let puzzleFeedback = '';
+  let inviteText = '';
   let currentCommentInput = null;
 
   function wrapSelection(textarea, before, after) {
@@ -121,6 +141,32 @@ document.addEventListener('DOMContentLoaded', function () {
         break;
       case 'italic':
         wrapSelection(commentTextarea, '<em>', '</em>');
+        break;
+    }
+  });
+
+  inviteToolbar?.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-format]');
+    if (!btn) return;
+    const fmt = btn.dataset.format;
+    switch (fmt) {
+      case 'h2':
+        wrapSelection(inviteTextarea, '<h2>', '</h2>');
+        break;
+      case 'h3':
+        wrapSelection(inviteTextarea, '<h3>', '</h3>');
+        break;
+      case 'h4':
+        wrapSelection(inviteTextarea, '<h4>', '</h4>');
+        break;
+      case 'h5':
+        wrapSelection(inviteTextarea, '<h5>', '</h5>');
+        break;
+      case 'bold':
+        wrapSelection(inviteTextarea, '<strong>', '</strong>');
+        break;
+      case 'italic':
+        wrapSelection(inviteTextarea, '<em>', '</em>');
         break;
     }
   });
@@ -190,6 +236,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     puzzleFeedback = data.puzzleFeedback || '';
     updatePuzzleFeedbackUI();
+    inviteText = data.inviteText || '';
+    updateInviteTextUI();
     if (cfgFields.puzzleWrap) {
       cfgFields.puzzleWrap.style.display = cfgFields.puzzleEnabled.checked ? '' : 'none';
     }
@@ -207,6 +255,11 @@ document.addEventListener('DOMContentLoaded', function () {
       puzzleTextarea.value = puzzleFeedback;
     }
   });
+  inviteTextBtn?.addEventListener('click', () => {
+    if (inviteTextarea) {
+      inviteTextarea.value = inviteText;
+    }
+  });
   puzzleSaveBtn?.addEventListener('click', () => {
     if (!puzzleTextarea) return;
     puzzleFeedback = puzzleTextarea.value;
@@ -220,6 +273,23 @@ document.addEventListener('DOMContentLoaded', function () {
     }).then(r => {
       if (r.ok) {
         notify('Feedbacktext gespeichert', 'success');
+      }
+    }).catch(() => {});
+  });
+
+  inviteSaveBtn?.addEventListener('click', () => {
+    if (!inviteTextarea) return;
+    inviteText = inviteTextarea.value;
+    updateInviteTextUI();
+    inviteModal.hide();
+    cfgInitial.inviteText = inviteText;
+    fetch('/config.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cfgInitial)
+    }).then(r => {
+      if (r.ok) {
+        notify('Einladungstext gespeichert', 'success');
       }
     }).catch(() => {});
   });
@@ -261,7 +331,8 @@ document.addEventListener('DOMContentLoaded', function () {
       photoUpload: cfgFields.photoUpload ? cfgFields.photoUpload.checked : cfgInitial.photoUpload,
       puzzleWordEnabled: cfgFields.puzzleEnabled ? cfgFields.puzzleEnabled.checked : cfgInitial.puzzleWordEnabled,
       puzzleWord: cfgFields.puzzleWord ? cfgFields.puzzleWord.value.trim() : cfgInitial.puzzleWord,
-      puzzleFeedback: puzzleFeedback
+      puzzleFeedback: puzzleFeedback,
+      inviteText: inviteText
     });
     fetch('/config.json', {
       method: 'POST',
