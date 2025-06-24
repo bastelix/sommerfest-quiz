@@ -52,7 +52,7 @@ class ResultService
      */
     public function getQuestionResults(): array
     {
-        $sql = 'SELECT qr.name, qr.catalog, qr.question_id, qr.attempt, qr.correct,' .
+        $sql = 'SELECT qr.name, qr.catalog, qr.question_id, qr.attempt, qr.correct, qr.answer_text, qr.photo, qr.consent,' .
             ' q.type, q.prompt, q.options, q.answers, q.terms, q.items,' .
             ' c.name AS catalogName '
             . 'FROM question_results qr '
@@ -108,7 +108,8 @@ class ResultService
             $entry['puzzleTime'],
             $entry['photo'],
         ]);
-        $this->addQuestionResults($name, $catalog, $attempt, $wrong, $entry['total']);
+        $answers = isset($data['answers']) && is_array($data['answers']) ? $data['answers'] : [];
+        $this->addQuestionResults($name, $catalog, $attempt, $wrong, $entry['total'], $answers);
         return $entry;
     }
 
@@ -117,7 +118,7 @@ class ResultService
      *
      * @param list<int> $wrongIdx
      */
-    private function addQuestionResults(string $name, string $catalog, int $attempt, array $wrongIdx, int $total): void
+    private function addQuestionResults(string $name, string $catalog, int $attempt, array $wrongIdx, int $total, array $answers = []): void
     {
         $uidStmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE uid=? OR CAST(sort_order AS TEXT)=? OR slug=?');
         $uidStmt->execute([$catalog, $catalog, $catalog]);
@@ -131,11 +132,15 @@ class ResultService
         if (!$ids) {
             return;
         }
-        $ins = $this->pdo->prepare('INSERT INTO question_results(name,catalog,question_id,attempt,correct) VALUES(?,?,?,?,?)');
+        $ins = $this->pdo->prepare('INSERT INTO question_results(name,catalog,question_id,attempt,correct,answer_text,photo,consent) VALUES(?,?,?,?,?,?,?,?)');
         for ($i = 0; $i < min(count($ids), $total); $i++) {
             $qid = (int)$ids[$i];
             $correct = in_array($i + 1, $wrongIdx, true) ? 0 : 1;
-            $ins->execute([$name, $catalog, $qid, $attempt, $correct]);
+            $ans = $answers[$i] ?? [];
+            $text = isset($ans['text']) ? (string)$ans['text'] : null;
+            $photo = isset($ans['photo']) ? (string)$ans['photo'] : null;
+            $consent = isset($ans['consent']) ? (int)((bool)$ans['consent']) : null;
+            $ins->execute([$name, $catalog, $qid, $attempt, $correct, $text, $photo, $consent]);
         }
     }
 
