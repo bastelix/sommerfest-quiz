@@ -297,6 +297,24 @@ function runQuiz(questions, skipIntro){
       }
     }
 
+    const remainingEl = summaryEl.querySelector('#quiz-remaining');
+    if(remainingEl){
+      try{
+        const dataEl = document.getElementById('catalogs-data');
+        const catalogs = dataEl ? JSON.parse(dataEl.textContent) : [];
+        const solvedSet = new Set(JSON.parse(sessionStorage.getItem('quizSolved') || '[]'));
+        const names = catalogs.filter(c => !solvedSet.has(c.uid || c.slug || c.sort_order))
+          .map(c => c.name || c.slug || c.sort_order);
+        if(names.length){
+          remainingEl.textContent = 'Auf zur nächsten Station. Es fehlen noch: ' + names.join(', ');
+        } else {
+          remainingEl.textContent = '';
+        }
+      }catch(e){
+        remainingEl.textContent = '';
+      }
+    }
+
     if(cfg.photoUpload !== false){
       const photoBtn = document.createElement('button');
       photoBtn.className = 'uk-button uk-button-primary uk-margin-top';
@@ -1069,10 +1087,14 @@ function runQuiz(questions, skipIntro){
     const puzzleInfo = document.createElement('p');
     puzzleInfo.id = 'puzzle-info';
     puzzleInfo.className = 'uk-margin-top';
+    const remainingInfo = document.createElement('p');
+    remainingInfo.id = 'quiz-remaining';
+    remainingInfo.className = 'uk-margin-top';
     div.appendChild(h);
     div.appendChild(p);
     div.appendChild(letter);
     div.appendChild(puzzleInfo);
+    div.appendChild(remainingInfo);
     if(!cfg.competitionMode){
       const restart = document.createElement('a');
       restart.href = '/';
@@ -1089,6 +1111,15 @@ function runQuiz(questions, skipIntro){
         }
       });
       div.appendChild(restart);
+    } else {
+      const endBtn = document.createElement('button');
+      endBtn.textContent = 'Station beenden';
+      endBtn.className = 'uk-button uk-button-primary uk-margin-top';
+      styleButton(endBtn);
+      endBtn.addEventListener('click', () => {
+        window.close();
+      });
+      div.appendChild(endBtn);
     }
     return div;
   }
