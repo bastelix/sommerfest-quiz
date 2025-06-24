@@ -135,7 +135,7 @@ class QrController
             return $response->withStatus(400);
         }
 
-        $fg     = (string)($params['fg'] ?? '23b45a');
+        $fg     = (string)($params['fg'] ?? '0000ff');
         $bg     = (string)($params['bg'] ?? 'ffffff');
         $size   = (int)($params['s'] ?? 300);
         $margin = (int)($params['m'] ?? 20);
@@ -147,7 +147,7 @@ class QrController
             ->size($size)
             ->margin($margin)
             ->backgroundColor($this->parseColor($bg, new Color(255, 255, 255)))
-            ->foregroundColor($this->parseColor($fg, new Color(35, 180, 90)));
+            ->foregroundColor($this->parseColor($fg, new Color(0, 0, 255)));
 
         $result = $builder
             ->roundBlockSizeMode(RoundBlockSizeMode::Margin)
@@ -167,7 +167,7 @@ class QrController
         $subtitle = (string)($cfg['subheader'] ?? '');
         $logoPath = __DIR__ . '/../../data/logo.png';
         // Height of the header area in which logo, titles and QR code are placed
-        $qrSize = 70.0; // mm
+        $qrSize = 20.0; // mm
         $headerHeight = max(25.0, $qrSize + 10.0); // ensure QR code fits
 
         if (is_readable($logoPath)) {
