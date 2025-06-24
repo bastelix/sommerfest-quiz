@@ -52,26 +52,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const pad = n => n.toString().padStart(2,'0');
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
-  const fetchEntry = window.fetchLatestPuzzleEntry || async function(name, catalog){
-    try{
-      const list = await fetch('/results.json').then(r => r.json());
-      if(Array.isArray(list)){
-        return list.slice().reverse().find(e => e.name === name && e.catalog === catalog && e.puzzleTime);
-      }
-    }catch(e){ return null; }
-    return null;
-  };
 
   function updatePuzzleInfo(){
     const solved = sessionStorage.getItem('puzzleSolved') === 'true';
-    const catalog = getStored('quizCatalog') || 'unknown';
     if(solved){
       if (puzzleBtn) puzzleBtn.remove();
-      fetchEntry(user, catalog).then(entry => {
-        if(entry && entry.puzzleTime){
-          puzzleInfo.textContent = `Rätselwort gelöst: ${formatTs(entry.puzzleTime)}`;
-        }
-      }).catch(()=>{});
+      const ts = parseInt(sessionStorage.getItem('puzzleTime') || '0', 10);
+      if(ts && puzzleInfo){
+        puzzleInfo.textContent = `Rätselwort gelöst: ${formatTs(ts)}`;
+      }
     }else{
       if(puzzleInfo) puzzleInfo.textContent = '';
     }
@@ -243,28 +232,27 @@ document.addEventListener('DOMContentLoaded', () => {
             return null;
           }
         })
-        .then(debug => {
-          if(debug){
-            feedback.textContent = `Debug: ${debug.normalizedAnswer} vs ${debug.normalizedExpected}`;
-            setTimeout(() => { feedback.textContent = ''; }, 3000);
+        .then(data => {
+          if(data){
+            if(data.normalizedAnswer !== undefined && data.normalizedExpected !== undefined){
+              feedback.textContent = `Debug: ${data.normalizedAnswer} vs ${data.normalizedExpected}`;
+              setTimeout(() => { feedback.textContent = ''; }, 3000);
+            }
+            if(data.success){
+              feedback.textContent = 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
+              feedback.className = 'uk-margin-top uk-text-center uk-text-success';
+              sessionStorage.setItem('puzzleSolved', 'true');
+              sessionStorage.setItem('puzzleTime', String(ts));
+              updatePuzzleInfo();
+              input.disabled = true;
+              btn.textContent = 'Schließen';
+              btn.removeEventListener('click', handleCheck);
+              btn.addEventListener('click', () => ui.hide());
+              return;
+            }
           }
-          return fetchEntry(userName, catalog);
-        })
-        .then(entry => {
-          if(entry && entry.puzzleTime){
-            feedback.textContent = 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
-            feedback.className = 'uk-margin-top uk-text-center uk-text-success';
-            sessionStorage.setItem('puzzleSolved', 'true');
-            sessionStorage.setItem('puzzleTime', String(entry.puzzleTime));
-            updatePuzzleInfo();
-            input.disabled = true;
-            btn.textContent = 'Schließen';
-            btn.removeEventListener('click', handleCheck);
-            btn.addEventListener('click', () => ui.hide());
-          }else{
-            feedback.textContent = 'Das ist leider nicht korrekt. Viel Glück beim nächsten Versuch!';
-            feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
-          }
+          feedback.textContent = 'Das ist leider nicht korrekt. Viel Glück beim nächsten Versuch!';
+          feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
         })
         .catch(() => {
           feedback.textContent = 'Fehler bei der Überprüfung.';
