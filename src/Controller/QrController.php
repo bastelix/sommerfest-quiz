@@ -233,13 +233,17 @@ class QrController
     }
 
     /**
-     * Convert a UTF-8 string to ISO-8859-1 and remove unsupported characters.
+     * Convert a UTF-8 string to the Windows-1252 encoding used by FPDF.
+     * Unsupported characters are approximated or omitted.
      */
     private function sanitizePdfText(string $text): string
     {
-        // Remove characters outside ISO-8859-1
-        $text = preg_replace('/[^\x00-\xFF]/u', '', $text);
-        return mb_convert_encoding($text, 'ISO-8859-1', 'UTF-8');
+        $converted = @iconv('UTF-8', 'CP1252//TRANSLIT', $text);
+        if ($converted === false) {
+            // Fallback: replace any byte outside the ASCII range
+            return preg_replace('/[^\x00-\x7F]/', '?', $text);
+        }
+        return $converted;
     }
 
     /**
