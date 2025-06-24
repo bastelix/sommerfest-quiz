@@ -1022,44 +1022,47 @@ function runQuiz(questions, skipIntro){
     UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
     UIkit.util.on(modal, 'shown', () => { input.focus(); });
     function handleCheck(){
-      const expected = (window.quizConfig && window.quizConfig.puzzleWord) ? window.quizConfig.puzzleWord.toLowerCase() : '';
       const valRaw = (input.value || '').trim();
-      const val = valRaw.toLowerCase();
-      if(val && val === expected){
-        const custom = (window.quizConfig && window.quizConfig.puzzleFeedback) ? window.quizConfig.puzzleFeedback.trim() : '';
-        feedback.textContent = custom || 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
-        feedback.className = 'uk-margin-top uk-text-center uk-text-success';
-        const ts = Math.floor(Date.now()/1000);
-        sessionStorage.setItem('puzzleSolved', 'true');
-        sessionStorage.setItem('puzzleTime', String(ts));
-        const user = sessionStorage.getItem('quizUser') || '';
-        const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
-        fetch('/results', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: user, catalog, puzzleTime: ts, puzzleAnswer: valRaw })
-        }).catch(()=>{});
-        const infoEl = summaryEl.querySelector('#puzzle-info');
-        fetchLatestPuzzleEntry(user, catalog).then(entry => {
-          if(entry && entry.puzzleTime && infoEl){
+      const ts = Math.floor(Date.now()/1000);
+      const user = sessionStorage.getItem('quizUser') || '';
+      const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
+      fetch('/results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: user, catalog, puzzleTime: ts, puzzleAnswer: valRaw })
+      })
+      .then(() => fetchLatestPuzzleEntry(user, catalog))
+      .then(entry => {
+        if(entry && entry.puzzleTime){
+          feedback.textContent = 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
+          feedback.className = 'uk-margin-top uk-text-center uk-text-success';
+          sessionStorage.setItem('puzzleSolved', 'true');
+          sessionStorage.setItem('puzzleTime', String(entry.puzzleTime));
+          const infoEl = summaryEl.querySelector('#puzzle-info');
+          if(infoEl){
             infoEl.textContent = `Rätselwort gelöst: ${formatPuzzleTime(entry.puzzleTime)}`;
           }
-        }).catch(()=>{});
-      }else{
-        feedback.textContent = 'Das ist leider nicht korrekt. Viel Glück beim nächsten Versuch!';
+        }else{
+          feedback.textContent = 'Das ist leider nicht korrekt. Viel Glück beim nächsten Versuch!';
+          feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
+        }
+      })
+      .catch(() => {
+        feedback.textContent = 'Fehler bei der Überprüfung.';
         feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
-      }
+      })
+      .finally(() => {
+        input.disabled = true;
+        if(attemptKey) sessionStorage.setItem(attemptKey, 'true');
+        if(btnEl){
+          btnEl.disabled = true;
+          btnEl.style.display = 'none';
+        }
 
-      input.disabled = true;
-      if(attemptKey) sessionStorage.setItem(attemptKey, 'true');
-      if(btnEl){
-        btnEl.disabled = true;
-        btnEl.style.display = 'none';
-      }
-
-      btn.textContent = 'Schließen';
-      btn.removeEventListener('click', handleCheck);
-      btn.addEventListener('click', () => ui.hide());
+        btn.textContent = 'Schließen';
+        btn.removeEventListener('click', handleCheck);
+        btn.addEventListener('click', () => ui.hide());
+      });
     }
 
     btn.addEventListener('click', handleCheck);
