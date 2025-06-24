@@ -166,29 +166,20 @@ class QrController
         $cfg = $this->config->getConfig();
         $title = (string)($cfg['header'] ?? '');
         $subtitle = (string)($cfg['subheader'] ?? '');
-        $logoPath = (string)($cfg['logoPath'] ?? '/logo.png');
-        if (str_starts_with($logoPath, '/')) {
-            $logoPath = __DIR__ . '/../../data' . $logoPath;
-        }
+        $logoFile = __DIR__ . '/../../' . ltrim($cfg['logoPath'] ?? '', '/');
+        $logoTemp = null;
         // Height of the header area in which logo, titles and QR code are placed
         $qrSize = 20.0; // mm
         $headerHeight = max(25.0, $qrSize + 10.0); // ensure QR code fits
 
-        $logoTmp = null;
-        if (is_readable($logoPath)) {
-            $ext = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION));
-            if ($ext === 'webp') {
-                $logoTmp = tempnam(sys_get_temp_dir(), 'logo');
-                if ($logoTmp !== false) {
-                    $logoTmp .= '.png';
-                    Image::make($logoPath)->encode('png')->save($logoTmp);
-                    $logoPath = $logoTmp;
-                }
+        if (is_readable($logoFile)) {
+            if (str_ends_with(strtolower($logoFile), '.webp')) {
+                $img = Image::make($logoFile);
+                $logoTemp = tempnam(sys_get_temp_dir(), 'logo') . '.png';
+                $img->encode('png')->save($logoTemp, 80);
+                $logoFile = $logoTemp;
             }
-            $pdf->Image($logoPath, 10, 10, 20, 0, 'PNG');
-            if ($logoTmp !== null && is_file($logoTmp)) {
-                unlink($logoTmp);
-            }
+            $pdf->Image($logoFile, 10, 10, 20, 0, 'PNG');
         }
 
         $pdf->SetXY(10, 10);
@@ -209,6 +200,10 @@ class QrController
             unlink($tmp);
         }
 
+        if ($logoTemp !== null) {
+            unlink($logoTemp);
+        }
+
         $pdf->SetXY(10, $y + 5);
         $invite = (string)($cfg['inviteText'] ?? '');
         if ($invite !== '') {
@@ -217,7 +212,6 @@ class QrController
             $invite = preg_replace('/<p[^>]*>(.*?)<\/p>/i', "$1\n", $invite);
             $invite = strip_tags($invite);
             $invite = html_entity_decode($invite);
-            $invite = $this->sanitizePdfText($invite);
             $pdf->SetFont('Arial', '', 11);
             $pdf->MultiCell($pdf->GetPageWidth() - 20, 6, $invite);
         }
