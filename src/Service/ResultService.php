@@ -26,7 +26,7 @@ class ResultService
      */
     public function getAll(): array
     {
-        $sql = 'SELECT r.name, r.catalog, r.attempt, r.correct, r.total, r.time, r.puzzleTime, r.photo, ' .
+        $sql = 'SELECT r.name, r.catalog, r.attempt, r.correct, r.total, r.time, r.puzzleTime AS "puzzleTime", r.photo, ' .
             'c.name AS catalogName '
             . 'FROM results r '
             . 'LEFT JOIN catalogs c ON c.uid = r.catalog '
@@ -152,7 +152,7 @@ class ResultService
      */
     public function markPuzzle(string $name, string $catalog, int $time): bool
     {
-        $stmt = $this->pdo->prepare('SELECT id,puzzleTime FROM results WHERE name=? AND catalog=? ORDER BY id DESC LIMIT 1');
+        $stmt = $this->pdo->prepare('SELECT id, puzzleTime AS "puzzleTime" FROM results WHERE name=? AND catalog=? ORDER BY id DESC LIMIT 1');
         $stmt->execute([$name, $catalog]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row) {
