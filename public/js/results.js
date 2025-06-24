@@ -158,16 +158,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const puzzleList = puzzleArr.slice(0, 3);
 
     const totalCats = catalogs.size;
-    const catFin = [];
+    const finishers = [];
     catTimes.forEach((map, name) => {
       if (map.size === totalCats) {
-        const arr = Array.from(map.values());
-        const finished = Math.max(...arr);
-        catFin.push({ name, value: formatTime(finished), raw: finished });
+        let last = -Infinity;
+        map.forEach(t => { if (t > last) last = t; });
+        finishers.push({ name, finished: last });
       }
     });
-    catFin.sort((a, b) => a.raw - b.raw);
-    const catalogList = catFin.slice(0, 3);
+    finishers.sort((a, b) => a.finished - b.finished);
+    const catalogList = finishers.slice(0, 3).map(item => ({
+      name: item.name,
+      value: formatTime(item.finished),
+      raw: item.finished
+    }));
 
     const totalScores = [];
     scores.forEach((map, name) => {
