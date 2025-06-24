@@ -47,7 +47,8 @@ class ResultServiceTest extends TestCase
 
         $service->add(['name' => 'TeamA', 'catalog' => 'cat1']);
         $ts = time();
-        $service->markPuzzle('TeamA', 'cat1', $ts);
+        $res = $service->markPuzzle('TeamA', 'cat1', $ts);
+        $this->assertTrue($res);
         $stmt = $pdo->query('SELECT puzzleTime FROM results');
         $this->assertSame($ts, (int)$stmt->fetchColumn());
     }

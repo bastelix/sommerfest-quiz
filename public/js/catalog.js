@@ -1,6 +1,15 @@
 /* global UIkit, Html5Qrcode, generateUserName */
 // Lädt die verfügbaren Fragenkataloge und startet nach Auswahl das Quiz
 (function(){
+  function setStored(key, value){
+    try{
+      sessionStorage.setItem(key, value);
+      localStorage.setItem(key, value);
+    }catch(e){}
+  }
+  function getStored(key){
+    return sessionStorage.getItem(key) || localStorage.getItem(key);
+  }
   function setSubHeader(text){
     const headerEl = document.getElementById('quiz-header');
     if(!headerEl) return;
@@ -72,7 +81,7 @@
     const headerEl = document.getElementById('quiz-header');
     if(!headerEl) return;
     let nameEl = document.getElementById('quiz-user-name');
-    const user = sessionStorage.getItem('quizUser');
+    const user = getStored('quizUser');
     if(!nameEl){
       if(!user) return;
       nameEl = document.createElement('p');
@@ -119,7 +128,7 @@
   }
 
   async function loadQuestions(id, file, letter, uid, name, desc, comment){
-    sessionStorage.setItem('quizCatalog', uid || id);
+    setStored('quizCatalog', uid || id);
     sessionStorage.setItem('quizCatalogName', name || id);
     if(desc !== undefined){
       sessionStorage.setItem('quizCatalogDesc', desc);
@@ -327,7 +336,7 @@
           bypass.style.color = '#fff';
         }
         bypass.addEventListener('click', () => {
-          sessionStorage.setItem('quizUser', generateUserName());
+          setStored('quizUser', generateUserName());
           sessionStorage.removeItem('quizSolved');
           updateUserName();
           onDone();
@@ -370,7 +379,7 @@
               alert('Unbekanntes oder nicht berechtigtes Team/Person');
               return;
             }
-              sessionStorage.setItem('quizUser', name);
+              setStored('quizUser', name);
               sessionStorage.removeItem('quizSolved');
               updateUserName();
             stopScanner();
@@ -441,7 +450,7 @@
             alert('Nur Registrierung per QR-Code erlaubt');
             return;
           }
-          sessionStorage.setItem('quizUser', generateUserName());
+          setStored('quizUser', generateUserName());
           sessionStorage.removeItem('quizSolved');
           updateUserName();
           onDone();
@@ -463,7 +472,7 @@
         const r = await fetch('/results.json', {headers:{'Accept':'application/json'}});
         if(r.ok){
           const data = await r.json();
-          const user = sessionStorage.getItem('quizUser');
+          const user = getStored('quizUser');
           data.forEach(entry => {
             if(entry.name === user){
               solved.add(entry.catalog);
@@ -483,7 +492,14 @@
     if(cfg.QRRestrict){
       sessionStorage.removeItem('quizUser');
       sessionStorage.removeItem('quizSolved');
+      localStorage.removeItem('quizUser');
     }
+    ['quizUser','quizCatalog'].forEach(k => {
+      const v = localStorage.getItem(k);
+      if(v && !sessionStorage.getItem(k)){
+        sessionStorage.setItem(k, v);
+      }
+    });
     applyConfig();
     updateUserName();
     const catalogs = await loadCatalogList();
@@ -512,9 +528,9 @@
     if((window.quizConfig || {}).QRUser){
       showLogin(proceed, !!id);
     }else{
-      if(!sessionStorage.getItem('quizUser')){
+      if(!getStored('quizUser')){
           if(!cfg.QRRestrict){
-            sessionStorage.setItem('quizUser', generateUserName());
+            setStored('quizUser', generateUserName());
             sessionStorage.removeItem('quizSolved');
           }
         }
