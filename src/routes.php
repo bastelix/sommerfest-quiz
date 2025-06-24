@@ -74,7 +74,7 @@ return function (\Slim\App $app) {
     );
     $teamController = new TeamController($teamService);
     $passwordController = new PasswordController($configService);
-    $qrController = new QrController();
+    $qrController = new QrController($configService);
     $logoController = new LogoController($configService);
     $summaryController = new SummaryController($configService);
     $importController = new ImportController(
