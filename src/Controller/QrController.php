@@ -16,6 +16,7 @@ use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\Label\Font\NotoSans;
 use Endroid\QrCode\RoundBlockSizeMode;
 use FPDF;
+use Intervention\Image\ImageManagerStatic as Image;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -173,8 +174,21 @@ class QrController
         $qrSize = 20.0; // mm
         $headerHeight = max(25.0, $qrSize + 10.0); // ensure QR code fits
 
+        $logoTmp = null;
         if (is_readable($logoPath)) {
+            $ext = strtolower(pathinfo($logoPath, PATHINFO_EXTENSION));
+            if ($ext === 'webp') {
+                $logoTmp = tempnam(sys_get_temp_dir(), 'logo');
+                if ($logoTmp !== false) {
+                    $logoTmp .= '.png';
+                    Image::make($logoPath)->encode('png')->save($logoTmp);
+                    $logoPath = $logoTmp;
+                }
+            }
             $pdf->Image($logoPath, 10, 10, 20, 0, 'PNG');
+            if ($logoTmp !== null && is_file($logoTmp)) {
+                unlink($logoTmp);
+            }
         }
 
         $pdf->SetXY(10, 10);
