@@ -166,7 +166,9 @@ class QrController
         $title = (string)($cfg['header'] ?? '');
         $subtitle = (string)($cfg['subheader'] ?? '');
         $logoPath = __DIR__ . '/../../data/logo.png';
-        $headerHeight = 25.0; // mm
+        // Height of the header area in which logo, titles and QR code are placed
+        $qrSize = 70.0; // mm
+        $headerHeight = max(25.0, $qrSize + 10.0); // ensure QR code fits
 
         if (is_readable($logoPath)) {
             $pdf->Image($logoPath, 10, 10, 20, 0, 'PNG');
@@ -183,7 +185,10 @@ class QrController
         $pdf->Line(10, $y, $pdf->GetPageWidth() - 10, $y);
 
         if ($tmp !== false) {
-            $pdf->Image($tmp, 20, 20 + $headerHeight, 70, 70, 'PNG');
+            // Place the QR code in the upper right corner of the header
+            $qrX = $pdf->GetPageWidth() - 10 - $qrSize;
+            $qrY = 10.0; // top margin
+            $pdf->Image($tmp, $qrX, $qrY, $qrSize, $qrSize, 'PNG');
             unlink($tmp);
         }
         $output = $pdf->Output('S');
