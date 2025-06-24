@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS question_results (
     catalog TEXT NOT NULL,
     question_id INTEGER NOT NULL,
     attempt INTEGER NOT NULL,
-    correct INTEGER NOT NULL
+    correct INTEGER NOT NULL,
     answer_text TEXT,
     photo TEXT,
     consent BOOLEAN

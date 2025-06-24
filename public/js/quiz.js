@@ -905,30 +905,29 @@ function runQuiz(questions, skipIntro){
     h.textContent = q.prompt;
     div.appendChild(h);
 
-    const file = document.createElement('input');
-    file.type = 'file';
-    file.accept = 'image/*';
-    file.capture = 'environment';
-    file.className = 'uk-input uk-margin';
-    file.setAttribute('aria-label', 'Foto aufnehmen oder wählen');
-
     const text = document.createElement('input');
     text.type = 'text';
     text.className = 'uk-input uk-margin';
     text.placeholder = 'Antwort';
 
-    let consentBox = null;
-    if(q.consent){
-      const label = document.createElement('label');
-      label.className = 'uk-margin';
-      label.innerHTML = '<input type="checkbox" class="uk-checkbox"> Datenschutz bestätigt';
-      consentBox = label.querySelector('input');
-      div.appendChild(label);
-    }
+    let photoPath = '';
+    const uploadBtn = document.createElement('button');
+    uploadBtn.className = 'uk-button uk-button-default uk-margin';
+    uploadBtn.textContent = 'Foto aufnehmen';
+    styleButton(uploadBtn);
 
     const feedback = document.createElement('div');
     feedback.className = 'uk-margin-small';
     feedback.setAttribute('role','alert');
+
+    uploadBtn.addEventListener('click', () => {
+      const user = getStored('quizUser') || '';
+      showPhotoModal(user, '', path => {
+        photoPath = path || '';
+        feedback.textContent = 'Foto gespeichert';
+        feedback.className = 'uk-margin-small uk-text-success';
+      }, !!q.consent);
+    });
 
     const nextBtn = document.createElement('button');
     nextBtn.className = 'uk-button uk-button-primary';
@@ -936,32 +935,17 @@ function runQuiz(questions, skipIntro){
     styleButton(nextBtn);
 
     nextBtn.addEventListener('click', () => {
-      if(!file.files.length){
-        feedback.textContent = 'Bitte Foto auswählen';
+      if(!photoPath){
+        feedback.textContent = 'Bitte Foto aufnehmen';
+        feedback.className = 'uk-margin-small uk-text-danger';
         return;
       }
-      if(consentBox && !consentBox.checked){
-        feedback.textContent = 'Bitte Einwilligung bestätigen';
-        return;
-      }
-      const fd = new FormData();
-      const user = getStored('quizUser') || '';
-      const catalog = getStored('quizCatalog') || 'unknown';
-      fd.append('photo', file.files[0]);
-      fd.append('name', user);
-      fd.append('catalog', catalog);
-      fd.append('team', user);
-      fetch('/photos', { method: 'POST', body: fd })
-        .then(async r => { if(!r.ok) throw new Error(await r.text()); return r.json(); })
-        .then(data => {
-          answers[idx] = { text: text.value.trim(), photo: data.path || '', consent: consentBox ? consentBox.checked : false };
-          results[idx] = true;
-          next();
-        })
-        .catch(e => { feedback.textContent = e.message || 'Fehler beim Hochladen'; });
+      answers[idx] = { text: text.value.trim(), photo: photoPath, consent: q.consent ? true : null };
+      results[idx] = true;
+      next();
     });
 
-    div.appendChild(file);
+    div.appendChild(uploadBtn);
     div.appendChild(text);
     div.appendChild(feedback);
     div.appendChild(nextBtn);
@@ -1211,7 +1195,7 @@ function runQuiz(questions, skipIntro){
     ui.show();
   }
 
-  function showPhotoModal(name, catalog){
+  function showPhotoModal(name, catalog, cb, requireConsent = true){
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
     modal.setAttribute('aria-modal', 'true');
@@ -1229,10 +1213,11 @@ function runQuiz(questions, skipIntro){
               '<button class="uk-button uk-button-default uk-width-1-1 uk-margin-small-top" type="button" tabindex="-1">Durchsuchen</button>' +
             '</div>' +
           '</div>' +
-          '<label class="uk-form-label uk-margin-small-bottom">' +
-            '<input type="checkbox" id="consent-checkbox" class="uk-checkbox uk-margin-small-right">' +
-            'Einverständnis aller abgebildeten Personen wurde eingeholt ' +
-          '</label>' +
+          (requireConsent ?
+            '<label class="uk-form-label uk-margin-small-bottom">' +
+              '<input type="checkbox" id="consent-checkbox" class="uk-checkbox uk-margin-small-right">' +
+              'Einverständnis aller abgebildeten Personen wurde eingeholt ' +
+            '</label>' : '') +
           '<div id="photo-feedback" class="uk-margin-small uk-text-center"></div>' +
           '<button id="upload-btn" class="uk-button uk-button-primary uk-width-1-1" disabled>Hochladen</button>' +
         '</div>' +
@@ -1247,14 +1232,14 @@ function runQuiz(questions, skipIntro){
     UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
 
     function toggleBtn(){
-      btn.disabled = !input.files.length || !consent.checked;
+      btn.disabled = !input.files.length || (requireConsent && !consent.checked);
     }
     input.addEventListener('change', toggleBtn);
-    consent.addEventListener('change', toggleBtn);
+    if(consent) consent.addEventListener('change', toggleBtn);
 
     btn.addEventListener('click', () => {
       const file = input.files && input.files[0];
-      if(!file || !consent.checked) return;
+      if(!file || (requireConsent && !consent.checked)) return;
       const fd = new FormData();
       fd.append('photo', file);
       fd.append('name', name);
@@ -1272,12 +1257,12 @@ function runQuiz(questions, skipIntro){
           }
           return r.json();
         })
-        .then(() => {
+        .then(data => {
           feedback.textContent = 'Foto gespeichert';
           feedback.className = 'uk-margin-top uk-text-center uk-text-success';
           btn.disabled = true;
           input.disabled = true;
-          consent.disabled = true;
+          if(consent) consent.disabled = true;
           setTimeout(() => {
             ui.hide();
             if (typeof UIkit !== 'undefined' && UIkit.notification) {
@@ -1291,6 +1276,7 @@ function runQuiz(questions, skipIntro){
               alert('Bild erfolgreich gespeichert');
             }
           }, 1000);
+          if(typeof cb === 'function') cb(data.path);
         })
         .catch(e => {
           feedback.textContent = e.message || 'Fehler beim Hochladen';

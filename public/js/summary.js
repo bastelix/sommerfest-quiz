@@ -298,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ui.show();
   }
 
-  function showPhotoModal(){
+  function showPhotoModal(cb, requireConsent = true){
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
     modal.setAttribute('aria-modal', 'true');
@@ -316,10 +316,11 @@ document.addEventListener('DOMContentLoaded', () => {
               '<button class="uk-button uk-button-default uk-width-1-1 uk-margin-small-top" type="button" tabindex="-1">Durchsuchen</button>' +
             '</div>' +
           '</div>' +
-          '<label class="uk-form-label uk-margin-small-bottom">' +
-            '<input type="checkbox" id="consent-checkbox" class="uk-checkbox uk-margin-small-right">' +
-            'Einverständnis aller abgebildeten Personen wurde eingeholt ' +
-          '</label>' +
+          (requireConsent ?
+            '<label class="uk-form-label uk-margin-small-bottom">' +
+              '<input type="checkbox" id="consent-checkbox" class="uk-checkbox uk-margin-small-right">' +
+              'Einverständnis aller abgebildeten Personen wurde eingeholt ' +
+            '</label>' : '') +
           '<div id="photo-feedback" class="uk-margin-small uk-text-center"></div>' +
           '<button id="upload-btn" class="uk-button uk-button-primary uk-width-1-1" disabled>Hochladen</button>' +
         '</div>' +
@@ -334,13 +335,13 @@ document.addEventListener('DOMContentLoaded', () => {
     UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
 
     function toggleBtn(){
-      btn.disabled = !input.files.length || !consent.checked;
+      btn.disabled = !input.files.length || (requireConsent && !consent.checked);
     }
     input.addEventListener('change', toggleBtn);
-    consent.addEventListener('change', toggleBtn);
+    if(consent) consent.addEventListener('change', toggleBtn);
     btn.addEventListener('click', () => {
       const file = input.files && input.files[0];
-      if(!file || !consent.checked) return;
+      if(!file || (requireConsent && !consent.checked)) return;
       const fd = new FormData();
       fd.append('photo', file);
       fd.append('name', user);
@@ -358,12 +359,12 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           return r.json();
         })
-        .then(() => {
+        .then(data => {
           feedback.textContent = 'Foto gespeichert';
           feedback.className = 'uk-margin-top uk-text-center uk-text-success';
           btn.disabled = true;
           input.disabled = true;
-          consent.disabled = true;
+          if(consent) consent.disabled = true;
           setTimeout(() => {
             ui.hide();
             if (typeof UIkit !== 'undefined' && UIkit.notification) {
@@ -377,6 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
               alert('Bild erfolgreich gespeichert');
             }
           }, 1000);
+          if(typeof cb === 'function') cb(data.path);
         })
         .catch(e => {
           feedback.textContent = e.message || 'Fehler beim Hochladen';
