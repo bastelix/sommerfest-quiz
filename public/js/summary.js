@@ -214,37 +214,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const ui = UIkit.modal(modal);
     UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
     if(!solvedBefore) UIkit.util.on(modal, 'shown', () => { input.focus(); });
-    const expected = (window.quizConfig && window.quizConfig.puzzleWord) ? window.quizConfig.puzzleWord : '';
-    const custom = (window.quizConfig && window.quizConfig.puzzleFeedback) ? window.quizConfig.puzzleFeedback.trim() : '';
     function handleCheck(){
         const valRaw = (input.value || '').trim();
-        const val = valRaw.toLowerCase();
-        if(val && val === expected.toLowerCase()){
-          feedback.textContent = custom || 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
-          feedback.className = 'uk-margin-top uk-text-center uk-text-success';
-          const ts = Math.floor(Date.now()/1000);
-          sessionStorage.setItem('puzzleSolved', 'true');
-          sessionStorage.setItem('puzzleTime', String(ts));
-          const userName = sessionStorage.getItem('quizUser') || '';
-          const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
-          fetch('/results', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: userName, catalog, puzzleTime: ts, puzzleAnswer: valRaw })
-          }).catch(()=>{});
-          updatePuzzleInfo();
-          input.disabled = true;
-          btn.textContent = 'Schließen';
-          btn.removeEventListener('click', handleCheck);
-          btn.addEventListener('click', () => ui.hide());
-        }else{
-          feedback.textContent = 'Das ist leider nicht korrekt. Viel Glück beim nächsten Versuch!';
+        const ts = Math.floor(Date.now()/1000);
+        const userName = sessionStorage.getItem('quizUser') || '';
+        const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
+        fetch('/results', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: userName, catalog, puzzleTime: ts, puzzleAnswer: valRaw })
+        })
+        .then(() => fetchEntry(userName, catalog))
+        .then(entry => {
+          if(entry && entry.puzzleTime){
+            feedback.textContent = 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
+            feedback.className = 'uk-margin-top uk-text-center uk-text-success';
+            sessionStorage.setItem('puzzleSolved', 'true');
+            sessionStorage.setItem('puzzleTime', String(entry.puzzleTime));
+            updatePuzzleInfo();
+            input.disabled = true;
+            btn.textContent = 'Schließen';
+            btn.removeEventListener('click', handleCheck);
+            btn.addEventListener('click', () => ui.hide());
+          }else{
+            feedback.textContent = 'Das ist leider nicht korrekt. Viel Glück beim nächsten Versuch!';
+            feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
+          }
+        })
+        .catch(() => {
+          feedback.textContent = 'Fehler bei der Überprüfung.';
           feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
-          return;
-        }
+        });
     }
     if(solvedBefore){
-      feedback.innerHTML = 'Du hast das Rätselwort bereits gelöst:<br><strong>' + expected + '</strong><br>' + (custom || 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!');
+      feedback.textContent = 'Du hast das Rätselwort bereits gelöst.';
       feedback.className = 'uk-margin-top uk-text-center uk-text-success';
       btn.addEventListener('click', () => ui.hide());
     }else{
