@@ -225,6 +225,11 @@ class QrController
             $this->renderHtml($pdf, $invite, 'Arial', '', 11);
         }
 
+        // Draw footer separator about 1 cm from the bottom
+        $footerY = $pdf->GetPageHeight() - 10; // 10 mm margin
+        $pdf->SetLineWidth(0.2);
+        $pdf->Line(10, $footerY, $pdf->GetPageWidth() - 10, $footerY);
+
         $output = $pdf->Output('S');
 
         $response->getBody()->write($output);
