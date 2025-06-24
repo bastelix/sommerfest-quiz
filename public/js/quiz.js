@@ -1038,6 +1038,15 @@ function runQuiz(questions, skipIntro){
         }
       });
       div.appendChild(restart);
+    } else {
+      const endBtn = document.createElement('button');
+      endBtn.textContent = 'Station beenden';
+      endBtn.className = 'uk-button uk-button-primary uk-margin-top';
+      styleButton(endBtn);
+      endBtn.addEventListener('click', () => {
+        window.close();
+      });
+      div.appendChild(endBtn);
     }
     return div;
   }
