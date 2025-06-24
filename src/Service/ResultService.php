@@ -145,11 +145,12 @@ class ResultService
     }
 
     /**
-     * Remove all result entries.
+     * Remove all result entries including per-question logs.
      */
     public function clear(): void
     {
         $this->pdo->exec('DELETE FROM results');
+        $this->pdo->exec('DELETE FROM question_results');
     }
 
     /**
