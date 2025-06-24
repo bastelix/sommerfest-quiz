@@ -261,7 +261,8 @@ class QrController
 
         libxml_use_internal_errors(true);
         $doc = new \DOMDocument();
-        $doc->loadHTML('<div>' . $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        // Force UTF-8 parsing to correctly handle special characters like ö,ä or ü
+        $doc->loadHTML('<?xml encoding="UTF-8"><div>' . $html . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         $this->renderHtmlNode($pdf, $doc->documentElement);
     }
 
