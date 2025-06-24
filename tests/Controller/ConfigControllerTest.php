@@ -13,19 +13,26 @@ class ConfigControllerTest extends TestCase
 {
     public function testGetNotFound(): void
     {
-        $tmp = tempnam(sys_get_temp_dir(), 'config');
-        unlink($tmp);
-        $controller = new ConfigController(new ConfigService());
+        $path = dirname(__DIR__, 2) . '/data/config.json';
+        $backup = $path . '.bak';
+        rename($path, $backup);
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(displayErrorDetails INTEGER, QRUser INTEGER, logoPath TEXT, pageTitle TEXT, header TEXT, subheader TEXT, backgroundColor TEXT, buttonColor TEXT, CheckAnswerButton TEXT, adminUser TEXT, adminPass TEXT, QRRestrict INTEGER, competitionMode INTEGER, teamResults INTEGER, photoUpload INTEGER, puzzleWordEnabled INTEGER, puzzleWord TEXT, puzzleFeedback TEXT, inviteText TEXT);');
+        $controller = new ConfigController(new ConfigService($pdo));
         $request = $this->createRequest('GET', '/config.json');
         $response = $controller->get($request, new Response());
 
         $this->assertEquals(404, $response->getStatusCode());
+        rename($backup, $path);
     }
 
     public function testPostAndGet(): void
     {
-        $tmp = tempnam(sys_get_temp_dir(), 'config');
-        $service = new ConfigService();
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(displayErrorDetails INTEGER, QRUser INTEGER, logoPath TEXT, pageTitle TEXT, header TEXT, subheader TEXT, backgroundColor TEXT, buttonColor TEXT, CheckAnswerButton TEXT, adminUser TEXT, adminPass TEXT, QRRestrict INTEGER, competitionMode INTEGER, teamResults INTEGER, photoUpload INTEGER, puzzleWordEnabled INTEGER, puzzleWord TEXT, puzzleFeedback TEXT, inviteText TEXT);');
+        $service = new ConfigService($pdo);
         $controller = new ConfigController($service);
 
         $request = $this->createRequest('POST', '/config.json');
@@ -37,13 +44,14 @@ class ConfigControllerTest extends TestCase
         $this->assertEquals(200, $getResponse->getStatusCode());
         $this->assertStringContainsString('foo', (string) $getResponse->getBody());
 
-        unlink($tmp);
     }
 
     public function testPostInvalidJson(): void
     {
-        $tmp = tempnam(sys_get_temp_dir(), 'config');
-        $service = new ConfigService();
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(displayErrorDetails INTEGER, QRUser INTEGER, logoPath TEXT, pageTitle TEXT, header TEXT, subheader TEXT, backgroundColor TEXT, buttonColor TEXT, CheckAnswerButton TEXT, adminUser TEXT, adminPass TEXT, QRRestrict INTEGER, competitionMode INTEGER, teamResults INTEGER, photoUpload INTEGER, puzzleWordEnabled INTEGER, puzzleWord TEXT, puzzleFeedback TEXT, inviteText TEXT);');
+        $service = new ConfigService($pdo);
         $controller = new ConfigController($service);
 
         $request = $this->createRequest('POST', '/config.json', ['HTTP_CONTENT_TYPE' => 'application/json']);
@@ -55,7 +63,5 @@ class ConfigControllerTest extends TestCase
 
         $response = $controller->post($request, new Response());
         $this->assertEquals(400, $response->getStatusCode());
-
-        unlink($tmp);
     }
 }

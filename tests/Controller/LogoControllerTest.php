@@ -14,7 +14,10 @@ class LogoControllerTest extends TestCase
 {
     public function testGetNotFound(): void
     {
-        $cfg = new ConfigService();
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(displayErrorDetails INTEGER, QRUser INTEGER, logoPath TEXT, pageTitle TEXT, header TEXT, subheader TEXT, backgroundColor TEXT, buttonColor TEXT, CheckAnswerButton TEXT, adminUser TEXT, adminPass TEXT, QRRestrict INTEGER, competitionMode INTEGER, teamResults INTEGER, photoUpload INTEGER, puzzleWordEnabled INTEGER, puzzleWord TEXT, puzzleFeedback TEXT, inviteText TEXT);');
+        $cfg = new ConfigService($pdo);
         $controller = new LogoController($cfg);
         $request = $this->createRequest('GET', '/logo.png');
         $response = $controller->get($request, new Response());
@@ -25,7 +28,10 @@ class LogoControllerTest extends TestCase
     public function testPostAndGet(): void
     {
         $tmpConfig = tempnam(sys_get_temp_dir(), 'cfg');
-        $cfg = new ConfigService();
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(displayErrorDetails INTEGER, QRUser INTEGER, logoPath TEXT, pageTitle TEXT, header TEXT, subheader TEXT, backgroundColor TEXT, buttonColor TEXT, CheckAnswerButton TEXT, adminUser TEXT, adminPass TEXT, QRRestrict INTEGER, competitionMode INTEGER, teamResults INTEGER, photoUpload INTEGER, puzzleWordEnabled INTEGER, puzzleWord TEXT, puzzleFeedback TEXT, inviteText TEXT);');
+        $cfg = new ConfigService($pdo);
         $controller = new LogoController($cfg);
         $logoFile = tempnam(sys_get_temp_dir(), 'logo');
         imagepng(imagecreatetruecolor(10, 10), $logoFile);
@@ -48,7 +54,10 @@ class LogoControllerTest extends TestCase
     public function testPostAndGetWebp(): void
     {
         $tmpConfig = tempnam(sys_get_temp_dir(), 'cfg');
-        $cfg = new ConfigService();
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(displayErrorDetails INTEGER, QRUser INTEGER, logoPath TEXT, pageTitle TEXT, header TEXT, subheader TEXT, backgroundColor TEXT, buttonColor TEXT, CheckAnswerButton TEXT, adminUser TEXT, adminPass TEXT, QRRestrict INTEGER, competitionMode INTEGER, teamResults INTEGER, photoUpload INTEGER, puzzleWordEnabled INTEGER, puzzleWord TEXT, puzzleFeedback TEXT, inviteText TEXT);');
+        $cfg = new ConfigService($pdo);
         $controller = new LogoController($cfg);
         $logoFile = tempnam(sys_get_temp_dir(), 'logo');
         file_put_contents($logoFile, 'dummy');
