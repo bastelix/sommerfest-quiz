@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Service\ConfigService;
+
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Writer\SvgWriter;
@@ -22,6 +24,16 @@ use Psr\Http\Message\ServerRequestInterface as Request;
  */
 class QrController
 {
+    private ConfigService $config;
+
+    /**
+     * Inject configuration service dependency.
+     */
+    public function __construct(ConfigService $config)
+    {
+        $this->config = $config;
+    }
+
     /**
      * Render a QR code image based on query parameters.
      */
@@ -149,10 +161,29 @@ class QrController
 
         $pdf = new FPDF();
         $pdf->AddPage();
+
+        $cfg = $this->config->getConfig();
+        $title = (string)($cfg['header'] ?? '');
+        $subtitle = (string)($cfg['subheader'] ?? '');
+        $logoPath = __DIR__ . '/../../data/logo.png';
+        $headerHeight = 25.0; // mm
+
+        if (is_readable($logoPath)) {
+            $pdf->Image($logoPath, 10, 10, 20, 0, 'PNG');
+        }
+
+        $pdf->SetXY(10, 10);
+        $pdf->SetFont('Arial', 'B', 16);
+        $pdf->Cell($pdf->GetPageWidth() - 20, 8, $title, 0, 2, 'C');
+        $pdf->SetFont('Arial', '', 12);
+        $pdf->Cell($pdf->GetPageWidth() - 20, 6, $subtitle, 0, 2, 'C');
+
+        $y = 10 + $headerHeight - 2;
+        $pdf->SetLineWidth(0.2);
+        $pdf->Line(10, $y, $pdf->GetPageWidth() - 10, $y);
+
         if ($tmp !== false) {
-            // Explicitly set the image type to avoid relying on the file
-            // extension which does not exist for our temporary file.
-            $pdf->Image($tmp, 20, 20, 70, 70, 'PNG');
+            $pdf->Image($tmp, 20, 20 + $headerHeight, 70, 70, 'PNG');
             unlink($tmp);
         }
         $output = $pdf->Output('S');
