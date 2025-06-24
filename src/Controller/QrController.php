@@ -166,7 +166,7 @@ class QrController
         $cfg = $this->config->getConfig();
         $title = (string)($cfg['header'] ?? '');
         $subtitle = (string)($cfg['subheader'] ?? '');
-        $logoFile = __DIR__ . '/../../' . ltrim($cfg['logoPath'] ?? '', '/');
+        $logoFile = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');
         $logoTemp = null;
         // Height of the header area in which logo, titles and QR code are placed
         $qrSize = 20.0; // mm
