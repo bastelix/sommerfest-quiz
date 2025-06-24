@@ -93,6 +93,17 @@ class ResultController
                 $result['normalizedExpected'] = $e;
                 if ($a !== '' && $a === $e) {
                     $result['success'] = $this->service->markPuzzle($name, $catalog, $time);
+                    if (!$result['success']) {
+                        $this->service->add([
+                            'name' => $name,
+                            'catalog' => $catalog,
+                            'correct' => 0,
+                            'total' => 0,
+                            'wrong' => [],
+                            'puzzleTime' => $time,
+                        ]);
+                        $result['success'] = true;
+                    }
                 }
             } else {
                 $this->service->add($data);
