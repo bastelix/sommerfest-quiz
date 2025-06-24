@@ -237,7 +237,7 @@ class QrController
     {
         // Remove characters outside ISO-8859-1
         $text = preg_replace('/[^\x00-\xFF]/u', '', $text);
-        return utf8_decode($text);
+        return mb_convert_encoding($text, 'ISO-8859-1', 'UTF-8');
     }
 
     /**
