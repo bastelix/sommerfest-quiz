@@ -33,6 +33,7 @@ class TestCase extends PHPUnit_TestCase
         $app = AppFactory::create();
 
         $twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
+        $twig->addExtension(new \App\Twig\UikitExtension());
         $app->add(TwigMiddleware::create($app, $twig));
         $app->add(new SessionMiddleware());
 
