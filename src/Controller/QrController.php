@@ -179,7 +179,8 @@ class QrController
                 $img->encode('png')->save($logoTemp, 80);
                 $logoFile = $logoTemp;
             }
-            $pdf->Image($logoFile, 10, 10, 20, 0, 'PNG');
+            // Display the logo with the same dimensions as the QR code
+            $pdf->Image($logoFile, 10, 10, $qrSize, $qrSize, 'PNG');
         }
 
         $pdf->SetXY(10, 10);
