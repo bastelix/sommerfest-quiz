@@ -293,7 +293,12 @@ function runQuiz(questions, skipIntro){
         puzzleBtn.textContent = 'Rätselwort überprüfen';
         styleButton(puzzleBtn);
         puzzleBtn.addEventListener('click', () => showPuzzleCheck(puzzleBtn, attemptKey));
-        summaryEl.appendChild(puzzleBtn);
+        const endBtn = summaryEl.querySelector('#end-station-btn');
+        if(endBtn){
+          summaryEl.insertBefore(puzzleBtn, endBtn);
+        } else {
+          summaryEl.appendChild(puzzleBtn);
+        }
       }
     }
 
@@ -1114,6 +1119,7 @@ function runQuiz(questions, skipIntro){
     } else {
       const endBtn = document.createElement('button');
       endBtn.textContent = 'Station beenden';
+      endBtn.id = 'end-station-btn';
       endBtn.className = 'uk-button uk-button-primary uk-margin-top';
       styleButton(endBtn);
       endBtn.addEventListener('click', () => {
