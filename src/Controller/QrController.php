@@ -191,6 +191,19 @@ class QrController
             $pdf->Image($tmp, $qrX, $qrY, $qrSize, $qrSize, 'PNG');
             unlink($tmp);
         }
+
+        $pdf->SetXY(10, $y + 5);
+        $invite = (string)($cfg['inviteText'] ?? '');
+        if ($invite !== '') {
+            $invite = preg_replace('/<br\s*\/>?/i', "\n", $invite);
+            $invite = preg_replace('/<h[1-6]>(.*?)<\/h[1-6]>/i', "$1\n", $invite);
+            $invite = preg_replace('/<p[^>]*>(.*?)<\/p>/i', "$1\n", $invite);
+            $invite = strip_tags($invite);
+            $invite = html_entity_decode($invite);
+            $pdf->SetFont('Arial', '', 11);
+            $pdf->MultiCell($pdf->GetPageWidth() - 20, 6, $invite);
+        }
+
         $output = $pdf->Output('S');
 
         $response->getBody()->write($output);
