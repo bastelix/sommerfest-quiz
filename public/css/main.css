@@ -256,6 +256,13 @@ body.dark-mode .sticky-actions {
   padding: 20px;
   text-align: center;
   page-break-inside: avoid;
+  position: relative;
+}
+
+.qr-print-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
 }
 @media print {
   .topbar,

@@ -13,6 +13,7 @@ use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\Label\Font\NotoSans;
 use Endroid\QrCode\RoundBlockSizeMode;
+use FPDF;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -109,6 +110,55 @@ class QrController
         return $response
             ->withHeader('Content-Type', $result->getMimeType())
             ->withHeader('Content-Disposition', 'inline; filename="qr.' . $extension . '"');
+    }
+
+    /**
+     * Render a PDF containing the QR code.
+     */
+    public function pdf(Request $request, Response $response): Response
+    {
+        $params = $request->getQueryParams();
+        $text   = (string)($params['t'] ?? '');
+        if ($text === '') {
+            return $response->withStatus(400);
+        }
+
+        $fg     = (string)($params['fg'] ?? '23b45a');
+        $bg     = (string)($params['bg'] ?? 'ffffff');
+        $size   = (int)($params['s'] ?? 300);
+        $margin = (int)($params['m'] ?? 20);
+
+        $builder = Builder::create()
+            ->writer(new PngWriter())
+            ->data($text)
+            ->encoding(new Encoding('UTF-8'))
+            ->size($size)
+            ->margin($margin)
+            ->backgroundColor($this->parseColor($bg, new Color(255, 255, 255)))
+            ->foregroundColor($this->parseColor($fg, new Color(35, 180, 90)));
+
+        $result = $builder
+            ->roundBlockSizeMode(RoundBlockSizeMode::Margin)
+            ->build();
+
+        $png = $result->getString();
+        $tmp = tempnam(sys_get_temp_dir(), 'qr');
+        if ($tmp !== false) {
+            file_put_contents($tmp, $png);
+        }
+
+        $pdf = new FPDF();
+        $pdf->AddPage();
+        if ($tmp !== false) {
+            $pdf->Image($tmp, 20, 20, 70, 70);
+            unlink($tmp);
+        }
+        $output = $pdf->Output('S');
+
+        $response->getBody()->write($output);
+        return $response
+            ->withHeader('Content-Type', 'application/pdf')
+            ->withHeader('Content-Disposition', 'inline; filename="qr.pdf"');
     }
 
     /**
