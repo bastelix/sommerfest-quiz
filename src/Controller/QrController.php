@@ -165,6 +165,9 @@ class QrController
         $cfg = $this->config->getConfig();
         $title = (string)($cfg['header'] ?? '');
         $subtitle = (string)($cfg['subheader'] ?? '');
+        // Convert title and subtitle to Windows-1252 for FPDF core fonts
+        $title = iconv('UTF-8', 'windows-1252//TRANSLIT', $title);
+        $subtitle = iconv('UTF-8', 'windows-1252//TRANSLIT', $subtitle);
         $logoPath = __DIR__ . '/../../data/logo.png';
         // Height of the header area in which logo, titles and QR code are placed
         $qrSize = 70.0; // mm
@@ -200,6 +203,7 @@ class QrController
             $invite = preg_replace('/<p[^>]*>(.*?)<\/p>/i', "$1\n", $invite);
             $invite = strip_tags($invite);
             $invite = html_entity_decode($invite);
+            $invite = iconv('UTF-8', 'windows-1252//TRANSLIT', $invite);
             $pdf->SetFont('Arial', '', 11);
             $pdf->MultiCell($pdf->GetPageWidth() - 20, 6, $invite);
         }
