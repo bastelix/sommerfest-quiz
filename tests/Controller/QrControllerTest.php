@@ -58,4 +58,21 @@ class QrControllerTest extends TestCase
         unlink($logoFile);
         unlink(dirname(__DIR__, 2) . '/data/logo.png');
     }
+
+    public function testInvitePlaceholderIsReplaced(): void
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(displayErrorDetails INTEGER, QRUser INTEGER, logoPath TEXT, pageTitle TEXT, header TEXT, subheader TEXT, backgroundColor TEXT, buttonColor TEXT, CheckAnswerButton TEXT, adminUser TEXT, adminPass TEXT, QRRestrict INTEGER, competitionMode INTEGER, teamResults INTEGER, photoUpload INTEGER, puzzleWordEnabled INTEGER, puzzleWord TEXT, puzzleFeedback TEXT, inviteText TEXT);');
+        $pdo->exec("INSERT INTO config(inviteText) VALUES('Hallo [Team]!');");
+
+        $cfg = new \App\Service\ConfigService($pdo);
+        $qr  = new \App\Controller\QrController($cfg);
+
+        $req = $this->createRequest('GET', '/qr.pdf?t=Demo');
+        $response = $qr->pdf($req, new Response());
+        $pdf = (string)$response->getBody();
+
+        $this->assertStringContainsString('Hallo Demo!', $pdf);
+    }
 }
