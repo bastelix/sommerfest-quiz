@@ -542,9 +542,10 @@ document.addEventListener('DOMContentLoaded', function () {
       mc: 'Multiple Choice',
       assign: 'Zuordnen',
       sort: 'Sortieren',
-      swipe: 'Swipe-Karten'
+      swipe: 'Swipe-Karten',
+      photoText: 'Foto + Text'
     };
-    ['sort', 'assign', 'mc', 'swipe'].forEach(t => {
+    ['sort', 'assign', 'mc', 'swipe', 'photoText'].forEach(t => {
       const opt = document.createElement('option');
       opt.value = t;
       opt.textContent = labelMap[t] || t;
@@ -559,7 +560,8 @@ document.addEventListener('DOMContentLoaded', function () {
         sort: 'Items in die richtige Reihenfolge bringen.',
         assign: 'Begriffe den passenden Definitionen zuordnen.',
         mc: 'Mehrfachauswahl (Multiple Choice, mehrere Antworten möglich).',
-        swipe: 'Karten nach links oder rechts wischen.'
+        swipe: 'Karten nach links oder rechts wischen.',
+        photoText: 'Foto aufnehmen und passende Antwort eingeben.'
       };
       typeInfo.textContent = map[typeSelect.value] || '';
     }
@@ -760,6 +762,13 @@ document.addEventListener('DOMContentLoaded', function () {
         add.onclick = e => { e.preventDefault(); list.appendChild(addCard('', false)); };
         fields.appendChild(list);
         fields.appendChild(add);
+      } else if (typeSelect.value === 'photoText') {
+        const consent = document.createElement('label');
+        consent.className = 'uk-margin-small-bottom';
+        consent.innerHTML = '<input type="checkbox" class="uk-checkbox consent-box"> Datenschutz-Checkbox anzeigen';
+        const chk = consent.querySelector('input');
+        if (q.consent) chk.checked = true;
+        fields.appendChild(consent);
       } else {
         const list = document.createElement('div');
         (q.options || ['', '']).forEach((opt, i) =>
@@ -834,6 +843,10 @@ document.addEventListener('DOMContentLoaded', function () {
           ul.appendChild(li);
         });
         preview.appendChild(ul);
+      } else if (typeSelect.value === 'photoText') {
+        const p = document.createElement('p');
+        p.textContent = 'Foto-Upload und Textfeld';
+        preview.appendChild(p);
       } else {
         const ul = document.createElement('ul');
         Array.from(fields.querySelectorAll('.option-row')).forEach(r => {
@@ -884,6 +897,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (rightLabel) obj.rightLabel = rightLabel;
         if (leftLabel) obj.leftLabel = leftLabel;
         return obj;
+      } else if (type === 'photoText') {
+        const consent = card.querySelector('.consent-box').checked;
+        return { type, prompt, consent };
       } else {
         const options = Array.from(card.querySelectorAll('.option-row .option'))
           .map(i => i.value.trim())
