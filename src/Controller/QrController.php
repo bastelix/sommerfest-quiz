@@ -150,7 +150,9 @@ class QrController
         $pdf = new FPDF();
         $pdf->AddPage();
         if ($tmp !== false) {
-            $pdf->Image($tmp, 20, 20, 70, 70);
+            // Explicitly set the image type to avoid relying on the file
+            // extension which does not exist for our temporary file.
+            $pdf->Image($tmp, 20, 20, 70, 70, 'PNG');
             unlink($tmp);
         }
         $output = $pdf->Output('S');
