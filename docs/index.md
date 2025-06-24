@@ -17,7 +17,7 @@ hohe Performance standen dabei im Mittelpunkt.
 Weitere Highlights sind:
 
 - **Flexibel einsetzbar**: Kataloge im JSON-Format lassen sich einfach austauschen.
-- **Drei Fragetypen**: Sortieren, Zuordnen und Multiple Choice.
+- **Vier Fragetypen**: Sortieren, Zuordnen, Multiple Choice und Foto mit Texteingabe.
 - **QR-Code-Login & Dunkelmodus** für komfortables Spielen auf allen Geräten.
 - **Persistente Speicherung** in PostgreSQL.
 

@@ -125,6 +125,7 @@ function runQuiz(questions, skipIntro){
   const elements = [createStart()].concat(shuffled.map((q, idx) => createQuestion(q, idx)));
   // Speichert true/false für jede beantwortete Frage
   const results = new Array(questionCount).fill(false);
+  const answers = new Array(questionCount).fill(null);
   const summaryEl = createSummary(); // Abschlussseite
   elements.push(summaryEl);
   let summaryShown = false;
@@ -238,7 +239,7 @@ function runQuiz(questions, skipIntro){
     }
     const catalog = getStored('quizCatalog') || 'unknown';
     const wrong = results.map((r,i)=> r ? null : i+1).filter(v=>v!==null);
-    const data = { name: user, catalog, correct: score, total: questionCount, wrong };
+    const data = { name: user, catalog, correct: score, total: questionCount, wrong, answers };
     const puzzleSolved = sessionStorage.getItem('puzzleSolved') === 'true';
     const puzzleTs = sessionStorage.getItem('puzzleTime');
     if(puzzleSolved && puzzleTs){
@@ -334,6 +335,7 @@ function runQuiz(questions, skipIntro){
     if(q.type === 'assign') return createAssignQuestion(q, idx);
     if(q.type === 'mc') return createMcQuestion(q, idx);
     if(q.type === 'swipe') return createSwipeQuestion(q, idx);
+    if(q.type === 'photoText') return createPhotoTextQuestion(q, idx);
     return document.createElement('div');
   }
 
@@ -887,6 +889,77 @@ function runQuiz(questions, skipIntro){
 
     div.appendChild(controls);
     render();
+    return div;
+  }
+
+  function createPhotoTextQuestion(q, idx){
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
+    const h = document.createElement('h4');
+    h.textContent = q.prompt;
+    div.appendChild(h);
+
+    const file = document.createElement('input');
+    file.type = 'file';
+    file.accept = 'image/*';
+    file.capture = 'environment';
+    file.className = 'uk-input uk-margin';
+    file.setAttribute('aria-label', 'Foto aufnehmen oder wählen');
+
+    const text = document.createElement('input');
+    text.type = 'text';
+    text.className = 'uk-input uk-margin';
+    text.placeholder = 'Antwort';
+
+    let consentBox = null;
+    if(q.consent){
+      const label = document.createElement('label');
+      label.className = 'uk-margin';
+      label.innerHTML = '<input type="checkbox" class="uk-checkbox"> Datenschutz bestätigt';
+      consentBox = label.querySelector('input');
+      div.appendChild(label);
+    }
+
+    const feedback = document.createElement('div');
+    feedback.className = 'uk-margin-small';
+    feedback.setAttribute('role','alert');
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'uk-button uk-button-primary';
+    nextBtn.textContent = 'Weiter';
+    styleButton(nextBtn);
+
+    nextBtn.addEventListener('click', () => {
+      if(!file.files.length){
+        feedback.textContent = 'Bitte Foto auswählen';
+        return;
+      }
+      if(consentBox && !consentBox.checked){
+        feedback.textContent = 'Bitte Einwilligung bestätigen';
+        return;
+      }
+      const fd = new FormData();
+      const user = getStored('quizUser') || '';
+      const catalog = getStored('quizCatalog') || 'unknown';
+      fd.append('photo', file.files[0]);
+      fd.append('name', user);
+      fd.append('catalog', catalog);
+      fd.append('team', user);
+      fetch('/photos', { method: 'POST', body: fd })
+        .then(async r => { if(!r.ok) throw new Error(await r.text()); return r.json(); })
+        .then(data => {
+          answers[idx] = { text: text.value.trim(), photo: data.path || '', consent: consentBox ? consentBox.checked : false };
+          results[idx] = true;
+          next();
+        })
+        .catch(e => { feedback.textContent = e.message || 'Fehler beim Hochladen'; });
+    });
+
+    div.appendChild(file);
+    div.appendChild(text);
+    div.appendChild(feedback);
+    div.appendChild(nextBtn);
     return div;
   }
 

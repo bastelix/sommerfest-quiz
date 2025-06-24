@@ -44,6 +44,9 @@ CREATE TABLE IF NOT EXISTS results (
     catalog TEXT NOT NULL,
     attempt INTEGER NOT NULL,
     correct INTEGER NOT NULL,
+    answer_text TEXT,
+    photo TEXT,
+    consent BOOLEAN,
     total INTEGER NOT NULL,
     time INTEGER NOT NULL,
     puzzleTime INTEGER,
@@ -60,6 +63,9 @@ CREATE TABLE IF NOT EXISTS question_results (
     question_id INTEGER NOT NULL,
     attempt INTEGER NOT NULL,
     correct INTEGER NOT NULL
+    answer_text TEXT,
+    photo TEXT,
+    consent BOOLEAN
 );
 CREATE INDEX idx_qresults_catalog ON question_results(catalog);
 CREATE INDEX idx_qresults_name ON question_results(name);
