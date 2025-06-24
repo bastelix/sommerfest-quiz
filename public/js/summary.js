@@ -228,12 +228,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const ts = Math.floor(Date.now()/1000);
         const userName = getStored('quizUser') || '';
         const catalog = getStored('quizCatalog') || 'unknown';
-        fetch('/results', {
+        fetch('/results?debug=1', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: userName, catalog, puzzleTime: ts, puzzleAnswer: valRaw })
         })
-        .then(() => fetchEntry(userName, catalog))
+        .then(r => r.json())
+        .then(debug => {
+          if(debug){
+            feedback.textContent = `Debug: ${debug.normalizedAnswer} vs ${debug.normalizedExpected}`;
+            setTimeout(() => { feedback.textContent = ''; }, 3000);
+          }
+          return fetchEntry(userName, catalog);
+        })
         .then(entry => {
           if(entry && entry.puzzleTime){
             feedback.textContent = 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';

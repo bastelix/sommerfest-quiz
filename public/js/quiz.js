@@ -1045,12 +1045,19 @@ function runQuiz(questions, skipIntro){
       const ts = Math.floor(Date.now()/1000);
       const user = getStored('quizUser') || '';
       const catalog = getStored('quizCatalog') || 'unknown';
-      fetch('/results', {
+      fetch('/results?debug=1', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: user, catalog, puzzleTime: ts, puzzleAnswer: valRaw })
       })
-      .then(() => fetchLatestPuzzleEntry(user, catalog))
+      .then(r => r.json())
+      .then(debug => {
+        if(debug){
+          feedback.textContent = `Debug: ${debug.normalizedAnswer} vs ${debug.normalizedExpected}`;
+          setTimeout(() => { feedback.textContent = ''; }, 3000);
+        }
+        return fetchLatestPuzzleEntry(user, catalog);
+      })
       .then(entry => {
         if(entry && entry.puzzleTime){
           feedback.textContent = 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';

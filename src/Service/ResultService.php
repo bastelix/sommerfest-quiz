@@ -150,7 +150,7 @@ class ResultService
     /**
      * Mark the puzzle word as solved for the latest entry of the given user.
      */
-    public function markPuzzle(string $name, string $catalog, int $time): void
+    public function markPuzzle(string $name, string $catalog, int $time): bool
     {
         $stmt = $this->pdo->prepare('SELECT id,puzzleTime FROM results WHERE name=? AND catalog=? ORDER BY id DESC LIMIT 1');
         $stmt->execute([$name, $catalog]);
@@ -158,7 +158,9 @@ class ResultService
         if ($row && $row['puzzleTime'] === null) {
             $upd = $this->pdo->prepare('UPDATE results SET puzzleTime=? WHERE id=?');
             $upd->execute([$time, $row['id']]);
+            return true;
         }
+        return false;
     }
 
     /**
