@@ -17,6 +17,7 @@
   "puzzleWordEnabled": true,
   "puzzleWord": "",
   "puzzleFeedback": "",
+  "inviteText": "",
   "postgres_dsn": "pgsql:host=postgres;dbname=quiz",
   "postgres_user": "quiz",
   "postgres_pass": "quiz"

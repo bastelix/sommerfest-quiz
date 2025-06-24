@@ -26,7 +26,8 @@ CREATE TABLE IF NOT EXISTS config (
     photoUpload BOOLEAN,
     puzzleWordEnabled BOOLEAN,
     puzzleWord TEXT,
-    puzzleFeedback TEXT
+    puzzleFeedback TEXT,
+    inviteText TEXT
 );
 
 -- Teams list (names only)
