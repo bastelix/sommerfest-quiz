@@ -25,11 +25,13 @@ if (is_readable($envFile)) {
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use App\Application\Middleware\SessionMiddleware;
+use App\Twig\UikitExtension;
 
 $settings = require __DIR__ . '/../config/settings.php';
 $app = \Slim\Factory\AppFactory::create();
 
 $twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
+$twig->addExtension(new UikitExtension());
 $app->add(TwigMiddleware::create($app, $twig));
 $app->add(new SessionMiddleware());
 

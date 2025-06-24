@@ -29,8 +29,8 @@
   {% endembed %}
   <div class="uk-container uk-container-small">
     {% if config.inviteText %}
-    <div class="uk-card uk-card-default uk-card-body uk-margin">
-      {{ config.inviteText|raw }}
+    <div class="modern-info-card uk-card uk-card-default uk-card-body uk-box-shadow-medium uk-margin">
+      <article class="uk-article uk-margin-remove">{{ config.inviteText|uikitify|raw }}</article>
     </div>
     {% endif %}
     <div class="uk-card uk-card-default uk-card-body uk-margin">
