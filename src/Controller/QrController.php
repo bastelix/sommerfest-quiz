@@ -177,7 +177,8 @@ class QrController
         $logoTemp = null;
         // Height of the header area in which logo, titles and QR code are placed
         $qrSize = 20.0; // mm
-        $headerHeight = max(25.0, $qrSize + 10.0); // ensure QR code fits
+        // Reduce header height by 5 mm
+        $headerHeight = max(25.0, $qrSize + 5.0); // ensure QR code fits
 
         if (is_readable($logoFile)) {
             if (str_ends_with(strtolower($logoFile), '.webp')) {
