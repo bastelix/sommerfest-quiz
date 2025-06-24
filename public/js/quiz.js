@@ -59,6 +59,16 @@
   };
 })();
 
+function setStored(key, value){
+  try{
+    sessionStorage.setItem(key, value);
+    localStorage.setItem(key, value);
+  }catch(e){}
+}
+function getStored(key){
+  return sessionStorage.getItem(key) || localStorage.getItem(key);
+}
+
 function formatPuzzleTime(ts){
   const d = new Date(ts * 1000);
   const pad = n => n.toString().padStart(2, '0');
@@ -119,9 +129,16 @@ function runQuiz(questions, skipIntro){
   elements.push(summaryEl);
   let summaryShown = false;
 
-  if(!sessionStorage.getItem('quizUser')){
+  ['quizUser','quizCatalog'].forEach(k => {
+    const v = localStorage.getItem(k);
+    if(v && !sessionStorage.getItem(k)){
+      sessionStorage.setItem(k, v);
+    }
+  });
+
+  if(!getStored('quizUser')){
     if(!cfg.QRRestrict){
-      sessionStorage.setItem('quizUser', generateUserName());
+      setStored('quizUser', generateUserName());
     }
   }
 
@@ -197,9 +214,10 @@ function runQuiz(questions, skipIntro){
     if(summaryShown) return;
     summaryShown = true;
     const score = results.filter(r => r).length;
-    let user = sessionStorage.getItem('quizUser');
+    let user = getStored('quizUser');
     if(!user && !cfg.QRRestrict){
       user = generateUserName();
+      setStored('quizUser', user);
     }
     const p = summaryEl.querySelector('p');
     if(p) p.textContent = `${user} hat ${score} von ${questionCount} Punkten erreicht.`;
@@ -218,7 +236,7 @@ function runQuiz(questions, skipIntro){
     if(score === questionCount && typeof window.startConfetti === 'function'){
       window.startConfetti();
     }
-    const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
+    const catalog = getStored('quizCatalog') || 'unknown';
     const wrong = results.map((r,i)=> r ? null : i+1).filter(v=>v!==null);
     const data = { name: user, catalog, correct: score, total: questionCount, wrong };
     const puzzleSolved = sessionStorage.getItem('puzzleSolved') === 'true';
@@ -263,7 +281,7 @@ function runQuiz(questions, skipIntro){
       const puzzleSolved = sessionStorage.getItem('puzzleSolved') === 'true';
       const puzzleInfo = summaryEl.querySelector('#puzzle-info');
       if(puzzleSolved && puzzleInfo){
-        const name = sessionStorage.getItem('quizUser') || '';
+        const name = getStored('quizUser') || '';
         fetchLatestPuzzleEntry(name, catalog).then(entry => {
           if(entry && entry.puzzleTime){
             puzzleInfo.textContent = `Rätselwort gelöst: ${formatPuzzleTime(entry.puzzleTime)}`;
@@ -286,8 +304,8 @@ function runQuiz(questions, skipIntro){
       photoBtn.textContent = 'Beweisfoto einreichen';
       styleButton(photoBtn);
       photoBtn.addEventListener('click', () => {
-        const name = sessionStorage.getItem('quizUser') || '';
-        const catalogName = sessionStorage.getItem('quizCatalog') || 'unknown';
+        const name = getStored('quizUser') || '';
+        const catalogName = getStored('quizCatalog') || 'unknown';
         showPhotoModal(name, catalogName);
       });
       summaryEl.appendChild(photoBtn);
@@ -901,7 +919,7 @@ function runQuiz(questions, skipIntro){
           const back = cams.find(c => /back|rear|environment/i.test(c.label));
           if(back) cam = back.id;
           scanner.start(cam, { fps: 10, qrbox: 250 }, text => {
-            sessionStorage.setItem('quizUser', text.trim());
+            setStored('quizUser', text.trim());
             stopScanner();
             UIkit.modal(modal).hide();
             next();
@@ -957,7 +975,7 @@ function runQuiz(questions, skipIntro){
         return;
       }
       const user = generateUserName();
-      sessionStorage.setItem('quizUser', user);
+      setStored('quizUser', user);
       next();
     });
     div.appendChild(startBtn);
@@ -993,6 +1011,7 @@ function runQuiz(questions, skipIntro){
       restart.addEventListener('click', () => {
         sessionStorage.removeItem('quizUser');
         sessionStorage.removeItem('quizSolved');
+        localStorage.removeItem('quizUser');
         const topbar = document.getElementById('topbar-title');
         if(topbar){
           topbar.textContent = topbar.dataset.defaultTitle || '';
@@ -1024,8 +1043,8 @@ function runQuiz(questions, skipIntro){
     function handleCheck(){
       const valRaw = (input.value || '').trim();
       const ts = Math.floor(Date.now()/1000);
-      const user = sessionStorage.getItem('quizUser') || '';
-      const catalog = sessionStorage.getItem('quizCatalog') || 'unknown';
+      const user = getStored('quizUser') || '';
+      const catalog = getStored('quizCatalog') || 'unknown';
       fetch('/results', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
