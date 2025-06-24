@@ -1154,12 +1154,17 @@ function runQuiz(questions, skipIntro){
       })
       .then(data => {
         if(data){
+          let debugTimer = null;
           if(data.normalizedAnswer !== undefined && data.normalizedExpected !== undefined){
             feedback.textContent = `Debug: ${data.normalizedAnswer} vs ${data.normalizedExpected}`;
-            setTimeout(() => { feedback.textContent = ''; }, 3000);
+            debugTimer = setTimeout(() => { feedback.textContent = ''; }, 3000);
           }
           if(data.success){
-            feedback.textContent = 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
+            if(debugTimer) clearTimeout(debugTimer);
+            const msg = (cfg.puzzleFeedback && cfg.puzzleFeedback.trim())
+              ? cfg.puzzleFeedback
+              : 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
+            feedback.textContent = msg;
             feedback.className = 'uk-margin-top uk-text-center uk-text-success';
             sessionStorage.setItem('puzzleSolved', 'true');
             sessionStorage.setItem('puzzleTime', String(ts));
