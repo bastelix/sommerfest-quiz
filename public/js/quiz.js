@@ -125,6 +125,7 @@ function runQuiz(questions, skipIntro){
   const elements = [createStart()].concat(shuffled.map((q, idx) => createQuestion(q, idx)));
   // Speichert true/false für jede beantwortete Frage
   const results = new Array(questionCount).fill(false);
+  const answers = new Array(questionCount).fill(null);
   const summaryEl = createSummary(); // Abschlussseite
   elements.push(summaryEl);
   let summaryShown = false;
@@ -238,7 +239,7 @@ function runQuiz(questions, skipIntro){
     }
     const catalog = getStored('quizCatalog') || 'unknown';
     const wrong = results.map((r,i)=> r ? null : i+1).filter(v=>v!==null);
-    const data = { name: user, catalog, correct: score, total: questionCount, wrong };
+    const data = { name: user, catalog, correct: score, total: questionCount, wrong, answers };
     const puzzleSolved = sessionStorage.getItem('puzzleSolved') === 'true';
     const puzzleTs = sessionStorage.getItem('puzzleTime');
     if(puzzleSolved && puzzleTs){
@@ -316,6 +317,7 @@ function runQuiz(questions, skipIntro){
     if(q.type === 'assign') return createAssignQuestion(q, idx);
     if(q.type === 'mc') return createMcQuestion(q, idx);
     if(q.type === 'swipe') return createSwipeQuestion(q, idx);
+    if(q.type === 'photoText') return createPhotoTextQuestion(q, idx);
     return document.createElement('div');
   }
 
@@ -872,6 +874,61 @@ function runQuiz(questions, skipIntro){
     return div;
   }
 
+  function createPhotoTextQuestion(q, idx){
+    const div = document.createElement('div');
+    div.className = 'question';
+    div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
+    const h = document.createElement('h4');
+    h.textContent = q.prompt;
+    div.appendChild(h);
+
+    const text = document.createElement('input');
+    text.type = 'text';
+    text.className = 'uk-input uk-margin';
+    text.placeholder = 'Antwort';
+
+    let photoPath = '';
+    const uploadBtn = document.createElement('button');
+    uploadBtn.className = 'uk-button uk-button-default uk-margin';
+    uploadBtn.textContent = 'Foto aufnehmen';
+    styleButton(uploadBtn);
+
+    const feedback = document.createElement('div');
+    feedback.className = 'uk-margin-small';
+    feedback.setAttribute('role','alert');
+
+    uploadBtn.addEventListener('click', () => {
+      const user = getStored('quizUser') || '';
+      showPhotoModal(user, '', path => {
+        photoPath = path || '';
+        feedback.textContent = 'Foto gespeichert';
+        feedback.className = 'uk-margin-small uk-text-success';
+      }, !!q.consent);
+    });
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'uk-button uk-button-primary';
+    nextBtn.textContent = 'Weiter';
+    styleButton(nextBtn);
+
+    nextBtn.addEventListener('click', () => {
+      if(!photoPath){
+        feedback.textContent = 'Bitte Foto aufnehmen';
+        feedback.className = 'uk-margin-small uk-text-danger';
+        return;
+      }
+      answers[idx] = { text: text.value.trim(), photo: photoPath, consent: q.consent ? true : null };
+      results[idx] = true;
+      next();
+    });
+
+    div.appendChild(uploadBtn);
+    div.appendChild(text);
+    div.appendChild(feedback);
+    div.appendChild(nextBtn);
+    return div;
+  }
+
   // Startbildschirm mit Statistik und Startknopf
   function createStart(){
     const div = document.createElement('div');
@@ -1101,7 +1158,7 @@ function runQuiz(questions, skipIntro){
     ui.show();
   }
 
-  function showPhotoModal(name, catalog){
+  function showPhotoModal(name, catalog, cb, requireConsent = true){
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
     modal.setAttribute('aria-modal', 'true');
@@ -1119,10 +1176,11 @@ function runQuiz(questions, skipIntro){
               '<button class="uk-button uk-button-default uk-width-1-1 uk-margin-small-top" type="button" tabindex="-1">Durchsuchen</button>' +
             '</div>' +
           '</div>' +
-          '<label class="uk-form-label uk-margin-small-bottom">' +
-            '<input type="checkbox" id="consent-checkbox" class="uk-checkbox uk-margin-small-right">' +
-            'Einverständnis aller abgebildeten Personen wurde eingeholt ' +
-          '</label>' +
+          (requireConsent ?
+            '<label class="uk-form-label uk-margin-small-bottom">' +
+              '<input type="checkbox" id="consent-checkbox" class="uk-checkbox uk-margin-small-right">' +
+              'Einverständnis aller abgebildeten Personen wurde eingeholt ' +
+            '</label>' : '') +
           '<div id="photo-feedback" class="uk-margin-small uk-text-center"></div>' +
           '<button id="upload-btn" class="uk-button uk-button-primary uk-width-1-1" disabled>Hochladen</button>' +
         '</div>' +
@@ -1137,14 +1195,14 @@ function runQuiz(questions, skipIntro){
     UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
 
     function toggleBtn(){
-      btn.disabled = !input.files.length || !consent.checked;
+      btn.disabled = !input.files.length || (requireConsent && !consent.checked);
     }
     input.addEventListener('change', toggleBtn);
-    consent.addEventListener('change', toggleBtn);
+    if(consent) consent.addEventListener('change', toggleBtn);
 
     btn.addEventListener('click', () => {
       const file = input.files && input.files[0];
-      if(!file || !consent.checked) return;
+      if(!file || (requireConsent && !consent.checked)) return;
       const fd = new FormData();
       fd.append('photo', file);
       fd.append('name', name);
@@ -1162,12 +1220,12 @@ function runQuiz(questions, skipIntro){
           }
           return r.json();
         })
-        .then(() => {
+        .then(data => {
           feedback.textContent = 'Foto gespeichert';
           feedback.className = 'uk-margin-top uk-text-center uk-text-success';
           btn.disabled = true;
           input.disabled = true;
-          consent.disabled = true;
+          if(consent) consent.disabled = true;
           setTimeout(() => {
             ui.hide();
             if (typeof UIkit !== 'undefined' && UIkit.notification) {
@@ -1181,6 +1239,7 @@ function runQuiz(questions, skipIntro){
               alert('Bild erfolgreich gespeichert');
             }
           }, 1000);
+          if(typeof cb === 'function') cb(data.path);
         })
         .catch(e => {
           feedback.textContent = e.message || 'Fehler beim Hochladen';
