@@ -546,11 +546,9 @@
             if(catalogs.length && solvedNow.size === catalogs.length){
               showAllSolvedModal();
               return;
-            } else {
-              showCatalogSolvedModal(selected.name || selected.slug || selected.id, remaining);
-              showSelection(catalogs, solvedNow);
-              return;
             }
+            showCatalogSolvedModal(selected.name || selected.slug || selected.id, remaining);
+            return;
           }
         loadQuestions(selected.slug || selected.id, selected.file, selected.raetsel_buchstabe, selected.uid, selected.name || selected.slug || selected.id, selected.description || '', selected.comment || '');
       }else{
