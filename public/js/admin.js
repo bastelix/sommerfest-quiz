@@ -661,7 +661,7 @@ document.addEventListener('DOMContentLoaded', function () {
         photoText: 'Foto aufnehmen und passende Antwort eingeben.'
       };
       const base = map[typeSelect.value] || '';
-      typeInfo.textContent = base + ' Versteckte Umbrüche kannst du mit "\/-" einfügen.';
+      typeInfo.textContent = base + ' Für kleine Displays kannst du "\/-" als verstecktes Worttrennzeichen nutzen.';
     }
     updateInfo();
     typeSelect.addEventListener('change', () => {
