@@ -431,10 +431,10 @@
         camIndex = (camIndex + 1) % cameras.length;
         await startCamera();
       });
-      scanBtn.addEventListener('click', (e) => {
+      scanBtn.addEventListener('click', async (e) => {
         opener = e.currentTarget;
         UIkit.modal(modal).show();
-        startScanner();
+        await startScanner();
       });
       UIkit.util.on(modal, 'shown', () => {
         stopBtn.focus();
@@ -463,7 +463,7 @@
       container.appendChild(modal);
       if(autoScan){
         UIkit.modal(modal).show();
-        startScanner();
+        await startScanner();
       }
     }else{
       if(!cfg.competitionMode || hasCatalog){
