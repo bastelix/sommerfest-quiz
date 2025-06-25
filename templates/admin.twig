@@ -417,13 +417,15 @@
           </div>
           {% endfor %}
         </div>
-        <div class="uk-margin uk-flex">
+        <div class="uk-margin uk-flex uk-flex-between uk-flex-middle">
           <button id="inviteTextBtn" class="uk-button uk-button-default uk-margin-right" type="button" uk-toggle="target: #inviteTextModal">
             <span id="inviteTextIcon" uk-icon="icon: pencil"></span>
             <span id="inviteTextLabel">Einladungstext eingeben</span>
           </button>
-          <button id="summaryPrintBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: Übersicht drucken; pos: right">Übersicht Drucken</button>
-          <button id="openInvitesBtn" class="uk-button uk-button-default" uk-tooltip="title: Alle Einladungen öffnen; pos: right">Einladungen öffnen</button>
+          <div class="uk-flex">
+            <button id="openInvitesBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: Alle Einladungen öffnen; pos: right">Einladungen öffnen</button>
+            <button id="summaryPrintBtn" class="uk-button uk-button-default" uk-tooltip="title: Übersicht drucken; pos: right">Übersicht Drucken</button>
+          </div>
         </div>
         <div id="inviteTextModal" uk-modal>
           <div class="uk-modal-dialog uk-modal-body">
