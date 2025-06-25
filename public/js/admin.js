@@ -378,6 +378,12 @@ document.addEventListener('DOMContentLoaded', function () {
     window.print();
   });
 
+  const openInvitesBtn = document.getElementById('openInvitesBtn');
+  openInvitesBtn?.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.open('/invites.pdf', '_blank');
+  });
+
   document.querySelectorAll('.qr-print-btn').forEach(btn => {
     btn.addEventListener('click', e => {
       e.preventDefault();

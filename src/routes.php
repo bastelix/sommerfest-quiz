@@ -74,7 +74,7 @@ return function (\Slim\App $app) {
     );
     $teamController = new TeamController($teamService);
     $passwordController = new PasswordController($configService);
-    $qrController = new QrController($configService);
+    $qrController = new QrController($configService, $teamService);
     $logoController = new LogoController($configService);
     $summaryController = new SummaryController($configService);
     $importController = new ImportController(
@@ -146,6 +146,7 @@ return function (\Slim\App $app) {
     $app->delete('/backups/{name}', [$backupController, 'delete']);
     $app->get('/qr.png', [$qrController, 'image']);
     $app->get('/qr.pdf', [$qrController, 'pdf']);
+    $app->get('/invites.pdf', [$qrController, 'pdfAll']);
     $app->get('/logo.png', [$logoController, 'get'])->setArgument('ext', 'png');
     $app->post('/logo.png', [$logoController, 'post']);
     $app->get('/logo.webp', [$logoController, 'get'])->setArgument('ext', 'webp');
