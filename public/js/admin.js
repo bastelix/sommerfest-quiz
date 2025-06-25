@@ -102,7 +102,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const inviteSaveBtn = document.getElementById('inviteTextSave');
   const inviteModal = UIkit.modal('#inviteTextModal');
   const inviteToolbar = document.getElementById('inviteTextToolbar');
-  const symbolDropdown = document.getElementById('symbolDropdown');
   const commentTextarea = document.getElementById('catalogCommentTextarea');
   const commentSaveBtn = document.getElementById('catalogCommentSave');
   const commentModal = UIkit.modal('#catalogCommentModal');
@@ -174,17 +173,6 @@ document.addEventListener('DOMContentLoaded', function () {
         wrapSelection(inviteTextarea, '<em>', '</em>');
         break;
     }
-  });
-  symbolDropdown?.addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-symbol]');
-    if (!btn || !inviteTextarea) return;
-    let symbol = btn.dataset.symbol;
-    const fallback = { '①': '1', '②': '2', '③': '3', '④': '4', '⑤': '5', '⑥': '6', '⑦': '7', '⑧': '8', '⑨': '9', '⑩': '10', '•': '-' };
-    if (document.fonts && !document.fonts.check(`16px ${getComputedStyle(inviteTextarea).fontFamily}`, symbol)) {
-      symbol = fallback[symbol] || symbol;
-    }
-    wrapSelection(inviteTextarea, symbol, '');
-    UIkit.dropdown(symbolDropdown).hide();
   });
   if (cfgFields.logoFile && cfgFields.logoPreview) {
     const bar = document.getElementById('cfgLogoProgress');
