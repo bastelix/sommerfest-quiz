@@ -349,15 +349,38 @@
       modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">'+
         '<h3 class="uk-modal-title uk-text-center">Who I AM</h3>'+
         '<div id="login-qr" class="uk-margin" style="max-width:320px;margin:0 auto;width:100%"></div>'+
+        '<button id="login-qr-flip" class="uk-button uk-button-default uk-width-1-1">Kamera wechseln</button>'+
         '<button id="login-qr-stop" class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Abbrechen</button>'+
       '</div>';
       let scanner;
       let opener;
+      let cameras = [];
+      let camIndex = 0;
       const stopScanner = () => {
         if(scanner){
           scanner.stop().then(()=>scanner.clear()).catch(()=>{});
           scanner = null;
         }
+        flipBtn.disabled = true;
+      };
+      const startCamera = () => {
+        const camId = cameras[camIndex].id;
+        scanner.start(camId, { fps:10, qrbox:250 }, text => {
+          const name = text.trim();
+          if(cfg.QRRestrict && allowed.indexOf(name) === -1){
+            alert('Unbekanntes oder nicht berechtigtes Team/Person');
+            return;
+          }
+          setStored('quizUser', name);
+          sessionStorage.removeItem('quizSolved');
+          updateUserName();
+          stopScanner();
+          UIkit.modal(modal).hide();
+          onDone();
+        }).catch(err => {
+          console.error('QR scanner start failed.', err);
+          document.getElementById('login-qr').textContent = 'QR-Scanner konnte nicht gestartet werden.';
+        });
       };
       const startScanner = () => {
         if(typeof Html5Qrcode === 'undefined'){
@@ -370,37 +393,34 @@
             document.getElementById('login-qr').textContent = 'Keine Kamera gefunden.';
             return;
           }
-          let cam = cams[0].id;
-          const back = cams.find(c => /back|rear|environment/i.test(c.label));
-          if(back) cam = back.id;
-          scanner.start(cam, { fps:10, qrbox:250 }, text => {
-            const name = text.trim();
-            if(cfg.QRRestrict && allowed.indexOf(name) === -1){
-              alert('Unbekanntes oder nicht berechtigtes Team/Person');
-              return;
-            }
-              setStored('quizUser', name);
-              sessionStorage.removeItem('quizSolved');
-              updateUserName();
-            stopScanner();
-            UIkit.modal(modal).hide();
-            onDone();
-          }).catch(err => {
-            console.error('QR scanner start failed.', err);
-            document.getElementById('login-qr').textContent = 'QR-Scanner konnte nicht gestartet werden.';
-          });
+          cameras = cams;
+          flipBtn.disabled = cameras.length < 2;
+          camIndex = 0;
+          const backIdx = cams.findIndex(c => /back|rear|environment/i.test(c.label));
+          if(backIdx >= 0) camIndex = backIdx;
+          startCamera();
         }).catch(err => {
           console.error('Camera list error.', err);
           document.getElementById('login-qr').textContent = 'Kamera konnte nicht initialisiert werden.';
         });
       };
+      const flipBtn = modal.querySelector('#login-qr-flip');
       const stopBtn = modal.querySelector('#login-qr-stop');
+      flipBtn.disabled = true;
       const trapFocus = (e) => {
         if(e.key === 'Tab'){
           e.preventDefault();
           stopBtn.focus();
         }
       };
+      flipBtn.addEventListener('click', () => {
+        if(!scanner || cameras.length < 2) return;
+        scanner.stop().then(() => {
+          scanner.clear();
+          camIndex = (camIndex + 1) % cameras.length;
+          startCamera();
+        }).catch(()=>{});
+      });
       scanBtn.addEventListener('click', (e) => {
         opener = e.currentTarget;
         UIkit.modal(modal).show();
