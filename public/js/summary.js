@@ -8,6 +8,10 @@ function setStored(key, value){
     localStorage.setItem(key, value);
   }catch(e){}
 }
+
+function insertSoftHyphens(text){
+  return text ? text.replace(/\/-/g, '\u00AD') : '';
+}
 document.addEventListener('DOMContentLoaded', () => {
   const resultsBtn = document.getElementById('show-results-btn');
   const puzzleBtn = document.getElementById('check-puzzle-btn');
@@ -100,11 +104,11 @@ document.addEventListener('DOMContentLoaded', () => {
     card.className = 'uk-card uk-card-muted uk-card-body question-preview';
     const title = document.createElement('h5');
     const cat = q.catalogName || catMap[q.catalog] || q.catalog;
-    title.textContent = cat;
+    title.textContent = insertSoftHyphens(cat);
     card.appendChild(title);
 
     const h = document.createElement('h4');
-    h.textContent = q.prompt || '';
+    h.textContent = insertSoftHyphens(q.prompt || '');
     card.appendChild(h);
 
     const type = q.type || 'mc';
@@ -112,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const ul = document.createElement('ul');
       q.items.forEach(it => {
         const li = document.createElement('li');
-        li.textContent = it;
+        li.textContent = insertSoftHyphens(it);
         ul.appendChild(li);
       });
       card.appendChild(ul);
@@ -120,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const ul = document.createElement('ul');
       q.terms.forEach(p => {
         const li = document.createElement('li');
-        li.textContent = (p.term || '') + ' – ' + (p.definition || '');
+        li.textContent = insertSoftHyphens(p.term || '') + ' – ' + insertSoftHyphens(p.definition || '');
         ul.appendChild(li);
       });
       card.appendChild(ul);
@@ -128,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const ul = document.createElement('ul');
       q.cards.forEach(c => {
         const li = document.createElement('li');
-        li.textContent = c.text + (c.correct ? ' ✓' : '');
+        li.textContent = insertSoftHyphens(c.text) + (c.correct ? ' ✓' : '');
         ul.appendChild(li);
       });
       card.appendChild(ul);
@@ -139,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
         q.options.forEach((opt, i) => {
           const li = document.createElement('li');
           const correct = answers.includes(i);
-          li.textContent = opt + (correct ? ' ✓' : '');
+          li.textContent = insertSoftHyphens(opt) + (correct ? ' ✓' : '');
           if(correct) li.classList.add('uk-text-success');
           ul.appendChild(li);
         });

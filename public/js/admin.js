@@ -40,6 +40,10 @@ document.addEventListener('DOMContentLoaded', function () {
     return id;
   }
 
+  function insertSoftHyphens(text){
+    return text ? text.replace(/\/-/g, '\u00AD') : '';
+  }
+
   function updatePuzzleFeedbackUI() {
     if (!puzzleIcon || !puzzleLabel) return;
     if (puzzleFeedback.trim().length > 0) {
@@ -656,7 +660,8 @@ document.addEventListener('DOMContentLoaded', function () {
         swipe: 'Karten nach links oder rechts wischen.',
         photoText: 'Foto aufnehmen und passende Antwort eingeben.'
       };
-      typeInfo.textContent = map[typeSelect.value] || '';
+      const base = map[typeSelect.value] || '';
+      typeInfo.textContent = base + ' Versteckte Umbrüche kannst du mit "\/-" einfügen.';
     }
     updateInfo();
     typeSelect.addEventListener('change', () => {
@@ -906,13 +911,13 @@ document.addEventListener('DOMContentLoaded', function () {
     function updatePreview() {
       preview.innerHTML = '';
       const h = document.createElement('h4');
-      h.textContent = prompt.value || 'Vorschau';
+      h.textContent = insertSoftHyphens(prompt.value || 'Vorschau');
       preview.appendChild(h);
       if (typeSelect.value === 'sort') {
         const ul = document.createElement('ul');
         Array.from(fields.querySelectorAll('.item')).forEach(i => {
           const li = document.createElement('li');
-          li.textContent = i.value;
+          li.textContent = insertSoftHyphens(i.value);
           ul.appendChild(li);
         });
         preview.appendChild(ul);
@@ -922,7 +927,7 @@ document.addEventListener('DOMContentLoaded', function () {
           const term = r.querySelector('.term').value;
           const def = r.querySelector('.definition').value;
           const li = document.createElement('li');
-          li.textContent = term + ' – ' + def;
+          li.textContent = insertSoftHyphens(term) + ' – ' + insertSoftHyphens(def);
           ul.appendChild(li);
         });
         preview.appendChild(ul);
@@ -932,7 +937,7 @@ document.addEventListener('DOMContentLoaded', function () {
           const text = r.querySelector('.card-text').value;
           const check = r.querySelector('.card-correct').checked;
           const li = document.createElement('li');
-          li.textContent = text + (check ? ' ✓' : '');
+          li.textContent = insertSoftHyphens(text) + (check ? ' ✓' : '');
           ul.appendChild(li);
         });
         preview.appendChild(ul);
@@ -946,7 +951,7 @@ document.addEventListener('DOMContentLoaded', function () {
           const input = r.querySelector('.option');
           const check = r.querySelector('.answer').checked;
           const li = document.createElement('li');
-          li.textContent = input.value + (check ? ' ✓' : '');
+          li.textContent = insertSoftHyphens(input.value) + (check ? ' ✓' : '');
           if (check) li.classList.add('uk-text-success');
           ul.appendChild(li);
         });
