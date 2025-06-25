@@ -353,9 +353,12 @@
       <div class="uk-container uk-container-large">
         <div class="uk-flex uk-flex-between uk-flex-middle">
           <h2 class="uk-heading-bullet">Statistik</h2>
-          <select id="statsFilter" class="uk-select uk-width-small">
-            <option value="">Alle</option>
-          </select>
+          <div class="uk-flex uk-flex-middle">
+            <select id="statsFilter" class="uk-select uk-width-small uk-margin-right">
+              <option value="">Alle</option>
+            </select>
+            <button id="statsRefreshBtn" class="uk-icon-button" uk-icon="icon: refresh; ratio: 1.2" title="Aktualisieren" aria-label="Aktualisieren"></button>
+          </div>
         </div>
         <div style="overflow-x: auto">
         <table class="uk-table uk-table-divider uk-table-responsive">
