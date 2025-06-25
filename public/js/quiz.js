@@ -1019,10 +1019,10 @@ function runQuiz(questions, skipIntro){
             document.getElementById('qr-reader').textContent = 'Keine Kamera gefunden.';
             return;
           }
-          cameras = cams;
+          cameras = filterCameraOrientations(cams);
           flipBtn.disabled = cameras.length < 2;
           camIndex = 0;
-          const backIdx = cams.findIndex(c => /back|rear|environment/i.test(c.label));
+          const backIdx = cameras.findIndex(c => /back|rear|environment/i.test(c.label));
           if(backIdx >= 0) camIndex = backIdx;
           await startCamera();
         }catch(err){

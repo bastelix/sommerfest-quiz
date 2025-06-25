@@ -1,4 +1,21 @@
 /* global UIkit, Html5Qrcode, generateUserName */
+// Hilfsfunktion, um nur eine Front- und eine Rückkamera zu behalten
+window.filterCameraOrientations = window.filterCameraOrientations || function(cams){
+  if(!Array.isArray(cams)) return [];
+  const frontRegex = /front|user|face/i;
+  const backRegex = /back|rear|environment/i;
+  let frontCam;
+  let backCam;
+  cams.forEach(c => {
+    if(!frontCam && frontRegex.test(c.label)) frontCam = c;
+    if(!backCam && backRegex.test(c.label)) backCam = c;
+  });
+  const result = [];
+  if(backCam) result.push(backCam);
+  if(frontCam && frontCam !== backCam) result.push(frontCam);
+  if(result.length === 0 && cams.length) result.push(cams[0]);
+  return result;
+};
 // Lädt die verfügbaren Fragenkataloge und startet nach Auswahl das Quiz
 (function(){
   function setStored(key, value){
@@ -399,10 +416,10 @@
             document.getElementById('login-qr').textContent = 'Keine Kamera gefunden.';
             return;
           }
-          cameras = cams;
+          cameras = filterCameraOrientations(cams);
           flipBtn.disabled = cameras.length < 2;
           camIndex = 0;
-          const backIdx = cams.findIndex(c => /back|rear|environment/i.test(c.label));
+          const backIdx = cameras.findIndex(c => /back|rear|environment/i.test(c.label));
           if(backIdx >= 0) camIndex = backIdx;
           await startCamera();
         }catch(err){
