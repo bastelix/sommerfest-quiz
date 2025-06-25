@@ -2,6 +2,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const tbody = document.getElementById('statsTableBody');
   const filter = document.getElementById('statsFilter');
+  const refreshBtn = document.getElementById('statsRefreshBtn');
 
   let data = [];
   let catalogMap = null;
@@ -110,5 +111,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   filter?.addEventListener('change', applyFilter);
+  refreshBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    load();
+  });
+
+  if (refreshBtn && typeof UIkit !== 'undefined') {
+    UIkit.icon(refreshBtn);
+  }
+
   load();
 });
