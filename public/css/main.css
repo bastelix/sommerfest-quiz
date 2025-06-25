@@ -64,6 +64,11 @@ body.uk-padding {
   margin-top: 1em;
 }
 
+.question h4,
+.question-preview h4 {
+  overflow-wrap: break-word;
+}
+
 #results-slideshow {
   position: relative;
   min-height: 2.5em;

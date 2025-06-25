@@ -90,6 +90,10 @@ async function fetchLatestPuzzleEntry(name, catalog){
 window.formatPuzzleTime = formatPuzzleTime;
 window.fetchLatestPuzzleEntry = fetchLatestPuzzleEntry;
 
+function insertSoftHyphens(text){
+  return text ? text.replace(/\/-/g, '\u00AD') : '';
+}
+
 function runQuiz(questions, skipIntro){
   // Konfiguration laden und einstellen, ob der "Antwort prüfen"-Button
   // eingeblendet werden soll
@@ -350,7 +354,7 @@ function runQuiz(questions, skipIntro){
     div.className = 'question';
     div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
     const h = document.createElement('h4');
-    h.textContent = q.prompt;
+    h.textContent = insertSoftHyphens(q.prompt);
     div.appendChild(h);
     const instr = document.createElement('p');
     instr.id = 'sort-desc-' + idx;
@@ -369,7 +373,7 @@ function runQuiz(questions, skipIntro){
       li.setAttribute('role','listitem');
       li.tabIndex = 0;
       li.setAttribute('aria-grabbed','false');
-      li.textContent = text;
+      li.textContent = insertSoftHyphens(text);
       ul.appendChild(li);
     });
     div.appendChild(ul);
@@ -438,7 +442,7 @@ function runQuiz(questions, skipIntro){
     div.className = 'question';
     div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
     const h = document.createElement('h4');
-    h.textContent = q.prompt;
+    h.textContent = insertSoftHyphens(q.prompt);
     div.appendChild(h);
     const assignDesc = document.createElement('p');
     assignDesc.id = 'assign-desc-' + idx;
@@ -464,7 +468,7 @@ function runQuiz(questions, skipIntro){
       li.tabIndex = 0;
       li.setAttribute('aria-grabbed','false');
       li.dataset.term = t.term;
-      li.textContent = t.term;
+      li.textContent = insertSoftHyphens(t.term);
       termList.appendChild(li);
     });
     left.appendChild(termList);
@@ -482,7 +486,7 @@ function runQuiz(questions, skipIntro){
       dz.dataset.definition = t.definition;
       dz.setAttribute('aria-label', 'Dropzone f\u00fcr ' + t.definition);
       dz.setAttribute('aria-dropeffect', 'move');
-      dz.textContent = t.definition;
+      dz.textContent = insertSoftHyphens(t.definition);
       rightCol.appendChild(dz);
     });
     grid.appendChild(rightCol);
@@ -543,7 +547,7 @@ function runQuiz(questions, skipIntro){
           animation: 150,
             onAdd: evt => {
             const item = evt.item;
-            zone.textContent = zone.dataset.definition + ' \u2013 ' + item.textContent;
+            zone.textContent = insertSoftHyphens(zone.dataset.definition) + ' \u2013 ' + item.textContent;
             zone.dataset.dropped = item.dataset.term;
             item.remove();
           }
@@ -564,7 +568,7 @@ function runQuiz(questions, skipIntro){
     div.querySelectorAll('.dropzone').forEach(zone => {
       zone.addEventListener('keydown', e => {
         if((e.key === 'Enter' || e.key === ' ') && div._selectedTerm){
-          zone.textContent = zone.dataset.definition + ' \u2013 ' + div._selectedTerm.textContent;
+          zone.textContent = insertSoftHyphens(zone.dataset.definition) + ' \u2013 ' + div._selectedTerm.textContent;
           zone.dataset.dropped = div._selectedTerm.dataset.term;
           div._selectedTerm.style.visibility = 'hidden';
           div._selectedTerm.setAttribute('aria-grabbed','false');
@@ -600,7 +604,7 @@ function runQuiz(questions, skipIntro){
       li.tabIndex = 0;
       li.setAttribute('aria-grabbed','false');
       li.dataset.term = t.term;
-      li.textContent = t.term;
+      li.textContent = insertSoftHyphens(t.term);
       termList.appendChild(li);
     });
     termList.querySelectorAll('li').forEach(li => {
@@ -613,7 +617,7 @@ function runQuiz(questions, skipIntro){
       });
     });
     div.querySelectorAll('.dropzone').forEach(zone => {
-      zone.textContent = zone.dataset.definition;
+      zone.textContent = insertSoftHyphens(zone.dataset.definition);
       delete zone.dataset.dropped;
     });
     feedback.textContent = '';
@@ -642,7 +646,7 @@ function runQuiz(questions, skipIntro){
     div.className = 'question';
     div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
     const h = document.createElement('h4');
-    h.textContent = q.prompt;
+    h.textContent = insertSoftHyphens(q.prompt);
     div.appendChild(h);
 
     const options = document.createElement('div');
@@ -661,7 +665,7 @@ function runQuiz(questions, skipIntro){
       input.name = 'mc' + idx;
       input.value = i;
       label.appendChild(input);
-      label.append(' ' + q.options[orig]);
+      label.append(' ' + insertSoftHyphens(q.options[orig]));
       options.appendChild(label);
     });
 
@@ -703,7 +707,7 @@ function runQuiz(questions, skipIntro){
     div.className = 'question';
     div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
     const h = document.createElement('h4');
-    h.textContent = q.prompt;
+    h.textContent = insertSoftHyphens(q.prompt);
     div.appendChild(h);
 
     const container = document.createElement('div');
@@ -743,7 +747,7 @@ function runQuiz(questions, skipIntro){
     controls.appendChild(rightBtn);
 
     const leftStatic = document.createElement('div');
-    leftStatic.textContent = '\u2B05 ' + (q.leftLabel || 'Falsch');
+    leftStatic.textContent = '\u2B05 ' + insertSoftHyphens(q.leftLabel || 'Falsch');
     leftStatic.style.position = 'absolute';
     leftStatic.style.left = '0';
     leftStatic.style.top = '50%';
@@ -755,7 +759,7 @@ function runQuiz(questions, skipIntro){
     container.appendChild(leftStatic);
 
     const rightStatic = document.createElement('div');
-    rightStatic.textContent = (q.rightLabel || 'Richtig') + ' \u27A1';
+    rightStatic.textContent = insertSoftHyphens(q.rightLabel || 'Richtig') + ' \u27A1';
     rightStatic.style.position = 'absolute';
     rightStatic.style.right = '0';
     rightStatic.style.top = '50%';
@@ -799,7 +803,7 @@ function runQuiz(questions, skipIntro){
         const off = (cards.length - i - 1) * 4;
         card.style.transform = `translate(0,-${off}px)`;
         card.style.zIndex = i;
-        card.textContent = c.text;
+        card.textContent = insertSoftHyphens(c.text);
         if(i === cards.length - 1){
           card.addEventListener('pointerdown', start);
           card.addEventListener('pointermove', move);
@@ -902,7 +906,7 @@ function runQuiz(questions, skipIntro){
     div.className = 'question';
     div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
     const h = document.createElement('h4');
-    h.textContent = q.prompt;
+    h.textContent = insertSoftHyphens(q.prompt);
     div.appendChild(h);
 
     const text = document.createElement('input');
