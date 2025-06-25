@@ -425,6 +425,7 @@
         try{
           await scanner.stop();
           await scanner.clear();
+          await new Promise(r => setTimeout(r, 100));
           scanner = new Html5Qrcode('login-qr');
         }catch(e){
           console.warn('Fehler beim Stoppen oder Clearen:', e);
