@@ -988,6 +988,7 @@ function runQuiz(questions, skipIntro){
           scanner.stop().then(()=>scanner.clear()).catch(()=>{});
           scanner = null;
         }
+        flipBtn.disabled = true;
       };
       const startCamera = () => {
         const camId = cameras[camIndex].id;
@@ -1013,6 +1014,7 @@ function runQuiz(questions, skipIntro){
             return;
           }
           cameras = cams;
+          flipBtn.disabled = cameras.length < 2;
           camIndex = 0;
           const backIdx = cams.findIndex(c => /back|rear|environment/i.test(c.label));
           if(backIdx >= 0) camIndex = backIdx;
@@ -1024,6 +1026,7 @@ function runQuiz(questions, skipIntro){
       };
       const flipBtn = modal.querySelector('#qr-reader-flip');
       const stopBtn = modal.querySelector('#qr-reader-stop');
+      flipBtn.disabled = true;
       const trapFocus = (e) => {
         if(e.key === 'Tab'){
           e.preventDefault();
