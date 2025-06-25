@@ -361,6 +361,7 @@
           scanner.stop().then(()=>scanner.clear()).catch(()=>{});
           scanner = null;
         }
+        flipBtn.disabled = true;
       };
       const startCamera = () => {
         const camId = cameras[camIndex].id;
@@ -393,6 +394,7 @@
             return;
           }
           cameras = cams;
+          flipBtn.disabled = cameras.length < 2;
           camIndex = 0;
           const backIdx = cams.findIndex(c => /back|rear|environment/i.test(c.label));
           if(backIdx >= 0) camIndex = backIdx;
@@ -404,6 +406,7 @@
       };
       const flipBtn = modal.querySelector('#login-qr-flip');
       const stopBtn = modal.querySelector('#login-qr-stop');
+      flipBtn.disabled = true;
       const trapFocus = (e) => {
         if(e.key === 'Tab'){
           e.preventDefault();
