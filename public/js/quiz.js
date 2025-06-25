@@ -1045,6 +1045,7 @@ function runQuiz(questions, skipIntro){
         try{
           await scanner.stop();
           await scanner.clear();
+          await new Promise(r => setTimeout(r, 100));
           scanner = new Html5Qrcode('qr-reader');
         }catch(e){
           console.warn('Fehler beim Stoppen oder Clearen:', e);
