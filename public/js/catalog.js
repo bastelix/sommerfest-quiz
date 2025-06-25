@@ -347,7 +347,7 @@
       modal.setAttribute('uk-modal', '');
       modal.setAttribute('aria-modal', 'true');
       modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">'+
-        '<h3 class="uk-modal-title uk-text-center">Who I AM</h3>'+
+        '<h3 class="uk-modal-title uk-text-center">Team-Check-in</h3>'+
         '<div id="login-qr" class="uk-margin" style="max-width:320px;margin:0 auto;width:100%"></div>'+
         '<button id="login-qr-flip" class="uk-button uk-button-default uk-width-1-1">Kamera wechseln</button>'+
         '<button id="login-qr-stop" class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Abbrechen</button>'+
