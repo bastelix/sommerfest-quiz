@@ -361,33 +361,40 @@
           scanner.stop().then(()=>scanner.clear()).catch(()=>{});
           scanner = null;
         }
+        flipBtn.disabled = true;
       };
-      const startCamera = () => {
+      const startCamera = async () => {
         const camId = cameras[camIndex].id;
-        scanner.start(camId, { fps:10, qrbox:250 }, text => {
-          const name = text.trim();
-          if(cfg.QRRestrict && allowed.indexOf(name) === -1){
-            alert('Unbekanntes oder nicht berechtigtes Team/Person');
-            return;
-          }
-          setStored('quizUser', name);
-          sessionStorage.removeItem('quizSolved');
-          updateUserName();
-          stopScanner();
-          UIkit.modal(modal).hide();
-          onDone();
-        }).catch(err => {
+        flipBtn.disabled = true;
+        try{
+          await scanner.start(camId, { fps:10, qrbox:250 }, text => {
+            const name = text.trim();
+            if(cfg.QRRestrict && allowed.indexOf(name) === -1){
+              alert('Unbekanntes oder nicht berechtigtes Team/Person');
+              return;
+            }
+            setStored('quizUser', name);
+            sessionStorage.removeItem('quizSolved');
+            updateUserName();
+            stopScanner();
+            UIkit.modal(modal).hide();
+            onDone();
+          });
+        }catch(err){
           console.error('QR scanner start failed.', err);
           document.getElementById('login-qr').textContent = 'QR-Scanner konnte nicht gestartet werden.';
-        });
+        }
+        flipBtn.disabled = cameras.length < 2;
       };
-      const startScanner = () => {
+      const startScanner = async () => {
         if(typeof Html5Qrcode === 'undefined'){
           document.getElementById('login-qr').textContent = 'QR-Scanner nicht verfügbar.';
           return;
         }
         scanner = new Html5Qrcode('login-qr');
-        Html5Qrcode.getCameras().then(cams => {
+        flipBtn.disabled = true;
+        try{
+          const cams = await Html5Qrcode.getCameras();
           if(!cams || !cams.length){
             document.getElementById('login-qr').textContent = 'Keine Kamera gefunden.';
             return;
@@ -396,27 +403,32 @@
           camIndex = 0;
           const backIdx = cams.findIndex(c => /back|rear|environment/i.test(c.label));
           if(backIdx >= 0) camIndex = backIdx;
-          startCamera();
-        }).catch(err => {
+          await startCamera();
+        }catch(err){
           console.error('Camera list error.', err);
           document.getElementById('login-qr').textContent = 'Kamera konnte nicht initialisiert werden.';
-        });
+        }
       };
       const flipBtn = modal.querySelector('#login-qr-flip');
       const stopBtn = modal.querySelector('#login-qr-stop');
+      flipBtn.disabled = true;
       const trapFocus = (e) => {
         if(e.key === 'Tab'){
           e.preventDefault();
           stopBtn.focus();
         }
       };
-      flipBtn.addEventListener('click', () => {
+      flipBtn.addEventListener('click', async () => {
         if(!scanner || cameras.length < 2) return;
-        scanner.stop().then(() => {
-          scanner.clear();
-          camIndex = (camIndex + 1) % cameras.length;
-          startCamera();
-        }).catch(()=>{});
+        flipBtn.disabled = true;
+        try{
+          await scanner.stop();
+        }catch(e){
+          // ignore stop errors
+        }
+        scanner.clear();
+        camIndex = (camIndex + 1) % cameras.length;
+        await startCamera();
       });
       scanBtn.addEventListener('click', (e) => {
         opener = e.currentTarget;
