@@ -365,7 +365,7 @@
         scannerRunning = false;
         flipBtn.disabled = true;
       };
-      const startCamera = () => {
+      const startCamera = async () => {
         const camId = cameras[camIndex].id;
         flipBtn.disabled = true;
         return scanner.start(camId, { fps:10, qrbox:250 }, text => {
@@ -386,15 +386,18 @@
         }).catch(err => {
           console.error('QR scanner start failed.', err);
           document.getElementById('login-qr').textContent = 'QR-Scanner konnte nicht gestartet werden.';
-        });
+        }
+        flipBtn.disabled = cameras.length < 2;
       };
-      const startScanner = () => {
+      const startScanner = async () => {
         if(typeof Html5Qrcode === 'undefined'){
           document.getElementById('login-qr').textContent = 'QR-Scanner nicht verfügbar.';
           return;
         }
         scanner = new Html5Qrcode('login-qr');
-        Html5Qrcode.getCameras().then(cams => {
+        flipBtn.disabled = true;
+        try{
+          const cams = await Html5Qrcode.getCameras();
           if(!cams || !cams.length){
             document.getElementById('login-qr').textContent = 'Keine Kamera gefunden.';
             return;
@@ -407,7 +410,7 @@
         }).catch(err => {
           console.error('Camera list error.', err);
           document.getElementById('login-qr').textContent = 'Kamera konnte nicht initialisiert werden.';
-        });
+        }
       };
       const flipBtn = modal.querySelector('#login-qr-flip');
       const stopBtn = modal.querySelector('#login-qr-stop');

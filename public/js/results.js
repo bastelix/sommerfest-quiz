@@ -17,6 +17,10 @@ document.addEventListener('DOMContentLoaded', () => {
     return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
+  function insertSoftHyphens(text) {
+    return text ? text.replace(/\/-/g, '\u00AD') : '';
+  }
+
   function renderTable(rows) {
     if (!tbody) return;
     tbody.innerHTML = '';
@@ -88,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const tdCat = document.createElement('td');
       tdCat.textContent = r.catalogName || r.catalog;
       const tdQ = document.createElement('td');
-      tdQ.textContent = r.prompt || '';
+      tdQ.textContent = insertSoftHyphens(r.prompt || '');
       tr.appendChild(tdName);
       tr.appendChild(tdCat);
       tr.appendChild(tdQ);
