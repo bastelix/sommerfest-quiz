@@ -1,4 +1,5 @@
 /* global UIkit */
+let catalogCount = 0;
 document.addEventListener('DOMContentLoaded', () => {
   const tbody = document.getElementById('resultsTableBody');
   const wrongBody = document.getElementById('wrongTableBody');
@@ -157,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
     puzzleArr.sort((a, b) => a.raw - b.raw);
     const puzzleList = puzzleArr.slice(0, 3);
 
-    const totalCats = catalogs.size;
+    const totalCats = catalogCount || catalogs.size;
     const finishers = [];
     catTimes.forEach((map, name) => {
       if (map.size === totalCats) {
@@ -266,12 +267,15 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(list => {
         const map = {};
         if (Array.isArray(list)) {
+          catalogCount = list.length;
           list.forEach(c => {
             const name = c.name || '';
             if (c.uid) map[c.uid] = name;
             if (c.sort_order) map[c.sort_order] = name;
             if (c.slug) map[c.slug] = name;
           });
+        } else {
+          catalogCount = 0;
         }
         catalogMap = map;
         return map;

@@ -318,6 +318,8 @@ Alle Resultate werden in der Datenbank abgelegt. Die API bietet folgende Endpunk
 Die Ergebnisübersicht zeigt drei Ranglisten. Der Titel „Katalogmeister" basiert
 auf dem Zeitpunkt, an dem ein Team seinen letzten noch offenen Fragenkatalog
 abgeschlossen hat. Wer hier die früheste Zeit erreicht, führt die Liste an.
+Um überhaupt in dieser Liste zu erscheinen, müssen alle Kataloge aus
+`data/kataloge/catalogs.json` vollständig gelöst sein.
 
 ### Statistik
 Im Statistik-Tab lassen sich alle gegebenen Antworten detailliert auswerten. Die Tabelle zeigt Name, Versuch, Katalog,
