@@ -424,10 +424,11 @@
         flipBtn.disabled = true;
         try{
           await scanner.stop();
+          await scanner.clear();
+          scanner = new Html5Qrcode('login-qr');
         }catch(e){
-          // ignore stop errors
+          console.warn('Fehler beim Stoppen oder Clearen:', e);
         }
-        scanner.clear();
         camIndex = (camIndex + 1) % cameras.length;
         await startCamera();
       });
