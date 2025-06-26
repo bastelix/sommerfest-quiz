@@ -912,7 +912,7 @@ function runQuiz(questions, skipIntro){
     const text = document.createElement('input');
     text.type = 'text';
     text.className = 'uk-input uk-margin';
-    text.placeholder = 'Antwort';
+    text.placeholder = 'Teilnehmende eintragen';
 
     let photoPath = '';
     const uploadBtn = document.createElement('button');
@@ -1251,7 +1251,7 @@ function runQuiz(questions, skipIntro){
             '<div class="stacked-upload" uk-form-custom="target: true">' +
               '<input id="photo-input" type="file" accept="image/*" capture="environment" aria-label="Datei auswählen">' +
               '<input class="uk-input uk-width-1-1" type="text" placeholder="Keine Datei ausgewählt" disabled>' +
-              '<button class="uk-button uk-button-default uk-width-1-1 uk-margin-small-top" type="button" tabindex="-1">Durchsuchen</button>' +
+              '<button class="uk-button uk-button-default uk-width-1-1 uk-margin-small-top" type="button" tabindex="-1">Kamera öffnen</button>' +
             '</div>' +
           '</div>' +
           (requireConsent ?
