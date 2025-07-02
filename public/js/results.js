@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return text ? text.replace(/\/-/g, '\u00AD') : '';
   }
 
-  function rotatePhoto(path, img, link) {
+  function rotatePhotoImpl(path, img, link) {
     const cleanPath = path.replace(/\?.*$/, '');
     return fetch('/photos/rotate', {
       method: 'POST',
@@ -31,11 +31,16 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(r => { if (!r.ok) throw new Error('rotate'); })
       .then(() => {
         const t = Date.now();
-        img.src = cleanPath + '?t=' + t;
-        if (link) link.href = cleanPath + '?t=' + t;
-        return cleanPath + '?t=' + t;
+        img.src = `${cleanPath}?t=${t}`;
+        if (link) link.href = `${cleanPath}?t=${t}`;
+        return `${cleanPath}?t=${t}`;
       })
       .catch(() => {});
+  }
+
+  const rotatePhoto = window.rotatePhoto || rotatePhotoImpl;
+  if (!window.rotatePhoto) {
+    window.rotatePhoto = rotatePhoto;
   }
 
   function renderTable(rows) {
@@ -385,19 +390,22 @@ document.addEventListener('DOMContentLoaded', () => {
     UIkit.icon(refreshBtn);
   }
 
-  document.body.addEventListener('click', e => {
-    const btn = e.target.closest('.lightbox-rotate-btn');
-    if (!btn) return;
-    e.preventDefault();
-    const path = btn.dataset.path || '';
-    const panel = document.querySelector('.uk-lightbox-panel .uk-active');
-    const img = panel ? panel.querySelector('picture img, img') : null;
-    if (img && path) {
-      rotatePhoto(path, img).then(newPath => {
-        if (newPath) btn.dataset.path = newPath;
-      });
-    }
-  }, { capture: true });
+  if (!window.lightboxRotateHandler) {
+    window.lightboxRotateHandler = e => {
+      const btn = e.target.closest('.lightbox-rotate-btn');
+      if (!btn) return;
+      e.preventDefault();
+      const path = btn.dataset.path || '';
+      const panel = document.querySelector('.uk-lightbox-panel .uk-active');
+      const img = panel ? panel.querySelector('picture img, img') : null;
+      if (img && path) {
+        rotatePhoto(path, img).then(newPath => {
+          if (newPath) btn.dataset.path = newPath;
+        });
+      }
+    };
+    document.body.addEventListener('click', window.lightboxRotateHandler, { capture: true });
+  }
 
   load();
 });
