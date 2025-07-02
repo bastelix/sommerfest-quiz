@@ -403,8 +403,8 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!btn) return;
       e.preventDefault();
       const path = btn.dataset.path || '';
-      const panel = document.querySelector('.uk-lightbox-panel .uk-active');
-      const img = panel ? panel.querySelector('picture img, img') : null;
+      const img = document.querySelector('.uk-lightbox-items .uk-active img') ||
+                  document.querySelector('.uk-lightbox-panel img.uk-inverse-light');
       if (img && path) {
         const clean = path.replace(/\?.*$/, '');
         const links = document.querySelectorAll(`a.rotate-link[href^='${clean}']`);
