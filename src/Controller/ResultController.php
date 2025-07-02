@@ -194,6 +194,7 @@ class ResultController
         $catalogMax = [];
         $scores = [];
         $photos = [];
+        $teamTotals = [];
         foreach ($results as $row) {
             $team = (string)($row['name'] ?? '');
             $cat = (string)($row['catalog'] ?? '');
@@ -204,6 +205,9 @@ class ResultController
             }
             if (!isset($scores[$team][$cat]) || $correct > $scores[$team][$cat]) {
                 $scores[$team][$cat] = $correct;
+            }
+            if (!isset($teamTotals[$team][$cat]) || $total > $teamTotals[$team][$cat]) {
+                $teamTotals[$team][$cat] = $total;
             }
             if (!empty($row['photo'])) {
                 $photos[$team][] = (string)$row['photo'];
@@ -230,6 +234,7 @@ class ResultController
         foreach ($teams as $team) {
             $cats = $scores[$team] ?? [];
             $points = array_sum($cats);
+            $answered = array_sum($teamTotals[$team] ?? []);
 
             $pdf->AddPage();
 
@@ -266,7 +271,8 @@ class ResultController
             $pdf->SetFont('Arial', 'B', 20);
             $pdf->Cell($pdf->GetPageWidth() - 20, 10, $this->sanitizePdfText($team), 0, 2, 'C');
             $pdf->SetFont('Arial', '', 14);
-            $text = sprintf('Punkte: %d von %d', $points, $maxPoints);
+            $denom = $answered > 0 ? $answered : $maxPoints;
+            $text = sprintf('Punkte: %d von %d', $points, $denom);
             $pdf->Cell($pdf->GetPageWidth() - 20, 8, $text, 0, 2, 'C');
 
             $congrats = $awardService->buildText($team, $rankings);

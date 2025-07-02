@@ -41,6 +41,7 @@ class ResultControllerTest extends TestCase
         $pdf = (string)$response->getBody();
         $this->assertNotEmpty($pdf);
         $this->assertStringContainsString('Team1', $pdf);
+        $this->assertStringContainsString('Punkte: 3 von 5', $pdf);
         $this->assertGreaterThan(
             1,
             substr_count($pdf, '/Subtype /Image'),
