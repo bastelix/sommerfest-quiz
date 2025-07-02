@@ -75,7 +75,13 @@ class EvidenceController
         }
 
         $img = Image::make($file->getStream());
-        $img->orientate();
+        if (function_exists('exif_read_data')) {
+            try {
+                $img->orientate();
+            } catch (\Throwable $e) {
+                // orientation failed; continue without rotating
+            }
+        }
         $img->resize(1500, 1500, function ($constraint): void {
             $constraint->aspectRatio();
             $constraint->upsize();
