@@ -126,7 +126,9 @@ class AwardService
         foreach ($rankings as $key => $list) {
             foreach ($list as $entry) {
                 if ($entry['team'] === $team) {
-                    $lines[] = sprintf('• %s (Platz %d): %s', $info[$key]['title'], $entry['place'], $info[$key]['desc']);
+                    $place = (int) $entry['place'];
+                    $desc = $this->placeDescription($key, $place, $info[$key]['desc']);
+                    $lines[] = sprintf('• %s (Platz %d): %s', $info[$key]['title'], $place, $desc);
                 }
             }
         }
@@ -173,16 +175,35 @@ class AwardService
         foreach ($rankings as $key => $entries) {
             foreach ($entries as $entry) {
                 if ($entry['team'] === $team) {
+                    $place = (int) $entry['place'];
+                    $desc = $this->placeDescription($key, $place, $info[$key]['desc']);
                     $list[] = [
-                        'place' => (int) $entry['place'],
+                        'place' => $place,
                         'title' => $info[$key]['title'],
-                        'desc' => $info[$key]['desc'],
+                        'desc' => $desc,
                     ];
                 }
             }
         }
 
         return $list;
+    }
+
+    private function placeDescription(string $key, int $place, string $default): string
+    {
+        return match ($place) {
+            2 => match ($key) {
+                'puzzle' => 'zweit schnellstes Lösen des Rätselworts',
+                'points' => 'zweit bestes Team mit den meisten Lösungen aller Fragen',
+                default => $default,
+            },
+            3 => match ($key) {
+                'puzzle' => 'dritt schnellstes Lösen des Rätselworts',
+                'points' => 'dritt bestes Team mit den meisten Lösungen aller Fragen',
+                default => $default,
+            },
+            default => $default,
+        };
     }
 
     /**

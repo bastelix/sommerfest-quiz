@@ -23,7 +23,7 @@ class AwardServiceTest extends TestCase
 
         $text = $svc->buildText('Team', $rankings);
         $expected = "Herzlichen Glückwunsch! Ihr habt folgende Auszeichnungen erreicht:\n"
-            . "• Rätselwort-Bestzeit (Platz 2): schnellstes Lösen des Rätselworts";
+            . "• Rätselwort-Bestzeit (Platz 2): zweit schnellstes Lösen des Rätselworts";
         $this->assertSame($expected, $text);
     }
 
@@ -46,9 +46,9 @@ class AwardServiceTest extends TestCase
 
         $text = $svc->buildText('Team', $rankings);
         $expected = "Herzlichen Glückwunsch! Ihr habt folgende Auszeichnungen erreicht:\n"
-            . "• Rätselwort-Bestzeit (Platz 2): schnellstes Lösen des Rätselworts\n"
+            . "• Rätselwort-Bestzeit (Platz 2): zweit schnellstes Lösen des Rätselworts\n"
             . "• Katalogmeister (Platz 1): Team, das alle Kataloge am schnellsten durchgespielt hat\n"
-            . "• Highscore-Champions (Platz 2): Team mit den meisten Lösungen aller Fragen";
+            . "• Highscore-Champions (Platz 2): zweit bestes Team mit den meisten Lösungen aller Fragen";
         $this->assertSame($expected, $text);
     }
 
@@ -67,7 +67,7 @@ class AwardServiceTest extends TestCase
 
         $text = $svc->buildText('Team', $rankings);
         $expected = "Herzlichen Glückwunsch! Ihr habt folgende Auszeichnungen erreicht:\n"
-            . "• Rätselwort-Bestzeit (Platz 3): schnellstes Lösen des Rätselworts";
+            . "• Rätselwort-Bestzeit (Platz 3): dritt schnellstes Lösen des Rätselworts";
         $this->assertSame($expected, $text);
     }
 
@@ -90,9 +90,9 @@ class AwardServiceTest extends TestCase
         ];
 
         $expected = "Herzlichen Glückwunsch! Ihr habt folgende Auszeichnungen erreicht:\n"
-            . "• Rätselwort-Bestzeit (Platz 3): schnellstes Lösen des Rätselworts\n"
+            . "• Rätselwort-Bestzeit (Platz 3): dritt schnellstes Lösen des Rätselworts\n"
             . "• Katalogmeister (Platz 1): Team, das alle Kataloge am schnellsten durchgespielt hat\n"
-            . "• Highscore-Champions (Platz 2): Team mit den meisten Lösungen aller Fragen";
+            . "• Highscore-Champions (Platz 2): zweit bestes Team mit den meisten Lösungen aller Fragen";
         $text = $svc->buildText('Team', $rankings);
         $this->assertSame($expected, $text);
     }
