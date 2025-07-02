@@ -140,6 +140,52 @@ class AwardService
     }
 
     /**
+     * Get structured award information for a team.
+     *
+     * @param string $team team name
+     * @param array{
+     *     puzzle:list<array{team:string,place:int}>,
+     *     catalog:list<array{team:string,place:int}>,
+     *     points:list<array{team:string,place:int}>
+     * } $rankings
+     * @param array<string,array{title:string,desc:string}>|null $info
+     * @return list<array{place:int,title:string,desc:string}>
+     */
+    public function getAwards(string $team, array $rankings, ?array $info = null): array
+    {
+        $defaults = [
+            'catalog' => [
+                'title' => 'Katalogmeister',
+                'desc' => 'Team, das alle Kataloge am schnellsten durchgespielt hat',
+            ],
+            'points' => [
+                'title' => 'Highscore-Champions',
+                'desc' => 'Team mit den meisten Lösungen aller Fragen',
+            ],
+            'puzzle' => [
+                'title' => 'Rätselwort-Bestzeit',
+                'desc' => 'schnellstes Lösen des Rätselworts',
+            ],
+        ];
+        $info = $info ? $info + $defaults : $defaults;
+
+        $list = [];
+        foreach ($rankings as $key => $entries) {
+            foreach ($entries as $entry) {
+                if ($entry['team'] === $team) {
+                    $list[] = [
+                        'place' => (int) $entry['place'],
+                        'title' => $info[$key]['title'],
+                        'desc' => $info[$key]['desc'],
+                    ];
+                }
+            }
+        }
+
+        return $list;
+    }
+
+    /**
      * Join a list with commas and "und" before the last item.
      *
      * @param list<string> $items

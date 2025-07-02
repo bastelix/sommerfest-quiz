@@ -286,21 +286,46 @@ class ResultController
             }
 
             $pdf->SetXY(10, $y + 15);
-            $pdf->SetFont('Arial', 'B', 20);
+            $pdf->SetFont('Arial', 'B', 24);
             $pdf->Cell($pdf->GetPageWidth() - 20, 10, $this->sanitizePdfText($team), 0, 2, 'C');
             $pdf->SetFont('Arial', '', 14);
             $denom = $answered > 0 ? $answered : $maxPoints;
             $text = sprintf('Punkte: %d von %d', $points, $denom);
+            $pdf->SetTextColor(120, 120, 120);
             $pdf->Cell($pdf->GetPageWidth() - 20, 8, $text, 0, 2, 'C');
+            $pdf->SetTextColor(0, 0, 0);
 
-            $congrats = $awardService->buildText($team, $rankings);
-            if ($congrats) {
+            $awards = $awardService->getAwards($team, $rankings);
+            if ($awards !== []) {
                 $pdf->Ln(8);
-                $pdf->SetFont('Arial', '', 12);
-                $pdf->SetX($imgX);
-                $block = mb_strtoupper($congrats, 'UTF-8');
-                $pdf->MultiCell($imgWidth, 6, $this->sanitizePdfText($block));
+                $pdf->SetFont('Arial', 'B', 18);
+                $pdf->Cell($pdf->GetPageWidth() - 20, 9, 'HERZLICHEN GLÜCKWUNSCH!', 0, 2, 'C');
+                $pdf->Ln(3);
+                $pdf->SetFont('Arial', 'B', 14);
+                $pdf->Cell($pdf->GetPageWidth() - 20, 7, 'AUSZEICHNUNGEN:', 0, 2, 'C');
                 $pdf->Ln(2);
+                foreach ($awards as $a) {
+                    switch ((int) $a['place']) {
+                        case 1:
+                            $pdf->SetTextColor(212, 175, 55);
+                            break;
+                        case 2:
+                            $pdf->SetTextColor(192, 192, 192);
+                            break;
+                        case 3:
+                            $pdf->SetTextColor(205, 127, 50);
+                            break;
+                        default:
+                            $pdf->SetTextColor(0, 0, 0);
+                    }
+                    $title = sprintf('%d. %s', (int) $a['place'], $a['title']);
+                    $pdf->SetFont('Arial', 'B', 12);
+                    $pdf->Cell($pdf->GetPageWidth() - 20, 6, $this->sanitizePdfText($title), 0, 2, 'C');
+                    $pdf->SetFont('Arial', 'I', 10);
+                    $pdf->SetTextColor(0, 0, 0);
+                    $pdf->MultiCell($imgWidth, 5, $this->sanitizePdfText($a['desc']), 0, 'C');
+                    $pdf->Ln(1);
+                }
             }
 
             if (!empty($photos[$team])) {
