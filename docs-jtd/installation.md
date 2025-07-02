@@ -44,4 +44,10 @@ toc: true
 ```bash
 php -m | grep exif
 ```
+Fehlt ein EXIF-Orientierungseintrag, kann beim Hochladen über den Parameter
+`rotate` ein Winkel (0, 90, 180 oder 270) angegeben werden. Ist kein Parameter
+gesetzt, versucht die Anwendung, das externe Programm `convert` aus ImageMagick
+(Option `-auto-orient`) aufzurufen. Für diesen Fallback sollte ImageMagick
+installiert sein.
+Im Docker-Container wird ImageMagick bereits installiert.
 
