@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Service\ResultService;
 use App\Service\ConfigService;
 use App\Service\CatalogService;
+use App\Service\TeamService;
 use App\Infrastructure\Database;
 use FPDF;
 use Intervention\Image\ImageManagerStatic as Image;
@@ -21,15 +22,17 @@ class ResultController
 {
     private ResultService $service;
     private ConfigService $config;
+    private TeamService $teams;
     private string $photoDir;
 
     /**
      * Inject dependencies and define photo directory.
      */
-    public function __construct(ResultService $service, ConfigService $config, string $photoDir)
+    public function __construct(ResultService $service, ConfigService $config, TeamService $teams, string $photoDir)
     {
         $this->service = $service;
         $this->config = $config;
+        $this->teams = $teams;
         $this->photoDir = rtrim($photoDir, '/');
     }
 
@@ -181,6 +184,7 @@ class ResultController
      */
     public function pdf(Request $request, Response $response): Response
     {
+        $teams = $this->teams->getAll();
         $results = $this->service->getAll();
         $catalogMax = [];
         $scores = [];
@@ -205,7 +209,8 @@ class ResultController
 
         $pdf = new FPDF();
 
-        foreach ($scores as $team => $cats) {
+        foreach ($teams as $team) {
+            $cats = $scores[$team] ?? [];
             $points = array_sum($cats);
 
             $pdf->AddPage();
@@ -245,6 +250,10 @@ class ResultController
             $pdf->SetFont('Arial', '', 14);
             $text = sprintf('Punkte: %d von %d', $points, $maxPoints);
             $pdf->Cell($pdf->GetPageWidth() - 20, 8, $text, 0, 2, 'C');
+
+            $footerY = $pdf->GetPageHeight() - 10;
+            $pdf->SetLineWidth(0.2);
+            $pdf->Line(10, $footerY, $pdf->GetPageWidth() - 10, $footerY);
         }
 
         $output = $pdf->Output('S');
