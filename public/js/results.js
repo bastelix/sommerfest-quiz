@@ -149,9 +149,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       let sMap = scores.get(r.name);
       if (!sMap) { sMap = new Map(); scores.set(r.name, sMap); }
-      const prevScore = sMap.get(r.catalog);
-      if (prevScore === undefined || r.correct > prevScore) {
-        sMap.set(r.catalog, r.correct);
+      const prev = sMap.get(r.catalog);
+      const ratio = r.total ? r.correct / r.total : 0;
+      if (!prev || ratio > (prev.correct / prev.total)) {
+        sMap.set(r.catalog, { correct: r.correct, total: r.total });
       }
     });
 
@@ -180,8 +181,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const totalScores = [];
     scores.forEach((map, name) => {
-      const total = Array.from(map.values()).reduce((sum, v) => sum + v, 0);
-      totalScores.push({ name, value: total, raw: total });
+      let corr = 0;
+      let tot = 0;
+      map.forEach(v => { corr += v.correct; tot += v.total; });
+      const ratio = tot ? corr / tot : 0;
+      totalScores.push({ name, value: Math.round(ratio * 100) + '%', raw: ratio });
     });
     totalScores.sort((a, b) => b.raw - a.raw);
     const pointsList = totalScores.slice(0, 3);
@@ -206,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
       {
         title: 'Highscore-Champions',
         list: rankings.pointsList,
-        tooltip: 'Top 3 Teams/Spieler mit den meisten Punkten'
+        tooltip: 'Top 3 Teams/Spieler mit der besten Trefferquote'
       }
     ];
     const MAX_ITEMS = 3;
