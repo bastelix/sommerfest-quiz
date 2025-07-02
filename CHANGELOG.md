@@ -33,6 +33,9 @@
 - Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
+- Update changelog [skip ci]
+- Update changelog [skip ci]
+- Update changelog [skip ci]
 
 ### Feat
 
@@ -47,6 +50,7 @@
 - *(qr)* Await scanner init
 - Avoid scanner timing race
 - Hide catalog list when repeating in competition mode
+- *(js)* Refresh UIkit lightboxes
 
 ### Style
 

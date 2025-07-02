@@ -34,12 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function refreshLightboxes() {
     if (typeof UIkit === 'undefined') return;
-    ['#resultsTableBody', '#statsTableBody'].forEach(sel => {
-      const el = document.querySelector(sel);
-      if (!el) return;
+    document.querySelectorAll('[uk-lightbox]').forEach(el => {
       const lightbox = UIkit.getComponent(el, 'lightbox');
       if (lightbox) {
-        lightbox.$emit();
         lightbox.items = UIkit.lightbox(el).items;
       }
     });
