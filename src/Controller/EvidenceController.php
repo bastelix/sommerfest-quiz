@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Service\ResultService;
 use App\Service\PhotoConsentService;
+use Psr\Log\LoggerInterface;
 use Intervention\Image\ImageManagerStatic as Image;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -17,15 +18,17 @@ class EvidenceController
 {
     private ResultService $results;
     private PhotoConsentService $consent;
+    private LoggerInterface $logger;
     private string $dir;
 
     /**
      * Set up controller dependencies and target directory.
      */
-    public function __construct(ResultService $results, PhotoConsentService $consent, string $dir)
+    public function __construct(ResultService $results, PhotoConsentService $consent, LoggerInterface $logger, string $dir)
     {
         $this->results = $results;
         $this->consent = $consent;
+        $this->logger = $logger;
         $this->dir = rtrim($dir, '/');
     }
 
@@ -82,6 +85,7 @@ class EvidenceController
             try {
                 $img->orientate();
             } catch (\Throwable $e) {
+                $this->logger->warning('Photo rotation failed: ' . $e->getMessage());
                 // orientation failed; continue without rotating
             }
         }
