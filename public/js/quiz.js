@@ -1029,7 +1029,7 @@ function runQuiz(questions, skipIntro){
           await startCamera();
         }catch(err){
           console.error('Camera list error.', err);
-          document.getElementById('qr-reader').textContent = 'Kamera konnte nicht initialisiert werden.';
+          document.getElementById('qr-reader').textContent = 'Kamera konnte nicht initialisiert werden. Bitte erlaube den Kamerazugriff im Browser oder in den Geräteeinstellungen. Lade die Seite danach neu.';
           showManualInput();
         }
       };

@@ -61,7 +61,7 @@ class EvidenceController
         $safeUser = preg_replace('/[^A-Za-z0-9_-]/', '_', $user);
         $safeCatalog = preg_replace('/[^A-Za-z0-9_-]/', '_', $catalog);
         $date = date('Y-m-d_H-i-s');
-        $fileName = $safeCatalog . '_' . $date . '.' . $ext;
+        $fileName = $safeCatalog . '_' . $date . '.jpg';
 
         $dir = $this->dir . '/' . $safeUser;
         if (!is_dir($dir)) {
@@ -75,11 +75,18 @@ class EvidenceController
         }
 
         $img = Image::make($file->getStream());
-        $img->resize(1500, 1500, function ($constraint) {
+        if (function_exists('exif_read_data')) {
+            try {
+                $img->orientate();
+            } catch (\Throwable $e) {
+                // orientation failed; continue without rotating
+            }
+        }
+        $img->resize(1500, 1500, function ($constraint): void {
             $constraint->aspectRatio();
             $constraint->upsize();
         });
-        $img->save($target, 70);
+        $img->encode('jpg')->save($target, 70);
 
         $this->consent->add($team, time());
 

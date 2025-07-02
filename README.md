@@ -129,7 +129,8 @@ Das mitgelieferte `docker-compose.yml` startet das Quiz samt Reverse Proxy.
 Die Dateien im Ordner `data/` werden dabei in einem benannten Volume
 `quizdata` gespeichert. So bleiben eingetragene Teams und Ergebnisse auch nach
 `docker-compose down` erhalten. Hochgeladene Beweisfotos landen im Verzeichnis
-`data/photos` und werden durch das Volume ebenfalls dauerhaft gespeichert. Die
+`data/photos` und werden dort immer als JPEG abgelegt. Durch das Volume bleiben
+die Bilder ebenfalls dauerhaft erhalten. Die
 ACME-Konfiguration des Let's-Encrypt-Begleiters landet im Ordner `acme/` und
 wird dadurch ebenfalls persistiert. Zusätzlich läuft ein Adminer-Container,
 der die PostgreSQL-Datenbank über die Subdomain `https://adminer.${DOMAIN}` bereitstellt. Er
@@ -170,10 +171,13 @@ Kompatibilität wird auch `POSTGRES_PASS` noch unterstützt).
 
 ### Bildgrößen anpassen
 
-Damit hochgeladene Dateien nicht unnötig groß werden, ist die Bibliothek [Intervention Image](https://image.intervention.io/) nun fest eingebunden.
+Damit hochgeladene Dateien nicht unnötig groß werden, ist die Bibliothek [Intervention Image](https://image.intervention.io/) fest eingebunden.
 Die Controller verkleinern Bilder automatisch auf eine
 maximale Kantenlänge von 1500&nbsp;Pixeln (Beweisfotos) beziehungsweise
-512&nbsp;Pixeln (Logo) und speichern sie mit 70–80&nbsp;% Qualität.
+512&nbsp;Pixeln (Logo) und speichern sie mit 70–80&nbsp;% Qualität
+im JPEG-Format. Fotos werden nach Möglichkeit anhand ihrer EXIF-Daten
+gedreht, sofern die PHP-Installation diese Funktion unterstützt.
+
 
 Die Anwendung lädt beim Start eine vorhandene `.env`-Datei ein, auch wenn sie
 ohne Docker betrieben wird. Ist `DOMAIN` dort gesetzt, wird für QR-Codes und

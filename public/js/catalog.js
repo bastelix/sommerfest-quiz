@@ -426,7 +426,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
           await startCamera();
         }catch(err){
           console.error('Camera list error.', err);
-          document.getElementById('login-qr').textContent = 'Kamera konnte nicht initialisiert werden.';
+          document.getElementById('login-qr').textContent = 'Kamera konnte nicht initialisiert werden. Bitte erlaube den Kamerazugriff im Browser oder in den Geräteeinstellungen. Lade die Seite danach neu.';
           showManualInput();
         }
       };
