@@ -153,6 +153,14 @@ class EvidenceController
     public function rotate(Request $request, Response $response): Response
     {
         $data = $request->getParsedBody() ?? [];
+        $ct = $request->getHeaderLine('Content-Type');
+        if (str_starts_with($ct, 'application/json')) {
+            $json = json_decode((string) $request->getBody(), true);
+            if (is_array($json)) {
+                $data = $json;
+            }
+        }
+
         $path = isset($data['path']) ? (string)$data['path'] : '';
         if (!preg_match('#^/photo/([^/]+)/([^/]+)$#', $path, $m)) {
             return $response->withStatus(400);
