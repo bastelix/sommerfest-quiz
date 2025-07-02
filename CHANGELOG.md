@@ -20,6 +20,7 @@
 - Add version history
 - Mention exif extension
 - Update changelog [skip ci]
+- Update changelog [skip ci]
 
 ### Feat
 
