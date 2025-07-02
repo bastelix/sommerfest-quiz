@@ -186,8 +186,10 @@ class ResultController
     {
         $teams = $this->teams->getAll();
         $results = $this->service->getAll();
+        $questionResults = $this->service->getQuestionResults();
         $catalogMax = [];
         $scores = [];
+        $photos = [];
         foreach ($results as $row) {
             $team = (string)($row['name'] ?? '');
             $cat = (string)($row['catalog'] ?? '');
@@ -198,6 +200,15 @@ class ResultController
             }
             if (!isset($scores[$team][$cat]) || $correct > $scores[$team][$cat]) {
                 $scores[$team][$cat] = $correct;
+            }
+            if (!empty($row['photo'])) {
+                $photos[$team][] = (string)$row['photo'];
+            }
+        }
+        foreach ($questionResults as $qr) {
+            $team = (string)($qr['name'] ?? '');
+            if (!empty($qr['photo'])) {
+                $photos[$team][] = (string)$qr['photo'];
             }
         }
         $maxPoints = array_sum($catalogMax);
@@ -250,6 +261,26 @@ class ResultController
             $pdf->SetFont('Arial', '', 14);
             $text = sprintf('Punkte: %d von %d', $points, $maxPoints);
             $pdf->Cell($pdf->GetPageWidth() - 20, 8, $text, 0, 2, 'C');
+
+            if (!empty($photos[$team])) {
+                $file = $this->photoDir . '/' . ltrim((string) $photos[$team][0], '/');
+                if (is_readable($file)) {
+                    $tmp = null;
+                    if (str_ends_with(strtolower($file), '.webp')) {
+                        $img = Image::make($file);
+                        $tmp = tempnam(sys_get_temp_dir(), 'photo') . '.png';
+                        $img->encode('png')->save($tmp, 80);
+                        $file = $tmp;
+                    }
+                    $imgY = $pdf->GetY() + 25;
+                    $imgX = ($pdf->GetPageWidth() - 160) / 2;
+                    $pdf->Image($file, $imgX, $imgY, 160, 100);
+                    $pdf->SetY($imgY + 100);
+                    if ($tmp !== null) {
+                        unlink($tmp);
+                    }
+                }
+            }
 
             $footerY = $pdf->GetPageHeight() - 10;
             $pdf->SetLineWidth(0.2);
