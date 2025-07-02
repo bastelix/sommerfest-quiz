@@ -1,0 +1,7 @@
+[changelog]
+header = "# Changelog\n\n"
+
+[git]
+filter_unconventional = false
+
+tag_pattern = ".*"
