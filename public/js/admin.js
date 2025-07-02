@@ -1117,6 +1117,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const resultsResetBtn = document.getElementById('resultsResetBtn');
   const resultsDownloadBtn = document.getElementById('resultsDownloadBtn');
+  const resultsPdfBtn = document.getElementById('resultsPdfBtn');
 
   resultsResetBtn?.addEventListener('click', function (e) {
     e.preventDefault();
@@ -1157,6 +1158,11 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error(err);
       notify('Fehler beim Herunterladen', 'danger');
     });
+  });
+
+  resultsPdfBtn?.addEventListener('click', function (e) {
+    e.preventDefault();
+    window.open('/results.pdf', '_blank');
   });
 
   // --------- Teams/Personen ---------
