@@ -40,9 +40,23 @@ document.addEventListener('DOMContentLoaded', () => {
               .replace(/data-path='[^']*'/, `data-path='${newPath}'`);
           }
         }
+        refreshLightboxes();
         return newPath;
       })
       .catch(() => {});
+  }
+
+  function refreshLightboxes() {
+    if (typeof UIkit === 'undefined') return;
+    ['#resultsTableBody', '#statsTableBody'].forEach(sel => {
+      const el = document.querySelector(sel);
+      if (!el) return;
+      const lightbox = UIkit.getComponent(el, 'lightbox');
+      if (lightbox) {
+        lightbox.$emit();
+        lightbox.items = UIkit.lightbox(el).items;
+      }
+    });
   }
 
   const rotatePhoto = window.rotatePhoto || rotatePhotoImpl;
