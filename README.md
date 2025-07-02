@@ -178,6 +178,7 @@ maximale Kantenlänge von 1500&nbsp;Pixeln (Beweisfotos) beziehungsweise
 im JPEG-Format. Fotos werden nach Möglichkeit anhand ihrer EXIF-Daten
 gedreht, sofern die PHP-Installation diese Funktion unterstützt.
 
+
 Die Anwendung lädt beim Start eine vorhandene `.env`-Datei ein, auch wenn sie
 ohne Docker betrieben wird. Ist `DOMAIN` dort gesetzt, wird für QR-Codes und
 Exportlinks diese Adresse verwendet. Enthält die Variable kein Schema, wird
