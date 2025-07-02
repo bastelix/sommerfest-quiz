@@ -89,7 +89,9 @@ class ResultController
                 $catalog = (string)($data['catalog'] ?? '');
                 $time = (int)$data['puzzleTime'];
                 $answer = (string)($data['puzzleAnswer'] ?? '');
-                $expected = (string)($this->config->getConfig()['puzzleWord'] ?? '');
+                $cfg = $this->config->getConfig();
+                $expected = (string)($cfg['puzzleWord'] ?? '');
+                $feedback = (string)($cfg['puzzleFeedback'] ?? '');
                 $a = mb_strtolower(trim($answer), 'UTF-8');
                 $e = mb_strtolower(trim($expected), 'UTF-8');
                 $result['answer'] = $answer;
@@ -109,6 +111,7 @@ class ResultController
                         ]);
                         $result['success'] = true;
                     }
+                    $result['feedback'] = $feedback;
                 }
             } else {
                 $this->service->add($data);
