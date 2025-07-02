@@ -1197,9 +1197,11 @@ function runQuiz(questions, skipIntro){
           }
           if(data.success){
             if(debugTimer) clearTimeout(debugTimer);
-            const msg = (cfg.puzzleFeedback && cfg.puzzleFeedback.trim())
-              ? cfg.puzzleFeedback
-              : 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
+            const msg = (data.feedback && data.feedback.trim())
+              ? data.feedback
+              : (cfg.puzzleFeedback && cfg.puzzleFeedback.trim())
+                ? cfg.puzzleFeedback
+                : 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
             feedback.textContent = msg;
             feedback.className = 'uk-margin-top uk-text-center uk-text-success';
             sessionStorage.setItem('puzzleSolved', 'true');
