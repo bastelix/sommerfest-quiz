@@ -23,6 +23,7 @@
 - Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
+- Update changelog [skip ci]
 
 ### Feat
 
@@ -42,6 +43,7 @@
 
 - Add custom file input
 - Enhance catalog comment card
+- Enhance rotate button appearance
 
 ### Test
 
