@@ -31,7 +31,8 @@ class ResultControllerTest extends TestCase
         $cfg = new \App\Service\ConfigService($pdo);
         $svc = new \App\Service\ResultService($pdo);
         $teams = new \App\Service\TeamService($pdo);
-        $ctrl = new \App\Controller\ResultController($svc, $cfg, $teams, sys_get_temp_dir());
+        $catalogs = new \App\Service\CatalogService($pdo);
+        $ctrl = new \App\Controller\ResultController($svc, $cfg, $teams, $catalogs, sys_get_temp_dir());
 
         $req = $this->createRequest('GET', '/results.pdf');
         $response = $ctrl->pdf($req, new \Slim\Psr7\Response());
