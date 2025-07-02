@@ -1003,12 +1003,14 @@ function runQuiz(questions, skipIntro){
         }catch(err){
           console.error('QR scanner start failed.', err);
           document.getElementById('qr-reader').textContent = 'QR-Scanner konnte nicht gestartet werden.';
+          showManualInput();
         }
         flipBtn.disabled = cameras.length < 2;
       };
       const startScanner = async () => {
         if(typeof Html5Qrcode === 'undefined'){
           document.getElementById('qr-reader').textContent = 'QR-Scanner nicht verfügbar.';
+          showManualInput();
           return;
         }
         scanner = new Html5Qrcode('qr-reader');
@@ -1028,11 +1030,35 @@ function runQuiz(questions, skipIntro){
         }catch(err){
           console.error('Camera list error.', err);
           document.getElementById('qr-reader').textContent = 'Kamera konnte nicht initialisiert werden.';
+          showManualInput();
         }
       };
       const flipBtn = modal.querySelector('#qr-reader-flip');
       const stopBtn = modal.querySelector('#qr-reader-stop');
       flipBtn.disabled = true;
+      function showManualInput(){
+        const container = document.getElementById('qr-reader');
+        container.innerHTML = '<input id="manual-team-name" class="uk-input" type="text" placeholder="Teamname eingeben">' +
+          '<button id="manual-team-submit" class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Weiter</button>';
+        flipBtn.classList.add('uk-hidden');
+        const input = container.querySelector('#manual-team-name');
+        container.querySelector('#manual-team-submit').addEventListener('click', () => {
+          const name = (input.value || '').trim();
+          if(name){
+            setStored('quizUser', name);
+            stopScanner();
+            UIkit.modal(modal).hide();
+            next();
+          }
+        });
+        input.addEventListener('keydown', (ev) => {
+          if(ev.key === 'Enter'){
+            ev.preventDefault();
+            container.querySelector('#manual-team-submit').click();
+          }
+        });
+        input.focus();
+      }
       const trapFocus = (e) => {
         if(e.key === 'Tab'){
           e.preventDefault();
