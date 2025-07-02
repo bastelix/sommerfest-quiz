@@ -396,7 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (newPath) btn.dataset.path = newPath;
       });
     }
-  });
+  }, { capture: true });
 
   load();
 });
