@@ -175,7 +175,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!btn) return;
       e.preventDefault();
       const path = btn.dataset.path || '';
-      const img = document.querySelector('.uk-lightbox-items .uk-active img') ||
+      const panel = document.querySelector('.uk-lightbox-panel .uk-active');
+      const img = panel ? panel.querySelector('picture img, img') :
+                  document.querySelector('.uk-lightbox-items .uk-active img') ||
                   document.querySelector('.uk-lightbox-panel img.uk-inverse-light');
       if (img && path) {
         const clean = path.replace(/\?.*$/, '');
