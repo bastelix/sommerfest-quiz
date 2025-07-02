@@ -74,13 +74,7 @@ class EvidenceController
             return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
         }
 
-        $stream = $file->getStream();
-        $tmpPath = $stream->getMetadata('uri');
-        if (is_string($tmpPath) && is_file($tmpPath)) {
-            $img = Image::make($tmpPath);
-        } else {
-            $img = Image::make($stream);
-        }
+        $img = Image::make($file->getStream());
         if (function_exists('exif_read_data')) {
             try {
                 $img->orientate();
