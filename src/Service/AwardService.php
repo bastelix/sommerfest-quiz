@@ -15,9 +15,9 @@ class AwardService
      * @param list<array<string,mixed>> $results
      * @param int|null $catalogCount total number of catalogs if known
      * @return array{
-     *     puzzle:list<string>,
-     *     catalog:list<string>,
-     *     points:list<string>
+     *     puzzle:list<array{team:string,place:int}>,
+     *     catalog:list<array{team:string,place:int}>,
+     *     points:list<array{team:string,place:int}>
      * }
      */
     public function computeRankings(array $results, ?int $catalogCount = null): array
@@ -58,7 +58,10 @@ class AwardService
             $puzzleList[] = ['team' => $team, 'time' => $t];
         }
         usort($puzzleList, fn($a, $b) => $a['time'] <=> $b['time']);
-        $puzzleRanks = array_column(array_slice($puzzleList, 0, 3), 'team');
+        $puzzleRanks = [];
+        foreach (array_slice($puzzleList, 0, 3) as $idx => $row) {
+            $puzzleRanks[] = ['team' => (string)$row['team'], 'place' => $idx + 1];
+        }
 
         $finishers = [];
         foreach ($catalogTimes as $team => $map) {
@@ -67,7 +70,10 @@ class AwardService
             }
         }
         usort($finishers, fn($a, $b) => $a['time'] <=> $b['time']);
-        $catalogRanks = array_column(array_slice($finishers, 0, 3), 'team');
+        $catalogRanks = [];
+        foreach (array_slice($finishers, 0, 3) as $idx => $row) {
+            $catalogRanks[] = ['team' => (string)$row['team'], 'place' => $idx + 1];
+        }
 
         $scoreList = [];
         foreach ($scores as $team => $map) {
@@ -75,7 +81,10 @@ class AwardService
             $scoreList[] = ['team' => $team, 'score' => $total];
         }
         usort($scoreList, fn($a, $b) => $b['score'] <=> $a['score']);
-        $pointsRanks = array_column(array_slice($scoreList, 0, 3), 'team');
+        $pointsRanks = [];
+        foreach (array_slice($scoreList, 0, 3) as $idx => $row) {
+            $pointsRanks[] = ['team' => (string)$row['team'], 'place' => $idx + 1];
+        }
 
         return [
             'puzzle' => $puzzleRanks,
@@ -89,9 +98,9 @@ class AwardService
      *
      * @param string $team team name
      * @param array{
-     *     puzzle:list<string>,
-     *     catalog:list<string>,
-     *     points:list<string>
+     *     puzzle:list<array{team:string,place:int}>,
+     *     catalog:list<array{team:string,place:int}>,
+     *     points:list<array{team:string,place:int}>
      * } $rankings
      * @param array<string,array{title:string,desc:string}>|null $info
      */
@@ -115,8 +124,10 @@ class AwardService
 
         $lines = [];
         foreach ($rankings as $key => $list) {
-            if (in_array($team, $list, true)) {
-                $lines[] = sprintf('• %s: %s', $info[$key]['title'], $info[$key]['desc']);
+            foreach ($list as $entry) {
+                if ($entry['team'] === $team) {
+                    $lines[] = sprintf('• %s (Platz %d): %s', $info[$key]['title'], $entry['place'], $info[$key]['desc']);
+                }
             }
         }
 
