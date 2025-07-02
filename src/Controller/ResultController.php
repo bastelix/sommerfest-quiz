@@ -357,7 +357,6 @@ class ResultController
                     if ($imgSize !== false && $imgSize[0] > 0) {
                         $imgHeight = $imgWidth * ($imgSize[1] / $imgSize[0]);
                     }
-
                     $footerY = $pdf->GetPageHeight() - 10;
                     $availableHeight = $footerY - $imgY;
                     if ($imgHeight > $availableHeight) {
@@ -366,7 +365,6 @@ class ResultController
                         $imgWidth = $imgWidth * $scale;
                         $imgX = ($pdf->GetPageWidth() - $imgWidth) / 2;
                     }
-
                     $pdf->Image($file, $imgX, $imgY, $imgWidth, $imgHeight);
                     $pdf->SetY($imgY + $imgHeight);
                     if ($tmp !== null) {
