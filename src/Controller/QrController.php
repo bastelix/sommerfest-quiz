@@ -428,7 +428,7 @@ class QrController
                         $level = (int)substr($tag, 1);
                         $sizes = [1 => 16, 2 => 14, 3 => 12, 4 => 11, 5 => 11, 6 => 11];
                         $this->fontStack[] = [$current[0], $current[1], $current[2]];
-                        $pdf->SetFont($current[0], 'B', $sizes[$level] ?? $current[2]);
+                        $pdf->SetFont($current[0], 'B', $sizes[$level]);
                         $this->renderHtmlNode($pdf, $child);
                         // Further reduce the spacing after headings
                         $pdf->Ln(2);
