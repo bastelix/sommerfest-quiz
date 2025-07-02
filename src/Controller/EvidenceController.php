@@ -56,6 +56,10 @@ class EvidenceController
         $user = isset($parsed['name']) ? (string)$parsed['name'] : '';
         $catalog = isset($parsed['catalog']) ? (string)$parsed['catalog'] : '';
         $team = isset($parsed['team']) ? (string)$parsed['team'] : '';
+        $rotate = isset($parsed['rotate']) ? (int)$parsed['rotate'] : 0;
+        if (!in_array($rotate, [0, 90, 180, 270], true)) {
+            $rotate = 0;
+        }
         if ($team === '') {
             $response->getBody()->write('missing team');
             return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
@@ -81,12 +85,26 @@ class EvidenceController
         $file->moveTo($tmpPath);
 
         $img = Image::make($tmpPath);
+        $orientationHandled = false;
         if (function_exists('exif_read_data')) {
             try {
                 $img->orientate();
+                $orientationHandled = true;
             } catch (\Throwable $e) {
                 $this->logger->warning('Photo rotation failed: ' . $e->getMessage());
-                // orientation failed; continue without rotating
+            }
+        }
+        if (!$orientationHandled) {
+            if ($rotate !== 0) {
+                $img->rotate(-$rotate);
+                $orientationHandled = true;
+            } else {
+                $convert = trim((string)@shell_exec('command -v convert'));
+                if ($convert !== '') {
+                    @shell_exec($convert . ' ' . escapeshellarg($tmpPath) . ' -auto-orient ' . escapeshellarg($tmpPath));
+                    $img = Image::make($tmpPath);
+                    $orientationHandled = true;
+                }
             }
         }
         $img->resize(1500, 1500, function ($constraint): void {
