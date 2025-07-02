@@ -40,4 +40,8 @@ toc: true
    ```
 
  Das mitgelieferte `docker-compose.yml` startet die Anwendung samt Reverse Proxy. Daten werden dauerhaft in einem Volume gesichert, Beweisfotos bleiben als JPEG im Ordner `data/photos` erhalten. Dabei richtet die Anwendung Fotos, sofern möglich, anhand ihrer EXIF-Daten aus. Die Domain und weitere Parameter lassen sich über die Datei `.env` anpassen.
+**Wichtig:** Damit Fotos automatisch gedreht werden können, muss die PHP-Erweiterung `exif` installiert und aktiviert sein. Prüfen lässt sich das mit:
+```bash
+php -m | grep exif
+```
 

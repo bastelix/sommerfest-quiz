@@ -178,6 +178,10 @@ maximale Kantenlänge von 1500&nbsp;Pixeln (Beweisfotos) beziehungsweise
 im JPEG-Format. Fotos werden nach Möglichkeit anhand ihrer EXIF-Daten
 gedreht, sofern die PHP-Installation diese Funktion unterstützt.
 
+**Wichtig:** Die automatische Drehung funktioniert nur, wenn die PHP-Erweiterung `exif` installiert und aktiviert ist. Den Status prüfst du mit:
+```bash
+php -m | grep exif
+```
 
 Die Anwendung lädt beim Start eine vorhandene `.env`-Datei ein, auch wenn sie
 ohne Docker betrieben wird. Ist `DOMAIN` dort gesetzt, wird für QR-Codes und
