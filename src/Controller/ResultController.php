@@ -186,8 +186,10 @@ class ResultController
     {
         $teams = $this->teams->getAll();
         $results = $this->service->getAll();
+        $questionResults = $this->service->getQuestionResults();
         $catalogMax = [];
         $scores = [];
+        $photos = [];
         foreach ($results as $row) {
             $team = (string)($row['name'] ?? '');
             $cat = (string)($row['catalog'] ?? '');
@@ -198,6 +200,15 @@ class ResultController
             }
             if (!isset($scores[$team][$cat]) || $correct > $scores[$team][$cat]) {
                 $scores[$team][$cat] = $correct;
+            }
+            if (!empty($row['photo'])) {
+                $photos[$team] = true;
+            }
+        }
+        foreach ($questionResults as $qr) {
+            $team = (string)($qr['name'] ?? '');
+            if (!empty($qr['photo'])) {
+                $photos[$team] = true;
             }
         }
         $maxPoints = array_sum($catalogMax);
@@ -250,6 +261,9 @@ class ResultController
             $pdf->SetFont('Arial', '', 14);
             $text = sprintf('Punkte: %d von %d', $points, $maxPoints);
             $pdf->Cell($pdf->GetPageWidth() - 20, 8, $text, 0, 2, 'C');
+            if (isset($photos[$team])) {
+                $pdf->Cell($pdf->GetPageWidth() - 20, 6, 'Beweisfoto abgegeben', 0, 2, 'C');
+            }
 
             $footerY = $pdf->GetPageHeight() - 10;
             $pdf->SetLineWidth(0.2);
