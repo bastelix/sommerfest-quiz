@@ -400,12 +400,14 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
         }catch(err){
           console.error('QR scanner start failed.', err);
           document.getElementById('login-qr').textContent = 'QR-Scanner konnte nicht gestartet werden.';
+          showManualInput();
         }
         flipBtn.disabled = cameras.length < 2;
       };
       const startScanner = async () => {
         if(typeof Html5Qrcode === 'undefined'){
           document.getElementById('login-qr').textContent = 'QR-Scanner nicht verfügbar.';
+          showManualInput();
           return;
         }
         scanner = new Html5Qrcode('login-qr');
@@ -425,11 +427,28 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
         }catch(err){
           console.error('Camera list error.', err);
           document.getElementById('login-qr').textContent = 'Kamera konnte nicht initialisiert werden.';
+          showManualInput();
         }
       };
       const flipBtn = modal.querySelector('#login-qr-flip');
       const stopBtn = modal.querySelector('#login-qr-stop');
       flipBtn.disabled = true;
+      function showManualInput(){
+        const container = document.getElementById('login-qr');
+        container.innerHTML = '<input id="manual-team-name" class="uk-input" type="text" placeholder="Teamname eingeben">' +
+          '<button id="manual-team-submit" class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Weiter</button>';
+        flipBtn.classList.add('uk-hidden');
+        const input = container.querySelector('#manual-team-name');
+        container.querySelector('#manual-team-submit').addEventListener('click', () => {
+          const name = (input.value || '').trim();
+          if(name){
+            setStored('quizUser', name);
+            stopScanner();
+            UIkit.modal(modal).hide();
+            onDone();
+          }
+        });
+      }
       const trapFocus = (e) => {
         if(e.key === 'Tab'){
           e.preventDefault();
