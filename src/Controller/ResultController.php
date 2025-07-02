@@ -269,7 +269,11 @@ class ResultController
             }
 
             if (!empty($photos[$team])) {
-                $file = $this->photoDir . '/' . ltrim((string) $photos[$team][0], '/');
+                $rel = (string) $photos[$team][0];
+                if (str_starts_with($rel, '/photo/')) {
+                    $rel = substr($rel, 7);
+                }
+                $file = $this->photoDir . '/' . ltrim($rel, '/');
                 if (is_readable($file)) {
                     $tmp = null;
                     if (str_ends_with(strtolower($file), '.webp')) {
