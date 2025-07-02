@@ -399,4 +399,16 @@ body.dark-mode .sticky-actions {
   }
 }
 
+/* Wrapper for thumbnails with rotate button */
+.photo-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.photo-rotate-btn {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+}
+
 

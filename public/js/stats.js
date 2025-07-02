@@ -7,6 +7,21 @@ document.addEventListener('DOMContentLoaded', () => {
   let data = [];
   let catalogMap = null;
 
+  function rotatePhoto(path, img, link) {
+    fetch('/photos/rotate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path })
+    })
+      .then(r => { if (!r.ok) throw new Error('rotate'); })
+      .then(() => {
+        const t = Date.now();
+        img.src = path + '?t=' + t;
+        if (link) link.href = path + '?t=' + t;
+      })
+      .catch(() => {});
+  }
+
   function fetchCatalogMap() {
     if (catalogMap) return Promise.resolve(catalogMap);
     return fetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } })
@@ -59,17 +74,33 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       const photoTd = document.createElement('td');
       if (r.photo) {
+        const wrap = document.createElement('span');
+        wrap.className = 'photo-wrapper';
+
         const a = document.createElement('a');
         a.className = 'uk-inline';
         a.href = r.photo;
         a.dataset.caption = 'Beweisfoto';
         a.dataset.attrs = 'class: uk-inverse-light';
+
         const img = document.createElement('img');
         img.src = r.photo;
         img.alt = 'Beweisfoto';
         img.className = 'proof-thumb';
+
+        const btn = document.createElement('button');
+        btn.className = 'uk-icon-button photo-rotate-btn';
+        btn.type = 'button';
+        btn.setAttribute('uk-icon', 'history');
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          rotatePhoto(r.photo, img, a);
+        });
+
         a.appendChild(img);
-        photoTd.appendChild(a);
+        wrap.appendChild(a);
+        wrap.appendChild(btn);
+        photoTd.appendChild(wrap);
       }
       tr.appendChild(photoTd);
       tbody.appendChild(tr);
@@ -116,9 +147,23 @@ document.addEventListener('DOMContentLoaded', () => {
     load();
   });
 
+  function initRotateButtons() {
+    document.querySelectorAll('.photo-rotate-btn').forEach(btn => {
+      const wrap = btn.closest('.photo-wrapper');
+      const img = wrap ? wrap.querySelector('img') : null;
+      const link = wrap ? wrap.querySelector('a') : null;
+      const path = btn.dataset.path || (link ? link.getAttribute('href') : '');
+      if (!img || !path) return;
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        rotatePhoto(path, img, link);
+      });
+    });
+  }
+
   if (refreshBtn && typeof UIkit !== 'undefined') {
     UIkit.icon(refreshBtn);
   }
-
+  initRotateButtons();
   load();
 });
