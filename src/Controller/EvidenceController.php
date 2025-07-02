@@ -74,7 +74,10 @@ class EvidenceController
             return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
         }
 
-        $img = Image::make($file->getStream());
+        $tmpPath = tempnam(sys_get_temp_dir(), 'upload_');
+        $file->moveTo($tmpPath);
+
+        $img = Image::make($tmpPath);
         if (function_exists('exif_read_data')) {
             try {
                 $img->orientate();
@@ -87,6 +90,7 @@ class EvidenceController
             $constraint->upsize();
         });
         $img->encode('jpg')->save($target, 70);
+        unlink($tmpPath);
 
         $this->consent->add($team, time());
 
