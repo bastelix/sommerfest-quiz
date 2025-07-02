@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function rotatePhotoImpl(path, img, link) {
     const cleanPath = path.replace(/\?.*$/, '');
-    fetch('/photos/rotate', {
+    return fetch('/photos/rotate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path: cleanPath })
@@ -17,8 +17,16 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(r => { if (!r.ok) throw new Error('rotate'); })
       .then(() => {
         const t = Date.now();
-        img.src = `${cleanPath}?t=${t}`;
-        if (link) link.href = `${cleanPath}?t=${t}`;
+        const newPath = `${cleanPath}?t=${t}`;
+        img.src = newPath;
+        if (link) {
+          link.href = newPath;
+          if (link.dataset && link.dataset.caption) {
+            link.dataset.caption = link.dataset.caption
+              .replace(/data-path='[^']*'/, `data-path='${newPath}'`);
+          }
+        }
+        return newPath;
       })
       .catch(() => {});
   }
@@ -170,8 +178,20 @@ document.addEventListener('DOMContentLoaded', () => {
       const panel = document.querySelector('.uk-lightbox-panel .uk-active');
       const img = panel ? panel.querySelector('picture img, img') : null;
       if (img && path) {
-        rotatePhoto(path, img).then(newPath => {
-          if (newPath) btn.dataset.path = newPath;
+        const clean = path.replace(/\?.*$/, '');
+        const links = document.querySelectorAll(`a.rotate-link[href^='${clean}']`);
+        const link = links[0] || null;
+        rotatePhoto(path, img, link).then(newPath => {
+          if (newPath) {
+            links.forEach(a => {
+              a.href = newPath;
+              if (a.dataset && a.dataset.caption) {
+                a.dataset.caption = a.dataset.caption
+                  .replace(/data-path='[^']*'/, `data-path='${newPath}'`);
+              }
+            });
+            btn.dataset.path = newPath;
+          }
         });
       }
     };
