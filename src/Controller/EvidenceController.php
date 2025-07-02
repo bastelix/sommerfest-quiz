@@ -145,8 +145,44 @@ class EvidenceController
         if (!is_file($filePath)) {
             return $response->withStatus(404);
         }
-        $img = Image::make($filePath);
-        $img->rotate(-90)->save($filePath, 70);
+        $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+
+        $createFn = match ($ext) {
+            'jpg', 'jpeg' => 'imagecreatefromjpeg',
+            'png' => 'imagecreatefrompng',
+            'webp' => function ($p) {
+                return function_exists('imagecreatefromwebp') ? imagecreatefromwebp($p) : false;
+            },
+            default => null,
+        };
+
+        $saveFn = match ($ext) {
+            'jpg', 'jpeg' => fn($img, $p) => imagejpeg($img, $p, 90),
+            'png' => fn($img, $p) => imagepng($img, $p),
+            'webp' => fn($img, $p) => function_exists('imagewebp') ? imagewebp($img, $p, 90) : false,
+            default => null,
+        };
+
+        if (!$createFn || !$saveFn) {
+            return $response->withStatus(400);
+        }
+
+        $src = is_callable($createFn) ? $createFn($filePath) : null;
+        if (!$src) {
+            return $response->withStatus(400);
+        }
+
+        $rot = imagerotate($src, 270, 0);
+        imagedestroy($src);
+        if (!$rot) {
+            return $response->withStatus(500);
+        }
+
+        $ok = $saveFn($rot, $filePath);
+        imagedestroy($rot);
+        if (!$ok) {
+            return $response->withStatus(500);
+        }
 
         $response->getBody()->write(json_encode(['status' => 'ok']));
         return $response->withHeader('Content-Type', 'application/json');
