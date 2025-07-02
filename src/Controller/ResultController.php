@@ -264,9 +264,7 @@ class ResultController
             $pdf->SetFont('Arial', '', 14);
             $text = sprintf('Punkte: %d von %d', $points, $maxPoints);
             $pdf->Cell($pdf->GetPageWidth() - 20, 8, $text, 0, 2, 'C');
-            if (isset($photos[$team])) {
-                $pdf->Cell($pdf->GetPageWidth() - 20, 6, 'Beweisfoto abgegeben', 0, 2, 'C');
-            }
+
 
             if (!empty($photos[$team])) {
                 $rel = (string) $photos[$team][0];
