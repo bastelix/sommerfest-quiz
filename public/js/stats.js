@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     const path = btn.dataset.path || '';
     const panel = document.querySelector('.uk-lightbox-panel .uk-active');
-    const img = panel ? panel.querySelector('img') : null;
+    const img = panel ? panel.querySelector('picture img, img') : null;
     if (img && path) {
       rotatePhoto(path, img).then(newPath => {
         if (newPath) btn.dataset.path = newPath;
