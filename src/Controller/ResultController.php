@@ -351,8 +351,15 @@ class ResultController
                     }
                     $imgY = $pdf->GetY() + 25;
                     $imgX = ($pdf->GetPageWidth() - $imgWidth) / 2;
-                    $pdf->Image($file, $imgX, $imgY, $imgWidth, 100);
-                    $pdf->SetY($imgY + 100);
+
+                    $imgSize = @getimagesize($file);
+                    $imgHeight = 100.0;
+                    if ($imgSize !== false && $imgSize[0] > 0) {
+                        $imgHeight = $imgWidth * ($imgSize[1] / $imgSize[0]);
+                    }
+
+                    $pdf->Image($file, $imgX, $imgY, $imgWidth, $imgHeight);
+                    $pdf->SetY($imgY + $imgHeight);
                     if ($tmp !== null) {
                         unlink($tmp);
                     }
