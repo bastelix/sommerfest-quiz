@@ -29,6 +29,7 @@ use App\Controller\QrController;
 use App\Controller\LogoController;
 use App\Controller\SummaryController;
 use App\Controller\EvidenceController;
+use Psr\Log\NullLogger;
 use App\Controller\BackupController;
 
 require_once __DIR__ . '/Controller/HomeController.php';
@@ -101,6 +102,7 @@ return function (\Slim\App $app) {
     $evidenceController = new EvidenceController(
         $resultService,
         $consentService,
+        new NullLogger(),
         __DIR__ . '/../data/photos'
     );
 

@@ -80,6 +80,15 @@ document.addEventListener('DOMContentLoaded', () => {
             img.alt = 'Beweisfoto';
             img.className = 'proof-thumb';
 
+            const btn = document.createElement('button');
+            btn.className = 'uk-icon-button photo-rotate-btn';
+            btn.type = 'button';
+            btn.setAttribute('uk-icon', 'history');
+            btn.addEventListener('click', (e) => {
+              e.preventDefault();
+              rotatePhoto(r.photo, img, a);
+            });
+
             a.appendChild(img);
             wrap.appendChild(a);
             td.appendChild(wrap);
@@ -356,6 +365,20 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   });
+
+  function initRotateButtons() {
+    document.querySelectorAll('.photo-rotate-btn').forEach(btn => {
+      const wrap = btn.closest('.photo-wrapper');
+      const img = wrap ? wrap.querySelector('img') : null;
+      const link = wrap ? wrap.querySelector('a') : null;
+      const path = btn.dataset.path || (link ? link.getAttribute('href') : '');
+      if (!img || !path) return;
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        rotatePhoto(path, img, link);
+      });
+    });
+  }
 
   if (refreshBtn && typeof UIkit !== 'undefined') {
     UIkit.icon(refreshBtn);

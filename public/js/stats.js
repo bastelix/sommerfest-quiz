@@ -137,6 +137,20 @@ document.addEventListener('DOMContentLoaded', () => {
     load();
   });
 
+  function initRotateButtons() {
+    document.querySelectorAll('.photo-rotate-btn').forEach(btn => {
+      const wrap = btn.closest('.photo-wrapper');
+      const img = wrap ? wrap.querySelector('img') : null;
+      const link = wrap ? wrap.querySelector('a') : null;
+      const path = btn.dataset.path || (link ? link.getAttribute('href') : '');
+      if (!img || !path) return;
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        rotatePhoto(path, img, link);
+      });
+    });
+  }
+
   if (refreshBtn && typeof UIkit !== 'undefined') {
     UIkit.icon(refreshBtn);
   }
