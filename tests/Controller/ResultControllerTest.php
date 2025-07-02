@@ -41,6 +41,10 @@ class ResultControllerTest extends TestCase
         $pdf = (string)$response->getBody();
         $this->assertNotEmpty($pdf);
         $this->assertStringContainsString('Team1', $pdf);
-        $this->assertStringContainsString('Beweisfoto abgegeben', $pdf);
+        $this->assertGreaterThan(
+            1,
+            substr_count($pdf, '/Subtype /Image'),
+            'Photo should be embedded in PDF'
+        );
     }
 }
