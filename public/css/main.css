@@ -410,6 +410,13 @@ body.dark-mode .sticky-actions {
   right: 40px;
   bottom: 15px;
   z-index: 1100;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+}
+
+.lightbox-rotate-btn:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: #fff;
 }
 
 
