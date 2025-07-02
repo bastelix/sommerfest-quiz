@@ -299,7 +299,14 @@ class ResultController
             if ($awards !== []) {
                 $pdf->Ln(8);
                 $pdf->SetFont('Arial', 'B', 18);
-                $pdf->Cell($pdf->GetPageWidth() - 20, 9, 'HERZLICHEN GLÜCKWUNSCH!', 0, 2, 'C');
+                $pdf->Cell(
+                    $pdf->GetPageWidth() - 20,
+                    9,
+                    $this->sanitizePdfText('HERZLICHEN GLÜCKWUNSCH!'),
+                    0,
+                    2,
+                    'C'
+                );
                 $pdf->Ln(3);
                 $pdf->SetFont('Arial', 'B', 14);
                 $pdf->Cell($pdf->GetPageWidth() - 20, 7, 'AUSZEICHNUNGEN:', 0, 2, 'C');
@@ -323,7 +330,7 @@ class ResultController
                     $pdf->Cell($pdf->GetPageWidth() - 20, 6, $this->sanitizePdfText($title), 0, 2, 'C');
                     $pdf->SetFont('Arial', 'I', 10);
                     $pdf->SetTextColor(0, 0, 0);
-                    $pdf->MultiCell($imgWidth, 5, $this->sanitizePdfText($a['desc']), 0, 'C');
+                    $pdf->MultiCell($pdf->GetPageWidth() - 20, 5, $this->sanitizePdfText($a['desc']), 0, 'C');
                     $pdf->Ln(1);
                 }
             }
