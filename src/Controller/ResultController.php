@@ -281,7 +281,7 @@ class ResultController
             $congrats = $awardService->buildText($team, $rankings);
             if ($congrats) {
                 $pdf->Ln(8);
-                $pdf->SetFont('Arial', 'B', 12);
+                $pdf->SetFont('Arial', '', 12);
                 $pdf->SetX($imgX);
                 $block = mb_strtoupper($congrats, 'UTF-8');
                 $pdf->MultiCell($imgWidth, 6, $this->sanitizePdfText($block));
