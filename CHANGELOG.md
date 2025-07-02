@@ -19,6 +19,7 @@
 - Add hierarchical navigation
 - Add version history
 - Mention exif extension
+- Update changelog [skip ci]
 
 ### Feat
 
