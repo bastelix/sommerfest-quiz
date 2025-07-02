@@ -399,4 +399,17 @@ body.dark-mode .sticky-actions {
   }
 }
 
+/* Wrapper for thumbnails with rotate button */
+.photo-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.lightbox-rotate-btn {
+  position: absolute;
+  right: 40px;
+  bottom: 15px;
+  z-index: 1100;
+}
+
 

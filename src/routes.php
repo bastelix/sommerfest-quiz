@@ -155,6 +155,7 @@ return function (\Slim\App $app) {
     $app->get('/logo.webp', [$logoController, 'get'])->setArgument('ext', 'webp');
     $app->post('/logo.webp', [$logoController, 'post']);
     $app->post('/photos', [$evidenceController, 'post']);
+    $app->post('/photos/rotate', [$evidenceController, 'rotate']);
     $app->get('/photo/{team}/{file}', [$evidenceController, 'get']);
     $app->get('/summary', $summaryController);
 

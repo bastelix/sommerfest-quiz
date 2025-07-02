@@ -21,6 +21,22 @@ document.addEventListener('DOMContentLoaded', () => {
     return text ? text.replace(/\/-/g, '\u00AD') : '';
   }
 
+  function rotatePhoto(path, img, link) {
+    return fetch('/photos/rotate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path })
+    })
+      .then(r => { if (!r.ok) throw new Error('rotate'); })
+      .then(() => {
+        const t = Date.now();
+        img.src = path + '?t=' + t;
+        if (link) link.href = path + '?t=' + t;
+        return path + '?t=' + t;
+      })
+      .catch(() => {});
+  }
+
   function renderTable(rows) {
     if (!tbody) return;
     tbody.innerHTML = '';
@@ -50,10 +66,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const td = document.createElement('td');
         if (idx === cells.length - 1) {
           if (r.photo) {
+            const wrap = document.createElement('span');
+            wrap.className = 'photo-wrapper';
+
             const a = document.createElement('a');
-            a.className = 'uk-inline';
+            a.className = 'uk-inline rotate-link';
             a.href = r.photo;
-            a.dataset.caption = 'Beweisfoto';
+            a.dataset.caption = `<button class='uk-icon-button lightbox-rotate-btn' type='button' uk-icon='history' data-path='${r.photo}' aria-label='Drehen'></button>`;
             a.dataset.attrs = 'class: uk-inverse-light';
 
             const img = document.createElement('img');
@@ -62,7 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
             img.className = 'proof-thumb';
 
             a.appendChild(img);
-            td.appendChild(a);
+            wrap.appendChild(a);
+            td.appendChild(wrap);
           }
         } else {
           td.textContent = c;
@@ -340,6 +360,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (refreshBtn && typeof UIkit !== 'undefined') {
     UIkit.icon(refreshBtn);
   }
+
+  document.body.addEventListener('click', e => {
+    const btn = e.target.closest('.lightbox-rotate-btn');
+    if (!btn) return;
+    e.preventDefault();
+    const path = btn.dataset.path || '';
+    const img = document.querySelector('.uk-lightbox-items li.uk-active img');
+    if (img && path) {
+      rotatePhoto(path, img).then(newPath => {
+        if (newPath) btn.dataset.path = newPath;
+      });
+    }
+  });
 
   load();
 });

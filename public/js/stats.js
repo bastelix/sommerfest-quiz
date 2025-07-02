@@ -7,6 +7,21 @@ document.addEventListener('DOMContentLoaded', () => {
   let data = [];
   let catalogMap = null;
 
+  function rotatePhoto(path, img, link) {
+    fetch('/photos/rotate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path })
+    })
+      .then(r => { if (!r.ok) throw new Error('rotate'); })
+      .then(() => {
+        const t = Date.now();
+        img.src = path + '?t=' + t;
+        if (link) link.href = path + '?t=' + t;
+      })
+      .catch(() => {});
+  }
+
   function fetchCatalogMap() {
     if (catalogMap) return Promise.resolve(catalogMap);
     return fetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } })
@@ -59,17 +74,23 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       const photoTd = document.createElement('td');
       if (r.photo) {
+        const wrap = document.createElement('span');
+        wrap.className = 'photo-wrapper';
+
         const a = document.createElement('a');
-        a.className = 'uk-inline';
+        a.className = 'uk-inline rotate-link';
         a.href = r.photo;
-        a.dataset.caption = 'Beweisfoto';
+        a.dataset.caption = `<button class='uk-icon-button lightbox-rotate-btn' type='button' uk-icon='history' data-path='${r.photo}' aria-label='Drehen'></button>`;
         a.dataset.attrs = 'class: uk-inverse-light';
+
         const img = document.createElement('img');
         img.src = r.photo;
         img.alt = 'Beweisfoto';
         img.className = 'proof-thumb';
+
         a.appendChild(img);
-        photoTd.appendChild(a);
+        wrap.appendChild(a);
+        photoTd.appendChild(wrap);
       }
       tr.appendChild(photoTd);
       tbody.appendChild(tr);
@@ -119,6 +140,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (refreshBtn && typeof UIkit !== 'undefined') {
     UIkit.icon(refreshBtn);
   }
+
+  document.body.addEventListener('click', e => {
+    const btn = e.target.closest('.lightbox-rotate-btn');
+    if (!btn) return;
+    e.preventDefault();
+    const path = btn.dataset.path || '';
+    const img = document.querySelector('.uk-lightbox-items li.uk-active img');
+    if (img && path) {
+      rotatePhoto(path, img).then(newPath => {
+        if (newPath) btn.dataset.path = newPath;
+      });
+    }
+  });
 
   load();
 });

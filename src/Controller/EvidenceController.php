@@ -124,4 +124,27 @@ class EvidenceController
         $response->getBody()->write((string)file_get_contents($path));
         return $response->withHeader('Content-Type', $type);
     }
+
+    /**
+     * Rotate an existing photo clockwise by 90 degrees.
+     */
+    public function rotate(Request $request, Response $response): Response
+    {
+        $data = $request->getParsedBody() ?? [];
+        $path = isset($data['path']) ? (string)$data['path'] : '';
+        if (!preg_match('#^/photo/([^/]+)/([^/]+)$#', $path, $m)) {
+            return $response->withStatus(400);
+        }
+        $team = preg_replace('/[^A-Za-z0-9_-]/', '_', $m[1]);
+        $file = basename($m[2]);
+        $filePath = $this->dir . '/' . $team . '/' . $file;
+        if (!is_file($filePath)) {
+            return $response->withStatus(404);
+        }
+        $img = Image::make($filePath);
+        $img->rotate(-90)->save($filePath, 70);
+
+        $response->getBody()->write(json_encode(['status' => 'ok']));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
 }
