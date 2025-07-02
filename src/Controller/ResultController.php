@@ -263,6 +263,9 @@ class ResultController
             $pdf->SetLineWidth(0.2);
             $pdf->Line(10, $y, $pdf->GetPageWidth() - 10, $y);
 
+            $imgWidth = 160;
+            $imgX = ($pdf->GetPageWidth() - $imgWidth) / 2;
+
             if ($logoTemp !== null) {
                 unlink($logoTemp);
             }
@@ -277,8 +280,11 @@ class ResultController
 
             $congrats = $awardService->buildText($team, $rankings);
             if ($congrats) {
-                $pdf->SetFont('Arial', '', 12);
-                $pdf->MultiCell($pdf->GetPageWidth() - 20, 6, $this->sanitizePdfText($congrats));
+                $pdf->Ln(8);
+                $pdf->SetFont('Arial', 'B', 12);
+                $pdf->SetX($imgX);
+                $block = mb_strtoupper($congrats, 'UTF-8');
+                $pdf->MultiCell($imgWidth, 6, $this->sanitizePdfText($block));
                 $pdf->Ln(2);
             }
 
@@ -297,8 +303,8 @@ class ResultController
                         $file = $tmp;
                     }
                     $imgY = $pdf->GetY() + 25;
-                    $imgX = ($pdf->GetPageWidth() - 160) / 2;
-                    $pdf->Image($file, $imgX, $imgY, 160, 100);
+                    $imgX = ($pdf->GetPageWidth() - $imgWidth) / 2;
+                    $pdf->Image($file, $imgX, $imgY, $imgWidth, 100);
                     $pdf->SetY($imgY + 100);
                     if ($tmp !== null) {
                         unlink($tmp);
