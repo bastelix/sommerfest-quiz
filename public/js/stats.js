@@ -8,16 +8,17 @@ document.addEventListener('DOMContentLoaded', () => {
   let catalogMap = null;
 
   function rotatePhoto(path, img, link) {
+    const cleanPath = path.replace(/\?.*$/, '');
     fetch('/photos/rotate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ path })
+      body: JSON.stringify({ path: cleanPath })
     })
       .then(r => { if (!r.ok) throw new Error('rotate'); })
       .then(() => {
         const t = Date.now();
-        img.src = path + '?t=' + t;
-        if (link) link.href = path + '?t=' + t;
+        img.src = cleanPath + '?t=' + t;
+        if (link) link.href = cleanPath + '?t=' + t;
       })
       .catch(() => {});
   }
