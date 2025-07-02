@@ -186,6 +186,7 @@ class ResultController
     {
         $teams = $this->teams->getAll();
         $results = $this->service->getAll();
+        $questionResults = $this->service->getQuestionResults();
         $catalogMax = [];
         $scores = [];
         $photos = [];
@@ -201,6 +202,12 @@ class ResultController
                 $scores[$team][$cat] = $correct;
             }
             if (!empty($row['photo'])) {
+                $photos[$team] = true;
+            }
+        }
+        foreach ($questionResults as $qr) {
+            $team = (string)($qr['name'] ?? '');
+            if (!empty($qr['photo'])) {
                 $photos[$team] = true;
             }
         }
