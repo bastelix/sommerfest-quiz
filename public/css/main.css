@@ -405,10 +405,11 @@ body.dark-mode .sticky-actions {
   display: inline-block;
 }
 
-.photo-rotate-btn {
+.lightbox-rotate-btn {
   position: absolute;
-  right: 2px;
-  bottom: 2px;
+  right: 40px;
+  bottom: 15px;
+  z-index: 1100;
 }
 
 

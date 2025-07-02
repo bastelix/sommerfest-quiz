@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function rotatePhoto(path, img, link) {
-    fetch('/photos/rotate', {
+    return fetch('/photos/rotate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path })
@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const t = Date.now();
         img.src = path + '?t=' + t;
         if (link) link.href = path + '?t=' + t;
+        return path + '?t=' + t;
       })
       .catch(() => {});
   }
@@ -69,9 +70,9 @@ document.addEventListener('DOMContentLoaded', () => {
             wrap.className = 'photo-wrapper';
 
             const a = document.createElement('a');
-            a.className = 'uk-inline';
+            a.className = 'uk-inline rotate-link';
             a.href = r.photo;
-            a.dataset.caption = 'Beweisfoto';
+            a.dataset.caption = `<button class='uk-icon-button lightbox-rotate-btn' type='button' uk-icon='history' data-path='${r.photo}' aria-label='Drehen'></button>`;
             a.dataset.attrs = 'class: uk-inverse-light';
 
             const img = document.createElement('img');
@@ -90,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             a.appendChild(img);
             wrap.appendChild(a);
-            wrap.appendChild(btn);
             td.appendChild(wrap);
           }
         } else {
@@ -384,6 +384,18 @@ document.addEventListener('DOMContentLoaded', () => {
     UIkit.icon(refreshBtn);
   }
 
-  initRotateButtons();
+  document.body.addEventListener('click', e => {
+    const btn = e.target.closest('.lightbox-rotate-btn');
+    if (!btn) return;
+    e.preventDefault();
+    const path = btn.dataset.path || '';
+    const img = document.querySelector('.uk-lightbox-items li.uk-active img');
+    if (img && path) {
+      rotatePhoto(path, img).then(newPath => {
+        if (newPath) btn.dataset.path = newPath;
+      });
+    }
+  });
+
   load();
 });

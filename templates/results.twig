@@ -36,10 +36,9 @@
           <td>
             {% if r.photo is defined and r.photo %}
             <span class="photo-wrapper">
-              <a class="uk-inline" href="{{ r.photo }}" data-caption="Beweisfoto" data-attrs="class: uk-inverse-light">
+              <a class="uk-inline rotate-link" href="{{ r.photo }}" data-caption='<button class="uk-icon-button lightbox-rotate-btn" type="button" uk-icon="history" data-path="{{ r.photo }}" aria-label="Drehen"></button>' data-attrs="class: uk-inverse-light">
                 <img src="{{ r.photo }}" alt="Beweisfoto" class="proof-thumb">
               </a>
-              <button class="uk-icon-button photo-rotate-btn" type="button" uk-icon="history" data-path="{{ r.photo }}" aria-label="Drehen"></button>
             </span>
             {% endif %}
           </td>
