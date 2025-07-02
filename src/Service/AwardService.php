@@ -26,12 +26,14 @@ class AwardService
         $puzzleTimes = [];
         $catalogTimes = [];
         $scores = [];
+        $totals = [];
 
         foreach ($results as $row) {
             $team = (string)($row['name'] ?? '');
             $catalog = (string)($row['catalog'] ?? '');
             $time = (int)($row['time'] ?? 0);
             $correct = (int)($row['correct'] ?? 0);
+            $total = (int)($row['total'] ?? 0);
             $puzzle = isset($row['puzzleTime']) ? (int)$row['puzzleTime'] : null;
 
             $catalogs[$catalog] = true;
@@ -46,8 +48,10 @@ class AwardService
                 $catalogTimes[$team][$catalog] = $time;
             }
 
-            if (!isset($scores[$team][$catalog]) || $correct > $scores[$team][$catalog]) {
+            $ratio = $total > 0 ? $correct / $total : 0.0;
+            if (!isset($scores[$team][$catalog]) || $ratio > ($totals[$team][$catalog]['ratio'] ?? -1)) {
                 $scores[$team][$catalog] = $correct;
+                $totals[$team][$catalog] = ['total' => $total, 'ratio' => $ratio];
             }
         }
 
@@ -71,10 +75,12 @@ class AwardService
 
         $scoreList = [];
         foreach ($scores as $team => $map) {
-            $total = array_sum($map);
-            $scoreList[] = ['team' => $team, 'score' => $total];
+            $correctSum = array_sum($map);
+            $totalSum = array_sum(array_column($totals[$team], 'total'));
+            $ratio = $totalSum > 0 ? $correctSum / $totalSum : 0.0;
+            $scoreList[] = ['team' => $team, 'ratio' => $ratio];
         }
-        usort($scoreList, fn($a, $b) => $b['score'] <=> $a['score']);
+        usort($scoreList, fn($a, $b) => $b['ratio'] <=> $a['ratio']);
         $pointsRanks = array_column(array_slice($scoreList, 0, 3), 'team');
 
         return [
@@ -104,7 +110,7 @@ class AwardService
             ],
             'points' => [
                 'title' => 'Highscore-Champions',
-                'desc' => 'Team mit den meisten Lösungen aller Fragen',
+                'desc' => 'Team mit der besten Quote richtiger Antworten',
             ],
             'puzzle' => [
                 'title' => 'Rätselwort-Bestzeit',
