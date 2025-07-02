@@ -448,6 +448,13 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
             onDone();
           }
         });
+        input.addEventListener('keydown', (ev) => {
+          if(ev.key === 'Enter'){
+            ev.preventDefault();
+            container.querySelector('#manual-team-submit').click();
+          }
+        });
+        input.focus();
       }
       const trapFocus = (e) => {
         if(e.key === 'Tab'){
