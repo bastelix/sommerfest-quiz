@@ -272,7 +272,11 @@ document.addEventListener('DOMContentLoaded', () => {
               setTimeout(() => { feedback.textContent = ''; }, 3000);
             }
             if(data.success){
-              feedback.textContent = 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
+              const cfg = window.quizConfig || {};
+              const msg = (cfg.puzzleFeedback && cfg.puzzleFeedback.trim())
+                ? cfg.puzzleFeedback
+                : 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
+              feedback.textContent = msg;
               feedback.className = 'uk-margin-top uk-text-center uk-text-success';
               sessionStorage.setItem('puzzleSolved', 'true');
               sessionStorage.setItem('puzzleTime', String(ts));
