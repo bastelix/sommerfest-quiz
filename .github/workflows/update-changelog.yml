@@ -1,0 +1,48 @@
+name: Update Changelog
+
+on:
+  push:
+    branches: [ main ]
+  release:
+    types: [released]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Optional: Install typos, falls du es wirklich nutzen willst
+      # - name: Install typos (optional)
+      #   run: |
+      #     curl -Ls https://github.com/crate-ci/typos/releases/download/v1.16.19/typos-v1.16.19-x86_64-unknown-linux-musl.tar.gz | tar xz
+      #     sudo mv typos /usr/local/bin/typos
+
+      - name: Install git-cliff
+        run: |
+          wget https://github.com/orhun/git-cliff/releases/download/v2.7.0/git-cliff-2.7.0-x86_64-unknown-linux-gnu.tar.gz
+          tar -xzvf git-cliff-2.7.0-x86_64-unknown-linux-gnu.tar.gz
+          sudo mv git-cliff-2.7.0/git-cliff /usr/local/bin/
+      - name: Generate changelog
+        run: git-cliff --config .gitcliff.toml -o CHANGELOG.md
+
+      - name: Commit and push
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          if git diff --staged --quiet; then
+            echo "Changelog unchanged" && exit 0
+          fi
+          git commit -m "docs: update changelog [skip ci]"
+          git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY}.git HEAD:main
