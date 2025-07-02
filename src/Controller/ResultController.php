@@ -351,8 +351,25 @@ class ResultController
                     }
                     $imgY = $pdf->GetY() + 25;
                     $imgX = ($pdf->GetPageWidth() - $imgWidth) / 2;
-                    $pdf->Image($file, $imgX, $imgY, $imgWidth, 100);
-                    $pdf->SetY($imgY + 100);
+
+                    $imgSize = @getimagesize($file);
+                    $imgHeight = 100.0;
+                    if ($imgSize !== false && $imgSize[0] > 0) {
+                        $imgHeight = $imgWidth * ($imgSize[1] / $imgSize[0]);
+                    }
+
+                    $marginBottom = 5.0;
+                    $footerY = $pdf->GetPageHeight() - 10;
+                    $availableHeight = $footerY - $imgY - $marginBottom;
+                    if ($imgHeight > $availableHeight) {
+                        $scale = $availableHeight / $imgHeight;
+                        $imgHeight = $availableHeight;
+                        $imgWidth = $imgWidth * $scale;
+                        $imgX = ($pdf->GetPageWidth() - $imgWidth) / 2;
+                    }
+
+                    $pdf->Image($file, $imgX, $imgY, $imgWidth, $imgHeight);
+                    $pdf->SetY($imgY + $imgHeight + $marginBottom);
                     if ($tmp !== null) {
                         unlink($tmp);
                     }
