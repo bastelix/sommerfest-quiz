@@ -19,10 +19,9 @@ class AwardServiceTest extends TestCase
         ];
 
         $text = $svc->buildText('Team', $rankings);
-        $this->assertSame(
-            'In der Kategorie Rätselwort-Bestzeit habt ihr einen tollen zweiten Platz erreicht.',
-            $text
-        );
+        $expected = "Herzlichen Glückwunsch! Ihr habt folgende Auszeichnungen erreicht:\n"
+            . "• Rätselwort-Bestzeit: schnellstes Lösen des Rätselworts";
+        $this->assertSame($expected, $text);
     }
 
     public function testSecondPlaceAfterFirstMultipleCategories(): void
@@ -35,10 +34,10 @@ class AwardServiceTest extends TestCase
         ];
 
         $text = $svc->buildText('Team', $rankings);
-        $expected = 'Herzlichen Glückwunsch! Ihr seid Katalogmeister – Team, '
-            . 'das alle Kataloge am schnellsten durchgespielt hat. '
-            . 'Auch in den Kategorien Rätselwort-Bestzeit und Highscore-Champions '
-            . 'habt ihr einen tollen zweiten Platz erreicht.';
+        $expected = "Herzlichen Glückwunsch! Ihr habt folgende Auszeichnungen erreicht:\n"
+            . "• Rätselwort-Bestzeit: schnellstes Lösen des Rätselworts\n"
+            . "• Katalogmeister: Team, das alle Kataloge am schnellsten durchgespielt hat\n"
+            . "• Highscore-Champions: Team mit den meisten Lösungen aller Fragen";
         $this->assertSame($expected, $text);
     }
 
@@ -52,7 +51,9 @@ class AwardServiceTest extends TestCase
         ];
 
         $text = $svc->buildText('Team', $rankings);
-        $this->assertSame('In Rätselwort-Bestzeit wart ihr unter den Top 3!', $text);
+        $expected = "Herzlichen Glückwunsch! Ihr habt folgende Auszeichnungen erreicht:\n"
+            . "• Rätselwort-Bestzeit: schnellstes Lösen des Rätselworts";
+        $this->assertSame($expected, $text);
     }
 
     public function testFullCombination(): void
@@ -64,10 +65,10 @@ class AwardServiceTest extends TestCase
             'points' => ['A', 'Team'],
         ];
 
-        $expected = 'Herzlichen Glückwunsch! Ihr seid Katalogmeister – Team, '
-            . 'das alle Kataloge am schnellsten durchgespielt hat. '
-            . 'Auch in der Kategorie Highscore-Champions habt ihr einen tollen zweiten Platz erreicht. '
-            . 'Und in Rätselwort-Bestzeit wart ihr unter den Top 3!';
+        $expected = "Herzlichen Glückwunsch! Ihr habt folgende Auszeichnungen erreicht:\n"
+            . "• Rätselwort-Bestzeit: schnellstes Lösen des Rätselworts\n"
+            . "• Katalogmeister: Team, das alle Kataloge am schnellsten durchgespielt hat\n"
+            . "• Highscore-Champions: Team mit den meisten Lösungen aller Fragen";
         $text = $svc->buildText('Team', $rankings);
         $this->assertSame($expected, $text);
     }
