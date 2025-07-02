@@ -125,6 +125,7 @@ return function (\Slim\App $app) {
     $app->get('/results.json', [$resultController, 'get']);
     $app->get('/question-results.json', [$resultController, 'getQuestions']);
     $app->get('/results/download', [$resultController, 'download']);
+    $app->get('/results.pdf', [$resultController, 'pdf']);
     $app->post('/results', [$resultController, 'post']);
     $app->delete('/results', [$resultController, 'delete']);
     $app->get('/config.json', [$configController, 'get']);

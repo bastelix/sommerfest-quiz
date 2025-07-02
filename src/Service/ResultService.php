@@ -37,7 +37,7 @@ class ResultService
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as &$row) {
             foreach (["options","answers","terms","items"] as $k) {
-                if (isset($row[$k]) && $row[$k] !== null) {
+                if (isset($row[$k])) {
                     $row[$k] = json_decode((string)$row[$k], true);
                 } else {
                     unset($row[$k]);
@@ -65,7 +65,7 @@ class ResultService
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as &$row) {
             foreach (["options", "answers", "terms", "items"] as $k) {
-                if (isset($row[$k]) && $row[$k] !== null) {
+                if (isset($row[$k])) {
                     $row[$k] = json_decode((string) $row[$k], true);
                 } else {
                     unset($row[$k]);

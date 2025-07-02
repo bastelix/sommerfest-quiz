@@ -8,6 +8,8 @@ use App\Service\ResultService;
 use App\Service\ConfigService;
 use App\Service\CatalogService;
 use App\Infrastructure\Database;
+use FPDF;
+use Intervention\Image\ImageManagerStatic as Image;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -175,6 +177,84 @@ class ResultController
     }
 
     /**
+     * Render a PDF summary for all teams.
+     */
+    public function pdf(Request $request, Response $response): Response
+    {
+        $results = $this->service->getAll();
+        $catalogMax = [];
+        $scores = [];
+        foreach ($results as $row) {
+            $team = (string)($row['name'] ?? '');
+            $cat = (string)($row['catalog'] ?? '');
+            $correct = (int)($row['correct'] ?? 0);
+            $total = (int)($row['total'] ?? 0);
+            if (!isset($catalogMax[$cat]) || $total > $catalogMax[$cat]) {
+                $catalogMax[$cat] = $total;
+            }
+            if (!isset($scores[$team][$cat]) || $correct > $scores[$team][$cat]) {
+                $scores[$team][$cat] = $correct;
+            }
+        }
+        $maxPoints = array_sum($catalogMax);
+
+        $cfg = $this->config->getConfig();
+        $title = (string)($cfg['header'] ?? '');
+        $subtitle = (string)($cfg['subheader'] ?? '');
+        $logoPath = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');
+
+        $pdf = new FPDF();
+
+        foreach ($scores as $team => $cats) {
+            $points = array_sum($cats);
+
+            $pdf->AddPage();
+
+            $logoFile = $logoPath;
+            $logoTemp = null;
+            $qrSize = 20.0;
+            $headerHeight = max(25.0, $qrSize + 5.0);
+
+            if (is_readable($logoFile)) {
+                if (str_ends_with(strtolower($logoFile), '.webp')) {
+                    $img = Image::make($logoFile);
+                    $logoTemp = tempnam(sys_get_temp_dir(), 'logo') . '.png';
+                    $img->encode('png')->save($logoTemp, 80);
+                    $logoFile = $logoTemp;
+                }
+                $pdf->Image($logoFile, 10, 10, $qrSize, $qrSize, 'PNG');
+            }
+
+            $pdf->SetXY(10, 10);
+            $pdf->SetFont('Arial', 'B', 16);
+            $pdf->Cell($pdf->GetPageWidth() - 20, 8, $title, 0, 2, 'C');
+            $pdf->SetFont('Arial', '', 12);
+            $pdf->Cell($pdf->GetPageWidth() - 20, 6, $subtitle, 0, 2, 'C');
+
+            $y = 10 + $headerHeight - 2;
+            $pdf->SetLineWidth(0.2);
+            $pdf->Line(10, $y, $pdf->GetPageWidth() - 10, $y);
+
+            if ($logoTemp !== null) {
+                unlink($logoTemp);
+            }
+
+            $pdf->SetXY(10, $y + 15);
+            $pdf->SetFont('Arial', 'B', 20);
+            $pdf->Cell($pdf->GetPageWidth() - 20, 10, $this->sanitizePdfText($team), 0, 2, 'C');
+            $pdf->SetFont('Arial', '', 14);
+            $text = sprintf('Punkte: %d von %d', $points, $maxPoints);
+            $pdf->Cell($pdf->GetPageWidth() - 20, 8, $text, 0, 2, 'C');
+        }
+
+        $output = $pdf->Output('S');
+        $response->getBody()->write($output);
+        return $response
+            ->withHeader('Content-Type', 'application/pdf')
+            ->withHeader('Content-Disposition', 'inline; filename="results.pdf"');
+    }
+
+    /**
      * Normalize a single result entry for CSV export.
      *
      * @param array<string,mixed> $r
@@ -212,5 +292,14 @@ class ResultController
             $lines[] = implode(';', $cells);
         }
         return implode("\n", $lines) . "\n";
+    }
+
+    private function sanitizePdfText(string $text): string
+    {
+        $converted = @iconv('UTF-8', 'CP1252//TRANSLIT', $text);
+        if ($converted === false) {
+            return preg_replace('/[^\x00-\x7F]/', '?', $text);
+        }
+        return $converted;
     }
 }
