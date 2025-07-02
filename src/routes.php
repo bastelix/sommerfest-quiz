@@ -70,6 +70,7 @@ return function (\Slim\App $app) {
     $resultController = new ResultController(
         $resultService,
         $configService,
+        $teamService,
         __DIR__ . '/../data/photos'
     );
     $teamController = new TeamController($teamService);
