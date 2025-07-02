@@ -126,20 +126,29 @@ class AwardService
         }
 
         $sentences = [];
+        $hasPrevious = false;
+
         if (!empty($placeMap[1])) {
             $parts = [];
             foreach ($placeMap[1] as $k) {
                 $parts[] = sprintf('%s – %s', $info[$k]['title'], $info[$k]['desc']);
             }
             $sentences[] = 'Herzlichen Glückwunsch! Ihr seid ' . $this->join($parts) . '.';
+            $hasPrevious = true;
         }
+
         if (!empty($placeMap[2])) {
             $titles = array_map(fn($k) => $info[$k]['title'], $placeMap[2]);
-            $sentences[] = 'Auch in der Kategorie ' . $this->join($titles) . ' habt ihr einen tollen zweiten Platz erreicht.';
+            $intro = $hasPrevious ? 'Auch in ' : 'In ';
+            $category = count($titles) === 1 ? 'der Kategorie ' : 'den Kategorien ';
+            $sentences[] = $intro . $category . $this->join($titles) . ' habt ihr einen tollen zweiten Platz erreicht.';
+            $hasPrevious = true;
         }
+
         if (!empty($placeMap[3])) {
             $titles = array_map(fn($k) => $info[$k]['title'], $placeMap[3]);
-            $sentences[] = 'Und in ' . $this->join($titles) . ' wart ihr unter den Top 3!';
+            $intro = $hasPrevious ? 'Und in ' : 'In ';
+            $sentences[] = $intro . $this->join($titles) . ' wart ihr unter den Top 3!';
         }
 
         return implode(' ', $sentences);
