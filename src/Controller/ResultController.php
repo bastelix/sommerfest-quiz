@@ -8,6 +8,7 @@ use App\Service\ResultService;
 use App\Service\ConfigService;
 use App\Service\CatalogService;
 use App\Service\TeamService;
+use App\Service\AwardService;
 use App\Infrastructure\Database;
 use FPDF;
 use Intervention\Image\ImageManagerStatic as Image;
@@ -216,6 +217,9 @@ class ResultController
         }
         $maxPoints = array_sum($catalogMax);
 
+        $awardService = new AwardService();
+        $rankings = $awardService->computeRankings($results, count($catalogMax));
+
         $cfg = $this->config->getConfig();
         $title = (string)($cfg['header'] ?? '');
         $subtitle = (string)($cfg['subheader'] ?? '');
@@ -265,6 +269,12 @@ class ResultController
             $text = sprintf('Punkte: %d von %d', $points, $maxPoints);
             $pdf->Cell($pdf->GetPageWidth() - 20, 8, $text, 0, 2, 'C');
 
+            $congrats = $awardService->buildText($team, $rankings);
+            if ($congrats) {
+                $pdf->SetFont('Arial', '', 12);
+                $pdf->MultiCell($pdf->GetPageWidth() - 20, 6, $this->sanitizePdfText($congrats));
+                $pdf->Ln(2);
+            }
 
             if (!empty($photos[$team])) {
                 $rel = (string) $photos[$team][0];
