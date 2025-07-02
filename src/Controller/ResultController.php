@@ -292,6 +292,26 @@ class ResultController
                 }
             }
 
+            if (!empty($photos[$team])) {
+                $file = $this->photoDir . '/' . ltrim((string) $photos[$team][0], '/');
+                if (is_readable($file)) {
+                    $tmp = null;
+                    if (str_ends_with(strtolower($file), '.webp')) {
+                        $img = Image::make($file);
+                        $tmp = tempnam(sys_get_temp_dir(), 'photo') . '.png';
+                        $img->encode('png')->save($tmp, 80);
+                        $file = $tmp;
+                    }
+                    $imgY = $pdf->GetY() + 25;
+                    $imgX = ($pdf->GetPageWidth() - 160) / 2;
+                    $pdf->Image($file, $imgX, $imgY, 160, 100);
+                    $pdf->SetY($imgY + 100);
+                    if ($tmp !== null) {
+                        unlink($tmp);
+                    }
+                }
+            }
+
             $footerY = $pdf->GetPageHeight() - 10;
             $pdf->SetLineWidth(0.2);
             $pdf->Line(10, $footerY, $pdf->GetPageWidth() - 10, $footerY);
