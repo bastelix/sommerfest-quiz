@@ -24,16 +24,24 @@ class ResultController
     private ResultService $service;
     private ConfigService $config;
     private TeamService $teams;
+    private CatalogService $catalogs;
     private string $photoDir;
 
     /**
      * Inject dependencies and define photo directory.
      */
-    public function __construct(ResultService $service, ConfigService $config, TeamService $teams, string $photoDir)
+    public function __construct(
+        ResultService $service,
+        ConfigService $config,
+        TeamService $teams,
+        CatalogService $catalogs,
+        string $photoDir
+    )
     {
         $this->service = $service;
         $this->config = $config;
         $this->teams = $teams;
+        $this->catalogs = $catalogs;
         $this->photoDir = rtrim($photoDir, '/');
     }
 
@@ -221,8 +229,15 @@ class ResultController
         }
         $maxPoints = array_sum($catalogMax);
 
+        $catalogCount = 0;
+        $catsJson = $this->catalogs->read('catalogs.json');
+        if ($catsJson !== null) {
+            $list = json_decode($catsJson, true) ?: [];
+            $catalogCount = count($list);
+        }
+
         $awardService = new AwardService();
-        $rankings = $awardService->computeRankings($results, count($catalogMax));
+        $rankings = $awardService->computeRankings($results, $catalogCount);
 
         $cfg = $this->config->getConfig();
         $title = (string)($cfg['header'] ?? '');
