@@ -21,6 +21,7 @@ class ResultControllerTest extends TestCase
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE config(displayErrorDetails INTEGER, QRUser INTEGER, logoPath TEXT, pageTitle TEXT, header TEXT, subheader TEXT, backgroundColor TEXT, buttonColor TEXT, CheckAnswerButton TEXT, adminUser TEXT, adminPass TEXT, QRRestrict INTEGER, competitionMode INTEGER, teamResults INTEGER, photoUpload INTEGER, puzzleWordEnabled INTEGER, puzzleWord TEXT, puzzleFeedback TEXT, inviteText TEXT);');
+        $pdo->exec("INSERT INTO config(header) VALUES('Event');");
         $pdo->exec('CREATE TABLE results(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, attempt INTEGER NOT NULL, correct INTEGER NOT NULL, total INTEGER NOT NULL, time INTEGER NOT NULL, puzzleTime INTEGER, photo TEXT);');
         $pdo->exec("INSERT INTO results(name,catalog,attempt,correct,total,time) VALUES('Team1','cat',1,3,5,0)");
         $pdo->exec('CREATE TABLE question_results(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, question_id INTEGER NOT NULL, attempt INTEGER NOT NULL, correct INTEGER NOT NULL, answer_text TEXT, photo TEXT, consent BOOLEAN);');
@@ -41,6 +42,7 @@ class ResultControllerTest extends TestCase
         $this->assertSame('application/pdf', $response->getHeaderLine('Content-Type'));
         $pdf = (string)$response->getBody();
         $this->assertNotEmpty($pdf);
+        $this->assertStringContainsString('Event', $pdf);
         $this->assertStringContainsString('Team1', $pdf);
         $this->assertStringContainsString('Punkte: 3 von 5', $pdf);
         $this->assertGreaterThan(
