@@ -11,6 +11,7 @@ use App\Service\TeamService;
 use App\Service\AwardService;
 use App\Infrastructure\Database;
 use FPDF;
+use App\Service\Pdf;
 use Intervention\Image\ImageManagerStatic as Image;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -244,7 +245,7 @@ class ResultController
         $subtitle = (string)($cfg['subheader'] ?? '');
         $logoPath = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');
 
-        $pdf = new FPDF();
+        $pdf = new Pdf($title, $subtitle, $logoPath);
 
         foreach ($teams as $team) {
             $cats = $scores[$team] ?? [];
@@ -253,39 +254,10 @@ class ResultController
 
             $pdf->AddPage();
 
-            $logoFile = $logoPath;
-            $logoTemp = null;
-            $qrSize = 20.0;
-            $headerHeight = max(25.0, $qrSize + 5.0);
-
-            if (is_readable($logoFile)) {
-                if (str_ends_with(strtolower($logoFile), '.webp')) {
-                    $img = Image::make($logoFile);
-                    $logoTemp = tempnam(sys_get_temp_dir(), 'logo') . '.png';
-                    $img->encode('png')->save($logoTemp, 80);
-                    $logoFile = $logoTemp;
-                }
-                $pdf->Image($logoFile, 10, 10, $qrSize, $qrSize, 'PNG');
-            }
-
-            $pdf->SetXY(10, 10);
-            $pdf->SetFont('Arial', 'B', 16);
-            $pdf->Cell($pdf->GetPageWidth() - 20, 8, $title, 0, 2, 'C');
-            $pdf->SetFont('Arial', '', 12);
-            $pdf->Cell($pdf->GetPageWidth() - 20, 6, $subtitle, 0, 2, 'C');
-
-            $y = 10 + $headerHeight - 2;
-            $pdf->SetLineWidth(0.2);
-            $pdf->Line(10, $y, $pdf->GetPageWidth() - 10, $y);
-
             $imgWidth = 160;
             $imgX = ($pdf->GetPageWidth() - $imgWidth) / 2;
 
-            if ($logoTemp !== null) {
-                unlink($logoTemp);
-            }
-
-            $pdf->SetXY(10, $y + 15);
+            $pdf->SetXY(10, $pdf->getBodyStartY() + 10);
             $pdf->SetFont('Arial', 'B', 24);
             $pdf->Cell($pdf->GetPageWidth() - 20, 10, $this->sanitizePdfText($team), 0, 2, 'C');
             $pdf->SetFont('Arial', '', 14);

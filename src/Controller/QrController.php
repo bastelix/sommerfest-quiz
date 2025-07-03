@@ -17,6 +17,7 @@ use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\Label\Font\NotoSans;
 use Endroid\QrCode\RoundBlockSizeMode;
 use FPDF;
+use App\Service\Pdf;
 use Intervention\Image\ImageManagerStatic as Image;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -170,53 +171,24 @@ class QrController
             file_put_contents($tmp, $png);
         }
 
-        $pdf = new FPDF();
-        $pdf->AddPage();
-
         $cfg = $this->config->getConfig();
         $title = (string)($cfg['header'] ?? '');
         $subtitle = (string)($cfg['subheader'] ?? '');
         $logoFile = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');
-        $logoTemp = null;
-        // Height of the header area in which logo, titles and QR code are placed
+
+        $pdf = new Pdf($title, $subtitle, $logoFile);
+        $pdf->AddPage();
+
         $qrSize = 20.0; // mm
-        // Reduce header height by 5 mm
-        $headerHeight = max(25.0, $qrSize + 5.0); // ensure QR code fits
-
-        if (is_readable($logoFile)) {
-            if (str_ends_with(strtolower($logoFile), '.webp')) {
-                $img = Image::make($logoFile);
-                $logoTemp = tempnam(sys_get_temp_dir(), 'logo') . '.png';
-                $img->encode('png')->save($logoTemp, 80);
-                $logoFile = $logoTemp;
-            }
-            // Display the logo with the same dimensions as the QR code
-            $pdf->Image($logoFile, 10, 10, $qrSize, $qrSize, 'PNG');
-        }
-
-        $pdf->SetXY(10, 10);
-        $pdf->SetFont('Arial', 'B', 16);
-        $pdf->Cell($pdf->GetPageWidth() - 20, 8, $title, 0, 2, 'C');
-        $pdf->SetFont('Arial', '', 12);
-        $pdf->Cell($pdf->GetPageWidth() - 20, 6, $subtitle, 0, 2, 'C');
-
-        $y = 10 + $headerHeight - 2;
-        $pdf->SetLineWidth(0.2);
-        $pdf->Line(10, $y, $pdf->GetPageWidth() - 10, $y);
 
         if ($tmp !== false) {
-            // Place the QR code in the upper right corner of the header
             $qrX = $pdf->GetPageWidth() - 10 - $qrSize;
             $qrY = 10.0; // top margin
             $pdf->Image($tmp, $qrX, $qrY, $qrSize, $qrSize, 'PNG');
             unlink($tmp);
         }
 
-        if ($logoTemp !== null) {
-            unlink($logoTemp);
-        }
-
-        $pdf->SetXY(10, $y + 5);
+        $pdf->SetXY(10, $pdf->getBodyStartY());
         $invite = (string)($cfg['inviteText'] ?? '');
         if ($invite !== '') {
             $team = (string)($params['t'] ?? '');
@@ -259,7 +231,7 @@ class QrController
         $subtitle = (string)($cfg['subheader'] ?? '');
         $logoPath = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');
 
-        $pdf = new FPDF();
+        $pdf = new Pdf($title, $subtitle, $logoPath);
 
         foreach ($teams as $team) {
             $builder = Builder::create()
@@ -283,30 +255,7 @@ class QrController
 
             $pdf->AddPage();
 
-            $logoFile = $logoPath;
-            $logoTemp = null;
             $qrSize = 20.0;
-            $headerHeight = max(25.0, $qrSize + 5.0);
-
-            if (is_readable($logoFile)) {
-                if (str_ends_with(strtolower($logoFile), '.webp')) {
-                    $img = Image::make($logoFile);
-                    $logoTemp = tempnam(sys_get_temp_dir(), 'logo') . '.png';
-                    $img->encode('png')->save($logoTemp, 80);
-                    $logoFile = $logoTemp;
-                }
-                $pdf->Image($logoFile, 10, 10, $qrSize, $qrSize, 'PNG');
-            }
-
-            $pdf->SetXY(10, 10);
-            $pdf->SetFont('Arial', 'B', 16);
-            $pdf->Cell($pdf->GetPageWidth() - 20, 8, $title, 0, 2, 'C');
-            $pdf->SetFont('Arial', '', 12);
-            $pdf->Cell($pdf->GetPageWidth() - 20, 6, $subtitle, 0, 2, 'C');
-
-            $y = 10 + $headerHeight - 2;
-            $pdf->SetLineWidth(0.2);
-            $pdf->Line(10, $y, $pdf->GetPageWidth() - 10, $y);
 
             if ($tmp !== false) {
                 $qrX = $pdf->GetPageWidth() - 10 - $qrSize;
@@ -315,11 +264,7 @@ class QrController
                 unlink($tmp);
             }
 
-            if ($logoTemp !== null) {
-                unlink($logoTemp);
-            }
-
-            $pdf->SetXY(10, $y + 5);
+            $pdf->SetXY(10, $pdf->getBodyStartY());
             $invite = (string)($cfg['inviteText'] ?? '');
             if ($invite !== '') {
                 $invite = str_ireplace('[team]', $team ?: 'Team', $invite);
