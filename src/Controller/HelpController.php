@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
 use App\Service\ConfigService;
+use App\Service\EventService;
 use App\Infrastructure\Database;
 
 /**
@@ -23,6 +24,7 @@ class HelpController
         $view = Twig::fromRequest($request);
         $pdo = Database::connectFromEnv();
         $cfg = (new ConfigService($pdo))->getConfig();
+        $event = (new EventService($pdo))->getFirst();
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
@@ -34,6 +36,9 @@ class HelpController
             $cfg['inviteText'] = str_ireplace('[team]', 'Team´s', (string)$cfg['inviteText']);
         }
 
-        return $view->render($response, 'help.twig', ['config' => $cfg]);
+        return $view->render($response, 'help.twig', [
+            'config' => $cfg,
+            'event' => $event,
+        ]);
     }
 }

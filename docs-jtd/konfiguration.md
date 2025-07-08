@@ -16,8 +16,6 @@ Alle wesentlichen Optionen stehen in `data/config.json` und werden beim ersten I
   "QRUser": true,
   "logoPath": "/logo.png",
   "pageTitle": "Modernes Quiz mit UIkit",
-  "header": "Sommerfest 2025",
-  "subheader": "Willkommen beim Veranstaltungsquiz",
   "backgroundColor": "#ffffff",
   "buttonColor": "#1e87f0",
   "CheckAnswerButton": "no",
