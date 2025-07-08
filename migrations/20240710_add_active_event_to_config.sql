@@ -1,0 +1,1 @@
+ALTER TABLE config ADD COLUMN IF NOT EXISTS activeEventUid TEXT REFERENCES events(uid);

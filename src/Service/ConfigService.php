@@ -75,7 +75,7 @@ class ConfigService
      */
     public function saveConfig(array $data): void
     {
-        $keys = ['displayErrorDetails','QRUser','logoPath','pageTitle','backgroundColor','buttonColor','CheckAnswerButton','adminUser','adminPass','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback','inviteText'];
+        $keys = ['displayErrorDetails','QRUser','logoPath','pageTitle','backgroundColor','buttonColor','CheckAnswerButton','adminUser','adminPass','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback','inviteText','activeEventUid'];
         $filtered = array_intersect_key($data, array_flip($keys));
         $this->pdo->beginTransaction();
         $this->pdo->exec('DELETE FROM config');
@@ -97,6 +97,16 @@ class ConfigService
     }
 
     /**
+     * Update the UID of the currently active event.
+     */
+    public function setActiveEventUid(string $uid): void
+    {
+        $cfg = $this->getConfig();
+        $cfg['activeEventUid'] = $uid;
+        $this->saveConfig($cfg);
+    }
+
+    /**
      * Normalize database column names to expected camelCase keys.
      *
      * @param array<string,mixed> $row
@@ -104,7 +114,7 @@ class ConfigService
      */
     private function normalizeKeys(array $row): array
     {
-        $keys = ['displayErrorDetails','QRUser','logoPath','pageTitle','backgroundColor','buttonColor','CheckAnswerButton','adminUser','adminPass','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback','inviteText'];
+        $keys = ['displayErrorDetails','QRUser','logoPath','pageTitle','backgroundColor','buttonColor','CheckAnswerButton','adminUser','adminPass','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback','inviteText','activeEventUid'];
         $map = [];
         foreach ($keys as $k) {
             $map[strtolower($k)] = $k;

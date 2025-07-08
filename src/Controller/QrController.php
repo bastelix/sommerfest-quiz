@@ -175,7 +175,14 @@ class QrController
         }
 
         $cfg = $this->config->getConfig();
-        $ev = $this->events->getFirst() ?? ['name' => '', 'description' => ''];
+        $uid = (string)($cfg['activeEventUid'] ?? '');
+        $ev = null;
+        if ($uid !== '') {
+            $ev = $this->events->getByUid($uid);
+        }
+        if ($ev === null) {
+            $ev = $this->events->getFirst() ?? ['name' => '', 'description' => ''];
+        }
         $title = (string)$ev['name'];
         $subtitle = (string)$ev['description'];
         $logoFile = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');
@@ -231,7 +238,14 @@ class QrController
         $teams = $this->teams->getAll();
 
         $cfg = $this->config->getConfig();
-        $ev = $this->events->getFirst() ?? ['name' => '', 'description' => ''];
+        $uid = (string)($cfg['activeEventUid'] ?? '');
+        $ev = null;
+        if ($uid !== '') {
+            $ev = $this->events->getByUid($uid);
+        }
+        if ($ev === null) {
+            $ev = $this->events->getFirst() ?? ['name' => '', 'description' => ''];
+        }
         $title = (string)$ev['name'];
         $subtitle = (string)$ev['description'];
         $logoPath = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');

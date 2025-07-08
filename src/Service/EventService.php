@@ -62,4 +62,15 @@ class EventService
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row !== false ? $row : null;
     }
+
+    /**
+     * Retrieve a specific event by its UID.
+     */
+    public function getByUid(string $uid): ?array
+    {
+        $stmt = $this->pdo->prepare('SELECT uid,name,date,description FROM events WHERE uid = ?');
+        $stmt->execute([$uid]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row !== false ? $row : null;
+    }
 }

@@ -27,7 +27,15 @@ class AdminController
         $view = Twig::fromRequest($request);
         $pdo = Database::connectFromEnv();
         $cfg = (new ConfigService($pdo))->getConfig();
-        $event = (new EventService($pdo))->getFirst();
+        $eventSvc = new EventService($pdo);
+        $event = null;
+        $uid = (string)($cfg['activeEventUid'] ?? '');
+        if ($uid !== '') {
+            $event = $eventSvc->getByUid($uid);
+        }
+        if ($event === null) {
+            $event = $eventSvc->getFirst();
+        }
         $results = (new ResultService($pdo))->getAll();
         $catalogSvc = new CatalogService($pdo);
         $catalogsJson = $catalogSvc->read('catalogs.json');

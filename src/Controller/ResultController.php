@@ -245,7 +245,14 @@ class ResultController
         $rankings = $awardService->computeRankings($results, $catalogCount);
 
         $cfg = $this->config->getConfig();
-        $event = $this->events->getFirst() ?? ['name' => '', 'description' => ''];
+        $uid = (string)($cfg['activeEventUid'] ?? '');
+        $event = null;
+        if ($uid !== '') {
+            $event = $this->events->getByUid($uid);
+        }
+        if ($event === null) {
+            $event = $this->events->getFirst() ?? ['name' => '', 'description' => ''];
+        }
         $title = (string)$event['name'];
         $subtitle = (string)$event['description'];
         $logoPath = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');

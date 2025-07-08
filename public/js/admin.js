@@ -1163,6 +1163,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventsListEl = document.getElementById('eventsList');
   const eventAddBtn = document.getElementById('eventAddBtn');
   const eventsSaveBtn = document.getElementById('eventsSaveBtn');
+  let activeEventUid = cfgInitial.activeEventUid || '';
 
   function collectEvents() {
     return Array.from(eventsListEl.querySelectorAll('.event-row')).map(row => ({
@@ -1185,7 +1186,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function createEventRow(ev = {}) {
     const row = document.createElement('tr');
     row.className = 'event-row';
-    row.dataset.uid = ev.uid || '';
+    row.dataset.uid = ev.uid || crypto.randomUUID();
 
     const handleCell = document.createElement('td');
     const handleSpan = document.createElement('span');
@@ -1216,6 +1217,18 @@ document.addEventListener('DOMContentLoaded', function () {
     descInput.value = ev.description || '';
     descCell.appendChild(descInput);
 
+    const activateCell = document.createElement('td');
+    const activateBtn = document.createElement('button');
+    activateBtn.className = 'uk-button uk-button-default';
+    activateBtn.textContent = ev.uid === activeEventUid ? 'Aktiv' : 'Aktivieren';
+    if (ev.uid === activeEventUid) {
+      activateBtn.disabled = true;
+    }
+    activateBtn.addEventListener('click', () => {
+      setActiveEvent(row.dataset.uid, nameInput.value.trim());
+    });
+    activateCell.appendChild(activateBtn);
+
     const delCell = document.createElement('td');
     const del = document.createElement('button');
     del.className = 'uk-button uk-button-danger';
@@ -1228,6 +1241,7 @@ document.addEventListener('DOMContentLoaded', function () {
     row.appendChild(nameCell);
     row.appendChild(dateCell);
     row.appendChild(descCell);
+    row.appendChild(activateCell);
     row.appendChild(delCell);
     return row;
   }
@@ -1236,6 +1250,24 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!eventsListEl) return;
     eventsListEl.innerHTML = '';
     list.forEach(ev => eventsListEl.appendChild(createEventRow(ev)));
+  }
+
+  function updateActiveHeader(name) {
+    const el = document.getElementById('activeEventHeader');
+    if (el) el.textContent = name || '';
+  }
+
+  function setActiveEvent(uid, name) {
+    activeEventUid = uid;
+    cfgInitial.activeEventUid = uid;
+    updateActiveHeader(name);
+    fetch('/config.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cfgInitial)
+    }).then(() => {
+      renderEvents(collectEvents());
+    }).catch(() => {});
   }
 
   if (eventsListEl && window.UIkit && UIkit.util) {
