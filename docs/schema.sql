@@ -29,12 +29,20 @@ CREATE TABLE IF NOT EXISTS config (
     puzzleFeedback TEXT,
     inviteText TEXT
 );
+-- Event definitions
+CREATE TABLE IF NOT EXISTS events (
+    uid TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    date TEXT,
+    description TEXT
+);
 
 -- Teams list (names only)
 CREATE TABLE IF NOT EXISTS teams (
     sort_order INTEGER UNIQUE NOT NULL,
     name TEXT NOT NULL,
-    uid UUID DEFAULT gen_random_uuid() PRIMARY KEY NOT NULL
+    uid UUID DEFAULT gen_random_uuid() PRIMARY KEY NOT NULL,
+    event_uid TEXT REFERENCES events(uid)
 );
 CREATE UNIQUE INDEX idx_team_name ON teams(name);
 
@@ -46,12 +54,12 @@ CREATE TABLE IF NOT EXISTS results (
     attempt INTEGER NOT NULL,
     correct INTEGER NOT NULL,
     answer_text TEXT,
-    photo TEXT,
     consent BOOLEAN,
     total INTEGER NOT NULL,
     time INTEGER NOT NULL,
     puzzleTime INTEGER,
-    photo TEXT
+    photo TEXT,
+    event_uid TEXT REFERENCES events(uid)
 );
 CREATE INDEX idx_results_catalog ON results(catalog);
 CREATE INDEX idx_results_name ON results(name);
@@ -66,7 +74,8 @@ CREATE TABLE IF NOT EXISTS question_results (
     correct INTEGER NOT NULL,
     answer_text TEXT,
     photo TEXT,
-    consent BOOLEAN
+    consent BOOLEAN,
+    event_uid TEXT REFERENCES events(uid)
 );
 CREATE INDEX idx_qresults_catalog ON question_results(catalog);
 CREATE INDEX idx_qresults_name ON question_results(name);
@@ -82,7 +91,8 @@ CREATE TABLE IF NOT EXISTS catalogs (
     description TEXT,
     qrcode_url TEXT,
     raetsel_buchstabe TEXT,
-    comment TEXT
+    comment TEXT,
+    event_uid TEXT REFERENCES events(uid)
 );
 ALTER TABLE catalogs
     ADD CONSTRAINT catalogs_unique_sort_order

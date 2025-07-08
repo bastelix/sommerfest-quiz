@@ -1,0 +1,4 @@
+ALTER TABLE catalogs ADD COLUMN IF NOT EXISTS event_uid TEXT REFERENCES events(uid);
+ALTER TABLE teams ADD COLUMN IF NOT EXISTS event_uid TEXT REFERENCES events(uid);
+ALTER TABLE results ADD COLUMN IF NOT EXISTS event_uid TEXT REFERENCES events(uid);
+ALTER TABLE question_results ADD COLUMN IF NOT EXISTS event_uid TEXT REFERENCES events(uid);

@@ -20,6 +20,7 @@ use App\Service\CatalogService;
 use App\Service\ResultService;
 use App\Service\TeamService;
 use App\Service\PhotoConsentService;
+use App\Service\EventService;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
 use App\Controller\PasswordController;
@@ -29,6 +30,7 @@ use App\Controller\QrController;
 use App\Controller\LogoController;
 use App\Controller\SummaryController;
 use App\Controller\EvidenceController;
+use App\Controller\EventController;
 use Psr\Log\NullLogger;
 use App\Controller\BackupController;
 
@@ -52,6 +54,7 @@ require_once __DIR__ . '/Controller/LogoController.php';
 require_once __DIR__ . '/Controller/SummaryController.php';
 require_once __DIR__ . '/Controller/EvidenceController.php';
 require_once __DIR__ . '/Controller/ExportController.php';
+require_once __DIR__ . '/Controller/EventController.php';
 require_once __DIR__ . '/Controller/BackupController.php';
 
 use App\Infrastructure\Database;
@@ -65,6 +68,7 @@ return function (\Slim\App $app) {
     $resultService = new ResultService($pdo);
     $teamService = new TeamService($pdo);
     $consentService = new PhotoConsentService($pdo);
+    $eventService = new EventService($pdo);
 
     $configController = new ConfigController($configService);
     $catalogController = new CatalogController($catalogService);
@@ -76,6 +80,7 @@ return function (\Slim\App $app) {
         __DIR__ . '/../data/photos'
     );
     $teamController = new TeamController($teamService);
+    $eventController = new EventController($eventService);
     $passwordController = new PasswordController($configService);
     $qrController = new QrController($configService, $teamService);
     $logoController = new LogoController($configService);
@@ -139,6 +144,9 @@ return function (\Slim\App $app) {
     $app->delete('/kataloge/{file}/{index}', [$catalogController, 'deleteQuestion']);
     $app->put('/kataloge/{file}', [$catalogController, 'create']);
     $app->delete('/kataloge/{file}', [$catalogController, 'delete']);
+
+    $app->get('/events.json', [$eventController, 'get']);
+    $app->post('/events.json', [$eventController, 'post']);
 
     $app->get('/teams.json', [$teamController, 'get']);
     $app->post('/teams.json', [$teamController, 'post']);
