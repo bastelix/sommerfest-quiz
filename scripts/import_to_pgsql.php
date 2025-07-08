@@ -33,7 +33,7 @@ $pdo->exec('TRUNCATE config, teams, results, catalogs, questions, photo_consents
 
 // Import config
 $configData = array_intersect_key($config, array_flip([
-    'displayErrorDetails','QRUser','logoPath','pageTitle','backgroundColor','buttonColor','CheckAnswerButton','adminUser','adminPass','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback','inviteText','activeEventUid'
+    'displayErrorDetails','QRUser','logoPath','pageTitle','backgroundColor','buttonColor','CheckAnswerButton','adminUser','adminPass','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback','inviteText','event_uid'
 ]));
 if (isset($configData['adminPass'])) {
     $info = password_get_info($configData['adminPass']);
@@ -59,7 +59,7 @@ if ($configData) {
 
 // Import events
 $eventsFile = "$base/data/events.json";
-$activeUid = (string)($config['activeEventUid'] ?? '');
+$activeUid = (string)($config['event_uid'] ?? '');
 if (is_readable($eventsFile)) {
     $events = json_decode(file_get_contents($eventsFile), true) ?? [];
     $firstUid = null;

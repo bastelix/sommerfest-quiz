@@ -32,7 +32,7 @@ class CatalogService
     private function activeEventUid(): string
     {
         try {
-            $stmt = $this->pdo->query('SELECT activeEventUid FROM config LIMIT 1');
+            $stmt = $this->pdo->query('SELECT event_uid FROM config LIMIT 1');
             $uid = $stmt->fetchColumn();
             return $uid === false ? '' : (string)$uid;
         } catch (PDOException $e) {

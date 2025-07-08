@@ -27,7 +27,7 @@ class HomeController
         $cfg = (new ConfigService($pdo))->getConfig();
         $eventSvc = new EventService($pdo);
         $event = null;
-        $uid = (string)($cfg['activeEventUid'] ?? '');
+        $uid = (string)($cfg['event_uid'] ?? '');
         if ($uid !== '') {
             $event = $eventSvc->getByUid($uid);
         }

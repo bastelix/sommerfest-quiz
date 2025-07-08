@@ -34,7 +34,7 @@ class SummaryController
     {
         $view = Twig::fromRequest($request);
         $cfg = $this->config->getConfig();
-        $uid = (string)($cfg['activeEventUid'] ?? '');
+        $uid = (string)($cfg['event_uid'] ?? '');
         $event = null;
         if ($uid !== '') {
             $event = $this->events->getByUid($uid);

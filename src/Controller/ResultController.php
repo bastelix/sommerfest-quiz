@@ -245,7 +245,7 @@ class ResultController
         $rankings = $awardService->computeRankings($results, $catalogCount);
 
         $cfg = $this->config->getConfig();
-        $uid = (string)($cfg['activeEventUid'] ?? '');
+        $uid = (string)($cfg['event_uid'] ?? '');
         $event = null;
         if ($uid !== '') {
             $event = $this->events->getByUid($uid);
