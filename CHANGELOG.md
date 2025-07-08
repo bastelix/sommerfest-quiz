@@ -38,13 +38,14 @@
 - Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
+- Update changelog [skip ci]
 
 ### Feat
 
 - Skip schema init when db ready
 - Support soft hyphen placeholders
 - Add dynamic congratulations for team PDFs
-- Add events table and API endpoints
+- Add event API and schema columns
 
 ### Fix
 
