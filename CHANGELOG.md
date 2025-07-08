@@ -42,6 +42,7 @@
 - Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
+- Update changelog [skip ci]
 
 ### Feat
 
@@ -49,6 +50,7 @@
 - Support soft hyphen placeholders
 - Add dynamic congratulations for team PDFs
 - Add event API and schema columns
+- *(admin)* Activate event selection
 
 ### Fix
 
