@@ -25,7 +25,8 @@
     </div>
   </div>
   <ul id="adminTabs" uk-tab>
-    <li class="uk-active" data-help="Logo hochladen und Vorschau ansehen. Seitentitel, Überschrift und Untertitel festlegen. Hintergrund- und Buttonfarbe wählen. Optional den Button 'Antwort prüfen' und den QR-Code-Login aktivieren. 'Zurücksetzen' lädt gespeicherte Werte, 'Speichern' übernimmt Änderungen."><a href="#">Veranstaltung konfigurieren</a></li>
+    <li class="uk-active" data-help="Veranstaltungen anlegen oder bearbeiten. Jede Zeile enthält Name, Datum und Beschreibung. 'Hinzufügen' erstellt einen neuen Eintrag. Speichern übernimmt die Änderungen."><a href="#">Veranstaltungen</a></li>
+    <li data-help="Logo hochladen und Vorschau ansehen. Seitentitel, Überschrift und Untertitel festlegen. Hintergrund- und Buttonfarbe wählen. Optional den Button 'Antwort prüfen' und den QR-Code-Login aktivieren. 'Zurücksetzen' lädt gespeicherte Werte, 'Speichern' übernimmt Änderungen."><a href="#">Veranstaltung konfigurieren</a></li>
     <li data-help="Fragenkataloge anlegen oder bearbeiten. Jede Zeile enthält einen Slug, Name, Beschreibung und optional einen Buchstaben für das Rätselwort. Der Slug kann angepasst werden. 'Hinzufügen' erstellt einen neuen Katalog, das rote × entfernt einen Eintrag. Speichern übernimmt die Änderungen."><a href="#">Kataloge</a></li>
     <li data-help="Nach Auswahl eines Katalogs einzelne Fragen bearbeiten oder neue anlegen. 'Neue Frage' fügt eine weitere hinzu, 'Zurücksetzen' verwirft Änderungen, 'Speichern' sichert den gesamten Katalog."><a href="#">Fragen anpassen</a></li>
     <li data-help="Teilnehmerliste pflegen. Über 'Hinzufügen' Teams oder Personen ergänzen. Die Checkbox beschränkt die Teilnahme auf gelistete Namen. Speichern aktualisiert die Liste."><a href="#">Teams/Personen</a></li>
@@ -35,6 +36,31 @@
     <li data-help="Administrationspasswort ändern und Sicherungen verwalten."><a href="#">Administration</a></li>
   </ul>
   <ul class="uk-switcher uk-margin">
+    <li>
+      <div class="uk-container uk-container-large">
+        <h2 class="uk-heading-bullet">Veranstaltungen</h2>
+        <div class="uk-overflow-auto">
+          <table class="uk-table uk-table-divider uk-table-small">
+            <thead>
+              <tr>
+                <th><span uk-icon="icon: question" uk-tooltip="title: Zum Sortieren Zeile ziehen; pos: top"></span></th>
+                <th>Name</th>
+                <th>Datum</th>
+                <th>Beschreibung</th>
+                <th><span uk-icon="icon: question" uk-tooltip="title: Veranstaltung entfernen; pos: top"></span></th>
+              </tr>
+            </thead>
+            <tbody id="eventsList" uk-sortable="group: sortable-group"></tbody>
+          </table>
+        </div>
+        <div class="uk-margin">
+          <button id="eventAddBtn" class="uk-button uk-button-default" uk-tooltip="title: Neue Veranstaltung anlegen; pos: right">Hinzufügen</button>
+        </div>
+        <div class="uk-margin uk-flex uk-flex-right">
+          <button id="eventsSaveBtn" class="uk-button uk-button-primary" uk-tooltip="title: Änderungen speichern; pos: right">Speichern</button>
+        </div>
+      </div>
+    </li>
     <li>
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">Veranstaltung konfigurieren</h2>
