@@ -107,6 +107,15 @@ class ConfigService
     }
 
     /**
+     * Return the UID of the currently active event or an empty string.
+     */
+    public function getActiveEventUid(): string
+    {
+        $cfg = $this->getConfig();
+        return (string)($cfg['activeEventUid'] ?? '');
+    }
+
+    /**
      * Normalize database column names to expected camelCase keys.
      *
      * @param array<string,mixed> $row

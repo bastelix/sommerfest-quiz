@@ -6,6 +6,8 @@ namespace App\Service;
 
 
 use PDO;
+use PDOException;
+use App\Service\ConfigService;
 
 /**
  * Provides accessors for reading and writing quiz catalogs.
@@ -22,6 +24,20 @@ class CatalogService
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
+    }
+
+    /**
+     * Retrieve the UID of the currently active event.
+     */
+    private function activeEventUid(): string
+    {
+        try {
+            $stmt = $this->pdo->query('SELECT activeEventUid FROM config LIMIT 1');
+            $uid = $stmt->fetchColumn();
+            return $uid === false ? '' : (string)$uid;
+        } catch (PDOException $e) {
+            return '';
+        }
     }
 
     /**
@@ -51,8 +67,15 @@ class CatalogService
      */
     public function slugByFile(string $file): ?string
     {
-        $stmt = $this->pdo->prepare('SELECT slug FROM catalogs WHERE file=?');
-        $stmt->execute([basename($file)]);
+        $uid = $this->activeEventUid();
+        $sql = 'SELECT slug FROM catalogs WHERE file=?';
+        $params = [basename($file)];
+        if ($uid !== '') {
+            $sql .= ' AND event_uid=?';
+            $params[] = $uid;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         $slug = $stmt->fetchColumn();
         return $slug === false ? null : (string)$slug;
     }
@@ -62,8 +85,15 @@ class CatalogService
      */
     public function uidBySlug(string $slug): ?string
     {
-        $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE slug=?');
-        $stmt->execute([$slug]);
+        $uid = $this->activeEventUid();
+        $sql = 'SELECT uid FROM catalogs WHERE slug=?';
+        $params = [$slug];
+        if ($uid !== '') {
+            $sql .= ' AND event_uid=?';
+            $params[] = $uid;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         $uid = $stmt->fetchColumn();
         return $uid === false ? null : (string)$uid;
     }
@@ -78,7 +108,16 @@ class CatalogService
             if ($this->hasCommentColumn()) {
                 $fields .= ',comment';
             }
-            $stmt = $this->pdo->query("SELECT $fields FROM catalogs ORDER BY sort_order");
+            $uid = $this->activeEventUid();
+            $sql = "SELECT $fields FROM catalogs";
+            $params = [];
+            if ($uid !== '') {
+                $sql .= ' WHERE event_uid=?';
+                $params[] = $uid;
+            }
+            $sql .= ' ORDER BY sort_order';
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             foreach ($data as &$row) {
                 $row['sort_order'] = (int)$row['sort_order'];
@@ -91,8 +130,15 @@ class CatalogService
             return json_encode($data, JSON_PRETTY_PRINT);
         }
 
-        $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE file=?');
-        $stmt->execute([basename($file)]);
+        $uid = $this->activeEventUid();
+        $sql = 'SELECT uid FROM catalogs WHERE file=?';
+        $params = [basename($file)];
+        if ($uid !== '') {
+            $sql .= ' AND event_uid=?';
+            $params[] = $uid;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         $cat = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($cat === false) {
             return null;
@@ -133,66 +179,25 @@ class CatalogService
             if (!is_array($data)) {
                 $data = json_decode((string)$data, true) ?? [];
             }
+            $uid = $this->activeEventUid();
             $this->pdo->beginTransaction();
-            $fields = 'uid,sort_order,slug,file,name,description,qrcode_url,raetsel_buchstabe';
-            $placeholders = '?,?,?,?,?,?,?,?';
+            if ($uid !== '') {
+                $del = $this->pdo->prepare('DELETE FROM catalogs WHERE event_uid=?');
+                $del->execute([$uid]);
+            } else {
+                $this->pdo->exec('DELETE FROM catalogs');
+            }
+            $fields = 'uid,sort_order,slug,file,name,description,qrcode_url,raetsel_buchstabe,event_uid';
+            $placeholders = '?,?,?,?,?,?,?,?,?';
             if ($this->hasCommentColumn()) {
                 $fields .= ',comment';
                 $placeholders .= ',?';
             }
-
-            $uids = [];
-            foreach ($data as $cat) {
-                $uids[] = $cat['uid'] ?? '';
-            }
-
-            $cols = [
-                'sort_order',
-                'slug',
-                'file',
-                'name',
-                'description',
-                'qrcode_url',
-                'raetsel_buchstabe',
-            ];
-            if ($this->hasCommentColumn()) {
-                $cols[] = 'comment';
-            }
-
-            $updateClauses = [];
-            $params = [];
-            foreach ($cols as $col) {
-                $updateClauses[$col] = '';
-                foreach ($data as $cat) {
-                    $uid = $cat['uid'] ?? '';
-                    $updateClauses[$col] .= ' WHEN ? THEN ?';
-                    $params[] = $uid;
-                    if ($col === 'slug') {
-                        $params[] = $cat['slug'] ?? '';
-                    } elseif ($col === 'sort_order') {
-                        $params[] = $cat['sort_order'] ?? null;
-                    } else {
-                        $params[] = $cat[$col] ?? null;
-                    }
-                }
-            }
-
-            if ($uids !== []) {
-                $setParts = [];
-                foreach ($updateClauses as $col => $case) {
-                    $setParts[] = "$col = CASE uid$case ELSE $col END";
-                }
-                $sql = 'UPDATE catalogs SET ' . implode(',', $setParts)
-                    . ' WHERE uid IN (' . implode(',', array_fill(0, count($uids), '?')) . ')';
-                $stmt = $this->pdo->prepare($sql);
-                $stmt->execute(array_merge($params, $uids));
-            }
-
-            $insertSql = "INSERT INTO catalogs($fields) VALUES($placeholders) ON CONFLICT(uid) DO NOTHING";
+            $insertSql = "INSERT INTO catalogs($fields) VALUES($placeholders)";
             $ins = $this->pdo->prepare($insertSql);
             foreach ($data as $cat) {
                 $row = [
-                    $cat['uid'] ?? '',
+                    $cat['uid'] ?? bin2hex(random_bytes(16)),
                     $cat['sort_order'] ?? '',
                     $cat['slug'] ?? '',
                     $cat['file'] ?? '',
@@ -200,21 +205,13 @@ class CatalogService
                     $cat['description'] ?? null,
                     $cat['qrcode_url'] ?? null,
                     $cat['raetsel_buchstabe'] ?? null,
+                    $uid,
                 ];
                 if ($this->hasCommentColumn()) {
                     $row[] = $cat['comment'] ?? null;
                 }
                 $ins->execute($row);
             }
-
-            if ($uids === []) {
-                $this->pdo->exec('DELETE FROM catalogs');
-            } else {
-                $in  = implode(',', array_fill(0, count($uids), '?'));
-                $del = $this->pdo->prepare("DELETE FROM catalogs WHERE uid NOT IN ($in)");
-                $del->execute($uids);
-            }
-
             $this->pdo->commit();
             return;
         }
@@ -223,8 +220,15 @@ class CatalogService
             $data = json_decode((string)$data, true) ?? [];
         }
         $slug = pathinfo($file, PATHINFO_FILENAME);
-        $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE slug=?');
-        $stmt->execute([$slug]);
+        $uid = $this->activeEventUid();
+        $sql = 'SELECT uid FROM catalogs WHERE slug=?';
+        $params = [$slug];
+        if ($uid !== '') {
+            $sql .= ' AND event_uid=?';
+            $params[] = $uid;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         $cat = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($cat === false) {
             return;
@@ -254,13 +258,25 @@ class CatalogService
     public function delete(string $file): void
     {
         if ($file === 'catalogs.json') {
-            $this->pdo->exec('DELETE FROM questions');
-            $this->pdo->exec('DELETE FROM catalogs');
+            $uid = $this->activeEventUid();
+            if ($uid !== '') {
+                $stmt = $this->pdo->prepare('DELETE FROM catalogs WHERE event_uid=?');
+                $stmt->execute([$uid]);
+            } else {
+                $this->pdo->exec('DELETE FROM catalogs');
+            }
             return;
         }
         $slug = pathinfo($file, PATHINFO_FILENAME);
-        $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE slug=?');
-        $stmt->execute([$slug]);
+        $event = $this->activeEventUid();
+        $sql = 'SELECT uid FROM catalogs WHERE slug=?';
+        $params = [$slug];
+        if ($event !== '') {
+            $sql .= ' AND event_uid=?';
+            $params[] = $event;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         $cat = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($cat !== false) {
             $this->pdo->prepare('DELETE FROM questions WHERE catalog_uid=?')->execute([$cat['uid']]);
@@ -279,8 +295,15 @@ class CatalogService
     public function deleteQuestion(string $file, int $index): void
     {
         $slug = pathinfo($file, PATHINFO_FILENAME);
-        $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE slug=?');
-        $stmt->execute([$slug]);
+        $uid = $this->activeEventUid();
+        $sql = 'SELECT uid FROM catalogs WHERE slug=?';
+        $params = [$slug];
+        if ($uid !== '') {
+            $sql .= ' AND event_uid=?';
+            $params[] = $uid;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         $cat = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($cat === false) {
             return;
