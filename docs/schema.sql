@@ -13,8 +13,6 @@ CREATE TABLE IF NOT EXISTS config (
     QRUser BOOLEAN,
     logoPath TEXT,
     pageTitle TEXT,
-    header TEXT,
-    subheader TEXT,
     backgroundColor TEXT,
     buttonColor TEXT,
     CheckAnswerButton TEXT,

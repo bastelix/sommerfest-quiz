@@ -11,6 +11,7 @@ use App\Service\ConfigService;
 use App\Service\ResultService;
 use App\Service\CatalogService;
 use App\Service\TeamService;
+use App\Service\EventService;
 use App\Infrastructure\Database;
 
 /**
@@ -26,6 +27,7 @@ class AdminController
         $view = Twig::fromRequest($request);
         $pdo = Database::connectFromEnv();
         $cfg = (new ConfigService($pdo))->getConfig();
+        $event = (new EventService($pdo))->getFirst();
         $results = (new ResultService($pdo))->getAll();
         $catalogSvc = new CatalogService($pdo);
         $catalogsJson = $catalogSvc->read('catalogs.json');
@@ -77,6 +79,7 @@ class AdminController
             'catalogs' => $catalogs,
             'teams' => $teams,
             'baseUrl' => $baseUrl,
+            'event' => $event,
         ]);
     }
 }

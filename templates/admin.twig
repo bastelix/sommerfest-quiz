@@ -103,22 +103,6 @@
               </div>
             </div>
             <div>
-              <div class="uk-margin">
-                <label class="uk-form-label" for="cfgHeader">Überschrift
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Überschrift auf der Startseite.; pos: right"></span>
-                </label>
-                <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgHeader"></div>
-              </div>
-            </div>
-            <div>
-              <div class="uk-margin">
-                <label class="uk-form-label" for="cfgSubheader">Untertitel
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Text unter der Überschrift.; pos: right"></span>
-                </label>
-                <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgSubheader"></div>
-              </div>
-            </div>
-            <div>
               <div class="uk-margin uk-child-width-1-2@s uk-grid-small" uk-grid>
                 <div>
                   <label class="uk-form-label" for="cfgBackgroundColor">Hintergrundfarbe
@@ -411,12 +395,12 @@
       <div class="uk-container uk-container-large">
         <div class="uk-flex uk-flex-between uk-flex-middle">
           <div>
-            <h2 class="uk-heading-bullet">{{ config.header }}</h2>
-            <p>{{ config.subheader }}</p>
+            <h2 class="uk-heading-bullet">{{ event.name }}</h2>
+            <p>{{ event.description }}</p>
           </div>
           <div class="uk-text-center uk-margin-small-bottom">
             <img src="/qr.png?t={{ baseUrl|url_encode }}&fg=000000&label=0" alt="QR" width="96" height="96">
-            <div>{{ config.header }}</div>
+            <div>{{ event.name }}</div>
           </div>
         </div>
 
