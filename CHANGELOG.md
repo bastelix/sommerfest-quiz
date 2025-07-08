@@ -44,6 +44,7 @@
 - Skip schema init when db ready
 - Support soft hyphen placeholders
 - Add dynamic congratulations for team PDFs
+- Add events table and API endpoints
 
 ### Fix
 
