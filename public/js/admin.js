@@ -1165,6 +1165,116 @@ document.addEventListener('DOMContentLoaded', function () {
     window.open('/results.pdf', '_blank');
   });
 
+  // --------- Veranstaltungen ---------
+  const eventsListEl = document.getElementById('eventsList');
+  const eventAddBtn = document.getElementById('eventAddBtn');
+  const eventsSaveBtn = document.getElementById('eventsSaveBtn');
+
+  function collectEvents() {
+    return Array.from(eventsListEl.querySelectorAll('.event-row')).map(row => ({
+      uid: row.dataset.uid || crypto.randomUUID(),
+      name: row.querySelector('.event-name').value.trim(),
+      date: row.querySelector('.event-date').value.trim(),
+      description: row.querySelector('.event-desc').value.trim()
+    })).filter(e => e.name);
+  }
+
+  function saveEventOrder() {
+    const list = collectEvents();
+    fetch('/events.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(list)
+    }).catch(() => {});
+  }
+
+  function createEventRow(ev = {}) {
+    const row = document.createElement('tr');
+    row.className = 'event-row';
+    row.dataset.uid = ev.uid || '';
+
+    const handleCell = document.createElement('td');
+    const handleSpan = document.createElement('span');
+    handleSpan.className = 'uk-sortable-handle uk-icon';
+    handleSpan.setAttribute('uk-icon', 'icon: table');
+    handleCell.appendChild(handleSpan);
+
+    const nameCell = document.createElement('td');
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.className = 'uk-input event-name';
+    nameInput.placeholder = 'Name';
+    nameInput.value = ev.name || '';
+    nameCell.appendChild(nameInput);
+
+    const dateCell = document.createElement('td');
+    const dateInput = document.createElement('input');
+    dateInput.type = 'date';
+    dateInput.className = 'uk-input event-date';
+    dateInput.value = ev.date || '';
+    dateCell.appendChild(dateInput);
+
+    const descCell = document.createElement('td');
+    const descInput = document.createElement('input');
+    descInput.type = 'text';
+    descInput.className = 'uk-input event-desc';
+    descInput.placeholder = 'Beschreibung';
+    descInput.value = ev.description || '';
+    descCell.appendChild(descInput);
+
+    const delCell = document.createElement('td');
+    const del = document.createElement('button');
+    del.className = 'uk-button uk-button-danger';
+    del.textContent = '×';
+    del.setAttribute('aria-label', 'Löschen');
+    del.addEventListener('click', () => row.remove());
+    delCell.appendChild(del);
+
+    row.appendChild(handleCell);
+    row.appendChild(nameCell);
+    row.appendChild(dateCell);
+    row.appendChild(descCell);
+    row.appendChild(delCell);
+    return row;
+  }
+
+  function renderEvents(list) {
+    if (!eventsListEl) return;
+    eventsListEl.innerHTML = '';
+    list.forEach(ev => eventsListEl.appendChild(createEventRow(ev)));
+  }
+
+  if (eventsListEl && window.UIkit && UIkit.util) {
+    UIkit.util.on(eventsListEl, 'moved', saveEventOrder);
+  }
+
+  if (eventsListEl) {
+    fetch('/events.json', { headers: { 'Accept': 'application/json' } })
+      .then(r => r.json())
+      .then(data => renderEvents(data))
+      .catch(() => {});
+  }
+
+  eventAddBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    eventsListEl.appendChild(createEventRow());
+  });
+
+  eventsSaveBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    const list = collectEvents();
+    fetch('/events.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(list)
+    })
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        notify('Liste gespeichert', 'success');
+      })
+      .catch(() => notify('Fehler beim Speichern', 'danger'));
+  });
+
   // --------- Teams/Personen ---------
   const teamListEl = document.getElementById('teamsList');
   const teamAddBtn = document.getElementById('teamAddBtn');

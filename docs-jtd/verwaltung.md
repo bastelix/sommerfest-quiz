@@ -15,14 +15,14 @@ Der Zugang zum Administrationsbereich erfolgt über `/login`. Nach einem erfolgr
 ## Administrationsoberfläche
 
 Unter `/admin` stehen folgende Tabs zur Verfügung:
-1. **Veranstaltung konfigurieren** – Einstellungen wie Logo, Farben und Texte.
-2. **Kataloge** – Fragenkataloge erstellen und verwalten.
-3. **Fragen anpassen** – Fragen eines Katalogs hinzufügen, bearbeiten oder löschen.
-4. **Teams/Personen** – Teilnehmerlisten pflegen, optional als Login-Beschränkung.
-5. **Ergebnisse** – Spielstände einsehen und herunterladen.
-6. **Statistik** – Einzelne Antworten analysieren und nach Teams filtern.
-7. **Administration** – Passwort ändern und Backups verwalten.
-
+1. **Veranstaltungen** – Veranstaltungen anlegen, bearbeiten oder entfernen.
+2. **Veranstaltung konfigurieren** – Einstellungen wie Logo, Farben und Texte.
+3. **Kataloge** – Fragenkataloge erstellen und verwalten.
+4. **Fragen anpassen** – Fragen eines Katalogs hinzufügen, bearbeiten oder löschen.
+5. **Teams/Personen** – Teilnehmerlisten pflegen, optional als Login-Beschränkung.
+6. **Ergebnisse** – Spielstände einsehen und herunterladen.
+7. **Statistik** – Einzelne Antworten analysieren und nach Teams filtern.
+8. **Administration** – Passwort ändern und Backups verwalten.
 Der Statistik-Tab listet jede Antwort mit Name, Versuch, Katalog, Frage, Antwort, Richtig-Status und optionalem Beweisfoto. Über ein Auswahlfeld lassen sich die Daten nach Teams oder Personen filtern.
 
 
