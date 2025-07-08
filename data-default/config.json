@@ -19,5 +19,5 @@
   "postgres_dsn": "pgsql:host=postgres;dbname=quiz",
   "postgres_user": "quiz",
   "postgres_pass": "quiz",
-  "activeEventUid": "1"
+  "event_uid": "1"
 }

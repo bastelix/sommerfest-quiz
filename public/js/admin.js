@@ -1163,7 +1163,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventsListEl = document.getElementById('eventsList');
   const eventAddBtn = document.getElementById('eventAddBtn');
   const eventsSaveBtn = document.getElementById('eventsSaveBtn');
-  let activeEventUid = cfgInitial.activeEventUid || '';
+  let activeEventUid = cfgInitial.event_uid || '';
 
   function collectEvents() {
     return Array.from(eventsListEl.querySelectorAll('.event-row')).map(row => ({
@@ -1259,7 +1259,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function setActiveEvent(uid, name) {
     activeEventUid = uid;
-    cfgInitial.activeEventUid = uid;
+    cfgInitial.event_uid = uid;
     updateActiveHeader(name);
     fetch('/config.json', {
       method: 'POST',

@@ -75,7 +75,7 @@ class ConfigService
      */
     public function saveConfig(array $data): void
     {
-        $keys = ['displayErrorDetails','QRUser','logoPath','pageTitle','backgroundColor','buttonColor','CheckAnswerButton','adminUser','adminPass','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback','inviteText','activeEventUid'];
+        $keys = ['displayErrorDetails','QRUser','logoPath','pageTitle','backgroundColor','buttonColor','CheckAnswerButton','adminUser','adminPass','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback','inviteText','event_uid'];
         $filtered = array_intersect_key($data, array_flip($keys));
         $this->pdo->beginTransaction();
         $this->pdo->exec('DELETE FROM config');
@@ -102,7 +102,7 @@ class ConfigService
     public function setActiveEventUid(string $uid): void
     {
         $cfg = $this->getConfig();
-        $cfg['activeEventUid'] = $uid;
+        $cfg['event_uid'] = $uid;
         $this->saveConfig($cfg);
     }
 
@@ -112,7 +112,7 @@ class ConfigService
     public function getActiveEventUid(): string
     {
         $cfg = $this->getConfig();
-        return (string)($cfg['activeEventUid'] ?? '');
+        return (string)($cfg['event_uid'] ?? '');
     }
 
     /**
@@ -123,7 +123,7 @@ class ConfigService
      */
     private function normalizeKeys(array $row): array
     {
-        $keys = ['displayErrorDetails','QRUser','logoPath','pageTitle','backgroundColor','buttonColor','CheckAnswerButton','adminUser','adminPass','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback','inviteText','activeEventUid'];
+        $keys = ['displayErrorDetails','QRUser','logoPath','pageTitle','backgroundColor','buttonColor','CheckAnswerButton','adminUser','adminPass','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback','inviteText','event_uid'];
         $map = [];
         foreach ($keys as $k) {
             $map[strtolower($k)] = $k;

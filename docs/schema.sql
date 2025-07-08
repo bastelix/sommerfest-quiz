@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS config (
     puzzleWordEnabled BOOLEAN,
     puzzleWord TEXT,
     puzzleFeedback TEXT,
-    inviteText TEXT
+    inviteText TEXT,
+    event_uid TEXT REFERENCES events(uid)
 );
 -- Event definitions
 CREATE TABLE IF NOT EXISTS events (
