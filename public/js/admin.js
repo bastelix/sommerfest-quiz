@@ -75,8 +75,6 @@ document.addEventListener('DOMContentLoaded', function () {
     logoFile: document.getElementById('cfgLogoFile'),
     logoPreview: document.getElementById('cfgLogoPreview'),
     pageTitle: document.getElementById('cfgPageTitle'),
-    header: document.getElementById('cfgHeader'),
-    subheader: document.getElementById('cfgSubheader'),
     backgroundColor: document.getElementById('cfgBackgroundColor'),
     buttonColor: document.getElementById('cfgButtonColor'),
     checkAnswerButton: document.getElementById('cfgCheckAnswerButton'),
@@ -214,8 +212,6 @@ document.addEventListener('DOMContentLoaded', function () {
       cfgFields.logoPreview.src = data.logoPath ? data.logoPath + '?' + Date.now() : '';
     }
     cfgFields.pageTitle.value = data.pageTitle || '';
-    cfgFields.header.value = data.header || '';
-    cfgFields.subheader.value = data.subheader || '';
     cfgFields.backgroundColor.value = data.backgroundColor || '';
     cfgFields.buttonColor.value = data.buttonColor || '';
     cfgFields.checkAnswerButton.checked = data.CheckAnswerButton !== 'no';
@@ -322,9 +318,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         return cfgInitial.logoPath;
       })(),
-      pageTitle: cfgFields.pageTitle.value.trim(),
-      header: cfgFields.header.value.trim(),
-      subheader: cfgFields.subheader.value.trim(),
+        pageTitle: cfgFields.pageTitle.value.trim(),
       backgroundColor: cfgFields.backgroundColor.value.trim(),
       buttonColor: cfgFields.buttonColor.value.trim(),
       CheckAnswerButton: cfgFields.checkAnswerButton.checked ? 'yes' : 'no',
