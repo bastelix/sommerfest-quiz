@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Service;
 
 use PDO;
+use PDOException;
+use App\Service\ConfigService;
 
 /**
  * Service for persisting and retrieving quiz results.
@@ -22,18 +24,39 @@ class ResultService
     }
 
     /**
+     * Get the currently active event UID.
+     */
+    private function activeEventUid(): string
+    {
+        try {
+            $stmt = $this->pdo->query('SELECT activeEventUid FROM config LIMIT 1');
+            $uid = $stmt->fetchColumn();
+            return $uid === false ? '' : (string)$uid;
+        } catch (PDOException $e) {
+            return '';
+        }
+    }
+
+    /**
      * Fetch all stored results along with catalog names.
      */
     public function getAll(): array
     {
-        $sql = 'SELECT r.name, r.catalog, r.attempt, r.correct, r.total, r.time, r.puzzleTime AS "puzzleTime", r.photo, ' .
-            'c.name AS catalogName '
+        $event = $this->activeEventUid();
+        $sql = 'SELECT r.name, r.catalog, r.attempt, r.correct, r.total, r.time, r.puzzleTime AS "puzzleTime", r.photo, '
+            . 'c.name AS catalogName '
             . 'FROM results r '
             . 'LEFT JOIN catalogs c ON c.uid = r.catalog '
             . 'OR CAST(c.sort_order AS TEXT) = r.catalog '
-            . 'OR c.slug = r.catalog '
-            . 'ORDER BY r.id';
-        $stmt = $this->pdo->query($sql);
+            . 'OR c.slug = r.catalog ';
+        $params = [];
+        if ($event !== '') {
+            $sql .= 'WHERE r.event_uid=? ';
+            $params[] = $event;
+        }
+        $sql .= 'ORDER BY r.id';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as &$row) {
             foreach (["options","answers","terms","items"] as $k) {
@@ -52,6 +75,7 @@ class ResultService
      */
     public function getQuestionResults(): array
     {
+        $event = $this->activeEventUid();
         $sql = 'SELECT qr.name, qr.catalog, qr.question_id, qr.attempt, qr.correct, qr.answer_text, qr.photo, qr.consent,' .
             ' q.type, q.prompt, q.options, q.answers, q.terms, q.items,' .
             ' c.name AS catalogName '
@@ -59,9 +83,15 @@ class ResultService
             . 'LEFT JOIN questions q ON q.id = qr.question_id '
             . 'LEFT JOIN catalogs c ON c.uid = q.catalog_uid '
             . 'OR CAST(c.sort_order AS TEXT) = qr.catalog '
-            . 'OR c.slug = qr.catalog '
-            . 'ORDER BY qr.id';
-        $stmt = $this->pdo->query($sql);
+            . 'OR c.slug = qr.catalog ';
+        $params = [];
+        if ($event !== '') {
+            $sql .= 'WHERE qr.event_uid=? ';
+            $params[] = $event;
+        }
+        $sql .= 'ORDER BY qr.id';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as &$row) {
             foreach (["options", "answers", "terms", "items"] as $k) {
@@ -83,8 +113,15 @@ class ResultService
         $name = (string)($data['name'] ?? '');
         $catalog = (string)($data['catalog'] ?? '');
         $wrong = array_map('intval', $data['wrong'] ?? []);
-        $stmt = $this->pdo->prepare('SELECT COALESCE(MAX(attempt),0) FROM results WHERE name=? AND catalog=?');
-        $stmt->execute([$name, $catalog]);
+        $eventUid = $this->activeEventUid();
+        $sql = 'SELECT COALESCE(MAX(attempt),0) FROM results WHERE name=? AND catalog=?';
+        $params = [$name, $catalog];
+        if ($eventUid !== '') {
+            $sql .= ' AND event_uid=?';
+            $params[] = $eventUid;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         $attempt = (int)$stmt->fetchColumn() + 1;
         $entry = [
             'name' => $name,
@@ -97,7 +134,7 @@ class ResultService
             'puzzleTime' => isset($data['puzzleTime']) ? (int)$data['puzzleTime'] : null,
             'photo' => isset($data['photo']) ? (string)$data['photo'] : null,
         ];
-        $stmt = $this->pdo->prepare('INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo) VALUES(?,?,?,?,?,?,?,?)');
+        $stmt = $this->pdo->prepare('INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo,event_uid) VALUES(?,?,?,?,?,?,?,?,?)');
         $stmt->execute([
             $entry['name'],
             $entry['catalog'],
@@ -107,9 +144,10 @@ class ResultService
             $entry['time'],
             $entry['puzzleTime'],
             $entry['photo'],
+            $eventUid,
         ]);
         $answers = isset($data['answers']) && is_array($data['answers']) ? $data['answers'] : [];
-        $this->addQuestionResults($name, $catalog, $attempt, $wrong, $entry['total'], $answers);
+        $this->addQuestionResults($name, $catalog, $attempt, $wrong, $entry['total'], $answers, $eventUid);
         return $entry;
     }
 
@@ -118,7 +156,7 @@ class ResultService
      *
      * @param list<int> $wrongIdx
      */
-    private function addQuestionResults(string $name, string $catalog, int $attempt, array $wrongIdx, int $total, array $answers = []): void
+    private function addQuestionResults(string $name, string $catalog, int $attempt, array $wrongIdx, int $total, array $answers = [], string $eventUid = ''): void
     {
         $uidStmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE uid=? OR CAST(sort_order AS TEXT)=? OR slug=?');
         $uidStmt->execute([$catalog, $catalog, $catalog]);
@@ -132,7 +170,7 @@ class ResultService
         if (!$ids) {
             return;
         }
-        $ins = $this->pdo->prepare('INSERT INTO question_results(name,catalog,question_id,attempt,correct,answer_text,photo,consent) VALUES(?,?,?,?,?,?,?,?)');
+        $ins = $this->pdo->prepare('INSERT INTO question_results(name,catalog,question_id,attempt,correct,answer_text,photo,consent,event_uid) VALUES(?,?,?,?,?,?,?,?,?)');
         for ($i = 0; $i < min(count($ids), $total); $i++) {
             $qid = (int)$ids[$i];
             $correct = in_array($i + 1, $wrongIdx, true) ? 0 : 1;
@@ -140,7 +178,7 @@ class ResultService
             $text = isset($ans['text']) ? (string)$ans['text'] : null;
             $photo = isset($ans['photo']) ? (string)$ans['photo'] : null;
             $consent = isset($ans['consent']) ? (int)((bool)$ans['consent']) : null;
-            $ins->execute([$name, $catalog, $qid, $attempt, $correct, $text, $photo, $consent]);
+            $ins->execute([$name, $catalog, $qid, $attempt, $correct, $text, $photo, $consent, $eventUid]);
         }
     }
 
@@ -149,8 +187,16 @@ class ResultService
      */
     public function clear(): void
     {
-        $this->pdo->exec('DELETE FROM results');
-        $this->pdo->exec('DELETE FROM question_results');
+        $uid = $this->activeEventUid();
+        if ($uid !== '') {
+            $del = $this->pdo->prepare('DELETE FROM results WHERE event_uid=?');
+            $del->execute([$uid]);
+            $del2 = $this->pdo->prepare('DELETE FROM question_results WHERE event_uid=?');
+            $del2->execute([$uid]);
+        } else {
+            $this->pdo->exec('DELETE FROM results');
+            $this->pdo->exec('DELETE FROM question_results');
+        }
     }
 
     /**
@@ -158,8 +204,16 @@ class ResultService
      */
     public function markPuzzle(string $name, string $catalog, int $time): bool
     {
-        $stmt = $this->pdo->prepare('SELECT id, puzzleTime AS "puzzleTime" FROM results WHERE name=? AND catalog=? ORDER BY id DESC LIMIT 1');
-        $stmt->execute([$name, $catalog]);
+        $uid = $this->activeEventUid();
+        $sql = 'SELECT id, puzzleTime AS "puzzleTime" FROM results WHERE name=? AND catalog=?';
+        $params = [$name, $catalog];
+        if ($uid !== '') {
+            $sql .= ' AND event_uid=?';
+            $params[] = $uid;
+        }
+        $sql .= ' ORDER BY id DESC LIMIT 1';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row) {
             if ($row['puzzleTime'] === null) {
@@ -176,8 +230,16 @@ class ResultService
      */
     public function setPhoto(string $name, string $catalog, string $path): void
     {
-        $stmt = $this->pdo->prepare('SELECT id FROM results WHERE name=? AND catalog=? ORDER BY id DESC LIMIT 1');
-        $stmt->execute([$name, $catalog]);
+        $uid = $this->activeEventUid();
+        $sql = 'SELECT id FROM results WHERE name=? AND catalog=?';
+        $params = [$name, $catalog];
+        if ($uid !== '') {
+            $sql .= ' AND event_uid=?';
+            $params[] = $uid;
+        }
+        $sql .= ' ORDER BY id DESC LIMIT 1';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         $id = $stmt->fetchColumn();
         if ($id !== false) {
             $upd = $this->pdo->prepare('UPDATE results SET photo=? WHERE id=?');
@@ -192,14 +254,24 @@ class ResultService
      */
     public function saveAll(array $results): void
     {
+        $uid = $this->activeEventUid();
         $this->pdo->beginTransaction();
-        $this->pdo->exec('DELETE FROM results');
-        $stmt = $this->pdo->prepare(
-            'INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo) '
-            . 'VALUES(?,?,?,?,?,?,?,?)'
-        );
+        if ($uid !== '') {
+            $del = $this->pdo->prepare('DELETE FROM results WHERE event_uid=?');
+            $del->execute([$uid]);
+            $stmt = $this->pdo->prepare(
+                'INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo,event_uid) '
+                . 'VALUES(?,?,?,?,?,?,?,?,?)'
+            );
+        } else {
+            $this->pdo->exec('DELETE FROM results');
+            $stmt = $this->pdo->prepare(
+                'INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo) '
+                . 'VALUES(?,?,?,?,?,?,?,?)'
+            );
+        }
         foreach ($results as $row) {
-            $stmt->execute([
+            $params = [
                 (string)($row['name'] ?? ''),
                 (string)($row['catalog'] ?? ''),
                 (int)($row['attempt'] ?? 1),
@@ -208,7 +280,11 @@ class ResultService
                 (int)($row['time'] ?? time()),
                 isset($row['puzzleTime']) ? (int)$row['puzzleTime'] : null,
                 isset($row['photo']) ? (string)$row['photo'] : null,
-            ]);
+            ];
+            if ($uid !== '') {
+                $params[] = $uid;
+            }
+            $stmt->execute($params);
         }
         $this->pdo->commit();
     }
