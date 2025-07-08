@@ -31,4 +31,15 @@ class EventServiceTest extends TestCase
         $this->assertSame('Test Event', $rows[0]['name']);
         $this->assertSame('2025-07-04', $rows[0]['date']);
     }
+
+    public function testGetByUid(): void
+    {
+        $pdo = $this->createPdo();
+        $service = new EventService($pdo);
+        $uid = 'uid123';
+        $service->saveAll([[ 'uid' => $uid, 'name' => 'Eins' ]]);
+        $row = $service->getByUid($uid);
+        $this->assertNotNull($row);
+        $this->assertSame('Eins', $row['name']);
+    }
 }

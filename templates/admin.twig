@@ -12,7 +12,10 @@
 
 {% block body %}
   <div class="uk-flex uk-flex-between uk-margin-small-bottom">
-    <a href="." class="uk-icon-button" uk-icon="icon: arrow-left; ratio: 2" title="Zurück" aria-label="Zurück"></a>
+    <div class="uk-flex uk-flex-middle">
+      <a href="." class="uk-icon-button" uk-icon="icon: arrow-left; ratio: 2" title="Zurück" aria-label="Zurück"></a>
+      <h3 id="activeEventHeader" class="uk-margin-small-left uk-margin-remove-bottom">{{ event.name }}</h3>
+    </div>
     <div class="uk-flex">
       <a href="/logout" class="uk-button uk-button-danger uk-margin-right">Abmelden</a>
       <div class="theme-switch uk-margin-right">
@@ -47,6 +50,7 @@
                 <th>Name</th>
                 <th>Datum</th>
                 <th>Beschreibung</th>
+                <th>Aktiv</th>
                 <th><span uk-icon="icon: question" uk-tooltip="title: Veranstaltung entfernen; pos: top"></span></th>
               </tr>
             </thead>

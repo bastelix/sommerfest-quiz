@@ -34,7 +34,14 @@ class SummaryController
     {
         $view = Twig::fromRequest($request);
         $cfg = $this->config->getConfig();
-        $event = $this->events->getFirst();
+        $uid = (string)($cfg['activeEventUid'] ?? '');
+        $event = null;
+        if ($uid !== '') {
+            $event = $this->events->getByUid($uid);
+        }
+        if ($event === null) {
+            $event = $this->events->getFirst();
+        }
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
