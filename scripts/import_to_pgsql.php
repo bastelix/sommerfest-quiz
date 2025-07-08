@@ -29,11 +29,11 @@ try {
 $pdo->beginTransaction();
 
 // Clear existing tables to allow re-import without duplicates
-$pdo->exec('TRUNCATE config, teams, results, catalogs, questions, photo_consents RESTART IDENTITY CASCADE');
+$pdo->exec('TRUNCATE config, teams, results, catalogs, questions, photo_consents, events RESTART IDENTITY CASCADE');
 
 // Import config
 $configData = array_intersect_key($config, array_flip([
-    'displayErrorDetails','QRUser','logoPath','pageTitle','header','subheader','backgroundColor','buttonColor','CheckAnswerButton','adminUser','adminPass','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback'
+    'displayErrorDetails','QRUser','logoPath','pageTitle','backgroundColor','buttonColor','CheckAnswerButton','adminUser','adminPass','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback'
 ]));
 if (isset($configData['adminPass'])) {
     $info = password_get_info($configData['adminPass']);
@@ -55,6 +55,21 @@ if ($configData) {
     }
     $stmt->execute();
     $pdo->exec("SELECT setval(pg_get_serial_sequence('config','id'), (SELECT COALESCE(MAX(id),0) FROM config))");
+}
+
+// Import events
+$eventsFile = "$base/data/events.json";
+if (is_readable($eventsFile)) {
+    $events = json_decode(file_get_contents($eventsFile), true) ?? [];
+    $stmt = $pdo->prepare('INSERT INTO events(uid,name,date,description) VALUES(?,?,?,?)');
+    foreach ($events as $e) {
+        $stmt->execute([
+            $e['uid'] ?? bin2hex(random_bytes(16)),
+            $e['name'] ?? '',
+            $e['date'] ?? null,
+            $e['description'] ?? null,
+        ]);
+    }
 }
 
 // Import teams

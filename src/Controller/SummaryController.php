@@ -7,6 +7,7 @@ namespace App\Controller;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Service\ConfigService;
+use App\Service\EventService;
 use Slim\Views\Twig;
 
 /**
@@ -15,6 +16,7 @@ use Slim\Views\Twig;
 class SummaryController
 {
     private ConfigService $config;
+    private EventService $events;
 
     /**
      * Inject configuration service dependency.
@@ -22,6 +24,7 @@ class SummaryController
     public function __construct(ConfigService $config)
     {
         $this->config = $config;
+        $this->events = new EventService(\App\Infrastructure\Database::connectFromEnv());
     }
 
     /**
@@ -31,12 +34,16 @@ class SummaryController
     {
         $view = Twig::fromRequest($request);
         $cfg = $this->config->getConfig();
+        $event = $this->events->getFirst();
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
         if (empty($_SESSION['admin'])) {
             $cfg = ConfigService::removePuzzleInfo($cfg);
         }
-        return $view->render($response, 'summary.twig', ['config' => $cfg]);
+        return $view->render($response, 'summary.twig', [
+            'config' => $cfg,
+            'event' => $event,
+        ]);
     }
 }

@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Service\ConfigService;
 use App\Service\TeamService;
+use App\Service\EventService;
 
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Writer\PngWriter;
@@ -29,6 +30,7 @@ class QrController
 {
     private ConfigService $config;
     private TeamService $teams;
+    private EventService $events;
     /**
      * Stack for keeping track of currently selected PDF font.
      * Each entry is an array with [family, style, size].
@@ -40,10 +42,11 @@ class QrController
     /**
      * Inject configuration service dependency.
      */
-    public function __construct(ConfigService $config, TeamService $teams)
+    public function __construct(ConfigService $config, TeamService $teams, EventService $events)
     {
         $this->config = $config;
         $this->teams = $teams;
+        $this->events = $events;
     }
 
     /**
@@ -172,8 +175,9 @@ class QrController
         }
 
         $cfg = $this->config->getConfig();
-        $title = (string)($cfg['header'] ?? '');
-        $subtitle = (string)($cfg['subheader'] ?? '');
+        $ev = $this->events->getFirst() ?? ['name' => '', 'description' => ''];
+        $title = (string)$ev['name'];
+        $subtitle = (string)$ev['description'];
         $logoFile = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');
 
         $pdf = new Pdf($title, $subtitle, $logoFile);
@@ -227,8 +231,9 @@ class QrController
         $teams = $this->teams->getAll();
 
         $cfg = $this->config->getConfig();
-        $title = (string)($cfg['header'] ?? '');
-        $subtitle = (string)($cfg['subheader'] ?? '');
+        $ev = $this->events->getFirst() ?? ['name' => '', 'description' => ''];
+        $title = (string)$ev['name'];
+        $subtitle = (string)$ev['description'];
         $logoPath = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');
 
         $pdf = new Pdf($title, $subtitle, $logoPath);

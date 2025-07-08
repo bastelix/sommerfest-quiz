@@ -266,8 +266,6 @@ Alle wesentlichen Einstellungen stehen in `data/config.json` und werden beim ers
   "QRUser": true,
   "logoPath": "/logo.png",
   "pageTitle": "Modernes Quiz mit UIkit",
-  "header": "Sommerfest 2025",
-  "subheader": "Willkommen beim Veranstaltungsquiz",
   "backgroundColor": "#ffffff",
   "buttonColor": "#1e87f0",
   "CheckAnswerButton": "no",

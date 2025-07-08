@@ -8,6 +8,7 @@ use App\Service\ResultService;
 use App\Service\ConfigService;
 use App\Service\CatalogService;
 use App\Service\TeamService;
+use App\Service\EventService;
 use App\Service\AwardService;
 use App\Infrastructure\Database;
 use FPDF;
@@ -26,6 +27,7 @@ class ResultController
     private ConfigService $config;
     private TeamService $teams;
     private CatalogService $catalogs;
+    private EventService $events;
     private string $photoDir;
 
     /**
@@ -36,7 +38,8 @@ class ResultController
         ConfigService $config,
         TeamService $teams,
         CatalogService $catalogs,
-        string $photoDir
+        string $photoDir,
+        EventService $events = null
     )
     {
         $this->service = $service;
@@ -44,6 +47,7 @@ class ResultController
         $this->teams = $teams;
         $this->catalogs = $catalogs;
         $this->photoDir = rtrim($photoDir, '/');
+        $this->events = $events ?? new EventService(Database::connectFromEnv());
     }
 
     /**
@@ -241,8 +245,9 @@ class ResultController
         $rankings = $awardService->computeRankings($results, $catalogCount);
 
         $cfg = $this->config->getConfig();
-        $title = (string)($cfg['header'] ?? '');
-        $subtitle = (string)($cfg['subheader'] ?? '');
+        $event = $this->events->getFirst() ?? ['name' => '', 'description' => ''];
+        $title = (string)$event['name'];
+        $subtitle = (string)$event['description'];
         $logoPath = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');
 
         $pdf = new Pdf($title, $subtitle, $logoPath);

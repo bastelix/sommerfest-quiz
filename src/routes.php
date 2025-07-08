@@ -77,12 +77,13 @@ return function (\Slim\App $app) {
         $configService,
         $teamService,
         $catalogService,
-        __DIR__ . '/../data/photos'
+        __DIR__ . '/../data/photos',
+        $eventService
     );
     $teamController = new TeamController($teamService);
     $eventController = new EventController($eventService);
     $passwordController = new PasswordController($configService);
-    $qrController = new QrController($configService, $teamService);
+    $qrController = new QrController($configService, $teamService, $eventService);
     $logoController = new LogoController($configService);
     $summaryController = new SummaryController($configService);
     $importController = new ImportController(

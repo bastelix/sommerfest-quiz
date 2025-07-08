@@ -50,4 +50,16 @@ class EventService
         }
         $this->pdo->commit();
     }
+
+    /**
+     * Return the first event or null if none exist.
+     *
+     * @return array{uid:string,name:string,date:?string,description:?string}|null
+     */
+    public function getFirst(): ?array
+    {
+        $stmt = $this->pdo->query('SELECT uid,name,date,description FROM events ORDER BY name LIMIT 1');
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row !== false ? $row : null;
+    }
 }

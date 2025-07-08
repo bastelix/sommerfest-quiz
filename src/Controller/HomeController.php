@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Service\ConfigService;
 use App\Service\CatalogService;
+use App\Service\EventService;
 use App\Infrastructure\Database;
 use Slim\Views\Twig;
 
@@ -24,6 +25,7 @@ class HomeController
         $view = Twig::fromRequest($request);
         $pdo = Database::connectFromEnv();
         $cfg = (new ConfigService($pdo))->getConfig();
+        $event = (new EventService($pdo))->getFirst();
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
@@ -53,6 +55,7 @@ class HomeController
         return $view->render($response, 'index.twig', [
             'config' => $cfg,
             'catalogs' => $catalogs,
+            'event' => $event,
         ]);
     }
 }
