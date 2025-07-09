@@ -72,6 +72,7 @@
 - Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
+- Update changelog [skip ci]
 
 ### Feat
 
@@ -92,6 +93,7 @@
 - Avoid scanner timing race
 - Hide catalog list when repeating in competition mode
 - *(js)* Refresh UIkit lightboxes
+- Sanitize migrations
 
 ### Style
 
