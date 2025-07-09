@@ -12,6 +12,7 @@ use App\Service\ResultService;
 use App\Service\CatalogService;
 use App\Service\TeamService;
 use App\Service\EventService;
+use App\Service\UserService;
 use App\Infrastructure\Database;
 
 /**
@@ -81,12 +82,14 @@ class AdminController
             }
         }
 
-        $teams = (new TeamService($pdo, $configSvc))->getAll();
+        $teams  = (new TeamService($pdo, $configSvc))->getAll();
+        $users  = (new UserService($pdo))->getAll();
         return $view->render($response, 'admin.twig', [
             'config' => $cfg,
             'results' => $results,
             'catalogs' => $catalogs,
             'teams' => $teams,
+            'users' => $users,
             'baseUrl' => $baseUrl,
             'event' => $event,
         ]);

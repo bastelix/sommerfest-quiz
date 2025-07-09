@@ -501,6 +501,28 @@
           </div>
         </form>
 
+        <h3 class="uk-heading-bullet">Benutzer</h3>
+        <div class="uk-overflow-auto">
+          <table class="uk-table uk-table-divider uk-table-small">
+            <thead>
+              <tr>
+                <th><span uk-icon="icon: question" uk-tooltip="title: Zum Sortieren Zeile ziehen; pos: top"></span></th>
+                <th>Benutzername</th>
+                <th>Passwort</th>
+                <th>Rolle</th>
+                <th><span uk-icon="icon: question" uk-tooltip="title: Benutzer entfernen; pos: top"></span></th>
+              </tr>
+            </thead>
+            <tbody id="usersList" uk-sortable="group: sortable-group"></tbody>
+          </table>
+        </div>
+        <div class="uk-margin">
+          <button id="userAddBtn" class="uk-button uk-button-default" uk-tooltip="title: Neuen Benutzer anlegen; pos: right">Hinzufügen</button>
+        </div>
+        <div class="uk-margin uk-flex uk-flex-right">
+          <button id="usersSaveBtn" class="uk-button uk-button-primary" uk-tooltip="title: Änderungen speichern; pos: right">Speichern</button>
+        </div>
+
         <h3 class="uk-heading-bullet">Sicherungen</h3>
         <div class="uk-margin uk-flex uk-flex-right">
           <button id="exportJsonBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: Datenbank als JSON exportieren; pos: right">Backup erstellen</button>

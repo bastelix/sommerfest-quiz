@@ -1405,6 +1405,121 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
+  // --------- Benutzer ---------
+  const usersListEl = document.getElementById('usersList');
+  const userAddBtn = document.getElementById('userAddBtn');
+  const usersSaveBtn = document.getElementById('usersSaveBtn');
+
+  function collectUsers() {
+    return Array.from(usersListEl.querySelectorAll('.user-row')).map(row => ({
+      id: row.dataset.id ? parseInt(row.dataset.id, 10) : undefined,
+      username: row.querySelector('.user-name').value.trim(),
+      password: row.querySelector('.user-pass').value,
+      role: row.querySelector('.user-role').value
+    })).filter(u => u.username);
+  }
+
+  function saveUserOrder() {
+    const list = collectUsers();
+    fetch('/users.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(list)
+    }).catch(() => {});
+  }
+
+  function createUserRow(u = {}) {
+    const row = document.createElement('tr');
+    row.className = 'user-row';
+    if (u.id) row.dataset.id = u.id;
+
+    const handleCell = document.createElement('td');
+    const handleSpan = document.createElement('span');
+    handleSpan.className = 'uk-sortable-handle uk-icon';
+    handleSpan.setAttribute('uk-icon', 'icon: table');
+    handleCell.appendChild(handleSpan);
+
+    const nameCell = document.createElement('td');
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.className = 'uk-input user-name';
+    nameInput.placeholder = 'Benutzername';
+    nameInput.value = u.username || '';
+    nameCell.appendChild(nameInput);
+
+    const passCell = document.createElement('td');
+    const passInput = document.createElement('input');
+    passInput.type = 'password';
+    passInput.className = 'uk-input user-pass';
+    passInput.placeholder = '(unverändert)';
+    passCell.appendChild(passInput);
+
+    const roleCell = document.createElement('td');
+    const roleSelect = document.createElement('select');
+    roleSelect.className = 'uk-select user-role';
+    ['user', 'admin'].forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = r;
+      opt.textContent = r;
+      if ((u.role || 'user') === r) opt.selected = true;
+      roleSelect.appendChild(opt);
+    });
+    roleCell.appendChild(roleSelect);
+
+    const delCell = document.createElement('td');
+    const delBtn = document.createElement('button');
+    delBtn.className = 'uk-button uk-button-danger';
+    delBtn.textContent = '×';
+    delBtn.setAttribute('aria-label', 'Löschen');
+    delBtn.addEventListener('click', () => row.remove());
+    delCell.appendChild(delBtn);
+
+    row.appendChild(handleCell);
+    row.appendChild(nameCell);
+    row.appendChild(passCell);
+    row.appendChild(roleCell);
+    row.appendChild(delCell);
+    return row;
+  }
+
+  function renderUsers(list) {
+    if (!usersListEl) return;
+    usersListEl.innerHTML = '';
+    list.forEach(u => usersListEl.appendChild(createUserRow(u)));
+  }
+
+  if (usersListEl && window.UIkit && UIkit.util) {
+    UIkit.util.on(usersListEl, 'moved', saveUserOrder);
+  }
+
+  if (usersListEl) {
+    fetch('/users.json', { headers: { 'Accept': 'application/json' } })
+      .then(r => r.json())
+      .then(data => renderUsers(data))
+      .catch(() => {});
+  }
+
+  userAddBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    usersListEl.appendChild(createUserRow());
+  });
+
+  usersSaveBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    const list = collectUsers();
+    fetch('/users.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(list)
+    }).then(r => {
+      if (!r.ok) throw new Error(r.statusText);
+      notify('Liste gespeichert', 'success');
+    }).catch(err => {
+      console.error(err);
+      notify('Fehler beim Speichern', 'danger');
+    });
+  });
+
   // --------- Passwort ändern ---------
   const passSaveBtn = document.getElementById('passSaveBtn');
   const importJsonBtn = document.getElementById('importJsonBtn');

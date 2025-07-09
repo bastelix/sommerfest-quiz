@@ -25,6 +25,7 @@ use App\Service\UserService;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
 use App\Controller\PasswordController;
+use App\Controller\UserController;
 use App\Controller\ImportController;
 use App\Controller\ExportController;
 use App\Controller\QrController;
@@ -57,6 +58,7 @@ require_once __DIR__ . '/Controller/EvidenceController.php';
 require_once __DIR__ . '/Controller/ExportController.php';
 require_once __DIR__ . '/Controller/EventController.php';
 require_once __DIR__ . '/Controller/BackupController.php';
+require_once __DIR__ . '/Controller/UserController.php';
 
 use App\Infrastructure\Database;
 use App\Infrastructure\Migrations\Migrator;
@@ -85,6 +87,7 @@ return function (\Slim\App $app) {
     $teamController = new TeamController($teamService);
     $eventController = new EventController($eventService);
     $passwordController = new PasswordController($userService);
+    $userController = new UserController($userService);
     $qrController = new QrController($configService, $teamService, $eventService);
     $logoController = new LogoController($configService);
     $summaryController = new SummaryController($configService);
@@ -153,6 +156,8 @@ return function (\Slim\App $app) {
 
     $app->get('/teams.json', [$teamController, 'get']);
     $app->post('/teams.json', [$teamController, 'post']);
+    $app->get('/users.json', [$userController, 'get']);
+    $app->post('/users.json', [$userController, 'post']);
     $app->post('/password', [$passwordController, 'post']);
     $app->post('/import', [$importController, 'post']);
     $app->post('/import/{name}', [$importController, 'import']);
