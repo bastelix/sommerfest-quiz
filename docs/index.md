@@ -21,6 +21,30 @@ Weitere Highlights sind:
 - **QR-Code-Login & Dunkelmodus** für komfortables Spielen auf allen Geräten.
 - **Persistente Speicherung** in PostgreSQL.
 
+## Mandanten und API
+
+Die App kann mehrere Organisationen gleichzeitig bedienen. Jede Subdomain repräsentiert einen eigenen Mandanten mit separatem Schema in PostgreSQL. Die Schemas werden automatisch über die vorhandenen Migrationen angelegt.
+
+### Endpunkte
+
+- **POST `/tenants`** &ndash; legt einen neuen Mandanten an.
+- **DELETE `/tenants`** &ndash; entfernt einen bestehenden Mandanten samt Schema.
+
+Beispiel für das Anlegen eines Mandanten:
+
+```bash
+curl -X POST http://$DOMAIN/tenants \
+  -H 'Content-Type: application/json' \
+  -d '{"uid":"acme","schema":"acme"}'
+```
+
+### Hinweise zu Umgebungsvariablen
+
+Die Subdomain-Funktion nutzt folgende Variablen aus `.env` oder `sample.env`:
+
+- `DOMAIN` legt die Basis-Domain für alle Mandanten fest.
+- `POSTGRES_DSN`, `POSTGRES_USER` und `POSTGRES_PASSWORD` bestimmen den Datenbankzugang.
+
 ## Weitere Seiten
 
 * [Wie läuft das Spiel?](spielablauf.md)
