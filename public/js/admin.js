@@ -1234,7 +1234,11 @@ document.addEventListener('DOMContentLoaded', function () {
     del.className = 'uk-button uk-button-danger';
     del.textContent = '×';
     del.setAttribute('aria-label', 'Löschen');
-    del.addEventListener('click', () => row.remove());
+    del.addEventListener('click', () => {
+      if (confirm('Veranstaltung wirklich löschen? Dabei werden auch alle angelegten Kataloge, Fragen und Teams entfernt.')) {
+        row.remove();
+      }
+    });
     delCell.appendChild(del);
 
     row.appendChild(handleCell);
