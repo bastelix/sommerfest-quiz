@@ -200,6 +200,26 @@ ohne Docker betrieben wird. Ist `DOMAIN` dort gesetzt, wird für QR-Codes und
 Exportlinks diese Adresse verwendet. Enthält die Variable kein Schema, wird
 standardmäßig `https://` vorangestellt.
 
+## Multi-Tenant Setup
+
+Mehrere Subdomains lassen sich als eigene Mandanten betreiben. Ein neuer
+Mandant wird mit `scripts/create_tenant.sh` angelegt:
+
+```bash
+scripts/create_tenant.sh foo
+```
+
+Das Skript sendet einen API-Aufruf an `/tenant`, legt die Datei
+`vhost.d/foo.$DOMAIN` an und lädt anschließend den Proxy neu. Zum Entfernen
+eines Mandanten steht `scripts/delete_tenant.sh` bereit:
+
+```bash
+scripts/delete_tenant.sh foo
+```
+
+Beide Skripte lesen die Variable `DOMAIN` aus `sample.env` und nutzen sie
+für die vhost-Konfiguration.
+
 ## Anpassung
 
 Alle wichtigen Einstellungen finden Sie in `data/config.json`. Ändern Sie hier Logo, Farben oder die Verwendung des QR-Code-Logins. Die Fragen selbst liegen in `data/kataloge/*.json` und können mit jedem Texteditor angepasst werden. Jede Katalogdefinition besitzt weiterhin ein `slug` für die URL. Fragen verknüpfen den Katalog nun über `catalog_uid`. Das bisherige `id` dient ausschließlich der Sortierung und wird automatisch vergeben.
