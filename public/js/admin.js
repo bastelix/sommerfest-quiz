@@ -1493,8 +1493,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     row.appendChild(handleCell);
     row.appendChild(nameCell);
-    row.appendChild(passCell);
     row.appendChild(roleCell);
+    row.appendChild(passCell);
     row.appendChild(delCell);
     return row;
   }
