@@ -1461,11 +1461,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const roleCell = document.createElement('td');
     const roleSelect = document.createElement('select');
     roleSelect.className = 'uk-select user-role';
-    ['user', 'admin'].forEach(r => {
+    const roles = window.roles || [];
+    roles.forEach(r => {
       const opt = document.createElement('option');
       opt.value = r;
       opt.textContent = r;
-      if ((u.role || 'user') === r) opt.selected = true;
+      if ((u.role || roles[0]) === r) opt.selected = true;
       roleSelect.appendChild(opt);
     });
     roleCell.appendChild(roleSelect);

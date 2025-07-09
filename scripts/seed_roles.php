@@ -21,7 +21,7 @@ $pdo = new PDO($dsn, $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
 $pdo->beginTransaction();
 $insert = $pdo->prepare('INSERT INTO users(username,password,role) VALUES(?,?,?) ON CONFLICT (username) DO NOTHING');
 $insert->execute(['admin', password_hash('admin', PASSWORD_DEFAULT), 'admin']);
-$insert->execute(['staff', password_hash('staff', PASSWORD_DEFAULT), 'user']);
+$insert->execute(['staff', password_hash('staff', PASSWORD_DEFAULT), 'catalog-editor']);
 $pdo->commit();
 
 echo "Seeded example users\n";

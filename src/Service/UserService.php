@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use PDO;
+use App\Domain\Roles;
 
 /**
  * Service for user and role management.
@@ -34,8 +35,11 @@ class UserService
     /**
      * Create a new user with the given role.
      */
-    public function create(string $username, string $password, string $role = 'user'): void
+    public function create(string $username, string $password, string $role = Roles::CATALOG_EDITOR): void
     {
+        if (!in_array($role, Roles::ALL, true)) {
+            $role = Roles::CATALOG_EDITOR;
+        }
         $stmt = $this->pdo->prepare('INSERT INTO users(username,password,role) VALUES(?,?,?)');
         $stmt->execute([
             strtolower($username),
@@ -87,8 +91,11 @@ class UserService
 
         foreach ($users as $u) {
             $id = isset($u['id']) ? (int) $u['id'] : 0;
-            $username = strtolower((string) ($u['username'] ?? ''));
-            $role = (string) ($u['role'] ?? 'user');
+            $username = strtolower((string) $u['username']);
+            $role = (string) $u['role'];
+            if (!in_array($role, Roles::ALL, true)) {
+                $role = Roles::CATALOG_EDITOR;
+            }
             $pass = $u['password'] ?? '';
 
             if ($id === 0 || !isset($existing[$id])) {
