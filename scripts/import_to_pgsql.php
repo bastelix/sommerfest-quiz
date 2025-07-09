@@ -33,9 +33,27 @@ $pdo->beginTransaction();
 $pdo->exec('TRUNCATE config, teams, results, catalogs, questions, photo_consents, events RESTART IDENTITY CASCADE');
 
 // Import config
-$configData = array_intersect_key($config, array_flip([
-    'displayErrorDetails','QRUser','logoPath','pageTitle','backgroundColor','buttonColor','CheckAnswerButton','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback','inviteText','event_uid'
-]));
+$configData = array_intersect_key(
+    $config,
+    array_flip([
+        'displayErrorDetails',
+        'QRUser',
+        'logoPath',
+        'pageTitle',
+        'backgroundColor',
+        'buttonColor',
+        'CheckAnswerButton',
+        'QRRestrict',
+        'competitionMode',
+        'teamResults',
+        'photoUpload',
+        'puzzleWordEnabled',
+        'puzzleWord',
+        'puzzleFeedback',
+        'inviteText',
+        'event_uid',
+    ])
+);
 if ($configData) {
     $cols = array_keys($configData);
     $placeholders = array_map(fn($c) => ':' . $c, $cols);
@@ -103,8 +121,10 @@ if (is_readable($resultsFile)) {
     $results = json_decode(file_get_contents($resultsFile), true) ?? [];
     $withId = isset($results[0]['id']);
     $sql = $withId
-        ? 'INSERT INTO results(id,name,catalog,attempt,correct,total,time,puzzleTime,photo,event_uid) VALUES(?,?,?,?,?,?,?,?,?,?)'
-        : 'INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo,event_uid) VALUES(?,?,?,?,?,?,?,?,?)';
+        ? 'INSERT INTO results(id,name,catalog,attempt,correct,total,time,puzzleTime,photo,event_uid)' .
+            ' VALUES(?,?,?,?,?,?,?,?,?,?)'
+        : 'INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo,event_uid)' .
+            ' VALUES(?,?,?,?,?,?,?,?,?)';
     $stmt = $pdo->prepare($sql);
     foreach ($results as $r) {
         $params = [
@@ -123,7 +143,10 @@ if (is_readable($resultsFile)) {
         }
         $stmt->execute($params);
     }
-    $pdo->exec("SELECT setval(pg_get_serial_sequence('results','id'), (SELECT COALESCE(MAX(id),0) FROM results))");
+    $pdo->exec(
+        "SELECT setval(pg_get_serial_sequence('results','id'), " .
+        "(SELECT COALESCE(MAX(id),0) FROM results))"
+    );
 }
 
 // Import catalogs and questions
@@ -131,8 +154,14 @@ $catalogDir = "$base/data/kataloge";
 $catalogsFile = "$catalogDir/catalogs.json";
 if (is_readable($catalogsFile)) {
     $catalogs = json_decode(file_get_contents($catalogsFile), true) ?? [];
-    $catStmt = $pdo->prepare('INSERT INTO catalogs(uid,sort_order,slug,file,name,description,qrcode_url,raetsel_buchstabe,comment,event_uid) VALUES(?,?,?,?,?,?,?,?,?,?)');
-    $qStmt = $pdo->prepare('INSERT INTO questions(catalog_uid,type,prompt,options,answers,terms,items,sort_order) VALUES(?,?,?,?,?,?,?,?)');
+    $catStmt = $pdo->prepare(
+        'INSERT INTO catalogs(uid,sort_order,slug,file,name,description,' .
+        'qrcode_url,raetsel_buchstabe,comment,event_uid) VALUES(?,?,?,?,?,?,?,?,?,?)'
+    );
+    $qStmt = $pdo->prepare(
+        'INSERT INTO questions(catalog_uid,type,prompt,options,answers,terms,items,sort_order)' .
+        ' VALUES(?,?,?,?,?,?,?,?)'
+    );
     foreach ($catalogs as $cat) {
         $catStmt->execute([
             $cat['uid'] ?? '',
@@ -163,7 +192,10 @@ if (is_readable($catalogsFile)) {
             }
         }
     }
-    $pdo->exec("SELECT setval(pg_get_serial_sequence('questions','id'), (SELECT COALESCE(MAX(id),0) FROM questions))");
+    $pdo->exec(
+        "SELECT setval(pg_get_serial_sequence('questions','id'), " .
+        "(SELECT COALESCE(MAX(id),0) FROM questions))"
+    );
 }
 
 // Import photo consents
@@ -178,7 +210,10 @@ if (is_readable($consentFile)) {
             $c['event_uid'] ?? $activeUid,
         ]);
     }
-    $pdo->exec("SELECT setval(pg_get_serial_sequence('photo_consents','id'), (SELECT COALESCE(MAX(id),0) FROM photo_consents))");
+    $pdo->exec(
+        "SELECT setval(pg_get_serial_sequence('photo_consents','id'), " .
+        "(SELECT COALESCE(MAX(id),0) FROM photo_consents))"
+    );
 }
 
 $pdo->commit();

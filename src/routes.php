@@ -141,12 +141,18 @@ return function (\Slim\App $app) {
     $app->post('/login', [LoginController::class, 'login']);
     $app->get('/logout', LogoutController::class);
     $app->get('/admin', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/kataloge', AdminCatalogController::class)->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-    $app->get('/results', [$resultController, 'page'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
-    $app->get('/results.json', [$resultController, 'get'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
-    $app->get('/question-results.json', [$resultController, 'getQuestions'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
-    $app->get('/results/download', [$resultController, 'download'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
-    $app->get('/results.pdf', [$resultController, 'pdf'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    $app->get('/admin/kataloge', AdminCatalogController::class)
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->get('/results', [$resultController, 'page'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    $app->get('/results.json', [$resultController, 'get'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    $app->get('/question-results.json', [$resultController, 'getQuestions'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    $app->get('/results/download', [$resultController, 'download'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    $app->get('/results.pdf', [$resultController, 'pdf'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
     $app->post('/results', [$resultController, 'post']);
     $app->delete('/results', [$resultController, 'delete'])->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/config.json', [$configController, 'get']);
