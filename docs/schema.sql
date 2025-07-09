@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS config (
     puzzleWord TEXT,
     puzzleFeedback TEXT,
     inviteText TEXT,
-    event_uid TEXT REFERENCES events(uid)
+    event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
 -- Event definitions
 CREATE TABLE IF NOT EXISTS events (
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS teams (
     sort_order INTEGER UNIQUE NOT NULL,
     name TEXT NOT NULL,
     uid UUID DEFAULT gen_random_uuid() PRIMARY KEY NOT NULL,
-    event_uid TEXT REFERENCES events(uid)
+    event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
 CREATE UNIQUE INDEX idx_team_name ON teams(name);
 
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS results (
     time INTEGER NOT NULL,
     puzzleTime INTEGER,
     photo TEXT,
-    event_uid TEXT REFERENCES events(uid)
+    event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
 CREATE INDEX idx_results_catalog ON results(catalog);
 CREATE INDEX idx_results_name ON results(name);
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS question_results (
     answer_text TEXT,
     photo TEXT,
     consent BOOLEAN,
-    event_uid TEXT REFERENCES events(uid)
+    event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
 CREATE INDEX idx_qresults_catalog ON question_results(catalog);
 CREATE INDEX idx_qresults_name ON question_results(name);
@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS catalogs (
     qrcode_url TEXT,
     raetsel_buchstabe TEXT,
     comment TEXT,
-    event_uid TEXT REFERENCES events(uid)
+    event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
 ALTER TABLE catalogs
     ADD CONSTRAINT catalogs_unique_sort_order
