@@ -58,6 +58,7 @@
 - Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
+- Update changelog [skip ci]
 
 ### Feat
 
@@ -66,6 +67,7 @@
 - Add dynamic congratulations for team PDFs
 - Add event API and schema columns
 - *(admin)* Activate event selection
+- Confirm event deletion
 
 ### Fix
 
