@@ -61,6 +61,7 @@
 - Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
+- Update changelog [skip ci]
 
 ### Feat
 
@@ -70,6 +71,7 @@
 - Add event API and schema columns
 - *(admin)* Activate event selection
 - Confirm event deletion
+- Centralize roles and update management
 
 ### Fix
 
