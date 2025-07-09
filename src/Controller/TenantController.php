@@ -23,10 +23,10 @@ class TenantController
     public function create(Request $request, Response $response): Response
     {
         $data = json_decode((string) $request->getBody(), true);
-        if (!is_array($data)) {
+        if (!is_array($data) || !isset($data['uid'], $data['schema'])) {
             return $response->withStatus(400);
         }
-        $this->service->create($data);
+        $this->service->createTenant((string) $data['uid'], (string) $data['schema']);
         return $response->withStatus(201);
     }
 
@@ -36,7 +36,7 @@ class TenantController
         if (!is_array($data) || !isset($data['uid'])) {
             return $response->withStatus(400);
         }
-        $this->service->delete((string) $data['uid']);
+        $this->service->deleteTenant((string) $data['uid']);
         return $response->withStatus(204);
     }
 }
