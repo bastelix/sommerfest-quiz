@@ -26,6 +26,10 @@ class AdminController
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $role = $_SESSION['user']['role'] ?? null;
         $pdo = Database::connectFromEnv();
         $cfg = (new ConfigService($pdo))->getConfig();
         $eventSvc = new EventService($pdo);
@@ -92,6 +96,7 @@ class AdminController
             'users' => $users,
             'baseUrl' => $baseUrl,
             'event' => $event,
+            'role' => $role,
         ]);
     }
 }

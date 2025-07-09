@@ -116,8 +116,13 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
 
 4. Anschließend einmalig die vorhandenen JSON-Daten importieren:
    ```bash
-   php scripts/import_to_pgsql.php
-   ```
+  php scripts/import_to_pgsql.php
+  ```
+  Um Beispielbenutzer mit Rollen anzulegen, kann optional
+  ```bash
+  php scripts/seed_roles.php
+  ```
+  ausgeführt werden.
 
    Wird `POSTGRES_DSN` gesetzt und enthält das Verzeichnis `data/` bereits JSON-Dateien,
    legt das Entrypoint-Skript des Containers die Tabellen automatisch an und importiert
@@ -288,7 +293,7 @@ Optional kann `baseUrl` gesetzt werden, um in QR-Codes vollständige Links mit D
 `ConfigService` liest und speichert diese Datei. Ein GET auf `/config.json` liefert den aktuellen Inhalt, ein POST auf dieselbe URL speichert geänderte Werte.
 
 ### Authentifizierung
-Der Zugang zum Administrationsbereich erfolgt über `/login`. Benutzer und Rollen werden in der Tabelle `users` verwaltet. Nach erfolgreichem POST mit gültigen Zugangsdaten speichert das System die Benutzerinformationen inklusive Rolle in der Session und leitet Administratoren zur Route `/admin` weiter. Die Middleware `AdminAuthMiddleware` prüft die gespeicherte Rolle und leitet bei fehlender Administratorberechtigung zum Login um.
+Der Zugang zum Administrationsbereich erfolgt über `/login`. Benutzer und Rollen werden in der Tabelle `users` verwaltet. Nach erfolgreichem POST mit gültigen Zugangsdaten speichert das System die Benutzerinformationen inklusive Rolle in der Session und leitet Administratoren zur Route `/admin` weiter. Die Middleware `RoleAuthMiddleware` prüft die gespeicherte Rolle und leitet bei fehlenden Berechtigungen zum Login um.
 
 ### Administrationsoberfläche
 Unter `/admin` stehen folgende Tabs zur Verfügung:

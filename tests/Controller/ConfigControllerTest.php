@@ -64,4 +64,17 @@ class ConfigControllerTest extends TestCase
         $response = $controller->post($request, new Response());
         $this->assertEquals(400, $response->getStatusCode());
     }
+
+    public function testPostDeniedForNonAdmin(): void
+    {
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 2, 'role' => 'user'];
+        $request = $this->createRequest('POST', '/config.json');
+        $request = $request->withParsedBody(['foo' => 'bar']);
+        $response = $app->handle($request);
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals('/login', $response->getHeaderLine('Location'));
+        session_destroy();
+    }
 }
