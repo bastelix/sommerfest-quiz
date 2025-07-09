@@ -37,7 +37,8 @@ class HomeController
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-        if (empty($_SESSION['admin'])) {
+        $role = $_SESSION['user']['role'] ?? null;
+        if ($role !== 'admin') {
             $cfg = ConfigService::removePuzzleInfo($cfg);
         }
 

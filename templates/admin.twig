@@ -38,7 +38,9 @@
     <li data-help="Gespeicherte Ergebnisse mit richtigen Antworten und Zeit einsehen. 'Zurücksetzen' löscht alle Daten, 'Herunterladen' exportiert sie als CSV."><a href="#">Ergebnisse</a></li>
     <li data-help="Einzelne Antworten analysieren. Tabelle filtert nach Teams/Personen."><a href="#">Statistik</a></li>
     <li data-help="QR-Codes für alle Kataloge und Teams anzeigen, um Quizlinks oder Anmeldungen weiterzugeben. 'Drucken' erstellt eine übersichtliche Liste."><a href="#">Zusammenfassung</a></li>
+    {% if role == 'admin' %}
     <li data-help="Administrationspasswort ändern und Sicherungen verwalten."><a href="#">Administration</a></li>
+    {% endif %}
   </ul>
   <ul class="uk-switcher uk-margin">
     <li>
@@ -474,6 +476,7 @@
         </div>
         </div>
       </li>
+      {% if role == 'admin' %}
       <li>
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">Administration</h2>
@@ -540,6 +543,7 @@
         </table>
       </div>
     </li>
+      {% endif %}
   </ul>
   <div id="helpSidebar" uk-offcanvas="flip: true; overlay: true">
     <div class="uk-offcanvas-bar uk-width-medium">

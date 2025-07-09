@@ -28,4 +28,16 @@ class AdminControllerTest extends TestCase
         $this->assertStringContainsString('export-card', (string) $response->getBody());
         session_destroy();
     }
+
+    public function testRedirectForWrongRole(): void
+    {
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'user'];
+        $request = $this->createRequest('GET', '/admin');
+        $response = $app->handle($request);
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals('/login', $response->getHeaderLine('Location'));
+        session_destroy();
+    }
 }
