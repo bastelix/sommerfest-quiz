@@ -13,6 +13,7 @@ use App\Service\CatalogService;
 use App\Service\TeamService;
 use App\Service\EventService;
 use App\Service\UserService;
+use App\Domain\Roles;
 use App\Infrastructure\Database;
 
 /**
@@ -94,6 +95,7 @@ class AdminController
             'catalogs' => $catalogs,
             'teams' => $teams,
             'users' => $users,
+            'roles' => Roles::ALL,
             'baseUrl' => $baseUrl,
             'event' => $event,
             'role' => $role,
