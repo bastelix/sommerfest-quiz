@@ -15,6 +15,7 @@ class EventServiceTest extends TestCase
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT NOT NULL, date TEXT, description TEXT);');
+        $pdo->exec('CREATE TABLE config(id INTEGER PRIMARY KEY AUTOINCREMENT, event_uid TEXT);');
         return $pdo;
     }
 
@@ -26,6 +27,8 @@ class EventServiceTest extends TestCase
             ['name' => 'Test Event', 'date' => '2025-07-04', 'description' => 'Demo'],
         ];
         $service->saveAll($data);
+        $count = (int) $pdo->query('SELECT COUNT(*) FROM config')->fetchColumn();
+        $this->assertSame(1, $count);
         $rows = $service->getAll();
         $this->assertCount(1, $rows);
         $this->assertSame('Test Event', $rows[0]['name']);

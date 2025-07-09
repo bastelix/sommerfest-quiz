@@ -107,6 +107,19 @@ class ConfigService
     }
 
     /**
+     * Ensure a configuration row exists for the given event UID.
+     */
+    public function ensureConfigForEvent(string $uid): void
+    {
+        $stmt = $this->pdo->prepare('SELECT 1 FROM config WHERE event_uid = ? LIMIT 1');
+        $stmt->execute([$uid]);
+        if ($stmt->fetchColumn() === false) {
+            $insert = $this->pdo->prepare('INSERT INTO config(event_uid) VALUES(?)');
+            $insert->execute([$uid]);
+        }
+    }
+
+    /**
      * Return the UID of the currently active event or an empty string.
      */
     public function getActiveEventUid(): string

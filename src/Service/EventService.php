@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use PDO;
+use App\Service\ConfigService;
 
 /**
  * Service for managing quiz events.
@@ -12,10 +13,12 @@ use PDO;
 class EventService
 {
     private PDO $pdo;
+    private ConfigService $config;
 
-    public function __construct(PDO $pdo)
+    public function __construct(PDO $pdo, ?ConfigService $config = null)
     {
         $this->pdo = $pdo;
+        $this->config = $config ?? new ConfigService($pdo);
     }
 
     /**
@@ -43,10 +46,11 @@ class EventService
             $uid = $event['uid'] ?? bin2hex(random_bytes(16));
             $stmt->execute([
                 $uid,
-                (string)$event['name'],
+                (string) $event['name'],
                 $event['date'] ?? null,
                 $event['description'] ?? null,
             ]);
+            $this->config->ensureConfigForEvent($uid);
         }
         $this->pdo->commit();
     }
