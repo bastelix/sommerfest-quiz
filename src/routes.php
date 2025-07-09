@@ -66,62 +66,80 @@ require_once __DIR__ . '/Controller/TenantController.php';
 
 use App\Infrastructure\Database;
 use App\Infrastructure\Migrations\Migrator;
+use Psr\Http\Server\RequestHandlerInterface;
 
 return function (\Slim\App $app) {
-    $pdo = Database::connectFromEnv();
-    Migrator::migrate($pdo, __DIR__ . '/../migrations');
-    $configService = new ConfigService($pdo);
-    $catalogService = new CatalogService($pdo, $configService);
-    $resultService = new ResultService($pdo, $configService);
-    $teamService = new TeamService($pdo, $configService);
-    $consentService = new PhotoConsentService($pdo, $configService);
-    $eventService = new EventService($pdo);
-    $tenantService = new TenantService($pdo);
-    $userService = new \App\Service\UserService($pdo);
+    $app->add(function (Request $request, RequestHandlerInterface $handler) {
+        $base = Database::connectFromEnv();
+        Migrator::migrate($base, __DIR__ . '/../migrations');
 
-    $configController = new ConfigController($configService);
-    $catalogController = new CatalogController($catalogService);
-    $resultController = new ResultController(
-        $resultService,
-        $configService,
-        $teamService,
-        $catalogService,
-        __DIR__ . '/../data/photos',
-        $eventService
-    );
-    $teamController = new TeamController($teamService);
-    $eventController = new EventController($eventService);
-    $tenantController = new TenantController($tenantService);
-    $passwordController = new PasswordController($userService);
-    $userController = new UserController($userService);
-    $qrController = new QrController($configService, $teamService, $eventService);
-    $logoController = new LogoController($configService);
-    $summaryController = new SummaryController($configService);
-    $importController = new ImportController(
-        $catalogService,
-        $configService,
-        $resultService,
-        $teamService,
-        $consentService,
-        __DIR__ . '/../data',
-        __DIR__ . '/../backup'
-    );
-    $exportController = new ExportController(
-        $configService,
-        $catalogService,
-        $resultService,
-        $teamService,
-        $consentService,
-        __DIR__ . '/../data',
-        __DIR__ . '/../backup'
-    );
-    $backupController = new BackupController(__DIR__ . '/../backup');
-    $evidenceController = new EvidenceController(
-        $resultService,
-        $consentService,
-        new NullLogger(),
-        __DIR__ . '/../data/photos'
-    );
+        $host = $request->getUri()->getHost();
+        $sub = explode('.', $host)[0];
+        $stmt = $base->prepare('SELECT subdomain FROM tenants WHERE subdomain = ?');
+        $stmt->execute([$sub]);
+        $schema = $stmt->fetchColumn();
+        $schema = $schema === false ? 'public' : (string) $schema;
+
+        $pdo = Database::connectWithSchema($schema);
+        Migrator::migrate($pdo, __DIR__ . '/../migrations');
+
+        $configService = new ConfigService($pdo);
+        $catalogService = new CatalogService($pdo, $configService);
+        $resultService = new ResultService($pdo, $configService);
+        $teamService = new TeamService($pdo, $configService);
+        $consentService = new PhotoConsentService($pdo, $configService);
+        $eventService = new EventService($pdo);
+        $tenantService = new TenantService($pdo);
+        $userService = new \App\Service\UserService($pdo);
+
+        $request = $request
+            ->withAttribute('configController', new ConfigController($configService))
+            ->withAttribute('catalogController', new CatalogController($catalogService))
+            ->withAttribute('resultController', new ResultController(
+                $resultService,
+                $configService,
+                $teamService,
+                $catalogService,
+                __DIR__ . '/../data/photos',
+                $eventService
+            ))
+            ->withAttribute('teamController', new TeamController($teamService))
+            ->withAttribute('eventController', new EventController($eventService))
+            ->withAttribute('tenantController', new TenantController($tenantService))
+            ->withAttribute('passwordController', new PasswordController($userService))
+            ->withAttribute('userController', new UserController($userService))
+            ->withAttribute('qrController', new QrController($configService, $teamService, $eventService))
+            ->withAttribute('logoController', new LogoController($configService))
+            ->withAttribute('summaryController', new SummaryController($configService))
+            ->withAttribute('importController', new ImportController(
+                $catalogService,
+                $configService,
+                $resultService,
+                $teamService,
+                $consentService,
+                __DIR__ . '/../data',
+                __DIR__ . '/../backup'
+            ))
+            ->withAttribute('exportController', new ExportController(
+                $configService,
+                $catalogService,
+                $resultService,
+                $teamService,
+                $consentService,
+                __DIR__ . '/../data',
+                __DIR__ . '/../backup'
+            ))
+            ->withAttribute('backupController', new BackupController(__DIR__ . '/../backup'))
+            ->withAttribute('evidenceController', new EvidenceController(
+                $resultService,
+                $consentService,
+                new NullLogger(),
+                __DIR__ . '/../data/photos'
+            ))
+            ->withAttribute('pdo', $pdo);
+
+        return $handler->handle($request);
+    });
 
     $app->get('/', HomeController::class);
     $app->get('/favicon.ico', function (Request $request, Response $response) {
@@ -142,62 +160,131 @@ return function (\Slim\App $app) {
     $app->get('/logout', LogoutController::class);
     $app->get('/admin', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/kataloge', AdminCatalogController::class)->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-    $app->get('/results', [$resultController, 'page'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
-    $app->get('/results.json', [$resultController, 'get'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
-    $app->get('/question-results.json', [$resultController, 'getQuestions'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
-    $app->get('/results/download', [$resultController, 'download'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
-    $app->get('/results.pdf', [$resultController, 'pdf'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
-    $app->post('/results', [$resultController, 'post']);
-    $app->delete('/results', [$resultController, 'delete'])->add(new RoleAuthMiddleware(Roles::ADMIN));
-    $app->get('/config.json', [$configController, 'get']);
-    $app->post('/config.json', [$configController, 'post'])
-        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
-    $app->get('/kataloge/{file}', [$catalogController, 'get'])
-        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-    $app->post('/kataloge/{file}', [$catalogController, 'post'])
-        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-    $app->delete('/kataloge/{file}/{index}', [$catalogController, 'deleteQuestion'])
-        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-    $app->put('/kataloge/{file}', [$catalogController, 'create'])
-        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-    $app->delete('/kataloge/{file}', [$catalogController, 'delete'])
-        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->get('/results', function (Request $request, Response $response) {
+        return $request->getAttribute('resultController')->page($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    $app->get('/results.json', function (Request $request, Response $response) {
+        return $request->getAttribute('resultController')->get($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    $app->get('/question-results.json', function (Request $request, Response $response) {
+        return $request->getAttribute('resultController')->getQuestions($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    $app->get('/results/download', function (Request $request, Response $response) {
+        return $request->getAttribute('resultController')->download($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    $app->get('/results.pdf', function (Request $request, Response $response) {
+        return $request->getAttribute('resultController')->pdf($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    $app->post('/results', function (Request $request, Response $response) {
+        return $request->getAttribute('resultController')->post($request, $response);
+    });
+    $app->delete('/results', function (Request $request, Response $response) {
+        return $request->getAttribute('resultController')->delete($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->get('/config.json', function (Request $request, Response $response) {
+        return $request->getAttribute('configController')->get($request, $response);
+    });
+    $app->post('/config.json', function (Request $request, Response $response) {
+        return $request->getAttribute('configController')->post($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+    $app->get('/kataloge/{file}', function (Request $request, Response $response, array $args) {
+        return $request->getAttribute('catalogController')->get($request->withAttribute('file', $args['file']), $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->post('/kataloge/{file}', function (Request $request, Response $response, array $args) {
+        return $request->getAttribute('catalogController')->post($request->withAttribute('file', $args['file']), $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->delete('/kataloge/{file}/{index}', function (Request $request, Response $response, array $args) {
+        $req = $request->withAttribute('file', $args['file'])->withAttribute('index', $args['index']);
+        return $request->getAttribute('catalogController')->deleteQuestion($req, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->put('/kataloge/{file}', function (Request $request, Response $response, array $args) {
+        return $request->getAttribute('catalogController')->create($request->withAttribute('file', $args['file']), $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->delete('/kataloge/{file}', function (Request $request, Response $response, array $args) {
+        return $request->getAttribute('catalogController')->delete($request->withAttribute('file', $args['file']), $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
 
-    $app->get('/events.json', [$eventController, 'get'])
-        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
-    $app->post('/events.json', [$eventController, 'post'])
-        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+    $app->get('/events.json', function (Request $request, Response $response) {
+        return $request->getAttribute('eventController')->get($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+    $app->post('/events.json', function (Request $request, Response $response) {
+        return $request->getAttribute('eventController')->post($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
 
-    $app->post('/tenants', [$tenantController, 'create'])
-        ->add(new RoleAuthMiddleware(Roles::ADMIN));
-    $app->delete('/tenants', [$tenantController, 'delete'])
-        ->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->post('/tenants', function (Request $request, Response $response) {
+        return $request->getAttribute('tenantController')->create($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->delete('/tenants', function (Request $request, Response $response) {
+        return $request->getAttribute('tenantController')->delete($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
-    $app->get('/teams.json', [$teamController, 'get']);
-    $app->post('/teams.json', [$teamController, 'post'])
-        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::TEAM_MANAGER));
-    $app->get('/users.json', [$userController, 'get'])
-        ->add(new RoleAuthMiddleware(Roles::ADMIN));
-    $app->post('/users.json', [$userController, 'post'])
-        ->add(new RoleAuthMiddleware(Roles::ADMIN));
-    $app->post('/password', [$passwordController, 'post'])->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->post('/import', [$importController, 'post'])->add(new RoleAuthMiddleware('admin'));
-    $app->post('/import/{name}', [$importController, 'import'])->add(new RoleAuthMiddleware('admin'));
-    $app->post('/export', [$exportController, 'post'])->add(new RoleAuthMiddleware('admin'));
-    $app->get('/backups', [$backupController, 'list'])->add(new RoleAuthMiddleware('admin'));
-    $app->get('/backups/{name}/download', [$backupController, 'download'])->add(new RoleAuthMiddleware('admin'));
-    $app->delete('/backups/{name}', [$backupController, 'delete'])->add(new RoleAuthMiddleware('admin'));
-    $app->get('/qr.png', [$qrController, 'image'])->add(new RoleAuthMiddleware('admin'));
-    $app->get('/qr.pdf', [$qrController, 'pdf'])->add(new RoleAuthMiddleware('admin'));
-    $app->get('/invites.pdf', [$qrController, 'pdfAll'])->add(new RoleAuthMiddleware('admin'));
-    $app->get('/logo.png', [$logoController, 'get'])->setArgument('ext', 'png');
-    $app->post('/logo.png', [$logoController, 'post'])->add(new RoleAuthMiddleware('admin'));
-    $app->get('/logo.webp', [$logoController, 'get'])->setArgument('ext', 'webp');
-    $app->post('/logo.webp', [$logoController, 'post'])->add(new RoleAuthMiddleware('admin'));
-    $app->post('/photos', [$evidenceController, 'post'])->add(new RoleAuthMiddleware('admin'));
-    $app->post('/photos/rotate', [$evidenceController, 'rotate'])->add(new RoleAuthMiddleware('admin'));
-    $app->get('/photo/{team}/{file}', [$evidenceController, 'get'])->add(new RoleAuthMiddleware('admin'));
-    $app->get('/summary', $summaryController);
+    $app->get('/teams.json', function (Request $request, Response $response) {
+        return $request->getAttribute('teamController')->get($request, $response);
+    });
+    $app->post('/teams.json', function (Request $request, Response $response) {
+        return $request->getAttribute('teamController')->post($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::TEAM_MANAGER));
+    $app->get('/users.json', function (Request $request, Response $response) {
+        return $request->getAttribute('userController')->get($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->post('/users.json', function (Request $request, Response $response) {
+        return $request->getAttribute('userController')->post($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->post('/password', function (Request $request, Response $response) {
+        return $request->getAttribute('passwordController')->post($request, $response);
+    })->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->post('/import', function (Request $request, Response $response) {
+        return $request->getAttribute('importController')->post($request, $response);
+    })->add(new RoleAuthMiddleware('admin'));
+    $app->post('/import/{name}', function (Request $request, Response $response, array $args) {
+        return $request->getAttribute('importController')->import($request->withAttribute('name', $args['name']), $response);
+    })->add(new RoleAuthMiddleware('admin'));
+    $app->post('/export', function (Request $request, Response $response) {
+        return $request->getAttribute('exportController')->post($request, $response);
+    })->add(new RoleAuthMiddleware('admin'));
+    $app->get('/backups', function (Request $request, Response $response) {
+        return $request->getAttribute('backupController')->list($request, $response);
+    })->add(new RoleAuthMiddleware('admin'));
+    $app->get('/backups/{name}/download', function (Request $request, Response $response, array $args) {
+        return $request->getAttribute('backupController')->download($request->withAttribute('name', $args['name']), $response);
+    })->add(new RoleAuthMiddleware('admin'));
+    $app->delete('/backups/{name}', function (Request $request, Response $response, array $args) {
+        return $request->getAttribute('backupController')->delete($request->withAttribute('name', $args['name']), $response);
+    })->add(new RoleAuthMiddleware('admin'));
+    $app->get('/qr.png', function (Request $request, Response $response) {
+        return $request->getAttribute('qrController')->image($request, $response);
+    })->add(new RoleAuthMiddleware('admin'));
+    $app->get('/qr.pdf', function (Request $request, Response $response) {
+        return $request->getAttribute('qrController')->pdf($request, $response);
+    })->add(new RoleAuthMiddleware('admin'));
+    $app->get('/invites.pdf', function (Request $request, Response $response) {
+        return $request->getAttribute('qrController')->pdfAll($request, $response);
+    })->add(new RoleAuthMiddleware('admin'));
+    $app->get('/logo.png', function (Request $request, Response $response) {
+        return $request->getAttribute('logoController')->get($request->withAttribute('ext', 'png'), $response);
+    });
+    $app->post('/logo.png', function (Request $request, Response $response) {
+        return $request->getAttribute('logoController')->post($request, $response);
+    })->add(new RoleAuthMiddleware('admin'));
+    $app->get('/logo.webp', function (Request $request, Response $response) {
+        return $request->getAttribute('logoController')->get($request->withAttribute('ext', 'webp'), $response);
+    });
+    $app->post('/logo.webp', function (Request $request, Response $response) {
+        return $request->getAttribute('logoController')->post($request, $response);
+    })->add(new RoleAuthMiddleware('admin'));
+    $app->post('/photos', function (Request $request, Response $response) {
+        return $request->getAttribute('evidenceController')->post($request, $response);
+    })->add(new RoleAuthMiddleware('admin'));
+    $app->post('/photos/rotate', function (Request $request, Response $response) {
+        return $request->getAttribute('evidenceController')->rotate($request, $response);
+    })->add(new RoleAuthMiddleware('admin'));
+    $app->get('/photo/{team}/{file}', function (Request $request, Response $response, array $args) {
+        $req = $request->withAttribute('team', $args['team'])->withAttribute('file', $args['file']);
+        return $request->getAttribute('evidenceController')->get($req, $response);
+    })->add(new RoleAuthMiddleware('admin'));
+    $app->get('/summary', function (Request $request, Response $response) {
+        return $request->getAttribute('summaryController')($request, $response);
+    });
 
     $app->get('/database', function (Request $request, Response $response) {
         $uri = $request->getUri();
