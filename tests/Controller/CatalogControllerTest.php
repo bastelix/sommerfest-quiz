@@ -22,10 +22,18 @@ class CatalogControllerTest extends TestCase
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
         $controller = new CatalogController($service);
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
         $request = $this->createRequest('GET', '/kataloge/missing.json', ['HTTP_ACCEPT' => 'application/json']);
         $response = $controller->get($request, new Response(), ['file' => 'missing.json']);
         $this->assertEquals(404, $response->getStatusCode());
-        rmdir($dir);
+        session_destroy();
     }
 
     public function testPostAndGet(): void
@@ -54,6 +62,7 @@ class CatalogControllerTest extends TestCase
 
         unlink($dir . '/test.json');
         rmdir($dir);
+        session_destroy();
     }
 
     public function testCreateAndDelete(): void
@@ -81,6 +90,7 @@ class CatalogControllerTest extends TestCase
         $this->assertFileDoesNotExist($dir . '/new.json');
 
         rmdir($dir);
+        session_destroy();
     }
 
     public function testDeleteQuestion(): void
@@ -106,6 +116,7 @@ class CatalogControllerTest extends TestCase
 
         unlink($dir . '/cat.json');
         rmdir($dir);
+        session_destroy();
     }
 
     public function testPostInvalidJson(): void
@@ -119,6 +130,8 @@ class CatalogControllerTest extends TestCase
         $pdo->exec('CREATE TABLE questions(id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_uid TEXT NOT NULL, sort_order INTEGER, type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT, UNIQUE(catalog_uid, sort_order));');
         $cfg = new ConfigService($pdo);
         $controller = new CatalogController(new CatalogService($pdo, $cfg));
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
 
         $request = $this->createRequest('POST', '/kataloge/test.json', ['HTTP_CONTENT_TYPE' => 'application/json']);
         $stream = fopen('php://temp', 'r+');
@@ -131,5 +144,6 @@ class CatalogControllerTest extends TestCase
         $this->assertEquals(400, $response->getStatusCode());
 
         rmdir($dir);
+        session_destroy();
     }
 }
