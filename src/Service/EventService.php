@@ -40,18 +40,36 @@ class EventService
     public function saveAll(array $events): void
     {
         $this->pdo->beginTransaction();
-        $this->pdo->exec('DELETE FROM events');
-        $stmt = $this->pdo->prepare('INSERT INTO events(uid,name,date,description) VALUES(?,?,?,?)');
+
+        $existingStmt = $this->pdo->query('SELECT uid FROM events');
+        $existing = $existingStmt->fetchAll(PDO::FETCH_COLUMN);
+
+        $updateStmt = $this->pdo->prepare('UPDATE events SET name = ?, date = ?, description = ? WHERE uid = ?');
+        $insertStmt = $this->pdo->prepare('INSERT INTO events(uid,name,date,description) VALUES(?,?,?,?)');
+        $uids = [];
         foreach ($events as $event) {
             $uid = $event['uid'] ?? bin2hex(random_bytes(16));
-            $stmt->execute([
-                $uid,
-                (string) $event['name'],
-                $event['date'] ?? null,
-                $event['description'] ?? null,
-            ]);
-            $this->config->ensureConfigForEvent($uid);
+            $uids[] = $uid;
+            $name = (string) $event['name'];
+            $date = $event['date'] ?? null;
+            $desc = $event['description'] ?? null;
+
+            if (in_array($uid, $existing, true)) {
+                $updateStmt->execute([$name, $date, $desc, $uid]);
+            } else {
+                $insertStmt->execute([$uid, $name, $date, $desc]);
+                $this->config->ensureConfigForEvent($uid);
+            }
         }
+
+        if ($uids) {
+            $placeholders = implode(',', array_fill(0, count($uids), '?'));
+            $delStmt = $this->pdo->prepare("DELETE FROM events WHERE uid NOT IN ($placeholders)");
+            $delStmt->execute($uids);
+        } else {
+            $this->pdo->exec('DELETE FROM events');
+        }
+
         $this->pdo->commit();
     }
 
