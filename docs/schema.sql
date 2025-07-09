@@ -1,4 +1,5 @@
 -- Database schema for Sommerfest Quiz
+SET NOCOUNT ON;
 -- Mirrors the JSON structure stored under data/
 
 
