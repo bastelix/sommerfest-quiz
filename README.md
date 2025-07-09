@@ -220,6 +220,13 @@ scripts/delete_tenant.sh foo
 Beide Skripte lesen die Variable `DOMAIN` aus `sample.env` und nutzen sie
 für die vhost-Konfiguration.
 
+Für den eigentlichen Quiz-Container lässt sich der Hostname über die
+Umgebungsvariable `SLIM_VIRTUAL_HOST` steuern. Starte mehrere Instanzen
+mit unterschiedlichen Werten, werden die Subdomains automatisch als
+eigene Mandanten behandelt. Der eingesetzte Proxy erzeugt dank
+`nginxproxy/acme-companion` für jede konfigurierte Domain ein
+Let's-Encrypt-Zertifikat, sobald der Container gestartet wird.
+
 ## Anpassung
 
 Alle wichtigen Einstellungen finden Sie in `data/config.json`. Ändern Sie hier Logo, Farben oder die Verwendung des QR-Code-Logins. Die Fragen selbst liegen in `data/kataloge/*.json` und können mit jedem Texteditor angepasst werden. Jede Katalogdefinition besitzt weiterhin ein `slug` für die URL. Fragen verknüpfen den Katalog nun über `catalog_uid`. Das bisherige `id` dient ausschließlich der Sortierung und wird automatisch vergeben.
