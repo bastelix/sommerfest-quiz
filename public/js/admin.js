@@ -1259,6 +1259,8 @@ document.addEventListener('DOMContentLoaded', function () {
   function updateActiveHeader(name) {
     const el = document.getElementById('activeEventHeader');
     if (el) el.textContent = name || '';
+    const top = document.getElementById('topbar-title');
+    if (top) top.textContent = name || top.dataset.defaultTitle || '';
   }
 
   function setActiveEvent(uid, name) {
