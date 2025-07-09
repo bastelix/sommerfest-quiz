@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Service\ConfigService;
+use App\Service\UserService;
 use App\Infrastructure\Database;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -35,28 +35,26 @@ class LoginController
         }
 
         $pdo = Database::connectFromEnv();
-        $config = (new ConfigService($pdo))->getConfig();
+        $service = new UserService($pdo);
 
-        $user = $config['adminUser'] ?? 'admin';
-        $storedPass = $config['adminPass'] ?? 'password';
-
+        $record = $service->getByUsername((string)($data['username'] ?? ''));
         $valid = false;
-        if (($data['username'] ?? '') === $user) {
-            $pwd = $data['password'] ?? '';
-            $info = password_get_info($storedPass);
-            if ($info['algo'] !== 0) {
-                $valid = password_verify($pwd, $storedPass);
-            } else {
-                $valid = $pwd === $storedPass;
-            }
+        if ($record !== null) {
+            $pwd = (string)($data['password'] ?? '');
+            $valid = password_verify($pwd, (string)$record['password']);
         }
 
         if ($valid) {
             if (session_status() === PHP_SESSION_NONE) {
                 session_start();
             }
-            $_SESSION['admin'] = true;
-            return $response->withHeader('Location', '/admin')->withStatus(302);
+            $_SESSION['user'] = [
+                'id' => $record['id'],
+                'username' => $record['username'],
+                'role' => $record['role'],
+            ];
+            $target = $record['role'] === 'admin' ? '/admin' : '/';
+            return $response->withHeader('Location', $target)->withStatus(302);
         }
 
         $view = Twig::fromRequest($request);

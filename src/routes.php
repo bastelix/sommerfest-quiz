@@ -21,6 +21,7 @@ use App\Service\ResultService;
 use App\Service\TeamService;
 use App\Service\PhotoConsentService;
 use App\Service\EventService;
+use App\Service\UserService;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
 use App\Controller\PasswordController;
@@ -69,6 +70,7 @@ return function (\Slim\App $app) {
     $teamService = new TeamService($pdo, $configService);
     $consentService = new PhotoConsentService($pdo);
     $eventService = new EventService($pdo);
+    $userService = new \App\Service\UserService($pdo);
 
     $configController = new ConfigController($configService);
     $catalogController = new CatalogController($catalogService);
@@ -82,7 +84,7 @@ return function (\Slim\App $app) {
     );
     $teamController = new TeamController($teamService);
     $eventController = new EventController($eventService);
-    $passwordController = new PasswordController($configService);
+    $passwordController = new PasswordController($userService);
     $qrController = new QrController($configService, $teamService, $eventService);
     $logoController = new LogoController($configService);
     $summaryController = new SummaryController($configService);

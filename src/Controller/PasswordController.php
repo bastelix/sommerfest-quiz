@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
-use App\Service\ConfigService;
+use App\Service\UserService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
- * Allows changing the administrator password.
+ * Allows changing the current user's password.
  */
 class PasswordController
 {
-    private ConfigService $service;
+    private UserService $service;
 
     /**
-     * Inject configuration service.
+     * Inject user service.
      */
-    public function __construct(ConfigService $service)
+    public function __construct(UserService $service)
     {
         $this->service = $service;
     }
 
     /**
-     * Update the admin password using the provided request body.
+     * Update the current user's password using the provided request body.
      */
     public function post(Request $request, Response $response): Response
     {
@@ -43,9 +43,15 @@ class PasswordController
             return $response->withStatus(400);
         }
 
-        $cfg = $this->service->getConfig();
-        $cfg['adminPass'] = password_hash($pass, PASSWORD_DEFAULT);
-        $this->service->saveConfig($cfg);
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $id = $_SESSION['user']['id'] ?? null;
+        if ($id === null) {
+            return $response->withStatus(403);
+        }
+
+        $this->service->updatePassword((int)$id, $pass);
 
         return $response->withStatus(204);
     }
