@@ -6,6 +6,10 @@
 
 - Statistik-Tab beschrieben
 
+### Chore
+
+- Cascade delete events
+
 ### Ci
 
 - Add workflow for automatic changelog
@@ -19,6 +23,7 @@
 - Add hierarchical navigation
 - Add version history
 - Mention exif extension
+- Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
