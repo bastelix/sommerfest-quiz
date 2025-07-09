@@ -27,9 +27,8 @@ class Pdf extends FPDF
 
     /**
      * Render logo, title and subtitle at the top of each page.
-     *
-     * phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
      */
+    // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     public function Header(): void
     {
         $logoFile = $this->logoPath;
