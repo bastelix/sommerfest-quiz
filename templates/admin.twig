@@ -35,6 +35,7 @@
     <li data-help="Fragenkataloge anlegen oder bearbeiten. Jede Zeile enthält einen Slug, Name, Beschreibung und optional einen Buchstaben für das Rätselwort. Der Slug kann angepasst werden. 'Hinzufügen' erstellt einen neuen Katalog, das rote × entfernt einen Eintrag. Speichern übernimmt die Änderungen."><a href="#">Kataloge</a></li>
     <li data-help="Nach Auswahl eines Katalogs einzelne Fragen bearbeiten oder neue anlegen. 'Neue Frage' fügt eine weitere hinzu, 'Zurücksetzen' verwirft Änderungen, 'Speichern' sichert den gesamten Katalog."><a href="#">Fragen anpassen</a></li>
     <li data-help="Teilnehmerliste pflegen. Über 'Hinzufügen' Teams oder Personen ergänzen. Die Checkbox beschränkt die Teilnahme auf gelistete Namen. Speichern aktualisiert die Liste."><a href="#">Teams/Personen</a></li>
+    <li data-help="QR-Codes für alle Kataloge und Teams anzeigen, um Quizlinks oder Anmeldungen weiterzugeben. 'Drucken' erstellt eine übersichtliche Liste."><a href="#">Zusammenfassung</a></li>
     <li data-help="Gespeicherte Ergebnisse mit richtigen Antworten und Zeit einsehen. 'Zurücksetzen' löscht alle Daten, 'Herunterladen' exportiert sie als CSV."><a href="#">Ergebnisse</a></li>
     <li data-help="Einzelne Antworten analysieren. Tabelle filtert nach Teams/Personen."><a href="#">Statistik</a></li>
     <li data-help="QR-Codes für alle Kataloge und Teams anzeigen, um Quizlinks oder Anmeldungen weiterzugeben. 'Drucken' erstellt eine übersichtliche Liste."><a href="#">Zusammenfassung</a></li>
@@ -321,6 +322,83 @@
         </div>
       </div>
     </li>
+    <li>
+      <div class="uk-container uk-container-large">
+        <div class="uk-flex uk-flex-between uk-flex-middle">
+          <div>
+            <h2 class="uk-heading-bullet">{{ event.name }}</h2>
+            <p>{{ event.description }}</p>
+          </div>
+          <div class="uk-text-center uk-margin-small-bottom">
+            <img src="/qr.png?t={{ baseUrl|url_encode }}&fg=000000&label=0" alt="QR" width="96" height="96">
+            <div>{{ event.name }}</div>
+          </div>
+        </div>
+
+        <h3 class="uk-heading-bullet">Kataloge</h3>
+        <div class="card-grid" uk-grid>
+          {% for c in catalogs %}
+          <div class="uk-width-1-1 uk-width-1-2@s">
+            <div class="export-card uk-card uk-card-default uk-card-body">
+              <h4 class="uk-card-title">{{ c.name }}</h4>
+              <p>{{ c.description }}</p>
+              {% set link = baseUrl ? baseUrl ~ '/?katalog=' ~ c.slug : '?katalog=' ~ c.slug %}
+              <img src="/qr.png?t={{ link|url_encode }}&fg=dc0000&label=0" alt="QR" width="96" height="96">
+            </div>
+          </div>
+          {% else %}
+          <div class="uk-width-1-1">
+            <div class="export-card uk-card uk-card-default uk-card-body">Keine Kataloge</div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <h3 class="uk-heading-bullet">Teams/Personen</h3>
+        <div class="card-grid" uk-grid>
+          {% for t in teams %}
+          <div class="uk-width-1-1 uk-width-1-2@s">
+            <div class="export-card uk-card uk-card-default uk-card-body uk-position-relative">
+              <button class="qr-print-btn uk-icon-button uk-position-top-right" data-team="{{ t }}" uk-icon="icon: print" aria-label="QR-Code drucken"></button>
+              <h4 class="uk-card-title">{{ t }}</h4>
+              <img src="/qr.png?t={{ t|url_encode }}&fg=004bc8" alt="QR" width="96" height="96">
+            </div>
+          </div>
+          {% else %}
+          <div class="uk-width-1-1">
+            <div class="export-card uk-card uk-card-default uk-card-body">Keine Daten</div>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="uk-margin uk-flex uk-flex-between uk-flex-middle">
+          <button id="inviteTextBtn" class="uk-button uk-button-default uk-margin-right" type="button" uk-toggle="target: #inviteTextModal">
+            <span id="inviteTextIcon" uk-icon="icon: pencil"></span>
+            <span id="inviteTextLabel">Einladungstext eingeben</span>
+          </button>
+          <div class="uk-flex">
+            <button id="openInvitesBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: Alle Einladungen öffnen; pos: right">Einladungen öffnen</button>
+            <button id="summaryPrintBtn" class="uk-button uk-button-default" uk-tooltip="title: Übersicht drucken; pos: right">Übersicht Drucken</button>
+          </div>
+        </div>
+        <div id="inviteTextModal" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">Einladungstext</h2>
+            <div id="inviteTextToolbar" class="uk-margin-small-bottom">
+              <button class="uk-button uk-button-default" type="button" data-format="h2">H2</button>
+              <button class="uk-button uk-button-default" type="button" data-format="h3">H3</button>
+              <button class="uk-button uk-button-default" type="button" data-format="h4">H4</button>
+              <button class="uk-button uk-button-default" type="button" data-format="h5">H5</button>
+              <button class="uk-button uk-button-default" type="button" data-format="bold"><strong>B</strong></button>
+              <button class="uk-button uk-button-default" type="button" data-format="italic"><em>I</em></button>
+            </div>
+            <textarea id="inviteTextTextarea" class="uk-textarea" rows="5" placeholder="Text eingeben..."></textarea>
+            <div class="uk-flex uk-flex-right uk-margin-top">
+              <button id="inviteTextSave" class="uk-button uk-button-primary" type="button">Speichern</button>
+              <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>
+            </div>
+          </div>
+        </div>
+        </div>
+      </li>
     <li>
       <div class="uk-container uk-container-large">
         <div class="uk-flex uk-flex-between uk-flex-middle">
