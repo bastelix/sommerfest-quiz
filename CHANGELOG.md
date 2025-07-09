@@ -76,6 +76,7 @@
 - Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
+- Update changelog [skip ci]
 
 ### Feat
 
@@ -98,6 +99,7 @@
 - *(js)* Refresh UIkit lightboxes
 - Sanitize migrations
 - Avoid using first event if active one missing
+- Address style warnings
 
 ### Style
 
