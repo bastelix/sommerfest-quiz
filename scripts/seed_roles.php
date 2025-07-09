@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -37,4 +38,3 @@ foreach (Roles::ALL as $role) {
 $pdo->commit();
 
 echo "Seeded example users\n";
-

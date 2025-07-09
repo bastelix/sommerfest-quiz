@@ -35,4 +35,3 @@ class UikitExtension extends AbstractExtension
         return preg_replace($patterns, $replacements, $html);
     }
 }
-

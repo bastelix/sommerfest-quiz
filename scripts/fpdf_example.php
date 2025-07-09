@@ -1,4 +1,5 @@
 <?php
+
 // Simple demonstration to render HTML text with FPDF using existing fonts.
 // Usage: php scripts/fpdf_example.php [inputFile]
 

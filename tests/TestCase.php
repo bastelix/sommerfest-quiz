@@ -19,7 +19,6 @@ use App\Application\Middleware\SessionMiddleware;
 
 class TestCase extends PHPUnit_TestCase
 {
-
     /**
      * @return App
      * @throws Exception

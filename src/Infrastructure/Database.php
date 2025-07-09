@@ -19,6 +19,5 @@ class Database
         $user = getenv('POSTGRES_USER') ?: '';
         $pass = getenv('POSTGRES_PASSWORD') ?: getenv('POSTGRES_PASS') ?: '';
         return new PDO($dsn, $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
-
     }
 }
