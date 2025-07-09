@@ -34,6 +34,10 @@ class ConfigControllerTest extends TestCase
         $pdo->exec('CREATE TABLE config(displayErrorDetails INTEGER, QRUser INTEGER, logoPath TEXT, pageTitle TEXT, backgroundColor TEXT, buttonColor TEXT, CheckAnswerButton TEXT, adminUser TEXT, adminPass TEXT, QRRestrict INTEGER, competitionMode INTEGER, teamResults INTEGER, photoUpload INTEGER, puzzleWordEnabled INTEGER, puzzleWord TEXT, puzzleFeedback TEXT, inviteText TEXT, event_uid TEXT);');
         $service = new ConfigService($pdo);
         $controller = new ConfigController($service);
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'event-manager'];
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'event-manager'];
 
         $request = $this->createRequest('POST', '/config.json');
         $request = $request->withParsedBody(['foo' => 'bar']);
@@ -43,7 +47,7 @@ class ConfigControllerTest extends TestCase
         $getResponse = $controller->get($this->createRequest('GET', '/config.json'), new Response());
         $this->assertEquals(200, $getResponse->getStatusCode());
         $this->assertStringContainsString('foo', (string) $getResponse->getBody());
-
+        session_destroy();
     }
 
     public function testPostInvalidJson(): void
@@ -63,6 +67,7 @@ class ConfigControllerTest extends TestCase
 
         $response = $controller->post($request, new Response());
         $this->assertEquals(400, $response->getStatusCode());
+        session_destroy();
     }
 
     public function testPostDeniedForNonAdmin(): void

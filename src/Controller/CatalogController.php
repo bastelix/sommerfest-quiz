@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\CatalogService;
+use App\Domain\Roles;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -24,6 +25,18 @@ class CatalogController
     }
 
     /**
+     * Check if the current session has one of the given roles.
+     */
+    private function hasRole(string ...$roles): bool
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $role = $_SESSION['user']['role'] ?? null;
+        return $role !== null && in_array($role, $roles, true);
+    }
+
+    /**
      * Retrieve a catalog JSON file or redirect to its public view.
      */
     public function get(Request $request, Response $response, array $args): Response
@@ -36,6 +49,10 @@ class CatalogController
             return $response
                 ->withHeader('Location', '/?katalog=' . urlencode($slug))
                 ->withStatus(302);
+        }
+
+        if (!$this->hasRole(Roles::ADMIN, Roles::CATALOG_EDITOR)) {
+            return $response->withStatus(403);
         }
 
         $content = $this->service->read($file);
@@ -52,6 +69,9 @@ class CatalogController
      */
     public function post(Request $request, Response $response, array $args): Response
     {
+        if (!$this->hasRole(Roles::ADMIN, Roles::CATALOG_EDITOR)) {
+            return $response->withStatus(403);
+        }
         $file = basename($args['file']);
         $data = $request->getParsedBody();
 
@@ -74,6 +94,9 @@ class CatalogController
      */
     public function create(Request $request, Response $response, array $args): Response
     {
+        if (!$this->hasRole(Roles::ADMIN, Roles::CATALOG_EDITOR)) {
+            return $response->withStatus(403);
+        }
         $file = basename($args['file']);
         $data = $request->getParsedBody();
         if ($request->getHeaderLine('Content-Type') === 'application/json') {
@@ -90,6 +113,9 @@ class CatalogController
      */
     public function delete(Request $request, Response $response, array $args): Response
     {
+        if (!$this->hasRole(Roles::ADMIN, Roles::CATALOG_EDITOR)) {
+            return $response->withStatus(403);
+        }
         $file = basename($args['file']);
         $this->service->delete($file);
 
@@ -101,6 +127,9 @@ class CatalogController
      */
     public function deleteQuestion(Request $request, Response $response, array $args): Response
     {
+        if (!$this->hasRole(Roles::ADMIN, Roles::CATALOG_EDITOR)) {
+            return $response->withStatus(403);
+        }
         $file = basename($args['file']);
         $index = (int) $args['index'];
         $this->service->deleteQuestion($file, $index);

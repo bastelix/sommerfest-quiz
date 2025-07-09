@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\ConfigService;
+use App\Domain\Roles;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -50,6 +51,13 @@ class ConfigController
      */
     public function post(Request $request, Response $response): Response
     {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $role = $_SESSION['user']['role'] ?? null;
+        if ($role !== Roles::ADMIN && $role !== Roles::EVENT_MANAGER) {
+            return $response->withStatus(403);
+        }
         $data = $request->getParsedBody();
 
         if ($request->getHeaderLine('Content-Type') === 'application/json') {
