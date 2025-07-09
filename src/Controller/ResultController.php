@@ -145,7 +145,8 @@ class ResultController
         $results = $this->service->getAll();
 
         $pdo = Database::connectFromEnv();
-        $catalogSvc = new CatalogService($pdo);
+        $configSvc = new ConfigService($pdo);
+        $catalogSvc = new CatalogService($pdo, $configSvc);
         $json = $catalogSvc->read('catalogs.json');
         $map = [];
         if ($json !== null) {

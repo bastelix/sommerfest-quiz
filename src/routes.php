@@ -64,9 +64,9 @@ return function (\Slim\App $app) {
     $pdo = Database::connectFromEnv();
     Migrator::migrate($pdo, __DIR__ . '/../migrations');
     $configService = new ConfigService($pdo);
-    $catalogService = new CatalogService($pdo);
-    $resultService = new ResultService($pdo);
-    $teamService = new TeamService($pdo);
+    $catalogService = new CatalogService($pdo, $configService);
+    $resultService = new ResultService($pdo, $configService);
+    $teamService = new TeamService($pdo, $configService);
     $consentService = new PhotoConsentService($pdo);
     $eventService = new EventService($pdo);
 

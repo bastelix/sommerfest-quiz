@@ -36,8 +36,9 @@ class AdminController
         if ($event === null) {
             $event = $eventSvc->getFirst();
         }
-        $results = (new ResultService($pdo))->getAll();
-        $catalogSvc = new CatalogService($pdo);
+        $configSvc = new ConfigService($pdo);
+        $results = (new ResultService($pdo, $configSvc))->getAll();
+        $catalogSvc = new CatalogService($pdo, $configSvc);
         $catalogsJson = $catalogSvc->read('catalogs.json');
         $catalogs = [];
         $catMap = [];
@@ -80,7 +81,7 @@ class AdminController
             }
         }
 
-        $teams = (new TeamService($pdo))->getAll();
+        $teams = (new TeamService($pdo, $configSvc))->getAll();
         return $view->render($response, 'admin.twig', [
             'config' => $cfg,
             'results' => $results,

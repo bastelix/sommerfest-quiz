@@ -42,7 +42,7 @@ class QrControllerTest extends TestCase
         $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, date TEXT, description TEXT);');
         $pdo->exec("INSERT INTO events(uid,name,description) VALUES('1','Event','Sub')");
         $cfg = new \App\Service\ConfigService($pdo);
-        $teams = new \App\Service\TeamService($pdo);
+        $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
         $qr = new \App\Controller\QrController($cfg, $teams, $events);
         $logo = new \App\Controller\LogoController($cfg);
@@ -75,7 +75,7 @@ class QrControllerTest extends TestCase
         $pdo->exec("INSERT INTO config(inviteText, header) VALUES('Hallo [Team]!','Event');");
 
         $cfg = new \App\Service\ConfigService($pdo);
-        $teams = new \App\Service\TeamService($pdo);
+        $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
         $qr  = new \App\Controller\QrController($cfg, $teams, $events);
 
@@ -98,7 +98,7 @@ class QrControllerTest extends TestCase
         $pdo->exec("INSERT INTO teams(sort_order,name,uid) VALUES(1,'A','1'),(2,'B','2')");
 
         $cfg = new \App\Service\ConfigService($pdo);
-        $teams = new \App\Service\TeamService($pdo);
+        $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
         $qr  = new \App\Controller\QrController($cfg, $teams, $events);
 

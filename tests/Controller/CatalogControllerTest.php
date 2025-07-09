@@ -6,6 +6,7 @@ namespace Tests\Controller;
 
 use App\Controller\CatalogController;
 use App\Service\CatalogService;
+use App\Service\ConfigService;
 use Tests\TestCase;
 use Slim\Psr7\Response;
 
@@ -13,9 +14,14 @@ class CatalogControllerTest extends TestCase
 {
     public function testGetNotFound(): void
     {
-        $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
-        mkdir($dir);
-        $controller = new CatalogController(new CatalogService());
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, sort_order INTEGER UNIQUE NOT NULL, slug TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT, comment TEXT);');
+        $pdo->exec('CREATE TABLE questions(id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_uid TEXT NOT NULL, sort_order INTEGER, type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT, UNIQUE(catalog_uid, sort_order));');
+        $cfg = new ConfigService($pdo);
+        $service = new CatalogService($pdo, $cfg);
+        $controller = new CatalogController($service);
         $request = $this->createRequest('GET', '/kataloge/missing.json', ['HTTP_ACCEPT' => 'application/json']);
         $response = $controller->get($request, new Response(), ['file' => 'missing.json']);
         $this->assertEquals(404, $response->getStatusCode());
@@ -24,9 +30,13 @@ class CatalogControllerTest extends TestCase
 
     public function testPostAndGet(): void
     {
-        $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
-        mkdir($dir);
-        $service = new CatalogService();
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, sort_order INTEGER UNIQUE NOT NULL, slug TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT, comment TEXT);');
+        $pdo->exec('CREATE TABLE questions(id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_uid TEXT NOT NULL, sort_order INTEGER, type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT, UNIQUE(catalog_uid, sort_order));');
+        $cfg = new ConfigService($pdo);
+        $service = new CatalogService($pdo, $cfg);
         $controller = new CatalogController($service);
 
         $request = $this->createRequest('POST', '/kataloge/test.json');
@@ -48,9 +58,13 @@ class CatalogControllerTest extends TestCase
 
     public function testCreateAndDelete(): void
     {
-        $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
-        mkdir($dir);
-        $service = new CatalogService();
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, sort_order INTEGER UNIQUE NOT NULL, slug TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT, comment TEXT);');
+        $pdo->exec('CREATE TABLE questions(id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_uid TEXT NOT NULL, sort_order INTEGER, type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT, UNIQUE(catalog_uid, sort_order));');
+        $cfg = new ConfigService($pdo);
+        $service = new CatalogService($pdo, $cfg);
         $controller = new CatalogController($service);
 
         $createReq = $this->createRequest('PUT', '/kataloge/new.json');
@@ -71,9 +85,13 @@ class CatalogControllerTest extends TestCase
 
     public function testDeleteQuestion(): void
     {
-        $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
-        mkdir($dir);
-        $service = new CatalogService();
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, sort_order INTEGER UNIQUE NOT NULL, slug TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT, comment TEXT);');
+        $pdo->exec('CREATE TABLE questions(id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_uid TEXT NOT NULL, sort_order INTEGER, type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT, UNIQUE(catalog_uid, sort_order));');
+        $cfg = new ConfigService($pdo);
+        $service = new CatalogService($pdo, $cfg);
         $controller = new CatalogController($service);
 
         $service->write('cat.json', [['a' => 1], ['b' => 2]]);
@@ -94,7 +112,13 @@ class CatalogControllerTest extends TestCase
     {
         $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
         mkdir($dir);
-        $controller = new CatalogController(new CatalogService());
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, sort_order INTEGER UNIQUE NOT NULL, slug TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT, comment TEXT);');
+        $pdo->exec('CREATE TABLE questions(id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_uid TEXT NOT NULL, sort_order INTEGER, type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT, UNIQUE(catalog_uid, sort_order));');
+        $cfg = new ConfigService($pdo);
+        $controller = new CatalogController(new CatalogService($pdo, $cfg));
 
         $request = $this->createRequest('POST', '/kataloge/test.json', ['HTTP_CONTENT_TYPE' => 'application/json']);
         $stream = fopen('php://temp', 'r+');

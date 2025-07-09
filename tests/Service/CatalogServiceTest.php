@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Service;
 
 use App\Service\CatalogService;
+use App\Service\ConfigService;
 use PDO;
 use Tests\TestCase;
 
@@ -14,6 +15,7 @@ class CatalogServiceTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, sort_order INTEGER UNIQUE NOT NULL, slug TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT, comment TEXT);');
         $pdo->exec('CREATE TABLE questions(id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_uid TEXT NOT NULL, sort_order INTEGER, type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT, UNIQUE(catalog_uid, sort_order));');
         return $pdo;
@@ -23,6 +25,7 @@ class CatalogServiceTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, sort_order INTEGER UNIQUE NOT NULL, slug TEXT UNIQUE NOT NULL, file TEXT NOT NULL, name TEXT NOT NULL, description TEXT, qrcode_url TEXT, raetsel_buchstabe TEXT);');
         $pdo->exec('CREATE TABLE questions(id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_uid TEXT NOT NULL, sort_order INTEGER, type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT, UNIQUE(catalog_uid, sort_order));');
         return $pdo;
@@ -31,7 +34,8 @@ class CatalogServiceTest extends TestCase
     public function testReadWrite(): void
     {
         $pdo = $this->createPdo();
-        $service = new CatalogService($pdo);
+        $cfg = new ConfigService($pdo);
+        $service = new CatalogService($pdo, $cfg);
         $file = 'test.json';
         $catalog = [[
             'uid' => 'uid1',
@@ -51,7 +55,8 @@ class CatalogServiceTest extends TestCase
     public function testWriteWithoutCommentColumn(): void
     {
         $pdo = $this->createPdoNoComment();
-        $service = new CatalogService($pdo);
+        $cfg = new ConfigService($pdo);
+        $service = new CatalogService($pdo, $cfg);
         $catalog = [[
             'uid' => 'uid4',
             'sort_order' => 'nc',
@@ -68,7 +73,8 @@ class CatalogServiceTest extends TestCase
     public function testReadReturnsNullIfMissing(): void
     {
         $pdo = $this->createPdo();
-        $service = new CatalogService($pdo);
+        $cfg = new ConfigService($pdo);
+        $service = new CatalogService($pdo, $cfg);
 
         $this->assertNull($service->read('missing.json'));
     }
@@ -76,7 +82,8 @@ class CatalogServiceTest extends TestCase
     public function testDelete(): void
     {
         $pdo = $this->createPdo();
-        $service = new CatalogService($pdo);
+        $cfg = new ConfigService($pdo);
+        $service = new CatalogService($pdo, $cfg);
         $file = 'del.json';
         $service->write('catalogs.json', [[
             'uid' => 'uid2',
@@ -97,7 +104,8 @@ class CatalogServiceTest extends TestCase
     public function testDeleteQuestion(): void
     {
         $pdo = $this->createPdo();
-        $service = new CatalogService($pdo);
+        $cfg = new ConfigService($pdo);
+        $service = new CatalogService($pdo, $cfg);
         $file = 'q.json';
         $service->write('catalogs.json', [[
             'uid' => 'uid3',
@@ -122,7 +130,8 @@ class CatalogServiceTest extends TestCase
     public function testReorderCatalogs(): void
     {
         $pdo = $this->createPdo();
-        $service = new CatalogService($pdo);
+        $cfg = new ConfigService($pdo);
+        $service = new CatalogService($pdo, $cfg);
         $initial = [
             ['uid' => 'u1', 'sort_order' => 1, 'slug' => 'a', 'file' => 'a.json', 'name' => 'A', 'comment' => ''],
             ['uid' => 'u2', 'sort_order' => 2, 'slug' => 'b', 'file' => 'b.json', 'name' => 'B', 'comment' => ''],
@@ -142,7 +151,8 @@ class CatalogServiceTest extends TestCase
     public function testNamesRemainAfterReorder(): void
     {
         $pdo = $this->createPdo();
-        $service = new CatalogService($pdo);
+        $cfg = new ConfigService($pdo);
+        $service = new CatalogService($pdo, $cfg);
         $initial = [
             ['uid' => 'u1', 'sort_order' => 1, 'slug' => 'a', 'file' => 'a.json', 'name' => 'One', 'comment' => ''],
             ['uid' => 'u2', 'sort_order' => 2, 'slug' => 'b', 'file' => 'b.json', 'name' => 'Two', 'comment' => ''],

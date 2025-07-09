@@ -15,30 +15,19 @@ use App\Service\ConfigService;
 class CatalogService
 {
     private PDO $pdo;
+    private ConfigService $config;
     /** @var bool|null detected presence of the comment column */
     private ?bool $hasComment = null;
 
     /**
      * Inject database connection.
      */
-    public function __construct(PDO $pdo)
+    public function __construct(PDO $pdo, ConfigService $config)
     {
         $this->pdo = $pdo;
+        $this->config = $config;
     }
 
-    /**
-     * Retrieve the UID of the currently active event.
-     */
-    private function activeEventUid(): string
-    {
-        try {
-            $stmt = $this->pdo->query('SELECT event_uid FROM config LIMIT 1');
-            $uid = $stmt->fetchColumn();
-            return $uid === false ? '' : (string)$uid;
-        } catch (PDOException $e) {
-            return '';
-        }
-    }
 
     /**
      * Ensure the optional comment column exists and remember the result.
@@ -67,7 +56,7 @@ class CatalogService
      */
     public function slugByFile(string $file): ?string
     {
-        $uid = $this->activeEventUid();
+        $uid = $this->config->getActiveEventUid();
         $sql = 'SELECT slug FROM catalogs WHERE file=?';
         $params = [basename($file)];
         if ($uid !== '') {
@@ -85,7 +74,7 @@ class CatalogService
      */
     public function uidBySlug(string $slug): ?string
     {
-        $uid = $this->activeEventUid();
+        $uid = $this->config->getActiveEventUid();
         $sql = 'SELECT uid FROM catalogs WHERE slug=?';
         $params = [$slug];
         if ($uid !== '') {
@@ -108,7 +97,7 @@ class CatalogService
             if ($this->hasCommentColumn()) {
                 $fields .= ',comment';
             }
-            $uid = $this->activeEventUid();
+            $uid = $this->config->getActiveEventUid();
             $sql = "SELECT $fields FROM catalogs";
             $params = [];
             if ($uid !== '') {
@@ -130,7 +119,7 @@ class CatalogService
             return json_encode($data, JSON_PRETTY_PRINT);
         }
 
-        $uid = $this->activeEventUid();
+        $uid = $this->config->getActiveEventUid();
         $sql = 'SELECT uid FROM catalogs WHERE file=?';
         $params = [basename($file)];
         if ($uid !== '') {
@@ -179,7 +168,7 @@ class CatalogService
             if (!is_array($data)) {
                 $data = json_decode((string)$data, true) ?? [];
             }
-            $uid = $this->activeEventUid();
+            $uid = $this->config->getActiveEventUid();
             $this->pdo->beginTransaction();
             if ($uid !== '') {
                 $del = $this->pdo->prepare('DELETE FROM catalogs WHERE event_uid=?');
@@ -220,7 +209,7 @@ class CatalogService
             $data = json_decode((string)$data, true) ?? [];
         }
         $slug = pathinfo($file, PATHINFO_FILENAME);
-        $uid = $this->activeEventUid();
+        $uid = $this->config->getActiveEventUid();
         $sql = 'SELECT uid FROM catalogs WHERE slug=?';
         $params = [$slug];
         if ($uid !== '') {
@@ -258,7 +247,7 @@ class CatalogService
     public function delete(string $file): void
     {
         if ($file === 'catalogs.json') {
-            $uid = $this->activeEventUid();
+            $uid = $this->config->getActiveEventUid();
             if ($uid !== '') {
                 $stmt = $this->pdo->prepare('DELETE FROM catalogs WHERE event_uid=?');
                 $stmt->execute([$uid]);
@@ -268,7 +257,7 @@ class CatalogService
             return;
         }
         $slug = pathinfo($file, PATHINFO_FILENAME);
-        $event = $this->activeEventUid();
+        $event = $this->config->getActiveEventUid();
         $sql = 'SELECT uid FROM catalogs WHERE slug=?';
         $params = [$slug];
         if ($event !== '') {
@@ -295,7 +284,7 @@ class CatalogService
     public function deleteQuestion(string $file, int $index): void
     {
         $slug = pathinfo($file, PATHINFO_FILENAME);
-        $uid = $this->activeEventUid();
+        $uid = $this->config->getActiveEventUid();
         $sql = 'SELECT uid FROM catalogs WHERE slug=?';
         $params = [$slug];
         if ($uid !== '') {

@@ -41,7 +41,7 @@ class HomeController
             $cfg = ConfigService::removePuzzleInfo($cfg);
         }
 
-        $catalogService = new CatalogService($pdo);
+        $catalogService = new CatalogService($pdo, new ConfigService($pdo));
 
         $catalogsJson = $catalogService->read('catalogs.json');
         $catalogs = [];

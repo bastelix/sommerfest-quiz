@@ -26,11 +26,12 @@ class ImportControllerTest extends TestCase
         $pdo->exec('CREATE TABLE results(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, attempt INTEGER NOT NULL, correct INTEGER NOT NULL, total INTEGER NOT NULL, time INTEGER NOT NULL, puzzleTime INTEGER, photo TEXT);');
         $pdo->exec('CREATE TABLE photo_consents(id INTEGER PRIMARY KEY AUTOINCREMENT, team TEXT NOT NULL, time INTEGER NOT NULL);');
 
+        $cfg = new ConfigService($pdo);
         return [
-            new CatalogService($pdo),
-            new ConfigService($pdo),
-            new ResultService($pdo),
-            new TeamService($pdo),
+            new CatalogService($pdo, $cfg),
+            $cfg,
+            new ResultService($pdo, $cfg),
+            new TeamService($pdo, $cfg),
             new PhotoConsentService($pdo),
             $pdo,
         ];
