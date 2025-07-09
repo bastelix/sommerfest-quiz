@@ -88,6 +88,8 @@
 - Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
+- Update changelog [skip ci]
+- Add tenant API section
 
 ### Feat
 
