@@ -11,12 +11,14 @@
 {% block body_class %}uk-background-muted uk-padding{% endblock %}
 
 {% block body %}
-  <div class="uk-flex uk-flex-between uk-margin-small-bottom">
-    <div class="uk-flex uk-flex-middle">
+  {% embed 'topbar.twig' %}
+    {% block left %}
       <a href="." class="uk-icon-button" uk-icon="icon: arrow-left; ratio: 2" title="Zurück" aria-label="Zurück"></a>
-      <h3 id="activeEventHeader" class="uk-margin-small-left uk-margin-remove-bottom">{{ event.name }}</h3>
-    </div>
-    <div class="uk-flex">
+    {% endblock %}
+    {% block center %}
+      <h3 id="activeEventHeader" class="uk-margin-remove">{{ event.name }}</h3>
+    {% endblock %}
+    {% block right %}
       <a href="/logout" class="uk-button uk-button-danger uk-margin-right">Abmelden</a>
       <div class="theme-switch uk-margin-right">
         <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="Design wechseln"></button>
@@ -25,8 +27,8 @@
         <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="Kontrastmodus"></button>
       </div>
       <button id="helpBtn" class="uk-icon-button" uk-icon="icon: question; ratio: 2" aria-label="Hilfe"></button>
-    </div>
-  </div>
+    {% endblock %}
+  {% endembed %}
   <ul id="adminTabs" uk-tab>
     <li class="uk-active" data-help="Veranstaltungen anlegen oder bearbeiten. Jede Zeile enthält Name, Datum und Beschreibung. 'Hinzufügen' erstellt einen neuen Eintrag. Speichern übernimmt die Änderungen."><a href="#">Veranstaltungen</a></li>
     <li data-help="Logo hochladen und Vorschau ansehen. Seitentitel, Überschrift und Untertitel festlegen. Hintergrund- und Buttonfarbe wählen. Optional den Button 'Antwort prüfen' und den QR-Code-Login aktivieren. 'Zurücksetzen' lädt gespeicherte Werte, 'Speichern' übernimmt Änderungen."><a href="#">Veranstaltung konfigurieren</a></li>
