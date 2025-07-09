@@ -29,8 +29,7 @@ class Database
     {
         $pdo = self::connectFromEnv();
         if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'sqlite') {
-            $stmt = $pdo->prepare('SET search_path TO :schema');
-            $stmt->execute(['schema' => $schema]);
+            $pdo->exec('SET search_path TO ' . $pdo->quote($schema));
         }
         return $pdo;
     }
