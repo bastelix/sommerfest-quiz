@@ -591,7 +591,7 @@
               <tr>
                 <th><span uk-icon="icon: question" uk-tooltip="title: Zum Sortieren Zeile ziehen; pos: top"></span></th>
                 <th>Benutzername</th>
-                <th>Passwort</th>
+                <th><span uk-icon="icon: key" uk-tooltip="title: Passwort setzen; pos: top"></span></th>
                 <th>Rolle</th>
                 <th><span uk-icon="icon: question" uk-tooltip="title: Benutzer entfernen; pos: top"></span></th>
               </tr>
@@ -604,6 +604,18 @@
         </div>
         <div class="uk-margin uk-flex uk-flex-right">
           <button id="usersSaveBtn" class="uk-button uk-button-primary" uk-tooltip="title: Änderungen speichern; pos: right">Speichern</button>
+        </div>
+
+        <div id="userPassModal" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">Passwort setzen</h2>
+            <div class="uk-margin"><input id="userPassInput" class="uk-input" type="password" placeholder="Passwort"></div>
+            <div class="uk-margin"><input id="userPassRepeat" class="uk-input" type="password" placeholder="Wiederholen"></div>
+            <div class="uk-flex uk-flex-right uk-margin-top">
+              <button id="userPassSave" class="uk-button uk-button-primary" type="button">Speichern</button>
+              <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>
+            </div>
+          </div>
         </div>
 
         <h3 class="uk-heading-bullet">Sicherungen</h3>

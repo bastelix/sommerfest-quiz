@@ -1413,12 +1413,17 @@ document.addEventListener('DOMContentLoaded', function () {
   const usersListEl = document.getElementById('usersList');
   const userAddBtn = document.getElementById('userAddBtn');
   const usersSaveBtn = document.getElementById('usersSaveBtn');
+  const userPassModal = UIkit.modal('#userPassModal');
+  const userPassInput = document.getElementById('userPassInput');
+  const userPassRepeat = document.getElementById('userPassRepeat');
+  const userPassSave = document.getElementById('userPassSave');
+  let currentUserRow = null;
 
   function collectUsers() {
     return Array.from(usersListEl.querySelectorAll('.user-row')).map(row => ({
       id: row.dataset.id ? parseInt(row.dataset.id, 10) : undefined,
       username: row.querySelector('.user-name').value.trim(),
-      password: row.querySelector('.user-pass').value,
+      password: row.dataset.pass || '',
       role: row.querySelector('.user-role').value
     })).filter(u => u.username);
   }
@@ -1452,11 +1457,18 @@ document.addEventListener('DOMContentLoaded', function () {
     nameCell.appendChild(nameInput);
 
     const passCell = document.createElement('td');
-    const passInput = document.createElement('input');
-    passInput.type = 'password';
-    passInput.className = 'uk-input user-pass';
-    passInput.placeholder = '(unverändert)';
-    passCell.appendChild(passInput);
+    const passBtn = document.createElement('button');
+    passBtn.className = 'uk-button uk-button-default';
+    passBtn.setAttribute('uk-icon', 'icon: key');
+    passBtn.setAttribute('aria-label', 'Passwort setzen');
+    passBtn.addEventListener('click', () => {
+      currentUserRow = row;
+      if (userPassInput) userPassInput.value = '';
+      if (userPassRepeat) userPassRepeat.value = '';
+      userPassModal.show();
+    });
+    passCell.appendChild(passBtn);
+    row.dataset.pass = '';
 
     const roleCell = document.createElement('td');
     const roleSelect = document.createElement('select');
@@ -1507,6 +1519,24 @@ document.addEventListener('DOMContentLoaded', function () {
   userAddBtn?.addEventListener('click', e => {
     e.preventDefault();
     usersListEl.appendChild(createUserRow());
+  });
+
+  userPassSave?.addEventListener('click', () => {
+    if (!userPassInput || !userPassRepeat || !currentUserRow) return;
+    const p1 = userPassInput.value;
+    const p2 = userPassRepeat.value;
+    if (p1 === '' || p2 === '') {
+      notify('Passwort darf nicht leer sein', 'danger');
+      return;
+    }
+    if (p1 !== p2) {
+      notify('Passwörter stimmen nicht überein', 'danger');
+      return;
+    }
+    currentUserRow.dataset.pass = p1;
+    userPassModal.hide();
+    userPassInput.value = '';
+    userPassRepeat.value = '';
   });
 
   usersSaveBtn?.addEventListener('click', e => {
