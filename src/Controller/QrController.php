@@ -7,7 +7,6 @@ namespace App\Controller;
 use App\Service\ConfigService;
 use App\Service\TeamService;
 use App\Service\EventService;
-
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Writer\SvgWriter;
@@ -181,7 +180,7 @@ class QrController
             $ev = $this->events->getByUid($uid);
         }
         if ($ev === null) {
-            $ev = $this->events->getFirst() ?? ['name' => '', 'description' => ''];
+            $ev = ['name' => '', 'description' => ''];
         }
         $title = (string)$ev['name'];
         $subtitle = (string)$ev['description'];
@@ -244,7 +243,7 @@ class QrController
             $ev = $this->events->getByUid($uid);
         }
         if ($ev === null) {
-            $ev = $this->events->getFirst() ?? ['name' => '', 'description' => ''];
+            $ev = ['name' => '', 'description' => ''];
         }
         $title = (string)$ev['name'];
         $subtitle = (string)$ev['description'];
