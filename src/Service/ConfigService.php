@@ -74,7 +74,24 @@ class ConfigService
      */
     public function saveConfig(array $data): void
     {
-        $keys = ['displayErrorDetails','QRUser','logoPath','pageTitle','backgroundColor','buttonColor','CheckAnswerButton','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback','inviteText','event_uid'];
+        $keys = [
+            'displayErrorDetails',
+            'QRUser',
+            'logoPath',
+            'pageTitle',
+            'backgroundColor',
+            'buttonColor',
+            'CheckAnswerButton',
+            'QRRestrict',
+            'competitionMode',
+            'teamResults',
+            'photoUpload',
+            'puzzleWordEnabled',
+            'puzzleWord',
+            'puzzleFeedback',
+            'inviteText',
+            'event_uid',
+        ];
         $filtered = array_intersect_key($data, array_flip($keys));
         $this->pdo->beginTransaction();
         $this->pdo->exec('DELETE FROM config');
@@ -135,7 +152,24 @@ class ConfigService
      */
     private function normalizeKeys(array $row): array
     {
-        $keys = ['displayErrorDetails','QRUser','logoPath','pageTitle','backgroundColor','buttonColor','CheckAnswerButton','QRRestrict','competitionMode','teamResults','photoUpload','puzzleWordEnabled','puzzleWord','puzzleFeedback','inviteText','event_uid'];
+        $keys = [
+            'displayErrorDetails',
+            'QRUser',
+            'logoPath',
+            'pageTitle',
+            'backgroundColor',
+            'buttonColor',
+            'CheckAnswerButton',
+            'QRRestrict',
+            'competitionMode',
+            'teamResults',
+            'photoUpload',
+            'puzzleWordEnabled',
+            'puzzleWord',
+            'puzzleFeedback',
+            'inviteText',
+            'event_uid',
+        ];
         $map = [];
         foreach ($keys as $k) {
             $map[strtolower($k)] = $k;

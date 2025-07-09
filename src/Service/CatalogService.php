@@ -131,7 +131,10 @@ class CatalogService
         if ($cat === false) {
             return null;
         }
-        $qStmt = $this->pdo->prepare('SELECT type,prompt,options,answers,terms,items FROM questions WHERE catalog_uid=? ORDER BY sort_order');
+        $qStmt = $this->pdo->prepare(
+            'SELECT type,prompt,options,answers,terms,items ' .
+            'FROM questions WHERE catalog_uid=? ORDER BY sort_order'
+        );
         $qStmt->execute([$cat['uid']]);
         $questions = [];
         while ($row = $qStmt->fetch(PDO::FETCH_ASSOC)) {
@@ -224,7 +227,11 @@ class CatalogService
         $this->pdo->beginTransaction();
         $del = $this->pdo->prepare('DELETE FROM questions WHERE catalog_uid=?');
         $del->execute([$cat['uid']]);
-        $qStmt = $this->pdo->prepare('INSERT INTO questions(catalog_uid,type,prompt,options,answers,terms,items,sort_order) VALUES(?,?,?,?,?,?,?,?)');
+        $qStmt = $this->pdo->prepare(
+            'INSERT INTO questions(' .
+            'catalog_uid,type,prompt,options,answers,terms,items,sort_order)' .
+            ' VALUES(?,?,?,?,?,?,?,?)'
+        );
         foreach ($data as $i => $q) {
             $qStmt->execute([
                 $cat['uid'],

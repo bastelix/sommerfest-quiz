@@ -38,7 +38,30 @@ class QrControllerTest extends TestCase
     {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE config(displayErrorDetails INTEGER, QRUser INTEGER, logoPath TEXT, pageTitle TEXT, backgroundColor TEXT, buttonColor TEXT, CheckAnswerButton TEXT, adminUser TEXT, adminPass TEXT, QRRestrict INTEGER, competitionMode INTEGER, teamResults INTEGER, photoUpload INTEGER, puzzleWordEnabled INTEGER, puzzleWord TEXT, puzzleFeedback TEXT, inviteText TEXT, event_uid TEXT);');
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                displayErrorDetails INTEGER,
+                QRUser INTEGER,
+                logoPath TEXT,
+                pageTitle TEXT,
+                backgroundColor TEXT,
+                buttonColor TEXT,
+                CheckAnswerButton TEXT,
+                adminUser TEXT,
+                adminPass TEXT,
+                QRRestrict INTEGER,
+                competitionMode INTEGER,
+                teamResults INTEGER,
+                photoUpload INTEGER,
+                puzzleWordEnabled INTEGER,
+                puzzleWord TEXT,
+                puzzleFeedback TEXT,
+                inviteText TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
         $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, date TEXT, description TEXT);');
         $pdo->exec("INSERT INTO events(uid,name,description) VALUES('1','Event','Sub')");
         $cfg = new \App\Service\ConfigService($pdo);
@@ -71,7 +94,32 @@ class QrControllerTest extends TestCase
     {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE config(displayErrorDetails INTEGER, QRUser INTEGER, logoPath TEXT, pageTitle TEXT, header TEXT, subheader TEXT, backgroundColor TEXT, buttonColor TEXT, CheckAnswerButton TEXT, adminUser TEXT, adminPass TEXT, QRRestrict INTEGER, competitionMode INTEGER, teamResults INTEGER, photoUpload INTEGER, puzzleWordEnabled INTEGER, puzzleWord TEXT, puzzleFeedback TEXT, inviteText TEXT, event_uid TEXT);');
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                displayErrorDetails INTEGER,
+                QRUser INTEGER,
+                logoPath TEXT,
+                pageTitle TEXT,
+                header TEXT,
+                subheader TEXT,
+                backgroundColor TEXT,
+                buttonColor TEXT,
+                CheckAnswerButton TEXT,
+                adminUser TEXT,
+                adminPass TEXT,
+                QRRestrict INTEGER,
+                competitionMode INTEGER,
+                teamResults INTEGER,
+                photoUpload INTEGER,
+                puzzleWordEnabled INTEGER,
+                puzzleWord TEXT,
+                puzzleFeedback TEXT,
+                inviteText TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
         $pdo->exec("INSERT INTO config(inviteText, header) VALUES('Hallo [Team]!','Event');");
 
         $cfg = new \App\Service\ConfigService($pdo);
@@ -91,7 +139,30 @@ class QrControllerTest extends TestCase
     {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE config(displayErrorDetails INTEGER, QRUser INTEGER, logoPath TEXT, pageTitle TEXT, backgroundColor TEXT, buttonColor TEXT, CheckAnswerButton TEXT, adminUser TEXT, adminPass TEXT, QRRestrict INTEGER, competitionMode INTEGER, teamResults INTEGER, photoUpload INTEGER, puzzleWordEnabled INTEGER, puzzleWord TEXT, puzzleFeedback TEXT, inviteText TEXT, event_uid TEXT);');
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                displayErrorDetails INTEGER,
+                QRUser INTEGER,
+                logoPath TEXT,
+                pageTitle TEXT,
+                backgroundColor TEXT,
+                buttonColor TEXT,
+                CheckAnswerButton TEXT,
+                adminUser TEXT,
+                adminPass TEXT,
+                QRRestrict INTEGER,
+                competitionMode INTEGER,
+                teamResults INTEGER,
+                photoUpload INTEGER,
+                puzzleWordEnabled INTEGER,
+                puzzleWord TEXT,
+                puzzleFeedback TEXT,
+                inviteText TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
         $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, date TEXT, description TEXT);');
         $pdo->exec("INSERT INTO events(uid,name) VALUES('1','Event')");
         $pdo->exec('CREATE TABLE teams(sort_order INTEGER UNIQUE NOT NULL, name TEXT NOT NULL, uid TEXT PRIMARY KEY);');

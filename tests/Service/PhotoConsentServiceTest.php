@@ -15,7 +15,16 @@ class PhotoConsentServiceTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE photo_consents(id INTEGER PRIMARY KEY AUTOINCREMENT, team TEXT NOT NULL, time INTEGER NOT NULL, event_uid TEXT);');
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE photo_consents(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                team TEXT NOT NULL,
+                time INTEGER NOT NULL,
+                event_uid TEXT
+            );
+            SQL
+        );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $cfg = new ConfigService($pdo);
         $cfg->saveConfig(['event_uid' => 'e1']);
@@ -33,7 +42,16 @@ class PhotoConsentServiceTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE photo_consents(id INTEGER PRIMARY KEY AUTOINCREMENT, team TEXT NOT NULL, time INTEGER NOT NULL, event_uid TEXT);');
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE photo_consents(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                team TEXT NOT NULL,
+                time INTEGER NOT NULL,
+                event_uid TEXT
+            );
+            SQL
+        );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $cfg = new ConfigService($pdo);
         $cfg->saveConfig(['event_uid' => 'e1']);
@@ -51,7 +69,16 @@ class PhotoConsentServiceTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE photo_consents(id INTEGER PRIMARY KEY AUTOINCREMENT, team TEXT NOT NULL, time INTEGER NOT NULL, event_uid TEXT);');
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE photo_consents(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                team TEXT NOT NULL,
+                time INTEGER NOT NULL,
+                event_uid TEXT
+            );
+            SQL
+        );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $cfg = new ConfigService($pdo);
         $cfg->saveConfig(['event_uid' => 'ev1']);
@@ -65,7 +92,16 @@ class PhotoConsentServiceTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE photo_consents(id INTEGER PRIMARY KEY AUTOINCREMENT, team TEXT NOT NULL, time INTEGER NOT NULL, event_uid TEXT);');
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE photo_consents(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                team TEXT NOT NULL,
+                time INTEGER NOT NULL,
+                event_uid TEXT
+            );
+            SQL
+        );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $cfg = new ConfigService($pdo);
         $cfg->saveConfig(['event_uid' => 'ev1']);
@@ -81,7 +117,16 @@ class PhotoConsentServiceTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE photo_consents(id INTEGER PRIMARY KEY AUTOINCREMENT, team TEXT NOT NULL, time INTEGER NOT NULL, event_uid TEXT);');
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE photo_consents(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                team TEXT NOT NULL,
+                time INTEGER NOT NULL,
+                event_uid TEXT
+            );
+            SQL
+        );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $cfg = new ConfigService($pdo);
         $cfg->saveConfig(['event_uid' => 'ev1']);

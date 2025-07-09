@@ -159,51 +159,33 @@ return function (\Slim\App $app) {
     $app->post('/login', [LoginController::class, 'login']);
     $app->get('/logout', LogoutController::class);
     $app->get('/admin', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/kataloge', AdminCatalogController::class)->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-    $app->get('/results', function (Request $request, Response $response) {
-        return $request->getAttribute('resultController')->page($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
-    $app->get('/results.json', function (Request $request, Response $response) {
-        return $request->getAttribute('resultController')->get($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
-    $app->get('/question-results.json', function (Request $request, Response $response) {
-        return $request->getAttribute('resultController')->getQuestions($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
-    $app->get('/results/download', function (Request $request, Response $response) {
-        return $request->getAttribute('resultController')->download($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
-    $app->get('/results.pdf', function (Request $request, Response $response) {
-        return $request->getAttribute('resultController')->pdf($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
-    $app->post('/results', function (Request $request, Response $response) {
-        return $request->getAttribute('resultController')->post($request, $response);
-    });
-    $app->delete('/results', function (Request $request, Response $response) {
-        return $request->getAttribute('resultController')->delete($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
-    $app->get('/config.json', function (Request $request, Response $response) {
-        return $request->getAttribute('configController')->get($request, $response);
-    });
-    $app->post('/config.json', function (Request $request, Response $response) {
-        return $request->getAttribute('configController')->post($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
-    $app->get('/kataloge/{file}', function (Request $request, Response $response, array $args) {
-        return $request->getAttribute('catalogController')->get($request->withAttribute('file', $args['file']), $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-    $app->post('/kataloge/{file}', function (Request $request, Response $response, array $args) {
-        return $request->getAttribute('catalogController')->post($request->withAttribute('file', $args['file']), $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-    $app->delete('/kataloge/{file}/{index}', function (Request $request, Response $response, array $args) {
-        $req = $request->withAttribute('file', $args['file'])->withAttribute('index', $args['index']);
-        return $request->getAttribute('catalogController')->deleteQuestion($req, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-    $app->put('/kataloge/{file}', function (Request $request, Response $response, array $args) {
-        return $request->getAttribute('catalogController')->create($request->withAttribute('file', $args['file']), $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-    $app->delete('/kataloge/{file}', function (Request $request, Response $response, array $args) {
-        return $request->getAttribute('catalogController')->delete($request->withAttribute('file', $args['file']), $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-
+    $app->get('/admin/kataloge', AdminCatalogController::class)
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->get('/results', [$resultController, 'page'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    $app->get('/results.json', [$resultController, 'get'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    $app->get('/question-results.json', [$resultController, 'getQuestions'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    $app->get('/results/download', [$resultController, 'download'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    $app->get('/results.pdf', [$resultController, 'pdf'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    $app->post('/results', [$resultController, 'post']);
+    $app->delete('/results', [$resultController, 'delete'])->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->get('/config.json', [$configController, 'get']);
+    $app->post('/config.json', [$configController, 'post'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+    $app->get('/kataloge/{file}', [$catalogController, 'get'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->post('/kataloge/{file}', [$catalogController, 'post'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->delete('/kataloge/{file}/{index}', [$catalogController, 'deleteQuestion'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->put('/kataloge/{file}', [$catalogController, 'create'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->delete('/kataloge/{file}', [$catalogController, 'delete'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
     $app->get('/events.json', function (Request $request, Response $response) {
         return $request->getAttribute('eventController')->get($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));

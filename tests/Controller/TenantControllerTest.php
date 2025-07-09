@@ -28,9 +28,17 @@ class TenantControllerTest extends TestCase
     public function testCreateReturns201(): void
     {
         $service = new class extends TenantService {
-            public function __construct() {}
-            public function createTenant(string $uid, string $schema): void {}
-            public function deleteTenant(string $uid): void {}
+            public function __construct()
+            {
+            }
+
+            public function createTenant(string $uid, string $schema): void
+            {
+            }
+
+            public function deleteTenant(string $uid): void
+            {
+            }
         };
         $controller = new TenantController($service);
         $request = $this->createRequest('POST', '/tenants', ['HTTP_CONTENT_TYPE' => 'application/json']);
@@ -43,9 +51,17 @@ class TenantControllerTest extends TestCase
     public function testDeleteReturns204(): void
     {
         $service = new class extends TenantService {
-            public function __construct() {}
-            public function createTenant(string $uid, string $schema): void {}
-            public function deleteTenant(string $uid): void {}
+            public function __construct()
+            {
+            }
+
+            public function createTenant(string $uid, string $schema): void
+            {
+            }
+
+            public function deleteTenant(string $uid): void
+            {
+            }
         };
         $controller = new TenantController($service);
         $request = $this->createRequest('DELETE', '/tenants', ['HTTP_CONTENT_TYPE' => 'application/json']);

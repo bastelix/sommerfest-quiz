@@ -32,12 +32,15 @@ class ResultService
     public function getAll(): array
     {
         $event = $this->config->getActiveEventUid();
-        $sql = 'SELECT r.name, r.catalog, r.attempt, r.correct, r.total, r.time, r.puzzleTime AS "puzzleTime", r.photo, '
-            . 'c.name AS catalogName '
-            . 'FROM results r '
-            . 'LEFT JOIN catalogs c ON c.uid = r.catalog '
-            . 'OR CAST(c.sort_order AS TEXT) = r.catalog '
-            . 'OR c.slug = r.catalog ';
+        $sql = <<<'SQL'
+            SELECT r.name, r.catalog, r.attempt, r.correct, r.total, r.time,
+                r.puzzleTime AS "puzzleTime", r.photo,
+                c.name AS catalogName
+            FROM results r
+            LEFT JOIN catalogs c ON c.uid = r.catalog
+                OR CAST(c.sort_order AS TEXT) = r.catalog
+                OR c.slug = r.catalog
+        SQL;
         $params = [];
         if ($event !== '') {
             $sql .= 'WHERE r.event_uid=? ';
@@ -65,14 +68,17 @@ class ResultService
     public function getQuestionResults(): array
     {
         $event = $this->config->getActiveEventUid();
-        $sql = 'SELECT qr.name, qr.catalog, qr.question_id, qr.attempt, qr.correct, qr.answer_text, qr.photo, qr.consent,' .
-            ' q.type, q.prompt, q.options, q.answers, q.terms, q.items,' .
-            ' c.name AS catalogName '
-            . 'FROM question_results qr '
-            . 'LEFT JOIN questions q ON q.id = qr.question_id '
-            . 'LEFT JOIN catalogs c ON c.uid = q.catalog_uid '
-            . 'OR CAST(c.sort_order AS TEXT) = qr.catalog '
-            . 'OR c.slug = qr.catalog ';
+        $sql = <<<'SQL'
+            SELECT qr.name, qr.catalog, qr.question_id, qr.attempt, qr.correct,
+                qr.answer_text, qr.photo, qr.consent,
+                q.type, q.prompt, q.options, q.answers, q.terms, q.items,
+                c.name AS catalogName
+            FROM question_results qr
+            LEFT JOIN questions q ON q.id = qr.question_id
+            LEFT JOIN catalogs c ON c.uid = q.catalog_uid
+                OR CAST(c.sort_order AS TEXT) = qr.catalog
+                OR c.slug = qr.catalog
+        SQL;
         $params = [];
         if ($event !== '') {
             $sql .= 'WHERE qr.event_uid=? ';
@@ -123,7 +129,10 @@ class ResultService
             'puzzleTime' => isset($data['puzzleTime']) ? (int)$data['puzzleTime'] : null,
             'photo' => isset($data['photo']) ? (string)$data['photo'] : null,
         ];
-        $stmt = $this->pdo->prepare('INSERT INTO results(name,catalog,attempt,correct,total,time,puzzleTime,photo,event_uid) VALUES(?,?,?,?,?,?,?,?,?)');
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO results(name,catalog,attempt,correct,total,time,' .
+            'puzzleTime,photo,event_uid) VALUES(?,?,?,?,?,?,?,?,?)'
+        );
         $stmt->execute([
             $entry['name'],
             $entry['catalog'],
@@ -145,7 +154,15 @@ class ResultService
      *
      * @param list<int> $wrongIdx
      */
-    private function addQuestionResults(string $name, string $catalog, int $attempt, array $wrongIdx, int $total, array $answers = [], string $eventUid = ''): void
+    private function addQuestionResults(
+        string $name,
+        string $catalog,
+        int $attempt,
+        array $wrongIdx,
+        int $total,
+        array $answers = [],
+        string $eventUid = ''
+    ): void
     {
         $uidStmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE uid=? OR CAST(sort_order AS TEXT)=? OR slug=?');
         $uidStmt->execute([$catalog, $catalog, $catalog]);
@@ -159,7 +176,11 @@ class ResultService
         if (!$ids) {
             return;
         }
-        $ins = $this->pdo->prepare('INSERT INTO question_results(name,catalog,question_id,attempt,correct,answer_text,photo,consent,event_uid) VALUES(?,?,?,?,?,?,?,?,?)');
+        $ins = $this->pdo->prepare(
+            'INSERT INTO question_results(' .
+            'name,catalog,question_id,attempt,correct,answer_text,photo,consent,event_uid' .
+            ') VALUES(?,?,?,?,?,?,?,?,?)'
+        );
         for ($i = 0; $i < min(count($ids), $total); $i++) {
             $qid = (int)$ids[$i];
             $correct = in_array($i + 1, $wrongIdx, true) ? 0 : 1;
