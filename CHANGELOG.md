@@ -62,6 +62,7 @@
 - Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
+- Update changelog [skip ci]
 
 ### Feat
 
@@ -72,6 +73,7 @@
 - *(admin)* Activate event selection
 - Confirm event deletion
 - Centralize roles and update management
+- Seed users for all roles
 
 ### Fix
 
