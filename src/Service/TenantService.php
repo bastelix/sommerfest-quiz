@@ -4,35 +4,56 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use PDO;
+use App\Infrastructure\Migrations\Migrator;
+
 /**
- * Simple in-memory service for managing tenants.
+ * Service for creating and deleting tenants using separate schemas.
  */
 class TenantService
 {
-    /**
-     * @var array<int,array<string,mixed>>
-     */
-    private array $tenants = [];
+    private PDO $pdo;
 
-    /**
-     * Create a new tenant record.
-     *
-     * @param array<string,mixed> $data
-     */
-    public function create(array $data): void
+    private string $migrationsDir;
+
+    public function __construct(PDO $pdo, ?string $migrationsDir = null)
     {
-        $this->tenants[] = $data;
+        $this->pdo = $pdo;
+        $this->migrationsDir = $migrationsDir ?? dirname(__DIR__, 2) . '/migrations';
     }
 
     /**
-     * Delete a tenant by UID if present.
+     * Create a new tenant schema and run migrations within it.
      */
-    public function delete(string $uid): void
+    public function createTenant(string $uid, string $schema): void
     {
-        foreach ($this->tenants as $i => $row) {
-            if (($row['uid'] ?? null) === $uid) {
-                unset($this->tenants[$i]);
-            }
+        if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
+            Migrator::migrate($this->pdo, $this->migrationsDir);
+        } else {
+            $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $schema));
+            $this->pdo->exec(sprintf('SET search_path TO "%s"', $schema));
+            Migrator::migrate($this->pdo, $this->migrationsDir);
+            $this->pdo->exec('SET search_path TO public');
         }
+        $stmt = $this->pdo->prepare('INSERT INTO tenants(uid, subdomain) VALUES(?, ?)');
+        $stmt->execute([$uid, $schema]);
+    }
+
+    /**
+     * Drop the tenant schema and remove its record.
+     */
+    public function deleteTenant(string $uid): void
+    {
+        $stmt = $this->pdo->prepare('SELECT subdomain FROM tenants WHERE uid = ?');
+        $stmt->execute([$uid]);
+        $schema = $stmt->fetchColumn();
+        if ($schema === false) {
+            return;
+        }
+        if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'sqlite') {
+            $this->pdo->exec(sprintf('DROP SCHEMA IF EXISTS "%s" CASCADE', $schema));
+        }
+        $del = $this->pdo->prepare('DELETE FROM tenants WHERE uid = ?');
+        $del->execute([$uid]);
     }
 }

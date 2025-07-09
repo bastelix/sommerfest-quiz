@@ -6,6 +6,7 @@ namespace Tests\Controller;
 
 use App\Controller\TenantController;
 use App\Service\TenantService;
+use PDO;
 use Tests\TestCase;
 use Slim\Psr7\Response;
 use Slim\Psr7\Factory\StreamFactory;
@@ -26,10 +27,14 @@ class TenantControllerTest extends TestCase
 
     public function testCreateReturns201(): void
     {
-        $service = new TenantService();
+        $service = new class extends TenantService {
+            public function __construct() {}
+            public function createTenant(string $uid, string $schema): void {}
+            public function deleteTenant(string $uid): void {}
+        };
         $controller = new TenantController($service);
         $request = $this->createRequest('POST', '/tenants', ['HTTP_CONTENT_TYPE' => 'application/json']);
-        $stream = (new StreamFactory())->createStream(json_encode(['uid' => 't1']));
+        $stream = (new StreamFactory())->createStream(json_encode(['uid' => 't1', 'schema' => 's1']));
         $request = $request->withBody($stream);
         $response = $controller->create($request, new Response());
         $this->assertEquals(201, $response->getStatusCode());
@@ -37,8 +42,11 @@ class TenantControllerTest extends TestCase
 
     public function testDeleteReturns204(): void
     {
-        $service = new TenantService();
-        $service->create(['uid' => 't1']);
+        $service = new class extends TenantService {
+            public function __construct() {}
+            public function createTenant(string $uid, string $schema): void {}
+            public function deleteTenant(string $uid): void {}
+        };
         $controller = new TenantController($service);
         $request = $this->createRequest('DELETE', '/tenants', ['HTTP_CONTENT_TYPE' => 'application/json']);
         $stream = (new StreamFactory())->createStream(json_encode(['uid' => 't1']));

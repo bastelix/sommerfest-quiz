@@ -76,7 +76,7 @@ return function (\Slim\App $app) {
     $teamService = new TeamService($pdo, $configService);
     $consentService = new PhotoConsentService($pdo, $configService);
     $eventService = new EventService($pdo);
-    $tenantService = new TenantService();
+    $tenantService = new TenantService($pdo);
     $userService = new \App\Service\UserService($pdo);
 
     $configController = new ConfigController($configService);
