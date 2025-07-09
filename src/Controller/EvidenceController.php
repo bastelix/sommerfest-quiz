@@ -24,8 +24,12 @@ class EvidenceController
     /**
      * Set up controller dependencies and target directory.
      */
-    public function __construct(ResultService $results, PhotoConsentService $consent, LoggerInterface $logger, string $dir)
-    {
+    public function __construct(
+        ResultService $results,
+        PhotoConsentService $consent,
+        LoggerInterface $logger,
+        string $dir
+    ) {
         $this->results = $results;
         $this->consent = $consent;
         $this->logger = $logger;
@@ -101,7 +105,11 @@ class EvidenceController
             } else {
                 $convert = trim((string)@shell_exec('command -v convert'));
                 if ($convert !== '') {
-                    @shell_exec($convert . ' ' . escapeshellarg($tmpPath) . ' -auto-orient ' . escapeshellarg($tmpPath));
+                    $cmd = $convert
+                        . ' ' . escapeshellarg($tmpPath)
+                        . ' -auto-orient '
+                        . escapeshellarg($tmpPath);
+                    @shell_exec($cmd);
                     $img = Image::make($tmpPath);
                     $orientationHandled = true;
                 }

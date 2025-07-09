@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 $base = dirname(__DIR__);
@@ -37,7 +38,7 @@ $configData = array_intersect_key($config, array_flip([
 ]));
 if ($configData) {
     $cols = array_keys($configData);
-    $placeholders = array_map(fn($c)=>":".$c, $cols);
+    $placeholders = array_map(fn($c) => ':' . $c, $cols);
     $sql = 'INSERT INTO config(' . implode(',', $cols) . ') VALUES(' . implode(',', $placeholders) . ')';
     $stmt = $pdo->prepare($sql);
     foreach ($configData as $k => $v) {
@@ -183,4 +184,3 @@ if (is_readable($consentFile)) {
 $pdo->commit();
 
 echo "Import completed\n";
-

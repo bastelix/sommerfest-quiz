@@ -145,20 +145,31 @@ return function (\Slim\App $app) {
     $app->post('/results', [$resultController, 'post']);
     $app->delete('/results', [$resultController, 'delete'])->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/config.json', [$configController, 'get']);
-    $app->post('/config.json', [$configController, 'post'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
-    $app->get('/kataloge/{file}', [$catalogController, 'get'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-    $app->post('/kataloge/{file}', [$catalogController, 'post'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-    $app->delete('/kataloge/{file}/{index}', [$catalogController, 'deleteQuestion'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-    $app->put('/kataloge/{file}', [$catalogController, 'create'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-    $app->delete('/kataloge/{file}', [$catalogController, 'delete'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->post('/config.json', [$configController, 'post'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+    $app->get('/kataloge/{file}', [$catalogController, 'get'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->post('/kataloge/{file}', [$catalogController, 'post'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->delete('/kataloge/{file}/{index}', [$catalogController, 'deleteQuestion'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->put('/kataloge/{file}', [$catalogController, 'create'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->delete('/kataloge/{file}', [$catalogController, 'delete'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
 
-    $app->get('/events.json', [$eventController, 'get'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
-    $app->post('/events.json', [$eventController, 'post'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+    $app->get('/events.json', [$eventController, 'get'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+    $app->post('/events.json', [$eventController, 'post'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
 
     $app->get('/teams.json', [$teamController, 'get']);
-    $app->post('/teams.json', [$teamController, 'post'])->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::TEAM_MANAGER));
-    $app->get('/users.json', [$userController, 'get'])->add(new RoleAuthMiddleware(Roles::ADMIN));
-    $app->post('/users.json', [$userController, 'post'])->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->post('/teams.json', [$teamController, 'post'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::TEAM_MANAGER));
+    $app->get('/users.json', [$userController, 'get'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->post('/users.json', [$userController, 'post'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->post('/password', [$passwordController, 'post'])->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->post('/import', [$importController, 'post'])->add(new RoleAuthMiddleware('admin'));
     $app->post('/import/{name}', [$importController, 'import'])->add(new RoleAuthMiddleware('admin'));

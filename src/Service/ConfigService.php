@@ -19,7 +19,6 @@ class ConfigService
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
-
     }
 
     /**

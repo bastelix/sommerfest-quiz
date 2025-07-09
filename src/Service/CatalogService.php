@@ -305,6 +305,5 @@ class CatalogService
         }
         $del = $this->pdo->prepare('DELETE FROM questions WHERE id=?');
         $del->execute([$rows[$index]]);
-
     }
 }

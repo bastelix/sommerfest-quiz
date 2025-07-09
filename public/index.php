@@ -1,4 +1,5 @@
 <?php
+
 $autoloader = __DIR__ . '/../vendor/autoload.php';
 if (!is_readable($autoloader)) {
     http_response_code(500);

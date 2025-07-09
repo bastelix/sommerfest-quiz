@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Tests\Controller;
@@ -46,10 +47,10 @@ class ImportControllerTest extends TestCase
         $tmp = sys_get_temp_dir() . '/import_' . uniqid();
         mkdir($tmp . '/kataloge', 0777, true);
         file_put_contents($tmp . '/kataloge/catalogs.json', json_encode([
-            ['uid'=>'u1','id'=>'c1','slug'=>'c1','file'=>'c1.json','name'=>'Cat']
+            ['uid' => 'u1', 'id' => 'c1', 'slug' => 'c1', 'file' => 'c1.json', 'name' => 'Cat']
         ], JSON_PRETTY_PRINT));
         file_put_contents($tmp . '/kataloge/c1.json', json_encode([
-            ['type'=>'text','prompt'=>'Q']
+            ['type' => 'text', 'prompt' => 'Q']
         ], JSON_PRETTY_PRINT));
         file_put_contents($tmp . '/photo_consents.json', json_encode([
             ['team' => 'T1', 'time' => 1]

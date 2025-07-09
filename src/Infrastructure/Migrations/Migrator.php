@@ -13,7 +13,7 @@ class Migrator
         $pdo->exec('CREATE TABLE IF NOT EXISTS migrations (version TEXT PRIMARY KEY)');
         $stmt = $pdo->query('SELECT version FROM migrations');
         $applied = $stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
-        $files = glob(rtrim($dir, '/'). '/*.sql');
+        $files = glob(rtrim($dir, '/') . '/*.sql');
         sort($files);
         foreach ($files as $file) {
             $version = basename($file);
