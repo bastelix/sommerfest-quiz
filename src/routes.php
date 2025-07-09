@@ -71,7 +71,7 @@ return function (\Slim\App $app) {
     $catalogService = new CatalogService($pdo, $configService);
     $resultService = new ResultService($pdo, $configService);
     $teamService = new TeamService($pdo, $configService);
-    $consentService = new PhotoConsentService($pdo);
+    $consentService = new PhotoConsentService($pdo, $configService);
     $eventService = new EventService($pdo);
     $userService = new \App\Service\UserService($pdo);
 

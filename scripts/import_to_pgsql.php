@@ -169,9 +169,13 @@ if (is_readable($catalogsFile)) {
 $consentFile = "$base/data/photo_consents.json";
 if (is_readable($consentFile)) {
     $consents = json_decode(file_get_contents($consentFile), true) ?? [];
-    $stmt = $pdo->prepare('INSERT INTO photo_consents(team,time) VALUES(?,?)');
+    $stmt = $pdo->prepare('INSERT INTO photo_consents(team,time,event_uid) VALUES(?,?,?)');
     foreach ($consents as $c) {
-        $stmt->execute([ $c['team'] ?? '', $c['time'] ?? 0 ]);
+        $stmt->execute([
+            $c['team'] ?? '',
+            $c['time'] ?? 0,
+            $c['event_uid'] ?? $activeUid,
+        ]);
     }
     $pdo->exec("SELECT setval(pg_get_serial_sequence('photo_consents','id'), (SELECT COALESCE(MAX(id),0) FROM photo_consents))");
 }

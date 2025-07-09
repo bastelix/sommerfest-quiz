@@ -117,6 +117,7 @@ CREATE INDEX idx_questions_catalog ON questions(catalog_uid);
 CREATE TABLE IF NOT EXISTS photo_consents (
     id SERIAL PRIMARY KEY,
     team TEXT NOT NULL,
-    time INTEGER NOT NULL
+    time INTEGER NOT NULL,
+    event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
 CREATE INDEX idx_photo_consents_team ON photo_consents(team);
