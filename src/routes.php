@@ -22,6 +22,7 @@ use App\Service\TeamService;
 use App\Service\PhotoConsentService;
 use App\Service\EventService;
 use App\Service\UserService;
+use App\Service\TenantService;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
 use App\Controller\PasswordController;
@@ -33,6 +34,7 @@ use App\Controller\LogoController;
 use App\Controller\SummaryController;
 use App\Controller\EvidenceController;
 use App\Controller\EventController;
+use App\Controller\TenantController;
 use Psr\Log\NullLogger;
 use App\Controller\BackupController;
 use App\Domain\Roles;
@@ -60,6 +62,7 @@ require_once __DIR__ . '/Controller/ExportController.php';
 require_once __DIR__ . '/Controller/EventController.php';
 require_once __DIR__ . '/Controller/BackupController.php';
 require_once __DIR__ . '/Controller/UserController.php';
+require_once __DIR__ . '/Controller/TenantController.php';
 
 use App\Infrastructure\Database;
 use App\Infrastructure\Migrations\Migrator;
@@ -73,6 +76,7 @@ return function (\Slim\App $app) {
     $teamService = new TeamService($pdo, $configService);
     $consentService = new PhotoConsentService($pdo, $configService);
     $eventService = new EventService($pdo);
+    $tenantService = new TenantService();
     $userService = new \App\Service\UserService($pdo);
 
     $configController = new ConfigController($configService);
@@ -87,6 +91,7 @@ return function (\Slim\App $app) {
     );
     $teamController = new TeamController($teamService);
     $eventController = new EventController($eventService);
+    $tenantController = new TenantController($tenantService);
     $passwordController = new PasswordController($userService);
     $userController = new UserController($userService);
     $qrController = new QrController($configService, $teamService, $eventService);
@@ -162,6 +167,11 @@ return function (\Slim\App $app) {
         ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
     $app->post('/events.json', [$eventController, 'post'])
         ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+
+    $app->post('/tenants', [$tenantController, 'create'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->delete('/tenants', [$tenantController, 'delete'])
+        ->add(new RoleAuthMiddleware(Roles::ADMIN));
 
     $app->get('/teams.json', [$teamController, 'get']);
     $app->post('/teams.json', [$teamController, 'post'])
