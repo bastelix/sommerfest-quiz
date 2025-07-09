@@ -1,1 +1,1 @@
-ALTER TABLE catalogs ADD COLUMN IF NOT EXISTS comment TEXT;
+ALTER TABLE public.catalogs ADD COLUMN IF NOT EXISTS comment TEXT;
