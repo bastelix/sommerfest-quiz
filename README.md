@@ -122,7 +122,14 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
   ```bash
   php scripts/seed_roles.php
   ```
-  ausgeführt werden.
+  ausgeführt werden. Das Skript legt einen Benutzer pro Rolle an. Benutzername
+  und Passwort entsprechen dabei jeweils dem Rollennamen:
+
+  - `admin` – Administrator
+  - `catalog-editor` – Fragenkataloge bearbeiten
+  - `event-manager` – Veranstaltungen verwalten
+  - `analyst` – Ergebnisse analysieren
+  - `team-manager` – Teams verwalten
 
    Wird `POSTGRES_DSN` gesetzt und enthält das Verzeichnis `data/` bereits JSON-Dateien,
    legt das Entrypoint-Skript des Containers die Tabellen automatisch an und importiert

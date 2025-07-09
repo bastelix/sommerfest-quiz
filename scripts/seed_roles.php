@@ -1,6 +1,10 @@
 <?php
 declare(strict_types=1);
 
+require __DIR__ . '/../vendor/autoload.php';
+
+use App\Domain\Roles;
+
 $base = dirname(__DIR__);
 $configFile = "$base/data/config.json";
 $config = [];
@@ -17,11 +21,19 @@ if (!$dsn || !$user || !$db) {
     exit(1);
 }
 
+
 $pdo = new PDO($dsn, $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 $pdo->beginTransaction();
 $insert = $pdo->prepare('INSERT INTO users(username,password,role) VALUES(?,?,?) ON CONFLICT (username) DO NOTHING');
-$insert->execute(['admin', password_hash('admin', PASSWORD_DEFAULT), 'admin']);
-$insert->execute(['staff', password_hash('staff', PASSWORD_DEFAULT), 'catalog-editor']);
+
+foreach (Roles::ALL as $role) {
+    $insert->execute([
+        $role,
+        password_hash($role, PASSWORD_DEFAULT),
+        $role,
+    ]);
+}
+
 $pdo->commit();
 
 echo "Seeded example users\n";
