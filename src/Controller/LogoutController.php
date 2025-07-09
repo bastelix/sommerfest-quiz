@@ -8,7 +8,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 /**
- * Logs out the current administrator session.
+ * Logs out the current user session.
  */
 class LogoutController
 {
@@ -20,6 +20,7 @@ class LogoutController
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
+        $_SESSION = [];
         session_destroy();
         return $response->withHeader('Location', '/login')->withStatus(302);
     }

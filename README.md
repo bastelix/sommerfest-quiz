@@ -269,8 +269,6 @@ Alle wesentlichen Einstellungen stehen in `data/config.json` und werden beim ers
   "backgroundColor": "#ffffff",
   "buttonColor": "#1e87f0",
   "CheckAnswerButton": "no",
-  "adminUser": "admin",
-  "adminPass": "***",
   "QRRestrict": false,
   "competitionMode": false,
   "teamResults": true,
@@ -290,7 +288,7 @@ Optional kann `baseUrl` gesetzt werden, um in QR-Codes vollständige Links mit D
 `ConfigService` liest und speichert diese Datei. Ein GET auf `/config.json` liefert den aktuellen Inhalt, ein POST auf dieselbe URL speichert geänderte Werte.
 
 ### Authentifizierung
-Der Zugang zum Administrationsbereich erfolgt über `/login`. Nach erfolgreichem POST mit gültigen Daten wird eine Session gesetzt und der Browser zur Route `/admin` umgeleitet. Die Middleware `AdminAuthMiddleware` schützt alle Admin-Routen und leitet bei fehlender Session zum Login weiter.
+Der Zugang zum Administrationsbereich erfolgt über `/login`. Benutzer und Rollen werden in der Tabelle `users` verwaltet. Nach erfolgreichem POST mit gültigen Zugangsdaten speichert das System die Benutzerinformationen inklusive Rolle in der Session und leitet Administratoren zur Route `/admin` weiter. Die Middleware `AdminAuthMiddleware` prüft die gespeicherte Rolle und leitet bei fehlender Administratorberechtigung zum Login um.
 
 ### Administrationsoberfläche
 Unter `/admin` stehen folgende Tabs zur Verfügung:

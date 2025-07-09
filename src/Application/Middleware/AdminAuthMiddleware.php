@@ -11,7 +11,7 @@ use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response as SlimResponse;
 
 /**
- * Middleware ensuring the user is logged in as administrator.
+ * Middleware ensuring the user has the administrator role.
  */
 class AdminAuthMiddleware implements MiddlewareInterface
 {
@@ -23,7 +23,8 @@ class AdminAuthMiddleware implements MiddlewareInterface
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-        if (empty($_SESSION['admin'])) {
+        $role = $_SESSION['user']['role'] ?? null;
+        if ($role !== 'admin') {
             $response = new SlimResponse();
             return $response->withHeader('Location', '/login')->withStatus(302);
         }

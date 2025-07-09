@@ -19,8 +19,6 @@ Alle wesentlichen Optionen stehen in `data/config.json` und werden beim ersten I
   "backgroundColor": "#ffffff",
   "buttonColor": "#1e87f0",
   "CheckAnswerButton": "no",
-  "adminUser": "admin",
-  "adminPass": "...",
   "QRRestrict": false,
   "competitionMode": false,
   "teamResults": true,

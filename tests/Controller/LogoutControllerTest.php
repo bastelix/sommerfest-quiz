@@ -12,7 +12,7 @@ class LogoutControllerTest extends TestCase
     {
         $app = $this->getAppInstance();
         session_start();
-        $_SESSION['admin'] = true;
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
         $request = $this->createRequest('GET', '/logout');
         $response = $app->handle($request);
         $this->assertEquals(302, $response->getStatusCode());
