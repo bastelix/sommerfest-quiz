@@ -31,9 +31,9 @@ class ResultControllerTest extends TestCase
         $pdo->exec("INSERT INTO teams(sort_order,name,uid) VALUES(1,'Team1','1')");
 
         $cfg = new \App\Service\ConfigService($pdo);
-        $svc = new \App\Service\ResultService($pdo);
-        $teams = new \App\Service\TeamService($pdo);
-        $catalogs = new \App\Service\CatalogService($pdo);
+        $svc = new \App\Service\ResultService($pdo, $cfg);
+        $teams = new \App\Service\TeamService($pdo, $cfg);
+        $catalogs = new \App\Service\CatalogService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
         $ctrl = new \App\Controller\ResultController($svc, $cfg, $teams, $catalogs, sys_get_temp_dir(), $events);
 

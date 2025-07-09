@@ -14,35 +14,24 @@ use App\Service\ConfigService;
 class ResultService
 {
     private PDO $pdo;
+    private ConfigService $config;
 
     /**
      * Inject database connection.
      */
-    public function __construct(PDO $pdo)
+    public function __construct(PDO $pdo, ConfigService $config)
     {
         $this->pdo = $pdo;
+        $this->config = $config;
     }
 
-    /**
-     * Get the currently active event UID.
-     */
-    private function activeEventUid(): string
-    {
-        try {
-            $stmt = $this->pdo->query('SELECT event_uid FROM config LIMIT 1');
-            $uid = $stmt->fetchColumn();
-            return $uid === false ? '' : (string)$uid;
-        } catch (PDOException $e) {
-            return '';
-        }
-    }
 
     /**
      * Fetch all stored results along with catalog names.
      */
     public function getAll(): array
     {
-        $event = $this->activeEventUid();
+        $event = $this->config->getActiveEventUid();
         $sql = 'SELECT r.name, r.catalog, r.attempt, r.correct, r.total, r.time, r.puzzleTime AS "puzzleTime", r.photo, '
             . 'c.name AS catalogName '
             . 'FROM results r '
@@ -75,7 +64,7 @@ class ResultService
      */
     public function getQuestionResults(): array
     {
-        $event = $this->activeEventUid();
+        $event = $this->config->getActiveEventUid();
         $sql = 'SELECT qr.name, qr.catalog, qr.question_id, qr.attempt, qr.correct, qr.answer_text, qr.photo, qr.consent,' .
             ' q.type, q.prompt, q.options, q.answers, q.terms, q.items,' .
             ' c.name AS catalogName '
@@ -113,7 +102,7 @@ class ResultService
         $name = (string)($data['name'] ?? '');
         $catalog = (string)($data['catalog'] ?? '');
         $wrong = array_map('intval', $data['wrong'] ?? []);
-        $eventUid = $this->activeEventUid();
+        $eventUid = $this->config->getActiveEventUid();
         $sql = 'SELECT COALESCE(MAX(attempt),0) FROM results WHERE name=? AND catalog=?';
         $params = [$name, $catalog];
         if ($eventUid !== '') {
@@ -187,7 +176,7 @@ class ResultService
      */
     public function clear(): void
     {
-        $uid = $this->activeEventUid();
+        $uid = $this->config->getActiveEventUid();
         if ($uid !== '') {
             $del = $this->pdo->prepare('DELETE FROM results WHERE event_uid=?');
             $del->execute([$uid]);
@@ -204,7 +193,7 @@ class ResultService
      */
     public function markPuzzle(string $name, string $catalog, int $time): bool
     {
-        $uid = $this->activeEventUid();
+        $uid = $this->config->getActiveEventUid();
         $sql = 'SELECT id, puzzleTime AS "puzzleTime" FROM results WHERE name=? AND catalog=?';
         $params = [$name, $catalog];
         if ($uid !== '') {
@@ -230,7 +219,7 @@ class ResultService
      */
     public function setPhoto(string $name, string $catalog, string $path): void
     {
-        $uid = $this->activeEventUid();
+        $uid = $this->config->getActiveEventUid();
         $sql = 'SELECT id FROM results WHERE name=? AND catalog=?';
         $params = [$name, $catalog];
         if ($uid !== '') {
@@ -254,7 +243,7 @@ class ResultService
      */
     public function saveAll(array $results): void
     {
-        $uid = $this->activeEventUid();
+        $uid = $this->config->getActiveEventUid();
         $this->pdo->beginTransaction();
         if ($uid !== '') {
             $del = $this->pdo->prepare('DELETE FROM results WHERE event_uid=?');

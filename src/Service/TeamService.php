@@ -14,35 +14,24 @@ use App\Service\ConfigService;
 class TeamService
 {
     private PDO $pdo;
+    private ConfigService $config;
 
     /**
      * Inject database connection.
      */
-    public function __construct(PDO $pdo)
+    public function __construct(PDO $pdo, ConfigService $config)
     {
         $this->pdo = $pdo;
+        $this->config = $config;
     }
 
-    /**
-     * Retrieve the active event UID.
-     */
-    private function activeEventUid(): string
-    {
-        try {
-            $stmt = $this->pdo->query('SELECT event_uid FROM config LIMIT 1');
-            $uid = $stmt->fetchColumn();
-            return $uid === false ? '' : (string)$uid;
-        } catch (PDOException $e) {
-            return '';
-        }
-    }
 
     /**
      * Retrieve the ordered list of teams.
      */
     public function getAll(): array
     {
-        $uid = $this->activeEventUid();
+        $uid = $this->config->getActiveEventUid();
         $sql = 'SELECT name FROM teams';
         $params = [];
         if ($uid !== '') {
@@ -60,7 +49,7 @@ class TeamService
      */
     public function saveAll(array $teams): void
     {
-        $uid = $this->activeEventUid();
+        $uid = $this->config->getActiveEventUid();
         $this->pdo->beginTransaction();
         if ($uid !== '') {
             $del = $this->pdo->prepare('DELETE FROM teams WHERE event_uid=?');
