@@ -9,6 +9,7 @@
 ### Chore
 
 - Cascade delete events
+- Pin GitHub Actions to SHA
 
 ### Ci
 
@@ -23,6 +24,7 @@
 - Add hierarchical navigation
 - Add version history
 - Mention exif extension
+- Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
