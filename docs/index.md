@@ -21,16 +21,19 @@ Weitere Highlights sind:
 - **QR-Code-Login & Dunkelmodus** für komfortables Spielen auf allen Geräten.
 - **Persistente Speicherung** in PostgreSQL.
 
-## Mandanten und API
+## Mandantenfunktionen
 
-Die App kann mehrere Organisationen gleichzeitig bedienen. Jede Subdomain repräsentiert einen eigenen Mandanten mit separatem Schema in PostgreSQL. Die Schemas werden automatisch über die vorhandenen Migrationen angelegt.
+Die App kann mehrere Organisationen gleichzeitig bedienen. Jeder Mandant wird 
+durch eine Subdomain repräsentiert und erhält beim Anlegen ein eigenes Schema 
+in PostgreSQL, das mittels Migrationen automatisch erstellt wird.
 
-### Endpunkte
+### API-Endpunkte
 
-- **POST `/tenants`** &ndash; legt einen neuen Mandanten an.
-- **DELETE `/tenants`** &ndash; entfernt einen bestehenden Mandanten samt Schema.
+- **POST `/tenants`** – legt einen neuen Mandanten samt Schema an.
+- **DELETE `/tenants`** – entfernt einen bestehenden Mandanten und löscht das
+  Schema.
 
-Beispiel für das Anlegen eines Mandanten:
+### Beispiel-Anfragen
 
 ```bash
 curl -X POST http://$DOMAIN/tenants \
@@ -38,9 +41,15 @@ curl -X POST http://$DOMAIN/tenants \
   -d '{"uid":"acme","schema":"acme"}'
 ```
 
+```bash
+curl -X DELETE http://$DOMAIN/tenants \
+  -H 'Content-Type: application/json' \
+  -d '{"uid":"acme"}'
+```
+
 ### Hinweise zu Umgebungsvariablen
 
-Die Subdomain-Funktion nutzt folgende Variablen aus `.env` oder `sample.env`:
+Die Mandanten-Logik nutzt folgende Variablen aus `.env` oder `sample.env`:
 
 - `DOMAIN` legt die Basis-Domain für alle Mandanten fest.
 - `POSTGRES_DSN`, `POSTGRES_USER` und `POSTGRES_PASSWORD` bestimmen den Datenbankzugang.
