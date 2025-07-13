@@ -25,6 +25,7 @@ class TenantServiceTest extends TestCase
     public function testCreateTenantInsertsRow(): void
     {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
         $service->createTenant('u1', 's1');
         $count = (int) $pdo->query('SELECT COUNT(*) FROM tenants')->fetchColumn();
@@ -34,10 +35,22 @@ class TenantServiceTest extends TestCase
     public function testDeleteTenantRemovesRow(): void
     {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
         $service->createTenant('u2', 's2');
         $service->deleteTenant('u2');
         $count = (int) $pdo->query('SELECT COUNT(*) FROM tenants')->fetchColumn();
         $this->assertSame(0, $count);
+    }
+
+    public function testCreateAndDeleteSequence(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+        $service = $this->createService($dir, $pdo);
+        $service->createTenant('u3', 's3');
+        $this->assertSame(1, (int) $pdo->query('SELECT COUNT(*) FROM tenants')->fetchColumn());
+        $service->deleteTenant('u3');
+        $this->assertSame(0, (int) $pdo->query('SELECT COUNT(*) FROM tenants')->fetchColumn());
     }
 }
