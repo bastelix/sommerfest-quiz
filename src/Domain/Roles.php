@@ -11,6 +11,7 @@ final class Roles
     public const EVENT_MANAGER = 'event-manager';
     public const ANALYST = 'analyst';
     public const TEAM_MANAGER = 'team-manager';
+    public const SERVICE_ACCOUNT = 'service-account';
 
     public const ALL = [
         self::ADMIN,
@@ -18,5 +19,6 @@ final class Roles
         self::EVENT_MANAGER,
         self::ANALYST,
         self::TEAM_MANAGER,
+        self::SERVICE_ACCOUNT,
     ];
 }

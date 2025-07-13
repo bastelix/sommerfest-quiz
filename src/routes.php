@@ -231,10 +231,10 @@ return function (\Slim\App $app) {
 
     $app->post('/tenants', function (Request $request, Response $response) {
         return $request->getAttribute('tenantController')->create($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::SERVICE_ACCOUNT));
     $app->delete('/tenants', function (Request $request, Response $response) {
         return $request->getAttribute('tenantController')->delete($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::SERVICE_ACCOUNT));
 
     $app->get('/teams.json', function (Request $request, Response $response) {
         return $request->getAttribute('teamController')->get($request, $response);
@@ -244,10 +244,10 @@ return function (\Slim\App $app) {
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::TEAM_MANAGER));
     $app->get('/users.json', function (Request $request, Response $response) {
         return $request->getAttribute('userController')->get($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::SERVICE_ACCOUNT));
     $app->post('/users.json', function (Request $request, Response $response) {
         return $request->getAttribute('userController')->post($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::SERVICE_ACCOUNT));
     $app->post('/password', function (Request $request, Response $response) {
         return $request->getAttribute('passwordController')->post($request, $response);
     })->add(new RoleAuthMiddleware(...Roles::ALL));
