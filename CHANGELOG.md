@@ -10,6 +10,7 @@
 
 - Cascade delete events
 - Pin GitHub Actions to SHA
+- Apply unless-stopped restart policy
 
 ### Ci
 
@@ -92,6 +93,7 @@
 - Add tenant API section
 - Update changelog [skip ci]
 - Add tenant features section
+- Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
 
