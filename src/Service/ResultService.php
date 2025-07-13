@@ -40,6 +40,7 @@ class ResultService
             LEFT JOIN catalogs c ON c.uid = r.catalog
                 OR CAST(c.sort_order AS TEXT) = r.catalog
                 OR c.slug = r.catalog
+
         SQL;
         $params = [];
         if ($event !== '') {
@@ -78,6 +79,7 @@ class ResultService
             LEFT JOIN catalogs c ON c.uid = q.catalog_uid
                 OR CAST(c.sort_order AS TEXT) = qr.catalog
                 OR c.slug = qr.catalog
+
         SQL;
         $params = [];
         if ($event !== '') {
