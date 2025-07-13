@@ -104,7 +104,7 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
 
    Alternativ lassen sich Schema- und Datenimport direkt im Docker-Container ausführen:
    ```bash
-   docker-compose exec slim bash -c \
+   docker compose exec slim bash -c \
      'psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f docs/schema.sql && \
       php scripts/import_to_pgsql.php'
    ```
@@ -140,7 +140,7 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
 Das mitgelieferte `docker-compose.yml` startet das Quiz samt Reverse Proxy.
 Die Dateien im Ordner `data/` werden dabei in einem benannten Volume
 `quizdata` gespeichert. So bleiben eingetragene Teams und Ergebnisse auch nach
-`docker-compose down` erhalten. Hochgeladene Beweisfotos landen im Verzeichnis
+`docker compose down` erhalten. Hochgeladene Beweisfotos landen im Verzeichnis
 `data/photos` und werden dort immer als JPEG abgelegt. Durch das Volume bleiben
 die Bilder ebenfalls dauerhaft erhalten. Die
 ACME-Konfiguration des Let's-Encrypt-Begleiters landet im Ordner `acme/` und
@@ -164,7 +164,7 @@ client_max_body_size 20m;
 ```
 
 Nach dem Anlegen oder Anpassen der Datei sollte der Proxy neu gestartet
-werden, damit die Einstellung aktiv wird (z.B. mit `docker-compose
+werden, damit die Einstellung aktiv wird (z.B. mit `docker compose
 restart nginx-proxy`). Innerhalb des App-Containers können zudem die
 Werte `upload_max_filesize` und `post_max_size` angepasst werden. Dafür
 liegt im Verzeichnis `config/` bereits eine kleine `php.ini` bei, die in

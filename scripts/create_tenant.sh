@@ -25,4 +25,4 @@ curl -s -X POST \
 mkdir -p "$BASE_DIR/vhost.d"
 echo 'client_max_body_size 20m;' > "$BASE_DIR/vhost.d/${SUBDOMAIN}.$DOMAIN"
 
-docker-compose exec nginx-proxy nginx -s reload
+docker compose exec nginx-proxy nginx -s reload
