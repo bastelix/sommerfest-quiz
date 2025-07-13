@@ -97,6 +97,7 @@
 - Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
+- Update changelog [skip ci]
 
 ### Feat
 
@@ -134,6 +135,7 @@
 ### Test
 
 - Switch service tests to use sqlite
+- Verify tenant creation and removal
 
 ## [0.1.0] - 2025-06-16
 
