@@ -30,7 +30,7 @@ toc: true
    ```
    Alternativ lassen sich Schema- und Datenimport auch im Docker-Container ausführen:
    ```bash
-   docker-compose exec slim bash -c \
+   docker compose exec slim bash -c \
      'psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f docs/schema.sql && php scripts/import_to_pgsql.php'
    ```
 

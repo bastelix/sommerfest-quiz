@@ -24,4 +24,4 @@ curl -s -X DELETE \
 
 rm -f "$BASE_DIR/vhost.d/${SUBDOMAIN}.$DOMAIN"
 
-docker-compose exec nginx-proxy nginx -s reload
+docker compose exec nginx-proxy nginx -s reload
