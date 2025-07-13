@@ -92,6 +92,7 @@
 - Add tenant API section
 - Update changelog [skip ci]
 - Add tenant features section
+- Update changelog [skip ci]
 
 ### Feat
 
