@@ -54,6 +54,18 @@ Die Mandanten-Logik nutzt folgende Variablen aus `.env` oder `sample.env`:
 - `DOMAIN` legt die Basis-Domain für alle Mandanten fest.
 - `POSTGRES_DSN`, `POSTGRES_USER` und `POSTGRES_PASSWORD` bestimmen den Datenbankzugang.
 
+## Service-Accounts
+
+Service-Accounts eignen sich für automatisierte Abläufe. Sie lassen sich wie normale Benutzer über `/users.json` anlegen. Dabei wird als Rolle `service-account` gesetzt.
+
+Authentifiziert wird ein Service-Account über die JSON-Variante von `/login`. Die Sitzungskücke aus der Antwort muss bei weiteren API-Aufrufen mitgesendet werden.
+
+```bash
+curl -c cookies.txt -X POST http://$DOMAIN/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"robot","password":"secret"}'
+```
+
 ## Weitere Seiten
 
 * [Wie läuft das Spiel?](spielablauf.md)
