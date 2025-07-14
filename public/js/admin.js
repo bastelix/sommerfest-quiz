@@ -1117,6 +1117,10 @@ document.addEventListener('DOMContentLoaded', function () {
           opt.textContent = c.name || c.sort_order || c.slug;
           catSelect.appendChild(opt);
         });
+        if (!catalogFile && catalogs.length > 0) {
+          catSelect.value = catalogs[0].uid || catalogs[0].slug || catalogs[0].sort_order;
+          loadCatalog(catSelect.value);
+        }
         notify('Katalogliste gespeichert', 'success');
       })
       .catch(err => {
