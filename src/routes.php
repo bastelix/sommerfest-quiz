@@ -198,29 +198,29 @@ return function (\Slim\App $app) {
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
 
     $app->get('/kataloge/{file}', function (Request $request, Response $response, array $args) {
-        return $request->getAttribute('catalogController')
-            ->get($request->withAttribute('file', $args['file']), $response);
+        $req = $request->withAttribute('file', $args['file']);
+        return $request->getAttribute('catalogController')->get($req, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
 
     $app->post('/kataloge/{file}', function (Request $request, Response $response, array $args) {
-        return $request->getAttribute('catalogController')
-            ->post($request->withAttribute('file', $args['file']), $response);
+        $req = $request->withAttribute('file', $args['file']);
+        return $request->getAttribute('catalogController')->post($req, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
 
     $app->delete('/kataloge/{file}/{index}', function (Request $request, Response $response, array $args) {
         $req = $request->withAttribute('file', $args['file'])
             ->withAttribute('index', $args['index']);
-        return $request->getAttribute('catalogController')->deleteQuestion($req, $response);
+        return $request->getAttribute('catalogController')->deleteQuestion($req, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
 
     $app->put('/kataloge/{file}', function (Request $request, Response $response, array $args) {
-        return $request->getAttribute('catalogController')
-            ->create($request->withAttribute('file', $args['file']), $response);
+        $req = $request->withAttribute('file', $args['file']);
+        return $request->getAttribute('catalogController')->create($req, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
 
     $app->delete('/kataloge/{file}', function (Request $request, Response $response, array $args) {
-        return $request->getAttribute('catalogController')
-            ->delete($request->withAttribute('file', $args['file']), $response);
+        $req = $request->withAttribute('file', $args['file']);
+        return $request->getAttribute('catalogController')->delete($req, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
     $app->get('/events.json', function (Request $request, Response $response) {
         return $request->getAttribute('eventController')->get($request, $response);
