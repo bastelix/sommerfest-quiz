@@ -32,6 +32,33 @@ $pdo->beginTransaction();
 // Clear existing tables to allow re-import without duplicates
 $pdo->exec('TRUNCATE config, teams, results, catalogs, questions, photo_consents, events RESTART IDENTITY CASCADE');
 
+$eventsFile = "$base/data/events.json";
+$activeUid = (string)($config['event_uid'] ?? '');
+if (is_readable($eventsFile)) {
+    $events = json_decode(file_get_contents($eventsFile), true) ?? [];
+    $firstUid = null;
+    $stmt = $pdo->prepare('INSERT INTO events(uid,name,start_date,end_date,description) VALUES(?,?,?,?,?)');
+    foreach ($events as $e) {
+        $uid = $e['uid'] ?? bin2hex(random_bytes(16));
+        if ($firstUid === null) {
+            $firstUid = $uid;
+        }
+        $stmt->execute([
+            $uid,
+            $e['name'] ?? '',
+            $e['start_date'] ?? date('Y-m-d\TH:i'),
+            $e['end_date'] ?? date('Y-m-d\TH:i'),
+            $e['description'] ?? null,
+        ]);
+    }
+    if ($activeUid === '' && $firstUid !== null) {
+        $activeUid = $firstUid;
+    }
+}
+if ($activeUid === '') {
+    $activeUid = null;
+}
+
 // Import config
 $configData = array_intersect_key(
     $config,
@@ -54,7 +81,10 @@ $configData = array_intersect_key(
         'event_uid',
     ])
 );
-if ($configData) {
+if ($configData || $activeUid !== null) {
+    if ($activeUid !== null) {
+        $configData['event_uid'] = $activeUid;
+    }
     $cols = array_keys($configData);
     $placeholders = array_map(fn($c) => ':' . $c, $cols);
     $sql = 'INSERT INTO config(' . implode(',', $cols) . ') VALUES(' . implode(',', $placeholders) . ')';
@@ -70,7 +100,6 @@ if ($configData) {
     $pdo->exec("SELECT setval(pg_get_serial_sequence('config','id'), (SELECT COALESCE(MAX(id),0) FROM config))");
 }
 
-// Import events
 $eventsFile = "$base/data/events.json";
 $activeUid = (string)($config['event_uid'] ?? '');
 if (is_readable($eventsFile)) {

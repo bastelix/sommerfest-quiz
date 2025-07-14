@@ -9,6 +9,7 @@ use App\Service\ConfigService;
 use App\Service\ResultService;
 use App\Service\TeamService;
 use App\Service\PhotoConsentService;
+use App\Service\EventService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 
@@ -22,6 +23,7 @@ class ExportController
     private ResultService $results;
     private TeamService $teams;
     private PhotoConsentService $consents;
+    private EventService $events;
     private string $dataDir;
     private string $backupDir;
 
@@ -34,6 +36,7 @@ class ExportController
         ResultService $results,
         TeamService $teams,
         PhotoConsentService $consents,
+        EventService $events,
         string $dataDir,
         string $backupDir
     ) {
@@ -42,6 +45,7 @@ class ExportController
         $this->results = $results;
         $this->teams = $teams;
         $this->consents = $consents;
+        $this->events = $events;
         $this->dataDir = rtrim($dataDir, '/');
         $this->backupDir = rtrim($backupDir, '/');
     }
@@ -72,6 +76,12 @@ class ExportController
         if ($cfg !== null) {
             file_put_contents($dir . '/config.json', $cfg . "\n");
         }
+
+        $events = $this->events->getAll();
+        file_put_contents(
+            $dir . '/events.json',
+            json_encode($events, JSON_PRETTY_PRINT) . "\n"
+        );
 
         $teams = $this->teams->getAll();
         file_put_contents(
