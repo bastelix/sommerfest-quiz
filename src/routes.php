@@ -202,7 +202,7 @@ return function (\Slim\App $app) {
     $app->get('/kataloge/{file}', function (Request $request, Response $response, array $args) {
         $req = $request->withAttribute('file', $args['file']);
         return $request->getAttribute('catalogController')->get($req, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    });
 
     $app->post('/kataloge/{file}', function (Request $request, Response $response, array $args) {
         $req = $request->withAttribute('file', $args['file']);
