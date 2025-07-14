@@ -14,6 +14,7 @@ Alle wesentlichen Optionen stehen in `data/config.json` und werden beim ersten I
 {
   "displayErrorDetails": true,
   "QRUser": true,
+  "QRRemember": false,
   "logoPath": "/logo.png",
   "pageTitle": "Modernes Quiz mit UIkit",
   "backgroundColor": "#ffffff",
@@ -34,7 +35,7 @@ Alle wesentlichen Optionen stehen in `data/config.json` und werden beim ersten I
 
 Das hochgeladene Logo wird in `data/` gespeichert und über `logoPath` referenziert, typischerweise als `/logo.png`.
 
-Optional kann `baseUrl` gesetzt werden, um in QR-Codes komplette Links zu erzeugen. Der Parameter `competitionMode` verhindert Wiederholungen bereits gelöster Kataloge. Über `teamResults` wird gesteuert, ob Teams ihre Ergebnisse einsehen dürfen, und `photoUpload` aktiviert den Upload von Beweisfotos. `puzzleWordEnabled` schaltet das Rätselwort frei und `puzzleFeedback` definiert den Erfolgshinweis nach der Lösung.
+Optional kann `baseUrl` gesetzt werden, um in QR-Codes komplette Links zu erzeugen. `QRRemember` merkt sich gescannte Namen und zeigt den Anmeldedialog nicht erneut an. Der Parameter `competitionMode` verhindert Wiederholungen bereits gelöster Kataloge. Über `teamResults` wird gesteuert, ob Teams ihre Ergebnisse einsehen dürfen, und `photoUpload` aktiviert den Upload von Beweisfotos. `puzzleWordEnabled` schaltet das Rätselwort frei und `puzzleFeedback` definiert den Erfolgshinweis nach der Lösung.
 
 Konfigurationswerte können per GET auf `/config.json` abgerufen und per POST aktualisiert werden.
 

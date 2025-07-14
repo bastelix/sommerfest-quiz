@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS config (
     id SERIAL PRIMARY KEY,
     displayErrorDetails BOOLEAN,
     QRUser BOOLEAN,
+    QRRemember BOOLEAN,
     logoPath TEXT,
     pageTitle TEXT,
     backgroundColor TEXT,

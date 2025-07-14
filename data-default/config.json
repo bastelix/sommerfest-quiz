@@ -1,6 +1,7 @@
 {
   "displayErrorDetails": true,
   "QRUser": true,
+  "QRRemember": false,
   "logoPath": "/logo.png",
   "pageTitle": "Modernes Quiz mit UIkit",
   "backgroundColor": "#ffffff",

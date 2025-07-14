@@ -79,6 +79,7 @@ document.addEventListener('DOMContentLoaded', function () {
     buttonColor: document.getElementById('cfgButtonColor'),
     checkAnswerButton: document.getElementById('cfgCheckAnswerButton'),
     qrUser: document.getElementById('cfgQRUser'),
+    qrRemember: document.getElementById('cfgQRRemember'),
     teamRestrict: document.getElementById('cfgTeamRestrict'),
     competitionMode: document.getElementById('cfgCompetitionMode'),
     teamResults: document.getElementById('cfgTeamResults'),
@@ -216,6 +217,9 @@ document.addEventListener('DOMContentLoaded', function () {
     cfgFields.buttonColor.value = data.buttonColor || '';
     cfgFields.checkAnswerButton.checked = data.CheckAnswerButton !== 'no';
     cfgFields.qrUser.checked = !!data.QRUser;
+    if (cfgFields.qrRemember) {
+      cfgFields.qrRemember.checked = !!data.QRRemember;
+    }
     if (cfgFields.teamRestrict) {
       cfgFields.teamRestrict.checked = !!data.QRRestrict;
     }
@@ -323,6 +327,7 @@ document.addEventListener('DOMContentLoaded', function () {
       buttonColor: cfgFields.buttonColor.value.trim(),
       CheckAnswerButton: cfgFields.checkAnswerButton.checked ? 'yes' : 'no',
       QRUser: cfgFields.qrUser.checked,
+      QRRemember: cfgFields.qrRemember ? cfgFields.qrRemember.checked : cfgInitial.QRRemember,
       QRRestrict: cfgFields.teamRestrict ? cfgFields.teamRestrict.checked : cfgInitial.QRRestrict,
       competitionMode: cfgFields.competitionMode ? cfgFields.competitionMode.checked : cfgInitial.competitionMode,
       teamResults: cfgFields.teamResults ? cfgFields.teamResults.checked : cfgInitial.teamResults,

@@ -77,6 +77,7 @@ class ConfigService
         $keys = [
             'displayErrorDetails',
             'QRUser',
+            'QRRemember',
             'logoPath',
             'pageTitle',
             'backgroundColor',
@@ -155,6 +156,7 @@ class ConfigService
         $keys = [
             'displayErrorDetails',
             'QRUser',
+            'QRRemember',
             'logoPath',
             'pageTitle',
             'backgroundColor',

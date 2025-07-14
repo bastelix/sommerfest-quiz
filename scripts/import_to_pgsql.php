@@ -65,6 +65,7 @@ $configData = array_intersect_key(
     array_flip([
         'displayErrorDetails',
         'QRUser',
+        'QRRemember',
         'logoPath',
         'pageTitle',
         'backgroundColor',
