@@ -2,7 +2,8 @@
   {
     "uid": "1",
     "name": "Sommerfest 2025",
-    "date": "",
+    "start_date": "2025-07-04T18:00",
+    "end_date": "2025-07-04T23:00",
     "description": "Willkommen beim Veranstaltungsquiz"
   }
 ]

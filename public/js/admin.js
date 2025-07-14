@@ -1169,7 +1169,8 @@ document.addEventListener('DOMContentLoaded', function () {
     return Array.from(eventsListEl.querySelectorAll('.event-row')).map(row => ({
       uid: row.dataset.uid || crypto.randomUUID(),
       name: row.querySelector('.event-name').value.trim(),
-      date: row.querySelector('.event-date').value.trim(),
+      start_date: row.querySelector('.event-start').value.trim() || new Date().toISOString().slice(0, 16),
+      end_date: row.querySelector('.event-end').value.trim() || new Date().toISOString().slice(0, 16),
       description: row.querySelector('.event-desc').value.trim()
     })).filter(e => e.name);
   }
@@ -1202,12 +1203,20 @@ document.addEventListener('DOMContentLoaded', function () {
     nameInput.value = ev.name || '';
     nameCell.appendChild(nameInput);
 
-    const dateCell = document.createElement('td');
-    const dateInput = document.createElement('input');
-    dateInput.type = 'date';
-    dateInput.className = 'uk-input event-date';
-    dateInput.value = ev.date || '';
-    dateCell.appendChild(dateInput);
+    const startCell = document.createElement('td');
+    const startInput = document.createElement('input');
+    startInput.type = 'datetime-local';
+    startInput.className = 'uk-input event-start';
+    const now = new Date().toISOString().slice(0, 16);
+    startInput.value = ev.start_date || now;
+    startCell.appendChild(startInput);
+
+    const endCell = document.createElement('td');
+    const endInput = document.createElement('input');
+    endInput.type = 'datetime-local';
+    endInput.className = 'uk-input event-end';
+    endInput.value = ev.end_date || now;
+    endCell.appendChild(endInput);
 
     const descCell = document.createElement('td');
     const descInput = document.createElement('input');
@@ -1243,7 +1252,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     row.appendChild(handleCell);
     row.appendChild(nameCell);
-    row.appendChild(dateCell);
+    row.appendChild(startCell);
+    row.appendChild(endCell);
     row.appendChild(descCell);
     row.appendChild(activateCell);
     row.appendChild(delCell);

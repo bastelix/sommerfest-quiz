@@ -24,18 +24,18 @@ class EventService
     /**
      * Retrieve all events ordered by name.
      *
-     * @return list<array{uid:string,name:string,date:?string,description:?string}>
+     * @return list<array{uid:string,name:string,start_date:?string,end_date:?string,description:?string}>
      */
     public function getAll(): array
     {
-        $stmt = $this->pdo->query('SELECT uid,name,date,description FROM events ORDER BY name');
+        $stmt = $this->pdo->query('SELECT uid,name,start_date,end_date,description FROM events ORDER BY name');
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
      * Replace all events with the provided list.
      *
-     * @param list<array{uid?:string,name:string,date?:string,description?:string}> $events
+     * @param list<array{uid?:string,name:string,start_date?:string,end_date?:string,description?:string}> $events
      */
     public function saveAll(array $events): void
     {
@@ -44,20 +44,27 @@ class EventService
         $existingStmt = $this->pdo->query('SELECT uid FROM events');
         $existing = $existingStmt->fetchAll(PDO::FETCH_COLUMN);
 
-        $updateStmt = $this->pdo->prepare('UPDATE events SET name = ?, date = ?, description = ? WHERE uid = ?');
-        $insertStmt = $this->pdo->prepare('INSERT INTO events(uid,name,date,description) VALUES(?,?,?,?)');
+        $updateStmt = $this->pdo->prepare('UPDATE events SET name = ?, start_date = ?, end_date = ?, description = ? WHERE uid = ?');
+        $insertStmt = $this->pdo->prepare('INSERT INTO events(uid,name,start_date,end_date,description) VALUES(?,?,?,?,?)');
         $uids = [];
         foreach ($events as $event) {
             $uid = $event['uid'] ?? bin2hex(random_bytes(16));
             $uids[] = $uid;
             $name = (string) $event['name'];
-            $date = $event['date'] ?? null;
+            $start = $event['start_date'] ?? '';
+            if ($start === '') {
+                $start = date('Y-m-d\TH:i');
+            }
+            $end = $event['end_date'] ?? '';
+            if ($end === '') {
+                $end = date('Y-m-d\TH:i');
+            }
             $desc = $event['description'] ?? null;
 
             if (in_array($uid, $existing, true)) {
-                $updateStmt->execute([$name, $date, $desc, $uid]);
+                $updateStmt->execute([$name, $start, $end, $desc, $uid]);
             } else {
-                $insertStmt->execute([$uid, $name, $date, $desc]);
+                $insertStmt->execute([$uid, $name, $start, $end, $desc]);
                 $this->config->ensureConfigForEvent($uid);
             }
         }
@@ -76,11 +83,11 @@ class EventService
     /**
      * Return the first event or null if none exist.
      *
-     * @return array{uid:string,name:string,date:?string,description:?string}|null
+     * @return array{uid:string,name:string,start_date:?string,end_date:?string,description:?string}|null
      */
     public function getFirst(): ?array
     {
-        $stmt = $this->pdo->query('SELECT uid,name,date,description FROM events ORDER BY name LIMIT 1');
+        $stmt = $this->pdo->query('SELECT uid,name,start_date,end_date,description FROM events ORDER BY name LIMIT 1');
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row !== false ? $row : null;
     }
@@ -90,7 +97,7 @@ class EventService
      */
     public function getByUid(string $uid): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT uid,name,date,description FROM events WHERE uid = ?');
+        $stmt = $this->pdo->prepare('SELECT uid,name,start_date,end_date,description FROM events WHERE uid = ?');
         $stmt->execute([$uid]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row !== false ? $row : null;

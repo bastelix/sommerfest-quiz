@@ -43,7 +43,7 @@ class ResultControllerTest extends TestCase
             );
             SQL
         );
-        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, date TEXT, description TEXT);');
+        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT);');
         $pdo->exec("INSERT INTO events(uid,name,description) VALUES('1','Event','Sub')");
         $pdo->exec(
             <<<'SQL'
