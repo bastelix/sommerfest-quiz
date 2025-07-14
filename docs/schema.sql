@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS teams (
     uid UUID DEFAULT gen_random_uuid() PRIMARY KEY NOT NULL,
     event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
-CREATE UNIQUE INDEX idx_team_name ON teams(name);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_team_name ON teams(name);
 
 -- Quiz results
 CREATE TABLE IF NOT EXISTS results (
@@ -58,8 +58,8 @@ CREATE TABLE IF NOT EXISTS results (
     photo TEXT,
     event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
-CREATE INDEX idx_results_catalog ON results(catalog);
-CREATE INDEX idx_results_name ON results(name);
+CREATE INDEX IF NOT EXISTS idx_results_catalog ON results(catalog);
+CREATE INDEX IF NOT EXISTS idx_results_name ON results(name);
 
 -- Per-question answer log
 CREATE TABLE IF NOT EXISTS question_results (
@@ -74,9 +74,9 @@ CREATE TABLE IF NOT EXISTS question_results (
     consent BOOLEAN,
     event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
-CREATE INDEX idx_qresults_catalog ON question_results(catalog);
-CREATE INDEX idx_qresults_name ON question_results(name);
-CREATE INDEX idx_qresults_question ON question_results(question_id);
+CREATE INDEX IF NOT EXISTS idx_qresults_catalog ON question_results(catalog);
+CREATE INDEX IF NOT EXISTS idx_qresults_name ON question_results(name);
+CREATE INDEX IF NOT EXISTS idx_qresults_question ON question_results(question_id);
 
 -- Catalog definitions
 CREATE TABLE IF NOT EXISTS catalogs (
@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS questions (
     FOREIGN KEY (catalog_uid) REFERENCES catalogs(uid) ON DELETE CASCADE,
     UNIQUE (catalog_uid, sort_order)
 );
-CREATE INDEX idx_questions_catalog ON questions(catalog_uid);
+CREATE INDEX IF NOT EXISTS idx_questions_catalog ON questions(catalog_uid);
 
 -- Photo consents for uploaded evidence
 CREATE TABLE IF NOT EXISTS photo_consents (
@@ -118,4 +118,4 @@ CREATE TABLE IF NOT EXISTS photo_consents (
     time INTEGER NOT NULL,
     event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
-CREATE INDEX idx_photo_consents_team ON photo_consents(team);
+CREATE INDEX IF NOT EXISTS idx_photo_consents_team ON photo_consents(team);
