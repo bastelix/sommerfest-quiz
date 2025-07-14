@@ -145,6 +145,12 @@ class CatalogService
                     unset($row[$k]);
                 }
             }
+            if ($row['type'] === 'flip' && isset($row['answers'])) {
+                $row['answer'] = is_array($row['answers'])
+                    ? reset($row['answers'])
+                    : $row['answers'];
+                unset($row['answers']);
+            }
             $questions[] = $row;
         }
         return json_encode($questions, JSON_PRETTY_PRINT);
@@ -233,12 +239,19 @@ class CatalogService
             ' VALUES(?,?,?,?,?,?,?,?)'
         );
         foreach ($data as $i => $q) {
+            $answers = null;
+            if (isset($q['answer'])) {
+                $answers = json_encode($q['answer']);
+            } elseif (isset($q['answers'])) {
+                $answers = json_encode($q['answers']);
+            }
+
             $qStmt->execute([
                 $cat['uid'],
                 $q['type'] ?? '',
                 $q['prompt'] ?? '',
                 isset($q['options']) ? json_encode($q['options']) : null,
-                isset($q['answers']) ? json_encode($q['answers']) : null,
+                $answers,
                 isset($q['terms']) ? json_encode($q['terms']) : null,
                 isset($q['items']) ? json_encode($q['items']) : null,
                 $i + 1,
