@@ -104,7 +104,7 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
 
    Alternativ lassen sich Schema- und Datenimport direkt im Docker-Container ausführen:
    ```bash
-   docker compose exec slim bash -c \
+   docker compose exec slim sh -c \
      'psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f docs/schema.sql && \
       php scripts/import_to_pgsql.php'
    ```
