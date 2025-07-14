@@ -98,7 +98,11 @@ if ($configData || $activeUid !== null) {
         }
     }
     $stmt->execute();
-    $pdo->exec("SELECT setval(pg_get_serial_sequence('config','id'), (SELECT COALESCE(MAX(id),0) FROM config))");
+    $pdo->exec(
+        "SELECT setval(" .
+        "pg_get_serial_sequence('config','id'), " .
+        "GREATEST(1, (SELECT COALESCE(MAX(id),0) FROM config)))"
+    );
 }
 
 $eventsFile = "$base/data/events.json";
@@ -176,7 +180,7 @@ if (is_readable($resultsFile)) {
     }
     $pdo->exec(
         "SELECT setval(pg_get_serial_sequence('results','id'), " .
-        "(SELECT COALESCE(MAX(id),0) FROM results))"
+        "GREATEST(1, (SELECT COALESCE(MAX(id),0) FROM results)))"
     );
 }
 
@@ -225,7 +229,7 @@ if (is_readable($catalogsFile)) {
     }
     $pdo->exec(
         "SELECT setval(pg_get_serial_sequence('questions','id'), " .
-        "(SELECT COALESCE(MAX(id),0) FROM questions))"
+        "GREATEST(1, (SELECT COALESCE(MAX(id),0) FROM questions)))"
     );
 }
 
@@ -243,7 +247,7 @@ if (is_readable($consentFile)) {
     }
     $pdo->exec(
         "SELECT setval(pg_get_serial_sequence('photo_consents','id'), " .
-        "(SELECT COALESCE(MAX(id),0) FROM photo_consents))"
+        "GREATEST(1, (SELECT COALESCE(MAX(id),0) FROM photo_consents)))"
     );
 }
 
