@@ -30,7 +30,7 @@
     {% endblock %}
   {% endembed %}
   <ul id="adminTabs" uk-tab>
-    <li class="uk-active" data-help="Veranstaltungen anlegen oder bearbeiten. Jede Zeile enthält Name, Datum und Beschreibung. 'Hinzufügen' erstellt einen neuen Eintrag. Speichern übernimmt die Änderungen."><a href="#">Veranstaltungen</a></li>
+    <li class="uk-active" data-help="Veranstaltungen anlegen oder bearbeiten. Jede Zeile enthält Name, Beginn, Ende und Beschreibung. 'Hinzufügen' erstellt einen neuen Eintrag. Speichern übernimmt die Änderungen."><a href="#">Veranstaltungen</a></li>
     <li data-help="Logo hochladen und Vorschau ansehen. Seitentitel, Überschrift und Untertitel festlegen. Hintergrund- und Buttonfarbe wählen. Optional den Button 'Antwort prüfen' und den QR-Code-Login aktivieren. 'Zurücksetzen' lädt gespeicherte Werte, 'Speichern' übernimmt Änderungen."><a href="#">Veranstaltung konfigurieren</a></li>
     <li data-help="Fragenkataloge anlegen oder bearbeiten. Jede Zeile enthält einen Slug, Name, Beschreibung und optional einen Buchstaben für das Rätselwort. Der Slug kann angepasst werden. 'Hinzufügen' erstellt einen neuen Katalog, das rote × entfernt einen Eintrag. Speichern übernimmt die Änderungen."><a href="#">Kataloge</a></li>
     <li data-help="Nach Auswahl eines Katalogs einzelne Fragen bearbeiten oder neue anlegen. 'Neue Frage' fügt eine weitere hinzu, 'Zurücksetzen' verwirft Änderungen, 'Speichern' sichert den gesamten Katalog."><a href="#">Fragen anpassen</a></li>
@@ -53,7 +53,8 @@
               <tr>
                 <th><span uk-icon="icon: question" uk-tooltip="title: Zum Sortieren Zeile ziehen; pos: top"></span></th>
                 <th>Name</th>
-                <th>Datum</th>
+                <th>Beginn</th>
+                <th>Ende</th>
                 <th>Beschreibung</th>
                 <th>Aktiv</th>
                 <th><span uk-icon="icon: question" uk-tooltip="title: Veranstaltung entfernen; pos: top"></span></th>

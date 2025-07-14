@@ -62,7 +62,7 @@ class QrControllerTest extends TestCase
             );
             SQL
         );
-        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, date TEXT, description TEXT);');
+        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT);');
         $pdo->exec("INSERT INTO events(uid,name,description) VALUES('1','Event','Sub')");
         $cfg = new \App\Service\ConfigService($pdo);
         $teams = new \App\Service\TeamService($pdo, $cfg);
@@ -163,7 +163,7 @@ class QrControllerTest extends TestCase
             );
             SQL
         );
-        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, date TEXT, description TEXT);');
+        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT);');
         $pdo->exec("INSERT INTO events(uid,name) VALUES('1','Event')");
         $pdo->exec('CREATE TABLE teams(sort_order INTEGER UNIQUE NOT NULL, name TEXT NOT NULL, uid TEXT PRIMARY KEY);');
         $pdo->exec("INSERT INTO teams(sort_order,name,uid) VALUES(1,'A','1'),(2,'B','2')");
