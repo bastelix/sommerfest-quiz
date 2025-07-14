@@ -107,6 +107,7 @@
 - Update changelog [skip ci]
 - Update changelog [skip ci]
 - Clarify event table columns
+- Update changelog [skip ci]
 
 ### Feat
 
@@ -130,6 +131,7 @@
 - Sanitize migrations
 - Avoid using first event if active one missing
 - Address style warnings
+- Encode flip card text
 
 ### Refactor
 
