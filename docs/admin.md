@@ -2,7 +2,7 @@
 
 Die Administrationsoberfl\u00e4che erreichen Sie \u00fcber `/admin` nach einem erfolgreichen Login. Folgende Bereiche stehen zur Verf\u00fcgung:
 
-1. **Veranstaltungen** – Veranstaltungen anlegen, bearbeiten oder entfernen.
+1. **Veranstaltungen** – Veranstaltungen anlegen, bearbeiten oder entfernen. Jede Zeile enthält Name, Beginn, Ende und Beschreibung.
 2. **Veranstaltung konfigurieren** – Farben, Logos und Texte anpassen.
 3. **Kataloge** – Fragenkataloge anlegen und verwalten.
 4. **Fragen anpassen** – Bestehende Fragen ändern oder neue hinzufügen.
