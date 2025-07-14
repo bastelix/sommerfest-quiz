@@ -169,11 +169,11 @@ return function (\Slim\App $app) {
 
     $app->get('/results.json', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->get($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    });
 
     $app->get('/question-results.json', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->getQuestions($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
+    });
 
     $app->get('/results/download', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->download($request, $response);
