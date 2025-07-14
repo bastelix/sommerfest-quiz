@@ -51,9 +51,6 @@ class CatalogController
                 ->withStatus(302);
         }
 
-        if (!$this->hasRole(Roles::ADMIN, Roles::CATALOG_EDITOR)) {
-            return $response->withStatus(403);
-        }
 
         $content = $this->service->read($file);
         if ($content === null) {
