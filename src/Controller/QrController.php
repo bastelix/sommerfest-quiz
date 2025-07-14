@@ -187,7 +187,13 @@ class QrController
         $logoFile = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');
 
         $pdf = new Pdf($title, $subtitle, $logoFile);
+        $templatePath = __DIR__ . '/../../data/template.pdf';
         $pdf->AddPage();
+        if (is_readable($templatePath)) {
+            $pdf->setSourceFile($templatePath);
+            $tpl = $pdf->importPage(1);
+            $pdf->useTemplate($tpl, 0, 0, $pdf->GetPageWidth(), $pdf->GetPageHeight());
+        }
 
         $qrSize = 20.0; // mm
 
@@ -250,6 +256,7 @@ class QrController
         $logoPath = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');
 
         $pdf = new Pdf($title, $subtitle, $logoPath);
+        $templatePath = __DIR__ . '/../../data/template.pdf';
 
         foreach ($teams as $team) {
             $builder = Builder::create()
@@ -272,6 +279,11 @@ class QrController
             }
 
             $pdf->AddPage();
+            if (is_readable($templatePath)) {
+                $pdf->setSourceFile($templatePath);
+                $tpl = $pdf->importPage(1);
+                $pdf->useTemplate($tpl, 0, 0, $pdf->GetPageWidth(), $pdf->GetPageHeight());
+            }
 
             $qrSize = 20.0;
 
