@@ -15,7 +15,7 @@ Der Zugang zum Administrationsbereich erfolgt über `/login`. Nach einem erfolgr
 ## Administrationsoberfläche
 
 Unter `/admin` stehen folgende Tabs zur Verfügung:
-1. **Veranstaltungen** – Veranstaltungen anlegen, bearbeiten oder entfernen.
+1. **Veranstaltungen** – Veranstaltungen anlegen, bearbeiten oder entfernen. Jede Zeile enthält Name, Beginn, Ende und Beschreibung.
 2. **Veranstaltung konfigurieren** – Einstellungen wie Logo, Farben und Texte.
 3. **Kataloge** – Fragenkataloge erstellen und verwalten.
 4. **Fragen anpassen** – Fragen eines Katalogs hinzufügen, bearbeiten oder löschen.

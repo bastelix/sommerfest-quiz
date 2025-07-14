@@ -128,6 +128,7 @@
 - Sanitize migrations
 - Avoid using first event if active one missing
 - Address style warnings
+- *(db)* Add migration to split event date into start/end columns
 
 ### Refactor
 
