@@ -420,4 +420,11 @@ body.dark-mode .sticky-actions {
   color: #fff;
 }
 
+/* Flip card for "Hätten Sie es gewusst?" */
+.flip-card { perspective: 800px; position: relative; }
+.flip-card-inner { position: relative; width: 100%; min-height: 150px; transition: transform 0.6s; transform-style: preserve-3d; }
+.flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+.flip-card-front, .flip-card-back { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; padding: 1rem; border-radius: 8px; background: #fff; backface-visibility: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+.flip-card-back { transform: rotateY(180deg); }
+
 

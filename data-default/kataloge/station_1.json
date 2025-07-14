@@ -18,5 +18,10 @@
     "type": "sort",
     "prompt": "Sortiere die Dateigrößen (klein zu groß):",
     "items": ["KB", "MB", "GB"]
+  },
+  {
+    "type": "flip",
+    "prompt": "Wie viele Bits ergeben ein Byte?",
+    "answer": "8"
   }
 ]

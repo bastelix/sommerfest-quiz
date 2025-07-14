@@ -20,7 +20,7 @@ Mit dieser App zeigen wir, was heute schon möglich ist, wenn Menschen und versc
 ## Überblick
 
 - **Flexibel einsetzbar**: Fragenkataloge im JSON-Format lassen sich bequem austauschen oder erweitern.
-- **Fünf Fragetypen**: Sortieren, Zuordnen, Multiple Choice, Swipe-Karten und Foto mit Texteingabe bieten Abwechslung für jede Zielgruppe.
+- **Sechs Fragetypen**: Sortieren, Zuordnen, Multiple Choice, Swipe-Karten, Foto mit Texteingabe und "Hätten Sie es gewusst?"-Karten bieten Abwechslung f\u00fcr jede Zielgruppe.
 - **QR-Code-Login & Dunkelmodus**: Optionaler QR-Code-Login für schnelles Anmelden und ein zuschaltbares dunkles Design steigern den Komfort.
 - **Persistente Speicherung**: Konfigurationen, Kataloge und Ergebnisse liegen in einer PostgreSQL-Datenbank.
 
