@@ -34,4 +34,3 @@ class Database
         return $pdo;
     }
 }
-

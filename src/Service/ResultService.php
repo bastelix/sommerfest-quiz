@@ -164,8 +164,7 @@ class ResultService
         int $total,
         array $answers = [],
         string $eventUid = ''
-    ): void
-    {
+    ): void {
         $uidStmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE uid=? OR CAST(sort_order AS TEXT)=? OR slug=?');
         $uidStmt->execute([$catalog, $catalog, $catalog]);
         $uid = $uidStmt->fetchColumn();
