@@ -109,6 +109,7 @@
 - Clarify event table columns
 - Update changelog [skip ci]
 - Update changelog [skip ci]
+- Update changelog [skip ci]
 
 ### Feat
 
