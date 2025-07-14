@@ -105,6 +105,8 @@
 - Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
+- Update changelog [skip ci]
+- Clarify event table columns
 
 ### Feat
 
@@ -128,7 +130,6 @@
 - Sanitize migrations
 - Avoid using first event if active one missing
 - Address style warnings
-- *(db)* Add migration to split event date into start/end columns
 
 ### Refactor
 
