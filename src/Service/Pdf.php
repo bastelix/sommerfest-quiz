@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use FPDF;
+use setasign\Fpdi\Fpdi;
 use Intervention\Image\ImageManagerStatic as Image;
 
 /**
  * Custom FPDF subclass that renders the event header.
  */
-class Pdf extends FPDF
+class Pdf extends Fpdi
 {
     private string $title;
     private string $subtitle;
