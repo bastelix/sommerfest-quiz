@@ -196,7 +196,7 @@ class CatalogService
                     $cat['description'] ?? null,
                     $cat['qrcode_url'] ?? null,
                     $cat['raetsel_buchstabe'] ?? null,
-                    $uid,
+                    $uid !== '' ? $uid : null,
                 ];
                 if ($this->hasCommentColumn()) {
                     $row[] = $cat['comment'] ?? null;

@@ -226,4 +226,23 @@ class CatalogServiceTest extends TestCase
         $rows = json_decode($service->read('catalogs.json'), true);
         $this->assertSame(['Two', 'One', 'Three'], array_column($rows, 'name'));
     }
+
+    public function testWriteWithoutActiveEventUid(): void
+    {
+        $pdo = $this->createPdo();
+        $pdo->exec("INSERT INTO config(event_uid) VALUES(NULL)");
+        $cfg = new ConfigService($pdo);
+        $service = new CatalogService($pdo, $cfg);
+        $catalog = [[
+            'uid' => 'uid5',
+            'sort_order' => 1,
+            'slug' => 'ne',
+            'file' => 'ne.json',
+            'name' => 'NoEvent',
+            'comment' => ''
+        ]];
+        $service->write('catalogs.json', $catalog);
+        $stmt = $pdo->query('SELECT event_uid FROM catalogs');
+        $this->assertNull($stmt->fetchColumn());
+    }
 }
