@@ -345,6 +345,7 @@ function runQuiz(questions, skipIntro){
     if(q.type === 'mc') return createMcQuestion(q, idx);
     if(q.type === 'swipe') return createSwipeQuestion(q, idx);
     if(q.type === 'photoText') return createPhotoTextQuestion(q, idx);
+    if(q.type === 'flip') return createFlipQuestion(q, idx);
     return document.createElement('div');
   }
 
@@ -952,6 +953,37 @@ function runQuiz(questions, skipIntro){
     div.appendChild(uploadBtn);
     div.appendChild(text);
     div.appendChild(feedback);
+    div.appendChild(nextBtn);
+    return div;
+  }
+
+  function createFlipQuestion(q, idx){
+    const div = document.createElement('div');
+    div.className = 'question uk-text-center';
+    div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
+    const card = document.createElement('div');
+    card.className = 'flip-card uk-margin';
+    card.tabIndex = 0;
+    const inner = document.createElement('div');
+    inner.className = 'flip-card-inner';
+    const front = document.createElement('div');
+    front.className = 'flip-card-front';
+    front.textContent = insertSoftHyphens(q.prompt);
+    const back = document.createElement('div');
+    back.className = 'flip-card-back';
+    back.textContent = insertSoftHyphens(q.answer || '');
+    inner.appendChild(front);
+    inner.appendChild(back);
+    card.appendChild(inner);
+    const toggle = () => card.classList.toggle('flipped');
+    card.addEventListener('click', toggle);
+    card.addEventListener('keydown', e => { if(e.key==='Enter' || e.key===' ') { e.preventDefault(); toggle(); } });
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'uk-button uk-button-primary';
+    nextBtn.textContent = 'Weiter';
+    styleButton(nextBtn);
+    nextBtn.addEventListener('click', () => { results[idx] = true; next(); });
+    div.appendChild(card);
     div.appendChild(nextBtn);
     return div;
   }

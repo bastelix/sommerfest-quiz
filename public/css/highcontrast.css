@@ -127,3 +127,17 @@ body.dark-mode.high-contrast .uk-alert-primary {
   background-color: #00008b;
   color: #ffffff;
 }
+
+body.high-contrast .flip-card-front,
+body.high-contrast .flip-card-back {
+  background-color: #ffffff;
+  color: #000000;
+  border: 2px solid #000000;
+}
+
+body.dark-mode.high-contrast .flip-card-front,
+body.dark-mode.high-contrast .flip-card-back {
+  background-color: #000000;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+}

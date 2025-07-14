@@ -12,7 +12,7 @@ Scanne an der ersten Station den QR-Code oder öffne den bereitgestellten Link. 
 Ja, die Oberfläche passt sich jedem Gerät an – ob Handy, Tablet oder PC.
 
 ### Welche Fragetypen gibt es?
-Das Quiz bietet Sortieren, Zuordnen, Multiple Choice, Swipe-Karten und Foto mit Texteingabe.
+Das Quiz bietet Sortieren, Zuordnen, Multiple Choice, Swipe-Karten, Foto mit Texteingabe und "Hätten Sie es gewusst?"-Karten.
 
 ### Wie bediene ich Drag & Drop?
 Halte ein Element gedrückt und ziehe es an die gewünschte Stelle.

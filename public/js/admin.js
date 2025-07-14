@@ -628,9 +628,10 @@ document.addEventListener('DOMContentLoaded', function () {
       assign: 'Zuordnen',
       sort: 'Sortieren',
       swipe: 'Swipe-Karten',
-      photoText: 'Foto + Text'
+      photoText: 'Foto + Text',
+      flip: 'Hätten Sie es gewusst?'
     };
-    ['sort', 'assign', 'mc', 'swipe', 'photoText'].forEach(t => {
+    ['sort', 'assign', 'mc', 'swipe', 'photoText', 'flip'].forEach(t => {
       const opt = document.createElement('option');
       opt.value = t;
       opt.textContent = labelMap[t] || t;
@@ -646,7 +647,8 @@ document.addEventListener('DOMContentLoaded', function () {
         assign: 'Begriffe den passenden Definitionen zuordnen.',
         mc: 'Mehrfachauswahl (Multiple Choice, mehrere Antworten möglich).',
         swipe: 'Karten nach links oder rechts wischen.',
-        photoText: 'Foto aufnehmen und passende Antwort eingeben.'
+        photoText: 'Foto aufnehmen und passende Antwort eingeben.',
+        flip: 'Frage mit umdrehbarer Antwortkarte.'
       };
       const base = map[typeSelect.value] || '';
       typeInfo.textContent = base + ' Für kleine Displays kannst du "\/-" als verstecktes Worttrennzeichen nutzen.';
@@ -848,6 +850,13 @@ document.addEventListener('DOMContentLoaded', function () {
         add.onclick = e => { e.preventDefault(); list.appendChild(addCard('', false)); };
         fields.appendChild(list);
         fields.appendChild(add);
+      } else if (typeSelect.value === 'flip') {
+        const ans = document.createElement('textarea');
+        ans.className = 'uk-textarea uk-margin-small-bottom flip-answer';
+        ans.placeholder = 'Antwort';
+        ans.value = q.answer || '';
+        ans.setAttribute('aria-label', 'Antwort');
+        fields.appendChild(ans);
       } else if (typeSelect.value === 'photoText') {
         const consent = document.createElement('label');
         consent.className = 'uk-margin-small-bottom';
@@ -929,6 +938,11 @@ document.addEventListener('DOMContentLoaded', function () {
           ul.appendChild(li);
         });
         preview.appendChild(ul);
+      } else if (typeSelect.value === 'flip') {
+        const p = document.createElement('p');
+        const ans = fields.querySelector('.flip-answer');
+        p.textContent = insertSoftHyphens(ans ? ans.value : 'Antwort');
+        preview.appendChild(p);
       } else if (typeSelect.value === 'photoText') {
         const p = document.createElement('p');
         p.textContent = 'Foto-Upload und Textfeld';
@@ -983,6 +997,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (rightLabel) obj.rightLabel = rightLabel;
         if (leftLabel) obj.leftLabel = leftLabel;
         return obj;
+      } else if (type === 'flip') {
+        const answer = card.querySelector('.flip-answer').value.trim();
+        return { type, prompt, answer };
       } else if (type === 'photoText') {
         const consent = card.querySelector('.consent-box').checked;
         return { type, prompt, consent };

@@ -20,5 +20,5 @@ Ein Eintrag kann zudem ein Feld `raetsel_buchstabe` enthalten, das den Buchstabe
 - `DELETE /kataloge/{file}` entfernt die Datei.
 - `DELETE /kataloge/{file}/{index}` löscht eine Frage anhand des Index.
 
-Die Fragetypen umfassen Sortieren, Zuordnen, Multiple Choice, Swipe-Karten und Foto mit Texteingabe. Dank des Puzzlewort-Features kann nach jeder Runde ein Buchstabe angezeigt werden, bis sich das Lösungswort ergibt.
+Die Fragetypen umfassen Sortieren, Zuordnen, Multiple Choice, Swipe-Karten, Foto mit Texteingabe und "Hätten Sie es gewusst?"-Karten. Dank des Puzzlewort-Features kann nach jeder Runde ein Buchstabe angezeigt werden, bis sich das L\u00f6sungswort ergibt.
 
