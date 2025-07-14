@@ -85,6 +85,12 @@ class ExportController
             json_encode($results, JSON_PRETTY_PRINT) . "\n"
         );
 
+        $qResults = $this->results->getQuestionRows();
+        file_put_contents(
+            $dir . '/question_results.json',
+            json_encode($qResults, JSON_PRETTY_PRINT) . "\n"
+        );
+
         $consents = $this->consents->getAll();
         file_put_contents(
             $dir . '/photo_consents.json',

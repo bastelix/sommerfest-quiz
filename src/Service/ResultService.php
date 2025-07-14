@@ -103,6 +103,27 @@ class ResultService
     }
 
     /**
+     * Fetch raw entries from the question_results table.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function getQuestionRows(): array
+    {
+        $uid = $this->config->getActiveEventUid();
+        $sql = 'SELECT name,catalog,question_id,attempt,correct,answer_text,photo,consent'
+            . ',event_uid FROM question_results';
+        $params = [];
+        if ($uid !== '') {
+            $sql .= ' WHERE event_uid=?';
+            $params[] = $uid;
+        }
+        $sql .= ' ORDER BY id';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
      * @param array<string, mixed> $data
      */
     public function add(array $data): array
@@ -291,6 +312,48 @@ class ResultService
                 (int)($row['time'] ?? time()),
                 isset($row['puzzleTime']) ? (int)$row['puzzleTime'] : null,
                 isset($row['photo']) ? (string)$row['photo'] : null,
+            ];
+            if ($uid !== '') {
+                $params[] = $uid;
+            }
+            $stmt->execute($params);
+        }
+        $this->pdo->commit();
+    }
+
+    /**
+     * Replace question_results with the provided list.
+     *
+     * @param list<array<string, mixed>> $rows
+     */
+    public function saveQuestionRows(array $rows): void
+    {
+        $uid = $this->config->getActiveEventUid();
+        $this->pdo->beginTransaction();
+        if ($uid !== '') {
+            $del = $this->pdo->prepare('DELETE FROM question_results WHERE event_uid=?');
+            $del->execute([$uid]);
+            $stmt = $this->pdo->prepare(
+                'INSERT INTO question_results(name,catalog,question_id,attempt,correct,answer_text,photo,consent,event_uid) '
+                . 'VALUES(?,?,?,?,?,?,?,?,?)'
+            );
+        } else {
+            $this->pdo->exec('DELETE FROM question_results');
+            $stmt = $this->pdo->prepare(
+                'INSERT INTO question_results(name,catalog,question_id,attempt,correct,answer_text,photo,consent) '
+                . 'VALUES(?,?,?,?,?,?,?,?)'
+            );
+        }
+        foreach ($rows as $row) {
+            $params = [
+                (string)($row['name'] ?? ''),
+                (string)($row['catalog'] ?? ''),
+                (int)($row['question_id'] ?? 0),
+                (int)($row['attempt'] ?? 1),
+                (int)($row['correct'] ?? 0),
+                isset($row['answer_text']) ? (string)$row['answer_text'] : null,
+                isset($row['photo']) ? (string)$row['photo'] : null,
+                isset($row['consent']) ? (int)((bool)$row['consent']) : null,
             ];
             if ($uid !== '') {
                 $params[] = $uid;

@@ -95,6 +95,13 @@ class ImportController
                 $this->results->saveAll($results);
             }
         }
+        $qResultsFile = $dir . '/question_results.json';
+        if (is_readable($qResultsFile)) {
+            $qres = json_decode((string)file_get_contents($qResultsFile), true) ?? [];
+            if (is_array($qres)) {
+                $this->results->saveQuestionRows($qres);
+            }
+        }
         $consentsFile = $dir . '/photo_consents.json';
         if (is_readable($consentsFile)) {
             $consents = json_decode((string)file_get_contents($consentsFile), true) ?? [];
