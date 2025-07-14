@@ -19,6 +19,7 @@ class ConfigServiceTest extends TestCase
             CREATE TABLE config(
                 displayErrorDetails INTEGER,
                 QRUser INTEGER,
+                QRRemember INTEGER,
                 logoPath TEXT,
                 pageTitle TEXT,
                 backgroundColor TEXT,
@@ -56,6 +57,7 @@ class ConfigServiceTest extends TestCase
             CREATE TABLE config(
                 displayErrorDetails INTEGER,
                 QRUser INTEGER,
+                QRRemember INTEGER,
                 logoPath TEXT,
                 pageTitle TEXT,
                 backgroundColor TEXT,

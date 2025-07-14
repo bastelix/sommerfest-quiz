@@ -26,6 +26,7 @@ class HelpControllerTest extends TestCase
             CREATE TABLE config(
                 displayErrorDetails INTEGER,
                 QRUser INTEGER,
+                QRRemember INTEGER,
                 logoPath TEXT,
                 pageTitle TEXT,
                 header TEXT,

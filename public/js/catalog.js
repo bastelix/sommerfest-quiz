@@ -599,7 +599,12 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       }
     };
     if((window.quizConfig || {}).QRUser){
-      showLogin(proceed, !!id);
+      if(cfg.QRRemember && getStored('quizUser')){
+        updateUserName();
+        proceed();
+      }else{
+        showLogin(proceed, !!id);
+      }
     }else{
       if(!getStored('quizUser')){
           if(!cfg.QRRestrict){

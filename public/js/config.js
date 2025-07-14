@@ -19,6 +19,9 @@ window.quizConfig = {
   // QR-Code-Login aktivieren (true/false)
   QRUser: true,
 
+  // Bereits gescannte Namen merken (true/false)
+  QRRemember: false,
+
   // Teilnahme auf bekannte Namen beschränken
   QRRestrict: false,
 
