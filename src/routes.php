@@ -117,6 +117,7 @@ return function (\Slim\App $app) {
                 $resultService,
                 $teamService,
                 $consentService,
+                $eventService,
                 __DIR__ . '/../data',
                 __DIR__ . '/../backup'
             ))
@@ -126,6 +127,7 @@ return function (\Slim\App $app) {
                 $resultService,
                 $teamService,
                 $consentService,
+                $eventService,
                 __DIR__ . '/../data',
                 __DIR__ . '/../backup'
             ))

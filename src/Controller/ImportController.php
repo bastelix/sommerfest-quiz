@@ -9,6 +9,7 @@ use App\Service\ConfigService;
 use App\Service\ResultService;
 use App\Service\TeamService;
 use App\Service\PhotoConsentService;
+use App\Service\EventService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 
@@ -22,6 +23,7 @@ class ImportController
     private ResultService $results;
     private TeamService $teams;
     private PhotoConsentService $consents;
+    private EventService $events;
     private string $dataDir;
     private string $backupDir;
 
@@ -34,6 +36,7 @@ class ImportController
         ResultService $results,
         TeamService $teams,
         PhotoConsentService $consents,
+        EventService $events,
         string $dataDir,
         string $backupDir
     ) {
@@ -42,6 +45,7 @@ class ImportController
         $this->results = $results;
         $this->teams = $teams;
         $this->consents = $consents;
+        $this->events = $events;
         $this->dataDir = rtrim($dataDir, '/');
         $this->backupDir = rtrim($backupDir, '/');
     }
@@ -76,6 +80,14 @@ class ImportController
         if (!is_readable($catalogsFile)) {
             return $response->withStatus(404);
         }
+        $eventsFile = $dir . '/events.json';
+        if (is_readable($eventsFile)) {
+            $events = json_decode((string)file_get_contents($eventsFile), true) ?? [];
+            if (is_array($events)) {
+                $this->events->saveAll($events);
+            }
+        }
+
         $cfgFile = $dir . '/config.json';
         if (is_readable($cfgFile)) {
             $cfg = json_decode((string)file_get_contents($cfgFile), true) ?? [];
