@@ -5,3 +5,8 @@ header = "# Changelog\n\n"
 filter_unconventional = false
 
 tag_pattern = ".*"
+
+# Skip automatic changelog update commits
+commit_parsers = [
+  { message = "^docs: update changelog", skip = true },
+]
