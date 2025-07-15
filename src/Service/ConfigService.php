@@ -51,6 +51,21 @@ class ConfigService
     }
 
     /**
+     * Retrieve configuration JSON for a specific event UID.
+     */
+    public function getJsonForEvent(string $uid): ?string
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM config WHERE event_uid = ? LIMIT 1');
+        $stmt->execute([$uid]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        if ($row === null) {
+            return null;
+        }
+        $row = $this->normalizeKeys($row);
+        return json_encode($row, JSON_PRETTY_PRINT);
+    }
+
+    /**
      * Return configuration values as an associative array.
      */
     public function getConfig(): array
@@ -78,6 +93,20 @@ class ConfigService
             }
         }
 
+        return [];
+    }
+
+    /**
+     * Return configuration for the given event UID or an empty array if none exists.
+     */
+    public function getConfigForEvent(string $uid): array
+    {
+        $stmt = $this->pdo->prepare('SELECT * FROM config WHERE event_uid = ? LIMIT 1');
+        $stmt->execute([$uid]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        if ($row !== null) {
+            return $this->normalizeKeys($row);
+        }
         return [];
     }
 

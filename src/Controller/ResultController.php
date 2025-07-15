@@ -244,14 +244,21 @@ class ResultController
         $awardService = new AwardService();
         $rankings = $awardService->computeRankings($results, $catalogCount);
 
-        $cfg = $this->config->getConfig();
-        $uid = $this->config->getActiveEventUid();
-        $event = null;
+        $params = $request->getQueryParams();
+        $uid = (string)($params['event'] ?? '');
         if ($uid !== '') {
-            $event = $this->events->getByUid($uid);
-        }
-        if ($event === null) {
-            $event = $this->events->getFirst() ?? ['name' => '', 'description' => ''];
+            $cfg = $this->config->getConfigForEvent($uid);
+            $event = $this->events->getByUid($uid) ?? $this->events->getFirst() ?? ['name' => '', 'description' => ''];
+        } else {
+            $cfg = $this->config->getConfig();
+            $evUid = $this->config->getActiveEventUid();
+            $event = null;
+            if ($evUid !== '') {
+                $event = $this->events->getByUid($evUid);
+            }
+            if ($event === null) {
+                $event = $this->events->getFirst() ?? ['name' => '', 'description' => ''];
+            }
         }
         $title = (string)$event['name'];
         $subtitle = (string)$event['description'];
