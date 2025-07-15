@@ -257,7 +257,9 @@ return function (\Slim\App $app) {
         return $request->getAttribute('importController')->post($request, $response);
     })->add(new RoleAuthMiddleware('admin'));
     $app->post('/import/{name}', function (Request $request, Response $response, array $args) {
-        return $request->getAttribute('importController')->import($request->withAttribute('name', $args['name']), $response);
+        return $request
+            ->getAttribute('importController')
+            ->import($request->withAttribute('name', $args['name']), $response);
     })->add(new RoleAuthMiddleware('admin'));
     $app->post('/export', function (Request $request, Response $response) {
         return $request->getAttribute('exportController')->post($request, $response);
@@ -266,10 +268,14 @@ return function (\Slim\App $app) {
         return $request->getAttribute('backupController')->list($request, $response);
     })->add(new RoleAuthMiddleware('admin'));
     $app->get('/backups/{name}/download', function (Request $request, Response $response, array $args) {
-        return $request->getAttribute('backupController')->download($request->withAttribute('name', $args['name']), $response);
+        return $request
+            ->getAttribute('backupController')
+            ->download($request->withAttribute('name', $args['name']), $response);
     })->add(new RoleAuthMiddleware('admin'));
     $app->delete('/backups/{name}', function (Request $request, Response $response, array $args) {
-        return $request->getAttribute('backupController')->delete($request->withAttribute('name', $args['name']), $response);
+        return $request
+            ->getAttribute('backupController')
+            ->delete($request->withAttribute('name', $args['name']), $response);
     })->add(new RoleAuthMiddleware('admin'));
     $app->get('/qr.png', function (Request $request, Response $response) {
         return $request->getAttribute('qrController')->image($request, $response);
