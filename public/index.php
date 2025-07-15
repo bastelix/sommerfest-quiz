@@ -30,9 +30,12 @@ use App\Twig\UikitExtension;
 
 $settings = require __DIR__ . '/../config/settings.php';
 $app = \Slim\Factory\AppFactory::create();
+$basePath = getenv('BASE_PATH') ?: '';
+$app->setBasePath($basePath);
 
 $twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
 $twig->addExtension(new UikitExtension());
+$twig->getEnvironment()->addGlobal('basePath', rtrim($basePath, '/'));
 $app->add(TwigMiddleware::create($app, $twig));
 $app->add(new SessionMiddleware());
 
