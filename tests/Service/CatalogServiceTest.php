@@ -20,7 +20,7 @@ class CatalogServiceTest extends TestCase
             <<<'SQL'
             CREATE TABLE catalogs(
                 uid TEXT PRIMARY KEY,
-                sort_order INTEGER UNIQUE NOT NULL,
+                sort_order INTEGER NOT NULL,
                 slug TEXT UNIQUE NOT NULL,
                 file TEXT NOT NULL,
                 name TEXT NOT NULL,
@@ -28,8 +28,10 @@ class CatalogServiceTest extends TestCase
                 qrcode_url TEXT,
                 raetsel_buchstabe TEXT,
                 comment TEXT,
-                design_path TEXT
+                design_path TEXT,
+                event_uid TEXT
             );
+            CREATE UNIQUE INDEX catalogs_unique_sort_order ON catalogs(event_uid, sort_order);
             SQL
         );
         $pdo->exec(
@@ -60,15 +62,17 @@ class CatalogServiceTest extends TestCase
             <<<'SQL'
             CREATE TABLE catalogs(
                 uid TEXT PRIMARY KEY,
-                sort_order INTEGER UNIQUE NOT NULL,
+                sort_order INTEGER NOT NULL,
                 slug TEXT UNIQUE NOT NULL,
                 file TEXT NOT NULL,
                 name TEXT NOT NULL,
                 description TEXT,
                 qrcode_url TEXT,
                 raetsel_buchstabe TEXT,
-                design_path TEXT
+                design_path TEXT,
+                event_uid TEXT
             );
+            CREATE UNIQUE INDEX catalogs_unique_sort_order ON catalogs(event_uid, sort_order);
             SQL
         );
         $pdo->exec(

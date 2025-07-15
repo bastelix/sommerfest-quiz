@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS catalogs (
 );
 ALTER TABLE catalogs
     ADD CONSTRAINT catalogs_unique_sort_order
-    UNIQUE(sort_order) DEFERRABLE INITIALLY DEFERRED;
+    UNIQUE(event_uid, sort_order) DEFERRABLE INITIALLY DEFERRED;
 
 -- Questions belonging to catalogs
 CREATE TABLE IF NOT EXISTS questions (
