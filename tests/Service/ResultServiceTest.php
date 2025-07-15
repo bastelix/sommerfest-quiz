@@ -26,7 +26,8 @@ class ResultServiceTest extends TestCase
                 total INTEGER NOT NULL,
                 time INTEGER NOT NULL,
                 puzzleTime INTEGER,
-                photo TEXT
+                photo TEXT,
+                event_uid TEXT
             );
             SQL
         );
@@ -56,7 +57,8 @@ class ResultServiceTest extends TestCase
                 total INTEGER NOT NULL,
                 time INTEGER NOT NULL,
                 puzzleTime INTEGER,
-                photo TEXT
+                photo TEXT,
+                event_uid TEXT
             );
             SQL
         );
@@ -86,7 +88,8 @@ class ResultServiceTest extends TestCase
                 total INTEGER NOT NULL,
                 time INTEGER NOT NULL,
                 puzzleTime INTEGER,
-                photo TEXT
+                photo TEXT,
+                event_uid TEXT
             );
             SQL
         );
@@ -117,7 +120,8 @@ class ResultServiceTest extends TestCase
                 total INTEGER NOT NULL,
                 time INTEGER NOT NULL,
                 puzzleTime INTEGER,
-                photo TEXT
+                photo TEXT,
+                event_uid TEXT
             );
             SQL
         );
@@ -147,7 +151,8 @@ class ResultServiceTest extends TestCase
                 total INTEGER NOT NULL,
                 time INTEGER NOT NULL,
                 puzzleTime INTEGER,
-                photo TEXT
+                photo TEXT,
+                event_uid TEXT
             );
             SQL
         );
@@ -176,7 +181,8 @@ class ResultServiceTest extends TestCase
                 total INTEGER NOT NULL,
                 time INTEGER NOT NULL,
                 puzzleTime INTEGER,
-                photo TEXT
+                photo TEXT,
+                event_uid TEXT
             );
             SQL
         );
@@ -254,7 +260,8 @@ class ResultServiceTest extends TestCase
                 total INTEGER NOT NULL,
                 time INTEGER NOT NULL,
                 puzzleTime INTEGER,
-                photo TEXT
+                photo TEXT,
+                event_uid TEXT
             );
             SQL
         );
@@ -282,5 +289,86 @@ class ResultServiceTest extends TestCase
         $qresCount = (int) $pdo->query('SELECT COUNT(*) FROM question_results')->fetchColumn();
         $this->assertSame(0, $resCount);
         $this->assertSame(0, $qresCount);
+    }
+
+    public function testPhotoAttachedAfterEventUidChange(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                attempt INTEGER NOT NULL,
+                correct INTEGER NOT NULL,
+                total INTEGER NOT NULL,
+                time INTEGER NOT NULL,
+                puzzleTime INTEGER,
+                photo TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo->exec("INSERT INTO config(event_uid) VALUES('ev1')");
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE catalogs(
+                uid TEXT PRIMARY KEY,
+                sort_order INTEGER,
+                slug TEXT,
+                file TEXT,
+                name TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE questions(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                catalog_uid TEXT NOT NULL,
+                sort_order INTEGER,
+                type TEXT NOT NULL,
+                prompt TEXT NOT NULL,
+                options TEXT,
+                answers TEXT,
+                terms TEXT,
+                items TEXT
+            );
+            SQL
+        );
+        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name) VALUES('u',1,'cat1','c.json','C')");
+        $pdo->exec("INSERT INTO questions(catalog_uid,sort_order,type,prompt) VALUES('u',1,'text','Q1')");
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE question_results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                question_id INTEGER NOT NULL,
+                attempt INTEGER NOT NULL,
+                correct INTEGER NOT NULL,
+                answer_text TEXT,
+                photo TEXT,
+                consent INTEGER,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $cfg = new ConfigService($pdo);
+        $service = new ResultService($pdo, $cfg);
+
+        $service->add(['name' => 'TeamA', 'catalog' => 'cat1']);
+
+        $cfg->setActiveEventUid('ev2');
+
+        $service->setPhoto('TeamA', 'cat1', '/photo/img.jpg');
+
+        $stmt = $pdo->query('SELECT photo, event_uid FROM results');
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $this->assertSame('/photo/img.jpg', $row['photo']);
+        $this->assertSame('ev1', $row['event_uid']);
     }
 }
