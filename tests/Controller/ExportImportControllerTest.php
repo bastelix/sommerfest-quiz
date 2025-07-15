@@ -23,7 +23,12 @@ class ExportImportControllerTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT);');
+        $pdo->exec(
+            'CREATE TABLE events(' .
+            'uid TEXT PRIMARY KEY, name TEXT NOT NULL,' .
+            ' start_date TEXT, end_date TEXT, description TEXT' .
+            ');'
+        );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $pdo->exec("INSERT INTO events(uid,name) VALUES('ev1','Event1')");
         $pdo->exec("INSERT INTO config(event_uid) VALUES('ev1')");
