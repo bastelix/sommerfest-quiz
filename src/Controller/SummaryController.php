@@ -33,14 +33,21 @@ class SummaryController
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $cfg = $this->config->getConfig();
-        $uid = (string)($cfg['event_uid'] ?? '');
-        $event = null;
+        $params = $request->getQueryParams();
+        $uid = (string)($params['event'] ?? '');
         if ($uid !== '') {
-            $event = $this->events->getByUid($uid);
-        }
-        if ($event === null) {
-            $event = $this->events->getFirst();
+            $cfg = $this->config->getConfigForEvent($uid);
+            $event = $this->events->getByUid($uid) ?? $this->events->getFirst();
+        } else {
+            $cfg = $this->config->getConfig();
+            $event = null;
+            $evUid = (string)($cfg['event_uid'] ?? '');
+            if ($evUid !== '') {
+                $event = $this->events->getByUid($evUid);
+            }
+            if ($event === null) {
+                $event = $this->events->getFirst();
+            }
         }
         if (session_status() === PHP_SESSION_NONE) {
             session_start();

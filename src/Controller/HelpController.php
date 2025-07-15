@@ -23,15 +23,24 @@ class HelpController
     {
         $view = Twig::fromRequest($request);
         $pdo = Database::connectFromEnv();
-        $cfg = (new ConfigService($pdo))->getConfig();
+        $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo);
-        $event = null;
-        $uid = (string)($cfg['event_uid'] ?? '');
+
+        $params = $request->getQueryParams();
+        $uid = (string)($params['event'] ?? '');
         if ($uid !== '') {
-            $event = $eventSvc->getByUid($uid);
-        }
-        if ($event === null) {
-            $event = $eventSvc->getFirst();
+            $cfg = $cfgSvc->getConfigForEvent($uid);
+            $event = $eventSvc->getByUid($uid) ?? $eventSvc->getFirst();
+        } else {
+            $cfg = $cfgSvc->getConfig();
+            $event = null;
+            $evUid = (string)($cfg['event_uid'] ?? '');
+            if ($evUid !== '') {
+                $event = $eventSvc->getByUid($evUid);
+            }
+            if ($event === null) {
+                $event = $eventSvc->getFirst();
+            }
         }
         if (session_status() === PHP_SESSION_NONE) {
             session_start();

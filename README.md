@@ -325,9 +325,11 @@ Alle wesentlichen Einstellungen stehen in `data/config.json` und werden beim ers
 
 Optional kann `baseUrl` gesetzt werden, um in QR-Codes vollständige Links mit Domain zu erzeugen. `QRRemember` speichert gescannte Namen und erspart das erneute Einscannen. Der Parameter `competitionMode` blendet im Quiz alle Neustart-Schaltflächen aus, verhindert Wiederholungen bereits abgeschlossener Kataloge und unterbindet die Anzeige der Katalogübersicht. Ein Fragenkatalog kann dann nur über einen direkten QR-Code-Link gestartet werden. Im Wettkampfmodus führt ein Aufruf der Hauptseite ohne gültigen Katalog-Parameter automatisch zur Hilfe-Seite. Über `teamResults` lässt sich steuern, ob Teams nach Abschluss aller Kataloge ihre eigene Ergebnisübersicht angezeigt bekommen. `photoUpload` blendet die Buttons zum Hochladen von Beweisfotos ein oder aus. `puzzleWordEnabled` schaltet das Rätselwort-Spiel frei und `puzzleFeedback` definiert den Text, der nach korrekter Eingabe angezeigt wird. `inviteText` enthält ein optionales Anschreiben für teilnehmende Teams.
 
-`ConfigService` liest und speichert diese Datei. Jeder Event besitzt dabei eine eigene Konfiguration.  
+`ConfigService` liest und speichert diese Datei. Jeder Event besitzt dabei eine eigene Konfiguration.
 Welcher Event aktuell bearbeitet wird, steht in der Tabelle `active_event`. Ein GET auf `/config.json`
 liefert die Einstellungen des aktiven Events, ein POST auf dieselbe URL speichert die Änderungen.
+Über den URL-Parameter `event` kann im Frontend ein beliebiger Event zur Ansicht gewählt werden,
+ohne ihn als aktiv zu setzen. Die Backend-Logik bleibt davon unberührt.
 
 ### Authentifizierung
 Der Zugang zum Administrationsbereich erfolgt über `/login`. Benutzer und Rollen werden in der Tabelle `users` verwaltet. Nach erfolgreichem POST mit gültigen Zugangsdaten speichert das System die Benutzerinformationen inklusive Rolle in der Session und leitet Administratoren zur Route `/admin` weiter. Die Middleware `RoleAuthMiddleware` prüft die gespeicherte Rolle und leitet bei fehlenden Berechtigungen zum Login um.
