@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Service\ResultService;
 use App\Service\PhotoConsentService;
+use App\Service\SummaryPhotoService;
 use Psr\Log\LoggerInterface;
 use Intervention\Image\ImageManagerStatic as Image;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -18,6 +19,7 @@ class EvidenceController
 {
     private ResultService $results;
     private PhotoConsentService $consent;
+    private SummaryPhotoService $summary;
     private LoggerInterface $logger;
     private string $dir;
 
@@ -27,11 +29,13 @@ class EvidenceController
     public function __construct(
         ResultService $results,
         PhotoConsentService $consent,
+        SummaryPhotoService $summary,
         LoggerInterface $logger,
         string $dir
     ) {
         $this->results = $results;
         $this->consent = $consent;
+        $this->summary = $summary;
         $this->logger = $logger;
         $this->dir = rtrim($dir, '/');
     }
@@ -125,7 +129,9 @@ class EvidenceController
         $this->consent->add($team, time());
 
         $path = '/photo/' . rawurlencode($safeUser) . '/' . rawurlencode($fileName);
-        if ($user !== '' && $catalog !== '') {
+        if ($user !== "" && $catalog === "summary") {
+            $this->summary->add($user, $path, time());
+        } elseif ($user !== "" && $catalog !== "") {
             $this->results->setPhoto($user, $catalog, $path);
         }
 
@@ -220,5 +226,12 @@ class EvidenceController
 
         $response->getBody()->write(json_encode(['status' => 'ok']));
         return $response->withHeader('Content-Type', 'application/json');
+    }
+    public function listSummary(Request $request, Response $response): Response
+    {
+        $photos = $this->summary->getAll();
+
+        $response->getBody()->write(json_encode($photos));
+        return $response->withHeader("Content-Type", "application/json");
     }
 }

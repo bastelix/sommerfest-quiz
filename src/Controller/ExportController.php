@@ -9,6 +9,7 @@ use App\Service\ConfigService;
 use App\Service\ResultService;
 use App\Service\TeamService;
 use App\Service\PhotoConsentService;
+use App\Service\SummaryPhotoService;
 use App\Service\EventService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -23,6 +24,7 @@ class ExportController
     private ResultService $results;
     private TeamService $teams;
     private PhotoConsentService $consents;
+    private SummaryPhotoService $summaryPhotos;
     private EventService $events;
     private string $dataDir;
     private string $backupDir;
@@ -36,6 +38,7 @@ class ExportController
         ResultService $results,
         TeamService $teams,
         PhotoConsentService $consents,
+        SummaryPhotoService $summaryPhotos,
         EventService $events,
         string $dataDir,
         string $backupDir
@@ -45,6 +48,7 @@ class ExportController
         $this->results = $results;
         $this->teams = $teams;
         $this->consents = $consents;
+        $this->summaryPhotos = $summaryPhotos;
         $this->events = $events;
         $this->dataDir = rtrim($dataDir, '/');
         $this->backupDir = rtrim($backupDir, '/');
@@ -105,6 +109,12 @@ class ExportController
         file_put_contents(
             $dir . '/photo_consents.json',
             json_encode($consents, JSON_PRETTY_PRINT) . "\n"
+        );
+
+        $photos = $this->summaryPhotos->getAll();
+        file_put_contents(
+            $dir . '/summary_photos.json',
+            json_encode($photos, JSON_PRETTY_PRINT) . "\n"
         );
 
         $catalogDir = $dir . '/kataloge';

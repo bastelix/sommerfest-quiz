@@ -9,6 +9,7 @@ use App\Service\ConfigService;
 use App\Service\ResultService;
 use App\Service\TeamService;
 use App\Service\PhotoConsentService;
+use App\Service\SummaryPhotoService;
 use App\Service\EventService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -23,6 +24,7 @@ class ImportController
     private ResultService $results;
     private TeamService $teams;
     private PhotoConsentService $consents;
+    private SummaryPhotoService $summaryPhotos;
     private EventService $events;
     private string $dataDir;
     private string $backupDir;
@@ -36,6 +38,7 @@ class ImportController
         ResultService $results,
         TeamService $teams,
         PhotoConsentService $consents,
+        SummaryPhotoService $summaryPhotos,
         EventService $events,
         string $dataDir,
         string $backupDir
@@ -45,6 +48,7 @@ class ImportController
         $this->results = $results;
         $this->teams = $teams;
         $this->consents = $consents;
+        $this->summaryPhotos = $summaryPhotos;
         $this->events = $events;
         $this->dataDir = rtrim($dataDir, '/');
         $this->backupDir = rtrim($backupDir, '/');
@@ -119,6 +123,16 @@ class ImportController
             $consents = json_decode((string)file_get_contents($consentsFile), true) ?? [];
             if (is_array($consents)) {
                 $this->consents->saveAll($consents);
+            }
+        }
+        $summaryFile = $dir . '/summary_photos.json';
+        if (is_readable($summaryFile)) {
+            $photos = json_decode((string)file_get_contents($summaryFile), true) ?? [];
+            if (is_array($photos)) {
+                $svc = $this->summaryPhotos;
+                foreach ($photos as $p) {
+                    $svc->add((string)($p['name'] ?? ''), (string)($p['path'] ?? ''), (int)($p['time'] ?? 0));
+                }
             }
         }
 
