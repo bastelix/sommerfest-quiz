@@ -10,6 +10,7 @@ use App\Service\ConfigService;
 use App\Service\ResultService;
 use App\Service\TeamService;
 use App\Service\PhotoConsentService;
+use App\Service\SummaryPhotoService;
 use App\Service\EventService;
 use PDO;
 use Tests\TestCase;
@@ -97,6 +98,11 @@ class ExportControllerTest extends TestCase
             );
             SQL
         );
+        $pdo->exec(
+            'CREATE TABLE summary_photos(' .
+            'id INTEGER PRIMARY KEY AUTOINCREMENT,' .
+            'name TEXT,path TEXT,time INTEGER,event_uid TEXT);'
+        );
 
         $cfg = new ConfigService($pdo);
         return [
@@ -105,6 +111,7 @@ class ExportControllerTest extends TestCase
             new ResultService($pdo, $cfg),
             new TeamService($pdo, $cfg),
             new PhotoConsentService($pdo, $cfg),
+            new SummaryPhotoService($pdo, $cfg),
             new EventService($pdo, $cfg),
             $pdo,
         ];
@@ -112,11 +119,21 @@ class ExportControllerTest extends TestCase
 
     public function testExportIncludesEvents(): void
     {
-        [$catalog, $config, $results, $teams, $consents, $events] = $this->createServices();
+        [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
         $tmp = sys_get_temp_dir() . '/export_' . uniqid();
         mkdir($tmp, 0777, true);
 
-        $controller = new ExportController($config, $catalog, $results, $teams, $consents, $events, $tmp, $tmp);
+        $controller = new ExportController(
+            $config,
+            $catalog,
+            $results,
+            $teams,
+            $consents,
+            $summary,
+            $events,
+            $tmp,
+            $tmp
+        );
         $req = $this->createRequest('POST', '/export');
         $res = $controller->post($req, new Response());
         $this->assertEquals(204, $res->getStatusCode());

@@ -54,6 +54,7 @@
 - Avoid using first event if active one missing
 - Address style warnings
 - Encode flip card text
+- Add summary photo service dependency
 
 ### Refactor
 

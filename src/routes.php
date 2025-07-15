@@ -21,6 +21,7 @@ use App\Service\ResultService;
 use App\Service\TeamService;
 use App\Service\PhotoConsentService;
 use App\Service\EventService;
+use App\Service\SummaryPhotoService;
 use App\Service\UserService;
 use App\Service\TenantService;
 use App\Controller\ResultController;
@@ -90,6 +91,7 @@ return function (\Slim\App $app) {
         $resultService = new ResultService($pdo, $configService);
         $teamService = new TeamService($pdo, $configService);
         $consentService = new PhotoConsentService($pdo, $configService);
+        $summaryService = new SummaryPhotoService($pdo, $configService);
         $eventService = new EventService($pdo);
         $tenantService = new TenantService($pdo);
         $userService = new \App\Service\UserService($pdo);
@@ -125,6 +127,7 @@ return function (\Slim\App $app) {
                 $resultService,
                 $teamService,
                 $consentService,
+                $summaryService,
                 $eventService,
                 __DIR__ . '/../data',
                 __DIR__ . '/../backup'
@@ -135,6 +138,7 @@ return function (\Slim\App $app) {
                 $resultService,
                 $teamService,
                 $consentService,
+                $summaryService,
                 $eventService,
                 __DIR__ . '/../data',
                 __DIR__ . '/../backup'
@@ -143,6 +147,7 @@ return function (\Slim\App $app) {
             ->withAttribute('evidenceController', new EvidenceController(
                 $resultService,
                 $consentService,
+                $summaryService,
                 new NullLogger(),
                 __DIR__ . '/../data/photos'
             ))
