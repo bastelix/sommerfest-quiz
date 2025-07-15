@@ -174,7 +174,7 @@ class QrController
         }
 
         $cfg = $this->config->getConfig();
-        $uid = (string)($cfg['event_uid'] ?? '');
+        $uid = $this->config->getActiveEventUid();
         $ev = null;
         if ($uid !== '') {
             $ev = $this->events->getByUid($uid);
@@ -243,7 +243,7 @@ class QrController
         $teams = $this->teams->getAll();
 
         $cfg = $this->config->getConfig();
-        $uid = (string)($cfg['event_uid'] ?? '');
+        $uid = $this->config->getActiveEventUid();
         $ev = null;
         if ($uid !== '') {
             $ev = $this->events->getByUid($uid);
