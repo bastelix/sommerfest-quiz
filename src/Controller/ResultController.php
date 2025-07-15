@@ -39,7 +39,7 @@ class ResultController
         TeamService $teams,
         CatalogService $catalogs,
         string $photoDir,
-        EventService $events = null
+        ?EventService $events = null
     ) {
         $this->service = $service;
         $this->config = $config;

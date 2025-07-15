@@ -294,14 +294,14 @@ return function (\Slim\App $app) {
     })->add(new RoleAuthMiddleware('admin'));
     $app->post('/photos', function (Request $request, Response $response) {
         return $request->getAttribute('evidenceController')->post($request, $response);
-    })->add(new RoleAuthMiddleware('admin'));
+    });
     $app->post('/photos/rotate', function (Request $request, Response $response) {
         return $request->getAttribute('evidenceController')->rotate($request, $response);
-    })->add(new RoleAuthMiddleware('admin'));
+    });
     $app->get('/photo/{team}/{file}', function (Request $request, Response $response, array $args) {
         $req = $request->withAttribute('team', $args['team'])->withAttribute('file', $args['file']);
         return $request->getAttribute('evidenceController')->get($req, $response);
-    })->add(new RoleAuthMiddleware('admin'));
+    });
     $app->get('/summary', function (Request $request, Response $response) {
         return $request->getAttribute('summaryController')($request, $response);
     });
