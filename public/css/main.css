@@ -427,4 +427,25 @@ body.dark-mode .sticky-actions {
 .flip-card-front, .flip-card-back { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: center; justify-content: center; padding: 1rem; border-radius: 8px; background: #fff; backface-visibility: hidden; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
 .flip-card-back { transform: rotateY(180deg); }
 
+@media (max-width: 639px) {
+  .topbar {
+    flex-wrap: wrap;
+  }
+  .topbar .uk-navbar-left,
+  .topbar .uk-navbar-right {
+    width: 50%;
+  }
+  .topbar .uk-navbar-center {
+    order: 1;
+    width: 100%;
+  }
+  body.uk-padding,
+  .index-page {
+    padding-top: 112px;
+  }
+  .nav-placeholder {
+    height: 112px;
+  }
+}
+
 
