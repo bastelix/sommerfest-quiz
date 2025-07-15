@@ -1737,6 +1737,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const helpSidebar = document.getElementById('helpSidebar');
   const helpContent = document.getElementById('helpContent');
   const adminTabs = document.getElementById('adminTabs');
+  const adminMenu = document.getElementById('adminMenu');
+  const adminNav = document.getElementById('adminNav');
 
   function activeHelpText() {
     if (!adminTabs) return '';
@@ -1749,6 +1751,20 @@ document.addEventListener('DOMContentLoaded', function () {
     helpContent.textContent = activeHelpText();
     UIkit.offcanvas(helpSidebar).show();
   });
+
+  if (adminMenu && adminTabs) {
+    const tabControl = UIkit.tab(adminTabs);
+    adminMenu.querySelectorAll('[data-tab]').forEach(item => {
+      item.addEventListener('click', e => {
+        e.preventDefault();
+        const idx = parseInt(item.getAttribute('data-tab'), 10);
+        if (!isNaN(idx)) {
+          tabControl.show(idx);
+          if (adminNav) UIkit.offcanvas(adminNav).hide();
+        }
+      });
+    });
+  }
 
   loadBackups();
 });

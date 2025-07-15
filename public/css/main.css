@@ -446,6 +446,9 @@ body.dark-mode .sticky-actions {
     order: 1;
     width: 100%;
   }
+  #adminTabs {
+    display: none;
+  }
   body.uk-padding,
   .index-page {
     padding-top: 112px;

@@ -13,21 +13,12 @@
 {% block body %}
   {% embed 'topbar.twig' %}
     {% block left %}
-      <a href="." class="uk-icon-button" uk-icon="icon: arrow-left; ratio: 2" title="Zurück" aria-label="Zurück"></a>
+      <a class="uk-icon-button" uk-icon="icon: menu; ratio: 2" aria-label="Menü" uk-toggle="target: #adminNav"></a>
     {% endblock %}
     {% block center %}
       <h3 id="activeEventHeader" class="uk-margin-remove">{{ event.name }}</h3>
     {% endblock %}
-    {% block right %}
-      <a href="/logout" class="uk-button uk-button-danger uk-margin-right">Abmelden</a>
-      <div class="theme-switch uk-margin-right">
-        <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="Design wechseln"></button>
-      </div>
-      <div class="contrast-switch uk-margin-small-right">
-        <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="Kontrastmodus"></button>
-      </div>
-      <button id="helpBtn" class="uk-icon-button" uk-icon="icon: question; ratio: 2" aria-label="Hilfe"></button>
-    {% endblock %}
+    {% block right %}{% endblock %}
   {% endembed %}
   <ul id="adminTabs" uk-tab>
     <li class="uk-active" data-help="Veranstaltungen anlegen oder bearbeiten. Jede Zeile enthält Name, Beginn, Ende und Beschreibung. 'Hinzufügen' erstellt einen neuen Eintrag. Speichern übernimmt die Änderungen."><a href="#">Veranstaltungen</a></li>
@@ -569,6 +560,26 @@
     <div class="uk-offcanvas-bar uk-width-medium">
       <h3 class="uk-margin-remove-top">Hilfe</h3>
       <div id="helpContent"></div>
+    </div>
+  </div>
+  <div id="adminNav" uk-offcanvas="overlay: true">
+    <div class="uk-offcanvas-bar">
+      <ul class="uk-nav uk-nav-default" id="adminMenu">
+        <li class="uk-nav-header">Menü</li>
+        <li><a href="#" data-tab="0">Veranstaltungen</a></li>
+        <li><a href="#" data-tab="1">Veranstaltung konfigurieren</a></li>
+        <li><a href="#" data-tab="2">Kataloge</a></li>
+        <li><a href="#" data-tab="3">Fragen anpassen</a></li>
+        <li><a href="#" data-tab="4">Teams/Personen</a></li>
+        <li><a href="#" data-tab="5">Zusammenfassung</a></li>
+        <li><a href="#" data-tab="6">Ergebnisse</a></li>
+        <li><a href="#" data-tab="7">Statistik</a></li>
+        {% if role == 'admin' %}
+        <li><a href="#" data-tab="8">Administration</a></li>
+        {% endif %}
+        <li class="uk-nav-divider"></li>
+        <li><a href="/logout">Abmelden</a></li>
+      </ul>
     </div>
   </div>
 {% endblock %}
