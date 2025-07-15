@@ -342,8 +342,9 @@ class ResultService
             $del = $this->pdo->prepare('DELETE FROM question_results WHERE event_uid=?');
             $del->execute([$uid]);
             $stmt = $this->pdo->prepare(
-                'INSERT INTO question_results(name,catalog,question_id,attempt,correct,answer_text,photo,consent,event_uid) '
-                . 'VALUES(?,?,?,?,?,?,?,?,?)'
+                'INSERT INTO question_results(' .
+                'name,catalog,question_id,attempt,correct,answer_text,photo,consent,event_uid) ' .
+                'VALUES(?,?,?,?,?,?,?,?,?)'
             );
         } else {
             $this->pdo->exec('DELETE FROM question_results');

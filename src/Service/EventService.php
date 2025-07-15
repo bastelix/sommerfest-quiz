@@ -44,8 +44,12 @@ class EventService
         $existingStmt = $this->pdo->query('SELECT uid FROM events');
         $existing = $existingStmt->fetchAll(PDO::FETCH_COLUMN);
 
-        $updateStmt = $this->pdo->prepare('UPDATE events SET name = ?, start_date = ?, end_date = ?, description = ? WHERE uid = ?');
-        $insertStmt = $this->pdo->prepare('INSERT INTO events(uid,name,start_date,end_date,description) VALUES(?,?,?,?,?)');
+        $updateStmt = $this->pdo->prepare(
+            'UPDATE events SET name = ?, start_date = ?, end_date = ?, description = ? WHERE uid = ?'
+        );
+        $insertStmt = $this->pdo->prepare(
+            'INSERT INTO events(uid,name,start_date,end_date,description) VALUES(?,?,?,?,?)'
+        );
         $uids = [];
         foreach ($events as $event) {
             $uid = $event['uid'] ?? bin2hex(random_bytes(16));

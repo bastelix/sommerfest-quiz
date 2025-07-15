@@ -44,7 +44,11 @@ class ResultControllerTest extends TestCase
             );
             SQL
         );
-        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT);');
+        $pdo->exec(
+            'CREATE TABLE events(' .
+            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT' .
+            ');'
+        );
         $pdo->exec("INSERT INTO events(uid,name,description) VALUES('1','Event','Sub')");
         $pdo->exec(
             <<<'SQL'
@@ -82,7 +86,11 @@ class ResultControllerTest extends TestCase
             "name,catalog,question_id,attempt,correct,photo) " .
             "VALUES('Team1','cat',1,1,1,'/path/foo.jpg')"
         );
-        $pdo->exec('CREATE TABLE teams(sort_order INTEGER UNIQUE NOT NULL, name TEXT NOT NULL, uid TEXT PRIMARY KEY, event_uid TEXT);');
+        $pdo->exec(
+            'CREATE TABLE teams(' .
+            'sort_order INTEGER UNIQUE NOT NULL, name TEXT NOT NULL, uid TEXT PRIMARY KEY, event_uid TEXT' .
+            ');'
+        );
         $pdo->exec("INSERT INTO teams(sort_order,name,uid,event_uid) VALUES(1,'Team1','1','1')");
 
         $cfg = new \App\Service\ConfigService($pdo);
@@ -114,13 +122,61 @@ class ResultControllerTest extends TestCase
     {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE config(displayErrorDetails INTEGER, QRUser INTEGER, QRRemember INTEGER, logoPath TEXT, pageTitle TEXT, backgroundColor TEXT, buttonColor TEXT, CheckAnswerButton TEXT, adminUser TEXT, adminPass TEXT, QRRestrict INTEGER, competitionMode INTEGER, teamResults INTEGER, photoUpload INTEGER, puzzleWordEnabled INTEGER, puzzleWord TEXT, puzzleFeedback TEXT, inviteText TEXT, event_uid TEXT);');
-        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT);');
-        $pdo->exec("INSERT INTO events(uid,name,description) VALUES('1','First','A'),('2','Second','B')");
-        $pdo->exec('CREATE TABLE results(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, attempt INTEGER NOT NULL, correct INTEGER NOT NULL, total INTEGER NOT NULL, time INTEGER NOT NULL, puzzleTime INTEGER, photo TEXT);');
-        $pdo->exec("INSERT INTO results(name,catalog,attempt,correct,total,time) VALUES('Team1','cat',1,1,1,0)");
-        $pdo->exec('CREATE TABLE question_results(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, question_id INTEGER NOT NULL, attempt INTEGER NOT NULL, correct INTEGER NOT NULL, answer_text TEXT, photo TEXT, consent BOOLEAN);');
-        $pdo->exec('CREATE TABLE teams(sort_order INTEGER UNIQUE NOT NULL, name TEXT NOT NULL, uid TEXT PRIMARY KEY, event_uid TEXT);');
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                displayErrorDetails INTEGER,
+                QRUser INTEGER,
+                QRRemember INTEGER,
+                logoPath TEXT,
+                pageTitle TEXT,
+                backgroundColor TEXT,
+                buttonColor TEXT,
+                CheckAnswerButton TEXT,
+                adminUser TEXT,
+                adminPass TEXT,
+                QRRestrict INTEGER,
+                competitionMode INTEGER,
+                teamResults INTEGER,
+                photoUpload INTEGER,
+                puzzleWordEnabled INTEGER,
+                puzzleWord TEXT,
+                puzzleFeedback TEXT,
+                inviteText TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            'CREATE TABLE events(' .
+            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT' .
+            ');'
+        );
+        $pdo->exec(
+            "INSERT INTO events(uid,name,description) VALUES('1','First','A'),('2','Second','B')"
+        );
+        $pdo->exec(
+            'CREATE TABLE results(' .
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, ' .
+            'attempt INTEGER NOT NULL, correct INTEGER NOT NULL, total INTEGER NOT NULL, ' .
+            'time INTEGER NOT NULL, puzzleTime INTEGER, photo TEXT' .
+            ');'
+        );
+        $pdo->exec(
+            "INSERT INTO results(name,catalog,attempt,correct,total,time) VALUES('Team1','cat',1,1,1,0)"
+        );
+        $pdo->exec(
+            'CREATE TABLE question_results(' .
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, ' .
+            'question_id INTEGER NOT NULL, attempt INTEGER NOT NULL, correct INTEGER NOT NULL, ' .
+            'answer_text TEXT, photo TEXT, consent BOOLEAN' .
+            ');'
+        );
+        $pdo->exec(
+            'CREATE TABLE teams(' .
+            'sort_order INTEGER UNIQUE NOT NULL, name TEXT NOT NULL, uid TEXT PRIMARY KEY, event_uid TEXT' .
+            ');'
+        );
         $pdo->exec("INSERT INTO teams(sort_order,name,uid,event_uid) VALUES(1,'Team1','1','1')");
 
         $cfg = new \App\Service\ConfigService($pdo);
