@@ -110,7 +110,12 @@ return function (\Slim\App $app) {
             ->withAttribute('tenantController', new TenantController($tenantService))
             ->withAttribute('passwordController', new PasswordController($userService))
             ->withAttribute('userController', new UserController($userService))
-            ->withAttribute('qrController', new QrController($configService, $teamService, $eventService, $catalogService))
+            ->withAttribute('qrController', new QrController(
+                $configService,
+                $teamService,
+                $eventService,
+                $catalogService
+            ))
             ->withAttribute('catalogDesignController', new CatalogDesignController($catalogService))
             ->withAttribute('logoController', new LogoController($configService))
             ->withAttribute('summaryController', new SummaryController($configService))

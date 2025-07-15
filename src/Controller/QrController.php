@@ -43,8 +43,12 @@ class QrController
     /**
      * Inject configuration service dependency.
      */
-    public function __construct(ConfigService $config, TeamService $teams, EventService $events, CatalogService $catalogs)
-    {
+    public function __construct(
+        ConfigService $config,
+        TeamService $teams,
+        EventService $events,
+        CatalogService $catalogs
+    ) {
         $this->config = $config;
         $this->teams = $teams;
         $this->events = $events;
