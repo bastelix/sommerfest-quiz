@@ -29,6 +29,7 @@
 - Add tenant features section
 - Clarify event table columns
 - Fix shell commands for alpine
+- Ignore changelog update commits
 
 ### Feat
 
