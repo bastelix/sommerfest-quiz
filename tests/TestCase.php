@@ -19,12 +19,28 @@ use App\Application\Middleware\SessionMiddleware;
 
 class TestCase extends PHPUnit_TestCase
 {
+    /** @var list<string> */
+    private array $tmpDbs = [];
+
     /**
      * @return App
      * @throws Exception
      */
     protected function getAppInstance(): App
     {
+        if (getenv('POSTGRES_DSN') === false || getenv('POSTGRES_DSN') === '') {
+            $db = tempnam(sys_get_temp_dir(), 'db');
+            if ($db !== false) {
+                putenv('POSTGRES_DSN=sqlite:' . $db);
+                putenv('POSTGRES_USER=');
+                putenv('POSTGRES_PASSWORD=');
+                $_ENV['POSTGRES_DSN'] = 'sqlite:' . $db;
+                $_ENV['POSTGRES_USER'] = '';
+                $_ENV['POSTGRES_PASSWORD'] = '';
+                $this->tmpDbs[] = $db;
+            }
+        }
+
         // Load settings
         $settings = require __DIR__ . '/../config/settings.php';
 
@@ -71,5 +87,16 @@ class TestCase extends PHPUnit_TestCase
         }
 
         return new SlimRequest($method, $uri, $h, $cookies, $serverParams, $stream);
+    }
+
+    protected function tearDown(): void
+    {
+        foreach ($this->tmpDbs as $db) {
+            if (is_string($db) && file_exists($db)) {
+                @unlink($db);
+            }
+        }
+        $this->tmpDbs = [];
+        parent::tearDown();
     }
 }
