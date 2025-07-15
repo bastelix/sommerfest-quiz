@@ -12,6 +12,7 @@ use PDO;
 class ConfigService
 {
     private PDO $pdo;
+    private ?string $activeEvent = null;
 
     /**
      * Inject PDO instance used for database operations.
@@ -19,6 +20,11 @@ class ConfigService
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
+        $this->pdo->exec(
+            'CREATE TABLE IF NOT EXISTS active_event(' .
+            'event_uid TEXT PRIMARY KEY' .
+            ')'
+        );
     }
 
     /**
@@ -49,10 +55,9 @@ class ConfigService
      */
     public function getConfig(): array
     {
-        $uidStmt = $this->pdo->query('SELECT event_uid FROM config LIMIT 1');
-        $uid = $uidStmt->fetchColumn();
+        $uid = $this->getActiveEventUid();
         $row = null;
-        if ($uid !== false && $uid !== null && $uid !== '') {
+        if ($uid !== '') {
             $stmt = $this->pdo->prepare('SELECT * FROM config WHERE event_uid = ? LIMIT 1');
             $stmt->execute([$uid]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
@@ -113,23 +118,36 @@ class ConfigService
             'event_uid',
         ];
         $filtered = array_intersect_key($data, array_flip($keys));
+        $uid = (string)($filtered['event_uid'] ?? $this->getActiveEventUid());
+        $filtered['event_uid'] = $uid;
+
         $this->pdo->beginTransaction();
-        $this->pdo->exec('DELETE FROM config');
-        if ($filtered) {
+        $check = $this->pdo->prepare('SELECT 1 FROM config WHERE event_uid=?');
+        $check->execute([$uid]);
+
+        if ($check->fetchColumn()) {
+            $sets = [];
+            foreach (array_keys($filtered) as $k) {
+                $sets[] = "$k=:$k";
+            }
+            $sql = 'UPDATE config SET ' . implode(',', $sets) . ' WHERE event_uid=:event_uid';
+        } else {
             $cols = array_keys($filtered);
             $params = ':' . implode(', :', $cols);
             $sql = 'INSERT INTO config(' . implode(',', $cols) . ') VALUES(' . $params . ')';
-            $stmt = $this->pdo->prepare($sql);
-            foreach ($filtered as $k => $v) {
-                if (is_bool($v)) {
-                    $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
-                } else {
-                    $stmt->bindValue(':' . $k, $v);
-                }
-            }
-            $stmt->execute();
         }
+        $stmt = $this->pdo->prepare($sql);
+        foreach ($filtered as $k => $v) {
+            if (is_bool($v)) {
+                $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
+            } else {
+                $stmt->bindValue(':' . $k, $v);
+            }
+        }
+        $stmt->execute();
         $this->pdo->commit();
+
+        $this->setActiveEventUid($uid);
     }
 
     /**
@@ -137,9 +155,15 @@ class ConfigService
      */
     public function setActiveEventUid(string $uid): void
     {
-        $cfg = $this->getConfig();
-        $cfg['event_uid'] = $uid;
-        $this->saveConfig($cfg);
+        $this->pdo->beginTransaction();
+        $this->pdo->exec('DELETE FROM active_event');
+        if ($uid !== '') {
+            $stmt = $this->pdo->prepare('INSERT INTO active_event(event_uid) VALUES(?)');
+            $stmt->execute([$uid]);
+        }
+        $this->pdo->commit();
+        $this->ensureConfigForEvent($uid);
+        $this->activeEvent = $uid;
     }
 
     /**
@@ -160,9 +184,13 @@ class ConfigService
      */
     public function getActiveEventUid(): string
     {
-        $stmt = $this->pdo->query('SELECT event_uid FROM config LIMIT 1');
+        if ($this->activeEvent !== null) {
+            return $this->activeEvent;
+        }
+        $stmt = $this->pdo->query('SELECT event_uid FROM active_event LIMIT 1');
         $uid = $stmt->fetchColumn();
-        return $uid !== false && $uid !== null ? (string)$uid : '';
+        $this->activeEvent = $uid !== false && $uid !== null ? (string)$uid : '';
+        return $this->activeEvent;
     }
 
     /**

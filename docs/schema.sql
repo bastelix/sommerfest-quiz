@@ -2,7 +2,7 @@
 -- Mirrors the JSON structure stored under data/
 
 
--- Configuration settings (one row expected)
+-- Configuration settings 
 CREATE TABLE IF NOT EXISTS config (
     id SERIAL PRIMARY KEY,
     displayErrorDetails BOOLEAN,
@@ -129,3 +129,8 @@ CREATE TABLE IF NOT EXISTS summary_photos (
     event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_summary_photos_name ON summary_photos(name);
+
+-- Currently active event
+CREATE TABLE IF NOT EXISTS active_event (
+    event_uid TEXT PRIMARY KEY REFERENCES events(uid) ON DELETE CASCADE
+);
