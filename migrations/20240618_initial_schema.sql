@@ -33,6 +33,9 @@ CREATE TABLE IF NOT EXISTS events (
     end_date TEXT DEFAULT CURRENT_TIMESTAMP,
     description TEXT
 );
+CREATE TABLE IF NOT EXISTS active_event (
+    event_uid TEXT PRIMARY KEY REFERENCES events(uid) ON DELETE CASCADE
+);
 
 -- Teams list
 CREATE TABLE IF NOT EXISTS teams (
