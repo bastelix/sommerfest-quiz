@@ -31,6 +31,7 @@ use App\Controller\ImportController;
 use App\Controller\ExportController;
 use App\Controller\QrController;
 use App\Controller\LogoController;
+use App\Controller\CatalogDesignController;
 use App\Controller\SummaryController;
 use App\Controller\EvidenceController;
 use App\Controller\EventController;
@@ -56,6 +57,7 @@ require_once __DIR__ . '/Controller/PasswordController.php';
 require_once __DIR__ . '/Controller/AdminCatalogController.php';
 require_once __DIR__ . '/Controller/QrController.php';
 require_once __DIR__ . '/Controller/LogoController.php';
+require_once __DIR__ . '/Controller/CatalogDesignController.php';
 require_once __DIR__ . '/Controller/SummaryController.php';
 require_once __DIR__ . '/Controller/EvidenceController.php';
 require_once __DIR__ . '/Controller/ExportController.php';
@@ -108,7 +110,8 @@ return function (\Slim\App $app) {
             ->withAttribute('tenantController', new TenantController($tenantService))
             ->withAttribute('passwordController', new PasswordController($userService))
             ->withAttribute('userController', new UserController($userService))
-            ->withAttribute('qrController', new QrController($configService, $teamService, $eventService))
+            ->withAttribute('qrController', new QrController($configService, $teamService, $eventService, $catalogService))
+            ->withAttribute('catalogDesignController', new CatalogDesignController($catalogService))
             ->withAttribute('logoController', new LogoController($configService))
             ->withAttribute('summaryController', new SummaryController($configService))
             ->withAttribute('importController', new ImportController(
@@ -291,6 +294,15 @@ return function (\Slim\App $app) {
     });
     $app->post('/logo.webp', function (Request $request, Response $response) {
         return $request->getAttribute('logoController')->post($request, $response);
+    })->add(new RoleAuthMiddleware('admin'));
+
+    $app->get('/catalog/{slug}/design', function (Request $request, Response $response, array $args) {
+        $req = $request->withAttribute('slug', $args['slug']);
+        return $request->getAttribute('catalogDesignController')->get($req, $response);
+    })->add(new RoleAuthMiddleware('admin'));
+    $app->post('/catalog/{slug}/design', function (Request $request, Response $response, array $args) {
+        $req = $request->withAttribute('slug', $args['slug']);
+        return $request->getAttribute('catalogDesignController')->post($req, $response);
     })->add(new RoleAuthMiddleware('admin'));
     $app->post('/photos', function (Request $request, Response $response) {
         return $request->getAttribute('evidenceController')->post($request, $response);

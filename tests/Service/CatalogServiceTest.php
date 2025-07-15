@@ -27,7 +27,8 @@ class CatalogServiceTest extends TestCase
                 description TEXT,
                 qrcode_url TEXT,
                 raetsel_buchstabe TEXT,
-                comment TEXT
+                comment TEXT,
+                design_path TEXT
             );
             SQL
         );
@@ -65,7 +66,8 @@ class CatalogServiceTest extends TestCase
                 name TEXT NOT NULL,
                 description TEXT,
                 qrcode_url TEXT,
-                raetsel_buchstabe TEXT
+                raetsel_buchstabe TEXT,
+                design_path TEXT
             );
             SQL
         );

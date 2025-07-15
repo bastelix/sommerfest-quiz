@@ -17,6 +17,8 @@ class CatalogService
     private ConfigService $config;
     /** @var bool|null detected presence of the comment column */
     private ?bool $hasComment = null;
+    /** @var bool|null detected presence of the design_path column */
+    private ?bool $hasDesign = null;
 
     /**
      * Inject database connection.
@@ -48,6 +50,28 @@ class CatalogService
             }
         }
         return $this->hasComment;
+    }
+
+    /**
+     * Ensure the optional design_path column exists and remember the result.
+     */
+    private function hasDesignColumn(): bool
+    {
+        if ($this->hasDesign !== null) {
+            return $this->hasDesign;
+        }
+        try {
+            $this->pdo->query('SELECT design_path FROM catalogs LIMIT 1');
+            $this->hasDesign = true;
+        } catch (\PDOException $e) {
+            try {
+                $this->pdo->exec('ALTER TABLE catalogs ADD COLUMN design_path TEXT');
+                $this->hasDesign = true;
+            } catch (\PDOException $e2) {
+                $this->hasDesign = false;
+            }
+        }
+        return $this->hasDesign;
     }
 
     /**
@@ -96,6 +120,9 @@ class CatalogService
             if ($this->hasCommentColumn()) {
                 $fields .= ',comment';
             }
+            if ($this->hasDesignColumn()) {
+                $fields .= ',design_path';
+            }
             $uid = $this->config->getActiveEventUid();
             $sql = "SELECT $fields FROM catalogs";
             $params = [];
@@ -113,6 +140,11 @@ class CatalogService
             if (!$this->hasCommentColumn()) {
                 foreach ($data as &$row) {
                     $row['comment'] = '';
+                }
+            }
+            if (!$this->hasDesignColumn()) {
+                foreach ($data as &$row) {
+                    $row['design_path'] = null;
                 }
             }
             return json_encode($data, JSON_PRETTY_PRINT);
@@ -190,6 +222,10 @@ class CatalogService
                 $fields .= ',comment';
                 $placeholders .= ',?';
             }
+            if ($this->hasDesignColumn()) {
+                $fields .= ',design_path';
+                $placeholders .= ',?';
+            }
             $insertSql = "INSERT INTO catalogs($fields) VALUES($placeholders)";
             $ins = $this->pdo->prepare($insertSql);
             foreach ($data as $cat) {
@@ -206,6 +242,9 @@ class CatalogService
                 ];
                 if ($this->hasCommentColumn()) {
                     $row[] = $cat['comment'] ?? null;
+                }
+                if ($this->hasDesignColumn()) {
+                    $row[] = $cat['design_path'] ?? null;
                 }
                 $ins->execute($row);
             }
@@ -324,5 +363,45 @@ class CatalogService
         }
         $del = $this->pdo->prepare('DELETE FROM questions WHERE id=?');
         $del->execute([$rows[$index]]);
+    }
+
+    /**
+     * Return the design path for the given catalog slug.
+     */
+    public function getDesignPath(string $slug): ?string
+    {
+        if (!$this->hasDesignColumn()) {
+            return null;
+        }
+        $uid = $this->config->getActiveEventUid();
+        $sql = 'SELECT design_path FROM catalogs WHERE slug=?';
+        $params = [$slug];
+        if ($uid !== '') {
+            $sql .= ' AND event_uid=?';
+            $params[] = $uid;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        $path = $stmt->fetchColumn();
+        return $path === false ? null : (string)$path;
+    }
+
+    /**
+     * Update the design path for the given catalog slug.
+     */
+    public function setDesignPath(string $slug, ?string $path): void
+    {
+        if (!$this->hasDesignColumn()) {
+            return;
+        }
+        $uid = $this->config->getActiveEventUid();
+        $sql = 'UPDATE catalogs SET design_path=? WHERE slug=?';
+        $params = [$path, $slug];
+        if ($uid !== '') {
+            $sql .= ' AND event_uid=?';
+            $params[] = $uid;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
     }
 }

@@ -68,7 +68,8 @@ class QrControllerTest extends TestCase
         $cfg = new \App\Service\ConfigService($pdo);
         $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
-        $qr = new \App\Controller\QrController($cfg, $teams, $events);
+        $catalogs = new \App\Service\CatalogService($pdo, $cfg);
+        $qr = new \App\Controller\QrController($cfg, $teams, $events, $catalogs);
         $logo = new \App\Controller\LogoController($cfg);
 
         $req = $this->createRequest('GET', '/qr.pdf?t=Demo');
@@ -127,7 +128,8 @@ class QrControllerTest extends TestCase
         $cfg = new \App\Service\ConfigService($pdo);
         $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
-        $qr  = new \App\Controller\QrController($cfg, $teams, $events);
+        $catalogs = new \App\Service\CatalogService($pdo, $cfg);
+        $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs);
 
         $req = $this->createRequest('GET', '/qr.pdf?t=Demo');
         $response = $qr->pdf($req, new Response());
@@ -174,7 +176,8 @@ class QrControllerTest extends TestCase
         $cfg = new \App\Service\ConfigService($pdo);
         $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
-        $qr  = new \App\Controller\QrController($cfg, $teams, $events);
+        $catalogs = new \App\Service\CatalogService($pdo, $cfg);
+        $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs);
 
         $req = $this->createRequest('GET', '/invites.pdf');
         $response = $qr->pdfAll($req, new Response());
