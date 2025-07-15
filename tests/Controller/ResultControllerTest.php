@@ -82,10 +82,11 @@ class ResultControllerTest extends TestCase
             "name,catalog,question_id,attempt,correct,photo) " .
             "VALUES('Team1','cat',1,1,1,'/path/foo.jpg')"
         );
-        $pdo->exec('CREATE TABLE teams(sort_order INTEGER UNIQUE NOT NULL, name TEXT NOT NULL, uid TEXT PRIMARY KEY);');
-        $pdo->exec("INSERT INTO teams(sort_order,name,uid) VALUES(1,'Team1','1')");
+        $pdo->exec('CREATE TABLE teams(sort_order INTEGER UNIQUE NOT NULL, name TEXT NOT NULL, uid TEXT PRIMARY KEY, event_uid TEXT);');
+        $pdo->exec("INSERT INTO teams(sort_order,name,uid,event_uid) VALUES(1,'Team1','1','1')");
 
         $cfg = new \App\Service\ConfigService($pdo);
+        $cfg->setActiveEventUid('1');
         $svc = new \App\Service\ResultService($pdo, $cfg);
         $teams = new \App\Service\TeamService($pdo, $cfg);
         $catalogs = new \App\Service\CatalogService($pdo, $cfg);
@@ -107,5 +108,38 @@ class ResultControllerTest extends TestCase
             substr_count($pdf, '/Subtype /Image'),
             'Photo should be embedded in PDF'
         );
+    }
+
+    public function testPdfReflectsActiveEvent(): void
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(displayErrorDetails INTEGER, QRUser INTEGER, QRRemember INTEGER, logoPath TEXT, pageTitle TEXT, backgroundColor TEXT, buttonColor TEXT, CheckAnswerButton TEXT, adminUser TEXT, adminPass TEXT, QRRestrict INTEGER, competitionMode INTEGER, teamResults INTEGER, photoUpload INTEGER, puzzleWordEnabled INTEGER, puzzleWord TEXT, puzzleFeedback TEXT, inviteText TEXT, event_uid TEXT);');
+        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT);');
+        $pdo->exec("INSERT INTO events(uid,name,description) VALUES('1','First','A'),('2','Second','B')");
+        $pdo->exec('CREATE TABLE results(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, attempt INTEGER NOT NULL, correct INTEGER NOT NULL, total INTEGER NOT NULL, time INTEGER NOT NULL, puzzleTime INTEGER, photo TEXT);');
+        $pdo->exec("INSERT INTO results(name,catalog,attempt,correct,total,time) VALUES('Team1','cat',1,1,1,0)");
+        $pdo->exec('CREATE TABLE question_results(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, question_id INTEGER NOT NULL, attempt INTEGER NOT NULL, correct INTEGER NOT NULL, answer_text TEXT, photo TEXT, consent BOOLEAN);');
+        $pdo->exec('CREATE TABLE teams(sort_order INTEGER UNIQUE NOT NULL, name TEXT NOT NULL, uid TEXT PRIMARY KEY, event_uid TEXT);');
+        $pdo->exec("INSERT INTO teams(sort_order,name,uid,event_uid) VALUES(1,'Team1','1','1')");
+
+        $cfg = new \App\Service\ConfigService($pdo);
+        $teams = new \App\Service\TeamService($pdo, $cfg);
+        $svc = new \App\Service\ResultService($pdo, $cfg);
+        $catalogs = new \App\Service\CatalogService($pdo, $cfg);
+        $events = new \App\Service\EventService($pdo);
+        $ctrl = new \App\Controller\ResultController($svc, $cfg, $teams, $catalogs, sys_get_temp_dir(), $events);
+
+        $cfg->setActiveEventUid('1');
+        $req = $this->createRequest('GET', '/results.pdf');
+        $res1 = $ctrl->pdf($req, new \Slim\Psr7\Response());
+        $pdf1 = (string)$res1->getBody();
+        $this->assertStringContainsString('First', $pdf1);
+
+        $cfg->setActiveEventUid('2');
+        $res2 = $ctrl->pdf($req, new \Slim\Psr7\Response());
+        $pdf2 = (string)$res2->getBody();
+        $this->assertStringContainsString('Second', $pdf2);
+        $this->assertNotEquals($pdf1, $pdf2);
     }
 }

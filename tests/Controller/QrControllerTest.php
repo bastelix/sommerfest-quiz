@@ -66,6 +66,7 @@ class QrControllerTest extends TestCase
         $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT);');
         $pdo->exec("INSERT INTO events(uid,name,description) VALUES('1','Event','Sub')");
         $cfg = new \App\Service\ConfigService($pdo);
+        $cfg->setActiveEventUid('1');
         $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
         $qr = new \App\Controller\QrController($cfg, $teams, $events);
@@ -125,6 +126,7 @@ class QrControllerTest extends TestCase
         $pdo->exec("INSERT INTO config(inviteText, header) VALUES('Hallo [Team]!','Event');");
 
         $cfg = new \App\Service\ConfigService($pdo);
+        $cfg->setActiveEventUid('1');
         $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
         $qr  = new \App\Controller\QrController($cfg, $teams, $events);
@@ -168,10 +170,11 @@ class QrControllerTest extends TestCase
         );
         $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT);');
         $pdo->exec("INSERT INTO events(uid,name) VALUES('1','Event')");
-        $pdo->exec('CREATE TABLE teams(sort_order INTEGER UNIQUE NOT NULL, name TEXT NOT NULL, uid TEXT PRIMARY KEY);');
-        $pdo->exec("INSERT INTO teams(sort_order,name,uid) VALUES(1,'A','1'),(2,'B','2')");
+        $pdo->exec('CREATE TABLE teams(sort_order INTEGER UNIQUE NOT NULL, name TEXT NOT NULL, uid TEXT PRIMARY KEY, event_uid TEXT);');
+        $pdo->exec("INSERT INTO teams(sort_order,name,uid,event_uid) VALUES(1,'A','1','1'),(2,'B','2','1')");
 
         $cfg = new \App\Service\ConfigService($pdo);
+        $cfg->setActiveEventUid('1');
         $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
         $qr  = new \App\Controller\QrController($cfg, $teams, $events);
@@ -184,5 +187,55 @@ class QrControllerTest extends TestCase
         $pdf = (string)$response->getBody();
         $this->assertNotEmpty($pdf);
         $this->assertEquals(2, substr_count($pdf, 'Event'));
+    }
+
+    public function testActiveEventSwitchUpdatesPdf(): void
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                displayErrorDetails INTEGER,
+                QRUser INTEGER,
+                QRRemember INTEGER,
+                logoPath TEXT,
+                pageTitle TEXT,
+                backgroundColor TEXT,
+                buttonColor TEXT,
+                CheckAnswerButton TEXT,
+                adminUser TEXT,
+                adminPass TEXT,
+                QRRestrict INTEGER,
+                competitionMode INTEGER,
+                teamResults INTEGER,
+                photoUpload INTEGER,
+                puzzleWordEnabled INTEGER,
+                puzzleWord TEXT,
+                puzzleFeedback TEXT,
+                inviteText TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT);');
+        $pdo->exec("INSERT INTO events(uid,name,description) VALUES('1','First','A'),('2','Second','B')");
+
+        $cfg = new \App\Service\ConfigService($pdo);
+        $teams = new \App\Service\TeamService($pdo, $cfg);
+        $events = new \App\Service\EventService($pdo);
+        $qr = new \App\Controller\QrController($cfg, $teams, $events);
+
+        $cfg->setActiveEventUid('1');
+        $req = $this->createRequest('GET', '/qr.pdf?t=Demo');
+        $res1 = $qr->pdf($req, new Response());
+        $pdf1 = (string)$res1->getBody();
+        $this->assertStringContainsString('First', $pdf1);
+
+        $cfg->setActiveEventUid('2');
+        $res2 = $qr->pdf($req, new Response());
+        $pdf2 = (string)$res2->getBody();
+        $this->assertStringContainsString('Second', $pdf2);
+        $this->assertNotEquals($pdf1, $pdf2);
     }
 }
