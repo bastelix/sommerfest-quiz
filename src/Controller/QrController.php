@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Service\ConfigService;
 use App\Service\TeamService;
 use App\Service\EventService;
+use App\Service\CatalogService;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Writer\SvgWriter;
@@ -30,6 +31,7 @@ class QrController
     private ConfigService $config;
     private TeamService $teams;
     private EventService $events;
+    private CatalogService $catalogs;
     /**
      * Stack for keeping track of currently selected PDF font.
      * Each entry is an array with [family, style, size].
@@ -41,11 +43,12 @@ class QrController
     /**
      * Inject configuration service dependency.
      */
-    public function __construct(ConfigService $config, TeamService $teams, EventService $events)
+    public function __construct(ConfigService $config, TeamService $teams, EventService $events, CatalogService $catalogs)
     {
         $this->config = $config;
         $this->teams = $teams;
         $this->events = $events;
+        $this->catalogs = $catalogs;
     }
 
     /**
@@ -188,6 +191,13 @@ class QrController
 
         $pdf = new Pdf($title, $subtitle, $logoFile);
         $templatePath = __DIR__ . '/../../data/template.pdf';
+        $catSlug = (string)($params['catalog'] ?? '');
+        if ($catSlug !== '') {
+            $design = $this->catalogs->getDesignPath($catSlug);
+            if ($design !== null && $design !== '') {
+                $templatePath = __DIR__ . '/../../data/' . ltrim($design, '/');
+            }
+        }
         $pdf->AddPage();
         if (is_readable($templatePath)) {
             $pdf->setSourceFile($templatePath);
@@ -257,6 +267,13 @@ class QrController
 
         $pdf = new Pdf($title, $subtitle, $logoPath);
         $templatePath = __DIR__ . '/../../data/template.pdf';
+        $catSlug = (string)($params['catalog'] ?? '');
+        if ($catSlug !== '') {
+            $design = $this->catalogs->getDesignPath($catSlug);
+            if ($design !== null && $design !== '') {
+                $templatePath = __DIR__ . '/../../data/' . ltrim($design, '/');
+            }
+        }
 
         foreach ($teams as $team) {
             $builder = Builder::create()
