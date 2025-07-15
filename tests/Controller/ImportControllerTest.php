@@ -10,6 +10,7 @@ use App\Service\ConfigService;
 use App\Service\ResultService;
 use App\Service\TeamService;
 use App\Service\PhotoConsentService;
+use App\Service\SummaryPhotoService;
 use App\Service\EventService;
 use Tests\TestCase;
 use Slim\Psr7\Response;
@@ -97,6 +98,11 @@ class ImportControllerTest extends TestCase
             );
             SQL
         );
+        $pdo->exec(
+            'CREATE TABLE summary_photos(' .
+            'id INTEGER PRIMARY KEY AUTOINCREMENT,' .
+            'name TEXT,path TEXT,time INTEGER,event_uid TEXT);'
+        );
 
         $cfg = new ConfigService($pdo);
         return [
@@ -105,6 +111,7 @@ class ImportControllerTest extends TestCase
             new ResultService($pdo, $cfg),
             new TeamService($pdo, $cfg),
             new PhotoConsentService($pdo, $cfg),
+            new SummaryPhotoService($pdo, $cfg),
             new EventService($pdo, $cfg),
             $pdo,
         ];
@@ -112,7 +119,7 @@ class ImportControllerTest extends TestCase
 
     public function testImport(): void
     {
-        [$catalog, $config, $results, $teams, $consents, $events] = $this->createServices();
+        [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
         $tmp = sys_get_temp_dir() . '/import_' . uniqid();
         mkdir($tmp . '/kataloge', 0777, true);
         file_put_contents($tmp . '/kataloge/catalogs.json', json_encode([
@@ -128,7 +135,17 @@ class ImportControllerTest extends TestCase
             ['uid' => 'ev2', 'name' => 'Event2']
         ], JSON_PRETTY_PRINT));
 
-        $controller = new ImportController($catalog, $config, $results, $teams, $consents, $events, $tmp, $tmp);
+        $controller = new ImportController(
+            $catalog,
+            $config,
+            $results,
+            $teams,
+            $consents,
+            $summary,
+            $events,
+            $tmp,
+            $tmp
+        );
         $request = $this->createRequest('POST', '/import');
         $response = $controller->post($request, new Response());
         $this->assertEquals(204, $response->getStatusCode());
