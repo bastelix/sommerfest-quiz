@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pagination.innerHTML = html;
   }
 
-  function computeRankings(rows) {
+  function computeRankings(rows, photos) {
     const catalogs = new Set();
     const puzzleTimes = new Map();
     const catTimes = new Map();
@@ -239,7 +239,9 @@ document.addEventListener('DOMContentLoaded', () => {
     totalScores.sort((a, b) => b.raw - a.raw);
     const pointsList = totalScores.slice(0, 3);
 
-    return { puzzleList, catalogList, pointsList };
+    const photoList = Array.isArray(photos) ? photos.slice(0, 3) : [];
+
+    return { puzzleList, catalogList, pointsList, photoList };
   }
 
   function renderRankings(rankings) {
@@ -260,7 +262,13 @@ document.addEventListener('DOMContentLoaded', () => {
         title: 'Highscore-Champions',
         list: rankings.pointsList,
         tooltip: 'Top 3 Teams/Spieler mit den meisten Punkten'
-      }
+      },
+      {
+        title: "Gruppenfotos",
+        list: rankings.photoList,
+        photos: true,
+        tooltip: ""
+      },
     ];
     const MAX_ITEMS = 3;
     cards.forEach(card => {
@@ -288,22 +296,30 @@ document.addEventListener('DOMContentLoaded', () => {
         const li = document.createElement('li');
         const item = card.list[i];
         if (item) {
-          const gridItem = document.createElement('div');
-          gridItem.className = 'uk-grid-small';
-          gridItem.setAttribute('uk-grid', '');
+          if (card.photos) {
+            const img = document.createElement('img');
+            img.src = item.path || item.value;
+            img.alt = 'Foto';
+            img.className = 'proof-thumb';
+            li.appendChild(img);
+          } else {
+            const gridItem = document.createElement('div');
+            gridItem.className = 'uk-grid-small';
+            gridItem.setAttribute('uk-grid', '');
 
-          const teamDiv = document.createElement('div');
-          teamDiv.className = 'uk-width-expand';
-          teamDiv.setAttribute('uk-leader', '');
-          teamDiv.style.setProperty('--uk-leader-fill-content', ' ');
-          teamDiv.textContent = `${i + 1}. ${item.name}`;
+            const teamDiv = document.createElement('div');
+            teamDiv.className = 'uk-width-expand';
+            teamDiv.setAttribute('uk-leader', '');
+            teamDiv.style.setProperty('--uk-leader-fill-content', ' ');
+            teamDiv.textContent = `${i + 1}. ${item.name}`;
 
-          const timeDiv = document.createElement('div');
-          timeDiv.textContent = item.value;
+            const timeDiv = document.createElement('div');
+            timeDiv.textContent = item.value;
 
-          gridItem.appendChild(teamDiv);
-          gridItem.appendChild(timeDiv);
-          li.appendChild(gridItem);
+            gridItem.appendChild(teamDiv);
+            gridItem.appendChild(timeDiv);
+            li.appendChild(gridItem);
+          }
         } else {
           li.textContent = '-';
         }
@@ -347,9 +363,10 @@ document.addEventListener('DOMContentLoaded', () => {
     Promise.all([
       fetchCatalogMap(),
       fetch('/results.json').then(r => r.json()),
-      fetch('/question-results.json').then(r => r.json())
+      fetch('/question-results.json').then(r => r.json()),
+      fetch('/summary-photos.json').then(r => r.json())
     ])
-      .then(([catMap, rows, qrows]) => {
+      .then(([catMap, rows, qrows, photos]) => {
         rows.forEach(r => {
           if (!r.catalogName && catMap[r.catalog]) r.catalogName = catMap[r.catalog];
           if (catMap[r.catalog]) r.catalog = catMap[r.catalog];
@@ -362,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
         refreshLightboxes();
         updatePagination();
 
-        const rankings = computeRankings(rows);
+        const rankings = computeRankings(rows, photos);
         renderRankings(rankings);
 
         qrows.forEach(r => {

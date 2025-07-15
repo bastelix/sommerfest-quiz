@@ -316,6 +316,9 @@ return function (\Slim\App $app) {
     $app->post('/photos/rotate', function (Request $request, Response $response) {
         return $request->getAttribute('evidenceController')->rotate($request, $response);
     });
+    $app->get('/summary-photos.json', function (Request $request, Response $response) {
+        return $request->getAttribute('evidenceController')->listSummary($request, $response);
+    });
     $app->get('/photo/{team}/{file}', function (Request $request, Response $response, array $args) {
         $req = $request->withAttribute('team', $args['team'])->withAttribute('file', $args['file']);
         return $request->getAttribute('evidenceController')->get($req, $response);
