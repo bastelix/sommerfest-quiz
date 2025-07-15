@@ -49,6 +49,9 @@ class TestCase extends PHPUnit_TestCase
 
         $twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
         $twig->addExtension(new \App\Twig\UikitExtension());
+        $basePath = getenv('BASE_PATH') ?: '';
+        $twig->getEnvironment()->addGlobal('basePath', rtrim($basePath, '/'));
+        $app->setBasePath($basePath);
         $app->add(TwigMiddleware::create($app, $twig));
         $app->add(new SessionMiddleware());
 
