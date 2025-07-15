@@ -138,6 +138,7 @@
 - Update changelog [skip ci]
 - Update changelog [skip ci]
 - Update changelog [skip ci]
+- Update changelog [skip ci]
 
 ### Feat
 
@@ -149,6 +150,7 @@
 - Confirm event deletion
 - Centralize roles and update management
 - Seed users for all roles
+- Improve mobile admin nav
 
 ### Fix
 
