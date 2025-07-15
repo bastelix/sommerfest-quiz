@@ -358,6 +358,8 @@ document.addEventListener('DOMContentLoaded', () => {
         resultsData = rows;
         currentPage = 1;
         renderPage(currentPage);
+        initRotateButtons();
+        refreshLightboxes();
         updatePagination();
 
         const rankings = computeRankings(rows);
@@ -385,6 +387,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const page = parseInt(target.dataset.page, 10);
       if (!Number.isNaN(page)) {
         renderPage(page);
+        initRotateButtons();
+        refreshLightboxes();
         updatePagination();
       }
     }
