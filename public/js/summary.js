@@ -250,6 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const ts = Math.floor(Date.now()/1000);
         const userName = getStored('quizUser') || '';
         const catalog = getStored('quizCatalog') || 'unknown';
+        let debugTimer = null;
         fetch('/results?debug=1', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -267,11 +268,12 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(data => {
           if(data){
-            if(data.normalizedAnswer !== undefined && data.normalizedExpected !== undefined){
+          if(data.normalizedAnswer !== undefined && data.normalizedExpected !== undefined){
               feedback.textContent = `Debug: ${data.normalizedAnswer} vs ${data.normalizedExpected}`;
-              setTimeout(() => { feedback.textContent = ''; }, 3000);
+              debugTimer = setTimeout(() => { feedback.textContent = ''; }, 3000);
             }
-            if(data.success){
+          if(data.success){
+              if(debugTimer) clearTimeout(debugTimer);
               const cfg = window.quizConfig || {};
               const msg = (data.feedback && data.feedback.trim())
                 ? data.feedback
