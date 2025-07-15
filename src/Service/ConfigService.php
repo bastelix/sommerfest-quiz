@@ -26,9 +26,18 @@ class ConfigService
      */
     public function getJson(): ?string
     {
-        $stmt = $this->pdo->query('SELECT * FROM config LIMIT 1');
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($row === false) {
+        $uid = $this->getActiveEventUid();
+        $row = null;
+        if ($uid !== '') {
+            $stmt = $this->pdo->prepare('SELECT * FROM config WHERE event_uid = ? LIMIT 1');
+            $stmt->execute([$uid]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        }
+        if ($row === null) {
+            $stmt = $this->pdo->query('SELECT * FROM config LIMIT 1');
+            $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        }
+        if ($row === null) {
             return null;
         }
         $row = $this->normalizeKeys($row);
@@ -40,9 +49,19 @@ class ConfigService
      */
     public function getConfig(): array
     {
-        $stmt = $this->pdo->query('SELECT * FROM config LIMIT 1');
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($row) {
+        $uidStmt = $this->pdo->query('SELECT event_uid FROM config LIMIT 1');
+        $uid = $uidStmt->fetchColumn();
+        $row = null;
+        if ($uid !== false && $uid !== null && $uid !== '') {
+            $stmt = $this->pdo->prepare('SELECT * FROM config WHERE event_uid = ? LIMIT 1');
+            $stmt->execute([$uid]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        }
+        if ($row === null) {
+            $stmt = $this->pdo->query('SELECT * FROM config LIMIT 1');
+            $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        }
+        if ($row !== null) {
             return $this->normalizeKeys($row);
         }
 
@@ -141,8 +160,9 @@ class ConfigService
      */
     public function getActiveEventUid(): string
     {
-        $cfg = $this->getConfig();
-        return (string)($cfg['event_uid'] ?? '');
+        $stmt = $this->pdo->query('SELECT event_uid FROM config LIMIT 1');
+        $uid = $stmt->fetchColumn();
+        return $uid !== false && $uid !== null ? (string)$uid : '';
     }
 
     /**
