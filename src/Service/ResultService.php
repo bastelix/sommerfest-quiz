@@ -263,16 +263,24 @@ class ResultService
     public function setPhoto(string $name, string $catalog, string $path): void
     {
         $uid = $this->config->getActiveEventUid();
-        $sql = 'SELECT id FROM results WHERE name=? AND catalog=?';
+        $baseSql = 'SELECT id FROM results WHERE name=? AND catalog=?';
         $params = [$name, $catalog];
+        $id = false;
+
         if ($uid !== '') {
-            $sql .= ' AND event_uid=?';
-            $params[] = $uid;
+            $sql = $baseSql . ' AND event_uid=? ORDER BY id DESC LIMIT 1';
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([...$params, $uid]);
+            $id = $stmt->fetchColumn();
         }
-        $sql .= ' ORDER BY id DESC LIMIT 1';
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-        $id = $stmt->fetchColumn();
+
+        if ($id === false) {
+            $sql = $baseSql . ' ORDER BY id DESC LIMIT 1';
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+            $id = $stmt->fetchColumn();
+        }
+
         if ($id !== false) {
             $upd = $this->pdo->prepare('UPDATE results SET photo=? WHERE id=?');
             $upd->execute([$path, $id]);
