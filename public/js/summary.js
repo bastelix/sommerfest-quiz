@@ -369,6 +369,10 @@ document.addEventListener('DOMContentLoaded', () => {
           if (!r.ok) {
             throw new Error(await r.text());
           }
+          const ct = r.headers.get('Content-Type') || '';
+          if (!ct.includes('application/json')) {
+            throw new Error(await r.text());
+          }
           return r.json();
         })
         .then(data => {
