@@ -96,6 +96,17 @@ class TestCase extends PHPUnit_TestCase
         return new SlimRequest($method, $uri, $h, $cookies, $serverParams, $stream);
     }
 
+    /**
+     * Create an in-memory SQLite connection with the current schema applied.
+     */
+    protected function createDatabase(): \PDO
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        \App\Infrastructure\Migrations\Migrator::migrate($pdo, __DIR__ . '/../migrations');
+        return $pdo;
+    }
+
     protected function tearDown(): void
     {
         foreach ($this->tmpDbs as $db) {

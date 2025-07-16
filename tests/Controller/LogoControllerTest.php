@@ -15,31 +15,7 @@ class LogoControllerTest extends TestCase
 {
     public function testGetNotFound(): void
     {
-        $pdo = new \PDO('sqlite::memory:');
-        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE config(
-                displayErrorDetails INTEGER,
-                QRUser INTEGER,
-                QRRemember INTEGER,
-                logoPath TEXT,
-                pageTitle TEXT,
-                backgroundColor TEXT,
-                buttonColor TEXT,
-                CheckAnswerButton TEXT,
-                QRRestrict INTEGER,
-                competitionMode INTEGER,
-                teamResults INTEGER,
-                photoUpload INTEGER,
-                puzzleWordEnabled INTEGER,
-                puzzleWord TEXT,
-                puzzleFeedback TEXT,
-                inviteText TEXT,
-                event_uid TEXT
-            );
-            SQL
-        );
+        $pdo = $this->createDatabase();
         $cfg = new ConfigService($pdo);
         $controller = new LogoController($cfg);
         @rename(dirname(__DIR__, 2) . '/data/logo.png', dirname(__DIR__, 2) . '/data/logo.png.bak');
