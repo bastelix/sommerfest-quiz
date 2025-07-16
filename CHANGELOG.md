@@ -44,6 +44,7 @@
 - Improve mobile admin nav
 - *(summary)* Link catalog headers
 - *(migrations)* Add QRRemember manual migration
+- *(db)* Use consolidated base schema
 
 ### Fix
 
