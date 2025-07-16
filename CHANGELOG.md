@@ -64,6 +64,7 @@
 - Support PostgreSQL serial syntax
 - Standardize qrremember column name
 - *(migrations)* Ensure idempotent sort order constraint
+- Align config controller test with default settings
 
 ### Refactor
 
