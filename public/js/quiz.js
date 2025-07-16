@@ -98,6 +98,8 @@ function runQuiz(questions, skipIntro){
   // Konfiguration laden und einstellen, ob der "Antwort prüfen"-Button
   // eingeblendet werden soll
   const cfg = window.quizConfig || {};
+  const basePath = window.basePath || '';
+  const withBase = path => basePath + path;
   const showCheck = cfg.CheckAnswerButton !== 'no';
   if(cfg.backgroundColor){
     document.body.style.backgroundColor = cfg.backgroundColor;
@@ -1351,7 +1353,7 @@ function runQuiz(questions, skipIntro){
       btn.disabled = true;
       btn.innerHTML = '<div uk-spinner></div>';
 
-      fetch('/photos', { method: 'POST', body: fd })
+      fetch(withBase('/photos'), { method: 'POST', body: fd })
         .then(async r => {
           if (!r.ok) {
             throw new Error(await r.text());

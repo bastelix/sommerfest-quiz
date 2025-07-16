@@ -3,13 +3,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const tbody = document.getElementById('statsTableBody');
   const filter = document.getElementById('statsFilter');
   const refreshBtn = document.getElementById('statsRefreshBtn');
+  const basePath = window.basePath || '';
+  const withBase = path => basePath + path;
 
   let data = [];
   let catalogMap = null;
 
   function rotatePhotoImpl(path, img, link) {
     const cleanPath = path.replace(/\?.*$/, '');
-    return fetch('/photos/rotate', {
+    return fetch(withBase('/photos/rotate'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path: cleanPath })
@@ -18,9 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(() => {
         const t = Date.now();
         const newPath = `${cleanPath}?t=${t}`;
-        img.src = newPath;
+        img.src = withBase(newPath);
         if (link) {
-          link.href = newPath;
+          link.href = withBase(newPath);
           if (link.dataset && link.dataset.caption) {
             link.dataset.caption = link.dataset.caption
               .replace(/data-path='[^']*'/, `data-path='${newPath}'`);
@@ -49,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function fetchCatalogMap() {
     if (catalogMap) return Promise.resolve(catalogMap);
-    return fetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } })
+    return fetch(withBase('/kataloge/catalogs.json'), { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(list => {
         const map = {};
@@ -104,12 +106,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const a = document.createElement('a');
         a.className = 'uk-inline rotate-link';
-        a.href = r.photo;
+        a.href = withBase(r.photo);
         a.dataset.caption = `<button class='uk-icon-button lightbox-rotate-btn' type='button' uk-icon='history' data-path='${r.photo}' aria-label='Drehen'></button>`;
         a.dataset.attrs = 'class: uk-inverse-light';
 
         const img = document.createElement('img');
-        img.src = r.photo;
+        img.src = withBase(r.photo);
         img.alt = 'Beweisfoto';
         img.className = 'proof-thumb';
 
@@ -143,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function load() {
     Promise.all([
       fetchCatalogMap(),
-      fetch('/question-results.json').then(r => r.json())
+      fetch(withBase('/question-results.json')).then(r => r.json())
     ])
       .then(([catMap, rows]) => {
         rows.forEach(r => {
