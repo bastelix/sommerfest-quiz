@@ -1,7 +1,0 @@
-CREATE TABLE IF NOT EXISTS events (
-    uid TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    start_date TEXT DEFAULT CURRENT_TIMESTAMP,
-    end_date TEXT DEFAULT CURRENT_TIMESTAMP,
-    description TEXT
-);

@@ -26,7 +26,6 @@ toc: true
    export POSTGRES_USER=quiz
    export POSTGRES_PASSWORD=***
    psql -h localhost -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f docs/schema.sql
-   for f in migrations/*.sql; do psql -h localhost -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "$f"; done
    ```
    Alternativ lassen sich Schema- und Datenimport auch im Docker-Container ausführen:
    ```bash

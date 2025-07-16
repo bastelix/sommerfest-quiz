@@ -96,10 +96,8 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
    export POSTGRES_PASSWORD=***
    export POSTGRES_DB=quiz
 
-   # Schema importieren
-   psql -h localhost -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f docs/schema.sql
-   # Anschließend Migrationen anwenden
-   for f in migrations/*.sql; do psql -h localhost -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "$f"; done
+  # Schema importieren
+  psql -h localhost -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f docs/schema.sql
    ```
 
    Alternativ lassen sich Schema- und Datenimport direkt im Docker-Container ausführen:

@@ -1,20 +1,16 @@
--- Database schema for Sommerfest Quiz
--- Mirrors the JSON structure stored under data/
+-- Combined base schema for Sommerfest Quiz
+-- Generated to replace individual migrations
 
-
--- Configuration settings 
+-- Configuration settings
 CREATE TABLE IF NOT EXISTS config (
     id SERIAL PRIMARY KEY,
     displayErrorDetails BOOLEAN,
     QRUser BOOLEAN,
-    QRRemember BOOLEAN,
     logoPath TEXT,
     pageTitle TEXT,
     backgroundColor TEXT,
     buttonColor TEXT,
     CheckAnswerButton TEXT,
-    adminUser TEXT,
-    adminPass TEXT,
     QRRestrict BOOLEAN,
     competitionMode BOOLEAN,
     teamResults BOOLEAN,
@@ -23,8 +19,10 @@ CREATE TABLE IF NOT EXISTS config (
     puzzleWord TEXT,
     puzzleFeedback TEXT,
     inviteText TEXT,
+    qrremember BOOLEAN DEFAULT FALSE,
     event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
+
 -- Event definitions
 CREATE TABLE IF NOT EXISTS events (
     uid TEXT PRIMARY KEY,
@@ -34,11 +32,11 @@ CREATE TABLE IF NOT EXISTS events (
     description TEXT
 );
 
--- Teams list (names only)
+-- Teams list
 CREATE TABLE IF NOT EXISTS teams (
     sort_order INTEGER UNIQUE NOT NULL,
     name TEXT NOT NULL,
-    uid UUID DEFAULT gen_random_uuid() PRIMARY KEY NOT NULL,
+    uid TEXT PRIMARY KEY,
     event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_team_name ON teams(name);
@@ -89,6 +87,7 @@ CREATE TABLE IF NOT EXISTS catalogs (
     qrcode_url TEXT,
     raetsel_buchstabe TEXT,
     comment TEXT,
+    design_path TEXT,
     event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
 ALTER TABLE catalogs
@@ -111,7 +110,7 @@ CREATE TABLE IF NOT EXISTS questions (
 );
 CREATE INDEX IF NOT EXISTS idx_questions_catalog ON questions(catalog_uid);
 
--- Photo consents for uploaded evidence
+-- Photo consents
 CREATE TABLE IF NOT EXISTS photo_consents (
     id SERIAL PRIMARY KEY,
     team TEXT NOT NULL,
@@ -129,6 +128,22 @@ CREATE TABLE IF NOT EXISTS summary_photos (
     event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
 CREATE INDEX IF NOT EXISTS idx_summary_photos_name ON summary_photos(name);
+
+-- User accounts
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'catalog-editor',
+    CONSTRAINT users_role_check CHECK (role IN ('admin','catalog-editor','event-manager','analyst','team-manager','service-account'))
+);
+
+-- Tenant definitions
+CREATE TABLE IF NOT EXISTS tenants (
+    uid TEXT PRIMARY KEY,
+    subdomain TEXT UNIQUE NOT NULL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
 
 -- Currently active event
 CREATE TABLE IF NOT EXISTS active_event (

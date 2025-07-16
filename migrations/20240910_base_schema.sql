@@ -1,19 +1,16 @@
--- Initial database schema for Sommerfest Quiz
--- Mirrors docs/schema.sql to ensure tests have required tables
+-- Combined base schema for Sommerfest Quiz
+-- Generated to replace individual migrations
 
 -- Configuration settings
 CREATE TABLE IF NOT EXISTS config (
     id SERIAL PRIMARY KEY,
     displayErrorDetails BOOLEAN,
     QRUser BOOLEAN,
-    QRRemember BOOLEAN,
     logoPath TEXT,
     pageTitle TEXT,
     backgroundColor TEXT,
     buttonColor TEXT,
     CheckAnswerButton TEXT,
-    adminUser TEXT,
-    adminPass TEXT,
     QRRestrict BOOLEAN,
     competitionMode BOOLEAN,
     teamResults BOOLEAN,
@@ -22,6 +19,7 @@ CREATE TABLE IF NOT EXISTS config (
     puzzleWord TEXT,
     puzzleFeedback TEXT,
     inviteText TEXT,
+    qrremember BOOLEAN DEFAULT FALSE,
     event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
 
@@ -32,9 +30,6 @@ CREATE TABLE IF NOT EXISTS events (
     start_date TEXT DEFAULT CURRENT_TIMESTAMP,
     end_date TEXT DEFAULT CURRENT_TIMESTAMP,
     description TEXT
-);
-CREATE TABLE IF NOT EXISTS active_event (
-    event_uid TEXT PRIMARY KEY REFERENCES events(uid) ON DELETE CASCADE
 );
 
 -- Teams list
@@ -92,9 +87,12 @@ CREATE TABLE IF NOT EXISTS catalogs (
     qrcode_url TEXT,
     raetsel_buchstabe TEXT,
     comment TEXT,
+    design_path TEXT,
     event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
-CREATE UNIQUE INDEX IF NOT EXISTS catalogs_sort_order_unique ON catalogs(sort_order);
+ALTER TABLE catalogs
+    ADD CONSTRAINT catalogs_unique_sort_order
+    UNIQUE(event_uid, sort_order) DEFERRABLE INITIALLY DEFERRED;
 
 -- Questions belonging to catalogs
 CREATE TABLE IF NOT EXISTS questions (
@@ -103,10 +101,10 @@ CREATE TABLE IF NOT EXISTS questions (
     sort_order INTEGER,
     type TEXT NOT NULL,
     prompt TEXT NOT NULL,
-    options TEXT,
-    answers TEXT,
-    terms TEXT,
-    items TEXT,
+    options JSONB,
+    answers JSONB,
+    terms JSONB,
+    items JSONB,
     FOREIGN KEY (catalog_uid) REFERENCES catalogs(uid) ON DELETE CASCADE,
     UNIQUE (catalog_uid, sort_order)
 );
@@ -121,17 +119,33 @@ CREATE TABLE IF NOT EXISTS photo_consents (
 );
 CREATE INDEX IF NOT EXISTS idx_photo_consents_team ON photo_consents(team);
 
--- Multi-tenant support
-CREATE TABLE IF NOT EXISTS tenants (
-    uid TEXT PRIMARY KEY,
-    subdomain TEXT UNIQUE NOT NULL,
-    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+-- Summary photos uploaded after quiz completion
+CREATE TABLE IF NOT EXISTS summary_photos (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    path TEXT NOT NULL,
+    time INTEGER NOT NULL,
+    event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
+CREATE INDEX IF NOT EXISTS idx_summary_photos_name ON summary_photos(name);
 
 -- User accounts
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
-    role TEXT NOT NULL DEFAULT 'catalog-editor'
+    role TEXT NOT NULL DEFAULT 'catalog-editor',
+    CONSTRAINT users_role_check CHECK (role IN ('admin','catalog-editor','event-manager','analyst','team-manager','service-account'))
+);
+
+-- Tenant definitions
+CREATE TABLE IF NOT EXISTS tenants (
+    uid TEXT PRIMARY KEY,
+    subdomain TEXT UNIQUE NOT NULL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Currently active event
+CREATE TABLE IF NOT EXISTS active_event (
+    event_uid TEXT PRIMARY KEY REFERENCES events(uid) ON DELETE CASCADE
 );
