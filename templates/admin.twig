@@ -425,8 +425,8 @@
               <td>
                 {% if r.photo is defined and r.photo %}
                 <span class="photo-wrapper">
-                  <a class="uk-inline rotate-link" href="{{ r.photo }}" data-caption='<button class="uk-icon-button lightbox-rotate-btn" type="button" uk-icon="history" data-path="{{ r.photo }}" aria-label="Drehen"></button>' data-attrs="class: uk-inverse-light">
-                    <img src="{{ r.photo }}" alt="Beweisfoto" class="proof-thumb">
+                  <a class="uk-inline rotate-link" href="{{ basePath ~ r.photo }}" data-caption='<button class="uk-icon-button lightbox-rotate-btn" type="button" uk-icon="history" data-path="{{ basePath ~ r.photo }}" aria-label="Drehen"></button>' data-attrs="class: uk-inverse-light">
+                    <img src="{{ basePath ~ r.photo }}" alt="Beweisfoto" class="proof-thumb">
                   </a>
                 </span>
                 {% endif %}
