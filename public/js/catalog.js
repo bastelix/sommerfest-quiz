@@ -18,6 +18,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
 };
 // Lädt die verfügbaren Fragenkataloge und startet nach Auswahl das Quiz
 (function(){
+  const eventUid = (window.quizConfig || {}).event_uid || '';
   function setStored(key, value){
     try{
       sessionStorage.setItem(key, value);
@@ -290,7 +291,9 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
           showCatalogSolvedModal(cat.name || cat.slug || cat.sort_order, remaining);
           return;
         }
-        history.replaceState(null, '', '?katalog=' + (cat.slug || cat.sort_order));
+        let qs = '?katalog=' + (cat.slug || cat.sort_order);
+        if(eventUid) qs += '&event=' + encodeURIComponent(eventUid);
+        history.replaceState(null, '', qs);
         loadQuestions(cat.slug || cat.sort_order, cat.file, cat.raetsel_buchstabe, cat.uid, cat.name || cat.slug || cat.sort_order, cat.description || '', cat.comment || '');
       });
       const title = document.createElement('h3');

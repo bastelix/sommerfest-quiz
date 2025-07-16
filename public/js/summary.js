@@ -13,6 +13,7 @@ function insertSoftHyphens(text){
   return text ? text.replace(/\/-/g, '\u00AD') : '';
 }
 document.addEventListener('DOMContentLoaded', () => {
+  const eventUid = (window.quizConfig || {}).event_uid || '';
   const resultsBtn = document.getElementById('show-results-btn');
   const puzzleBtn = document.getElementById('check-puzzle-btn');
   const photoBtn = document.getElementById('upload-photo-btn');
@@ -202,7 +203,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const td1 = document.createElement('td');
             const a = document.createElement('a');
             if (info.slug) {
-              a.href = '/?katalog=' + encodeURIComponent(info.slug);
+              let href = '/?katalog=' + encodeURIComponent(info.slug);
+              if(eventUid) href += '&event=' + encodeURIComponent(eventUid);
+              a.href = href;
               a.target = '_blank';
             } else {
               a.href = '#';
