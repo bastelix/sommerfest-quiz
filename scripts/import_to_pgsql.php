@@ -105,32 +105,6 @@ if ($configData || $activeUid !== null) {
     );
 }
 
-$eventsFile = "$base/data/events.json";
-$activeUid = (string)($config['event_uid'] ?? '');
-if (is_readable($eventsFile)) {
-    $events = json_decode(file_get_contents($eventsFile), true) ?? [];
-    $firstUid = null;
-    $stmt = $pdo->prepare('INSERT INTO events(uid,name,start_date,end_date,description) VALUES(?,?,?,?,?)');
-    foreach ($events as $e) {
-        $uid = $e['uid'] ?? bin2hex(random_bytes(16));
-        if ($firstUid === null) {
-            $firstUid = $uid;
-        }
-        $stmt->execute([
-            $uid,
-            $e['name'] ?? '',
-            $e['start_date'] ?? date('Y-m-d\TH:i'),
-            $e['end_date'] ?? date('Y-m-d\TH:i'),
-            $e['description'] ?? null,
-        ]);
-    }
-    if ($activeUid === '' && $firstUid !== null) {
-        $activeUid = $firstUid;
-    }
-}
-if ($activeUid === '') {
-    $activeUid = null;
-}
 
 // Import teams
 $teamsFile = "$base/data/teams.json";
