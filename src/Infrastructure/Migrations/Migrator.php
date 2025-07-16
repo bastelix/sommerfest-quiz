@@ -22,7 +22,7 @@ class Migrator
                 continue;
             }
 
-            if ($driver === 'sqlite' && $version !== '20240618_initial_schema.sql') {
+            if ($driver === 'sqlite' && $version !== '20240910_base_schema.sql') {
                 // Subsequent migrations rely on PostgreSQL features.
                 // The initial schema already reflects their outcome for tests.
                 continue;

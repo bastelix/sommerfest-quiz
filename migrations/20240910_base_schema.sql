@@ -90,9 +90,6 @@ CREATE TABLE IF NOT EXISTS catalogs (
     design_path TEXT,
     event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
-ALTER TABLE catalogs
-    ADD CONSTRAINT catalogs_unique_sort_order
-    UNIQUE(event_uid, sort_order) DEFERRABLE INITIALLY DEFERRED;
 
 -- Questions belonging to catalogs
 CREATE TABLE IF NOT EXISTS questions (
