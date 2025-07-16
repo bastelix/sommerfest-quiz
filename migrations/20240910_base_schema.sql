@@ -90,6 +90,18 @@ CREATE TABLE IF NOT EXISTS catalogs (
     design_path TEXT,
     event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
 );
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE constraint_name = 'catalogs_unique_sort_order'
+          AND table_name = 'catalogs'
+    ) THEN
+        ALTER TABLE catalogs
+            ADD CONSTRAINT catalogs_unique_sort_order UNIQUE(event_uid, sort_order) DEFERRABLE INITIALLY DEFERRED;
+    END IF;
+END$$;
+
 
 -- Questions belonging to catalogs
 CREATE TABLE IF NOT EXISTS questions (
