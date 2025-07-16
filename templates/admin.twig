@@ -13,7 +13,7 @@
 {% block body %}
   {% embed 'topbar.twig' %}
     {% block left %}
-      <a class="uk-icon-button" uk-icon="icon: menu; ratio: 2" aria-label="Menü" uk-toggle="target: #adminNav"></a>
+      <a id="adminMenuToggle" class="uk-icon-button" uk-icon="icon: menu; ratio: 2" aria-label="Menü" uk-toggle="target: #adminNav"></a>
     {% endblock %}
     {% block center %}
       <h3 id="activeEventHeader" class="uk-margin-remove">{{ event.name }}</h3>

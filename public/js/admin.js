@@ -1739,6 +1739,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const adminTabs = document.getElementById('adminTabs');
   const adminMenu = document.getElementById('adminMenu');
   const adminNav = document.getElementById('adminNav');
+  const adminMenuToggle = document.getElementById('adminMenuToggle');
 
   function activeHelpText() {
     if (!adminTabs) return '';
@@ -1750,6 +1751,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!helpSidebar || !helpContent) return;
     helpContent.textContent = activeHelpText();
     UIkit.offcanvas(helpSidebar).show();
+  });
+
+  adminMenuToggle?.addEventListener('click', e => {
+    e.preventDefault();
+    if (adminNav) UIkit.offcanvas(adminNav).show();
   });
 
   if (adminMenu && adminTabs) {
