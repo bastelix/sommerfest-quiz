@@ -29,15 +29,16 @@ class LogoController
      */
     public function get(Request $request, Response $response, array $args = []): Response
     {
-        $ext = $args['ext'] ?? 'png';
-        if (!in_array($ext, ['png', 'webp'], true)) {
-            return $response->withStatus(400);
+        $cfg = $this->config->getConfig();
+        $relPath = $cfg['logoPath'] ?? '';
+        if ($relPath === '') {
+            return $response->withStatus(404);
         }
-
-        $path = __DIR__ . "/../../data/logo.$ext";
+        $path = __DIR__ . '/../../data' . $relPath;
         if (!file_exists($path)) {
             return $response->withStatus(404);
         }
+        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
         $response->getBody()->write((string)file_get_contents($path));
         $contentType = $ext === 'webp' ? 'image/webp' : 'image/png';
         return $response->withHeader('Content-Type', $contentType);
@@ -66,7 +67,9 @@ class LogoController
             return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
 
-        $target = __DIR__ . "/../../data/logo.$extension";
+        $uid = $this->config->getActiveEventUid();
+        $base = $uid !== '' ? "logo-$uid.$extension" : "logo.$extension";
+        $target = __DIR__ . "/../../data/" . $base;
         if (!class_exists('\\Intervention\\Image\\ImageManager')) {
             $response->getBody()->write('Intervention Image NICHT installiert');
             return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
@@ -80,7 +83,7 @@ class LogoController
         $img->save($target, 80);
 
         $cfg = $this->config->getConfig();
-        $cfg['logoPath'] = '/logo.' . $extension;
+        $cfg['logoPath'] = '/' . $base;
         $this->config->saveConfig($cfg);
 
         return $response->withStatus(204);

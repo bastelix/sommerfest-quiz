@@ -9,6 +9,7 @@ use App\Service\ConfigService;
 use Tests\TestCase;
 use Slim\Psr7\Response;
 use Slim\Psr7\UploadedFile;
+use Slim\Psr7\Stream;
 
 class LogoControllerTest extends TestCase
 {
@@ -43,10 +44,14 @@ class LogoControllerTest extends TestCase
         );
         $cfg = new ConfigService($pdo);
         $controller = new LogoController($cfg);
+        @rename(dirname(__DIR__, 2) . '/data/logo.png', dirname(__DIR__, 2) . '/data/logo.png.bak');
+        @rename(dirname(__DIR__, 2) . '/data/logo.webp', dirname(__DIR__, 2) . '/data/logo.webp.bak');
         $request = $this->createRequest('GET', '/logo.png');
         $response = $controller->get($request, new Response());
 
         $this->assertEquals(404, $response->getStatusCode());
+        @rename(dirname(__DIR__, 2) . '/data/logo.png.bak', dirname(__DIR__, 2) . '/data/logo.png');
+        @rename(dirname(__DIR__, 2) . '/data/logo.webp.bak', dirname(__DIR__, 2) . '/data/logo.webp');
     }
 
     public function testPostAndGet(): void
@@ -84,7 +89,7 @@ class LogoControllerTest extends TestCase
         $logoFile = tempnam(sys_get_temp_dir(), 'logo');
         imagepng(imagecreatetruecolor(10, 10), $logoFile);
         $stream = fopen($logoFile, 'rb');
-        $uploaded = new UploadedFile($stream, filesize($logoFile), UPLOAD_ERR_OK, 'logo.png', 'image/png');
+        $uploaded = new UploadedFile(new Stream($stream), 'logo.png', 'image/png', filesize($logoFile), UPLOAD_ERR_OK);
         $request = $this->createRequest('POST', '/logo.png');
         $request = $request->withUploadedFiles(['file' => $uploaded]);
 
@@ -132,9 +137,9 @@ class LogoControllerTest extends TestCase
         $cfg = new ConfigService($pdo);
         $controller = new LogoController($cfg);
         $logoFile = tempnam(sys_get_temp_dir(), 'logo');
-        file_put_contents($logoFile, 'dummy');
+        imagewebp(imagecreatetruecolor(10, 10), $logoFile);
         $stream = fopen($logoFile, 'rb');
-        $uploaded = new UploadedFile($stream, filesize($logoFile), UPLOAD_ERR_OK, 'logo.webp', 'image/webp');
+        $uploaded = new UploadedFile(new Stream($stream), 'logo.webp', 'image/webp', filesize($logoFile), UPLOAD_ERR_OK);
         $request = $this->createRequest('POST', '/logo.png');
         $request = $request->withUploadedFiles(['file' => $uploaded]);
 
@@ -147,5 +152,67 @@ class LogoControllerTest extends TestCase
         unlink($tmpConfig);
         unlink($logoFile);
         unlink(sys_get_temp_dir() . '/logo.webp');
+    }
+
+    public function testLogoPerEvent(): void
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            'CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT);'
+        );
+        $pdo->exec(
+            'CREATE TABLE active_event(event_uid TEXT PRIMARY KEY);'
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                displayErrorDetails INTEGER,
+                QRUser INTEGER,
+                QRRemember INTEGER,
+                logoPath TEXT,
+                pageTitle TEXT,
+                backgroundColor TEXT,
+                buttonColor TEXT,
+                CheckAnswerButton TEXT,
+                adminUser TEXT,
+                adminPass TEXT,
+                QRRestrict INTEGER,
+                competitionMode INTEGER,
+                teamResults INTEGER,
+                photoUpload INTEGER,
+                puzzleWordEnabled INTEGER,
+                puzzleWord TEXT,
+                puzzleFeedback TEXT,
+                inviteText TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec("INSERT INTO events(uid,name) VALUES('e1','Eins'),('e2','Zwei')");
+
+        $cfg = new ConfigService($pdo);
+        $cfg->ensureConfigForEvent('e1');
+        $cfg->ensureConfigForEvent('e2');
+        $cfg->setActiveEventUid('e1');
+
+        $controller = new LogoController($cfg);
+        $logoFile = tempnam(sys_get_temp_dir(), 'logo');
+        imagepng(imagecreatetruecolor(10, 10), $logoFile);
+        $stream = fopen($logoFile, 'rb');
+        $uploaded = new UploadedFile(new Stream($stream), 'logo.png', 'image/png', filesize($logoFile), UPLOAD_ERR_OK);
+        $request = $this->createRequest('POST', '/logo.png');
+        $request = $request->withUploadedFiles(['file' => $uploaded]);
+
+        $controller->post($request, new Response());
+
+        $cfg1 = json_decode($cfg->getJsonForEvent('e1'), true);
+        $cfg2 = json_decode($cfg->getJsonForEvent('e2'), true);
+
+        $this->assertSame('/logo-e1.png', $cfg1['logoPath']);
+        $this->assertNull($cfg2['logoPath']);
+
+        unlink($logoFile);
+        unlink(dirname(__DIR__, 2) . '/data/logo-e1.png');
     }
 }
