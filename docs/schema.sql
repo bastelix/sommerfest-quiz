@@ -1,6 +1,15 @@
 -- Combined base schema for Sommerfest Quiz
 -- Generated to replace individual migrations
 
+-- Event definitions
+CREATE TABLE IF NOT EXISTS events (
+    uid TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    start_date TEXT DEFAULT CURRENT_TIMESTAMP,
+    end_date TEXT DEFAULT CURRENT_TIMESTAMP,
+    description TEXT
+);
+
 -- Configuration settings
 CREATE TABLE IF NOT EXISTS config (
     id SERIAL PRIMARY KEY,
@@ -21,15 +30,6 @@ CREATE TABLE IF NOT EXISTS config (
     inviteText TEXT,
     qrremember BOOLEAN DEFAULT FALSE,
     event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
-);
-
--- Event definitions
-CREATE TABLE IF NOT EXISTS events (
-    uid TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    start_date TEXT DEFAULT CURRENT_TIMESTAMP,
-    end_date TEXT DEFAULT CURRENT_TIMESTAMP,
-    description TEXT
 );
 
 -- Teams list
