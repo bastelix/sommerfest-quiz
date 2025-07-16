@@ -46,6 +46,7 @@
 - *(migrations)* Add QRRemember manual migration
 - *(db)* Use consolidated base schema
 - Seed default roles via migration
+- *(migrations)* Add admin seed
 
 ### Fix
 
