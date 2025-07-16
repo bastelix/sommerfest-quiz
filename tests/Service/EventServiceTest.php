@@ -55,4 +55,25 @@ class EventServiceTest extends TestCase
         $this->assertNotNull($row);
         $this->assertSame('Eins', $row['name']);
     }
+
+    public function testActiveEventIsSetWhenSingleEvent(): void
+    {
+        $pdo = $this->createPdo();
+        $svc = new EventService($pdo);
+        $svc->saveAll([[ 'uid' => 'e1', 'name' => 'Single' ]]);
+        $uid = $pdo->query('SELECT event_uid FROM active_event')->fetchColumn();
+        $this->assertSame('e1', $uid);
+    }
+
+    public function testActiveEventNotTouchedWithMultipleEvents(): void
+    {
+        $pdo = $this->createPdo();
+        $svc = new EventService($pdo);
+        $svc->saveAll([
+            ['uid' => 'e1', 'name' => 'One'],
+            ['uid' => 'e2', 'name' => 'Two'],
+        ]);
+        $count = (int) $pdo->query('SELECT COUNT(*) FROM active_event')->fetchColumn();
+        $this->assertSame(0, $count);
+    }
 }
