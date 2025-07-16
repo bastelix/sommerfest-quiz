@@ -19,7 +19,16 @@ BEGIN
         SELECT 1 FROM information_schema.table_constraints
         WHERE constraint_name = 'catalogs_sort_order_unique'
     ) THEN
-        ALTER TABLE public.catalogs ADD CONSTRAINT catalogs_sort_order_unique UNIQUE(sort_order);
+        IF EXISTS (
+            SELECT 1 FROM pg_indexes
+            WHERE schemaname = 'public'
+              AND tablename = 'catalogs'
+              AND indexname = 'catalogs_sort_order_unique'
+        ) THEN
+            DROP INDEX IF EXISTS catalogs_sort_order_unique;
+        END IF;
+        ALTER TABLE public.catalogs
+            ADD CONSTRAINT catalogs_sort_order_unique UNIQUE(sort_order);
     END IF;
 END$$;
 
