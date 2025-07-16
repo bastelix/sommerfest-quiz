@@ -42,6 +42,7 @@
 - Centralize roles and update management
 - Seed users for all roles
 - Improve mobile admin nav
+- *(summary)* Link catalog headers
 
 ### Fix
 
