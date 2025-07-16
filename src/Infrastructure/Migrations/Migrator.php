@@ -39,6 +39,13 @@ class Migrator
                 $sql = preg_replace('/DO \$\$.*?\$\$/s', '', $sql);
                 $sql = preg_replace('/ALTER TABLE \w+ DROP CONSTRAINT IF EXISTS .*?;/', '', $sql);
                 $sql = preg_replace('/\bSERIAL\s+PRIMARY\s+KEY\b/', 'INTEGER PRIMARY KEY AUTOINCREMENT', $sql);
+                $sql = preg_replace(
+                    '/INTEGER\s+GENERATED\s+ALWAYS\s+AS\s+IDENTITY\s+PRIMARY\s+KEY/',
+                    'INTEGER PRIMARY KEY AUTOINCREMENT',
+                    $sql
+                );
+                $sql = preg_replace('/TIMESTAMP WITH TIME ZONE/', 'TEXT', $sql);
+                $sql = preg_replace('/::JSONB/', '', $sql);
             }
 
             $pdo->exec($sql);

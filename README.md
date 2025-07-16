@@ -116,14 +116,12 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
    ```bash
   php scripts/import_to_pgsql.php
   ```
-  Ab Version 20240911 werden Beispielbenutzer über eine Migration automatisch
-  angelegt. Das optionale Skript
+  Beispielbenutzer lassen sich mithilfe des Skripts
   ```bash
   php scripts/seed_roles.php
   ```
-  existiert weiterhin, wird aber in der Regel nicht mehr benötigt. Es legt
-  einen Benutzer pro Rolle an. Benutzername und Passwort entsprechen dabei
-  jeweils dem Rollennamen:
+  anlegen. Es erstellt einen Benutzer pro Rolle, wobei Benutzername und Passwort
+  jeweils dem Rollennamen entsprechen:
 
   - `admin` – Administrator
   - `catalog-editor` – Fragenkataloge bearbeiten
