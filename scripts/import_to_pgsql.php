@@ -105,6 +105,12 @@ if ($configData || $activeUid !== null) {
     );
 }
 
+if ($activeUid !== null) {
+    $pdo->exec('DELETE FROM active_event');
+    $stmt = $pdo->prepare('INSERT INTO active_event(event_uid) VALUES(?)');
+    $stmt->execute([$activeUid]);
+}
+
 
 // Import teams
 $teamsFile = "$base/data/teams.json";

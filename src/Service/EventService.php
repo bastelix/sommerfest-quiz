@@ -82,6 +82,12 @@ class EventService
         }
 
         $this->pdo->commit();
+
+        $countStmt = $this->pdo->query('SELECT uid FROM events LIMIT 2');
+        $eventUids = $countStmt->fetchAll(PDO::FETCH_COLUMN);
+        if (count($eventUids) === 1) {
+            $this->config->setActiveEventUid((string) $eventUids[0]);
+        }
     }
 
     /**
