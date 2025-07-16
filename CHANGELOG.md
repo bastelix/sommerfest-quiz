@@ -60,6 +60,7 @@
 - Add summary photo service dependency
 - Support PostgreSQL serial syntax
 - Standardize qrremember column name
+- *(migrations)* Ensure idempotent sort order constraint
 
 ### Refactor
 
