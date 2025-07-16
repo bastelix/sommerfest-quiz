@@ -43,6 +43,7 @@
 - Seed users for all roles
 - Improve mobile admin nav
 - *(summary)* Link catalog headers
+- *(migrations)* Add QRRemember manual migration
 
 ### Fix
 
