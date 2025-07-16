@@ -3,7 +3,7 @@
 
 -- Configuration settings
 CREATE TABLE IF NOT EXISTS config (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     displayErrorDetails BOOLEAN,
     QRUser BOOLEAN,
     QRRemember BOOLEAN,
@@ -48,7 +48,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_team_name ON teams(name);
 
 -- Quiz results
 CREATE TABLE IF NOT EXISTS results (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     catalog TEXT NOT NULL,
     attempt INTEGER NOT NULL,
@@ -66,7 +66,7 @@ CREATE INDEX IF NOT EXISTS idx_results_name ON results(name);
 
 -- Per-question answer log
 CREATE TABLE IF NOT EXISTS question_results (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     catalog TEXT NOT NULL,
     question_id INTEGER NOT NULL,
@@ -98,7 +98,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS catalogs_sort_order_unique ON catalogs(sort_or
 
 -- Questions belonging to catalogs
 CREATE TABLE IF NOT EXISTS questions (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     catalog_uid TEXT NOT NULL,
     sort_order INTEGER,
     type TEXT NOT NULL,
@@ -114,7 +114,7 @@ CREATE INDEX IF NOT EXISTS idx_questions_catalog ON questions(catalog_uid);
 
 -- Photo consents
 CREATE TABLE IF NOT EXISTS photo_consents (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     team TEXT NOT NULL,
     time INTEGER NOT NULL,
     event_uid TEXT REFERENCES events(uid) ON DELETE CASCADE
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS tenants (
 
 -- User accounts
 CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id SERIAL PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     role TEXT NOT NULL DEFAULT 'catalog-editor'

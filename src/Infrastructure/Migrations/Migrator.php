@@ -38,6 +38,7 @@ class Migrator
                 $sql = preg_replace('/public\./', '', $sql);
                 $sql = preg_replace('/DO \$\$.*?\$\$/s', '', $sql);
                 $sql = preg_replace('/ALTER TABLE \w+ DROP CONSTRAINT IF EXISTS .*?;/', '', $sql);
+                $sql = preg_replace('/\bSERIAL\s+PRIMARY\s+KEY\b/', 'INTEGER PRIMARY KEY AUTOINCREMENT', $sql);
             }
 
             $pdo->exec($sql);
