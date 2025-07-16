@@ -338,7 +338,7 @@
           {% for c in catalogs %}
           <div class="uk-width-1-1 uk-width-1-2@s">
             <div class="export-card uk-card uk-card-default uk-card-body">
-              {% set link = baseUrl ? baseUrl ~ '/?katalog=' ~ c.slug : '?katalog=' ~ c.slug %}
+              {% set link = baseUrl ? baseUrl ~ '/?event=' ~ event.uid ~ '&katalog=' ~ c.slug : '?event=' ~ event.uid ~ '&katalog=' ~ c.slug %}
               <h4 class="uk-card-title"><a href="{{ link }}" target="_blank">{{ c.name }}</a></h4>
               <p>{{ c.description }}</p>
               <img src="/qr.png?t={{ link|url_encode }}&fg=dc0000&label=0" alt="QR" width="96" height="96">
