@@ -139,7 +139,13 @@ class LogoControllerTest extends TestCase
         $logoFile = tempnam(sys_get_temp_dir(), 'logo');
         imagewebp(imagecreatetruecolor(10, 10), $logoFile);
         $stream = fopen($logoFile, 'rb');
-        $uploaded = new UploadedFile(new Stream($stream), 'logo.webp', 'image/webp', filesize($logoFile), UPLOAD_ERR_OK);
+        $uploaded = new UploadedFile(
+            new Stream($stream),
+            'logo.webp',
+            'image/webp',
+            filesize($logoFile),
+            UPLOAD_ERR_OK
+        );
         $request = $this->createRequest('POST', '/logo.png');
         $request = $request->withUploadedFiles(['file' => $uploaded]);
 
