@@ -152,7 +152,7 @@ nutzt intern den Hostnamen `postgres` und erfordert keine weiteren Einstellungen
 Um größere Uploads zu erlauben, kann die maximale
 Request-Größe des Reverse Proxys über die Umgebungsvariable
 `CLIENT_MAX_BODY_SIZE` angepasst werden. In der mitgelieferten
-`docker-compose.yml` ist dieser Wert auf `10m` gesetzt.
+`docker-compose.yml` ist dieser Wert auf `20m` gesetzt.
 Beim Einsatz von **jwilder/nginx-proxy** greift der Wert jedoch nur,
 solange keine eigene Vhost-Konfiguration für die Domain existiert.
 Soll ein höheres Limit dauerhaft gelten, empfiehlt es sich daher,
