@@ -83,5 +83,13 @@ SQL
                 );
             }
         }
+
+        $eventStmt = $pdo->query('SELECT uid FROM events LIMIT 2');
+        $events = $eventStmt->fetchAll(PDO::FETCH_COLUMN);
+        if (count($events) === 1) {
+            $pdo->exec('DELETE FROM active_event');
+            $ins = $pdo->prepare('INSERT INTO active_event(event_uid) VALUES(?)');
+            $ins->execute([$events[0]]);
+        }
     }
 }
