@@ -110,6 +110,28 @@ class EventService
         $stmt = $this->pdo->prepare('SELECT uid,name,start_date,end_date,description FROM events WHERE uid = ?');
         $stmt->execute([$uid]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row !== false ? $row : null;
+        if ($row !== false) {
+            return $row;
+        }
+
+        $path = dirname(__DIR__, 2) . '/data/events.json';
+        if (is_readable($path)) {
+            $json = json_decode(file_get_contents($path), true);
+            if (is_array($json)) {
+                foreach ($json as $event) {
+                    if ((string)($event['uid'] ?? '') === $uid) {
+                        return [
+                            'uid' => (string) $event['uid'],
+                            'name' => (string) $event['name'],
+                            'start_date' => $event['start_date'] ?? null,
+                            'end_date' => $event['end_date'] ?? null,
+                            'description' => $event['description'] ?? null,
+                        ];
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }

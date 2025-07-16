@@ -221,6 +221,15 @@ class ConfigService
         if ($uid === false || $uid === null || $uid === '') {
             $stmt = $this->pdo->query('SELECT event_uid FROM config LIMIT 1');
             $uid = $stmt->fetchColumn();
+            if ($uid === false || $uid === null || $uid === '') {
+                $path = dirname(__DIR__, 2) . '/data/config.json';
+                if (is_readable($path)) {
+                    $json = json_decode(file_get_contents($path), true);
+                    if (is_array($json) && isset($json['event_uid'])) {
+                        $uid = $json['event_uid'];
+                    }
+                }
+            }
         }
         $this->activeEvent = $uid !== false && $uid !== null ? (string)$uid : '';
         return $this->activeEvent;

@@ -20,6 +20,7 @@ class Pdf extends Fpdi
     public function __construct(string $title, string $subtitle, string $logoPath = '')
     {
         parent::__construct();
+        $this->SetCompression(false);
         $this->title = $title;
         $this->subtitle = $subtitle;
         $this->logoPath = $logoPath;
