@@ -59,6 +59,7 @@
 - Encode flip card text
 - Add summary photo service dependency
 - Support PostgreSQL serial syntax
+- Standardize qrremember column name
 
 ### Refactor
 
