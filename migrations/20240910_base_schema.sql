@@ -102,6 +102,7 @@ BEGIN
     END IF;
 END$$;
 
+
 -- Questions belonging to catalogs
 CREATE TABLE IF NOT EXISTS questions (
     id SERIAL PRIMARY KEY,
