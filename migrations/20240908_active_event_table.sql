@@ -1,3 +1,0 @@
-CREATE TABLE IF NOT EXISTS active_event (
-    event_uid TEXT PRIMARY KEY REFERENCES events(uid) ON DELETE CASCADE
-);

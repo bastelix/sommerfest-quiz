@@ -1,1 +1,0 @@
-ALTER TABLE public.config ADD COLUMN IF NOT EXISTS activeEventUid TEXT REFERENCES public.events(uid) ON DELETE CASCADE;

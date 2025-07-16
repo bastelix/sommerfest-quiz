@@ -1,2 +1,0 @@
-
-ALTER TABLE public.config ADD COLUMN IF NOT EXISTS inviteText TEXT;
