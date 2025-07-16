@@ -57,6 +57,7 @@
 - Address style warnings
 - Encode flip card text
 - Add summary photo service dependency
+- Support PostgreSQL serial syntax
 
 ### Refactor
 
