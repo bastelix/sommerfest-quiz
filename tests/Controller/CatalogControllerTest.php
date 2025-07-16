@@ -59,6 +59,57 @@ class CatalogControllerTest extends TestCase
         session_destroy();
     }
 
+    public function testRedirectIncludesEvent(): void
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE catalogs(
+                uid TEXT PRIMARY KEY,
+                sort_order INTEGER UNIQUE NOT NULL,
+                slug TEXT UNIQUE NOT NULL,
+                file TEXT NOT NULL,
+                name TEXT NOT NULL,
+                description TEXT,
+                qrcode_url TEXT,
+                raetsel_buchstabe TEXT,
+                comment TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE questions(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                catalog_uid TEXT NOT NULL,
+                sort_order INTEGER,
+                type TEXT NOT NULL,
+                prompt TEXT NOT NULL,
+                options TEXT,
+                answers TEXT,
+                terms TEXT,
+                items TEXT,
+                UNIQUE(catalog_uid, sort_order)
+            );
+            SQL
+        );
+        $cfg = new ConfigService($pdo);
+        $service = new CatalogService($pdo, $cfg);
+        $controller = new CatalogController($service);
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
+
+        $request = $this->createRequest('GET', '/kataloge/test.json');
+        $request = $request->withQueryParams(['event' => 'ev123']);
+        $response = $controller->get($request, new Response(), ['file' => 'test.json']);
+
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals('/?event=ev123&katalog=test', $response->getHeaderLine('Location'));
+        session_destroy();
+    }
+
     public function testPostAndGet(): void
     {
         $pdo = new \PDO('sqlite::memory:');
