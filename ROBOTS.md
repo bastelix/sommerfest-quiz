@@ -173,6 +173,13 @@ class CatalogService
 * **Für alle von der Coding-Guideline abweichenden Vorschläge:
   Immer mit Hinweis und Link auf offizielle PHP-Standards (PSR, RFC, etc.)**
 
+## 15. **Fehlervermeidung bei Tests**
+
+* In Tests, die Rollen erfordern, muss stets `session_start()` aufgerufen und
+  `$_SESSION['user']` mit der passenden Rolle belegt werden.
+* Doppelte `session_start()`-Aufrufe innerhalb eines Tests sind zu vermeiden.
+* Vor jedem Commit sind alle PHPUnit-Tests mit `./vendor/bin/phpunit` auszuführen.
+
 # Ende robots.md
 
 **→ Diese Datei muss jedem Pull Request beigelegt und beachtet werden!**

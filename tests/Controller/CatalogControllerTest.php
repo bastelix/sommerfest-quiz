@@ -53,12 +53,6 @@ class CatalogControllerTest extends TestCase
         $controller = new CatalogController($service);
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
-        session_start();
-        $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
-        session_start();
-        $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
-        session_start();
-        $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
         $request = $this->createRequest('GET', '/kataloge/missing.json', ['HTTP_ACCEPT' => 'application/json']);
         $response = $controller->get($request, new Response(), ['file' => 'missing.json']);
         $this->assertEquals(404, $response->getStatusCode());
@@ -104,6 +98,8 @@ class CatalogControllerTest extends TestCase
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
         $controller = new CatalogController($service);
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
 
         $request = $this->createRequest('POST', '/kataloge/test.json');
         $request = $request->withParsedBody(['a' => 1]);
@@ -162,6 +158,8 @@ class CatalogControllerTest extends TestCase
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
         $controller = new CatalogController($service);
+        session_start();
+        $_SESSION["user"] = ["id" => 1, "role" => "catalog-editor"];
 
         $createReq = $this->createRequest('PUT', '/kataloge/new.json');
         $createRes = $controller->create($createReq, new Response(), ['file' => 'new.json']);
@@ -219,6 +217,8 @@ class CatalogControllerTest extends TestCase
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
         $controller = new CatalogController($service);
+        session_start();
+        $_SESSION["user"] = ["id" => 1, "role" => "catalog-editor"];
 
         $service->write('cat.json', [['a' => 1], ['b' => 2]]);
 
