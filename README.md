@@ -133,7 +133,8 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
 
    Wird `POSTGRES_DSN` gesetzt und enthält das Verzeichnis `data/` bereits JSON-Dateien,
    legt das Entrypoint-Skript des Containers die Tabellen automatisch an und importiert
-   die Daten beim Start.
+   die Daten beim Start. Direkt danach werden alle Migrationen ausgeführt,
+   sodass neue Spalten sofort verfügbar sind.
 
 ## Docker Compose
 
@@ -177,7 +178,8 @@ solange die App innerhalb des Docker-Setups gestartet wird.
 
 Ist in der `.env` die Variable `POSTGRES_DSN` gesetzt, legt das Entrypoint-
 Skript beim Start automatisch die Datenbank anhand von `docs/schema.sql` an und
-importiert die vorhandenen JSON-Daten. Neben `POSTGRES_DSN` werden dafür auch
+importiert die vorhandenen JSON-Daten. Danach werden die Migrationen einmalig
+ausgeführt. Neben `POSTGRES_DSN` werden dafür auch
 `POSTGRES_USER`, `POSTGRES_PASSWORD` und `POSTGRES_DB` ausgewertet (zur
 Kompatibilität wird auch `POSTGRES_PASS` noch unterstützt).
 

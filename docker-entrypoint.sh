@@ -55,6 +55,10 @@ if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
             echo "Data import complete"
         fi
     fi
+    if [ -f scripts/run_migrations.php ]; then
+        echo "Running migrations"
+        php scripts/run_migrations.php
+    fi
     unset PGPASSWORD
 fi
 
