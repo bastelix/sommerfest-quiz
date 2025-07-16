@@ -80,7 +80,11 @@ class TestCase extends PHPUnit_TestCase
         array $cookies = [],
         array $serverParams = []
     ): Request {
-        $uri = new Uri('', '', 80, $path);
+        $query = '';
+        if (str_contains($path, '?')) {
+            [$path, $query] = explode('?', $path, 2);
+        }
+        $uri = new Uri('', '', 80, $path, $query);
         $handle = fopen('php://temp', 'w+');
         $stream = (new StreamFactory())->createStreamFromResource($handle);
 
