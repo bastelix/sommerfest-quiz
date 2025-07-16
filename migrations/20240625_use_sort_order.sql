@@ -3,6 +3,9 @@ BEGIN
     IF EXISTS (
         SELECT 1 FROM information_schema.columns
         WHERE table_name = 'catalogs' AND column_name = 'id'
+    ) AND NOT EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'catalogs' AND column_name = 'sort_order'
     ) THEN
         ALTER TABLE public.catalogs RENAME COLUMN id TO sort_order;
     END IF;
