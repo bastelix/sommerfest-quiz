@@ -131,6 +131,9 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
   - `analyst` – Ergebnisse analysieren
   - `team-manager` – Teams verwalten
 
+  Ab der nachfolgenden Migration 20240912 wird zudem ein Admin-Account
+  importiert, sodass direkt eine Anmeldung mit `admin` möglich ist.
+
    Wird `POSTGRES_DSN` gesetzt und enthält das Verzeichnis `data/` bereits JSON-Dateien,
    legt das Entrypoint-Skript des Containers die Tabellen automatisch an und importiert
    die Daten beim Start. Direkt danach werden alle Migrationen ausgeführt,
