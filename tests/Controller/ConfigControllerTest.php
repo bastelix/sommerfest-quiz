@@ -88,13 +88,13 @@ class ConfigControllerTest extends TestCase
         $_SESSION['user'] = ['id' => 1, 'role' => 'event-manager'];
 
         $request = $this->createRequest('POST', '/config.json');
-        $request = $request->withParsedBody(['foo' => 'bar']);
+        $request = $request->withParsedBody(['pageTitle' => 'Demo']);
         $postResponse = $controller->post($request, new Response());
         $this->assertEquals(204, $postResponse->getStatusCode());
 
         $getResponse = $controller->get($this->createRequest('GET', '/config.json'), new Response());
         $this->assertEquals(200, $getResponse->getStatusCode());
-        $this->assertStringContainsString('foo', (string) $getResponse->getBody());
+        $this->assertStringContainsString('Demo', (string) $getResponse->getBody());
         session_destroy();
     }
 
@@ -148,7 +148,7 @@ class ConfigControllerTest extends TestCase
         session_start();
         $_SESSION['user'] = ['id' => 2, 'role' => 'user'];
         $request = $this->createRequest('POST', '/config.json');
-        $request = $request->withParsedBody(['foo' => 'bar']);
+        $request = $request->withParsedBody(['pageTitle' => 'Demo']);
         $response = $app->handle($request);
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals('/login', $response->getHeaderLine('Location'));
