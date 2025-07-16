@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   nginx-proxy:
     image: jwilder/nginx-proxy:alpine
@@ -52,7 +50,6 @@ services:
     environment:
       - NGINX_PROXY_CONTAINER=nginx-proxy
       - DEFAULT_EMAIL=${LETSENCRYPT_EMAIL}
-      - NGINX_DOCKER_GEN_CONTAINER=nginx-proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./acme:/etc/acme.sh
@@ -79,13 +76,11 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     depends_on:
       - postgres
-    # Use router.php so that Slim handles routes for non-existent static files
     command: php -S 0.0.0.0:8080 -t public public/router.php
     expose:
       - "8080"
     networks:
       - webproxy
-
 
 networks:
   webproxy:
