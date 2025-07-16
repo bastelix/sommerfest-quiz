@@ -20,6 +20,7 @@ class Pdf extends Fpdi
     public function __construct(string $title, string $subtitle, string $logoPath = '')
     {
         parent::__construct();
+        $this->SetCompression(false);
         $this->title = $title;
         $this->subtitle = $subtitle;
         $this->logoPath = $logoPath;
@@ -36,7 +37,7 @@ class Pdf extends Fpdi
         $qrSize = 20.0; // keep same dimensions as original header code
         $headerHeight = max(25.0, $qrSize + 5.0);
 
-        if (is_readable($logoFile)) {
+        if (is_file($logoFile) && is_readable($logoFile)) {
             if (str_ends_with(strtolower($logoFile), '.webp')) {
                 $img = Image::make($logoFile);
                 $logoTemp = tempnam(sys_get_temp_dir(), 'logo') . '.png';

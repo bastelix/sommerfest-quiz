@@ -292,10 +292,10 @@ return function (\Slim\App $app) {
     })->add(new RoleAuthMiddleware('admin'));
     $app->get('/qr.png', function (Request $request, Response $response) {
         return $request->getAttribute('qrController')->image($request, $response);
-    })->add(new RoleAuthMiddleware('admin'));
+    });
     $app->get('/qr.pdf', function (Request $request, Response $response) {
         return $request->getAttribute('qrController')->pdf($request, $response);
-    })->add(new RoleAuthMiddleware('admin'));
+    });
     $app->get('/invites.pdf', function (Request $request, Response $response) {
         return $request->getAttribute('qrController')->pdfAll($request, $response);
     })->add(new RoleAuthMiddleware('admin'));

@@ -6,6 +6,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const refreshBtn = document.getElementById('resultsRefreshBtn');
   const grid = document.getElementById('rankingGrid');
   const pagination = document.getElementById('resultsPagination');
+  const basePath = window.basePath || '';
+  const withBase = path => basePath + path;
 
   const PAGE_SIZE = 10;
   let resultsData = [];
@@ -23,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function rotatePhotoImpl(path, img, link) {
     const cleanPath = path.replace(/\?.*$/, '');
-    return fetch('/photos/rotate', {
+    return fetch(withBase('/photos/rotate'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path: cleanPath })
@@ -32,9 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
       .then(() => {
         const t = Date.now();
         const newPath = `${cleanPath}?t=${t}`;
-        img.src = newPath;
+        img.src = withBase(newPath);
         if (link) {
-          link.href = newPath;
+          link.href = withBase(newPath);
           if (link.dataset && link.dataset.caption) {
             link.dataset.caption = link.dataset.caption
               .replace(/data-path='[^']*'/, `data-path='${newPath}'`);
@@ -95,12 +97,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const a = document.createElement('a');
             a.className = 'uk-inline rotate-link';
-            a.href = r.photo;
+            a.href = withBase(r.photo);
             a.dataset.caption = `<button class='uk-icon-button lightbox-rotate-btn' type='button' uk-icon='history' data-path='${r.photo}' aria-label='Drehen'></button>`;
             a.dataset.attrs = 'class: uk-inverse-light';
 
             const img = document.createElement('img');
-            img.src = r.photo;
+            img.src = withBase(r.photo);
             img.alt = 'Beweisfoto';
             img.className = 'proof-thumb';
 
@@ -361,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (item) {
           if (card.photos) {
             const img = document.createElement('img');
-            img.src = item.path || item.value;
+            img.src = withBase(item.path || item.value);
             img.alt = 'Foto';
             img.className = 'proof-thumb';
             li.appendChild(img);
