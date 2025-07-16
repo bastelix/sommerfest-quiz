@@ -322,7 +322,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function fetchCatalogMap() {
     if (catalogMap) return Promise.resolve(catalogMap);
-    return fetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } })
+    return fetch(withBase('/kataloge/catalogs.json'), {
+      headers: { 'Accept': 'application/json' }
+    })
       .then(r => r.json())
       .then(list => {
         const map = {};
@@ -349,8 +351,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function load() {
     Promise.all([
       fetchCatalogMap(),
-      fetch('/results.json').then(r => r.json()),
-      fetch('/question-results.json').then(r => r.json())
+      fetch(withBase('/results.json')).then(r => r.json()),
+      fetch(withBase('/question-results.json')).then(r => r.json())
     ])
       .then(([catMap, rows, qrows]) => {
         rows.forEach(r => {
