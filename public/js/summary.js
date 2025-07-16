@@ -36,10 +36,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const map = {};
         if (Array.isArray(list)) {
           list.forEach(c => {
-            const name = c.name || '';
-            if (c.uid) map[c.uid] = name;
-            if (c.sort_order) map[c.sort_order] = name;
-            if (c.slug) map[c.slug] = name;
+            const entry = { name: c.name || '', slug: c.slug || '' };
+            if (c.uid) map[c.uid] = entry;
+            if (c.sort_order) map[c.sort_order] = entry;
+            if (c.slug) map[c.slug] = entry;
           });
         }
         catalogMap = map;
@@ -103,7 +103,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const card = document.createElement('div');
     card.className = 'uk-card uk-card-muted uk-card-body question-preview';
     const title = document.createElement('h5');
-    const cat = q.catalogName || catMap[q.catalog] || q.catalog;
+    const info = catMap[q.catalog];
+    const cat = q.catalogName || (info ? info.name : q.catalog);
     title.textContent = insertSoftHyphens(cat);
     card.appendChild(title);
 
@@ -180,8 +181,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const filtered = rows.filter(row => row.name === user);
         const map = new Map();
         filtered.forEach(r => {
-          const name = r.catalogName || catMap[r.catalog] || r.catalog;
-          map.set(name, `${r.correct}/${r.total}`);
+          const info = catMap[r.catalog] || { name: r.catalog, slug: r.catalog };
+          const name = r.catalogName || info.name;
+          map.set(name, { res: `${r.correct}/${r.total}`, slug: info.slug });
         });
         const table = document.createElement('table');
         table.className = 'uk-table uk-table-divider';
@@ -195,12 +197,20 @@ document.addEventListener('DOMContentLoaded', () => {
           tr.appendChild(td);
           tb.appendChild(tr);
         }else{
-          map.forEach((res, cat) => {
+          map.forEach((info, cat) => {
             const tr = document.createElement('tr');
             const td1 = document.createElement('td');
-            td1.textContent = cat;
+            const a = document.createElement('a');
+            if (info.slug) {
+              a.href = '/?katalog=' + encodeURIComponent(info.slug);
+              a.target = '_blank';
+            } else {
+              a.href = '#';
+            }
+            a.textContent = cat;
+            td1.appendChild(a);
             const td2 = document.createElement('td');
-            td2.textContent = res;
+            td2.textContent = info.res;
             tr.appendChild(td1);
             tr.appendChild(td2);
             tb.appendChild(tr);
