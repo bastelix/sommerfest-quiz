@@ -227,11 +227,4 @@ class EvidenceController
         $response->getBody()->write(json_encode(['status' => 'ok']));
         return $response->withHeader('Content-Type', 'application/json');
     }
-    public function listSummary(Request $request, Response $response): Response
-    {
-        $photos = $this->summary->getAll();
-
-        $response->getBody()->write(json_encode($photos));
-        return $response->withHeader("Content-Type", "application/json");
-    }
 }
