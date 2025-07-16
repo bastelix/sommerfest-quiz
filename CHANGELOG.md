@@ -11,6 +11,7 @@
 - Cascade delete events
 - Pin GitHub Actions to SHA
 - Apply unless-stopped restart policy
+- *(test)* Run migrations for sqlite
 
 ### Ci
 
