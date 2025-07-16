@@ -46,8 +46,16 @@ class CatalogController
 
         if ($accept === '' || strpos($accept, 'application/json') === false) {
             $slug = $this->service->slugByFile($file) ?? pathinfo($file, PATHINFO_FILENAME);
+            $params = $request->getQueryParams();
+            $event = (string)($params['event'] ?? '');
+            $location = '/?';
+            if ($event !== '') {
+                $location .= 'event=' . urlencode($event) . '&';
+            }
+            $location .= 'katalog=' . urlencode($slug);
+
             return $response
-                ->withHeader('Location', '/?katalog=' . urlencode($slug))
+                ->withHeader('Location', $location)
                 ->withStatus(302);
         }
 
