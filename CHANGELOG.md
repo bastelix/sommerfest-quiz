@@ -11,6 +11,7 @@
 - Cascade delete events
 - Pin GitHub Actions to SHA
 - Apply unless-stopped restart policy
+- *(test)* Run migrations for sqlite
 
 ### Ci
 
@@ -30,6 +31,7 @@
 - Clarify event table columns
 - Fix shell commands for alpine
 - Ignore changelog update commits
+- Add troubleshooting for test data
 
 ### Feat
 
@@ -64,6 +66,7 @@
 - Support PostgreSQL serial syntax
 - Standardize qrremember column name
 - *(migrations)* Ensure idempotent sort order constraint
+- Align config controller test with default settings
 
 ### Refactor
 

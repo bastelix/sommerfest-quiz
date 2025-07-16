@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultsBtn = document.getElementById('show-results-btn');
   const puzzleBtn = document.getElementById('check-puzzle-btn');
   const photoBtn = document.getElementById('upload-photo-btn');
+  const basePath = window.basePath || '';
+  const withBase = path => basePath + path;
   const resultsEnabled = !(window.quizConfig && window.quizConfig.teamResults === false);
   if (resultsBtn && !resultsEnabled) {
     resultsBtn.remove();
@@ -31,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let catalogMap = null;
   function fetchCatalogMap() {
     if (catalogMap) return Promise.resolve(catalogMap);
-    return fetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } })
+    return fetch(withBase('/kataloge/catalogs.json'), { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(list => {
         const map = {};
@@ -60,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function fetchPuzzleTimeFromResults(name){
     try{
-      const list = await fetch('/results.json').then(r => r.json());
+      const list = await fetch(withBase('/results.json')).then(r => r.json());
       if(Array.isArray(list)){
         for(let i=list.length-1; i>=0; i--){
           const e = list[i];
@@ -175,8 +177,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     Promise.all([
       fetchCatalogMap(),
-      fetch('/results.json').then(r => r.json()),
-      fetch('/question-results.json').then(r => r.json())
+      fetch(withBase('/results.json')).then(r => r.json()),
+      fetch(withBase('/question-results.json')).then(r => r.json())
     ])
       .then(([catMap, rows, qrows]) => {
         const filtered = rows.filter(row => row.name === user);
@@ -264,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const userName = getStored('quizUser') || '';
         const catalog = getStored('quizCatalog') || 'unknown';
         let debugTimer = null;
-        fetch('/results?debug=1', {
+        fetch(withBase('/results?debug=1'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: userName, catalog, puzzleTime: ts, puzzleAnswer: valRaw })
@@ -377,7 +379,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.disabled = true;
       btn.innerHTML = '<div uk-spinner></div>';
 
-      fetch('/photos', { method: 'POST', body: fd })
+      fetch(withBase('/photos'), { method: 'POST', body: fd })
         .then(async r => {
           if (!r.ok) {
             throw new Error(await r.text());

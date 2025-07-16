@@ -80,7 +80,11 @@ class TestCase extends PHPUnit_TestCase
         array $cookies = [],
         array $serverParams = []
     ): Request {
-        $uri = new Uri('', '', 80, $path);
+        $query = '';
+        if (str_contains($path, '?')) {
+            [$path, $query] = explode('?', $path, 2);
+        }
+        $uri = new Uri('', '', 80, $path, $query);
         $handle = fopen('php://temp', 'w+');
         $stream = (new StreamFactory())->createStreamFromResource($handle);
 
@@ -90,6 +94,17 @@ class TestCase extends PHPUnit_TestCase
         }
 
         return new SlimRequest($method, $uri, $h, $cookies, $serverParams, $stream);
+    }
+
+    /**
+     * Create an in-memory SQLite connection with the current schema applied.
+     */
+    protected function createDatabase(): \PDO
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        \App\Infrastructure\Migrations\Migrator::migrate($pdo, __DIR__ . '/../migrations');
+        return $pdo;
     }
 
     protected function tearDown(): void

@@ -16,33 +16,7 @@ class ConfigControllerTest extends TestCase
         $path = dirname(__DIR__, 2) . '/data/config.json';
         $backup = $path . '.bak';
         rename($path, $backup);
-        $pdo = new \PDO('sqlite::memory:');
-        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE config(
-                displayErrorDetails INTEGER,
-                QRUser INTEGER,
-                QRRemember INTEGER,
-                logoPath TEXT,
-                pageTitle TEXT,
-                backgroundColor TEXT,
-                buttonColor TEXT,
-                CheckAnswerButton TEXT,
-                adminUser TEXT,
-                adminPass TEXT,
-                QRRestrict INTEGER,
-                competitionMode INTEGER,
-                teamResults INTEGER,
-                photoUpload INTEGER,
-                puzzleWordEnabled INTEGER,
-                puzzleWord TEXT,
-                puzzleFeedback TEXT,
-                inviteText TEXT,
-                event_uid TEXT
-            );
-            SQL
-        );
+        $pdo = $this->createDatabase();
         $controller = new ConfigController(new ConfigService($pdo));
         $request = $this->createRequest('GET', '/config.json');
         $response = $controller->get($request, new Response());
@@ -53,33 +27,7 @@ class ConfigControllerTest extends TestCase
 
     public function testPostAndGet(): void
     {
-        $pdo = new \PDO('sqlite::memory:');
-        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE config(
-                displayErrorDetails INTEGER,
-                QRUser INTEGER,
-                QRRemember INTEGER,
-                logoPath TEXT,
-                pageTitle TEXT,
-                backgroundColor TEXT,
-                buttonColor TEXT,
-                CheckAnswerButton TEXT,
-                adminUser TEXT,
-                adminPass TEXT,
-                QRRestrict INTEGER,
-                competitionMode INTEGER,
-                teamResults INTEGER,
-                photoUpload INTEGER,
-                puzzleWordEnabled INTEGER,
-                puzzleWord TEXT,
-                puzzleFeedback TEXT,
-                inviteText TEXT,
-                event_uid TEXT
-            );
-            SQL
-        );
+        $pdo = $this->createDatabase();
         $service = new ConfigService($pdo);
         $controller = new ConfigController($service);
         session_start();
@@ -88,45 +36,19 @@ class ConfigControllerTest extends TestCase
         $_SESSION['user'] = ['id' => 1, 'role' => 'event-manager'];
 
         $request = $this->createRequest('POST', '/config.json');
-        $request = $request->withParsedBody(['foo' => 'bar']);
+        $request = $request->withParsedBody(['pageTitle' => 'Demo']);
         $postResponse = $controller->post($request, new Response());
         $this->assertEquals(204, $postResponse->getStatusCode());
 
         $getResponse = $controller->get($this->createRequest('GET', '/config.json'), new Response());
         $this->assertEquals(200, $getResponse->getStatusCode());
-        $this->assertStringContainsString('foo', (string) $getResponse->getBody());
+        $this->assertStringContainsString('Demo', (string) $getResponse->getBody());
         session_destroy();
     }
 
     public function testPostInvalidJson(): void
     {
-        $pdo = new \PDO('sqlite::memory:');
-        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE config(
-                displayErrorDetails INTEGER,
-                QRUser INTEGER,
-                QRRemember INTEGER,
-                logoPath TEXT,
-                pageTitle TEXT,
-                backgroundColor TEXT,
-                buttonColor TEXT,
-                CheckAnswerButton TEXT,
-                adminUser TEXT,
-                adminPass TEXT,
-                QRRestrict INTEGER,
-                competitionMode INTEGER,
-                teamResults INTEGER,
-                photoUpload INTEGER,
-                puzzleWordEnabled INTEGER,
-                puzzleWord TEXT,
-                puzzleFeedback TEXT,
-                inviteText TEXT,
-                event_uid TEXT
-            );
-            SQL
-        );
+        $pdo = $this->createDatabase();
         $service = new ConfigService($pdo);
         $controller = new ConfigController($service);
 
@@ -148,7 +70,7 @@ class ConfigControllerTest extends TestCase
         session_start();
         $_SESSION['user'] = ['id' => 2, 'role' => 'user'];
         $request = $this->createRequest('POST', '/config.json');
-        $request = $request->withParsedBody(['foo' => 'bar']);
+        $request = $request->withParsedBody(['pageTitle' => 'Demo']);
         $response = $app->handle($request);
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals('/login', $response->getHeaderLine('Location'));
