@@ -45,7 +45,7 @@ class HomeControllerTest extends TestCase
     {
         $this->withCompetitionMode(function () {
             $app = $this->getAppInstance();
-            $request = $this->createRequest('GET', '/?katalog=station_1');
+            $request = $this->createRequest('GET', '/')->withQueryParams(['katalog' => 'station_1']);
             $response = $app->handle($request);
             $this->assertEquals(200, $response->getStatusCode());
         });

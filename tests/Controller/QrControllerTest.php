@@ -13,7 +13,7 @@ class QrControllerTest extends TestCase
     public function testQrImageIsGenerated(): void
     {
         $app = $this->getAppInstance();
-        $request = $this->createRequest('GET', '/qr.png?t=Test');
+        $request = $this->createRequest('GET', '/qr.png')->withQueryParams(['t' => 'Test']);
         $response = $app->handle($request);
 
         $this->assertSame(200, $response->getStatusCode());
@@ -24,7 +24,7 @@ class QrControllerTest extends TestCase
     public function testQrPdfIsGenerated(): void
     {
         $app = $this->getAppInstance();
-        $request = $this->createRequest('GET', '/qr.pdf?t=Test');
+        $request = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Test']);
         $response = $app->handle($request);
 
         $this->assertSame(200, $response->getStatusCode());
@@ -49,8 +49,6 @@ class QrControllerTest extends TestCase
                 backgroundColor TEXT,
                 buttonColor TEXT,
                 CheckAnswerButton TEXT,
-                adminUser TEXT,
-                adminPass TEXT,
                 QRRestrict INTEGER,
                 competitionMode INTEGER,
                 teamResults INTEGER,
@@ -77,7 +75,7 @@ class QrControllerTest extends TestCase
         $qr = new \App\Controller\QrController($cfg, $teams, $events, $catalogs);
         $logo = new \App\Controller\LogoController($cfg);
 
-        $req = $this->createRequest('GET', '/qr.pdf?t=Demo');
+        $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo']);
         $initial = $qr->pdf($req, new Response());
         $original = (string)$initial->getBody();
         $this->assertStringContainsString('Event', $original);
@@ -109,13 +107,9 @@ class QrControllerTest extends TestCase
                 QRRemember INTEGER,
                 logoPath TEXT,
                 pageTitle TEXT,
-                header TEXT,
-                subheader TEXT,
                 backgroundColor TEXT,
                 buttonColor TEXT,
                 CheckAnswerButton TEXT,
-                adminUser TEXT,
-                adminPass TEXT,
                 QRRestrict INTEGER,
                 competitionMode INTEGER,
                 teamResults INTEGER,
@@ -128,7 +122,13 @@ class QrControllerTest extends TestCase
             );
             SQL
         );
-        $pdo->exec("INSERT INTO config(inviteText, header) VALUES('Hallo [Team]!','Event');");
+        $pdo->exec(
+            'CREATE TABLE events(' .
+            'uid TEXT PRIMARY KEY, name TEXT, description TEXT' .
+            ');'
+        );
+        $pdo->exec("INSERT INTO events(uid,name,description) VALUES('1','Event','')");
+        $pdo->exec("INSERT INTO config(inviteText, event_uid) VALUES('Hallo [Team]!','1')");
 
         $cfg = new \App\Service\ConfigService($pdo);
         $cfg->setActiveEventUid('1');
@@ -137,7 +137,7 @@ class QrControllerTest extends TestCase
         $catalogs = new \App\Service\CatalogService($pdo, $cfg);
         $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs);
 
-        $req = $this->createRequest('GET', '/qr.pdf?t=Demo');
+        $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo']);
         $response = $qr->pdf($req, new Response());
         $pdf = (string)$response->getBody();
 
@@ -160,8 +160,6 @@ class QrControllerTest extends TestCase
                 backgroundColor TEXT,
                 buttonColor TEXT,
                 CheckAnswerButton TEXT,
-                adminUser TEXT,
-                adminPass TEXT,
                 QRRestrict INTEGER,
                 competitionMode INTEGER,
                 teamResults INTEGER,
@@ -221,8 +219,6 @@ class QrControllerTest extends TestCase
                 backgroundColor TEXT,
                 buttonColor TEXT,
                 CheckAnswerButton TEXT,
-                adminUser TEXT,
-                adminPass TEXT,
                 QRRestrict INTEGER,
                 competitionMode INTEGER,
                 teamResults INTEGER,
@@ -248,7 +244,7 @@ class QrControllerTest extends TestCase
         $qr = new \App\Controller\QrController($cfg, $teams, $events);
 
         $cfg->setActiveEventUid('1');
-        $req = $this->createRequest('GET', '/qr.pdf?t=Demo');
+        $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo']);
         $res1 = $qr->pdf($req, new Response());
         $pdf1 = (string)$res1->getBody();
         $this->assertStringContainsString('First', $pdf1);
