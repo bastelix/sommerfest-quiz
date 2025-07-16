@@ -30,6 +30,7 @@
 - Clarify event table columns
 - Fix shell commands for alpine
 - Ignore changelog update commits
+- Add troubleshooting for test data
 
 ### Feat
 
