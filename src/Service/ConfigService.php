@@ -218,6 +218,10 @@ class ConfigService
         }
         $stmt = $this->pdo->query('SELECT event_uid FROM active_event LIMIT 1');
         $uid = $stmt->fetchColumn();
+        if ($uid === false || $uid === null || $uid === '') {
+            $stmt = $this->pdo->query('SELECT event_uid FROM config LIMIT 1');
+            $uid = $stmt->fetchColumn();
+        }
         $this->activeEvent = $uid !== false && $uid !== null ? (string)$uid : '';
         return $this->activeEvent;
     }
