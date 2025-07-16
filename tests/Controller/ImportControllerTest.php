@@ -20,89 +20,9 @@ class ImportControllerTest extends TestCase
 {
     private function createServices(): array
     {
-        $pdo = new PDO('sqlite::memory:');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            'CREATE TABLE events(' .
-            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT' .
-            ');'
-        );
-        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid,name) VALUES('ev1','Event1')");
         $pdo->exec("INSERT INTO config(event_uid) VALUES('ev1')");
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE catalogs(
-                uid TEXT PRIMARY KEY,
-                sort_order INTEGER UNIQUE NOT NULL,
-                slug TEXT UNIQUE NOT NULL,
-                file TEXT NOT NULL,
-                name TEXT NOT NULL,
-                description TEXT,
-                qrcode_url TEXT,
-                raetsel_buchstabe TEXT,
-                comment TEXT,
-                event_uid TEXT
-            );
-            SQL
-        );
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE questions(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                catalog_uid TEXT NOT NULL,
-                sort_order INTEGER,
-                type TEXT NOT NULL,
-                prompt TEXT NOT NULL,
-                options TEXT,
-                answers TEXT,
-                terms TEXT,
-                items TEXT,
-                UNIQUE(catalog_uid, sort_order)
-            );
-            SQL
-        );
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE teams(
-                sort_order INTEGER UNIQUE NOT NULL,
-                name TEXT NOT NULL,
-                uid TEXT PRIMARY KEY,
-                event_uid TEXT
-            );
-            SQL
-        );
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE results(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                catalog TEXT NOT NULL,
-                attempt INTEGER NOT NULL,
-                correct INTEGER NOT NULL,
-                total INTEGER NOT NULL,
-                time INTEGER NOT NULL,
-                puzzleTime INTEGER,
-                photo TEXT,
-                event_uid TEXT
-            );
-            SQL
-        );
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE photo_consents(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                team TEXT NOT NULL,
-                time INTEGER NOT NULL,
-                event_uid TEXT
-            );
-            SQL
-        );
-        $pdo->exec(
-            'CREATE TABLE summary_photos(' .
-            'id INTEGER PRIMARY KEY AUTOINCREMENT,' .
-            'name TEXT,path TEXT,time INTEGER,event_uid TEXT);'
-        );
 
         $cfg = new ConfigService($pdo);
         return [
