@@ -12,33 +12,7 @@ class ConfigServiceTest extends TestCase
 {
     public function testReadWriteConfig(): void
     {
-        $pdo = new PDO('sqlite::memory:');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE config(
-                displayErrorDetails INTEGER,
-                QRUser INTEGER,
-                QRRemember INTEGER,
-                logoPath TEXT,
-                pageTitle TEXT,
-                backgroundColor TEXT,
-                buttonColor TEXT,
-                CheckAnswerButton TEXT,
-                adminUser TEXT,
-                adminPass TEXT,
-                QRRestrict INTEGER,
-                competitionMode INTEGER,
-                teamResults INTEGER,
-                photoUpload INTEGER,
-                puzzleWordEnabled INTEGER,
-                puzzleWord TEXT,
-                puzzleFeedback TEXT,
-                inviteText TEXT,
-                event_uid TEXT
-            );
-            SQL
-        );
+        $pdo = $this->createMigratedPdo();
         $service = new ConfigService($pdo);
         $data = ['pageTitle' => 'Demo'];
 
@@ -50,33 +24,7 @@ class ConfigServiceTest extends TestCase
 
     public function testGetJsonReturnsNullIfFileMissing(): void
     {
-        $pdo = new PDO('sqlite::memory:');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE config(
-                displayErrorDetails INTEGER,
-                QRUser INTEGER,
-                QRRemember INTEGER,
-                logoPath TEXT,
-                pageTitle TEXT,
-                backgroundColor TEXT,
-                buttonColor TEXT,
-                CheckAnswerButton TEXT,
-                adminUser TEXT,
-                adminPass TEXT,
-                QRRestrict INTEGER,
-                competitionMode INTEGER,
-                teamResults INTEGER,
-                photoUpload INTEGER,
-                puzzleWordEnabled INTEGER,
-                puzzleWord TEXT,
-                puzzleFeedback TEXT,
-                inviteText TEXT,
-                event_uid TEXT
-            );
-            SQL
-        );
+        $pdo = $this->createMigratedPdo();
         $service = new ConfigService($pdo);
 
         $this->assertNull($service->getJson());

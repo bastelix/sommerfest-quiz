@@ -13,19 +13,7 @@ class PhotoConsentServiceTest extends TestCase
 {
     public function testAddConsentAppendsEntry(): void
     {
-        $pdo = new PDO('sqlite::memory:');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE photo_consents(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                team TEXT NOT NULL,
-                time INTEGER NOT NULL,
-                event_uid TEXT
-            );
-            SQL
-        );
-        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo = $this->createMigratedPdo();
         $cfg = new ConfigService($pdo);
         $cfg->saveConfig(['event_uid' => 'e1']);
         $svc = new PhotoConsentService($pdo, $cfg);
@@ -40,19 +28,7 @@ class PhotoConsentServiceTest extends TestCase
 
     public function testGetAllReturnsStoredConsents(): void
     {
-        $pdo = new PDO('sqlite::memory:');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE photo_consents(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                team TEXT NOT NULL,
-                time INTEGER NOT NULL,
-                event_uid TEXT
-            );
-            SQL
-        );
-        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo = $this->createMigratedPdo();
         $cfg = new ConfigService($pdo);
         $cfg->saveConfig(['event_uid' => 'e1']);
         $svc = new PhotoConsentService($pdo, $cfg);
@@ -67,19 +43,7 @@ class PhotoConsentServiceTest extends TestCase
 
     public function testAddStoresEventUid(): void
     {
-        $pdo = new PDO('sqlite::memory:');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE photo_consents(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                team TEXT NOT NULL,
-                time INTEGER NOT NULL,
-                event_uid TEXT
-            );
-            SQL
-        );
-        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo = $this->createMigratedPdo();
         $cfg = new ConfigService($pdo);
         $cfg->saveConfig(['event_uid' => 'ev1']);
         $svc = new PhotoConsentService($pdo, $cfg);
@@ -90,19 +54,7 @@ class PhotoConsentServiceTest extends TestCase
 
     public function testGetAllFiltersByEventUid(): void
     {
-        $pdo = new PDO('sqlite::memory:');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE photo_consents(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                team TEXT NOT NULL,
-                time INTEGER NOT NULL,
-                event_uid TEXT
-            );
-            SQL
-        );
-        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo = $this->createMigratedPdo();
         $cfg = new ConfigService($pdo);
         $cfg->saveConfig(['event_uid' => 'ev1']);
         $svc = new PhotoConsentService($pdo, $cfg);
@@ -115,19 +67,7 @@ class PhotoConsentServiceTest extends TestCase
 
     public function testSaveAllReplacesOnlyCurrentEvent(): void
     {
-        $pdo = new PDO('sqlite::memory:');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE photo_consents(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                team TEXT NOT NULL,
-                time INTEGER NOT NULL,
-                event_uid TEXT
-            );
-            SQL
-        );
-        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo = $this->createMigratedPdo();
         $cfg = new ConfigService($pdo);
         $cfg->saveConfig(['event_uid' => 'ev1']);
         $svc = new PhotoConsentService($pdo, $cfg);

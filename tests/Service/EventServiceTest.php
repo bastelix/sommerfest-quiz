@@ -12,15 +12,7 @@ class EventServiceTest extends TestCase
 {
     private function createPdo(): PDO
     {
-        $pdo = new PDO('sqlite::memory:');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            'CREATE TABLE events(' .
-            'uid TEXT PRIMARY KEY, name TEXT NOT NULL, start_date TEXT, end_date TEXT, description TEXT' .
-            ');'
-        );
-        $pdo->exec('CREATE TABLE config(id INTEGER PRIMARY KEY AUTOINCREMENT, event_uid TEXT);');
-        return $pdo;
+        return $this->createMigratedPdo();
     }
 
     public function testSaveAndGet(): void

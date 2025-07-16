@@ -16,6 +16,9 @@ use Slim\Psr7\Uri;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use App\Application\Middleware\SessionMiddleware;
+use App\Infrastructure\Database;
+use App\Infrastructure\Migrations\Migrator;
+use PDO;
 
 class TestCase extends PHPUnit_TestCase
 {
@@ -38,6 +41,8 @@ class TestCase extends PHPUnit_TestCase
                 $_ENV['POSTGRES_USER'] = '';
                 $_ENV['POSTGRES_PASSWORD'] = '';
                 $this->tmpDbs[] = $db;
+                $pdo = Database::connectFromEnv();
+                Migrator::migrate($pdo, __DIR__ . '/../migrations');
             }
         }
 
@@ -90,6 +95,14 @@ class TestCase extends PHPUnit_TestCase
         }
 
         return new SlimRequest($method, $uri, $h, $cookies, $serverParams, $stream);
+    }
+
+    protected function createMigratedPdo(): PDO
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        Migrator::migrate($pdo, __DIR__ . '/../migrations');
+        return $pdo;
     }
 
     protected function tearDown(): void

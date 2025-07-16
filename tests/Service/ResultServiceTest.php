@@ -13,25 +13,7 @@ class ResultServiceTest extends TestCase
 {
     public function testAddIncrementsAttemptForSameCatalog(): void
     {
-        $pdo = new PDO('sqlite::memory:');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE results(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                catalog TEXT NOT NULL,
-                attempt INTEGER NOT NULL,
-                correct INTEGER NOT NULL,
-                total INTEGER NOT NULL,
-                time INTEGER NOT NULL,
-                puzzleTime INTEGER,
-                photo TEXT,
-                event_uid TEXT
-            );
-            SQL
-        );
-        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo = $this->createMigratedPdo();
         $cfg = new ConfigService($pdo);
         $service = new ResultService($pdo, $cfg);
 
@@ -44,25 +26,7 @@ class ResultServiceTest extends TestCase
 
     public function testAddDoesNotIncrementAcrossCatalogs(): void
     {
-        $pdo = new PDO('sqlite::memory:');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE results(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                catalog TEXT NOT NULL,
-                attempt INTEGER NOT NULL,
-                correct INTEGER NOT NULL,
-                total INTEGER NOT NULL,
-                time INTEGER NOT NULL,
-                puzzleTime INTEGER,
-                photo TEXT,
-                event_uid TEXT
-            );
-            SQL
-        );
-        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo = $this->createMigratedPdo();
         $cfg = new ConfigService($pdo);
         $service = new ResultService($pdo, $cfg);
 
@@ -75,25 +39,7 @@ class ResultServiceTest extends TestCase
 
     public function testMarkPuzzleUpdatesEntry(): void
     {
-        $pdo = new PDO('sqlite::memory:');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE results(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                catalog TEXT NOT NULL,
-                attempt INTEGER NOT NULL,
-                correct INTEGER NOT NULL,
-                total INTEGER NOT NULL,
-                time INTEGER NOT NULL,
-                puzzleTime INTEGER,
-                photo TEXT,
-                event_uid TEXT
-            );
-            SQL
-        );
-        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo = $this->createMigratedPdo();
         $cfg = new ConfigService($pdo);
         $service = new ResultService($pdo, $cfg);
 
@@ -107,25 +53,7 @@ class ResultServiceTest extends TestCase
 
     public function testMarkPuzzleReturnsTrueIfAlreadySolved(): void
     {
-        $pdo = new PDO('sqlite::memory:');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE results(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                catalog TEXT NOT NULL,
-                attempt INTEGER NOT NULL,
-                correct INTEGER NOT NULL,
-                total INTEGER NOT NULL,
-                time INTEGER NOT NULL,
-                puzzleTime INTEGER,
-                photo TEXT,
-                event_uid TEXT
-            );
-            SQL
-        );
-        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo = $this->createMigratedPdo();
         $cfg = new ConfigService($pdo);
         $service = new ResultService($pdo, $cfg);
 
@@ -138,25 +66,7 @@ class ResultServiceTest extends TestCase
 
     public function testSetPhotoUpdatesEntry(): void
     {
-        $pdo = new PDO('sqlite::memory:');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE results(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                catalog TEXT NOT NULL,
-                attempt INTEGER NOT NULL,
-                correct INTEGER NOT NULL,
-                total INTEGER NOT NULL,
-                time INTEGER NOT NULL,
-                puzzleTime INTEGER,
-                photo TEXT,
-                event_uid TEXT
-            );
-            SQL
-        );
-        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo = $this->createMigratedPdo();
         $cfg = new ConfigService($pdo);
         $service = new ResultService($pdo, $cfg);
 
@@ -168,66 +78,7 @@ class ResultServiceTest extends TestCase
 
     public function testAddStoresQuestionResults(): void
     {
-        $pdo = new PDO('sqlite::memory:');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE results(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                catalog TEXT NOT NULL,
-                attempt INTEGER NOT NULL,
-                correct INTEGER NOT NULL,
-                total INTEGER NOT NULL,
-                time INTEGER NOT NULL,
-                puzzleTime INTEGER,
-                photo TEXT,
-                event_uid TEXT
-            );
-            SQL
-        );
-        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE question_results(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                catalog TEXT NOT NULL,
-                question_id INTEGER NOT NULL,
-                attempt INTEGER NOT NULL,
-                correct INTEGER NOT NULL,
-                answer_text TEXT,
-                photo TEXT,
-                consent INTEGER
-            );
-            SQL
-        );
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE catalogs(
-                uid TEXT PRIMARY KEY,
-                sort_order INTEGER,
-                slug TEXT,
-                file TEXT,
-                name TEXT
-            );
-            SQL
-        );
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE questions(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                catalog_uid TEXT NOT NULL,
-                sort_order INTEGER,
-                type TEXT NOT NULL,
-                prompt TEXT NOT NULL,
-                options TEXT,
-                answers TEXT,
-                terms TEXT,
-                items TEXT
-            );
-            SQL
-        );
+        $pdo = $this->createMigratedPdo();
         $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name) VALUES('u1',1,'cat1','c.json','C')");
         $pdo->exec("INSERT INTO questions(catalog_uid,sort_order,type,prompt) VALUES('u1',1,'text','Q1')");
         $pdo->exec("INSERT INTO questions(catalog_uid,sort_order,type,prompt) VALUES('u1',2,'text','Q2')");
@@ -247,40 +98,7 @@ class ResultServiceTest extends TestCase
 
     public function testClearRemovesResultsAndQuestionResults(): void
     {
-        $pdo = new PDO('sqlite::memory:');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE results(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                catalog TEXT NOT NULL,
-                attempt INTEGER NOT NULL,
-                correct INTEGER NOT NULL,
-                total INTEGER NOT NULL,
-                time INTEGER NOT NULL,
-                puzzleTime INTEGER,
-                photo TEXT,
-                event_uid TEXT
-            );
-            SQL
-        );
-        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE question_results(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                catalog TEXT NOT NULL,
-                question_id INTEGER NOT NULL,
-                attempt INTEGER NOT NULL,
-                correct INTEGER NOT NULL,
-                answer_text TEXT,
-                photo TEXT,
-                consent INTEGER
-            );
-            SQL
-        );
+        $pdo = $this->createMigratedPdo();
         $cfg = new ConfigService($pdo);
         $service = new ResultService($pdo, $cfg);
         $service->add([ 'name' => 'Team', 'catalog' => 'cat1', 'correct' => 1, 'total' => 1 ]);
@@ -293,70 +111,11 @@ class ResultServiceTest extends TestCase
 
     public function testPhotoAttachedAfterEventUidChange(): void
     {
-        $pdo = new PDO('sqlite::memory:');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE results(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                catalog TEXT NOT NULL,
-                attempt INTEGER NOT NULL,
-                correct INTEGER NOT NULL,
-                total INTEGER NOT NULL,
-                time INTEGER NOT NULL,
-                puzzleTime INTEGER,
-                photo TEXT,
-                event_uid TEXT
-            );
-            SQL
-        );
-        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo = $this->createMigratedPdo();
         $pdo->exec("INSERT INTO config(event_uid) VALUES('ev1')");
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE catalogs(
-                uid TEXT PRIMARY KEY,
-                sort_order INTEGER,
-                slug TEXT,
-                file TEXT,
-                name TEXT
-            );
-            SQL
-        );
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE questions(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                catalog_uid TEXT NOT NULL,
-                sort_order INTEGER,
-                type TEXT NOT NULL,
-                prompt TEXT NOT NULL,
-                options TEXT,
-                answers TEXT,
-                terms TEXT,
-                items TEXT
-            );
-            SQL
-        );
         $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name) VALUES('u',1,'cat1','c.json','C')");
         $pdo->exec("INSERT INTO questions(catalog_uid,sort_order,type,prompt) VALUES('u',1,'text','Q1')");
-        $pdo->exec(
-            <<<'SQL'
-            CREATE TABLE question_results(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                catalog TEXT NOT NULL,
-                question_id INTEGER NOT NULL,
-                attempt INTEGER NOT NULL,
-                correct INTEGER NOT NULL,
-                answer_text TEXT,
-                photo TEXT,
-                consent INTEGER,
-                event_uid TEXT
-            );
-            SQL
-        );
+        // table question_results already created by migration
         $cfg = new ConfigService($pdo);
         $service = new ResultService($pdo, $cfg);
 

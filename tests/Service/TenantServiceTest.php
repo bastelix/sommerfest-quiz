@@ -12,9 +12,7 @@ class TenantServiceTest extends TestCase
 {
     private function createService(string $dir, PDO &$pdo): TenantService
     {
-        $pdo = new PDO('sqlite::memory:');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT);');
+        $pdo = $this->createMigratedPdo();
         if (!is_dir($dir)) {
             mkdir($dir);
         }
@@ -25,7 +23,6 @@ class TenantServiceTest extends TestCase
     public function testCreateTenantInsertsRow(): void
     {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
-        $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
         $service->createTenant('u1', 's1');
         $count = (int) $pdo->query('SELECT COUNT(*) FROM tenants')->fetchColumn();
@@ -35,7 +32,6 @@ class TenantServiceTest extends TestCase
     public function testDeleteTenantRemovesRow(): void
     {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
-        $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
         $service->createTenant('u2', 's2');
         $service->deleteTenant('u2');
@@ -46,7 +42,6 @@ class TenantServiceTest extends TestCase
     public function testCreateAndDeleteSequence(): void
     {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
-        $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
         $service->createTenant('u3', 's3');
         $this->assertSame(1, (int) $pdo->query('SELECT COUNT(*) FROM tenants')->fetchColumn());
