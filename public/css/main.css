@@ -442,9 +442,14 @@ body.dark-mode .sticky-actions {
   .topbar .uk-navbar-right {
     width: 50%;
   }
+  .topbar .uk-navbar-right {
+    justify-content: flex-end;
+  }
   .topbar .uk-navbar-center {
     order: 1;
     width: 100%;
+    position: static;
+    transform: none;
   }
   #adminTabs {
     display: none;
