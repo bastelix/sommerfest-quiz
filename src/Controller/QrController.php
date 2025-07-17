@@ -187,7 +187,7 @@ class QrController
             $ev = $this->events->getByUid($uid);
         }
         if ($ev === null) {
-            $ev = ['name' => '', 'description' => ''];
+            $ev = ['name' => '', 'start_date' => '', 'end_date' => '', 'description' => ''];
         }
         $title = (string)$ev['name'];
         $subtitle = (string)$ev['description'];
@@ -226,6 +226,10 @@ class QrController
                 $team = 'Team';
             }
             $invite = str_ireplace('[team]', $team, $invite);
+            $invite = str_ireplace('[event_name]', (string)($ev['name'] ?? ''), $invite);
+            $invite = str_ireplace('[event_start]', (string)($ev['start_date'] ?? ''), $invite);
+            $invite = str_ireplace('[event_end]', (string)($ev['end_date'] ?? ''), $invite);
+            $invite = str_ireplace('[event_description]', (string)($ev['description'] ?? ''), $invite);
             $pdf->SetFont('Arial', '', 11);
             $this->renderHtml($pdf, $invite, 'Arial', '', 11);
         }
@@ -263,7 +267,7 @@ class QrController
             $ev = $this->events->getByUid($uid);
         }
         if ($ev === null) {
-            $ev = ['name' => '', 'description' => ''];
+            $ev = ['name' => '', 'start_date' => '', 'end_date' => '', 'description' => ''];
         }
         $title = (string)$ev['name'];
         $subtitle = (string)$ev['description'];
@@ -319,6 +323,10 @@ class QrController
             $invite = (string)($cfg['inviteText'] ?? '');
             if ($invite !== '') {
                 $invite = str_ireplace('[team]', $team ?: 'Team', $invite);
+                $invite = str_ireplace('[event_name]', (string)($ev['name'] ?? ''), $invite);
+                $invite = str_ireplace('[event_start]', (string)($ev['start_date'] ?? ''), $invite);
+                $invite = str_ireplace('[event_end]', (string)($ev['end_date'] ?? ''), $invite);
+                $invite = str_ireplace('[event_description]', (string)($ev['description'] ?? ''), $invite);
                 $pdf->SetFont('Arial', '', 11);
                 $this->renderHtml($pdf, $invite, 'Arial', '', 11);
             }

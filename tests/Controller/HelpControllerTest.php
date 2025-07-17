@@ -48,7 +48,13 @@ class HelpControllerTest extends TestCase
             );
             SQL
         );
-        $pdo->exec("INSERT INTO config(inviteText) VALUES('Hallo [Team]!');");
+        $pdo->exec(
+            'CREATE TABLE events(' .
+            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT' .
+            ');'
+        );
+        $pdo->exec("INSERT INTO events(uid,name,start_date,end_date,description) VALUES('1','Event','2024-01-01T10:00','2024-01-01T12:00','Desc')");
+        $pdo->exec("INSERT INTO config(inviteText, event_uid) VALUES('Hallo [Team], willkommen zu [EVENT_NAME] am [EVENT_START] bis [EVENT_END] - [EVENT_DESCRIPTION]!','1')");
 
         putenv('POSTGRES_DSN=sqlite:' . $dbFile);
         putenv('POSTGRES_USER=');
@@ -61,7 +67,8 @@ class HelpControllerTest extends TestCase
         $request = $this->createRequest('GET', '/help');
         $response = $app->handle($request);
 
-        $this->assertStringContainsString('Hallo Team´s!', (string)$response->getBody());
+        $expected = 'Hallo Team´s, willkommen zu Event am 2024-01-01T10:00 bis 2024-01-01T12:00 - Desc!';
+        $this->assertStringContainsString($expected, (string)$response->getBody());
 
         unlink($dbFile);
     }

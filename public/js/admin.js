@@ -122,6 +122,16 @@ document.addEventListener('DOMContentLoaded', function () {
     textarea.selectionEnd = end + before.length;
   }
 
+  function insertText(textarea, text) {
+    if (!textarea) return;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const val = textarea.value;
+    textarea.value = val.slice(0, start) + text + val.slice(end);
+    textarea.focus();
+    textarea.selectionStart = textarea.selectionEnd = start + text.length;
+  }
+
   commentToolbar?.addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-format]');
     if (!btn) return;
@@ -149,8 +159,12 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   inviteToolbar?.addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-format]');
+    const btn = e.target.closest('button[data-format],button[data-insert]');
     if (!btn) return;
+    if (btn.dataset.insert) {
+      insertText(inviteTextarea, btn.dataset.insert);
+      return;
+    }
     const fmt = btn.dataset.format;
     switch (fmt) {
       case 'h2':
