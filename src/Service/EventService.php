@@ -29,7 +29,12 @@ class EventService
     public function getAll(): array
     {
         $stmt = $this->pdo->query('SELECT uid,name,start_date,end_date,description FROM events ORDER BY name');
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_map(function (array $row) {
+            $row['start_date'] = $this->formatDate($row['start_date']);
+            $row['end_date'] = $this->formatDate($row['end_date']);
+            return $row;
+        }, $rows);
     }
 
     /**
@@ -99,7 +104,12 @@ class EventService
     {
         $stmt = $this->pdo->query('SELECT uid,name,start_date,end_date,description FROM events ORDER BY name LIMIT 1');
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row !== false ? $row : null;
+        if ($row === false) {
+            return null;
+        }
+        $row['start_date'] = $this->formatDate($row['start_date']);
+        $row['end_date'] = $this->formatDate($row['end_date']);
+        return $row;
     }
 
     /**
@@ -111,6 +121,8 @@ class EventService
         $stmt->execute([$uid]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row !== false) {
+            $row['start_date'] = $this->formatDate($row['start_date']);
+            $row['end_date'] = $this->formatDate($row['end_date']);
             return $row;
         }
 
@@ -133,5 +145,18 @@ class EventService
         }
 
         return null;
+    }
+
+    private function formatDate(?string $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return $value;
+        }
+        try {
+            $dt = new \DateTime($value);
+            return $dt->format('Y-m-d\TH:i');
+        } catch (\Exception $e) {
+            return $value;
+        }
     }
 }
