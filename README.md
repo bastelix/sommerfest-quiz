@@ -146,10 +146,13 @@ erhalten und es sind keine manuellen Ordner erforderlich. Zusätzlich läuft ein
 Adminer-Container,
 der die PostgreSQL-Datenbank über die Subdomain `https://adminer.${DOMAIN}` bereitstellt. Er
 nutzt intern den Hostnamen `postgres` und erfordert keine weiteren Einstellungen.
-Um größere Uploads zu erlauben, kann die maximale
-Request-Größe des Reverse Proxys über die Umgebungsvariable
-`CLIENT_MAX_BODY_SIZE` angepasst werden. In der mitgelieferten
-`docker-compose.yml` ist dieser Wert auf `50m` gesetzt.
+Um größere Uploads zu erlauben, wird die maximale
+Request-Größe des Reverse Proxys über eine Datei in `vhost.d/` konfiguriert.
+Kopiere das Beispiel `vhost.d/example.com` und passe den Wert
+`client_max_body_size` an deine Domain an. Nach dem Ändern genügt
+`docker compose restart docker-gen`, damit nginx die Einstellung übernimmt.
+Die optionale Variable `CLIENT_MAX_BODY_SIZE` in `.env` liefert dabei nur
+einen Standardwert für Skripte wie `scripts/create_tenant.sh`.
 
 Zum Start genügt:
 ```bash
@@ -227,6 +230,11 @@ mit unterschiedlichen Werten, werden die Subdomains automatisch als
 eigene Mandanten behandelt. Der eingesetzte Proxy erzeugt dank
 `nginxproxy/acme-companion` für jede konfigurierte Domain ein
 Let's-Encrypt-Zertifikat, sobald der Container gestartet wird.
+
+Weitere nützliche Variablen in `.env` sind:
+
+- `LETSENCRYPT_EMAIL` – Kontaktadresse für die automatische Zertifikatserstellung.
+- `BASE_PATH` – optionaler Basis-Pfad, falls die Anwendung nicht im Root der Domain liegt.
 
 ## Anpassung
 

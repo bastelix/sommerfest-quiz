@@ -32,6 +32,7 @@
 - Fix shell commands for alpine
 - Ignore changelog update commits
 - Add troubleshooting for test data
+- Update docker setup instructions
 
 ### Feat
 
