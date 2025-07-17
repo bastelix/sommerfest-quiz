@@ -86,6 +86,7 @@ services:
 
   slim:
     build: .
+    container_name: slim-1
     working_dir: /var/www
     volumes:
       - ./:/var/www
