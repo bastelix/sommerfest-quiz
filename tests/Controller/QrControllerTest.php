@@ -124,11 +124,11 @@ class QrControllerTest extends TestCase
         );
         $pdo->exec(
             'CREATE TABLE events(' .
-            'uid TEXT PRIMARY KEY, name TEXT, description TEXT' .
+            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT' .
             ');'
         );
-        $pdo->exec("INSERT INTO events(uid,name,description) VALUES('1','Event','')");
-        $pdo->exec("INSERT INTO config(inviteText, event_uid) VALUES('Hallo [Team]!','1')");
+        $pdo->exec("INSERT INTO events(uid,name,start_date,end_date,description) VALUES('1','Event','2024-01-01T10:00','2024-01-01T12:00','Desc')");
+        $pdo->exec("INSERT INTO config(inviteText, event_uid) VALUES('Hallo [TEAM], willkommen zu [EVENT_NAME] am [EVENT_START] bis [EVENT_END] - [EVENT_DESCRIPTION]!','1')");
 
         $cfg = new \App\Service\ConfigService($pdo);
         $cfg->setActiveEventUid('1');
@@ -141,7 +141,8 @@ class QrControllerTest extends TestCase
         $response = $qr->pdf($req, new Response());
         $pdf = (string)$response->getBody();
 
-        $this->assertStringContainsString('Hallo Demo!', $pdf);
+        $expected = 'Hallo Demo, willkommen zu Event am 2024-01-01T10:00 bis 2024-01-01T12:00 - Desc!';
+        $this->assertStringContainsString($expected, $pdf);
         $this->assertStringContainsString('Event', $pdf);
     }
 

@@ -51,7 +51,14 @@ class HelpController
         }
 
         if (!empty($cfg['inviteText'])) {
-            $cfg['inviteText'] = str_ireplace('[team]', 'Team´s', (string)$cfg['inviteText']);
+            $invite = str_ireplace('[team]', 'Team´s', (string)$cfg['inviteText']);
+            if ($event !== null) {
+                $invite = str_ireplace('[event_name]', (string)($event['name'] ?? ''), $invite);
+                $invite = str_ireplace('[event_start]', (string)($event['start_date'] ?? ''), $invite);
+                $invite = str_ireplace('[event_end]', (string)($event['end_date'] ?? ''), $invite);
+                $invite = str_ireplace('[event_description]', (string)($event['description'] ?? ''), $invite);
+            }
+            $cfg['inviteText'] = $invite;
         }
 
         return $view->render($response, 'help.twig', [
