@@ -9,7 +9,7 @@ Die Administrationsoberfl\u00e4che erreichen Sie \u00fcber `/admin` nach einem e
 5. **Teams/Personen** – Teilnehmerlisten pflegen und optional den Zugang einschränken.
 6. **Ergebnisse** – Spielstände einsehen und als CSV herunterladen.
 7. **Statistik** – Einzelne Antworten analysieren und nach Teams filtern.
-8. **Administration** – Passwort ändern und Backups verwalten.
+8. **Administration** – Benutzer und Backups verwalten.
 Im Tab "Administration" lassen sich JSON-Sicherungen exportieren und bei Bedarf wiederherstellen.
 Der Statistik-Tab listet jede Antwort mit Name, Versuch, Katalog, Frage, Antwort, Richtig-Status und optionalem Beweisfoto. Über ein Auswahlfeld lassen sich die Daten nach Teams oder Personen filtern.
 

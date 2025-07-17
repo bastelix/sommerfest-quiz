@@ -22,13 +22,13 @@ Unter `/admin` stehen folgende Tabs zur Verfügung:
 5. **Teams/Personen** – Teilnehmerlisten pflegen, optional als Login-Beschränkung.
 6. **Ergebnisse** – Spielstände einsehen und herunterladen.
 7. **Statistik** – Einzelne Antworten analysieren und nach Teams filtern.
-8. **Administration** – Passwort ändern und Backups verwalten.
+8. **Administration** – Benutzer und Backups verwalten.
 Der Statistik-Tab listet jede Antwort mit Name, Versuch, Katalog, Frage, Antwort, Richtig-Status und optionalem Beweisfoto. Über ein Auswahlfeld lassen sich die Daten nach Teams oder Personen filtern.
 
 
 ## Weitere Funktionen
 
-- **Administration:** Ein POST auf `/password` speichert ein neues Admin-Passwort in `config.json`. Über `/export` kann ein JSON-Backup erstellt und per `/import` wieder eingespielt werden. 
+- **Administration:** Über `/export` kann ein JSON-Backup erstellt und per `/import` wieder eingespielt werden.
   Die Route `/backups` listet vorhandene Sicherungen.
 - **Logo hochladen:** Das aktuelle Logo wird unter `/logo.png` oder `/logo.webp` bereitgestellt. Über einen POST auf diese URLs lässt sich eine neue Datei hochladen. Das Bild wird dabei im Ordner `data/` gespeichert, sodass PDFs es einbinden können.
 - **Ergebnisse exportieren:** Alle Resultate können als CSV-Datei heruntergeladen werden.
