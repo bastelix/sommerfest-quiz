@@ -69,6 +69,7 @@
 - Standardize qrremember column name
 - *(migrations)* Ensure idempotent sort order constraint
 - Align config controller test with default settings
+- Format event dates for datetime-local
 
 ### Refactor
 
