@@ -1832,6 +1832,10 @@ document.addEventListener('DOMContentLoaded', function () {
         loadSummary();
       }
     });
+    const summaryIdx = 5;
+    adminTabs.children[summaryIdx]?.addEventListener('click', () => {
+      loadSummary();
+    });
     adminMenu.querySelectorAll('[data-tab]').forEach(item => {
       item.addEventListener('click', e => {
         e.preventDefault();
@@ -1839,6 +1843,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!isNaN(idx)) {
           tabControl.show(idx);
           if (adminNav) UIkit.offcanvas(adminNav).hide();
+          if (idx === summaryIdx) {
+            loadSummary();
+          }
         }
       });
     });
