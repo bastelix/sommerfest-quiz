@@ -20,7 +20,8 @@ services:
       - webproxy
 
   docker-gen:
-    image: nginxproxy/docker-gen
+    build:
+      context: ./docker-gen
     container_name: docker-gen
     restart: unless-stopped
     volumes:
