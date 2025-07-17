@@ -86,4 +86,55 @@ class ImportControllerTest extends TestCase
         rmdir($tmp . '/kataloge');
         rmdir($tmp);
     }
+
+    public function testImportTwiceDoesNotDuplicateSummaryPhotos(): void
+    {
+        [
+            $catalog,
+            $config,
+            $results,
+            $teams,
+            $consents,
+            $summary,
+            $events,
+            $pdo
+        ] = $this->createServices();
+
+        $tmp = sys_get_temp_dir() . '/import_' . uniqid();
+        mkdir($tmp . '/kataloge', 0777, true);
+        file_put_contents($tmp . '/kataloge/catalogs.json', json_encode([], JSON_PRETTY_PRINT));
+        file_put_contents(
+            $tmp . '/summary_photos.json',
+            json_encode([
+                ['name' => 'A', 'path' => '/a.jpg', 'time' => 1],
+                ['name' => 'B', 'path' => '/b.jpg', 'time' => 2],
+            ], JSON_PRETTY_PRINT)
+        );
+
+        $controller = new ImportController(
+            $catalog,
+            $config,
+            $results,
+            $teams,
+            $consents,
+            $summary,
+            $events,
+            $tmp,
+            $tmp
+        );
+        $request = $this->createRequest('POST', '/import');
+
+        $controller->post($request, new Response());
+        $count = (int) $pdo->query('SELECT COUNT(*) FROM summary_photos')->fetchColumn();
+        $this->assertSame(2, $count);
+
+        $controller->post($request, new Response());
+        $count2 = (int) $pdo->query('SELECT COUNT(*) FROM summary_photos')->fetchColumn();
+        $this->assertSame(2, $count2);
+
+        unlink($tmp . '/summary_photos.json');
+        unlink($tmp . '/kataloge/catalogs.json');
+        rmdir($tmp . '/kataloge');
+        rmdir($tmp);
+    }
 }
