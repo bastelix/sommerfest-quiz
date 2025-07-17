@@ -146,10 +146,13 @@ erhalten und es sind keine manuellen Ordner erforderlich. Zusätzlich läuft ein
 Adminer-Container,
 der die PostgreSQL-Datenbank über die Subdomain `https://adminer.${DOMAIN}` bereitstellt. Er
 nutzt intern den Hostnamen `postgres` und erfordert keine weiteren Einstellungen.
-Um größere Uploads zu erlauben, kann die maximale
-Request-Größe des Reverse Proxys über die Umgebungsvariable
-`CLIENT_MAX_BODY_SIZE` angepasst werden. In der mitgelieferten
-`docker-compose.yml` ist dieser Wert auf `50m` gesetzt.
+Um größere Uploads zu erlauben, wird die maximale
+Request-Größe des Reverse Proxys über eine Datei in `vhost.d/` konfiguriert.
+Kopiere das Beispiel `vhost.d/example.com` und passe den Wert
+`client_max_body_size` an deine Domain an. Nach dem Ändern genügt
+`docker compose restart docker-gen`, damit nginx die Einstellung übernimmt.
+Die optionale Variable `CLIENT_MAX_BODY_SIZE` in `.env` liefert dabei nur
+einen Standardwert für Skripte wie `scripts/create_tenant.sh`.
 
 Zum Start genügt:
 ```bash
@@ -161,13 +164,14 @@ Beenden lässt sich der Stack mit:
 docker compose down
 ```
 Die Volumes bleiben dabei erhalten.
-Beim Einsatz des integrierten Proxy-Stacks (nginx, docker-gen und acme-companion) greift der Wert nur, solange keine eigene Vhost-Konfiguration vorliegt.
-Soll ein höheres Limit dauerhaft gelten, lege im Verzeichnis `vhost.d/` eine Datei an.
-Nach dem Anpassen genügt ein Neustart des Containers `docker-gen` (z.B. `docker compose restart docker-gen`), damit nginx die Einstellung übernimmt.
+Nach Änderungen an der Datei in `vhost.d/` muss lediglich der Container
+`docker-gen` neu gestartet werden, zum Beispiel mit
+`docker compose restart docker-gen`, damit nginx die neue Begrenzung
+übernimmt.
 
-Werte `upload_max_filesize` und `post_max_size` angepasst werden. Dafür
-liegt im Verzeichnis `config/` bereits eine kleine `php.ini` bei, die in
-`docker-compose.yml` eingebunden wird.
+Die PHP-Einstellungen `upload_max_filesize` und `post_max_size` werden
+über `config/php.ini` gesteuert. Beim Start bindet das Compose-File diese
+Datei als `/usr/local/etc/php/conf.d/99-upload.ini` in den Container ein.
 Die verwendete Domain wird aus der Datei `.env` gelesen (Variable `DOMAIN`).
 Beim Start des Containers installiert ein Entrypoint-Skript automatisch alle
 Composer-Abhängigkeiten, sofern das Verzeichnis `vendor/` noch nicht existiert.
@@ -226,6 +230,11 @@ mit unterschiedlichen Werten, werden die Subdomains automatisch als
 eigene Mandanten behandelt. Der eingesetzte Proxy erzeugt dank
 `nginxproxy/acme-companion` für jede konfigurierte Domain ein
 Let's-Encrypt-Zertifikat, sobald der Container gestartet wird.
+
+Weitere nützliche Variablen in `.env` sind:
+
+- `LETSENCRYPT_EMAIL` – Kontaktadresse für die automatische Zertifikatserstellung.
+- `BASE_PATH` – optionaler Basis-Pfad, falls die Anwendung nicht im Root der Domain liegt.
 
 ## Anpassung
 

@@ -91,6 +91,7 @@ services:
     working_dir: /var/www
     volumes:
       - ./:/var/www
+      - ./config/php.ini:/usr/local/etc/php/conf.d/99-upload.ini:ro
     environment:
       - VIRTUAL_HOST=${SLIM_VIRTUAL_HOST:-${DOMAIN}}
       - LETSENCRYPT_HOST=${SLIM_VIRTUAL_HOST:-${DOMAIN}}
