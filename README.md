@@ -154,6 +154,14 @@ Kopiere das Beispiel `vhost.d/example.com` und passe den Wert
 Die optionale Variable `CLIENT_MAX_BODY_SIZE` in `.env` liefert dabei nur
 einen Standardwert für Skripte wie `scripts/create_tenant.sh`.
 
+**Wichtig:** Beim ersten Start ist das Verzeichnis `vhost.d/` noch leer.
+Lege daher unbedingt die Datei `vhost.d/\${DOMAIN}` mit folgendem Inhalt an,
+damit Uploads bis zu 50&nbsp;MB funktionieren:
+
+```nginx
+client_max_body_size 50m;
+```
+
 Zum Start genügt:
 ```bash
 cp .env.template .env
