@@ -33,6 +33,7 @@
 - Ignore changelog update commits
 - Add troubleshooting for test data
 - Update docker setup instructions
+- Clarify php.ini usage
 
 ### Feat
 
