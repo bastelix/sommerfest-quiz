@@ -353,7 +353,7 @@ Unter `/admin` stehen folgende Tabs zur Verfügung:
 4. **Teams/Personen** – Teilnehmerlisten pflegen, optional als Login-Beschränkung.
 5. **Ergebnisse** – Spielstände einsehen und herunterladen.
 6. **Statistik** – Einzelne Antworten analysieren und nach Teams filtern.
-7. **Administration** – Passwort ändern und Backups verwalten.
+7. **Administration** – Benutzer und Backups verwalten.
 
 ### Fragenkataloge
 `data/kataloge/catalogs.json` listet verfügbare Kataloge mit `slug`, Name und optionaler QR-Code-Adresse. Die Reihenfolge wird durch das Feld `sort_order` bestimmt. Jede Frage speichert die zugehörige `catalog_uid`. Jeder Eintrag kann zusätzlich ein Feld `raetsel_buchstabe` enthalten, das den Buchstaben für das Rätselwort festlegt. Die API bietet hierzu folgende Endpunkte:
@@ -387,7 +387,6 @@ Teams oder Personen beschränken.
 
 
 ### Administration
-Ein POST auf `/password` speichert ein neues Admin-Passwort in `config.json`.
 Backups lassen sich über `/export` erstellen und per `/import` wiederherstellen.
 `GET /backups` listet alle Sicherungen, einzelne Ordner können über
 `/backups/{name}/download` heruntergeladen oder via `DELETE /backups/{name}`

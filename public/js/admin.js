@@ -1610,12 +1610,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // --------- Passwort ändern ---------
-  const passSaveBtn = document.getElementById('passSaveBtn');
   const importJsonBtn = document.getElementById('importJsonBtn');
   const exportJsonBtn = document.getElementById('exportJsonBtn');
-  const newPass = document.getElementById('newPass');
-  const newPassRepeat = document.getElementById('newPassRepeat');
   const backupTableBody = document.getElementById('backupTableBody');
 
   function loadBackups() {
@@ -1686,37 +1682,6 @@ document.addEventListener('DOMContentLoaded', function () {
       })
       .catch(() => {});
   }
-
-  passSaveBtn?.addEventListener('click', e => {
-    e.preventDefault();
-    if (!newPass || !newPassRepeat) return;
-    const p1 = newPass.value;
-    const p2 = newPassRepeat.value;
-    if (p1 === '' || p2 === '') {
-      notify('Passwort darf nicht leer sein', 'danger');
-      return;
-    }
-    if (p1 !== p2) {
-      notify('Passwörter stimmen nicht überein', 'danger');
-      return;
-    }
-    apiFetch('/password', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password: p1 })
-    })
-      .then(r => {
-        if (!r.ok) throw new Error(r.statusText);
-        notify('Passwort geändert', 'success');
-        newPass.value = '';
-        newPassRepeat.value = '';
-      })
-      .catch(err => {
-        console.error(err);
-      notify('Fehler beim Speichern', 'danger');
-    });
-  });
-
   importJsonBtn?.addEventListener('click', e => {
     e.preventDefault();
     apiFetch('/import', { method: 'POST' })
