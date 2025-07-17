@@ -54,15 +54,19 @@ class TeamService
         if ($uid !== '') {
             $del = $this->pdo->prepare('DELETE FROM teams WHERE event_uid=?');
             $del->execute([$uid]);
-            $stmt = $this->pdo->prepare('INSERT INTO teams(event_uid,sort_order,name) VALUES(?,?,?)');
+            $stmt = $this->pdo->prepare(
+                'INSERT INTO teams(uid,event_uid,sort_order,name) VALUES(?,?,?,?)'
+            );
             foreach ($teams as $i => $name) {
-                $stmt->execute([$uid, $i + 1, $name]);
+                $teamUid = bin2hex(random_bytes(16));
+                $stmt->execute([$teamUid, $uid, $i + 1, $name]);
             }
         } else {
             $this->pdo->exec('DELETE FROM teams');
-            $stmt = $this->pdo->prepare('INSERT INTO teams(sort_order,name) VALUES(?,?)');
+            $stmt = $this->pdo->prepare('INSERT INTO teams(uid,sort_order,name) VALUES(?,?,?)');
             foreach ($teams as $i => $name) {
-                $stmt->execute([$i + 1, $name]);
+                $teamUid = bin2hex(random_bytes(16));
+                $stmt->execute([$teamUid, $i + 1, $name]);
             }
         }
         $this->pdo->commit();
