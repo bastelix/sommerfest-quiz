@@ -140,19 +140,27 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
 ## Docker Compose
 
 Das mitgelieferte `docker-compose.yml` startet das Quiz samt Reverse Proxy.
-Die Dateien im Ordner `data/` werden dabei in einem benannten Volume
-`quizdata` gespeichert. So bleiben eingetragene Teams und Ergebnisse auch nach
-`docker compose down` erhalten. Hochgeladene Beweisfotos landen im Verzeichnis
-`data/photos` und werden dort immer als JPEG abgelegt. Durch das Volume bleiben
-die Bilder ebenfalls dauerhaft erhalten. Die
-ACME-Konfiguration des Let's-Encrypt-Begleiters landet im Ordner `acme/` und
-wird dadurch ebenfalls persistiert. Zusätzlich läuft ein Adminer-Container,
+Zertifikate und Konfigurationen werden komplett in benannten Volumes
+gespeichert. Dadurch bleiben alle Daten auch nach `docker compose down`
+erhalten und es sind keine manuellen Ordner erforderlich. Zusätzlich läuft ein
+Adminer-Container,
 der die PostgreSQL-Datenbank über die Subdomain `https://adminer.${DOMAIN}` bereitstellt. Er
 nutzt intern den Hostnamen `postgres` und erfordert keine weiteren Einstellungen.
 Um größere Uploads zu erlauben, kann die maximale
 Request-Größe des Reverse Proxys über die Umgebungsvariable
 `CLIENT_MAX_BODY_SIZE` angepasst werden. In der mitgelieferten
 `docker-compose.yml` ist dieser Wert auf `20m` gesetzt.
+
+Zum Start genügt:
+```bash
+cp .env.template .env
+docker compose up --build -d
+```
+Beenden lässt sich der Stack mit:
+```bash
+docker compose down
+```
+Die Volumes bleiben dabei erhalten.
 Beim Einsatz des integrierten Proxy-Stacks (nginx, docker-gen und acme-companion) greift der Wert nur, solange keine eigene Vhost-Konfiguration vorliegt.
 Soll ein höheres Limit dauerhaft gelten, lege im Verzeichnis `vhost.d/` eine Datei an.
 Nach dem Anpassen genügt ein Neustart des Containers `docker-gen` (z.B. `docker compose restart docker-gen`), damit nginx die Einstellung übernimmt.
@@ -209,7 +217,7 @@ eines Mandanten steht `scripts/delete_tenant.sh` bereit:
 scripts/delete_tenant.sh foo
 ```
 
-Beide Skripte lesen die Variable `DOMAIN` aus `sample.env` und nutzen sie
+Beide Skripte lesen die Variable `DOMAIN` aus `.env` und nutzen sie
 für die vhost-Konfiguration.
 
 Für den eigentlichen Quiz-Container lässt sich der Hostname über die
@@ -274,9 +282,9 @@ Das Projekt *Sommerfest-Quiz* ist eine Web-Applikation zur Erstellung und Verwal
    composer install
    ```
    Beim ersten Aufruf wird eine `composer.lock` erzeugt und alle benötigten Bibliotheken geladen.
-2. Die Beispieldatei `sample.env` in `.env` kopieren und bei Bedarf anpassen:
+2. Die Beispieldatei `.env.template` in `.env` kopieren und bei Bedarf anpassen:
    ```bash
-   cp sample.env .env
+   cp .env.template .env
    ```
 3. Lokalen Server starten:
    ```bash
@@ -286,7 +294,7 @@ Das Projekt *Sommerfest-Quiz* ist eine Web-Applikation zur Erstellung und Verwal
 
 4. Optional: Tabellen in einer PostgreSQL-Datenbank anlegen und JSON-Daten importieren (siehe Abschnitt "Schnellstart" für ausführliche Befehle).
 
-Für Docker-Betrieb steht ein `docker-compose.yml` bereit. Sämtliche Daten im Ordner `data/` werden in einem Volume namens `quizdata` gesichert, damit Ergebnisse erhalten bleiben.
+Für Docker-Betrieb steht ein `docker-compose.yml` bereit. Zertifikate und weitere Konfigurationen werden in Volumes gesichert, sodass keine lokalen Ordner benötigt werden.
 
 ### Konfigurationsdatei
 Alle wesentlichen Einstellungen stehen in `data/config.json` und werden beim ersten Import in die Datenbank übernommen. Über die Administration können sie später angepasst werden:
