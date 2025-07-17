@@ -9,7 +9,7 @@ fi
 
 SUBDOMAIN="$1"
 BASE_DIR="$(dirname "$0")/.."
-ENV_FILE="$BASE_DIR/sample.env"
+ENV_FILE="$BASE_DIR/.env"
 DOMAIN="$(grep '^DOMAIN=' "$ENV_FILE" | cut -d '=' -f2)"
 
 if [ -z "$DOMAIN" ]; then

@@ -49,7 +49,7 @@ curl -X DELETE http://$DOMAIN/tenants \
 
 ### Hinweise zu Umgebungsvariablen
 
-Die Mandanten-Logik nutzt folgende Variablen aus `.env` oder `sample.env`:
+Die Mandanten-Logik nutzt folgende Variablen aus `.env` oder `.env.template`:
 
 - `DOMAIN` legt die Basis-Domain für alle Mandanten fest.
 - `POSTGRES_DSN`, `POSTGRES_USER` und `POSTGRES_PASSWORD` bestimmen den Datenbankzugang.
