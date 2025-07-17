@@ -1,5 +1,8 @@
 /* global UIkit */
 document.addEventListener('DOMContentLoaded', function () {
+  const basePath = window.basePath || '';
+  const withBase = path => basePath + path;
+  const apiFetch = (path, options) => fetch(withBase(path), options);
   function notify(msg, status = 'primary') {
     if (typeof UIkit !== 'undefined' && UIkit.notification) {
       UIkit.notification({ message: msg, status, pos: 'top-center', timeout: 2000 });
@@ -176,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (cfgFields.logoFile && cfgFields.logoPreview) {
     const bar = document.getElementById('cfgLogoProgress');
     UIkit.upload('.js-upload', {
-      url: '/logo.png',
+              url: withBase('/logo.png'),
       name: 'file',
       multiple: false,
       error: function (e) {
@@ -201,8 +204,8 @@ document.addEventListener('DOMContentLoaded', function () {
           bar.setAttribute('hidden', 'hidden');
         }, 1000);
         const file = cfgFields.logoFile.files && cfgFields.logoFile.files[0];
-        const ext = file && file.name.toLowerCase().endsWith('.webp') ? 'webp' : 'png';
-        cfgFields.logoPreview.src = '/logo.' + ext + '?' + Date.now();
+                const ext = file && file.name.toLowerCase().endsWith('.webp') ? 'webp' : 'png';
+                cfgFields.logoPreview.src = withBase('/logo.' + ext) + '?' + Date.now();
         notify('Logo hochgeladen', 'success');
       }
     });
@@ -270,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function () {
     updatePuzzleFeedbackUI();
     puzzleModal.hide();
     cfgInitial.puzzleFeedback = puzzleFeedback;
-    fetch('/config.json', {
+    apiFetch('/config.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cfgInitial)
@@ -287,7 +290,7 @@ document.addEventListener('DOMContentLoaded', function () {
     updateInviteTextUI();
     inviteModal.hide();
     cfgInitial.inviteText = inviteText;
-    fetch('/config.json', {
+    apiFetch('/config.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cfgInitial)
@@ -337,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function () {
       puzzleFeedback: puzzleFeedback,
       inviteText: inviteText
     });
-    fetch('/config.json', {
+    apiFetch('/config.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -368,7 +371,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const openInvitesBtn = document.getElementById('openInvitesBtn');
   openInvitesBtn?.addEventListener('click', function (e) {
     e.preventDefault();
-    window.open('/invites.pdf', '_blank');
+    window.open(withBase('/invites.pdf'), '_blank');
   });
 
   document.querySelectorAll('.qr-print-btn').forEach(btn => {
@@ -376,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function () {
       e.preventDefault();
       const team = btn.getAttribute('data-team');
       if (team) {
-        window.open('/qr.pdf?t=' + encodeURIComponent(team), '_blank');
+        window.open(withBase('/qr.pdf?t=' + encodeURIComponent(team)), '_blank');
       }
     });
   });
@@ -402,7 +405,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const cat = catalogs.find(c => c.uid === identifier || (c.slug || c.sort_order) === identifier);
     if (!cat) return;
     catalogFile = cat.file;
-    fetch('/kataloge/' + catalogFile, { headers: { 'Accept': 'application/json' } })
+    apiFetch('/kataloge/' + catalogFile, { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(data => {
         initial = data;
@@ -414,7 +417,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
-  fetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } })
+  apiFetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } })
     .then(r => r.json())
     .then(list => {
       catalogs = list;
@@ -443,7 +446,7 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
     if (!confirm('Katalog wirklich löschen?')) return;
-    fetch('/kataloge/' + cat.file, { method: 'DELETE' })
+    apiFetch('/kataloge/' + cat.file, { method: 'DELETE' })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
         catalogs = catalogs.filter(c => c.uid !== cat.uid);
@@ -606,7 +609,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveCatalogOrder() {
     const data = collectCatalogs();
-    fetch('/kataloge/catalogs.json', {
+    apiFetch('/kataloge/catalogs.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -675,7 +678,7 @@ document.addEventListener('DOMContentLoaded', function () {
     removeBtn.onclick = () => {
       const idx = card.dataset.index;
       if (idx !== undefined) {
-        fetch('/kataloge/' + catalogFile + '/' + idx, { method: 'DELETE' })
+        apiFetch('/kataloge/' + catalogFile + '/' + idx, { method: 'DELETE' })
           .then(r => {
             if (!r.ok) throw new Error(r.statusText);
             initial.splice(Number(idx), 1);
@@ -1025,7 +1028,7 @@ document.addEventListener('DOMContentLoaded', function () {
   saveBtn.addEventListener('click', function (e) {
     e.preventDefault();
     const data = collect();
-    fetch('/kataloge/' + catalogFile, {
+    apiFetch('/kataloge/' + catalogFile, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -1081,7 +1084,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         if (!id) continue;
         try {
-          await fetch('/kataloge/' + id + '.json', {
+          await apiFetch('/kataloge/' + id + '.json', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: '[]'
@@ -1094,10 +1097,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       } else if (currentId && row.dataset.initialFile && row.dataset.initialFile !== newFile) {
         try {
-          const res = await fetch('/kataloge/' + row.dataset.initialFile, { headers: { 'Accept': 'application/json' } });
+          const res = await apiFetch('/kataloge/' + row.dataset.initialFile, { headers: { 'Accept': 'application/json' } });
           const content = await res.text();
-          await fetch('/kataloge/' + newFile, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: content });
-          await fetch('/kataloge/' + row.dataset.initialFile, { method: 'DELETE' });
+          await apiFetch('/kataloge/' + newFile, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: content });
+          await apiFetch('/kataloge/' + row.dataset.initialFile, { method: 'DELETE' });
           row.dataset.initialFile = newFile;
         } catch (err) {
           console.error(err);
@@ -1107,7 +1110,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const data = collectCatalogs();
-    fetch('/kataloge/catalogs.json', {
+    apiFetch('/kataloge/catalogs.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -1145,7 +1148,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   resultsResetConfirm?.addEventListener('click', function () {
-    fetch('/results', { method: 'DELETE' })
+    apiFetch('/results', { method: 'DELETE' })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
         notify('Ergebnisse gelöscht', 'success');
@@ -1160,7 +1163,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   resultsDownloadBtn?.addEventListener('click', function (e) {
     e.preventDefault();
-    fetch('/results/download')
+    apiFetch('/results/download')
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
         return r.blob();
@@ -1182,7 +1185,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   resultsPdfBtn?.addEventListener('click', function (e) {
     e.preventDefault();
-    window.open('/results.pdf', '_blank');
+    window.open(withBase('/results.pdf'), '_blank');
   });
 
   // --------- Veranstaltungen ---------
@@ -1203,7 +1206,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveEventOrder() {
     const list = collectEvents();
-    fetch('/events.json', {
+    apiFetch('/events.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(list)
@@ -1303,7 +1306,7 @@ document.addEventListener('DOMContentLoaded', function () {
     activeEventUid = uid;
     cfgInitial.event_uid = uid;
     updateActiveHeader(name);
-    fetch('/config.json', {
+    apiFetch('/config.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ event_uid: uid })
@@ -1317,7 +1320,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (eventsListEl) {
-    fetch('/events.json', { headers: { 'Accept': 'application/json' } })
+    apiFetch('/events.json', { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(data => renderEvents(data))
       .catch(() => {});
@@ -1331,7 +1334,7 @@ document.addEventListener('DOMContentLoaded', function () {
   eventsSaveBtn?.addEventListener('click', e => {
     e.preventDefault();
     const list = collectEvents();
-    fetch('/events.json', {
+    apiFetch('/events.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(list)
@@ -1357,7 +1360,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveTeamOrder() {
     const names = collectTeams();
-    fetch('/teams.json', {
+    apiFetch('/teams.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(names)
@@ -1407,7 +1410,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if(teamListEl){
-    fetch('/teams.json', { headers: { 'Accept':'application/json' } })
+    apiFetch('/teams.json', { headers: { 'Accept':'application/json' } })
       .then(r => r.json())
       .then(data => { renderTeams(data); })
       .catch(()=>{});
@@ -1426,7 +1429,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const names = Array.from(teamListEl.querySelectorAll('input.uk-input'))
       .map(i => i.value.trim())
       .filter(Boolean);
-    fetch('/teams.json', {
+    apiFetch('/teams.json', {
       method: 'POST',
       headers: { 'Content-Type':'application/json' },
       body: JSON.stringify(names)
@@ -1439,7 +1442,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     if (teamRestrictTeams) {
       cfgInitial.QRRestrict = teamRestrictTeams.checked;
-      fetch('/config.json', {
+      apiFetch('/config.json', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
         body: JSON.stringify(cfgInitial)
@@ -1468,7 +1471,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveUserOrder() {
     const list = collectUsers();
-    fetch('/users.json', {
+    apiFetch('/users.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(list)
@@ -1548,7 +1551,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (usersListEl) {
-    fetch('/users.json', { headers: { 'Accept': 'application/json' } })
+    apiFetch('/users.json', { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(data => renderUsers(data))
       .catch(() => {});
@@ -1580,7 +1583,7 @@ document.addEventListener('DOMContentLoaded', function () {
   usersSaveBtn?.addEventListener('click', e => {
     e.preventDefault();
     const list = collectUsers();
-    fetch('/users.json', {
+    apiFetch('/users.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(list)
@@ -1603,7 +1606,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function loadBackups() {
     if (!backupTableBody) return;
-    fetch('/backups')
+    apiFetch('/backups')
       .then(r => r.json())
       .then(list => {
         backupTableBody.innerHTML = '';
@@ -1625,7 +1628,7 @@ document.addEventListener('DOMContentLoaded', function () {
           imp.className = 'uk-button uk-button-primary uk-margin-small-right';
           imp.textContent = 'Wiederherstellen';
           imp.addEventListener('click', () => {
-            fetch('/import/' + encodeURIComponent(name), { method: 'POST' })
+            apiFetch('/import/' + encodeURIComponent(name), { method: 'POST' })
               .then(r => {
                 if (!r.ok) throw new Error(r.statusText);
                 notify('Import abgeschlossen', 'success');
@@ -1636,7 +1639,7 @@ document.addEventListener('DOMContentLoaded', function () {
           dl.className = 'uk-button uk-button-default uk-margin-small-right';
           dl.textContent = 'Download';
           dl.addEventListener('click', () => {
-            fetch('/backups/' + encodeURIComponent(name) + '/download')
+            apiFetch('/backups/' + encodeURIComponent(name) + '/download')
               .then(r => r.blob())
               .then(blob => {
                 const url = URL.createObjectURL(blob);
@@ -1652,7 +1655,7 @@ document.addEventListener('DOMContentLoaded', function () {
           del.className = 'uk-button uk-button-danger';
           del.textContent = 'Löschen';
           del.addEventListener('click', () => {
-            fetch('/backups/' + encodeURIComponent(name), { method: 'DELETE' })
+            apiFetch('/backups/' + encodeURIComponent(name), { method: 'DELETE' })
               .then(r => {
                 if (!r.ok) throw new Error(r.statusText);
                 loadBackups();
@@ -1683,7 +1686,7 @@ document.addEventListener('DOMContentLoaded', function () {
       notify('Passwörter stimmen nicht überein', 'danger');
       return;
     }
-    fetch('/password', {
+    apiFetch('/password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password: p1 })
@@ -1702,7 +1705,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   importJsonBtn?.addEventListener('click', e => {
     e.preventDefault();
-    fetch('/import', { method: 'POST' })
+    apiFetch('/import', { method: 'POST' })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
         notify('Import abgeschlossen', 'success');
@@ -1716,7 +1719,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   exportJsonBtn?.addEventListener('click', e => {
     e.preventDefault();
-    fetch('/export', { method: 'POST' })
+    apiFetch('/export', { method: 'POST' })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
         notify('Export abgeschlossen', 'success');
@@ -1751,10 +1754,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!nameEl || !catalogsEl || !teamsEl) return;
     const opts = { headers: { 'Accept': 'application/json' } };
     Promise.all([
-      fetch('/config.json', opts).then(r => r.json()).catch(() => ({})),
-      fetch('/events.json', opts).then(r => r.json()).catch(() => []),
-      fetch('/kataloge/catalogs.json', opts).then(r => r.json()).catch(() => []),
-      fetch('/teams.json', opts).then(r => r.json()).catch(() => [])
+      apiFetch('/config.json', opts).then(r => r.json()).catch(() => ({})),
+      apiFetch('/events.json', opts).then(r => r.json()).catch(() => []),
+      apiFetch('/kataloge/catalogs.json', opts).then(r => r.json()).catch(() => []),
+      apiFetch('/teams.json', opts).then(r => r.json()).catch(() => [])
     ]).then(([cfg, events, catalogs, teams]) => {
       Object.assign(cfgInitial, cfg);
       activeEventUid = cfgInitial.event_uid || activeEventUid;
@@ -1763,7 +1766,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (descEl) descEl.textContent = ev.description || '';
       if (qrImg) {
         const link = window.baseUrl || '';
-        qrImg.src = '/qr.png?t=' + encodeURIComponent(link) + '&fg=000000&label=0';
+                qrImg.src = withBase('/qr.png?t=' + encodeURIComponent(link) + '&fg=000000&label=0');
       }
       if (qrLabel) qrLabel.textContent = ev.name || '';
       catalogsEl.innerHTML = '';
@@ -1772,9 +1775,9 @@ document.addEventListener('DOMContentLoaded', function () {
         wrapper.className = 'uk-width-1-1 uk-width-1-2@s';
         const card = document.createElement('div');
         card.className = 'export-card uk-card uk-card-default uk-card-body';
-        let href = '/?katalog=' + encodeURIComponent(c.slug);
+        let href = withBase('/?katalog=' + encodeURIComponent(c.slug));
         if (ev.uid) {
-          href = '/?event=' + encodeURIComponent(ev.uid) + '&katalog=' + encodeURIComponent(c.slug);
+          href = withBase('/?event=' + encodeURIComponent(ev.uid) + '&katalog=' + encodeURIComponent(c.slug));
         }
         const linkEl = document.createElement('a');
         linkEl.href = href;
@@ -1787,7 +1790,7 @@ document.addEventListener('DOMContentLoaded', function () {
         p.textContent = c.description || '';
         const img = document.createElement('img');
         const qrLink = (window.baseUrl ? window.baseUrl + href : href);
-        img.src = '/qr.png?t=' + encodeURIComponent(qrLink) + '&fg=dc0000&label=0';
+                img.src = withBase('/qr.png?t=' + encodeURIComponent(qrLink) + '&fg=dc0000&label=0');
         img.alt = 'QR';
         img.width = 96;
         img.height = 96;
@@ -1812,7 +1815,7 @@ document.addEventListener('DOMContentLoaded', function () {
         h4.className = 'uk-card-title';
         h4.textContent = t;
         const img = document.createElement('img');
-        img.src = '/qr.png?t=' + encodeURIComponent(t) + '&fg=004bc8';
+        img.src = withBase('/qr.png?t=' + encodeURIComponent(t) + '&fg=004bc8');
         img.alt = 'QR';
         img.width = 96;
         img.height = 96;
