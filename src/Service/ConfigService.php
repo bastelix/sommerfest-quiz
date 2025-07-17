@@ -177,6 +177,12 @@ class ConfigService
         $this->pdo->commit();
 
         $this->setActiveEventUid($uid);
+
+        $json = $this->getJson();
+        if ($json !== null) {
+            $path = dirname(__DIR__, 2) . '/data/config.json';
+            file_put_contents($path, $json . "\n");
+        }
     }
 
     /**
