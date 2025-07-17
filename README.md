@@ -166,8 +166,9 @@ Soll ein höheres Limit dauerhaft gelten, lege im Verzeichnis `vhost.d/` eine Da
 Nach dem Anpassen genügt ein Neustart des Containers `docker-gen` (z.B. `docker compose restart docker-gen`), damit nginx die Einstellung übernimmt.
 
 Werte `upload_max_filesize` und `post_max_size` angepasst werden. Dafür
-liegt im Verzeichnis `config/` bereits eine kleine `php.ini` bei, die in
-`docker-compose.yml` eingebunden wird.
+liegt im Verzeichnis `config/` bereits eine kleine `php.ini` bei. Diese
+wird beim Bauen des Docker-Images nach
+`/usr/local/etc/php/conf.d/custom.ini` kopiert und automatisch geladen.
 Die verwendete Domain wird aus der Datei `.env` gelesen (Variable `DOMAIN`).
 Beim Start des Containers installiert ein Entrypoint-Skript automatisch alle
 Composer-Abhängigkeiten, sofern das Verzeichnis `vendor/` noch nicht existiert.

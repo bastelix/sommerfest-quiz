@@ -16,6 +16,9 @@ WORKDIR /var/www
 COPY . /var/www
 RUN composer install --no-interaction --prefer-dist --no-progress
 
+# include custom PHP configuration
+COPY config/php.ini /usr/local/etc/php/conf.d/custom.ini
+
 # run static analysis during image build
 # increase memory limit for phpstan to avoid out-of-memory errors
 RUN if [ -f vendor/bin/phpstan ]; then vendor/bin/phpstan --no-progress --memory-limit=512M; fi
