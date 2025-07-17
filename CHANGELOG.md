@@ -71,6 +71,7 @@
 - Align config controller test with default settings
 - Format event dates for datetime-local
 - Ensure topbar icons work on mobile
+- Respect base path in admin JS
 
 ### Refactor
 
