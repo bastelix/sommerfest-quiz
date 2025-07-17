@@ -10,7 +10,7 @@ services:
       - "443:443"
     volumes:
       - certs:/etc/nginx/certs:ro
-      - vhostd:/etc/nginx/vhost.d
+      - ./vhost.d:/etc/nginx/vhost.d
       - htmldata:/usr/share/nginx/html
       - confd:/etc/nginx/conf.d
       - dhparam:/etc/nginx/dhparam
