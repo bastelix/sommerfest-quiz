@@ -330,19 +330,19 @@
     </li>
     <li>
       <div class="uk-container uk-container-large">
-        <div class="uk-flex uk-flex-between uk-flex-middle">
+        <div class="uk-flex uk-flex-between uk-flex-middle" id="summaryEvent">
           <div>
-            <h2 class="uk-heading-bullet">{{ event.name }}</h2>
-            <p>{{ event.description }}</p>
+            <h2 class="uk-heading-bullet" id="summaryEventName">{{ event.name }}</h2>
+            <p id="summaryEventDesc">{{ event.description }}</p>
           </div>
           <div class="uk-text-center uk-margin-small-bottom">
-            <img src="/qr.png?t={{ baseUrl|url_encode }}&fg=000000&label=0" alt="QR" width="96" height="96">
-            <div>{{ event.name }}</div>
+            <img id="summaryEventQr" src="/qr.png?t={{ baseUrl|url_encode }}&fg=000000&label=0" alt="QR" width="96" height="96">
+            <div id="summaryEventLabel">{{ event.name }}</div>
           </div>
         </div>
 
         <h3 class="uk-heading-bullet">Kataloge</h3>
-        <div class="card-grid" uk-grid>
+        <div class="card-grid" uk-grid id="summaryCatalogs">
           {% for c in catalogs %}
           <div class="uk-width-1-1 uk-width-1-2@s">
             <div class="export-card uk-card uk-card-default uk-card-body">
@@ -364,7 +364,7 @@
         </div>
 
         <h3 class="uk-heading-bullet">Teams/Personen</h3>
-        <div class="card-grid" uk-grid>
+        <div class="card-grid" uk-grid id="summaryTeams">
           {% for t in teams %}
           <div class="uk-width-1-1 uk-width-1-2@s">
             <div class="export-card uk-card uk-card-default uk-card-body uk-position-relative">
@@ -601,6 +601,7 @@
   <script>
     window.quizConfig = {{ config|json_encode|raw }};
     window.roles = {{ roles|json_encode|raw }};
+    window.baseUrl = '{{ baseUrl }}';
   </script>
   <script src="{{ basePath }}/js/admin.js"></script>
   <script src="{{ basePath }}/js/app.js"></script>

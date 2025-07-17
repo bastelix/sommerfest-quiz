@@ -1741,6 +1741,90 @@ document.addEventListener('DOMContentLoaded', function () {
   const adminNav = document.getElementById('adminNav');
   const adminMenuToggle = document.getElementById('adminMenuToggle');
 
+  function loadSummary() {
+    const nameEl = document.getElementById('summaryEventName');
+    const descEl = document.getElementById('summaryEventDesc');
+    const qrImg = document.getElementById('summaryEventQr');
+    const qrLabel = document.getElementById('summaryEventLabel');
+    const catalogsEl = document.getElementById('summaryCatalogs');
+    const teamsEl = document.getElementById('summaryTeams');
+    if (!nameEl || !catalogsEl || !teamsEl) return;
+    const opts = { headers: { 'Accept': 'application/json' } };
+    Promise.all([
+      fetch('/config.json', opts).then(r => r.json()).catch(() => ({})),
+      fetch('/events.json', opts).then(r => r.json()).catch(() => []),
+      fetch('/kataloge/catalogs.json', opts).then(r => r.json()).catch(() => []),
+      fetch('/teams.json', opts).then(r => r.json()).catch(() => [])
+    ]).then(([cfg, events, catalogs, teams]) => {
+      Object.assign(cfgInitial, cfg);
+      activeEventUid = cfgInitial.event_uid || activeEventUid;
+      const ev = events.find(e => e.uid === activeEventUid) || events[0] || {};
+      nameEl.textContent = ev.name || '';
+      if (descEl) descEl.textContent = ev.description || '';
+      if (qrImg) {
+        const link = window.baseUrl || '';
+        qrImg.src = '/qr.png?t=' + encodeURIComponent(link) + '&fg=000000&label=0';
+      }
+      if (qrLabel) qrLabel.textContent = ev.name || '';
+      catalogsEl.innerHTML = '';
+      catalogs.forEach(c => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'uk-width-1-1 uk-width-1-2@s';
+        const card = document.createElement('div');
+        card.className = 'export-card uk-card uk-card-default uk-card-body';
+        let href = '/?katalog=' + encodeURIComponent(c.slug);
+        if (ev.uid) {
+          href = '/?event=' + encodeURIComponent(ev.uid) + '&katalog=' + encodeURIComponent(c.slug);
+        }
+        const linkEl = document.createElement('a');
+        linkEl.href = href;
+        linkEl.target = '_blank';
+        linkEl.textContent = c.name || '';
+        const h4 = document.createElement('h4');
+        h4.className = 'uk-card-title';
+        h4.appendChild(linkEl);
+        const p = document.createElement('p');
+        p.textContent = c.description || '';
+        const img = document.createElement('img');
+        const qrLink = (window.baseUrl ? window.baseUrl + href : href);
+        img.src = '/qr.png?t=' + encodeURIComponent(qrLink) + '&fg=dc0000&label=0';
+        img.alt = 'QR';
+        img.width = 96;
+        img.height = 96;
+        card.appendChild(h4);
+        card.appendChild(p);
+        card.appendChild(img);
+        wrapper.appendChild(card);
+        catalogsEl.appendChild(wrapper);
+      });
+      teamsEl.innerHTML = '';
+      teams.forEach(t => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'uk-width-1-1 uk-width-1-2@s';
+        const card = document.createElement('div');
+        card.className = 'export-card uk-card uk-card-default uk-card-body uk-position-relative';
+        const btn = document.createElement('button');
+        btn.className = 'qr-print-btn uk-icon-button uk-position-top-right';
+        btn.setAttribute('data-team', t);
+        btn.setAttribute('uk-icon', 'icon: print');
+        btn.setAttribute('aria-label', 'QR-Code drucken');
+        const h4 = document.createElement('h4');
+        h4.className = 'uk-card-title';
+        h4.textContent = t;
+        const img = document.createElement('img');
+        img.src = '/qr.png?t=' + encodeURIComponent(t) + '&fg=004bc8';
+        img.alt = 'QR';
+        img.width = 96;
+        img.height = 96;
+        card.appendChild(btn);
+        card.appendChild(h4);
+        card.appendChild(img);
+        wrapper.appendChild(card);
+        teamsEl.appendChild(wrapper);
+      });
+    });
+  }
+
   function activeHelpText() {
     if (!adminTabs) return '';
     const active = adminTabs.querySelector('li.uk-active');
@@ -1760,6 +1844,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (adminMenu && adminTabs) {
     const tabControl = UIkit.tab(adminTabs);
+    UIkit.util.on(adminTabs, 'shown', (e, tab) => {
+      const index = Array.prototype.indexOf.call(adminTabs.children, tab);
+      if (index === 5) {
+        loadSummary();
+      }
+    });
     adminMenu.querySelectorAll('[data-tab]').forEach(item => {
       item.addEventListener('click', e => {
         e.preventDefault();
