@@ -129,10 +129,7 @@ class ImportController
         if (is_readable($summaryFile)) {
             $photos = json_decode((string)file_get_contents($summaryFile), true) ?? [];
             if (is_array($photos)) {
-                $svc = $this->summaryPhotos;
-                foreach ($photos as $p) {
-                    $svc->add((string)($p['name'] ?? ''), (string)($p['path'] ?? ''), (int)($p['time'] ?? 0));
-                }
+                $this->summaryPhotos->saveAll($photos);
             }
         }
 

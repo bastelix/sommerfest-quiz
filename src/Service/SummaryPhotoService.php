@@ -52,4 +52,41 @@ class SummaryPhotoService
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /**
+     * Replace all stored photos with the provided list for the active event.
+     *
+     * @param list<array<string, mixed>> $photos
+     */
+    public function saveAll(array $photos): void
+    {
+        $uid = $this->config->getActiveEventUid();
+        $this->pdo->beginTransaction();
+        if ($uid !== '') {
+            $del = $this->pdo->prepare('DELETE FROM summary_photos WHERE event_uid=?');
+            $del->execute([$uid]);
+            $stmt = $this->pdo->prepare(
+                'INSERT INTO summary_photos(name,path,time,event_uid) VALUES(?,?,?,?)'
+            );
+        } else {
+            $this->pdo->exec('DELETE FROM summary_photos');
+            $stmt = $this->pdo->prepare(
+                'INSERT INTO summary_photos(name,path,time) VALUES(?,?,?)'
+            );
+        }
+
+        foreach ($photos as $row) {
+            $params = [
+                (string)($row['name'] ?? ''),
+                (string)($row['path'] ?? ''),
+                (int)($row['time'] ?? 0),
+            ];
+            if ($uid !== '') {
+                $params[] = $uid;
+            }
+            $stmt->execute($params);
+        }
+
+        $this->pdo->commit();
+    }
 }
