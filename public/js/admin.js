@@ -1644,7 +1644,7 @@ document.addEventListener('DOMContentLoaded', function () {
           imp.className = 'uk-button uk-button-primary uk-margin-small-right';
           imp.textContent = 'Wiederherstellen';
           imp.addEventListener('click', () => {
-            apiFetch('/import/' + encodeURIComponent(name), { method: 'POST' })
+            apiFetch('/backups/' + encodeURIComponent(name) + '/restore', { method: 'POST' })
               .then(r => {
                 if (!r.ok) throw new Error(r.statusText);
                 notify('Import abgeschlossen', 'success');
