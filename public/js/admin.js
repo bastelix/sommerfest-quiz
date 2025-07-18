@@ -218,8 +218,9 @@ document.addEventListener('DOMContentLoaded', function () {
           bar.setAttribute('hidden', 'hidden');
         }, 1000);
         const file = cfgFields.logoFile.files && cfgFields.logoFile.files[0];
-                const ext = file && file.name.toLowerCase().endsWith('.webp') ? 'webp' : 'png';
-                cfgFields.logoPreview.src = withBase('/logo.' + ext) + '?' + Date.now();
+        const ext = file && file.name.toLowerCase().endsWith('.webp') ? 'webp' : 'png';
+        cfgInitial.logoPath = '/logo-' + activeEventUid + '.' + ext;
+        cfgFields.logoPreview.src = withBase(cfgInitial.logoPath) + '?' + Date.now();
         notify('Logo hochgeladen', 'success');
       }
     });
@@ -334,8 +335,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const data = Object.assign({}, cfgInitial, {
       logoPath: (function () {
         if (cfgFields.logoPreview && cfgFields.logoPreview.src) {
-          const m = cfgFields.logoPreview.src.match(/\/logo\.(png|webp)/);
-          if (m) return '/logo.' + m[1];
+          const m = cfgFields.logoPreview.src.match(/\/logo(?:-[\w-]+)?\.(png|webp)/);
+          if (m) return m[0];
         }
         return cfgInitial.logoPath;
       })(),
