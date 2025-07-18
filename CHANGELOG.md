@@ -51,6 +51,7 @@
 - *(db)* Use consolidated base schema
 - Seed default roles via migration
 - *(migrations)* Add admin seed
+- Allow restore and delete of old backups
 
 ### Fix
 
