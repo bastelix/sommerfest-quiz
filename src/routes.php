@@ -285,6 +285,11 @@ return function (\Slim\App $app) {
             ->getAttribute('backupController')
             ->download($request->withAttribute('name', $args['name']), $response);
     })->add(new RoleAuthMiddleware('admin'));
+    $app->post('/backups/{name}/restore', function (Request $request, Response $response, array $args) {
+        return $request
+            ->getAttribute('importController')
+            ->import($request->withAttribute('name', $args['name']), $response);
+    })->add(new RoleAuthMiddleware('admin'));
     $app->delete('/backups/{name}', function (Request $request, Response $response, array $args) {
         return $request
             ->getAttribute('backupController')
