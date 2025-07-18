@@ -2,7 +2,12 @@
 document.addEventListener('DOMContentLoaded', function () {
   const basePath = window.basePath || '';
   const withBase = path => basePath + path;
-  const apiFetch = (path, options) => fetch(withBase(path), options);
+  const apiFetch = (path, options = {}) => {
+    return fetch(withBase(path), {
+      credentials: 'same-origin',
+      ...options
+    });
+  };
   function notify(msg, status = 'primary') {
     if (typeof UIkit !== 'undefined' && UIkit.notification) {
       UIkit.notification({ message: msg, status, pos: 'top-center', timeout: 2000 });
