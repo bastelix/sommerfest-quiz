@@ -55,6 +55,23 @@ Die Mandanten-Logik nutzt folgende Variablen aus `.env` oder `.env.template`:
 - `MAIN_DOMAIN` definiert die Hauptdomain des Quiz-Containers.
 - `POSTGRES_DSN`, `POSTGRES_USER` und `POSTGRES_PASSWORD` bestimmen den Datenbankzugang.
 
+### Anmelde-Workflow
+
+Setze in `.env` zuerst `MAIN_DOMAIN` auf die öffentliche Marketing-Domain:
+
+```bash
+MAIN_DOMAIN=quiz.example
+```
+
+Ein neuer Mandant lässt sich anschließend mit
+`scripts/create_tenant.sh <subdomain>` registrieren. Alternativ
+funktioniert auch ein `POST` auf `/tenants`. Beide Aufrufe müssen von der
+Hauptdomain aus erfolgen, andernfalls antwortet der Server mit `403`.
+
+Die Marketing-Seiten `/landing` und `/pricing` sind nur auf der in
+`MAIN_DOMAIN` hinterlegten Domain verfügbar. Wird eine Subdomain
+aufgerufen, erhält der Browser stattdessen einen 404-Status.
+
 ## Service-Accounts
 
 Service-Accounts eignen sich für automatisierte Abläufe. Sie lassen sich wie normale Benutzer über `/users.json` anlegen. Dabei wird als Rolle `service-account` gesetzt.
