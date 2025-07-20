@@ -37,6 +37,8 @@ use App\Controller\SummaryController;
 use App\Controller\EvidenceController;
 use App\Controller\EventController;
 use App\Controller\TenantController;
+use App\Controller\Marketing\LandingController;
+use App\Controller\Marketing\PricingController;
 use Psr\Log\NullLogger;
 use App\Controller\BackupController;
 use App\Domain\Roles;
@@ -66,6 +68,8 @@ require_once __DIR__ . '/Controller/EventController.php';
 require_once __DIR__ . '/Controller/BackupController.php';
 require_once __DIR__ . '/Controller/UserController.php';
 require_once __DIR__ . '/Controller/TenantController.php';
+require_once __DIR__ . '/Controller/Marketing/LandingController.php';
+require_once __DIR__ . '/Controller/Marketing/PricingController.php';
 
 use App\Infrastructure\Database;
 use App\Infrastructure\Migrations\Migrator;
@@ -170,6 +174,20 @@ return function (\Slim\App $app) {
     $app->get('/datenschutz', DatenschutzController::class);
     $app->get('/impressum', ImpressumController::class);
     $app->get('/lizenz', LizenzController::class);
+    $app->get('/landing', function (Request $request, Response $response) {
+        if ($request->getAttribute('domainType') !== 'main') {
+            return $response->withStatus(404);
+        }
+        $controller = new LandingController();
+        return $controller($request, $response);
+    });
+    $app->get('/pricing', function (Request $request, Response $response) {
+        if ($request->getAttribute('domainType') !== 'main') {
+            return $response->withStatus(404);
+        }
+        $controller = new PricingController();
+        return $controller($request, $response);
+    });
     $app->get('/login', [LoginController::class, 'show']);
     $app->post('/login', [LoginController::class, 'login']);
     $app->get('/logout', LogoutController::class);
