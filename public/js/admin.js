@@ -1212,6 +1212,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventsListEl = document.getElementById('eventsList');
   const eventAddBtn = document.getElementById('eventAddBtn');
   const eventsSaveBtn = document.getElementById('eventsSaveBtn');
+  const eventSelect = document.getElementById('eventSelect');
   let activeEventUid = cfgInitial.event_uid || '';
 
   function collectEvents() {
@@ -1315,9 +1316,27 @@ document.addEventListener('DOMContentLoaded', function () {
     list.forEach(ev => eventsListEl.appendChild(createEventRow(ev)));
   }
 
-  function updateActiveHeader(name) {
-    const el = document.getElementById('activeEventHeader');
-    if (el) el.textContent = name || '';
+  function populateEventSelect(list) {
+    if (!eventSelect) return;
+    eventSelect.innerHTML = '';
+    list.forEach(ev => {
+      const opt = document.createElement('option');
+      opt.value = ev.uid;
+      opt.textContent = ev.name;
+      if (ev.uid === activeEventUid) {
+        opt.selected = true;
+      }
+      eventSelect.appendChild(opt);
+    });
+  }
+
+  function updateActiveHeader(name, uid) {
+    if (eventSelect) {
+      const opt = Array.from(eventSelect.options).find(o => o.value === uid);
+      if (opt) {
+        eventSelect.value = opt.value;
+      }
+    }
     const top = document.getElementById('topbar-title');
     if (top) top.textContent = name || top.dataset.defaultTitle || '';
   }
@@ -1325,7 +1344,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function setActiveEvent(uid, name) {
     activeEventUid = uid;
     cfgInitial.event_uid = uid;
-    updateActiveHeader(name);
+    updateActiveHeader(name, uid);
     apiFetch('/config.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1339,10 +1358,13 @@ document.addEventListener('DOMContentLoaded', function () {
     UIkit.util.on(eventsListEl, 'moved', saveEventOrder);
   }
 
-  if (eventsListEl) {
+  if (eventsListEl || eventSelect) {
     apiFetch('/events.json', { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
-      .then(data => renderEvents(data))
+      .then(data => {
+        renderEvents(data);
+        populateEventSelect(data);
+      })
       .catch(() => {});
   }
 
@@ -1364,6 +1386,14 @@ document.addEventListener('DOMContentLoaded', function () {
         notify('Liste gespeichert', 'success');
       })
       .catch(() => notify('Fehler beim Speichern', 'danger'));
+  });
+
+  eventSelect?.addEventListener('change', () => {
+    const uid = eventSelect.value;
+    const name = eventSelect.options[eventSelect.selectedIndex]?.textContent || '';
+    if (uid && uid !== activeEventUid) {
+      setActiveEvent(uid, name);
+    }
   });
 
   // --------- Teams/Personen ---------
