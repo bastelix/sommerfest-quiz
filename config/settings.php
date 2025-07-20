@@ -30,4 +30,6 @@ $settings['postgres_pass'] = getenv('POSTGRES_PASSWORD')
     ?: getenv('POSTGRES_PASS')
     ?: ($settings['postgres_pass'] ?? null);
 
+$settings['main_domain'] = getenv('MAIN_DOMAIN') ?: ($settings['main_domain'] ?? null);
+
 return $settings;

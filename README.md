@@ -174,7 +174,7 @@ Bauen des Docker-Images nach
 `/usr/local/etc/php/conf.d/custom.ini` kopiert und automatisch geladen.
 Das `docker-compose.yml` bindet dieselbe Datei als Volume ein, sodass
 Änderungen ohne erneutes Bauen wirksam werden.
-Die verwendete Domain wird aus der Datei `.env` gelesen (Variable `DOMAIN`).
+Die verwendete Domain wird aus der Datei `.env` gelesen (Variablen `DOMAIN` oder `MAIN_DOMAIN`).
 Beim Start des Containers installiert ein Entrypoint-Skript automatisch alle
 Composer-Abhängigkeiten, sofern das Verzeichnis `vendor/` noch nicht existiert.
 Ein vorheriges `composer install` ist somit nicht mehr erforderlich,
@@ -202,8 +202,9 @@ php -m | grep exif
 ```
 
 Die Anwendung lädt beim Start eine vorhandene `.env`-Datei ein, auch wenn sie
-ohne Docker betrieben wird. Ist `DOMAIN` dort gesetzt, wird für QR-Codes und
-Exportlinks diese Adresse verwendet. Enthält die Variable kein Schema, wird
+ohne Docker betrieben wird. Ist `DOMAIN` oder `MAIN_DOMAIN` dort gesetzt,
+werden für QR-Codes und Exportlinks diese Adressen verwendet. Enthält die
+Variable kein Schema, wird
 standardmäßig `https://` vorangestellt.
 
 ## Multi-Tenant Setup
@@ -236,6 +237,7 @@ Let's-Encrypt-Zertifikat, sobald der Container gestartet wird.
 Weitere nützliche Variablen in `.env` sind:
 
 - `LETSENCRYPT_EMAIL` – Kontaktadresse für die automatische Zertifikatserstellung.
+- `MAIN_DOMAIN` – zentrale Domain des Quiz-Containers (z.B. `quizrace.app`).
 - `BASE_PATH` – optionaler Basis-Pfad, falls die Anwendung nicht im Root der Domain liegt.
 
 ## Anpassung
