@@ -54,6 +54,7 @@
 - Seed default roles via migration
 - *(migrations)* Add admin seed
 - Allow restore and delete of old backups
+- *(admin)* Add dropdown for active event
 
 ### Fix
 
