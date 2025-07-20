@@ -48,7 +48,10 @@ class EventServiceTest extends TestCase
     public function testGetAllFormatsDates(): void
     {
         $pdo = $this->createPdo();
-        $pdo->exec("INSERT INTO events(uid,name,start_date,end_date) VALUES('a1','Evt','2025-07-04 18:00:00+00','2025-07-04 20:00:00+00')");
+        $pdo->exec(
+            "INSERT INTO events(uid,name,start_date,end_date) " .
+            "VALUES('a1','Evt','2025-07-04 18:00:00+00','2025-07-04 20:00:00+00')"
+        );
         $service = new EventService($pdo);
         $rows = $service->getAll();
         $this->assertSame('2025-07-04T18:00', $rows[0]['start_date']);

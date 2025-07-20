@@ -39,6 +39,6 @@ $twig->getEnvironment()->addGlobal('basePath', rtrim($basePath, '/'));
 $app->add(TwigMiddleware::create($app, $twig));
 $app->add(new SessionMiddleware());
 
-$app->addErrorMiddleware($settings['displayErrorDetails'], true, true);
+$app->addErrorMiddleware((bool)($settings['displayErrorDetails'] ?? false), true, true);
 (require __DIR__ . '/../src/routes.php')($app);
 $app->run();

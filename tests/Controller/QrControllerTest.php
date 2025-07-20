@@ -127,8 +127,15 @@ class QrControllerTest extends TestCase
             'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT' .
             ');'
         );
-        $pdo->exec("INSERT INTO events(uid,name,start_date,end_date,description) VALUES('1','Event','2024-01-01T10:00','2024-01-01T12:00','Desc')");
-        $pdo->exec("INSERT INTO config(inviteText, event_uid) VALUES('Hallo [TEAM], willkommen zu [EVENT_NAME] am [EVENT_START] bis [EVENT_END] - [EVENT_DESCRIPTION]!','1')");
+        $pdo->exec(
+            "INSERT INTO events(uid,name,start_date,end_date,description) " .
+            "VALUES('1','Event','2024-01-01T10:00','2024-01-01T12:00','Desc')"
+        );
+        $pdo->exec(
+            "INSERT INTO config(inviteText, event_uid) VALUES(" .
+            "'Hallo [TEAM], willkommen zu [EVENT_NAME] am [EVENT_START] " .
+            "bis [EVENT_END] - [EVENT_DESCRIPTION]!','1')"
+        );
 
         $cfg = new \App\Service\ConfigService($pdo);
         $cfg->setActiveEventUid('1');
