@@ -56,7 +56,7 @@ class TestCase extends PHPUnit_TestCase
         $app->add(new SessionMiddleware());
 
         // Register error middleware
-        $app->addErrorMiddleware($settings['displayErrorDetails'], true, true);
+        $app->addErrorMiddleware((bool)($settings['displayErrorDetails'] ?? false), true, true);
 
         // Register routes
         $routes = require __DIR__ . '/../src/routes.php';
