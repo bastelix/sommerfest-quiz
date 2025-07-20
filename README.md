@@ -391,6 +391,8 @@ Backups lassen sich über `/export` erstellen und per `/import` oder
 `/backups/{name}/restore` wiederherstellen. `GET /backups` listet alle
 Sicherungen, einzelne Ordner können über `/backups/{name}/download`
 heruntergeladen oder via `DELETE /backups/{name}` entfernt werden.
+Damit das funktioniert, muss der Ordner `backup/` vom Serverprozess
+beschreibbar sein.
 
 ### Logo hochladen
 Das aktuelle Logo wird unter `/logo.png` oder `/logo.webp` bereitgestellt. Über einen POST auf diese URLs lässt sich eine neue PNG- oder WebP-Datei hochladen. Nach dem Upload wird der Pfad automatisch in `config.json` gespeichert. Die Datei landet im Verzeichnis `data/`, damit auch PDFs das Logo einbinden können.

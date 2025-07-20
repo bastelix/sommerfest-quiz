@@ -1673,10 +1673,15 @@ document.addEventListener('DOMContentLoaded', function () {
           del.addEventListener('click', () => {
             apiFetch('/backups/' + encodeURIComponent(name), { method: 'DELETE' })
               .then(r => {
-                if (!r.ok) throw new Error(r.statusText);
-                loadBackups();
+                if (r.ok) {
+                  loadBackups();
+                  return;
+                }
+                return r.json().then(data => {
+                  throw new Error(data.error || r.statusText);
+                });
               })
-              .catch(() => notify('Fehler beim Löschen', 'danger'));
+              .catch(err => notify(err.message || 'Fehler beim Löschen', 'danger'));
           });
           actionTd.appendChild(imp);
           actionTd.appendChild(dl);
