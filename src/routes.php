@@ -304,13 +304,13 @@ return function (\Slim\App $app) {
     $app->get('/invites.pdf', function (Request $request, Response $response) {
         return $request->getAttribute('qrController')->pdfAll($request, $response);
     })->add(new RoleAuthMiddleware('admin'));
-    $app->get('/logo.png', function (Request $request, Response $response) {
+    $app->get('/{file:logo(?:-[\w-]+)?\.png}', function (Request $request, Response $response) {
         return $request->getAttribute('logoController')->get($request->withAttribute('ext', 'png'), $response);
     });
     $app->post('/logo.png', function (Request $request, Response $response) {
         return $request->getAttribute('logoController')->post($request, $response);
     })->add(new RoleAuthMiddleware('admin'));
-    $app->get('/logo.webp', function (Request $request, Response $response) {
+    $app->get('/{file:logo(?:-[\w-]+)?\.webp}', function (Request $request, Response $response) {
         return $request->getAttribute('logoController')->get($request->withAttribute('ext', 'webp'), $response);
     });
     $app->post('/logo.webp', function (Request $request, Response $response) {
