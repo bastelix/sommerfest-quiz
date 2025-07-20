@@ -1,6 +1,6 @@
 {% extends 'layout.twig' %}
 
-{% block title %}Landing{% endblock %}
+{% block title %}Sommerfest Quiz{% endblock %}
 
 {% block head %}
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
@@ -8,18 +8,49 @@
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
 {% endblock %}
 
-{% block body_class %}uk-background-muted uk-padding{% endblock %}
+{% block body_class %}uk-background-muted{% endblock %}
 
 {% block body %}
   {% embed 'topbar.twig' %}
     {% block center %}
-      <span class="uk-navbar-title">Landing</span>
+      <span class="uk-navbar-title">Sommerfest Quiz</span>
     {% endblock %}
   {% endembed %}
-  <div class="uk-container uk-container-small">
-    <h1 class="uk-heading-divider uk-hidden">Landing</h1>
-    <p class="uk-text-lead">Willkommen auf unserer Quiz-Plattform.</p>
-  </div>
+
+  <section class="uk-section uk-section-primary uk-flex uk-flex-middle" uk-height-viewport="offset-top: true">
+    <div class="uk-container">
+      <h1 class="uk-heading-medium">Willkommen beim Sommerfest-Quiz</h1>
+      <p class="uk-text-lead">Trete gegen Freunde und Kollegen an und finde heraus, wer das meiste Wissen hat.</p>
+      <p class="uk-margin-large-top">
+        <a class="uk-button uk-button-secondary uk-button-large" href="{{ basePath }}/login">Jetzt starten</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="uk-section uk-section-default">
+    <div class="uk-container">
+      <div class="uk-child-width-1-3@m uk-grid-match" uk-grid>
+        <div>
+          <div class="uk-card uk-card-body">
+            <h3 class="uk-card-title">Einfach</h3>
+            <p>Intuitive Bedienung und schnelle Registrierung.</p>
+          </div>
+        </div>
+        <div>
+          <div class="uk-card uk-card-body">
+            <h3 class="uk-card-title">Sicher</h3>
+            <p>Alle Daten bleiben auf Ihrem eigenen Server.</p>
+          </div>
+        </div>
+        <div>
+          <div class="uk-card uk-card-body">
+            <h3 class="uk-card-title">Auswertungen</h3>
+            <p>Ergebnisse und Ranglisten in Echtzeit.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 {% endblock %}
 
 {% block scripts %}
