@@ -34,6 +34,7 @@
 - Add troubleshooting for test data
 - Update docker setup instructions
 - Clarify php.ini usage
+- Add domain workflow and signup instructions
 
 ### Feat
 
