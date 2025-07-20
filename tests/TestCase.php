@@ -54,6 +54,7 @@ class TestCase extends PHPUnit_TestCase
         $app->setBasePath($basePath);
         $app->add(TwigMiddleware::create($app, $twig));
         $app->add(new SessionMiddleware());
+        $app->add(new \App\Application\Middleware\DomainMiddleware());
 
         // Register error middleware
         $app->addErrorMiddleware((bool)($settings['displayErrorDetails'] ?? false), true, true);
