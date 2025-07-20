@@ -95,7 +95,19 @@ class BackupController
                 @unlink($file->getPathname());
             }
         }
-        @rmdir($path);
+
+        $ok = rmdir($path);
+        if (!$ok && is_dir($path)) {
+            $status = is_writable($path) && is_writable(dirname($path)) ? 500 : 403;
+            $message = $status === 403
+                ? 'Permission denied deleting backup directory'
+                : 'Failed to delete backup directory';
+            $response->getBody()->write(json_encode(['error' => $message]));
+            return $response
+                ->withStatus($status)
+                ->withHeader('Content-Type', 'application/json');
+        }
+
         return $response->withStatus(204);
     }
 }
