@@ -189,4 +189,52 @@ class LogoControllerTest extends TestCase
         unlink($logoFile);
         unlink(dirname(__DIR__, 2) . '/data/logo-e1.png');
     }
+
+    public function testGetWithDynamicFilename(): void
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE active_event(event_uid TEXT PRIMARY KEY);');
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                displayErrorDetails INTEGER,
+                QRUser INTEGER,
+                QRRemember INTEGER,
+                logoPath TEXT,
+                pageTitle TEXT,
+                backgroundColor TEXT,
+                buttonColor TEXT,
+                CheckAnswerButton TEXT,
+                QRRestrict INTEGER,
+                competitionMode INTEGER,
+                teamResults INTEGER,
+                photoUpload INTEGER,
+                puzzleWordEnabled INTEGER,
+                puzzleWord TEXT,
+                puzzleFeedback TEXT,
+                inviteText TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $cfg = new ConfigService($pdo);
+        $cfg->setActiveEventUid('dyn');
+
+        $controller = new LogoController($cfg);
+        $logoFile = tempnam(sys_get_temp_dir(), 'logo');
+        imagepng(imagecreatetruecolor(10, 10), $logoFile);
+        $stream = fopen($logoFile, 'rb');
+        $uploaded = new UploadedFile(new Stream($stream), 'logo.png', 'image/png', filesize($logoFile), UPLOAD_ERR_OK);
+        $request = $this->createRequest('POST', '/logo.png');
+        $request = $request->withUploadedFiles(['file' => $uploaded]);
+
+        $controller->post($request, new Response());
+
+        $response = $controller->get($this->createRequest('GET', '/logo-dyn.png'), new Response());
+        $this->assertEquals(200, $response->getStatusCode());
+
+        unlink($logoFile);
+        unlink(dirname(__DIR__, 2) . '/data/logo-dyn.png');
+    }
 }
