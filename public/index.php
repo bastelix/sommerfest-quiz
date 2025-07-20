@@ -26,6 +26,7 @@ if (is_readable($envFile)) {
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use App\Application\Middleware\SessionMiddleware;
+use App\Application\Middleware\DomainMiddleware;
 use App\Twig\UikitExtension;
 
 $settings = require __DIR__ . '/../config/settings.php';
@@ -38,6 +39,7 @@ $twig->addExtension(new UikitExtension());
 $twig->getEnvironment()->addGlobal('basePath', rtrim($basePath, '/'));
 $app->add(TwigMiddleware::create($app, $twig));
 $app->add(new SessionMiddleware());
+$app->add(new DomainMiddleware());
 
 $app->addErrorMiddleware((bool)($settings['displayErrorDetails'] ?? false), true, true);
 (require __DIR__ . '/../src/routes.php')($app);
