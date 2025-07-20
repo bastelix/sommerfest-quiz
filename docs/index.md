@@ -52,6 +52,7 @@ curl -X DELETE http://$DOMAIN/tenants \
 Die Mandanten-Logik nutzt folgende Variablen aus `.env` oder `.env.template`:
 
 - `DOMAIN` legt die Basis-Domain für alle Mandanten fest.
+- `MAIN_DOMAIN` definiert die Hauptdomain des Quiz-Containers.
 - `POSTGRES_DSN`, `POSTGRES_USER` und `POSTGRES_PASSWORD` bestimmen den Datenbankzugang.
 
 ## Service-Accounts
