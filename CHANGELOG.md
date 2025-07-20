@@ -73,6 +73,7 @@
 - Format event dates for datetime-local
 - Ensure topbar icons work on mobile
 - Respect base path in admin JS
+- Serve event-specific logo paths
 
 ### Refactor
 
