@@ -1,6 +1,6 @@
 # Projekt\u00fcberblick
 
-Das Sommerfest-Quiz ist eine leichtgewichtige Web-Applikation zum Durchf\u00fchren von Quizrunden auf Veranstaltungen. Die Anwendung setzt auf das Slim Framework und nutzt UIkit3 f\u00fcr ein responsives Design. Fragenkataloge, Teilnehmer und Ergebnisse werden in einer PostgreSQL-Datenbank gespeichert und k\u00f6nnen per JSON importiert oder exportiert werden.
+Das QuizRace ist eine leichtgewichtige Web-Applikation zum Durchf\u00fchren von Quizrunden auf Veranstaltungen. Die Anwendung setzt auf das Slim Framework und nutzt UIkit3 f\u00fcr ein responsives Design. Fragenkataloge, Teilnehmer und Ergebnisse werden in einer PostgreSQL-Datenbank gespeichert und k\u00f6nnen per JSON importiert oder exportiert werden.
 
 ## Spielregeln
 

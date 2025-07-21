@@ -3,9 +3,9 @@ layout: default
 title: Projekt
 ---
 
-# Sommerfest-Quiz
+# QuizRace
 
-Das **Sommerfest-Quiz** ist eine Web-App für Veranstaltungen. Die Anwendung basiert
+Das **QuizRace** ist eine Web-App für Veranstaltungen. Die Anwendung basiert
 auf dem Slim Framework und nutzt UIkit3 für ein responsives Design. Fragenkataloge,
 Teilnehmer und Ergebnisse werden in einer PostgreSQL-Datenbank gespeichert und
 können per JSON importiert oder exportiert werden.

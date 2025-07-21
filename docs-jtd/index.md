@@ -6,9 +6,9 @@ parent: Start & Überblick
 permalink: /
 ---
 
-# Willkommen zum Sommerfest-Quiz
+# Willkommen zum QuizRace
 
-Das **Sommerfest-Quiz** ist eine leichtgewichtige Web-App für Veranstaltungen. Sie basiert auf dem Slim Framework und nutzt UIkit3 für ein responsives Design. Fragenkataloge, Teams und Ergebnisse werden in einer PostgreSQL-Datenbank gespeichert und können bequem per JSON importiert oder exportiert werden.
+Das **QuizRace** ist eine leichtgewichtige Web-App für Veranstaltungen. Sie basiert auf dem Slim Framework und nutzt UIkit3 für ein responsives Design. Fragenkataloge, Teams und Ergebnisse werden in einer PostgreSQL-Datenbank gespeichert und können bequem per JSON importiert oder exportiert werden.
 
 Die Anwendung entstand als Machbarkeitsstudie, um das Potenzial moderner Code-Assistenten in der Praxis zu erproben. Besonderer Wert wurde auf Barrierefreiheit, Datenschutz und eine hohe Performance gelegt.
 
