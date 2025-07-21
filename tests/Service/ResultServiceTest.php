@@ -31,6 +31,11 @@ class ResultServiceTest extends TestCase
             );
             SQL
         );
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT' .
+            ');'
+        );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $cfg = new ConfigService($pdo);
         $service = new ResultService($pdo, $cfg);
@@ -62,6 +67,11 @@ class ResultServiceTest extends TestCase
             );
             SQL
         );
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT' .
+            ');'
+        );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $cfg = new ConfigService($pdo);
         $service = new ResultService($pdo, $cfg);
@@ -92,6 +102,11 @@ class ResultServiceTest extends TestCase
                 event_uid TEXT
             );
             SQL
+        );
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT' .
+            ');'
         );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $cfg = new ConfigService($pdo);
@@ -125,6 +140,11 @@ class ResultServiceTest extends TestCase
             );
             SQL
         );
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT' .
+            ');'
+        );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $cfg = new ConfigService($pdo);
         $service = new ResultService($pdo, $cfg);
@@ -156,6 +176,11 @@ class ResultServiceTest extends TestCase
             );
             SQL
         );
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT' .
+            ');'
+        );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $cfg = new ConfigService($pdo);
         $service = new ResultService($pdo, $cfg);
@@ -186,6 +211,11 @@ class ResultServiceTest extends TestCase
             );
             SQL
         );
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT' .
+            ');'
+        );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $pdo->exec(
             <<<'SQL'
@@ -198,7 +228,8 @@ class ResultServiceTest extends TestCase
                 correct INTEGER NOT NULL,
                 answer_text TEXT,
                 photo TEXT,
-                consent INTEGER
+                consent INTEGER,
+                event_uid TEXT
             );
             SQL
         );
@@ -209,7 +240,8 @@ class ResultServiceTest extends TestCase
                 sort_order INTEGER,
                 slug TEXT,
                 file TEXT,
-                name TEXT
+                name TEXT,
+                event_uid TEXT
             );
             SQL
         );
@@ -265,6 +297,11 @@ class ResultServiceTest extends TestCase
             );
             SQL
         );
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT' .
+            ');'
+        );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $pdo->exec(
             <<<'SQL'
@@ -277,7 +314,8 @@ class ResultServiceTest extends TestCase
                 correct INTEGER NOT NULL,
                 answer_text TEXT,
                 photo TEXT,
-                consent INTEGER
+                consent INTEGER,
+                event_uid TEXT
             );
             SQL
         );
@@ -320,7 +358,8 @@ class ResultServiceTest extends TestCase
                 sort_order INTEGER,
                 slug TEXT,
                 file TEXT,
-                name TEXT
+                name TEXT,
+                event_uid TEXT
             );
             SQL
         );

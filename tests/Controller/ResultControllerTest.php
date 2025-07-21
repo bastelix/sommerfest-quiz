@@ -38,7 +38,8 @@ class ResultControllerTest extends TestCase
                 puzzleWordEnabled INTEGER,
                 puzzleWord TEXT,
                 puzzleFeedback TEXT,
-                inviteText TEXT
+                inviteText TEXT,
+                event_uid TEXT
             );
             SQL
         );
@@ -48,6 +49,18 @@ class ResultControllerTest extends TestCase
             ');'
         );
         $pdo->exec("INSERT INTO events(uid,name,description) VALUES('1','Event','Sub')");
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, description TEXT,' .
+            ' qrcode_url TEXT, raetsel_buchstabe TEXT, event_uid TEXT' .
+            ');'
+        );
+        $pdo->exec(
+            'CREATE TABLE questions(' .
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_uid TEXT NOT NULL, sort_order INTEGER,' .
+            ' type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT' .
+            ');'
+        );
         $pdo->exec(
             <<<'SQL'
             CREATE TABLE results(
@@ -59,7 +72,8 @@ class ResultControllerTest extends TestCase
                 total INTEGER NOT NULL,
                 time INTEGER NOT NULL,
                 puzzleTime INTEGER,
-                photo TEXT
+                photo TEXT,
+                event_uid TEXT
             );
             SQL
         );
@@ -75,7 +89,8 @@ class ResultControllerTest extends TestCase
                 correct INTEGER NOT NULL,
                 answer_text TEXT,
                 photo TEXT,
-                consent BOOLEAN
+                consent BOOLEAN,
+                event_uid TEXT
             );
             SQL
         );
@@ -152,10 +167,22 @@ class ResultControllerTest extends TestCase
             "INSERT INTO events(uid,name,description) VALUES('1','First','A'),('2','Second','B')"
         );
         $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, description TEXT,' .
+            ' qrcode_url TEXT, raetsel_buchstabe TEXT, event_uid TEXT' .
+            ');'
+        );
+        $pdo->exec(
+            'CREATE TABLE questions(' .
+            'id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_uid TEXT NOT NULL, sort_order INTEGER,' .
+            ' type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT' .
+            ');'
+        );
+        $pdo->exec(
             'CREATE TABLE results(' .
             'id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, ' .
             'attempt INTEGER NOT NULL, correct INTEGER NOT NULL, total INTEGER NOT NULL, ' .
-            'time INTEGER NOT NULL, puzzleTime INTEGER, photo TEXT' .
+            'time INTEGER NOT NULL, puzzleTime INTEGER, photo TEXT, event_uid TEXT' .
             ');'
         );
         $pdo->exec(
@@ -165,7 +192,7 @@ class ResultControllerTest extends TestCase
             'CREATE TABLE question_results(' .
             'id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, catalog TEXT NOT NULL, ' .
             'question_id INTEGER NOT NULL, attempt INTEGER NOT NULL, correct INTEGER NOT NULL, ' .
-            'answer_text TEXT, photo TEXT, consent BOOLEAN' .
+            'answer_text TEXT, photo TEXT, consent BOOLEAN, event_uid TEXT' .
             ');'
         );
         $pdo->exec(
