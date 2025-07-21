@@ -12,6 +12,8 @@
 
 {% block body %}
   {% embed 'topbar.twig' %}
+    {% block mobile_menu_toggle %}{% endblock %}
+    {% block offcanvas %}{% endblock %}
     {% block left %}
       <a id="adminMenuToggle" class="uk-icon-button" uk-icon="icon: menu; ratio: 2" aria-label="Menü" uk-toggle="target: #adminNav"></a>
     {% endblock %}
