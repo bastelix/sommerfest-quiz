@@ -77,5 +77,22 @@ namespace Tests\Controller {
             \rmdir($base . '/fail');
             \rmdir($base);
         }
+
+        public function testDeleteInvalidName(): void
+        {
+            $base = sys_get_temp_dir() . '/bct_' . uniqid();
+            mkdir($base, 0777, true);
+
+            $controller = new BackupController($base);
+            $res = $controller->delete(
+                $this->createRequest('DELETE', '/backups/..'),
+                new Response(),
+                ['name' => '..']
+            );
+
+            $this->assertEquals(400, $res->getStatusCode());
+
+            \rmdir($base);
+        }
     }
 }
