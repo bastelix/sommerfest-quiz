@@ -17,17 +17,17 @@
 {% block body %}{% endblock %}
   <div class="footer-placeholder"></div>
   <nav class="uk-navbar-container bottombar" uk-navbar>
+    <div class="uk-navbar-left">
+      <div class="uk-navbar-item uk-margin-small-left">
+        <a href="https://bastelix.github.io/sommerfest-quiz/" target="_blank" rel="noopener" class="uk-icon-button" uk-icon="icon: handbook; ratio: 2" uk-tooltip="title: Handbuch öffnen" aria-label="Handbuch"></a>
+      </div>
+    </div>
     <div class="uk-navbar-center">
       <ul class="uk-navbar-nav">
         <li><a href="{{ basePath }}/datenschutz">Datenschutz</a></li>
         <li><a href="{{ basePath }}/impressum">Impressum</a></li>
         <li><a href="{{ basePath }}/lizenz">Lizenz</a></li>
       </ul>
-    </div>
-    <div class="uk-navbar-right">
-      <div class="uk-navbar-item uk-margin-small-right">
-        <a href="https://bastelix.github.io/sommerfest-quiz/" target="_blank" rel="noopener" class="uk-icon-button" uk-icon="icon: handbook; ratio: 2" uk-tooltip="title: Handbuch öffnen" aria-label="Handbuch"></a>
-      </div>
     </div>
   </nav>
   <script src="{{ basePath }}/js/uikit.min.js"></script>
