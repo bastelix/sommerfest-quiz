@@ -497,7 +497,14 @@
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">Administration</h2>
 
-
+        <h3 class="uk-heading-bullet">Startseite</h3>
+        <div class="uk-margin uk-flex uk-flex-middle">
+          <select id="cfgHomePage" class="uk-select uk-width-auto">
+            <option value="help"{% if settings.home_page != 'events' %} selected{% endif %}>Hilfe-Seite</option>
+            <option value="events"{% if settings.home_page == 'events' %} selected{% endif %}>Veranstaltungen</option>
+          </select>
+          <button id="homePageSaveBtn" class="uk-button uk-button-primary uk-margin-small-left">Speichern</button>
+        </div>
 
         <h3 class="uk-heading-bullet">Benutzer</h3>
         <div class="uk-overflow-auto">
@@ -582,6 +589,7 @@
   <script src="{{ basePath }}/js/custom-icons.js"></script>
   <script>
     window.quizConfig = {{ config|json_encode|raw }};
+    window.quizSettings = {{ settings|json_encode|raw }};
     window.roles = {{ roles|json_encode|raw }};
     window.baseUrl = '{{ baseUrl }}';
   </script>

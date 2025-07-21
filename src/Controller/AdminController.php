@@ -12,6 +12,7 @@ use App\Service\ResultService;
 use App\Service\CatalogService;
 use App\Service\TeamService;
 use App\Service\EventService;
+use App\Service\SettingsService;
 use App\Service\UserService;
 use App\Domain\Roles;
 use App\Infrastructure\Database;
@@ -34,6 +35,8 @@ class AdminController
         $pdo = Database::connectFromEnv();
         $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo);
+        $settingsSvc = new SettingsService($pdo);
+        $settings = $settingsSvc->getAll();
 
         $params = $request->getQueryParams();
         $uid = (string)($params['event'] ?? '');
@@ -100,6 +103,7 @@ class AdminController
         $users  = (new UserService($pdo))->getAll();
         return $view->render($response, 'admin.twig', [
             'config' => $cfg,
+            'settings' => $settings,
             'results' => $results,
             'catalogs' => $catalogs,
             'teams' => $teams,

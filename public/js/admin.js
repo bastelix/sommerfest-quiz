@@ -2,6 +2,7 @@
 document.addEventListener('DOMContentLoaded', function () {
   const basePath = window.basePath || '';
   const withBase = path => basePath + path;
+  const settingsInitial = window.quizSettings || {};
   const apiFetch = (path, options = {}) => {
     return fetch(withBase(path), {
       credentials: 'same-origin',
@@ -94,7 +95,8 @@ document.addEventListener('DOMContentLoaded', function () {
     photoUpload: document.getElementById('cfgPhotoUpload'),
     puzzleEnabled: document.getElementById('cfgPuzzleEnabled'),
     puzzleWord: document.getElementById('cfgPuzzleWord'),
-    puzzleWrap: document.getElementById('cfgPuzzleWordWrap')
+    puzzleWrap: document.getElementById('cfgPuzzleWordWrap'),
+    homePage: document.getElementById('cfgHomePage')
   };
   const puzzleFeedbackBtn = document.getElementById('puzzleFeedbackBtn');
   const puzzleIcon = document.getElementById('puzzleFeedbackIcon');
@@ -115,6 +117,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const commentToolbar = document.getElementById('catalogCommentToolbar');
   const resultsResetModal = UIkit.modal('#resultsResetModal');
   const resultsResetConfirm = document.getElementById('resultsResetConfirm');
+  const homePageSaveBtn = document.getElementById('homePageSaveBtn');
   let puzzleFeedback = '';
   let inviteText = '';
   let currentCommentInput = null;
@@ -261,6 +264,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cfgFields.puzzleWord) {
       cfgFields.puzzleWord.value = data.puzzleWord || '';
     }
+    if (cfgFields.homePage) {
+      cfgFields.homePage.value = settingsInitial.home_page || 'help';
+    }
     puzzleFeedback = data.puzzleFeedback || '';
     updatePuzzleFeedbackUI();
     inviteText = data.inviteText || '';
@@ -330,6 +336,22 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     commentModal.hide();
     currentCommentInput = null;
+  });
+
+  homePageSaveBtn?.addEventListener('click', () => {
+    if (!cfgFields.homePage) return;
+    settingsInitial.home_page = cfgFields.homePage.value;
+    apiFetch('/settings.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ home_page: cfgFields.homePage.value })
+    }).then(r => {
+      if (r.ok) {
+        notify('Einstellung gespeichert', 'success');
+      } else {
+        notify('Fehler beim Speichern', 'danger');
+      }
+    }).catch(() => notify('Fehler beim Speichern', 'danger'));
   });
   document.getElementById('cfgResetBtn').addEventListener('click', function (e) {
     e.preventDefault();

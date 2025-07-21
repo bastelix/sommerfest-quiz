@@ -42,6 +42,15 @@ CREATE TABLE IF NOT EXISTS config (
     CONSTRAINT fk_config_event FOREIGN KEY (event_uid) REFERENCES events(uid) ON DELETE CASCADE
 );
 
+-- Key/value application settings
+CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT
+);
+
+INSERT INTO settings(key, value) VALUES('home_page', 'help')
+    ON CONFLICT (key) DO NOTHING;
+
 -- Teams
 CREATE TABLE IF NOT EXISTS teams (
     sort_order INTEGER NOT NULL,

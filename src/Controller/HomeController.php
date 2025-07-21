@@ -9,6 +9,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Service\ConfigService;
 use App\Service\CatalogService;
 use App\Service\EventService;
+use App\Service\SettingsService;
 use App\Infrastructure\Database;
 use Slim\Views\Twig;
 
@@ -26,6 +27,7 @@ class HomeController
         $pdo = Database::connectFromEnv();
         $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo);
+        $settingsSvc = new SettingsService($pdo);
 
         $params = $request->getQueryParams();
         $uid = (string)($params['event'] ?? '');
@@ -41,6 +43,17 @@ class HomeController
             }
             if ($event === null) {
                 $event = $eventSvc->getFirst();
+            }
+            $home = $settingsSvc->get('home_page', 'help');
+            if ($home === 'events') {
+                $events = $eventSvc->getAll();
+                return $view->render($response, 'events_overview.twig', [
+                    'events' => $events,
+                    'config' => $cfg,
+                ]);
+            } elseif ($home === 'help') {
+                $ctrl = new HelpController();
+                return $ctrl($request, $response);
             }
         }
         if (session_status() === PHP_SESSION_NONE) {
