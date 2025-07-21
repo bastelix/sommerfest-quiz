@@ -94,6 +94,7 @@
 - Switch service tests to use sqlite
 - Verify tenant creation and removal
 - Fix schemas for event-aware tables
+- Verify catalog create and delete via db
 
 ## [0.1.0] - 2025-06-16
 
