@@ -4,7 +4,10 @@ const assert = require('assert');
 
 const code = fs.readFileSync('public/js/results.js', 'utf8');
 const fmtMatch = code.match(/function formatTime\(ts\)[\s\S]*?\n\s*\}/);
-const rankMatch = code.match(/function computeRankings\(rows\) \{[\s\S]*?return { puzzleList, catalogList, pointsList };\n\s*\}/);
+const rankPattern =
+    'function computeRankings\\(rows\\) \\{' +
+    '[\\s\\S]*?return { puzzleList, catalogList, pointsList };\\n\\s*\\}';
+const rankMatch = code.match(new RegExp(rankPattern));
 if (!fmtMatch || !rankMatch) {
     throw new Error('Functions not found');
 }
