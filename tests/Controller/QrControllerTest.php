@@ -82,8 +82,13 @@ class QrControllerTest extends TestCase
 
         $logoFile = tempnam(sys_get_temp_dir(), 'logo');
         imagepng(imagecreatetruecolor(10, 10), $logoFile);
-        $stream = fopen($logoFile, 'rb');
-        $uploaded = new UploadedFile($stream, filesize($logoFile), UPLOAD_ERR_OK, 'logo.png', 'image/png');
+        $uploaded = new UploadedFile(
+            $logoFile,
+            'logo.png',
+            'image/png',
+            filesize($logoFile),
+            UPLOAD_ERR_OK
+        );
         $upReq = $this->createRequest('POST', '/logo.png')->withUploadedFiles(['file' => $uploaded]);
         $logo->post($upReq, new Response());
 
@@ -249,7 +254,8 @@ class QrControllerTest extends TestCase
         $cfg = new \App\Service\ConfigService($pdo);
         $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
-        $qr = new \App\Controller\QrController($cfg, $teams, $events);
+        $catalogs = new \App\Service\CatalogService($pdo, $cfg);
+        $qr = new \App\Controller\QrController($cfg, $teams, $events, $catalogs);
 
         $cfg->setActiveEventUid('1');
         $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo']);
