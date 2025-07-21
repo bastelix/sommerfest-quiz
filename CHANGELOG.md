@@ -57,6 +57,7 @@
 - Allow restore and delete of old backups
 - *(admin)* Add dropdown for active event
 - *(admin)* Landing page option
+- *(admin)* Improve mobile event list
 
 ### Fix
 
