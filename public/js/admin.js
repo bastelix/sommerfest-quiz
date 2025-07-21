@@ -595,8 +595,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const delCell = document.createElement('td');
     const del = document.createElement('button');
-    del.className = 'uk-button uk-button-danger';
-    del.textContent = '×';
+    del.className = 'uk-icon-button uk-button-danger';
+    del.setAttribute('uk-icon', 'trash');
     del.setAttribute('aria-label', 'Löschen');
     del.addEventListener('click', () => deleteCatalog(cat, row));
     delCell.appendChild(del);
@@ -1509,8 +1509,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const delCell = document.createElement('td');
     const del = document.createElement('button');
-    del.className = 'uk-button uk-button-danger';
-    del.textContent = '×';
+    del.className = 'uk-icon-button uk-button-danger';
+    del.setAttribute('uk-icon', 'trash');
     del.setAttribute('aria-label', 'Löschen');
     del.onclick = () => row.remove();
     delCell.appendChild(del);

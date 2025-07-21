@@ -245,12 +245,12 @@
         <div>
           <h2 class="uk-heading-bullet">Kataloge</h2>
           <div class="uk-overflow-auto">
-            <table class="uk-table uk-table-divider uk-table-small">
-              <thead>
-                <tr>
-                  <th>
-                    <span uk-icon="icon: question" uk-tooltip="title: Zum Sortieren Zeile ziehen; pos: top"></span>
-                  </th>
+          <table id="catalogTable" class="uk-table uk-table-divider uk-table-small">
+            <thead class="table-headings">
+              <tr>
+                <th>
+                  <span uk-icon="icon: question" uk-tooltip="title: Zum Sortieren Zeile ziehen; pos: top"></span>
+                </th>
                   <th>Slug
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Eindeutiger Name in der URL; pos: top"></span>
                   </th>
@@ -269,17 +269,17 @@
                   <th>
                     <span uk-icon="icon: question" uk-tooltip="title: Katalog entfernen; pos: top"></span>
                   </th>
-                </tr>
-              </thead>
-              <tbody id="catalogList" uk-sortable="group: sortable-group"></tbody>
-            </table>
-          </div>
-          <div class="uk-margin">
-            <button id="newCatBtn" class="uk-button uk-button-default" uk-tooltip="title: Neuen Fragenkatalog anlegen; pos: right">Hinzufügen</button>
-          </div>
-          <div class="uk-margin uk-flex uk-flex-right">
-            <button id="catalogsSaveBtn" class="uk-button uk-button-primary" uk-tooltip="title: Änderungen an den Katalogen speichern; pos: right">Speichern</button>
-          </div>
+              </tr>
+            </thead>
+            <tbody id="catalogList" uk-sortable="group: sortable-group"></tbody>
+          </table>
+        </div>
+        <div class="uk-margin">
+          <button id="newCatBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: Neuen Fragenkatalog anlegen; pos: left"><span class="button-text">Hinzufügen</span></button>
+        </div>
+        <div class="uk-margin uk-flex uk-flex-right">
+          <button id="catalogsSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: Änderungen an den Katalogen speichern; pos: left"><span class="button-text">Speichern</span></button>
+        </div>
         </div>
       </div>
     </li>
@@ -312,8 +312,8 @@
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">Teams/Personen</h2>
         <div class="uk-overflow-auto">
-          <table class="uk-table uk-table-divider uk-table-small">
-            <thead>
+          <table id="teamsTable" class="uk-table uk-table-divider uk-table-small">
+            <thead class="table-headings">
               <tr>
                 <th></th>
                 <th>Name</th>
@@ -324,10 +324,10 @@
           </table>
         </div>
         <div class="uk-margin">
-          <button id="teamAddBtn" class="uk-button uk-button-default" uk-tooltip="title: Neues Team oder Person hinzufügen; pos: right">Hinzufügen</button>
+          <button id="teamAddBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: Neues Team oder Person hinzufügen; pos: left"><span class="button-text">Hinzufügen</span></button>
         </div>
         <div class="uk-margin uk-flex uk-flex-right">
-          <button id="teamsSaveBtn" class="uk-button uk-button-primary" uk-tooltip="title: Änderungen an Teams oder Personen speichern; pos: right">Speichern</button>
+          <button id="teamsSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: Änderungen an Teams oder Personen speichern; pos: left"><span class="button-text">Speichern</span></button>
         </div>
       </div>
     </li>
