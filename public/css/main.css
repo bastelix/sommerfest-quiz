@@ -463,4 +463,93 @@ body.dark-mode .sticky-actions {
   }
 }
 
+/* Floating action buttons */
+.fab {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 1100;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+.fab-save {
+  bottom: 4.5rem;
+}
+
+/* Hide button text on small screens */
+.button-text {
+  margin-left: 6px;
+}
+@media (max-width: 639px) {
+  .button-text {
+    display: none;
+  }
+}
+
+/* Toggle switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 22px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+.switch input:checked + .slider {
+  background-color: #39f;
+}
+.switch input:checked + .slider:before {
+  transform: translateX(18px);
+}
+
+/* Responsive event list */
+@media (max-width: 639px) {
+  #eventsList,
+  #eventsList tr,
+  #eventsList td {
+    display: block;
+  }
+  #eventsList tr {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  #eventsList td {
+    padding: 4px 0;
+  }
+  #eventsList td:first-child {
+    display: none;
+  }
+  #eventsList input[type="text"],
+  #eventsList input[type="datetime-local"] {
+    width: 100%;
+  }
+}
+
 
