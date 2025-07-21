@@ -540,8 +540,16 @@ body.dark-mode .sticky-actions {
   color: #555;
 }
 
+#eventsTable {
+  width: 100%;
+  max-width: 100%;
+}
+
 /* Responsive event list */
 @media (max-width: 639px) {
+  #eventsTable thead {
+    display: none;
+  }
   #eventsList,
   #eventsList tr,
   #eventsList td {
