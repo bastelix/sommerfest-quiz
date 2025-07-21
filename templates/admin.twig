@@ -396,12 +396,21 @@
           <div class="uk-modal-dialog uk-modal-body">
             <h2 class="uk-modal-title">Einladungstext</h2>
             <div id="inviteTextToolbar" class="uk-margin-small-bottom">
-              <button class="uk-button uk-button-default" type="button" data-format="h2">H2</button>
-              <button class="uk-button uk-button-default" type="button" data-format="h3">H3</button>
-              <button class="uk-button uk-button-default" type="button" data-format="h4">H4</button>
-              <button class="uk-button uk-button-default" type="button" data-format="h5">H5</button>
-              <button class="uk-button uk-button-default" type="button" data-format="bold"><strong>B</strong></button>
-              <button class="uk-button uk-button-default" type="button" data-format="italic"><em>I</em></button>
+              <div class="uk-inline">
+                <button class="uk-button uk-button-default" type="button">
+                  Tags <span uk-icon="icon: triangle-down"></span>
+                </button>
+                <div uk-dropdown="mode: click">
+                  <ul class="uk-nav uk-dropdown-nav">
+                    <li><button class="uk-button uk-button-text" type="button" data-format="h2">H2</button></li>
+                    <li><button class="uk-button uk-button-text" type="button" data-format="h3">H3</button></li>
+                    <li><button class="uk-button uk-button-text" type="button" data-format="h4">H4</button></li>
+                    <li><button class="uk-button uk-button-text" type="button" data-format="h5">H5</button></li>
+                    <li><button class="uk-button uk-button-text" type="button" data-format="bold"><strong>B</strong></button></li>
+                    <li><button class="uk-button uk-button-text" type="button" data-format="italic"><em>I</em></button></li>
+                  </ul>
+                </div>
+              </div>
               <button class="uk-button uk-button-default" type="button" data-insert="[TEAM]">[TEAM]</button>
               <button class="uk-button uk-button-default" type="button" data-insert="[EVENT_NAME]">[EVENT_NAME]</button>
               <button class="uk-button uk-button-default" type="button" data-insert="[EVENT_START]">[EVENT_START]</button>
