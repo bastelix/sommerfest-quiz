@@ -13,6 +13,7 @@
 - Apply unless-stopped restart policy
 - *(test)* Run migrations for sqlite
 - *(test)* Remove extra newline
+- Split ranking regex lines
 
 ### Ci
 
