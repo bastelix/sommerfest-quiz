@@ -80,6 +80,9 @@ class BackupController
     public function delete(Request $request, Response $response, array $args): Response
     {
         $name = basename((string)($args['name'] ?? ''));
+        if (!preg_match('/^[A-Za-z0-9._-]+$/', $name) || $name === '.' || $name === '..') {
+            return $response->withStatus(400);
+        }
         $path = $this->dir . '/' . $name;
         if (!is_dir($path)) {
             return $response->withStatus(404);
