@@ -1254,6 +1254,14 @@ document.addEventListener('DOMContentLoaded', function () {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(list)
     }).catch(() => {});
+    updateEventRowNumbers();
+  }
+
+  function updateEventRowNumbers() {
+    Array.from(eventsListEl.querySelectorAll('.event-row')).forEach((row, idx) => {
+      const cell = row.querySelector('.row-num');
+      if (cell) cell.textContent = idx + 1;
+    });
   }
 
   function createEventRow(ev = {}) {
@@ -1261,11 +1269,19 @@ document.addEventListener('DOMContentLoaded', function () {
     row.className = 'event-row';
     row.dataset.uid = ev.uid || crypto.randomUUID();
 
+    if (ev.uid === activeEventUid) {
+      row.classList.add('active-event');
+    }
+
     const handleCell = document.createElement('td');
     const handleSpan = document.createElement('span');
     handleSpan.className = 'uk-sortable-handle uk-icon';
     handleSpan.setAttribute('uk-icon', 'icon: table');
     handleCell.appendChild(handleSpan);
+
+    const indexCell = document.createElement('td');
+    indexCell.className = 'row-num';
+    indexCell.textContent = '';
 
     const nameCell = document.createElement('td');
     const nameInput = document.createElement('input');
@@ -1276,19 +1292,35 @@ document.addEventListener('DOMContentLoaded', function () {
     nameCell.appendChild(nameInput);
 
     const startCell = document.createElement('td');
+    const startWrapper = document.createElement('div');
+    startWrapper.className = 'uk-inline';
+    const startIcon = document.createElement('span');
+    startIcon.className = 'uk-form-icon';
+    startIcon.setAttribute('uk-icon', 'icon: calendar');
     const startInput = document.createElement('input');
     startInput.type = 'datetime-local';
     startInput.className = 'uk-input event-start';
+    startInput.placeholder = 'TT.MM.JJJJ HH:MM';
     const now = new Date().toISOString().slice(0, 16);
     startInput.value = ev.start_date || now;
-    startCell.appendChild(startInput);
+    startWrapper.appendChild(startIcon);
+    startWrapper.appendChild(startInput);
+    startCell.appendChild(startWrapper);
 
     const endCell = document.createElement('td');
+    const endWrapper = document.createElement('div');
+    endWrapper.className = 'uk-inline';
+    const endIcon = document.createElement('span');
+    endIcon.className = 'uk-form-icon';
+    endIcon.setAttribute('uk-icon', 'icon: calendar');
     const endInput = document.createElement('input');
     endInput.type = 'datetime-local';
     endInput.className = 'uk-input event-end';
+    endInput.placeholder = 'TT.MM.JJJJ HH:MM';
     endInput.value = ev.end_date || now;
-    endCell.appendChild(endInput);
+    endWrapper.appendChild(endIcon);
+    endWrapper.appendChild(endInput);
+    endCell.appendChild(endWrapper);
 
     const descCell = document.createElement('td');
     const descInput = document.createElement('input');
@@ -1301,14 +1333,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const activateCell = document.createElement('td');
     const activateLabel = document.createElement('label');
     activateLabel.className = 'switch';
+    activateLabel.setAttribute('uk-tooltip', 'title: Aktivieren; pos: top');
     const activateInput = document.createElement('input');
     activateInput.type = 'checkbox';
     activateInput.checked = ev.uid === activeEventUid;
+    activateInput.setAttribute('aria-label', 'Aktivieren');
     const activateSlider = document.createElement('span');
     activateSlider.className = 'slider';
     activateInput.addEventListener('change', () => {
       if (activateInput.checked) {
         setActiveEvent(row.dataset.uid, nameInput.value.trim());
+        row.classList.add('active-event');
+      } else {
+        row.classList.remove('active-event');
       }
     });
     activateLabel.appendChild(activateInput);
@@ -1323,11 +1360,13 @@ document.addEventListener('DOMContentLoaded', function () {
     del.addEventListener('click', () => {
       if (confirm('Veranstaltung wirklich löschen? Dabei werden auch alle angelegten Kataloge, Fragen und Teams entfernt.')) {
         row.remove();
+        updateEventRowNumbers();
       }
     });
     delCell.appendChild(del);
 
     row.appendChild(handleCell);
+    row.appendChild(indexCell);
     row.appendChild(nameCell);
     row.appendChild(startCell);
     row.appendChild(endCell);
@@ -1341,6 +1380,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!eventsListEl) return;
     eventsListEl.innerHTML = '';
     list.forEach(ev => eventsListEl.appendChild(createEventRow(ev)));
+    updateEventRowNumbers();
   }
 
   function populateEventSelect(list) {
@@ -1382,7 +1422,10 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (eventsListEl && window.UIkit && UIkit.util) {
-    UIkit.util.on(eventsListEl, 'moved', saveEventOrder);
+    UIkit.util.on(eventsListEl, 'moved', () => {
+      saveEventOrder();
+      updateEventRowNumbers();
+    });
   }
 
   if (eventsListEl || eventSelect) {
@@ -1398,6 +1441,7 @@ document.addEventListener('DOMContentLoaded', function () {
   eventAddBtn?.addEventListener('click', e => {
     e.preventDefault();
     eventsListEl.appendChild(createEventRow());
+    updateEventRowNumbers();
   });
 
   eventsSaveBtn?.addEventListener('click', e => {

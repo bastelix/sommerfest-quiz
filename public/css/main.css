@@ -527,6 +527,19 @@ body.dark-mode .sticky-actions {
   transform: translateX(18px);
 }
 
+/* Event list enhancements */
+#eventsList .event-row.active-event {
+  background-color: #e7f9e7;
+}
+#eventsList td {
+  padding: 8px 4px;
+}
+#eventsList .row-num {
+  width: 3ch;
+  text-align: right;
+  color: #555;
+}
+
 /* Responsive event list */
 @media (max-width: 639px) {
   #eventsList,
@@ -544,7 +557,13 @@ body.dark-mode .sticky-actions {
     padding: 4px 0;
   }
   #eventsList td:first-child {
-    display: none;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    display: block;
+  }
+  #eventsList tr {
+    position: relative;
   }
   #eventsList input[type="text"],
   #eventsList input[type="datetime-local"] {
