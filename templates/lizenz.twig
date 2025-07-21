@@ -12,6 +12,7 @@
 
 {% block body %}
   {% embed 'topbar.twig' %}
+    {% block mobile_menu_toggle %}{% endblock %}
     {% block left %}
       <a href="." class="uk-icon-button" uk-icon="icon: arrow-left; ratio: 2" title="Zurück" aria-label="Zurück"></a>
     {% endblock %}
@@ -26,6 +27,7 @@
         <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="Kontrastmodus"></button>
       </div>
     {% endblock %}
+    {% block offcanvas %}{% endblock %}
   {% endembed %}
   <div class="uk-container uk-container-small legal-container">
     <h1 class="uk-heading-divider uk-hidden">Lizenz</h1>
