@@ -56,6 +56,7 @@
 - *(migrations)* Add admin seed
 - Allow restore and delete of old backups
 - *(admin)* Add dropdown for active event
+- *(admin)* Allow landing page as home option
 
 ### Fix
 
