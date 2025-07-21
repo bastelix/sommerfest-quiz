@@ -1,5 +1,8 @@
 <nav class="uk-navbar-container uk-padding-small topbar" uk-navbar>
   <div class="uk-navbar-left">
+    <a class="uk-navbar-toggle uk-hidden@m" href="#offcanvas-nav" uk-toggle>
+      <span uk-navbar-toggle-icon></span>
+    </a>
     <div class="uk-navbar-item">
       {% block left %}{% endblock %}
     </div>
@@ -23,5 +26,15 @@
     </div>
   </div>
 </nav>
+<div id="offcanvas-nav" uk-offcanvas="overlay: true">
+  <div class="uk-offcanvas-bar">
+    <ul class="uk-nav uk-nav-default">
+      <li><a href="#features">Features</a></li>
+      <li><a href="{{ basePath }}/pricing">Preise</a></li>
+      <li><a href="#contact">Kontakt</a></li>
+      <li><a href="{{ basePath }}/login">Login</a></li>
+    </ul>
+  </div>
+</div>
 {% block headerbar %}{% endblock %}
 <div class="nav-placeholder"></div>
