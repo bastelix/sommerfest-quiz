@@ -77,4 +77,24 @@ class HomeControllerTest extends TestCase
             $this->assertEquals(200, $response->getStatusCode());
         });
     }
+
+    public function testEventsAsHomePage(): void
+    {
+        $db = $this->setupDb();
+        $this->getAppInstance();
+        $pdo = \App\Infrastructure\Database::connectFromEnv();
+        \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
+        (new \App\Service\SettingsService($pdo))->save(['home_page' => 'events']);
+        $pdo->exec("INSERT INTO events(uid,name) VALUES('1','Event')");
+
+        try {
+            $app = $this->getAppInstance();
+            $request = $this->createRequest('GET', '/');
+            $response = $app->handle($request);
+            $this->assertEquals(200, $response->getStatusCode());
+            $this->assertStringContainsString('Veranstaltungen', (string)$response->getBody());
+        } finally {
+            unlink($db);
+        }
+    }
 }

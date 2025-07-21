@@ -24,6 +24,7 @@ use App\Service\EventService;
 use App\Service\SummaryPhotoService;
 use App\Service\UserService;
 use App\Service\TenantService;
+use App\Service\SettingsService;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
 use App\Controller\PasswordController;
@@ -36,6 +37,8 @@ use App\Controller\CatalogDesignController;
 use App\Controller\SummaryController;
 use App\Controller\EvidenceController;
 use App\Controller\EventController;
+use App\Controller\EventListController;
+use App\Controller\SettingsController;
 use App\Controller\TenantController;
 use App\Controller\Marketing\LandingController;
 use Psr\Log\NullLogger;
@@ -64,6 +67,8 @@ require_once __DIR__ . '/Controller/SummaryController.php';
 require_once __DIR__ . '/Controller/EvidenceController.php';
 require_once __DIR__ . '/Controller/ExportController.php';
 require_once __DIR__ . '/Controller/EventController.php';
+require_once __DIR__ . '/Controller/EventListController.php';
+require_once __DIR__ . '/Controller/SettingsController.php';
 require_once __DIR__ . '/Controller/BackupController.php';
 require_once __DIR__ . '/Controller/UserController.php';
 require_once __DIR__ . '/Controller/TenantController.php';
@@ -97,6 +102,7 @@ return function (\Slim\App $app) {
         $eventService = new EventService($pdo);
         $tenantService = new TenantService($pdo);
         $userService = new \App\Service\UserService($pdo);
+        $settingsService = new \App\Service\SettingsService($pdo);
 
         $request = $request
             ->withAttribute('configController', new ConfigController($configService))
@@ -114,6 +120,7 @@ return function (\Slim\App $app) {
             ->withAttribute('tenantController', new TenantController($tenantService))
             ->withAttribute('passwordController', new PasswordController($userService))
             ->withAttribute('userController', new UserController($userService))
+            ->withAttribute('settingsController', new SettingsController($settingsService))
             ->withAttribute('qrController', new QrController(
                 $configService,
                 $teamService,
@@ -169,6 +176,7 @@ return function (\Slim\App $app) {
     });
     $app->get('/faq', FaqController::class);
     $app->get('/help', HelpController::class);
+    $app->get('/events', EventListController::class);
     $app->get('/datenschutz', DatenschutzController::class);
     $app->get('/impressum', ImpressumController::class);
     $app->get('/lizenz', LizenzController::class);
@@ -220,6 +228,14 @@ return function (\Slim\App $app) {
     $app->post('/config.json', function (Request $request, Response $response) {
         return $request->getAttribute('configController')->post($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+
+    $app->get('/settings.json', function (Request $request, Response $response) {
+        return $request->getAttribute('settingsController')->get($request, $response);
+    });
+
+    $app->post('/settings.json', function (Request $request, Response $response) {
+        return $request->getAttribute('settingsController')->post($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
     $app->get('/kataloge/{file}', function (Request $request, Response $response, array $args) {
         $req = $request->withAttribute('file', $args['file']);
