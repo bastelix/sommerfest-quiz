@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   inviteToolbar?.addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-format],button[data-insert]');
+    const btn = e.target.closest('[data-format],[data-insert]');
     if (!btn) return;
     if (btn.dataset.insert) {
       insertText(inviteTextarea, btn.dataset.insert);
