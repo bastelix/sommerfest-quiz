@@ -847,8 +847,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const list = document.createElement('div');
         (q.items || ['', '']).forEach(it => list.appendChild(addItem(it)));
         const add = document.createElement('button');
-        add.className = 'uk-button uk-button-small uk-margin-small-top';
-        add.textContent = 'Item hinzufügen';
+        add.className = 'uk-icon-button uk-button-primary uk-margin-small-top';
+        add.setAttribute("uk-icon", "plus");
+        add.setAttribute("aria-label", "Item hinzufügen");
         add.onclick = e => {
           e.preventDefault();
           list.appendChild(addItem(''));
@@ -861,8 +862,9 @@ document.addEventListener('DOMContentLoaded', function () {
           list.appendChild(addPair(p.term, p.definition))
         );
         const add = document.createElement('button');
-        add.className = 'uk-button uk-button-small uk-margin-small-top';
-        add.textContent = 'Begriff hinzufügen';
+        add.className = 'uk-icon-button uk-button-primary uk-margin-small-top';
+        add.setAttribute("uk-icon", "plus");
+        add.setAttribute("aria-label", "Begriff hinzufügen");
         add.onclick = e => {
           e.preventDefault();
           list.appendChild(addPair('', ''));
@@ -895,8 +897,9 @@ document.addEventListener('DOMContentLoaded', function () {
           list.appendChild(addCard(c.text, c.correct))
         );
         const add = document.createElement('button');
-        add.className = 'uk-button uk-button-small uk-margin-small-top';
-        add.textContent = 'Karte hinzufügen';
+        add.className = 'uk-icon-button uk-button-primary uk-margin-small-top';
+        add.setAttribute("uk-icon", "plus");
+        add.setAttribute("aria-label", "Karte hinzufügen");
         add.onclick = e => { e.preventDefault(); list.appendChild(addCard('', false)); };
         fields.appendChild(list);
         fields.appendChild(add);
@@ -920,8 +923,9 @@ document.addEventListener('DOMContentLoaded', function () {
           list.appendChild(addOption(opt, (q.answers || []).includes(i)))
         );
         const add = document.createElement('button');
-        add.className = 'uk-button uk-button-small uk-margin-small-top';
-        add.textContent = 'Option hinzufügen';
+        add.className = 'uk-icon-button uk-button-primary uk-margin-small-top';
+        add.setAttribute("uk-icon", "plus");
+        add.setAttribute("aria-label", "Option hinzufügen");
         add.onclick = e => {
           e.preventDefault();
           list.appendChild(addOption(''));
