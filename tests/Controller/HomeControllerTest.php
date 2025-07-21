@@ -44,7 +44,10 @@ class HomeControllerTest extends TestCase
         $pdo = \App\Infrastructure\Database::connectFromEnv();
         \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
         $pdo->exec("INSERT INTO events(uid,name) VALUES('1','Event')");
-        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) VALUES('c1',1,'station_1','station_1.json','Station 1','1')");
+        $pdo->exec(
+            "INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) " .
+            "VALUES('c1',1,'station_1','station_1.json','Station 1','1')"
+        );
 
         try {
             $fn();

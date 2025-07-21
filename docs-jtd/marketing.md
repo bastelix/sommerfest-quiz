@@ -39,8 +39,8 @@ Dieses Projekt zeigt, wie Mensch und KI gemeinsam neue digitale Möglichkeiten s
 ## Anmeldung neuer Mandanten
 
 Setze in der Datei `.env` den Wert `MAIN_DOMAIN` auf deine Hauptadresse.
-Nur unter dieser Domain werden die Marketing-Seiten `/landing` und
-`/pricing` angezeigt; Subdomains liefern hier einen 404-Status.
+Nur unter dieser Domain wird die Marketing-Seite `/landing` angezeigt;
+Subdomains liefern hier einen 404-Status.
 
 Um einen neuen Mandanten anzulegen, führe auf dem Hostsystem
 `scripts/create_tenant.sh <subdomain>` aus oder sende einen `POST` an
