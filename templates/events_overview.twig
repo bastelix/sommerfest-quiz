@@ -12,6 +12,8 @@
 
 {% block body %}
   {% embed 'topbar.twig' %}
+    {% block mobile_menu_toggle %}{% endblock %}
+    {% block offcanvas %}{% endblock %}
     {% block left %}
       <a href="{{ basePath }}/faq" class="uk-icon-button" uk-icon="icon: question; ratio: 2" title="Hilfe" aria-label="Hilfe"></a>
     {% endblock %}
