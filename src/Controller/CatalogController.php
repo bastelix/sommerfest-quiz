@@ -89,6 +89,9 @@ class CatalogController
             return $response->withStatus(400);
         }
 
+        if ($this->service->slugByFile($file) === null) {
+            $this->service->createCatalog($file);
+        }
         $this->service->write($file, $data);
 
         return $response->withStatus(204);

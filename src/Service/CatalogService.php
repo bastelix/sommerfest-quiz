@@ -111,6 +111,51 @@ class CatalogService
     }
 
     /**
+     * Create a catalog entry if it does not already exist.
+     */
+    public function createCatalog(string $file): void
+    {
+        $slug = pathinfo($file, PATHINFO_FILENAME);
+        $event = $this->config->getActiveEventUid();
+
+        $sql = 'SELECT COUNT(*) FROM catalogs WHERE slug=?';
+        $params = [$slug];
+        if ($event !== '') {
+            $sql .= ' AND event_uid=?';
+            $params[] = $event;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        $exists = (int) $stmt->fetchColumn() > 0;
+        if ($exists) {
+            return;
+        }
+
+        $sortSql = 'SELECT COALESCE(MAX(sort_order),0) FROM catalogs';
+        $sortParams = [];
+        if ($event !== '') {
+            $sortSql .= ' WHERE event_uid=?';
+            $sortParams[] = $event;
+        }
+        $sStmt = $this->pdo->prepare($sortSql);
+        $sStmt->execute($sortParams);
+        $sortOrder = ((int) $sStmt->fetchColumn()) + 1;
+
+        $ins = $this->pdo->prepare(
+            'INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) '
+            . 'VALUES(?,?,?,?,?,?)'
+        );
+        $ins->execute([
+            bin2hex(random_bytes(16)),
+            $sortOrder,
+            $slug,
+            basename($file),
+            $slug,
+            $event !== '' ? $event : null,
+        ]);
+    }
+
+    /**
      * Read a catalog or the catalog index and return it as JSON.
      */
     public function read(string $file): ?string

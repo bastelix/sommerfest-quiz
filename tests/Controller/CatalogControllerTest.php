@@ -168,8 +168,6 @@ class CatalogControllerTest extends TestCase
         $this->assertEquals(200, $getResponse->getStatusCode());
         $this->assertJsonStringEqualsJsonString('{"a":1}', (string) $getResponse->getBody());
 
-        unlink($dir . '/test.json');
-        rmdir($dir);
         session_destroy();
     }
 
@@ -216,10 +214,16 @@ class CatalogControllerTest extends TestCase
         session_start();
         $_SESSION["user"] = ["id" => 1, "role" => "catalog-editor"];
 
-        $createReq = $this->createRequest('PUT', '/kataloge/new.json');
-        $createRes = $controller->create($createReq, new Response(), ['file' => 'new.json']);
+        $createReq = $this->createRequest('POST', '/kataloge/new.json');
+        $createReq = $createReq->withParsedBody([]);
+        $createRes = $controller->post($createReq, new Response(), ['file' => 'new.json']);
         $this->assertEquals(204, $createRes->getStatusCode());
-        $this->assertFileExists($dir . '/new.json');
+        $getRes = $controller->get(
+            $this->createRequest('GET', '/kataloge/new.json', ['HTTP_ACCEPT' => 'application/json']),
+            new Response(),
+            ['file' => 'new.json']
+        );
+        $this->assertEquals(200, $getRes->getStatusCode());
 
         $deleteRes = $controller->delete(
             $this->createRequest('DELETE', '/kataloge/new.json'),
@@ -227,9 +231,12 @@ class CatalogControllerTest extends TestCase
             ['file' => 'new.json']
         );
         $this->assertEquals(204, $deleteRes->getStatusCode());
-        $this->assertFileDoesNotExist($dir . '/new.json');
+        $this->assertSame(404, $controller->get(
+            $this->createRequest('GET', '/kataloge/new.json', ['HTTP_ACCEPT' => 'application/json']),
+            new Response(),
+            ['file' => 'new.json']
+        )->getStatusCode());
 
-        rmdir($dir);
         session_destroy();
     }
 
@@ -286,15 +293,11 @@ class CatalogControllerTest extends TestCase
         $this->assertCount(1, $data);
         $this->assertSame(['b' => 2], $data[0]);
 
-        unlink($dir . '/cat.json');
-        rmdir($dir);
         session_destroy();
     }
 
     public function testPostInvalidJson(): void
     {
-        $dir = sys_get_temp_dir() . '/catalog_' . uniqid();
-        mkdir($dir);
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
@@ -345,7 +348,6 @@ class CatalogControllerTest extends TestCase
         $response = $controller->post($request, new Response(), ['file' => 'test.json']);
         $this->assertEquals(400, $response->getStatusCode());
 
-        rmdir($dir);
         session_destroy();
     }
 }
