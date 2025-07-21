@@ -235,18 +235,6 @@ class ResultServiceTest extends TestCase
         );
         $pdo->exec(
             <<<'SQL'
-            CREATE TABLE catalogs(
-                uid TEXT PRIMARY KEY,
-                sort_order INTEGER,
-                slug TEXT,
-                file TEXT,
-                name TEXT,
-                event_uid TEXT
-            );
-            SQL
-        );
-        $pdo->exec(
-            <<<'SQL'
             CREATE TABLE questions(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 catalog_uid TEXT NOT NULL,
