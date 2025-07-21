@@ -219,7 +219,9 @@ class CatalogControllerTest extends TestCase
         $createReq = $this->createRequest('PUT', '/kataloge/new.json');
         $createRes = $controller->create($createReq, new Response(), ['file' => 'new.json']);
         $this->assertEquals(204, $createRes->getStatusCode());
-        $this->assertFileExists($dir . '/new.json');
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM catalogs WHERE file=? OR slug=?');
+        $stmt->execute(['new.json', 'new']);
+        $this->assertSame('1', $stmt->fetchColumn());
 
         $deleteRes = $controller->delete(
             $this->createRequest('DELETE', '/kataloge/new.json'),
@@ -227,7 +229,9 @@ class CatalogControllerTest extends TestCase
             ['file' => 'new.json']
         );
         $this->assertEquals(204, $deleteRes->getStatusCode());
-        $this->assertFileDoesNotExist($dir . '/new.json');
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM catalogs WHERE file=? OR slug=?');
+        $stmt->execute(['new.json', 'new']);
+        $this->assertSame('0', $stmt->fetchColumn());
 
         rmdir($dir);
         session_destroy();
