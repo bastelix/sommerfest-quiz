@@ -218,6 +218,10 @@ class CatalogControllerTest extends TestCase
         $createReq = $createReq->withParsedBody([]);
         $createRes = $controller->post($createReq, new Response(), ['file' => 'new.json']);
         $this->assertEquals(204, $createRes->getStatusCode());
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM catalogs WHERE file=? AND slug=?');
+        $stmt->execute(['new.json', 'new']);
+        $this->assertSame(1, (int) $stmt->fetchColumn());
+
         $getRes = $controller->get(
             $this->createRequest('GET', '/kataloge/new.json', ['HTTP_ACCEPT' => 'application/json']),
             new Response(),
@@ -231,6 +235,10 @@ class CatalogControllerTest extends TestCase
             ['file' => 'new.json']
         );
         $this->assertEquals(204, $deleteRes->getStatusCode());
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM catalogs WHERE file=? AND slug=?');
+        $stmt->execute(['new.json', 'new']);
+        $this->assertSame(0, (int) $stmt->fetchColumn());
+
         $this->assertSame(404, $controller->get(
             $this->createRequest('GET', '/kataloge/new.json', ['HTTP_ACCEPT' => 'application/json']),
             new Response(),
