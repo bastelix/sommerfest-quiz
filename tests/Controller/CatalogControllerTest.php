@@ -28,7 +28,8 @@ class CatalogControllerTest extends TestCase
                 description TEXT,
                 qrcode_url TEXT,
                 raetsel_buchstabe TEXT,
-                comment TEXT
+                comment TEXT,
+                event_uid TEXT
             );
             SQL
         );
@@ -75,7 +76,8 @@ class CatalogControllerTest extends TestCase
                 description TEXT,
                 qrcode_url TEXT,
                 raetsel_buchstabe TEXT,
-                comment TEXT
+                comment TEXT,
+                event_uid TEXT
             );
             SQL
         );
@@ -126,7 +128,8 @@ class CatalogControllerTest extends TestCase
                 description TEXT,
                 qrcode_url TEXT,
                 raetsel_buchstabe TEXT,
-                comment TEXT
+                comment TEXT,
+                event_uid TEXT
             );
             SQL
         );
@@ -186,7 +189,8 @@ class CatalogControllerTest extends TestCase
                 description TEXT,
                 qrcode_url TEXT,
                 raetsel_buchstabe TEXT,
-                comment TEXT
+                comment TEXT,
+                event_uid TEXT
             );
             SQL
         );
@@ -245,7 +249,8 @@ class CatalogControllerTest extends TestCase
                 description TEXT,
                 qrcode_url TEXT,
                 raetsel_buchstabe TEXT,
-                comment TEXT
+                comment TEXT,
+                event_uid TEXT
             );
             SQL
         );
@@ -304,7 +309,8 @@ class CatalogControllerTest extends TestCase
                 description TEXT,
                 qrcode_url TEXT,
                 raetsel_buchstabe TEXT,
-                comment TEXT
+                comment TEXT,
+                event_uid TEXT
             );
             SQL
         );

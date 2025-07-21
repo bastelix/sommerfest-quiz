@@ -18,7 +18,30 @@ class TenantServiceTest extends TestCase
         if (!is_dir($dir)) {
             mkdir($dir);
         }
-        file_put_contents($dir . '/001.sql', 'CREATE TABLE sample(id INTEGER);');
+        $sql = <<<'SQL'
+CREATE TABLE events(uid TEXT PRIMARY KEY);
+CREATE TABLE catalogs(
+    uid TEXT PRIMARY KEY,
+    sort_order INTEGER,
+    slug TEXT,
+    file TEXT,
+    name TEXT,
+    event_uid TEXT
+);
+CREATE TABLE question_results(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    catalog TEXT,
+    question_id INTEGER,
+    attempt INTEGER,
+    correct INTEGER,
+    answer_text TEXT,
+    photo TEXT,
+    consent INTEGER,
+    event_uid TEXT
+);
+SQL;
+        file_put_contents($dir . '/20240910_base_schema.sql', $sql);
         return new TenantService($pdo, $dir);
     }
 
