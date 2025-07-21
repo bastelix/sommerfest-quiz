@@ -97,4 +97,23 @@ class HomeControllerTest extends TestCase
             unlink($db);
         }
     }
+
+    public function testLandingAsHomePage(): void
+    {
+        $db = $this->setupDb();
+        $this->getAppInstance();
+        $pdo = \App\Infrastructure\Database::connectFromEnv();
+        \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
+        (new \App\Service\SettingsService($pdo))->save(['home_page' => 'landing']);
+
+        try {
+            $app = $this->getAppInstance();
+            $request = $this->createRequest('GET', '/');
+            $response = $app->handle($request);
+            $this->assertEquals(200, $response->getStatusCode());
+            $this->assertStringContainsString('Willkommen beim QuizRace', (string)$response->getBody());
+        } finally {
+            unlink($db);
+        }
+    }
 }

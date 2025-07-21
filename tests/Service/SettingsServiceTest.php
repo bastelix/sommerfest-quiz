@@ -15,8 +15,10 @@ class SettingsServiceTest extends TestCase
         $svc = new SettingsService($pdo);
         $svc->save(['home_page' => 'events']);
         $this->assertSame('events', $svc->get('home_page'));
+        $svc->save(['home_page' => 'landing']);
+        $this->assertSame('landing', $svc->get('home_page'));
         $all = $svc->getAll();
         $this->assertArrayHasKey('home_page', $all);
-        $this->assertEquals('events', $all['home_page']);
+        $this->assertEquals('landing', $all['home_page']);
     }
 }
