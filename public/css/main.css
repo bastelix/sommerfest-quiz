@@ -579,4 +579,90 @@ body.dark-mode .sticky-actions {
   }
 }
 
+/* Catalog list enhancements */
+#catalogList td {
+  padding: 8px 4px;
+}
+
+#catalogTable {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Responsive catalog list */
+@media (max-width: 639px) {
+  #catalogTable thead {
+    display: none;
+  }
+  #catalogList,
+  #catalogList tr,
+  #catalogList td {
+    display: block;
+  }
+  #catalogList tr {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  #catalogList td {
+    padding: 4px 0;
+  }
+  #catalogList td:first-child {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    display: block;
+  }
+  #catalogList tr {
+    position: relative;
+  }
+  #catalogList input[type="text"] {
+    width: 100%;
+  }
+}
+
+/* Team list enhancements */
+#teamsList td {
+  padding: 8px 4px;
+}
+
+#teamsTable {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Responsive team list */
+@media (max-width: 639px) {
+  #teamsTable thead {
+    display: none;
+  }
+  #teamsList,
+  #teamsList tr,
+  #teamsList td {
+    display: block;
+  }
+  #teamsList tr {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  #teamsList td {
+    padding: 4px 0;
+  }
+  #teamsList td:first-child {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    display: block;
+  }
+  #teamsList tr {
+    position: relative;
+  }
+  #teamsList input[type="text"] {
+    width: 100%;
+  }
+}
+
 
