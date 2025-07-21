@@ -1277,21 +1277,26 @@ document.addEventListener('DOMContentLoaded', function () {
     descCell.appendChild(descInput);
 
     const activateCell = document.createElement('td');
-    const activateBtn = document.createElement('button');
-    activateBtn.className = 'uk-button uk-button-default';
-    activateBtn.textContent = ev.uid === activeEventUid ? 'Aktiv' : 'Aktivieren';
-    if (ev.uid === activeEventUid) {
-      activateBtn.disabled = true;
-    }
-    activateBtn.addEventListener('click', () => {
-      setActiveEvent(row.dataset.uid, nameInput.value.trim());
+    const activateLabel = document.createElement('label');
+    activateLabel.className = 'switch';
+    const activateInput = document.createElement('input');
+    activateInput.type = 'checkbox';
+    activateInput.checked = ev.uid === activeEventUid;
+    const activateSlider = document.createElement('span');
+    activateSlider.className = 'slider';
+    activateInput.addEventListener('change', () => {
+      if (activateInput.checked) {
+        setActiveEvent(row.dataset.uid, nameInput.value.trim());
+      }
     });
-    activateCell.appendChild(activateBtn);
+    activateLabel.appendChild(activateInput);
+    activateLabel.appendChild(activateSlider);
+    activateCell.appendChild(activateLabel);
 
     const delCell = document.createElement('td');
     const del = document.createElement('button');
-    del.className = 'uk-button uk-button-danger';
-    del.textContent = '×';
+    del.className = 'uk-icon-button uk-button-danger';
+    del.setAttribute('uk-icon', 'trash');
     del.setAttribute('aria-label', 'Löschen');
     del.addEventListener('click', () => {
       if (confirm('Veranstaltung wirklich löschen? Dabei werden auch alle angelegten Kataloge, Fragen und Teams entfernt.')) {
