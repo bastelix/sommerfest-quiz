@@ -78,6 +78,7 @@
 - Ensure topbar icons work on mobile
 - Respect base path in admin JS
 - Serve event-specific logo paths
+- Remove landing menu in admin
 
 ### Refactor
 
