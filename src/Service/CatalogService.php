@@ -266,10 +266,52 @@ class CatalogService
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         $cat = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($cat === false) {
-            return;
-        }
+
         $this->pdo->beginTransaction();
+
+        if ($cat === false) {
+            $sql = 'SELECT uid FROM catalogs WHERE file=?';
+            $params = [basename($file)];
+            if ($uid !== '') {
+                $sql .= ' AND event_uid=?';
+                $params[] = $uid;
+            }
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+            $cat = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($cat === false) {
+                $cat = ['uid' => bin2hex(random_bytes(16))];
+                $fields = 'uid,sort_order,slug,file,name,event_uid';
+                $placeholders = '?,?,?,?,?,?';
+                if ($this->hasCommentColumn()) {
+                    $fields .= ',comment';
+                    $placeholders .= ',?';
+                }
+                if ($this->hasDesignColumn()) {
+                    $fields .= ',design_path';
+                    $placeholders .= ',?';
+                }
+                $ins = $this->pdo->prepare(
+                    "INSERT INTO catalogs($fields) VALUES($placeholders)"
+                );
+                $row = [
+                    $cat['uid'],
+                    '',
+                    $slug,
+                    basename($file),
+                    '',
+                    $uid !== '' ? $uid : null,
+                ];
+                if ($this->hasCommentColumn()) {
+                    $row[] = null;
+                }
+                if ($this->hasDesignColumn()) {
+                    $row[] = null;
+                }
+                $ins->execute($row);
+            }
+        }
+
         $del = $this->pdo->prepare('DELETE FROM questions WHERE catalog_uid=?');
         $del->execute([$cat['uid']]);
         $qStmt = $this->pdo->prepare(
