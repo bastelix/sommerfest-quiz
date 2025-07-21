@@ -52,6 +52,9 @@ class ConfigControllerTest extends TestCase
         $service = new ConfigService($pdo);
         $controller = new ConfigController($service);
 
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'event-manager'];
+
         $request = $this->createRequest('POST', '/config.json', ['HTTP_CONTENT_TYPE' => 'application/json']);
         $stream = fopen('php://temp', 'r+');
         fwrite($stream, '{invalid');
