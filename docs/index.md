@@ -68,7 +68,7 @@ Ein neuer Mandant lässt sich anschließend mit
 funktioniert auch ein `POST` auf `/tenants`. Beide Aufrufe müssen von der
 Hauptdomain aus erfolgen, andernfalls antwortet der Server mit `403`.
 
-Die Marketing-Seiten `/landing` und `/pricing` sind nur auf der in
+Die Marketing-Seite `/landing` ist nur auf der in
 `MAIN_DOMAIN` hinterlegten Domain verfügbar. Wird eine Subdomain
 aufgerufen, erhält der Browser stattdessen einen 404-Status.
 
