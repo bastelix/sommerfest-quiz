@@ -1,10 +1,10 @@
-# Sommerfest-Quiz
+# QuizRace
 [![Deploy](https://github.com/bastelix/sommerfest-quiz/actions/workflows/deploy.yml/badge.svg)](https://github.com/bastelix/sommerfest-quiz/actions/workflows/deploy.yml)
 [![HTML Validity Test](https://github.com/bastelix/sommerfest-quiz/actions/workflows/html-validity.yml/badge.svg)](https://github.com/bastelix/sommerfest-quiz/actions/workflows/html-validity.yml)
 
 **Dokumentation:** Die ausführliche Anleitung findest du auf GitHub Pages: <https://bastelix.github.io/sommerfest-quiz/>
 
-Das **Sommerfest-Quiz** ist eine sofort einsetzbare Web-App, mit der Sie Besucherinnen und Besucher spielerisch an Events beteiligen. Dank Slim Framework und UIkit3 funktioniert alles ohne komplizierte Server-Setups direkt im Browser.
+Das **QuizRace** ist eine sofort einsetzbare Web-App, mit der Sie Besucherinnen und Besucher spielerisch an Events beteiligen. Dank Slim Framework und UIkit3 funktioniert alles ohne komplizierte Server-Setups direkt im Browser.
 
 ## Disclaimer / Hinweis
 
@@ -287,7 +287,7 @@ Das Frontend bringt mehrere Funktionen mit, die die Nutzung erleichtern:
 ## Anwenderhandbuch
 
 ### Einleitung
-Das Projekt *Sommerfest-Quiz* ist eine Web-Applikation zur Erstellung und Verwaltung von Quizfragen. Die Anwendung basiert auf dem Slim Framework und verwendet UIkit3 für das Frontend. Konfigurationen, Kataloge, Teams und Ergebnisse liegen in einer PostgreSQL-Datenbank und lassen sich über die Oberfläche als JSON-Dateien exportieren oder importieren.
+Das Projekt *QuizRace* ist eine Web-Applikation zur Erstellung und Verwaltung von Quizfragen. Die Anwendung basiert auf dem Slim Framework und verwendet UIkit3 für das Frontend. Konfigurationen, Kataloge, Teams und Ergebnisse liegen in einer PostgreSQL-Datenbank und lassen sich über die Oberfläche als JSON-Dateien exportieren oder importieren.
 
 ### Installation und Start
 1. Abhängigkeiten per Composer installieren:

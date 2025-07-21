@@ -1,6 +1,6 @@
 {% extends 'layout.twig' %}
 
-{% block title %}Sommerfest Quiz{% endblock %}
+{% block title %}QuizRace{% endblock %}
 
 {% block head %}
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
@@ -13,7 +13,7 @@
 {% block body %}
   {% embed 'topbar.twig' %}
     {% block center %}
-      <a class="uk-navbar-item uk-logo" href="{{ basePath }}/landing">Sommerfest Quiz</a>
+      <a class="uk-navbar-item uk-logo" href="{{ basePath }}/landing">QuizRace</a>
       <ul class="uk-navbar-nav uk-visible@m">
         <li><a href="#features">Features</a></li>
         <li><a href="{{ basePath }}/pricing">Preise</a></li>
@@ -28,7 +28,7 @@
 
   <section class="uk-section uk-section-primary uk-flex uk-flex-middle" uk-height-viewport="offset-top: true">
     <div class="uk-container">
-      <h1 class="uk-heading-medium">Willkommen beim Sommerfest-Quiz</h1>
+      <h1 class="uk-heading-medium">Willkommen beim QuizRace</h1>
       <p class="uk-text-lead">Trete gegen Freunde und Kollegen an und finde heraus, wer das meiste Wissen hat.</p>
       <p class="uk-margin-large-top">
         <a class="uk-button uk-button-secondary uk-button-large" href="{{ basePath }}/login">Jetzt starten</a>

@@ -1,4 +1,4 @@
--- Combined base schema for Sommerfest Quiz (optimiert, robust und idempotent)
+-- Combined base schema for QuizRace (optimiert, robust und idempotent)
 
 -- ENUM f\xC3\xBCr Rollen
 DO $$
