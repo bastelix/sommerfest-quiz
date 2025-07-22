@@ -260,8 +260,26 @@ kopiert oder per CDN eingebunden werden:
 ```
 
 Das Template `templates/admin/pages/edit.twig` initialisiert den Editor mit
-`new Quill('#editor', { theme: 'snow' });`. Beim Absenden des Formulars wird der
-HTML-Inhalt in das versteckte Feld `content` geschrieben.
+einer erweiterten Werkzeugleiste und einem Button zum direkten Bearbeiten des
+HTML-Codes:
+
+```javascript
+new Quill('#editor', {
+  theme: 'snow',
+  modules: {
+    toolbar: [
+      [{ header: [1, 2, false] }],
+      ['bold', 'italic', 'underline', 'link'],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      ['clean', 'html']
+    ],
+    htmlEditButton: {}
+  }
+});
+```
+
+Beim Absenden des Formulars wird der HTML-Inhalt in das versteckte Feld
+`content` geschrieben.
 
 ## Tests
 
