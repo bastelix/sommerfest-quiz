@@ -59,6 +59,7 @@
 - *(admin)* Landing page option
 - *(admin)* Improve mobile event list
 - Add admin page editor
+- Integrate static page editing
 
 ### Fix
 
