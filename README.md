@@ -250,36 +250,17 @@ Die Übersichtsseiten erzeugen ihre QR-Codes jetzt lokal mit der Bibliothek *End
 
 ### Rich-Text-Editor
 
-Zum Bearbeiten der statischen Seiten kommt nun **Quill** zum Einsatz. Die Dateien
-`public/js/quill.min.js` und `public/css/quill.snow.css` m\u00fcssen in das Projekt
-kopiert oder per CDN eingebunden werden:
+Zum Bearbeiten der statischen Seiten wird jetzt **Editor.js** verwendet. Die Bibliothek
+kann per CDN eingebunden werden:
 
 ```html
-<link rel="stylesheet" href="/css/quill.snow.css">
-<script src="/js/quill.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
+<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
 ```
 
-Das Template `templates/admin/pages/edit.twig` initialisiert den Editor mit
-einer erweiterten Werkzeugleiste und einem Button zum direkten Bearbeiten des
-HTML-Codes:
-
-```javascript
-new Quill('#editor', {
-  theme: 'snow',
-  modules: {
-    toolbar: [
-      [{ header: [1, 2, false] }],
-      ['bold', 'italic', 'underline', 'link'],
-      [{ list: 'ordered' }, { list: 'bullet' }],
-      ['clean', 'html']
-    ],
-    htmlEditButton: {}
-  }
-});
-```
-
-Beim Absenden des Formulars wird der HTML-Inhalt in das versteckte Feld
-`content` geschrieben.
+Die Initialisierung erfolgt im Skript `public/js/editorjs-pages.js` und konvertiert
+beim Speichern die Editor.js-Daten in HTML, welches im Feld `content` abgelegt wird.
 
 ## Tests
 
