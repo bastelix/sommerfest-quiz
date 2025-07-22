@@ -39,6 +39,7 @@ use App\Controller\EvidenceController;
 use App\Controller\EventController;
 use App\Controller\EventListController;
 use App\Controller\SettingsController;
+use App\Controller\Admin\PageController;
 use App\Controller\TenantController;
 use App\Controller\Marketing\LandingController;
 use Psr\Log\NullLogger;
@@ -60,6 +61,7 @@ require_once __DIR__ . '/Controller/ResultController.php';
 require_once __DIR__ . '/Controller/TeamController.php';
 require_once __DIR__ . '/Controller/PasswordController.php';
 require_once __DIR__ . '/Controller/AdminCatalogController.php';
+require_once __DIR__ . '/Controller/Admin/PageController.php';
 require_once __DIR__ . '/Controller/QrController.php';
 require_once __DIR__ . '/Controller/LogoController.php';
 require_once __DIR__ . '/Controller/CatalogDesignController.php';
@@ -193,6 +195,16 @@ return function (\Slim\App $app) {
     $app->get('/admin', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/kataloge', AdminCatalogController::class)
         ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+
+    $app->get('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {
+        $controller = new PageController();
+        return $controller->edit($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->post('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {
+        $controller = new PageController();
+        return $controller->update($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/results', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->page($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
