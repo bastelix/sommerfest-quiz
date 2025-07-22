@@ -2,6 +2,18 @@
 document.addEventListener('DOMContentLoaded', function () {
   const basePath = window.basePath || '';
   const withBase = path => basePath + path;
+  const adminRoutes = [
+    'events',
+    'event/settings',
+    'catalogs',
+    'questions',
+    'teams',
+    'summary',
+    'results',
+    'statistics',
+    'pages',
+    'management'
+  ];
   const settingsInitial = window.quizSettings || {};
   const pagesInitial = window.pagesContent || {};
   const apiFetch = (path, options = {}) => {
@@ -1943,8 +1955,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (adminMenu && adminTabs) {
     const tabControl = UIkit.tab(adminTabs);
+    const path = window.location.pathname.replace(basePath + '/admin/', '');
+    const initRoute = path === '' ? 'events' : path.replace(/^\/?/, '');
+    const initIdx = adminRoutes.indexOf(initRoute);
+    if (initIdx >= 0) {
+      tabControl.show(initIdx);
+    }
     UIkit.util.on(adminTabs, 'shown', (e, tab) => {
       const index = Array.prototype.indexOf.call(adminTabs.children, tab);
+      const route = adminRoutes[index];
+      if (route) {
+        const url = basePath + '/admin/' + route;
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, '', url);
+        }
+      }
       if (index === 5) {
         loadSummary();
       }
@@ -1959,6 +1984,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const idx = parseInt(item.getAttribute('data-tab'), 10);
         if (!isNaN(idx)) {
           tabControl.show(idx);
+          const route = adminRoutes[idx];
+          if (route && window.history && window.history.replaceState) {
+            window.history.replaceState(null, '', basePath + '/admin/' + route);
+          }
           if (adminNav) UIkit.offcanvas(adminNav).hide();
           if (idx === summaryIdx) {
             loadSummary();
