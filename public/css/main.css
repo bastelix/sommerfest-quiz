@@ -669,23 +669,12 @@ body.dark-mode .sticky-actions {
   }
 }
 
-/* Quill editor styles */
-.quill-editor .ql-toolbar {
+/* Editor.js styles */
+.editorjs {
   border: 1px solid #e5e5e5;
-  border-radius: 4px 4px 0 0;
-  background: #f8f8f8;
-}
-
-.quill-editor .ql-container {
-  border: 1px solid #e5e5e5;
-  border-top: none;
-  border-radius: 0 0 4px 4px;
-}
-
-/* Icon for HTML code button in Quill toolbar */
-.ql-html::before {
-  content: '</>';
-  font-family: monospace;
+  border-radius: 4px;
+  padding: 10px;
+  background: #fff;
 }
 
 
