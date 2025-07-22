@@ -205,6 +205,11 @@ return function (\Slim\App $app) {
         $controller = new PageController();
         return $controller->update($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->get('/admin/{path:.*}', function (Request $request, Response $response) {
+        $base = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
+        return $response->withHeader('Location', $base . '/admin')->withStatus(302);
+    });
     $app->get('/results', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->page($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
