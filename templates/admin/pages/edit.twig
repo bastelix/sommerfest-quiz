@@ -3,7 +3,8 @@
 {% block title %}Seite bearbeiten{% endblock %}
 
 {% block head %}
-  <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+  <link rel="stylesheet" href="{{ basePath }}/css/quill.snow.css">
+  <script src="{{ basePath }}/js/quill.min.js"></script>
 {% endblock %}
 
 {% block body_class %}uk-background-muted uk-padding{% endblock %}
@@ -12,7 +13,8 @@
   <div class="uk-container uk-container-expand">
     <h1 class="uk-heading-bullet">Seite bearbeiten: {{ slug }}</h1>
     <form method="post" class="uk-form-stacked">
-      <textarea id="pageContent" name="content" class="uk-textarea" rows="20">{{ content }}</textarea>
+      <input type="hidden" id="pageContent" name="content" value="{{ content|e('html_attr') }}">
+      <div id="editor" class="quill-editor">{{ content|raw }}</div>
       <div class="uk-margin-top">
         <button type="submit" class="uk-button uk-button-primary">Speichern</button>
         <a href="{{ basePath }}/{{ slug }}" target="_blank" class="uk-button uk-button-default">Vorschau</a>
@@ -20,6 +22,9 @@
     </form>
   </div>
   <script>
-    tinymce.init({ selector: '#pageContent', height: 500 });
+    const quill = new Quill('#editor', { theme: 'snow' });
+    document.querySelector('form').addEventListener('submit', () => {
+      document.getElementById('pageContent').value = quill.root.innerHTML;
+    });
   </script>
 {% endblock %}

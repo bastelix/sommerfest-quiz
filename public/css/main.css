@@ -669,4 +669,17 @@ body.dark-mode .sticky-actions {
   }
 }
 
+/* Quill editor styles */
+.quill-editor .ql-toolbar {
+  border: 1px solid #e5e5e5;
+  border-radius: 4px 4px 0 0;
+  background: #f8f8f8;
+}
+
+.quill-editor .ql-container {
+  border: 1px solid #e5e5e5;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+}
+
 
