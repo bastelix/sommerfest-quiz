@@ -5,7 +5,10 @@
     if (!toolbar) return;
     toolbar.addHandler('html', this.toggleHtmlEdit.bind(this));
     const button = toolbar.container.querySelector('.ql-html');
-    if (button) button.innerHTML = options.buttonHTML || '&lt;/&gt;';
+    if (button) {
+      button.innerHTML = options.buttonHTML || '&lt;/&gt;';
+      button.setAttribute('type', 'button');
+    }
   }
   HtmlEditButton.prototype.toggleHtmlEdit = function() {
     const quill = this.quill;

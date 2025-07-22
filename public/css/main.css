@@ -682,4 +682,10 @@ body.dark-mode .sticky-actions {
   border-radius: 0 0 4px 4px;
 }
 
+/* Icon for HTML code button in Quill toolbar */
+.ql-html::before {
+  content: '</>';
+  font-family: monospace;
+}
+
 
