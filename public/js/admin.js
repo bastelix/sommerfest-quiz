@@ -1972,7 +1972,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const slug = form.dataset.slug;
     const input = form.querySelector('input[name="content"]');
     const editorEl = form.querySelector('.quill-editor');
-    const quill = new Quill(editorEl, { theme: 'snow' });
+    const quill = new Quill(editorEl, {
+      theme: 'snow',
+      modules: {
+        toolbar: [
+          [{ header: [1, 2, false] }],
+          ['bold', 'italic', 'underline', 'link'],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['clean', 'html']
+        ],
+        htmlEditButton: {}
+      }
+    });
     const saveBtn = form.querySelector('.save-page-btn');
     saveBtn?.addEventListener('click', e => {
       e.preventDefault();
