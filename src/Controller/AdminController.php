@@ -101,6 +101,14 @@ class AdminController
 
         $teams  = (new TeamService($pdo, $configSvc))->getAll();
         $users  = (new UserService($pdo))->getAll();
+
+        $pageSlugs = ['landing', 'impressum', 'lizenz', 'datenschutz'];
+        $pages     = [];
+        foreach ($pageSlugs as $slug) {
+            $path          = dirname(__DIR__, 2) . '/content/' . $slug . '.html';
+            $pages[$slug] = is_file($path) ? file_get_contents($path) : '';
+        }
+
         return $view->render($response, 'admin.twig', [
             'config' => $cfg,
             'settings' => $settings,
@@ -112,6 +120,7 @@ class AdminController
             'baseUrl' => $baseUrl,
             'event' => $event,
             'role' => $role,
+            'pages' => $pages,
         ]);
     }
 }

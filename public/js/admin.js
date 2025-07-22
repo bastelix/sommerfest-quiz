@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const basePath = window.basePath || '';
   const withBase = path => basePath + path;
   const settingsInitial = window.quizSettings || {};
+  const pagesInitial = window.pagesContent || {};
   const apiFetch = (path, options = {}) => {
     return fetch(withBase(path), {
       credentials: 'same-origin',
@@ -1966,6 +1967,28 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
   }
+
+  if (typeof tinymce !== 'undefined') {
+    tinymce.init({ selector: '.page-content', height: 500 });
+  }
+
+  document.querySelectorAll('.page-form').forEach(form => {
+    const slug = form.dataset.slug;
+    const textarea = form.querySelector('.page-content');
+    const saveBtn = form.querySelector('.save-page-btn');
+    saveBtn?.addEventListener('click', e => {
+      e.preventDefault();
+      const content = tinymce?.get(textarea.id)?.getContent ? tinymce.get(textarea.id).getContent() : textarea.value;
+      apiFetch('/admin/pages/' + slug, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ content })
+      }).then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        notify('Seite gespeichert', 'success');
+      }).catch(() => notify('Fehler beim Speichern', 'danger'));
+    });
+  });
 
   loadBackups();
 });
