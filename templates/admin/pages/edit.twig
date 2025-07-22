@@ -22,9 +22,17 @@
       <textarea class="page-editor">{{ content|raw }}</textarea>
       <div class="uk-margin-top">
         <button type="button" class="uk-button uk-button-primary save-page-btn">Speichern</button>
-        <a href="{{ basePath }}/{{ slug }}" target="_blank" class="uk-button uk-button-default">Vorschau</a>
+        <button type="button" class="uk-button uk-button-default" onclick="showPreview()">Vorschau</button>
       </div>
     </form>
+
+    <div id="preview-modal" uk-modal>
+      <div class="uk-modal-dialog uk-modal-body">
+        <h3>Vorschau</h3>
+        <div id="preview-content"></div>
+        <button class="uk-button uk-button-default uk-modal-close" type="button">Schließen</button>
+      </div>
+    </div>
   </div>
   {# Page editor initialization handled by trumbowyg-pages.js #}
 {% endblock %}
