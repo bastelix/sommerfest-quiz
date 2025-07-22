@@ -7,18 +7,27 @@ namespace App\Controller;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
+use Slim\Routing\RouteContext;
 
 /**
  * Renders the privacy policy page.
  */
 class DatenschutzController
 {
-    /**
-     * Display the Datenschutz page.
-     */
     public function __invoke(Request $request, Response $response): Response
     {
+        $path = dirname(__DIR__, 2) . '/content/datenschutz.html';
+        if (!is_file($path)) {
+            return $response->withStatus(404);
+        }
+
+        $html = (string) file_get_contents($path);
+        $basePath = RouteContext::fromRequest($request)->getBasePath();
+        $html = str_replace('{{ basePath }}', $basePath, $html);
+
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'datenschutz.twig');
+        return $view->render($response, 'datenschutz.twig', [
+            'content' => $html,
+        ]);
     }
 }

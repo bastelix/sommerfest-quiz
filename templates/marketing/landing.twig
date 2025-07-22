@@ -25,68 +25,7 @@
       <a class="uk-button uk-button-primary" href="{{ basePath }}/login">Kostenlos testen</a>
     {% endblock %}
   {% endembed %}
-
-  <section class="uk-section uk-section-primary uk-flex uk-flex-middle" uk-height-viewport="offset-top: true">
-    <div class="uk-container">
-      <h1 class="uk-heading-medium">Willkommen beim QuizRace</h1>
-      <p class="uk-text-lead">Trete gegen Freunde und Kollegen an und finde heraus, wer das meiste Wissen hat.</p>
-      <p class="uk-margin-large-top">
-        <a class="uk-button uk-button-secondary uk-button-large" href="{{ basePath }}/login">Jetzt starten</a>
-      </p>
-    </div>
-  </section>
-
-  <section id="features" class="uk-section uk-section-default">
-    <div class="uk-container">
-      <div class="uk-child-width-1-3@m uk-grid-match" uk-grid>
-        <div>
-          <div class="uk-card uk-card-body">
-            <h3 class="uk-card-title">Einfach</h3>
-            <p>Intuitive Bedienung und schnelle Registrierung.</p>
-          </div>
-        </div>
-        <div>
-          <div class="uk-card uk-card-body">
-            <h3 class="uk-card-title">Sicher</h3>
-            <p>Alle Daten bleiben auf Ihrem eigenen Server.</p>
-          </div>
-        </div>
-        <div>
-          <div class="uk-card uk-card-body">
-            <h3 class="uk-card-title">Auswertungen</h3>
-            <p>Ergebnisse und Ranglisten in Echtzeit.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="pricing" class="uk-section uk-section-muted">
-    <div class="uk-container">
-      <h2 class="uk-heading-small">Preise</h2>
-      <p class="uk-text-lead">Informationen zu unseren Preisen.</p>
-    </div>
-  </section>
-
-  <section id="contact" class="uk-section uk-section-muted">
-    <div class="uk-container">
-      <h2 class="uk-heading-small">Kontakt</h2>
-      <form class="uk-grid-small" uk-grid>
-        <div class="uk-width-1-2@s">
-          <input class="uk-input" type="text" placeholder="Ihr Name">
-        </div>
-        <div class="uk-width-1-2@s">
-          <input class="uk-input" type="email" placeholder="Ihre E-Mail">
-        </div>
-        <div class="uk-width-1-1">
-          <textarea class="uk-textarea" rows="5" placeholder="Ihre Nachricht"></textarea>
-        </div>
-        <div class="uk-width-1-1">
-          <button class="uk-button uk-button-primary" type="submit">Senden</button>
-        </div>
-      </form>
-    </div>
-  </section>
+  {{ content|raw }}
 {% endblock %}
 
 {% block scripts %}
