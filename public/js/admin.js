@@ -1968,17 +1968,16 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  if (typeof tinymce !== 'undefined') {
-    tinymce.init({ selector: '.page-content', height: 500 });
-  }
-
   document.querySelectorAll('.page-form').forEach(form => {
     const slug = form.dataset.slug;
-    const textarea = form.querySelector('.page-content');
+    const input = form.querySelector('input[name="content"]');
+    const editorEl = form.querySelector('.quill-editor');
+    const quill = new Quill(editorEl, { theme: 'snow' });
     const saveBtn = form.querySelector('.save-page-btn');
     saveBtn?.addEventListener('click', e => {
       e.preventDefault();
-      const content = tinymce?.get(textarea.id)?.getContent ? tinymce.get(textarea.id).getContent() : textarea.value;
+      const content = quill.root.innerHTML;
+      input.value = content;
       apiFetch('/admin/pages/' + slug, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
