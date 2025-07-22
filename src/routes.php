@@ -192,7 +192,20 @@ return function (\Slim\App $app) {
     $app->get('/login', [LoginController::class, 'show']);
     $app->post('/login', [LoginController::class, 'login']);
     $app->get('/logout', LogoutController::class);
-    $app->get('/admin', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin', function (Request $request, Response $response) {
+        $base = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
+        return $response->withHeader('Location', $base . '/admin/events')->withStatus(302);
+    });
+    $app->get('/admin/events', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/event/settings', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/catalogs', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/questions', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/teams', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/summary', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/results', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/statistics', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/pages', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->get('/admin/management', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/kataloge', AdminCatalogController::class)
         ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
 
@@ -208,7 +221,7 @@ return function (\Slim\App $app) {
 
     $app->get('/admin/{path:.*}', function (Request $request, Response $response) {
         $base = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
-        return $response->withHeader('Location', $base . '/admin')->withStatus(302);
+        return $response->withHeader('Location', $base . '/admin/events')->withStatus(302);
     });
     $app->get('/results', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->page($request, $response);

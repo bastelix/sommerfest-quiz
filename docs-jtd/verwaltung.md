@@ -10,19 +10,21 @@ toc: true
 
 ## Authentifizierung
 
-Der Zugang zum Administrationsbereich erfolgt über `/login`. Nach einem erfolgreichen POST mit gültigen Daten wird eine Session gesetzt und der Browser zur Route `/admin` weitergeleitet. Die Middleware `AdminAuthMiddleware` schützt alle Admin-Routen und leitet bei fehlender Session zum Login um.
+Der Zugang zum Administrationsbereich erfolgt über `/login`. Nach einem erfolgreichen POST mit gültigen Daten wird eine Session gesetzt und der Browser zur Route `/admin/events` (bzw. `/admin`) weitergeleitet. Die Middleware `AdminAuthMiddleware` schützt alle Admin-Routen und leitet bei fehlender Session zum Login um.
 
 ## Administrationsoberfläche
 
-Unter `/admin` stehen folgende Tabs zur Verfügung:
-1. **Veranstaltungen** – Veranstaltungen anlegen, bearbeiten oder entfernen. Jede Zeile enthält Name, Beginn, Ende und Beschreibung.
-2. **Veranstaltung konfigurieren** – Einstellungen wie Logo, Farben und Texte.
-3. **Kataloge** – Fragenkataloge erstellen und verwalten.
-4. **Fragen anpassen** – Fragen eines Katalogs hinzufügen, bearbeiten oder löschen.
-5. **Teams/Personen** – Teilnehmerlisten pflegen, optional als Login-Beschränkung.
-6. **Ergebnisse** – Spielstände einsehen und herunterladen.
-7. **Statistik** – Einzelne Antworten analysieren und nach Teams filtern.
-8. **Administration** – Benutzer und Backups verwalten.
+Unter `/admin/events` stehen folgende Tabs per URL bereit:
+1. **Events** – `/admin/events`.
+2. **Event Configuration** – `/admin/event/settings`.
+3. **Catalogs** – `/admin/catalogs`.
+4. **Edit Questions** – `/admin/questions`.
+5. **Teams/People** – `/admin/teams`.
+6. **Summary** – `/admin/summary`.
+7. **Results** – `/admin/results`.
+8. **Statistics** – `/admin/statistics`.
+9. **Pages** – `/admin/pages` (nur Administratoren).
+10. **Administration** – `/admin/management` (nur Administratoren).
 Der Statistik-Tab listet jede Antwort mit Name, Versuch, Katalog, Frage, Antwort, Richtig-Status und optionalem Beweisfoto. Über ein Auswahlfeld lassen sich die Daten nach Teams oder Personen filtern.
 
 

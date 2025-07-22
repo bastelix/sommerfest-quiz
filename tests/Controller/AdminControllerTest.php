@@ -23,10 +23,12 @@ class AdminControllerTest extends TestCase
     {
         $db = $this->setupDb();
         $app = $this->getAppInstance();
-        $request = $this->createRequest('GET', '/admin');
+        $request = $this->createRequest('GET', '/admin/events');
         $response = $app->handle($request);
         $this->assertEquals(302, $response->getStatusCode());
-        $this->assertEquals('/login', $response->getHeaderLine('Location'));
+        $this->assertEquals('/admin/events', $response->getHeaderLine('Location'));
+        $login = $app->handle($this->createRequest('GET', '/admin/events'));
+        $this->assertEquals('/login', $login->getHeaderLine('Location'));
         unlink($db);
     }
 
@@ -36,7 +38,7 @@ class AdminControllerTest extends TestCase
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
-        $request = $this->createRequest('GET', '/admin');
+        $request = $this->createRequest('GET', '/admin/events');
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertStringContainsString('export-card', (string) $response->getBody());

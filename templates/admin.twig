@@ -35,17 +35,17 @@
     {% endblock %}
   {% endembed %}
   <ul id="adminTabs" uk-tab="connect: #adminSwitcher">
-    <li class="uk-active" data-help="Veranstaltungen anlegen oder bearbeiten. Jede Zeile enthält Name, Beginn, Ende und Beschreibung. 'Hinzufügen' erstellt einen neuen Eintrag. Speichern übernimmt die Änderungen."><a href="#">Veranstaltungen</a></li>
-    <li data-help="Logo hochladen und Vorschau ansehen. Seitentitel, Überschrift und Untertitel festlegen. Hintergrund- und Buttonfarbe wählen. Optional den Button 'Antwort prüfen' und den QR-Code-Login aktivieren. 'Zurücksetzen' lädt gespeicherte Werte, 'Speichern' übernimmt Änderungen."><a href="#">Veranstaltung konfigurieren</a></li>
-    <li data-help="Fragenkataloge anlegen oder bearbeiten. Jede Zeile enthält einen Slug, Name, Beschreibung und optional einen Buchstaben für das Rätselwort. Der Slug kann angepasst werden. 'Hinzufügen' erstellt einen neuen Katalog, das rote × entfernt einen Eintrag. Speichern übernimmt die Änderungen."><a href="#">Kataloge</a></li>
-    <li data-help="Nach Auswahl eines Katalogs einzelne Fragen bearbeiten oder neue anlegen. 'Neue Frage' fügt eine weitere hinzu, 'Zurücksetzen' verwirft Änderungen, 'Speichern' sichert den gesamten Katalog."><a href="#">Fragen anpassen</a></li>
-    <li data-help="Teilnehmerliste pflegen. Über 'Hinzufügen' Teams oder Personen ergänzen. Die Checkbox beschränkt die Teilnahme auf gelistete Namen. Speichern aktualisiert die Liste."><a href="#">Teams/Personen</a></li>
-    <li data-help="QR-Codes für alle Kataloge und Teams anzeigen, um Quizlinks oder Anmeldungen weiterzugeben. 'Drucken' erstellt eine übersichtliche Liste."><a href="#">Zusammenfassung</a></li>
-    <li data-help="Gespeicherte Ergebnisse mit richtigen Antworten und Zeit einsehen. 'Zurücksetzen' löscht alle Daten, 'Herunterladen' exportiert sie als CSV."><a href="#">Ergebnisse</a></li>
-    <li data-help="Einzelne Antworten analysieren. Tabelle filtert nach Teams/Personen."><a href="#">Statistik</a></li>
+    <li class="uk-active" data-route="events" data-help="Veranstaltungen anlegen oder bearbeiten. Jede Zeile enthält Name, Beginn, Ende und Beschreibung. 'Hinzufügen' erstellt einen neuen Eintrag. Speichern übernimmt die Änderungen."><a href="{{ basePath }}/admin/events">Events</a></li>
+    <li data-route="event/settings" data-help="Logo hochladen und Vorschau ansehen. Seitentitel, Überschrift und Untertitel festlegen. Hintergrund- und Buttonfarbe wählen. Optional den Button 'Antwort prüfen' und den QR-Code-Login aktivieren. 'Zurücksetzen' lädt gespeicherte Werte, 'Speichern' übernimmt Änderungen."><a href="{{ basePath }}/admin/event/settings">Event Configuration</a></li>
+    <li data-route="catalogs" data-help="Fragenkataloge anlegen oder bearbeiten. Jede Zeile enthält einen Slug, Name, Beschreibung und optional einen Buchstaben für das Rätselwort. Der Slug kann angepasst werden. 'Hinzufügen' erstellt einen neuen Katalog, das rote × entfernt einen Eintrag. Speichern übernimmt die Änderungen."><a href="{{ basePath }}/admin/catalogs">Catalogs</a></li>
+    <li data-route="questions" data-help="Nach Auswahl eines Katalogs einzelne Fragen bearbeiten oder neue anlegen. 'Neue Frage' fügt eine weitere hinzu, 'Zurücksetzen' verwirft Änderungen, 'Speichern' sichert den gesamten Katalog."><a href="{{ basePath }}/admin/questions">Edit Questions</a></li>
+    <li data-route="teams" data-help="Teilnehmerliste pflegen. Über 'Hinzufügen' Teams oder Personen ergänzen. Die Checkbox beschränkt die Teilnahme auf gelistete Namen. Speichern aktualisiert die Liste."><a href="{{ basePath }}/admin/teams">Teams/People</a></li>
+    <li data-route="summary" data-help="QR-Codes für alle Kataloge und Teams anzeigen, um Quizlinks oder Anmeldungen weiterzugeben. 'Drucken' erstellt eine übersichtliche Liste."><a href="{{ basePath }}/admin/summary">Summary</a></li>
+    <li data-route="results" data-help="Gespeicherte Ergebnisse mit richtigen Antworten und Zeit einsehen. 'Zurücksetzen' löscht alle Daten, 'Herunterladen' exportiert sie als CSV."><a href="{{ basePath }}/admin/results">Results</a></li>
+    <li data-route="statistics" data-help="Einzelne Antworten analysieren. Tabelle filtert nach Teams/Personen."><a href="{{ basePath }}/admin/statistics">Statistics</a></li>
     {% if role == 'admin' %}
-    <li data-help="Statische Seiten bearbeiten."><a href="#">Seiten</a></li>
-    <li data-help="Benutzer verwalten, Rollen zuweisen und Sicherungen erstellen. Rollen: admin – Administrator; catalog-editor – Fragenkataloge bearbeiten; event-manager – Veranstaltungen verwalten; analyst – Ergebnisse analysieren; team-manager – Teams verwalten."><a href="#">Administration</a></li>
+    <li data-route="pages" data-help="Statische Seiten bearbeiten."><a href="{{ basePath }}/admin/pages">Pages</a></li>
+    <li data-route="management" data-help="Benutzer verwalten, Rollen zuweisen und Sicherungen erstellen. Rollen: admin – Administrator; catalog-editor – Fragenkataloge bearbeiten; event-manager – Veranstaltungen verwalten; analyst – Ergebnisse analysieren; team-manager – Teams verwalten."><a href="{{ basePath }}/admin/management">Administration</a></li>
     {% endif %}
   </ul>
   <ul id="adminSwitcher" class="uk-switcher uk-margin">
@@ -608,20 +608,20 @@
   </div>
   <div id="adminNav" uk-offcanvas="overlay: true">
     <div class="uk-offcanvas-bar">
-      <ul class="uk-nav uk-nav-default" id="adminMenu">
-        <li class="uk-nav-header">Menü</li>
-        <li><a href="#" data-tab="0">Veranstaltungen</a></li>
-        <li><a href="#" data-tab="1">Veranstaltung konfigurieren</a></li>
-        <li><a href="#" data-tab="2">Kataloge</a></li>
-        <li><a href="#" data-tab="3">Fragen anpassen</a></li>
-        <li><a href="#" data-tab="4">Teams/Personen</a></li>
-        <li><a href="#" data-tab="5">Zusammenfassung</a></li>
-        <li><a href="#" data-tab="6">Ergebnisse</a></li>
-        <li><a href="#" data-tab="7">Statistik</a></li>
-        {% if role == 'admin' %}
-        <li><a href="#" data-tab="8">Seiten</a></li>
-        <li><a href="#" data-tab="9">Administration</a></li>
-        {% endif %}
+        <ul class="uk-nav uk-nav-default" id="adminMenu">
+          <li class="uk-nav-header">Menu</li>
+          <li><a href="{{ basePath }}/admin/events" data-tab="0">Events</a></li>
+          <li><a href="{{ basePath }}/admin/event/settings" data-tab="1">Event Configuration</a></li>
+          <li><a href="{{ basePath }}/admin/catalogs" data-tab="2">Catalogs</a></li>
+          <li><a href="{{ basePath }}/admin/questions" data-tab="3">Edit Questions</a></li>
+          <li><a href="{{ basePath }}/admin/teams" data-tab="4">Teams/People</a></li>
+          <li><a href="{{ basePath }}/admin/summary" data-tab="5">Summary</a></li>
+          <li><a href="{{ basePath }}/admin/results" data-tab="6">Results</a></li>
+          <li><a href="{{ basePath }}/admin/statistics" data-tab="7">Statistics</a></li>
+          {% if role == 'admin' %}
+          <li><a href="{{ basePath }}/admin/pages" data-tab="8">Pages</a></li>
+          <li><a href="{{ basePath }}/admin/management" data-tab="9">Administration</a></li>
+          {% endif %}
         <li class="uk-nav-divider"></li>
         <li><a href="{{ basePath }}/logout">Abmelden</a></li>
       </ul>
