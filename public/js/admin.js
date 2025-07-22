@@ -1968,7 +1968,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Page editors are handled in editorjs-pages.js
+  // Page editors are handled in trumbowyg-pages.js
 
   loadBackups();
 });
