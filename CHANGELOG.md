@@ -58,6 +58,7 @@
 - *(admin)* Add dropdown for active event
 - *(admin)* Landing page option
 - *(admin)* Improve mobile event list
+- Add admin page editor
 
 ### Fix
 

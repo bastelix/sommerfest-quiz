@@ -20,7 +20,6 @@ class DatenschutzController
         if (!is_file($path)) {
             return $response->withStatus(404);
         }
-
         $html = (string) file_get_contents($path);
         $basePath = RouteContext::fromRequest($request)->getBasePath();
         $html = str_replace('{{ basePath }}', $basePath, $html);
