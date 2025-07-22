@@ -1968,37 +1968,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  document.querySelectorAll('.page-form').forEach(form => {
-    const slug = form.dataset.slug;
-    const input = form.querySelector('input[name="content"]');
-    const editorEl = form.querySelector('.quill-editor');
-    const quill = new Quill(editorEl, {
-      theme: 'snow',
-      modules: {
-        toolbar: [
-          [{ header: [1, 2, false] }],
-          ['bold', 'italic', 'underline', 'link'],
-          [{ list: 'ordered' }, { list: 'bullet' }],
-          ['clean', 'html']
-        ],
-        htmlEditButton: {}
-      }
-    });
-    const saveBtn = form.querySelector('.save-page-btn');
-    saveBtn?.addEventListener('click', e => {
-      e.preventDefault();
-      const content = quill.root.innerHTML;
-      input.value = content;
-      apiFetch('/admin/pages/' + slug, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ content })
-      }).then(r => {
-        if (!r.ok) throw new Error(r.statusText);
-        notify('Seite gespeichert', 'success');
-      }).catch(() => notify('Fehler beim Speichern', 'danger'));
-    });
-  });
+  // Page editors are handled in editorjs-pages.js
 
   loadBackups();
 });

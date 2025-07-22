@@ -6,9 +6,10 @@
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/quill.snow.css">
-  <script src="{{ basePath }}/js/quill.min.js"></script>
-  <script src="{{ basePath }}/js/quill-html-edit.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
+  <script type="module" src="{{ basePath }}/js/editorjs-pages.js"></script>
 {% endblock %}
 
 {% block body_class %}uk-background-muted uk-padding{% endblock %}
@@ -18,28 +19,12 @@
     <h1 class="uk-heading-bullet">Seite bearbeiten: {{ slug }}</h1>
     <form method="post" class="uk-form-stacked">
       <input type="hidden" id="pageContent" name="content" value="{{ content|e('html_attr') }}">
-      <div id="editor" class="quill-editor">{{ content|raw }}</div>
+      <div id="editor" class="editorjs">{{ content|raw }}</div>
       <div class="uk-margin-top">
         <button type="submit" class="uk-button uk-button-primary">Speichern</button>
         <a href="{{ basePath }}/{{ slug }}" target="_blank" class="uk-button uk-button-default">Vorschau</a>
       </div>
     </form>
   </div>
-  <script>
-    const quill = new Quill('#editor', {
-      theme: 'snow',
-      modules: {
-        toolbar: [
-          [{ header: [1, 2, false] }],
-          ['bold', 'italic', 'underline', 'link'],
-          [{ list: 'ordered' }, { list: 'bullet' }],
-          ['clean', 'html']
-        ],
-        htmlEditButton: {}
-      }
-    });
-    document.querySelector('form').addEventListener('submit', () => {
-      document.getElementById('pageContent').value = quill.root.innerHTML;
-    });
-  </script>
+  {# Page editor initialization handled by editorjs-pages.js #}
 {% endblock %}
