@@ -34,7 +34,7 @@
       <button id="helpBtn" class="uk-icon-button uk-margin-small-left" uk-icon="icon: question; ratio: 2" aria-label="Hilfe"></button>
     {% endblock %}
   {% endembed %}
-  <ul id="adminTabs" uk-tab>
+  <ul id="adminTabs" uk-tab="connect: #adminSwitcher">
     <li class="uk-active" data-help="Veranstaltungen anlegen oder bearbeiten. Jede Zeile enthält Name, Beginn, Ende und Beschreibung. 'Hinzufügen' erstellt einen neuen Eintrag. Speichern übernimmt die Änderungen."><a href="#">Veranstaltungen</a></li>
     <li data-help="Logo hochladen und Vorschau ansehen. Seitentitel, Überschrift und Untertitel festlegen. Hintergrund- und Buttonfarbe wählen. Optional den Button 'Antwort prüfen' und den QR-Code-Login aktivieren. 'Zurücksetzen' lädt gespeicherte Werte, 'Speichern' übernimmt Änderungen."><a href="#">Veranstaltung konfigurieren</a></li>
     <li data-help="Fragenkataloge anlegen oder bearbeiten. Jede Zeile enthält einen Slug, Name, Beschreibung und optional einen Buchstaben für das Rätselwort. Der Slug kann angepasst werden. 'Hinzufügen' erstellt einen neuen Katalog, das rote × entfernt einen Eintrag. Speichern übernimmt die Änderungen."><a href="#">Kataloge</a></li>
@@ -48,7 +48,7 @@
     <li data-help="Benutzer verwalten, Rollen zuweisen und Sicherungen erstellen. Rollen: admin – Administrator; catalog-editor – Fragenkataloge bearbeiten; event-manager – Veranstaltungen verwalten; analyst – Ergebnisse analysieren; team-manager – Teams verwalten."><a href="#">Administration</a></li>
     {% endif %}
   </ul>
-  <ul class="uk-switcher uk-margin">
+  <ul id="adminSwitcher" class="uk-switcher uk-margin">
     <li>
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">Veranstaltungen</h2>
@@ -513,13 +513,13 @@
       <li>
         <div class="uk-container uk-container-large">
           <h2 class="uk-heading-bullet">Seiten</h2>
-          <ul id="pageTabs" class="uk-tab" uk-switcher>
+          <ul id="pageTabs" class="uk-tab" uk-tab="connect: #pageSwitcher">
             <li class="uk-active" data-slug="landing"><a href="#">Landing</a></li>
             <li data-slug="impressum"><a href="#">Impressum</a></li>
             <li data-slug="lizenz"><a href="#">Lizenz</a></li>
             <li data-slug="datenschutz"><a href="#">Datenschutz</a></li>
           </ul>
-          <ul class="uk-switcher uk-margin">
+          <ul id="pageSwitcher" class="uk-switcher uk-margin">
             {% for slug, html in pages %}
             <li>
               <form class="page-form" data-slug="{{ slug }}">
