@@ -250,17 +250,17 @@ Die Übersichtsseiten erzeugen ihre QR-Codes jetzt lokal mit der Bibliothek *End
 
 ### Rich-Text-Editor
 
-Zum Bearbeiten der statischen Seiten wird jetzt **Editor.js** verwendet. Die Bibliothek
+Zum Bearbeiten der statischen Seiten wird jetzt **Trumbowyg** verwendet. Die Bibliothek
 kann per CDN eingebunden werden:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/header@latest"></script>
-<script src="https://cdn.jsdelivr.net/npm/@editorjs/list@latest"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/ui/trumbowyg.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/trumbowyg.min.js"></script>
 ```
 
-Die Initialisierung erfolgt im Skript `public/js/editorjs-pages.js` und konvertiert
-beim Speichern die Editor.js-Daten in HTML, welches im Feld `content` abgelegt wird.
+Die Initialisierung erfolgt im Skript `public/js/trumbowyg-pages.js` und überträgt
+beim Speichern das generierte HTML in das Feld `content`.
 
 ## Tests
 
