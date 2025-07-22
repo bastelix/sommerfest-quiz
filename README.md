@@ -248,6 +248,21 @@ QR-Codes können pro Eintrag über `qr_image` oder `qrcode_url` hinterlegt werde
 
 Die Übersichtsseiten erzeugen ihre QR-Codes jetzt lokal mit der Bibliothek *Endroid\\QrCode*. Katalog-Links erscheinen rot, Team-Links blau.
 
+### Rich-Text-Editor
+
+Zum Bearbeiten der statischen Seiten kommt nun **Quill** zum Einsatz. Die Dateien
+`public/js/quill.min.js` und `public/css/quill.snow.css` m\u00fcssen in das Projekt
+kopiert oder per CDN eingebunden werden:
+
+```html
+<link rel="stylesheet" href="/css/quill.snow.css">
+<script src="/js/quill.min.js"></script>
+```
+
+Das Template `templates/admin/pages/edit.twig` initialisiert den Editor mit
+`new Quill('#editor', { theme: 'snow' });`. Beim Absenden des Formulars wird der
+HTML-Inhalt in das versteckte Feld `content` geschrieben.
+
 ## Tests
 
 PHP-Tests werden mit PHPUnit ausgeführt:
