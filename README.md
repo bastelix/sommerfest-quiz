@@ -250,7 +250,7 @@ Die Übersichtsseiten erzeugen ihre QR-Codes jetzt lokal mit der Bibliothek *End
 
 ### Rich-Text-Editor
 
-Zum Bearbeiten der statischen Seiten wird jetzt **Trumbowyg** verwendet. Die Bibliothek
+Zum Bearbeiten der statischen Seiten wird **Trumbowyg** eingesetzt. Die Bibliothek
 kann per CDN eingebunden werden:
 
 ```html
@@ -259,8 +259,10 @@ kann per CDN eingebunden werden:
 <script src="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/trumbowyg.min.js"></script>
 ```
 
-Die Initialisierung erfolgt im Skript `public/js/trumbowyg-pages.js` und überträgt
-beim Speichern das generierte HTML in das Feld `content`.
+Die Initialisierung erfolgt im Skript `public/js/trumbowyg-pages.js`. Dort sind
+auch eigene UIkit-Vorlagen wie ein Hero-Block oder eine Card hinterlegt. Beim
+Speichern wird das generierte HTML in das Feld `content` übertragen. Eine
+Vorschau lässt sich direkt im Modal aufrufen.
 
 ## Tests
 

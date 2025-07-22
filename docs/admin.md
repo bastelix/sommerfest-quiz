@@ -18,4 +18,4 @@ Weitere Funktionen wie der QR-Code-Login oder der Wettkampfmodus lassen sich in 
 
 ## Statische Seiten bearbeiten
 
-Im Tab **Seiten** können Administratoren die HTML-Dateien `landing`, `impressum`, `lizenz` und `datenschutz` anpassen. Über das Untermenü wird die gewünschte Seite ausgewählt und im TinyMCE-Editor bearbeitet. Mit **Speichern** werden die Änderungen in den jeweiligen Dateien im Ordner `content/` abgelegt. Die Schaltfläche *Vorschau* öffnet die Seite in einem neuen Tab. Alternativ kann der Editor direkt über `/admin/pages/{slug}` aufgerufen werden.
+Im Tab **Seiten** können Administratoren die HTML-Dateien `landing`, `impressum`, `lizenz` und `datenschutz` anpassen. Über das Untermenü wird die gewünschte Seite ausgewählt und im **Trumbowyg**-Editor bearbeitet. Zusätzlich stehen eigene UIkit-Blöcke zur Verfügung, etwa ein Hero-Abschnitt oder eine Card. Mit **Speichern** werden die Änderungen im Ordner `content/` abgelegt. Die Schaltfläche *Vorschau* zeigt den aktuellen Stand direkt im Modal an. Alternativ kann der Editor weiterhin über `/admin/pages/{slug}` aufgerufen werden.
