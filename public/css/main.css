@@ -677,4 +677,10 @@ body.dark-mode .sticky-actions {
   background: #fff;
 }
 
+/* Prevent huge heights from UIkit's height-viewport plugin inside the editor */
+.page-editor [uk-height-viewport] {
+  min-height: auto !important;
+  height: auto !important;
+}
+
 
