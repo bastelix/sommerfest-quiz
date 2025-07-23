@@ -137,4 +137,42 @@ class ImportControllerTest extends TestCase
         rmdir($tmp . '/kataloge');
         rmdir($tmp);
     }
+
+    public function testRestoreDefaults(): void
+    {
+        [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
+        $base = sys_get_temp_dir() . '/import_' . uniqid();
+        $default = $base . '-default';
+        mkdir($default . '/kataloge', 0777, true);
+        file_put_contents($default . '/kataloge/catalogs.json', json_encode([
+            ['uid' => 'u1', 'id' => 'c1', 'slug' => 'c1', 'file' => 'c1.json', 'name' => 'Cat']
+        ], JSON_PRETTY_PRINT));
+        file_put_contents($default . '/kataloge/c1.json', json_encode([
+            ['type' => 'text', 'prompt' => 'Q']
+        ], JSON_PRETTY_PRINT));
+
+        $controller = new ImportController(
+            $catalog,
+            $config,
+            $results,
+            $teams,
+            $consents,
+            $summary,
+            $events,
+            $base,
+            $base
+        );
+        $request = $this->createRequest('POST', '/restore-default');
+        $response = $controller->restoreDefaults($request, new Response());
+        $this->assertEquals(204, $response->getStatusCode());
+
+        $questions = json_decode($catalog->read('c1.json'), true);
+        $this->assertCount(1, $questions);
+        $this->assertSame('Q', $questions[0]['prompt']);
+
+        unlink($default . '/kataloge/c1.json');
+        unlink($default . '/kataloge/catalogs.json');
+        rmdir($default . '/kataloge');
+        rmdir($default);
+    }
 }
