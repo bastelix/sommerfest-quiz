@@ -1845,7 +1845,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   importJsonBtn?.addEventListener('click', e => {
     e.preventDefault();
-    apiFetch('/import', { method: 'POST' })
+    apiFetch('/restore-default', { method: 'POST' })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
         notify('Import abgeschlossen', 'success');

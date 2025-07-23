@@ -28,6 +28,7 @@ class ImportController
     private EventService $events;
     private string $dataDir;
     private string $backupDir;
+    private string $defaultDir;
 
     /**
      * Configure dependencies and target directories.
@@ -52,6 +53,7 @@ class ImportController
         $this->events = $events;
         $this->dataDir = rtrim($dataDir, '/');
         $this->backupDir = rtrim($backupDir, '/');
+        $this->defaultDir = dirname($this->dataDir) . '/data-default';
     }
 
     /**
@@ -60,6 +62,14 @@ class ImportController
     public function post(Request $request, Response $response): Response
     {
         return $this->importFromDir($this->dataDir, $response);
+    }
+
+    /**
+     * Import demo data from the default directory used on first installation.
+     */
+    public function restoreDefaults(Request $request, Response $response): Response
+    {
+        return $this->importFromDir($this->defaultDir, $response);
     }
 
     /**
