@@ -549,6 +549,12 @@
           <button id="homePageSaveBtn" class="uk-icon-button uk-button-primary uk-margin-small-left" uk-icon="check"></button>
         </div>
 
+        <h3 class="uk-heading-bullet">Registrierung</h3>
+        <div class="uk-margin uk-flex uk-flex-middle">
+          <label><input class="uk-checkbox" type="checkbox" id="cfgRegistrationEnabled" {% if settings.registration_enabled == '1' %}checked{% endif %}> Registrierung zulassen</label>
+          <button id="registrationEnabledSaveBtn" class="uk-icon-button uk-button-primary uk-margin-small-left" uk-icon="check"></button>
+        </div>
+
         <h3 class="uk-heading-bullet">Benutzer</h3>
         <div class="uk-overflow-auto">
           <table class="uk-table uk-table-divider uk-table-small">
@@ -557,6 +563,7 @@
                 <th><span uk-icon="icon: question" uk-tooltip="title: Zum Sortieren Zeile ziehen; pos: top"></span></th>
                 <th>Benutzername</th>
                 <th>Rolle</th>
+                <th>Aktiv</th>
                 <th><span uk-icon="icon: key" uk-tooltip="title: Passwort setzen; pos: top"></span></th>
                 <th><span uk-icon="icon: question" uk-tooltip="title: Benutzer entfernen; pos: top"></span></th>
               </tr>

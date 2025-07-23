@@ -22,11 +22,11 @@ class UserService
     /**
      * Find a user by username.
      *
-     * @return array{id:int,username:string,password:string,role:string}|null
+     * @return array{id:int,username:string,password:string,role:string,active:bool}|null
      */
     public function getByUsername(string $username): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT id,username,password,role FROM users WHERE username=?');
+        $stmt = $this->pdo->prepare('SELECT id,username,password,role,active FROM users WHERE username=?');
         $stmt->execute([strtolower($username)]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row !== false ? $row : null;
@@ -35,16 +35,17 @@ class UserService
     /**
      * Create a new user with the given role.
      */
-    public function create(string $username, string $password, string $role = Roles::CATALOG_EDITOR): void
+    public function create(string $username, string $password, string $role = Roles::CATALOG_EDITOR, bool $active = true): void
     {
         if (!in_array($role, Roles::ALL, true)) {
             $role = Roles::CATALOG_EDITOR;
         }
-        $stmt = $this->pdo->prepare('INSERT INTO users(username,password,role) VALUES(?,?,?)');
+        $stmt = $this->pdo->prepare('INSERT INTO users(username,password,role,active) VALUES(?,?,?,?)');
         $stmt->execute([
             strtolower($username),
             password_hash($password, PASSWORD_DEFAULT),
             $role,
+            $active,
         ]);
     }
 
@@ -63,18 +64,18 @@ class UserService
     /**
      * Retrieve all users ordered by their id.
      *
-     * @return list<array{id:int,username:string,role:string}>
+     * @return list<array{id:int,username:string,role:string,active:bool}>
      */
     public function getAll(): array
     {
-        $stmt = $this->pdo->query('SELECT id,username,role FROM users ORDER BY id');
+        $stmt = $this->pdo->query('SELECT id,username,role,active FROM users ORDER BY id');
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
      * Replace the entire user list with the provided data.
      *
-     * @param list<array{id?:int,username:string,role:string,password?:string}> $users
+     * @param list<array{id?:int,username:string,role:string,password?:string,active?:bool}> $users
      */
     public function saveAll(array $users): void
     {
@@ -84,8 +85,8 @@ class UserService
             $existing[(int) $row['id']] = true;
         }
 
-        $insert = $this->pdo->prepare('INSERT INTO users(username,password,role) VALUES(?,?,?)');
-        $update = $this->pdo->prepare('UPDATE users SET username=?,role=? WHERE id=?');
+        $insert = $this->pdo->prepare('INSERT INTO users(username,password,role,active) VALUES(?,?,?,?)');
+        $update = $this->pdo->prepare('UPDATE users SET username=?,role=?,active=? WHERE id=?');
         $updatePass = $this->pdo->prepare('UPDATE users SET password=? WHERE id=?');
         $delete = $this->pdo->prepare('DELETE FROM users WHERE id=?');
 
@@ -97,16 +98,17 @@ class UserService
                 $role = Roles::CATALOG_EDITOR;
             }
             $pass = $u['password'] ?? '';
+            $active = isset($u['active']) ? (bool)$u['active'] : true;
 
             if ($id === 0 || !isset($existing[$id])) {
                 if ($pass === '') {
                     $pass = bin2hex(random_bytes(8));
                 }
-                $insert->execute([$username, password_hash($pass, PASSWORD_DEFAULT), $role]);
+                $insert->execute([$username, password_hash($pass, PASSWORD_DEFAULT), $role, $active]);
                 continue;
             }
 
-            $update->execute([$username, $role, $id]);
+            $update->execute([$username, $role, $active, $id]);
             if ($pass !== '') {
                 $updatePass->execute([password_hash($pass, PASSWORD_DEFAULT), $id]);
             }
