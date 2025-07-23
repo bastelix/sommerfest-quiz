@@ -1,6 +1,6 @@
 {% extends 'layout.twig' %}
 
-{% block title %}Hilfe{% endblock %}
+{% block title %}{{ t('title_help') }}{% endblock %}
 
 {% block head %}
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
@@ -13,17 +13,17 @@
 {% block body %}
   {% embed 'topbar.twig' %}
     {% block left %}
-      <a href="{{ basePath }}/faq" class="uk-icon-button" uk-icon="icon: question; ratio: 2" title="Hilfe" aria-label="Hilfe"></a>
+      <a href="{{ basePath }}/faq" class="uk-icon-button" uk-icon="icon: question; ratio: 2" title="{{ t('help') }}" aria-label="{{ t('help') }}"></a>
     {% endblock %}
     {% block center %}
-      <span class="uk-navbar-title uk-text-center">Spielablauf <br>{{ event.name|default('Sommerfest 2025') }}</span>
+      <span class="uk-navbar-title uk-text-center">{{ t('game_flow') }} <br>{{ event.name|default('Sommerfest 2025') }}</span>
     {% endblock %}
     {% block right %}
       <div class="theme-switch">
-        <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="Design wechseln"></button>
+        <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="{{ t('design_toggle') }}"></button>
       </div>
       <div class="contrast-switch uk-margin-small-left">
-        <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="Kontrastmodus"></button>
+        <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="{{ t('contrast_toggle') }}"></button>
       </div>
     {% endblock %}
   {% endembed %}

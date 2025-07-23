@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="{{ locale() }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -19,21 +19,21 @@
   <nav class="uk-navbar-container bottombar" uk-navbar>
     <div class="uk-navbar-left">
       <div class="uk-navbar-item uk-margin-small-left">
-        <a href="https://bastelix.github.io/sommerfest-quiz/" target="_blank" rel="noopener" class="uk-icon-button" uk-icon="icon: handbook; ratio: 2" uk-tooltip="title: Handbuch öffnen" aria-label="Handbuch"></a>
+        <a href="https://bastelix.github.io/sommerfest-quiz/" target="_blank" rel="noopener" class="uk-icon-button" uk-icon="icon: handbook; ratio: 2" uk-tooltip="title: {{ t('manual_open') }}" aria-label="{{ t('manual_open') }}"></a>
       </div>
     </div>
     <div class="uk-navbar-center">
       <ul class="uk-navbar-nav">
-        <li><a href="{{ basePath }}/datenschutz">Datenschutz</a></li>
-        <li><a href="{{ basePath }}/impressum">Impressum</a></li>
-        <li><a href="{{ basePath }}/lizenz">Lizenz</a></li>
+        <li><a href="{{ basePath }}/datenschutz">{{ t('privacy') }}</a></li>
+        <li><a href="{{ basePath }}/impressum">{{ t('imprint') }}</a></li>
+        <li><a href="{{ basePath }}/lizenz">{{ t('license') }}</a></li>
       </ul>
     </div>
   </nav>
   <script src="{{ basePath }}/js/uikit.min.js"></script>
   <script src="{{ basePath }}/js/uikit-icons.min.js"></script>
   <script>window.basePath = '{{ basePath }}';</script>
-  <script src="{{ basePath }}/js/i18n/de-de.js"></script>
+  <script src="{{ basePath }}/js/i18n/{{ locale() == 'en' ? 'en-us' : 'de-de' }}.js"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

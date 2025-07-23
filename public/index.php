@@ -28,19 +28,23 @@ use Slim\Views\TwigMiddleware;
 use App\Application\Middleware\SessionMiddleware;
 use App\Application\Middleware\DomainMiddleware;
 use App\Twig\UikitExtension;
+use App\Twig\TranslationExtension;
+use App\Service\TranslationService;
 
 $settings = require __DIR__ . '/../config/settings.php';
 $app = \Slim\Factory\AppFactory::create();
 $basePath = getenv('BASE_PATH') ?: '';
 $app->setBasePath($basePath);
 
+$translator = new TranslationService();
 $twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
 $twig->addExtension(new UikitExtension());
+$twig->addExtension(new TranslationExtension($translator));
 $twig->getEnvironment()->addGlobal('basePath', rtrim($basePath, '/'));
 $app->add(TwigMiddleware::create($app, $twig));
 $app->add(new SessionMiddleware());
 $app->add(new DomainMiddleware());
 
 $app->addErrorMiddleware((bool)($settings['displayErrorDetails'] ?? false), true, true);
-(require __DIR__ . '/../src/routes.php')($app);
+(require __DIR__ . '/../src/routes.php')($app, $translator);
 $app->run();

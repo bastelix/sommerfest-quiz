@@ -47,21 +47,24 @@ class TestCase extends PHPUnit_TestCase
         // Instantiate the app
         $app = AppFactory::create();
 
+        $translator = new \App\Service\TranslationService();
         $twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
         $twig->addExtension(new \App\Twig\UikitExtension());
+        $twig->addExtension(new \App\Twig\TranslationExtension($translator));
         $basePath = getenv('BASE_PATH') ?: '';
         $twig->getEnvironment()->addGlobal('basePath', rtrim($basePath, '/'));
         $app->setBasePath($basePath);
         $app->add(TwigMiddleware::create($app, $twig));
         $app->add(new SessionMiddleware());
         $app->add(new \App\Application\Middleware\DomainMiddleware());
+        $app->add(new \App\Application\Middleware\LanguageMiddleware($translator));
 
         // Register error middleware
         $app->addErrorMiddleware((bool)($settings['displayErrorDetails'] ?? false), true, true);
 
         // Register routes
         $routes = require __DIR__ . '/../src/routes.php';
-        $routes($app);
+        $routes($app, $translator);
 
         return $app;
     }

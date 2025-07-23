@@ -25,6 +25,8 @@ use App\Service\SummaryPhotoService;
 use App\Service\UserService;
 use App\Service\TenantService;
 use App\Service\SettingsService;
+use App\Service\TranslationService;
+use App\Application\Middleware\LanguageMiddleware;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
 use App\Controller\PasswordController;
@@ -80,8 +82,8 @@ use App\Infrastructure\Database;
 use App\Infrastructure\Migrations\Migrator;
 use Psr\Http\Server\RequestHandlerInterface;
 
-return function (\Slim\App $app) {
-    $app->add(function (Request $request, RequestHandlerInterface $handler) {
+return function (\Slim\App $app, TranslationService $translator) {
+    $app->add(function (Request $request, RequestHandlerInterface $handler) use ($translator) {
         $base = Database::connectFromEnv();
         Migrator::migrate($base, __DIR__ . '/../migrations');
 
@@ -162,10 +164,13 @@ return function (\Slim\App $app) {
                 new NullLogger(),
                 __DIR__ . '/../data/photos'
             ))
-            ->withAttribute('pdo', $pdo);
+            ->withAttribute('pdo', $pdo)
+            ->withAttribute('translator', $translator)
+            ->withAttribute('lang', $translator->getLocale());
 
         return $handler->handle($request);
     });
+    $app->add(new LanguageMiddleware($translator));
 
     $app->get('/', HomeController::class);
     $app->get('/favicon.ico', function (Request $request, Response $response) {
@@ -195,7 +200,7 @@ return function (\Slim\App $app) {
     $app->get('/admin', function (Request $request, Response $response) {
         $base = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
         return $response->withHeader('Location', $base . '/admin/events')->withStatus(302);
-    });
+    })->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/events', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/event/settings', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/catalogs', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
