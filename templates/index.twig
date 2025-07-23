@@ -13,17 +13,17 @@
 {% block body %}
   {% embed 'topbar.twig' %}
     {% block left %}
-      <a href="faq" class="uk-icon-button" uk-icon="icon: question; ratio: 2" title="Hilfe" aria-label="Hilfe"></a>
+      <a href="faq" class="uk-icon-button" uk-icon="icon: question; ratio: 2" title="{{ t('help') }}" aria-label="{{ t('help') }}"></a>
     {% endblock %}
     {% block center %}
       <span id="topbar-title" class="uk-navbar-title uk-text-center" data-default-title="{{ event.name|default('Sommerfest 2025') }}">{{ event.name|default('Sommerfest 2025') }}</span>
     {% endblock %}
     {% block right %}
       <div class="theme-switch">
-        <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="Design wechseln"></button>
+        <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="{{ t('design_toggle') }}"></button>
       </div>
       <div class="contrast-switch uk-margin-small-left">
-        <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="Kontrastmodus"></button>
+        <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="{{ t('contrast_toggle') }}"></button>
       </div>
     {% endblock %}
     {% block headerbar %}
@@ -37,7 +37,7 @@
       <div id="quiz-header" class="uk-text-center uk-margin">
         <img id="quiz-logo" class="logo-placeholder" src="{{ basePath ~ config.logoPath|default('') }}" alt="Logo">
       </div>
-      <progress id="progress" class="uk-progress" value="0" max="1" aria-label="Fortschritt des Quiz" aria-valuenow="0"></progress>
+      <progress id="progress" class="uk-progress" value="0" max="1" aria-label="{{ t('quiz_progress') }}" aria-valuenow="0"></progress>
       <span id="question-announcer" class="uk-hidden-visually" aria-live="polite"></span>
       <div id="quiz"></div>
     </div>

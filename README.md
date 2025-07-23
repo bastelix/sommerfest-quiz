@@ -359,6 +359,8 @@ Welcher Event aktuell bearbeitet wird, steht in der Tabelle `active_event`. Ein 
 liefert die Einstellungen des aktiven Events, ein POST auf dieselbe URL speichert die Änderungen.
 Über den URL-Parameter `event` kann im Frontend ein beliebiger Event zur Ansicht gewählt werden,
 ohne ihn als aktiv zu setzen. Die Backend-Logik bleibt davon unberührt.
+Mit `lang` lässt sich zusätzlich die Sprache der Oberfläche festlegen (`en` oder `de`).
+Die Übersetzungen befinden sich in `resources/lang/` sowie `public/js/i18n/`.
 
 ### Authentifizierung
 Der Zugang zum Administrationsbereich erfolgt über `/login`. Benutzer und Rollen werden in der Tabelle `users` verwaltet. Nach erfolgreichem POST mit gültigen Zugangsdaten speichert das System die Benutzerinformationen inklusive Rolle in der Session und leitet Administratoren zur Route `/admin` weiter. Die Middleware `RoleAuthMiddleware` prüft die gespeicherte Rolle und leitet bei fehlenden Berechtigungen zum Login um.
