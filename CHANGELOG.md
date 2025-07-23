@@ -60,6 +60,7 @@
 - *(admin)* Improve mobile event list
 - Add admin page editor
 - Integrate static page editing
+- *(admin)* Allow editing of FAQ page
 
 ### Fix
 
