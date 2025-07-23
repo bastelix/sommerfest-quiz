@@ -12,8 +12,10 @@
 
 {% block body %}
   {% embed 'topbar.twig' %}
-    {% block center %}
+    {% block left %}
       <a class="uk-navbar-item uk-logo" href="{{ basePath }}/landing">QuizRace</a>
+    {% endblock %}
+    {% block center %}
       <ul class="uk-navbar-nav uk-visible@m">
         <li><a href="#features">Features</a></li>
         <li><a href="#pricing">Preise</a></li>
