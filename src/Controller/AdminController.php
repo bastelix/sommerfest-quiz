@@ -54,14 +54,35 @@ class AdminController
                 $event = $eventSvc->getFirst();
             }
         }
-        $configSvc = new ConfigService($pdo);
-        $results = (new ResultService($pdo, $configSvc))->getAll();
-        $catalogSvc = new CatalogService($pdo, $configSvc);
-        $catalogsJson = $catalogSvc->read('catalogs.json');
+        $context = \Slim\Routing\RouteContext::fromRequest($request);
+        $route   = $context->getRoute();
+        $section = 'events';
+        if ($route !== null) {
+            $pattern = $route->getPattern();
+            $section = ltrim(substr($pattern, strlen('/admin')), '/');
+            if ($section === '') {
+                $section = 'events';
+            }
+        }
+
+        $results  = [];
         $catalogs = [];
-        $catMap = [];
-        if ($catalogsJson !== null) {
-            $catalogs = json_decode($catalogsJson, true) ?? [];
+        $teams    = [];
+        $users    = [];
+        $pages    = [];
+
+        $configSvc = new ConfigService($pdo);
+        if (in_array($section, ['results', 'catalogs', 'questions', 'summary'], true)) {
+            $catalogSvc   = new CatalogService($pdo, $configSvc);
+            $catalogsJson = $catalogSvc->read('catalogs.json');
+            if ($catalogsJson !== null) {
+                $catalogs = json_decode($catalogsJson, true) ?? [];
+            }
+        }
+
+        if ($section === 'results') {
+            $results  = (new ResultService($pdo, $configSvc))->getAll();
+            $catMap   = [];
             foreach ($catalogs as $c) {
                 $name = $c['name'] ?? '';
                 if (isset($c['uid'])) {
@@ -74,14 +95,30 @@ class AdminController
                     $catMap[$c['slug']] = $name;
                 }
             }
+            foreach ($results as &$row) {
+                $cat = $row['catalog'] ?? '';
+                if (isset($catMap[$cat])) {
+                    $row['catalogName'] = $catMap[$cat];
+                }
+            }
+            unset($row);
         }
-        foreach ($results as &$row) {
-            $cat = $row['catalog'] ?? '';
-            if (isset($catMap[$cat])) {
-                $row['catalogName'] = $catMap[$cat];
+
+        if (in_array($section, ['teams', 'summary'], true)) {
+            $teams = (new TeamService($pdo, $configSvc))->getAll();
+        }
+
+        if ($section === 'management') {
+            $users = (new UserService($pdo))->getAll();
+        }
+
+        if ($section === 'pages') {
+            $pageSlugs = ['landing', 'impressum', 'lizenz', 'datenschutz'];
+            foreach ($pageSlugs as $slug) {
+                $path       = dirname(__DIR__, 2) . '/content/' . $slug . '.html';
+                $pages[$slug] = is_file($path) ? file_get_contents($path) : '';
             }
         }
-        unset($row);
 
         $uri    = $request->getUri();
         $domain = getenv('DOMAIN');
@@ -97,16 +134,6 @@ class AdminController
             if ($port !== null && !in_array($port, [80, 443], true)) {
                 $baseUrl .= ':' . $port;
             }
-        }
-
-        $teams  = (new TeamService($pdo, $configSvc))->getAll();
-        $users  = (new UserService($pdo))->getAll();
-
-        $pageSlugs = ['landing', 'impressum', 'lizenz', 'datenschutz'];
-        $pages     = [];
-        foreach ($pageSlugs as $slug) {
-            $path          = dirname(__DIR__, 2) . '/content/' . $slug . '.html';
-            $pages[$slug] = is_file($path) ? file_get_contents($path) : '';
         }
 
         return $view->render($response, 'admin.twig', [
