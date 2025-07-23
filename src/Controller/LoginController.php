@@ -20,8 +20,11 @@ class LoginController
      */
     public function show(Request $request, Response $response): Response
     {
+        $pdo = Database::connectFromEnv();
+        $settings = new \App\Service\SettingsService($pdo);
+        $allowed = $settings->get('registration_enabled', '0') === '1';
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'login.twig');
+        return $view->render($response, 'login.twig', ['registration_allowed' => $allowed]);
     }
 
     /**
@@ -39,7 +42,7 @@ class LoginController
 
         $record = $service->getByUsername((string)($data['username'] ?? ''));
         $valid = false;
-        if ($record !== null) {
+        if ($record !== null && (bool)$record['active']) {
             $pwd = (string)($data['password'] ?? '');
             $valid = password_verify($pwd, (string)$record['password']);
         }
@@ -58,6 +61,11 @@ class LoginController
         }
 
         $view = Twig::fromRequest($request);
-        return $view->render($response->withStatus(401), 'login.twig', ['error' => true]);
+        $inactive = $record !== null && !(bool)$record['active'];
+        return $view->render(
+            $response->withStatus(401),
+            'login.twig',
+            ['error' => true, 'inactive' => $inactive]
+        );
     }
 }

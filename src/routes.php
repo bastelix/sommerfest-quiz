@@ -42,6 +42,7 @@ use App\Controller\SettingsController;
 use App\Controller\Admin\PageController;
 use App\Controller\TenantController;
 use App\Controller\Marketing\LandingController;
+use App\Controller\RegisterController;
 use Psr\Log\NullLogger;
 use App\Controller\BackupController;
 use App\Domain\Roles;
@@ -75,6 +76,7 @@ require_once __DIR__ . '/Controller/BackupController.php';
 require_once __DIR__ . '/Controller/UserController.php';
 require_once __DIR__ . '/Controller/TenantController.php';
 require_once __DIR__ . '/Controller/Marketing/LandingController.php';
+require_once __DIR__ . '/Controller/RegisterController.php';
 
 use App\Infrastructure\Database;
 use App\Infrastructure\Migrations\Migrator;
@@ -191,6 +193,8 @@ return function (\Slim\App $app) {
     });
     $app->get('/login', [LoginController::class, 'show']);
     $app->post('/login', [LoginController::class, 'login']);
+    $app->get('/register', [RegisterController::class, 'show']);
+    $app->post('/register', [RegisterController::class, 'register']);
     $app->get('/logout', LogoutController::class);
     $app->get('/admin', function (Request $request, Response $response) {
         $base = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
