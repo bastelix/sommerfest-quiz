@@ -524,7 +524,7 @@
             <li>
               <form class="page-form" data-slug="{{ slug }}">
                 <input type="hidden" id="page_{{ slug }}" name="content" value="{{ html|e('html_attr') }}">
-                <textarea class="page-editor">{{ html|raw }}</textarea>
+                <div class="page-editor" data-content="{{ html|e('html_attr') }}"></div>
                 <div class="uk-margin-top">
                   <button class="uk-button uk-button-primary save-page-btn">Speichern</button>
                   <a class="uk-button uk-button-default preview-link" href="{{ basePath }}/{{ slug }}" target="_blank">Vorschau</a>
