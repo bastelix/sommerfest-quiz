@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Infrastructure;
 
 use PDO;
+use PDOException;
 
 /**
  * Utility class for creating database connections.
@@ -14,12 +15,23 @@ class Database
     /**
      * Create a PDO connection using credentials from environment variables.
      */
-    public static function connectFromEnv(): PDO
+    public static function connectFromEnv(int $retries = 5, int $delay = 1): PDO
     {
         $dsn  = getenv('POSTGRES_DSN') ?: '';
         $user = getenv('POSTGRES_USER') ?: '';
         $pass = getenv('POSTGRES_PASSWORD') ?: getenv('POSTGRES_PASS') ?: '';
-        return new PDO($dsn, $user, $pass, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+        $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
+
+        while (true) {
+            try {
+                return new PDO($dsn, $user, $pass, $options);
+            } catch (PDOException $e) {
+                if ($retries-- <= 0) {
+                    throw $e;
+                }
+                sleep($delay);
+            }
+        }
     }
 
     /**
