@@ -61,6 +61,7 @@
 - Add admin page editor
 - Integrate static page editing
 - *(admin)* Allow editing of FAQ page
+- Retry database connection
 
 ### Fix
 
