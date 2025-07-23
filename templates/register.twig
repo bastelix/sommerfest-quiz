@@ -1,6 +1,6 @@
 {% extends 'layout.twig' %}
 
-{% block title %}Login{% endblock %}
+{% block title %}Registrieren{% endblock %}
 
 {% block head %}
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
@@ -24,41 +24,48 @@
       </div>
     {% endblock %}
   {% endembed %}
-<div class="uk-container uk-flex uk-flex-center uk-margin-large-top">
-  <div class="uk-width-1-1@s uk-width-1-2@m uk-width-1-3@l">
-    <div class="uk-width-1-1 uk-margin-auto uk-card uk-card-default uk-card-body uk-box-shadow-large">
-          <h3 class="uk-card-title uk-text-center">Login</h3>
+  <div class="uk-container uk-flex uk-flex-center uk-margin-large-top">
+    <div class="uk-width-1-1@s uk-width-1-2@m uk-width-1-3@l">
+      <div class="uk-width-1-1 uk-margin-auto uk-card uk-card-default uk-card-body uk-box-shadow-large">
+        <h3 class="uk-card-title uk-text-center">Registrieren</h3>
+        {% if not allowed %}
+        <div class="uk-alert-danger" uk-alert>
+          <p>Registrierung derzeit nicht möglich.</p>
+        </div>
+        {% elseif success %}
+        <div class="uk-alert-success" uk-alert>
+          <p>Registrierung gespeichert. Ein Admin muss den Account freischalten.</p>
+        </div>
+        {% else %}
           {% if error %}
           <div class="uk-alert-danger" uk-alert>
-            {% if inactive %}
-            <p>Account noch nicht freigeschaltet.</p>
-            {% else %}
-            <p>Benutzername oder Passwort falsch.</p>
-            {% endif %}
+            <p>Eingaben ungültig oder Passwörter stimmen nicht überein.</p>
           </div>
           {% endif %}
-          <form method="post" action="/login">
+          <form method="post" action="/register">
             <div class="uk-margin">
               <div class="uk-inline uk-width-1-1">
                 <span class="uk-form-icon" uk-icon="icon: user"></span>
-                <input class="uk-input uk-form-large" type="text" name="username" id="username" placeholder="Benutzername" required>
+                <input class="uk-input uk-form-large" type="text" name="username" placeholder="Benutzername" required>
               </div>
             </div>
             <div class="uk-margin">
               <div class="uk-inline uk-width-1-1">
                 <span class="uk-form-icon" uk-icon="icon: lock"></span>
-                <input class="uk-input uk-form-large" type="password" name="password" id="password" placeholder="Passwort" required>
+                <input class="uk-input uk-form-large" type="password" name="password" placeholder="Passwort" required>
               </div>
             </div>
             <div class="uk-margin">
-              <button class="uk-button uk-button-primary uk-button-large uk-width-1-1">Login</button>
+              <div class="uk-inline uk-width-1-1">
+                <span class="uk-form-icon" uk-icon="icon: lock"></span>
+                <input class="uk-input uk-form-large" type="password" name="password_repeat" placeholder="Passwort wiederholen" required>
+              </div>
             </div>
-            {% if registration_allowed %}
-            <div class="uk-margin uk-text-center">
-              <a href="{{ basePath }}/register">Registrieren</a>
+            <div class="uk-margin">
+              <button class="uk-button uk-button-primary uk-button-large uk-width-1-1">Registrieren</button>
             </div>
-            {% endif %}
           </form>
+        {% endif %}
       </div>
     </div>
   </div>
