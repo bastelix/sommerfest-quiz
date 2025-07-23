@@ -111,7 +111,8 @@ document.addEventListener('DOMContentLoaded', function () {
     puzzleEnabled: document.getElementById('cfgPuzzleEnabled'),
     puzzleWord: document.getElementById('cfgPuzzleWord'),
     puzzleWrap: document.getElementById('cfgPuzzleWordWrap'),
-    homePage: document.getElementById('cfgHomePage')
+    homePage: document.getElementById('cfgHomePage'),
+    registrationEnabled: document.getElementById('cfgRegistrationEnabled')
   };
   const puzzleFeedbackBtn = document.getElementById('puzzleFeedbackBtn');
   const puzzleIcon = document.getElementById('puzzleFeedbackIcon');
@@ -133,6 +134,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const resultsResetModal = UIkit.modal('#resultsResetModal');
   const resultsResetConfirm = document.getElementById('resultsResetConfirm');
   const homePageSaveBtn = document.getElementById('homePageSaveBtn');
+  const registrationEnabledSaveBtn = document.getElementById('registrationEnabledSaveBtn');
   let puzzleFeedback = '';
   let inviteText = '';
   let currentCommentInput = null;
@@ -282,6 +284,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cfgFields.homePage) {
       cfgFields.homePage.value = settingsInitial.home_page || 'help';
     }
+    if (cfgFields.registrationEnabled) {
+      cfgFields.registrationEnabled.checked = settingsInitial.registration_enabled === '1';
+    }
     puzzleFeedback = data.puzzleFeedback || '';
     updatePuzzleFeedbackUI();
     inviteText = data.inviteText || '';
@@ -360,6 +365,22 @@ document.addEventListener('DOMContentLoaded', function () {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ home_page: cfgFields.homePage.value })
+    }).then(r => {
+      if (r.ok) {
+        notify('Einstellung gespeichert', 'success');
+      } else {
+        notify('Fehler beim Speichern', 'danger');
+      }
+    }).catch(() => notify('Fehler beim Speichern', 'danger'));
+  });
+
+  registrationEnabledSaveBtn?.addEventListener('click', () => {
+    if (!cfgFields.registrationEnabled) return;
+    settingsInitial.registration_enabled = cfgFields.registrationEnabled.checked ? '1' : '0';
+    apiFetch('/settings.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ registration_enabled: settingsInitial.registration_enabled })
     }).then(r => {
       if (r.ok) {
         notify('Einstellung gespeichert', 'success');
@@ -1605,7 +1626,8 @@ document.addEventListener('DOMContentLoaded', function () {
       id: row.dataset.id ? parseInt(row.dataset.id, 10) : undefined,
       username: row.querySelector('.user-name').value.trim(),
       password: row.dataset.pass || '',
-      role: row.querySelector('.user-role').value
+      role: row.querySelector('.user-role').value,
+      active: row.querySelector('.user-active')?.checked
     })).filter(u => u.username);
   }
 
@@ -1636,6 +1658,13 @@ document.addEventListener('DOMContentLoaded', function () {
     nameInput.placeholder = 'Benutzername';
     nameInput.value = u.username || '';
     nameCell.appendChild(nameInput);
+
+    const activeCell = document.createElement('td');
+    const activeCheckbox = document.createElement('input');
+    activeCheckbox.type = 'checkbox';
+    activeCheckbox.className = 'user-active';
+    activeCheckbox.checked = u.active !== false;
+    activeCell.appendChild(activeCheckbox);
 
     const passCell = document.createElement('td');
     const passBtn = document.createElement('button');
@@ -1675,6 +1704,7 @@ document.addEventListener('DOMContentLoaded', function () {
     row.appendChild(handleCell);
     row.appendChild(nameCell);
     row.appendChild(roleCell);
+    row.appendChild(activeCell);
     row.appendChild(passCell);
     row.appendChild(delCell);
     return row;
