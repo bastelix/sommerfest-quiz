@@ -44,6 +44,10 @@ export function initPageEditors() {
     const slug = form.dataset.slug;
     const input = form.querySelector('input[name="content"]');
     const editorEl = form.querySelector('.page-editor');
+    const initial = editorEl.dataset.content;
+    if (initial) {
+      editorEl.innerHTML = initial;
+    }
     $(editorEl).trumbowyg({
       lang: 'de',
       btns: [
