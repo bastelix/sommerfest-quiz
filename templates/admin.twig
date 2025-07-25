@@ -63,12 +63,12 @@
             <thead class="table-headings">
               <tr>
                 <th><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top"></span></th>
-                <th>Nr.</th>
-                <th>Name</th>
-                <th>Beginn</th>
-                <th>Ende</th>
-                <th>Beschreibung</th>
-                <th>Aktiv</th>
+                <th>{{ t('column_number') }}</th>
+                <th>{{ t('column_name') }}</th>
+                <th>{{ t('column_start') }}</th>
+                <th>{{ t('column_end') }}</th>
+                <th>{{ t('column_description') }}</th>
+                <th>{{ t('column_active') }}</th>
                 <th><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_event_remove') }}; pos: top"></span></th>
               </tr>
             </thead>
@@ -262,19 +262,19 @@
                 <th>
                   <span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top"></span>
                 </th>
-                  <th>Slug
+                  <th>{{ t('column_slug') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_slug') }}; pos: top"></span>
                   </th>
-                  <th>Name
+                  <th>{{ t('column_name') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_name') }}; pos: top"></span>
                   </th>
-                  <th>Beschreibung
+                  <th>{{ t('column_description') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_desc') }}; pos: top"></span>
                   </th>
-                  <th>Buchstabe
+                  <th>{{ t('column_letter') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_puzzle_letter') }}; pos: top"></span>
                   </th>
-                  <th>Kommentar
+                  <th>{{ t('column_comment') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_comment') }}; pos: top"></span>
                   </th>
                   <th>
@@ -329,7 +329,7 @@
             <thead class="table-headings">
               <tr>
                 <th></th>
-                <th>Name</th>
+                <th>{{ t('column_name') }}</th>
                 <th></th>
               </tr>
             </thead>
@@ -449,7 +449,7 @@
         <div style="overflow-x: auto">
         <table class="uk-table uk-table-divider uk-table-responsive">
           <thead>
-            <tr><th>Name</th><th>Versuch</th><th>Katalog</th><th>Richtige</th><th>Zeit</th><th>Rätselwort gelöst</th><th>Beweisfoto</th></tr>
+            <tr><th>{{ t('column_name') }}</th><th>{{ t('column_attempt') }}</th><th>{{ t('column_catalog') }}</th><th>{{ t('column_correct') }}</th><th>{{ t('column_time') }}</th><th>{{ t('column_puzzle_solved') }}</th><th>{{ t('column_proof_photo') }}</th></tr>
           </thead>
           <tbody id="resultsTableBody" uk-lightbox="nav: thumbnav; slidenav: false">
             {% for r in results %}
@@ -510,7 +510,7 @@
         <div style="overflow-x: auto">
         <table class="uk-table uk-table-divider uk-table-responsive">
           <thead>
-            <tr><th>Name</th><th>Versuch</th><th>Katalog</th><th>Frage</th><th>Antwort</th><th>Richtig</th><th>Beweisfoto</th></tr>
+            <tr><th>{{ t('column_name') }}</th><th>{{ t('column_attempt') }}</th><th>{{ t('column_catalog') }}</th><th>{{ t('column_question') }}</th><th>{{ t('column_answer') }}</th><th>{{ t('column_correct') }}</th><th>{{ t('column_proof_photo') }}</th></tr>
           </thead>
           <tbody id="statsTableBody" uk-lightbox="nav: thumbnav; slidenav: false"></tbody>
         </table>
@@ -606,7 +606,7 @@
         </div>
         <table class="uk-table uk-table-divider">
           <thead>
-            <tr><th>Ordner</th><th>Aktionen</th></tr>
+            <tr><th>{{ t('column_folder') }}</th><th>{{ t('column_actions') }}</th></tr>
           </thead>
           <tbody id="backupTableBody">
             <tr><td colspan="2">Keine Backups</td></tr>
