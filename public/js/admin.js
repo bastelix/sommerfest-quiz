@@ -751,8 +751,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const fields = document.createElement('div');
     fields.className = 'fields';
     const removeBtn = document.createElement('button');
-    removeBtn.className = 'uk-button uk-button-danger uk-margin-small-top uk-align-right';
-    removeBtn.textContent = 'Entfernen';
+    removeBtn.className = 'uk-icon-button uk-button-danger uk-margin-small-top uk-align-right';
+    removeBtn.setAttribute('uk-icon', 'trash');
+    removeBtn.setAttribute('aria-label', 'Entfernen');
     removeBtn.onclick = () => {
       const idx = card.dataset.index;
       if (idx !== undefined) {
@@ -781,8 +782,8 @@ document.addEventListener('DOMContentLoaded', function () {
       input.value = value;
       input.setAttribute('aria-label', 'Item');
       const btn = document.createElement('button');
-      btn.className = 'uk-button uk-button-danger uk-button-small uk-margin-left';
-      btn.textContent = '×';
+      btn.className = 'uk-icon-button uk-button-danger uk-button-small uk-margin-left';
+      btn.setAttribute('uk-icon', 'trash');
       btn.setAttribute('aria-label', 'Entfernen');
       btn.onclick = () => div.remove();
       div.appendChild(input);
@@ -807,8 +808,8 @@ document.addEventListener('DOMContentLoaded', function () {
       dInput.value = def;
       dInput.setAttribute('aria-label', 'Definition');
       const rem = document.createElement('button');
-      rem.className = 'uk-button uk-button-danger uk-button-small';
-      rem.textContent = '×';
+      rem.className = 'uk-icon-button uk-button-danger uk-button-small';
+      rem.setAttribute('uk-icon', 'trash');
       rem.setAttribute('aria-label', 'Entfernen');
       rem.onclick = () => row.remove();
       const tDiv = document.createElement('div');
@@ -841,8 +842,8 @@ document.addEventListener('DOMContentLoaded', function () {
       input.id = optId;
       radio.setAttribute('aria-labelledby', optId);
       const rem = document.createElement('button');
-      rem.className = 'uk-button uk-button-danger uk-button-small uk-margin-left';
-      rem.textContent = '×';
+      rem.className = 'uk-icon-button uk-button-danger uk-button-small uk-margin-left';
+      rem.setAttribute('uk-icon', 'trash');
       rem.setAttribute('aria-label', 'Entfernen');
       rem.onclick = () => row.remove();
       row.appendChild(radio);
@@ -866,8 +867,8 @@ document.addEventListener('DOMContentLoaded', function () {
       check.checked = correct;
       check.setAttribute('aria-label', 'Richtige Antwort (rechts)');
       const rem = document.createElement('button');
-      rem.className = 'uk-button uk-button-danger uk-button-small uk-margin-left';
-      rem.textContent = '×';
+      rem.className = 'uk-icon-button uk-button-danger uk-button-small uk-margin-left';
+      rem.setAttribute('uk-icon', 'trash');
       rem.setAttribute('aria-label', 'Entfernen');
       rem.onclick = () => row.remove();
       row.appendChild(input);
@@ -1695,8 +1696,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const delCell = document.createElement('td');
     const delBtn = document.createElement('button');
-    delBtn.className = 'uk-button uk-button-danger';
-    delBtn.textContent = '×';
+    delBtn.className = 'uk-icon-button uk-button-danger';
+    delBtn.setAttribute('uk-icon', 'trash');
     delBtn.setAttribute('aria-label', 'Löschen');
     delBtn.addEventListener('click', () => row.remove());
     delCell.appendChild(delBtn);

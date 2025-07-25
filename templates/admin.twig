@@ -38,7 +38,7 @@
     <li class="uk-active" data-route="events" data-help="Veranstaltungen anlegen oder bearbeiten. Jede Zeile enthält Name, Beginn, Ende und Beschreibung. 'Hinzufügen' erstellt einen neuen Eintrag. Speichern übernimmt die Änderungen."><a href="{{ basePath }}/admin/events">Events</a></li>
     <li data-route="event/settings" data-help="Logo hochladen und Vorschau ansehen. Seitentitel, Überschrift und Untertitel festlegen. Hintergrund- und Buttonfarbe wählen. Optional den Button 'Antwort prüfen' und den QR-Code-Login aktivieren. 'Zurücksetzen' lädt gespeicherte Werte, 'Speichern' übernimmt Änderungen."><a href="{{ basePath }}/admin/event/settings">Event Configuration</a></li>
     <li data-route="catalogs" data-help="Fragenkataloge anlegen oder bearbeiten. Jede Zeile enthält einen Slug, Name, Beschreibung und optional einen Buchstaben für das Rätselwort. Der Slug kann angepasst werden. 'Hinzufügen' erstellt einen neuen Katalog, das rote × entfernt einen Eintrag. Speichern übernimmt die Änderungen."><a href="{{ basePath }}/admin/catalogs">Catalogs</a></li>
-    <li data-route="questions" data-help="Nach Auswahl eines Katalogs einzelne Fragen bearbeiten oder neue anlegen. 'Neue Frage' fügt eine weitere hinzu, 'Zurücksetzen' verwirft Änderungen, 'Speichern' sichert den gesamten Katalog."><a href="{{ basePath }}/admin/questions">Edit Questions</a></li>
+    <li data-route="questions" data-help="Nach Auswahl eines Katalogs einzelne Fragen bearbeiten oder neue anlegen. Das Plus-Symbol legt eine weitere Frage an, 'Zurücksetzen' verwirft Änderungen, 'Speichern' sichert den gesamten Katalog."><a href="{{ basePath }}/admin/questions">Edit Questions</a></li>
     <li data-route="teams" data-help="Teilnehmerliste pflegen. Über 'Hinzufügen' Teams oder Personen ergänzen. Die Checkbox beschränkt die Teilnahme auf gelistete Namen. Speichern aktualisiert die Liste."><a href="{{ basePath }}/admin/teams">Teams/People</a></li>
     <li data-route="summary" data-help="QR-Codes für alle Kataloge und Teams anzeigen, um Quizlinks oder Anmeldungen weiterzugeben. 'Drucken' erstellt eine übersichtliche Liste."><a href="{{ basePath }}/admin/summary">Summary</a></li>
     <li data-route="results" data-help="Gespeicherte Ergebnisse mit richtigen Antworten und Zeit einsehen. 'Zurücksetzen' löscht alle Daten, 'Herunterladen' exportiert sie als CSV."><a href="{{ basePath }}/admin/results">Results</a></li>
@@ -302,11 +302,13 @@
         <!-- Hauptdatenbereich: Frageneditor -->
         <div id="questions" class="uk-margin"></div>
         <!-- Bedienleiste fuer Frageneditor -->
-        <div id="questionActions" class="sticky-actions uk-flex uk-flex-between uk-flex-middle uk-margin">
-          <button id="addBtn" class="uk-button uk-button-default" uk-tooltip="title: Neue Frage im aktuellen Katalog anlegen; pos: right">Neue Frage</button>
-          <div>
-            <button id="resetBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: Änderungen am Fragenkatalog verwerfen; pos: right">Zurücksetzen</button>
-            <button id="saveBtn" class="uk-icon-button uk-button-primary" uk-icon="check" uk-tooltip="title: Fragenkatalog speichern; pos: right"></button>
+        <div id="questionActions">
+          <div class="uk-margin">
+            <button id="addBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: Neue Frage im aktuellen Katalog anlegen; pos: left"></button>
+          </div>
+          <div class="uk-margin uk-flex uk-flex-right">
+            <button id="resetBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: Änderungen am Fragenkatalog verwerfen; pos: left">Zurücksetzen</button>
+            <button id="saveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: Fragenkatalog speichern; pos: left"></button>
           </div>
         </div>
         <!-- Ende Hauptdatenbereich -->
