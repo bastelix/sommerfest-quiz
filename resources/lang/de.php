@@ -10,4 +10,7 @@ return [
     'license' => 'Lizenz',
     'game_flow' => 'Spielablauf',
     'title_help' => 'Hilfe',
+    'language' => 'Sprache',
+    'german' => 'Deutsch',
+    'english' => 'Englisch',
 ];
