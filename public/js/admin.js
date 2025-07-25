@@ -1276,6 +1276,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventAddBtn = document.getElementById('eventAddBtn');
   const eventsSaveBtn = document.getElementById('eventsSaveBtn');
   const eventSelect = document.getElementById('eventSelect');
+  const langSelect = document.getElementById('langSelect');
   let activeEventUid = cfgInitial.event_uid || '';
 
   function collectEvents() {
@@ -1506,6 +1507,13 @@ document.addEventListener('DOMContentLoaded', function () {
     if (uid && uid !== activeEventUid) {
       setActiveEvent(uid, name);
     }
+  });
+
+  langSelect?.addEventListener('change', () => {
+    const lang = langSelect.value;
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', lang);
+    window.location.href = url.toString();
   });
 
   // --------- Teams/Personen ---------

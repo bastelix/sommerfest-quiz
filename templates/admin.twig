@@ -31,6 +31,12 @@
       <div class="contrast-switch uk-margin-small-left">
         <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="Kontrastmodus"></button>
       </div>
+      <div class="lang-switch uk-margin-small-left">
+        <select id="langSelect" class="uk-select uk-form-width-small">
+          <option value="de" {{ locale() == 'de' ? 'selected' }}>{{ t('german') }}</option>
+          <option value="en" {{ locale() == 'en' ? 'selected' }}>{{ t('english') }}</option>
+        </select>
+      </div>
       <button id="helpBtn" class="uk-icon-button uk-margin-small-left" uk-icon="icon: question; ratio: 2" aria-label="Hilfe"></button>
     {% endblock %}
   {% endembed %}
