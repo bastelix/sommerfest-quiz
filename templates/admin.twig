@@ -62,24 +62,24 @@
           <table id="eventsTable" class="uk-table uk-table-divider uk-table-small">
             <thead class="table-headings">
               <tr>
-                <th><span uk-icon="icon: question" uk-tooltip="title: Zum Sortieren Zeile ziehen; pos: top"></span></th>
+                <th><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top"></span></th>
                 <th>Nr.</th>
                 <th>Name</th>
                 <th>Beginn</th>
                 <th>Ende</th>
                 <th>Beschreibung</th>
                 <th>Aktiv</th>
-                <th><span uk-icon="icon: question" uk-tooltip="title: Veranstaltung entfernen; pos: top"></span></th>
+                <th><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_event_remove') }}; pos: top"></span></th>
               </tr>
             </thead>
             <tbody id="eventsList" uk-sortable="handle: .uk-sortable-handle; group: sortable-group"></tbody>
           </table>
         </div>
         <div class="uk-margin">
-          <button id="eventAddBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: Neue Veranstaltung anlegen; pos: left"></button>
+          <button id="eventAddBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_event_add') }}; pos: left"></button>
         </div>
         <div class="uk-margin uk-flex uk-flex-right">
-          <button id="eventsSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: Änderungen speichern; pos: left"></button>
+          <button id="eventsSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: {{ t('tip_save_changes') }}; pos: left"></button>
         </div>
       </div>
     </li>
@@ -91,7 +91,7 @@
             <div>
               <div class="uk-margin">
                 <label class="uk-form-label" for="cfgLogoFile">Logo hochladen
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: PNG-Datei als Logo für die Startseite hochladen.; pos: right"></span>
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_logo_upload') }}; pos: right"></span>
                 </label>
                 <div class="uk-form-controls">
                   <div class="js-upload uk-placeholder uk-text-center">
@@ -119,7 +119,7 @@
             <div>
               <div class="uk-margin">
                 <label class="uk-form-label" for="cfgPageTitle">Titel im Browser-Tab
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Text, der im Browser-Tab angezeigt wird.; pos: right"></span>
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_page_title') }}; pos: right"></span>
                 </label>
                 <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgPageTitle"></div>
               </div>
@@ -128,13 +128,13 @@
               <div class="uk-margin uk-child-width-1-2@s uk-grid-small" uk-grid>
                 <div>
                   <label class="uk-form-label" for="cfgBackgroundColor">Hintergrundfarbe
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: CSS-Farbwert für die Seite.; pos: right"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_background_color') }}; pos: right"></span>
                   </label>
                   <div class="uk-form-controls"><input class="uk-input" type="color" id="cfgBackgroundColor"></div>
                 </div>
                 <div>
                   <label class="uk-form-label" for="cfgButtonColor">Farbe der Schaltflächen
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: CSS-Farbwert für alle Buttons.; pos: right"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_button_color') }}; pos: right"></span>
                   </label>
                   <div class="uk-form-controls"><input class="uk-input" type="color" id="cfgButtonColor"></div>
                 </div>
@@ -146,56 +146,56 @@
             <div>
               <div class="uk-margin">
                 <label><input class="uk-checkbox" type="checkbox" id="cfgCheckAnswerButton"> Antwort-Prüfen-Button anzeigen
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Zeigt beim Quiz einen Button zum Prüfen der Antwort.; pos: right"></span>
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_check_button') }}; pos: right"></span>
                 </label>
               </div>
             </div>
             <div>
               <div class="uk-margin">
                 <label><input class="uk-checkbox" type="checkbox" id="cfgQRUser"> QR-Code-Login verwenden
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Aktiviert den Button 'Name mit QR-Code scannen' auf der Startseite, um den Namen aus einem QR-Code zu übernehmen.; pos: right"></span>
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_qr_button') }}; pos: right"></span>
                 </label>
               </div>
             </div>
             <div>
               <div class="uk-margin">
                 <label><input class="uk-checkbox" type="checkbox" id="cfgQRRemember"> Einmaliges Einscannen merken
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Speichert den gescannten Namen im Browser und überspringt künftige Logins.; pos: right"></span>
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_qr_remember') }}; pos: right"></span>
                 </label>
               </div>
             </div>
             <div>
               <div class="uk-margin">
                 <label><input class="uk-checkbox" type="checkbox" id="cfgTeamRestrict"> Nur Teams/Personen aus der Liste dürfen teilnehmen.
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Aktiviert eine Zugangsbeschränkung auf eingetragene Teams; pos: right"></span>
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_team_restrict') }}; pos: right"></span>
                 </label>
               </div>
             </div>
             <div>
               <div class="uk-margin">
                 <label><input class="uk-checkbox" type="checkbox" id="cfgCompetitionMode"> Wettkampfmodus
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Blendet Neustart-Buttons aus und verhindert das Wiederholen bereits gelöster Kataloge.; pos: right"></span>
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_competition_mode') }}; pos: right"></span>
                 </label>
               </div>
             </div>
             <div>
               <div class="uk-margin">
                 <label><input class="uk-checkbox" type="checkbox" id="cfgTeamResults"> Ergebnisübersicht anzeigen
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Zeigt Teams nach Abschluss aller Kataloge eine Übersicht ihrer Ergebnisse.; pos: right"></span>
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_team_results') }}; pos: right"></span>
                 </label>
               </div>
             </div>
             <div>
               <div class="uk-margin">
                 <label><input class="uk-checkbox" type="checkbox" id="cfgPhotoUpload"> Beweisfotos aktivieren
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Blendet die Buttons zum Hochladen von Fotos ein oder aus.; pos: right"></span>
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_photo_upload') }}; pos: right"></span>
                 </label>
               </div>
             </div>
             <div>
               <div class="uk-margin">
                 <label><input class="uk-checkbox" type="checkbox" id="cfgPuzzleEnabled"> Rätselwort
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Blendet Buchstaben für das Rätselwort ein und speichert den vollständigen Begriff.; pos: right"></span>
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_puzzle_word') }}; pos: right"></span>
                 </label>
                 <div id="cfgPuzzleWordWrap" class="uk-margin-small-top uk-grid uk-child-width-1-2@m uk-grid-small uk-flex-middle" uk-grid>
                   <div>
@@ -213,9 +213,9 @@
           </div>
         </form>
         <div class="uk-margin uk-flex uk-flex-between">
-          <button id="cfgResetBtn" class="uk-button uk-button-default" uk-tooltip="title: Setzt alle Felder auf gespeicherte Werte zurück; pos: right">Zurücksetzen</button>
+          <button id="cfgResetBtn" class="uk-button uk-button-default" uk-tooltip="title: {{ t('tip_form_reset') }}; pos: right">Zurücksetzen</button>
           <div>
-            <button id="cfgSaveBtn" class="uk-icon-button uk-button-primary" uk-icon="check" uk-tooltip="title: Einstellungen speichern; pos: right"></button>
+            <button id="cfgSaveBtn" class="uk-icon-button uk-button-primary" uk-icon="check" uk-tooltip="title: {{ t('tip_save_settings') }}; pos: right"></button>
           </div>
         </div>
 
@@ -260,25 +260,25 @@
             <thead class="table-headings">
               <tr>
                 <th>
-                  <span uk-icon="icon: question" uk-tooltip="title: Zum Sortieren Zeile ziehen; pos: top"></span>
+                  <span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top"></span>
                 </th>
                   <th>Slug
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Eindeutiger Name in der URL; pos: top"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_slug') }}; pos: top"></span>
                   </th>
                   <th>Name
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Angezeigter Titel des Katalogs; pos: top"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_name') }}; pos: top"></span>
                   </th>
                   <th>Beschreibung
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Beschreibung auf der Startseite des Katalogs; pos: top"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_desc') }}; pos: top"></span>
                   </th>
                   <th>Buchstabe
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Buchstabe für das Rätselwort; pos: top"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_puzzle_letter') }}; pos: top"></span>
                   </th>
                   <th>Kommentar
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Interne Notiz, die als Zusatz auch auf der Katalogstartseite angezeigt wird.; pos: top"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_comment') }}; pos: top"></span>
                   </th>
                   <th>
-                    <span uk-icon="icon: question" uk-tooltip="title: Katalog entfernen; pos: top"></span>
+                    <span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_remove') }}; pos: top"></span>
                   </th>
               </tr>
             </thead>
@@ -286,10 +286,10 @@
           </table>
         </div>
         <div class="uk-margin">
-          <button id="newCatBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: Neuen Fragenkatalog anlegen; pos: left"></button>
+          <button id="newCatBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_cat_add') }}; pos: left"></button>
         </div>
         <div class="uk-margin uk-flex uk-flex-right">
-          <button id="catalogsSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: Änderungen an den Katalogen speichern; pos: left"></button>
+          <button id="catalogsSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: {{ t('tip_cat_save') }}; pos: left"></button>
         </div>
         </div>
       </div>
@@ -299,7 +299,7 @@
         <h2 class="uk-heading-bullet">{{ t('heading_questions') }}</h2>
         <div class="uk-margin">
           <label class="uk-form-label" for="catalogSelect">Fragenkatalog
-            <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: Hier den zu bearbeitenden Katalog wählen.; pos: right"></span>
+            <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_catalog_select') }}; pos: right"></span>
           </label>
           <div class="uk-form-controls">
             <select id="catalogSelect" class="uk-select uk-margin-small-top"></select>
@@ -310,11 +310,11 @@
         <!-- Bedienleiste fuer Frageneditor -->
         <div id="questionActions">
           <div class="uk-margin">
-            <button id="addBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: Neue Frage im aktuellen Katalog anlegen; pos: left"></button>
+            <button id="addBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_question_add') }}; pos: left"></button>
           </div>
           <div class="uk-margin uk-flex uk-flex-right">
-            <button id="resetBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: Änderungen am Fragenkatalog verwerfen; pos: left">Zurücksetzen</button>
-            <button id="saveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: Fragenkatalog speichern; pos: left"></button>
+            <button id="resetBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: {{ t('tip_question_reset') }}; pos: left">Zurücksetzen</button>
+            <button id="saveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: {{ t('tip_question_save') }}; pos: left"></button>
           </div>
         </div>
         <!-- Ende Hauptdatenbereich -->
@@ -337,10 +337,10 @@
           </table>
         </div>
         <div class="uk-margin">
-          <button id="teamAddBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: Neues Team oder Person hinzufügen; pos: left"></button>
+          <button id="teamAddBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_team_add') }}; pos: left"></button>
         </div>
         <div class="uk-margin uk-flex uk-flex-right">
-          <button id="teamsSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: Änderungen an Teams oder Personen speichern; pos: left"></button>
+          <button id="teamsSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: {{ t('tip_team_save') }}; pos: left"></button>
         </div>
       </div>
     </li>
@@ -401,8 +401,8 @@
             <span id="inviteTextLabel">Einladungstext eingeben</span>
           </button>
           <div class="uk-flex">
-            <button id="openInvitesBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: Alle Einladungen öffnen; pos: right">Einladungen öffnen</button>
-            <button id="summaryPrintBtn" class="uk-button uk-button-default" uk-tooltip="title: Übersicht drucken; pos: right">Übersicht Drucken</button>
+            <button id="openInvitesBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: {{ t('tip_invitations_open') }}; pos: right">Einladungen öffnen</button>
+            <button id="summaryPrintBtn" class="uk-button uk-button-default" uk-tooltip="title: {{ t('tip_summary_print') }}; pos: right">Übersicht Drucken</button>
           </div>
         </div>
         <div id="inviteTextModal" uk-modal>
@@ -478,10 +478,10 @@
         </div>
         <ul id="resultsPagination" class="uk-pagination uk-flex-center"></ul>
         <div class="uk-margin uk-flex uk-flex-between">
-          <button id="resultsResetBtn" class="uk-button uk-button-default" uk-tooltip="title: Löscht alle gespeicherten Ergebnisse; pos: right">Zurücksetzen</button>
+          <button id="resultsResetBtn" class="uk-button uk-button-default" uk-tooltip="title: {{ t('tip_results_reset') }}; pos: right">Zurücksetzen</button>
           <div class="uk-flex">
-            <button id="resultsPdfBtn" class="uk-button uk-button-primary uk-margin-right" uk-tooltip="title: PDF generieren; pos: right">Auswertung öffnen</button>
-            <button id="resultsDownloadBtn" class="uk-button uk-button-primary" uk-tooltip="title: Ergebnisse herunterladen; pos: right">Herunterladen</button>
+            <button id="resultsPdfBtn" class="uk-button uk-button-primary uk-margin-right" uk-tooltip="title: {{ t('tip_results_pdf') }}; pos: right">Auswertung öffnen</button>
+            <button id="resultsDownloadBtn" class="uk-button uk-button-primary" uk-tooltip="title: {{ t('tip_results_download') }}; pos: right">Herunterladen</button>
           </div>
         </div>
 
@@ -569,22 +569,22 @@
           <table class="uk-table uk-table-divider uk-table-small">
             <thead>
               <tr>
-                <th><span uk-icon="icon: question" uk-tooltip="title: Zum Sortieren Zeile ziehen; pos: top"></span></th>
+                <th><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top"></span></th>
                 <th>Benutzername</th>
                 <th>Rolle</th>
                 <th>Aktiv</th>
-                <th><span uk-icon="icon: key" uk-tooltip="title: Passwort setzen; pos: top"></span></th>
-                <th><span uk-icon="icon: question" uk-tooltip="title: Benutzer entfernen; pos: top"></span></th>
+                <th><span uk-icon="icon: key" uk-tooltip="title: {{ t('tip_user_pass') }}; pos: top"></span></th>
+                <th><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_user_remove') }}; pos: top"></span></th>
               </tr>
             </thead>
             <tbody id="usersList" uk-sortable="handle: .uk-sortable-handle; group: sortable-group"></tbody>
           </table>
         </div>
         <div class="uk-margin">
-          <button id="userAddBtn" class="uk-icon-button uk-button-default" uk-icon="plus" uk-tooltip="title: Neuen Benutzer anlegen; pos: right"></button>
+          <button id="userAddBtn" class="uk-icon-button uk-button-default" uk-icon="plus" uk-tooltip="title: {{ t('tip_user_add') }}; pos: right"></button>
         </div>
         <div class="uk-margin uk-flex uk-flex-right">
-          <button id="usersSaveBtn" class="uk-icon-button uk-button-primary" uk-icon="check" uk-tooltip="title: Änderungen speichern; pos: right"></button>
+          <button id="usersSaveBtn" class="uk-icon-button uk-button-primary" uk-icon="check" uk-tooltip="title: {{ t('tip_save_changes') }}; pos: right"></button>
         </div>
 
         <div id="userPassModal" uk-modal>
@@ -601,8 +601,8 @@
 
         <h3 class="uk-heading-bullet">{{ t('heading_backups') }}</h3>
         <div class="uk-margin uk-flex uk-flex-right">
-          <button id="exportJsonBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: Datenbank als JSON exportieren; pos: right">Backup erstellen</button>
-          <button id="importJsonBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: Demodaten aus der Neuinstallation importieren; pos: right">Demodaten wiederherstellen</button>
+          <button id="exportJsonBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: {{ t('tip_backup_export') }}; pos: right">Backup erstellen</button>
+          <button id="importJsonBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: {{ t('tip_backup_import') }}; pos: right">Demodaten wiederherstellen</button>
         </div>
         <table class="uk-table uk-table-divider">
           <thead>
