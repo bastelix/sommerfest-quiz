@@ -38,6 +38,8 @@ return [
     'heading_registration' => 'Registrierung',
     'heading_users' => 'Benutzer',
     'heading_backups' => 'Sicherungen',
+    'menu' => 'Menü',
+    'logout' => 'Abmelden',
     'tip_logo_upload' => 'PNG-Datei als Logo für die Startseite hochladen.',
     'tip_page_title' => 'Text, der im Browser-Tab angezeigt wird.',
     'tip_background_color' => 'CSS-Farbwert für die Seite.',
@@ -86,5 +88,4 @@ return [
     'tip_rank_puzzle' => 'Top 3 Platzierungen für das schnellste Lösen des Rätselworts',
     'tip_rank_catalogs' => 'Top 3 Teams/Spieler, die alle Fragenkataloge am schnellsten bearbeitet haben',
     'tip_rank_points' => 'Top 3 Teams/Spieler mit den meisten Punkten',
-
 ];

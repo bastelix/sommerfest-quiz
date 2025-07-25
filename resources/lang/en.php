@@ -38,6 +38,8 @@ return [
     'heading_registration' => 'Registration',
     'heading_users' => 'Users',
     'heading_backups' => 'Backups',
+    'menu' => 'Menu',
+    'logout' => 'Logout',
     'tip_logo_upload' => 'Upload PNG logo for start page.',
     'tip_page_title' => 'Text displayed in the browser tab.',
     'tip_background_color' => 'CSS color for the page.',
@@ -86,5 +88,4 @@ return [
     'tip_rank_puzzle' => 'Top 3 fastest puzzle solvers',
     'tip_rank_catalogs' => 'Top 3 teams/players completing all catalogs fastest',
     'tip_rank_points' => 'Top 3 teams/players with most points',
-
 ];
