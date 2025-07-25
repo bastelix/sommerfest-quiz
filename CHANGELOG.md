@@ -96,6 +96,7 @@
 - Enhance catalog comment card
 - Enhance rotate button appearance
 - Improve mobile layout for events
+- Unify vue quiz buttons
 
 ### Test
 
