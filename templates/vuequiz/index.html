@@ -8,6 +8,9 @@
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vuedraggable@4.1.0/dist/vuedraggable.umd.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.23.9/dist/css/uikit.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.23.9/dist/js/uikit.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/uikit@3.23.9/dist/js/uikit-icons.min.js"></script>
 </head>
 <body class="bg-gray-100 p-4">
 <div id="app" class="max-w-3xl mx-auto" v-cloak>
@@ -20,7 +23,7 @@
         <div>Punkte: {{ score }}</div>
       </div>
       <component :is="currentComponent" :question="currentQuestion" @answered="onAnswered"></component>
-      <button v-if="answered" @click="next" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Nächste Frage</button>
+      <button v-if="answered" @click="next" class="uk-button uk-button-primary uk-margin-top">Nächste Frage</button>
     </div>
     <div v-else>
       <h2 class="text-xl font-bold mb-4">Auswertung</h2>
@@ -97,10 +100,10 @@ createApp({
       emit('answered', { correct, answer: props.question.options[idx] });
     }
     function btnClass(idx) {
-      if (selected.value === null) return 'border';
-      if (idx === props.question.correct) return 'bg-green-200 border';
-      if (idx === selected.value) return 'bg-red-200 border';
-      return 'border';
+      if (selected.value === null) return 'uk-button uk-button-default';
+      if (idx === props.question.correct) return 'uk-button uk-button-success';
+      if (idx === selected.value) return 'uk-button uk-button-danger';
+      return 'uk-button uk-button-default';
     }
     return { selected, select, btnClass };
   },
@@ -108,7 +111,7 @@ createApp({
     <div>
       <p class="mb-4">{{ question.question }}</p>
       <button v-for="(opt, idx) in question.options" :key="idx" @click="select(idx)"
-        :class="btnClass(idx) + ' w-full text-left p-2 mb-2 rounded'">
+        :class="btnClass(idx) + ' uk-width-1-1 uk-text-left uk-margin-small-bottom'">
         {{ opt }}
       </button>
     </div>
@@ -260,7 +263,7 @@ createApp({
           <div class="p-2 mb-2 border bg-gray-100 cursor-move">{{ element }}</div>
         </template>
       </draggable>
-      <button @click="check" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Antwort prüfen</button>
+      <button @click="check" class="uk-button uk-button-primary uk-margin-top">Antwort prüfen</button>
       <p v-if="checked" class="mt-2 font-semibold" :class="correct ? 'text-green-600' : 'text-red-600'">
         {{ correct ? 'Richtig!' : 'Leider falsch.' }}
       </p>
@@ -313,7 +316,7 @@ createApp({
           </div>
         </div>
       </div>
-      <button @click="check" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded">Antwort prüfen</button>
+      <button @click="check" class="uk-button uk-button-primary uk-margin-top">Antwort prüfen</button>
       <p v-if="checked" class="mt-2 font-semibold" :class="correct ? 'text-green-600' : 'text-red-600'">
         {{ correct ? 'Richtig!' : 'Leider falsch.' }}
       </p>
