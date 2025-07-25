@@ -62,6 +62,7 @@
 - Integrate static page editing
 - *(admin)* Allow editing of FAQ page
 - Retry database connection
+- *(admin)* Add language selector
 
 ### Fix
 
