@@ -38,4 +38,6 @@ return [
     'heading_registration' => 'Registration',
     'heading_users' => 'Users',
     'heading_backups' => 'Backups',
+    'menu' => 'Menu',
+    'logout' => 'Logout',
 ];
