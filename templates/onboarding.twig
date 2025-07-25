@@ -1,0 +1,82 @@
+{% extends 'layout.twig' %}
+
+{% block title %}Onboarding{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+{% endblock %}
+
+{% block body_class %}uk-padding{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block right %}
+      <div class="theme-switch">
+        <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="Design wechseln"></button>
+      </div>
+      <div class="contrast-switch uk-margin-small-left">
+        <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="Kontrastmodus"></button>
+      </div>
+    {% endblock %}
+  {% endembed %}
+  <div class="uk-container uk-margin-large-top">
+    <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step1">
+      <h3 class="uk-card-title">1. Kundendaten</h3>
+      <div class="uk-margin">
+        <input id="customer-name" class="uk-input" type="text" placeholder="Kundenname" required>
+      </div>
+      <div class="uk-margin">
+        <label>Subdomain: <span id="subdomain-preview">-</span>.quizrace.app</label>
+      </div>
+      <button class="uk-button uk-button-primary" id="next1" disabled>Weiter</button>
+    </div>
+
+    <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step2" hidden>
+      <h3 class="uk-card-title">2. Abo wählen</h3>
+      <div class="uk-margin">
+        <select id="plan" class="uk-select">
+          <option value="demo">Demo</option>
+          <option value="standard">Standard</option>
+          <option value="premium">Premium</option>
+        </select>
+      </div>
+      <button class="uk-button uk-button-primary" id="next2">Weiter</button>
+    </div>
+
+    <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step3" hidden>
+      <h3 class="uk-card-title">3. Zahlungsart</h3>
+      <div class="uk-margin">
+        <select id="payment" class="uk-select">
+          <option value="invoice">Rechnung</option>
+          <option value="credit">Kreditkarte</option>
+          <option value="paypal">PayPal</option>
+        </select>
+      </div>
+      <button class="uk-button uk-button-primary" id="next3">Weiter</button>
+    </div>
+
+    <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step4" hidden>
+      <h3 class="uk-card-title">4. Erstellung</h3>
+      <ul class="uk-list">
+        <li><strong>Kunde:</strong> <span id="summary-name"></span></li>
+        <li><strong>Subdomain:</strong> <span id="summary-subdomain"></span>.quizrace.app</li>
+        <li><strong>Abo:</strong> <span id="summary-plan"></span></li>
+        <li><strong>Zahlung:</strong> <span id="summary-payment"></span></li>
+      </ul>
+      <button class="uk-button uk-button-primary" id="create">Jetzt QuizRace-Umgebung erstellen</button>
+    </div>
+
+    <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-1-2@m uk-margin-auto uk-text-center" id="success" hidden>
+      <h3 class="uk-card-title">Ihre QuizRace-Umgebung ist bereit!</h3>
+      <p id="success-domain"></p>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ basePath }}/js/app.js"></script>
+  <script src="{{ basePath }}/js/onboarding.js"></script>
+  <script src="{{ basePath }}/js/custom-icons.js"></script>
+{% endblock %}

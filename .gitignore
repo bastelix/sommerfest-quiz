@@ -5,3 +5,5 @@ vendor/
 .phpunit.result.cache
 
 .env
+data/logo-*.png
+data/logo-*.webp
