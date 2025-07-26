@@ -65,6 +65,7 @@
 - *(admin)* Add language selector
 - Manage nginx vhost creation
 - *(onboarding)* Create admin account and show password
+- Add tenant availability check
 
 ### Fix
 
