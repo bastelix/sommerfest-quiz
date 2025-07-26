@@ -60,12 +60,16 @@
 
     createBtn.addEventListener('click', async () => {
       try {
-        const res = await fetch('/tenants', {
+        const tenantRes = await fetch('/tenants', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ uid: data.subdomain, schema: data.subdomain })
         });
-        if (!res.ok) throw new Error('API error');
+        if (!tenantRes.ok) throw new Error('tenant');
+
+        const importRes = await fetch('/restore-default', { method: 'POST' });
+        if (!importRes.ok) throw new Error('import');
+
         document.getElementById('success-domain').textContent =
           data.subdomain + '.quizrace.app';
         show('success');
