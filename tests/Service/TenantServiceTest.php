@@ -42,7 +42,16 @@ CREATE TABLE question_results(
 );
 SQL;
         file_put_contents($dir . '/20240910_base_schema.sql', $sql);
-        return new TenantService($pdo, $dir);
+        $nginx = new class extends \App\Service\NginxService {
+            public function __construct()
+            {
+            }
+
+            public function createVhost(string $sub): void
+            {
+            }
+        };
+        return new TenantService($pdo, $dir, $nginx);
     }
 
     public function testCreateTenantInsertsRow(): void
