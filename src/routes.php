@@ -24,6 +24,7 @@ use App\Service\EventService;
 use App\Service\SummaryPhotoService;
 use App\Service\UserService;
 use App\Service\TenantService;
+use App\Service\NginxService;
 use App\Service\SettingsService;
 use App\Service\TranslationService;
 use App\Application\Middleware\LanguageMiddleware;
@@ -108,7 +109,8 @@ return function (\Slim\App $app, TranslationService $translator) {
         $consentService = new PhotoConsentService($pdo, $configService);
         $summaryService = new SummaryPhotoService($pdo, $configService);
         $eventService = new EventService($pdo);
-        $tenantService = new TenantService($pdo);
+        $nginxService = new NginxService();
+        $tenantService = new TenantService($pdo, null, $nginxService);
         $userService = new \App\Service\UserService($pdo);
         $settingsService = new \App\Service\SettingsService($pdo);
 

@@ -26,7 +26,12 @@ class TenantController
         if (!is_array($data) || !isset($data['uid'], $data['schema'])) {
             return $response->withStatus(400);
         }
-        $this->service->createTenant((string) $data['uid'], (string) $data['schema']);
+        try {
+            $this->service->createTenant((string) $data['uid'], (string) $data['schema']);
+        } catch (\RuntimeException $e) {
+            $response->getBody()->write($e->getMessage());
+            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
+        }
         return $response->withStatus(201);
     }
 

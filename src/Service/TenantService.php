@@ -13,13 +13,14 @@ use App\Infrastructure\Migrations\Migrator;
 class TenantService
 {
     private PDO $pdo;
-
     private string $migrationsDir;
+    private ?NginxService $nginxService;
 
-    public function __construct(PDO $pdo, ?string $migrationsDir = null)
+    public function __construct(PDO $pdo, ?string $migrationsDir = null, ?NginxService $nginxService = null)
     {
         $this->pdo = $pdo;
         $this->migrationsDir = $migrationsDir ?? dirname(__DIR__, 2) . '/migrations';
+        $this->nginxService = $nginxService;
     }
 
     /**
@@ -37,6 +38,10 @@ class TenantService
         }
         $stmt = $this->pdo->prepare('INSERT INTO tenants(uid, subdomain) VALUES(?, ?)');
         $stmt->execute([$uid, $schema]);
+
+        if ($this->nginxService !== null) {
+            $this->nginxService->createVhost($schema);
+        }
     }
 
     /**
