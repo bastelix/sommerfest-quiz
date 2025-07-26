@@ -5,7 +5,8 @@
     name: '',
     subdomain: '',
     plan: '',
-    payment: ''
+    payment: '',
+    adminPass: ''
   };
 
   function show(step) {
@@ -39,6 +40,7 @@
     const next2 = document.getElementById('next2');
     const next3 = document.getElementById('next3');
     const createBtn = document.getElementById('create');
+    const adminPassInput = document.getElementById('admin-pass');
 
     loginBtn.addEventListener('click', async () => {
       loginError.hidden = true;
@@ -82,6 +84,13 @@
     });
 
     createBtn.addEventListener('click', async () => {
+      if (!adminPassInput || adminPassInput.value === '') {
+        if (typeof UIkit !== 'undefined') {
+          UIkit.notification({ message: 'Passwort angeben', status: 'danger' });
+        }
+        return;
+      }
+      data.adminPass = adminPassInput.value;
       try {
         const tenantRes = await fetch('/tenants', {
           method: 'POST',
@@ -97,8 +106,18 @@
         });
         if (!importRes.ok) throw new Error('import');
 
+        const userRes = await fetch('/users.json', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify([{ username: 'admin', password: data.adminPass, role: 'admin' }])
+        });
+        if (!userRes.ok) throw new Error('user');
+
         document.getElementById('success-domain').textContent =
           data.subdomain + '.quizrace.app';
+        document.getElementById('success-pass').textContent =
+          'Ihr Admin-Login lautet: admin / ' + data.adminPass;
         show('success');
       } catch (err) {
         if (typeof UIkit !== 'undefined') {

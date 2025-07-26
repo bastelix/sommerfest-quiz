@@ -79,12 +79,16 @@
         <li><strong>Abo:</strong> <span id="summary-plan"></span></li>
         <li><strong>Zahlung:</strong> <span id="summary-payment"></span></li>
       </ul>
+      <div class="uk-margin">
+        <input id="admin-pass" class="uk-input" type="password" placeholder="Admin-Passwort" required>
+      </div>
       <button class="uk-button uk-button-primary" id="create">Jetzt QuizRace-Umgebung erstellen</button>
     </div>
 
     <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-1-2@m uk-margin-auto uk-text-center" id="success" hidden>
       <h3 class="uk-card-title">Ihre QuizRace-Umgebung ist bereit!</h3>
       <p id="success-domain"></p>
+      <p id="success-pass"></p>
     </div>
   </div>
 {% endblock %}
