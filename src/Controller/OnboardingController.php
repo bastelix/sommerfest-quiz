@@ -16,6 +16,12 @@ class OnboardingController
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'onboarding.twig');
+        $mainDomain = getenv('MAIN_DOMAIN')
+            ?: getenv('DOMAIN')
+            ?: $request->getUri()->getHost();
+
+        return $view->render($response, 'onboarding.twig', [
+            'main_domain' => $mainDomain,
+        ]);
     }
 }
