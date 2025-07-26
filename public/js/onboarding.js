@@ -34,6 +34,10 @@
 
     show('login');
 
+    const basePath = window.basePath || '';
+    const mainDomain = window.mainDomain || '';
+    const withBase = p => basePath + p;
+
     const nameInput = document.getElementById('customer-name');
     const subdomainPreview = document.getElementById('subdomain-preview');
     const next1 = document.getElementById('next1');
@@ -59,7 +63,7 @@
     loginBtn.addEventListener('click', async () => {
       loginError.hidden = true;
       try {
-        const res = await fetch('/login', {
+        const res = await fetch(withBase('/login'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -106,7 +110,7 @@
       }
       data.adminPass = adminPassInput.value;
       try {
-        const checkRes = await fetch('/tenants/' + encodeURIComponent(data.subdomain), {
+        const checkRes = await fetch(withBase('/tenants/' + encodeURIComponent(data.subdomain)), {
           credentials: 'include'
         });
         if (checkRes.ok) {
@@ -118,7 +122,7 @@
           show('step1');
           return;
         }
-        const tenantRes = await fetch('/tenants', {
+        const tenantRes = await fetch(withBase('/tenants'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -126,13 +130,13 @@
         });
         if (!tenantRes.ok) throw new Error('tenant');
 
-        const importRes = await fetch('/restore-default', {
+        const importRes = await fetch(withBase('/restore-default'), {
           method: 'POST',
           credentials: 'include'
         });
         if (!importRes.ok) throw new Error('import');
 
-        const userRes = await fetch('/users.json', {
+        const userRes = await fetch(withBase('/users.json'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -141,7 +145,7 @@
         if (!userRes.ok) throw new Error('user');
 
         document.getElementById('success-domain').textContent =
-          data.subdomain + '.quizrace.app';
+          data.subdomain + '.' + mainDomain;
         document.getElementById('success-pass').textContent =
           'Ihr Admin-Login lautet: admin / ' + data.adminPass;
         show('success');
@@ -150,7 +154,7 @@
           const link = document.createElement('a');
           link.id = 'success-link';
           link.className = 'uk-button uk-button-primary uk-margin-top';
-          link.href = 'https://' + data.subdomain + '.quizrace.app';
+          link.href = 'https://' + data.subdomain + '.' + mainDomain;
           link.textContent = 'Zu Ihrem QuizRace';
           successEl.appendChild(link);
           waitForHttps(link.href);

@@ -42,7 +42,7 @@
         <input id="customer-name" class="uk-input" type="text" placeholder="Kundenname" required>
       </div>
       <div class="uk-margin">
-        <label>Subdomain: <span id="subdomain-preview">-</span>.quizrace.app</label>
+        <label>Subdomain: <span id="subdomain-preview">-</span>.{{ main_domain }}</label>
       </div>
       <button class="uk-button uk-button-primary" id="next1" disabled>Weiter</button>
     </div>
@@ -75,7 +75,7 @@
       <h3 class="uk-card-title">4. Erstellung</h3>
       <ul class="uk-list">
         <li><strong>Kunde:</strong> <span id="summary-name"></span></li>
-        <li><strong>Subdomain:</strong> <span id="summary-subdomain"></span>.quizrace.app</li>
+        <li><strong>Subdomain:</strong> <span id="summary-subdomain"></span>.{{ main_domain }}</li>
         <li><strong>Abo:</strong> <span id="summary-plan"></span></li>
         <li><strong>Zahlung:</strong> <span id="summary-payment"></span></li>
       </ul>
@@ -96,6 +96,7 @@
 
 {% block scripts %}
   <script src="{{ basePath }}/js/app.js"></script>
+  <script>window.mainDomain = '{{ main_domain }}';</script>
   <script src="{{ basePath }}/js/onboarding.js"></script>
   <script src="{{ basePath }}/js/custom-icons.js"></script>
 {% endblock %}
