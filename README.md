@@ -216,7 +216,7 @@ Mandant wird mit `scripts/create_tenant.sh` angelegt:
 scripts/create_tenant.sh foo
 ```
 
-Das Skript sendet einen API-Aufruf an `/tenant`, legt die Datei
+Das Skript sendet einen API-Aufruf an `/tenants`, legt die Datei
 `vhost.d/foo.$DOMAIN` an und lädt anschließend den Proxy neu. Zum Entfernen
 eines Mandanten steht `scripts/delete_tenant.sh` bereit:
 

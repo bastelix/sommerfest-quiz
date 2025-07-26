@@ -23,7 +23,7 @@ fi
 curl -s -X POST \
   -H 'Content-Type: application/json' \
   -d "{\"subdomain\":\"$SUBDOMAIN\"}" \
-  "http://$DOMAIN/tenant"
+  "http://$DOMAIN/tenants"
 
 mkdir -p "$BASE_DIR/vhost.d"
 echo "client_max_body_size $CLIENT_MAX_BODY_SIZE;" > "$BASE_DIR/vhost.d/${SUBDOMAIN}.$DOMAIN"
