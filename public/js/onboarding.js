@@ -119,6 +119,18 @@
         document.getElementById('success-pass').textContent =
           'Ihr Admin-Login lautet: admin / ' + data.adminPass;
         show('success');
+        const successEl = document.getElementById('success');
+        if (successEl) {
+          const link = document.createElement('a');
+          link.id = 'success-link';
+          link.className = 'uk-button uk-button-primary uk-margin-top';
+          link.href = 'https://' + data.subdomain + '.quizrace.app';
+          link.textContent = 'Zu Ihrem QuizRace';
+          successEl.appendChild(link);
+          setTimeout(() => {
+            window.location.href = link.href;
+          }, 5000);
+        }
       } catch (err) {
         if (typeof UIkit !== 'undefined') {
           UIkit.notification({ message: 'Fehler beim Anlegen', status: 'danger' });
