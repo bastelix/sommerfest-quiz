@@ -64,6 +64,7 @@
 - Retry database connection
 - *(admin)* Add language selector
 - Manage nginx vhost creation
+- *(onboarding)* Create admin account and show password
 
 ### Fix
 
