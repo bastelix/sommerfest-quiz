@@ -1,6 +1,6 @@
 /* global UIkit */
 (function () {
-  const steps = ['step1', 'step2', 'step3', 'step4', 'success'];
+  const steps = ['login', 'step1', 'step2', 'step3', 'step4', 'success'];
   const data = {
     name: '',
     subdomain: '',
@@ -26,12 +26,35 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    const loginBtn = document.getElementById('login-btn');
+    const loginUser = document.getElementById('login-user');
+    const loginPass = document.getElementById('login-pass');
+    const loginError = document.getElementById('login-error');
+
+    show('login');
+
     const nameInput = document.getElementById('customer-name');
     const subdomainPreview = document.getElementById('subdomain-preview');
     const next1 = document.getElementById('next1');
     const next2 = document.getElementById('next2');
     const next3 = document.getElementById('next3');
     const createBtn = document.getElementById('create');
+
+    loginBtn.addEventListener('click', async () => {
+      loginError.hidden = true;
+      try {
+        const res = await fetch('/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ username: loginUser.value, password: loginPass.value })
+        });
+        if (!res.ok) throw new Error('login');
+        show('step1');
+      } catch (err) {
+        loginError.hidden = false;
+      }
+    });
 
     nameInput.addEventListener('input', () => {
       data.name = nameInput.value.trim();
@@ -63,11 +86,15 @@
         const tenantRes = await fetch('/tenants', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ uid: data.subdomain, schema: data.subdomain })
         });
         if (!tenantRes.ok) throw new Error('tenant');
 
-        const importRes = await fetch('/restore-default', { method: 'POST' });
+        const importRes = await fetch('/restore-default', {
+          method: 'POST',
+          credentials: 'include'
+        });
         if (!importRes.ok) throw new Error('import');
 
         document.getElementById('success-domain').textContent =
