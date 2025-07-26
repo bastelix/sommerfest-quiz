@@ -22,7 +22,21 @@
     {% endblock %}
   {% endembed %}
   <div class="uk-container uk-margin-large-top">
-    <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step1">
+    <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="login">
+      <h3 class="uk-card-title">Login</h3>
+      <div id="login-error" class="uk-alert-danger" uk-alert hidden>
+        <p>Benutzername oder Passwort falsch.</p>
+      </div>
+      <div class="uk-margin">
+        <input id="login-user" class="uk-input" type="text" placeholder="Benutzername" required>
+      </div>
+      <div class="uk-margin">
+        <input id="login-pass" class="uk-input" type="password" placeholder="Passwort" required>
+      </div>
+      <button class="uk-button uk-button-primary" id="login-btn">Login</button>
+    </div>
+
+    <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step1" hidden>
       <h3 class="uk-card-title">1. Kundendaten</h3>
       <div class="uk-margin">
         <input id="customer-name" class="uk-input" type="text" placeholder="Kundenname" required>
