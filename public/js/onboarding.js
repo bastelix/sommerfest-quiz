@@ -42,6 +42,20 @@
     const createBtn = document.getElementById('create');
     const adminPassInput = document.getElementById('admin-pass');
 
+    async function waitForHttps(url) {
+      for (let i = 0; i < 30; i++) {
+        try {
+          await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+          window.location.href = url;
+          return;
+        } catch (e) {
+          // ignore errors until certificate is ready
+        }
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      }
+      window.location.href = url;
+    }
+
     loginBtn.addEventListener('click', async () => {
       loginError.hidden = true;
       try {
@@ -139,9 +153,7 @@
           link.href = 'https://' + data.subdomain + '.quizrace.app';
           link.textContent = 'Zu Ihrem QuizRace';
           successEl.appendChild(link);
-          setTimeout(() => {
-            window.location.href = link.href;
-          }, 5000);
+          waitForHttps(link.href);
         }
       } catch (err) {
         if (typeof UIkit !== 'undefined') {
