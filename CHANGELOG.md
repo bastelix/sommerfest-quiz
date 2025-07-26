@@ -63,6 +63,7 @@
 - *(admin)* Allow editing of FAQ page
 - Retry database connection
 - *(admin)* Add language selector
+- Manage nginx vhost creation
 
 ### Fix
 
