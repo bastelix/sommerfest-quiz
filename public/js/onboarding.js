@@ -92,6 +92,18 @@
       }
       data.adminPass = adminPassInput.value;
       try {
+        const checkRes = await fetch('/tenants/' + encodeURIComponent(data.subdomain), {
+          credentials: 'include'
+        });
+        if (checkRes.ok) {
+          if (typeof UIkit !== 'undefined') {
+            UIkit.notification({ message: 'Subdomain bereits vergeben', status: 'danger' });
+          } else {
+            alert('Subdomain bereits vergeben');
+          }
+          show('step1');
+          return;
+        }
         const tenantRes = await fetch('/tenants', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

@@ -61,4 +61,14 @@ class TenantService
         $del = $this->pdo->prepare('DELETE FROM tenants WHERE uid = ?');
         $del->execute([$uid]);
     }
+
+    /**
+     * Check whether a tenant with the given subdomain exists.
+     */
+    public function exists(string $subdomain): bool
+    {
+        $stmt = $this->pdo->prepare('SELECT 1 FROM tenants WHERE subdomain = ?');
+        $stmt->execute([$subdomain]);
+        return $stmt->fetchColumn() !== false;
+    }
 }
