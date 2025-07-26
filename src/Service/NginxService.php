@@ -34,7 +34,7 @@ class NginxService
         }
         $output = [];
         $status = 0;
-        exec('nginx -s reload 2>&1', $output, $status);
+        exec('docker compose exec nginx nginx -s reload 2>&1', $output, $status);
         if ($status !== 0) {
             throw new \RuntimeException('nginx reload failed: ' . implode("\n", $output));
         }
