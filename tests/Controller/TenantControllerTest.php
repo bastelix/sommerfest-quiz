@@ -136,4 +136,25 @@ class TenantControllerTest extends TestCase
             putenv('MAIN_DOMAIN=' . $old);
         }
     }
+
+    public function testExistsReturns404ForUnknown(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT);');
+        $controller = new TenantController(new TenantService($pdo));
+        $req = $this->createRequest('GET', '/tenants/foo');
+        $res = $controller->exists($req, new Response(), ['subdomain' => 'foo']);
+        $this->assertEquals(404, $res->getStatusCode());
+    }
+
+    public function testExistsReturns200ForExisting(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT);');
+        $pdo->exec("INSERT INTO tenants(uid, subdomain) VALUES('u1', 'bar')");
+        $controller = new TenantController(new TenantService($pdo));
+        $req = $this->createRequest('GET', '/tenants/bar');
+        $res = $controller->exists($req, new Response(), ['subdomain' => 'bar']);
+        $this->assertEquals(200, $res->getStatusCode());
+    }
 }

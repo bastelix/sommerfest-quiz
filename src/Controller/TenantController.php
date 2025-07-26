@@ -44,4 +44,15 @@ class TenantController
         $this->service->deleteTenant((string) $data['uid']);
         return $response->withStatus(204);
     }
+
+    /**
+     * Check if a tenant with the given subdomain already exists.
+     */
+    public function exists(Request $request, Response $response, array $args): Response
+    {
+        $sub = (string) ($args['subdomain'] ?? '');
+        return $this->service->exists($sub)
+            ? $response->withStatus(200)
+            : $response->withStatus(404);
+    }
 }

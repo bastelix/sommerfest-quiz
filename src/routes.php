@@ -319,6 +319,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         return $request->getAttribute('tenantController')->create($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::SERVICE_ACCOUNT));
+
+    $app->get('/tenants/{subdomain}', function (Request $request, Response $response, array $args) {
+        if ($request->getAttribute('domainType') !== 'main') {
+            return $response->withStatus(403);
+        }
+        return $request->getAttribute('tenantController')->exists($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::SERVICE_ACCOUNT));
+
     $app->delete('/tenants', function (Request $request, Response $response) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(403);
