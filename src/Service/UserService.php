@@ -35,8 +35,12 @@ class UserService
     /**
      * Create a new user with the given role.
      */
-    public function create(string $username, string $password, string $role = Roles::CATALOG_EDITOR, bool $active = true): void
-    {
+    public function create(
+        string $username,
+        string $password,
+        string $role = Roles::CATALOG_EDITOR,
+        bool $active = true
+    ): void {
         if (!in_array($role, Roles::ALL, true)) {
             $role = Roles::CATALOG_EDITOR;
         }
