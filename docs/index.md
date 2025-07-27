@@ -49,7 +49,7 @@ curl -X DELETE http://$DOMAIN/tenants \
 
 ### Hinweise zu Umgebungsvariablen
 
-Die Mandanten-Logik nutzt folgende Variablen aus `.env` oder `.env.template`:
+Die Mandanten-Logik nutzt folgende Variablen aus `.env`:
 
 - `DOMAIN` legt die Basis-Domain für alle Mandanten fest.
 - `MAIN_DOMAIN` definiert die Hauptdomain des Quiz-Containers.
