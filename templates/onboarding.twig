@@ -22,7 +22,7 @@
     {% endblock %}
   {% endembed %}
   <div class="uk-container uk-margin-large-top">
-    <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="login">
+    <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="login"{% if logged_in %} hidden{% endif %}>
       <h3 class="uk-card-title">Login</h3>
       <div id="login-error" class="uk-alert-danger" uk-alert hidden>
         <p>Benutzername oder Passwort falsch.</p>
@@ -36,7 +36,7 @@
       <button class="uk-button uk-button-primary" id="login-btn">Login</button>
     </div>
 
-    <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step1" hidden>
+    <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step1"{% if not logged_in %} hidden{% endif %}>
       <h3 class="uk-card-title">1. Kundendaten</h3>
       <div class="uk-margin">
         <input id="customer-name" class="uk-input" type="text" placeholder="Kundenname" required>
@@ -97,7 +97,7 @@
 
 {% block scripts %}
   <script src="{{ basePath }}/js/app.js"></script>
-  <script>window.mainDomain = '{{ main_domain }}';</script>
+  <script>window.mainDomain = '{{ main_domain }}'; window.loggedIn = {{ logged_in ? 'true' : 'false' }};</script>
   <script src="{{ basePath }}/js/onboarding.js"></script>
   <script src="{{ basePath }}/js/custom-icons.js"></script>
 {% endblock %}
