@@ -38,6 +38,17 @@
     const mainDomain = window.mainDomain || '';
     const withBase = p => basePath + p;
 
+    const logMessages = [];
+    const taskLogEl = document.getElementById('task-log');
+    function logMessage(msg) {
+      logMessages.push(msg);
+      if (taskLogEl) {
+        const li = document.createElement('li');
+        li.textContent = msg;
+        taskLogEl.appendChild(li);
+      }
+    }
+
     const nameInput = document.getElementById('customer-name');
     const subdomainPreview = document.getElementById('subdomain-preview');
     const next1 = document.getElementById('next1');
@@ -129,12 +140,14 @@
           body: JSON.stringify({ uid: data.subdomain, schema: data.subdomain })
         });
         if (!tenantRes.ok) throw new Error('tenant');
+        logMessage('Mandant erstellt');
 
         const importRes = await fetch(withBase('/restore-default'), {
           method: 'POST',
           credentials: 'include'
         });
         if (!importRes.ok) throw new Error('import');
+        logMessage('Standardinhalte importiert');
 
         const userRes = await fetch(withBase('/users.json'), {
           method: 'POST',
@@ -143,6 +156,7 @@
           body: JSON.stringify([{ username: 'admin', password: data.adminPass, role: 'admin' }])
         });
         if (!userRes.ok) throw new Error('user');
+        logMessage('Admin-Benutzer angelegt');
 
         document.getElementById('success-domain').textContent =
           data.subdomain + '.' + mainDomain;
@@ -160,6 +174,7 @@
           waitForHttps(link.href);
         }
       } catch (err) {
+        logMessage('Fehler beim Anlegen');
         if (typeof UIkit !== 'undefined') {
           UIkit.notification({ message: 'Fehler beim Anlegen', status: 'danger' });
         } else {
