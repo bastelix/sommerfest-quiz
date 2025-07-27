@@ -37,6 +37,7 @@
 - Update docker setup instructions
 - Clarify php.ini usage
 - Add domain workflow and signup instructions
+- Add nginx onboarding note
 
 ### Feat
 
