@@ -227,6 +227,8 @@ scripts/delete_tenant.sh foo
 Beide Skripte lesen die Variable `DOMAIN` aus `.env` und nutzen sie
 für die vhost-Konfiguration.
 
+Weitere Hinweise zur Abhängigkeit von Docker und zum Flag `NGINX_RELOAD` findest du im Abschnitt [Docker-Abhängigkeit beim Mandanten-Onboarding](docs-jtd/installation.md#tenant-onboarding-docker).
+
 Für den eigentlichen Quiz-Container lässt sich der Hostname über die
 Umgebungsvariable `SLIM_VIRTUAL_HOST` steuern. Starte mehrere Instanzen
 mit unterschiedlichen Werten, werden die Subdomains automatisch als

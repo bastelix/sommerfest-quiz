@@ -50,3 +50,8 @@ gesetzt, versucht die Anwendung, das externe Programm `convert` aus ImageMagick
 installiert sein.
 Im Docker-Container wird ImageMagick bereits installiert.
 
+## Docker-Abhängigkeit beim Mandanten-Onboarding {#tenant-onboarding-docker}
+
+Die Skripte `create_tenant.sh` und `delete_tenant.sh` richten neue Subdomains ein und laden danach den Reverse Proxy neu. Sie gehen davon aus, dass ein nginx-Container über Docker Compose läuft. Ohne diesen Container schlägt der Reload-Befehl fehl.
+
+Ist Docker nicht verfügbar oder wird der Proxy anderweitig betrieben, kann der Reload über die Umgebungsvariable `NGINX_RELOAD` deaktiviert werden. Setze sie auf `0`, um nur die Vhost-Dateien anzulegen. Der Proxy muss dann manuell neu geladen werden.
