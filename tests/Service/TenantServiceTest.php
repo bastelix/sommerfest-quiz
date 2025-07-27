@@ -10,7 +10,7 @@ use PDO;
 
 class TenantServiceTest extends TestCase
 {
-    private function createService(string $dir, PDO &$pdo): TenantService
+    private function createService(string $dir, PDO &$pdo, ?\App\Service\NginxService $nginx = null): TenantService
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -42,15 +42,17 @@ CREATE TABLE question_results(
 );
 SQL;
         file_put_contents($dir . '/20240910_base_schema.sql', $sql);
-        $nginx = new class extends \App\Service\NginxService {
-            public function __construct()
-            {
-            }
+        if ($nginx === null) {
+            $nginx = new class extends \App\Service\NginxService {
+                public function __construct()
+                {
+                }
 
-            public function createVhost(string $sub): void
-            {
-            }
-        };
+                public function createVhost(string $sub): void
+                {
+                }
+            };
+        }
         return new TenantService($pdo, $dir, $nginx);
     }
 
@@ -84,5 +86,28 @@ SQL;
         $this->assertSame(1, (int) $pdo->query('SELECT COUNT(*) FROM tenants')->fetchColumn());
         $service->deleteTenant('u3');
         $this->assertSame(0, (int) $pdo->query('SELECT COUNT(*) FROM tenants')->fetchColumn());
+    }
+
+    public function testCreateTenantThrowsOnNginxFailure(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+        $nginx = new class extends \App\Service\NginxService {
+            public function __construct()
+            {
+            }
+
+            public function createVhost(string $sub): void
+            {
+                throw new \RuntimeException('reload failed');
+            }
+        };
+
+        $service = $this->createService($dir, $pdo, $nginx);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Nginx reload failed');
+
+        $service->createTenant('u4', 's4');
     }
 }

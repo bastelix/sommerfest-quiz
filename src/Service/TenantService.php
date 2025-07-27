@@ -40,7 +40,12 @@ class TenantService
         $stmt->execute([$uid, $schema]);
 
         if ($this->nginxService !== null) {
-            $this->nginxService->createVhost($schema);
+            try {
+                $this->nginxService->createVhost($schema);
+            } catch (\RuntimeException $e) {
+                error_log('Failed to reload nginx: ' . $e->getMessage());
+                throw new \RuntimeException('Nginx reload failed – check Docker installation', 0, $e);
+            }
         }
     }
 
