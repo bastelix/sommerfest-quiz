@@ -156,7 +156,7 @@ einen Standardwert für Skripte wie `scripts/create_tenant.sh`.
 
 Zum Start genügt:
 ```bash
-cp .env.template .env
+cp sample.env .env
 docker compose up --build -d
 ```
 Beenden lässt sich der Stack mit:
@@ -315,9 +315,9 @@ Das Projekt *QuizRace* ist eine Web-Applikation zur Erstellung und Verwaltung vo
    composer install
    ```
    Beim ersten Aufruf wird eine `composer.lock` erzeugt und alle benötigten Bibliotheken geladen.
-2. Die Beispieldatei `.env.template` in `.env` kopieren und bei Bedarf anpassen:
+2. Die Beispieldatei `sample.env` in `.env` kopieren und bei Bedarf anpassen:
    ```bash
-   cp .env.template .env
+   cp sample.env .env
    ```
 3. Lokalen Server starten:
    ```bash
