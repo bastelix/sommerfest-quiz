@@ -241,6 +241,8 @@ Weitere nützliche Variablen in `.env` sind:
 - `LETSENCRYPT_EMAIL` – Kontaktadresse für die automatische Zertifikatserstellung.
 - `MAIN_DOMAIN` – zentrale Domain des Quiz-Containers (z.B. `quizrace.app`).
 - `BASE_PATH` – optionaler Basis-Pfad, falls die Anwendung nicht im Root der Domain liegt.
+- `SERVICE_USER` – Benutzername für den automatischen Login des Onboarding-Assistenten.
+- `SERVICE_PASS` – Passwort dieses Service-Benutzers.
 
 ## Anpassung
 

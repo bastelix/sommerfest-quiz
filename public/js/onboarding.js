@@ -32,7 +32,8 @@
     const loginPass = document.getElementById('login-pass');
     const loginError = document.getElementById('login-error');
 
-    show('login');
+    const loggedIn = window.loggedIn === true || window.loggedIn === 'true';
+    show(loggedIn ? 'step1' : 'login');
 
     const basePath = window.basePath || '';
     const mainDomain = window.mainDomain || '';
@@ -71,21 +72,23 @@
       window.location.href = url;
     }
 
-    loginBtn.addEventListener('click', async () => {
-      loginError.hidden = true;
-      try {
-        const res = await fetch(withBase('/login'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ username: loginUser.value, password: loginPass.value })
-        });
-        if (!res.ok) throw new Error('login');
-        show('step1');
-      } catch (err) {
-        loginError.hidden = false;
-      }
-    });
+    if (loginBtn) {
+      loginBtn.addEventListener('click', async () => {
+        loginError.hidden = true;
+        try {
+          const res = await fetch(withBase('/login'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ username: loginUser.value, password: loginPass.value })
+          });
+          if (!res.ok) throw new Error('login');
+          show('step1');
+        } catch (err) {
+          loginError.hidden = false;
+        }
+      });
+    }
 
     nameInput.addEventListener('input', () => {
       data.name = nameInput.value.trim();
