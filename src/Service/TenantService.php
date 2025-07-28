@@ -32,7 +32,7 @@ class TenantService
             Migrator::migrate($this->pdo, $this->migrationsDir);
         } else {
             $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $schema));
-            $this->pdo->exec(sprintf('SET search_path TO "%s"', $schema));
+            $this->pdo->exec(sprintf('SET search_path TO "%s", public', $schema));
             Migrator::migrate($this->pdo, $this->migrationsDir);
             $this->pdo->exec('SET search_path TO public');
         }
