@@ -152,4 +152,5 @@ return [
     'action_refresh' => 'Refresh',
     'action_open_evaluation' => 'Open evaluation',
     'action_download' => 'Download',
+    'help_admin_pass' => 'Defines the admin password for the new tenant. Leave empty to generate a random one',
 ];

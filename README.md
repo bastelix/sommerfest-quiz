@@ -244,6 +244,9 @@ Weitere nützliche Variablen in `.env` sind:
 - `SERVICE_USER` – Benutzername für den automatischen Login des Onboarding-Assistenten.
 - `SERVICE_PASS` – Passwort dieses Service-Benutzers.
 
+Bei der Mandanten-Erstellung fragt der Onboarding-Assistent nach einem Admin-Passwort.
+Bleibt das Feld leer, erzeugt die Anwendung automatisch ein sicheres Passwort und zeigt es nach der Einrichtung an.
+
 ## Anpassung
 
 Alle wichtigen Einstellungen finden Sie in `data/config.json`. Ändern Sie hier Logo, Farben oder die Verwendung des QR-Code-Logins. Die Fragen selbst liegen in `data/kataloge/*.json` und können mit jedem Texteditor angepasst werden. Jede Katalogdefinition besitzt weiterhin ein `slug` für die URL. Fragen verknüpfen den Katalog nun über `catalog_uid`. Das bisherige `id` dient ausschließlich der Sortierung und wird automatisch vergeben.

@@ -152,13 +152,20 @@
     });
 
     createBtn.addEventListener('click', async () => {
-      if (!adminPassInput || adminPassInput.value === '') {
-        if (typeof UIkit !== 'undefined') {
-          UIkit.notification({ message: 'Passwort angeben', status: 'danger' });
-        }
+      if (!adminPassInput) {
         return;
       }
-      data.adminPass = adminPassInput.value;
+
+      let pass = adminPassInput.value;
+      if (pass === '') {
+        const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const array = new Uint32Array(16);
+        crypto.getRandomValues(array);
+        pass = Array.from(array, x => charset[x % charset.length]).join('');
+        adminPassInput.value = pass;
+      }
+
+      data.adminPass = pass;
 
       show('success');
       initTaskList();
