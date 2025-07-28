@@ -123,6 +123,19 @@ class ConfigService
     }
 
     /**
+     * Allowed HTML tags for invitation texts.
+     */
+    private const ALLOWED_HTML_TAGS = '<p><br><strong><b><em><i><h2><h3><h4><h5>';
+
+    /**
+     * Remove unwanted HTML tags from user provided text.
+     */
+    public static function sanitizeHtml(string $html): string
+    {
+        return strip_tags($html, self::ALLOWED_HTML_TAGS);
+    }
+
+    /**
      * Replace stored configuration with new values.
      */
     public function saveConfig(array $data): void
