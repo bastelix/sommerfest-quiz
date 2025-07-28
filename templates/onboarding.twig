@@ -85,12 +85,13 @@
       <button class="uk-button uk-button-primary" id="create">Jetzt QuizRace-Umgebung erstellen</button>
     </div>
 
-    <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-1-2@m uk-margin-auto uk-text-center" id="success" hidden>
-      <h3 class="uk-card-title">Ihre QuizRace-Umgebung ist bereit!</h3>
-      <p id="success-domain"></p>
-      <p id="success-pass"></p>
-      <p>Die Subdomain ist in wenigen Minuten erreichbar, sobald das SSL-Zertifikat erstellt wurde.</p>
-      <ul id="task-log"></ul>
+    <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="success" hidden>
+      <h3 class="uk-card-title">Erstellung der Umgebung</h3>
+      <p id="success-domain" hidden></p>
+      <p id="success-pass" hidden></p>
+      <p id="success-info">Die Subdomain ist in wenigen Minuten erreichbar, sobald das SSL-Zertifikat erstellt wurde.</p>
+      <ul id="task-status" class="uk-list uk-text-left"></ul>
+      <ul id="task-log" class="uk-list uk-text-left uk-margin-top"></ul>
     </div>
   </div>
 {% endblock %}
