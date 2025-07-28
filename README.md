@@ -273,16 +273,12 @@ Vorschau lässt sich direkt im Modal aufrufen.
 
 ## Tests
 
-PHP-Tests werden mit PHPUnit ausgeführt:
+Alle Tests lassen sich gesammelt über Composer ausführen:
 ```bash
-vendor/bin/phpunit
+composer test
 ```
 
-Zusätzlich prüfen Python-Skripte die Gültigkeit der HTML- und JSON-Dateien:
-```bash
-python3 tests/test_html_validity.py
-python3 tests/test_json_validity.py
-```
+Im Hintergrund ruft dieser Befehl PHPUnit sowie zwei Python-Prüfskripte auf.
 
 ## Teams/Personen
 
