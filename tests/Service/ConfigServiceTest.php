@@ -78,4 +78,18 @@ class ConfigServiceTest extends TestCase
         $this->assertNull($service->getJson());
         $this->assertEquals([], $service->getConfig());
     }
+
+    public function testSanitizeHtmlRemovesDisallowedTags(): void
+    {
+        $html = '<p>Hello</p><script>alert(1)</script><img src="x"><a href="#">Link</a>';
+        $result = ConfigService::sanitizeHtml($html);
+        $this->assertSame('<p>Hello</p>Link', $result);
+    }
+
+    public function testSanitizeHtmlAllowsConfiguredTags(): void
+    {
+        $html = '<p><br><strong>Bold</strong><b>B</b><em>E</em><i>I</i><h2>T</h2><h3>T3</h3><h4>T4</h4><h5>T5</h5></p>';
+        $result = ConfigService::sanitizeHtml($html);
+        $this->assertSame($html, $result);
+    }
 }

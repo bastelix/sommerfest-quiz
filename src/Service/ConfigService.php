@@ -163,6 +163,10 @@ class ConfigService
         $uid = (string)($filtered['event_uid'] ?? $this->getActiveEventUid());
         $filtered['event_uid'] = $uid;
 
+        if (isset($filtered['inviteText'])) {
+            $filtered['inviteText'] = self::sanitizeHtml((string) $filtered['inviteText']);
+        }
+
         $this->pdo->beginTransaction();
         $check = $this->pdo->prepare('SELECT 1 FROM config WHERE event_uid=?');
         $check->execute([$uid]);
