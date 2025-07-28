@@ -41,6 +41,39 @@
 
     const logMessages = [];
     const taskLogEl = document.getElementById('task-log');
+    const taskStatusEl = document.getElementById('task-status');
+    const tasks = [
+      { key: 'tenant', label: 'Mandant erstellen' },
+      { key: 'import', label: 'Standardinhalte importieren' },
+      { key: 'user', label: 'Admin-Benutzer anlegen' }
+    ];
+
+    function initTaskList() {
+      if (!taskStatusEl || taskStatusEl.children.length > 0) return;
+      tasks.forEach(t => {
+        const li = document.createElement('li');
+        li.id = `task-${t.key}`;
+        li.innerHTML = `<span class="status">⏳</span> ${t.label}`;
+        taskStatusEl.appendChild(li);
+      });
+    }
+
+    function setTaskStatus(key, status) {
+      const li = document.getElementById(`task-${key}`);
+      if (!li) return;
+      const span = li.querySelector('.status');
+      if (!span) return;
+      if (status === 'done') {
+        span.textContent = '✓';
+        li.classList.add('uk-text-success');
+      } else if (status === 'failed') {
+        span.textContent = '✗';
+        li.classList.add('uk-text-danger');
+      } else {
+        span.textContent = '⏳';
+      }
+    }
+
     function logMessage(msg) {
       logMessages.push(msg);
       if (taskLogEl) {
@@ -57,6 +90,9 @@
     const next3 = document.getElementById('next3');
     const createBtn = document.getElementById('create');
     const adminPassInput = document.getElementById('admin-pass');
+    const successDomain = document.getElementById('success-domain');
+    const successPass = document.getElementById('success-pass');
+    const successInfo = document.getElementById('success-info');
 
     async function waitForHttps(url) {
       for (let i = 0; i < 30; i++) {
@@ -123,51 +159,84 @@
         return;
       }
       data.adminPass = adminPassInput.value;
+
+      show('success');
+      initTaskList();
+      if (taskLogEl) taskLogEl.innerHTML = '';
+      logMessages.length = 0;
+      tasks.forEach(t => setTaskStatus(t.key, 'pending'));
+
       try {
+        logMessage('Pruefe Subdomain...');
         const checkRes = await fetch(withBase('/tenants/' + encodeURIComponent(data.subdomain)), {
           credentials: 'include'
         });
         if (checkRes.ok) {
+          logMessage('Subdomain bereits vergeben');
+          setTaskStatus('tenant', 'failed');
           if (typeof UIkit !== 'undefined') {
             UIkit.notification({ message: 'Subdomain bereits vergeben', status: 'danger' });
-          } else {
-            alert('Subdomain bereits vergeben');
           }
-          show('step1');
           return;
         }
+
+        logMessage('Mandant wird erstellt...');
         const tenantRes = await fetch(withBase('/tenants'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify({ uid: data.subdomain, schema: data.subdomain })
         });
-        if (!tenantRes.ok) throw new Error('tenant');
+        if (!tenantRes.ok) {
+          const text = await tenantRes.text();
+          logMessage('Fehler Mandant: ' + text);
+          setTaskStatus('tenant', 'failed');
+          throw new Error(text || 'tenant');
+        }
+        setTaskStatus('tenant', 'done');
         logMessage('Mandant erstellt');
 
+        logMessage('Importiere Standardinhalte...');
         const importRes = await fetch(withBase('/restore-default'), {
           method: 'POST',
           credentials: 'include'
         });
-        if (!importRes.ok) throw new Error('import');
+        if (!importRes.ok) {
+          const text = await importRes.text();
+          logMessage('Fehler Import: ' + text);
+          setTaskStatus('import', 'failed');
+          throw new Error(text || 'import');
+        }
+        setTaskStatus('import', 'done');
         logMessage('Standardinhalte importiert');
 
+        logMessage('Lege Admin-Benutzer an...');
         const userRes = await fetch(withBase('/users.json'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify([{ username: 'admin', password: data.adminPass, role: 'admin' }])
         });
-        if (!userRes.ok) throw new Error('user');
+        if (!userRes.ok) {
+          const text = await userRes.text();
+          logMessage('Fehler Benutzer: ' + text);
+          setTaskStatus('user', 'failed');
+          throw new Error(text || 'user');
+        }
+        setTaskStatus('user', 'done');
         logMessage('Admin-Benutzer angelegt');
 
-        document.getElementById('success-domain').textContent =
-          data.subdomain + '.' + mainDomain;
-        document.getElementById('success-pass').textContent =
-          'Ihr Admin-Login lautet: admin / ' + data.adminPass;
-        show('success');
+        if (successDomain) {
+          successDomain.textContent = data.subdomain + '.' + mainDomain;
+          successDomain.hidden = false;
+        }
+        if (successPass) {
+          successPass.textContent = 'Ihr Admin-Login lautet: admin / ' + data.adminPass;
+          successPass.hidden = false;
+        }
+
         const successEl = document.getElementById('success');
-        if (successEl) {
+        if (successEl && !document.getElementById('success-link')) {
           const link = document.createElement('a');
           link.id = 'success-link';
           link.className = 'uk-button uk-button-primary uk-margin-top';
@@ -177,7 +246,7 @@
           waitForHttps(link.href);
         }
       } catch (err) {
-        logMessage('Fehler beim Anlegen');
+        logMessage('Fehler beim Anlegen: ' + (err.message || err));
         if (typeof UIkit !== 'undefined') {
           UIkit.notification({ message: 'Fehler beim Anlegen', status: 'danger' });
         } else {
