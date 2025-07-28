@@ -37,5 +37,7 @@ Das hochgeladene Logo wird in `data/` gespeichert und über `logoPath` referenzi
 
 Optional kann `baseUrl` gesetzt werden, um in QR-Codes komplette Links zu erzeugen. `QRRemember` merkt sich gescannte Namen und zeigt den Anmeldedialog nicht erneut an. Der Parameter `competitionMode` verhindert Wiederholungen bereits gelöster Kataloge. Über `teamResults` wird gesteuert, ob Teams ihre Ergebnisse einsehen dürfen, und `photoUpload` aktiviert den Upload von Beweisfotos. `puzzleWordEnabled` schaltet das Rätselwort frei und `puzzleFeedback` definiert den Erfolgshinweis nach der Lösung.
 
+`inviteText` erlaubt ein optionales Anschreiben für Teams. Zur Sicherheit werden nur die HTML-Tags `<p>`, `<br>`, `<strong>`, `<em>` sowie `<h2>` bis `<h5>` übernommen. Alle anderen Tags werden automatisch entfernt.
+
 Konfigurationswerte können per GET auf `/config.json` abgerufen und per POST aktualisiert werden.
 

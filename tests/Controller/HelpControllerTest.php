@@ -79,4 +79,43 @@ class HelpControllerTest extends TestCase
 
         unlink($dbFile);
     }
+
+    public function testInviteTextIsSanitized(): void
+    {
+        $dbFile = tempnam(sys_get_temp_dir(), 'db');
+        $pdo = new \PDO('sqlite:' . $dbFile);
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                inviteText TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            'CREATE TABLE events(' .
+            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT' .
+            ');'
+        );
+        $pdo->exec("INSERT INTO events(uid,name) VALUES('1','Event')");
+        $pdo->exec(
+            "INSERT INTO config(inviteText, event_uid) VALUES('<script>alert(1)</script>Hi [TEAM]','1')"
+        );
+
+        putenv('POSTGRES_DSN=sqlite:' . $dbFile);
+        putenv('POSTGRES_USER=');
+        putenv('POSTGRES_PASSWORD=');
+        $_ENV['POSTGRES_DSN'] = 'sqlite:' . $dbFile;
+        $_ENV['POSTGRES_USER'] = '';
+        $_ENV['POSTGRES_PASSWORD'] = '';
+
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/help');
+        $response = $app->handle($request);
+
+        $this->assertStringNotContainsString('<script', (string)$response->getBody());
+
+        unlink($dbFile);
+    }
 }

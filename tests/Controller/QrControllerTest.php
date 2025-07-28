@@ -158,6 +158,42 @@ class QrControllerTest extends TestCase
         $this->assertStringContainsString('Event', $pdf);
     }
 
+    public function testInviteTextIsSanitizedInPdf(): void
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                inviteText TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            'CREATE TABLE events(' .
+            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT' .
+            ');'
+        );
+        $pdo->exec("INSERT INTO events(uid,name,description) VALUES('1','Event','Desc')");
+        $pdo->exec(
+            "INSERT INTO config(inviteText, event_uid) VALUES('<script>evil()</script>Hi [TEAM]','1')"
+        );
+
+        $cfg = new \App\Service\ConfigService($pdo);
+        $cfg->setActiveEventUid('1');
+        $teams = new \App\Service\TeamService($pdo, $cfg);
+        $events = new \App\Service\EventService($pdo);
+        $catalogs = new \App\Service\CatalogService($pdo, $cfg);
+        $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs);
+
+        $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo']);
+        $response = $qr->pdf($req, new Response());
+        $pdf = (string)$response->getBody();
+
+        $this->assertStringNotContainsString('<script', $pdf);
+    }
+
     public function testAllInvitationsPdfIsGenerated(): void
     {
         $pdo = new \PDO('sqlite::memory:');

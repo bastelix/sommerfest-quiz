@@ -221,6 +221,7 @@ class QrController
         $pdf->SetXY(10, $pdf->getBodyStartY());
         $invite = (string)($cfg['inviteText'] ?? '');
         if ($invite !== '') {
+            $invite = ConfigService::sanitizeHtml($invite);
             $team = (string)($params['t'] ?? '');
             if ($team === '') {
                 $team = 'Team';
@@ -322,6 +323,7 @@ class QrController
             $pdf->SetXY(10, $pdf->getBodyStartY());
             $invite = (string)($cfg['inviteText'] ?? '');
             if ($invite !== '') {
+                $invite = ConfigService::sanitizeHtml($invite);
                 $invite = str_ireplace('[team]', $team ?: 'Team', $invite);
                 $invite = str_ireplace('[event_name]', (string)($ev['name'] ?? ''), $invite);
                 $invite = str_ireplace('[event_start]', (string)($ev['start_date'] ?? ''), $invite);
