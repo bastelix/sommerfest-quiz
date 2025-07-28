@@ -422,6 +422,38 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('summaryController')($request, $response);
     });
 
+    $app->post('/nginx-reload', function (Request $request, Response $response) {
+        $token = $request->getHeaderLine('X-Token');
+        $expected = $_ENV['NGINX_RELOAD_TOKEN'] ?? 'changeme';
+        $containerName = $_ENV['NGINX_CONTAINER'] ?? 'nginx';
+
+        if ($token !== $expected) {
+            $response->getBody()->write(json_encode(['error' => 'Unauthorized']));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(403);
+        }
+
+        $cmd = escapeshellcmd("docker exec {$containerName} nginx -s reload 2>&1");
+        exec($cmd, $output, $exitCode);
+
+        if ($exitCode !== 0) {
+            $response->getBody()->write(json_encode([
+                'error' => 'Reload failed',
+                'details' => implode("\n", $output),
+            ]));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $response->getBody()->write(json_encode(['status' => 'nginx reloaded']));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    });
+
     $app->get('/database', function (Request $request, Response $response) {
         $uri = $request->getUri();
         $location = 'https://adminer.' . $uri->getHost();

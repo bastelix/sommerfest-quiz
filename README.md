@@ -243,6 +243,8 @@ Weitere nützliche Variablen in `.env` sind:
 - `BASE_PATH` – optionaler Basis-Pfad, falls die Anwendung nicht im Root der Domain liegt.
 - `SERVICE_USER` – Benutzername für den automatischen Login des Onboarding-Assistenten.
 - `SERVICE_PASS` – Passwort dieses Service-Benutzers.
+- `NGINX_RELOAD_TOKEN` – geheimes Token für den Endpunkt `/nginx-reload`.
+- `NGINX_CONTAINER` – Name des Proxy-Containers (Standard `nginx`).
 
 Bei der Mandanten-Erstellung fragt der Onboarding-Assistent nach einem Admin-Passwort.
 Bleibt das Feld leer, erzeugt die Anwendung automatisch ein sicheres Passwort und zeigt es nach der Einrichtung an.

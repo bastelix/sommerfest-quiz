@@ -55,3 +55,4 @@ Im Docker-Container wird ImageMagick bereits installiert.
 Die Skripte `create_tenant.sh` und `delete_tenant.sh` richten neue Subdomains ein und laden danach den Reverse Proxy neu. Sie gehen davon aus, dass ein nginx-Container über Docker Compose läuft. Ohne diesen Container schlägt der Reload-Befehl fehl.
 
 Ist Docker nicht verfügbar oder wird der Proxy anderweitig betrieben, kann der Reload über die Umgebungsvariable `NGINX_RELOAD` deaktiviert werden. Setze sie auf `0`, um nur die Vhost-Dateien anzulegen. Der Proxy muss dann manuell neu geladen werden.
+Alternativ lässt sich der Reload über den geschützten Endpunkt `/nginx-reload` anstoßen. Setze dafür `NGINX_RELOAD_TOKEN` in `.env` und passe bei Bedarf `NGINX_CONTAINER` an.
