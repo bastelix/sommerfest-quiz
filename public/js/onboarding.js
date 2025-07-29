@@ -37,6 +37,7 @@
 
     const basePath = window.basePath || '';
     const mainDomain = window.mainDomain || '';
+    const reloadToken = window.reloadToken || '';
     const withBase = p => basePath + p;
 
     const logMessages = [];
@@ -47,6 +48,9 @@
       { key: 'import', label: 'Standardinhalte importieren' },
       { key: 'user', label: 'Admin-Benutzer anlegen' }
     ];
+    if (reloadToken) {
+      tasks.push({ key: 'reload', label: 'Proxy neu laden' });
+    }
 
     function initTaskList() {
       if (!taskStatusEl || taskStatusEl.children.length > 0) return;
@@ -232,6 +236,23 @@
         }
         setTaskStatus('user', 'done');
         logMessage('Admin-Benutzer angelegt');
+
+        if (reloadToken) {
+          logMessage('Proxy wird neu geladen...');
+          const reloadRes = await fetch(withBase('/nginx-reload'), {
+            method: 'POST',
+            headers: { 'X-Token': reloadToken },
+            credentials: 'include'
+          });
+          const json = await reloadRes.json().catch(() => ({}));
+          if (!reloadRes.ok) {
+            logMessage('Fehler Reload: ' + (json.details || json.error || ''));
+            setTaskStatus('reload', 'failed');
+            throw new Error(json.error || 'reload');
+          }
+          setTaskStatus('reload', 'done');
+          logMessage(json.status || 'Proxy neu geladen');
+        }
 
         if (successDomain) {
           successDomain.textContent = data.subdomain + '.' + mainDomain;
