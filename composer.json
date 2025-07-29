@@ -23,5 +23,12 @@
         "phpunit/phpunit": "^10.0",
         "phpstan/phpstan": "^2.1",
         "squizlabs/php_codesniffer": "^3.13"
+    },
+    "scripts": {
+        "test": [
+            "phpunit",
+            "python3 tests/test_html_validity.py",
+            "pytest tests/test_json_validity.py"
+        ]
     }
 }
