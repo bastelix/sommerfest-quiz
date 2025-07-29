@@ -44,9 +44,16 @@ class OnboardingController
 
         $loggedIn = isset($_SESSION['user']);
 
-        return $view->render($response, 'onboarding.twig', [
-            'main_domain' => $mainDomain,
-            'logged_in' => $loggedIn,
-        ]);
+        $reloadToken = getenv('NGINX_RELOAD_TOKEN') ?: '';
+
+        return $view->render(
+            $response,
+            'onboarding.twig',
+            [
+                'main_domain' => $mainDomain,
+                'logged_in' => $loggedIn,
+                'reload_token' => $reloadToken,
+            ]
+        );
     }
 }
