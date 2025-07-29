@@ -137,7 +137,22 @@
       next1.disabled = data.name === '';
     });
 
-    next1.addEventListener('click', () => {
+    next1.addEventListener('click', async () => {
+      try {
+        const checkRes = await fetch(withBase('/tenants/' + encodeURIComponent(data.subdomain)), {
+          credentials: 'include'
+        });
+        if (checkRes.ok) {
+          if (typeof UIkit !== 'undefined') {
+            UIkit.notification({ message: 'Subdomain bereits vergeben', status: 'danger' });
+          } else {
+            alert('Subdomain bereits vergeben');
+          }
+          return;
+        }
+      } catch (e) {
+        // ignore errors and continue to next step
+      }
       show('step2');
     });
 
