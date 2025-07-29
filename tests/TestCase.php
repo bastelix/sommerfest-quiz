@@ -60,7 +60,14 @@ class TestCase extends PHPUnit_TestCase
         $app->add(new \App\Application\Middleware\LanguageMiddleware($translator));
 
         // Register error middleware
-        $app->addErrorMiddleware((bool)($settings['displayErrorDetails'] ?? false), true, true);
+        $errorMiddleware = new \App\Application\Middleware\ErrorMiddleware(
+            $app->getCallableResolver(),
+            $app->getResponseFactory(),
+            (bool)($settings['displayErrorDetails'] ?? false),
+            true,
+            false
+        );
+        $app->add($errorMiddleware);
 
         // Register routes
         $routes = require __DIR__ . '/../src/routes.php';
