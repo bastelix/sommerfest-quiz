@@ -45,6 +45,13 @@ $app->add(TwigMiddleware::create($app, $twig));
 $app->add(new SessionMiddleware());
 $app->add(new DomainMiddleware());
 
-$app->addErrorMiddleware((bool)($settings['displayErrorDetails'] ?? false), true, true);
+$errorMiddleware = new \App\Application\Middleware\ErrorMiddleware(
+    $app->getCallableResolver(),
+    $app->getResponseFactory(),
+    (bool)($settings['displayErrorDetails'] ?? false),
+    true,
+    false
+);
+$app->add($errorMiddleware);
 (require __DIR__ . '/../src/routes.php')($app, $translator);
 $app->run();
