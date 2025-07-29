@@ -47,6 +47,7 @@ use App\Controller\TenantController;
 use App\Controller\Marketing\LandingController;
 use App\Controller\RegisterController;
 use App\Controller\OnboardingController;
+use GuzzleHttp\Client;
 use Psr\Log\NullLogger;
 use App\Controller\BackupController;
 use App\Domain\Roles;
@@ -426,6 +427,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $token = $request->getHeaderLine('X-Token');
         $expected = $_ENV['NGINX_RELOAD_TOKEN'] ?? 'changeme';
         $containerName = $_ENV['NGINX_CONTAINER'] ?? 'nginx';
+        $reloaderUrl = $_ENV['NGINX_RELOADER_URL'] ?? '';
 
         if ($token !== $expected) {
             $response->getBody()->write(json_encode(['error' => 'Unauthorized']));
@@ -433,6 +435,31 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(403);
+        }
+
+        if ($reloaderUrl !== '') {
+            $client = $request->getAttribute('httpClient');
+            if (!$client instanceof Client) {
+                $client = new Client();
+            }
+            try {
+                $client->post($reloaderUrl, [
+                    'headers' => ['X-Token' => $expected],
+                ]);
+            } catch (\Throwable $e) {
+                $response->getBody()->write(json_encode([
+                    'error' => 'Reload failed',
+                    'details' => $e->getMessage(),
+                ]));
+
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(500);
+            }
+
+            $response->getBody()->write(json_encode(['status' => 'nginx reloaded']));
+
+            return $response->withHeader('Content-Type', 'application/json');
         }
 
         $cmd = escapeshellcmd("docker exec {$containerName} nginx -s reload 2>&1");

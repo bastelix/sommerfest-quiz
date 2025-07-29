@@ -12,7 +12,8 @@
         "setasign/fpdi": "^2.6",
         "endroid/qr-code": "^5.0",
         "intervention/image": "^2.7",
-        "ext-exif": "*"
+        "ext-exif": "*",
+        "guzzlehttp/guzzle": "^7"
     },
     "autoload": {
         "psr-4": {

@@ -139,7 +139,7 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
 
 ## Docker Compose
 
-Das mitgelieferte `docker-compose.yml` startet das Quiz samt Reverse Proxy. Ein kleiner Zusatzcontainer (`nginx-reloader`) ermöglicht einen geschützten Reload des Proxys per Webhook.
+Das mitgelieferte `docker-compose.yml` startet das Quiz samt Reverse Proxy. Ein kleiner Zusatzcontainer (`nginx-reloader`) ermöglicht einen geschützten Reload des Proxys per Webhook. Alternativ kann jede beliebige URL über die Variable `NGINX_RELOADER_URL` hinterlegt werden.
 Zertifikate und Konfigurationen werden komplett in benannten Volumes
 gespeichert. Dadurch bleiben alle Daten auch nach `docker compose down`
 erhalten und es sind keine manuellen Ordner erforderlich. Zusätzlich läuft ein
@@ -245,6 +245,7 @@ Weitere nützliche Variablen in `.env` sind:
 - `SERVICE_PASS` – Passwort dieses Service-Benutzers.
 - `NGINX_RELOAD_TOKEN` – Token für den Webhook `http://nginx-reloader:8080/reload`.
 - `NGINX_CONTAINER` – Name des Proxy-Containers (Standard `nginx`).
+- `NGINX_RELOADER_URL` – URL eines externen Webhooks für den Proxy-Reload.
 
 Bei der Mandanten-Erstellung fragt der Onboarding-Assistent nach einem Admin-Passwort.
 Bleibt das Feld leer, erzeugt die Anwendung automatisch ein sicheres Passwort und zeigt es nach der Einrichtung an.
