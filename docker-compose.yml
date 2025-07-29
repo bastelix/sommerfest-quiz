@@ -114,6 +114,16 @@ services:
     networks:
       - webproxy
 
+  nginx-reloader:
+    build: ./nginx-reloader
+    environment:
+      - NGINX_RELOAD_TOKEN=supersecrettoken
+      - NGINX_CONTAINER=nginx
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - webproxy
+
 networks:
   webproxy:
 
