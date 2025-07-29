@@ -28,6 +28,9 @@ class TenantService
      */
     public function createTenant(string $uid, string $schema): void
     {
+        if ($this->exists($schema)) {
+            throw new \RuntimeException('tenant-exists');
+        }
         if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
             Migrator::migrate($this->pdo, $this->migrationsDir);
         } else {
@@ -74,6 +77,18 @@ class TenantService
     {
         $stmt = $this->pdo->prepare('SELECT 1 FROM tenants WHERE subdomain = ?');
         $stmt->execute([$subdomain]);
-        return $stmt->fetchColumn() !== false;
+        if ($stmt->fetchColumn() !== false) {
+            return true;
+        }
+
+        if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'sqlite') {
+            $check = $this->pdo->prepare('SELECT schema_name FROM information_schema.schemata WHERE schema_name = ?');
+            $check->execute([$subdomain]);
+            if ($check->fetchColumn() !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
