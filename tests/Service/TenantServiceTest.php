@@ -110,4 +110,17 @@ SQL;
 
         $service->createTenant('u4', 's4');
     }
+
+    public function testCreateTenantFailsOnDuplicate(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+        $service = $this->createService($dir, $pdo);
+        $service->createTenant('u5', 'dup');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('tenant-exists');
+
+        $service->createTenant('u5b', 'dup');
+    }
 }

@@ -200,7 +200,14 @@
         });
         if (!tenantRes.ok) {
           const text = await tenantRes.text();
-          logMessage('Fehler Mandant: ' + text);
+          if (tenantRes.status === 409) {
+            logMessage('Subdomain bereits vergeben');
+            if (typeof UIkit !== 'undefined') {
+              UIkit.notification({ message: 'Subdomain bereits vergeben', status: 'danger' });
+            }
+          } else {
+            logMessage('Fehler Mandant: ' + text);
+          }
           setTaskStatus('tenant', 'failed');
           throw new Error(text || 'tenant');
         }

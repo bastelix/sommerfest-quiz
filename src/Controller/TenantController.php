@@ -29,8 +29,12 @@ class TenantController
         try {
             $this->service->createTenant((string) $data['uid'], (string) $data['schema']);
         } catch (\RuntimeException $e) {
-            $response->getBody()->write($e->getMessage());
-            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
+            $msg = $e->getMessage();
+            $status = $msg === 'tenant-exists' ? 409 : 500;
+            if ($status !== 409) {
+                $response->getBody()->write($msg);
+            }
+            return $response->withStatus($status)->withHeader('Content-Type', 'text/plain');
         }
         return $response->withStatus(201);
     }
