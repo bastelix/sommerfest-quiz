@@ -4,23 +4,35 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
+
 class NginxService
 {
     private string $vhostDir;
     private string $domain;
     private string $clientMaxBodySize;
     private bool $reload;
+    private string $reloaderUrl;
+    private string $reloadToken;
+    private \GuzzleHttp\ClientInterface $httpClient;
 
     public function __construct(
         ?string $vhostDir = null,
         ?string $domain = null,
         ?string $clientMaxBodySize = null,
-        ?bool $reload = null
+        ?bool $reload = null,
+        ?string $reloaderUrl = null,
+        ?string $reloadToken = null,
+        ?\GuzzleHttp\ClientInterface $httpClient = null
     ) {
         $this->vhostDir = $vhostDir ?? dirname(__DIR__, 2) . '/vhost.d';
         $this->domain = $domain ?? (getenv('DOMAIN') ?: '');
         $this->clientMaxBodySize = $clientMaxBodySize ?? (getenv('CLIENT_MAX_BODY_SIZE') ?: '50m');
         $this->reload = $reload ?? (getenv('NGINX_RELOAD') !== '0');
+        $this->reloaderUrl = $reloaderUrl ?? (getenv('NGINX_RELOADER_URL') ?: '');
+        $this->reloadToken = $reloadToken ?? (getenv('NGINX_RELOAD_TOKEN') ?: '');
+        $this->httpClient = $httpClient ?? new \GuzzleHttp\Client();
     }
 
     public function createVhost(string $sub): void
@@ -36,12 +48,35 @@ class NginxService
             throw new \RuntimeException('Unable to write vhost file');
         }
         if ($this->reload) {
-            $output = [];
-            $status = 0;
-            exec('docker compose exec nginx nginx -s reload 2>&1', $output, $status);
-            if ($status !== 0) {
-                throw new \RuntimeException('nginx reload failed: ' . implode("\n", $output));
+            if ($this->reloaderUrl !== '') {
+                try {
+                    $res = $this->httpClient->request(
+                        'POST',
+                        $this->reloaderUrl,
+                        ['headers' => ['X-Token' => $this->reloadToken]]
+                    );
+                    if ($res->getStatusCode() >= 300) {
+                        throw new \RuntimeException('HTTP ' . $res->getStatusCode());
+                    }
+                } catch (\Throwable $e) {
+                    throw new \RuntimeException('nginx reload failed: ' . $e->getMessage(), 0, $e);
+                }
+            } else {
+                $this->reloadDocker();
             }
+        }
+    }
+
+    /**
+     * Reload nginx via Docker command.
+     */
+    protected function reloadDocker(): void
+    {
+        $output = [];
+        $status = 0;
+        exec('docker compose exec nginx nginx -s reload 2>&1', $output, $status);
+        if ($status !== 0) {
+            throw new \RuntimeException('nginx reload failed: ' . implode("\n", $output));
         }
     }
 }
