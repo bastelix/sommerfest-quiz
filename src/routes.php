@@ -128,7 +128,13 @@ return function (\Slim\App $app, TranslationService $translator) {
             ))
             ->withAttribute('teamController', new TeamController($teamService))
             ->withAttribute('eventController', new EventController($eventService))
-            ->withAttribute('tenantController', new TenantController($tenantService))
+            ->withAttribute(
+                'tenantController',
+                new TenantController(
+                    $tenantService,
+                    filter_var(getenv('DISPLAY_ERROR_DETAILS'), FILTER_VALIDATE_BOOLEAN)
+                )
+            )
             ->withAttribute('passwordController', new PasswordController($userService))
             ->withAttribute('userController', new UserController($userService))
             ->withAttribute('settingsController', new SettingsController($settingsService))

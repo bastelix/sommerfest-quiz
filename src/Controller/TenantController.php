@@ -15,10 +15,12 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class TenantController
 {
     private TenantService $service;
+    private bool $displayErrors;
 
-    public function __construct(TenantService $service)
+    public function __construct(TenantService $service, bool $displayErrors = false)
     {
         $this->service = $service;
+        $this->displayErrors = $displayErrors;
     }
 
     public function create(Request $request, Response $response): Response
@@ -28,20 +30,34 @@ class TenantController
             return $response->withStatus(400);
         }
         try {
-            try {
-                $this->service->createTenant((string) $data['uid'], (string) $data['schema']);
-            } catch (PDOException $e) {
-                throw new \RuntimeException('Database error: ' . $e->getMessage(), 0, $e);
-            } catch (\Throwable $e) {
-                throw new \RuntimeException('Error creating tenant: ' . $e->getMessage(), 0, $e);
+            $this->service->createTenant((string) $data['uid'], (string) $data['schema']);
+        } catch (PDOException $e) {
+            $msg = 'Database error: ' . $e->getMessage();
+            error_log($msg);
+            if ($this->displayErrors) {
+                $msg .= "\n" . $e->getTraceAsString();
             }
+            $response->getBody()->write($msg);
+            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
         } catch (\RuntimeException $e) {
             $msg = $e->getMessage();
             $status = $msg === 'tenant-exists' ? 409 : 500;
             if ($status !== 409) {
+                error_log($msg);
+                if ($this->displayErrors) {
+                    $msg .= "\n" . $e->getTraceAsString();
+                }
                 $response->getBody()->write($msg);
             }
             return $response->withStatus($status)->withHeader('Content-Type', 'text/plain');
+        } catch (\Throwable $e) {
+            $msg = 'Error creating tenant: ' . $e->getMessage();
+            error_log($msg);
+            if ($this->displayErrors) {
+                $msg .= "\n" . $e->getTraceAsString();
+            }
+            $response->getBody()->write($msg);
+            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
         }
         return $response->withStatus(201);
     }
