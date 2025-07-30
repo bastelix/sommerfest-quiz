@@ -230,6 +230,16 @@ scripts/delete_tenant.sh foo
 Beide Skripte lesen die Variable `DOMAIN` aus `.env` und nutzen sie
 für die vhost-Konfiguration.
 
+Der Datenbanknutzer, der über `POSTGRES_USER` definiert ist, muss
+neue Schemas und Tabellen anlegen dürfen. Bei PostgreSQL reicht etwa
+folgender Befehl aus:
+
+```sql
+GRANT CREATE ON DATABASE quiz TO quiz;
+```
+
+Anschließend kann `CREATE SCHEMA` im Hintergrund ausgeführt werden.
+
 Weitere Hinweise zur Abhängigkeit von Docker und zum Flag `NGINX_RELOAD` findest du im Abschnitt [Docker-Abhängigkeit beim Mandanten-Onboarding](docs-jtd/installation.md#tenant-onboarding-docker).
 
 Für den eigentlichen Quiz-Container lässt sich der Hostname über die
