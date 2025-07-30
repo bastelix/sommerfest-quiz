@@ -33,6 +33,14 @@ class Migrator
                 continue;
             }
 
+            // Remove pure comment lines and skip empty migrations
+            $trimmed = preg_replace('/^\s*--.*$/m', '', $sql);
+            if (trim($trimmed) === '') {
+                $ins = $pdo->prepare('INSERT INTO migrations(version) VALUES(?)');
+                $ins->execute([$version]);
+                continue;
+            }
+
             if ($driver === 'sqlite') {
                 // Strip schema prefixes and unsupported blocks
                 $sql = preg_replace('/public\./', '', $sql);
