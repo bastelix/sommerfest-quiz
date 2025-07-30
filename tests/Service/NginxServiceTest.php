@@ -20,7 +20,7 @@ class NginxServiceTest extends TestCase
             ->method('request')
             ->with('POST', 'http://webhook', ['headers' => ['X-Token' => 'tok']])
             ->willReturn(new Response(200));
-        $svc = new class($dir, 'example.com', '1m', true, 'http://webhook', 'tok', $client) extends NginxService {
+        $svc = new class ($dir, 'example.com', '1m', true, 'http://webhook', 'tok', $client) extends NginxService {
             public bool $docker = false;
             protected function reloadDocker(): void
             {
@@ -38,7 +38,7 @@ class NginxServiceTest extends TestCase
         mkdir($dir);
         $client = $this->createMock(ClientInterface::class);
         $client->expects($this->never())->method('request');
-        $svc = new class($dir, 'example.com', '1m', true, '', 'tok', $client) extends NginxService {
+        $svc = new class ($dir, 'example.com', '1m', true, '', 'tok', $client) extends NginxService {
             public bool $docker = false;
             protected function reloadDocker(): void
             {
