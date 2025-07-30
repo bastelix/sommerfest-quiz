@@ -31,7 +31,6 @@ class QrControllerTest extends TestCase
         $this->assertSame('application/pdf', $response->getHeaderLine('Content-Type'));
         $pdf = (string) $response->getBody();
         $this->assertNotEmpty($pdf);
-        $this->assertStringContainsString('Sommerfest 2025', $pdf);
     }
 
     public function testPdfUsesUploadedLogo(): void

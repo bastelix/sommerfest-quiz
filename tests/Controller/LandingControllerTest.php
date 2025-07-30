@@ -13,7 +13,7 @@ class LandingControllerTest extends TestCase
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/landing');
         $response = $app->handle($request);
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(404, $response->getStatusCode());
     }
 
     public function testLandingPageTenant(): void

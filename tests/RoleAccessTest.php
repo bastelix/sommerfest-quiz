@@ -69,8 +69,11 @@ class RoleAccessTest extends TestCase
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'team-manager'];
-        $req = $this->createRequest('POST', '/teams.json');
-        $req = $req->withParsedBody([]);
+        $req = $this->createRequest('POST', '/teams.json', ['HTTP_CONTENT_TYPE' => 'application/json']);
+        $stream = fopen('php://temp', 'r+');
+        fwrite($stream, '[]');
+        rewind($stream);
+        $req = $req->withBody((new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream));
         $res = $app->handle($req);
         $this->assertEquals(204, $res->getStatusCode());
         session_destroy();
