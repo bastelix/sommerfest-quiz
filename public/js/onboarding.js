@@ -46,7 +46,7 @@
     const tasks = [
       { key: 'tenant', label: 'Mandant erstellen' },
       { key: 'import', label: 'Standardinhalte importieren' },
-      { key: 'user', label: 'Admin-Benutzer anlegen' }
+      { key: 'user', label: 'Admin-Passwort setzen' }
     ];
     if (reloadToken) {
       tasks.push({ key: 'reload', label: 'Proxy neu laden' });
@@ -243,12 +243,34 @@
         setTaskStatus('import', 'done');
         logMessage('Standardinhalte importiert');
 
-        logMessage('Lege Admin-Benutzer an...');
+        logMessage('Setze Admin-Passwort...');
+        const listRes = await fetch(withBase('/users.json'), {
+          credentials: 'include'
+        });
+        if (!listRes.ok) {
+          const text = await listRes.text();
+          logMessage('Fehler Benutzerliste: ' + text);
+          setTaskStatus('user', 'failed');
+          throw new Error(text || 'users');
+        }
+        let users = await listRes.json().catch(() => []);
+        if (!Array.isArray(users)) users = [];
+        let found = false;
+        users = users.map(u => {
+          if (u.username === 'admin') {
+            found = true;
+            return { ...u, password: data.adminPass, role: 'admin' };
+          }
+          return u;
+        });
+        if (!found) {
+          users.push({ username: 'admin', password: data.adminPass, role: 'admin' });
+        }
         const userRes = await fetch(withBase('/users.json'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify([{ username: 'admin', password: data.adminPass, role: 'admin' }])
+          body: JSON.stringify(users)
         });
         if (!userRes.ok) {
           const text = await userRes.text();
@@ -257,7 +279,7 @@
           throw new Error(text || 'user');
         }
         setTaskStatus('user', 'done');
-        logMessage('Admin-Benutzer angelegt');
+        logMessage('Admin-Passwort gesetzt');
 
         if (reloadToken) {
           logMessage('Proxy wird neu geladen...');

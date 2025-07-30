@@ -130,8 +130,10 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
   - `team-manager` – Teams verwalten
 
   Der Erstimport legt nur die erforderlichen Rollen an.
-  Ein Admin-Benutzer wird während des Onboardings erstellt,
-  sodass die Datenbank anfangs keine Accounts enthält.
+  Ein Admin-Benutzer wird bereits beim ersten Start mit
+  zufälligem Passwort angelegt. Dieses Passwort wird unter
+  `data/admin_password.txt` gespeichert und sollte im
+  Onboarding durch ein eigenes Passwort ersetzt werden.
 
    Wird `POSTGRES_DSN` gesetzt und enthält das Verzeichnis `data/` bereits JSON-Dateien,
    legt das Entrypoint-Skript des Containers die Tabellen automatisch an und importiert
@@ -250,7 +252,7 @@ Weitere nützliche Variablen in `.env` sind:
 - `NGINX_RELOADER_URL` – URL eines externen Webhooks für den Proxy-Reload.
 
 Bei der Mandanten-Erstellung fragt der Onboarding-Assistent nach einem Admin-Passwort.
-Bleibt das Feld leer, erzeugt die Anwendung automatisch ein sicheres Passwort und zeigt es nach der Einrichtung an.
+Bleibt das Feld leer, erzeugt die Anwendung automatisch ein sicheres Passwort und zeigt es nach der Einrichtung an. Dieses Passwort ersetzt das zuvor generierte Standardpasswort des Admin-Benutzers.
 
 ## Anpassung
 
@@ -439,6 +441,5 @@ Durch den Einsatz von Slim Framework und standardisierten Endpunkten ist die Anw
 
 
 ## Lizenz
-
 Dieses Projekt steht unter einer proprietären Lizenz. Alle Rechte gehören René Buske. Eine kommerzielle Nutzung ist erlaubt. Weitere Informationen finden Sie in der Datei `LICENSE`.
 

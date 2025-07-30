@@ -59,6 +59,10 @@ if [ -n "$POSTGRES_DSN" ] && [ -f docs/schema.sql ]; then
         echo "Running migrations"
         php scripts/run_migrations.php
     fi
+    if [ -f scripts/bootstrap_admin_user.php ]; then
+        echo "Bootstrapping admin user"
+        php scripts/bootstrap_admin_user.php
+    fi
     unset PGPASSWORD
 fi
 
