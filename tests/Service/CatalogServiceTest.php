@@ -250,4 +250,22 @@ class CatalogServiceTest extends TestCase
         $stmt = $pdo->query('SELECT event_uid FROM catalogs');
         $this->assertSame('1', (string)$stmt->fetchColumn());
     }
+
+    public function testWriteAcceptsIdField(): void
+    {
+        $pdo = $this->createPdo();
+        $cfg = new ConfigService($pdo);
+        $service = new CatalogService($pdo, $cfg);
+        $catalog = [[
+            'uid' => 'uid6',
+            'id' => 4,
+            'slug' => 'foo',
+            'file' => 'foo.json',
+            'name' => 'Foo',
+            'comment' => ''
+        ]];
+        $service->write('catalogs.json', $catalog);
+        $rows = json_decode($service->read('catalogs.json'), true);
+        $this->assertSame(4, $rows[0]['sort_order']);
+    }
 }

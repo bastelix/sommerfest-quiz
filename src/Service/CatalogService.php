@@ -276,7 +276,9 @@ class CatalogService
             foreach ($data as $cat) {
                 $row = [
                     $cat['uid'] ?? bin2hex(random_bytes(16)),
-                    $cat['sort_order'] ?? '',
+                    isset($cat['sort_order'])
+                        ? (int) $cat['sort_order']
+                        : (isset($cat['id']) ? (int) $cat['id'] : 0),
                     $cat['slug'] ?? '',
                     $cat['file'] ?? '',
                     $cat['name'] ?? '',
@@ -339,9 +341,19 @@ class CatalogService
                 $ins = $this->pdo->prepare(
                     "INSERT INTO catalogs($fields) VALUES($placeholders)"
                 );
+                $sortSql = 'SELECT COALESCE(MAX(sort_order),0) FROM catalogs';
+                $sortParams = [];
+                if ($uid !== '') {
+                    $sortSql .= ' WHERE event_uid=?';
+                    $sortParams[] = $uid;
+                }
+                $sStmt = $this->pdo->prepare($sortSql);
+                $sStmt->execute($sortParams);
+                $sortOrder = ((int) $sStmt->fetchColumn()) + 1;
+
                 $row = [
                     $cat['uid'],
-                    '',
+                    $sortOrder,
                     $slug,
                     basename($file),
                     '',
