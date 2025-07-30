@@ -11,8 +11,8 @@ if [ -r .env ]; then
     done < .env
 fi
 
-# Install composer dependencies if vendor directory is missing
-if [ ! -d vendor ]; then
+# Install composer dependencies if autoloader is missing
+if [ ! -f vendor/autoload.php ]; then
     composer install --no-interaction --prefer-dist --no-progress
 fi
 
