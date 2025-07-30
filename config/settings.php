@@ -24,6 +24,11 @@ $settings += [
     'displayErrorDetails' => false,
 ];
 
+$envError = getenv('DISPLAY_ERROR_DETAILS');
+if ($envError !== false) {
+    $settings['displayErrorDetails'] = filter_var($envError, FILTER_VALIDATE_BOOLEAN);
+}
+
 $settings['postgres_dsn'] = getenv('POSTGRES_DSN') ?: ($settings['postgres_dsn'] ?? null);
 $settings['postgres_user'] = getenv('POSTGRES_USER') ?: ($settings['postgres_user'] ?? null);
 $settings['postgres_pass'] = getenv('POSTGRES_PASSWORD')
