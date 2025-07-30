@@ -153,7 +153,7 @@ class ResultServiceTest extends TestCase
         $res = $service->markPuzzle('TeamA', 'cat1', 456);
         $this->assertTrue($res);
         $stmt = $pdo->query('SELECT puzzleTime FROM results');
-        $this->assertSame('123', $stmt->fetchColumn());
+        $this->assertSame(123, (int)$stmt->fetchColumn());
     }
 
     public function testSetPhotoUpdatesEntry(): void

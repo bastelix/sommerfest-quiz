@@ -142,7 +142,7 @@ class ImportControllerTest extends TestCase
     {
         [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
         $base = sys_get_temp_dir() . '/import_' . uniqid();
-        $default = $base . '-default';
+        $default = dirname($base) . '/data-default';
         mkdir($default . '/kataloge', 0777, true);
         file_put_contents($default . '/kataloge/catalogs.json', json_encode([
             ['uid' => 'u1', 'id' => 'c1', 'slug' => 'c1', 'file' => 'c1.json', 'name' => 'Cat']

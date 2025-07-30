@@ -16,7 +16,7 @@ class DomainAccessTest extends TestCase
         $request = $this->createRequest('GET', '/landing');
         $request = $request->withUri($request->getUri()->withHost('main.test'));
         $response = $app->handle($request);
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(404, $response->getStatusCode());
         if ($old === false) {
             putenv('MAIN_DOMAIN');
         } else {

@@ -156,7 +156,10 @@ class CatalogControllerTest extends TestCase
         $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
 
         $request = $this->createRequest('POST', '/kataloge/test.json');
-        $request = $request->withParsedBody(['a' => 1]);
+        $request = $request->withParsedBody([[
+            'type' => 'text',
+            'prompt' => 'Q1',
+        ]]);
         $postResponse = $controller->post($request, new Response(), ['file' => 'test.json']);
         $this->assertEquals(204, $postResponse->getStatusCode());
 
@@ -166,7 +169,11 @@ class CatalogControllerTest extends TestCase
             ['file' => 'test.json']
         );
         $this->assertEquals(200, $getResponse->getStatusCode());
-        $this->assertJsonStringEqualsJsonString('{"a":1}', (string) $getResponse->getBody());
+        $expected = json_encode([[
+            'type' => 'text',
+            'prompt' => 'Q1',
+        ]], JSON_PRETTY_PRINT);
+        $this->assertJsonStringEqualsJsonString($expected, (string) $getResponse->getBody());
 
         session_destroy();
     }
@@ -291,7 +298,10 @@ class CatalogControllerTest extends TestCase
         session_start();
         $_SESSION["user"] = ["id" => 1, "role" => "catalog-editor"];
 
-        $service->write('cat.json', [['a' => 1], ['b' => 2]]);
+        $service->write('cat.json', [
+            ['type' => 'text', 'prompt' => 'A'],
+            ['type' => 'text', 'prompt' => 'B'],
+        ]);
 
         $req = $this->createRequest('DELETE', '/kataloge/cat.json/0');
         $res = $controller->deleteQuestion($req, new Response(), ['file' => 'cat.json', 'index' => '0']);
@@ -299,7 +309,7 @@ class CatalogControllerTest extends TestCase
 
         $data = json_decode($service->read('cat.json'), true);
         $this->assertCount(1, $data);
-        $this->assertSame(['b' => 2], $data[0]);
+        $this->assertSame('B', $data[0]['prompt']);
 
         session_destroy();
     }

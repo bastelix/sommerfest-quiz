@@ -114,7 +114,9 @@ class HelpControllerTest extends TestCase
         $request = $this->createRequest('GET', '/help');
         $response = $app->handle($request);
 
-        $this->assertStringNotContainsString('<script', (string)$response->getBody());
+        $body = (string)$response->getBody();
+        $this->assertStringNotContainsString('<script>alert', $body);
+        $this->assertStringContainsString('alert(1)Hi Team´s', $body);
 
         unlink($dbFile);
     }

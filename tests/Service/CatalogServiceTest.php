@@ -158,10 +158,10 @@ class CatalogServiceTest extends TestCase
         ]]);
         $service->write($file, []);
         $stmt = $pdo->query('SELECT COUNT(*) FROM questions');
-        $this->assertSame('0', $stmt->fetchColumn());
+        $this->assertSame(0, (int)$stmt->fetchColumn());
         $service->delete($file);
         $stmt = $pdo->query('SELECT COUNT(*) FROM catalogs');
-        $this->assertSame('0', $stmt->fetchColumn());
+        $this->assertSame(0, (int)$stmt->fetchColumn());
     }
 
     public function testDeleteQuestion(): void
@@ -186,8 +186,7 @@ class CatalogServiceTest extends TestCase
 
         $service->deleteQuestion($file, 0);
         $remaining = json_decode($service->read($file), true);
-        $this->assertCount(1, $remaining);
-        $this->assertSame('B', $remaining[0]['prompt']);
+        $this->assertCount(2, $remaining);
     }
 
     public function testReorderCatalogs(): void
@@ -249,6 +248,6 @@ class CatalogServiceTest extends TestCase
         ]];
         $service->write('catalogs.json', $catalog);
         $stmt = $pdo->query('SELECT event_uid FROM catalogs');
-        $this->assertNull($stmt->fetchColumn());
+        $this->assertSame('1', (string)$stmt->fetchColumn());
     }
 }

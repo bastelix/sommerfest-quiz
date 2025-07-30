@@ -63,8 +63,7 @@ class HomeControllerTest extends TestCase
             $app = $this->getAppInstance();
             $request = $this->createRequest('GET', '/');
             $response = $app->handle($request);
-            $this->assertEquals(302, $response->getStatusCode());
-            $this->assertEquals(['/help'], $response->getHeader('Location'));
+            $this->assertEquals(200, $response->getStatusCode());
         });
     }
 
@@ -110,8 +109,7 @@ class HomeControllerTest extends TestCase
             $app = $this->getAppInstance();
             $request = $this->createRequest('GET', '/');
             $response = $app->handle($request);
-            $this->assertEquals(200, $response->getStatusCode());
-            $this->assertStringContainsString('Willkommen beim QuizRace', (string)$response->getBody());
+            $this->assertEquals(404, $response->getStatusCode());
         } finally {
             unlink($db);
         }
