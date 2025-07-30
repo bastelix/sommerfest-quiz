@@ -33,6 +33,8 @@ Alle wesentlichen Optionen stehen in `data/config.json` und werden beim ersten I
 }
 ```
 
+Alternativ kann die Variable `DISPLAY_ERROR_DETAILS` in `.env` gesetzt werden.
+
 Das hochgeladene Logo wird in `data/` gespeichert und über `logoPath` referenziert, typischerweise als `/logo.png`.
 
 Optional kann `baseUrl` gesetzt werden, um in QR-Codes komplette Links zu erzeugen. `QRRemember` merkt sich gescannte Namen und zeigt den Anmeldedialog nicht erneut an. Der Parameter `competitionMode` verhindert Wiederholungen bereits gelöster Kataloge. Über `teamResults` wird gesteuert, ob Teams ihre Ergebnisse einsehen dürfen, und `photoUpload` aktiviert den Upload von Beweisfotos. `puzzleWordEnabled` schaltet das Rätselwort frei und `puzzleFeedback` definiert den Erfolgshinweis nach der Lösung.

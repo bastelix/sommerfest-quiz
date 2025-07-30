@@ -266,6 +266,7 @@ Weitere nützliche Variablen in `.env` sind:
 - `NGINX_CONTAINER` – Name des Proxy-Containers (Standard `nginx`).
 - `NGINX_RELOAD` – auf `0` setzen, wenn ein externer Webhook den Reload übernimmt.
 - `NGINX_RELOADER_URL` – URL eines externen Webhooks für den Proxy-Reload.
+- `DISPLAY_ERROR_DETAILS` – auf `1` setzen, um detaillierte Fehlermeldungen anzuzeigen.
 
 Bei der Mandanten-Erstellung fragt der Onboarding-Assistent nach einem Admin-Passwort.
 Bleibt das Feld leer, erzeugt die Anwendung automatisch ein sicheres Passwort und zeigt es nach der Einrichtung an. Dieses Passwort ersetzt das zuvor generierte Standardpasswort des Admin-Benutzers.
@@ -378,6 +379,9 @@ Alle wesentlichen Einstellungen stehen in `data/config.json` und werden beim ers
   "postgres_pass": "***"
 }
 ```
+
+Statt in `config.json` kann der Parameter auch über die Umgebungsvariable
+`DISPLAY_ERROR_DETAILS` gesetzt werden.
 
 Optional kann `baseUrl` gesetzt werden, um in QR-Codes vollständige Links mit Domain zu erzeugen. `QRRemember` speichert gescannte Namen und erspart das erneute Einscannen. Der Parameter `competitionMode` blendet im Quiz alle Neustart-Schaltflächen aus, verhindert Wiederholungen bereits abgeschlossener Kataloge und unterbindet die Anzeige der Katalogübersicht. Ein Fragenkatalog kann dann nur über einen direkten QR-Code-Link gestartet werden. Im Wettkampfmodus führt ein Aufruf der Hauptseite ohne gültigen Katalog-Parameter automatisch zur Hilfe-Seite. Über `teamResults` lässt sich steuern, ob Teams nach Abschluss aller Kataloge ihre eigene Ergebnisübersicht angezeigt bekommen. `photoUpload` blendet die Buttons zum Hochladen von Beweisfotos ein oder aus. `puzzleWordEnabled` schaltet das Rätselwort-Spiel frei und `puzzleFeedback` definiert den Text, der nach korrekter Eingabe angezeigt wird. `inviteText` enthält ein optionales Anschreiben für teilnehmende Teams.
 
