@@ -3,7 +3,7 @@ layout: default
 title: Lizenz
 ---
 
-Diese Anwendung steht unter der [MIT-Lizenz](https://opensource.org/licenses/MIT). Den vollständigen Text finden Sie auch in der Datei `LICENSE`. Die kommerzielle Nutzung bedarf einer kostenpflichtigen Lizenz.
+Diese Anwendung steht unter einer proprietären Lizenz. Alle Rechte liegen bei René Buske. Weitere Informationen finden Sie in der Datei `LICENSE`.
 
 ## Disclaimer / Hinweis
 
@@ -13,40 +13,17 @@ Diese App wurde im Rahmen einer Machbarkeitsstudie entwickelt, um das Potenzial 
 
 Mit dieser App zeigen wir, was heute möglich ist, wenn Menschen und KI gemeinsam digitale Ideen entwickeln.
 
-## MIT-Lizenz (Deutsch)
+## Proprietäre Lizenz
 
 ```
-MIT-Lizenz
+Proprietary License - Sommerfest Quiz
 
-Copyright (c) 2025 calhelp
+Copyright (c) 2025 René Buske
+Alle Rechte vorbehalten.
 
-Hiermit wird unentgeltlich jeder Person, die eine Kopie der Software
-und der zugehörigen Dokumentationsdateien (die "Software") erhält,
-die Erlaubnis erteilt, uneingeschränkt mit der Software zu verfahren,
-einschließlich aber nicht beschränkt auf die Rechte, die Software zu
-nutzen, zu kopieren, zu modifizieren, zusammenzuführen, zu veröffentlichen,
-zu verbreiten und zu unterlizenzieren, sowie Personen,
-denen die Software bereitgestellt wird, diese Rechte zu gewähren, vorbehaltlich
-der folgenden Bedingungen:
-
-Die kommerzielle Nutzung der Software ist nur mit einer schriftlichen Lizenzvereinbarung gestattet.
-
-Der obige Urheberrechtsvermerk und dieser Erlaubnisvermerk sind in allen
-Kopien oder wesentlichen Teilen der Software beizulegen.
-
-DIE SOFTWARE WIRD OHNE JEDE AUSDRÜCKLICHE ODER STILLSCHWEIGENDE GEWÄHRLEISTUNG
-BEREITGESTELLT, EINSCHLIESSLICH UND NICHT BESCHRÄNKT AUF DIE GEWÄHRLEISTUNGEN
-DER MARKTGÄNGIGKEIT, DER EIGNUNG FÜR EINEN BESTIMMTEN ZWECK UND DER NICHTVERLETZUNG.
-IN KEINEM FALL SIND DIE AUTOREN ODER URHEBERRECHTSINHABER FÜR JEGLICHE ANSPRÜCHE,
-SCHÄDEN ODER SONSTIGE HAFTUNGEN VERANTWORTLICH, OB IN EINEM VERTRAGSVERHÄLTNIS,
-EINER UNERLAUBTEN HANDLUNG ODER ANDERWEITIG, DIE SICH AUS DER SOFTWARE ODER DER
-NUTZUNG ODER ANDEREN GESCHÄFTEN MIT DER SOFTWARE ERGEBEN.
-```
-
-## MIT License (English)
-
-```
-MIT License
+Die Nutzung der Software "Sommerfest Quiz" ist für kommerzielle Zwecke erlaubt. 
+Der Quellcode bleibt Eigentum von René Buske und darf weder kopiert noch veröffentlicht 
+oder verändert werden, sofern keine schriftliche Genehmigung vorliegt.
 
 Copyright (c) 2025 calhelp
 

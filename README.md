@@ -429,7 +429,7 @@ beschreibbar sein.
 Das aktuelle Logo wird unter `/logo.png` oder `/logo.webp` bereitgestellt. Über einen POST auf diese URLs lässt sich eine neue PNG- oder WebP-Datei hochladen. Nach dem Upload wird der Pfad automatisch in `config.json` gespeichert. Die Datei landet im Verzeichnis `data/`, damit auch PDFs das Logo einbinden können.
 
 ### Sicherheit und Haftung
-Die Software wird unter der MIT-Lizenz bereitgestellt und erfolgt ohne Gewähr. Die Urheber haften nicht für Schäden, die aus der Nutzung entstehen. Die integrierten Maßnahmen zur Barrierefreiheit verbessern die Zugänglichkeit, sie ersetzen jedoch keine individuelle Prüfung.
+Die Software wird ohne Gewähr bereitgestellt. Alle Rechte liegen bei René Buske. Eine Haftung für Schäden, die aus der Nutzung entstehen, ist ausgeschlossen. Die integrierten Maßnahmen zur Barrierefreiheit verbessern die Zugänglichkeit, sie ersetzen jedoch keine individuelle Prüfung.
 
 ### Fazit
 Die API ermöglicht die komplette Verwaltung eines Quizsystems:
@@ -441,6 +441,5 @@ Durch den Einsatz von Slim Framework und standardisierten Endpunkten ist die Anw
 
 
 ## Lizenz
-
-Dieses Projekt steht unter der MIT-Lizenz. Die kommerzielle Nutzung bedarf einer kostenpflichtigen Lizenz. Weitere Informationen finden Sie in der Datei `LICENSE`.
+Dieses Projekt steht unter einer proprietären Lizenz. Alle Rechte gehören René Buske. Eine kommerzielle Nutzung ist erlaubt. Weitere Informationen finden Sie in der Datei `LICENSE`.
 

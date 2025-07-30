@@ -31,5 +31,6 @@ Die durch den Seitenbetreiber erstellten Inhalte und Werke auf dieser Website un
 
 ## Quellcode
 
-Der Quellcode dieser Anwendung ist unter der MIT-Lizenz auf GitHub verfügbar: <https://github.com/bastelix/sommerfest-quiz>
+Der Quellcode dieser Anwendung ist Eigentum von René Buske und nicht öffentlich zugänglich.
+
 
