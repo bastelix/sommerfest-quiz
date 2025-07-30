@@ -112,6 +112,7 @@
 - Verify tenant creation and removal
 - Fix schemas for event-aware tables
 - Verify catalog create and delete via db
+- Expect marketing pages on main domain
 
 ## [0.1.0] - 2025-06-16
 
