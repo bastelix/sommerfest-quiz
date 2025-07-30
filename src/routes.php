@@ -355,7 +355,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add(new RoleAuthMiddleware('admin'));
     $app->post('/restore-default', function (Request $request, Response $response) {
         return $request->getAttribute('importController')->restoreDefaults($request, $response);
-    })->add(new RoleAuthMiddleware('admin'));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::SERVICE_ACCOUNT));
     $app->post('/import/{name}', function (Request $request, Response $response, array $args) {
         return $request
             ->getAttribute('importController')

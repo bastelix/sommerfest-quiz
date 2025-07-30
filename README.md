@@ -262,6 +262,15 @@ Weitere nützliche Variablen in `.env` sind:
 - `BASE_PATH` – optionaler Basis-Pfad, falls die Anwendung nicht im Root der Domain liegt.
 - `SERVICE_USER` – Benutzername für den automatischen Login des Onboarding-Assistenten.
 - `SERVICE_PASS` – Passwort dieses Service-Benutzers.
+- **Wichtig:** Der Onboarding-Assistent setzt einen Account mit mindestens der
+  Rolle `service-account` voraus, um alle Schritte (inklusive `POST /restore-default`)
+  automatisiert auszuführen. Ein Beispiel zum Anlegen:
+
+```bash
+curl -X POST http://$DOMAIN/users.json \
+  -H 'Content-Type: application/json' \
+  -d '[{"username":"robot","password":"secret","role":"service-account","active":true}]'
+```
 - `NGINX_RELOAD_TOKEN` – Token für den Webhook `http://nginx-reloader:8080/reload`.
 - `NGINX_CONTAINER` – Name des Proxy-Containers (Standard `nginx`).
 - `NGINX_RELOAD` – auf `0` setzen, wenn ein externer Webhook den Reload übernimmt.

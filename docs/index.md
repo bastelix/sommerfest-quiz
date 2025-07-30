@@ -84,6 +84,17 @@ curl -c cookies.txt -X POST http://$DOMAIN/login \
   -d '{"username":"robot","password":"secret"}'
 ```
 
+Soll der Account für den Onboarding-Assistenten genutzt werden
+(Variablen `SERVICE_USER` und `SERVICE_PASS`), benötigt er mindestens die Rolle
+`service-account`. Damit kann der Assistent Standarddaten importieren (`POST
+/restore-default`).
+
+```bash
+curl -X POST http://$DOMAIN/users.json \
+  -H 'Content-Type: application/json' \
+  -d '[{"username":"robot","password":"secret","role":"service-account","active":true}]'
+```
+
 ## Weitere Seiten
 
 * [Wie läuft das Spiel?](spielablauf.md)
