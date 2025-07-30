@@ -129,8 +129,9 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
   - `analyst` – Ergebnisse analysieren
   - `team-manager` – Teams verwalten
 
-  Ab der nachfolgenden Migration 20240912 wird zudem ein Admin-Account
-  importiert, sodass direkt eine Anmeldung mit `admin` möglich ist.
+  Der Erstimport legt nur die erforderlichen Rollen an.
+  Ein Admin-Benutzer wird während des Onboardings erstellt,
+  sodass die Datenbank anfangs keine Accounts enthält.
 
    Wird `POSTGRES_DSN` gesetzt und enthält das Verzeichnis `data/` bereits JSON-Dateien,
    legt das Entrypoint-Skript des Containers die Tabellen automatisch an und importiert
