@@ -38,6 +38,7 @@
 - Clarify php.ini usage
 - Add domain workflow and signup instructions
 - Add nginx onboarding note
+- Add migration step
 
 ### Feat
 
