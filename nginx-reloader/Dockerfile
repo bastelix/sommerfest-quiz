@@ -1,6 +1,8 @@
 FROM python:3.11-alpine
 
-RUN pip install flask
+# The reloader needs the Docker CLI to send reload commands
+RUN apk add --no-cache docker-cli \
+    && pip install flask
 
 WORKDIR /app
 COPY app.py requirements.txt ./
