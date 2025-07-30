@@ -112,7 +112,13 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
    ./scripts/run_psql_in_docker.sh
    ```
 
-4. Anschließend einmalig die vorhandenen JSON-Daten importieren:
+4. Wer Docker nicht nutzt, sollte im Anschluss die Migrationen ausführen,
+   um notwendige Tabellen wie `tenants` anzulegen und spätere Änderungen zu
+   übernehmen:
+   ```bash
+   php scripts/run_migrations.php
+   ```
+5. Anschließend einmalig die vorhandenen JSON-Daten importieren:
    ```bash
   php scripts/import_to_pgsql.php
   ```
