@@ -157,4 +157,56 @@ class TenantControllerTest extends TestCase
         $res = $controller->exists($req, new Response(), ['subdomain' => 'bar']);
         $this->assertEquals(200, $res->getStatusCode());
     }
+
+    public function testCreateHandlesPdoException(): void
+    {
+        $service = new class extends TenantService {
+            public function __construct()
+            {
+            }
+
+            public function createTenant(string $uid, string $schema): void
+            {
+                throw new \PDOException('fail');
+            }
+
+            public function deleteTenant(string $uid): void
+            {
+            }
+        };
+        $controller = new TenantController($service);
+        $req = $this->createRequest('POST', '/tenants', ['HTTP_CONTENT_TYPE' => 'application/json']);
+        $stream = (new StreamFactory())->createStream(json_encode(['uid' => 't', 'schema' => 's']));
+        $req = $req->withBody($stream);
+        $res = $controller->create($req, new Response());
+
+        $this->assertEquals(500, $res->getStatusCode());
+        $this->assertStringContainsString('fail', (string) $res->getBody());
+    }
+
+    public function testCreateHandlesThrowable(): void
+    {
+        $service = new class extends TenantService {
+            public function __construct()
+            {
+            }
+
+            public function createTenant(string $uid, string $schema): void
+            {
+                throw new \Exception('boom');
+            }
+
+            public function deleteTenant(string $uid): void
+            {
+            }
+        };
+        $controller = new TenantController($service);
+        $req = $this->createRequest('POST', '/tenants', ['HTTP_CONTENT_TYPE' => 'application/json']);
+        $stream = (new StreamFactory())->createStream(json_encode(['uid' => 't', 'schema' => 's']));
+        $req = $req->withBody($stream);
+        $res = $controller->create($req, new Response());
+
+        $this->assertEquals(500, $res->getStatusCode());
+        $this->assertStringContainsString('boom', (string) $res->getBody());
+    }
 }

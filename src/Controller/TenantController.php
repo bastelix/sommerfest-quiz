@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\TenantService;
+use PDOException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -27,7 +28,13 @@ class TenantController
             return $response->withStatus(400);
         }
         try {
-            $this->service->createTenant((string) $data['uid'], (string) $data['schema']);
+            try {
+                $this->service->createTenant((string) $data['uid'], (string) $data['schema']);
+            } catch (PDOException $e) {
+                throw new \RuntimeException('Database error: ' . $e->getMessage(), 0, $e);
+            } catch (\Throwable $e) {
+                throw new \RuntimeException('Error creating tenant: ' . $e->getMessage(), 0, $e);
+            }
         } catch (\RuntimeException $e) {
             $msg = $e->getMessage();
             $status = $msg === 'tenant-exists' ? 409 : 500;
