@@ -39,6 +39,7 @@
 - Add domain workflow and signup instructions
 - Add nginx onboarding note
 - Add migration step
+- Clarify DB privileges for tenants
 
 ### Feat
 
