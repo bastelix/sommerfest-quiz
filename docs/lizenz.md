@@ -3,7 +3,7 @@ layout: default
 title: Lizenz
 ---
 
-Diese Anwendung steht unter der [MIT-Lizenz](https://opensource.org/licenses/MIT). Den vollständigen Text finden Sie auch in der Datei `LICENSE`.
+Diese Anwendung steht unter der [MIT-Lizenz](https://opensource.org/licenses/MIT). Den vollständigen Text finden Sie auch in der Datei `LICENSE`. Die kommerzielle Nutzung bedarf einer kostenpflichtigen Lizenz.
 
 ## Disclaimer / Hinweis
 
@@ -25,9 +25,11 @@ und der zugehörigen Dokumentationsdateien (die "Software") erhält,
 die Erlaubnis erteilt, uneingeschränkt mit der Software zu verfahren,
 einschließlich aber nicht beschränkt auf die Rechte, die Software zu
 nutzen, zu kopieren, zu modifizieren, zusammenzuführen, zu veröffentlichen,
-zu verbreiten, zu unterlizenzieren und/oder zu verkaufen, sowie Personen,
+zu verbreiten und zu unterlizenzieren, sowie Personen,
 denen die Software bereitgestellt wird, diese Rechte zu gewähren, vorbehaltlich
 der folgenden Bedingungen:
+
+Die kommerzielle Nutzung der Software ist nur mit einer schriftlichen Lizenzvereinbarung gestattet.
 
 Der obige Urheberrechtsvermerk und dieser Erlaubnisvermerk sind in allen
 Kopien oder wesentlichen Teilen der Software beizulegen.
@@ -51,9 +53,12 @@ Copyright (c) 2025 calhelp
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
+to use, copy, modify, merge, publish, distribute, and sublicense copies of
+the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
+
+Commercial use of the Software is permitted only with a separate written
+license agreement.
 
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.

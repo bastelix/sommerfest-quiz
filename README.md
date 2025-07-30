@@ -442,5 +442,5 @@ Durch den Einsatz von Slim Framework und standardisierten Endpunkten ist die Anw
 
 ## Lizenz
 
-Dieses Projekt steht unter der MIT-Lizenz. Weitere Informationen finden Sie in der Datei `LICENSE`.
+Dieses Projekt steht unter der MIT-Lizenz. Die kommerzielle Nutzung bedarf einer kostenpflichtigen Lizenz. Weitere Informationen finden Sie in der Datei `LICENSE`.
 
