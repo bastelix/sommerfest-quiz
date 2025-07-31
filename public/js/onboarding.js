@@ -244,33 +244,11 @@
         logMessage('Standardinhalte importiert');
 
         logMessage('Setze Admin-Passwort...');
-        const listRes = await fetch(withBase('/users.json'), {
-          credentials: 'include'
-        });
-        if (!listRes.ok) {
-          const text = await listRes.text();
-          logMessage('Fehler Benutzerliste: ' + text);
-          setTaskStatus('user', 'failed');
-          throw new Error(text || 'users');
-        }
-        let users = await listRes.json().catch(() => []);
-        if (!Array.isArray(users)) users = [];
-        let found = false;
-        users = users.map(u => {
-          if (u.username === 'admin') {
-            found = true;
-            return { ...u, password: data.adminPass, role: 'admin' };
-          }
-          return u;
-        });
-        if (!found) {
-          users.push({ username: 'admin', password: data.adminPass, role: 'admin' });
-        }
-        const userRes = await fetch(withBase('/users.json'), {
+        const userRes = await fetch(withBase('/tenant-admin'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify(users)
+          body: JSON.stringify({ schema: data.subdomain, password: data.adminPass })
         });
         if (!userRes.ok) {
           const text = await userRes.text();
