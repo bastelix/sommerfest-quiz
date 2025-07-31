@@ -15,6 +15,29 @@ EMAIL="${LETSENCRYPT_EMAIL:-admin@quizrace.app}"
 IMAGE="${APP_IMAGE:-your-app-image}"
 NETWORK="webproxy"
 
+# validate generated domain
+if ! echo "${SLUG}.${DOMAIN_SUFFIX}" | grep -Eq '^[a-z0-9-]+(\.[a-z0-9-]+)+$'; then
+  echo "Fehler: Generierte Domain '${SLUG}.${DOMAIN_SUFFIX}' ist ungültig." >&2
+  exit 1
+fi
+
+# ensure required docker network exists
+if ! docker network inspect ${NETWORK} >/dev/null 2>&1; then
+  echo "Fehler: Netzwerk '${NETWORK}' existiert nicht. Bitte zuerst mit 'docker network create --driver bridge ${NETWORK}' anlegen." >&2
+  exit 1
+fi
+
+# avoid container name collisions
+if docker ps -a --format '{{.Names}}' | grep -q "^${SLUG}_app$"; then
+  echo "Fehler: Ein Container mit dem Namen '${SLUG}_app' existiert bereits." >&2
+  exit 1
+fi
+
+# optional image check
+if ! docker image inspect ${IMAGE} >/dev/null 2>&1; then
+  echo "Warnung: Docker-Image '${IMAGE}' ist lokal nicht vorhanden. Der Container wird versuchen, es herunterzuladen." >&2
+fi
+
 if [ -d "$TENANT_DIR" ]; then
   echo "Tenant directory '$TENANT_DIR' already exists" >&2
   exit 1
@@ -58,3 +81,4 @@ if docker ps --format '{{.Names}}' | grep -q '^acme-companion$'; then
 fi
 
 echo "Tenant '$SLUG' deployed under https://${SLUG}.${DOMAIN_SUFFIX}"
+echo "{\"status\": \"success\", \"slug\": \"${SLUG}\", \"url\": \"https://${SLUG}.${DOMAIN_SUFFIX}\"}"
