@@ -17,19 +17,9 @@ window.notify = (msg, status = 'primary') => {
 };
 
 document.addEventListener('DOMContentLoaded', function () {
-  const adminRoutes = [
-    'events',
-    'event/settings',
-    'catalogs',
-    'questions',
-    'teams',
-    'summary',
-    'results',
-    'statistics',
-    'pages',
-    'management',
-    'tenants'
-  ];
+  const adminRoutes = Array.from(document.querySelectorAll('#adminTabs > li'))
+    .map(tab => tab.getAttribute('data-route') || '');
+  const adminTabs = document.getElementById('adminTabs');
   const settingsInitial = window.quizSettings || {};
   const pagesInitial = window.pagesContent || {};
 
@@ -1910,7 +1900,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const helpBtn = document.getElementById('helpBtn');
   const helpSidebar = document.getElementById('helpSidebar');
   const helpContent = document.getElementById('helpContent');
-  const adminTabs = document.getElementById('adminTabs');
+  // element references
   const adminMenu = document.getElementById('adminMenu');
   const adminNav = document.getElementById('adminNav');
   const adminMenuToggle = document.getElementById('adminMenuToggle');
