@@ -14,9 +14,18 @@ fi
 SLUG=$(echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
 TENANT_DIR="$(dirname "$0")/../tenants/$SLUG"
 COMPOSE_FILE="$TENANT_DIR/docker-compose.yml"
-DOMAIN_SUFFIX="quizrace.app"
+DOMAIN_SUFFIX="${MAIN_DOMAIN:-$DOMAIN}"
 EMAIL="${LETSENCRYPT_EMAIL:-admin@quizrace.app}"
-IMAGE="${APP_IMAGE:-your-app-image}"
+
+if [ -z "$DOMAIN_SUFFIX" ]; then
+  error_exit "MAIN_DOMAIN oder DOMAIN muss gesetzt sein"
+fi
+
+if [ -z "$APP_IMAGE" ]; then
+  error_exit "APP_IMAGE ist nicht gesetzt"
+fi
+
+IMAGE="$APP_IMAGE"
 NETWORK="webproxy"
 
 # minimal free space in MB required to create a tenant
