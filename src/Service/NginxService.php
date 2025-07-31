@@ -48,35 +48,26 @@ class NginxService
             throw new \RuntimeException('Unable to write vhost file');
         }
         if ($this->reload) {
-            if ($this->reloaderUrl !== '') {
-                try {
-                    $res = $this->httpClient->request(
-                        'POST',
-                        $this->reloaderUrl,
-                        ['headers' => ['X-Token' => $this->reloadToken]]
-                    );
-                    if ($res->getStatusCode() >= 300) {
-                        throw new \RuntimeException('HTTP ' . $res->getStatusCode());
-                    }
-                } catch (\Throwable $e) {
-                    throw new \RuntimeException('nginx reload failed: ' . $e->getMessage(), 0, $e);
-                }
-            } else {
-                $this->reloadDocker();
-            }
+            $this->reload();
         }
     }
 
     /**
-     * Reload nginx via Docker command.
+     * Trigger nginx reload via the reloader service.
      */
-    protected function reloadDocker(): void
+    public function reload(): void
     {
-        $output = [];
-        $status = 0;
-        exec('docker compose exec nginx nginx -s reload 2>&1', $output, $status);
-        if ($status !== 0) {
-            throw new \RuntimeException('nginx reload failed: ' . implode("\n", $output));
+        try {
+            $res = $this->httpClient->request(
+                'POST',
+                $this->reloaderUrl,
+                ['headers' => ['X-Token' => $this->reloadToken]]
+            );
+            if ($res->getStatusCode() >= 300) {
+                throw new \RuntimeException('HTTP ' . $res->getStatusCode());
+            }
+        } catch (\Throwable $e) {
+            throw new \RuntimeException('nginx reload failed: ' . $e->getMessage(), 0, $e);
         }
     }
 }
