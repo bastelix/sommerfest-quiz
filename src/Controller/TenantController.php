@@ -82,4 +82,14 @@ class TenantController
             ? $response->withStatus(200)
             : $response->withStatus(404);
     }
+
+    /**
+     * List all tenants as JSON.
+     */
+    public function list(Request $request, Response $response): Response
+    {
+        $list = $this->service->getAll();
+        $response->getBody()->write(json_encode($list));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
 }

@@ -91,4 +91,15 @@ class TenantService
 
         return false;
     }
+
+    /**
+     * Retrieve all tenants ordered by creation date.
+     *
+     * @return list<array{uid:string,subdomain:string,created_at:string}>
+     */
+    public function getAll(): array
+    {
+        $stmt = $this->pdo->query('SELECT uid, subdomain, created_at FROM tenants ORDER BY created_at');
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

@@ -27,7 +27,8 @@ document.addEventListener('DOMContentLoaded', function () {
     'results',
     'statistics',
     'pages',
-    'management'
+    'management',
+    'tenants'
   ];
   const settingsInitial = window.quizSettings || {};
   const pagesInitial = window.pagesContent || {};
@@ -1778,6 +1779,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const importJsonBtn = document.getElementById('importJsonBtn');
   const exportJsonBtn = document.getElementById('exportJsonBtn');
   const backupTableBody = document.getElementById('backupTableBody');
+  const tenantTableBody = document.getElementById('tenantTableBody');
 
   function loadBackups() {
     if (!backupTableBody) return;
@@ -1879,6 +1881,26 @@ document.addEventListener('DOMContentLoaded', function () {
         notify('Fehler beim Export', 'danger');
       });
   });
+
+  function loadTenants() {
+    if (!tenantTableBody) return;
+    apiFetch('/tenants.json', { headers: { 'Accept': 'application/json' } })
+      .then(r => r.json())
+      .then(list => {
+        tenantTableBody.innerHTML = '';
+        list.forEach(t => {
+          const tr = document.createElement('tr');
+          const subTd = document.createElement('td');
+          subTd.textContent = t.subdomain || '';
+          const createdTd = document.createElement('td');
+          createdTd.textContent = (t.created_at || '').replace('T', ' ').replace(/\..*/, '');
+          tr.appendChild(subTd);
+          tr.appendChild(createdTd);
+          tenantTableBody.appendChild(tr);
+        });
+      })
+      .catch(() => {});
+  }
 
   // Zähler für eindeutige Namen von Eingabefeldern
   let catalogRowIndex = 0;
@@ -2014,10 +2036,17 @@ document.addEventListener('DOMContentLoaded', function () {
       if (index === 5) {
         loadSummary();
       }
+      if (index === tenantIdx) {
+        loadTenants();
+      }
     });
     const summaryIdx = 5;
+    const tenantIdx = 10;
     adminTabs.children[summaryIdx]?.addEventListener('click', () => {
       loadSummary();
+    });
+    adminTabs.children[tenantIdx]?.addEventListener('click', () => {
+      loadTenants();
     });
     adminMenu.querySelectorAll('[data-tab]').forEach(item => {
       item.addEventListener('click', e => {
@@ -2033,6 +2062,9 @@ document.addEventListener('DOMContentLoaded', function () {
           if (idx === summaryIdx) {
             loadSummary();
           }
+          if (idx === tenantIdx) {
+            loadTenants();
+          }
         }
       });
     });
@@ -2041,4 +2073,5 @@ document.addEventListener('DOMContentLoaded', function () {
   // Page editors are handled in trumbowyg-pages.js
 
   loadBackups();
+  loadTenants();
 });
