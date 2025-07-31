@@ -30,7 +30,9 @@
         "test": [
             "@phpunit",
             "python3 tests/test_html_validity.py",
-            "python3 tests/test_json_validity.py"
+            "python3 tests/test_json_validity.py",
+            "node tests/test_competition_mode.js",
+            "node tests/test_results_rankings.js"
         ]
     }
 }
