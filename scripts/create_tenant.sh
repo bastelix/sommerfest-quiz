@@ -16,10 +16,14 @@ NGINX_RELOAD="$(grep '^NGINX_RELOAD=' "$ENV_FILE" | cut -d '=' -f2)"
 RELOADER_URL="$(grep '^NGINX_RELOADER_URL=' "$ENV_FILE" | cut -d '=' -f2)"
 RELOAD_TOKEN="$(grep '^NGINX_RELOAD_TOKEN=' "$ENV_FILE" | cut -d '=' -f2)"
 NGINX_CONTAINER="$(grep '^NGINX_CONTAINER=' "$ENV_FILE" | cut -d '=' -f2)"
+BASE_PATH="$(grep '^BASE_PATH=' "$ENV_FILE" | cut -d '=' -f2)"
+SERVICE_USER="$(grep '^SERVICE_USER=' "$ENV_FILE" | cut -d '=' -f2)"
+SERVICE_PASS="$(grep '^SERVICE_PASS=' "$ENV_FILE" | cut -d '=' -f2)"
 
 [ -z "$CLIENT_MAX_BODY_SIZE" ] && CLIENT_MAX_BODY_SIZE="50m"
 [ -z "$NGINX_RELOAD" ] && NGINX_RELOAD=1
 [ -z "$NGINX_CONTAINER" ] && NGINX_CONTAINER="nginx"
+[ -z "$BASE_PATH" ] && BASE_PATH=""
 
 if [ -z "$DOMAIN" ]; then
   echo "DOMAIN not found in $ENV_FILE" >&2
@@ -37,4 +41,17 @@ if [ -n "$RELOADER_URL" ]; then
   curl -s -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL"
 elif [ "$NGINX_RELOAD" = "1" ]; then
   docker compose exec "$NGINX_CONTAINER" nginx -s reload
+fi
+
+API_BASE="http://$DOMAIN${BASE_PATH}"
+if [ -n "$SERVICE_USER" ] && [ -n "$SERVICE_PASS" ]; then
+  COOKIE_FILE=$(mktemp)
+  if curl -fs -c "$COOKIE_FILE" -X POST "$API_BASE/login" \
+    -H 'Content-Type: application/json' \
+    -d "{\"username\":\"$SERVICE_USER\",\"password\":\"$SERVICE_PASS\"}" >/dev/null; then
+    curl -fs -b "$COOKIE_FILE" -X POST "$API_BASE/api/tenants/${SUBDOMAIN}/onboard" >/dev/null || true
+  fi
+  rm -f "$COOKIE_FILE"
+else
+  echo "Please complete onboarding via web wizard or scripts/onboard_tenant.sh $SUBDOMAIN" >&2
 fi

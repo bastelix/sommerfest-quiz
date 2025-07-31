@@ -44,9 +44,10 @@ Subdomains liefern hier einen 404-Status.
 
 Um einen neuen Mandanten anzulegen, führe auf dem Hostsystem
 `scripts/create_tenant.sh <subdomain>` aus oder sende einen `POST` an
-`/tenants`. Das Onboarding startet nun automatisch einen separaten
-Container und fordert für dich das SSL-Zertifikat an. Die erzeugte
-Compose-Datei startet einen PHP-Webserver auf Port `8080` und setzt
-`VIRTUAL_PORT=8080`. Diese Aufrufe funktionieren ausschließlich über die in
-`MAIN_DOMAIN` konfigurierte Domain.
+`/tenants`. Anschließend muss das Onboarding ausgeführt werden – entweder
+über den Web-Assistenten oder mit `scripts/onboard_tenant.sh`. Erst dann
+wird ein separater Container gestartet, der das SSL-Zertifikat beantragt.
+Die erzeugte Compose-Datei nutzt Port `8080` und setzt `VIRTUAL_PORT=8080`.
+Diese Aufrufe funktionieren ausschließlich über die in `MAIN_DOMAIN`
+konfigurierte Domain.
 
