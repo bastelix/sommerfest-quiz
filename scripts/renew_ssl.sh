@@ -8,15 +8,9 @@ if [ "$#" -lt 1 ]; then
 fi
 
 SLUG="$(echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')"
-ACME_CONTAINER="${ACME_CONTAINER:-acme-companion}"
+RELOADER_URL="${NGINX_RELOADER_URL:-http://nginx-reloader:8080/reload}"
+RELOAD_TOKEN="${NGINX_RELOAD_TOKEN:-changeme}"
 
-if ! docker ps --format '{{.Names}}' | grep -q "^${ACME_CONTAINER}$"; then
-  echo "{\"error\":\"acme container not running\"}" >&2
-  exit 1
-fi
-
-docker exec "$ACME_CONTAINER" /app/force_renew >/dev/null
-# trigger reload to activate renewed certs
-docker exec "$ACME_CONTAINER" /app/signal_le_service >/dev/null
+curl -fs -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL" >/dev/null
 
 printf '{"status":"renewed","slug":"%s"}\n' "$SLUG"

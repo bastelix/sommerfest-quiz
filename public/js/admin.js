@@ -1910,11 +1910,12 @@ document.addEventListener('DOMContentLoaded', function () {
           renewBtn.textContent = 'SSL erneuern';
           renewBtn.addEventListener('click', () => {
             apiFetch('/api/tenants/' + encodeURIComponent(t.subdomain) + '/renew-ssl', { method: 'POST' })
-              .then(r => {
-                if (!r.ok) return r.text().then(text => { throw new Error(text); });
-                notify('Zertifikat wird erneuert', 'success');
+              .then(r => r.json().then(data => ({ ok: r.ok, data })))
+              .then(({ ok, data }) => {
+                if (!ok) throw new Error(data.error || 'Fehler');
+                notify(data.status || 'Zertifikat wird erneuert', 'success');
               })
-              .catch(() => notify('Fehler beim Erneuern', 'danger'));
+              .catch(err => notify(err.message || 'Fehler beim Erneuern', 'danger'));
           });
           actionTd.appendChild(renewBtn);
           actionTd.appendChild(delBtn);

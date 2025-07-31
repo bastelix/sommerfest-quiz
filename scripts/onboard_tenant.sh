@@ -73,12 +73,9 @@ YAML
 docker compose -f "$COMPOSE_FILE" -p "$SLUG" up -d
 
 # optional reload to speed up certificate issuance
-if docker ps --format '{{.Names}}' | grep -q '^nginx$'; then
-  docker exec nginx nginx -s reload || true
-fi
-if docker ps --format '{{.Names}}' | grep -q '^acme-companion$'; then
-  docker exec acme-companion /app/signal_le_service || true
-fi
+RELOADER_URL="${NGINX_RELOADER_URL:-http://nginx-reloader:8080/reload}"
+RELOAD_TOKEN="${NGINX_RELOAD_TOKEN:-changeme}"
+curl -fs -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL" >/dev/null || true
 
 echo "Tenant '$SLUG' deployed under https://${SLUG}.${DOMAIN_SUFFIX}"
 echo "{\"status\": \"success\", \"slug\": \"${SLUG}\", \"url\": \"https://${SLUG}.${DOMAIN_SUFFIX}\"}"

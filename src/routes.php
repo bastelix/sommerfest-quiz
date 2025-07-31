@@ -469,8 +469,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/nginx-reload', function (Request $request, Response $response) {
         $token = $request->getHeaderLine('X-Token');
         $expected = $_ENV['NGINX_RELOAD_TOKEN'] ?? 'changeme';
-        $containerName = $_ENV['NGINX_CONTAINER'] ?? 'nginx';
-        $reloaderUrl = $_ENV['NGINX_RELOADER_URL'] ?? '';
+        $reloaderUrl = $_ENV['NGINX_RELOADER_URL'] ?? 'http://nginx-reloader:8080/reload';
 
         if ($token !== $expected) {
             $response->getBody()->write(json_encode(['error' => 'Unauthorized']));
@@ -480,44 +479,28 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(403);
         }
 
-        if ($reloaderUrl !== '') {
-            $client = $request->getAttribute('httpClient');
-            if (!$client instanceof Client) {
-                $client = new Client();
-            }
-            try {
-                $client->post($reloaderUrl, [
-                    'headers' => ['X-Token' => $expected],
-                ]);
-            } catch (\Throwable $e) {
-                $response->getBody()->write(json_encode([
-                    'error' => 'Reload failed',
-                    'details' => $e->getMessage(),
-                ]));
-
-                return $response
-                    ->withHeader('Content-Type', 'application/json')
-                    ->withStatus(500);
-            }
-
-            $response->getBody()->write(json_encode(['status' => 'nginx reloaded']));
-
-            return $response->withHeader('Content-Type', 'application/json');
+        $client = $request->getAttribute('httpClient');
+        if (!$client instanceof Client) {
+            $client = new Client();
         }
-
-        $cmd = escapeshellcmd("docker exec {$containerName} nginx -s reload 2>&1");
-        exec($cmd, $output, $exitCode);
-
-        if ($exitCode !== 0) {
+        try {
+            $client->post($reloaderUrl, [
+                'headers' => ['X-Token' => $expected],
+            ]);
+        } catch (\Throwable $e) {
             $response->getBody()->write(json_encode([
                 'error' => 'Reload failed',
-                'details' => implode("\n", $output),
+                'details' => $e->getMessage(),
             ]));
 
             return $response
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(500);
         }
+
+        $response->getBody()->write(json_encode(['status' => 'nginx reloaded']));
+
+        return $response->withHeader('Content-Type', 'application/json');
 
         $response->getBody()->write(json_encode(['status' => 'nginx reloaded']));
 
