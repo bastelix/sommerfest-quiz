@@ -162,5 +162,6 @@ return [
     'action_open_evaluation' => 'Open evaluation',
     'action_download' => 'Download',
     'action_delete_tenant' => 'Delete tenant',
+    'action_renew_ssl' => 'Renew SSL',
     'help_admin_pass' => 'Defines the admin password for the new tenant. Leave empty to generate a random one',
 ];
