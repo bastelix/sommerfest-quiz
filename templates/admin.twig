@@ -641,23 +641,34 @@
   <div id="adminNav" uk-offcanvas="overlay: true">
     <div class="uk-offcanvas-bar">
         <ul class="uk-nav uk-nav-default" id="adminMenu">
-          <li class="uk-nav-header">{{ t('menu') }}</li>
+          <li class="uk-nav-header">{{ t('menu_event') }}</li>
           <li><a href="{{ basePath }}/admin/events" data-tab="0">{{ t('tab_events') }}</a></li>
           <li><a href="{{ basePath }}/admin/event/settings" data-tab="1">{{ t('tab_event_settings') }}</a></li>
+
+          <li class="uk-nav-header">{{ t('menu_content') }}</li>
           <li><a href="{{ basePath }}/admin/catalogs" data-tab="2">{{ t('tab_catalogs') }}</a></li>
           <li><a href="{{ basePath }}/admin/questions" data-tab="3">{{ t('tab_questions') }}</a></li>
+          {% if role == 'admin' %}
+          <li><a href="{{ basePath }}/admin/pages" data-tab="8">{{ t('tab_pages') }}</a></li>
+          {% endif %}
+
+          <li class="uk-nav-header">{{ t('menu_teams') }}</li>
           <li><a href="{{ basePath }}/admin/teams" data-tab="4">{{ t('tab_teams') }}</a></li>
+
+          <li class="uk-nav-header">{{ t('menu_evaluation') }}</li>
           <li><a href="{{ basePath }}/admin/summary" data-tab="5">{{ t('tab_summary') }}</a></li>
           <li><a href="{{ basePath }}/admin/results" data-tab="6">{{ t('tab_results') }}</a></li>
           <li><a href="{{ basePath }}/admin/statistics" data-tab="7">{{ t('tab_statistics') }}</a></li>
+
           {% if role == 'admin' %}
-          <li><a href="{{ basePath }}/admin/pages" data-tab="8">{{ t('tab_pages') }}</a></li>
+          <li class="uk-nav-header">{{ t('menu_admin') }}</li>
           <li><a href="{{ basePath }}/admin/management" data-tab="9">{{ t('tab_management') }}</a></li>
           <li><a href="{{ basePath }}/admin/tenants" data-tab="10">{{ t('tab_tenants') }}</a></li>
           {% endif %}
-        <li class="uk-nav-divider"></li>
-        <li><a href="{{ basePath }}/logout">{{ t('logout') }}</a></li>
-      </ul>
+
+          <li class="uk-nav-divider"></li>
+          <li><a href="{{ basePath }}/logout">{{ t('logout') }}</a></li>
+        </ul>
     </div>
   </div>
 {% endblock %}
