@@ -41,6 +41,7 @@
 - Add migration step
 - Clarify DB privileges for tenants
 - Mention onboard_tenant script
+- Clarify Docker requirement for onboarding
 
 ### Feat
 
