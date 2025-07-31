@@ -524,6 +524,33 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $response->withHeader('Content-Type', 'application/json');
     });
 
+    $app->post('/api/tenants/{slug}/onboard', function (Request $request, Response $response, array $args) {
+        $slug = preg_replace('/[^a-z0-9\-]/', '-', strtolower((string) ($args['slug'] ?? '')));
+        $script = realpath(__DIR__ . '/../scripts/onboard_tenant.sh');
+
+        if (!is_file($script)) {
+            $response->getBody()->write(json_encode(['error' => 'Onboard script not found']));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
+
+        $cmd = escapeshellcmd($script . ' ' . $slug);
+        exec($cmd, $output, $exitCode);
+
+        if ($exitCode !== 0) {
+            $response->getBody()->write(json_encode([
+                'error' => 'Failed to start tenant',
+                'details' => implode("\n", $output),
+            ]));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
+
+        $response->getBody()->write(json_encode(['status' => 'success', 'slug' => $slug]));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    })->add(new RoleAuthMiddleware(Roles::SERVICE_ACCOUNT));
+
     $app->delete('/api/tenants/{slug}', function (Request $request, Response $response, array $args) {
         $slug = preg_replace('/[^a-z0-9\-]/', '-', strtolower((string) ($args['slug'] ?? '')));
         $script = realpath(__DIR__ . '/../scripts/offboard_tenant.sh');

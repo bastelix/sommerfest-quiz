@@ -237,22 +237,16 @@ Beide Skripte lesen die Variable `DOMAIN` aus `.env` und nutzen sie
 für die vhost-Konfiguration.
 
 Das Proxy-Setup legt zudem ein Docker-Netzwerk mit dem festen Namen
-`webproxy` an. Neue Mandanten werden über `scripts/onboard_tenant.sh`
-mit diesem Netzwerk verbunden, damit der gemeinsame Reverse Proxy
-Zertifikate für ihre Subdomains ausstellen kann. Stelle sicher,
-dass dein Haupt-Stack dieses Netzwerk erstellt oder verwaltet. Bei
-einem abweichenden Namen passe die Variable `NETWORK` im Skript an.
+`webproxy` an. Neue Mandanten werden per Onboarding automatisch mit diesem
+Netzwerk verbunden. Dabei wird ein separater Container gestartet, der
+das Let's-Encrypt-Zertifikat für die Subdomain anfordert. Stelle sicher,
+dass dein Haupt-Stack dieses Netzwerk erstellt oder verwaltet. Bei einem
+abweichenden Namen passe die Variable `NETWORK` im Skript an.
 
-Für komplett isolierte Mandanten steht `scripts/onboard_tenant.sh` bereit. Es
-schreibt unter `tenants/<slug>/` eine eigene `docker-compose.yml` und startet
-den zugehörigen Container. Dadurch wird automatisch ein
-Let's-Encrypt-Zertifikat für `<slug>.quizrace.app` angefordert. Führe das Skript
-nach dem Onboarding mit dem gewünschten Slug aus, damit die Subdomain
-aktiviert wird:
-
-```bash
-scripts/onboard_tenant.sh foo
-```
+Das Skript `scripts/onboard_tenant.sh` steht weiterhin zur Verfügung, um
+einen Container manuell zu starten oder neu aufzusetzen. Es schreibt unter
+`tenants/<slug>/` eine eigene `docker-compose.yml` und fordert ebenfalls das
+SSL-Zertifikat an.
 
 Das Skript legt dabei eine Compose-Datei an, die analog zum Hauptcontainer
 einen PHP-Webserver auf Port `8080` startet und `VIRTUAL_PORT=8080` setzt.
