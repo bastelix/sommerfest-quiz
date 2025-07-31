@@ -26,6 +26,8 @@
       .replace(/^-+|-+$/g, '');
   }
 
+  const RESERVED_SUBDOMAINS = new Set(['public']);
+
   document.addEventListener('DOMContentLoaded', () => {
     const loginBtn = document.getElementById('login-btn');
     const loginUser = document.getElementById('login-user');
@@ -135,7 +137,7 @@
       data.name = nameInput.value.trim();
       data.subdomain = slugify(data.name);
       subdomainPreview.textContent = data.subdomain || '-';
-      next1.disabled = data.name === '';
+      next1.disabled = data.name === '' || RESERVED_SUBDOMAINS.has(data.subdomain);
     });
 
     next1.addEventListener('click', async () => {
@@ -173,6 +175,13 @@
 
     createBtn.addEventListener('click', async () => {
       if (!adminPassInput) {
+        return;
+      }
+
+      if (data.subdomain === '' || RESERVED_SUBDOMAINS.has(data.subdomain)) {
+        if (typeof UIkit !== 'undefined') {
+          UIkit.notification({ message: 'Ungültige Subdomain', status: 'danger' });
+        }
         return;
       }
 

@@ -383,10 +383,12 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withStatus(400);
         }
         $schema = preg_replace('/[^a-z0-9_\-]/i', '', (string)$data['schema']);
-        if ($schema === '') {
+        $schema = strtolower($schema);
+        if ($schema === '' || $schema === 'public') {
             return $response->withStatus(400);
         }
         $pdo = Database::connectWithSchema($schema);
+        Migrator::migrate($pdo, __DIR__ . '/../migrations');
         $userService = new UserService($pdo);
         $existing = $userService->getByUsername('admin');
         if ($existing === null) {
