@@ -32,6 +32,10 @@ services:
       - VIRTUAL_HOST=${SLUG}.${DOMAIN_SUFFIX}
       - LETSENCRYPT_HOST=${SLUG}.${DOMAIN_SUFFIX}
       - LETSENCRYPT_EMAIL=${EMAIL}
+      - VIRTUAL_PORT=8080
+    command: php -S 0.0.0.0:8080 -t public public/router.php
+    expose:
+      - "8080"
     networks:
       - ${NETWORK}
     labels:
