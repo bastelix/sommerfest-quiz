@@ -74,6 +74,7 @@
 - Support webhook-based nginx reload
 - Display tenants tab for admin
 - Launch tenant webserver for ssl
+- Add SSL renewal for tenants
 
 ### Fix
 
