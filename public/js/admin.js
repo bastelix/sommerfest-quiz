@@ -1890,10 +1890,16 @@ document.addEventListener('DOMContentLoaded', function () {
           delBtn.textContent = 'Mandant löschen';
           delBtn.addEventListener('click', () => {
             if (!confirm('Mandant wirklich löschen?')) return;
-            apiFetch('/api/tenants/' + encodeURIComponent(t.subdomain), { method: 'DELETE' })
-              .then(r => r.json().then(j => ({ ok: r.ok, body: j })))
-              .then(({ ok, body }) => {
-                if (!ok) throw new Error(body.error || '');
+            apiFetch('/tenants', {
+              method: 'DELETE',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ uid: t.uid })
+            })
+              .then(r => {
+                if (!r.ok) return r.text().then(text => { throw new Error(text); });
+                return apiFetch('/api/tenants/' + encodeURIComponent(t.subdomain), { method: 'DELETE' });
+              })
+              .then(() => {
                 notify('Mandant entfernt', 'success');
                 loadTenants();
               })
