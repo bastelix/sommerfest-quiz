@@ -161,5 +161,6 @@ return [
     'action_refresh' => 'Aktualisieren',
     'action_open_evaluation' => 'Auswertung öffnen',
     'action_download' => 'Herunterladen',
+    'action_delete_tenant' => 'Mandant löschen',
     'help_admin_pass' => 'Definiert das Admin-Passwort des neuen Mandanten. Bleibt das Feld leer, wird ein zufälliges Passwort erzeugt',
 ];

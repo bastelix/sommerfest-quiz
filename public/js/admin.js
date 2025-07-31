@@ -1884,8 +1884,25 @@ document.addEventListener('DOMContentLoaded', function () {
           subTd.textContent = t.subdomain || '';
           const createdTd = document.createElement('td');
           createdTd.textContent = (t.created_at || '').replace('T', ' ').replace(/\..*/, '');
+          const actionTd = document.createElement('td');
+          const delBtn = document.createElement('button');
+          delBtn.className = 'uk-button uk-button-danger uk-button-small';
+          delBtn.textContent = 'Mandant löschen';
+          delBtn.addEventListener('click', () => {
+            if (!confirm('Mandant wirklich löschen?')) return;
+            apiFetch('/api/tenants/' + encodeURIComponent(t.subdomain), { method: 'DELETE' })
+              .then(r => r.json().then(j => ({ ok: r.ok, body: j })))
+              .then(({ ok, body }) => {
+                if (!ok) throw new Error(body.error || '');
+                notify('Mandant entfernt', 'success');
+                loadTenants();
+              })
+              .catch(() => notify('Fehler beim Löschen', 'danger'));
+          });
+          actionTd.appendChild(delBtn);
           tr.appendChild(subTd);
           tr.appendChild(createdTd);
+          tr.appendChild(actionTd);
           tenantTableBody.appendChild(tr);
         });
       })
