@@ -40,6 +40,7 @@
 - Add nginx onboarding note
 - Add migration step
 - Clarify DB privileges for tenants
+- Mention onboard_tenant script
 
 ### Feat
 
