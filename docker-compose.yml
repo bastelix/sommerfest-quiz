@@ -128,6 +128,8 @@ services:
 
 networks:
   webproxy:
+    name: webproxy
+    external: true
 
 volumes:
   certs:
