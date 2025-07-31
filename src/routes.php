@@ -501,10 +501,6 @@ return function (\Slim\App $app, TranslationService $translator) {
         $response->getBody()->write(json_encode(['status' => 'nginx reloaded']));
 
         return $response->withHeader('Content-Type', 'application/json');
-
-        $response->getBody()->write(json_encode(['status' => 'nginx reloaded']));
-
-        return $response->withHeader('Content-Type', 'application/json');
     });
 
     $app->post('/api/tenants/{slug}/onboard', function (Request $request, Response $response, array $args) {
