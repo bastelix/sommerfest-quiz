@@ -1905,6 +1905,18 @@ document.addEventListener('DOMContentLoaded', function () {
               })
               .catch(() => notify('Fehler beim Löschen', 'danger'));
           });
+          const renewBtn = document.createElement('button');
+          renewBtn.className = 'uk-button uk-button-default uk-button-small uk-margin-small-right';
+          renewBtn.textContent = 'SSL erneuern';
+          renewBtn.addEventListener('click', () => {
+            apiFetch('/api/tenants/' + encodeURIComponent(t.subdomain) + '/renew-ssl', { method: 'POST' })
+              .then(r => {
+                if (!r.ok) return r.text().then(text => { throw new Error(text); });
+                notify('Zertifikat wird erneuert', 'success');
+              })
+              .catch(() => notify('Fehler beim Erneuern', 'danger'));
+          });
+          actionTd.appendChild(renewBtn);
           actionTd.appendChild(delBtn);
           tr.appendChild(subTd);
           tr.appendChild(createdTd);
