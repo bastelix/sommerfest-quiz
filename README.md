@@ -254,6 +254,11 @@ aktiviert wird:
 scripts/onboard_tenant.sh foo
 ```
 
+Das Skript legt dabei eine Compose-Datei an, die analog zum Hauptcontainer
+einen PHP-Webserver auf Port `8080` startet und `VIRTUAL_PORT=8080` setzt.
+Nur so kann der `acme-companion` die HTTP-Challenge beantworten und das
+Zertifikat erstellen.
+
 Der Datenbanknutzer, der über `POSTGRES_USER` definiert ist, muss
 neue Schemas und Tabellen anlegen dürfen. Bei PostgreSQL reicht etwa
 folgender Befehl aus:
