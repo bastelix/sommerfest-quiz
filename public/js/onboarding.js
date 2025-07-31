@@ -53,6 +53,7 @@
     if (reloadToken) {
       tasks.push({ key: 'reload', label: 'Proxy neu laden' });
     }
+    tasks.push({ key: 'ssl', label: 'Container starten (SSL)' });
 
     function initTaskList() {
       if (!taskStatusEl || taskStatusEl.children.length > 0) return;
@@ -286,6 +287,23 @@
           logMessage(json.status || 'Proxy neu geladen');
         }
 
+        logMessage('Container wird gestartet und SSL-Zertifikat angefordert...');
+        const boardRes = await fetch(
+          withBase('/api/tenants/' + encodeURIComponent(data.subdomain) + '/onboard'),
+          {
+            method: 'POST',
+            credentials: 'include'
+          }
+        );
+        const boardJson = await boardRes.json().catch(() => ({}));
+        if (!boardRes.ok) {
+          logMessage('Fehler Onboard: ' + (boardJson.details || boardJson.error || ''));
+          setTaskStatus('ssl', 'failed');
+          throw new Error(boardJson.error || 'onboard');
+        }
+        setTaskStatus('ssl', 'done');
+        logMessage(boardJson.status || 'Container gestartet');
+
         if (successDomain) {
           successDomain.textContent = data.subdomain + '.' + mainDomain;
           successDomain.hidden = false;
@@ -297,9 +315,7 @@
 
         if (successScript) {
           successScript.textContent =
-            'F\u00fchre auf dem Server "scripts/onboard_tenant.sh ' +
-            data.subdomain +
-            '" aus, um die Subdomain zu starten und das SSL-Zertifikat anzufordern.';
+            'Die Subdomain wird gestartet und das SSL-Zertifikat beantragt.';
           successScript.hidden = false;
         }
 
