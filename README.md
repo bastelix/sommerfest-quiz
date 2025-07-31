@@ -254,6 +254,12 @@ einen PHP-Webserver auf Port `8080` startet und `VIRTUAL_PORT=8080` setzt.
 Nur so kann der `acme-companion` die HTTP-Challenge beantworten und das
 Zertifikat erstellen.
 
+Um diese Container auch aus dem `slim`-Service heraus starten zu können,
+benötigt das Image ein Docker-CLI und Zugriff auf den Docker-Daemon. Binde
+dafür `/var/run/docker.sock` ein oder führe `scripts/onboard_tenant.sh`
+alternativ direkt auf dem Host aus, wenn Docker im Container nicht
+verfügbar ist.
+
 Zum Entfernen einer isolierten Instanz nutzt du `scripts/offboard_tenant.sh`.
 Das Skript stoppt den Container und löscht das Verzeichnis `tenants/<slug>/`:
 
