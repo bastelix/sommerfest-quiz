@@ -76,6 +76,7 @@
 - Display tenants tab for admin
 - Launch tenant webserver for ssl
 - Add SSL renewal for tenants
+- Auto onboard when credentials available
 
 ### Fix
 
