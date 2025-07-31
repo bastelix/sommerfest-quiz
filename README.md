@@ -236,6 +236,13 @@ scripts/delete_tenant.sh foo
 Beide Skripte lesen die Variable `DOMAIN` aus `.env` und nutzen sie
 für die vhost-Konfiguration.
 
+Das Proxy-Setup legt zudem ein Docker-Netzwerk mit dem festen Namen
+`webproxy` an. Neue Mandanten werden über `scripts/onboard_tenant.sh`
+mit diesem Netzwerk verbunden, damit der gemeinsame Reverse Proxy
+Zertifikate für ihre Subdomains ausstellen kann. Stelle sicher,
+dass dein Haupt-Stack dieses Netzwerk erstellt oder verwaltet. Bei
+einem abweichenden Namen passe die Variable `NETWORK` im Skript an.
+
 Für komplett isolierte Mandanten steht `scripts/onboard_tenant.sh` bereit. Es
 schreibt unter `tenants/<slug>/` eine eigene `docker-compose.yml` und startet
 den zugehörigen Container. Dadurch wird automatisch ein
