@@ -227,6 +227,13 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/statistics', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/pages', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/management', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->get('/admin/tenants', function (Request $request, Response $response) {
+        if ($request->getAttribute('domainType') !== 'main') {
+            return $response->withStatus(404);
+        }
+        $controller = new AdminController();
+        return $controller($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/kataloge', AdminCatalogController::class)
         ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
 
@@ -340,6 +347,13 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         return $request->getAttribute('tenantController')->delete($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::SERVICE_ACCOUNT));
+
+    $app->get('/tenants.json', function (Request $request, Response $response) {
+        if ($request->getAttribute('domainType') !== 'main') {
+            return $response->withStatus(403);
+        }
+        return $request->getAttribute('tenantController')->list($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
     $app->get('/teams.json', function (Request $request, Response $response) {
         return $request->getAttribute('teamController')->get($request, $response);

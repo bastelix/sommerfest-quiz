@@ -148,6 +148,7 @@ class AdminController
             'event' => $event,
             'role' => $role,
             'pages' => $pages,
+            'domainType' => $request->getAttribute('domainType'),
         ]);
     }
 }
