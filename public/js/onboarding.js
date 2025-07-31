@@ -106,14 +106,13 @@
       for (let i = 0; i < 30; i++) {
         try {
           await fetch(url, { method: 'HEAD', mode: 'no-cors' });
-          window.location.href = url;
-          return;
+          return true;
         } catch (e) {
           // ignore errors until certificate is ready
         }
         await new Promise(resolve => setTimeout(resolve, 5000));
       }
-      window.location.href = url;
+      return false;
     }
 
     if (loginBtn) {
@@ -326,8 +325,12 @@
           link.className = 'uk-button uk-button-primary uk-margin-top';
           link.href = 'https://' + data.subdomain + '.' + mainDomain;
           link.textContent = 'Zu Ihrem QuizRace';
+          link.hidden = true;
           successEl.appendChild(link);
-          waitForHttps(link.href);
+          const sslReady = await waitForHttps(link.href);
+          if (sslReady) {
+            link.hidden = false;
+          }
         }
       } catch (err) {
         logMessage('Fehler beim Anlegen: ' + (err.message || err));
