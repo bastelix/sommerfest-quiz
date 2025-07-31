@@ -59,3 +59,5 @@ Alternativ kannst du den Reload durch einen separaten Webhook-Service ausführen
 
 Möchtest du für jeden Mandanten einen eigenen Docker-Stack starten, hilft `scripts/onboard_tenant.sh`. Dieses Skript erzeugt unter `tenants/<slug>/` eine individuelle `docker-compose.yml`, startet die Instanz und überlässt `acme-companion` die Zertifikatserstellung für `<slug>.quizrace.app`.
 Führe das Skript nach dem Onboarding mit dem entsprechenden Slug aus, damit der Container läuft und das Zertifikat erstellt wird. Die erzeugte Compose-Datei startet den PHP-Webserver auf Port `8080` und setzt `VIRTUAL_PORT=8080`, sodass der Reverse Proxy die ACME-Challenge bedienen kann.
+
+Zum Entfernen einer Instanz steht `scripts/offboard_tenant.sh` bereit. Es stoppt den Container, entfernt dessen Volumes und löscht das Unterverzeichnis `tenants/<slug>/`.

@@ -524,6 +524,30 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $response->withHeader('Content-Type', 'application/json');
     });
 
+    $app->delete('/api/tenants/{slug}', function (Request $request, Response $response, array $args) {
+        $slug = preg_replace('/[^a-z0-9\-]/', '-', strtolower((string) ($args['slug'] ?? '')));
+        $script = realpath(__DIR__ . '/../scripts/offboard_tenant.sh');
+
+        if (!is_file($script)) {
+            $response->getBody()->write(json_encode(['error' => 'Offboard script not found']));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
+
+        $cmd = escapeshellcmd($script . ' ' . $slug);
+        exec($cmd, $output, $exitCode);
+
+        if ($exitCode !== 0) {
+            $response->getBody()->write(json_encode(['error' => 'Failed to remove tenant']));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        }
+
+        $response->getBody()->write(json_encode(['status' => 'success', 'slug' => $slug]));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    })->add(new RoleAuthMiddleware('admin'));
+
     $app->get('/database', function (Request $request, Response $response) {
         $uri = $request->getUri();
         $location = 'https://adminer.' . $uri->getHost();
