@@ -93,6 +93,7 @@ services:
       - ./:/var/www
       # Mount custom PHP settings (overrides copy in Dockerfile)
       - ./config/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - VIRTUAL_HOST=${SLIM_VIRTUAL_HOST:-${DOMAIN}}
       - LETSENCRYPT_HOST=${SLIM_VIRTUAL_HOST:-${DOMAIN}}

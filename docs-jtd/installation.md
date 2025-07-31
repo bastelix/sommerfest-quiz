@@ -61,4 +61,6 @@ Auch die Anwendung selbst stößt den Reload nun über diesen HTTP-Service an un
 Möchtest du für jeden Mandanten einen eigenen Docker-Stack starten, übernimmt dies nun automatisch das Onboarding. Dabei wird unter `tenants/<slug>/` eine individuelle `docker-compose.yml` angelegt und die Instanz gestartet. `acme-companion` kümmert sich um das Zertifikat für `<slug>.quizrace.app>`.
 Das Skript `scripts/onboard_tenant.sh` kann weiterhin genutzt werden, um bei Bedarf einen Container manuell zu initialisieren. Die erzeugte Compose-Datei startet den PHP-Webserver auf Port `8080` und setzt `VIRTUAL_PORT=8080`, sodass der Reverse Proxy die ACME-Challenge bedienen kann.
 
+Damit das Skript im Container funktioniert, muss dort die Docker-CLI verfügbar sein und das Socket des Host-Daemons eingebunden werden. Andernfalls führe das Skript direkt auf dem Host aus.
+
 Zum Entfernen einer Instanz steht `scripts/offboard_tenant.sh` bereit. Es stoppt den Container, entfernt dessen Volumes und löscht das Unterverzeichnis `tenants/<slug>/`.
