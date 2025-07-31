@@ -376,6 +376,27 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/restore-default', function (Request $request, Response $response) {
         return $request->getAttribute('importController')->restoreDefaults($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::SERVICE_ACCOUNT));
+
+    $app->post('/tenant-admin', function (Request $request, Response $response) {
+        $data = json_decode((string)$request->getBody(), true);
+        if (!is_array($data) || !isset($data['schema'], $data['password'])) {
+            return $response->withStatus(400);
+        }
+        $schema = preg_replace('/[^a-z0-9_\-]/i', '', (string)$data['schema']);
+        if ($schema === '') {
+            return $response->withStatus(400);
+        }
+        $pdo = Database::connectWithSchema($schema);
+        $userService = new UserService($pdo);
+        $existing = $userService->getByUsername('admin');
+        if ($existing === null) {
+            $userService->create('admin', (string)$data['password'], Roles::ADMIN);
+        } else {
+            $userService->updatePassword((int)$existing['id'], (string)$data['password']);
+        }
+
+        return $response->withStatus(204);
+    })->add(new RoleAuthMiddleware(Roles::SERVICE_ACCOUNT));
     $app->post('/import/{name}', function (Request $request, Response $response, array $args) {
         return $request
             ->getAttribute('importController')
