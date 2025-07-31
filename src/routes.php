@@ -513,13 +513,15 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
 
-        $cmd = escapeshellcmd($script . ' ' . $slug);
+        $cmd = escapeshellcmd($script . ' ' . $slug) . ' 2>&1';
         exec($cmd, $output, $exitCode);
 
         if ($exitCode !== 0) {
+            $msg = implode("\n", $output);
+            $first = strtok($msg, "\n");
             $response->getBody()->write(json_encode([
-                'error' => 'Failed to start tenant',
-                'details' => implode("\n", $output),
+                'error' => $first ?: 'Failed to start tenant',
+                'details' => $msg,
             ]));
 
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
