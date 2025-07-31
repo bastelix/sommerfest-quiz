@@ -44,6 +44,8 @@ Subdomains liefern hier einen 404-Status.
 
 Um einen neuen Mandanten anzulegen, führe auf dem Hostsystem
 `scripts/create_tenant.sh <subdomain>` aus oder sende einen `POST` an
-`/tenants`. Diese Aufrufe funktionieren ausschließlich über die in
+`/tenants`. Anschließend startest du mit
+`scripts/onboard_tenant.sh <subdomain>` den separaten Container, der das
+SSL-Zertifikat anfordert. Diese Aufrufe funktionieren ausschließlich über die in
 `MAIN_DOMAIN` konfigurierte Domain.
 

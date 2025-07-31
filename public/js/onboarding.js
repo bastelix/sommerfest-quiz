@@ -97,6 +97,7 @@
     const successDomain = document.getElementById('success-domain');
     const successPass = document.getElementById('success-pass');
     const successInfo = document.getElementById('success-info');
+    const successScript = document.getElementById('success-script');
 
     async function waitForHttps(url) {
       for (let i = 0; i < 30; i++) {
@@ -305,6 +306,14 @@
         if (successPass) {
           successPass.textContent = 'Ihr Admin-Login lautet: admin / ' + data.adminPass;
           successPass.hidden = false;
+        }
+
+        if (successScript) {
+          successScript.textContent =
+            'F\u00fchre auf dem Server "scripts/onboard_tenant.sh ' +
+            data.subdomain +
+            '" aus, um die Subdomain zu starten und das SSL-Zertifikat anzufordern.';
+          successScript.hidden = false;
         }
 
         const successEl = document.getElementById('success');
