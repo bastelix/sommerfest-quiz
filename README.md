@@ -239,7 +239,13 @@ für die vhost-Konfiguration.
 Für komplett isolierte Mandanten steht `scripts/onboard_tenant.sh` bereit. Es
 schreibt unter `tenants/<slug>/` eine eigene `docker-compose.yml` und startet
 den zugehörigen Container. Dadurch wird automatisch ein
-Let's-Encrypt-Zertifikat für `<slug>.quizrace.app` angefordert.
+Let's-Encrypt-Zertifikat für `<slug>.quizrace.app` angefordert. Führe das Skript
+nach dem Onboarding mit dem gewünschten Slug aus, damit die Subdomain
+aktiviert wird:
+
+```bash
+scripts/onboard_tenant.sh foo
+```
 
 Der Datenbanknutzer, der über `POSTGRES_USER` definiert ist, muss
 neue Schemas und Tabellen anlegen dürfen. Bei PostgreSQL reicht etwa
