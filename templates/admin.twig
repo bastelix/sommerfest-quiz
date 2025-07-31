@@ -52,9 +52,7 @@
     {% if role == 'admin' %}
     <li data-route="pages" data-help="Statische Seiten bearbeiten."><a href="{{ basePath }}/admin/pages">{{ t('tab_pages') }}</a></li>
     <li data-route="management" data-help="Benutzer verwalten, Rollen zuweisen und Sicherungen erstellen. Rollen: admin – Administrator; catalog-editor – Fragenkataloge bearbeiten; event-manager – Veranstaltungen verwalten; analyst – Ergebnisse analysieren; team-manager – Teams verwalten."><a href="{{ basePath }}/admin/management">{{ t('tab_management') }}</a></li>
-    {% if domainType == 'main' %}
     <li data-route="tenants" data-help="Liste aller angelegten Subdomains."><a href="{{ basePath }}/admin/tenants">{{ t('tab_tenants') }}</a></li>
-    {% endif %}
     {% endif %}
   </ul>
   <ul id="adminSwitcher" class="uk-switcher uk-margin">
@@ -617,7 +615,7 @@
         </table>
       </div>
     </li>
-    {% if domainType == 'main' and role == 'admin' %}
+    {% if role == 'admin' %}
     <li>
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_tenants') }}</h2>
@@ -655,9 +653,7 @@
           {% if role == 'admin' %}
           <li><a href="{{ basePath }}/admin/pages" data-tab="8">{{ t('tab_pages') }}</a></li>
           <li><a href="{{ basePath }}/admin/management" data-tab="9">{{ t('tab_management') }}</a></li>
-          {% if domainType == 'main' %}
           <li><a href="{{ basePath }}/admin/tenants" data-tab="10">{{ t('tab_tenants') }}</a></li>
-          {% endif %}
           {% endif %}
         <li class="uk-nav-divider"></li>
         <li><a href="{{ basePath }}/logout">{{ t('logout') }}</a></li>
