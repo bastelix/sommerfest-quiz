@@ -237,11 +237,13 @@ Beide Skripte lesen die Variable `DOMAIN` aus `.env` und nutzen sie
 für die vhost-Konfiguration.
 
 Das Proxy-Setup legt zudem ein Docker-Netzwerk mit dem festen Namen
-`webproxy` an. Neue Mandanten werden per Onboarding automatisch mit diesem
-Netzwerk verbunden. Dabei wird ein separater Container gestartet, der
-das Let's-Encrypt-Zertifikat für die Subdomain anfordert. Stelle sicher,
-dass dein Haupt-Stack dieses Netzwerk erstellt oder verwaltet. Bei einem
-abweichenden Namen passe die Variable `NETWORK` im Skript an.
+`webproxy` an. Nach dem Aufruf von `scripts/create_tenant.sh` oder einem
+`POST /tenants` muss das Onboarding angestoßen werden, damit der neue
+Mandant diesem Netzwerk beitritt und ein Let's-Encrypt-Zertifikat erhält.
+Starte dazu den Web-Assistenten unter `/onboarding` oder führe
+`scripts/onboard_tenant.sh <subdomain>` aus. Stelle sicher, dass dein
+Haupt-Stack dieses Netzwerk erstellt oder verwaltet. Bei einem abweichenden
+Namen passe die Variable `NETWORK` im Skript an.
 
 Das Skript `scripts/onboard_tenant.sh` steht weiterhin zur Verfügung, um
 einen Container manuell zu starten oder neu aufzusetzen. Es schreibt unter
@@ -294,6 +296,8 @@ Weitere nützliche Variablen in `.env` sind:
 - `BASE_PATH` – optionaler Basis-Pfad, falls die Anwendung nicht im Root der Domain liegt.
 - `SERVICE_USER` – Benutzername für den automatischen Login des Onboarding-Assistenten.
 - `SERVICE_PASS` – Passwort dieses Service-Benutzers.
+- Sind beide gesetzt, führt `scripts/create_tenant.sh` das Onboarding
+  nach dem Anlegen eines Mandanten automatisch per `POST /api/tenants/<subdomain>/onboard` aus.
 - **Wichtig:** Der Onboarding-Assistent setzt einen Account mit mindestens der
   Rolle `service-account` voraus, um alle Schritte (inklusive `POST /restore-default`)
   automatisiert auszuführen. Ein Beispiel zum Anlegen:
