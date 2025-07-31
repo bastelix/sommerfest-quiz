@@ -72,6 +72,7 @@
 - Add tenant availability check
 - Add nginx reload route
 - Support webhook-based nginx reload
+- Display tenants tab for admin
 
 ### Fix
 
