@@ -247,6 +247,7 @@ Das Skript `scripts/onboard_tenant.sh` steht weiterhin zur Verfügung, um
 einen Container manuell zu starten oder neu aufzusetzen. Es schreibt unter
 `tenants/<slug>/` eine eigene `docker-compose.yml` und fordert ebenfalls das
 SSL-Zertifikat an.
+Welches Docker-Image dabei verwendet wird, lässt sich über die Variable `APP_IMAGE` in der `.env` steuern.
 
 Das Skript legt dabei eine Compose-Datei an, die analog zum Hauptcontainer
 einen PHP-Webserver auf Port `8080` startet und `VIRTUAL_PORT=8080` setzt.
@@ -283,6 +284,7 @@ Weitere nützliche Variablen in `.env` sind:
 
 - `LETSENCRYPT_EMAIL` – Kontaktadresse für die automatische Zertifikatserstellung.
 - `MAIN_DOMAIN` – zentrale Domain des Quiz-Containers (z.B. `quizrace.app`).
+- `APP_IMAGE` – Docker-Image, das für neue Mandanten verwendet wird.
 - `BASE_PATH` – optionaler Basis-Pfad, falls die Anwendung nicht im Root der Domain liegt.
 - `SERVICE_USER` – Benutzername für den automatischen Login des Onboarding-Assistenten.
 - `SERVICE_PASS` – Passwort dieses Service-Benutzers.
