@@ -23,6 +23,16 @@ SERVICE_PASS="$(grep '^SERVICE_PASS=' "$ENV_FILE" | cut -d '=' -f2)"
 [ -z "$CLIENT_MAX_BODY_SIZE" ] && CLIENT_MAX_BODY_SIZE="50m"
 [ -z "$NGINX_RELOAD" ] && NGINX_RELOAD=1
 [ -z "$NGINX_CONTAINER" ] && NGINX_CONTAINER="nginx"
+
+# detect docker compose command
+if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+  DOCKER_COMPOSE="docker compose"
+elif command -v docker-compose >/dev/null 2>&1; then
+  DOCKER_COMPOSE="docker-compose"
+else
+  echo "docker compose oder docker-compose ist nicht verf\u00fcgbar" >&2
+  exit 1
+fi
 [ -z "$BASE_PATH" ] && BASE_PATH=""
 
 if [ -z "$DOMAIN" ]; then
@@ -40,7 +50,7 @@ echo "client_max_body_size $CLIENT_MAX_BODY_SIZE;" > "$BASE_DIR/vhost.d/${SUBDOM
 if [ -n "$RELOADER_URL" ]; then
   curl -s -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL"
 elif [ "$NGINX_RELOAD" = "1" ]; then
-  docker compose exec "$NGINX_CONTAINER" nginx -s reload
+  $DOCKER_COMPOSE exec "$NGINX_CONTAINER" nginx -s reload
 fi
 
 API_BASE="http://$DOMAIN${BASE_PATH}"
