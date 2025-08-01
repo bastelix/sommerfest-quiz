@@ -100,6 +100,7 @@
 - Respect base path in admin JS
 - Serve event-specific logo paths
 - Remove landing menu in admin
+- *(onboard)* Write error messages to stderr
 
 ### Refactor
 
