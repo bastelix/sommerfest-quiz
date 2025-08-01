@@ -80,6 +80,7 @@
 - Add SSL renewal for tenants
 - Auto onboard when credentials available
 - *(admin)* Link tenant subdomains
+- *(onboarding)* Show link to new container
 
 ### Fix
 
