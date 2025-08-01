@@ -79,6 +79,7 @@
 - Launch tenant webserver for ssl
 - Add SSL renewal for tenants
 - Auto onboard when credentials available
+- *(admin)* Link tenant subdomains
 
 ### Fix
 
