@@ -136,6 +136,10 @@ class AdminController
             }
         }
 
+        $mainDomain = getenv('MAIN_DOMAIN')
+            ?: getenv('DOMAIN')
+            ?: $uri->getHost();
+
         return $view->render($response, 'admin.twig', [
             'config' => $cfg,
             'settings' => $settings,
@@ -145,6 +149,7 @@ class AdminController
             'users' => $users,
             'roles' => Roles::ALL,
             'baseUrl' => $baseUrl,
+            'main_domain' => $mainDomain,
             'event' => $event,
             'role' => $role,
             'pages' => $pages,

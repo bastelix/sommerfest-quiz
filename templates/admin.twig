@@ -684,6 +684,7 @@
     window.quizSettings = {{ settings|json_encode|raw }};
     window.roles = {{ roles|json_encode|raw }};
     window.baseUrl = '{{ baseUrl }}';
+    window.mainDomain = '{{ main_domain }}';
     window.pagesContent = {{ pages|json_encode|raw }};
   </script>
   <script src="{{ basePath }}/js/admin.js"></script>

@@ -1874,6 +1874,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function loadTenants() {
     if (!tenantTableBody) return;
+    const mainDomain = window.mainDomain || '';
     apiFetch('/tenants.json', { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(list => {
@@ -1881,7 +1882,17 @@ document.addEventListener('DOMContentLoaded', function () {
         list.forEach(t => {
           const tr = document.createElement('tr');
           const subTd = document.createElement('td');
-          subTd.textContent = t.subdomain || '';
+          const sub = t.subdomain || '';
+          if (sub && mainDomain) {
+            const a = document.createElement('a');
+            a.href = 'https://' + sub + '.' + mainDomain;
+            a.target = '_blank';
+            a.rel = 'noopener';
+            a.textContent = sub;
+            subTd.appendChild(a);
+          } else {
+            subTd.textContent = sub;
+          }
           const createdTd = document.createElement('td');
           createdTd.textContent = (t.created_at || '').replace('T', ' ').replace(/\..*/, '');
           const actionTd = document.createElement('td');
