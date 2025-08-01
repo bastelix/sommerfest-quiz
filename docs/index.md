@@ -54,6 +54,7 @@ Die Mandanten-Logik nutzt folgende Variablen aus `.env` oder `sample.env`:
 
 - `DOMAIN` legt die Basis-Domain für alle Mandanten fest.
 - `MAIN_DOMAIN` definiert die Hauptdomain des Quiz-Containers.
+- `APP_IMAGE` bestimmt das Docker-Image für neu angelegte Tenant-Container.
 - `POSTGRES_DSN`, `POSTGRES_USER` und `POSTGRES_PASSWORD` bestimmen den Datenbankzugang.
 
 ### Anmelde-Workflow
