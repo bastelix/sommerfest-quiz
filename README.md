@@ -236,14 +236,14 @@ scripts/delete_tenant.sh foo
 Beide Skripte lesen die Variable `DOMAIN` aus `.env` und nutzen sie
 für die vhost-Konfiguration.
 
-Das Proxy-Setup legt zudem ein Docker-Netzwerk mit dem festen Namen
+Das Proxy-Setup legt zudem standardmäßig ein Docker-Netzwerk namens
 `webproxy` an. Nach dem Aufruf von `scripts/create_tenant.sh` oder einem
 `POST /tenants` muss das Onboarding angestoßen werden, damit der neue
 Mandant diesem Netzwerk beitritt und ein Let's-Encrypt-Zertifikat erhält.
 Starte dazu den Web-Assistenten unter `/onboarding` oder führe
 `scripts/onboard_tenant.sh <subdomain>` aus. Stelle sicher, dass dein
-Haupt-Stack dieses Netzwerk erstellt oder verwaltet. Bei einem abweichenden
-Namen passe die Variable `NETWORK` im Skript an.
+Haupt-Stack dieses Netzwerk erstellt oder verwaltet. Den Namen kannst du
+über die Umgebungsvariable `NETWORK` im Skript anpassen.
 
 Das Skript `scripts/onboard_tenant.sh` steht weiterhin zur Verfügung, um
 einen Container manuell zu starten oder neu aufzusetzen. Es schreibt unter
@@ -293,6 +293,7 @@ Weitere nützliche Variablen in `.env` sind:
 - `LETSENCRYPT_EMAIL` – Kontaktadresse für die automatische Zertifikatserstellung.
 - `MAIN_DOMAIN` – zentrale Domain des Quiz-Containers (z.B. `quizrace.app`).
 - `APP_IMAGE` – Docker-Image, das für neue Mandanten verwendet wird.
+- `NETWORK` – Name des Docker-Netzwerks des Reverse Proxy (Standard `webproxy`).
 - `BASE_PATH` – optionaler Basis-Pfad, falls die Anwendung nicht im Root der Domain liegt.
 - `SERVICE_USER` – Benutzername für den automatischen Login des Onboarding-Assistenten.
 - `SERVICE_PASS` – Passwort dieses Service-Benutzers.
