@@ -19,14 +19,16 @@ NGINX_CONTAINER="$(grep '^NGINX_CONTAINER=' "$ENV_FILE" | cut -d '=' -f2)"
 [ -z "$NGINX_RELOAD" ] && NGINX_RELOAD=1
 [ -z "$NGINX_CONTAINER" ] && NGINX_CONTAINER="nginx"
 
-# detect docker compose command
-if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
-  DOCKER_COMPOSE="docker compose"
-elif command -v docker-compose >/dev/null 2>&1; then
-  DOCKER_COMPOSE="docker-compose"
-else
-  echo "docker compose oder docker-compose ist nicht verf\u00fcgbar" >&2
-  exit 1
+# detect docker compose only when a reload via Docker is required
+if [ "$NGINX_RELOAD" = "1" ] && [ -z "$RELOADER_URL" ]; then
+  if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+    DOCKER_COMPOSE="docker compose"
+  elif command -v docker-compose >/dev/null 2>&1; then
+    DOCKER_COMPOSE="docker-compose"
+  else
+    echo "docker compose oder docker-compose ist nicht verf\u00fcgbar" >&2
+    exit 1
+  fi
 fi
 
 if [ -z "$DOMAIN" ]; then
