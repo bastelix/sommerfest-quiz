@@ -104,6 +104,7 @@
 - Serve event-specific logo paths
 - Remove landing menu in admin
 - *(onboard)* Write error messages to stderr
+- Detect docker compose command
 
 ### Refactor
 
