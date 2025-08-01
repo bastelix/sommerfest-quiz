@@ -101,6 +101,7 @@
     const successPass = document.getElementById('success-pass');
     const successInfo = document.getElementById('success-info');
     const successScript = document.getElementById('success-script');
+    const successLink = document.getElementById('success-link');
 
     async function waitForHttps(url) {
       for (let i = 0; i < 30; i++) {
@@ -318,19 +319,9 @@
           successScript.hidden = false;
         }
 
-        const successEl = document.getElementById('success');
-        if (successEl && !document.getElementById('success-link')) {
-          const link = document.createElement('a');
-          link.id = 'success-link';
-          link.className = 'uk-button uk-button-primary uk-margin-top';
-          link.href = 'https://' + data.subdomain + '.' + mainDomain;
-          link.textContent = 'Zu Ihrem QuizRace';
-          link.hidden = true;
-          successEl.appendChild(link);
-          const sslReady = await waitForHttps(link.href);
-          if (sslReady) {
-            link.hidden = false;
-          }
+        if (successLink) {
+          successLink.href = 'https://' + data.subdomain + '.' + mainDomain;
+          successLink.hidden = false;
         }
       } catch (err) {
         logMessage('Fehler beim Anlegen: ' + (err.message || err));
