@@ -250,6 +250,8 @@ einen Container manuell zu starten oder neu aufzusetzen. Es schreibt unter
 `tenants/<slug>/` eine eigene `docker-compose.yml` und fordert ebenfalls das
 SSL-Zertifikat an.
 Welches Docker-Image dabei verwendet wird, lässt sich über die Variable `APP_IMAGE` in der `.env` steuern.
+Dieses Tag sollte dem lokal gebauten Slim-Image entsprechen (`docker build -t <tag> .`),
+da das Onboarding-Skript diese Variable nutzt.
 
 Das Skript legt dabei eine Compose-Datei an, die analog zum Hauptcontainer
 einen PHP-Webserver auf Port `8080` startet und `VIRTUAL_PORT=8080` setzt.
@@ -293,6 +295,8 @@ Weitere nützliche Variablen in `.env` sind:
 - `LETSENCRYPT_EMAIL` – Kontaktadresse für die automatische Zertifikatserstellung.
 - `MAIN_DOMAIN` – zentrale Domain des Quiz-Containers (z.B. `quizrace.app`).
 - `APP_IMAGE` – Docker-Image, das für neue Mandanten verwendet wird.
+  Es sollte den Tag des lokal gebauten Slim-Images (`docker build -t <tag> .`) nutzen,
+  da das Onboarding-Skript auf diese Variable zurückgreift.
 - `NETWORK` – Name des Docker-Netzwerks des Reverse Proxy (Standard `webproxy`).
 - `BASE_PATH` – optionaler Basis-Pfad, falls die Anwendung nicht im Root der Domain liegt.
 - `SERVICE_USER` – Benutzername für den automatischen Login des Onboarding-Assistenten.
