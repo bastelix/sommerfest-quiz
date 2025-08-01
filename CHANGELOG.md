@@ -42,6 +42,7 @@
 - Clarify DB privileges for tenants
 - Mention onboard_tenant script
 - Clarify Docker requirement for onboarding
+- Mention proxy network
 
 ### Feat
 
