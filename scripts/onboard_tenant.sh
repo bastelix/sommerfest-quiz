@@ -3,7 +3,7 @@
 set -e
 
 error_exit() {
-  echo "Fehler: $1"
+  echo "Fehler: $1" >&2
   exit 1
 }
 
