@@ -43,6 +43,7 @@
 - Mention onboard_tenant script
 - Clarify Docker requirement for onboarding
 - Mention proxy network
+- Clarify APP_IMAGE usage
 
 ### Feat
 
