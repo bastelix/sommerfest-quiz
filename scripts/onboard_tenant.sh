@@ -26,7 +26,8 @@ if [ -z "$APP_IMAGE" ]; then
 fi
 
 IMAGE="$APP_IMAGE"
-NETWORK="webproxy"
+# Docker network for reverse proxy
+NETWORK="${NETWORK:-webproxy}"
 
 # minimal free space in MB required to create a tenant
 MIN_DISK_MB=100
