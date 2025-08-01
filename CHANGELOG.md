@@ -107,6 +107,7 @@
 - *(onboard)* Write error messages to stderr
 - Detect docker compose command
 - Skip docker compose check when reload disabled
+- *(admin)* Ensure ssl renewal starts tenant
 
 ### Refactor
 
