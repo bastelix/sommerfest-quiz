@@ -32,6 +32,15 @@ NETWORK="${NETWORK:-webproxy}"
 # minimal free space in MB required to create a tenant
 MIN_DISK_MB=100
 
+# detect docker compose command
+if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+  DOCKER_COMPOSE="docker compose"
+elif command -v docker-compose >/dev/null 2>&1; then
+  DOCKER_COMPOSE="docker-compose"
+else
+  error_exit "docker compose oder docker-compose ist nicht verfügbar"
+fi
+
 # validate generated domain
 if ! echo "${SLUG}.${DOMAIN_SUFFIX}" | grep -Eq '^[a-z0-9-]+(\.[a-z0-9-]+)+$'; then
   error_exit "Generierte Domain '${SLUG}.${DOMAIN_SUFFIX}' ist ungültig."
@@ -91,12 +100,12 @@ networks:
 YAML
 
 # validate compose file syntax
-if ! docker compose -f "$COMPOSE_FILE" config >/dev/null 2>&1; then
+if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" config >/dev/null 2>&1; then
   error_exit "docker compose config fehlgeschlagen (Syntaxfehler?)"
 fi
 
 # start the tenant stack
-if ! compose_out=$(docker compose -f "$COMPOSE_FILE" -p "$SLUG" up -d 2>&1); then
+if ! compose_out=$($DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" up -d 2>&1); then
   echo "$compose_out"
   error_exit "docker compose konnte den Tenant-Container nicht starten."
 fi
