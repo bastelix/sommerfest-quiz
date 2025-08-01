@@ -168,6 +168,11 @@ Zum Start genügt:
 cp sample.env .env
 docker compose up --build -d
 ```
+Falls der Reverse Proxy das Docker-Netzwerk noch nicht kennt, lege es vorher an:
+```bash
+docker network create ${NETWORK:-webproxy}
+```
+Der Name des Netzwerks lässt sich über die Umgebungsvariable `NETWORK` anpassen.
 Beenden lässt sich der Stack mit:
 ```bash
 docker compose down

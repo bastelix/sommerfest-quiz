@@ -50,6 +50,11 @@ gesetzt, versucht die Anwendung, das externe Programm `convert` aus ImageMagick
 installiert sein.
 Im Docker-Container wird ImageMagick bereits installiert.
 
+> **Hinweis:** Der Reverse Proxy verwendet ein eigenes Docker-Netzwerk. 
+> Standardmäßig heißt es `webproxy`. Existiert es nicht, kannst du es mit
+> `docker network create ${NETWORK:-webproxy}` anlegen. 
+> Über die Umgebungsvariable `NETWORK` legst du bei Bedarf einen anderen Namen fest.
+
 ## Docker-Abhängigkeit beim Mandanten-Onboarding {#tenant-onboarding-docker}
 
 Die Skripte `create_tenant.sh` und `delete_tenant.sh` richten neue Subdomains ein und laden danach den Reverse Proxy neu. Sie gehen davon aus, dass ein nginx-Container über Docker Compose läuft. Ohne diesen Container schlägt der Reload-Befehl fehl.
