@@ -227,6 +227,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/statistics', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/pages', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/management', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->get('/admin/profile', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/tenants', function (Request $request, Response $response) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(404);

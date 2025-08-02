@@ -14,7 +14,10 @@ class TenantServiceTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT);');
+        $pdo->exec(
+            'CREATE TABLE tenants(' .
+            'uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, created_at TEXT)'
+        );
         if (!is_dir($dir)) {
             mkdir($dir);
         }
@@ -122,5 +125,19 @@ SQL;
         $this->expectExceptionMessage('tenant-exists');
 
         $service->createTenant('u5b', 'dup');
+    }
+
+    public function testGetBySubdomainReturnsTenant(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+        $service = $this->createService($dir, $pdo);
+        $pdo->exec(
+            "INSERT INTO tenants(uid, subdomain, plan, billing_info, created_at) " .
+            "VALUES('u6', 'sub', NULL, NULL, '2024-01-01')"
+        );
+        $row = $service->getBySubdomain('sub');
+        $this->assertIsArray($row);
+        $this->assertSame('sub', $row['subdomain']);
     }
 }

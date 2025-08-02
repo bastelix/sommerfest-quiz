@@ -14,6 +14,7 @@ use App\Service\TeamService;
 use App\Service\EventService;
 use App\Service\SettingsService;
 use App\Service\UserService;
+use App\Service\TenantService;
 use App\Domain\Roles;
 use App\Infrastructure\Database;
 use PDO;
@@ -74,6 +75,7 @@ class AdminController
         $teams    = [];
         $users    = [];
         $pages    = [];
+        $tenant   = null;
 
         $configSvc = new ConfigService($pdo);
         if (in_array($section, ['results', 'catalogs', 'questions', 'summary'], true)) {
@@ -124,6 +126,14 @@ class AdminController
             }
         }
 
+        if ($section === 'profile') {
+            $host = $request->getUri()->getHost();
+            $sub  = explode('.', $host)[0];
+            $base = Database::connectFromEnv();
+            $tenantSvc = new TenantService($base);
+            $tenant = $tenantSvc->getBySubdomain($sub);
+        }
+
         $uri    = $request->getUri();
         $domain = getenv('DOMAIN');
         if ($domain !== false && $domain !== '') {
@@ -158,6 +168,7 @@ class AdminController
             'role' => $role,
             'pages' => $pages,
             'domainType' => $request->getAttribute('domainType'),
+            'tenant' => $tenant,
         ]);
     }
 }
