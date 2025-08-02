@@ -177,6 +177,8 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS tenants (
     uid TEXT PRIMARY KEY,
     subdomain TEXT UNIQUE NOT NULL,
+    plan TEXT,
+    billing_info TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

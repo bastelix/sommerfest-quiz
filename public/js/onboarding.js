@@ -239,7 +239,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ uid: data.subdomain, schema: data.subdomain })
+          body: JSON.stringify({ uid: data.subdomain, schema: data.subdomain, plan: data.plan || null, billing: data.billing || null })
         });
         if (!tenantRes.ok) {
           const text = await tenantRes.text();

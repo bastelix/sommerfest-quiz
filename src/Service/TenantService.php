@@ -26,7 +26,7 @@ class TenantService
     /**
      * Create a new tenant schema and run migrations within it.
      */
-    public function createTenant(string $uid, string $schema): void
+    public function createTenant(string $uid, string $schema, ?string $plan = null, ?string $billing = null): void
     {
         if ($this->exists($schema)) {
             throw new \RuntimeException('tenant-exists');
@@ -41,8 +41,8 @@ class TenantService
             $this->seedDemoData();
             $this->pdo->exec('SET search_path TO public');
         }
-        $stmt = $this->pdo->prepare('INSERT INTO tenants(uid, subdomain) VALUES(?, ?)');
-        $stmt->execute([$uid, $schema]);
+        $stmt = $this->pdo->prepare('INSERT INTO tenants(uid, subdomain, plan, billing_info) VALUES(?, ?, ?, ?)');
+        $stmt->execute([$uid, $schema, $plan, $billing]);
 
         if ($this->nginxService !== null) {
             try {
@@ -241,11 +241,11 @@ class TenantService
     /**
      * Retrieve all tenants ordered by creation date.
      *
-     * @return list<array{uid:string,subdomain:string,created_at:string}>
+     * @return list<array{uid:string,subdomain:string,plan:?string,billing_info:?string,created_at:string}>
      */
     public function getAll(): array
     {
-        $stmt = $this->pdo->query('SELECT uid, subdomain, created_at FROM tenants ORDER BY created_at');
+        $stmt = $this->pdo->query('SELECT uid, subdomain, plan, billing_info, created_at FROM tenants ORDER BY created_at');
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

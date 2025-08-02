@@ -1893,6 +1893,10 @@ document.addEventListener('DOMContentLoaded', function () {
           } else {
             subTd.textContent = sub;
           }
+          const planTd = document.createElement('td');
+          planTd.textContent = t.plan || '';
+          const billingTd = document.createElement('td');
+          billingTd.textContent = t.billing_info || '';
           const createdTd = document.createElement('td');
           createdTd.textContent = (t.created_at || '').replace('T', ' ').replace(/\..*/, '');
           const actionTd = document.createElement('td');
@@ -1931,6 +1935,8 @@ document.addEventListener('DOMContentLoaded', function () {
           actionTd.appendChild(renewBtn);
           actionTd.appendChild(delBtn);
           tr.appendChild(subTd);
+          tr.appendChild(planTd);
+          tr.appendChild(billingTd);
           tr.appendChild(createdTd);
           tr.appendChild(actionTd);
           tenantTableBody.appendChild(tr);

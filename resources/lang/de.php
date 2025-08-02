@@ -147,6 +147,8 @@ return [
     'column_role' => 'Rolle',
     'column_subdomain' => 'Subdomain',
     'column_created' => 'Erstellt',
+    'column_plan' => 'Abo',
+    'column_billing' => 'Rechnungsinfo',
     'action_delete' => 'Löschen',
     'action_cancel' => 'Abbrechen',
     'label_registration_enabled' => 'Registrierung zulassen',

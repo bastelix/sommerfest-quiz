@@ -30,7 +30,9 @@ class TenantController
             return $response->withStatus(400);
         }
         try {
-            $this->service->createTenant((string) $data['uid'], (string) $data['schema']);
+            $plan = isset($data['plan']) ? (string) $data['plan'] : null;
+            $billing = isset($data['billing']) ? (string) $data['billing'] : null;
+            $this->service->createTenant((string) $data['uid'], (string) $data['schema'], $plan, $billing);
         } catch (PDOException $e) {
             $msg = 'Database error: ' . $e->getMessage();
             error_log($msg);

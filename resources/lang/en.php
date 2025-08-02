@@ -147,6 +147,8 @@ return [
     'column_role' => 'Role',
     'column_subdomain' => 'Subdomain',
     'column_created' => 'Created',
+    'column_plan' => 'Plan',
+    'column_billing' => 'Billing',
     'action_delete' => 'Delete',
     'action_cancel' => 'Cancel',
     'label_registration_enabled' => 'Allow registration',
