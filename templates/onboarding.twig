@@ -37,9 +37,9 @@
     </div>
 
     <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step1"{% if not logged_in %} hidden{% endif %}>
-      <h3 class="uk-card-title">1. Kundendaten</h3>
+      <h3 class="uk-card-title">1. Name der App/Domain</h3>
       <div class="uk-margin">
-        <input id="customer-name" class="uk-input" type="text" placeholder="Kundenname" required>
+        <input id="customer-name" class="uk-input" type="text" placeholder="Name der App oder Domain" required>
       </div>
       <div class="uk-margin">
         <label>Subdomain: <span id="subdomain-preview">-</span>.{{ main_domain }}</label>
@@ -72,12 +72,35 @@
     </div>
 
     <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step4" hidden>
-      <h3 class="uk-card-title">4. Erstellung</h3>
+      <h3 class="uk-card-title">4. Daten für Impressum/Datenschutz</h3>
+      <div class="uk-margin">
+        <input id="imprint-name" class="uk-input" type="text" placeholder="Name des Betreibers" required>
+      </div>
+      <div class="uk-margin">
+        <input id="imprint-street" class="uk-input" type="text" placeholder="Straße und Hausnummer" required>
+      </div>
+      <div class="uk-margin">
+        <input id="imprint-zip" class="uk-input" type="text" placeholder="PLZ" required>
+      </div>
+      <div class="uk-margin">
+        <input id="imprint-city" class="uk-input" type="text" placeholder="Ort" required>
+      </div>
+      <div class="uk-margin">
+        <input id="imprint-email" class="uk-input" type="email" placeholder="E-Mail-Adresse" required>
+      </div>
+      <button class="uk-button uk-button-primary" id="next4">Weiter</button>
+    </div>
+
+    <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step5" hidden>
+      <h3 class="uk-card-title">5. Erstellung</h3>
       <ul class="uk-list">
-        <li><strong>Kunde:</strong> <span id="summary-name"></span></li>
+        <li><strong>Name:</strong> <span id="summary-name"></span></li>
         <li><strong>Subdomain:</strong> <span id="summary-subdomain"></span>.{{ main_domain }}</li>
         <li><strong>Abo:</strong> <span id="summary-plan"></span></li>
         <li><strong>Zahlung:</strong> <span id="summary-payment"></span></li>
+        <li><strong>Betreiber:</strong> <span id="summary-imprint-name"></span></li>
+        <li><strong>Adresse:</strong> <span id="summary-imprint-street"></span>, <span id="summary-imprint-zip"></span> <span id="summary-imprint-city"></span></li>
+        <li><strong>E-Mail:</strong> <span id="summary-imprint-email"></span></li>
       </ul>
       <div class="uk-margin">
         <input id="admin-pass" class="uk-input" type="password" placeholder="Admin-Passwort">
