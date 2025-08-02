@@ -1,11 +1,16 @@
 /* global UIkit */
 (function () {
-  const steps = ['login', 'step1', 'step2', 'step3', 'step4', 'success'];
+  const steps = ['login', 'step1', 'step2', 'step3', 'step4', 'step5', 'success'];
   const data = {
     name: '',
     subdomain: '',
     plan: '',
     payment: '',
+    imprintName: '',
+    imprintStreet: '',
+    imprintZip: '',
+    imprintCity: '',
+    imprintEmail: '',
     adminPass: ''
   };
 
@@ -108,6 +113,12 @@
     const next1 = document.getElementById('next1');
     const next2 = document.getElementById('next2');
     const next3 = document.getElementById('next3');
+    const next4 = document.getElementById('next4');
+    const imprintNameInput = document.getElementById('imprint-name');
+    const imprintStreetInput = document.getElementById('imprint-street');
+    const imprintZipInput = document.getElementById('imprint-zip');
+    const imprintCityInput = document.getElementById('imprint-city');
+    const imprintEmailInput = document.getElementById('imprint-email');
     const createBtn = document.getElementById('create');
     const adminPassInput = document.getElementById('admin-pass');
     const successDomain = document.getElementById('success-domain');
@@ -190,6 +201,20 @@
       show('step4');
     });
 
+    next4.addEventListener('click', () => {
+      data.imprintName = imprintNameInput.value.trim();
+      data.imprintStreet = imprintStreetInput.value.trim();
+      data.imprintZip = imprintZipInput.value.trim();
+      data.imprintCity = imprintCityInput.value.trim();
+      data.imprintEmail = imprintEmailInput.value.trim();
+      document.getElementById('summary-imprint-name').textContent = data.imprintName;
+      document.getElementById('summary-imprint-street').textContent = data.imprintStreet;
+      document.getElementById('summary-imprint-zip').textContent = data.imprintZip;
+      document.getElementById('summary-imprint-city').textContent = data.imprintCity;
+      document.getElementById('summary-imprint-email').textContent = data.imprintEmail;
+      show('step5');
+    });
+
     createBtn.addEventListener('click', async () => {
       if (!adminPassInput) {
         return;
@@ -239,7 +264,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ uid: data.subdomain, schema: data.subdomain, plan: data.plan || null, billing: data.billing || null })
+          body: JSON.stringify({ uid: data.subdomain, schema: data.subdomain, plan: data.plan || null, billing: data.payment || null })
         });
         if (!tenantRes.ok) {
           const text = await tenantRes.text();
