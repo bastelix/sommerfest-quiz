@@ -189,12 +189,16 @@ class TenantService
         if ($this->hasTable('catalogs') && $this->hasColumn('catalogs', 'description') && is_readable($catalogsFile)) {
             $catalogs = json_decode(file_get_contents($catalogsFile), true) ?? [];
             $catStmt = $this->pdo->prepare(
-                'INSERT INTO catalogs(uid,sort_order,slug,file,name,description,qrcode_url,raetsel_buchstabe,comment,event_uid)' .
-                ' VALUES(?,?,?,?,?,?,?,?,?,?)'
+                'INSERT INTO catalogs(' .
+                    'uid,sort_order,slug,file,name,description,qrcode_url,' .
+                    'raetsel_buchstabe,comment,event_uid' .
+                ') VALUES(?,?,?,?,?,?,?,?,?,?)'
             );
             $qStmt = $this->hasTable('questions')
                 ? $this->pdo->prepare(
-                    'INSERT INTO questions(catalog_uid,type,prompt,options,answers,terms,items,sort_order) VALUES(?,?,?,?,?,?,?,?)'
+                    'INSERT INTO questions(' .
+                        'catalog_uid,type,prompt,options,answers,terms,items,sort_order' .
+                    ') VALUES(?,?,?,?,?,?,?,?)'
                 )
                 : null;
             foreach ($catalogs as $cat) {
