@@ -54,6 +54,7 @@
       tasks.push({ key: 'reload', label: 'Proxy neu laden' });
     }
     tasks.push({ key: 'ssl', label: 'Container starten (SSL)' });
+    tasks.push({ key: 'wait', label: 'Auf Verfügbarkeit warten' });
 
     function initTaskList() {
       if (!taskStatusEl || taskStatusEl.children.length > 0) return;
@@ -329,6 +330,7 @@
           });
         }
 
+        setTaskStatus('wait', 'pending');
         logMessage('Warte bis die Seite aktiv ist...');
         if (successInfo) {
           successInfo.textContent = 'Die Subdomain wird gestartet. Bitte warten...';
@@ -344,11 +346,13 @@
           if (successInfo) {
             successInfo.textContent = 'Die Subdomain ist jetzt erreichbar.';
           }
+          setTaskStatus('wait', 'done');
           if (typeof UIkit !== 'undefined') {
             UIkit.notification({ message: 'Instanz ist bereit', status: 'success' });
           }
         } else {
           logMessage('Subdomain nach Wartezeit nicht erreichbar');
+          setTaskStatus('wait', 'failed');
           if (typeof UIkit !== 'undefined') {
             UIkit.notification({ message: 'Instanz ist noch nicht erreichbar', status: 'warning' });
           }
