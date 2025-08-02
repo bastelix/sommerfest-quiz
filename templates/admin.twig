@@ -22,7 +22,10 @@
       <a id="adminMenuToggle" class="uk-icon-button" uk-icon="icon: menu; ratio: 2" aria-label="{{ t('menu') }}" uk-toggle="target: #adminNav"></a>
     {% endblock %}
     {% block center %}
-      <select id="eventSelect" class="uk-select"></select>
+      <div class="uk-flex uk-flex-middle">
+        <select id="eventSelect" class="uk-select"></select>
+        <button id="eventOpenBtn" class="uk-icon-button uk-margin-small-left" uk-icon="icon: link-external" aria-label="{{ t('tip_event_open') }}" uk-tooltip="title: {{ t('tip_event_open') }}; pos: bottom"></button>
+      </div>
     {% endblock %}
     {% block right %}
       <div class="theme-switch">

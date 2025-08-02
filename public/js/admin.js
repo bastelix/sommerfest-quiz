@@ -1267,6 +1267,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventAddBtn = document.getElementById('eventAddBtn');
   const eventsSaveBtn = document.getElementById('eventsSaveBtn');
   const eventSelect = document.getElementById('eventSelect');
+  const eventOpenBtn = document.getElementById('eventOpenBtn');
   const langSelect = document.getElementById('langSelect');
   let activeEventUid = cfgInitial.event_uid || '';
 
@@ -1497,6 +1498,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const name = eventSelect.options[eventSelect.selectedIndex]?.textContent || '';
     if (uid && uid !== activeEventUid) {
       setActiveEvent(uid, name);
+    }
+  });
+
+  eventOpenBtn?.addEventListener('click', () => {
+    const uid = eventSelect?.value;
+    if (uid) {
+      window.open(withBase('/?event=' + uid), '_blank');
     }
   });
 

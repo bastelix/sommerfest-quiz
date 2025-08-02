@@ -64,6 +64,7 @@ return [
     'tip_sort_rows' => 'Zum Sortieren Zeile ziehen',
     'tip_event_remove' => 'Veranstaltung entfernen',
     'tip_event_add' => 'Neue Veranstaltung anlegen',
+    'tip_event_open' => 'Veranstaltung im Frontend öffnen',
     'tip_save_changes' => 'Änderungen speichern',
     'tip_slug' => 'Eindeutiger Name in der URL',
     'tip_cat_name' => 'Angezeigter Titel des Katalogs',
