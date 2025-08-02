@@ -17,9 +17,18 @@ window.notify = (msg, status = 'primary') => {
 };
 
 document.addEventListener('DOMContentLoaded', function () {
-  const adminRoutes = Array.from(document.querySelectorAll('#adminTabs > li'))
-    .map(tab => tab.getAttribute('data-route') || '');
   const adminTabs = document.getElementById('adminTabs');
+  const adminMenu = document.getElementById('adminMenu');
+  const adminNav = document.getElementById('adminNav');
+  const adminMenuToggle = document.getElementById('adminMenuToggle');
+
+  if (window.domainType !== 'main') {
+    adminTabs?.querySelector('[data-route="tenants"]')?.remove();
+    adminMenu?.querySelector('a[href$="/admin/tenants"]')?.parentElement?.remove();
+  }
+
+  const adminRoutes = Array.from(adminTabs ? adminTabs.querySelectorAll('li') : [])
+    .map(tab => tab.getAttribute('data-route') || '');
   const settingsInitial = window.quizSettings || {};
   const pagesInitial = window.pagesContent || {};
 
@@ -1953,10 +1962,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const helpBtn = document.getElementById('helpBtn');
   const helpSidebar = document.getElementById('helpSidebar');
   const helpContent = document.getElementById('helpContent');
-  // element references
-  const adminMenu = document.getElementById('adminMenu');
-  const adminNav = document.getElementById('adminNav');
-  const adminMenuToggle = document.getElementById('adminMenuToggle');
 
   function loadSummary() {
     const nameEl = document.getElementById('summaryEventName');
