@@ -15,6 +15,7 @@ class PageControllerTest extends TestCase
             mkdir($dir);
         }
         $file = $dir . '/landing.html';
+        $backup = is_file($file) ? file_get_contents($file) : null;
         file_put_contents($file, '<p>old</p>');
 
         $app = $this->getAppInstance();
@@ -31,7 +32,11 @@ class PageControllerTest extends TestCase
         $this->assertStringEqualsFile($file, '<p>new</p>');
 
         session_destroy();
-        unlink($file);
+        if ($backup === null) {
+            unlink($file);
+        } else {
+            file_put_contents($file, $backup);
+        }
     }
 
     public function testInvalidSlug(): void
