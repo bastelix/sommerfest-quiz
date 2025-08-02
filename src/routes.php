@@ -201,7 +201,14 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/impressum', ImpressumController::class);
     $app->get('/lizenz', LizenzController::class);
     $app->get('/landing', function (Request $request, Response $response) {
-        if ($request->getAttribute('domainType') !== 'main') {
+        $domainType = $request->getAttribute('domainType');
+        if ($domainType === null) {
+            $host = $request->getUri()->getHost();
+            $mainDomain = getenv('MAIN_DOMAIN') ?: '';
+            $domainType = $host === $mainDomain || $mainDomain === '' ? 'main' : 'tenant';
+            $request = $request->withAttribute('domainType', $domainType);
+        }
+        if ($domainType !== 'main') {
             return $response->withStatus(404);
         }
         $controller = new LandingController();
