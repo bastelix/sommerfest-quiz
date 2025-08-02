@@ -64,6 +64,7 @@ return [
     'tip_sort_rows' => 'Drag row to sort',
     'tip_event_remove' => 'Remove event',
     'tip_event_add' => 'Add new event',
+    'tip_event_open' => 'Open event in frontend',
     'tip_save_changes' => 'Save changes',
     'tip_slug' => 'Unique name in the URL',
     'tip_cat_name' => 'Displayed catalog title',
