@@ -239,13 +239,30 @@ class TenantService
     }
 
     /**
+     * Retrieve a tenant by its subdomain.
+     *
+     * @return array{uid:string,subdomain:string,plan:?string,billing_info:?string,created_at:string}|null
+     */
+    public function getBySubdomain(string $subdomain): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT uid, subdomain, plan, billing_info, created_at FROM tenants WHERE subdomain = ?'
+        );
+        $stmt->execute([$subdomain]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row !== false ? $row : null;
+    }
+
+    /**
      * Retrieve all tenants ordered by creation date.
      *
      * @return list<array{uid:string,subdomain:string,plan:?string,billing_info:?string,created_at:string}>
      */
     public function getAll(): array
     {
-        $stmt = $this->pdo->query('SELECT uid, subdomain, plan, billing_info, created_at FROM tenants ORDER BY created_at');
+        $stmt = $this->pdo->query(
+            'SELECT uid, subdomain, plan, billing_info, created_at FROM tenants ORDER BY created_at'
+        );
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

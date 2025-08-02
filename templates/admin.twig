@@ -57,6 +57,8 @@
     <li data-route="management" data-help="Benutzer verwalten, Rollen zuweisen und Sicherungen erstellen. Rollen: admin – Administrator; catalog-editor – Fragenkataloge bearbeiten; event-manager – Veranstaltungen verwalten; analyst – Ergebnisse analysieren; team-manager – Teams verwalten."><a href="{{ basePath }}/admin/management">{{ t('tab_management') }}</a></li>
     {% if domainType == 'main' %}
     <li data-route="tenants" data-help="Liste aller angelegten Subdomains."><a href="{{ basePath }}/admin/tenants">{{ t('tab_tenants') }}</a></li>
+    {% else %}
+    <li data-route="profile" data-help="Informationen zum eigenen Mandanten."><a href="{{ basePath }}/admin/profile">{{ t('tab_profile') }}</a></li>
     {% endif %}
     {% endif %}
   </ul>
@@ -640,6 +642,26 @@
         </div>
       </div>
     </li>
+    {% else %}
+    <li>
+      <div class="uk-container uk-container-large">
+        <h2 class="uk-heading-bullet">{{ t('heading_profile') }}</h2>
+        {% if tenant %}
+        <div class="uk-overflow-auto">
+          <table class="uk-table uk-table-divider uk-table-small">
+            <tbody>
+              <tr><th>{{ t('column_subdomain') }}</th><td>{{ tenant.subdomain }}</td></tr>
+              <tr><th>{{ t('column_plan') }}</th><td>{{ tenant.plan|default('') }}</td></tr>
+              <tr><th>{{ t('column_billing') }}</th><td>{{ tenant.billing_info|default('') }}</td></tr>
+              <tr><th>{{ t('column_created') }}</th><td>{{ tenant.created_at }}</td></tr>
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <p>{{ t('text_no_data') }}</p>
+        {% endif %}
+      </div>
+    </li>
     {% endif %}
     {% endif %}
   </ul>
@@ -676,6 +698,8 @@
           <li><a href="{{ basePath }}/admin/management" data-tab="9">{{ t('tab_management') }}</a></li>
           {% if domainType == 'main' %}
           <li><a href="{{ basePath }}/admin/tenants" data-tab="10">{{ t('tab_tenants') }}</a></li>
+          {% else %}
+          <li><a href="{{ basePath }}/admin/profile" data-tab="10">{{ t('tab_profile') }}</a></li>
           {% endif %}
           {% endif %}
 
