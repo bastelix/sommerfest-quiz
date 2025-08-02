@@ -81,6 +81,7 @@
 - Auto onboard when credentials available
 - *(admin)* Link tenant subdomains
 - *(onboarding)* Show link to new container
+- Collapse onboarding logs and track availability
 
 ### Fix
 
