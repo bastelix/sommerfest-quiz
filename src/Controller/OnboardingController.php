@@ -9,6 +9,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use App\Service\UserService;
 use App\Infrastructure\Database;
+use PDO;
 
 /**
  * Display the onboarding wizard for creating a new tenant.
@@ -25,7 +26,10 @@ class OnboardingController
         $serviceUser = getenv('SERVICE_USER') ?: '';
         $servicePass = getenv('SERVICE_PASS') ?: '';
         if ($serviceUser !== '' && $servicePass !== '' && !isset($_SESSION['user'])) {
-            $pdo = Database::connectFromEnv();
+            $pdo = $request->getAttribute('pdo');
+            if (!$pdo instanceof PDO) {
+                $pdo = Database::connectFromEnv();
+            }
             $service = new UserService($pdo);
             $record = $service->getByUsername($serviceUser);
             if ($record !== null && (bool)$record['active']) {

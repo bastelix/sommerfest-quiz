@@ -10,6 +10,7 @@ use Slim\Views\Twig;
 use App\Service\ConfigService;
 use App\Service\EventService;
 use App\Infrastructure\Database;
+use PDO;
 
 /**
  * Presents the help page with configuration settings.
@@ -22,7 +23,10 @@ class HelpController
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $pdo = Database::connectFromEnv();
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
         $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo);
 

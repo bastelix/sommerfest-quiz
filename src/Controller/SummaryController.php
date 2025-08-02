@@ -21,10 +21,10 @@ class SummaryController
     /**
      * Inject configuration service dependency.
      */
-    public function __construct(ConfigService $config)
+    public function __construct(ConfigService $config, EventService $events)
     {
         $this->config = $config;
-        $this->events = new EventService(\App\Infrastructure\Database::connectFromEnv());
+        $this->events = $events;
     }
 
     /**

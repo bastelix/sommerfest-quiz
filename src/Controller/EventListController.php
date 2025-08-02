@@ -10,6 +10,7 @@ use Slim\Views\Twig;
 use App\Service\EventService;
 use App\Service\ConfigService;
 use App\Infrastructure\Database;
+use PDO;
 
 /**
  * Displays a list of all events for selection.
@@ -19,7 +20,10 @@ class EventListController
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $pdo = Database::connectFromEnv();
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
         $eventSvc = new EventService($pdo);
         $cfgSvc = new ConfigService($pdo);
         $events = $eventSvc->getAll();

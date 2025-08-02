@@ -146,7 +146,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             ))
             ->withAttribute('catalogDesignController', new CatalogDesignController($catalogService))
             ->withAttribute('logoController', new LogoController($configService))
-            ->withAttribute('summaryController', new SummaryController($configService))
+            ->withAttribute('summaryController', new SummaryController($configService, $eventService))
             ->withAttribute('importController', new ImportController(
                 $catalogService,
                 $configService,

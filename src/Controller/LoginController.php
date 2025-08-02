@@ -9,6 +9,7 @@ use App\Infrastructure\Database;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
+use PDO;
 
 /**
  * Handles administrator authentication.
@@ -20,7 +21,10 @@ class LoginController
      */
     public function show(Request $request, Response $response): Response
     {
-        $pdo = Database::connectFromEnv();
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
         $settings = new \App\Service\SettingsService($pdo);
         $allowed = $settings->get('registration_enabled', '0') === '1';
         $view = Twig::fromRequest($request);
@@ -37,7 +41,10 @@ class LoginController
             $data = json_decode((string) $request->getBody(), true);
         }
 
-        $pdo = Database::connectFromEnv();
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
         $service = new UserService($pdo);
 
         $record = $service->getByUsername((string)($data['username'] ?? ''));

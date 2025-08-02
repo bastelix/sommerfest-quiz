@@ -17,6 +17,7 @@ use Intervention\Image\ImageManagerStatic as Image;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
+use PDO;
 
 /**
  * Provides CRUD endpoints for quiz results and exposes a results page.
@@ -39,14 +40,14 @@ class ResultController
         TeamService $teams,
         CatalogService $catalogs,
         string $photoDir,
-        ?EventService $events = null
+        EventService $events
     ) {
         $this->service = $service;
         $this->config = $config;
         $this->teams = $teams;
         $this->catalogs = $catalogs;
         $this->photoDir = rtrim($photoDir, '/');
-        $this->events = $events ?? new EventService(Database::connectFromEnv());
+        $this->events = $events;
     }
 
     /**
@@ -143,7 +144,10 @@ class ResultController
         $view = Twig::fromRequest($request);
         $results = $this->service->getAll();
 
-        $pdo = Database::connectFromEnv();
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
         $configSvc = new ConfigService($pdo);
         $catalogSvc = new CatalogService($pdo, $configSvc);
         $json = $catalogSvc->read('catalogs.json');

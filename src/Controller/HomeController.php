@@ -12,6 +12,7 @@ use App\Service\EventService;
 use App\Service\SettingsService;
 use App\Infrastructure\Database;
 use Slim\Views\Twig;
+use PDO;
 
 /**
  * Entry point for the quiz application home page.
@@ -24,7 +25,10 @@ class HomeController
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $pdo = Database::connectFromEnv();
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
         $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo);
         $settingsSvc = new SettingsService($pdo);
