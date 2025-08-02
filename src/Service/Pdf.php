@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use setasign\Fpdi\Fpdi;
-use Intervention\Image\ImageManagerStatic as Image;
+use Intervention\Image\ImageManager;
 
 /**
  * Custom FPDF subclass that renders the event header.
@@ -39,9 +39,10 @@ class Pdf extends Fpdi
 
         if (is_file($logoFile) && is_readable($logoFile)) {
             if (str_ends_with(strtolower($logoFile), '.webp')) {
-                $img = Image::make($logoFile);
+                $manager = ImageManager::gd();
+                $img = $manager->read($logoFile);
                 $logoTemp = tempnam(sys_get_temp_dir(), 'logo') . '.png';
-                $img->encode('png')->save($logoTemp, 80);
+                $img->save($logoTemp, 80);
                 $logoFile = $logoTemp;
             }
             $this->Image($logoFile, 10, 10, $qrSize, $qrSize, 'PNG');
