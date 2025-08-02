@@ -45,6 +45,7 @@
     const logMessages = [];
     const taskLogEl = document.getElementById('task-log');
     const taskStatusEl = document.getElementById('task-status');
+    let waitProgress;
     const tasks = [
       { key: 'tenant', label: 'Mandant erstellen' },
       { key: 'import', label: 'Standardinhalte importieren' },
@@ -61,7 +62,11 @@
       tasks.forEach(t => {
         const li = document.createElement('li');
         li.id = `task-${t.key}`;
-        li.innerHTML = `<span class="status">⏳</span> ${t.label}`;
+        if (t.key === 'wait') {
+          li.innerHTML = `<span class="status"></span> ${t.label}<progress id="wait-progress" class="uk-progress uk-margin-small-top" value="0" max="100" hidden></progress>`;
+        } else {
+          li.innerHTML = `<span class="status"></span> ${t.label}`;
+        }
         taskStatusEl.appendChild(li);
       });
     }
@@ -71,14 +76,21 @@
       if (!li) return;
       const span = li.querySelector('.status');
       if (!span) return;
+      const progress = key === 'wait' ? document.getElementById('wait-progress') : null;
       if (status === 'done') {
         span.textContent = '✓';
         li.classList.add('uk-text-success');
+        if (progress) progress.hidden = true;
       } else if (status === 'failed') {
         span.textContent = '✗';
         li.classList.add('uk-text-danger');
+        if (progress) progress.hidden = true;
       } else {
-        span.textContent = '⏳';
+        span.innerHTML = '<span uk-spinner></span>';
+        if (progress) {
+          progress.hidden = false;
+          progress.value = 0;
+        }
       }
     }
 
@@ -104,15 +116,18 @@
     const successScript = document.getElementById('success-script');
     const successLink = document.getElementById('success-link');
 
-    async function waitForHttps(url) {
-      for (let i = 0; i < 30; i++) {
+    async function waitForHttps(url, onProgress) {
+      const maxAttempts = 30;
+      for (let i = 0; i < maxAttempts; i++) {
         try {
           await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+          if (typeof onProgress === 'function') onProgress(1);
           return true;
         } catch (e) {
           logMessage('Noch nicht erreichbar, neuer Versuch in 5s...');
         }
         await new Promise(resolve => setTimeout(resolve, 5000));
+        if (typeof onProgress === 'function') onProgress((i + 1) / maxAttempts);
       }
       return false;
     }
@@ -200,6 +215,7 @@
 
       show('success');
       initTaskList();
+      waitProgress = document.getElementById('wait-progress');
       if (taskLogEl) taskLogEl.innerHTML = '';
       logMessages.length = 0;
       tasks.forEach(t => setTaskStatus(t.key, 'pending'));
@@ -338,7 +354,11 @@
         if (typeof UIkit !== 'undefined') {
           UIkit.notification({ message: 'Warte auf Start der Instanz', status: 'primary' });
         }
-        const ready = successLink ? await waitForHttps(successLink.href) : false;
+        const ready = successLink
+          ? await waitForHttps(successLink.href, p => {
+              if (waitProgress) waitProgress.value = p * 100;
+            })
+          : false;
         if (ready) {
           logMessage('Subdomain erreichbar');
           successLink.classList.remove('uk-disabled');
