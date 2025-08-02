@@ -51,6 +51,7 @@ class ExportImportControllerTest extends TestCase
 
         $dir = sys_get_temp_dir() . '/round_' . uniqid();
         mkdir($dir . '/kataloge', 0777, true);
+        $this->assertDirectoryExists($dir . '/kataloge');
 
         $export = new ExportController(
             $config,
@@ -91,14 +92,18 @@ class ExportImportControllerTest extends TestCase
         $this->assertSame(2, $count);
 
         // cleanup
-        unlink($dir . '/question_results.json');
-        unlink($dir . '/results.json');
-        unlink($dir . '/teams.json');
-        unlink($dir . '/photo_consents.json');
-        unlink($dir . '/config.json');
-        unlink($dir . '/kataloge/c1.json');
-        unlink($dir . '/kataloge/catalogs.json');
-        rmdir($dir . '/kataloge');
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+        foreach ($iterator as $path) {
+            if ($path->isDir()) {
+                rmdir($path->getPathname());
+            } else {
+                unlink($path->getPathname());
+            }
+        }
         rmdir($dir);
+        $this->assertDirectoryDoesNotExist($dir);
     }
 }

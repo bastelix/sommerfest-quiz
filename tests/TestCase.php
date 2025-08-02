@@ -118,6 +118,14 @@ class TestCase extends PHPUnit_TestCase
         return $pdo;
     }
 
+    protected function destroySession(): void
+    {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+        $_SESSION = [];
+    }
+
     protected function tearDown(): void
     {
         foreach ($this->tmpDbs as $db) {

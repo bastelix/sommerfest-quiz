@@ -31,6 +31,7 @@ class LogoControllerTest extends TestCase
     public function testPostAndGet(): void
     {
         $tmpConfig = tempnam(sys_get_temp_dir(), 'cfg');
+        $this->assertFileExists($tmpConfig);
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -60,6 +61,7 @@ class LogoControllerTest extends TestCase
         $controller = new LogoController($cfg);
         $logoFile = tempnam(sys_get_temp_dir(), 'logo');
         imagepng(imagecreatetruecolor(10, 10), $logoFile);
+        $this->assertFileExists($logoFile);
         $stream = fopen($logoFile, 'rb');
         $uploaded = new UploadedFile(new Stream($stream), 'logo.png', 'image/png', filesize($logoFile), UPLOAD_ERR_OK);
         $request = $this->createRequest('POST', '/logo.png');
@@ -73,12 +75,19 @@ class LogoControllerTest extends TestCase
 
         unlink($tmpConfig);
         unlink($logoFile);
-        unlink(sys_get_temp_dir() . '/logo.png');
+        $this->assertFileDoesNotExist($tmpConfig);
+        $this->assertFileDoesNotExist($logoFile);
+        $logoPath = sys_get_temp_dir() . '/logo.png';
+        if (file_exists($logoPath)) {
+            unlink($logoPath);
+            $this->assertFileDoesNotExist($logoPath);
+        }
     }
 
     public function testPostAndGetWebp(): void
     {
         $tmpConfig = tempnam(sys_get_temp_dir(), 'cfg');
+        $this->assertFileExists($tmpConfig);
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -108,6 +117,7 @@ class LogoControllerTest extends TestCase
         $controller = new LogoController($cfg);
         $logoFile = tempnam(sys_get_temp_dir(), 'logo');
         imagewebp(imagecreatetruecolor(10, 10), $logoFile);
+        $this->assertFileExists($logoFile);
         $stream = fopen($logoFile, 'rb');
         $uploaded = new UploadedFile(
             new Stream($stream),
@@ -127,7 +137,13 @@ class LogoControllerTest extends TestCase
 
         unlink($tmpConfig);
         unlink($logoFile);
-        unlink(sys_get_temp_dir() . '/logo.webp');
+        $this->assertFileDoesNotExist($tmpConfig);
+        $this->assertFileDoesNotExist($logoFile);
+        $webpPath = sys_get_temp_dir() . '/logo.webp';
+        if (file_exists($webpPath)) {
+            unlink($webpPath);
+            $this->assertFileDoesNotExist($webpPath);
+        }
     }
 
     public function testLogoPerEvent(): void
@@ -173,6 +189,7 @@ class LogoControllerTest extends TestCase
         $controller = new LogoController($cfg);
         $logoFile = tempnam(sys_get_temp_dir(), 'logo');
         imagepng(imagecreatetruecolor(10, 10), $logoFile);
+        $this->assertFileExists($logoFile);
         $stream = fopen($logoFile, 'rb');
         $uploaded = new UploadedFile(new Stream($stream), 'logo.png', 'image/png', filesize($logoFile), UPLOAD_ERR_OK);
         $request = $this->createRequest('POST', '/logo.png');
@@ -186,8 +203,13 @@ class LogoControllerTest extends TestCase
         $this->assertSame('/logo-e1.png', $cfg1['logoPath']);
         $this->assertNull($cfg2['logoPath']);
 
+        $path = dirname(__DIR__, 2) . '/data/logo-e1.png';
+        if (file_exists($path)) {
+            unlink($path);
+            $this->assertFileDoesNotExist($path);
+        }
         unlink($logoFile);
-        unlink(dirname(__DIR__, 2) . '/data/logo-e1.png');
+        $this->assertFileDoesNotExist($logoFile);
     }
 
     public function testGetWithDynamicFilename(): void
@@ -224,6 +246,7 @@ class LogoControllerTest extends TestCase
         $controller = new LogoController($cfg);
         $logoFile = tempnam(sys_get_temp_dir(), 'logo');
         imagepng(imagecreatetruecolor(10, 10), $logoFile);
+        $this->assertFileExists($logoFile);
         $stream = fopen($logoFile, 'rb');
         $uploaded = new UploadedFile(new Stream($stream), 'logo.png', 'image/png', filesize($logoFile), UPLOAD_ERR_OK);
         $request = $this->createRequest('POST', '/logo.png');
@@ -234,7 +257,12 @@ class LogoControllerTest extends TestCase
         $response = $controller->get($this->createRequest('GET', '/logo-dyn.png'), new Response());
         $this->assertEquals(200, $response->getStatusCode());
 
+        $dynPath = dirname(__DIR__, 2) . '/data/logo-dyn.png';
+        if (file_exists($dynPath)) {
+            unlink($dynPath);
+            $this->assertFileDoesNotExist($dynPath);
+        }
         unlink($logoFile);
-        unlink(dirname(__DIR__, 2) . '/data/logo-dyn.png');
+        $this->assertFileDoesNotExist($logoFile);
     }
 }

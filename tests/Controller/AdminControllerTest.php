@@ -22,6 +22,7 @@ class AdminControllerTest extends TestCase
     public function testRedirectWhenNotLoggedIn(): void
     {
         $db = $this->setupDb();
+        $this->assertFileExists($db);
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/admin/events');
         $response = $app->handle($request);
@@ -30,11 +31,13 @@ class AdminControllerTest extends TestCase
         $login = $app->handle($this->createRequest('GET', '/admin/events'));
         $this->assertEquals('/login', $login->getHeaderLine('Location'));
         unlink($db);
+        $this->assertFileDoesNotExist($db);
     }
 
     public function testAdminPageAfterLogin(): void
     {
         $db = $this->setupDb();
+        $this->assertFileExists($db);
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
@@ -42,13 +45,15 @@ class AdminControllerTest extends TestCase
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertStringContainsString('export-card', (string) $response->getBody());
-        session_destroy();
+        $this->destroySession();
         unlink($db);
+        $this->assertFileDoesNotExist($db);
     }
 
     public function testRedirectForWrongRole(): void
     {
         $db = $this->setupDb();
+        $this->assertFileExists($db);
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'user'];
@@ -56,7 +61,8 @@ class AdminControllerTest extends TestCase
         $response = $app->handle($request);
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals('/login', $response->getHeaderLine('Location'));
-        session_destroy();
+        $this->destroySession();
         unlink($db);
+        $this->assertFileDoesNotExist($db);
     }
 }

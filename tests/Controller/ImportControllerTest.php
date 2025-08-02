@@ -42,6 +42,7 @@ class ImportControllerTest extends TestCase
         [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
         $tmp = sys_get_temp_dir() . '/import_' . uniqid();
         mkdir($tmp . '/kataloge', 0777, true);
+        $this->assertDirectoryExists($tmp . '/kataloge');
         file_put_contents($tmp . '/kataloge/catalogs.json', json_encode([
             ['uid' => 'u1', 'id' => 'c1', 'slug' => 'c1', 'file' => 'c1.json', 'name' => 'Cat']
         ], JSON_PRETTY_PRINT));
@@ -85,6 +86,7 @@ class ImportControllerTest extends TestCase
         unlink($tmp . '/photo_consents.json');
         rmdir($tmp . '/kataloge');
         rmdir($tmp);
+        $this->assertDirectoryDoesNotExist($tmp);
     }
 
     public function testImportTwiceDoesNotDuplicateSummaryPhotos(): void
@@ -102,6 +104,7 @@ class ImportControllerTest extends TestCase
 
         $tmp = sys_get_temp_dir() . '/import_' . uniqid();
         mkdir($tmp . '/kataloge', 0777, true);
+        $this->assertDirectoryExists($tmp . '/kataloge');
         file_put_contents($tmp . '/kataloge/catalogs.json', json_encode([], JSON_PRETTY_PRINT));
         file_put_contents(
             $tmp . '/summary_photos.json',
@@ -136,6 +139,7 @@ class ImportControllerTest extends TestCase
         unlink($tmp . '/kataloge/catalogs.json');
         rmdir($tmp . '/kataloge');
         rmdir($tmp);
+        $this->assertDirectoryDoesNotExist($tmp);
     }
 
     public function testRestoreDefaults(): void
@@ -144,6 +148,7 @@ class ImportControllerTest extends TestCase
         $base = sys_get_temp_dir() . '/import_' . uniqid();
         $default = dirname($base) . '/data-default';
         mkdir($default . '/kataloge', 0777, true);
+        $this->assertDirectoryExists($default . '/kataloge');
         file_put_contents($default . '/kataloge/catalogs.json', json_encode([
             ['uid' => 'u1', 'id' => 'c1', 'slug' => 'c1', 'file' => 'c1.json', 'name' => 'Cat']
         ], JSON_PRETTY_PRINT));
@@ -174,5 +179,6 @@ class ImportControllerTest extends TestCase
         unlink($default . '/kataloge/catalogs.json');
         rmdir($default . '/kataloge');
         rmdir($default);
+        $this->assertDirectoryDoesNotExist($default);
     }
 }

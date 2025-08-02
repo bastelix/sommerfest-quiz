@@ -17,6 +17,6 @@ class LogoutControllerTest extends TestCase
         $response = $app->handle($request);
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals('/login', $response->getHeaderLine('Location'));
-        session_destroy();
+        $this->destroySession();
     }
 }

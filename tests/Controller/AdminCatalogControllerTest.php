@@ -31,6 +31,7 @@ class AdminCatalogControllerTest extends TestCase
         $controller = new AdminCatalogController($service);
         $twig = Twig::create(dirname(__DIR__, 2) . '/templates', ['cache' => false]);
 
+        $this->assertFileExists($db);
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
         $request = $this->createRequest('GET', '/admin/kataloge')
@@ -38,7 +39,8 @@ class AdminCatalogControllerTest extends TestCase
             ->withAttribute('lang', 'de');
         $response = $controller($request, new Response());
         $this->assertEquals(200, $response->getStatusCode());
-        session_destroy();
+        $this->destroySession();
         unlink($db);
+        $this->assertFileDoesNotExist($db);
     }
 }

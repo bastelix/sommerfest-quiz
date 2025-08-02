@@ -19,6 +19,7 @@ class HelpControllerTest extends TestCase
     public function testInvitePlaceholderIsReplaced(): void
     {
         $dbFile = tempnam(sys_get_temp_dir(), 'db');
+        $this->assertFileExists($dbFile);
         $pdo = new \PDO('sqlite:' . $dbFile);
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -78,11 +79,13 @@ class HelpControllerTest extends TestCase
         $this->assertStringContainsString($expected, (string)$response->getBody());
 
         unlink($dbFile);
+        $this->assertFileDoesNotExist($dbFile);
     }
 
     public function testInviteTextIsSanitized(): void
     {
         $dbFile = tempnam(sys_get_temp_dir(), 'db');
+        $this->assertFileExists($dbFile);
         $pdo = new \PDO('sqlite:' . $dbFile);
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -119,5 +122,6 @@ class HelpControllerTest extends TestCase
         $this->assertStringContainsString('alert(1)Hi Team´s', $body);
 
         unlink($dbFile);
+        $this->assertFileDoesNotExist($dbFile);
     }
 }

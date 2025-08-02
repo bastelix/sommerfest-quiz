@@ -57,7 +57,7 @@ class CatalogControllerTest extends TestCase
         $request = $this->createRequest('GET', '/kataloge/missing.json', ['HTTP_ACCEPT' => 'application/json']);
         $response = $controller->get($request, new Response(), ['file' => 'missing.json']);
         $this->assertEquals(404, $response->getStatusCode());
-        session_destroy();
+        $this->destroySession();
     }
 
     public function testRedirectIncludesEvent(): void
@@ -109,7 +109,7 @@ class CatalogControllerTest extends TestCase
 
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals('/?event=ev123&katalog=test', $response->getHeaderLine('Location'));
-        session_destroy();
+        $this->destroySession();
     }
 
     public function testPostAndGet(): void
@@ -175,7 +175,7 @@ class CatalogControllerTest extends TestCase
         ]], JSON_PRETTY_PRINT);
         $this->assertJsonStringEqualsJsonString($expected, (string) $getResponse->getBody());
 
-        session_destroy();
+        $this->destroySession();
     }
 
     public function testCreateAndDelete(): void
@@ -252,7 +252,7 @@ class CatalogControllerTest extends TestCase
             ['file' => 'new.json']
         )->getStatusCode());
 
-        session_destroy();
+        $this->destroySession();
     }
 
     public function testDeleteQuestion(): void
@@ -311,7 +311,7 @@ class CatalogControllerTest extends TestCase
         $this->assertCount(1, $data);
         $this->assertSame('B', $data[0]['prompt']);
 
-        session_destroy();
+        $this->destroySession();
     }
 
     public function testPostInvalidJson(): void
@@ -366,6 +366,6 @@ class CatalogControllerTest extends TestCase
         $response = $controller->post($request, new Response(), ['file' => 'test.json']);
         $this->assertEquals(400, $response->getStatusCode());
 
-        session_destroy();
+        $this->destroySession();
     }
 }

@@ -21,7 +21,9 @@ class LogoutController
             session_start();
         }
         $_SESSION = [];
-        session_destroy();
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
         return $response->withHeader('Location', '/login')->withStatus(302);
     }
 }

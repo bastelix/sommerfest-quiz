@@ -42,6 +42,7 @@ class ExportControllerTest extends TestCase
         [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
         $tmp = sys_get_temp_dir() . '/export_' . uniqid();
         mkdir($tmp, 0777, true);
+        $this->assertDirectoryExists($tmp);
 
         $controller = new ExportController(
             $config,
@@ -62,12 +63,18 @@ class ExportControllerTest extends TestCase
         $this->assertCount(1, $data);
         $this->assertSame('Event1', $data[0]['name']);
 
-        unlink($tmp . '/events.json');
-        unlink($tmp . '/config.json');
-        unlink($tmp . '/teams.json');
-        unlink($tmp . '/results.json');
-        unlink($tmp . '/photo_consents.json');
-        rmdir($tmp . '/kataloge');
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($tmp, \FilesystemIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+        foreach ($iterator as $path) {
+            if ($path->isDir()) {
+                rmdir($path->getPathname());
+            } else {
+                unlink($path->getPathname());
+            }
+        }
         rmdir($tmp);
+        $this->assertDirectoryDoesNotExist($tmp);
     }
 }

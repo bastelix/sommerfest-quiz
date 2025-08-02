@@ -23,6 +23,7 @@ class RoleAccessTest extends TestCase
     public function testCatalogEditorCanEditCatalog(): void
     {
         $db = $this->setupDb();
+        $this->assertFileExists($db);
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
@@ -30,13 +31,15 @@ class RoleAccessTest extends TestCase
         $req = $req->withParsedBody([]);
         $res = $app->handle($req);
         $this->assertEquals(204, $res->getStatusCode());
-        session_destroy();
+        $this->destroySession();
         unlink($db);
+        $this->assertFileDoesNotExist($db);
     }
 
     public function testAnalystCannotEditCatalog(): void
     {
         $db = $this->setupDb();
+        $this->assertFileExists($db);
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'analyst'];
@@ -45,13 +48,15 @@ class RoleAccessTest extends TestCase
         $res = $app->handle($req);
         $this->assertEquals(302, $res->getStatusCode());
         $this->assertEquals('/login', $res->getHeaderLine('Location'));
-        session_destroy();
+        $this->destroySession();
         unlink($db);
+        $this->assertFileDoesNotExist($db);
     }
 
     public function testEventManagerCanUpdateConfig(): void
     {
         $db = $this->setupDb();
+        $this->assertFileExists($db);
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'event-manager'];
@@ -59,13 +64,15 @@ class RoleAccessTest extends TestCase
         $req = $req->withParsedBody([]);
         $res = $app->handle($req);
         $this->assertEquals(204, $res->getStatusCode());
-        session_destroy();
+        $this->destroySession();
         unlink($db);
+        $this->assertFileDoesNotExist($db);
     }
 
     public function testTeamManagerCanPostTeams(): void
     {
         $db = $this->setupDb();
+        $this->assertFileExists($db);
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'team-manager'];
@@ -76,20 +83,23 @@ class RoleAccessTest extends TestCase
         $req = $req->withBody((new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream));
         $res = $app->handle($req);
         $this->assertEquals(204, $res->getStatusCode());
-        session_destroy();
+        $this->destroySession();
         unlink($db);
+        $this->assertFileDoesNotExist($db);
     }
 
     public function testAnalystCanAccessResults(): void
     {
         $db = $this->setupDb();
+        $this->assertFileExists($db);
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'analyst'];
         $req = $this->createRequest('GET', '/results.json');
         $res = $app->handle($req);
         $this->assertEquals(200, $res->getStatusCode());
-        session_destroy();
+        $this->destroySession();
         unlink($db);
+        $this->assertFileDoesNotExist($db);
     }
 }

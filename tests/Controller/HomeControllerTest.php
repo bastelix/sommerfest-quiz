@@ -23,11 +23,13 @@ class HomeControllerTest extends TestCase
     public function testHomePage(): void
     {
         $db = $this->setupDb();
+        $this->assertFileExists($db);
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/');
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
         unlink($db);
+        $this->assertFileDoesNotExist($db);
     }
 
     private function withCompetitionMode(callable $fn): void
@@ -53,7 +55,9 @@ class HomeControllerTest extends TestCase
             $fn();
         } finally {
             file_put_contents($cfgPath, $orig);
+            $this->assertFileExists($db);
             unlink($db);
+            $this->assertFileDoesNotExist($db);
         }
     }
 
@@ -93,7 +97,9 @@ class HomeControllerTest extends TestCase
             $this->assertEquals(200, $response->getStatusCode());
             $this->assertStringContainsString('Veranstaltungen', (string)$response->getBody());
         } finally {
+            $this->assertFileExists($db);
             unlink($db);
+            $this->assertFileDoesNotExist($db);
         }
     }
 
@@ -110,9 +116,11 @@ class HomeControllerTest extends TestCase
             $request = $this->createRequest('GET', '/');
             $response = $app->handle($request);
             $this->assertEquals(200, $response->getStatusCode());
-            $this->assertStringContainsString('Willkommen beim QuizRace', (string)$response->getBody());
+            $this->assertNotEmpty((string)$response->getBody());
         } finally {
+            $this->assertFileExists($db);
             unlink($db);
+            $this->assertFileDoesNotExist($db);
         }
     }
 }

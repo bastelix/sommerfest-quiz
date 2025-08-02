@@ -16,6 +16,6 @@ class AdminRedirectTest extends TestCase
         $response = $app->handle($this->createRequest('GET', '/admin/unknown'));
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals('/admin/events', $response->getHeaderLine('Location'));
-        session_destroy();
+        $this->destroySession();
     }
 }

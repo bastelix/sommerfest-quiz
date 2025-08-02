@@ -43,7 +43,7 @@ class ConfigControllerTest extends TestCase
         $getResponse = $controller->get($this->createRequest('GET', '/config.json'), new Response());
         $this->assertEquals(200, $getResponse->getStatusCode());
         $this->assertStringContainsString('Demo', (string) $getResponse->getBody());
-        session_destroy();
+        $this->destroySession();
     }
 
     public function testPostInvalidJson(): void
@@ -64,7 +64,7 @@ class ConfigControllerTest extends TestCase
 
         $response = $controller->post($request, new Response());
         $this->assertEquals(400, $response->getStatusCode());
-        session_destroy();
+        $this->destroySession();
     }
 
     public function testPostDeniedForNonAdmin(): void
@@ -77,6 +77,6 @@ class ConfigControllerTest extends TestCase
         $response = $app->handle($request);
         $this->assertEquals(302, $response->getStatusCode());
         $this->assertEquals('/login', $response->getHeaderLine('Location'));
-        session_destroy();
+        $this->destroySession();
     }
 }

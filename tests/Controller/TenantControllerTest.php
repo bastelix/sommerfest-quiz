@@ -74,6 +74,7 @@ class TenantControllerTest extends TestCase
     public function testCreateDeniedForNonAdmin(): void
     {
         $db = $this->setupDb();
+        $this->assertFileExists($db);
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'user'];
@@ -81,13 +82,15 @@ class TenantControllerTest extends TestCase
         $res = $app->handle($req);
         $this->assertEquals(302, $res->getStatusCode());
         $this->assertEquals('/login', $res->getHeaderLine('Location'));
-        session_destroy();
+        $this->destroySession();
         unlink($db);
+        $this->assertFileDoesNotExist($db);
     }
 
     public function testDeleteDeniedForNonAdmin(): void
     {
         $db = $this->setupDb();
+        $this->assertFileExists($db);
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'user'];
@@ -95,8 +98,9 @@ class TenantControllerTest extends TestCase
         $res = $app->handle($req);
         $this->assertEquals(302, $res->getStatusCode());
         $this->assertEquals('/login', $res->getHeaderLine('Location'));
-        session_destroy();
+        $this->destroySession();
         unlink($db);
+        $this->assertFileDoesNotExist($db);
     }
 
     public function testCreateForbiddenOnTenantDomain(): void
@@ -110,7 +114,7 @@ class TenantControllerTest extends TestCase
         $req = $req->withUri($req->getUri()->withHost('tenant.test'));
         $res = $app->handle($req);
         $this->assertEquals(403, $res->getStatusCode());
-        session_destroy();
+        $this->destroySession();
         if ($old === false) {
             putenv('MAIN_DOMAIN');
         } else {
@@ -129,7 +133,7 @@ class TenantControllerTest extends TestCase
         $req = $req->withUri($req->getUri()->withHost('tenant.test'));
         $res = $app->handle($req);
         $this->assertEquals(403, $res->getStatusCode());
-        session_destroy();
+        $this->destroySession();
         if ($old === false) {
             putenv('MAIN_DOMAIN');
         } else {

@@ -39,6 +39,7 @@ namespace Tests\Controller {
             $base = sys_get_temp_dir() . '/bct_' . uniqid();
             mkdir($base . '/ok', 0777, true);
             file_put_contents($base . '/ok/test.txt', 'a');
+            $this->assertDirectoryExists($base . '/ok');
 
             $controller = new BackupController($base);
             $res = $controller->delete(
@@ -57,6 +58,7 @@ namespace Tests\Controller {
             $base = sys_get_temp_dir() . '/bct_' . uniqid();
             mkdir($base . '/fail', 0777, true);
             file_put_contents($base . '/fail/test.txt', 'a');
+            $this->assertDirectoryExists($base . '/fail');
 
             self::$rmdirCallback = fn(string $dir) => false;
 
@@ -76,12 +78,14 @@ namespace Tests\Controller {
             unlink($base . '/fail/test.txt');
             \rmdir($base . '/fail');
             \rmdir($base);
+            $this->assertDirectoryDoesNotExist($base);
         }
 
         public function testDeleteInvalidName(): void
         {
             $base = sys_get_temp_dir() . '/bct_' . uniqid();
             mkdir($base, 0777, true);
+            $this->assertDirectoryExists($base);
 
             $controller = new BackupController($base);
             $res = $controller->delete(
@@ -93,6 +97,7 @@ namespace Tests\Controller {
             $this->assertEquals(400, $res->getStatusCode());
 
             \rmdir($base);
+            $this->assertDirectoryDoesNotExist($base);
         }
     }
 }

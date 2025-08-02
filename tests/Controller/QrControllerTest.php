@@ -81,6 +81,7 @@ class QrControllerTest extends TestCase
 
         $logoFile = tempnam(sys_get_temp_dir(), 'logo');
         imagepng(imagecreatetruecolor(10, 10), $logoFile);
+        $this->assertFileExists($logoFile);
         $uploaded = new UploadedFile(
             $logoFile,
             'logo.png',
@@ -95,8 +96,13 @@ class QrControllerTest extends TestCase
         $this->assertNotEquals($original, (string)$updated->getBody());
         $this->assertStringContainsString('Event', (string)$updated->getBody());
 
+        $logoPath = dirname(__DIR__, 2) . '/data/logo.png';
         unlink($logoFile);
-        unlink(dirname(__DIR__, 2) . '/data/logo.png');
+        $this->assertFileDoesNotExist($logoFile);
+        if (file_exists($logoPath)) {
+            unlink($logoPath);
+            $this->assertFileDoesNotExist($logoPath);
+        }
     }
 
     public function testInvitePlaceholderIsReplaced(): void

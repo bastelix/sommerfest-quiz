@@ -15,7 +15,9 @@ class PageControllerTest extends TestCase
             mkdir($dir);
         }
         $file = $dir . '/landing.html';
+        $original = file_exists($file) ? file_get_contents($file) : null;
         file_put_contents($file, '<p>old</p>');
+        $this->assertFileExists($file);
 
         $app = $this->getAppInstance();
         session_start();
@@ -30,8 +32,14 @@ class PageControllerTest extends TestCase
         $this->assertEquals(204, $res->getStatusCode());
         $this->assertStringEqualsFile($file, '<p>new</p>');
 
-        session_destroy();
-        unlink($file);
+        $this->destroySession();
+        if ($original === null) {
+            unlink($file);
+            $this->assertFileDoesNotExist($file);
+        } else {
+            file_put_contents($file, $original);
+            $this->assertFileExists($file);
+        }
     }
 
     public function testInvalidSlug(): void
@@ -41,6 +49,6 @@ class PageControllerTest extends TestCase
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
         $res = $app->handle($this->createRequest('GET', '/admin/pages/unknown'));
         $this->assertEquals(404, $res->getStatusCode());
-        session_destroy();
+        $this->destroySession();
     }
 }

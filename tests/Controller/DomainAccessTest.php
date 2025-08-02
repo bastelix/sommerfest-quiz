@@ -35,7 +35,7 @@ class DomainAccessTest extends TestCase
         $request = $request->withUri($request->getUri()->withHost('tenant.test'));
         $response = $app->handle($request);
         $this->assertEquals(403, $response->getStatusCode());
-        session_destroy();
+        $this->destroySession();
         if ($old === false) {
             putenv('MAIN_DOMAIN');
         } else {
@@ -54,7 +54,7 @@ class DomainAccessTest extends TestCase
         $req = $req->withUri($req->getUri()->withHost('tenant.test'));
         $res = $app->handle($req);
         $this->assertEquals(403, $res->getStatusCode());
-        session_destroy();
+        $this->destroySession();
         if ($old === false) {
             putenv('MAIN_DOMAIN');
         } else {
