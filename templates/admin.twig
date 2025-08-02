@@ -52,7 +52,9 @@
     {% if role == 'admin' %}
     <li data-route="pages" data-help="Statische Seiten bearbeiten."><a href="{{ basePath }}/admin/pages">{{ t('tab_pages') }}</a></li>
     <li data-route="management" data-help="Benutzer verwalten, Rollen zuweisen und Sicherungen erstellen. Rollen: admin – Administrator; catalog-editor – Fragenkataloge bearbeiten; event-manager – Veranstaltungen verwalten; analyst – Ergebnisse analysieren; team-manager – Teams verwalten."><a href="{{ basePath }}/admin/management">{{ t('tab_management') }}</a></li>
+    {% if domainType == 'main' %}
     <li data-route="tenants" data-help="Liste aller angelegten Subdomains."><a href="{{ basePath }}/admin/tenants">{{ t('tab_tenants') }}</a></li>
+    {% endif %}
     {% endif %}
   </ul>
   <ul id="adminSwitcher" class="uk-switcher uk-margin">
@@ -615,7 +617,7 @@
         </table>
       </div>
     </li>
-    {% if role == 'admin' %}
+    {% if domainType == 'main' %}
     <li>
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_tenants') }}</h2>
@@ -634,7 +636,7 @@
       </div>
     </li>
     {% endif %}
-      {% endif %}
+    {% endif %}
   </ul>
   <div id="helpSidebar" uk-offcanvas="flip: true; overlay: true">
     <div class="uk-offcanvas-bar uk-width-medium">
@@ -667,7 +669,9 @@
           {% if role == 'admin' %}
           <li class="uk-nav-header">{{ t('menu_admin') }}</li>
           <li><a href="{{ basePath }}/admin/management" data-tab="9">{{ t('tab_management') }}</a></li>
+          {% if domainType == 'main' %}
           <li><a href="{{ basePath }}/admin/tenants" data-tab="10">{{ t('tab_tenants') }}</a></li>
+          {% endif %}
           {% endif %}
 
           <li class="uk-nav-divider"></li>
@@ -685,6 +689,7 @@
     window.roles = {{ roles|json_encode|raw }};
     window.baseUrl = '{{ baseUrl }}';
     window.mainDomain = '{{ main_domain }}';
+    window.domainType = '{{ domainType }}';
     window.pagesContent = {{ pages|json_encode|raw }};
   </script>
   <script src="{{ basePath }}/js/admin.js"></script>

@@ -111,7 +111,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $summaryService = new SummaryPhotoService($pdo, $configService);
         $eventService = new EventService($pdo);
         $nginxService = new NginxService();
-        $tenantService = new TenantService($pdo, null, $nginxService);
+        $tenantService = new TenantService($base, null, $nginxService);
         $userService = new \App\Service\UserService($pdo);
         $settingsService = new \App\Service\SettingsService($pdo);
 
@@ -504,6 +504,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     });
 
     $app->post('/api/tenants/{slug}/onboard', function (Request $request, Response $response, array $args) {
+        if ($request->getAttribute('domainType') !== 'main') {
+            return $response->withStatus(403);
+        }
         $slug = preg_replace('/[^a-z0-9\-]/', '-', strtolower((string) ($args['slug'] ?? '')));
         $script = realpath(__DIR__ . '/../scripts/onboard_tenant.sh');
 
@@ -533,6 +536,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add(new RoleAuthMiddleware(Roles::SERVICE_ACCOUNT));
 
     $app->delete('/api/tenants/{slug}', function (Request $request, Response $response, array $args) {
+        if ($request->getAttribute('domainType') !== 'main') {
+            return $response->withStatus(403);
+        }
         $slug = preg_replace('/[^a-z0-9\-]/', '-', strtolower((string) ($args['slug'] ?? '')));
         $script = realpath(__DIR__ . '/../scripts/offboard_tenant.sh');
 
@@ -557,6 +563,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add(new RoleAuthMiddleware('admin'));
 
     $app->post('/api/tenants/{slug}/renew-ssl', function (Request $request, Response $response, array $args) {
+        if ($request->getAttribute('domainType') !== 'main') {
+            return $response->withStatus(403);
+        }
         $slug = preg_replace('/[^a-z0-9\-]/', '-', strtolower((string) ($args['slug'] ?? '')));
         $script = realpath(__DIR__ . '/../scripts/renew_ssl.sh');
 
