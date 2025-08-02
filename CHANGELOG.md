@@ -82,6 +82,7 @@
 - *(admin)* Link tenant subdomains
 - *(onboarding)* Show link to new container
 - Collapse onboarding logs and track availability
+- *(admin)* Add frontend open button for selected event
 
 ### Fix
 
