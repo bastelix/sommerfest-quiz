@@ -13,7 +13,7 @@ use App\Service\AwardService;
 use App\Infrastructure\Database;
 use FPDF;
 use App\Service\Pdf;
-use Intervention\Image\ImageManagerStatic as Image;
+use Intervention\Image\ImageManager;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -339,9 +339,10 @@ class ResultController
                 if (is_readable($file)) {
                     $tmp = null;
                     if (str_ends_with(strtolower($file), '.webp')) {
-                        $img = Image::make($file);
+                        $manager = ImageManager::gd();
+                        $img = $manager->read($file);
                         $tmp = tempnam(sys_get_temp_dir(), 'photo') . '.png';
-                        $img->encode('png')->save($tmp, 80);
+                        $img->save($tmp, 80);
                         $file = $tmp;
                     }
                     $imgY = $pdf->GetY() + 25;

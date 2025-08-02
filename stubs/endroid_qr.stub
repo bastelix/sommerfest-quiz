@@ -1,11 +1,11 @@
 <?php
 namespace Endroid\QrCode;
 
-final class RoundBlockSizeMode
+enum RoundBlockSizeMode: string
 {
-    public const MARGIN = 'margin';
-    public const ENLARGE = 'enlarge';
-    public const SHRINK = 'shrink';
-    public const NONE = 'none';
+    case Enlarge = 'enlarge';
+    case Margin = 'margin';
+    case Shrink = 'shrink';
+    case None = 'none';
 }
 

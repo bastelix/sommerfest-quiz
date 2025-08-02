@@ -8,7 +8,7 @@ use App\Service\ResultService;
 use App\Service\PhotoConsentService;
 use App\Service\SummaryPhotoService;
 use Psr\Log\LoggerInterface;
-use Intervention\Image\ImageManagerStatic as Image;
+use Intervention\Image\ImageManager;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -92,11 +92,12 @@ class EvidenceController
         $tmpPath = tempnam(sys_get_temp_dir(), 'upload_');
         $file->moveTo($tmpPath);
 
-        $img = Image::make($tmpPath);
+        $manager = ImageManager::gd();
+        $img = $manager->read($tmpPath);
         $orientationHandled = false;
         if (function_exists('exif_read_data')) {
             try {
-                $img->orientate();
+                $img->orient();
                 $orientationHandled = true;
             } catch (\Throwable $e) {
                 $this->logger->warning('Photo rotation failed: ' . $e->getMessage());
@@ -114,16 +115,13 @@ class EvidenceController
                         . ' -auto-orient '
                         . escapeshellarg($tmpPath);
                     @shell_exec($cmd);
-                    $img = Image::make($tmpPath);
+                    $img = $manager->read($tmpPath);
                     $orientationHandled = true;
                 }
             }
         }
-        $img->resize(1500, 1500, function ($constraint): void {
-            $constraint->aspectRatio();
-            $constraint->upsize();
-        });
-        $img->encode('jpg')->save($target, 70);
+        $img->scaleDown(1500, 1500);
+        $img->save($target, 70);
         unlink($tmpPath);
 
         $this->consent->add($team, time());

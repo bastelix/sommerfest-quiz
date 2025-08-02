@@ -15,11 +15,11 @@ use Endroid\QrCode\Writer\WebPWriter;
 use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
-use Endroid\QrCode\Label\Font\NotoSans;
+use Endroid\QrCode\Label\Font\OpenSans;
+use Endroid\QrCode\Label\LabelAlignment;
 use Endroid\QrCode\RoundBlockSizeMode;
 use FPDF;
 use App\Service\Pdf;
-use Intervention\Image\ImageManagerStatic as Image;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -74,61 +74,69 @@ class QrController
         $label  = (string)($params['label'] ?? '1');
         $useLabel = !in_array(strtolower($label), ['0', 'false', 'no'], true);
 
-        $writer  = new PngWriter();
+        $writer = new PngWriter();
         if ($demo === 'svg' || $demo === 'svg-clean') {
             $writer = new SvgWriter();
         } elseif ($demo === 'webp') {
             $writer = new WebPWriter();
         }
 
-        $builder = Builder::create()
-            ->writer($writer)
-            ->data($text)
-            ->encoding(new Encoding('UTF-8'))
-            ->size($size)
-            ->margin($margin)
-            ->backgroundColor($this->parseColor($bg, new Color(255, 255, 255)))
-            ->foregroundColor($this->parseColor($fg, new Color(35, 180, 90)));
-
-        if ($useLabel) {
-            $builder = $builder
-                ->labelText($text)
-                ->labelFont(new NotoSans(20));
-        }
-
-        if ($demo === 'logo') {
-            $builder = $builder
-                ->logoPath(__DIR__ . '/../../public/favicon.svg')
-                ->logoResizeToWidth(60)
-                ->logoPunchoutBackground(true);
-        } elseif ($demo === 'label' && $useLabel) {
-            $builder = $builder
-                ->labelText('Jetzt scannen!')
-                ->labelFont(new NotoSans(22));
-        } elseif ($demo === 'colors') {
-            $builder = $builder
-                ->foregroundColor(new Color(0, 102, 204))
-                ->backgroundColor(new Color(240, 248, 255));
-        } elseif ($demo === 'svg') {
-            $builder = $builder->writerOptions(['svgRoundBlocks' => true]);
-        } elseif ($demo === 'high') {
-            $builder = $builder->errorCorrectionLevel(ErrorCorrectionLevel::High);
+        $writerOptions = [];
+        if ($demo === 'svg') {
+            $writerOptions = ['svgRoundBlocks' => true];
         } elseif ($demo === 'webp') {
-            $builder = $builder->writerOptions(['quality' => 95]);
+            $writerOptions = ['quality' => 95];
         } elseif ($demo === 'svg-clean') {
-            $builder = $builder->writerOptions([
+            $writerOptions = [
                 SvgWriter::WRITER_OPTION_EXCLUDE_XML_DECLARATION => true,
                 SvgWriter::WRITER_OPTION_BLOCK_ID => 'meinQRSVG',
-            ]);
+            ];
         }
 
-        if ($useLabel && class_exists(\Endroid\QrCode\Label\Alignment\LabelAlignmentCenter::class)) {
-            $builder = $builder->labelAlignment(new \Endroid\QrCode\Label\Alignment\LabelAlignmentCenter());
+        $labelText = null;
+        $labelFont = null;
+        $labelAlignment = null;
+        if ($useLabel) {
+            $labelText = $text;
+            $labelFont = new OpenSans(20);
+            $labelAlignment = LabelAlignment::Center;
+        }
+        if ($demo === 'label' && $useLabel) {
+            $labelText = 'Jetzt scannen!';
+            $labelFont = new OpenSans(22);
         }
 
-        $result = $builder
-            ->roundBlockSizeMode(RoundBlockSizeMode::Margin)
-            ->build();
+        $logoPath = null;
+        $logoResizeToWidth = null;
+        $logoPunchoutBackground = null;
+        if ($demo === 'logo') {
+            $logoPath = __DIR__ . '/../../public/favicon.svg';
+            $logoResizeToWidth = 60;
+            $logoPunchoutBackground = true;
+        }
+
+        $fgColor = $this->parseColor($fg, new Color(35, 180, 90));
+        $bgColor = $this->parseColor($bg, new Color(255, 255, 255));
+        $errorLevel = $demo === 'high' ? ErrorCorrectionLevel::High : ErrorCorrectionLevel::Low;
+
+        $result = (new Builder())->build(
+            writer: $writer,
+            writerOptions: $writerOptions,
+            data: $text,
+            encoding: new Encoding('UTF-8'),
+            errorCorrectionLevel: $errorLevel,
+            size: $size,
+            margin: $margin,
+            roundBlockSizeMode: RoundBlockSizeMode::Margin,
+            foregroundColor: $fgColor,
+            backgroundColor: $bgColor,
+            labelText: $labelText,
+            labelFont: $labelFont,
+            labelAlignment: $labelAlignment,
+            logoPath: $logoPath,
+            logoResizeToWidth: $logoResizeToWidth,
+            logoPunchoutBackground: $logoPunchoutBackground,
+        );
 
         $data = $result->getString();
 
@@ -161,18 +169,16 @@ class QrController
         $size   = (int)($params['s'] ?? 300);
         $margin = (int)($params['m'] ?? 20);
 
-        $builder = Builder::create()
-            ->writer(new PngWriter())
-            ->data($text)
-            ->encoding(new Encoding('UTF-8'))
-            ->size($size)
-            ->margin($margin)
-            ->backgroundColor($this->parseColor($bg, new Color(255, 255, 255)))
-            ->foregroundColor($this->parseColor($fg, new Color(0, 0, 255)));
-
-        $result = $builder
-            ->roundBlockSizeMode(RoundBlockSizeMode::Margin)
-            ->build();
+        $result = (new Builder())->build(
+            writer: new PngWriter(),
+            data: $text,
+            encoding: new Encoding('UTF-8'),
+            size: $size,
+            margin: $margin,
+            roundBlockSizeMode: RoundBlockSizeMode::Margin,
+            backgroundColor: $this->parseColor($bg, new Color(255, 255, 255)),
+            foregroundColor: $this->parseColor($fg, new Color(0, 0, 255)),
+        );
 
         $png = $result->getString();
         $tmp = tempnam(sys_get_temp_dir(), 'qr');
@@ -285,18 +291,16 @@ class QrController
         }
 
         foreach ($teams as $team) {
-            $builder = Builder::create()
-                ->writer(new PngWriter())
-                ->data($team)
-                ->encoding(new Encoding('UTF-8'))
-                ->size($size)
-                ->margin($margin)
-                ->backgroundColor($this->parseColor($bg, new Color(255, 255, 255)))
-                ->foregroundColor($this->parseColor($fg, new Color(0, 0, 255)));
-
-            $result = $builder
-                ->roundBlockSizeMode(RoundBlockSizeMode::Margin)
-                ->build();
+            $result = (new Builder())->build(
+                writer: new PngWriter(),
+                data: $team,
+                encoding: new Encoding('UTF-8'),
+                size: $size,
+                margin: $margin,
+                roundBlockSizeMode: RoundBlockSizeMode::Margin,
+                backgroundColor: $this->parseColor($bg, new Color(255, 255, 255)),
+                foregroundColor: $this->parseColor($fg, new Color(0, 0, 255)),
+            );
 
             $png = $result->getString();
             $tmp = tempnam(sys_get_temp_dir(), 'qr');

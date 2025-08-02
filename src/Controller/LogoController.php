@@ -7,7 +7,7 @@ namespace App\Controller;
 use App\Service\ConfigService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Intervention\Image\ImageManagerStatic as Image;
+use Intervention\Image\ImageManager;
 
 /**
  * Manages uploading and serving the site logo image.
@@ -75,11 +75,9 @@ class LogoController
             return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
         }
 
-        $img = Image::make($file->getStream());
-        $img->resize(512, 512, function ($constraint) {
-            $constraint->aspectRatio();
-            $constraint->upsize();
-        });
+        $manager = ImageManager::gd();
+        $img = $manager->read($file->getStream());
+        $img->scaleDown(512, 512);
         $img->save($target, 80);
 
         $cfg = $this->config->getConfig();
