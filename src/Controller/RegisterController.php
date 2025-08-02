@@ -11,6 +11,7 @@ use App\Infrastructure\Database;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Views\Twig;
+use PDO;
 
 /**
  * Handles self-registration of backend users.
@@ -22,7 +23,10 @@ class RegisterController
      */
     public function show(Request $request, Response $response): Response
     {
-        $pdo = Database::connectFromEnv();
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
         $settings = new SettingsService($pdo);
         $allowed = $settings->get('registration_enabled', '0') === '1';
         $view = Twig::fromRequest($request);
@@ -34,7 +38,10 @@ class RegisterController
      */
     public function register(Request $request, Response $response): Response
     {
-        $pdo = Database::connectFromEnv();
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
         $settings = new SettingsService($pdo);
         if ($settings->get('registration_enabled', '0') !== '1') {
             return $response->withStatus(403);

@@ -11,6 +11,7 @@ use App\Service\CatalogService;
 use App\Service\ConfigService;
 use App\Service\EventService;
 use App\Infrastructure\Database;
+use PDO;
 
 /**
  * Displays the catalog administration overview page.
@@ -33,7 +34,10 @@ class AdminCatalogController
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $pdo = Database::connectFromEnv();
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
         $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo);
 

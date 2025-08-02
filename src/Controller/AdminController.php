@@ -16,6 +16,7 @@ use App\Service\SettingsService;
 use App\Service\UserService;
 use App\Domain\Roles;
 use App\Infrastructure\Database;
+use PDO;
 
 /**
  * Shows the main administration dashboard.
@@ -32,7 +33,10 @@ class AdminController
             session_start();
         }
         $role = $_SESSION['user']['role'] ?? null;
-        $pdo = Database::connectFromEnv();
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
         $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo);
         $settingsSvc = new SettingsService($pdo);

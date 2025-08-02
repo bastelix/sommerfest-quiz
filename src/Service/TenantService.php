@@ -33,10 +33,12 @@ class TenantService
         }
         if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
             Migrator::migrate($this->pdo, $this->migrationsDir);
+            $this->seedDemoData();
         } else {
             $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $schema));
             $this->pdo->exec(sprintf('SET search_path TO "%s", public', $schema));
             Migrator::migrate($this->pdo, $this->migrationsDir);
+            $this->seedDemoData();
             $this->pdo->exec('SET search_path TO public');
         }
         $stmt = $this->pdo->prepare('INSERT INTO tenants(uid, subdomain) VALUES(?, ?)');
@@ -90,6 +92,145 @@ class TenantService
         }
 
         return false;
+    }
+
+    private function hasTable(string $name): bool
+    {
+        if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
+            $stmt = $this->pdo->prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = ?");
+            $stmt->execute([$name]);
+            return $stmt->fetchColumn() !== false;
+        }
+        $stmt = $this->pdo->prepare('SELECT to_regclass(?)');
+        $stmt->execute([$name]);
+        return $stmt->fetchColumn() !== null;
+    }
+
+    private function hasColumn(string $table, string $column): bool
+    {
+        if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
+            $stmt = $this->pdo->query('PRAGMA table_info(' . $table . ')');
+            $cols = $stmt->fetchAll(PDO::FETCH_COLUMN, 1);
+            return in_array($column, $cols, true);
+        }
+        $stmt = $this->pdo->prepare(
+            'SELECT 1 FROM information_schema.columns WHERE table_name = ? AND column_name = ?'
+        );
+        $stmt->execute([$table, $column]);
+        return $stmt->fetchColumn() !== false;
+    }
+
+    /**
+     * Seed demo data from the bundled data directory into the current schema.
+     */
+    private function seedDemoData(): void
+    {
+        $base = dirname(__DIR__, 2);
+        $dataDir = $base . '/data';
+        if (!is_dir($dataDir)) {
+            return;
+        }
+
+        $this->pdo->beginTransaction();
+
+        $eventsFile = $dataDir . '/events.json';
+        $activeUid = null;
+        if ($this->hasTable('events') && $this->hasColumn('events', 'name') && is_readable($eventsFile)) {
+            $events = json_decode(file_get_contents($eventsFile), true) ?? [];
+            $stmt = $this->pdo->prepare(
+                'INSERT INTO events(uid,name,start_date,end_date,description) VALUES(?,?,?,?,?)'
+            );
+            foreach ($events as $e) {
+                $uid = $e['uid'] ?? bin2hex(random_bytes(16));
+                if ($activeUid === null) {
+                    $activeUid = $uid;
+                }
+                $stmt->execute([
+                    $uid,
+                    $e['name'] ?? '',
+                    $e['start_date'] ?? date('Y-m-d\TH:i'),
+                    $e['end_date'] ?? date('Y-m-d\TH:i'),
+                    $e['description'] ?? null,
+                ]);
+            }
+        }
+
+        if ($activeUid !== null) {
+            if ($this->hasTable('config')) {
+                $cfgFile = $dataDir . '/config.json';
+                $cfg = [];
+                if (is_readable($cfgFile)) {
+                    $cfg = json_decode(file_get_contents($cfgFile), true) ?? [];
+                }
+                $cfg['event_uid'] = $activeUid;
+                $cols = array_keys($cfg);
+                if ($cols !== []) {
+                    $place = array_map(fn($c) => ':' . $c, $cols);
+                    $sql = 'INSERT INTO config(' . implode(',', $cols) . ') VALUES(' . implode(',', $place) . ')';
+                    $stmt = $this->pdo->prepare($sql);
+                    foreach ($cfg as $k => $v) {
+                        if (is_bool($v)) {
+                            $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
+                        } else {
+                            $stmt->bindValue(':' . $k, $v);
+                        }
+                    }
+                    $stmt->execute();
+                }
+            }
+            if ($this->hasTable('active_event')) {
+                $this->pdo->prepare('INSERT INTO active_event(event_uid) VALUES(?)')->execute([$activeUid]);
+            }
+        }
+
+        $catalogDir = $dataDir . '/kataloge';
+        $catalogsFile = $catalogDir . '/catalogs.json';
+        if ($this->hasTable('catalogs') && $this->hasColumn('catalogs', 'description') && is_readable($catalogsFile)) {
+            $catalogs = json_decode(file_get_contents($catalogsFile), true) ?? [];
+            $catStmt = $this->pdo->prepare(
+                'INSERT INTO catalogs(uid,sort_order,slug,file,name,description,qrcode_url,raetsel_buchstabe,comment,event_uid)' .
+                ' VALUES(?,?,?,?,?,?,?,?,?,?)'
+            );
+            $qStmt = $this->hasTable('questions')
+                ? $this->pdo->prepare(
+                    'INSERT INTO questions(catalog_uid,type,prompt,options,answers,terms,items,sort_order) VALUES(?,?,?,?,?,?,?,?)'
+                )
+                : null;
+            foreach ($catalogs as $cat) {
+                $catStmt->execute([
+                    $cat['uid'] ?? '',
+                    $cat['id'] ?? 0,
+                    $cat['slug'] ?? '',
+                    $cat['file'] ?? '',
+                    $cat['name'] ?? '',
+                    $cat['description'] ?? null,
+                    $cat['qrcode_url'] ?? null,
+                    $cat['raetsel_buchstabe'] ?? null,
+                    $cat['comment'] ?? null,
+                    $activeUid,
+                ]);
+                if ($qStmt !== null) {
+                    $file = $catalogDir . '/' . ($cat['file'] ?? '');
+                    if (is_readable($file)) {
+                        $questions = json_decode(file_get_contents($file), true) ?? [];
+                        foreach ($questions as $i => $q) {
+                            $qStmt->execute([
+                                $cat['uid'] ?? '',
+                                $q['type'] ?? '',
+                                $q['prompt'] ?? '',
+                                isset($q['options']) ? json_encode($q['options']) : null,
+                                isset($q['answers']) ? json_encode($q['answers']) : null,
+                                isset($q['terms']) ? json_encode($q['terms']) : null,
+                                isset($q['items']) ? json_encode($q['items']) : null,
+                                $i + 1,
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+
+        $this->pdo->commit();
     }
 
     /**
