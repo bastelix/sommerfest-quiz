@@ -111,9 +111,12 @@ if ! compose_out=$($DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" up -d 2>&1); th
 fi
 
 # optional reload to speed up certificate issuance
+# Without a successful reload no certificate will be requested, so abort on failure
 RELOADER_URL="${NGINX_RELOADER_URL:-http://nginx-reloader:8080/reload}"
 RELOAD_TOKEN="${NGINX_RELOAD_TOKEN:-changeme}"
-curl -fs -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL" >/dev/null || true
+if ! curl -fs -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL" >/dev/null; then
+  error_exit "Konnte Nginx-Reload nicht auslösen; kein Zertifikat beantragt"
+fi
 
 echo "Tenant '$SLUG' deployed under https://${SLUG}.${DOMAIN_SUFFIX}"
 echo "{\"status\": \"success\", \"slug\": \"${SLUG}\", \"url\": \"https://${SLUG}.${DOMAIN_SUFFIX}\"}"

@@ -21,6 +21,8 @@ class OnboardingScriptTest extends TestCase
         mkdir($stubDir);
         file_put_contents($stubDir . '/docker', "#!/bin/sh\nexit 0\n");
         chmod($stubDir . '/docker', 0755);
+        file_put_contents($stubDir . '/curl', "#!/bin/sh\nexit 0\n");
+        chmod($stubDir . '/curl', 0755);
 
         $envPath = $stubDir . ':' . getenv('PATH');
         $cmd = sprintf(
