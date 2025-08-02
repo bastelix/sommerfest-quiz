@@ -121,6 +121,7 @@
 - Improve mobile layout for events
 - Unify vue quiz buttons
 - Unify admin question buttons
+- Wrap long SQL strings in TenantService
 
 ### Test
 
