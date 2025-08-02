@@ -14,7 +14,7 @@ class TenantServiceTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT);');
+        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT);');
         if (!is_dir($dir)) {
             mkdir($dir);
         }

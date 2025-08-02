@@ -32,7 +32,7 @@ class TenantControllerTest extends TestCase
             {
             }
 
-            public function createTenant(string $uid, string $schema): void
+            public function createTenant(string $uid, string $schema, ?string $plan = null, ?string $billing = null): void
             {
             }
 
@@ -55,7 +55,7 @@ class TenantControllerTest extends TestCase
             {
             }
 
-            public function createTenant(string $uid, string $schema): void
+            public function createTenant(string $uid, string $schema, ?string $plan = null, ?string $billing = null): void
             {
             }
 
@@ -140,7 +140,7 @@ class TenantControllerTest extends TestCase
     public function testExistsReturns404ForUnknown(): void
     {
         $pdo = new PDO('sqlite::memory:');
-        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT);');
+        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT);');
         $controller = new TenantController(new TenantService($pdo));
         $req = $this->createRequest('GET', '/tenants/foo');
         $res = $controller->exists($req, new Response(), ['subdomain' => 'foo']);
@@ -150,7 +150,7 @@ class TenantControllerTest extends TestCase
     public function testExistsReturns200ForExisting(): void
     {
         $pdo = new PDO('sqlite::memory:');
-        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT);');
+        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT);');
         $pdo->exec("INSERT INTO tenants(uid, subdomain) VALUES('u1', 'bar')");
         $controller = new TenantController(new TenantService($pdo));
         $req = $this->createRequest('GET', '/tenants/bar');
@@ -165,7 +165,7 @@ class TenantControllerTest extends TestCase
             {
             }
 
-            public function createTenant(string $uid, string $schema): void
+            public function createTenant(string $uid, string $schema, ?string $plan = null, ?string $billing = null): void
             {
                 throw new \PDOException('fail');
             }
@@ -191,7 +191,7 @@ class TenantControllerTest extends TestCase
             {
             }
 
-            public function createTenant(string $uid, string $schema): void
+            public function createTenant(string $uid, string $schema, ?string $plan = null, ?string $billing = null): void
             {
                 throw new \Exception('boom');
             }
