@@ -1873,7 +1873,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   function loadTenants() {
-    if (!tenantTableBody) return;
+    if (!tenantTableBody || window.domainType !== 'main') return;
     const mainDomain = window.mainDomain || '';
     apiFetch('/tenants.json', { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
@@ -2061,30 +2061,34 @@ document.addEventListener('DOMContentLoaded', function () {
     if (initIdx >= 0) {
       tabControl.show(initIdx);
     }
-    UIkit.util.on(adminTabs, 'shown', (e, tab) => {
-      const index = Array.prototype.indexOf.call(adminTabs.children, tab);
-      const route = adminRoutes[index];
-      if (route) {
-        const url = basePath + '/admin/' + route;
-        if (window.history && window.history.replaceState) {
-          window.history.replaceState(null, '', url);
+      UIkit.util.on(adminTabs, 'shown', (e, tab) => {
+        const index = Array.prototype.indexOf.call(adminTabs.children, tab);
+        const route = adminRoutes[index];
+        if (route) {
+          const url = basePath + '/admin/' + route;
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, '', url);
+          }
         }
-      }
-      if (index === 5) {
+        if (index === summaryIdx) {
+          loadSummary();
+        }
+        if (index === tenantIdx) {
+          loadTenants();
+        }
+      });
+      const summaryIdx = adminRoutes.indexOf('summary');
+      const tenantIdx = adminRoutes.indexOf('tenants');
+    if (summaryIdx >= 0) {
+      adminTabs.children[summaryIdx]?.addEventListener('click', () => {
         loadSummary();
-      }
-      if (index === tenantIdx) {
+      });
+    }
+    if (tenantIdx >= 0) {
+      adminTabs.children[tenantIdx]?.addEventListener('click', () => {
         loadTenants();
-      }
-    });
-    const summaryIdx = 5;
-    const tenantIdx = 10;
-    adminTabs.children[summaryIdx]?.addEventListener('click', () => {
-      loadSummary();
-    });
-    adminTabs.children[tenantIdx]?.addEventListener('click', () => {
-      loadTenants();
-    });
+      });
+    }
     adminMenu.querySelectorAll('[data-tab]').forEach(item => {
       item.addEventListener('click', e => {
         e.preventDefault();
@@ -2110,5 +2114,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Page editors are handled in trumbowyg-pages.js
 
   loadBackups();
-  loadTenants();
+  if (adminRoutes.indexOf('tenants') >= 0) {
+    loadTenants();
+  }
 });
