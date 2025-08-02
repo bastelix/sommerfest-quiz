@@ -162,6 +162,7 @@ class TenantService
                 if (is_readable($cfgFile)) {
                     $cfg = json_decode(file_get_contents($cfgFile), true) ?? [];
                 }
+                unset($cfg['id']);
                 $cfg['event_uid'] = $activeUid;
                 $cols = array_keys($cfg);
                 if ($cols !== []) {
