@@ -58,9 +58,14 @@ class HomeController
             } elseif ($home === 'help') {
                 $ctrl = new HelpController();
                 return $ctrl($request, $response);
-            } elseif ($home === 'landing' && $request->getAttribute('domainType') === 'main') {
-                $ctrl = new \App\Controller\Marketing\LandingController();
-                return $ctrl($request, $response);
+            } elseif ($home === 'landing') {
+                $domainType = $request->getAttribute('domainType');
+                $host = $request->getUri()->getHost();
+                $mainDomain = getenv('MAIN_DOMAIN') ?: '';
+                if ($domainType === null || $domainType === 'main' || $host === $mainDomain) {
+                    $ctrl = new \App\Controller\Marketing\LandingController();
+                    return $ctrl($request, $response);
+                }
             }
         }
         if (session_status() === PHP_SESSION_NONE) {

@@ -27,6 +27,9 @@
       <a class="uk-button uk-button-primary" href="{{ basePath }}/login">Kostenlos testen</a>
     {% endblock %}
   {% endembed %}
+  {% if 'Willkommen beim QuizRace' not in content %}
+    <h1 class="uk-heading-medium">Willkommen beim QuizRace</h1>
+  {% endif %}
   {{ content|raw }}
 {% endblock %}
 
