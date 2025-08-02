@@ -149,6 +149,20 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
 ## Docker Compose
 
 Das mitgelieferte `docker-compose.yml` startet das Quiz samt Reverse Proxy. Ein kleiner Zusatzcontainer (`nginx-reloader`) ermöglicht einen geschützten Reload des Proxys per Webhook. Dieser Container enthält nun das Docker-CLI, um den Proxy direkt neu laden zu können. Alternativ kann jede beliebige URL über die Variable `NGINX_RELOADER_URL` hinterlegt werden. Wird dieser Webhook genutzt, sollte `NGINX_RELOAD` auf `0` stehen, damit keine Docker-Befehle ausgeführt werden. Das dafür notwendige Token wird über die Datei `.env` als `NGINX_RELOAD_TOKEN` definiert und sowohl an die Anwendung als auch an den Reloader-Container weitergereicht. Die mitgelieferte Beispielkonfiguration ist bereits entsprechend vorbereitet und nutzt standardmäßig `http://nginx-reloader:8080/reload` bei deaktiviertem `NGINX_RELOAD`.
+Sollte der automatische Reload scheitern, bricht `scripts/create_tenant.sh` mit einer Fehlermeldung ab. In diesem Fall lässt sich der Proxy manuell neu laden:
+
+```bash
+docker compose exec nginx nginx -s reload
+```
+
+Zur Fehlersuche helfen die Logs des Proxy- oder Reloader-Containers:
+
+```bash
+docker compose logs nginx
+docker compose logs nginx-reloader
+```
+
+Anschließend kann das Skript erneut aufgerufen werden.
 Zertifikate und Konfigurationen werden komplett in benannten Volumes
 gespeichert. Dadurch bleiben alle Daten auch nach `docker compose down`
 erhalten und es sind keine manuellen Ordner erforderlich. Zusätzlich läuft ein
