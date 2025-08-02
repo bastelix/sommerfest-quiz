@@ -109,7 +109,7 @@
           await fetch(url, { method: 'HEAD', mode: 'no-cors' });
           return true;
         } catch (e) {
-          // ignore errors until certificate is ready
+          logMessage('Noch nicht erreichbar, neuer Versuch in 5s...');
         }
         await new Promise(resolve => setTimeout(resolve, 5000));
       }
@@ -321,7 +321,37 @@
 
         if (successLink) {
           successLink.href = 'https://' + data.subdomain + '.' + mainDomain;
+          successLink.textContent = 'Warte auf Start...';
+          successLink.classList.add('uk-disabled');
           successLink.hidden = false;
+          successLink.addEventListener('click', e => {
+            if (successLink.classList.contains('uk-disabled')) e.preventDefault();
+          });
+        }
+
+        logMessage('Warte bis die Seite aktiv ist...');
+        if (successInfo) {
+          successInfo.textContent = 'Die Subdomain wird gestartet. Bitte warten...';
+        }
+        if (typeof UIkit !== 'undefined') {
+          UIkit.notification({ message: 'Warte auf Start der Instanz', status: 'primary' });
+        }
+        const ready = successLink ? await waitForHttps(successLink.href) : false;
+        if (ready) {
+          logMessage('Subdomain erreichbar');
+          successLink.classList.remove('uk-disabled');
+          successLink.textContent = 'Zu Ihrem QuizRace';
+          if (successInfo) {
+            successInfo.textContent = 'Die Subdomain ist jetzt erreichbar.';
+          }
+          if (typeof UIkit !== 'undefined') {
+            UIkit.notification({ message: 'Instanz ist bereit', status: 'success' });
+          }
+        } else {
+          logMessage('Subdomain nach Wartezeit nicht erreichbar');
+          if (typeof UIkit !== 'undefined') {
+            UIkit.notification({ message: 'Instanz ist noch nicht erreichbar', status: 'warning' });
+          }
         }
       } catch (err) {
         logMessage('Fehler beim Anlegen: ' + (err.message || err));
