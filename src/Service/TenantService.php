@@ -41,8 +41,12 @@ class TenantService
             $this->seedDemoData();
             $this->pdo->exec('SET search_path TO public');
         }
-        $stmt = $this->pdo->prepare('INSERT INTO tenants(uid, subdomain, plan, billing_info) VALUES(?, ?, ?, ?)');
-        $stmt->execute([$uid, $schema, $plan, $billing]);
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO tenants(' .
+            'uid, subdomain, plan, billing_info, imprint_name, imprint_street, imprint_zip, imprint_city, imprint_email' .
+            ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        );
+        $stmt->execute([$uid, $schema, $plan, $billing, null, null, null, null, null]);
 
         if ($this->nginxService !== null) {
             try {
@@ -241,12 +245,23 @@ class TenantService
     /**
      * Retrieve a tenant by its subdomain.
      *
-     * @return array{uid:string,subdomain:string,plan:?string,billing_info:?string,created_at:string}|null
+     * @return array{
+     *   uid:string,
+     *   subdomain:string,
+     *   plan:?string,
+     *   billing_info:?string,
+     *   imprint_name:?string,
+     *   imprint_street:?string,
+     *   imprint_zip:?string,
+     *   imprint_city:?string,
+     *   imprint_email:?string,
+     *   created_at:string
+     * }|null
      */
     public function getBySubdomain(string $subdomain): ?array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT uid, subdomain, plan, billing_info, created_at FROM tenants WHERE subdomain = ?'
+            'SELECT uid, subdomain, plan, billing_info, imprint_name, imprint_street, imprint_zip, imprint_city, imprint_email, created_at FROM tenants WHERE subdomain = ?'
         );
         $stmt->execute([$subdomain]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -256,12 +271,23 @@ class TenantService
     /**
      * Retrieve all tenants ordered by creation date.
      *
-     * @return list<array{uid:string,subdomain:string,plan:?string,billing_info:?string,created_at:string}>
+     * @return list<array{
+     *   uid:string,
+     *   subdomain:string,
+     *   plan:?string,
+     *   billing_info:?string,
+     *   imprint_name:?string,
+     *   imprint_street:?string,
+     *   imprint_zip:?string,
+     *   imprint_city:?string,
+     *   imprint_email:?string,
+     *   created_at:string
+     * }>
      */
     public function getAll(): array
     {
         $stmt = $this->pdo->query(
-            'SELECT uid, subdomain, plan, billing_info, created_at FROM tenants ORDER BY created_at'
+            'SELECT uid, subdomain, plan, billing_info, imprint_name, imprint_street, imprint_zip, imprint_city, imprint_email, created_at FROM tenants ORDER BY created_at'
         );
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

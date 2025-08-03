@@ -16,7 +16,8 @@ class TenantServiceTest extends TestCase
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
             'CREATE TABLE tenants(' .
-            'uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, created_at TEXT)'
+            'uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, ' .
+            'imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, imprint_email TEXT, created_at TEXT)'
         );
         if (!is_dir($dir)) {
             mkdir($dir);
@@ -133,8 +134,8 @@ SQL;
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
         $pdo->exec(
-            "INSERT INTO tenants(uid, subdomain, plan, billing_info, created_at) " .
-            "VALUES('u6', 'sub', NULL, NULL, '2024-01-01')"
+            "INSERT INTO tenants(uid, subdomain, plan, billing_info, imprint_name, imprint_street, imprint_zip, imprint_city, imprint_email, created_at) " .
+            "VALUES('u6', 'sub', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-01-01')"
         );
         $row = $service->getBySubdomain('sub');
         $this->assertIsArray($row);
