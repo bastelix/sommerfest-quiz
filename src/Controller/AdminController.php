@@ -126,7 +126,7 @@ class AdminController
             }
         }
 
-        if ($section === 'profile') {
+        if (in_array($section, ['profile', 'pages'], true)) {
             $host = $request->getUri()->getHost();
             $sub  = explode('.', $host)[0];
             $base = Database::connectFromEnv();
