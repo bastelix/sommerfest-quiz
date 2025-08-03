@@ -18,6 +18,7 @@
 ### Ci
 
 - Add workflow for automatic changelog
+- Build tenant image during deploy
 
 ### Docs
 
