@@ -27,6 +27,14 @@ if [ -f "$COMPOSE_FILE" ]; then
   fi
 fi
 
-curl -fs -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL" >/dev/null
+if ! curl -fs -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL" >/dev/null; then
+  echo "Failed to trigger nginx reload" >&2
+  exit 1
+fi
+
+if ! docker compose -f "$COMPOSE_FILE" -p "$SLUG" restart >/dev/null; then
+  echo "Failed to restart tenant services" >&2
+  exit 1
+fi
 
 printf '{"status":"renewed","slug":"%s"}\n' "$SLUG"
