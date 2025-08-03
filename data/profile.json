@@ -1,0 +1,12 @@
+{
+  "uid": "main",
+  "subdomain": "main",
+  "plan": "",
+  "billing_info": "",
+  "imprint_name": "Example Org",
+  "imprint_street": "Example Street 1",
+  "imprint_zip": "12345",
+  "imprint_city": "Example City",
+  "imprint_email": "info@example.com",
+  "created_at": ""
+}
