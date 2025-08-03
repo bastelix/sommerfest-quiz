@@ -570,6 +570,36 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware('admin'));
 
+    $app->post('/api/renew-ssl', function (Request $request, Response $response) {
+        if ($request->getAttribute('domainType') !== 'main') {
+            return $response->withStatus(403);
+        }
+        $script = realpath(__DIR__ . '/../scripts/renew_ssl.sh');
+
+        if (!is_file($script)) {
+            $response->getBody()->write(json_encode(['error' => 'Renew script not found']));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $cmd = escapeshellcmd($script . ' --main');
+        exec($cmd, $output, $exitCode);
+
+        if ($exitCode !== 0) {
+            $response->getBody()->write(json_encode(['error' => 'Failed to renew certificate']));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $response->getBody()->write(json_encode(['status' => 'success', 'slug' => 'main']));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    })->add(new RoleAuthMiddleware('admin'));
+
     $app->post('/api/tenants/{slug}/renew-ssl', function (Request $request, Response $response, array $args) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(403);
