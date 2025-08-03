@@ -83,6 +83,7 @@
 - *(onboarding)* Show link to new container
 - Collapse onboarding logs and track availability
 - *(admin)* Add frontend open button for selected event
+- *(admin)* Show tenant profile on main domain
 
 ### Fix
 
