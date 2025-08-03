@@ -60,7 +60,10 @@
       tasks.push({ key: 'reload', label: 'Proxy neu laden' });
     }
     tasks.push({ key: 'ssl', label: 'Container starten (SSL)' });
-    tasks.push({ key: 'wait', label: 'Auf Verfügbarkeit warten' });
+    tasks.push({
+      key: 'wait',
+      label: 'Wir bauen deine App. Bitte ein wenig Geduld.'
+    });
 
     function initTaskList() {
       if (!taskStatusEl || taskStatusEl.children.length > 0) return;
