@@ -18,4 +18,6 @@ jobs:
           script: |
             cd /var/sommerfest-quiz
             git pull
+            export $(grep -v '^#' .env | xargs)
+            docker build -t "$APP_IMAGE" .
             docker compose up -d --build
