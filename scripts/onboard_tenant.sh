@@ -118,5 +118,15 @@ if ! curl -fs -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL" >/dev/null; th
   error_exit "Konnte Nginx-Reload nicht auslösen; kein Zertifikat beantragt"
 fi
 
+# restart the tenant container to pick up the certificate
+if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" restart >/dev/null; then
+  error_exit "Konnte Tenant-Container nicht neu starten"
+fi
+
+# trigger a second reload so nginx picks up the certificate
+if ! curl -fs -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL" >/dev/null; then
+  echo "Warnung: Konnte zweiten Nginx-Reload nicht auslösen" >&2
+fi
+
 echo "Tenant '$SLUG' deployed under https://${SLUG}.${DOMAIN_SUFFIX}"
 echo "{\"status\": \"success\", \"slug\": \"${SLUG}\", \"url\": \"https://${SLUG}.${DOMAIN_SUFFIX}\"}"
