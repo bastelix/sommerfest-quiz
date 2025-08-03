@@ -10,7 +10,7 @@
         "slim/twig-view": "^3.3",
         "setasign/fpdf": "^1.8",
         "setasign/fpdi": "^2.6",
-        "endroid/qr-code": "^6.0",
+        "endroid/qr-code": "^5.1",
         "intervention/image": "^3.0",
         "ext-exif": "*",
         "guzzlehttp/guzzle": "^7"
