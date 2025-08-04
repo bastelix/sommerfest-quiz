@@ -9,6 +9,8 @@ database:
   password: quiz
   name: quiz
 
+tenantId: default
+
 service:
   type: ClusterIP
   port: 8080

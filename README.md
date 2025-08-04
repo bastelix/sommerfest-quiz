@@ -138,9 +138,12 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
 
   Der Erstimport legt nur die erforderlichen Rollen an.
   Ein Admin-Benutzer wird bereits beim ersten Start mit
-  zufälligem Passwort angelegt. Dieses Passwort wird unter
-  `data/admin_password.txt` gespeichert und sollte im
-  Onboarding durch ein eigenes Passwort ersetzt werden.
+  zufälligem Passwort angelegt. Dieses Passwort wird
+  mandantenspezifisch unter
+  `/var/www/data/<TENANT_ID>/admin_password.txt`
+  gespeichert und sollte im Onboarding durch ein eigenes
+  Passwort ersetzt werden. Jede Instanz benötigt eine eigene
+  Umgebungsvariable `TENANT_ID`.
 
    Wird `POSTGRES_DSN` gesetzt und enthält das Verzeichnis `data/` bereits JSON-Dateien,
    legt das Entrypoint-Skript des Containers die Tabellen automatisch an und importiert
