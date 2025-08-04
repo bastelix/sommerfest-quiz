@@ -34,6 +34,20 @@ class UserService
     }
 
     /**
+     * Find a user by email.
+     *
+     * @return array{id:int,username:string,password:string,email:?
+     *     string,role:string,active:bool}|null
+     */
+    public function getByEmail(string $email): ?array
+    {
+        $stmt = $this->pdo->prepare('SELECT id,username,password,email,role,active FROM users WHERE email=?');
+        $stmt->execute([strtolower($email)]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row !== false ? $row : null;
+    }
+
+    /**
      * Create a new user with the given role.
      */
     public function create(
