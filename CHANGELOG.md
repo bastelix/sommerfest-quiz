@@ -127,6 +127,7 @@
 - Ensure landing route sets domain type
 - Apply dark mode styles to page editor
 - Read SMTP settings from .env
+- Ensure logo uploads work across image versions
 
 ### Refactor
 
