@@ -79,11 +79,15 @@ class QrController
             return $response->withStatus(400);
         }
 
-        $writer = new PngWriter();
+        // Use PNG output when the GD extension is available, otherwise
+        // gracefully fall back to SVG to avoid runtime errors on systems
+        // without the required image libraries.
+        $writer = extension_loaded('gd') ? new PngWriter() : new SvgWriter();
         if ($demo === 'svg' || $demo === 'svg-clean') {
             $writer = new SvgWriter();
         } elseif ($demo === 'webp') {
-            $writer = new WebPWriter();
+            // Generating WebP also requires GD; use SVG when it is missing.
+            $writer = extension_loaded('gd') ? new WebPWriter() : new SvgWriter();
         }
 
         $writerOptions = [];
