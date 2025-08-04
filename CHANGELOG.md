@@ -97,6 +97,7 @@
 - Collect and store user email
 - Add password reset endpoints
 - Add password reset templates
+- Allow publishing events and copying links
 
 ### Fix
 
