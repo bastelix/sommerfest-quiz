@@ -112,5 +112,8 @@ export function showPreview() {
 }
 
 window.showPreview = showPreview;
-
-document.addEventListener('DOMContentLoaded', initPageEditors);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPageEditors);
+} else {
+  initPageEditors();
+}
