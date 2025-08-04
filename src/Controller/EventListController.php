@@ -26,18 +26,19 @@ class EventListController
         }
         $eventSvc = new EventService($pdo);
         $cfgSvc = new ConfigService($pdo);
-        $events = $eventSvc->getAll();
-        $cfg = $cfgSvc->getConfig();
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
         $role = $_SESSION['user']['role'] ?? null;
+        $events = $eventSvc->getAll(!in_array($role, ['admin', 'event-manager'], true));
+        $cfg = $cfgSvc->getConfig();
         if ($role !== 'admin') {
             $cfg = ConfigService::removePuzzleInfo($cfg);
         }
         return $view->render($response, 'events_overview.twig', [
             'events' => $events,
             'config' => $cfg,
+            'role' => $role,
         ]);
     }
 }

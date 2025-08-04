@@ -1,0 +1,2 @@
+ALTER TABLE events ADD COLUMN published BOOLEAN DEFAULT FALSE;
+UPDATE events SET published = TRUE;

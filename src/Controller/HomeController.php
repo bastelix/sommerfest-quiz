@@ -32,6 +32,10 @@ class HomeController
         $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo);
         $settingsSvc = new SettingsService($pdo);
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $role = $_SESSION['user']['role'] ?? null;
 
         $params = $request->getQueryParams();
         $uid = (string)($params['event'] ?? '');
@@ -50,10 +54,11 @@ class HomeController
             }
             $home = $settingsSvc->get('home_page', 'help');
             if ($home === 'events') {
-                $events = $eventSvc->getAll();
+                $events = $eventSvc->getAll(!in_array($role, ['admin', 'event-manager'], true));
                 return $view->render($response, 'events_overview.twig', [
                     'events' => $events,
                     'config' => $cfg,
+                    'role' => $role,
                 ]);
             } elseif ($home === 'help') {
                 $ctrl = new HelpController();
@@ -71,10 +76,6 @@ class HomeController
                 }
             }
         }
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        $role = $_SESSION['user']['role'] ?? null;
         if ($role !== 'admin') {
             $cfg = ConfigService::removePuzzleInfo($cfg);
         }
