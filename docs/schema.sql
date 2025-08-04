@@ -161,6 +161,7 @@ CREATE TABLE IF NOT EXISTS users (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
+    email TEXT UNIQUE,
     role user_role NOT NULL DEFAULT 'catalog-editor'
 );
 

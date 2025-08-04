@@ -52,14 +52,15 @@ class RegisterController
             return $response->withStatus(400);
         }
         $user = trim((string)($data['username'] ?? ''));
+        $email = trim((string)($data['email'] ?? ''));
         $pass = (string)($data['password'] ?? '');
         $repeat = (string)($data['password_repeat'] ?? '');
-        if ($user === '' || $pass === '' || $pass !== $repeat) {
+        if ($user === '' || $email === '' || $pass === '' || $pass !== $repeat) {
             $view = Twig::fromRequest($request);
             return $view->render($response->withStatus(400), 'register.twig', [ 'error' => true, 'allowed' => true ]);
         }
         $service = new UserService($pdo);
-        $service->create($user, $pass, Roles::CATALOG_EDITOR, false);
+        $service->create($user, $pass, $email, Roles::CATALOG_EDITOR, false);
         $view = Twig::fromRequest($request);
         return $view->render($response, 'register.twig', [ 'success' => true, 'allowed' => true ]);
     }
