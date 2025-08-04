@@ -52,6 +52,7 @@ use App\Controller\TenantController;
 use App\Controller\Marketing\LandingController;
 use App\Controller\RegisterController;
 use App\Controller\OnboardingController;
+use Slim\Views\Twig;
 use GuzzleHttp\Client;
 use Psr\Log\NullLogger;
 use App\Controller\BackupController;
@@ -230,6 +231,15 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/login', [LoginController::class, 'login']);
     $app->get('/register', [RegisterController::class, 'show']);
     $app->post('/register', [RegisterController::class, 'register']);
+    $app->get('/password/reset/request', function (Request $request, Response $response) {
+        $view = Twig::fromRequest($request);
+        return $view->render($response, 'password_request.twig');
+    });
+    $app->get('/password/reset', function (Request $request, Response $response) {
+        $view = Twig::fromRequest($request);
+        $token = (string) ($request->getQueryParams()['token'] ?? '');
+        return $view->render($response, 'password_confirm.twig', ['token' => $token]);
+    });
     $app->get('/logout', LogoutController::class);
     $app->get('/admin', function (Request $request, Response $response) {
         $base = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
