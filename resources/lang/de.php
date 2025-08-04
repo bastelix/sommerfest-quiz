@@ -139,6 +139,7 @@ return [
     'heading_catalog_comment' => 'Kommentar zum Katalog',
     'placeholder_catalog_comment' => 'Kommentar eingeben...',
     'label_catalog_select' => 'Fragenkatalog',
+    'action_save' => 'Speichern',
     'action_reset' => 'Zurücksetzen',
     'action_preview' => 'Vorschau',
     'action_invite_text' => 'Einladungstext eingeben',

@@ -139,6 +139,7 @@ return [
     'heading_catalog_comment' => 'Catalog comment',
     'placeholder_catalog_comment' => 'Enter comment...',
     'label_catalog_select' => 'Question catalog',
+    'action_save' => 'Save',
     'action_reset' => 'Reset',
     'action_preview' => 'Preview',
     'action_invite_text' => 'Enter invitation text',
