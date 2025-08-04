@@ -18,9 +18,6 @@
 ### Ci
 
 - Add workflow for automatic changelog
-### Feat
-
-- Allow admins to edit tenant profile
 - Build tenant image during deploy
 
 ### Docs
@@ -142,6 +139,7 @@
 - Fix schemas for event-aware tables
 - Verify catalog create and delete via db
 - Expect marketing pages on main domain
+- Cover main profile update
 
 ## [0.1.0] - 2025-06-16
 
