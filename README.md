@@ -480,6 +480,14 @@ Für Funktionen wie das Zurücksetzen von Passwörtern nutzt die Anwendung SMTP.
 
 Diese Variablen können in `.env` gesetzt werden.
 
+### Passwort zurücksetzen
+Die API unterstützt ein zweistufiges Verfahren zum Zurücksetzen vergessener Passwörter:
+
+1. `POST /password/reset/request` nimmt einen Benutzernamen oder eine E‑Mail-Adresse entgegen und verschickt einen Link mit einem Reset-Token.
+2. `POST /password/reset/confirm` setzt nach Validierung des Tokens das neue Passwort.
+
+Für den Versand der E-Mails müssen `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` und `SMTP_PORT` konfiguriert sein. Das Token ist aus Sicherheitsgründen nur eine Stunde gültig.
+
 ### Administrationsoberfläche
 Unter `/admin` stehen folgende Tabs zur Verfügung:
 1. **Veranstaltung konfigurieren** – Einstellungen wie Logo, Farben und Texte.

@@ -27,6 +27,14 @@ spec:
               value: {{ .Values.database.name | quote }}
             - name: TENANT_ID
               value: {{ .Values.tenantId | quote }}
+            - name: SMTP_HOST
+              value: {{ .Values.smtp.host | quote }}
+            - name: SMTP_USER
+              value: {{ .Values.smtp.user | quote }}
+            - name: SMTP_PASS
+              value: {{ .Values.smtp.pass | quote }}
+            - name: SMTP_PORT
+              value: {{ .Values.smtp.port | quote }}
           ports:
             - containerPort: 8080
           volumeMounts:
