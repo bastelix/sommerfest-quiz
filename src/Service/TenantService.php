@@ -16,6 +16,23 @@ class TenantService
     private string $migrationsDir;
     private ?NginxService $nginxService;
 
+    private const RESERVED_SUBDOMAINS = [
+        'public',
+        'www',
+        'so',
+        'sa',
+        'ss',
+        'ns',
+        'nsdap',
+        'nazi',
+        'nazis',
+        'hitler',
+        'adolf',
+        'hj',
+        'bdm',
+        'kz',
+    ];
+
     public function __construct(PDO $pdo, ?string $migrationsDir = null, ?NginxService $nginxService = null)
     {
         $this->pdo = $pdo;
@@ -81,6 +98,9 @@ class TenantService
      */
     public function exists(string $subdomain): bool
     {
+        if ($this->isReserved($subdomain)) {
+            return true;
+        }
         $stmt = $this->pdo->prepare('SELECT 1 FROM tenants WHERE subdomain = ?');
         $stmt->execute([$subdomain]);
         if ($stmt->fetchColumn() !== false) {
@@ -96,6 +116,11 @@ class TenantService
         }
 
         return false;
+    }
+
+    private function isReserved(string $subdomain): bool
+    {
+        return in_array(strtolower($subdomain), self::RESERVED_SUBDOMAINS, true);
     }
 
     private function hasTable(string $name): bool
