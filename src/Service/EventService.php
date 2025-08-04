@@ -24,15 +24,22 @@ class EventService
     /**
      * Retrieve all events ordered by name.
      *
-     * @return list<array{uid:string,name:string,start_date:?string,end_date:?string,description:?string}>
+     * @param bool $publishedOnly When true, only published events are returned.
+     * @return list<array{uid:string,name:string,start_date:?string,end_date:?string,description:?string,published:bool}>
      */
-    public function getAll(): array
+    public function getAll(bool $publishedOnly = false): array
     {
-        $stmt = $this->pdo->query('SELECT uid,name,start_date,end_date,description FROM events ORDER BY name');
+        $sql = 'SELECT uid,name,start_date,end_date,description,published FROM events';
+        if ($publishedOnly) {
+            $sql .= ' WHERE published = TRUE';
+        }
+        $sql .= ' ORDER BY name';
+        $stmt = $this->pdo->query($sql);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return array_map(function (array $row) {
             $row['start_date'] = $this->formatDate($row['start_date']);
             $row['end_date'] = $this->formatDate($row['end_date']);
+            $row['published'] = (bool)($row['published'] ?? false);
             return $row;
         }, $rows);
     }
@@ -40,7 +47,14 @@ class EventService
     /**
      * Replace all events with the provided list.
      *
-     * @param list<array{uid?:string,name:string,start_date?:string,end_date?:string,description?:string}> $events
+     * @param list<array{
+     *     uid?:string,
+     *     name:string,
+     *     start_date?:string,
+     *     end_date?:string,
+     *     description?:string,
+     *     published?:bool
+     * }> $events
      */
     public function saveAll(array $events): void
     {
@@ -50,10 +64,10 @@ class EventService
         $existing = $existingStmt->fetchAll(PDO::FETCH_COLUMN);
 
         $updateStmt = $this->pdo->prepare(
-            'UPDATE events SET name = ?, start_date = ?, end_date = ?, description = ? WHERE uid = ?'
+            'UPDATE events SET name = ?, start_date = ?, end_date = ?, description = ?, published = ? WHERE uid = ?'
         );
         $insertStmt = $this->pdo->prepare(
-            'INSERT INTO events(uid,name,start_date,end_date,description) VALUES(?,?,?,?,?)'
+            'INSERT INTO events(uid,name,start_date,end_date,description,published) VALUES(?,?,?,?,?,?)'
         );
         $uids = [];
         foreach ($events as $event) {
@@ -69,11 +83,12 @@ class EventService
                 $end = date('Y-m-d\TH:i');
             }
             $desc = $event['description'] ?? null;
+            $published = (bool)($event['published'] ?? false);
 
             if (in_array($uid, $existing, true)) {
-                $updateStmt->execute([$name, $start, $end, $desc, $uid]);
+                $updateStmt->execute([$name, $start, $end, $desc, $published, $uid]);
             } else {
-                $insertStmt->execute([$uid, $name, $start, $end, $desc]);
+                $insertStmt->execute([$uid, $name, $start, $end, $desc, $published]);
                 $this->config->ensureConfigForEvent($uid);
             }
         }
@@ -93,6 +108,15 @@ class EventService
         if (count($eventUids) === 1) {
             $this->config->setActiveEventUid((string) $eventUids[0]);
         }
+    }
+
+    /**
+     * Update the published state of an event.
+     */
+    public function setPublished(string $uid, bool $published): void
+    {
+        $stmt = $this->pdo->prepare('UPDATE events SET published = ? WHERE uid = ?');
+        $stmt->execute([$published, $uid]);
     }
 
     /**

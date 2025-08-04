@@ -33,10 +33,22 @@
     <div class="uk-grid-match uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-3@m" uk-grid>
       {% for ev in events %}
       <div>
-        <a href="{{ basePath }}/?event={{ ev.uid }}" class="uk-card uk-card-default uk-card-hover uk-card-body uk-display-block uk-link-toggle">
-          <h3 class="uk-card-title">{{ ev.name }}</h3>
-          {% if ev.description %}<p>{{ ev.description }}</p>{% endif %}
-        </a>
+        <div class="uk-card uk-card-default uk-card-hover">
+          <div class="uk-card-body">
+            <a href="{{ basePath }}/?event={{ ev.uid }}" class="uk-link-toggle">
+              <h3 class="uk-card-title">{{ ev.name }}</h3>
+              {% if ev.description %}<p>{{ ev.description }}</p>{% endif %}
+            </a>
+          </div>
+          <div class="uk-card-footer">
+            {% if role in ['admin','event-manager'] %}
+            <button class="uk-button uk-button-primary toggle-publish" data-uid="{{ ev.uid }}" data-published="{{ ev.published ? 'true' : 'false' }}">
+              {{ ev.published ? 'Nicht veröffentlichen' : 'Veröffentlichen' }}
+            </button>
+            {% endif %}
+            <button class="uk-button uk-button-default copy-link" data-link="{{ basePath }}/?event={{ ev.uid }}">Link kopieren</button>
+          </div>
+        </div>
       </div>
       {% endfor %}
     </div>
@@ -46,4 +58,5 @@
 {% block scripts %}
   <script src="{{ basePath }}/js/custom-icons.js"></script>
   <script src="{{ basePath }}/js/app.js"></script>
+  <script src="{{ basePath }}/js/events.js" data-base="{{ basePath }}"></script>
 {% endblock %}
