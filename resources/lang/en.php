@@ -175,4 +175,13 @@ return [
     'action_delete_tenant' => 'Delete tenant',
     'action_renew_ssl' => 'Renew SSL',
     'help_admin_pass' => 'Defines the admin password for the new tenant. Leave empty to generate a random one',
+    'link_forgot_password' => 'Forgot password?',
+    'heading_password_request' => 'Reset password',
+    'text_password_request_success' => 'If the email exists, a link was sent.',
+    'text_password_request_error' => 'Request failed.',
+    'heading_password_confirm' => 'Set password',
+    'text_password_reset_success' => 'Password changed successfully.',
+    'text_password_reset_error' => 'Password could not be changed.',
+    'action_send_link' => 'Send link',
+    'action_set_password' => 'Set password',
 ];

@@ -175,4 +175,13 @@ return [
     'action_delete_tenant' => 'Mandant löschen',
     'action_renew_ssl' => 'SSL erneuern',
     'help_admin_pass' => 'Definiert das Admin-Passwort des neuen Mandanten. Bleibt das Feld leer, wird ein zufälliges Passwort erzeugt',
+    'link_forgot_password' => 'Passwort vergessen?',
+    'heading_password_request' => 'Passwort zurücksetzen',
+    'text_password_request_success' => 'Falls die E-Mail existiert, wurde ein Link gesendet.',
+    'text_password_request_error' => 'Anfrage fehlgeschlagen.',
+    'heading_password_confirm' => 'Passwort setzen',
+    'text_password_reset_success' => 'Passwort erfolgreich geändert.',
+    'text_password_reset_error' => 'Passwort konnte nicht geändert werden.',
+    'action_send_link' => 'Link senden',
+    'action_set_password' => 'Passwort setzen',
 ];
