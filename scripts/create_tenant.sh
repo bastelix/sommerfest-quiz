@@ -44,7 +44,7 @@ fi
 
 curl -s -X POST \
   -H 'Content-Type: application/json' \
-  -d "{\"subdomain\":\"$SUBDOMAIN\"}" \
+  -d "{\"uid\":\"$SUBDOMAIN\",\"schema\":\"$SUBDOMAIN\"}" \
   "http://$DOMAIN/tenants"
 
 mkdir -p "$BASE_DIR/vhost.d"

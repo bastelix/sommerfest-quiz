@@ -38,7 +38,7 @@ fi
 
 curl -s -X DELETE \
   -H 'Content-Type: application/json' \
-  -d "{\"subdomain\":\"$SUBDOMAIN\"}" \
+  -d "{\"uid\":\"$SUBDOMAIN\"}" \
   "http://$DOMAIN/tenants"
 
 rm -f "$BASE_DIR/vhost.d/${SUBDOMAIN}.$DOMAIN"
