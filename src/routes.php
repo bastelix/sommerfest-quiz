@@ -395,10 +395,10 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->post('/password/reset/request', function (Request $request, Response $response) {
         return $request->getAttribute('passwordResetController')->request($request, $response);
-    })->add(new RateLimitMiddleware())->add(new CsrfMiddleware());
+    })->add(new RateLimitMiddleware(3, 3600))->add(new CsrfMiddleware());
     $app->post('/password/reset/confirm', function (Request $request, Response $response) {
         return $request->getAttribute('passwordResetController')->confirm($request, $response);
-    })->add(new RateLimitMiddleware())->add(new CsrfMiddleware());
+    })->add(new RateLimitMiddleware(3, 3600))->add(new CsrfMiddleware());
     $app->post('/import', function (Request $request, Response $response) {
         return $request->getAttribute('importController')->post($request, $response);
     })->add(new RoleAuthMiddleware('admin'));
