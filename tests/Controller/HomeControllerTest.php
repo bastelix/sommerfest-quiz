@@ -115,4 +115,30 @@ class HomeControllerTest extends TestCase
             unlink($db);
         }
     }
+
+    public function testLandingSkippedWithCatalogLink(): void
+    {
+        $db = $this->setupDb();
+        $this->getAppInstance();
+        $pdo = \App\Infrastructure\Database::connectFromEnv();
+        \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
+        (new \App\Service\SettingsService($pdo))->save(['home_page' => 'landing']);
+        $pdo->exec("INSERT INTO events(uid,name) VALUES('1','Event')");
+        $pdo->exec(
+            "INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) " .
+            "VALUES('c1',1,'station_1','station_1.json','Station 1','1')"
+        );
+
+        try {
+            $app = $this->getAppInstance();
+            $request = $this->createRequest('GET', '/')->withQueryParams(['katalog' => 'station_1']);
+            $response = $app->handle($request);
+            $this->assertEquals(200, $response->getStatusCode());
+            $body = (string) $response->getBody();
+            $this->assertStringContainsString('Station 1', $body);
+            $this->assertStringNotContainsString('Trete gegen Freunde und Kollegen an', $body);
+        } finally {
+            unlink($db);
+        }
+    }
 }
