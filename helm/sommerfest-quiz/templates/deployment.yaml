@@ -25,6 +25,8 @@ spec:
               value: {{ .Values.database.password | quote }}
             - name: POSTGRES_DB
               value: {{ .Values.database.name | quote }}
+            - name: TENANT_ID
+              value: {{ .Values.tenantId | quote }}
           ports:
             - containerPort: 8080
           volumeMounts:
