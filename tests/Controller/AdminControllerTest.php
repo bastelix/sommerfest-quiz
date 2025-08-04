@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Controller;
 
+use Slim\Psr7\Uri;
 use Tests\TestCase;
 
 class AdminControllerTest extends TestCase
@@ -58,5 +59,24 @@ class AdminControllerTest extends TestCase
         $this->assertEquals('/login', $response->getHeaderLine('Location'));
         session_destroy();
         unlink($db);
+    }
+
+    public function testProfileShowsMainDomainData(): void
+    {
+        $db = $this->setupDb();
+        putenv('MAIN_DOMAIN=example.com');
+        $_ENV['MAIN_DOMAIN'] = 'example.com';
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $request = $this->createRequest('GET', '/admin/profile')
+            ->withUri(new Uri('http', 'example.com', 80, '/admin/profile'));
+        $response = $app->handle($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('Example Org', (string) $response->getBody());
+        session_destroy();
+        unlink($db);
+        putenv('MAIN_DOMAIN');
+        unset($_ENV['MAIN_DOMAIN']);
     }
 }
