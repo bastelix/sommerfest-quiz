@@ -27,11 +27,15 @@ use App\Service\TenantService;
 use App\Service\NginxService;
 use App\Service\SettingsService;
 use App\Service\TranslationService;
+use App\Service\PasswordResetService;
 use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
+use App\Application\Middleware\CsrfMiddleware;
+use App\Application\Middleware\RateLimitMiddleware;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
 use App\Controller\PasswordController;
+use App\Controller\PasswordResetController;
 use App\Controller\UserController;
 use App\Controller\ImportController;
 use App\Controller\ExportController;
@@ -67,6 +71,7 @@ require_once __DIR__ . '/Controller/CatalogController.php';
 require_once __DIR__ . '/Controller/ResultController.php';
 require_once __DIR__ . '/Controller/TeamController.php';
 require_once __DIR__ . '/Controller/PasswordController.php';
+require_once __DIR__ . '/Controller/PasswordResetController.php';
 require_once __DIR__ . '/Controller/AdminCatalogController.php';
 require_once __DIR__ . '/Controller/Admin/PageController.php';
 require_once __DIR__ . '/Controller/QrController.php';
@@ -115,6 +120,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $tenantService = new TenantService($base, null, $nginxService);
         $userService = new \App\Service\UserService($pdo);
         $settingsService = new \App\Service\SettingsService($pdo);
+        $passwordResetService = new PasswordResetService($pdo);
 
         $request = $request
             ->withAttribute('configController', new ConfigController($configService))
@@ -137,6 +143,10 @@ return function (\Slim\App $app, TranslationService $translator) {
                 )
             )
             ->withAttribute('passwordController', new PasswordController($userService))
+            ->withAttribute(
+                'passwordResetController',
+                new PasswordResetController($userService, $passwordResetService)
+            )
             ->withAttribute('userController', new UserController($userService))
             ->withAttribute('settingsController', new SettingsController($settingsService))
             ->withAttribute('qrController', new QrController(
@@ -383,6 +393,12 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/password', function (Request $request, Response $response) {
         return $request->getAttribute('passwordController')->post($request, $response);
     })->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->post('/password/reset/request', function (Request $request, Response $response) {
+        return $request->getAttribute('passwordResetController')->request($request, $response);
+    })->add(new RateLimitMiddleware())->add(new CsrfMiddleware());
+    $app->post('/password/reset/confirm', function (Request $request, Response $response) {
+        return $request->getAttribute('passwordResetController')->confirm($request, $response);
+    })->add(new RateLimitMiddleware())->add(new CsrfMiddleware());
     $app->post('/import', function (Request $request, Response $response) {
         return $request->getAttribute('importController')->post($request, $response);
     })->add(new RoleAuthMiddleware('admin'));
