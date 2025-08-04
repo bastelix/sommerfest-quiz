@@ -32,6 +32,16 @@ class QrControllerTest extends TestCase
         $this->assertNotEmpty((string) $response->getBody());
     }
 
+    public function testQrImageRejectsInvalidSize(): void
+    {
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/qr.png')
+            ->withQueryParams(['t' => 'Demo', 's' => '0']);
+        $response = $app->handle($request);
+
+        $this->assertSame(400, $response->getStatusCode());
+    }
+
     public function testQrPdfIsGenerated(): void
     {
         $app = $this->getAppInstance();

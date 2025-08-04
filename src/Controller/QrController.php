@@ -22,6 +22,7 @@ use FPDF;
 use App\Service\Pdf;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Throwable;
 
 /**
  * Generates QR codes with various customization options.
@@ -74,6 +75,10 @@ class QrController
         $label  = (string)($params['label'] ?? '1');
         $useLabel = !in_array(strtolower($label), ['0', 'false', 'no'], true);
 
+        if ($size <= 0 || $margin < 0) {
+            return $response->withStatus(400);
+        }
+
         $writer = new PngWriter();
         if ($demo === 'svg' || $demo === 'svg-clean') {
             $writer = new SvgWriter();
@@ -120,24 +125,28 @@ class QrController
         $errorLevel = $demo === 'high' ? ErrorCorrectionLevel::High : ErrorCorrectionLevel::Low;
 
         $builder = new Builder();
-        $result = $builder->build(
-            writer: $writer,
-            writerOptions: $writerOptions,
-            data: $text,
-            encoding: new Encoding('UTF-8'),
-            errorCorrectionLevel: $errorLevel,
-            size: $size,
-            margin: $margin,
-            roundBlockSizeMode: RoundBlockSizeMode::Margin,
-            foregroundColor: $fgColor,
-            backgroundColor: $bgColor,
-            labelText: $labelText,
-            labelFont: $labelFont,
-            labelAlignment: $labelAlignment,
-            logoPath: $logoPath,
-            logoResizeToWidth: $logoResizeToWidth,
-            logoPunchoutBackground: $logoPunchoutBackground,
-        );
+        try {
+            $result = $builder->build(
+                writer: $writer,
+                writerOptions: $writerOptions,
+                data: $text,
+                encoding: new Encoding('UTF-8'),
+                errorCorrectionLevel: $errorLevel,
+                size: $size,
+                margin: $margin,
+                roundBlockSizeMode: RoundBlockSizeMode::Margin,
+                foregroundColor: $fgColor,
+                backgroundColor: $bgColor,
+                labelText: $labelText,
+                labelFont: $labelFont,
+                labelAlignment: $labelAlignment,
+                logoPath: $logoPath,
+                logoResizeToWidth: $logoResizeToWidth,
+                logoPunchoutBackground: $logoPunchoutBackground,
+            );
+        } catch (Throwable $e) {
+            return $response->withStatus(500);
+        }
 
         $data = $result->getString();
 
