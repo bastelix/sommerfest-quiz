@@ -470,6 +470,16 @@ Die Übersetzungen befinden sich in `resources/lang/` sowie `public/js/i18n/`.
 ### Authentifizierung
 Der Zugang zum Administrationsbereich erfolgt über `/login`. Benutzer und Rollen werden in der Tabelle `users` verwaltet. Nach erfolgreichem POST mit gültigen Zugangsdaten speichert das System die Benutzerinformationen inklusive Rolle in der Session und leitet Administratoren zur Route `/admin` weiter. Die Middleware `RoleAuthMiddleware` prüft die gespeicherte Rolle und leitet bei fehlenden Berechtigungen zum Login um.
 
+### E-Mail-Versand
+Für Funktionen wie das Zurücksetzen von Passwörtern nutzt die Anwendung SMTP. Die Verbindung wird über folgende Umgebungsvariablen gesteuert:
+
+- `SMTP_HOST` – Hostname des Servers
+- `SMTP_USER` – Benutzername und Absenderadresse
+- `SMTP_PASS` – Passwort
+- `SMTP_PORT` – Port (z. B. 587)
+
+Diese Variablen können in `.env` gesetzt werden.
+
 ### Administrationsoberfläche
 Unter `/admin` stehen folgende Tabs zur Verfügung:
 1. **Veranstaltung konfigurieren** – Einstellungen wie Logo, Farben und Texte.

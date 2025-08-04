@@ -13,7 +13,8 @@
         "endroid/qr-code": "^5.1",
         "intervention/image": "^3.0",
         "ext-exif": "*",
-        "guzzlehttp/guzzle": "^7"
+        "guzzlehttp/guzzle": "^7",
+        "symfony/mailer": "^7.3"
     },
     "autoload": {
         "psr-4": {
