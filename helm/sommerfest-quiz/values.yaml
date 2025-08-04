@@ -11,6 +11,12 @@ database:
 
 tenantId: default
 
+smtp:
+  host: smtp.example.com
+  user: user@example.com
+  pass: secret
+  port: "587"
+
 service:
   type: ClusterIP
   port: 8080
