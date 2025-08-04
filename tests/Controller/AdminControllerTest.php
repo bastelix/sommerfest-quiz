@@ -79,4 +79,20 @@ class AdminControllerTest extends TestCase
         putenv('MAIN_DOMAIN');
         unset($_ENV['MAIN_DOMAIN']);
     }
+
+    public function testPagesAndProfileDataLoadedOnEvents(): void
+    {
+        $db = $this->setupDb();
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $request = $this->createRequest('GET', '/admin/events');
+        $response = $app->handle($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $html = (string) $response->getBody();
+        $this->assertStringContainsString('Example Org', $html);
+        $this->assertStringContainsString('Professionelles Quiz-Hosting', $html);
+        session_destroy();
+        unlink($db);
+    }
 }
