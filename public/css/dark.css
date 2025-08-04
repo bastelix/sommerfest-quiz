@@ -128,6 +128,20 @@ body.dark-mode .uk-card-hover:hover {
   color: #f5f5f5;
 }
 
+/* Tabellenlesbarkeit im Dunkelmodus verbessern */
+body.dark-mode .uk-table th,
+body.dark-mode .uk-table td {
+  color: #f5f5f5;
+  background-color: #1e1e1e;
+  border-color: #444;
+}
+body.dark-mode .uk-table thead th {
+  background-color: #333;
+}
+body.dark-mode .uk-table tr {
+  border-color: #444;
+}
+
 @media (min-width: 640px) {
   body.dark-mode .sortable-list li,
   body.dark-mode .terms li,
