@@ -88,6 +88,7 @@
 - Add blacklist for sensitive subdomains
 - Support profile variables in pages
 - *(admin)* Autosave settings
+- Style landing page with calhelp design
 
 ### Fix
 
