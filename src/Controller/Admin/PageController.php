@@ -16,7 +16,7 @@ class PageController
     public function edit(Request $request, Response $response, array $args): Response
     {
         $slug = $args['slug'] ?? '';
-        $allowed = ['landing', 'impressum', 'lizenz', 'datenschutz'];
+        $allowed = ['landing', 'impressum', 'datenschutz', 'faq'];
         if (!in_array($slug, $allowed, true)) {
             return $response->withStatus(404);
         }
@@ -39,7 +39,7 @@ class PageController
     public function update(Request $request, Response $response, array $args): Response
     {
         $slug = $args['slug'] ?? '';
-        $allowed = ['landing', 'impressum', 'lizenz', 'datenschutz'];
+        $allowed = ['landing', 'impressum', 'datenschutz', 'faq'];
         if (!in_array($slug, $allowed, true)) {
             return $response->withStatus(404);
         }

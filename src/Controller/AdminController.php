@@ -119,7 +119,7 @@ class AdminController
         }
 
         if ($section === 'pages') {
-            $pageSlugs = ['landing', 'impressum', 'lizenz', 'datenschutz', 'faq'];
+            $pageSlugs = ['landing', 'impressum', 'datenschutz', 'faq'];
             foreach ($pageSlugs as $slug) {
                 $path       = dirname(__DIR__, 2) . '/content/' . $slug . '.html';
                 $pages[$slug] = is_file($path) ? file_get_contents($path) : '';
