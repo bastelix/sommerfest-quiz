@@ -14,6 +14,7 @@
 - *(test)* Run migrations for sqlite
 - *(test)* Remove extra newline
 - Split ranking regex lines
+- Upgrade QR code library
 
 ### Ci
 
