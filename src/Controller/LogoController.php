@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Service\ConfigService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\ImageManager;
 
 /**
@@ -75,7 +76,7 @@ class LogoController
             return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
         }
 
-        $manager = ImageManager::gd();
+        $manager = new ImageManager(new Driver());
         $img = $manager->read($file->getStream());
         $img->scaleDown(512, 512);
         $img->save($target, 80);
