@@ -2070,6 +2070,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (adminMenu && adminTabs) {
     const tabControl = UIkit.tab(adminTabs);
+    adminTabs.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const url = a.dataset.routeUrl;
+        if (url && window.history?.replaceState) {
+          window.history.replaceState(null, '', url);
+        }
+      });
+    });
     const path = window.location.pathname.replace(basePath + '/admin/', '');
     const initRoute = path === '' ? 'events' : path.replace(/^\/?/, '');
     const initIdx = adminRoutes.indexOf(initRoute);
