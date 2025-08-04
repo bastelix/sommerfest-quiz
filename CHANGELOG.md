@@ -46,6 +46,7 @@
 - Clarify Docker requirement for onboarding
 - Mention proxy network
 - Clarify APP_IMAGE usage
+- Describe password reset flow
 
 ### Feat
 
