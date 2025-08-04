@@ -63,7 +63,7 @@ class QrController
         $params = $request->getQueryParams();
         $text   = (string)($params['t'] ?? '');
         if ($text === '') {
-            return $response->withStatus(400);
+            $text = '?';
         }
 
         $fg     = (string)($params['fg'] ?? '23b45a');
