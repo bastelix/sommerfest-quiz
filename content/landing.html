@@ -1,61 +1,309 @@
-  <section class="uk-section uk-section-primary uk-flex uk-flex-middle" uk-height-viewport="offset-top: true">
-    <div class="uk-container">
-      <p class="uk-text-lead">Trete gegen Freunde und Kollegen an und finde heraus, wer das meiste Wissen hat.</p>
-      <p class="uk-margin-large-top">
-        <a class="uk-button uk-button-secondary uk-button-large" href="{{ basePath }}/login">Jetzt starten</a>
-      </p>
+<!-- HERO / HEADER -->
+<section class="hero-bg-quizrace uk-section uk-flex uk-flex-middle" style="min-height:70vh; position:relative;">
+  <div class="hero-overlay"></div>
+  <div class="uk-container hero-content">
+    <div class="uk-grid uk-flex-middle" uk-grid>
+      <div class="uk-width-1-1 uk-width-3-4@m">
+        <h2 class="hero-title">
+          Professionelles Quiz-Hosting für<br class="uk-hidden@s"> Unternehmen & Teams
+        </h2>
+        <blockquote class="hero-blockquote uk-width-large@m uk-margin-remove-top">
+          Das einzige deutschsprachige Event-Quiz mit<br>
+          <b>datensicherem Hosting, Live-Auswertung & flexiblen Einsatzmöglichkeiten</b> – sofort starten!
+          <footer class="el-footer" style="color:#fff; font-size:1.05rem; font-weight:400; margin-top:10px;">
+            by René Buske
+          </footer>
+        </blockquote>
+        <div class="separator width-100 bottom-border border-2px border-color-gray-light margin-top-bottom-30px uk-width-1-2@s"></div>
+        <div class="hero-buttons uk-margin-top">
+          <a class="btn btn-transparent" href="{{ basePath }}/login">Zugang sichern</a>
+          <a class="btn btn-black" href="#contact-us" uk-scroll>Beispiel ansehen</a>
+        </div>
+      </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section id="features" class="uk-section uk-section-default">
-    <div class="uk-container">
-      <div class="uk-child-width-1-3@m uk-grid-match" uk-grid>
-        <div>
-          <div class="uk-card uk-card-body">
-            <h3 class="uk-card-title">Einfach</h3>
-            <p>Intuitive Bedienung und schnelle Registrierung.</p>
-          </div>
+<!-- USPs / Features -->
+<section id="features" class="uk-section uk-section-default" style="background:#f9f9f9">
+  <div class="uk-container">
+    <h3 class="uk-text-center uk-heading-medium poppins text-black uk-margin-large-bottom">Was macht QuizRace einzigartig?</h3>
+    <div class="uk-grid uk-child-width-1-4@m uk-child-width-1-2@s uk-flex-center uk-grid-match uk-margin-large-bottom" uk-grid>
+      <div>
+        <div class="uk-card uk-card-quizrace uk-text-center">
+          <span uk-icon="icon: bolt; ratio: 2" class="uk-margin-bottom"></span>
+          <h4 class="uk-text-bold uk-margin-small-bottom">Blitzschnell startklar</h4>
+          <p>Eigenes Quiz in Minuten erstellt – ganz ohne App-Download oder technische Hürden.</p>
         </div>
-        <div>
-          <div class="uk-card uk-card-body">
-            <h3 class="uk-card-title">Sicher</h3>
-            <p>Alle Daten bleiben auf Ihrem eigenen Server.</p>
-          </div>
+      </div>
+      <div>
+        <div class="uk-card uk-card-quizrace uk-text-center">
+          <span uk-icon="icon: lock; ratio: 2" class="uk-margin-bottom"></span>
+          <h4 class="uk-text-bold uk-margin-small-bottom">100% datensicher</h4>
+          <p>Alle Daten bleiben auf Ihrem Server. Volle Kontrolle und echte DSGVO-Konformität.</p>
         </div>
+      </div>
+      <div>
+        <div class="uk-card uk-card-quizrace uk-text-center">
+          <span uk-icon="icon: database; ratio: 2" class="uk-margin-bottom"></span>
+          <h4 class="uk-text-bold uk-margin-small-bottom">Live-Auswertung</h4>
+          <p>Sofortige Ranglisten, Urkunden und Team-Statistiken – exportierbar als PDF.</p>
+        </div>
+      </div>
+      <div>
+        <div class="uk-card uk-card-quizrace uk-text-center">
+          <span uk-icon="icon: users; ratio: 2" class="uk-margin-bottom"></span>
+          <h4 class="uk-text-bold uk-margin-small-bottom">Individuell & flexibel</h4>
+          <p>Für Firmen, Vereine, Agenturen, Bildung und Großevents – inkl. White-Label auf Wunsch.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Trust / Weiterempfehlung -->
+<section class="uk-section uk-section-primary uk-light">
+  <div class="uk-container">
+    <div class="uk-grid uk-flex-middle" uk-grid>
+      <div class="uk-width-expand@m">
+        <h6 class="uk-h2 uk-heading-bullet" style="color:#fff;">100% Weiterempfehlung</h6>
+        <div style="color:#fff;">
+          QuizRace begeistert mit<br>
+          <span style="font-weight:bold;">einfacher Bedienung, maximaler Skalierbarkeit und zuverlässigem Support.</span><br><br>
+          Überzeugen Sie sich selbst vom smartesten Quiz-Tool für Events!
+        </div>
+      </div>
+      <div class="uk-width-expand@m uk-text-center">
+        <img src="{{ basePath }}/img/provenexpert_quizrace.png" alt="Kundenbewertungen & Erfahrungen zu QuizRace" style="height:84px; border:0;">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Warum QuizRace? (Zwei-Spalter mit Bild) -->
+<section class="uk-section" style="background-color:#c7cbd4;">
+  <div class="uk-container">
+    <h3 class="uk-text-center uk-heading-medium poppins text-black">Warum QuizRace?</h3>
+    <p class="uk-text-center uk-text-lead">Mehr als nur ein Online-Quiz – QuizRace ist Ihre Lösung für Events, Teambuilding und Wissensvermittlung, individuell einsetzbar und blitzschnell bereit.</p>
+    <div class="uk-grid uk-flex-middle uk-margin-large-top" uk-grid>
+      <div class="uk-width-1-2@m uk-text-center">
+        <img src="{{ basePath }}/img/quizrace-screenshot.png" alt="QuizRace Screenshot" style="max-width: 430px; border-radius:18px; box-shadow:0 10px 40px #2222;">
+      </div>
+      <div class="uk-width-1-2@m">
+        <div class="uk-margin-bottom">
+          <p class="uk-text-small uk-text-uppercase uk-text-bold uk-margin-remove-bottom" style="color:#0c86d0; letter-spacing:.06em;">Zeit sparen</p>
+          <span class="uk-text-lead uk-text-bold" style="color:#0c86d0;">Schnell starten, statt lange suchen</span>
+          <p class="uk-text-muted uk-margin-small-top">Mit QuizRace legen Sie in Minuten los – das übersichtliche Dashboard, ein "Roter Faden" zur Vorbereitung und sofort nutzbare Vorlagen helfen Ihnen, direkt loszulegen.</p>
+        </div>
+        <hr>
+        <div class="uk-margin-bottom">
+          <p class="uk-text-small uk-text-uppercase uk-text-bold uk-margin-remove-bottom" style="color:#0c86d0;">Vorlagen & Beispiele</p>
+          <span class="uk-text-lead uk-text-bold" style="color:#0c86d0;">Sofort einsatzbereit</span>
+          <p class="uk-text-muted uk-margin-small-top">Nutzen Sie erprobte Fragekataloge oder bauen Sie Ihr Quiz individuell auf. Muster für Teams, Events und spezielle Wissensgebiete sind inklusive.</p>
+        </div>
+        <hr>
         <div>
-          <div class="uk-card uk-card-body">
-            <h3 class="uk-card-title">Auswertungen</h3>
-            <p>Ergebnisse und Ranglisten in Echtzeit.</p>
+          <p class="uk-text-small uk-text-uppercase uk-text-bold uk-margin-remove-bottom" style="color:#0c86d0;">Erfahrung & Support</p>
+          <span class="uk-text-lead uk-text-bold" style="color:#0c86d0;">100+ erfolgreiche Events</span>
+          <p class="uk-text-muted uk-margin-small-top">Profitieren Sie von Best Practices, persönlichem Support und einer Wissensplattform, die ständig erweitert wird.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Highlight / Kurs oder Feature -->
+<section class="uk-section uk-section-default">
+  <div class="uk-container">
+    <div class="uk-text-center uk-margin-large-bottom">
+      <h2 class="uk-heading-medium text-black">NEU: Interaktiver Event-Editor</h2>
+      <p class="uk-text-lead">Gestalten Sie Ihr Quiz ganz intuitiv – mit Live-Vorschau, Team-QR-Codes und Export aller Ergebnisse.<br>Ideal für Unternehmen, Bildungsinstitutionen und Eventagenturen.</p>
+      <div class="separator width-10 bottom-border border-5px border-color-gray-light margin-top-10px margin-bottom-60px uk-margin-auto"></div>
+    </div>
+    <div class="uk-grid uk-child-width-1-3@m uk-flex-center uk-grid-match" uk-grid>
+      <div>
+        <div class="uk-card uk-card-default uk-card-body uk-card-quizrace text-left padding-30px">
+          <h6 class="text-gray-extra-dark bottom-border border-1px border-color-gray-regular padding-bottom-20px margin-bottom-20px">Perfekte Ergänzung zum Event</h6>
+          <div class="uk-card-badge uk-label text-small">LIVE</div>
+          <p>Planen, starten und begleiten Sie Ihr Event mit wenigen Klicks. Die Event-Vorlagen sind sofort einsatzbereit.</p>
+        </div>
+      </div>
+      <div>
+        <div class="uk-card uk-card-default uk-card-body uk-card-quizrace text-left padding-30px">
+          <h6 class="text-gray-extra-dark bottom-border border-1px border-color-gray-regular padding-bottom-20px margin-bottom-20px">Praxisnah & nachvollziehbar</h6>
+          <div class="uk-card-badge uk-label text-small">PRAXIS</div>
+          <p>Mit echten Beispielen aus Unternehmen, Schulen und Behörden.</p>
+        </div>
+      </div>
+      <div>
+        <div class="uk-card uk-card-default uk-card-body uk-card-quizrace text-left padding-30px">
+          <h6 class="text-gray-extra-dark bottom-border border-1px border-color-gray-regular padding-bottom-20px margin-bottom-20px">Support inklusive</h6>
+          <div class="uk-card-badge uk-label text-small">SERVICE</div>
+          <p>Unser Team hilft Ihnen jederzeit persönlich weiter – keine Standardtexte, sondern Expertenwissen aus 100+ Live-Projekten.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing / Abomodelle -->
+<section id="pricing" class="uk-section" style="background:#f9f9f9">
+  <div class="uk-container">
+    <h2 class="uk-heading-medium uk-text-center text-black uk-margin-large-bottom">Abomodelle für jedes Event</h2>
+    <div class="uk-grid-large uk-child-width-1-3@m uk-flex-center" uk-grid>
+      <!-- Starter -->
+      <div>
+        <div class="uk-card uk-card-price uk-card-quizrace uk-text-center">
+          <span class="uk-label uk-label-success uk-label-large">Kostenlos testen</span>
+          <h3 class="uk-card-title uk-text-primary uk-margin-small-top">Starter</h3>
+          <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700;">0&nbsp;€</div>
+          <div class="uk-text-meta uk-margin-small-bottom">Für kleine Events & Einsteiger</div>
+          <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom">
+            <li><b>1 Event gleichzeitig</b></li>
+            <li>Max. 5 Teams</li>
+            <li>Bis zu 5 Fragenkataloge (je 5 Fragen)</li>
+            <li>Alle Basisfunktionen</li>
+          </ul>
+          <a href="{{ basePath }}/login" class="btn btn-transparent uk-width-1-1 uk-button-large uk-margin-small-top">Jetzt kostenlos starten</a>
+        </div>
+      </div>
+      <!-- Standard -->
+      <div>
+        <div class="uk-card uk-card-popular uk-card-quizrace uk-text-center">
+          <span class="uk-label uk-label-large">Meist gewählt</span>
+          <h3 class="uk-card-title uk-margin-small-top" style="color:#fff;">Standard</h3>
+          <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700; color:#fff;">39&nbsp;€/Monat</div>
+          <div class="uk-text-meta uk-margin-small-bottom" style="color:#fff;">Beliebt bei Schulen & Teams</div>
+          <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom" style="color:#fff;">
+            <li><b>Bis zu 3 Events gleichzeitig</b></li>
+            <li>Max. 10 Teams & 10 Fragenkataloge pro Event</li>
+            <li>Je 10 Fragen pro Katalog</li>
+            <li>Auswertung & Urkunden</li>
+            <li>E-Mail-Support</li>
+          </ul>
+          <a href="#contact-us" class="btn btn-black uk-width-1-1 uk-button-large">Jetzt upgraden</a>
+        </div>
+      </div>
+      <!-- Professional -->
+      <div>
+        <div class="uk-card uk-card-price uk-card-quizrace uk-text-center">
+          <span class="uk-label uk-label-primary uk-label-large">Professional</span>
+          <h3 class="uk-card-title uk-text-primary uk-margin-small-top">Professional</h3>
+          <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700;">auf Anfrage</div>
+          <div class="uk-text-meta uk-margin-small-bottom">Für Agenturen & Unternehmen</div>
+          <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom">
+            <li>Beliebige Events, Teams & Fragen</li>
+            <li>White-Label & API-Integration</li>
+            <li>Eigene Server & Branding möglich</li>
+            <li>Premium-Support & persönliche Beratung</li>
+          </ul>
+          <a href="#contact-us" class="btn btn-transparent uk-width-1-1 uk-button-large">Beratung anfragen</a>
+        </div>
+      </div>
+    </div>
+    <p class="uk-text-meta uk-text-center uk-margin-large-top">Alle Preise zzgl. MwSt. – individuelle Lösungen auf Anfrage.</p>
+  </div>
+</section>
+
+<!-- Steps / Ablauf -->
+<section class="uk-section uk-section-default">
+  <div class="uk-container">
+    <h3 class="uk-text-center uk-heading-medium poppins text-black">In 5 Schritten zum perfekten Event-Quiz</h3>
+    <p class="uk-text-lead uk-text-center"><strong>QuizRace macht Quiz-Events einfach. Diese fünf Schritte führen sicher zum Ziel – unabhängig vom Anlass.</strong></p>
+    <div class="uk-grid uk-child-width-1-5@m uk-child-width-1-2@s uk-flex-center uk-margin-large-top uk-margin-large-bottom" uk-grid>
+      <div class="uk-text-center">
+        <div class="uk-step-circle">1</div>
+        <p class="uk-text-uppercase uk-text-bold uk-margin-small-top" style="letter-spacing:2px;">Thema & Fragen wählen</p>
+        <p class="uk-text-small uk-text-muted">Erstellen oder importieren Sie Fragenkataloge für Ihr Event.</p>
+      </div>
+      <div class="uk-text-center">
+        <div class="uk-step-circle">2</div>
+        <p class="uk-text-uppercase uk-text-bold uk-margin-small-top" style="letter-spacing:2px;">Teams einladen</p>
+        <p class="uk-text-small uk-text-muted">Per QR-Code oder Link – sofort einsatzbereit, keine Anmeldung nötig.</p>
+      </div>
+      <div class="uk-text-center">
+        <div class="uk-step-circle">3</div>
+        <p class="uk-text-uppercase uk-text-bold uk-margin-small-top" style="letter-spacing:2px;">Quiz durchführen</p>
+        <p class="uk-text-small uk-text-muted">Live-Modus für spannende Wettkämpfe oder flexibel als Selbsttest.</p>
+      </div>
+      <div class="uk-text-center">
+        <div class="uk-step-circle">4</div>
+        <p class="uk-text-uppercase uk-text-bold uk-margin-small-top" style="letter-spacing:2px;">Ergebnisse analysieren</p>
+        <p class="uk-text-small uk-text-muted">Ranglisten, Auswertungen & Urkunden direkt nach dem Event.</p>
+      </div>
+      <div class="uk-text-center">
+        <div class="uk-step-circle">5</div>
+        <p class="uk-text-uppercase uk-text-bold uk-margin-small-top" style="letter-spacing:2px;">Wissen erweitern</p>
+        <p class="uk-text-small uk-text-muted">Optional Feedback einholen und eigene Fragen weiterentwickeln.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Über uns / Founder -->
+<section class="uk-section uk-section-muted">
+  <div class="uk-container">
+    <h2 class="uk-text-center uk-heading-medium">Wer steckt hinter QuizRace?</h2>
+    <div class="uk-width-2xlarge uk-margin-auto uk-text-center uk-text-lead">
+      <b>QuizRace wurde von René Buske entwickelt – einem erfahrenen Softwarearchitekten und Digital-Event-Profi mit über 20 Jahren Erfahrung.</b>
+      <br>
+      <span class="uk-text-muted">
+        Nach langjähriger Tätigkeit als IT-Berater, Dozent und Entwickler von Individualsoftware bringt René fundiertes Wissen rund um Online-Events, Gamification und Datenschutz in QuizRace ein.<br>
+        Sein Ziel: <b>Quiz-Events für alle sicher, einfach und modern machen</b> – mit einer Lösung, die jeden begeistert und stets zuverlässig funktioniert.
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- Kontakt / Kontaktformular und Cards -->
+<section id="contact-us" class="uk-section uk-section-primary uk-light">
+  <div class="uk-container">
+    <h3 class="uk-heading-medium uk-text-center">Kontaktieren Sie uns – persönlich & praxisnah</h3>
+    <p class="uk-text-lead uk-text-center">Sie möchten QuizRace testen, ein Angebot anfordern oder haben individuelle Fragen?<br>
+    Schreiben Sie uns – wir melden uns garantiert persönlich zurück!</p>
+    <div class="uk-grid uk-child-width-1-2@m uk-grid-large uk-flex-middle" uk-grid>
+      <div>
+        <form class="uk-form-stacked uk-width-large uk-margin-auto">
+          <div class="uk-margin">
+            <label class="uk-form-label" for="form-name">Ihr Name</label>
+            <input class="uk-input" id="form-name" type="text" required>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="form-email">E-Mail</label>
+            <input class="uk-input" id="form-email" type="email" required>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="form-msg">Nachricht</label>
+            <textarea class="uk-textarea" id="form-msg" rows="5" required></textarea>
+          </div>
+          <div class="uk-margin">
+            <label><input class="uk-checkbox" type="checkbox" required> Ich stimme der Speicherung meiner Daten zur Bearbeitung zu.</label>
+          </div>
+          <button class="btn btn-black uk-button-large uk-width-1-1" type="submit">Senden</button>
+        </form>
+      </div>
+      <div>
+        <div class="uk-grid uk-child-width-1-1 uk-grid-small">
+          <div>
+            <div class="uk-card uk-card-default uk-card-body bg-blue uk-text-left padding-30px uk-light">
+              <p class="uk-margin-small-bottom uk-text-large">E-Mail</p>
+              <a href="mailto:office@quizrace.app" class="uk-text-lead uk-link-reset uk-text-light">office@quizrace.app</a>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body bg-blue uk-text-left padding-30px uk-light">
+              <p class="uk-margin-small-bottom uk-text-large">Telefon</p>
+              <a href="tel:+4933203609080" class="uk-text-lead uk-link-reset uk-text-light">+49 33203 609080</a>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body bg-blue uk-text-left padding-30px uk-light">
+              <p class="uk-margin-small-bottom uk-text-large">Adresse</p>
+              <span class="uk-text-lead uk-text-light">Weidenbusch 8, 14532 Kleinmachnow</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </section>
-
-  <section id="pricing" class="uk-section uk-section-muted">
-    <div class="uk-container">
-      <h2 class="uk-heading-small">Preise</h2>
-      <p class="uk-text-lead">Informationen zu unseren Preisen.</p>
-    </div>
-  </section>
-
-  <section id="contact" class="uk-section uk-section-muted">
-    <div class="uk-container">
-      <h2 class="uk-heading-small">Kontakt</h2>
-      <form class="uk-grid-small" uk-grid>
-        <div class="uk-width-1-2@s">
-          <input class="uk-input" type="text" placeholder="Ihr Name">
-        </div>
-        <div class="uk-width-1-2@s">
-          <input class="uk-input" type="email" placeholder="Ihre E-Mail">
-        </div>
-        <div class="uk-width-1-1">
-          <textarea class="uk-textarea" rows="5" placeholder="Ihre Nachricht"></textarea>
-        </div>
-        <div class="uk-width-1-1">
-          <button class="uk-button uk-button-primary" type="submit">Senden</button>
-        </div>
-      </form>
-    </div>
-  </section>
-
+  </div>
+</section>

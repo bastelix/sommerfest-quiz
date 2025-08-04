@@ -1,14 +1,152 @@
 {% extends 'layout.twig' %}
 
-{% block title %}QuizRace{% endblock %}
+{% block title %}QuizRace – Professionelle Quiz-Events für Unternehmen, Teams & Schulen{% endblock %}
 
 {% block head %}
-  <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link href="https://fonts.googleapis.com/css?family=Poppins:400,500,700,800,900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,500,700&display=swap" rel="stylesheet">
+  <style>
+    body, .uk-section, .uk-card {
+      font-family: 'Roboto', Arial, sans-serif;
+      color: #232323;
+      background: #fff;
+    }
+    .uk-heading-hero, .uk-heading-medium, h1, h2, h3, h4, h5, h6 {
+      font-family: 'Poppins', Arial, sans-serif;
+      font-weight: 700;
+    }
+    .uk-section-primary {
+      background: #0c86d0 !important;
+      color: #fff;
+    }
+    .hero-bg-quizrace {
+      background-image: url('{{ basePath }}/img/quizrace-bg.jpg');
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+    .hero-overlay {
+      background: rgba(12, 134, 208, 0.88);
+      position: absolute; inset: 0;
+      z-index: 1;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 80px 0 60px 0;
+    }
+    @media (max-width: 640px) {
+      .hero-content { padding: 40px 0 30px 0; }
+      .hero-title { font-size: 2.2rem !important; }
+      .hero-blockquote { font-size: 1.1rem !important; }
+    }
+    .hero-title {
+      color: #fff;
+      font-family: 'Poppins',sans-serif;
+      font-weight: 800;
+      font-size: 2.6rem;
+      line-height: 1.1;
+      margin-bottom: 18px;
+      letter-spacing: -1.5px;
+    }
+    .hero-blockquote {
+      color: #fff;
+      font-size: 1.2rem;
+      font-weight: 400;
+      font-family: 'Roboto',sans-serif;
+      border-left: 4px solid #fff3;
+      margin-bottom: 32px;
+      margin-left: 0;
+      padding-left: 18px;
+      line-height: 1.4;
+    }
+    .hero-buttons .btn {
+      font-size: 1.07rem;
+      font-weight: 500;
+      letter-spacing: .04em;
+      padding: 0.8em 2em;
+      margin-right: 15px;
+      border-radius: 3px;
+      margin-bottom: 12px;
+      font-family: 'Poppins',sans-serif;
+    }
+    .btn-transparent {
+      background: rgba(255,255,255,0.12) !important;
+      color: #fff !important;
+      border: 2px solid #fff;
+      transition: all 0.18s;
+    }
+    .btn-transparent:hover {
+      background: #fff !important;
+      color: #0c86d0 !important;
+    }
+    .btn-black {
+      background: #232323 !important;
+      color: #fff !important;
+      border: 2px solid #232323;
+      transition: all 0.18s;
+    }
+    .btn-black:hover {
+      background: #fff !important;
+      color: #232323 !important;
+    }
+    .uk-card-quizrace {
+      border-radius: 14px;
+      box-shadow: 0 6px 22px 0 rgba(18,32,73,.06);
+      padding: 32px 24px;
+      background: #fff;
+    }
+    .uk-card-quizrace .uk-icon {
+      color: #0c86d0;
+    }
+    .uk-label-large {
+      font-size: 1.1rem;
+      padding: 0.55em 1.3em;
+      border-radius: 22px;
+      letter-spacing: 0.03em;
+    }
+    .uk-card-price {
+      border: 2px solid #0c86d0;
+      background: #fff;
+    }
+    .uk-card-popular {
+      border: 2px solid #232323;
+      background: #0c86d0;
+      color: #fff;
+    }
+    .uk-card-popular .uk-label {
+      background: #232323;
+      color: #fff;
+    }
+    .uk-card-price .uk-text-meta, .uk-text-meta {
+      color: #7b7b7b;
+      font-size: 0.95rem;
+    }
+    .uk-card-popular .btn-black {
+      background: #fff !important;
+      color: #0c86d0 !important;
+      border: 2px solid #fff;
+    }
+    .uk-step-circle {
+      background: #0c86d0;
+      color: #fff;
+      border-radius: 50%;
+      display: inline-block;
+      width: 56px;
+      height: 56px;
+      line-height: 56px;
+      font-size: 1.6rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .bg-blue { background: #0c86d0 !important; color:#fff !important;}
+    .padding-30px { padding: 30px !important; }
+    .uk-link-reset { color:inherit; text-decoration:none; }
+    .uk-link-reset:hover { text-decoration:underline; color:#fff; }
+  </style>
 {% endblock %}
-
-{% block body_class %}uk-background-muted{% endblock %}
 
 {% block body %}
   {% embed 'topbar.twig' %}
@@ -19,18 +157,26 @@
       <ul class="uk-navbar-nav uk-visible@m">
         <li><a href="#features">Features</a></li>
         <li><a href="#pricing">Preise</a></li>
-        <li><a href="#contact">Kontakt</a></li>
+        <li><a href="#contact-us">Kontakt</a></li>
         <li><a href="{{ basePath }}/login">Login</a></li>
       </ul>
     {% endblock %}
     {% block right %}
       <a class="uk-button uk-button-primary" href="{{ basePath }}/login">Kostenlos testen</a>
     {% endblock %}
+    {% block offcanvas %}
+    <div id="offcanvas-nav" uk-offcanvas="overlay: true">
+      <div class="uk-offcanvas-bar">
+        <ul class="uk-nav uk-nav-default">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#pricing">Preise</a></li>
+          <li><a href="#contact-us">Kontakt</a></li>
+          <li><a href="{{ basePath }}/login">Login</a></li>
+        </ul>
+      </div>
+    </div>
+    {% endblock %}
   {% endembed %}
 
   {{ content|raw }}
-  {% endblock %}
-
-{% block scripts %}
-  <script src="{{ basePath }}/js/app.js"></script>
 {% endblock %}
