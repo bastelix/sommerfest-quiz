@@ -570,13 +570,11 @@
             <option value="events"{% if settings.home_page == 'events' %} selected{% endif %}>{{ t('option_events_page') }}</option>
             <option value="landing"{% if settings.home_page == 'landing' %} selected{% endif %}>{{ t('option_landing_page') }}</option>
           </select>
-          <button id="homePageSaveBtn" class="uk-icon-button uk-button-primary uk-margin-small-left" uk-icon="check"></button>
         </div>
 
         <h3 class="uk-heading-bullet">{{ t('heading_registration') }}</h3>
         <div class="uk-margin uk-flex uk-flex-middle">
           <label><input class="uk-checkbox" type="checkbox" id="cfgRegistrationEnabled" {% if settings.registration_enabled == '1' %}checked{% endif %}> {{ t('label_registration_enabled') }}</label>
-          <button id="registrationEnabledSaveBtn" class="uk-icon-button uk-button-primary uk-margin-small-left" uk-icon="check"></button>
         </div>
 
         <h3 class="uk-heading-bullet">{{ t('heading_users') }}</h3>
@@ -597,9 +595,6 @@
         </div>
         <div class="uk-margin">
           <button id="userAddBtn" class="uk-icon-button uk-button-default" uk-icon="plus" uk-tooltip="title: {{ t('tip_user_add') }}; pos: right"></button>
-        </div>
-        <div class="uk-margin uk-flex uk-flex-right">
-          <button id="usersSaveBtn" class="uk-icon-button uk-button-primary" uk-icon="check" uk-tooltip="title: {{ t('tip_save_changes') }}; pos: right"></button>
         </div>
 
         <div id="userPassModal" uk-modal>

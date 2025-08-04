@@ -133,8 +133,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const commentToolbar = document.getElementById('catalogCommentToolbar');
   const resultsResetModal = UIkit.modal('#resultsResetModal');
   const resultsResetConfirm = document.getElementById('resultsResetConfirm');
-  const homePageSaveBtn = document.getElementById('homePageSaveBtn');
-  const registrationEnabledSaveBtn = document.getElementById('registrationEnabledSaveBtn');
   let puzzleFeedback = '';
   let inviteText = '';
   let currentCommentInput = null;
@@ -358,8 +356,7 @@ document.addEventListener('DOMContentLoaded', function () {
     currentCommentInput = null;
   });
 
-  homePageSaveBtn?.addEventListener('click', () => {
-    if (!cfgFields.homePage) return;
+  cfgFields.homePage?.addEventListener('change', () => {
     settingsInitial.home_page = cfgFields.homePage.value;
     apiFetch('/settings.json', {
       method: 'POST',
@@ -374,8 +371,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }).catch(() => notify('Fehler beim Speichern', 'danger'));
   });
 
-  registrationEnabledSaveBtn?.addEventListener('click', () => {
-    if (!cfgFields.registrationEnabled) return;
+  cfgFields.registrationEnabled?.addEventListener('change', () => {
     settingsInitial.registration_enabled = cfgFields.registrationEnabled.checked ? '1' : '0';
     apiFetch('/settings.json', {
       method: 'POST',
@@ -1631,7 +1627,6 @@ document.addEventListener('DOMContentLoaded', function () {
   // --------- Benutzer ---------
   const usersListEl = document.getElementById('usersList');
   const userAddBtn = document.getElementById('userAddBtn');
-  const usersSaveBtn = document.getElementById('usersSaveBtn');
   const userPassModal = UIkit.modal('#userPassModal');
   const userPassInput = document.getElementById('userPassInput');
   const userPassRepeat = document.getElementById('userPassRepeat');
@@ -1648,13 +1643,21 @@ document.addEventListener('DOMContentLoaded', function () {
     })).filter(u => u.username);
   }
 
-  function saveUserOrder() {
+  function saveUsers() {
     const list = collectUsers();
     apiFetch('/users.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(list)
-    }).catch(() => {});
+    })
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        notify('Liste gespeichert', 'success');
+      })
+      .catch(err => {
+        console.error(err);
+        notify('Fehler beim Speichern', 'danger');
+      });
   }
 
   function createUserRow(u = {}) {
@@ -1715,7 +1718,10 @@ document.addEventListener('DOMContentLoaded', function () {
     delBtn.className = 'uk-icon-button uk-button-danger';
     delBtn.setAttribute('uk-icon', 'trash');
     delBtn.setAttribute('aria-label', 'Löschen');
-    delBtn.addEventListener('click', () => row.remove());
+    delBtn.addEventListener('click', () => {
+      row.remove();
+      saveUsers();
+    });
     delCell.appendChild(delBtn);
 
     row.appendChild(handleCell);
@@ -1734,7 +1740,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (usersListEl && window.UIkit && UIkit.util) {
-    UIkit.util.on(usersListEl, 'moved', saveUserOrder);
+    UIkit.util.on(usersListEl, 'moved', saveUsers);
   }
 
   if (usersListEl) {
@@ -1747,6 +1753,7 @@ document.addEventListener('DOMContentLoaded', function () {
   userAddBtn?.addEventListener('click', e => {
     e.preventDefault();
     usersListEl.appendChild(createUserRow());
+    saveUsers();
   });
 
   userPassSave?.addEventListener('click', () => {
@@ -1765,22 +1772,11 @@ document.addEventListener('DOMContentLoaded', function () {
     userPassModal.hide();
     userPassInput.value = '';
     userPassRepeat.value = '';
+    saveUsers();
   });
 
-  usersSaveBtn?.addEventListener('click', e => {
-    e.preventDefault();
-    const list = collectUsers();
-    apiFetch('/users.json', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(list)
-    }).then(r => {
-      if (!r.ok) throw new Error(r.statusText);
-      notify('Liste gespeichert', 'success');
-    }).catch(err => {
-      console.error(err);
-      notify('Fehler beim Speichern', 'danger');
-    });
+  usersListEl?.addEventListener('change', () => {
+    saveUsers();
   });
 
   const importJsonBtn = document.getElementById('importJsonBtn');
