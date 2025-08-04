@@ -2008,8 +2008,8 @@ document.addEventListener('DOMContentLoaded', function () {
       nameEl.textContent = ev.name || '';
       if (descEl) descEl.textContent = ev.description || '';
       if (qrImg) {
-        const link = window.baseUrl || '';
-                qrImg.src = withBase('/qr.png?t=' + encodeURIComponent(link) + '&fg=000000&label=0');
+        const link = window.baseUrl ? window.baseUrl : withBase('/?event=' + encodeURIComponent(ev.uid || ''));
+        qrImg.src = withBase('/qr.png?t=' + encodeURIComponent(link) + '&fg=000000&label=0');
       }
       if (qrLabel) qrLabel.textContent = ev.name || '';
       catalogsEl.innerHTML = '';
