@@ -32,6 +32,7 @@ in PostgreSQL, das mittels Migrationen automatisch erstellt wird.
 - **POST `/tenants`** – legt einen neuen Mandanten samt Schema an.
 - **DELETE `/tenants`** – entfernt einen bestehenden Mandanten und löscht das
   Schema.
+- **POST `/api/renew-ssl`** – erneuert das Zertifikat der Admin-Domain und startet den Hauptcontainer neu.
 - **POST `/api/tenants/{slug}/renew-ssl`** – erneuert das SSL-Zertifikat der Subdomain und triggert dabei den internen Reload-Service.
 
 ### Beispiel-Anfragen

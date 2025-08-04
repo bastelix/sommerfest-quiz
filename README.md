@@ -516,6 +516,8 @@ heruntergeladen oder via `DELETE /backups/{name}` entfernt werden.
 Damit das funktioniert, muss der Ordner `backup/` vom Serverprozess
 beschreibbar sein.
 
+Neben Mandanten-Zertifikaten kann das SSL-Zertifikat der Admin-Domain über einen POST auf `/api/renew-ssl` erneuert werden. Der Aufruf startet den Hauptcontainer neu.
+
 ### Logo hochladen
 Das aktuelle Logo wird unter `/logo.png` oder `/logo.webp` bereitgestellt. Über einen POST auf diese URLs lässt sich eine neue PNG- oder WebP-Datei hochladen. Nach dem Upload wird der Pfad automatisch in `config.json` gespeichert. Die Datei landet im Verzeichnis `data/`, damit auch PDFs das Logo einbinden können.
 
