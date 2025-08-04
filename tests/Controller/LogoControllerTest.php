@@ -187,6 +187,60 @@ class LogoControllerTest extends TestCase
         unlink(dirname(__DIR__, 2) . '/data/logo.svg');
     }
 
+    public function testPostAndGetWebp(): void
+    {
+        $tmpConfig = tempnam(sys_get_temp_dir(), 'cfg');
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                displayErrorDetails INTEGER,
+                QRUser INTEGER,
+                QRRemember INTEGER,
+                logoPath TEXT,
+                pageTitle TEXT,
+                backgroundColor TEXT,
+                buttonColor TEXT,
+                CheckAnswerButton TEXT,
+                QRRestrict INTEGER,
+                competitionMode INTEGER,
+                teamResults INTEGER,
+                photoUpload INTEGER,
+                puzzleWordEnabled INTEGER,
+                puzzleWord TEXT,
+                puzzleFeedback TEXT,
+                inviteText TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $cfg = new ConfigService($pdo);
+        $controller = new LogoController($cfg);
+        $logoFile = tempnam(sys_get_temp_dir(), 'logo');
+        imagewebp(imagecreatetruecolor(10, 10), $logoFile);
+        $stream = fopen($logoFile, 'rb');
+        $uploaded = new UploadedFile(
+            new Stream($stream),
+            'logo.webp',
+            'image/webp',
+            filesize($logoFile),
+            UPLOAD_ERR_OK
+        );
+        $request = $this->createRequest('POST', '/logo');
+        $request = $request->withUploadedFiles(['file' => $uploaded]);
+
+        $postResponse = $controller->post($request, new Response());
+        $this->assertEquals(204, $postResponse->getStatusCode());
+
+        $getResponse = $controller->get($this->createRequest('GET', '/logo.webp'), new Response());
+        $this->assertEquals(200, $getResponse->getStatusCode());
+
+        unlink($tmpConfig);
+        unlink($logoFile);
+        unlink(dirname(__DIR__, 2) . '/data/logo.webp');
+    }
+
     public function testLogoPerEvent(): void
     {
         $pdo = new \PDO('sqlite::memory:');

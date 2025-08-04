@@ -1,4 +1,5 @@
 <?php
+
 return [
     'help' => 'Hilfe',
     'design_toggle' => 'Design wechseln',
@@ -49,7 +50,7 @@ return [
     'menu_evaluation' => 'Auswertung',
     'menu_admin' => 'Administration',
     'logout' => 'Abmelden',
-    'tip_logo_upload' => 'PNG-, JPG- oder SVG-Datei als Logo für die Startseite hochladen.',
+    'tip_logo_upload' => 'PNG-, JPG-, SVG- oder WEBP-Datei als Logo für die Startseite hochladen.',
     'tip_page_title' => 'Text, der im Browser-Tab angezeigt wird.',
     'tip_background_color' => 'CSS-Farbwert für die Seite.',
     'tip_button_color' => 'CSS-Farbwert für alle Buttons.',

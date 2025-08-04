@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return Object.assign({}, cfgInitial, {
       logoPath: (function () {
         if (cfgFields.logoPreview && cfgFields.logoPreview.src) {
-          const m = cfgFields.logoPreview.src.match(/\/logo(?:-[\w-]+)?\.(png|jpe?g|svg)/);
+          const m = cfgFields.logoPreview.src.match(/\/logo(?:-[\w-]+)?\.(png|jpe?g|svg|webp)/);
           if (m) return m[0];
         }
         return cfgInitial.logoPath;
@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let ext = 'png';
         if (file && file.name) {
           const m = file.name.toLowerCase().match(/\.([a-z0-9]+)$/);
-          if (m) ext = m[1];
+          if (m && ['png', 'jpg', 'jpeg', 'svg', 'webp'].includes(m[1])) ext = m[1];
         }
         cfgInitial.logoPath = '/logo-' + activeEventUid + '.' + ext;
         cfgFields.logoPreview.src = withBase(cfgInitial.logoPath) + '?' + Date.now();

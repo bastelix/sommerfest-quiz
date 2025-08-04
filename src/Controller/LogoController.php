@@ -44,6 +44,7 @@ class LogoController
         $contentType = match ($ext) {
             'jpg', 'jpeg' => 'image/jpeg',
             'svg' => 'image/svg+xml',
+            'webp' => 'image/webp',
             default => 'image/png',
         };
         return $response->withHeader('Content-Type', $contentType);
@@ -67,7 +68,7 @@ class LogoController
         }
 
         $extension = strtolower(pathinfo($file->getClientFilename(), PATHINFO_EXTENSION));
-        if (!in_array($extension, ['png', 'jpg', 'jpeg', 'svg'], true)) {
+        if (!in_array($extension, ['png', 'jpg', 'jpeg', 'svg', 'webp'], true)) {
             $response->getBody()->write('unsupported file type');
             return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }

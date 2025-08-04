@@ -32,7 +32,7 @@ Der Statistik-Tab listet jede Antwort mit Name, Versuch, Katalog, Frage, Antwort
 
 - **Administration:** Über `/export` kann ein JSON-Backup erstellt werden. Eine Wiederherstellung ist per `/import` oder `/backups/{name}/restore` möglich.
   Die Route `/backups` listet vorhandene Sicherungen.
-- **Logo hochladen:** Das aktuelle Logo wird unter `/logo.png`, `/logo.jpg` oder `/logo.svg` bereitgestellt. Über einen POST auf `/logo` lässt sich eine neue Datei hochladen. Das Bild wird dabei im Ordner `data/` gespeichert, sodass PDFs es einbinden können.
+- **Logo hochladen:** Das aktuelle Logo wird unter `/logo.png`, `/logo.jpg`, `/logo.svg` oder `/logo.webp` bereitgestellt. Über einen POST auf `/logo` lässt sich eine neue Datei hochladen. Das Bild wird dabei im Ordner `data/` gespeichert, sodass PDFs es einbinden können.
 - **Ergebnisse exportieren:** Alle Resultate können als CSV-Datei heruntergeladen werden.
 Die API ermöglicht so die komplette Verwaltung eines Quizsystems und ist sowohl lokal als auch im Netzwerk schnell einsatzbereit.
 

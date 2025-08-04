@@ -1,4 +1,5 @@
 <?php
+
 return [
     'help' => 'Help',
     'design_toggle' => 'Toggle theme',
@@ -49,7 +50,7 @@ return [
     'menu_evaluation' => 'Evaluation',
     'menu_admin' => 'Administration',
     'logout' => 'Logout',
-    'tip_logo_upload' => 'Upload PNG, JPG or SVG logo for start page.',
+    'tip_logo_upload' => 'Upload PNG, JPG, SVG or WEBP logo for start page.',
     'tip_page_title' => 'Text displayed in the browser tab.',
     'tip_background_color' => 'CSS color for the page.',
     'tip_button_color' => 'CSS color for all buttons.',

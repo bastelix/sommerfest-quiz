@@ -110,6 +110,72 @@ class QrControllerTest extends TestCase
         unlink(dirname(__DIR__, 2) . '/data/logo.png');
     }
 
+    public function testPdfUsesUploadedWebpLogo(): void
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                displayErrorDetails INTEGER,
+                QRUser INTEGER,
+                QRRemember INTEGER,
+                logoPath TEXT,
+                pageTitle TEXT,
+                backgroundColor TEXT,
+                buttonColor TEXT,
+                CheckAnswerButton TEXT,
+                QRRestrict INTEGER,
+                competitionMode INTEGER,
+                teamResults INTEGER,
+                photoUpload INTEGER,
+                puzzleWordEnabled INTEGER,
+                puzzleWord TEXT,
+                puzzleFeedback TEXT,
+                inviteText TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            'CREATE TABLE events(' .
+            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT' .
+            ');'
+        );
+        $pdo->exec("INSERT INTO events(uid,name,description) VALUES('1','Event','Sub')");
+        $cfg = new \App\Service\ConfigService($pdo);
+        $cfg->setActiveEventUid('1');
+        $teams = new \App\Service\TeamService($pdo, $cfg);
+        $events = new \App\Service\EventService($pdo);
+        $catalogs = new \App\Service\CatalogService($pdo, $cfg);
+        $qr = new \App\Controller\QrController($cfg, $teams, $events, $catalogs);
+        $logo = new \App\Controller\LogoController($cfg);
+
+        $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo']);
+        $initial = $qr->pdf($req, new Response());
+        $original = (string)$initial->getBody();
+        $this->assertStringContainsString('Event', $original);
+
+        $logoFile = tempnam(sys_get_temp_dir(), 'logo');
+        imagewebp(imagecreatetruecolor(10, 10), $logoFile);
+        $uploaded = new UploadedFile(
+            $logoFile,
+            'logo.webp',
+            'image/webp',
+            filesize($logoFile),
+            UPLOAD_ERR_OK
+        );
+        $upReq = $this->createRequest('POST', '/logo')->withUploadedFiles(['file' => $uploaded]);
+        $logo->post($upReq, new Response());
+
+        $updated = $qr->pdf($req, new Response());
+        $this->assertNotEquals($original, (string)$updated->getBody());
+        $this->assertStringContainsString('Event', (string)$updated->getBody());
+
+        unlink($logoFile);
+        unlink(dirname(__DIR__, 2) . '/data/logo.webp');
+    }
+
     public function testInvitePlaceholderIsReplaced(): void
     {
         $pdo = new \PDO('sqlite::memory:');
