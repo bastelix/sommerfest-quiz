@@ -87,6 +87,7 @@
 - *(admin)* Show tenant profile on main domain
 - Add blacklist for sensitive subdomains
 - Support profile variables in pages
+- *(admin)* Autosave settings
 
 ### Fix
 
