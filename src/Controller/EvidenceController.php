@@ -92,7 +92,11 @@ class EvidenceController
         $tmpPath = tempnam(sys_get_temp_dir(), 'upload_');
         $file->moveTo($tmpPath);
 
-        $manager = ImageManager::gd();
+        if (method_exists(ImageManager::class, 'gd')) {
+            $manager = ImageManager::gd();
+        } else {
+            $manager = new ImageManager(['driver' => 'gd']);
+        }
         $img = $manager->read($tmpPath);
         $orientationHandled = false;
         if (function_exists('exif_read_data')) {
