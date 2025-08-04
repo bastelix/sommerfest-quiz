@@ -26,11 +26,11 @@ else
   SLUG="$(echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')"
   TENANT_DIR="$(dirname "$0")/../tenants/$SLUG"
   COMPOSE_FILE="$TENANT_DIR/docker-compose.yml"
-  SERVICE=""
+  SERVICE="slim"
 
-  # start tenant container if compose file exists
+  # start tenant application container if compose file exists
   if [ -f "$COMPOSE_FILE" ] && [ -n "$DOCKER_COMPOSE" ]; then
-    $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" up -d >/dev/null 2>&1 || true
+    $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" up -d --no-deps "$SERVICE" >/dev/null 2>&1 || true
   fi
 fi
 
@@ -50,8 +50,8 @@ if [ "$SLUG" = "main" ]; then
     exit 1
   fi
 else
-  if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" restart >/dev/null; then
-    echo "Failed to restart tenant services" >&2
+  if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" restart "$SERVICE" --no-deps >/dev/null; then
+    echo "Failed to restart tenant application" >&2
     exit 1
   fi
 fi
