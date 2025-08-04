@@ -119,24 +119,25 @@ class QrController
         $bgColor = $this->parseColor($bg, new Color(255, 255, 255));
         $errorLevel = $demo === 'high' ? ErrorCorrectionLevel::High : ErrorCorrectionLevel::Low;
 
-        $result = (new Builder())->build(
-            writer: $writer,
-            writerOptions: $writerOptions,
-            data: $text,
-            encoding: new Encoding('UTF-8'),
-            errorCorrectionLevel: $errorLevel,
-            size: $size,
-            margin: $margin,
-            roundBlockSizeMode: RoundBlockSizeMode::Margin,
-            foregroundColor: $fgColor,
-            backgroundColor: $bgColor,
-            labelText: $labelText,
-            labelFont: $labelFont,
-            labelAlignment: $labelAlignment,
-            logoPath: $logoPath,
-            logoResizeToWidth: $logoResizeToWidth,
-            logoPunchoutBackground: $logoPunchoutBackground,
-        );
+        $builder = Builder::create()
+            ->writer($writer)
+            ->writerOptions($writerOptions)
+            ->data($text)
+            ->encoding(new Encoding('UTF-8'))
+            ->errorCorrectionLevel($errorLevel)
+            ->size($size)
+            ->margin($margin)
+            ->roundBlockSizeMode(RoundBlockSizeMode::Margin)
+            ->foregroundColor($fgColor)
+            ->backgroundColor($bgColor)
+            ->labelText($labelText)
+            ->labelFont($labelFont)
+            ->labelAlignment($labelAlignment)
+            ->logoPath($logoPath)
+            ->logoResizeToWidth($logoResizeToWidth)
+            ->logoPunchoutBackground($logoPunchoutBackground);
+
+        $result = $builder->build();
 
         $data = $result->getString();
 
@@ -169,16 +170,17 @@ class QrController
         $size   = (int)($params['s'] ?? 300);
         $margin = (int)($params['m'] ?? 20);
 
-        $result = (new Builder())->build(
-            writer: new PngWriter(),
-            data: $text,
-            encoding: new Encoding('UTF-8'),
-            size: $size,
-            margin: $margin,
-            roundBlockSizeMode: RoundBlockSizeMode::Margin,
-            backgroundColor: $this->parseColor($bg, new Color(255, 255, 255)),
-            foregroundColor: $this->parseColor($fg, new Color(0, 0, 255)),
-        );
+        $builder = Builder::create()
+            ->writer(new PngWriter())
+            ->data($text)
+            ->encoding(new Encoding('UTF-8'))
+            ->size($size)
+            ->margin($margin)
+            ->roundBlockSizeMode(RoundBlockSizeMode::Margin)
+            ->backgroundColor($this->parseColor($bg, new Color(255, 255, 255)))
+            ->foregroundColor($this->parseColor($fg, new Color(0, 0, 255)));
+
+        $result = $builder->build();
 
         $png = $result->getString();
         $tmp = tempnam(sys_get_temp_dir(), 'qr');
@@ -291,16 +293,17 @@ class QrController
         }
 
         foreach ($teams as $team) {
-            $result = (new Builder())->build(
-                writer: new PngWriter(),
-                data: $team,
-                encoding: new Encoding('UTF-8'),
-                size: $size,
-                margin: $margin,
-                roundBlockSizeMode: RoundBlockSizeMode::Margin,
-                backgroundColor: $this->parseColor($bg, new Color(255, 255, 255)),
-                foregroundColor: $this->parseColor($fg, new Color(0, 0, 255)),
-            );
+            $builder = Builder::create()
+                ->writer(new PngWriter())
+                ->data($team)
+                ->encoding(new Encoding('UTF-8'))
+                ->size($size)
+                ->margin($margin)
+                ->roundBlockSizeMode(RoundBlockSizeMode::Margin)
+                ->backgroundColor($this->parseColor($bg, new Color(255, 255, 255)))
+                ->foregroundColor($this->parseColor($fg, new Color(0, 0, 255)));
+
+            $result = $builder->build();
 
             $png = $result->getString();
             $tmp = tempnam(sys_get_temp_dir(), 'qr');
