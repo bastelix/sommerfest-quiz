@@ -31,16 +31,26 @@ class LogoController
     {
         $cfg = $this->config->getConfig();
         $relPath = $cfg['logoPath'] ?? '';
-        if ($relPath === '') {
-            return $response->withStatus(404);
+        $path = '';
+        $contentType = 'image/png';
+
+        if ($relPath !== '') {
+            $path = __DIR__ . '/../../data' . $relPath;
+            if (file_exists($path)) {
+                $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+                $contentType = $ext === 'webp' ? 'image/webp' : 'image/png';
+            } else {
+                $path = '';
+            }
         }
-        $path = __DIR__ . '/../../data' . $relPath;
-        if (!file_exists($path)) {
-            return $response->withStatus(404);
+
+        // Fallback to the public favicon when no custom logo is available.
+        if ($path === '') {
+            $path = __DIR__ . '/../../public/favicon.svg';
+            $contentType = 'image/svg+xml';
         }
-        $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-        $response->getBody()->write((string)file_get_contents($path));
-        $contentType = $ext === 'webp' ? 'image/webp' : 'image/png';
+
+        $response->getBody()->write((string) file_get_contents($path));
         return $response->withHeader('Content-Type', $contentType);
     }
 

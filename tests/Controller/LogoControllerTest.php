@@ -13,7 +13,7 @@ use Slim\Psr7\Stream;
 
 class LogoControllerTest extends TestCase
 {
-    public function testGetNotFound(): void
+    public function testGetFallbackLogo(): void
     {
         $pdo = $this->createDatabase();
         $cfg = new ConfigService($pdo);
@@ -23,7 +23,9 @@ class LogoControllerTest extends TestCase
         $request = $this->createRequest('GET', '/logo.png');
         $response = $controller->get($request, new Response());
 
-        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertSame('image/svg+xml', $response->getHeaderLine('Content-Type'));
+        $this->assertNotEmpty((string) $response->getBody());
         @rename(dirname(__DIR__, 2) . '/data/logo.png.bak', dirname(__DIR__, 2) . '/data/logo.png');
         @rename(dirname(__DIR__, 2) . '/data/logo.webp.bak', dirname(__DIR__, 2) . '/data/logo.webp');
     }
