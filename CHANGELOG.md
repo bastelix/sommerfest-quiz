@@ -18,6 +18,9 @@
 ### Ci
 
 - Add workflow for automatic changelog
+### Feat
+
+- Allow admins to edit tenant profile
 - Build tenant image during deploy
 
 ### Docs

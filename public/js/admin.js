@@ -31,6 +31,8 @@ document.addEventListener('DOMContentLoaded', function () {
     .map(tab => tab.getAttribute('data-route') || '');
   const settingsInitial = window.quizSettings || {};
   const pagesInitial = window.pagesContent || {};
+  const profileForm = document.getElementById('profileForm');
+  const profileSaveBtn = document.getElementById('profileSaveBtn');
 
   function slugify(text) {
     return text
@@ -2134,6 +2136,22 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
   }
+
+  profileSaveBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    if (!profileForm) return;
+    const formData = new FormData(profileForm);
+    const data = {};
+    formData.forEach((value, key) => { data[key] = value; });
+    apiFetch('/admin/profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    }).then(r => {
+      if (!r.ok) throw new Error(r.statusText);
+      notify('Profil gespeichert', 'success');
+    }).catch(() => notify('Fehler beim Speichern', 'danger'));
+  });
 
   // Page editors are handled in trumbowyg-pages.js
 

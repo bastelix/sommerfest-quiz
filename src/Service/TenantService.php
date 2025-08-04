@@ -294,6 +294,39 @@ class TenantService
     }
 
     /**
+     * Update profile information for a tenant identified by subdomain.
+     *
+     * @param array<string,string> $data
+     */
+    public function updateProfile(string $subdomain, array $data): void
+    {
+        $fields = [
+            'plan',
+            'billing_info',
+            'imprint_name',
+            'imprint_street',
+            'imprint_zip',
+            'imprint_city',
+            'imprint_email',
+        ];
+        $set = [];
+        $params = [];
+        foreach ($fields as $f) {
+            if (array_key_exists($f, $data)) {
+                $set[] = $f . ' = ?';
+                $params[] = $data[$f];
+            }
+        }
+        if ($set === []) {
+            return;
+        }
+        $params[] = $subdomain;
+        $sql = 'UPDATE tenants SET ' . implode(', ', $set) . ' WHERE subdomain = ?';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+    }
+
+    /**
      * Retrieve all tenants ordered by creation date.
      *
      * @return list<array{

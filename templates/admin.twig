@@ -649,21 +649,47 @@
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_profile') }}</h2>
         {% if tenant %}
-        <div class="uk-overflow-auto">
-          <table class="uk-table uk-table-divider uk-table-small">
-            <tbody>
-              <tr><th>{{ t('column_subdomain') }}</th><td>{{ tenant.subdomain }}</td></tr>
-              <tr><th>{{ t('column_plan') }}</th><td>{{ tenant.plan|default('') }}</td></tr>
-              <tr><th>{{ t('column_billing') }}</th><td>{{ tenant.billing_info|default('') }}</td></tr>
-              <tr><th>{{ t('column_imprint_name') }}</th><td>{{ tenant.imprint_name|default('') }}</td></tr>
-              <tr><th>{{ t('column_imprint_street') }}</th><td>{{ tenant.imprint_street|default('') }}</td></tr>
-              <tr><th>{{ t('column_imprint_zip') }}</th><td>{{ tenant.imprint_zip|default('') }}</td></tr>
-              <tr><th>{{ t('column_imprint_city') }}</th><td>{{ tenant.imprint_city|default('') }}</td></tr>
-              <tr><th>{{ t('column_imprint_email') }}</th><td>{{ tenant.imprint_email|default('') }}</td></tr>
-              <tr><th>{{ t('column_created') }}</th><td>{{ tenant.created_at }}</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <form id="profileForm" class="uk-form-stacked">
+          <div class="uk-grid-small" uk-grid>
+            <div class="uk-width-1-2@s">
+              <label class="uk-form-label">{{ t('column_subdomain') }}</label>
+              <input class="uk-input" type="text" name="subdomain" value="{{ tenant.subdomain }}" readonly>
+            </div>
+            <div class="uk-width-1-2@s">
+              <label class="uk-form-label">{{ t('column_plan') }}</label>
+              <input class="uk-input" type="text" name="plan" value="{{ tenant.plan|default('') }}">
+            </div>
+            <div class="uk-width-1-1">
+              <label class="uk-form-label">{{ t('column_billing') }}</label>
+              <input class="uk-input" type="text" name="billing_info" value="{{ tenant.billing_info|default('') }}">
+            </div>
+            <div class="uk-width-1-1">
+              <label class="uk-form-label">{{ t('column_imprint_name') }}</label>
+              <input class="uk-input" type="text" name="imprint_name" value="{{ tenant.imprint_name|default('') }}">
+            </div>
+            <div class="uk-width-1-2@s">
+              <label class="uk-form-label">{{ t('column_imprint_street') }}</label>
+              <input class="uk-input" type="text" name="imprint_street" value="{{ tenant.imprint_street|default('') }}">
+            </div>
+            <div class="uk-width-1-2@s">
+              <label class="uk-form-label">{{ t('column_imprint_zip') }}</label>
+              <input class="uk-input" type="text" name="imprint_zip" value="{{ tenant.imprint_zip|default('') }}">
+            </div>
+            <div class="uk-width-1-2@s">
+              <label class="uk-form-label">{{ t('column_imprint_city') }}</label>
+              <input class="uk-input" type="text" name="imprint_city" value="{{ tenant.imprint_city|default('') }}">
+            </div>
+            <div class="uk-width-1-2@s">
+              <label class="uk-form-label">{{ t('column_imprint_email') }}</label>
+              <input class="uk-input" type="email" name="imprint_email" value="{{ tenant.imprint_email|default('') }}">
+            </div>
+            <div class="uk-width-1-2@s">
+              <label class="uk-form-label">{{ t('column_created') }}</label>
+              <input class="uk-input" type="text" value="{{ tenant.created_at }}" readonly>
+            </div>
+          </div>
+          <button id="profileSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: {{ t('tip_save_changes') }}; pos: left"></button>
+        </form>
         {% else %}
         <p>{{ t('text_no_data') }}</p>
         {% endif %}

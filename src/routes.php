@@ -27,6 +27,7 @@ use App\Service\TenantService;
 use App\Service\NginxService;
 use App\Service\SettingsService;
 use App\Service\TranslationService;
+use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
 use App\Controller\ResultController;
 use App\Controller\TeamController;
@@ -235,6 +236,10 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/pages', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/management', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/profile', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->post('/admin/profile', function (Request $request, Response $response) {
+        $controller = new ProfileController();
+        return $controller->update($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/tenants', function (Request $request, Response $response) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(404);
