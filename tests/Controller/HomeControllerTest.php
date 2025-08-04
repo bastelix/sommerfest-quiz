@@ -110,7 +110,7 @@ class HomeControllerTest extends TestCase
             $request = $this->createRequest('GET', '/');
             $response = $app->handle($request);
             $this->assertEquals(200, $response->getStatusCode());
-            $this->assertStringContainsString('Willkommen beim QuizRace', (string)$response->getBody());
+            $this->assertStringContainsString('Trete gegen Freunde und Kollegen an', (string)$response->getBody());
         } finally {
             unlink($db);
         }
