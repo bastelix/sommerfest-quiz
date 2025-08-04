@@ -102,17 +102,15 @@ class QrController
             ];
         }
 
-        $labelText = null;
-        $labelFont = null;
-        $labelAlignment = null;
+        $labelText = '';
+        $labelFont = new OpenSans(20);
+        $labelAlignment = LabelAlignment::Center;
         if ($useLabel) {
             $labelText = $text;
-            $labelFont = new OpenSans(20);
-            $labelAlignment = LabelAlignment::Center;
-        }
-        if ($demo === 'label' && $useLabel) {
-            $labelText = 'Jetzt scannen!';
-            $labelFont = new OpenSans(22);
+            if ($demo === 'label') {
+                $labelText = 'Jetzt scannen!';
+                $labelFont = new OpenSans(22);
+            }
         }
 
         $logoPath = null;
@@ -128,9 +126,8 @@ class QrController
         $bgColor = $this->parseColor($bg, new Color(255, 255, 255));
         $errorLevel = $demo === 'high' ? ErrorCorrectionLevel::High : ErrorCorrectionLevel::Low;
 
-        $builder = new Builder();
         try {
-            $result = $builder->build(
+            $result = (new Builder(
                 writer: $writer,
                 writerOptions: $writerOptions,
                 data: $text,
@@ -141,13 +138,13 @@ class QrController
                 roundBlockSizeMode: RoundBlockSizeMode::Margin,
                 foregroundColor: $fgColor,
                 backgroundColor: $bgColor,
-                labelText: $labelText,
-                labelFont: $labelFont,
-                labelAlignment: $labelAlignment,
-                logoPath: $logoPath,
+                labelText: $useLabel ? $labelText : '',
+                labelFont: $useLabel ? $labelFont : new OpenSans(20),
+                labelAlignment: $useLabel ? $labelAlignment : LabelAlignment::Center,
+                logoPath: $logoPath ?? '',
                 logoResizeToWidth: $logoResizeToWidth,
-                logoPunchoutBackground: $logoPunchoutBackground,
-            );
+                logoPunchoutBackground: $logoPunchoutBackground ?? false,
+            ))->build();
         } catch (Throwable $e) {
             return $response->withStatus(500);
         }
@@ -183,17 +180,20 @@ class QrController
         $size   = (int)($params['s'] ?? 300);
         $margin = (int)($params['m'] ?? 20);
 
-        $builder = new Builder();
-        $result = $builder->build(
-            writer: new PngWriter(),
-            data: $text,
-            encoding: new Encoding('UTF-8'),
-            size: $size,
-            margin: $margin,
-            roundBlockSizeMode: RoundBlockSizeMode::Margin,
-            backgroundColor: $this->parseColor($bg, new Color(255, 255, 255)),
-            foregroundColor: $this->parseColor($fg, new Color(0, 0, 255)),
-        );
+        try {
+            $result = (new Builder(
+                writer: new PngWriter(),
+                data: $text,
+                encoding: new Encoding('UTF-8'),
+                size: $size,
+                margin: $margin,
+                roundBlockSizeMode: RoundBlockSizeMode::Margin,
+                backgroundColor: $this->parseColor($bg, new Color(255, 255, 255)),
+                foregroundColor: $this->parseColor($fg, new Color(0, 0, 255)),
+            ))->build();
+        } catch (Throwable $e) {
+            return $response->withStatus(500);
+        }
 
         $png = $result->getString();
         $tmp = tempnam(sys_get_temp_dir(), 'qr');
@@ -306,17 +306,20 @@ class QrController
         }
 
         foreach ($teams as $team) {
-            $builder = new Builder();
-            $result = $builder->build(
-                writer: new PngWriter(),
-                data: $team,
-                encoding: new Encoding('UTF-8'),
-                size: $size,
-                margin: $margin,
-                roundBlockSizeMode: RoundBlockSizeMode::Margin,
-                backgroundColor: $this->parseColor($bg, new Color(255, 255, 255)),
-                foregroundColor: $this->parseColor($fg, new Color(0, 0, 255)),
-            );
+            try {
+                $result = (new Builder(
+                    writer: new PngWriter(),
+                    data: $team,
+                    encoding: new Encoding('UTF-8'),
+                    size: $size,
+                    margin: $margin,
+                    roundBlockSizeMode: RoundBlockSizeMode::Margin,
+                    backgroundColor: $this->parseColor($bg, new Color(255, 255, 255)),
+                    foregroundColor: $this->parseColor($fg, new Color(0, 0, 255)),
+                ))->build();
+            } catch (Throwable $e) {
+                continue;
+            }
 
             $png = $result->getString();
             $tmp = tempnam(sys_get_temp_dir(), 'qr');
