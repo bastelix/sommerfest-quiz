@@ -31,7 +31,22 @@
       .replace(/^-+|-+$/g, '');
   }
 
-  const RESERVED_SUBDOMAINS = new Set(['public']);
+  const RESERVED_SUBDOMAINS = new Set([
+    'public',
+    'www',
+    'so',
+    'sa',
+    'ss',
+    'ns',
+    'nsdap',
+    'nazi',
+    'nazis',
+    'hitler',
+    'adolf',
+    'hj',
+    'bdm',
+    'kz'
+  ]);
 
   document.addEventListener('DOMContentLoaded', () => {
     const loginBtn = document.getElementById('login-btn');

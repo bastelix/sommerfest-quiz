@@ -158,6 +158,16 @@ class TenantControllerTest extends TestCase
         $this->assertEquals(200, $res->getStatusCode());
     }
 
+    public function testExistsReturns200ForReserved(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, imprint_email TEXT, created_at TEXT);');
+        $controller = new TenantController(new TenantService($pdo));
+        $req = $this->createRequest('GET', '/tenants/www');
+        $res = $controller->exists($req, new Response(), ['subdomain' => 'www']);
+        $this->assertEquals(200, $res->getStatusCode());
+    }
+
     public function testCreateHandlesPdoException(): void
     {
         $service = new class extends TenantService {

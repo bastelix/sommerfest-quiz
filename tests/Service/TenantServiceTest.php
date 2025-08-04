@@ -128,6 +128,26 @@ SQL;
         $service->createTenant('u5b', 'dup');
     }
 
+    public function testExistsReturnsTrueForReserved(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+        $service = $this->createService($dir, $pdo);
+        $this->assertTrue($service->exists('www'));
+    }
+
+    public function testCreateTenantFailsOnReserved(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+        $service = $this->createService($dir, $pdo);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('tenant-exists');
+
+        $service->createTenant('uid', 'www');
+    }
+
     public function testGetBySubdomainReturnsTenant(): void
     {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
