@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
 use Slim\Routing\RouteContext;
+use App\Service\PageVariableService;
 
 /**
  * Renders the privacy policy page.
@@ -23,6 +24,7 @@ class DatenschutzController
         $html = (string) file_get_contents($path);
         $basePath = RouteContext::fromRequest($request)->getBasePath();
         $html = str_replace('{{ basePath }}', $basePath, $html);
+        $html = PageVariableService::apply($html);
 
         $view = Twig::fromRequest($request);
         return $view->render($response, 'datenschutz.twig', [
