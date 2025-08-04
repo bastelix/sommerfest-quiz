@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return Object.assign({}, cfgInitial, {
       logoPath: (function () {
         if (cfgFields.logoPreview && cfgFields.logoPreview.src) {
-          const m = cfgFields.logoPreview.src.match(/\/logo(?:-[\w-]+)?\.(png|webp)/);
+          const m = cfgFields.logoPreview.src.match(/\/logo(?:-[\w-]+)?\.(png|jpe?g|svg)/);
           if (m) return m[0];
         }
         return cfgInitial.logoPath;
@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (cfgFields.logoFile && cfgFields.logoPreview) {
     const bar = document.getElementById('cfgLogoProgress');
     UIkit.upload('.js-upload', {
-              url: withBase('/logo.png'),
+      url: withBase('/logo'),
       name: 'file',
       multiple: false,
       error: function (e) {
@@ -298,7 +298,11 @@ document.addEventListener('DOMContentLoaded', function () {
           bar.setAttribute('hidden', 'hidden');
         }, 1000);
         const file = cfgFields.logoFile.files && cfgFields.logoFile.files[0];
-        const ext = file && file.name.toLowerCase().endsWith('.webp') ? 'webp' : 'png';
+        let ext = 'png';
+        if (file && file.name) {
+          const m = file.name.toLowerCase().match(/\.([a-z0-9]+)$/);
+          if (m) ext = m[1];
+        }
         cfgInitial.logoPath = '/logo-' + activeEventUid + '.' + ext;
         cfgFields.logoPreview.src = withBase(cfgInitial.logoPath) + '?' + Date.now();
         notify('Logo hochgeladen', 'success');

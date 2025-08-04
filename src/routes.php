@@ -460,16 +460,10 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/invites.pdf', function (Request $request, Response $response) {
         return $request->getAttribute('qrController')->pdfAll($request, $response);
     })->add(new RoleAuthMiddleware('admin'));
-    $app->get('/{file:logo(?:-[\w-]+)?\.png}', function (Request $request, Response $response) {
-        return $request->getAttribute('logoController')->get($request->withAttribute('ext', 'png'), $response);
+    $app->get('/{file:logo(?:-[\w-]+)?\.(png|jpe?g|svg)}', function (Request $request, Response $response) {
+        return $request->getAttribute('logoController')->get($request, $response);
     });
-    $app->post('/logo.png', function (Request $request, Response $response) {
-        return $request->getAttribute('logoController')->post($request, $response);
-    })->add(new RoleAuthMiddleware('admin'));
-    $app->get('/{file:logo(?:-[\w-]+)?\.webp}', function (Request $request, Response $response) {
-        return $request->getAttribute('logoController')->get($request->withAttribute('ext', 'webp'), $response);
-    });
-    $app->post('/logo.webp', function (Request $request, Response $response) {
+    $app->post('/logo', function (Request $request, Response $response) {
         return $request->getAttribute('logoController')->post($request, $response);
     })->add(new RoleAuthMiddleware('admin'));
 

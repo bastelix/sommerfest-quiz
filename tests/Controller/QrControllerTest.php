@@ -99,7 +99,7 @@ class QrControllerTest extends TestCase
             filesize($logoFile),
             UPLOAD_ERR_OK
         );
-        $upReq = $this->createRequest('POST', '/logo.png')->withUploadedFiles(['file' => $uploaded]);
+        $upReq = $this->createRequest('POST', '/logo')->withUploadedFiles(['file' => $uploaded]);
         $logo->post($upReq, new Response());
 
         $updated = $qr->pdf($req, new Response());

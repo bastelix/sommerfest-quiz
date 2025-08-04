@@ -41,7 +41,11 @@ class LogoController
         }
         $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
         $response->getBody()->write((string)file_get_contents($path));
-        $contentType = $ext === 'webp' ? 'image/webp' : 'image/png';
+        $contentType = match ($ext) {
+            'jpg', 'jpeg' => 'image/jpeg',
+            'svg' => 'image/svg+xml',
+            default => 'image/png',
+        };
         return $response->withHeader('Content-Type', $contentType);
     }
 
@@ -63,7 +67,7 @@ class LogoController
         }
 
         $extension = strtolower(pathinfo($file->getClientFilename(), PATHINFO_EXTENSION));
-        if (!in_array($extension, ['png', 'webp'], true)) {
+        if (!in_array($extension, ['png', 'jpg', 'jpeg', 'svg'], true)) {
             $response->getBody()->write('unsupported file type');
             return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
@@ -71,15 +75,20 @@ class LogoController
         $uid = $this->config->getActiveEventUid();
         $base = $uid !== '' ? "logo-$uid.$extension" : "logo.$extension";
         $target = __DIR__ . "/../../data/" . $base;
-        if (!class_exists('\\Intervention\\Image\\ImageManager')) {
-            $response->getBody()->write('Intervention Image NICHT installiert');
-            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
+        if ($extension === 'svg') {
+            $file->moveTo($target);
+        } else {
+            if (!class_exists('\\Intervention\\Image\\ImageManager')) {
+                $response->getBody()->write('Intervention Image NICHT installiert');
+                return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
+            }
+            $manager = new ImageManager(new Driver());
+            $stream = $file->getStream();
+            $stream->rewind();
+            $img = $manager->read($stream->getContents());
+            $img->scaleDown(512, 512);
+            $img->save($target, 80);
         }
-
-        $manager = new ImageManager(new Driver());
-        $img = $manager->read($file->getStream());
-        $img->scaleDown(512, 512);
-        $img->save($target, 80);
 
         $cfg = $this->config->getConfig();
         $cfg['logoPath'] = '/' . $base;
