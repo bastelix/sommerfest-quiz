@@ -95,6 +95,7 @@
 - Store admin password per tenant
 - Collect and store user email
 - Add password reset endpoints
+- Add password reset templates
 
 ### Fix
 
