@@ -115,6 +115,7 @@
 - Skip docker compose check when reload disabled
 - *(admin)* Ensure ssl renewal starts tenant
 - Ensure landing route sets domain type
+- Apply dark mode styles to page editor
 
 ### Refactor
 
