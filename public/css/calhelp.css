@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f5f7fa;
+  color: #333;
+}
+
+/* Top navigation bar styling */
+.topbar {
+  background-color: #1e87f0;
+  border-bottom: 2px solid #e5e5e5;
+}
+
+.topbar .uk-navbar-item,
+.topbar .uk-navbar-nav > li > a,
+.topbar .uk-navbar-nav > li > a:focus,
+.topbar .uk-navbar-nav > li > a:hover {
+  color: #fff;
+}
+
+/* Card appearance */
+.uk-card-default {
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Primary buttons */
+.uk-button-primary {
+  background-color: #1e87f0;
+  border: none;
+}
+
+.uk-button-primary:hover {
+  background-color: #0f6fbf;
+}
+
+#quiz-header .logo-placeholder {
+  max-width: 280px;
+  margin-bottom: 1rem;
+}
+
