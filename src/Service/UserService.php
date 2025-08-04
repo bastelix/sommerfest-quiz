@@ -22,8 +22,7 @@ class UserService
     /**
      * Find a user by username.
      *
-     * @return array{id:int,username:string,password:string,email:?
-     *     string,role:string,active:bool}|null
+     * @return array{id:int,username:string,password:string,email:?string,role:string,active:bool}|null
      */
     public function getByUsername(string $username): ?array
     {
@@ -36,8 +35,7 @@ class UserService
     /**
      * Find a user by email.
      *
-     * @return array{id:int,username:string,password:string,email:?
-     *     string,role:string,active:bool}|null
+     * @return array{id:int,username:string,password:string,email:?string,role:string,active:bool}|null
      */
     public function getByEmail(string $email): ?array
     {
