@@ -91,6 +91,7 @@
 - Style landing page with calhelp design
 - Autosave for event configuration
 - Add save text button for event settings
+- Store admin password per tenant
 
 ### Fix
 
