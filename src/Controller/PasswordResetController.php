@@ -58,8 +58,11 @@ class PasswordResetController
             ->withPath('/password/reset')
             ->withQuery('token=' . urlencode($token));
 
-        $twig = Twig::fromRequest($request)->getEnvironment();
-        $mailer = new MailService($twig);
+        $mailer = $request->getAttribute('mailService');
+        if (!$mailer instanceof MailService) {
+            $twig = Twig::fromRequest($request)->getEnvironment();
+            $mailer = new MailService($twig);
+        }
         $mailer->sendPasswordReset((string) $user['email'], (string) $uri);
 
         return $response->withStatus(204);

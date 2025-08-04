@@ -6,6 +6,8 @@ namespace App\Service;
 
 use DateTimeImmutable;
 use PDO;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Manage password reset tokens.
@@ -19,10 +21,13 @@ class PasswordResetService
      */
     private int $ttl;
 
-    public function __construct(PDO $pdo, int $ttlSeconds = 3600)
+    private LoggerInterface $logger;
+
+    public function __construct(PDO $pdo, int $ttlSeconds = 3600, ?LoggerInterface $logger = null)
     {
         $this->pdo = $pdo;
         $this->ttl = $ttlSeconds;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -42,6 +47,8 @@ class PasswordResetService
         );
         $stmt->execute([$userId, $token, $expires]);
 
+        $this->logger->info('Password reset token created', ['userId' => $userId]);
+
         return $token;
     }
 
@@ -59,6 +66,7 @@ class PasswordResetService
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($row === false) {
+            $this->logger->warning('Password reset token not found', ['token' => $token]);
             return null;
         }
 
@@ -68,8 +76,11 @@ class PasswordResetService
         $this->deleteToken($userId, $token);
 
         if ($expires < new DateTimeImmutable()) {
+            $this->logger->warning('Password reset token expired', ['userId' => $userId]);
             return null;
         }
+
+        $this->logger->info('Password reset token consumed', ['userId' => $userId]);
 
         return $userId;
     }
