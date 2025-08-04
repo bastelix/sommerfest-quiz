@@ -2,7 +2,7 @@
 
 // Define custom UIkit templates for Trumbowyg
 $.extend(true, $.trumbowyg, {
-  langs: { de: { template: 'Vorlage' } },
+  langs: { de: { template: 'Vorlage', variable: 'Variable' } },
   plugins: {
     template: {
       init: function (trumbowyg) {
@@ -35,6 +35,26 @@ $.extend(true, $.trumbowyg, {
           title: 'UIkit Card'
         });
       }
+    },
+    variable: {
+      init: function (trumbowyg) {
+        const vars = window.profileVars || {};
+        const keys = Object.keys(vars);
+        if (!keys.length) return;
+        const dropdown = keys.map(k => `var-${k}`);
+        trumbowyg.addBtnDef('variable', {
+          dropdown: dropdown,
+          ico: 'insertTemplate'
+        });
+        keys.forEach(k => {
+          trumbowyg.addBtnDef(`var-${k}`, {
+            fn: function () {
+              trumbowyg.execCmd('insertText', `[${k}]`);
+            },
+            title: `${k}${vars[k] ? ' (' + vars[k] + ')' : ''}`
+          });
+        });
+      }
     }
   }
 });
@@ -57,10 +77,11 @@ export function initPageEditors() {
         ['link'],
         ['insertImage'],
         ['unorderedList', 'orderedList'],
+        ['variable'],
         ['template'],
         ['fullscreen']
       ],
-      plugins: { template: true }
+      plugins: { template: true, variable: true }
     });
     const saveBtn = form.querySelector('.save-page-btn');
     saveBtn?.addEventListener('click', e => {
