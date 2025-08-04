@@ -118,31 +118,27 @@ class AdminController
             $users = (new UserService($pdo))->getAll();
         }
 
-        if ($section === 'pages') {
-            $pageSlugs = ['landing', 'impressum', 'datenschutz', 'faq'];
-            foreach ($pageSlugs as $slug) {
-                $path       = dirname(__DIR__, 2) . '/content/' . $slug . '.html';
-                $pages[$slug] = is_file($path) ? file_get_contents($path) : '';
-            }
+        $pageSlugs = ['landing', 'impressum', 'datenschutz', 'faq'];
+        foreach ($pageSlugs as $slug) {
+            $path       = dirname(__DIR__, 2) . '/content/' . $slug . '.html';
+            $pages[$slug] = is_file($path) ? file_get_contents($path) : '';
         }
 
-        if (in_array($section, ['profile', 'pages'], true)) {
-            $domainType = $request->getAttribute('domainType');
-            if ($domainType === 'main') {
-                $path = dirname(__DIR__, 2) . '/data/profile.json';
-                if (is_file($path)) {
-                    $data = json_decode((string) file_get_contents($path), true);
-                    if (is_array($data)) {
-                        $tenant = $data;
-                    }
+        $domainType = $request->getAttribute('domainType');
+        if ($domainType === 'main') {
+            $path = dirname(__DIR__, 2) . '/data/profile.json';
+            if (is_file($path)) {
+                $data = json_decode((string) file_get_contents($path), true);
+                if (is_array($data)) {
+                    $tenant = $data;
                 }
-            } else {
-                $host = $request->getUri()->getHost();
-                $sub  = explode('.', $host)[0];
-                $base = Database::connectFromEnv();
-                $tenantSvc = new TenantService($base);
-                $tenant = $tenantSvc->getBySubdomain($sub);
             }
+        } else {
+            $host = $request->getUri()->getHost();
+            $sub  = explode('.', $host)[0];
+            $base = Database::connectFromEnv();
+            $tenantSvc = new TenantService($base);
+            $tenant = $tenantSvc->getBySubdomain($sub);
         }
 
         $uri    = $request->getUri();
