@@ -98,6 +98,7 @@
 - Add password reset endpoints
 - Add password reset templates
 - Allow publishing events and copying links
+- Add fallbacks for QR and logo
 
 ### Fix
 
