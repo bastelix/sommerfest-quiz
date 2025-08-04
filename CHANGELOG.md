@@ -89,6 +89,7 @@
 - Support profile variables in pages
 - *(admin)* Autosave settings
 - Style landing page with calhelp design
+- Autosave for event configuration
 
 ### Fix
 
