@@ -147,12 +147,21 @@
     /* Header adjustments */
     .topbar {
       padding: 0.75rem 1rem;
+      flex-wrap: nowrap;
     }
     .topbar .uk-navbar-left {
       padding-left: 0.5rem;
     }
     .topbar .uk-navbar-right {
       padding-right: 0.5rem;
+    }
+    .topbar .uk-navbar-toggle {
+      width: 44px;
+      height: 44px;
+    }
+    .topbar .uk-navbar-toggle-icon {
+      width: 24px;
+      height: 24px;
     }
     @media (max-width: 959px) {
       .topbar .uk-navbar-center {
@@ -167,8 +176,8 @@
     }
     @media (max-width: 480px) {
       .topbar .uk-button-primary {
-        font-size: 0.75rem;
-        padding: 0.5rem 0.6rem;
+        font-size: 0.7rem;
+        padding: 0.4rem 0.5rem;
       }
     }
 
