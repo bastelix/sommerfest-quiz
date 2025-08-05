@@ -46,7 +46,7 @@
       font-family: 'Poppins',sans-serif;
       font-weight: 800;
       font-size: 2.6rem;
-      line-height: 1.1;
+      line-height: 1.3;
       margin-bottom: 18px;
       letter-spacing: -1.5px;
     }
@@ -66,9 +66,7 @@
       font-weight: 500;
       letter-spacing: .04em;
       padding: 0.8em 2em;
-      margin-right: 15px;
       border-radius: 3px;
-      margin-bottom: 12px;
       font-family: 'Poppins',sans-serif;
     }
     .btn-transparent {
@@ -145,6 +143,65 @@
     .padding-30px { padding: 30px !important; }
     .uk-link-reset { color:inherit; text-decoration:none; }
     .uk-link-reset:hover { text-decoration:underline; color:#fff; }
+
+    /* Header adjustments */
+    .topbar {
+      padding: 0.75rem 1rem;
+    }
+    .topbar .uk-navbar-left {
+      padding-left: 0.5rem;
+    }
+    .topbar .uk-navbar-right {
+      padding-right: 0.5rem;
+    }
+    @media (max-width: 959px) {
+      .topbar .uk-navbar-center {
+        display: none;
+      }
+    }
+    .topbar .uk-button-primary {
+      font-size: 0.875rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    @media (max-width: 480px) {
+      .topbar .uk-button-primary {
+        font-size: 0.75rem;
+        padding: 0.5rem 0.6rem;
+      }
+    }
+
+    /* Hero text & buttons */
+    .hero-text {
+      line-height: 1.4;
+      max-width: 90%;
+      margin: 0 auto;
+      text-align: center;
+    }
+    @media (max-width: 480px) {
+      .hero-text .hero-title {
+        font-size: 1.8rem;
+      }
+    }
+    .hero-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+    @media (min-width: 600px) {
+      .hero-buttons {
+        flex-direction: row;
+        justify-content: center;
+      }
+    }
+    .hero-overlay {
+      z-index: 0;
+    }
   </style>
 {% endblock %}
 
