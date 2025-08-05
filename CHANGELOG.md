@@ -145,6 +145,7 @@
 - Unify vue quiz buttons
 - Unify admin question buttons
 - Wrap long SQL strings in TenantService
+- Improve landing page layout
 
 ### Test
 
