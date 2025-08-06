@@ -15,6 +15,7 @@
 - *(test)* Remove extra newline
 - Split ranking regex lines
 - Upgrade QR code library
+- Optimize landing page images
 
 ### Ci
 
