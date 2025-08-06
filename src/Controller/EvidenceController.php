@@ -97,11 +97,21 @@ class EvidenceController
         } else {
             $manager = new ImageManager(['driver' => 'gd']);
         }
-        $img = $manager->read($tmpPath);
+
+        if (method_exists($manager, 'read')) {
+            $img = $manager->read($tmpPath);
+        } else {
+            $img = $manager->make($tmpPath);
+        }
+
         $orientationHandled = false;
         if (function_exists('exif_read_data')) {
             try {
-                $img->orient();
+                if (method_exists($img, 'orient')) {
+                    $img->orient();
+                } else {
+                    $img->orientate();
+                }
                 $orientationHandled = true;
             } catch (\Throwable $e) {
                 $this->logger->warning('Photo rotation failed: ' . $e->getMessage());
@@ -119,12 +129,28 @@ class EvidenceController
                         . ' -auto-orient '
                         . escapeshellarg($tmpPath);
                     @shell_exec($cmd);
-                    $img = $manager->read($tmpPath);
+                    if (method_exists($manager, 'read')) {
+                        $img = $manager->read($tmpPath);
+                    } else {
+                        $img = $manager->make($tmpPath);
+                    }
                     $orientationHandled = true;
                 }
             }
         }
-        $img->scaleDown(1500, 1500);
+
+        if (method_exists($img, 'scaleDown')) {
+            $img->scaleDown(1500, 1500);
+        } else {
+            $img->resize(
+                1500,
+                1500,
+                function ($constraint) {
+                    $constraint->aspectRatio();
+                    $constraint->upsize();
+                }
+            );
+        }
         $img->save($target, 70);
         unlink($tmpPath);
 
