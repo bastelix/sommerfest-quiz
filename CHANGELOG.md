@@ -133,6 +133,7 @@
 - Ensure logo uploads work across image versions
 - Update QR code generation
 - Enforce fixed topbar height
+- Prevent landing page header overlap on mobile
 
 ### Refactor
 
