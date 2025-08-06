@@ -158,6 +158,15 @@
       width: 24px;
       height: 24px;
     }
+    .topbar .uk-logo {
+      font-size: 1.25rem;
+      padding: 0;
+    }
+    @media (max-width: 640px) {
+      .topbar .uk-logo {
+        font-size: 1rem;
+      }
+    }
     @media (max-width: 959px) {
       .topbar .uk-navbar-center {
         display: none;
@@ -226,8 +235,8 @@
 {% block body %}
   {% embed 'topbar.twig' %}
     {% block left %}
-      <a class="uk-navbar-item uk-logo" href="{{ basePath }}/landing">QuizRace</a>
-    {% endblock %}
+      <a class="uk-logo" href="{{ basePath }}/landing">QuizRace</a>
+      {% endblock %}
     {% block center %}
       <ul class="uk-navbar-nav uk-visible@m">
         <li><a href="#features">Features</a></li>
