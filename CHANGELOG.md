@@ -101,6 +101,7 @@
 - Allow publishing events and copying links
 - Add fallbacks for QR and logo
 - Center landing page topbar elements
+- Make landing footer non-sticky
 
 ### Fix
 
@@ -150,6 +151,7 @@
 - Unify admin question buttons
 - Wrap long SQL strings in TenantService
 - Improve landing page layout
+- Enlarge hero heading and center button text
 
 ### Test
 
