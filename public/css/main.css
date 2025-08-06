@@ -152,12 +152,28 @@ body.uk-padding {
 }
 
 .bottombar {
-  position: static;
+  position: fixed;
+  bottom: 0;
+  left: 0;
   width: 100%;
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 1000;
+}
+
+.footer-placeholder {
+  height: 56px;
+}
+
+body.landing-page .bottombar {
+  position: static;
   padding-bottom: 0;
 }
 
-.bottombar .uk-navbar-item {
+body.landing-page .footer-placeholder {
+  display: none;
+}
+
+body.landing-page .bottombar .uk-navbar-item {
   margin-left: 0;
   margin-right: 0;
   padding-left: 0.5rem;
@@ -167,7 +183,7 @@ body.uk-padding {
 }
 
 /* Footer item alignment */
-.bottombar .uk-navbar-item > a {
+body.landing-page .bottombar .uk-navbar-item > a {
   min-height: 28px;
   padding-top: 0;
   padding-bottom: 0;
@@ -176,17 +192,13 @@ body.uk-padding {
 }
 
 /* Footer link height */
-.bottombar .uk-navbar-nav > li > a {
+body.landing-page .bottombar .uk-navbar-nav > li > a {
   min-height: 28px;
   padding-top: 0;
   padding-bottom: 0;
 }
 
-.footer-placeholder {
-  display: none;
-}
-
-.bottombar a {
+body.landing-page .bottombar a {
   color: inherit;
 }
 
@@ -231,14 +243,11 @@ a.uk-accordion-title {
     padding-left: 8px;
     padding-right: 8px;
   }
-  .bottombar .uk-navbar-nav > li > a {
+  body.landing-page .bottombar .uk-navbar-nav > li > a {
     min-height: 28px;
   }
-  .bottombar .uk-navbar-item > a {
+  body.landing-page .bottombar .uk-navbar-item > a {
     min-height: 28px;
-  }
-  .footer-placeholder {
-    display: none;
   }
 }
 
