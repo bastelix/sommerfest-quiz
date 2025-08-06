@@ -58,12 +58,12 @@
     .hero-subtext strong {
       font-weight: 700;
     }
-    .hero-buttons .btn {
-      font-size: 1.07rem;
+    .btn {
+      font-size: 1rem;
       font-weight: 500;
       letter-spacing: .04em;
-      padding: 0.8em 2em;
-      border-radius: 3px;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
       font-family: 'Poppins',sans-serif;
     }
     .btn-black {
@@ -147,6 +147,9 @@
     .topbar .uk-navbar-toggle {
       width: 44px;
       height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .topbar .uk-navbar-toggle-icon {
       width: 24px;
@@ -157,19 +160,29 @@
         display: none;
       }
     }
-    .top-cta {
-      position: absolute;
-      right: 1rem;
-      top: 1rem;
-      padding: 0.5rem 0.75rem;
-      font-size: 0.875rem;
+    .top-cta,
+    .cta-main {
+      background: #007bff;
+      color: #fff;
+      border-radius: 8px;
+      font-family: 'Poppins',sans-serif;
+      font-weight: 500;
+      text-align: center;
+      letter-spacing: .04em;
     }
-    @media (max-width: 480px) {
-      .top-cta {
-        position: static;
-        display: block;
-        margin: 1rem auto;
-      }
+    .top-cta {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.875rem;
+      white-space: nowrap;
+      display: inline-block;
+    }
+    .cta-main {
+      display: block;
+      width: 100%;
+      max-width: 320px;
+      margin: 1rem auto 2rem;
+      font-size: 1rem;
+      padding: 0.75rem;
     }
 
     /* Hero text & buttons */
@@ -197,20 +210,9 @@
     .hero-overlay {
       z-index: 0;
     }
-    .cta-main {
-      display: block;
-      width: 100%;
-      max-width: 320px;
-      margin: 1rem auto 2rem;
-      font-size: 1rem;
-      padding: 0.75rem;
-      background: #007bff;
-      color: #fff;
-      border-radius: 8px;
-      text-align: center;
-    }
     .bottombar {
-      padding-top: 2rem;
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
       font-size: 0.8rem;
       color: #aaa;
       background-color: #f9f9f9;
@@ -235,8 +237,9 @@
       </ul>
     {% endblock %}
     {% block right %}
-      <a class="uk-button uk-button-primary top-cta" href="{{ basePath }}/onboarding">Kostenlos testen</a>
+      <a class="top-cta" href="{{ basePath }}/onboarding">Kostenlos testen</a>
     {% endblock %}
+    {% block nav_placeholder %}{% endblock %}
     {% block offcanvas %}
     <div id="offcanvas-nav" uk-offcanvas="overlay: true">
       <div class="uk-offcanvas-bar">
