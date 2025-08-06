@@ -152,12 +152,9 @@ body.uk-padding {
 }
 
 .bottombar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
+  position: static;
   width: 100%;
-  z-index: 1000;
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: 0;
 }
 
 .bottombar .uk-navbar-item {
@@ -186,7 +183,11 @@ body.uk-padding {
 }
 
 .footer-placeholder {
-  height: calc(28px + env(safe-area-inset-bottom));
+  display: none;
+}
+
+.bottombar a {
+  color: inherit;
 }
 
 @keyframes fadeIn {
@@ -237,7 +238,7 @@ a.uk-accordion-title {
     min-height: 28px;
   }
   .footer-placeholder {
-    height: calc(28px + env(safe-area-inset-bottom));
+    display: none;
   }
 }
 
