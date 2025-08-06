@@ -133,7 +133,7 @@
 
     /* Header adjustments */
     .topbar {
-      height: 56px;
+      height: 64px;
       padding: 0 1rem;
       flex-wrap: nowrap;
     }
@@ -143,12 +143,16 @@
     .topbar .uk-navbar-right {
       padding-right: 0.5rem;
     }
+    .topbar .uk-navbar-item,
+    .topbar .uk-navbar-nav > li > a,
     .topbar .uk-navbar-toggle {
-      width: 44px;
-      height: 56px;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+    .topbar .uk-navbar-toggle {
+      width: 44px;
     }
     .topbar .uk-navbar-toggle-icon {
       width: 24px;
@@ -210,14 +214,11 @@
       z-index: 0;
     }
     .bottombar {
-      padding-top: 0.5rem;
-      padding-bottom: 0.5rem;
-      font-size: 0.8rem;
-      color: #aaa;
-      background-color: #f9f9f9;
+      padding-top: 0;
+      padding-bottom: 0;
     }
     .bottombar a {
-      color: #aaa;
+      color: inherit;
     }
   </style>
 {% endblock %}
