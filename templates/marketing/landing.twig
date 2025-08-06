@@ -225,6 +225,14 @@
     .bottombar {
       padding-top: 0;
       padding-bottom: 0;
+      min-height: 24px;
+    }
+    .bottombar .uk-navbar-item > a,
+    .bottombar .uk-navbar-nav > li > a {
+      min-height: 24px;
+    }
+    .footer-placeholder {
+      height: calc(24px + env(safe-area-inset-bottom));
     }
     .bottombar a {
       color: inherit;
