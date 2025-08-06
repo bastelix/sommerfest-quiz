@@ -12,6 +12,14 @@
       color: #232323;
       background: #fff;
     }
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    .landing-content {
+      flex: 1 0 auto;
+    }
     .uk-heading-hero, .uk-heading-medium, h1, h2, h3, h4, h5, h6 {
       font-family: 'Poppins', Arial, sans-serif;
       font-weight: 700;
@@ -244,6 +252,7 @@
       padding-top: 0;
       padding-bottom: 0;
       min-height: 24px;
+      margin-top: auto;
     }
     .bottombar .uk-navbar-item > a,
     .bottombar .uk-navbar-nav > li > a {
@@ -259,34 +268,36 @@
 {% endblock %}
 
 {% block body %}
-  {% embed 'topbar.twig' %}
-    {% block left %}
-      <a class="uk-logo" href="{{ basePath }}/landing">QuizRace</a>
-      {% endblock %}
-    {% block center %}
-      <ul class="uk-navbar-nav uk-visible@m">
-        <li><a href="#features">Features</a></li>
-        <li><a href="#pricing">Preise</a></li>
-        <li><a href="#contact-us">Kontakt</a></li>
-        <li><a href="{{ basePath }}/login">Login</a></li>
-      </ul>
-    {% endblock %}
-    {% block right %}
-      <a class="top-cta" href="{{ basePath }}/onboarding">Kostenlos testen</a>
-    {% endblock %}
-    {% block offcanvas %}
-    <div id="offcanvas-nav" uk-offcanvas="overlay: true">
-      <div class="uk-offcanvas-bar">
-        <ul class="uk-nav uk-nav-primary">
+  <div class="landing-content">
+    {% embed 'topbar.twig' %}
+      {% block left %}
+        <a class="uk-logo" href="{{ basePath }}/landing">QuizRace</a>
+        {% endblock %}
+      {% block center %}
+        <ul class="uk-navbar-nav uk-visible@m">
           <li><a href="#features">Features</a></li>
           <li><a href="#pricing">Preise</a></li>
           <li><a href="#contact-us">Kontakt</a></li>
           <li><a href="{{ basePath }}/login">Login</a></li>
         </ul>
+      {% endblock %}
+      {% block right %}
+        <a class="top-cta" href="{{ basePath }}/onboarding">Kostenlos testen</a>
+      {% endblock %}
+      {% block offcanvas %}
+      <div id="offcanvas-nav" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+          <ul class="uk-nav uk-nav-primary">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#pricing">Preise</a></li>
+            <li><a href="#contact-us">Kontakt</a></li>
+            <li><a href="{{ basePath }}/login">Login</a></li>
+          </ul>
+        </div>
       </div>
-    </div>
-    {% endblock %}
-  {% endembed %}
+      {% endblock %}
+    {% endembed %}
 
-  {{ content|raw }}
+    {{ content|raw }}
+  </div>
 {% endblock %}
