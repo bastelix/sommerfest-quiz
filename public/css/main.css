@@ -85,6 +85,14 @@ body.uk-padding {
   padding: 0 0.5rem;
   box-sizing: border-box;
   z-index: 1000;
+  display: flex;
+  align-items: center;
+}
+
+.topbar .uk-navbar-left,
+.topbar .uk-navbar-right {
+  display: flex;
+  align-items: center;
 }
 
 .theme-switch {
