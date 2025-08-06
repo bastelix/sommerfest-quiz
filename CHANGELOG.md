@@ -100,6 +100,7 @@
 - Add password reset templates
 - Allow publishing events and copying links
 - Add fallbacks for QR and logo
+- Center landing page topbar elements
 
 ### Fix
 
