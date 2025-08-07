@@ -7,7 +7,6 @@ namespace App\Service;
 use PDO;
 use App\Service\ConfigService;
 use App\Service\TenantService;
-use App\Domain\Plan;
 
 /**
  * Service for managing quiz events.
@@ -72,22 +71,19 @@ class EventService
         $existing = $existingStmt->fetchAll(PDO::FETCH_COLUMN);
 
         if ($this->tenants !== null && $this->subdomain !== '') {
-            $plan = $this->tenants->getPlanBySubdomain($this->subdomain);
-            if ($plan !== null) {
-                $limits = Plan::limits($plan);
-                $max = $limits['maxEvents'] ?? null;
-                if ($max !== null) {
-                    $currentCount = count($existing);
-                    $newCount = 0;
-                    foreach ($events as $event) {
-                        $uid = $event['uid'] ?? null;
-                        if ($uid === null || !in_array($uid, $existing, true)) {
-                            $newCount++;
-                        }
+            $limits = $this->tenants->getLimitsBySubdomain($this->subdomain);
+            $max = $limits['maxEvents'] ?? null;
+            if ($max !== null) {
+                $currentCount = count($existing);
+                $newCount = 0;
+                foreach ($events as $event) {
+                    $uid = $event['uid'] ?? null;
+                    if ($uid === null || !in_array($uid, $existing, true)) {
+                        $newCount++;
                     }
-                    if ($currentCount + $newCount > $max) {
-                        throw new \RuntimeException('max-events-exceeded');
-                    }
+                }
+                if ($currentCount + $newCount > $max) {
+                    throw new \RuntimeException('max-events-exceeded');
                 }
             }
         }

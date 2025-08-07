@@ -18,7 +18,7 @@ class TenantServiceTest extends TestCase
             'CREATE TABLE tenants(' .
             'uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, ' .
             'imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, ' .
-            'imprint_email TEXT, created_at TEXT)'
+            'imprint_email TEXT, custom_limits TEXT, created_at TEXT)'
         );
         if (!is_dir($dir)) {
             mkdir($dir);
@@ -156,8 +156,8 @@ SQL;
         $service = $this->createService($dir, $pdo);
         $pdo->exec(
             "INSERT INTO tenants(uid, subdomain, plan, billing_info, imprint_name, " .
-            "imprint_street, imprint_zip, imprint_city, imprint_email, created_at) " .
-            "VALUES('u6', 'sub', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-01-01')"
+            "imprint_street, imprint_zip, imprint_city, imprint_email, custom_limits, created_at) " .
+            "VALUES('u6', 'sub', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-01-01')"
         );
         $row = $service->getBySubdomain('sub');
         $this->assertIsArray($row);
@@ -198,5 +198,18 @@ SQL;
 
         $plan = $service->getPlanBySubdomain('sub9');
         $this->assertSame('starter', $plan);
+    }
+
+    public function testCustomLimitsReadWrite(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+        $service = $this->createService($dir, $pdo);
+        $service->createTenant('u10', 'sub10', 'starter', null, ['maxEvents' => 2]);
+        $limits = $service->getCustomLimitsBySubdomain('sub10');
+        $this->assertSame(['maxEvents' => 2], $limits);
+        $service->setCustomLimits('sub10', ['maxEvents' => 5]);
+        $limits2 = $service->getCustomLimitsBySubdomain('sub10');
+        $this->assertSame(['maxEvents' => 5], $limits2);
     }
 }

@@ -21,7 +21,7 @@ class EventServiceTest extends TestCase
             ');'
         );
         $pdo->exec('CREATE TABLE config(id INTEGER PRIMARY KEY AUTOINCREMENT, event_uid TEXT);');
-        $pdo->exec('CREATE TABLE tenants(uid TEXT, subdomain TEXT, plan TEXT);');
+        $pdo->exec('CREATE TABLE tenants(uid TEXT, subdomain TEXT, plan TEXT, custom_limits TEXT);');
         return $pdo;
     }
 
@@ -123,6 +123,31 @@ class EventServiceTest extends TestCase
             ['name' => 'B'],
             ['name' => 'C'],
             ['name' => 'D'],
+        ]);
+    }
+
+    public function testCustomLimitOverridesPlan(): void
+    {
+        $pdo = $this->createPdo();
+        $pdo->exec(
+            "INSERT INTO tenants(uid, subdomain, plan, custom_limits) " .
+            "VALUES('t3','sub3','starter','{\"maxEvents\":2}')"
+        );
+        $tenantSvc = new TenantService($pdo);
+        $svc = new EventService($pdo, null, $tenantSvc, 'sub3');
+
+        $svc->saveAll([
+            ['name' => 'One'],
+            ['name' => 'Two'],
+        ]);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('max-events-exceeded');
+
+        $svc->saveAll([
+            ['name' => 'One'],
+            ['name' => 'Two'],
+            ['name' => 'Three'],
         ]);
     }
 }

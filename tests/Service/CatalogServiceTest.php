@@ -51,7 +51,7 @@ class CatalogServiceTest extends TestCase
             );
             SQL
         );
-        $pdo->exec('CREATE TABLE tenants(uid TEXT, subdomain TEXT, plan TEXT);');
+        $pdo->exec('CREATE TABLE tenants(uid TEXT, subdomain TEXT, plan TEXT, custom_limits TEXT);');
         return $pdo;
     }
 
@@ -93,7 +93,7 @@ class CatalogServiceTest extends TestCase
             );
             SQL
         );
-        $pdo->exec('CREATE TABLE tenants(uid TEXT, subdomain TEXT, plan TEXT);');
+        $pdo->exec('CREATE TABLE tenants(uid TEXT, subdomain TEXT, plan TEXT, custom_limits TEXT);');
         return $pdo;
     }
 
@@ -317,5 +317,46 @@ class CatalogServiceTest extends TestCase
         $this->expectExceptionMessage('max-questions-exceeded');
 
         $service->write('c1.json', $questions);
+    }
+
+    public function testCustomLimitOverridesCatalogAndQuestionLimits(): void
+    {
+        $pdo = $this->createPdo();
+        $cfg = new ConfigService($pdo);
+        $cfg->setActiveEventUid('e1');
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan, custom_limits) VALUES('t1','sub1','starter','{\"maxCatalogsPerEvent\":6,\"maxQuestionsPerCatalog\":6}')");
+        $tenantSvc = new TenantService($pdo);
+        $service = new CatalogService($pdo, $cfg, $tenantSvc, 'sub1');
+
+        $catalogs = [];
+        for ($i = 1; $i <= 6; $i++) {
+            $catalogs[] = [
+                'uid' => 'u' . $i,
+                'sort_order' => $i,
+                'slug' => 'c' . $i,
+                'file' => 'c' . $i . '.json',
+                'name' => 'C' . $i,
+                'comment' => ''
+            ];
+        }
+        $service->write('catalogs.json', $catalogs);
+
+        $questions = [];
+        for ($i = 0; $i < 6; $i++) {
+            $questions[] = ['type' => 'text', 'prompt' => 'Q' . $i];
+        }
+        $service->write('c1.json', $questions);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('max-catalogs-exceeded');
+        $catalogs[] = [
+            'uid' => 'u7',
+            'sort_order' => 7,
+            'slug' => 'c7',
+            'file' => 'c7.json',
+            'name' => 'C7',
+            'comment' => ''
+        ];
+        $service->write('catalogs.json', $catalogs);
     }
 }

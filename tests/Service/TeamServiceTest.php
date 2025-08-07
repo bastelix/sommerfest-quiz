@@ -61,4 +61,26 @@ class TeamServiceTest extends TestCase
 
         $svc->saveAll(['A', 'B', 'C', 'D', 'E', 'F']);
     }
+
+    public function testCustomLimitOverridesTeamLimit(): void
+    {
+        $pdo = $this->createDatabase();
+        $pdo->exec("INSERT INTO events(uid,name) VALUES('e1','Event1')");
+        $pdo->exec("INSERT INTO config(event_uid) VALUES('e1')");
+        $cfg = new ConfigService($pdo);
+        $cfg->setActiveEventUid('e1');
+
+        $pdo->exec(
+            "INSERT INTO tenants(uid, subdomain, plan, custom_limits) " .
+            "VALUES('t2','sub2','starter','{\"maxTeamsPerEvent\":6}')"
+        );
+        $tenantSvc = new TenantService($pdo);
+        $svc = new TeamService($pdo, $cfg, $tenantSvc, 'sub2');
+
+        $svc->saveAll(['A', 'B', 'C', 'D', 'E', 'F']);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('max-teams-exceeded');
+        $svc->saveAll(['A', 'B', 'C', 'D', 'E', 'F', 'G']);
+    }
 }
