@@ -119,11 +119,13 @@ return function (\Slim\App $app, TranslationService $translator) {
         $eventService = new EventService($pdo);
         $nginxService = new NginxService();
         $tenantService = new TenantService($base, null, $nginxService);
+        $plan = $tenantService->getPlanBySubdomain($sub);
         $userService = new \App\Service\UserService($pdo);
         $settingsService = new \App\Service\SettingsService($pdo);
         $passwordResetService = new PasswordResetService($pdo);
 
         $request = $request
+            ->withAttribute('plan', $plan)
             ->withAttribute('configController', new ConfigController($configService))
             ->withAttribute('catalogController', new CatalogController($catalogService))
             ->withAttribute('resultController', new ResultController(

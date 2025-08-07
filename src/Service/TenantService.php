@@ -6,6 +6,7 @@ namespace App\Service;
 
 use PDO;
 use App\Infrastructure\Migrations\Migrator;
+use App\Domain\Plan;
 
 /**
  * Service for creating and deleting tenants using separate schemas.
@@ -15,6 +16,10 @@ class TenantService
     private PDO $pdo;
     private string $migrationsDir;
     private ?NginxService $nginxService;
+    /**
+     * @var array<string,?string>
+     */
+    private array $planCache = [];
 
     private const RESERVED_SUBDOMAINS = [
         'public',
@@ -48,6 +53,9 @@ class TenantService
         if ($this->exists($schema)) {
             throw new \RuntimeException('tenant-exists');
         }
+        if ($plan !== null && !Plan::isValid($plan)) {
+            throw new \RuntimeException('invalid-plan');
+        }
         if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
             Migrator::migrate($this->pdo, $this->migrationsDir);
             $this->seedDemoData();
@@ -60,10 +68,12 @@ class TenantService
         }
         $stmt = $this->pdo->prepare(
             'INSERT INTO tenants(' .
-            'uid, subdomain, plan, billing_info, imprint_name, imprint_street, imprint_zip, imprint_city, imprint_email' .
+            'uid, subdomain, plan, billing_info, imprint_name, imprint_street, ' .
+            'imprint_zip, imprint_city, imprint_email' .
             ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([$uid, $schema, $plan, $billing, null, null, null, null, null]);
+        $this->planCache[$schema] = $plan;
 
         if ($this->nginxService !== null) {
             try {
@@ -268,6 +278,21 @@ class TenantService
     }
 
     /**
+     * Retrieve the plan for a tenant identified by subdomain.
+     */
+    public function getPlanBySubdomain(string $subdomain): ?string
+    {
+        if (array_key_exists($subdomain, $this->planCache)) {
+            return $this->planCache[$subdomain];
+        }
+        $stmt = $this->pdo->prepare('SELECT plan FROM tenants WHERE subdomain = ?');
+        $stmt->execute([$subdomain]);
+        $plan = $stmt->fetchColumn();
+        $this->planCache[$subdomain] = $plan === false ? null : (string) $plan;
+        return $this->planCache[$subdomain];
+    }
+
+    /**
      * Retrieve a tenant by its subdomain.
      *
      * @return array{
@@ -286,7 +311,8 @@ class TenantService
     public function getBySubdomain(string $subdomain): ?array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT uid, subdomain, plan, billing_info, imprint_name, imprint_street, imprint_zip, imprint_city, imprint_email, created_at FROM tenants WHERE subdomain = ?'
+            'SELECT uid, subdomain, plan, billing_info, imprint_name, imprint_street, imprint_zip, ' .
+            'imprint_city, imprint_email, created_at FROM tenants WHERE subdomain = ?'
         );
         $stmt->execute([$subdomain]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -313,6 +339,9 @@ class TenantService
         $params = [];
         foreach ($fields as $f) {
             if (array_key_exists($f, $data)) {
+                if ($f === 'plan' && $data[$f] !== null && !Plan::isValid((string) $data[$f])) {
+                    throw new \RuntimeException('invalid-plan');
+                }
                 $set[] = $f . ' = ?';
                 $params[] = $data[$f];
             }
@@ -324,6 +353,9 @@ class TenantService
         $sql = 'UPDATE tenants SET ' . implode(', ', $set) . ' WHERE subdomain = ?';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
+        if (array_key_exists('plan', $data)) {
+            $this->planCache[$subdomain] = $data['plan'];
+        }
     }
 
     /**
@@ -345,7 +377,8 @@ class TenantService
     public function getAll(): array
     {
         $stmt = $this->pdo->query(
-            'SELECT uid, subdomain, plan, billing_info, imprint_name, imprint_street, imprint_zip, imprint_city, imprint_email, created_at FROM tenants ORDER BY created_at'
+            'SELECT uid, subdomain, plan, billing_info, imprint_name, imprint_street, imprint_zip, ' .
+            'imprint_city, imprint_email, created_at FROM tenants ORDER BY created_at'
         );
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

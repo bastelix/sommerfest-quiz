@@ -17,7 +17,8 @@ class TenantServiceTest extends TestCase
         $pdo->exec(
             'CREATE TABLE tenants(' .
             'uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, ' .
-            'imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, imprint_email TEXT, created_at TEXT)'
+            'imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, ' .
+            'imprint_email TEXT, created_at TEXT)'
         );
         if (!is_dir($dir)) {
             mkdir($dir);
@@ -154,11 +155,48 @@ SQL;
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
         $pdo->exec(
-            "INSERT INTO tenants(uid, subdomain, plan, billing_info, imprint_name, imprint_street, imprint_zip, imprint_city, imprint_email, created_at) " .
+            "INSERT INTO tenants(uid, subdomain, plan, billing_info, imprint_name, " .
+            "imprint_street, imprint_zip, imprint_city, imprint_email, created_at) " .
             "VALUES('u6', 'sub', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2024-01-01')"
         );
         $row = $service->getBySubdomain('sub');
         $this->assertIsArray($row);
         $this->assertSame('sub', $row['subdomain']);
+    }
+
+    public function testCreateTenantRejectsInvalidPlan(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+        $service = $this->createService($dir, $pdo);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('invalid-plan');
+
+        $service->createTenant('u7', 'sub7', 'unknown');
+    }
+
+    public function testUpdateProfileRejectsInvalidPlan(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+        $service = $this->createService($dir, $pdo);
+        $service->createTenant('u8', 'sub8', 'starter');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('invalid-plan');
+
+        $service->updateProfile('sub8', ['plan' => 'foo']);
+    }
+
+    public function testGetPlanBySubdomainReturnsPlan(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+        $service = $this->createService($dir, $pdo);
+        $service->createTenant('u9', 'sub9', 'starter');
+
+        $plan = $service->getPlanBySubdomain('sub9');
+        $this->assertSame('starter', $plan);
     }
 }
