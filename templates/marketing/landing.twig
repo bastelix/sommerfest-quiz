@@ -262,6 +262,11 @@
 {% block body %}
   <div class="landing-content">
     {% embed 'topbar.twig' %}
+      {% block mobile_menu_toggle %}
+      <a class="uk-navbar-toggle uk-hidden@m" href="#offcanvas-nav" uk-toggle>
+        <span uk-navbar-toggle-icon></span>
+      </a>
+      {% endblock %}
       {% block left %}
         <a class="uk-logo" href="{{ basePath }}/landing">QuizRace</a>
         {% endblock %}
