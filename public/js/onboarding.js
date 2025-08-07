@@ -127,11 +127,13 @@
     }
 
     const nameInput = document.getElementById('customer-name');
-    const subdomainPreview = document.getElementById('subdomain-preview');
-    const next1 = document.getElementById('next1');
-    const next2 = document.getElementById('next2');
-    const next3 = document.getElementById('next3');
-    const next4 = document.getElementById('next4');
+      const subdomainPreview = document.getElementById('subdomain-preview');
+      const next1 = document.getElementById('next1');
+      const next2 = document.getElementById('next2');
+      const next3 = document.getElementById('next3');
+      const next4 = document.getElementById('next4');
+      const planSelect = document.getElementById('plan');
+      const paymentSelect = document.getElementById('payment');
     const imprintNameInput = document.getElementById('imprint-name');
     const imprintStreetInput = document.getElementById('imprint-street');
     const imprintZipInput = document.getElementById('imprint-zip');
@@ -205,19 +207,24 @@
       show('step2');
     });
 
-    next2.addEventListener('click', () => {
-      data.plan = document.getElementById('plan').value;
-      show('step3');
-    });
+      const allowedPlans = ['starter', 'standard', 'professional'];
+      const allowedPayments = ['invoice', 'credit', 'paypal'];
 
-    next3.addEventListener('click', () => {
-      data.payment = document.getElementById('payment').value;
-      document.getElementById('summary-name').textContent = data.name;
-      document.getElementById('summary-subdomain').textContent = data.subdomain;
-      document.getElementById('summary-plan').textContent = data.plan;
-      document.getElementById('summary-payment').textContent = data.payment;
-      show('step4');
-    });
+      next2.addEventListener('click', () => {
+        const planValue = planSelect?.value || '';
+        data.plan = allowedPlans.includes(planValue) ? planValue : '';
+        show('step3');
+      });
+
+      next3.addEventListener('click', () => {
+        const paymentValue = paymentSelect?.value || '';
+        data.payment = allowedPayments.includes(paymentValue) ? paymentValue : '';
+        document.getElementById('summary-name').textContent = data.name;
+        document.getElementById('summary-subdomain').textContent = data.subdomain;
+        document.getElementById('summary-plan').textContent = data.plan;
+        document.getElementById('summary-payment').textContent = data.payment;
+        show('step4');
+      });
 
     next4.addEventListener('click', () => {
       data.imprintName = imprintNameInput.value.trim();

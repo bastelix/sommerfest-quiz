@@ -657,11 +657,19 @@
             </div>
             <div class="uk-width-1-2@s">
               <label class="uk-form-label">{{ t('column_plan') }}</label>
-              <input class="uk-input" type="text" name="plan" value="{{ tenant.plan|default('') }}">
+              <select class="uk-select" name="plan">
+                <option value="starter" {% if tenant.plan == 'starter' %}selected{% endif %}>{{ t('plan_starter') }}</option>
+                <option value="standard" {% if tenant.plan == 'standard' %}selected{% endif %}>{{ t('plan_standard') }}</option>
+                <option value="professional" {% if tenant.plan == 'professional' %}selected{% endif %}>{{ t('plan_professional') }}</option>
+              </select>
             </div>
             <div class="uk-width-1-1">
               <label class="uk-form-label">{{ t('column_billing') }}</label>
-              <input class="uk-input" type="text" name="billing_info" value="{{ tenant.billing_info|default('') }}">
+              <select class="uk-select" name="billing_info">
+                <option value="invoice" {% if tenant.billing_info == 'invoice' %}selected{% endif %}>{{ t('billing_invoice') }}</option>
+                <option value="credit" {% if tenant.billing_info == 'credit' %}selected{% endif %}>{{ t('billing_credit') }}</option>
+                <option value="paypal" {% if tenant.billing_info == 'paypal' %}selected{% endif %}>{{ t('billing_paypal') }}</option>
+              </select>
             </div>
             <div class="uk-width-1-1">
               <label class="uk-form-label">{{ t('column_imprint_name') }}</label>

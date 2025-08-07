@@ -2155,21 +2155,25 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  profileSaveBtn?.addEventListener('click', e => {
-    e.preventDefault();
-    if (!profileForm) return;
-    const formData = new FormData(profileForm);
-    const data = {};
-    formData.forEach((value, key) => { data[key] = value; });
-    apiFetch('/admin/profile', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    }).then(r => {
-      if (!r.ok) throw new Error(r.statusText);
-      notify('Profil gespeichert', 'success');
-    }).catch(() => notify('Fehler beim Speichern', 'danger'));
-  });
+    profileSaveBtn?.addEventListener('click', e => {
+      e.preventDefault();
+      if (!profileForm) return;
+      const formData = new FormData(profileForm);
+      const data = {};
+      formData.forEach((value, key) => { data[key] = value; });
+      const allowedPlans = ['starter', 'standard', 'professional'];
+      const allowedBilling = ['invoice', 'credit', 'paypal'];
+      if (!allowedPlans.includes(data.plan)) delete data.plan;
+      if (!allowedBilling.includes(data.billing_info)) delete data.billing_info;
+      apiFetch('/admin/profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        notify('Profil gespeichert', 'success');
+      }).catch(() => notify('Fehler beim Speichern', 'danger'));
+    });
 
   // Page editors are handled in trumbowyg-pages.js
 
