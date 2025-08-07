@@ -449,6 +449,26 @@ body.dark-mode .sticky-actions {
   .nav-placeholder {
     height: 56px;
   }
+  body.admin-page {
+    padding-top: 112px;
+  }
+  .admin-page .topbar {
+    height: auto;
+    flex-wrap: wrap;
+  }
+  .admin-page .topbar .uk-navbar-left {
+    order: 1;
+  }
+  .admin-page .topbar .uk-navbar-right {
+    order: 2;
+  }
+  .admin-page .topbar .uk-navbar-center {
+    order: 3;
+    width: 100%;
+  }
+  .admin-page .nav-placeholder {
+    height: 112px;
+  }
 }
 
 /* Floating action buttons */
