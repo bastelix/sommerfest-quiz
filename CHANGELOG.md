@@ -138,6 +138,7 @@
 - Update QR code generation
 - Enforce fixed topbar height
 - Prevent landing page header overlap on mobile
+- Render footer menu at page bottom
 
 ### Refactor
 
