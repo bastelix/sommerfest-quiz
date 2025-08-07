@@ -105,6 +105,7 @@
 - Animate landing page
 - Animate landing page content blocks
 - Add horizontal scrollspy animations
+- Enhance landing page messaging
 
 ### Fix
 
