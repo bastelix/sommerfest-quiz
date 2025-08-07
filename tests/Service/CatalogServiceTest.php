@@ -6,6 +6,7 @@ namespace Tests\Service;
 
 use App\Service\CatalogService;
 use App\Service\ConfigService;
+use App\Service\TenantService;
 use PDO;
 use Tests\TestCase;
 
@@ -50,6 +51,7 @@ class CatalogServiceTest extends TestCase
             );
             SQL
         );
+        $pdo->exec('CREATE TABLE tenants(uid TEXT, subdomain TEXT, plan TEXT);');
         return $pdo;
     }
 
@@ -91,6 +93,7 @@ class CatalogServiceTest extends TestCase
             );
             SQL
         );
+        $pdo->exec('CREATE TABLE tenants(uid TEXT, subdomain TEXT, plan TEXT);');
         return $pdo;
     }
 
@@ -248,7 +251,7 @@ class CatalogServiceTest extends TestCase
         ]];
         $service->write('catalogs.json', $catalog);
         $stmt = $pdo->query('SELECT event_uid FROM catalogs');
-        $this->assertSame('1', (string)$stmt->fetchColumn());
+        $this->assertSame('ev1', (string)$stmt->fetchColumn());
     }
 
     public function testWriteAcceptsIdField(): void
@@ -267,5 +270,52 @@ class CatalogServiceTest extends TestCase
         $service->write('catalogs.json', $catalog);
         $rows = json_decode($service->read('catalogs.json'), true);
         $this->assertSame(4, $rows[0]['sort_order']);
+    }
+
+    public function testSaveAllRespectsCatalogLimit(): void
+    {
+        $pdo = $this->createPdo();
+        $cfg = new ConfigService($pdo);
+        $cfg->setActiveEventUid('e1');
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','starter')");
+        $tenantSvc = new TenantService($pdo);
+        $service = new CatalogService($pdo, $cfg, $tenantSvc, 'sub1');
+
+        $catalogs = [];
+        for ($i = 1; $i <= 6; $i++) {
+            $catalogs[] = [
+                'uid' => 'u' . $i,
+                'sort_order' => $i,
+                'slug' => 'c' . $i,
+                'file' => 'c' . $i . '.json',
+                'name' => 'C' . $i,
+                'comment' => ''
+            ];
+        }
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('max-catalogs-exceeded');
+
+        $service->write('catalogs.json', $catalogs);
+    }
+
+    public function testWriteRespectsQuestionLimit(): void
+    {
+        $pdo = $this->createPdo();
+        $cfg = new ConfigService($pdo);
+        $cfg->setActiveEventUid('e1');
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','starter')");
+        $tenantSvc = new TenantService($pdo);
+        $service = new CatalogService($pdo, $cfg, $tenantSvc, 'sub1');
+
+        $questions = [];
+        for ($i = 0; $i < 6; $i++) {
+            $questions[] = ['type' => 'text', 'prompt' => 'Q' . $i];
+        }
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('max-questions-exceeded');
+
+        $service->write('c1.json', $questions);
     }
 }
