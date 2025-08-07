@@ -465,6 +465,11 @@ body.dark-mode .sticky-actions {
   .admin-page .topbar .uk-navbar-center {
     order: 3;
     width: 100%;
+    position: static;
+    transform: none;
+  }
+  .admin-page #eventSelect {
+    flex: 1;
   }
   .admin-page .nav-placeholder {
     height: 112px;
