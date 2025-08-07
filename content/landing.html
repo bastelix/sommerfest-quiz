@@ -145,42 +145,72 @@
 <!-- Pricing / Abomodelle -->
 <section id="pricing" class="uk-section" style="background:#f9f9f9">
     <div class="uk-container">
-      <h2 class="uk-heading-medium uk-text-center text-black" uk-scrollspy="cls: uk-animation-slide-top-small">QuizRace Abomodell – Funktionsmatrix</h2>
-      <p class="uk-text-center uk-text-lead uk-margin-large-bottom" uk-scrollspy="cls: uk-animation-fade; delay: 150">(Stand 08/2025, inkl. inklusiver Sprache)</p>
-      <div class="uk-overflow-auto">
-        <table class="uk-table uk-table-divider uk-table-striped uk-table-responsive">
-          <thead>
-            <tr>
-              <th>Funktion / Feature</th>
-              <th>Starter</th>
-              <th>Standard</th>
-              <th>Professional</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>Preis</td><td>0&nbsp;€/Monat</td><td>39&nbsp;€/Monat</td><td>79&nbsp;€/Monat</td></tr>
-            <tr><td>Events gleichzeitig</td><td>1</td><td>3</td><td>20&nbsp;(auf Anfrage mehr)</td></tr>
-            <tr><td>Teams pro Event</td><td>5</td><td>10</td><td>100&nbsp;(auf Anfrage mehr)</td></tr>
-            <tr><td>Fragenkataloge pro Event</td><td>5</td><td>10</td><td>50</td></tr>
-            <tr><td>Fragen pro Katalog</td><td>5</td><td>10</td><td>50</td></tr>
-            <tr><td>Teilnehmende pro Team</td><td>unbegrenzt<sup>1</sup></td><td>unbegrenzt<sup>1</sup></td><td>unbegrenzt<sup>1</sup></td></tr>
-            <tr><td>Live-Ranking &amp; Sofortauswertung</td><td>✔️</td><td>✔️</td><td>✔️</td></tr>
-            <tr><td>PDF-Export / Urkunden</td><td>Basis<sup>2</sup></td><td>✔️</td><td>✔️</td></tr>
-            <tr><td>Team-QR-Codes / Stations-QR-Codes</td><td>✔️</td><td>✔️</td><td>✔️</td></tr>
-            <tr><td>Alle Fragetypen (MC, Sortieren, Matching…)</td><td>✔️</td><td>✔️</td><td>✔️</td></tr>
-            <tr><td>Eigene Subdomain (mein-event.quizrace.app)</td><td>❌</td><td>✔️</td><td>✔️</td></tr>
-            <tr><td>White-Label (ohne QuizRace-Brand)</td><td>❌</td><td>❌</td><td>✔️</td></tr>
-            <tr><td>Rollen- und Berechtigungsverwaltung</td><td>❌</td><td>❌</td><td>✔️</td></tr>
-            <tr><td>Backup &amp; Restore per Klick</td><td>✔️</td><td>✔️</td><td>✔️</td></tr>
-            <tr><td>Individuell bearbeitbare Texte &amp; Anleitungen<sup>3</sup></td><td>✔️</td><td>✔️</td><td>✔️</td></tr>
-            <tr><td>Server-Standort Deutschland</td><td>✔️</td><td>✔️</td><td>✔️</td></tr>
-          </tbody>
-        </table>
+      <h2 class="uk-heading-medium uk-text-center text-black" uk-scrollspy="cls: uk-animation-slide-top-small">Abomodelle für jedes Event</h2>
+      <p class="uk-text-center uk-text-lead uk-margin-large-bottom" uk-scrollspy="cls: uk-animation-fade; delay: 150">Einfacher Start – faire Preise – alle Funktionen jederzeit testen!</p>
+      <div class="uk-grid-large uk-child-width-1-3@m uk-flex-center" uk-grid uk-scrollspy="target: > div; cls: uk-animation-slide-right-small; delay: 150">
+      <!-- Starter -->
+      <div>
+        <div class="uk-card uk-card-price uk-card-quizrace uk-text-center">
+          <span class="uk-label uk-label-success uk-label-large">Kostenlos testen</span>
+          <h3 class="uk-card-title uk-text-primary uk-margin-small-top">Starter</h3>
+          <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700;">0&nbsp;€</div>
+          <div class="uk-text-meta uk-margin-small-bottom">Für kleine Events & Einsteiger</div>
+          <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom">
+            <li><b>1 Event gleichzeitig</b></li>
+            <li>5 Teams &amp; 5 Kataloge à 5 Fragen</li>
+            <li>Unbegrenzte Teilnehmende pro Team¹</li>
+            <li>Live-Ranking &amp; Basis-PDF-Export²</li>
+            <li>Alle Fragetypen &amp; QR-Codes</li>
+            <li>Backup &amp; editierbare Texte³</li>
+          </ul>
+          <a href="{{ basePath }}/login" class="btn btn-transparent uk-width-1-1 uk-button-large uk-margin-small-top">Jetzt kostenlos starten</a>
+        </div>
+      </div>
+      <!-- Standard -->
+      <div>
+        <div class="uk-card uk-card-popular uk-card-quizrace uk-text-center">
+          <span class="uk-label uk-label-large">Meist gewählt</span>
+          <h3 class="uk-card-title uk-margin-small-top" style="color:#fff;">Standard</h3>
+          <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700; color:#fff;">39&nbsp;€/Monat</div>
+          <div class="uk-text-meta uk-margin-small-bottom" style="color:#fff;">Beliebt bei Schulen & Teams</div>
+          <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom" style="color:#fff;">
+            <li><b>Bis zu 3 Events gleichzeitig</b></li>
+            <li>10 Teams &amp; 10 Kataloge à 10 Fragen</li>
+            <li>Unbegrenzte Teilnehmende pro Team¹</li>
+            <li>Eigene Subdomain &amp; PDF-Export</li>
+            <li>Alle Fragetypen &amp; QR-Codes</li>
+            <li>Backup &amp; editierbare Texte³</li>
+          </ul>
+          <a href="#contact-us" class="btn btn-black uk-width-1-1 uk-button-large">Jetzt upgraden</a>
+        </div>
+      </div>
+      <!-- Professional -->
+      <div>
+        <div class="uk-card uk-card-price uk-card-quizrace uk-text-center">
+          <span class="uk-label uk-label-primary uk-label-large">Professional</span>
+          <h3 class="uk-card-title uk-text-primary uk-margin-small-top">Professional</h3>
+          <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700;">79&nbsp;€/Monat</div>
+          <div class="uk-text-meta uk-margin-small-bottom">Für Agenturen & Unternehmen</div>
+          <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom">
+            <li><b>20 Events gleichzeitig</b> (mehr auf Anfrage)</li>
+            <li>100 Teams &amp; 50 Kataloge à 50 Fragen</li>
+            <li>Unbegrenzte Teilnehmende pro Team¹</li>
+            <li>White-Label, Rollenverwaltung &amp; eigene Subdomain</li>
+            <li>PDF-Export, alle Fragetypen &amp; QR-Codes</li>
+            <li>Backup &amp; editierbare Texte³</li>
+          </ul>
+          <a href="#contact-us" class="btn btn-transparent uk-width-1-1 uk-button-large">Beratung anfragen</a>
+        </div>
       </div>
       <p class="uk-text-meta uk-margin-top">1 (Die Teamgröße ist nicht technisch limitiert und kann bedarfsgerecht festgelegt werden.)</p>
       <p class="uk-text-meta uk-margin-top">2 (Im Starter-Paket mit Wasserzeichen oder ohne individuelles Layout/Logo)</p>
       <p class="uk-text-meta uk-margin-top">3 (z.&nbsp;B. Datenschutz, AGB, Einladung, FAQ, Spielanleitung – alles eigenständig editierbar)</p>
     </div>
+    <p class="uk-text-meta uk-text-center uk-margin-large-top">Alle Preise zzgl. MwSt. – individuelle Lösungen auf Anfrage.</p>
+    <p class="uk-text-meta uk-margin-top">1 (Die Teamgröße ist nicht technisch limitiert und kann bedarfsgerecht festgelegt werden.)</p>
+    <p class="uk-text-meta uk-margin-top">2 (Im Starter-Paket mit Wasserzeichen oder ohne individuelles Layout/Logo)</p>
+    <p class="uk-text-meta uk-margin-top">3 (z.&nbsp;B. Datenschutz, AGB, Einladung, FAQ, Spielanleitung – alles eigenständig editierbar)</p>
+  </div>
 </section>
 
 <!-- Steps / Ablauf -->
