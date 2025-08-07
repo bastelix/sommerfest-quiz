@@ -1,3 +1,8 @@
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
 body {
   min-height: 100vh;
   overflow-x: hidden;
@@ -9,6 +14,37 @@ body.uk-padding {
 
 .index-page {
   padding-top: 56px;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1;
+}
+
+.site-footer {
+  background-color: #222;
+  color: #fff;
+  padding: 1rem;
+  text-align: center;
+}
+
+.footer-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.footer-menu a {
+  color: #fff;
+  text-decoration: none;
 }
 
 .sortable-list li,
@@ -151,57 +187,6 @@ body.uk-padding {
   line-height: 1.2;
 }
 
-.bottombar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding-bottom: env(safe-area-inset-bottom);
-  z-index: 1000;
-}
-
-.footer-placeholder {
-  height: 56px;
-}
-
-body.landing-page .bottombar {
-  position: static;
-  padding-bottom: 0;
-}
-
-body.landing-page .footer-placeholder {
-  display: none;
-}
-
-body.landing-page .bottombar .uk-navbar-item {
-  margin-left: 0;
-  margin-right: 0;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-  display: flex;
-  align-items: center;
-}
-
-/* Footer item alignment */
-body.landing-page .bottombar .uk-navbar-item > a {
-  min-height: 28px;
-  padding-top: 0;
-  padding-bottom: 0;
-  display: flex;
-  align-items: center;
-}
-
-/* Footer link height */
-body.landing-page .bottombar .uk-navbar-nav > li > a {
-  min-height: 28px;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-
-body.landing-page .bottombar a {
-  color: inherit;
-}
-
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -242,12 +227,6 @@ a.uk-accordion-title {
   .legal-container {
     padding-left: 8px;
     padding-right: 8px;
-  }
-  body.landing-page .bottombar .uk-navbar-nav > li > a {
-    min-height: 28px;
-  }
-  body.landing-page .bottombar .uk-navbar-item > a {
-    min-height: 28px;
   }
 }
 
@@ -298,11 +277,11 @@ body.dark-mode .sticky-actions {
 }
 @media print {
   .topbar,
-  .bottombar,
   .sticky-tabs,
   .nav-placeholder,
   #adminTabs,
-  .footer-placeholder,
+  .site-footer,
+  .footer-menu,
   .uk-footer,
   .uk-navbar-container,
   .uk-navbar,
