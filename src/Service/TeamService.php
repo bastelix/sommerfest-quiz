@@ -7,6 +7,8 @@ namespace App\Service;
 use PDO;
 use PDOException;
 use App\Service\ConfigService;
+use App\Service\TenantService;
+use App\Domain\Plan;
 
 /**
  * Service layer for managing quiz teams.
@@ -15,14 +17,22 @@ class TeamService
 {
     private PDO $pdo;
     private ConfigService $config;
+    private ?TenantService $tenants;
+    private string $subdomain;
 
     /**
      * Inject database connection.
      */
-    public function __construct(PDO $pdo, ConfigService $config)
-    {
+    public function __construct(
+        PDO $pdo,
+        ConfigService $config,
+        ?TenantService $tenants = null,
+        string $subdomain = ''
+    ) {
         $this->pdo = $pdo;
         $this->config = $config;
+        $this->tenants = $tenants;
+        $this->subdomain = $subdomain;
     }
 
 
@@ -50,6 +60,19 @@ class TeamService
     public function saveAll(array $teams): void
     {
         $uid = $this->config->getActiveEventUid();
+
+        $teamCount = count($teams);
+        if ($this->tenants !== null && $this->subdomain !== '') {
+            $plan = $this->tenants->getPlanBySubdomain($this->subdomain);
+            if ($plan !== null) {
+                $limits = Plan::limits($plan);
+                $max = $limits['maxTeamsPerEvent'] ?? null;
+                if ($max !== null && $teamCount > $max) {
+                    throw new \RuntimeException('max-teams-exceeded');
+                }
+            }
+        }
+
         $this->pdo->beginTransaction();
         if ($uid !== '') {
             $del = $this->pdo->prepare('DELETE FROM teams WHERE event_uid=?');
