@@ -5,17 +5,17 @@
     <div class="uk-grid uk-flex-middle" uk-grid>
       <div class="uk-width-1-1 uk-width-3-4@m">
         <div class="hero-text">
-          <h2 class="hero-headline">
+          <h2 class="hero-headline" uk-scrollspy="cls: uk-animation-slide-left-small">
             Professionelles Quiz-Hosting für<br class="uk-hidden@s"> Unternehmen & Teams
           </h2>
-          <p class="hero-subtext">
+          <p class="hero-subtext" uk-scrollspy="cls: uk-animation-slide-right-small; delay: 150">
             Das einzige deutschsprachige Event-Quiz mit<br>
             <strong>datensicherem Hosting, Live-Auswertung</strong><br>
             &amp; <strong>flexiblen Einsatzmöglichkeiten</strong> – sofort starten!
           </p>
         </div>
-        <div class="separator width-100 bottom-border border-2px border-color-gray-light margin-top-bottom-30px uk-width-1-2@s"></div>
-        <div class="hero-buttons uk-margin-top">
+        <div class="separator width-100 bottom-border border-2px border-color-gray-light margin-top-bottom-30px uk-width-1-2@s" uk-scrollspy="cls: uk-animation-fade; delay: 250"></div>
+        <div class="hero-buttons uk-margin-top" uk-scrollspy="cls: uk-animation-scale-up; delay: 300">
           <a class="cta-main" href="{{ basePath }}/onboarding">Zugang sichern</a>
           <a class="btn btn-black" href="{{ basePath }}/kataloge">Beispiel ansehen</a>
         </div>
@@ -27,30 +27,30 @@
 <!-- USPs / Features -->
 <section id="features" class="uk-section uk-section-default" style="background:#f9f9f9">
   <div class="uk-container">
-    <h3 class="uk-text-center uk-heading-medium poppins text-black uk-margin-large-bottom">Was macht QuizRace einzigartig?</h3>
+    <h3 class="uk-text-center uk-heading-medium poppins text-black uk-margin-large-bottom" uk-scrollspy="cls: uk-animation-slide-top-small">Was macht QuizRace einzigartig?</h3>
     <div class="uk-grid uk-child-width-1-4@m uk-child-width-1-2@s uk-flex-center uk-grid-match uk-margin-large-bottom" uk-grid>
-      <div>
+      <div uk-scrollspy="cls: uk-animation-slide-left-small; delay: 150">
         <div class="uk-card uk-card-quizrace uk-text-center">
           <span uk-icon="icon: bolt; ratio: 2" class="uk-margin-bottom"></span>
           <h4 class="uk-text-bold uk-margin-small-bottom">Blitzschnell startklar</h4>
           <p>Eigenes Quiz in Minuten erstellt – ganz ohne App-Download oder technische Hürden.</p>
         </div>
       </div>
-      <div>
+      <div uk-scrollspy="cls: uk-animation-slide-right-small; delay: 200">
         <div class="uk-card uk-card-quizrace uk-text-center">
           <span uk-icon="icon: lock; ratio: 2" class="uk-margin-bottom"></span>
           <h4 class="uk-text-bold uk-margin-small-bottom">100% datensicher</h4>
           <p>Alle Daten bleiben auf Ihrem Server. Volle Kontrolle und echte DSGVO-Konformität.</p>
         </div>
       </div>
-      <div>
+      <div uk-scrollspy="cls: uk-animation-slide-left-small; delay: 250">
         <div class="uk-card uk-card-quizrace uk-text-center">
           <span uk-icon="icon: database; ratio: 2" class="uk-margin-bottom"></span>
           <h4 class="uk-text-bold uk-margin-small-bottom">Live-Auswertung</h4>
           <p>Sofortige Ranglisten, Urkunden und Team-Statistiken – exportierbar als PDF.</p>
         </div>
       </div>
-      <div>
+      <div uk-scrollspy="cls: uk-animation-slide-right-small; delay: 300">
         <div class="uk-card uk-card-quizrace uk-text-center">
           <span uk-icon="icon: users; ratio: 2" class="uk-margin-bottom"></span>
           <h4 class="uk-text-bold uk-margin-small-bottom">Individuell & flexibel</h4>
@@ -65,7 +65,7 @@
 <section class="uk-section uk-section-primary uk-light">
   <div class="uk-container">
     <div class="uk-grid uk-flex-middle" uk-grid>
-      <div class="uk-width-expand@m">
+      <div class="uk-width-expand@m" uk-scrollspy="cls: uk-animation-slide-left-small; delay: 150">
         <h6 class="uk-h2 uk-heading-bullet" style="color:#fff;">100% Weiterempfehlung</h6>
         <div style="color:#fff;">
           QuizRace begeistert mit<br>
@@ -73,7 +73,7 @@
           Überzeugen Sie sich selbst vom smartesten Quiz-Tool für Events!
         </div>
       </div>
-      <div class="uk-width-expand@m uk-text-center">
+      <div class="uk-width-expand@m uk-text-center" uk-scrollspy="cls: uk-animation-slide-right-small; delay: 300">
         <img loading="lazy" decoding="async" src="{{ basePath }}/img/provenexpert_quizrace.png" alt="Kundenbewertungen & Erfahrungen zu QuizRace" style="height:84px; border:0;">
       </div>
     </div>
@@ -83,13 +83,13 @@
 <!-- Warum QuizRace? (Zwei-Spalter mit Bild) -->
 <section class="uk-section" style="background-color:#c7cbd4;">
   <div class="uk-container">
-    <h3 class="uk-text-center uk-heading-medium poppins text-black">Warum QuizRace?</h3>
-    <p class="uk-text-center uk-text-lead">Mehr als nur ein Online-Quiz – QuizRace ist Ihre Lösung für Events, Teambuilding und Wissensvermittlung, individuell einsetzbar und blitzschnell bereit.</p>
+    <h3 class="uk-text-center uk-heading-medium poppins text-black" uk-scrollspy="cls: uk-animation-slide-top-small">Warum QuizRace?</h3>
+    <p class="uk-text-center uk-text-lead" uk-scrollspy="cls: uk-animation-fade; delay: 150">Mehr als nur ein Online-Quiz – QuizRace ist Ihre Lösung für Events, Teambuilding und Wissensvermittlung, individuell einsetzbar und blitzschnell bereit.</p>
     <div class="uk-grid uk-flex-middle uk-margin-large-top" uk-grid>
-      <div class="uk-width-1-2@m uk-text-center">
+      <div class="uk-width-1-2@m uk-text-center" uk-scrollspy="cls: uk-animation-slide-left-small; delay: 150">
         <img loading="lazy" decoding="async" src="{{ basePath }}/img/quizrace-screenshot.png" alt="QuizRace Screenshot" style="max-width: 430px; border-radius:18px; box-shadow:0 10px 40px #2222;">
       </div>
-      <div class="uk-width-1-2@m">
+      <div class="uk-width-1-2@m" uk-scrollspy="cls: uk-animation-slide-right-small; delay: 300">
         <div class="uk-margin-bottom">
           <p class="uk-text-small uk-text-uppercase uk-text-bold uk-margin-remove-bottom" style="color:#0c86d0; letter-spacing:.06em;">Zeit sparen</p>
           <span class="uk-text-lead uk-text-bold" style="color:#0c86d0;">Schnell starten, statt lange suchen</span>
@@ -116,26 +116,26 @@
 <section class="uk-section uk-section-default">
   <div class="uk-container">
     <div class="uk-text-center uk-margin-large-bottom">
-      <h2 class="uk-heading-medium text-black">NEU: Interaktiver Event-Editor</h2>
-      <p class="uk-text-lead">Gestalten Sie Ihr Quiz ganz intuitiv – mit Live-Vorschau, Team-QR-Codes und Export aller Ergebnisse.<br>Ideal für Unternehmen, Bildungsinstitutionen und Eventagenturen.</p>
-      <div class="separator width-10 bottom-border border-5px border-color-gray-light margin-top-10px margin-bottom-60px uk-margin-auto"></div>
+      <h2 class="uk-heading-medium text-black" uk-scrollspy="cls: uk-animation-slide-top-small">NEU: Interaktiver Event-Editor</h2>
+      <p class="uk-text-lead" uk-scrollspy="cls: uk-animation-fade; delay: 150">Gestalten Sie Ihr Quiz ganz intuitiv – mit Live-Vorschau, Team-QR-Codes und Export aller Ergebnisse.<br>Ideal für Unternehmen, Bildungsinstitutionen und Eventagenturen.</p>
+      <div class="separator width-10 bottom-border border-5px border-color-gray-light margin-top-10px margin-bottom-60px uk-margin-auto" uk-scrollspy="cls: uk-animation-fade; delay: 300"></div>
     </div>
     <div class="uk-grid uk-child-width-1-3@m uk-flex-center uk-grid-match" uk-grid>
-      <div>
+      <div uk-scrollspy="cls: uk-animation-slide-left-small; delay: 150">
         <div class="uk-card uk-card-default uk-card-body uk-card-quizrace text-left padding-30px">
           <h6 class="text-gray-extra-dark bottom-border border-1px border-color-gray-regular padding-bottom-20px margin-bottom-20px">Perfekte Ergänzung zum Event</h6>
           <div class="uk-card-badge uk-label text-small">LIVE</div>
           <p>Planen, starten und begleiten Sie Ihr Event mit wenigen Klicks. Die Event-Vorlagen sind sofort einsatzbereit.</p>
         </div>
       </div>
-      <div>
+      <div uk-scrollspy="cls: uk-animation-slide-right-small; delay: 200">
         <div class="uk-card uk-card-default uk-card-body uk-card-quizrace text-left padding-30px">
           <h6 class="text-gray-extra-dark bottom-border border-1px border-color-gray-regular padding-bottom-20px margin-bottom-20px">Praxisnah & nachvollziehbar</h6>
           <div class="uk-card-badge uk-label text-small">PRAXIS</div>
           <p>Mit echten Beispielen aus Unternehmen, Schulen und Behörden.</p>
         </div>
       </div>
-      <div>
+      <div uk-scrollspy="cls: uk-animation-slide-left-small; delay: 250">
         <div class="uk-card uk-card-default uk-card-body uk-card-quizrace text-left padding-30px">
           <h6 class="text-gray-extra-dark bottom-border border-1px border-color-gray-regular padding-bottom-20px margin-bottom-20px">Support inklusive</h6>
           <div class="uk-card-badge uk-label text-small">SERVICE</div>
@@ -149,10 +149,10 @@
 <!-- Pricing / Abomodelle -->
 <section id="pricing" class="uk-section" style="background:#f9f9f9">
   <div class="uk-container">
-    <h2 class="uk-heading-medium uk-text-center text-black uk-margin-large-bottom">Abomodelle für jedes Event</h2>
+    <h2 class="uk-heading-medium uk-text-center text-black uk-margin-large-bottom" uk-scrollspy="cls: uk-animation-slide-top-small">Abomodelle für jedes Event</h2>
     <div class="uk-grid-large uk-child-width-1-3@m uk-flex-center" uk-grid>
       <!-- Starter -->
-      <div>
+      <div uk-scrollspy="cls: uk-animation-slide-left-small; delay: 150">
         <div class="uk-card uk-card-price uk-card-quizrace uk-text-center">
           <span class="uk-label uk-label-success uk-label-large">Kostenlos testen</span>
           <h3 class="uk-card-title uk-text-primary uk-margin-small-top">Starter</h3>
@@ -168,7 +168,7 @@
         </div>
       </div>
       <!-- Standard -->
-      <div>
+      <div uk-scrollspy="cls: uk-animation-slide-bottom-small; delay: 250">
         <div class="uk-card uk-card-popular uk-card-quizrace uk-text-center">
           <span class="uk-label uk-label-large">Meist gewählt</span>
           <h3 class="uk-card-title uk-margin-small-top" style="color:#fff;">Standard</h3>
@@ -185,7 +185,7 @@
         </div>
       </div>
       <!-- Professional -->
-      <div>
+      <div uk-scrollspy="cls: uk-animation-slide-right-small; delay: 350">
         <div class="uk-card uk-card-price uk-card-quizrace uk-text-center">
           <span class="uk-label uk-label-primary uk-label-large">Professional</span>
           <h3 class="uk-card-title uk-text-primary uk-margin-small-top">Professional</h3>
@@ -208,30 +208,30 @@
 <!-- Steps / Ablauf -->
 <section class="uk-section uk-section-default">
   <div class="uk-container">
-    <h3 class="uk-text-center uk-heading-medium poppins text-black">In 5 Schritten zum perfekten Event-Quiz</h3>
-    <p class="uk-text-lead uk-text-center"><strong>QuizRace macht Quiz-Events einfach. Diese fünf Schritte führen sicher zum Ziel – unabhängig vom Anlass.</strong></p>
+    <h3 class="uk-text-center uk-heading-medium poppins text-black" uk-scrollspy="cls: uk-animation-slide-top-small">In 5 Schritten zum perfekten Event-Quiz</h3>
+    <p class="uk-text-lead uk-text-center" uk-scrollspy="cls: uk-animation-fade; delay: 150"><strong>QuizRace macht Quiz-Events einfach. Diese fünf Schritte führen sicher zum Ziel – unabhängig vom Anlass.</strong></p>
     <div class="uk-grid uk-child-width-1-5@m uk-child-width-1-2@s uk-flex-center uk-margin-large-top uk-margin-large-bottom" uk-grid>
-      <div class="uk-text-center">
+      <div class="uk-text-center" uk-scrollspy="cls: uk-animation-slide-left-small; delay: 150">
         <div class="uk-step-circle">1</div>
         <p class="uk-text-uppercase uk-text-bold uk-margin-small-top" style="letter-spacing:2px;">Thema & Fragen wählen</p>
         <p class="uk-text-small uk-text-muted">Erstellen oder importieren Sie Fragenkataloge für Ihr Event.</p>
       </div>
-      <div class="uk-text-center">
+      <div class="uk-text-center" uk-scrollspy="cls: uk-animation-slide-right-small; delay: 200">
         <div class="uk-step-circle">2</div>
         <p class="uk-text-uppercase uk-text-bold uk-margin-small-top" style="letter-spacing:2px;">Teams einladen</p>
         <p class="uk-text-small uk-text-muted">Per QR-Code oder Link – sofort einsatzbereit, keine Anmeldung nötig.</p>
       </div>
-      <div class="uk-text-center">
+      <div class="uk-text-center" uk-scrollspy="cls: uk-animation-slide-left-small; delay: 250">
         <div class="uk-step-circle">3</div>
         <p class="uk-text-uppercase uk-text-bold uk-margin-small-top" style="letter-spacing:2px;">Quiz durchführen</p>
         <p class="uk-text-small uk-text-muted">Live-Modus für spannende Wettkämpfe oder flexibel als Selbsttest.</p>
       </div>
-      <div class="uk-text-center">
+      <div class="uk-text-center" uk-scrollspy="cls: uk-animation-slide-right-small; delay: 300">
         <div class="uk-step-circle">4</div>
         <p class="uk-text-uppercase uk-text-bold uk-margin-small-top" style="letter-spacing:2px;">Ergebnisse analysieren</p>
         <p class="uk-text-small uk-text-muted">Ranglisten, Auswertungen & Urkunden direkt nach dem Event.</p>
       </div>
-      <div class="uk-text-center">
+      <div class="uk-text-center" uk-scrollspy="cls: uk-animation-slide-left-small; delay: 350">
         <div class="uk-step-circle">5</div>
         <p class="uk-text-uppercase uk-text-bold uk-margin-small-top" style="letter-spacing:2px;">Wissen erweitern</p>
         <p class="uk-text-small uk-text-muted">Optional Feedback einholen und eigene Fragen weiterentwickeln.</p>
@@ -243,8 +243,8 @@
 <!-- Über uns / Founder -->
 <section class="uk-section uk-section-muted">
   <div class="uk-container">
-    <h2 class="uk-text-center uk-heading-medium">Wer steckt hinter QuizRace?</h2>
-    <div class="uk-width-2xlarge uk-margin-auto uk-text-center uk-text-lead">
+    <h2 class="uk-text-center uk-heading-medium" uk-scrollspy="cls: uk-animation-slide-top-small">Wer steckt hinter QuizRace?</h2>
+    <div class="uk-width-2xlarge uk-margin-auto uk-text-center uk-text-lead" uk-scrollspy="cls: uk-animation-fade; delay: 150">
       <b>QuizRace wurde von René Buske entwickelt – einem erfahrenen Softwarearchitekten und Digital-Event-Profi mit über 20 Jahren Erfahrung.</b>
       <br>
       <span class="uk-text-muted">
@@ -258,11 +258,11 @@
 <!-- Kontakt / Kontaktformular und Cards -->
 <section id="contact-us" class="uk-section uk-section-primary uk-light">
   <div class="uk-container">
-    <h3 class="uk-heading-medium uk-text-center">Kontaktieren Sie uns – persönlich & praxisnah</h3>
-    <p class="uk-text-lead uk-text-center">Sie möchten QuizRace testen, ein Angebot anfordern oder haben individuelle Fragen?<br>
+    <h3 class="uk-heading-medium uk-text-center" uk-scrollspy="cls: uk-animation-slide-top-small">Kontaktieren Sie uns – persönlich & praxisnah</h3>
+    <p class="uk-text-lead uk-text-center" uk-scrollspy="cls: uk-animation-fade; delay: 150">Sie möchten QuizRace testen, ein Angebot anfordern oder haben individuelle Fragen?<br>
     Schreiben Sie uns – wir melden uns garantiert persönlich zurück!</p>
     <div class="uk-grid uk-child-width-1-2@m uk-grid-large uk-flex-middle" uk-grid>
-      <div>
+      <div uk-scrollspy="cls: uk-animation-slide-left-small; delay: 150">
         <form class="uk-form-stacked uk-width-large uk-margin-auto">
           <div class="uk-margin">
             <label class="uk-form-label" for="form-name">Ihr Name</label>
@@ -282,7 +282,7 @@
           <button class="btn btn-black uk-button-large uk-width-1-1" type="submit">Senden</button>
         </form>
       </div>
-      <div>
+      <div uk-scrollspy="cls: uk-animation-slide-right-small; delay: 300">
         <div class="uk-grid uk-child-width-1-1 uk-grid-small">
           <div>
             <div class="uk-card uk-card-default uk-card-body bg-blue uk-text-left padding-30px uk-light">
