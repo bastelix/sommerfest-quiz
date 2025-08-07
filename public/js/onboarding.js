@@ -303,7 +303,9 @@
         logMessage('Importiere Standardinhalte...');
         const importRes = await fetch(withBase('/restore-default'), {
           method: 'POST',
-          credentials: 'include'
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ schema: data.subdomain })
         });
         if (!importRes.ok) {
           const text = await importRes.text();
