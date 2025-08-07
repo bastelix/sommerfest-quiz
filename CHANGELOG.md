@@ -104,6 +104,7 @@
 - Make landing footer non-sticky
 - Animate landing page
 - Animate landing page content blocks
+- Add horizontal scrollspy animations
 
 ### Fix
 
