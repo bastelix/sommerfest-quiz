@@ -102,6 +102,8 @@
 - Add fallbacks for QR and logo
 - Center landing page topbar elements
 - Make landing footer non-sticky
+- Animate landing page
+- Animate landing page content blocks
 
 ### Fix
 
