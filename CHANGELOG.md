@@ -48,6 +48,7 @@
 - Mention proxy network
 - Clarify APP_IMAGE usage
 - Describe password reset flow
+- Describe higher subscription tiers cumulatively
 
 ### Feat
 
