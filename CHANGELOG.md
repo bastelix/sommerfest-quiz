@@ -106,6 +106,7 @@
 - Animate landing page content blocks
 - Add horizontal scrollspy animations
 - Enhance landing page messaging
+- Add subscription matrix to landing page
 
 ### Fix
 
