@@ -299,6 +299,33 @@ class CatalogServiceTest extends TestCase
         $service->write('catalogs.json', $catalogs);
     }
 
+    public function testSaveAllRespectsStandardCatalogLimit(): void
+    {
+        $pdo = $this->createPdo();
+        $cfg = new ConfigService($pdo);
+        $cfg->setActiveEventUid('e1');
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','standard')");
+        $tenantSvc = new TenantService($pdo);
+        $service = new CatalogService($pdo, $cfg, $tenantSvc, 'sub1');
+
+        $catalogs = [];
+        for ($i = 1; $i <= 11; $i++) {
+            $catalogs[] = [
+                'uid' => 'u' . $i,
+                'sort_order' => $i,
+                'slug' => 'c' . $i,
+                'file' => 'c' . $i . '.json',
+                'name' => 'C' . $i,
+                'comment' => ''
+            ];
+        }
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('max-catalogs-exceeded');
+
+        $service->write('catalogs.json', $catalogs);
+    }
+
     public function testWriteRespectsQuestionLimit(): void
     {
         $pdo = $this->createPdo();
@@ -319,12 +346,35 @@ class CatalogServiceTest extends TestCase
         $service->write('c1.json', $questions);
     }
 
-    public function testCustomLimitOverridesCatalogAndQuestionLimits(): void
+    public function testWriteRespectsStandardQuestionLimit(): void
     {
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $cfg->setActiveEventUid('e1');
-        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan, custom_limits) VALUES('t1','sub1','starter','{\"maxCatalogsPerEvent\":6,\"maxQuestionsPerCatalog\":6}')");
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','standard')");
+        $tenantSvc = new TenantService($pdo);
+        $service = new CatalogService($pdo, $cfg, $tenantSvc, 'sub1');
+
+        $questions = [];
+        for ($i = 0; $i < 11; $i++) {
+            $questions[] = ['type' => 'text', 'prompt' => 'Q' . $i];
+        }
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('max-questions-exceeded');
+
+        $service->write('c1.json', $questions);
+    }
+
+    public function testCustomLimitOverridesCatalogLimit(): void
+    {
+        $pdo = $this->createPdo();
+        $cfg = new ConfigService($pdo);
+        $cfg->setActiveEventUid('e1');
+        $pdo->exec(
+            "INSERT INTO tenants(uid, subdomain, plan, custom_limits) " .
+            "VALUES('t1','sub1','starter','{\"maxCatalogsPerEvent\":6}')"
+        );
         $tenantSvc = new TenantService($pdo);
         $service = new CatalogService($pdo, $cfg, $tenantSvc, 'sub1');
 
@@ -341,12 +391,6 @@ class CatalogServiceTest extends TestCase
         }
         $service->write('catalogs.json', $catalogs);
 
-        $questions = [];
-        for ($i = 0; $i < 6; $i++) {
-            $questions[] = ['type' => 'text', 'prompt' => 'Q' . $i];
-        }
-        $service->write('c1.json', $questions);
-
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('max-catalogs-exceeded');
         $catalogs[] = [
@@ -358,5 +402,29 @@ class CatalogServiceTest extends TestCase
             'comment' => ''
         ];
         $service->write('catalogs.json', $catalogs);
+    }
+
+    public function testCustomLimitOverridesQuestionLimit(): void
+    {
+        $pdo = $this->createPdo();
+        $cfg = new ConfigService($pdo);
+        $cfg->setActiveEventUid('e1');
+        $pdo->exec(
+            "INSERT INTO tenants(uid, subdomain, plan, custom_limits) " .
+            "VALUES('t1','sub1','starter','{\"maxQuestionsPerCatalog\":6}')"
+        );
+        $tenantSvc = new TenantService($pdo);
+        $service = new CatalogService($pdo, $cfg, $tenantSvc, 'sub1');
+
+        $questions = [];
+        for ($i = 0; $i < 6; $i++) {
+            $questions[] = ['type' => 'text', 'prompt' => 'Q' . $i];
+        }
+        $service->write('c1.json', $questions);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('max-questions-exceeded');
+        $questions[] = ['type' => 'text', 'prompt' => 'Q6'];
+        $service->write('c1.json', $questions);
     }
 }
