@@ -11,6 +11,7 @@ use App\Service\TeamService;
 use App\Service\PhotoConsentService;
 use App\Service\SummaryPhotoService;
 use App\Service\EventService;
+use App\Infrastructure\Database;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 
@@ -69,6 +70,27 @@ class ImportController
      */
     public function restoreDefaults(Request $request, Response $response): Response
     {
+        $data = json_decode((string) $request->getBody(), true);
+        $schema = '';
+        if (is_array($data) && isset($data['schema'])) {
+            $schema = preg_replace('/[^a-z0-9_\-]/i', '', (string) $data['schema']);
+        }
+        if ($schema !== '') {
+            $pdo = Database::connectWithSchema($schema);
+            $cfg = new ConfigService($pdo);
+            $tmp = new self(
+                new CatalogService($pdo, $cfg),
+                $cfg,
+                new ResultService($pdo, $cfg),
+                new TeamService($pdo, $cfg),
+                new PhotoConsentService($pdo, $cfg),
+                new SummaryPhotoService($pdo, $cfg),
+                new EventService($pdo, $cfg),
+                $this->dataDir,
+                $this->backupDir
+            );
+            return $tmp->importFromDir($this->defaultDir, $response);
+        }
         return $this->importFromDir($this->defaultDir, $response);
     }
 
