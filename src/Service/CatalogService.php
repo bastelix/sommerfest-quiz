@@ -7,6 +7,8 @@ namespace App\Service;
 use PDO;
 use PDOException;
 use App\Service\ConfigService;
+use App\Service\TenantService;
+use App\Domain\Plan;
 
 /**
  * Provides accessors for reading and writing quiz catalogs.
@@ -15,6 +17,8 @@ class CatalogService
 {
     private PDO $pdo;
     private ConfigService $config;
+    private ?TenantService $tenants;
+    private string $subdomain;
     /** @var bool|null detected presence of the comment column */
     private ?bool $hasComment = null;
     /** @var bool|null detected presence of the design_path column */
@@ -23,10 +27,16 @@ class CatalogService
     /**
      * Inject database connection.
      */
-    public function __construct(PDO $pdo, ConfigService $config)
-    {
+    public function __construct(
+        PDO $pdo,
+        ConfigService $config,
+        ?TenantService $tenants = null,
+        string $subdomain = ''
+    ) {
         $this->pdo = $pdo;
         $this->config = $config;
+        $this->tenants = $tenants;
+        $this->subdomain = $subdomain;
     }
 
 
@@ -129,6 +139,28 @@ class CatalogService
         $exists = (int) $stmt->fetchColumn() > 0;
         if ($exists) {
             return;
+        }
+
+        if ($this->tenants !== null && $this->subdomain !== '') {
+            $plan = $this->tenants->getPlanBySubdomain($this->subdomain);
+            if ($plan !== null) {
+                $limits = Plan::limits($plan);
+                $max = $limits['maxCatalogsPerEvent'] ?? null;
+                if ($max !== null) {
+                    $countSql = 'SELECT COUNT(*) FROM catalogs';
+                    $countParams = [];
+                    if ($event !== '') {
+                        $countSql .= ' WHERE event_uid=?';
+                        $countParams[] = $event;
+                    }
+                    $cStmt = $this->pdo->prepare($countSql);
+                    $cStmt->execute($countParams);
+                    $current = (int) $cStmt->fetchColumn();
+                    if ($current >= $max) {
+                        throw new \RuntimeException('max-catalogs-exceeded');
+                    }
+                }
+            }
         }
 
         $sortSql = 'SELECT COALESCE(MAX(sort_order),0) FROM catalogs';
@@ -253,6 +285,16 @@ class CatalogService
             if (!is_array($data)) {
                 $data = json_decode((string)$data, true) ?? [];
             }
+            if ($this->tenants !== null && $this->subdomain !== '') {
+                $plan = $this->tenants->getPlanBySubdomain($this->subdomain);
+                if ($plan !== null) {
+                    $limits = Plan::limits($plan);
+                    $max = $limits['maxCatalogsPerEvent'] ?? null;
+                    if ($max !== null && count($data) > $max) {
+                        throw new \RuntimeException('max-catalogs-exceeded');
+                    }
+                }
+            }
             $uid = $this->config->getActiveEventUid();
             $this->pdo->beginTransaction();
             if ($uid !== '') {
@@ -302,6 +344,16 @@ class CatalogService
         if (!is_array($data)) {
             $data = json_decode((string)$data, true) ?? [];
         }
+        if ($this->tenants !== null && $this->subdomain !== '') {
+            $plan = $this->tenants->getPlanBySubdomain($this->subdomain);
+            if ($plan !== null) {
+                $limits = Plan::limits($plan);
+                $maxQuestions = $limits['maxQuestionsPerCatalog'] ?? null;
+                if ($maxQuestions !== null && count($data) > $maxQuestions) {
+                    throw new \RuntimeException('max-questions-exceeded');
+                }
+            }
+        }
         $slug = pathinfo($file, PATHINFO_FILENAME);
         $uid = $this->config->getActiveEventUid();
         $sql = 'SELECT uid FROM catalogs WHERE slug=?';
@@ -314,8 +366,6 @@ class CatalogService
         $stmt->execute($params);
         $cat = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $this->pdo->beginTransaction();
-
         if ($cat === false) {
             $sql = 'SELECT uid FROM catalogs WHERE file=?';
             $params = [basename($file)];
@@ -326,47 +376,71 @@ class CatalogService
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($params);
             $cat = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($cat === false) {
-                $cat = ['uid' => bin2hex(random_bytes(16))];
-                $fields = 'uid,sort_order,slug,file,name,event_uid';
-                $placeholders = '?,?,?,?,?,?';
-                if ($this->hasCommentColumn()) {
-                    $fields .= ',comment';
-                    $placeholders .= ',?';
+            if ($cat === false && $this->tenants !== null && $this->subdomain !== '') {
+                $plan = $this->tenants->getPlanBySubdomain($this->subdomain);
+                if ($plan !== null) {
+                    $limits = Plan::limits($plan);
+                    $max = $limits['maxCatalogsPerEvent'] ?? null;
+                    if ($max !== null) {
+                        $countSql = 'SELECT COUNT(*) FROM catalogs';
+                        $countParams = [];
+                        if ($uid !== '') {
+                            $countSql .= ' WHERE event_uid=?';
+                            $countParams[] = $uid;
+                        }
+                        $cStmt = $this->pdo->prepare($countSql);
+                        $cStmt->execute($countParams);
+                        $current = (int) $cStmt->fetchColumn();
+                        if ($current >= $max) {
+                            throw new \RuntimeException('max-catalogs-exceeded');
+                        }
+                    }
                 }
-                if ($this->hasDesignColumn()) {
-                    $fields .= ',design_path';
-                    $placeholders .= ',?';
-                }
-                $ins = $this->pdo->prepare(
-                    "INSERT INTO catalogs($fields) VALUES($placeholders)"
-                );
-                $sortSql = 'SELECT COALESCE(MAX(sort_order),0) FROM catalogs';
-                $sortParams = [];
-                if ($uid !== '') {
-                    $sortSql .= ' WHERE event_uid=?';
-                    $sortParams[] = $uid;
-                }
-                $sStmt = $this->pdo->prepare($sortSql);
-                $sStmt->execute($sortParams);
-                $sortOrder = ((int) $sStmt->fetchColumn()) + 1;
-
-                $row = [
-                    $cat['uid'],
-                    $sortOrder,
-                    $slug,
-                    basename($file),
-                    '',
-                    $uid !== '' ? $uid : null,
-                ];
-                if ($this->hasCommentColumn()) {
-                    $row[] = null;
-                }
-                if ($this->hasDesignColumn()) {
-                    $row[] = null;
-                }
-                $ins->execute($row);
             }
+        }
+
+        $this->pdo->beginTransaction();
+
+        if ($cat === false) {
+            $cat = ['uid' => bin2hex(random_bytes(16))];
+            $fields = 'uid,sort_order,slug,file,name,event_uid';
+            $placeholders = '?,?,?,?,?,?';
+            if ($this->hasCommentColumn()) {
+                $fields .= ',comment';
+                $placeholders .= ',?';
+            }
+            if ($this->hasDesignColumn()) {
+                $fields .= ',design_path';
+                $placeholders .= ',?';
+            }
+            $ins = $this->pdo->prepare(
+                "INSERT INTO catalogs($fields) VALUES($placeholders)"
+            );
+            $sortSql = 'SELECT COALESCE(MAX(sort_order),0) FROM catalogs';
+            $sortParams = [];
+            if ($uid !== '') {
+                $sortSql .= ' WHERE event_uid=?';
+                $sortParams[] = $uid;
+            }
+            $sStmt = $this->pdo->prepare($sortSql);
+            $sStmt->execute($sortParams);
+            $sortOrder = ((int) $sStmt->fetchColumn()) + 1;
+
+            $row = [
+                $cat['uid'],
+                $sortOrder,
+                $slug,
+                basename($file),
+                '',
+                $uid !== '' ? $uid : null,
+            ];
+            if ($this->hasCommentColumn()) {
+                $row[] = null;
+            }
+            if ($this->hasDesignColumn()) {
+                $row[] = null;
+            }
+            $ins->execute($row);
         }
 
         $del = $this->pdo->prepare('DELETE FROM questions WHERE catalog_uid=?');
