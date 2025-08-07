@@ -51,9 +51,9 @@
       <h3 class="uk-card-title">2. Abo wählen</h3>
       <div class="uk-margin">
         <select id="plan" class="uk-select">
-          <option value="starter">Starter</option>
-          <option value="standard">Standard</option>
-          <option value="professional">Professional</option>
+          <option value="starter">{{ t('plan_starter') }}</option>
+          <option value="standard">{{ t('plan_standard') }}</option>
+          <option value="professional">{{ t('plan_professional') }}</option>
         </select>
       </div>
       <button class="uk-button uk-button-primary" id="next2">Weiter</button>
@@ -63,9 +63,9 @@
       <h3 class="uk-card-title">3. Zahlungsart</h3>
       <div class="uk-margin">
         <select id="payment" class="uk-select">
-          <option value="invoice">Rechnung</option>
-          <option value="credit">Kreditkarte</option>
-          <option value="paypal">PayPal</option>
+          <option value="invoice">{{ t('billing_invoice') }}</option>
+          <option value="credit">{{ t('billing_credit') }}</option>
+          <option value="paypal">{{ t('billing_paypal') }}</option>
         </select>
       </div>
       <button class="uk-button uk-button-primary" id="next3">Weiter</button>
