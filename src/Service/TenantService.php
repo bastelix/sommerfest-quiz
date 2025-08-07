@@ -20,6 +20,10 @@ class TenantService
      * @var array<string,?string>
      */
     private array $planCache = [];
+    /**
+     * @var array<string,?array>
+     */
+    private array $limitCache = [];
 
     private const RESERVED_SUBDOMAINS = [
         'public',
@@ -48,7 +52,13 @@ class TenantService
     /**
      * Create a new tenant schema and run migrations within it.
      */
-    public function createTenant(string $uid, string $schema, ?string $plan = null, ?string $billing = null): void
+    public function createTenant(
+        string $uid,
+        string $schema,
+        ?string $plan = null,
+        ?string $billing = null,
+        ?array $customLimits = null
+    ): void
     {
         if ($this->exists($schema)) {
             throw new \RuntimeException('tenant-exists');
@@ -69,11 +79,23 @@ class TenantService
         $stmt = $this->pdo->prepare(
             'INSERT INTO tenants(' .
             'uid, subdomain, plan, billing_info, imprint_name, imprint_street, ' .
-            'imprint_zip, imprint_city, imprint_email' .
-            ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            'imprint_zip, imprint_city, imprint_email, custom_limits' .
+            ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
-        $stmt->execute([$uid, $schema, $plan, $billing, null, null, null, null, null]);
+        $stmt->execute([
+            $uid,
+            $schema,
+            $plan,
+            $billing,
+            null,
+            null,
+            null,
+            null,
+            null,
+            $customLimits !== null ? json_encode($customLimits) : null,
+        ]);
         $this->planCache[$schema] = $plan;
+        $this->limitCache[$schema] = $customLimits;
 
         if ($this->nginxService !== null) {
             try {
@@ -293,6 +315,55 @@ class TenantService
     }
 
     /**
+     * Retrieve custom limits for a tenant identified by subdomain.
+     *
+     * @return array<string,int|null>|null
+     */
+    public function getCustomLimitsBySubdomain(string $subdomain): ?array
+    {
+        if (array_key_exists($subdomain, $this->limitCache)) {
+            return $this->limitCache[$subdomain];
+        }
+        $stmt = $this->pdo->prepare('SELECT custom_limits FROM tenants WHERE subdomain = ?');
+        $stmt->execute([$subdomain]);
+        $json = $stmt->fetchColumn();
+        if ($json === false || $json === null) {
+            $this->limitCache[$subdomain] = null;
+            return null;
+        }
+        $data = json_decode((string) $json, true);
+        $this->limitCache[$subdomain] = is_array($data) ? $data : null;
+        return $this->limitCache[$subdomain];
+    }
+
+    /**
+     * Set custom limits for a tenant.
+     *
+     * @param array<string,int|null>|null $limits
+     */
+    public function setCustomLimits(string $subdomain, ?array $limits): void
+    {
+        $stmt = $this->pdo->prepare('UPDATE tenants SET custom_limits = ? WHERE subdomain = ?');
+        $stmt->execute([$limits !== null ? json_encode($limits) : null, $subdomain]);
+        $this->limitCache[$subdomain] = $limits;
+    }
+
+    /**
+     * Retrieve effective limits for a tenant.
+     *
+     * @return array<string,int|null>
+     */
+    public function getLimitsBySubdomain(string $subdomain): array
+    {
+        $custom = $this->getCustomLimitsBySubdomain($subdomain);
+        if ($custom !== null) {
+            return $custom;
+        }
+        $plan = $this->getPlanBySubdomain($subdomain);
+        return $plan !== null ? Plan::limits($plan) : [];
+    }
+
+    /**
      * Retrieve a tenant by its subdomain.
      *
      * @return array{
@@ -312,17 +383,23 @@ class TenantService
     {
         $stmt = $this->pdo->prepare(
             'SELECT uid, subdomain, plan, billing_info, imprint_name, imprint_street, imprint_zip, ' .
-            'imprint_city, imprint_email, created_at FROM tenants WHERE subdomain = ?'
+            'imprint_city, imprint_email, custom_limits, created_at FROM tenants WHERE subdomain = ?'
         );
         $stmt->execute([$subdomain]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row !== false ? $row : null;
+        if ($row === false) {
+            return null;
+        }
+        if ($row['custom_limits'] !== null) {
+            $row['custom_limits'] = json_decode((string) $row['custom_limits'], true);
+        }
+        return $row;
     }
 
     /**
      * Update profile information for a tenant identified by subdomain.
      *
-     * @param array<string,string> $data
+     * @param array<string,mixed> $data
      */
     public function updateProfile(string $subdomain, array $data): void
     {
@@ -334,6 +411,7 @@ class TenantService
             'imprint_zip',
             'imprint_city',
             'imprint_email',
+            'custom_limits',
         ];
         $set = [];
         $params = [];
@@ -343,7 +421,9 @@ class TenantService
                     throw new \RuntimeException('invalid-plan');
                 }
                 $set[] = $f . ' = ?';
-                $params[] = $data[$f];
+                $params[] = $f === 'custom_limits'
+                    ? ($data[$f] !== null ? json_encode($data[$f]) : null)
+                    : $data[$f];
             }
         }
         if ($set === []) {
@@ -355,6 +435,9 @@ class TenantService
         $stmt->execute($params);
         if (array_key_exists('plan', $data)) {
             $this->planCache[$subdomain] = $data['plan'];
+        }
+        if (array_key_exists('custom_limits', $data)) {
+            $this->limitCache[$subdomain] = $data['custom_limits'];
         }
     }
 
@@ -378,8 +461,14 @@ class TenantService
     {
         $stmt = $this->pdo->query(
             'SELECT uid, subdomain, plan, billing_info, imprint_name, imprint_street, imprint_zip, ' .
-            'imprint_city, imprint_email, created_at FROM tenants ORDER BY created_at'
+            'imprint_city, imprint_email, custom_limits, created_at FROM tenants ORDER BY created_at'
         );
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rows as &$row) {
+            if ($row['custom_limits'] !== null) {
+                $row['custom_limits'] = json_decode((string) $row['custom_limits'], true);
+            }
+        }
+        return $rows;
     }
 }

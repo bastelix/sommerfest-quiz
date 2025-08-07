@@ -8,7 +8,6 @@ use PDO;
 use PDOException;
 use App\Service\ConfigService;
 use App\Service\TenantService;
-use App\Domain\Plan;
 
 /**
  * Provides accessors for reading and writing quiz catalogs.
@@ -142,23 +141,20 @@ class CatalogService
         }
 
         if ($this->tenants !== null && $this->subdomain !== '') {
-            $plan = $this->tenants->getPlanBySubdomain($this->subdomain);
-            if ($plan !== null) {
-                $limits = Plan::limits($plan);
-                $max = $limits['maxCatalogsPerEvent'] ?? null;
-                if ($max !== null) {
-                    $countSql = 'SELECT COUNT(*) FROM catalogs';
-                    $countParams = [];
-                    if ($event !== '') {
-                        $countSql .= ' WHERE event_uid=?';
-                        $countParams[] = $event;
-                    }
-                    $cStmt = $this->pdo->prepare($countSql);
-                    $cStmt->execute($countParams);
-                    $current = (int) $cStmt->fetchColumn();
-                    if ($current >= $max) {
-                        throw new \RuntimeException('max-catalogs-exceeded');
-                    }
+            $limits = $this->tenants->getLimitsBySubdomain($this->subdomain);
+            $max = $limits['maxCatalogsPerEvent'] ?? null;
+            if ($max !== null) {
+                $countSql = 'SELECT COUNT(*) FROM catalogs';
+                $countParams = [];
+                if ($event !== '') {
+                    $countSql .= ' WHERE event_uid=?';
+                    $countParams[] = $event;
+                }
+                $cStmt = $this->pdo->prepare($countSql);
+                $cStmt->execute($countParams);
+                $current = (int) $cStmt->fetchColumn();
+                if ($current >= $max) {
+                    throw new \RuntimeException('max-catalogs-exceeded');
                 }
             }
         }
@@ -286,13 +282,10 @@ class CatalogService
                 $data = json_decode((string)$data, true) ?? [];
             }
             if ($this->tenants !== null && $this->subdomain !== '') {
-                $plan = $this->tenants->getPlanBySubdomain($this->subdomain);
-                if ($plan !== null) {
-                    $limits = Plan::limits($plan);
-                    $max = $limits['maxCatalogsPerEvent'] ?? null;
-                    if ($max !== null && count($data) > $max) {
-                        throw new \RuntimeException('max-catalogs-exceeded');
-                    }
+                $limits = $this->tenants->getLimitsBySubdomain($this->subdomain);
+                $max = $limits['maxCatalogsPerEvent'] ?? null;
+                if ($max !== null && count($data) > $max) {
+                    throw new \RuntimeException('max-catalogs-exceeded');
                 }
             }
             $uid = $this->config->getActiveEventUid();
@@ -345,13 +338,10 @@ class CatalogService
             $data = json_decode((string)$data, true) ?? [];
         }
         if ($this->tenants !== null && $this->subdomain !== '') {
-            $plan = $this->tenants->getPlanBySubdomain($this->subdomain);
-            if ($plan !== null) {
-                $limits = Plan::limits($plan);
-                $maxQuestions = $limits['maxQuestionsPerCatalog'] ?? null;
-                if ($maxQuestions !== null && count($data) > $maxQuestions) {
-                    throw new \RuntimeException('max-questions-exceeded');
-                }
+            $limits = $this->tenants->getLimitsBySubdomain($this->subdomain);
+            $maxQuestions = $limits['maxQuestionsPerCatalog'] ?? null;
+            if ($maxQuestions !== null && count($data) > $maxQuestions) {
+                throw new \RuntimeException('max-questions-exceeded');
             }
         }
         $slug = pathinfo($file, PATHINFO_FILENAME);
@@ -377,28 +367,24 @@ class CatalogService
             $stmt->execute($params);
             $cat = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($cat === false && $this->tenants !== null && $this->subdomain !== '') {
-                $plan = $this->tenants->getPlanBySubdomain($this->subdomain);
-                if ($plan !== null) {
-                    $limits = Plan::limits($plan);
-                    $max = $limits['maxCatalogsPerEvent'] ?? null;
-                    if ($max !== null) {
-                        $countSql = 'SELECT COUNT(*) FROM catalogs';
-                        $countParams = [];
-                        if ($uid !== '') {
-                            $countSql .= ' WHERE event_uid=?';
-                            $countParams[] = $uid;
-                        }
-                        $cStmt = $this->pdo->prepare($countSql);
-                        $cStmt->execute($countParams);
-                        $current = (int) $cStmt->fetchColumn();
-                        if ($current >= $max) {
-                            throw new \RuntimeException('max-catalogs-exceeded');
-                        }
+                $limits = $this->tenants->getLimitsBySubdomain($this->subdomain);
+                $max = $limits['maxCatalogsPerEvent'] ?? null;
+                if ($max !== null) {
+                    $countSql = 'SELECT COUNT(*) FROM catalogs';
+                    $countParams = [];
+                    if ($uid !== '') {
+                        $countSql .= ' WHERE event_uid=?';
+                        $countParams[] = $uid;
+                    }
+                    $cStmt = $this->pdo->prepare($countSql);
+                    $cStmt->execute($countParams);
+                    $current = (int) $cStmt->fetchColumn();
+                    if ($current >= $max) {
+                        throw new \RuntimeException('max-catalogs-exceeded');
                     }
                 }
             }
         }
-
         $this->pdo->beginTransaction();
 
         if ($cat === false) {

@@ -8,7 +8,6 @@ use PDO;
 use PDOException;
 use App\Service\ConfigService;
 use App\Service\TenantService;
-use App\Domain\Plan;
 
 /**
  * Service layer for managing quiz teams.
@@ -63,13 +62,10 @@ class TeamService
 
         $teamCount = count($teams);
         if ($this->tenants !== null && $this->subdomain !== '') {
-            $plan = $this->tenants->getPlanBySubdomain($this->subdomain);
-            if ($plan !== null) {
-                $limits = Plan::limits($plan);
-                $max = $limits['maxTeamsPerEvent'] ?? null;
-                if ($max !== null && $teamCount > $max) {
-                    throw new \RuntimeException('max-teams-exceeded');
-                }
+            $limits = $this->tenants->getLimitsBySubdomain($this->subdomain);
+            $max = $limits['maxTeamsPerEvent'] ?? null;
+            if ($max !== null && $teamCount > $max) {
+                throw new \RuntimeException('max-teams-exceeded');
             }
         }
 
