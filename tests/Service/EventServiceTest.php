@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Service;
 
 use App\Service\EventService;
+use App\Service\TenantService;
 use PDO;
 use Tests\TestCase;
 
@@ -16,10 +17,11 @@ class EventServiceTest extends TestCase
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
             'CREATE TABLE events(' .
-            'uid TEXT PRIMARY KEY, name TEXT NOT NULL, start_date TEXT, end_date TEXT, description TEXT' .
+            'uid TEXT PRIMARY KEY, name TEXT NOT NULL, start_date TEXT, end_date TEXT, description TEXT, published INTEGER' .
             ');'
         );
         $pdo->exec('CREATE TABLE config(id INTEGER PRIMARY KEY AUTOINCREMENT, event_uid TEXT);');
+        $pdo->exec('CREATE TABLE tenants(uid TEXT, subdomain TEXT, plan TEXT);');
         return $pdo;
     }
 
@@ -88,5 +90,39 @@ class EventServiceTest extends TestCase
         ]);
         $count = (int) $pdo->query('SELECT COUNT(*) FROM active_event')->fetchColumn();
         $this->assertSame(0, $count);
+    }
+
+    public function testSaveAllRespectsStarterLimit(): void
+    {
+        $pdo = $this->createPdo();
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','starter')");
+        $tenantSvc = new TenantService($pdo);
+        $svc = new EventService($pdo, null, $tenantSvc, 'sub1');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('max-events-exceeded');
+
+        $svc->saveAll([
+            ['name' => 'One'],
+            ['name' => 'Two'],
+        ]);
+    }
+
+    public function testSaveAllRespectsStandardLimit(): void
+    {
+        $pdo = $this->createPdo();
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t2','sub2','standard')");
+        $tenantSvc = new TenantService($pdo);
+        $svc = new EventService($pdo, null, $tenantSvc, 'sub2');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('max-events-exceeded');
+
+        $svc->saveAll([
+            ['name' => 'A'],
+            ['name' => 'B'],
+            ['name' => 'C'],
+            ['name' => 'D'],
+        ]);
     }
 }
