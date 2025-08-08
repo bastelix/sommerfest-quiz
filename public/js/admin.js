@@ -2,10 +2,34 @@
 
 const basePath = window.basePath || '';
 const withBase = path => basePath + path;
+function showUpgradeModal() {
+  if (document.getElementById('upgrade-modal')) return;
+  const modal = document.createElement('div');
+  modal.id = 'upgrade-modal';
+  modal.setAttribute('uk-modal', '');
+  modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
+    '<h3 class="uk-modal-title">' + (window.transUpgradeTitle || 'Limit erreicht') + '</h3>' +
+    '<p>' + (window.transUpgradeText || '') + '</p>' +
+    '<p class="uk-text-center"><a class="uk-button uk-button-primary" href="' +
+    (window.upgradeUrl || withBase('/admin/subscription')) + '">' +
+    (window.transUpgradeAction || 'Upgrade') + '</a></p>' +
+    '</div>';
+  document.body.appendChild(modal);
+  const ui = UIkit.modal(modal);
+  UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
+  ui.show();
+}
+
 window.apiFetch = (path, options = {}) => {
   return fetch(withBase(path), {
     credentials: 'same-origin',
     ...options
+  }).then(res => {
+    if (res.status === 402) {
+      showUpgradeModal();
+      throw new Error('upgrade-required');
+    }
+    return res;
   });
 };
 window.notify = (msg, status = 'primary') => {

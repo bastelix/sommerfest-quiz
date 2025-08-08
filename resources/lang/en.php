@@ -193,4 +193,7 @@ return [
     'text_password_reset_error' => 'Password could not be changed.',
     'action_send_link' => 'Send link',
     'action_set_password' => 'Set password',
+    'heading_limit_reached' => 'Limit reached',
+    'text_upgrade_required' => 'Subscription limit reached. Please upgrade to add more resources.',
+    'action_upgrade' => 'Upgrade now',
 ];
