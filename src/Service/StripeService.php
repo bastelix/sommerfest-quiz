@@ -15,7 +15,9 @@ class StripeService
 
     public function __construct(?string $apiKey = null)
     {
-        $apiKey = $apiKey ?? getenv('STRIPE_SECRET_KEY') ?: '';
+        $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
+        $envKey = $useSandbox ? 'STRIPE_SANDBOX_SECRET_KEY' : 'STRIPE_SECRET_KEY';
+        $apiKey = $apiKey ?? (getenv($envKey) ?: '');
         $this->client = new StripeClient($apiKey);
     }
 

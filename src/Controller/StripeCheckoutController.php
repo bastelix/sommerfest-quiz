@@ -19,10 +19,12 @@ class StripeCheckoutController
         $plan = (string) ($data['plan'] ?? '');
         $email = isset($data['email']) ? (string) $data['email'] : null;
 
+        $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
+        $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
         $priceMap = [
-            'starter' => getenv('STRIPE_PRICE_STARTER') ?: '',
-            'standard' => getenv('STRIPE_PRICE_STANDARD') ?: '',
-            'professional' => getenv('STRIPE_PRICE_PROFESSIONAL') ?: '',
+            'starter' => getenv($prefix . 'PRICE_STARTER') ?: '',
+            'standard' => getenv($prefix . 'PRICE_STANDARD') ?: '',
+            'professional' => getenv($prefix . 'PRICE_PROFESSIONAL') ?: '',
         ];
         $priceId = $priceMap[$plan] ?? '';
         $uri = $request->getUri();

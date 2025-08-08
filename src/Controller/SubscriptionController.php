@@ -15,7 +15,9 @@ class SubscriptionController
 {
     public function __invoke(Request $request, Response $response): Response
     {
-        $customerId = getenv('STRIPE_CUSTOMER_ID') ?: '';
+        $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
+        $envKey = $useSandbox ? 'STRIPE_SANDBOX_CUSTOMER_ID' : 'STRIPE_CUSTOMER_ID';
+        $customerId = getenv($envKey) ?: '';
         if ($customerId === '') {
             $response->getBody()->write('Missing Stripe customer id');
             return $response->withStatus(500);
