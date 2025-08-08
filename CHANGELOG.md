@@ -16,6 +16,7 @@
 - Split ranking regex lines
 - Upgrade QR code library
 - Optimize landing page images
+- Add ghostscript to Docker image
 
 ### Ci
 
