@@ -110,7 +110,7 @@ class EventService
                 $end = date('Y-m-d\TH:i');
             }
             $desc = $event['description'] ?? null;
-            $published = (bool)($event['published'] ?? false);
+            $published = filter_var($event['published'] ?? false, FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
 
             if (in_array($uid, $existing, true)) {
                 $updateStmt->execute([$name, $start, $end, $desc, $published, $uid]);
