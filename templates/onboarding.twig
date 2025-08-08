@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <script src="https://js.stripe.com/v3"></script>
 {% endblock %}
 
 {% block body_class %}uk-padding{% endblock %}
@@ -68,6 +69,7 @@
           <option value="paypal">{{ t('billing_paypal') }}</option>
         </select>
       </div>
+      <button class="uk-button uk-button-secondary uk-margin-small-right" id="payBtn">Jetzt bezahlen</button>
       <button class="uk-button uk-button-primary" id="next3">Weiter</button>
     </div>
 

@@ -68,6 +68,7 @@
     <li data-route="tenants" data-help="Liste aller angelegten Subdomains."><a href="#" data-route-url="{{ basePath }}/admin/tenants">{{ t('tab_tenants') }}</a></li>
     {% endif %}
     <li data-route="profile" data-help="Informationen zum eigenen Mandanten."><a href="#" data-route-url="{{ basePath }}/admin/profile">{{ t('tab_profile') }}</a></li>
+    <li data-route="subscription" data-help="Abo verwalten."><a href="#" data-route-url="{{ basePath }}/admin/subscription">{{ t('tab_subscription') }}</a></li>
     {% endif %}
   </ul>
   <ul id="adminSwitcher" class="uk-switcher uk-margin">
@@ -703,6 +704,12 @@
         {% endif %}
       </div>
     </li>
+    <li>
+      <div class="uk-container uk-container-large">
+        <h2 class="uk-heading-bullet">{{ t('heading_subscription') }}</h2>
+        <p><a class="uk-button uk-button-primary" href="{{ basePath }}/admin/subscription/portal">{{ t('action_open_subscription') }}</a></p>
+      </div>
+    </li>
     {% endif %}
   </ul>
   <div id="helpSidebar" uk-offcanvas="flip: true; overlay: true">
@@ -739,8 +746,10 @@
           {% if domainType == 'main' %}
           <li><a href="{{ basePath }}/admin/tenants" data-tab="10">{{ t('tab_tenants') }}</a></li>
           <li><a href="{{ basePath }}/admin/profile" data-tab="11">{{ t('tab_profile') }}</a></li>
+          <li><a href="{{ basePath }}/admin/subscription" data-tab="12">{{ t('tab_subscription') }}</a></li>
           {% else %}
           <li><a href="{{ basePath }}/admin/profile" data-tab="10">{{ t('tab_profile') }}</a></li>
+          <li><a href="{{ basePath }}/admin/subscription" data-tab="11">{{ t('tab_subscription') }}</a></li>
           {% endif %}
           {% endif %}
 
