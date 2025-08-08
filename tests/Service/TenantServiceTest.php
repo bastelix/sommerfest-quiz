@@ -18,7 +18,7 @@ class TenantServiceTest extends TestCase
             'CREATE TABLE tenants(' .
             'uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, ' .
             'imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, ' .
-            'imprint_email TEXT, custom_limits TEXT, created_at TEXT)'
+            'imprint_email TEXT, custom_limits TEXT, plan_started_at TEXT, plan_expires_at TEXT, created_at TEXT)'
         );
         if (!is_dir($dir)) {
             mkdir($dir);
@@ -211,5 +211,17 @@ SQL;
         $service->setCustomLimits('sub10', ['maxEvents' => 5]);
         $limits2 = $service->getCustomLimitsBySubdomain('sub10');
         $this->assertSame(['maxEvents' => 5], $limits2);
+    }
+
+    public function testUpdateProfileRecalculatesExpiry(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+        $service = $this->createService($dir, $pdo);
+        $service->createTenant('u11', 'sub11', 'starter');
+        $service->updateProfile('sub11', ['plan_started_at' => '2000-01-01 00:00:00+00:00', 'plan' => 'starter']);
+        $row = $pdo->query("SELECT plan_started_at, plan_expires_at FROM tenants WHERE subdomain='sub11'")->fetch(PDO::FETCH_ASSOC);
+        $this->assertSame('2000-01-01 00:00:00+00:00', $row['plan_started_at']);
+        $this->assertSame('2000-01-31 00:00:00+00:00', $row['plan_expires_at']);
     }
 }
