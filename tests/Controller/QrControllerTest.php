@@ -42,6 +42,18 @@ class QrControllerTest extends TestCase
         $this->assertSame(400, $response->getStatusCode());
     }
 
+    public function testQrImageWithoutLabel(): void
+    {
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/qr.png')
+            ->withQueryParams(['t' => 'Demo', 'label' => '0']);
+        $response = $app->handle($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('image/png', $response->getHeaderLine('Content-Type'));
+        $this->assertNotEmpty((string) $response->getBody());
+    }
+
     public function testQrPdfIsGenerated(): void
     {
         $app = $this->getAppInstance();

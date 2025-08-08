@@ -74,6 +74,9 @@ class QrController
         $demo   = (string)($params['demo'] ?? '');
         $label  = (string)($params['label'] ?? '1');
         $useLabel = !in_array(strtolower($label), ['0', 'false', 'no'], true);
+        if ($useLabel && !function_exists('imagettfbbox')) {
+            $useLabel = false;
+        }
 
         if ($size <= 0 || $margin < 0) {
             return $response->withStatus(400);
