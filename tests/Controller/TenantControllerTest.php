@@ -38,8 +38,7 @@ class TenantControllerTest extends TestCase
                 ?string $plan = null,
                 ?string $billing = null,
                 ?array $customLimits = null
-            ): void
-            {
+            ): void {
             }
 
             public function deleteTenant(string $uid): void
@@ -67,8 +66,7 @@ class TenantControllerTest extends TestCase
                 ?string $plan = null,
                 ?string $billing = null,
                 ?array $customLimits = null
-            ): void
-            {
+            ): void {
             }
 
             public function deleteTenant(string $uid): void
@@ -152,7 +150,7 @@ class TenantControllerTest extends TestCase
     public function testExistsReturns404ForUnknown(): void
     {
         $pdo = new PDO('sqlite::memory:');
-        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, imprint_email TEXT, custom_limits TEXT, created_at TEXT);');
+        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, imprint_email TEXT, custom_limits TEXT, plan_started_at TEXT, plan_expires_at TEXT, created_at TEXT);');
         $controller = new TenantController(new TenantService($pdo));
         $req = $this->createRequest('GET', '/tenants/foo');
         $res = $controller->exists($req, new Response(), ['subdomain' => 'foo']);
@@ -162,7 +160,7 @@ class TenantControllerTest extends TestCase
     public function testExistsReturns200ForExisting(): void
     {
         $pdo = new PDO('sqlite::memory:');
-        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, imprint_email TEXT, custom_limits TEXT, created_at TEXT);');
+        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, imprint_email TEXT, custom_limits TEXT, plan_started_at TEXT, plan_expires_at TEXT, created_at TEXT);');
         $pdo->exec("INSERT INTO tenants(uid, subdomain, plan, billing_info, imprint_name, imprint_street, imprint_zip, imprint_city, imprint_email, created_at) VALUES('u1', 'bar', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '')");
         $controller = new TenantController(new TenantService($pdo));
         $req = $this->createRequest('GET', '/tenants/bar');
@@ -173,7 +171,7 @@ class TenantControllerTest extends TestCase
     public function testExistsReturns200ForReserved(): void
     {
         $pdo = new PDO('sqlite::memory:');
-        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, imprint_email TEXT, custom_limits TEXT, created_at TEXT);');
+        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, imprint_email TEXT, custom_limits TEXT, plan_started_at TEXT, plan_expires_at TEXT, created_at TEXT);');
         $controller = new TenantController(new TenantService($pdo));
         $req = $this->createRequest('GET', '/tenants/www');
         $res = $controller->exists($req, new Response(), ['subdomain' => 'www']);
@@ -193,8 +191,7 @@ class TenantControllerTest extends TestCase
                 ?string $plan = null,
                 ?string $billing = null,
                 ?array $customLimits = null
-            ): void
-            {
+            ): void {
                 throw new \PDOException('fail');
             }
 
@@ -225,8 +222,7 @@ class TenantControllerTest extends TestCase
                 ?string $plan = null,
                 ?string $billing = null,
                 ?array $customLimits = null
-            ): void
-            {
+            ): void {
                 throw new \Exception('boom');
             }
 

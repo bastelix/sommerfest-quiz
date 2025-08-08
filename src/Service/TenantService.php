@@ -58,8 +58,7 @@ class TenantService
         ?string $plan = null,
         ?string $billing = null,
         ?array $customLimits = null
-    ): void
-    {
+    ): void {
         if ($this->exists($schema)) {
             throw new \RuntimeException('tenant-exists');
         }
@@ -76,11 +75,13 @@ class TenantService
             $this->seedDemoData();
             $this->pdo->exec('SET search_path TO public');
         }
+        $start = $plan !== null ? new \DateTimeImmutable() : null;
+        $end = $start?->modify('+30 days');
         $stmt = $this->pdo->prepare(
             'INSERT INTO tenants(' .
             'uid, subdomain, plan, billing_info, imprint_name, imprint_street, ' .
-            'imprint_zip, imprint_city, imprint_email, custom_limits' .
-            ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            'imprint_zip, imprint_city, imprint_email, custom_limits, plan_started_at, plan_expires_at' .
+            ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([
             $uid,
@@ -93,6 +94,8 @@ class TenantService
             null,
             null,
             $customLimits !== null ? json_encode($customLimits) : null,
+            $start?->format('Y-m-d H:i:sP'),
+            $end?->format('Y-m-d H:i:sP'),
         ]);
         $this->planCache[$schema] = $plan;
         $this->limitCache[$schema] = $customLimits;
@@ -376,6 +379,8 @@ class TenantService
      *   imprint_zip:?string,
      *   imprint_city:?string,
      *   imprint_email:?string,
+     *   plan_started_at:?string,
+     *   plan_expires_at:?string,
      *   created_at:string
      * }|null
      */
@@ -383,7 +388,7 @@ class TenantService
     {
         $stmt = $this->pdo->prepare(
             'SELECT uid, subdomain, plan, billing_info, imprint_name, imprint_street, imprint_zip, ' .
-            'imprint_city, imprint_email, custom_limits, created_at FROM tenants WHERE subdomain = ?'
+            'imprint_city, imprint_email, custom_limits, plan_started_at, plan_expires_at, created_at FROM tenants WHERE subdomain = ?'
         );
         $stmt->execute([$subdomain]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -426,6 +431,25 @@ class TenantService
                     : $data[$f];
             }
         }
+
+        $planChange = array_key_exists('plan', $data) || array_key_exists('plan_started_at', $data);
+        if ($planChange) {
+            if (array_key_exists('plan', $data) && $data['plan'] === null) {
+                $set[] = 'plan_started_at = ?';
+                $params[] = null;
+                $set[] = 'plan_expires_at = ?';
+                $params[] = null;
+            } else {
+                $start = array_key_exists('plan_started_at', $data)
+                    ? new \DateTimeImmutable((string) $data['plan_started_at'])
+                    : new \DateTimeImmutable();
+                $set[] = 'plan_started_at = ?';
+                $params[] = $start->format('Y-m-d H:i:sP');
+                $set[] = 'plan_expires_at = ?';
+                $params[] = $start->modify('+30 days')->format('Y-m-d H:i:sP');
+            }
+        }
+
         if ($set === []) {
             return;
         }
@@ -454,6 +478,8 @@ class TenantService
      *   imprint_zip:?string,
      *   imprint_city:?string,
      *   imprint_email:?string,
+     *   plan_started_at:?string,
+     *   plan_expires_at:?string,
      *   created_at:string
      * }>
      */
@@ -461,7 +487,7 @@ class TenantService
     {
         $stmt = $this->pdo->query(
             'SELECT uid, subdomain, plan, billing_info, imprint_name, imprint_street, imprint_zip, ' .
-            'imprint_city, imprint_email, custom_limits, created_at FROM tenants ORDER BY created_at'
+            'imprint_city, imprint_email, custom_limits, plan_started_at, plan_expires_at, created_at FROM tenants ORDER BY created_at'
         );
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as &$row) {
