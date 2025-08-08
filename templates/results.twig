@@ -13,6 +13,12 @@
     {% block left %}
       <a href="{{ basePath }}/admin" class="uk-icon-button" uk-icon="icon: arrow-left; ratio: 2" title="Zurück" aria-label="Zurück"></a>
     {% endblock %}
+    {% block center %}
+      <div class="uk-flex uk-flex-middle">
+        <select id="eventSelect" class="uk-select"></select>
+        <button id="eventOpenBtn" class="uk-icon-button uk-margin-small-left" uk-icon="icon: link-external" aria-label="{{ t('tip_event_open') }}" uk-tooltip="title: {{ t('tip_event_open') }}; pos: bottom"></button>
+      </div>
+    {% endblock %}
   {% endembed %}
   <div class="uk-container uk-container-small">
     <div class="uk-flex uk-flex-between uk-flex-middle">
@@ -61,5 +67,6 @@
 
 {% block scripts %}
   <script src="{{ basePath }}/js/app.js"></script>
+  <script src="{{ basePath }}/js/event-select.js"></script>
   <script src="{{ basePath }}/js/results.js"></script>
 {% endblock %}
