@@ -35,11 +35,9 @@ class PasswordResetFlowTest extends TestCase
 
         session_start();
         $_SESSION['csrf_token'] = 'tok';
-        $request = $this->createRequest('POST', '/password/reset/request', [
-            'X-CSRF-Token' => 'tok',
-        ])
+        $request = $this->createRequest('POST', '/password/reset/request')
             ->withAttribute('mailService', $mailer)
-            ->withParsedBody(['username' => 'alice']);
+            ->withParsedBody(['username' => 'alice', 'csrf_token' => 'tok']);
         $response = $app->handle($request);
         $this->assertSame(204, $response->getStatusCode());
         $this->assertCount(1, $mailer->sent);
@@ -49,10 +47,12 @@ class PasswordResetFlowTest extends TestCase
         $this->assertIsString($token);
         $this->assertStringContainsString($token, $link);
 
-        $confirm = $this->createRequest('POST', '/password/reset/confirm', [
-            'X-CSRF-Token' => 'tok',
-        ])
-            ->withParsedBody(['token' => $token, 'password' => 'newpass']);
+        $confirm = $this->createRequest('POST', '/password/reset/confirm')
+            ->withParsedBody([
+                'token' => $token,
+                'password' => 'newpass',
+                'csrf_token' => 'tok',
+            ]);
         $resp2 = $app->handle($confirm);
         $this->assertSame(204, $resp2->getStatusCode());
 
