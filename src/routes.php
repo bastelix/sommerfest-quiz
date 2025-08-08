@@ -235,12 +235,16 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/register', [RegisterController::class, 'register']);
     $app->get('/password/reset/request', function (Request $request, Response $response) {
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'password_request.twig');
+        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
+        $_SESSION['csrf_token'] = $csrf;
+        return $view->render($response, 'password_request.twig', ['csrf_token' => $csrf]);
     });
     $app->get('/password/reset', function (Request $request, Response $response) {
         $view = Twig::fromRequest($request);
         $token = (string) ($request->getQueryParams()['token'] ?? '');
-        return $view->render($response, 'password_confirm.twig', ['token' => $token]);
+        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
+        $_SESSION['csrf_token'] = $csrf;
+        return $view->render($response, 'password_confirm.twig', ['token' => $token, 'csrf_token' => $csrf]);
     });
     $app->get('/logout', LogoutController::class);
     $app->get('/admin', function (Request $request, Response $response) {
