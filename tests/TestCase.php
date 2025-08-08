@@ -52,7 +52,11 @@ class TestCase extends PHPUnit_TestCase
         $twig->addExtension(new \App\Twig\UikitExtension());
         $twig->addExtension(new \App\Twig\TranslationExtension($translator));
         $basePath = getenv('BASE_PATH') ?: '';
-        $twig->getEnvironment()->addGlobal('basePath', rtrim($basePath, '/'));
+        $basePath = '/' . trim($basePath, '/');
+        if ($basePath === '/') {
+            $basePath = '';
+        }
+        $twig->getEnvironment()->addGlobal('basePath', $basePath);
         $app->setBasePath($basePath);
         $app->add(TwigMiddleware::create($app, $twig));
         $app->add(new SessionMiddleware());

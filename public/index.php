@@ -34,13 +34,17 @@ use App\Service\TranslationService;
 $settings = require __DIR__ . '/../config/settings.php';
 $app = \Slim\Factory\AppFactory::create();
 $basePath = getenv('BASE_PATH') ?: '';
+$basePath = '/' . trim($basePath, '/');
+if ($basePath === '/') {
+    $basePath = '';
+}
 $app->setBasePath($basePath);
 
 $translator = new TranslationService();
 $twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
 $twig->addExtension(new UikitExtension());
 $twig->addExtension(new TranslationExtension($translator));
-$twig->getEnvironment()->addGlobal('basePath', rtrim($basePath, '/'));
+$twig->getEnvironment()->addGlobal('basePath', $basePath);
 $app->add(TwigMiddleware::create($app, $twig));
 $app->add(new SessionMiddleware());
 $app->add(new DomainMiddleware());
