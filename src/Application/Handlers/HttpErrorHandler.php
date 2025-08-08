@@ -53,6 +53,21 @@ class HttpErrorHandler extends SlimErrorHandler
             }
         }
 
+        if ($exception instanceof \RuntimeException) {
+            $msg = $exception->getMessage();
+            $limitErrors = [
+                'max-events-exceeded',
+                'max-teams-exceeded',
+                'max-catalogs-exceeded',
+                'max-questions-exceeded',
+            ];
+            if (in_array($msg, $limitErrors, true)) {
+                $statusCode = 402;
+                $error->setType(ActionError::BAD_REQUEST);
+                $error->setDescription($msg);
+            }
+        }
+
         if (
             !($exception instanceof HttpException)
             && $this->displayErrorDetails

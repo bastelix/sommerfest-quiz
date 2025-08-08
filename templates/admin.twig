@@ -770,6 +770,10 @@
     window.mainDomain = '{{ main_domain }}';
     window.domainType = '{{ domainType }}';
     window.pagesContent = {{ pages|json_encode|raw }};
+    window.transUpgradeTitle = '{{ t('heading_limit_reached') }}';
+    window.transUpgradeText = '{{ t('text_upgrade_required') }}';
+    window.transUpgradeAction = '{{ t('action_upgrade') }}';
+    window.upgradeUrl = '{{ basePath }}/admin/subscription';
   </script>
   <script src="{{ basePath }}/js/admin.js"></script>
   <script src="{{ basePath }}/js/app.js"></script>
