@@ -150,4 +150,26 @@ class EventServiceTest extends TestCase
             ['name' => 'Three'],
         ]);
     }
+
+    public function testSaveAllAllowsReplacementAtLimit(): void
+    {
+        $pdo = $this->createPdo();
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t4','sub4','professional')");
+        $tenantSvc = new TenantService($pdo);
+        $svc = new EventService($pdo, null, $tenantSvc, 'sub4');
+
+        $initial = [];
+        for ($i = 0; $i < 20; $i++) {
+            $initial[] = ['uid' => 'e' . $i, 'name' => 'E' . $i];
+        }
+        $svc->saveAll($initial);
+
+        $events = array_slice($initial, 0, 19);
+        $events[] = ['name' => 'New'];
+
+        $svc->saveAll($events);
+
+        $count = (int) $pdo->query('SELECT COUNT(*) FROM events')->fetchColumn();
+        $this->assertSame(20, $count);
+    }
 }

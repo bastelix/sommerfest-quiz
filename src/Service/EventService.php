@@ -73,18 +73,8 @@ class EventService
         if ($this->tenants !== null && $this->subdomain !== '') {
             $limits = $this->tenants->getLimitsBySubdomain($this->subdomain);
             $max = $limits['maxEvents'] ?? null;
-            if ($max !== null) {
-                $currentCount = count($existing);
-                $newCount = 0;
-                foreach ($events as $event) {
-                    $uid = $event['uid'] ?? null;
-                    if ($uid === null || !in_array($uid, $existing, true)) {
-                        $newCount++;
-                    }
-                }
-                if ($currentCount + $newCount > $max) {
-                    throw new \RuntimeException('max-events-exceeded');
-                }
+            if ($max !== null && count($events) > $max) {
+                throw new \RuntimeException('max-events-exceeded');
             }
         }
 
