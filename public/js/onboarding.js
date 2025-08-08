@@ -134,6 +134,7 @@
       const next4 = document.getElementById('next4');
       const planSelect = document.getElementById('plan');
       const paymentSelect = document.getElementById('payment');
+      const payBtn = document.getElementById('payBtn');
     const imprintNameInput = document.getElementById('imprint-name');
     const imprintStreetInput = document.getElementById('imprint-street');
     const imprintZipInput = document.getElementById('imprint-zip');
@@ -224,6 +225,18 @@
         document.getElementById('summary-plan').textContent = data.plan;
         document.getElementById('summary-payment').textContent = data.payment;
         show('step4');
+      });
+
+      payBtn?.addEventListener('click', async () => {
+        const res = await fetch(withBase('/onboarding/checkout'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plan: data.plan })
+        });
+        const json = await res.json().catch(() => ({}));
+        if (json.url) {
+          window.location.href = json.url;
+        }
       });
 
     next4.addEventListener('click', () => {

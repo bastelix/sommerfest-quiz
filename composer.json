@@ -14,7 +14,8 @@
         "intervention/image": "^3.0",
         "ext-exif": "*",
         "guzzlehttp/guzzle": "^7",
-        "symfony/mailer": "^7.3"
+        "symfony/mailer": "^7.3",
+        "stripe/stripe-php": "^17.5"
     },
     "autoload": {
         "psr-4": {

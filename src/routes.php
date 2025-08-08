@@ -52,6 +52,8 @@ use App\Controller\TenantController;
 use App\Controller\Marketing\LandingController;
 use App\Controller\RegisterController;
 use App\Controller\OnboardingController;
+use App\Controller\StripeCheckoutController;
+use App\Controller\SubscriptionController;
 use Slim\Views\Twig;
 use GuzzleHttp\Client;
 use Psr\Log\NullLogger;
@@ -90,6 +92,8 @@ require_once __DIR__ . '/Controller/TenantController.php';
 require_once __DIR__ . '/Controller/Marketing/LandingController.php';
 require_once __DIR__ . '/Controller/RegisterController.php';
 require_once __DIR__ . '/Controller/OnboardingController.php';
+require_once __DIR__ . '/Controller/StripeCheckoutController.php';
+require_once __DIR__ . '/Controller/SubscriptionController.php';
 
 use App\Infrastructure\Database;
 use App\Infrastructure\Migrations\Migrator;
@@ -229,6 +233,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller($request, $response);
     });
     $app->get('/onboarding', OnboardingController::class);
+    $app->post('/onboarding/checkout', StripeCheckoutController::class);
     $app->get('/login', [LoginController::class, 'show']);
     $app->post('/login', [LoginController::class, 'login']);
     $app->get('/register', [RegisterController::class, 'show']);
@@ -262,6 +267,8 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/pages', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/management', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/profile', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->get('/admin/subscription', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->get('/admin/subscription/portal', SubscriptionController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->post('/admin/profile', function (Request $request, Response $response) {
         $controller = new ProfileController();
         return $controller->update($request, $response);
