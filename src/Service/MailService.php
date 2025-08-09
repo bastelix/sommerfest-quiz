@@ -56,4 +56,20 @@ class MailService
 
         $this->mailer->send($email);
     }
+
+    /**
+     * Send double opt-in email with confirmation link.
+     */
+    public function sendDoubleOptIn(string $to, string $link): void
+    {
+        $html = $this->twig->render('emails/double_optin.twig', ['link' => $link]);
+
+        $email = (new Email())
+            ->from($this->from)
+            ->to($to)
+            ->subject('E-Mail-Adresse bestätigen')
+            ->html($html);
+
+        $this->mailer->send($email);
+    }
 }

@@ -43,6 +43,10 @@
         <input id="customer-name" class="uk-input" type="text" placeholder="Name der App oder Domain" required>
       </div>
       <div class="uk-margin">
+        <input id="customer-email" class="uk-input" type="email" placeholder="E-Mail-Adresse" required>
+        <div id="email-hint" class="uk-text-meta uk-margin-small-top" hidden></div>
+      </div>
+      <div class="uk-margin">
         <label>Subdomain: <span id="subdomain-preview">-</span>.{{ main_domain }}</label>
       </div>
       <button class="uk-button uk-button-primary" id="next1" disabled>Weiter</button>

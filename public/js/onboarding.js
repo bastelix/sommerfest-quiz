@@ -4,6 +4,8 @@
   const data = {
     name: '',
     subdomain: '',
+    email: '',
+    emailConfirmed: false,
     plan: '',
     payment: '',
     imprintName: '',
@@ -127,15 +129,17 @@
     }
 
     const nameInput = document.getElementById('customer-name');
-      const subdomainPreview = document.getElementById('subdomain-preview');
-      const next1 = document.getElementById('next1');
-      const next2 = document.getElementById('next2');
-      const next3 = document.getElementById('next3');
-      const next4 = document.getElementById('next4');
-      const planSelect = document.getElementById('plan');
-      const paymentSelect = document.getElementById('payment');
-      const payBtn = document.getElementById('payBtn');
-      const paymentInfo = document.getElementById('payment-info');
+    const emailInput = document.getElementById('customer-email');
+    const emailHint = document.getElementById('email-hint');
+    const subdomainPreview = document.getElementById('subdomain-preview');
+    const next1 = document.getElementById('next1');
+    const next2 = document.getElementById('next2');
+    const next3 = document.getElementById('next3');
+    const next4 = document.getElementById('next4');
+    const planSelect = document.getElementById('plan');
+    const paymentSelect = document.getElementById('payment');
+    const payBtn = document.getElementById('payBtn');
+    const paymentInfo = document.getElementById('payment-info');
     const imprintNameInput = document.getElementById('imprint-name');
     const imprintStreetInput = document.getElementById('imprint-street');
     const imprintZipInput = document.getElementById('imprint-zip');
@@ -148,6 +152,30 @@
     const successInfo = document.getElementById('success-info');
     const successScript = document.getElementById('success-script');
     const successLink = document.getElementById('success-link');
+
+    function updateNext1() {
+      next1.disabled =
+        data.name === '' ||
+        RESERVED_SUBDOMAINS.has(data.subdomain) ||
+        data.email === '' ||
+        !data.emailConfirmed;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const emailParam = params.get('email');
+    const verifiedParam = params.get('verified');
+    if (emailParam) {
+      data.email = emailParam;
+      if (emailInput) emailInput.value = emailParam;
+    }
+    if (verifiedParam === '1') {
+      data.emailConfirmed = true;
+      if (emailHint) {
+        emailHint.textContent = 'E-Mail bestätigt.';
+        emailHint.hidden = false;
+      }
+    }
+    updateNext1();
 
     async function waitForHttps(url, onProgress) {
       const maxAttempts = 30;
@@ -187,10 +215,44 @@
       data.name = nameInput.value.trim();
       data.subdomain = slugify(data.name);
       subdomainPreview.textContent = data.subdomain || '-';
-      next1.disabled = data.name === '' || RESERVED_SUBDOMAINS.has(data.subdomain);
+      updateNext1();
+    });
+
+    emailInput.addEventListener('input', () => {
+      data.email = emailInput.value.trim();
+      data.emailConfirmed = false;
+      updateNext1();
+    });
+
+    emailInput.addEventListener('blur', async () => {
+      if (data.email === '') return;
+      try {
+        await fetch(withBase('/onboarding/email'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: data.email })
+        });
+        if (emailHint) {
+          emailHint.textContent = 'Bestätigungs-E-Mail gesendet.';
+          emailHint.hidden = false;
+        }
+        if (typeof UIkit !== 'undefined') {
+          UIkit.notification({ message: 'Bestätigungs-E-Mail gesendet', status: 'primary' });
+        }
+      } catch (e) {
+        // ignore
+      }
     });
 
     next1.addEventListener('click', async () => {
+      if (!data.emailConfirmed) {
+        if (typeof UIkit !== 'undefined') {
+          UIkit.notification({ message: 'Bitte bestätige deine E-Mail-Adresse', status: 'danger' });
+        } else {
+          alert('Bitte bestätige deine E-Mail-Adresse');
+        }
+        return;
+      }
       try {
         const checkRes = await fetch(withBase('/tenants/' + encodeURIComponent(data.subdomain)), {
           credentials: 'include'

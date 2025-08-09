@@ -28,6 +28,7 @@ use App\Service\NginxService;
 use App\Service\SettingsService;
 use App\Service\TranslationService;
 use App\Service\PasswordResetService;
+use App\Service\EmailConfirmationService;
 use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
 use App\Application\Middleware\CsrfMiddleware;
@@ -52,6 +53,7 @@ use App\Controller\TenantController;
 use App\Controller\Marketing\LandingController;
 use App\Controller\RegisterController;
 use App\Controller\OnboardingController;
+use App\Controller\OnboardingEmailController;
 use App\Controller\StripeCheckoutController;
 use App\Controller\SubscriptionController;
 use Slim\Views\Twig;
@@ -92,6 +94,7 @@ require_once __DIR__ . '/Controller/TenantController.php';
 require_once __DIR__ . '/Controller/Marketing/LandingController.php';
 require_once __DIR__ . '/Controller/RegisterController.php';
 require_once __DIR__ . '/Controller/OnboardingController.php';
+require_once __DIR__ . '/Controller/OnboardingEmailController.php';
 require_once __DIR__ . '/Controller/StripeCheckoutController.php';
 require_once __DIR__ . '/Controller/SubscriptionController.php';
 
@@ -127,6 +130,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $userService = new \App\Service\UserService($pdo);
         $settingsService = new \App\Service\SettingsService($pdo);
         $passwordResetService = new PasswordResetService($pdo);
+        $emailConfirmService = new EmailConfirmationService($pdo);
 
         $request = $request
             ->withAttribute('plan', $plan)
@@ -162,6 +166,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 $eventService,
                 $catalogService
             ))
+            ->withAttribute('onboardingEmailController', new OnboardingEmailController($emailConfirmService))
             ->withAttribute('catalogDesignController', new CatalogDesignController($catalogService))
             ->withAttribute('logoController', new LogoController($configService))
             ->withAttribute('summaryController', new SummaryController($configService, $eventService))
@@ -233,6 +238,15 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller($request, $response);
     });
     $app->get('/onboarding', OnboardingController::class);
+    $app->post('/onboarding/email', function (Request $request, Response $response) {
+        return $request->getAttribute('onboardingEmailController')->request($request, $response);
+    });
+    $app->get('/onboarding/email/confirm', function (Request $request, Response $response) {
+        return $request->getAttribute('onboardingEmailController')->confirm($request, $response);
+    });
+    $app->get('/onboarding/email/status', function (Request $request, Response $response) {
+        return $request->getAttribute('onboardingEmailController')->status($request, $response);
+    });
     $app->post('/onboarding/checkout', StripeCheckoutController::class);
     $app->get('/login', [LoginController::class, 'show']);
     $app->post('/login', [LoginController::class, 'login']);
