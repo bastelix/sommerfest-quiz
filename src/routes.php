@@ -30,6 +30,7 @@ use App\Service\TranslationService;
 use App\Service\PasswordResetService;
 use App\Service\MailService;
 use App\Service\InvitationService;
+use App\Service\EmailConfirmationService;
 use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
 use App\Application\Middleware\CsrfMiddleware;
@@ -243,7 +244,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/onboarding', OnboardingController::class);
     $app->post('/onboarding/email', function (Request $request, Response $response) {
         return $request->getAttribute('onboardingEmailController')->request($request, $response);
-    });
+    })->add(new RateLimitMiddleware(3, 3600))->add(new CsrfMiddleware());
     $app->get('/onboarding/email/confirm', function (Request $request, Response $response) {
         return $request->getAttribute('onboardingEmailController')->confirm($request, $response);
     });
