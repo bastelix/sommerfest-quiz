@@ -166,6 +166,7 @@ return [
       'billing_invoice' => 'Invoice',
       'billing_credit' => 'Credit card',
       'billing_paypal' => 'PayPal',
+      'stripe_payment_terms' => 'Payment is processed via Stripe. The <a href="https://stripe.com/payment-terms/legal" target="_blank" rel="noopener">Stripe payment terms</a> apply.',
       'action_delete' => 'Delete',
       'action_cancel' => 'Cancel',
     'label_registration_enabled' => 'Allow registration',

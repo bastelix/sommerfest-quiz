@@ -135,6 +135,7 @@
       const planSelect = document.getElementById('plan');
       const paymentSelect = document.getElementById('payment');
       const payBtn = document.getElementById('payBtn');
+      const paymentInfo = document.getElementById('payment-info');
     const imprintNameInput = document.getElementById('imprint-name');
     const imprintStreetInput = document.getElementById('imprint-street');
     const imprintZipInput = document.getElementById('imprint-zip');
@@ -210,6 +211,13 @@
 
       const allowedPlans = ['starter', 'standard', 'professional'];
       const allowedPayments = ['invoice', 'credit', 'paypal'];
+
+      paymentSelect?.addEventListener('change', () => {
+        const credit = paymentSelect.value === 'credit';
+        if (payBtn) payBtn.hidden = !credit;
+        if (paymentInfo) paymentInfo.hidden = !credit;
+      });
+      paymentSelect?.dispatchEvent(new Event('change'));
 
       next2.addEventListener('click', () => {
         const planValue = planSelect?.value || '';
