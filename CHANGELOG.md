@@ -113,6 +113,7 @@
 - Align subscription templates with new plan details
 - Add subscription matrix to landing page
 - Add event selector to summary and results
+- Add invitation handling
 
 ### Fix
 
