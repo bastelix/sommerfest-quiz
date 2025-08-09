@@ -166,6 +166,7 @@ return [
       'billing_invoice' => 'Rechnung',
       'billing_credit' => 'Kreditkarte',
       'billing_paypal' => 'PayPal',
+      'stripe_payment_terms' => 'Die Zahlung wird über Stripe abgewickelt. Es gelten die <a href="https://stripe.com/payment-terms/legal" target="_blank" rel="noopener">Stripe-Zahlungsbedingungen</a>.',
       'action_delete' => 'Löschen',
       'action_cancel' => 'Abbrechen',
     'label_registration_enabled' => 'Registrierung zulassen',
