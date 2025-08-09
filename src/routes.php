@@ -29,6 +29,7 @@ use App\Service\SettingsService;
 use App\Service\TranslationService;
 use App\Service\PasswordResetService;
 use App\Service\MailService;
+use App\Service\EmailConfirmationService;
 use App\Service\InvitationService;
 use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
