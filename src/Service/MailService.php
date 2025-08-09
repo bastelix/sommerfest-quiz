@@ -75,6 +75,25 @@ class MailService
     }
 
     /**
+     * Send invitation email with registration link.
+     */
+    public function sendInvitation(string $to, string $name, string $link): void
+    {
+        $html = $this->twig->render('emails/invitation.twig', [
+            'name' => $name,
+            'link' => $link,
+        ]);
+
+        $email = (new Email())
+            ->from($this->from)
+            ->to($to)
+            ->subject('Einladung zu QuizRace')
+            ->html($html);
+
+        $this->mailer->send($email);
+    }
+
+    /**
      * Send initial welcome mail with admin credentials.
      *
      * Returns the rendered HTML (useful for logging/preview).
