@@ -1,12 +1,13 @@
 const currentScript = document.currentScript;
-const basePath = currentScript ? currentScript.dataset.base || '' : '';
+const basePath = window.basePath || (currentScript ? currentScript.dataset.base || '' : '');
+const withBase = (p) => basePath + p;
 
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.toggle-publish').forEach((btn) => {
     btn.addEventListener('click', () => {
       const uid = btn.dataset.uid;
       const published = btn.dataset.published === 'true';
-      fetch(`${basePath}/events/${uid}/publish`, {
+      fetch(withBase(`/events/${uid}/publish`), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ published: !published })
@@ -27,5 +28,66 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
     });
+  });
+
+  const selectWrap = document.getElementById('eventSelectWrap');
+  const eventSelect = document.getElementById('eventSelect');
+  const eventOpenBtn = document.getElementById('eventOpenBtn');
+  const eventTitle = document.getElementById('eventTitle');
+  let activeEventUid = '';
+
+  function populate(list) {
+    if (!eventSelect) return;
+    eventSelect.innerHTML = '';
+    if (!Array.isArray(list) || list.length === 0) {
+      if (selectWrap) selectWrap.hidden = true;
+      if (eventTitle) eventTitle.hidden = false;
+      return;
+    }
+    list.forEach((ev) => {
+      const opt = document.createElement('option');
+      opt.value = ev.uid;
+      opt.textContent = ev.name;
+      if (ev.uid === activeEventUid) opt.selected = true;
+      eventSelect.appendChild(opt);
+    });
+    if (selectWrap) selectWrap.hidden = false;
+    if (eventTitle) eventTitle.hidden = true;
+  }
+
+  function setActive(uid) {
+    activeEventUid = uid;
+    fetch(withBase('/config.json'), {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event_uid: uid })
+    }).then(() => {
+      window.location.reload();
+    }).catch(() => {});
+  }
+
+  if (eventSelect) {
+    Promise.all([
+      fetch(withBase('/config.json'), { credentials: 'same-origin' }).then((r) => r.json()).catch(() => ({})),
+      fetch(withBase('/events.json'), { credentials: 'same-origin', headers: { Accept: 'application/json' } }).then((r) => r.json()).catch(() => [])
+    ]).then(([cfg, events]) => {
+      activeEventUid = cfg.event_uid || '';
+      populate(events);
+    }).catch(() => {});
+  }
+
+  eventSelect?.addEventListener('change', () => {
+    const uid = eventSelect.value;
+    if (uid && uid !== activeEventUid) {
+      setActive(uid);
+    }
+  });
+
+  eventOpenBtn?.addEventListener('click', () => {
+    const uid = eventSelect?.value;
+    if (uid) {
+      window.open(withBase('/?event=' + uid), '_blank');
+    }
   });
 });

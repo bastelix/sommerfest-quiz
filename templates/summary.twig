@@ -16,7 +16,13 @@
       <a href="{{ basePath }}/faq" class="uk-icon-button" uk-icon="icon: question; ratio: 2" title="Hilfe" aria-label="Hilfe"></a>
     {% endblock %}
     {% block center %}
-      <span class="uk-navbar-title uk-text-center">{{ event.name|default('Sommerfest 2025') }}</span>
+      <div class="uk-flex uk-flex-middle">
+        <div id="eventSelectWrap" class="uk-flex uk-flex-middle" hidden>
+          <select id="eventSelect" class="uk-select"></select>
+          <button id="eventOpenBtn" class="uk-icon-button uk-margin-small-left" uk-icon="icon: link-external" aria-label="{{ t('tip_event_open') }}" uk-tooltip="title: {{ t('tip_event_open') }}; pos: bottom"></button>
+        </div>
+        <span id="eventTitle" class="uk-navbar-title uk-text-center">{{ event.name|default('Sommerfest 2025') }}</span>
+      </div>
     {% endblock %}
     {% block right %}
       <div class="theme-switch">
@@ -45,6 +51,7 @@
 {% block scripts %}
   <script src="{{ basePath }}/js/custom-icons.js"></script>
   <script src="{{ basePath }}/js/app.js"></script>
+  <script src="{{ basePath }}/js/events.js"></script>
   <script>
     window.quizConfig = {{ config|json_encode|raw }};
   </script>
