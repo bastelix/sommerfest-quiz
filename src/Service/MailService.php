@@ -56,4 +56,27 @@ class MailService
 
         $this->mailer->send($email);
     }
+
+    /**
+     * Send initial welcome mail with admin credentials.
+     *
+     * @return string Rendered HTML content of the email
+     */
+    public function sendWelcome(string $to, string $domain, string $password): string
+    {
+        $html = $this->twig->render('emails/welcome.twig', [
+            'domain' => $domain,
+            'password' => $password,
+        ]);
+
+        $email = (new Email())
+            ->from($this->from)
+            ->to($to)
+            ->subject('Willkommen bei QuizRace')
+            ->html($html);
+
+        $this->mailer->send($email);
+
+        return $html;
+    }
 }

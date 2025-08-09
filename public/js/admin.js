@@ -1989,6 +1989,25 @@ document.addEventListener('DOMContentLoaded', function () {
               })
               .catch(err => notify(err.message || 'Fehler beim Erneuern', 'danger'));
           });
+          const welcomeBtn = document.createElement('button');
+          welcomeBtn.className = 'uk-button uk-button-default uk-button-small uk-margin-small-right';
+          welcomeBtn.textContent = 'Willkommensmail';
+          welcomeBtn.addEventListener('click', () => {
+            apiFetch('/tenants/' + encodeURIComponent(t.subdomain) + '/welcome')
+              .then(r => {
+                if (!r.ok) throw new Error('Fehler');
+                return r.text();
+              })
+              .then(html => {
+                const w = window.open('', '_blank');
+                if (w) {
+                  w.document.write(html);
+                  w.document.close();
+                }
+              })
+              .catch(() => notify('Willkommensmail nicht verfügbar', 'danger'));
+          });
+          actionTd.appendChild(welcomeBtn);
           actionTd.appendChild(renewBtn);
           actionTd.appendChild(delBtn);
           tr.appendChild(subTd);
