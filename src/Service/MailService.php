@@ -33,12 +33,13 @@ class MailService
         $user = (string) ($env['SMTP_USER'] ?? getenv('SMTP_USER') ?: '');
         $pass = (string) ($env['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '');
         $port = (string) ($env['SMTP_PORT'] ?? getenv('SMTP_PORT') ?: '587');
+
         $dsn = sprintf('smtp://%s:%s@%s:%s', rawurlencode($user), rawurlencode($pass), $host, $port);
 
         $transport = Transport::fromDsn($dsn);
         $this->mailer = new Mailer($transport);
-        $this->twig = $twig;
-        $this->from = $user;
+        $this->twig   = $twig;
+        $this->from   = $user;
     }
 
     /**
@@ -67,9 +68,34 @@ class MailService
         $email = (new Email())
             ->from($this->from)
             ->to($to)
-            ->subject('E-Mail-Adresse bestätigen')
+            ->subject('E-Mail bestätigen')
             ->html($html);
 
         $this->mailer->send($email);
+    }
+
+    /**
+     * Send initial welcome mail with admin credentials.
+     *
+     * Returns the rendered HTML (useful for logging/preview).
+     *
+     * @return string Rendered HTML content of the email
+     */
+    public function sendWelcome(string $to, string $domain, string $password): string
+    {
+        $html = $this->twig->render('emails/welcome.twig', [
+            'domain'   => $domain,
+            'password' => $password,
+        ]);
+
+        $email = (new Email())
+            ->from($this->from)
+            ->to($to)
+            ->subject('Willkommen bei QuizRace')
+            ->html($html);
+
+        $this->mailer->send($email);
+
+        return $html;
     }
 }

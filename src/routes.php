@@ -28,7 +28,7 @@ use App\Service\NginxService;
 use App\Service\SettingsService;
 use App\Service\TranslationService;
 use App\Service\PasswordResetService;
-use App\Service\EmailConfirmationService;
+use App\Service\MailService;
 use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
 use App\Application\Middleware\CsrfMiddleware;
@@ -418,6 +418,20 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('tenantController')->list($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
+    $app->get('/tenants/{subdomain}/welcome', function (Request $request, Response $response, array $args) {
+        if ($request->getAttribute('domainType') !== 'main') {
+            return $response->withStatus(403);
+        }
+        $sub = preg_replace('/[^a-z0-9\-]/', '-', strtolower((string) ($args['subdomain'] ?? '')));
+        $base = dirname(__DIR__, 1);
+        $file = $base . '/data/' . $sub . '/welcome_email.html';
+        if (!is_readable($file)) {
+            return $response->withStatus(404);
+        }
+        $response->getBody()->write((string) file_get_contents($file));
+        return $response->withHeader('Content-Type', 'text/html');
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
     $app->get('/teams.json', function (Request $request, Response $response) {
         return $request->getAttribute('teamController')->get($request, $response);
     });
@@ -465,6 +479,32 @@ return function (\Slim\App $app, TranslationService $translator) {
         } else {
             $userService->updatePassword((int)$existing['id'], (string)$data['password']);
         }
+
+        return $response->withStatus(204);
+    })->add(new RoleAuthMiddleware(Roles::SERVICE_ACCOUNT));
+
+    $app->post('/tenant-welcome', function (Request $request, Response $response) {
+        $data = json_decode((string) $request->getBody(), true);
+        if (!is_array($data) || !isset($data['schema'], $data['email'], $data['password'])) {
+            return $response->withStatus(400);
+        }
+        $schema = preg_replace('/[^a-z0-9_\-]/i', '', strtolower((string) $data['schema']));
+        if ($schema === '' || $schema === 'public') {
+            return $response->withStatus(400);
+        }
+        $email = (string) $data['email'];
+        $password = (string) $data['password'];
+        $mainDomain = getenv('MAIN_DOMAIN') ?: getenv('DOMAIN') ?: $request->getUri()->getHost();
+        $twig = Twig::fromRequest($request);
+        $mailer = new MailService($twig);
+        $domain = sprintf('%s.%s', $schema, $mainDomain);
+        $html = $mailer->sendWelcome($email, $domain, $password);
+        $base = dirname(__DIR__, 1);
+        $dir = $base . '/data/' . $schema;
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+        file_put_contents($dir . '/welcome_email.html', $html);
 
         return $response->withStatus(204);
     })->add(new RoleAuthMiddleware(Roles::SERVICE_ACCOUNT));

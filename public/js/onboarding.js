@@ -456,12 +456,52 @@
         setTaskStatus('ssl', 'done');
         logMessage(boardJson.status || 'Container gestartet');
 
+        try {
+          logMessage('Sende Willkommensmail...');
+          const welcomeRes = await fetch(withBase('/tenant-welcome'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              schema: data.subdomain,
+              email: data.imprintEmail,
+              password: data.adminPass
+            })
+          });
+          if (!welcomeRes.ok) {
+            const text = await welcomeRes.text();
+            logMessage('Fehler Willkommensmail: ' + text);
+          } else {
+            logMessage('Willkommensmail gesendet');
+          }
+        } catch (e) {
+          logMessage('Fehler Willkommensmail');
+        }
+
         if (successDomain) {
           successDomain.textContent = data.subdomain + '.' + mainDomain;
           successDomain.hidden = false;
         }
         if (successPass) {
-          successPass.textContent = 'Ihr Admin-Login lautet: admin / ' + data.adminPass;
+          successPass.textContent =
+            'Ihr Admin-Login lautet: admin / ' + data.adminPass + ' ';
+          const passCopyBtn = document.createElement('button');
+          passCopyBtn.type = 'button';
+          passCopyBtn.className = 'uk-icon-button';
+          passCopyBtn.setAttribute('uk-icon', 'copy');
+          passCopyBtn.setAttribute('aria-label', 'Passwort kopieren');
+          passCopyBtn.setAttribute('title', 'Passwort kopieren');
+          passCopyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(data.adminPass).then(() => {
+              if (typeof UIkit !== 'undefined') {
+                UIkit.notification({
+                  message: 'Passwort kopiert',
+                  status: 'success'
+                });
+              }
+            });
+          });
+          successPass.appendChild(passCopyBtn);
           successPass.hidden = false;
         }
 
@@ -472,7 +512,8 @@
         }
 
         if (successLink) {
-          successLink.href = 'https://' + data.subdomain + '.' + mainDomain;
+          successLink.href =
+            'https://' + data.subdomain + '.' + mainDomain + '/admin';
           successLink.textContent = 'Warte auf Start...';
           successLink.classList.add('uk-disabled');
           successLink.hidden = false;
@@ -497,7 +538,7 @@
         if (ready) {
           logMessage('Subdomain erreichbar');
           successLink.classList.remove('uk-disabled');
-          successLink.textContent = 'Zu Ihrem QuizRace';
+          successLink.textContent = 'Zu deinem Quiz';
           if (successInfo) {
             successInfo.textContent = 'Die Subdomain ist jetzt erreichbar.';
           }
