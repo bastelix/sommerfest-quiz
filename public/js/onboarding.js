@@ -421,7 +421,25 @@
           successDomain.hidden = false;
         }
         if (successPass) {
-          successPass.textContent = 'Ihr Admin-Login lautet: admin / ' + data.adminPass;
+          successPass.textContent =
+            'Ihr Admin-Login lautet: admin / ' + data.adminPass + ' ';
+          const passCopyBtn = document.createElement('button');
+          passCopyBtn.type = 'button';
+          passCopyBtn.className = 'uk-icon-button';
+          passCopyBtn.setAttribute('uk-icon', 'copy');
+          passCopyBtn.setAttribute('aria-label', 'Passwort kopieren');
+          passCopyBtn.setAttribute('title', 'Passwort kopieren');
+          passCopyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(data.adminPass).then(() => {
+              if (typeof UIkit !== 'undefined') {
+                UIkit.notification({
+                  message: 'Passwort kopiert',
+                  status: 'success'
+                });
+              }
+            });
+          });
+          successPass.appendChild(passCopyBtn);
           successPass.hidden = false;
         }
 
