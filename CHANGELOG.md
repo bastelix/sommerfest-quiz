@@ -110,6 +110,7 @@
 - Enhance landing page messaging
 - Align subscription templates with new plan details
 - Add subscription matrix to landing page
+- Add event selector to summary and results
 
 ### Fix
 
@@ -149,6 +150,7 @@
 ### Refactor
 
 - Wrap long SQL strings
+- Reuse existing events script for event selector
 
 ### Style
 
