@@ -94,17 +94,17 @@ class MailService
     }
 
     /**
-     * Send initial welcome mail with admin credentials.
+     * Send initial welcome mail with set-password link.
      *
      * Returns the rendered HTML (useful for logging/preview).
      *
      * @return string Rendered HTML content of the email
      */
-    public function sendWelcome(string $to, string $domain, string $password): string
+    public function sendWelcome(string $to, string $domain, string $link): string
     {
         $html = $this->twig->render('emails/welcome.twig', [
-            'domain'   => $domain,
-            'password' => $password,
+            'domain' => $domain,
+            'link'   => $link,
         ]);
 
         $email = (new Email())

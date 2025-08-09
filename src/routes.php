@@ -271,7 +271,23 @@ return function (\Slim\App $app, TranslationService $translator) {
         $token = (string) ($request->getQueryParams()['token'] ?? '');
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
         $_SESSION['csrf_token'] = $csrf;
-        return $view->render($response, 'password_confirm.twig', ['token' => $token, 'csrf_token' => $csrf]);
+        return $view->render($response, 'password_confirm.twig', [
+            'token'      => $token,
+            'csrf_token' => $csrf,
+            'action'     => '/password/reset/confirm',
+        ]);
+    });
+
+    $app->get('/password/set', function (Request $request, Response $response) {
+        $view = Twig::fromRequest($request);
+        $token = (string) ($request->getQueryParams()['token'] ?? '');
+        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
+        $_SESSION['csrf_token'] = $csrf;
+        return $view->render($response, 'password_confirm.twig', [
+            'token'      => $token,
+            'csrf_token' => $csrf,
+            'action'     => '/password/set',
+        ]);
     });
     $app->get('/logout', LogoutController::class);
     $app->get('/admin', function (Request $request, Response $response) {
@@ -470,6 +486,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/password/reset/confirm', function (Request $request, Response $response) {
         return $request->getAttribute('passwordResetController')->confirm($request, $response);
     })->add(new RateLimitMiddleware(3, 3600))->add(new CsrfMiddleware());
+    $app->post('/password/set', function (Request $request, Response $response) {
+        return $request->getAttribute('passwordResetController')->confirm($request, $response);
+    })->add(new RateLimitMiddleware(3, 3600))->add(new CsrfMiddleware());
     $app->post('/import', function (Request $request, Response $response) {
         return $request->getAttribute('importController')->post($request, $response);
     })->add(new RoleAuthMiddleware('admin'));
@@ -502,7 +521,7 @@ return function (\Slim\App $app, TranslationService $translator) {
 
     $app->post('/tenant-welcome', function (Request $request, Response $response) {
         $data = json_decode((string) $request->getBody(), true);
-        if (!is_array($data) || !isset($data['schema'], $data['email'], $data['password'])) {
+        if (!is_array($data) || !isset($data['schema'], $data['email'])) {
             return $response->withStatus(400);
         }
         $schema = preg_replace('/[^a-z0-9_\-]/i', '', strtolower((string) $data['schema']));
@@ -510,12 +529,21 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withStatus(400);
         }
         $email = (string) $data['email'];
-        $password = (string) $data['password'];
+        $pdo = Database::connectWithSchema($schema);
+        Migrator::migrate($pdo, __DIR__ . '/../migrations');
+        $userService = new UserService($pdo);
+        $admin = $userService->getByUsername('admin');
+        if ($admin === null) {
+            return $response->withStatus(500);
+        }
+        $resetService = new PasswordResetService($pdo);
+        $token = $resetService->createToken((int) $admin['id']);
         $mainDomain = getenv('MAIN_DOMAIN') ?: getenv('DOMAIN') ?: $request->getUri()->getHost();
         $twig = Twig::fromRequest($request);
         $mailer = new MailService($twig);
         $domain = sprintf('%s.%s', $schema, $mainDomain);
-        $html = $mailer->sendWelcome($email, $domain, $password);
+        $link = sprintf('https://%s/password/set?token=%s', $domain, urlencode($token));
+        $html = $mailer->sendWelcome($email, $domain, $link);
         $base = dirname(__DIR__, 1);
         $dir = $base . '/data/' . $schema;
         if (!is_dir($dir)) {
