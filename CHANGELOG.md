@@ -20,6 +20,7 @@
 - Require PHP 8.2
 - Test against php 8.2
 - Update dependencies
+- Pin php base images to patch release
 
 ### Ci
 
