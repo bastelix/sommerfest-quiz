@@ -149,6 +149,7 @@
 - Enforce fixed topbar height
 - Prevent landing page header overlap on mobile
 - Render footer menu at page bottom
+- Import email confirmation service
 
 ### Refactor
 
