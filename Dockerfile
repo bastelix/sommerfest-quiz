@@ -1,4 +1,4 @@
-FROM php:8.2-alpine
+FROM php:8.2.29-alpine
 
 # allow Composer to run as root inside the container
 ENV COMPOSER_ALLOW_SUPERUSER=1
