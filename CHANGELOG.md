@@ -17,6 +17,7 @@
 - Upgrade QR code library
 - Optimize landing page images
 - Add ghostscript to Docker image
+- Require PHP 8.2
 
 ### Ci
 
