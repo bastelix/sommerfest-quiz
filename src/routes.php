@@ -29,6 +29,7 @@ use App\Service\SettingsService;
 use App\Service\TranslationService;
 use App\Service\PasswordResetService;
 use App\Service\MailService;
+use App\Service\InvitationService;
 use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
 use App\Application\Middleware\CsrfMiddleware;
@@ -56,6 +57,7 @@ use App\Controller\OnboardingController;
 use App\Controller\OnboardingEmailController;
 use App\Controller\StripeCheckoutController;
 use App\Controller\SubscriptionController;
+use App\Controller\InvitationController;
 use Slim\Views\Twig;
 use GuzzleHttp\Client;
 use Psr\Log\NullLogger;
@@ -97,6 +99,7 @@ require_once __DIR__ . '/Controller/OnboardingController.php';
 require_once __DIR__ . '/Controller/OnboardingEmailController.php';
 require_once __DIR__ . '/Controller/StripeCheckoutController.php';
 require_once __DIR__ . '/Controller/SubscriptionController.php';
+require_once __DIR__ . '/Controller/InvitationController.php';
 
 use App\Infrastructure\Database;
 use App\Infrastructure\Migrations\Migrator;
@@ -389,6 +392,15 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/events/{uid}/publish', function (Request $request, Response $response, array $args) {
         return $request->getAttribute('eventController')->publish($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+
+    $app->post('/invite', function (Request $request, Response $response) {
+        $pdo = $request->getAttribute('pdo');
+        $twig = Twig::fromRequest($request)->getEnvironment();
+        $mailer = new MailService($twig);
+        $service = new InvitationService($pdo);
+        $controller = new InvitationController($service, $mailer);
+        return $controller->send($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
     $app->post('/tenants', function (Request $request, Response $response) {
         if ($request->getAttribute('domainType') !== 'main') {
