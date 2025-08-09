@@ -402,7 +402,8 @@
         }
 
         if (successLink) {
-          successLink.href = 'https://' + data.subdomain + '.' + mainDomain;
+          successLink.href =
+            'https://' + data.subdomain + '.' + mainDomain + '/admin';
           successLink.textContent = 'Warte auf Start...';
           successLink.classList.add('uk-disabled');
           successLink.hidden = false;
@@ -427,7 +428,7 @@
         if (ready) {
           logMessage('Subdomain erreichbar');
           successLink.classList.remove('uk-disabled');
-          successLink.textContent = 'Zu Ihrem QuizRace';
+          successLink.textContent = 'Zu deinem Quiz';
           if (successInfo) {
             successInfo.textContent = 'Die Subdomain ist jetzt erreichbar.';
           }
