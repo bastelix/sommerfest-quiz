@@ -1962,6 +1962,9 @@ document.addEventListener('DOMContentLoaded', function () {
           delBtn.textContent = 'Mandant löschen';
           delBtn.addEventListener('click', () => {
             if (!confirm('Mandant wirklich löschen?')) return;
+            const originalHtml = delBtn.innerHTML;
+            delBtn.disabled = true;
+            delBtn.innerHTML = '<div uk-spinner></div>';
             apiFetch('/tenants', {
               method: 'DELETE',
               headers: { 'Content-Type': 'application/json' },
@@ -1975,7 +1978,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 notify('Mandant entfernt', 'success');
                 loadTenants();
               })
-              .catch(() => notify('Fehler beim Löschen', 'danger'));
+              .catch(() => notify('Fehler beim Löschen', 'danger'))
+              .finally(() => {
+                delBtn.disabled = false;
+                delBtn.innerHTML = originalHtml;
+              });
           });
           const renewBtn = document.createElement('button');
           renewBtn.className = 'uk-button uk-button-default uk-button-small uk-margin-small-right';
