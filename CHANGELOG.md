@@ -18,6 +18,7 @@
 - Optimize landing page images
 - Add ghostscript to Docker image
 - Require PHP 8.2
+- Test against php 8.2
 
 ### Ci
 
