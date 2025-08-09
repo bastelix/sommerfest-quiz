@@ -31,7 +31,6 @@ use App\Service\PasswordResetService;
 use App\Service\MailService;
 use App\Service\EmailConfirmationService;
 use App\Service\InvitationService;
-use App\Service\EmailConfirmationService;
 use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
 use App\Application\Middleware\CsrfMiddleware;
@@ -134,7 +133,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         $plan = $tenantService->getPlanBySubdomain($sub);
         $userService = new \App\Service\UserService($pdo);
         $settingsService = new \App\Service\SettingsService($pdo);
-        $passwordResetService = new PasswordResetService($pdo);
+        $passwordResetService = new PasswordResetService(
+            $pdo,
+            3600,
+            getenv('PASSWORD_RESET_SECRET') ?: ''
+        );
         $emailConfirmService = new EmailConfirmationService($pdo);
 
         $request = $request
