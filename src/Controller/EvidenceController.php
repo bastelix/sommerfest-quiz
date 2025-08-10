@@ -92,26 +92,13 @@ class EvidenceController
         $tmpPath = tempnam(sys_get_temp_dir(), 'upload_');
         $file->moveTo($tmpPath);
 
-        if (method_exists(ImageManager::class, 'gd')) {
-            $manager = ImageManager::gd();
-        } else {
-            $manager = new ImageManager(['driver' => 'gd']);
-        }
-
-        if (method_exists($manager, 'read')) {
-            $img = $manager->read($tmpPath);
-        } else {
-            $img = $manager->make($tmpPath);
-        }
+        $manager = ImageManager::gd();
+        $img = $manager->read($tmpPath);
 
         $orientationHandled = false;
         if (function_exists('exif_read_data')) {
             try {
-                if (method_exists($img, 'orient')) {
-                    $img->orient();
-                } else {
-                    $img->orientate();
-                }
+                $img->orient();
                 $orientationHandled = true;
             } catch (\Throwable $e) {
                 $this->logger->warning('Photo rotation failed: ' . $e->getMessage());
@@ -129,28 +116,13 @@ class EvidenceController
                         . ' -auto-orient '
                         . escapeshellarg($tmpPath);
                     @shell_exec($cmd);
-                    if (method_exists($manager, 'read')) {
-                        $img = $manager->read($tmpPath);
-                    } else {
-                        $img = $manager->make($tmpPath);
-                    }
+                    $img = $manager->read($tmpPath);
                     $orientationHandled = true;
                 }
             }
         }
 
-        if (method_exists($img, 'scaleDown')) {
-            $img->scaleDown(1500, 1500);
-        } else {
-            $img->resize(
-                1500,
-                1500,
-                function ($constraint) {
-                    $constraint->aspectRatio();
-                    $constraint->upsize();
-                }
-            );
-        }
+        $img->scaleDown(1500, 1500);
         $img->save($target, 70);
         unlink($tmpPath);
 
