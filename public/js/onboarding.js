@@ -13,7 +13,9 @@
     imprintZip: '',
     imprintCity: '',
     imprintEmail: '',
-    adminPass: ''
+    adminPass: '',
+    acceptTerms: false,
+    acceptPrivacy: false
   };
 
   function show(step) {
@@ -145,6 +147,8 @@
     const imprintZipInput = document.getElementById('imprint-zip');
     const imprintCityInput = document.getElementById('imprint-city');
     const imprintEmailInput = document.getElementById('imprint-email');
+    const acceptTerms = document.getElementById('accept-terms');
+    const acceptPrivacy = document.getElementById('accept-privacy');
     const createBtn = document.getElementById('create');
     const adminPassInput = document.getElementById('admin-pass');
     const successDomain = document.getElementById('success-domain');
@@ -159,6 +163,10 @@
         RESERVED_SUBDOMAINS.has(data.subdomain) ||
         data.email === '' ||
         !data.emailConfirmed;
+    }
+
+    function updateNext4() {
+      next4.disabled = !acceptTerms.checked || !acceptPrivacy.checked;
     }
 
     const params = new URLSearchParams(window.location.search);
@@ -176,6 +184,7 @@
       }
     }
     updateNext1();
+    updateNext4();
 
     const paidParam = params.get('paid');
     const canceledParam = params.get('canceled');
@@ -192,6 +201,9 @@
         UIkit.notification({ message: 'Zahlung abgebrochen', status: 'warning' });
       }
     }
+
+    acceptTerms?.addEventListener('change', updateNext4);
+    acceptPrivacy?.addEventListener('change', updateNext4);
 
     async function waitForHttps(url, onProgress) {
       const maxAttempts = 30;
@@ -350,6 +362,8 @@
       data.imprintZip = imprintZipInput.value.trim();
       data.imprintCity = imprintCityInput.value.trim();
       data.imprintEmail = imprintEmailInput.value.trim();
+      data.acceptTerms = acceptTerms.checked;
+      data.acceptPrivacy = acceptPrivacy.checked;
       document.getElementById('summary-imprint-name').textContent = data.imprintName;
       document.getElementById('summary-imprint-street').textContent = data.imprintStreet;
       document.getElementById('summary-imprint-zip').textContent = data.imprintZip;
@@ -438,7 +452,14 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ uid: data.subdomain, schema: data.subdomain, plan: data.plan || null, billing: data.payment || null })
+          body: JSON.stringify({
+            uid: data.subdomain,
+            schema: data.subdomain,
+            plan: data.plan || null,
+            billing: data.payment || null,
+            acceptTerms: data.acceptTerms,
+            acceptPrivacy: data.acceptPrivacy
+          })
         });
         if (!tenantRes.ok) {
           const text = await tenantRes.text();
