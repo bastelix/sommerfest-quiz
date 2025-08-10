@@ -16,6 +16,7 @@ use Slim\Psr7\Uri;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use App\Application\Middleware\SessionMiddleware;
+use App\Application\Middleware\ProxyMiddleware;
 
 class TestCase extends PHPUnit_TestCase
 {
@@ -62,6 +63,7 @@ class TestCase extends PHPUnit_TestCase
         $app->add(new SessionMiddleware());
         $app->add(new \App\Application\Middleware\DomainMiddleware());
         $app->add(new \App\Application\Middleware\LanguageMiddleware($translator));
+        $app->add(new ProxyMiddleware());
 
         // Register error middleware
         $errorMiddleware = new \App\Application\Middleware\ErrorMiddleware(

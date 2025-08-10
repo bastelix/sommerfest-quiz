@@ -133,6 +133,44 @@ class OnboardingEmailControllerTest extends TestCase
         session_destroy();
     }
 
+    public function testLinkUsesForwardedHeaders(): void
+    {
+        $app = $this->getAppInstance();
+        $pdo = $this->setupEmailConfirmations();
+        session_start();
+        $_SESSION['csrf_token'] = 'tok';
+
+        $mailer = new class extends MailService {
+            public array $sent = [];
+            public function __construct() {}
+            public function sendDoubleOptIn(string $to, string $link): void
+            {
+                $this->sent[] = [$to, $link];
+            }
+        };
+
+        $request = $this->createRequest('POST', '/onboarding/email', [
+            'Content-Type' => 'application/json',
+            'X-CSRF-Token' => 'tok',
+            'X-Forwarded-Proto' => 'https',
+            'X-Forwarded-Host' => 'quizrace.app',
+            'X-Forwarded-Port' => '443',
+        ]);
+        $stream = fopen('php://temp', 'r+');
+        fwrite($stream, json_encode(['email' => 'user@example.com']));
+        rewind($stream);
+        $request = $request->withBody((new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream));
+        $request = $request->withAttribute('mailService', $mailer);
+
+        $response = $app->handle($request);
+        $this->assertSame(204, $response->getStatusCode());
+        $this->assertCount(1, $mailer->sent);
+
+        $link = $mailer->sent[0][1];
+        $this->assertStringStartsWith('https://quizrace.app/onboarding/email/confirm?token=', $link);
+        session_destroy();
+    }
+
     public function testConfirmValidAndInvalidTokens(): void
     {
         $app = $this->getAppInstance();

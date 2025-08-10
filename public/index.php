@@ -27,6 +27,7 @@ use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use App\Application\Middleware\SessionMiddleware;
 use App\Application\Middleware\DomainMiddleware;
+use App\Application\Middleware\ProxyMiddleware;
 use App\Twig\UikitExtension;
 use App\Twig\TranslationExtension;
 use App\Service\TranslationService;
@@ -48,6 +49,7 @@ $twig->getEnvironment()->addGlobal('basePath', $basePath);
 $app->add(TwigMiddleware::create($app, $twig));
 $app->add(new SessionMiddleware());
 $app->add(new DomainMiddleware());
+$app->add(new ProxyMiddleware());
 
 $errorMiddleware = new \App\Application\Middleware\ErrorMiddleware(
     $app->getCallableResolver(),
