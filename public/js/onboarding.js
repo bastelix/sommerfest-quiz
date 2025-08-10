@@ -179,6 +179,7 @@
 
     const paidParam = params.get('paid');
     const canceledParam = params.get('canceled');
+    const sessionId = params.get('session_id') || '';
     if (next3 && (paidParam !== null || canceledParam !== null)) {
       next3.disabled = paidParam !== '1';
     }
@@ -380,6 +381,37 @@
             UIkit.notification({ message: 'Subdomain bereits vergeben', status: 'danger' });
           }
           return;
+        }
+
+        if (data.payment === 'credit') {
+          if (paidParam !== '1') {
+            logMessage('Zahlung nicht bestätigt');
+            setTaskStatus('tenant', 'failed');
+            if (typeof UIkit !== 'undefined') {
+              UIkit.notification({ message: 'Zahlung nicht bestätigt', status: 'danger' });
+            }
+            return;
+          }
+          logMessage('Pruefe Zahlung...');
+          if (!sessionId) {
+            setTaskStatus('tenant', 'failed');
+            if (typeof UIkit !== 'undefined') {
+              UIkit.notification({ message: 'Zahlung nicht bestätigt', status: 'danger' });
+            }
+            return;
+          }
+          const payRes = await fetch(withBase('/onboarding/checkout/' + encodeURIComponent(sessionId)), {
+            credentials: 'include'
+          });
+          const payJson = await payRes.json().catch(() => ({}));
+          if (!payRes.ok || payJson.paid !== true) {
+            logMessage('Zahlung nicht bestätigt');
+            setTaskStatus('tenant', 'failed');
+            if (typeof UIkit !== 'undefined') {
+              UIkit.notification({ message: 'Zahlung nicht bestätigt', status: 'danger' });
+            }
+            return;
+          }
         }
 
         logMessage('Mandant wird erstellt...');
