@@ -27,5 +27,6 @@ RUN if [ -f vendor/bin/phpstan ]; then vendor/bin/phpstan --no-progress --memory
 # entrypoint to install dependencies if host volume lacks vendor/
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+EXPOSE 8080
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
