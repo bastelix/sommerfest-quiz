@@ -1,0 +1,22 @@
+{% set items = [
+  { href: basePath ~ '/admin/summary', icon: 'home', text: 'Startseite' },
+  { href: basePath ~ '/admin/events',  icon: 'calendar', text: 'Events' },
+  { href: basePath ~ '/admin/teams',   icon: 'users', text: 'Teams' },
+  { href: basePath ~ '/admin/results', icon: 'list', text: 'Auswertung' },
+  { href: basePath ~ '/admin/logs',    icon: 'file-text', text: 'Logs', admin: true },
+  { href: basePath ~ '/admin/settings',icon: 'cog', text: 'Einstellungen', admin: true },
+] %}
+{% set current = currentPath %}
+<ul class="uk-nav uk-nav-default">
+  {% for it in items %}
+    {% if not it.admin or role == 'admin' %}
+      {% set active = current starts with it.href ? 'uk-active' : '' %}
+      <li class="{{ active }}">
+        <a href="{{ it.href }}">
+          <span uk-icon="icon: {{ it.icon }}; ratio: 0.95"></span>
+          <span class="qr-nav-text">{{ it.text }}</span>
+        </a>
+      </li>
+    {% endif %}
+  {% endfor %}
+</ul>
