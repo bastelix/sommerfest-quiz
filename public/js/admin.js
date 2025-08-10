@@ -2059,7 +2059,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (descEl) descEl.textContent = ev.description || '';
       if (qrImg) {
         const link = window.baseUrl ? window.baseUrl : withBase('/?event=' + encodeURIComponent(ev.uid || ''));
-        qrImg.src = withBase('/qr.png?t=' + encodeURIComponent(link) + '&fg=000000&label=0');
+        qrImg.src = withBase('/qr.png?t=' + encodeURIComponent(link));
       }
       if (qrLabel) qrLabel.textContent = ev.name || '';
       catalogsEl.innerHTML = '';
@@ -2083,7 +2083,7 @@ document.addEventListener('DOMContentLoaded', function () {
         p.textContent = c.description || '';
         const img = document.createElement('img');
         const qrLink = (window.baseUrl ? window.baseUrl + href : href);
-                img.src = withBase('/qr.png?t=' + encodeURIComponent(qrLink) + '&fg=dc0000&label=0');
+                img.src = withBase('/qr.png?t=' + encodeURIComponent(qrLink));
         img.alt = 'QR';
         img.width = 96;
         img.height = 96;
@@ -2108,7 +2108,7 @@ document.addEventListener('DOMContentLoaded', function () {
         h4.className = 'uk-card-title';
         h4.textContent = t;
         const img = document.createElement('img');
-        img.src = withBase('/qr.png?t=' + encodeURIComponent(t) + '&fg=004bc8');
+        img.src = withBase('/qr.png?t=' + encodeURIComponent(t));
         img.alt = 'QR';
         img.width = 96;
         img.height = 96;
