@@ -120,6 +120,7 @@
 - Secure password reset tokens
 - Implement QR code service
 - Update admin QR codes to new design
+- Add parameterized QR routes
 
 ### Fix
 
