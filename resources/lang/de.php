@@ -14,6 +14,7 @@ return [
     'german' => 'Deutsch',
     'english' => 'Englisch',
     'admin_title' => 'Quiz Verwaltung',
+    'tab_dashboard' => 'Startseite',
     'tab_events' => 'Veranstaltungen',
     'tab_event_settings' => 'Event-Konfiguration',
     'tab_catalogs' => 'Fragenkataloge',

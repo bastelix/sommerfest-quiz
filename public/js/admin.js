@@ -2140,7 +2140,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
     const path = window.location.pathname.replace(basePath + '/admin/', '');
-    const initRoute = path === '' ? 'events' : path.replace(/^\/?/, '');
+    const initRoute = path === '' ? 'dashboard' : path.replace(/^\/?/, '');
     const initIdx = adminRoutes.indexOf(initRoute);
     if (initIdx >= 0) {
       tabControl.show(initIdx);

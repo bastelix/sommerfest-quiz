@@ -35,6 +35,10 @@ use App\Service\InvitationService;
 use App\Service\AuditLogger;
 use App\Service\QrCodeService;
 use App\Service\SessionService;
+use App\Infrastructure\Database;
+use PDO;
+use DateTimeImmutable;
+use DateTimeInterface;
 use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
 use App\Application\Middleware\CsrfMiddleware;
@@ -108,7 +112,6 @@ require_once __DIR__ . '/Controller/StripeCheckoutController.php';
 require_once __DIR__ . '/Controller/SubscriptionController.php';
 require_once __DIR__ . '/Controller/InvitationController.php';
 
-use App\Infrastructure\Database;
 use App\Infrastructure\Migrations\Migrator;
 use Psr\Http\Server\RequestHandlerInterface;
 
@@ -306,8 +309,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/logout', LogoutController::class);
     $app->get('/admin', function (Request $request, Response $response) {
         $base = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
-        return $response->withHeader('Location', $base . '/admin/events')->withStatus(302);
+        return $response->withHeader('Location', $base . '/admin/dashboard')->withStatus(302);
     })->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/dashboard', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/events', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/event/settings', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/catalogs', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
@@ -316,6 +320,85 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/summary', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/results', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/statistics', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/dashboard.json', function (Request $request, Response $response) {
+        $month = (string)($request->getQueryParams()['month'] ?? (new DateTimeImmutable('now'))->format('Y-m'));
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
+        $start = DateTimeImmutable::createFromFormat('Y-m-d', $month . '-01')
+            ?: new DateTimeImmutable('first day of this month');
+        $end = $start->modify('first day of next month');
+        $stmt = $pdo->prepare(
+            'SELECT uid,name,start_date,end_date,published FROM events WHERE start_date >= ? AND start_date < ? ORDER BY start_date'
+        );
+        $stmt->execute([
+            $start->format('Y-m-d 00:00:00'),
+            $end->format('Y-m-d 00:00:00'),
+        ]);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $events = [];
+        $stats = [
+            'draftCount' => 0,
+            'scheduledCount' => 0,
+            'runningCount' => 0,
+            'finishedCount' => 0,
+            'teamsWithoutQr' => 0,
+            'resultsAwaitingReview' => 0,
+        ];
+        $now = new DateTimeImmutable('now');
+        $teamStmt = $pdo->prepare('SELECT COUNT(*) FROM teams WHERE event_uid = ?');
+        foreach ($rows as $row) {
+            $startDate = new DateTimeImmutable((string) $row['start_date']);
+            $endDate = new DateTimeImmutable((string) $row['end_date']);
+            $teamStmt->execute([$row['uid']]);
+            $teams = (int) $teamStmt->fetchColumn();
+            if (!(bool) $row['published']) {
+                $status = 'draft';
+                $stats['draftCount']++;
+            } elseif ($startDate > $now) {
+                $status = 'scheduled';
+                $stats['scheduledCount']++;
+            } elseif ($endDate < $now) {
+                $status = 'finished';
+                $stats['finishedCount']++;
+            } else {
+                $status = 'running';
+                $stats['runningCount']++;
+            }
+            $events[] = [
+                'id' => $row['uid'],
+                'title' => $row['name'],
+                'start' => $startDate->format(DateTimeInterface::ATOM),
+                'end' => $endDate->format(DateTimeInterface::ATOM),
+                'status' => $status,
+                'teams' => $teams,
+                'stations' => 0,
+            ];
+        }
+        $upcoming = [];
+        foreach ($events as $e) {
+            $startDate = new DateTimeImmutable($e['start']);
+            $diff = $now->diff($startDate)->days;
+            if ($startDate >= $now && $diff <= 7) {
+                $upcoming[] = [
+                    'id' => $e['id'],
+                    'title' => $e['title'],
+                    'start' => $e['start'],
+                    'days' => $diff,
+                ];
+            }
+        }
+        $payload = [
+            'period' => $start->format('Y-m'),
+            'today' => $now->format('Y-m-d'),
+            'events' => $events,
+            'upcoming' => $upcoming,
+            'stats' => $stats,
+        ];
+        $response->getBody()->write((string) json_encode($payload));
+        return $response->withHeader('Content-Type', 'application/json');
+    })->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/pages', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/management', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/profile', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
@@ -347,7 +430,7 @@ return function (\Slim\App $app, TranslationService $translator) {
 
     $app->get('/admin/{path:.*}', function (Request $request, Response $response) {
         $base = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
-        return $response->withHeader('Location', $base . '/admin/events')->withStatus(302);
+        return $response->withHeader('Location', $base . '/admin/dashboard')->withStatus(302);
     });
     $app->get('/results', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->page($request, $response);

@@ -61,12 +61,12 @@ class AdminController
         }
         $context = \Slim\Routing\RouteContext::fromRequest($request);
         $route   = $context->getRoute();
-        $section = 'events';
+        $section = 'dashboard';
         if ($route !== null) {
             $pattern = $route->getPattern();
             $section = ltrim(substr($pattern, strlen('/admin')), '/');
             if ($section === '') {
-                $section = 'events';
+                $section = 'dashboard';
             }
         }
 
