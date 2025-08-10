@@ -186,6 +186,7 @@
 - Harmonize landing page section backgrounds
 - Use neutral background for founder section
 - Add textured underline animation
+- Remove Weisheit font from about section
 
 ### Test
 
