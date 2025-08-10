@@ -42,5 +42,41 @@ class MailServiceTest extends TestCase
 
         file_put_contents($profile, $backup);
     }
-}
 
+    /**
+     * @dataProvider missingEnvProvider
+     */
+    public function testMissingEnvThrows(string $var): void
+    {
+        putenv('SMTP_HOST=localhost');
+        putenv('SMTP_USER=user@example.org');
+        putenv('SMTP_PASS=secret');
+        putenv('SMTP_PORT=587');
+        $_ENV['SMTP_HOST'] = 'localhost';
+        $_ENV['SMTP_USER'] = 'user@example.org';
+        $_ENV['SMTP_PASS'] = 'secret';
+        $_ENV['SMTP_PORT'] = '587';
+
+        putenv($var);
+        unset($_ENV[$var]);
+
+        $twig = new Environment(new ArrayLoader());
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Missing SMTP configuration: ' . $var);
+
+        new MailService($twig);
+    }
+
+    /**
+     * @return array<string[]>
+     */
+    public function missingEnvProvider(): array
+    {
+        return [
+            ['SMTP_HOST'],
+            ['SMTP_USER'],
+            ['SMTP_PASS'],
+        ];
+    }
+}
