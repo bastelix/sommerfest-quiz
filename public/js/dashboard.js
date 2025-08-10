@@ -37,9 +37,12 @@
 
     const byDate = {};
     state.events.forEach(e => {
-      const d = new Date(e.start);
-      const key = d.toISOString().slice(0, 10);
-      (byDate[key] ||= []).push(e);
+      const start = new Date(e.start);
+      const end = new Date(e.end);
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        const key = d.toISOString().slice(0, 10);
+        (byDate[key] ||= []).push(e);
+      }
     });
 
     for (let day = 1; day <= days; day++) {
@@ -50,7 +53,12 @@
       html += `<td class="${isToday ? 'uk-background-muted uk-text-bold' : ''}"><div>${day}</div>`;
       if (hasEvents) {
         html += '<div class="uk-margin-small-top">' +
-          byDate[key].map(ev => `<a class="uk-badge uk-margin-xsmall-right" href="${withBase('/admin/events/' + ev.id)}" title="${ev.title}">${short(ev.title)}</a>`).join('') +
+          byDate[key].map(ev => {
+            const s = new Date(ev.start).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+            const eTime = new Date(ev.end).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+            const label = `${s}–${eTime} ${short(ev.title)}`;
+            return `<a class="uk-badge uk-display-block uk-margin-xsmall-top" href="${withBase('/admin/events/' + ev.id)}" title="${ev.title}">${label}</a>`;
+          }).join('') +
           '</div>';
       }
       html += '</td>';
