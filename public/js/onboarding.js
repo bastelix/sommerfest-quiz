@@ -13,7 +13,9 @@
     imprintZip: '',
     imprintCity: '',
     imprintEmail: '',
-    adminPass: ''
+    adminPass: '',
+    termsAccepted: false,
+    privacyAccepted: false
   };
 
   function show(step) {
@@ -140,6 +142,8 @@
     const paymentSelect = document.getElementById('payment');
     const payBtn = document.getElementById('payBtn');
     const paymentInfo = document.getElementById('payment-info');
+    const acceptTerms = document.getElementById('accept-terms');
+    const acceptPrivacy = document.getElementById('accept-privacy');
     const imprintNameInput = document.getElementById('imprint-name');
     const imprintStreetInput = document.getElementById('imprint-street');
     const imprintZipInput = document.getElementById('imprint-zip');
@@ -179,9 +183,17 @@
 
     const paidParam = params.get('paid');
     const canceledParam = params.get('canceled');
-    if (next3 && (paidParam !== null || canceledParam !== null)) {
-      next3.disabled = paidParam !== '1';
+
+    function updateConsent() {
+      const consentGiven = (acceptTerms?.checked ?? false) && (acceptPrivacy?.checked ?? false);
+      const paymentReady = paidParam === null && canceledParam === null ? true : paidParam === '1';
+      if (payBtn) payBtn.disabled = !consentGiven;
+      if (next3) next3.disabled = !consentGiven || !paymentReady;
     }
+    updateConsent();
+    acceptTerms?.addEventListener('change', updateConsent);
+    acceptPrivacy?.addEventListener('change', updateConsent);
+
     if (paidParam === '1') {
       if (typeof UIkit !== 'undefined') {
         UIkit.notification({ message: 'Zahlung erfolgreich', status: 'success' });
@@ -293,6 +305,7 @@
         const credit = paymentSelect.value === 'credit';
         if (payBtn) payBtn.hidden = !credit;
         if (paymentInfo) paymentInfo.hidden = !credit;
+        updateConsent();
       });
       paymentSelect?.dispatchEvent(new Event('change'));
 
@@ -305,6 +318,8 @@
       next3.addEventListener('click', () => {
         const paymentValue = paymentSelect?.value || '';
         data.payment = allowedPayments.includes(paymentValue) ? paymentValue : '';
+        data.termsAccepted = acceptTerms?.checked || false;
+        data.privacyAccepted = acceptPrivacy?.checked || false;
         document.getElementById('summary-name').textContent = data.name;
         document.getElementById('summary-subdomain').textContent = data.subdomain;
         document.getElementById('summary-plan').textContent = data.plan;
@@ -316,7 +331,12 @@
         const res = await fetch(withBase('/onboarding/checkout'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plan: data.plan, email: data.email })
+          body: JSON.stringify({
+            plan: data.plan,
+            email: data.email,
+            termsAccepted: acceptTerms?.checked || false,
+            privacyAccepted: acceptPrivacy?.checked || false
+          })
         });
         const json = await res.json().catch(() => ({}));
         if (json.url) {
@@ -387,7 +407,14 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ uid: data.subdomain, schema: data.subdomain, plan: data.plan || null, billing: data.payment || null })
+          body: JSON.stringify({
+            uid: data.subdomain,
+            schema: data.subdomain,
+            plan: data.plan || null,
+            billing: data.payment || null,
+            termsAccepted: data.termsAccepted,
+            privacyAccepted: data.privacyAccepted
+          })
         });
         if (!tenantRes.ok) {
           const text = await tenantRes.text();

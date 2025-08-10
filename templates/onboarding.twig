@@ -74,8 +74,14 @@
         </select>
       </div>
       <p id="payment-info" class="uk-text-meta" hidden>{{ t('stripe_payment_terms')|raw }}</p>
-      <button class="uk-button uk-button-secondary uk-margin-small-right" id="payBtn">Jetzt bezahlen</button>
-      <button class="uk-button uk-button-primary" id="next3">Weiter</button>
+      <div class="uk-margin">
+        <label><input id="accept-terms" class="uk-checkbox" type="checkbox"> Ich akzeptiere die <a href="{{ basePath }}/lizenz" target="_blank">AGB</a></label>
+      </div>
+      <div class="uk-margin">
+        <label><input id="accept-privacy" class="uk-checkbox" type="checkbox"> Ich akzeptiere die <a href="{{ basePath }}/datenschutz" target="_blank">Datenschutzerklärung</a></label>
+      </div>
+      <button class="uk-button uk-button-secondary uk-margin-small-right" id="payBtn" disabled>Jetzt bezahlen</button>
+      <button class="uk-button uk-button-primary" id="next3" disabled>Weiter</button>
     </div>
 
     <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step4" hidden>
