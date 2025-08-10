@@ -243,7 +243,7 @@
     emailInput.addEventListener('blur', async () => {
       if (data.email === '') return;
       try {
-        await fetch(withBase('/onboarding/email'), {
+        const res = await fetch(withBase('/onboarding/email'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -251,6 +251,16 @@
           },
           body: JSON.stringify({ email: data.email })
         });
+        if (!res.ok) {
+          if (emailHint) {
+            emailHint.textContent = 'Bestätigungs-E-Mail konnte nicht gesendet werden.';
+            emailHint.hidden = false;
+          }
+          if (typeof UIkit !== 'undefined') {
+            UIkit.notification({ message: 'Bestätigungs-E-Mail konnte nicht gesendet werden', status: 'danger' });
+          }
+          return;
+        }
         if (emailHint) {
           emailHint.textContent = 'Bestätigungs-E-Mail gesendet.';
           emailHint.hidden = false;
@@ -259,7 +269,13 @@
           UIkit.notification({ message: 'Bestätigungs-E-Mail gesendet', status: 'primary' });
         }
       } catch (e) {
-        // ignore
+        if (emailHint) {
+          emailHint.textContent = 'Bestätigungs-E-Mail konnte nicht gesendet werden.';
+          emailHint.hidden = false;
+        }
+        if (typeof UIkit !== 'undefined') {
+          UIkit.notification({ message: 'Bestätigungs-E-Mail konnte nicht gesendet werden', status: 'danger' });
+        }
       }
     });
 
