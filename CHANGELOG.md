@@ -122,6 +122,7 @@
 - Implement QR code service
 - Update admin QR codes to new design
 - Add parameterized QR routes
+- Elevate Warum QuizRace section
 
 ### Fix
 
