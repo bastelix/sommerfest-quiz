@@ -187,6 +187,7 @@
 - Use neutral background for founder section
 - Add textured underline animation
 - Remove Weisheit font from about section
+- Modernize onboarding step boxes
 
 ### Test
 
