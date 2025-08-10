@@ -40,11 +40,13 @@ const el = document.getElementById("rotating-word");
 let i = 0;
 
 function triggerUnderline() {
-  el.classList.remove('underline');
+  el.classList.remove('underline-animate');
   void el.offsetWidth;
-  el.classList.add('underline');
+  el.classList.add('underline-animate');
 }
 
+// initial underline animation
+triggerUnderline();
 setInterval(() => {
   el.style.opacity = 0;
 
@@ -52,7 +54,7 @@ setInterval(() => {
     i = (i + 1) % words.length;
     el.textContent = words[i];
     el.style.opacity = 1;
-    setTimeout(triggerUnderline, 100);
+    triggerUnderline();
   }, fadeDuration);
 }, changeInterval);
 
@@ -70,29 +72,33 @@ window.addEventListener('load', () => {
   display: inline-block;
   font-weight: bold;
   position: relative;
-  margin-right: 0.25em;
 }
 
+/* Chalk-style underline drawn left to right */
 .marker-text::after {
-  content: '';
+  content: "________________________________________";
+  font-family: 'Rock Salt', cursive;
+  font-size: 1.8em;
+  color: #f8f6f0;
   position: absolute;
   left: 0;
   bottom: -2px;
-  width: 100%;
-  height: 2px;
-  background: #f8f6f0;
-  transform-origin: left;
-  transform: scaleX(0);
+  width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
 }
 
-.marker-text.underline::after {
-  animation: underline-draw 0.5s ease forwards;
+.underline-animate::after {
+  animation: drawUnderline 0.6s steps(30, end) forwards;
+  animation-delay: 0.3s;
 }
 
-@keyframes underline-draw {
+@keyframes drawUnderline {
+  to { width: 100%; }
   to {
-    transform: scaleX(1);
-  }
+    tr
 }
 </style>
 
