@@ -133,4 +133,27 @@ class MailService
 
         return $html;
     }
+
+    /**
+     * Send contact form message to given recipient.
+     */
+    public function sendContact(string $to, string $name, string $replyTo, string $message): void
+    {
+        $html = $this->twig->render('emails/contact.twig', [
+            'name'    => $name,
+            'email'   => $replyTo,
+            'message' => $message,
+        ]);
+
+        $email = (new Email())
+            ->from($this->from)
+            ->to($to)
+            ->replyTo($replyTo)
+            ->subject('Kontaktanfrage')
+            ->html($html);
+
+        $this->mailer->send($email);
+
+        $this->audit?->log('contact_mail', ['from' => $replyTo]);
+    }
 }

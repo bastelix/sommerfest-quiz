@@ -24,6 +24,37 @@
   </div>
 </section>
 
+<div id="contact-modal" uk-modal>
+  <div class="uk-modal-dialog uk-modal-body">
+    <p id="contact-modal-message"></p>
+    <button class="uk-button uk-button-primary uk-modal-close" type="button">OK</button>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('contact-form');
+  const modal = UIkit.modal('#contact-modal');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const data = new URLSearchParams(new FormData(form));
+    fetch('{{ basePath }}/landing/contact', {
+      method: 'POST',
+      body: data
+    }).then(res => {
+      if (res.ok) {
+        document.getElementById('contact-modal-message').textContent = 'Vielen Dank für Ihre Nachricht!';
+        form.reset();
+      } else {
+        document.getElementById('contact-modal-message').textContent = 'Fehler beim Versenden. Bitte versuchen Sie es erneut.';
+      }
+      modal.show();
+    }).catch(() => {
+      document.getElementById('contact-modal-message').textContent = 'Fehler beim Versenden. Bitte versuchen Sie es erneut.';
+      modal.show();
+    });
+  });
+</script>
+
 <script>
 const words = ["unvergesslich", "spannend", "interaktiv", "einzigartig", "unterhaltsam"]; // Wörterliste
 const changeInterval = 5500; // Wechselintervall in Millisekunden
@@ -305,22 +336,23 @@ window.addEventListener('load', () => {
     Schreiben Sie uns – wir melden uns garantiert persönlich zurück!</p>
     <div class="uk-grid uk-child-width-1-2@m uk-grid-large uk-flex-middle" uk-grid uk-scrollspy="target: > div; cls: uk-animation-slide-right-small; delay: 150">
       <div>
-        <form class="uk-form-stacked uk-width-large uk-margin-auto">
+        <form id="contact-form" class="uk-form-stacked uk-width-large uk-margin-auto">
           <div class="uk-margin">
             <label class="uk-form-label" for="form-name">Ihr Name</label>
-            <input class="uk-input" id="form-name" type="text" required>
+            <input class="uk-input" id="form-name" name="name" type="text" required>
           </div>
           <div class="uk-margin">
             <label class="uk-form-label" for="form-email">E-Mail</label>
-            <input class="uk-input" id="form-email" type="email" required>
+            <input class="uk-input" id="form-email" name="email" type="email" required>
           </div>
           <div class="uk-margin">
             <label class="uk-form-label" for="form-msg">Nachricht</label>
-            <textarea class="uk-textarea" id="form-msg" rows="5" required></textarea>
+            <textarea class="uk-textarea" id="form-msg" name="message" rows="5" required></textarea>
           </div>
           <div class="uk-margin">
-            <label><input class="uk-checkbox" type="checkbox" required> Ich stimme der Speicherung meiner Daten zur Bearbeitung zu.</label>
+            <label><input class="uk-checkbox" name="privacy" type="checkbox" required> Ich stimme der Speicherung meiner Daten zur Bearbeitung zu.</label>
           </div>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
           <button class="btn btn-black uk-button-large uk-width-1-1" type="submit">Senden</button>
         </form>
       </div>
@@ -349,3 +381,34 @@ window.addEventListener('load', () => {
     </div>
   </div>
 </section>
+
+<div id="contact-modal" uk-modal>
+  <div class="uk-modal-dialog uk-modal-body">
+    <p id="contact-modal-message"></p>
+    <button class="uk-button uk-button-primary uk-modal-close" type="button">OK</button>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('contact-form');
+  const modal = UIkit.modal('#contact-modal');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const data = new URLSearchParams(new FormData(form));
+    fetch('{{ basePath }}/landing/contact', {
+      method: 'POST',
+      body: data
+    }).then(res => {
+      if (res.ok) {
+        document.getElementById('contact-modal-message').textContent = 'Vielen Dank für Ihre Nachricht!';
+        form.reset();
+      } else {
+        document.getElementById('contact-modal-message').textContent = 'Fehler beim Versenden. Bitte versuchen Sie es erneut.';
+      }
+      modal.show();
+    }).catch(() => {
+      document.getElementById('contact-modal-message').textContent = 'Fehler beim Versenden. Bitte versuchen Sie es erneut.';
+      modal.show();
+    });
+  });
+</script>
