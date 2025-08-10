@@ -61,8 +61,12 @@
       </div>
     </aside>
     <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      {% set activeRoute = currentPath|split('/admin/')|last %}
+      {% if activeRoute == '' %}
+        {% set activeRoute = 'dashboard' %}
+      {% endif %}
       <ul id="adminSwitcher" class="uk-switcher uk-margin">
-    <li>
+    <li class="{{ activeRoute == 'dashboard' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <div id="dashboard" class="uk-margin-large-top">
           <div class="uk-grid-large" uk-grid>
@@ -121,7 +125,7 @@
         </div>
       </div>
     </li>
-    <li>
+    <li class="{{ activeRoute == 'events' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_events') }}</h2>
         <div class="uk-overflow-auto">
@@ -146,7 +150,7 @@
         </div>
       </div>
     </li>
-    <li>
+    <li class="{{ activeRoute == 'event/settings' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_event_settings') }}</h2>
         <form id="configForm" class="uk-form-stacked">
@@ -314,7 +318,7 @@
 
       </div>
     </li>
-    <li>
+    <li class="{{ activeRoute == 'catalogs' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <div>
           <h2 class="uk-heading-bullet">{{ t('heading_catalogs') }}</h2>
@@ -357,7 +361,7 @@
         </div>
       </div>
     </li>
-    <li>
+    <li class="{{ activeRoute == 'questions' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_questions') }}</h2>
         <div class="uk-margin">
@@ -384,7 +388,7 @@
 
       </div>
     </li>
-    <li>
+    <li class="{{ activeRoute == 'teams' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_teams') }}</h2>
         <div class="uk-overflow-auto">
@@ -407,7 +411,7 @@
         </div>
       </div>
     </li>
-    <li>
+    <li class="{{ activeRoute == 'summary' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <div class="uk-flex uk-flex-between uk-flex-middle" id="summaryEvent">
           <div>
@@ -502,7 +506,7 @@
         </div>
         </div>
       </li>
-    <li>
+    <li class="{{ activeRoute == 'results' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <div class="uk-flex uk-flex-between uk-flex-middle">
           <h2 class="uk-heading-bullet">{{ t('heading_results') }}</h2>
@@ -559,7 +563,7 @@
         </div>
       </div>
     </li>
-    <li>
+    <li class="{{ activeRoute == 'statistics' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <div class="uk-flex uk-flex-between uk-flex-middle">
           <h2 class="uk-heading-bullet">{{ t('heading_statistics') }}</h2>
@@ -581,7 +585,7 @@
       </div>
     </li>
       {% if role == 'admin' %}
-      <li>
+      <li class="{{ activeRoute == 'pages' ? 'uk-active' }}">
         <div class="uk-container uk-container-large">
           <h2 class="uk-heading-bullet">{{ t('heading_pages') }}</h2>
           <ul id="pageTabs" class="uk-tab" uk-tab="connect: #pageSwitcher">
@@ -606,7 +610,7 @@
           </ul>
         </div>
       </li>
-      <li>
+      <li class="{{ activeRoute == 'management' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_management') }}</h2>
 
@@ -672,7 +676,7 @@
       </div>
     </li>
     {% if domainType == 'main' %}
-    <li>
+    <li class="{{ activeRoute == 'tenants' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_tenants') }}</h2>
         <div class="uk-overflow-auto">
@@ -692,7 +696,7 @@
       </div>
     </li>
     {% endif %}
-    <li>
+    <li class="{{ activeRoute == 'profile' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_profile') }}</h2>
         {% if tenant %}
@@ -750,7 +754,7 @@
         {% endif %}
       </div>
     </li>
-    <li>
+    <li class="{{ activeRoute == 'subscription' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_subscription') }}</h2>
         <p><a class="uk-button uk-button-primary" href="{{ basePath }}/admin/subscription/portal">{{ t('action_open_subscription') }}</a></p>
