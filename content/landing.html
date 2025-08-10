@@ -26,8 +26,8 @@
 
 <script>
 const words = ["unvergesslich", "spannend", "interaktiv", "einzigartig", "unterhaltsam"]; // Wörterliste
-const changeInterval = 3000; // Wechselintervall in Millisekunden
-const fadeDuration = 500; // Dauer der Ein-/Ausblendung
+const changeInterval = 5500; // Wechselintervall in Millisekunden
+const fadeDuration = 1000; // Dauer der Ein-/Ausblendung
 const markerDelay = 300; // Verzögerung des Marker-Starts
 const markerColor = "#ffde59"; // Markerfarbe
 
@@ -58,26 +58,80 @@ setInterval(() => {
 }
 
 #rotating-word {
-  transition: opacity 0.5s ease;
+  transition: opacity 1s ease;
   font-weight: bold;
   position: relative;
   display: inline-block;
 }
 
-/* Basiszustand Marker */
+/* Kreide-/Marker-Strich als ::after */
 .marker::after {
   content: "";
   position: absolute;
   left: 0;
-  bottom: 0.1em;
-  height: 0.3em;
+  bottom: -0.12em;
+  height: 0.42em;
   width: 0%;
-  background-color: var(--marker-color);
+  --marker: var(--marker-color);
+
+  background:
+    linear-gradient(115deg, rgba(0,0,0,0.08) 0 2%, transparent 2% 6%) repeat,
+    linear-gradient(295deg, rgba(0,0,0,0.05) 0 3%, transparent 3% 7%) repeat,
+    linear-gradient(var(--marker), var(--marker));
+  background-size:
+    10px 10px,
+    14px 14px,
+    100% 100%;
+  background-blend-mode: multiply, multiply, normal;
+
+  -webkit-mask:
+      radial-gradient(10px 8px at 6% 0, transparent 52%, #000 53%) repeat-x,
+      radial-gradient(12px 8px at 18% 0, transparent 50%, #000 51%) repeat-x,
+      radial-gradient(12px 8px at 10% 100%, transparent 51%, #000 52%) repeat-x,
+      radial-gradient(10px 8px at 24% 100%, transparent 53%, #000 54%) repeat-x,
+      linear-gradient(#000, #000);
+  -webkit-mask-size:
+      22px 9px,
+      28px 9px,
+      26px 9px,
+      18px 9px,
+      100% 100%;
+  -webkit-mask-position:
+      0 0,
+      0 0,
+      0 100%,
+      0 100%,
+      0 0;
+  -webkit-mask-composite: source-over, source-over, source-over, source-over, source-in;
+
+  mask:
+      radial-gradient(10px 8px at 6% 0, transparent 52%, #000 53%) repeat-x,
+      radial-gradient(12px 8px at 18% 0, transparent 50%, #000 51%) repeat-x,
+      radial-gradient(12px 8px at 10% 100%, transparent 51%, #000 52%) repeat-x,
+      radial-gradient(10px 8px at 24% 100%, transparent 53%, #000 54%) repeat-x,
+      linear-gradient(#000, #000);
+  mask-size:
+      22px 9px,
+      28px 9px,
+      26px 9px,
+      18px 9px,
+      100% 100%;
+  mask-position:
+      0 0,
+      0 0,
+      0 100%,
+      0 100%,
+      0 0;
+
+  filter: blur(0.4px);
+  transform: rotate(-0.3deg);
+  transform-origin: left center;
+
+  transition: width 0.55s cubic-bezier(.2,.9,.2,1);
   z-index: -1;
-  transition: width 0.5s ease;
 }
 
-/* Marker-Animation aktiv */
+/* Aktivierung: wird per JS-Klasse gesetzt */
 .marker-animate::after {
   width: 100%;
 }
