@@ -118,6 +118,7 @@
 - Add event selector to summary and results
 - Add invitation handling
 - Secure password reset tokens
+- Implement QR code service
 
 ### Fix
 
