@@ -78,6 +78,7 @@ class QrCodeService
                 backgroundColor: $bg,
                 logoPath: $logoPath ?? '',
                 logoResizeToWidth: $logoPath !== null ? 80 : null,
+                logoPunchoutBackground: $logoPath !== null,
             ))->build();
         } finally {
             if ($logoPath !== null && file_exists($logoPath)) {
@@ -208,9 +209,11 @@ class QrCodeService
         $text2 = (string) ($q['text2'] ?? 'RACE');
 
         $rounded = $this->boolParam($q['rounded'] ?? null, true);
+        $roundModeParam = $q['round_mode'] ?? null;
+        $logoPunchout = $this->boolParam($q['logo_punchout'] ?? null, true);
         $ec = $this->ecFromParam($q['ec'] ?? null);
 
-        $roundMode = $rounded ? RoundBlockSizeMode::Margin : RoundBlockSizeMode::None;
+        $roundMode = $this->roundModeFromParam($roundModeParam, $rounded);
         $qr = new QrCode(
             data: $data,
             encoding: new Encoding('UTF-8'),
@@ -227,7 +230,11 @@ class QrCodeService
         if ($fontFile !== null && extension_loaded('gd')) {
             $logoPath = $this->createTextLogoPng($text1, $text2, $fontFile, $fontSz, [0, 0, 0]);
         }
-        $logo = $logoPath !== null ? new Logo($logoPath, $logoW) : null;
+        $logo = $logoPath !== null ? new Logo(
+            path: $logoPath,
+            resizeToWidth: $logoW,
+            punchoutBackground: $logoPunchout
+        ) : null;
 
         try {
             if ($format === 'svg') {
@@ -282,6 +289,18 @@ class QrCodeService
             'quartile' => ErrorCorrectionLevel::Quartile,
             default => ErrorCorrectionLevel::High,
         };
+    }
+
+    private function roundModeFromParam(mixed $v, bool $rounded): RoundBlockSizeMode
+    {
+        if (is_string($v)) {
+            $mode = RoundBlockSizeMode::tryFrom(strtolower($v));
+            if ($mode !== null) {
+                return $mode;
+            }
+        }
+
+        return $rounded ? RoundBlockSizeMode::Margin : RoundBlockSizeMode::None;
     }
 
     private function clampInt(mixed $v, int $min, int $max, int $def): int

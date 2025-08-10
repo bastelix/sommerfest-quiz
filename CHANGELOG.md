@@ -6,6 +6,10 @@
 
 - Statistik-Tab beschrieben
 
+### Feat
+
+- Enable punch-out logos and custom round modes for QR codes
+
 ### Chore
 
 - Cascade delete events
