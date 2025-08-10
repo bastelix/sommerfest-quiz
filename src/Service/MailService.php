@@ -41,7 +41,7 @@ class MailService
             $profile = json_decode((string) file_get_contents($profileFile), true) ?: [];
         }
 
-        $fromEmail = (string) ($profile['imprint_email'] ?? $user);
+        $fromEmail = $user;
         $fromName  = (string) ($profile['imprint_name'] ?? '');
         $from      = $fromName !== '' ? sprintf('%s <%s>', $fromName, $fromEmail) : $fromEmail;
 

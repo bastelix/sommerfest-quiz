@@ -11,7 +11,7 @@ use Twig\Loader\ArrayLoader;
 
 class MailServiceTest extends TestCase
 {
-    public function testUsesProfileEmailAsFrom(): void
+    public function testUsesSmtpUserAsFrom(): void
     {
         $root = dirname(__DIR__, 2);
         $profile = $root . '/data/profile.json';
@@ -38,7 +38,7 @@ class MailServiceTest extends TestCase
         $prop->setAccessible(true);
         $from = $prop->getValue($svc);
 
-        $this->assertSame('Example Org <admin@example.org>', $from);
+        $this->assertSame('Example Org <user@example.org>', $from);
 
         file_put_contents($profile, $backup);
     }
