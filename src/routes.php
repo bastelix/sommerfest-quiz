@@ -57,6 +57,7 @@ use App\Controller\SettingsController;
 use App\Controller\Admin\PageController;
 use App\Controller\TenantController;
 use App\Controller\Marketing\LandingController;
+use App\Controller\Marketing\ContactController;
 use App\Controller\RegisterController;
 use App\Controller\OnboardingController;
 use App\Controller\OnboardingEmailController;
@@ -99,6 +100,7 @@ require_once __DIR__ . '/Controller/BackupController.php';
 require_once __DIR__ . '/Controller/UserController.php';
 require_once __DIR__ . '/Controller/TenantController.php';
 require_once __DIR__ . '/Controller/Marketing/LandingController.php';
+require_once __DIR__ . '/Controller/Marketing/ContactController.php';
 require_once __DIR__ . '/Controller/RegisterController.php';
 require_once __DIR__ . '/Controller/OnboardingController.php';
 require_once __DIR__ . '/Controller/OnboardingEmailController.php';
@@ -254,6 +256,9 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new LandingController();
         return $controller($request, $response);
     });
+    $app->post('/landing/contact', ContactController::class)
+        ->add(new RateLimitMiddleware(3, 3600))
+        ->add(new CsrfMiddleware());
     $app->get('/onboarding', OnboardingController::class);
     $app->post('/onboarding/email', function (Request $request, Response $response) {
         return $request->getAttribute('onboardingEmailController')->request($request, $response);

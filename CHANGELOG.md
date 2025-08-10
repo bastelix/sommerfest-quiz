@@ -56,6 +56,7 @@
 - Describe higher subscription tiers cumulatively
 - Document PHP 8.2 requirement
 - Add PHP 8.2 stable support note
+- Document qr code enhancements
 
 ### Feat
 
@@ -126,6 +127,7 @@
 - Add rotating word animation to hero
 - Add logo and rounding to QR codes
 - Enhance rotating word marker
+- Style founder section
 
 ### Fix
 
@@ -162,11 +164,13 @@
 - Prevent landing page header overlap on mobile
 - Render footer menu at page bottom
 - Import email confirmation service
+- Show feedback after password reset request
 
 ### Refactor
 
 - Wrap long SQL strings
 - Reuse existing events script for event selector
+- Use constants for qr code defaults
 
 ### Style
 

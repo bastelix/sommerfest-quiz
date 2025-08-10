@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use RuntimeException;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mailer\Transport;
@@ -35,12 +36,37 @@ class MailService
         $pass = (string) ($env['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '');
         $port = (string) ($env['SMTP_PORT'] ?? getenv('SMTP_PORT') ?: '587');
 
+        if ($host === '' || $user === '' || $pass === '') {
+            $missing = [];
+            if ($host === '') {
+                $missing[] = 'SMTP_HOST';
+            }
+            if ($user === '') {
+                $missing[] = 'SMTP_USER';
+            }
+            if ($pass === '') {
+                $missing[] = 'SMTP_PASS';
+            }
+
+            throw new RuntimeException('Missing SMTP configuration: ' . implode(', ', $missing));
+        }
+
+        $profileFile = $root . '/data/profile.json';
+        $profile = [];
+        if (is_readable($profileFile)) {
+            $profile = json_decode((string) file_get_contents($profileFile), true) ?: [];
+        }
+
+        $fromEmail = $user;
+        $fromName  = (string) ($profile['imprint_name'] ?? '');
+        $from      = $fromName !== '' ? sprintf('%s <%s>', $fromName, $fromEmail) : $fromEmail;
+
         $dsn = sprintf('smtp://%s:%s@%s:%s', rawurlencode($user), rawurlencode($pass), $host, $port);
 
         $transport = Transport::fromDsn($dsn);
         $this->mailer = new Mailer($transport);
         $this->twig   = $twig;
-        $this->from   = $user;
+        $this->from   = $from;
         $this->audit  = $audit;
     }
 
@@ -122,5 +148,28 @@ class MailService
         $this->audit?->log('welcome_mail', ['to' => $to, 'domain' => $domain]);
 
         return $html;
+    }
+
+    /**
+     * Send contact form message to given recipient.
+     */
+    public function sendContact(string $to, string $name, string $replyTo, string $message): void
+    {
+        $html = $this->twig->render('emails/contact.twig', [
+            'name'    => $name,
+            'email'   => $replyTo,
+            'message' => $message,
+        ]);
+
+        $email = (new Email())
+            ->from($this->from)
+            ->to($to)
+            ->replyTo($replyTo)
+            ->subject('Kontaktanfrage')
+            ->html($html);
+
+        $this->mailer->send($email);
+
+        $this->audit?->log('contact_mail', ['from' => $replyTo]);
     }
 }
