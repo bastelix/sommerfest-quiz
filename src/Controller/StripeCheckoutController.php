@@ -29,8 +29,8 @@ class StripeCheckoutController
         $priceId = $priceMap[$plan] ?? '';
         $uri = $request->getUri();
         $base = $uri->getScheme() . '://' . $uri->getHost();
-        $successUrl = $base . '/onboarding?paid=1';
-        $cancelUrl = $base . '/onboarding?canceled=1';
+        $successUrl = $base . '/onboarding?paid=1&session_id={CHECKOUT_SESSION_ID}';
+        $cancelUrl = $base . '/onboarding?canceled=1&session_id={CHECKOUT_SESSION_ID}';
 
         $service = new StripeService();
         $url = $service->createCheckoutSession($priceId, $successUrl, $cancelUrl, $email);

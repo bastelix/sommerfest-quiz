@@ -63,6 +63,7 @@ use App\Controller\RegisterController;
 use App\Controller\OnboardingController;
 use App\Controller\OnboardingEmailController;
 use App\Controller\StripeCheckoutController;
+use App\Controller\StripeSessionController;
 use App\Controller\SubscriptionController;
 use App\Controller\InvitationController;
 use Slim\Views\Twig;
@@ -106,6 +107,7 @@ require_once __DIR__ . '/Controller/RegisterController.php';
 require_once __DIR__ . '/Controller/OnboardingController.php';
 require_once __DIR__ . '/Controller/OnboardingEmailController.php';
 require_once __DIR__ . '/Controller/StripeCheckoutController.php';
+require_once __DIR__ . '/Controller/StripeSessionController.php';
 require_once __DIR__ . '/Controller/SubscriptionController.php';
 require_once __DIR__ . '/Controller/InvitationController.php';
 
@@ -270,6 +272,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('onboardingEmailController')->status($request, $response);
     });
     $app->post('/onboarding/checkout', StripeCheckoutController::class);
+    $app->get('/onboarding/checkout/{id}', StripeSessionController::class);
     $app->get('/login', [LoginController::class, 'show']);
     $app->post('/login', [LoginController::class, 'login']);
     $app->get('/register', [RegisterController::class, 'show']);

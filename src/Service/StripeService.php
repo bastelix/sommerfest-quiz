@@ -56,4 +56,17 @@ class StripeService
         ]);
         return (string) $session->url;
     }
+
+    /**
+     * Check whether a checkout session has been paid.
+     */
+    public function isCheckoutSessionPaid(string $sessionId): bool
+    {
+        try {
+            $session = $this->client->checkout->sessions->retrieve($sessionId, []);
+            return ($session->payment_status ?? '') === 'paid';
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
 }
