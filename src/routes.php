@@ -389,12 +389,31 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ];
             }
         }
+        $usageStmt = $pdo->query('SELECT COUNT(*) FROM events');
+        $eventCount = (int) $usageStmt->fetchColumn();
+        $catCount = (int) $pdo->query('SELECT COUNT(*) FROM catalogs')->fetchColumn();
+        $qCount = (int) $pdo->query('SELECT COUNT(*) FROM questions')->fetchColumn();
+        $host = $request->getUri()->getHost();
+        $sub = explode('.', $host)[0];
+        $base = Database::connectFromEnv();
+        $tenantSvc = new TenantService($base);
+        $plan = $tenantSvc->getPlanBySubdomain($sub);
+        $limits = $tenantSvc->getLimitsBySubdomain($sub);
         $payload = [
             'period' => $start->format('Y-m'),
             'today' => $now->format('Y-m-d'),
             'events' => $events,
             'upcoming' => $upcoming,
             'stats' => $stats,
+            'subscription' => [
+                'plan' => $plan,
+                'limits' => $limits,
+                'usage' => [
+                    'events' => $eventCount,
+                    'catalogs' => $catCount,
+                    'questions' => $qCount,
+                ],
+            ],
         ];
         $response->getBody()->write((string) json_encode($payload));
         return $response->withHeader('Content-Type', 'application/json');
