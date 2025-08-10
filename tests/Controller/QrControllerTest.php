@@ -84,6 +84,17 @@ class QrControllerTest extends TestCase
         $this->assertNotEmpty((string) $response->getBody());
     }
 
+    public function testTeamQrDefaults(): void
+    {
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/qr/team');
+        $response = $app->handle($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('image/png', $response->getHeaderLine('Content-Type'));
+        $this->assertNotEmpty((string) $response->getBody());
+    }
+
     public function testTeamQrSvgFormat(): void
     {
         $app = $this->getAppInstance();

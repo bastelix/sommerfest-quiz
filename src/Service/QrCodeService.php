@@ -178,6 +178,7 @@ class QrCodeService
      */
     public function generateTeam(array $q): array
     {
+        // Defaults for team QR codes: generic label and brand color
         return $this->buildQrWithCenterLogoParam($q, [
             't' => 'Team 1',
             'fg' => '004bc8',
