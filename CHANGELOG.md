@@ -119,6 +119,7 @@
 - Add invitation handling
 - Secure password reset tokens
 - Implement QR code service
+- Update admin QR codes to new design
 
 ### Fix
 
