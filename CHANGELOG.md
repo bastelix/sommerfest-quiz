@@ -185,6 +185,7 @@
 - Enlarge hero heading and center button text
 - Harmonize landing page section backgrounds
 - Use neutral background for founder section
+- Add textured underline animation
 
 ### Test
 
