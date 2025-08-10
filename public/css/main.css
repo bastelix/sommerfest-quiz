@@ -8,6 +8,11 @@ body {
   overflow-x: hidden;
 }
 
+/* Background for "Wer steckt hinter QuizRace?" section */
+.about-section {
+  background-color: #f3f3f3;
+}
+
 body.uk-padding {
   padding-top: 56px;
 }
