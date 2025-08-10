@@ -701,4 +701,8 @@ body.dark-mode .sticky-actions {
   height: auto !important;
 }
 
+.qr-img {
+  border-radius: 8px;
+}
+
 
