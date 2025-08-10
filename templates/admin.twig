@@ -125,7 +125,7 @@
                 <label class="uk-form-label" for="cfgLogoPreview">{{ t('label_logo_preview') }}</label>
                 <div class="uk-form-controls">
                   <div class="logo-frame uk-margin-small-top">
-                    <img id="cfgLogoPreview" src="{{ basePath ~ config.logoPath|default('') }}" alt="{{ t('label_logo_preview') }}" class="logo-placeholder">
+                    <img id="cfgLogoPreview" src="{{ basePath ~ config.logoPath|default('https://via.placeholder.com/160x240?text=Logo') }}" alt="{{ t('label_logo_preview') }}" class="logo-placeholder" width="160" height="240" loading="lazy">
                   </div>
                 </div>
               </div>
