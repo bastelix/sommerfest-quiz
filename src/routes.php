@@ -683,6 +683,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/qr/catalog', function (Request $request, Response $response) {
         return $request->getAttribute('qrController')->catalog($request, $response);
     });
+    // Team QR codes
     $app->get('/qr/team', function (Request $request, Response $response) {
         return $request->getAttribute('qrController')->team($request, $response);
     });

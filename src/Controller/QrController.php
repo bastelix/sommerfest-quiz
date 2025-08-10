@@ -63,7 +63,7 @@ class QrController
     }
 
     /**
-     * Generate a team QR code with default styling.
+     * Generate a team QR code with default styling using QrCodeService defaults.
      */
     public function team(Request $request, Response $response): Response
     {
