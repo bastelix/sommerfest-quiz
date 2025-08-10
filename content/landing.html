@@ -377,6 +377,8 @@ window.addEventListener('load', () => {
       const data = new URLSearchParams(new FormData(form));
       fetch('{{ basePath }}/landing/contact', {
         method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        credentials: 'same-origin',
         body: data
       }).then(res => {
         if (res.ok) {
