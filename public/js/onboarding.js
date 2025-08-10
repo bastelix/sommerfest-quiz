@@ -301,7 +301,7 @@
         const res = await fetch(withBase('/onboarding/checkout'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plan: data.plan })
+          body: JSON.stringify({ plan: data.plan, email: data.email })
         });
         const json = await res.json().catch(() => ({}));
         if (json.url) {
