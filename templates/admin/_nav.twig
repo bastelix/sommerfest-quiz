@@ -1,0 +1,118 @@
+{% set current = currentPath %}
+<ul class="uk-nav uk-nav-default">
+  <li class="{{ current starts with (basePath ~ '/admin/dashboard') ? 'uk-active' }}">
+    <a href="{{ basePath }}/admin/dashboard">
+      <span uk-icon="icon: home; ratio: 0.95"></span>
+      <span class="qr-nav-text">{{ t('tab_dashboard') }}</span>
+    </a>
+  </li>
+  <li class="uk-nav-header">{{ t('menu_event') }}</li>
+  <li class="{{ current starts with (basePath ~ '/admin/events') ? 'uk-active' }}">
+    <a href="{{ basePath }}/admin/events">
+      <span uk-icon="icon: calendar; ratio: 0.95"></span>
+      <span class="qr-nav-text">{{ t('tab_events') }}</span>
+    </a>
+  </li>
+  <li class="{{ current starts with (basePath ~ '/admin/event/settings') ? 'uk-active' }}">
+    <a href="{{ basePath }}/admin/event/settings">
+      <span uk-icon="icon: cog; ratio: 0.95"></span>
+      <span class="qr-nav-text">{{ t('tab_event_settings') }}</span>
+    </a>
+  </li>
+  <li class="uk-nav-header">{{ t('menu_content') }}</li>
+  <li class="{{ current starts with (basePath ~ '/admin/catalogs') ? 'uk-active' }}">
+    <a href="{{ basePath }}/admin/catalogs">
+      <span uk-icon="icon: folder; ratio: 0.95"></span>
+      <span class="qr-nav-text">{{ t('tab_catalogs') }}</span>
+    </a>
+  </li>
+  <li class="{{ current starts with (basePath ~ '/admin/questions') ? 'uk-active' }}">
+    <a href="{{ basePath }}/admin/questions">
+      <span uk-icon="icon: question; ratio: 0.95"></span>
+      <span class="qr-nav-text">{{ t('tab_questions') }}</span>
+    </a>
+  </li>
+  {% if role == 'admin' %}
+  <li class="{{ current starts with (basePath ~ '/admin/pages') ? 'uk-active' }}">
+    <a href="{{ basePath }}/admin/pages">
+      <span uk-icon="icon: file-text; ratio: 0.95"></span>
+      <span class="qr-nav-text">{{ t('tab_pages') }}</span>
+    </a>
+  </li>
+  {% endif %}
+  <li class="uk-nav-header">{{ t('menu_teams') }}</li>
+  <li class="{{ current starts with (basePath ~ '/admin/teams') ? 'uk-active' }}">
+    <a href="{{ basePath }}/admin/teams">
+      <span uk-icon="icon: users; ratio: 0.95"></span>
+      <span class="qr-nav-text">{{ t('tab_teams') }}</span>
+    </a>
+  </li>
+  <li class="uk-nav-header">{{ t('menu_evaluation') }}</li>
+  <li class="{{ current starts with (basePath ~ '/admin/summary') ? 'uk-active' }}">
+    <a href="{{ basePath }}/admin/summary">
+      <span uk-icon="icon: thumbnails; ratio: 0.95"></span>
+      <span class="qr-nav-text">{{ t('tab_summary') }}</span>
+    </a>
+  </li>
+  <li class="{{ current starts with (basePath ~ '/admin/results') ? 'uk-active' }}">
+    <a href="{{ basePath }}/admin/results">
+      <span uk-icon="icon: list; ratio: 0.95"></span>
+      <span class="qr-nav-text">{{ t('tab_results') }}</span>
+    </a>
+  </li>
+  <li class="{{ current starts with (basePath ~ '/admin/statistics') ? 'uk-active' }}">
+    <a href="{{ basePath }}/admin/statistics">
+      <span uk-icon="icon: graph; ratio: 0.95"></span>
+      <span class="qr-nav-text">{{ t('tab_statistics') }}</span>
+    </a>
+  </li>
+  {% if role == 'admin' %}
+  <li class="uk-nav-header">{{ t('menu_admin') }}</li>
+  <li class="{{ current starts with (basePath ~ '/admin/management') ? 'uk-active' }}">
+    <a href="{{ basePath }}/admin/management">
+      <span uk-icon="icon: cog; ratio: 0.95"></span>
+      <span class="qr-nav-text">{{ t('tab_management') }}</span>
+    </a>
+  </li>
+  {% if domainType == 'main' %}
+  <li class="{{ current starts with (basePath ~ '/admin/tenants') ? 'uk-active' }}">
+    <a href="{{ basePath }}/admin/tenants">
+      <span uk-icon="icon: world; ratio: 0.95"></span>
+      <span class="qr-nav-text">{{ t('tab_tenants') }}</span>
+    </a>
+  </li>
+  <li class="{{ current starts with (basePath ~ '/admin/profile') ? 'uk-active' }}">
+    <a href="{{ basePath }}/admin/profile">
+      <span uk-icon="icon: user; ratio: 0.95"></span>
+      <span class="qr-nav-text">{{ t('tab_profile') }}</span>
+    </a>
+  </li>
+  <li class="{{ current starts with (basePath ~ '/admin/subscription') ? 'uk-active' }}">
+    <a href="{{ basePath }}/admin/subscription">
+      <span uk-icon="icon: credit-card; ratio: 0.95"></span>
+      <span class="qr-nav-text">{{ t('tab_subscription') }}</span>
+    </a>
+  </li>
+  {% else %}
+  <li class="{{ current starts with (basePath ~ '/admin/profile') ? 'uk-active' }}">
+    <a href="{{ basePath }}/admin/profile">
+      <span uk-icon="icon: user; ratio: 0.95"></span>
+      <span class="qr-nav-text">{{ t('tab_profile') }}</span>
+    </a>
+  </li>
+  <li class="{{ current starts with (basePath ~ '/admin/subscription') ? 'uk-active' }}">
+    <a href="{{ basePath }}/admin/subscription">
+      <span uk-icon="icon: credit-card; ratio: 0.95"></span>
+      <span class="qr-nav-text">{{ t('tab_subscription') }}</span>
+    </a>
+  </li>
+  {% endif %}
+  {% endif %}
+  <li class="uk-nav-divider"></li>
+  <li>
+    <a href="{{ basePath }}/logout">
+      <span uk-icon="icon: sign-out; ratio: 0.95"></span>
+      <span class="qr-nav-text">{{ t('logout') }}</span>
+    </a>
+  </li>
+</ul>

@@ -195,6 +195,16 @@ body.uk-padding {
   line-height: 1.2;
 }
 
+/* Admin sidebar navigation */
+.qr-sidebar { min-height: calc(100vh - 56px); }
+.qr-sidebar-card { height: 100%; overflow-y: auto; }
+.qr-nav-text { margin-left: 8px; }
+.uk-nav > li.uk-active > a {
+  background: var(--uk-background-muted, #f8f8f8);
+  border-radius: 6px;
+  font-weight: 600;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }

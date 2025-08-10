@@ -161,21 +161,22 @@ class AdminController
             ?: getenv('DOMAIN')
             ?: $uri->getHost();
 
-        return $view->render($response, 'admin.twig', [
-            'config' => $cfg,
-            'settings' => $settings,
-            'results' => $results,
-            'catalogs' => $catalogs,
-            'teams' => $teams,
-            'users' => $users,
-            'roles' => Roles::ALL,
-            'baseUrl' => $baseUrl,
-            'main_domain' => $mainDomain,
-            'event' => $event,
-            'role' => $role,
-            'pages' => $pages,
-            'domainType' => $request->getAttribute('domainType'),
-            'tenant' => $tenant,
-        ]);
-    }
-}
+          return $view->render($response, 'admin.twig', [
+              'config' => $cfg,
+              'settings' => $settings,
+              'results' => $results,
+              'catalogs' => $catalogs,
+              'teams' => $teams,
+              'users' => $users,
+              'roles' => Roles::ALL,
+              'baseUrl' => $baseUrl,
+              'main_domain' => $mainDomain,
+              'event' => $event,
+              'role' => $role,
+              'pages' => $pages,
+              'domainType' => $request->getAttribute('domainType'),
+              'tenant' => $tenant,
+              'currentPath' => $request->getUri()->getPath(),
+          ]);
+      }
+  }
