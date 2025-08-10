@@ -13,6 +13,11 @@ body {
   color: #fff;
 }
 
+.about-section .uk-text-lead,
+.uk-light .uk-text-lead {
+  color: #fff;
+}
+
 
 body.uk-padding {
   padding-top: 56px;
