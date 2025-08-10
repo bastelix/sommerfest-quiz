@@ -127,6 +127,7 @@
 - Add rotating word animation to hero
 - Add logo and rounding to QR codes
 - Enhance rotating word marker
+- Style founder section
 
 ### Fix
 
