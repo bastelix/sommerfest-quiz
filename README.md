@@ -58,6 +58,12 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
 
 ## Schnellstart
 
+Stelle sicher, dass PHP 8.2 oder höher installiert ist:
+
+```bash
+php -v
+```
+
 1. Abhängigkeiten installieren:
   ```bash
   composer install

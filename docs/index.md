@@ -10,6 +10,8 @@ auf dem Slim Framework und nutzt UIkit3 für ein responsives Design. Fragenkatal
 Teilnehmer und Ergebnisse werden in einer PostgreSQL-Datenbank gespeichert und
 können per JSON importiert oder exportiert werden.
 
+Die Anwendung benötigt PHP 8.2 oder höher.
+
 Die Entwicklung entstand als Machbarkeitsstudie, um das Potenzial moderner
 Code-Assistenten in der Praxis zu testen. Barrierefreiheit, Datenschutz und eine
 hohe Performance standen dabei im Mittelpunkt.

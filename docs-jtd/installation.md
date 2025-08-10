@@ -8,6 +8,12 @@ toc: true
 
 # Installation & Schnellstart
 
+Stelle sicher, dass PHP 8.2 oder höher installiert ist:
+
+```bash
+php -v
+```
+
 1. **Abhängigkeiten installieren**
    ```bash
    composer install

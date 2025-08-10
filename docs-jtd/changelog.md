@@ -9,6 +9,12 @@ toc: true
 # Versionsverlauf
 
 Dieses Dokument listet Änderungen und Updates des Projekts.
+
+## Version 0.2.1 - 10.08.2025
+### Geändert
+- Mindestanforderung auf PHP 8.2 aktualisiert
+- Installationsbeispiele angepasst
+
 ## Version 0.2.0 - 23.06.2025
 ### Hinzugefügt
 - Hierarchische Navigation im Handbuch
