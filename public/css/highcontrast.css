@@ -15,6 +15,10 @@ body.high-contrast .uk-card-default {
 body.high-contrast .modern-info-card {
   border-color: #000000;
 }
+body.high-contrast .onboarding-step {
+  border-color: #000000;
+  box-shadow: none;
+}
 body.high-contrast .uk-button-primary {
   background-color: #000000;
   border-color: #000000;
@@ -76,6 +80,10 @@ body.dark-mode.high-contrast .uk-card-default {
 }
 body.dark-mode.high-contrast .modern-info-card {
   border-color: #ffffff;
+}
+body.dark-mode.high-contrast .onboarding-step {
+  border-color: #ffffff;
+  box-shadow: none;
 }
 
 body.dark-mode.high-contrast .uk-button-primary {
