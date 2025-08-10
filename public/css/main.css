@@ -10,7 +10,8 @@ body {
 
 /* Background for "Wer steckt hinter QuizRace?" section */
 .about-section {
-  background-color: #e0e0e0;
+  background-color: #000;
+  color: #fff;
 }
 
 body.uk-padding {
