@@ -19,6 +19,7 @@ class MailService
     private Environment $twig;
     private string $from;
     private ?AuditLogger $audit;
+    private string $dsn;
 
     public function __construct(Environment $twig, ?AuditLogger $audit = null)
     {
@@ -30,10 +31,11 @@ class MailService
             $env = parse_ini_file($envFile, false, INI_SCANNER_RAW) ?: [];
         }
 
-        $host = (string) ($env['SMTP_HOST'] ?? getenv('SMTP_HOST') ?: '');
-        $user = (string) ($env['SMTP_USER'] ?? getenv('SMTP_USER') ?: '');
-        $pass = (string) ($env['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '');
-        $port = (string) ($env['SMTP_PORT'] ?? getenv('SMTP_PORT') ?: '587');
+        $host       = (string) ($env['SMTP_HOST'] ?? getenv('SMTP_HOST') ?: '');
+        $user       = (string) ($env['SMTP_USER'] ?? getenv('SMTP_USER') ?: '');
+        $pass       = (string) ($env['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '');
+        $port       = (string) ($env['SMTP_PORT'] ?? getenv('SMTP_PORT') ?: '587');
+        $encryption = strtolower((string) ($env['SMTP_ENCRYPTION'] ?? getenv('SMTP_ENCRYPTION') ?: ''));
 
         $profileFile = $root . '/data/profile.json';
         $profile = [];
@@ -45,13 +47,29 @@ class MailService
         $fromName  = (string) ($profile['imprint_name'] ?? '');
         $from      = $fromName !== '' ? sprintf('%s <%s>', $fromName, $fromEmail) : $fromEmail;
 
-        $dsn = sprintf('smtp://%s:%s@%s:%s', rawurlencode($user), rawurlencode($pass), $host, $port);
+        $dsn = sprintf(
+            'smtp://%s:%s@%s:%s',
+            rawurlencode($user),
+            rawurlencode($pass),
+            $host,
+            $port
+        );
 
-        $transport = Transport::fromDsn($dsn);
+        if ($encryption !== '' && $encryption !== 'none') {
+            $dsn .= sprintf('?encryption=%s', $encryption);
+        }
+
+        $transport   = Transport::fromDsn($dsn);
         $this->mailer = new Mailer($transport);
         $this->twig   = $twig;
         $this->from   = $from;
         $this->audit  = $audit;
+        $this->dsn    = $dsn;
+    }
+
+    public function getDsn(): string
+    {
+        return $this->dsn;
     }
 
     /**

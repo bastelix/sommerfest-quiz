@@ -42,5 +42,27 @@ class MailServiceTest extends TestCase
 
         file_put_contents($profile, $backup);
     }
-}
 
+    public function testBuildsDsnWithEncryption(): void
+    {
+        putenv('SMTP_HOST=localhost');
+        putenv('SMTP_USER=user@example.org');
+        putenv('SMTP_PASS=secret');
+        putenv('SMTP_PORT=587');
+        putenv('SMTP_ENCRYPTION=tls');
+        $_ENV['SMTP_HOST'] = 'localhost';
+        $_ENV['SMTP_USER'] = 'user@example.org';
+        $_ENV['SMTP_PASS'] = 'secret';
+        $_ENV['SMTP_PORT'] = '587';
+        $_ENV['SMTP_ENCRYPTION'] = 'tls';
+
+        $twig = new Environment(new ArrayLoader());
+        $svc = new MailService($twig);
+        $dsn = $svc->getDsn();
+
+        $this->assertSame(
+            'smtp://user%40example.org:secret@localhost:587?encryption=tls',
+            $dsn
+        );
+    }
+}

@@ -483,6 +483,7 @@ Für Funktionen wie das Zurücksetzen von Passwörtern nutzt die Anwendung SMTP.
 - `SMTP_USER` – Benutzername und Absenderadresse
 - `SMTP_PASS` – Passwort
 - `SMTP_PORT` – Port (z. B. 587)
+- `SMTP_ENCRYPTION` – Verschlüsselung (`none`, `tls` oder `ssl`)
 
 Diese Variablen können in `.env` gesetzt werden.
 
@@ -492,7 +493,7 @@ Die API unterstützt ein zweistufiges Verfahren zum Zurücksetzen vergessener Pa
 1. `POST /password/reset/request` nimmt einen Benutzernamen oder eine E‑Mail-Adresse entgegen und verschickt einen Link mit einem Reset-Token.
 2. `POST /password/reset/confirm` setzt nach Validierung des Tokens das neue Passwort.
 
-Für den Versand der E-Mails müssen `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` und `SMTP_PORT` konfiguriert sein. Das Token ist aus Sicherheitsgründen nur eine Stunde gültig.
+Für den Versand der E-Mails müssen `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` und `SMTP_PORT` konfiguriert sein. Optional kann `SMTP_ENCRYPTION` auf `tls` oder `ssl` gesetzt werden. Das Token ist aus Sicherheitsgründen nur eine Stunde gültig.
 
 ### Administrationsoberfläche
 Unter `/admin` stehen folgende Tabs zur Verfügung:
