@@ -62,6 +62,29 @@ class QrControllerTest extends TestCase
         $this->assertNotEmpty((string) $response->getBody());
     }
 
+    public function testCatalogQrDefaults(): void
+    {
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/qr/catalog');
+        $response = $app->handle($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('image/png', $response->getHeaderLine('Content-Type'));
+        $this->assertNotEmpty((string) $response->getBody());
+    }
+
+    public function testTeamQrSvgFormat(): void
+    {
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/qr/team')
+            ->withQueryParams(['format' => 'svg']);
+        $response = $app->handle($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('image/svg+xml', $response->getHeaderLine('Content-Type'));
+        $this->assertNotEmpty((string) $response->getBody());
+    }
+
     public function testQrPdfIsGenerated(): void
     {
         $app = $this->getAppInstance();
