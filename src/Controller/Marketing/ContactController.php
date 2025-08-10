@@ -44,6 +44,10 @@ class ContactController
 
         $mailer = $request->getAttribute('mailService');
         if (!$mailer instanceof MailService) {
+            if (!MailService::isConfigured()) {
+                $response->getBody()->write('Mailservice nicht konfiguriert');
+                return $response->withStatus(503)->withHeader('Content-Type', 'text/plain');
+            }
             $twig = Twig::fromRequest($request)->getEnvironment();
             $mailer = new MailService($twig);
         }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Marketing;
 
+use App\Service\MailService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
@@ -30,6 +31,14 @@ class LandingController
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
         $_SESSION['csrf_token'] = $csrf;
         $html = str_replace('{{ csrf_token }}', $csrf, $html);
+
+        if (!MailService::isConfigured()) {
+            $html = preg_replace(
+                '/<form id="contact-form"[\s\S]*?<\/form>/',
+                '<p class="uk-text-center">Kontaktformular derzeit nicht verfügbar.</p>',
+                $html
+            );
+        }
 
         $view = Twig::fromRequest($request);
         return $view->render($response, 'marketing/landing.twig', [

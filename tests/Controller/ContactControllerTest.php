@@ -43,4 +43,30 @@ class ContactControllerTest extends TestCase
         $this->assertSame('Mailversand fehlgeschlagen', (string) $response->getBody());
         session_destroy();
     }
+
+    public function testContactUnavailableWhenMailConfigMissing(): void
+    {
+        putenv('SMTP_HOST');
+        putenv('SMTP_USER');
+        putenv('SMTP_PASS');
+        unset($_ENV['SMTP_HOST'], $_ENV['SMTP_USER'], $_ENV['SMTP_PASS']);
+
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['csrf_token'] = 'tok';
+        $request = $this->createRequest('POST', '/landing/contact', [
+            'Content-Type' => 'application/json',
+            'X-CSRF-Token' => 'tok',
+        ]);
+        $request->getBody()->write(json_encode([
+            'name' => 'Jane',
+            'email' => 'jane@example.com',
+            'message' => 'Hi',
+        ]));
+        $request->getBody()->rewind();
+
+        $response = $app->handle($request);
+        $this->assertEquals(503, $response->getStatusCode());
+        session_destroy();
+    }
 }
