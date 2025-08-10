@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use RuntimeException;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mailer\Transport;
@@ -34,6 +35,21 @@ class MailService
         $user = (string) ($env['SMTP_USER'] ?? getenv('SMTP_USER') ?: '');
         $pass = (string) ($env['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '');
         $port = (string) ($env['SMTP_PORT'] ?? getenv('SMTP_PORT') ?: '587');
+
+        if ($host === '' || $user === '' || $pass === '') {
+            $missing = [];
+            if ($host === '') {
+                $missing[] = 'SMTP_HOST';
+            }
+            if ($user === '') {
+                $missing[] = 'SMTP_USER';
+            }
+            if ($pass === '') {
+                $missing[] = 'SMTP_PASS';
+            }
+
+            throw new RuntimeException('Missing SMTP configuration: ' . implode(', ', $missing));
+        }
 
         $profileFile = $root . '/data/profile.json';
         $profile = [];
