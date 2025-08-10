@@ -22,6 +22,17 @@ class QrCodeService
     private const QR_MARGIN_DEF = 10;
     private const LOGO_WIDTH_DEF = 80;
     private const FONT_SIZE_DEF = 20;
+    private const FALLBACK_LOGO_PNG_BASE64 =
+        'iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAIAAAABc2X6AAABrUlEQVR4nO3aL4sCQRzG8Tk9DBbB'
+        . 'aLAKikUtMoIDk4yC78WXo8V3YNhgcMMaJyyKJpNRGIOwoLBz4UCEA0XYuT/PPZ82MsjvC79di2/O'
+        . 'OfGf5H56gO/GYHQMRsdgdAxGx2B0DEbHYHQMRsdgdAxGx2B0DEbH4C8mk0m73e52u51OZzabfX5Y'
+        . 'LBaVUv1+v9VqhWHoechMuYeCIJBSWmudc9ZaKWUYhs65Uqn0eSGO42az+fhLfpUnwVrr1Wp1O0ZR'
+        . 'NBgM3F1wmqblctnbeNl7ElypVJIkuR2TJKlWq+4uOAiC0Wjkbbzsvb+6/+fzWQhxuVyUUtfrdbfb'
+        . 'bTYbP0+bF09eWo1GwxhzOxpj6vW6EKJQKCyXyyiKxuPxdDr1OmLGHi/AYrGQUp5OJ+ectbbX683n'
+        . 'c3e30saY4XDodwsz9WSltdaHw0Frnc/nt9utEGK/399fqNVqcRynaZrL/Y2f9Df3yl8ejsfjer1W'
+        . 'Snmbx7vXggH8jT3MEIPRMRgdg9ExGB2D0TEYHYPRMRgdg9ExGB2D0TEYHYPRMRgdg9ExGB2D0TEY'
+        . 'HYPRMRgdg9F9AHRS1dmj7GtGAAAAAElFTkSuQmCC';
+
     /**
      * Generate a QR code with the project's default styling.
      *
@@ -39,8 +50,17 @@ class QrCodeService
 
         $font = $this->getFontFile();
         $logoPath = null;
-        if ($font !== null && function_exists('imagecreatetruecolor')) {
-            $logoPath = $this->createTextLogo($logoText, $font, 20, [0, 0, 0]);
+        if ($font !== null && extension_loaded('gd')) {
+            $logoPath = $this->createTextLogo($logoText, $font, self::FONT_SIZE_DEF, [0, 0, 0]);
+        } else {
+            $tmp = tempnam(sys_get_temp_dir(), 'qrlogo_fallback');
+            if ($tmp !== false) {
+                $data = base64_decode(self::FALLBACK_LOGO_PNG_BASE64);
+                if ($data !== false) {
+                    file_put_contents($tmp, $data);
+                    $logoPath = $tmp;
+                }
+            }
         }
 
         $writer = strtolower($format) === 'svg' ? new SvgWriter() : new PngWriter();
@@ -128,6 +148,7 @@ class QrCodeService
     private function getFontFile(): ?string
     {
         $candidates = [
+            // Prefer bundled font to ensure consistent rendering
             __DIR__ . '/../../resources/fonts/NotoSans-Bold.ttf',
             '/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf',
             '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',

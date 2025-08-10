@@ -8,3 +8,4 @@ vendor/
 data/logo-*.png
 data/logo-*.webp
 data/admin_password.txt
+resources/fonts/*.ttf
