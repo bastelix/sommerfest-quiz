@@ -177,6 +177,21 @@
     }
     updateNext1();
 
+    const paidParam = params.get('paid');
+    const canceledParam = params.get('canceled');
+    if (next3 && (paidParam !== null || canceledParam !== null)) {
+      next3.disabled = paidParam !== '1';
+    }
+    if (paidParam === '1') {
+      if (typeof UIkit !== 'undefined') {
+        UIkit.notification({ message: 'Zahlung erfolgreich', status: 'success' });
+      }
+    } else if (canceledParam === '1') {
+      if (typeof UIkit !== 'undefined') {
+        UIkit.notification({ message: 'Zahlung abgebrochen', status: 'warning' });
+      }
+    }
+
     async function waitForHttps(url, onProgress) {
       const maxAttempts = 30;
       for (let i = 0; i < maxAttempts; i++) {
