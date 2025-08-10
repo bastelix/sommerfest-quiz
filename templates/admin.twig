@@ -25,10 +25,12 @@
 
 {% block body %}
   {% embed 'topbar.twig' %}
-    {% block mobile_menu_toggle %}{% endblock %}
-    {% block offcanvas %}{% endblock %}
     {% block left %}
-      <a id="adminMenuToggle" class="uk-icon-button" uk-icon="icon: menu; ratio: 2" aria-label="{{ t('menu') }}" uk-toggle="target: #adminNav"></a>
+      <a class="uk-navbar-toggle uk-hidden@m" uk-toggle="target: #qr-offcanvas" aria-label="{{ t('menu') }}">
+        <span uk-navbar-toggle-icon></span>
+        <span class="uk-margin-small-left">{{ t('menu') }}</span>
+      </a>
+      <a href="{{ basePath }}/admin/summary" class="uk-navbar-item uk-logo uk-margin-small-left">QuizRace Admin</a>
     {% endblock %}
     {% block center %}
       <div class="uk-flex uk-flex-middle">
@@ -52,27 +54,14 @@
       <button id="helpBtn" class="uk-icon-button uk-margin-small-left" uk-icon="icon: question; ratio: 2" aria-label="Hilfe"></button>
     {% endblock %}
   {% endembed %}
-  <ul id="adminTabs" uk-tab="connect: #adminSwitcher">
-    <li class="uk-active" data-route="dashboard" data-help="Startseite mit Übersicht."><a href="#" data-route-url="{{ basePath }}/admin/dashboard">{{ t('tab_dashboard') }}</a></li>
-    <li data-route="events" data-help="Veranstaltungen anlegen oder bearbeiten. Jede Zeile enthält Name, Beginn, Ende und Beschreibung. 'Hinzufügen' erstellt einen neuen Eintrag. Änderungen werden automatisch gespeichert."><a href="#" data-route-url="{{ basePath }}/admin/events">{{ t('tab_events') }}</a></li>
-    <li data-route="event/settings" data-help="Logo hochladen und Vorschau ansehen. Seitentitel, Überschrift und Untertitel festlegen. Hintergrund- und Buttonfarbe wählen. Optional den Button 'Antwort prüfen' und den QR-Code-Login aktivieren. 'Zurücksetzen' lädt gespeicherte Werte, 'Speichern' übernimmt Änderungen."><a href="#" data-route-url="{{ basePath }}/admin/event/settings">{{ t('tab_event_settings') }}</a></li>
-    <li data-route="catalogs" data-help="Fragenkataloge anlegen oder bearbeiten. Jede Zeile enthält einen Slug, Name, Beschreibung und optional einen Buchstaben für das Rätselwort. Der Slug kann angepasst werden. 'Hinzufügen' erstellt einen neuen Katalog, das rote × entfernt einen Eintrag. Speichern übernimmt die Änderungen."><a href="#" data-route-url="{{ basePath }}/admin/catalogs">{{ t('tab_catalogs') }}</a></li>
-    <li data-route="questions" data-help="Nach Auswahl eines Katalogs einzelne Fragen bearbeiten oder neue anlegen. Das Plus-Symbol legt eine weitere Frage an, 'Zurücksetzen' verwirft Änderungen, 'Speichern' sichert den gesamten Katalog."><a href="#" data-route-url="{{ basePath }}/admin/questions">{{ t('tab_questions') }}</a></li>
-    <li data-route="teams" data-help="Teilnehmerliste pflegen. Über 'Hinzufügen' Teams oder Personen ergänzen. Die Checkbox beschränkt die Teilnahme auf gelistete Namen. Speichern aktualisiert die Liste."><a href="#" data-route-url="{{ basePath }}/admin/teams">{{ t('tab_teams') }}</a></li>
-    <li data-route="summary" data-help="QR-Codes für alle Kataloge und Teams anzeigen, um Quizlinks oder Anmeldungen weiterzugeben. 'Drucken' erstellt eine übersichtliche Liste."><a href="#" data-route-url="{{ basePath }}/admin/summary">{{ t('tab_summary') }}</a></li>
-    <li data-route="results" data-help="Gespeicherte Ergebnisse mit richtigen Antworten und Zeit einsehen. 'Zurücksetzen' löscht alle Daten, 'Herunterladen' exportiert sie als CSV."><a href="#" data-route-url="{{ basePath }}/admin/results">{{ t('tab_results') }}</a></li>
-    <li data-route="statistics" data-help="Einzelne Antworten analysieren. Tabelle filtert nach Teams/Personen."><a href="#" data-route-url="{{ basePath }}/admin/statistics">{{ t('tab_statistics') }}</a></li>
-    {% if role == 'admin' %}
-    <li data-route="pages" data-help="Statische Seiten bearbeiten."><a href="#" data-route-url="{{ basePath }}/admin/pages">{{ t('tab_pages') }}</a></li>
-    <li data-route="management" data-help="Benutzer verwalten, Rollen zuweisen und Sicherungen erstellen. Rollen: admin – Administrator; catalog-editor – Fragenkataloge bearbeiten; event-manager – Veranstaltungen verwalten; analyst – Ergebnisse analysieren; team-manager – Teams verwalten."><a href="#" data-route-url="{{ basePath }}/admin/management">{{ t('tab_management') }}</a></li>
-    {% if domainType == 'main' %}
-    <li data-route="tenants" data-help="Liste aller angelegten Subdomains."><a href="#" data-route-url="{{ basePath }}/admin/tenants">{{ t('tab_tenants') }}</a></li>
-    {% endif %}
-    <li data-route="profile" data-help="Informationen zum eigenen Mandanten."><a href="#" data-route-url="{{ basePath }}/admin/profile">{{ t('tab_profile') }}</a></li>
-    <li data-route="subscription" data-help="Abo verwalten."><a href="#" data-route-url="{{ basePath }}/admin/subscription">{{ t('tab_subscription') }}</a></li>
-    {% endif %}
-  </ul>
-  <ul id="adminSwitcher" class="uk-switcher uk-margin">
+  <div class="uk-grid-collapse" uk-grid>
+    <aside class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+      <div class="uk-card uk-card-default uk-card-body qr-sidebar-card">
+        {% include 'admin/_nav.twig' %}
+      </div>
+    </aside>
+    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <ul id="adminSwitcher" class="uk-switcher uk-margin">
     <li>
       <div class="uk-container uk-container-large">
         <div id="dashboard" class="uk-margin-large-top">
@@ -768,52 +757,20 @@
       </div>
     </li>
     {% endif %}
-  </ul>
+      </ul>
+    </main>
+  </div>
   <div id="helpSidebar" uk-offcanvas="flip: true; overlay: true">
     <div class="uk-offcanvas-bar uk-width-medium">
       <h3 class="uk-margin-remove-top">Hilfe</h3>
       <div id="helpContent"></div>
     </div>
   </div>
-  <div id="adminNav" uk-offcanvas="overlay: true">
+  <div id="qr-offcanvas" uk-offcanvas="overlay: true">
     <div class="uk-offcanvas-bar">
-        <ul class="uk-nav uk-nav-default" id="adminMenu">
-          <li><a href="{{ basePath }}/admin/dashboard" data-tab="0">{{ t('tab_dashboard') }}</a></li>
-          <li class="uk-nav-header">{{ t('menu_event') }}</li>
-          <li><a href="{{ basePath }}/admin/events" data-tab="1">{{ t('tab_events') }}</a></li>
-          <li><a href="{{ basePath }}/admin/event/settings" data-tab="2">{{ t('tab_event_settings') }}</a></li>
-
-          <li class="uk-nav-header">{{ t('menu_content') }}</li>
-          <li><a href="{{ basePath }}/admin/catalogs" data-tab="3">{{ t('tab_catalogs') }}</a></li>
-          <li><a href="{{ basePath }}/admin/questions" data-tab="4">{{ t('tab_questions') }}</a></li>
-          {% if role == 'admin' %}
-          <li><a href="{{ basePath }}/admin/pages" data-tab="9">{{ t('tab_pages') }}</a></li>
-          {% endif %}
-
-          <li class="uk-nav-header">{{ t('menu_teams') }}</li>
-          <li><a href="{{ basePath }}/admin/teams" data-tab="5">{{ t('tab_teams') }}</a></li>
-
-          <li class="uk-nav-header">{{ t('menu_evaluation') }}</li>
-          <li><a href="{{ basePath }}/admin/summary" data-tab="6">{{ t('tab_summary') }}</a></li>
-          <li><a href="{{ basePath }}/admin/results" data-tab="7">{{ t('tab_results') }}</a></li>
-          <li><a href="{{ basePath }}/admin/statistics" data-tab="8">{{ t('tab_statistics') }}</a></li>
-
-          {% if role == 'admin' %}
-          <li class="uk-nav-header">{{ t('menu_admin') }}</li>
-          <li><a href="{{ basePath }}/admin/management" data-tab="10">{{ t('tab_management') }}</a></li>
-          {% if domainType == 'main' %}
-          <li><a href="{{ basePath }}/admin/tenants" data-tab="11">{{ t('tab_tenants') }}</a></li>
-          <li><a href="{{ basePath }}/admin/profile" data-tab="12">{{ t('tab_profile') }}</a></li>
-          <li><a href="{{ basePath }}/admin/subscription" data-tab="13">{{ t('tab_subscription') }}</a></li>
-          {% else %}
-          <li><a href="{{ basePath }}/admin/profile" data-tab="11">{{ t('tab_profile') }}</a></li>
-          <li><a href="{{ basePath }}/admin/subscription" data-tab="12">{{ t('tab_subscription') }}</a></li>
-          {% endif %}
-          {% endif %}
-
-          <li class="uk-nav-divider"></li>
-          <li><a href="{{ basePath }}/logout">{{ t('logout') }}</a></li>
-        </ul>
+      <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+      <h3 class="uk-margin-small">QuizRace</h3>
+      {% include 'admin/_nav.twig' %}
     </div>
   </div>
 {% endblock %}
