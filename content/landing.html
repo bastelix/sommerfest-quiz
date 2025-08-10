@@ -6,7 +6,7 @@
       <div class="uk-width-1-1 uk-width-3-4@m">
         <div class="hero-text">
           <h2 class="hero-headline" uk-scrollspy="cls: uk-animation-slide-right-small">
-            Das Team-Quiz, das Ihr Event unvergesslich macht.
+            Das Team-Quiz, das Ihr Event <span id="rotating-word" class="marker">unvergesslich</span> macht.
           </h2>
           <p class="hero-subtext" uk-scrollspy="cls: uk-animation-fade; delay: 150">
             Interaktive Quiz-Rallyes für Firmen, Schulen &amp; Teams.<br>
@@ -23,6 +23,65 @@
     </div>
   </div>
 </section>
+
+<script>
+const words = ["unvergesslich", "spannend", "interaktiv", "einzigartig", "unterhaltsam"]; // Wörterliste
+const changeInterval = 3000; // Wechselintervall in Millisekunden
+const fadeDuration = 500; // Dauer der Ein-/Ausblendung
+const markerDelay = 300; // Verzögerung des Marker-Starts
+const markerColor = "#ffde59"; // Markerfarbe
+
+const el = document.getElementById("rotating-word");
+document.documentElement.style.setProperty("--marker-color", markerColor);
+let i = 0;
+
+setInterval(() => {
+  el.classList.remove("marker-animate");
+  el.style.opacity = 0;
+
+  setTimeout(() => {
+    i = (i + 1) % words.length;
+    el.textContent = words[i];
+    el.style.opacity = 1;
+
+    setTimeout(() => {
+      void el.offsetWidth;
+      el.classList.add("marker-animate");
+    }, markerDelay);
+  }, fadeDuration);
+}, changeInterval);
+</script>
+
+<style>
+:root {
+  --marker-color: #ffde59;
+}
+
+#rotating-word {
+  transition: opacity 0.5s ease;
+  font-weight: bold;
+  position: relative;
+  display: inline-block;
+}
+
+/* Basiszustand Marker */
+.marker::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0.1em;
+  height: 0.3em;
+  width: 0%;
+  background-color: var(--marker-color);
+  z-index: -1;
+  transition: width 0.5s ease;
+}
+
+/* Marker-Animation aktiv */
+.marker-animate::after {
+  width: 100%;
+}
+</style>
 
 <!-- Warum QuizRace? -->
 <section class="uk-section uk-section-default">
