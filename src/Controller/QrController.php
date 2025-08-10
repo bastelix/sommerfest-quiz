@@ -75,6 +75,18 @@ class QrController
     }
 
     /**
+     * Generate an event QR code with default styling.
+     */
+    public function event(Request $request, Response $response): Response
+    {
+        $out = $this->qrService->generateEvent($request->getQueryParams());
+        $response->getBody()->write($out['body']);
+        return $response
+            ->withHeader('Content-Type', $out['mime'])
+            ->withStatus(200);
+    }
+
+    /**
      * Render a QR code image based on query parameters.
      */
     public function image(Request $request, Response $response): Response

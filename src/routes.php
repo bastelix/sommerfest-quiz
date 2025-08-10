@@ -686,6 +686,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/qr/team', function (Request $request, Response $response) {
         return $request->getAttribute('qrController')->team($request, $response);
     });
+    $app->get('/qr/event', function (Request $request, Response $response) {
+        return $request->getAttribute('qrController')->event($request, $response);
+    });
     $app->get('/invites.pdf', function (Request $request, Response $response) {
         return $request->getAttribute('qrController')->pdfAll($request, $response);
     })->add(new RoleAuthMiddleware('admin'));

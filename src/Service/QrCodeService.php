@@ -185,6 +185,17 @@ class QrCodeService
     }
 
     /**
+     * @return array{mime:string,body:string}
+     */
+    public function generateEvent(array $q): array
+    {
+        return $this->buildQrWithCenterLogoParam($q, [
+            't' => 'https://quizrace.app/?event=station',
+            'fg' => '00a65a',
+        ]);
+    }
+
+    /**
      * @param array<string,mixed> $q
      * @param array{t:string,fg:string} $defaults
      * @return array{mime:string,body:string}
