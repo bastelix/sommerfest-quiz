@@ -31,10 +31,11 @@ class MailService
             $env = parse_ini_file($envFile, false, INI_SCANNER_RAW) ?: [];
         }
 
-        $host = (string) ($env['SMTP_HOST'] ?? getenv('SMTP_HOST') ?: '');
-        $user = (string) ($env['SMTP_USER'] ?? getenv('SMTP_USER') ?: '');
-        $pass = (string) ($env['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '');
-        $port = (string) ($env['SMTP_PORT'] ?? getenv('SMTP_PORT') ?: '587');
+        $host       = (string) ($env['SMTP_HOST'] ?? getenv('SMTP_HOST') ?: '');
+        $user       = (string) ($env['SMTP_USER'] ?? getenv('SMTP_USER') ?: '');
+        $pass       = (string) ($env['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '');
+        $port       = (string) ($env['SMTP_PORT'] ?? getenv('SMTP_PORT') ?: '587');
+        $encryption = (string) ($env['SMTP_ENCRYPTION'] ?? getenv('SMTP_ENCRYPTION') ?: 'none');
 
         if ($host === '' || $user === '' || $pass === '') {
             $missing = [];
@@ -61,13 +62,29 @@ class MailService
         $fromName  = (string) ($profile['imprint_name'] ?? '');
         $from      = $fromName !== '' ? sprintf('%s <%s>', $fromName, $fromEmail) : $fromEmail;
 
-        $dsn = sprintf('smtp://%s:%s@%s:%s', rawurlencode($user), rawurlencode($pass), $host, $port);
+        $dsn = sprintf(
+            'smtp://%s:%s@%s:%s',
+            rawurlencode($user),
+            rawurlencode($pass),
+            $host,
+            $port
+        );
 
-        $transport = Transport::fromDsn($dsn);
-        $this->mailer = new Mailer($transport);
+        if ($encryption !== '' && strtolower($encryption) !== 'none') {
+            $dsn .= '?encryption=' . rawurlencode($encryption);
+        }
+
+        $this->mailer = $this->createTransport($dsn);
         $this->twig   = $twig;
         $this->from   = $from;
         $this->audit  = $audit;
+    }
+
+    protected function createTransport(string $dsn): MailerInterface
+    {
+        $transport = Transport::fromDsn($dsn);
+
+        return new Mailer($transport);
     }
 
     /**
