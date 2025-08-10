@@ -53,7 +53,7 @@
     {% endblock %}
   {% endembed %}
   <ul id="adminTabs" uk-tab="connect: #adminSwitcher">
-    <li class="uk-active" data-route="events" data-help="Veranstaltungen anlegen oder bearbeiten. Jede Zeile enthält Name, Beginn, Ende und Beschreibung. 'Hinzufügen' erstellt einen neuen Eintrag. Speichern übernimmt die Änderungen."><a href="#" data-route-url="{{ basePath }}/admin/events">{{ t('tab_events') }}</a></li>
+    <li class="uk-active" data-route="events" data-help="Veranstaltungen anlegen oder bearbeiten. Jede Zeile enthält Name, Beginn, Ende und Beschreibung. 'Hinzufügen' erstellt einen neuen Eintrag. Änderungen werden automatisch gespeichert."><a href="#" data-route-url="{{ basePath }}/admin/events">{{ t('tab_events') }}</a></li>
     <li data-route="event/settings" data-help="Logo hochladen und Vorschau ansehen. Seitentitel, Überschrift und Untertitel festlegen. Hintergrund- und Buttonfarbe wählen. Optional den Button 'Antwort prüfen' und den QR-Code-Login aktivieren. 'Zurücksetzen' lädt gespeicherte Werte, 'Speichern' übernimmt Änderungen."><a href="#" data-route-url="{{ basePath }}/admin/event/settings">{{ t('tab_event_settings') }}</a></li>
     <li data-route="catalogs" data-help="Fragenkataloge anlegen oder bearbeiten. Jede Zeile enthält einen Slug, Name, Beschreibung und optional einen Buchstaben für das Rätselwort. Der Slug kann angepasst werden. 'Hinzufügen' erstellt einen neuen Katalog, das rote × entfernt einen Eintrag. Speichern übernimmt die Änderungen."><a href="#" data-route-url="{{ basePath }}/admin/catalogs">{{ t('tab_catalogs') }}</a></li>
     <li data-route="questions" data-help="Nach Auswahl eines Katalogs einzelne Fragen bearbeiten oder neue anlegen. Das Plus-Symbol legt eine weitere Frage an, 'Zurücksetzen' verwirft Änderungen, 'Speichern' sichert den gesamten Katalog."><a href="#" data-route-url="{{ basePath }}/admin/questions">{{ t('tab_questions') }}</a></li>
@@ -94,9 +94,6 @@
         </div>
         <div class="uk-margin">
           <button id="eventAddBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_event_add') }}; pos: left"></button>
-        </div>
-        <div class="uk-margin uk-flex uk-flex-right">
-          <button id="eventsSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: {{ t('tip_save_changes') }}; pos: left"></button>
         </div>
       </div>
     </li>
