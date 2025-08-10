@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Service\PasswordPolicy;
 use App\Service\UserService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -14,13 +15,15 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class PasswordController
 {
     private UserService $service;
+    private PasswordPolicy $policy;
 
     /**
-     * Inject user service.
+     * Inject user service and password policy.
      */
-    public function __construct(UserService $service)
+    public function __construct(UserService $service, PasswordPolicy $policy)
     {
         $this->service = $service;
+        $this->policy = $policy;
     }
 
     /**
@@ -39,7 +42,7 @@ class PasswordController
         }
 
         $pass = $data['password'] ?? '';
-        if (!is_string($pass) || $pass === '') {
+        if (!is_string($pass) || $pass === '' || !$this->policy->validate($pass)) {
             return $response->withStatus(400);
         }
 

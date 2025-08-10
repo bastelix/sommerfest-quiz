@@ -28,6 +28,7 @@ use App\Service\NginxService;
 use App\Service\SettingsService;
 use App\Service\TranslationService;
 use App\Service\PasswordResetService;
+use App\Service\PasswordPolicy;
 use App\Service\MailService;
 use App\Service\EmailConfirmationService;
 use App\Service\InvitationService;
@@ -138,6 +139,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             3600,
             getenv('PASSWORD_RESET_SECRET') ?: ''
         );
+        $passwordPolicy = new PasswordPolicy();
         $emailConfirmService = new EmailConfirmationService($pdo);
 
         $request = $request
@@ -161,10 +163,10 @@ return function (\Slim\App $app, TranslationService $translator) {
                     filter_var(getenv('DISPLAY_ERROR_DETAILS'), FILTER_VALIDATE_BOOLEAN)
                 )
             )
-            ->withAttribute('passwordController', new PasswordController($userService))
+            ->withAttribute('passwordController', new PasswordController($userService, $passwordPolicy))
             ->withAttribute(
                 'passwordResetController',
-                new PasswordResetController($userService, $passwordResetService)
+                new PasswordResetController($userService, $passwordResetService, $passwordPolicy)
             )
             ->withAttribute('userController', new UserController($userService))
             ->withAttribute('settingsController', new SettingsController($settingsService))
