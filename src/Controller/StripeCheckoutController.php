@@ -17,7 +17,7 @@ class StripeCheckoutController
     {
         $data = (array) $request->getParsedBody();
         $plan = (string) ($data['plan'] ?? '');
-        $email = isset($data['email']) ? (string) $data['email'] : null;
+        $email = filter_var($data['email'] ?? null, FILTER_VALIDATE_EMAIL) ? (string) $data['email'] : null;
 
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
         $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
