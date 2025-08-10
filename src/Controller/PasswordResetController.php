@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\MailService;
+use App\Service\PasswordPolicy;
 use App\Service\PasswordResetService;
 use App\Service\UserService;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -18,11 +19,13 @@ class PasswordResetController
 {
     private UserService $users;
     private PasswordResetService $resets;
+    private PasswordPolicy $policy;
 
-    public function __construct(UserService $users, PasswordResetService $resets)
+    public function __construct(UserService $users, PasswordResetService $resets, PasswordPolicy $policy)
     {
         $this->users = $users;
         $this->resets = $resets;
+        $this->policy = $policy;
     }
 
     /**
@@ -84,7 +87,7 @@ class PasswordResetController
 
         $token = (string) ($data['token'] ?? '');
         $pass = (string) ($data['password'] ?? '');
-        if ($token === '' || $pass === '') {
+        if ($token === '' || $pass === '' || !$this->policy->validate($pass)) {
             return $response->withStatus(400);
         }
 
