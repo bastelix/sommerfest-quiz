@@ -424,6 +424,20 @@ body.dark-mode .sticky-actions {
   font-style: italic;
 }
 
+/* Modern style for onboarding steps */
+.onboarding-step {
+  border-radius: 1rem;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.08);
+  border: 1px solid #e5e5e5;
+  background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+}
+
+body.dark-mode .onboarding-step {
+  border-color: #444;
+  background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+  box-shadow: 0 6px 30px rgba(0,0,0,0.5);
+}
+
 
 /* Wrapper for thumbnails with rotate button */
 .photo-wrapper {
