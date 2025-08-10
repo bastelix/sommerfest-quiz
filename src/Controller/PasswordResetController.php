@@ -41,19 +41,28 @@ class PasswordResetController
      */
     public function request(Request $request, Response $response): Response
     {
+        $isJson = $request->getHeaderLine('Content-Type') === 'application/json';
         $data = $request->getParsedBody();
-        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+        if ($isJson) {
             $data = json_decode((string) $request->getBody(), true);
         }
 
         if (!is_array($data)) {
-            return $response->withStatus(400);
+            if ($isJson) {
+                return $response->withStatus(400);
+            }
+            $view = Twig::fromRequest($request);
+            return $view->render($response->withStatus(400), 'password_request.twig', ['error' => true]);
         }
 
         $username = trim((string) ($data['username'] ?? ''));
         $email = trim((string) ($data['email'] ?? ''));
         if ($username === '' && $email === '') {
-            return $response->withStatus(400);
+            if ($isJson) {
+                return $response->withStatus(400);
+            }
+            $view = Twig::fromRequest($request);
+            return $view->render($response->withStatus(400), 'password_request.twig', ['error' => true]);
         }
 
         $user = $username !== ''
@@ -61,7 +70,11 @@ class PasswordResetController
             : $this->users->getByEmail($email);
 
         if ($user === null || $user['email'] === null) {
-            return $response->withStatus(404);
+            if ($isJson) {
+                return $response->withStatus(404);
+            }
+            $view = Twig::fromRequest($request);
+            return $view->render($response, 'password_request.twig', ['error' => true]);
         }
 
         $token = $this->resets->createToken((int) $user['id']);
@@ -78,7 +91,12 @@ class PasswordResetController
         }
         $mailer->sendPasswordReset((string) $user['email'], (string) $uri);
 
-        return $response->withStatus(204);
+        if ($isJson) {
+            return $response->withStatus(204);
+        }
+
+        $view = Twig::fromRequest($request);
+        return $view->render($response, 'password_request.twig', ['success' => true]);
     }
 
     /**

@@ -33,15 +33,23 @@ class PasswordResetFlowTest extends TestCase
         } catch (\PDOException $e) {
         }
         try {
-            $pdo->exec('CREATE TABLE password_resets(user_id INTEGER NOT NULL, token_hash TEXT NOT NULL, expires_at TEXT NOT NULL)');
+            $pdo->exec(
+                'CREATE TABLE password_resets(' .
+                'user_id INTEGER NOT NULL, token_hash TEXT NOT NULL, expires_at TEXT NOT NULL)'
+            );
         } catch (\PDOException $e) {
         }
         $userService = new UserService($pdo);
         $userService->create('alice', 'oldpass', 'alice@example.com', Roles::ADMIN);
 
-        $mailer = new class extends MailService {
+        $mailer = new class extends MailService
+        {
             public array $sent = [];
-            public function __construct() {}
+
+            public function __construct()
+            {
+            }
+
             public function sendPasswordReset(string $to, string $link): void
             {
                 $this->sent[] = ['to' => $to, 'link' => $link];
@@ -54,7 +62,10 @@ class PasswordResetFlowTest extends TestCase
             ->withAttribute('mailService', $mailer)
             ->withParsedBody(['username' => 'alice', 'csrf_token' => 'tok']);
         $response = $app->handle($request);
-        $this->assertSame(204, $response->getStatusCode());
+        $this->assertSame(200, $response->getStatusCode());
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('Link gesendet', $body);
+        $this->assertStringContainsString('/login', $body);
         $this->assertCount(1, $mailer->sent);
 
         $link = $mailer->sent[0]['link'];
@@ -99,15 +110,23 @@ class PasswordResetFlowTest extends TestCase
         } catch (\PDOException $e) {
         }
         try {
-            $pdo->exec('CREATE TABLE password_resets(user_id INTEGER NOT NULL, token_hash TEXT NOT NULL, expires_at TEXT NOT NULL)');
+            $pdo->exec(
+                'CREATE TABLE password_resets(' .
+                'user_id INTEGER NOT NULL, token_hash TEXT NOT NULL, expires_at TEXT NOT NULL)'
+            );
         } catch (\PDOException $e) {
         }
         $userService = new UserService($pdo);
         $userService->create('alice', 'oldpass', 'alice@example.com', Roles::ADMIN);
 
-        $mailer = new class extends MailService {
+        $mailer = new class extends MailService
+        {
             public array $sent = [];
-            public function __construct() {}
+
+            public function __construct()
+            {
+            }
+
             public function sendPasswordReset(string $to, string $link): void
             {
                 $this->sent[] = ['to' => $to, 'link' => $link];
@@ -120,7 +139,7 @@ class PasswordResetFlowTest extends TestCase
             ->withAttribute('mailService', $mailer)
             ->withParsedBody(['username' => 'alice', 'csrf_token' => 'tok']);
         $response = $app->handle($request);
-        $this->assertSame(204, $response->getStatusCode());
+        $this->assertSame(200, $response->getStatusCode());
         $this->assertCount(1, $mailer->sent);
 
         $link = $mailer->sent[0]['link'];
