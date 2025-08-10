@@ -32,6 +32,12 @@ const fadeDuration = 1000; // Dauer der Ein-/Ausblendung
 const el = document.getElementById("rotating-word");
 let i = 0;
 
+function triggerUnderline() {
+  el.classList.remove('underline');
+  void el.offsetWidth;
+  el.classList.add('underline');
+}
+
 setInterval(() => {
   el.style.opacity = 0;
 
@@ -39,8 +45,13 @@ setInterval(() => {
     i = (i + 1) % words.length;
     el.textContent = words[i];
     el.style.opacity = 1;
+    setTimeout(triggerUnderline, 100);
   }, fadeDuration);
 }, changeInterval);
+
+window.addEventListener('load', () => {
+  setTimeout(triggerUnderline, 100);
+});
 </script>
 
 <style>
@@ -52,20 +63,29 @@ setInterval(() => {
   display: inline-block;
   font-weight: bold;
   position: relative;
+  margin-right: 0.25em;
 }
 
-/* Chalk-style underline using font */
 .marker-text::after {
-  content: "_";
-  font-family: 'Rock Salt', cursive;
-  font-size: 1.8em;
-  color: #f8f6f0;
+  content: '';
   position: absolute;
   left: 0;
-  bottom: -0.3em;
-  transform: scaleX(1.6);
-  pointer-events: none;
-  z-index: -1;
+  bottom: -2px;
+  width: 100%;
+  height: 2px;
+  background: #f8f6f0;
+  transform-origin: left;
+  transform: scaleX(0);
+}
+
+.marker-text.underline::after {
+  animation: underline-draw 0.5s ease forwards;
+}
+
+@keyframes underline-draw {
+  to {
+    transform: scaleX(1);
+  }
 }
 </style>
 
