@@ -8,6 +8,7 @@ use App\Service\MailService;
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
+use Symfony\Component\Mailer\MailerInterface;
 
 class MailServiceTest extends TestCase
 {
@@ -78,5 +79,40 @@ class MailServiceTest extends TestCase
             ['SMTP_USER'],
             ['SMTP_PASS'],
         ];
+    }
+
+    public function testDsnWithEncryption(): void
+    {
+        putenv('SMTP_HOST=localhost');
+        putenv('SMTP_USER=user@example.org');
+        putenv('SMTP_PASS=secret');
+        putenv('SMTP_PORT=587');
+        putenv('SMTP_ENCRYPTION=tls');
+        $_ENV['SMTP_HOST'] = 'localhost';
+        $_ENV['SMTP_USER'] = 'user@example.org';
+        $_ENV['SMTP_PASS'] = 'secret';
+        $_ENV['SMTP_PORT'] = '587';
+        $_ENV['SMTP_ENCRYPTION'] = 'tls';
+
+        $twig = new Environment(new ArrayLoader());
+
+        $svc = new class($twig) extends MailService {
+            public string $dsn = '';
+
+            protected function createTransport(string $dsn): MailerInterface
+            {
+                $this->dsn = $dsn;
+
+                return parent::createTransport($dsn);
+            }
+        };
+
+        $this->assertSame(
+            'smtp://user%40example.org:secret@localhost:587?encryption=tls',
+            $svc->dsn
+        );
+
+        putenv('SMTP_ENCRYPTION');
+        unset($_ENV['SMTP_ENCRYPTION']);
     }
 }
