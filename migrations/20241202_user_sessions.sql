@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS user_sessions (
+    user_id INTEGER NOT NULL,
+    session_id TEXT PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

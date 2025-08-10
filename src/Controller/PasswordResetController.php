@@ -8,6 +8,7 @@ use App\Service\MailService;
 use App\Service\PasswordPolicy;
 use App\Service\PasswordResetService;
 use App\Service\UserService;
+use App\Service\SessionService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -21,12 +22,18 @@ class PasswordResetController
     private UserService $users;
     private PasswordResetService $resets;
     private PasswordPolicy $policy;
+    private SessionService $sessions;
 
-    public function __construct(UserService $users, PasswordResetService $resets, PasswordPolicy $policy)
-    {
+    public function __construct(
+        UserService $users,
+        PasswordResetService $resets,
+        PasswordPolicy $policy,
+        SessionService $sessions
+    ) {
         $this->users = $users;
         $this->resets = $resets;
         $this->policy = $policy;
+        $this->sessions = $sessions;
     }
 
     /**
@@ -100,6 +107,7 @@ class PasswordResetController
         }
 
         $this->users->updatePassword($userId, $pass);
+        $this->sessions->invalidateUserSessions($userId);
 
         return $response->withStatus(204);
     }
