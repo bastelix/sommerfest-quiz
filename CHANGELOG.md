@@ -176,6 +176,7 @@
 - Wrap long SQL strings in TenantService
 - Improve landing page layout
 - Enlarge hero heading and center button text
+- Harmonize landing page section backgrounds
 
 ### Test
 
