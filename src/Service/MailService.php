@@ -35,12 +35,22 @@ class MailService
         $pass = (string) ($env['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '');
         $port = (string) ($env['SMTP_PORT'] ?? getenv('SMTP_PORT') ?: '587');
 
+        $profileFile = $root . '/data/profile.json';
+        $profile = [];
+        if (is_readable($profileFile)) {
+            $profile = json_decode((string) file_get_contents($profileFile), true) ?: [];
+        }
+
+        $fromEmail = (string) ($profile['imprint_email'] ?? $user);
+        $fromName  = (string) ($profile['imprint_name'] ?? '');
+        $from      = $fromName !== '' ? sprintf('%s <%s>', $fromName, $fromEmail) : $fromEmail;
+
         $dsn = sprintf('smtp://%s:%s@%s:%s', rawurlencode($user), rawurlencode($pass), $host, $port);
 
         $transport = Transport::fromDsn($dsn);
         $this->mailer = new Mailer($transport);
         $this->twig   = $twig;
-        $this->from   = $user;
+        $this->from   = $from;
         $this->audit  = $audit;
     }
 
