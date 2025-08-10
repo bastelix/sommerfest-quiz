@@ -32,6 +32,7 @@ use App\Service\PasswordPolicy;
 use App\Service\MailService;
 use App\Service\EmailConfirmationService;
 use App\Service\InvitationService;
+use App\Service\AuditLogger;
 use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
 use App\Application\Middleware\CsrfMiddleware;
@@ -141,6 +142,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         );
         $passwordPolicy = new PasswordPolicy();
         $emailConfirmService = new EmailConfirmationService($pdo);
+        $auditLogger = new AuditLogger($pdo);
 
         $request = $request
             ->withAttribute('plan', $plan)
@@ -163,7 +165,8 @@ return function (\Slim\App $app, TranslationService $translator) {
                     filter_var(getenv('DISPLAY_ERROR_DETAILS'), FILTER_VALIDATE_BOOLEAN)
                 )
             )
-            ->withAttribute('passwordController', new PasswordController($userService, $passwordPolicy))
+            ->withAttribute('auditLogger', $auditLogger)
+            ->withAttribute('passwordController', new PasswordController($userService, $passwordPolicy, $auditLogger))
             ->withAttribute(
                 'passwordResetController',
                 new PasswordResetController($userService, $passwordResetService, $passwordPolicy)
@@ -534,6 +537,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $pdo = Database::connectWithSchema($schema);
         Migrator::migrate($pdo, __DIR__ . '/../migrations');
         $userService = new UserService($pdo);
+        $auditLogger = new AuditLogger($pdo);
         $admin = $userService->getByUsername('admin');
         if ($admin === null) {
             return $response->withStatus(500);
@@ -542,7 +546,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $token = $resetService->createToken((int) $admin['id']);
         $mainDomain = getenv('MAIN_DOMAIN') ?: getenv('DOMAIN') ?: $request->getUri()->getHost();
         $twig = Twig::fromRequest($request);
-        $mailer = new MailService($twig);
+        $mailer = new MailService($twig, $auditLogger);
         $domain = sprintf('%s.%s', $schema, $mainDomain);
         $link = sprintf('https://%s/password/set?token=%s', $domain, urlencode($token));
         $html = $mailer->sendWelcome($email, $domain, $link);

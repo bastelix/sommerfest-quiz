@@ -187,3 +187,12 @@ CREATE TABLE IF NOT EXISTS active_event (
     event_uid TEXT PRIMARY KEY,
     CONSTRAINT fk_active_event FOREIGN KEY (event_uid) REFERENCES events(uid) ON DELETE CASCADE
 );
+
+-- Audit log
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    action TEXT NOT NULL,
+    context JSONB DEFAULT '{}'::JSONB NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
