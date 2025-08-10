@@ -124,6 +124,7 @@
 - Add parameterized QR routes
 - Elevate Warum QuizRace section
 - Add rotating word animation to hero
+- Add logo and rounding to QR codes
 
 ### Fix
 
