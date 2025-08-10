@@ -245,7 +245,10 @@
       try {
         await fetch(withBase('/onboarding/email'), {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': window.csrfToken
+          },
           body: JSON.stringify({ email: data.email })
         });
         if (emailHint) {

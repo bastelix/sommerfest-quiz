@@ -138,6 +138,7 @@
     window.mainDomain = '{{ main_domain }}';
     window.loggedIn = {{ logged_in ? 'true' : 'false' }};
     window.reloadToken = '{{ reload_token|e('js') }}';
+    window.csrfToken = '{{ csrf_token|e('js') }}';
   </script>
   <script src="{{ basePath }}/js/onboarding.js"></script>
   <script src="{{ basePath }}/js/custom-icons.js"></script>
