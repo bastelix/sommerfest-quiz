@@ -34,6 +34,7 @@ use App\Service\EmailConfirmationService;
 use App\Service\InvitationService;
 use App\Service\AuditLogger;
 use App\Service\QrCodeService;
+use App\Service\SessionService;
 use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
 use App\Application\Middleware\CsrfMiddleware;
@@ -144,6 +145,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $passwordPolicy = new PasswordPolicy();
         $emailConfirmService = new EmailConfirmationService($pdo);
         $auditLogger = new AuditLogger($pdo);
+        $sessionService = new SessionService($pdo);
 
         $request = $request
             ->withAttribute('plan', $plan)
@@ -167,10 +169,10 @@ return function (\Slim\App $app, TranslationService $translator) {
                 )
             )
             ->withAttribute('auditLogger', $auditLogger)
-            ->withAttribute('passwordController', new PasswordController($userService, $passwordPolicy, $auditLogger))
+            ->withAttribute('passwordController', new PasswordController($userService, $passwordPolicy, $auditLogger, $sessionService))
             ->withAttribute(
                 'passwordResetController',
-                new PasswordResetController($userService, $passwordResetService, $passwordPolicy)
+                new PasswordResetController($userService, $passwordResetService, $passwordPolicy, $sessionService)
             )
             ->withAttribute('userController', new UserController($userService))
             ->withAttribute('settingsController', new SettingsController($settingsService))
