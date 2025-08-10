@@ -18,8 +18,9 @@ class MailService
     private MailerInterface $mailer;
     private Environment $twig;
     private string $from;
+    private ?AuditLogger $audit;
 
-    public function __construct(Environment $twig)
+    public function __construct(Environment $twig, ?AuditLogger $audit = null)
     {
         $root = dirname(__DIR__, 2);
         $envFile = $root . '/.env';
@@ -40,6 +41,7 @@ class MailService
         $this->mailer = new Mailer($transport);
         $this->twig   = $twig;
         $this->from   = $user;
+        $this->audit  = $audit;
     }
 
     /**
@@ -56,6 +58,8 @@ class MailService
             ->html($html);
 
         $this->mailer->send($email);
+
+        $this->audit?->log('password_reset_mail', ['to' => $to]);
     }
 
     /**
@@ -114,6 +118,8 @@ class MailService
             ->html($html);
 
         $this->mailer->send($email);
+
+        $this->audit?->log('welcome_mail', ['to' => $to, 'domain' => $domain]);
 
         return $html;
     }

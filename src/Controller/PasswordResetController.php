@@ -11,6 +11,7 @@ use App\Service\UserService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
+use App\Service\AuditLogger;
 
 /**
  * Handle password reset requests and confirmations.
@@ -64,7 +65,9 @@ class PasswordResetController
         $mailer = $request->getAttribute('mailService');
         if (!$mailer instanceof MailService) {
             $twig = Twig::fromRequest($request)->getEnvironment();
-            $mailer = new MailService($twig);
+            $audit = $request->getAttribute('auditLogger');
+            $logger = $audit instanceof AuditLogger ? $audit : null;
+            $mailer = new MailService($twig, $logger);
         }
         $mailer->sendPasswordReset((string) $user['email'], (string) $uri);
 

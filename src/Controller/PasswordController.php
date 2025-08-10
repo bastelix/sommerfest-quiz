@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Service\PasswordPolicy;
 use App\Service\UserService;
+use App\Service\AuditLogger;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -16,14 +17,16 @@ class PasswordController
 {
     private UserService $service;
     private PasswordPolicy $policy;
+    private AuditLogger $audit;
 
     /**
      * Inject user service and password policy.
      */
-    public function __construct(UserService $service, PasswordPolicy $policy)
+    public function __construct(UserService $service, PasswordPolicy $policy, AuditLogger $audit)
     {
         $this->service = $service;
         $this->policy = $policy;
+        $this->audit = $audit;
     }
 
     /**
@@ -55,6 +58,8 @@ class PasswordController
         }
 
         $this->service->updatePassword((int)$id, $pass);
+
+        $this->audit->log('password_change', ['userId' => $id]);
 
         return $response->withStatus(204);
     }
