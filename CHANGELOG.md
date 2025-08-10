@@ -177,6 +177,7 @@
 - Improve landing page layout
 - Enlarge hero heading and center button text
 - Harmonize landing page section backgrounds
+- Use neutral background for founder section
 
 ### Test
 
