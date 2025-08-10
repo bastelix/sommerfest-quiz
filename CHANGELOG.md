@@ -163,6 +163,7 @@
 - Prevent landing page header overlap on mobile
 - Render footer menu at page bottom
 - Import email confirmation service
+- Show feedback after password reset request
 
 ### Refactor
 
