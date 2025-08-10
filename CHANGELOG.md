@@ -130,6 +130,7 @@
 - Style founder section
 - *(stripe)* Add session status endpoint
 - Add reusable admin navigation partial
+- Group admin navigation links
 
 ### Fix
 
