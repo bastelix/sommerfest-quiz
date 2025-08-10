@@ -46,9 +46,16 @@ class OnboardingController
             }
         }
 
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         $loggedIn = isset($_SESSION['user']);
 
         $reloadToken = getenv('NGINX_RELOAD_TOKEN') ?: '';
+
+        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
+        $_SESSION['csrf_token'] = $csrf;
 
         return $view->render(
             $response,
@@ -57,6 +64,7 @@ class OnboardingController
                 'main_domain' => $mainDomain,
                 'logged_in' => $loggedIn,
                 'reload_token' => $reloadToken,
+                'csrf_token' => $csrf,
             ]
         );
     }
