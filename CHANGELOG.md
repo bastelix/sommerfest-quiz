@@ -29,7 +29,6 @@
 
 ### Docs
 
-- Document PHP 8.2 minimum requirement
 - Add postgres instructions
 - Document running psql via Docker
 - Add frontend word-break guidelines
@@ -55,6 +54,7 @@
 - Clarify APP_IMAGE usage
 - Describe password reset flow
 - Describe higher subscription tiers cumulatively
+- Document PHP 8.2 requirement
 
 ### Feat
 
