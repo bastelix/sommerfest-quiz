@@ -6,10 +6,6 @@
 
 - Statistik-Tab beschrieben
 
-### Feat
-
-- Enable punch-out logos and custom round modes for QR codes
-
 ### Chore
 
 - Cascade delete events
@@ -60,6 +56,7 @@
 - Describe higher subscription tiers cumulatively
 - Document PHP 8.2 requirement
 - Add PHP 8.2 stable support note
+- Document qr code enhancements
 
 ### Feat
 
