@@ -20,13 +20,13 @@ body {
 
 
 body.uk-padding {
-  padding-top: 56px;
+  padding-top: 0;
   padding-left: 8px;
   padding-right: 8px;
 }
 
 .index-page {
-  padding-top: 56px;
+  padding-top: 0;
 }
 
 .wrapper {
@@ -487,7 +487,7 @@ body.dark-mode .onboarding-step {
 }
 
 body.admin-page {
-  padding-top: 112px;
+  padding-top: 0;
 }
 
 .admin-page .topbar {
@@ -523,7 +523,7 @@ body.admin-page {
     display: flex;
   }
   body.admin-page {
-    padding-top: 56px;
+    padding-top: 0;
   }
   .admin-page .topbar {
     height: 56px;
