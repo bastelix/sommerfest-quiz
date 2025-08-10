@@ -44,10 +44,34 @@ class QrController
         QrCodeService $qrService
     ) {
         $this->config = $config;
-        $this->teams = $teams;
-        $this->events = $events;
-        $this->catalogs = $catalogs;
-        $this->qrService = $qrService;
+       $this->teams = $teams;
+       $this->events = $events;
+       $this->catalogs = $catalogs;
+       $this->qrService = $qrService;
+    }
+
+    /**
+     * Generate a catalog QR code with default styling.
+     */
+    public function catalog(Request $request, Response $response): Response
+    {
+        $out = $this->qrService->generateCatalog($request->getQueryParams());
+        $response->getBody()->write($out['body']);
+        return $response
+            ->withHeader('Content-Type', $out['mime'])
+            ->withStatus(200);
+    }
+
+    /**
+     * Generate a team QR code with default styling.
+     */
+    public function team(Request $request, Response $response): Response
+    {
+        $out = $this->qrService->generateTeam($request->getQueryParams());
+        $response->getBody()->write($out['body']);
+        return $response
+            ->withHeader('Content-Type', $out['mime'])
+            ->withStatus(200);
     }
 
     /**
