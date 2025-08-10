@@ -8,18 +8,9 @@ use App\Service\ConfigService;
 use App\Service\TeamService;
 use App\Service\EventService;
 use App\Service\CatalogService;
-use Endroid\QrCode\Builder\Builder;
-use Endroid\QrCode\Writer\PngWriter;
-use Endroid\QrCode\Writer\SvgWriter;
-use Endroid\QrCode\Writer\WebPWriter;
-use Endroid\QrCode\Color\Color;
-use Endroid\QrCode\Encoding\Encoding;
-use Endroid\QrCode\ErrorCorrectionLevel;
-use Endroid\QrCode\Label\Font\OpenSans;
-use Endroid\QrCode\Label\LabelAlignment;
-use Endroid\QrCode\RoundBlockSizeMode;
-use FPDF;
+use App\Service\QrCodeService;
 use App\Service\Pdf;
+use FPDF;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Throwable;
@@ -33,6 +24,7 @@ class QrController
     private TeamService $teams;
     private EventService $events;
     private CatalogService $catalogs;
+    private QrCodeService $qrService;
     /**
      * Stack for keeping track of currently selected PDF font.
      * Each entry is an array with [family, style, size].
@@ -48,12 +40,14 @@ class QrController
         ConfigService $config,
         TeamService $teams,
         EventService $events,
-        CatalogService $catalogs
+        CatalogService $catalogs,
+        QrCodeService $qrService
     ) {
         $this->config = $config;
         $this->teams = $teams;
         $this->events = $events;
         $this->catalogs = $catalogs;
+        $this->qrService = $qrService;
     }
 
     /**
@@ -62,106 +56,32 @@ class QrController
     public function image(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $text   = (string)($params['t'] ?? '');
+        $text = (string)($params['t'] ?? '?');
         if ($text === '') {
             $text = '?';
         }
 
-        $fg     = (string)($params['fg'] ?? '23b45a');
-        $bg     = (string)($params['bg'] ?? 'ffffff');
-        $size   = (int)($params['s'] ?? 300);
-        $margin = (int)($params['m'] ?? 20);
-        $demo   = (string)($params['demo'] ?? '');
-        $label  = (string)($params['label'] ?? '1');
-        $useLabel = !in_array(strtolower($label), ['0', 'false', 'no'], true);
-        if ($useLabel && !function_exists('imagettfbbox')) {
-            $useLabel = false;
+        $format = strtolower((string)($params['format'] ?? 'png'));
+        if (!in_array($format, ['png', 'svg'], true)) {
+            $format = 'png';
         }
 
-        if ($size <= 0 || $margin < 0) {
-            return $response->withStatus(400);
-        }
-
-        // Use PNG output when the GD extension is available, otherwise
-        // gracefully fall back to SVG to avoid runtime errors on systems
-        // without the required image libraries.
-        $writer = extension_loaded('gd') ? new PngWriter() : new SvgWriter();
-        if ($demo === 'svg' || $demo === 'svg-clean') {
-            $writer = new SvgWriter();
-        } elseif ($demo === 'webp') {
-            // Generating WebP also requires GD; use SVG when it is missing.
-            $writer = extension_loaded('gd') ? new WebPWriter() : new SvgWriter();
-        }
-
-        $writerOptions = [];
-        if ($demo === 'svg') {
-            $writerOptions = ['svgRoundBlocks' => true];
-        } elseif ($demo === 'webp') {
-            $writerOptions = ['quality' => 95];
-        } elseif ($demo === 'svg-clean') {
-            $writerOptions = [
-                SvgWriter::WRITER_OPTION_EXCLUDE_XML_DECLARATION => true,
-                SvgWriter::WRITER_OPTION_BLOCK_ID => 'meinQRSVG',
-            ];
-        }
-
-        $labelText = '';
-        $labelFont = new OpenSans(20);
-        $labelAlignment = LabelAlignment::Center;
-        if ($useLabel) {
-            $labelText = $text;
-            if ($demo === 'label') {
-                $labelText = 'Jetzt scannen!';
-                $labelFont = new OpenSans(22);
-            }
-        }
-
-        $logoPath = null;
-        $logoResizeToWidth = null;
-        $logoPunchoutBackground = null;
-        if ($demo === 'logo') {
-            $logoPath = __DIR__ . '/../../public/favicon.svg';
-            $logoResizeToWidth = 60;
-            $logoPunchoutBackground = true;
-        }
-
-        $fgColor = $this->parseColor($fg, new Color(35, 180, 90));
-        $bgColor = $this->parseColor($bg, new Color(255, 255, 255));
-        $errorLevel = $demo === 'high' ? ErrorCorrectionLevel::High : ErrorCorrectionLevel::Low;
+        $options = [
+            'fg' => $params['fg'] ?? null,
+            'bg' => $params['bg'] ?? null,
+            'logoText' => $params['logoText'] ?? null,
+        ];
 
         try {
-            $result = (new Builder(
-                writer: $writer,
-                writerOptions: $writerOptions,
-                data: $text,
-                encoding: new Encoding('UTF-8'),
-                errorCorrectionLevel: $errorLevel,
-                size: $size,
-                margin: $margin,
-                roundBlockSizeMode: RoundBlockSizeMode::Margin,
-                foregroundColor: $fgColor,
-                backgroundColor: $bgColor,
-                labelText: $useLabel ? $labelText : '',
-                labelFont: $useLabel ? $labelFont : new OpenSans(20),
-                labelAlignment: $useLabel ? $labelAlignment : LabelAlignment::Center,
-                logoPath: $logoPath ?? '',
-                logoResizeToWidth: $logoResizeToWidth,
-                logoPunchoutBackground: $logoPunchoutBackground ?? false,
-            ))->build();
+            $result = $this->qrService->generateQrCode($text, $format, $options);
         } catch (Throwable $e) {
             return $response->withStatus(500);
         }
 
-        $data = $result->getString();
+        $response->getBody()->write($result->getString());
 
-        $extension = 'png';
-        if ($writer instanceof SvgWriter) {
-            $extension = 'svg';
-        } elseif ($writer instanceof WebPWriter) {
-            $extension = 'webp';
-        }
+        $extension = $format === 'svg' ? 'svg' : 'png';
 
-        $response->getBody()->write($data);
         return $response
             ->withHeader('Content-Type', $result->getMimeType())
             ->withHeader('Content-Disposition', 'inline; filename="qr.' . $extension . '"');
@@ -178,22 +98,14 @@ class QrController
             return $response->withStatus(400);
         }
 
-        $fg     = (string)($params['fg'] ?? '0000ff');
-        $bg     = (string)($params['bg'] ?? 'ffffff');
-        $size   = (int)($params['s'] ?? 300);
-        $margin = (int)($params['m'] ?? 20);
+        $options = [
+            'fg' => $params['fg'] ?? null,
+            'bg' => $params['bg'] ?? null,
+            'logoText' => $params['logoText'] ?? null,
+        ];
 
         try {
-            $result = (new Builder(
-                writer: new PngWriter(),
-                data: $text,
-                encoding: new Encoding('UTF-8'),
-                size: $size,
-                margin: $margin,
-                roundBlockSizeMode: RoundBlockSizeMode::Margin,
-                backgroundColor: $this->parseColor($bg, new Color(255, 255, 255)),
-                foregroundColor: $this->parseColor($fg, new Color(0, 0, 255)),
-            ))->build();
+            $result = $this->qrService->generateQrCode($text, 'png', $options);
         } catch (Throwable $e) {
             return $response->withStatus(500);
         }
@@ -278,10 +190,11 @@ class QrController
     public function pdfAll(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $fg     = (string)($params['fg'] ?? '0000ff');
-        $bg     = (string)($params['bg'] ?? 'ffffff');
-        $size   = (int)($params['s'] ?? 300);
-        $margin = (int)($params['m'] ?? 20);
+        $options = [
+            'fg' => $params['fg'] ?? null,
+            'bg' => $params['bg'] ?? null,
+            'logoText' => $params['logoText'] ?? null,
+        ];
 
         $teams = $this->teams->getAll();
 
@@ -310,16 +223,7 @@ class QrController
 
         foreach ($teams as $team) {
             try {
-                $result = (new Builder(
-                    writer: new PngWriter(),
-                    data: $team,
-                    encoding: new Encoding('UTF-8'),
-                    size: $size,
-                    margin: $margin,
-                    roundBlockSizeMode: RoundBlockSizeMode::Margin,
-                    backgroundColor: $this->parseColor($bg, new Color(255, 255, 255)),
-                    foregroundColor: $this->parseColor($fg, new Color(0, 0, 255)),
-                ))->build();
+                $result = $this->qrService->generateQrCode($team, 'png', $options);
             } catch (Throwable $e) {
                 continue;
             }
@@ -473,21 +377,5 @@ class QrController
                 }
             }
         }
-    }
-
-    /**
-     * Parse a hex color string or return the provided default.
-     */
-    private function parseColor(string $hex, Color $default): Color
-    {
-        $hex = ltrim($hex, '#');
-        if (strlen($hex) === 6 && ctype_xdigit($hex)) {
-            return new Color(
-                hexdec(substr($hex, 0, 2)),
-                hexdec(substr($hex, 2, 2)),
-                hexdec(substr($hex, 4, 2))
-            );
-        }
-        return $default;
     }
 }

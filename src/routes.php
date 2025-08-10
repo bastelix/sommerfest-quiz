@@ -32,6 +32,7 @@ use App\Service\PasswordPolicy;
 use App\Service\MailService;
 use App\Service\EmailConfirmationService;
 use App\Service\InvitationService;
+use App\Service\QrCodeService;
 use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
 use App\Application\Middleware\CsrfMiddleware;
@@ -174,7 +175,8 @@ return function (\Slim\App $app, TranslationService $translator) {
                 $configService,
                 $teamService,
                 $eventService,
-                $catalogService
+                $catalogService,
+                new QrCodeService()
             ))
             ->withAttribute('onboardingEmailController', new OnboardingEmailController($emailConfirmService))
             ->withAttribute('catalogDesignController', new CatalogDesignController($catalogService))

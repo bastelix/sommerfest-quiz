@@ -7,6 +7,7 @@ namespace Tests\Controller;
 use Tests\TestCase;
 use Slim\Psr7\Response;
 use Slim\Psr7\UploadedFile;
+use App\Service\QrCodeService;
 
 class QrControllerTest extends TestCase
 {
@@ -32,21 +33,28 @@ class QrControllerTest extends TestCase
         $this->assertNotEmpty((string) $response->getBody());
     }
 
-    public function testQrImageRejectsInvalidSize(): void
+    public function testQrImageSvgFormat(): void
     {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/qr.png')
-            ->withQueryParams(['t' => 'Demo', 's' => '0']);
+            ->withQueryParams(['t' => 'Demo', 'format' => 'svg']);
         $response = $app->handle($request);
 
-        $this->assertSame(400, $response->getStatusCode());
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('image/svg+xml', $response->getHeaderLine('Content-Type'));
+        $this->assertNotEmpty((string) $response->getBody());
     }
 
-    public function testQrImageWithoutLabel(): void
+    public function testQrImageAllowsCustomColors(): void
     {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/qr.png')
-            ->withQueryParams(['t' => 'Demo', 'label' => '0']);
+            ->withQueryParams([
+                't' => 'Demo',
+                'fg' => 'ff0000',
+                'bg' => '00ff00',
+                'logoText' => 'TEST',
+            ]);
         $response = $app->handle($request);
 
         $this->assertSame(200, $response->getStatusCode());
@@ -104,7 +112,7 @@ class QrControllerTest extends TestCase
         $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
         $catalogs = new \App\Service\CatalogService($pdo, $cfg);
-        $qr = new \App\Controller\QrController($cfg, $teams, $events, $catalogs);
+        $qr = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService());
         $logo = new \App\Controller\LogoController($cfg);
 
         $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo']);
@@ -179,7 +187,7 @@ class QrControllerTest extends TestCase
         $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
         $catalogs = new \App\Service\CatalogService($pdo, $cfg);
-        $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs);
+        $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService());
 
         $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo']);
         $response = $qr->pdf($req, new Response());
@@ -217,7 +225,7 @@ class QrControllerTest extends TestCase
         $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
         $catalogs = new \App\Service\CatalogService($pdo, $cfg);
-        $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs);
+        $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService());
 
         $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo']);
         $response = $qr->pdf($req, new Response());
@@ -273,7 +281,7 @@ class QrControllerTest extends TestCase
         $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
         $catalogs = new \App\Service\CatalogService($pdo, $cfg);
-        $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs);
+        $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService());
 
         $req = $this->createRequest('GET', '/invites.pdf');
         $response = $qr->pdfAll($req, new Response());
@@ -323,7 +331,7 @@ class QrControllerTest extends TestCase
         $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
         $catalogs = new \App\Service\CatalogService($pdo, $cfg);
-        $qr = new \App\Controller\QrController($cfg, $teams, $events, $catalogs);
+        $qr = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService());
 
         $cfg->setActiveEventUid('1');
         $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo']);
