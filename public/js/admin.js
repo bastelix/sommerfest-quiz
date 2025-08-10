@@ -1314,7 +1314,6 @@ document.addEventListener('DOMContentLoaded', function () {
   // --------- Veranstaltungen ---------
   const eventsListEl = document.getElementById('eventsList');
   const eventAddBtn = document.getElementById('eventAddBtn');
-  const eventsSaveBtn = document.getElementById('eventsSaveBtn');
   const eventSelect = document.getElementById('eventSelect');
   const eventOpenBtn = document.getElementById('eventOpenBtn');
   const langSelect = document.getElementById('langSelect');
@@ -1330,13 +1329,13 @@ document.addEventListener('DOMContentLoaded', function () {
     })).filter(e => e.name);
   }
 
-  function saveEventOrder() {
+  function saveEvents() {
     const list = collectEvents();
     apiFetch('/events.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(list)
-    }).catch(() => {});
+    }).catch(() => notify('Fehler beim Speichern', 'danger'));
     updateEventRowNumbers();
   }
 
@@ -1441,10 +1440,13 @@ document.addEventListener('DOMContentLoaded', function () {
     del.setAttribute('uk-icon', 'trash');
     del.setAttribute('aria-label', 'Löschen');
     del.addEventListener('click', () => {
-      if (confirm('Veranstaltung wirklich löschen? Dabei werden auch alle angelegten Kataloge, Fragen und Teams entfernt.')) {
-        row.remove();
-        updateEventRowNumbers();
-      }
+      UIkit.modal
+        .confirm('Veranstaltung wirklich löschen? Dabei werden auch alle angelegten Kataloge, Fragen und Teams entfernt.')
+        .then(() => {
+          row.remove();
+          saveEvents();
+        })
+        .catch(() => {});
     });
     delCell.appendChild(del);
 
@@ -1506,8 +1508,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (eventsListEl && window.UIkit && UIkit.util) {
     UIkit.util.on(eventsListEl, 'moved', () => {
-      saveEventOrder();
-      updateEventRowNumbers();
+      saveEvents();
     });
   }
 
@@ -1527,19 +1528,8 @@ document.addEventListener('DOMContentLoaded', function () {
     updateEventRowNumbers();
   });
 
-  eventsSaveBtn?.addEventListener('click', e => {
-    e.preventDefault();
-    const list = collectEvents();
-    apiFetch('/events.json', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(list)
-    })
-      .then(r => {
-        if (!r.ok) throw new Error(r.statusText);
-        notify('Liste gespeichert', 'success');
-      })
-      .catch(() => notify('Fehler beim Speichern', 'danger'));
+  eventsListEl?.addEventListener('change', () => {
+    saveEvents();
   });
 
   eventSelect?.addEventListener('change', () => {
