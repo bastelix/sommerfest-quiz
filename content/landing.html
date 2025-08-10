@@ -6,7 +6,7 @@
       <div class="uk-width-1-1 uk-width-3-4@m">
         <div class="hero-text">
           <h2 class="hero-headline" uk-scrollspy="cls: uk-animation-slide-right-small">
-            Das Team-Quiz, das Ihr Event unvergesslich macht.
+            Das Team-Quiz, das Ihr Event <span id="rotating-word" class="marker">unvergesslich</span> macht.
           </h2>
           <p class="hero-subtext" uk-scrollspy="cls: uk-animation-fade; delay: 150">
             Interaktive Quiz-Rallyes für Firmen, Schulen &amp; Teams.<br>
@@ -23,6 +23,130 @@
     </div>
   </div>
 </section>
+
+<script>
+const words = ["unvergesslich", "spannend", "interaktiv", "einzigartig", "unterhaltsam"]; // Wörterliste
+const changeInterval = 3000; // Wechselintervall in Millisekunden
+const fadeDuration = 500; // Dauer der Ein-/Ausblendung
+const markerDelay = 300; // Verzögerung des Marker-Starts
+const markerColor = "#ffde59"; // Markerfarbe
+
+const el = document.getElementById("rotating-word");
+document.documentElement.style.setProperty("--marker-color", markerColor);
+let i = 0;
+
+setInterval(() => {
+  el.classList.remove("marker-animate");
+  el.style.opacity = 0;
+
+  setTimeout(() => {
+    i = (i + 1) % words.length;
+    el.textContent = words[i];
+    el.style.opacity = 1;
+
+    setTimeout(() => {
+      void el.offsetWidth;
+      el.classList.add("marker-animate");
+    }, markerDelay);
+  }, fadeDuration);
+}, changeInterval);
+</script>
+
+<style>
+/* Basis: wie zuvor */
+#rotating-word {
+  transition: opacity 0.5s ease;
+  font-weight: bold;
+  position: relative;
+  display: inline-block;
+}
+
+/* Kreide-/Marker-Strich als ::after */
+.marker::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  /* etwas tiefer unter der Grundlinie */
+  bottom: -0.12em;
+  /* höherer Strich für Marker-Look */
+  height: 0.42em;
+  width: 0%;
+  /* Markerfarbe (gelb), gern an Branding anpassen */
+  --marker: #ffde59;
+
+  /* Farbfläche + leichte Textur-Schichten */
+  background:
+    /* feine diagonale Körnung */
+    linear-gradient(115deg, rgba(0,0,0,0.08) 0 2%, transparent 2% 6%) repeat,
+    linear-gradient(295deg, rgba(0,0,0,0.05) 0 3%, transparent 3% 7%) repeat,
+    /* Grundfarbe */
+    linear-gradient(var(--marker), var(--marker));
+  background-size:
+    10px 10px,
+    14px 14px,
+    100% 100%;
+  background-blend-mode: multiply, multiply, normal;
+
+  /* Unregelmäßige Kanten per CSS-Masken (oben & unten “ausgefranst”) */
+  -webkit-mask:
+      /* oben: Bisschen “zerfasert” */
+      radial-gradient(10px 8px at 6% 0, transparent 52%, #000 53%) repeat-x,
+      radial-gradient(12px 8px at 18% 0, transparent 50%, #000 51%) repeat-x,
+      /* unten: ebenfalls zerfasert */
+      radial-gradient(12px 8px at 10% 100%, transparent 51%, #000 52%) repeat-x,
+      radial-gradient(10px 8px at 24% 100%, transparent 53%, #000 54%) repeat-x,
+      /* Vollfläche */
+      linear-gradient(#000, #000);
+  -webkit-mask-size:
+      22px 9px,
+      28px 9px,
+      26px 9px,
+      18px 9px,
+      100% 100%;
+  -webkit-mask-position:
+      0 0,
+      0 0,
+      0 100%,
+      0 100%,
+      0 0;
+  -webkit-mask-composite: source-over, source-over, source-over, source-over, source-in;
+
+  mask:
+      radial-gradient(10px 8px at 6% 0, transparent 52%, #000 53%) repeat-x,
+      radial-gradient(12px 8px at 18% 0, transparent 50%, #000 51%) repeat-x,
+      radial-gradient(12px 8px at 10% 100%, transparent 51%, #000 52%) repeat-x,
+      radial-gradient(10px 8px at 24% 100%, transparent 53%, #000 54%) repeat-x,
+      linear-gradient(#000, #000);
+  mask-size:
+      22px 9px,
+      28px 9px,
+      26px 9px,
+      18px 9px,
+      100% 100%;
+  mask-position:
+      0 0,
+      0 0,
+      0 100%,
+      0 100%,
+      0 0;
+
+  /* minimaler Weichzeichner für “kreidig” */
+  filter: blur(0.4px);
+
+  /* leichte Unregelmäßigkeit */
+  transform: rotate(-0.3deg);
+  transform-origin: left center;
+
+  /* Zeichnen-Animation (Breite wächst) */
+  transition: width 0.55s cubic-bezier(.2,.9,.2,1);
+  z-index: -1; /* unter dem Wort */
+}
+
+/* Aktivierung: wird per JS-Klasse gesetzt */
+.marker-animate::after {
+  width: 100%;
+}
+</style>
 
 <!-- Warum QuizRace? -->
 <section class="uk-section uk-section-default">
