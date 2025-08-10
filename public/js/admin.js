@@ -497,7 +497,7 @@ document.addEventListener('DOMContentLoaded', function () {
       e.preventDefault();
       const team = btn.getAttribute('data-team');
       if (team) {
-        window.open(withBase('/qr.pdf?t=' + encodeURIComponent(team)), '_blank');
+        window.open(withBase('/qr.pdf?t=' + encodeURIComponent(team) + '&logoText=QUIZ%0ARACE&rounded=1'), '_blank');
       }
     });
   });
@@ -2059,7 +2059,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (descEl) descEl.textContent = ev.description || '';
       if (qrImg) {
         const link = window.baseUrl ? window.baseUrl : withBase('/?event=' + encodeURIComponent(ev.uid || ''));
-        qrImg.src = withBase('/qr.png?t=' + encodeURIComponent(link));
+        qrImg.src = withBase('/qr.png?t=' + encodeURIComponent(link) + '&text1=QUIZ&text2=RACE&rounded=1');
       }
       if (qrLabel) qrLabel.textContent = ev.name || '';
       catalogsEl.innerHTML = '';
@@ -2083,7 +2083,7 @@ document.addEventListener('DOMContentLoaded', function () {
         p.textContent = c.description || '';
         const img = document.createElement('img');
         const qrLink = (window.baseUrl ? window.baseUrl + href : href);
-                img.src = withBase('/qr.png?t=' + encodeURIComponent(qrLink));
+                img.src = withBase('/qr/catalog?t=' + encodeURIComponent(qrLink));
         img.alt = 'QR';
         img.width = 96;
         img.height = 96;
@@ -2108,7 +2108,7 @@ document.addEventListener('DOMContentLoaded', function () {
         h4.className = 'uk-card-title';
         h4.textContent = t;
         const img = document.createElement('img');
-        img.src = withBase('/qr.png?t=' + encodeURIComponent(t));
+        img.src = withBase('/qr/team?t=' + encodeURIComponent(t));
         img.alt = 'QR';
         img.width = 96;
         img.height = 96;
