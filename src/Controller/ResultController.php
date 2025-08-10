@@ -339,11 +339,7 @@ class ResultController
                 if (is_readable($file)) {
                     $tmp = null;
                     if (str_ends_with(strtolower($file), '.webp')) {
-                        if (method_exists(ImageManager::class, 'gd')) {
-                            $manager = ImageManager::gd();
-                        } else {
-                            $manager = new ImageManager(['driver' => 'gd']);
-                        }
+                        $manager = ImageManager::gd();
                         $img = $manager->read($file);
                         $tmp = tempnam(sys_get_temp_dir(), 'photo') . '.png';
                         $img->save($tmp, 80);

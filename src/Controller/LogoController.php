@@ -85,12 +85,7 @@ class LogoController
             return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
         }
 
-        if (method_exists(ImageManager::class, 'gd')) {
-            $manager = ImageManager::gd();
-        } else {
-            // Fallback for intervention/image version 2
-            $manager = new ImageManager(['driver' => 'gd']);
-        }
+        $manager = ImageManager::gd();
         $img = $manager->read($file->getStream());
         $img->scaleDown(512, 512);
         $img->save($target, 80);
