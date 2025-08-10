@@ -125,6 +125,7 @@
 - Elevate Warum QuizRace section
 - Add rotating word animation to hero
 - Add logo and rounding to QR codes
+- Enhance rotating word marker
 
 ### Fix
 
