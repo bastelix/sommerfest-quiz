@@ -14,6 +14,7 @@ return [
     'german' => 'German',
     'english' => 'English',
     'admin_title' => 'Quiz Admin',
+    'tab_dashboard' => 'Dashboard',
     'tab_events' => 'Events',
     'tab_event_settings' => 'Event settings',
     'tab_catalogs' => 'Catalogs',

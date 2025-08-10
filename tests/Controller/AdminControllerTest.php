@@ -24,11 +24,11 @@ class AdminControllerTest extends TestCase
     {
         $db = $this->setupDb();
         $app = $this->getAppInstance();
-        $request = $this->createRequest('GET', '/admin/events');
+        $request = $this->createRequest('GET', '/admin/dashboard');
         $response = $app->handle($request);
         $this->assertEquals(302, $response->getStatusCode());
-        $this->assertEquals('/admin/events', $response->getHeaderLine('Location'));
-        $login = $app->handle($this->createRequest('GET', '/admin/events'));
+        $this->assertEquals('/admin/dashboard', $response->getHeaderLine('Location'));
+        $login = $app->handle($this->createRequest('GET', '/admin/dashboard'));
         $this->assertEquals('/login', $login->getHeaderLine('Location'));
         unlink($db);
     }
