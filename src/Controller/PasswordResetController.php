@@ -84,6 +84,9 @@ class PasswordResetController
 
         $mailer = $request->getAttribute('mailService');
         if (!$mailer instanceof MailService) {
+            if (!MailService::isConfigured()) {
+                return $response->withStatus(503);
+            }
             $twig = Twig::fromRequest($request)->getEnvironment();
             $audit = $request->getAttribute('auditLogger');
             $logger = $audit instanceof AuditLogger ? $audit : null;

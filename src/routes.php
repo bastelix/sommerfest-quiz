@@ -514,6 +514,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/invite', function (Request $request, Response $response) {
         $pdo = $request->getAttribute('pdo');
         $twig = Twig::fromRequest($request)->getEnvironment();
+        if (!MailService::isConfigured()) {
+            return $response->withStatus(503);
+        }
         $mailer = new MailService($twig);
         $service = new InvitationService($pdo);
         $controller = new InvitationController($service, $mailer);
@@ -638,6 +641,9 @@ return function (\Slim\App $app, TranslationService $translator) {
         $token = $resetService->createToken((int) $admin['id']);
         $mainDomain = getenv('MAIN_DOMAIN') ?: getenv('DOMAIN') ?: $request->getUri()->getHost();
         $twig = Twig::fromRequest($request);
+        if (!MailService::isConfigured()) {
+            return $response->withStatus(503);
+        }
         $mailer = new MailService($twig, $auditLogger);
         $domain = sprintf('%s.%s', $schema, $mainDomain);
         $link = sprintf('https://%s/password/set?token=%s', $domain, urlencode($token));

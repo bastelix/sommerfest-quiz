@@ -43,6 +43,9 @@ class OnboardingEmailController
 
         $mailer = $request->getAttribute('mailService');
         if (!$mailer instanceof MailService) {
+            if (!MailService::isConfigured()) {
+                return $response->withStatus(503);
+            }
             $twig = Twig::fromRequest($request)->getEnvironment();
             $mailer = new MailService($twig);
         }

@@ -21,6 +21,23 @@ class MailService
     private string $from;
     private ?AuditLogger $audit;
 
+    public static function isConfigured(): bool
+    {
+        $root = dirname(__DIR__, 2);
+        $envFile = $root . '/.env';
+        $env = [];
+
+        if (is_readable($envFile)) {
+            $env = parse_ini_file($envFile, false, INI_SCANNER_RAW) ?: [];
+        }
+
+        $host = (string) ($env['SMTP_HOST'] ?? getenv('SMTP_HOST') ?: '');
+        $user = (string) ($env['SMTP_USER'] ?? getenv('SMTP_USER') ?: '');
+        $pass = (string) ($env['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '');
+
+        return $host !== '' && $user !== '' && $pass !== '';
+    }
+
     public function __construct(Environment $twig, ?AuditLogger $audit = null)
     {
         $root = dirname(__DIR__, 2);
