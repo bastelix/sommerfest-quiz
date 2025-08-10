@@ -123,6 +123,7 @@
 - Update admin QR codes to new design
 - Add parameterized QR routes
 - Elevate Warum QuizRace section
+- Add rotating word animation to hero
 
 ### Fix
 
