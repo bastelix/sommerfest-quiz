@@ -128,6 +128,7 @@
 - Add logo and rounding to QR codes
 - Enhance rotating word marker
 - Style founder section
+- *(stripe)* Add session status endpoint
 
 ### Fix
 
