@@ -1,22 +1,86 @@
-{% set items = [
-  { href: basePath ~ '/admin/summary', icon: 'home', text: 'Startseite' },
-  { href: basePath ~ '/admin/events',  icon: 'calendar', text: 'Events' },
-  { href: basePath ~ '/admin/teams',   icon: 'users', text: 'Teams' },
-  { href: basePath ~ '/admin/results', icon: 'list', text: 'Auswertung' },
-  { href: basePath ~ '/admin/logs',    icon: 'file-text', text: 'Logs', admin: true },
-  { href: basePath ~ '/admin/settings',icon: 'cog', text: 'Einstellungen', admin: true },
+{% set groups = [
+  {
+    items: [
+      { href: basePath ~ '/admin/dashboard', icon: 'home', text: t('tab_dashboard') },
+    ]
+  },
+  {
+    header: t('menu_event'),
+    items: [
+      { href: basePath ~ '/admin/events', icon: 'calendar', text: t('tab_events') },
+      { href: basePath ~ '/admin/event/settings', icon: 'cog', text: t('tab_event_settings') },
+    ]
+  },
+  {
+    header: t('menu_content'),
+    items: [
+      { href: basePath ~ '/admin/catalogs', icon: 'file-text', text: t('tab_catalogs') },
+      { href: basePath ~ '/admin/questions', icon: 'question', text: t('tab_questions') },
+      { href: basePath ~ '/admin/pages', icon: 'file-text', text: t('tab_pages'), admin: true },
+    ]
+  },
+  {
+    header: t('menu_teams'),
+    items: [
+      { href: basePath ~ '/admin/teams', icon: 'users', text: t('tab_teams') },
+    ]
+  },
+  {
+    header: t('menu_evaluation'),
+    items: [
+      { href: basePath ~ '/admin/summary', icon: 'list', text: t('tab_summary') },
+      { href: basePath ~ '/admin/results', icon: 'list', text: t('tab_results') },
+      { href: basePath ~ '/admin/statistics', icon: 'list', text: t('tab_statistics') },
+    ]
+  },
+  {
+    header: t('menu_admin'),
+    admin: true,
+    items: [
+      { href: basePath ~ '/admin/management', icon: 'cog', text: t('tab_management') },
+      { href: basePath ~ '/admin/tenants', icon: 'users', text: t('tab_tenants'), domain: 'main' },
+      { href: basePath ~ '/admin/profile', icon: 'user', text: t('tab_profile') },
+      { href: basePath ~ '/admin/subscription', icon: 'file-text', text: t('tab_subscription') },
+    ]
+  },
 ] %}
 {% set current = currentPath %}
 <ul class="uk-nav uk-nav-default">
-  {% for it in items %}
-    {% if not it.admin or role == 'admin' %}
-      {% set active = current starts with it.href ? 'uk-active' : '' %}
-      <li class="{{ active }}">
-        <a href="{{ it.href }}">
-          <span uk-icon="icon: {{ it.icon }}; ratio: 0.95"></span>
-          <span class="qr-nav-text">{{ it.text }}</span>
-        </a>
-      </li>
+  {% for group in groups %}
+    {% if group.header is defined %}
+      {% if group.admin is not defined or role == 'admin' %}
+        <li class="uk-nav-header">{{ group.header }}</li>
+        {% for it in group.items %}
+          {% if (it.admin is not defined or role == 'admin') and (it.domain is not defined or it.domain == domainType) %}
+            {% set active = current starts with it.href ? 'uk-active' : '' %}
+            <li class="{{ active }}">
+              <a href="{{ it.href }}">
+                <span uk-icon="icon: {{ it.icon }}; ratio: 0.95"></span>
+                <span class="qr-nav-text">{{ it.text }}</span>
+              </a>
+            </li>
+          {% endif %}
+        {% endfor %}
+      {% endif %}
+    {% else %}
+      {% for it in group.items %}
+        {% if (it.admin is not defined or role == 'admin') and (it.domain is not defined or it.domain == domainType) %}
+          {% set active = current starts with it.href ? 'uk-active' : '' %}
+          <li class="{{ active }}">
+            <a href="{{ it.href }}">
+              <span uk-icon="icon: {{ it.icon }}; ratio: 0.95"></span>
+              <span class="qr-nav-text">{{ it.text }}</span>
+            </a>
+          </li>
+        {% endif %}
+      {% endfor %}
     {% endif %}
   {% endfor %}
+  <li class="uk-nav-divider"></li>
+  <li>
+    <a href="{{ basePath }}/logout">
+      <span uk-icon="icon: sign-out; ratio: 0.95"></span>
+      <span class="qr-nav-text">{{ t('logout') }}</span>
+    </a>
+  </li>
 </ul>
