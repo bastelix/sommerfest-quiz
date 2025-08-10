@@ -8,6 +8,7 @@ use App\Service\MailService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
+use RuntimeException;
 
 /**
  * Handles contact form submissions from the landing page.
@@ -46,7 +47,13 @@ class ContactController
             $twig = Twig::fromRequest($request)->getEnvironment();
             $mailer = new MailService($twig);
         }
-        $mailer->sendContact($to, $name, $email, $message);
+        try {
+            $mailer->sendContact($to, $name, $email, $message);
+        } catch (RuntimeException $e) {
+            error_log('Contact mail failed: ' . $e->getMessage());
+            $response->getBody()->write('Mailversand fehlgeschlagen');
+            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
+        }
 
         return $response->withStatus(204);
     }
