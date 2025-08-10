@@ -21,5 +21,6 @@ jobs:
             mkdir -p resources/fonts
             curl -L -o resources/fonts/NotoSans-Bold.ttf https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSans/NotoSans-Bold.ttf
             export $(grep -v '^#' .env | xargs)
-            docker build -t "$APP_IMAGE" .
+            BASE_IMAGE="${APP_IMAGE%:*}"
+            docker build -t "$APP_IMAGE" -t "${BASE_IMAGE}:latest" .
             docker compose up -d --build
