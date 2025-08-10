@@ -71,13 +71,13 @@ class QrCodeService
                 data: $data,
                 encoding: new Encoding('UTF-8'),
                 errorCorrectionLevel: ErrorCorrectionLevel::High,
-                size: 300,
-                margin: 10,
+                size: self::QR_SIZE_DEF,
+                margin: self::QR_MARGIN_DEF,
                 roundBlockSizeMode: RoundBlockSizeMode::Margin,
                 foregroundColor: $fg,
                 backgroundColor: $bg,
                 logoPath: $logoPath ?? '',
-                logoResizeToWidth: $logoPath !== null ? 80 : null,
+                logoResizeToWidth: $logoPath !== null ? self::LOGO_WIDTH_DEF : null,
                 logoPunchoutBackground: $logoPath !== null,
             ))->build();
         } finally {
