@@ -50,43 +50,21 @@ setInterval(() => {
 
 .marker-text {
   display: inline-block;
-  font-size: 2em;
   font-weight: bold;
   position: relative;
-  padding-bottom: 0.3em;
 }
 
-/* Kreidestrich */
+/* Chalk-style underline using font */
 .marker-text::after {
-  content: "";
+  content: "_";
+  font-family: 'Rock Salt', cursive;
+  font-size: 1.8em;
+  color: #f8f6f0;
   position: absolute;
   left: 0;
-  bottom: -0.2em;
-  width: 100%;
-  height: 0.5em;
-  --chalk: #f8f6f0; /* Kreidefarbe */
-
-  /* Basisfarbe */
-  background-color: var(--chalk);
-  opacity: 0.9;
-
-  /* Unregelmäßige Dicke */
-  clip-path: polygon(
-    0% 65%, 5% 50%, 10% 70%, 15% 55%, 20% 75%, 25% 60%,
-    30% 68%, 35% 50%, 40% 72%, 45% 58%, 50% 76%, 55% 54%,
-    60% 73%, 65% 57%, 70% 70%, 75% 55%, 80% 72%, 85% 60%,
-    90% 68%, 95% 53%, 100% 65%
-  );
-
-  /* Kreidekörnung */
-  background-image:
-    radial-gradient(circle at 1px 1px, rgba(0,0,0,0.1) 1px, transparent 0),
-    radial-gradient(circle at 3px 2px, rgba(0,0,0,0.08) 1px, transparent 0),
-    radial-gradient(circle at 2px 4px, rgba(0,0,0,0.06) 1px, transparent 0);
-  background-size: 5px 5px;
-
-  /* Leicht weich und kontrastreich */
-  filter: blur(0.6px) contrast(1.05);
+  bottom: -0.3em;
+  transform: scaleX(1.6);
+  pointer-events: none;
   z-index: -1;
 }
 </style>
