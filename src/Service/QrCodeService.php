@@ -8,8 +8,6 @@ use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
-use Endroid\QrCode\Logo\Logo;
-use Endroid\QrCode\QrCode;
 use Endroid\QrCode\RoundBlockSizeMode;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Writer\SvgWriter;
@@ -224,43 +222,40 @@ class QrCodeService
         $ec = $this->ecFromParam($q['ec'] ?? null);
 
         $roundMode = $this->roundModeFromParam($roundModeParam, $rounded);
-        $qr = new QrCode(
-            data: $data,
-            encoding: new Encoding('UTF-8'),
-            errorCorrectionLevel: $ec,
-            size: $size,
-            margin: $margin,
-            roundBlockSizeMode: $roundMode,
-            foregroundColor: new Color($fgRgb[0], $fgRgb[1], $fgRgb[2]),
-            backgroundColor: new Color($bgRgb[0], $bgRgb[1], $bgRgb[2])
-        );
 
         $logoPath = null;
         $fontFile = $this->getFontFile();
         if ($fontFile !== null && extension_loaded('gd')) {
             $logoPath = $this->createTextLogoPng($text1, $text2, $fontFile, $fontSz, [0, 0, 0]);
         }
-        $logo = $logoPath !== null ? new Logo(
-            path: $logoPath,
-            resizeToWidth: $logoW,
-            punchoutBackground: $logoPunchout
-        ) : null;
+
+        $writer = $format === 'svg' ? new SvgWriter() : new PngWriter();
 
         try {
-            if ($format === 'svg') {
-                $body = (new SvgWriter())->write($qr, $logo)->getString();
-                $mime = 'image/svg+xml';
-            } else {
-                $body = (new PngWriter())->write($qr, $logo)->getString();
-                $mime = 'image/png';
-            }
+            $result = (new Builder(
+                writer: $writer,
+                data: $data,
+                encoding: new Encoding('UTF-8'),
+                errorCorrectionLevel: $ec,
+                size: $size,
+                margin: $margin,
+                roundBlockSizeMode: $roundMode,
+                foregroundColor: new Color($fgRgb[0], $fgRgb[1], $fgRgb[2]),
+                backgroundColor: new Color($bgRgb[0], $bgRgb[1], $bgRgb[2]),
+                logoPath: $logoPath ?? '',
+                logoResizeToWidth: $logoPath !== null ? $logoW : null,
+                logoPunchoutBackground: $logoPath !== null ? $logoPunchout : false,
+            ))->build();
         } finally {
             if ($logoPath !== null) {
                 @unlink($logoPath);
             }
         }
 
-        return ['mime' => $mime, 'body' => $body];
+        return [
+            'mime' => $result->getMimeType(),
+            'body' => $result->getString(),
+        ];
     }
 
     /**
