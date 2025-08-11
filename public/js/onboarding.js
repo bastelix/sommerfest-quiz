@@ -13,7 +13,6 @@
     imprintZip: '',
     imprintCity: '',
     imprintEmail: '',
-    adminPass: '',
     acceptTerms: false,
     acceptPrivacy: false
   };
@@ -72,8 +71,7 @@
     let waitProgress;
     const tasks = [
       { key: 'tenant', label: 'Mandant erstellen' },
-      { key: 'import', label: 'Standardinhalte importieren' },
-      { key: 'user', label: 'Admin-Passwort setzen' }
+      { key: 'import', label: 'Standardinhalte importieren' }
     ];
     if (reloadToken) {
       tasks.push({ key: 'reload', label: 'Proxy neu laden' });
@@ -150,7 +148,6 @@
     const acceptTerms = document.getElementById('accept-terms');
     const acceptPrivacy = document.getElementById('accept-privacy');
     const createBtn = document.getElementById('create');
-    const adminPassInput = document.getElementById('admin-pass');
     const successDomain = document.getElementById('success-domain');
     const successPass = document.getElementById('success-pass');
     const successInfo = document.getElementById('success-info');
@@ -371,28 +368,12 @@
     });
 
     createBtn.addEventListener('click', async () => {
-      if (!adminPassInput) {
-        return;
-      }
-
       if (data.subdomain === '' || RESERVED_SUBDOMAINS.has(data.subdomain)) {
         if (typeof UIkit !== 'undefined') {
           UIkit.notification({ message: 'Ungültige Subdomain', status: 'danger' });
         }
         return;
       }
-
-      let pass = adminPassInput.value;
-      if (pass === '') {
-        const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        const array = new Uint32Array(16);
-        crypto.getRandomValues(array);
-        pass = Array.from(array, x => charset[x % charset.length]).join('');
-        adminPassInput.value = pass;
-      }
-
-      data.adminPass = pass;
-
       show('success');
       initTaskList();
       waitProgress = document.getElementById('wait-progress');
@@ -491,22 +472,6 @@
         setTaskStatus('import', 'done');
         logMessage('Standardinhalte importiert');
 
-        logMessage('Setze Admin-Passwort...');
-        const userRes = await fetch(withBase('/tenant-admin'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ schema: data.subdomain, password: data.adminPass })
-        });
-        if (!userRes.ok) {
-          const text = await userRes.text();
-          logMessage('Fehler Benutzer: ' + text);
-          setTaskStatus('user', 'failed');
-          throw new Error(text || 'user');
-        }
-        setTaskStatus('user', 'done');
-        logMessage('Admin-Passwort gesetzt');
-
         if (reloadToken) {
           logMessage('Proxy wird neu geladen...');
           const reloadRes = await fetch(withBase('/nginx-reload'), {
@@ -546,25 +511,8 @@
           successDomain.hidden = false;
         }
         if (successPass) {
-          successPass.textContent =
-            'Ihr Admin-Login lautet: admin / ' + data.adminPass + ' ';
-          const passCopyBtn = document.createElement('button');
-          passCopyBtn.type = 'button';
-          passCopyBtn.className = 'uk-icon-button';
-          passCopyBtn.setAttribute('uk-icon', 'copy');
-          passCopyBtn.setAttribute('aria-label', 'Passwort kopieren');
-          passCopyBtn.setAttribute('title', 'Passwort kopieren');
-          passCopyBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(data.adminPass).then(() => {
-              if (typeof UIkit !== 'undefined') {
-                UIkit.notification({
-                  message: 'Passwort kopiert',
-                  status: 'success'
-                });
-              }
-            });
-          });
-          successPass.appendChild(passCopyBtn);
+          const msg = (window.adminEmailSentText || '').replace('%s', data.imprintEmail);
+          successPass.textContent = msg;
           successPass.hidden = false;
         }
 

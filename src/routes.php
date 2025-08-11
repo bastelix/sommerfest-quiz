@@ -298,12 +298,14 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/password/set', function (Request $request, Response $response) {
         $view = Twig::fromRequest($request);
         $token = (string) ($request->getQueryParams()['token'] ?? '');
+        $next = (string) ($request->getQueryParams()['next'] ?? '');
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
         $_SESSION['csrf_token'] = $csrf;
         return $view->render($response, 'password_confirm.twig', [
             'token'      => $token,
             'csrf_token' => $csrf,
             'action'     => '/password/set',
+            'next'       => $next,
         ]);
     });
     $app->get('/logout', LogoutController::class);
@@ -615,29 +617,6 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('importController')->restoreDefaults($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::SERVICE_ACCOUNT));
 
-    $app->post('/tenant-admin', function (Request $request, Response $response) {
-        $data = json_decode((string)$request->getBody(), true);
-        if (!is_array($data) || !isset($data['schema'], $data['password'])) {
-            return $response->withStatus(400);
-        }
-        $schema = preg_replace('/[^a-z0-9_\-]/i', '', (string)$data['schema']);
-        $schema = strtolower($schema);
-        if ($schema === '' || $schema === 'public') {
-            return $response->withStatus(400);
-        }
-        $pdo = Database::connectWithSchema($schema);
-        Migrator::migrate($pdo, __DIR__ . '/../migrations');
-        $userService = new UserService($pdo);
-        $existing = $userService->getByUsername('admin');
-        if ($existing === null) {
-            $userService->create('admin', (string)$data['password'], Roles::ADMIN);
-        } else {
-            $userService->updatePassword((int)$existing['id'], (string)$data['password']);
-        }
-
-        return $response->withStatus(204);
-    })->add(new RoleAuthMiddleware(Roles::SERVICE_ACCOUNT));
-
     $app->post('/tenant-welcome', function (Request $request, Response $response) {
         $data = json_decode((string) $request->getBody(), true);
         if (!is_array($data) || !isset($data['schema'], $data['email'])) {
@@ -653,9 +632,21 @@ return function (\Slim\App $app, TranslationService $translator) {
         $userService = new UserService($pdo);
         $auditLogger = new AuditLogger($pdo);
         $admin = $userService->getByUsername('admin');
+        $randomPass = bin2hex(random_bytes(16));
+        if ($admin === null) {
+            $userService->create('admin', $randomPass, $email, Roles::ADMIN);
+            $admin = $userService->getByUsername('admin');
+        } else {
+            $userService->updatePassword((int)$admin['id'], $randomPass);
+            $userService->setEmail((int)$admin['id'], $email);
+        }
         if ($admin === null) {
             return $response->withStatus(500);
         }
+
+        $resetService = new PasswordResetService($pdo);
+        $token = $resetService->createToken((int)$admin['id']);
+
         $mainDomain = getenv('MAIN_DOMAIN') ?: getenv('DOMAIN') ?: $request->getUri()->getHost();
         $twig = Twig::fromRequest($request)->getEnvironment();
         if (!MailService::isConfigured()) {
@@ -663,7 +654,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $mailer = new MailService($twig, $auditLogger);
         $domain = sprintf('%s.%s', $schema, $mainDomain);
-        $link = sprintf('https://%s/admin', $domain);
+        $link = sprintf('https://%s/password/set?token=%s&next=%%2Fadmin', $domain, urlencode($token));
         $html = $mailer->sendWelcome($email, $domain, $link);
         $base = dirname(__DIR__, 1);
         $dir = $base . '/data/' . $schema;

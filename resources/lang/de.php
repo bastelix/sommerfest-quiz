@@ -190,6 +190,8 @@ return [
     'action_delete_tenant' => 'Mandant löschen',
     'action_renew_ssl' => 'SSL erneuern',
     'help_admin_pass' => 'Definiert das Admin-Passwort des neuen Mandanten. Bleibt das Feld leer, wird ein zufälliges Passwort erzeugt',
+    'info_admin_email' => 'Der Link zum Setzen des Admin-Passworts wird per E-Mail verschickt.',
+    'text_admin_email_sent' => 'Ein Link zum Setzen des Admin-Passworts wurde an %s gesendet.',
     'link_forgot_password' => 'Passwort vergessen?',
     'heading_password_request' => 'Passwort zurücksetzen',
     'text_password_request_success' => 'Falls die E-Mail existiert, wurde ein Link gesendet.',
