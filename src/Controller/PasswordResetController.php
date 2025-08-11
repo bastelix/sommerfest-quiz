@@ -152,6 +152,8 @@ class PasswordResetController
             }
         }
 
-        return $response->withStatus(204);
+        return $response
+            ->withHeader('Location', '/login?reset=1')
+            ->withStatus(302);
     }
 }

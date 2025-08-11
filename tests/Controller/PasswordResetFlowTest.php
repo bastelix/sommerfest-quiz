@@ -39,6 +39,13 @@ class PasswordResetFlowTest extends TestCase
             );
         } catch (\PDOException $e) {
         }
+        try {
+            $pdo->exec(
+                'CREATE TABLE user_sessions(' .
+                'user_id INTEGER NOT NULL, session_id TEXT PRIMARY KEY, created_at TEXT)'
+            );
+        } catch (\PDOException $e) {
+        }
         $userService = new UserService($pdo);
         $userService->create('alice', 'oldpass', 'alice@example.com', Roles::ADMIN);
 
@@ -83,7 +90,13 @@ class PasswordResetFlowTest extends TestCase
                 'csrf_token' => 'tok',
             ]);
         $resp2 = $app->handle($confirm);
-        $this->assertSame(204, $resp2->getStatusCode());
+        $this->assertSame(302, $resp2->getStatusCode());
+        $this->assertSame('/login?reset=1', $resp2->getHeaderLine('Location'));
+
+        $login = $app->handle($this->createRequest('GET', '/login?reset=1'));
+        $this->assertSame(200, $login->getStatusCode());
+        $body = (string) $login->getBody();
+        $this->assertStringContainsString('Passwort erfolgreich', $body);
 
         $updated = $userService->getByUsername('alice');
         $this->assertIsArray($updated);
