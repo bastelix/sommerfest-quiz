@@ -8,6 +8,7 @@ use App\Application\Seo\PageSeoConfigService;
 use App\Domain\PageSeoConfig;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Views\Twig;
 
 /**
  * Handles admin actions for the marketing landing page.
@@ -19,6 +20,15 @@ class LandingpageController
     public function __construct(?PageSeoConfigService $seoService = null)
     {
         $this->seoService = $seoService ?? new PageSeoConfigService();
+    }
+
+    /**
+     * Display the SEO edit form.
+     */
+    public function page(Request $request, Response $response): Response
+    {
+        $view = Twig::fromRequest($request);
+        return $view->render($response, 'admin/landingpage/edit.html.twig');
     }
 
     /**

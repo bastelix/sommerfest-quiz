@@ -121,4 +121,31 @@ class RoleAccessTest extends TestCase
         session_destroy();
         unlink($db);
     }
+
+    public function testAdminCanViewSeoForm(): void
+    {
+        $db = $this->setupDb();
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $req = $this->createRequest('GET', '/admin/landingpage/seo');
+        $res = $app->handle($req);
+        $this->assertEquals(200, $res->getStatusCode());
+        session_destroy();
+        unlink($db);
+    }
+
+    public function testCatalogEditorCannotViewSeoForm(): void
+    {
+        $db = $this->setupDb();
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
+        $req = $this->createRequest('GET', '/admin/landingpage/seo');
+        $res = $app->handle($req);
+        $this->assertEquals(302, $res->getStatusCode());
+        $this->assertEquals('/login', $res->getHeaderLine('Location'));
+        session_destroy();
+        unlink($db);
+    }
 }
