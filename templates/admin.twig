@@ -44,12 +44,6 @@
       <div class="contrast-switch uk-margin-small-left">
         <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="Kontrastmodus"></button>
       </div>
-      <div class="lang-switch uk-margin-small-left">
-        <select id="langSelect" class="uk-select uk-form-width-small">
-          <option value="de" {{ locale() == 'de' ? 'selected' }}>{{ t('german') }}</option>
-          <option value="en" {{ locale() == 'en' ? 'selected' }}>{{ t('english') }}</option>
-        </select>
-      </div>
       <button id="helpBtn" class="uk-icon-button uk-margin-small-left" uk-icon="icon: question; ratio: 2" aria-label="Hilfe"></button>
     {% endblock %}
   {% endembed %}
@@ -738,6 +732,13 @@
               <label class="uk-form-label">{{ t('column_billing') }}</label>
               <select class="uk-select" name="billing_info">
                 <option value="credit" {% if tenant.billing_info == 'credit' %}selected{% endif %}>{{ t('billing_credit') }}</option>
+              </select>
+            </div>
+            <div class="uk-width-1-1">
+              <label class="uk-form-label">{{ t('language') }}</label>
+              <select id="langSelect" class="uk-select uk-form-width-small">
+                <option value="de" {{ locale() == 'de' ? 'selected' }}>{{ t('german') }}</option>
+                <option value="en" {{ locale() == 'en' ? 'selected' }}>{{ t('english') }}</option>
               </select>
             </div>
             <div class="uk-width-1-1">
