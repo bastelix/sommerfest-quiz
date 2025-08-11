@@ -87,4 +87,14 @@ class LandingControllerTest extends TestCase
         putenv('SMTP_PASS');
         unset($_ENV['SMTP_HOST'], $_ENV['SMTP_USER'], $_ENV['SMTP_PASS']);
     }
+
+    public function testLandingPageContainsFaqLink(): void
+    {
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/landing');
+        $response = $app->handle($request);
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('href="/faq"', $body);
+
+    }
 }
