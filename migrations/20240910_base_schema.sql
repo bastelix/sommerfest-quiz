@@ -174,6 +174,13 @@ CREATE TABLE IF NOT EXISTS users (
     role user_role NOT NULL DEFAULT 'catalog-editor'
 );
 
+-- Sessions for logged-in users
+CREATE TABLE IF NOT EXISTS user_sessions (
+    user_id INTEGER NOT NULL,
+    session_id TEXT PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Tenant definitions
 CREATE TABLE IF NOT EXISTS tenants (
     uid TEXT PRIMARY KEY,
