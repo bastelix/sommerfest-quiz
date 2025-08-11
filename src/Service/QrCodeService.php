@@ -55,11 +55,9 @@ class QrCodeService
         } else {
             $tmp = tempnam(sys_get_temp_dir(), 'qrlogo_fallback');
             if ($tmp !== false) {
-                $data = base64_decode(self::FALLBACK_LOGO_PNG_BASE64);
-                if ($data !== false) {
-                    file_put_contents($tmp, $data);
-                    $logoPath = $tmp;
-                }
+                $data = base64_decode(self::FALLBACK_LOGO_PNG_BASE64, true);
+                file_put_contents($tmp, $data);
+                $logoPath = $tmp;
             }
         }
 
