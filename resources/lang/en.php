@@ -1,4 +1,5 @@
 <?php
+
 return [
     'help' => 'Help',
     'design_toggle' => 'Toggle theme',
@@ -50,6 +51,7 @@ return [
     'menu_content' => 'Content',
     'menu_teams' => 'Teams',
     'menu_evaluation' => 'Evaluation',
+    'menu_account' => 'Account',
     'menu_admin' => 'Administration',
     'logout' => 'Logout',
     'tip_logo_upload' => 'Upload PNG logo for start page.',
