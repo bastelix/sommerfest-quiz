@@ -1341,7 +1341,12 @@ document.addEventListener('DOMContentLoaded', function () {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(list)
-    }).catch(() => notify('Fehler beim Speichern', 'danger'));
+    })
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        notify('Veranstaltungen gespeichert', 'success');
+      })
+      .catch(() => notify('Fehler beim Speichern', 'danger'));
     updateEventRowNumbers();
   }
 
