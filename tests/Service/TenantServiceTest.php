@@ -7,6 +7,7 @@ namespace Tests\Service;
 use App\Service\TenantService;
 use Tests\TestCase;
 use PDO;
+use App\Domain\Plan;
 
 class TenantServiceTest extends TestCase
 {
@@ -16,7 +17,7 @@ class TenantServiceTest extends TestCase
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
             'CREATE TABLE tenants(' .
-            'uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, ' .
+            'uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, stripe_customer_id TEXT, ' .
             'imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, ' .
             'imprint_email TEXT, custom_limits TEXT, plan_started_at TEXT, plan_expires_at TEXT, created_at TEXT)'
         );
@@ -211,6 +212,31 @@ SQL;
         $service->setCustomLimits('sub10', ['maxEvents' => 5]);
         $limits2 = $service->getCustomLimitsBySubdomain('sub10');
         $this->assertSame(['maxEvents' => 5], $limits2);
+    }
+
+    public function testPlanAndLimitsReflectExternalUpdates(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+        $service = $this->createService($dir, $pdo);
+        $service->createTenant('u12', 'sub12', Plan::STARTER);
+        $this->assertSame(Plan::STARTER, $service->getPlanBySubdomain('sub12'));
+
+        $webhook = new TenantService($pdo, $dir, new class extends \App\Service\NginxService {
+            public function __construct()
+            {
+            }
+
+            public function createVhost(string $sub): void
+            {
+            }
+        });
+        $webhook->updateProfile('sub12', ['plan' => Plan::STANDARD]);
+        $this->assertSame(Plan::STANDARD, $service->getPlanBySubdomain('sub12'));
+        $this->assertSame(Plan::limits(Plan::STANDARD), $service->getLimitsBySubdomain('sub12'));
+
+        $webhook->setCustomLimits('sub12', ['maxEvents' => 4]);
+        $this->assertSame(['maxEvents' => 4], $service->getLimitsBySubdomain('sub12'));
     }
 
     public function testUpdateProfileRecalculatesExpiry(): void
