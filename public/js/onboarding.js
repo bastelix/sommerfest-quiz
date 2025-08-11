@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const saveSubdomainBtn = document.getElementById('saveSubdomain');
   const planButtons = document.querySelectorAll('.plan-select');
   const verifiedHint = document.getElementById('verifiedHint');
+  const basePath = window.basePath || '';
+  const withBase = p => basePath + p;
 
   const params = new URLSearchParams(window.location.search);
   const emailParam = params.get('email');
@@ -26,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     sendEmailBtn.addEventListener('click', async () => {
       const email = emailInput.value.trim();
       if (!email) return;
-      const res = await fetch('/onboarding/email', {
+      const res = await fetch(withBase('/onboarding/email'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -51,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saveSubdomainBtn.addEventListener('click', async () => {
       const subdomain = subdomainInput.value.trim().toLowerCase();
       if (!subdomain) return;
-      const res = await fetch('/tenants/' + encodeURIComponent(subdomain));
+      const res = await fetch(withBase('/tenants/' + encodeURIComponent(subdomain)));
       if (res.ok) {
         alert('Subdomain bereits vergeben.');
         return;
@@ -72,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = emailInput.value.trim();
         if (!plan) return;
         try {
-          const res = await fetch('/onboarding/checkout', {
+          const res = await fetch(withBase('/onboarding/checkout'), {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
