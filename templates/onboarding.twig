@@ -6,148 +6,43 @@
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
-  <script src="https://js.stripe.com/v3"></script>
 {% endblock %}
 
 {% block body_class %}uk-padding{% endblock %}
 
 {% block body %}
-  {% embed 'topbar.twig' %}
-    {% block right %}
-      <div class="theme-switch">
-        <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="Design wechseln"></button>
-      </div>
-      <div class="contrast-switch uk-margin-small-left">
-        <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="Kontrastmodus"></button>
-      </div>
-    {% endblock %}
-  {% endembed %}
+  {% embed 'topbar.twig' %}{% endembed %}
   <div class="uk-container uk-margin-large-top">
-    <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="login"{% if logged_in %} hidden{% endif %}>
-      <h3 class="uk-card-title">Login</h3>
-      <div id="login-error" class="uk-alert-danger" uk-alert hidden>
-        <p>Benutzername oder Passwort falsch.</p>
-      </div>
+    <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step1">
+      <h3 class="uk-card-title">1. E-Mail eingeben und bestätigen</h3>
       <div class="uk-margin">
-        <input id="login-user" class="uk-input" type="text" placeholder="Benutzername" required>
+        <input id="email" class="uk-input" type="email" placeholder="E-Mail-Adresse" required>
       </div>
-      <div class="uk-margin">
-        <input id="login-pass" class="uk-input" type="password" placeholder="Passwort" required>
-      </div>
-      <button class="uk-button uk-button-primary" id="login-btn">Login</button>
-    </div>
-
-    <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step1"{% if not logged_in %} hidden{% endif %}>
-      <h3 class="uk-card-title">1. Name der App/Domain</h3>
-      <div class="uk-margin">
-        <input id="customer-name" class="uk-input" type="text" placeholder="Name der App oder Domain" required>
-      </div>
-      <div class="uk-margin">
-        <input id="customer-email" class="uk-input" type="email" placeholder="E-Mail-Adresse" required>
-        <div id="email-hint" class="uk-text-meta uk-margin-small-top" hidden></div>
-      </div>
-      <div class="uk-margin">
-        <label>Subdomain: <span id="subdomain-preview">-</span>.{{ main_domain }}</label>
-      </div>
-      <button class="uk-button uk-button-primary" id="next1" disabled>Weiter</button>
+      <p>Nach Klick auf die Schaltfläche verschicken wir eine E-Mail mit einem Bestätigungslink. Öffne diesen Link, um deine Adresse zu verifizieren und die Registrierung fortzusetzen.</p>
+      <button class="uk-button uk-button-primary" id="sendEmail">Bestätigung senden</button>
+      <div id="emailStatus" class="uk-margin-small-top uk-text-success" hidden></div>
     </div>
 
     <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step2" hidden>
-      <h3 class="uk-card-title">2. Abo wählen</h3>
-      <div class="uk-margin">
-        <select id="plan" class="uk-select">
-          <option value="starter">{{ t('plan_starter') }}</option>
-          <option value="standard">{{ t('plan_standard') }}</option>
-          <option value="professional">{{ t('plan_professional') }}</option>
-        </select>
-      </div>
-      <button class="uk-button uk-button-primary" id="next2">Weiter</button>
-    </div>
-
-    <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step3" hidden>
-      <h3 class="uk-card-title">3. Zahlungsart</h3>
-      <div class="uk-margin">
-        <select id="payment" class="uk-select">
-          <option value="credit">{{ t('billing_credit') }}</option>
-        </select>
-      </div>
-      <p id="payment-info" class="uk-text-meta" hidden>{{ t('stripe_payment_terms')|raw }}</p>
-      <button class="uk-button uk-button-secondary uk-margin-small-right" id="payBtn">Jetzt bezahlen</button>
-      <button class="uk-button uk-button-primary" id="next3">Weiter</button>
-    </div>
-
-    <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step4" hidden>
-      <h3 class="uk-card-title">4. Daten für Impressum/Datenschutz</h3>
-      <div class="uk-margin">
-        <input id="imprint-name" class="uk-input" type="text" placeholder="Name des Betreibers" required>
+      <h3 class="uk-card-title">2. Subdomain wählen</h3>
+      <div id="verifiedHint" class="uk-alert-success" uk-alert hidden>
+        <p>Deine E-Mail-Adresse wurde erfolgreich bestätigt.</p>
       </div>
       <div class="uk-margin">
-        <input id="imprint-street" class="uk-input" type="text" placeholder="Straße und Hausnummer" required>
+        <input id="subdomain" class="uk-input" type="text" placeholder="gewünschte Subdomain" required>
+        <div class="uk-margin-small-top uk-text-meta">Die vollständige Adresse lautet: <span id="subdomainPreview"></span>.{{ main_domain }}</div>
       </div>
-      <div class="uk-margin">
-        <input id="imprint-zip" class="uk-input" type="text" placeholder="PLZ" required>
-      </div>
-      <div class="uk-margin">
-        <input id="imprint-city" class="uk-input" type="text" placeholder="Ort" required>
-      </div>
-      <div class="uk-margin">
-        <input id="imprint-email" class="uk-input" type="email" placeholder="E-Mail-Adresse" required>
-      </div>
-      <div class="uk-margin">
-        <label>
-          <input id="accept-terms" class="uk-checkbox" type="checkbox">
-          Ich akzeptiere die <a href="{{ basePath }}/lizenz" target="_blank">AGB</a>
-        </label>
-      </div>
-      <div class="uk-margin">
-        <label>
-          <input id="accept-privacy" class="uk-checkbox" type="checkbox">
-          Ich habe die <a href="{{ basePath }}/datenschutz" target="_blank">Datenschutzerklärung</a> gelesen
-        </label>
-      </div>
-      <button class="uk-button uk-button-primary" id="next4" disabled>Weiter</button>
-    </div>
-
-    <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step5" hidden>
-      <h3 class="uk-card-title">5. Erstellung</h3>
-      <ul class="uk-list">
-        <li><strong>Name:</strong> <span id="summary-name"></span></li>
-        <li><strong>Subdomain:</strong> <span id="summary-subdomain"></span>.{{ main_domain }}</li>
-        <li><strong>Abo:</strong> <span id="summary-plan"></span></li>
-        <li><strong>Zahlung:</strong> <span id="summary-payment"></span></li>
-        <li><strong>Betreiber:</strong> <span id="summary-imprint-name"></span></li>
-        <li><strong>Adresse:</strong> <span id="summary-imprint-street"></span>, <span id="summary-imprint-zip"></span> <span id="summary-imprint-city"></span></li>
-        <li><strong>E-Mail:</strong> <span id="summary-imprint-email"></span></li>
-      </ul>
-      <p>{{ t('info_admin_email') }}</p>
-      <button class="uk-button uk-button-primary" id="create">Jetzt QuizRace-Umgebung erstellen</button>
-    </div>
-
-    <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="success" hidden>
-      <h3 class="uk-card-title">Erstellung der Umgebung</h3>
-      <p id="success-domain" hidden></p>
-      <p id="success-pass" hidden></p>
-      <p id="success-info">Die Subdomain ist in wenigen Minuten erreichbar, sobald das SSL-Zertifikat erstellt wurde.</p>
-      <p id="success-script" hidden></p>
-      <ul id="task-status" class="uk-list uk-text-left"></ul>
-      <details class="uk-margin-top">
-        <summary>Logmeldungen anzeigen</summary>
-        <ul id="task-log" class="uk-list uk-text-left uk-margin-top"></ul>
-      </details>
-      <a id="success-link" class="uk-button uk-button-primary uk-margin-top" hidden>Zu deinem Quiz</a>
+      <p>Gib eine gewünschte Subdomain ein (z.&nbsp;B. <code>meine-seite</code>) und bestätige mit der Schaltfläche. Wir prüfen die Verfügbarkeit und reservieren sie für dich.</p>
+      <button class="uk-button uk-button-primary" id="saveSubdomain">Subdomain speichern</button>
     </div>
   </div>
 {% endblock %}
 
 {% block scripts %}
-  <script src="{{ basePath }}/js/app.js"></script>
   <script>
     window.mainDomain = '{{ main_domain }}';
-    window.loggedIn = {{ logged_in ? 'true' : 'false' }};
-    window.reloadToken = '{{ reload_token|e('js') }}';
     window.csrfToken = '{{ csrf_token|e('js') }}';
-    window.adminEmailSentText = '{{ t('text_admin_email_sent')|e('js') }}';
   </script>
   <script src="{{ basePath }}/js/onboarding.js"></script>
-  <script src="{{ basePath }}/js/custom-icons.js"></script>
 {% endblock %}
+

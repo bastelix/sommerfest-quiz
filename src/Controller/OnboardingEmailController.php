@@ -71,7 +71,11 @@ class OnboardingEmailController
 
         $uri = $request->getUri()
             ->withPath('/onboarding')
-            ->withQuery(http_build_query(['email' => $email, 'verified' => 1]));
+            ->withQuery(http_build_query([
+                'email' => $email,
+                'verified' => 1,
+                'step' => 'domain',
+            ]));
 
         return $response->withHeader('Location', (string) $uri)->withStatus(302);
     }
