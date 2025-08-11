@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const subdomainInput = document.getElementById('subdomain');
   const subdomainPreview = document.getElementById('subdomainPreview');
   const saveSubdomainBtn = document.getElementById('saveSubdomain');
-  const startCheckoutBtn = document.getElementById('startCheckout');
+  const planButtons = document.querySelectorAll('.plan-select');
   const verifiedHint = document.getElementById('verifiedHint');
 
   const params = new URLSearchParams(window.location.search);
@@ -61,26 +61,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  if (startCheckoutBtn) {
-    startCheckoutBtn.addEventListener('click', async () => {
-      const planInput = document.querySelector('input[name="plan"]:checked');
-      const plan = planInput ? planInput.value : '';
-      const email = emailInput.value.trim();
-      if (!plan) return;
-      const res = await fetch('/onboarding/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': window.csrfToken || ''
-        },
-        body: JSON.stringify({ plan, email })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.url) {
-          window.location.href = data.url;
+  if (planButtons.length) {
+    planButtons.forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const plan = btn.dataset.plan;
+        const email = emailInput.value.trim();
+        if (!plan) return;
+        const res = await fetch('/onboarding/checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': window.csrfToken || ''
+          },
+          body: JSON.stringify({ plan, email })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.url) {
+            window.location.href = data.url;
+          }
         }
-      }
+      });
     });
   }
 });
