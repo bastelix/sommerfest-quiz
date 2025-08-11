@@ -37,7 +37,7 @@
     const h3 = cal.parentElement.querySelector('h3');
     h3.textContent = monthStart.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
 
-    let html = '<table class="uk-table uk-table-divider uk-table-small uk-text-center">';
+    let html = '<table class="uk-table uk-table-small uk-text-center calendar-table">';
     html += '<thead><tr><th>Mo</th><th>Di</th><th>Mi</th><th>Do</th><th>Fr</th><th>Sa</th><th>So</th></tr></thead><tbody><tr>';
     for (let i = 0; i < startWeekday; i++) html += '<td></td>';
 
@@ -58,12 +58,12 @@
       const hasEvents = !!byDate[key];
       html += `<td class="${isToday ? 'uk-background-muted uk-text-bold' : ''}"><div>${day}</div>`;
       if (hasEvents) {
-        html += '<div class="uk-margin-small-top">' +
+        html += '<div class="cal-events">' +
           byDate[key].map(ev => {
             const s = new Date(ev.start).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
             const eTime = new Date(ev.end).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
             const label = `${s}–${eTime} ${short(ev.title)}`;
-            return `<a class="uk-badge uk-display-block uk-margin-xsmall-top" href="${withBase('/admin/events/' + ev.id)}" title="${ev.title}">${label}</a>`;
+            return `<a class="cal-event" href="${withBase('/admin/events/' + ev.id)}" title="${label}"></a>`;
           }).join('') +
           '</div>';
       }
