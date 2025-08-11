@@ -454,6 +454,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->update($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
+    $app->get('/admin/landingpage/seo', function (Request $request, Response $response) {
+        if ($request->getAttribute('domainType') !== 'main') {
+            return $response->withStatus(404);
+        }
+        $controller = new LandingpageController();
+        return $controller->page($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
     $app->post('/admin/landingpage/seo', function (Request $request, Response $response) {
         $controller = new LandingpageController();
         return $controller->save($request, $response);
