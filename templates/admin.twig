@@ -291,11 +291,12 @@
             </div>
           </div>
         </form>
-        <div class="uk-margin uk-flex uk-flex-between">
-          <button id="cfgResetBtn" class="uk-button uk-button-default" uk-tooltip="title: {{ t('tip_form_reset') }}; pos: right">{{ t('action_reset') }}</button>
-          <div>
-            <button id="cfgSaveBtn" class="uk-button uk-button-primary" uk-tooltip="title: {{ t('tip_save_settings') }}; pos: right"><span uk-icon="check"></span> {{ t('action_save') }}</button>
-          </div>
+        <div class="uk-margin uk-flex uk-flex-right">
+          <button id="cfgResetBtn"
+            class="uk-button uk-button-default"
+            uk-tooltip="title: {{ t('tip_form_reset') }}; pos: right">
+            {{ t('action_reset') }}
+          </button>
         </div>
 
         <div id="puzzleFeedbackModal" uk-modal>
