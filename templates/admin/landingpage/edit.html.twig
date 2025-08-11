@@ -1,0 +1,78 @@
+{% extends 'layout.twig' %}
+
+{% block title %}Landingpage bearbeiten{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding{% endblock %}
+
+{% block body %}
+  <div class="uk-container uk-container-small">
+    <h1 class="uk-heading-bullet">Landingpage bearbeiten</h1>
+    <form class="uk-form-stacked seo-form">
+      <h2>SEO</h2>
+      <div class="uk-margin">
+        <label class="uk-form-label" for="metaTitle">Meta Title</label>
+        <div class="uk-form-controls">
+          <input class="uk-input" id="metaTitle" name="meta_title" type="text" required data-maxlength="60">
+          <small class="uk-text-meta char-count" data-for="metaTitle">0/60</small>
+        </div>
+      </div>
+      <div class="uk-margin">
+        <label class="uk-form-label" for="metaDescription">Meta Description</label>
+        <div class="uk-form-controls">
+          <textarea class="uk-textarea" id="metaDescription" name="meta_description" required data-maxlength="160"></textarea>
+          <small class="uk-text-meta char-count" data-for="metaDescription">0/160</small>
+        </div>
+      </div>
+      <div class="uk-margin">
+        <label class="uk-form-label" for="slug">Slug</label>
+        <div class="uk-form-controls">
+          <input class="uk-input" id="slug" name="slug" type="text" required data-maxlength="100">
+        </div>
+      </div>
+      <div class="uk-margin">
+        <label class="uk-form-label" for="canonical">Canonical</label>
+        <div class="uk-form-controls">
+          <input class="uk-input" id="canonical" name="canonical" type="url">
+        </div>
+      </div>
+      <div class="uk-margin">
+        <label class="uk-form-label" for="robots">Robots</label>
+        <div class="uk-form-controls">
+          <input class="uk-input" id="robots" name="robots" type="text" placeholder="index, follow">
+        </div>
+      </div>
+      <div class="uk-margin">
+        <label class="uk-form-label">OG-Tags</label>
+        <div class="uk-form-controls">
+          <input class="uk-input uk-margin-small-bottom" id="ogTitle" name="og_title" type="text" placeholder="og:title" data-maxlength="60">
+          <input class="uk-input" id="ogDescription" name="og_description" type="text" placeholder="og:description" data-maxlength="160">
+        </div>
+      </div>
+      <div class="uk-margin">
+        <label class="uk-form-label" for="schema">Schema.org</label>
+        <div class="uk-form-controls">
+          <textarea class="uk-textarea" id="schema" name="schema" rows="4" placeholder="{ }"></textarea>
+        </div>
+      </div>
+      <div class="uk-margin">
+        <label class="uk-form-label" for="hreflang">hreflang</label>
+        <div class="uk-form-controls">
+          <input class="uk-input" id="hreflang" name="hreflang" type="text" placeholder="de, en, ...">
+        </div>
+      </div>
+      <div class="uk-margin">
+        <button type="submit" class="uk-button uk-button-primary">Speichern</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script type="module" src="{{ basePath }}/js/seo-form.js"></script>
+{% endblock %}
