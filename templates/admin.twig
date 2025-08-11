@@ -750,6 +750,8 @@
     <li class="{{ activeRoute == 'subscription' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_subscription') }}</h2>
+        {% set hasCustomer = tenant and tenant.stripe_customer_id %}
+        {% set upgradeUrl = hasCustomer ? basePath ~ '/admin/subscription/portal' : basePath ~ '/onboarding' %}
         <div class="uk-card uk-card-default uk-card-body uk-margin-small" id="subscription-card">
           <div id="subscription"
             data-label-plan="{{ t('label_plan') }}"
@@ -760,7 +762,10 @@
             data-plan-standard="{{ t('plan_standard') }}"
             data-plan-professional="{{ t('plan_professional') }}"></div>
         </div>
-        <p><a class="uk-button uk-button-primary" href="{{ basePath }}/admin/subscription/portal">{{ t('action_open_subscription') }}</a></p>
+        <p><a class="uk-button uk-button-primary" href="{{ upgradeUrl }}">{{ hasCustomer ? t('action_open_subscription') : t('action_start_subscription') }}</a></p>
+        <script>
+          window.upgradeUrl = '{{ upgradeUrl }}';
+        </script>
       </div>
     </li>
       </ul>
@@ -794,7 +799,6 @@
     window.transUpgradeTitle = '{{ t('heading_limit_reached') }}';
     window.transUpgradeText = '{{ t('text_upgrade_required') }}';
     window.transUpgradeAction = '{{ t('action_upgrade') }}';
-    window.upgradeUrl = '{{ basePath }}/admin/subscription';
   </script>
   <script src="{{ basePath }}/js/dashboard.js"></script>
   <script src="{{ basePath }}/js/admin.js"></script>

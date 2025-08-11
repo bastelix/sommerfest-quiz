@@ -187,6 +187,7 @@ return [
     'action_restore_demo' => 'Restore demo data',
     'action_refresh' => 'Refresh',
     'action_open_subscription' => 'Open customer portal',
+    'action_start_subscription' => 'Start subscription',
     'action_open_evaluation' => 'Open evaluation',
     'action_download' => 'Download',
     'action_delete_tenant' => 'Delete tenant',
