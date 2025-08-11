@@ -56,6 +56,7 @@ use App\Controller\EventController;
 use App\Controller\EventListController;
 use App\Controller\SettingsController;
 use App\Controller\Admin\PageController;
+use App\Controller\Admin\LandingpageController;
 use App\Controller\TenantController;
 use App\Controller\Marketing\LandingController;
 use App\Controller\Marketing\ContactController;
@@ -89,6 +90,7 @@ require_once __DIR__ . '/Controller/PasswordController.php';
 require_once __DIR__ . '/Controller/PasswordResetController.php';
 require_once __DIR__ . '/Controller/AdminCatalogController.php';
 require_once __DIR__ . '/Controller/Admin/PageController.php';
+require_once __DIR__ . '/Controller/Admin/LandingpageController.php';
 require_once __DIR__ . '/Controller/QrController.php';
 require_once __DIR__ . '/Controller/LogoController.php';
 require_once __DIR__ . '/Controller/CatalogDesignController.php';
@@ -447,6 +449,11 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {
         $controller = new PageController();
         return $controller->update($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->post('/admin/landingpage/seo', function (Request $request, Response $response) {
+        $controller = new LandingpageController();
+        return $controller->save($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
     $app->get('/admin/{path:.*}', function (Request $request, Response $response) {
