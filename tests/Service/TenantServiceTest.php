@@ -246,7 +246,9 @@ SQL;
         $service = $this->createService($dir, $pdo);
         $service->createTenant('u11', 'sub11', 'starter');
         $service->updateProfile('sub11', ['plan_started_at' => '2000-01-01 00:00:00+00:00', 'plan' => 'starter']);
-        $row = $pdo->query("SELECT plan_started_at, plan_expires_at FROM tenants WHERE subdomain='sub11'")->fetch(PDO::FETCH_ASSOC);
+        $row = $pdo
+            ->query("SELECT plan_started_at, plan_expires_at FROM tenants WHERE subdomain='sub11'")
+            ->fetch(PDO::FETCH_ASSOC);
         $this->assertSame('2000-01-01 00:00:00+00:00', $row['plan_started_at']);
         $this->assertSame('2000-01-31 00:00:00+00:00', $row['plan_expires_at']);
     }

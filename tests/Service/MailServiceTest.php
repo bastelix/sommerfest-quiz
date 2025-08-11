@@ -202,8 +202,10 @@ class MailServiceTest extends TestCase
                         $this->outer = $outer;
                     }
 
-                    public function send(\Symfony\Component\Mime\RawMessage $message, \Symfony\Component\Mailer\Envelope $envelope = null): void
-                    {
+                    public function send(
+                        \Symfony\Component\Mime\RawMessage $message,
+                        \Symfony\Component\Mailer\Envelope $envelope = null
+                    ): void {
                         $this->outer->messages[] = $message;
                     }
                 };

@@ -177,7 +177,15 @@ return function (\Slim\App $app, TranslationService $translator) {
                 )
             )
             ->withAttribute('auditLogger', $auditLogger)
-            ->withAttribute('passwordController', new PasswordController($userService, $passwordPolicy, $auditLogger, $sessionService))
+            ->withAttribute(
+                'passwordController',
+                new PasswordController(
+                    $userService,
+                    $passwordPolicy,
+                    $auditLogger,
+                    $sessionService
+                )
+            )
             ->withAttribute(
                 'passwordResetController',
                 new PasswordResetController($userService, $passwordResetService, $passwordPolicy, $sessionService)
@@ -337,7 +345,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             ?: new DateTimeImmutable('first day of this month');
         $end = $start->modify('first day of next month');
         $stmt = $pdo->prepare(
-            'SELECT uid,name,start_date,end_date,published FROM events WHERE start_date >= ? AND start_date < ? ORDER BY start_date'
+            'SELECT uid,name,start_date,end_date,published '
+            . 'FROM events '
+            . 'WHERE start_date >= ? AND start_date < ? '
+            . 'ORDER BY start_date'
         );
         $stmt->execute([
             $start->format('Y-m-d 00:00:00'),

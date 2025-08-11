@@ -37,8 +37,12 @@ class StripeWebhookController
             case 'customer.subscription.updated':
                 $customerId = (string) ($object['customer'] ?? '');
                 if ($customerId !== '') {
-                    $plan = $this->mapPriceToPlan((string) ($object['items']['data'][0]['price']['id'] ?? ''));
-                    $billing = ((string) ($object['collection_method'] ?? '') === 'charge_automatically') ? 'credit' : null;
+                    $plan = $this->mapPriceToPlan(
+                        (string) ($object['items']['data'][0]['price']['id'] ?? '')
+                    );
+                    $billing = ((string) ($object['collection_method'] ?? '') === 'charge_automatically')
+                        ? 'credit'
+                        : null;
                     $tenantService->updateByStripeCustomerId($customerId, [
                         'plan' => $plan,
                         'billing_info' => $billing,

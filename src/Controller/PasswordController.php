@@ -24,8 +24,12 @@ class PasswordController
     /**
      * Inject user service and password policy.
      */
-    public function __construct(UserService $service, PasswordPolicy $policy, AuditLogger $audit, SessionService $sessions)
-    {
+    public function __construct(
+        UserService $service,
+        PasswordPolicy $policy,
+        AuditLogger $audit,
+        SessionService $sessions
+    ) {
         $this->service = $service;
         $this->policy = $policy;
         $this->audit = $audit;

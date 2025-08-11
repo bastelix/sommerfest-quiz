@@ -369,8 +369,10 @@ class TenantService
     public function getBySubdomain(string $subdomain): ?array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, imprint_street, imprint_zip, ' .
-            'imprint_city, imprint_email, custom_limits, plan_started_at, plan_expires_at, created_at FROM tenants WHERE subdomain = ?'
+            'SELECT uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, '
+            . 'imprint_street, imprint_zip, imprint_city, imprint_email, custom_limits, '
+            . 'plan_started_at, plan_expires_at, created_at '
+            . 'FROM tenants WHERE subdomain = ?'
         );
         $stmt->execute([$subdomain]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -480,8 +482,10 @@ class TenantService
     public function getAll(): array
     {
         $stmt = $this->pdo->query(
-            'SELECT uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, imprint_street, imprint_zip, ' .
-            'imprint_city, imprint_email, custom_limits, plan_started_at, plan_expires_at, created_at FROM tenants ORDER BY created_at'
+            'SELECT uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, '
+            . 'imprint_street, imprint_zip, imprint_city, imprint_email, custom_limits, '
+            . 'plan_started_at, plan_expires_at, created_at '
+            . 'FROM tenants ORDER BY created_at'
         );
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as &$row) {

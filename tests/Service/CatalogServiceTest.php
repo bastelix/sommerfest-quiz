@@ -51,7 +51,16 @@ class CatalogServiceTest extends TestCase
             );
             SQL
         );
-        $pdo->exec('CREATE TABLE tenants(uid TEXT, subdomain TEXT, plan TEXT, custom_limits TEXT, plan_started_at TEXT, plan_expires_at TEXT);');
+        $pdo->exec(
+            'CREATE TABLE tenants('
+            . 'uid TEXT, '
+            . 'subdomain TEXT, '
+            . 'plan TEXT, '
+            . 'custom_limits TEXT, '
+            . 'plan_started_at TEXT, '
+            . 'plan_expires_at TEXT'
+            . ');'
+        );
         return $pdo;
     }
 
@@ -93,7 +102,16 @@ class CatalogServiceTest extends TestCase
             );
             SQL
         );
-        $pdo->exec('CREATE TABLE tenants(uid TEXT, subdomain TEXT, plan TEXT, custom_limits TEXT, plan_started_at TEXT, plan_expires_at TEXT);');
+        $pdo->exec(
+            'CREATE TABLE tenants('
+            . 'uid TEXT, '
+            . 'subdomain TEXT, '
+            . 'plan TEXT, '
+            . 'custom_limits TEXT, '
+            . 'plan_started_at TEXT, '
+            . 'plan_expires_at TEXT'
+            . ');'
+        );
         return $pdo;
     }
 
