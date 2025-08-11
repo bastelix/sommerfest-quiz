@@ -17,7 +17,15 @@ final class Plan
     ];
 
     /**
-     * @var array<string, array{maxEvents: int|null, maxTeamsPerEvent: int|null, maxCatalogsPerEvent: int|null, maxQuestionsPerCatalog: int|null}>
+     * @var array<
+     *     string,
+     *     array{
+     *         maxEvents: int|null,
+     *         maxTeamsPerEvent: int|null,
+     *         maxCatalogsPerEvent: int|null,
+     *         maxQuestionsPerCatalog: int|null
+     *     }
+     * >
      */
     public const LIMITS = [
         self::STARTER => [

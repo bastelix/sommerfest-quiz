@@ -30,12 +30,20 @@ class SeoValidator
         }
 
         $title = $data['metaTitle'] ?? null;
-        if ($title !== null && $title !== '' && mb_strlen((string)$title) > self::TITLE_MAX_LENGTH) {
+        if (
+            $title !== null
+            && $title !== ''
+            && mb_strlen((string) $title) > self::TITLE_MAX_LENGTH
+        ) {
             $errors['metaTitle'] = 'Meta title exceeds ' . self::TITLE_MAX_LENGTH . ' characters';
         }
 
         $description = $data['metaDescription'] ?? null;
-        if ($description !== null && $description !== '' && mb_strlen((string)$description) > self::DESCRIPTION_MAX_LENGTH) {
+        if (
+            $description !== null
+            && $description !== ''
+            && mb_strlen((string) $description) > self::DESCRIPTION_MAX_LENGTH
+        ) {
             $errors['metaDescription'] = 'Meta description exceeds ' . self::DESCRIPTION_MAX_LENGTH . ' characters';
         }
 

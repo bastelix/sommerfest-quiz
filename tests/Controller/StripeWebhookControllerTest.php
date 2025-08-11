@@ -15,7 +15,10 @@ class StripeWebhookControllerTest extends TestCase
         $app = $this->getAppInstance();
         $pdo = Database::connectFromEnv();
         Migrator::migrate($pdo, __DIR__ . '/../../migrations');
-        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan, billing_info, stripe_customer_id, created_at) VALUES('u1', 'foo', NULL, NULL, NULL, '')");
+        $pdo->exec(
+            "INSERT INTO tenants(uid, subdomain, plan, billing_info, stripe_customer_id, created_at) "
+            . "VALUES('u1', 'foo', NULL, NULL, NULL, '')"
+        );
 
         $payload = json_encode([
             'type' => 'checkout.session.completed',

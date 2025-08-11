@@ -207,8 +207,13 @@ class OnboardingEmailControllerTest extends TestCase
         $confirm = $this->createRequest('GET', '/onboarding/email/confirm?token=' . $token);
         $response = $app->handle($confirm);
         $this->assertSame(302, $response->getStatusCode());
-        $this->assertStringContainsString('/onboarding?email=user%40example.com&verified=1', $response->getHeaderLine('Location'));
-        $confirmed = (string) $pdo->query('SELECT confirmed FROM email_confirmations WHERE token = ' . $pdo->quote($token))->fetchColumn();
+        $this->assertStringContainsString(
+            '/onboarding?email=user%40example.com&verified=1',
+            $response->getHeaderLine('Location')
+        );
+        $confirmed = (string) $pdo
+            ->query('SELECT confirmed FROM email_confirmations WHERE token = ' . $pdo->quote($token))
+            ->fetchColumn();
         $this->assertSame('1', $confirmed);
 
         $bad = $this->createRequest('GET', '/onboarding/email/confirm?token=invalid');
