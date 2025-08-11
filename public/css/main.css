@@ -189,6 +189,12 @@ body.uk-padding {
   justify-content: center;
 }
 
+@media (max-width: 639px) {
+  .topbar .uk-navbar-center {
+    display: none;
+  }
+}
+
 .nav-placeholder {
   height: 56px;
 }
