@@ -35,6 +35,7 @@ class EventServiceTest extends TestCase
                 'start_date' => '2025-07-04T18:00',
                 'end_date' => '2025-07-04T23:00',
                 'description' => 'Demo',
+                'published' => true,
             ],
         ];
         $service->saveAll($data);
@@ -45,6 +46,7 @@ class EventServiceTest extends TestCase
         $this->assertSame('Test Event', $rows[0]['name']);
         $this->assertSame('2025-07-04T18:00', $rows[0]['start_date']);
         $this->assertSame('2025-07-04T23:00', $rows[0]['end_date']);
+        $this->assertTrue($rows[0]['published']);
     }
 
     public function testGetAllFormatsDates(): void

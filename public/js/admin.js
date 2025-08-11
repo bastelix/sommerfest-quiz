@@ -1320,13 +1320,19 @@ document.addEventListener('DOMContentLoaded', function () {
   let activeEventUid = cfgInitial.event_uid || '';
 
   function collectEvents() {
-    return Array.from(eventsListEl.querySelectorAll('.event-row')).map(row => ({
-      uid: row.dataset.uid || crypto.randomUUID(),
-      name: row.querySelector('.event-name').value.trim(),
-      start_date: row.querySelector('.event-start').value.trim() || new Date().toISOString().slice(0, 16),
-      end_date: row.querySelector('.event-end').value.trim() || new Date().toISOString().slice(0, 16),
-      description: row.querySelector('.event-desc').value.trim()
-    })).filter(e => e.name);
+    return Array.from(eventsListEl.querySelectorAll('.event-row')).map(row => {
+      const publishedInput = row.querySelector('.event-published');
+      const published = publishedInput ? publishedInput.checked : row.dataset.published === 'true';
+      row.dataset.published = published.toString();
+      return {
+        uid: row.dataset.uid || crypto.randomUUID(),
+        name: row.querySelector('.event-name').value.trim(),
+        start_date: row.querySelector('.event-start').value.trim() || new Date().toISOString().slice(0, 16),
+        end_date: row.querySelector('.event-end').value.trim() || new Date().toISOString().slice(0, 16),
+        description: row.querySelector('.event-desc').value.trim(),
+        published
+      };
+    }).filter(e => e.name);
   }
 
   function saveEvents() {
@@ -1350,6 +1356,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const row = document.createElement('tr');
     row.className = 'event-row';
     row.dataset.uid = ev.uid || crypto.randomUUID();
+    row.dataset.published = ev.published ? 'true' : 'false';
 
     if (ev.uid === activeEventUid) {
       row.classList.add('active-event');
