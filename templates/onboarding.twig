@@ -6,6 +6,81 @@
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <style>
+    .btn {
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: .04em;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-family: 'Poppins',sans-serif;
+    }
+    .btn-black {
+      background: #232323 !important;
+      color: #fff !important;
+      border: 2px solid #232323;
+      transition: all 0.18s;
+    }
+    .btn-black:hover {
+      background: #fff !important;
+      color: #232323 !important;
+    }
+    .btn-transparent {
+      background: transparent !important;
+      color: #0c86d0 !important;
+      border: 2px solid #0c86d0;
+      transition: all 0.18s;
+    }
+    .btn-transparent:hover {
+      background: #0c86d0 !important;
+      color: #fff !important;
+    }
+    .uk-card-quizrace {
+      border-radius: 14px;
+      box-shadow: 0 6px 22px 0 rgba(18,32,73,.06);
+      padding: 32px 24px;
+      background: #fff;
+    }
+    .uk-label-large {
+      font-size: 1.1rem;
+      padding: 0.55em 1.3em;
+      border-radius: 22px;
+      letter-spacing: 0.03em;
+    }
+    .uk-card-price {
+      border: 2px solid #0c86d0;
+      background: #fff;
+    }
+    .uk-card-popular {
+      border: 2px solid #232323;
+      background: #0c86d0;
+      color: #fff;
+      transform: scale(1.05);
+      z-index: 1;
+      position: relative;
+    }
+    .uk-card-popular .uk-label {
+      background: #232323;
+      color: #fff;
+    }
+    .uk-card-price .uk-text-meta, .uk-text-meta {
+      color: #7b7b7b;
+      font-size: 0.95rem;
+    }
+    .uk-card-popular .btn-black {
+      background: #fff !important;
+      color: #0c86d0 !important;
+      border: 2px solid #fff;
+    }
+    .pricing-grid .uk-card-quizrace {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    .pricing-grid .uk-card-quizrace .btn {
+      margin-top: auto;
+    }
+  </style>
 {% endblock %}
 
 {% block body_class %}uk-padding{% endblock %}
@@ -36,15 +111,63 @@
       <button class="uk-button uk-button-primary" id="saveSubdomain">Subdomain speichern</button>
     </div>
 
-    <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step3" hidden>
+    <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-margin-auto" id="step3" hidden>
       <h3 class="uk-card-title">3. Tarif wählen</h3>
       <p>Wähle einen Tarif und schließe die Zahlung über Stripe ab.</p>
-      <div class="uk-margin">
-        <label><input class="uk-radio" type="radio" name="plan" value="starter" checked> Starter</label><br>
-        <label><input class="uk-radio" type="radio" name="plan" value="standard"> Standard</label><br>
-        <label><input class="uk-radio" type="radio" name="plan" value="professional"> Professional</label>
+      <div class="pricing-grid uk-child-width-1-1 uk-child-width-1-3@m" uk-grid>
+        <div>
+          <div class="uk-card uk-card-price uk-card-quizrace uk-text-center">
+            <span class="uk-label uk-label-success uk-label-large">Kostenlos testen</span>
+            <h3 class="uk-card-title uk-text-primary uk-margin-small-top">Starter</h3>
+            <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700;">0&nbsp;€</div>
+            <div class="uk-text-meta uk-margin-small-bottom">Für kleine Events &amp; Einsteiger</div>
+            <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom">
+              <li><b>1 Event gleichzeitig</b></li>
+              <li>5 Teams &amp; 5 Kataloge à 5 Fragen</li>
+              <li>Unbegrenzte Teilnehmende pro Team¹</li>
+              <li>Live-Ranking &amp; Basis-PDF-Export²</li>
+              <li>Alle Fragetypen &amp; QR-Codes</li>
+              <li>Backup &amp; editierbare Texte³</li>
+            </ul>
+            <button class="btn btn-transparent uk-width-1-1 uk-button-large uk-margin-small-top plan-select" data-plan="starter">Tarif wählen</button>
+          </div>
+        </div>
+        <div>
+          <div class="uk-card uk-card-popular uk-card-quizrace uk-text-center">
+            <span class="uk-label uk-label-large">Meist gewählt</span>
+            <h3 class="uk-card-title uk-margin-small-top" style="color:#fff;">Standard</h3>
+            <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700; color:#fff;">39&nbsp;€/Monat</div>
+            <div class="uk-text-meta uk-margin-small-bottom" style="color:#fff;">Beliebt bei Schulen &amp; Teams</div>
+            <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom" style="color:#fff;">
+              <li><b>Alle Starter-Funktionen</b></li>
+              <li>Bis zu 3 Events gleichzeitig</li>
+              <li>10 Teams &amp; 10 Kataloge à 10 Fragen</li>
+              <li>Eigene Subdomain</li>
+              <li>Vollständiger PDF-Export</li>
+            </ul>
+            <button class="btn btn-black uk-width-1-1 uk-button-large plan-select" data-plan="standard">Tarif wählen</button>
+          </div>
+        </div>
+        <div>
+          <div class="uk-card uk-card-price uk-card-quizrace uk-text-center">
+            <span class="uk-label uk-label-primary uk-label-large">Professional</span>
+            <h3 class="uk-card-title uk-text-primary uk-margin-small-top">Professional</h3>
+            <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700;">79&nbsp;€/Monat</div>
+            <div class="uk-text-meta uk-margin-small-bottom">Für Agenturen &amp; Unternehmen</div>
+            <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom">
+              <li><b>Alle Standard-Funktionen</b></li>
+              <li>20 Events gleichzeitig (mehr auf Anfrage)</li>
+              <li>100 Teams &amp; 50 Kataloge à 50 Fragen</li>
+              <li>White-Label &amp; Rollenverwaltung</li>
+            </ul>
+            <button class="btn btn-transparent uk-width-1-1 uk-button-large plan-select" data-plan="professional">Tarif wählen</button>
+          </div>
+        </div>
       </div>
-      <button class="uk-button uk-button-primary" id="startCheckout">Weiter zur Zahlung</button>
+      <p class="uk-text-meta uk-text-center uk-margin-large-top">Alle Preise zzgl. MwSt. – individuelle Lösungen auf Anfrage.</p>
+      <p class="uk-text-meta uk-margin-top">1 (Die Teamgröße ist nicht technisch limitiert und kann bedarfsgerecht festgelegt werden.)</p>
+      <p class="uk-text-meta uk-margin-top">2 (Im Starter-Paket mit Wasserzeichen oder ohne individuelles Layout/Logo)</p>
+      <p class="uk-text-meta uk-margin-top">3 (z.&nbsp;B. Datenschutz, AGB, Einladung, FAQ, Spielanleitung – alles eigenständig editierbar)</p>
     </div>
   </div>
 {% endblock %}
