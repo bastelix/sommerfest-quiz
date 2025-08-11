@@ -133,6 +133,7 @@
 - Add reusable admin navigation partial
 - Group admin navigation links
 - Centralize SMTP sender configuration
+- Enforce stripe-only payments
 
 ### Fix
 
