@@ -75,11 +75,24 @@ class StripeService
      */
     public function isCheckoutSessionPaid(string $sessionId): bool
     {
+        return $this->getCheckoutSessionInfo($sessionId)['paid'];
+    }
+
+    /**
+     * Retrieve checkout session payment status and customer id.
+     *
+     * @return array{paid:bool, customer_id:?string}
+     */
+    public function getCheckoutSessionInfo(string $sessionId): array
+    {
         try {
             $session = $this->client->checkout->sessions->retrieve($sessionId, []);
-            return ($session->payment_status ?? '') === 'paid';
+            return [
+                'paid' => ($session->payment_status ?? '') === 'paid',
+                'customer_id' => isset($session->customer) ? (string) $session->customer : null,
+            ];
         } catch (\Throwable $e) {
-            return false;
+            return ['paid' => false, 'customer_id' => null];
         }
     }
 }
