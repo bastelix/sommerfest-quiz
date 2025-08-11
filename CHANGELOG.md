@@ -196,6 +196,7 @@
 - Add textured underline animation
 - Remove Weisheit font from about section
 - Modernize onboarding step boxes
+- Show pricing plans in onboarding
 
 ### Test
 
