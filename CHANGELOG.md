@@ -136,6 +136,7 @@
 - Centralize SMTP sender configuration
 - Enforce stripe-only payments
 - Add page SEO config
+- *(admin)* Move stats filter below header on mobile
 
 ### Fix
 
