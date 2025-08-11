@@ -17,6 +17,7 @@ class LogoControllerTest extends TestCase
     {
         $pdo = $this->createDatabase();
         $cfg = new ConfigService($pdo);
+        $cfg->saveConfig([]);
         $controller = new LogoController($cfg);
         @rename(dirname(__DIR__, 2) . '/data/logo.png', dirname(__DIR__, 2) . '/data/logo.png.bak');
         @rename(dirname(__DIR__, 2) . '/data/logo.webp', dirname(__DIR__, 2) . '/data/logo.webp.bak');
