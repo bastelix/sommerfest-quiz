@@ -543,28 +543,6 @@
         setTaskStatus('ssl', 'done');
         logMessage(boardJson.status || 'Container gestartet');
 
-        try {
-          logMessage('Sende Willkommensmail...');
-          const welcomeRes = await fetch(withBase('/tenant-welcome'), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({
-              schema: data.subdomain,
-              email: data.imprintEmail,
-              password: data.adminPass
-            })
-          });
-          if (!welcomeRes.ok) {
-            const text = await welcomeRes.text();
-            logMessage('Fehler Willkommensmail: ' + text);
-          } else {
-            logMessage('Willkommensmail gesendet');
-          }
-        } catch (e) {
-          logMessage('Fehler Willkommensmail');
-        }
-
         if (successDomain) {
           successDomain.textContent = data.subdomain + '.' + mainDomain;
           successDomain.hidden = false;
@@ -632,6 +610,26 @@
           setTaskStatus('wait', 'done');
           if (typeof UIkit !== 'undefined') {
             UIkit.notification({ message: 'Instanz ist bereit', status: 'success' });
+          }
+          try {
+            logMessage('Sende Willkommensmail...');
+            const welcomeRes = await fetch(withBase('/tenant-welcome'), {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({
+                schema: data.subdomain,
+                email: data.imprintEmail
+              })
+            });
+            if (!welcomeRes.ok) {
+              const text = await welcomeRes.text();
+              logMessage('Fehler Willkommensmail: ' + text);
+            } else {
+              logMessage('Willkommensmail gesendet');
+            }
+          } catch (e) {
+            logMessage('Fehler Willkommensmail');
           }
         } else {
           logMessage('Subdomain nach Wartezeit nicht erreichbar');
