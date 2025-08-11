@@ -187,6 +187,7 @@ return [
     'action_restore_demo' => 'Demodaten wiederherstellen',
     'action_refresh' => 'Aktualisieren',
     'action_open_subscription' => 'Kundenportal öffnen',
+    'action_start_subscription' => 'Abo buchen',
     'action_open_evaluation' => 'Auswertung öffnen',
     'action_download' => 'Herunterladen',
     'action_delete_tenant' => 'Mandant löschen',

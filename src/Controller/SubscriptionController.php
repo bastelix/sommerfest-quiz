@@ -30,12 +30,12 @@ class SubscriptionController
         $tenantService = new TenantService($base);
         $tenant = $tenantService->getBySubdomain($sub);
         $customerId = (string) ($tenant['stripe_customer_id'] ?? '');
+        $uri = $request->getUri();
         if ($customerId === '') {
-            $response->getBody()->write('Missing Stripe customer id');
-            return $response->withStatus(500);
+            $upgradeUrl = $uri->getScheme() . '://' . $uri->getHost() . '/onboarding';
+            return $response->withHeader('Location', $upgradeUrl)->withStatus(302);
         }
 
-        $uri = $request->getUri();
         $returnUrl = $uri->getScheme() . '://' . $uri->getHost() . '/admin';
         $service = new StripeService();
         $url = $service->createBillingPortal($customerId, $returnUrl);
