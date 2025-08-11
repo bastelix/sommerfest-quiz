@@ -71,20 +71,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const plan = btn.dataset.plan;
         const email = emailInput.value.trim();
         if (!plan) return;
-        const res = await fetch('/onboarding/checkout', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-Token': window.csrfToken || ''
-          },
-          body: JSON.stringify({ plan, email })
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.url) {
-            window.location.href = data.url;
+        try {
+          const res = await fetch('/onboarding/checkout', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': window.csrfToken || ''
+            },
+            body: JSON.stringify({ plan, email })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.url) {
+              window.location.href = data.url;
+              return;
+            }
           }
+        } catch (e) {
+          // ignore and show alert below
         }
+        alert('Fehler beim Start der Zahlung.');
       });
     });
   }

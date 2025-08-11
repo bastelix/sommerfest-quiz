@@ -15,9 +15,14 @@ class StripeCheckoutController
 {
     public function __invoke(Request $request, Response $response): Response
     {
-        $data = (array) $request->getParsedBody();
+        $data = json_decode((string) $request->getBody(), true);
+        if (!is_array($data)) {
+            return $response->withStatus(400);
+        }
         $plan = (string) ($data['plan'] ?? '');
-        $email = filter_var($data['email'] ?? null, FILTER_VALIDATE_EMAIL) ? (string) $data['email'] : null;
+        $email = filter_var($data['email'] ?? null, FILTER_VALIDATE_EMAIL)
+            ? (string) $data['email']
+            : null;
 
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
         $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
@@ -27,6 +32,9 @@ class StripeCheckoutController
             'professional' => getenv($prefix . 'PRICE_PROFESSIONAL') ?: '',
         ];
         $priceId = $priceMap[$plan] ?? '';
+        if ($priceId === '') {
+            return $response->withStatus(400);
+        }
         $uri = $request->getUri();
         $base = $uri->getScheme() . '://' . $uri->getHost();
         $successUrl = $base . '/onboarding?paid=1&session_id={CHECKOUT_SESSION_ID}';
