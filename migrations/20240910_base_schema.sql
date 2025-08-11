@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS config (
     buttonColor TEXT,
     CheckAnswerButton TEXT,
     QRRestrict BOOLEAN,
+    randomNames BOOLEAN DEFAULT TRUE,
     competitionMode BOOLEAN,
     teamResults BOOLEAN,
     photoUpload BOOLEAN,
