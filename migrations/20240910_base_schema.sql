@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS events (
     name TEXT NOT NULL,
     start_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     end_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    description TEXT
+    description TEXT,
+    published BOOLEAN DEFAULT FALSE
 );
 
 -- Config
@@ -171,6 +172,13 @@ CREATE TABLE IF NOT EXISTS users (
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     role user_role NOT NULL DEFAULT 'catalog-editor'
+);
+
+-- Sessions for logged-in users
+CREATE TABLE IF NOT EXISTS user_sessions (
+    user_id INTEGER NOT NULL,
+    session_id TEXT PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Tenant definitions
