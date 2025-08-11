@@ -44,10 +44,10 @@ class QrController
         QrCodeService $qrService
     ) {
         $this->config = $config;
-       $this->teams = $teams;
-       $this->events = $events;
-       $this->catalogs = $catalogs;
-       $this->qrService = $qrService;
+        $this->teams = $teams;
+        $this->events = $events;
+        $this->catalogs = $catalogs;
+        $this->qrService = $qrService;
     }
 
     /**

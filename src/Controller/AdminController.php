@@ -178,5 +178,5 @@ class AdminController
               'tenant' => $tenant,
               'currentPath' => $request->getUri()->getPath(),
           ]);
-      }
-  }
+    }
+}

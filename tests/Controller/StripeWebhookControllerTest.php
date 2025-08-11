@@ -33,5 +33,4 @@ class StripeWebhookControllerTest extends TestCase
         $stmt = $pdo->query("SELECT stripe_customer_id FROM tenants WHERE subdomain = 'foo'");
         $this->assertEquals('cus_123', $stmt->fetchColumn());
     }
-
 }
