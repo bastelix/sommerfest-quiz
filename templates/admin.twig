@@ -662,9 +662,13 @@
         </div>
 
         <h3 class="uk-heading-bullet">{{ t('heading_backups') }}</h3>
-        <div class="uk-margin uk-flex uk-flex-right">
-          <button id="exportJsonBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: {{ t('tip_backup_export') }}; pos: right">{{ t('action_create_backup') }}</button>
-          <button id="importJsonBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: {{ t('tip_backup_import') }}; pos: right">{{ t('action_restore_demo') }}</button>
+        <div class="uk-margin uk-child-width-1-1 uk-child-width-auto@s uk-grid-small uk-flex-right@s" uk-grid>
+          <div>
+            <button id="exportJsonBtn" class="uk-button uk-button-default uk-width-1-1" uk-tooltip="title: {{ t('tip_backup_export') }}; pos: right">{{ t('action_create_backup') }}</button>
+          </div>
+          <div>
+            <button id="importJsonBtn" class="uk-button uk-button-default uk-width-1-1" uk-tooltip="title: {{ t('tip_backup_import') }}; pos: right">{{ t('action_restore_demo') }}</button>
+          </div>
         </div>
         <table class="uk-table uk-table-divider">
           <thead>
