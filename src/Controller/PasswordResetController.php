@@ -118,8 +118,14 @@ class PasswordResetController
 
         $token = (string) ($data['token'] ?? '');
         $pass = (string) ($data['password'] ?? '');
+        $repeat = (string) ($data['password_repeat'] ?? '');
         $next = (string) ($data['next'] ?? '');
-        if ($token === '' || $pass === '' || !$this->policy->validate($pass)) {
+        if (
+            $token === ''
+            || $pass === ''
+            || ($repeat !== '' && $repeat !== $pass)
+            || !$this->policy->validate($pass)
+        ) {
             return $response->withStatus(400);
         }
 
