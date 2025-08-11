@@ -64,7 +64,9 @@ class OnboardingEmailControllerTest extends TestCase
 
         $mailer = new class extends MailService {
             public array $sent = [];
-            public function __construct() {}
+            public function __construct()
+            {
+            }
             public function sendDoubleOptIn(string $to, string $link): void
             {
                 $this->sent[] = [$to, $link];
@@ -102,7 +104,9 @@ class OnboardingEmailControllerTest extends TestCase
 
         $mailer = new class extends MailService {
             public array $sent = [];
-            public function __construct() {}
+            public function __construct()
+            {
+            }
             public function sendDoubleOptIn(string $to, string $link): void
             {
                 $this->sent[] = [$to, $link];
@@ -142,7 +146,9 @@ class OnboardingEmailControllerTest extends TestCase
 
         $mailer = new class extends MailService {
             public array $sent = [];
-            public function __construct() {}
+            public function __construct()
+            {
+            }
             public function sendDoubleOptIn(string $to, string $link): void
             {
                 $this->sent[] = [$to, $link];
@@ -179,8 +185,12 @@ class OnboardingEmailControllerTest extends TestCase
         $_SESSION['csrf_token'] = 'tok';
 
         $mailer = new class extends MailService {
-            public function __construct() {}
-            public function sendDoubleOptIn(string $to, string $link): void {}
+            public function __construct()
+            {
+            }
+            public function sendDoubleOptIn(string $to, string $link): void
+            {
+            }
         };
         $request = $this->createRequest('POST', '/onboarding/email', [
             'Content-Type' => 'application/json',
@@ -215,8 +225,12 @@ class OnboardingEmailControllerTest extends TestCase
         $_SESSION['csrf_token'] = 'tok';
 
         $mailer = new class extends MailService {
-            public function __construct() {}
-            public function sendDoubleOptIn(string $to, string $link): void {}
+            public function __construct()
+            {
+            }
+            public function sendDoubleOptIn(string $to, string $link): void
+            {
+            }
         };
         $request = $this->createRequest('POST', '/onboarding/email', [
             'Content-Type' => 'application/json',
