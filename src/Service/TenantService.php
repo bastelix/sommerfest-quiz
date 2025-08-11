@@ -79,15 +79,16 @@ class TenantService
         $end = $start?->modify('+30 days');
         $stmt = $this->pdo->prepare(
             'INSERT INTO tenants(' .
-            'uid, subdomain, plan, billing_info, imprint_name, imprint_street, ' .
+            'uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, imprint_street, ' .
             'imprint_zip, imprint_city, imprint_email, custom_limits, plan_started_at, plan_expires_at' .
-            ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([
             $uid,
             $schema,
             $plan,
             $billing,
+            null,
             null,
             null,
             null,
@@ -374,6 +375,7 @@ class TenantService
      *   subdomain:string,
      *   plan:?string,
      *   billing_info:?string,
+     *   stripe_customer_id:?string,
      *   imprint_name:?string,
      *   imprint_street:?string,
      *   imprint_zip:?string,
@@ -387,7 +389,7 @@ class TenantService
     public function getBySubdomain(string $subdomain): ?array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT uid, subdomain, plan, billing_info, imprint_name, imprint_street, imprint_zip, ' .
+            'SELECT uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, imprint_street, imprint_zip, ' .
             'imprint_city, imprint_email, custom_limits, plan_started_at, plan_expires_at, created_at FROM tenants WHERE subdomain = ?'
         );
         $stmt->execute([$subdomain]);
@@ -411,6 +413,7 @@ class TenantService
         $fields = [
             'plan',
             'billing_info',
+            'stripe_customer_id',
             'imprint_name',
             'imprint_street',
             'imprint_zip',
@@ -473,6 +476,7 @@ class TenantService
      *   subdomain:string,
      *   plan:?string,
      *   billing_info:?string,
+     *   stripe_customer_id:?string,
      *   imprint_name:?string,
      *   imprint_street:?string,
      *   imprint_zip:?string,
@@ -486,7 +490,7 @@ class TenantService
     public function getAll(): array
     {
         $stmt = $this->pdo->query(
-            'SELECT uid, subdomain, plan, billing_info, imprint_name, imprint_street, imprint_zip, ' .
+            'SELECT uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, imprint_street, imprint_zip, ' .
             'imprint_city, imprint_email, custom_limits, plan_started_at, plan_expires_at, created_at FROM tenants ORDER BY created_at'
         );
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);

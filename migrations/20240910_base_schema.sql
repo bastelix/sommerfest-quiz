@@ -179,6 +179,7 @@ CREATE TABLE IF NOT EXISTS tenants (
     subdomain TEXT UNIQUE NOT NULL,
     plan TEXT,
     billing_info TEXT,
+    stripe_customer_id TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
