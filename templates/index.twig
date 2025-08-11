@@ -13,9 +13,6 @@
 
 {% block body %}
   {% embed 'topbar.twig' %}
-    {% block left %}
-      <a href="faq" class="uk-icon-button" uk-icon="icon: question; ratio: 2" title="{{ t('help') }}" aria-label="{{ t('help') }}"></a>
-    {% endblock %}
     {% block center %}
       <span id="topbar-title" class="uk-navbar-title uk-text-center" data-default-title="{{ event.name|default('Sommerfest 2025') }}">{{ event.name|default('Sommerfest 2025') }}</span>
     {% endblock %}
@@ -26,6 +23,7 @@
       <div class="contrast-switch uk-margin-small-left">
         <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="{{ t('contrast_toggle') }}"></button>
       </div>
+      <a href="faq" class="uk-icon-button uk-margin-small-left" uk-icon="icon: question; ratio: 2" title="{{ t('help') }}" aria-label="{{ t('help') }}"></a>
     {% endblock %}
     {% block headerbar %}
       {% if event.description %}

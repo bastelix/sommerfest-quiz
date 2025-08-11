@@ -12,9 +12,6 @@
 
 {% block body %}
   {% embed 'topbar.twig' %}
-    {% block left %}
-      <a href="{{ basePath }}/faq" class="uk-icon-button" uk-icon="icon: question; ratio: 2" title="{{ t('help') }}" aria-label="{{ t('help') }}"></a>
-    {% endblock %}
     {% block center %}
       <span class="uk-navbar-title uk-text-center">{{ t('game_flow') }} <br>{{ event.name|default('Sommerfest 2025') }}</span>
     {% endblock %}
@@ -25,6 +22,7 @@
       <div class="contrast-switch uk-margin-small-left">
         <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="{{ t('contrast_toggle') }}"></button>
       </div>
+      <a href="{{ basePath }}/faq" class="uk-icon-button uk-margin-small-left" uk-icon="icon: question; ratio: 2" title="{{ t('help') }}" aria-label="{{ t('help') }}"></a>
     {% endblock %}
   {% endembed %}
   <div class="uk-container uk-container-small">
