@@ -87,7 +87,7 @@ class MailService
             $port
         );
 
-        if ($encryption !== '' && strtolower($encryption) !== 'none') {
+        if (strtolower($encryption) !== 'none') {
             $dsn .= '?encryption=' . rawurlencode($encryption);
         }
 
