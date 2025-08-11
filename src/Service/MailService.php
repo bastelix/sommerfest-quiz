@@ -75,8 +75,8 @@ class MailService
             $profile = json_decode((string) file_get_contents($profileFile), true) ?: [];
         }
 
-        $fromEmail = $user;
-        $fromName  = (string) ($profile['imprint_name'] ?? '');
+        $fromEmail = (string) ($env['SMTP_FROM'] ?? getenv('SMTP_FROM') ?: $user);
+        $fromName  = (string) ($env['SMTP_FROM_NAME'] ?? getenv('SMTP_FROM_NAME') ?: ($profile['imprint_name'] ?? ''));
         $from      = $fromName !== '' ? sprintf('%s <%s>', $fromName, $fromEmail) : $fromEmail;
 
         $dsn = sprintf(

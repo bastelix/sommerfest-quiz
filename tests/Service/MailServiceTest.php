@@ -26,10 +26,13 @@ class MailServiceTest extends TestCase
         putenv('SMTP_USER=user@example.org');
         putenv('SMTP_PASS=secret');
         putenv('SMTP_PORT=587');
+        putenv('SMTP_FROM');
+        putenv('SMTP_FROM_NAME');
         $_ENV['SMTP_HOST'] = 'localhost';
         $_ENV['SMTP_USER'] = 'user@example.org';
         $_ENV['SMTP_PASS'] = 'secret';
         $_ENV['SMTP_PORT'] = '587';
+        unset($_ENV['SMTP_FROM'], $_ENV['SMTP_FROM_NAME']);
 
         $twig = new Environment(new ArrayLoader());
         $svc = new MailService($twig);
@@ -44,6 +47,46 @@ class MailServiceTest extends TestCase
         file_put_contents($profile, $backup);
     }
 
+    public function testUsesFromOverride(): void
+    {
+        $root = dirname(__DIR__, 2);
+        $profile = $root . '/data/profile.json';
+        $backup = file_get_contents($profile);
+        file_put_contents($profile, json_encode([
+            'imprint_name' => 'Example Org',
+            'imprint_email' => 'admin@example.org',
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+        putenv('SMTP_HOST=localhost');
+        putenv('SMTP_USER=user@example.org');
+        putenv('SMTP_PASS=secret');
+        putenv('SMTP_PORT=587');
+        putenv('SMTP_FROM=support@quizrace.app');
+        putenv('SMTP_FROM_NAME=QuizRace Support');
+        $_ENV['SMTP_HOST'] = 'localhost';
+        $_ENV['SMTP_USER'] = 'user@example.org';
+        $_ENV['SMTP_PASS'] = 'secret';
+        $_ENV['SMTP_PORT'] = '587';
+        $_ENV['SMTP_FROM'] = 'support@quizrace.app';
+        $_ENV['SMTP_FROM_NAME'] = 'QuizRace Support';
+
+        $twig = new Environment(new ArrayLoader());
+        $svc = new MailService($twig);
+
+        $ref = new \ReflectionClass($svc);
+        $prop = $ref->getProperty('from');
+        $prop->setAccessible(true);
+        $from = $prop->getValue($svc);
+
+        $this->assertSame('QuizRace Support <support@quizrace.app>', $from);
+
+        file_put_contents($profile, $backup);
+
+        putenv('SMTP_FROM');
+        putenv('SMTP_FROM_NAME');
+        unset($_ENV['SMTP_FROM'], $_ENV['SMTP_FROM_NAME']);
+    }
+
     /**
      * @dataProvider missingEnvProvider
      */
@@ -53,10 +96,13 @@ class MailServiceTest extends TestCase
         putenv('SMTP_USER=user@example.org');
         putenv('SMTP_PASS=secret');
         putenv('SMTP_PORT=587');
+        putenv('SMTP_FROM');
+        putenv('SMTP_FROM_NAME');
         $_ENV['SMTP_HOST'] = 'localhost';
         $_ENV['SMTP_USER'] = 'user@example.org';
         $_ENV['SMTP_PASS'] = 'secret';
         $_ENV['SMTP_PORT'] = '587';
+        unset($_ENV['SMTP_FROM'], $_ENV['SMTP_FROM_NAME']);
 
         putenv($var);
         unset($_ENV[$var]);
@@ -88,15 +134,18 @@ class MailServiceTest extends TestCase
         putenv('SMTP_PASS=secret');
         putenv('SMTP_PORT=587');
         putenv('SMTP_ENCRYPTION=tls');
+        putenv('SMTP_FROM');
+        putenv('SMTP_FROM_NAME');
         $_ENV['SMTP_HOST'] = 'localhost';
         $_ENV['SMTP_USER'] = 'user@example.org';
         $_ENV['SMTP_PASS'] = 'secret';
         $_ENV['SMTP_PORT'] = '587';
         $_ENV['SMTP_ENCRYPTION'] = 'tls';
+        unset($_ENV['SMTP_FROM'], $_ENV['SMTP_FROM_NAME']);
 
         $twig = new Environment(new ArrayLoader());
 
-        $svc = new class($twig) extends MailService {
+        $svc = new class ($twig) extends MailService {
             public string $dsn = '';
 
             protected function createTransport(string $dsn): MailerInterface
@@ -114,5 +163,8 @@ class MailServiceTest extends TestCase
 
         putenv('SMTP_ENCRYPTION');
         unset($_ENV['SMTP_ENCRYPTION']);
+        putenv('SMTP_FROM');
+        putenv('SMTP_FROM_NAME');
+        unset($_ENV['SMTP_FROM'], $_ENV['SMTP_FROM_NAME']);
     }
 }
