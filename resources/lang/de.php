@@ -1,4 +1,5 @@
 <?php
+
 return [
     'help' => 'Hilfe',
     'design_toggle' => 'Design wechseln',
@@ -50,6 +51,7 @@ return [
     'menu_content' => 'Inhalte',
     'menu_teams' => 'Teams',
     'menu_evaluation' => 'Auswertung',
+    'menu_account' => 'Konto',
     'menu_admin' => 'Administration',
     'logout' => 'Abmelden',
     'tip_logo_upload' => 'PNG-Datei als Logo für die Startseite hochladen.',

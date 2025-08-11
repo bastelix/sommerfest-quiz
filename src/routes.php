@@ -424,13 +424,13 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/pages', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/management', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
-    $app->get('/admin/profile', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
-    $app->get('/admin/subscription', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
-    $app->get('/admin/subscription/portal', SubscriptionController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->get('/admin/profile', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/subscription', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/subscription/portal', SubscriptionController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->post('/admin/profile', function (Request $request, Response $response) {
         $controller = new ProfileController();
         return $controller->update($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    })->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/tenants', function (Request $request, Response $response) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(404);

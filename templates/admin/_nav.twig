@@ -34,13 +34,18 @@
     ]
   },
   {
+    header: t('menu_account'),
+    items: [
+      { href: basePath ~ '/admin/profile', icon: 'user', text: t('tab_profile') },
+      { href: basePath ~ '/admin/subscription', icon: 'file-text', text: t('tab_subscription') },
+    ]
+  },
+  {
     header: t('menu_admin'),
     admin: true,
     items: [
       { href: basePath ~ '/admin/management', icon: 'cog', text: t('tab_management') },
       { href: basePath ~ '/admin/tenants', icon: 'users', text: t('tab_tenants'), domain: 'main' },
-      { href: basePath ~ '/admin/profile', icon: 'user', text: t('tab_profile') },
-      { href: basePath ~ '/admin/subscription', icon: 'file-text', text: t('tab_subscription') },
     ]
   },
 ] %}
