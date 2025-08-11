@@ -173,6 +173,7 @@
 - Render footer menu at page bottom
 - Import email confirmation service
 - Show feedback after password reset request
+- Address code style issues
 
 ### Refactor
 
