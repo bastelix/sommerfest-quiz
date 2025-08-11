@@ -95,6 +95,5 @@ class LandingControllerTest extends TestCase
         $response = $app->handle($request);
         $body = (string) $response->getBody();
         $this->assertStringContainsString('href="/faq"', $body);
-
     }
 }

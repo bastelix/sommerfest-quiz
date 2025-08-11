@@ -24,4 +24,3 @@ class StripeSessionController
         return $response->withHeader('Content-Type', 'application/json');
     }
 }
-

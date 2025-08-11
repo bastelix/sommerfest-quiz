@@ -51,5 +51,4 @@ class ProfileControllerTest extends TestCase
         putenv('MAIN_DOMAIN');
         unset($_ENV['MAIN_DOMAIN']);
     }
-
 }

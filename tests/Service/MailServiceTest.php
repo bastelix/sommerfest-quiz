@@ -194,7 +194,7 @@ class MailServiceTest extends TestCase
 
             protected function createTransport(string $dsn): MailerInterface
             {
-                return new class($this) implements MailerInterface {
+                return new class ($this) implements MailerInterface {
                     private $outer;
 
                     public function __construct($outer)
