@@ -17,9 +17,13 @@ class ContactController
 {
     public function __invoke(Request $request, Response $response): Response
     {
-        $data = json_decode((string) $request->getBody(), true);
+        $data = $request->getParsedBody();
         if (!is_array($data)) {
-            $data = $request->getParsedBody();
+            $body = $request->getBody();
+            if ($body->isSeekable()) {
+                $body->rewind();
+            }
+            $data = json_decode((string) $body, true);
         }
         if (!is_array($data)) {
             return $response->withStatus(400);
@@ -28,7 +32,12 @@ class ContactController
         $name = trim((string) ($data['name'] ?? ''));
         $email = trim((string) ($data['email'] ?? ''));
         $message = trim((string) ($data['message'] ?? ''));
-        if ($name === '' || $email === '' || $message === '') {
+        if (
+            $name === '' ||
+            $message === '' ||
+            $email === '' ||
+            !filter_var($email, FILTER_VALIDATE_EMAIL)
+        ) {
             return $response->withStatus(400);
         }
 
