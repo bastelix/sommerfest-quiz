@@ -189,6 +189,7 @@ body.uk-padding {
   justify-content: center;
 }
 
+
 .nav-placeholder {
   height: 56px;
 }
@@ -516,6 +517,12 @@ body.admin-page {
 
 .admin-page .nav-placeholder {
   height: 112px;
+}
+
+@media (max-width: 639px) {
+  .admin-page .topbar .uk-navbar-left .uk-logo {
+    display: none;
+  }
 }
 
 @media (min-width: 640px) {
