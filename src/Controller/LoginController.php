@@ -28,7 +28,12 @@ class LoginController
         $settings = new \App\Service\SettingsService($pdo);
         $allowed = $settings->get('registration_enabled', '0') === '1';
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'login.twig', ['registration_allowed' => $allowed]);
+        $query = $request->getQueryParams();
+        $resetSuccess = array_key_exists('reset', $query);
+        return $view->render($response, 'login.twig', [
+            'registration_allowed' => $allowed,
+            'reset_success' => $resetSuccess,
+        ]);
     }
 
     /**
