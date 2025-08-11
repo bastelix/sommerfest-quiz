@@ -94,7 +94,40 @@ function insertSoftHyphens(text){
   return text ? text.replace(/\/-/g, '\u00AD') : '';
 }
 
-function runQuiz(questions, skipIntro){
+async function promptTeamName(){
+  return new Promise(resolve => {
+    const modal = document.createElement('div');
+    modal.setAttribute('uk-modal', '');
+    modal.setAttribute('aria-modal', 'true');
+    modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
+      '<h3 class="uk-modal-title uk-text-center">Teamname eingeben</h3>' +
+      '<input id="team-name-input" class="uk-input" type="text" placeholder="Teamname">' +
+      '<button id="team-name-submit" class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Weiter</button>' +
+      '</div>';
+    const input = modal.querySelector('#team-name-input');
+    const btn = modal.querySelector('#team-name-submit');
+    btn.addEventListener('click', () => {
+      const name = (input.value || '').trim();
+      if(name){
+        setStored('quizUser', name);
+        ui.hide();
+      }
+    });
+    input.addEventListener('keydown', ev => {
+      if(ev.key === 'Enter'){
+        ev.preventDefault();
+        btn.click();
+      }
+    });
+    document.body.appendChild(modal);
+    const ui = UIkit.modal(modal, { bgClose: false, escClose: false });
+    UIkit.util.on(modal, 'shown', () => { input.focus(); });
+    UIkit.util.on(modal, 'hidden', () => { modal.remove(); resolve(); });
+    ui.show();
+  });
+}
+
+async function runQuiz(questions, skipIntro){
   // Konfiguration laden und einstellen, ob der "Antwort prüfen"-Button
   // eingeblendet werden soll
   const cfg = window.quizConfig || {};
@@ -144,8 +177,12 @@ function runQuiz(questions, skipIntro){
   });
 
   if(!getStored('quizUser')){
-    if(!cfg.QRRestrict){
-      setStored('quizUser', generateUserName());
+    if(!cfg.QRRestrict && !cfg.QRUser){
+      if(cfg.randomNames === false){
+        await promptTeamName();
+      }else{
+        setStored('quizUser', generateUserName());
+      }
     }
   }
 
@@ -222,9 +259,11 @@ function runQuiz(questions, skipIntro){
     summaryShown = true;
     const score = results.filter(r => r).length;
     let user = getStored('quizUser');
-    if(!user && !cfg.QRRestrict){
-      user = generateUserName();
-      setStored('quizUser', user);
+    if(!user && !cfg.QRRestrict && !cfg.QRUser){
+      if(cfg.randomNames !== false){
+        user = generateUserName();
+        setStored('quizUser', user);
+      }
     }
     const p = summaryEl.querySelector('p');
     if(p) p.textContent = `${user} hat ${score} von ${questionCount} Punkten erreicht.`;
@@ -1143,13 +1182,19 @@ function runQuiz(questions, skipIntro){
     styleButton(startBtn);
     // Zeigt bisherige Ergebnisse als kleine Slideshow an
     stats.textContent = 'Noch keine Ergebnisse vorhanden.';
-    startBtn.addEventListener('click', () => {
+    startBtn.addEventListener('click', async () => {
       if(cfg.QRRestrict){
         alert('Nur Registrierung per QR-Code erlaubt');
         return;
       }
-      const user = generateUserName();
-      setStored('quizUser', user);
+      if(!getStored('quizUser')){
+        if(cfg.randomNames === false){
+          await promptTeamName();
+        }else{
+          const user = generateUserName();
+          setStored('quizUser', user);
+        }
+      }
       next();
     });
     div.appendChild(startBtn);

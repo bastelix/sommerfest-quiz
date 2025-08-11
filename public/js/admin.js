@@ -130,6 +130,7 @@ document.addEventListener('DOMContentLoaded', function () {
     checkAnswerButton: document.getElementById('cfgCheckAnswerButton'),
     qrUser: document.getElementById('cfgQRUser'),
     qrRemember: document.getElementById('cfgQRRemember'),
+    randomNames: document.getElementById('cfgRandomNames'),
     teamRestrict: document.getElementById('cfgTeamRestrict'),
     competitionMode: document.getElementById('cfgCompetitionMode'),
     teamResults: document.getElementById('cfgTeamResults'),
@@ -180,6 +181,7 @@ document.addEventListener('DOMContentLoaded', function () {
       QRUser: cfgFields.qrUser.checked,
       QRRemember: cfgFields.qrRemember ? cfgFields.qrRemember.checked : cfgInitial.QRRemember,
       QRRestrict: cfgFields.teamRestrict ? cfgFields.teamRestrict.checked : cfgInitial.QRRestrict,
+      randomNames: cfgFields.randomNames ? cfgFields.randomNames.checked : cfgInitial.randomNames,
       competitionMode: cfgFields.competitionMode ? cfgFields.competitionMode.checked : cfgInitial.competitionMode,
       teamResults: cfgFields.teamResults ? cfgFields.teamResults.checked : cfgInitial.teamResults,
       photoUpload: cfgFields.photoUpload ? cfgFields.photoUpload.checked : cfgInitial.photoUpload,
@@ -342,6 +344,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cfgFields.qrRemember) {
       cfgFields.qrRemember.checked = !!data.QRRemember;
     }
+    if (cfgFields.randomNames) {
+      cfgFields.randomNames.checked = data.randomNames !== false;
+    }
     if (cfgFields.teamRestrict) {
       cfgFields.teamRestrict.checked = !!data.QRRestrict;
     }
@@ -459,6 +464,7 @@ document.addEventListener('DOMContentLoaded', function () {
     cfgFields.checkAnswerButton,
     cfgFields.qrUser,
     cfgFields.qrRemember,
+    cfgFields.randomNames,
     cfgFields.teamRestrict,
     cfgFields.competitionMode,
     cfgFields.teamResults,

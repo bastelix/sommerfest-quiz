@@ -37,6 +37,7 @@ class HelpControllerTest extends TestCase
                 adminUser TEXT,
                 adminPass TEXT,
                 QRRestrict INTEGER,
+                randomNames INTEGER DEFAULT 1,
                 competitionMode INTEGER,
                 teamResults INTEGER,
                 photoUpload INTEGER,

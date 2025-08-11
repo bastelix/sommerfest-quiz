@@ -25,6 +25,9 @@ window.quizConfig = {
   // Teilnahme auf bekannte Namen beschränken
   QRRestrict: false,
 
+  // Zufällige Teamnamen verwenden (sonst Eingabeaufforderung)
+  randomNames: true,
+
   // Wettkampfmodus aktivieren
   competitionMode: false,
 
