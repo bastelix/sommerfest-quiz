@@ -656,16 +656,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         if ($admin === null) {
             return $response->withStatus(500);
         }
-        $resetService = new PasswordResetService($pdo);
-        $token = $resetService->createToken((int) $admin['id']);
         $mainDomain = getenv('MAIN_DOMAIN') ?: getenv('DOMAIN') ?: $request->getUri()->getHost();
-        $twig = Twig::fromRequest($request);
+        $twig = Twig::fromRequest($request)->getEnvironment();
         if (!MailService::isConfigured()) {
             return $response->withStatus(503);
         }
         $mailer = new MailService($twig, $auditLogger);
         $domain = sprintf('%s.%s', $schema, $mainDomain);
-        $link = sprintf('https://%s/password/set?token=%s', $domain, urlencode($token));
+        $link = sprintf('https://%s/admin', $domain);
         $html = $mailer->sendWelcome($email, $domain, $link);
         $base = dirname(__DIR__, 1);
         $dir = $base . '/data/' . $schema;

@@ -158,7 +158,7 @@ class MailService
     }
 
     /**
-     * Send initial welcome mail with set-password link.
+     * Send initial welcome mail with admin link.
      *
      * Returns the rendered HTML (useful for logging/preview).
      *
