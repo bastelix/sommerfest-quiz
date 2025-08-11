@@ -43,6 +43,7 @@ class AdminControllerTest extends TestCase
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertStringContainsString('export-card', (string) $response->getBody());
+        $this->assertStringNotContainsString('id="langSelect"', (string) $response->getBody());
         session_destroy();
         unlink($db);
     }
@@ -73,7 +74,9 @@ class AdminControllerTest extends TestCase
             ->withUri(new Uri('http', 'example.com', 80, '/admin/profile'));
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertStringContainsString('Example Org', (string) $response->getBody());
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('Example Org', $body);
+        $this->assertStringContainsString('id="langSelect"', $body);
         session_destroy();
         unlink($db);
         putenv('MAIN_DOMAIN');
