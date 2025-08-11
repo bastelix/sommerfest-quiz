@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const step1 = document.getElementById('step1');
   const step2 = document.getElementById('step2');
   const step3 = document.getElementById('step3');
+  const step3Warning = document.getElementById('step3-warning');
   const emailInput = document.getElementById('email');
   const sendEmailBtn = document.getElementById('sendEmail');
   const emailStatus = document.getElementById('emailStatus');
@@ -12,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const verifiedHint = document.getElementById('verifiedHint');
   const basePath = window.basePath || '';
   const withBase = p => basePath + p;
+  const stripeConfigured = window.stripeConfigured !== false;
 
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id');
@@ -65,11 +67,19 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       localStorage.setItem('onboard_subdomain', subdomain);
       step2.hidden = true;
+      if (!stripeConfigured) {
+        if (step3Warning) {
+          step3Warning.hidden = false;
+        } else {
+          alert('Zahlungsdienstleister nicht konfiguriert. Bitte wende dich an den Support.');
+        }
+        return;
+      }
       if (step3) step3.hidden = false;
     });
   }
 
-  if (planButtons.length) {
+  if (stripeConfigured && planButtons.length) {
     planButtons.forEach(btn => {
       btn.addEventListener('click', async () => {
         const plan = btn.dataset.plan;

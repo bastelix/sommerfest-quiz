@@ -8,6 +8,7 @@ use Slim\Views\Twig;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use App\Service\UserService;
+use App\Service\StripeService;
 use App\Infrastructure\Database;
 use PDO;
 
@@ -57,6 +58,8 @@ class OnboardingController
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
         $_SESSION['csrf_token'] = $csrf;
 
+        $stripeConfigured = StripeService::isConfigured();
+
         return $view->render(
             $response,
             'onboarding.twig',
@@ -65,6 +68,7 @@ class OnboardingController
                 'logged_in' => $loggedIn,
                 'reload_token' => $reloadToken,
                 'csrf_token' => $csrf,
+                'stripe_configured' => $stripeConfigured,
             ]
         );
     }

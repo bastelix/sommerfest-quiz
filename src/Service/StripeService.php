@@ -82,4 +82,26 @@ class StripeService
             return false;
         }
     }
+
+    /**
+     * Check whether Stripe is configured with a secret key and price IDs.
+     */
+    public static function isConfigured(): bool
+    {
+        $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
+        $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
+        $required = [
+            'SECRET_KEY',
+            'PRICE_STARTER',
+            'PRICE_STANDARD',
+            'PRICE_PROFESSIONAL',
+        ];
+        foreach ($required as $suffix) {
+            $value = getenv($prefix . $suffix) ?: '';
+            if ($value === '') {
+                return false;
+            }
+        }
+        return true;
+    }
 }
