@@ -57,6 +57,7 @@
 - Document PHP 8.2 requirement
 - Add PHP 8.2 stable support note
 - Document qr code enhancements
+- Outline SEO and SEF requirements
 
 ### Feat
 
