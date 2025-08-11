@@ -452,11 +452,6 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }).catch(() => notify('Fehler beim Speichern', 'danger'));
   });
-  document.getElementById('cfgResetBtn').addEventListener('click', function (e) {
-    e.preventDefault();
-    renderCfg(cfgInitial);
-  });
-
   [
     cfgFields.pageTitle,
     cfgFields.backgroundColor,
