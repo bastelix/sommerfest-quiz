@@ -93,12 +93,12 @@ class RoleAccessTest extends TestCase
         unlink($db);
     }
 
-    public function testSeoEditorCanAccessSeoForm(): void
+    public function testAdminCanAccessSeoForm(): void
     {
         $db = $this->setupDb();
         $app = $this->getAppInstance();
         session_start();
-        $_SESSION['user'] = ['id' => 1, 'role' => 'seo-editor'];
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
         $req = $this->createRequest('POST', '/admin/landingpage/seo');
         $req = $req->withParsedBody(['pageId' => 1, 'slug' => 'test']);
         $res = $app->handle($req);
@@ -107,12 +107,12 @@ class RoleAccessTest extends TestCase
         unlink($db);
     }
 
-    public function testAdminCannotAccessSeoForm(): void
+    public function testCatalogEditorCannotAccessSeoForm(): void
     {
         $db = $this->setupDb();
         $app = $this->getAppInstance();
         session_start();
-        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
         $req = $this->createRequest('POST', '/admin/landingpage/seo');
         $req = $req->withParsedBody(['pageId' => 1, 'slug' => 'test']);
         $res = $app->handle($req);
