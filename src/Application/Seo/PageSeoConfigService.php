@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace App\Application\Seo;
 
+use App\Application\EventListener\SeoConfigListener;
 use App\Application\Routing\RedirectManager;
+use App\Domain\Event\SeoConfigSaved;
+use App\Domain\Event\SeoConfigUpdated;
 use App\Domain\PageSeoConfig;
 use App\Infrastructure\Cache\PageSeoCache;
+use App\Infrastructure\Event\EventDispatcher;
 
 /**
  * Handles loading, saving and validating SEO configuration for pages.
@@ -17,17 +21,21 @@ class PageSeoConfigService
     private RedirectManager $redirects;
     private SeoValidator $validator;
     private PageSeoCache $cache;
+    private EventDispatcher $dispatcher;
 
     public function __construct(
         ?string $file = null,
         ?RedirectManager $redirects = null,
         ?SeoValidator $validator = null,
-        ?PageSeoCache $cache = null
+        ?PageSeoCache $cache = null,
+        ?EventDispatcher $dispatcher = null
     ) {
         $this->file = $file ?? dirname(__DIR__, 3) . '/data/page-seo.json';
         $this->redirects = $redirects ?? new RedirectManager();
         $this->validator = $validator ?? new SeoValidator();
         $this->cache = $cache ?? new PageSeoCache();
+        $this->dispatcher = $dispatcher ?? new EventDispatcher();
+        SeoConfigListener::register($this->dispatcher, $this->cache);
     }
 
     public function load(int $pageId): ?PageSeoConfig
@@ -83,7 +91,10 @@ class PageSeoConfigService
         }
         $data[$config->getPageId()] = $config->jsonSerialize();
         file_put_contents($this->file, json_encode($data, JSON_PRETTY_PRINT) . "\n");
-        $this->cache->invalidate($config->getPageId());
+        $event = is_array($existing)
+            ? new SeoConfigUpdated($config)
+            : new SeoConfigSaved($config);
+        $this->dispatcher->dispatch($event);
     }
 
     /**
