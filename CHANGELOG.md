@@ -21,6 +21,7 @@
 - Test against php 8.2
 - Update dependencies
 - Pin php base images to patch release
+- Add migration for Stripe customer id
 
 ### Ci
 
