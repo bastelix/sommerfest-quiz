@@ -193,3 +193,31 @@ body.dark-mode .flip-card-back {
   color: #f5f5f5;
   border: 1px solid #444;
 }
+
+/* FAQ page elements in Dark Mode */
+body.dark-mode .uk-heading-divider {
+  border-bottom-color: #444;
+  color: #f5f5f5;
+}
+
+body.dark-mode .uk-heading-bullet {
+  color: #f5f5f5;
+}
+
+body.dark-mode .uk-heading-bullet::before {
+  border-color: #444;
+}
+
+body.dark-mode .uk-accordion-title {
+  background-color: #1e1e1e;
+  color: #f5f5f5;
+}
+
+body.dark-mode .uk-accordion-title::before {
+  filter: invert(1);
+}
+
+body.dark-mode .uk-accordion-content {
+  background-color: #1e1e1e;
+  color: #f5f5f5;
+}
