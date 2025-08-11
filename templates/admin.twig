@@ -76,7 +76,14 @@
                 <div class="uk-flex uk-flex-between uk-flex-middle">
                   <h3 class="uk-card-title uk-margin-remove">Für heute geplant</h3>
                   <div>
-                    <a href="{{ basePath }}/admin/events" class="uk-button uk-button-primary">+ Erstellen</a>
+                    <a
+                      href="{{ basePath }}/admin/events"
+                      class="uk-button uk-button-primary uk-button-small"
+                      aria-label="{{ t('tip_event_add') }}"
+                    >
+                      <span uk-icon="plus"></span>
+                      <span class="button-text">{{ t('tip_event_add') }}</span>
+                    </a>
                   </div>
                 </div>
                 <div id="today-empty" class="uk-text-meta uk-margin-small">Für heute nichts geplant</div>
