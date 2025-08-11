@@ -5,68 +5,61 @@ declare(strict_types=1);
 namespace Tests\Controller;
 
 use App\Service\MailService;
-use RuntimeException;
 use Tests\TestCase;
 
 class ContactControllerTest extends TestCase
 {
-    public function testContactFailsWithoutMailConfiguration(): void
+    public function testContactFormSendsMail(): void
     {
-        $app = $this->getAppInstance();
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+        session_id('contacttest');
         session_start();
-        $_SESSION['csrf_token'] = 'tok';
-        $request = $this->createRequest('POST', '/landing/contact', [
-            'Content-Type' => 'application/json',
-            'X-CSRF-Token' => 'tok',
-        ]);
-        $request->getBody()->write(json_encode([
-            'name' => 'Jane',
-            'email' => 'jane@example.com',
-            'message' => 'Hi',
-        ]));
-        $request->getBody()->rewind();
+        $_SESSION['csrf_token'] = 'token';
+        $_COOKIE[session_name()] = session_id();
 
         $mailer = new class extends MailService {
+            public array $args = [];
             public function __construct()
             {
             }
-
-            public function sendContact(string $to, string $name, string $email, string $message): void
+            public function sendContact(string $to, string $name, string $replyTo, string $message): void
             {
-                throw new RuntimeException('no smtp');
+                $this->args = [$to, $name, $replyTo, $message];
             }
         };
+
+        $body = json_encode([
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'message' => 'Hello',
+        ], JSON_THROW_ON_ERROR);
+
+        $request = $this->createRequest(
+            'POST',
+            '/landing/contact',
+            [
+                'Content-Type' => 'application/json',
+                'X-CSRF-Token' => 'token',
+            ],
+            [session_name() => session_id()]
+        );
+        $request->getBody()->write($body);
+        $request->getBody()->rewind();
         $request = $request->withAttribute('mailService', $mailer);
 
-        $response = $app->handle($request);
-        $this->assertEquals(500, $response->getStatusCode());
-        $this->assertSame('Mailversand fehlgeschlagen', (string) $response->getBody());
-        session_destroy();
-    }
-
-    public function testContactUnavailableWhenMailConfigMissing(): void
-    {
-        putenv('SMTP_HOST');
-        putenv('SMTP_USER');
-        putenv('SMTP_PASS');
-        unset($_ENV['SMTP_HOST'], $_ENV['SMTP_USER'], $_ENV['SMTP_PASS']);
-
         $app = $this->getAppInstance();
-        session_start();
-        $_SESSION['csrf_token'] = 'tok';
-        $request = $this->createRequest('POST', '/landing/contact', [
-            'Content-Type' => 'application/json',
-            'X-CSRF-Token' => 'tok',
-        ]);
-        $request->getBody()->write(json_encode([
-            'name' => 'Jane',
-            'email' => 'jane@example.com',
-            'message' => 'Hi',
-        ]));
-        $request->getBody()->rewind();
-
         $response = $app->handle($request);
-        $this->assertEquals(503, $response->getStatusCode());
-        session_destroy();
+
+        $this->assertEquals(204, $response->getStatusCode());
+        $profileFile = dirname(__DIR__, 2) . '/data/profile.json';
+        $profile = json_decode((string) file_get_contents($profileFile), true);
+        $this->assertSame([
+            (string) $profile['imprint_email'],
+            'John Doe',
+            'john@example.com',
+            'Hello',
+        ], $mailer->args);
     }
 }
