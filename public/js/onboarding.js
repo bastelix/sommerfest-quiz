@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const verifiedHint = document.getElementById('verifiedHint');
 
   const params = new URLSearchParams(window.location.search);
+  const sessionId = params.get('session_id');
   const emailParam = params.get('email');
   if (emailParam && emailInput) {
     emailInput.value = emailParam;
@@ -60,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Fehler bei der Prüfung der Subdomain.');
         return;
       }
+      localStorage.setItem('onboard_subdomain', subdomain);
       step2.hidden = true;
       if (step3) step3.hidden = false;
     });
@@ -72,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = emailInput.value.trim();
         if (!plan) return;
         try {
+          localStorage.setItem('onboard_plan', plan);
           const res = await fetch('/onboarding/checkout', {
             method: 'POST',
             headers: {
@@ -93,6 +96,47 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Fehler beim Start der Zahlung.');
       });
     });
+  }
+
+  if (sessionId) {
+    (async () => {
+      try {
+        const res = await fetch('/onboarding/checkout/' + encodeURIComponent(sessionId));
+        if (res.ok) {
+          const data = await res.json();
+          if (data.paid) {
+            const subdomain = localStorage.getItem('onboard_subdomain') || '';
+            const plan = localStorage.getItem('onboard_plan') || '';
+            if (subdomain && plan) {
+              const tRes = await fetch('/tenants', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRF-Token': window.csrfToken || ''
+                },
+                body: JSON.stringify({
+                  uid: subdomain,
+                  schema: subdomain,
+                  plan,
+                  billing: sessionId
+                })
+              });
+              if (tRes.ok) {
+                localStorage.removeItem('onboard_subdomain');
+                localStorage.removeItem('onboard_plan');
+                window.location.href = `https://${subdomain}.${window.mainDomain}/`;
+                return;
+              }
+            }
+          }
+        }
+      } catch (e) {
+        // ignore and handle below
+      }
+      if (params.get('paid') === '1') {
+        alert('Fehler bei der Registrierung.');
+      }
+    })();
   }
 });
 
