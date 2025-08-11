@@ -42,10 +42,33 @@ if [ -z "$DOMAIN" ]; then
   exit 1
 fi
 
-curl -s -X POST \
+API_BASE="http://$DOMAIN${BASE_PATH}"
+
+if [ -z "$SERVICE_USER" ] || [ -z "$SERVICE_PASS" ]; then
+  echo "SERVICE_USER or SERVICE_PASS not found in $ENV_FILE" >&2
+  exit 1
+fi
+
+COOKIE_FILE=$(mktemp)
+
+if ! curl -fs -c "$COOKIE_FILE" -X POST "$API_BASE/login" \
+  -H 'Content-Type: application/json' \
+  -d "{\"username\":\"$SERVICE_USER\",\"password\":\"$SERVICE_PASS\"}" >/dev/null; then
+  echo "Service account login failed" >&2
+  rm -f "$COOKIE_FILE"
+  exit 1
+fi
+
+HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -b "$COOKIE_FILE" -X POST \
   -H 'Content-Type: application/json' \
   -d "{\"uid\":\"$SUBDOMAIN\",\"schema\":\"$SUBDOMAIN\"}" \
-  "http://$DOMAIN/tenants"
+  "$API_BASE/tenants")
+
+if [ "$HTTP_STATUS" -ge 400 ]; then
+  echo "Tenant creation failed with status $HTTP_STATUS" >&2
+  rm -f "$COOKIE_FILE"
+  exit 1
+fi
 
 mkdir -p "$BASE_DIR/vhost.d"
 echo "client_max_body_size $CLIENT_MAX_BODY_SIZE;" > "$BASE_DIR/vhost.d/${SUBDOMAIN}.$DOMAIN"
@@ -53,25 +76,17 @@ if [ -n "$RELOADER_URL" ]; then
   echo "Reloading reverse proxy via $RELOADER_URL"
   if ! curl -fs -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL"; then
     echo "Proxy reload failed via webhook" >&2
+    rm -f "$COOKIE_FILE"
     exit 1
   fi
 elif [ "$NGINX_RELOAD" = "1" ]; then
   echo "Reloading reverse proxy via Docker"
   if ! $DOCKER_COMPOSE exec "$NGINX_CONTAINER" nginx -s reload; then
     echo "Proxy reload failed via Docker" >&2
+    rm -f "$COOKIE_FILE"
     exit 1
   fi
 fi
 
-API_BASE="http://$DOMAIN${BASE_PATH}"
-if [ -n "$SERVICE_USER" ] && [ -n "$SERVICE_PASS" ]; then
-  COOKIE_FILE=$(mktemp)
-  if curl -fs -c "$COOKIE_FILE" -X POST "$API_BASE/login" \
-    -H 'Content-Type: application/json' \
-    -d "{\"username\":\"$SERVICE_USER\",\"password\":\"$SERVICE_PASS\"}" >/dev/null; then
-    curl -fs -b "$COOKIE_FILE" -X POST "$API_BASE/api/tenants/${SUBDOMAIN}/onboard" >/dev/null || true
-  fi
-  rm -f "$COOKIE_FILE"
-else
-  echo "Please complete onboarding via web wizard or scripts/onboard_tenant.sh $SUBDOMAIN" >&2
-fi
+curl -fs -b "$COOKIE_FILE" -X POST "$API_BASE/api/tenants/${SUBDOMAIN}/onboard" >/dev/null || true
+rm -f "$COOKIE_FILE"
