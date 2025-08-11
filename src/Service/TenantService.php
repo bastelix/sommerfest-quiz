@@ -16,14 +16,6 @@ class TenantService
     private PDO $pdo;
     private string $migrationsDir;
     private ?NginxService $nginxService;
-    /**
-     * @var array<string,?string>
-     */
-    private array $planCache = [];
-    /**
-     * @var array<string,?array>
-     */
-    private array $limitCache = [];
 
     private const RESERVED_SUBDOMAINS = [
         'public',
@@ -98,8 +90,6 @@ class TenantService
             $start?->format('Y-m-d H:i:sP'),
             $end?->format('Y-m-d H:i:sP'),
         ]);
-        $this->planCache[$schema] = $plan;
-        $this->limitCache[$schema] = $customLimits;
 
         if ($this->nginxService !== null) {
             try {
@@ -308,14 +298,10 @@ class TenantService
      */
     public function getPlanBySubdomain(string $subdomain): ?string
     {
-        if (array_key_exists($subdomain, $this->planCache)) {
-            return $this->planCache[$subdomain];
-        }
         $stmt = $this->pdo->prepare('SELECT plan FROM tenants WHERE subdomain = ?');
         $stmt->execute([$subdomain]);
         $plan = $stmt->fetchColumn();
-        $this->planCache[$subdomain] = $plan === false ? null : (string) $plan;
-        return $this->planCache[$subdomain];
+        return $plan === false ? null : (string) $plan;
     }
 
     /**
@@ -325,19 +311,14 @@ class TenantService
      */
     public function getCustomLimitsBySubdomain(string $subdomain): ?array
     {
-        if (array_key_exists($subdomain, $this->limitCache)) {
-            return $this->limitCache[$subdomain];
-        }
         $stmt = $this->pdo->prepare('SELECT custom_limits FROM tenants WHERE subdomain = ?');
         $stmt->execute([$subdomain]);
         $json = $stmt->fetchColumn();
         if ($json === false || $json === null) {
-            $this->limitCache[$subdomain] = null;
             return null;
         }
         $data = json_decode((string) $json, true);
-        $this->limitCache[$subdomain] = is_array($data) ? $data : null;
-        return $this->limitCache[$subdomain];
+        return is_array($data) ? $data : null;
     }
 
     /**
@@ -349,7 +330,6 @@ class TenantService
     {
         $stmt = $this->pdo->prepare('UPDATE tenants SET custom_limits = ? WHERE subdomain = ?');
         $stmt->execute([$limits !== null ? json_encode($limits) : null, $subdomain]);
-        $this->limitCache[$subdomain] = $limits;
     }
 
     /**
@@ -460,12 +440,6 @@ class TenantService
         $sql = 'UPDATE tenants SET ' . implode(', ', $set) . ' WHERE subdomain = ?';
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
-        if (array_key_exists('plan', $data)) {
-            $this->planCache[$subdomain] = $data['plan'];
-        }
-        if (array_key_exists('custom_limits', $data)) {
-            $this->limitCache[$subdomain] = $data['custom_limits'];
-        }
     }
 
     /**
