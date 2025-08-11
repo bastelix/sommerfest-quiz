@@ -35,6 +35,10 @@ spec:
               value: {{ .Values.smtp.pass | quote }}
             - name: SMTP_PORT
               value: {{ .Values.smtp.port | quote }}
+            - name: SMTP_FROM
+              value: {{ .Values.smtp.from | quote }}
+            - name: SMTP_FROM_NAME
+              value: {{ .Values.smtp.fromName | quote }}
           ports:
             - containerPort: 8080
           volumeMounts:

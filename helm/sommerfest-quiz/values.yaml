@@ -16,6 +16,8 @@ smtp:
   user: user@example.com
   pass: secret
   port: "587"
+  from: support@quizrace.app
+  fromName: "QuizRace Support"
 
 service:
   type: ClusterIP

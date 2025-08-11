@@ -478,10 +478,12 @@ Der Zugang zum Administrationsbereich erfolgt über `/login`. Benutzer und Rolle
 Für Funktionen wie das Zurücksetzen von Passwörtern nutzt die Anwendung SMTP. Die Verbindung wird über folgende Umgebungsvariablen gesteuert:
 
 - `SMTP_HOST` – Hostname des Servers
-- `SMTP_USER` – Benutzername und Absenderadresse
+- `SMTP_USER` – Benutzername
 - `SMTP_PASS` – Passwort
 - `SMTP_PORT` – Port (z. B. 587)
 - `SMTP_ENCRYPTION` – Verschlüsselung (`none`, `tls` oder `ssl`)
+- `SMTP_FROM` – Absenderadresse
+- `SMTP_FROM_NAME` – Name des Absenders
 
 Diese Variablen können in `.env` gesetzt werden.
 
@@ -491,7 +493,7 @@ Die API unterstützt ein zweistufiges Verfahren zum Zurücksetzen vergessener Pa
 1. `POST /password/reset/request` nimmt einen Benutzernamen oder eine E‑Mail-Adresse entgegen und verschickt einen Link mit einem Reset-Token.
 2. `POST /password/reset/confirm` setzt nach Validierung des Tokens das neue Passwort.
 
-Für den Versand der E-Mails müssen `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `SMTP_PORT` und `SMTP_ENCRYPTION` konfiguriert sein. Das Token ist aus Sicherheitsgründen nur eine Stunde gültig.
+Für den Versand der E-Mails müssen `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `SMTP_PORT` und `SMTP_ENCRYPTION` konfiguriert sein. Über `SMTP_FROM` und `SMTP_FROM_NAME` lässt sich der Absender zentral festlegen. Das Token ist aus Sicherheitsgründen nur eine Stunde gültig.
 
 ### Administrationsoberfläche
 Unter `/admin` stehen folgende Tabs zur Verfügung:
