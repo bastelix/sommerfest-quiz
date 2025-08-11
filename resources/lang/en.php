@@ -25,6 +25,7 @@ return [
     'tab_results' => 'Results',
     'tab_statistics' => 'Statistics',
     'tab_pages' => 'Pages',
+    'tab_landingpage_seo' => 'Landing Page SEO',
     'tab_management' => 'Management',
     'tab_tenants' => 'Subdomains',
     'tab_profile' => 'Profile',
