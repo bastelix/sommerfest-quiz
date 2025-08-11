@@ -100,18 +100,6 @@
                 </div>
               </div>
 
-              <div class="uk-card uk-card-default uk-card-body uk-margin-small" id="subscription-card">
-                <h4 class="uk-margin-remove-bottom">{{ t('heading_subscription') }}</h4>
-                <div id="subscription"
-                  data-label-plan="{{ t('label_plan') }}"
-                  data-label-events="{{ t('label_events') }}"
-                  data-label-catalogs="{{ t('label_catalogs') }}"
-                  data-label-questions="{{ t('label_questions') }}"
-                  data-plan-starter="{{ t('plan_starter') }}"
-                  data-plan-standard="{{ t('plan_standard') }}"
-                  data-plan-professional="{{ t('plan_professional') }}"></div>
-              </div>
-
               <div class="uk-margin-small">
                 <span class="uk-badge" id="badge-draft">0 Entwürfe</span>
                 <span class="uk-badge" id="badge-scheduled">0 geplant</span>
@@ -720,20 +708,6 @@
               <label class="uk-form-label">{{ t('column_subdomain') }}</label>
               <input class="uk-input" type="text" name="subdomain" value="{{ tenant.subdomain }}" readonly>
             </div>
-            <div class="uk-width-1-2@s">
-              <label class="uk-form-label">{{ t('column_plan') }}</label>
-              <select class="uk-select" name="plan">
-                <option value="starter" {% if tenant.plan == 'starter' %}selected{% endif %}>{{ t('plan_starter') }}</option>
-                <option value="standard" {% if tenant.plan == 'standard' %}selected{% endif %}>{{ t('plan_standard') }}</option>
-                <option value="professional" {% if tenant.plan == 'professional' %}selected{% endif %}>{{ t('plan_professional') }}</option>
-              </select>
-            </div>
-            <div class="uk-width-1-1">
-              <label class="uk-form-label">{{ t('column_billing') }}</label>
-              <select class="uk-select" name="billing_info">
-                <option value="credit" {% if tenant.billing_info == 'credit' %}selected{% endif %}>{{ t('billing_credit') }}</option>
-              </select>
-            </div>
             <div class="uk-width-1-1">
               <label class="uk-form-label">{{ t('language') }}</label>
               <select id="langSelect" class="uk-select uk-form-width-small">
@@ -776,6 +750,16 @@
     <li class="{{ activeRoute == 'subscription' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_subscription') }}</h2>
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small" id="subscription-card">
+          <div id="subscription"
+            data-label-plan="{{ t('label_plan') }}"
+            data-label-events="{{ t('label_events') }}"
+            data-label-catalogs="{{ t('label_catalogs') }}"
+            data-label-questions="{{ t('label_questions') }}"
+            data-plan-starter="{{ t('plan_starter') }}"
+            data-plan-standard="{{ t('plan_standard') }}"
+            data-plan-professional="{{ t('plan_professional') }}"></div>
+        </div>
         <p><a class="uk-button uk-button-primary" href="{{ basePath }}/admin/subscription/portal">{{ t('action_open_subscription') }}</a></p>
       </div>
     </li>
