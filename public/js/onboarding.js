@@ -1,12 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
   const step1 = document.getElementById('step1');
   const step2 = document.getElementById('step2');
+  const step3 = document.getElementById('step3');
   const emailInput = document.getElementById('email');
   const sendEmailBtn = document.getElementById('sendEmail');
   const emailStatus = document.getElementById('emailStatus');
   const subdomainInput = document.getElementById('subdomain');
   const subdomainPreview = document.getElementById('subdomainPreview');
   const saveSubdomainBtn = document.getElementById('saveSubdomain');
+  const startCheckoutBtn = document.getElementById('startCheckout');
   const verifiedHint = document.getElementById('verifiedHint');
 
   const params = new URLSearchParams(window.location.search);
@@ -37,15 +39,48 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (subdomainInput) {
     subdomainInput.addEventListener('input', () => {
-      subdomainPreview.textContent = subdomainInput.value.trim();
+      subdomainPreview.textContent = subdomainInput.value.trim().toLowerCase();
     });
   }
 
   if (saveSubdomainBtn) {
-    saveSubdomainBtn.addEventListener('click', () => {
-      const subdomain = subdomainInput.value.trim();
+    saveSubdomainBtn.addEventListener('click', async () => {
+      const subdomain = subdomainInput.value.trim().toLowerCase();
       if (!subdomain) return;
-      alert('Subdomain "' + subdomain + '.' + (window.mainDomain || '') + '" gespeichert.');
+      const res = await fetch('/tenants/' + encodeURIComponent(subdomain));
+      if (res.ok) {
+        alert('Subdomain bereits vergeben.');
+        return;
+      }
+      if (res.status !== 404) {
+        alert('Fehler bei der Prüfung der Subdomain.');
+        return;
+      }
+      step2.hidden = true;
+      if (step3) step3.hidden = false;
+    });
+  }
+
+  if (startCheckoutBtn) {
+    startCheckoutBtn.addEventListener('click', async () => {
+      const planInput = document.querySelector('input[name="plan"]:checked');
+      const plan = planInput ? planInput.value : '';
+      const email = emailInput.value.trim();
+      if (!plan) return;
+      const res = await fetch('/onboarding/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': window.csrfToken || ''
+        },
+        body: JSON.stringify({ plan, email })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        }
+      }
     });
   }
 });
