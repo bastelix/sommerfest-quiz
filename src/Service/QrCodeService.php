@@ -60,6 +60,7 @@ class QrCodeService
         }
 
         $writer = strtolower($format) === 'svg' ? new SvgWriter() : new PngWriter();
+        $punchout = $logoPath !== null && !($writer instanceof SvgWriter);
 
         try {
             $result = (new Builder(
@@ -74,7 +75,7 @@ class QrCodeService
                 backgroundColor: $bg,
                 logoPath: $logoPath ?? '',
                 logoResizeToWidth: $logoPath !== null ? self::LOGO_WIDTH_DEF : null,
-                logoPunchoutBackground: $logoPath !== null,
+                logoPunchoutBackground: $punchout,
             ))->build();
         } finally {
             if ($logoPath !== null && file_exists($logoPath)) {
@@ -230,6 +231,7 @@ class QrCodeService
         }
 
         $writer = $format === 'svg' ? new SvgWriter() : new PngWriter();
+        $punchout = $logoPath !== null && !($writer instanceof SvgWriter) ? $logoPunchout : false;
 
         try {
             $result = (new Builder(
@@ -244,7 +246,7 @@ class QrCodeService
                 backgroundColor: new Color($bgRgb[0], $bgRgb[1], $bgRgb[2]),
                 logoPath: $logoPath ?? '',
                 logoResizeToWidth: $logoPath !== null ? $logoW : null,
-                logoPunchoutBackground: $logoPath !== null ? $logoPunchout : false,
+                logoPunchoutBackground: $punchout,
             ))->build();
         } finally {
             if ($logoPath !== null) {

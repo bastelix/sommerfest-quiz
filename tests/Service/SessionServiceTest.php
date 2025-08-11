@@ -12,7 +12,7 @@ class SessionServiceTest extends TestCase
     public function testInvalidateRemovesSessions(): void
     {
         $pdo = $this->createDatabase();
-        $pdo->exec('CREATE TABLE user_sessions(user_id INTEGER NOT NULL, session_id TEXT PRIMARY KEY)');
+        $pdo->exec('CREATE TABLE IF NOT EXISTS user_sessions(user_id INTEGER NOT NULL, session_id TEXT PRIMARY KEY)');
 
         $pdo->exec("INSERT INTO user_sessions(user_id, session_id) VALUES (1,'abc'),(1,'def'),(2,'zzz')");
 

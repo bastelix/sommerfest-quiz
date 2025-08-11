@@ -86,7 +86,8 @@ class LogoController
         }
 
         $manager = ImageManager::gd();
-        $img = $manager->read($file->getStream());
+        $stream = $file->getStream();
+        $img = $manager->read($stream->detach());
         $img->scaleDown(512, 512);
         $img->save($target, 80);
 

@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS events (
     name TEXT NOT NULL,
     start_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     end_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    description TEXT
+    description TEXT,
+    published BOOLEAN DEFAULT FALSE
 );
 
 -- Config
@@ -197,3 +198,10 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
+
+-- Persisted user sessions
+CREATE TABLE IF NOT EXISTS user_sessions (
+    user_id INTEGER NOT NULL,
+    session_id TEXT PRIMARY KEY,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
