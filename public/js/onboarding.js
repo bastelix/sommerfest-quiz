@@ -319,12 +319,11 @@
     });
 
       const allowedPlans = ['starter', 'standard', 'professional'];
-      const allowedPayments = ['invoice', 'credit', 'paypal'];
+      const allowedPayments = ['credit'];
 
       paymentSelect?.addEventListener('change', () => {
-        const credit = paymentSelect.value === 'credit';
-        if (payBtn) payBtn.hidden = !credit;
-        if (paymentInfo) paymentInfo.hidden = !credit;
+        if (payBtn) payBtn.hidden = false;
+        if (paymentInfo) paymentInfo.hidden = false;
       });
       paymentSelect?.dispatchEvent(new Event('change'));
 
@@ -335,8 +334,7 @@
       });
 
       next3.addEventListener('click', () => {
-        const paymentValue = paymentSelect?.value || '';
-        data.payment = allowedPayments.includes(paymentValue) ? paymentValue : '';
+        data.payment = 'credit';
         document.getElementById('summary-name').textContent = data.name;
         document.getElementById('summary-subdomain').textContent = data.subdomain;
         document.getElementById('summary-plan').textContent = data.plan;
