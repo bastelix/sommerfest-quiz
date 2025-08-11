@@ -66,7 +66,6 @@ return [
     'tip_team_results' => 'Shows teams a summary of their results after all catalogs are completed.',
     'tip_photo_upload' => 'Shows or hides buttons for uploading photos.',
     'tip_puzzle_word' => 'Displays letters for the puzzle word and saves the full term.',
-    'tip_form_reset' => 'Resets all fields to saved values',
     'tip_save_settings' => 'Save settings',
     'tip_sort_rows' => 'Drag row to sort',
     'tip_event_remove' => 'Remove event',

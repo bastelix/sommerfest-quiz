@@ -66,7 +66,6 @@ return [
     'tip_team_results' => 'Zeigt Teams nach Abschluss aller Kataloge eine Übersicht ihrer Ergebnisse.',
     'tip_photo_upload' => 'Blendet die Buttons zum Hochladen von Fotos ein oder aus.',
     'tip_puzzle_word' => 'Blendet Buchstaben für das Rätselwort ein und speichert den vollständigen Begriff.',
-    'tip_form_reset' => 'Setzt alle Felder auf gespeicherte Werte zurück',
     'tip_save_settings' => 'Einstellungen speichern',
     'tip_sort_rows' => 'Zum Sortieren Zeile ziehen',
     'tip_event_remove' => 'Veranstaltung entfernen',
