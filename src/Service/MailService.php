@@ -204,6 +204,19 @@ class MailService
 
         $this->mailer->send($email);
 
+        $copyHtml = $this->twig->render('emails/contact_copy.twig', [
+            'name'    => $name,
+            'message' => $message,
+        ]);
+
+        $copyEmail = (new Email())
+            ->from($this->from)
+            ->to($replyTo)
+            ->subject('Ihre Kontaktanfrage')
+            ->html($copyHtml);
+
+        $this->mailer->send($copyEmail);
+
         $this->audit?->log('contact_mail', ['from' => $replyTo]);
     }
 }

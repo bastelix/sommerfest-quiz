@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 
 class MailServiceTest extends TestCase
 {
@@ -166,5 +167,55 @@ class MailServiceTest extends TestCase
         putenv('SMTP_FROM');
         putenv('SMTP_FROM_NAME');
         unset($_ENV['SMTP_FROM'], $_ENV['SMTP_FROM_NAME']);
+    }
+
+    public function testSendContactSendsCopyToUser(): void
+    {
+        putenv('SMTP_HOST=localhost');
+        putenv('SMTP_USER=user@example.org');
+        putenv('SMTP_PASS=secret');
+        putenv('SMTP_PORT=587');
+        putenv('SMTP_FROM');
+        putenv('SMTP_FROM_NAME');
+        $_ENV['SMTP_HOST'] = 'localhost';
+        $_ENV['SMTP_USER'] = 'user@example.org';
+        $_ENV['SMTP_PASS'] = 'secret';
+        $_ENV['SMTP_PORT'] = '587';
+        unset($_ENV['SMTP_FROM'], $_ENV['SMTP_FROM_NAME']);
+
+        $twig = new Environment(new ArrayLoader([
+            'emails/contact.twig' => '',
+            'emails/contact_copy.twig' => '',
+        ]));
+
+        $svc = new class ($twig) extends MailService {
+            /** @var Email[] */
+            public array $messages = [];
+
+            protected function createTransport(string $dsn): MailerInterface
+            {
+                return new class($this) implements MailerInterface {
+                    private $outer;
+
+                    public function __construct($outer)
+                    {
+                        $this->outer = $outer;
+                    }
+
+                    public function send(\Symfony\Component\Mime\RawMessage $message, \Symfony\Component\Mailer\Envelope $envelope = null): void
+                    {
+                        $this->outer->messages[] = $message;
+                    }
+                };
+            }
+        };
+
+        $svc->sendContact('to@example.org', 'John Doe', 'john@example.org', 'Hi');
+
+        $this->assertCount(2, $svc->messages);
+        $this->assertSame('Kontaktanfrage', $svc->messages[0]->getSubject());
+        $this->assertSame('to@example.org', $svc->messages[0]->getTo()[0]->getAddress());
+        $this->assertSame('Ihre Kontaktanfrage', $svc->messages[1]->getSubject());
+        $this->assertSame('john@example.org', $svc->messages[1]->getTo()[0]->getAddress());
     }
 }
