@@ -849,4 +849,36 @@ body.admin-page {
   border-radius: 8px;
 }
 
+/* Dashboard calendar */
+#calendar table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+#calendar td {
+  padding: 4px;
+  height: 80px;
+  vertical-align: top;
+  position: relative;
+}
+
+#calendar .cal-events {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+}
+
+#calendar .cal-event {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #1e87f0;
+  display: block;
+}
+
 
