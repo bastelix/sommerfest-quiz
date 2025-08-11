@@ -174,6 +174,7 @@
 - Import email confirmation service
 - Show feedback after password reset request
 - Address code style issues
+- Ensure mobile nav active items remain readable
 
 ### Refactor
 
