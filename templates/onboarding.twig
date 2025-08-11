@@ -111,6 +111,7 @@
       <button class="uk-button uk-button-primary" id="saveSubdomain">Subdomain speichern</button>
     </div>
 
+    {% if stripe_configured %}
     <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-margin-auto" id="step3" hidden>
       <h3 class="uk-card-title">3. Tarif wählen</h3>
       <p>Wähle einen Tarif und schließe die Zahlung über Stripe ab.</p>
@@ -169,6 +170,12 @@
       <p class="uk-text-meta uk-margin-top">2 (Im Starter-Paket mit Wasserzeichen oder ohne individuelles Layout/Logo)</p>
       <p class="uk-text-meta uk-margin-top">3 (z.&nbsp;B. Datenschutz, AGB, Einladung, FAQ, Spielanleitung – alles eigenständig editierbar)</p>
     </div>
+    {% else %}
+    <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step3-warning" hidden>
+      <h3 class="uk-card-title">3. Tarif wählen</h3>
+      <p class="uk-text-danger">Zahlungsdienstleister nicht konfiguriert. Bitte wende dich an den Support.</p>
+    </div>
+    {% endif %}
   </div>
 {% endblock %}
 
@@ -176,6 +183,7 @@
   <script>
     window.mainDomain = '{{ main_domain }}';
     window.csrfToken = '{{ csrf_token|e('js') }}';
+    window.stripeConfigured = {{ stripe_configured ? 'true' : 'false' }};
   </script>
   <script src="{{ basePath }}/js/onboarding.js"></script>
 {% endblock %}
