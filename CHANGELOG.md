@@ -175,6 +175,7 @@
 - Show feedback after password reset request
 - Address code style issues
 - Ensure mobile nav active items remain readable
+- Improve active nav contrast in dark menu
 
 ### Refactor
 
