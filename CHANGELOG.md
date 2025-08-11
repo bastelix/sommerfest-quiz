@@ -134,6 +134,7 @@
 - Group admin navigation links
 - Centralize SMTP sender configuration
 - Enforce stripe-only payments
+- Add page SEO config
 
 ### Fix
 
