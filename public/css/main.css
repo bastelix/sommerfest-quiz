@@ -184,15 +184,10 @@ body.uk-padding {
   display: flex;
   justify-content: center;
 }
+
 .topbar .uk-navbar-center .uk-navbar-item {
   width: 100%;
   justify-content: center;
-}
-
-@media (max-width: 639px) {
-  .topbar .uk-navbar-center {
-    display: none;
-  }
 }
 
 .nav-placeholder {
