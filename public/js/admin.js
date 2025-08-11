@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function scheduleConfigSave() {
     clearTimeout(cfgSaveTimer);
-    cfgSaveTimer = setTimeout(() => saveConfig(false), 1000);
+    cfgSaveTimer = setTimeout(saveConfig, 1000);
   }
 
   function wrapSelection(textarea, before, after) {
@@ -455,10 +455,6 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('cfgResetBtn').addEventListener('click', function (e) {
     e.preventDefault();
     renderCfg(cfgInitial);
-  });
-  document.getElementById('cfgSaveBtn').addEventListener('click', function (e) {
-    e.preventDefault();
-    saveConfig();
   });
 
   [
