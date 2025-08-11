@@ -6,6 +6,7 @@ namespace App\Application\Seo;
 
 use App\Application\Routing\RedirectManager;
 use App\Domain\PageSeoConfig;
+use App\Infrastructure\Cache\PageSeoCache;
 
 /**
  * Handles loading, saving and validating SEO configuration for pages.
@@ -14,15 +15,27 @@ class PageSeoConfigService
 {
     private string $file;
     private RedirectManager $redirects;
+    private SeoValidator $validator;
+    private PageSeoCache $cache;
 
-    public function __construct(?string $file = null, ?RedirectManager $redirects = null)
-    {
+    public function __construct(
+        ?string $file = null,
+        ?RedirectManager $redirects = null,
+        ?SeoValidator $validator = null,
+        ?PageSeoCache $cache = null
+    ) {
         $this->file = $file ?? dirname(__DIR__, 3) . '/data/page-seo.json';
         $this->redirects = $redirects ?? new RedirectManager();
+        $this->validator = $validator ?? new SeoValidator();
+        $this->cache = $cache ?? new PageSeoCache();
     }
 
     public function load(int $pageId): ?PageSeoConfig
     {
+        $cached = $this->cache->get($pageId);
+        if ($cached !== null) {
+            return $cached;
+        }
         if (!is_file($this->file)) {
             return null;
         }
@@ -31,7 +44,7 @@ class PageSeoConfigService
             return null;
         }
         $cfg = $data[$pageId];
-        return new PageSeoConfig(
+        $config = new PageSeoConfig(
             $pageId,
             (string) ($cfg['slug'] ?? ''),
             $cfg['metaTitle'] ?? null,
@@ -44,6 +57,8 @@ class PageSeoConfigService
             $cfg['schemaJson'] ?? null,
             $cfg['hreflang'] ?? null
         );
+        $this->cache->set($config);
+        return $config;
     }
 
     public function save(PageSeoConfig $config): void
@@ -68,6 +83,7 @@ class PageSeoConfigService
         }
         $data[$config->getPageId()] = $config->jsonSerialize();
         file_put_contents($this->file, json_encode($data, JSON_PRETTY_PRINT) . "\n");
+        $this->cache->invalidate($config->getPageId());
     }
 
     /**
@@ -78,17 +94,6 @@ class PageSeoConfigService
      */
     public function validate(array $data): array
     {
-        $errors = [];
-        $slug = (string) ($data['slug'] ?? '');
-        if ($slug === '') {
-            $errors['slug'] = 'Slug is required';
-        } elseif (!preg_match('/^[a-z0-9\-]+$/', $slug)) {
-            $errors['slug'] = 'Slug must contain lowercase letters, numbers and dashes only';
-        }
-        $canonical = $data['canonicalUrl'] ?? null;
-        if ($canonical !== null && $canonical !== '' && filter_var($canonical, FILTER_VALIDATE_URL) === false) {
-            $errors['canonicalUrl'] = 'Invalid URL';
-        }
-        return $errors;
+        return $this->validator->validate($data);
     }
 }

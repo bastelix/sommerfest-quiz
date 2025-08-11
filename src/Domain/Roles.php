@@ -12,6 +12,7 @@ final class Roles
     public const ANALYST = 'analyst';
     public const TEAM_MANAGER = 'team-manager';
     public const SERVICE_ACCOUNT = 'service-account';
+    public const SEO_EDITOR = 'seo-editor';
 
     public const ALL = [
         self::ADMIN,
@@ -20,5 +21,6 @@ final class Roles
         self::ANALYST,
         self::TEAM_MANAGER,
         self::SERVICE_ACCOUNT,
+        self::SEO_EDITOR,
     ];
 }
