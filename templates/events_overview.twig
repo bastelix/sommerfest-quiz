@@ -14,9 +14,6 @@
   {% embed 'topbar.twig' %}
     {% block mobile_menu_toggle %}{% endblock %}
     {% block offcanvas %}{% endblock %}
-    {% block left %}
-      <a href="{{ basePath }}/faq" class="uk-icon-button" uk-icon="icon: question; ratio: 2" title="Hilfe" aria-label="Hilfe"></a>
-    {% endblock %}
     {% block center %}
       <span class="uk-navbar-title uk-text-center">Veranstaltungen</span>
     {% endblock %}
@@ -27,6 +24,7 @@
       <div class="contrast-switch uk-margin-small-left">
         <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="Kontrastmodus"></button>
       </div>
+      <a href="{{ basePath }}/faq" class="uk-icon-button uk-margin-small-left" uk-icon="icon: question; ratio: 2" title="Hilfe" aria-label="Hilfe"></a>
     {% endblock %}
   {% endembed %}
   <div class="uk-container uk-container-large">
