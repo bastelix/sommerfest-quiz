@@ -35,6 +35,17 @@
       <p>Gib eine gewünschte Subdomain ein (z.&nbsp;B. <code>meine-seite</code>) und bestätige mit der Schaltfläche. Wir prüfen die Verfügbarkeit und reservieren sie für dich.</p>
       <button class="uk-button uk-button-primary" id="saveSubdomain">Subdomain speichern</button>
     </div>
+
+    <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step3" hidden>
+      <h3 class="uk-card-title">3. Tarif wählen</h3>
+      <p>Wähle einen Tarif und schließe die Zahlung über Stripe ab.</p>
+      <div class="uk-margin">
+        <label><input class="uk-radio" type="radio" name="plan" value="starter" checked> Starter</label><br>
+        <label><input class="uk-radio" type="radio" name="plan" value="standard"> Standard</label><br>
+        <label><input class="uk-radio" type="radio" name="plan" value="professional"> Professional</label>
+      </div>
+      <button class="uk-button uk-button-primary" id="startCheckout">Weiter zur Zahlung</button>
+    </div>
   </div>
 {% endblock %}
 
