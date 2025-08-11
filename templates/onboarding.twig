@@ -121,10 +121,7 @@
         <li><strong>Adresse:</strong> <span id="summary-imprint-street"></span>, <span id="summary-imprint-zip"></span> <span id="summary-imprint-city"></span></li>
         <li><strong>E-Mail:</strong> <span id="summary-imprint-email"></span></li>
       </ul>
-      <div class="uk-margin">
-        <input id="admin-pass" class="uk-input" type="password" placeholder="Admin-Passwort">
-        <div class="uk-text-meta uk-margin-small-top">{{ t('help_admin_pass') }}</div>
-      </div>
+      <p>{{ t('info_admin_email') }}</p>
       <button class="uk-button uk-button-primary" id="create">Jetzt QuizRace-Umgebung erstellen</button>
     </div>
 
@@ -151,6 +148,7 @@
     window.loggedIn = {{ logged_in ? 'true' : 'false' }};
     window.reloadToken = '{{ reload_token|e('js') }}';
     window.csrfToken = '{{ csrf_token|e('js') }}';
+    window.adminEmailSentText = '{{ t('text_admin_email_sent')|e('js') }}';
   </script>
   <script src="{{ basePath }}/js/onboarding.js"></script>
   <script src="{{ basePath }}/js/custom-icons.js"></script>

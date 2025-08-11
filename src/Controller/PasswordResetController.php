@@ -118,6 +118,7 @@ class PasswordResetController
 
         $token = (string) ($data['token'] ?? '');
         $pass = (string) ($data['password'] ?? '');
+        $next = (string) ($data['next'] ?? '');
         if ($token === '' || $pass === '' || !$this->policy->validate($pass)) {
             return $response->withStatus(400);
         }
@@ -129,6 +130,21 @@ class PasswordResetController
 
         $this->users->updatePassword($userId, $pass);
         $this->sessions->invalidateUserSessions($userId);
+
+        if ($next !== '' && str_starts_with($next, '/')) {
+            $user = $this->users->getById($userId);
+            if ($user !== null) {
+                if (session_status() === PHP_SESSION_NONE) {
+                    session_start();
+                }
+                $_SESSION['user'] = [
+                    'id' => $user['id'],
+                    'username' => $user['username'],
+                    'role' => $user['role'],
+                ];
+                return $response->withHeader('Location', $next)->withStatus(302);
+            }
+        }
 
         return $response->withStatus(204);
     }

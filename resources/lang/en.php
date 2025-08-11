@@ -190,6 +190,8 @@ return [
     'action_delete_tenant' => 'Delete tenant',
     'action_renew_ssl' => 'Renew SSL',
     'help_admin_pass' => 'Defines the admin password for the new tenant. Leave empty to generate a random one',
+    'info_admin_email' => 'The link to set the admin password will be sent by email.',
+    'text_admin_email_sent' => 'A link to set the admin password has been sent to %s.',
     'link_forgot_password' => 'Forgot password?',
     'heading_password_request' => 'Reset password',
     'text_password_request_success' => 'If the email exists, a link was sent.',
