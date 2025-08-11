@@ -15,16 +15,25 @@ class SubscriptionController
 {
     public function __invoke(Request $request, Response $response): Response
     {
-        $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
-        $envKey = $useSandbox ? 'STRIPE_SANDBOX_CUSTOMER_ID' : 'STRIPE_CUSTOMER_ID';
-        $customerId = getenv($envKey) ?: '';
-        if ($customerId === '') {
-            $response->getBody()->write('Missing Stripe customer id');
+        $path = dirname(__DIR__, 2) . '/data/profile.json';
+        $profile = [];
+        if (is_readable($path)) {
+            $profile = json_decode((string) file_get_contents($path), true) ?: [];
+        }
+        $email = (string) ($profile['imprint_email'] ?? '');
+        if ($email === '') {
+            $response->getBody()->write('Missing profile email');
             return $response->withStatus(500);
         }
+
         $uri = $request->getUri();
         $returnUrl = $uri->getScheme() . '://' . $uri->getHost() . '/admin';
         $service = new StripeService();
+        $customerId = $service->findCustomerIdByEmail($email);
+        if ($customerId === null) {
+            $response->getBody()->write('Missing Stripe customer id');
+            return $response->withStatus(500);
+        }
         $url = $service->createBillingPortal($customerId, $returnUrl);
         return $response->withHeader('Location', $url)->withStatus(302);
     }

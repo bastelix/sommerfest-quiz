@@ -46,6 +46,19 @@ class StripeService
     }
 
     /**
+     * Look up a Stripe customer id by email address.
+     */
+    public function findCustomerIdByEmail(string $email): ?string
+    {
+        $customers = $this->client->customers->all([
+            'email' => $email,
+            'limit' => 1,
+        ]);
+        $first = $customers->data[0]->id ?? null;
+        return $first !== null ? (string) $first : null;
+    }
+
+    /**
      * Create a billing portal session and return its URL.
      */
     public function createBillingPortal(string $customerId, string $returnUrl): string
