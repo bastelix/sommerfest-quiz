@@ -15,6 +15,7 @@ use App\Controller\LogoutController;
 use App\Controller\ConfigController;
 use App\Controller\CatalogController;
 use App\Application\Middleware\RoleAuthMiddleware;
+use App\Application\Security\AuthorizationMiddleware;
 use App\Service\ConfigService;
 use App\Service\CatalogService;
 use App\Service\ResultService;
@@ -454,7 +455,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/admin/landingpage/seo', function (Request $request, Response $response) {
         $controller = new LandingpageController();
         return $controller->save($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    })->add(new AuthorizationMiddleware(Roles::SEO_EDITOR));
 
     $app->get('/admin/{path:.*}', function (Request $request, Response $response) {
         $base = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();

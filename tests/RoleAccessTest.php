@@ -92,4 +92,33 @@ class RoleAccessTest extends TestCase
         session_destroy();
         unlink($db);
     }
+
+    public function testSeoEditorCanAccessSeoForm(): void
+    {
+        $db = $this->setupDb();
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'seo-editor'];
+        $req = $this->createRequest('POST', '/admin/landingpage/seo');
+        $req = $req->withParsedBody(['pageId' => 1, 'slug' => 'test']);
+        $res = $app->handle($req);
+        $this->assertEquals(204, $res->getStatusCode());
+        session_destroy();
+        unlink($db);
+    }
+
+    public function testAdminCannotAccessSeoForm(): void
+    {
+        $db = $this->setupDb();
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $req = $this->createRequest('POST', '/admin/landingpage/seo');
+        $req = $req->withParsedBody(['pageId' => 1, 'slug' => 'test']);
+        $res = $app->handle($req);
+        $this->assertEquals(302, $res->getStatusCode());
+        $this->assertEquals('/login', $res->getHeaderLine('Location'));
+        session_destroy();
+        unlink($db);
+    }
 }
