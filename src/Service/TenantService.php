@@ -469,6 +469,22 @@ class TenantService
     }
 
     /**
+     * Update a tenant identified by its Stripe customer id.
+     *
+     * @param array<string,mixed> $data
+     */
+    public function updateByStripeCustomerId(string $customerId, array $data): void
+    {
+        $stmt = $this->pdo->prepare('SELECT subdomain FROM tenants WHERE stripe_customer_id = ?');
+        $stmt->execute([$customerId]);
+        $sub = $stmt->fetchColumn();
+        if ($sub === false) {
+            return;
+        }
+        $this->updateProfile((string) $sub, $data);
+    }
+
+    /**
      * Retrieve all tenants ordered by creation date.
      *
      * @return list<array{
