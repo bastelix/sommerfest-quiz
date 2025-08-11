@@ -12,6 +12,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const verifiedHint = document.getElementById('verifiedHint');
 
   const params = new URLSearchParams(window.location.search);
+  const emailParam = params.get('email');
+  if (emailParam && emailInput) {
+    emailInput.value = emailParam;
+  }
   if (params.get('verified') === '1') {
     step1.hidden = true;
     step2.hidden = false;
