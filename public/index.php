@@ -31,6 +31,8 @@ use App\Application\Middleware\ProxyMiddleware;
 use App\Twig\UikitExtension;
 use App\Twig\TranslationExtension;
 use App\Service\TranslationService;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
 $settings = require __DIR__ . '/../config/settings.php';
 $app = \Slim\Factory\AppFactory::create();
@@ -51,12 +53,16 @@ $app->add(new SessionMiddleware());
 $app->add(new DomainMiddleware());
 $app->add(new ProxyMiddleware());
 
+$logger = new Logger('app');
+$logger->pushHandler(new StreamHandler(__DIR__ . '/../logs/app.log'));
+
 $errorMiddleware = new \App\Application\Middleware\ErrorMiddleware(
     $app->getCallableResolver(),
     $app->getResponseFactory(),
     (bool)($settings['displayErrorDetails'] ?? false),
     true,
-    false
+    true,
+    $logger
 );
 $app->add($errorMiddleware);
 (require __DIR__ . '/../src/routes.php')($app, $translator);

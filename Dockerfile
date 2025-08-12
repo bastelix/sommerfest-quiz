@@ -16,6 +16,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www
 COPY . /var/www
 RUN composer install --no-interaction --prefer-dist --no-progress
+RUN mkdir -p /var/www/logs && chown www-data:www-data /var/www/logs
 
 # include custom PHP configuration
 COPY config/php.ini /usr/local/etc/php/conf.d/custom.ini
