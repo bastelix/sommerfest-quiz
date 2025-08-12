@@ -13,8 +13,12 @@ class StripeService
 {
     private StripeClient $client;
 
-    public function __construct(?string $apiKey = null)
+    public function __construct(?string $apiKey = null, ?StripeClient $client = null)
     {
+        if ($client !== null) {
+            $this->client = $client;
+            return;
+        }
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
         $envKey = $useSandbox ? 'STRIPE_SANDBOX_SECRET_KEY' : 'STRIPE_SECRET_KEY';
         $apiKey = $apiKey ?? (getenv($envKey) ?: '');
@@ -35,6 +39,7 @@ class StripeService
             'line_items' => [
                 ['price' => $priceId, 'quantity' => 1],
             ],
+            'payment_method_types' => ['card'],
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
         ];
