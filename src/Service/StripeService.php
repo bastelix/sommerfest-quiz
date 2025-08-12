@@ -160,7 +160,7 @@ class StripeService
         }
         $item = $sub->items->data[0] ?? null;
         $price = $item?->price;
-        $priceId = $price?->id ?? '';
+        $priceId = $price->id ?? '';
 
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
         $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';

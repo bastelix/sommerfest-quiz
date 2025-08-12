@@ -75,7 +75,7 @@ class AdminSubscriptionCheckoutController
         }
 
         $service = new StripeService();
-        if ($customerId === '' && $email !== '') {
+        if ($customerId === '') {
             try {
                 $customerId = $service->findCustomerIdByEmail($email) ?? $service->createCustomer(
                     $email,
