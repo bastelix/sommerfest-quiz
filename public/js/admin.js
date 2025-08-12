@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
       puzzleLabel.textContent = 'Feedbacktext bearbeiten';
     } else {
       puzzleIcon.setAttribute('uk-icon', 'icon: pencil');
-      puzzleLabel.textContent = 'Feedbacktext eingeben';
+      puzzleLabel.textContent = 'Feedbacktext';
     }
     UIkit.icon(puzzleIcon, { icon: puzzleIcon.getAttribute('uk-icon').split(': ')[1] });
   }

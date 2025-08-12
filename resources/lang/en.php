@@ -146,7 +146,7 @@ return [
     'label_puzzle_word' => 'Puzzle word',
     'placeholder_puzzle_word' => 'Puzzle word',
     'action_edit_feedback' => 'Edit feedback text',
-    'placeholder_feedback' => 'Enter feedback text...',
+    'placeholder_feedback' => 'Feedback text...',
     'heading_feedback' => 'Feedback text for the puzzle word',
     'heading_catalog_comment' => 'Catalog comment',
     'placeholder_catalog_comment' => 'Enter comment...',
