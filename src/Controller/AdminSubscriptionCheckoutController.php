@@ -41,7 +41,6 @@ class AdminSubscriptionCheckoutController
 
         $host = $request->getUri()->getHost();
         $sub = explode('.', $host)[0];
-        $tenantService = null;
         $domainType = (string) $request->getAttribute('domainType');
         $base = Database::connectFromEnv();
         $tenantService = new TenantService($base);
@@ -82,7 +81,10 @@ class AdminSubscriptionCheckoutController
                     $tenant['imprint_name'] ?? null
                 );
                 $tenant['stripe_customer_id'] = $customerId;
-                $tenantService?->updateProfile($domainType === 'main' ? 'main' : $sub, ['stripe_customer_id' => $customerId]);
+                $tenantService->updateProfile(
+                    $domainType === 'main' ? 'main' : $sub,
+                    ['stripe_customer_id' => $customerId]
+                );
             } catch (\Throwable $e) {
                 error_log($e->getMessage());
                 return $this->jsonError($response, 500, 'internal error');
