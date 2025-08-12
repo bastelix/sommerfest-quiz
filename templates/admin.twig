@@ -830,6 +830,9 @@
             data-plan-starter="{{ t('plan_starter') }}"
             data-plan-standard="{{ t('plan_standard') }}"
             data-plan-professional="{{ t('plan_professional') }}"></div>
+          {% if tenant and tenant.imprint_email %}
+            <p>{{ t('subscription_email') }}: {{ tenant.imprint_email }}</p>
+          {% endif %}
         </div>
         <p><a class="uk-button uk-button-primary" href="{{ upgradeUrl }}">{{ hasCustomer ? t('action_open_subscription') : t('action_start_subscription') }}</a></p>
         <script>
