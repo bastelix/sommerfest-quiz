@@ -69,18 +69,19 @@ document.addEventListener('DOMContentLoaded', function () {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ plan, embedded: true })
         });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.client_secret && data.publishable_key && window.Stripe && checkoutContainer) {
-            const stripe = Stripe(data.publishable_key);
-            const checkout = await stripe.initEmbeddedCheckout({ clientSecret: data.client_secret });
-            checkout.mount('#stripe-checkout');
-          } else if (data.url) {
-            window.location.href = data.url;
-          }
+        if (!res.ok) return;
+        const data = await res.json();
+        if ([data.client_secret, data.publishable_key, window.Stripe, checkoutContainer].every(Boolean)) {
+          const stripe = Stripe(data.publishable_key);
+          const checkout = await stripe.initEmbeddedCheckout({ clientSecret: data.client_secret });
+          checkout.mount('#stripe-checkout');
+          return;
+        }
+        if (data.url) {
+          window.location.href = data.url;
         }
       } catch (e) {
-        if (e) {}
+        console.error(e);
       }
     });
   });
