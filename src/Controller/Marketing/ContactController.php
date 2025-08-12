@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Controller\Marketing;
 
 use App\Service\MailService;
+use App\Infrastructure\Database;
+use App\Service\TenantService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -41,12 +43,9 @@ class ContactController
             return $response->withStatus(400);
         }
 
-        $profileFile = dirname(__DIR__, 3) . '/data/profile.json';
-        $profile = [];
-        if (is_readable($profileFile)) {
-            $profile = json_decode((string) file_get_contents($profileFile), true) ?: [];
-        }
-        $to = (string) ($profile['imprint_email'] ?? '');
+        $pdo = Database::connectFromEnv();
+        $tenant = (new TenantService($pdo))->getMainTenant();
+        $to = (string) ($tenant['imprint_email'] ?? '');
         if ($to === '') {
             return $response->withStatus(500);
         }

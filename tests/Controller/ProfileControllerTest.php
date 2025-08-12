@@ -26,8 +26,6 @@ class ProfileControllerTest extends TestCase
     public function testUpdateProfileMainDomain(): void
     {
         $db = $this->setupDb();
-        $profilePath = dirname(__DIR__, 2) . '/data/profile.json';
-        $backup = file_get_contents($profilePath);
         putenv('MAIN_DOMAIN=example.com');
         $_ENV['MAIN_DOMAIN'] = 'example.com';
         $app = $this->getAppInstance();
@@ -39,9 +37,9 @@ class ProfileControllerTest extends TestCase
             ->withUri(new Uri('http', 'example.com', 80, '/admin/profile'));
         $response = $app->handle($request);
         $this->assertEquals(204, $response->getStatusCode());
-        $data = json_decode(file_get_contents($profilePath), true);
-        $this->assertSame('Pro', $data['plan']);
-        file_put_contents($profilePath, $backup);
+        $pdo = new PDO('sqlite:' . $db);
+        $plan = $pdo->query("SELECT plan FROM tenants WHERE subdomain = 'main'")?->fetchColumn();
+        $this->assertSame('Pro', $plan);
         session_destroy();
         unlink($db);
         putenv('POSTGRES_DSN');

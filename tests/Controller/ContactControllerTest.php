@@ -53,10 +53,10 @@ class ContactControllerTest extends TestCase
         $response = $app->handle($request);
 
         $this->assertEquals(204, $response->getStatusCode());
-        $profileFile = dirname(__DIR__, 2) . '/data/profile.json';
-        $profile = json_decode((string) file_get_contents($profileFile), true);
+        $pdo = new \PDO((string) getenv('POSTGRES_DSN'));
+        $email = $pdo->query("SELECT imprint_email FROM tenants WHERE subdomain = 'main'")?->fetchColumn();
         $this->assertSame([
-            (string) $profile['imprint_email'],
+            (string) $email,
             'John Doe',
             'john@example.com',
             'Hello',

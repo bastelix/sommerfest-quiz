@@ -446,19 +446,11 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/subscription/portal', SubscriptionController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/subscription/status', function (Request $request, Response $response) {
         $domainType = (string) $request->getAttribute('domainType');
-        $tenant = null;
-        if ($domainType === 'main') {
-            $path = dirname(__DIR__, 2) . '/data/profile.json';
-            if (is_file($path)) {
-                $tenant = json_decode((string) file_get_contents($path), true);
-            }
-        } else {
-            $host = $request->getUri()->getHost();
-            $sub = explode('.', $host)[0];
-            $base = Database::connectFromEnv();
-            $tenantSvc = new TenantService($base);
-            $tenant = $tenantSvc->getBySubdomain($sub);
-        }
+        $base = Database::connectFromEnv();
+        $tenantSvc = new TenantService($base);
+        $tenant = $domainType === 'main'
+            ? $tenantSvc->getMainTenant()
+            : $tenantSvc->getBySubdomain(explode('.', $request->getUri()->getHost())[0]);
         $customerId = (string) ($tenant['stripe_customer_id'] ?? '');
         $payload = [];
         if ($customerId !== '' && StripeService::isConfigured()) {

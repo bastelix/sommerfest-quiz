@@ -53,7 +53,7 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
 - **public/** – Einstiegspunkt `index.php`, alle UIkit-Assets sowie JavaScript-Dateien
 - **templates/** – Twig-Vorlagen für Startseite und FAQ
 - **data/kataloge/** – Fragenkataloge im JSON-Format
-- **data/profile.json** – Profildaten für die Main-Umgebung
+- **tenants**-Tabelle – Profildaten für die Main-Umgebung
 - **src/** – PHP-Code mit Routen, Controllern und Services
 - **docs/** – Zusätzliche Dokumentation, z.B. [Richtlinien zur Worttrennung](docs/frontend-word-break.md)
 
