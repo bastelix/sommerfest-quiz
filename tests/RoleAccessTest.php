@@ -99,7 +99,10 @@ class RoleAccessTest extends TestCase
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
-        $req = $this->createRequest('POST', '/admin/landingpage/seo');
+        $_SESSION['csrf_token'] = 'token';
+        $req = $this->createRequest('POST', '/admin/landingpage/seo', [
+            'HTTP_X_CSRF_TOKEN' => 'token',
+        ]);
         $req = $req->withParsedBody(['pageId' => 1, 'slug' => 'test']);
         $res = $app->handle($req);
         $this->assertEquals(204, $res->getStatusCode());
@@ -113,7 +116,10 @@ class RoleAccessTest extends TestCase
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
-        $req = $this->createRequest('POST', '/admin/landingpage/seo');
+        $_SESSION['csrf_token'] = 'token';
+        $req = $this->createRequest('POST', '/admin/landingpage/seo', [
+            'HTTP_X_CSRF_TOKEN' => 'token',
+        ]);
         $req = $req->withParsedBody(['pageId' => 1, 'slug' => 'test']);
         $res = $app->handle($req);
         $this->assertEquals(302, $res->getStatusCode());

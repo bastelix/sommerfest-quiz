@@ -14,9 +14,11 @@ final class AdminSubscriptionCheckoutControllerTest extends TestCase
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $_SESSION['csrf_token'] = 'token';
 
         $request = $this->createRequest('POST', '/admin/subscription/checkout', [
             'HTTP_CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => 'token',
         ]);
         $stream = (new StreamFactory())->createStream(json_encode(['plan' => 'starter']));
         $request = $request->withBody($stream);

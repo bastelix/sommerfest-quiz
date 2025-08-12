@@ -470,7 +470,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post(
         '/admin/subscription/checkout',
         AdminSubscriptionCheckoutController::class
-    )->add(new RoleAuthMiddleware(...Roles::ALL));
+    )->add(new RoleAuthMiddleware(...Roles::ALL))->add(new CsrfMiddleware());
     $app->get(
         '/admin/subscription/checkout/{id}',
         StripeSessionController::class
@@ -478,7 +478,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/admin/profile', function (Request $request, Response $response) {
         $controller = new ProfileController();
         return $controller->update($request, $response);
-    })->add(new RoleAuthMiddleware(...Roles::ALL));
+    })->add(new RoleAuthMiddleware(...Roles::ALL))->add(new CsrfMiddleware());
     $app->get('/admin/tenants', function (Request $request, Response $response) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(404);
@@ -497,7 +497,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {
         $controller = new PageController();
         return $controller->update($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
 
     $app->get('/admin/landingpage/seo', function (Request $request, Response $response) {
         if ($request->getAttribute('domainType') !== 'main') {
@@ -510,7 +510,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/admin/landingpage/seo', function (Request $request, Response $response) {
         $controller = new LandingpageController();
         return $controller->save($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
 
     $app->get('/admin/{path:.*}', function (Request $request, Response $response) {
         $base = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();

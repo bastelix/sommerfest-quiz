@@ -18,6 +18,15 @@ class AdminSubscriptionCheckoutController
 {
     public function __invoke(Request $request, Response $response): Response
     {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $sessionToken = $_SESSION['csrf_token'] ?? '';
+        $headerToken = $request->getHeaderLine('X-CSRF-Token');
+        if ($sessionToken === '' || $headerToken !== $sessionToken) {
+            return $response->withStatus(403);
+        }
+
         $data = json_decode((string) $request->getBody(), true);
         if (!is_array($data)) {
             return $response->withStatus(400);
