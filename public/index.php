@@ -34,10 +34,13 @@ use App\Service\TranslationService;
 use App\Service\StripeService;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+use Psr\Log\NullLogger;
 
-// set up logger
-$logger = new Logger('app');
-$logger->pushHandler(new StreamHandler(__DIR__ . '/../logs/app.log'));
+// set up logger and fall back to NullLogger if Monolog is unavailable
+$logger = class_exists(Logger::class) ? new Logger('app') : new NullLogger();
+if ($logger instanceof Logger) {
+    $logger->pushHandler(new StreamHandler(__DIR__ . '/../logs/app.log'));
+}
 
 // verify Stripe configuration before starting the app
 if (!StripeService::isConfigured()) {
