@@ -31,8 +31,22 @@ use App\Application\Middleware\ProxyMiddleware;
 use App\Twig\UikitExtension;
 use App\Twig\TranslationExtension;
 use App\Service\TranslationService;
+use App\Service\StripeService;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+
+// set up logger
+$logger = new Logger('app');
+$logger->pushHandler(new StreamHandler(__DIR__ . '/../logs/app.log'));
+
+// verify Stripe configuration before starting the app
+if (!StripeService::isConfigured()) {
+    $logger->error('Stripe configuration missing');
+    http_response_code(500);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "Stripe configuration missing. Please set required environment variables.\n";
+    exit(1);
+}
 
 $settings = require __DIR__ . '/../config/settings.php';
 $app = \Slim\Factory\AppFactory::create();
@@ -52,10 +66,6 @@ $app->add(TwigMiddleware::create($app, $twig));
 $app->add(new SessionMiddleware());
 $app->add(new DomainMiddleware());
 $app->add(new ProxyMiddleware());
-
-$logger = new Logger('app');
-$logger->pushHandler(new StreamHandler(__DIR__ . '/../logs/app.log'));
-
 $errorMiddleware = new \App\Application\Middleware\ErrorMiddleware(
     $app->getCallableResolver(),
     $app->getResponseFactory(),
