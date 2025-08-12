@@ -221,8 +221,8 @@ SQL;
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
-        $service->createTenant('u12', 'sub12', Plan::STARTER);
-        $this->assertSame(Plan::STARTER, $service->getPlanBySubdomain('sub12'));
+        $service->createTenant('u12', 'sub12', Plan::STARTER->value);
+        $this->assertSame(Plan::STARTER->value, $service->getPlanBySubdomain('sub12'));
 
         $webhook = new TenantService($pdo, $dir, new class extends \App\Service\NginxService {
             public function __construct()
@@ -233,9 +233,9 @@ SQL;
             {
             }
         });
-        $webhook->updateProfile('sub12', ['plan' => Plan::STANDARD]);
-        $this->assertSame(Plan::STANDARD, $service->getPlanBySubdomain('sub12'));
-        $this->assertSame(Plan::limits(Plan::STANDARD), $service->getLimitsBySubdomain('sub12'));
+        $webhook->updateProfile('sub12', ['plan' => Plan::STANDARD->value]);
+        $this->assertSame(Plan::STANDARD->value, $service->getPlanBySubdomain('sub12'));
+        $this->assertSame(Plan::STANDARD->limits(), $service->getLimitsBySubdomain('sub12'));
 
         $webhook->setCustomLimits('sub12', ['maxEvents' => 4]);
         $this->assertSame(['maxEvents' => 4], $service->getLimitsBySubdomain('sub12'));
