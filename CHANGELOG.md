@@ -138,6 +138,7 @@
 - Enforce stripe-only payments
 - Add page SEO config
 - *(admin)* Move stats filter below header on mobile
+- Fallback to null logger when monolog missing
 
 ### Fix
 
