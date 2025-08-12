@@ -21,12 +21,16 @@ class StripeSessionController
         $service = new StripeService();
         $info = $sessionId !== ''
             ? $service->getCheckoutSessionInfo($sessionId)
-            : ['paid' => false, 'customer_id' => null];
+            : ['paid' => false, 'customer_id' => null, 'client_reference_id' => null];
 
-        if ($info['paid'] && $info['customer_id'] !== null) {
+        $host = $request->getUri()->getHost();
+        $sub = explode('.', $host)[0];
+        if (
+            $info['paid']
+            && $info['customer_id'] !== null
+            && $info['client_reference_id'] === $sub
+        ) {
             $base = Database::connectFromEnv();
-            $host = $request->getUri()->getHost();
-            $sub = explode('.', $host)[0];
             $tenantService = new TenantService($base);
             $tenantService->updateProfile($sub, ['stripe_customer_id' => $info['customer_id']]);
         }
