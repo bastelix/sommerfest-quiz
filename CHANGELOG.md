@@ -193,6 +193,7 @@
 - Reuse existing events script for event selector
 - Use constants for qr code defaults
 - Redesign dashboard calendar
+- Avoid multiple classes in test
 
 ### Style
 
