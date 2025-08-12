@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Infrastructure\Database;
+use App\Service\TenantService;
+
 /**
  * Replaces placeholder variables in HTML content with profile data.
  */
@@ -14,14 +17,8 @@ class PageVariableService
      */
     public static function apply(string $html): string
     {
-        $path = dirname(__DIR__, 2) . '/data/profile.json';
-        $profile = [];
-        if (is_file($path)) {
-            $data = json_decode((string) file_get_contents($path), true);
-            if (is_array($data)) {
-                $profile = $data;
-            }
-        }
+        $pdo = Database::connectFromEnv();
+        $profile = (new TenantService($pdo))->getMainTenant();
 
         $replacements = [
             '[NAME]' => $profile['imprint_name'] ?? '',

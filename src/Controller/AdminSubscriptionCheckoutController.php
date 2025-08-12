@@ -32,22 +32,13 @@ class AdminSubscriptionCheckoutController
 
         $host = $request->getUri()->getHost();
         $sub = explode('.', $host)[0];
-        $tenant = null;
         $tenantService = null;
         $domainType = (string) $request->getAttribute('domainType');
-        if ($domainType === 'main') {
-            $path = dirname(__DIR__, 2) . '/data/profile.json';
-            if (is_file($path)) {
-                $tenant = json_decode((string) file_get_contents($path), true);
-                if (!is_array($tenant)) {
-                    $tenant = null;
-                }
-            }
-        } else {
-            $base = Database::connectFromEnv();
-            $tenantService = new TenantService($base);
-            $tenant = $tenantService->getBySubdomain($sub);
-        }
+        $base = Database::connectFromEnv();
+        $tenantService = new TenantService($base);
+        $tenant = $domainType === 'main'
+            ? $tenantService->getMainTenant()
+            : $tenantService->getBySubdomain($sub);
         if ($tenant === null) {
             return $this->jsonError($response, 404, 'tenant not found');
         }
@@ -82,15 +73,7 @@ class AdminSubscriptionCheckoutController
                     $tenant['imprint_name'] ?? null
                 );
                 $tenant['stripe_customer_id'] = $customerId;
-                if ($domainType === 'main') {
-                    $path = dirname(__DIR__, 2) . '/data/profile.json';
-                    $payload = json_encode($tenant, JSON_PRETTY_PRINT);
-                    if ($payload !== false) {
-                        file_put_contents($path, $payload);
-                    }
-                } else {
-                    $tenantService?->updateProfile($sub, ['stripe_customer_id' => $customerId]);
-                }
+                $tenantService?->updateProfile($domainType === 'main' ? 'main' : $sub, ['stripe_customer_id' => $customerId]);
             } catch (\Throwable $e) {
                 error_log($e->getMessage());
                 return $this->jsonError($response, 500, 'internal error');

@@ -10,19 +10,39 @@ use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
+use App\Infrastructure\Migrations\Migrator;
+use PDO;
 
 class MailServiceTest extends TestCase
 {
+    private string $db;
+
+    protected function setUp(): void
+    {
+        $this->db = tempnam(sys_get_temp_dir(), 'db');
+        putenv('POSTGRES_DSN=sqlite:' . $this->db);
+        putenv('POSTGRES_USER=');
+        putenv('POSTGRES_PASSWORD=');
+        $_ENV['POSTGRES_DSN'] = 'sqlite:' . $this->db;
+        $_ENV['POSTGRES_USER'] = '';
+        $_ENV['POSTGRES_PASSWORD'] = '';
+        $pdo = new PDO('sqlite:' . $this->db);
+        Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, imprint_name, imprint_email) VALUES('main','main','Example Org','admin@example.org')");
+    }
+
+    protected function tearDown(): void
+    {
+        @unlink($this->db);
+        putenv('POSTGRES_DSN');
+        putenv('POSTGRES_USER');
+        putenv('POSTGRES_PASSWORD');
+        unset($_ENV['POSTGRES_DSN'], $_ENV['POSTGRES_USER'], $_ENV['POSTGRES_PASSWORD']);
+        parent::tearDown();
+    }
+
     public function testUsesSmtpUserAsFrom(): void
     {
-        $root = dirname(__DIR__, 2);
-        $profile = $root . '/data/profile.json';
-        $backup = file_get_contents($profile);
-        file_put_contents($profile, json_encode([
-            'imprint_name' => 'Example Org',
-            'imprint_email' => 'admin@example.org',
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-
         putenv('SMTP_HOST=localhost');
         putenv('SMTP_USER=user@example.org');
         putenv('SMTP_PASS=secret');
@@ -44,20 +64,10 @@ class MailServiceTest extends TestCase
         $from = $prop->getValue($svc);
 
         $this->assertSame('Example Org <user@example.org>', $from);
-
-        file_put_contents($profile, $backup);
     }
 
     public function testUsesFromOverride(): void
     {
-        $root = dirname(__DIR__, 2);
-        $profile = $root . '/data/profile.json';
-        $backup = file_get_contents($profile);
-        file_put_contents($profile, json_encode([
-            'imprint_name' => 'Example Org',
-            'imprint_email' => 'admin@example.org',
-        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-
         putenv('SMTP_HOST=localhost');
         putenv('SMTP_USER=user@example.org');
         putenv('SMTP_PASS=secret');
@@ -80,8 +90,6 @@ class MailServiceTest extends TestCase
         $from = $prop->getValue($svc);
 
         $this->assertSame('QuizRace Support <support@quizrace.app>', $from);
-
-        file_put_contents($profile, $backup);
 
         putenv('SMTP_FROM');
         putenv('SMTP_FROM_NAME');

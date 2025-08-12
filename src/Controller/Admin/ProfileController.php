@@ -29,24 +29,17 @@ class ProfileController
         ];
 
         $domainType = $request->getAttribute('domainType');
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
+        $service = new TenantService($pdo);
         if ($domainType === 'main') {
-            $path = dirname(__DIR__, 3) . '/data/profile.json';
-            $current = [];
-            if (is_file($path)) {
-                $current = json_decode((string) file_get_contents($path), true) ?? [];
-            }
-            foreach ($fields as $k => $v) {
-                $current[$k] = $v;
-            }
-            file_put_contents($path, json_encode($current, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+            $service->getMainTenant();
+            $service->updateProfile('main', $fields);
         } else {
-            $pdo = $request->getAttribute('pdo');
-            if (!$pdo instanceof PDO) {
-                $pdo = Database::connectFromEnv();
-            }
             $host = $request->getUri()->getHost();
             $sub = explode('.', $host)[0];
-            $service = new TenantService($pdo);
             $service->updateProfile($sub, $fields);
         }
 

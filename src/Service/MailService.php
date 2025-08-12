@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Service;
 
 use RuntimeException;
+use App\Infrastructure\Database;
+use App\Service\TenantService;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mailer\Transport;
@@ -69,11 +71,8 @@ class MailService
             throw new RuntimeException('Missing SMTP configuration: ' . implode(', ', $missing));
         }
 
-        $profileFile = $root . '/data/profile.json';
-        $profile = [];
-        if (is_readable($profileFile)) {
-            $profile = json_decode((string) file_get_contents($profileFile), true) ?: [];
-        }
+        $pdo = Database::connectFromEnv();
+        $profile = (new TenantService($pdo))->getMainTenant();
 
         $fromEmail = (string) ($env['SMTP_FROM'] ?? getenv('SMTP_FROM') ?: $user);
         $fromName  = (string) ($env['SMTP_FROM_NAME'] ?? getenv('SMTP_FROM_NAME') ?: ($profile['imprint_name'] ?? ''));

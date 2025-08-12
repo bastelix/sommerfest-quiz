@@ -387,6 +387,50 @@ class TenantService
     }
 
     /**
+     * Retrieve the main-domain profile, seeding it from the legacy JSON file if necessary.
+     *
+     * @return array<string,mixed>
+     */
+    public function getMainTenant(): array
+    {
+        $tenant = $this->getBySubdomain('main');
+        if ($tenant !== null) {
+            return $tenant;
+        }
+
+        $path = dirname(__DIR__, 2) . '/data/profile.json';
+        $data = [];
+        if (is_file($path)) {
+            $data = json_decode((string) file_get_contents($path), true) ?? [];
+        }
+        $uid = (string) ($data['uid'] ?? bin2hex(random_bytes(16)));
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO tenants(' .
+            'uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, ' .
+            'imprint_street, imprint_zip, imprint_city, imprint_email, custom_limits, ' .
+            'plan_started_at, plan_expires_at' .
+            ') VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        );
+        $stmt->execute([
+            $uid,
+            'main',
+            $data['plan'] ?? null,
+            $data['billing_info'] ?? null,
+            $data['stripe_customer_id'] ?? null,
+            $data['imprint_name'] ?? null,
+            $data['imprint_street'] ?? null,
+            $data['imprint_zip'] ?? null,
+            $data['imprint_city'] ?? null,
+            $data['imprint_email'] ?? null,
+            null,
+            $data['plan_started_at'] ?? null,
+            $data['plan_expires_at'] ?? null,
+        ]);
+
+        return $this->getBySubdomain('main') ?? [];
+    }
+
+    /**
      * Update profile information for a tenant identified by subdomain.
      *
      * @param array<string,mixed> $data

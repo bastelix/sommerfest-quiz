@@ -129,13 +129,9 @@ class AdminController
 
         $domainType = $request->getAttribute('domainType');
         if ($domainType === 'main') {
-            $path = dirname(__DIR__, 2) . '/data/profile.json';
-            if (is_file($path)) {
-                $data = json_decode((string) file_get_contents($path), true);
-                if (is_array($data)) {
-                    $tenant = $data;
-                }
-            }
+            $base = Database::connectFromEnv();
+            $tenantSvc = new TenantService($base);
+            $tenant = $tenantSvc->getMainTenant();
         } else {
             $host = $request->getUri()->getHost();
             $sub  = explode('.', $host)[0];
