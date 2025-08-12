@@ -511,7 +511,7 @@ body.admin-page {
   transform: none;
 }
 
-.admin-page #eventSelect {
+.admin-page #eventSelectWrap {
   flex: 1;
 }
 
@@ -538,8 +538,9 @@ body.admin-page {
   .admin-page .topbar .uk-navbar-center {
     width: auto;
   }
-  .admin-page #eventSelect {
+  .admin-page #eventSelectWrap {
     flex: 0;
+    min-width: 220px;
   }
   .admin-page .nav-placeholder {
     height: 56px;
