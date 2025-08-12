@@ -66,6 +66,18 @@ class StripeWebhookController
                     $tenantService->updateByStripeCustomerId($customerId, ['plan' => null]);
                 }
                 break;
+            case 'customer.deleted':
+                $customerId = (string) ($object['id'] ?? '');
+                if ($customerId !== '') {
+                    $tenantService->removeStripeCustomer($customerId);
+                }
+                break;
+            case 'invoice.payment_failed':
+                $customerId = (string) ($object['customer'] ?? '');
+                if ($customerId !== '') {
+                    $tenantService->cancelPlanForCustomer($customerId);
+                }
+                break;
         }
 
         return $response->withStatus(200);
