@@ -42,7 +42,7 @@ class StripeCheckoutController
             'standard' => getenv($prefix . 'PRICE_STANDARD') ?: '',
             'professional' => getenv($prefix . 'PRICE_PROFESSIONAL') ?: '',
         ];
-        $priceId = $priceMap[$plan] ?? '';
+        $priceId = $priceMap[$plan];
         if ($priceId === '') {
             return $this->jsonError($response, 422, 'invalid plan');
         }
