@@ -178,6 +178,10 @@ return [
       'billing_credit' => 'Kreditkarte',
       'billing_paypal' => 'PayPal',
       'subscription_email' => 'Rechnungs-E-Mail',
+      'label_price' => 'Preis',
+      'label_invoice_status' => 'Rechnungsstatus',
+      'label_next_payment' => 'Nächste Zahlung',
+      'action_cancel_subscription' => 'Abo kündigen',
       'stripe_payment_terms' => 'Die Zahlung wird über Stripe abgewickelt. Es gelten die ' .
           '<a href="https://stripe.com/payment-terms/legal" target="_blank" ' .
           'rel="noopener">Stripe-Zahlungsbedingungen</a>.',

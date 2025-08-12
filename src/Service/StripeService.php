@@ -142,6 +142,55 @@ class StripeService
     }
 
     /**
+     * Retrieve details for the first active subscription of a customer.
+     *
+     * @return array{plan:?string, amount:int, currency:string, status:string, next_payment:?string}|null
+     */
+    public function getActiveSubscription(string $customerId): ?array
+    {
+        $subs = $this->client->subscriptions->all([
+            'customer' => $customerId,
+            'status' => 'active',
+            'limit' => 1,
+            'expand' => ['data.latest_invoice'],
+        ]);
+        $sub = $subs->data[0] ?? null;
+        if ($sub === null) {
+            return null;
+        }
+        $item = $sub->items->data[0] ?? null;
+        $price = $item?->price;
+        $priceId = $price?->id ?? '';
+
+        $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
+        $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
+        $map = [];
+        $starter = getenv($prefix . 'PRICE_STARTER') ?: '';
+        if ($starter !== '') {
+            $map[$starter] = 'starter';
+        }
+        $standard = getenv($prefix . 'PRICE_STANDARD') ?: '';
+        if ($standard !== '') {
+            $map[$standard] = 'standard';
+        }
+        $pro = getenv($prefix . 'PRICE_PROFESSIONAL') ?: '';
+        if ($pro !== '') {
+            $map[$pro] = 'professional';
+        }
+        $plan = $map[$priceId] ?? null;
+
+        return [
+            'plan' => $plan,
+            'amount' => (int) ($price->unit_amount ?? 0),
+            'currency' => (string) ($price->currency ?? ''),
+            'status' => (string) ($sub->latest_invoice->status ?? ''),
+            'next_payment' => isset($sub->current_period_end)
+                ? date('c', (int) $sub->current_period_end)
+                : null,
+        ];
+    }
+
+    /**
      * Check whether Stripe is configured with a secret key and price IDs.
      */
     public static function isConfigured(): bool
