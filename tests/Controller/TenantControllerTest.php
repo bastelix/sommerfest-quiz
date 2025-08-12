@@ -37,6 +37,7 @@ class TenantControllerTest extends TestCase
                 string $schema,
                 ?string $plan = null,
                 ?string $billing = null,
+                ?string $email = null,
                 ?array $customLimits = null
             ): void {
             }
@@ -47,10 +48,55 @@ class TenantControllerTest extends TestCase
         };
         $controller = new TenantController($service);
         $request = $this->createRequest('POST', '/tenants', ['HTTP_CONTENT_TYPE' => 'application/json']);
-        $stream = (new StreamFactory())->createStream(json_encode(['uid' => 't1', 'schema' => 's1']));
+        $stream = (new StreamFactory())->createStream(json_encode([
+            'uid' => 't1',
+            'schema' => 's1',
+            'email' => 'test@example.com'
+        ]));
         $request = $request->withBody($stream);
         $response = $controller->create($request, new Response());
         $this->assertEquals(201, $response->getStatusCode());
+    }
+
+    public function testCreateStoresEmail(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->exec('CREATE TABLE tenants(uid TEXT, subdomain TEXT, imprint_email TEXT)');
+        $service = new class($pdo) extends TenantService {
+            private PDO $pdo;
+            public function __construct(PDO $pdo)
+            {
+                $this->pdo = $pdo;
+            }
+
+            public function createTenant(
+                string $uid,
+                string $schema,
+                ?string $plan = null,
+                ?string $billing = null,
+                ?string $email = null,
+                ?array $customLimits = null
+            ): void {
+                $stmt = $this->pdo->prepare('INSERT INTO tenants(uid, subdomain, imprint_email) VALUES(?, ?, ?)');
+                $stmt->execute([$uid, $schema, $email]);
+            }
+
+            public function deleteTenant(string $uid): void
+            {
+            }
+        };
+        $controller = new TenantController($service);
+        $req = $this->createRequest('POST', '/tenants', ['HTTP_CONTENT_TYPE' => 'application/json']);
+        $stream = (new StreamFactory())->createStream(json_encode([
+            'uid' => 't2',
+            'schema' => 's2',
+            'email' => 'stored@example.com'
+        ]));
+        $req = $req->withBody($stream);
+        $res = $controller->create($req, new Response());
+        $this->assertEquals(201, $res->getStatusCode());
+        $email = $pdo->query("SELECT imprint_email FROM tenants WHERE uid='t2'")->fetchColumn();
+        $this->assertSame('stored@example.com', $email);
     }
 
     public function testDeleteReturns204(): void
@@ -65,6 +111,7 @@ class TenantControllerTest extends TestCase
                 string $schema,
                 ?string $plan = null,
                 ?string $billing = null,
+                ?string $email = null,
                 ?array $customLimits = null
             ): void {
             }
@@ -244,6 +291,7 @@ class TenantControllerTest extends TestCase
                 string $schema,
                 ?string $plan = null,
                 ?string $billing = null,
+                ?string $email = null,
                 ?array $customLimits = null
             ): void {
                 throw new \PDOException('fail');
@@ -275,6 +323,7 @@ class TenantControllerTest extends TestCase
                 string $schema,
                 ?string $plan = null,
                 ?string $billing = null,
+                ?string $email = null,
                 ?array $customLimits = null
             ): void {
                 throw new \Exception('boom');
