@@ -43,6 +43,7 @@ return [
     'heading_tenants' => 'Subdomains',
     'heading_profile' => 'Profile',
     'heading_subscription' => 'Subscription',
+    'heading_subscription_usage' => 'Subscription usage',
     'heading_homepage' => 'Homepage',
     'heading_registration' => 'Registration',
     'heading_users' => 'Users',

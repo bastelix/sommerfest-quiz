@@ -108,30 +108,32 @@
   }
 
   function renderSubscription() {
-    const el = document.getElementById('subscription');
-    if (!el || !state.subscription) return;
+    const els = document.querySelectorAll('[data-subscription]');
+    if (!els.length || !state.subscription) return;
     const sub = state.subscription;
-    const labels = {
-      plan: el.dataset.labelPlan || 'Plan',
-      events: el.dataset.labelEvents || 'Events',
-      catalogs: el.dataset.labelCatalogs || 'Catalogs',
-      questions: el.dataset.labelQuestions || 'Questions'
-    };
-    const planKey = sub.plan || '';
-    const planName = el.dataset['plan' + capitalize(planKey)] || planKey || '-';
-    const limits = sub.limits || {};
-    const usage = sub.usage || {};
-    const items = [
-      { label: labels.events, used: usage.events, max: limits.maxEvents },
-      { label: labels.catalogs, used: usage.catalogs, max: limits.maxCatalogsPerEvent },
-      { label: labels.questions, used: usage.questions, max: limits.maxQuestionsPerCatalog }
-    ];
-    el.innerHTML = `<div><strong>${labels.plan}: ${planName}</strong></div>` +
-      items.map(it => {
-        const maxText = it.max === null || it.max === undefined ? '∞' : it.max;
-        const pct = typeof it.max === 'number' ? Math.min(100, Math.round((it.used / it.max) * 100)) : 0;
-        return `<div class="uk-margin-small-top"><div class="uk-flex uk-flex-between"><span>${it.label}</span><span>${it.used}${it.max !== null && it.max !== undefined ? ' / ' + maxText : ''}</span></div>${it.max !== null && it.max !== undefined ? `<progress class="uk-progress" value="${pct}" max="100"></progress>` : ''}</div>`;
-      }).join('');
+    els.forEach(el => {
+      const labels = {
+        plan: el.dataset.labelPlan || 'Plan',
+        events: el.dataset.labelEvents || 'Events',
+        catalogs: el.dataset.labelCatalogs || 'Catalogs',
+        questions: el.dataset.labelQuestions || 'Questions'
+      };
+      const planKey = sub.plan || '';
+      const planName = el.dataset['plan' + capitalize(planKey)] || planKey || '-';
+      const limits = sub.limits || {};
+      const usage = sub.usage || {};
+      const items = [
+        { label: labels.events, used: usage.events, max: limits.maxEvents },
+        { label: labels.catalogs, used: usage.catalogs, max: limits.maxCatalogsPerEvent },
+        { label: labels.questions, used: usage.questions, max: limits.maxQuestionsPerCatalog }
+      ];
+      el.innerHTML = `<div><strong>${labels.plan}: ${planName}</strong></div>` +
+        items.map(it => {
+          const maxText = it.max === null || it.max === undefined ? '∞' : it.max;
+          const pct = typeof it.max === 'number' ? Math.min(100, Math.round((it.used / it.max) * 100)) : 0;
+          return `<div class="uk-margin-small-top"><div class="uk-flex uk-flex-between"><span>${it.label}</span><span>${it.used}${it.max !== null && it.max !== undefined ? ' / ' + maxText : ''}</span></div>${it.max !== null && it.max !== undefined ? `<progress class="uk-progress" value="${pct}" max="100"></progress>` : ''}</div>`;
+        }).join('');
+    });
   }
 
   function capitalize(s){ return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
