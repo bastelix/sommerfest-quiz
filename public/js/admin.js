@@ -774,7 +774,7 @@ document.addEventListener('DOMContentLoaded', function () {
         flip: 'Frage mit umdrehbarer Antwortkarte.'
       };
       const base = map[typeSelect.value] || '';
-      typeInfo.textContent = base + ' Für kleine Displays kannst du "\/-" als verstecktes Worttrennzeichen nutzen.';
+      typeInfo.textContent = base + ' Für kleine Displays kannst du "/-" als verstecktes Worttrennzeichen nutzen.';
     }
     updateInfo();
     typeSelect.addEventListener('change', () => {

@@ -81,7 +81,8 @@ class EventService
         $this->pdo->beginTransaction();
 
         $updateStmt = $this->pdo->prepare(
-            'UPDATE events SET name = ?, start_date = ?, end_date = ?, description = ?, published = ?, sort_order = ? WHERE uid = ?'
+            'UPDATE events SET name = ?, start_date = ?, end_date = ?, description = ?, published = ?, sort_order = ? ' .
+            'WHERE uid = ?'
         );
         $insertStmt = $this->pdo->prepare(
             'INSERT INTO events(uid,name,start_date,end_date,description,published,sort_order) VALUES(?,?,?,?,?,?,?)'
