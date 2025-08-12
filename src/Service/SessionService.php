@@ -39,14 +39,24 @@ class SessionService
         $ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
         $path = session_save_path();
+        if ($path === '' || str_contains($path, ';')) {
+            $parts = array_filter(explode(';', $path));
+            $path = end($parts) ?: '';
+        }
         if ($path === '') {
             $path = sys_get_temp_dir();
         }
 
         foreach ($ids as $id) {
-            $file = $path . DIRECTORY_SEPARATOR . 'sess_' . $id;
-            if (is_file($file)) {
-                @unlink($file);
+            $patterns = [
+                $path . DIRECTORY_SEPARATOR . 'sess_' . $id,
+                $path . DIRECTORY_SEPARATOR . 'sess_*' . DIRECTORY_SEPARATOR . 'sess_' . $id,
+                sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'sess_' . $id,
+            ];
+            foreach ($patterns as $pattern) {
+                foreach (glob($pattern) ?: [] as $file) {
+                    @unlink($file);
+                }
             }
         }
 

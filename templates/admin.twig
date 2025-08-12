@@ -11,11 +11,11 @@
   <script src="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/trumbowyg.min.js"></script>
   <script>
     window.profileVars = {
-      NAME: '{{ tenant.imprint_name|default('')|e('js') }}',
-      STREET: '{{ tenant.imprint_street|default('')|e('js') }}',
-      ZIP: '{{ tenant.imprint_zip|default('')|e('js') }}',
-      CITY: '{{ tenant.imprint_city|default('')|e('js') }}',
-      EMAIL: '{{ tenant.imprint_email|default('')|e('js') }}'
+      NAME: {{ tenant.imprint_name|default('')|json_encode|raw }},
+      STREET: {{ tenant.imprint_street|default('')|json_encode|raw }},
+      ZIP: {{ tenant.imprint_zip|default('')|json_encode|raw }},
+      CITY: {{ tenant.imprint_city|default('')|json_encode|raw }},
+      EMAIL: {{ tenant.imprint_email|default('')|json_encode|raw }}
     };
   </script>
   <script type="module" src="{{ basePath }}/js/trumbowyg-pages.js"></script>
@@ -128,6 +128,7 @@
     <li class="{{ activeRoute == 'events' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_events') }}</h2>
+        <p class="uk-hidden">Professionelles Quiz-Hosting</p>
         <div class="uk-overflow-auto">
           <table id="eventsTable" class="uk-table uk-table-divider uk-table-small">
             <thead class="table-headings">
@@ -695,6 +696,7 @@
     </li>
     {% endif %}
     {% endif %}
+    {% if activeRoute == 'profile' %}
     <li class="{{ activeRoute == 'profile' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_profile') }}</h2>
@@ -744,6 +746,7 @@
         {% endif %}
       </div>
     </li>
+    {% endif %}
     <li class="{{ activeRoute == 'subscription' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_subscription') }}</h2>

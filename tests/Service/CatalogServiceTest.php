@@ -258,6 +258,7 @@ class CatalogServiceTest extends TestCase
         $pdo = $this->createPdo();
         $pdo->exec("INSERT INTO config(event_uid) VALUES(NULL)");
         $cfg = new ConfigService($pdo);
+        $cfg->setActiveEventUid('ev1');
         $service = new CatalogService($pdo, $cfg);
         $catalog = [[
             'uid' => 'uid5',
