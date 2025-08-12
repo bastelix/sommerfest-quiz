@@ -34,6 +34,8 @@ class AdminController
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
+        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
+        $_SESSION['csrf_token'] = $csrf;
         $role = $_SESSION['user']['role'] ?? null;
         $pdo = $request->getAttribute('pdo');
         if (!$pdo instanceof PDO) {
@@ -157,7 +159,7 @@ class AdminController
                     );
                 }
                 $tenant['stripe_customer_id'] = $cid;
-                if ($tenantSvc !== null && $sub !== '') {
+                if ($sub !== '') {
                     $tenantSvc->updateProfile($sub, ['stripe_customer_id' => $cid]);
                 }
             } catch (\Throwable $e) {
@@ -202,6 +204,7 @@ class AdminController
               'tenant' => $tenant,
               'stripe_configured' => StripeService::isConfigured(),
               'currentPath' => $request->getUri()->getPath(),
+              'csrf_token' => $csrf,
           ]);
     }
 }
