@@ -179,6 +179,7 @@
 - Ensure mobile nav active items remain readable
 - Improve active nav contrast in dark menu
 - Add migration for password reset token hash
+- Remove redundant null coalesce
 
 ### Refactor
 
