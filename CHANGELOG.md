@@ -182,6 +182,7 @@
 - Improve active nav contrast in dark menu
 - Add migration for password reset token hash
 - Remove redundant null coalesce
+- Improve dark mode menu active state
 
 ### Refactor
 
