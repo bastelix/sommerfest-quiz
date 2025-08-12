@@ -176,13 +176,9 @@ async function runQuiz(questions, skipIntro){
     }
   });
 
-  if(!getStored('quizUser')){
-    if(!cfg.QRRestrict && !cfg.QRUser){
-      if(cfg.randomNames === false){
-        await promptTeamName();
-      }else{
-        setStored('quizUser', generateUserName());
-      }
+  if(!getStored('quizUser') && !cfg.QRRestrict && !cfg.QRUser){
+    if(cfg.randomNames !== false){
+      setStored('quizUser', generateUserName());
     }
   }
 
@@ -1182,6 +1178,15 @@ async function runQuiz(questions, skipIntro){
     styleButton(startBtn);
     // Zeigt bisherige Ergebnisse als kleine Slideshow an
     stats.textContent = 'Noch keine Ergebnisse vorhanden.';
+
+    if(cfg.randomNames === false){
+      const nameBtn = document.createElement('button');
+      nameBtn.className = 'uk-button uk-button-default uk-button-large uk-align-left';
+      nameBtn.textContent = 'Teamnamen eingeben';
+      nameBtn.addEventListener('click', () => { promptTeamName(); });
+      div.appendChild(nameBtn);
+    }
+
     startBtn.addEventListener('click', async () => {
       if(cfg.QRRestrict){
         alert('Nur Registrierung per QR-Code erlaubt');
