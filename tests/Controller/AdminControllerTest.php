@@ -22,6 +22,13 @@ class AdminControllerTest extends TestCase
     }
     public function testRedirectWhenNotLoggedIn(): void
     {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_unset();
+            session_destroy();
+        }
+        $_SESSION = [];
+        $_COOKIE = [];
+
         $db = $this->setupDb();
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/admin/dashboard');

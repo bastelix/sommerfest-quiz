@@ -23,6 +23,7 @@ class SessionServiceTest extends TestCase
             session_write_close();
         }
         session_save_path($path);
+        ini_set('session.save_path', $path);
         file_put_contents($path . '/sess_abc', '');
         file_put_contents($path . '/sess_def', '');
         file_put_contents($path . '/sess_zzz', '');

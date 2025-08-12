@@ -15,6 +15,7 @@ class OnboardingEmailControllerTest extends TestCase
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['csrf_token'] = 'tok';
+        unset($_SESSION['rate:/onboarding/email']);
 
         $request = $this->createRequest('POST', '/onboarding/email', ['Content-Type' => 'application/json']);
         $stream = fopen('php://temp', 'r+');
@@ -61,6 +62,7 @@ class OnboardingEmailControllerTest extends TestCase
         );
         session_start();
         $_SESSION['csrf_token'] = 'tok';
+        unset($_SESSION['rate:/onboarding/email']);
 
         $mailer = new class extends MailService {
             public array $sent = [];
@@ -101,6 +103,7 @@ class OnboardingEmailControllerTest extends TestCase
         $pdo = $this->setupEmailConfirmations();
         session_start();
         $_SESSION['csrf_token'] = 'tok';
+        unset($_SESSION['rate:/onboarding/email']);
 
         $mailer = new class extends MailService {
             public array $sent = [];
@@ -143,6 +146,7 @@ class OnboardingEmailControllerTest extends TestCase
         $pdo = $this->setupEmailConfirmations();
         session_start();
         $_SESSION['csrf_token'] = 'tok';
+        unset($_SESSION['rate:/onboarding/email']);
 
         $mailer = new class extends MailService {
             public array $sent = [];
@@ -183,6 +187,7 @@ class OnboardingEmailControllerTest extends TestCase
         $pdo = $this->setupEmailConfirmations();
         session_start();
         $_SESSION['csrf_token'] = 'tok';
+        unset($_SESSION['rate:/onboarding/email']);
 
         $mailer = new class extends MailService {
             public function __construct()

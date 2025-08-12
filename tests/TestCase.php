@@ -94,7 +94,7 @@ class TestCase extends PHPUnit_TestCase
         string $method,
         string $path,
         array $headers = ['HTTP_ACCEPT' => 'text/html'],
-        array $cookies = [],
+        ?array $cookies = null,
         array $serverParams = []
     ): Request {
         $query = '';
@@ -108,6 +108,11 @@ class TestCase extends PHPUnit_TestCase
         $h = new Headers();
         foreach ($headers as $name => $value) {
             $h->addHeader($name, $value);
+        }
+
+        $cookies = $cookies ?? [];
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            $cookies[session_name()] = session_id();
         }
 
         return new SlimRequest($method, $uri, $h, $cookies, $serverParams, $stream);
@@ -127,6 +132,12 @@ class TestCase extends PHPUnit_TestCase
 
     protected function tearDown(): void
     {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_unset();
+            session_destroy();
+        }
+        $_COOKIE = [];
+
         foreach ($this->tmpDbs as $db) {
             if (is_string($db) && file_exists($db)) {
                 @unlink($db);
