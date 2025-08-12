@@ -857,6 +857,13 @@
           <div><button class="uk-button uk-button-default plan-select" data-plan="standard">{{ t('plan_standard') }}</button></div>
           <div><button class="uk-button uk-button-default plan-select" data-plan="professional">{{ t('plan_professional') }}</button></div>
         </div>
+        {% if stripe_publishable_key %}
+        <div id="stripe-checkout-container" class="uk-margin-top"></div>
+        <script src="https://js.stripe.com/v3/"></script>
+        <script>
+          window.stripePublishableKey = '{{ stripe_publishable_key }}';
+        </script>
+        {% endif %}
         {% endif %}
         <p class="uk-margin-top"><a class="uk-button uk-button-text" href="{{ basePath }}/admin/subscription/portal">{{ t('action_open_subscription') }}</a></p>
         <script>

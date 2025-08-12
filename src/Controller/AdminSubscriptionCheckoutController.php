@@ -24,6 +24,7 @@ class AdminSubscriptionCheckoutController
         }
 
         $plan = Plan::tryFrom((string) ($data['plan'] ?? ''));
+        $embedded = filter_var($data['embedded'] ?? false, FILTER_VALIDATE_BOOLEAN);
         if ($plan === null) {
             return $this->jsonError($response, 422, 'invalid plan');
         }
@@ -62,26 +63,27 @@ class AdminSubscriptionCheckoutController
 
         $uri = $request->getUri();
         $baseUrl = $uri->getScheme() . '://' . $uri->getHost();
-        $successUrl = $baseUrl . '/admin/subscription?session_id={CHECKOUT_SESSION_ID}';
+        $returnUrl = $baseUrl . '/admin/subscription?session_id={CHECKOUT_SESSION_ID}';
         $cancelUrl = $baseUrl . '/admin/subscription';
 
         $service = new StripeService();
         try {
-            $url = $service->createCheckoutSession(
+            $result = $service->createCheckoutSession(
                 $priceId,
-                $successUrl,
-                $cancelUrl,
+                $returnUrl,
+                $embedded ? null : $cancelUrl,
                 $customerId === '' ? $email : null,
                 $customerId !== '' ? $customerId : null,
-                $sub
+                $sub,
+                $embedded
             );
         } catch (\Throwable $e) {
             error_log($e->getMessage());
             return $this->jsonError($response, 500, 'internal error');
         }
-
-        $payload = json_encode(['url' => $url]);
-        $response->getBody()->write($payload !== false ? $payload : '{}');
+        $payload = $embedded ? ['client_secret' => $result] : ['url' => $result];
+        $json = json_encode($payload);
+        $response->getBody()->write($json !== false ? $json : '{}');
         return $response->withHeader('Content-Type', 'application/json');
     }
 

@@ -26,15 +26,17 @@ class StripeService
     }
 
     /**
-     * Create a checkout session for a subscription plan and return its URL.
+     * Create a checkout session for a subscription plan and return its URL or
+     * client secret for embedded mode.
      */
     public function createCheckoutSession(
         string $priceId,
         string $successUrl,
-        string $cancelUrl,
+        ?string $cancelUrl = null,
         ?string $customerEmail = null,
         ?string $customerId = null,
-        ?string $clientReferenceId = null
+        ?string $clientReferenceId = null,
+        bool $embedded = false
     ): string {
         $params = [
             'mode' => 'subscription',
@@ -43,9 +45,16 @@ class StripeService
             ],
             'payment_method_types' => ['card'],
             'subscription_data' => ['trial_period_days' => 7],
-            'success_url' => $successUrl,
-            'cancel_url' => $cancelUrl,
         ];
+        if ($embedded) {
+            $params['ui_mode'] = 'embedded';
+            $params['return_url'] = $successUrl;
+        } else {
+            $params['success_url'] = $successUrl;
+            if ($cancelUrl !== null) {
+                $params['cancel_url'] = $cancelUrl;
+            }
+        }
         if ($customerEmail !== null) {
             $params['customer_email'] = $customerEmail;
         }
@@ -56,7 +65,7 @@ class StripeService
             $params['client_reference_id'] = $clientReferenceId;
         }
         $session = $this->client->checkout->sessions->create($params);
-        return (string) $session->url;
+        return $embedded ? (string) ($session->client_secret ?? '') : (string) $session->url;
     }
 
     /**
@@ -130,5 +139,15 @@ class StripeService
             }
         }
         return true;
+    }
+
+    /**
+     * Return the publishable key for Stripe.js.
+     */
+    public static function getPublishableKey(): string
+    {
+        $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
+        $envKey = $useSandbox ? 'STRIPE_SANDBOX_PUBLISHABLE_KEY' : 'STRIPE_PUBLISHABLE_KEY';
+        return getenv($envKey) ?: '';
     }
 }

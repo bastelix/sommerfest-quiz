@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const profileForm = document.getElementById('profileForm');
   const profileSaveBtn = document.getElementById('profileSaveBtn');
   const planButtons = document.querySelectorAll('.plan-select');
+  const checkoutContainer = document.getElementById('stripe-checkout-container');
   planButtons.forEach(btn => {
     btn.addEventListener('click', async () => {
       const plan = btn.dataset.plan;
@@ -66,11 +67,18 @@ document.addEventListener('DOMContentLoaded', function () {
         const res = await fetch(withBase('/admin/subscription/checkout'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plan })
+          body: JSON.stringify({ plan, embedded: window.stripePublishableKey ? 1 : 0 })
         });
         if (res.ok) {
           const data = await res.json();
-          if (data.url) {
+          if (data.client_secret && window.stripePublishableKey && checkoutContainer) {
+            checkoutContainer.innerHTML = '';
+            if (!window.stripe) {
+              window.stripe = Stripe(window.stripePublishableKey);
+            }
+            const checkout = await window.stripe.initEmbeddedCheckout({ clientSecret: data.client_secret });
+            checkout.mount('#stripe-checkout-container');
+          } else if (data.url) {
             window.location.href = data.url;
           }
         }

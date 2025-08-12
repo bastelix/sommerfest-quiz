@@ -178,6 +178,7 @@ class AdminController
               'domainType' => $request->getAttribute('domainType'),
               'tenant' => $tenant,
               'stripe_configured' => StripeService::isConfigured(),
+              'stripe_publishable_key' => StripeService::getPublishableKey(),
               'currentPath' => $request->getUri()->getPath(),
           ]);
     }

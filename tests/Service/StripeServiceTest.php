@@ -1,5 +1,6 @@
 <?php
 
+// phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
 declare(strict_types=1);
 
 namespace Tests\Service;
@@ -13,6 +14,9 @@ class FakeCheckoutSessions
     public function create(array $params)
     {
         $this->lastParams = $params;
+        if (($params['ui_mode'] ?? '') === 'embedded') {
+            return (object) ['client_secret' => 'cs_test'];
+        }
         return (object) ['url' => 'https://example.com'];
     }
 }
@@ -54,5 +58,15 @@ final class StripeServiceTest extends TestCase
         $service->createCheckoutSession('price_123', 'https://success', 'https://cancel', null, 'cus_123', 'tenant1');
         $this->assertSame('cus_123', $client->checkout->sessions->lastParams['customer'] ?? null);
         $this->assertSame('tenant1', $client->checkout->sessions->lastParams['client_reference_id'] ?? null);
+    }
+
+    public function testCreateEmbeddedCheckoutSession(): void
+    {
+        $client = new FakeStripeClient();
+        $service = new StripeService(client: $client);
+        $secret = $service->createCheckoutSession('price_123', 'https://return', null, null, null, null, true);
+        $this->assertSame('embedded', $client->checkout->sessions->lastParams['ui_mode'] ?? null);
+        $this->assertSame('https://return', $client->checkout->sessions->lastParams['return_url'] ?? null);
+        $this->assertSame('cs_test', $secret);
     }
 }
