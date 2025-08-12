@@ -57,6 +57,38 @@ document.addEventListener('DOMContentLoaded', function () {
   const pagesInitial = window.pagesContent || {};
   const profileForm = document.getElementById('profileForm');
   const profileSaveBtn = document.getElementById('profileSaveBtn');
+  const planButtons = document.querySelectorAll('.plan-select');
+  planButtons.forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const plan = btn.dataset.plan;
+      if (!plan) return;
+      try {
+        const res = await fetch(withBase('/admin/subscription/checkout'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plan })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.url) {
+            window.location.href = data.url;
+          }
+        }
+      } catch (e) {
+        // ignore
+      }
+    });
+  });
+
+  const params = new URLSearchParams(window.location.search);
+  const sessionId = params.get('session_id');
+  if (sessionId) {
+    fetch(withBase('/admin/subscription/checkout/' + encodeURIComponent(sessionId)))
+      .then(() => {
+        window.history.replaceState({}, document.title, window.location.pathname);
+        window.location.reload();
+      });
+  }
 
   function slugify(text) {
     return text
