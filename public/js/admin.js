@@ -69,7 +69,10 @@ document.addEventListener('DOMContentLoaded', function () {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ plan, embedded: true })
         });
-        if (!res.ok) return;
+        if (!res.ok) {
+          notify('Fehler beim Starten der Zahlung', 'danger');
+          return;
+        }
         const data = await res.json();
         if ([data.client_secret, data.publishable_key, window.Stripe, checkoutContainer].every(Boolean)) {
           const stripe = Stripe(data.publishable_key);
@@ -82,6 +85,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       } catch (e) {
         console.error(e);
+        notify('Fehler beim Starten der Zahlung', 'danger');
       }
     });
   });
