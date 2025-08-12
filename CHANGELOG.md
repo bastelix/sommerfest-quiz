@@ -24,6 +24,7 @@
 - Add migration for Stripe customer id
 - Restrict access to hidden files
 - Use textContent for quiz buttons
+- Fix style and security warnings
 
 ### Ci
 
