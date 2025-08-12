@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Service\TenantService;
 use App\Infrastructure\Database;
+use Stripe\Webhook;
 
 /**
  * Handle Stripe webhook events.
@@ -16,12 +17,22 @@ class StripeWebhookController
 {
     public function __invoke(Request $request, Response $response): Response
     {
-        $payload = json_decode((string) $request->getBody(), true);
-        if (!is_array($payload) || !isset($payload['type'])) {
+        $payload = (string) $request->getBody();
+        $sigHeader = $request->getHeaderLine('Stripe-Signature');
+        $webhookSecret = getenv('STRIPE_WEBHOOK_SECRET') ?: '';
+
+        try {
+            Webhook::constructEvent($payload, $sigHeader, $webhookSecret);
+        } catch (\UnexpectedValueException | \Stripe\Exception\SignatureVerificationException) {
             return $response->withStatus(400);
         }
-        $type = (string) $payload['type'];
-        $object = $payload['data']['object'] ?? [];
+
+        $data = json_decode($payload, true);
+        if (!is_array($data) || !isset($data['type'])) {
+            return $response->withStatus(400);
+        }
+        $type = (string) $data['type'];
+        $object = $data['data']['object'] ?? [];
 
         $base = Database::connectFromEnv();
         $tenantService = new TenantService($base);
