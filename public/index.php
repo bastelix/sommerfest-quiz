@@ -45,10 +45,6 @@ if ($logger instanceof Logger) {
 // verify Stripe configuration before starting the app
 if (!StripeService::isConfigured()) {
     $logger->error('Stripe configuration missing');
-    http_response_code(500);
-    header('Content-Type: text/plain; charset=utf-8');
-    echo "Stripe configuration missing. Please set required environment variables.\n";
-    exit(1);
 }
 
 $settings = require __DIR__ . '/../config/settings.php';

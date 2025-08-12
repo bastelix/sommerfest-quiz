@@ -217,4 +217,5 @@ return [
     'heading_limit_reached' => 'Limit reached',
     'text_upgrade_required' => 'Subscription limit reached. Please upgrade to add more resources.',
     'action_upgrade' => 'Upgrade now',
+    'text_stripe_config_missing' => 'Stripe configuration missing. Please set required environment variables.',
 ];
