@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const step1 = document.getElementById('step1');
   const step2 = document.getElementById('step2');
   const step3 = document.getElementById('step3');
-  const step3Warning = document.getElementById('step3-warning');
   const emailInput = document.getElementById('email');
   const sendEmailBtn = document.getElementById('sendEmail');
   const emailStatus = document.getElementById('emailStatus');
@@ -13,7 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const verifiedHint = document.getElementById('verifiedHint');
   const basePath = window.basePath || '';
   const withBase = p => basePath + p;
-  const stripeConfigured = window.stripeConfigured !== false;
 
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id');
@@ -67,26 +65,44 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       localStorage.setItem('onboard_subdomain', subdomain);
       step2.hidden = true;
-      if (!stripeConfigured) {
-        if (step3Warning) {
-          step3Warning.hidden = false;
-        } else {
-          alert('Zahlungsdienstleister nicht konfiguriert. Bitte wende dich an den Support.');
-        }
-        return;
-      }
       if (step3) step3.hidden = false;
     });
   }
-
-  if (stripeConfigured && planButtons.length) {
+  if (planButtons.length) {
     planButtons.forEach(btn => {
       btn.addEventListener('click', async () => {
         const plan = btn.dataset.plan;
         const email = emailInput.value.trim();
         if (!plan) return;
+        localStorage.setItem('onboard_plan', plan);
+        if (plan === 'starter') {
+          const subdomain = localStorage.getItem('onboard_subdomain') || '';
+          try {
+            const tRes = await fetch('/tenants', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': window.csrfToken || ''
+              },
+              body: JSON.stringify({
+                uid: subdomain,
+                schema: subdomain,
+                plan
+              })
+            });
+            if (tRes.ok) {
+              localStorage.removeItem('onboard_subdomain');
+              localStorage.removeItem('onboard_plan');
+              window.location.href = `https://${subdomain}.${window.mainDomain}/`;
+              return;
+            }
+          } catch (e) {
+            // ignore and show alert below
+          }
+          alert('Fehler bei der Registrierung.');
+          return;
+        }
         try {
-          localStorage.setItem('onboard_plan', plan);
           const res = await fetch(withBase('/onboarding/checkout'), {
             method: 'POST',
             headers: {
