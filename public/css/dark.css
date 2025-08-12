@@ -122,6 +122,13 @@ body.dark-mode .uk-icon-button {
   color: #fff;
 }
 
+/* Active state for navigation items in dark mode */
+body.dark-mode .uk-navbar-nav > li.uk-active > a,
+body.dark-mode .uk-nav-default > li.uk-active > a {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
 /* Styles for Trumbowyg editor in Dark Mode */
 body.dark-mode .trumbowyg-box,
 body.dark-mode .trumbowyg-editor {
