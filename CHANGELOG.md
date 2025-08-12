@@ -29,6 +29,7 @@
 
 - Add workflow for automatic changelog
 - Build tenant image during deploy
+- Use setup-php v2
 
 ### Docs
 
