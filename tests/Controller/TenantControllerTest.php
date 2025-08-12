@@ -62,7 +62,7 @@ class TenantControllerTest extends TestCase
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->exec('CREATE TABLE tenants(uid TEXT, subdomain TEXT, imprint_email TEXT)');
-        $service = new class($pdo) extends TenantService {
+        $service = new class ($pdo) extends TenantService {
             private PDO $pdo;
             public function __construct(PDO $pdo)
             {

@@ -6,7 +6,7 @@ function setStored(key, value){
   try{
     sessionStorage.setItem(key, value);
     localStorage.setItem(key, value);
-  }catch(e){}
+  }catch(e){ /* empty */ }
 }
 
 function insertSoftHyphens(text){

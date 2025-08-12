@@ -61,7 +61,8 @@ return [
     'tip_background_color' => 'CSS-Farbwert für die Seite.',
     'tip_button_color' => 'CSS-Farbwert für alle Buttons.',
     'tip_check_button' => 'Zeigt beim Quiz einen Button zum Prüfen der Antwort.',
-    'tip_qr_button' => "Aktiviert den Button 'Name mit QR-Code scannen' auf der Startseite, um den Namen aus einem QR-Code zu übernehmen.",
+    'tip_qr_button' => "Aktiviert den Button 'Name mit QR-Code scannen' auf der Startseite, " .
+        'um den Namen aus einem QR-Code zu übernehmen.',
     'tip_qr_remember' => 'Speichert den gescannten Namen im Browser und überspringt künftige Logins.',
     'tip_random_names' => 'Legt fest, ob ohne QR-Code automatisch ein Name vergeben oder eingegeben wird.',
     'tip_team_restrict' => 'Aktiviert eine Zugangsbeschränkung auf eingetragene Teams',
@@ -177,7 +178,9 @@ return [
       'billing_credit' => 'Kreditkarte',
       'billing_paypal' => 'PayPal',
       'subscription_email' => 'Rechnungs-E-Mail',
-      'stripe_payment_terms' => 'Die Zahlung wird über Stripe abgewickelt. Es gelten die <a href="https://stripe.com/payment-terms/legal" target="_blank" rel="noopener">Stripe-Zahlungsbedingungen</a>.',
+      'stripe_payment_terms' => 'Die Zahlung wird über Stripe abgewickelt. Es gelten die ' .
+          '<a href="https://stripe.com/payment-terms/legal" target="_blank" ' .
+          'rel="noopener">Stripe-Zahlungsbedingungen</a>.',
       'action_delete' => 'Löschen',
       'action_cancel' => 'Abbrechen',
     'label_registration_enabled' => 'Registrierung zulassen',
@@ -196,7 +199,8 @@ return [
     'action_download' => 'Herunterladen',
     'action_delete_tenant' => 'Mandant löschen',
     'action_renew_ssl' => 'SSL erneuern',
-    'help_admin_pass' => 'Definiert das Admin-Passwort des neuen Mandanten. Bleibt das Feld leer, wird ein zufälliges Passwort erzeugt',
+    'help_admin_pass' => 'Definiert das Admin-Passwort des neuen Mandanten. Bleibt das Feld leer, ' .
+        'wird ein zufälliges Passwort erzeugt',
     'info_admin_email' => 'Der Link zum Setzen des Admin-Passworts wird per E-Mail verschickt.',
     'text_admin_email_sent' => 'Ein Link zum Setzen des Admin-Passworts wurde an %s gesendet.',
     'link_forgot_password' => 'Passwort vergessen?',

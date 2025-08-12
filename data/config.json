@@ -8,6 +8,7 @@
     "buttonColor": null,
     "CheckAnswerButton": null,
     "QRRestrict": null,
+    "randomNames": 1,
     "competitionMode": null,
     "teamResults": null,
     "photoUpload": null,

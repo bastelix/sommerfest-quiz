@@ -23,7 +23,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
     try{
       sessionStorage.setItem(key, value);
       localStorage.setItem(key, value);
-    }catch(e){}
+    }catch(e){ /* empty */ }
   }
   function getStored(key){
     return sessionStorage.getItem(key) || localStorage.getItem(key);
