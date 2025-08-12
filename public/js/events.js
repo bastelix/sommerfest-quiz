@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     if (selectWrap) selectWrap.hidden = false;
     if (eventTitle) eventTitle.hidden = true;
+    eventSelect.dispatchEvent(new Event('change'));
   }
 
   function setActive(uid) {
