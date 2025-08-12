@@ -33,6 +33,7 @@ class AdminSubscriptionCheckoutController
         $host = $request->getUri()->getHost();
         $sub = explode('.', $host)[0];
         $tenant = null;
+        $tenantService = null;
         $domainType = (string) $request->getAttribute('domainType');
         if ($domainType === 'main') {
             $path = dirname(__DIR__, 2) . '/data/profile.json';
@@ -73,12 +74,34 @@ class AdminSubscriptionCheckoutController
             return $this->jsonError($response, 422, 'invalid plan');
         }
 
+        $service = new StripeService();
+        if ($customerId === '' && $email !== '') {
+            try {
+                $customerId = $service->findCustomerIdByEmail($email) ?? $service->createCustomer(
+                    $email,
+                    $tenant['imprint_name'] ?? null
+                );
+                $tenant['stripe_customer_id'] = $customerId;
+                if ($domainType === 'main') {
+                    $path = dirname(__DIR__, 2) . '/data/profile.json';
+                    $payload = json_encode($tenant, JSON_PRETTY_PRINT);
+                    if ($payload !== false) {
+                        file_put_contents($path, $payload);
+                    }
+                } else {
+                    $tenantService?->updateProfile($sub, ['stripe_customer_id' => $customerId]);
+                }
+            } catch (\Throwable $e) {
+                error_log($e->getMessage());
+                return $this->jsonError($response, 500, 'internal error');
+            }
+        }
+
         $uri = $request->getUri();
         $baseUrl = $uri->getScheme() . '://' . $uri->getHost();
         $successUrl = $baseUrl . '/admin/subscription?session_id={CHECKOUT_SESSION_ID}';
         $cancelUrl = $baseUrl . '/admin/subscription';
 
-        $service = new StripeService();
         try {
             $result = $service->createCheckoutSession(
                 $priceId,
