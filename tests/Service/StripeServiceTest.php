@@ -26,11 +26,22 @@ final class StripeServiceTest extends TestCase
                     {
                         $this->sessions = new class {
                             public array $lastParams = [];
+                            public string $lastRetrievedId = '';
 
                             public function create(array $params)
                             {
                                 $this->lastParams = $params;
                                 return (object) ['url' => 'https://example.com', 'client_secret' => 'sec_123'];
+                            }
+
+                            public function retrieve(string $id, array $params)
+                            {
+                                $this->lastRetrievedId = $id;
+                                return (object) [
+                                    'payment_status' => 'paid',
+                                    'customer' => 'cus_123',
+                                    'client_reference_id' => 'tenant1',
+                                ];
                             }
                         };
                     }
@@ -114,6 +125,16 @@ final class StripeServiceTest extends TestCase
         $this->assertSame('user@example.com', $client->customers->lastParams['email'] ?? null);
         $this->assertSame('User', $client->customers->lastParams['name'] ?? null);
         $this->assertSame('cus_new', $id);
+    }
+
+    public function testGetCheckoutSessionInfoReturnsReference(): void
+    {
+        $client = $this->createFakeStripeClient();
+        $service = new StripeService(client: $client);
+        $info = $service->getCheckoutSessionInfo('sess_123');
+        $this->assertTrue($info['paid']);
+        $this->assertSame('cus_123', $info['customer_id']);
+        $this->assertSame('tenant1', $info['client_reference_id']);
     }
 
     public function testGetActiveSubscriptionReturnsDetails(): void

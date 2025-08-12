@@ -124,20 +124,24 @@ class StripeService
     }
 
     /**
-     * Retrieve checkout session payment status and customer id.
+     * Retrieve checkout session payment status, customer id and client reference.
      *
-     * @return array{paid:bool, customer_id:?string}
+     * @return array{paid:bool, customer_id:?string, client_reference_id:?string}
      */
     public function getCheckoutSessionInfo(string $sessionId): array
     {
         try {
             $session = $this->client->checkout->sessions->retrieve($sessionId, []);
+
             return [
                 'paid' => ($session->payment_status ?? '') === 'paid',
                 'customer_id' => isset($session->customer) ? (string) $session->customer : null,
+                'client_reference_id' => isset($session->client_reference_id)
+                    ? (string) $session->client_reference_id
+                    : null,
             ];
         } catch (\Throwable $e) {
-            return ['paid' => false, 'customer_id' => null];
+            return ['paid' => false, 'customer_id' => null, 'client_reference_id' => null];
         }
     }
 
