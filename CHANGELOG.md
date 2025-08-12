@@ -144,6 +144,7 @@
 - Fallback to null logger when monolog missing
 - Add subscription usage widget
 - Support embedded stripe checkout
+- Show event summary on dashboard
 
 ### Fix
 
