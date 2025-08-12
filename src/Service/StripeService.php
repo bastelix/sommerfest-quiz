@@ -32,7 +32,9 @@ class StripeService
         string $priceId,
         string $successUrl,
         string $cancelUrl,
-        ?string $customerEmail = null
+        ?string $customerEmail = null,
+        ?string $customerId = null,
+        ?string $clientReferenceId = null
     ): string {
         $params = [
             'mode' => 'subscription',
@@ -46,6 +48,12 @@ class StripeService
         ];
         if ($customerEmail !== null) {
             $params['customer_email'] = $customerEmail;
+        }
+        if ($customerId !== null) {
+            $params['customer'] = $customerId;
+        }
+        if ($clientReferenceId !== null) {
+            $params['client_reference_id'] = $clientReferenceId;
         }
         $session = $this->client->checkout->sessions->create($params);
         return (string) $session->url;

@@ -67,6 +67,7 @@ use App\Controller\StripeCheckoutController;
 use App\Controller\StripeSessionController;
 use App\Controller\StripeWebhookController;
 use App\Controller\SubscriptionController;
+use App\Controller\AdminSubscriptionCheckoutController;
 use App\Controller\InvitationController;
 use Slim\Views\Twig;
 use GuzzleHttp\Client;
@@ -113,6 +114,7 @@ require_once __DIR__ . '/Controller/StripeCheckoutController.php';
 require_once __DIR__ . '/Controller/StripeSessionController.php';
 require_once __DIR__ . '/Controller/StripeWebhookController.php';
 require_once __DIR__ . '/Controller/SubscriptionController.php';
+require_once __DIR__ . '/Controller/AdminSubscriptionCheckoutController.php';
 require_once __DIR__ . '/Controller/InvitationController.php';
 
 use App\Infrastructure\Migrations\Migrator;
@@ -441,6 +443,8 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/profile', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/subscription', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/subscription/portal', SubscriptionController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->post('/admin/subscription/checkout', AdminSubscriptionCheckoutController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/subscription/checkout/{id}', StripeSessionController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->post('/admin/profile', function (Request $request, Response $response) {
         $controller = new ProfileController();
         return $controller->update($request, $response);

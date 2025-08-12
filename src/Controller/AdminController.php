@@ -17,6 +17,7 @@ use App\Service\UserService;
 use App\Service\TenantService;
 use App\Domain\Roles;
 use App\Infrastructure\Database;
+use App\Service\StripeService;
 use PDO;
 
 /**
@@ -176,6 +177,7 @@ class AdminController
               'pages' => $pages,
               'domainType' => $request->getAttribute('domainType'),
               'tenant' => $tenant,
+              'stripe_configured' => StripeService::isConfigured(),
               'currentPath' => $request->getUri()->getPath(),
           ]);
     }
