@@ -877,6 +877,14 @@ server {
     }
         {{- end }}
 
+        location ~ /\.(?!well-known) {
+            deny all;
+            return 403;
+        }
+        location = /.git { deny all; return 403; }
+        location ~ ^/.git/ { deny all; return 403; }
+        location = /.env { deny all; return 403; }
+
         {{- if (exists "/usr/share/nginx/html/errors/50x.html") }}
     error_page 500 502 503 504 /50x.html;
     location /50x.html {
@@ -926,6 +934,14 @@ server {
         {{- if $vhost.enable_debug_endpoint }}
             {{ template "debug_location" (dict "GlobalConfig" $globals.config "Hostname" $hostname "VHost" $vhost) }}
         {{- end }}
+
+    location ~ /\.(?!well-known) {
+        deny all;
+        return 403;
+    }
+    location = /.git { deny all; return 403; }
+    location ~ ^/.git/ { deny all; return 403; }
+    location = /.env { deny all; return 403; }
 
     location / {
         {{- $redirect_uri := "https://$host$request_uri" }}
@@ -1064,6 +1080,14 @@ server {
     {{- if $vhost.enable_debug_endpoint }}
         {{ template "debug_location" (dict "GlobalConfig" $globals.config "Hostname" $hostname "VHost" $vhost) }}
     {{- end }}
+
+    location ~ /\.(?!well-known) {
+        deny all;
+        return 403;
+    }
+    location = /.git { deny all; return 403; }
+    location ~ ^/.git/ { deny all; return 403; }
+    location = /.env { deny all; return 403; }
 
     {{- range $path, $vpath := $vhost.paths }}
         {{- template "location" (dict
