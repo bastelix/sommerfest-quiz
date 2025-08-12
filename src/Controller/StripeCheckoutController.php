@@ -19,10 +19,21 @@ class StripeCheckoutController
         if (!is_array($data)) {
             return $response->withStatus(400);
         }
+
         $plan = (string) ($data['plan'] ?? '');
-        $email = filter_var($data['email'] ?? null, FILTER_VALIDATE_EMAIL)
-            ? (string) $data['email']
-            : null;
+        $email = (string) ($data['email'] ?? '');
+
+        $allowedPlans = ['starter', 'standard', 'professional'];
+        if (!in_array($plan, $allowedPlans, true)) {
+            return $this->jsonError($response, 422, 'invalid plan');
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->jsonError($response, 422, 'invalid email');
+        }
+
+        if (!StripeService::isConfigured()) {
+            return $this->jsonError($response, 503, 'service unavailable');
+        }
 
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
         $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
@@ -33,18 +44,32 @@ class StripeCheckoutController
         ];
         $priceId = $priceMap[$plan] ?? '';
         if ($priceId === '') {
-            return $response->withStatus(400);
+            return $this->jsonError($response, 422, 'invalid plan');
         }
+
         $uri = $request->getUri();
         $base = $uri->getScheme() . '://' . $uri->getHost();
         $successUrl = $base . '/onboarding?paid=1&session_id={CHECKOUT_SESSION_ID}';
         $cancelUrl = $base . '/onboarding?canceled=1&session_id={CHECKOUT_SESSION_ID}';
 
         $service = new StripeService();
-        $url = $service->createCheckoutSession($priceId, $successUrl, $cancelUrl, $email);
+        try {
+            $url = $service->createCheckoutSession($priceId, $successUrl, $cancelUrl, $email);
+        } catch (\Throwable $e) {
+            error_log($e->getMessage());
+            error_log($e->getTraceAsString());
+            return $this->jsonError($response, 500, 'internal error');
+        }
 
         $payload = json_encode(['url' => $url]);
         $response->getBody()->write($payload !== false ? $payload : '{}');
         return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    private function jsonError(Response $response, int $status, string $message): Response
+    {
+        $payload = json_encode(['error' => $message]);
+        $response->getBody()->write($payload !== false ? $payload : '{}');
+        return $response->withStatus($status)->withHeader('Content-Type', 'application/json');
     }
 }
