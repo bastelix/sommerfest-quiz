@@ -23,6 +23,7 @@
 - Pin php base images to patch release
 - Add migration for Stripe customer id
 - Restrict access to hidden files
+- Use textContent for quiz buttons
 
 ### Ci
 
