@@ -17,6 +17,50 @@ export function initSeoForm() {
     }
   });
 
+  const importBtn = form.querySelector('.import-seo-example');
+  if (importBtn) {
+    importBtn.addEventListener('click', () => {
+      const example = {
+        metaTitle: 'QuizRace – Gestalten Sie Ihr interaktives Team-Quiz für Events',
+        metaDescription: 'QuizRace macht Ihr Event einzigartig: QR-Code-Stationen, Live-Ranking & Rätselspaß – datensicher, flexibel, ohne App. Jetzt kostenlos testen!',
+        slug: '/',
+        canonical: 'https://quizrace.app/',
+        robots: 'index, follow',
+        ogTitle: 'QuizRace – Gestalten Sie Ihr interaktives Team-Quiz für Events',
+        ogDescription: 'Erstellen Sie Ihr eigenes Event-Quiz mit QR-Code-Stationen, Live-Ranking & Rätselspaß. DSGVO-konform, flexibel, ohne App. Jetzt kostenlos testen!',
+        ogImage: 'https://quizrace.app/img/social-preview.jpg',
+        schema: `{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "QuizRace",
+  "url": "https://quizrace.app/",
+  "description": "QuizRace ist das interaktive Event-Quiz mit QR-Code-Stationen, Live-Ranking & Rätselspaß – datensicher, flexibel, ohne App. Jetzt kostenlos testen!",
+  "publisher": {
+    "@type": "Organization",
+    "name": "QuizRace",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://quizrace.app/img/logo.png"
+    }
+  },
+  "sameAs": [
+    "https://www.facebook.com/quizrace",
+    "https://www.instagram.com/quizrace",
+    "https://www.linkedin.com/company/quizrace"
+  ]
+}`,
+        hreflang: '<link rel="alternate" href="https://quizrace.app/" hreflang="de" />'
+      };
+      Object.entries(example).forEach(([id, value]) => {
+        const field = form.querySelector(`#${id}`);
+        if (field) {
+          field.value = value;
+          field.dispatchEvent(new Event('input'));
+        }
+      });
+    });
+  }
+
   form.addEventListener('submit', e => {
     let valid = true;
     inputs.forEach(input => {
