@@ -35,6 +35,13 @@ class TenantController
             $email = isset($data['email']) ? (string) $data['email'] : null;
             $this->service->createTenant((string) $data['uid'], (string) $data['schema'], $plan, $billing, $email);
         } catch (PDOException $e) {
+            $code = (string) $e->getCode();
+            if (in_array($code, ['23505', '23000'], true)) {
+                $response->getBody()->write(json_encode(['error' => 'tenant-exists']));
+                return $response
+                    ->withStatus(409)
+                    ->withHeader('Content-Type', 'application/json');
+            }
             $msg = 'Database error: ' . $e->getMessage();
             error_log($msg);
             if ($this->displayErrors) {
