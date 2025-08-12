@@ -71,12 +71,14 @@ class AdminController
             }
         }
 
-        $results  = [];
-        $catalogs = [];
-        $teams    = [];
-        $users    = [];
-        $pages    = [];
-        $tenant   = null;
+        $results   = [];
+        $catalogs  = [];
+        $teams     = [];
+        $users     = [];
+        $pages     = [];
+        $tenant    = null;
+        $tenantSvc = null;
+        $sub       = '';
 
         $configSvc = new ConfigService($pdo);
         if (in_array($section, ['results', 'catalogs', 'questions', 'summary'], true)) {
@@ -140,6 +142,31 @@ class AdminController
             $base = Database::connectFromEnv();
             $tenantSvc = new TenantService($base);
             $tenant = $tenantSvc->getBySubdomain($sub);
+        }
+
+        if (
+            $section === 'subscription'
+            && $tenant !== null
+            && ($tenant['stripe_customer_id'] ?? '') === ''
+            && ($tenant['imprint_email'] ?? '') !== ''
+            && StripeService::isConfigured()
+        ) {
+            $service = new StripeService();
+            try {
+                $cid = $service->findCustomerIdByEmail((string) $tenant['imprint_email']);
+                if ($cid === null) {
+                    $cid = $service->createCustomer(
+                        (string) $tenant['imprint_email'],
+                        $tenant['imprint_name'] ?? null
+                    );
+                }
+                $tenant['stripe_customer_id'] = $cid;
+                if ($tenantSvc !== null && $sub !== '') {
+                    $tenantSvc->updateProfile($sub, ['stripe_customer_id' => $cid]);
+                }
+            } catch (\Throwable $e) {
+                // ignore errors; admin page should still render
+            }
         }
 
         $uri    = $request->getUri();

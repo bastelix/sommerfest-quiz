@@ -91,6 +91,19 @@ class StripeService
     }
 
     /**
+     * Create a new customer and return its id.
+     */
+    public function createCustomer(string $email, ?string $name = null): string
+    {
+        $params = ['email' => $email];
+        if ($name !== null) {
+            $params['name'] = $name;
+        }
+        $customer = $this->client->customers->create($params);
+        return (string) $customer->id;
+    }
+
+    /**
      * Create a billing portal session and return its URL.
      */
     public function createBillingPortal(string $customerId, string $returnUrl): string
