@@ -101,14 +101,15 @@
 
   function renderBadges() {
     const s = state.stats || {};
-    const d = document.getElementById('badge-draft');
-    const sch = document.getElementById('badge-scheduled');
-    const r = document.getElementById('badge-running');
-    const f = document.getElementById('badge-finished');
-    if (d) d.textContent = `${s.draftCount || 0} Entwürfe`;
-    if (sch) sch.textContent = `${s.scheduledCount || 0} geplant`;
-    if (r) r.textContent = `${s.runningCount || 0} live`;
-    if (f) f.textContent = `${s.finishedCount || 0} abgeschlossen`;
+    const total = (s.draftCount || 0) + (s.scheduledCount || 0) + (s.runningCount || 0) + (s.finishedCount || 0);
+    const upcoming = (s.scheduledCount || 0) + (s.runningCount || 0);
+    const past = s.finishedCount || 0;
+    const e = document.getElementById('badge-events');
+    const u = document.getElementById('badge-upcoming');
+    const p = document.getElementById('badge-past');
+    if (e) e.textContent = `${total} Veranstaltungen`;
+    if (u) u.textContent = `${upcoming} kommende`;
+    if (p) p.textContent = `${past} vergangene`;
   }
 
   function renderSubscription() {
