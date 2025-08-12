@@ -8,6 +8,7 @@
   "buttonColor": "#1e87f0",
   "CheckAnswerButton": "no",
   "QRRestrict": false,
+  "randomNames": true,
   "competitionMode": false,
   "teamResults": true,
   "photoUpload": true,

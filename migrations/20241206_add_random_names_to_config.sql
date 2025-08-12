@@ -1,0 +1,2 @@
+ALTER TABLE config ADD COLUMN IF NOT EXISTS randomNames BOOLEAN DEFAULT TRUE;
+UPDATE config SET randomNames = TRUE WHERE randomNames IS NULL;
