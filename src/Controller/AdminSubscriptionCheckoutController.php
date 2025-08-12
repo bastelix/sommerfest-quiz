@@ -28,6 +28,8 @@ class AdminSubscriptionCheckoutController
             return $this->jsonError($response, 422, 'invalid plan');
         }
 
+        $embedded = filter_var($data['embedded'] ?? false, FILTER_VALIDATE_BOOLEAN);
+
         $host = $request->getUri()->getHost();
         $sub = explode('.', $host)[0];
 
@@ -67,20 +69,28 @@ class AdminSubscriptionCheckoutController
 
         $service = new StripeService();
         try {
-            $url = $service->createCheckoutSession(
+            $result = $service->createCheckoutSession(
                 $priceId,
                 $successUrl,
                 $cancelUrl,
                 $customerId === '' ? $email : null,
                 $customerId !== '' ? $customerId : null,
-                $sub
+                $sub,
+                $embedded
             );
         } catch (\Throwable $e) {
             error_log($e->getMessage());
             return $this->jsonError($response, 500, 'internal error');
         }
 
-        $payload = json_encode(['url' => $url]);
+        if ($embedded) {
+            $payload = json_encode([
+                'client_secret' => $result,
+                'publishable_key' => $service->getPublishableKey(),
+            ]);
+        } else {
+            $payload = json_encode(['url' => $result]);
+        }
         $response->getBody()->write($payload !== false ? $payload : '{}');
         return $response->withHeader('Content-Type', 'application/json');
     }
