@@ -29,7 +29,7 @@ jobs:
                   curl -L -o resources/fonts/NotoSans-Bold.ttf https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSans/NotoSans-Bold.ttf
 
             - name: Set up PHP ${{ matrix.php }}
-              uses: shivammathur/setup-php@355155f9fb51da580099149361dcbdad69cfab9c
+              uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php }}
                   coverage: xdebug
