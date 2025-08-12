@@ -506,6 +506,28 @@ class TenantService
     }
 
     /**
+     * Remove Stripe association and plan for a given customer.
+     */
+    public function removeStripeCustomer(string $customerId): void
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE tenants SET stripe_customer_id = NULL, plan = NULL WHERE stripe_customer_id = ?'
+        );
+        $stmt->execute([$customerId]);
+    }
+
+    /**
+     * Cancel the plan for a given customer.
+     */
+    public function cancelPlanForCustomer(string $customerId): void
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE tenants SET plan = NULL WHERE stripe_customer_id = ?'
+        );
+        $stmt->execute([$customerId]);
+    }
+
+    /**
      * Retrieve all tenants ordered by creation date.
      *
      * @return list<array{
