@@ -32,7 +32,8 @@ class TenantController
         try {
             $plan = isset($data['plan']) ? (string) $data['plan'] : null;
             $billing = isset($data['billing']) ? (string) $data['billing'] : null;
-            $this->service->createTenant((string) $data['uid'], (string) $data['schema'], $plan, $billing);
+            $email = isset($data['email']) ? (string) $data['email'] : null;
+            $this->service->createTenant((string) $data['uid'], (string) $data['schema'], $plan, $billing, $email);
         } catch (PDOException $e) {
             $msg = 'Database error: ' . $e->getMessage();
             error_log($msg);

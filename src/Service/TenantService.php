@@ -49,6 +49,7 @@ class TenantService
         string $schema,
         ?string $plan = null,
         ?string $billing = null,
+        ?string $email = null,
         ?array $customLimits = null
     ): void {
         if ($this->exists($schema)) {
@@ -85,7 +86,7 @@ class TenantService
             null,
             null,
             null,
-            null,
+            $email,
             $customLimits !== null ? json_encode($customLimits) : null,
             $start?->format('Y-m-d H:i:sP'),
             $end?->format('Y-m-d H:i:sP'),

@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({ email })
       });
       if (res.ok) {
+        localStorage.setItem('onboard_email', email);
         emailStatus.textContent = 'E-Mail versendet. Bitte prüfe dein Postfach.';
         emailStatus.hidden = false;
       }
@@ -72,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     planButtons.forEach(btn => {
       btn.addEventListener('click', async () => {
         const plan = btn.dataset.plan;
-        const email = emailInput.value.trim();
+        const email = localStorage.getItem('onboard_email') || emailInput.value.trim();
         if (!plan) return;
         localStorage.setItem('onboard_plan', plan);
         if (plan === 'starter') {
@@ -87,12 +88,14 @@ document.addEventListener('DOMContentLoaded', () => {
               body: JSON.stringify({
                 uid: subdomain,
                 schema: subdomain,
-                plan
+                plan,
+                email
               })
             });
             if (tRes.ok) {
               localStorage.removeItem('onboard_subdomain');
               localStorage.removeItem('onboard_plan');
+              localStorage.removeItem('onboard_email');
               window.location.href = `https://${subdomain}.${window.mainDomain}/`;
               return;
             }
@@ -135,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
           if (data.paid) {
             const subdomain = localStorage.getItem('onboard_subdomain') || '';
             const plan = localStorage.getItem('onboard_plan') || '';
+            const email = localStorage.getItem('onboard_email') || '';
             if (subdomain && plan) {
               const tRes = await fetch('/tenants', {
                 method: 'POST',
@@ -146,12 +150,14 @@ document.addEventListener('DOMContentLoaded', () => {
                   uid: subdomain,
                   schema: subdomain,
                   plan,
-                  billing: sessionId
+                  billing: sessionId,
+                  email
                 })
               });
               if (tRes.ok) {
                 localStorage.removeItem('onboard_subdomain');
                 localStorage.removeItem('onboard_plan');
+                localStorage.removeItem('onboard_email');
                 window.location.href = `https://${subdomain}.${window.mainDomain}/`;
                 return;
               }

@@ -67,9 +67,11 @@ SQL;
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
-        $service->createTenant('u1', 's1');
+        $service->createTenant('u1', 's1', null, null, 'u1@example.com');
         $count = (int) $pdo->query('SELECT COUNT(*) FROM tenants')->fetchColumn();
         $this->assertSame(1, $count);
+        $email = $pdo->query("SELECT imprint_email FROM tenants WHERE uid='u1'")->fetchColumn();
+        $this->assertSame('u1@example.com', $email);
     }
 
     public function testDeleteTenantRemovesRow(): void
@@ -206,7 +208,7 @@ SQL;
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
-        $service->createTenant('u10', 'sub10', 'starter', null, ['maxEvents' => 2]);
+        $service->createTenant('u10', 'sub10', 'starter', null, null, ['maxEvents' => 2]);
         $limits = $service->getCustomLimitsBySubdomain('sub10');
         $this->assertSame(['maxEvents' => 2], $limits);
         $service->setCustomLimits('sub10', ['maxEvents' => 5]);
