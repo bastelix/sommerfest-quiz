@@ -1312,6 +1312,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventsListEl = document.getElementById('eventsList');
   const eventAddBtn = document.getElementById('eventAddBtn');
   const eventSelect = document.getElementById('eventSelect');
+  const eventSelectWrap = document.getElementById('eventSelectWrap');
   const eventOpenBtn = document.getElementById('eventOpenBtn');
   const langSelect = document.getElementById('langSelect');
   let activeEventUid = cfgInitial.event_uid || '';
@@ -1342,6 +1343,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
         notify('Veranstaltungen gespeichert', 'success');
+        populateEventSelect(list);
       })
       .catch(() => notify('Fehler beim Speichern', 'danger'));
     updateEventRowNumbers();
@@ -1489,6 +1491,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       eventSelect.appendChild(opt);
     });
+    updateEventSelectDisplay();
   }
 
   function updateActiveHeader(name, uid) {
@@ -1498,8 +1501,18 @@ document.addEventListener('DOMContentLoaded', function () {
         eventSelect.value = opt.value;
       }
     }
+    updateEventSelectDisplay();
     const top = document.getElementById('topbar-title');
     if (top) top.textContent = name || top.dataset.defaultTitle || '';
+  }
+
+  function updateEventSelectDisplay() {
+    if (!eventSelectWrap || !eventSelect) return;
+    const btnSpan = eventSelectWrap.querySelector('button > span:first-child');
+    if (btnSpan) {
+      const sel = eventSelect.options[eventSelect.selectedIndex];
+      btnSpan.textContent = sel ? sel.textContent : '';
+    }
   }
 
   function setActiveEvent(uid, name) {

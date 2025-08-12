@@ -38,11 +38,11 @@ class EventService
      */
     public function getAll(bool $publishedOnly = false): array
     {
-        $sql = 'SELECT uid,name,start_date,end_date,description,published FROM events';
+        $sql = 'SELECT uid,name,start_date,end_date,description,published,sort_order FROM events';
         if ($publishedOnly) {
             $sql .= ' WHERE published = TRUE';
         }
-        $sql .= ' ORDER BY name';
+        $sql .= ' ORDER BY sort_order';
         $stmt = $this->pdo->query($sql);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return array_map(function (array $row) {
@@ -81,13 +81,13 @@ class EventService
         $this->pdo->beginTransaction();
 
         $updateStmt = $this->pdo->prepare(
-            'UPDATE events SET name = ?, start_date = ?, end_date = ?, description = ?, published = ? WHERE uid = ?'
+            'UPDATE events SET name = ?, start_date = ?, end_date = ?, description = ?, published = ?, sort_order = ? WHERE uid = ?'
         );
         $insertStmt = $this->pdo->prepare(
-            'INSERT INTO events(uid,name,start_date,end_date,description,published) VALUES(?,?,?,?,?,?)'
+            'INSERT INTO events(uid,name,start_date,end_date,description,published,sort_order) VALUES(?,?,?,?,?,?,?)'
         );
         $uids = [];
-        foreach ($events as $event) {
+        foreach ($events as $idx => $event) {
             $uid = $event['uid'] ?? bin2hex(random_bytes(16));
             $uids[] = $uid;
             $name = (string) $event['name'];
@@ -101,11 +101,12 @@ class EventService
             }
             $desc = $event['description'] ?? null;
             $published = filter_var($event['published'] ?? false, FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
+            $sort = $idx;
 
             if (in_array($uid, $existing, true)) {
-                $updateStmt->execute([$name, $start, $end, $desc, $published, $uid]);
+                $updateStmt->execute([$name, $start, $end, $desc, $published, $sort, $uid]);
             } else {
-                $insertStmt->execute([$uid, $name, $start, $end, $desc, $published]);
+                $insertStmt->execute([$uid, $name, $start, $end, $desc, $published, $sort]);
                 $this->config->ensureConfigForEvent($uid);
             }
         }
