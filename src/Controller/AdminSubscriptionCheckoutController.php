@@ -32,10 +32,21 @@ class AdminSubscriptionCheckoutController
 
         $host = $request->getUri()->getHost();
         $sub = explode('.', $host)[0];
-
-        $base = Database::connectFromEnv();
-        $tenantService = new TenantService($base);
-        $tenant = $tenantService->getBySubdomain($sub);
+        $tenant = null;
+        $domainType = (string) $request->getAttribute('domainType');
+        if ($domainType === 'main') {
+            $path = dirname(__DIR__, 2) . '/data/profile.json';
+            if (is_file($path)) {
+                $tenant = json_decode((string) file_get_contents($path), true);
+                if (!is_array($tenant)) {
+                    $tenant = null;
+                }
+            }
+        } else {
+            $base = Database::connectFromEnv();
+            $tenantService = new TenantService($base);
+            $tenant = $tenantService->getBySubdomain($sub);
+        }
         if ($tenant === null) {
             return $this->jsonError($response, 404, 'tenant not found');
         }
@@ -75,7 +86,7 @@ class AdminSubscriptionCheckoutController
                 $cancelUrl,
                 $customerId === '' ? $email : null,
                 $customerId !== '' ? $customerId : null,
-                $sub,
+                $tenant['subdomain'] ?? $sub,
                 $embedded
             );
         } catch (\Throwable $e) {
