@@ -35,6 +35,7 @@ use App\Service\InvitationService;
 use App\Service\AuditLogger;
 use App\Service\QrCodeService;
 use App\Service\SessionService;
+use App\Service\StripeService;
 use App\Infrastructure\Database;
 use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
@@ -443,6 +444,37 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/profile', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/subscription', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/subscription/portal', SubscriptionController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/subscription/status', function (Request $request, Response $response) {
+        $domainType = (string) $request->getAttribute('domainType');
+        $tenant = null;
+        if ($domainType === 'main') {
+            $path = dirname(__DIR__, 2) . '/data/profile.json';
+            if (is_file($path)) {
+                $tenant = json_decode((string) file_get_contents($path), true);
+            }
+        } else {
+            $host = $request->getUri()->getHost();
+            $sub = explode('.', $host)[0];
+            $base = Database::connectFromEnv();
+            $tenantSvc = new TenantService($base);
+            $tenant = $tenantSvc->getBySubdomain($sub);
+        }
+        $customerId = (string) ($tenant['stripe_customer_id'] ?? '');
+        $payload = [];
+        if ($customerId !== '' && StripeService::isConfigured()) {
+            $service = new StripeService();
+            try {
+                $info = $service->getActiveSubscription($customerId);
+                if ($info !== null) {
+                    $payload = $info;
+                }
+            } catch (\Throwable $e) {
+                // ignore errors
+            }
+        }
+        $response->getBody()->write((string) json_encode($payload));
+        return $response->withHeader('Content-Type', 'application/json');
+    })->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->post(
         '/admin/subscription/checkout',
         AdminSubscriptionCheckoutController::class

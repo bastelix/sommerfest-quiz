@@ -14,6 +14,7 @@ final class StripeServiceTest extends TestCase
         return new class extends \Stripe\StripeClient {
             public object $checkout;
             public object $customers;
+            public object $subscriptions;
 
             public function __construct()
             {
@@ -46,6 +47,31 @@ final class StripeServiceTest extends TestCase
                     public function all(array $params)
                     {
                         return (object) ['data' => []];
+                    }
+                };
+                $this->subscriptions = new class {
+                    public array $lastParams = [];
+
+                    public function all(array $params)
+                    {
+                        $this->lastParams = $params;
+                        return (object) ['data' => [
+                            (object) [
+                                'items' => (object) [
+                                    'data' => [
+                                        (object) [
+                                            'price' => (object) [
+                                                'id' => 'price_standard',
+                                                'unit_amount' => 3900,
+                                                'currency' => 'eur',
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                                'current_period_end' => strtotime('2024-01-01T00:00:00Z'),
+                                'latest_invoice' => (object) ['status' => 'paid'],
+                            ],
+                        ]];
                     }
                 };
             }
@@ -88,5 +114,19 @@ final class StripeServiceTest extends TestCase
         $this->assertSame('user@example.com', $client->customers->lastParams['email'] ?? null);
         $this->assertSame('User', $client->customers->lastParams['name'] ?? null);
         $this->assertSame('cus_new', $id);
+    }
+
+    public function testGetActiveSubscriptionReturnsDetails(): void
+    {
+        $client = $this->createFakeStripeClient();
+        putenv('STRIPE_PRICE_STANDARD=price_standard');
+        $service = new StripeService(client: $client);
+        $info = $service->getActiveSubscription('cus_123');
+        $this->assertNotNull($info);
+        $this->assertSame('standard', $info['plan'] ?? null);
+        $this->assertSame(3900, $info['amount'] ?? null);
+        $this->assertSame('eur', $info['currency'] ?? null);
+        $this->assertSame('paid', $info['status'] ?? null);
+        $this->assertSame('2024-01-01T00:00:00+00:00', $info['next_payment'] ?? null);
     }
 }

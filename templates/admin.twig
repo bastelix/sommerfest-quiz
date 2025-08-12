@@ -837,6 +837,15 @@
         <h2 class="uk-heading-bullet">{{ t('heading_subscription') }}</h2>
         {% set hasCustomer = tenant and tenant.stripe_customer_id %}
         <div class="uk-card uk-card-default uk-card-body uk-margin-small" id="subscription-card">
+          <div id="subscription-details"
+            data-label-plan="{{ t('label_plan') }}"
+            data-label-price="{{ t('label_price') }}"
+            data-label-status="{{ t('label_invoice_status') }}"
+            data-label-next="{{ t('label_next_payment') }}"
+            data-action-cancel="{{ t('action_cancel_subscription') }}"
+            data-plan-starter="{{ t('plan_starter') }}"
+            data-plan-standard="{{ t('plan_standard') }}"
+            data-plan-professional="{{ t('plan_professional') }}"></div>
           <div data-subscription
             data-label-plan="{{ t('label_plan') }}"
             data-label-events="{{ t('label_events') }}"
@@ -947,6 +956,7 @@
   </script>
   <script src="{{ basePath }}/js/dashboard.js"></script>
   <script src="{{ basePath }}/js/admin.js"></script>
+  <script src="{{ basePath }}/js/subscription.js"></script>
   <script src="{{ basePath }}/js/app.js"></script>
   <script src="{{ basePath }}/js/results.js"></script>
   <script src="{{ basePath }}/js/stats.js"></script>
