@@ -219,4 +219,5 @@ return [
     'heading_limit_reached' => 'Limit erreicht',
     'text_upgrade_required' => 'Abo-Limit erreicht. Bitte upgraden, um mehr Ressourcen anzulegen.',
     'action_upgrade' => 'Jetzt upgraden',
+    'text_stripe_config_missing' => 'Stripe-Konfiguration fehlt. Bitte erforderliche Umgebungsvariablen setzen.',
 ];

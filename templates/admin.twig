@@ -54,6 +54,13 @@
       <button id="helpBtn" class="uk-icon-button uk-margin-small-left" uk-icon="icon: question; ratio: 2" aria-label="Hilfe"></button>
     {% endblock %}
   {% endembed %}
+  {% if not stripe_configured %}
+    <div class="uk-container uk-container-large">
+      <div class="uk-alert-danger uk-margin" uk-alert>
+        {{ t('text_stripe_config_missing') }}
+      </div>
+    </div>
+  {% endif %}
   <div class="uk-grid-collapse" uk-grid>
     <aside class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
       <div class="uk-card uk-card-default uk-card-body qr-sidebar-card">
