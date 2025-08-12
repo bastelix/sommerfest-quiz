@@ -31,7 +31,11 @@ class ProfileControllerTest extends TestCase
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
-        $request = $this->createRequest('POST', '/admin/profile', ['HTTP_CONTENT_TYPE' => 'application/json']);
+        $_SESSION['csrf_token'] = 'token';
+        $request = $this->createRequest('POST', '/admin/profile', [
+            'HTTP_CONTENT_TYPE' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => 'token',
+        ]);
         $stream = (new StreamFactory())->createStream(json_encode(['plan' => 'Pro']));
         $request = $request->withBody($stream)
             ->withUri(new Uri('http', 'example.com', 80, '/admin/profile'));

@@ -2,6 +2,9 @@
 
 const basePath = window.basePath || '';
 const withBase = path => basePath + path;
+const getCsrfToken = () =>
+  document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+  window.csrfToken || '';
 function showUpgradeModal() {
   if (document.getElementById('upgrade-modal')) return;
   const modal = document.createElement('div');
@@ -21,9 +24,15 @@ function showUpgradeModal() {
 }
 
 window.apiFetch = (path, options = {}) => {
+  const token = getCsrfToken();
+  const headers = {
+    'X-CSRF-Token': token,
+    ...(options.headers || {})
+  };
   return fetch(withBase(path), {
     credentials: 'same-origin',
-    ...options
+    ...options,
+    headers
   }).then(res => {
     if (res.status === 402) {
       showUpgradeModal();

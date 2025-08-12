@@ -21,11 +21,14 @@ class PageControllerTest extends TestCase
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $_SESSION['csrf_token'] = 'token';
 
         $response = $app->handle($this->createRequest('GET', '/admin/pages/landing'));
         $this->assertEquals(200, $response->getStatusCode());
 
-        $req = $this->createRequest('POST', '/admin/pages/landing');
+        $req = $this->createRequest('POST', '/admin/pages/landing', [
+            'HTTP_X_CSRF_TOKEN' => 'token',
+        ]);
         $req = $req->withParsedBody(['content' => '<p>new</p>']);
         $res = $app->handle($req);
         $this->assertEquals(204, $res->getStatusCode());
