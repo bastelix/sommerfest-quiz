@@ -157,7 +157,8 @@ class ResultControllerTest extends TestCase
         );
         $pdo->exec(
             'CREATE TABLE events(' .
-            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT, sort_order INTEGER DEFAULT 0' .
+            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, ' .
+            'description TEXT, sort_order INTEGER DEFAULT 0' .
             ');'
         );
         $pdo->exec(

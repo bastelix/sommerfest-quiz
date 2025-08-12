@@ -443,8 +443,14 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/profile', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/subscription', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/subscription/portal', SubscriptionController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->post('/admin/subscription/checkout', AdminSubscriptionCheckoutController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/subscription/checkout/{id}', StripeSessionController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->post(
+        '/admin/subscription/checkout',
+        AdminSubscriptionCheckoutController::class
+    )->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get(
+        '/admin/subscription/checkout/{id}',
+        StripeSessionController::class
+    )->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->post('/admin/profile', function (Request $request, Response $response) {
         $controller = new ProfileController();
         return $controller->update($request, $response);
