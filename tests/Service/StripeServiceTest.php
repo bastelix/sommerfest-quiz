@@ -38,11 +38,12 @@ class FakeStripeClient extends \Stripe\StripeClient
 
 final class StripeServiceTest extends TestCase
 {
-    public function testCreateCheckoutSessionAddsPaymentMethodTypes(): void
+    public function testCreateCheckoutSessionAddsPaymentMethodTypesAndTrialPeriod(): void
     {
         $client = new FakeStripeClient();
         $service = new StripeService(client: $client);
         $service->createCheckoutSession('price_123', 'https://success', 'https://cancel', 'user@example.com');
         $this->assertSame(['card'], $client->checkout->sessions->lastParams['payment_method_types'] ?? null);
+        $this->assertSame(7, $client->checkout->sessions->lastParams['subscription_data']['trial_period_days'] ?? null);
     }
 }
