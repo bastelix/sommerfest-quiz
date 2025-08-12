@@ -207,6 +207,7 @@
 - Remove Weisheit font from about section
 - Modernize onboarding step boxes
 - Show pricing plans in onboarding
+- Improve event selector display
 
 ### Test
 
