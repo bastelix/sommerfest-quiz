@@ -55,7 +55,7 @@ class TenantService
         if ($this->exists($schema)) {
             throw new \RuntimeException('tenant-exists');
         }
-        if ($plan !== null && !Plan::isValid($plan)) {
+        if ($plan !== null && Plan::tryFrom($plan) === null) {
             throw new \RuntimeException('invalid-plan');
         }
         if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
@@ -345,7 +345,7 @@ class TenantService
             return $custom;
         }
         $plan = $this->getPlanBySubdomain($subdomain);
-        return $plan !== null ? Plan::limits($plan) : [];
+        return $plan !== null ? (Plan::tryFrom($plan)?->limits() ?? []) : [];
     }
 
     /**
@@ -408,7 +408,7 @@ class TenantService
         $params = [];
         foreach ($fields as $f) {
             if (array_key_exists($f, $data)) {
-                if ($f === 'plan' && $data[$f] !== null && !Plan::isValid((string) $data[$f])) {
+                if ($f === 'plan' && $data[$f] !== null && Plan::tryFrom((string) $data[$f]) === null) {
                     throw new \RuntimeException('invalid-plan');
                 }
                 $set[] = $f . ' = ?';

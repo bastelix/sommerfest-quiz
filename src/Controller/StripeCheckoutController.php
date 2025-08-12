@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Domain\Plan;
+use App\Service\StripeService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use App\Service\StripeService;
 
 /**
  * Start a Stripe Checkout session during onboarding.
@@ -20,11 +21,10 @@ class StripeCheckoutController
             return $response->withStatus(400);
         }
 
-        $plan = (string) ($data['plan'] ?? '');
+        $plan = Plan::tryFrom((string) ($data['plan'] ?? ''));
         $email = (string) ($data['email'] ?? '');
 
-        $allowedPlans = ['starter', 'standard', 'professional'];
-        if (!in_array($plan, $allowedPlans, true)) {
+        if ($plan === null) {
             return $this->jsonError($response, 422, 'invalid plan');
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -38,11 +38,11 @@ class StripeCheckoutController
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
         $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
         $priceMap = [
-            'starter' => getenv($prefix . 'PRICE_STARTER') ?: '',
-            'standard' => getenv($prefix . 'PRICE_STANDARD') ?: '',
-            'professional' => getenv($prefix . 'PRICE_PROFESSIONAL') ?: '',
+            Plan::STARTER->value => getenv($prefix . 'PRICE_STARTER') ?: '',
+            Plan::STANDARD->value => getenv($prefix . 'PRICE_STANDARD') ?: '',
+            Plan::PROFESSIONAL->value => getenv($prefix . 'PRICE_PROFESSIONAL') ?: '',
         ];
-        $priceId = $priceMap[$plan];
+        $priceId = $priceMap[$plan->value];
         if ($priceId === '') {
             return $this->jsonError($response, 422, 'invalid plan');
         }
