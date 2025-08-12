@@ -104,8 +104,20 @@
               <div class="uk-margin-small">
                 <span class="uk-badge" id="badge-draft">0 Entwürfe</span>
                 <span class="uk-badge" id="badge-scheduled">0 geplant</span>
-              <span class="uk-badge" id="badge-running">0 live</span>
-              <span class="uk-badge" id="badge-finished">0 abgeschlossen</span>
+                <span class="uk-badge" id="badge-running">0 live</span>
+                <span class="uk-badge" id="badge-finished">0 abgeschlossen</span>
+              </div>
+
+              <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+                <h3 class="uk-card-title uk-margin-remove">{{ t('heading_subscription_usage') }}</h3>
+                <div data-subscription
+                     data-label-plan="{{ t('label_plan') }}"
+                     data-label-events="{{ t('label_events') }}"
+                     data-label-catalogs="{{ t('label_catalogs') }}"
+                     data-label-questions="{{ t('label_questions') }}"
+                     data-plan-starter="{{ t('plan_starter') }}"
+                     data-plan-standard="{{ t('plan_standard') }}"
+                     data-plan-professional="{{ t('plan_professional') }}"></div>
               </div>
             </div>
 
@@ -822,7 +834,7 @@
         {% set hasCustomer = tenant and tenant.stripe_customer_id %}
         {% set upgradeUrl = hasCustomer ? basePath ~ '/admin/subscription/portal' : basePath ~ '/onboarding' %}
         <div class="uk-card uk-card-default uk-card-body uk-margin-small" id="subscription-card">
-          <div id="subscription"
+          <div data-subscription
             data-label-plan="{{ t('label_plan') }}"
             data-label-events="{{ t('label_events') }}"
             data-label-catalogs="{{ t('label_catalogs') }}"
