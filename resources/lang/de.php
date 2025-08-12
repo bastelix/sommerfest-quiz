@@ -146,7 +146,7 @@ return [
     'label_puzzle_word' => 'Rätselwort',
     'placeholder_puzzle_word' => 'Rätselwort',
     'action_edit_feedback' => 'Feedbacktext bearbeiten',
-    'placeholder_feedback' => 'Feedbacktext eingeben...',
+    'placeholder_feedback' => 'Feedbacktext...',
     'heading_feedback' => 'Feedbacktext für das Rätselwort',
     'heading_catalog_comment' => 'Kommentar zum Katalog',
     'placeholder_catalog_comment' => 'Kommentar eingeben...',
