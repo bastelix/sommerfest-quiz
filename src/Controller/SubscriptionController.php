@@ -21,8 +21,12 @@ class SubscriptionController
         $parts = explode('.', $host);
         $mainDomain = getenv('MAIN_DOMAIN') ?: $host;
         if ($host === $mainDomain || count($parts) < 2) {
+            if ($host === $mainDomain) {
+                $selectUrl = $request->getUri()->getScheme() . '://' . $host . '/admin/tenants';
+                return $response->withHeader('Location', $selectUrl)->withStatus(302);
+            }
             $response->getBody()->write('Missing tenant context');
-            return $response->withStatus(500);
+            return $response->withStatus(400);
         }
         $sub = $parts[0];
 
