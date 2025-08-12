@@ -40,6 +40,7 @@ class StripeService
                 ['price' => $priceId, 'quantity' => 1],
             ],
             'payment_method_types' => ['card'],
+            'subscription_data' => ['trial_period_days' => 7],
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
         ];

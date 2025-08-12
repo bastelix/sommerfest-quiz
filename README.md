@@ -32,6 +32,7 @@ Mit dieser App zeigen wir, was heute schon möglich ist, wenn Menschen und versc
 - **Backup per JSON**: Alle Daten lassen sich exportieren und wieder importieren.
 - **Automatische Bildkompression**: Hochgeladene Fotos werden nun standardmäßig verkleinert und komprimiert.
 - **Rätselwort und Foto-Einwilligung**: Optionales Puzzlewort-Spiel mit DSGVO-konformen Foto-Uploads.
+- **Kostenloser Testzeitraum**: Neue Stripe-Abonnements starten mit einer 7-tägigen Testphase.
 
 ## Fokus der Entwicklung
 
