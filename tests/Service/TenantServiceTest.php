@@ -25,7 +25,7 @@ class TenantServiceTest extends TestCase
             mkdir($dir);
         }
         $sql = <<<'SQL'
-CREATE TABLE events(uid TEXT PRIMARY KEY);
+CREATE TABLE events(uid TEXT PRIMARY KEY, sort_order INTEGER DEFAULT 0);
 CREATE TABLE catalogs(
     uid TEXT PRIMARY KEY,
     sort_order INTEGER,

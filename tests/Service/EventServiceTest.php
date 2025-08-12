@@ -22,7 +22,8 @@ class EventServiceTest extends TestCase
             . 'start_date TEXT, '
             . 'end_date TEXT, '
             . 'description TEXT, '
-            . 'published INTEGER'
+            . 'published INTEGER, '
+            . 'sort_order INTEGER DEFAULT 0'
             . ');'
         );
         $pdo->exec('CREATE TABLE config(id INTEGER PRIMARY KEY AUTOINCREMENT, event_uid TEXT);');
