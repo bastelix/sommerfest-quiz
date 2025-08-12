@@ -86,7 +86,11 @@
     const ul = document.getElementById('upcoming-list');
     const empty = document.getElementById('today-empty');
     if (!ul || !empty) return;
-    const todayEvents = state.events.filter(e => new Date(e.start).toISOString().slice(0,10) === state.today);
+    const todayEvents = state.events.filter(e => {
+      const start = new Date(e.start).toISOString().slice(0, 10);
+      const end = new Date(e.end).toISOString().slice(0, 10);
+      return start <= state.today && end >= state.today;
+    });
     empty.style.display = todayEvents.length ? 'none' : '';
     ul.innerHTML = [...todayEvents, ...state.upcoming].slice(0,5).map(e => {
       const dt = new Date(e.start);
