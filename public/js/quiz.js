@@ -760,7 +760,7 @@ async function runQuiz(questions, skipIntro){
     controls.className = 'uk-margin-top uk-flex uk-flex-center';
     const leftBtn = document.createElement('button');
     leftBtn.className = 'uk-button uk-margin-right';
-    leftBtn.innerHTML = '\u2B05 ' + (q.leftLabel || 'Nein');
+    leftBtn.textContent = '\u2B05 ' + (q.leftLabel || 'Nein');
     styleButton(leftBtn);
     leftBtn.addEventListener('click', () => manualSwipe('left'));
     leftBtn.addEventListener('keydown', e => {
@@ -772,7 +772,7 @@ async function runQuiz(questions, skipIntro){
 
     const rightBtn = document.createElement('button');
     rightBtn.className = 'uk-button';
-    rightBtn.innerHTML = (q.rightLabel || 'Ja') + ' \u27A1';
+    rightBtn.textContent = (q.rightLabel || 'Ja') + ' \u27A1';
     styleButton(rightBtn);
     rightBtn.addEventListener('click', () => manualSwipe('right'));
     rightBtn.addEventListener('keydown', e => {
