@@ -204,6 +204,7 @@ class AdminController
               'tenant' => $tenant,
               'stripe_configured' => StripeService::isConfigured(),
               'currentPath' => $request->getUri()->getPath(),
+              'username' => $_SESSION['user']['username'] ?? '',
               'csrf_token' => $csrf,
           ]);
     }
