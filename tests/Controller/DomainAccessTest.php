@@ -34,7 +34,7 @@ class DomainAccessTest extends TestCase
         }
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
         $request = $this->createRequest('POST', '/tenants');
-        $request = $request->withUri($request->getUri()->withHost('tenant.test'));
+        $request = $request->withUri($request->getUri()->withHost('tenant.main.test'));
         $response = $app->handle($request);
         $this->assertEquals(403, $response->getStatusCode());
         if (session_status() === PHP_SESSION_ACTIVE) {
@@ -57,7 +57,7 @@ class DomainAccessTest extends TestCase
         }
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
         $req = $this->createRequest('GET', '/tenants/foo');
-        $req = $req->withUri($req->getUri()->withHost('tenant.test'));
+        $req = $req->withUri($req->getUri()->withHost('tenant.main.test'));
         $res = $app->handle($req);
         $this->assertEquals(403, $res->getStatusCode());
         if (session_status() === PHP_SESSION_ACTIVE) {

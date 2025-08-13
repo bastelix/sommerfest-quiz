@@ -17,6 +17,8 @@ use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use App\Application\Middleware\SessionMiddleware;
 use App\Application\Middleware\ProxyMiddleware;
+use App\Infrastructure\Migrations\Migrator;
+use PDO;
 
 class TestCase extends PHPUnit_TestCase
 {
@@ -39,6 +41,40 @@ class TestCase extends PHPUnit_TestCase
                 $_ENV['POSTGRES_USER'] = '';
                 $_ENV['POSTGRES_PASSWORD'] = '';
                 $this->tmpDbs[] = $db;
+            }
+        }
+
+        $dsn = getenv('POSTGRES_DSN');
+        if (is_string($dsn) && str_starts_with($dsn, 'sqlite:')) {
+            $pdo = new PDO($dsn);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            Migrator::migrate($pdo, __DIR__ . '/../migrations');
+            foreach (
+                [
+                    'imprint_name',
+                    'imprint_street',
+                    'imprint_zip',
+                    'imprint_city',
+                    'imprint_email',
+                    'custom_limits',
+                    'plan_started_at',
+                    'plan_expires_at',
+                    'stripe_subscription_id',
+                    'stripe_price_id',
+                    'stripe_status',
+                    'stripe_current_period_end',
+                ] as $col
+            ) {
+                try {
+                    $pdo->exec('ALTER TABLE tenants ADD COLUMN ' . $col . ' TEXT');
+                } catch (\Throwable $e) {
+                    // ignore
+                }
+            }
+            try {
+                $pdo->exec('ALTER TABLE tenants ADD COLUMN stripe_cancel_at_period_end INTEGER');
+            } catch (\Throwable $e) {
+                // ignore
             }
         }
 
