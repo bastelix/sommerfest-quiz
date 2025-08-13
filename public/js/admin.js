@@ -69,6 +69,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const checkoutContainer = document.getElementById('stripe-checkout');
   const planButtons = document.querySelectorAll('.plan-select');
   const emailInput = document.getElementById('subscription-email');
+  if (emailInput) {
+    emailInput.addEventListener('input', () => {
+      emailInput.classList.remove('uk-form-danger');
+    });
+  }
   if (planButtons.length) {
     fetch(withBase('/admin/subscription/status'))
       .then(r => (r.ok ? r.json() : null))
@@ -92,7 +97,14 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!plan) return;
       const payload = { plan, embedded: true };
       if (emailInput) {
-        payload.email = emailInput.value;
+        const email = emailInput.value.trim();
+        if (email === '') {
+          emailInput.classList.add('uk-form-danger');
+          emailInput.focus();
+          notify('Bitte E-Mail-Adresse eingeben', 'warning');
+          return;
+        }
+        payload.email = email;
       }
       try {
         const res = await apiFetch('/admin/subscription/checkout', {

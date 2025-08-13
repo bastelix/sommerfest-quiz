@@ -147,4 +147,30 @@ class AdminControllerTest extends TestCase
         putenv('MAIN_DOMAIN');
         unset($_ENV['MAIN_DOMAIN']);
     }
+
+    /**
+     * Render subscription page without existing tenant to ensure email input is shown.
+     *
+     * @runInSeparateProcess
+     */
+    public function testSubscriptionPageShowsEmailInputWhenTenantMissing(): void
+    {
+        require __DIR__ . '/../Service/StripeServiceStub.php';
+        $db = $this->setupDb();
+        putenv('MAIN_DOMAIN=example.com');
+        $_ENV['MAIN_DOMAIN'] = 'example.com';
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $request = $this->createRequest('GET', '/admin/subscription')
+            ->withUri(new Uri('http', 'foo.example.com', 80, '/admin/subscription'));
+        $response = $app->handle($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('id="subscription-email"', $body);
+        session_destroy();
+        unlink($db);
+        putenv('MAIN_DOMAIN');
+        unset($_ENV['MAIN_DOMAIN']);
+    }
 }
