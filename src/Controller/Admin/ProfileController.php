@@ -19,14 +19,20 @@ class ProfileController
             return $response->withStatus(400);
         }
         $fields = [
-            'plan' => (string) ($data['plan'] ?? ''),
-            'billing_info' => (string) ($data['billing_info'] ?? ''),
             'imprint_name' => (string) ($data['imprint_name'] ?? ''),
             'imprint_street' => (string) ($data['imprint_street'] ?? ''),
             'imprint_zip' => (string) ($data['imprint_zip'] ?? ''),
             'imprint_city' => (string) ($data['imprint_city'] ?? ''),
             'imprint_email' => (string) ($data['imprint_email'] ?? ''),
         ];
+
+        if (isset($data['plan']) && $data['plan'] !== '') {
+            $fields['plan'] = (string) $data['plan'];
+        }
+
+        if (isset($data['billing_info']) && $data['billing_info'] !== '') {
+            $fields['billing_info'] = (string) $data['billing_info'];
+        }
 
         $domainType = $request->getAttribute('domainType');
         $pdo = $request->getAttribute('pdo');
