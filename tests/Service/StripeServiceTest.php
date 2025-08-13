@@ -89,7 +89,7 @@ final class StripeServiceTest extends TestCase
         };
     }
 
-    public function testCreateCheckoutSessionAddsPaymentMethodTypesAndTrialPeriod(): void
+    public function testCreateCheckoutSessionAddsAutomaticPaymentMethodsAndTrialPeriod(): void
     {
         $client = $this->createFakeStripeClient();
         $service = new StripeService(client: $client);
@@ -104,8 +104,8 @@ final class StripeServiceTest extends TestCase
             7
         );
         $this->assertSame(
-            ['card'],
-            $client->checkout->sessions->lastParams['payment_method_types'] ?? null
+            ['enabled' => true],
+            $client->checkout->sessions->lastParams['automatic_payment_methods'] ?? null
         );
         $this->assertSame(
             7,
