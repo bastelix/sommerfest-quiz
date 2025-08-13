@@ -18,6 +18,8 @@ class TenantServiceTest extends TestCase
         $pdo->exec(
             'CREATE TABLE tenants(' .
             'uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, stripe_customer_id TEXT, ' .
+            'stripe_subscription_id TEXT, stripe_price_id TEXT, stripe_status TEXT, ' .
+            'stripe_current_period_end TEXT, stripe_cancel_at_period_end INTEGER, ' .
             'imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, ' .
             'imprint_email TEXT, custom_limits TEXT, plan_started_at TEXT, plan_expires_at TEXT, created_at TEXT)'
         );
@@ -274,6 +276,8 @@ SQL;
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE tenants(' .
             'uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, stripe_customer_id TEXT, ' .
+            'stripe_subscription_id TEXT, stripe_price_id TEXT, stripe_status TEXT, ' .
+            'stripe_current_period_end TEXT, stripe_cancel_at_period_end INTEGER, ' .
             'imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, ' .
             'imprint_email TEXT, custom_limits TEXT, plan_started_at TEXT, plan_expires_at TEXT, created_at TEXT)');
         $pdo->exec('CREATE TABLE information_schema.schemata(schema_name TEXT)');

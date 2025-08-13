@@ -62,6 +62,17 @@ class AdminSubscriptionCheckoutController
 
         $email = (string) ($tenant['imprint_email'] ?? '');
         $customerId = (string) ($tenant['stripe_customer_id'] ?? '');
+        if ($email === '') {
+            $payloadEmail = (string) ($data['email'] ?? '');
+            if ($payloadEmail !== '' && filter_var($payloadEmail, FILTER_VALIDATE_EMAIL)) {
+                $email = $payloadEmail;
+                $tenant['imprint_email'] = $email;
+                $tenantService->updateProfile(
+                    $domainType === 'main' ? 'main' : $sub,
+                    ['imprint_email' => $email]
+                );
+            }
+        }
         if ($email === '' && $customerId === '') {
             $logger->warning('Missing tenant email', ['tenant' => $tenant['subdomain'] ?? $sub]);
             return $this->jsonError($response, 422, 'missing email');

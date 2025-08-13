@@ -58,7 +58,13 @@ class CatalogServiceTest extends TestCase
             . 'plan TEXT, '
             . 'custom_limits TEXT, '
             . 'plan_started_at TEXT, '
-            . 'plan_expires_at TEXT'
+            . 'plan_expires_at TEXT, '
+            . 'stripe_customer_id TEXT, '
+            . 'stripe_subscription_id TEXT, '
+            . 'stripe_price_id TEXT, '
+            . 'stripe_status TEXT, '
+            . 'stripe_current_period_end TEXT, '
+            . 'stripe_cancel_at_period_end INTEGER'
             . ');'
         );
         return $pdo;
@@ -109,7 +115,13 @@ class CatalogServiceTest extends TestCase
             . 'plan TEXT, '
             . 'custom_limits TEXT, '
             . 'plan_started_at TEXT, '
-            . 'plan_expires_at TEXT'
+            . 'plan_expires_at TEXT, '
+            . 'stripe_customer_id TEXT, '
+            . 'stripe_subscription_id TEXT, '
+            . 'stripe_price_id TEXT, '
+            . 'stripe_status TEXT, '
+            . 'stripe_current_period_end TEXT, '
+            . 'stripe_cancel_at_period_end INTEGER'
             . ');'
         );
         return $pdo;
