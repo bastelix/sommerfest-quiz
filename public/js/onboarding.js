@@ -16,13 +16,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id');
   const emailParam = params.get('email');
-  if (emailParam && emailInput) {
-    emailInput.value = emailParam;
+  const storedEmail = localStorage.getItem('onboard_email') || '';
+  const storedSubdomain = localStorage.getItem('onboard_subdomain');
+  const storedVerified = localStorage.getItem('onboard_verified') === '1';
+
+  if (emailInput) {
+    if (emailParam) {
+      emailInput.value = emailParam;
+    } else if (storedEmail) {
+      emailInput.value = storedEmail;
+    }
   }
+
   if (params.get('verified') === '1') {
+    localStorage.setItem('onboard_verified', '1');
+  }
+
+  if (params.get('verified') === '1' || storedVerified) {
     step1.hidden = true;
-    step2.hidden = false;
-    if (verifiedHint) verifiedHint.hidden = false;
+    if (storedSubdomain) {
+      step2.hidden = true;
+      if (step3) step3.hidden = false;
+      if (subdomainPreview) subdomainPreview.textContent = storedSubdomain;
+    } else {
+      step2.hidden = false;
+    }
+    if (verifiedHint && params.get('verified') === '1') verifiedHint.hidden = false;
   }
 
   if (sendEmailBtn) {
@@ -96,6 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
               localStorage.removeItem('onboard_subdomain');
               localStorage.removeItem('onboard_plan');
               localStorage.removeItem('onboard_email');
+              localStorage.removeItem('onboard_verified');
               window.location.href = `https://${subdomain}.${window.mainDomain}/`;
               return;
             }
@@ -158,6 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('onboard_subdomain');
                 localStorage.removeItem('onboard_plan');
                 localStorage.removeItem('onboard_email');
+                localStorage.removeItem('onboard_verified');
                 window.location.href = `https://${subdomain}.${window.mainDomain}/`;
                 return;
               }
