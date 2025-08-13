@@ -41,9 +41,9 @@ window.apiFetch = (path, options = {}) => {
     return res;
   });
 };
-window.notify = (msg, status = 'primary') => {
+window.notify = (msg, status = 'primary', timeout = 2000) => {
   if (typeof UIkit !== 'undefined' && UIkit.notification) {
-    UIkit.notification({ message: msg, status, pos: 'top-center', timeout: 2000 });
+    UIkit.notification({ message: msg, status, pos: 'top-center', timeout });
   } else {
     alert(msg);
   }
@@ -112,11 +112,25 @@ document.addEventListener('DOMContentLoaded', function () {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        if (!res.ok) {
-          notify('Fehler beim Starten der Zahlung', 'danger');
+        let data;
+        if (res.ok) {
+          data = await res.json();
+        } else {
+          try {
+            data = await res.json();
+          } catch (e) {
+            data = {};
+          }
+          let msg = 'Fehler beim Starten der Zahlung';
+          if (data.error) {
+            msg += ': ' + data.error;
+          }
+          if (data.log) {
+            msg += '<br><pre>' + data.log + '</pre>';
+          }
+          notify(msg, 'danger', 0);
           return;
         }
-        const data = await res.json();
         if ([data.client_secret, data.publishable_key, window.Stripe, checkoutContainer].every(Boolean)) {
           const stripe = Stripe(data.publishable_key);
           const checkout = await stripe.initEmbeddedCheckout({ clientSecret: data.client_secret });
@@ -128,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       } catch (e) {
         console.error(e);
-        notify('Fehler beim Starten der Zahlung', 'danger');
+        notify('Fehler beim Starten der Zahlung', 'danger', 0);
       }
     });
   });
