@@ -110,7 +110,7 @@ class AdminSubscriptionCheckoutController
                 );
             } catch (\Throwable $e) {
                 $logger->error('Failed to create/find customer', ['error' => $e->getMessage()]);
-                return $this->jsonError($response, 500, 'internal error');
+                return $this->jsonError($response, 503, 'service unavailable');
             }
         }
 
@@ -131,7 +131,7 @@ class AdminSubscriptionCheckoutController
             );
         } catch (\Throwable $e) {
             $logger->error('Checkout session creation failed', ['error' => $e->getMessage()]);
-            return $this->jsonError($response, 500, 'internal error');
+            return $this->jsonError($response, 503, 'service unavailable');
         }
 
         if ($embedded) {
