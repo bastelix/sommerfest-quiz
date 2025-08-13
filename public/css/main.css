@@ -454,6 +454,45 @@ body.dark-mode .onboarding-step {
   box-shadow: 0 6px 30px rgba(0,0,0,0.5);
 }
 
+/* Timeline for onboarding steps */
+.onboarding-timeline {
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+  padding: 0;
+}
+
+.onboarding-timeline .timeline-step {
+  padding: 0.5rem 1rem;
+  margin: 0 0.5rem;
+  border-bottom: 3px solid #e5e5e5;
+  cursor: pointer;
+  color: #666;
+}
+
+.onboarding-timeline .timeline-step.active {
+  border-color: #0c86d0;
+  color: #0c86d0;
+  font-weight: 600;
+}
+
+.onboarding-timeline .timeline-step.completed {
+  border-color: #0c86d0;
+  color: #0c86d0;
+}
+
+body.dark-mode .onboarding-timeline .timeline-step {
+  border-color: #555;
+  color: #aaa;
+}
+
+body.dark-mode .onboarding-timeline .timeline-step.active,
+body.dark-mode .onboarding-timeline .timeline-step.completed {
+  border-color: #1e87f0;
+  color: #1e87f0;
+}
+
 
 /* Wrapper for thumbnails with rotate button */
 .photo-wrapper {

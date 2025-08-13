@@ -12,13 +12,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const verifiedHint = document.getElementById('verifiedHint');
   const basePath = window.basePath || '';
   const withBase = p => basePath + p;
+  const timelineSteps = document.querySelectorAll('.timeline-step');
 
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id');
   const emailParam = params.get('email');
   const storedEmail = localStorage.getItem('onboard_email') || '';
-  const storedSubdomain = localStorage.getItem('onboard_subdomain');
-  const storedVerified = localStorage.getItem('onboard_verified') === '1';
+  let subdomainStored = localStorage.getItem('onboard_subdomain') || '';
+  let verified = params.get('verified') === '1' || localStorage.getItem('onboard_verified') === '1';
+  if (params.get('verified') === '1') {
+    localStorage.setItem('onboard_verified', '1');
+    verified = true;
+  }
 
   if (emailInput) {
     if (emailParam) {
@@ -28,21 +33,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  if (params.get('verified') === '1') {
-    localStorage.setItem('onboard_verified', '1');
-  }
-
-  if (params.get('verified') === '1' || storedVerified) {
-    step1.hidden = true;
-    if (storedSubdomain) {
-      step2.hidden = true;
-      if (step3) step3.hidden = false;
-      if (subdomainPreview) subdomainPreview.textContent = storedSubdomain;
-    } else {
-      step2.hidden = false;
+  let currentStep = 1;
+  function showStep(step) {
+    currentStep = step;
+    step1.hidden = step !== 1;
+    step2.hidden = step !== 2;
+    if (step3) step3.hidden = step !== 3;
+    if (verifiedHint) verifiedHint.hidden = !(step === 2 && verified);
+    if (subdomainPreview && subdomainStored) {
+      subdomainPreview.textContent = subdomainStored;
     }
-    if (verifiedHint && params.get('verified') === '1') verifiedHint.hidden = false;
+    timelineSteps.forEach(el => {
+      const s = parseInt(el.dataset.step, 10);
+      el.classList.toggle('active', s === step);
+      el.classList.toggle('completed', s < step);
+    });
   }
+  if (verified) {
+    currentStep = subdomainStored ? 3 : 2;
+  }
+  showStep(currentStep);
 
   if (sendEmailBtn) {
     sendEmailBtn.addEventListener('click', async () => {
@@ -84,8 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       localStorage.setItem('onboard_subdomain', subdomain);
-      step2.hidden = true;
-      if (step3) step3.hidden = false;
+      subdomainStored = subdomain;
+      showStep(3);
     });
   }
   if (planButtons.length) {
@@ -146,6 +156,21 @@ document.addEventListener('DOMContentLoaded', () => {
           // ignore and show alert below
         }
         alert('Fehler beim Start der Zahlung.');
+      });
+    });
+  }
+
+  if (timelineSteps.length) {
+    timelineSteps.forEach(el => {
+      el.addEventListener('click', () => {
+        const target = parseInt(el.dataset.step, 10);
+        if (target === 1) {
+          showStep(1);
+        } else if (target === 2 && verified) {
+          showStep(2);
+        } else if (target === 3 && verified && subdomainStored) {
+          showStep(3);
+        }
       });
     });
   }
