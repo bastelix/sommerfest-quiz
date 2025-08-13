@@ -72,6 +72,7 @@ class StripeCheckoutController
                 $priceId,
                 $successUrl,
                 $cancelUrl,
+                $plan->value,
                 $email,
                 $customerId,
                 $subdomain

@@ -43,7 +43,9 @@ class StripeCheckoutControllerTest extends TestCase
         $_SESSION['csrf_token'] = 'tok';
         $service = new class extends StripeService {
             public array $args = [];
-            public function __construct() {}
+            public function __construct()
+            {
+            }
             public function findCustomerIdByEmail(string $email): ?string
             {
                 $this->args['email'] = $email;
@@ -53,6 +55,7 @@ class StripeCheckoutControllerTest extends TestCase
                 string $priceId,
                 string $successUrl,
                 string $cancelUrl,
+                string $plan,
                 ?string $customerEmail = null,
                 ?string $customerId = null,
                 ?string $clientReferenceId = null,
@@ -77,6 +80,7 @@ class StripeCheckoutControllerTest extends TestCase
         $request = $request->withAttribute('stripeService', $service);
         $response = $app->handle($request);
         $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('tenant1', $service->args['create'][5] ?? null);
+        $this->assertSame('standard', $service->args['create'][3] ?? null);
+        $this->assertSame('tenant1', $service->args['create'][6] ?? null);
     }
 }
