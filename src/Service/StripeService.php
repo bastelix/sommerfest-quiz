@@ -21,7 +21,8 @@ class StripeService
         }
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
         $envKey = $useSandbox ? 'STRIPE_SANDBOX_SECRET_KEY' : 'STRIPE_SECRET_KEY';
-        $apiKey = $apiKey ?? (getenv($envKey) ?: '');
+        $altKey = $useSandbox ? 'STRIPE_SANDBOX_SECRET' : 'STRIPE_SECRET';
+        $apiKey = $apiKey ?? (getenv($envKey) ?: getenv($altKey) ?: '');
         $this->client = new StripeClient($apiKey);
     }
 
@@ -74,7 +75,8 @@ class StripeService
     {
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
         $envKey = $useSandbox ? 'STRIPE_SANDBOX_PUBLISHABLE_KEY' : 'STRIPE_PUBLISHABLE_KEY';
-        return getenv($envKey) ?: '';
+        $altKey = $useSandbox ? 'STRIPE_SANDBOX_PUBLISHABLE' : 'STRIPE_PUBLISHABLE';
+        return getenv($envKey) ?: getenv($altKey) ?: '';
     }
 
     /**
@@ -201,16 +203,14 @@ class StripeService
     {
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
         $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
-        $required = [
-            'SECRET_KEY',
-            'PUBLISHABLE_KEY',
-            'PRICE_STARTER',
-            'PRICE_STANDARD',
-            'PRICE_PROFESSIONAL',
-        ];
-        foreach ($required as $suffix) {
-            $value = getenv($prefix . $suffix) ?: '';
-            if ($value === '') {
+        $secret = getenv($prefix . 'SECRET_KEY') ?: getenv($prefix . 'SECRET');
+        $pub = getenv($prefix . 'PUBLISHABLE_KEY') ?: getenv($prefix . 'PUBLISHABLE');
+        if ($secret === '' || $pub === '') {
+            return false;
+        }
+        $prices = ['PRICE_STARTER', 'PRICE_STANDARD', 'PRICE_PROFESSIONAL'];
+        foreach ($prices as $suffix) {
+            if ((getenv($prefix . $suffix) ?: '') === '') {
                 return false;
             }
         }

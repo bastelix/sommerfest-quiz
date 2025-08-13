@@ -21,10 +21,12 @@ class StripeWebhookController
         $sigHeader = $request->getHeaderLine('Stripe-Signature');
         $webhookSecret = getenv('STRIPE_WEBHOOK_SECRET') ?: '';
 
-        try {
-            Webhook::constructEvent($payload, $sigHeader, $webhookSecret);
-        } catch (\UnexpectedValueException | \Stripe\Exception\SignatureVerificationException) {
-            return $response->withStatus(400);
+        if ($webhookSecret !== '') {
+            try {
+                Webhook::constructEvent($payload, $sigHeader, $webhookSecret);
+            } catch (\UnexpectedValueException | \Stripe\Exception\SignatureVerificationException) {
+                return $response->withStatus(400);
+            }
         }
 
         $data = json_decode($payload, true);
@@ -41,41 +43,48 @@ class StripeWebhookController
             case 'checkout.session.completed':
                 $sub = (string) ($object['client_reference_id'] ?? '');
                 $customerId = (string) ($object['customer'] ?? '');
+                $subscriptionId = (string) ($object['subscription'] ?? '');
+                $plan = (string) ($object['metadata']['plan'] ?? '');
                 if ($sub !== '' && $customerId !== '') {
-                    $tenantService->updateProfile($sub, ['stripe_customer_id' => $customerId]);
+                    $data = ['stripe_customer_id' => $customerId];
+                    if ($subscriptionId !== '') {
+                        $data['stripe_subscription_id'] = $subscriptionId;
+                    }
+                    if ($plan !== '') {
+                        $data['plan'] = $plan;
+                    }
+                    $tenantService->updateProfile($sub, $data);
                 }
                 break;
             case 'customer.subscription.updated':
                 $customerId = (string) ($object['customer'] ?? '');
                 if ($customerId !== '') {
-                    $plan = $this->mapPriceToPlan(
-                        (string) ($object['items']['data'][0]['price']['id'] ?? '')
-                    );
-                    $billing = ((string) ($object['collection_method'] ?? '') === 'charge_automatically')
-                        ? 'credit'
+                    $priceId = (string) ($object['items']['data'][0]['price']['id'] ?? '');
+                    $plan = $this->mapPriceToPlan($priceId);
+                    $status = (string) ($object['status'] ?? '');
+                    $currentEnd = isset($object['current_period_end'])
+                        ? date('Y-m-d H:i:sP', (int) $object['current_period_end'])
+                        : null;
+                    $cancelAtPeriodEnd = isset($object['cancel_at_period_end'])
+                        ? (bool) $object['cancel_at_period_end']
                         : null;
                     $tenantService->updateByStripeCustomerId($customerId, [
+                        'stripe_subscription_id' => (string) ($object['id'] ?? ''),
                         'plan' => $plan,
-                        'billing_info' => $billing,
+                        'stripe_price_id' => $priceId !== '' ? $priceId : null,
+                        'stripe_status' => $status !== '' ? $status : null,
+                        'stripe_current_period_end' => $currentEnd,
+                        'stripe_cancel_at_period_end' => $cancelAtPeriodEnd,
                     ]);
                 }
                 break;
             case 'customer.subscription.deleted':
                 $customerId = (string) ($object['customer'] ?? '');
                 if ($customerId !== '') {
-                    $tenantService->updateByStripeCustomerId($customerId, ['plan' => null]);
-                }
-                break;
-            case 'customer.deleted':
-                $customerId = (string) ($object['id'] ?? '');
-                if ($customerId !== '') {
-                    $tenantService->removeStripeCustomer($customerId);
-                }
-                break;
-            case 'invoice.payment_failed':
-                $customerId = (string) ($object['customer'] ?? '');
-                if ($customerId !== '') {
-                    $tenantService->cancelPlanForCustomer($customerId);
+                    $tenantService->updateByStripeCustomerId($customerId, [
+                        'plan' => null,
+                        'stripe_status' => 'canceled',
+                    ]);
                 }
                 break;
         }

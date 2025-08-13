@@ -68,15 +68,20 @@ document.addEventListener('DOMContentLoaded', function () {
   const profileSaveBtn = document.getElementById('profileSaveBtn');
   const checkoutContainer = document.getElementById('stripe-checkout');
   const planButtons = document.querySelectorAll('.plan-select');
+  const emailInput = document.getElementById('subscription-email');
   planButtons.forEach(btn => {
     btn.addEventListener('click', async () => {
       const plan = btn.dataset.plan;
       if (!plan) return;
+      const payload = { plan, embedded: true };
+      if (emailInput) {
+        payload.email = emailInput.value;
+      }
       try {
         const res = await apiFetch('/admin/subscription/checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plan, embedded: true })
+          body: JSON.stringify(payload)
         });
         if (!res.ok) {
           notify('Fehler beim Starten der Zahlung', 'danger');
