@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const basePath = window.basePath || '';
   const withBase = p => basePath + p;
   const timelineSteps = document.querySelectorAll('.timeline-step');
+  const restartBtn = document.getElementById('restartOnboarding');
 
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id');
@@ -175,6 +176,16 @@ document.addEventListener('DOMContentLoaded', () => {
           showStep(3);
         }
       });
+    });
+  }
+
+  if (restartBtn) {
+    restartBtn.addEventListener('click', () => {
+      localStorage.removeItem('onboard_subdomain');
+      localStorage.removeItem('onboard_plan');
+      localStorage.removeItem('onboard_email');
+      localStorage.removeItem('onboard_verified');
+      window.location.href = withBase('/onboarding');
     });
   }
 
