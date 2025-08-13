@@ -39,17 +39,27 @@ class StripeService
         ?string $customerEmail = null,
         ?string $customerId = null,
         ?string $clientReferenceId = null,
+        ?int $trialPeriodDays = null,
         bool $embedded = false
     ): string {
+        if ($trialPeriodDays === null) {
+            $envTrial = getenv('STRIPE_TRIAL_DAYS');
+            if ($envTrial !== false && $envTrial !== '') {
+                $trialPeriodDays = (int) $envTrial;
+            }
+        }
+
         $params = [
             'mode' => 'subscription',
             'line_items' => [
                 ['price' => $priceId, 'quantity' => 1],
             ],
             'payment_method_types' => ['card'],
-            'subscription_data' => ['trial_period_days' => 7],
             'metadata' => ['plan' => $plan],
         ];
+        if ($trialPeriodDays !== null) {
+            $params['subscription_data'] = ['trial_period_days' => $trialPeriodDays];
+        }
         if ($embedded) {
             $params['ui_mode'] = 'embedded';
             $params['return_url'] = $successUrl;

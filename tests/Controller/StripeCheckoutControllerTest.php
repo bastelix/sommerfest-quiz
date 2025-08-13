@@ -13,6 +13,7 @@ class StripeCheckoutControllerTest extends TestCase
     {
         putenv('STRIPE_SECRET_KEY=key');
         putenv('STRIPE_PUBLISHABLE_KEY=pub');
+        putenv('STRIPE_WEBHOOK_SECRET=wh');
         putenv('STRIPE_PRICE_STARTER=starter');
         putenv('STRIPE_PRICE_STANDARD=price_standard');
         putenv('STRIPE_PRICE_PROFESSIONAL=pro');
@@ -35,6 +36,7 @@ class StripeCheckoutControllerTest extends TestCase
     {
         putenv('STRIPE_SECRET_KEY=key');
         putenv('STRIPE_PUBLISHABLE_KEY=pub');
+        putenv('STRIPE_WEBHOOK_SECRET=wh');
         putenv('STRIPE_PRICE_STARTER=starter');
         putenv('STRIPE_PRICE_STANDARD=price_standard');
         putenv('STRIPE_PRICE_PROFESSIONAL=pro');
@@ -59,6 +61,7 @@ class StripeCheckoutControllerTest extends TestCase
                 ?string $customerEmail = null,
                 ?string $customerId = null,
                 ?string $clientReferenceId = null,
+                ?int $trialPeriodDays = null,
                 bool $embedded = false
             ): string {
                 $this->args['create'] = func_get_args();
@@ -82,5 +85,6 @@ class StripeCheckoutControllerTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('standard', $service->args['create'][3] ?? null);
         $this->assertSame('tenant1', $service->args['create'][6] ?? null);
+        $this->assertSame(7, $service->args['create'][7] ?? null);
     }
 }

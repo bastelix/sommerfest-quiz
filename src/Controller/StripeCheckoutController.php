@@ -75,7 +75,8 @@ class StripeCheckoutController
                 $plan->value,
                 $email,
                 $customerId,
-                $subdomain
+                $subdomain,
+                7
             );
         } catch (Throwable $e) {
             $this->reportError($e);
