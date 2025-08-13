@@ -8,6 +8,7 @@ use App\Domain\Plan;
 use App\Infrastructure\Database;
 use App\Service\StripeService;
 use App\Service\TenantService;
+use App\Service\LogService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -18,22 +19,29 @@ class AdminSubscriptionCheckoutController
 {
     public function __invoke(Request $request, Response $response): Response
     {
+        $logger = LogService::create('stripe');
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
         $sessionToken = $_SESSION['csrf_token'] ?? '';
         $headerToken = $request->getHeaderLine('X-CSRF-Token');
         if ($sessionToken === '' || $headerToken !== $sessionToken) {
+            $logger->warning('CSRF token mismatch', [
+                'session' => $sessionToken,
+                'header' => $headerToken,
+            ]);
             return $response->withStatus(403);
         }
 
         $data = json_decode((string) $request->getBody(), true);
         if (!is_array($data)) {
+            $logger->warning('Invalid JSON payload');
             return $response->withStatus(400);
         }
 
         $plan = Plan::tryFrom((string) ($data['plan'] ?? ''));
         if ($plan === null) {
+            $logger->warning('Invalid plan', ['plan' => $data['plan'] ?? null]);
             return $this->jsonError($response, 422, 'invalid plan');
         }
 
@@ -48,16 +56,19 @@ class AdminSubscriptionCheckoutController
             ? $tenantService->getMainTenant()
             : $tenantService->getBySubdomain($sub);
         if ($tenant === null) {
+            $logger->warning('Tenant not found', ['subdomain' => $sub, 'domainType' => $domainType]);
             return $this->jsonError($response, 404, 'tenant not found');
         }
 
         $email = (string) ($tenant['imprint_email'] ?? '');
         $customerId = (string) ($tenant['stripe_customer_id'] ?? '');
         if ($email === '' && $customerId === '') {
+            $logger->warning('Missing tenant email', ['tenant' => $tenant['subdomain'] ?? $sub]);
             return $this->jsonError($response, 422, 'missing email');
         }
 
         if (!StripeService::isConfigured()) {
+            $logger->error('Stripe configuration incomplete');
             return $this->jsonError($response, 503, 'service unavailable');
         }
 
@@ -70,6 +81,7 @@ class AdminSubscriptionCheckoutController
         ];
         $priceId = $priceMap[$plan->value];
         if ($priceId === '') {
+            $logger->error('Price ID missing', ['plan' => $plan->value]);
             return $this->jsonError($response, 422, 'invalid plan');
         }
 
@@ -86,7 +98,7 @@ class AdminSubscriptionCheckoutController
                     ['stripe_customer_id' => $customerId]
                 );
             } catch (\Throwable $e) {
-                error_log($e->getMessage());
+                $logger->error('Failed to create/find customer', ['error' => $e->getMessage()]);
                 return $this->jsonError($response, 500, 'internal error');
             }
         }
@@ -107,7 +119,7 @@ class AdminSubscriptionCheckoutController
                 $embedded
             );
         } catch (\Throwable $e) {
-            error_log($e->getMessage());
+            $logger->error('Checkout session creation failed', ['error' => $e->getMessage()]);
             return $this->jsonError($response, 500, 'internal error');
         }
 
@@ -119,6 +131,7 @@ class AdminSubscriptionCheckoutController
         } else {
             $payload = json_encode(['url' => $result]);
         }
+        $logger->info('Checkout session created', ['embedded' => $embedded]);
         $response->getBody()->write($payload !== false ? $payload : '{}');
         return $response->withHeader('Content-Type', 'application/json');
     }
