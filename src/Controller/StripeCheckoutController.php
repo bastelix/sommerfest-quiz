@@ -8,6 +8,7 @@ use App\Domain\Plan;
 use App\Service\StripeService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Throwable;
 
 /**
  * Start a Stripe Checkout session during onboarding.
@@ -63,7 +64,7 @@ class StripeCheckoutController
         $customerId = null;
         try {
             $customerId = $service->findCustomerIdByEmail($email);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $customerId = null;
         }
         try {
@@ -75,9 +76,8 @@ class StripeCheckoutController
                 $customerId,
                 $subdomain
             );
-        } catch (\Throwable $e) {
-            error_log($e->getMessage());
-            error_log($e->getTraceAsString());
+        } catch (Throwable $e) {
+            $this->reportError($e);
             return $this->jsonError($response, 500, 'internal error');
         }
 
@@ -91,5 +91,36 @@ class StripeCheckoutController
         $payload = json_encode(['error' => $message]);
         $response->getBody()->write($payload !== false ? $payload : '{}');
         return $response->withStatus($status)->withHeader('Content-Type', 'application/json');
+    }
+
+    private function reportError(Throwable $e): void
+    {
+        error_log($e->getMessage());
+        error_log($e->getTraceAsString());
+
+        $file = $e->getFile();
+        $line = $e->getLine();
+        $snippet = '';
+
+        if (is_readable($file)) {
+            $lines = file($file);
+            $start = max($line - 3, 0);
+            $excerpt = array_slice($lines, $start, 6, true);
+            foreach ($excerpt as $num => $code) {
+                $snippet .= sprintf('%d: %s', $num + 1, $code);
+            }
+        }
+
+        $body = sprintf(
+            "Fehler: %s\nDatei: %s:%d\n\nCodeausschnitt:\n%s\nStacktrace:\n%s\n",
+            $e->getMessage(),
+            $file,
+            $line,
+            $snippet,
+            $e->getTraceAsString()
+        );
+
+        $headers = "From: noreply@quizrace.app\r\n";
+        @mail('support@quizrace.app', 'Fehler beim Onboarding Schritt 3', $body, $headers);
     }
 }
