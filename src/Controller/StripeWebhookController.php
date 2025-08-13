@@ -65,8 +65,8 @@ class StripeWebhookController
                     $currentEnd = isset($object['current_period_end'])
                         ? date('Y-m-d H:i:sP', (int) $object['current_period_end'])
                         : null;
-                    $cancelAtPeriodEnd = isset($object['cancel_at_period_end'])
-                        ? (bool) $object['cancel_at_period_end']
+                    $cancelAtPeriodEnd = array_key_exists('cancel_at_period_end', $object)
+                        ? ((bool) $object['cancel_at_period_end'] ? 1 : 0)
                         : null;
                     $tenantService->updateByStripeCustomerId($customerId, [
                         'stripe_subscription_id' => (string) ($object['id'] ?? ''),

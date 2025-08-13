@@ -12,6 +12,7 @@ class StripeWebhookControllerTest extends TestCase
 {
     public function testCheckoutSessionCompletedUpdatesCustomerId(): void
     {
+        putenv('STRIPE_WEBHOOK_SECRET=');
         $app = $this->getAppInstance();
         $pdo = Database::connectFromEnv();
         Migrator::migrate($pdo, __DIR__ . '/../../migrations');
@@ -47,6 +48,7 @@ class StripeWebhookControllerTest extends TestCase
 
     public function testCustomerSubscriptionUpdatedUpdatesDetails(): void
     {
+        putenv('STRIPE_WEBHOOK_SECRET=');
         $app = $this->getAppInstance();
         $pdo = Database::connectFromEnv();
         Migrator::migrate($pdo, __DIR__ . '/../../migrations');
@@ -88,6 +90,7 @@ class StripeWebhookControllerTest extends TestCase
 
     public function testCustomerSubscriptionDeletedMarksStatusCanceled(): void
     {
+        putenv('STRIPE_WEBHOOK_SECRET=');
         $app = $this->getAppInstance();
         $pdo = Database::connectFromEnv();
         Migrator::migrate($pdo, __DIR__ . '/../../migrations');

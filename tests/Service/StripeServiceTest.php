@@ -98,11 +98,27 @@ final class StripeServiceTest extends TestCase
             'https://success',
             'https://cancel',
             'starter',
-            'user@example.com'
+            'user@example.com',
+            null,
+            null,
+            7
         );
         $this->assertSame(['card'], $client->checkout->sessions->lastParams['payment_method_types'] ?? null);
         $this->assertSame(7, $client->checkout->sessions->lastParams['subscription_data']['trial_period_days'] ?? null);
         $this->assertSame('starter', $client->checkout->sessions->lastParams['metadata']['plan'] ?? null);
+    }
+
+    public function testCreateCheckoutSessionWithoutTrialOmitsSubscriptionData(): void
+    {
+        $client = $this->createFakeStripeClient();
+        $service = new StripeService(client: $client);
+        $service->createCheckoutSession(
+            'price_123',
+            'https://success',
+            'https://cancel',
+            'starter'
+        );
+        $this->assertArrayNotHasKey('subscription_data', $client->checkout->sessions->lastParams);
     }
 
     public function testCreateCheckoutSessionWithCustomerIdAndReference(): void
