@@ -119,4 +119,32 @@ class AdminControllerTest extends TestCase
         session_destroy();
         unlink($db);
     }
+
+    /**
+     * Ensure stripe customer id is stored when loading subscription page on main domain.
+     *
+     * @runInSeparateProcess
+     */
+    public function testStripeCustomerIdStoredOnMainDomain(): void
+    {
+        require __DIR__ . '/../Service/StripeServiceStub.php';
+        $db = $this->setupDb();
+        putenv('MAIN_DOMAIN=example.com');
+        $_ENV['MAIN_DOMAIN'] = 'example.com';
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $request = $this->createRequest('GET', '/admin/subscription')
+            ->withUri(new Uri('http', 'example.com', 80, '/admin/subscription'));
+        $response = $app->handle($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $pdo = new \PDO($_ENV['POSTGRES_DSN']);
+        $stmt = $pdo->query("SELECT stripe_customer_id FROM tenants WHERE subdomain = 'main'");
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $this->assertEquals('cus_test', $row['stripe_customer_id']);
+        session_destroy();
+        unlink($db);
+        putenv('MAIN_DOMAIN');
+        unset($_ENV['MAIN_DOMAIN']);
+    }
 }
