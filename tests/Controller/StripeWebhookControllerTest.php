@@ -21,7 +21,6 @@ class StripeWebhookControllerTest extends TestCase
             . "VALUES('u1', 'foo', NULL, NULL, NULL, '')"
         );
 
-        putenv('STRIPE_WEBHOOK_SECRET=whsec_test');
         $payload = json_encode([
             'type' => 'checkout.session.completed',
             'data' => ['object' => [
@@ -29,14 +28,8 @@ class StripeWebhookControllerTest extends TestCase
                 'customer' => 'cus_123',
             ]],
         ]);
-
-        $timestamp = (string) time();
-        $signature = hash_hmac('sha256', $timestamp . '.' . ($payload !== false ? $payload : ''), 'whsec_test');
-        $sigHeader = 't=' . $timestamp . ',v1=' . $signature;
-
         $request = $this->createRequest('POST', '/stripe/webhook', [
             'Content-Type' => 'application/json',
-            'Stripe-Signature' => $sigHeader,
         ]);
         $request->getBody()->write($payload !== false ? $payload : '');
         $request->getBody()->rewind();
@@ -58,21 +51,14 @@ class StripeWebhookControllerTest extends TestCase
             . "VALUES('u1', 'foo', 'starter', NULL, 'cus_123', '')"
         );
 
-        putenv('STRIPE_WEBHOOK_SECRET=whsec_test');
         $payload = json_encode([
             'type' => 'customer.deleted',
             'data' => ['object' => [
                 'id' => 'cus_123',
             ]],
         ]);
-
-        $timestamp = (string) time();
-        $signature = hash_hmac('sha256', $timestamp . '.' . ($payload !== false ? $payload : ''), 'whsec_test');
-        $sigHeader = 't=' . $timestamp . ',v1=' . $signature;
-
         $request = $this->createRequest('POST', '/stripe/webhook', [
             'Content-Type' => 'application/json',
-            'Stripe-Signature' => $sigHeader,
         ]);
         $request->getBody()->write($payload !== false ? $payload : '');
         $request->getBody()->rewind();
@@ -96,21 +82,14 @@ class StripeWebhookControllerTest extends TestCase
             . "VALUES('u1', 'foo', 'starter', NULL, 'cus_123', '')"
         );
 
-        putenv('STRIPE_WEBHOOK_SECRET=whsec_test');
         $payload = json_encode([
             'type' => 'invoice.payment_failed',
             'data' => ['object' => [
                 'customer' => 'cus_123',
             ]],
         ]);
-
-        $timestamp = (string) time();
-        $signature = hash_hmac('sha256', $timestamp . '.' . ($payload !== false ? $payload : ''), 'whsec_test');
-        $sigHeader = 't=' . $timestamp . ',v1=' . $signature;
-
         $request = $this->createRequest('POST', '/stripe/webhook', [
             'Content-Type' => 'application/json',
-            'Stripe-Signature' => $sigHeader,
         ]);
         $request->getBody()->write($payload !== false ? $payload : '');
         $request->getBody()->rewind();
