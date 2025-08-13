@@ -1,0 +1,82 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Controller;
+
+use App\Service\StripeService;
+use Tests\TestCase;
+
+class StripeCheckoutControllerTest extends TestCase
+{
+    public function testPostRequiresSubdomain(): void
+    {
+        putenv('STRIPE_SECRET_KEY=key');
+        putenv('STRIPE_PUBLISHABLE_KEY=pub');
+        putenv('STRIPE_PRICE_STARTER=starter');
+        putenv('STRIPE_PRICE_STANDARD=price_standard');
+        putenv('STRIPE_PRICE_PROFESSIONAL=pro');
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['csrf_token'] = 'tok';
+        $request = $this->createRequest('POST', '/onboarding/checkout', [
+            'Content-Type' => 'application/json',
+            'X-CSRF-Token' => 'tok',
+        ]);
+        $stream = fopen('php://temp', 'r+');
+        fwrite($stream, json_encode(['plan' => 'standard', 'email' => 'u@example.com']));
+        rewind($stream);
+        $request = $request->withBody((new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream));
+        $response = $app->handle($request);
+        $this->assertSame(422, $response->getStatusCode());
+    }
+
+    public function testPostStartsCheckoutWithReference(): void
+    {
+        putenv('STRIPE_SECRET_KEY=key');
+        putenv('STRIPE_PUBLISHABLE_KEY=pub');
+        putenv('STRIPE_PRICE_STARTER=starter');
+        putenv('STRIPE_PRICE_STANDARD=price_standard');
+        putenv('STRIPE_PRICE_PROFESSIONAL=pro');
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['csrf_token'] = 'tok';
+        $service = new class extends StripeService {
+            public array $args = [];
+            public function __construct() {}
+            public function findCustomerIdByEmail(string $email): ?string
+            {
+                $this->args['email'] = $email;
+                return 'cus_123';
+            }
+            public function createCheckoutSession(
+                string $priceId,
+                string $successUrl,
+                string $cancelUrl,
+                ?string $customerEmail = null,
+                ?string $customerId = null,
+                ?string $clientReferenceId = null,
+                bool $embedded = false
+            ): string {
+                $this->args['create'] = func_get_args();
+                return 'https://example.com/checkout';
+            }
+        };
+        $request = $this->createRequest('POST', '/onboarding/checkout', [
+            'Content-Type' => 'application/json',
+            'X-CSRF-Token' => 'tok',
+        ]);
+        $stream = fopen('php://temp', 'r+');
+        fwrite($stream, json_encode([
+            'plan' => 'standard',
+            'email' => 'u@example.com',
+            'subdomain' => 'tenant1'
+        ]));
+        rewind($stream);
+        $request = $request->withBody((new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream));
+        $request = $request->withAttribute('stripeService', $service);
+        $response = $app->handle($request);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('tenant1', $service->args['create'][5] ?? null);
+    }
+}

@@ -23,13 +23,8 @@ class StripeSessionController
             ? $service->getCheckoutSessionInfo($sessionId)
             : ['paid' => false, 'customer_id' => null, 'client_reference_id' => null];
 
-        $host = $request->getUri()->getHost();
-        $sub = explode('.', $host)[0];
-        if (
-            $info['paid']
-            && $info['customer_id'] !== null
-            && $info['client_reference_id'] === $sub
-        ) {
+        $sub = $info['client_reference_id'];
+        if ($info['paid'] && $info['customer_id'] !== null && $sub !== null) {
             $base = Database::connectFromEnv();
             $tenantService = new TenantService($base);
             $tenantService->updateProfile($sub, ['stripe_customer_id' => $info['customer_id']]);
