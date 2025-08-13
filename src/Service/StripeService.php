@@ -35,6 +35,7 @@ class StripeService
         string $priceId,
         string $successUrl,
         string $cancelUrl,
+        string $plan,
         ?string $customerEmail = null,
         ?string $customerId = null,
         ?string $clientReferenceId = null,
@@ -47,6 +48,7 @@ class StripeService
             ],
             'payment_method_types' => ['card'],
             'subscription_data' => ['trial_period_days' => 7],
+            'metadata' => ['plan' => $plan],
         ];
         if ($embedded) {
             $params['ui_mode'] = 'embedded';

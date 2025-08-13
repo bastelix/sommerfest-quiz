@@ -125,6 +125,7 @@ class AdminSubscriptionCheckoutController
                     $priceId,
                     $successUrl,
                     $cancelUrl,
+                    $plan->value,
                     $customerId === '' ? $email : null,
                     $customerId !== '' ? $customerId : null,
                     $tenant['subdomain'] ?? $sub,
