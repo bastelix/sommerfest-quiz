@@ -55,6 +55,20 @@ class AdminControllerTest extends TestCase
         unlink($db);
     }
 
+    public function testDashboardShowsGreeting(): void
+    {
+        $db = $this->setupDb();
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin', 'username' => 'alice'];
+        $request = $this->createRequest('GET', '/admin/dashboard');
+        $response = $app->handle($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('Willkommen alice', (string) $response->getBody());
+        session_destroy();
+        unlink($db);
+    }
+
     public function testRedirectForWrongRole(): void
     {
         $db = $this->setupDb();
