@@ -94,6 +94,16 @@ class TenantController
     }
 
     /**
+     * Import missing tenants by scanning available schemas.
+     */
+    public function sync(Request $request, Response $response): Response
+    {
+        $count = $this->service->importMissing();
+        $response->getBody()->write(json_encode(['imported' => $count]));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    /**
      * List all tenants as JSON.
      */
     public function list(Request $request, Response $response): Response

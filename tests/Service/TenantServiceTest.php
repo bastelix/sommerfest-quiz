@@ -254,4 +254,34 @@ SQL;
         $this->assertSame('2000-01-01 00:00:00+00:00', $row['plan_started_at']);
         $this->assertSame('2000-01-31 00:00:00+00:00', $row['plan_expires_at']);
     }
+
+    public function testImportMissingCreatesTenants(): void
+    {
+        $pdo = new class extends PDO {
+            public function __construct()
+            {
+                parent::__construct('sqlite::memory:');
+            }
+
+            public function getAttribute($attr): mixed
+            {
+                if ($attr === PDO::ATTR_DRIVER_NAME) {
+                    return 'pgsql';
+                }
+                return parent::getAttribute($attr);
+            }
+        };
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE tenants(' .
+            'uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, stripe_customer_id TEXT, ' .
+            'imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, ' .
+            'imprint_email TEXT, custom_limits TEXT, plan_started_at TEXT, plan_expires_at TEXT, created_at TEXT)');
+        $pdo->exec('CREATE TABLE information_schema.schemata(schema_name TEXT)');
+        $pdo->exec("INSERT INTO information_schema.schemata(schema_name) VALUES('s1'),('public'),('s2')");
+        $service = new TenantService($pdo);
+        $count = $service->importMissing();
+        $this->assertSame(2, $count);
+        $subs = $pdo->query('SELECT subdomain FROM tenants ORDER BY subdomain')->fetchAll(PDO::FETCH_COLUMN);
+        $this->assertSame(['s1', 's2'], $subs);
+    }
 }

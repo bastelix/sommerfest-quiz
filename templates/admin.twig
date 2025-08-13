@@ -789,6 +789,9 @@
     <li class="{{ activeRoute == 'tenants' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_tenants') }}</h2>
+        <p>
+          <button id="tenantSyncBtn" class="uk-button uk-button-default uk-margin-small-bottom">{{ t('action_sync_tenants') }}</button>
+        </p>
         <div class="uk-overflow-auto">
           <table id="tenantTable" class="uk-table uk-table-divider uk-table-small">
             <thead>
