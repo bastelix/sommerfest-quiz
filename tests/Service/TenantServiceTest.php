@@ -142,6 +142,32 @@ SQL;
         $this->assertTrue($service->exists('www'));
     }
 
+    public function testExistsReturnsFalseIfOnlySchemaExists(): void
+    {
+        $pdo = new class ('sqlite::memory:') extends PDO
+        {
+            public function __construct($dsn)
+            {
+                parent::__construct($dsn);
+            }
+
+            public function getAttribute($attr): mixed
+            {
+                if ($attr === PDO::ATTR_DRIVER_NAME) {
+                    return 'pgsql';
+                }
+                return parent::getAttribute($attr);
+            }
+        };
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec("ATTACH DATABASE ':memory:' AS information_schema");
+        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT)');
+        $pdo->exec('CREATE TABLE information_schema.schemata(schema_name TEXT)');
+        $pdo->exec("INSERT INTO information_schema.schemata(schema_name) VALUES('orphan')");
+        $service = new TenantService($pdo);
+        $this->assertFalse($service->exists('orphan'));
+    }
+
     public function testCreateTenantFailsOnReserved(): void
     {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
@@ -274,6 +300,7 @@ SQL;
             }
         };
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec("ATTACH DATABASE ':memory:' AS information_schema");
         $pdo->exec('CREATE TABLE tenants(' .
             'uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, stripe_customer_id TEXT, ' .
             'stripe_subscription_id TEXT, stripe_price_id TEXT, stripe_status TEXT, ' .
