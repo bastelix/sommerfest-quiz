@@ -87,9 +87,9 @@ class OnboardingController
                 'logged_in' => $loggedIn,
                 'reload_token' => $reloadToken,
                 'csrf_token' => $csrf,
-                'stripe_configured' => (bool) ($stripeConfig['ok'] ?? false),
-                'stripe_missing' => $stripeConfig['missing'] ?? [],
-                'stripe_warnings' => $stripeConfig['warnings'] ?? [],
+                'stripe_configured' => (bool) $stripeConfig['ok'],
+                'stripe_missing' => $stripeConfig['missing'],
+                'stripe_warnings' => $stripeConfig['warnings'],
                 'stripe_error' => $stripeConfig['error'] ?? null,
             ]
         );
