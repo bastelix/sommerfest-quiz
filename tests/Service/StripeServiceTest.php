@@ -89,7 +89,7 @@ final class StripeServiceTest extends TestCase
         };
     }
 
-    public function testCreateCheckoutSessionAddsAutomaticPaymentMethodsAndTrialPeriod(): void
+    public function testCreateCheckoutSessionAddsTrialPeriod(): void
     {
         $client = $this->createFakeStripeClient();
         $service = new StripeService(client: $client);
@@ -104,16 +104,16 @@ final class StripeServiceTest extends TestCase
             7
         );
         $this->assertSame(
-            ['enabled' => true],
-            $client->checkout->sessions->lastParams['automatic_payment_methods'] ?? null
-        );
-        $this->assertSame(
             7,
             $client->checkout->sessions->lastParams['subscription_data']['trial_period_days'] ?? null
         );
         $this->assertSame(
             'starter',
             $client->checkout->sessions->lastParams['metadata']['plan'] ?? null
+        );
+        $this->assertArrayNotHasKey(
+            'automatic_payment_methods',
+            $client->checkout->sessions->lastParams
         );
     }
 
