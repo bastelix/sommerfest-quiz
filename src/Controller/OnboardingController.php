@@ -58,7 +58,7 @@ class OnboardingController
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
         $_SESSION['csrf_token'] = $csrf;
 
-        $stripeConfigured = StripeService::isConfigured();
+        $stripeConfig = StripeService::isConfigured();
 
         return $view->render(
             $response,
@@ -68,7 +68,8 @@ class OnboardingController
                 'logged_in' => $loggedIn,
                 'reload_token' => $reloadToken,
                 'csrf_token' => $csrf,
-                'stripe_configured' => $stripeConfigured,
+                'stripe_configured' => $stripeConfig['ok'],
+                'stripe_missing' => $stripeConfig['missing'] ?? [],
             ]
         );
     }

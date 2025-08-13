@@ -78,7 +78,7 @@ class AdminSubscriptionCheckoutController
             return $this->jsonError($response, 422, 'missing email');
         }
 
-        if (!StripeService::isConfigured()) {
+        if (!StripeService::isConfigured()['ok']) {
             $logger->error('Stripe configuration incomplete');
             return $this->jsonError($response, 503, 'service unavailable');
         }

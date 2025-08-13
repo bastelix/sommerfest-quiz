@@ -20,10 +20,12 @@ if (is_readable($envFile)) {
     }
 }
 
-if (StripeService::isConfigured()) {
+$config = StripeService::isConfigured();
+if ($config['ok']) {
     echo "Stripe configuration OK\n";
     exit(0);
 }
 
-fwrite(STDERR, "Stripe configuration missing\n");
+$missing = implode(', ', $config['missing'] ?? []);
+fwrite(STDERR, "Stripe configuration missing: $missing\n");
 exit(1);
