@@ -146,6 +146,7 @@
 - Support embedded stripe checkout
 - Show event summary on dashboard
 - Add csrf protection to profile page
+- *(admin)* Greet user on dashboard
 
 ### Fix
 
