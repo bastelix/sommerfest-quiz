@@ -162,6 +162,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (timelineSteps.length) {
     timelineSteps.forEach(el => {
+      if (el.classList.contains('inactive')) {
+        return;
+      }
       el.addEventListener('click', () => {
         const target = parseInt(el.dataset.step, 10);
         if (target === 1) {
