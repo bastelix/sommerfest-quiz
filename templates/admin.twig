@@ -57,6 +57,21 @@
       </div>
       <button id="helpBtn" class="uk-icon-button uk-margin-small-left" uk-icon="icon: question; ratio: 2" aria-label="Hilfe"></button>
     {% endblock %}
+    {% block nav_placeholder %}
+      {% set activeRoute = currentPath|split('/admin/')|last %}
+      {% if activeRoute == '' %}
+        {% set activeRoute = 'dashboard' %}
+      {% endif %}
+      {% if activeRoute == 'dashboard' %}
+        <div class="nav-placeholder">
+          <div class="uk-container uk-container-large">
+            <h2 class="uk-heading-bullet">Willkommen {{ username }}</h2>
+          </div>
+        </div>
+      {% else %}
+        <div class="nav-placeholder"></div>
+      {% endif %}
+    {% endblock %}
   {% endembed %}
   {% if not stripe_configured %}
     <div class="uk-container uk-container-large">
