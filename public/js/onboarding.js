@@ -146,17 +146,15 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: JSON.stringify({ plan, email, subdomain })
           });
-          if (res.ok) {
-            const data = await res.json();
-            if (data.url) {
-              window.location.href = data.url;
-              return;
-            }
+          const data = await res.json();
+          if (res.ok && data.url) {
+            window.location.href = data.url;
+            return;
           }
+          alert(data.error || 'Fehler beim Start der Zahlung.');
         } catch (e) {
-          // ignore and show alert below
+          alert('Fehler beim Start der Zahlung.');
         }
-        alert('Fehler beim Start der Zahlung.');
       });
     });
   }
