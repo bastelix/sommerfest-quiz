@@ -437,6 +437,13 @@ class TenantService
      */
     public function updateProfile(string $subdomain, array $data): void
     {
+        foreach ($data as &$value) {
+            if ($value === '') {
+                $value = null;
+            }
+        }
+        unset($value);
+
         $fields = [
             'plan',
             'billing_info',
@@ -452,13 +459,14 @@ class TenantService
         $params = [];
         foreach ($fields as $f) {
             if (array_key_exists($f, $data)) {
-                if ($f === 'plan' && $data[$f] !== null && Plan::tryFrom((string) $data[$f]) === null) {
+                $value = $data[$f];
+                if ($f === 'plan' && $value !== null && Plan::tryFrom((string) $value) === null) {
                     throw new \RuntimeException('invalid-plan');
                 }
                 $set[] = $f . ' = ?';
                 $params[] = $f === 'custom_limits'
-                    ? ($data[$f] !== null ? json_encode($data[$f]) : null)
-                    : $data[$f];
+                    ? ($value !== null ? json_encode($value) : null)
+                    : $value;
             }
         }
 
