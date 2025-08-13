@@ -197,31 +197,106 @@ class StripeService
     }
 
     /**
-     * Check whether Stripe is configured with a secret key and price IDs.
+     * Check whether Stripe is configured and provide details on issues.
+     *
+     * @return array{ok:bool, missing:string[], warnings:string[]}
      */
     public static function isConfigured(): array
     {
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
         $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
-        $secret = getenv($prefix . 'SECRET_KEY') ?: getenv($prefix . 'SECRET');
-        $pub = getenv($prefix . 'PUBLISHABLE_KEY') ?: getenv($prefix . 'PUBLISHABLE');
+
+        $sk = getenv($prefix . 'SECRET_KEY') ?: getenv($prefix . 'SECRET') ?: '';
+        $pk = getenv($prefix . 'PUBLISHABLE_KEY') ?: getenv($prefix . 'PUBLISHABLE') ?: '';
+        $wh = getenv($prefix . 'WEBHOOK_SECRET') ?: '';
+
+        $priceStarter = getenv($prefix . 'PRICE_STARTER') ?: '';
+        $priceStandard = getenv($prefix . 'PRICE_STANDARD') ?: '';
+        $pricePro = getenv($prefix . 'PRICE_PROFESSIONAL') ?: '';
+
+        $mapRequired = [
+            $prefix . 'SECRET_KEY' => $sk,
+            $prefix . 'PUBLISHABLE_KEY' => $pk,
+            $prefix . 'WEBHOOK_SECRET' => $wh,
+            $prefix . 'PRICE_STARTER' => $priceStarter,
+            $prefix . 'PRICE_STANDARD' => $priceStandard,
+            $prefix . 'PRICE_PROFESSIONAL' => $pricePro,
+        ];
+
         $missing = [];
-        if ($secret === '') {
-            $missing[] = $prefix . 'SECRET_KEY';
-            error_log('Missing ' . $prefix . 'SECRET_KEY');
-        }
-        if ($pub === '') {
-            $missing[] = $prefix . 'PUBLISHABLE_KEY';
-            error_log('Missing ' . $prefix . 'PUBLISHABLE_KEY');
-        }
-        $prices = ['PRICE_STARTER', 'PRICE_STANDARD', 'PRICE_PROFESSIONAL'];
-        foreach ($prices as $suffix) {
-            $var = $prefix . $suffix;
-            if ((getenv($var) ?: '') === '') {
-                $missing[] = $var;
-                error_log('Missing ' . $var);
+        foreach ($mapRequired as $name => $val) {
+            if ($val === '') {
+                $missing[] = $name;
+                error_log('Missing ' . $name);
             }
         }
-        return $missing === [] ? ['ok' => true] : ['ok' => false, 'missing' => $missing];
+
+        $warnings = [];
+        $skLive = str_starts_with($sk, 'sk_live_');
+        $pkLive = str_starts_with($pk, 'pk_live_');
+        if (($skLive && !$pkLive) || (!$skLive && $pkLive)) {
+            $warnings[] = 'Publishable/Secret Key sind nicht im selben Modus (test vs live).';
+        }
+
+        $appEnv = getenv('APP_ENV') ?: 'dev';
+        if ($appEnv === 'production' && !$skLive) {
+            $warnings[] = 'APP_ENV=production, aber Test-Keys verwendet.';
+        }
+        if ($appEnv !== 'production' && $skLive) {
+            $warnings[] = 'Nicht-Produktivumgebung mit Live-Keys.';
+        }
+
+        return [
+            'ok' => $missing === [],
+            'missing' => $missing,
+            'warnings' => $warnings,
+        ];
+    }
+
+    /**
+     * Perform a preflight check to ensure configured price IDs exist and are active.
+     *
+     * @return array{ok:bool, issues:string[]}
+     */
+    public static function preflight(): array
+    {
+        $issues = [];
+        $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
+        $sk = $useSandbox
+            ? (getenv('STRIPE_SANDBOX_SECRET_KEY') ?: getenv('STRIPE_SANDBOX_SECRET') ?: '')
+            : (getenv('STRIPE_SECRET_KEY') ?: getenv('STRIPE_SECRET') ?: '');
+
+        if ($sk === '') {
+            return ['ok' => false, 'issues' => ['Secret-Key fehlt']];
+        }
+
+        try {
+            $client = new StripeClient($sk);
+            $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
+            $prices = [
+                'starter' => getenv($prefix . 'PRICE_STARTER') ?: '',
+                'standard' => getenv($prefix . 'PRICE_STANDARD') ?: '',
+                'pro' => getenv($prefix . 'PRICE_PROFESSIONAL') ?: '',
+            ];
+            foreach ($prices as $name => $id) {
+                if ($id === '') {
+                    $issues[] = "Price-ID für {$name} fehlt";
+                    continue;
+                }
+                try {
+                    $p = $client->prices->retrieve($id, []);
+                    if (!$p->active) {
+                        $issues[] = "Price {$name} ({$id}) ist inaktiv";
+                    }
+                } catch (\Throwable $e) {
+                    $issues[] = "Price {$name} ({$id}) nicht abrufbar: "
+                        . $e->getMessage();
+                }
+            }
+        } catch (\Throwable $e) {
+            $issues[] = 'Stripe SDK/Client-Fehler: ' . $e->getMessage();
+        }
+
+        return ['ok' => $issues === [], 'issues' => $issues];
     }
 }

@@ -20,6 +20,6 @@ class StripeService
 
     public static function isConfigured(): array
     {
-        return ['ok' => true];
+        return ['ok' => true, 'missing' => [], 'warnings' => []];
     }
 }

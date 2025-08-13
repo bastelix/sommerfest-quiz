@@ -26,7 +26,16 @@ class OnboardingController
 
         $serviceUser = getenv('SERVICE_USER') ?: '';
         $servicePass = getenv('SERVICE_PASS') ?: '';
-        if ($serviceUser !== '' && $servicePass !== '' && !isset($_SESSION['user'])) {
+        $appEnv = getenv('APP_ENV') ?: 'dev';
+        $allowServiceLogin = $appEnv !== 'production'
+            || getenv('ALLOW_SERVICE_LOGIN') === '1';
+
+        if (
+            $allowServiceLogin
+            && $serviceUser !== ''
+            && $servicePass !== ''
+            && !isset($_SESSION['user'])
+        ) {
             $pdo = $request->getAttribute('pdo');
             if (!$pdo instanceof PDO) {
                 $pdo = Database::connectFromEnv();
@@ -58,7 +67,17 @@ class OnboardingController
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
         $_SESSION['csrf_token'] = $csrf;
 
-        $stripeConfig = StripeService::isConfigured();
+        try {
+            $stripeConfig = StripeService::isConfigured();
+        } catch (\Throwable $e) {
+            $stripeConfig = [
+                'ok' => false,
+                'missing' => [],
+                'warnings' => [],
+                'error' => 'Stripe-Konfig konnte nicht geprüft werden: '
+                    . $e->getMessage(),
+            ];
+        }
 
         return $view->render(
             $response,
@@ -68,8 +87,10 @@ class OnboardingController
                 'logged_in' => $loggedIn,
                 'reload_token' => $reloadToken,
                 'csrf_token' => $csrf,
-                'stripe_configured' => $stripeConfig['ok'],
+                'stripe_configured' => (bool) ($stripeConfig['ok'] ?? false),
                 'stripe_missing' => $stripeConfig['missing'] ?? [],
+                'stripe_warnings' => $stripeConfig['warnings'] ?? [],
+                'stripe_error' => $stripeConfig['error'] ?? null,
             ]
         );
     }
