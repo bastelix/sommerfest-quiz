@@ -130,19 +130,8 @@ class TenantService
         }
         $stmt = $this->pdo->prepare('SELECT 1 FROM tenants WHERE subdomain = ?');
         $stmt->execute([$subdomain]);
-        if ($stmt->fetchColumn() !== false) {
-            return true;
-        }
 
-        if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'sqlite') {
-            $check = $this->pdo->prepare('SELECT schema_name FROM information_schema.schemata WHERE schema_name = ?');
-            $check->execute([$subdomain]);
-            if ($check->fetchColumn() !== false) {
-                return true;
-            }
-        }
-
-        return false;
+        return $stmt->fetchColumn() !== false;
     }
 
     private function isReserved(string $subdomain): bool
