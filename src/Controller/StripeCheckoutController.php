@@ -23,12 +23,16 @@ class StripeCheckoutController
 
         $plan = Plan::tryFrom((string) ($data['plan'] ?? ''));
         $email = (string) ($data['email'] ?? '');
+        $subdomain = (string) ($data['subdomain'] ?? '');
 
         if ($plan === null) {
             return $this->jsonError($response, 422, 'invalid plan');
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return $this->jsonError($response, 422, 'invalid email');
+        }
+        if ($subdomain === '' || !preg_match('/^[a-z0-9-]+$/', $subdomain)) {
+            return $this->jsonError($response, 422, 'invalid subdomain');
         }
 
         if (!StripeService::isConfigured()) {
@@ -52,9 +56,25 @@ class StripeCheckoutController
         $successUrl = $base . '/onboarding?paid=1&session_id={CHECKOUT_SESSION_ID}';
         $cancelUrl = $base . '/onboarding?canceled=1&session_id={CHECKOUT_SESSION_ID}';
 
-        $service = new StripeService();
+        $service = $request->getAttribute('stripeService');
+        if (!$service instanceof StripeService) {
+            $service = new StripeService();
+        }
+        $customerId = null;
         try {
-            $url = $service->createCheckoutSession($priceId, $successUrl, $cancelUrl, $email);
+            $customerId = $service->findCustomerIdByEmail($email);
+        } catch (\Throwable $e) {
+            $customerId = null;
+        }
+        try {
+            $url = $service->createCheckoutSession(
+                $priceId,
+                $successUrl,
+                $cancelUrl,
+                $email,
+                $customerId,
+                $subdomain
+            );
         } catch (\Throwable $e) {
             error_log($e->getMessage());
             error_log($e->getTraceAsString());

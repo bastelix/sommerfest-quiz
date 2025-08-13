@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (plan === 'starter') {
           const subdomain = localStorage.getItem('onboard_subdomain') || '';
           try {
-            const tRes = await fetch('/tenants', {
+            const tRes = await fetch(withBase('/tenants'), {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -126,13 +126,14 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
         try {
+          const subdomain = localStorage.getItem('onboard_subdomain') || '';
           const res = await fetch(withBase('/onboarding/checkout'), {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
               'X-CSRF-Token': window.csrfToken || ''
             },
-            body: JSON.stringify({ plan, email })
+            body: JSON.stringify({ plan, email, subdomain })
           });
           if (res.ok) {
             const data = await res.json();
