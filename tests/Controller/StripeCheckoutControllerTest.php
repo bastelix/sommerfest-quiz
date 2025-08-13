@@ -49,11 +49,6 @@ class StripeCheckoutControllerTest extends TestCase
             public function __construct()
             {
             }
-            public function findCustomerIdByEmail(string $email): ?string
-            {
-                $this->args['email'] = $email;
-                return 'cus_123';
-            }
             public function createCheckoutSession(
                 string $priceId,
                 string $successUrl,
@@ -85,6 +80,8 @@ class StripeCheckoutControllerTest extends TestCase
         $response = $app->handle($request);
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('standard', $service->args['create'][3] ?? null);
+        $this->assertSame('u@example.com', $service->args['create'][4] ?? null);
+        $this->assertNull($service->args['create'][5] ?? null);
         $this->assertSame('tenant1', $service->args['create'][6] ?? null);
         $this->assertSame(7, $service->args['create'][7] ?? null);
     }

@@ -61,12 +61,6 @@ class StripeCheckoutController
         if (!$service instanceof StripeService) {
             $service = new StripeService();
         }
-        $customerId = null;
-        try {
-            $customerId = $service->findCustomerIdByEmail($email);
-        } catch (Throwable $e) {
-            $customerId = null;
-        }
         try {
             $url = $service->createCheckoutSession(
                 $priceId,
@@ -74,7 +68,7 @@ class StripeCheckoutController
                 $cancelUrl,
                 $plan->value,
                 $email,
-                $customerId,
+                null,
                 $subdomain,
                 7
             );
