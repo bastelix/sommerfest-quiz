@@ -471,6 +471,11 @@ body.dark-mode .onboarding-step {
   color: #666;
 }
 
+.onboarding-timeline .timeline-step.inactive {
+  cursor: not-allowed;
+  color: #bbb;
+}
+
 .onboarding-timeline .timeline-step.active {
   border-color: #0c86d0;
   color: #0c86d0;
@@ -485,6 +490,12 @@ body.dark-mode .onboarding-step {
 body.dark-mode .onboarding-timeline .timeline-step {
   border-color: #555;
   color: #aaa;
+}
+
+body.dark-mode .onboarding-timeline .timeline-step.inactive {
+  color: #444;
+  border-color: #555;
+  cursor: not-allowed;
 }
 
 body.dark-mode .onboarding-timeline .timeline-step.active,

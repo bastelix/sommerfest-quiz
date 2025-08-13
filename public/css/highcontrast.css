@@ -28,6 +28,11 @@ body.high-contrast .onboarding-timeline .timeline-step.completed {
   border-color: #000000;
   color: #000000;
 }
+body.high-contrast .onboarding-timeline .timeline-step.inactive {
+  border-color: #666666;
+  color: #666666;
+  cursor: not-allowed;
+}
 body.high-contrast .uk-button-primary {
   background-color: #000000;
   border-color: #000000;
@@ -102,6 +107,11 @@ body.dark-mode.high-contrast .onboarding-timeline .timeline-step.active,
 body.dark-mode.high-contrast .onboarding-timeline .timeline-step.completed {
   border-color: #ffffff;
   color: #ffffff;
+}
+body.dark-mode.high-contrast .onboarding-timeline .timeline-step.inactive {
+  border-color: #999999;
+  color: #999999;
+  cursor: not-allowed;
 }
 
 body.dark-mode.high-contrast .uk-button-primary {
