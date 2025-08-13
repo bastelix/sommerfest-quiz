@@ -197,7 +197,7 @@ return [
     'action_restore_demo' => 'Restore demo data',
     'action_refresh' => 'Refresh',
     'action_open_subscription' => 'Open customer portal',
-    'action_start_subscription' => 'Start subscription',
+    'action_start_subscription' => 'Subscribe',
     'action_open_evaluation' => 'Open evaluation',
     'action_download' => 'Download',
     'action_delete_tenant' => 'Delete tenant',
@@ -217,6 +217,6 @@ return [
     'action_set_password' => 'Set password',
     'heading_limit_reached' => 'Limit reached',
     'text_upgrade_required' => 'Subscription limit reached. Please upgrade to add more resources.',
-    'action_upgrade' => 'Upgrade now',
+    'action_upgrade' => 'Upgrade',
     'text_stripe_config_missing' => 'Stripe configuration missing. Please set required environment variables.',
 ];

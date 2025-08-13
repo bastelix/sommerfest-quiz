@@ -198,7 +198,7 @@ return [
     'action_restore_demo' => 'Demodaten wiederherstellen',
     'action_refresh' => 'Aktualisieren',
     'action_open_subscription' => 'Kundenportal öffnen',
-    'action_start_subscription' => 'Abo buchen',
+    'action_start_subscription' => 'Buchen',
     'action_open_evaluation' => 'Auswertung öffnen',
     'action_download' => 'Herunterladen',
     'action_delete_tenant' => 'Mandant löschen',
@@ -219,6 +219,6 @@ return [
     'action_set_password' => 'Passwort setzen',
     'heading_limit_reached' => 'Limit erreicht',
     'text_upgrade_required' => 'Abo-Limit erreicht. Bitte upgraden, um mehr Ressourcen anzulegen.',
-    'action_upgrade' => 'Jetzt upgraden',
+    'action_upgrade' => 'Upgrade',
     'text_stripe_config_missing' => 'Stripe-Konfiguration fehlt. Bitte erforderliche Umgebungsvariablen setzen.',
 ];

@@ -69,6 +69,23 @@ document.addEventListener('DOMContentLoaded', function () {
   const checkoutContainer = document.getElementById('stripe-checkout');
   const planButtons = document.querySelectorAll('.plan-select');
   const emailInput = document.getElementById('subscription-email');
+  if (planButtons.length) {
+    fetch(withBase('/admin/subscription/status'))
+      .then(r => (r.ok ? r.json() : null))
+      .then(data => {
+        const currentPlan = data?.plan || '';
+        planButtons.forEach(btn => {
+          const btnPlan = btn.dataset.plan;
+          if (!btnPlan) return;
+          if (btnPlan === currentPlan) {
+            btn.disabled = true;
+          } else if (currentPlan) {
+            btn.textContent = window.transUpgradeAction || 'Upgrade';
+          }
+        });
+      })
+      .catch(() => {});
+  }
   planButtons.forEach(btn => {
     btn.addEventListener('click', async () => {
       const plan = btn.dataset.plan;
