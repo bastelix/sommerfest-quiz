@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const plan = btn.dataset.plan;
       if (!plan) return;
       try {
-        const res = await fetch(withBase('/admin/subscription/checkout'), {
+        const res = await apiFetch('/admin/subscription/checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ plan, embedded: true })
