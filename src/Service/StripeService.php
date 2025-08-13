@@ -54,7 +54,7 @@ class StripeService
             'line_items' => [
                 ['price' => $priceId, 'quantity' => 1],
             ],
-            'payment_method_types' => ['card'],
+            'automatic_payment_methods' => ['enabled' => true],
             'metadata' => ['plan' => $plan],
         ];
         if ($trialPeriodDays !== null) {
