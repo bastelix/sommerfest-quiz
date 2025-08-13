@@ -455,7 +455,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             : $tenantSvc->getBySubdomain(explode('.', $request->getUri()->getHost())[0]);
         $customerId = (string) ($tenant['stripe_customer_id'] ?? '');
         $payload = [];
-        if ($customerId !== '' && StripeService::isConfigured()) {
+        if ($customerId !== '' && StripeService::isConfigured()['ok']) {
             $service = new StripeService();
             try {
                 $info = $service->getActiveSubscription($customerId);

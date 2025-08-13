@@ -199,21 +199,29 @@ class StripeService
     /**
      * Check whether Stripe is configured with a secret key and price IDs.
      */
-    public static function isConfigured(): bool
+    public static function isConfigured(): array
     {
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
         $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
         $secret = getenv($prefix . 'SECRET_KEY') ?: getenv($prefix . 'SECRET');
         $pub = getenv($prefix . 'PUBLISHABLE_KEY') ?: getenv($prefix . 'PUBLISHABLE');
-        if ($secret === '' || $pub === '') {
-            return false;
+        $missing = [];
+        if ($secret === '') {
+            $missing[] = $prefix . 'SECRET_KEY';
+            error_log('Missing ' . $prefix . 'SECRET_KEY');
+        }
+        if ($pub === '') {
+            $missing[] = $prefix . 'PUBLISHABLE_KEY';
+            error_log('Missing ' . $prefix . 'PUBLISHABLE_KEY');
         }
         $prices = ['PRICE_STARTER', 'PRICE_STANDARD', 'PRICE_PROFESSIONAL'];
         foreach ($prices as $suffix) {
-            if ((getenv($prefix . $suffix) ?: '') === '') {
-                return false;
+            $var = $prefix . $suffix;
+            if ((getenv($var) ?: '') === '') {
+                $missing[] = $var;
+                error_log('Missing ' . $var);
             }
         }
-        return true;
+        return $missing === [] ? ['ok' => true] : ['ok' => false, 'missing' => $missing];
     }
 }

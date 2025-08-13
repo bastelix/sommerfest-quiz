@@ -36,7 +36,7 @@ class StripeCheckoutController
             return $this->jsonError($response, 422, 'invalid subdomain');
         }
 
-        if (!StripeService::isConfigured()) {
+        if (!StripeService::isConfigured()['ok']) {
             return $this->jsonError($response, 503, 'service unavailable');
         }
 

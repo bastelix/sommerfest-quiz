@@ -43,7 +43,7 @@ if ($logger instanceof Logger) {
 }
 
 // verify Stripe configuration before starting the app
-if (!StripeService::isConfigured()) {
+if (!StripeService::isConfigured()['ok']) {
     $logger->error('Stripe configuration missing');
 }
 

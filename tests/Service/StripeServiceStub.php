@@ -18,8 +18,8 @@ class StripeService
         return 'cus_test';
     }
 
-    public static function isConfigured(): bool
+    public static function isConfigured(): array
     {
-        return true;
+        return ['ok' => true];
     }
 }

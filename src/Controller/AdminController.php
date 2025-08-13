@@ -147,7 +147,7 @@ class AdminController
             && $tenant !== null
             && ($tenant['stripe_customer_id'] ?? '') === ''
             && ($tenant['imprint_email'] ?? '') !== ''
-            && StripeService::isConfigured()
+            && StripeService::isConfigured()['ok']
         ) {
             $service = new StripeService();
             try {
@@ -204,7 +204,7 @@ class AdminController
               'pages' => $pages,
               'domainType' => $request->getAttribute('domainType'),
               'tenant' => $tenant,
-              'stripe_configured' => StripeService::isConfigured(),
+              'stripe_configured' => StripeService::isConfigured()['ok'],
               'currentPath' => $request->getUri()->getPath(),
               'username' => $_SESSION['user']['username'] ?? '',
               'csrf_token' => $csrf,
