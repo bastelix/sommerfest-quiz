@@ -227,6 +227,7 @@
 - Expect marketing pages on main domain
 - Cover main profile update
 - *(admin)* Ensure dashboard greets username
+- *(admin)* Ensure dashboard greets username
 
 ## [0.1.0] - 2025-06-16
 
