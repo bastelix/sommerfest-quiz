@@ -148,6 +148,7 @@
 - Add csrf protection to profile page
 - *(admin)* Greet user on dashboard
 - *(onboarding)* Show upcoming steps
+- Validate onboarding inputs
 
 ### Fix
 
