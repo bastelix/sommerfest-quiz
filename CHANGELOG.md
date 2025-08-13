@@ -228,6 +228,7 @@
 - Cover main profile update
 - *(admin)* Ensure dashboard greets username
 - *(admin)* Ensure dashboard greets username
+- Update profile plan enum
 
 ## [0.1.0] - 2025-06-16
 
