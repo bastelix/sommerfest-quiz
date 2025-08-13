@@ -15,6 +15,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const timelineSteps = document.querySelectorAll('.timeline-step');
   const restartBtn = document.getElementById('restartOnboarding');
 
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  function isValidSubdomain(subdomain) {
+    return /^[a-z0-9-]{3,}$/.test(subdomain);
+  }
+
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id');
   const emailParam = params.get('email');
@@ -59,6 +67,11 @@ document.addEventListener('DOMContentLoaded', () => {
     sendEmailBtn.addEventListener('click', async () => {
       const email = emailInput.value.trim();
       if (!email) return;
+      if (!isValidEmail(email)) {
+        emailStatus.textContent = 'Ungültige E-Mail-Adresse.';
+        emailStatus.hidden = false;
+        return;
+      }
       const res = await fetch(withBase('/onboarding/email'), {
         method: 'POST',
         headers: {
@@ -85,6 +98,10 @@ document.addEventListener('DOMContentLoaded', () => {
     saveSubdomainBtn.addEventListener('click', async () => {
       const subdomain = subdomainInput.value.trim().toLowerCase();
       if (!subdomain) return;
+      if (!isValidSubdomain(subdomain)) {
+        alert('Ungültige Subdomain.');
+        return;
+      }
       const res = await fetch(withBase('/tenants/' + encodeURIComponent(subdomain)));
       if (res.ok) {
         alert('Subdomain bereits vergeben.');
@@ -104,10 +121,18 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.addEventListener('click', async () => {
         const plan = btn.dataset.plan;
         const email = localStorage.getItem('onboard_email') || emailInput.value.trim();
+        const subdomain = localStorage.getItem('onboard_subdomain') || '';
         if (!plan) return;
+        if (!isValidEmail(email)) {
+          alert('Ungültige E-Mail-Adresse.');
+          return;
+        }
+        if (!isValidSubdomain(subdomain)) {
+          alert('Ungültige Subdomain.');
+          return;
+        }
         localStorage.setItem('onboard_plan', plan);
         if (plan === 'starter') {
-          const subdomain = localStorage.getItem('onboard_subdomain') || '';
           try {
             const tRes = await fetch(withBase('/tenants'), {
               method: 'POST',
@@ -137,7 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
         try {
-          const subdomain = localStorage.getItem('onboard_subdomain') || '';
           const res = await fetch(withBase('/onboarding/checkout'), {
             method: 'POST',
             headers: {
@@ -197,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const subdomain = localStorage.getItem('onboard_subdomain') || '';
             const plan = localStorage.getItem('onboard_plan') || '';
             const email = localStorage.getItem('onboard_email') || '';
-            if (subdomain && plan) {
+            if (isValidSubdomain(subdomain) && isValidEmail(email) && plan) {
               const tRes = await fetch(withBase('/tenants'), {
                 method: 'POST',
                 headers: {
@@ -220,6 +244,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = `https://${subdomain}.${window.mainDomain}/`;
                 return;
               }
+            } else {
+              alert('Ungültige Daten für die Registrierung.');
             }
           }
         }
