@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (sessionId) {
     (async () => {
       try {
-        const res = await fetch('/onboarding/checkout/' + encodeURIComponent(sessionId));
+        const res = await fetch(withBase('/onboarding/checkout/' + encodeURIComponent(sessionId)));
         if (res.ok) {
           const data = await res.json();
           if (data.paid) {
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const plan = localStorage.getItem('onboard_plan') || '';
             const email = localStorage.getItem('onboard_email') || '';
             if (subdomain && plan) {
-              const tRes = await fetch('/tenants', {
+              const tRes = await fetch(withBase('/tenants'), {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
