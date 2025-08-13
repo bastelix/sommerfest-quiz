@@ -1,0 +1,25 @@
+name: Update tenants
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build image and update tenants
+        uses: appleboy/ssh-action@d91a1af6f57cd4478ceee14d7705601dafabaa19
+        with:
+          host: ${{ secrets.DOMAIN }}
+          username: ${{ secrets.USER }}
+          password: ${{ secrets.PASSWORD }}
+          script: |
+            cd /var/sommerfest-quiz
+            git pull
+            docker build -t Sommerfest-Quiz:latest .
+            for compose in tenants/*/docker-compose.yml; do
+              slug=$(basename "$(dirname "$compose")")
+              docker compose -f "$compose" -p "$slug" pull
+              docker compose -f "$compose" -p "$slug" up -d
+            done
+
