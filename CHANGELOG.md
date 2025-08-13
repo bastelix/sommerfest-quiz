@@ -25,6 +25,7 @@
 - Restrict access to hidden files
 - Use textContent for quiz buttons
 - Fix style and security warnings
+- Reformat stripe tests for readability
 
 ### Ci
 
