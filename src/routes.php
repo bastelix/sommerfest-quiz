@@ -441,7 +441,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/pages', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/management', AdminController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
-    $app->get('/admin/profile', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/profile', AdminController::class)
+        ->add(new RoleAuthMiddleware(...Roles::ALL))
+        ->add(new CsrfMiddleware());
     $app->get('/admin/subscription', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/subscription/portal', SubscriptionController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/subscription/status', function (Request $request, Response $response) {
