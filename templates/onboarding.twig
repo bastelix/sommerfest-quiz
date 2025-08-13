@@ -88,6 +88,31 @@
 {% block body %}
   {% embed 'topbar.twig' %}{% endembed %}
   <div class="uk-container uk-margin-large-top">
+    {% if stripe_error %}
+      <div class="uk-alert-danger" uk-alert>
+        <p>{{ stripe_error }}</p>
+      </div>
+    {% endif %}
+
+    {% if not stripe_configured %}
+      <div class="uk-alert-danger" uk-alert>
+        <p>Stripe ist unvollständig konfiguriert.</p>
+        <ul>
+          {% for key in stripe_missing %}
+            <li>{{ key }} fehlt</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% elseif stripe_warnings|length %}
+      <div class="uk-alert-warning" uk-alert>
+        <p>Stripe-Warnungen:</p>
+        <ul>
+          {% for w in stripe_warnings %}
+            <li>{{ w }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
     <ul class="onboarding-timeline uk-flex uk-flex-center uk-margin-bottom" id="stepTimeline">
       <li class="timeline-step active" data-step="1">1. E-Mail</li>
       <li class="timeline-step" data-step="2">2. Subdomain</li>
