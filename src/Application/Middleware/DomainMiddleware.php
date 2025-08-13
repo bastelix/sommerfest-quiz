@@ -19,9 +19,21 @@ class DomainMiddleware implements MiddlewareInterface
      */
     public function process(Request $request, RequestHandler $handler): Response
     {
-        $host = $request->getUri()->getHost();
-        $mainDomain = getenv('MAIN_DOMAIN') ?: '';
-        $domainType = $host === $mainDomain ? 'main' : 'tenant';
+        $host = strtolower($request->getUri()->getHost());
+        $host = (string) preg_replace('/^www\./', '', $host);
+
+        $mainDomain = strtolower((string) getenv('MAIN_DOMAIN'));
+        $mainDomain = (string) preg_replace('/^www\./', '', $mainDomain);
+
+        $domainType = 'main';
+        if (
+            $mainDomain !== ''
+            && $host !== $mainDomain
+            && str_ends_with($host, '.' . $mainDomain)
+        ) {
+            $domainType = 'tenant';
+        }
+
         $request = $request->withAttribute('domainType', $domainType);
 
         return $handler->handle($request);

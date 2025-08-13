@@ -164,7 +164,7 @@ class TenantControllerTest extends TestCase
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
         $req = $this->createRequest('POST', '/tenants');
-        $req = $req->withUri($req->getUri()->withHost('tenant.test'));
+        $req = $req->withUri($req->getUri()->withHost('tenant.main.test'));
         $res = $app->handle($req);
         $this->assertEquals(403, $res->getStatusCode());
         session_destroy();
@@ -183,7 +183,7 @@ class TenantControllerTest extends TestCase
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
         $req = $this->createRequest('DELETE', '/tenants');
-        $req = $req->withUri($req->getUri()->withHost('tenant.test'));
+        $req = $req->withUri($req->getUri()->withHost('tenant.main.test'));
         $res = $app->handle($req);
         $this->assertEquals(403, $res->getStatusCode());
         session_destroy();

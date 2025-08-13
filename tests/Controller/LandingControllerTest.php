@@ -22,7 +22,7 @@ class LandingControllerTest extends TestCase
         putenv('MAIN_DOMAIN=main.test');
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/landing');
-        $request = $request->withUri($request->getUri()->withHost('tenant.test'));
+        $request = $request->withUri($request->getUri()->withHost('tenant.main.test'));
         $response = $app->handle($request);
         $this->assertEquals(404, $response->getStatusCode());
         if ($old === false) {
