@@ -43,12 +43,17 @@ class StripeCheckoutControllerTest extends TestCase
         $_SESSION['csrf_token'] = 'tok';
         $service = new class extends StripeService {
             public array $args = [];
-            public function __construct() {}
+
+            public function __construct()
+            {
+            }
+
             public function findCustomerIdByEmail(string $email): ?string
             {
                 $this->args['email'] = $email;
                 return 'cus_123';
             }
+
             public function createCheckoutSession(
                 string $priceId,
                 string $successUrl,
