@@ -161,6 +161,8 @@ class AdminController
                 $tenant['stripe_customer_id'] = $cid;
                 if ($sub !== '') {
                     $tenantSvc->updateProfile($sub, ['stripe_customer_id' => $cid]);
+                } else {
+                    $tenantSvc->updateProfile('main', ['stripe_customer_id' => $cid]);
                 }
             } catch (\Throwable $e) {
                 // ignore errors; admin page should still render
