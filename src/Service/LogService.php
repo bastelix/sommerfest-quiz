@@ -28,5 +28,22 @@ class LogService
         $logger->pushHandler(new StreamHandler($logDir . '/' . $channel . '.log', Level::Debug));
         return $logger;
     }
+
+    /**
+     * Fetch the most recent log lines for the given channel.
+     */
+    public static function tail(string $channel, int $lines = 20): string
+    {
+        $root = dirname(__DIR__, 2);
+        $file = $root . '/logs/' . $channel . '.log';
+        if (!is_file($file)) {
+            return '';
+        }
+        $content = file($file);
+        if ($content === false) {
+            return '';
+        }
+        return implode('', array_slice($content, -$lines));
+    }
 }
 

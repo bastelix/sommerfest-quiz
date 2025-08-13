@@ -149,8 +149,13 @@ class AdminSubscriptionCheckoutController
 
     private function jsonError(Response $response, int $status, string $message): Response
     {
-        $payload = json_encode(['error' => $message]);
-        $response->getBody()->write($payload !== false ? $payload : '{}');
+        $payload = ['error' => $message];
+        $log = LogService::tail('stripe');
+        if ($log !== '') {
+            $payload['log'] = $log;
+        }
+        $json = json_encode($payload);
+        $response->getBody()->write($json !== false ? $json : '{}');
         return $response->withStatus($status)->withHeader('Content-Type', 'application/json');
     }
 }
