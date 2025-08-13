@@ -36,14 +36,14 @@ class ProfileControllerTest extends TestCase
             'HTTP_CONTENT_TYPE' => 'application/json',
             'HTTP_X_CSRF_TOKEN' => 'token',
         ]);
-        $stream = (new StreamFactory())->createStream(json_encode(['plan' => 'Pro']));
+        $stream = (new StreamFactory())->createStream(json_encode(['plan' => 'standard']));
         $request = $request->withBody($stream)
             ->withUri(new Uri('http', 'example.com', 80, '/admin/profile'));
         $response = $app->handle($request);
         $this->assertEquals(204, $response->getStatusCode());
         $pdo = new PDO('sqlite:' . $db);
         $plan = $pdo->query("SELECT plan FROM tenants WHERE subdomain = 'main'")?->fetchColumn();
-        $this->assertSame('Pro', $plan);
+        $this->assertSame('standard', $plan);
         session_destroy();
         unlink($db);
         putenv('POSTGRES_DSN');
