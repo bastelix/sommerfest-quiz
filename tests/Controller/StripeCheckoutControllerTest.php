@@ -45,6 +45,7 @@ class StripeCheckoutControllerTest extends TestCase
         $_SESSION['csrf_token'] = 'tok';
         $service = new class extends StripeService {
             public array $args = [];
+
             public function __construct()
             {
             }

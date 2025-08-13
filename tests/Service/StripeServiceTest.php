@@ -103,9 +103,18 @@ final class StripeServiceTest extends TestCase
             null,
             7
         );
-        $this->assertSame(['card'], $client->checkout->sessions->lastParams['payment_method_types'] ?? null);
-        $this->assertSame(7, $client->checkout->sessions->lastParams['subscription_data']['trial_period_days'] ?? null);
-        $this->assertSame('starter', $client->checkout->sessions->lastParams['metadata']['plan'] ?? null);
+        $this->assertSame(
+            ['card'],
+            $client->checkout->sessions->lastParams['payment_method_types'] ?? null
+        );
+        $this->assertSame(
+            7,
+            $client->checkout->sessions->lastParams['subscription_data']['trial_period_days'] ?? null
+        );
+        $this->assertSame(
+            'starter',
+            $client->checkout->sessions->lastParams['metadata']['plan'] ?? null
+        );
     }
 
     public function testCreateCheckoutSessionWithoutTrialOmitsSubscriptionData(): void
@@ -134,8 +143,14 @@ final class StripeServiceTest extends TestCase
             'cus_123',
             'tenant1'
         );
-        $this->assertSame('cus_123', $client->checkout->sessions->lastParams['customer'] ?? null);
-        $this->assertSame('tenant1', $client->checkout->sessions->lastParams['client_reference_id'] ?? null);
+        $this->assertSame(
+            'cus_123',
+            $client->checkout->sessions->lastParams['customer'] ?? null
+        );
+        $this->assertSame(
+            'tenant1',
+            $client->checkout->sessions->lastParams['client_reference_id'] ?? null
+        );
     }
 
     public function testCreateEmbeddedCheckoutSessionReturnsClientSecret(): void
@@ -149,8 +164,14 @@ final class StripeServiceTest extends TestCase
             'starter',
             embedded: true
         );
-        $this->assertSame('embedded', $client->checkout->sessions->lastParams['ui_mode'] ?? null);
-        $this->assertSame('https://success', $client->checkout->sessions->lastParams['return_url'] ?? null);
+        $this->assertSame(
+            'embedded',
+            $client->checkout->sessions->lastParams['ui_mode'] ?? null
+        );
+        $this->assertSame(
+            'https://success',
+            $client->checkout->sessions->lastParams['return_url'] ?? null
+        );
         $this->assertSame('sec_123', $secret);
     }
 
@@ -159,8 +180,14 @@ final class StripeServiceTest extends TestCase
         $client = $this->createFakeStripeClient();
         $service = new StripeService(client: $client);
         $id = $service->createCustomer('user@example.com', 'User');
-        $this->assertSame('user@example.com', $client->customers->lastParams['email'] ?? null);
-        $this->assertSame('User', $client->customers->lastParams['name'] ?? null);
+        $this->assertSame(
+            'user@example.com',
+            $client->customers->lastParams['email'] ?? null
+        );
+        $this->assertSame(
+            'User',
+            $client->customers->lastParams['name'] ?? null
+        );
         $this->assertSame('cus_new', $id);
     }
 
@@ -170,8 +197,14 @@ final class StripeServiceTest extends TestCase
         $service = new StripeService(client: $client);
         $info = $service->getCheckoutSessionInfo('sess_123');
         $this->assertTrue($info['paid']);
-        $this->assertSame('cus_123', $info['customer_id']);
-        $this->assertSame('tenant1', $info['client_reference_id']);
+        $this->assertSame(
+            'cus_123',
+            $info['customer_id']
+        );
+        $this->assertSame(
+            'tenant1',
+            $info['client_reference_id']
+        );
     }
 
     public function testGetActiveSubscriptionReturnsDetails(): void
@@ -181,10 +214,25 @@ final class StripeServiceTest extends TestCase
         $service = new StripeService(client: $client);
         $info = $service->getActiveSubscription('cus_123');
         $this->assertNotNull($info);
-        $this->assertSame('standard', $info['plan'] ?? null);
-        $this->assertSame(3900, $info['amount'] ?? null);
-        $this->assertSame('eur', $info['currency'] ?? null);
-        $this->assertSame('paid', $info['status'] ?? null);
-        $this->assertSame('2024-01-01T00:00:00+00:00', $info['next_payment'] ?? null);
+        $this->assertSame(
+            'standard',
+            $info['plan'] ?? null
+        );
+        $this->assertSame(
+            3900,
+            $info['amount'] ?? null
+        );
+        $this->assertSame(
+            'eur',
+            $info['currency'] ?? null
+        );
+        $this->assertSame(
+            'paid',
+            $info['status'] ?? null
+        );
+        $this->assertSame(
+            '2024-01-01T00:00:00+00:00',
+            $info['next_payment'] ?? null
+        );
     }
 }
