@@ -1890,6 +1890,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const exportJsonBtn = document.getElementById('exportJsonBtn');
   const backupTableBody = document.getElementById('backupTableBody');
   const tenantTableBody = document.getElementById('tenantTableBody');
+  const tenantSyncBtn = document.getElementById('tenantSyncBtn');
 
   function loadBackups() {
     if (!backupTableBody) return;
@@ -1989,6 +1990,24 @@ document.addEventListener('DOMContentLoaded', function () {
       .catch(err => {
         console.error(err);
         notify('Fehler beim Export', 'danger');
+      });
+  });
+
+  tenantSyncBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    const original = tenantSyncBtn.innerHTML;
+    tenantSyncBtn.disabled = true;
+    tenantSyncBtn.innerHTML = '<div uk-spinner></div>';
+    apiFetch('/tenants/sync', { method: 'POST' })
+      .then(r => r.json())
+      .then(() => {
+        notify('Mandanten eingelesen', 'success');
+        loadTenants();
+      })
+      .catch(() => notify('Fehler beim Synchronisieren', 'danger'))
+      .finally(() => {
+        tenantSyncBtn.disabled = false;
+        tenantSyncBtn.innerHTML = original;
       });
   });
 

@@ -536,6 +536,38 @@ class TenantService
     }
 
     /**
+     * Import tenant records for schemas that are missing in the tenants table.
+     */
+    public function importMissing(): int
+    {
+        if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
+            return 0;
+        }
+
+        $existing = $this->pdo
+            ->query('SELECT subdomain FROM tenants')
+            ->fetchAll(PDO::FETCH_COLUMN);
+        $stmt = $this->pdo->query(
+            "SELECT schema_name FROM information_schema.schemata " .
+            "WHERE schema_name NOT LIKE 'pg_%' " .
+            "AND schema_name NOT IN ('information_schema','public')"
+        );
+        $ins = $this->pdo->prepare('INSERT INTO tenants(uid, subdomain) VALUES(?, ?)');
+        $count = 0;
+        while (($schema = $stmt->fetchColumn()) !== false) {
+            if (in_array($schema, $existing, true)) {
+                continue;
+            }
+            if ($this->isReserved($schema)) {
+                continue;
+            }
+            $ins->execute([bin2hex(random_bytes(16)), $schema]);
+            $count++;
+        }
+        return $count;
+    }
+
+    /**
      * Retrieve all tenants ordered by creation date.
      *
      * @return list<array{

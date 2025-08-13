@@ -630,6 +630,13 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('tenantController')->delete($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::SERVICE_ACCOUNT));
 
+    $app->post('/tenants/sync', function (Request $request, Response $response) {
+        if ($request->getAttribute('domainType') !== 'main') {
+            return $response->withStatus(403);
+        }
+        return $request->getAttribute('tenantController')->sync($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
     $app->get('/tenants.json', function (Request $request, Response $response) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(403);

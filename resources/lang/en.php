@@ -201,6 +201,7 @@ return [
     'action_open_evaluation' => 'Open evaluation',
     'action_download' => 'Download',
     'action_delete_tenant' => 'Delete tenant',
+    'action_sync_tenants' => 'Import missing subdomains',
     'action_renew_ssl' => 'Renew SSL',
     'help_admin_pass' => 'Defines the admin password for the new tenant. Leave empty to generate a random one',
     'info_admin_email' => 'The link to set the admin password will be sent by email.',
