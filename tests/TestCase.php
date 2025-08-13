@@ -162,7 +162,11 @@ class TestCase extends PHPUnit_TestCase
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         \App\Infrastructure\Migrations\Migrator::migrate($pdo, __DIR__ . '/../migrations');
-        $pdo->exec('ALTER TABLE tenants ADD COLUMN custom_limits TEXT');
+        try {
+            $pdo->exec('ALTER TABLE tenants ADD COLUMN custom_limits TEXT');
+        } catch (\Throwable $e) {
+            // ignore
+        }
         return $pdo;
     }
 

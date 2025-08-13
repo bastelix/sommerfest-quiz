@@ -17,8 +17,15 @@ class PageVariableService
      */
     public static function apply(string $html): string
     {
-        $pdo = Database::connectFromEnv();
-        $profile = (new TenantService($pdo))->getMainTenant();
+        try {
+            $pdo = Database::connectFromEnv();
+            $profile = (new TenantService($pdo))->getMainTenant();
+        } catch (\Throwable $e) {
+            $file = dirname(__DIR__, 2) . '/data/profile.json';
+            $profile = is_readable($file)
+                ? json_decode((string) file_get_contents($file), true) ?: []
+                : [];
+        }
 
         $replacements = [
             '[NAME]' => $profile['imprint_name'] ?? '',

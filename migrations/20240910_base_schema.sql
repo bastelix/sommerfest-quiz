@@ -190,6 +190,19 @@ CREATE TABLE IF NOT EXISTS tenants (
     plan TEXT,
     billing_info TEXT,
     stripe_customer_id TEXT,
+    stripe_subscription_id TEXT,
+    stripe_price_id TEXT,
+    stripe_status TEXT,
+    stripe_current_period_end TIMESTAMP WITH TIME ZONE,
+    stripe_cancel_at_period_end BOOLEAN,
+    imprint_name TEXT,
+    imprint_street TEXT,
+    imprint_zip TEXT,
+    imprint_city TEXT,
+    imprint_email TEXT,
+    custom_limits TEXT,
+    plan_started_at TIMESTAMP WITH TIME ZONE,
+    plan_expires_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

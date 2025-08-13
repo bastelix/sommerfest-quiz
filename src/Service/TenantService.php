@@ -457,6 +457,9 @@ class TenantService
                 if ($f === 'plan' && $value !== null && Plan::tryFrom((string) $value) === null) {
                     throw new \RuntimeException('invalid-plan');
                 }
+                if (is_bool($value)) {
+                    $value = $value ? 1 : 0;
+                }
                 $set[] = $f . ' = ?';
                 $params[] = $f === 'custom_limits'
                     ? ($value !== null ? json_encode($value) : null)

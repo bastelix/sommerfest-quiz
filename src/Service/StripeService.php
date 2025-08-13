@@ -219,13 +219,13 @@ class StripeService
         $mapRequired = [
             $prefix . 'SECRET_KEY' => $sk,
             $prefix . 'PUBLISHABLE_KEY' => $pk,
-            $prefix . 'WEBHOOK_SECRET' => $wh,
             $prefix . 'PRICE_STARTER' => $priceStarter,
             $prefix . 'PRICE_STANDARD' => $priceStandard,
             $prefix . 'PRICE_PROFESSIONAL' => $pricePro,
         ];
 
         $missing = [];
+        $warnings = [];
         foreach ($mapRequired as $name => $val) {
             if ($val === '') {
                 $missing[] = $name;
@@ -233,7 +233,10 @@ class StripeService
             }
         }
 
-        $warnings = [];
+        if ($wh === '') {
+            $warnings[] = $prefix . 'WEBHOOK_SECRET missing';
+            error_log('Missing ' . $prefix . 'WEBHOOK_SECRET');
+        }
         $skLive = str_starts_with($sk, 'sk_live_');
         $pkLive = str_starts_with($pk, 'pk_live_');
         if (($skLive && !$pkLive) || (!$skLive && $pkLive)) {
