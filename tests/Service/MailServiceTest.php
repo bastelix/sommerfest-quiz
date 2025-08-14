@@ -28,7 +28,10 @@ class MailServiceTest extends TestCase
         $_ENV['POSTGRES_PASSWORD'] = '';
         $pdo = new PDO('sqlite:' . $this->db);
         Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
-        $pdo->exec("INSERT INTO tenants(uid, subdomain, imprint_name, imprint_email) VALUES('main','main','Example Org','admin@example.org')");
+        $pdo->exec(
+            "INSERT INTO tenants(uid, subdomain, imprint_name, imprint_email) "
+            . "VALUES('main','main','Example Org','admin@example.org')"
+        );
     }
 
     protected function tearDown(): void
