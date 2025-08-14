@@ -151,6 +151,7 @@
 - *(admin)* Greet user on dashboard
 - *(onboarding)* Show upcoming steps
 - Validate onboarding inputs
+- *(onboarding)* Reinstate app creation progress
 
 ### Fix
 
