@@ -213,11 +213,98 @@ document.addEventListener('DOMContentLoaded', () => {
     const subdomain = localStorage.getItem('onboard_subdomain') || '';
     const plan = localStorage.getItem('onboard_plan') || '';
     const email = localStorage.getItem('onboard_email') || '';
+    const taskStatus = document.getElementById('task-status');
+    const taskLog = document.getElementById('task-log');
+
+    const tasks = [
+      { id: 'create', label: 'Mandant anlegen' },
+      { id: 'import', label: 'Inhalte importieren' },
+      { id: 'proxy', label: 'Proxy neu laden' },
+      { id: 'ssl', label: 'SSL aktivieren' },
+      { id: 'wait', label: 'Warten auf Verfügbarkeit' }
+    ];
+    const taskEls = {};
+
+    const addLog = msg => {
+      if (!taskLog) return;
+      const li = document.createElement('li');
+      li.textContent = msg;
+      taskLog.appendChild(li);
+    };
+
+    const mark = (id, ok) => {
+      const el = taskEls[id];
+      if (!el) return;
+      el.textContent = el.textContent.replace(' …', '') + (ok ? ' ✓' : ' ✗');
+    };
+
+    if (taskStatus) {
+      tasks.forEach(t => {
+        const li = document.createElement('li');
+        li.id = 'task-' + t.id;
+        li.textContent = t.label + ' …';
+        taskStatus.appendChild(li);
+        taskEls[t.id] = li;
+      });
+    }
 
     if (!isValidSubdomain(subdomain) || !isValidEmail(email) || !plan) {
+      mark('create', false);
+      addLog('Ungültige Daten für die Registrierung.');
       alert('Ungültige Daten für die Registrierung.');
       return;
     }
+
+    const wait = ms => new Promise(r => setTimeout(r, ms));
+
+    const streamOnboard = async slug => {
+      const res = await fetch(withBase('/api/tenants/' + encodeURIComponent(slug) + '/onboard'), { method: 'POST' });
+      if (!res.ok) throw new Error('onboard');
+      const reader = res.body ? res.body.getReader() : null;
+      if (!reader) return;
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let result = null;
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+        lines.forEach(line => {
+          if (!line.trim()) return;
+          try {
+            result = JSON.parse(line);
+          } catch (e) {
+            addLog(line);
+          }
+        });
+      }
+      if (buffer.trim()) {
+        try {
+          result = JSON.parse(buffer.trim());
+        } catch (e) {
+          addLog(buffer.trim());
+        }
+      }
+      if (!result || result.status !== 'success') {
+        throw new Error('onboard');
+      }
+    };
+
+    const waitForTenant = async slug => {
+      const url = `https://${slug}.${window.mainDomain}/`;
+      for (let i = 0; i < 30; i++) {
+        try {
+          await fetch(url, { mode: 'no-cors' });
+          return;
+        } catch (e) {
+          addLog('Warten auf Tenant …');
+        }
+        await wait(2000);
+      }
+      throw new Error('timeout');
+    };
 
     try {
       if (sessionId) {
@@ -246,19 +333,39 @@ document.addEventListener('DOMContentLoaded', () => {
         })
       });
 
-      if (tRes.ok) {
-        localStorage.removeItem('onboard_subdomain');
-        localStorage.removeItem('onboard_plan');
-        localStorage.removeItem('onboard_email');
-        localStorage.removeItem('onboard_verified');
-        window.location.href = `https://${subdomain}.${window.mainDomain}/`;
-        return;
+      if (!tRes.ok) {
+        mark('create', false);
+        throw new Error('create');
       }
-    } catch (e) {
-      // ignore and handle below
-    }
+      mark('create', true);
 
-    alert('Fehler bei der Registrierung.');
+      await streamOnboard(subdomain);
+      mark('import', true);
+      mark('proxy', true);
+      mark('ssl', true);
+
+      await waitForTenant(subdomain);
+      mark('wait', true);
+
+      await fetch(withBase('/tenant-welcome'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': window.csrfToken || ''
+        },
+        body: JSON.stringify({ schema: subdomain, email })
+      });
+
+      localStorage.removeItem('onboard_subdomain');
+      localStorage.removeItem('onboard_plan');
+      localStorage.removeItem('onboard_email');
+      localStorage.removeItem('onboard_verified');
+      window.location.href = `https://${subdomain}.${window.mainDomain}/`;
+      return;
+    } catch (e) {
+      addLog('Fehler: ' + e.message);
+      alert('Fehler bei der Registrierung.');
+    }
   }
 
   if (startAppBtn) {
