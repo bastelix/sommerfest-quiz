@@ -39,7 +39,9 @@ class StripeWebhookControllerTest extends TestCase
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
 
-        $stmt = $pdo->query("SELECT stripe_customer_id, stripe_subscription_id, plan FROM tenants WHERE subdomain = 'foo'");
+        $stmt = $pdo->query(
+            "SELECT stripe_customer_id, stripe_subscription_id, plan FROM tenants WHERE subdomain = 'foo'"
+        );
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         $this->assertEquals('cus_123', $row['stripe_customer_id']);
         $this->assertEquals('sub_123', $row['stripe_subscription_id']);
@@ -78,7 +80,10 @@ class StripeWebhookControllerTest extends TestCase
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
 
-        $stmt = $pdo->query("SELECT stripe_subscription_id, plan, stripe_price_id, stripe_status, stripe_current_period_end, stripe_cancel_at_period_end FROM tenants WHERE subdomain = 'foo'");
+        $stmt = $pdo->query(
+            "SELECT stripe_subscription_id, plan, stripe_price_id, stripe_status, "
+            . "stripe_current_period_end, stripe_cancel_at_period_end FROM tenants WHERE subdomain = 'foo'"
+        );
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         $this->assertEquals('sub_123', $row['stripe_subscription_id']);
         $this->assertEquals('standard', $row['plan']);

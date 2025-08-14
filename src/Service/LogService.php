@@ -46,4 +46,3 @@ class LogService
         return implode('', array_slice($content, -$lines));
     }
 }
-
