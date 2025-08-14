@@ -152,6 +152,7 @@
 - *(onboarding)* Show upcoming steps
 - Validate onboarding inputs
 - *(onboarding)* Reinstate app creation progress
+- Enhance tenant onboarding tasks
 
 ### Fix
 
