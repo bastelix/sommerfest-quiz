@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const step1 = document.getElementById('step1');
   const step2 = document.getElementById('step2');
   const step3 = document.getElementById('step3');
+  const step4 = document.getElementById('step4');
+  const completeBtn = document.getElementById('completeOnboarding');
   const emailInput = document.getElementById('email');
   const sendEmailBtn = document.getElementById('sendEmail');
   const emailStatus = document.getElementById('emailStatus');
@@ -25,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id');
+  const stepParam = params.get('step');
   const emailParam = params.get('email');
   const storedEmail = localStorage.getItem('onboard_email') || '';
   let subdomainStored = localStorage.getItem('onboard_subdomain') || '';
@@ -48,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
     step1.hidden = step !== 1;
     step2.hidden = step !== 2;
     if (step3) step3.hidden = step !== 3;
+    if (step4) step4.hidden = step !== 4;
     if (verifiedHint) verifiedHint.hidden = !(step === 2 && verified);
     if (subdomainPreview && subdomainStored) {
       subdomainPreview.textContent = subdomainStored;
@@ -61,7 +65,13 @@ document.addEventListener('DOMContentLoaded', () => {
   if (verified) {
     currentStep = subdomainStored ? 3 : 2;
   }
-  showStep(currentStep);
+  if (stepParam === '4') {
+    const s4 = document.querySelector('.timeline-step[data-step="4"]');
+    if (s4) s4.classList.remove('inactive');
+    showStep(4);
+  } else {
+    showStep(currentStep);
+  }
 
   if (sendEmailBtn) {
     sendEmailBtn.addEventListener('click', async () => {
@@ -211,51 +221,63 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  if (sessionId) {
-    (async () => {
-      try {
-        const res = await fetch(withBase('/onboarding/checkout/' + encodeURIComponent(sessionId)));
-        if (res.ok) {
-          const data = await res.json();
-          if (data.paid) {
-            const subdomain = localStorage.getItem('onboard_subdomain') || '';
-            const plan = localStorage.getItem('onboard_plan') || '';
-            const email = localStorage.getItem('onboard_email') || '';
-            if (isValidSubdomain(subdomain) && isValidEmail(email) && plan) {
-              const tRes = await fetch(withBase('/tenants'), {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'X-CSRF-Token': window.csrfToken || ''
-                },
-                body: JSON.stringify({
-                  uid: subdomain,
-                  schema: subdomain,
-                  plan,
-                  billing: sessionId,
-                  email
-                })
-              });
-              if (tRes.ok) {
-                localStorage.removeItem('onboard_subdomain');
-                localStorage.removeItem('onboard_plan');
-                localStorage.removeItem('onboard_email');
-                localStorage.removeItem('onboard_verified');
-                window.location.href = `https://${subdomain}.${window.mainDomain}/`;
-                return;
-              }
-            } else {
-              alert('Ungültige Daten für die Registrierung.');
+  async function finalizeTenant() {
+    try {
+      const res = await fetch(withBase('/onboarding/checkout/' + encodeURIComponent(sessionId)));
+      if (res.ok) {
+        const data = await res.json();
+        if (data.paid) {
+          const subdomain = localStorage.getItem('onboard_subdomain') || '';
+          const plan = localStorage.getItem('onboard_plan') || '';
+          const email = localStorage.getItem('onboard_email') || '';
+          if (isValidSubdomain(subdomain) && isValidEmail(email) && plan) {
+            const tRes = await fetch(withBase('/tenants'), {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': window.csrfToken || ''
+              },
+              body: JSON.stringify({
+                uid: subdomain,
+                schema: subdomain,
+                plan,
+                billing: sessionId,
+                email
+              })
+            });
+            if (tRes.ok) {
+              localStorage.removeItem('onboard_subdomain');
+              localStorage.removeItem('onboard_plan');
+              localStorage.removeItem('onboard_email');
+              localStorage.removeItem('onboard_verified');
+              window.location.href = `https://${subdomain}.${window.mainDomain}/`;
+              return;
             }
+          } else {
+            alert('Ungültige Daten für die Registrierung.');
+            return;
           }
         }
-      } catch (e) {
-        // ignore and handle below
       }
-      if (params.get('paid') === '1') {
-        alert('Fehler bei der Registrierung.');
+    } catch (e) {
+      // ignore and handle below
+    }
+    if (params.get('paid') === '1') {
+      alert('Fehler bei der Registrierung.');
+    }
+  }
+
+  if (sessionId) {
+    if (stepParam === '4') {
+      const s4 = document.querySelector('.timeline-step[data-step="4"]');
+      if (s4) s4.classList.remove('inactive');
+      showStep(4);
+      if (completeBtn) {
+        completeBtn.addEventListener('click', finalizeTenant);
       }
-    })();
+    } else {
+      finalizeTenant();
+    }
   }
 });
 
