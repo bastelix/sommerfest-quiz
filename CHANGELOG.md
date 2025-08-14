@@ -153,6 +153,7 @@
 
 ### Fix
 
+- Remove unsupported automatic payment methods from checkout
 - *(migrate)* Clear reference after uid update
 - *(qr)* Enable camera flip after scanner ready
 - *(qr)* Await scanner init
