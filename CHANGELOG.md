@@ -196,6 +196,7 @@
 - Add migration for password reset token hash
 - Remove redundant null coalesce
 - Improve dark mode menu active state
+- Handle missing onboarding data after payment
 
 ### Refactor
 
