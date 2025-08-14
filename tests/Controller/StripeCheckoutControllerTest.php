@@ -84,5 +84,6 @@ class StripeCheckoutControllerTest extends TestCase
         $this->assertNull($service->args['create'][5] ?? null);
         $this->assertSame('tenant1', $service->args['create'][6] ?? null);
         $this->assertSame(7, $service->args['create'][7] ?? null);
+        $this->assertStringContainsString('&step=4', $service->args['create'][1] ?? '');
     }
 }
