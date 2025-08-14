@@ -855,32 +855,61 @@ return function (\Slim\App $app, TranslationService $translator) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(403);
         }
+
         $slug = preg_replace('/[^a-z0-9\-]/', '-', strtolower((string) ($args['slug'] ?? '')));
         $script = realpath(__DIR__ . '/../scripts/onboard_tenant.sh');
 
         if (!is_file($script)) {
-            $response->getBody()->write(json_encode(['error' => 'Onboard script not found']));
+            $response->getBody()->write("Onboard script not found\n");
 
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+            return $response
+                ->withHeader('Content-Type', 'text/plain')
+                ->withStatus(500);
         }
 
         $cmd = escapeshellcmd($script . ' ' . $slug) . ' 2>&1';
-        exec($cmd, $output, $exitCode);
+        $process = proc_open(
+            $cmd,
+            [
+                0 => ['pipe', 'r'],
+                1 => ['pipe', 'w'],
+            ],
+            $pipes
+        );
 
-        if ($exitCode !== 0) {
-            $msg = implode("\n", $output);
-            $first = strtok($msg, "\n");
-            $response->getBody()->write(json_encode([
-                'error' => $first ?: 'Failed to start tenant',
-                'details' => $msg,
-            ]));
+        $response = $response
+            ->withHeader('Content-Type', 'text/plain')
+            ->withHeader('Transfer-Encoding', 'chunked');
 
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        if (!is_resource($process)) {
+            $response->getBody()->write("Failed to start process\n");
+
+            return $response->withStatus(500);
         }
 
-        $response->getBody()->write(json_encode(['status' => 'success', 'slug' => $slug]));
+        fclose($pipes[0]);
 
-        return $response->withHeader('Content-Type', 'application/json');
+        while (($line = fgets($pipes[1])) !== false) {
+            $chunk = dechex(strlen($line)) . "\r\n" . $line . "\r\n";
+            $response->getBody()->write($chunk);
+            if (function_exists('ob_flush')) {
+                ob_flush();
+            }
+            flush();
+        }
+
+        fclose($pipes[1]);
+
+        $exitCode = proc_close($process);
+
+        // Terminate chunked transfer
+        $response->getBody()->write("0\r\n\r\n");
+
+        if ($exitCode !== 0) {
+            return $response->withStatus(500);
+        }
+
+        return $response;
     })->add(new RoleAuthMiddleware(Roles::SERVICE_ACCOUNT));
 
     $app->delete('/api/tenants/{slug}', function (Request $request, Response $response, array $args) {
