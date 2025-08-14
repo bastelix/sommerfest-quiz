@@ -3,7 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const step2 = document.getElementById('step2');
   const step3 = document.getElementById('step3');
   const step4 = document.getElementById('step4');
-  const completeBtn = document.getElementById('completeOnboarding');
+  const step5 = document.getElementById('step5');
+  const startAppBtn = document.getElementById('startAppCreation');
   const emailInput = document.getElementById('email');
   const sendEmailBtn = document.getElementById('sendEmail');
   const emailStatus = document.getElementById('emailStatus');
@@ -52,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     step2.hidden = step !== 2;
     if (step3) step3.hidden = step !== 3;
     if (step4) step4.hidden = step !== 4;
+    if (step5) step5.hidden = step !== 5;
     if (verifiedHint) verifiedHint.hidden = !(step === 2 && verified);
     if (subdomainPreview && subdomainStored) {
       subdomainPreview.textContent = subdomainStored;
@@ -65,10 +67,16 @@ document.addEventListener('DOMContentLoaded', () => {
   if (verified) {
     currentStep = subdomainStored ? 3 : 2;
   }
-  if (stepParam === '4') {
+  if (stepParam === '4' || stepParam === '5') {
     const s4 = document.querySelector('.timeline-step[data-step="4"]');
     if (s4) s4.classList.remove('inactive');
-    showStep(4);
+    if (stepParam === '5') {
+      const s5 = document.querySelector('.timeline-step[data-step="5"]');
+      if (s5) s5.classList.remove('inactive');
+      showStep(5);
+    } else {
+      showStep(4);
+    }
   } else {
     showStep(currentStep);
   }
@@ -143,32 +151,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         localStorage.setItem('onboard_plan', plan);
         if (plan === 'starter') {
-          try {
-            const tRes = await fetch(withBase('/tenants'), {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': window.csrfToken || ''
-              },
-              body: JSON.stringify({
-                uid: subdomain,
-                schema: subdomain,
-                plan,
-                email
-              })
-            });
-            if (tRes.ok) {
-              localStorage.removeItem('onboard_subdomain');
-              localStorage.removeItem('onboard_plan');
-              localStorage.removeItem('onboard_email');
-              localStorage.removeItem('onboard_verified');
-              window.location.href = `https://${subdomain}.${window.mainDomain}/`;
-              return;
-            }
-          } catch (e) {
-            // ignore and show alert below
-          }
-          alert('Fehler bei der Registrierung.');
+          const s4 = document.querySelector('.timeline-step[data-step="4"]');
+          if (s4) s4.classList.remove('inactive');
+          const url = new URL(window.location);
+          url.searchParams.set('step', '4');
+          window.history.replaceState({}, '', url);
+          showStep(4);
           return;
         }
         try {
@@ -222,61 +210,82 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function finalizeTenant() {
+    const subdomain = localStorage.getItem('onboard_subdomain') || '';
+    const plan = localStorage.getItem('onboard_plan') || '';
+    const email = localStorage.getItem('onboard_email') || '';
+
+    if (!isValidSubdomain(subdomain) || !isValidEmail(email) || !plan) {
+      alert('Ungültige Daten für die Registrierung.');
+      return;
+    }
+
     try {
-      const res = await fetch(withBase('/onboarding/checkout/' + encodeURIComponent(sessionId)));
-      if (res.ok) {
-        const data = await res.json();
-        if (data.paid) {
-          const subdomain = localStorage.getItem('onboard_subdomain') || '';
-          const plan = localStorage.getItem('onboard_plan') || '';
-          const email = localStorage.getItem('onboard_email') || '';
-          if (isValidSubdomain(subdomain) && isValidEmail(email) && plan) {
-            const tRes = await fetch(withBase('/tenants'), {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': window.csrfToken || ''
-              },
-              body: JSON.stringify({
-                uid: subdomain,
-                schema: subdomain,
-                plan,
-                billing: sessionId,
-                email
-              })
-            });
-            if (tRes.ok) {
-              localStorage.removeItem('onboard_subdomain');
-              localStorage.removeItem('onboard_plan');
-              localStorage.removeItem('onboard_email');
-              localStorage.removeItem('onboard_verified');
-              window.location.href = `https://${subdomain}.${window.mainDomain}/`;
-              return;
-            }
-          } else {
-            alert('Ungültige Daten für die Registrierung.');
-            return;
-          }
+      if (sessionId) {
+        const res = await fetch(withBase('/onboarding/checkout/' + encodeURIComponent(sessionId)));
+        if (!res.ok) {
+          throw new Error('checkout');
         }
+        const data = await res.json();
+        if (!data.paid) {
+          throw new Error('not paid');
+        }
+      }
+
+      const tRes = await fetch(withBase('/tenants'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': window.csrfToken || ''
+        },
+        body: JSON.stringify({
+          uid: subdomain,
+          schema: subdomain,
+          plan,
+          billing: sessionId || undefined,
+          email
+        })
+      });
+
+      if (tRes.ok) {
+        localStorage.removeItem('onboard_subdomain');
+        localStorage.removeItem('onboard_plan');
+        localStorage.removeItem('onboard_email');
+        localStorage.removeItem('onboard_verified');
+        window.location.href = `https://${subdomain}.${window.mainDomain}/`;
+        return;
       }
     } catch (e) {
       // ignore and handle below
     }
-    if (params.get('paid') === '1') {
-      alert('Fehler bei der Registrierung.');
-    }
+
+    alert('Fehler bei der Registrierung.');
+  }
+
+  if (startAppBtn) {
+    startAppBtn.addEventListener('click', () => {
+      const s5 = document.querySelector('.timeline-step[data-step="5"]');
+      if (s5) s5.classList.remove('inactive');
+      const url = new URL(window.location);
+      url.searchParams.set('step', '5');
+      window.history.replaceState({}, '', url);
+      showStep(5);
+      finalizeTenant();
+    });
   }
 
   if (sessionId) {
-    if (stepParam === '4') {
-      const s4 = document.querySelector('.timeline-step[data-step="4"]');
-      if (s4) s4.classList.remove('inactive');
-      showStep(4);
-      if (completeBtn) {
-        completeBtn.addEventListener('click', finalizeTenant);
-      }
-    } else {
+    const s4 = document.querySelector('.timeline-step[data-step="4"]');
+    if (s4) s4.classList.remove('inactive');
+    if (stepParam === '5') {
+      const s5 = document.querySelector('.timeline-step[data-step="5"]');
+      if (s5) s5.classList.remove('inactive');
+      showStep(5);
       finalizeTenant();
+    } else {
+      const url = new URL(window.location);
+      url.searchParams.set('step', '4');
+      window.history.replaceState({}, '', url);
+      showStep(4);
     }
   }
 });
