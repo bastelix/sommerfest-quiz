@@ -4,7 +4,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const step3 = document.getElementById('step3');
   const step4 = document.getElementById('step4');
   const step5 = document.getElementById('step5');
-  const startAppBtn = document.getElementById('startAppCreation');
+  const imprintNameInput = document.getElementById('imprintName');
+  const imprintStreetInput = document.getElementById('imprintStreet');
+  const imprintZipInput = document.getElementById('imprintZip');
+  const imprintCityInput = document.getElementById('imprintCity');
+  const imprintEmailInput = document.getElementById('imprintEmail');
+  const useAsImprintCheckbox = document.getElementById('useAsImprint');
+  const saveImprintBtn = document.getElementById('saveImprint');
   const emailInput = document.getElementById('email');
   const sendEmailBtn = document.getElementById('sendEmail');
   const emailStatus = document.getElementById('emailStatus');
@@ -32,6 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const emailParam = params.get('email');
   const storedEmail = localStorage.getItem('onboard_email') || '';
   let subdomainStored = localStorage.getItem('onboard_subdomain') || '';
+  const imprintDone = localStorage.getItem('onboard_imprint_done') === '1';
+  const storedImprintName = localStorage.getItem('onboard_imprint_name') || '';
+  const storedImprintStreet = localStorage.getItem('onboard_imprint_street') || '';
+  const storedImprintZip = localStorage.getItem('onboard_imprint_zip') || '';
+  const storedImprintCity = localStorage.getItem('onboard_imprint_city') || '';
+  const storedImprintEmail = localStorage.getItem('onboard_imprint_email') || '';
   let verified = params.get('verified') === '1' || localStorage.getItem('onboard_verified') === '1';
   if (params.get('verified') === '1') {
     localStorage.setItem('onboard_verified', '1');
@@ -44,6 +56,15 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (storedEmail) {
       emailInput.value = storedEmail;
     }
+  }
+
+  if (imprintNameInput) imprintNameInput.value = storedImprintName;
+  if (imprintStreetInput) imprintStreetInput.value = storedImprintStreet;
+  if (imprintZipInput) imprintZipInput.value = storedImprintZip;
+  if (imprintCityInput) imprintCityInput.value = storedImprintCity;
+  if (imprintEmailInput) imprintEmailInput.value = storedImprintEmail;
+  if (useAsImprintCheckbox) {
+    useAsImprintCheckbox.checked = localStorage.getItem('onboard_use_as_imprint') === '1';
   }
 
   let currentStep = 1;
@@ -65,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   if (verified) {
-    currentStep = subdomainStored ? 3 : 2;
+    currentStep = subdomainStored ? (imprintDone ? 4 : 3) : 2;
   }
   if (stepParam === '4' || stepParam === '5') {
     const s4 = document.querySelector('.timeline-step[data-step="4"]');
@@ -134,6 +155,33 @@ document.addEventListener('DOMContentLoaded', () => {
       showStep(3);
     });
   }
+
+  if (saveImprintBtn) {
+    saveImprintBtn.addEventListener('click', () => {
+      const name = imprintNameInput.value.trim();
+      const street = imprintStreetInput.value.trim();
+      const zip = imprintZipInput.value.trim();
+      const city = imprintCityInput.value.trim();
+      const email = imprintEmailInput.value.trim();
+      if (!name || !street || !zip || !city || !isValidEmail(email)) {
+        alert('Bitte alle Felder ausfüllen.');
+        return;
+      }
+      localStorage.setItem('onboard_imprint_name', name);
+      localStorage.setItem('onboard_imprint_street', street);
+      localStorage.setItem('onboard_imprint_zip', zip);
+      localStorage.setItem('onboard_imprint_city', city);
+      localStorage.setItem('onboard_imprint_email', email);
+      localStorage.setItem('onboard_use_as_imprint', useAsImprintCheckbox.checked ? '1' : '0');
+      localStorage.setItem('onboard_imprint_done', '1');
+      const s4 = document.querySelector('.timeline-step[data-step="4"]');
+      if (s4) s4.classList.remove('inactive');
+      const url = new URL(window.location);
+      url.searchParams.set('step', '4');
+      window.history.replaceState({}, '', url);
+      showStep(4);
+    });
+  }
   if (planButtons.length) {
     planButtons.forEach(btn => {
       btn.addEventListener('click', async () => {
@@ -151,12 +199,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         localStorage.setItem('onboard_plan', plan);
         if (plan === 'starter') {
-          const s4 = document.querySelector('.timeline-step[data-step="4"]');
-          if (s4) s4.classList.remove('inactive');
+          const s5 = document.querySelector('.timeline-step[data-step="5"]');
+          if (s5) s5.classList.remove('inactive');
           const url = new URL(window.location);
-          url.searchParams.set('step', '4');
+          url.searchParams.set('step', '5');
           window.history.replaceState({}, '', url);
-          showStep(4);
+          showStep(5);
+          finalizeTenant();
           return;
         }
         try {
@@ -194,6 +243,8 @@ document.addEventListener('DOMContentLoaded', () => {
           showStep(2);
         } else if (target === 3 && verified && subdomainStored) {
           showStep(3);
+        } else if (target === 4 && verified && subdomainStored && imprintDone) {
+          showStep(4);
         }
       });
     });
@@ -205,6 +256,13 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.removeItem('onboard_plan');
       localStorage.removeItem('onboard_email');
       localStorage.removeItem('onboard_verified');
+      localStorage.removeItem('onboard_imprint_name');
+      localStorage.removeItem('onboard_imprint_street');
+      localStorage.removeItem('onboard_imprint_zip');
+      localStorage.removeItem('onboard_imprint_city');
+      localStorage.removeItem('onboard_imprint_email');
+      localStorage.removeItem('onboard_use_as_imprint');
+      localStorage.removeItem('onboard_imprint_done');
       window.location.href = withBase('/onboarding');
     });
   }
@@ -213,6 +271,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const subdomain = localStorage.getItem('onboard_subdomain') || '';
     const plan = localStorage.getItem('onboard_plan') || '';
     const email = localStorage.getItem('onboard_email') || '';
+    const imprintName = localStorage.getItem('onboard_imprint_name') || '';
+    const imprintStreet = localStorage.getItem('onboard_imprint_street') || '';
+    const imprintZip = localStorage.getItem('onboard_imprint_zip') || '';
+    const imprintCity = localStorage.getItem('onboard_imprint_city') || '';
+    const imprintEmail = localStorage.getItem('onboard_imprint_email') || '';
+    const useImprint = localStorage.getItem('onboard_use_as_imprint') === '1';
+    const billingInfo = JSON.stringify({
+      name: imprintName,
+      street: imprintStreet,
+      zip: imprintZip,
+      city: imprintCity,
+      email: imprintEmail
+    });
     const taskStatus = document.getElementById('task-status');
     const taskLog = document.getElementById('task-log');
 
@@ -328,8 +399,12 @@ document.addEventListener('DOMContentLoaded', () => {
           uid: subdomain,
           schema: subdomain,
           plan,
-          billing: sessionId || undefined,
-          email
+          billing: billingInfo,
+          email: useImprint ? imprintEmail : null,
+          imprint_name: useImprint ? imprintName : null,
+          imprint_street: useImprint ? imprintStreet : null,
+          imprint_zip: useImprint ? imprintZip : null,
+          imprint_city: useImprint ? imprintCity : null
         })
       });
 
@@ -360,6 +435,13 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.removeItem('onboard_plan');
       localStorage.removeItem('onboard_email');
       localStorage.removeItem('onboard_verified');
+      localStorage.removeItem('onboard_imprint_name');
+      localStorage.removeItem('onboard_imprint_street');
+      localStorage.removeItem('onboard_imprint_zip');
+      localStorage.removeItem('onboard_imprint_city');
+      localStorage.removeItem('onboard_imprint_email');
+      localStorage.removeItem('onboard_use_as_imprint');
+      localStorage.removeItem('onboard_imprint_done');
       window.location.href = `https://${subdomain}.${window.mainDomain}/`;
       return;
     } catch (e) {
@@ -368,32 +450,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  if (startAppBtn) {
-    startAppBtn.addEventListener('click', () => {
-      const s5 = document.querySelector('.timeline-step[data-step="5"]');
-      if (s5) s5.classList.remove('inactive');
-      const url = new URL(window.location);
-      url.searchParams.set('step', '5');
-      window.history.replaceState({}, '', url);
-      showStep(5);
-      finalizeTenant();
-    });
-  }
-
   if (sessionId) {
-    const s4 = document.querySelector('.timeline-step[data-step="4"]');
-    if (s4) s4.classList.remove('inactive');
-    if (stepParam === '5') {
-      const s5 = document.querySelector('.timeline-step[data-step="5"]');
-      if (s5) s5.classList.remove('inactive');
-      showStep(5);
-      finalizeTenant();
-    } else {
-      const url = new URL(window.location);
-      url.searchParams.set('step', '4');
-      window.history.replaceState({}, '', url);
-      showStep(4);
-    }
+    const s5 = document.querySelector('.timeline-step[data-step="5"]');
+    if (s5) s5.classList.remove('inactive');
+    const url = new URL(window.location);
+    url.searchParams.set('step', '5');
+    window.history.replaceState({}, '', url);
+    showStep(5);
+    finalizeTenant();
   }
 });
 

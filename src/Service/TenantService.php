@@ -50,6 +50,10 @@ class TenantService
         ?string $plan = null,
         ?string $billing = null,
         ?string $email = null,
+        ?string $imprintName = null,
+        ?string $imprintStreet = null,
+        ?string $imprintZip = null,
+        ?string $imprintCity = null,
         ?array $customLimits = null
     ): void {
         if ($this->exists($schema)) {
@@ -82,10 +86,10 @@ class TenantService
             $plan,
             $billing,
             null,
-            null,
-            null,
-            null,
-            null,
+            $imprintName,
+            $imprintStreet,
+            $imprintZip,
+            $imprintCity,
             $email,
             $customLimits !== null ? json_encode($customLimits) : null,
             $start?->format('Y-m-d H:i:sP'),

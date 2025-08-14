@@ -33,7 +33,21 @@ class TenantController
             $plan = isset($data['plan']) ? (string) $data['plan'] : null;
             $billing = isset($data['billing']) ? (string) $data['billing'] : null;
             $email = isset($data['email']) ? (string) $data['email'] : null;
-            $this->service->createTenant((string) $data['uid'], (string) $data['schema'], $plan, $billing, $email);
+            $name = isset($data['imprint_name']) ? (string) $data['imprint_name'] : null;
+            $street = isset($data['imprint_street']) ? (string) $data['imprint_street'] : null;
+            $zip = isset($data['imprint_zip']) ? (string) $data['imprint_zip'] : null;
+            $city = isset($data['imprint_city']) ? (string) $data['imprint_city'] : null;
+            $this->service->createTenant(
+                (string) $data['uid'],
+                (string) $data['schema'],
+                $plan,
+                $billing,
+                $email,
+                $name,
+                $street,
+                $zip,
+                $city
+            );
         } catch (PDOException $e) {
             $code = (string) $e->getCode();
             if (in_array($code, ['23505', '23000'], true)) {

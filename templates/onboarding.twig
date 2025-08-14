@@ -116,8 +116,8 @@
     <ul class="onboarding-timeline uk-flex uk-flex-center uk-margin-bottom" id="stepTimeline">
       <li class="timeline-step active" data-step="1">1. E-Mail</li>
       <li class="timeline-step" data-step="2">2. Subdomain</li>
-      <li class="timeline-step" data-step="3">3. Tarif</li>
-      <li class="timeline-step inactive" data-step="4">4. Impressum</li>
+      <li class="timeline-step" data-step="3">3. Impressum</li>
+      <li class="timeline-step inactive" data-step="4">4. Tarif</li>
       <li class="timeline-step inactive" data-step="5">5. App erstellen</li>
     </ul>
     <div class="uk-text-center uk-margin">
@@ -146,8 +146,19 @@
       <button class="uk-button uk-button-primary" id="saveSubdomain">Subdomain speichern</button>
     </div>
 
-      <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-margin-auto" id="step3" hidden>
-        <h3 class="uk-card-title">3. Tarif wählen</h3>
+    <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-margin-auto" id="step3" hidden>
+      <h3 class="uk-card-title">3. Rechnungsdaten</h3>
+      <div class="uk-margin"><input id="imprintName" class="uk-input" type="text" placeholder="Name/Firma" required></div>
+      <div class="uk-margin"><input id="imprintStreet" class="uk-input" type="text" placeholder="Straße und Hausnummer" required></div>
+      <div class="uk-margin"><input id="imprintZip" class="uk-input" type="text" placeholder="PLZ" required></div>
+      <div class="uk-margin"><input id="imprintCity" class="uk-input" type="text" placeholder="Ort" required></div>
+      <div class="uk-margin"><input id="imprintEmail" class="uk-input" type="email" placeholder="E-Mail" required></div>
+      <div class="uk-margin"><label><input class="uk-checkbox" type="checkbox" id="useAsImprint"> Als Impressum verwenden</label></div>
+      <button class="uk-button uk-button-primary" id="saveImprint">Weiter</button>
+    </div>
+
+    <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-margin-auto" id="step4" hidden>
+      <h3 class="uk-card-title">4. Tarif wählen</h3>
       {% if stripe_configured %}
       <p>Wähle einen Tarif und schließe die Zahlung über Stripe ab. Du kannst jeden kostenpflichtigen Tarif 7 Tage lang kostenlos testen.</p>
       {% else %}
@@ -213,14 +224,8 @@
       <p class="uk-text-meta uk-text-center uk-margin-large-top">Alle Preise zzgl. MwSt. – individuelle Lösungen auf Anfrage.</p>
       <p class="uk-text-meta uk-margin-top">1 (Die Teamgröße ist nicht technisch limitiert und kann bedarfsgerecht festgelegt werden.)</p>
       <p class="uk-text-meta uk-margin-top">2 (Im Starter-Paket mit Wasserzeichen oder ohne individuelles Layout/Logo)</p>
-        <p class="uk-text-meta uk-margin-top">3 (z.&nbsp;B. Datenschutz, AGB, Einladung, FAQ, Spielanleitung – alles eigenständig editierbar)</p>
-      </div>
-
-      <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-margin-auto" id="step4" hidden>
-        <h3 class="uk-card-title">4. Impressum anlegen</h3>
-        <p>Prüfe dein Impressum und fahre fort.</p>
-        <button class="uk-button uk-button-primary" id="startAppCreation">Weiter</button>
-      </div>
+      <p class="uk-text-meta uk-margin-top">3 (z.&nbsp;B. Datenschutz, AGB, Einladung, FAQ, Spielanleitung – alles eigenständig editierbar)</p>
+    </div>
 
       <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step5" hidden>
         <h3 class="uk-card-title">5. App erstellen</h3>

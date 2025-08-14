@@ -38,6 +38,10 @@ class TenantControllerTest extends TestCase
                 ?string $plan = null,
                 ?string $billing = null,
                 ?string $email = null,
+                ?string $imprintName = null,
+                ?string $imprintStreet = null,
+                ?string $imprintZip = null,
+                ?string $imprintCity = null,
                 ?array $customLimits = null
             ): void {
             }
@@ -75,6 +79,10 @@ class TenantControllerTest extends TestCase
                 ?string $plan = null,
                 ?string $billing = null,
                 ?string $email = null,
+                ?string $imprintName = null,
+                ?string $imprintStreet = null,
+                ?string $imprintZip = null,
+                ?string $imprintCity = null,
                 ?array $customLimits = null
             ): void {
                 $stmt = $this->pdo->prepare('INSERT INTO tenants(uid, subdomain, imprint_email) VALUES(?, ?, ?)');
@@ -112,6 +120,10 @@ class TenantControllerTest extends TestCase
                 ?string $plan = null,
                 ?string $billing = null,
                 ?string $email = null,
+                ?string $imprintName = null,
+                ?string $imprintStreet = null,
+                ?string $imprintZip = null,
+                ?string $imprintCity = null,
                 ?array $customLimits = null
             ): void {
             }
@@ -310,6 +322,10 @@ class TenantControllerTest extends TestCase
                 ?string $plan = null,
                 ?string $billing = null,
                 ?string $email = null,
+                ?string $imprintName = null,
+                ?string $imprintStreet = null,
+                ?string $imprintZip = null,
+                ?string $imprintCity = null,
                 ?array $customLimits = null
             ): void {
                 throw new \PDOException('fail');
@@ -342,6 +358,10 @@ class TenantControllerTest extends TestCase
                 ?string $plan = null,
                 ?string $billing = null,
                 ?string $email = null,
+                ?string $imprintName = null,
+                ?string $imprintStreet = null,
+                ?string $imprintZip = null,
+                ?string $imprintCity = null,
                 ?array $customLimits = null
             ): void {
                 throw new \Exception('boom');
