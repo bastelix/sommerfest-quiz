@@ -218,8 +218,14 @@
 
       <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-margin-auto" id="step4" hidden>
         <h3 class="uk-card-title">4. Impressum anlegen</h3>
-        <p>Prüfe dein Impressum und schließe die Registrierung ab.</p>
-        <button class="uk-button uk-button-primary" id="completeOnboarding">App erstellen</button>
+        <p>Prüfe dein Impressum und fahre fort.</p>
+        <button class="uk-button uk-button-primary" id="startAppCreation">Weiter</button>
+      </div>
+
+      <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step5" hidden>
+        <h3 class="uk-card-title">5. App erstellen</h3>
+        <p>Deine App wird erstellt. Bitte warten …</p>
+        <div class="uk-text-center uk-margin"><div uk-spinner></div></div>
       </div>
     </div>
   {% endblock %}
