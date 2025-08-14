@@ -451,13 +451,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (sessionId) {
-    const s5 = document.querySelector('.timeline-step[data-step="5"]');
-    if (s5) s5.classList.remove('inactive');
-    const url = new URL(window.location);
-    url.searchParams.set('step', '5');
-    window.history.replaceState({}, '', url);
-    showStep(5);
-    finalizeTenant();
+    const subdomain = localStorage.getItem('onboard_subdomain') || '';
+    const plan = localStorage.getItem('onboard_plan') || '';
+    const email = localStorage.getItem('onboard_email') || '';
+
+    if (isValidSubdomain(subdomain) && isValidEmail(email) && plan) {
+      const s5 = document.querySelector('.timeline-step[data-step="5"]');
+      if (s5) s5.classList.remove('inactive');
+      const url = new URL(window.location);
+      url.searchParams.set('step', '5');
+      window.history.replaceState({}, '', url);
+      showStep(5);
+      finalizeTenant();
+    } else {
+      const url = new URL(window.location);
+      url.searchParams.delete('session_id');
+      let step = 1;
+      if (isValidEmail(email)) {
+        step = isValidSubdomain(subdomain) ? 3 : 2;
+      }
+      url.searchParams.set('step', String(step));
+      window.history.replaceState({}, '', url);
+      showStep(step);
+    }
   }
 });
 
