@@ -295,6 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
       { id: 'wait', label: 'Warten auf Verfügbarkeit' }
     ];
     const taskEls = {};
+    const taskMap = {};
 
     const addLog = msg => {
       if (!taskLog) return;
@@ -303,19 +304,36 @@ document.addEventListener('DOMContentLoaded', () => {
       taskLog.appendChild(li);
     };
 
+    const start = id => {
+      const entry = taskEls[id];
+      if (!entry) return;
+      entry.spinner.hidden = false;
+      addLog(taskMap[id] + ' …');
+    };
+
     const mark = (id, ok) => {
-      const el = taskEls[id];
-      if (!el) return;
-      el.textContent = el.textContent.replace(' …', '') + (ok ? ' ✓' : ' ✗');
+      const entry = taskEls[id];
+      if (!entry) return;
+      entry.spinner.remove();
+      const status = document.createElement('span');
+      status.textContent = ok ? ' ✓' : ' ✗';
+      entry.li.appendChild(status);
+      addLog(taskMap[id] + (ok ? ' erledigt' : ' fehlgeschlagen'));
     };
 
     if (taskStatus) {
       tasks.forEach(t => {
         const li = document.createElement('li');
         li.id = 'task-' + t.id;
-        li.textContent = t.label + ' …';
+        li.textContent = t.label;
+        const spinner = document.createElement('span');
+        spinner.setAttribute('uk-spinner', 'ratio: 0.5');
+        spinner.classList.add('uk-margin-small-left');
+        spinner.hidden = true;
+        li.appendChild(spinner);
         taskStatus.appendChild(li);
-        taskEls[t.id] = li;
+        taskEls[t.id] = { li, spinner };
+        taskMap[t.id] = t.label;
       });
     }
 
@@ -388,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
           throw new Error('not paid');
         }
       }
-
+      start('create');
       const tRes = await fetch(withBase('/tenants'), {
         method: 'POST',
         headers: {
@@ -413,12 +431,16 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error('create');
       }
       mark('create', true);
-
+      start('import');
       await streamOnboard(subdomain);
       mark('import', true);
+      start('proxy');
+      await wait(0);
       mark('proxy', true);
+      start('ssl');
+      await wait(0);
       mark('ssl', true);
-
+      start('wait');
       await waitForTenant(subdomain);
       mark('wait', true);
 
