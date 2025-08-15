@@ -1,4 +1,5 @@
-/* global UIkit, Html5Qrcode, generateUserName */
+/* global UIkit, Html5Qrcode, generateUserName, basePath */
+const withBase = p => basePath + p;
 // Hilfsfunktion, um nur eine Front- und eine Rückkamera zu behalten
 window.filterCameraOrientations = window.filterCameraOrientations || function(cams){
   if(!Array.isArray(cams)) return [];
@@ -73,7 +74,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       let title = headerEl.querySelector('h1');
       if(img){
         if(cfg.logoPath){
-          img.src = cfg.logoPath;
+          img.src = withBase(cfg.logoPath) + '?' + Date.now();
           img.classList.remove('uk-hidden');
         }else{
           img.src = '';
