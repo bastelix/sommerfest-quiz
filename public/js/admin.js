@@ -2191,7 +2191,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           const actionTd = document.createElement('td');
           actionTd.className = 'uk-text-right';
-          actionTd.innerHTML = `<ul class="uk-iconnav uk-margin-remove">
+          actionTd.innerHTML = `<ul class="uk-iconnav uk-margin-remove uk-flex-right">
             <li><a href="#" uk-tooltip="Willkommensmail" uk-icon="mail" data-action="welcome" data-sub="${safeSub}"></a></li>
             <li><a href="#" uk-tooltip="SSL erneuern" data-action="renew" data-sub="${safeSub}"><span uk-icon="lock"></span></a></li>
             <li>
