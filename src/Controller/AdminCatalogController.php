@@ -43,6 +43,8 @@ class AdminCatalogController
 
         $params = $request->getQueryParams();
         $uid = (string)($params['event'] ?? '');
+        $qrOptions = $params;
+        unset($qrOptions['event']);
         if ($uid !== '') {
             $cfgSvc->getConfigForEvent($uid);
             $event = $eventSvc->getByUid($uid) ?? $eventSvc->getFirst();
@@ -82,6 +84,7 @@ class AdminCatalogController
             'kataloge' => $catalogs,
             'baseUrl' => $baseUrl,
             'event' => $event,
+            'qrOptions' => $qrOptions,
         ]);
     }
 }
