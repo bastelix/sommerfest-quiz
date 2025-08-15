@@ -1,2 +1,3 @@
-ALTER TABLE events ADD COLUMN published BOOLEAN DEFAULT FALSE;
-UPDATE events SET published = TRUE;
+ALTER TABLE events ADD COLUMN IF NOT EXISTS published BOOLEAN;
+UPDATE events SET published = TRUE WHERE published IS NULL;
+ALTER TABLE events ALTER COLUMN published SET DEFAULT FALSE;
