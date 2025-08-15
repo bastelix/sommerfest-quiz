@@ -424,7 +424,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 1000);
         const file = cfgFields.logoFile.files && cfgFields.logoFile.files[0];
         const ext = file && file.name.toLowerCase().endsWith('.webp') ? 'webp' : 'png';
-        cfgInitial.logoPath = '/logo-' + activeEventUid + '.' + ext;
+        cfgInitial.logoPath = activeEventUid
+          ? `/logo-${activeEventUid}.${ext}`
+          : `/logo.${ext}`;
         cfgFields.logoPreview.src = withBase(cfgInitial.logoPath) + '?' + Date.now();
         notify('Logo hochgeladen', 'success');
       }
