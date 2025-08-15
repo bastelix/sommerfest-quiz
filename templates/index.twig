@@ -35,9 +35,11 @@
     <div class="uk-card uk-card-default uk-card-body uk-box-shadow-large uk-margin" uk-scrollspy="cls: uk-animation-fade">
       <div id="quiz-header" class="uk-text-center uk-margin" uk-scrollspy="cls: uk-animation-scale-up; delay: 100">
         <img id="quiz-logo" class="logo-placeholder"
-             src="{{ basePath }}/logo-160.svg"
+             src="{% if config.logoPath %}{{ basePath ~ config.logoPath }}{% else %}{{ basePath }}/logo-160.svg{% endif %}"
+             {% if not config.logoPath %}
              srcset="{{ basePath }}/logo-160.svg 160w, {{ basePath }}/logo-320.svg 320w"
              sizes="(max-width: 600px) 160px, 320px"
+             {% endif %}
              alt="Logo" width="160" height="240" loading="lazy">
       </div>
       <progress id="progress" class="uk-progress" value="0" max="1" aria-label="{{ t('quiz_progress') }}" aria-valuenow="0" uk-scrollspy="cls: uk-animation-fade; delay: 200"></progress>
