@@ -321,15 +321,16 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
     if(cfg.QRRestrict){
       try{
         allowed = JSON.parse(sessionStorage.getItem('allowedTeams') || 'null');
-        if(!allowed){
+        if(!Array.isArray(allowed) || !allowed.length){
           const r = await fetch('/teams.json', {headers:{'Accept':'application/json'}});
           if(r.ok){
             allowed = await r.json();
-            sessionStorage.setItem('allowedTeams', JSON.stringify(allowed));
           } else {
             allowed = [];
           }
         }
+        allowed = allowed.map(t => String(t).toLowerCase());
+        sessionStorage.setItem('allowedTeams', JSON.stringify(allowed));
       }catch(e){
         allowed = [];
       }
@@ -394,7 +395,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
         try{
           await scanner.start(camId, { fps:10, qrbox:250 }, text => {
             const name = text.trim();
-            if(cfg.QRRestrict && allowed.indexOf(name) === -1){
+            if(cfg.QRRestrict && allowed.indexOf(name.toLowerCase()) === -1){
               alert('Unbekanntes oder nicht berechtigtes Team/Person');
               return;
             }
@@ -449,12 +450,15 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
         const input = container.querySelector('#manual-team-name');
         container.querySelector('#manual-team-submit').addEventListener('click', () => {
           const name = (input.value || '').trim();
-          if(name){
-            setStored('quizUser', name);
-            stopScanner();
-            UIkit.modal(modal).hide();
-            onDone();
+          if(!name) return;
+          if(cfg.QRRestrict && allowed.indexOf(name.toLowerCase()) === -1){
+            alert('Unbekanntes oder nicht berechtigtes Team/Person');
+            return;
           }
+          setStored('quizUser', name);
+          stopScanner();
+          UIkit.modal(modal).hide();
+          onDone();
         });
         input.addEventListener('keydown', (ev) => {
           if(ev.key === 'Enter'){
