@@ -27,6 +27,10 @@
 - Fix style and security warnings
 - Reformat stripe tests for readability
 
+### Fix
+
+- Forward QR code query options on catalog overview
+
 ### Ci
 
 - Add workflow for automatic changelog
