@@ -802,23 +802,51 @@
     <li class="{{ activeRoute == 'tenants' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_tenants') }}</h2>
-        <p>
-          <button id="tenantSyncBtn" class="uk-button uk-button-default uk-margin-small-bottom">{{ t('action_sync_tenants') }}</button>
-        </p>
-        <div class="uk-overflow-auto">
-          <table id="tenantTable" class="uk-table uk-table-divider uk-table-small">
+
+        <!-- FILTER / TOOLBAR -->
+        <div class="uk-flex uk-flex-wrap uk-flex-middle uk-margin">
+          <div class="uk-margin-small-right">
+            <select class="uk-select uk-form-small" aria-label="Status filtern">
+              <option>Alle</option>
+              <option>Aktiv</option>
+              <option>Gekündigt</option>
+              <option>Simuliert</option>
+            </select>
+          </div>
+
+          <div class="uk-margin-small-right uk-width-expand">
+            <div class="uk-inline uk-width-1-1">
+              <span class="uk-form-icon" uk-icon="icon: search"></span>
+              <input class="uk-input uk-form-small" type="search" placeholder="Suchen (Subdomain, Kunde, E-Mail)">
+            </div>
+          </div>
+
+          <div class="uk-button-group uk-margin-small-top@s">
+            <button class="uk-button uk-button-default uk-button-small">Exportieren</button>
+            <button class="uk-button uk-button-default uk-button-small">Auswertung</button>
+            <button class="uk-button uk-button-default uk-button-small">Spalten</button>
+            <button id="tenantSyncBtn" class="uk-button uk-button-default uk-button-small">Sync</button>
+          </div>
+        </div>
+
+        <!-- DESKTOP TABLE -->
+        <div class="uk-visible@s uk-overflow-auto">
+          <table class="uk-table uk-table-divider uk-table-middle uk-table-striped qr-table">
             <thead>
               <tr>
-                <th>{{ t('column_subdomain') }}</th>
+                <th class="sticky">{{ t('column_subdomain') }}</th>
                 <th>{{ t('column_plan') }}</th>
                 <th>{{ t('column_billing') }}</th>
                 <th>{{ t('column_created') }}</th>
-                <th>{{ t('column_actions') }}</th>
+                <th class="uk-text-right">{{ t('column_actions') }}</th>
               </tr>
             </thead>
             <tbody id="tenantTableBody"></tbody>
           </table>
         </div>
+
+        <!-- MOBILE CARDS -->
+        <div id="tenantCards" class="uk-hidden@s"></div>
       </div>
     </li>
     {% endif %}
