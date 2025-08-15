@@ -2192,7 +2192,7 @@ document.addEventListener('DOMContentLoaded', function () {
           actionTd.className = 'uk-text-right';
           actionTd.innerHTML = `<ul class="uk-iconnav uk-margin-remove">
             <li><a href="#" uk-tooltip="Willkommensmail" uk-icon="mail" data-action="welcome" data-sub="${safeSub}"></a></li>
-            <li><a href="#" uk-tooltip="SSL erneuern" uk-icon="lock" data-action="renew" data-sub="${safeSub}"></a></li>
+            <li><a href="#" uk-tooltip="SSL erneuern" data-action="renew" data-sub="${safeSub}"><span uk-icon="lock"></span></a></li>
             <li>
               <a uk-icon="more-vertical" href="#" uk-tooltip="Mehr"></a>
               <div uk-dropdown="mode: click; pos: bottom-right">
@@ -2236,7 +2236,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <ul class="uk-nav uk-dropdown-nav">
                       <li class="uk-nav-header">Aktionen</li>
                       <li><a href="#" data-action="welcome" data-sub="${safeSub}">Willkommensmail</a></li>
-                      <li><a href="#" data-action="renew" data-sub="${safeSub}">SSL erneuern</a></li>
+                      <li><a href="#" data-action="renew" data-sub="${safeSub}"><span uk-icon="lock" class="uk-margin-small-right"></span>SSL erneuern</a></li>
                       <li class="uk-nav-divider"></li>
                       <li><a class="uk-text-danger" href="#" data-action="delete" data-uid="${safeUid}" data-sub="${safeSub}">Mandant löschen …</a></li>
                     </ul>
@@ -2458,6 +2458,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   loadBackups();
   if (adminRoutes.indexOf('tenants') >= 0) {
-    loadTenants();
+    const syncFlag = 'tenantSyncDone';
+    if (tenantSyncBtn && !sessionStorage.getItem(syncFlag)) {
+      tenantSyncBtn.click();
+      sessionStorage.setItem(syncFlag, '1');
+    } else {
+      loadTenants();
+    }
   }
 });
