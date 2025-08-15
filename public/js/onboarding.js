@@ -428,7 +428,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!tRes.ok) {
         mark('create', false);
-        throw new Error('create');
+        let msg = '';
+        switch (tRes.status) {
+          case 400:
+            msg = 'Ungültige oder unvollständige Daten.';
+            break;
+          case 403:
+            msg = 'Zugriff verweigert – Domäne oder Service-Login prüfen.';
+            break;
+          case 409:
+            msg = 'Mandant existiert bereits.';
+            break;
+          default:
+            try {
+              const ct = tRes.headers.get('Content-Type');
+              if (ct && ct.includes('application/json')) {
+                const data = await tRes.json();
+                msg = data.error || '';
+              } else {
+                msg = await tRes.text();
+              }
+            } catch (_) {
+              // ignore
+            }
+            if (!msg) {
+              msg = 'Mandant anlegen fehlgeschlagen';
+            }
+        }
+        throw new Error(msg);
       }
       mark('create', true);
       start('import');
@@ -467,8 +494,9 @@ document.addEventListener('DOMContentLoaded', () => {
       window.location.href = `https://${subdomain}.${window.mainDomain}/`;
       return;
     } catch (e) {
-      addLog('Fehler: ' + e.message);
-      alert('Fehler bei der Registrierung.');
+      const msg = 'Fehler: ' + e.message;
+      addLog(msg);
+      alert(msg);
     }
   }
 
