@@ -96,4 +96,76 @@ class AwardServiceTest extends TestCase
         $text = $svc->buildText('Team', $rankings);
         $this->assertSame($expected, $text);
     }
+
+    public function testComputeRankingsCalculatesTopTeams(): void
+    {
+        $svc = new AwardService();
+        $results = [
+            ['name' => 'TeamA', 'catalog' => 'cat1', 'time' => 10, 'correct' => 5, 'puzzleTime' => 30],
+            ['name' => 'TeamA', 'catalog' => 'cat2', 'time' => 20, 'correct' => 4],
+            ['name' => 'TeamB', 'catalog' => 'cat1', 'time' => 12, 'correct' => 4, 'puzzleTime' => 35],
+            ['name' => 'TeamB', 'catalog' => 'cat2', 'time' => 22, 'correct' => 3],
+            ['name' => 'TeamC', 'catalog' => 'cat1', 'time' => 14, 'correct' => 3, 'puzzleTime' => 40],
+            ['name' => 'TeamC', 'catalog' => 'cat2', 'time' => 25, 'correct' => 2],
+            ['name' => 'TeamD', 'catalog' => 'cat1', 'time' => 11, 'correct' => 6, 'puzzleTime' => 50],
+        ];
+        $rankings = $svc->computeRankings($results);
+
+        $this->assertSame(
+            [
+                ['team' => 'TeamA', 'place' => 1],
+                ['team' => 'TeamB', 'place' => 2],
+                ['team' => 'TeamC', 'place' => 3],
+            ],
+            $rankings['puzzle']
+        );
+
+        $this->assertSame(
+            [
+                ['team' => 'TeamA', 'place' => 1],
+                ['team' => 'TeamB', 'place' => 2],
+                ['team' => 'TeamC', 'place' => 3],
+            ],
+            $rankings['catalog']
+        );
+
+        $this->assertSame(
+            [
+                ['team' => 'TeamA', 'place' => 1],
+                ['team' => 'TeamB', 'place' => 2],
+                ['team' => 'TeamD', 'place' => 3],
+            ],
+            $rankings['points']
+        );
+    }
+
+    public function testGetAwardsListsDescriptions(): void
+    {
+        $svc = new AwardService();
+        $rankings = [
+            'puzzle' => [
+                ['team' => 'Team', 'place' => 2],
+            ],
+            'catalog' => [],
+            'points' => [
+                ['team' => 'Team', 'place' => 1],
+            ],
+        ];
+        $awards = $svc->getAwards('Team', $rankings);
+        $this->assertSame(
+            [
+                [
+                    'place' => 2,
+                    'title' => 'Rätselwort-Bestzeit',
+                    'desc' => 'zweit schnellstes Lösen des Rätselworts',
+                ],
+                [
+                    'place' => 1,
+                    'title' => 'Highscore-Champions',
+                    'desc' => 'Team mit den meisten Lösungen aller Fragen',
+                ],
+            ],
+            $awards
+        );
+    }
 }
