@@ -66,6 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const pagesInitial = window.pagesContent || {};
   const profileForm = document.getElementById('profileForm');
   const profileSaveBtn = document.getElementById('profileSaveBtn');
+  const welcomeMailBtn = document.getElementById('welcomeMailBtn');
   const checkoutContainer = document.getElementById('stripe-checkout');
   const planButtons = document.querySelectorAll('.plan-select');
   const emailInput = document.getElementById('subscription-email');
@@ -2452,6 +2453,16 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!r.ok) throw new Error(r.statusText);
         notify('Profil gespeichert', 'success');
       }).catch(() => notify('Fehler beim Speichern', 'danger'));
+    });
+
+    welcomeMailBtn?.addEventListener('click', e => {
+      e.preventDefault();
+      apiFetch('/admin/profile/welcome', { method: 'POST' })
+        .then(r => {
+          if (!r.ok) throw new Error('failed');
+          notify('Willkommensmail gesendet', 'success');
+        })
+        .catch(() => notify('Fehler beim Senden', 'danger'));
     });
 
   // Page editors are handled in trumbowyg-pages.js

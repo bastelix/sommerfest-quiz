@@ -894,6 +894,11 @@
               <input class="uk-input" type="text" value="{{ tenant.created_at }}" readonly>
             </div>
           </div>
+          {% if domainType == 'tenant' %}
+          <div class="uk-margin">
+            <button id="welcomeMailBtn" type="button" class="uk-button uk-button-default">{{ t('action_send_welcome_mail') }}</button>
+          </div>
+          {% endif %}
           <button id="profileSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: {{ t('tip_save_changes') }}; pos: left"></button>
         </form>
         {% else %}
