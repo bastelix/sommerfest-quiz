@@ -655,6 +655,7 @@
             <li>
               <form class="uk-form-stacked seo-form" action="{{ basePath }}/admin/landingpage/seo" method="post">
                 <input type="hidden" name="pageId" value="1">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <div class="uk-margin">
                   <label class="uk-form-label" for="metaTitle">Meta Title</label>
                   <div class="uk-form-controls">
