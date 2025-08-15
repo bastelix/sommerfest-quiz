@@ -75,9 +75,11 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       if(img){
         if(cfg.logoPath){
           img.src = withBase(cfg.logoPath) + '?' + Date.now();
+          img.srcset = img.src;
           img.classList.remove('uk-hidden');
         }else{
           img.src = '';
+          img.srcset = '';
           img.classList.add('uk-hidden');
         }
       }
