@@ -2,12 +2,22 @@
 # Delete a tenant and reload nginx proxy
 set -e
 
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 <subdomain>" >&2
+if [ "$#" -lt 1 ] || [ "$#" -gt 2 ]; then
+  echo "Usage: $0 <subdomain> [uid|--subdomain]" >&2
   exit 1
 fi
 
 SUBDOMAIN="$1"
+UID=""
+DELETE_BY_SUBDOMAIN=0
+
+if [ "$#" -eq 2 ]; then
+  if [ "$2" = "--subdomain" ]; then
+    DELETE_BY_SUBDOMAIN=1
+  else
+    UID="$2"
+  fi
+fi
 BASE_DIR="$(dirname "$0")/.."
 ENV_FILE="$BASE_DIR/.env"
 DOMAIN="$(grep '^DOMAIN=' "$ENV_FILE" | cut -d '=' -f2)"
@@ -36,9 +46,22 @@ if [ -z "$DOMAIN" ]; then
   exit 1
 fi
 
+if [ "$DELETE_BY_SUBDOMAIN" -eq 0 ]; then
+  if [ -z "$UID" ]; then
+    UID=$(curl -s "http://$DOMAIN/tenants.json" | jq -r --arg sd "$SUBDOMAIN" '.tenants[] | select(.subdomain==$sd) | .uid')
+  fi
+  if [ -z "$UID" ] || [ "$UID" = "null" ]; then
+    echo "Could not determine UID for tenant $SUBDOMAIN" >&2
+    exit 1
+  fi
+  DATA="{\"uid\":\"$UID\"}"
+else
+  DATA="{\"subdomain\":\"$SUBDOMAIN\"}"
+fi
+
 curl -s -X DELETE \
   -H 'Content-Type: application/json' \
-  -d "{\"uid\":\"$SUBDOMAIN\"}" \
+  -d "$DATA" \
   "http://$DOMAIN/tenants"
 
 rm -f "$BASE_DIR/vhost.d/${SUBDOMAIN}.$DOMAIN"
