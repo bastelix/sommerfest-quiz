@@ -91,6 +91,60 @@ document.addEventListener('DOMContentLoaded', function () {
       })
       .catch(() => {});
   }
+
+  document.addEventListener('click', e => {
+    const el = e.target.closest('[data-action]');
+    if (!el) return;
+    const action = el.getAttribute('data-action');
+    const sub = el.getAttribute('data-sub');
+    const uid = el.getAttribute('data-uid');
+    if (action === 'delete') {
+      e.preventDefault();
+      if (!confirm('Mandant wirklich löschen?')) return;
+      el.classList.add('uk-disabled');
+      apiFetch('/tenants', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid })
+      })
+        .then(r => {
+          if (!r.ok) return r.text().then(text => { throw new Error(text); });
+          return apiFetch('/api/tenants/' + encodeURIComponent(sub), { method: 'DELETE' });
+        })
+        .then(() => {
+          notify('Mandant entfernt', 'success');
+          loadTenants();
+        })
+        .catch(() => notify('Fehler beim Löschen', 'danger'))
+        .finally(() => {
+          el.classList.remove('uk-disabled');
+        });
+    } else if (action === 'renew') {
+      e.preventDefault();
+      apiFetch('/api/tenants/' + encodeURIComponent(sub) + '/renew-ssl', { method: 'POST' })
+        .then(r => r.json().then(data => ({ ok: r.ok, data })))
+        .then(({ ok, data }) => {
+          if (!ok) throw new Error(data.error || 'Fehler');
+          notify(data.status || 'Zertifikat wird erneuert', 'success');
+        })
+        .catch(err => notify(err.message || 'Fehler beim Erneuern', 'danger'));
+    } else if (action === 'welcome') {
+      e.preventDefault();
+      apiFetch('/tenants/' + encodeURIComponent(sub) + '/welcome')
+        .then(r => {
+          if (!r.ok) throw new Error('Fehler');
+          return r.text();
+        })
+        .then(html => {
+          const w = window.open('', '_blank');
+          if (w) {
+            w.document.write(html);
+            w.document.close();
+          }
+        })
+        .catch(() => notify('Willkommensmail nicht verfügbar', 'danger'));
+    }
+  });
   planButtons.forEach(btn => {
     btn.addEventListener('click', async () => {
       const plan = btn.dataset.plan;
@@ -1940,6 +1994,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const exportJsonBtn = document.getElementById('exportJsonBtn');
   const backupTableBody = document.getElementById('backupTableBody');
   const tenantTableBody = document.getElementById('tenantTableBody');
+  const tenantCards = document.getElementById('tenantCards');
   const tenantSyncBtn = document.getElementById('tenantSyncBtn');
 
   function loadBackups() {
@@ -2064,97 +2119,139 @@ document.addEventListener('DOMContentLoaded', function () {
   function loadTenants() {
     if (!tenantTableBody || window.domainType !== 'main') return;
     const mainDomain = window.mainDomain || '';
+    const escapeHtml = (str) =>
+      (str || '').replace(/[&<>"']/g, (m) => (
+        {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;',
+        }[m]
+      ));
     apiFetch('/tenants.json', { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(list => {
         tenantTableBody.innerHTML = '';
+        if (tenantCards) tenantCards.innerHTML = '';
         list.forEach(t => {
+          const sub = t.subdomain || '';
+          const plan = t.plan || '';
+          const billing = t.billing_info || '';
+          const created = (t.created_at || '').replace('T', ' ').replace(/\..*/, '');
+          const status = plan ? 'Aktiv' : 'Simuliert';
+          const statusClass = plan ? 'uk-label-success' : 'uk-label-warning';
+          const safeSub = escapeHtml(sub);
+          const safeBilling = escapeHtml(billing);
+          const safePlan = escapeHtml(plan);
+          const safeCreated = escapeHtml(created);
+          const safeUid = escapeHtml(t.uid || '');
+
+          // desktop row
           const tr = document.createElement('tr');
           const subTd = document.createElement('td');
-          const sub = t.subdomain || '';
+          subTd.className = 'sticky';
           if (sub && mainDomain) {
             const a = document.createElement('a');
             a.href = 'https://' + sub + '.' + mainDomain;
-            a.target = '_blank';
-            a.rel = 'noopener';
+            a.className = 'uk-link-heading';
             a.textContent = sub;
             subTd.appendChild(a);
           } else {
             subTd.textContent = sub;
           }
+          const statusSpan = document.createElement('span');
+          statusSpan.className = 'uk-label ' + statusClass + ' uk-margin-small-left';
+          statusSpan.textContent = status;
+          subTd.appendChild(statusSpan);
+
           const planTd = document.createElement('td');
-          planTd.textContent = t.plan || '';
+          planTd.textContent = plan;
+
           const billingTd = document.createElement('td');
-          billingTd.textContent = t.billing_info || '';
+          const billingSpan = document.createElement('span');
+          billingSpan.className = 'uk-text-truncate qr-mono';
+          billingSpan.textContent = billing;
+          billingSpan.title = billing;
+          billingTd.appendChild(billingSpan);
+
           const createdTd = document.createElement('td');
-          createdTd.textContent = (t.created_at || '').replace('T', ' ').replace(/\..*/, '');
+          const createdWrap = document.createElement('div');
+          createdWrap.className = 'uk-text-muted';
+          const [datePart, timePart] = created.split(' ');
+          const dateDiv = document.createElement('div');
+          dateDiv.textContent = datePart || '';
+          const timeDiv = document.createElement('div');
+          timeDiv.className = 'uk-text-small';
+          timeDiv.textContent = timePart || '';
+          createdWrap.appendChild(dateDiv);
+          createdWrap.appendChild(timeDiv);
+          createdTd.appendChild(createdWrap);
+
           const actionTd = document.createElement('td');
-          const delBtn = document.createElement('button');
-          delBtn.className = 'uk-button uk-button-danger uk-button-small';
-          delBtn.textContent = 'Mandant löschen';
-          delBtn.addEventListener('click', () => {
-            if (!confirm('Mandant wirklich löschen?')) return;
-            const originalHtml = delBtn.innerHTML;
-            delBtn.disabled = true;
-            delBtn.innerHTML = '<div uk-spinner></div>';
-            apiFetch('/tenants', {
-              method: 'DELETE',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ uid: t.uid })
-            })
-              .then(r => {
-                if (!r.ok) return r.text().then(text => { throw new Error(text); });
-                return apiFetch('/api/tenants/' + encodeURIComponent(t.subdomain), { method: 'DELETE' });
-              })
-              .then(() => {
-                notify('Mandant entfernt', 'success');
-                loadTenants();
-              })
-              .catch(() => notify('Fehler beim Löschen', 'danger'))
-              .finally(() => {
-                delBtn.disabled = false;
-                delBtn.innerHTML = originalHtml;
-              });
-          });
-          const renewBtn = document.createElement('button');
-          renewBtn.className = 'uk-button uk-button-default uk-button-small uk-margin-small-right';
-          renewBtn.textContent = 'SSL erneuern';
-          renewBtn.addEventListener('click', () => {
-            apiFetch('/api/tenants/' + encodeURIComponent(t.subdomain) + '/renew-ssl', { method: 'POST' })
-              .then(r => r.json().then(data => ({ ok: r.ok, data })))
-              .then(({ ok, data }) => {
-                if (!ok) throw new Error(data.error || 'Fehler');
-                notify(data.status || 'Zertifikat wird erneuert', 'success');
-              })
-              .catch(err => notify(err.message || 'Fehler beim Erneuern', 'danger'));
-          });
-          const welcomeBtn = document.createElement('button');
-          welcomeBtn.className = 'uk-button uk-button-default uk-button-small uk-margin-small-right';
-          welcomeBtn.textContent = 'Willkommensmail';
-          welcomeBtn.addEventListener('click', () => {
-            apiFetch('/tenants/' + encodeURIComponent(t.subdomain) + '/welcome')
-              .then(r => {
-                if (!r.ok) throw new Error('Fehler');
-                return r.text();
-              })
-              .then(html => {
-                const w = window.open('', '_blank');
-                if (w) {
-                  w.document.write(html);
-                  w.document.close();
-                }
-              })
-              .catch(() => notify('Willkommensmail nicht verfügbar', 'danger'));
-          });
-          actionTd.appendChild(welcomeBtn);
-          actionTd.appendChild(renewBtn);
-          actionTd.appendChild(delBtn);
+          actionTd.className = 'uk-text-right';
+          actionTd.innerHTML = `<ul class="uk-iconnav uk-margin-remove">
+            <li><a href="#" uk-tooltip="Willkommensmail" uk-icon="mail" data-action="welcome" data-sub="${safeSub}"></a></li>
+            <li><a href="#" uk-tooltip="SSL erneuern" uk-icon="lock" data-action="renew" data-sub="${safeSub}"></a></li>
+            <li>
+              <a uk-icon="more-vertical" href="#" uk-tooltip="Mehr"></a>
+              <div uk-dropdown="mode: click; pos: bottom-right">
+                <ul class="uk-nav uk-dropdown-nav">
+                  <li class="uk-nav-header">Aktionen</li>
+                  <li><a href="#" data-action="update" data-sub="${safeSub}">Abo aktualisieren</a></li>
+                  <li><a href="#" data-action="pause" data-sub="${safeSub}">Zahlung pausieren</a></li>
+                  <li><a href="#" data-action="paylink" data-sub="${safeSub}">Zahlungslink senden</a></li>
+                  <li><a href="#" data-action="invoice" data-sub="${safeSub}">Einmalige Rechnung</a></li>
+                  <li class="uk-nav-divider"></li>
+                  <li><a class="uk-text-danger" href="#" data-action="delete" data-uid="${safeUid}" data-sub="${safeSub}">Mandant löschen …</a></li>
+                  <li class="uk-nav-divider"></li>
+                  <li class="uk-nav-header">Verbindungen</li>
+                  <li><a href="#" data-action="show-customer" data-sub="${safeSub}">Kunden anzeigen</a></li>
+                  <li><a href="#" data-action="show-subscription" data-sub="${safeSub}">Abo anzeigen</a></li>
+                </ul>
+              </div>
+            </li>
+          </ul>`;
+
           tr.appendChild(subTd);
           tr.appendChild(planTd);
           tr.appendChild(billingTd);
           tr.appendChild(createdTd);
           tr.appendChild(actionTd);
           tenantTableBody.appendChild(tr);
+
+          // mobile card
+          if (tenantCards) {
+            const card = document.createElement('div');
+            card.className = 'uk-card uk-card-default uk-card-small uk-margin-small';
+            card.innerHTML = `
+              <div class="uk-card-header uk-flex uk-flex-between uk-flex-middle">
+                <div>
+                  <a class="uk-h5 uk-margin-remove">${safeSub}</a>
+                  <span class="uk-label ${statusClass} uk-margin-small-left">${status}</span>
+                </div>
+                <div>
+                  <a class="uk-icon-button" uk-icon="more-vertical" href="#"></a>
+                  <div uk-dropdown="mode: click; pos: bottom-right">
+                    <ul class="uk-nav uk-dropdown-nav">
+                      <li class="uk-nav-header">Aktionen</li>
+                      <li><a href="#" data-action="welcome" data-sub="${safeSub}">Willkommensmail</a></li>
+                      <li><a href="#" data-action="renew" data-sub="${safeSub}">SSL erneuern</a></li>
+                      <li class="uk-nav-divider"></li>
+                      <li><a class="uk-text-danger" href="#" data-action="delete" data-uid="${safeUid}" data-sub="${safeSub}">Mandant löschen …</a></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="uk-card-body uk-padding-small">
+                <dl class="uk-description-list uk-margin-remove">
+                  <dt>Abo</dt><dd>${safePlan}</dd>
+                  <dt>Rechnungsinfo</dt><dd class="uk-text-truncate qr-mono" title="${safeBilling}">${safeBilling}</dd>
+                  <dt>Erstellt</dt><dd>${safeCreated}</dd>
+                </dl>
+              </div>`;
+            tenantCards.appendChild(card);
+          }
         });
       })
       .catch(() => {});
