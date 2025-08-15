@@ -29,7 +29,17 @@ class LogoController
      */
     public function get(Request $request, Response $response, array $args = []): Response
     {
-        $cfg = $this->config->getConfig();
+        $file = (string)($request->getAttribute('file') ?? '');
+        $ext = strtolower((string)($request->getAttribute('ext') ?? 'png'));
+        $uid = '';
+        if (preg_match('/^logo-([\w-]+)\.' . preg_quote($ext, '/') . '$/', $file, $m)) {
+            $uid = $m[1];
+        }
+
+        $cfg = $uid !== ''
+            ? $this->config->getConfigForEvent($uid)
+            : $this->config->getConfig();
+
         $relPath = $cfg['logoPath'] ?? '';
         $path = '';
         $contentType = 'image/png';
@@ -50,7 +60,7 @@ class LogoController
             $contentType = 'image/svg+xml';
         }
 
-        $response->getBody()->write((string) file_get_contents($path));
+        $response->getBody()->write((string)file_get_contents($path));
         return $response->withHeader('Content-Type', $contentType);
     }
 

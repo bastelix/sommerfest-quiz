@@ -244,4 +244,59 @@ class LogoControllerTest extends TestCase
         unlink($logoFile);
         unlink(dirname(__DIR__, 2) . '/data/logo-dyn.png');
     }
+
+    public function testGetLogoForSpecificEventWhileAnotherActive(): void
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, sort_order INTEGER DEFAULT 0);');
+        $pdo->exec('CREATE TABLE active_event(event_uid TEXT PRIMARY KEY);');
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                displayErrorDetails INTEGER,
+                QRUser INTEGER,
+                QRRemember INTEGER,
+                logoPath TEXT,
+                pageTitle TEXT,
+                backgroundColor TEXT,
+                buttonColor TEXT,
+                CheckAnswerButton TEXT,
+                QRRestrict INTEGER,
+                randomNames INTEGER DEFAULT 1,
+                competitionMode INTEGER,
+                teamResults INTEGER,
+                photoUpload INTEGER,
+                puzzleWordEnabled INTEGER,
+                puzzleWord TEXT,
+                puzzleFeedback TEXT,
+                inviteText TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec("INSERT INTO events(uid,name) VALUES('e1','Eins'),('e2','Zwei')");
+
+        $cfg = new ConfigService($pdo);
+        $cfg->ensureConfigForEvent('e1');
+        $cfg->ensureConfigForEvent('e2');
+        $cfg->setActiveEventUid('e1');
+
+        $controller = new LogoController($cfg);
+        $logoFile = tempnam(sys_get_temp_dir(), 'logo');
+        imagepng(imagecreatetruecolor(10, 10), $logoFile);
+        $stream = fopen($logoFile, 'rb');
+        $uploaded = new UploadedFile(new Stream($stream), 'logo.png', 'image/png', filesize($logoFile), UPLOAD_ERR_OK);
+        $request = $this->createRequest('POST', '/logo.png');
+        $request = $request->withUploadedFiles(['file' => $uploaded]);
+
+        $controller->post($request, new Response());
+
+        $cfg->setActiveEventUid('e2');
+        $response = $controller->get($this->createRequest('GET', '/logo-e1.png'), new Response());
+        $this->assertEquals(200, $response->getStatusCode());
+
+        unlink($logoFile);
+        unlink(dirname(__DIR__, 2) . '/data/logo-e1.png');
+    }
 }
