@@ -299,12 +299,20 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
         let qs = '?katalog=' + (cat.slug || cat.sort_order);
         if(eventUid) qs += '&event=' + encodeURIComponent(eventUid);
         history.replaceState(null, '', qs);
-        loadQuestions(cat.slug || cat.sort_order, cat.file, cat.raetsel_buchstabe, cat.uid, cat.name || cat.slug || cat.sort_order, cat.description || '', cat.comment || '');
+        loadQuestions(
+          cat.slug || cat.sort_order,
+          cat.file,
+          cat.raetsel_buchstabe,
+          cat.uid,
+          cat.name || cat.slug || cat.sort_order,
+          cat.description || cat.beschreibung || '',
+          cat.comment || cat.kommentar || ''
+        );
       });
       const title = document.createElement('h3');
       title.textContent = cat.name || cat.slug || cat.sort_order;
       const desc = document.createElement('p');
-      desc.textContent = cat.description || '';
+      desc.textContent = cat.description || cat.beschreibung || '';
       card.appendChild(title);
       card.appendChild(desc);
       cardWrap.appendChild(card);
@@ -605,7 +613,15 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
             showCatalogSolvedModal(selected.name || selected.slug || selected.id, remaining);
             return;
           }
-        loadQuestions(selected.slug || selected.id, selected.file, selected.raetsel_buchstabe, selected.uid, selected.name || selected.slug || selected.id, selected.description || '', selected.comment || '');
+        loadQuestions(
+          selected.slug || selected.id,
+          selected.file,
+          selected.raetsel_buchstabe,
+          selected.uid,
+          selected.name || selected.slug || selected.id,
+          selected.description || selected.beschreibung || '',
+          selected.comment || selected.kommentar || ''
+        );
       }else{
         showSelection(catalogs, solvedNow);
       }
