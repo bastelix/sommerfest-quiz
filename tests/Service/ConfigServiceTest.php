@@ -39,13 +39,15 @@ class ConfigServiceTest extends TestCase
             SQL
         );
         $service = new ConfigService($pdo);
-        $data = ['pageTitle' => 'Demo'];
+        $data = ['pageTitle' => 'Demo', 'QRUser' => false, 'QRRemember' => true];
 
         $service->saveConfig($data);
         $json = $service->getJson();
         $this->assertNotNull($json);
         $cfg = $service->getConfig();
         $this->assertSame('Demo', $cfg['pageTitle']);
+        $this->assertFalse($cfg['QRUser']);
+        $this->assertTrue($cfg['QRRemember']);
     }
 
     public function testGetJsonReturnsNullIfFileMissing(): void

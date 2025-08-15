@@ -15,6 +15,23 @@ class ConfigService
     private ?string $activeEvent = null;
 
     /**
+     * List of configuration keys that should be treated as booleans.
+     *
+     * @var array<int,string>
+     */
+    private const BOOL_KEYS = [
+        'displayErrorDetails',
+        'QRUser',
+        'QRRemember',
+        'QRRestrict',
+        'randomNames',
+        'competitionMode',
+        'teamResults',
+        'photoUpload',
+        'puzzleWordEnabled',
+    ];
+
+    /**
      * Inject PDO instance used for database operations.
      */
     public function __construct(PDO $pdo)
@@ -289,7 +306,16 @@ class ConfigService
         }
         $normalized = [];
         foreach ($row as $k => $v) {
-            $normalized[$map[strtolower($k)] ?? $k] = $v;
+            $key = $map[strtolower($k)] ?? $k;
+            if (in_array($key, self::BOOL_KEYS, true)) {
+                $normalized[$key] = $v === null ? null : filter_var(
+                    $v,
+                    FILTER_VALIDATE_BOOL,
+                    FILTER_NULL_ON_FAILURE
+                );
+            } else {
+                $normalized[$key] = $v;
+            }
         }
         return $normalized;
     }
