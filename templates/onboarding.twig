@@ -162,7 +162,7 @@
       {% if stripe_configured %}
       <p>Wähle einen Tarif und schließe die Zahlung über Stripe ab. Du kannst jeden kostenpflichtigen Tarif 7 Tage lang kostenlos testen.</p>
       {% else %}
-      <p class="uk-text-danger">Zahlungsdienstleister nicht konfiguriert. Nur der kostenlose Starter-Tarif ist verfügbar.</p>
+      <p class="uk-text-danger">Zahlungsdienstleister nicht konfiguriert. Nur der Starter-Tarif ist verfügbar.</p>
       {% if stripe_missing %}
       <p class="uk-text-meta">Fehlende Variablen: {{ stripe_missing|join(', ') }}</p>
       {% endif %}
@@ -172,9 +172,10 @@
           <div class="uk-card uk-card-price uk-card-quizrace uk-text-center">
             <span class="uk-label uk-label-success uk-label-large">Kostenlos testen</span>
             <h3 class="uk-card-title uk-text-primary uk-margin-small-top">Starter</h3>
-            <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700;">0&nbsp;€</div>
+            <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700;">9&nbsp;€/Monat</div>
             <div class="uk-text-meta uk-margin-small-bottom">Für kleine Events &amp; Einsteiger</div>
             <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom">
+              <li><b>7 Tage kostenlos testen</b></li>
               <li><b>1 Event gleichzeitig</b></li>
               <li>5 Teams &amp; 5 Kataloge à 5 Fragen</li>
               <li>Unbegrenzte Teilnehmende pro Team¹</li>
