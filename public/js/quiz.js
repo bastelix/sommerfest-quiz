@@ -177,8 +177,8 @@ async function runQuiz(questions, skipIntro){
   });
 
   if(!getStored('quizUser') && !cfg.QRRestrict && !cfg.QRUser){
-    if(cfg.randomNames !== false){
-      setStored('quizUser', generateUserName());
+    if(cfg.randomNames){
+      await promptTeamName();
     }
   }
 
@@ -250,15 +250,15 @@ async function runQuiz(questions, skipIntro){
   }
 
   // Ermittelt das Ergebnis und schreibt es in localStorage
-  function updateSummary(){
+  async function updateSummary(){
     if(summaryShown) return;
     summaryShown = true;
     const score = results.filter(r => r).length;
     let user = getStored('quizUser');
     if(!user && !cfg.QRRestrict && !cfg.QRUser){
-      if(cfg.randomNames !== false){
-        user = generateUserName();
-        setStored('quizUser', user);
+      if(cfg.randomNames){
+        await promptTeamName();
+        user = getStored('quizUser');
       }
     }
     const p = summaryEl.querySelector('p');
@@ -1179,7 +1179,7 @@ async function runQuiz(questions, skipIntro){
     // Zeigt bisherige Ergebnisse als kleine Slideshow an
     stats.textContent = 'Noch keine Ergebnisse vorhanden.';
 
-    if(cfg.randomNames === false){
+    if(cfg.randomNames){
       const nameBtn = document.createElement('button');
       nameBtn.className = 'uk-button uk-button-default uk-button-large uk-align-left';
       nameBtn.textContent = 'Teamnamen eingeben';
@@ -1193,11 +1193,8 @@ async function runQuiz(questions, skipIntro){
         return;
       }
       if(!getStored('quizUser')){
-        if(cfg.randomNames === false){
+        if(cfg.randomNames){
           await promptTeamName();
-        }else{
-          const user = generateUserName();
-          setStored('quizUser', user);
         }
       }
       next();

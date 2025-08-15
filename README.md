@@ -390,7 +390,7 @@ Python-Skripte zur Prüfung der HTML- bzw. JSON-Dateien auf.
 - Liste mit Name und QR-Code, editierbar.
 - QR-Code-Login auf bekannte Teams/Personen beschränkbar.
 - Aktivierung/Deaktivierung der Beschränkung per Schalter.
-- Zufallsnamen werden bei aktiver Beschränkung unterbunden.
+- Manuelle Namenseingabe wird bei aktiver Beschränkung unterbunden.
 - Die Uploadseite für Beweisfotos bietet jetzt ein Eingabefeld mit Vorschlagsliste für die Teamwahl.
 
 ## Datenschutz

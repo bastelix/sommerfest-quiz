@@ -64,7 +64,7 @@ return [
     'tip_qr_button' => "Aktiviert den Button 'Name mit QR-Code scannen' auf der Startseite, " .
         'um den Namen aus einem QR-Code zu übernehmen.',
     'tip_qr_remember' => 'Speichert den gescannten Namen im Browser und überspringt künftige Logins.',
-    'tip_random_names' => 'Legt fest, ob ohne QR-Code automatisch ein Name vergeben oder eingegeben wird.',
+    'tip_random_names' => 'Legt fest, ob ohne QR-Code ein Name eingegeben werden muss.',
     'tip_team_restrict' => 'Aktiviert eine Zugangsbeschränkung auf eingetragene Teams',
     'tip_competition_mode' => 'Blendet Neustart-Buttons aus und verhindert das Wiederholen bereits gelöster Kataloge.',
     'tip_team_results' => 'Zeigt Teams nach Abschluss aller Kataloge eine Übersicht ihrer Ergebnisse.',
@@ -135,7 +135,7 @@ return [
     'label_check_button' => 'Antwort-Prüfen-Button anzeigen',
     'label_qr_login' => 'QR-Code-Login verwenden',
     'label_qr_remember' => 'Einmaliges Einscannen merken',
-    'label_random_names' => 'Zufallsnamen verwenden',
+    'label_random_names' => 'Teamnamen eingeben lassen',
     'label_team_restrict' => 'Nur Teams/Personen aus der Liste dürfen teilnehmen.',
     'label_plan' => 'Abo',
     'label_events' => 'Veranstaltungen',
