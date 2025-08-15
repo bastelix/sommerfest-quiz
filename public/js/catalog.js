@@ -75,11 +75,13 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       if(img){
         if(cfg.logoPath){
           img.src = withBase(cfg.logoPath) + '?' + Date.now();
-          img.srcset = img.src;
+          img.removeAttribute('srcset');
+          img.removeAttribute('sizes');
           img.classList.remove('uk-hidden');
         }else{
           img.src = '';
-          img.srcset = '';
+          img.removeAttribute('srcset');
+          img.removeAttribute('sizes');
           img.classList.add('uk-hidden');
         }
       }
