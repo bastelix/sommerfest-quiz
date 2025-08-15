@@ -204,6 +204,7 @@ return [
     'action_delete_tenant' => 'Mandant löschen',
     'action_sync_tenants' => 'Fehlende Mandanten suchen',
     'action_renew_ssl' => 'SSL erneuern',
+    'action_send_welcome_mail' => 'Willkommensmail senden',
     'help_admin_pass' => 'Definiert das Admin-Passwort des neuen Mandanten. Bleibt das Feld leer, ' .
         'wird ein zufälliges Passwort erzeugt',
     'info_admin_email' => 'Der Link zum Setzen des Admin-Passworts wird per E-Mail verschickt.',
