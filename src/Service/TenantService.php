@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use PDO;
+use PDOException;
 use App\Infrastructure\Migrations\Migrator;
 use App\Domain\Plan;
 
@@ -134,8 +135,26 @@ class TenantService
         }
         $stmt = $this->pdo->prepare('SELECT 1 FROM tenants WHERE subdomain = ?');
         $stmt->execute([$subdomain]);
+        if ($stmt->fetchColumn() !== false) {
+            return true;
+        }
 
-        return $stmt->fetchColumn() !== false;
+        if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'sqlite') {
+            try {
+                $stmt = $this->pdo->prepare(
+                    "SELECT 1 FROM information_schema.tables WHERE table_schema = ? LIMIT 1"
+                );
+                $stmt->execute([$subdomain]);
+
+                if ($stmt->fetchColumn() !== false) {
+                    return true;
+                }
+            } catch (PDOException $e) {
+                // ignore missing information_schema tables
+            }
+        }
+
+        return false;
     }
 
     private function isReserved(string $subdomain): bool
