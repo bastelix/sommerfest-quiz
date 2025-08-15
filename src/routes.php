@@ -892,7 +892,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         while (($line = fgets($pipes[1])) !== false) {
             $chunk = dechex(strlen($line)) . "\r\n" . $line . "\r\n";
             $response->getBody()->write($chunk);
-            if (function_exists('ob_flush')) {
+            if (function_exists('ob_flush') && ob_get_level() > 0) {
                 ob_flush();
             }
             flush();
