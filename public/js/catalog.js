@@ -330,7 +330,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       try{
         allowed = JSON.parse(sessionStorage.getItem('allowedTeams') || 'null');
         if(!Array.isArray(allowed) || !allowed.length){
-          const r = await fetch('/teams.json', {headers:{'Accept':'application/json'}});
+          const r = await fetch(withBase('/teams.json'), {headers:{'Accept':'application/json'}});
           if(r.ok){
             allowed = await r.json();
           } else {
