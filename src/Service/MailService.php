@@ -165,9 +165,12 @@ class MailService
      */
     public function sendWelcome(string $to, string $domain, string $link): string
     {
+        $catalogLink = sprintf('https://%s/admin/catalogs', $domain);
+
         $html = $this->twig->render('emails/welcome.twig', [
-            'domain' => $domain,
-            'link'   => $link,
+            'domain'       => $domain,
+            'link'         => $link,
+            'catalog_link' => $catalogLink,
         ]);
 
         $email = (new Email())
