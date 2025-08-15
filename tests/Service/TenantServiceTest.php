@@ -168,6 +168,32 @@ SQL;
         $this->assertFalse($service->exists('orphan'));
     }
 
+    public function testExistsReturnsTrueIfTablesExist(): void
+    {
+        $pdo = new class ('sqlite::memory:') extends PDO
+        {
+            public function __construct($dsn)
+            {
+                parent::__construct($dsn);
+            }
+
+            public function getAttribute($attr): mixed
+            {
+                if ($attr === PDO::ATTR_DRIVER_NAME) {
+                    return 'pgsql';
+                }
+                return parent::getAttribute($attr);
+            }
+        };
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec("ATTACH DATABASE ':memory:' AS information_schema");
+        $pdo->exec('CREATE TABLE tenants(uid TEXT PRIMARY KEY, subdomain TEXT)');
+        $pdo->exec('CREATE TABLE information_schema.tables(table_schema TEXT)');
+        $pdo->exec("INSERT INTO information_schema.tables(table_schema) VALUES('busy')");
+        $service = new TenantService($pdo);
+        $this->assertTrue($service->exists('busy'));
+    }
+
     public function testCreateTenantFailsOnReserved(): void
     {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();

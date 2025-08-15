@@ -309,6 +309,42 @@ class TenantControllerTest extends TestCase
         $this->assertEquals(200, $res->getStatusCode());
     }
 
+    public function testExistsReturns200IfTablesExist(): void
+    {
+        $pdo = new class ('sqlite::memory:') extends PDO
+        {
+            public function __construct($dsn)
+            {
+                parent::__construct($dsn);
+            }
+
+            public function getAttribute($attr): mixed
+            {
+                if ($attr === PDO::ATTR_DRIVER_NAME) {
+                    return 'pgsql';
+                }
+                return parent::getAttribute($attr);
+            }
+        };
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec("ATTACH DATABASE ':memory:' AS information_schema");
+        $pdo->exec(
+            'CREATE TABLE tenants(' .
+            'uid TEXT PRIMARY KEY, subdomain TEXT, plan TEXT, billing_info TEXT, imprint_name TEXT, ' .
+            'imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, imprint_email TEXT, custom_limits TEXT, ' .
+            'plan_started_at TEXT, plan_expires_at TEXT, created_at TEXT, stripe_customer_id TEXT, ' .
+            'stripe_subscription_id TEXT, stripe_price_id TEXT, stripe_status TEXT, stripe_current_period_end TEXT, ' .
+            'stripe_cancel_at_period_end INTEGER' .
+            ')'
+        );
+        $pdo->exec('CREATE TABLE information_schema.tables(table_schema TEXT)');
+        $pdo->exec("INSERT INTO information_schema.tables(table_schema) VALUES('busy')");
+        $controller = new TenantController(new TenantService($pdo));
+        $req = $this->createRequest('GET', '/tenants/busy');
+        $res = $controller->exists($req, new Response(), ['subdomain' => 'busy']);
+        $this->assertEquals(200, $res->getStatusCode());
+    }
+
     public function testCreateHandlesPdoException(): void
     {
         $service = new class extends TenantService {
