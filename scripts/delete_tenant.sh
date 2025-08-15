@@ -65,6 +65,8 @@ curl -s -X DELETE \
   "http://$DOMAIN/tenants"
 
 rm -f "$BASE_DIR/vhost.d/${SUBDOMAIN}.$DOMAIN"
+rm -f "$BASE_DIR"/certs/"${SUBDOMAIN}.${DOMAIN}"*
+rm -rf "$BASE_DIR/acme/${SUBDOMAIN}.${DOMAIN}" "$BASE_DIR/acme/${SUBDOMAIN}.${DOMAIN}_ecc"
 
 if [ -n "$RELOADER_URL" ]; then
   curl -s -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL"
