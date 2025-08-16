@@ -27,15 +27,12 @@
 - Fix style and security warnings
 - Reformat stripe tests for readability
 
-### Fix
-
-- Forward QR code query options on catalog overview
-
 ### Ci
 
 - Add workflow for automatic changelog
 - Build tenant image during deploy
 - Use setup-php v2
+- Run deploy on push to main
 
 ### Docs
 
@@ -157,6 +154,8 @@
 - Validate onboarding inputs
 - *(onboarding)* Reinstate app creation progress
 - Enhance tenant onboarding tasks
+- Fallback logo path when event id missing
+- Enhance tenant table UI
 
 ### Fix
 
@@ -201,6 +200,10 @@
 - Remove redundant null coalesce
 - Improve dark mode menu active state
 - Handle missing onboarding data after payment
+- Avoid published column migration error
+- Remove fallback logo srcset
+- Show catalog info on start page
+- Remove manual chunked encoding in tenant onboarding
 
 ### Refactor
 
@@ -240,6 +243,8 @@
 - *(admin)* Ensure dashboard greets username
 - *(admin)* Ensure dashboard greets username
 - Update profile plan enum
+- Cover award ranking edge cases
+- Cover welcome mail resend
 
 ## [0.1.0] - 2025-06-16
 
