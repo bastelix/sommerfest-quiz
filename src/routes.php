@@ -929,8 +929,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         );
 
         $response = $response
-            ->withHeader('Content-Type', 'text/plain')
-            ->withHeader('Transfer-Encoding', 'chunked');
+            ->withHeader('Content-Type', 'text/plain');
 
         if (!is_resource($process)) {
             $response->getBody()->write("Failed to start process\n");
@@ -941,8 +940,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         fclose($pipes[0]);
 
         while (($line = fgets($pipes[1])) !== false) {
-            $chunk = dechex(strlen($line)) . "\r\n" . $line . "\r\n";
-            $response->getBody()->write($chunk);
+            $response->getBody()->write($line);
             if (function_exists('ob_flush') && ob_get_level() > 0) {
                 ob_flush();
             }
@@ -952,9 +950,6 @@ return function (\Slim\App $app, TranslationService $translator) {
         fclose($pipes[1]);
 
         $exitCode = proc_close($process);
-
-        // Terminate chunked transfer
-        $response->getBody()->write("0\r\n\r\n");
 
         if ($exitCode !== 0) {
             return $response->withStatus(500);
