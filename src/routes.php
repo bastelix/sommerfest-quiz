@@ -520,8 +520,8 @@ return function (\Slim\App $app, TranslationService $translator) {
             $twig = Twig::fromRequest($request)->getEnvironment();
             $mailer = new MailService($twig, $auditLogger);
         }
-        $mainDomain = getenv('MAIN_DOMAIN') ?: getenv('DOMAIN') ?: $uri->getHost();
-        $domain = sprintf('%s.%s', $sub, $mainDomain);
+        $mainDomain = getenv('MAIN_DOMAIN') ?: getenv('DOMAIN');
+        $domain = $mainDomain ? sprintf('%s.%s', $sub, $mainDomain) : $uri->getHost();
         $link = sprintf('https://%s/password/set?token=%s&next=%%2Fadmin', $domain, urlencode($token));
         $html = $mailer->sendWelcome($email, $domain, $link);
         $baseDir = dirname(__DIR__, 1);
@@ -770,13 +770,13 @@ return function (\Slim\App $app, TranslationService $translator) {
         $resetService = new PasswordResetService($pdo);
         $token = $resetService->createToken((int)$admin['id']);
 
-        $mainDomain = getenv('MAIN_DOMAIN') ?: getenv('DOMAIN') ?: $request->getUri()->getHost();
+        $mainDomain = getenv('MAIN_DOMAIN') ?: getenv('DOMAIN');
         $twig = Twig::fromRequest($request)->getEnvironment();
         if (!MailService::isConfigured()) {
             return $response->withStatus(503);
         }
         $mailer = new MailService($twig, $auditLogger);
-        $domain = sprintf('%s.%s', $schema, $mainDomain);
+        $domain = $mainDomain ? sprintf('%s.%s', $schema, $mainDomain) : $request->getUri()->getHost();
         $link = sprintf('https://%s/password/set?token=%s&next=%%2Fadmin', $domain, urlencode($token));
         $html = $mailer->sendWelcome($email, $domain, $link);
         $base = dirname(__DIR__, 1);
