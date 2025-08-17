@@ -69,7 +69,6 @@
 
 ### Feat
 
-- *(admin)* Add button to upgrade tenant Docker containers
 - Skip schema init when db ready
 - Support soft hyphen placeholders
 - Add dynamic congratulations for team PDFs
