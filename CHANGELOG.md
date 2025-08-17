@@ -18,7 +18,6 @@
 - Optimize landing page images
 - Add ghostscript to Docker image
 - Require PHP 8.2
-- Remove `qrcode_url` field from catalogs
 - Test against php 8.2
 - Update dependencies
 - Pin php base images to patch release
@@ -213,6 +212,7 @@
 - Use constants for qr code defaults
 - Redesign dashboard calendar
 - Avoid multiple classes in test
+- Drop qrcode url field
 
 ### Style
 
