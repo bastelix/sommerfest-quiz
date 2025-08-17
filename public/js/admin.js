@@ -2002,6 +2002,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const importJsonBtn = document.getElementById('importJsonBtn');
   const exportJsonBtn = document.getElementById('exportJsonBtn');
+  const saveDemoBtn = document.getElementById('saveDemoBtn');
   const backupTableBody = document.getElementById('backupTableBody');
   const tenantTableBody = document.getElementById('tenantTableBody');
   const tenantCards = document.getElementById('tenantCards');
@@ -2090,6 +2091,19 @@ document.addEventListener('DOMContentLoaded', function () {
       .catch(err => {
         console.error(err);
         notify('Fehler beim Import', 'danger');
+      });
+  });
+
+  saveDemoBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    apiFetch('/export-default', { method: 'POST' })
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        notify('Demodaten gespeichert', 'success');
+      })
+      .catch(err => {
+        console.error(err);
+        notify('Fehler beim Speichern', 'danger');
       });
   });
 
