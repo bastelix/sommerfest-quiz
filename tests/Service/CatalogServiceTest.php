@@ -26,7 +26,6 @@ class CatalogServiceTest extends TestCase
                 file TEXT NOT NULL,
                 name TEXT NOT NULL,
                 description TEXT,
-                qrcode_url TEXT,
                 raetsel_buchstabe TEXT,
                 comment TEXT,
                 design_path TEXT,
@@ -84,7 +83,6 @@ class CatalogServiceTest extends TestCase
                 file TEXT NOT NULL,
                 name TEXT NOT NULL,
                 description TEXT,
-                qrcode_url TEXT,
                 raetsel_buchstabe TEXT,
                 design_path TEXT,
                 event_uid TEXT

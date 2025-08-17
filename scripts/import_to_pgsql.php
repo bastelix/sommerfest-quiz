@@ -171,7 +171,7 @@ if (is_readable($catalogsFile)) {
     $catalogs = json_decode(file_get_contents($catalogsFile), true) ?? [];
     $catStmt = $pdo->prepare(
         'INSERT INTO catalogs(uid,sort_order,slug,file,name,description,' .
-        'qrcode_url,raetsel_buchstabe,comment,event_uid) VALUES(?,?,?,?,?,?,?,?,?,?)'
+        'raetsel_buchstabe,comment,event_uid) VALUES(?,?,?,?,?,?,?,?,?)'
     );
     $qStmt = $pdo->prepare(
         'INSERT INTO questions(catalog_uid,type,prompt,options,answers,terms,items,sort_order)' .
@@ -185,7 +185,6 @@ if (is_readable($catalogsFile)) {
             $cat['file'] ?? '',
             $cat['name'] ?? '',
             $cat['description'] ?? null,
-            $cat['qrcode_url'] ?? null,
             $cat['raetsel_buchstabe'] ?? null,
             $cat['comment'] ?? null,
             $activeUid

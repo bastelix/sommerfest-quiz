@@ -258,9 +258,9 @@ class TenantService
             $catalogs = json_decode(file_get_contents($catalogsFile), true) ?? [];
             $catStmt = $this->pdo->prepare(
                 'INSERT INTO catalogs(' .
-                    'uid,sort_order,slug,file,name,description,qrcode_url,' .
+                    'uid,sort_order,slug,file,name,description,' .
                     'raetsel_buchstabe,comment,event_uid' .
-                ') VALUES(?,?,?,?,?,?,?,?,?,?)'
+                ') VALUES(?,?,?,?,?,?,?,?,?)'
             );
             $qStmt = $this->hasTable('questions')
                 ? $this->pdo->prepare(
@@ -277,7 +277,6 @@ class TenantService
                     $cat['file'] ?? '',
                     $cat['name'] ?? '',
                     $cat['description'] ?? null,
-                    $cat['qrcode_url'] ?? null,
                     $cat['raetsel_buchstabe'] ?? null,
                     $cat['comment'] ?? null,
                     $activeUid,

@@ -26,7 +26,6 @@ class CatalogControllerTest extends TestCase
                 file TEXT NOT NULL,
                 name TEXT NOT NULL,
                 description TEXT,
-                qrcode_url TEXT,
                 raetsel_buchstabe TEXT,
                 comment TEXT,
                 event_uid TEXT
@@ -74,7 +73,6 @@ class CatalogControllerTest extends TestCase
                 file TEXT NOT NULL,
                 name TEXT NOT NULL,
                 description TEXT,
-                qrcode_url TEXT,
                 raetsel_buchstabe TEXT,
                 comment TEXT,
                 event_uid TEXT
@@ -126,7 +124,6 @@ class CatalogControllerTest extends TestCase
                 file TEXT NOT NULL,
                 name TEXT NOT NULL,
                 description TEXT,
-                qrcode_url TEXT,
                 raetsel_buchstabe TEXT,
                 comment TEXT,
                 event_uid TEXT
@@ -192,7 +189,6 @@ class CatalogControllerTest extends TestCase
                 file TEXT NOT NULL,
                 name TEXT NOT NULL,
                 description TEXT,
-                qrcode_url TEXT,
                 raetsel_buchstabe TEXT,
                 comment TEXT,
                 event_uid TEXT
@@ -269,7 +265,6 @@ class CatalogControllerTest extends TestCase
                 file TEXT NOT NULL,
                 name TEXT NOT NULL,
                 description TEXT,
-                qrcode_url TEXT,
                 raetsel_buchstabe TEXT,
                 comment TEXT,
                 event_uid TEXT
@@ -328,7 +323,6 @@ class CatalogControllerTest extends TestCase
                 file TEXT NOT NULL,
                 name TEXT NOT NULL,
                 description TEXT,
-                qrcode_url TEXT,
                 raetsel_buchstabe TEXT,
                 comment TEXT,
                 event_uid TEXT

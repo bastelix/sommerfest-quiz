@@ -189,7 +189,7 @@ class CatalogService
     public function read(string $file): ?string
     {
         if ($file === 'catalogs.json') {
-            $fields = 'uid,sort_order,slug,file,name,description,qrcode_url,raetsel_buchstabe';
+            $fields = 'uid,sort_order,slug,file,name,description,raetsel_buchstabe';
             if ($this->hasCommentColumn()) {
                 $fields .= ',comment';
             }
@@ -296,8 +296,8 @@ class CatalogService
             } else {
                 $this->pdo->exec('DELETE FROM catalogs');
             }
-            $fields = 'uid,sort_order,slug,file,name,description,qrcode_url,raetsel_buchstabe,event_uid';
-            $placeholders = '?,?,?,?,?,?,?,?,?';
+            $fields = 'uid,sort_order,slug,file,name,description,raetsel_buchstabe,event_uid';
+            $placeholders = '?,?,?,?,?,?,?,?';
             if ($this->hasCommentColumn()) {
                 $fields .= ',comment';
                 $placeholders .= ',?';
@@ -318,7 +318,6 @@ class CatalogService
                     $cat['file'] ?? '',
                     $cat['name'] ?? '',
                     $cat['description'] ?? null,
-                    $cat['qrcode_url'] ?? null,
                     $cat['raetsel_buchstabe'] ?? null,
                     $uid !== '' ? $uid : null,
                 ];

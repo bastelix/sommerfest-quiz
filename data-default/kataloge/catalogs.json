@@ -6,7 +6,6 @@
     "file": "station_1.json",
     "name": "Station-1",
     "description": "Speicher und Geraete",
-    "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_1",
     "raetsel_buchstabe": "A",
     "comment": ""
   },
@@ -17,7 +16,6 @@
     "file": "station_2.json",
     "name": "Station-2",
     "description": "Bedienung und Symbole",
-    "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_2",
     "raetsel_buchstabe": "B",
     "comment": ""
   },
@@ -28,7 +26,6 @@
     "file": "station_3.json",
     "name": "Station-3",
     "description": "WWW und Speicherarten",
-    "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_3",
     "raetsel_buchstabe": "C",
     "comment": ""
   },
@@ -39,7 +36,6 @@
     "file": "station_4.json",
     "name": "Station-4",
     "description": "Begriffe und Geraetegroessen",
-    "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_4",
     "raetsel_buchstabe": "D",
     "comment": ""
   },
@@ -50,7 +46,6 @@
     "file": "station_5.json",
     "name": "Station-5",
     "description": "Programme und Binaersystem",
-    "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_5",
     "raetsel_buchstabe": "E",
     "comment": ""
   },
@@ -61,7 +56,6 @@
     "file": "station_6.json",
     "name": "Station-6",
     "description": "Dateien und URLs",
-    "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_6",
     "raetsel_buchstabe": "F",
     "comment": ""
   },
@@ -72,7 +66,6 @@
     "file": "station_7.json",
     "name": "Station-7",
     "description": "Netzwerke und Kuerzel",
-    "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_7",
     "raetsel_buchstabe": "G",
     "comment": ""
   },
@@ -83,7 +76,6 @@
     "file": "station_8.json",
     "name": "Station-8",
     "description": "Cloud und Steuerung",
-    "qrcode_url": "https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=station_8",
     "raetsel_buchstabe": "H",
     "comment": ""
   }
