@@ -2307,7 +2307,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (descEl) descEl.textContent = ev.description || '';
       if (qrImg) {
         const link = window.baseUrl ? window.baseUrl : withBase('/?event=' + encodeURIComponent(ev.uid || ''));
-        qrImg.src = withBase('/qr.png?t=' + encodeURIComponent(link) + '&text1=QUIZ&text2=RACE&rounded=1');
+        qrImg.src = withBase('/qr/event?t=' + encodeURIComponent(link));
       }
       if (qrLabel) qrLabel.textContent = ev.name || '';
       catalogsEl.innerHTML = '';
