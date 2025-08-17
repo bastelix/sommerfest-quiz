@@ -2129,6 +2129,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function loadTenants() {
     if (!tenantTableBody || window.domainType !== 'main') return;
     const mainDomain = window.mainDomain || '';
+    const stripeBase = window.stripeDashboard || 'https://dashboard.stripe.com';
     const escapeHtml = (str) =>
       (str || '').replace(/[&<>"']/g, (m) => (
         {
@@ -2148,6 +2149,8 @@ document.addEventListener('DOMContentLoaded', function () {
           const sub = t.subdomain || '';
           const plan = t.plan || '';
           const billing = t.billing_info || '';
+          const customerId = t.stripe_customer_id || '';
+          const subscriptionId = t.stripe_subscription_id || '';
           const created = (t.created_at || '').replace('T', ' ').replace(/\..*/, '');
           const status = plan ? 'Aktiv' : 'Simuliert';
           const statusClass = plan ? 'uk-label-success' : 'uk-label-warning';
@@ -2200,6 +2203,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
           const actionTd = document.createElement('td');
           actionTd.className = 'uk-text-right';
+          const customerLink = customerId ? stripeBase + '/customers/' + encodeURIComponent(customerId) : '#';
+          const subscriptionLink = subscriptionId ? stripeBase + '/subscriptions/' + encodeURIComponent(subscriptionId) : '#';
+          const customerClass = customerId ? '' : ' class="uk-disabled"';
+          const subscriptionClass = subscriptionId ? '' : ' class="uk-disabled"';
           actionTd.innerHTML = `<ul class="uk-iconnav uk-margin-remove uk-flex-right">
             <li><a href="#" uk-tooltip="Willkommensmail" uk-icon="mail" data-action="welcome" data-sub="${safeSub}"></a></li>
             <li><a href="#" uk-tooltip="${window.transUpgradeDocker || 'Docker aktualisieren'}" data-action="upgrade-docker" data-sub="${safeSub}"><span uk-icon="refresh"></span></a></li>
@@ -2217,8 +2224,8 @@ document.addEventListener('DOMContentLoaded', function () {
                   <li><a class="uk-text-danger" href="#" data-action="delete" data-uid="${safeUid}" data-sub="${safeSub}">Mandant löschen …</a></li>
                   <li class="uk-nav-divider"></li>
                   <li class="uk-nav-header">Verbindungen</li>
-                  <li><a href="#" data-action="show-customer" data-sub="${safeSub}">Kunden anzeigen</a></li>
-                  <li><a href="#" data-action="show-subscription" data-sub="${safeSub}">Abo anzeigen</a></li>
+                  <li><a href="${customerLink}"${customerClass} data-action="show-customer" data-sub="${safeSub}" target="_blank">Kunden anzeigen</a></li>
+                  <li><a href="${subscriptionLink}"${subscriptionClass} data-action="show-subscription" data-sub="${safeSub}" target="_blank">Abo anzeigen</a></li>
                 </ul>
               </div>
             </li>

@@ -208,6 +208,7 @@ class AdminController
               'domainType' => $request->getAttribute('domainType'),
               'tenant' => $tenant,
               'stripe_configured' => StripeService::isConfigured()['ok'],
+              'stripe_sandbox' => filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN),
               'currentPath' => $request->getUri()->getPath(),
               'username' => $_SESSION['user']['username'] ?? '',
               'csrf_token' => $csrf,
