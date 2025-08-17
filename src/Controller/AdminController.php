@@ -18,6 +18,7 @@ use App\Service\TenantService;
 use App\Domain\Roles;
 use App\Infrastructure\Database;
 use App\Service\StripeService;
+use App\Service\VersionService;
 use PDO;
 
 /**
@@ -45,6 +46,8 @@ class AdminController
         $eventSvc = new EventService($pdo);
         $settingsSvc = new SettingsService($pdo);
         $settings = $settingsSvc->getAll();
+        $versionSvc = new VersionService();
+        $version = $versionSvc->getCurrentVersion();
 
         $params = $request->getQueryParams();
         $uid = (string)($params['event'] ?? '');
@@ -208,6 +211,7 @@ class AdminController
               'currentPath' => $request->getUri()->getPath(),
               'username' => $_SESSION['user']['username'] ?? '',
               'csrf_token' => $csrf,
+              'version' => $version,
           ]);
     }
 }
