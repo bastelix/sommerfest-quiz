@@ -70,4 +70,41 @@ class ExportControllerTest extends TestCase
         rmdir($tmp . '/kataloge');
         rmdir($tmp);
     }
+
+    public function testExportDefaultsCreatesDemoData(): void
+    {
+        [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
+        $tmp = sys_get_temp_dir() . '/export_' . uniqid();
+        mkdir($tmp, 0777, true);
+
+        $controller = new ExportController(
+            $config,
+            $catalog,
+            $results,
+            $teams,
+            $consents,
+            $summary,
+            $events,
+            $tmp,
+            $tmp
+        );
+        $req = $this->createRequest('POST', '/export-default');
+        $res = $controller->exportDefaults($req, new Response());
+        $this->assertEquals(204, $res->getStatusCode());
+
+        $default = dirname($tmp) . '/data-default';
+        $this->assertFileExists($default . '/config.json');
+
+        foreach (glob($default . '/*') ?: [] as $file) {
+            if (is_file($file)) {
+                unlink($file);
+            }
+        }
+        if (is_dir($default . '/kataloge')) {
+            array_map('unlink', glob($default . '/kataloge/*') ?: []);
+            rmdir($default . '/kataloge');
+        }
+        rmdir($default);
+        rmdir($tmp);
+    }
 }

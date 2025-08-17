@@ -28,6 +28,7 @@ class ExportController
     private EventService $events;
     private string $dataDir;
     private string $backupDir;
+    private string $defaultDir;
 
     /**
      * Configure dependencies and target directories.
@@ -52,6 +53,7 @@ class ExportController
         $this->events = $events;
         $this->dataDir = rtrim($dataDir, '/');
         $this->backupDir = rtrim($backupDir, '/');
+        $this->defaultDir = dirname($this->dataDir) . '/data-default';
     }
 
     /**
@@ -63,6 +65,15 @@ class ExportController
         $backupPath = $this->backupDir . '/' . $timestamp;
         $this->exportToDir($this->dataDir);
         $this->exportToDir($backupPath);
+        return $response->withStatus(204);
+    }
+
+    /**
+     * Export current data to the default demo data directory.
+     */
+    public function exportDefaults(Request $request, Response $response): Response
+    {
+        $this->exportToDir($this->defaultDir);
         return $response->withStatus(204);
     }
 

@@ -740,6 +740,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('importController')->restoreDefaults($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::SERVICE_ACCOUNT));
 
+    $app->post('/export-default', function (Request $request, Response $response) {
+        return $request->getAttribute('exportController')->exportDefaults($request, $response);
+    })->add(new RoleAuthMiddleware('admin'));
+
     $app->post('/tenant-welcome', function (Request $request, Response $response) {
         $data = json_decode((string) $request->getBody(), true);
         if (!is_array($data) || !isset($data['schema'], $data['email'])) {
