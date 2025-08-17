@@ -157,6 +157,7 @@
 - Fallback logo path when event id missing
 - Enhance tenant table UI
 - Add demo data export
+- Make database connection retries configurable
 
 ### Fix
 
