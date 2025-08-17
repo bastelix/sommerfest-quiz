@@ -14,9 +14,23 @@ class Database
 {
     /**
      * Create a PDO connection using credentials from environment variables.
+     *
+     * The number of connection attempts and the delay between retries can be
+     * overridden using the `POSTGRES_CONNECT_RETRIES` and
+     * `POSTGRES_CONNECT_RETRY_DELAY` environment variables.
      */
     public static function connectFromEnv(int $retries = 5, int $delay = 1): PDO
     {
+        $envRetries = getenv('POSTGRES_CONNECT_RETRIES');
+        if ($envRetries !== false) {
+            $retries = (int) $envRetries;
+        }
+
+        $envDelay = getenv('POSTGRES_CONNECT_RETRY_DELAY');
+        if ($envDelay !== false) {
+            $delay = (int) $envDelay;
+        }
+
         $dsn  = getenv('POSTGRES_DSN') ?: '';
         $user = getenv('POSTGRES_USER') ?: '';
         $pass = getenv('POSTGRES_PASSWORD') ?: getenv('POSTGRES_PASS') ?: '';
