@@ -53,7 +53,7 @@ class ResultControllerTest extends TestCase
         $pdo->exec(
             'CREATE TABLE catalogs(' .
             'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, description TEXT,' .
-            ' qrcode_url TEXT, raetsel_buchstabe TEXT, event_uid TEXT' .
+            ' raetsel_buchstabe TEXT, event_uid TEXT' .
             ');'
         );
         $pdo->exec(
@@ -167,7 +167,7 @@ class ResultControllerTest extends TestCase
         $pdo->exec(
             'CREATE TABLE catalogs(' .
             'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, description TEXT,' .
-            ' qrcode_url TEXT, raetsel_buchstabe TEXT, event_uid TEXT' .
+            ' raetsel_buchstabe TEXT, event_uid TEXT' .
             ');'
         );
         $pdo->exec(

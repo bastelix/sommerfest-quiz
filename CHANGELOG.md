@@ -18,6 +18,7 @@
 - Optimize landing page images
 - Add ghostscript to Docker image
 - Require PHP 8.2
+- Remove `qrcode_url` field from catalogs
 - Test against php 8.2
 - Update dependencies
 - Pin php base images to patch release
