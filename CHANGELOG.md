@@ -156,6 +156,7 @@
 - Enhance tenant onboarding tasks
 - Fallback logo path when event id missing
 - Enhance tenant table UI
+- Add demo data export
 
 ### Fix
 
