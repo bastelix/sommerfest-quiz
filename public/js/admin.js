@@ -2017,6 +2017,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const tenantTableBody = document.getElementById('tenantTableBody');
   const tenantCards = document.getElementById('tenantCards');
   const tenantSyncBtn = document.getElementById('tenantSyncBtn');
+  const tenantExportBtn = document.getElementById('tenantExportBtn');
   const tenantStatusFilter = document.getElementById('tenantStatusFilter');
   const tenantSearchInput = document.getElementById('tenantSearchInput');
 
@@ -2140,6 +2141,30 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error(err);
         notify('Fehler beim Export', 'danger');
       });
+  });
+
+  tenantExportBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    apiFetch('/tenants/export')
+      .then(async r => {
+        if (!r.ok) throw new Error('Fehler');
+        const blob = await r.blob();
+        const disposition = r.headers.get('Content-Disposition') || '';
+        let filename = 'tenants.csv';
+        const match = /filename="?([^";]+)"?/i.exec(disposition);
+        if (match) {
+          filename = match[1];
+        }
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(() => notify('Fehler beim Export', 'danger'));
   });
 
   tenantSyncBtn?.addEventListener('click', e => {
