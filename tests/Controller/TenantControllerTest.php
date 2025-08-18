@@ -416,4 +416,26 @@ class TenantControllerTest extends TestCase
         $this->assertEquals(500, $res->getStatusCode());
         $this->assertStringContainsString('boom', (string) $res->getBody());
     }
+
+    public function testListPassesQueryToService(): void
+    {
+        $service = new class extends TenantService {
+            public string $received = '';
+            public function __construct()
+            {
+            }
+
+            public function getAll(string $query = ''): array
+            {
+                $this->received = $query;
+                return [];
+            }
+        };
+        $controller = new TenantController($service);
+        $req = $this->createRequest('GET', '/tenants.json?query=foo');
+        $res = $controller->list($req, new Response());
+        $this->assertSame('foo', $service->received);
+        $this->assertSame('application/json', $res->getHeaderLine('Content-Type'));
+        $this->assertSame('[]', (string) $res->getBody());
+    }
 }

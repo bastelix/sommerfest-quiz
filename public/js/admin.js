@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(() => {
           notify('Mandant entfernt', 'success');
-          loadTenants(tenantStatusFilter?.value);
+          loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value);
         })
         .catch(() => notify('Fehler beim Löschen', 'danger'))
         .finally(() => {
@@ -2018,9 +2018,14 @@ document.addEventListener('DOMContentLoaded', function () {
   const tenantCards = document.getElementById('tenantCards');
   const tenantSyncBtn = document.getElementById('tenantSyncBtn');
   const tenantStatusFilter = document.getElementById('tenantStatusFilter');
+  const tenantSearchInput = document.getElementById('tenantSearchInput');
 
   tenantStatusFilter?.addEventListener('change', () => {
-    loadTenants(tenantStatusFilter.value);
+    loadTenants(tenantStatusFilter.value, tenantSearchInput?.value);
+  });
+
+  tenantSearchInput?.addEventListener('input', () => {
+    loadTenants(tenantStatusFilter?.value, tenantSearchInput.value);
   });
 
   function loadBackups() {
@@ -2146,7 +2151,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(r => r.json())
       .then(() => {
         notify('Mandanten eingelesen', 'success');
-        loadTenants(tenantStatusFilter?.value);
+        loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value);
       })
       .catch(() => notify('Fehler beim Synchronisieren', 'danger'))
       .finally(() => {
@@ -2155,7 +2160,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   });
 
-  function loadTenants(status = tenantStatusFilter?.value || '') {
+  function loadTenants(status = tenantStatusFilter?.value || '', query = tenantSearchInput?.value || '') {
     if (!tenantTableBody || window.domainType !== 'main') return;
     const mainDomain = window.mainDomain || '';
     const stripeBase = window.stripeDashboard || 'https://dashboard.stripe.com';
@@ -2169,7 +2174,10 @@ document.addEventListener('DOMContentLoaded', function () {
           "'": '&#39;',
         }[m]
       ));
-    const url = '/tenants.json' + (status ? ('?status=' + encodeURIComponent(status)) : '');
+    const params = new URLSearchParams();
+    if (status) params.set('status', status);
+    if (query) params.set('query', query);
+    const url = '/tenants.json' + (params.toString() ? ('?' + params.toString()) : '');
     apiFetch(url, { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(list => {
@@ -2700,7 +2708,7 @@ document.addEventListener('DOMContentLoaded', function () {
         loadSummary();
       }
       if (index === tenantIdx) {
-        loadTenants(tenantStatusFilter?.value);
+        loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value);
       }
     });
     if (summaryIdx >= 0) {
@@ -2710,7 +2718,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (tenantIdx >= 0) {
       adminTabs.children[tenantIdx]?.addEventListener('click', () => {
-        loadTenants(tenantStatusFilter?.value);
+        loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value);
       });
     }
     adminMenu.querySelectorAll('[data-tab]').forEach(item => {
@@ -2728,7 +2736,7 @@ document.addEventListener('DOMContentLoaded', function () {
             loadSummary();
           }
           if (idx === tenantIdx) {
-            loadTenants(tenantStatusFilter?.value);
+            loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value);
           }
         }
       });
@@ -2789,7 +2797,7 @@ document.addEventListener('DOMContentLoaded', function () {
       tenantSyncBtn.click();
       sessionStorage.setItem(syncFlag, '1');
     } else {
-      loadTenants(tenantStatusFilter?.value);
+      loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value);
     }
   }
 });

@@ -111,6 +111,18 @@ SQL;
         $this->assertSame(0, (int) $pdo->query('SELECT COUNT(*) FROM tenants')->fetchColumn());
     }
 
+    public function testGetAllFiltersByQuery(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+        $service = $this->createService($dir, $pdo);
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, imprint_name, imprint_email, created_at) VALUES('u1','alpha','Alpha GmbH','a@example.com','2024-01-01')");
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, imprint_name, imprint_email, created_at) VALUES('u2','beta','Beta AG','b@example.com','2024-01-02')");
+        $list = $service->getAll('beta');
+        $this->assertCount(1, $list);
+        $this->assertSame('beta', $list[0]['subdomain']);
+    }
+
     public function testCreateTenantThrowsOnNginxFailure(): void
     {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
