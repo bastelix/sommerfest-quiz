@@ -2517,28 +2517,31 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     const path = window.location.pathname.replace(basePath + '/admin/', '');
     const initRoute = path === '' ? 'dashboard' : path.replace(/^\/?/, '');
+    const summaryIdx = adminRoutes.indexOf('summary');
+    const tenantIdx = adminRoutes.indexOf('tenants');
     const initIdx = adminRoutes.indexOf(initRoute);
     if (initIdx >= 0) {
       tabControl.show(initIdx);
+      if (initRoute === 'summary') {
+        loadSummary();
+      }
     }
-      UIkit.util.on(adminTabs, 'shown', (e, tab) => {
-        const index = Array.prototype.indexOf.call(adminTabs.children, tab);
-        const route = adminRoutes[index];
-        if (route) {
-          const url = basePath + '/admin/' + route;
-          if (window.history && window.history.replaceState) {
-            window.history.replaceState(null, '', url);
-          }
+    UIkit.util.on(adminTabs, 'shown', (e, tab) => {
+      const index = Array.prototype.indexOf.call(adminTabs.children, tab);
+      const route = adminRoutes[index];
+      if (route) {
+        const url = basePath + '/admin/' + route;
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, '', url);
         }
-        if (index === summaryIdx) {
-          loadSummary();
-        }
-        if (index === tenantIdx) {
-          loadTenants();
-        }
-      });
-      const summaryIdx = adminRoutes.indexOf('summary');
-      const tenantIdx = adminRoutes.indexOf('tenants');
+      }
+      if (index === summaryIdx) {
+        loadSummary();
+      }
+      if (index === tenantIdx) {
+        loadTenants();
+      }
+    });
     if (summaryIdx >= 0) {
       adminTabs.children[summaryIdx]?.addEventListener('click', () => {
         loadSummary();
