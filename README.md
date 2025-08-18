@@ -23,6 +23,7 @@ Mit dieser App zeigen wir, was heute schon möglich ist, wenn Menschen und versc
 - **Sechs Fragetypen**: Sortieren, Zuordnen, Multiple Choice, Swipe-Karten, Foto mit Texteingabe und "Hätten Sie es gewusst?"-Karten bieten Abwechslung f\u00fcr jede Zielgruppe.
 - **QR-Code-Login & Dunkelmodus**: Optionaler QR-Code-Login für schnelles Anmelden und ein zuschaltbares dunkles Design steigern den Komfort.
 - **Persistente Speicherung**: Konfigurationen, Kataloge und Ergebnisse liegen in einer PostgreSQL-Datenbank.
+- **Mandantenverwaltung**: Tenant-Daten werden über PostgreSQL-Schemata isoliert; SQLite wird nicht unterstützt.
 
 ## Highlights
 

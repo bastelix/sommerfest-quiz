@@ -13,7 +13,20 @@ class TenantServiceTest extends TestCase
 {
     private function createService(string $dir, PDO &$pdo, ?\App\Service\NginxService $nginx = null): TenantService
     {
-        $pdo = new PDO('sqlite::memory:');
+        $pdo = new class ('sqlite::memory:') extends PDO {
+            public function __construct(string $dsn)
+            {
+                parent::__construct($dsn);
+            }
+
+            public function exec($statement): int|false
+            {
+                if (preg_match('/^(CREATE|DROP) SCHEMA/i', $statement) || str_starts_with($statement, 'SET search_path')) {
+                    return 0;
+                }
+                return parent::exec($statement);
+            }
+        };
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
             'CREATE TABLE tenants(' .

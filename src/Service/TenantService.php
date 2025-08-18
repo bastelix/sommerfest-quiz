@@ -8,7 +8,6 @@ use PDO;
 use PDOException;
 use App\Infrastructure\Migrations\Migrator;
 use App\Domain\Plan;
-use App\Infrastructure\Database;
 
 /**
  * Service for creating and deleting tenants using separate schemas.
@@ -64,16 +63,12 @@ class TenantService
         if ($plan !== null && Plan::tryFrom($plan) === null) {
             throw new \RuntimeException('invalid-plan');
         }
-        if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
-            Migrator::migrate($this->pdo, $this->migrationsDir);
-            $this->seedDemoData();
-        } else {
-            $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $schema));
-            $this->pdo->exec(sprintf('SET search_path TO "%s", public', $schema));
-            Migrator::migrate($this->pdo, $this->migrationsDir);
-            $this->seedDemoData();
-            $this->pdo->exec('SET search_path TO public');
-        }
+
+        $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $schema));
+        $this->pdo->exec(sprintf('SET search_path TO "%s", public', $schema));
+        Migrator::migrate($this->pdo, $this->migrationsDir);
+        $this->seedDemoData();
+        $this->pdo->exec('SET search_path TO public');
         $start = $plan !== null ? new \DateTimeImmutable() : null;
         $end = $start?->modify('+30 days');
         $stmt = $this->pdo->prepare(
@@ -119,9 +114,7 @@ class TenantService
         if ($schema === false) {
             return;
         }
-        if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'sqlite') {
-            $this->pdo->exec(sprintf('DROP SCHEMA IF EXISTS "%s" CASCADE', $schema));
-        }
+        $this->pdo->exec(sprintf('DROP SCHEMA IF EXISTS "%s" CASCADE', $schema));
         $del = $this->pdo->prepare('DELETE FROM tenants WHERE uid = ?');
         $del->execute([$uid]);
     }
@@ -140,19 +133,17 @@ class TenantService
             return true;
         }
 
-        if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'sqlite') {
-            try {
-                $stmt = $this->pdo->prepare(
-                    "SELECT 1 FROM information_schema.tables WHERE table_schema = ? LIMIT 1"
-                );
-                $stmt->execute([$subdomain]);
+        try {
+            $stmt = $this->pdo->prepare(
+                "SELECT 1 FROM information_schema.tables WHERE table_schema = ? LIMIT 1"
+            );
+            $stmt->execute([$subdomain]);
 
-                if ($stmt->fetchColumn() !== false) {
-                    return true;
-                }
-            } catch (PDOException $e) {
-                // ignore missing information_schema tables
+            if ($stmt->fetchColumn() !== false) {
+                return true;
             }
+        } catch (PDOException $e) {
+            // ignore missing information_schema tables
         }
 
         return false;
@@ -165,11 +156,6 @@ class TenantService
 
     private function hasTable(string $name): bool
     {
-        if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
-            $stmt = $this->pdo->prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = ?");
-            $stmt->execute([$name]);
-            return $stmt->fetchColumn() !== false;
-        }
         $stmt = $this->pdo->prepare('SELECT to_regclass(?)');
         $stmt->execute([$name]);
         return $stmt->fetchColumn() !== null;
@@ -177,11 +163,6 @@ class TenantService
 
     private function hasColumn(string $table, string $column): bool
     {
-        if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
-            $stmt = $this->pdo->query('PRAGMA table_info(' . $table . ')');
-            $cols = $stmt->fetchAll(PDO::FETCH_COLUMN, 1);
-            return in_array($column, $cols, true);
-        }
         $stmt = $this->pdo->prepare(
             'SELECT 1 FROM information_schema.columns WHERE table_name = ? AND column_name = ?'
         );
@@ -464,10 +445,12 @@ class TenantService
             $maxEvents = $planEnum->limits()['maxEvents'] ?? null;
             if ($maxEvents !== null) {
                 $pdo = $this->pdo;
-                if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'sqlite') {
-                    $pdo = Database::connectWithSchema($subdomain);
+                $pdo->exec(sprintf('SET search_path TO "%s"', $subdomain));
+                try {
+                    $count = (int) $pdo->query('SELECT COUNT(*) FROM events')->fetchColumn();
+                } finally {
+                    $pdo->exec('SET search_path TO public');
                 }
-                $count = (int) $pdo->query('SELECT COUNT(*) FROM events')->fetchColumn();
                 if ($count > $maxEvents) {
                     throw new \RuntimeException('max-events-exceeded');
                 }
@@ -578,10 +561,6 @@ class TenantService
      */
     public function importMissing(): int
     {
-        if ($this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
-            return 0;
-        }
-
         $existing = $this->pdo
             ->query('SELECT subdomain FROM tenants')
             ->fetchAll(PDO::FETCH_COLUMN);
