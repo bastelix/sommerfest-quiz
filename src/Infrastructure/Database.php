@@ -50,13 +50,14 @@ class Database
 
     /**
      * Create a PDO connection and switch to the given schema.
+     *
+     * This method is intended for PostgreSQL databases and will always
+     * execute a `SET search_path` statement to select the provided schema.
      */
     public static function connectWithSchema(string $schema): PDO
     {
         $pdo = self::connectFromEnv();
-        if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'sqlite') {
-            $pdo->exec('SET search_path TO ' . $pdo->quote($schema));
-        }
+        $pdo->exec('SET search_path TO ' . $pdo->quote($schema));
         return $pdo;
     }
 }
