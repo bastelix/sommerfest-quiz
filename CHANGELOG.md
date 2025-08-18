@@ -2,6 +2,10 @@
 
 ## [unreleased]
 
+### Chore
+
+- Add pages table for SEO config
+
 ### Feat
 
 - Allow selecting subscription plan
