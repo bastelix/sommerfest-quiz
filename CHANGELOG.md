@@ -162,6 +162,7 @@
 - Add customizable qr design modal
 - Add responsive email layout
 - Support configurable QR designs
+- Show overall event counts on dashboard
 
 ### Fix
 
