@@ -508,7 +508,6 @@
               <p>{{ c.description }}</p>
               <img class="qr-img" src="{{ basePath }}/qr/catalog?t={{ link|url_encode }}" alt="QR" width="96" height="96">
               <div class="qr-label">{{ c.name }}</div>
-              <button class="qr-design-btn uk-icon-button uk-margin-small-top" data-type="catalog" data-target="{{ link|e }}" uk-icon="icon: paint-bucket" aria-label="QR-Design" type="button"></button>
             </div>
           </div>
           {% else %}
@@ -527,7 +526,6 @@
               <h4 class="uk-card-title">{{ t }}</h4>
               <img class="qr-img" src="{{ basePath }}/qr/team?t={{ t|url_encode }}" alt="Team QR" width="96" height="96">
               <div class="qr-label">{{ t }}</div>
-              <button class="qr-design-btn uk-icon-button uk-position-top-left" data-type="team" data-target="{{ t|e }}" uk-icon="icon: paint-bucket" aria-label="QR-Design" type="button"></button>
             </div>
           </div>
           {% else %}
