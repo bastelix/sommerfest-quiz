@@ -22,12 +22,6 @@ class Migrator
                 continue;
             }
 
-            if ($driver === 'sqlite' && $version !== '20240910_base_schema.sql') {
-                // Subsequent migrations rely on PostgreSQL features.
-                // The initial schema already reflects their outcome for tests.
-                continue;
-            }
-
             $sql = file_get_contents($file);
             if ($sql === false) {
                 continue;
@@ -39,21 +33,6 @@ class Migrator
                 $ins = $pdo->prepare('INSERT INTO migrations(version) VALUES(?)');
                 $ins->execute([$version]);
                 continue;
-            }
-
-            if ($driver === 'sqlite') {
-                // Strip schema prefixes and unsupported blocks
-                $sql = preg_replace('/public\./', '', $sql);
-                $sql = preg_replace('/DO \$\$.*?\$\$/s', '', $sql);
-                $sql = preg_replace('/ALTER TABLE \w+ DROP CONSTRAINT IF EXISTS .*?;/', '', $sql);
-                $sql = preg_replace('/\bSERIAL\s+PRIMARY\s+KEY\b/', 'INTEGER PRIMARY KEY AUTOINCREMENT', $sql);
-                $sql = preg_replace(
-                    '/INTEGER\s+GENERATED\s+ALWAYS\s+AS\s+IDENTITY\s+PRIMARY\s+KEY/',
-                    'INTEGER PRIMARY KEY AUTOINCREMENT',
-                    $sql
-                );
-                $sql = preg_replace('/TIMESTAMP WITH TIME ZONE/', 'TEXT', $sql);
-                $sql = preg_replace('/::JSONB/', '', $sql);
             }
 
             $pdo->exec($sql);
