@@ -155,6 +155,27 @@ class ConfigService
     }
 
     /**
+     * Return the available columns of the config table.
+     *
+     * @return list<string>
+     */
+    private function getConfigColumns(): array
+    {
+        $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        if ($driver === 'sqlite') {
+            $stmt = $this->pdo->query('PRAGMA table_info(config)');
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            return array_map(static fn(array $r): string => (string) $r['name'], $rows);
+        }
+
+        $stmt = $this->pdo->prepare(
+            "SELECT column_name FROM information_schema.columns WHERE table_name = 'config'"
+        );
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
+    }
+
+    /**
      * Replace stored configuration with new values.
      */
     public function saveConfig(array $data): void
@@ -188,7 +209,13 @@ class ConfigService
             'qrColorCatalog',
             'qrColorEvent',
         ];
+        $existing = array_map('strtolower', $this->getConfigColumns());
         $filtered = array_intersect_key($data, array_flip($keys));
+        $filtered = array_filter(
+            $filtered,
+            fn ($v, $k) => in_array(strtolower((string) $k), $existing, true),
+            ARRAY_FILTER_USE_BOTH
+        );
         $uid = (string)($filtered['event_uid'] ?? $this->getActiveEventUid());
         $filtered['event_uid'] = $uid;
 
