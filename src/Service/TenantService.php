@@ -571,9 +571,11 @@ class TenantService
             "WHERE schema_name NOT LIKE 'pg_%' " .
             "AND schema_name NOT IN ('information_schema','public')"
         );
+        $schemas = [];
         $ins = $this->pdo->prepare('INSERT INTO tenants(uid, subdomain) VALUES(?, ?)');
         $count = 0;
         while (($schema = $stmt->fetchColumn()) !== false) {
+            $schemas[] = $schema;
             if (in_array($schema, $existing, true)) {
                 continue;
             }
@@ -581,8 +583,32 @@ class TenantService
                 continue;
             }
             $ins->execute([bin2hex(random_bytes(16)), $schema]);
+            $existing[] = $schema;
             $count++;
         }
+
+        $tenantsDir = dirname(__DIR__, 2) . '/tenants';
+        if (is_dir($tenantsDir)) {
+            foreach (scandir($tenantsDir) as $dir) {
+                if ($dir === '.' || $dir === '..') {
+                    continue;
+                }
+                if (in_array($dir, $existing, true)) {
+                    continue;
+                }
+                if ($this->isReserved($dir)) {
+                    continue;
+                }
+                if (!in_array($dir, $schemas, true)) {
+                    $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $dir));
+                    $schemas[] = $dir;
+                }
+                $ins->execute([bin2hex(random_bytes(16)), $dir]);
+                $existing[] = $dir;
+                $count++;
+            }
+        }
+
         return $count;
     }
 
