@@ -161,6 +161,7 @@
 - Make database connection retries configurable
 - Add customizable qr design modal
 - Add responsive email layout
+- Support configurable QR designs
 
 ### Fix
 
