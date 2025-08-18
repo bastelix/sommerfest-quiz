@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Service;
 
 use App\Service\MailService;
-use PHPUnit\Framework\TestCase;
+use Tests\TestCase;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 use Twig\Loader\FilesystemLoader;
@@ -16,33 +16,13 @@ use PDO;
 
 class MailServiceTest extends TestCase
 {
-    private string $db;
-
     protected function setUp(): void
     {
-        $this->db = tempnam(sys_get_temp_dir(), 'db');
-        putenv('POSTGRES_DSN=sqlite:' . $this->db);
-        putenv('POSTGRES_USER=');
-        putenv('POSTGRES_PASSWORD=');
-        $_ENV['POSTGRES_DSN'] = 'sqlite:' . $this->db;
-        $_ENV['POSTGRES_USER'] = '';
-        $_ENV['POSTGRES_PASSWORD'] = '';
-        $pdo = new PDO('sqlite:' . $this->db);
-        Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
+        $pdo = $this->createDatabase();
         $pdo->exec(
             "INSERT INTO tenants(uid, subdomain, imprint_name, imprint_email) "
             . "VALUES('main','main','Example Org','admin@example.org')"
         );
-    }
-
-    protected function tearDown(): void
-    {
-        @unlink($this->db);
-        putenv('POSTGRES_DSN');
-        putenv('POSTGRES_USER');
-        putenv('POSTGRES_PASSWORD');
-        unset($_ENV['POSTGRES_DSN'], $_ENV['POSTGRES_USER'], $_ENV['POSTGRES_PASSWORD']);
-        parent::tearDown();
     }
 
     public function testUsesSmtpUserAsFrom(): void
