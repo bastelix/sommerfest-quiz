@@ -587,11 +587,18 @@
               <textarea class="uk-textarea" id="qrLabelInput" rows="2"></textarea>
             </div>
             <div class="uk-margin">
+              <label class="uk-form-label" for="qrColorInput">Farbe</label>
+              <input class="uk-input" id="qrColorInput" type="color">
+            </div>
+            <div class="uk-margin">
               <label class="uk-form-label" for="qrLogoFile">{{ t('label_custom_logo') }}</label>
               <input class="uk-input" id="qrLogoFile" type="file" accept="image/png,image/webp">
             </div>
             <div class="uk-margin">
               <label><input class="uk-checkbox" id="qrPunchoutInput" type="checkbox"> Logo-Hintergrund ausstanzen</label>
+            </div>
+            <div class="uk-margin">
+              <label><input class="uk-checkbox" id="qrRoundedInput" type="checkbox"> Runde Marker</label>
             </div>
             <div class="uk-margin">
               <label class="uk-form-label" for="qrRoundModeSelect">Rundungsmodus</label>
