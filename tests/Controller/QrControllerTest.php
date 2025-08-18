@@ -148,6 +148,10 @@ class QrControllerTest extends TestCase
                 qrLogoPath TEXT,
                 qrRoundMode TEXT,
                 qrLogoPunchout INTEGER,
+                qrRounded INTEGER,
+                qrColorTeam TEXT,
+                qrColorCatalog TEXT,
+                qrColorEvent TEXT,
                 event_uid TEXT
             );
             SQL

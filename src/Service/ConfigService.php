@@ -30,6 +30,7 @@ class ConfigService
         'photoUpload',
         'puzzleWordEnabled',
         'qrLogoPunchout',
+        'qrRounded',
     ];
 
     /**
@@ -182,6 +183,10 @@ class ConfigService
             'qrLogoPath',
             'qrRoundMode',
             'qrLogoPunchout',
+            'qrRounded',
+            'qrColorTeam',
+            'qrColorCatalog',
+            'qrColorEvent',
         ];
         $filtered = array_intersect_key($data, array_flip($keys));
         $uid = (string)($filtered['event_uid'] ?? $this->getActiveEventUid());
@@ -310,6 +315,10 @@ class ConfigService
             'qrLogoPath',
             'qrRoundMode',
             'qrLogoPunchout',
+            'qrRounded',
+            'qrColorTeam',
+            'qrColorCatalog',
+            'qrColorEvent',
         ];
         $map = [];
         foreach ($keys as $k) {
