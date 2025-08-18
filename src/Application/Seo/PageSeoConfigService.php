@@ -41,35 +41,6 @@ class PageSeoConfigService
         $this->cache = $cache ?? new PageSeoCache();
         $this->dispatcher = $dispatcher ?? new EventDispatcher();
         SeoConfigListener::register($this->dispatcher, $this->cache);
-
-        $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
-        if ($driver === 'sqlite') {
-            $this->pdo->exec(
-                'CREATE TABLE IF NOT EXISTS page_seo_config (' .
-                'page_id INTEGER PRIMARY KEY, meta_title TEXT, meta_description TEXT, slug TEXT UNIQUE NOT NULL, ' .
-                'canonical_url TEXT, robots_meta TEXT, og_title TEXT, og_description TEXT, og_image TEXT, schema_json TEXT, ' .
-                'hreflang TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP, updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
-            );
-            $this->pdo->exec(
-                'CREATE TABLE IF NOT EXISTS page_seo_config_history (' .
-                'id INTEGER PRIMARY KEY AUTOINCREMENT, page_id INTEGER NOT NULL, meta_title TEXT, meta_description TEXT, slug TEXT, ' .
-                'canonical_url TEXT, robots_meta TEXT, og_title TEXT, og_description TEXT, og_image TEXT, schema_json TEXT, ' .
-                'hreflang TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP)'
-            );
-        } else {
-            $this->pdo->exec(
-                'CREATE TABLE IF NOT EXISTS page_seo_config (' .
-                'page_id INTEGER PRIMARY KEY, meta_title TEXT, meta_description TEXT, slug TEXT UNIQUE NOT NULL, ' .
-                'canonical_url TEXT, robots_meta TEXT, og_title TEXT, og_description TEXT, og_image TEXT, schema_json JSONB, ' .
-                'hreflang TEXT, created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP)'
-            );
-            $this->pdo->exec(
-                'CREATE TABLE IF NOT EXISTS page_seo_config_history (' .
-                'id SERIAL PRIMARY KEY, page_id INTEGER NOT NULL, meta_title TEXT, meta_description TEXT, slug TEXT, canonical_url TEXT, ' .
-                'robots_meta TEXT, og_title TEXT, og_description TEXT, og_image TEXT, schema_json JSONB, hreflang TEXT, ' .
-                'created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP)'
-            );
-        }
     }
 
     public function load(int $pageId): ?PageSeoConfig
