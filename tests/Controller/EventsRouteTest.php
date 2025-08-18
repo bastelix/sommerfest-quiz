@@ -13,6 +13,7 @@ use App\Service\EventService;
 use App\Service\TenantService;
 use Slim\Factory\AppFactory;
 use Slim\Psr7\Factory\StreamFactory;
+use Slim\Psr7\Uri;
 use Tests\TestCase;
 
 class EventsRouteTest extends TestCase
@@ -74,5 +75,39 @@ class EventsRouteTest extends TestCase
         $this->assertSame('max-events-exceeded', $data['error']['description'] ?? null);
 
         @session_destroy();
+    }
+
+    public function testStarterPlanLimitExceededOnMainDomain(): void
+    {
+        $pdo = $this->createDatabase();
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','main','starter')");
+        putenv('MAIN_DOMAIN=example.com');
+        $_ENV['MAIN_DOMAIN'] = 'example.com';
+
+        $app = $this->getAppInstance();
+
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+        $_SESSION['user'] = ['id' => 1, 'role' => Roles::ADMIN];
+
+        $request = $this->createRequest('POST', '/events.json', [
+            'HTTP_CONTENT_TYPE' => 'application/json',
+            'HTTP_ACCEPT' => 'application/json',
+        ])->withUri(new Uri('http', 'example.com', 80, '/events.json'));
+        $stream = (new StreamFactory())->createStream(json_encode([
+            ['name' => 'One'],
+            ['name' => 'Two'],
+        ]));
+        $request = $request->withBody($stream);
+
+        $response = $app->handle($request);
+        $this->assertSame(402, $response->getStatusCode());
+        $data = json_decode((string) $response->getBody(), true);
+        $this->assertSame('max-events-exceeded', $data['error']['description'] ?? null);
+
+        @session_destroy();
+        putenv('MAIN_DOMAIN');
+        unset($_ENV['MAIN_DOMAIN']);
     }
 }
