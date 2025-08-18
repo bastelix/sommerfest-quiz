@@ -212,6 +212,7 @@
 - Show catalog info on start page
 - Remove manual chunked encoding in tenant onboarding
 - Avoid global variable conflict on landing page
+- Align QR config migration with camelCase columns
 
 ### Refactor
 
