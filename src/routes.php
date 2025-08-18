@@ -362,14 +362,6 @@ return function (\Slim\App $app, TranslationService $translator) {
         ]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $events = [];
-        $stats = [
-            'draftCount' => 0,
-            'scheduledCount' => 0,
-            'runningCount' => 0,
-            'finishedCount' => 0,
-            'teamsWithoutQr' => 0,
-            'resultsAwaitingReview' => 0,
-        ];
         $now = new DateTimeImmutable('now');
         $teamStmt = $pdo->prepare('SELECT COUNT(*) FROM teams WHERE event_uid = ?');
         foreach ($rows as $row) {
@@ -379,16 +371,12 @@ return function (\Slim\App $app, TranslationService $translator) {
             $teams = (int) $teamStmt->fetchColumn();
             if (!(bool) $row['published']) {
                 $status = 'draft';
-                $stats['draftCount']++;
             } elseif ($startDate > $now) {
                 $status = 'scheduled';
-                $stats['scheduledCount']++;
             } elseif ($endDate < $now) {
                 $status = 'finished';
-                $stats['finishedCount']++;
             } else {
                 $status = 'running';
-                $stats['runningCount']++;
             }
             $events[] = [
                 'id' => $row['uid'],
@@ -400,6 +388,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 'stations' => 0,
             ];
         }
+
         $upcoming = [];
         foreach ($events as $e) {
             $startDate = new DateTimeImmutable($e['start']);
@@ -413,6 +402,19 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ];
             }
         }
+
+        $totalCount = (int) $pdo->query('SELECT COUNT(*) FROM events')->fetchColumn();
+        $upcomingCount = (int) $pdo->query('SELECT COUNT(*) FROM events WHERE start_date > NOW()')->fetchColumn();
+        $pastCount = (int) $pdo->query('SELECT COUNT(*) FROM events WHERE end_date < NOW()')->fetchColumn();
+
+        $stats = [
+            'eventCount' => $totalCount,
+            'upcomingCount' => $upcomingCount,
+            'pastCount' => $pastCount,
+            'teamsWithoutQr' => 0,
+            'resultsAwaitingReview' => 0,
+        ];
+
         $usageStmt = $pdo->query('SELECT COUNT(*) FROM events');
         $eventCount = (int) $usageStmt->fetchColumn();
         $catCount = (int) $pdo->query('SELECT COUNT(*) FROM catalogs')->fetchColumn();

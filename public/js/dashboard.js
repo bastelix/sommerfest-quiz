@@ -101,9 +101,9 @@
 
   function renderBadges() {
     const s = state.stats || {};
-    const total = (s.draftCount || 0) + (s.scheduledCount || 0) + (s.runningCount || 0) + (s.finishedCount || 0);
-    const upcoming = (s.scheduledCount || 0) + (s.runningCount || 0);
-    const past = s.finishedCount || 0;
+    const total = s.eventCount || 0;
+    const upcoming = s.upcomingCount || 0;
+    const past = s.pastCount || 0;
     const e = document.getElementById('badge-events');
     const u = document.getElementById('badge-upcoming');
     const p = document.getElementById('badge-past');
