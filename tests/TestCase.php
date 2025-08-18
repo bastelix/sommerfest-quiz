@@ -25,6 +25,32 @@ class TestCase extends PHPUnit_TestCase
     /** @var list<string> */
     private array $tmpDbs = [];
 
+    private function createTestDb(): void
+    {
+        $baseDsn = getenv('POSTGRES_BASE_DSN') ?: 'pgsql:host=localhost;port=5432;dbname=postgres';
+        $user = getenv('POSTGRES_USER') ?: 'postgres';
+        $password = getenv('POSTGRES_PASSWORD') ?: 'postgres';
+        $name = 'test_' . bin2hex(random_bytes(5));
+
+        $admin = new PDO($baseDsn, $user, $password);
+        $admin->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $admin->exec("CREATE DATABASE \"$name\"");
+
+        $dsn = "pgsql:host=localhost;port=5432;dbname=$name";
+        putenv('POSTGRES_DSN=' . $dsn);
+        putenv('POSTGRES_USER=' . $user);
+        putenv('POSTGRES_PASSWORD=' . $password);
+        $_ENV['POSTGRES_DSN'] = $dsn;
+        $_ENV['POSTGRES_USER'] = $user;
+        $_ENV['POSTGRES_PASSWORD'] = $password;
+
+        $pdo = new PDO($dsn, $user, $password);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        Migrator::migrate($pdo, __DIR__ . '/../migrations');
+
+        $this->tmpDbs[] = $name;
+    }
+
     /**
      * @return App
      * @throws Exception
@@ -32,50 +58,7 @@ class TestCase extends PHPUnit_TestCase
     protected function getAppInstance(): App
     {
         if (getenv('POSTGRES_DSN') === false || getenv('POSTGRES_DSN') === '') {
-            $db = tempnam(sys_get_temp_dir(), 'db');
-            if ($db !== false) {
-                putenv('POSTGRES_DSN=sqlite:' . $db);
-                putenv('POSTGRES_USER=');
-                putenv('POSTGRES_PASSWORD=');
-                $_ENV['POSTGRES_DSN'] = 'sqlite:' . $db;
-                $_ENV['POSTGRES_USER'] = '';
-                $_ENV['POSTGRES_PASSWORD'] = '';
-                $this->tmpDbs[] = $db;
-            }
-        }
-
-        $dsn = getenv('POSTGRES_DSN');
-        if (is_string($dsn) && str_starts_with($dsn, 'sqlite:')) {
-            $pdo = new PDO($dsn);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            Migrator::migrate($pdo, __DIR__ . '/../migrations');
-            foreach (
-                [
-                    'imprint_name',
-                    'imprint_street',
-                    'imprint_zip',
-                    'imprint_city',
-                    'imprint_email',
-                    'custom_limits',
-                    'plan_started_at',
-                    'plan_expires_at',
-                    'stripe_subscription_id',
-                    'stripe_price_id',
-                    'stripe_status',
-                    'stripe_current_period_end',
-                ] as $col
-            ) {
-                try {
-                    $pdo->exec('ALTER TABLE tenants ADD COLUMN ' . $col . ' TEXT');
-                } catch (\Throwable $e) {
-                    // ignore
-                }
-            }
-            try {
-                $pdo->exec('ALTER TABLE tenants ADD COLUMN stripe_cancel_at_period_end INTEGER');
-            } catch (\Throwable $e) {
-                // ignore
-            }
+            $this->createTestDb();
         }
 
         // Load settings
@@ -155,31 +138,15 @@ class TestCase extends PHPUnit_TestCase
     }
 
     /**
-     * Create an in-memory SQLite connection with the current schema applied.
+     * Create a PostgreSQL test database with the current schema applied.
      */
     protected function createDatabase(): \PDO
     {
-        $pdo = new class ('sqlite::memory:') extends \PDO {
-            public function __construct(string $dsn)
-            {
-                parent::__construct($dsn);
-            }
-
-            public function exec($statement): int|false
-            {
-                if (preg_match('/^(CREATE|DROP) SCHEMA/i', $statement) || str_starts_with($statement, 'SET search_path')) {
-                    return 0;
-                }
-                return parent::exec($statement);
-            }
-        };
-        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        \App\Infrastructure\Migrations\Migrator::migrate($pdo, __DIR__ . '/../migrations');
-        try {
-            $pdo->exec('ALTER TABLE tenants ADD COLUMN custom_limits TEXT');
-        } catch (\Throwable $e) {
-            // ignore
+        if (getenv('POSTGRES_DSN') === false || getenv('POSTGRES_DSN') === '') {
+            $this->createTestDb();
         }
+        $pdo = new PDO((string) getenv('POSTGRES_DSN'), getenv('POSTGRES_USER') ?: 'postgres', getenv('POSTGRES_PASSWORD') ?: 'postgres');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         return $pdo;
     }
 
@@ -191,12 +158,17 @@ class TestCase extends PHPUnit_TestCase
         }
         $_COOKIE = [];
 
-        foreach ($this->tmpDbs as $db) {
-            if (is_string($db) && file_exists($db)) {
-                @unlink($db);
+        if ($this->tmpDbs !== []) {
+            $baseDsn = getenv('POSTGRES_BASE_DSN') ?: 'pgsql:host=localhost;port=5432;dbname=postgres';
+            $user = getenv('POSTGRES_USER') ?: 'postgres';
+            $password = getenv('POSTGRES_PASSWORD') ?: 'postgres';
+            $pdo = new PDO($baseDsn, $user, $password);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            foreach ($this->tmpDbs as $db) {
+                $pdo->exec("DROP DATABASE IF EXISTS \"$db\"");
             }
+            $this->tmpDbs = [];
         }
-        $this->tmpDbs = [];
         parent::tearDown();
     }
 }
