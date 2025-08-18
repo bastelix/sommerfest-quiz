@@ -161,6 +161,7 @@ return [
     'placeholder_invite_text' => 'Text eingeben...',
     'action_open_invitations' => 'Einladungen öffnen',
     'action_print_summary' => 'Übersicht Drucken',
+    'action_design_qrcodes' => 'QR-Codes gestalten',
     'column_username' => 'Benutzername',
     'column_role' => 'Rolle',
     'column_subdomain' => 'Subdomain',

@@ -160,6 +160,7 @@ return [
     'placeholder_invite_text' => 'Enter text...',
     'action_open_invitations' => 'Open invitations',
     'action_print_summary' => 'Print summary',
+    'action_design_qrcodes' => 'Design QR codes',
     'column_username' => 'Username',
     'column_role' => 'Role',
     'column_subdomain' => 'Subdomain',
