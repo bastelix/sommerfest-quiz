@@ -574,7 +574,11 @@
             <h2 class="uk-modal-title">QR-Design</h2>
             <div class="uk-margin">
               <label class="uk-form-label" for="qrLabelInput">Label</label>
-              <input class="uk-input" id="qrLabelInput" type="text">
+              <textarea class="uk-textarea" id="qrLabelInput" rows="2"></textarea>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="qrLogoFile">{{ t('label_custom_logo') }}</label>
+              <input class="uk-input" id="qrLogoFile" type="file" accept="image/png,image/webp">
             </div>
             <div class="uk-margin">
               <label><input class="uk-checkbox" id="qrPunchoutInput" type="checkbox"> Logo-Hintergrund ausstanzen</label>

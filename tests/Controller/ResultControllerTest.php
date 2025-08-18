@@ -40,6 +40,11 @@ class ResultControllerTest extends TestCase
                 puzzleWord TEXT,
                 puzzleFeedback TEXT,
                 inviteText TEXT,
+                qrLabelLine1 TEXT,
+                qrLabelLine2 TEXT,
+                qrLogoPath TEXT,
+                qrRoundMode TEXT,
+                qrLogoPunchout INTEGER,
                 event_uid TEXT
             );
             SQL
@@ -151,6 +156,11 @@ class ResultControllerTest extends TestCase
                 puzzleWord TEXT,
                 puzzleFeedback TEXT,
                 inviteText TEXT,
+                qrLabelLine1 TEXT,
+                qrLabelLine2 TEXT,
+                qrLogoPath TEXT,
+                qrRoundMode TEXT,
+                qrLogoPunchout INTEGER,
                 event_uid TEXT
             );
             SQL

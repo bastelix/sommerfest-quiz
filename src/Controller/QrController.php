@@ -55,7 +55,8 @@ class QrController
      */
     public function catalog(Request $request, Response $response): Response
     {
-        $out = $this->qrService->generateCatalog($request->getQueryParams());
+        $cfg = $this->config->getConfig();
+        $out = $this->qrService->generateCatalog($request->getQueryParams(), $cfg);
         $response->getBody()->write($out['body']);
         return $response
             ->withHeader('Content-Type', $out['mime'])
@@ -67,7 +68,8 @@ class QrController
      */
     public function team(Request $request, Response $response): Response
     {
-        $out = $this->qrService->generateTeam($request->getQueryParams());
+        $cfg = $this->config->getConfig();
+        $out = $this->qrService->generateTeam($request->getQueryParams(), $cfg);
         $response->getBody()->write($out['body']);
         return $response
             ->withHeader('Content-Type', $out['mime'])
@@ -79,7 +81,8 @@ class QrController
      */
     public function event(Request $request, Response $response): Response
     {
-        $out = $this->qrService->generateEvent($request->getQueryParams());
+        $cfg = $this->config->getConfig();
+        $out = $this->qrService->generateEvent($request->getQueryParams(), $cfg);
         $response->getBody()->write($out['body']);
         return $response
             ->withHeader('Content-Type', $out['mime'])

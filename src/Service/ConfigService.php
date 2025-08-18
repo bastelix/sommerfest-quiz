@@ -29,6 +29,7 @@ class ConfigService
         'teamResults',
         'photoUpload',
         'puzzleWordEnabled',
+        'qrLogoPunchout',
     ];
 
     /**
@@ -176,6 +177,11 @@ class ConfigService
             'puzzleFeedback',
             'inviteText',
             'event_uid',
+            'qrLabelLine1',
+            'qrLabelLine2',
+            'qrLogoPath',
+            'qrRoundMode',
+            'qrLogoPunchout',
         ];
         $filtered = array_intersect_key($data, array_flip($keys));
         $uid = (string)($filtered['event_uid'] ?? $this->getActiveEventUid());
@@ -299,6 +305,11 @@ class ConfigService
             'puzzleFeedback',
             'inviteText',
             'event_uid',
+            'qrLabelLine1',
+            'qrLabelLine2',
+            'qrLogoPath',
+            'qrRoundMode',
+            'qrLogoPunchout',
         ];
         $map = [];
         foreach ($keys as $k) {
