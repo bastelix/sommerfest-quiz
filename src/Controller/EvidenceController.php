@@ -55,6 +55,10 @@ class EvidenceController
             $response->getBody()->write('upload error');
             return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
+        if ($file->getSize() !== null && $file->getSize() > 20 * 1024 * 1024) {
+            $response->getBody()->write('file too large');
+            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
+        }
         $ext = strtolower(pathinfo($file->getClientFilename(), PATHINFO_EXTENSION));
         if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
             $response->getBody()->write('unsupported file type');
@@ -92,7 +96,7 @@ class EvidenceController
         $tmpPath = tempnam(sys_get_temp_dir(), 'upload_');
         $file->moveTo($tmpPath);
 
-        $manager = ImageManager::gd();
+        $manager = extension_loaded('imagick') ? ImageManager::imagick() : ImageManager::gd();
         $img = $manager->read($tmpPath);
 
         $orientationHandled = false;
