@@ -1,3 +1,5 @@
+/* global apiFetch, notify */
+
 export function initSeoForm() {
   const form = document.querySelector('.seo-form');
   if (!form) return;
@@ -62,6 +64,7 @@ export function initSeoForm() {
   }
 
   form.addEventListener('submit', e => {
+    e.preventDefault();
     let valid = true;
     inputs.forEach(input => {
       const max = parseInt(input.dataset.maxlength, 10);
@@ -80,9 +83,25 @@ export function initSeoForm() {
         field.classList.remove('uk-form-danger');
       }
     });
-    if (!valid) {
-      e.preventDefault();
-    }
+    if (!valid) return;
+    const body = new URLSearchParams(new FormData(form));
+    apiFetch('/admin/landingpage/seo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json'
+      },
+      body
+    })
+      .then(r => {
+        if (!r.ok) throw new Error('save-failed');
+        return r.json().catch(() => ({}));
+      })
+      .then(() => {
+        notify('Einstellungen gespeichert', 'success');
+        window.location.reload();
+      })
+      .catch(() => notify('Fehler beim Speichern', 'danger'));
   });
 }
 
