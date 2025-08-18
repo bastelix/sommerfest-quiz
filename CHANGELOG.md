@@ -12,6 +12,7 @@
 
 - Enforce starter plan event limit
 - Add plan limit controller tests
+- Switch to postgres in tests
 
 ## [0.2.0] - 2025-08-18
 
