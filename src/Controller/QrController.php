@@ -137,25 +137,28 @@ class QrController
             return $response->withStatus(400);
         }
 
-        $options = [
-            'fg' => $params['fg'] ?? null,
-            'bg' => $params['bg'] ?? null,
-            'logoText' => $params['logoText'] ?? null,
-        ];
+        $cfg = $this->config->getConfig();
+
+        $qrParams = $params;
+        $qrParams['format'] = 'png';
+        if (isset($qrParams['logoText'])) {
+            $parts = explode("\n", (string)$qrParams['logoText']);
+            $qrParams['text1'] = $parts[0] ?? '';
+            $qrParams['text2'] = $parts[1] ?? '';
+            unset($qrParams['logoText']);
+        }
 
         try {
-            $result = $this->qrService->generateQrCode($text, 'png', $options);
+            $out = $this->qrService->generateTeam($qrParams, $cfg);
         } catch (Throwable $e) {
             return $response->withStatus(500);
         }
 
-        $png = $result->getString();
+        $png = $out['body'];
         $tmp = tempnam(sys_get_temp_dir(), 'qr');
         if ($tmp !== false) {
             file_put_contents($tmp, $png);
         }
-
-        $cfg = $this->config->getConfig();
         $uid = $this->config->getActiveEventUid();
         $ev = null;
         if ($uid !== '') {
@@ -229,12 +232,6 @@ class QrController
     public function pdfAll(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $options = [
-            'fg' => $params['fg'] ?? null,
-            'bg' => $params['bg'] ?? null,
-            'logoText' => $params['logoText'] ?? null,
-        ];
-
         $teams = $this->teams->getAll();
 
         $cfg = $this->config->getConfig();
@@ -261,13 +258,22 @@ class QrController
         }
 
         foreach ($teams as $team) {
+            $q = $params;
+            $q['t'] = $team;
+            $q['format'] = 'png';
+            if (isset($q['logoText'])) {
+                $parts = explode("\n", (string)$q['logoText']);
+                $q['text1'] = $parts[0] ?? '';
+                $q['text2'] = $parts[1] ?? '';
+                unset($q['logoText']);
+            }
             try {
-                $result = $this->qrService->generateQrCode($team, 'png', $options);
+                $out = $this->qrService->generateTeam($q, $cfg);
             } catch (Throwable $e) {
                 continue;
             }
 
-            $png = $result->getString();
+            $png = $out['body'];
             $tmp = tempnam(sys_get_temp_dir(), 'qr');
             if ($tmp !== false) {
                 file_put_contents($tmp, $png);
