@@ -174,7 +174,7 @@ class AdminControllerTest extends TestCase
         unset($_ENV['MAIN_DOMAIN']);
     }
 
-    public function testToggleSubscriptionCyclesPlans(): void
+    public function testSetSubscriptionPlanAllowsDowngrade(): void
     {
         $db = $this->setupDb();
         putenv('MAIN_DOMAIN=example.com');
@@ -186,18 +186,28 @@ class AdminControllerTest extends TestCase
 
         $request = $this->createRequest('POST', '/admin/subscription/toggle', [
             'X-CSRF-Token' => 'tok',
+            'HTTP_CONTENT_TYPE' => 'application/json',
         ])->withUri(new Uri('http', 'example.com', 80, '/admin/subscription/toggle'));
+        $stream1 = fopen('php://temp', 'r+');
+        fwrite($stream1, json_encode(['plan' => 'professional']));
+        rewind($stream1);
+        $request = $request->withBody((new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream1));
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode((string) $response->getBody(), true);
-        $this->assertSame('starter', $data['plan']);
+        $this->assertSame('professional', $data['plan']);
 
         $request2 = $this->createRequest('POST', '/admin/subscription/toggle', [
             'X-CSRF-Token' => 'tok',
+            'HTTP_CONTENT_TYPE' => 'application/json',
         ])->withUri(new Uri('http', 'example.com', 80, '/admin/subscription/toggle'));
+        $stream2 = fopen('php://temp', 'r+');
+        fwrite($stream2, json_encode(['plan' => 'starter']));
+        rewind($stream2);
+        $request2 = $request2->withBody((new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream2));
         $response2 = $app->handle($request2);
         $data2 = json_decode((string) $response2->getBody(), true);
-        $this->assertSame('standard', $data2['plan']);
+        $this->assertSame('starter', $data2['plan']);
 
         session_destroy();
         unlink($db);

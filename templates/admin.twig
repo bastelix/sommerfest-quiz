@@ -152,9 +152,13 @@
                      data-plan-standard="{{ t('plan_standard') }}"
                      data-plan-professional="{{ t('plan_professional') }}"></div>
                 {% if domainType == 'main' and role == 'admin' %}
-                  <button id="togglePlanBtn" class="uk-button uk-button-default uk-margin-small-top">
-                    {{ t('action_toggle_subscription') }}
-                  </button>
+                  <label for="planSelect" class="uk-form-label uk-margin-small-top">{{ t('label_plan') }}</label>
+                  <select id="planSelect" class="uk-select">
+                    <option value="">{{ t('plan_none') }}</option>
+                    <option value="starter">{{ t('plan_starter') }}</option>
+                    <option value="standard">{{ t('plan_standard') }}</option>
+                    <option value="professional">{{ t('plan_professional') }}</option>
+                  </select>
                 {% endif %}
               </div>
             </div>

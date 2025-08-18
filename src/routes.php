@@ -479,18 +479,19 @@ return function (\Slim\App $app, TranslationService $translator) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(403);
         }
+        $data = json_decode((string) $request->getBody(), true);
+        $plan = $data['plan'] ?? null;
+        if ($plan === '') {
+            $plan = null;
+        }
+        $allowed = [null, Plan::STARTER->value, Plan::STANDARD->value, Plan::PROFESSIONAL->value];
+        if (!in_array($plan, $allowed, true)) {
+            return $response->withStatus(400);
+        }
         $base = Database::connectFromEnv();
         $tenantSvc = new TenantService($base);
-        $tenant = $tenantSvc->getMainTenant();
-        $current = $tenant['plan'] ?? null;
-        if ($current === '') {
-            $current = null;
-        }
-        $cycle = [null, Plan::STARTER->value, Plan::STANDARD->value, Plan::PROFESSIONAL->value];
-        $idx = array_search($current, $cycle, true);
-        $next = $cycle[($idx === false ? 0 : ($idx + 1) % count($cycle))];
-        $tenantSvc->updateProfile('main', ['plan' => $next]);
-        $response->getBody()->write((string) json_encode(['plan' => $next]));
+        $tenantSvc->updateProfile('main', ['plan' => $plan]);
+        $response->getBody()->write((string) json_encode(['plan' => $plan]));
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
     $app->post(
