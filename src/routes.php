@@ -144,9 +144,9 @@ return function (\Slim\App $app, TranslationService $translator) {
         $teamService = new TeamService($pdo, $configService);
         $consentService = new PhotoConsentService($pdo, $configService);
         $summaryService = new SummaryPhotoService($pdo, $configService);
-        $eventService = new EventService($pdo);
         $nginxService = new NginxService();
         $tenantService = new TenantService($base, null, $nginxService);
+        $eventService = new EventService($pdo, $configService, $tenantService, $sub);
         $plan = $tenantService->getPlanBySubdomain($sub);
         $userService = new \App\Service\UserService($pdo);
         $settingsService = new \App\Service\SettingsService($pdo);
