@@ -28,7 +28,10 @@ class LandingpageController
     public function page(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        return $view->render($response, 'admin/landingpage/edit.html.twig');
+        $config = $this->seoService->load(1);
+        return $view->render($response, 'admin/landingpage/edit.html.twig', [
+            'config' => $config ? $config->jsonSerialize() : [],
+        ]);
     }
 
     /**
