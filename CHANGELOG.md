@@ -5,6 +5,7 @@
 ### Feat
 
 - Allow selecting subscription plan
+- Persist and extend QR design
 
 ### Test
 
