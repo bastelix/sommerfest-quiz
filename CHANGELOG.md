@@ -2,6 +2,10 @@
 
 ## [unreleased]
 
+### Feat
+
+- Allow selecting subscription plan
+
 ### Test
 
 - Enforce starter plan event limit
