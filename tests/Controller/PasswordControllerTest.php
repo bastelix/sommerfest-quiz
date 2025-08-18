@@ -16,14 +16,6 @@ class PasswordControllerTest extends TestCase
     {
         $pdo = Database::connectFromEnv();
         Migrator::migrate($pdo, __DIR__ . '/../../migrations');
-        try {
-            $pdo->exec('ALTER TABLE users ADD COLUMN email TEXT');
-        } catch (\PDOException $e) {
-        }
-        try {
-            $pdo->exec('ALTER TABLE users ADD COLUMN active INTEGER DEFAULT 1');
-        } catch (\PDOException $e) {
-        }
         $service = new UserService($pdo);
         $service->create('alice', 'OldPass1', null, Roles::ADMIN);
         return $service;
