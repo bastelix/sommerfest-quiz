@@ -138,14 +138,15 @@ return function (\Slim\App $app, TranslationService $translator) {
         $pdo = Database::connectWithSchema($schema);
         Migrator::migrate($pdo, __DIR__ . '/../migrations');
 
-        $configService = new ConfigService($pdo);
-        $catalogService = new CatalogService($pdo, $configService);
-        $resultService = new ResultService($pdo, $configService);
-        $teamService = new TeamService($pdo, $configService);
-        $consentService = new PhotoConsentService($pdo, $configService);
-        $summaryService = new SummaryPhotoService($pdo, $configService);
         $nginxService = new NginxService();
         $tenantService = new TenantService($base, null, $nginxService);
+
+        $configService = new ConfigService($pdo);
+        $catalogService = new CatalogService($pdo, $configService, $tenantService, $sub);
+        $resultService = new ResultService($pdo, $configService);
+        $teamService = new TeamService($pdo, $configService, $tenantService, $sub);
+        $consentService = new PhotoConsentService($pdo, $configService);
+        $summaryService = new SummaryPhotoService($pdo, $configService);
         $eventService = new EventService($pdo, $configService, $tenantService, $sub);
         $plan = $tenantService->getPlanBySubdomain($sub);
         $userService = new \App\Service\UserService($pdo);
