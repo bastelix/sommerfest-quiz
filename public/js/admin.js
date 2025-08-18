@@ -2308,6 +2308,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const qrLabelInput = document.getElementById('qrLabelInput');
   const qrPunchoutInput = document.getElementById('qrPunchoutInput');
   const qrRoundModeSelect = document.getElementById('qrRoundModeSelect');
+  const qrColorInput = document.getElementById('qrColorInput');
+  const qrRoundedInput = document.getElementById('qrRoundedInput');
   const qrPreview = document.getElementById('qrDesignPreview');
   const qrApplyBtn = document.getElementById('qrDesignApply');
   const qrLogoFile = document.getElementById('qrLogoFile');
@@ -2347,7 +2349,12 @@ document.addEventListener('DOMContentLoaded', function () {
       if (lines[0]) params.set('text1', lines[0]);
       if (lines[1]) params.set('text2', lines[1]);
     }
-    params.set('round_mode', qrRoundModeSelect?.value || 'margin');
+    const color = qrColorInput?.value ? qrColorInput.value.replace('#', '') : '';
+    if (color) params.set('fg', color);
+    const rounded = qrRoundedInput?.checked !== false;
+    const roundMode = rounded ? (qrRoundModeSelect?.value || 'margin') : 'none';
+    params.set('round_mode', roundMode);
+    params.set('rounded', rounded ? '1' : '0');
     params.set('logo_punchout', qrPunchoutInput?.checked ? '1' : '0');
     if (qrPreview) qrPreview.src = withBase(currentQrEndpoint + '?' + params.toString());
   }
@@ -2369,8 +2376,24 @@ document.addEventListener('DOMContentLoaded', function () {
     if (qrPunchoutInput) {
       qrPunchoutInput.checked = global ? cfgInitial.qrLogoPunchout !== false : true;
     }
+    if (qrColorInput) {
+      const field = endpoint === '/qr/team' ? 'qrColorTeam'
+        : endpoint === '/qr/catalog' ? 'qrColorCatalog'
+        : 'qrColorEvent';
+      let val = cfgInitial[field] || '';
+      if (!val) {
+        val = endpoint === '/qr/team' ? '#004bc8'
+          : endpoint === '/qr/catalog' ? '#dc0000'
+          : '#00a65a';
+      }
+      qrColorInput.value = val;
+    }
+    if (qrRoundedInput) {
+      qrRoundedInput.checked = cfgInitial.qrRounded !== false;
+    }
     if (qrRoundModeSelect) {
-      qrRoundModeSelect.value = global ? (cfgInitial.qrRoundMode || 'margin') : 'margin';
+      const mode = cfgInitial.qrRoundMode || 'margin';
+      qrRoundModeSelect.value = cfgInitial.qrRounded === false ? 'none' : mode;
     }
     qrLogoPath = global ? (cfgInitial.qrLogoPath || '') : '';
     if (qrLogoFile) qrLogoFile.value = '';
@@ -2378,7 +2401,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (qrDesignModal) UIkit.modal(qrDesignModal).show();
   }
 
-  [qrLabelInput, qrPunchoutInput, qrRoundModeSelect].forEach(el => {
+  [qrLabelInput, qrPunchoutInput, qrRoundModeSelect, qrColorInput, qrRoundedInput].forEach(el => {
     el?.addEventListener('input', updateQrPreview);
     el?.addEventListener('change', updateQrPreview);
   });
@@ -2401,10 +2424,14 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   qrApplyBtn?.addEventListener('click', () => {
+    const colorVal = qrColorInput?.value || '';
+    const rounded = qrRoundedInput?.checked !== false;
+    const roundMode = rounded ? (qrRoundModeSelect?.value || 'margin') : 'none';
+    const punchout = qrPunchoutInput?.checked ? '1' : '0';
+    const field = currentQrEndpoint === '/qr/team' ? 'qrColorTeam'
+      : currentQrEndpoint === '/qr/catalog' ? 'qrColorCatalog'
+      : 'qrColorEvent';
     if (isGlobalDesign) {
-      const previewUrl = qrPreview ? new URL(qrPreview.src, window.location.origin) : null;
-      const roundMode = previewUrl?.searchParams.get('round_mode') || '';
-      const punchout = previewUrl?.searchParams.get('logo_punchout') || '';
       document.querySelectorAll('.qr-img').forEach(img => {
         const endpoint = img.dataset.endpoint;
         const target = img.dataset.target;
@@ -2418,8 +2445,10 @@ document.addEventListener('DOMContentLoaded', function () {
           if (lns[0]) params.set('text1', lns[0]);
           if (lns[1]) params.set('text2', lns[1]);
         }
-        if (roundMode) params.set('round_mode', roundMode);
-        if (punchout) params.set('logo_punchout', punchout);
+        if (colorVal) params.set('fg', colorVal.replace('#', ''));
+        params.set('round_mode', roundMode);
+        params.set('rounded', rounded ? '1' : '0');
+        params.set('logo_punchout', punchout);
         img.src = withBase(endpoint + '?' + params.toString());
       });
       const lines = (qrLabelInput?.value || '').split(/\n/, 2);
@@ -2427,9 +2456,11 @@ document.addEventListener('DOMContentLoaded', function () {
         qrLabelLine1: lines[0] || '',
         qrLabelLine2: lines[1] || '',
         qrRoundMode: roundMode,
-        qrLogoPunchout: punchout === '1'
+        qrLogoPunchout: punchout === '1',
+        qrRounded: rounded,
       };
       if (qrLogoPath) data.qrLogoPath = qrLogoPath;
+      data[field] = colorVal;
       apiFetch('/config.json', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2438,6 +2469,14 @@ document.addEventListener('DOMContentLoaded', function () {
       Object.assign(cfgInitial, data);
     } else if (currentQrImg) {
       currentQrImg.src = qrPreview.src;
+      const data = { qrRounded: rounded };
+      data[field] = colorVal;
+      apiFetch('/config.json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).catch(() => {});
+      Object.assign(cfgInitial, data);
     }
     if (qrDesignModal) UIkit.modal(qrDesignModal).hide();
   });
@@ -2463,11 +2502,31 @@ document.addEventListener('DOMContentLoaded', function () {
       const ev = events.find(e => e.uid === activeEventUid) || events[0] || {};
       nameEl.textContent = ev.name || '';
       if (descEl) descEl.textContent = ev.description || '';
+      const applyDesign = (params, colorKey) => {
+        if (cfgInitial.qrLogoPath) {
+          params.set('logo_path', cfgInitial.qrLogoPath);
+        } else {
+          const l1 = cfgInitial.qrLabelLine1 || '';
+          const l2 = cfgInitial.qrLabelLine2 || '';
+          if (l1) params.set('text1', l1);
+          if (l2) params.set('text2', l2);
+        }
+        const rounded = cfgInitial.qrRounded !== false;
+        const roundMode = rounded ? (cfgInitial.qrRoundMode || 'margin') : 'none';
+        params.set('round_mode', roundMode);
+        params.set('rounded', rounded ? '1' : '0');
+        params.set('logo_punchout', cfgInitial.qrLogoPunchout !== false ? '1' : '0');
+        const col = cfgInitial[colorKey] || '';
+        if (col) params.set('fg', col.replace('#', ''));
+      };
       if (qrImg) {
         const link = window.baseUrl ? window.baseUrl : withBase('/?event=' + encodeURIComponent(ev.uid || ''));
         qrImg.dataset.endpoint = '/qr/event';
         qrImg.dataset.target = link;
-        qrImg.src = withBase('/qr/event?t=' + encodeURIComponent(link));
+        const params = new URLSearchParams();
+        params.set('t', link);
+        applyDesign(params, 'qrColorEvent');
+        qrImg.src = withBase('/qr/event?' + params.toString());
         if (qrDesignBtn) {
           qrDesignBtn.onclick = () => {
             openQrDesignModal(qrImg, '/qr/event', link, ev.name || '');
@@ -2498,7 +2557,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const qrLink = (window.baseUrl ? window.baseUrl + href : href);
         img.dataset.endpoint = '/qr/catalog';
         img.dataset.target = qrLink;
-        img.src = withBase('/qr/catalog?t=' + encodeURIComponent(qrLink));
+        const cParams = new URLSearchParams();
+        cParams.set('t', qrLink);
+        applyDesign(cParams, 'qrColorCatalog');
+        img.src = withBase('/qr/catalog?' + cParams.toString());
         img.alt = 'QR';
         img.width = 96;
         img.height = 96;
@@ -2537,7 +2599,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const img = document.createElement('img');
         img.dataset.endpoint = '/qr/team';
         img.dataset.target = t;
-        img.src = withBase('/qr/team?t=' + encodeURIComponent(t));
+        const tParams = new URLSearchParams();
+        tParams.set('t', t);
+        applyDesign(tParams, 'qrColorTeam');
+        img.src = withBase('/qr/team?' + tParams.toString());
         img.alt = 'QR';
         img.width = 96;
         img.height = 96;
