@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(() => {
           notify('Mandant entfernt', 'success');
-          loadTenants();
+          loadTenants(tenantStatusFilter?.value);
         })
         .catch(() => notify('Fehler beim Löschen', 'danger'))
         .finally(() => {
@@ -2017,6 +2017,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const tenantTableBody = document.getElementById('tenantTableBody');
   const tenantCards = document.getElementById('tenantCards');
   const tenantSyncBtn = document.getElementById('tenantSyncBtn');
+  const tenantStatusFilter = document.getElementById('tenantStatusFilter');
+
+  tenantStatusFilter?.addEventListener('change', () => {
+    loadTenants(tenantStatusFilter.value);
+  });
 
   function loadBackups() {
     if (!backupTableBody) return;
@@ -2141,7 +2146,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(r => r.json())
       .then(() => {
         notify('Mandanten eingelesen', 'success');
-        loadTenants();
+        loadTenants(tenantStatusFilter?.value);
       })
       .catch(() => notify('Fehler beim Synchronisieren', 'danger'))
       .finally(() => {
@@ -2150,7 +2155,7 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   });
 
-  function loadTenants() {
+  function loadTenants(status = tenantStatusFilter?.value || '') {
     if (!tenantTableBody || window.domainType !== 'main') return;
     const mainDomain = window.mainDomain || '';
     const stripeBase = window.stripeDashboard || 'https://dashboard.stripe.com';
@@ -2164,7 +2169,8 @@ document.addEventListener('DOMContentLoaded', function () {
           "'": '&#39;',
         }[m]
       ));
-    apiFetch('/tenants.json', { headers: { 'Accept': 'application/json' } })
+    const url = '/tenants.json' + (status ? ('?status=' + encodeURIComponent(status)) : '');
+    apiFetch(url, { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(list => {
         tenantTableBody.innerHTML = '';
@@ -2176,13 +2182,29 @@ document.addEventListener('DOMContentLoaded', function () {
           const customerId = t.stripe_customer_id || '';
           const subscriptionId = t.stripe_subscription_id || '';
           const created = (t.created_at || '').replace('T', ' ').replace(/\..*/, '');
-          const status = plan ? 'Aktiv' : 'Simuliert';
-          const statusClass = plan ? 'uk-label-success' : 'uk-label-warning';
+          let statusText;
+          let statusClass;
+          let statusKey;
+          if (t.stripe_status === 'canceled') {
+            statusText = 'Gekündigt';
+            statusClass = 'uk-label-danger';
+            statusKey = 'canceled';
+          } else if (plan) {
+            statusText = 'Aktiv';
+            statusClass = 'uk-label-success';
+            statusKey = 'active';
+          } else {
+            statusText = 'Simuliert';
+            statusClass = 'uk-label-warning';
+            statusKey = 'simulated';
+          }
+          if (status && status !== statusKey) return;
           const safeSub = escapeHtml(sub);
           const safeBilling = escapeHtml(billing);
           const safePlan = escapeHtml(plan);
           const safeCreated = escapeHtml(created);
           const safeUid = escapeHtml(t.uid || '');
+          const safeStatus = escapeHtml(statusText);
 
           // desktop row
           const tr = document.createElement('tr');
@@ -2199,7 +2221,7 @@ document.addEventListener('DOMContentLoaded', function () {
           }
           const statusSpan = document.createElement('span');
           statusSpan.className = 'uk-label ' + statusClass + ' uk-margin-small-left';
-          statusSpan.textContent = status;
+          statusSpan.textContent = statusText;
           subTd.appendChild(statusSpan);
 
           const planTd = document.createElement('td');
@@ -2265,7 +2287,7 @@ document.addEventListener('DOMContentLoaded', function () {
               <div class="uk-card-header uk-flex uk-flex-between uk-flex-middle">
                 <div>
                   <a class="uk-h5 uk-margin-remove">${safeSub}</a>
-                  <span class="uk-label ${statusClass} uk-margin-small-left">${status}</span>
+                  <span class="uk-label ${statusClass} uk-margin-small-left">${safeStatus}</span>
                 </div>
                 <div>
                   <a class="uk-icon-button" uk-icon="more-vertical" href="#"></a>
@@ -2678,7 +2700,7 @@ document.addEventListener('DOMContentLoaded', function () {
         loadSummary();
       }
       if (index === tenantIdx) {
-        loadTenants();
+        loadTenants(tenantStatusFilter?.value);
       }
     });
     if (summaryIdx >= 0) {
@@ -2688,7 +2710,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (tenantIdx >= 0) {
       adminTabs.children[tenantIdx]?.addEventListener('click', () => {
-        loadTenants();
+        loadTenants(tenantStatusFilter?.value);
       });
     }
     adminMenu.querySelectorAll('[data-tab]').forEach(item => {
@@ -2706,7 +2728,7 @@ document.addEventListener('DOMContentLoaded', function () {
             loadSummary();
           }
           if (idx === tenantIdx) {
-            loadTenants();
+            loadTenants(tenantStatusFilter?.value);
           }
         }
       });
@@ -2767,7 +2789,7 @@ document.addEventListener('DOMContentLoaded', function () {
       tenantSyncBtn.click();
       sessionStorage.setItem(syncFlag, '1');
     } else {
-      loadTenants();
+      loadTenants(tenantStatusFilter?.value);
     }
   }
 });
