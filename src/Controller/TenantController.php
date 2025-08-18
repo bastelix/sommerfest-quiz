@@ -122,7 +122,9 @@ class TenantController
      */
     public function list(Request $request, Response $response): Response
     {
-        $list = $this->service->getAll();
+        $params = $request->getQueryParams();
+        $query = isset($params['query']) ? (string) $params['query'] : '';
+        $list = $this->service->getAll($query);
         $response->getBody()->write(json_encode($list));
         return $response->withHeader('Content-Type', 'application/json');
     }

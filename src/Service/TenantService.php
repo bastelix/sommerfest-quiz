@@ -629,14 +629,20 @@ class TenantService
      *   created_at:string
      * }>
      */
-    public function getAll(): array
+    public function getAll(string $query = ''): array
     {
-        $stmt = $this->pdo->query(
-            'SELECT uid, subdomain, plan, billing_info, stripe_customer_id, '
+        $sql = 'SELECT uid, subdomain, plan, billing_info, stripe_customer_id, '
             . 'stripe_subscription_id, imprint_name, imprint_street, imprint_zip, '
             . 'imprint_city, imprint_email, custom_limits, plan_started_at, '
-            . 'plan_expires_at, created_at FROM tenants ORDER BY created_at'
-        );
+            . 'plan_expires_at, created_at FROM tenants';
+        $params = [];
+        if ($query !== '') {
+            $sql .= ' WHERE LOWER(subdomain) LIKE :q OR LOWER(imprint_name) LIKE :q OR LOWER(imprint_email) LIKE :q';
+            $params[':q'] = '%' . strtolower($query) . '%';
+        }
+        $sql .= ' ORDER BY created_at';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as &$row) {
             if ($row['custom_limits'] !== null) {
