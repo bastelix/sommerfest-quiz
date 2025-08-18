@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ subject|default('') }}</title>
+  <style>
+    body { margin:0; padding:0; }
+    table { border-collapse:collapse; }
+    img { border:0; height:auto; line-height:100%; outline:none; text-decoration:none; }
+    @media screen and (max-width: 600px) {
+      .container { width:100% !important; }
+      .padding { padding:10px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+      <td align="center" bgcolor="#f7f7f7">
+        <table border="0" cellpadding="0" cellspacing="0" width="600" class="container">
+          <tr>
+            <td align="left" class="padding" style="padding:40px 30px;">
+              {% block content %}{% endblock %}
+            </td>
+          </tr>
+          <tr>
+            <td align="center" bgcolor="#222" class="padding" style="padding:20px 30px; color:#ccc; font-size:12px;">
+              <a href="{{ base_url }}/impressum" style="color:#ccc; text-decoration:none;">Impressum</a>
+              &nbsp;|&nbsp;
+              <a href="{{ base_url }}/datenschutz" style="color:#ccc; text-decoration:none;">Datenschutz</a>
+              &nbsp;|&nbsp;
+              <a href="{{ base_url }}/lizenz" style="color:#ccc; text-decoration:none;">Lizenz</a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

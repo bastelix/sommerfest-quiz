@@ -195,10 +195,7 @@ class MailServiceTest extends TestCase
         $_ENV['SMTP_PORT'] = '587';
         unset($_ENV['SMTP_FROM'], $_ENV['SMTP_FROM_NAME']);
 
-        $twig = new Environment(new ArrayLoader([
-            'emails/contact.twig' => '',
-            'emails/contact_copy.twig' => '',
-        ]));
+        $twig = new Environment(new FilesystemLoader(dirname(__DIR__, 2) . '/templates'));
 
         $svc = new class ($twig) extends MailService {
             /** @var Email[] */
