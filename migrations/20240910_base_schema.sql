@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS events (
     start_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     end_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     description TEXT,
+    published BOOLEAN NOT NULL DEFAULT FALSE,
     sort_order INTEGER NOT NULL DEFAULT 0
 );
 
@@ -171,6 +172,8 @@ CREATE TABLE IF NOT EXISTS users (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
+    email TEXT UNIQUE,
+    active BOOLEAN NOT NULL DEFAULT TRUE,
     role user_role NOT NULL DEFAULT 'catalog-editor'
 );
 
@@ -180,6 +183,15 @@ CREATE TABLE IF NOT EXISTS user_sessions (
     session_id TEXT PRIMARY KEY,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Password reset tokens
+CREATE TABLE IF NOT EXISTS password_resets (
+    user_id INTEGER NOT NULL,
+    token_hash TEXT NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT fk_password_resets_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_password_resets_token ON password_resets(token_hash);
 
 -- Tenant definitions
 CREATE TABLE IF NOT EXISTS tenants (
@@ -218,10 +230,3 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
-
--- Persisted user sessions
-CREATE TABLE IF NOT EXISTS user_sessions (
-    user_id INTEGER NOT NULL,
-    session_id TEXT PRIMARY KEY,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);

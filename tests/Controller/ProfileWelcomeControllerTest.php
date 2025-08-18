@@ -23,6 +23,8 @@ class ProfileWelcomeControllerTest extends TestCase
         $_ENV['SMTP_HOST'] = 'localhost';
         $_ENV['SMTP_USER'] = 'user';
         $_ENV['SMTP_PASS'] = 'pass';
+        putenv('PASSWORD_RESET_SECRET=secret');
+        $_ENV['PASSWORD_RESET_SECRET'] = 'secret';
 
         $app = $this->getAppInstance();
         $pdo = new PDO(getenv('POSTGRES_DSN'));

@@ -13,14 +13,6 @@ class PasswordResetServiceTest extends TestCase
     public function testCreateAndConsumeToken(): void
     {
         $pdo = $this->createDatabase();
-        $pdo->exec('ALTER TABLE users ADD COLUMN email TEXT');
-        $pdo->exec('ALTER TABLE users ADD COLUMN active INTEGER DEFAULT 1');
-        $pdo->exec(
-            'CREATE TABLE password_resets('
-            . 'user_id INTEGER NOT NULL, '
-            . 'token_hash TEXT NOT NULL, '
-            . 'expires_at TEXT NOT NULL)'
-        );
         $users = new UserService($pdo);
         $users->create('alice', 'secret', 'alice@example.com');
 
@@ -43,14 +35,6 @@ class PasswordResetServiceTest extends TestCase
     public function testTokenExpires(): void
     {
         $pdo = $this->createDatabase();
-        $pdo->exec('ALTER TABLE users ADD COLUMN email TEXT');
-        $pdo->exec('ALTER TABLE users ADD COLUMN active INTEGER DEFAULT 1');
-        $pdo->exec(
-            'CREATE TABLE password_resets('
-            . 'user_id INTEGER NOT NULL, '
-            . 'token_hash TEXT NOT NULL, '
-            . 'expires_at TEXT NOT NULL)'
-        );
         $users = new UserService($pdo);
         $users->create('bob', 'secret', 'bob@example.com');
 
@@ -69,14 +53,6 @@ class PasswordResetServiceTest extends TestCase
     public function testOldTokenInvalidated(): void
     {
         $pdo = $this->createDatabase();
-        $pdo->exec('ALTER TABLE users ADD COLUMN email TEXT');
-        $pdo->exec('ALTER TABLE users ADD COLUMN active INTEGER DEFAULT 1');
-        $pdo->exec(
-            'CREATE TABLE password_resets('
-            . 'user_id INTEGER NOT NULL, '
-            . 'token_hash TEXT NOT NULL, '
-            . 'expires_at TEXT NOT NULL)'
-        );
         $users = new UserService($pdo);
         $users->create('carol', 'secret', 'carol@example.com');
 
