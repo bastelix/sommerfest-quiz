@@ -143,7 +143,7 @@ class QrController
         $qrParams['format'] = 'png';
         if (isset($qrParams['logoText'])) {
             $parts = explode("\n", (string)$qrParams['logoText']);
-            $qrParams['text1'] = $parts[0] ?? '';
+            $qrParams['text1'] = $parts[0];
             $qrParams['text2'] = $parts[1] ?? '';
             unset($qrParams['logoText']);
         }
@@ -263,7 +263,7 @@ class QrController
             $q['format'] = 'png';
             if (isset($q['logoText'])) {
                 $parts = explode("\n", (string)$q['logoText']);
-                $q['text1'] = $parts[0] ?? '';
+                $q['text1'] = $parts[0];
                 $q['text2'] = $parts[1] ?? '';
                 unset($q['logoText']);
             }

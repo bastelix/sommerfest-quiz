@@ -200,7 +200,15 @@ class QrCodeService
 
     /**
      * @param array<string,mixed> $q
-     * @param array{t:string,fg:string} $defaults
+     * @param array{
+     *     t:string,
+     *     fg:string,
+     *     text1?:string,
+     *     text2?:string,
+     *     round_mode?:string,
+     *     logo_punchout?:bool,
+     *     logo_path?:string
+     * } $defaults
      * @return array{mime:string,body:string}
      */
     private function buildQrWithCenterLogoParam(array $q, array $defaults): array
