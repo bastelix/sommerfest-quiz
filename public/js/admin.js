@@ -72,6 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const checkoutContainer = document.getElementById('stripe-checkout');
   const planButtons = document.querySelectorAll('.plan-select');
   const emailInput = document.getElementById('subscription-email');
+  const togglePlanBtn = document.getElementById('togglePlanBtn');
   if (emailInput) {
     emailInput.addEventListener('input', () => {
       emailInput.classList.remove('uk-form-danger');
@@ -2673,6 +2674,16 @@ document.addEventListener('DOMContentLoaded', function () {
           notify('Willkommensmail gesendet', 'success');
         })
         .catch(() => notify('Fehler beim Senden', 'danger'));
+    });
+
+    togglePlanBtn?.addEventListener('click', () => {
+      apiFetch('/admin/subscription/toggle', { method: 'POST' })
+        .then(r => (r.ok ? r.json() : null))
+        .then(data => {
+          notify('Plan: ' + (data?.plan || 'none'), 'success');
+          window.location.reload();
+        })
+        .catch(() => notify('Fehler', 'danger'));
     });
 
   // Page editors are handled in trumbowyg-pages.js

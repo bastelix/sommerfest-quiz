@@ -201,6 +201,7 @@ return [
     'action_restore_demo' => 'Demodaten wiederherstellen',
     'action_save_demo' => 'Als neue Demodaten speichern',
     'action_refresh' => 'Aktualisieren',
+    'action_toggle_subscription' => 'Abo umschalten',
     'action_open_subscription' => 'Kundenportal öffnen',
     'action_start_subscription' => 'Buchen',
     'action_open_evaluation' => 'Auswertung öffnen',
