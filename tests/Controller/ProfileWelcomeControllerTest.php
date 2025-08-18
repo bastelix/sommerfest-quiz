@@ -29,15 +29,23 @@ class ProfileWelcomeControllerTest extends TestCase
         $pdo->exec("INSERT INTO tenants(uid, subdomain, imprint_email) VALUES('t1','foo','admin@example.com')");
 
         $twig = new Environment(new FilesystemLoader(__DIR__ . '/../../templates'));
-        $mailer = new class($twig) extends MailService {
+        $mailer = new class ($twig) extends MailService {
             public array $messages = [];
+
             protected function createTransport(string $dsn): \Symfony\Component\Mailer\MailerInterface
             {
-                return new class($this) implements \Symfony\Component\Mailer\MailerInterface {
+                return new class ($this) implements \Symfony\Component\Mailer\MailerInterface {
                     private $outer;
-                    public function __construct($outer) { $this->outer = $outer; }
-                    public function send(\Symfony\Component\Mime\RawMessage $message, ?\Symfony\Component\Mailer\Envelope $envelope = null): void
+
+                    public function __construct($outer)
                     {
+                        $this->outer = $outer;
+                    }
+
+                    public function send(
+                        \Symfony\Component\Mime\RawMessage $message,
+                        ?\Symfony\Component\Mailer\Envelope $envelope = null
+                    ): void {
                         $this->outer->messages[] = $message;
                     }
                 };
