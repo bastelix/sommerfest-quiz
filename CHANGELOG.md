@@ -208,6 +208,7 @@
 - Remove fallback logo srcset
 - Show catalog info on start page
 - Remove manual chunked encoding in tenant onboarding
+- Avoid global variable conflict on landing page
 
 ### Refactor
 
