@@ -33,35 +33,37 @@
 </section>
 
 <script>
-const words = ["unvergesslich", "spannend", "interaktiv", "einzigartig", "unterhaltsam"]; // Wörterliste
-const changeInterval = 5500; // Wechselintervall in Millisekunden
-const fadeDuration = 1000; // Dauer der Ein-/Ausblendung
+(function () {
+  const words = ["unvergesslich", "spannend", "interaktiv", "einzigartig", "unterhaltsam"]; // Wörterliste
+  const changeInterval = 5500; // Wechselintervall in Millisekunden
+  const fadeDuration = 1000; // Dauer der Ein-/Ausblendung
 
-const el = document.getElementById("rotating-word");
-let i = 0;
+  const el = document.getElementById("rotating-word");
+  let i = 0;
 
-function triggerUnderline() {
-  el.classList.remove('underline-animate');
-  void el.offsetWidth;
-  el.classList.add('underline-animate');
-}
+  function triggerUnderline() {
+    el.classList.remove('underline-animate');
+    void el.offsetWidth;
+    el.classList.add('underline-animate');
+  }
 
-// initial underline animation
-triggerUnderline();
-setInterval(() => {
-  el.style.opacity = 0;
+  // initial underline animation
+  triggerUnderline();
+  setInterval(() => {
+    el.style.opacity = 0;
 
-  setTimeout(() => {
-    i = (i + 1) % words.length;
-    el.textContent = words[i];
-    el.style.opacity = 1;
-    triggerUnderline();
-  }, fadeDuration);
-}, changeInterval);
+    setTimeout(() => {
+      i = (i + 1) % words.length;
+      el.textContent = words[i];
+      el.style.opacity = 1;
+      triggerUnderline();
+    }, fadeDuration);
+  }, changeInterval);
 
-window.addEventListener('load', () => {
-  setTimeout(triggerUnderline, 100);
-});
+  window.addEventListener('load', () => {
+    setTimeout(triggerUnderline, 100);
+  });
+})();
 </script>
 
 <style>
