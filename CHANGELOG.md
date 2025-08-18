@@ -6,7 +6,7 @@
 
 - Allow selecting subscription plan
 - Persist and extend QR design
-- Resend welcome mail for subdomains from main admin
+- Allow resending welcome mail
 
 ### Test
 
