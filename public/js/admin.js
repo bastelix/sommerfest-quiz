@@ -26,14 +26,16 @@ function showUpgradeModal() {
 window.apiFetch = (path, options = {}) => {
   const token = getCsrfToken();
   const headers = {
-    'X-CSRF-Token': token,
+    ...(token ? { 'X-CSRF-Token': token } : {}),
     ...(options.headers || {})
   };
-  return fetch(withBase(path), {
+  const opts = {
     credentials: 'same-origin',
+    cache: 'no-store',
     ...options,
     headers
-  }).then(res => {
+  };
+  return fetch(withBase(path), opts).then(res => {
     if (res.status === 402) {
       showUpgradeModal();
       throw new Error('upgrade-required');
