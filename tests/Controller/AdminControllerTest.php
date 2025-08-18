@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Controller;
 
 use Slim\Psr7\Uri;
+use App\Infrastructure\Migrations\Migrator;
+use PDO;
 use Tests\TestCase;
 
 class AdminControllerTest extends TestCase
@@ -208,6 +210,40 @@ class AdminControllerTest extends TestCase
         $response2 = $app->handle($request2);
         $data2 = json_decode((string) $response2->getBody(), true);
         $this->assertSame('starter', $data2['plan']);
+
+        session_destroy();
+        unlink($db);
+        putenv('MAIN_DOMAIN');
+        unset($_ENV['MAIN_DOMAIN']);
+    }
+
+    public function testSubscriptionToggleAllowedForDemo(): void
+    {
+        $db = $this->setupDb();
+        $pdo = new PDO('sqlite:' . $db);
+        Migrator::migrate($pdo, __DIR__ . '/../../migrations');
+        $pdo->exec("INSERT INTO tenants(uid, subdomain) VALUES('t1','demo')");
+        putenv('MAIN_DOMAIN=example.com');
+        $_ENV['MAIN_DOMAIN'] = 'example.com';
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $_SESSION['csrf_token'] = 'tok';
+
+        $request = $this->createRequest('POST', '/admin/subscription/toggle', [
+            'X-CSRF-Token' => 'tok',
+            'HTTP_CONTENT_TYPE' => 'application/json',
+        ])->withUri(new Uri('http', 'demo.example.com', 80, '/admin/subscription/toggle'));
+        $stream = fopen('php://temp', 'r+');
+        fwrite($stream, json_encode(['plan' => 'standard']));
+        rewind($stream);
+        $request = $request->withBody((new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream));
+        $response = $app->handle($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode((string) $response->getBody(), true);
+        $this->assertSame('standard', $data['plan']);
+        $plan = $pdo->query("SELECT plan FROM tenants WHERE subdomain='demo'")->fetchColumn();
+        $this->assertSame('standard', $plan);
 
         session_destroy();
         unlink($db);
