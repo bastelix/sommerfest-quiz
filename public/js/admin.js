@@ -2021,6 +2021,73 @@ document.addEventListener('DOMContentLoaded', function () {
   const tenantReportBtn = document.getElementById('tenantReportBtn');
   const tenantStatusFilter = document.getElementById('tenantStatusFilter');
   const tenantSearchInput = document.getElementById('tenantSearchInput');
+  const tenantColumnBtn = document.getElementById('tenantColumnBtn');
+  const tenantTable = tenantTableBody?.closest('table');
+  const tenantTableHeadings = tenantTable?.querySelectorAll('thead th') || [];
+  const tenantColumnDefs = [
+    { key: 'plan', label: 'Abo', thIndex: 1 },
+    { key: 'billing', label: 'Rechnungsinfo', thIndex: 2 },
+    { key: 'created', label: 'Erstellt', thIndex: 3 }
+  ];
+  const tenantColumnDefaults = tenantColumnDefs.map(c => c.key);
+  let tenantColumns = [...tenantColumnDefaults];
+  try {
+    const stored = JSON.parse(localStorage.getItem('tenantColumns'));
+    if (Array.isArray(stored)) {
+      tenantColumns = tenantColumnDefaults.filter(k => stored.includes(k));
+    }
+  } catch (_) {}
+  tenantColumnDefs.forEach(def => {
+    tenantTableHeadings[def.thIndex]?.classList.add('col-' + def.key);
+  });
+  function updateTenantColumnVisibility() {
+    tenantColumnDefs.forEach(def => {
+      const visible = tenantColumns.includes(def.key);
+      if (tenantTableHeadings[def.thIndex]) {
+        tenantTableHeadings[def.thIndex].style.display = visible ? '' : 'none';
+      }
+      tenantTable?.querySelectorAll('.col-' + def.key).forEach(el => {
+        el.style.display = visible ? '' : 'none';
+      });
+    });
+  }
+  tenantColumnBtn?.addEventListener('click', () => {
+    let modal = document.getElementById('tenantColumnModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'tenantColumnModal';
+      modal.setAttribute('uk-modal', '');
+      const options = tenantColumnDefs.map(def => {
+        const checked = tenantColumns.includes(def.key) ? 'checked' : '';
+        return `<label><input class="uk-checkbox" type="checkbox" data-col="${def.key}" ${checked}> ${def.label}</label>`;
+      }).join('<br>');
+      modal.innerHTML = `<div class="uk-modal-dialog uk-modal-body">
+        <h2 class="uk-modal-title">Spalten auswählen</h2>
+        <form>${options}</form>
+        <p class="uk-text-right">
+          <button class="uk-button uk-button-default uk-modal-close" type="button">Abbrechen</button>
+          <button class="uk-button uk-button-primary" type="button" id="tenantColumnSave">Speichern</button>
+        </p>
+      </div>`;
+      document.body.appendChild(modal);
+      modal.querySelector('#tenantColumnSave').addEventListener('click', () => {
+        const selected = Array.from(modal.querySelectorAll('input[type="checkbox"]'))
+          .filter(cb => cb.checked)
+          .map(cb => cb.dataset.col);
+        tenantColumns = tenantColumnDefaults.filter(k => selected.includes(k));
+        try { localStorage.setItem('tenantColumns', JSON.stringify(tenantColumns)); } catch (_) {}
+        updateTenantColumnVisibility();
+        loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value);
+        UIkit.modal(modal).hide();
+      });
+    } else {
+      modal.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.checked = tenantColumns.includes(cb.dataset.col);
+      });
+    }
+    UIkit.modal(modal).show();
+  });
+  updateTenantColumnVisibility();
 
   tenantStatusFilter?.addEventListener('change', () => {
     loadTenants(tenantStatusFilter.value, tenantSearchInput?.value);
@@ -2301,6 +2368,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
           const planTd = document.createElement('td');
           planTd.textContent = plan;
+          planTd.classList.add('col-plan');
 
           const billingTd = document.createElement('td');
           const billingSpan = document.createElement('span');
@@ -2308,6 +2376,7 @@ document.addEventListener('DOMContentLoaded', function () {
           billingSpan.textContent = billing;
           billingSpan.title = billing;
           billingTd.appendChild(billingSpan);
+          billingTd.classList.add('col-billing');
 
           const createdTd = document.createElement('td');
           const createdWrap = document.createElement('div');
@@ -2321,6 +2390,7 @@ document.addEventListener('DOMContentLoaded', function () {
           createdWrap.appendChild(dateDiv);
           createdWrap.appendChild(timeDiv);
           createdTd.appendChild(createdWrap);
+          createdTd.classList.add('col-created');
 
           const actionTd = document.createElement('td');
           actionTd.className = 'uk-text-right';
@@ -2380,14 +2450,15 @@ document.addEventListener('DOMContentLoaded', function () {
               </div>
               <div class="uk-card-body uk-padding-small">
                 <dl class="uk-description-list uk-margin-remove">
-                  <dt>Abo</dt><dd>${safePlan}</dd>
-                  <dt>Rechnungsinfo</dt><dd class="uk-text-truncate qr-mono" title="${safeBilling}">${safeBilling}</dd>
-                  <dt>Erstellt</dt><dd>${safeCreated}</dd>
+                  <dt class="col-plan">Abo</dt><dd class="col-plan">${safePlan}</dd>
+                  <dt class="col-billing">Rechnungsinfo</dt><dd class="col-billing uk-text-truncate qr-mono" title="${safeBilling}">${safeBilling}</dd>
+                  <dt class="col-created">Erstellt</dt><dd class="col-created">${safeCreated}</dd>
                 </dl>
               </div>`;
             tenantCards.appendChild(card);
           }
         });
+        updateTenantColumnVisibility();
       })
       .catch(() => {});
   }
