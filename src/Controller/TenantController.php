@@ -118,6 +118,32 @@ class TenantController
     }
 
     /**
+     * Export tenant list as CSV file.
+     */
+    public function export(Request $request, Response $response): Response
+    {
+        $tenants = $this->service->getAll();
+        $handle = fopen('php://temp', 'r+');
+        fputcsv($handle, ['subdomain', 'plan', 'billing', 'email', 'created_at']);
+        foreach ($tenants as $row) {
+            fputcsv($handle, [
+                $row['subdomain'] ?? '',
+                $row['plan'] ?? '',
+                $row['billing_info'] ?? '',
+                $row['imprint_email'] ?? '',
+                $row['created_at'] ?? '',
+            ]);
+        }
+        rewind($handle);
+        $csv = stream_get_contents($handle) ?: '';
+        fclose($handle);
+        $response->getBody()->write($csv);
+        return $response
+            ->withHeader('Content-Type', 'text/csv')
+            ->withHeader('Content-Disposition', 'attachment; filename="tenants.csv"');
+    }
+
+    /**
      * List all tenants as JSON.
      */
     public function list(Request $request, Response $response): Response
