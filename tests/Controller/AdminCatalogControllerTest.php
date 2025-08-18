@@ -29,7 +29,14 @@ class AdminCatalogControllerTest extends TestCase
         $cfgSvc = new ConfigService($pdo);
         $service = $this->createMock(CatalogService::class);
         $service->method('read')->willReturn(json_encode([
-            ['uid' => 'c1', 'sort_order' => 1, 'slug' => 'slug', 'file' => 'file', 'name' => 'Cat', 'beschreibung' => '']
+            [
+                'uid' => 'c1',
+                'sort_order' => 1,
+                'slug' => 'slug',
+                'file' => 'file',
+                'name' => 'Cat',
+                'beschreibung' => '',
+            ],
         ]));
         $controller = new AdminCatalogController($service);
         $twig = Twig::create(dirname(__DIR__, 2) . '/templates', ['cache' => false]);
