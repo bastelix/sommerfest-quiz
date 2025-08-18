@@ -721,6 +721,57 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('tenantController')->list($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
+    $app->post('/tenants/{subdomain}/welcome', function (Request $request, Response $response, array $args) {
+        if ($request->getAttribute('domainType') !== 'main') {
+            return $response->withStatus(403);
+        }
+        $sub = preg_replace('/[^a-z0-9\-]/', '-', strtolower((string) ($args['subdomain'] ?? '')));
+        $base = Database::connectFromEnv();
+        $tenantSvc = new TenantService($base);
+        $tenant = $tenantSvc->getBySubdomain($sub);
+        if ($tenant === null || ($tenant['imprint_email'] ?? '') === '') {
+            return $response->withStatus(404);
+        }
+        $email = (string) $tenant['imprint_email'];
+        $pdo = Database::connectWithSchema($sub);
+        Migrator::migrate($pdo, __DIR__ . '/../migrations');
+        $userService = new UserService($pdo);
+        $auditLogger = new AuditLogger($pdo);
+        $admin = $userService->getByUsername('admin');
+        $randomPass = bin2hex(random_bytes(16));
+        if ($admin === null) {
+            $userService->create('admin', $randomPass, $email, Roles::ADMIN);
+            $admin = $userService->getByUsername('admin');
+        } else {
+            $userService->updatePassword((int) $admin['id'], $randomPass);
+            $userService->setEmail((int) $admin['id'], $email);
+        }
+        if ($admin === null) {
+            return $response->withStatus(500);
+        }
+        $resetService = new PasswordResetService($pdo);
+        $token = $resetService->createToken((int) $admin['id']);
+        $mailer = $request->getAttribute('mailService');
+        if (!$mailer instanceof MailService) {
+            if (!MailService::isConfigured()) {
+                return $response->withStatus(503);
+            }
+            $twig = Twig::fromRequest($request)->getEnvironment();
+            $mailer = new MailService($twig, $auditLogger);
+        }
+        $mainDomain = getenv('MAIN_DOMAIN') ?: getenv('DOMAIN');
+        $domain = $mainDomain ? sprintf('%s.%s', $sub, $mainDomain) : $request->getUri()->getHost();
+        $link = sprintf('https://%s/password/set?token=%s&next=%%2Fadmin', $domain, urlencode($token));
+        $html = $mailer->sendWelcome($email, $domain, $link);
+        $baseDir = dirname(__DIR__, 1);
+        $dir = $baseDir . '/data/' . $sub;
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+        file_put_contents($dir . '/welcome_email.html', $html);
+        return $response->withStatus(204);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
     $app->get('/tenants/{subdomain}/welcome', function (Request $request, Response $response, array $args) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(403);
