@@ -66,6 +66,7 @@
 - Document qr code enhancements
 - Outline SEO and SEF requirements
 - Note removal of unsupported automatic payment methods
+- Note removal of unsupported automatic payment methods
 
 ### Feat
 
@@ -163,7 +164,6 @@
 
 ### Fix
 
-- Remove unsupported automatic payment methods from checkout
 - *(migrate)* Clear reference after uid update
 - *(qr)* Enable camera flip after scanner ready
 - *(qr)* Await scanner init
