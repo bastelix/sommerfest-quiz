@@ -178,6 +178,7 @@ return [
       'plan_starter' => 'Starter',
       'plan_standard' => 'Standard',
       'plan_professional' => 'Professional',
+      'plan_none' => 'Kein Abo',
       'billing_invoice' => 'Rechnung',
       'billing_credit' => 'Kreditkarte',
       'billing_paypal' => 'PayPal',

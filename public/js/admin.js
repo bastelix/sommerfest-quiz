@@ -72,16 +72,16 @@ document.addEventListener('DOMContentLoaded', function () {
   const checkoutContainer = document.getElementById('stripe-checkout');
   const planButtons = document.querySelectorAll('.plan-select');
   const emailInput = document.getElementById('subscription-email');
-  const togglePlanBtn = document.getElementById('togglePlanBtn');
+  const planSelect = document.getElementById('planSelect');
   if (emailInput) {
     emailInput.addEventListener('input', () => {
       emailInput.classList.remove('uk-form-danger');
     });
   }
-  if (planButtons.length) {
-    fetch(withBase('/admin/subscription/status'))
-      .then(r => (r.ok ? r.json() : null))
-      .then(data => {
+  if (planButtons.length || planSelect) {
+      fetch(withBase('/admin/subscription/status'))
+        .then(r => (r.ok ? r.json() : null))
+        .then(data => {
         const currentPlan = data?.plan || '';
         planButtons.forEach(btn => {
           const btnPlan = btn.dataset.plan;
@@ -92,8 +92,11 @@ document.addEventListener('DOMContentLoaded', function () {
             btn.textContent = window.transUpgradeAction || 'Upgrade';
           }
         });
-      })
-      .catch(() => {});
+        if (planSelect) {
+          planSelect.value = currentPlan;
+        }
+        })
+        .catch(() => {});
   }
 
   document.addEventListener('click', e => {
@@ -2676,8 +2679,13 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(() => notify('Fehler beim Senden', 'danger'));
     });
 
-    togglePlanBtn?.addEventListener('click', () => {
-      apiFetch('/admin/subscription/toggle', { method: 'POST' })
+    planSelect?.addEventListener('change', () => {
+      const plan = planSelect.value;
+      apiFetch('/admin/subscription/toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan })
+      })
         .then(r => (r.ok ? r.json() : null))
         .then(data => {
           notify('Plan: ' + (data?.plan || 'none'), 'success');

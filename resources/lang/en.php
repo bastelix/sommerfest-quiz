@@ -177,6 +177,7 @@ return [
       'plan_starter' => 'Starter',
       'plan_standard' => 'Standard',
       'plan_professional' => 'Professional',
+      'plan_none' => 'No plan',
       'billing_invoice' => 'Invoice',
       'billing_credit' => 'Credit card',
       'billing_paypal' => 'PayPal',
