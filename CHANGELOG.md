@@ -240,6 +240,7 @@
 - Modernize onboarding step boxes
 - Show pricing plans in onboarding
 - Improve event selector display
+- Remove trailing blank line
 
 ### Test
 
