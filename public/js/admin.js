@@ -146,7 +146,11 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(err => notify(err.message || 'Fehler beim Erneuern', 'danger'));
     } else if (action === 'welcome') {
       e.preventDefault();
-      apiFetch('/tenants/' + encodeURIComponent(sub) + '/welcome')
+      apiFetch('/tenants/' + encodeURIComponent(sub) + '/welcome', { method: 'POST' })
+        .then(r => {
+          if (!r.ok) throw new Error('Fehler');
+          return apiFetch('/tenants/' + encodeURIComponent(sub) + '/welcome');
+        })
         .then(r => {
           if (!r.ok) throw new Error('Fehler');
           return r.text();
