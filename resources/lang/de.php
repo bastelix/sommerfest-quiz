@@ -136,6 +136,7 @@ return [
     'label_check_button' => 'Antwort-Prüfen-Button anzeigen',
     'label_qr_login' => 'QR-Code-Login verwenden',
     'label_qr_remember' => 'Einmaliges Einscannen merken',
+    'label_custom_logo' => 'Eigenes Logo',
     'label_random_names' => 'Teamnamen eingeben lassen',
     'label_team_restrict' => 'Nur Teams/Personen aus der Liste dürfen teilnehmen.',
     'label_plan' => 'Abo',

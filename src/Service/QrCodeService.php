@@ -162,35 +162,40 @@ class QrCodeService
     /**
      * @return array{mime:string,body:string}
      */
-    public function generateCatalog(array $q): array
+    public function generateCatalog(array $q, array $cfg = []): array
     {
-        return $this->buildQrWithCenterLogoParam($q, [
+        $defaults = [
             't' => 'https://quizrace.app/?katalog=station',
             'fg' => 'dc0000',
-        ]);
+        ];
+        $defaults = $this->mergeDesignDefaults($defaults, $cfg);
+        return $this->buildQrWithCenterLogoParam($q, $defaults);
     }
 
     /**
      * @return array{mime:string,body:string}
      */
-    public function generateTeam(array $q): array
+    public function generateTeam(array $q, array $cfg = []): array
     {
-        // Defaults for team QR codes: generic label and brand color
-        return $this->buildQrWithCenterLogoParam($q, [
+        $defaults = [
             't' => 'Team 1',
             'fg' => '004bc8',
-        ]);
+        ];
+        $defaults = $this->mergeDesignDefaults($defaults, $cfg);
+        return $this->buildQrWithCenterLogoParam($q, $defaults);
     }
 
     /**
      * @return array{mime:string,body:string}
      */
-    public function generateEvent(array $q): array
+    public function generateEvent(array $q, array $cfg = []): array
     {
-        return $this->buildQrWithCenterLogoParam($q, [
+        $defaults = [
             't' => 'https://quizrace.app/?event=station',
             'fg' => '00a65a',
-        ]);
+        ];
+        $defaults = $this->mergeDesignDefaults($defaults, $cfg);
+        return $this->buildQrWithCenterLogoParam($q, $defaults);
     }
 
     /**
@@ -214,20 +219,29 @@ class QrCodeService
 
         $logoW = $this->clampInt($q['logo_width'] ?? null, 20, 200, self::LOGO_WIDTH_DEF);
         $fontSz = $this->clampInt($q['font_size'] ?? null, 8, 48, self::FONT_SIZE_DEF);
-        $text1 = (string) ($q['text1'] ?? 'QUIZ');
-        $text2 = (string) ($q['text2'] ?? 'RACE');
+        $text1 = (string) ($q['text1'] ?? ($defaults['text1'] ?? 'QUIZ'));
+        $text2 = (string) ($q['text2'] ?? ($defaults['text2'] ?? 'RACE'));
 
         $rounded = $this->boolParam($q['rounded'] ?? null, true);
-        $roundModeParam = $q['round_mode'] ?? null;
-        $logoPunchout = $this->boolParam($q['logo_punchout'] ?? null, true);
+        $roundModeParam = $q['round_mode'] ?? ($defaults['round_mode'] ?? null);
+        $logoPunchout = $this->boolParam($q['logo_punchout'] ?? ($defaults['logo_punchout'] ?? null), true);
         $ec = $this->ecFromParam($q['ec'] ?? null);
 
         $roundMode = $this->roundModeFromParam($roundModeParam, $rounded);
 
         $logoPath = null;
-        $fontFile = $this->getFontFile();
-        if ($fontFile !== null && extension_loaded('gd')) {
-            $logoPath = $this->createTextLogoPng($text1, $text2, $fontFile, $fontSz, [0, 0, 0]);
+        $logoParam = (string) ($q['logo_path'] ?? ($defaults['logo_path'] ?? ''));
+        if ($logoParam !== '') {
+            $p = __DIR__ . '/../../data' . (str_starts_with($logoParam, '/') ? $logoParam : '/' . $logoParam);
+            if (is_readable($p)) {
+                $logoPath = $p;
+            }
+        }
+        if ($logoPath === null) {
+            $fontFile = $this->getFontFile();
+            if ($fontFile !== null && extension_loaded('gd')) {
+                $logoPath = $this->createTextLogoPng($text1, $text2, $fontFile, $fontSz, [0, 0, 0]);
+            }
         }
 
         $writer = $format === 'svg' ? new SvgWriter() : new PngWriter();
@@ -258,6 +272,33 @@ class QrCodeService
             'mime' => $result->getMimeType(),
             'body' => $result->getString(),
         ];
+    }
+
+    /**
+     * Merge stored design configuration into default parameters.
+     *
+     * @param array<string,mixed> $defaults
+     * @param array<string,mixed> $cfg
+     * @return array<string,mixed>
+     */
+    private function mergeDesignDefaults(array $defaults, array $cfg): array
+    {
+        if (($cfg['qrLabelLine1'] ?? '') !== '') {
+            $defaults['text1'] = (string) $cfg['qrLabelLine1'];
+        }
+        if (($cfg['qrLabelLine2'] ?? '') !== '') {
+            $defaults['text2'] = (string) $cfg['qrLabelLine2'];
+        }
+        if (($cfg['qrLogoPath'] ?? '') !== '') {
+            $defaults['logo_path'] = (string) $cfg['qrLogoPath'];
+        }
+        if (($cfg['qrRoundMode'] ?? '') !== '') {
+            $defaults['round_mode'] = (string) $cfg['qrRoundMode'];
+        }
+        if (array_key_exists('qrLogoPunchout', $cfg) && $cfg['qrLogoPunchout'] !== null) {
+            $defaults['logo_punchout'] = $cfg['qrLogoPunchout'] ? '1' : '0';
+        }
+        return $defaults;
     }
 
     /**

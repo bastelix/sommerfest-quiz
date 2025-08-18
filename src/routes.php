@@ -50,6 +50,7 @@ use App\Controller\ImportController;
 use App\Controller\ExportController;
 use App\Controller\QrController;
 use App\Controller\LogoController;
+use App\Controller\QrLogoController;
 use App\Controller\CatalogDesignController;
 use App\Controller\SummaryController;
 use App\Controller\EvidenceController;
@@ -205,6 +206,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('onboardingEmailController', new OnboardingEmailController($emailConfirmService))
             ->withAttribute('catalogDesignController', new CatalogDesignController($catalogService))
             ->withAttribute('logoController', new LogoController($configService))
+            ->withAttribute('qrLogoController', new QrLogoController($configService))
             ->withAttribute('summaryController', new SummaryController($configService, $eventService))
             ->withAttribute('importController', new ImportController(
                 $catalogService,
@@ -845,6 +847,19 @@ return function (\Slim\App $app, TranslationService $translator) {
     });
     $app->post('/logo.webp', function (Request $request, Response $response) {
         return $request->getAttribute('logoController')->post($request, $response);
+    })->add(new RoleAuthMiddleware('admin'));
+
+    $app->get('/{file:qrlogo(?:-[\w-]+)?\.png}', function (Request $request, Response $response) {
+        return $request->getAttribute('qrLogoController')->get($request->withAttribute('ext', 'png'), $response);
+    });
+    $app->post('/qrlogo.png', function (Request $request, Response $response) {
+        return $request->getAttribute('qrLogoController')->post($request, $response);
+    })->add(new RoleAuthMiddleware('admin'));
+    $app->get('/{file:qrlogo(?:-[\w-]+)?\.webp}', function (Request $request, Response $response) {
+        return $request->getAttribute('qrLogoController')->get($request->withAttribute('ext', 'webp'), $response);
+    });
+    $app->post('/qrlogo.webp', function (Request $request, Response $response) {
+        return $request->getAttribute('qrLogoController')->post($request, $response);
     })->add(new RoleAuthMiddleware('admin'));
 
     $app->get('/catalog/{slug}/design', function (Request $request, Response $response, array $args) {

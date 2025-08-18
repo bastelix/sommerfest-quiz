@@ -143,6 +143,11 @@ class QrControllerTest extends TestCase
                 puzzleWord TEXT,
                 puzzleFeedback TEXT,
                 inviteText TEXT,
+                qrLabelLine1 TEXT,
+                qrLabelLine2 TEXT,
+                qrLogoPath TEXT,
+                qrRoundMode TEXT,
+                qrLogoPunchout INTEGER,
                 event_uid TEXT
             );
             SQL
@@ -210,6 +215,11 @@ class QrControllerTest extends TestCase
                 puzzleWord TEXT,
                 puzzleFeedback TEXT,
                 inviteText TEXT,
+                qrLabelLine1 TEXT,
+                qrLabelLine2 TEXT,
+                qrLogoPath TEXT,
+                qrRoundMode TEXT,
+                qrLogoPunchout INTEGER,
                 event_uid TEXT
             );
             SQL
@@ -254,6 +264,11 @@ class QrControllerTest extends TestCase
             <<<'SQL'
             CREATE TABLE config(
                 inviteText TEXT,
+                qrLabelLine1 TEXT,
+                qrLabelLine2 TEXT,
+                qrLogoPath TEXT,
+                qrRoundMode TEXT,
+                qrLogoPunchout INTEGER,
                 event_uid TEXT
             );
             SQL
@@ -307,6 +322,11 @@ class QrControllerTest extends TestCase
                 puzzleWord TEXT,
                 puzzleFeedback TEXT,
                 inviteText TEXT,
+                qrLabelLine1 TEXT,
+                qrLabelLine2 TEXT,
+                qrLogoPath TEXT,
+                qrRoundMode TEXT,
+                qrLogoPunchout INTEGER,
                 event_uid TEXT
             );
             SQL
@@ -368,6 +388,11 @@ class QrControllerTest extends TestCase
                 puzzleWord TEXT,
                 puzzleFeedback TEXT,
                 inviteText TEXT,
+                qrLabelLine1 TEXT,
+                qrLabelLine2 TEXT,
+                qrLogoPath TEXT,
+                qrRoundMode TEXT,
+                qrLogoPunchout INTEGER,
                 event_uid TEXT
             );
             SQL

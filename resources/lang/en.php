@@ -135,6 +135,7 @@ return [
     'label_check_button' => 'Show check answer button',
     'label_qr_login' => 'Use QR code login',
     'label_qr_remember' => 'Remember scanned login',
+    'label_custom_logo' => 'Custom logo',
     'label_random_names' => 'Prompt for team names',
     'label_team_restrict' => 'Only listed teams may join',
     'label_plan' => 'Plan',

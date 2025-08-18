@@ -2304,6 +2304,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const qrRoundModeSelect = document.getElementById('qrRoundModeSelect');
   const qrPreview = document.getElementById('qrDesignPreview');
   const qrApplyBtn = document.getElementById('qrDesignApply');
+  const qrLogoFile = document.getElementById('qrLogoFile');
+  let qrLogoPath = '';
   const designAllBtn = document.getElementById('summaryDesignAllBtn');
   let currentQrImg = null;
   let currentQrEndpoint = '';
@@ -2331,9 +2333,13 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!currentQrEndpoint) return;
     const params = new URLSearchParams();
     params.set('t', currentQrTarget);
-    const label = (qrLabelInput?.value || '').trim();
-    if (label !== '') {
-      params.set('text1', label);
+    const label = qrLabelInput?.value || '';
+    const lines = label.split(/\n/, 2).map(s => s.trim());
+    if (qrLogoPath) {
+      params.set('logo_path', qrLogoPath);
+    } else {
+      if (lines[0]) params.set('text1', lines[0]);
+      if (lines[1]) params.set('text2', lines[1]);
     }
     params.set('round_mode', qrRoundModeSelect?.value || 'margin');
     params.set('logo_punchout', qrPunchoutInput?.checked ? '1' : '0');
@@ -2345,9 +2351,23 @@ document.addEventListener('DOMContentLoaded', function () {
     currentQrEndpoint = endpoint;
     currentQrTarget = target;
     isGlobalDesign = global;
-    if (qrLabelInput) qrLabelInput.value = label || '';
-    if (qrPunchoutInput) qrPunchoutInput.checked = true;
-    if (qrRoundModeSelect) qrRoundModeSelect.value = 'margin';
+    if (qrLabelInput) {
+      if (global) {
+        const l1 = cfgInitial.qrLabelLine1 || '';
+        const l2 = cfgInitial.qrLabelLine2 || '';
+        qrLabelInput.value = l2 ? l1 + '\n' + l2 : l1;
+      } else {
+        qrLabelInput.value = label || '';
+      }
+    }
+    if (qrPunchoutInput) {
+      qrPunchoutInput.checked = global ? cfgInitial.qrLogoPunchout !== false : true;
+    }
+    if (qrRoundModeSelect) {
+      qrRoundModeSelect.value = global ? (cfgInitial.qrRoundMode || 'margin') : 'margin';
+    }
+    qrLogoPath = global ? (cfgInitial.qrLogoPath || '') : '';
+    if (qrLogoFile) qrLogoFile.value = '';
     updateQrPreview();
     if (qrDesignModal) UIkit.modal(qrDesignModal).show();
   }
@@ -2355,6 +2375,23 @@ document.addEventListener('DOMContentLoaded', function () {
   [qrLabelInput, qrPunchoutInput, qrRoundModeSelect].forEach(el => {
     el?.addEventListener('input', updateQrPreview);
     el?.addEventListener('change', updateQrPreview);
+  });
+
+  qrLogoFile?.addEventListener('change', () => {
+    const file = qrLogoFile.files && qrLogoFile.files[0];
+    if (!file) return;
+    const ext = file.type === 'image/webp' ? 'webp' : 'png';
+    const fd = new FormData();
+    fd.append('file', file);
+    apiFetch('/qrlogo.' + ext, { method: 'POST', body: fd })
+      .then(() => apiFetch('/config.json', { headers: { 'Accept': 'application/json' } }))
+      .then(r => r.json())
+      .then(cfg => {
+        qrLogoPath = cfg.qrLogoPath || '';
+        cfgInitial.qrLogoPath = qrLogoPath;
+        updateQrPreview();
+      })
+      .catch(() => {});
   });
 
   qrApplyBtn?.addEventListener('click', () => {
@@ -2367,12 +2404,32 @@ document.addEventListener('DOMContentLoaded', function () {
         const target = img.dataset.target;
         const params = new URLSearchParams();
         params.set('t', target);
-        const label = img.nextElementSibling?.textContent || '';
-        if (label !== '') params.set('text1', label);
+        if (qrLogoPath) {
+          params.set('logo_path', qrLogoPath);
+        } else {
+          const label = img.nextElementSibling?.textContent || '';
+          const lns = label.split('\n');
+          if (lns[0]) params.set('text1', lns[0]);
+          if (lns[1]) params.set('text2', lns[1]);
+        }
         if (roundMode) params.set('round_mode', roundMode);
         if (punchout) params.set('logo_punchout', punchout);
         img.src = withBase(endpoint + '?' + params.toString());
       });
+      const lines = (qrLabelInput?.value || '').split(/\n/, 2);
+      const data = {
+        qrLabelLine1: lines[0] || '',
+        qrLabelLine2: lines[1] || '',
+        qrRoundMode: roundMode,
+        qrLogoPunchout: punchout === '1'
+      };
+      if (qrLogoPath) data.qrLogoPath = qrLogoPath;
+      apiFetch('/config.json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).catch(() => {});
+      Object.assign(cfgInitial, data);
     } else if (currentQrImg) {
       currentQrImg.src = qrPreview.src;
     }
