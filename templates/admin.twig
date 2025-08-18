@@ -865,11 +865,11 @@
         <!-- FILTER / TOOLBAR -->
         <div class="uk-flex uk-flex-wrap uk-flex-middle uk-margin">
           <div class="uk-margin-small-right">
-            <select class="uk-select uk-form-small" aria-label="Status filtern">
-              <option>Alle</option>
-              <option>Aktiv</option>
-              <option>Gekündigt</option>
-              <option>Simuliert</option>
+            <select id="tenantStatusFilter" class="uk-select uk-form-small" aria-label="Status filtern">
+              <option value="">Alle</option>
+              <option value="active">Aktiv</option>
+              <option value="canceled">Gekündigt</option>
+              <option value="simulated">Simuliert</option>
             </select>
           </div>
 
