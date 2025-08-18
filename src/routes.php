@@ -700,6 +700,13 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('tenantController')->export($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
+    $app->get('/tenants/report', function (Request $request, Response $response) {
+        if ($request->getAttribute('domainType') !== 'main') {
+            return $response->withStatus(403);
+        }
+        return $request->getAttribute('tenantController')->report($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
     $app->get('/tenants/{subdomain}', function (Request $request, Response $response, array $args) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(403);

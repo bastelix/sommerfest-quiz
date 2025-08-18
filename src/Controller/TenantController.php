@@ -154,4 +154,29 @@ class TenantController
         $response->getBody()->write(json_encode($list));
         return $response->withHeader('Content-Type', 'application/json');
     }
+
+    /**
+     * Provide a simple tenant report as CSV with plan counts.
+     */
+    public function report(Request $request, Response $response): Response
+    {
+        $tenants = $this->service->getAll();
+        $stats = [];
+        foreach ($tenants as $row) {
+            $plan = (string) ($row['plan'] ?? '');
+            $stats[$plan] = ($stats[$plan] ?? 0) + 1;
+        }
+        $handle = fopen('php://temp', 'r+');
+        fputcsv($handle, ['plan', 'count']);
+        foreach ($stats as $plan => $count) {
+            fputcsv($handle, [$plan === '' ? 'none' : $plan, (string) $count]);
+        }
+        rewind($handle);
+        $csv = stream_get_contents($handle) ?: '';
+        fclose($handle);
+        $response->getBody()->write($csv);
+        return $response
+            ->withHeader('Content-Type', 'text/csv')
+            ->withHeader('Content-Disposition', 'attachment; filename="tenant-report.csv"');
+    }
 }

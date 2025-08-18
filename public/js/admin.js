@@ -2018,6 +2018,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const tenantCards = document.getElementById('tenantCards');
   const tenantSyncBtn = document.getElementById('tenantSyncBtn');
   const tenantExportBtn = document.getElementById('tenantExportBtn');
+  const tenantReportBtn = document.getElementById('tenantReportBtn');
   const tenantStatusFilter = document.getElementById('tenantStatusFilter');
   const tenantSearchInput = document.getElementById('tenantSearchInput');
 
@@ -2165,6 +2166,47 @@ document.addEventListener('DOMContentLoaded', function () {
         window.URL.revokeObjectURL(url);
       })
       .catch(() => notify('Fehler beim Export', 'danger'));
+  });
+
+  tenantReportBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    apiFetch('/tenants/report')
+      .then(async r => {
+        if (!r.ok) throw new Error('Fehler');
+        const contentType = r.headers.get('Content-Type') || '';
+        const disposition = r.headers.get('Content-Disposition') || '';
+        if (contentType.includes('pdf')) {
+          const blob = await r.blob();
+          const url = window.URL.createObjectURL(blob);
+          window.open(url, '_blank');
+          window.URL.revokeObjectURL(url);
+          return;
+        }
+        if (contentType.includes('html')) {
+          const text = await r.text();
+          const w = window.open('', '_blank');
+          if (w) {
+            w.document.write(text);
+            w.document.close();
+          }
+          return;
+        }
+        const blob = await r.blob();
+        let filename = 'tenant-report.csv';
+        const match = /filename="?([^";]+)"?/i.exec(disposition);
+        if (match) {
+          filename = match[1];
+        }
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      })
+      .catch(() => notify('Fehler beim Bericht', 'danger'));
   });
 
   tenantSyncBtn?.addEventListener('click', e => {
