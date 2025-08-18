@@ -478,8 +478,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->post('/admin/subscription/toggle', function (Request $request, Response $response) {
-        if ($request->getAttribute('domainType') !== 'main') {
-            return $response->withStatus(403);
+        $domainType = $request->getAttribute('domainType');
+        $target = 'main';
+        if ($domainType !== 'main') {
+            $sub = explode('.', $request->getUri()->getHost())[0];
+            if ($sub !== 'demo') {
+                return $response->withStatus(403);
+            }
+            $target = 'demo';
         }
         $data = json_decode((string) $request->getBody(), true);
         $plan = $data['plan'] ?? null;
@@ -492,7 +498,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $base = Database::connectFromEnv();
         $tenantSvc = new TenantService($base);
-        $tenantSvc->updateProfile('main', ['plan' => $plan]);
+        $tenantSvc->updateProfile($target, ['plan' => $plan]);
         $response->getBody()->write((string) json_encode(['plan' => $plan]));
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
