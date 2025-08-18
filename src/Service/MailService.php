@@ -22,6 +22,7 @@ class MailService
     private Environment $twig;
     private string $from;
     private ?AuditLogger $audit;
+    private string $baseUrl;
 
     public static function isConfigured(): bool
     {
@@ -94,6 +95,8 @@ class MailService
         $this->twig   = $twig;
         $this->from   = $from;
         $this->audit  = $audit;
+        $mainDomain   = (string) (getenv('MAIN_DOMAIN') ?: '');
+        $this->baseUrl = $mainDomain !== '' ? 'https://' . $mainDomain : '';
     }
 
     protected function createTransport(string $dsn): MailerInterface
@@ -103,12 +106,29 @@ class MailService
         return new Mailer($transport);
     }
 
+    private function baseUrlFromLink(string $link): string
+    {
+        $parts = parse_url($link);
+        if (isset($parts['scheme'], $parts['host'])) {
+            $url = $parts['scheme'] . '://' . $parts['host'];
+            if (isset($parts['port'])) {
+                $url .= ':' . $parts['port'];
+            }
+            return $url;
+        }
+
+        return $this->baseUrl;
+    }
+
     /**
      * Send password reset mail with link.
      */
     public function sendPasswordReset(string $to, string $link): void
     {
-        $html = $this->twig->render('emails/password_reset.twig', ['link' => $link]);
+        $html = $this->twig->render('emails/password_reset.twig', [
+            'link'     => $link,
+            'base_url' => $this->baseUrlFromLink($link),
+        ]);
 
         $email = (new Email())
             ->from($this->from)
@@ -126,7 +146,10 @@ class MailService
      */
     public function sendDoubleOptIn(string $to, string $link): void
     {
-        $html = $this->twig->render('emails/double_optin.twig', ['link' => $link]);
+        $html = $this->twig->render('emails/double_optin.twig', [
+            'link'     => $link,
+            'base_url' => $this->baseUrlFromLink($link),
+        ]);
 
         $email = (new Email())
             ->from($this->from)
@@ -143,8 +166,9 @@ class MailService
     public function sendInvitation(string $to, string $name, string $link): void
     {
         $html = $this->twig->render('emails/invitation.twig', [
-            'name' => $name,
-            'link' => $link,
+            'name'     => $name,
+            'link'     => $link,
+            'base_url' => $this->baseUrlFromLink($link),
         ]);
 
         $email = (new Email())
@@ -167,10 +191,12 @@ class MailService
     {
         $catalogLink = sprintf('https://%s/admin/catalogs', $domain);
 
+        $baseUrl = 'https://' . $domain;
         $html = $this->twig->render('emails/welcome.twig', [
             'domain'       => $domain,
             'link'         => $link,
             'catalog_link' => $catalogLink,
+            'base_url'     => $baseUrl,
         ]);
 
         $email = (new Email())
@@ -192,9 +218,10 @@ class MailService
     public function sendContact(string $to, string $name, string $replyTo, string $message): void
     {
         $html = $this->twig->render('emails/contact.twig', [
-            'name'    => $name,
-            'email'   => $replyTo,
-            'message' => $message,
+            'name'     => $name,
+            'email'    => $replyTo,
+            'message'  => $message,
+            'base_url' => $this->baseUrl,
         ]);
 
         $email = (new Email())
@@ -207,8 +234,9 @@ class MailService
         $this->mailer->send($email);
 
         $copyHtml = $this->twig->render('emails/contact_copy.twig', [
-            'name'    => $name,
-            'message' => $message,
+            'name'     => $name,
+            'message'  => $message,
+            'base_url' => $this->baseUrl,
         ]);
 
         $copyEmail = (new Email())

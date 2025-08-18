@@ -1,4 +1,8 @@
+{% extends 'emails/layout.twig' %}
+
+{% block content %}
 <p>Hallo,</p>
 <p>bitte bestätige deine E-Mail-Adresse durch Klick auf den folgenden Link:</p>
 <p><a href="{{ link }}">{{ link }}</a></p>
 <p>Wenn du diese Anfrage nicht gestellt hast, kannst du diese E-Mail ignorieren.</p>
+{% endblock %}
