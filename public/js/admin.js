@@ -2240,11 +2240,6 @@ document.addEventListener('DOMContentLoaded', function () {
               <div uk-dropdown="mode: click; pos: bottom-right">
                 <ul class="uk-nav uk-dropdown-nav">
                   <li class="uk-nav-header">Aktionen</li>
-                  <li><a href="#" data-action="update" data-sub="${safeSub}">Abo aktualisieren</a></li>
-                  <li><a href="#" data-action="pause" data-sub="${safeSub}">Zahlung pausieren</a></li>
-                  <li><a href="#" data-action="paylink" data-sub="${safeSub}">Zahlungslink senden</a></li>
-                  <li><a href="#" data-action="invoice" data-sub="${safeSub}">Einmalige Rechnung</a></li>
-                  <li class="uk-nav-divider"></li>
                   <li><a class="uk-text-danger" href="#" data-action="delete" data-uid="${safeUid}" data-sub="${safeSub}">Mandant löschen …</a></li>
                   <li class="uk-nav-divider"></li>
                   <li class="uk-nav-header">Verbindungen</li>
