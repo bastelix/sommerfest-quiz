@@ -19,53 +19,53 @@
       <div class="uk-margin">
         <label class="uk-form-label" for="metaTitle">Meta Title</label>
         <div class="uk-form-controls">
-          <input class="uk-input" id="metaTitle" name="meta_title" type="text" required data-maxlength="60">
+          <input class="uk-input" id="metaTitle" name="meta_title" type="text" required data-maxlength="60" value="{{ config.metaTitle|default('') }}">
           <small class="uk-text-meta char-count" data-for="metaTitle">0/60</small>
         </div>
       </div>
       <div class="uk-margin">
         <label class="uk-form-label" for="metaDescription">Meta Description</label>
         <div class="uk-form-controls">
-          <textarea class="uk-textarea" id="metaDescription" name="meta_description" required data-maxlength="160"></textarea>
+          <textarea class="uk-textarea" id="metaDescription" name="meta_description" required data-maxlength="160">{{ config.metaDescription|default('') }}</textarea>
           <small class="uk-text-meta char-count" data-for="metaDescription">0/160</small>
         </div>
       </div>
       <div class="uk-margin">
         <label class="uk-form-label" for="slug">Slug</label>
         <div class="uk-form-controls">
-          <input class="uk-input" id="slug" name="slug" type="text" required data-maxlength="100">
+          <input class="uk-input" id="slug" name="slug" type="text" required data-maxlength="100" value="{{ config.slug|default('') }}">
         </div>
       </div>
       <div class="uk-margin">
         <label class="uk-form-label" for="canonical">Canonical</label>
         <div class="uk-form-controls">
-          <input class="uk-input" id="canonical" name="canonical" type="url">
+          <input class="uk-input" id="canonical" name="canonical" type="url" value="{{ config.canonicalUrl|default('') }}">
         </div>
       </div>
       <div class="uk-margin">
         <label class="uk-form-label" for="robots">Robots</label>
         <div class="uk-form-controls">
-          <input class="uk-input" id="robots" name="robots" type="text" placeholder="index, follow">
+          <input class="uk-input" id="robots" name="robots" type="text" placeholder="index, follow" value="{{ config.robotsMeta|default('') }}">
         </div>
       </div>
       <div class="uk-margin">
         <label class="uk-form-label">OG-Tags</label>
         <div class="uk-form-controls">
-          <input class="uk-input uk-margin-small-bottom" id="ogTitle" name="og_title" type="text" placeholder="og:title" data-maxlength="60">
-          <input class="uk-input uk-margin-small-bottom" id="ogDescription" name="og_description" type="text" placeholder="og:description" data-maxlength="160">
-          <input class="uk-input" id="ogImage" name="og_image" type="url" placeholder="og:image">
+          <input class="uk-input uk-margin-small-bottom" id="ogTitle" name="og_title" type="text" placeholder="og:title" data-maxlength="60" value="{{ config.ogTitle|default('') }}">
+          <input class="uk-input uk-margin-small-bottom" id="ogDescription" name="og_description" type="text" placeholder="og:description" data-maxlength="160" value="{{ config.ogDescription|default('') }}">
+          <input class="uk-input" id="ogImage" name="og_image" type="url" placeholder="og:image" value="{{ config.ogImage|default('') }}">
         </div>
       </div>
       <div class="uk-margin">
         <label class="uk-form-label" for="schema">Schema.org</label>
         <div class="uk-form-controls">
-          <textarea class="uk-textarea" id="schema" name="schema" rows="4" placeholder="{ }"></textarea>
+          <textarea class="uk-textarea" id="schema" name="schema" rows="4" placeholder="{ }">{{ config.schemaJson|default('') }}</textarea>
         </div>
       </div>
       <div class="uk-margin">
         <label class="uk-form-label" for="hreflang">hreflang</label>
         <div class="uk-form-controls">
-          <input class="uk-input" id="hreflang" name="hreflang" type="text" placeholder="de, en, ...">
+          <input class="uk-input" id="hreflang" name="hreflang" type="text" placeholder="de, en, ..." value="{{ config.hreflang|default('') }}">
         </div>
       </div>
       <div class="uk-margin">
