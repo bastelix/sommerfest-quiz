@@ -166,7 +166,7 @@ class QrCodeService
     {
         $defaults = [
             't' => 'https://quizrace.app/?katalog=station',
-            'fg' => 'dc0000',
+            'fg' => ltrim((string)($cfg['qrColorCatalog'] ?? 'dc0000'), '#'),
         ];
         $defaults = $this->mergeDesignDefaults($defaults, $cfg);
         return $this->buildQrWithCenterLogoParam($q, $defaults);
@@ -179,7 +179,7 @@ class QrCodeService
     {
         $defaults = [
             't' => 'Team 1',
-            'fg' => '004bc8',
+            'fg' => ltrim((string)($cfg['qrColorTeam'] ?? '004bc8'), '#'),
         ];
         $defaults = $this->mergeDesignDefaults($defaults, $cfg);
         return $this->buildQrWithCenterLogoParam($q, $defaults);
@@ -192,7 +192,7 @@ class QrCodeService
     {
         $defaults = [
             't' => 'https://quizrace.app/?event=station',
-            'fg' => '00a65a',
+            'fg' => ltrim((string)($cfg['qrColorEvent'] ?? '00a65a'), '#'),
         ];
         $defaults = $this->mergeDesignDefaults($defaults, $cfg);
         return $this->buildQrWithCenterLogoParam($q, $defaults);
@@ -305,6 +305,9 @@ class QrCodeService
         }
         if (array_key_exists('qrLogoPunchout', $cfg) && $cfg['qrLogoPunchout'] !== null) {
             $defaults['logo_punchout'] = $cfg['qrLogoPunchout'] ? '1' : '0';
+        }
+        if (array_key_exists('qrRounded', $cfg) && $cfg['qrRounded'] !== null) {
+            $defaults['rounded'] = $cfg['qrRounded'] ? '1' : '0';
         }
         return $defaults;
     }
