@@ -2304,9 +2304,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const qrRoundModeSelect = document.getElementById('qrRoundModeSelect');
   const qrPreview = document.getElementById('qrDesignPreview');
   const qrApplyBtn = document.getElementById('qrDesignApply');
+  const designAllBtn = document.getElementById('summaryDesignAllBtn');
   let currentQrImg = null;
   let currentQrEndpoint = '';
   let currentQrTarget = '';
+  let isGlobalDesign = false;
 
   function updateQrPreview() {
     if (!currentQrEndpoint) return;
@@ -2321,10 +2323,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (qrPreview) qrPreview.src = withBase(currentQrEndpoint + '?' + params.toString());
   }
 
-  function openQrDesignModal(img, endpoint, target, label) {
-    currentQrImg = img;
+  function openQrDesignModal(img, endpoint, target, label, global = false) {
+    currentQrImg = global ? null : img;
     currentQrEndpoint = endpoint;
     currentQrTarget = target;
+    isGlobalDesign = global;
     if (qrLabelInput) qrLabelInput.value = label || '';
     if (qrPunchoutInput) qrPunchoutInput.checked = true;
     if (qrRoundModeSelect) qrRoundModeSelect.value = 'margin';
@@ -2338,7 +2341,22 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   qrApplyBtn?.addEventListener('click', () => {
-    if (currentQrImg) {
+    if (isGlobalDesign) {
+      const previewUrl = qrPreview ? new URL(qrPreview.src, window.location.origin) : null;
+      const roundMode = previewUrl?.searchParams.get('round_mode') || '';
+      const punchout = previewUrl?.searchParams.get('logo_punchout') || '';
+      document.querySelectorAll('.qr-img').forEach(img => {
+        const endpoint = img.dataset.endpoint;
+        const target = img.dataset.target;
+        const params = new URLSearchParams();
+        params.set('t', target);
+        const label = img.nextElementSibling?.textContent || '';
+        if (label !== '') params.set('text1', label);
+        if (roundMode) params.set('round_mode', roundMode);
+        if (punchout) params.set('logo_punchout', punchout);
+        img.src = withBase(endpoint + '?' + params.toString());
+      });
+    } else if (currentQrImg) {
       currentQrImg.src = qrPreview.src;
     }
     if (qrDesignModal) UIkit.modal(qrDesignModal).hide();
@@ -2367,10 +2385,17 @@ document.addEventListener('DOMContentLoaded', function () {
       if (descEl) descEl.textContent = ev.description || '';
       if (qrImg) {
         const link = window.baseUrl ? window.baseUrl : withBase('/?event=' + encodeURIComponent(ev.uid || ''));
+        qrImg.dataset.endpoint = '/qr/event';
+        qrImg.dataset.target = link;
         qrImg.src = withBase('/qr/event?t=' + encodeURIComponent(link));
         if (qrDesignBtn) {
           qrDesignBtn.onclick = () => {
             openQrDesignModal(qrImg, '/qr/event', link, ev.name || '');
+          };
+        }
+        if (designAllBtn) {
+          designAllBtn.onclick = () => {
+            openQrDesignModal(null, '/qr/event', link, '', true);
           };
         }
       }
@@ -2396,6 +2421,8 @@ document.addEventListener('DOMContentLoaded', function () {
         p.textContent = c.description || '';
         const img = document.createElement('img');
         const qrLink = (window.baseUrl ? window.baseUrl + href : href);
+        img.dataset.endpoint = '/qr/catalog';
+        img.dataset.target = qrLink;
         img.src = withBase('/qr/catalog?t=' + encodeURIComponent(qrLink));
         img.alt = 'QR';
         img.width = 96;
@@ -2433,6 +2460,8 @@ document.addEventListener('DOMContentLoaded', function () {
         h4.className = 'uk-card-title';
         h4.textContent = t;
         const img = document.createElement('img');
+        img.dataset.endpoint = '/qr/team';
+        img.dataset.target = t;
         img.src = withBase('/qr/team?t=' + encodeURIComponent(t));
         img.alt = 'QR';
         img.width = 96;
