@@ -295,6 +295,21 @@ SQL;
         $this->assertSame(['maxEvents' => 4], $service->getLimitsBySubdomain('sub12'));
     }
 
+    public function testPlanDowngradeFailsWhenEventsExceedLimit(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+        $service = $this->createService($dir, $pdo);
+        $service->createTenant('u13', 'sub13', Plan::STANDARD->value);
+        $pdo->exec("INSERT INTO events(uid) VALUES('e1')");
+        $pdo->exec("INSERT INTO events(uid) VALUES('e2')");
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('max-events-exceeded');
+
+        $service->updateProfile('sub13', ['plan' => Plan::STARTER->value]);
+    }
+
     public function testUpdateProfileRecalculatesExpiry(): void
     {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
