@@ -8,6 +8,7 @@ use PDO;
 use PDOException;
 use App\Infrastructure\Migrations\Migrator;
 use App\Domain\Plan;
+use App\Infrastructure\Database;
 
 /**
  * Service for creating and deleting tenants using separate schemas.
@@ -454,6 +455,24 @@ class TenantService
             }
         }
         unset($value);
+
+        if (array_key_exists('plan', $data) && $data['plan'] !== null) {
+            $planEnum = Plan::tryFrom((string) $data['plan']);
+            if ($planEnum === null) {
+                throw new \RuntimeException('invalid-plan');
+            }
+            $maxEvents = $planEnum->limits()['maxEvents'] ?? null;
+            if ($maxEvents !== null) {
+                $pdo = $this->pdo;
+                if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'sqlite') {
+                    $pdo = Database::connectWithSchema($subdomain);
+                }
+                $count = (int) $pdo->query('SELECT COUNT(*) FROM events')->fetchColumn();
+                if ($count > $maxEvents) {
+                    throw new \RuntimeException('max-events-exceeded');
+                }
+            }
+        }
 
         $fields = [
             'plan',
