@@ -121,7 +121,8 @@
         plan: el.dataset.labelPlan || 'Plan',
         events: el.dataset.labelEvents || 'Events',
         catalogs: el.dataset.labelCatalogs || 'Catalogs',
-        questions: el.dataset.labelQuestions || 'Questions'
+        questions: el.dataset.labelQuestions || 'Questions',
+        of: el.dataset.labelOf || '/'
       };
       const planKey = sub.plan || '';
       const planName = el.dataset['plan' + capitalize(planKey)] || planKey || '-';
@@ -136,7 +137,7 @@
         items.map(it => {
           const maxText = it.max === null || it.max === undefined ? '∞' : it.max;
           const pct = typeof it.max === 'number' ? Math.min(100, Math.round((it.used / it.max) * 100)) : 0;
-          return `<div class="uk-margin-small-top"><div class="uk-flex uk-flex-between"><span>${it.label}</span><span>${it.used}${it.max !== null && it.max !== undefined ? ' / ' + maxText : ''}</span></div>${it.max !== null && it.max !== undefined ? `<progress class="uk-progress" value="${pct}" max="100"></progress>` : ''}</div>`;
+          return `<div class="uk-margin-small-top"><div class="uk-flex uk-flex-between"><span>${it.label}</span><span>${it.used}${it.max !== null && it.max !== undefined ? ' ' + labels.of + ' ' + maxText : ''}</span></div>${it.max !== null && it.max !== undefined ? `<progress class="uk-progress" value="${pct}" max="100"></progress>` : ''}</div>`;
         }).join('');
     });
   }

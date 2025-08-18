@@ -420,8 +420,9 @@ return function (\Slim\App $app, TranslationService $translator) {
         $eventCount = (int) $usageStmt->fetchColumn();
         $catCount = (int) $pdo->query('SELECT COUNT(*) FROM catalogs')->fetchColumn();
         $qCount = (int) $pdo->query('SELECT COUNT(*) FROM questions')->fetchColumn();
+        $domainType = (string) $request->getAttribute('domainType');
         $host = $request->getUri()->getHost();
-        $sub = explode('.', $host)[0];
+        $sub = $domainType === 'main' ? 'main' : explode('.', $host)[0];
         $base = Database::connectFromEnv();
         $tenantSvc = new TenantService($base);
         $plan = $tenantSvc->getPlanBySubdomain($sub);
