@@ -8,6 +8,7 @@ use App\Application\Seo\PageSeoConfigService;
 use App\Domain\PageSeoConfig;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
 /**
@@ -84,6 +85,15 @@ class LandingpageController
 
         $this->seoService->save($config);
 
-        return $response->withStatus(204);
+        $accept = $request->getHeaderLine('Accept');
+        if (str_contains($accept, 'application/json')) {
+            $response->getBody()->write(json_encode(['status' => 'ok']));
+            return $response->withHeader('Content-Type', 'application/json');
+        }
+
+        $base = RouteContext::fromRequest($request)->getBasePath();
+        return $response
+            ->withHeader('Location', $base . '/admin/landingpage/seo')
+            ->withStatus(303);
     }
 }
