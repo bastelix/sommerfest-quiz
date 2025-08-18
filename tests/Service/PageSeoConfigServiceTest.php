@@ -58,4 +58,21 @@ class PageSeoConfigServiceTest extends TestCase
         $invalid = $service->validate(['slug' => 'Foo']);
         $this->assertArrayHasKey('slug', $invalid);
     }
+
+    public function testEmptySchemaJsonSavedAsNull(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE page_seo_config(page_id INTEGER PRIMARY KEY, meta_title TEXT, meta_description TEXT, slug TEXT UNIQUE NOT NULL, canonical_url TEXT, robots_meta TEXT, og_title TEXT, og_description TEXT, og_image TEXT, schema_json TEXT, hreflang TEXT, created_at TEXT, updated_at TEXT)');
+        $pdo->exec('CREATE TABLE page_seo_config_history(id INTEGER PRIMARY KEY AUTOINCREMENT, page_id INTEGER, meta_title TEXT, meta_description TEXT, slug TEXT, canonical_url TEXT, robots_meta TEXT, og_title TEXT, og_description TEXT, og_image TEXT, schema_json TEXT, hreflang TEXT, created_at TEXT)');
+        $file = tempnam(sys_get_temp_dir(), 'seo');
+        $service = new PageSeoConfigService($pdo, $file);
+        $config = new PageSeoConfig(1, 'slug', schemaJson: '');
+        $service->save($config);
+        $row = $pdo->query('SELECT schema_json FROM page_seo_config WHERE page_id = 1')->fetch(PDO::FETCH_ASSOC);
+        $this->assertNull($row['schema_json']);
+        $json = json_decode((string) file_get_contents($file), true);
+        $this->assertNull($json['1']['schemaJson']);
+        unlink($file);
+    }
 }
