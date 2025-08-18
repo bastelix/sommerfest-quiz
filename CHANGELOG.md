@@ -159,6 +159,7 @@
 - Add demo data export
 - Make database connection retries configurable
 - Add customizable qr design modal
+- Add responsive email layout
 
 ### Fix
 
