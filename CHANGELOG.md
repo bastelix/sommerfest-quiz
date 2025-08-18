@@ -2,8 +2,6 @@
 
 ## [unreleased]
 
-## [0.2.0] - 2025-08-18
-
 ### Dokumentation
 
 - Statistik-Tab beschrieben
@@ -28,6 +26,7 @@
 - Use textContent for quiz buttons
 - Fix style and security warnings
 - Reformat stripe tests for readability
+- Release 0.2.0
 
 ### Ci
 
