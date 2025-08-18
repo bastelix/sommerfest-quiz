@@ -112,4 +112,3 @@ class QrLogoController
         return $response->withStatus(204);
     }
 }
-
