@@ -2298,12 +2298,58 @@ document.addEventListener('DOMContentLoaded', function () {
   const helpBtn = document.getElementById('helpBtn');
   const helpSidebar = document.getElementById('helpSidebar');
   const helpContent = document.getElementById('helpContent');
+  const qrDesignModal = document.getElementById('qrDesignModal');
+  const qrLabelInput = document.getElementById('qrLabelInput');
+  const qrPunchoutInput = document.getElementById('qrPunchoutInput');
+  const qrRoundModeSelect = document.getElementById('qrRoundModeSelect');
+  const qrPreview = document.getElementById('qrDesignPreview');
+  const qrApplyBtn = document.getElementById('qrDesignApply');
+  let currentQrImg = null;
+  let currentQrEndpoint = '';
+  let currentQrTarget = '';
+
+  function updateQrPreview() {
+    if (!currentQrEndpoint) return;
+    const params = new URLSearchParams();
+    params.set('t', currentQrTarget);
+    const label = (qrLabelInput?.value || '').trim();
+    if (label !== '') {
+      params.set('text1', label);
+    }
+    params.set('round_mode', qrRoundModeSelect?.value || 'margin');
+    params.set('logo_punchout', qrPunchoutInput?.checked ? '1' : '0');
+    if (qrPreview) qrPreview.src = withBase(currentQrEndpoint + '?' + params.toString());
+  }
+
+  function openQrDesignModal(img, endpoint, target, label) {
+    currentQrImg = img;
+    currentQrEndpoint = endpoint;
+    currentQrTarget = target;
+    if (qrLabelInput) qrLabelInput.value = label || '';
+    if (qrPunchoutInput) qrPunchoutInput.checked = true;
+    if (qrRoundModeSelect) qrRoundModeSelect.value = 'margin';
+    updateQrPreview();
+    if (qrDesignModal) UIkit.modal(qrDesignModal).show();
+  }
+
+  [qrLabelInput, qrPunchoutInput, qrRoundModeSelect].forEach(el => {
+    el?.addEventListener('input', updateQrPreview);
+    el?.addEventListener('change', updateQrPreview);
+  });
+
+  qrApplyBtn?.addEventListener('click', () => {
+    if (currentQrImg) {
+      currentQrImg.src = qrPreview.src;
+    }
+    if (qrDesignModal) UIkit.modal(qrDesignModal).hide();
+  });
 
   function loadSummary() {
     const nameEl = document.getElementById('summaryEventName');
     const descEl = document.getElementById('summaryEventDesc');
     const qrImg = document.getElementById('summaryEventQr');
     const qrLabel = document.getElementById('summaryEventLabel');
+    const qrDesignBtn = document.getElementById('summaryEventDesignBtn');
     const catalogsEl = document.getElementById('summaryCatalogs');
     const teamsEl = document.getElementById('summaryTeams');
     if (!nameEl || !catalogsEl || !teamsEl) return;
@@ -2322,6 +2368,11 @@ document.addEventListener('DOMContentLoaded', function () {
       if (qrImg) {
         const link = window.baseUrl ? window.baseUrl : withBase('/?event=' + encodeURIComponent(ev.uid || ''));
         qrImg.src = withBase('/qr/event?t=' + encodeURIComponent(link));
+        if (qrDesignBtn) {
+          qrDesignBtn.onclick = () => {
+            openQrDesignModal(qrImg, '/qr/event', link, ev.name || '');
+          };
+        }
       }
       if (qrLabel) qrLabel.textContent = ev.name || '';
       catalogsEl.innerHTML = '';
@@ -2345,13 +2396,25 @@ document.addEventListener('DOMContentLoaded', function () {
         p.textContent = c.description || '';
         const img = document.createElement('img');
         const qrLink = (window.baseUrl ? window.baseUrl + href : href);
-                img.src = withBase('/qr/catalog?t=' + encodeURIComponent(qrLink));
+        img.src = withBase('/qr/catalog?t=' + encodeURIComponent(qrLink));
         img.alt = 'QR';
         img.width = 96;
         img.height = 96;
+        const label = document.createElement('div');
+        label.className = 'qr-label';
+        label.textContent = c.name || '';
+        const designBtn = document.createElement('button');
+        designBtn.className = 'uk-icon-button uk-margin-small-top';
+        designBtn.setAttribute('uk-icon', 'icon: paint-bucket');
+        designBtn.type = 'button';
+        designBtn.addEventListener('click', () => {
+          openQrDesignModal(img, '/qr/catalog', qrLink, c.name || '');
+        });
         card.appendChild(h4);
         card.appendChild(p);
         card.appendChild(img);
+        card.appendChild(label);
+        card.appendChild(designBtn);
         wrapper.appendChild(card);
         catalogsEl.appendChild(wrapper);
       });
@@ -2374,9 +2437,21 @@ document.addEventListener('DOMContentLoaded', function () {
         img.alt = 'QR';
         img.width = 96;
         img.height = 96;
+        const label = document.createElement('div');
+        label.className = 'qr-label';
+        label.textContent = t;
+        const designBtn = document.createElement('button');
+        designBtn.className = 'uk-icon-button uk-position-top-left';
+        designBtn.setAttribute('uk-icon', 'icon: paint-bucket');
+        designBtn.type = 'button';
+        designBtn.addEventListener('click', () => {
+          openQrDesignModal(img, '/qr/team', t, t);
+        });
         card.appendChild(btn);
         card.appendChild(h4);
         card.appendChild(img);
+        card.appendChild(label);
+        card.appendChild(designBtn);
         wrapper.appendChild(card);
         teamsEl.appendChild(wrapper);
       });

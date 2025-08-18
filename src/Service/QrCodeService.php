@@ -320,7 +320,8 @@ class QrCodeService
     }
 
     /**
-     * Create PNG logo with two lines of centered text.
+     * Create a PNG logo with one or two lines of centered text
+     * and a bordered background.
      *
      * @param array{0:int,1:int,2:int} $rgb
      */
@@ -337,26 +338,39 @@ class QrCodeService
             $bb = imagettfbbox($fontSize, 0, $fontFile, $t);
             return abs($bb[2] - $bb[0]);
         };
-        $w1 = $measure($line1);
-        $w2 = $measure($line2);
-        $width = max($w1, $w2) + $padding * 2;
-        $height = 2 * $lineHeight + $padding * 2;
+
+        $lines = array_values(array_filter([$line1, $line2], fn ($t) => $t !== ''));
+        if ($lines === []) {
+            $lines = [''];
+        }
+
+        $width = $padding * 2;
+        foreach ($lines as $t) {
+            $width = max($width, $measure($t) + $padding * 2);
+        }
+        $height = count($lines) * $lineHeight + $padding * 2;
 
         $im = imagecreatetruecolor($width, $height);
         imagesavealpha($im, true);
         imagefill($im, 0, 0, imagecolorallocatealpha($im, 0, 0, 0, 127));
-        $col = imagecolorallocate($im, $rgb[0], $rgb[1], $rgb[2]);
 
-        $draw = function (string $t, int $y) use ($im, $fontFile, $fontSize, $width, $col): void {
+        $borderCol = imagecolorallocate($im, $rgb[0], $rgb[1], $rgb[2]);
+        $bgCol = imagecolorallocate($im, 255, 255, 255);
+        imagefilledrectangle($im, 0, 0, $width - 1, $height - 1, $bgCol);
+        imagerectangle($im, 0, 0, $width - 1, $height - 1, $borderCol);
+
+        $draw = function (string $t, int $y) use ($im, $fontFile, $fontSize, $width, $borderCol): void {
             $bb = imagettfbbox($fontSize, 0, $fontFile, $t);
             $tw = abs($bb[2] - $bb[0]);
             $x = (int) (($width - $tw) / 2);
-            imagettftext($im, $fontSize, 0, $x, $y, $col, $fontFile, $t);
+            imagettftext($im, $fontSize, 0, $x, $y, $borderCol, $fontFile, $t);
         };
-        $y1 = $padding + $fontSize;
-        $y2 = $y1 + $lineHeight;
-        $draw($line1, $y1);
-        $draw($line2, $y2);
+
+        $y = $padding + $fontSize;
+        foreach ($lines as $line) {
+            $draw($line, $y);
+            $y += $lineHeight;
+        }
 
         $tmp = tempnam(sys_get_temp_dir(), 'qrlogo_') . '.png';
         imagepng($im, $tmp);
