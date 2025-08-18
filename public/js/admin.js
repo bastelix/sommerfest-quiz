@@ -2310,6 +2310,23 @@ document.addEventListener('DOMContentLoaded', function () {
   let currentQrTarget = '';
   let isGlobalDesign = false;
 
+  designAllBtn?.addEventListener('click', () => {
+    const eventQr = document.getElementById('summaryEventQr');
+    let target = eventQr?.dataset.target;
+    if (!target) {
+      const src = eventQr?.getAttribute('src') || '';
+      try {
+        const url = new URL(src, window.location.origin);
+        target = url.searchParams.get('t') || '';
+      } catch (_) {
+        target = '';
+      }
+    }
+    if (target) {
+      openQrDesignModal(null, '/qr/event', target, '', true);
+    }
+  });
+
   function updateQrPreview() {
     if (!currentQrEndpoint) return;
     const params = new URLSearchParams();
@@ -2391,11 +2408,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (qrDesignBtn) {
           qrDesignBtn.onclick = () => {
             openQrDesignModal(qrImg, '/qr/event', link, ev.name || '');
-          };
-        }
-        if (designAllBtn) {
-          designAllBtn.onclick = () => {
-            openQrDesignModal(null, '/qr/event', link, '', true);
           };
         }
       }
