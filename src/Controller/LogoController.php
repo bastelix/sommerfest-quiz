@@ -80,6 +80,10 @@ class LogoController
             $response->getBody()->write('upload error');
             return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
+        if ($file->getSize() !== null && $file->getSize() > 5 * 1024 * 1024) {
+            $response->getBody()->write('file too large');
+            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
+        }
 
         $extension = strtolower(pathinfo($file->getClientFilename(), PATHINFO_EXTENSION));
         if (!in_array($extension, ['png', 'webp'], true)) {
@@ -95,7 +99,7 @@ class LogoController
             return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
         }
 
-        $manager = ImageManager::gd();
+        $manager = extension_loaded('imagick') ? ImageManager::imagick() : ImageManager::gd();
         $stream = $file->getStream();
         $img = $manager->read($stream->detach());
         $img->scaleDown(512, 512);

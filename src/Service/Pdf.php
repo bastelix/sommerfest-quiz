@@ -39,7 +39,7 @@ class Pdf extends Fpdi
 
         if (is_file($logoFile) && is_readable($logoFile)) {
             if (str_ends_with(strtolower($logoFile), '.webp')) {
-                $manager = ImageManager::gd();
+                $manager = extension_loaded('imagick') ? ImageManager::imagick() : ImageManager::gd();
                 $img = $manager->read($logoFile);
                 $logoTemp = tempnam(sys_get_temp_dir(), 'logo') . '.png';
                 $img->save($logoTemp, 80);
