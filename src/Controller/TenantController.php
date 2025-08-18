@@ -127,11 +127,11 @@ class TenantController
         fputcsv($handle, ['subdomain', 'plan', 'billing', 'email', 'created_at']);
         foreach ($tenants as $row) {
             fputcsv($handle, [
-                $row['subdomain'] ?? '',
+                $row['subdomain'],
                 $row['plan'] ?? '',
                 $row['billing_info'] ?? '',
                 $row['imprint_email'] ?? '',
-                $row['created_at'] ?? '',
+                $row['created_at'],
             ]);
         }
         rewind($handle);
