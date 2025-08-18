@@ -40,4 +40,13 @@ class PageSeoConfigServiceTest extends TestCase
         $this->assertSame('changed', $second->getSlug());
         unlink($file);
     }
+
+    public function testSlugAllowsSlashesAndUnderscores(): void
+    {
+        $service = new PageSeoConfigService();
+        $valid = $service->validate(['slug' => 'foo/bar_baz-1']);
+        $this->assertArrayNotHasKey('slug', $valid);
+        $invalid = $service->validate(['slug' => 'Foo']);
+        $this->assertArrayHasKey('slug', $invalid);
+    }
 }

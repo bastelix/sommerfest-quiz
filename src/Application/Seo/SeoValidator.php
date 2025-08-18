@@ -25,8 +25,8 @@ class SeoValidator
         $slug = (string)($data['slug'] ?? '');
         if ($slug === '') {
             $errors['slug'] = 'Slug is required';
-        } elseif (!preg_match('/^[a-z0-9\-]+$/', $slug)) {
-            $errors['slug'] = 'Slug must contain lowercase letters, numbers and dashes only';
+        } elseif (!preg_match('/^[a-z0-9\/_-]+$/', $slug)) {
+            $errors['slug'] = 'Slug must contain lowercase letters, numbers, dashes, underscores or slashes only';
         }
 
         $title = $data['metaTitle'] ?? null;
