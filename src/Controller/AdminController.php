@@ -19,6 +19,7 @@ use App\Domain\Roles;
 use App\Infrastructure\Database;
 use App\Service\StripeService;
 use App\Service\VersionService;
+use App\Application\Seo\PageSeoConfigService;
 use PDO;
 
 /**
@@ -192,6 +193,9 @@ class AdminController
             ?: getenv('DOMAIN')
             ?: $uri->getHost();
 
+        $seoSvc    = new PageSeoConfigService($pdo);
+        $seoConfig = $seoSvc->load(1);
+
           return $view->render($response, 'admin.twig', [
               'config' => $cfg,
               'settings' => $settings,
@@ -205,6 +209,7 @@ class AdminController
               'event' => $event,
               'role' => $role,
               'pages' => $pages,
+              'seo_config' => $seoConfig ? $seoConfig->jsonSerialize() : [],
               'domainType' => $request->getAttribute('domainType'),
               'tenant' => $tenant,
               'stripe_configured' => StripeService::isConfigured()['ok'],
