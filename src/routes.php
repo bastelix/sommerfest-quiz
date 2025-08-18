@@ -129,7 +129,8 @@ return function (\Slim\App $app, TranslationService $translator) {
         Migrator::migrate($base, __DIR__ . '/../migrations');
 
         $host = $request->getUri()->getHost();
-        $sub = explode('.', $host)[0];
+        $domainType = $request->getAttribute('domainType');
+        $sub = $domainType === 'main' ? 'main' : explode('.', $host)[0];
         $stmt = $base->prepare('SELECT subdomain FROM tenants WHERE subdomain = ?');
         $stmt->execute([$sub]);
         $schema = $stmt->fetchColumn();
