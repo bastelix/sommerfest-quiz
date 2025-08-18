@@ -151,6 +151,11 @@
                      data-plan-starter="{{ t('plan_starter') }}"
                      data-plan-standard="{{ t('plan_standard') }}"
                      data-plan-professional="{{ t('plan_professional') }}"></div>
+                {% if domainType == 'main' and role == 'admin' %}
+                  <button id="togglePlanBtn" class="uk-button uk-button-default uk-margin-small-top">
+                    {{ t('action_toggle_subscription') }}
+                  </button>
+                {% endif %}
               </div>
             </div>
 

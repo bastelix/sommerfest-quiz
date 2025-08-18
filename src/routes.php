@@ -76,6 +76,7 @@ use GuzzleHttp\Client;
 use Psr\Log\NullLogger;
 use App\Controller\BackupController;
 use App\Domain\Roles;
+use App\Domain\Plan;
 
 require_once __DIR__ . '/Controller/HomeController.php';
 require_once __DIR__ . '/Controller/FaqController.php';
@@ -471,6 +472,24 @@ return function (\Slim\App $app, TranslationService $translator) {
         $response->getBody()->write((string) json_encode($payload));
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->post('/admin/subscription/toggle', function (Request $request, Response $response) {
+        if ($request->getAttribute('domainType') !== 'main') {
+            return $response->withStatus(403);
+        }
+        $base = Database::connectFromEnv();
+        $tenantSvc = new TenantService($base);
+        $tenant = $tenantSvc->getMainTenant();
+        $current = $tenant['plan'] ?? null;
+        if ($current === '') {
+            $current = null;
+        }
+        $cycle = [null, Plan::STARTER->value, Plan::STANDARD->value, Plan::PROFESSIONAL->value];
+        $idx = array_search($current, $cycle, true);
+        $next = $cycle[($idx === false ? 0 : ($idx + 1) % count($cycle))];
+        $tenantSvc->updateProfile('main', ['plan' => $next]);
+        $response->getBody()->write((string) json_encode(['plan' => $next]));
+        return $response->withHeader('Content-Type', 'application/json');
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
     $app->post(
         '/admin/subscription/checkout',
         AdminSubscriptionCheckoutController::class

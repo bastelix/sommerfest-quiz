@@ -200,6 +200,7 @@ return [
     'action_restore_demo' => 'Restore demo data',
     'action_save_demo' => 'Save as new demo data',
     'action_refresh' => 'Refresh',
+    'action_toggle_subscription' => 'Toggle subscription',
     'action_open_subscription' => 'Open customer portal',
     'action_start_subscription' => 'Subscribe',
     'action_open_evaluation' => 'Open evaluation',

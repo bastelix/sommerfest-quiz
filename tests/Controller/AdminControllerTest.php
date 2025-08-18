@@ -173,4 +173,35 @@ class AdminControllerTest extends TestCase
         putenv('MAIN_DOMAIN');
         unset($_ENV['MAIN_DOMAIN']);
     }
+
+    public function testToggleSubscriptionCyclesPlans(): void
+    {
+        $db = $this->setupDb();
+        putenv('MAIN_DOMAIN=example.com');
+        $_ENV['MAIN_DOMAIN'] = 'example.com';
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $_SESSION['csrf_token'] = 'tok';
+
+        $request = $this->createRequest('POST', '/admin/subscription/toggle', [
+            'X-CSRF-Token' => 'tok',
+        ])->withUri(new Uri('http', 'example.com', 80, '/admin/subscription/toggle'));
+        $response = $app->handle($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $data = json_decode((string) $response->getBody(), true);
+        $this->assertSame('starter', $data['plan']);
+
+        $request2 = $this->createRequest('POST', '/admin/subscription/toggle', [
+            'X-CSRF-Token' => 'tok',
+        ])->withUri(new Uri('http', 'example.com', 80, '/admin/subscription/toggle'));
+        $response2 = $app->handle($request2);
+        $data2 = json_decode((string) $response2->getBody(), true);
+        $this->assertSame('standard', $data2['plan']);
+
+        session_destroy();
+        unlink($db);
+        putenv('MAIN_DOMAIN');
+        unset($_ENV['MAIN_DOMAIN']);
+    }
 }
