@@ -7,6 +7,7 @@
 - Allow selecting subscription plan
 - Persist and extend QR design
 - Allow resending welcome mail
+- *(admin)* Allow column selection for tenants
 
 ### Test
 
