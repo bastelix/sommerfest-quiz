@@ -142,6 +142,7 @@ return [
     'label_events' => 'Events',
     'label_catalogs' => 'Catalogs',
     'label_questions' => 'Questions',
+    'word_of' => 'of',
     'label_competition_mode' => 'Competition mode',
     'label_team_results' => 'Show results overview',
     'label_photo_upload' => 'Enable photo upload',

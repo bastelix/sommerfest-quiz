@@ -143,6 +143,7 @@ return [
     'label_events' => 'Veranstaltungen',
     'label_catalogs' => 'Kataloge',
     'label_questions' => 'Fragen',
+    'word_of' => 'von',
     'label_competition_mode' => 'Wettkampfmodus',
     'label_team_results' => 'Ergebnisübersicht anzeigen',
     'label_photo_upload' => 'Beweisfotos aktivieren',
