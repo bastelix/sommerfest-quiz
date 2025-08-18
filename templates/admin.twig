@@ -479,7 +479,8 @@
           </div>
           <div class="uk-text-center uk-margin-small-bottom">
             <img id="summaryEventQr" class="qr-img" src="{{ basePath }}/qr/event?t={{ (baseUrl ? baseUrl : '?event=' ~ event.uid)|url_encode }}" alt="QR" width="96" height="96">
-            <div id="summaryEventLabel">{{ event.name }}</div>
+            <div id="summaryEventLabel" class="qr-label">{{ event.name }}</div>
+            <button id="summaryEventDesignBtn" class="uk-icon-button uk-margin-small-top" uk-icon="icon: paint-bucket" aria-label="QR-Design" type="button"></button>
           </div>
         </div>
 
@@ -496,6 +497,8 @@
               <h4 class="uk-card-title"><a href="{{ link }}" target="_blank">{{ c.name }}</a></h4>
               <p>{{ c.description }}</p>
               <img class="qr-img" src="{{ basePath }}/qr/catalog?t={{ link|url_encode }}" alt="QR" width="96" height="96">
+              <div class="qr-label">{{ c.name }}</div>
+              <button class="qr-design-btn uk-icon-button uk-margin-small-top" data-type="catalog" data-target="{{ link|e }}" uk-icon="icon: paint-bucket" aria-label="QR-Design" type="button"></button>
             </div>
           </div>
           {% else %}
@@ -513,6 +516,8 @@
               <button class="qr-print-btn uk-icon-button uk-position-top-right" data-team="{{ t }}" uk-icon="icon: print" aria-label="QR-Code drucken"></button>
               <h4 class="uk-card-title">{{ t }}</h4>
               <img class="qr-img" src="{{ basePath }}/qr/team?t={{ t|url_encode }}" alt="Team QR" width="96" height="96">
+              <div class="qr-label">{{ t }}</div>
+              <button class="qr-design-btn uk-icon-button uk-position-top-left" data-type="team" data-target="{{ t|e }}" uk-icon="icon: paint-bucket" aria-label="QR-Design" type="button"></button>
             </div>
           </div>
           {% else %}
@@ -560,6 +565,34 @@
             <div class="uk-flex uk-flex-right uk-margin-top">
               <button id="inviteTextSave" class="uk-icon-button uk-button-primary" uk-icon="check" type="button"></button>
               <button class="uk-button uk-button-default uk-modal-close" type="button">{{ t('action_cancel') }}</button>
+            </div>
+          </div>
+        </div>
+        <div id="qrDesignModal" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">QR-Design</h2>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="qrLabelInput">Label</label>
+              <input class="uk-input" id="qrLabelInput" type="text">
+            </div>
+            <div class="uk-margin">
+              <label><input class="uk-checkbox" id="qrPunchoutInput" type="checkbox"> Logo-Hintergrund ausstanzen</label>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="qrRoundModeSelect">Rundungsmodus</label>
+              <select class="uk-select" id="qrRoundModeSelect">
+                <option value="margin">Margin</option>
+                <option value="enlarge">Enlarge</option>
+                <option value="shrink">Shrink</option>
+                <option value="none">None</option>
+              </select>
+            </div>
+            <div class="uk-margin uk-text-center">
+              <img id="qrDesignPreview" src="" alt="Preview" width="150" height="150">
+            </div>
+            <div class="uk-flex uk-flex-right uk-margin-top">
+              <button id="qrDesignApply" class="uk-button uk-button-primary" type="button">Übernehmen</button>
+              <button class="uk-button uk-button-default uk-modal-close uk-margin-small-left" type="button">{{ t('action_cancel') }}</button>
             </div>
           </div>
         </div>
