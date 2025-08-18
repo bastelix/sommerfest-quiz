@@ -126,7 +126,7 @@ class PageSeoConfigService
             $config->getOgTitle(),
             $config->getOgDescription(),
             $config->getOgImage(),
-            $config->getSchemaJson(),
+            $this->normalizeSchemaJson($config->getSchemaJson()),
             $config->getHreflang(),
         ];
 
@@ -152,13 +152,31 @@ class PageSeoConfigService
                 $data = $json;
             }
         }
-        $data[$config->getPageId()] = $config->jsonSerialize();
+        $serialized = $config->jsonSerialize();
+        $serialized['schemaJson'] = $this->normalizeSchemaJson($config->getSchemaJson());
+        $data[$config->getPageId()] = $serialized;
         file_put_contents($this->file, json_encode($data, JSON_PRETTY_PRINT) . "\n");
 
         $event = is_array($existing)
             ? new SeoConfigUpdated($config)
             : new SeoConfigSaved($config);
         $this->dispatcher->dispatch($event);
+    }
+
+    private function normalizeSchemaJson(?string $json): ?string
+    {
+        if ($json === null) {
+            return null;
+        }
+        $trimmed = trim($json);
+        if ($trimmed === '') {
+            return null;
+        }
+        json_decode($trimmed);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return null;
+        }
+        return $trimmed;
     }
 
     /**
