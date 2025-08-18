@@ -13,8 +13,9 @@
 {% block body %}
   <div class="uk-container uk-container-small">
     <h1 class="uk-heading-bullet">Landingpage bearbeiten</h1>
-    <form class="uk-form-stacked seo-form">
+    <form class="uk-form-stacked seo-form" action="{{ basePath }}/admin/landingpage/seo" method="post">
       <input type="hidden" name="pageId" value="1">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
       <h2>SEO</h2>
       <div class="uk-margin">
         <label class="uk-form-label" for="metaTitle">Meta Title</label>
