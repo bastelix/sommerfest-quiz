@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const withBase = p => basePath + p;
   const timelineSteps = document.querySelectorAll('.timeline-step');
   const restartBtn = document.getElementById('restartOnboarding');
+  let tenantFinalizing = false;
 
   function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -116,7 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
         credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-Token': window.csrfToken || ''
+          'X-CSRF-Token': window.csrfToken || '',
+          'X-Requested-With': 'fetch'
         },
         body: JSON.stringify({ email })
       });
@@ -142,7 +144,10 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Ungültige Subdomain.');
         return;
       }
-      const res = await fetch(withBase('/tenants/' + encodeURIComponent(subdomain)));
+      const res = await fetch(withBase('/tenants/' + encodeURIComponent(subdomain)), {
+        credentials: 'same-origin',
+        headers: { 'X-Requested-With': 'fetch' }
+      });
       if (res.ok) {
         alert('Subdomain bereits vergeben.');
         return;
@@ -186,6 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (planButtons.length) {
     planButtons.forEach(btn => {
       btn.addEventListener('click', async () => {
+        btn.disabled = true;
         const plan = btn.dataset.plan;
         const email = localStorage.getItem('onboard_email') || emailInput.value.trim();
         const subdomain = localStorage.getItem('onboard_subdomain') || '';
@@ -215,7 +221,8 @@ document.addEventListener('DOMContentLoaded', () => {
             credentials: 'same-origin',
             headers: {
               'Content-Type': 'application/json',
-              'X-CSRF-Token': window.csrfToken || ''
+              'X-CSRF-Token': window.csrfToken || '',
+              'X-Requested-With': 'fetch'
             },
             body: JSON.stringify({ plan, email, subdomain })
           });
@@ -270,6 +277,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function finalizeTenant() {
+    if (tenantFinalizing) { return; }
+    tenantFinalizing = true;
     const subdomain = localStorage.getItem('onboard_subdomain') || '';
     const plan = localStorage.getItem('onboard_plan') || '';
     const email = localStorage.getItem('onboard_email') || '';
@@ -354,7 +363,8 @@ document.addEventListener('DOMContentLoaded', () => {
         credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-Token': window.csrfToken || ''
+          'X-CSRF-Token': window.csrfToken || '',
+          'X-Requested-With': 'fetch'
         },
         body: JSON.stringify({ mode: 'full' })
       });
@@ -395,7 +405,8 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       if (sessionId) {
         const res = await fetch(withBase('/onboarding/checkout/' + encodeURIComponent(sessionId)), {
-          credentials: 'same-origin'
+          credentials: 'same-origin',
+          headers: { 'X-Requested-With': 'fetch' }
         });
         if (!res.ok) {
           throw new Error('checkout');
@@ -411,7 +422,8 @@ document.addEventListener('DOMContentLoaded', () => {
         credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-Token': window.csrfToken || ''
+          'X-CSRF-Token': window.csrfToken || '',
+          'X-Requested-With': 'fetch'
         },
         body: JSON.stringify({
           uid: subdomain,
@@ -476,7 +488,8 @@ document.addEventListener('DOMContentLoaded', () => {
         credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-Token': window.csrfToken || ''
+          'X-CSRF-Token': window.csrfToken || '',
+          'X-Requested-With': 'fetch'
         },
         body: JSON.stringify({ schema: subdomain, email })
       });

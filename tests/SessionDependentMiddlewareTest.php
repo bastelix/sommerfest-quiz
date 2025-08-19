@@ -48,6 +48,20 @@ class SessionDependentMiddlewareTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
     }
 
+    public function testCsrfMiddlewareReturnsJsonForApiPath(): void
+    {
+        $app = AppFactory::create();
+        $app->add(new SessionMiddleware());
+        $app->post('/api/test', fn (Request $request, Response $response): Response => $response)
+            ->add(new CsrfMiddleware());
+
+        $factory = new ServerRequestFactory();
+        $req = $factory->createServerRequest('POST', '/api/test');
+        $res = $app->handle($req);
+        $this->assertSame(419, $res->getStatusCode());
+        $this->assertSame('application/json', $res->getHeaderLine('Content-Type'));
+    }
+
     public function testRateLimitMiddlewareUsesSession(): void
     {
         $app = AppFactory::create();
@@ -93,6 +107,35 @@ class SessionDependentMiddlewareTest extends TestCase
         $req = $factory->createServerRequest('GET', '/protected')
             ->withHeader('Accept', 'application/json')
             ->withHeader('X-Requested-With', 'fetch');
+        $res = $app->handle($req);
+        $this->assertSame(401, $res->getStatusCode());
+        $this->assertSame('application/json', $res->getHeaderLine('Content-Type'));
+    }
+
+    public function testRoleAuthMiddlewareUsesApiPath(): void
+    {
+        $app = AppFactory::create();
+        $app->add(new SessionMiddleware());
+        $app->get('/api/protected', fn (Request $request, Response $response): Response => $response)
+            ->add(new RoleAuthMiddleware('admin'));
+
+        $factory = new ServerRequestFactory();
+        $req = $factory->createServerRequest('GET', '/api/protected');
+        $res = $app->handle($req);
+        $this->assertSame(401, $res->getStatusCode());
+        $this->assertSame('application/json', $res->getHeaderLine('Content-Type'));
+    }
+
+    
+    public function testAdminAuthMiddlewareReturnsJsonForApiRequests(): void
+    {
+        $app = AppFactory::create();
+        $app->add(new SessionMiddleware());
+        $app->get('/api/admin', fn (Request $request, Response $response): Response => $response)
+            ->add(new AdminAuthMiddleware());
+
+        $factory = new ServerRequestFactory();
+        $req = $factory->createServerRequest('GET', '/api/admin');
         $res = $app->handle($req);
         $this->assertSame(401, $res->getStatusCode());
         $this->assertSame('application/json', $res->getHeaderLine('Content-Type'));

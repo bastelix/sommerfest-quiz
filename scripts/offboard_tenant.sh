@@ -21,12 +21,11 @@ else
   exit 1
 fi
 
-if [ ! -f "$COMPOSE_FILE" ]; then
-  echo "Compose file '$COMPOSE_FILE' not found" >&2
-else
+if [ -f "$COMPOSE_FILE" ]; then
   $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" down -v || true
+else
+  echo "skip down: $COMPOSE_FILE missing"
 fi
 
 rm -rf "$TENANT_DIR"
-
 printf '{"status":"removed","slug":"%s"}\n' "$SLUG"

@@ -34,8 +34,10 @@ class RoleAuthMiddleware implements MiddlewareInterface
         if ($role === null || !in_array($role, $this->roles, true)) {
             $accept = $request->getHeaderLine('Accept');
             $xhr = $request->getHeaderLine('X-Requested-With');
+            $path = $request->getUri()->getPath();
+            $isApi = str_starts_with($path, '/api/') || str_contains($accept, 'application/json') || $xhr === 'fetch';
 
-            if (str_contains($accept, 'application/json') || $xhr === 'fetch') {
+            if ($isApi) {
                 $response = new SlimResponse(401);
                 $response->getBody()->write(json_encode(['error' => 'unauthorized']));
 

@@ -32,7 +32,9 @@ class CsrfMiddleware implements MiddlewareInterface
             if ($token === null || ($header !== $token && $bodyToken !== $token)) {
                 $accept = $request->getHeaderLine('Accept');
                 $xhr = $request->getHeaderLine('X-Requested-With');
-                if (str_contains($accept, 'application/json') || $xhr === 'fetch') {
+                $path = $request->getUri()->getPath();
+                $isApi = str_starts_with($path, '/api/') || str_contains($accept, 'application/json') || $xhr === 'fetch';
+                if ($isApi) {
                     $resp = new SlimResponse(419);
                     $resp->getBody()->write(json_encode(['error' => 'csrf']));
 
