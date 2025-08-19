@@ -22,6 +22,18 @@ class AdminAuthMiddleware implements MiddlewareInterface
     {
         $role = $_SESSION['user']['role'] ?? null;
         if ($role !== 'admin') {
+            $accept = $request->getHeaderLine('Accept');
+            $xhr = $request->getHeaderLine('X-Requested-With');
+            $path = $request->getUri()->getPath();
+            $isApi = str_starts_with($path, '/api/') || str_contains($accept, 'application/json') || $xhr === 'fetch';
+
+            if ($isApi) {
+                $response = new SlimResponse(401);
+                $response->getBody()->write(json_encode(['error' => 'unauthorized']));
+
+                return $response->withHeader('Content-Type', 'application/json');
+            }
+
             $response = new SlimResponse();
             return $response->withHeader('Location', '/login')->withStatus(302);
         }

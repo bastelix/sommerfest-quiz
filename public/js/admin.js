@@ -27,6 +27,7 @@ window.apiFetch = (path, options = {}) => {
   const token = getCsrfToken();
   const headers = {
     ...(token ? { 'X-CSRF-Token': token } : {}),
+    'X-Requested-With': 'fetch',
     ...(options.headers || {})
   };
   const opts = {
