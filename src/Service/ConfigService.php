@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use PDO;
+use Throwable;
 
 /**
  * Handles reading and writing application configuration values.
@@ -220,30 +221,35 @@ class ConfigService
         $filtered['event_uid'] = $uid;
 
         $this->pdo->beginTransaction();
-        $check = $this->pdo->prepare('SELECT 1 FROM config WHERE event_uid=?');
-        $check->execute([$uid]);
+        try {
+            $check = $this->pdo->prepare('SELECT 1 FROM config WHERE event_uid=?');
+            $check->execute([$uid]);
 
-        if ($check->fetchColumn()) {
-            $sets = [];
-            foreach (array_keys($filtered) as $k) {
-                $sets[] = "$k=:$k";
-            }
-            $sql = 'UPDATE config SET ' . implode(',', $sets) . ' WHERE event_uid=:event_uid';
-        } else {
-            $cols = array_keys($filtered);
-            $params = ':' . implode(', :', $cols);
-            $sql = 'INSERT INTO config(' . implode(',', $cols) . ') VALUES(' . $params . ')';
-        }
-        $stmt = $this->pdo->prepare($sql);
-        foreach ($filtered as $k => $v) {
-            if (is_bool($v)) {
-                $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
+            if ($check->fetchColumn()) {
+                $sets = [];
+                foreach (array_keys($filtered) as $k) {
+                    $sets[] = "$k=:$k";
+                }
+                $sql = 'UPDATE config SET ' . implode(',', $sets) . ' WHERE event_uid=:event_uid';
             } else {
-                $stmt->bindValue(':' . $k, $v);
+                $cols = array_keys($filtered);
+                $params = ':' . implode(', :', $cols);
+                $sql = 'INSERT INTO config(' . implode(',', $cols) . ') VALUES(' . $params . ')';
             }
+            $stmt = $this->pdo->prepare($sql);
+            foreach ($filtered as $k => $v) {
+                if (is_bool($v)) {
+                    $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
+                } else {
+                    $stmt->bindValue(':' . $k, $v);
+                }
+            }
+            $stmt->execute();
+            $this->pdo->commit();
+        } catch (Throwable $e) {
+            $this->pdo->rollBack();
+            throw $e;
         }
-        $stmt->execute();
-        $this->pdo->commit();
 
         $this->setActiveEventUid($uid);
 
@@ -260,12 +266,17 @@ class ConfigService
     public function setActiveEventUid(string $uid): void
     {
         $this->pdo->beginTransaction();
-        $this->pdo->exec('DELETE FROM active_event');
-        if ($uid !== '') {
-            $stmt = $this->pdo->prepare('INSERT INTO active_event(event_uid) VALUES(?)');
-            $stmt->execute([$uid]);
+        try {
+            $this->pdo->exec('DELETE FROM active_event');
+            if ($uid !== '') {
+                $stmt = $this->pdo->prepare('INSERT INTO active_event(event_uid) VALUES(?)');
+                $stmt->execute([$uid]);
+            }
+            $this->pdo->commit();
+        } catch (Throwable $e) {
+            $this->pdo->rollBack();
+            throw $e;
         }
-        $this->pdo->commit();
         $this->ensureConfigForEvent($uid);
         $this->activeEvent = $uid;
     }
