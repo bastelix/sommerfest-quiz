@@ -44,8 +44,10 @@ class TenantWelcomeRouteTest extends TestCase
                         $this->outer = $outer;
                     }
 
-                    public function send(\Symfony\Component\Mime\RawMessage $message, ?\Symfony\Component\Mailer\Envelope $envelope = null): void
-                    {
+                    public function send(
+                        \Symfony\Component\Mime\RawMessage $message,
+                        ?\Symfony\Component\Mailer\Envelope $envelope = null
+                    ): void {
                         $this->outer->messages[] = $message;
                     }
                 };
@@ -72,4 +74,3 @@ class TenantWelcomeRouteTest extends TestCase
         unset($_ENV['MAIN_DOMAIN'], $_ENV['SMTP_HOST'], $_ENV['SMTP_USER'], $_ENV['SMTP_PASS']);
     }
 }
-
