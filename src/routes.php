@@ -249,6 +249,18 @@ return function (\Slim\App $app, TranslationService $translator) {
     });
     $app->add(new LanguageMiddleware($translator));
 
+    $app->get('/healthz', function (Request $request, Response $response) {
+        $payload = [
+            'status'  => 'ok',
+            'app'     => 'quizrace',
+            'version' => getenv('APP_VERSION') ?: 'unknown',
+            'time'    => gmdate('c'),
+        ];
+        $response->getBody()->write(json_encode($payload));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    });
+
     $app->get('/', HomeController::class);
     $app->get('/favicon.ico', function (Request $request, Response $response) {
         $iconPath = __DIR__ . '/../public/favicon.svg';

@@ -382,14 +382,24 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const waitForTenant = async slug => {
-      const url = `https://${slug}.${window.mainDomain}/`;
+      const url = `https://${slug}.${window.mainDomain}/healthz`;
       for (let i = 0; i < 30; i++) {
         try {
-          await fetch(url, { mode: 'no-cors' });
-          return;
-        } catch (e) {
-          addLog('Warten auf Tenant …');
+          const res = await fetch(url, {
+            headers: { Accept: 'application/json' },
+            credentials: 'omit'
+          });
+          if (res.ok && !res.redirected) {
+            const ct = res.headers.get('Content-Type') || '';
+            if (ct.includes('application/json')) {
+              const data = await res.json();
+              if (data.status === 'ok') return;
+            }
+          }
+        } catch (_) {
+          /* ignore fetch errors */
         }
+        addLog('Warten auf Tenant …');
         await wait(2000);
       }
       throw new Error('timeout');
