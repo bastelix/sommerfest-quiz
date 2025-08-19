@@ -5,6 +5,7 @@
 ### Chore
 
 - Add pages table for SEO config
+- Increase phpstan memory limit
 
 ### Feat
 
