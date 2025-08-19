@@ -19,6 +19,7 @@
 ### Refactor
 
 - Centralize SMTP config loading
+- Wrap invoice return docblock
 
 ### Test
 
