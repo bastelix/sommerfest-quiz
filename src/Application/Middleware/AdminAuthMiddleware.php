@@ -20,9 +20,6 @@ class AdminAuthMiddleware implements MiddlewareInterface
      */
     public function process(Request $request, RequestHandler $handler): Response
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $role = $_SESSION['user']['role'] ?? null;
         if ($role !== 'admin') {
             $response = new SlimResponse();

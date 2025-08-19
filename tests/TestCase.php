@@ -70,10 +70,10 @@ class TestCase extends PHPUnit_TestCase
         $twig->getEnvironment()->addGlobal('basePath', $basePath);
         $app->setBasePath($basePath);
         $app->add(TwigMiddleware::create($app, $twig));
-        $app->add(new SessionMiddleware());
         $app->add(new \App\Application\Middleware\DomainMiddleware());
         $app->add(new \App\Application\Middleware\LanguageMiddleware($translator));
         $app->add(new ProxyMiddleware());
+        $app->add(new SessionMiddleware());
 
         // Register error middleware
         $errorMiddleware = new \App\Application\Middleware\ErrorMiddleware(

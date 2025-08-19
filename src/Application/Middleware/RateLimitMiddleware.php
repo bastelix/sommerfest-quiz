@@ -29,10 +29,6 @@ class RateLimitMiddleware implements MiddlewareInterface
      */
     public function process(Request $request, RequestHandler $handler): Response
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
         $key = 'rate:' . $request->getUri()->getPath();
         $entry = $_SESSION[$key] ?? ['count' => 0, 'start' => time()];
 

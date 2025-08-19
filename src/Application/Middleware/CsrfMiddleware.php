@@ -20,10 +20,6 @@ class CsrfMiddleware implements MiddlewareInterface
      */
     public function process(Request $request, RequestHandler $handler): Response
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
         $token = $_SESSION['csrf_token'] ?? null;
 
         if ($request->getMethod() === 'POST') {
