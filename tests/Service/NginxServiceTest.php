@@ -32,4 +32,12 @@ class NginxServiceTest extends TestCase
         $this->assertTrue($svc->called);
         $this->assertFileExists("$dir/test.example.com");
     }
+
+    public function testCreateVhostFailsOnUnwritableDir(): void
+    {
+        $svc = new NginxService('/proc/sys', 'example.com', '1m', false);
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Vhost directory not writable');
+        $svc->createVhost('test');
+    }
 }
