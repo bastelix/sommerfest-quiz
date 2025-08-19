@@ -13,6 +13,7 @@
 - Persist and extend QR design
 - Allow resending welcome mail
 - *(admin)* Allow column selection for tenants
+- Show tenant invoices
 
 ### Refactor
 
