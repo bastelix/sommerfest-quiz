@@ -43,7 +43,13 @@ class NginxService
         if (!is_dir($this->vhostDir) && !mkdir($this->vhostDir, 0777, true) && !is_dir($this->vhostDir)) {
             throw new \RuntimeException('Unable to create vhost directory');
         }
+        if (!is_writable($this->vhostDir)) {
+            throw new \RuntimeException('Vhost directory not writable');
+        }
         $file = $this->vhostDir . '/' . $sub . '.' . $this->domain;
+        if (file_exists($file) && !is_writable($file)) {
+            throw new \RuntimeException('Vhost file not writable');
+        }
         if (file_put_contents($file, 'client_max_body_size ' . $this->clientMaxBodySize . ';') === false) {
             throw new \RuntimeException('Unable to write vhost file');
         }

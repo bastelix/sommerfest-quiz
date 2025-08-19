@@ -21,8 +21,11 @@ class LogService
     {
         $root = dirname(__DIR__, 2);
         $logDir = $root . '/logs';
-        if (!is_dir($logDir)) {
-            mkdir($logDir, 0777, true);
+        if (!is_dir($logDir) && !mkdir($logDir, 0777, true) && !is_dir($logDir)) {
+            throw new \RuntimeException('Unable to create log directory');
+        }
+        if (!is_writable($logDir)) {
+            throw new \RuntimeException('Log directory not writable');
         }
         $logger = new Logger($channel);
         $logger->pushHandler(new StreamHandler($logDir . '/' . $channel . '.log', Level::Debug));
