@@ -62,9 +62,9 @@ $twig->addExtension(new UikitExtension());
 $twig->addExtension(new TranslationExtension($translator));
 $twig->getEnvironment()->addGlobal('basePath', $basePath);
 $app->add(TwigMiddleware::create($app, $twig));
-$app->add(new SessionMiddleware());
 $app->add(new DomainMiddleware());
 $app->add(new ProxyMiddleware());
+$app->add(new SessionMiddleware());
 $errorMiddleware = new \App\Application\Middleware\ErrorMiddleware(
     $app->getCallableResolver(),
     $app->getResponseFactory(),

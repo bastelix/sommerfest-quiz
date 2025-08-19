@@ -30,9 +30,6 @@ class RoleAuthMiddleware implements MiddlewareInterface
         if ($this->roles === []) {
             return $handler->handle($request);
         }
-        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
-            session_start();
-        }
         $role = $_SESSION['user']['role'] ?? null;
         if ($role === null || !in_array($role, $this->roles, true)) {
             $response = new SlimResponse();
