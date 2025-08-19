@@ -992,6 +992,18 @@
             <p>{{ t('subscription_email') }}: {{ tenant.imprint_email }}</p>
           {% endif %}
         </div>
+        {% if stripe_configured and hasCustomer %}
+        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+          <h3 class="uk-card-title uk-margin-remove">{{ t('heading_invoices') }}</h3>
+          <div id="invoice-list"
+               data-label-invoice="{{ t('billing_invoice') }}"
+               data-label-date="{{ t('label_date') }}"
+               data-label-amount="{{ t('label_price') }}"
+               data-label-status="{{ t('label_invoice_status') }}"
+               data-action-download="{{ t('action_download') }}"
+               data-text-empty="{{ t('text_no_data') }}"></div>
+        </div>
+        {% endif %}
         {% if stripe_configured %}
         <script src="https://js.stripe.com/v3/"></script>
         <div id="stripe-checkout"></div>
