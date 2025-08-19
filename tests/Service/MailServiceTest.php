@@ -25,6 +25,36 @@ class MailServiceTest extends TestCase
         );
     }
 
+    public function testIsConfiguredTrue(): void
+    {
+        putenv('SMTP_HOST=localhost');
+        putenv('SMTP_USER=user@example.org');
+        putenv('SMTP_PASS=secret');
+        $_ENV['SMTP_HOST'] = 'localhost';
+        $_ENV['SMTP_USER'] = 'user@example.org';
+        $_ENV['SMTP_PASS'] = 'secret';
+
+        $this->assertTrue(MailService::isConfigured());
+    }
+
+    /**
+     * @dataProvider missingEnvProvider
+     */
+    public function testIsConfiguredFalseIfMissing(string $var): void
+    {
+        putenv('SMTP_HOST=localhost');
+        putenv('SMTP_USER=user@example.org');
+        putenv('SMTP_PASS=secret');
+        $_ENV['SMTP_HOST'] = 'localhost';
+        $_ENV['SMTP_USER'] = 'user@example.org';
+        $_ENV['SMTP_PASS'] = 'secret';
+
+        putenv($var);
+        unset($_ENV[$var]);
+
+        $this->assertFalse(MailService::isConfigured());
+    }
+
     public function testUsesSmtpUserAsFrom(): void
     {
         putenv('SMTP_HOST=localhost');
@@ -104,6 +134,26 @@ class MailServiceTest extends TestCase
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Missing SMTP configuration: ' . $var);
+
+        new MailService($twig);
+    }
+
+    public function testMissingMultipleEnvThrows(): void
+    {
+        putenv('SMTP_HOST');
+        putenv('SMTP_USER');
+        putenv('SMTP_PASS=secret');
+        putenv('SMTP_PORT=587');
+        putenv('SMTP_FROM');
+        putenv('SMTP_FROM_NAME');
+        $_ENV['SMTP_PASS'] = 'secret';
+        $_ENV['SMTP_PORT'] = '587';
+        unset($_ENV['SMTP_HOST'], $_ENV['SMTP_USER'], $_ENV['SMTP_FROM'], $_ENV['SMTP_FROM_NAME']);
+
+        $twig = new Environment(new ArrayLoader());
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Missing SMTP configuration: SMTP_HOST, SMTP_USER');
 
         new MailService($twig);
     }

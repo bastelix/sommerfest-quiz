@@ -24,7 +24,7 @@ class MailService
     private ?AuditLogger $audit;
     private string $baseUrl;
 
-    public static function isConfigured(): bool
+    private static function loadEnvConfig(): array
     {
         $root = dirname(__DIR__, 2);
         $envFile = $root . '/.env';
@@ -34,28 +34,33 @@ class MailService
             $env = parse_ini_file($envFile, false, INI_SCANNER_RAW) ?: [];
         }
 
-        $host = (string) ($env['SMTP_HOST'] ?? getenv('SMTP_HOST') ?: '');
-        $user = (string) ($env['SMTP_USER'] ?? getenv('SMTP_USER') ?: '');
-        $pass = (string) ($env['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '');
+        return [
+            'host'       => (string) ($env['SMTP_HOST'] ?? getenv('SMTP_HOST') ?: ''),
+            'user'       => (string) ($env['SMTP_USER'] ?? getenv('SMTP_USER') ?: ''),
+            'pass'       => (string) ($env['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: ''),
+            'port'       => (string) ($env['SMTP_PORT'] ?? getenv('SMTP_PORT') ?: '587'),
+            'encryption' => (string) ($env['SMTP_ENCRYPTION'] ?? getenv('SMTP_ENCRYPTION') ?: 'none'),
+            'from'       => (string) ($env['SMTP_FROM'] ?? getenv('SMTP_FROM') ?: ''),
+            'from_name'  => (string) ($env['SMTP_FROM_NAME'] ?? getenv('SMTP_FROM_NAME') ?: ''),
+        ];
+    }
 
-        return $host !== '' && $user !== '' && $pass !== '';
+    public static function isConfigured(): bool
+    {
+        $config = self::loadEnvConfig();
+
+        return $config['host'] !== '' && $config['user'] !== '' && $config['pass'] !== '';
     }
 
     public function __construct(Environment $twig, ?AuditLogger $audit = null)
     {
-        $root = dirname(__DIR__, 2);
-        $envFile = $root . '/.env';
-        $env = [];
+        $config = self::loadEnvConfig();
 
-        if (is_readable($envFile)) {
-            $env = parse_ini_file($envFile, false, INI_SCANNER_RAW) ?: [];
-        }
-
-        $host       = (string) ($env['SMTP_HOST'] ?? getenv('SMTP_HOST') ?: '');
-        $user       = (string) ($env['SMTP_USER'] ?? getenv('SMTP_USER') ?: '');
-        $pass       = (string) ($env['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: '');
-        $port       = (string) ($env['SMTP_PORT'] ?? getenv('SMTP_PORT') ?: '587');
-        $encryption = (string) ($env['SMTP_ENCRYPTION'] ?? getenv('SMTP_ENCRYPTION') ?: 'none');
+        $host       = $config['host'];
+        $user       = $config['user'];
+        $pass       = $config['pass'];
+        $port       = $config['port'];
+        $encryption = $config['encryption'];
 
         if ($host === '' || $user === '' || $pass === '') {
             $missing = [];
@@ -75,8 +80,8 @@ class MailService
         $pdo = Database::connectFromEnv();
         $profile = (new TenantService($pdo))->getMainTenant();
 
-        $fromEmail = (string) ($env['SMTP_FROM'] ?? getenv('SMTP_FROM') ?: $user);
-        $fromName  = (string) ($env['SMTP_FROM_NAME'] ?? getenv('SMTP_FROM_NAME') ?: ($profile['imprint_name'] ?? ''));
+        $fromEmail = $config['from'] !== '' ? $config['from'] : $user;
+        $fromName  = $config['from_name'] !== '' ? $config['from_name'] : ($profile['imprint_name'] ?? '');
         $from      = $fromName !== '' ? sprintf('%s <%s>', $fromName, $fromEmail) : $fromEmail;
 
         $dsn = sprintf(
