@@ -82,6 +82,22 @@ class SessionDependentMiddlewareTest extends TestCase
         $this->assertSame('/login', $res->getHeaderLine('Location'));
     }
 
+    public function testRoleAuthMiddlewareReturnsJsonForApiRequests(): void
+    {
+        $app = AppFactory::create();
+        $app->add(new SessionMiddleware());
+        $app->get('/protected', fn (Request $request, Response $response): Response => $response)
+            ->add(new RoleAuthMiddleware('admin'));
+
+        $factory = new ServerRequestFactory();
+        $req = $factory->createServerRequest('GET', '/protected')
+            ->withHeader('Accept', 'application/json')
+            ->withHeader('X-Requested-With', 'fetch');
+        $res = $app->handle($req);
+        $this->assertSame(401, $res->getStatusCode());
+        $this->assertSame('application/json', $res->getHeaderLine('Content-Type'));
+    }
+
     public function testAdminAuthMiddlewareAllowsAdmin(): void
     {
         $app = AppFactory::create();

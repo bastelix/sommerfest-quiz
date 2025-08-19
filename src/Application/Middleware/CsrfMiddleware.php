@@ -27,9 +27,18 @@ class CsrfMiddleware implements MiddlewareInterface
             $bodyToken = '';
             $data = $request->getParsedBody();
             if (is_array($data)) {
-                $bodyToken = (string) ($data['csrf_token'] ?? '');
+                $bodyToken = (string) ($data['_token'] ?? $data['csrf_token'] ?? '');
             }
             if ($token === null || ($header !== $token && $bodyToken !== $token)) {
+                $accept = $request->getHeaderLine('Accept');
+                $xhr = $request->getHeaderLine('X-Requested-With');
+                if (str_contains($accept, 'application/json') || $xhr === 'fetch') {
+                    $resp = new SlimResponse(419);
+                    $resp->getBody()->write(json_encode(['error' => 'csrf']));
+
+                    return $resp->withHeader('Content-Type', 'application/json');
+                }
+
                 return (new SlimResponse())->withStatus(403);
             }
         }

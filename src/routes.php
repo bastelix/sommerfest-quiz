@@ -1051,59 +1051,28 @@ return function (\Slim\App $app, TranslationService $translator) {
 
     $app->post('/api/tenants/{slug}/onboard', function (Request $request, Response $response, array $args) {
         if ($request->getAttribute('domainType') !== 'main') {
-            return $response->withStatus(403);
+            $response->getBody()->write(json_encode(['error' => 'forbidden']));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(403);
         }
 
         $slug = preg_replace('/[^a-z0-9\-]/', '-', strtolower((string) ($args['slug'] ?? '')));
         $script = realpath(__DIR__ . '/../scripts/onboard_tenant.sh');
 
         if (!is_file($script)) {
-            $response->getBody()->write("Onboard script not found\n");
+            $response->getBody()->write(json_encode(['error' => 'Onboard script not found']));
 
-            return $response
-                ->withHeader('Content-Type', 'text/plain')
-                ->withStatus(500);
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
 
-        $cmd = escapeshellcmd($script . ' ' . $slug) . ' 2>&1';
-        $process = proc_open(
-            $cmd,
-            [
-                0 => ['pipe', 'r'],
-                1 => ['pipe', 'w'],
-            ],
-            $pipes
-        );
+        $cmd = sprintf('%s %s > /dev/null 2>&1 &', escapeshellcmd($script), escapeshellarg($slug));
+        proc_close(proc_open($cmd, [], $pipes));
 
-        $response = $response
-            ->withHeader('Content-Type', 'text/plain');
+        $payload = ['status' => 'queued', 'tenant' => $slug];
+        $response->getBody()->write(json_encode($payload));
 
-        if (!is_resource($process)) {
-            $response->getBody()->write("Failed to start process\n");
-
-            return $response->withStatus(500);
-        }
-
-        fclose($pipes[0]);
-
-        while (($line = fgets($pipes[1])) !== false) {
-            $response->getBody()->write($line);
-            if (function_exists('ob_flush') && ob_get_level() > 0) {
-                ob_flush();
-            }
-            flush();
-        }
-
-        fclose($pipes[1]);
-
-        $exitCode = proc_close($process);
-
-        if ($exitCode !== 0) {
-            return $response->withStatus(500);
-        }
-
-        return $response;
-    })->add(new RoleAuthMiddleware(Roles::SERVICE_ACCOUNT));
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(202);
+    })->add(new RoleAuthMiddleware(Roles::SERVICE_ACCOUNT))->add(new CsrfMiddleware());
 
     $app->delete('/api/tenants/{slug}', function (Request $request, Response $response, array $args) {
         if ($request->getAttribute('domainType') !== 'main') {
