@@ -158,6 +158,24 @@ php -v
    die Daten beim Start. Direkt danach werden alle Migrationen ausgeführt,
    sodass neue Spalten sofort verfügbar sind.
 
+## Testing
+
+Die automatisierten Tests werden mit PHPUnit ausgeführt. Ist keine Umgebung
+`POSTGRES_DSN` gesetzt, erstellt der Test-Harness eine gemeinsam genutzte
+SQLite-Datenbank im Speicher und wendet alle Migrationen automatisch an. So
+können die Tests ohne lokale PostgreSQL-Instanz gestartet werden.
+
+Wer die Tests gegen PostgreSQL ausführen möchte, setzt `POSTGRES_DSN`,
+`POSTGRES_USER` und `POSTGRES_PASSWORD` auf die gewünschten Verbindungsdaten.
+Alternativ lässt sich über `Tests\TestCase::setDatabase()` eine eigene
+`PDO`-Instanz einspeisen.
+
+Tests starten mit:
+
+```bash
+vendor/bin/phpunit
+```
+
 ## Docker Compose
 
 Das mitgelieferte `docker-compose.yml` startet das Quiz samt Reverse Proxy. Der integrierte PHP-Webserver hört auf Port `8080`, der im Docker-Image freigegeben ist. Ein kleiner Zusatzcontainer (`nginx-reloader`) ermöglicht einen geschützten Reload des Proxys per Webhook. Dieser Container enthält nun das Docker-CLI, um den Proxy direkt neu laden zu können. Alternativ kann jede beliebige URL über die Variable `NGINX_RELOADER_URL` hinterlegt werden. Wird dieser Webhook genutzt, sollte `NGINX_RELOAD` auf `0` stehen, damit keine Docker-Befehle ausgeführt werden. Das dafür notwendige Token wird über die Datei `.env` als `NGINX_RELOAD_TOKEN` definiert und sowohl an die Anwendung als auch an den Reloader-Container weitergereicht. Die mitgelieferte Beispielkonfiguration ist bereits entsprechend vorbereitet und nutzt standardmäßig `http://nginx-reloader:8080/reload` bei deaktiviertem `NGINX_RELOAD`.

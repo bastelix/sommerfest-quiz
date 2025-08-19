@@ -22,33 +22,26 @@ use PDO;
 
 class TestCase extends PHPUnit_TestCase
 {
-    /** @var list<string> */
-    private array $tmpDbs = [];
+    private ?PDO $pdo = null;
 
-    private function createTestDb(): void
+    /**
+     * Inject a custom PDO instance for tests that require a specific connection.
+     */
+    public function setDatabase(PDO $pdo): void
     {
-        $baseDsn = getenv('POSTGRES_BASE_DSN') ?: 'pgsql:host=localhost;port=5432;dbname=postgres';
-        $user = getenv('POSTGRES_USER') ?: 'postgres';
-        $password = getenv('POSTGRES_PASSWORD') ?: 'postgres';
-        $name = 'test_' . bin2hex(random_bytes(5));
+        $this->pdo = $pdo;
+    }
 
-        $admin = new PDO($baseDsn, $user, $password);
-        $admin->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $admin->exec("CREATE DATABASE \"$name\"");
+    /**
+     * Ensure a database connection is available and return it.
+     */
+    protected function getDatabase(): PDO
+    {
+        if ($this->pdo === null) {
+            $this->pdo = $this->createDatabase();
+        }
 
-        $dsn = "pgsql:host=localhost;port=5432;dbname=$name";
-        putenv('POSTGRES_DSN=' . $dsn);
-        putenv('POSTGRES_USER=' . $user);
-        putenv('POSTGRES_PASSWORD=' . $password);
-        $_ENV['POSTGRES_DSN'] = $dsn;
-        $_ENV['POSTGRES_USER'] = $user;
-        $_ENV['POSTGRES_PASSWORD'] = $password;
-
-        $pdo = new PDO($dsn, $user, $password);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        Migrator::migrate($pdo, __DIR__ . '/../migrations');
-
-        $this->tmpDbs[] = $name;
+        return $this->pdo;
     }
 
     /**
@@ -57,9 +50,7 @@ class TestCase extends PHPUnit_TestCase
      */
     protected function getAppInstance(): App
     {
-        if (getenv('POSTGRES_DSN') === false || getenv('POSTGRES_DSN') === '') {
-            $this->createTestDb();
-        }
+        $this->getDatabase();
 
         // Load settings
         $settings = require __DIR__ . '/../config/settings.php';
@@ -138,15 +129,30 @@ class TestCase extends PHPUnit_TestCase
     }
 
     /**
-     * Create a PostgreSQL test database with the current schema applied.
+     * Create a database with the current schema applied.
      */
     protected function createDatabase(): \PDO
     {
-        if (getenv('POSTGRES_DSN') === false || getenv('POSTGRES_DSN') === '') {
-            $this->createTestDb();
+        $dsn = getenv('POSTGRES_DSN') ?: '';
+        $user = getenv('POSTGRES_USER') ?: 'postgres';
+        $password = getenv('POSTGRES_PASSWORD') ?: 'postgres';
+
+        if ($dsn === '') {
+            $dsn = 'sqlite:file:' . uniqid('test', true) . '?mode=memory&cache=shared';
+            $user = '';
+            $password = '';
+            putenv('POSTGRES_DSN=' . $dsn);
+            putenv('POSTGRES_USER=' . $user);
+            putenv('POSTGRES_PASSWORD=' . $password);
+            $_ENV['POSTGRES_DSN'] = $dsn;
+            $_ENV['POSTGRES_USER'] = $user;
+            $_ENV['POSTGRES_PASSWORD'] = $password;
         }
-        $pdo = new PDO((string) getenv('POSTGRES_DSN'), getenv('POSTGRES_USER') ?: 'postgres', getenv('POSTGRES_PASSWORD') ?: 'postgres');
+
+        $pdo = new PDO($dsn, $user, $password);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        Migrator::migrate($pdo, __DIR__ . '/../migrations');
+
         return $pdo;
     }
 
@@ -157,18 +163,7 @@ class TestCase extends PHPUnit_TestCase
             session_destroy();
         }
         $_COOKIE = [];
-
-        if ($this->tmpDbs !== []) {
-            $baseDsn = getenv('POSTGRES_BASE_DSN') ?: 'pgsql:host=localhost;port=5432;dbname=postgres';
-            $user = getenv('POSTGRES_USER') ?: 'postgres';
-            $password = getenv('POSTGRES_PASSWORD') ?: 'postgres';
-            $pdo = new PDO($baseDsn, $user, $password);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            foreach ($this->tmpDbs as $db) {
-                $pdo->exec("DROP DATABASE IF EXISTS \"$db\"");
-            }
-            $this->tmpDbs = [];
-        }
+        $this->pdo = null;
         parent::tearDown();
     }
 }
