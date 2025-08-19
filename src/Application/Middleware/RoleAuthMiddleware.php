@@ -32,9 +32,21 @@ class RoleAuthMiddleware implements MiddlewareInterface
         }
         $role = $_SESSION['user']['role'] ?? null;
         if ($role === null || !in_array($role, $this->roles, true)) {
+            $accept = $request->getHeaderLine('Accept');
+            $xhr = $request->getHeaderLine('X-Requested-With');
+
+            if (str_contains($accept, 'application/json') || $xhr === 'fetch') {
+                $response = new SlimResponse(401);
+                $response->getBody()->write(json_encode(['error' => 'unauthorized']));
+
+                return $response->withHeader('Content-Type', 'application/json');
+            }
+
             $response = new SlimResponse();
+
             return $response->withHeader('Location', '/login')->withStatus(302);
         }
+
         return $handler->handle($request);
     }
 }

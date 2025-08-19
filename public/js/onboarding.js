@@ -113,6 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const res = await fetch(withBase('/onboarding/email'), {
         method: 'POST',
+        credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRF-Token': window.csrfToken || ''
@@ -211,6 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
           const res = await fetch(withBase('/onboarding/checkout'), {
             method: 'POST',
+            credentials: 'same-origin',
             headers: {
               'Content-Type': 'application/json',
               'X-CSRF-Token': window.csrfToken || ''
@@ -346,39 +348,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const wait = ms => new Promise(r => setTimeout(r, ms));
 
-    const streamOnboard = async slug => {
-      const res = await fetch(withBase('/api/tenants/' + encodeURIComponent(slug) + '/onboard'), { method: 'POST' });
-      if (!res.ok) throw new Error('onboard');
-      const reader = res.body ? res.body.getReader() : null;
-      if (!reader) return;
-      const decoder = new TextDecoder();
-      let buffer = '';
-      let result = null;
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop();
-        lines.forEach(line => {
-          if (!line.trim()) return;
-          try {
-            result = JSON.parse(line);
-          } catch (e) {
-            addLog(line);
-          }
-        });
+    const onboardTenant = async slug => {
+      const res = await fetch(withBase('/api/tenants/' + encodeURIComponent(slug) + '/onboard'), {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': window.csrfToken || ''
+        },
+        body: JSON.stringify({ mode: 'full' })
+      });
+      if (res.status === 401 || res.status === 403 || res.redirected) {
+        throw new Error('unauthorized');
       }
-      if (buffer.trim()) {
-        try {
-          result = JSON.parse(buffer.trim());
-        } catch (e) {
-          addLog(buffer.trim());
-        }
-      }
-      if (!result || result.status !== 'success') {
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.status !== 'queued') {
         throw new Error('onboard');
       }
+      addLog('Onboarding gestartet …');
     };
 
     const waitForTenant = async slug => {
@@ -407,7 +394,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       if (sessionId) {
-        const res = await fetch(withBase('/onboarding/checkout/' + encodeURIComponent(sessionId)));
+        const res = await fetch(withBase('/onboarding/checkout/' + encodeURIComponent(sessionId)), {
+          credentials: 'same-origin'
+        });
         if (!res.ok) {
           throw new Error('checkout');
         }
@@ -419,6 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
       start('create');
       const tRes = await fetch(withBase('/tenants'), {
         method: 'POST',
+        credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRF-Token': window.csrfToken || ''
@@ -469,7 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       mark('create', true);
       start('import');
-      await streamOnboard(subdomain);
+      await onboardTenant(subdomain);
       mark('import', true);
       start('proxy');
       await wait(0);
@@ -483,6 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       await fetch(withBase('/tenant-welcome'), {
         method: 'POST',
+        credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRF-Token': window.csrfToken || ''
