@@ -2911,19 +2911,73 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(() => notify('Fehler beim Senden', 'danger'));
     });
 
-    planSelect?.addEventListener('change', () => {
+    planSelect?.addEventListener('change', async () => {
       const plan = planSelect.value;
-      apiFetch('/admin/subscription/toggle', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan })
-      })
-        .then(r => (r.ok ? r.json() : null))
-        .then(data => {
-          notify('Plan: ' + (data?.plan || 'none'), 'success');
-          window.location.reload();
+      const isDemo = window.location.hostname.split('.')[0] === 'demo';
+      if (window.domainType === 'main' || isDemo) {
+        apiFetch('/admin/subscription/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plan })
         })
-        .catch(() => notify('Fehler', 'danger'));
+          .then(r => (r.ok ? r.json() : null))
+          .then(data => {
+            notify('Plan: ' + (data?.plan || 'none'), 'success');
+            window.location.reload();
+          })
+          .catch(() => notify('Fehler', 'danger'));
+        return;
+      }
+      if (!plan) return;
+      const payload = { plan, embedded: true };
+      if (emailInput) {
+        const email = emailInput.value.trim();
+        if (email === '') {
+          emailInput.classList.add('uk-form-danger');
+          emailInput.focus();
+          notify('Bitte E-Mail-Adresse eingeben', 'warning');
+          return;
+        }
+        payload.email = email;
+      }
+      try {
+        const res = await apiFetch('/admin/subscription/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        let data;
+        if (res.ok) {
+          data = await res.json();
+        } else {
+          try {
+            data = await res.json();
+          } catch (e) {
+            data = {};
+          }
+          let msg = 'Fehler beim Starten der Zahlung';
+          if (data.error) {
+            msg += ': ' + data.error;
+          }
+          if (data.log) {
+            msg += '<br><pre>' + data.log + '</pre>';
+          }
+          notify(msg, 'danger', 0);
+          return;
+        }
+        if ([data.client_secret, data.publishable_key, window.Stripe, checkoutContainer].every(Boolean)) {
+          const stripe = Stripe(data.publishable_key);
+          const checkout = await stripe.initEmbeddedCheckout({ clientSecret: data.client_secret });
+          checkout.mount('#stripe-checkout');
+          return;
+        }
+        if (data.url) {
+          window.location.href = data.url;
+        }
+      } catch (e) {
+        console.error(e);
+        notify('Fehler beim Starten der Zahlung', 'danger', 0);
+      }
     });
 
   // Page editors are handled in trumbowyg-pages.js
