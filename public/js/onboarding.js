@@ -508,7 +508,12 @@ document.addEventListener('DOMContentLoaded', () => {
       window.location.href = `https://${subdomain}.${window.mainDomain}/`;
       return;
     } catch (e) {
-      const msg = 'Fehler: ' + e.message;
+      if (taskEls.wait && !taskEls.wait.spinner.hidden && !taskEls.wait.li.querySelector('span:not([uk-spinner])')) {
+        mark('wait', false);
+      }
+      const msg = e.message === 'timeout'
+        ? 'Mandant wurde erstellt, ist jedoch noch nicht verfügbar. Bitte später erneut versuchen.'
+        : 'Fehler: ' + e.message;
       addLog(msg);
       alert(msg);
     }
