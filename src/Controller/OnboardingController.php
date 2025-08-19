@@ -26,9 +26,10 @@ class OnboardingController
 
         $serviceUser = getenv('SERVICE_USER') ?: '';
         $servicePass = getenv('SERVICE_PASS') ?: '';
-        $appEnv = getenv('APP_ENV') ?: 'dev';
-        $allowServiceLogin = $appEnv !== 'production'
-            || getenv('ALLOW_SERVICE_LOGIN') === '1';
+        $allowServiceLogin = getenv('ALLOW_SERVICE_LOGIN');
+        $allowServiceLogin = $allowServiceLogin === false
+            ? true
+            : $allowServiceLogin === '1';
 
         if (
             $allowServiceLogin
