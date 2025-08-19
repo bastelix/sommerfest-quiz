@@ -15,6 +15,7 @@
 - *(admin)* Allow column selection for tenants
 - Show tenant invoices
 - Enable subscription plan toggle for all tenants
+- Add health endpoint and improve onboarding check
 
 ### Refactor
 
