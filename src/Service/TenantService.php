@@ -212,14 +212,37 @@ class TenantService
                 if (is_readable($cfgFile)) {
                     $cfg = json_decode(file_get_contents($cfgFile), true) ?? [];
                 }
+                $mapping = [
+                    'qr_label_line1' => 'qrLabelLine1',
+                    'qr_label_line2' => 'qrLabelLine2',
+                    'qr_logo_path' => 'qrLogoPath',
+                    'qr_round_mode' => 'qrRoundMode',
+                    'qr_logo_punchout' => 'qrLogoPunchout',
+                    'qr_rounded' => 'qrRounded',
+                    'qr_color_team' => 'qrColorTeam',
+                    'qr_color_catalog' => 'qrColorCatalog',
+                    'qr_color_event' => 'qrColorEvent',
+                ];
+                foreach ($mapping as $old => $new) {
+                    if (array_key_exists($old, $cfg) && !array_key_exists($new, $cfg)) {
+                        $cfg[$new] = $cfg[$old];
+                    }
+                    unset($cfg[$old]);
+                }
                 unset($cfg['id']);
-                $cfg['event_uid'] = $activeUid;
-                $cols = array_keys($cfg);
-                if ($cols !== []) {
+                $filtered = [];
+                foreach ($cfg as $k => $v) {
+                    if ($this->hasColumn('config', strtolower($k))) {
+                        $filtered[$k] = $v;
+                    }
+                }
+                $filtered['event_uid'] = $activeUid;
+                if ($filtered !== []) {
+                    $cols = array_keys($filtered);
                     $place = array_map(fn($c) => ':' . $c, $cols);
                     $sql = 'INSERT INTO config(' . implode(',', $cols) . ') VALUES(' . implode(',', $place) . ')';
                     $stmt = $this->pdo->prepare($sql);
-                    foreach ($cfg as $k => $v) {
+                    foreach ($filtered as $k => $v) {
                         if (is_bool($v)) {
                             $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
                         } else {
