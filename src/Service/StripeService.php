@@ -208,6 +208,34 @@ class StripeService
     }
 
     /**
+     * Retrieve a list of invoices for a customer.
+     *
+     * @return array<int, array{id:string, number:?string, amount:int, currency:string, status:string, created:?string, invoice_pdf:?string}>
+     */
+    public function listInvoices(string $customerId): array
+    {
+        $invoices = $this->client->invoices->all([
+            'customer' => $customerId,
+            'limit' => 24,
+        ]);
+
+        $result = [];
+        foreach ($invoices->data as $inv) {
+            $result[] = [
+                'id' => (string) ($inv->id ?? ''),
+                'number' => isset($inv->number) ? (string) $inv->number : null,
+                'amount' => (int) ($inv->amount_due ?? 0),
+                'currency' => (string) ($inv->currency ?? ''),
+                'status' => (string) ($inv->status ?? ''),
+                'created' => isset($inv->created) ? date('c', (int) $inv->created) : null,
+                'invoice_pdf' => (string) ($inv->invoice_pdf ?? ''),
+            ];
+        }
+
+        return $result;
+    }
+
+    /**
      * Check whether Stripe is configured and provide details on issues.
      *
      * @return array{ok:bool, missing:string[], warnings:string[]}

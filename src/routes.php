@@ -477,6 +477,26 @@ return function (\Slim\App $app, TranslationService $translator) {
         $response->getBody()->write((string) json_encode($payload));
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/subscription/invoices', function (Request $request, Response $response) {
+        $domainType = (string) $request->getAttribute('domainType');
+        $base = Database::connectFromEnv();
+        $tenantSvc = new TenantService($base);
+        $tenant = $domainType === 'main'
+            ? $tenantSvc->getMainTenant()
+            : $tenantSvc->getBySubdomain(explode('.', $request->getUri()->getHost())[0]);
+        $customerId = (string) ($tenant['stripe_customer_id'] ?? '');
+        $payload = [];
+        if ($customerId !== '' && StripeService::isConfigured()['ok']) {
+            $service = new StripeService();
+            try {
+                $payload = $service->listInvoices($customerId);
+            } catch (\Throwable $e) {
+                // ignore errors
+            }
+        }
+        $response->getBody()->write((string) json_encode($payload));
+        return $response->withHeader('Content-Type', 'application/json');
+    })->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->post('/admin/subscription/toggle', function (Request $request, Response $response) {
         $domainType = $request->getAttribute('domainType');
         $target = 'main';
