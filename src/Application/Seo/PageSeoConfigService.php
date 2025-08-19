@@ -51,7 +51,8 @@ class PageSeoConfigService
         }
 
         $stmt = $this->pdo->prepare(
-            'SELECT slug, meta_title, meta_description, canonical_url, robots_meta, og_title, og_description, og_image, schema_json, hreflang '
+            'SELECT slug, meta_title, meta_description, canonical_url, robots_meta, '
+            . 'og_title, og_description, og_image, schema_json, hreflang '
             . 'FROM page_seo_config WHERE page_id = ?'
         );
         $stmt->execute([$pageId]);
@@ -131,16 +132,23 @@ class PageSeoConfigService
         ];
 
         $upsert = $this->pdo->prepare(
-            'INSERT INTO page_seo_config(page_id, meta_title, meta_description, slug, canonical_url, robots_meta, og_title, og_description, og_image, schema_json, hreflang) '
+            'INSERT INTO page_seo_config('
+            . 'page_id, meta_title, meta_description, slug, canonical_url, robots_meta, '
+            . 'og_title, og_description, og_image, schema_json, hreflang) '
             . 'VALUES(?,?,?,?,?,?,?,?,?,?,?) '
-            . 'ON CONFLICT(page_id) DO UPDATE SET meta_title=excluded.meta_title, meta_description=excluded.meta_description, slug=excluded.slug, '
-            . 'canonical_url=excluded.canonical_url, robots_meta=excluded.robots_meta, og_title=excluded.og_title, og_description=excluded.og_description, '
-            . 'og_image=excluded.og_image, schema_json=excluded.schema_json, hreflang=excluded.hreflang, updated_at=CURRENT_TIMESTAMP'
+            . 'ON CONFLICT(page_id) DO UPDATE SET meta_title=excluded.meta_title, '
+            . 'meta_description=excluded.meta_description, slug=excluded.slug, '
+            . 'canonical_url=excluded.canonical_url, robots_meta=excluded.robots_meta, '
+            . 'og_title=excluded.og_title, og_description=excluded.og_description, '
+            . 'og_image=excluded.og_image, schema_json=excluded.schema_json, '
+            . 'hreflang=excluded.hreflang, updated_at=CURRENT_TIMESTAMP'
         );
         $upsert->execute($params);
 
         $history = $this->pdo->prepare(
-            'INSERT INTO page_seo_config_history(page_id, meta_title, meta_description, slug, canonical_url, robots_meta, og_title, og_description, og_image, schema_json, hreflang) '
+            'INSERT INTO page_seo_config_history('
+            . 'page_id, meta_title, meta_description, slug, canonical_url, robots_meta, '
+            . 'og_title, og_description, og_image, schema_json, hreflang) '
             . 'VALUES(?,?,?,?,?,?,?,?,?,?,?)'
         );
         $history->execute($params);
