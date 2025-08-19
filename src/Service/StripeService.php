@@ -210,7 +210,15 @@ class StripeService
     /**
      * Retrieve a list of invoices for a customer.
      *
-     * @return array<int, array{id:string, number:?string, amount:int, currency:string, status:string, created:?string, invoice_pdf:?string}>
+     * @return array<int, array{
+     *     id: string,
+     *     number: ?string,
+     *     amount: int,
+     *     currency: string,
+     *     status: string,
+     *     created: ?string,
+     *     invoice_pdf: ?string
+     * }>
      */
     public function listInvoices(string $customerId): array
     {
