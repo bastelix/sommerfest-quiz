@@ -14,6 +14,10 @@
 - Allow resending welcome mail
 - *(admin)* Allow column selection for tenants
 
+### Refactor
+
+- Centralize SMTP config loading
+
 ### Test
 
 - Enforce starter plan event limit
