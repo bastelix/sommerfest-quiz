@@ -1072,7 +1072,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $response->getBody()->write(json_encode($payload));
 
         return $response->withHeader('Content-Type', 'application/json')->withStatus(202);
-    })->add(new RoleAuthMiddleware(Roles::SERVICE_ACCOUNT))->add(new CsrfMiddleware());
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::SERVICE_ACCOUNT))->add(new CsrfMiddleware());
 
     $app->delete('/api/tenants/{slug}', function (Request $request, Response $response, array $args) {
         if ($request->getAttribute('domainType') !== 'main') {
