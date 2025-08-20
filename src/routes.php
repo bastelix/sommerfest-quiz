@@ -601,13 +601,8 @@ return function (\Slim\App $app, TranslationService $translator) {
         $mainDomain = getenv('MAIN_DOMAIN') ?: getenv('DOMAIN');
         $domain = $mainDomain ? sprintf('%s.%s', $sub, $mainDomain) : $uri->getHost();
         $link = sprintf('https://%s/password/set?token=%s&next=%%2Fadmin', $domain, urlencode($token));
-        $html = $mailer->sendWelcome($email, $domain, $link);
-        $baseDir = dirname(__DIR__, 1);
-        $dir = $baseDir . '/data/' . $sub;
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
-        }
-        file_put_contents($dir . '/welcome_email.html', $html);
+        $mailer->sendWelcome($email, $domain, $link);
+
         return $response->withStatus(204);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
     $app->get('/admin/tenants', function (Request $request, Response $response) {
@@ -828,29 +823,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         $mainDomain = getenv('MAIN_DOMAIN') ?: getenv('DOMAIN');
         $domain = $mainDomain ? sprintf('%s.%s', $sub, $mainDomain) : $request->getUri()->getHost();
         $link = sprintf('https://%s/password/set?token=%s&next=%%2Fadmin', $domain, urlencode($token));
-        $html = $mailer->sendWelcome($email, $domain, $link);
-        $baseDir = dirname(__DIR__, 1);
-        $dir = $baseDir . '/data/' . $sub;
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
-        }
-        file_put_contents($dir . '/welcome_email.html', $html);
+        $mailer->sendWelcome($email, $domain, $link);
+
         return $response->withStatus(204);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
-
-    $app->get('/tenants/{subdomain}/welcome', function (Request $request, Response $response, array $args) {
-        if ($request->getAttribute('domainType') !== 'main') {
-            return $response->withStatus(403);
-        }
-        $sub = preg_replace('/[^a-z0-9\-]/', '-', strtolower((string) ($args['subdomain'] ?? '')));
-        $base = dirname(__DIR__, 1);
-        $file = $base . '/data/' . $sub . '/welcome_email.html';
-        if (!is_readable($file)) {
-            return $response->withStatus(404);
-        }
-        $response->getBody()->write((string) file_get_contents($file));
-        return $response->withHeader('Content-Type', 'text/html');
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
     $app->get('/teams.json', function (Request $request, Response $response) {
         return $request->getAttribute('teamController')->get($request, $response);
@@ -925,13 +901,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $mailer = new MailService($twig, $auditLogger);
         $domain = $mainDomain ? sprintf('%s.%s', $schema, $mainDomain) : $request->getUri()->getHost();
         $link = sprintf('https://%s/password/set?token=%s&next=%%2Fadmin', $domain, urlencode($token));
-        $html = $mailer->sendWelcome($email, $domain, $link);
-        $base = dirname(__DIR__, 1);
-        $dir = $base . '/data/' . $schema;
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
-        }
-        file_put_contents($dir . '/welcome_email.html', $html);
+        $mailer->sendWelcome($email, $domain, $link);
 
         return $response->withStatus(204);
     })->add(new RoleAuthMiddleware(Roles::SERVICE_ACCOUNT));
