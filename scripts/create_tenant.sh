@@ -74,11 +74,14 @@ mkdir -p "$BASE_DIR/vhost.d"
 echo "client_max_body_size $CLIENT_MAX_BODY_SIZE;" > "$BASE_DIR/vhost.d/${SUBDOMAIN}.$DOMAIN"
 if [ -n "$RELOADER_URL" ]; then
   echo "Reloading reverse proxy via $RELOADER_URL"
-  if ! curl -fs -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL"; then
-    echo "Proxy reload failed via webhook" >&2
-    rm -f "$COOKIE_FILE"
+  HTTP_CODE=$(curl -s -o /tmp/reloader.out -w "%{http_code}" -X POST \
+    -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL") || HTTP_CODE=000
+  if [ "$HTTP_CODE" -ge 400 ] || [ "$HTTP_CODE" -eq 000 ]; then
+    echo "Proxy reload failed via webhook (status $HTTP_CODE): $(cat /tmp/reloader.out 2>/dev/null)" >&2
+    rm -f /tmp/reloader.out "$COOKIE_FILE"
     exit 1
   fi
+  rm -f /tmp/reloader.out
 elif [ "$NGINX_RELOAD" = "1" ]; then
   echo "Reloading reverse proxy via Docker"
   if ! $DOCKER_COMPOSE exec "$NGINX_CONTAINER" nginx -s reload; then
