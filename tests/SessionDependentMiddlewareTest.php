@@ -126,7 +126,6 @@ class SessionDependentMiddlewareTest extends TestCase
         $this->assertSame('application/json', $res->getHeaderLine('Content-Type'));
     }
 
-    
     public function testAdminAuthMiddlewareReturnsJsonForApiRequests(): void
     {
         $app = AppFactory::create();
