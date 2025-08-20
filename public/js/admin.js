@@ -161,18 +161,7 @@ document.addEventListener('DOMContentLoaded', function () {
       apiFetch('/tenants/' + encodeURIComponent(sub) + '/welcome', { method: 'POST' })
         .then(r => {
           if (!r.ok) throw new Error('Fehler');
-          return apiFetch('/tenants/' + encodeURIComponent(sub) + '/welcome');
-        })
-        .then(r => {
-          if (!r.ok) throw new Error('Fehler');
-          return r.text();
-        })
-        .then(html => {
-          const w = window.open('', '_blank');
-          if (w) {
-            w.document.write(html);
-            w.document.close();
-          }
+          notify('Willkommensmail gesendet', 'success');
         })
         .catch(() => notify('Willkommensmail nicht verfügbar', 'danger'));
     }
