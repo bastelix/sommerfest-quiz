@@ -10,6 +10,13 @@
 - Bump version to 0.2.2 [skip ci]
 - Bump version to 0.2.3 [skip ci]
 - Bump version to 0.2.4 [skip ci]
+- Bump version to 0.2.5 [skip ci]
+- Bump version to 0.2.6 [skip ci]
+- Bump version to 0.2.7 [skip ci]
+- Bump version to 0.2.8 [skip ci]
+- Bump version to 0.2.9 [skip ci]
+- Bump version to 0.2.10 [skip ci]
+- Bump version to 0.2.11 [skip ci]
 
 ### Feat
 
@@ -21,6 +28,10 @@
 - Enable subscription plan toggle for all tenants
 - Add health endpoint and improve onboarding check
 - Add automatic patch bump workflow
+
+### Fix
+
+- Update phpstan config for v2
 
 ### Refactor
 
