@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use DateTimeImmutable;
+use DateTimeZone;
 use PDO;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -49,9 +50,9 @@ class PasswordResetService
 
         $token = bin2hex(random_bytes(16));
         $hash = hash_hmac('sha256', $token, $this->secret);
-        $expires = (new DateTimeImmutable())
+        $expires = (new DateTimeImmutable('now', new DateTimeZone('UTC')))
             ->modify('+' . $this->ttl . ' seconds')
-            ->format('Y-m-d H:i:s');
+            ->format('Y-m-d H:i:sP');
 
         $stmt = $this->pdo->prepare(
             'INSERT INTO password_resets(user_id, token_hash, expires_at) VALUES(?,?,?)'
@@ -87,7 +88,7 @@ class PasswordResetService
 
         $this->deleteToken($userId, $token);
 
-        if ($expires < new DateTimeImmutable()) {
+        if ($expires < new DateTimeImmutable('now', new DateTimeZone('UTC'))) {
             $this->logger->warning('Password reset token expired', ['userId' => $userId]);
             return null;
         }
@@ -113,6 +114,8 @@ class PasswordResetService
     public function cleanupExpired(): void
     {
         $stmt = $this->pdo->prepare('DELETE FROM password_resets WHERE expires_at <= ?');
-        $stmt->execute([(new DateTimeImmutable())->format('Y-m-d H:i:s')]);
+        $stmt->execute([
+            (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:sP')
+        ]);
     }
 }

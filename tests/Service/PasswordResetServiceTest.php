@@ -41,7 +41,7 @@ class PasswordResetServiceTest extends TestCase
         $logger = new ArrayLogger();
         $svc = new PasswordResetService($pdo, 3600, 'secret', $logger);
         $token = $svc->createToken(1);
-        $pdo->exec("UPDATE password_resets SET expires_at = '2000-01-01 00:00:00'");
+        $pdo->exec("UPDATE password_resets SET expires_at = '2000-01-01 00:00:00+00:00'");
 
         $this->assertNull($svc->consumeToken($token));
         $this->assertTrue(
