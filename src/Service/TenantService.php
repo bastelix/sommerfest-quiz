@@ -252,20 +252,18 @@ class TenantService
                     }
                 }
                 $filtered['event_uid'] = $activeUid;
-                if ($filtered !== []) {
-                    $cols = array_keys($filtered);
-                    $place = array_map(fn($c) => ':' . $c, $cols);
-                    $sql = 'INSERT INTO config(' . implode(',', $cols) . ') VALUES(' . implode(',', $place) . ')';
-                    $stmt = $this->pdo->prepare($sql);
-                    foreach ($filtered as $k => $v) {
-                        if (is_bool($v)) {
-                            $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
-                        } else {
-                            $stmt->bindValue(':' . $k, $v);
-                        }
+                $cols = array_keys($filtered);
+                $place = array_map(fn($c) => ':' . $c, $cols);
+                $sql = 'INSERT INTO config(' . implode(',', $cols) . ') VALUES(' . implode(',', $place) . ')';
+                $stmt = $this->pdo->prepare($sql);
+                foreach ($filtered as $k => $v) {
+                    if (is_bool($v)) {
+                        $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
+                    } else {
+                        $stmt->bindValue(':' . $k, $v);
                     }
-                    $stmt->execute();
                 }
+                $stmt->execute();
             }
             if ($this->hasTable('active_event')) {
                 $this->pdo->prepare('INSERT INTO active_event(event_uid) VALUES(?)')->execute([$activeUid]);

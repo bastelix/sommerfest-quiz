@@ -1,10 +1,11 @@
 parameters:
-  memoryLimit: '512M'
   level: 4
   paths:
     - src
   stubFiles:
     - stubs/endroid_qr.stub
+  bootstrapFiles:
+    - phpstan-bootstrap.php
   ignoreErrors:
     - '#Call to function is_callable.+will always evaluate to true#'
     - '#Method App\\Service\\AwardService::join\(\) is unused#'
