@@ -43,6 +43,10 @@ class HealthzEndpointTest extends TestCase
         $data = json_decode((string) $res->getBody(), true);
         $this->assertSame('ok', $data['status'] ?? null);
         $this->assertSame('quizrace', $data['app'] ?? null);
+        $time = $data['time'] ?? '';
+        $dt = \DateTimeImmutable::createFromFormat(DATE_ATOM, $time);
+        $this->assertNotFalse($dt);
+        $this->assertSame($time, $dt->format(DATE_ATOM));
     }
 
     public function testHealthzEndpointUsesAppVersionWhenSet(): void
@@ -71,5 +75,24 @@ class HealthzEndpointTest extends TestCase
         $data = json_decode((string) $res->getBody(), true);
 
         $this->assertSame($expected, $data['version'] ?? null);
+    }
+
+    public function testHealthzEndpointReturnsOkForTenantHost(): void
+    {
+        $old = getenv('MAIN_DOMAIN');
+        putenv('MAIN_DOMAIN=example.com');
+
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/healthz');
+        $uri = $request->getUri()->withHost('foo.example.com');
+        $res = $app->handle($request->withUri($uri));
+
+        $this->assertSame(200, $res->getStatusCode());
+
+        if ($old === false) {
+            putenv('MAIN_DOMAIN');
+        } else {
+            putenv('MAIN_DOMAIN=' . $old);
+        }
     }
 }
