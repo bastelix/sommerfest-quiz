@@ -140,13 +140,21 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(err => notify(err.message || 'Fehler beim Erstellen', 'danger'));
     } else if (action === 'upgrade-docker') {
       e.preventDefault();
+      el.classList.add('uk-disabled');
+      const originalHtml = el.innerHTML;
+      const text = (el.textContent || '').trim();
+      el.innerHTML = text ? `<span class="uk-margin-small-right" uk-spinner></span>${text}` : '<span uk-spinner></span>';
       apiFetch('/api/tenants/' + encodeURIComponent(sub) + '/upgrade', { method: 'POST' })
         .then(r => r.json().then(data => ({ ok: r.ok, data })))
         .then(({ ok, data }) => {
           if (!ok) throw new Error(data.error || 'Fehler');
           notify(window.transUpgradeDocker || 'Docker aktualisiert', 'success');
         })
-        .catch(err => notify(err.message || 'Fehler beim Aktualisieren', 'danger'));
+        .catch(err => notify(err.message || 'Fehler beim Aktualisieren', 'danger'))
+        .finally(() => {
+          el.innerHTML = originalHtml;
+          el.classList.remove('uk-disabled');
+        });
     } else if (action === 'restart') {
       e.preventDefault();
       apiFetch('/api/tenants/' + encodeURIComponent(sub) + '/restart', { method: 'POST' })

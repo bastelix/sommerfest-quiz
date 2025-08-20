@@ -35,7 +35,7 @@ if [ ! -f "$COMPOSE_FILE" ]; then
   exit 1
 fi
 
-if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" up -d --no-deps "$SERVICE" >/dev/null 2>&1; then
+if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" up -d --no-deps --force-recreate "$SERVICE" >/dev/null 2>&1; then
   echo "upgrade failed" >&2
   exit 1
 fi
