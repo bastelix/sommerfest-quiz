@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Service\UserService;
 use App\Infrastructure\Database;
+use App\Service\VersionService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -30,9 +31,14 @@ class LoginController
         $view = Twig::fromRequest($request);
         $query = $request->getQueryParams();
         $resetSuccess = array_key_exists('reset', $query);
+        $version = getenv('APP_VERSION');
+        if ($version === false || $version === '') {
+            $version = (new VersionService())->getCurrentVersion();
+        }
         return $view->render($response, 'login.twig', [
             'registration_allowed' => $allowed,
             'reset_success' => $resetSuccess,
+            'version' => $version,
         ]);
     }
 
