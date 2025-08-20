@@ -39,7 +39,9 @@ window.apiFetch = (path, options = {}) => {
   return fetch(withBase(path), opts).then(res => {
     if (res.status === 402) {
       showUpgradeModal();
-      throw new Error('upgrade-required');
+      const err = new Error(window.transUpgradeText || 'upgrade-required');
+      err.code = 'upgrade-required';
+      throw err;
     }
     return res;
   });

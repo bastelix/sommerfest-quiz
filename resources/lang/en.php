@@ -227,7 +227,7 @@ return [
     'action_send_link' => 'Send link',
     'action_set_password' => 'Set password',
     'heading_limit_reached' => 'Limit reached',
-    'text_upgrade_required' => 'Subscription limit reached. Please upgrade to add more resources.',
+    'text_upgrade_required' => 'Subscription is exhausted. To create more events, upgrade to a higher plan.',
     'action_upgrade' => 'Upgrade',
     'text_stripe_config_missing' => 'Stripe configuration missing. Please set required environment variables.',
 ];

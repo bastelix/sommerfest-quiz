@@ -229,7 +229,7 @@ return [
     'action_send_link' => 'Link senden',
     'action_set_password' => 'Passwort setzen',
     'heading_limit_reached' => 'Limit erreicht',
-    'text_upgrade_required' => 'Abo-Limit erreicht. Bitte upgraden, um mehr Ressourcen anzulegen.',
+    'text_upgrade_required' => 'Das Abo ist ausgelastet. Um weitere Veranstaltungen anzulegen, upgraden Sie auf eine höhere Version.',
     'action_upgrade' => 'Upgrade',
     'text_stripe_config_missing' => 'Stripe-Konfiguration fehlt. Bitte erforderliche Umgebungsvariablen setzen.',
 ];
