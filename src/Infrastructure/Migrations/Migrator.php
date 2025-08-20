@@ -16,6 +16,22 @@ class Migrator
         $files = glob(rtrim($dir, '/') . '/*.sql');
         sort($files);
         $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+
+        if ($driver === 'sqlite') {
+            $schema = __DIR__ . '/sqlite-schema.sql';
+            $sql = file_get_contents($schema);
+            if ($sql !== false) {
+                $pdo->exec($sql);
+            }
+            foreach ($files as $file) {
+                $version = basename($file);
+                $ins = $pdo->prepare('INSERT OR IGNORE INTO migrations(version) VALUES(?)');
+                $ins->execute([$version]);
+            }
+
+            return;
+        }
+
         foreach ($files as $file) {
             $version = basename($file);
             if (in_array($version, $applied, true)) {
