@@ -19,13 +19,15 @@ NGINX_CONTAINER="$(grep '^NGINX_CONTAINER=' "$ENV_FILE" | cut -d '=' -f2)"
 BASE_PATH="$(grep '^BASE_PATH=' "$ENV_FILE" | cut -d '=' -f2)"
 SERVICE_USER="$(grep '^SERVICE_USER=' "$ENV_FILE" | cut -d '=' -f2)"
 SERVICE_PASS="$(grep '^SERVICE_PASS=' "$ENV_FILE" | cut -d '=' -f2)"
+RELOADER_SERVICE="$(grep '^NGINX_RELOADER_SERVICE=' "$ENV_FILE" | cut -d '=' -f2)"
 
 [ -z "$CLIENT_MAX_BODY_SIZE" ] && CLIENT_MAX_BODY_SIZE="50m"
 [ -z "$NGINX_RELOAD" ] && NGINX_RELOAD=1
 [ -z "$NGINX_CONTAINER" ] && NGINX_CONTAINER="nginx"
+[ -z "$RELOADER_SERVICE" ] && RELOADER_SERVICE="nginx-reloader"
 
-# detect docker compose only when a reload via Docker is required
-if [ "$NGINX_RELOAD" = "1" ] && [ -z "$RELOADER_URL" ]; then
+# detect docker compose when needed
+if { [ "$NGINX_RELOAD" = "1" ] && [ -z "$RELOADER_URL" ]; } || [ -n "$RELOADER_URL" ]; then
   if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
     DOCKER_COMPOSE="docker compose"
   elif command -v docker-compose >/dev/null 2>&1; then
@@ -73,6 +75,12 @@ fi
 mkdir -p "$BASE_DIR/vhost.d"
 echo "client_max_body_size $CLIENT_MAX_BODY_SIZE;" > "$BASE_DIR/vhost.d/${SUBDOMAIN}.$DOMAIN"
 if [ -n "$RELOADER_URL" ]; then
+  echo "Ensuring nginx-reloader service is running"
+  if ! $DOCKER_COMPOSE up -d "$RELOADER_SERVICE" >/dev/null 2>&1; then
+    echo "nginx-reloader service could not be started" >&2
+    rm -f "$COOKIE_FILE"
+    exit 1
+  fi
   echo "Reloading reverse proxy via $RELOADER_URL"
   HTTP_CODE=$(curl -s -o /tmp/reloader.out -w "%{http_code}" -X POST \
     -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL") || HTTP_CODE=000
