@@ -1145,6 +1145,33 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware('admin'));
 
+    $app->post('/api/docker/build', function (Request $request, Response $response) {
+        if ($request->getAttribute('domainType') !== 'main') {
+            return $response->withStatus(403);
+        }
+        $script = realpath(__DIR__ . '/../scripts/build_image.sh');
+
+        if (!is_file($script)) {
+            $response->getBody()->write(json_encode(['error' => 'Build script not found']));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+        exec(escapeshellcmd($script), $output, $exitCode);
+
+        if ($exitCode !== 0) {
+            $response->getBody()->write(json_encode(['error' => 'Failed to build image']));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+        $response->getBody()->write(json_encode(['status' => 'built']));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    })->add(new RoleAuthMiddleware('admin'));
+
     $app->post('/api/tenants/{slug}/upgrade', function (Request $request, Response $response, array $args) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(403);

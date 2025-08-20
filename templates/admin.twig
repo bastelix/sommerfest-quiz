@@ -883,6 +883,9 @@
             <button id="tenantReportBtn" class="uk-button uk-button-default uk-button-small">Auswertung</button>
             <button id="tenantColumnBtn" class="uk-button uk-button-default uk-button-small">Spalten</button>
             <button id="tenantSyncBtn" class="uk-button uk-button-default uk-button-small">Sync</button>
+            <button class="uk-button uk-button-default uk-button-small" data-action="build-docker">
+              {{ t('action_build_image') }}
+            </button>
           </div>
         </div>
 
@@ -1117,6 +1120,7 @@
     window.transUpgradeAction = '{{ t('action_upgrade') }}';
     window.transUpgradeDocker = '{{ t('action_upgrade_docker') }}';
     window.transRestartTenant = '{{ t('action_restart_tenant') }}';
+    window.transBuildDocker = '{{ t('action_build_image') }}';
     window.stripeDashboard = '{{ stripe_sandbox ? 'https://dashboard.stripe.com/test' : 'https://dashboard.stripe.com' }}';
   </script>
   <script src="{{ basePath }}/js/dashboard.js"></script>

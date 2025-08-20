@@ -212,6 +212,7 @@ return [
     'action_open_evaluation' => 'Auswertung öffnen',
     'action_download' => 'Herunterladen',
     'action_delete_tenant' => 'Mandant löschen',
+    'action_build_image' => 'Docker-Image bauen',
     'action_sync_tenants' => 'Fehlende Mandanten suchen',
     'action_renew_ssl' => 'SSL erneuern',
     'action_upgrade_docker' => 'Docker aktualisieren',
