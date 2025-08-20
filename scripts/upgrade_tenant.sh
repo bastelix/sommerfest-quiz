@@ -16,19 +16,22 @@ else
   exit 1
 fi
 
-if [ "$1" = "--main" ] || [ "$1" = "--system" ]; then
+ARG="$1"
+SLUG_SANITIZED="$(echo "$ARG" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')"
+
+if [ "$ARG" = "--main" ] || [ "$ARG" = "--system" ] || [ "$SLUG_SANITIZED" = "main" ]; then
   SLUG="main"
   COMPOSE_FILE="$(dirname "$0")/../docker-compose.yml"
   SERVICE="slim"
 else
-  SLUG="$(echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')"
+  SLUG="$SLUG_SANITIZED"
   TENANT_DIR="$(dirname "$0")/../tenants/$SLUG"
   COMPOSE_FILE="$TENANT_DIR/docker-compose.yml"
   SERVICE="app"
 fi
 
 if [ ! -f "$COMPOSE_FILE" ]; then
-  echo "compose file not found" >&2
+  echo "compose file not found: $COMPOSE_FILE" >&2
   exit 1
 fi
 
