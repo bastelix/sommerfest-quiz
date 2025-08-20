@@ -28,6 +28,7 @@
 - Add plan limit controller tests
 - Switch to postgres in tests
 - Support sqlite memory db
+- Verify health endpoint timestamp and tenant host
 
 ## [0.2.0] - 2025-08-18
 
