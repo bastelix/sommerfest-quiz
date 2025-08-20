@@ -267,7 +267,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         ];
         $response->getBody()->write(json_encode($payload));
 
-        return $response->withHeader('Content-Type', 'application/json');
+        $response = $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Access-Control-Allow-Origin', '*');
+
+        return $response;
     });
 
     $app->get('/', HomeController::class);
