@@ -156,6 +156,12 @@ class TenantService
 
     private function hasTable(string $name): bool
     {
+        $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        if ($driver === 'sqlite') {
+            $stmt = $this->pdo->prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = ?");
+            $stmt->execute([$name]);
+            return $stmt->fetchColumn() !== false;
+        }
         $stmt = $this->pdo->prepare('SELECT to_regclass(?)');
         $stmt->execute([$name]);
         return $stmt->fetchColumn() !== null;
@@ -163,6 +169,15 @@ class TenantService
 
     private function hasColumn(string $table, string $column): bool
     {
+        $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+        if ($driver === 'sqlite') {
+            $stmt = $this->pdo->query('PRAGMA table_info(' . $this->pdo->quote($table) . ')');
+            if ($stmt === false) {
+                return false;
+            }
+            $cols = $stmt->fetchAll(PDO::FETCH_COLUMN, 1);
+            return in_array($column, $cols, true);
+        }
         $stmt = $this->pdo->prepare(
             'SELECT 1 FROM information_schema.columns WHERE table_name = ? AND column_name = ?'
         );
