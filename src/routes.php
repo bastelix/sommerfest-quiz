@@ -36,6 +36,7 @@ use App\Service\AuditLogger;
 use App\Service\QrCodeService;
 use App\Service\SessionService;
 use App\Service\StripeService;
+use App\Service\VersionService;
 use App\Infrastructure\Database;
 use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
@@ -250,10 +251,14 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->add(new LanguageMiddleware($translator));
 
     $app->get('/healthz', function (Request $request, Response $response) {
+        $version = getenv('APP_VERSION');
+        if ($version === false || $version === '') {
+            $version = (new VersionService())->getCurrentVersion();
+        }
         $payload = [
             'status'  => 'ok',
             'app'     => 'quizrace',
-            'version' => getenv('APP_VERSION') ?: 'unknown',
+            'version' => $version,
             'time'    => gmdate('c'),
         ];
         $response->getBody()->write(json_encode($payload));
