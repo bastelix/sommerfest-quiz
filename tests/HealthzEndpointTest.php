@@ -77,47 +77,47 @@ class HealthzEndpointTest extends TestCase
         $this->assertSame($expected, $data['version'] ?? null);
     }
 
-public function testHealthzEndpointAccessibleForTenantHost(): void
-{
-    // Backup current env
-    $old = getenv('MAIN_DOMAIN');
-    $oldEnv = $_ENV['MAIN_DOMAIN'] ?? null;
+    public function testHealthzEndpointAccessibleForTenantHost(): void
+    {
+        // Backup current env
+        $old = getenv('MAIN_DOMAIN');
+        $oldEnv = $_ENV['MAIN_DOMAIN'] ?? null;
 
-    // Set test env
-    putenv('MAIN_DOMAIN=example.com');
-    $_ENV['MAIN_DOMAIN'] = 'example.com';
+        // Set test env
+        putenv('MAIN_DOMAIN=example.com');
+        $_ENV['MAIN_DOMAIN'] = 'example.com';
 
-    $app = $this->getAppInstance();
+        $app = $this->getAppInstance();
 
-    // Erzeuge Request für Tenant-Domain und JSON
-    $request = $this->createRequest('GET', '/healthz', [
-        'HTTP_HOST'   => 'tenant.example.com',
-        'HTTP_ACCEPT' => 'application/json',
-    ]);
-    // Stelle sicher, dass auch die URI den Host trägt (je nach Helper-Implementation)
-    $request = $request->withUri($request->getUri()->withHost('tenant.example.com'));
+        // Erzeuge Request für Tenant-Domain und JSON
+        $request = $this->createRequest('GET', '/healthz', [
+            'HTTP_HOST'   => 'tenant.example.com',
+            'HTTP_ACCEPT' => 'application/json',
+        ]);
+        // Stelle sicher, dass auch die URI den Host trägt (je nach Helper-Implementation)
+        $request = $request->withUri($request->getUri()->withHost('tenant.example.com'));
 
-    $response = $app->handle($request);
+        $response = $app->handle($request);
 
-    // Status OK & JSON-Header
-    $this->assertSame(200, $response->getStatusCode());
-    $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        // Status OK & JSON-Header
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
 
-    // Body inhaltlich prüfen
-    $data = json_decode((string) $response->getBody(), true);
-    $this->assertSame('ok', $data['status'] ?? null);
+        // Body inhaltlich prüfen
+        $data = json_decode((string) $response->getBody(), true);
+        $this->assertSame('ok', $data['status'] ?? null);
 
-    // Restore env
-    if ($old === false) {
-        putenv('MAIN_DOMAIN');
-        unset($_ENV['MAIN_DOMAIN']);
-    } else {
-        putenv('MAIN_DOMAIN=' . $old);
-        if ($oldEnv === null) {
+        // Restore env
+        if ($old === false) {
+            putenv('MAIN_DOMAIN');
             unset($_ENV['MAIN_DOMAIN']);
         } else {
-            $_ENV['MAIN_DOMAIN'] = $oldEnv;
+            putenv('MAIN_DOMAIN=' . $old);
+            if ($oldEnv === null) {
+                unset($_ENV['MAIN_DOMAIN']);
+            } else {
+                $_ENV['MAIN_DOMAIN'] = $oldEnv;
+            }
         }
     }
-}
 }
