@@ -7,6 +7,8 @@
 - Add pages table for SEO config
 - Increase phpstan memory limit
 - Bump version to 0.2.1 [skip ci]
+- Bump version to 0.2.2 [skip ci]
+- Bump version to 0.2.3 [skip ci]
 
 ### Feat
 
@@ -31,6 +33,7 @@
 - Switch to postgres in tests
 - Support sqlite memory db
 - Verify health endpoint timestamp and tenant host
+- Ensure version displayed on login
 
 ## [0.2.0] - 2025-08-18
 
