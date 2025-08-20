@@ -1,5 +1,5 @@
 #!/bin/sh
-# Upgrade tenant or main container to latest image
+# Upgrade tenant or main container using locally built image
 set -e
 
 if [ "$#" -lt 1 ]; then
@@ -32,11 +32,6 @@ fi
 
 if [ ! -f "$COMPOSE_FILE" ]; then
   echo "compose file not found: $COMPOSE_FILE" >&2
-  exit 1
-fi
-
-if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" pull "$SERVICE" >/dev/null 2>&1; then
-  echo "pull failed" >&2
   exit 1
 fi
 

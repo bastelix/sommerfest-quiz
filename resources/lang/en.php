@@ -211,6 +211,7 @@ return [
     'action_open_evaluation' => 'Open evaluation',
     'action_download' => 'Download',
     'action_delete_tenant' => 'Delete tenant',
+    'action_build_image' => 'Build Docker image',
     'action_sync_tenants' => 'Import missing subdomains',
     'action_renew_ssl' => 'Renew SSL',
     'action_upgrade_docker' => 'Upgrade Docker',

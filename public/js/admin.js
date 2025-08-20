@@ -129,6 +129,15 @@ document.addEventListener('DOMContentLoaded', function () {
         .finally(() => {
           el.classList.remove('uk-disabled');
         });
+    } else if (action === 'build-docker') {
+      e.preventDefault();
+      apiFetch('/api/docker/build', { method: 'POST' })
+        .then(r => r.json().then(data => ({ ok: r.ok, data })))
+        .then(({ ok, data }) => {
+          if (!ok) throw new Error(data.error || 'Fehler');
+          notify(window.transBuildDocker || 'Image erstellt', 'success');
+        })
+        .catch(err => notify(err.message || 'Fehler beim Erstellen', 'danger'));
     } else if (action === 'upgrade-docker') {
       e.preventDefault();
       apiFetch('/api/tenants/' + encodeURIComponent(sub) + '/upgrade', { method: 'POST' })
