@@ -6,6 +6,7 @@
 
 - Add pages table for SEO config
 - Increase phpstan memory limit
+- Bump version to 0.2.1 [skip ci]
 
 ### Feat
 
@@ -16,6 +17,7 @@
 - Show tenant invoices
 - Enable subscription plan toggle for all tenants
 - Add health endpoint and improve onboarding check
+- Add automatic patch bump workflow
 
 ### Refactor
 
