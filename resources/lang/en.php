@@ -213,6 +213,7 @@ return [
     'action_sync_tenants' => 'Import missing subdomains',
     'action_renew_ssl' => 'Renew SSL',
     'action_upgrade_docker' => 'Upgrade Docker',
+    'action_restart_tenant' => 'Restart Docker',
     'action_send_welcome_mail' => 'Send welcome email',
     'help_admin_pass' => 'Defines the admin password for the new tenant. Leave empty to generate a random one',
     'info_admin_email' => 'The link to set the admin password will be sent by email.',
