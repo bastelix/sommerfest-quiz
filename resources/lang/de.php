@@ -218,6 +218,7 @@ return [
     'action_upgrade_docker' => 'Docker aktualisieren',
     'action_restart_tenant' => 'Docker neu starten',
     'action_send_welcome_mail' => 'Willkommensmail senden',
+    'text_image_ready' => 'Docker-Image bereit',
     'help_admin_pass' => 'Definiert das Admin-Passwort des neuen Mandanten. Bleibt das Feld leer, ' .
         'wird ein zufälliges Passwort erzeugt',
     'info_admin_email' => 'Der Link zum Setzen des Admin-Passworts wird per E-Mail verschickt.',

@@ -131,13 +131,20 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     } else if (action === 'build-docker') {
       e.preventDefault();
+      const original = el.innerHTML;
+      el.disabled = true;
+      el.innerHTML = '<div uk-spinner></div>';
       apiFetch('/api/docker/build', { method: 'POST' })
         .then(r => r.json().then(data => ({ ok: r.ok, data })))
         .then(({ ok, data }) => {
           if (!ok) throw new Error(data.error || 'Fehler');
-          notify(window.transBuildDocker || 'Image erstellt', 'success');
+          notify(window.transImageReady || 'Image bereit', 'success');
         })
-        .catch(err => notify(err.message || 'Fehler beim Erstellen', 'danger'));
+        .catch(err => notify(err.message || 'Fehler beim Erstellen', 'danger'))
+        .finally(() => {
+          el.disabled = false;
+          el.innerHTML = original;
+        });
     } else if (action === 'upgrade-docker') {
       e.preventDefault();
       apiFetch('/api/tenants/' + encodeURIComponent(sub) + '/upgrade', { method: 'POST' })
