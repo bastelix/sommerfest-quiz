@@ -72,4 +72,25 @@ class HealthzEndpointTest extends TestCase
 
         $this->assertSame($expected, $data['version'] ?? null);
     }
+
+    public function testHealthzEndpointAccessibleForTenantDomain(): void
+    {
+        putenv('MAIN_DOMAIN=example');
+        $_ENV['MAIN_DOMAIN'] = 'example';
+
+        $app = parent::getAppInstance();
+        $request = $this->createRequest('GET', '/healthz', [
+            'HTTP_HOST' => 'tenant.example',
+            'HTTP_ACCEPT' => 'application/json',
+        ]);
+        $response = $app->handle($request);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        $data = json_decode((string) $response->getBody(), true);
+        $this->assertSame('ok', $data['status'] ?? null);
+
+        putenv('MAIN_DOMAIN');
+        unset($_ENV['MAIN_DOMAIN']);
+    }
 }
