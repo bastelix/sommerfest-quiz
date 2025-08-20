@@ -2101,6 +2101,10 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   updateTenantColumnVisibility();
 
+  const syncTenants = () => {
+    tenantSyncBtn?.click();
+  };
+
   tenantStatusFilter?.addEventListener('change', () => {
     loadTenants(tenantStatusFilter.value, tenantSearchInput?.value);
   });
@@ -2846,6 +2850,9 @@ document.addEventListener('DOMContentLoaded', function () {
       if (initRoute === 'summary') {
         loadSummary();
       }
+      if (initRoute === 'tenants') {
+        syncTenants();
+      }
     }
     UIkit.util.on(adminTabs, 'shown', (e, tab) => {
       const index = Array.prototype.indexOf.call(adminTabs.children, tab);
@@ -2860,7 +2867,7 @@ document.addEventListener('DOMContentLoaded', function () {
         loadSummary();
       }
       if (index === tenantIdx) {
-        loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value);
+        syncTenants();
       }
     });
     if (summaryIdx >= 0) {
@@ -2870,7 +2877,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     if (tenantIdx >= 0) {
       adminTabs.children[tenantIdx]?.addEventListener('click', () => {
-        loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value);
+        syncTenants();
       });
     }
     adminMenu.querySelectorAll('[data-tab]').forEach(item => {
@@ -2888,7 +2895,7 @@ document.addEventListener('DOMContentLoaded', function () {
             loadSummary();
           }
           if (idx === tenantIdx) {
-            loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value);
+            syncTenants();
           }
         }
       });
@@ -2997,13 +3004,9 @@ document.addEventListener('DOMContentLoaded', function () {
   // Page editors are handled in trumbowyg-pages.js
 
   loadBackups();
-  if (adminRoutes.indexOf('tenants') >= 0) {
-    const syncFlag = 'tenantSyncDone';
-    if (tenantSyncBtn && !sessionStorage.getItem(syncFlag)) {
-      tenantSyncBtn.click();
-      sessionStorage.setItem(syncFlag, '1');
-    } else {
-      loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value);
-    }
+  const path = window.location.pathname.replace(basePath + '/admin/', '');
+  const currentRoute = path === '' ? 'dashboard' : path.replace(/^\/?/, '');
+  if (currentRoute === 'tenants') {
+    syncTenants();
   }
 });
