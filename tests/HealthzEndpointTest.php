@@ -77,22 +77,46 @@ class HealthzEndpointTest extends TestCase
         $this->assertSame($expected, $data['version'] ?? null);
     }
 
-    public function testHealthzEndpointReturnsOkForTenantHost(): void
-    {
-        $old = getenv('MAIN_DOMAIN');
-        putenv('MAIN_DOMAIN=example.com');
+public function testHealthzEndpointAccessibleForTenantHost(): void
+{
+    // Backup current env
+    $old = getenv('MAIN_DOMAIN');
+    $oldEnv = $_ENV['MAIN_DOMAIN'] ?? null;
 
-        $app = $this->getAppInstance();
-        $request = $this->createRequest('GET', '/healthz');
-        $uri = $request->getUri()->withHost('foo.example.com');
-        $res = $app->handle($request->withUri($uri));
+    // Set test env
+    putenv('MAIN_DOMAIN=example.com');
+    $_ENV['MAIN_DOMAIN'] = 'example.com';
 
-        $this->assertSame(200, $res->getStatusCode());
+    $app = $this->getAppInstance();
 
-        if ($old === false) {
-            putenv('MAIN_DOMAIN');
+    // Erzeuge Request für Tenant-Domain und JSON
+    $request = $this->createRequest('GET', '/healthz', [
+        'HTTP_HOST'   => 'tenant.example.com',
+        'HTTP_ACCEPT' => 'application/json',
+    ]);
+    // Stelle sicher, dass auch die URI den Host trägt (je nach Helper-Implementation)
+    $request = $request->withUri($request->getUri()->withHost('tenant.example.com'));
+
+    $response = $app->handle($request);
+
+    // Status OK & JSON-Header
+    $this->assertSame(200, $response->getStatusCode());
+    $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+
+    // Body inhaltlich prüfen
+    $data = json_decode((string) $response->getBody(), true);
+    $this->assertSame('ok', $data['status'] ?? null);
+
+    // Restore env
+    if ($old === false) {
+        putenv('MAIN_DOMAIN');
+        unset($_ENV['MAIN_DOMAIN']);
+    } else {
+        putenv('MAIN_DOMAIN=' . $old);
+        if ($oldEnv === null) {
+            unset($_ENV['MAIN_DOMAIN']);
         } else {
-            putenv('MAIN_DOMAIN=' . $old);
+            $_ENV['MAIN_DOMAIN'] = $oldEnv;
         }
     }
 }

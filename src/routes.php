@@ -126,6 +126,10 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 return function (\Slim\App $app, TranslationService $translator) {
     $app->add(function (Request $request, RequestHandlerInterface $handler) use ($translator) {
+        if ($request->getUri()->getPath() === '/healthz') {
+            return $handler->handle($request);
+        }
+
         $base = Database::connectFromEnv();
         Migrator::migrate($base, __DIR__ . '/../migrations');
 
