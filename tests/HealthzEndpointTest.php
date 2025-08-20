@@ -120,3 +120,4 @@ public function testHealthzEndpointAccessibleForTenantHost(): void
         }
     }
 }
+}
