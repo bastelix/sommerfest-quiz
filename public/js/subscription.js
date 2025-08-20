@@ -49,7 +49,7 @@
         `<th>${el.dataset.labelDate}</th>` +
         `<th>${el.dataset.labelAmount}</th>` +
         `<th>${el.dataset.labelStatus}</th>` +
-        `<th></th>` +
+        `<th>${el.dataset.labelDownload}</th>` +
         '</tr></thead><tbody>';
       for (const inv of data){
         const num = inv.number || inv.id;

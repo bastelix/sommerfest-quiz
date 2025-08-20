@@ -186,6 +186,7 @@ return [
       'label_price' => 'Price',
       'label_date' => 'Date',
       'label_invoice_status' => 'Invoice status',
+      'label_invoice_pdf' => 'Download invoice PDF',
       'label_next_payment' => 'Next payment',
       'action_cancel_subscription' => 'Cancel subscription',
       'stripe_payment_terms' => 'Payment is processed via Stripe. The ' .

@@ -187,6 +187,7 @@ return [
       'label_price' => 'Preis',
       'label_date' => 'Datum',
       'label_invoice_status' => 'Rechnungsstatus',
+      'label_invoice_pdf' => 'Download PDF Rechnung',
       'label_next_payment' => 'Nächste Zahlung',
       'action_cancel_subscription' => 'Abo kündigen',
       'stripe_payment_terms' => 'Die Zahlung wird über Stripe abgewickelt. Es gelten die ' .
