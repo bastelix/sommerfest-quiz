@@ -1206,6 +1206,37 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware('admin'));
 
+    $app->post('/api/tenants/{slug}/restart', function (Request $request, Response $response, array $args) {
+        if ($request->getAttribute('domainType') !== 'main') {
+            return $response->withStatus(403);
+        }
+        $slug = preg_replace('/[^a-z0-9\-]/', '-', strtolower((string) ($args['slug'] ?? '')));
+        $script = realpath(__DIR__ . '/../scripts/restart_tenant.sh');
+
+        if (!is_file($script)) {
+            $response->getBody()->write(json_encode(['error' => 'Restart script not found']));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $cmd = escapeshellcmd($script . ' ' . $slug);
+        exec($cmd, $output, $exitCode);
+
+        if ($exitCode !== 0) {
+            $response->getBody()->write(json_encode(['error' => 'Failed to restart tenant']));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $response->getBody()->write(json_encode(['status' => 'restarted', 'slug' => $slug]));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    })->add(new RoleAuthMiddleware('admin'));
+
     $app->get('/database', function (Request $request, Response $response) {
         $uri = $request->getUri();
         $location = 'https://adminer.' . $uri->getHost();

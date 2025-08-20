@@ -214,6 +214,7 @@ return [
     'action_sync_tenants' => 'Fehlende Mandanten suchen',
     'action_renew_ssl' => 'SSL erneuern',
     'action_upgrade_docker' => 'Docker aktualisieren',
+    'action_restart_tenant' => 'Docker neu starten',
     'action_send_welcome_mail' => 'Willkommensmail senden',
     'help_admin_pass' => 'Definiert das Admin-Passwort des neuen Mandanten. Bleibt das Feld leer, ' .
         'wird ein zufälliges Passwort erzeugt',
