@@ -126,7 +126,20 @@ class PasswordResetController
             || ($repeat !== '' && $repeat !== $pass)
             || !$this->policy->validate($pass)
         ) {
-            return $response->withStatus(400);
+            $view = Twig::fromRequest($request);
+            $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
+            $_SESSION['csrf_token'] = $csrf;
+
+            return $view->render(
+                $response->withStatus(400),
+                'password_confirm.twig',
+                [
+                    'error'      => true,
+                    'token'      => $token,
+                    'csrf_token' => $csrf,
+                    'next'       => $next,
+                ]
+            );
         }
 
         $userId = $this->resets->consumeToken($token);
