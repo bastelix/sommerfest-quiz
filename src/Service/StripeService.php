@@ -46,6 +46,8 @@ class StripeService
             $envTrial = getenv('STRIPE_TRIAL_DAYS');
             if ($envTrial !== false && $envTrial !== '') {
                 $trialPeriodDays = (int) $envTrial;
+            } else {
+                $trialPeriodDays = 7;
             }
         }
 
@@ -56,8 +58,9 @@ class StripeService
             ],
             'metadata' => ['plan' => $plan],
         ];
-        if ($trialPeriodDays !== null) {
+        if ($trialPeriodDays > 0) {
             $params['subscription_data'] = ['trial_period_days' => $trialPeriodDays];
+            $params['payment_method_collection'] = 'if_required';
         }
         if ($embedded) {
             $params['ui_mode'] = 'embedded';

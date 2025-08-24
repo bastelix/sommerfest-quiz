@@ -83,6 +83,14 @@
       </div>
     </div>
   {% endif %}
+  {% if tenant and tenant.stripe_status == 'trialing' and tenant.stripe_current_period_end %}
+    <div class="uk-container uk-container-large">
+      <div class="uk-alert-primary uk-margin" uk-alert>
+        {{ t('text_trial_banner_prefix') }} {{ tenant.stripe_current_period_end|date('d.m.Y') }}.
+        {{ t('text_trial_banner_suffix') }} <a href="{{ basePath }}/admin/subscription/portal">{{ t('action_setup_payment_method') }}</a>
+      </div>
+    </div>
+  {% endif %}
   <div class="uk-grid-collapse" uk-grid>
     <aside class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
       <div class="uk-card uk-card-default uk-card-body qr-sidebar-card">
