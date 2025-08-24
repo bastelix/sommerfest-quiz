@@ -86,7 +86,11 @@
 {% block body_class %}uk-padding{% endblock %}
 
 {% block body %}
-  {% embed 'topbar.twig' %}{% endembed %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <a href="{{ basePath }}/landing" class="uk-icon-button" uk-icon="icon: arrow-left; ratio: 2" title="Zurück" aria-label="Zurück"></a>
+    {% endblock %}
+  {% endembed %}
   <div class="uk-container uk-margin-large-top">
     {% if stripe_error %}
       <div class="uk-alert-danger" uk-alert>
