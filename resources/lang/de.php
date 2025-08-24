@@ -235,5 +235,8 @@ return [
     'heading_limit_reached' => 'Limit erreicht',
     'text_upgrade_required' => 'Das Abo ist ausgelastet. Um weitere Veranstaltungen anzulegen, upgraden Sie auf eine höhere Version.',
     'action_upgrade' => 'Upgrade',
+    'text_trial_banner_prefix' => 'Ihre Testphase endet am',
+    'text_trial_banner_suffix' => 'Bitte hinterlegen Sie eine Zahlungsmethode:',
+    'action_setup_payment_method' => 'Zahlungsmethode hinzufügen',
     'text_stripe_config_missing' => 'Stripe-Konfiguration fehlt. Bitte erforderliche Umgebungsvariablen setzen.',
 ];
