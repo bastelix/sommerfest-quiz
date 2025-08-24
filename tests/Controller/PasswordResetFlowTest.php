@@ -152,6 +152,8 @@ class PasswordResetFlowTest extends TestCase
             ]);
         $resp2 = $app->handle($confirm);
         $this->assertSame(400, $resp2->getStatusCode());
+        $body = (string) $resp2->getBody();
+        $this->assertStringContainsString('Passwort konnte nicht geändert werden.', $body);
 
         $updated = $userService->getByUsername('alice');
         $this->assertIsArray($updated);
@@ -216,6 +218,8 @@ class PasswordResetFlowTest extends TestCase
             ]);
         $resp2 = $app->handle($confirm);
         $this->assertSame(400, $resp2->getStatusCode());
+        $body = (string) $resp2->getBody();
+        $this->assertStringContainsString('Passwort konnte nicht geändert werden.', $body);
 
         $updated = $userService->getByUsername('alice');
         $this->assertIsArray($updated);
