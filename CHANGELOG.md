@@ -23,6 +23,7 @@
 - Bump version to 0.2.15 [skip ci]
 - Bump version to 0.2.16 [skip ci]
 - Bump version to 0.2.17 [skip ci]
+- Bump version to 0.2.18 [skip ci]
 
 ### Feat
 
