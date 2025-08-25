@@ -5,23 +5,23 @@
     totop: { label: 'Nach oben' },
     marker: { label: 'Öffnen' },
     navbarToggleIcon: { label: 'Menü öffnen' },
-    paginationPrevious: { label: 'Vorherige Seite' },
-    paginationNext: { label: 'Nächste Seite' },
+    paginationPrevious: { label: 'Zurück' },
+    paginationNext: { label: 'Weiter' },
     slider: {
-      next: 'Nächste Folie',
-      previous: 'Vorherige Folie',
+      next: 'Weiter',
+      previous: 'Zurück',
       slideX: 'Folie %s',
       slideLabel: '%s von %s'
     },
     slideshow: {
-      next: 'Nächste Folie',
-      previous: 'Vorherige Folie',
+      next: 'Weiter',
+      previous: 'Zurück',
       slideX: 'Folie %s',
       slideLabel: '%s von %s'
     },
     lightboxPanel: {
-      next: 'Nächste Folie',
-      previous: 'Vorherige Folie',
+      next: 'Weiter',
+      previous: 'Zurück',
       slideLabel: '%s von %s',
       close: 'Schließen'
     }
