@@ -26,8 +26,10 @@ class UserService
      */
     public function getByUsername(string $username): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT id,username,password,email,role,active FROM users WHERE username=?');
-        $stmt->execute([strtolower($username)]);
+        $stmt = $this->pdo->prepare(
+            'SELECT id,username,password,email,role,active FROM users WHERE LOWER(username) = LOWER(?)'
+        );
+        $stmt->execute([$username]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row !== false ? $row : null;
     }
@@ -39,8 +41,10 @@ class UserService
      */
     public function getByEmail(string $email): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT id,username,password,email,role,active FROM users WHERE email=?');
-        $stmt->execute([strtolower($email)]);
+        $stmt = $this->pdo->prepare(
+            'SELECT id,username,password,email,role,active FROM users WHERE LOWER(email) = LOWER(?)'
+        );
+        $stmt->execute([$email]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row !== false ? $row : null;
     }
