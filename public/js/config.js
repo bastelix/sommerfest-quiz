@@ -16,11 +16,8 @@ window.quizConfig = {
   // Falls "no", wird der Button "Antwort prüfen" ausgeblendet
   CheckAnswerButton: 'no',
 
-  // QR-Code-Login aktivieren (true/false)
+  // QR-Code-Login aktivieren und Namen speichern (true/false)
   QRUser: true,
-
-  // Bereits gescannte Namen merken (true/false)
-  QRRemember: false,
 
   // Teilnahme auf bekannte Namen beschränken
   QRRestrict: false,
