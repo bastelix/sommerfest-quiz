@@ -24,6 +24,7 @@
 - Bump version to 0.2.16 [skip ci]
 - Bump version to 0.2.17 [skip ci]
 - Bump version to 0.2.18 [skip ci]
+- Bump version to 0.2.19 [skip ci]
 
 ### Feat
 
@@ -35,6 +36,7 @@
 - Enable subscription plan toggle for all tenants
 - Add health endpoint and improve onboarding check
 - Add automatic patch bump workflow
+- Enforce password repeat in reset
 
 ### Fix
 
