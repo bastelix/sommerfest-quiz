@@ -25,6 +25,9 @@
 - Bump version to 0.2.17 [skip ci]
 - Bump version to 0.2.18 [skip ci]
 - Bump version to 0.2.19 [skip ci]
+- Bump version to 0.2.20 [skip ci]
+- Bump version to 0.2.21 [skip ci]
+- Bump version to 0.2.22 [skip ci]
 
 ### Feat
 
@@ -37,10 +40,12 @@
 - Add health endpoint and improve onboarding check
 - Add automatic patch bump workflow
 - Enforce password repeat in reset
+- Group admin options by category
 
 ### Fix
 
 - Update phpstan config for v2
+- Ensure page content respects dynamic topbar height
 
 ### Refactor
 
