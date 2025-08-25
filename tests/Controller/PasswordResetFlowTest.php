@@ -81,7 +81,9 @@ class PasswordResetFlowTest extends TestCase
                 'password' => 'Str0ngPass1',
                 'csrf_token' => 'tok',
             ]);
+        $_POST['csrf_token'] = 'tok';
         $resp2 = $app->handle($confirm);
+        $_POST = [];
         $this->assertSame(302, $resp2->getStatusCode());
         $this->assertSame('/login?reset=1', $resp2->getHeaderLine('Location'));
 
@@ -150,7 +152,9 @@ class PasswordResetFlowTest extends TestCase
                 'password' => 'weak',
                 'csrf_token' => 'tok',
             ]);
+        $_POST['csrf_token'] = 'tok';
         $resp2 = $app->handle($confirm);
+        $_POST = [];
         $this->assertSame(400, $resp2->getStatusCode());
         $body = (string) $resp2->getBody();
         $this->assertStringContainsString('Passwort konnte nicht geändert werden.', $body);
@@ -216,7 +220,9 @@ class PasswordResetFlowTest extends TestCase
                 'password_repeat' => 'different',
                 'csrf_token' => 'tok',
             ]);
+        $_POST['csrf_token'] = 'tok';
         $resp2 = $app->handle($confirm);
+        $_POST = [];
         $this->assertSame(400, $resp2->getStatusCode());
         $body = (string) $resp2->getBody();
         $this->assertStringContainsString('Passwort konnte nicht geändert werden.', $body);

@@ -116,6 +116,12 @@ class PasswordResetController
             return $response->withStatus(400);
         }
 
+        $csrf = (string) ($_POST['csrf_token'] ?? '');
+        $sessionToken = (string) ($_SESSION['csrf_token'] ?? '');
+        if ($csrf === '' || $sessionToken === '' || !hash_equals($sessionToken, $csrf)) {
+            return $response->withStatus(403);
+        }
+
         $token = (string) ($data['token'] ?? '');
         $pass = (string) ($data['password'] ?? '');
         $repeat = (string) ($data['password_repeat'] ?? '');
@@ -149,6 +155,7 @@ class PasswordResetController
 
         $this->users->updatePassword($userId, $pass);
         $this->sessions->invalidateUserSessions($userId);
+        unset($_SESSION['csrf_token']);
 
         if ($next !== '' && str_starts_with($next, '/')) {
             $user = $this->users->getById($userId);
