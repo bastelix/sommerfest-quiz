@@ -74,6 +74,7 @@ return [
     'tip_team_results' => 'Shows teams a summary of their results after all catalogs are completed.',
     'tip_photo_upload' => 'Shows or hides buttons for uploading photos.',
     'tip_puzzle_word' => 'Displays letters for the puzzle word and saves the full term.',
+    'text_event_settings_help' => '<ol><li><strong>Show check answer button</strong> – Displays a button to check the answer during the quiz.</li><li><strong>Use QR code login</strong> – Enables the “Scan name via QR code” button on the start page to import the name.</li><li><strong>Remember once-scanned code</strong> – Saves the scanned name in the browser and skips future logins.</li><li><strong>Allow entering team names</strong> – Requires manual name input if no QR code is scanned.</li><li><strong>Restrict to listed teams/people</strong> – Limits participation to predefined teams.</li><li><strong>Competition mode</strong> – Hides restart buttons and prevents repeating solved catalogs.</li><li><strong>Show result overview</strong> – Displays a summary of results after all catalogs are completed.</li><li><strong>Enable photo uploads</strong> – Toggles buttons for uploading proof photos.</li><li><strong>Puzzle word</strong> – Reveals letters for the puzzle word and stores the complete term.</li></ol>',
     'tip_save_settings' => 'Save settings',
     'tip_sort_rows' => 'Drag row to sort',
     'tip_event_remove' => 'Remove event',

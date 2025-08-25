@@ -2827,7 +2827,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   helpBtn?.addEventListener('click', () => {
     if (!helpSidebar || !helpContent) return;
-    helpContent.textContent = activeHelpText();
+    let text = activeHelpText();
+    if (!text && window.location.pathname.endsWith('/admin/event/settings')) {
+      text = window.transEventSettingsHelp || '';
+    }
+    helpContent.innerHTML = text;
     UIkit.offcanvas(helpSidebar).show();
   });
 
