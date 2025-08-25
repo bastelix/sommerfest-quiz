@@ -1707,6 +1707,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const sel = eventSelect.options[eventSelect.selectedIndex];
       btnSpan.textContent = sel ? sel.textContent : '';
     }
+    window.dispatchEvent(new Event('resize'));
   }
 
   function setActiveEvent(uid, name) {
