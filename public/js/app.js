@@ -39,4 +39,21 @@ document.addEventListener('DOMContentLoaded', function () {
       localStorage.setItem('highContrast', hc ? 'true' : 'false');
     });
   }
+
+  const topbar = document.querySelector('.topbar');
+  const navPlaceholder = document.querySelector('.nav-placeholder');
+
+  function updateNavPlaceholder() {
+    if (navPlaceholder && topbar) {
+      let height = topbar.offsetHeight;
+      const headerBar = document.querySelector('.event-header-bar');
+      if (headerBar) {
+        height += headerBar.offsetHeight;
+      }
+      navPlaceholder.style.height = height + 'px';
+    }
+  }
+
+  updateNavPlaceholder();
+  window.addEventListener('resize', updateNavPlaceholder);
 });

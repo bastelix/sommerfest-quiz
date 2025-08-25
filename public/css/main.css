@@ -152,12 +152,13 @@ body.uk-padding {
   top: 0;
   left: 0;
   right: 0;
-  height: 56px;
+  min-height: 56px;
   padding: 0 0.5rem;
   box-sizing: border-box;
   z-index: 1000;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .topbar .uk-navbar-left,
