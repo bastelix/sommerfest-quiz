@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\UserService;
+use App\Service\SessionService;
 use App\Infrastructure\Database;
 use App\Service\VersionService;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -56,9 +57,9 @@ class LoginController
         if (!$pdo instanceof PDO) {
             $pdo = Database::connectFromEnv();
         }
-        $service = new UserService($pdo);
+        $userService = new UserService($pdo);
 
-        $record = $service->getByUsername((string)($data['username'] ?? ''));
+        $record = $userService->getByUsername((string)($data['username'] ?? ''));
         $valid = false;
         if ($record !== null && (bool)$record['active']) {
             $pwd = (string)($data['password'] ?? '');
@@ -74,6 +75,8 @@ class LoginController
                 'username' => $record['username'],
                 'role' => $record['role'],
             ];
+            $sessionService = new SessionService($pdo);
+            $sessionService->persistSession((int) $record['id'], session_id());
             $target = $record['role'] === 'admin' ? '/admin' : '/';
             return $response->withHeader('Location', $target)->withStatus(302);
         }

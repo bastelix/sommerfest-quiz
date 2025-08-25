@@ -177,6 +177,8 @@ class PasswordResetController
                     'username' => $user['username'],
                     'role' => $user['role'],
                 ];
+                $sid = session_id();
+                $this->sessions->persistSession($userId, $sid);
                 return $response->withHeader('Location', $next)->withStatus(302);
             }
         }
