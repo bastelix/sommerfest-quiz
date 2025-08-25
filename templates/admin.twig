@@ -284,80 +284,92 @@
             <div class="uk-width-1-1">
               <h3 class="uk-heading-bullet">{{ t('heading_game_options') }}</h3>
             </div>
-            <div>
-              <div class="uk-margin">
-                <label><input class="uk-checkbox" type="checkbox" id="cfgCheckAnswerButton"> {{ t('label_check_button') }}
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_check_button') }}; pos: right"></span>
-                </label>
+              <div class="uk-width-1-1">
+                <h4 class="uk-heading-bullet">{{ t('heading_login') }}</h4>
               </div>
-            </div>
-            <div>
-              <div class="uk-margin">
-                <label><input class="uk-checkbox" type="checkbox" id="cfgQRUser"> {{ t('label_qr_login') }}
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_qr_button') }}; pos: right"></span>
-                </label>
+              <div>
+                <div class="uk-margin">
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgQRUser"> {{ t('label_qr_login') }}
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_qr_button') }}; pos:right"></span>
+                  </label>
+                </div>
               </div>
-            </div>
-            <div>
-              <div class="uk-margin">
-                <label><input class="uk-checkbox" type="checkbox" id="cfgQRRemember"> {{ t('label_qr_remember') }}
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_qr_remember') }}; pos: right"></span>
-                </label>
+              <div>
+                <div class="uk-margin">
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgQRRemember"> {{ t('label_qr_remember') }}
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_qr_remember') }}; pos: right"></span>
+                  </label>
+                </div>
               </div>
-            </div>
-            <div>
-              <div class="uk-margin">
-                <label><input class="uk-checkbox" type="checkbox" id="cfgRandomNames"> {{ t('label_random_names') }}
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_random_names') }}; pos: right"></span>
-                </label>
+              <div>
+                <div class="uk-margin">
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgRandomNames"> {{ t('label_random_names') }}
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_random_names') }}; pos: right"></span>
+                  </label>
+                </div>
               </div>
-            </div>
-            <div>
-              <div class="uk-margin">
-                <label><input class="uk-checkbox" type="checkbox" id="cfgTeamRestrict"> {{ t('label_team_restrict') }}
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_team_restrict') }}; pos: right"></span>
-                </label>
+              <div class="uk-width-1-1">
+                <h4 class="uk-heading-bullet">{{ t('heading_access') }}</h4>
               </div>
-            </div>
-            <div>
-              <div class="uk-margin">
-                <label><input class="uk-checkbox" type="checkbox" id="cfgCompetitionMode"> {{ t('label_competition_mode') }}
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_competition_mode') }}; pos: right"></span>
-                </label>
+              <div>
+                <div class="uk-margin">
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgTeamRestrict"> {{ t('label_team_restrict') }}
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_team_restrict') }}; pos: right"></span>
+                  </label>
+                </div>
               </div>
-            </div>
-            <div>
-              <div class="uk-margin">
-                <label><input class="uk-checkbox" type="checkbox" id="cfgTeamResults"> {{ t('label_team_results') }}
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_team_results') }}; pos: right"></span>
-                </label>
+              <div class="uk-width-1-1">
+                <h4 class="uk-heading-bullet">{{ t('heading_gameplay') }}</h4>
               </div>
-            </div>
-            <div>
-              <div class="uk-margin">
-                <label><input class="uk-checkbox" type="checkbox" id="cfgPhotoUpload"> {{ t('label_photo_upload') }}
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_photo_upload') }}; pos: right"></span>
-                </label>
+              <div>
+                <div class="uk-margin">
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgCheckAnswerButton"> {{ t('label_check_button') }}
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_check_button') }}; pos: right"></span>
+                  </label>
+                </div>
               </div>
-            </div>
-            <div>
-              <div class="uk-margin">
-                <label><input class="uk-checkbox" type="checkbox" id="cfgPuzzleEnabled"> {{ t('label_puzzle_word') }}
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_puzzle_word') }}; pos: right"></span>
-                </label>
-                <div id="cfgPuzzleWordWrap" class="uk-margin-small-top uk-grid uk-child-width-1-2@m uk-grid-small uk-flex-middle" uk-grid>
-                  <div>
-                    <input class="uk-input" type="text" id="cfgPuzzleWord" placeholder="{{ t('placeholder_puzzle_word') }}">
-                  </div>
-                  <div>
-                    <button id="puzzleFeedbackBtn" class="uk-button uk-button-default uk-width-1-1@m" type="button" uk-toggle="target: #puzzleFeedbackModal">
-                      <span id="puzzleFeedbackIcon" uk-icon="icon: check"></span>
-                      <span id="puzzleFeedbackLabel">{{ t('action_edit_feedback') }}</span>
-                    </button>
+              <div>
+                <div class="uk-margin">
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgCompetitionMode"> {{ t('label_competition_mode') }}
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_competition_mode') }}; pos: right"></span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <div class="uk-margin">
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgTeamResults"> {{ t('label_team_results') }}
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_team_results') }}; pos: right"></span>
+                  </label>
+                </div>
+              </div>
+              <div class="uk-width-1-1">
+                <h4 class="uk-heading-bullet">{{ t('heading_extras') }}</h4>
+              </div>
+              <div>
+                <div class="uk-margin">
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgPhotoUpload"> {{ t('label_photo_upload') }}
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_photo_upload') }}; pos: right"></span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <div class="uk-margin">
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgPuzzleEnabled"> {{ t('label_puzzle_word') }}
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_puzzle_word') }}; pos: right"></span>
+                  </label>
+                  <div id="cfgPuzzleWordWrap" class="uk-margin-small-top uk-grid uk-child-width-1-2@m uk-grid-small uk-flex-middle" uk-grid>
+                    <div>
+                      <input class="uk-input" type="text" id="cfgPuzzleWord" placeholder="{{ t('placeholder_puzzle_word') }}">
+                    </div>
+                    <div>
+                      <button id="puzzleFeedbackBtn" class="uk-button uk-button-default uk-width-1-1@m" type="button" uk-toggle="target: #puzzleFeedbackModal">
+                        <span id="puzzleFeedbackIcon" uk-icon="icon: check"></span>
+                        <span id="puzzleFeedbackLabel">{{ t('action_edit_feedback') }}</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
           </div>
         </form>
 

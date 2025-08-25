@@ -1,18 +1,27 @@
 # Administration
 
-Die Administrationsoberfläche erreichen Sie über `/admin/dashboard` (kurz `/admin`) nach einem erfolgreichen Login. Jeder Tab besitzt eine eigene Route:
+Die Administrationsoberfläche erreichen Sie über `/admin/dashboard` (kurz `/admin`) nach einem erfolgreichen Login. Die Navigation ist in folgende Kategorien gegliedert:
 
-1. **Startseite** – erreichbar über `/admin/dashboard`.
-2. **Events** – `/admin/events`.
-3. **Event Configuration** – `/admin/event/settings`.
-4. **Catalogs** – `/admin/catalogs`.
-5. **Edit Questions** – `/admin/questions`.
-6. **Teams/People** – `/admin/teams`.
-7. **Summary** – `/admin/summary`.
-8. **Results** – `/admin/results`.
-9. **Statistics** – `/admin/statistics`.
-10. **Pages** – `/admin/pages` (nur Administratoren).
-11. **Administration** – `/admin/management` (nur Administratoren).
+* **Event**
+  * **Startseite** – `/admin/dashboard`
+  * **Events** – `/admin/events`
+  * **Event-Konfiguration** – `/admin/event/settings`
+* **Inhalte**
+  * **Kataloge** – `/admin/catalogs`
+  * **Fragen bearbeiten** – `/admin/questions`
+  * **Seiten** – `/admin/pages` (nur Administratoren)
+* **Teams**
+  * **Teams/Personen** – `/admin/teams`
+* **Auswertung**
+  * **Übersicht** – `/admin/summary`
+  * **Ergebnisse** – `/admin/results`
+  * **Statistik** – `/admin/statistics`
+* **Konto**
+  * **Profil** – `/admin/profile`
+  * **Abo** – `/admin/subscription`
+* **Administration**
+  * **Administration** – `/admin/management` (nur Administratoren)
+  * **Subdomains** – `/admin/tenants` (nur Administratoren)
 Im Tab "Administration" lassen sich JSON-Sicherungen exportieren und bei Bedarf wiederherstellen. Der Statistik-Tab listet jede Antwort mit Name, Versuch, Katalog, Frage, Antwort, Richtig-Status und optionalem Beweisfoto. Über ein Auswahlfeld lassen sich die Daten nach Teams oder Personen filtern.
 
 Weitere Funktionen wie der QR-Code-Login oder der Wettkampfmodus lassen sich in der Datei `data/config.json` aktivieren.
