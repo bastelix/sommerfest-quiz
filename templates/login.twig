@@ -35,8 +35,10 @@
           <div class="uk-alert-danger" uk-alert>
             {% if inactive %}
             <p>Account noch nicht freigeschaltet.</p>
+            {% elseif unknown %}
+            <p>Benutzer nicht gefunden.</p>
             {% else %}
-            <p>Benutzername oder Passwort falsch.</p>
+            <p>Passwort falsch.</p>
             {% endif %}
           </div>
           {% endif %}
