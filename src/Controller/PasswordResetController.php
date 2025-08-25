@@ -124,27 +124,36 @@ class PasswordResetController
 
         $token = (string) ($data['token'] ?? '');
         $pass = (string) ($data['password'] ?? '');
-        $repeat = (string) ($data['password_repeat'] ?? '');
+        $repeat = trim((string) ($data['password_repeat'] ?? ''));
         $next = (string) ($data['next'] ?? '');
+        $missingRepeat = $repeat === '';
+        $mismatch = $repeat !== $pass;
         if (
             $token === ''
             || $pass === ''
-            || ($repeat !== '' && $repeat !== $pass)
+            || $missingRepeat
+            || $mismatch
             || !$this->policy->validate($pass)
         ) {
             $view = Twig::fromRequest($request);
             $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
             $_SESSION['csrf_token'] = $csrf;
 
+            $params = [
+                'token'      => $token,
+                'csrf_token' => $csrf,
+                'next'       => $next,
+            ];
+            if ($missingRepeat || $mismatch) {
+                $params['mismatch'] = true;
+            } else {
+                $params['error'] = true;
+            }
+
             return $view->render(
                 $response->withStatus(400),
                 'password_confirm.twig',
-                [
-                    'error'      => true,
-                    'token'      => $token,
-                    'csrf_token' => $csrf,
-                    'next'       => $next,
-                ]
+                $params
             );
         }
 
