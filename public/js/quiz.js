@@ -1033,7 +1033,7 @@ async function runQuiz(questions, skipIntro){
     const stats = document.createElement('div');
     stats.className = 'uk-margin';
 
-    if(cfg.QRUser && !(cfg.QRRemember && getStored('quizUser'))){
+    if(cfg.QRUser && !getStored('quizUser')){
       const scanBtn = document.createElement('button');
       scanBtn.className = 'uk-button uk-button-primary uk-button-large';
       scanBtn.textContent = 'Name mit QR-Code scannen';

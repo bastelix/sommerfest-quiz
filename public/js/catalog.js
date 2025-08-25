@@ -627,7 +627,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       }
     };
     if((window.quizConfig || {}).QRUser){
-      if(cfg.QRRemember && getStored('quizUser')){
+      if(getStored('quizUser')){
         updateUserName();
         proceed();
       }else{

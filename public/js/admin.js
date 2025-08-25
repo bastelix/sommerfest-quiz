@@ -327,7 +327,6 @@ document.addEventListener('DOMContentLoaded', function () {
     buttonColor: document.getElementById('cfgButtonColor'),
     checkAnswerButton: document.getElementById('cfgCheckAnswerButton'),
     qrUser: document.getElementById('cfgQRUser'),
-    qrRemember: document.getElementById('cfgQRRemember'),
     randomNames: document.getElementById('cfgRandomNames'),
     teamRestrict: document.getElementById('cfgTeamRestrict'),
     competitionMode: document.getElementById('cfgCompetitionMode'),
@@ -377,7 +376,6 @@ document.addEventListener('DOMContentLoaded', function () {
       buttonColor: cfgFields.buttonColor.value.trim(),
       CheckAnswerButton: cfgFields.checkAnswerButton.checked ? 'yes' : 'no',
       QRUser: cfgFields.qrUser.checked,
-      QRRemember: cfgFields.qrRemember ? cfgFields.qrRemember.checked : cfgInitial.QRRemember,
       QRRestrict: cfgFields.teamRestrict ? cfgFields.teamRestrict.checked : cfgInitial.QRRestrict,
       randomNames: cfgFields.randomNames ? cfgFields.randomNames.checked : cfgInitial.randomNames,
       competitionMode: cfgFields.competitionMode ? cfgFields.competitionMode.checked : cfgInitial.competitionMode,
@@ -541,9 +539,6 @@ document.addEventListener('DOMContentLoaded', function () {
     cfgFields.buttonColor.value = data.buttonColor || '';
     cfgFields.checkAnswerButton.checked = data.CheckAnswerButton !== 'no';
     cfgFields.qrUser.checked = !!data.QRUser;
-    if (cfgFields.qrRemember) {
-      cfgFields.qrRemember.checked = !!data.QRRemember;
-    }
     if (cfgFields.randomNames) {
       cfgFields.randomNames.checked = data.randomNames !== false;
     }
@@ -663,7 +658,6 @@ document.addEventListener('DOMContentLoaded', function () {
     cfgFields.buttonColor,
     cfgFields.checkAnswerButton,
     cfgFields.qrUser,
-    cfgFields.qrRemember,
     cfgFields.randomNames,
     cfgFields.teamRestrict,
     cfgFields.competitionMode,
