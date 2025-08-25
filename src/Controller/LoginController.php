@@ -59,11 +59,16 @@ class LoginController
         }
         $userService = new UserService($pdo);
 
-        $record = $userService->getByUsername((string)($data['username'] ?? ''));
+        $identifier = (string) ($data['username'] ?? '');
+        $record = $userService->getByUsername($identifier);
+        if ($record === null) {
+            $record = $userService->getByEmail($identifier);
+        }
+
         $valid = false;
-        if ($record !== null && (bool)$record['active']) {
-            $pwd = (string)($data['password'] ?? '');
-            $valid = password_verify($pwd, (string)$record['password']);
+        if ($record !== null && (bool) $record['active']) {
+            $pwd = (string) ($data['password'] ?? '');
+            $valid = password_verify($pwd, (string) $record['password']);
         }
 
         if ($valid) {
@@ -82,11 +87,17 @@ class LoginController
         }
 
         $view = Twig::fromRequest($request);
-        $inactive = $record !== null && !(bool)$record['active'];
+        $inactive = $record !== null && !(bool) $record['active'];
+        $unknown = $record === null;
+
         return $view->render(
             $response->withStatus(401),
             'login.twig',
-            ['error' => true, 'inactive' => $inactive]
+            [
+                'error' => true,
+                'inactive' => $inactive,
+                'unknown' => $unknown,
+            ]
         );
     }
 }

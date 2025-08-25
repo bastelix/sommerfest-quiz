@@ -43,4 +43,41 @@ class LoginControllerTest extends TestCase
         $stmt->execute([(int) $record['id'], $sid]);
         $this->assertSame(1, (int) $stmt->fetchColumn());
     }
+
+    public function testLoginByEmail(): void
+    {
+        $pdo = $this->getDatabase();
+        $userService = new UserService($pdo);
+        $userService->create('bob', 'secret', 'bob@example.com', Roles::ADMIN);
+
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('POST', '/login')
+            ->withParsedBody(['username' => 'bob@example.com', 'password' => 'secret']);
+        $response = $app->handle($request);
+        $this->assertSame(302, $response->getStatusCode());
+    }
+
+    public function testUnknownUserShowsMessage(): void
+    {
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('POST', '/login')
+            ->withParsedBody(['username' => 'nobody', 'password' => 'secret']);
+        $response = $app->handle($request);
+        $this->assertSame(401, $response->getStatusCode());
+        $this->assertStringContainsString('Benutzer nicht gefunden', (string) $response->getBody());
+    }
+
+    public function testWrongPasswordShowsMessage(): void
+    {
+        $pdo = $this->getDatabase();
+        $userService = new UserService($pdo);
+        $userService->create('carol', 'secret', 'carol@example.com', Roles::ADMIN);
+
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('POST', '/login')
+            ->withParsedBody(['username' => 'carol', 'password' => 'wrong']);
+        $response = $app->handle($request);
+        $this->assertSame(401, $response->getStatusCode());
+        $this->assertStringContainsString('Passwort falsch', (string) $response->getBody());
+    }
 }
