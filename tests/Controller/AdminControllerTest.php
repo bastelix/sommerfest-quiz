@@ -129,7 +129,7 @@ class AdminControllerTest extends TestCase
      */
     public function testStripeCustomerIdStoredOnMainDomain(): void
     {
-        require __DIR__ . '/../Service/StripeServiceStub.php';
+        require_once __DIR__ . '/../Service/StripeServiceStub.php';
         $db = $this->setupDb();
         putenv('MAIN_DOMAIN=example.com');
         $_ENV['MAIN_DOMAIN'] = 'example.com';
@@ -157,7 +157,7 @@ class AdminControllerTest extends TestCase
      */
     public function testSubscriptionPageShowsEmailInputWhenTenantMissing(): void
     {
-        require __DIR__ . '/../Service/StripeServiceStub.php';
+        require_once __DIR__ . '/../Service/StripeServiceStub.php';
         $db = $this->setupDb();
         putenv('MAIN_DOMAIN=example.com');
         $_ENV['MAIN_DOMAIN'] = 'example.com';
@@ -249,5 +249,50 @@ class AdminControllerTest extends TestCase
         unlink($db);
         putenv('MAIN_DOMAIN');
         unset($_ENV['MAIN_DOMAIN']);
+    }
+
+    public function testStripeApiCalledOnPlanChange(): void
+    {
+        require_once __DIR__ . '/../Service/StripeServiceStub.php';
+        \App\Service\StripeService::$calls = [];
+
+        $db = $this->setupDb();
+        putenv('MAIN_DOMAIN=example.com');
+        $_ENV['MAIN_DOMAIN'] = 'example.com';
+        putenv('STRIPE_PRICE_STARTER=price_start');
+        putenv('STRIPE_PRICE_STANDARD=price_standard');
+        putenv('STRIPE_PRICE_PROFESSIONAL=price_pro');
+        $app = $this->getAppInstance();
+        $pdo = new PDO($_ENV['POSTGRES_DSN']);
+        $pdo->exec("INSERT INTO tenants(uid, subdomain, stripe_customer_id) VALUES('t1','main','cus_123')");
+
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $_SESSION['csrf_token'] = 'tok';
+
+        $request = $this->createRequest('POST', '/admin/subscription/toggle', [
+            'X-CSRF-Token' => 'tok',
+            'HTTP_CONTENT_TYPE' => 'application/json',
+        ])->withUri(new Uri('http', 'example.com', 80, '/admin/subscription/toggle'));
+        $stream = fopen('php://temp', 'r+');
+        fwrite($stream, json_encode(['plan' => 'standard']));
+        rewind($stream);
+        $request = $request->withBody((new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream));
+        $response = $app->handle($request);
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame([
+            ['update', 'cus_123', 'price_standard'],
+        ], \App\Service\StripeService::$calls);
+
+        session_destroy();
+        unlink($db);
+        putenv('MAIN_DOMAIN');
+        unset($_ENV['MAIN_DOMAIN']);
+        putenv('STRIPE_PRICE_STARTER');
+        unset($_ENV['STRIPE_PRICE_STARTER']);
+        putenv('STRIPE_PRICE_STANDARD');
+        unset($_ENV['STRIPE_PRICE_STANDARD']);
+        putenv('STRIPE_PRICE_PROFESSIONAL');
+        unset($_ENV['STRIPE_PRICE_PROFESSIONAL']);
     }
 }

@@ -211,6 +211,47 @@ class StripeService
     }
 
     /**
+     * Update the price of the first subscription for the given customer.
+     */
+    public function updateSubscriptionForCustomer(string $customerId, string $priceId): void
+    {
+        $subs = $this->client->subscriptions->all([
+            'customer' => $customerId,
+            'limit' => 1,
+        ]);
+        $sub = $subs->data[0] ?? null;
+        if ($sub === null) {
+            throw new \RuntimeException('subscription-not-found');
+        }
+        $itemId = $sub->items->data[0]->id ?? null;
+        if ($itemId === null) {
+            throw new \RuntimeException('subscription-item-not-found');
+        }
+        $this->client->subscriptions->update((string) $sub->id, [
+            'items' => [
+                ['id' => $itemId, 'price' => $priceId],
+            ],
+            'cancel_at_period_end' => false,
+        ]);
+    }
+
+    /**
+     * Cancel the first subscription for the given customer.
+     */
+    public function cancelSubscriptionForCustomer(string $customerId): void
+    {
+        $subs = $this->client->subscriptions->all([
+            'customer' => $customerId,
+            'limit' => 1,
+        ]);
+        $sub = $subs->data[0] ?? null;
+        if ($sub === null) {
+            return;
+        }
+        $this->client->subscriptions->cancel((string) $sub->id, []);
+    }
+
+    /**
      * Retrieve a list of invoices for a customer.
      *
      * @return array<int, array{

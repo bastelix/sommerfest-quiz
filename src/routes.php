@@ -543,7 +543,33 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $base = Database::connectFromEnv();
         $tenantSvc = new TenantService($base);
-        $tenantSvc->updateProfile($target, ['plan' => $plan]);
+        try {
+            $tenant = $tenantSvc->getBySubdomain($target) ?? [];
+            $customerId = $tenant['stripe_customer_id'] ?? null;
+            if ($customerId !== null && $customerId !== '') {
+                $stripeSvc = new StripeService();
+                if ($plan !== null) {
+                    $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
+                    $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
+                    $map = [
+                        'starter' => getenv($prefix . 'PRICE_STARTER') ?: '',
+                        'standard' => getenv($prefix . 'PRICE_STANDARD') ?: '',
+                        'professional' => getenv($prefix . 'PRICE_PROFESSIONAL') ?: '',
+                    ];
+                    $priceId = $map[$plan] ?? '';
+                    if ($priceId === '') {
+                        throw new \RuntimeException('price-id-missing');
+                    }
+                    $stripeSvc->updateSubscriptionForCustomer($customerId, $priceId);
+                } else {
+                    $stripeSvc->cancelSubscriptionForCustomer($customerId);
+                }
+            }
+            $tenantSvc->updateProfile($target, ['plan' => $plan]);
+        } catch (\Throwable $e) {
+            error_log('Stripe subscription update failed: ' . $e->getMessage());
+            return $response->withStatus(500);
+        }
         $response->getBody()->write((string) json_encode(['plan' => $plan]));
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());

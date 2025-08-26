@@ -481,11 +481,16 @@ class TenantService
             $maxEvents = $planEnum->limits()['maxEvents'] ?? null;
             if ($maxEvents !== null) {
                 $pdo = $this->pdo;
-                $pdo->exec(sprintf('SET search_path TO "%s"', $subdomain));
+                $driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
+                if ($driver === 'pgsql') {
+                    $pdo->exec(sprintf('SET search_path TO "%s"', $subdomain));
+                }
                 try {
                     $count = (int) $pdo->query('SELECT COUNT(*) FROM events')->fetchColumn();
                 } finally {
-                    $pdo->exec('SET search_path TO public');
+                    if ($driver === 'pgsql') {
+                        $pdo->exec('SET search_path TO public');
+                    }
                 }
                 if ($count > $maxEvents) {
                     throw new \RuntimeException('max-events-exceeded');
