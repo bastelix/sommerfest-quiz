@@ -2,10 +2,16 @@
 document.addEventListener('DOMContentLoaded', function () {
   const themeToggle = document.getElementById('theme-toggle');
   const contrastToggle = document.getElementById('contrast-toggle');
+  const darkStylesheet = document.querySelector('link[href$="dark.css"]');
 
   const storedTheme = localStorage.getItem('darkMode');
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   const isDark = storedTheme === 'true' || (storedTheme === null && prefersDark);
+
+  if (darkStylesheet) {
+    darkStylesheet.disabled = !isDark;
+  }
+
   if (isDark) {
     document.body.classList.add('dark-mode', 'uk-light');
     document.documentElement.classList.add('dark-mode');
@@ -18,6 +24,9 @@ document.addEventListener('DOMContentLoaded', function () {
       const dark = document.body.classList.toggle('dark-mode');
       document.documentElement.classList.toggle('dark-mode', dark);
       document.body.classList.toggle('uk-light', dark);
+      if (darkStylesheet) {
+        darkStylesheet.disabled = !dark;
+      }
       if (dark) {
         localStorage.setItem('darkMode', 'true');
         themeToggle.setAttribute('uk-icon', 'icon: sun; ratio: 2');
