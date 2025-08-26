@@ -35,25 +35,4 @@
 {% block scripts %}
   <script src="{{ basePath }}/js/app.js"></script>
   <script src="{{ basePath }}/js/custom-icons.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function(){
-      const toggle = document.getElementById('theme-toggle');
-      const isDark = localStorage.getItem('darkMode') === 'true';
-      if(isDark){
-        document.body.classList.add('dark-mode','uk-light');
-        if(toggle) toggle.checked = true;
-      }
-      if(toggle){
-        toggle.addEventListener('change', function(){
-          if(this.checked){
-            document.body.classList.add('dark-mode','uk-light');
-            localStorage.setItem('darkMode', 'true');
-          } else {
-            document.body.classList.remove('dark-mode','uk-light');
-            localStorage.setItem('darkMode', 'false');
-          }
-        });
-      }
-    });
-  </script>
 {% endblock %}
