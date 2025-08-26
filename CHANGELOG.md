@@ -54,6 +54,7 @@
 - Bump version to 0.2.41 [skip ci]
 - Bump version to 0.2.42 [skip ci]
 - Bump version to 0.2.43 [skip ci]
+- Bump version to 0.2.44 [skip ci]
 
 ### Feat
 
@@ -72,6 +73,7 @@
 - Increase icon button tap size
 - Enable automatic dark mode
 - Make font sizes responsive
+- Always show tenant actions in dropdown
 
 ### Fix
 
