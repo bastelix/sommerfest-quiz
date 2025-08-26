@@ -2458,16 +2458,17 @@ document.addEventListener('DOMContentLoaded', function () {
           const subscriptionLink = subscriptionId ? stripeBase + '/subscriptions/' + encodeURIComponent(subscriptionId) : '#';
           const customerClass = customerId ? '' : ' class="uk-disabled"';
           const subscriptionClass = subscriptionId ? '' : ' class="uk-disabled"';
-          actionTd.innerHTML = `<ul class="uk-iconnav uk-margin-remove uk-flex-right">
-            <li><a href="#" uk-tooltip="Willkommensmail" uk-icon="mail" data-action="welcome" data-sub="${safeSub}"></a></li>
-            <li><a href="#" uk-tooltip="${window.transUpgradeDocker || 'Docker aktualisieren'}" data-action="upgrade-docker" data-sub="${safeSub}"><span uk-icon="refresh"></span></a></li>
-            <li><a href="#" uk-tooltip="${window.transRestartTenant || 'Docker neu starten'}" data-action="restart" data-sub="${safeSub}"><span uk-icon="history"></span></a></li>
-            <li><a href="#" uk-tooltip="SSL erneuern" data-action="renew" data-sub="${safeSub}"><span uk-icon="lock"></span></a></li>
-            <li>
-              <a uk-icon="more-vertical" href="#" uk-tooltip="Mehr"></a>
+          actionTd.innerHTML = `
+            <div class="uk-inline">
+              <a class="uk-icon-button" uk-icon="more-vertical" href="#"></a>
               <div uk-dropdown="mode: click; pos: bottom-right">
                 <ul class="uk-nav uk-dropdown-nav">
                   <li class="uk-nav-header">Aktionen</li>
+                  <li><a href="#" data-action="welcome" data-sub="${safeSub}"><span uk-icon="mail" class="uk-margin-small-right"></span>Willkommensmail</a></li>
+                  <li><a href="#" data-action="upgrade-docker" data-sub="${safeSub}"><span uk-icon="refresh" class="uk-margin-small-right"></span>${window.transUpgradeDocker || 'Docker aktualisieren'}</a></li>
+                  <li><a href="#" data-action="restart" data-sub="${safeSub}"><span uk-icon="history" class="uk-margin-small-right"></span>${window.transRestartTenant || 'Docker neu starten'}</a></li>
+                  <li><a href="#" data-action="renew" data-sub="${safeSub}"><span uk-icon="lock" class="uk-margin-small-right"></span>SSL erneuern</a></li>
+                  <li class="uk-nav-divider"></li>
                   <li><a class="uk-text-danger" href="#" data-action="delete" data-uid="${safeUid}" data-sub="${safeSub}">Mandant löschen …</a></li>
                   <li class="uk-nav-divider"></li>
                   <li class="uk-nav-header">Verbindungen</li>
@@ -2475,8 +2476,7 @@ document.addEventListener('DOMContentLoaded', function () {
                   <li><a href="${subscriptionLink}"${subscriptionClass} data-action="show-subscription" data-sub="${safeSub}" target="_blank">Abo anzeigen</a></li>
                 </ul>
               </div>
-            </li>
-          </ul>`;
+            </div>`;
 
           tr.appendChild(subTd);
           tr.appendChild(planTd);
