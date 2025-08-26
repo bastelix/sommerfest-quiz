@@ -3,17 +3,16 @@ document.addEventListener('DOMContentLoaded', function () {
   const themeToggle = document.getElementById('theme-toggle');
   const contrastToggle = document.getElementById('contrast-toggle');
 
+  const storedTheme = localStorage.getItem('darkMode');
+  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark = storedTheme === 'true' || (storedTheme === null && prefersDark);
+  if (isDark) {
+    document.body.classList.add('dark-mode', 'uk-light');
+    document.documentElement.classList.add('dark-mode');
+  }
+
   if (themeToggle) {
-    const isDark = localStorage.getItem('darkMode') === 'true';
-    if (isDark) {
-      document.body.classList.add('dark-mode', 'uk-light');
-      document.documentElement.classList.add('dark-mode');
-      // show sun icon when dark mode is active
-      themeToggle.setAttribute('uk-icon', 'icon: sun; ratio: 2');
-    } else {
-      // show moon icon when light mode is active
-      themeToggle.setAttribute('uk-icon', 'icon: moon; ratio: 2');
-    }
+    themeToggle.setAttribute('uk-icon', isDark ? 'icon: sun; ratio: 2' : 'icon: moon; ratio: 2');
     UIkit.icon(themeToggle);
     themeToggle.addEventListener('click', function () {
       const dark = document.body.classList.toggle('dark-mode');
