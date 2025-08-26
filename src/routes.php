@@ -10,6 +10,7 @@ use App\Controller\ImpressumController;
 use App\Controller\LizenzController;
 use App\Controller\AdminController;
 use App\Controller\AdminCatalogController;
+use App\Controller\AdminLogsController;
 use App\Controller\LoginController;
 use App\Controller\LogoutController;
 use App\Controller\ConfigController;
@@ -95,6 +96,7 @@ require_once __DIR__ . '/Controller/TeamController.php';
 require_once __DIR__ . '/Controller/PasswordController.php';
 require_once __DIR__ . '/Controller/PasswordResetController.php';
 require_once __DIR__ . '/Controller/AdminCatalogController.php';
+require_once __DIR__ . '/Controller/AdminLogsController.php';
 require_once __DIR__ . '/Controller/Admin/PageController.php';
 require_once __DIR__ . '/Controller/Admin/LandingpageController.php';
 require_once __DIR__ . '/Controller/QrController.php';
@@ -368,6 +370,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/summary', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/results', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/statistics', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/logs', AdminLogsController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
     $app->get('/admin/dashboard.json', function (Request $request, Response $response) {
         $month = (string)($request->getQueryParams()['month'] ?? (new DateTimeImmutable('now'))->format('Y-m'));
         $pdo = $request->getAttribute('pdo');
