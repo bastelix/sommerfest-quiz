@@ -56,6 +56,22 @@ class StripeWebhookController
                     $tenantService->updateProfile($sub, $data);
                 }
                 break;
+            case 'invoice.paid':
+                $customerId = (string) ($object['customer'] ?? '');
+                if ($customerId !== '') {
+                    $tenantService->updateByStripeCustomerId($customerId, [
+                        'stripe_status' => 'paid',
+                    ]);
+                }
+                break;
+            case 'invoice.payment_failed':
+                $customerId = (string) ($object['customer'] ?? '');
+                if ($customerId !== '') {
+                    $tenantService->updateByStripeCustomerId($customerId, [
+                        'stripe_status' => 'past_due',
+                    ]);
+                }
+                break;
             case 'customer.subscription.updated':
                 $customerId = (string) ($object['customer'] ?? '');
                 if ($customerId !== '') {

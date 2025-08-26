@@ -479,7 +479,7 @@ class TenantService
                 throw new \RuntimeException('invalid-plan');
             }
             $maxEvents = $planEnum->limits()['maxEvents'] ?? null;
-            if ($maxEvents !== null) {
+            if ($maxEvents !== null && $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql') {
                 $pdo = $this->pdo;
                 $pdo->exec(sprintf('SET search_path TO "%s"', $subdomain));
                 try {

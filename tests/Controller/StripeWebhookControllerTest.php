@@ -124,4 +124,66 @@ class StripeWebhookControllerTest extends TestCase
         $this->assertNull($row['plan']);
         $this->assertEquals('canceled', $row['stripe_status']);
     }
+
+    public function testInvoicePaidUpdatesStripeStatus(): void
+    {
+        putenv('STRIPE_WEBHOOK_SECRET=');
+        $app = $this->getAppInstance();
+        $pdo = Database::connectFromEnv();
+        Migrator::migrate($pdo, __DIR__ . '/../../migrations');
+        $pdo->exec('DELETE FROM tenants');
+        $pdo->exec(
+            "INSERT INTO tenants(uid, subdomain, plan, billing_info, stripe_customer_id, stripe_status, created_at) "
+            . "VALUES('u1', 'foo', NULL, NULL, 'cus_123', 'open', '')"
+        );
+
+        $payload = json_encode([
+            'type' => 'invoice.paid',
+            'data' => ['object' => [
+                'customer' => 'cus_123',
+            ]],
+        ]);
+        $request = $this->createRequest('POST', '/stripe/webhook', [
+            'Content-Type' => 'application/json',
+        ]);
+        $request->getBody()->write($payload !== false ? $payload : '');
+        $request->getBody()->rewind();
+        $response = $app->handle($request);
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $stmt = $pdo->query("SELECT stripe_status FROM tenants WHERE subdomain = 'foo'");
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $this->assertEquals('paid', $row['stripe_status']);
+    }
+
+    public function testInvoicePaymentFailedSetsStripeStatusPastDue(): void
+    {
+        putenv('STRIPE_WEBHOOK_SECRET=');
+        $app = $this->getAppInstance();
+        $pdo = Database::connectFromEnv();
+        Migrator::migrate($pdo, __DIR__ . '/../../migrations');
+        $pdo->exec('DELETE FROM tenants');
+        $pdo->exec(
+            "INSERT INTO tenants(uid, subdomain, plan, billing_info, stripe_customer_id, stripe_status, created_at) "
+            . "VALUES('u1', 'foo', NULL, NULL, 'cus_123', 'open', '')"
+        );
+
+        $payload = json_encode([
+            'type' => 'invoice.payment_failed',
+            'data' => ['object' => [
+                'customer' => 'cus_123',
+            ]],
+        ]);
+        $request = $this->createRequest('POST', '/stripe/webhook', [
+            'Content-Type' => 'application/json',
+        ]);
+        $request->getBody()->write($payload !== false ? $payload : '');
+        $request->getBody()->rewind();
+        $response = $app->handle($request);
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $stmt = $pdo->query("SELECT stripe_status FROM tenants WHERE subdomain = 'foo'");
+        $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+        $this->assertEquals('past_due', $row['stripe_status']);
+    }
 }
