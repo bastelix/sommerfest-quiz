@@ -52,6 +52,7 @@
 - Restore config
 - Bump version to 0.2.40 [skip ci]
 - Bump version to 0.2.41 [skip ci]
+- Bump version to 0.2.42 [skip ci]
 
 ### Feat
 
