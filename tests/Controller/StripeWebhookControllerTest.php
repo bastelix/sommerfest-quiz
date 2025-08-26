@@ -10,9 +10,19 @@ use App\Infrastructure\Migrations\Migrator;
 
 class StripeWebhookControllerTest extends TestCase
 {
+    private function generateSignatureHeader(string $payload, string $secret): string
+    {
+        $timestamp = time();
+        $signedPayload = $timestamp . '.' . $payload;
+        $signature = hash_hmac('sha256', $signedPayload, $secret);
+
+        return 't=' . $timestamp . ',v1=' . $signature;
+    }
+
     public function testCheckoutSessionCompletedUpdatesCustomerId(): void
     {
-        putenv('STRIPE_WEBHOOK_SECRET=');
+        $secret = 'whsec_test';
+        putenv('STRIPE_WEBHOOK_SECRET=' . $secret);
         $app = $this->getAppInstance();
         $pdo = Database::connectFromEnv();
         Migrator::migrate($pdo, __DIR__ . '/../../migrations');
@@ -28,11 +38,12 @@ class StripeWebhookControllerTest extends TestCase
                 'client_reference_id' => 'foo',
                 'customer' => 'cus_123',
                 'subscription' => 'sub_123',
-                'metadata' => ['plan' => 'starter'],
             ]],
         ]);
+        $sig = $this->generateSignatureHeader($payload !== false ? $payload : '', $secret);
         $request = $this->createRequest('POST', '/stripe/webhook', [
             'Content-Type' => 'application/json',
+            'Stripe-Signature' => $sig,
         ]);
         $request->getBody()->write($payload !== false ? $payload : '');
         $request->getBody()->rewind();
@@ -45,12 +56,13 @@ class StripeWebhookControllerTest extends TestCase
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         $this->assertEquals('cus_123', $row['stripe_customer_id']);
         $this->assertEquals('sub_123', $row['stripe_subscription_id']);
-        $this->assertEquals('starter', $row['plan']);
+        $this->assertNull($row['plan']);
     }
 
     public function testCustomerSubscriptionUpdatedUpdatesDetails(): void
     {
-        putenv('STRIPE_WEBHOOK_SECRET=');
+        $secret = 'whsec_test';
+        putenv('STRIPE_WEBHOOK_SECRET=' . $secret);
         $app = $this->getAppInstance();
         $pdo = Database::connectFromEnv();
         Migrator::migrate($pdo, __DIR__ . '/../../migrations');
@@ -59,8 +71,6 @@ class StripeWebhookControllerTest extends TestCase
             "INSERT INTO tenants(uid, subdomain, plan, billing_info, stripe_customer_id, created_at) "
             . "VALUES('u1', 'foo', NULL, NULL, 'cus_123', '')"
         );
-
-        putenv('STRIPE_PRICE_STANDARD=price_standard');
         $payload = json_encode([
             'type' => 'customer.subscription.updated',
             'data' => ['object' => [
@@ -72,8 +82,10 @@ class StripeWebhookControllerTest extends TestCase
                 'cancel_at_period_end' => false,
             ]],
         ]);
+        $sig = $this->generateSignatureHeader($payload !== false ? $payload : '', $secret);
         $request = $this->createRequest('POST', '/stripe/webhook', [
             'Content-Type' => 'application/json',
+            'Stripe-Signature' => $sig,
         ]);
         $request->getBody()->write($payload !== false ? $payload : '');
         $request->getBody()->rewind();
@@ -86,7 +98,7 @@ class StripeWebhookControllerTest extends TestCase
         );
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         $this->assertEquals('sub_123', $row['stripe_subscription_id']);
-        $this->assertEquals('standard', $row['plan']);
+        $this->assertNull($row['plan']);
         $this->assertEquals('price_standard', $row['stripe_price_id']);
         $this->assertEquals('active', $row['stripe_status']);
         $this->assertEquals(date('Y-m-d H:i:sP', 1234567890), $row['stripe_current_period_end']);
@@ -95,7 +107,8 @@ class StripeWebhookControllerTest extends TestCase
 
     public function testCustomerSubscriptionDeletedMarksStatusCanceled(): void
     {
-        putenv('STRIPE_WEBHOOK_SECRET=');
+        $secret = 'whsec_test';
+        putenv('STRIPE_WEBHOOK_SECRET=' . $secret);
         $app = $this->getAppInstance();
         $pdo = Database::connectFromEnv();
         Migrator::migrate($pdo, __DIR__ . '/../../migrations');
@@ -111,8 +124,10 @@ class StripeWebhookControllerTest extends TestCase
                 'customer' => 'cus_123',
             ]],
         ]);
+        $sig = $this->generateSignatureHeader($payload !== false ? $payload : '', $secret);
         $request = $this->createRequest('POST', '/stripe/webhook', [
             'Content-Type' => 'application/json',
+            'Stripe-Signature' => $sig,
         ]);
         $request->getBody()->write($payload !== false ? $payload : '');
         $request->getBody()->rewind();
@@ -123,5 +138,18 @@ class StripeWebhookControllerTest extends TestCase
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         $this->assertNull($row['plan']);
         $this->assertEquals('canceled', $row['stripe_status']);
+    }
+
+    public function testMissingSecretReturns500(): void
+    {
+        putenv('STRIPE_WEBHOOK_SECRET');
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('POST', '/stripe/webhook', [
+            'Content-Type' => 'application/json',
+        ]);
+        $request->getBody()->write('{}');
+        $request->getBody()->rewind();
+        $response = $app->handle($request);
+        $this->assertEquals(500, $response->getStatusCode());
     }
 }

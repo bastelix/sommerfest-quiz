@@ -21,12 +21,15 @@ class StripeWebhookController
         $sigHeader = $request->getHeaderLine('Stripe-Signature');
         $webhookSecret = getenv('STRIPE_WEBHOOK_SECRET') ?: '';
 
-        if ($webhookSecret !== '') {
-            try {
-                Webhook::constructEvent($payload, $sigHeader, $webhookSecret);
-            } catch (\UnexpectedValueException | \Stripe\Exception\SignatureVerificationException) {
-                return $response->withStatus(400);
-            }
+        if ($webhookSecret === '') {
+            error_log('Missing STRIPE_WEBHOOK_SECRET environment variable');
+            return $response->withStatus(500);
+        }
+
+        try {
+            Webhook::constructEvent($payload, $sigHeader, $webhookSecret);
+        } catch (\UnexpectedValueException | \Stripe\Exception\SignatureVerificationException) {
+            return $response->withStatus(400);
         }
 
         $data = json_decode($payload, true);
