@@ -34,6 +34,12 @@
 - Bump version to 0.2.22 [skip ci]
 - Bump version to 0.2.23 [skip ci]
 - Bump version to 0.2.24 [skip ci]
+- Bump version to 0.2.25 [skip ci]
+- Bump version to 0.2.26 [skip ci]
+- Bump version to 0.2.27 [skip ci]
+- Bump version to 0.2.28 [skip ci]
+- Bump version to 0.2.29 [skip ci]
+- Bump version to 0.2.30 [skip ci]
 
 ### Feat
 
@@ -47,6 +53,8 @@
 - Add automatic patch bump workflow
 - Enforce password repeat in reset
 - Group admin options by category
+- Extend dark mode styling to html element
+- Sync Stripe subscription on plan change
 
 ### Fix
 
