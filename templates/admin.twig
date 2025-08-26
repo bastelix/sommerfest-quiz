@@ -192,7 +192,7 @@
         <h2 class="uk-heading-bullet">{{ t('heading_events') }}</h2>
         <p class="uk-hidden">Professionelles Quiz-Hosting</p>
         <div class="uk-overflow-auto">
-          <table id="eventsTable" class="uk-table uk-table-divider uk-table-small">
+          <table id="eventsTable" class="uk-table uk-table-divider uk-table-small" role="table" aria-label="{{ t('heading_events') }}">
             <thead class="table-headings">
               <tr>
                 <th><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top"></span></th>
@@ -205,7 +205,15 @@
                 <th><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_event_remove') }}; pos: top"></span></th>
               </tr>
             </thead>
-            <tbody id="eventsList" uk-sortable="handle: .uk-sortable-handle; group: sortable-group"></tbody>
+            <tbody id="eventsList" role="rowgroup"
+              data-label-number="{{ t('column_number') }}"
+              data-label-name="{{ t('column_name') }}"
+              data-label-start="{{ t('column_start') }}"
+              data-label-end="{{ t('column_end') }}"
+              data-label-description="{{ t('column_description') }}"
+              data-label-active="{{ t('column_active') }}"
+              data-label-actions="{{ t('column_actions') }}"
+              uk-sortable="handle: .uk-sortable-handle; group: sortable-group"></tbody>
           </table>
         </div>
         <div class="uk-margin">
@@ -403,7 +411,7 @@
         <div>
           <h2 class="uk-heading-bullet">{{ t('heading_catalogs') }}</h2>
           <div class="uk-overflow-auto">
-          <table id="catalogTable" class="uk-table uk-table-divider uk-table-small">
+          <table id="catalogTable" class="uk-table uk-table-divider uk-table-small" role="table" aria-label="{{ t('heading_catalogs') }}">
             <thead class="table-headings">
               <tr>
                 <th>
@@ -429,7 +437,14 @@
                   </th>
               </tr>
             </thead>
-            <tbody id="catalogList" uk-sortable="handle: .uk-sortable-handle; group: sortable-group"></tbody>
+            <tbody id="catalogList" role="rowgroup"
+              data-label-slug="{{ t('column_slug') }}"
+              data-label-name="{{ t('column_name') }}"
+              data-label-description="{{ t('column_description') }}"
+              data-label-letter="{{ t('column_letter') }}"
+              data-label-comment="{{ t('column_comment') }}"
+              data-label-actions="{{ t('column_actions') }}"
+              uk-sortable="handle: .uk-sortable-handle; group: sortable-group"></tbody>
           </table>
         </div>
         <div class="uk-margin">
