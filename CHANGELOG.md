@@ -53,6 +53,7 @@
 - Bump version to 0.2.40 [skip ci]
 - Bump version to 0.2.41 [skip ci]
 - Bump version to 0.2.42 [skip ci]
+- Bump version to 0.2.43 [skip ci]
 
 ### Feat
 
@@ -76,11 +77,16 @@
 
 - Update phpstan config for v2
 - Ensure page content respects dynamic topbar height
+- *(events)* Prevent table frame from clipping actions
 
 ### Refactor
 
 - Centralize SMTP config loading
 - Wrap invoice return docblock
+
+### Style
+
+- Add top spacing to event selector label
 
 ### Test
 
