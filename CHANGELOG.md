@@ -40,6 +40,8 @@
 - Bump version to 0.2.28 [skip ci]
 - Bump version to 0.2.29 [skip ci]
 - Bump version to 0.2.30 [skip ci]
+- Bump version to 0.2.31 [skip ci]
+- Bump version to 0.2.32 [skip ci]
 
 ### Feat
 
@@ -55,6 +57,8 @@
 - Group admin options by category
 - Extend dark mode styling to html element
 - Sync Stripe subscription on plan change
+- Increase icon button tap size
+- Enable automatic dark mode
 
 ### Fix
 
