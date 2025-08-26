@@ -688,8 +688,7 @@ body.admin-page {
 }
 
 #eventsTable {
-  width: 100%;
-  max-width: 100%;
+  min-width: 100%;
 }
 
 /* Responsive event list */
