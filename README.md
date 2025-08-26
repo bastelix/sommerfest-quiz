@@ -21,7 +21,7 @@ Mit dieser App zeigen wir, was heute schon möglich ist, wenn Menschen und versc
 
 - **Flexibel einsetzbar**: Fragenkataloge im JSON-Format lassen sich bequem austauschen oder erweitern.
 - **Sechs Fragetypen**: Sortieren, Zuordnen, Multiple Choice, Swipe-Karten, Foto mit Texteingabe und "Hätten Sie es gewusst?"-Karten bieten Abwechslung f\u00fcr jede Zielgruppe.
-- **QR-Code-Login & Dunkelmodus**: Optionaler QR-Code-Login für schnelles Anmelden und ein zuschaltbares dunkles Design steigern den Komfort.
+- **QR-Code-Login & Dunkelmodus**: Optionaler QR-Code-Login für schnelles Anmelden und ein dunkles Design, das sich automatisch der Systemeinstellung anpasst oder manuell umgeschaltet werden kann, steigern den Komfort.
 - **Persistente Speicherung**: Konfigurationen, Kataloge und Ergebnisse liegen in einer PostgreSQL-Datenbank.
 - **Mandantenverwaltung**: Tenant-Daten werden über PostgreSQL-Schemata isoliert; SQLite wird nicht unterstützt.
 
@@ -423,7 +423,7 @@ Das Frontend bringt mehrere Funktionen mit, die die Nutzung erleichtern:
 - Ausführliche ARIA-Beschriftungen auf Bedienelementen und Formularfeldern.
 - Tastatursteuerung für Sortier- und Zuordnungsfragen samt versteckten Hinweisen.
 - Fortschrittsbalken mit `aria-valuenow` und Live-Ansage der aktuellen Frage.
-- Umschaltbarer Dunkel- und Hochkontrastmodus.
+- Automatische Dark-Mode-Erkennung sowie umschaltbarer Dunkel- und Hochkontrastmodus.
 
 
 ## Anwenderhandbuch
