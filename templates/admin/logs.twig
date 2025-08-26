@@ -9,14 +9,59 @@
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
 {% endblock %}
 
-{% block body_class %}uk-background-muted uk-padding{% endblock %}
+{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
 
 {% block body %}
-  <div class="uk-container uk-container-expand">
-    <h1 class="uk-heading-bullet">{{ t('heading_logs') }}</h1>
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <a class="uk-navbar-toggle uk-hidden@m" uk-toggle="target: #qr-offcanvas" aria-label="{{ t('menu') }}">
+        <span uk-navbar-toggle-icon></span>
+      </a>
+      <a href="{{ basePath }}/admin/summary" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
+        QuizRace Admin
+      </a>
+    {% endblock %}
+    {% block right %}
+      <div class="theme-switch">
+        <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="{{ t('design_toggle') }}"></button>
+      </div>
+      <div class="contrast-switch uk-margin-small-left">
+        <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="{{ t('contrast_toggle') }}"></button>
+      </div>
+    {% endblock %}
+    {% block offcanvas %}
+      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+          <h3 class="uk-margin-small">QuizRace</h3>
+          {% include 'admin/_nav.twig' %}
+        </div>
+      </div>
+    {% endblock %}
+    {% block nav_placeholder %}
+      <div class="nav-placeholder">
+        <div class="uk-container uk-container-large">
+          <h2 class="uk-heading-bullet">{{ t('heading_logs') }}</h2>
+        </div>
+      </div>
+    {% endblock %}
+  {% endembed %}
+  <div class="uk-container uk-container-expand uk-margin">
     <h2>app.log</h2>
-    <pre class="uk-text-small">{{ appLog|e }}</pre>
+    {% if appLog %}
+      <pre class="uk-text-small">{{ appLog|e }}</pre>
+    {% else %}
+      <p class="uk-text-muted">{{ t('text_no_logs') }}</p>
+    {% endif %}
     <h2>stripe.log</h2>
-    <pre class="uk-text-small">{{ stripeLog|e }}</pre>
+    {% if stripeLog %}
+      <pre class="uk-text-small">{{ stripeLog|e }}</pre>
+    {% else %}
+      <p class="uk-text-muted">{{ t('text_no_logs') }}</p>
+    {% endif %}
   </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ basePath }}/js/app.js"></script>
 {% endblock %}
