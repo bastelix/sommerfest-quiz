@@ -718,26 +718,31 @@ body.admin-page {
 #eventsTable thead {
   display: none;
 }
-#eventsList,
-#eventsList tr,
-#eventsList td {
+#eventsList {
   display: block;
 }
 #eventsList tr {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.25rem;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 0.5rem;
   margin-bottom: 0.75rem;
-  position: relative;
 }
 #eventsList td {
-  padding: 8px 0;
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
 }
-#eventsList td:first-child {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  display: block;
+#eventsList td::before {
+  content: attr(data-label);
+  flex: 0 0 8ch;
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+#eventsList td:first-child::before {
+  content: '';
 }
 #eventsList input[type="text"],
 #eventsList input[type="datetime-local"] {
@@ -758,17 +763,13 @@ body.admin-page {
     border-radius: 0;
     padding: 0;
     margin-bottom: 0;
-    position: static;
   }
   #eventsList td {
     display: table-cell;
     padding: 12px 4px;
   }
-  #eventsList td:first-child {
-    position: static;
-    top: auto;
-    right: auto;
-    display: table-cell;
+  #eventsList td::before {
+    content: none;
   }
   #eventsList input[type="text"],
   #eventsList input[type="datetime-local"] {
@@ -791,26 +792,31 @@ body.admin-page {
 #catalogTable thead {
   display: none;
 }
-#catalogList,
-#catalogList tr,
-#catalogList td {
+#catalogList {
   display: block;
 }
 #catalogList tr {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.25rem;
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 0.5rem;
   margin-bottom: 0.75rem;
-  position: relative;
 }
 #catalogList td {
+  display: flex;
+  align-items: center;
   padding: 4px 0;
 }
-#catalogList td:first-child {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  display: block;
+#catalogList td::before {
+  content: attr(data-label);
+  flex: 0 0 8ch;
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+#catalogList td:first-child::before {
+  content: '';
 }
 #catalogList input[type="text"] {
   width: 100%;
@@ -829,17 +835,13 @@ body.admin-page {
     border-radius: 0;
     padding: 0;
     margin-bottom: 0;
-    position: static;
   }
   #catalogList td {
     display: table-cell;
     padding: 8px 4px;
   }
-  #catalogList td:first-child {
-    position: static;
-    top: auto;
-    right: auto;
-    display: table-cell;
+  #catalogList td::before {
+    content: none;
   }
   #catalogList input[type="text"] {
     width: auto;
