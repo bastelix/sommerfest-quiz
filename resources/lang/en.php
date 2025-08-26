@@ -208,6 +208,7 @@ return [
     'text_no_catalogs' => 'No catalogs',
     'text_no_data' => 'No data',
     'text_no_backups' => 'No backups',
+    'text_no_logs' => 'No log entries',
     'action_create_backup' => 'Create backup',
     'action_restore_demo' => 'Restore demo data',
     'action_save_demo' => 'Save as new demo data',

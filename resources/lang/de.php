@@ -206,6 +206,7 @@ return [
     'text_no_catalogs' => 'Keine Kataloge',
     'text_no_data' => 'Keine Daten',
     'text_no_backups' => 'Keine Backups',
+    'text_no_logs' => 'Keine Logeinträge',
     'action_create_backup' => 'Backup erstellen',
     'action_restore_demo' => 'Demodaten wiederherstellen',
     'action_save_demo' => 'Als neue Demodaten speichern',

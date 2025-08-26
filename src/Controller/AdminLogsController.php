@@ -19,9 +19,16 @@ class AdminLogsController
         $appLog = LogService::tail('app');
         $stripeLog = LogService::tail('stripe');
         $view = Twig::fromRequest($request);
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $role = $_SESSION['user']['role'] ?? '';
         return $view->render($response, 'admin/logs.twig', [
             'appLog' => $appLog,
             'stripeLog' => $stripeLog,
+            'role' => $role,
+            'currentPath' => $request->getUri()->getPath(),
+            'domainType' => $request->getAttribute('domainType'),
         ]);
     }
 }
