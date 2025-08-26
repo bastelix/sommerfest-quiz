@@ -304,10 +304,6 @@ a.uk-accordion-title {
   padding-bottom: 8px;
 }
 
-body.dark-mode .sticky-actions {
-  background: rgba(0, 0, 0, 0.95);
-}
-
 /* Vorschau innerhalb der Fragekarte */
 .question-preview {
   min-height: 100px;
@@ -483,12 +479,6 @@ body.dark-mode .sticky-actions {
   background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
 }
 
-body.dark-mode .onboarding-step {
-  border-color: #444;
-  background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
-  box-shadow: 0 6px 30px rgba(0,0,0,0.5);
-}
-
 /* Timeline for onboarding steps */
 .onboarding-timeline {
   list-style: none;
@@ -520,23 +510,6 @@ body.dark-mode .onboarding-step {
 .onboarding-timeline .timeline-step.completed {
   border-color: #0c86d0;
   color: #0c86d0;
-}
-
-body.dark-mode .onboarding-timeline .timeline-step {
-  border-color: #555;
-  color: #aaa;
-}
-
-body.dark-mode .onboarding-timeline .timeline-step.inactive {
-  color: #444;
-  border-color: #555;
-  cursor: not-allowed;
-}
-
-body.dark-mode .onboarding-timeline .timeline-step.active,
-body.dark-mode .onboarding-timeline .timeline-step.completed {
-  border-color: #1e87f0;
-  color: #1e87f0;
 }
 
 

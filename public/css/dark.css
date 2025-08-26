@@ -103,6 +103,34 @@ body .modern-info-card {
   border-color: #444;
 }
 
+/* Sticky actions and onboarding components in Dark Mode */
+body .sticky-actions {
+  background: rgba(0, 0, 0, 0.95);
+}
+
+body .onboarding-step {
+  border-color: #444;
+  background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+  box-shadow: 0 6px 30px rgba(0,0,0,0.5);
+}
+
+body .onboarding-timeline .timeline-step {
+  border-color: #555;
+  color: #aaa;
+}
+
+body .onboarding-timeline .timeline-step.inactive {
+  color: #444;
+  border-color: #555;
+  cursor: not-allowed;
+}
+
+body .onboarding-timeline .timeline-step.active,
+body .onboarding-timeline .timeline-step.completed {
+  border-color: #1e87f0;
+  color: #1e87f0;
+}
+
 body .uk-icon,
 body .uk-icon-button {
   color: #f5f5f5;
@@ -349,6 +377,34 @@ body.dark-mode .event-header-bar {
 
 body.dark-mode .modern-info-card {
   border-color: #444;
+}
+
+/* Sticky actions and onboarding components in Dark Mode */
+body.dark-mode .sticky-actions {
+  background: rgba(0, 0, 0, 0.95);
+}
+
+body.dark-mode .onboarding-step {
+  border-color: #444;
+  background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+  box-shadow: 0 6px 30px rgba(0,0,0,0.5);
+}
+
+body.dark-mode .onboarding-timeline .timeline-step {
+  border-color: #555;
+  color: #aaa;
+}
+
+body.dark-mode .onboarding-timeline .timeline-step.inactive {
+  color: #444;
+  border-color: #555;
+  cursor: not-allowed;
+}
+
+body.dark-mode .onboarding-timeline .timeline-step.active,
+body.dark-mode .onboarding-timeline .timeline-step.completed {
+  border-color: #1e87f0;
+  color: #1e87f0;
 }
 
 body.dark-mode .uk-icon,
