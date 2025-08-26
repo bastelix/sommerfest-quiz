@@ -559,7 +559,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                         'standard' => getenv($prefix . 'PRICE_STANDARD') ?: '',
                         'professional' => getenv($prefix . 'PRICE_PROFESSIONAL') ?: '',
                     ];
-                    $priceId = $map[$plan] ?? '';
+                    $priceId = $map[$plan];
                     if ($priceId === '') {
                         throw new \RuntimeException('price-id-missing');
                     }

@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Service\TenantService;
 use App\Infrastructure\Database;
+use App\Service\LogService;
 use Stripe\Webhook;
 
 /**
@@ -20,13 +21,17 @@ class StripeWebhookController
         $payload = (string) $request->getBody();
         $sigHeader = $request->getHeaderLine('Stripe-Signature');
         $webhookSecret = getenv('STRIPE_WEBHOOK_SECRET') ?: '';
+        $logger = LogService::create('stripe');
 
-        if ($webhookSecret !== '') {
-            try {
-                Webhook::constructEvent($payload, $sigHeader, $webhookSecret);
-            } catch (\UnexpectedValueException | \Stripe\Exception\SignatureVerificationException) {
-                return $response->withStatus(400);
-            }
+        if ($webhookSecret === '') {
+            $logger->error('STRIPE_WEBHOOK_SECRET missing');
+            return $response->withStatus(500);
+        }
+
+        try {
+            Webhook::constructEvent($payload, $sigHeader, $webhookSecret);
+        } catch (\UnexpectedValueException | \Stripe\Exception\SignatureVerificationException) {
+            return $response->withStatus(400);
         }
 
         $data = json_decode($payload, true);
