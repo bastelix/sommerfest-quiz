@@ -118,6 +118,10 @@ body .uk-icon-button {
   color: #fff;
   background-color: rgba(255, 255, 255, 0.2);
 }
+body .uk-icon-button.uk-button-primary {
+  background-color: #1e87f0;
+  border-color: #1e87f0;
+}
 
 /* Active state for navigation items in dark off-canvas menus */
 .uk-offcanvas-bar .uk-nav-default > li.uk-active > a {
@@ -356,6 +360,10 @@ body.dark-mode .site-footer {
 body.dark-mode .uk-icon-button {
   color: #fff;
   background-color: rgba(255, 255, 255, 0.2);
+}
+body.dark-mode .uk-icon-button.uk-button-primary {
+  background-color: #1e87f0;
+  border-color: #1e87f0;
 }
 
 /* Active state for navigation items in dark off-canvas menus */
