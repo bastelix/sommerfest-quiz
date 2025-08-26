@@ -2,31 +2,60 @@ const currentScript = document.currentScript;
 const basePath = window.basePath || (currentScript ? currentScript.dataset.base || '' : '');
 const withBase = (p) => basePath + p;
 
+const getCsrfToken = () =>
+  document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+  currentScript?.dataset.csrf ||
+  window.csrfToken || '';
+
+const csrfFetch = (path, options = {}) => {
+  const token = getCsrfToken();
+  const headers = {
+    ...(options.headers || {}),
+    ...(token ? { 'X-CSRF-Token': token } : {})
+  };
+  return fetch(withBase(path), { credentials: 'same-origin', ...options, headers });
+};
+
+const notify = (msg, status = 'primary') => {
+  if (typeof UIkit !== 'undefined' && UIkit.notification) {
+    UIkit.notification({ message: msg, status });
+  } else {
+    alert(msg);
+  }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.toggle-publish').forEach((btn) => {
     btn.addEventListener('click', () => {
       const uid = btn.dataset.uid;
       const published = btn.dataset.published === 'true';
-      fetch(withBase(`/events/${uid}/publish`), {
+      csrfFetch(`/events/${uid}/publish`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ published: !published })
-      }).then((resp) => {
-        if (resp.ok) {
-          btn.dataset.published = (!published).toString();
-          btn.textContent = !published ? 'Nicht veröffentlichen' : 'Veröffentlichen';
-        }
-      });
+      })
+        .then((resp) => {
+          if (resp.ok) {
+            btn.dataset.published = (!published).toString();
+            btn.textContent = !published ? 'Nicht veröffentlichen' : 'Veröffentlichen';
+          } else {
+            notify('Fehler beim Aktualisieren', 'danger');
+          }
+        })
+        .catch(() => notify('Fehler beim Aktualisieren', 'danger'));
     });
   });
   document.querySelectorAll('.copy-link').forEach((btn) => {
     btn.addEventListener('click', () => {
       const link = btn.dataset.link;
-      navigator.clipboard.writeText(link).then(() => {
-        if (typeof UIkit !== 'undefined') {
-          UIkit.notification({ message: 'Link kopiert', status: 'success' });
-        }
-      });
+      if (navigator.clipboard?.writeText) {
+        navigator.clipboard
+          .writeText(link)
+          .then(() => notify('Link kopiert', 'success'))
+          .catch(() => notify('Kopieren fehlgeschlagen', 'danger'));
+      } else {
+        notify('Zwischenablage nicht verfügbar', 'warning');
+      }
     });
   });
 
@@ -58,20 +87,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setActive(uid) {
     activeEventUid = uid;
-    fetch(withBase('/config.json'), {
+    csrfFetch('/config.json', {
       method: 'POST',
-      credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ event_uid: uid })
-    }).then(() => {
-      window.location.reload();
-    }).catch(() => {});
+    })
+      .then((resp) => {
+        if (resp.ok) {
+          window.location.reload();
+        } else {
+          notify('Fehler beim Speichern', 'danger');
+        }
+      })
+      .catch(() => notify('Fehler beim Speichern', 'danger'));
   }
 
   if (eventSelect) {
     Promise.all([
-      fetch(withBase('/config.json'), { credentials: 'same-origin' }).then((r) => r.json()).catch(() => ({})),
-      fetch(withBase('/events.json'), { credentials: 'same-origin', headers: { Accept: 'application/json' } }).then((r) => r.json()).catch(() => [])
+      csrfFetch('/config.json').then((r) => r.json()).catch(() => ({})),
+      csrfFetch('/events.json', { headers: { Accept: 'application/json' } }).then((r) => r.json()).catch(() => [])
     ]).then(([cfg, events]) => {
       activeEventUid = cfg.event_uid || '';
       populate(events);
