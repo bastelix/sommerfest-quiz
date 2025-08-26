@@ -51,6 +51,16 @@ createApp({
     onMounted(async () => {
       const res = await fetch('questions.json');
       questions.value = await res.json();
+
+      try {
+        const rpRes = await fetch('raumplanung.json');
+        if (rpRes.ok) {
+          window.raumplanung = await rpRes.json();
+        }
+      } catch (e) {
+        // optional raumplanung.json not found
+      }
+
       loading.value = false;
     });
 
