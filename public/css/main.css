@@ -981,4 +981,9 @@ body.admin-page {
   display: block;
 }
 
+/* Spacing for consecutive event action buttons */
+.event-action + .event-action {
+  margin-left: 0.5rem;
+}
+
 
