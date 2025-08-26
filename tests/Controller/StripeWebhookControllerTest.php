@@ -7,12 +7,31 @@ namespace Tests\Controller;
 use Tests\TestCase;
 use App\Infrastructure\Database;
 use App\Infrastructure\Migrations\Migrator;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class StripeWebhookControllerTest extends TestCase
 {
+    /**
+     * Create a signed Stripe webhook request for the given payload.
+     */
+    private function createSignedRequest(string $payload): Request
+    {
+        $secret = getenv('STRIPE_WEBHOOK_SECRET') ?: '';
+        $timestamp = (string) time();
+        $signature = hash_hmac('sha256', $timestamp . '.' . $payload, $secret);
+        $header = 't=' . $timestamp . ',v1=' . $signature;
+        $request = $this->createRequest('POST', '/stripe/webhook', [
+            'Content-Type' => 'application/json',
+            'Stripe-Signature' => $header,
+        ]);
+        $request->getBody()->write($payload);
+        $request->getBody()->rewind();
+        return $request;
+    }
+
     public function testCheckoutSessionCompletedUpdatesCustomerId(): void
     {
-        putenv('STRIPE_WEBHOOK_SECRET=');
+        putenv('STRIPE_WEBHOOK_SECRET=whsec_test');
         $app = $this->getAppInstance();
         $pdo = Database::connectFromEnv();
         Migrator::migrate($pdo, __DIR__ . '/../../migrations');
@@ -31,11 +50,7 @@ class StripeWebhookControllerTest extends TestCase
                 'metadata' => ['plan' => 'starter'],
             ]],
         ]);
-        $request = $this->createRequest('POST', '/stripe/webhook', [
-            'Content-Type' => 'application/json',
-        ]);
-        $request->getBody()->write($payload !== false ? $payload : '');
-        $request->getBody()->rewind();
+        $request = $this->createSignedRequest($payload !== false ? $payload : '');
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -50,7 +65,7 @@ class StripeWebhookControllerTest extends TestCase
 
     public function testCustomerSubscriptionUpdatedUpdatesDetails(): void
     {
-        putenv('STRIPE_WEBHOOK_SECRET=');
+        putenv('STRIPE_WEBHOOK_SECRET=whsec_test');
         $app = $this->getAppInstance();
         $pdo = Database::connectFromEnv();
         Migrator::migrate($pdo, __DIR__ . '/../../migrations');
@@ -72,11 +87,7 @@ class StripeWebhookControllerTest extends TestCase
                 'cancel_at_period_end' => false,
             ]],
         ]);
-        $request = $this->createRequest('POST', '/stripe/webhook', [
-            'Content-Type' => 'application/json',
-        ]);
-        $request->getBody()->write($payload !== false ? $payload : '');
-        $request->getBody()->rewind();
+        $request = $this->createSignedRequest($payload !== false ? $payload : '');
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -95,7 +106,7 @@ class StripeWebhookControllerTest extends TestCase
 
     public function testCustomerSubscriptionDeletedMarksStatusCanceled(): void
     {
-        putenv('STRIPE_WEBHOOK_SECRET=');
+        putenv('STRIPE_WEBHOOK_SECRET=whsec_test');
         $app = $this->getAppInstance();
         $pdo = Database::connectFromEnv();
         Migrator::migrate($pdo, __DIR__ . '/../../migrations');
@@ -111,11 +122,7 @@ class StripeWebhookControllerTest extends TestCase
                 'customer' => 'cus_123',
             ]],
         ]);
-        $request = $this->createRequest('POST', '/stripe/webhook', [
-            'Content-Type' => 'application/json',
-        ]);
-        $request->getBody()->write($payload !== false ? $payload : '');
-        $request->getBody()->rewind();
+        $request = $this->createSignedRequest($payload !== false ? $payload : '');
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -127,7 +134,7 @@ class StripeWebhookControllerTest extends TestCase
 
     public function testInvoicePaidUpdatesStripeStatus(): void
     {
-        putenv('STRIPE_WEBHOOK_SECRET=');
+        putenv('STRIPE_WEBHOOK_SECRET=whsec_test');
         $app = $this->getAppInstance();
         $pdo = Database::connectFromEnv();
         Migrator::migrate($pdo, __DIR__ . '/../../migrations');
@@ -143,11 +150,7 @@ class StripeWebhookControllerTest extends TestCase
                 'customer' => 'cus_123',
             ]],
         ]);
-        $request = $this->createRequest('POST', '/stripe/webhook', [
-            'Content-Type' => 'application/json',
-        ]);
-        $request->getBody()->write($payload !== false ? $payload : '');
-        $request->getBody()->rewind();
+        $request = $this->createSignedRequest($payload !== false ? $payload : '');
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
 
@@ -158,7 +161,7 @@ class StripeWebhookControllerTest extends TestCase
 
     public function testInvoicePaymentFailedSetsStripeStatusPastDue(): void
     {
-        putenv('STRIPE_WEBHOOK_SECRET=');
+        putenv('STRIPE_WEBHOOK_SECRET=whsec_test');
         $app = $this->getAppInstance();
         $pdo = Database::connectFromEnv();
         Migrator::migrate($pdo, __DIR__ . '/../../migrations');
@@ -174,16 +177,33 @@ class StripeWebhookControllerTest extends TestCase
                 'customer' => 'cus_123',
             ]],
         ]);
-        $request = $this->createRequest('POST', '/stripe/webhook', [
-            'Content-Type' => 'application/json',
-        ]);
-        $request->getBody()->write($payload !== false ? $payload : '');
-        $request->getBody()->rewind();
+        $request = $this->createSignedRequest($payload !== false ? $payload : '');
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
 
         $stmt = $pdo->query("SELECT stripe_status FROM tenants WHERE subdomain = 'foo'");
         $row = $stmt->fetch(\PDO::FETCH_ASSOC);
         $this->assertEquals('past_due', $row['stripe_status']);
+    }
+
+    public function testMissingSecretReturns500AndLogs(): void
+    {
+        putenv('STRIPE_WEBHOOK_SECRET=');
+        $logFile = __DIR__ . '/../../logs/stripe.log';
+        @unlink($logFile);
+        $app = $this->getAppInstance();
+        $payload = json_encode([
+            'type' => 'invoice.paid',
+            'data' => ['object' => ['customer' => 'cus_123']],
+        ]);
+        $request = $this->createRequest('POST', '/stripe/webhook', [
+            'Content-Type' => 'application/json',
+        ]);
+        $request->getBody()->write($payload !== false ? $payload : '');
+        $request->getBody()->rewind();
+        $response = $app->handle($request);
+        $this->assertEquals(500, $response->getStatusCode());
+        $log = file_get_contents($logFile);
+        $this->assertStringContainsString('STRIPE_WEBHOOK_SECRET missing', (string) $log);
     }
 }
