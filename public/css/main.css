@@ -140,6 +140,11 @@ body.uk-padding {
   padding: 4px;
 }
 
+.uk-icon-button {
+  width: 44px;
+  height: 44px;
+}
+
 .result-slide {
   position: absolute;
   width: 100%;
