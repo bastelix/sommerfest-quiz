@@ -2,6 +2,10 @@
 
 ## [unreleased]
 
+### Build
+
+- Tag image as sommerfest-quiz
+
 ### Chore
 
 - Add pages table for SEO config
@@ -29,6 +33,7 @@
 - Bump version to 0.2.21 [skip ci]
 - Bump version to 0.2.22 [skip ci]
 - Bump version to 0.2.23 [skip ci]
+- Bump version to 0.2.24 [skip ci]
 
 ### Feat
 
