@@ -40,11 +40,11 @@
           </div>
           <div class="uk-card-footer">
             {% if role in ['admin','event-manager'] %}
-            <button class="uk-button uk-button-primary toggle-publish" data-uid="{{ ev.uid }}" data-published="{{ ev.published ? 'true' : 'false' }}">
+            <button type="button" class="uk-button uk-button-primary event-action toggle-publish" data-uid="{{ ev.uid }}" data-published="{{ ev.published ? 'true' : 'false' }}">
               {{ ev.published ? 'Nicht veröffentlichen' : 'Veröffentlichen' }}
             </button>
             {% endif %}
-            <button class="uk-button uk-button-default copy-link" data-link="{{ basePath }}/?event={{ ev.uid }}">Link kopieren</button>
+            <button type="button" class="uk-button uk-button-default event-action copy-link" data-link="{{ basePath }}/?event={{ ev.uid }}">Link kopieren</button>
           </div>
         </div>
       </div>
