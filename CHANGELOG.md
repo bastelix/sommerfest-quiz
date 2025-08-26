@@ -42,6 +42,8 @@
 - Bump version to 0.2.30 [skip ci]
 - Bump version to 0.2.31 [skip ci]
 - Bump version to 0.2.32 [skip ci]
+- Bump version to 0.2.33 [skip ci]
+- Bump version to 0.2.34 [skip ci]
 
 ### Feat
 
@@ -59,6 +61,7 @@
 - Sync Stripe subscription on plan change
 - Increase icon button tap size
 - Enable automatic dark mode
+- Make font sizes responsive
 
 ### Fix
 
