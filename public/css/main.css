@@ -3,6 +3,10 @@ html, body {
   margin: 0;
 }
 
+html {
+  font-size: clamp(14px, 1vw + 0.5rem, 18px);
+}
+
 body {
   min-height: 100vh;
   overflow-x: hidden;
@@ -70,7 +74,7 @@ body.uk-padding {
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 12px;
-  font-size: 1rem;
+  font-size: clamp(0.875rem, 1rem + 0.5vw, 1.25rem);
 }
 
 .mc-option {
@@ -247,7 +251,7 @@ body.uk-padding {
 
 /* Link-Größe an Fließtext anpassen */
 a.uk-accordion-title {
-  font-size: 1rem;
+  font-size: clamp(0.9rem, 1rem + 0.3vw, 1.2rem);
 }
 
 @media (min-width: 640px) {
@@ -255,7 +259,7 @@ a.uk-accordion-title {
   .terms li,
   .dropzone,
   .mc-option {
-    font-size: 1.3rem;
+    font-size: clamp(1.1rem, 1.3rem + 0.4vw, 1.4rem);
   }
 }
 
@@ -264,7 +268,7 @@ a.uk-accordion-title {
   .terms li,
   .dropzone,
   .mc-option {
-    font-size: 1.5rem;
+    font-size: clamp(1.3rem, 1.5rem + 0.4vw, 1.6rem);
   }
   .mc-option input {
     transform: scale(1.3);
@@ -391,7 +395,7 @@ body.dark-mode .sticky-actions {
 }
 
 .quiz-letter {
-  font-size: 6rem;
+  font-size: clamp(4rem, 8vw, 6rem);
   font-weight: bold;
 }
 
@@ -454,13 +458,13 @@ body.dark-mode .sticky-actions {
 }
 
 .modern-info-card .uk-card-title {
-  font-size: 1.3rem;
+  font-size: clamp(1.1rem, 1.2rem + 0.5vw, 1.5rem);
   margin-bottom: 1rem;
   color: #1e293b;
 }
 
 .modern-info-card p {
-  font-size: 1.08rem;
+  font-size: calc(1rem + 0.3vw);
   line-height: 1.8;
   color: #212529;
 }
@@ -635,7 +639,7 @@ body.admin-page {
   width: 56px;
   height: 56px;
   line-height: 56px;
-  font-size: 24px;
+  font-size: clamp(20px, 1.5vw + 16px, 24px);
   z-index: 1100;
   border-radius: 50%;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
@@ -947,7 +951,7 @@ body.admin-page {
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-size: clamp(0.75rem, 0.8rem + 0.2vw, 0.875rem);
 }
 
 #calendar td {
