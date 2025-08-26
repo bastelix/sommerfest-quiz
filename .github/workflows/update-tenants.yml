@@ -16,7 +16,7 @@ jobs:
           script: |
             cd /var/sommerfest-quiz
             git pull
-            docker build -t Sommerfest-Quiz:latest .
+            docker build -t sommerfest-quiz:latest .
             for compose in tenants/*/docker-compose.yml; do
               slug=$(basename "$(dirname "$compose")")
               docker compose -f "$compose" -p "$slug" pull
