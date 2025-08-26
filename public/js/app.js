@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const isDark = localStorage.getItem('darkMode') === 'true';
     if (isDark) {
       document.body.classList.add('dark-mode', 'uk-light');
+      document.documentElement.classList.add('dark-mode');
       // show sun icon when dark mode is active
       themeToggle.setAttribute('uk-icon', 'icon: sun; ratio: 2');
     } else {
@@ -16,6 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
     UIkit.icon(themeToggle);
     themeToggle.addEventListener('click', function () {
       const dark = document.body.classList.toggle('dark-mode');
+      document.documentElement.classList.toggle('dark-mode', dark);
       document.body.classList.toggle('uk-light', dark);
       if (dark) {
         localStorage.setItem('darkMode', 'true');
