@@ -242,6 +242,7 @@ body.uk-padding {
   background: var(--uk-background-muted, #f8f8f8);
   border-radius: 6px;
   font-weight: 600;
+  color: #222;
 }
 
 @keyframes fadeIn {
