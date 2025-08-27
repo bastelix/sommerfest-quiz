@@ -179,13 +179,23 @@ body.uk-padding {
   z-index: 1000;
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .topbar .uk-navbar-left,
 .topbar .uk-navbar-right {
   display: flex;
   align-items: center;
+}
+
+.topbar .uk-navbar-right > * {
+  flex-shrink: 0;
+}
+
+#topbar-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .theme-switch {
@@ -236,6 +246,12 @@ body.uk-padding {
 
 .nav-placeholder {
   height: 56px;
+}
+
+@media (max-width: 360px) {
+  .topbar .contrast-switch {
+    display: none;
+  }
 }
 
 .event-header-bar {
