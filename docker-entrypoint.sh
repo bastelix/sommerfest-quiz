@@ -16,6 +16,12 @@ if [ ! -f vendor/autoload.php ]; then
     composer install --no-interaction --prefer-dist --no-progress
 fi
 
+# Ensure log directory exists and is writable
+if [ ! -d /var/www/logs ]; then
+    mkdir -p /var/www/logs
+fi
+chown -R www-data:www-data /var/www/logs 2>/dev/null || true
+
 # Copy default data if no config exists in /var/www/data
 if [ ! -f /var/www/data/config.json ] && [ -d /var/www/data-default ]; then
     cp -a /var/www/data-default/. /var/www/data/
