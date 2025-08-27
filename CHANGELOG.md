@@ -55,6 +55,7 @@
 - Bump version to 0.2.42 [skip ci]
 - Bump version to 0.2.43 [skip ci]
 - Bump version to 0.2.44 [skip ci]
+- Bump version to 0.2.45 [skip ci]
 
 ### Feat
 
