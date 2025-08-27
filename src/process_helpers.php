@@ -29,10 +29,12 @@ function runBackgroundProcess(string $script, array $args = []): void
 }
 
 /**
- * Run a shell script synchronously and return success.
+ * Run a shell script synchronously and return result details.
  * Falls back to exec if the Symfony Process component is unavailable.
+ *
+ * @return array{success: bool, output: string, error: string}
  */
-function runSyncProcess(string $script, array $args = []): bool
+function runSyncProcess(string $script, array $args = []): array
 {
     $cmd = array_merge([$script], $args);
 
@@ -40,15 +42,29 @@ function runSyncProcess(string $script, array $args = []): bool
         $process = new Process($cmd);
         $process->setTimeout(null);
         $process->setIdleTimeout(null);
-        $process->disableOutput();
         $process->run();
-        return $process->isSuccessful();
+        $success = $process->isSuccessful();
+        $output = $process->getOutput();
+        $error = $process->getErrorOutput();
+    } else {
+        $command = escapeshellcmd($script);
+        foreach ($args as $arg) {
+            $command .= ' ' . escapeshellarg($arg);
+        }
+        $outputLines = [];
+        exec($command . ' 2>&1', $outputLines, $exitCode);
+        $success = $exitCode === 0;
+        $output = implode("\n", $outputLines);
+        $error = $success ? '' : $output;
     }
 
-    $command = escapeshellcmd($script);
-    foreach ($args as $arg) {
-        $command .= ' ' . escapeshellarg($arg);
+    if (!$success) {
+        error_log(sprintf('Process "%s" failed: %s', $script, $error));
     }
-    exec($command, $output, $exitCode);
-    return $exitCode === 0;
+
+    return [
+        'success' => $success,
+        'output' => $output,
+        'error' => $error,
+    ];
 }

@@ -1111,8 +1111,13 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
 
-        if (!runSyncProcess($script, [$slug])) {
-            $response->getBody()->write(json_encode(['error' => 'Failed to remove tenant']));
+        $result = runSyncProcess($script, [$slug]);
+        if (!$result['success']) {
+            error_log('Failed to remove tenant: ' . $result['error']);
+            $response->getBody()->write(json_encode([
+                'error' => 'Failed to remove tenant',
+                'details' => $result['error'],
+            ]));
 
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
@@ -1136,8 +1141,13 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
-        if (!runSyncProcess($script, ['--main'])) {
-            $response->getBody()->write(json_encode(['error' => 'Failed to renew certificate']));
+        $result = runSyncProcess($script, ['--main']);
+        if (!$result['success']) {
+            error_log('Failed to renew certificate: ' . $result['error']);
+            $response->getBody()->write(json_encode([
+                'error' => 'Failed to renew certificate',
+                'details' => $result['error'],
+            ]));
 
             return $response
                 ->withHeader('Content-Type', 'application/json')
@@ -1169,8 +1179,13 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
-        if (!runSyncProcess($script, [$slug])) {
-            $response->getBody()->write(json_encode(['error' => 'Failed to renew certificate']));
+        $result = runSyncProcess($script, [$slug]);
+        if (!$result['success']) {
+            error_log('Failed to renew certificate: ' . $result['error']);
+            $response->getBody()->write(json_encode([
+                'error' => 'Failed to renew certificate',
+                'details' => $result['error'],
+            ]));
 
             return $response
                 ->withHeader('Content-Type', 'application/json')
@@ -1195,8 +1210,13 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(500);
         }
-        if (!runSyncProcess($script)) {
-            $response->getBody()->write(json_encode(['error' => 'Failed to build image']));
+        $result = runSyncProcess($script);
+        if (!$result['success']) {
+            error_log('Failed to build image: ' . $result['error']);
+            $response->getBody()->write(json_encode([
+                'error' => 'Failed to build image',
+                'details' => $result['error'],
+            ]));
 
             return $response
                 ->withHeader('Content-Type', 'application/json')
@@ -1227,8 +1247,13 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
-        if (!runSyncProcess($script, [$slug])) {
-            $response->getBody()->write(json_encode(['error' => 'Failed to upgrade tenant']));
+        $result = runSyncProcess($script, [$slug]);
+        if (!$result['success']) {
+            error_log('Failed to upgrade tenant: ' . $result['error']);
+            $response->getBody()->write(json_encode([
+                'error' => 'Failed to upgrade tenant',
+                'details' => $result['error'],
+            ]));
 
             return $response
                 ->withHeader('Content-Type', 'application/json')
@@ -1260,8 +1285,13 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
-        if (!runSyncProcess($script, [$slug])) {
-            $response->getBody()->write(json_encode(['error' => 'Failed to restart tenant']));
+        $result = runSyncProcess($script, [$slug]);
+        if (!$result['success']) {
+            error_log('Failed to restart tenant: ' . $result['error']);
+            $response->getBody()->write(json_encode([
+                'error' => 'Failed to restart tenant',
+                'details' => $result['error'],
+            ]));
 
             return $response
                 ->withHeader('Content-Type', 'application/json')
