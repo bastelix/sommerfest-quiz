@@ -103,6 +103,7 @@
 - Ensure page content respects dynamic topbar height
 - *(events)* Prevent table frame from clipping actions
 - Respect flex-wrap when sizing nav placeholder
+- *(onboarding)* Show detailed error messages
 
 ### Refactor
 

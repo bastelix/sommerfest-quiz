@@ -399,9 +399,17 @@ document.addEventListener('DOMContentLoaded', () => {
       if (res.status === 401 || res.status === 403 || res.redirected) {
         throw new Error('unauthorized');
       }
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || data.status !== 'queued') {
-        throw new Error('onboard');
+      const body = await res.text();
+      let data;
+      try {
+        data = JSON.parse(body);
+      } catch (_) {
+        data = undefined;
+      }
+      if (!res.ok || !data || data.status !== 'queued') {
+        const msg = data && data.error ? data.error : body || 'onboard';
+        addLog('Fehler beim Onboarding: ' + msg);
+        throw new Error(msg);
       }
       addLog('Onboarding gestartet …');
     };
