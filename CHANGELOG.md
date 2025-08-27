@@ -60,6 +60,10 @@
 - Bump version to 0.2.47 [skip ci]
 - Bump version to 0.2.48 [skip ci]
 - Bump version to 0.2.49 [skip ci]
+- Bump version to 0.2.50 [skip ci]
+- Bump version to 0.2.51 [skip ci]
+- Bump version to 0.2.52 [skip ci]
+- Bump version to 0.2.53 [skip ci]
 
 ### Feat
 
@@ -81,6 +85,7 @@
 - Always show tenant actions in dropdown
 - Add dynamic canonical and OG URLs
 - Add theme color variables
+- Add dynamic nav placeholder sizing
 
 ### Fix
 
