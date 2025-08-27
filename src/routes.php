@@ -131,8 +131,7 @@ use App\Infrastructure\Migrations\Migrator;
 use Psr\Http\Server\RequestHandlerInterface;
 
 return function (\Slim\App $app, TranslationService $translator) {
-    $playerService = null;
-    $app->add(function (Request $request, RequestHandlerInterface $handler) use ($translator, &$playerService) {
+    $app->add(function (Request $request, RequestHandlerInterface $handler) use ($translator) {
         if ($request->getUri()->getPath() === '/healthz') {
             return $handler->handle($request);
         }
@@ -256,7 +255,8 @@ return function (\Slim\App $app, TranslationService $translator) {
             ))
             ->withAttribute('pdo', $pdo)
             ->withAttribute('translator', $translator)
-            ->withAttribute('lang', $translator->getLocale());
+            ->withAttribute('lang', $translator->getLocale())
+            ->withAttribute('playerService', $playerService);
 
         return $handler->handle($request);
     });
@@ -726,8 +726,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('resultController')->post($request, $response);
     });
 
-    $app->post('/api/players', function (Request $request, Response $response) use (&$playerService) {
+    $app->post('/api/players', function (Request $request, Response $response) {
         $data = (array) $request->getParsedBody();
+        /** @var PlayerService $playerService */
+        $playerService = $request->getAttribute('playerService');
         $playerService->save(
             (string) ($data['event_uid'] ?? ''),
             (string) ($data['player_name'] ?? ''),
