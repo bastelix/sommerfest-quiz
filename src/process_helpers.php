@@ -52,4 +52,3 @@ function runSyncProcess(string $script, array $args = []): bool
     exec($command, $output, $exitCode);
     return $exitCode === 0;
 }
-
