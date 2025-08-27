@@ -26,7 +26,7 @@ function runBackgroundProcess(string $script, array $args = []): void
     } catch (\Throwable $e) {
         error_log('runBackgroundProcess failed: ' . $e->getMessage());
 
-        $command = escapeshellcmd($script);
+        $command = escapeshellarg($script);
         foreach ($args as $arg) {
             $command .= ' ' . escapeshellarg($arg);
         }
@@ -56,7 +56,7 @@ function runSyncProcess(string $script, array $args = []): bool
     } catch (\Throwable $e) {
         error_log('runSyncProcess failed: ' . $e->getMessage());
 
-        $command = escapeshellcmd($script);
+        $command = escapeshellarg($script);
         foreach ($args as $arg) {
             $command .= ' ' . escapeshellarg($arg);
         }
