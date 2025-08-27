@@ -568,15 +568,19 @@
           </div>
           {% endfor %}
         </div>
-        <div class="uk-margin uk-flex uk-flex-between uk-flex-middle">
-          <button id="inviteTextBtn" class="uk-button uk-button-default uk-margin-right" type="button" uk-toggle="target: #inviteTextModal">
-            <span id="inviteTextIcon" uk-icon="icon: pencil"></span>
-            <span id="inviteTextLabel">{{ t('action_invite_text') }}</span>
-          </button>
-          <div class="uk-flex">
-            <button id="openInvitesBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: {{ t('tip_invitations_open') }}; pos: right">{{ t('action_open_invitations') }}</button>
-            <button id="summaryPrintBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: {{ t('tip_summary_print') }}; pos: right">{{ t('action_print_summary') }}</button>
-            <button id="summaryDesignAllBtn" class="uk-button uk-button-default" type="button">{{ t('action_design_qrcodes') }}</button>
+        <div class="uk-margin" uk-grid>
+          <div class="uk-width-1-1 uk-width-auto@m">
+            <button id="inviteTextBtn" class="uk-button uk-button-default uk-margin-small-bottom uk-margin-right@m" type="button" uk-toggle="target: #inviteTextModal">
+              <span id="inviteTextIcon" uk-icon="icon: pencil"></span>
+              <span id="inviteTextLabel">{{ t('action_invite_text') }}</span>
+            </button>
+          </div>
+          <div class="uk-width-1-1 uk-width-expand@m">
+            <div class="uk-flex uk-flex-wrap uk-flex-right@m">
+              <button id="openInvitesBtn" class="uk-button uk-button-default uk-margin-small-bottom uk-margin-small-right" uk-tooltip="title: {{ t('tip_invitations_open') }}; pos: right">{{ t('action_open_invitations') }}</button>
+              <button id="summaryPrintBtn" class="uk-button uk-button-default uk-margin-small-bottom uk-margin-small-right" uk-tooltip="title: {{ t('tip_summary_print') }}; pos: right">{{ t('action_print_summary') }}</button>
+              <button id="summaryDesignAllBtn" class="uk-button uk-button-default uk-margin-small-bottom" type="button">{{ t('action_design_qrcodes') }}</button>
+            </div>
           </div>
         </div>
         <div id="inviteTextModal" uk-modal>
