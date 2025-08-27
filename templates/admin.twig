@@ -52,13 +52,7 @@
       </div>
     {% endblock %}
     {% block right %}
-      <div class="theme-switch">
-        <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="{{ t('design_toggle') }}"></button>
-      </div>
-      <div class="contrast-switch uk-margin-small-left">
-        <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="{{ t('contrast_toggle') }}"></button>
-      </div>
-      <button id="helpBtn" class="uk-icon-button uk-margin-small-left" uk-icon="icon: question; ratio: 2" aria-label="{{ t('help') }}"></button>
+      {% include '_topbar_controls.twig' %}
     {% endblock %}
     {% block nav_placeholder %}
       {% set activeRoute = currentPath|split('/admin/')|last %}
@@ -1159,7 +1153,7 @@
       <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
       <h3 class="uk-margin-small">QuizRace</h3>
       {% include 'admin/_nav.twig' %}
-      <div id="offcanvas-buttons" class="uk-margin-top uk-flex uk-flex-middle"></div>
+      {% include '_topbar_controls.twig' %}
     </div>
   </div>
 {% endblock %}
