@@ -1,10 +1,8 @@
 <?php
 
-namespace App\Service;
+declare(strict_types=1);
 
-if (class_exists(__NAMESPACE__ . '\\StripeService')) {
-    return;
-}
+namespace App\Service;
 
 class StripeService
 {
