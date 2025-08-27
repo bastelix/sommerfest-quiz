@@ -2,6 +2,22 @@
 
 const basePath = window.basePath || '';
 const withBase = path => basePath + path;
+const escape = url => encodeURI(url);
+
+function isAllowed(url, allowedPaths = []) {
+  try {
+    const parsed = new URL(url, window.location.origin);
+    const domains = [];
+    if (window.location.hostname) domains.push(window.location.hostname.toLowerCase());
+    if (window.mainDomain) domains.push(window.mainDomain.toLowerCase());
+    const host = parsed.hostname.toLowerCase();
+    const domainOk = parsed.protocol === 'https:' && domains.some(d => host === d || host.endsWith('.' + d));
+    const pathOk = !allowedPaths.length || allowedPaths.some(p => parsed.pathname.startsWith(p));
+    return domainOk && pathOk;
+  } catch (e) {
+    return false;
+  }
+}
 const getCsrfToken = () =>
   document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
   window.csrfToken || '';
@@ -237,7 +253,11 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
         if (data.url) {
-          window.location.href = data.url;
+          if (isAllowed(data.url)) {
+            window.location.href = escape(data.url);
+          } else {
+            console.error('Blocked redirect to untrusted URL:', data.url);
+          }
         }
       } catch (e) {
         console.error(e);
@@ -1852,7 +1872,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const lang = langSelect.value;
     const url = new URL(window.location.href);
     url.searchParams.set('lang', lang);
-    window.location.href = url.toString();
+    window.location.href = escape(url.toString());
   });
 
   // --------- Teams/Personen ---------
@@ -3089,7 +3109,11 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
         if (data.url) {
-          window.location.href = data.url;
+          if (isAllowed(data.url)) {
+            window.location.href = escape(data.url);
+          } else {
+            console.error('Blocked redirect to untrusted URL:', data.url);
+          }
         }
       } catch (e) {
         console.error(e);
