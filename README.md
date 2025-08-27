@@ -537,6 +537,9 @@ Unter `/admin` stehen folgende Tabs zur Verfügung:
 ### Teams und QR-Code-Login
 In `data/teams.json` können Teilnehmernamen gespeichert werden. `GET /teams.json` ruft die Liste ab, `POST /teams.json` speichert sie. Ein optionales Häkchen „Nur Teams/Personen aus der Liste dürfen teilnehmen“ aktiviert eine Zugangsbeschränkung via QR-Code. QR-Codes lassen sich direkt in der Oberfläche generieren.
 
+### Spielerprofil
+Auf `/profile` legen Teilnehmende ihren Anzeigenamen fest. Ist die Option für Zufallsnamen aktiv und noch kein Name hinterlegt, leitet die Startseite automatisch auf diese Profilseite weiter. Nach dem Speichern werden Name und eine zufällige Kennung lokal gespeichert und über `/api/players` an den Server gemeldet.
+
 ### Ergebnisse
 Alle Resultate werden in der Datenbank abgelegt. Die API bietet folgende Endpunkte:
 - `GET /results.json` – liefert alle gespeicherten Ergebnisse.
