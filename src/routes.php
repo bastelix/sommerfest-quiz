@@ -23,6 +23,7 @@ use App\Service\TeamService;
 use App\Service\PhotoConsentService;
 use App\Service\EventService;
 use App\Service\SummaryPhotoService;
+use App\Service\PlayerService;
 use App\Service\UserService;
 use App\Service\TenantService;
 use App\Service\NginxService;
@@ -171,6 +172,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $emailConfirmService = new EmailConfirmationService($pdo);
         $auditLogger = new AuditLogger($pdo);
         $sessionService = new SessionService($pdo);
+        $playerService = new PlayerService($pdo);
 
         $request = $request
             ->withAttribute('plan', $plan)
@@ -721,6 +723,16 @@ return function (\Slim\App $app, TranslationService $translator) {
 
     $app->post('/results', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->post($request, $response);
+    });
+
+    $app->post('/api/players', function (Request $request, Response $response) use ($playerService) {
+        $data = (array) $request->getParsedBody();
+        $playerService->save(
+            (string)($data['event_uid'] ?? ''),
+            (string)($data['player_name'] ?? ''),
+            (string)($data['player_uid'] ?? '')
+        );
+        return $response->withStatus(204);
     });
 
     $app->delete('/results', function (Request $request, Response $response) {
