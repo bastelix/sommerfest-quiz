@@ -6,11 +6,11 @@
   <title>{% block title %}QuizRace – Das interaktive Team-Quiz für Events{% endblock %}</title>
   <meta name="description" content="QuizRace macht Ihr Event einzigartig: QR-Code-Stationen, Live-Ranking & Rätselspaß – datensicher, flexibel, ohne App-Download.">
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://quizrace.app/">
+  <link rel="canonical" href="{{ canonicalUrl }}">
   <meta property="og:title" content="QuizRace – Das interaktive Team-Quiz für Events">
   <meta property="og:description" content="Gestalten Sie in Minuten ein Event-Quiz mit QR-Code-Stationen, Live-Ranking & Rätselwort. DSGVO-konform, ohne App-Download.">
-  <meta property="og:image" content="https://quizrace.app/img/social-preview.jpg">
-    <meta property="og:url" content="https://quizrace.app/">
+  <meta property="og:image" content="{{ baseUrl ~ (config.ogImagePath ?? '/img/social-preview.jpg') }}">
+    <meta property="og:url" content="{{ canonicalUrl }}">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="de_DE">
     <meta name="twitter:card" content="summary_large_image">
