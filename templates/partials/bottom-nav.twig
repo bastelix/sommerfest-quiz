@@ -1,0 +1,24 @@
+{% set links = links|default([]) %}
+<nav class="uk-navbar-container bottom-nav uk-hidden@m" uk-navbar>
+  <div class="uk-navbar-center">
+    <ul class="uk-navbar-nav">
+      {% for link in links %}
+      <li><a href="{{ link.href }}">{{ link.text }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+</nav>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const bottomNav = document.querySelector('.bottom-nav');
+    function toggleBottomNav() {
+      if (window.innerWidth >= 960) {
+        bottomNav.classList.add('uk-hidden');
+      } else {
+        bottomNav.classList.remove('uk-hidden');
+      }
+    }
+    toggleBottomNav();
+    window.addEventListener('resize', toggleBottomNav);
+  });
+</script>
