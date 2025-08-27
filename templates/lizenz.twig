@@ -12,19 +12,11 @@
 
 {% block body %}
   {% embed 'topbar.twig' %}
-    {% block mobile_menu_toggle %}
-      <a class="uk-navbar-toggle uk-hidden@m" href="#offcanvas-nav" uk-toggle>
-        <span uk-navbar-toggle-icon></span>
-      </a>
-    {% endblock %}
     {% block left %}
       <a href="." class="uk-icon-button" uk-icon="icon: arrow-left; ratio: 2" title="Zurück" aria-label="Zurück"></a>
     {% endblock %}
     {% block center %}
       <span class="uk-navbar-title uk-text-center">Lizenz</span>
-    {% endblock %}
-    {% block right %}
-      {% include '_topbar_controls.twig' %}
     {% endblock %}
   {% endembed %}
   {{ content|raw }}
