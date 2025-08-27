@@ -201,7 +201,7 @@
                 <th scope="col">{{ t('column_start') }}</th>
                 <th scope="col">{{ t('column_end') }}</th>
                 <th scope="col">{{ t('column_description') }}</th>
-                <th scope="col">{{ t('column_active') }}</th>
+                <th scope="col">{{ t('column_current') }}</th>
                 <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_event_remove') }}; pos: top"></span></th>
               </tr>
             </thead>
@@ -211,7 +211,8 @@
               data-label-start="{{ t('column_start') }}"
               data-label-end="{{ t('column_end') }}"
               data-label-description="{{ t('column_description') }}"
-              data-label-active="{{ t('column_active') }}"
+              data-label-current="{{ t('column_current') }}"
+              data-tip-select-event="{{ t('tip_select_event') }}"
               data-label-actions="{{ t('column_actions') }}"
               uk-sortable="handle: .uk-sortable-handle; group: sortable-group"></tbody>
           </table>
