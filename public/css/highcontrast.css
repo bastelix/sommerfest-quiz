@@ -108,6 +108,19 @@ body.dark-mode.high-contrast .onboarding-timeline .timeline-step.completed {
   border-color: #ffffff;
   color: #ffffff;
 }
+body.high-contrast .topbar .theme-switch button,
+body.high-contrast .topbar .contrast-switch button,
+body.high-contrast .topbar .help-switch a {
+  border: 2px solid #000000;
+  background-color: #ffffff;
+}
+
+body.dark-mode.high-contrast .topbar .theme-switch button,
+body.dark-mode.high-contrast .topbar .contrast-switch button,
+body.dark-mode.high-contrast .topbar .help-switch a {
+  border: 2px solid #ffffff;
+  background-color: #000000;
+}
 body.dark-mode.high-contrast .onboarding-timeline .timeline-step.inactive {
   border-color: #999999;
   color: #999999;

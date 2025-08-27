@@ -1,14 +1,14 @@
 <nav class="uk-navbar-container uk-padding-small topbar" uk-navbar>
-  <div class="uk-navbar-left">
+    <div class="uk-navbar-left">
     {% block mobile_menu_toggle %}
       <a class="uk-navbar-toggle uk-hidden@m" href="#offcanvas-nav" uk-toggle aria-label="{{ t('menu') }}">
         <span uk-navbar-toggle-icon></span>
       </a>
     {% endblock %}
-    <div class="uk-navbar-item">
-      {% block left %}{% endblock %}
+      <div class="uk-navbar-item">
+        {% block left %}{% endblock %}
+      </div>
     </div>
-  </div>
   <div class="uk-navbar-center">
     <div class="uk-navbar-item">
       {% block center %}{% endblock %}
