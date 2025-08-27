@@ -15,9 +15,10 @@ class Database
     /**
      * Create a PDO connection using credentials from environment variables.
      *
-     * The number of connection attempts and the delay between retries can be
-     * overridden using the `POSTGRES_CONNECT_RETRIES` and
-     * `POSTGRES_CONNECT_RETRY_DELAY` environment variables.
+     * The number of connection attempts and the initial delay between retries
+     * can be overridden using the `POSTGRES_CONNECT_RETRIES` and
+     * `POSTGRES_CONNECT_RETRY_DELAY` environment variables. The delay doubles
+     * after each failed attempt to give the database more time to recover.
      */
     public static function connectFromEnv(int $retries = 5, int $delay = 1): PDO
     {
@@ -43,7 +44,9 @@ class Database
                 if ($retries-- <= 0) {
                     throw $e;
                 }
+
                 sleep($delay);
+                $delay *= 2; // exponential backoff
             }
         }
     }
