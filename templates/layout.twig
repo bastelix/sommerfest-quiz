@@ -64,6 +64,14 @@
       </nav>
     </footer>
   </div>
+  {% include 'partials/bottom-nav.twig' with {
+    links: [
+      { href: basePath ~ '/', text: t('tab_dashboard') },
+      { href: basePath ~ '/faq', text: t('help') },
+      { href: basePath ~ '/impressum', text: t('imprint') },
+      { href: basePath ~ '/datenschutz', text: t('privacy') }
+    ]
+  } %}
   <script src="{{ basePath }}/js/uikit.min.js" defer></script>
   <script src="{{ basePath }}/js/uikit-icons.min.js" defer></script>
   <script>window.basePath = '{{ basePath }}';</script>
