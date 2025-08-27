@@ -16,6 +16,7 @@
         <div class="uk-navbar-item">
           {% block right %}{% endblock %}
         </div>
+        {% block switches %}
         <div class="uk-navbar-item theme-switch">
         <button class="theme-toggle uk-button uk-button-link" uk-icon="icon: moon; ratio: 0.95" title="{{ t('design_toggle') }}" aria-label="{{ t('design_toggle') }}"></button>
       </div>
@@ -25,6 +26,7 @@
         <div class="uk-navbar-item help-switch">
           <a href="{{ basePath }}/faq" class="uk-button uk-button-link" uk-icon="icon: question; ratio: 0.95" title="{{ t('help') }}" aria-label="{{ t('help') }}"></a>
         </div>
+        {% endblock %}
       </div>
     </nav>
 {% block headerbar %}{% endblock %}
