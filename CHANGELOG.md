@@ -73,6 +73,13 @@
 - Bump version to 0.2.60 [skip ci]
 - Bump version to 0.2.61 [skip ci]
 - Bump version to 0.2.62 [skip ci]
+- Bump version to 0.2.63 [skip ci]
+- Bump version to 0.2.64 [skip ci]
+- Bump version to 0.2.65 [skip ci]
+- Bump version to 0.2.66 [skip ci]
+- Bump version to 0.2.67 [skip ci]
+- Bump version to 0.2.68 [skip ci]
+- Bump version to 0.2.69 [skip ci]
 
 ### Feat
 
@@ -96,6 +103,7 @@
 - Add theme color variables
 - Add dynamic nav placeholder sizing
 - Add responsive offcanvas menu toggle
+- Add mobile offcanvas navigation
 
 ### Fix
 
@@ -103,7 +111,6 @@
 - Ensure page content respects dynamic topbar height
 - *(events)* Prevent table frame from clipping actions
 - Respect flex-wrap when sizing nav placeholder
-- *(onboarding)* Show detailed error messages
 
 ### Refactor
 
