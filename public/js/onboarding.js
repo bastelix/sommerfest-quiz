@@ -406,12 +406,17 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (_) {
         data = undefined;
       }
+      if (res.status === 202 && (!body || !data)) {
+        addLog('Server akzeptierte die Anfrage, lieferte jedoch keine Rückmeldung.');
+        return false;
+      }
       if (!res.ok || !data || data.status !== 'queued') {
         const msg = data && data.error ? data.error : body || 'onboard';
         addLog('Fehler beim Onboarding: ' + msg);
         throw new Error(msg);
       }
       addLog('Onboarding gestartet …');
+      return true;
     };
 
     const waitForTenant = async slug => {
@@ -507,7 +512,11 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       mark('create', true);
       start('import');
-      await onboardTenant(subdomain);
+      const onboarded = await onboardTenant(subdomain);
+      if (!onboarded) {
+        mark('import', false);
+        throw new Error('Onboarding konnte nicht gestartet werden.');
+      }
       mark('import', true);
       start('proxy');
       await wait(0);
@@ -552,6 +561,7 @@ document.addEventListener('DOMContentLoaded', () => {
         : 'Fehler: ' + e.message;
       addLog(msg);
       alert(msg);
+      tenantFinalizing = false;
     }
   }
 
