@@ -145,6 +145,7 @@
 - Add profile name management
 - Enforce profile setup for random names
 - Store player names per event
+- Add exponential backoff for db connection
 
 ### Fix
 
