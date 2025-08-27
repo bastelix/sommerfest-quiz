@@ -638,17 +638,6 @@ body.admin-page {
   bottom: calc(8rem + env(safe-area-inset-bottom));
 }
 
-/* Hide button text on small screens */
-.button-text {
-  margin-left: 6px;
-  display: none;
-}
-@media (min-width: 640px) {
-  .button-text {
-    display: inline;
-  }
-}
-
 /* Toggle switch */
 .switch {
   position: relative;

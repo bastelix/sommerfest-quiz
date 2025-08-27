@@ -119,7 +119,7 @@
                       aria-label="{{ t('tip_event_add') }}"
                     >
                       <span uk-icon="plus"></span>
-                      <span class="button-text">{{ t('tip_event_add') }}</span>
+                      <span class="button-text uk-visible@s uk-margin-small-left">{{ t('tip_event_add') }}</span>
                     </a>
                   </div>
                 </div>
@@ -217,7 +217,15 @@
           </table>
         </div>
         <div class="uk-margin">
-          <button id="eventAddBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_event_add') }}; pos: left"></button>
+          <button
+            id="eventAddBtn"
+            class="uk-icon-button uk-button-primary fab"
+            uk-icon="plus"
+            uk-tooltip="title: {{ t('tip_event_add') }}; pos: left"
+            aria-label="{{ t('tip_event_add') }}"
+          >
+            <span class="button-text uk-visible@s uk-margin-small-left">{{ t('tip_event_add') }}</span>
+          </button>
         </div>
       </div>
     </li>
