@@ -101,6 +101,8 @@
 - Bump version to 0.2.88 [skip ci]
 - Bump version to 0.2.89 [skip ci]
 - Bump version to 0.2.90 [skip ci]
+- Bump version to 0.2.91 [skip ci]
+- Bump version to 0.2.92 [skip ci]
 
 ### Docs
 
@@ -130,6 +132,8 @@
 - Add responsive offcanvas menu toggle
 - Add mobile offcanvas navigation
 - Validate redirects before navigation
+- Allow hiding topbar icons
+- Add compact settings dropdown
 
 ### Fix
 
