@@ -730,7 +730,8 @@ body.admin-page {
 }
 #eventsList td::before {
   content: attr(data-label);
-  flex: 0 0 8ch;
+  flex: 0 0 auto;
+  min-width: 6rem;
   font-weight: 600;
   margin-right: 0.5rem;
 }
@@ -804,7 +805,8 @@ body.admin-page {
 }
 #catalogList td::before {
   content: attr(data-label);
-  flex: 0 0 8ch;
+  flex: 0 0 auto;
+  min-width: 6rem;
   font-weight: 600;
   margin-right: 0.5rem;
 }
