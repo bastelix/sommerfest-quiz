@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (themeIcon) {
           themeIcon.innerHTML = dark ? sunSVG : moonSVG;
         }
-        try { UIkit.drop('#menuDrop').hide(); } catch (e) {}
+        try { UIkit.dropdown('#menuDrop').hide(); } catch (e) {}
       });
     });
   }
@@ -88,14 +88,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (accessibilityIcon) {
           accessibilityIcon.innerHTML = accessible ? accessibilityOnSVG : accessibilityOffSVG;
         }
-        try { UIkit.drop('#menuDrop').hide(); } catch (e) {}
+        try { UIkit.dropdown('#menuDrop').hide(); } catch (e) {}
       });
     });
   }
 
   if (helpBtn) {
     helpBtn.addEventListener('click', function () {
-      try { UIkit.drop('#menuDrop').hide(); } catch (e) {}
+      try { UIkit.dropdown('#menuDrop').hide(); } catch (e) {}
       UIkit.offcanvas('#helpDrawer').show();
     });
   }
