@@ -1,7 +1,7 @@
 /* global UIkit */
 document.addEventListener('DOMContentLoaded', function () {
-  const themeToggle = document.getElementById('theme-toggle');
-  const contrastToggle = document.getElementById('contrast-toggle');
+  const themeToggles = document.querySelectorAll('.theme-toggle');
+  const contrastToggles = document.querySelectorAll('.contrast-toggle');
   const darkStylesheet = document.querySelector('link[href$="dark.css"]');
 
   const storedTheme = localStorage.getItem('darkMode');
@@ -17,28 +17,32 @@ document.addEventListener('DOMContentLoaded', function () {
     document.documentElement.classList.add('dark-mode');
   }
 
-  if (themeToggle) {
-    themeToggle.addEventListener('click', function (event) {
-      event.preventDefault();
-      const dark = document.body.classList.toggle('dark-mode');
-      document.documentElement.classList.toggle('dark-mode', dark);
-      document.body.classList.toggle('uk-light', dark);
-      if (darkStylesheet) {
-        darkStylesheet.disabled = !dark;
-      }
-      localStorage.setItem('darkMode', dark ? 'true' : 'false');
+  if (themeToggles.length) {
+    themeToggles.forEach((toggle) => {
+      toggle.addEventListener('click', function (event) {
+        event.preventDefault();
+        const dark = document.body.classList.toggle('dark-mode');
+        document.documentElement.classList.toggle('dark-mode', dark);
+        document.body.classList.toggle('uk-light', dark);
+        if (darkStylesheet) {
+          darkStylesheet.disabled = !dark;
+        }
+        localStorage.setItem('darkMode', dark ? 'true' : 'false');
+      });
     });
   }
 
-  if (contrastToggle) {
+  if (contrastToggles.length) {
     const isHigh = localStorage.getItem('highContrast') === 'true';
     if (isHigh) {
       document.body.classList.add('high-contrast');
     }
-    contrastToggle.addEventListener('click', function (event) {
-      event.preventDefault();
-      const hc = document.body.classList.toggle('high-contrast');
-      localStorage.setItem('highContrast', hc ? 'true' : 'false');
+    contrastToggles.forEach((toggle) => {
+      toggle.addEventListener('click', function (event) {
+        event.preventDefault();
+        const hc = document.body.classList.toggle('high-contrast');
+        localStorage.setItem('highContrast', hc ? 'true' : 'false');
+      });
     });
   }
 

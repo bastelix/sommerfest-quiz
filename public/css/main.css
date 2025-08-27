@@ -225,6 +225,17 @@ body.uk-padding {
   background: transparent;
 }
 
+.help-switch {
+  display: inline-block;
+  margin-left: 8px;
+  margin-top: 0;
+}
+
+.help-switch a {
+  border: none;
+  background: transparent;
+}
+
 .topbar .uk-navbar-item,
 .topbar .uk-navbar-nav > li > a,
 .topbar .uk-navbar-toggle {
@@ -253,9 +264,18 @@ body.uk-padding {
   height: 56px;
 }
 
-@media (max-width: 360px) {
-  .topbar .contrast-switch {
+.topbar .options-toggle {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .topbar .theme-switch,
+  .topbar .contrast-switch,
+  .topbar .help-switch {
     display: none;
+  }
+  .topbar .options-toggle {
+    display: flex;
   }
 }
 
