@@ -59,13 +59,19 @@
   };
 })();
 
+const eventUid = (window.quizConfig || {}).event_uid || '';
+const playerNameKey = eventUid ? `qr_player_name:${eventUid}` : 'quizUser';
+const playerUidKey = `qr_player_uid:${eventUid}`;
+
 function setStored(key, value){
+  if(key === 'quizUser') key = playerNameKey;
   try{
     sessionStorage.setItem(key, value);
     localStorage.setItem(key, value);
   }catch(e){ /* empty */ }
 }
 function getStored(key){
+  if(key === 'quizUser') key = playerNameKey;
   return sessionStorage.getItem(key) || localStorage.getItem(key);
 }
 
@@ -185,7 +191,7 @@ async function runQuiz(questions, skipIntro){
   elements.push(summaryEl);
   let summaryShown = false;
 
-  ['quizUser','quizCatalog'].forEach(k => {
+  [playerNameKey,'quizCatalog'].forEach(k => {
     const v = localStorage.getItem(k);
     if(v && !sessionStorage.getItem(k)){
       sessionStorage.setItem(k, v);
@@ -291,10 +297,14 @@ async function runQuiz(questions, skipIntro){
     if(score === questionCount && typeof window.startConfetti === 'function'){
       window.startConfetti();
     }
-    const catalog = getStored('quizCatalog') || 'unknown';
-    const wrong = results.map((r,i)=> r ? null : i+1).filter(v=>v!==null);
-    const data = { name: user, catalog, correct: score, total: questionCount, wrong, answers };
-    const puzzleSolved = sessionStorage.getItem('puzzleSolved') === 'true';
+      const catalog = getStored('quizCatalog') || 'unknown';
+      const wrong = results.map((r,i)=> r ? null : i+1).filter(v=>v!==null);
+      const data = { name: user, catalog, correct: score, total: questionCount, wrong, answers };
+      if(cfg.collectPlayerUid){
+        const uid = getStored(playerUidKey);
+        if(uid) data.player_uid = uid;
+      }
+      const puzzleSolved = sessionStorage.getItem('puzzleSolved') === 'true';
     const puzzleTs = sessionStorage.getItem('puzzleTime');
     if(puzzleSolved && puzzleTs){
       data.puzzleTime = parseInt(puzzleTs, 10) || Math.floor(Date.now()/1000);
@@ -1277,15 +1287,15 @@ async function runQuiz(questions, skipIntro){
       restart.textContent = 'Neu starten';
       restart.className = 'uk-button uk-button-primary uk-margin-top';
       styleButton(restart);
-      restart.addEventListener('click', () => {
-        sessionStorage.removeItem('quizUser');
-        sessionStorage.removeItem('quizSolved');
-        localStorage.removeItem('quizUser');
-        const topbar = document.getElementById('topbar-title');
-        if(topbar){
-          topbar.textContent = topbar.dataset.defaultTitle || '';
-        }
-      });
+        restart.addEventListener('click', () => {
+          sessionStorage.removeItem(playerNameKey);
+          sessionStorage.removeItem('quizSolved');
+          localStorage.removeItem(playerNameKey);
+          const topbar = document.getElementById('topbar-title');
+          if(topbar){
+            topbar.textContent = topbar.dataset.defaultTitle || '';
+          }
+        });
       div.appendChild(restart);
     } else {
       const endBtn = document.createElement('button');
@@ -1322,13 +1332,18 @@ async function runQuiz(questions, skipIntro){
     function handleCheck(){
       const valRaw = (input.value || '').trim();
       const ts = Math.floor(Date.now()/1000);
-      const user = getStored('quizUser') || '';
-      const catalog = getStored('quizCatalog') || 'unknown';
-      fetch('/results?debug=1', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: user, catalog, puzzleTime: ts, puzzleAnswer: valRaw })
-      })
+        const user = getStored('quizUser') || '';
+        const catalog = getStored('quizCatalog') || 'unknown';
+        const data = { name: user, catalog, puzzleTime: ts, puzzleAnswer: valRaw };
+        if(cfg.collectPlayerUid){
+          const uid = getStored(playerUidKey);
+          if(uid) data.player_uid = uid;
+        }
+        fetch('/results?debug=1', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        })
       .then(async r => {
         if(!r.ok){
           throw new Error('HTTP ' + r.status);
@@ -1437,8 +1452,12 @@ async function runQuiz(questions, skipIntro){
       const fd = new FormData();
       fd.append('photo', file);
       fd.append('name', name);
-      fd.append('catalog', catalog);
-      fd.append('team', name);
+        fd.append('catalog', catalog);
+        fd.append('team', name);
+        if(cfg.collectPlayerUid){
+          const uid = getStored(playerUidKey);
+          if(uid) fd.append('player_uid', uid);
+        }
 
       const originalChildren = Array.from(btn.childNodes).map(n => n.cloneNode(true));
       btn.disabled = true;

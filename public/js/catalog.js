@@ -20,13 +20,16 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
 // Lädt die verfügbaren Fragenkataloge und startet nach Auswahl das Quiz
 (function(){
   const eventUid = (window.quizConfig || {}).event_uid || '';
+  const playerNameKey = eventUid ? `qr_player_name:${eventUid}` : 'quizUser';
   function setStored(key, value){
+    if(key === 'quizUser') key = playerNameKey;
     try{
       sessionStorage.setItem(key, value);
       localStorage.setItem(key, value);
     }catch(e){ /* empty */ }
   }
   function getStored(key){
+    if(key === 'quizUser') key = playerNameKey;
     return sessionStorage.getItem(key) || localStorage.getItem(key);
   }
   function sanitize(text){
@@ -602,7 +605,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
         const r = await fetch('/results.json', {headers:{'Accept':'application/json'}});
         if(r.ok){
           const data = await r.json();
-          const user = (sessionStorage.getItem('quizUser') || '') || (typeof localStorage !== 'undefined' ? localStorage.getItem('quizUser') : '');
+          const user = (sessionStorage.getItem(playerNameKey) || '') || (typeof localStorage !== 'undefined' ? localStorage.getItem(playerNameKey) : '');
           data.forEach(entry => {
             if(entry.name === user){
               solved.add(entry.catalog);
@@ -620,11 +623,11 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
   async function init(){
     const cfg = window.quizConfig || {};
     if(cfg.QRRestrict){
-      sessionStorage.removeItem('quizUser');
+      sessionStorage.removeItem(playerNameKey);
       sessionStorage.removeItem('quizSolved');
-      localStorage.removeItem('quizUser');
+      localStorage.removeItem(playerNameKey);
     }
-    ['quizUser','quizCatalog'].forEach(k => {
+    [playerNameKey,'quizCatalog'].forEach(k => {
       const v = localStorage.getItem(k);
       if(v && !sessionStorage.getItem(k)){
         sessionStorage.setItem(k, v);
