@@ -797,10 +797,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const idCell = document.createElement('td');
     idCell.setAttribute('role', 'cell');
-    idCell.setAttribute('data-label', labels.labelSlug || '');
+    const idLabel = document.createElement('span');
+    idLabel.className = 'cell-label uk-hidden@s';
+    idLabel.textContent = labels.labelSlug || '';
+    idCell.appendChild(idLabel);
     const handleCell = document.createElement('td');
     handleCell.setAttribute('role', 'cell');
-    handleCell.setAttribute('data-label', labels.labelActions || '');
+    const handleLabel = document.createElement('span');
+    handleLabel.className = 'cell-label uk-hidden@s';
+    handleLabel.textContent = labels.labelActions || '';
+    handleCell.appendChild(handleLabel);
     const handleSpan = document.createElement('span');
     handleSpan.className = 'uk-sortable-handle uk-icon';
     handleSpan.setAttribute('uk-icon', 'icon: table');
@@ -816,7 +822,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const nameCell = document.createElement('td');
     nameCell.setAttribute('role', 'cell');
-    nameCell.setAttribute('data-label', labels.labelName || '');
+    const nameLabel = document.createElement('span');
+    nameLabel.className = 'cell-label uk-hidden@s';
+    nameLabel.textContent = labels.labelName || '';
+    nameCell.appendChild(nameLabel);
     const name = document.createElement('input');
     name.type = 'text';
     name.className = 'uk-input cat-name';
@@ -833,7 +842,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const descCell = document.createElement('td');
     descCell.setAttribute('role', 'cell');
-    descCell.setAttribute('data-label', labels.labelDescription || '');
+    const descLabel = document.createElement('span');
+    descLabel.className = 'cell-label uk-hidden@s';
+    descLabel.textContent = labels.labelDescription || '';
+    descCell.appendChild(descLabel);
     const desc = document.createElement('input');
     desc.type = 'text';
     desc.className = 'uk-input cat-desc';
@@ -844,7 +856,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const letterCell = document.createElement('td');
     letterCell.setAttribute('role', 'cell');
-    letterCell.setAttribute('data-label', labels.labelLetter || '');
+    const letterLabel = document.createElement('span');
+    letterLabel.className = 'cell-label uk-hidden@s';
+    letterLabel.textContent = labels.labelLetter || '';
+    letterCell.appendChild(letterLabel);
     const letter = document.createElement('input');
     letter.type = 'text';
     letter.className = 'uk-input cat-letter';
@@ -856,7 +871,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const commentCell = document.createElement('td');
     commentCell.setAttribute('role', 'cell');
-    commentCell.setAttribute('data-label', labels.labelComment || '');
+    const commentLabel = document.createElement('span');
+    commentLabel.className = 'cell-label uk-hidden@s';
+    commentLabel.textContent = labels.labelComment || '';
+    commentCell.appendChild(commentLabel);
     const commentBtn = document.createElement('button');
     commentBtn.className = 'uk-button uk-button-default';
     const commentField = document.createElement('input');
@@ -877,7 +895,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const delCell = document.createElement('td');
     delCell.setAttribute('role', 'cell');
-    delCell.setAttribute('data-label', labels.labelActions || '');
+    const delLabel = document.createElement('span');
+    delLabel.className = 'cell-label uk-hidden@s';
+    delLabel.textContent = labels.labelActions || '';
+    delCell.appendChild(delLabel);
     const del = document.createElement('button');
     del.className = 'uk-icon-button uk-button-danger';
     del.setAttribute('uk-icon', 'trash');
@@ -1562,7 +1583,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function updateEventRowNumbers() {
     Array.from(eventsListEl.querySelectorAll('.event-row')).forEach((row, idx) => {
-      const cell = row.querySelector('.row-num');
+      const cell = row.querySelector('.row-num .row-number');
       if (cell) cell.textContent = idx + 1;
     });
   }
@@ -1582,7 +1603,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const handleCell = document.createElement('td');
     handleCell.setAttribute('role', 'cell');
-    handleCell.setAttribute('data-label', labels.labelActions || '');
+    const handleLabel = document.createElement('span');
+    handleLabel.className = 'cell-label uk-hidden@s';
+    handleLabel.textContent = labels.labelActions || '';
+    handleCell.appendChild(handleLabel);
     const handleSpan = document.createElement('span');
     handleSpan.className = 'uk-sortable-handle uk-icon';
     handleSpan.setAttribute('uk-icon', 'icon: table');
@@ -1591,12 +1615,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const indexCell = document.createElement('td');
     indexCell.className = 'row-num';
     indexCell.setAttribute('role', 'cell');
-    indexCell.setAttribute('data-label', labels.labelNumber || '');
-    indexCell.textContent = '';
+    const indexLabel = document.createElement('span');
+    indexLabel.className = 'cell-label uk-hidden@s';
+    indexLabel.textContent = labels.labelNumber || '';
+    const indexValue = document.createElement('span');
+    indexValue.className = 'row-number';
+    indexCell.appendChild(indexLabel);
+    indexCell.appendChild(indexValue);
 
     const nameCell = document.createElement('td');
     nameCell.setAttribute('role', 'cell');
-    nameCell.setAttribute('data-label', labels.labelName || '');
+    const nameLabel = document.createElement('span');
+    nameLabel.className = 'cell-label uk-hidden@s';
+    nameLabel.textContent = labels.labelName || '';
+    nameCell.appendChild(nameLabel);
     const nameInput = document.createElement('input');
     nameInput.type = 'text';
     nameInput.className = 'uk-input event-name';
@@ -1606,7 +1638,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const startCell = document.createElement('td');
     startCell.setAttribute('role', 'cell');
-    startCell.setAttribute('data-label', labels.labelStart || '');
+    const startLabel = document.createElement('span');
+    startLabel.className = 'cell-label uk-hidden@s';
+    startLabel.textContent = labels.labelStart || '';
+    startCell.appendChild(startLabel);
     const startWrapper = document.createElement('div');
     startWrapper.className = 'uk-inline';
     const startIcon = document.createElement('span');
@@ -1624,7 +1659,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const endCell = document.createElement('td');
     endCell.setAttribute('role', 'cell');
-    endCell.setAttribute('data-label', labels.labelEnd || '');
+    const endLabel = document.createElement('span');
+    endLabel.className = 'cell-label uk-hidden@s';
+    endLabel.textContent = labels.labelEnd || '';
+    endCell.appendChild(endLabel);
     const endWrapper = document.createElement('div');
     endWrapper.className = 'uk-inline';
     const endIcon = document.createElement('span');
@@ -1641,7 +1679,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const descCell = document.createElement('td');
     descCell.setAttribute('role', 'cell');
-    descCell.setAttribute('data-label', labels.labelDescription || '');
+    const descLabel = document.createElement('span');
+    descLabel.className = 'cell-label uk-hidden@s';
+    descLabel.textContent = labels.labelDescription || '';
+    descCell.appendChild(descLabel);
     const descInput = document.createElement('input');
     descInput.type = 'text';
     descInput.className = 'uk-input event-desc';
@@ -1651,7 +1692,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const activateCell = document.createElement('td');
     activateCell.setAttribute('role', 'cell');
-    activateCell.setAttribute('data-label', labels.labelActive || '');
+    const activateCellLabel = document.createElement('span');
+    activateCellLabel.className = 'cell-label uk-hidden@s';
+    activateCellLabel.textContent = labels.labelActive || '';
+    activateCell.appendChild(activateCellLabel);
     const activateLabel = document.createElement('label');
     activateLabel.className = 'switch';
     activateLabel.setAttribute('uk-tooltip', 'title: Aktivieren; pos: top');
@@ -1675,7 +1719,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const delCell = document.createElement('td');
     delCell.setAttribute('role', 'cell');
-    delCell.setAttribute('data-label', labels.labelActions || '');
+    const delLabel = document.createElement('span');
+    delLabel.className = 'cell-label uk-hidden@s';
+    delLabel.textContent = labels.labelActions || '';
+    delCell.appendChild(delLabel);
     const del = document.createElement('button');
     del.className = 'uk-icon-button uk-button-danger';
     del.setAttribute('uk-icon', 'trash');

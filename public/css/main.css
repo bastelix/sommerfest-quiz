@@ -712,19 +712,19 @@ body.admin-page {
   padding: 0.5rem;
   margin-bottom: 0.75rem;
 }
+
+.cell-label {
+  display: block;
+}
 #eventsList td {
   display: flex;
   align-items: center;
   padding: 4px 0;
 }
-#eventsList td::before {
-  content: attr(data-label);
+#eventsList .cell-label {
   flex: 0 0 8ch;
   font-weight: 600;
   margin-right: 0.5rem;
-}
-#eventsList td:first-child::before {
-  content: '';
 }
 #eventsList input[type="text"],
 #eventsList input[type="datetime-local"] {
@@ -750,8 +750,8 @@ body.admin-page {
     display: table-cell;
     padding: 12px 4px;
   }
-  #eventsList td::before {
-    content: none;
+  .cell-label {
+    display: none;
   }
   #eventsList input[type="text"],
   #eventsList input[type="datetime-local"] {
@@ -791,14 +791,10 @@ body.admin-page {
   align-items: center;
   padding: 4px 0;
 }
-#catalogList td::before {
-  content: attr(data-label);
+#catalogList .cell-label {
   flex: 0 0 8ch;
   font-weight: 600;
   margin-right: 0.5rem;
-}
-#catalogList td:first-child::before {
-  content: '';
 }
 #catalogList input[type="text"] {
   width: 100%;
@@ -818,17 +814,14 @@ body.admin-page {
     padding: 0;
     margin-bottom: 0;
   }
-  #catalogList td {
-    display: table-cell;
-    padding: 8px 4px;
+    #catalogList td {
+      display: table-cell;
+      padding: 8px 4px;
+    }
+    #catalogList input[type="text"] {
+      width: auto;
+    }
   }
-  #catalogList td::before {
-    content: none;
-  }
-  #catalogList input[type="text"] {
-    width: auto;
-  }
-}
 
 /* Team list enhancements */
 #teamsList td {
