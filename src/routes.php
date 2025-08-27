@@ -79,6 +79,7 @@ use Psr\Log\NullLogger;
 use App\Controller\BackupController;
 use App\Domain\Roles;
 use App\Domain\Plan;
+use Symfony\Component\Process\Process;
 
 require_once __DIR__ . '/Controller/HomeController.php';
 require_once __DIR__ . '/Controller/FaqController.php';
@@ -1068,7 +1069,12 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(403);
         }
 
-        $slug = preg_replace('/[^a-z0-9\-]/', '-', strtolower((string) ($args['slug'] ?? '')));
+        $slug = strtolower((string) ($args['slug'] ?? ''));
+        if ($slug === '' || !preg_match('/^[a-z0-9-]+$/', $slug)) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid slug']));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
         $script = realpath(__DIR__ . '/../scripts/onboard_tenant.sh');
 
         if (!is_file($script)) {
@@ -1077,8 +1083,9 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
 
-        $cmd = sprintf('%s %s > /dev/null 2>&1 &', escapeshellcmd($script), escapeshellarg($slug));
-        proc_close(proc_open($cmd, [], $pipes));
+        $process = new Process([$script, $slug]);
+        $process->disableOutput();
+        $process->start();
 
         $payload = ['status' => 'queued', 'tenant' => $slug];
         $response->getBody()->write(json_encode($payload));
@@ -1090,7 +1097,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(403);
         }
-        $slug = preg_replace('/[^a-z0-9\-]/', '-', strtolower((string) ($args['slug'] ?? '')));
+        $slug = strtolower((string) ($args['slug'] ?? ''));
+        if ($slug === '' || !preg_match('/^[a-z0-9-]+$/', $slug)) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid slug']));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
         $script = realpath(__DIR__ . '/../scripts/offboard_tenant.sh');
 
         if (!is_file($script)) {
@@ -1099,10 +1111,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
 
-        $cmd = escapeshellcmd($script . ' ' . $slug);
-        exec($cmd, $output, $exitCode);
+        $process = new Process([$script, $slug]);
+        $process->run();
 
-        if ($exitCode !== 0) {
+        if (!$process->isSuccessful()) {
             $response->getBody()->write(json_encode(['error' => 'Failed to remove tenant']));
 
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
@@ -1127,10 +1139,10 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
-        $cmd = escapeshellcmd($script . ' --main');
-        exec($cmd, $output, $exitCode);
+        $process = new Process([$script, '--main']);
+        $process->run();
 
-        if ($exitCode !== 0) {
+        if (!$process->isSuccessful()) {
             $response->getBody()->write(json_encode(['error' => 'Failed to renew certificate']));
 
             return $response
@@ -1147,7 +1159,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(403);
         }
-        $slug = preg_replace('/[^a-z0-9\-]/', '-', strtolower((string) ($args['slug'] ?? '')));
+        $slug = strtolower((string) ($args['slug'] ?? ''));
+        if ($slug === '' || !preg_match('/^[a-z0-9-]+$/', $slug)) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid slug']));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
         $script = realpath(__DIR__ . '/../scripts/renew_ssl.sh');
 
         if (!is_file($script)) {
@@ -1158,10 +1175,10 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
-        $cmd = escapeshellcmd($script . ' ' . $slug);
-        exec($cmd, $output, $exitCode);
+        $process = new Process([$script, $slug]);
+        $process->run();
 
-        if ($exitCode !== 0) {
+        if (!$process->isSuccessful()) {
             $response->getBody()->write(json_encode(['error' => 'Failed to renew certificate']));
 
             return $response
@@ -1187,9 +1204,10 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(500);
         }
-        exec(escapeshellcmd($script), $output, $exitCode);
+        $process = new Process([$script]);
+        $process->run();
 
-        if ($exitCode !== 0) {
+        if (!$process->isSuccessful()) {
             $response->getBody()->write(json_encode(['error' => 'Failed to build image']));
 
             return $response
@@ -1205,7 +1223,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(403);
         }
-        $slug = preg_replace('/[^a-z0-9\-]/', '-', strtolower((string) ($args['slug'] ?? '')));
+        $slug = strtolower((string) ($args['slug'] ?? ''));
+        if ($slug === '' || !preg_match('/^[a-z0-9-]+$/', $slug)) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid slug']));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
         $script = realpath(__DIR__ . '/../scripts/upgrade_tenant.sh');
 
         if (!is_file($script)) {
@@ -1216,10 +1239,10 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
-        $cmd = escapeshellcmd($script . ' ' . $slug);
-        exec($cmd, $output, $exitCode);
+        $process = new Process([$script, $slug]);
+        $process->run();
 
-        if ($exitCode !== 0) {
+        if (!$process->isSuccessful()) {
             $response->getBody()->write(json_encode(['error' => 'Failed to upgrade tenant']));
 
             return $response
@@ -1236,7 +1259,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(403);
         }
-        $slug = preg_replace('/[^a-z0-9\-]/', '-', strtolower((string) ($args['slug'] ?? '')));
+        $slug = strtolower((string) ($args['slug'] ?? ''));
+        if ($slug === '' || !preg_match('/^[a-z0-9-]+$/', $slug)) {
+            $response->getBody()->write(json_encode(['error' => 'Invalid slug']));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
         $script = realpath(__DIR__ . '/../scripts/restart_tenant.sh');
 
         if (!is_file($script)) {
@@ -1247,10 +1275,10 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
-        $cmd = escapeshellcmd($script . ' ' . $slug);
-        exec($cmd, $output, $exitCode);
+        $process = new Process([$script, $slug]);
+        $process->run();
 
-        if ($exitCode !== 0) {
+        if (!$process->isSuccessful()) {
             $response->getBody()->write(json_encode(['error' => 'Failed to restart tenant']));
 
             return $response
