@@ -29,6 +29,27 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
   function getStored(key){
     return sessionStorage.getItem(key) || localStorage.getItem(key);
   }
+  function sanitize(text){
+    const el = document.createElement('div');
+    el.textContent = text == null ? '' : String(text);
+    return el.textContent;
+  }
+  function createModal(title){
+    const modal = document.createElement('div');
+    modal.setAttribute('uk-modal', '');
+    modal.setAttribute('aria-modal', 'true');
+    const dialog = document.createElement('div');
+    dialog.className = 'uk-modal-dialog uk-modal-body';
+    const h3 = document.createElement('h3');
+    h3.className = 'uk-modal-title uk-text-center';
+    h3.textContent = title;
+    dialog.appendChild(h3);
+    modal.appendChild(dialog);
+    document.body.appendChild(modal);
+    const ui = UIkit.modal(modal);
+    UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
+    return {modal, dialog, ui};
+  }
   function setSubHeader(text){
     const headerEl = document.getElementById('quiz-header');
     if(!headerEl) return;
@@ -54,14 +75,10 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       headerEl.appendChild(block);
     }
     if(text){
-      if(text.indexOf('<') !== -1){
-        block.innerHTML = text;
-      }else{
-        block.textContent = text;
-      }
+      block.textContent = sanitize(text);
       block.classList.remove('uk-hidden');
     }else{
-      block.innerHTML = '';
+      block.textContent = '';
       block.classList.add('uk-hidden');
     }
   }
@@ -212,7 +229,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
   function showCatalogIntro(data){
     const container = document.getElementById('quiz');
     if(!container) return;
-    container.innerHTML = '';
+    container.textContent = '';
     const btn = document.createElement('button');
     btn.className = 'uk-button uk-button-primary uk-button-large uk-align-right';
     btn.textContent = 'Los geht es!';
@@ -231,38 +248,36 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
   }
 
   function showCatalogSolvedModal(name, remaining){
-    const msg = 'Der Katalog ' + name + ' wurde bereits abgeschlossen.' +
-      (remaining ? '<br>Folgende Fragenkataloge fehlen noch: ' + remaining : '');
-    const modal = document.createElement('div');
-    modal.setAttribute('uk-modal', '');
-    modal.setAttribute('aria-modal', 'true');
-    modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
-      '<h3 class="uk-modal-title uk-text-center">Katalog bereits gespielt</h3>' +
-      '<p class="uk-text-center">' + msg + '</p>' +
-      '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">OK</button>' +
-      '</div>';
-    const btn = modal.querySelector('button');
-    document.body.appendChild(modal);
-    const ui = UIkit.modal(modal);
-    UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
+    const {dialog, ui} = createModal('Katalog bereits gespielt');
+    const p1 = document.createElement('p');
+    p1.className = 'uk-text-center';
+    p1.textContent = 'Der Katalog ' + sanitize(name) + ' wurde bereits abgeschlossen.';
+    dialog.appendChild(p1);
+    if(remaining){
+      const p2 = document.createElement('p');
+      p2.className = 'uk-text-center';
+      p2.textContent = 'Folgende Fragenkataloge fehlen noch: ' + sanitize(remaining);
+      dialog.appendChild(p2);
+    }
+    const btn = document.createElement('button');
+    btn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
+    btn.textContent = 'OK';
+    dialog.appendChild(btn);
     btn.addEventListener('click', () => ui.hide());
     ui.show();
   }
 
   function showAllSolvedModal(){
-    const modal = document.createElement('div');
-    modal.setAttribute('uk-modal', '');
-    modal.setAttribute('aria-modal', 'true');
-    modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
-      '<h3 class="uk-modal-title uk-text-center">Alle Kataloge gespielt</h3>' +
-      '<p class="uk-text-center">Herzlichen Glückwunsch, alle Kataloge wurden erfolgreich gespielt!</p>' +
-      '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Zur Auswertung wechseln</button>' +
-      '</div>';
-    const btn = modal.querySelector('button');
-    document.body.appendChild(modal);
-    const ui = UIkit.modal(modal);
-    UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
-    btn.addEventListener('click', () => { ui.hide(); window.location.href = "/summary"; });
+    const {dialog, ui} = createModal('Alle Kataloge gespielt');
+    const p = document.createElement('p');
+    p.className = 'uk-text-center';
+    p.textContent = 'Herzlichen Glückwunsch, alle Kataloge wurden erfolgreich gespielt!';
+    dialog.appendChild(p);
+    const btn = document.createElement('button');
+    btn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
+    btn.textContent = 'Zur Auswertung wechseln';
+    dialog.appendChild(btn);
+    btn.addEventListener('click', () => { ui.hide(); window.location.href = '/summary'; });
     ui.show();
   }
 
@@ -270,7 +285,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
     solved = solved || new Set();
     const container = document.getElementById('quiz');
     if(!container) return;
-    container.innerHTML = '';
+    container.textContent = '';
     const cfg = window.quizConfig || {};
     if(catalogs.length && solved.size === catalogs.length){
       showAllSolvedModal();
@@ -350,7 +365,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
     }
     const container = document.getElementById('quiz');
     if(!container) return;
-    container.innerHTML = '';
+    container.textContent = '';
     const div = document.createElement('div');
     div.className = 'uk-text-center login-buttons uk-grid-small';
     div.setAttribute('uk-grid', '');
@@ -381,16 +396,26 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
           onDone();
         });
       }
-      const modal = document.createElement('div');
+      const {modal, dialog, ui} = createModal('Team-Check-in');
       modal.id = 'qr-modal';
-      modal.setAttribute('uk-modal', '');
-      modal.setAttribute('aria-modal', 'true');
-      modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">'+
-        '<h3 class="uk-modal-title uk-text-center">Team-Check-in</h3>'+
-        '<div id="login-qr" class="uk-margin" style="max-width:320px;margin:0 auto;width:100%"></div>'+
-        '<button id="login-qr-flip" class="uk-button uk-button-default uk-width-1-1">Kamera wechseln</button>'+
-        '<button id="login-qr-stop" class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Abbrechen</button>'+
-      '</div>';
+      const qrDiv = document.createElement('div');
+      qrDiv.id = 'login-qr';
+      qrDiv.className = 'uk-margin';
+      qrDiv.style.maxWidth = '320px';
+      qrDiv.style.margin = '0 auto';
+      qrDiv.style.width = '100%';
+      const flipBtn = document.createElement('button');
+      flipBtn.id = 'login-qr-flip';
+      flipBtn.className = 'uk-button uk-button-default uk-width-1-1';
+      flipBtn.textContent = 'Kamera wechseln';
+      flipBtn.disabled = true;
+      const stopBtn = document.createElement('button');
+      stopBtn.id = 'login-qr-stop';
+      stopBtn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
+      stopBtn.textContent = 'Abbrechen';
+      dialog.appendChild(qrDiv);
+      dialog.appendChild(flipBtn);
+      dialog.appendChild(stopBtn);
       let scanner;
       let opener;
       let cameras = [];
@@ -407,7 +432,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
         flipBtn.disabled = true;
         try{
           await scanner.start(camId, { fps:10, qrbox:250 }, text => {
-            const name = text.trim();
+            const name = sanitize(text.trim());
             if(cfg.QRRestrict && allowed.indexOf(name.toLowerCase()) === -1){
               alert('Unbekanntes oder nicht berechtigtes Team/Person');
               return;
@@ -416,19 +441,19 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
             sessionStorage.removeItem('quizSolved');
             updateUserName();
             stopScanner();
-            UIkit.modal(modal).hide();
+            ui.hide();
             onDone();
           });
         }catch(err){
           console.error('QR scanner start failed.', err);
-          document.getElementById('login-qr').textContent = 'QR-Scanner konnte nicht gestartet werden.';
+          qrDiv.textContent = 'QR-Scanner konnte nicht gestartet werden.';
           showManualInput();
         }
         flipBtn.disabled = cameras.length < 2;
       };
       const startScanner = async () => {
         if(typeof Html5Qrcode === 'undefined'){
-          document.getElementById('login-qr').textContent = 'QR-Scanner nicht verfügbar.';
+          qrDiv.textContent = 'QR-Scanner nicht verfügbar.';
           showManualInput();
           return;
         }
@@ -437,7 +462,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
         try{
           const cams = await Html5Qrcode.getCameras();
           if(!cams || !cams.length){
-            document.getElementById('login-qr').textContent = 'Keine Kamera gefunden.';
+            qrDiv.textContent = 'Keine Kamera gefunden.';
             return;
           }
           cameras = filterCameraOrientations(cams);
@@ -448,21 +473,27 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
           await startCamera();
         }catch(err){
           console.error('Camera list error.', err);
-          document.getElementById('login-qr').textContent = 'Kamera konnte nicht initialisiert werden. Bitte erlaube den Kamerazugriff im Browser oder in den Geräteeinstellungen. Lade die Seite danach neu.';
+          qrDiv.textContent = 'Kamera konnte nicht initialisiert werden. Bitte erlaube den Kamerazugriff im Browser oder in den Geräteeinstellungen. Lade die Seite danach neu.';
           showManualInput();
         }
       };
-      const flipBtn = modal.querySelector('#login-qr-flip');
-      const stopBtn = modal.querySelector('#login-qr-stop');
       flipBtn.disabled = true;
       function showManualInput(){
-        const container = document.getElementById('login-qr');
-        container.innerHTML = '<input id="manual-team-name" class="uk-input" type="text" placeholder="Teamname eingeben">' +
-          '<button id="manual-team-submit" class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Weiter</button>';
+        qrDiv.textContent = '';
+        const input = document.createElement('input');
+        input.id = 'manual-team-name';
+        input.className = 'uk-input';
+        input.type = 'text';
+        input.placeholder = 'Teamname eingeben';
+        const submit = document.createElement('button');
+        submit.id = 'manual-team-submit';
+        submit.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
+        submit.textContent = 'Weiter';
+        qrDiv.appendChild(input);
+        qrDiv.appendChild(submit);
         flipBtn.classList.add('uk-hidden');
-        const input = container.querySelector('#manual-team-name');
-        container.querySelector('#manual-team-submit').addEventListener('click', () => {
-          const name = (input.value || '').trim();
+        submit.addEventListener('click', () => {
+          const name = sanitize((input.value || '').trim());
           if(!name) return;
           if(cfg.QRRestrict && allowed.indexOf(name.toLowerCase()) === -1){
             alert('Unbekanntes oder nicht berechtigtes Team/Person');
@@ -470,13 +501,13 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
           }
           setStored('quizUser', name);
           stopScanner();
-          UIkit.modal(modal).hide();
+          ui.hide();
           onDone();
         });
         input.addEventListener('keydown', (ev) => {
           if(ev.key === 'Enter'){
             ev.preventDefault();
-            container.querySelector('#manual-team-submit').click();
+            submit.click();
           }
         });
         input.focus();
@@ -503,7 +534,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       });
       scanBtn.addEventListener('click', async (e) => {
         opener = e.currentTarget;
-        UIkit.modal(modal).show();
+        ui.show();
         await startScanner();
       });
       UIkit.util.on(modal, 'shown', () => {
@@ -518,7 +549,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
         }
       });
       stopBtn.addEventListener('click', () => {
-        UIkit.modal(modal).hide();
+        ui.hide();
       });
       const scanWrap = document.createElement('div');
       scanWrap.className = bypass ? 'uk-width-1-2@s' : 'uk-width-1-1';
@@ -530,9 +561,8 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
         bypassWrap.appendChild(bypass);
         div.appendChild(bypassWrap);
       }
-      container.appendChild(modal);
       if(autoScan){
-        UIkit.modal(modal).show();
+        ui.show();
         await startScanner();
       }
     }else{
