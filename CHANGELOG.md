@@ -38,6 +38,10 @@
 - Bump version to 0.2.26 [skip ci]
 - Bump version to 0.2.27 [skip ci]
 - Bump version to 0.2.28 [skip ci]
+
+### Fix
+
+- Prevent fatal errors when Symfony Process is missing
 - Bump version to 0.2.29 [skip ci]
 - Bump version to 0.2.30 [skip ci]
 - Bump version to 0.2.31 [skip ci]
