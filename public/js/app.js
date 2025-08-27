@@ -3,12 +3,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const themeToggle = document.getElementById('theme-toggle');
   const contrastToggle = document.getElementById('contrast-toggle');
   const darkStylesheet = document.querySelector('link[href$="dark.css"]');
-  const themeSwitch = document.querySelector('.theme-switch');
-  const contrastSwitch = document.querySelector('.contrast-switch');
-  const helpBtn = document.getElementById('helpBtn');
-  const offcanvasToggle = document.getElementById('offcanvas-toggle');
-  const offcanvasButtons = document.getElementById('offcanvas-buttons');
-  const topbarRight = document.querySelector('.topbar .uk-navbar-right .uk-navbar-item');
 
   const storedTheme = localStorage.getItem('darkMode');
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -24,23 +18,15 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (themeToggle) {
-    themeToggle.setAttribute('uk-icon', isDark ? 'icon: sun; ratio: 2' : 'icon: moon; ratio: 2');
-    UIkit.icon(themeToggle);
-    themeToggle.addEventListener('click', function () {
+    themeToggle.addEventListener('click', function (event) {
+      event.preventDefault();
       const dark = document.body.classList.toggle('dark-mode');
       document.documentElement.classList.toggle('dark-mode', dark);
       document.body.classList.toggle('uk-light', dark);
       if (darkStylesheet) {
         darkStylesheet.disabled = !dark;
       }
-      if (dark) {
-        localStorage.setItem('darkMode', 'true');
-        themeToggle.setAttribute('uk-icon', 'icon: sun; ratio: 2');
-      } else {
-        localStorage.setItem('darkMode', 'false');
-        themeToggle.setAttribute('uk-icon', 'icon: moon; ratio: 2');
-      }
-      UIkit.icon(themeToggle);
+      localStorage.setItem('darkMode', dark ? 'true' : 'false');
     });
   }
 
@@ -49,8 +35,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (isHigh) {
       document.body.classList.add('high-contrast');
     }
-    UIkit.icon(contrastToggle);
-    contrastToggle.addEventListener('click', function () {
+    contrastToggle.addEventListener('click', function (event) {
+      event.preventDefault();
       const hc = document.body.classList.toggle('high-contrast');
       localStorage.setItem('highContrast', hc ? 'true' : 'false');
     });
@@ -68,39 +54,13 @@ document.addEventListener('DOMContentLoaded', function () {
     navPlaceholder.style.height = height + 'px';
   }
 
-  function handleTopbarOverflow() {
-    if (!topbar || !topbarRight || !offcanvasToggle || !offcanvasButtons) {
-      return;
-    }
-    const overflowing = topbar.scrollWidth > topbar.clientWidth;
-    const elements = [themeSwitch, contrastSwitch, helpBtn];
-    if (overflowing) {
-      elements.forEach(el => {
-        if (el && offcanvasButtons.contains(el) === false) {
-          offcanvasButtons.appendChild(el);
-        }
-      });
-      offcanvasToggle.hidden = false;
-    } else {
-      elements.forEach(el => {
-        if (el && topbarRight.contains(el) === false) {
-          topbarRight.appendChild(el);
-        }
-      });
-      if (offcanvasButtons.children.length === 0) {
-        offcanvasToggle.hidden = true;
-      }
-    }
-  }
-
   if (topbar && navPlaceholder) {
     updateNavPlaceholder();
   }
-  handleTopbarOverflow();
+
   window.addEventListener('resize', () => {
     if (topbar && navPlaceholder) {
       updateNavPlaceholder();
     }
-    handleTopbarOverflow();
   });
 });

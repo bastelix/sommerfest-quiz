@@ -12,11 +12,6 @@
 
 {% block body %}
   {% embed 'topbar.twig' %}
-    {% block mobile_menu_toggle %}
-      <a class="uk-navbar-toggle uk-hidden@m" href="#offcanvas-nav" uk-toggle>
-        <span uk-navbar-toggle-icon></span>
-      </a>
-    {% endblock %}
     {% block center %}
       <div class="uk-flex uk-flex-middle">
         <div id="eventSelectWrap" class="uk-flex uk-flex-middle" hidden>
@@ -31,9 +26,6 @@
         </div>
         <span id="eventTitle" class="uk-navbar-title uk-text-center">{{ event.name|default('Sommerfest 2025') }}</span>
       </div>
-    {% endblock %}
-    {% block right %}
-      {% include '_topbar_controls.twig' %}
     {% endblock %}
   {% endembed %}
   <div class="uk-container uk-container-small uk-text-center">

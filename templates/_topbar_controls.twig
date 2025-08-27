@@ -1,7 +1,11 @@
-<div class="theme-switch">
-  <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="{{ t('design_toggle') }}"></button>
-</div>
-<div class="contrast-switch uk-margin-small-left">
-  <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="{{ t('contrast_toggle') }}"></button>
-</div>
-<a href="{{ basePath }}/faq" class="uk-icon-button uk-margin-small-left" uk-icon="icon: question; ratio: 2" title="{{ t('help') }}" aria-label="{{ t('help') }}"></a>
+<ul class="uk-nav uk-nav-default">
+  <li>
+    <a id="theme-toggle" href="#">{{ t('design_toggle') }}</a>
+  </li>
+  <li>
+    <a id="contrast-toggle" href="#">{{ t('contrast_toggle') }}</a>
+  </li>
+  <li>
+    <a href="{{ basePath }}/faq">{{ t('help') }}</a>
+  </li>
+</ul>
