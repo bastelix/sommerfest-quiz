@@ -1,8 +1,17 @@
 /* global UIkit */
+function mapKey(key){
+  if(key === 'quizUser'){
+    const eventUid = (window.quizConfig || {}).event_uid || '';
+    return eventUid ? `qr_player_name:${eventUid}` : 'quizUser';
+  }
+  return key;
+}
 function getStored(key){
+  key = mapKey(key);
   return sessionStorage.getItem(key) || localStorage.getItem(key);
 }
 function setStored(key, value){
+  key = mapKey(key);
   try{
     sessionStorage.setItem(key, value);
     localStorage.setItem(key, value);
@@ -18,6 +27,8 @@ function safeUserName(name){
 }
 document.addEventListener('DOMContentLoaded', () => {
   const eventUid = (window.quizConfig || {}).event_uid || '';
+  const cfg = window.quizConfig || {};
+  const playerUidKey = `qr_player_uid:${eventUid}`;
   const resultsBtn = document.getElementById('show-results-btn');
   const puzzleBtn = document.getElementById('check-puzzle-btn');
   const photoBtn = document.getElementById('upload-photo-btn');
@@ -295,16 +306,21 @@ document.addEventListener('DOMContentLoaded', () => {
     UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
     if(!solvedBefore && input) UIkit.util.on(modal, 'shown', () => { input.focus(); });
     function handleCheck(){
-        const valRaw = (input.value || '').trim();
-        const ts = Math.floor(Date.now()/1000);
-        const userName = getStored('quizUser') || '';
-        const catalog = getStored('quizCatalog') || 'unknown';
-        let debugTimer = null;
-        fetch(withBase('/results?debug=1'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: userName, catalog, puzzleTime: ts, puzzleAnswer: valRaw })
-        })
+          const valRaw = (input.value || '').trim();
+          const ts = Math.floor(Date.now()/1000);
+          const userName = getStored('quizUser') || '';
+          const catalog = getStored('quizCatalog') || 'unknown';
+          const data = { name: userName, catalog, puzzleTime: ts, puzzleAnswer: valRaw };
+          if(cfg.collectPlayerUid){
+            const uid = getStored(playerUidKey);
+            if(uid) data.player_uid = uid;
+          }
+          let debugTimer = null;
+          fetch(withBase('/results?debug=1'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          })
         .then(async r => {
           if(!r.ok){
             throw new Error('HTTP ' + r.status);
@@ -444,9 +460,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if(!file || (requireConsent && consent && !consent.checked)) return;
       const fd = new FormData();
       fd.append('photo', file);
-      fd.append('name', user);
-      fd.append('catalog', 'summary');
-      fd.append('team', user);
+        fd.append('name', user);
+        fd.append('catalog', 'summary');
+        fd.append('team', user);
+        if(cfg.collectPlayerUid){
+          const uid = getStored(playerUidKey);
+          if(uid) fd.append('player_uid', uid);
+        }
 
       const originalText = btn.textContent;
       btn.disabled = true;
