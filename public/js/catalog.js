@@ -95,9 +95,14 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       setComment('');
       // Benutzername wird nach erfolgreichem Login ergänzt
     }
-    const styleEl = document.createElement('style');
-    styleEl.textContent = `\n      body { background-color: ${cfg.backgroundColor || '#ffffff'}; }\n      .uk-button-primary { background-color: ${cfg.buttonColor || '#1e87f0'}; border-color: ${cfg.buttonColor || '#1e87f0'}; }\n    `;
-    document.head.appendChild(styleEl);
+    if(cfg.colors){
+      if(cfg.colors.primary){
+        document.documentElement.style.setProperty('--primary-color', cfg.colors.primary);
+      }
+      if(cfg.colors.accent){
+        document.documentElement.style.setProperty('--accent-color', cfg.colors.accent);
+      }
+    }
   }
 
   function updateUserName(){
@@ -212,9 +217,9 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
     btn.className = 'uk-button uk-button-primary uk-button-large uk-align-right';
     btn.textContent = 'Los geht es!';
     const cfg = window.quizConfig || {};
-    if(cfg.buttonColor){
-      btn.style.backgroundColor = cfg.buttonColor;
-      btn.style.borderColor = cfg.buttonColor;
+    if(cfg.colors && cfg.colors.accent){
+      btn.style.backgroundColor = cfg.colors.accent;
+      btn.style.borderColor = cfg.colors.accent;
       btn.style.color = '#fff';
     }
     btn.addEventListener('click', () => {
@@ -353,9 +358,9 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       const scanBtn = document.createElement('button');
       scanBtn.className = 'uk-button uk-button-primary uk-width-1-1';
       scanBtn.textContent = 'Name mit QR-Code scannen';
-      if(cfg.buttonColor){
-        scanBtn.style.backgroundColor = cfg.buttonColor;
-        scanBtn.style.borderColor = cfg.buttonColor;
+      if(cfg.colors && cfg.colors.accent){
+        scanBtn.style.backgroundColor = cfg.colors.accent;
+        scanBtn.style.borderColor = cfg.colors.accent;
         scanBtn.style.color = '#fff';
       }
       let bypass;
@@ -364,9 +369,9 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
         bypass.type = 'button';
         bypass.textContent = 'Kataloge anzeigen';
         bypass.className = 'uk-button uk-button-primary uk-width-1-1';
-        if(cfg.buttonColor){
-          bypass.style.backgroundColor = cfg.buttonColor;
-          bypass.style.borderColor = cfg.buttonColor;
+        if(cfg.colors && cfg.colors.accent){
+          bypass.style.backgroundColor = cfg.colors.accent;
+          bypass.style.borderColor = cfg.colors.accent;
           bypass.style.color = '#fff';
         }
         bypass.addEventListener('click', () => {
@@ -535,9 +540,9 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
         const btn = document.createElement('button');
         btn.className = 'uk-button uk-button-primary uk-align-right';
         btn.textContent = 'Los geht es!';
-        if(cfg.buttonColor){
-          btn.style.backgroundColor = cfg.buttonColor;
-          btn.style.borderColor = cfg.buttonColor;
+        if(cfg.colors && cfg.colors.accent){
+          btn.style.backgroundColor = cfg.colors.accent;
+          btn.style.borderColor = cfg.colors.accent;
           btn.style.color = '#fff';
         }
         btn.addEventListener('click', () => {

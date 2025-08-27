@@ -200,6 +200,7 @@ class ConfigService
             'puzzleWord',
             'puzzleFeedback',
             'inviteText',
+            'colors',
             'event_uid',
             'qrLabelLine1',
             'qrLabelLine2',
@@ -238,13 +239,15 @@ class ConfigService
                 $sql = 'INSERT INTO config(' . implode(',', $cols) . ') VALUES(' . $params . ')';
             }
             $stmt = $this->pdo->prepare($sql);
-            foreach ($filtered as $k => $v) {
-                if (is_bool($v)) {
-                    $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
-                } else {
-                    $stmt->bindValue(':' . $k, $v);
-                }
+        foreach ($filtered as $k => $v) {
+            if (is_bool($v)) {
+                $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
+            } elseif ($k === 'colors') {
+                $stmt->bindValue(':' . $k, json_encode($v));
+            } else {
+                $stmt->bindValue(':' . $k, $v);
             }
+        }
             $stmt->execute();
             $this->pdo->commit();
         } catch (Throwable $e) {
@@ -349,6 +352,7 @@ class ConfigService
             'puzzleWord',
             'puzzleFeedback',
             'inviteText',
+            'colors',
             'event_uid',
             'qrLabelLine1',
             'qrLabelLine2',
@@ -367,7 +371,14 @@ class ConfigService
         $normalized = [];
         foreach ($row as $k => $v) {
             $key = $map[strtolower($k)] ?? $k;
-            if (in_array($key, self::BOOL_KEYS, true)) {
+            if ($key === 'colors') {
+                if (is_string($v)) {
+                    $decoded = json_decode($v, true);
+                    $normalized[$key] = is_array($decoded) ? $decoded : [];
+                } else {
+                    $normalized[$key] = is_array($v) ? $v : [];
+                }
+            } elseif (in_array($key, self::BOOL_KEYS, true)) {
                 $normalized[$key] = $v === null ? null : filter_var(
                     $v,
                     FILTER_VALIDATE_BOOL,
@@ -375,6 +386,18 @@ class ConfigService
                 );
             } else {
                 $normalized[$key] = $v;
+            }
+        }
+        if (!isset($normalized['colors'])) {
+            $colorCfg = [];
+            if (isset($normalized['backgroundColor'])) {
+                $colorCfg['primary'] = $normalized['backgroundColor'];
+            }
+            if (isset($normalized['buttonColor'])) {
+                $colorCfg['accent'] = $normalized['buttonColor'];
+            }
+            if ($colorCfg !== []) {
+                $normalized['colors'] = $colorCfg;
             }
         }
         return $normalized;
