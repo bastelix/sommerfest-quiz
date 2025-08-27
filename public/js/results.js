@@ -23,6 +23,22 @@ document.addEventListener('DOMContentLoaded', () => {
     return text ? text.replace(/\/-/g, '\u00AD') : '';
   }
 
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function sanitizePageNumber(num, total) {
+    let n = parseInt(num, 10);
+    if (Number.isNaN(n) || n < 1) n = 1;
+    if (total && n > total) n = total;
+    return n;
+  }
+
   function rotatePhotoImpl(path, img, link) {
     const cleanPath = path.replace(/\?.*$/, '');
     return fetch(withBase('/photos/rotate'), {
@@ -38,8 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (link) {
           link.href = withBase(newPath);
           if (link.dataset && link.dataset.caption) {
+            const safePath = escapeHtml(newPath);
             link.dataset.caption = link.dataset.caption
-              .replace(/data-path='[^']*'/, `data-path='${newPath}'`);
+              .replace(/data-path='[^']*'/, `data-path='${safePath}'`);
           }
         }
         refreshLightboxes();
@@ -96,9 +113,10 @@ document.addEventListener('DOMContentLoaded', () => {
             wrap.className = 'photo-wrapper';
 
             const a = document.createElement('a');
+            const safePhoto = escapeHtml(r.photo);
             a.className = 'uk-inline rotate-link';
             a.href = withBase(r.photo);
-            a.dataset.caption = `<button class='uk-icon-button lightbox-rotate-btn' type='button' uk-icon='history' data-path='${r.photo}' aria-label='Drehen'></button>`;
+            a.dataset.caption = `<button class='uk-icon-button lightbox-rotate-btn' type='button' uk-icon='history' data-path='${safePhoto}' aria-label='Drehen'></button>`;
             a.dataset.attrs = 'class: uk-inverse-light';
 
             const img = document.createElement('img');
@@ -157,8 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderPage(page) {
     const total = Math.ceil(resultsData.length / PAGE_SIZE) || 1;
-    if (page < 1) page = 1;
-    if (page > total) page = total;
+    page = sanitizePageNumber(page, total);
     const start = (page - 1) * PAGE_SIZE;
     const slice = resultsData.slice(start, start + PAGE_SIZE);
     renderTable(slice);
@@ -168,17 +185,37 @@ document.addEventListener('DOMContentLoaded', () => {
   function updatePagination() {
     if (!pagination) return;
     const total = Math.ceil(resultsData.length / PAGE_SIZE);
-    if (total <= 1) { pagination.innerHTML = ''; return; }
-    let html = '';
-    const prevClass = currentPage === 1 ? 'uk-disabled' : '';
-    html += `<li class="${prevClass}"><a href="#" data-page="${currentPage - 1}">&laquo;</a></li>`;
+    if (total <= 1) { pagination.textContent = ''; return; }
+    pagination.textContent = '';
+    currentPage = sanitizePageNumber(currentPage, total);
+    const prevLi = document.createElement('li');
+    if (currentPage === 1) prevLi.classList.add('uk-disabled');
+    const prevA = document.createElement('a');
+    prevA.href = '#';
+    prevA.dataset.page = String(currentPage > 1 ? currentPage - 1 : 1);
+    prevA.textContent = '«';
+    prevLi.appendChild(prevA);
+    pagination.appendChild(prevLi);
+
     for (let i = 1; i <= total; i++) {
-      const cls = currentPage === i ? 'uk-active' : '';
-      html += `<li class="${cls}"><a href="#" data-page="${i}">${i}</a></li>`;
+      const li = document.createElement('li');
+      if (currentPage === i) li.classList.add('uk-active');
+      const a = document.createElement('a');
+      a.href = '#';
+      a.dataset.page = String(i);
+      a.textContent = String(i);
+      li.appendChild(a);
+      pagination.appendChild(li);
     }
-    const nextClass = currentPage === total ? 'uk-disabled' : '';
-    html += `<li class="${nextClass}"><a href="#" data-page="${currentPage + 1}">&raquo;</a></li>`;
-    pagination.innerHTML = html;
+
+    const nextLi = document.createElement('li');
+    if (currentPage === total) nextLi.classList.add('uk-disabled');
+    const nextA = document.createElement('a');
+    nextA.href = '#';
+    nextA.dataset.page = String(currentPage < total ? currentPage + 1 : total);
+    nextA.textContent = '»';
+    nextLi.appendChild(nextA);
+    pagination.appendChild(nextLi);
   }
 
   function computeRankings(rows) {
@@ -433,11 +470,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const link = links[0] || null;
         rotatePhoto(path, img, link).then(newPath => {
           if (newPath) {
+            const safePath = escapeHtml(newPath);
             links.forEach(a => {
               a.href = newPath;
               if (a.dataset && a.dataset.caption) {
                 a.dataset.caption = a.dataset.caption
-                  .replace(/data-path='[^']*'/, `data-path='${newPath}'`);
+                  .replace(/data-path='[^']*'/, `data-path='${safePath}'`);
               }
             });
             btn.dataset.path = newPath;
