@@ -110,6 +110,7 @@
 - Bump version to 0.2.97 [skip ci]
 - Bump version to 0.2.98 [skip ci]
 - Bump version to 0.2.99 [skip ci]
+- Bump version to 0.2.100 [skip ci]
 
 ### Docs
 
