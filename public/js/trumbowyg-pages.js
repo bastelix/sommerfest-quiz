@@ -1,6 +1,14 @@
 /* global $, apiFetch, notify */
 
 // Define custom UIkit templates for Trumbowyg
+const sanitize = str => {
+  if (window.DOMPurify) {
+    return window.DOMPurify.sanitize(str);
+  }
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+};
 $.extend(true, $.trumbowyg, {
   langs: { de: { template: 'Vorlage', variable: 'Variable' } },
   plugins: {
@@ -66,7 +74,7 @@ export function initPageEditors() {
     const editorEl = form.querySelector('.page-editor');
     const initial = editorEl.dataset.content;
     if (initial) {
-      editorEl.innerHTML = initial;
+      editorEl.innerHTML = sanitize(initial);
     }
     $(editorEl).trumbowyg({
       lang: 'de',
@@ -86,7 +94,7 @@ export function initPageEditors() {
     const saveBtn = form.querySelector('.save-page-btn');
     saveBtn?.addEventListener('click', e => {
       e.preventDefault();
-      const html = $(editorEl).trumbowyg('html');
+      const html = sanitize($(editorEl).trumbowyg('html'));
       input.value = html;
       apiFetch('/admin/pages/' + slug, {
         method: 'POST',
@@ -103,7 +111,7 @@ export function initPageEditors() {
 export function showPreview() {
   const editor = document.querySelector('.page-editor');
   if (!editor) return;
-  const html = $(editor).trumbowyg('html');
+  const html = sanitize($(editor).trumbowyg('html'));
   const target = document.getElementById('preview-content');
   if (target) target.innerHTML = html;
   if (window.UIkit) {
