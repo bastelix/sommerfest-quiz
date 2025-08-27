@@ -38,28 +38,7 @@
   <script>
     window.quizConfig = {{ config|json_encode|raw }};
     const returnUrl = '{{ return }}';
-    document.addEventListener('DOMContentLoaded', () => {
-      const nameInput = document.getElementById('playerName');
-      const saveBtn = document.getElementById('save-name');
-      const deleteBtn = document.getElementById('delete-name');
-      const key = 'playerName:' + (window.quizConfig.event_uid || '');
-      const stored = localStorage.getItem(key);
-      if (stored) {
-        nameInput.value = stored;
-      }
-      saveBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        localStorage.setItem(key, nameInput.value.trim());
-        if (returnUrl) {
-          window.location.href = returnUrl;
-        }
-      });
-      deleteBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        localStorage.removeItem(key);
-        nameInput.value = '';
-      });
-    });
   </script>
+  <script src="{{ basePath }}/js/profile.js"></script>
 {% endblock %}
 
