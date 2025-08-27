@@ -54,16 +54,18 @@ document.addEventListener('DOMContentLoaded', function () {
   const navPlaceholder = document.querySelector('.nav-placeholder');
 
   function updateNavPlaceholder() {
-    if (navPlaceholder && topbar) {
-      let height = topbar.offsetHeight;
-      const headerBar = document.querySelector('.event-header-bar');
-      if (headerBar) {
-        height += headerBar.offsetHeight;
-      }
-      navPlaceholder.style.height = height + 'px';
+    let height = topbar.offsetHeight;
+    const headerBar = document.querySelector('.event-header-bar');
+    if (headerBar) {
+      height += headerBar.offsetHeight;
     }
+    navPlaceholder.style.height = height + 'px';
   }
 
-  updateNavPlaceholder();
-  window.addEventListener('resize', updateNavPlaceholder);
+  if (topbar && navPlaceholder) {
+    updateNavPlaceholder();
+    if (window.getComputedStyle(topbar).flexWrap !== 'nowrap') {
+      window.addEventListener('resize', updateNavPlaceholder);
+    }
+  }
 });
