@@ -127,6 +127,39 @@ require_once __DIR__ . '/Controller/InvitationController.php';
 use App\Infrastructure\Migrations\Migrator;
 use Psr\Http\Server\RequestHandlerInterface;
 
+if (!function_exists('runBackgroundProcess')) {
+    function runBackgroundProcess(array $command): void
+    {
+        if (class_exists(Process::class)) {
+            $process = new Process($command);
+            $process->disableOutput();
+            $process->start();
+
+            return;
+        }
+
+        $cmd = implode(' ', array_map('escapeshellarg', $command)) . ' > /dev/null 2>&1 &';
+        exec($cmd);
+    }
+}
+
+if (!function_exists('runSyncProcess')) {
+    function runSyncProcess(array $command): bool
+    {
+        if (class_exists(Process::class)) {
+            $process = new Process($command);
+            $process->run();
+
+            return $process->isSuccessful();
+        }
+
+        $cmd = implode(' ', array_map('escapeshellarg', $command));
+        exec($cmd, $out, $exitCode);
+
+        return $exitCode === 0;
+    }
+}
+
 return function (\Slim\App $app, TranslationService $translator) {
     $app->add(function (Request $request, RequestHandlerInterface $handler) use ($translator) {
         if ($request->getUri()->getPath() === '/healthz') {
@@ -1082,10 +1115,7 @@ return function (\Slim\App $app, TranslationService $translator) {
 
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
-
-        $process = new Process([$script, $slug]);
-        $process->disableOutput();
-        $process->start();
+        runBackgroundProcess([$script, $slug]);
 
         $payload = ['status' => 'queued', 'tenant' => $slug];
         $response->getBody()->write(json_encode($payload));
@@ -1110,11 +1140,7 @@ return function (\Slim\App $app, TranslationService $translator) {
 
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
-
-        $process = new Process([$script, $slug]);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
+        if (!runSyncProcess([$script, $slug])) {
             $response->getBody()->write(json_encode(['error' => 'Failed to remove tenant']));
 
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
@@ -1138,11 +1164,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(500);
         }
-
-        $process = new Process([$script, '--main']);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
+        if (!runSyncProcess([$script, '--main'])) {
             $response->getBody()->write(json_encode(['error' => 'Failed to renew certificate']));
 
             return $response
@@ -1174,11 +1196,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(500);
         }
-
-        $process = new Process([$script, $slug]);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
+        if (!runSyncProcess([$script, $slug])) {
             $response->getBody()->write(json_encode(['error' => 'Failed to renew certificate']));
 
             return $response
@@ -1204,10 +1222,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(500);
         }
-        $process = new Process([$script]);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
+        if (!runSyncProcess([$script])) {
             $response->getBody()->write(json_encode(['error' => 'Failed to build image']));
 
             return $response
@@ -1238,11 +1253,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(500);
         }
-
-        $process = new Process([$script, $slug]);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
+        if (!runSyncProcess([$script, $slug])) {
             $response->getBody()->write(json_encode(['error' => 'Failed to upgrade tenant']));
 
             return $response
@@ -1274,11 +1285,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(500);
         }
-
-        $process = new Process([$script, $slug]);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
+        if (!runSyncProcess([$script, $slug])) {
             $response->getBody()->write(json_encode(['error' => 'Failed to restart tenant']));
 
             return $response
