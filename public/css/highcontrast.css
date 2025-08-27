@@ -2,6 +2,7 @@
 body.high-contrast {
   background-color: #ffffff !important;
   color: #000000 !important;
+  font-size: 1.125em;
 }
 body.high-contrast a {
   color: #0000ee;

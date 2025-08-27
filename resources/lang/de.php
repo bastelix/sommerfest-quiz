@@ -3,9 +3,9 @@
 return [
     'help' => 'Hilfe',
     'design_toggle' => 'Design wechseln',
-    'contrast_toggle' => 'Kontrastmodus',
+    'contrast_toggle' => 'Barrierefrei',
     'configuration' => 'Konfiguration',
-    'help_modal_text' => 'Dark-Mode und High-Contrast lassen sich hier oben im Menü umschalten. Passe Farben zentral über CSS-Variablen an (<code>--text</code>, <code>--drop-bg</code> …).',
+    'help_modal_text' => 'Dark-Mode und Barrierefrei-Modus lassen sich hier im Menü umschalten. Der Barrierefrei-Modus vergrößert die Schrift für bessere Lesbarkeit. Passe Farben zentral über CSS-Variablen an (<code>--text</code>, <code>--drop-bg</code> …).',
     'quiz_progress' => 'Fortschritt des Quiz',
     'manual_open' => 'Handbuch öffnen',
     'privacy' => 'Datenschutz',
