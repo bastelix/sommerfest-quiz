@@ -80,6 +80,13 @@
 - Bump version to 0.2.67 [skip ci]
 - Bump version to 0.2.68 [skip ci]
 - Bump version to 0.2.69 [skip ci]
+- Bump version to 0.2.70 [skip ci]
+- Bump version to 0.2.71 [skip ci]
+- Bump version to 0.2.72 [skip ci]
+- Bump version to 0.2.73 [skip ci]
+- Bump version to 0.2.74 [skip ci]
+- Bump version to 0.2.75 [skip ci]
+- Bump version to 0.2.76 [skip ci]
 
 ### Feat
 
@@ -116,6 +123,8 @@
 
 - Centralize SMTP config loading
 - Wrap invoice return docblock
+- Sanitize subscription DOM updates
+- Build pagination DOM and escape paths
 
 ### Style
 
