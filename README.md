@@ -460,6 +460,7 @@ Alle wesentlichen Einstellungen stehen in `data/config.json` und werden beim ers
   "QRUser": true,
   "QRRemember": false,
   "logoPath": "/logo.png",
+  "ogImagePath": "/img/social-preview.jpg",
   "pageTitle": "Modernes Quiz mit UIkit",
   "backgroundColor": "#ffffff",
   "buttonColor": "#1e87f0",

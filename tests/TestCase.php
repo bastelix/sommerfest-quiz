@@ -17,6 +17,7 @@ use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use App\Application\Middleware\SessionMiddleware;
 use App\Application\Middleware\ProxyMiddleware;
+use App\Application\Middleware\UrlMiddleware;
 use App\Infrastructure\Migrations\Migrator;
 use PDO;
 
@@ -70,6 +71,7 @@ class TestCase extends PHPUnit_TestCase
         $twig->getEnvironment()->addGlobal('basePath', $basePath);
         $app->setBasePath($basePath);
         $app->add(TwigMiddleware::create($app, $twig));
+        $app->add(new UrlMiddleware($twig));
         $app->add(new \App\Application\Middleware\DomainMiddleware());
         $app->add(new \App\Application\Middleware\LanguageMiddleware($translator));
         $app->add(new ProxyMiddleware());
