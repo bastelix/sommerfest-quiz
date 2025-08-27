@@ -56,6 +56,10 @@
 - Bump version to 0.2.43 [skip ci]
 - Bump version to 0.2.44 [skip ci]
 - Bump version to 0.2.45 [skip ci]
+- Bump version to 0.2.46 [skip ci]
+- Bump version to 0.2.47 [skip ci]
+- Bump version to 0.2.48 [skip ci]
+- Bump version to 0.2.49 [skip ci]
 
 ### Feat
 
@@ -75,6 +79,8 @@
 - Enable automatic dark mode
 - Make font sizes responsive
 - Always show tenant actions in dropdown
+- Add dynamic canonical and OG URLs
+- Add theme color variables
 
 ### Fix
 
