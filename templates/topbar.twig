@@ -21,9 +21,7 @@
     <a class="uk-navbar-toggle" uk-toggle="target: #settings-offcanvas" aria-label="{{ t('settings') }}">
       <span uk-icon="icon: cog"></span>
     </a>
-    <a id="offcanvas-toggle" class="uk-navbar-toggle" hidden uk-toggle="target: #qr-offcanvas" aria-label="{{ t('menu') }}">
-      <span uk-navbar-toggle-icon></span>
-    </a>
+    {% block qr_offcanvas_toggle %}{% endblock %}
   </div>
 </nav>
 {% block offcanvas %}
