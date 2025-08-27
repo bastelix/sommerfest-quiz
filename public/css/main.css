@@ -203,9 +203,11 @@ body.uk-padding {
   white-space: nowrap;
 }
 
-.theme-switch {
+.theme-switch,
+.contrast-switch,
+.help-switch {
   display: inline-block;
-  margin-left: 8px;
+  margin-left: 0;
   margin-top: 0;
 }
 
@@ -214,21 +216,9 @@ body.uk-padding {
   background: transparent;
 }
 
-.contrast-switch {
-  display: inline-block;
-  margin-left: 8px;
-  margin-top: 0;
-}
-
 .contrast-switch button {
   border: none;
   background: transparent;
-}
-
-.help-switch {
-  display: inline-block;
-  margin-left: 8px;
-  margin-top: 0;
 }
 
 .help-switch a {
@@ -261,6 +251,12 @@ body.uk-padding {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+.topbar .theme-switch,
+.topbar .contrast-switch,
+.topbar .help-switch {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
 }
 .topbar .uk-navbar-center {
   flex: 1;

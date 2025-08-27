@@ -1,7 +1,7 @@
 <nav class="uk-navbar-container uk-padding-small topbar" uk-navbar>
   <div class="uk-navbar-left">
     {% block mobile_menu_toggle %}
-      <a class="uk-navbar-toggle" href="#offcanvas-nav" uk-toggle aria-label="{{ t('menu') }}">
+      <a class="uk-navbar-toggle uk-hidden@m" href="#offcanvas-nav" uk-toggle aria-label="{{ t('menu') }}">
         <span uk-navbar-toggle-icon></span>
       </a>
     {% endblock %}
@@ -30,7 +30,7 @@
       <a class="uk-navbar-toggle options-toggle" uk-toggle="target: #settings-offcanvas" aria-label="{{ t('settings') }}">
         <span uk-icon="icon: cog"></span>
       </a>
-      <a id="offcanvas-toggle" class="uk-navbar-toggle" hidden uk-toggle="target: #qr-offcanvas" aria-label="{{ t('menu') }}">
+      <a id="offcanvas-toggle" class="uk-navbar-toggle uk-hidden@m" hidden uk-toggle="target: #qr-offcanvas" aria-label="{{ t('menu') }}">
         <span uk-navbar-toggle-icon></span>
       </a>
     </div>
