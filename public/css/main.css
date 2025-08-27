@@ -602,6 +602,11 @@ body.admin-page {
   flex-wrap: nowrap;
 }
 
+.admin-page .topbar .theme-switch,
+.admin-page .topbar .contrast-switch {
+  display: none;
+}
+
 .admin-page .topbar .uk-navbar-left {
   order: 1;
 }
