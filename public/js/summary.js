@@ -12,6 +12,10 @@ function setStored(key, value){
 function insertSoftHyphens(text){
   return text ? text.replace(/\/-/g, '\u00AD') : '';
 }
+
+function safeUserName(name){
+  return typeof name === 'string' && /^[\w\s.-]{1,100}$/.test(name) ? name : '';
+}
 document.addEventListener('DOMContentLoaded', () => {
   const eventUid = (window.quizConfig || {}).event_uid || '';
   const resultsBtn = document.getElementById('show-results-btn');
@@ -28,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     photoBtn.remove();
   }
   const puzzleInfo = document.getElementById('puzzle-solved-text');
-  const user = getStored('quizUser') || '';
+  const user = safeUserName(getStored('quizUser') || '');
 
   let catalogMap = null;
   function fetchCatalogMap() {
@@ -162,14 +166,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
     modal.setAttribute('aria-modal', 'true');
-    modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
-      '<h3 class="uk-modal-title uk-text-center">Ergebnisübersicht</h3>' +
-      '<p class="uk-text-center">' + user + '</p>' +
-      '<div id="team-results" class="uk-overflow-auto"></div>' +
-      '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Schließen</button>' +
-      '</div>';
-    const tbodyContainer = modal.querySelector('#team-results');
-    const closeBtn = modal.querySelector('button');
+    const dialog = document.createElement('div');
+    dialog.className = 'uk-modal-dialog uk-modal-body';
+    const title = document.createElement('h3');
+    title.className = 'uk-modal-title uk-text-center';
+    title.textContent = 'Ergebnisübersicht';
+    const userP = document.createElement('p');
+    userP.className = 'uk-text-center';
+    userP.textContent = user;
+    const tbodyContainer = document.createElement('div');
+    tbodyContainer.id = 'team-results';
+    tbodyContainer.className = 'uk-overflow-auto';
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
+    closeBtn.textContent = 'Schließen';
+    dialog.append(title, userP, tbodyContainer, closeBtn);
+    modal.appendChild(dialog);
     document.body.appendChild(modal);
     const ui = UIkit.modal(modal);
     UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
@@ -190,7 +202,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         const table = document.createElement('table');
         table.className = 'uk-table uk-table-divider';
-        table.innerHTML = '<thead><tr><th>Katalog</th><th>Ergebnis</th></tr></thead>';
+        const thead = document.createElement('thead');
+        const trh = document.createElement('tr');
+        const th1 = document.createElement('th');
+        th1.textContent = 'Katalog';
+        const th2 = document.createElement('th');
+        th2.textContent = 'Ergebnis';
+        trh.append(th1, th2);
+        thead.appendChild(trh);
+        table.appendChild(thead);
         const tb = document.createElement('tbody');
         if(map.size === 0){
           const tr = document.createElement('tr');
@@ -228,10 +248,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (wrong.length) {
           const h = document.createElement('h4');
           h.textContent = 'Falsch beantwortete Fragen';
-          tbodyContainer?.appendChild(h);
+          tbodyContainer.appendChild(h);
           wrong.forEach(w => {
             const card = renderQuestionPreview(w, catMap);
-            tbodyContainer?.appendChild(card);
+            tbodyContainer.appendChild(card);
           });
         }
       })
@@ -247,19 +267,33 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
     modal.setAttribute('aria-modal', 'true');
-    modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
-      '<h3 class="uk-modal-title uk-text-center">Rätselwort überprüfen</h3>' +
-      (solvedBefore ? '' : '<input id="puzzle-input" class="uk-input" type="text" placeholder="Rätselwort eingeben">') +
-      '<div id="puzzle-feedback" class="uk-margin-top uk-text-center"></div>' +
-      (solvedBefore ? '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Schließen</button>' : '<button class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Überprüfen</button>') +
-      '</div>';
-    const input = modal.querySelector('#puzzle-input');
-    const feedback = modal.querySelector('#puzzle-feedback');
-    const btn = modal.querySelector('button');
+    const dialog = document.createElement('div');
+    dialog.className = 'uk-modal-dialog uk-modal-body';
+    const title = document.createElement('h3');
+    title.className = 'uk-modal-title uk-text-center';
+    title.textContent = 'Rätselwort überprüfen';
+    let input = null;
+    if(!solvedBefore){
+      input = document.createElement('input');
+      input.id = 'puzzle-input';
+      input.className = 'uk-input';
+      input.type = 'text';
+      input.placeholder = 'Rätselwort eingeben';
+    }
+    const feedback = document.createElement('div');
+    feedback.id = 'puzzle-feedback';
+    feedback.className = 'uk-margin-top uk-text-center';
+    const btn = document.createElement('button');
+    btn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
+    btn.textContent = solvedBefore ? 'Schließen' : 'Überprüfen';
+    dialog.append(title);
+    if(input) dialog.appendChild(input);
+    dialog.append(feedback, btn);
+    modal.appendChild(dialog);
     document.body.appendChild(modal);
     const ui = UIkit.modal(modal);
     UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
-    if(!solvedBefore) UIkit.util.on(modal, 'shown', () => { input.focus(); });
+    if(!solvedBefore && input) UIkit.util.on(modal, 'shown', () => { input.focus(); });
     function handleCheck(){
         const valRaw = (input.value || '').trim();
         const ts = Math.floor(Date.now()/1000);
@@ -329,55 +363,97 @@ document.addEventListener('DOMContentLoaded', () => {
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
     modal.setAttribute('aria-modal', 'true');
-    modal.innerHTML =
-      '<div class="uk-modal-dialog uk-modal-body">' +
-        '<div class="uk-card uk-card-default uk-card-body uk-padding-small uk-width-1-1">' +
-          '<p class="uk-text-small">Hinweis zum Hochladen von Gruppenfotos:<br>' +
-            'Ich bestätige, dass alle auf dem Foto abgebildeten Personen vor der Aufnahme darüber informiert wurden, dass das Gruppenfoto zu Dokumentationszwecken erstellt und ggf. veröffentlicht wird. Alle Anwesenden hatten Gelegenheit, der Aufnahme zu widersprechen, indem sie den Aufnahmebereich verlassen oder dies ausdrücklich mitteilen konnten.' +
-          '</p>' +
-          '<div class="uk-margin-small-bottom">' +
-            '<label class="uk-form-label" for="photo-input">Beweisfoto auswählen</label>' +
-            '<div class="stacked-upload" uk-form-custom="target: true">' +
-              '<input id="photo-input" type="file" accept="image/*" capture="environment" aria-label="Datei auswählen">' +
-              '<input class="uk-input uk-width-1-1" type="text" placeholder="Keine Datei ausgewählt" disabled>' +
-              '<button class="uk-button uk-button-default uk-width-1-1 uk-margin-small-top" type="button" tabindex="-1">Durchsuchen</button>' +
-            '</div>' +
-          '</div>' +
-          (requireConsent ?
-            '<label class="uk-form-label uk-margin-small-bottom">' +
-              '<input type="checkbox" id="consent-checkbox" class="uk-checkbox uk-margin-small-right">' +
-              'Einverständnis aller abgebildeten Personen wurde eingeholt ' +
-            '</label>' : '') +
-          '<div id="photo-feedback" class="uk-margin-small uk-text-center"></div>' +
-          '<button id="upload-btn" class="uk-button uk-button-primary uk-width-1-1" disabled>Hochladen</button>' +
-        '</div>' +
-      '</div>';
+    const dialog = document.createElement('div');
+    dialog.className = 'uk-modal-dialog uk-modal-body';
+    const card = document.createElement('div');
+    card.className = 'uk-card uk-card-default uk-card-body uk-padding-small uk-width-1-1';
 
-    const input = modal.querySelector('#photo-input');
-    const feedback = modal.querySelector('#photo-feedback');
-    const consent = modal.querySelector('#consent-checkbox');
-    const btn = modal.querySelector('#upload-btn');
+    const p = document.createElement('p');
+    p.className = 'uk-text-small';
+    p.append(
+      'Hinweis zum Hochladen von Gruppenfotos:',
+      document.createElement('br'),
+      'Ich bestätige, dass alle auf dem Foto abgebildeten Personen vor der Aufnahme darüber informiert wurden, dass das Gruppenfoto zu Dokumentationszwecken erstellt und ggf. veröffentlicht wird. Alle Anwesenden hatten Gelegenheit, der Aufnahme zu widersprechen, indem sie den Aufnahmebereich verlassen oder dies ausdrücklich mitteilen konnten.'
+    );
+
+    const fileDiv = document.createElement('div');
+    fileDiv.className = 'uk-margin-small-bottom';
+    const label = document.createElement('label');
+    label.className = 'uk-form-label';
+    label.setAttribute('for', 'photo-input');
+    label.textContent = 'Beweisfoto auswählen';
+    const uploadDiv = document.createElement('div');
+    uploadDiv.className = 'stacked-upload';
+    uploadDiv.setAttribute('uk-form-custom', 'target: true');
+    const input = document.createElement('input');
+    input.id = 'photo-input';
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.setAttribute('capture', 'environment');
+    input.setAttribute('aria-label', 'Datei auswählen');
+    const textInput = document.createElement('input');
+    textInput.className = 'uk-input uk-width-1-1';
+    textInput.type = 'text';
+    textInput.placeholder = 'Keine Datei ausgewählt';
+    textInput.disabled = true;
+    const browseBtn = document.createElement('button');
+    browseBtn.className = 'uk-button uk-button-default uk-width-1-1 uk-margin-small-top';
+    browseBtn.type = 'button';
+    browseBtn.tabIndex = -1;
+    browseBtn.textContent = 'Durchsuchen';
+    uploadDiv.append(input, textInput, browseBtn);
+    fileDiv.append(label, uploadDiv);
+
+    card.append(p, fileDiv);
+
+    let consent = null;
+    if (requireConsent) {
+      const consentLabel = document.createElement('label');
+      consentLabel.className = 'uk-form-label uk-margin-small-bottom';
+      consent = document.createElement('input');
+      consent.type = 'checkbox';
+      consent.id = 'consent-checkbox';
+      consent.className = 'uk-checkbox uk-margin-small-right';
+      consentLabel.append(consent, 'Einverständnis aller abgebildeten Personen wurde eingeholt ');
+      card.appendChild(consentLabel);
+    }
+
+    const feedback = document.createElement('div');
+    feedback.id = 'photo-feedback';
+    feedback.className = 'uk-margin-small uk-text-center';
+    const btn = document.createElement('button');
+    btn.id = 'upload-btn';
+    btn.className = 'uk-button uk-button-primary uk-width-1-1';
+    btn.disabled = true;
+    btn.textContent = 'Hochladen';
+    card.append(feedback, btn);
+
+    dialog.appendChild(card);
+    modal.appendChild(dialog);
     document.body.appendChild(modal);
     const ui = UIkit.modal(modal);
     UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
 
     function toggleBtn(){
-      btn.disabled = !input.files.length || (requireConsent && !consent.checked);
+      btn.disabled = !input.files.length || (requireConsent && consent && !consent.checked);
     }
     input.addEventListener('change', toggleBtn);
     if(consent) consent.addEventListener('change', toggleBtn);
     btn.addEventListener('click', () => {
       const file = input.files && input.files[0];
-      if(!file || (requireConsent && !consent.checked)) return;
+      if(!file || (requireConsent && consent && !consent.checked)) return;
       const fd = new FormData();
       fd.append('photo', file);
       fd.append('name', user);
       fd.append('catalog', 'summary');
       fd.append('team', user);
 
-      const originalHtml = btn.innerHTML;
+      const originalText = btn.textContent;
       btn.disabled = true;
-      btn.innerHTML = '<div uk-spinner></div>';
+      btn.textContent = '';
+      const spinner = document.createElement('div');
+      spinner.setAttribute('uk-spinner', '');
+      btn.appendChild(spinner);
 
       fetch(withBase('/photos'), { method: 'POST', body: fd })
         .then(async r => {
@@ -416,7 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
           feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
         })
         .finally(() => {
-          btn.innerHTML = originalHtml;
+          btn.textContent = originalText;
         });
     });
     ui.show();
