@@ -108,6 +108,15 @@ body.dark-mode.high-contrast .onboarding-timeline .timeline-step.completed {
   border-color: #ffffff;
   color: #ffffff;
 }
+
+body.high-contrast .topbar .top-menu .nav-button {
+  border-color: #000000;
+}
+
+body.dark-mode.high-contrast .topbar .top-menu .nav-button {
+  border-color: #ffffff;
+  background-color: #000000;
+}
 body.dark-mode.high-contrast .onboarding-timeline .timeline-step.inactive {
   border-color: #999999;
   color: #999999;

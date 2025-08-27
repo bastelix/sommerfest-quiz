@@ -1,14 +1,14 @@
 <nav class="uk-navbar-container uk-padding-small topbar" uk-navbar>
-  <div class="uk-navbar-left">
+    <div class="uk-navbar-left">
     {% block mobile_menu_toggle %}
       <a class="uk-navbar-toggle uk-hidden@m" href="#offcanvas-nav" uk-toggle aria-label="{{ t('menu') }}">
         <span uk-navbar-toggle-icon></span>
       </a>
     {% endblock %}
-    <div class="uk-navbar-item">
-      {% block left %}{% endblock %}
+      <div class="uk-navbar-item">
+        {% block left %}{% endblock %}
+      </div>
     </div>
-  </div>
   <div class="uk-navbar-center">
     <div class="uk-navbar-item">
       {% block center %}{% endblock %}
@@ -17,6 +17,15 @@
     <div class="uk-navbar-right">
       <div class="uk-navbar-item">
         {% block right %}{% endblock %}
+      </div>
+      <div class="uk-navbar-item top-menu">
+        <a href="#" class="nav-button" uk-icon="icon: users" aria-label="Users"></a>
+        <a href="#" class="nav-button" uk-icon="icon: plus" aria-label="Add"></a>
+        <a href="#" class="nav-button" uk-icon="icon: circle" aria-label="Status"></a>
+        <a href="#" class="nav-button" uk-icon="icon: git-branch" aria-label="Branches"></a>
+        <a href="#" class="nav-button" uk-icon="icon: mail" aria-label="Inbox">
+          <span class="notification-dot"></span>
+        </a>
       </div>
       <div class="uk-navbar-item theme-switch">
         <button class="theme-toggle uk-button uk-button-link" uk-icon="icon: moon; ratio: 0.95" title="{{ t('design_toggle') }}" aria-label="{{ t('design_toggle') }}"></button>
