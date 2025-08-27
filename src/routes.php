@@ -79,7 +79,8 @@ use Psr\Log\NullLogger;
 use App\Controller\BackupController;
 use App\Domain\Roles;
 use App\Domain\Plan;
-use Symfony\Component\Process\Process;
+use function App\runBackgroundProcess;
+use function App\runSyncProcess;
 
 require_once __DIR__ . '/Controller/HomeController.php';
 require_once __DIR__ . '/Controller/FaqController.php';
@@ -1083,9 +1084,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
 
-        $process = new Process([$script, $slug]);
-        $process->disableOutput();
-        $process->start();
+        runBackgroundProcess($script, [$slug]);
 
         $payload = ['status' => 'queued', 'tenant' => $slug];
         $response->getBody()->write(json_encode($payload));
@@ -1111,10 +1110,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
 
-        $process = new Process([$script, $slug]);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
+        if (!runSyncProcess($script, [$slug])) {
             $response->getBody()->write(json_encode(['error' => 'Failed to remove tenant']));
 
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
@@ -1139,10 +1135,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
-        $process = new Process([$script, '--main']);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
+        if (!runSyncProcess($script, ['--main'])) {
             $response->getBody()->write(json_encode(['error' => 'Failed to renew certificate']));
 
             return $response
@@ -1175,10 +1168,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
-        $process = new Process([$script, $slug]);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
+        if (!runSyncProcess($script, [$slug])) {
             $response->getBody()->write(json_encode(['error' => 'Failed to renew certificate']));
 
             return $response
@@ -1204,13 +1194,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(500);
         }
-        $process = new Process([$script]);
-        $process->setTimeout(null);
-        $process->setIdleTimeout(null);
-        $process->disableOutput();
-        $process->run();
-
-        if (!$process->isSuccessful()) {
+        if (!runSyncProcess($script)) {
             $response->getBody()->write(json_encode(['error' => 'Failed to build image']));
 
             return $response
@@ -1242,10 +1226,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
-        $process = new Process([$script, $slug]);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
+        if (!runSyncProcess($script, [$slug])) {
             $response->getBody()->write(json_encode(['error' => 'Failed to upgrade tenant']));
 
             return $response
@@ -1278,10 +1259,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
-        $process = new Process([$script, $slug]);
-        $process->run();
-
-        if (!$process->isSuccessful()) {
+        if (!runSyncProcess($script, [$slug])) {
             $response->getBody()->write(json_encode(['error' => 'Failed to restart tenant']));
 
             return $response
