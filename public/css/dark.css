@@ -99,15 +99,7 @@ body .topbar .theme-switch button,
 body .topbar .contrast-switch button,
 body .topbar .help-switch a {
   background-color: rgba(255, 255, 255, 0.1);
-}
-
-body .topbar .top-menu .nav-button {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-color: #444;
-}
-
-body .topbar .top-menu .nav-button .notification-dot {
-  background-color: #1e87f0;
+  border: 1px solid #444;
 }
 body .event-header-bar {
   background-color: #1e1e1e;

@@ -226,34 +226,6 @@ body.uk-padding {
   background: transparent;
 }
 
-.topbar .top-menu {
-  display: flex;
-  gap: 4px;
-  margin-right: 8px;
-}
-
-.topbar .top-menu .nav-button {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
-  background-color: rgba(0, 0, 0, 0.05);
-  position: relative;
-}
-
-.topbar .top-menu .nav-button .notification-dot {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #1e87f0;
-}
-
 .topbar .theme-switch button,
 .topbar .contrast-switch button,
 .topbar .help-switch a {
@@ -265,6 +237,7 @@ body.uk-padding {
   justify-content: center;
   border-radius: 50%;
   background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 .topbar .uk-navbar-item,
