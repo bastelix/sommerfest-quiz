@@ -21,7 +21,7 @@ function runBackgroundProcess(string $script, array $args = []): void
         return;
     }
 
-    $command = escapeshellcmd($script);
+    $command = escapeshellarg($script);
     foreach ($args as $arg) {
         $command .= ' ' . escapeshellarg($arg);
     }
@@ -45,7 +45,7 @@ function runSyncProcess(string $script, array $args = []): bool
         return $process->isSuccessful();
     }
 
-    $command = escapeshellcmd($script);
+    $command = escapeshellarg($script);
     foreach ($args as $arg) {
         $command .= ' ' . escapeshellarg($arg);
     }
