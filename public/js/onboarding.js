@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const emailStatus = document.getElementById('emailStatus');
   const subdomainInput = document.getElementById('subdomain');
   const subdomainPreview = document.getElementById('subdomainPreview');
+  const subdomainStatus = document.getElementById('subdomainStatus');
   const saveSubdomainBtn = document.getElementById('saveSubdomain');
   const planButtons = document.querySelectorAll('.plan-select');
   const verifiedHint = document.getElementById('verifiedHint');
@@ -136,31 +137,58 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  if (saveSubdomainBtn) {
-    saveSubdomainBtn.addEventListener('click', async () => {
-      const subdomain = subdomainInput.value.trim().toLowerCase();
-      if (!subdomain) return;
-      if (!isValidSubdomain(subdomain)) {
-        alert('Ungültige Subdomain.');
-        return;
-      }
-      const res = await fetch(withBase('/tenants/' + encodeURIComponent(subdomain)), {
-        credentials: 'same-origin',
-        headers: { 'X-Requested-With': 'fetch' }
+    if (saveSubdomainBtn) {
+      saveSubdomainBtn.addEventListener('click', async () => {
+        const subdomain = subdomainInput.value.trim().toLowerCase();
+        if (!subdomain) return;
+        if (subdomainStatus) {
+          subdomainStatus.textContent = '';
+          subdomainStatus.hidden = true;
+          subdomainStatus.classList.remove('uk-text-danger', 'uk-text-success');
+        }
+        subdomainInput.classList.remove('uk-form-danger', 'uk-form-success');
+        if (!isValidSubdomain(subdomain)) {
+          if (subdomainStatus) {
+            subdomainStatus.textContent = 'Ungültige Subdomain.';
+            subdomainStatus.classList.add('uk-text-danger');
+            subdomainStatus.hidden = false;
+          }
+          subdomainInput.classList.add('uk-form-danger');
+          return;
+        }
+        const res = await fetch(withBase('/tenants/' + encodeURIComponent(subdomain)), {
+          credentials: 'same-origin',
+          headers: { 'X-Requested-With': 'fetch' }
+        });
+        if (res.ok) {
+          if (subdomainStatus) {
+            subdomainStatus.textContent = 'Subdomain bereits vergeben.';
+            subdomainStatus.classList.add('uk-text-danger');
+            subdomainStatus.hidden = false;
+          }
+          subdomainInput.classList.add('uk-form-danger');
+          return;
+        }
+        if (res.status !== 404) {
+          if (subdomainStatus) {
+            subdomainStatus.textContent = 'Fehler bei der Prüfung der Subdomain.';
+            subdomainStatus.classList.add('uk-text-danger');
+            subdomainStatus.hidden = false;
+          }
+          subdomainInput.classList.add('uk-form-danger');
+          return;
+        }
+        if (subdomainStatus) {
+          subdomainStatus.textContent = 'Subdomain verfügbar.';
+          subdomainStatus.classList.add('uk-text-success');
+          subdomainStatus.hidden = false;
+        }
+        subdomainInput.classList.add('uk-form-success');
+        localStorage.setItem('onboard_subdomain', subdomain);
+        subdomainStored = subdomain;
+        showStep(3);
       });
-      if (res.ok) {
-        alert('Subdomain bereits vergeben.');
-        return;
-      }
-      if (res.status !== 404) {
-        alert('Fehler bei der Prüfung der Subdomain.');
-        return;
-      }
-      localStorage.setItem('onboard_subdomain', subdomain);
-      subdomainStored = subdomain;
-      showStep(3);
-    });
-  }
+    }
 
   if (saveImprintBtn) {
     saveImprintBtn.addEventListener('click', () => {
