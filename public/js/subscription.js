@@ -10,6 +10,16 @@
     }
   }
 
+  function safeUrl(url){
+    try {
+      const u = new URL(url, window.location.origin);
+      if(['http:', 'https:'].includes(u.protocol)){
+        return u.href;
+      }
+    } catch (e) {}
+    return '#';
+  }
+
   async function loadSubscription(){
     const el = document.getElementById('subscription-details');
     if (!el) return;
@@ -21,12 +31,35 @@
       const planName = el.dataset['plan' + capitalize(data.plan)] || data.plan;
       const price = fmtAmount(data.amount || 0, data.currency || 'eur');
       const next = data.next_payment ? new Date(data.next_payment).toLocaleDateString() : '-';
-      let html = `<div><strong>${el.dataset.labelPlan}: ${planName}</strong></div>`;
-      html += `<div>${el.dataset.labelPrice}: ${price}</div>`;
-      html += `<div>${el.dataset.labelNext}: ${next}</div>`;
-      html += `<div>${el.dataset.labelStatus}: ${data.status || '-'}</div>`;
-      html += `<div class="uk-margin-top"><a class="uk-button uk-button-danger uk-button-small" href="${withBase('/admin/subscription/portal')}">${el.dataset.actionCancel}</a></div>`;
-      el.innerHTML = html;
+
+      el.textContent = '';
+
+      const planDiv = document.createElement('div');
+      const planStrong = document.createElement('strong');
+      planStrong.textContent = `${el.dataset.labelPlan}: ${planName}`;
+      planDiv.appendChild(planStrong);
+      el.appendChild(planDiv);
+
+      const priceDiv = document.createElement('div');
+      priceDiv.textContent = `${el.dataset.labelPrice}: ${price}`;
+      el.appendChild(priceDiv);
+
+      const nextDiv = document.createElement('div');
+      nextDiv.textContent = `${el.dataset.labelNext}: ${next}`;
+      el.appendChild(nextDiv);
+
+      const statusDiv = document.createElement('div');
+      statusDiv.textContent = `${el.dataset.labelStatus}: ${data.status || '-'}`;
+      el.appendChild(statusDiv);
+
+      const cancelDiv = document.createElement('div');
+      cancelDiv.className = 'uk-margin-top';
+      const cancelLink = document.createElement('a');
+      cancelLink.className = 'uk-button uk-button-danger uk-button-small';
+      cancelLink.href = safeUrl(withBase('/admin/subscription/portal'));
+      cancelLink.textContent = el.dataset.actionCancel;
+      cancelDiv.appendChild(cancelLink);
+      el.appendChild(cancelDiv);
     } catch (e) {
       console.error(e);
     }
@@ -40,27 +73,60 @@
       if (!res.ok) return;
       const data = await res.json();
       if (!Array.isArray(data) || !data.length){
-        el.innerHTML = `<div class="uk-text-meta">${el.dataset.textEmpty || ''}</div>`;
+        el.textContent = '';
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'uk-text-meta';
+        emptyDiv.textContent = el.dataset.textEmpty || '';
+        el.appendChild(emptyDiv);
         return;
       }
-      let html = '<div class="uk-overflow-auto"><table class="uk-table uk-table-divider uk-table-small">';
-      html += '<thead><tr>' +
-        `<th>${el.dataset.labelInvoice}</th>` +
-        `<th>${el.dataset.labelDate}</th>` +
-        `<th>${el.dataset.labelAmount}</th>` +
-        `<th>${el.dataset.labelStatus}</th>` +
-        `<th>${el.dataset.labelDownload}</th>` +
-        '</tr></thead><tbody>';
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'uk-overflow-auto';
+      const table = document.createElement('table');
+      table.className = 'uk-table uk-table-divider uk-table-small';
+
+      const thead = document.createElement('thead');
+      const headRow = document.createElement('tr');
+      const headers = [el.dataset.labelInvoice, el.dataset.labelDate, el.dataset.labelAmount, el.dataset.labelStatus, el.dataset.labelDownload];
+      headers.forEach(h => {
+        const th = document.createElement('th');
+        th.textContent = h;
+        headRow.appendChild(th);
+      });
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
       for (const inv of data){
+        const row = document.createElement('tr');
         const num = inv.number || inv.id;
         const date = inv.created ? new Date(inv.created).toLocaleDateString() : '-';
         const amount = fmtAmount(inv.amount || 0, inv.currency || 'eur');
         const status = inv.status || '';
-        const link = inv.invoice_pdf ? `<a href="${inv.invoice_pdf}" target="_blank" rel="noopener">${el.dataset.actionDownload}</a>` : '';
-        html += `<tr><td>${num}</td><td>${date}</td><td>${amount}</td><td>${status}</td><td>${link}</td></tr>`;
+
+        [num, date, amount, status].forEach(val => {
+          const td = document.createElement('td');
+          td.textContent = val;
+          row.appendChild(td);
+        });
+
+        const downloadTd = document.createElement('td');
+        if (inv.invoice_pdf){
+          const link = document.createElement('a');
+          link.href = safeUrl(inv.invoice_pdf);
+          link.target = '_blank';
+          link.rel = 'noopener';
+          link.textContent = el.dataset.actionDownload;
+          downloadTd.appendChild(link);
+        }
+        row.appendChild(downloadTd);
+        tbody.appendChild(row);
       }
-      html += '</tbody></table></div>';
-      el.innerHTML = html;
+      table.appendChild(tbody);
+      wrapper.appendChild(table);
+      el.textContent = '';
+      el.appendChild(wrapper);
     } catch (e) {
       console.error(e);
     }
