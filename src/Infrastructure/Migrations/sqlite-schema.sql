@@ -16,6 +16,14 @@ CREATE TABLE IF NOT EXISTS events (
     sort_order INTEGER NOT NULL DEFAULT 0
 );
 
+-- Players
+CREATE TABLE IF NOT EXISTS players (
+    event_uid TEXT NOT NULL,
+    player_name TEXT NOT NULL,
+    player_uid TEXT NOT NULL,
+    PRIMARY KEY (event_uid, player_uid)
+);
+
 -- Config
 CREATE TABLE IF NOT EXISTS config (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
