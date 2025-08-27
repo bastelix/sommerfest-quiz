@@ -3,46 +3,100 @@ document.addEventListener('DOMContentLoaded', function () {
   const themeToggles = document.querySelectorAll('.theme-toggle');
   const contrastToggles = document.querySelectorAll('.contrast-toggle');
   const darkStylesheet = document.querySelector('link[href$="dark.css"]');
+  const themeIcon = document.getElementById('themeIcon');
+  const contrastIcon = document.getElementById('contrastIcon');
+  const helpBtn = document.getElementById('helpBtn');
 
   const storedTheme = localStorage.getItem('darkMode');
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const isDark = storedTheme === 'true' || (storedTheme === null && prefersDark);
+  let dark = storedTheme === 'true' || (storedTheme === null && prefersDark);
 
   if (darkStylesheet) {
-    darkStylesheet.disabled = !isDark;
+    darkStylesheet.disabled = !dark;
   }
 
-  if (isDark) {
+  if (dark) {
     document.body.classList.add('dark-mode', 'uk-light');
     document.documentElement.classList.add('dark-mode');
+  }
+
+  const sunSVG = `
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="currentColor"/>
+        <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="12" y1="1"  x2="12" y2="4"/>
+          <line x1="12" y1="20" x2="12" y2="23"/>
+          <line x1="1"  y1="12" x2="4"  y2="12"/>
+          <line x1="20" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/>
+          <line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/>
+          <line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/>
+          <line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/>
+        </g>
+      </svg>`;
+  const moonSVG = `
+      <svg viewBox="0 0 24 24">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"></path>
+      </svg>`;
+  const contrastOnSVG = `
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+        <path d="M12 2a10 10 0 0 0 0 20z" fill="currentColor"/>
+      </svg>`;
+  const contrastOffSVG = `
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
+        <path d="M12 2a10 10 0 0 0 0 20z" fill="currentColor" opacity="0.4"/>
+      </svg>`;
+
+  if (themeIcon) {
+    themeIcon.innerHTML = dark ? sunSVG : moonSVG;
+  }
+
+  let hc = localStorage.getItem('highContrast') === 'true';
+  if (hc) {
+    document.body.classList.add('high-contrast');
+  }
+  if (contrastIcon) {
+    contrastIcon.innerHTML = hc ? contrastOnSVG : contrastOffSVG;
   }
 
   if (themeToggles.length) {
     themeToggles.forEach((toggle) => {
       toggle.addEventListener('click', function (event) {
         event.preventDefault();
-        const dark = document.body.classList.toggle('dark-mode');
+        dark = document.body.classList.toggle('dark-mode');
         document.documentElement.classList.toggle('dark-mode', dark);
         document.body.classList.toggle('uk-light', dark);
         if (darkStylesheet) {
           darkStylesheet.disabled = !dark;
         }
         localStorage.setItem('darkMode', dark ? 'true' : 'false');
+        if (themeIcon) {
+          themeIcon.innerHTML = dark ? sunSVG : moonSVG;
+        }
+        try { UIkit.drop('#menuDrop').hide(); } catch (e) {}
       });
     });
   }
 
   if (contrastToggles.length) {
-    const isHigh = localStorage.getItem('highContrast') === 'true';
-    if (isHigh) {
-      document.body.classList.add('high-contrast');
-    }
     contrastToggles.forEach((toggle) => {
       toggle.addEventListener('click', function (event) {
         event.preventDefault();
-        const hc = document.body.classList.toggle('high-contrast');
+        hc = document.body.classList.toggle('high-contrast');
         localStorage.setItem('highContrast', hc ? 'true' : 'false');
+        if (contrastIcon) {
+          contrastIcon.innerHTML = hc ? contrastOnSVG : contrastOffSVG;
+        }
+        try { UIkit.drop('#menuDrop').hide(); } catch (e) {}
       });
+    });
+  }
+
+  if (helpBtn) {
+    helpBtn.addEventListener('click', function () {
+      try { UIkit.drop('#menuDrop').hide(); } catch (e) {}
+      UIkit.modal('#helpModal').show();
     });
   }
 
