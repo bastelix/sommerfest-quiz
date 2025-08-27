@@ -87,6 +87,7 @@
 - Bump version to 0.2.74 [skip ci]
 - Bump version to 0.2.75 [skip ci]
 - Bump version to 0.2.76 [skip ci]
+- Bump version to 0.2.77 [skip ci]
 
 ### Feat
 
@@ -111,6 +112,7 @@
 - Add dynamic nav placeholder sizing
 - Add responsive offcanvas menu toggle
 - Add mobile offcanvas navigation
+- Validate redirects before navigation
 
 ### Fix
 
