@@ -251,6 +251,10 @@ class AdminControllerTest extends TestCase
         unset($_ENV['MAIN_DOMAIN']);
     }
 
+    /**
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     */
     public function testStripeApiCalledOnPlanChange(): void
     {
         require_once __DIR__ . '/../Service/StripeServiceStub.php';
