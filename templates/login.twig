@@ -13,13 +13,7 @@
 {% block body %}
   {% embed 'topbar.twig' %}
     {% block right %}
-      <div class="theme-switch">
-        <button id="theme-toggle" class="uk-icon-button" uk-icon="icon: moon; ratio: 2" aria-label="Design wechseln"></button>
-      </div>
-      <div class="contrast-switch uk-margin-small-left">
-        <button id="contrast-toggle" class="uk-icon-button" uk-icon="icon: paint-bucket; ratio: 2" aria-label="Kontrastmodus"></button>
-      </div>
-      <a href="{{ basePath }}/faq" class="uk-icon-button uk-margin-small-left" uk-icon="icon: question; ratio: 2" title="Hilfe" aria-label="Hilfe"></a>
+      {% include '_topbar_controls.twig' %}
     {% endblock %}
   {% endembed %}
 <div class="uk-container uk-flex uk-flex-center uk-margin-large-top">
