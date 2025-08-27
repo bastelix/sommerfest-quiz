@@ -573,6 +573,11 @@ body.admin-page {
   flex: 1;
 }
 
+.admin-page #eventSelectWrap button > span:first-child {
+  display: block;
+  margin-top: 8px;
+}
+
 .admin-page .nav-placeholder {
   height: 112px;
 }
