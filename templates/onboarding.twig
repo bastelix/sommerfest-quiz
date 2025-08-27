@@ -143,7 +143,8 @@
         <p>Deine E-Mail-Adresse wurde erfolgreich bestätigt.</p>
       </div>
       <div class="uk-margin">
-        <input id="subdomain" class="uk-input" type="text" placeholder="gewünschte Subdomain" required>
+        <label for="subdomain">Subdomain</label>
+        <input id="subdomain" class="uk-input" type="text" placeholder="gewünschte Subdomain" maxlength="63" required>
         <div class="uk-margin-small-top uk-text-meta">Die vollständige Adresse lautet: <span id="subdomainPreview"></span>.{{ main_domain }}</div>
       </div>
       <p>Gib eine gewünschte Subdomain ein (z.&nbsp;B. <code>meine-seite</code>) und bestätige mit der Schaltfläche. Wir prüfen die Verfügbarkeit und reservieren sie für dich.</p>

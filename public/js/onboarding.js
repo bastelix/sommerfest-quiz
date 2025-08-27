@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function isValidSubdomain(subdomain) {
-    return /^[a-z0-9-]{3,}$/.test(subdomain);
+    return subdomain.length <= 63 && /^[a-z0-9-]{3,}$/.test(subdomain);
   }
 
   const params = new URLSearchParams(window.location.search);
