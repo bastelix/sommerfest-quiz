@@ -974,4 +974,18 @@ body.admin-page {
   margin-left: 0.5rem;
 }
 
+/* Dashboard grid spacing for mobile */
+@media (max-width: 640px) {
+  .dashboard-container {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+  .dashboard-grid {
+    margin-left: -8px;
+  }
+  .dashboard-grid > * {
+    padding-left: 8px;
+  }
+}
+
 
