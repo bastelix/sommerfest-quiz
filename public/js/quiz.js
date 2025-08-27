@@ -99,13 +99,24 @@ async function promptTeamName(){
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
     modal.setAttribute('aria-modal', 'true');
-    modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
-      '<h3 class="uk-modal-title uk-text-center">Teamname eingeben</h3>' +
-      '<input id="team-name-input" class="uk-input" type="text" placeholder="Teamname">' +
-      '<button id="team-name-submit" class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Weiter</button>' +
-      '</div>';
-    const input = modal.querySelector('#team-name-input');
-    const btn = modal.querySelector('#team-name-submit');
+    const dialog = document.createElement('div');
+    dialog.className = 'uk-modal-dialog uk-modal-body';
+    const title = document.createElement('h3');
+    title.className = 'uk-modal-title uk-text-center';
+    title.textContent = 'Teamname eingeben';
+    const input = document.createElement('input');
+    input.id = 'team-name-input';
+    input.className = 'uk-input';
+    input.type = 'text';
+    input.placeholder = 'Teamname';
+    const btn = document.createElement('button');
+    btn.id = 'team-name-submit';
+    btn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
+    btn.textContent = 'Weiter';
+    dialog.appendChild(title);
+    dialog.appendChild(input);
+    dialog.appendChild(btn);
+    modal.appendChild(dialog);
     btn.addEventListener('click', () => {
       const name = (input.value || '').trim();
       if(name){
@@ -147,7 +158,7 @@ async function runQuiz(questions, skipIntro){
   const progress = document.getElementById('progress');
   const announcer = document.getElementById('question-announcer');
   // Vorhandene Inhalte entfernen (z.B. Katalogauswahl)
-  if (container) container.innerHTML = '';
+  if (container) container.textContent = '';
 
 
   // Hilfsfunktion zum Mischen von Arrays (Fisher-Yates)
@@ -192,7 +203,7 @@ async function runQuiz(questions, skipIntro){
   const headerEl = document.getElementById('quiz-header');
 
   if(skipIntro && headerEl){
-    headerEl.innerHTML = '';
+    headerEl.textContent = '';
     headerEl.classList.add('uk-hidden');
   }
 
@@ -233,7 +244,7 @@ async function runQuiz(questions, skipIntro){
   // Blendet die nächste Frage ein
   function next(){
     if(current === 0 && headerEl){
-      headerEl.innerHTML = '';
+      headerEl.textContent = '';
       headerEl.classList.add('uk-hidden');
     }
     if(current < questionCount + 1){
@@ -464,15 +475,31 @@ async function runQuiz(questions, skipIntro){
     });
   }
 
+  function renderFeedback(container, isCorrect, message){
+    container.textContent = '';
+    const div = document.createElement('div');
+    div.setAttribute('uk-alert','');
+    div.className = isCorrect ? 'uk-alert-success' : 'uk-alert-danger';
+    const span = document.createElement('span');
+    span.className = 'uk-hidden-visually';
+    span.textContent = isCorrect ? 'Richtige Antwort' : 'Falsche Antwort';
+    div.appendChild(span);
+    div.append(' ' + message);
+    container.replaceChildren(div);
+  }
+
   // Prüft die Reihenfolge der Sortierfrage
   function checkSort(ul, right, feedback, idx){
     const currentOrder = Array.from(ul.querySelectorAll('li')).map(li => li.textContent.trim());
     const correct = JSON.stringify(currentOrder) === JSON.stringify(right);
     results[idx] = correct;
-    feedback.innerHTML =
+    renderFeedback(
+      feedback,
+      correct,
       correct
-        ? '<div class="uk-alert-success" uk-alert><span class="uk-hidden-visually">Richtige Antwort</span> ✅ Richtig sortiert!</div>'
-        : '<div class="uk-alert-danger" uk-alert><span class="uk-hidden-visually">Falsche Antwort</span> ❌ Leider falsch, versuche es nochmal!</div>';
+        ? '✅ Richtig sortiert!'
+        : '❌ Leider falsch, versuche es nochmal!'
+    );
   }
 
   // Erstellt das DOM für eine Zuordnungsfrage
@@ -628,15 +655,19 @@ async function runQuiz(questions, skipIntro){
       if(zone.dataset.term !== dropped) allCorrect = false;
     });
     results[idx] = allCorrect;
-    feedback.innerHTML = allCorrect
-      ? '<div class="uk-alert-success" uk-alert><span class="uk-hidden-visually">Richtige Antwort</span> ✅ Alles richtig zugeordnet!</div>'
-      : '<div class="uk-alert-danger" uk-alert><span class="uk-hidden-visually">Falsche Antwort</span> ❌ Nicht alle Zuordnungen sind korrekt.</div>';
+    renderFeedback(
+      feedback,
+      allCorrect,
+      allCorrect
+        ? '✅ Alles richtig zugeordnet!'
+        : '❌ Nicht alle Zuordnungen sind korrekt.'
+    );
   }
 
   // Setzt die Zuordnungsfrage auf den Ausgangszustand zurück
   function resetAssign(div, feedback){
     const termList = div.querySelector('.terms');
-    termList.innerHTML = '';
+    termList.textContent = '';
     div._initialLeftTerms.forEach(t => {
       const li = document.createElement('li');
       li.draggable = true;
@@ -674,10 +705,11 @@ async function runQuiz(questions, skipIntro){
       selected.length === sortedCorrect.length &&
       selected.every((v, i) => v === sortedCorrect[i]);
     results[idx] = correct;
-    feedback.innerHTML =
-      correct
-        ? '<div class="uk-alert-success" uk-alert><span class="uk-hidden-visually">Richtige Antwort</span> ✅ Korrekt!</div>'
-        : '<div class="uk-alert-danger" uk-alert><span class="uk-hidden-visually">Falsche Antwort</span> ❌ Das ist nicht korrekt.</div>';
+    renderFeedback(
+      feedback,
+      correct,
+      correct ? '✅ Korrekt!' : '❌ Das ist nicht korrekt.'
+    );
   }
 
   // Erstellt das DOM für eine Multiple-Choice-Frage
@@ -705,7 +737,7 @@ async function runQuiz(questions, skipIntro){
       input.name = 'mc' + idx;
       input.value = i;
       label.appendChild(input);
-      label.append(' ' + insertSoftHyphens(q.options[orig]));
+      label.appendChild(document.createTextNode(' ' + insertSoftHyphens(q.options[orig])));
       options.appendChild(label);
     });
 
@@ -1109,11 +1141,20 @@ async function runQuiz(questions, skipIntro){
       flipBtn.disabled = true;
       function showManualInput(){
         const container = document.getElementById('qr-reader');
-        container.innerHTML = '<input id="manual-team-name" class="uk-input" type="text" placeholder="Teamname eingeben">' +
-          '<button id="manual-team-submit" class="uk-button uk-button-primary uk-width-1-1 uk-margin-top">Weiter</button>';
+        container.textContent = '';
+        const input = document.createElement('input');
+        input.id = 'manual-team-name';
+        input.className = 'uk-input';
+        input.type = 'text';
+        input.placeholder = 'Teamname eingeben';
+        const submit = document.createElement('button');
+        submit.id = 'manual-team-submit';
+        submit.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
+        submit.textContent = 'Weiter';
+        container.appendChild(input);
+        container.appendChild(submit);
         flipBtn.classList.add('uk-hidden');
-        const input = container.querySelector('#manual-team-name');
-        container.querySelector('#manual-team-submit').addEventListener('click', () => {
+        const handleSubmit = () => {
           const name = (input.value || '').trim();
           if(name){
             setStored('quizUser', name);
@@ -1121,11 +1162,12 @@ async function runQuiz(questions, skipIntro){
             UIkit.modal(modal).hide();
             next();
           }
-        });
+        };
+        submit.addEventListener('click', handleSubmit);
         input.addEventListener('keydown', (ev) => {
           if(ev.key === 'Enter'){
             ev.preventDefault();
-            container.querySelector('#manual-team-submit').click();
+            handleSubmit();
           }
         });
         input.focus();
@@ -1398,9 +1440,11 @@ async function runQuiz(questions, skipIntro){
       fd.append('catalog', catalog);
       fd.append('team', name);
 
-      const originalHtml = btn.innerHTML;
+      const originalChildren = Array.from(btn.childNodes).map(n => n.cloneNode(true));
       btn.disabled = true;
-      btn.innerHTML = '<div uk-spinner></div>';
+      const spinner = document.createElement('div');
+      spinner.setAttribute('uk-spinner','');
+      btn.replaceChildren(spinner);
 
       fetch(withBase('/photos'), { method: 'POST', body: fd })
         .then(async r => {
@@ -1439,7 +1483,7 @@ async function runQuiz(questions, skipIntro){
           feedback.className = 'uk-margin-top uk-text-center uk-text-danger';
         })
         .finally(() => {
-          btn.innerHTML = originalHtml;
+          btn.replaceChildren(...originalChildren);
         });
     });
     ui.show();
