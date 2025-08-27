@@ -24,7 +24,9 @@
         <button class="contrast-toggle uk-button uk-button-link" uk-icon="icon: paint-bucket; ratio: 0.95" title="{{ t('contrast_toggle') }}" aria-label="{{ t('contrast_toggle') }}"></button>
       </div>
         <div class="uk-navbar-item help-switch">
-          <a href="{{ basePath }}/faq" class="uk-button uk-button-link" uk-icon="icon: question; ratio: 0.95" title="{{ t('help') }}" aria-label="{{ t('help') }}"></a>
+          {% block help_button %}
+          <a id="helpBtn" href="{{ basePath }}/faq" class="uk-button uk-button-link" uk-icon="icon: question; ratio: 0.95" title="{{ t('help') }}" aria-label="{{ t('help') }}"></a>
+          {% endblock %}
         </div>
         {% endblock %}
       </div>
