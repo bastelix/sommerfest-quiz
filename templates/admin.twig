@@ -195,14 +195,14 @@
           <table id="eventsTable" class="uk-table uk-table-divider uk-table-small" role="table" aria-label="{{ t('heading_events') }}">
             <thead class="table-headings">
               <tr>
-                <th><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top"></span></th>
-                <th>{{ t('column_number') }}</th>
-                <th>{{ t('column_name') }}</th>
-                <th>{{ t('column_start') }}</th>
-                <th>{{ t('column_end') }}</th>
-                <th>{{ t('column_description') }}</th>
-                <th>{{ t('column_active') }}</th>
-                <th><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_event_remove') }}; pos: top"></span></th>
+                <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top"></span></th>
+                <th scope="col">{{ t('column_number') }}</th>
+                <th scope="col">{{ t('column_name') }}</th>
+                <th scope="col">{{ t('column_start') }}</th>
+                <th scope="col">{{ t('column_end') }}</th>
+                <th scope="col">{{ t('column_description') }}</th>
+                <th scope="col">{{ t('column_active') }}</th>
+                <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_event_remove') }}; pos: top"></span></th>
               </tr>
             </thead>
             <tbody id="eventsList" role="rowgroup"
@@ -414,25 +414,25 @@
           <table id="catalogTable" class="uk-table uk-table-divider uk-table-small" role="table" aria-label="{{ t('heading_catalogs') }}">
             <thead class="table-headings">
               <tr>
-                <th>
+                <th scope="col">
                   <span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top"></span>
                 </th>
-                  <th>{{ t('column_slug') }}
+                  <th scope="col">{{ t('column_slug') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_slug') }}; pos: top"></span>
                   </th>
-                  <th>{{ t('column_name') }}
+                  <th scope="col">{{ t('column_name') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_name') }}; pos: top"></span>
                   </th>
-                  <th>{{ t('column_description') }}
+                  <th scope="col">{{ t('column_description') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_desc') }}; pos: top"></span>
                   </th>
-                  <th>{{ t('column_letter') }}
+                  <th scope="col">{{ t('column_letter') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_puzzle_letter') }}; pos: top"></span>
                   </th>
-                  <th>{{ t('column_comment') }}
+                  <th scope="col">{{ t('column_comment') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_comment') }}; pos: top"></span>
                   </th>
-                  <th>
+                  <th scope="col">
                     <span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_remove') }}; pos: top"></span>
                   </th>
               </tr>
@@ -490,9 +490,9 @@
           <table id="teamsTable" class="uk-table uk-table-divider uk-table-small">
             <thead class="table-headings">
               <tr>
-                <th></th>
-                <th>{{ t('column_name') }}</th>
-                <th></th>
+                <th scope="col"></th>
+                <th scope="col">{{ t('column_name') }}</th>
+                <th scope="col"></th>
               </tr>
             </thead>
             <tbody id="teamsList" uk-sortable="handle: .uk-sortable-handle; group: sortable-group"></tbody>
@@ -654,7 +654,15 @@
         <div style="overflow-x: auto">
         <table class="uk-table uk-table-divider uk-table-responsive">
           <thead>
-            <tr><th>{{ t('column_name') }}</th><th>{{ t('column_attempt') }}</th><th>{{ t('column_catalog') }}</th><th>{{ t('column_correct') }}</th><th>{{ t('column_time') }}</th><th>{{ t('column_puzzle_solved') }}</th><th>{{ t('column_proof_photo') }}</th></tr>
+            <tr>
+              <th scope="col">{{ t('column_name') }}</th>
+              <th scope="col">{{ t('column_attempt') }}</th>
+              <th scope="col">{{ t('column_catalog') }}</th>
+              <th scope="col">{{ t('column_correct') }}</th>
+              <th scope="col">{{ t('column_time') }}</th>
+              <th scope="col">{{ t('column_puzzle_solved') }}</th>
+              <th scope="col">{{ t('column_proof_photo') }}</th>
+            </tr>
           </thead>
           <tbody id="resultsTableBody" uk-lightbox="nav: thumbnav; slidenav: false">
             {% for r in results %}
@@ -715,13 +723,21 @@
         <div style="overflow-x: auto">
         <table class="uk-table uk-table-divider uk-table-responsive">
           <thead>
-            <tr><th>{{ t('column_name') }}</th><th>{{ t('column_attempt') }}</th><th>{{ t('column_catalog') }}</th><th>{{ t('column_question') }}</th><th>{{ t('column_answer') }}</th><th>{{ t('column_correct') }}</th><th>{{ t('column_proof_photo') }}</th></tr>
+            <tr>
+              <th scope="col">{{ t('column_name') }}</th>
+              <th scope="col">{{ t('column_attempt') }}</th>
+              <th scope="col">{{ t('column_catalog') }}</th>
+              <th scope="col">{{ t('column_question') }}</th>
+              <th scope="col">{{ t('column_answer') }}</th>
+              <th scope="col">{{ t('column_correct') }}</th>
+              <th scope="col">{{ t('column_proof_photo') }}</th>
+            </tr>
           </thead>
           <tbody id="statsTableBody" uk-lightbox="nav: thumbnav; slidenav: false"></tbody>
         </table>
         </div>
       </div>
-    </li>
+      </li>
       {% if role == 'admin' %}
       <li class="{{ activeRoute == 'pages' ? 'uk-active' }}">
         <div class="uk-container uk-container-large">
@@ -833,15 +849,15 @@
         <div class="uk-overflow-auto">
           <table class="uk-table uk-table-divider uk-table-small">
             <thead>
-              <tr>
-                <th><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top"></span></th>
-                <th>{{ t('column_username') }}</th>
-                <th>{{ t('column_role') }}</th>
-                <th>Aktiv</th>
-                <th><span uk-icon="icon: key" uk-tooltip="title: {{ t('tip_user_pass') }}; pos: top"></span></th>
-                <th><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_user_remove') }}; pos: top"></span></th>
-              </tr>
-            </thead>
+                <tr>
+                  <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top"></span></th>
+                  <th scope="col">{{ t('column_username') }}</th>
+                  <th scope="col">{{ t('column_role') }}</th>
+                  <th scope="col">Aktiv</th>
+                  <th scope="col"><span uk-icon="icon: key" uk-tooltip="title: {{ t('tip_user_pass') }}; pos: top"></span></th>
+                  <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_user_remove') }}; pos: top"></span></th>
+                </tr>
+              </thead>
             <tbody id="usersList" uk-sortable="handle: .uk-sortable-handle; group: sortable-group"></tbody>
           </table>
         </div>
@@ -873,14 +889,17 @@
             <button id="saveDemoBtn" class="uk-button uk-button-default uk-width-1-1" uk-tooltip="title: {{ t('tip_backup_save') }}; pos: right">{{ t('action_save_demo') }}</button>
           </div>
         </div>
-        <table class="uk-table uk-table-divider">
-          <thead>
-            <tr><th>{{ t('column_folder') }}</th><th>{{ t('column_actions') }}</th></tr>
-          </thead>
-          <tbody id="backupTableBody">
-            <tr><td colspan="2">{{ t('text_no_backups') }}</td></tr>
-          </tbody>
-        </table>
+          <table class="uk-table uk-table-divider">
+            <thead>
+              <tr>
+                <th scope="col">{{ t('column_folder') }}</th>
+                <th scope="col">{{ t('column_actions') }}</th>
+              </tr>
+            </thead>
+            <tbody id="backupTableBody">
+              <tr><td colspan="2">{{ t('text_no_backups') }}</td></tr>
+            </tbody>
+          </table>
       </div>
     </li>
     {% if domainType == 'main' %}
@@ -920,18 +939,18 @@
         <!-- DESKTOP TABLE -->
         <div class="uk-visible@s uk-overflow-auto">
           <table class="uk-table uk-table-divider uk-table-middle uk-table-striped qr-table">
-            <thead>
-              <tr>
-                <th class="sticky">{{ t('column_subdomain') }}</th>
-                <th>{{ t('column_plan') }}</th>
-                <th>{{ t('column_billing') }}</th>
-                <th>{{ t('column_created') }}</th>
-                <th class="uk-text-right">{{ t('column_actions') }}</th>
-              </tr>
-            </thead>
-            <tbody id="tenantTableBody"></tbody>
-          </table>
-        </div>
+              <thead>
+                <tr>
+                  <th scope="col" class="sticky">{{ t('column_subdomain') }}</th>
+                  <th scope="col">{{ t('column_plan') }}</th>
+                  <th scope="col">{{ t('column_billing') }}</th>
+                  <th scope="col">{{ t('column_created') }}</th>
+                  <th scope="col" class="uk-text-right">{{ t('column_actions') }}</th>
+                </tr>
+              </thead>
+              <tbody id="tenantTableBody"></tbody>
+            </table>
+          </div>
 
         <!-- MOBILE CARDS -->
         <div id="tenantCards" class="uk-hidden@s"></div>
@@ -1046,64 +1065,64 @@
           {% endif %}
         <div class="uk-overflow-auto uk-margin-top">
           <table class="uk-table uk-table-divider uk-table-small uk-text-center">
-            <thead>
-              <tr>
-                <th></th>
-                <th>
-                  {{ t('plan_starter') }}<br>
-                  <div class="uk-text-large">9&nbsp;€/Monat</div>
-                  <div class="uk-text-meta">7 Tage kostenlos testen</div>
-                </th>
-                <th>
-                  {{ t('plan_standard') }}<br>
-                  <div class="uk-text-large">39&nbsp;€/Monat</div>
-                  <div class="uk-text-meta">7 Tage kostenlos testen</div>
-                </th>
-                <th>
-                  {{ t('plan_professional') }}<br>
-                  <div class="uk-text-large">79&nbsp;€/Monat</div>
-                  <div class="uk-text-meta">7 Tage kostenlos testen</div>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th>Gleichzeitige Events</th>
-                <td>1</td>
-                <td>3</td>
-                <td>20</td>
-              </tr>
-              <tr>
-                <th>Teams &amp; Kataloge</th>
-                <td>5 Teams &amp; 5 Kataloge à 5 Fragen</td>
-                <td>10 Teams &amp; 10 Kataloge à 10 Fragen</td>
-                <td>100 Teams &amp; 50 Kataloge à 50 Fragen</td>
-              </tr>
-              <tr>
-                <th>Subdomain</th>
-                <td>–</td>
-                <td>&#10003;</td>
-                <td>&#10003;</td>
-              </tr>
-              <tr>
-                <th>PDF-Export</th>
-                <td>Basis</td>
-                <td>Vollständig</td>
-                <td>Vollständig</td>
-              </tr>
-              <tr>
-                <th>White-Label &amp; Rollenverwaltung</th>
-                <td>–</td>
-                <td>–</td>
-                <td>&#10003;</td>
-              </tr>
-              <tr>
-                <th></th>
-                <td><button class="uk-button uk-button-default uk-width-1-1 plan-select" data-plan="starter">{{ t('action_start_subscription') }}</button></td>
-                <td><button class="uk-button uk-button-primary uk-width-1-1 plan-select" data-plan="standard">{{ t('action_start_subscription') }}</button></td>
-                <td><button class="uk-button uk-button-default uk-width-1-1 plan-select" data-plan="professional">{{ t('action_start_subscription') }}</button></td>
-              </tr>
-            </tbody>
+              <thead>
+                <tr>
+                  <th scope="col"></th>
+                  <th scope="col">
+                    {{ t('plan_starter') }}<br>
+                    <div class="uk-text-large">9&nbsp;€/Monat</div>
+                    <div class="uk-text-meta">7 Tage kostenlos testen</div>
+                  </th>
+                  <th scope="col">
+                    {{ t('plan_standard') }}<br>
+                    <div class="uk-text-large">39&nbsp;€/Monat</div>
+                    <div class="uk-text-meta">7 Tage kostenlos testen</div>
+                  </th>
+                  <th scope="col">
+                    {{ t('plan_professional') }}<br>
+                    <div class="uk-text-large">79&nbsp;€/Monat</div>
+                    <div class="uk-text-meta">7 Tage kostenlos testen</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Gleichzeitige Events</th>
+                  <td>1</td>
+                  <td>3</td>
+                  <td>20</td>
+                </tr>
+                <tr>
+                  <th scope="row">Teams &amp; Kataloge</th>
+                  <td>5 Teams &amp; 5 Kataloge à 5 Fragen</td>
+                  <td>10 Teams &amp; 10 Kataloge à 10 Fragen</td>
+                  <td>100 Teams &amp; 50 Kataloge à 50 Fragen</td>
+                </tr>
+                <tr>
+                  <th scope="row">Subdomain</th>
+                  <td>–</td>
+                  <td>&#10003;</td>
+                  <td>&#10003;</td>
+                </tr>
+                <tr>
+                  <th scope="row">PDF-Export</th>
+                  <td>Basis</td>
+                  <td>Vollständig</td>
+                  <td>Vollständig</td>
+                </tr>
+                <tr>
+                  <th scope="row">White-Label &amp; Rollenverwaltung</th>
+                  <td>–</td>
+                  <td>–</td>
+                  <td>&#10003;</td>
+                </tr>
+                <tr>
+                  <th scope="row"></th>
+                  <td><button class="uk-button uk-button-default uk-width-1-1 plan-select" data-plan="starter">{{ t('action_start_subscription') }}</button></td>
+                  <td><button class="uk-button uk-button-primary uk-width-1-1 plan-select" data-plan="standard">{{ t('action_start_subscription') }}</button></td>
+                  <td><button class="uk-button uk-button-default uk-width-1-1 plan-select" data-plan="professional">{{ t('action_start_subscription') }}</button></td>
+                </tr>
+              </tbody>
           </table>
         </div>
         {% endif %}
