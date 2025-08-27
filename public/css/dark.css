@@ -94,6 +94,12 @@ body .topbar {
   border-color: #444;
   padding-top: env(safe-area-inset-top);
 }
+
+body .topbar .theme-switch button,
+body .topbar .contrast-switch button,
+body .topbar .help-switch a {
+  background-color: rgba(255, 255, 255, 0.1);
+}
 body .event-header-bar {
   background-color: #1e1e1e;
   border-color: #444;

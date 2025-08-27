@@ -236,6 +236,19 @@ body.uk-padding {
   background: transparent;
 }
 
+.topbar .theme-switch button,
+.topbar .contrast-switch button,
+.topbar .help-switch a {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
 .topbar .uk-navbar-item,
 .topbar .uk-navbar-nav > li > a,
 .topbar .uk-navbar-toggle {
