@@ -103,6 +103,7 @@
 - Bump version to 0.2.90 [skip ci]
 - Bump version to 0.2.91 [skip ci]
 - Bump version to 0.2.92 [skip ci]
+- Bump version to 0.2.93 [skip ci]
 
 ### Docs
 
@@ -134,6 +135,8 @@
 - Validate redirects before navigation
 - Allow hiding topbar icons
 - Add compact settings dropdown
+- Add player profile page
+- Add profile name management
 
 ### Fix
 
