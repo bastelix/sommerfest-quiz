@@ -19,7 +19,15 @@
     </a>
   </div>
 </nav>
-{% block offcanvas %}{% endblock %}
+{% block offcanvas %}
+<div id="offcanvas-nav" uk-offcanvas="overlay: true">
+  <div class="uk-offcanvas-bar">
+    {% block offcanvas_nav %}
+    {% include '_topbar_controls.twig' %}
+    {% endblock %}
+  </div>
+</div>
+{% endblock %}
 {% block headerbar %}{% endblock %}
 {% block nav_placeholder %}
 <div class="nav-placeholder"></div>
