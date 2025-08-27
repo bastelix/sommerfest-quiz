@@ -244,5 +244,10 @@ return [
     'text_trial_banner_prefix' => 'Ihre Testphase endet am',
     'text_trial_banner_suffix' => 'Bitte hinterlegen Sie eine Zahlungsmethode:',
     'action_setup_payment_method' => 'Zahlungsmethode hinzufügen',
+    'title_profile' => 'Profil',
+    'label_player_name' => 'Spielername',
+    'action_save_player' => 'Spielername akzeptieren & speichern',
+    'action_delete_player' => 'Spielername löschen',
+    'text_player_name_hint' => 'Name wird lokal im Browser gespeichert',
     'text_stripe_config_missing' => 'Stripe-Konfiguration fehlt. Bitte erforderliche Umgebungsvariablen setzen.',
 ];

@@ -243,5 +243,10 @@ return [
     'heading_limit_reached' => 'Limit reached',
     'text_upgrade_required' => 'Subscription is exhausted. To create more events, upgrade to a higher plan.',
     'action_upgrade' => 'Upgrade',
+    'title_profile' => 'Profile',
+    'label_player_name' => 'Player name',
+    'action_save_player' => 'Accept & save player name',
+    'action_delete_player' => 'Delete player name',
+    'text_player_name_hint' => 'Name is stored locally in the browser',
     'text_stripe_config_missing' => 'Stripe configuration missing. Please set required environment variables.',
 ];
