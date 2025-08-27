@@ -97,6 +97,8 @@
 - Bump version to 0.2.84 [skip ci]
 - Bump version to 0.2.85 [skip ci]
 - Bump version to 0.2.86 [skip ci]
+- Bump version to 0.2.87 [skip ci]
+- Bump version to 0.2.88 [skip ci]
 
 ### Docs
 
@@ -133,6 +135,7 @@
 - Ensure page content respects dynamic topbar height
 - *(events)* Prevent table frame from clipping actions
 - Respect flex-wrap when sizing nav placeholder
+- Remove empty hamburger menu and align settings toggle
 
 ### Refactor
 
