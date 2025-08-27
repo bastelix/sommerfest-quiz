@@ -104,6 +104,10 @@
 - Bump version to 0.2.91 [skip ci]
 - Bump version to 0.2.92 [skip ci]
 - Bump version to 0.2.93 [skip ci]
+- Bump version to 0.2.94 [skip ci]
+- Bump version to 0.2.95 [skip ci]
+- Bump version to 0.2.96 [skip ci]
+- Bump version to 0.2.97 [skip ci]
 
 ### Docs
 
@@ -137,6 +141,8 @@
 - Add compact settings dropdown
 - Add player profile page
 - Add profile name management
+- Enforce profile setup for random names
+- Store player names per event
 
 ### Fix
 
