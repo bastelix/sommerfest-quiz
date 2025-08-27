@@ -1,10 +1,5 @@
 <nav class="uk-navbar-container uk-padding-small topbar" uk-navbar>
     <div class="uk-navbar-left">
-    {% block mobile_menu_toggle %}
-      <a class="uk-navbar-toggle uk-hidden@m" href="#offcanvas-nav" uk-toggle aria-label="{{ t('menu') }}">
-        <span uk-navbar-toggle-icon></span>
-      </a>
-    {% endblock %}
       <div class="uk-navbar-item">
         {% block left %}{% endblock %}
       </div>
@@ -14,35 +9,28 @@
       {% block center %}{% endblock %}
     </div>
   </div>
-    <div class="uk-navbar-right">
-      <div class="uk-navbar-item">
-        {% block right %}{% endblock %}
-      </div>
-      <div class="uk-navbar-item theme-switch">
+      <div class="uk-navbar-right">
+        <a class="uk-navbar-toggle options-toggle" uk-toggle="target: #settings-offcanvas" aria-label="{{ t('settings') }}">
+          <span uk-icon="icon: cog"></span>
+        </a>
+        <div class="uk-navbar-item">
+          {% block right %}{% endblock %}
+        </div>
+        <div class="uk-navbar-item theme-switch">
         <button class="theme-toggle uk-button uk-button-link" uk-icon="icon: moon; ratio: 0.95" title="{{ t('design_toggle') }}" aria-label="{{ t('design_toggle') }}"></button>
       </div>
       <div class="uk-navbar-item contrast-switch">
         <button class="contrast-toggle uk-button uk-button-link" uk-icon="icon: paint-bucket; ratio: 0.95" title="{{ t('contrast_toggle') }}" aria-label="{{ t('contrast_toggle') }}"></button>
       </div>
-      <div class="uk-navbar-item help-switch">
-        <a href="{{ basePath }}/faq" class="uk-button uk-button-link" uk-icon="icon: question; ratio: 0.95" title="{{ t('help') }}" aria-label="{{ t('help') }}"></a>
+        <div class="uk-navbar-item help-switch">
+          <a href="{{ basePath }}/faq" class="uk-button uk-button-link" uk-icon="icon: question; ratio: 0.95" title="{{ t('help') }}" aria-label="{{ t('help') }}"></a>
+        </div>
+        <a id="offcanvas-toggle" class="uk-navbar-toggle uk-hidden@m" hidden uk-toggle="target: #qr-offcanvas" aria-label="{{ t('menu') }}">
+          <span uk-navbar-toggle-icon></span>
+        </a>
       </div>
-      <a class="uk-navbar-toggle options-toggle" uk-toggle="target: #settings-offcanvas" aria-label="{{ t('settings') }}">
-        <span uk-icon="icon: cog"></span>
-      </a>
-      <a id="offcanvas-toggle" class="uk-navbar-toggle uk-hidden@m" hidden uk-toggle="target: #qr-offcanvas" aria-label="{{ t('menu') }}">
-        <span uk-navbar-toggle-icon></span>
-      </a>
-    </div>
-  </nav>
-{% block offcanvas %}
-<div id="offcanvas-nav" uk-offcanvas="overlay: true">
-  <div class="uk-offcanvas-bar">
-    {% block offcanvas_nav %}{% endblock %}
-  </div>
-</div>
-{% endblock %}
-{% include 'partials/settings-offcanvas.twig' %}
+    </nav>
+  {% include 'partials/settings-offcanvas.twig' %}
 {% block headerbar %}{% endblock %}
 {% block nav_placeholder %}
 <div class="nav-placeholder"></div>
