@@ -14,6 +14,9 @@
     <div class="uk-navbar-item">
       {% block right %}{% endblock %}
     </div>
+    <a id="offcanvas-toggle" class="uk-navbar-toggle" hidden uk-toggle="target: #qr-offcanvas" aria-label="{{ t('menu') }}">
+      <span uk-navbar-toggle-icon></span>
+    </a>
   </div>
 </nav>
 {% block offcanvas %}{% endblock %}

@@ -3,6 +3,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const themeToggle = document.getElementById('theme-toggle');
   const contrastToggle = document.getElementById('contrast-toggle');
   const darkStylesheet = document.querySelector('link[href$="dark.css"]');
+  const themeSwitch = document.querySelector('.theme-switch');
+  const contrastSwitch = document.querySelector('.contrast-switch');
+  const helpBtn = document.getElementById('helpBtn');
+  const offcanvasToggle = document.getElementById('offcanvas-toggle');
+  const offcanvasButtons = document.getElementById('offcanvas-buttons');
+  const topbarRight = document.querySelector('.topbar .uk-navbar-right .uk-navbar-item');
 
   const storedTheme = localStorage.getItem('darkMode');
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -62,10 +68,39 @@ document.addEventListener('DOMContentLoaded', function () {
     navPlaceholder.style.height = height + 'px';
   }
 
-  if (topbar && navPlaceholder) {
-    updateNavPlaceholder();
-    if (window.getComputedStyle(topbar).flexWrap !== 'nowrap') {
-      window.addEventListener('resize', updateNavPlaceholder);
+  function handleTopbarOverflow() {
+    if (!topbar || !topbarRight || !offcanvasToggle || !offcanvasButtons) {
+      return;
+    }
+    const overflowing = topbar.scrollWidth > topbar.clientWidth;
+    const elements = [themeSwitch, contrastSwitch, helpBtn];
+    if (overflowing) {
+      elements.forEach(el => {
+        if (el && offcanvasButtons.contains(el) === false) {
+          offcanvasButtons.appendChild(el);
+        }
+      });
+      offcanvasToggle.hidden = false;
+    } else {
+      elements.forEach(el => {
+        if (el && topbarRight.contains(el) === false) {
+          topbarRight.appendChild(el);
+        }
+      });
+      if (offcanvasButtons.children.length === 0) {
+        offcanvasToggle.hidden = true;
+      }
     }
   }
+
+  if (topbar && navPlaceholder) {
+    updateNavPlaceholder();
+  }
+  handleTopbarOverflow();
+  window.addEventListener('resize', () => {
+    if (topbar && navPlaceholder) {
+      updateNavPlaceholder();
+    }
+    handleTopbarOverflow();
+  });
 });
