@@ -1,10 +1,10 @@
 /* global UIkit */
 document.addEventListener('DOMContentLoaded', function () {
   const themeToggles = document.querySelectorAll('.theme-toggle');
-  const contrastToggles = document.querySelectorAll('.contrast-toggle');
+  const accessibilityToggles = document.querySelectorAll('.accessibility-toggle');
   const darkStylesheet = document.querySelector('link[href$="dark.css"]');
   const themeIcon = document.getElementById('themeIcon');
-  const contrastIcon = document.getElementById('contrastIcon');
+  const accessibilityIcon = document.getElementById('accessibilityIcon');
   const helpBtn = document.getElementById('helpBtn');
 
   const storedTheme = localStorage.getItem('darkMode');
@@ -37,12 +37,12 @@ document.addEventListener('DOMContentLoaded', function () {
       <svg viewBox="0 0 24 24">
         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"></path>
       </svg>`;
-  const contrastOnSVG = `
+  const accessibilityOnSVG = `
       <svg viewBox="0 0 24 24">
         <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
         <path d="M12 2a10 10 0 0 0 0 20z" fill="currentColor"/>
       </svg>`;
-  const contrastOffSVG = `
+  const accessibilityOffSVG = `
       <svg viewBox="0 0 24 24">
         <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/>
         <path d="M12 2a10 10 0 0 0 0 20z" fill="currentColor" opacity="0.4"/>
@@ -52,12 +52,12 @@ document.addEventListener('DOMContentLoaded', function () {
     themeIcon.innerHTML = dark ? sunSVG : moonSVG;
   }
 
-  let hc = localStorage.getItem('highContrast') === 'true';
-  if (hc) {
+  let accessible = localStorage.getItem('barrierFree') === 'true';
+  if (accessible) {
     document.body.classList.add('high-contrast');
   }
-  if (contrastIcon) {
-    contrastIcon.innerHTML = hc ? contrastOnSVG : contrastOffSVG;
+  if (accessibilityIcon) {
+    accessibilityIcon.innerHTML = accessible ? accessibilityOnSVG : accessibilityOffSVG;
   }
 
   if (themeToggles.length) {
@@ -79,14 +79,14 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  if (contrastToggles.length) {
-    contrastToggles.forEach((toggle) => {
+  if (accessibilityToggles.length) {
+    accessibilityToggles.forEach((toggle) => {
       toggle.addEventListener('click', function (event) {
         event.preventDefault();
-        hc = document.body.classList.toggle('high-contrast');
-        localStorage.setItem('highContrast', hc ? 'true' : 'false');
-        if (contrastIcon) {
-          contrastIcon.innerHTML = hc ? contrastOnSVG : contrastOffSVG;
+        accessible = document.body.classList.toggle('high-contrast');
+        localStorage.setItem('barrierFree', accessible ? 'true' : 'false');
+        if (accessibilityIcon) {
+          accessibilityIcon.innerHTML = accessible ? accessibilityOnSVG : accessibilityOffSVG;
         }
         try { UIkit.drop('#menuDrop').hide(); } catch (e) {}
       });
@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (helpBtn) {
     helpBtn.addEventListener('click', function () {
       try { UIkit.drop('#menuDrop').hide(); } catch (e) {}
-      UIkit.modal('#helpModal').show();
+      UIkit.offcanvas('#helpDrawer').show();
     });
   }
 

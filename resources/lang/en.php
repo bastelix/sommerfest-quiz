@@ -3,9 +3,9 @@
 return [
     'help' => 'Help',
     'design_toggle' => 'Toggle theme',
-    'contrast_toggle' => 'High contrast',
+    'contrast_toggle' => 'Barrier-free mode',
     'configuration' => 'Configuration',
-    'help_modal_text' => 'Dark mode and high contrast can be toggled here in the menu. Adjust colors via CSS variables (<code>--text</code>, <code>--drop-bg</code> …).',
+    'help_modal_text' => 'Dark mode and barrier-free mode can be toggled in this menu. The barrier-free mode enlarges fonts for better readability. Adjust colors via CSS variables (<code>--text</code>, <code>--drop-bg</code> …).',
     'quiz_progress' => 'Quiz progress',
     'manual_open' => 'Open manual',
     'privacy' => 'Privacy',

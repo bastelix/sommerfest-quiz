@@ -124,8 +124,8 @@
                 </button>
               </li>
               <li>
-                <button id="contrastToggle" class="uk-button uk-button-default git-btn contrast-toggle" aria-label="{{ t('contrast_toggle') }}">
-                  <span id="contrastIcon" aria-hidden="true">
+                <button id="accessibilityToggle" class="uk-button uk-button-default git-btn accessibility-toggle" aria-label="{{ t('contrast_toggle') }}">
+                  <span id="accessibilityIcon" aria-hidden="true">
                     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2a10 10 0 0 0 0 20z" fill="currentColor" opacity="0.4"/></svg>
                   </span>
                 </button>
@@ -143,10 +143,10 @@
         {% endblock %}
       </div>
     </nav>
-<div id="helpModal" class="uk-flex-top" uk-modal>
-  <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
-    <button class="uk-modal-close-default" type="button" uk-close></button>
-    <h3 class="uk-modal-title">{{ t('help') }}</h3>
+<div id="helpDrawer" uk-offcanvas="flip: true; overlay: true">
+  <div class="uk-offcanvas-bar">
+    <button class="uk-offcanvas-close" type="button" uk-close></button>
+    <h3 class="uk-offcanvas-title">{{ t('help') }}</h3>
     <p>{{ t('help_modal_text')|raw }}</p>
   </div>
 </div>
