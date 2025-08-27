@@ -160,6 +160,11 @@ body.uk-padding {
   height: 44px;
 }
 
+/* Ensure dropdown menus appear above table rows */
+.uk-dropdown {
+  z-index: 1200;
+}
+
 .result-slide {
   position: absolute;
   width: 100%;
