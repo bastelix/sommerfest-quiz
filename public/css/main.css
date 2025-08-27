@@ -722,7 +722,8 @@ body.admin-page {
   padding: 4px 0;
 }
 #eventsList .cell-label {
-  flex: 0 0 8ch;
+  flex: 1 0 6rem;
+  min-width: 6rem;
   font-weight: 600;
   margin-right: 0.5rem;
 }
@@ -792,7 +793,8 @@ body.admin-page {
   padding: 4px 0;
 }
 #catalogList .cell-label {
-  flex: 0 0 8ch;
+  flex: 1 0 6rem;
+  min-width: 6rem;
   font-weight: 600;
   margin-right: 0.5rem;
 }
