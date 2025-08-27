@@ -4,6 +4,8 @@ return [
     'help' => 'Help',
     'design_toggle' => 'Toggle theme',
     'contrast_toggle' => 'High contrast',
+    'configuration' => 'Configuration',
+    'help_modal_text' => 'Dark mode and high contrast can be toggled here in the menu. Adjust colors via CSS variables (<code>--text</code>, <code>--drop-bg</code> …).',
     'quiz_progress' => 'Quiz progress',
     'manual_open' => 'Open manual',
     'privacy' => 'Privacy',
