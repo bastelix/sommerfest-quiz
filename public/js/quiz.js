@@ -134,8 +134,13 @@ async function runQuiz(questions, skipIntro){
   const basePath = window.basePath || '';
   const withBase = path => basePath + path;
   const showCheck = cfg.CheckAnswerButton !== 'no';
-  if(cfg.backgroundColor){
-    document.body.style.backgroundColor = cfg.backgroundColor;
+  if(cfg.colors){
+    if(cfg.colors.primary){
+      document.documentElement.style.setProperty('--primary-color', cfg.colors.primary);
+    }
+    if(cfg.colors.accent){
+      document.documentElement.style.setProperty('--accent-color', cfg.colors.accent);
+    }
   }
 
   const container = document.getElementById('quiz');
@@ -182,10 +187,7 @@ async function runQuiz(questions, skipIntro){
     }
   }
 
-  // konfigurierbare Farben dynamisch in ein Style-Tag schreiben
-  const styleEl = document.createElement('style');
-  styleEl.textContent = `\n    body { background-color: ${cfg.backgroundColor || '#ffffff'}; }\n    .uk-button-primary { background-color: ${cfg.buttonColor || '#1e87f0'}; border-color: ${cfg.buttonColor || '#1e87f0'}; }\n  `;
-  document.head.appendChild(styleEl);
+  // Farben werden über CSS-Variablen gesetzt
 
   const headerEl = document.getElementById('quiz-header');
 
@@ -242,9 +244,9 @@ async function runQuiz(questions, skipIntro){
 
   // Wendet die konfigurierte Buttonfarbe an
   function styleButton(btn){
-    if(cfg.buttonColor){
-      btn.style.backgroundColor = cfg.buttonColor;
-      btn.style.borderColor = cfg.buttonColor;
+    if(cfg.colors && cfg.colors.accent){
+      btn.style.backgroundColor = cfg.colors.accent;
+      btn.style.borderColor = cfg.colors.accent;
       btn.style.color = '#fff';
     }
   }
