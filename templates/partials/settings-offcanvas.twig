@@ -1,0 +1,21 @@
+<div id="settings-offcanvas" uk-offcanvas="overlay: true">
+  <div class="uk-offcanvas-bar">
+    <ul class="uk-nav uk-nav-default">
+      <li>
+        <button id="theme-toggle" class="uk-button uk-button-link uk-text-left" uk-icon="icon: moon; ratio: 0.95">
+          <span class="qr-nav-text">{{ t('design_toggle') }}</span>
+        </button>
+      </li>
+      <li>
+        <button id="contrast-toggle" class="uk-button uk-button-link uk-text-left" uk-icon="icon: paint-bucket; ratio: 0.95">
+          <span class="qr-nav-text">{{ t('contrast_toggle') }}</span>
+        </button>
+      </li>
+      <li>
+        <a href="{{ basePath }}/faq" class="uk-button uk-button-link uk-text-left" uk-icon="icon: question; ratio: 0.95" title="{{ t('help') }}" aria-label="{{ t('help') }}">
+          <span class="qr-nav-text">{{ t('help') }}</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
