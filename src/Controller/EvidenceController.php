@@ -94,7 +94,15 @@ class EvidenceController
         }
 
         $tmpPath = tempnam(sys_get_temp_dir(), 'upload_');
+        if ($tmpPath === false || !file_exists($tmpPath)) {
+            $response->getBody()->write('temporary file unavailable');
+            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
+        }
         $file->moveTo($tmpPath);
+        if (!is_file($tmpPath)) {
+            $response->getBody()->write('temporary file unavailable');
+            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
+        }
 
         $manager = extension_loaded('imagick') ? ImageManager::imagick() : ImageManager::gd();
         $img = $manager->read($tmpPath);
@@ -112,16 +120,19 @@ class EvidenceController
             if ($rotate !== 0) {
                 $img->rotate(-$rotate);
                 $orientationHandled = true;
-            } else {
-                $convert = trim((string)@shell_exec('command -v convert'));
-                if ($convert !== '') {
-                    $cmd = $convert
-                        . ' ' . escapeshellarg($tmpPath)
-                        . ' -auto-orient '
-                        . escapeshellarg($tmpPath);
-                    @shell_exec($cmd);
+            } elseif (extension_loaded('imagick') && class_exists('\\Imagick')) {
+                try {
+                    $imagick = new \Imagick($tmpPath);
+                    if (method_exists($imagick, 'autoOrient')) {
+                        $imagick->autoOrient();
+                    } elseif (method_exists($imagick, 'autoOrientImage')) {
+                        $imagick->autoOrientImage();
+                    }
+                    $imagick->writeImage($tmpPath);
                     $img = $manager->read($tmpPath);
                     $orientationHandled = true;
+                } catch (\Throwable $e) {
+                    $this->logger->warning('Photo auto-orient failed: ' . $e->getMessage());
                 }
             }
         }
