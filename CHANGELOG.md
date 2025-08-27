@@ -64,6 +64,14 @@
 - Bump version to 0.2.51 [skip ci]
 - Bump version to 0.2.52 [skip ci]
 - Bump version to 0.2.53 [skip ci]
+- Bump version to 0.2.54 [skip ci]
+- Bump version to 0.2.55 [skip ci]
+- Bump version to 0.2.56 [skip ci]
+- Bump version to 0.2.57 [skip ci]
+- Bump version to 0.2.58 [skip ci]
+- Bump version to 0.2.59 [skip ci]
+- Bump version to 0.2.60 [skip ci]
+- Bump version to 0.2.61 [skip ci]
 
 ### Feat
 
@@ -86,12 +94,14 @@
 - Add dynamic canonical and OG URLs
 - Add theme color variables
 - Add dynamic nav placeholder sizing
+- Add responsive offcanvas menu toggle
 
 ### Fix
 
 - Update phpstan config for v2
 - Ensure page content respects dynamic topbar height
 - *(events)* Prevent table frame from clipping actions
+- Respect flex-wrap when sizing nav placeholder
 
 ### Refactor
 
