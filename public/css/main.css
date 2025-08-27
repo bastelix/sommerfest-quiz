@@ -578,7 +578,7 @@ body.admin-page {
 
 .admin-page .topbar {
   height: auto;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .admin-page .topbar .uk-navbar-left {
@@ -618,7 +618,6 @@ body.admin-page {
   }
   .admin-page .topbar {
     height: 56px;
-    flex-wrap: nowrap;
   }
   .admin-page .topbar .uk-navbar-left,
   .admin-page .topbar .uk-navbar-right,
