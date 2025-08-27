@@ -1694,15 +1694,16 @@ document.addEventListener('DOMContentLoaded', function () {
     activateCell.setAttribute('role', 'cell');
     const activateCellLabel = document.createElement('span');
     activateCellLabel.className = 'cell-label uk-hidden@s';
-    activateCellLabel.textContent = labels.labelActive || '';
+    activateCellLabel.textContent = labels.labelCurrent || '';
     activateCell.appendChild(activateCellLabel);
     const activateLabel = document.createElement('label');
     activateLabel.className = 'switch';
-    activateLabel.setAttribute('uk-tooltip', 'title: Aktivieren; pos: top');
+    activateLabel.setAttribute('uk-tooltip', `title: ${labels.tipSelectEvent || ''}; pos: top`);
     const activateInput = document.createElement('input');
-    activateInput.type = 'checkbox';
+    activateInput.type = 'radio';
+    activateInput.name = 'currentEvent';
     activateInput.checked = ev.uid === activeEventUid;
-    activateInput.setAttribute('aria-label', 'Aktivieren');
+    activateInput.setAttribute('aria-label', labels.tipSelectEvent || '');
     const activateSlider = document.createElement('span');
     activateSlider.className = 'slider';
     activateInput.addEventListener('change', () => {
