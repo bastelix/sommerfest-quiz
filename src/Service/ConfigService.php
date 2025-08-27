@@ -239,15 +239,15 @@ class ConfigService
                 $sql = 'INSERT INTO config(' . implode(',', $cols) . ') VALUES(' . $params . ')';
             }
             $stmt = $this->pdo->prepare($sql);
-        foreach ($filtered as $k => $v) {
-            if (is_bool($v)) {
-                $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
-            } elseif ($k === 'colors') {
-                $stmt->bindValue(':' . $k, json_encode($v));
-            } else {
-                $stmt->bindValue(':' . $k, $v);
+            foreach ($filtered as $k => $v) {
+                if (is_bool($v)) {
+                    $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
+                } elseif ($k === 'colors') {
+                    $stmt->bindValue(':' . $k, json_encode($v));
+                } else {
+                    $stmt->bindValue(':' . $k, $v);
+                }
             }
-        }
             $stmt->execute();
             $this->pdo->commit();
         } catch (Throwable $e) {
