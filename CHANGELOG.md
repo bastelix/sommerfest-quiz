@@ -100,6 +100,10 @@
 - Bump version to 0.2.87 [skip ci]
 - Bump version to 0.2.88 [skip ci]
 
+### Fix
+
+- Always show topbar theme, contrast, and help icons
+
 ### Docs
 
 - Remove version bump entries from changelog
