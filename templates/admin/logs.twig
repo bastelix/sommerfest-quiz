@@ -46,19 +46,28 @@
       </div>
     {% endblock %}
   {% endembed %}
-  <div class="uk-container uk-container-expand uk-margin">
-    <h2>app.log</h2>
-    {% if appLog %}
-      <pre class="uk-text-small">{{ appLog|e }}</pre>
-    {% else %}
-      <p class="uk-text-muted">{{ t('text_no_logs') }}</p>
-    {% endif %}
-    <h2>stripe.log</h2>
-    {% if stripeLog %}
-      <pre class="uk-text-small">{{ stripeLog|e }}</pre>
-    {% else %}
-      <p class="uk-text-muted">{{ t('text_no_logs') }}</p>
-    {% endif %}
+  <div class="uk-grid-collapse" uk-grid>
+    <aside class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+      <div class="uk-card uk-card-default uk-card-body qr-sidebar-card">
+        {% include 'admin/_nav.twig' %}
+      </div>
+    </aside>
+    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-expand uk-margin">
+        <h2>app.log</h2>
+        {% if appLog %}
+          <pre class="uk-text-small">{{ appLog|e }}</pre>
+        {% else %}
+          <p class="uk-text-muted">{{ t('text_no_logs') }}</p>
+        {% endif %}
+        <h2>stripe.log</h2>
+        {% if stripeLog %}
+          <pre class="uk-text-small">{{ stripeLog|e }}</pre>
+        {% else %}
+          <p class="uk-text-muted">{{ t('text_no_logs') }}</p>
+        {% endif %}
+      </div>
+    </main>
   </div>
 {% endblock %}
 
