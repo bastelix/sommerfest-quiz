@@ -3,6 +3,7 @@
 let nameInput;
 let nameKey;
 let uidKey;
+let eventUid;
 
 function generateRandomName() {
   const adjectives = [
@@ -27,6 +28,16 @@ function saveName(e) {
   } else {
     localStorage.removeItem(nameKey);
   }
+  let uid = localStorage.getItem(uidKey);
+  if (!uid) {
+    uid = self.crypto?.randomUUID ? self.crypto.randomUUID() : Math.random().toString(36).slice(2);
+    localStorage.setItem(uidKey, uid);
+  }
+  fetch('/api/players', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ event_uid: eventUid, player_name: name, player_uid: uid })
+  }).catch(() => {});
   if (typeof returnUrl !== 'undefined' && returnUrl) {
     window.location.href = returnUrl;
   }
@@ -41,7 +52,7 @@ function deleteName(e) {
 
 document.addEventListener('DOMContentLoaded', () => {
   nameInput = document.getElementById('playerName');
-  const eventUid = window.quizConfig?.event_uid || '';
+  eventUid = window.quizConfig?.event_uid || '';
   nameKey = `qr_player_name:${eventUid}`;
   uidKey = `qr_player_uid:${eventUid}`;
   const storedName = localStorage.getItem(nameKey);
