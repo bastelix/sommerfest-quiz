@@ -57,6 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
   uidKey = `qr_player_uid:${eventUid}`;
   const storedName = localStorage.getItem(nameKey);
   nameInput.value = storedName || generateRandomName();
+  if (typeof t === 'function') {
+    nameInput.placeholder = t('label_player_name');
+  }
   document.getElementById('save-name')?.addEventListener('click', saveName);
   document.getElementById('delete-name')?.addEventListener('click', deleteName);
 });

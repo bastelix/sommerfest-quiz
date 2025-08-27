@@ -1,8 +1,8 @@
 {
+    "id": 2,
     "displayErrorDetails": null,
     "QRUser": null,
-    "QRRemember": null,
-    "logoPath": "\/logo-e1.png",
+    "logoPath": null,
     "pageTitle": null,
     "backgroundColor": null,
     "buttonColor": null,
@@ -16,5 +16,15 @@
     "puzzleWord": null,
     "puzzleFeedback": null,
     "inviteText": null,
-    "event_uid": "e1"
+    "QRRemember": false,
+    "event_uid": "ev1",
+    "qrLabelLine1": null,
+    "qrLabelLine2": null,
+    "qrLogoPath": null,
+    "qrRoundMode": null,
+    "qrLogoPunchout": null,
+    "qrRounded": null,
+    "qrColorTeam": null,
+    "qrColorCatalog": null,
+    "qrColorEvent": null
 }
