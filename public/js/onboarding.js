@@ -34,6 +34,25 @@ document.addEventListener('DOMContentLoaded', () => {
     return /^[a-z0-9-]{3,63}$/.test(subdomain);
   }
 
+  function escape(url) {
+    return encodeURI(url);
+  }
+
+  function isAllowed(url, allowedPaths = []) {
+    try {
+      const parsed = new URL(url, window.location.origin);
+      const domains = [];
+      if (window.location.hostname) domains.push(window.location.hostname.toLowerCase());
+      if (window.mainDomain) domains.push(window.mainDomain.toLowerCase());
+      const host = parsed.hostname.toLowerCase();
+      const domainOk = parsed.protocol === 'https:' && domains.some(d => host === d || host.endsWith('.' + d));
+      const pathOk = !allowedPaths.length || allowedPaths.some(p => parsed.pathname.startsWith(p));
+      return domainOk && pathOk;
+    } catch (e) {
+      return false;
+    }
+  }
+
   const params = new URLSearchParams(window.location.search);
   const sessionId = params.get('session_id');
   const stepParam = params.get('step');
@@ -256,7 +275,11 @@ document.addEventListener('DOMContentLoaded', () => {
           });
           const data = await res.json();
           if (res.ok && data.url) {
-            window.location.href = data.url;
+            if (isAllowed(data.url)) {
+              window.location.href = escape(data.url);
+            } else {
+              console.error('Blocked redirect to untrusted URL:', data.url);
+            }
             return;
           }
           alert(data.error || 'Fehler beim Start der Zahlung.');
@@ -300,7 +323,12 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.removeItem('onboard_imprint_email');
       localStorage.removeItem('onboard_use_as_imprint');
       localStorage.removeItem('onboard_imprint_done');
-      window.location.href = withBase('/onboarding');
+      const onboardingPath = withBase('/onboarding');
+      if (isAllowed(onboardingPath, [onboardingPath])) {
+        window.location.href = escape(onboardingPath);
+      } else {
+        console.error('Blocked redirect to untrusted URL:', onboardingPath);
+      }
     });
   }
 
@@ -541,7 +569,12 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.removeItem('onboard_imprint_email');
       localStorage.removeItem('onboard_use_as_imprint');
       localStorage.removeItem('onboard_imprint_done');
-      window.location.href = `https://${subdomain}.${window.mainDomain}/`;
+      const targetUrl = `https://${subdomain}.${window.mainDomain}/`;
+      if (isAllowed(targetUrl)) {
+        window.location.href = escape(targetUrl);
+      } else {
+        console.error('Blocked redirect to untrusted URL:', targetUrl);
+      }
       return;
     } catch (e) {
       if (taskEls.wait && !taskEls.wait.spinner.hidden && !taskEls.wait.li.querySelector('span:not([uk-spinner])')) {
