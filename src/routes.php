@@ -294,6 +294,31 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/datenschutz', DatenschutzController::class);
     $app->get('/impressum', ImpressumController::class);
     $app->get('/lizenz', LizenzController::class);
+    $app->get('/profile', function (Request $request, Response $response): Response {
+        $view = Twig::fromRequest($request);
+        $pdo = $request->getAttribute('pdo');
+        if (!$pdo instanceof PDO) {
+            $pdo = Database::connectFromEnv();
+        }
+        $configService = new ConfigService($pdo);
+        $config = $configService->getConfig();
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $role = $_SESSION['user']['role'] ?? null;
+        if ($role !== 'admin') {
+            $config = ConfigService::removePuzzleInfo($config);
+        }
+        $params = $request->getQueryParams();
+        $return = (string)($params['return'] ?? '');
+        $eventUid = (string)($config['event_uid'] ?? '');
+
+        return $view->render($response, 'profile.twig', [
+            'config'   => $config,
+            'return'   => $return,
+            'eventUid' => $eventUid,
+        ]);
+    });
     $app->get('/landing', function (Request $request, Response $response) {
         $domainType = $request->getAttribute('domainType');
         if ($domainType === null) {

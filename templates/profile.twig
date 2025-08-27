@@ -1,0 +1,65 @@
+{% extends 'layout.twig' %}
+
+{% block title %}Profil{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+{% endblock %}
+
+{% block body_class %}uk-padding{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}{% endembed %}
+  <div class="uk-container uk-flex uk-flex-center uk-margin-large-top">
+    <div class="uk-width-1-1@s uk-width-1-2@m uk-width-1-3@l">
+      <div class="uk-width-1-1 uk-margin-auto uk-card uk-card-default uk-card-body uk-box-shadow-large">
+        <h3 class="uk-card-title uk-text-center">Profil</h3>
+        <form id="profile-form" class="uk-form-stacked">
+          <div class="uk-margin">
+            <label class="uk-form-label" for="playerName">Spielername</label>
+            <div class="uk-form-controls">
+              <input class="uk-input" type="text" id="playerName" name="playerName" placeholder="Dein Name">
+            </div>
+          </div>
+          <div class="uk-margin">
+            <button id="save-name" class="uk-button uk-button-primary uk-margin-right">Spielername akzeptieren & speichern</button>
+            <button id="delete-name" class="uk-button" type="button">Spielername löschen</button>
+          </div>
+          <p class="uk-text-meta">Name wird lokal im Browser gespeichert</p>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    window.quizConfig = {{ config|json_encode|raw }};
+    const returnUrl = '{{ return }}';
+    document.addEventListener('DOMContentLoaded', () => {
+      const nameInput = document.getElementById('playerName');
+      const saveBtn = document.getElementById('save-name');
+      const deleteBtn = document.getElementById('delete-name');
+      const key = 'playerName:' + (window.quizConfig.event_uid || '');
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        nameInput.value = stored;
+      }
+      saveBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.setItem(key, nameInput.value.trim());
+        if (returnUrl) {
+          window.location.href = returnUrl;
+        }
+      });
+      deleteBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        localStorage.removeItem(key);
+        nameInput.value = '';
+      });
+    });
+  </script>
+{% endblock %}
+
