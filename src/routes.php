@@ -1205,6 +1205,9 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
         $process = new Process([$script]);
+        $process->setTimeout(null);
+        $process->setIdleTimeout(null);
+        $process->disableOutput();
         $process->run();
 
         if (!$process->isSuccessful()) {
