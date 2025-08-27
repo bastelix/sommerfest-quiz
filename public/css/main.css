@@ -274,20 +274,6 @@ body.uk-padding {
   height: 56px;
 }
 
-.topbar .options-toggle {
-  display: none;
-}
-
-@media (max-width: 640px) {
-  .topbar .theme-switch,
-  .topbar .contrast-switch,
-  .topbar .help-switch {
-    display: none;
-  }
-  .topbar .options-toggle {
-    display: flex;
-  }
-}
 
 .event-header-bar {
   background: #fff;

@@ -10,9 +10,6 @@
     </div>
   </div>
       <div class="uk-navbar-right">
-        <a class="uk-navbar-toggle options-toggle" uk-toggle="target: #settings-offcanvas" aria-label="{{ t('settings') }}">
-          <span uk-icon="icon: cog"></span>
-        </a>
         <div class="uk-navbar-item">
           {% block right %}{% endblock %}
         </div>
@@ -30,7 +27,6 @@
         </a>
       </div>
     </nav>
-  {% include 'partials/settings-offcanvas.twig' %}
 {% block headerbar %}{% endblock %}
 {% block nav_placeholder %}
 <div class="nav-placeholder"></div>
