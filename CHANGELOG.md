@@ -99,10 +99,8 @@
 - Bump version to 0.2.86 [skip ci]
 - Bump version to 0.2.87 [skip ci]
 - Bump version to 0.2.88 [skip ci]
-
-### Fix
-
-- Always show topbar theme, contrast, and help icons
+- Bump version to 0.2.89 [skip ci]
+- Bump version to 0.2.90 [skip ci]
 
 ### Docs
 
@@ -140,6 +138,7 @@
 - *(events)* Prevent table frame from clipping actions
 - Respect flex-wrap when sizing nav placeholder
 - Remove empty hamburger menu and align settings toggle
+- Always show topbar icons
 
 ### Refactor
 
