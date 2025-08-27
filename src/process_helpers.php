@@ -35,10 +35,16 @@ function runBackgroundProcess(string $script, array $args = []): void
 }
 
 /**
- * Run a shell script synchronously and return success.
+ * Run a shell script synchronously and capture its output.
  * Falls back to exec if the Symfony Process component is unavailable.
+ *
+ * @param string $script The script to run
+ * @param array $args Arguments passed to the script
+ * @param bool $throwOnError Throw an exception on failure instead of returning the error output
+ *
+ * @return array{success: bool, stdout: string, stderr: string}
  */
-function runSyncProcess(string $script, array $args = []): bool
+function runSyncProcess(string $script, array $args = [], bool $throwOnError = false): array
 {
     $cmd = array_merge([$script], $args);
 
@@ -50,17 +56,46 @@ function runSyncProcess(string $script, array $args = []): bool
         $process = new Process($cmd);
         $process->setTimeout(null);
         $process->setIdleTimeout(null);
-        $process->disableOutput();
         $process->run();
-        return $process->isSuccessful();
+
+        $success = $process->isSuccessful();
+        $stdout = $process->getOutput();
+        $stderr = $process->getErrorOutput();
+
+        if (!$success) {
+            $message = $stderr !== '' ? $stderr : $stdout;
+            error_log('runSyncProcess failed: ' . $message);
+            if ($throwOnError) {
+                throw new \RuntimeException($message);
+            }
+        }
+
+        return ['success' => $success, 'stdout' => $stdout, 'stderr' => $stderr];
     } catch (\Throwable $e) {
         error_log('runSyncProcess failed: ' . $e->getMessage());
+        if ($throwOnError) {
+            throw $e;
+        }
 
         $command = escapeshellarg($script);
         foreach ($args as $arg) {
             $command .= ' ' . escapeshellarg($arg);
         }
-        exec($command, $output, $exitCode);
-        return $exitCode === 0;
+        exec($command . ' 2>&1', $output, $exitCode);
+        $outputString = implode("\n", $output);
+        $success = $exitCode === 0;
+
+        if (!$success) {
+            error_log('runSyncProcess exec fallback failed: ' . $outputString);
+            if ($throwOnError) {
+                throw new \RuntimeException($outputString);
+            }
+        }
+
+        return [
+            'success' => $success,
+            'stdout' => $success ? $outputString : '',
+            'stderr' => $success ? '' : $outputString,
+        ];
     }
 }
