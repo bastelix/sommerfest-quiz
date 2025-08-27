@@ -37,9 +37,22 @@
     const h3 = cal.parentElement.querySelector('h3');
     h3.textContent = monthStart.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
 
-    let html = '<table class="uk-table uk-table-small uk-text-center calendar-table">';
-    html += '<thead><tr><th>Mo</th><th>Di</th><th>Mi</th><th>Do</th><th>Fr</th><th>Sa</th><th>So</th></tr></thead><tbody><tr>';
-    for (let i = 0; i < startWeekday; i++) html += '<td></td>';
+    cal.textContent = '';
+    const table = document.createElement('table');
+    table.className = 'uk-table uk-table-small uk-text-center calendar-table';
+    const thead = document.createElement('thead');
+    const trHead = document.createElement('tr');
+    ['Mo','Di','Mi','Do','Fr','Sa','So'].forEach(d => {
+      const th = document.createElement('th');
+      th.textContent = d;
+      trHead.appendChild(th);
+    });
+    thead.appendChild(trHead);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+    let tr = document.createElement('tr');
+    for (let i = 0; i < startWeekday; i++) tr.appendChild(document.createElement('td'));
 
     const byDate = {};
     state.events.forEach(e => {
@@ -56,31 +69,40 @@
       const key = date.toISOString().slice(0, 10);
       const isToday = key === state.today;
       const hasEvents = !!byDate[key];
-      html += `<td class="${isToday ? 'uk-background-muted uk-text-bold' : ''}"><div>${day}</div>`;
+      const td = document.createElement('td');
+      if (isToday) td.className = 'uk-background-muted uk-text-bold';
+      const dayDiv = document.createElement('div');
+      dayDiv.textContent = day;
+      td.appendChild(dayDiv);
       if (hasEvents) {
-        html += '<div class="cal-events">' +
-          byDate[key].map(ev => {
-            const s = new Date(ev.start).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-            const eTime = new Date(ev.end).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-            const label = `${s}–${eTime} ${short(ev.title)}`;
-            return `<a class="cal-event" href="${withBase('/admin/events/' + ev.id)}" title="${label}"></a>`;
-          }).join('') +
-          '</div>';
+        const eventsDiv = document.createElement('div');
+        eventsDiv.className = 'cal-events';
+        byDate[key].forEach(ev => {
+          const a = document.createElement('a');
+          a.className = 'cal-event';
+          a.href = withBase('/admin/events/' + ev.id);
+          const data = window.safeEventData ? window.safeEventData(ev) : { rangeLabel: '' };
+          a.setAttribute('title', data.rangeLabel);
+          eventsDiv.appendChild(a);
+        });
+        td.appendChild(eventsDiv);
       }
-      html += '</td>';
+      tr.appendChild(td);
       const wd = (startWeekday + day) % 7;
-      if (wd === 0 && day < days) html += '</tr><tr>';
+      if (wd === 0 && day < days) {
+        tbody.appendChild(tr);
+        tr = document.createElement('tr');
+      }
     }
 
     const cellsUsed = startWeekday + days;
     const tail = (7 - (cellsUsed % 7)) % 7;
-    for (let i = 0; i < tail; i++) html += '<td></td>';
-
-    html += '</tr></tbody></table>';
-    cal.innerHTML = html;
+    for (let i = 0; i < tail; i++) tr.appendChild(document.createElement('td'));
+    tbody.appendChild(tr);
+    table.appendChild(tbody);
+    cal.appendChild(table);
   }
 
-  function short(t){ return t.length > 14 ? t.slice(0,12) + '…' : t; }
 
   function renderUpcoming() {
     const ul = document.getElementById('upcoming-list');
@@ -92,11 +114,33 @@
       return start <= state.today && end >= state.today;
     });
     empty.style.display = todayEvents.length ? 'none' : '';
-    ul.innerHTML = [...todayEvents, ...state.upcoming].slice(0,5).map(e => {
-      const dt = new Date(e.start);
-      const when = dt.toLocaleString('de-DE', { weekday:'short', day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
-      return `<li class="uk-flex uk-flex-between uk-flex-middle"><div><div class="uk-text-bold">${e.title}</div><div class="uk-text-meta">${when}</div></div><div><a class="uk-button uk-button-text" href="${withBase('/admin/events/' + e.id)}">Öffnen →</a></div></li>`;
-    }).join('');
+    ul.textContent = '';
+    [...todayEvents, ...state.upcoming].slice(0,5).forEach(e => {
+      const data = window.safeEventData ? window.safeEventData(e) : { title: e.title, when: '' };
+      const li = document.createElement('li');
+      li.className = 'uk-flex uk-flex-between uk-flex-middle';
+
+      const left = document.createElement('div');
+      const titleDiv = document.createElement('div');
+      titleDiv.className = 'uk-text-bold';
+      titleDiv.textContent = data.title;
+      const metaDiv = document.createElement('div');
+      metaDiv.className = 'uk-text-meta';
+      metaDiv.textContent = data.when;
+      left.appendChild(titleDiv);
+      left.appendChild(metaDiv);
+
+      const right = document.createElement('div');
+      const link = document.createElement('a');
+      link.className = 'uk-button uk-button-text';
+      link.href = withBase('/admin/events/' + e.id);
+      link.textContent = 'Öffnen →';
+      right.appendChild(link);
+
+      li.appendChild(left);
+      li.appendChild(right);
+      ul.appendChild(li);
+    });
   }
 
   function renderBadges() {
@@ -128,17 +172,42 @@
       const planName = el.dataset['plan' + capitalize(planKey)] || planKey || '-';
       const limits = sub.limits || {};
       const usage = sub.usage || {};
+      el.textContent = '';
+      const planDiv = document.createElement('div');
+      const strong = document.createElement('strong');
+      strong.textContent = `${labels.plan}: ${planName}`;
+      planDiv.appendChild(strong);
+      el.appendChild(planDiv);
+
       const items = [
         { label: labels.events, used: usage.events, max: limits.maxEvents },
         { label: labels.catalogs, used: usage.catalogs, max: limits.maxCatalogsPerEvent },
         { label: labels.questions, used: usage.questions, max: limits.maxQuestionsPerCatalog }
       ];
-      el.innerHTML = `<div><strong>${labels.plan}: ${planName}</strong></div>` +
-        items.map(it => {
-          const maxText = it.max === null || it.max === undefined ? '∞' : it.max;
+      items.forEach(it => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'uk-margin-small-top';
+        const topDiv = document.createElement('div');
+        topDiv.className = 'uk-flex uk-flex-between';
+        const spanLabel = document.createElement('span');
+        spanLabel.textContent = it.label;
+        const spanUsed = document.createElement('span');
+        const maxText = it.max === null || it.max === undefined ? '∞' : it.max;
+        spanUsed.textContent = `${it.used}${it.max !== null && it.max !== undefined ? ' ' + labels.of + ' ' + maxText : ''}`;
+        topDiv.appendChild(spanLabel);
+        topDiv.appendChild(spanUsed);
+        itemDiv.appendChild(topDiv);
+
+        if (it.max !== null && it.max !== undefined) {
           const pct = typeof it.max === 'number' ? Math.min(100, Math.round((it.used / it.max) * 100)) : 0;
-          return `<div class="uk-margin-small-top"><div class="uk-flex uk-flex-between"><span>${it.label}</span><span>${it.used}${it.max !== null && it.max !== undefined ? ' ' + labels.of + ' ' + maxText : ''}</span></div>${it.max !== null && it.max !== undefined ? `<progress class="uk-progress" value="${pct}" max="100"></progress>` : ''}</div>`;
-        }).join('');
+          const progress = document.createElement('progress');
+          progress.className = 'uk-progress';
+          progress.value = pct;
+          progress.max = 100;
+          itemDiv.appendChild(progress);
+        }
+        el.appendChild(itemDiv);
+      });
     });
   }
 
