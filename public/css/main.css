@@ -597,7 +597,7 @@ body.admin-page {
 
 .admin-page .topbar {
   height: auto;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .admin-page .topbar .theme-switch,
@@ -622,12 +622,17 @@ body.admin-page {
 
 .admin-page #eventSelectWrap {
   flex: 1;
+  min-width: 150px;
+  overflow: hidden;
 }
 
 .admin-page #eventSelectWrap button > span:first-child {
   display: block;
   line-height: 1.2;
   margin-top: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 @media (min-width: 640px) {
