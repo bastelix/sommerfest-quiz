@@ -115,6 +115,13 @@
 - Bump version to 0.2.102 [skip ci]
 - Bump version to 0.2.103 [skip ci]
 - Bump version to 0.2.104 [skip ci]
+- Bump version to 0.2.105 [skip ci]
+- Bump version to 0.2.106 [skip ci]
+- Bump version to 0.2.107 [skip ci]
+- Bump version to 0.2.108 [skip ci]
+- Bump version to 0.2.109 [skip ci]
+- Bump version to 0.2.110 [skip ci]
+- Bump version to 0.2.111 [skip ci]
 
 ### Docs
 
@@ -151,6 +158,7 @@
 - Enforce profile setup for random names
 - Store player names per event
 - Add exponential backoff for db connection
+- Improve topbar accessibility
 
 ### Fix
 
@@ -161,6 +169,7 @@
 - Remove empty hamburger menu and align settings toggle
 - Always show topbar icons
 - Handle missing player name key
+- Align config button to navbar edge
 
 ### Refactor
 
@@ -172,6 +181,7 @@
 ### Style
 
 - Add top spacing to event selector label
+- Match hamburger menu toggle to options button
 
 ### Test
 
