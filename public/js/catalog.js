@@ -623,7 +623,8 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
 
   async function init(){
     const cfg = window.quizConfig || {};
-    if(cfg.QRRestrict){
+    if(cfg.QRRestrict && !cfg.QRRemember){
+      // Ohne Namensübernahme gespeicherte Daten löschen
       sessionStorage.removeItem(playerNameKey);
       sessionStorage.removeItem('quizSolved');
       localStorage.removeItem(playerNameKey);
