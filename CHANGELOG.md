@@ -177,7 +177,7 @@
 - Add exponential backoff for db connection
 - Improve topbar accessibility
 - Pull image before tenant upgrade
-- Allow custom image tag for tenant upgrade
+- Remove Docker tag parameter from tenant upgrade endpoint
 - Consolidate admin toolbar actions
 - Improve navigation accessibility
 
