@@ -2,6 +2,8 @@
 document.addEventListener('DOMContentLoaded', function () {
   const themeToggles = document.querySelectorAll('.theme-toggle');
   const accessibilityToggles = document.querySelectorAll('.accessibility-toggle');
+  const configMenuToggle = document.getElementById('configMenuToggle');
+  const configMenu = document.getElementById('menuDrop');
   const darkStylesheet = document.querySelector('link[href$="dark.css"]');
   const themeIcon = document.getElementById('themeIcon');
   const accessibilityIcon = document.getElementById('accessibilityIcon');
@@ -60,8 +62,29 @@ document.addEventListener('DOMContentLoaded', function () {
     accessibilityIcon.innerHTML = accessible ? accessibilityOnSVG : accessibilityOffSVG;
   }
 
+  function updateThemePressed () {
+    themeToggles.forEach((toggle) => {
+      toggle.setAttribute('aria-pressed', dark ? 'true' : 'false');
+    });
+  }
+
+  function updateAccessibilityPressed () {
+    accessibilityToggles.forEach((toggle) => {
+      toggle.setAttribute('aria-pressed', accessible ? 'true' : 'false');
+    });
+  }
+
+  updateThemePressed();
+  updateAccessibilityPressed();
+
   if (themeToggles.length) {
     themeToggles.forEach((toggle) => {
+      toggle.addEventListener('keydown', function (event) {
+        if (event.key === ' ') {
+          event.preventDefault();
+          toggle.click();
+        }
+      });
       toggle.addEventListener('click', function (event) {
         event.preventDefault();
         dark = document.body.classList.toggle('dark-mode');
@@ -74,6 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (themeIcon) {
           themeIcon.innerHTML = dark ? sunSVG : moonSVG;
         }
+        updateThemePressed();
         try { UIkit.dropdown('#menuDrop').hide(); } catch (e) {}
       });
     });
@@ -81,6 +105,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (accessibilityToggles.length) {
     accessibilityToggles.forEach((toggle) => {
+      toggle.addEventListener('keydown', function (event) {
+        if (event.key === ' ') {
+          event.preventDefault();
+          toggle.click();
+        }
+      });
       toggle.addEventListener('click', function (event) {
         event.preventDefault();
         accessible = document.body.classList.toggle('high-contrast');
@@ -88,6 +118,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (accessibilityIcon) {
           accessibilityIcon.innerHTML = accessible ? accessibilityOnSVG : accessibilityOffSVG;
         }
+        updateAccessibilityPressed();
         try { UIkit.dropdown('#menuDrop').hide(); } catch (e) {}
       });
     });
@@ -97,6 +128,15 @@ document.addEventListener('DOMContentLoaded', function () {
     helpBtn.addEventListener('click', function () {
       try { UIkit.dropdown('#menuDrop').hide(); } catch (e) {}
       UIkit.offcanvas('#helpDrawer').show();
+    });
+  }
+
+  if (configMenuToggle && configMenu) {
+    UIkit.util.on(configMenu, 'show', () => {
+      configMenuToggle.setAttribute('aria-expanded', 'true');
+    });
+    UIkit.util.on(configMenu, 'hide', () => {
+      configMenuToggle.setAttribute('aria-expanded', 'false');
     });
   }
 
