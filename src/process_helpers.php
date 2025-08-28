@@ -73,9 +73,6 @@ function runSyncProcess(string $script, array $args = [], bool $throwOnError = f
         return ['success' => $success, 'stdout' => $stdout, 'stderr' => $stderr];
     } catch (\Throwable $e) {
         error_log('runSyncProcess failed: ' . $e->getMessage());
-        if ($throwOnError) {
-            throw $e;
-        }
 
         $command = escapeshellarg($script);
         foreach ($args as $arg) {
@@ -88,7 +85,7 @@ function runSyncProcess(string $script, array $args = [], bool $throwOnError = f
         if (!$success) {
             error_log('runSyncProcess exec fallback failed: ' . $outputString);
             if ($throwOnError) {
-                throw new \RuntimeException($outputString);
+                throw new \RuntimeException($outputString, 0, $e);
             }
         }
 

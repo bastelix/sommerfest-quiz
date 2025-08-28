@@ -1302,7 +1302,16 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
-        $result = runSyncProcess($script, [$slug]);
+        $body = (array) $request->getParsedBody();
+        $image = isset($body['image']) ? (string) $body['image'] : '';
+        if ($image === '') {
+            $response->getBody()->write(json_encode(['error' => 'Image tag required']));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        $cmd = [$slug, '--image', $image];
+        $result = runSyncProcess($script, $cmd);
         if (!$result['success']) {
             $message = trim($result['stderr'] !== '' ? $result['stderr'] : $result['stdout']);
             $response->getBody()->write(json_encode([
@@ -1315,7 +1324,84 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
-        $response->getBody()->write(json_encode(['status' => 'success', 'slug' => $slug]));
+        $composeFile = $slug === 'main'
+            ? realpath(__DIR__ . '/../docker-compose.yml')
+            : realpath(__DIR__ . '/../tenants/' . $slug . '/docker-compose.yml');
+        $service = $slug === 'main' ? 'slim' : 'app';
+
+        $dockerCmd = ['docker', 'compose'];
+        $composeCheck = runSyncProcess('docker', ['compose', 'version']);
+        if (!$composeCheck['success']) {
+            $composeCheck = runSyncProcess('docker-compose', ['version']);
+            if (!$composeCheck['success']) {
+                $response->getBody()->write(json_encode(['error' => 'docker compose not available']));
+
+                return $response
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus(500);
+            }
+            $dockerCmd = ['docker-compose'];
+        }
+
+        $psArgs = $dockerCmd[0] === 'docker'
+            ? ['compose', '-f', (string) $composeFile, '-p', $slug, 'ps', '-q', $service]
+            : ['-f', (string) $composeFile, '-p', $slug, 'ps', '-q', $service];
+        $psResult = runSyncProcess($dockerCmd[0], $psArgs);
+        if (!$psResult['success']) {
+            $message = trim($psResult['stderr'] !== '' ? $psResult['stderr'] : $psResult['stdout']);
+            $response->getBody()->write(json_encode([
+                'error' => 'Failed to inspect container',
+                'message' => $message,
+            ]));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+        $containerId = trim($psResult['stdout']);
+        if ($containerId === '') {
+            $response->getBody()->write(json_encode([
+                'error' => 'Container not found',
+                'slug' => $slug,
+            ]));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $inspect = runSyncProcess('docker', ['inspect', '-f', '{{.Config.Image}}', $containerId]);
+        if (!$inspect['success']) {
+            $message = trim($inspect['stderr'] !== '' ? $inspect['stderr'] : $inspect['stdout']);
+            $response->getBody()->write(json_encode([
+                'error' => 'Failed to read image',
+                'message' => $message,
+            ]));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+        $currentImage = trim($inspect['stdout']);
+
+        if ($currentImage !== $image) {
+            $response->getBody()->write(json_encode([
+                'error' => 'Image tag mismatch',
+                'expected' => $image,
+                'actual' => $currentImage,
+                'slug' => $slug,
+            ]));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $response->getBody()->write(json_encode([
+            'status' => 'success',
+            'slug' => $slug,
+            'image' => $currentImage,
+        ]));
 
         return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware('admin'));
