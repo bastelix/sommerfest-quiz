@@ -605,7 +605,8 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
         const r = await fetch('/results.json', {headers:{'Accept':'application/json'}});
         if(r.ok){
           const data = await r.json();
-          const user = (sessionStorage.getItem(playerNameKey) || '') || (typeof localStorage !== 'undefined' ? localStorage.getItem(playerNameKey) : '');
+          const key = typeof playerNameKey !== 'undefined' ? playerNameKey : 'quizUser';
+          const user = (sessionStorage.getItem(key) || '') || (typeof localStorage !== 'undefined' ? localStorage.getItem(key) : '');
           data.forEach(entry => {
             if(entry.name === user){
               solved.add(entry.catalog);
