@@ -40,6 +40,7 @@
   <link rel="icon" href="{{ basePath }}/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="{{ basePath }}/css/uikit.min.css">
   {% block head %}{% endblock %}
+  <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
   {% if config is defined and config.colors is defined %}
   <style>
     :root {
@@ -76,6 +77,7 @@
   <script src="{{ basePath }}/js/uikit-icons.min.js" defer></script>
   <script>window.basePath = '{{ basePath }}';</script>
   <script src="{{ basePath }}/js/i18n/{{ locale() == 'en' ? 'en-us' : 'de-de' }}.js" defer></script>
+  <script src="{{ basePath }}/js/topbar.js" defer></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

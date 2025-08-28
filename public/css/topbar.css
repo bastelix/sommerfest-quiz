@@ -1,0 +1,85 @@
+:root{
+  --btn-bg: transparent;
+  --btn-border: rgba(0,0,0,0.3);
+  --btn-border-hover: rgba(0,0,0,0.5);
+  --btn-bg-hover: rgba(27,31,35,0.06);
+  --focus-ring: rgba(3,102,214,0.18);
+  --drop-bg: #fff;
+  --drop-border: rgba(27,31,35,0.12);
+  --text: #111;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --btn-border: rgba(255,255,255,0.3);
+    --btn-border-hover: rgba(255,255,255,0.5);
+    --btn-bg-hover: rgba(255,255,255,0.08);
+    --focus-ring: rgba(100,180,255,0.25);
+    --drop-bg: #1f232a;
+    --drop-border: rgba(255,255,255,0.14);
+    --text: #e6e9ef;
+  }
+}
+body.dark-mode{
+  --btn-border: rgba(255,255,255,0.3);
+  --btn-border-hover: rgba(255,255,255,0.5);
+  --btn-bg-hover: rgba(255,255,255,0.08);
+  --focus-ring: rgba(100,180,255,0.25);
+  --drop-bg: #1f232a;
+  --drop-border: rgba(255,255,255,0.14);
+  --text: #e6e9ef;
+}
+body.high-contrast{
+  --text: #0a0a0a;
+  --drop-bg: #ffffff;
+  --drop-border: #000000;
+  --btn-border: #000000;
+  --btn-border-hover: #000000;
+  --btn-bg-hover: #e6e6e6;
+  --focus-ring: rgba(0,120,255,0.6);
+}
+body.dark-mode.high-contrast{
+  --text: #ffffff;
+  --drop-bg: #000000;
+  --drop-border: #ffffff;
+  --btn-border: #ffffff;
+  --btn-border-hover: #ffffff;
+  --btn-bg-hover: rgba(255,255,255,0.16);
+  --focus-ring: rgba(140,200,255,0.8);
+}
+.git-btn{
+  width:40px;height:40px;padding:0;
+  border-radius:6px;
+  border:1px solid var(--btn-border);
+  background:var(--btn-bg);
+  color:var(--text);
+  display:inline-flex;align-items:center;justify-content:center;
+  box-sizing:border-box;cursor:pointer;
+  transition:background .12s,border-color .12s,box-shadow .12s;
+}
+.git-btn:hover{
+  background:var(--btn-bg-hover);
+  border-color:var(--btn-border-hover);
+}
+.git-btn:focus{
+  outline:none;
+  box-shadow:0 0 0 3px var(--focus-ring);
+}
+.git-btn svg{width:22px;height:22px;}
+#offcanvas-toggle.git-btn{border-color:var(--btn-border);}
+#menuDrop{
+  background:var(--drop-bg);
+  border:1px solid var(--drop-border);
+  border-radius:8px;
+  padding:8px;
+  color:var(--text);
+  min-width:auto !important;
+  width:fit-content !important;
+}
+.uk-dropdown-nav{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.uk-dropdown-nav, .uk-dropdown-nav *{
+  color:var(--text);
+}
