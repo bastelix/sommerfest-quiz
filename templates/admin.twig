@@ -52,19 +52,15 @@
     {% block help_button %}
       <a id="helpBtn" href="#" class="uk-button uk-button-link" uk-icon="icon: question; ratio: 0.95" title="{{ t('help') }}" aria-label="{{ t('help') }}"></a>
     {% endblock %}
-    {% block nav_placeholder %}
+    {% block headerbar %}
       {% set activeRoute = currentPath|split('/admin/')|last %}
       {% if activeRoute == '' %}
         {% set activeRoute = 'dashboard' %}
       {% endif %}
       {% if activeRoute == 'dashboard' %}
-        <div class="nav-placeholder">
-          <div class="uk-container uk-container-large">
-            <h2 class="uk-heading-bullet">Willkommen {{ username }}</h2>
-          </div>
+        <div class="uk-container uk-container-large">
+          <h2 class="uk-heading-bullet">Willkommen {{ username }}</h2>
         </div>
-      {% else %}
-        <div class="nav-placeholder"></div>
       {% endif %}
     {% endblock %}
   {% endembed %}
