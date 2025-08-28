@@ -50,7 +50,6 @@ body.dark-mode.high-contrast{
   width:40px;height:40px;padding:0;
   border-radius:6px;
   border:1px solid var(--btn-border);
-  background:var(--btn-bg);
   color:var(--text);
   display:inline-flex;align-items:center;justify-content:center;
   box-sizing:border-box;cursor:pointer;

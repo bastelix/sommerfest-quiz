@@ -207,41 +207,9 @@ body.uk-padding {
   white-space: nowrap;
 }
 
-.theme-switch,
-.contrast-switch,
-.help-switch {
-  display: inline-block;
-  margin-left: 0;
-  margin-top: 0;
-}
-
-.theme-switch button {
-  border: none;
-  background: transparent;
-}
-
-.contrast-switch button {
-  border: none;
-  background: transparent;
-}
-
-.help-switch a {
-  border: none;
-  background: transparent;
-}
-
-.topbar .theme-switch button,
-.topbar .contrast-switch button,
-.topbar .help-switch a {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.2);
+.uk-icon-button {
+  border-radius: 6px;
+  border: 1px solid var(--btn-border, #ddd);
 }
 
 .topbar .uk-navbar-item,
@@ -256,12 +224,6 @@ body.uk-padding {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.topbar .theme-switch,
-.topbar .contrast-switch,
-.topbar .help-switch {
-  padding-left: 0.25rem;
-  padding-right: 0.25rem;
 }
 .topbar .uk-navbar-center {
   flex: 1;
@@ -600,11 +562,6 @@ body.admin-page {
   flex-wrap: nowrap;
 }
 
-.admin-page .topbar .theme-switch,
-.admin-page .topbar .contrast-switch {
-  display: none;
-}
-
 .admin-page .topbar .uk-navbar-left {
   order: 1;
 }
@@ -669,7 +626,8 @@ body.admin-page {
   line-height: 56px;
   font-size: clamp(20px, 1.5vw + 16px, 24px);
   z-index: 1100;
-  border-radius: 50%;
+  border-radius: 6px;
+  border: 1px solid var(--btn-border, #ddd);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 .fab-save {
@@ -708,7 +666,8 @@ body.admin-page {
   bottom: 2px;
   background-color: white;
   transition: 0.4s;
-  border-radius: 50%;
+  border-radius: 6px;
+  border: 1px solid var(--btn-border, #ddd);
 }
 .switch input:checked + .slider {
   background-color: var(--accent-color);
