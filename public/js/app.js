@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const accessibilityToggles = document.querySelectorAll('.accessibility-toggle');
   const configMenuToggle = document.getElementById('configMenuToggle');
   const configMenu = document.getElementById('menuDrop');
+  const offcanvasToggle = document.getElementById('offcanvas-toggle');
+  const offcanvas = document.getElementById('qr-offcanvas');
   const darkStylesheet = document.querySelector('link[href$="dark.css"]');
   const themeIcon = document.getElementById('themeIcon');
   const accessibilityIcon = document.getElementById('accessibilityIcon');
@@ -137,6 +139,15 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     UIkit.util.on(configMenu, 'hide', () => {
       configMenuToggle.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  if (offcanvasToggle && offcanvas) {
+    UIkit.util.on(offcanvas, 'show', () => {
+      offcanvasToggle.setAttribute('aria-expanded', 'true');
+    });
+    UIkit.util.on(offcanvas, 'hide', () => {
+      offcanvasToggle.setAttribute('aria-expanded', 'false');
     });
   }
 
