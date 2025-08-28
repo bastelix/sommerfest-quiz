@@ -134,10 +134,11 @@
 - Bump version to 0.2.121 [skip ci]
 - Bump version to 0.2.122 [skip ci]
 - Bump version to 0.2.123 [skip ci]
-
-### Feat
-
-- Tenant upgrade endpoint no longer requires Docker tag
+- Bump version to 0.2.124 [skip ci]
+- Bump version to 0.2.125 [skip ci]
+- Bump version to 0.2.126 [skip ci]
+- Bump version to 0.2.127 [skip ci]
+- Bump version to 0.2.128 [skip ci]
 
 ### Docs
 
@@ -177,6 +178,7 @@
 - Improve topbar accessibility
 - Pull image before tenant upgrade
 - Allow custom image tag for tenant upgrade
+- Consolidate admin toolbar actions
 - Improve navigation accessibility
 
 ### Fix
@@ -201,6 +203,8 @@
 
 - Add top spacing to event selector label
 - Match hamburger menu toggle to options button
+- Improve landing topbar contrast
+- Square icon buttons
 
 ### Test
 
