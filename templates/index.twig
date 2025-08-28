@@ -48,10 +48,11 @@
   </script>
   <script>
     function enforceProfile() {
-      if (!window.quizConfig?.randomNames) {
+      const cfg = window.quizConfig || {};
+      if (!cfg.randomNames || cfg.QRUser || cfg.QRRestrict) {
         return;
       }
-      const eventUid = window.quizConfig?.event_uid || '';
+      const eventUid = cfg.event_uid || '';
       const nameKey = `qr_player_name:${eventUid}`;
       if (!localStorage.getItem(nameKey)) {
         location.replace('/profile?return=' + encodeURIComponent(location.href));
