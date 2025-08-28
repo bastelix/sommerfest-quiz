@@ -1,12 +1,12 @@
 :root{
   --btn-bg: transparent;
-  --btn-border: rgba(0,0,0,0.3);
-  --btn-border-hover: rgba(0,0,0,0.5);
+  --btn-border: rgba(0,0,0,0.6);
+  --btn-border-hover: rgba(0,0,0,0.8);
   --btn-bg-hover: rgba(27,31,35,0.06);
-  --focus-ring: rgba(3,102,214,0.18);
+  --focus-ring: rgba(3,102,214,0.25);
   --drop-bg: #fff;
   --drop-border: rgba(27,31,35,0.12);
-  --text: #111;
+  --text: #000;
 }
 @media (prefers-color-scheme: dark){
   :root{
@@ -64,7 +64,7 @@ body.dark-mode.high-contrast{
   outline:none;
   box-shadow:0 0 0 3px var(--focus-ring);
 }
-.git-btn svg{width:22px;height:22px;}
+.git-btn svg{width:24px;height:24px;}
 #offcanvas-toggle.git-btn{border-color:var(--btn-border);}
 #menuDrop{
   background:var(--drop-bg);
