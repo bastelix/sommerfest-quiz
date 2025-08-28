@@ -1287,7 +1287,15 @@ return function (\Slim\App $app, TranslationService $translator) {
                 ->withStatus(500);
         }
 
-        $result = runSyncProcess($script, [$slug]);
+        $body = (array) $request->getParsedBody();
+        $image = isset($body['image']) ? (string) $body['image'] : '';
+        $cmd = [$slug];
+        if ($image !== '') {
+            $cmd[] = '--image';
+            $cmd[] = $image;
+        }
+
+        $result = runSyncProcess($script, $cmd);
         if (!$result['success']) {
             $message = trim($result['stderr'] !== '' ? $result['stderr'] : $result['stdout']);
             $response->getBody()->write(json_encode([
