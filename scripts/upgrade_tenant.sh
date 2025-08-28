@@ -2,35 +2,12 @@
 # Upgrade tenant or main container using locally built image
 set -e
 
-IMAGE_TAG=""
-ARG=""
-
-while [ $# -gt 0 ]; do
-  case "$1" in
-    --image)
-      if [ -n "$2" ]; then
-        IMAGE_TAG="$2"
-        shift 2
-      else
-        echo "--image requires a tag" >&2
-        exit 1
-      fi
-      ;;
-    *)
-      if [ -n "$ARG" ]; then
-        echo "Usage: $0 <tenant-slug>|--main [--image <tag>]" >&2
-        exit 1
-      fi
-      ARG="$1"
-      shift
-      ;;
-  esac
-done
-
-if [ -z "$ARG" ]; then
-  echo "Usage: $0 <tenant-slug>|--main [--image <tag>]" >&2
+if [ $# -ne 1 ]; then
+  echo "Usage: $0 <tenant-slug>|--main" >&2
   exit 1
 fi
+
+ARG="$1"
 
 if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
   DOCKER_COMPOSE="docker compose"
@@ -59,9 +36,10 @@ if [ ! -f "$COMPOSE_FILE" ]; then
   exit 1
 fi
 
-if [ -n "$IMAGE_TAG" ] && [ "$SLUG" != "main" ]; then
-  if ! sed -i "0,/^[[:space:]]*image:/s#^[[:space:]]*image:.*#  image: $IMAGE_TAG#" "$COMPOSE_FILE"; then
-    echo "failed to update image tag" >&2
+IMAGE="${APP_IMAGE:-sommerfest-quiz:latest}"
+if [ "$SERVICE" = "app" ]; then
+  if ! sed -i "0,/^[[:space:]]*image:/s#^[[:space:]]*image:.*#  image: $IMAGE#" "$COMPOSE_FILE"; then
+    echo "failed to update image" >&2
     exit 1
   fi
 fi
