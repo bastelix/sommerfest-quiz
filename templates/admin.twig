@@ -925,13 +925,51 @@
           </div>
 
           <div class="uk-width-auto uk-flex uk-flex-wrap uk-margin-small-top@s">
-            <button id="tenantExportBtn" class="uk-button uk-button-default uk-margin-small-right uk-margin-small-bottom">Exportieren</button>
-            <button id="tenantReportBtn" class="uk-button uk-button-default uk-margin-small-right uk-margin-small-bottom">Auswertung</button>
-            <button id="tenantColumnBtn" class="uk-button uk-button-default uk-margin-small-right uk-margin-small-bottom">Spalten</button>
-            <button id="tenantSyncBtn" class="uk-button uk-button-default uk-margin-small-right uk-margin-small-bottom">Sync</button>
-            <button class="uk-button uk-button-default uk-margin-small-bottom" data-action="build-docker">
-              {{ t('action_build_image') }}
-            </button>
+            <button
+              class="uk-icon-button uk-margin-small-right"
+              uk-icon="icon: more"
+              uk-tooltip="title: {{ t('menu') }}; pos: bottom"
+              aria-label="{{ t('menu') }}"
+              type="button"></button>
+            <div uk-dropdown="mode: click; pos: bottom-right">
+              <ul class="uk-nav uk-dropdown-nav">
+                <li>
+                  <button
+                    id="tenantExportBtn"
+                    type="button"
+                    class="uk-button uk-button-text uk-width-1-1 uk-text-left"
+                    aria-label="Exportieren">Exportieren</button>
+                </li>
+                <li>
+                  <button
+                    id="tenantReportBtn"
+                    type="button"
+                    class="uk-button uk-button-text uk-width-1-1 uk-text-left"
+                    aria-label="Auswertung">Auswertung</button>
+                </li>
+                <li>
+                  <button
+                    id="tenantColumnBtn"
+                    type="button"
+                    class="uk-button uk-button-text uk-width-1-1 uk-text-left"
+                    aria-label="Spalten">Spalten</button>
+                </li>
+                <li>
+                  <button
+                    id="tenantSyncBtn"
+                    type="button"
+                    class="uk-button uk-button-text uk-width-1-1 uk-text-left"
+                    aria-label="Sync">Sync</button>
+                </li>
+                <li>
+                  <button
+                    type="button"
+                    class="uk-button uk-button-text uk-width-1-1 uk-text-left"
+                    data-action="build-docker"
+                    aria-label="{{ t('action_build_image') }}">{{ t('action_build_image') }}</button>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 
