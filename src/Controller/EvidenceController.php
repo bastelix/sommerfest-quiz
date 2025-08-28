@@ -123,10 +123,16 @@ class EvidenceController
             } elseif (extension_loaded('imagick') && class_exists('\\Imagick')) {
                 try {
                     $imagick = new \Imagick($tmpPath);
-                    if (method_exists($imagick, 'autoOrient')) {
+                    try {
+                        // korrigiert die Ausrichtung anhand der EXIF-Orientation
                         $imagick->autoOrient();
-                    } elseif (method_exists($imagick, 'autoOrientImage')) {
-                        $imagick->autoOrientImage();
+                    } catch (\ImagickException $e) {
+                        // Fallback: harte Normalisierung der Orientation (Top-Left)
+                        try {
+                            $imagick->setImageOrientation(\Imagick::ORIENTATION_TOPLEFT);
+                        } catch (\Throwable $ignore) {
+                            // no-op
+                        }
                     }
                     $imagick->writeImage($tmpPath);
                     $img = $manager->read($tmpPath);
