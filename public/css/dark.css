@@ -95,9 +95,8 @@ body .topbar {
   padding-top: env(safe-area-inset-top);
 }
 
-body .topbar .theme-switch button,
-body .topbar .contrast-switch button,
-body .topbar .help-switch a {
+body .git-btn,
+body .uk-icon-button:not(.uk-button-primary) {
   background-color: rgba(255, 255, 255, 0.1);
   border: 1px solid #444;
 }
