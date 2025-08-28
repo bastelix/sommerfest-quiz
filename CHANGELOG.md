@@ -139,10 +139,12 @@
 - Bump version to 0.2.126 [skip ci]
 - Bump version to 0.2.127 [skip ci]
 - Bump version to 0.2.128 [skip ci]
+- Bump version to 0.2.129 [skip ci]
 
 ### Docs
 
 - Remove version bump entries from changelog
+- Note removal of docker tag for tenant upgrade
 
 ### Feat
 
@@ -177,7 +179,7 @@
 - Add exponential backoff for db connection
 - Improve topbar accessibility
 - Pull image before tenant upgrade
-- Remove Docker tag parameter from tenant upgrade endpoint
+- Allow custom image tag for tenant upgrade
 - Consolidate admin toolbar actions
 - Improve navigation accessibility
 
