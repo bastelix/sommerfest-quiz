@@ -2529,7 +2529,7 @@ document.addEventListener('DOMContentLoaded', function () {
           actionTd.innerHTML = `
             <div class="uk-inline">
               <a class="uk-icon-button" uk-icon="more-vertical" href="#"></a>
-              <div uk-dropdown="mode: click; pos: bottom-right">
+              <div uk-dropdown="mode: click; pos: bottom-right; container: body">
                 <ul class="uk-nav uk-dropdown-nav">
                   <li class="uk-nav-header">Aktionen</li>
                   <li><a href="#" data-action="welcome" data-sub="${safeSub}"><span uk-icon="mail" class="uk-margin-small-right"></span>Willkommensmail</a></li>
@@ -2565,7 +2565,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
                 <div>
                   <a class="uk-icon-button" uk-icon="more-vertical" href="#"></a>
-                  <div uk-dropdown="mode: click; pos: bottom-right">
+                  <div uk-dropdown="mode: click; pos: bottom-right; container: body">
                     <ul class="uk-nav uk-dropdown-nav">
                       <li class="uk-nav-header">Aktionen</li>
                       <li><a href="#" data-action="welcome" data-sub="${safeSub}">Willkommensmail</a></li>
