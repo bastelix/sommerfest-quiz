@@ -1241,7 +1241,7 @@ async function runQuiz(questions, skipIntro){
       div.appendChild(nameBtn);
     }
 
-    startBtn.addEventListener('click', async () => {
+    startBtn.addEventListener('click', async() => {
       if(cfg.QRRestrict){
         alert('Nur Registrierung per QR-Code erlaubt');
         return;
