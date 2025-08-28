@@ -907,9 +907,9 @@
         <h2 class="uk-heading-bullet">{{ t('heading_tenants') }}</h2>
 
         <!-- FILTER / TOOLBAR -->
-        <div class="uk-flex uk-flex-wrap uk-flex-middle uk-margin">
-          <div class="uk-margin-small-right">
-            <select id="tenantStatusFilter" class="uk-select uk-form-small" aria-label="Status filtern">
+        <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
+          <div class="uk-width-auto">
+            <select id="tenantStatusFilter" class="uk-select" aria-label="Status filtern">
               <option value="">Alle</option>
               <option value="active">Aktiv</option>
               <option value="canceled">Gekündigt</option>
@@ -917,19 +917,19 @@
             </select>
           </div>
 
-          <div class="uk-margin-small-right uk-width-expand">
+          <div class="uk-width-expand">
             <div class="uk-inline uk-width-1-1">
               <span class="uk-form-icon" uk-icon="icon: search"></span>
-              <input id="tenantSearchInput" class="uk-input uk-form-small" type="search" placeholder="Suchen (Subdomain, Kunde, E-Mail)">
+              <input id="tenantSearchInput" class="uk-input" type="search" placeholder="Suchen (Subdomain, Kunde, E-Mail)">
             </div>
           </div>
 
-          <div class="uk-flex uk-flex-wrap uk-margin-small-top@s">
-            <button id="tenantExportBtn" class="uk-button uk-button-default uk-button-small uk-margin-small-right uk-margin-small-bottom">Exportieren</button>
-            <button id="tenantReportBtn" class="uk-button uk-button-default uk-button-small uk-margin-small-right uk-margin-small-bottom">Auswertung</button>
-            <button id="tenantColumnBtn" class="uk-button uk-button-default uk-button-small uk-margin-small-right uk-margin-small-bottom">Spalten</button>
-            <button id="tenantSyncBtn" class="uk-button uk-button-default uk-button-small uk-margin-small-right uk-margin-small-bottom">Sync</button>
-            <button class="uk-button uk-button-default uk-button-small uk-margin-small-bottom" data-action="build-docker">
+          <div class="uk-width-auto uk-flex uk-flex-wrap uk-margin-small-top@s">
+            <button id="tenantExportBtn" class="uk-button uk-button-default uk-margin-small-right uk-margin-small-bottom">Exportieren</button>
+            <button id="tenantReportBtn" class="uk-button uk-button-default uk-margin-small-right uk-margin-small-bottom">Auswertung</button>
+            <button id="tenantColumnBtn" class="uk-button uk-button-default uk-margin-small-right uk-margin-small-bottom">Spalten</button>
+            <button id="tenantSyncBtn" class="uk-button uk-button-default uk-margin-small-right uk-margin-small-bottom">Sync</button>
+            <button class="uk-button uk-button-default uk-margin-small-bottom" data-action="build-docker">
               {{ t('action_build_image') }}
             </button>
           </div>
