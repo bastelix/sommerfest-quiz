@@ -603,7 +603,7 @@ body.admin-page {
 
 .admin-page .topbar {
   height: auto;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 
 .admin-page .topbar .theme-switch,
