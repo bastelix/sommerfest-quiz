@@ -131,6 +131,9 @@
 - Bump version to 0.2.118 [skip ci]
 - Bump version to 0.2.119 [skip ci]
 - Bump version to 0.2.120 [skip ci]
+- Bump version to 0.2.121 [skip ci]
+- Bump version to 0.2.122 [skip ci]
+- Bump version to 0.2.123 [skip ci]
 
 ### Docs
 
@@ -170,6 +173,7 @@
 - Improve topbar accessibility
 - Pull image before tenant upgrade
 - Allow custom image tag for tenant upgrade
+- Improve navigation accessibility
 
 ### Fix
 
