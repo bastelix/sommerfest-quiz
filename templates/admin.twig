@@ -908,7 +908,7 @@
 
         <!-- FILTER / TOOLBAR -->
         <div class="uk-grid-small uk-flex-middle uk-margin" uk-grid>
-          <div class="uk-width-auto">
+          <div class="uk-width-auto uk-flex uk-flex-middle">
             <select id="tenantStatusFilter" class="uk-select" aria-label="Status filtern">
               <option value="">Alle</option>
               <option value="active">Aktiv</option>
@@ -917,14 +917,14 @@
             </select>
           </div>
 
-          <div class="uk-width-expand">
+          <div class="uk-width-expand uk-flex uk-flex-middle">
             <div class="uk-inline uk-width-1-1">
               <span class="uk-form-icon" uk-icon="icon: search"></span>
               <input id="tenantSearchInput" class="uk-input" type="search" placeholder="Suchen (Subdomain, Kunde, E-Mail)">
             </div>
           </div>
 
-          <div class="uk-width-auto uk-flex uk-flex-wrap uk-margin-small-top@s">
+          <div class="uk-width-auto uk-flex uk-flex-middle uk-flex-wrap uk-margin-small-top@s">
             <button id="tenantExportBtn" class="uk-button uk-button-default uk-margin-small-right uk-margin-small-bottom">Exportieren</button>
             <button id="tenantReportBtn" class="uk-button uk-button-default uk-margin-small-right uk-margin-small-bottom">Auswertung</button>
             <button id="tenantColumnBtn" class="uk-button uk-button-default uk-margin-small-right uk-margin-small-bottom">Spalten</button>
