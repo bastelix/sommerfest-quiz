@@ -111,6 +111,10 @@
 - Bump version to 0.2.98 [skip ci]
 - Bump version to 0.2.99 [skip ci]
 - Bump version to 0.2.100 [skip ci]
+- Bump version to 0.2.101 [skip ci]
+- Bump version to 0.2.102 [skip ci]
+- Bump version to 0.2.103 [skip ci]
+- Bump version to 0.2.104 [skip ci]
 
 ### Docs
 
@@ -156,6 +160,7 @@
 - Respect flex-wrap when sizing nav placeholder
 - Remove empty hamburger menu and align settings toggle
 - Always show topbar icons
+- Handle missing player name key
 
 ### Refactor
 
