@@ -173,6 +173,7 @@
 - Improve topbar accessibility
 - Pull image before tenant upgrade
 - Allow custom image tag for tenant upgrade
+- Improve navigation accessibility
 
 ### Fix
 
