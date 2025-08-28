@@ -173,7 +173,7 @@ body.uk-padding {
 }
 
 .topbar {
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
   right: 0;
@@ -273,11 +273,6 @@ body.uk-padding {
   width: 100%;
   justify-content: center;
 }
-
-.nav-placeholder {
-  height: 56px;
-}
-
 
 .event-header-bar {
   background: #fff;
@@ -391,7 +386,6 @@ a.uk-accordion-title {
 @media print {
   .topbar,
   .sticky-tabs,
-  .nav-placeholder,
   #adminTabs,
   .site-footer,
   .footer-menu,
@@ -636,10 +630,6 @@ body.admin-page {
   margin-top: 0;
 }
 
-.admin-page .nav-placeholder {
-  height: 112px;
-}
-
 @media (min-width: 640px) {
   #adminTabs {
     display: flex;
@@ -661,9 +651,6 @@ body.admin-page {
   .admin-page #eventSelectWrap {
     flex: 0;
     min-width: 220px;
-  }
-  .admin-page .nav-placeholder {
-    height: 56px;
   }
 }
 
