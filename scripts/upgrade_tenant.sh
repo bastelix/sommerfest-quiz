@@ -2,12 +2,34 @@
 # Upgrade tenant or main container using locally built image
 set -e
 
-if [ $# -ne 1 ]; then
-  echo "Usage: $0 <tenant-slug>|--main" >&2
+usage() {
+  echo "Usage: $0 [--verbose] [--no-pull] <tenant-slug>|--main" >&2
   exit 1
-fi
+}
 
-ARG="$1"
+VERBOSE=0
+PULL=1
+ARG=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -v|--verbose)
+      VERBOSE=1
+      ;;
+    --no-pull)
+      PULL=0
+      ;;
+    -*)
+      usage
+      ;;
+    *)
+      [ -n "$ARG" ] && usage
+      ARG="$1"
+      ;;
+  esac
+  shift
+done
+
+[ -z "$ARG" ] && usage
 
 if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
   DOCKER_COMPOSE="docker compose"
@@ -38,18 +60,28 @@ fi
 
 IMAGE="${APP_IMAGE:-sommerfest-quiz:latest}"
 if [ "$SERVICE" = "app" ]; then
-  if ! sed -i "0,/^[[:space:]]*image:/s#^[[:space:]]*image:.*#  image: $IMAGE#" "$COMPOSE_FILE"; then
+  if ! sed -i.bak "0,/^[[:space:]]*image:/s#^[[:space:]]*image:.*#  image: $IMAGE#" "$COMPOSE_FILE"; then
     echo "failed to update image" >&2
     exit 1
   fi
+  rm -f "$COMPOSE_FILE.bak"
 fi
 
-if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" pull "$SERVICE" >/dev/null 2>&1; then
-  echo "pull failed" >&2
-  exit 1
+run() {
+  if [ "$VERBOSE" -eq 1 ]; then
+    "$@"
+  else
+    "$@" >/dev/null 2>&1
+  fi
+}
+
+if [ "$PULL" -eq 1 ]; then
+  if ! run $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" pull "$SERVICE"; then
+    echo "pull failed, continuing with existing image" >&2
+  fi
 fi
 
-if ! $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" up -d --no-deps --force-recreate "$SERVICE" >/dev/null 2>&1; then
+if ! run $DOCKER_COMPOSE -f "$COMPOSE_FILE" -p "$SLUG" up -d --no-deps --force-recreate "$SERVICE"; then
   echo "upgrade failed" >&2
   exit 1
 fi
