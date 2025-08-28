@@ -135,6 +135,10 @@
 - Bump version to 0.2.122 [skip ci]
 - Bump version to 0.2.123 [skip ci]
 
+### Feat
+
+- Tenant upgrade endpoint no longer requires Docker tag
+
 ### Docs
 
 - Remove version bump entries from changelog
