@@ -249,6 +249,7 @@
     window.csrfToken = '{{ csrf_token|e('js') }}';
     window.stripeConfigured = {{ stripe_configured ? 'true' : 'false' }};
   </script>
+  <script src="{{ basePath }}/js/app.js"></script>
   <script src="{{ basePath }}/js/onboarding.js"></script>
 {% endblock %}
 
