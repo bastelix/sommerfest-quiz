@@ -13,6 +13,7 @@
   "competitionMode": false,
   "teamResults": true,
   "photoUpload": true,
+  "collectPlayerUid": false,
   "puzzleWordEnabled": true,
   "puzzleWord": "",
   "puzzleFeedback": "",

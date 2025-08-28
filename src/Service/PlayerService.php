@@ -31,4 +31,20 @@ class PlayerService
         );
         $stmt->execute([$eventUid, $playerName, $playerUid]);
     }
+
+    /**
+     * Retrieve a player's name by event and UID.
+     */
+    public function findName(string $eventUid, string $playerUid): ?string
+    {
+        if ($eventUid === '' || $playerUid === '') {
+            return null;
+        }
+        $stmt = $this->pdo->prepare(
+            'SELECT player_name FROM players WHERE event_uid = ? AND player_uid = ?'
+        );
+        $stmt->execute([$eventUid, $playerUid]);
+        $name = $stmt->fetchColumn();
+        return $name === false ? null : (string) $name;
+    }
 }

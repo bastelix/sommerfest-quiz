@@ -30,5 +30,12 @@ class PlayerProfileTest extends TestCase
 
         $name = $pdo->query("SELECT player_name FROM players WHERE event_uid='ev1' AND player_uid='uid1'")?->fetchColumn();
         $this->assertSame('Alice', $name);
+
+        $getReq = $this->createRequest('GET', '/api/players?event_uid=ev1&player_uid=uid1');
+        $getRes = $app->handle($getReq);
+        $this->assertSame(200, $getRes->getStatusCode());
+        $this->assertSame('application/json', $getRes->getHeaderLine('Content-Type'));
+        $body = (string) $getRes->getBody();
+        $this->assertSame('{"player_name":"Alice"}', $body);
     }
 }
