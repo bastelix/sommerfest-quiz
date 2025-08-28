@@ -193,6 +193,10 @@ body.uk-padding {
   align-items: center;
 }
 
+.topbar .uk-navbar-right {
+  margin-left: auto;
+}
+
 .topbar .uk-navbar-right > * {
   flex-shrink: 0;
 }
