@@ -56,6 +56,12 @@
         {% else %}
           <p class="uk-text-muted">{{ t('text_no_logs') }}</p>
         {% endif %}
+        <h2>docker slim</h2>
+        {% if slimLog %}
+          <pre class="uk-text-small">{{ slimLog|e }}</pre>
+        {% else %}
+          <p class="uk-text-muted">{{ t('text_no_logs') }}</p>
+        {% endif %}
       </div>
     </main>
   </div>
