@@ -167,18 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const originalHtml = el.innerHTML;
       const text = (el.textContent || '').trim();
       el.innerHTML = text ? `<span class="uk-margin-small-right" uk-spinner></span>${text}` : '<span uk-spinner></span>';
-      const tag = window.prompt(window.transDockerTagPrompt || 'Neues Docker-Tag:');
-      if (tag === null) {
-        el.innerHTML = originalHtml;
-        el.classList.remove('uk-disabled');
-        return;
-      }
-      const opts = { method: 'POST' };
-      if ((tag || '').trim() !== '') {
-        opts.headers = { 'Content-Type': 'application/json' };
-        opts.body = JSON.stringify({ image: tag.trim() });
-      }
-      apiFetch('/api/tenants/' + encodeURIComponent(sub) + '/upgrade', opts)
+      apiFetch('/api/tenants/' + encodeURIComponent(sub) + '/upgrade', { method: 'POST' })
         .then(r => r.json().then(data => ({ ok: r.ok, data })))
         .then(({ ok, data }) => {
           if (!ok) throw new Error(data.error || 'Fehler');

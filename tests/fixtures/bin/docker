@@ -1,0 +1,24 @@
+#!/bin/sh
+if [ "$1" = "compose" ]; then
+  shift
+  if [ "$1" = "version" ]; then
+    echo "Docker Compose version v2"
+    exit 0
+  fi
+  for arg in "$@"; do
+    case "$arg" in
+      ps)
+        echo "container123"
+        exit 0
+        ;;
+      pull|up)
+        :
+        ;;
+    esac
+  done
+  exit 0
+elif [ "$1" = "inspect" ]; then
+  echo "${APP_IMAGE:-sommerfest-quiz:latest}"
+  exit 0
+fi
+exit 0
