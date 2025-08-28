@@ -18,6 +18,7 @@ class AdminLogsController
     {
         $appLog = LogService::tail('app');
         $stripeLog = LogService::tail('stripe');
+        $slimLog = LogService::tailDocker('slim-1');
         $view = Twig::fromRequest($request);
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
@@ -26,6 +27,7 @@ class AdminLogsController
         return $view->render($response, 'admin/logs.twig', [
             'appLog' => $appLog,
             'stripeLog' => $stripeLog,
+            'slimLog' => $slimLog,
             'role' => $role,
             'currentPath' => $request->getUri()->getPath(),
             'domainType' => $request->getAttribute('domainType'),
