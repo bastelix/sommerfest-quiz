@@ -87,9 +87,17 @@
 <nav class="uk-navbar-container uk-padding-small topbar" uk-navbar>
     <div class="uk-navbar-left">
       <div class="uk-navbar-item">
-        <a id="offcanvas-toggle" class="uk-navbar-toggle uk-hidden@m" uk-toggle="target: #qr-offcanvas" aria-label="{{ t('menu') }}">
-          <span uk-navbar-toggle-icon></span>
-        </a>
+        <button id="offcanvas-toggle"
+                type="button"
+                class="uk-button uk-button-default git-btn uk-hidden@m"
+                uk-toggle="target: #qr-offcanvas"
+                aria-label="{{ t('menu') }}">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <line x1="4" y1="6" x2="20" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <line x1="4" y1="18" x2="20" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
         {% block left %}{% endblock %}
       </div>
     </div>
