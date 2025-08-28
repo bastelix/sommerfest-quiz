@@ -632,7 +632,8 @@ body.admin-page {
 
 .admin-page #eventSelectWrap button > span:first-child {
   display: block;
-  margin-top: 4px;
+  line-height: 1.2;
+  margin-top: 0;
 }
 
 .admin-page .nav-placeholder {
