@@ -122,6 +122,15 @@
 - Bump version to 0.2.109 [skip ci]
 - Bump version to 0.2.110 [skip ci]
 - Bump version to 0.2.111 [skip ci]
+- Bump version to 0.2.112 [skip ci]
+- Bump version to 0.2.113 [skip ci]
+- Bump version to 0.2.114 [skip ci]
+- Bump version to 0.2.115 [skip ci]
+- Bump version to 0.2.116 [skip ci]
+- Bump version to 0.2.117 [skip ci]
+- Bump version to 0.2.118 [skip ci]
+- Bump version to 0.2.119 [skip ci]
+- Bump version to 0.2.120 [skip ci]
 
 ### Docs
 
@@ -159,6 +168,8 @@
 - Store player names per event
 - Add exponential backoff for db connection
 - Improve topbar accessibility
+- Pull image before tenant upgrade
+- Allow custom image tag for tenant upgrade
 
 ### Fix
 
