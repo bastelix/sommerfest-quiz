@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS config (
     puzzleWordEnabled BOOLEAN,
     puzzleWord TEXT,
     puzzleFeedback TEXT,
+    collectPlayerUid BOOLEAN,
     inviteText TEXT,
     qrremember BOOLEAN DEFAULT FALSE,
     event_uid TEXT,

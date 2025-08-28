@@ -52,11 +52,28 @@ function deleteName(e) {
 
 document.addEventListener('DOMContentLoaded', () => {
   nameInput = document.getElementById('playerName');
-  eventUid = window.quizConfig?.event_uid || '';
+  const cfg = window.quizConfig || {};
+  eventUid = cfg.event_uid || '';
   nameKey = `qr_player_name:${eventUid}`;
   uidKey = `qr_player_uid:${eventUid}`;
+  const params = new URLSearchParams(location.search);
+  const uidParam = params.get('uid') || params.get('player_uid');
+  if (uidParam) {
+    localStorage.setItem(uidKey, uidParam);
+  }
   const storedName = localStorage.getItem(nameKey);
   nameInput.value = storedName || generateRandomName();
+  if (!storedName && uidParam && cfg.collectPlayerUid) {
+    fetch(`/api/players?event_uid=${encodeURIComponent(eventUid)}&player_uid=${encodeURIComponent(uidParam)}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data && data.player_name) {
+          nameInput.value = data.player_name;
+          saveName();
+        }
+      })
+      .catch(() => {});
+  }
   if (typeof t === 'function') {
     nameInput.placeholder = t('label_player_name');
   }

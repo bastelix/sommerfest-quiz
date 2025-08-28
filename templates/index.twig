@@ -55,7 +55,13 @@
       const eventUid = cfg.event_uid || '';
       const nameKey = `qr_player_name:${eventUid}`;
       if (!localStorage.getItem(nameKey)) {
-        location.replace('/profile?return=' + encodeURIComponent(location.href));
+        const params = new URLSearchParams(location.search);
+        const uidParam = params.get('uid') || params.get('player_uid');
+        let url = '/profile?return=' + encodeURIComponent(location.href);
+        if (uidParam) {
+          url += '&uid=' + encodeURIComponent(uidParam);
+        }
+        location.replace(url);
       }
     }
     enforceProfile();

@@ -34,6 +34,9 @@ window.quizConfig = {
   // Beweisfotos aktivieren
   photoUpload: true,
 
+  // Spieler-UIDs sammeln und serverseitig speichern
+  collectPlayerUid: false,
+
   // Rätselwort aktivieren und Begriff festlegen
   puzzleWordEnabled: true,
   puzzleWord: '',

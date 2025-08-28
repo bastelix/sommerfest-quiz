@@ -726,6 +726,21 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('resultController')->post($request, $response);
     });
 
+    $app->get('/api/players', function (Request $request, Response $response) {
+        $params = $request->getQueryParams();
+        /** @var PlayerService $playerService */
+        $playerService = $request->getAttribute('playerService');
+        $name = $playerService->findName(
+            (string) ($params['event_uid'] ?? ''),
+            (string) ($params['player_uid'] ?? '')
+        );
+        if ($name === null) {
+            return $response->withStatus(404);
+        }
+        $response->getBody()->write(json_encode(['player_name' => $name]));
+        return $response->withHeader('Content-Type', 'application/json');
+    });
+
     $app->post('/api/players', function (Request $request, Response $response) {
         $data = (array) $request->getParsedBody();
         /** @var PlayerService $playerService */
