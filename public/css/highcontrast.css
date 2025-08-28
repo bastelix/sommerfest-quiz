@@ -113,12 +113,14 @@ body.high-contrast .uk-icon-button,
 body.high-contrast .git-btn {
   border: 2px solid #000000;
   background-color: #ffffff;
+  color: #000000;
 }
 
 body.dark-mode.high-contrast .uk-icon-button,
 body.dark-mode.high-contrast .git-btn {
   border: 2px solid #ffffff;
   background-color: #000000;
+  color: #ffffff;
 }
 body.dark-mode.high-contrast .onboarding-timeline .timeline-step.inactive {
   border-color: #999999;
