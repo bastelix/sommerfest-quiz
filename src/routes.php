@@ -1304,14 +1304,12 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         $body = (array) $request->getParsedBody();
         $image = isset($body['image']) ? (string) $body['image'] : '';
-        if ($image === '') {
-            $response->getBody()->write(json_encode(['error' => 'Image tag required']));
-
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        if ($image !== '') {
+            putenv('APP_IMAGE=' . $image);
+            $_ENV['APP_IMAGE'] = $image;
         }
 
-        $cmd = [$slug, '--image', $image];
-        $result = runSyncProcess($script, $cmd);
+        $result = runSyncProcess($script, [$slug]);
         if (!$result['success']) {
             $message = trim($result['stderr'] !== '' ? $result['stderr'] : $result['stdout']);
             $response->getBody()->write(json_encode([
@@ -1384,7 +1382,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $currentImage = trim($inspect['stdout']);
 
-        if ($currentImage !== $image) {
+        if ($image !== '' && $currentImage !== $image) {
             $response->getBody()->write(json_encode([
                 'error' => 'Image tag mismatch',
                 'expected' => $image,
