@@ -62,6 +62,7 @@ body.dark-mode.high-contrast{
   color:var(--text);
   min-width:auto !important;
   width:fit-content !important;
+  transform-origin: top right;
 }
 .uk-dropdown-nav{
   display:flex;
