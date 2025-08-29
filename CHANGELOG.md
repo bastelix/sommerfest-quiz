@@ -155,6 +155,14 @@
 - Bump version to 0.2.142 [skip ci]
 - Bump version to 0.2.143 [skip ci]
 - Bump version to 0.2.144 [skip ci]
+- Bump version to 0.2.145 [skip ci]
+- Bump version to 0.2.146 [skip ci]
+- Bump version to 0.2.147 [skip ci]
+- Bump version to 0.2.148 [skip ci]
+- Bump version to 0.2.149 [skip ci]
+- Bump version to 0.2.150 [skip ci]
+- Bump version to 0.2.151 [skip ci]
+- Bump version to 0.2.152 [skip ci]
 
 ### Docs
 
@@ -222,6 +230,7 @@
 - Build pagination DOM and escape paths
 - Externalize onboarding styles
 - Use accent color variable in dark mode
+- Use CSS variables for landing page
 
 ### Style
 
@@ -229,6 +238,7 @@
 - Match hamburger menu toggle to options button
 - Improve landing topbar contrast
 - Square icon buttons
+- Add dark mode styles for landing page
 
 ### Test
 
