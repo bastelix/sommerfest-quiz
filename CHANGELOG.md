@@ -163,6 +163,10 @@
 - Bump version to 0.2.150 [skip ci]
 - Bump version to 0.2.151 [skip ci]
 - Bump version to 0.2.152 [skip ci]
+- Bump version to 0.2.153 [skip ci]
+- Bump version to 0.2.154 [skip ci]
+- Bump version to 0.2.155 [skip ci]
+- Bump version to 0.2.156 [skip ci]
 
 ### Docs
 
@@ -208,6 +212,7 @@
 - Improve navigation accessibility
 - Dark pricing cards
 - Toggle dark stylesheet via disabled attribute
+- Themeable landing topbar
 
 ### Fix
 
