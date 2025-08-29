@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
     darkStylesheet.toggleAttribute('disabled', !dark);
   }
 
-  if (dark) {
+  if (darkStylesheet && dark) {
     document.body.classList.add('dark-mode', 'uk-light');
     document.documentElement.classList.add('dark-mode');
   }
@@ -91,8 +91,8 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();
         dark = document.body.classList.toggle('dark-mode');
         document.documentElement.classList.toggle('dark-mode', dark);
-        document.body.classList.toggle('uk-light', dark);
         if (darkStylesheet) {
+          document.body.classList.toggle('uk-light', dark);
           darkStylesheet.toggleAttribute('disabled', !dark);
         }
         localStorage.setItem('darkMode', dark ? 'true' : 'false');
