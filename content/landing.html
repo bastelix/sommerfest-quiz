@@ -1,5 +1,5 @@
 <!-- HERO / HEADER -->
-<section class="hero-bg-quizrace uk-section uk-padding-remove-top uk-flex uk-flex-middle" style="min-height:100vh; position:relative;">
+<section class="hero-bg-quizrace uk-section uk-padding-remove-top uk-flex uk-flex-middle uk-light" style="min-height:100vh; position:relative;">
   <div class="hero-overlay"></div>
   <div class="uk-container hero-content">
     <div class="uk-grid uk-flex-middle uk-child-width-1-1 uk-child-width-1-2@m" uk-grid>
@@ -17,8 +17,8 @@
         </div>
         <div class="separator width-100 bottom-border border-2px border-color-gray-light margin-top-bottom-30px uk-width-1-2@s" uk-scrollspy="cls: uk-animation-fade; delay: 250"></div>
         <div class="hero-buttons uk-margin-top" uk-scrollspy="cls: uk-animation-scale-up; delay: 300">
-          <a class="cta-main" href="{{ basePath }}/onboarding">Event starten</a>
-          <a class="btn btn-black" href="https://demo.quizrace.app" target="_blank" rel="noopener">Demo anschauen</a>
+          <a class="cta-main uk-button uk-button-primary" href="{{ basePath }}/onboarding">Event starten</a>
+          <a class="btn btn-black uk-button uk-button-secondary" href="https://demo.quizrace.app" target="_blank" rel="noopener">Demo anschauen</a>
         </div>
       </div>
       <div>
@@ -123,7 +123,7 @@
         </ul>
       </div>
       <div class="uk-width-auto@m uk-text-center">
-        <a class="btn btn-black uk-button-large" href="{{ basePath }}/onboarding">Jetzt ausprobieren</a>
+        <a class="btn btn-black uk-button uk-button-secondary uk-button-large" href="{{ basePath }}/onboarding">Jetzt ausprobieren</a>
       </div>
     </div>
   </div>
@@ -274,17 +274,17 @@
             <li>Alle Fragetypen &amp; QR-Codes</li>
             <li>Backup &amp; editierbare Texte³</li>
           </ul>
-          <a href="{{ basePath }}/onboarding" class="btn btn-transparent uk-width-1-1 uk-button-large uk-margin-small-top">Jetzt starten</a>
+          <a href="{{ basePath }}/onboarding" class="btn btn-transparent uk-button uk-button-default uk-width-1-1 uk-button-large uk-margin-small-top">Jetzt starten</a>
         </div>
       </div>
       <!-- Standard -->
       <div>
-        <div class="uk-card uk-card-popular uk-card-quizrace uk-text-center">
+        <div class="uk-card uk-card-popular uk-card-quizrace uk-text-center uk-light">
           <span class="uk-label uk-label-large">Meist gewählt</span>
-          <h3 class="uk-card-title uk-margin-small-top" style="color:#fff;">Standard</h3>
-          <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700; color:#fff;">39&nbsp;€/Monat</div>
-          <div class="uk-text-meta uk-margin-small-bottom" style="color:#fff;">Beliebt bei Schulen & Teams</div>
-          <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom" style="color:#fff;">
+          <h3 class="uk-card-title uk-margin-small-top">Standard</h3>
+          <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700;">39&nbsp;€/Monat</div>
+          <div class="uk-text-meta uk-margin-small-bottom">Beliebt bei Schulen & Teams</div>
+          <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom">
             <li><b>7 Tage kostenlos testen</b></li>
             <li><b>Alle Starter-Funktionen</b></li>
             <li>Bis zu 3 Events gleichzeitig</li>
@@ -292,7 +292,7 @@
             <li>Eigene Subdomain</li>
             <li>Vollständiger PDF-Export</li>
           </ul>
-          <a href="{{ basePath }}/onboarding" class="btn btn-black uk-width-1-1 uk-button-large">Jetzt upgraden</a>
+          <a href="{{ basePath }}/onboarding" class="btn btn-black uk-button uk-button-secondary uk-width-1-1 uk-button-large">Jetzt upgraden</a>
         </div>
       </div>
       <!-- Professional -->
@@ -309,7 +309,7 @@
             <li>100 Teams &amp; 50 Kataloge à 50 Fragen</li>
             <li>White-Label &amp; Rollenverwaltung</li>
           </ul>
-          <a href="{{ basePath }}/onboarding" class="btn btn-transparent uk-width-1-1 uk-button-large">Beratung anfragen</a>
+          <a href="{{ basePath }}/onboarding" class="btn btn-transparent uk-button uk-button-default uk-width-1-1 uk-button-large">Beratung anfragen</a>
         </div>
       </div>
     </div>
@@ -351,9 +351,9 @@
 </section>
 
 <!-- Über uns / Founder -->
-<section class="uk-section about-section" style="color:#fff;">
+<section class="uk-section about-section uk-light">
   <div class="uk-container">
-    <h2 class="uk-text-center uk-heading-medium" uk-scrollspy="cls: uk-animation-slide-top-small" style="color:#fff;">Wer steckt hinter QuizRace?</h2>
+    <h2 class="uk-text-center uk-heading-medium" uk-scrollspy="cls: uk-animation-slide-top-small">Wer steckt hinter QuizRace?</h2>
     <div class="uk-width-2xlarge uk-margin-auto uk-text-center uk-text-lead" uk-scrollspy="cls: uk-animation-fade; delay: 150">
       <b>QuizRace wurde von René Buske entwickelt – einem erfahrenen Softwarearchitekten und Digital-Event-Profi mit über 20 Jahren Erfahrung.</b>
       <br>
@@ -390,7 +390,7 @@
             <label><input class="uk-checkbox" name="privacy" type="checkbox" required> Ich stimme der Speicherung meiner Daten zur Bearbeitung zu.</label>
           </div>
           <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-          <button class="btn btn-black uk-button-large uk-width-1-1" type="submit">Senden</button>
+          <button class="btn btn-black uk-button uk-button-secondary uk-button-large uk-width-1-1" type="submit">Senden</button>
         </form>
       </div>
       <div>
