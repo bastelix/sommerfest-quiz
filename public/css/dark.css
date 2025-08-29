@@ -1,5 +1,10 @@
 /* Zusätzliche Styles für Dark Mode */
 @media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #1e1e1e;
+    --color-primary: #0c86d0;
+    --color-text: #f5f5f5;
+  }
 html,
 body {
   background-color: #000 !important;
