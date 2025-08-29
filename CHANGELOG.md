@@ -150,11 +150,17 @@
 - Bump version to 0.2.137 [skip ci]
 - Bump version to 0.2.138 [skip ci]
 - Bump version to 0.2.139 [skip ci]
+- Bump version to 0.2.140 [skip ci]
+- Bump version to 0.2.141 [skip ci]
+- Bump version to 0.2.142 [skip ci]
+- Bump version to 0.2.143 [skip ci]
+- Bump version to 0.2.144 [skip ci]
 
 ### Docs
 
 - Remove version bump entries from changelog
 - Note removal of docker tag for tenant upgrade
+- Note landing page style overrides
 
 ### Feat
 
