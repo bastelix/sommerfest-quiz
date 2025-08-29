@@ -175,6 +175,8 @@
 - Bump version to 0.2.162 [skip ci]
 - Bump version to 0.2.163 [skip ci]
 - Bump version to 0.2.164 [skip ci]
+- Bump version to 0.2.165 [skip ci]
+- Bump version to 0.2.166 [skip ci]
 
 ### Docs
 
@@ -222,6 +224,7 @@
 - Toggle dark stylesheet via disabled attribute
 - Themeable landing topbar
 - Improve landing page theme variables
+- Streamline dark mode handling
 
 ### Fix
 
@@ -235,6 +238,7 @@
 - Align config button to navbar edge
 - Remove opacity from accessibility toggle icon
 - Ensure landing navbar uses UIKit-specific background
+- Improve landing page contrast
 
 ### Refactor
 
@@ -248,6 +252,7 @@
 - Update topbar text colors
 - Unify landing page theme variables
 - Scope dark mode styles
+- Replace landing page inline styles
 
 ### Style
 
