@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use JsonException;
 use PDO;
+use RuntimeException;
 use Throwable;
 
 /**
@@ -68,7 +70,11 @@ class ConfigService
             return null;
         }
         $row = $this->normalizeKeys($row);
-        return json_encode($row, JSON_PRETTY_PRINT);
+        try {
+            return json_encode($row, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new RuntimeException('Unable to encode config: ' . $e->getMessage(), 0, $e);
+        }
     }
 
     /**
@@ -83,7 +89,11 @@ class ConfigService
             return null;
         }
         $row = $this->normalizeKeys($row);
-        return json_encode($row, JSON_PRETTY_PRINT);
+        try {
+            return json_encode($row, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
+        } catch (JsonException $e) {
+            throw new RuntimeException('Unable to encode config: ' . $e->getMessage(), 0, $e);
+        }
     }
 
     /**
@@ -108,9 +118,13 @@ class ConfigService
 
         $path = dirname(__DIR__, 2) . '/data/config.json';
         if (is_readable($path)) {
-            $json = json_decode(file_get_contents($path), true);
-            if (is_array($json)) {
-                return $json;
+            try {
+                $json = json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
+                if (is_array($json)) {
+                    return $json;
+                }
+            } catch (JsonException $e) {
+                throw new RuntimeException('Invalid config file: ' . $e->getMessage(), 0, $e);
             }
         }
 
@@ -245,7 +259,7 @@ class ConfigService
                 if (is_bool($v)) {
                     $stmt->bindValue(':' . $k, $v, PDO::PARAM_BOOL);
                 } elseif ($k === 'colors') {
-                    $stmt->bindValue(':' . $k, json_encode($v));
+                    $stmt->bindValue(':' . $k, json_encode($v, JSON_THROW_ON_ERROR));
                 } else {
                     $stmt->bindValue(':' . $k, $v);
                 }
@@ -316,9 +330,13 @@ class ConfigService
             if ($uid === false || $uid === null || $uid === '') {
                 $path = dirname(__DIR__, 2) . '/data/config.json';
                 if (is_readable($path)) {
-                    $json = json_decode(file_get_contents($path), true);
-                    if (is_array($json) && isset($json['event_uid'])) {
-                        $uid = $json['event_uid'];
+                    try {
+                        $json = json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
+                        if (is_array($json) && isset($json['event_uid'])) {
+                            $uid = $json['event_uid'];
+                        }
+                    } catch (JsonException $e) {
+                        throw new RuntimeException('Invalid config file: ' . $e->getMessage(), 0, $e);
                     }
                 }
             }
@@ -375,8 +393,12 @@ class ConfigService
             $key = $map[strtolower($k)] ?? $k;
             if ($key === 'colors') {
                 if (is_string($v)) {
-                    $decoded = json_decode($v, true);
-                    $normalized[$key] = is_array($decoded) ? $decoded : [];
+                    try {
+                        $decoded = json_decode($v, true, 512, JSON_THROW_ON_ERROR);
+                        $normalized[$key] = is_array($decoded) ? $decoded : [];
+                    } catch (JsonException $e) {
+                        $normalized[$key] = [];
+                    }
                 } else {
                     $normalized[$key] = is_array($v) ? $v : [];
                 }
