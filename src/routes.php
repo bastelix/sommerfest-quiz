@@ -349,6 +349,17 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/onboarding/email/status', function (Request $request, Response $response) {
         return $request->getAttribute('onboardingEmailController')->status($request, $response);
     });
+    $app->get('/onboarding/tenants/{subdomain}', function (Request $request, Response $response, array $args) {
+        if ($request->getAttribute('domainType') !== 'main') {
+            return $response->withStatus(404);
+        }
+        $sub = strtolower((string) ($args['subdomain'] ?? ''));
+        if ($sub === '' || !preg_match('/^[a-z0-9-]{3,63}$/', $sub)) {
+            return $response->withStatus(400);
+        }
+        $args['subdomain'] = $sub;
+        return $request->getAttribute('tenantController')->exists($request, $response, $args);
+    })->add(new RateLimitMiddleware(10, 60));
     $app->post('/onboarding/checkout', StripeCheckoutController::class);
     $app->get('/onboarding/checkout/{id}', StripeSessionController::class);
     $app->post('/stripe/webhook', StripeWebhookController::class);
