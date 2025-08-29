@@ -220,7 +220,15 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--landing-bg);
+      color: var(--landing-text);
+    }
+    .topbar .uk-navbar-item:hover,
+    .topbar .uk-navbar-item:focus,
+    .topbar .uk-navbar-nav > li > a:hover,
+    .topbar .uk-navbar-nav > li > a:focus,
+    .topbar .uk-navbar-toggle:hover,
+    .topbar .uk-navbar-toggle:focus {
+      color: var(--landing-primary);
     }
     .topbar .uk-navbar-toggle {
       width: 44px;
@@ -234,10 +242,18 @@
       padding: 0;
       font-family: 'Poppins', sans-serif;
       font-weight: 700;
-      color: var(--landing-bg);
+      color: var(--landing-text);
+    }
+    .topbar .uk-logo:hover,
+    .topbar .uk-logo:focus {
+      color: var(--landing-primary);
     }
     .topbar .git-btn {
-      color: var(--landing-bg);
+      color: var(--landing-text);
+    }
+    .topbar .git-btn:hover,
+    .topbar .git-btn:focus {
+      color: var(--landing-primary);
     }
     @media (max-width: 640px) {
       .topbar .uk-logo {
