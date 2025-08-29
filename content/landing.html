@@ -1,29 +1,29 @@
 <!-- HERO / HEADER -->
-<section class="hero-bg-quizrace uk-section uk-padding-remove-top uk-flex uk-flex-middle uk-light" style="min-height:100vh; position:relative;">
-  <div class="hero-overlay"></div>
-  <div class="uk-container hero-content">
+<section class="uk-section uk-padding-remove-top uk-flex uk-flex-middle uk-light uk-background-cover" data-src="{{ basePath }}/img/quizrace-bg.jpg" uk-img uk-height-viewport>
+  <div class="uk-overlay-primary uk-position-cover"></div>
+  <div class="uk-container uk-position-relative">
     <div class="uk-grid uk-flex-middle uk-child-width-1-1 uk-child-width-1-2@m" uk-grid>
       <div>
-        <div class="hero-text">
-          <h2 class="hero-headline" uk-scrollspy="cls: uk-animation-slide-right-small">
+        <div class="uk-text-center">
+          <h2 class="uk-heading-medium uk-text-bold" uk-scrollspy="cls: uk-animation-slide-right-small">
             Das Team-Quiz, das Ihr Event <span id="rotating-word" class="marker-text">unvergesslich</span> macht.
           </h2>
-          <p class="hero-subtext" uk-scrollspy="cls: uk-animation-fade; delay: 150">
+          <p class="uk-text-lead" uk-scrollspy="cls: uk-animation-fade; delay: 150">
             Trete gegen Freunde und Kollegen an.<br>
             Interaktive Quiz-Rallyes für Firmen, Schulen &amp; Teams.<br>
             In Minuten startklar – live, vor Ort oder hybrid!<br>
             Ohne App-Download, 100% datensicher, individuell anpassbar.
           </p>
         </div>
-        <div class="separator width-100 bottom-border border-2px border-color-gray-light margin-top-bottom-30px uk-width-1-2@s" uk-scrollspy="cls: uk-animation-fade; delay: 250"></div>
-        <div class="hero-buttons uk-margin-top" uk-scrollspy="cls: uk-animation-scale-up; delay: 300">
-          <a class="cta-main uk-button uk-button-primary" href="{{ basePath }}/onboarding">Event starten</a>
-          <a class="btn btn-black uk-button uk-button-secondary" href="https://demo.quizrace.app" target="_blank" rel="noopener">Demo anschauen</a>
+        <hr class="uk-divider-small uk-width-1-2@s" uk-scrollspy="cls: uk-animation-fade; delay: 250">
+        <div class="uk-margin-top uk-grid-small uk-child-width-1-1 uk-child-width-auto@s uk-flex-center" uk-grid uk-scrollspy="cls: uk-animation-scale-up; delay: 300">
+          <a class="uk-button uk-button-primary" href="{{ basePath }}/onboarding">Event starten</a>
+          <a class="uk-button uk-button-secondary" href="https://demo.quizrace.app" target="_blank" rel="noopener">Demo anschauen</a>
         </div>
       </div>
       <div>
-        <div class="hero-video" uk-scrollspy="cls: uk-animation-slide-left-small; delay: 300">
-          <div class="video-placeholder uk-flex uk-flex-middle uk-flex-center uk-border-rounded">
+        <div uk-scrollspy="cls: uk-animation-slide-left-small; delay: 300">
+          <div class="uk-placeholder uk-flex uk-flex-middle uk-flex-center uk-border-rounded">
             <span>Video Placeholder</span>
           </div>
         </div>
@@ -37,72 +37,18 @@
   const words = ["unvergesslich", "spannend", "interaktiv", "einzigartig", "unterhaltsam"]; // Wörterliste
   const changeInterval = 5500; // Wechselintervall in Millisekunden
   const fadeDuration = 1000; // Dauer der Ein-/Ausblendung
-
   const el = document.getElementById("rotating-word");
   let i = 0;
-
-  function triggerUnderline() {
-    el.classList.remove('underline-animate');
-    void el.offsetWidth;
-    el.classList.add('underline-animate');
-  }
-
-  // initial underline animation
-  triggerUnderline();
   setInterval(() => {
     el.style.opacity = 0;
-
     setTimeout(() => {
       i = (i + 1) % words.length;
       el.textContent = words[i];
       el.style.opacity = 1;
-      triggerUnderline();
     }, fadeDuration);
   }, changeInterval);
-
-  window.addEventListener('load', () => {
-    setTimeout(triggerUnderline, 100);
-  });
 })();
 </script>
-
-<style>
-#rotating-word {
-  transition: opacity 1s ease;
-}
-
-.marker-text {
-  display: inline-block;
-  font-weight: bold;
-  position: relative;
-}
-
-/* Chalk-style underline drawn left to right */
-.marker-text::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -6px;
-  height: 0.4em;
-  width: 0;
-  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPgogIDxmaWx0ZXIgaWQ9InJvdWdoIj4KICAgIDxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIwLjgiIG51bU9jdGF2ZXM9IjMiLz4KICAgIDxmZURpc3BsYWNlbWVudE1hcCBpbj0iU291cmNlR3JhcGhpYyIgc2NhbGU9IjIiLz4KICA8L2ZpbHRlcj4KICA8cGF0aCBkPSJNMiAxMCBRNTAgMiAxMDAgMTAgVDE5OCAxMCIgc3Ryb2tlPSJyZ2JhKDI0OCwyNDYsMjQwLDAuNykiIHN0cm9rZS13aWR0aD0iNiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBmaWx0ZXI9InVybCgjcm91Z2gpIi8+Cjwvc3ZnPgo=");
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
-  opacity: 0.7;
-  pointer-events: none;
-  z-index: -1;
-}
-
-.underline-animate::after {
-  animation: drawUnderline 0.6s ease-out forwards;
-  animation-delay: 0.3s;
-}
-
-@keyframes drawUnderline {
-  from { width: 0; }
-  to { width: 100%; }
-}
-</style>
 
 <!-- Warum QuizRace? -->
 <section class="uk-section uk-section-default">
@@ -123,14 +69,14 @@
         </ul>
       </div>
       <div class="uk-width-auto@m uk-text-center">
-        <a class="btn btn-black uk-button uk-button-secondary uk-button-large" href="{{ basePath }}/onboarding">Jetzt ausprobieren</a>
+        <a class="uk-button uk-button-secondary uk-button-large" href="{{ basePath }}/onboarding">Jetzt ausprobieren</a>
       </div>
     </div>
   </div>
 </section>
 
 <!-- USPs / Features -->
-<section id="features" class="uk-section uk-section-default" style="background:#f9f9f9">
+<section id="features" class="uk-section uk-section-muted">
   <div class="uk-container">
     <h3 class="uk-text-center uk-heading-medium poppins text-black uk-margin-large-bottom" uk-scrollspy="cls: uk-animation-slide-top-small">Was macht QuizRace einzigartig?</h3>
     <div class="uk-grid uk-child-width-1-4@m uk-child-width-1-2@s uk-flex-center uk-grid-match uk-margin-large-bottom" uk-grid uk-scrollspy="target: > div; cls: uk-animation-slide-left-small; delay: 150">
@@ -247,7 +193,7 @@
 </section>
 
 <!-- Pricing / Abomodelle -->
-<section id="pricing" class="uk-section" style="background:#f9f9f9">
+<section id="pricing" class="uk-section uk-section-muted">
     <div class="uk-container">
       <h2 class="uk-heading-medium uk-text-center text-black" uk-scrollspy="cls: uk-animation-slide-top-small">Abomodelle für jedes Event</h2>
       <p class="uk-text-center uk-text-lead uk-margin-large-bottom" uk-scrollspy="cls: uk-animation-fade; delay: 150">Einfacher Start – faire Preise – alle Abos 7 Tage kostenlos testen!</p>
@@ -257,7 +203,7 @@
         <div class="uk-card uk-card-price uk-card-quizrace uk-text-center">
           <span class="uk-label uk-label-success uk-label-large">Kostenlos testen</span>
           <h3 class="uk-card-title uk-text-primary uk-margin-small-top">Starter</h3>
-          <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700;">9&nbsp;€/Monat</div>
+            <div class="uk-text-xxlarge uk-text-bold uk-margin-small-bottom">9&nbsp;€/Monat</div>
           <div class="uk-text-meta uk-margin-small-bottom">Für kleine Events & Einsteiger</div>
           <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom">
             <li><b>7 Tage kostenlos testen</b></li>
@@ -268,7 +214,7 @@
             <li>Alle Fragetypen &amp; QR-Codes</li>
             <li>Backup &amp; editierbare Texte³</li>
           </ul>
-          <a href="{{ basePath }}/onboarding" class="btn btn-transparent uk-button uk-button-default uk-width-1-1 uk-button-large uk-margin-small-top">Jetzt starten</a>
+            <a href="{{ basePath }}/onboarding" class="uk-button uk-button-default uk-width-1-1 uk-button-large uk-margin-small-top">Jetzt starten</a>
         </div>
       </div>
       <!-- Standard -->
@@ -276,7 +222,7 @@
         <div class="uk-card uk-card-popular uk-card-quizrace uk-text-center uk-light">
           <span class="uk-label uk-label-large">Meist gewählt</span>
           <h3 class="uk-card-title uk-margin-small-top">Standard</h3>
-          <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700;">39&nbsp;€/Monat</div>
+            <div class="uk-text-xxlarge uk-text-bold uk-margin-small-bottom">39&nbsp;€/Monat</div>
           <div class="uk-text-meta uk-margin-small-bottom">Beliebt bei Schulen & Teams</div>
           <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom">
             <li><b>7 Tage kostenlos testen</b></li>
@@ -286,7 +232,7 @@
             <li>Eigene Subdomain</li>
             <li>Vollständiger PDF-Export</li>
           </ul>
-          <a href="{{ basePath }}/onboarding" class="btn btn-black uk-button uk-button-secondary uk-width-1-1 uk-button-large">Jetzt upgraden</a>
+            <a href="{{ basePath }}/onboarding" class="uk-button uk-button-secondary uk-width-1-1 uk-button-large">Jetzt upgraden</a>
         </div>
       </div>
       <!-- Professional -->
@@ -294,7 +240,7 @@
         <div class="uk-card uk-card-price uk-card-quizrace uk-text-center">
           <span class="uk-label uk-label-primary uk-label-large">Professional</span>
           <h3 class="uk-card-title uk-text-primary uk-margin-small-top">Professional</h3>
-          <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700;">79&nbsp;€/Monat</div>
+            <div class="uk-text-xxlarge uk-text-bold uk-margin-small-bottom">79&nbsp;€/Monat</div>
           <div class="uk-text-meta uk-margin-small-bottom">Für Agenturen & Unternehmen</div>
           <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom">
             <li><b>7 Tage kostenlos testen</b></li>
@@ -303,7 +249,7 @@
             <li>100 Teams &amp; 50 Kataloge à 50 Fragen</li>
             <li>White-Label &amp; Rollenverwaltung</li>
           </ul>
-          <a href="{{ basePath }}/onboarding" class="btn btn-transparent uk-button uk-button-default uk-width-1-1 uk-button-large">Beratung anfragen</a>
+            <a href="{{ basePath }}/onboarding" class="uk-button uk-button-default uk-width-1-1 uk-button-large">Beratung anfragen</a>
         </div>
       </div>
     </div>
@@ -321,23 +267,23 @@
       <p class="uk-text-lead uk-text-center" uk-scrollspy="cls: uk-animation-fade; delay: 150"><strong>QuizRace bringt Action ins Event: Erstelle Fragenkataloge, drucke QR-Codes aus, klebe sie an spannende Stationen – und lass die Teams live gegeneinander antreten. Jedes Team erlebt das Quiz direkt vor Ort, beantwortet Fragen oder erhält Info-Karten und sammelt am Ende die Lösung fürs große Rätselwort!</strong></p>
         <div class="uk-grid uk-child-width-1-4@m uk-child-width-1-2@s uk-flex-center uk-margin-large-top uk-margin-large-bottom" uk-grid uk-scrollspy="target: > div; cls: uk-animation-slide-left-small; delay: 150">
         <div class="uk-text-center">
-          <div class="uk-step-circle">1</div>
-          <p class="uk-text-uppercase uk-text-bold uk-margin-small-top" style="letter-spacing:2px;">Event anlegen &amp; Fragen gestalten</p>
+          <span class="uk-badge uk-background-primary uk-text-bold">1</span>
+            <p class="uk-text-uppercase uk-text-bold uk-margin-small-top">Event anlegen &amp; Fragen gestalten</p>
           <p class="uk-text-small uk-text-muted">Erstelle in wenigen Minuten dein individuelles Quiz-Event im Online-Editor: Wähle Fragetypen und baue Quiz-Kataloge – jeder Katalog ist ein eigener Parcours-Stopp.</p>
         </div>
         <div class="uk-text-center">
-          <div class="uk-step-circle">2</div>
-          <p class="uk-text-uppercase uk-text-bold uk-margin-small-top" style="letter-spacing:2px;">QR-Codes drucken &amp; Stationen gestalten</p>
+          <span class="uk-badge uk-background-primary uk-text-bold">2</span>
+            <p class="uk-text-uppercase uk-text-bold uk-margin-small-top">QR-Codes drucken &amp; Stationen gestalten</p>
           <p class="uk-text-small uk-text-muted">Drucke die automatisch generierten QR-Codes aus und platziere sie an beliebigen Stationen, Objekten oder Orten. Die Teilnehmenden scannen vor Ort mit ihrem Smartphone – und sind sofort im richtigen Quizbereich.</p>
         </div>
         <div class="uk-text-center">
-          <div class="uk-step-circle">3</div>
-          <p class="uk-text-uppercase uk-text-bold uk-margin-small-top" style="letter-spacing:2px;">Teams per QR-Code starten lassen</p>
+          <span class="uk-badge uk-background-primary uk-text-bold">3</span>
+            <p class="uk-text-uppercase uk-text-bold uk-margin-small-top">Teams per QR-Code starten lassen</p>
           <p class="uk-text-small uk-text-muted">Die Teams melden sich eigenständig per Team-QR-Code an. Jeder Stationen-QR-Code führt direkt zu den passenden Aufgaben oder Info-Karten – kein Suchen, keine Verwirrung.</p>
         </div>
         <div class="uk-text-center">
-          <div class="uk-step-circle">4</div>
-          <p class="uk-text-uppercase uk-text-bold uk-margin-small-top" style="letter-spacing:2px;">Auswertung</p>
+          <span class="uk-badge uk-background-primary uk-text-bold">4</span>
+            <p class="uk-text-uppercase uk-text-bold uk-margin-small-top">Auswertung</p>
           <p class="uk-text-small uk-text-muted">Live-Ranking, detaillierte Statistiken &amp; PDF-Export: Verfolge den Fortschritt in Echtzeit, werte die Ergebnisse komfortabel aus und küre am Ende das Siegerteam.</p>
         </div>
         </div>
@@ -345,7 +291,7 @@
 </section>
 
 <!-- Über uns / Founder -->
-<section class="uk-section about-section uk-light">
+<section class="uk-section uk-background-secondary uk-light">
   <div class="uk-container">
     <h2 class="uk-text-center uk-heading-medium" uk-scrollspy="cls: uk-animation-slide-top-small">Wer steckt hinter QuizRace?</h2>
     <div class="uk-width-2xlarge uk-margin-auto uk-text-center uk-text-lead" uk-scrollspy="cls: uk-animation-fade; delay: 150">
@@ -384,7 +330,7 @@
             <label><input class="uk-checkbox" name="privacy" type="checkbox" required> Ich stimme der Speicherung meiner Daten zur Bearbeitung zu.</label>
           </div>
           <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-          <button class="btn btn-black uk-button uk-button-secondary uk-button-large uk-width-1-1" type="submit">Senden</button>
+            <button class="uk-button uk-button-secondary uk-button-large uk-width-1-1" type="submit">Senden</button>
         </form>
       </div>
       <div>
