@@ -35,6 +35,15 @@ body.dark-mode.high-contrast{
   --btn-bg-hover: rgba(255,255,255,0.16);
   --focus-ring: rgba(140,200,255,0.8);
 }
+.topbar, .topbar .uk-navbar-nav > li > a, .topbar .uk-navbar-item{
+  color:var(--text);
+}
+.topbar .uk-navbar-nav > li > a:hover,
+.topbar .uk-navbar-nav > li > a:focus,
+.topbar .uk-navbar-item:hover,
+.topbar .uk-navbar-item:focus{
+  color:var(--text);
+}
 .git-btn{
   width:40px;height:40px;padding:0;
   border-radius:6px;
