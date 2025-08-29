@@ -1,309 +1,22 @@
 /* Zusätzliche Styles für Dark Mode */
 @media (prefers-color-scheme: dark) {
-  :root {
+  html:not(.dark-mode) {
     --color-bg: #1e1e1e;
     --color-primary: #0c86d0;
     --color-text: #f5f5f5;
+    background-color: #000 !important;
+    color: #f5f5f5;
   }
-html,
-body {
-  background-color: #000 !important;
-  color: #f5f5f5;
-}
-body a {
-  color: var(--accent-color, #9dc6ff);
-}
-body h1,
-body h2,
-body h3,
-body h4,
-body h5,
-body h6 {
-  color: #f5f5f5;
-}
-body .uk-card-title {
-  color: #f5f5f5;
-}
-body .uk-card-default {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-}
-body .uk-card-default a {
-  color: var(--accent-color, #9dc6ff);
-}
-body .uk-card h3,
-body .uk-card p {
-  color: #f5f5f5;
-}
-body .uk-progress {
-  background-color: #333;
-  color: var(--accent-color, #1e87f0);
-}
-body .uk-button-primary {
-  background-color: var(--accent-color, #1e87f0);
-  border-color: var(--accent-color, #1e87f0);
-}
-body .uk-button,
-body .uk-button-default {
-  color: #fff;
-  background-color: #333;
-  border-color: #555;
-}
-body .btn-black {
-  background-color: #333 !important;
-  color: #f5f5f5 !important;
-  border: 2px solid #666;
-}
-body .btn-black:hover {
-  background-color: #f5f5f5 !important;
-  color: #000 !important;
-  border-color: #f5f5f5;
-}
-body .btn-transparent {
-  background-color: transparent !important;
-  color: var(--accent-color, #9dc6ff) !important;
-  border: 2px solid var(--accent-color, #9dc6ff);
-}
-body .btn-transparent:hover {
-  background-color: var(--accent-color, #9dc6ff) !important;
-  color: #000 !important;
-}
-body input,
-body textarea,
-body select {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-  border-color: #555;
-}
-body .sortable-list li,
-body .terms li,
-body .dropzone,
-body .mc-option {
-  background-color: #1e1e1e;
-  border-color: #444;
-  color: #f5f5f5;
-  font-size: 1rem;
-  padding: 16px;
-  white-space: normal;
-}
-body .dropzone.over {
-  background-color: #2a2a2a;
-}
-body .uk-alert-success {
-  background-color: #145214;
-  color: #fff;
-}
-body .uk-alert-danger {
-  background-color: #5a1a1a;
-  color: #fff;
-}
-body .uk-alert-primary {
-  background-color: var(--accent-color, #003366);
-  color: #fff;
-}
-
-body .mc-option input {
-  transform: scale(1.3);
-  margin-right: 8px;
-}
-
-/* Einheitlicher Kartenrahmen fuer Admin-Tabs im Dunkelmodus */
-body .tab-card {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-}
-
-body .topbar {
-  background-color: #1e1e1e;
-  border-color: #444;
-  padding-top: env(safe-area-inset-top);
-}
-
-body .git-btn,
-body .uk-icon-button:not(.uk-button-primary) {
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid #444;
-}
-body .event-header-bar {
-  background-color: #1e1e1e;
-  border-color: #444;
-}
-
-body .modern-info-card {
-  border-color: #444;
-}
-
-/* Sticky actions and onboarding components in Dark Mode */
-body .sticky-actions {
-  background: rgba(0, 0, 0, 0.95);
-}
-
-body .onboarding-step {
-  border-color: #444;
-  background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
-  box-shadow: 0 6px 30px rgba(0,0,0,0.5);
-}
-
-body .onboarding-timeline .timeline-step {
-  border-color: #555;
-  color: #ddd;
-}
-
-body .onboarding-timeline .timeline-step.inactive {
-  color: #444;
-  border-color: #555;
-  cursor: not-allowed;
-}
-
-body .onboarding-timeline .timeline-step.active,
-body .onboarding-timeline .timeline-step.completed {
-  border-color: var(--accent-color, #1e87f0);
-  color: var(--accent-color, #1e87f0);
-}
-
-body .uk-icon,
-body .uk-icon-button {
-  color: #f5f5f5;
-}
-
-body .site-footer {
-  background-color: #1e1e1e;
-  border-color: #444;
-  color: #f5f5f5;
-  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-}
-
-body .footer-menu a {
-  color: var(--accent-color, #9dc6ff);
-}
-
-body .uk-icon-button {
-  color: #fff;
-  background-color: rgba(255, 255, 255, 0.2);
-}
-body .uk-icon-button.uk-button-primary {
-  background-color: var(--accent-color, #1e87f0);
-  border-color: var(--accent-color, #1e87f0);
-}
-
-/* Active state for navigation items in dark off-canvas menus */
-.uk-offcanvas-bar .uk-nav-default > li.uk-active > a {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: #fff;
-}
-
-/* Active state for navigation items in dark mode */
-body .uk-navbar-nav > li.uk-active > a,
-body .uk-nav-default > li.uk-active > a {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: #fff;
-}
-
-/* Styles for Trumbowyg editor in Dark Mode */
-body .trumbowyg-box,
-body .trumbowyg-editor {
-  background-color: #1e1e1e !important;
-  color: #f5f5f5 !important;
-}
-
-body .trumbowyg-button-pane {
-  background-color: #2a2a2a;
-  border-color: #444;
-}
-
-body .trumbowyg-button-pane button {
-  color: #f5f5f5;
-}
-
-body .trumbowyg-button-pane button svg {
-  fill: #f5f5f5;
-}
-
-body .trumbowyg-button-pane button:hover {
-  background-color: #333;
-}
-
-/* Styles fuer QR-Scan-Popup im Dunkelmodus */
-body .uk-modal-dialog {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-}
-
-/* Hoverfarbe für Katalogkarten im Dunkelmodus */
-body .uk-card-hover:hover {
-  background-color: #333;
-  color: #f5f5f5;
-}
-
-/* Tabellenlesbarkeit im Dunkelmodus verbessern */
-body .uk-table th,
-body .uk-table td {
-  color: #f5f5f5;
-  background-color: #1e1e1e;
-  border-color: #444;
-}
-body .uk-table thead th {
-  background-color: #333;
-}
-body .uk-table tr {
-  border-color: #444;
-}
-
-@media (min-width: 640px) {
-  body .sortable-list li,
-  body .terms li,
-  body .dropzone,
-  body .mc-option {
-    font-size: 1.3rem;
+  body:not(.dark-mode) {
+    background-color: #000 !important;
+    color: #f5f5f5;
   }
 }
 
-@media (min-width: 960px) {
-  body .sortable-list li,
-  body .terms li,
-  body .dropzone,
-  body .mc-option {
-    font-size: 1.5rem;
-  }
-body .mc-option input {
-  transform: scale(1.3);
-}
-}
-
-body .flip-card-front,
-body .flip-card-back {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-  border: 1px solid #444;
-}
-
-/* FAQ page elements in Dark Mode */
-body .uk-heading-divider {
-  border-bottom-color: #444;
-  color: #f5f5f5;
-}
-
-body .uk-heading-bullet {
-  color: #f5f5f5;
-}
-
-body .uk-heading-bullet::before {
-  border-color: #444;
-}
-
-body .uk-accordion-title {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-}
-
-body .uk-accordion-title::before {
-  filter: invert(1);
-}
-
-body .uk-accordion-content {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-}
+html.dark-mode {
+  --color-bg: #1e1e1e;
+  --color-primary: #0c86d0;
+  --color-text: #f5f5f5;
 }
 
 html.dark-mode,
@@ -419,6 +132,7 @@ body.dark-mode .topbar {
   border-color: #444;
   padding-top: env(safe-area-inset-top);
 }
+
 body.dark-mode .event-header-bar {
   background-color: #1e1e1e;
   border-color: #444;
@@ -456,38 +170,6 @@ body.dark-mode .onboarding-timeline .timeline-step.completed {
   color: var(--accent-color, #1e87f0);
 }
 
-body .pricing-grid .uk-card-quizrace {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-}
-
-body .pricing-grid .uk-card-quizrace.uk-card-popular {
-  background-color: #0c86d0;
-  color: #fff;
-}
-
-body .pricing-grid .uk-card-quizrace .uk-text-meta,
-body .pricing-grid .uk-card-quizrace li,
-body .pricing-grid .uk-card-quizrace h3 {
-  color: #f5f5f5;
-}
-
-body.dark-mode .pricing-grid .uk-card-quizrace {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-}
-
-body.dark-mode .pricing-grid .uk-card-quizrace.uk-card-popular {
-  background-color: #0c86d0;
-  color: #fff;
-}
-
-body.dark-mode .pricing-grid .uk-card-quizrace .uk-text-meta,
-body.dark-mode .pricing-grid .uk-card-quizrace li,
-body.dark-mode .pricing-grid .uk-card-quizrace h3 {
-  color: #f5f5f5;
-}
-
 body.dark-mode .uk-icon,
 body.dark-mode .uk-icon-button {
   color: #f5f5f5;
@@ -503,13 +185,14 @@ body.dark-mode .uk-icon-button {
   color: #fff;
   background-color: rgba(255, 255, 255, 0.2);
 }
+
 body.dark-mode .uk-icon-button.uk-button-primary {
   background-color: var(--accent-color, #1e87f0);
   border-color: var(--accent-color, #1e87f0);
 }
 
 /* Active state for navigation items in dark off-canvas menus */
-.uk-offcanvas-bar .uk-nav-default > li.uk-active > a {
+body.dark-mode .uk-offcanvas-bar .uk-nav-default > li.uk-active > a {
   background-color: rgba(255, 255, 255, 0.15);
   color: #fff;
 }
@@ -587,9 +270,9 @@ body.dark-mode .uk-table tr {
   body.dark-mode .mc-option {
     font-size: 1.5rem;
   }
-body.dark-mode .mc-option input {
-  transform: scale(1.3);
-}
+  body.dark-mode .mc-option input {
+    transform: scale(1.3);
+  }
 }
 
 body.dark-mode .flip-card-front,
@@ -625,6 +308,4 @@ body.dark-mode .uk-accordion-title::before {
 body.dark-mode .uk-accordion-content {
   background-color: #1e1e1e;
   color: #f5f5f5;
-}
-
 }
