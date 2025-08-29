@@ -4,6 +4,9 @@
 
 {% block head %}
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" disabled>
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/calhelp.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     body, .uk-card-default {
@@ -317,7 +320,6 @@
       {% block right %}
         <a class="uk-navbar-item top-cta" href="https://demo.quizrace.app" target="_blank" rel="noopener">Jetzt testen</a>
       {% endblock %}
-      {% block switches %}{% endblock %}
     {% endembed %}
 
     {{ content|raw }}
