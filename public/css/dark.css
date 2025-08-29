@@ -627,34 +627,4 @@ body.dark-mode .uk-accordion-content {
   color: #f5f5f5;
 }
 
-/* Landing page adjustments in Dark Mode */
-@media (prefers-color-scheme: dark) {
-  body.landing-page {
-    --landing-bg: #1e1e1e;
-    --landing-text: #f5f5f5;
-    --landing-primary: #0c86d0;
-    background: var(--landing-bg);
-    color: var(--landing-text);
-  }
-
-  body.landing-page .uk-card-quizrace {
-    background: var(--landing-bg);
-    color: var(--landing-text);
-  }
-
-  body.landing-page .uk-card-quizrace .uk-icon {
-    color: var(--landing-primary);
-  }
-
-  body.landing-page .topbar .top-cta,
-  body.landing-page .cta-main {
-    background: var(--landing-primary);
-    color: var(--landing-text);
-  }
-
-  body.landing-page .topbar .top-cta:hover,
-  body.landing-page .cta-main:hover {
-    background: var(--landing-text);
-    color: var(--landing-primary);
-  }
 }
