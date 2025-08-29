@@ -502,25 +502,21 @@ a.uk-accordion-title {
 .onboarding-timeline .timeline-step {
   padding: 0.5rem 1rem;
   margin: 0 0.5rem;
-  border-bottom: 3px solid #e5e5e5;
+  border-bottom: 3px solid rgba(255, 255, 255, 0.3);
   cursor: pointer;
-  color: #666;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .onboarding-timeline .timeline-step.inactive {
   cursor: not-allowed;
-  color: #bbb;
+  color: rgba(255, 255, 255, 0.4);
 }
 
-.onboarding-timeline .timeline-step.active {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-  font-weight: 600;
-}
-
+.onboarding-timeline .timeline-step.active,
 .onboarding-timeline .timeline-step.completed {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
+  border-color: #fff;
+  color: #fff;
+  font-weight: 600;
 }
 
 
