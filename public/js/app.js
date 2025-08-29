@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
   let dark = storedTheme === 'true' || (storedTheme === null && prefersDark);
 
   if (darkStylesheet) {
-    darkStylesheet.disabled = !dark;
+    darkStylesheet.toggleAttribute('disabled', !dark);
   }
 
   if (dark) {
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.documentElement.classList.toggle('dark-mode', dark);
         document.body.classList.toggle('uk-light', dark);
         if (darkStylesheet) {
-          darkStylesheet.disabled = !dark;
+          darkStylesheet.toggleAttribute('disabled', !dark);
         }
         localStorage.setItem('darkMode', dark ? 'true' : 'false');
         if (themeIcon) {
