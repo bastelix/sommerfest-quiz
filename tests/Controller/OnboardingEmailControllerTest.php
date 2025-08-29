@@ -332,10 +332,10 @@ class OnboardingEmailControllerTest extends TestCase
             '/onboarding?email=user%40example.com&verified=1',
             $response->getHeaderLine('Location')
         );
-        $confirmed = (string) $pdo
-            ->query('SELECT confirmed FROM email_confirmations WHERE token = ' . $pdo->quote($token))
+        $count = (int) $pdo
+            ->query('SELECT COUNT(*) FROM email_confirmations WHERE token = ' . $pdo->quote($token))
             ->fetchColumn();
-        $this->assertSame('1', $confirmed);
+        $this->assertSame(0, $count);
 
         $bad = $this->createRequest('GET', '/onboarding/email/confirm?token=invalid');
         $badResp = $app->handle($bad);
@@ -343,7 +343,7 @@ class OnboardingEmailControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testStatusEndpointForConfirmedAndUnconfirmedEmails(): void
+    public function testStatusEndpointReturns404AfterTokenRemoval(): void
     {
         $app = $this->getAppInstance();
         $pdo = $this->setupEmailConfirmations();
@@ -376,7 +376,7 @@ class OnboardingEmailControllerTest extends TestCase
         $app->handle($this->createRequest('GET', '/onboarding/email/confirm?token=' . $token));
 
         $status2 = $app->handle($this->createRequest('GET', '/onboarding/email/status?email=user@example.com'));
-        $this->assertSame(204, $status2->getStatusCode());
+        $this->assertSame(404, $status2->getStatusCode());
 
         $status3 = $app->handle($this->createRequest('GET', '/onboarding/email/status?email=other@example.com'));
         $this->assertSame(404, $status3->getStatusCode());
