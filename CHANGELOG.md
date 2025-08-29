@@ -140,6 +140,11 @@
 - Bump version to 0.2.127 [skip ci]
 - Bump version to 0.2.128 [skip ci]
 - Bump version to 0.2.129 [skip ci]
+- Bump version to 0.2.130 [skip ci]
+- Bump version to 0.2.131 [skip ci]
+- Bump version to 0.2.132 [skip ci]
+- Bump version to 0.2.133 [skip ci]
+- Bump version to 0.2.134 [skip ci]
 
 ### Docs
 
@@ -182,6 +187,7 @@
 - Allow custom image tag for tenant upgrade
 - Consolidate admin toolbar actions
 - Improve navigation accessibility
+- Dark pricing cards
 
 ### Fix
 
@@ -193,6 +199,7 @@
 - Always show topbar icons
 - Handle missing player name key
 - Align config button to navbar edge
+- Remove opacity from accessibility toggle icon
 
 ### Refactor
 
