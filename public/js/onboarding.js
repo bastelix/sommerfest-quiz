@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
           subdomainInput.classList.add('uk-form-danger');
           return;
         }
-        const res = await fetch(withBase('/tenants/' + encodeURIComponent(subdomain)), {
+        const res = await fetch(withBase('/onboarding/tenants/' + encodeURIComponent(subdomain)), {
           credentials: 'same-origin',
           headers: { 'X-Requested-With': 'fetch' }
         });
