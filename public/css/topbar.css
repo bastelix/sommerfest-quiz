@@ -36,19 +36,19 @@ body.dark-mode.high-contrast{
   --focus-ring: rgba(140,200,255,0.8);
 }
 .topbar, .topbar .uk-navbar-nav > li > a, .topbar .uk-navbar-item{
-  color:var(--text);
+  color:var(--topbar-text, var(--text));
 }
 .topbar .uk-navbar-nav > li > a:hover,
 .topbar .uk-navbar-nav > li > a:focus,
 .topbar .uk-navbar-item:hover,
 .topbar .uk-navbar-item:focus{
-  color:var(--text);
+  color:var(--topbar-text, var(--text));
 }
 .git-btn{
   width:40px;height:40px;padding:0;
   border-radius:6px;
   border:1px solid var(--btn-border);
-  color:var(--text);
+  color:var(--topbar-text, var(--text));
   display:inline-flex;align-items:center;justify-content:center;
   box-sizing:border-box;cursor:pointer;
   transition:background .12s,border-color .12s,box-shadow .12s;
@@ -68,7 +68,7 @@ body.dark-mode.high-contrast{
   border:1px solid var(--drop-border);
   border-radius:8px;
   padding:8px;
-  color:var(--text);
+  color:var(--topbar-text, var(--text));
   min-width:auto !important;
   width:fit-content !important;
   transform-origin: top right;

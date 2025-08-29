@@ -18,6 +18,7 @@
       --text: #fff;
       --drop-bg: var(--landing-primary);
       --drop-border: rgba(255, 255, 255, 0.32);
+      --topbar-text: var(--landing-text);
     }
     @media (prefers-color-scheme: dark) {
       :root,
@@ -27,6 +28,7 @@
         --text: #fff;
         --drop-bg: var(--landing-primary);
         --drop-border: rgba(255, 255, 255, 0.32);
+        --topbar-text: var(--landing-text);
       }
     }
     body.dark-mode.landing-page {
@@ -35,6 +37,7 @@
       --text: #fff;
       --drop-bg: var(--landing-primary);
       --drop-border: rgba(255, 255, 255, 0.32);
+      --topbar-text: var(--landing-text);
     }
     body, .uk-card-default {
       font-family: 'Poppins', Arial, sans-serif;
@@ -59,7 +62,7 @@
     }
     .uk-section.about-section {
       background: #000;
-      color: var(--landing-text);
+      color: var(--text);
     }
     .uk-section.about-section a {
       color: var(--landing-primary);
@@ -210,10 +213,7 @@
       display: flex;
       align-items: center;
       background: var(--landing-bg);
-      color: var(--landing-text);
-    }
-    .topbar a {
-      color: var(--landing-text);
+      color: var(--topbar-text);
     }
     .topbar .uk-navbar-left {
       padding-left: 0.5rem;
@@ -232,7 +232,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--landing-text);
+      color: var(--topbar-text);
     }
     .topbar .uk-navbar-item:hover,
     .topbar .uk-navbar-item:focus,
@@ -254,14 +254,14 @@
       padding: 0;
       font-family: 'Poppins', sans-serif;
       font-weight: 700;
-      color: var(--landing-text);
+      color: var(--topbar-text);
     }
     .topbar .uk-logo:hover,
     .topbar .uk-logo:focus {
       color: var(--landing-primary);
     }
     .topbar .git-btn {
-      color: var(--landing-text);
+      color: var(--topbar-text);
     }
     .topbar .git-btn:hover,
     .topbar .git-btn:focus {
@@ -292,10 +292,10 @@
       display: inline-flex;
       align-items: center;
       background: var(--landing-primary);
-      color: var(--landing-text);
+      color: var(--landing-bg);
     }
     .topbar .top-cta:hover {
-      background: var(--landing-text);
+      background: var(--landing-bg);
       color: var(--landing-primary);
     }
     .cta-main {
