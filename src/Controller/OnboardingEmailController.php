@@ -37,8 +37,9 @@ class OnboardingEmailController
         }
 
         $token = $this->service->createToken($email);
+        $base = rtrim($request->getUri()->getBasePath(), '/');
         $uri = $request->getUri()
-            ->withPath('/onboarding/email/confirm')
+            ->withPath($base . '/onboarding/email/confirm')
             ->withQuery('token=' . urlencode($token));
 
         $mailer = $request->getAttribute('mailService');
@@ -69,8 +70,9 @@ class OnboardingEmailController
             return $response->withStatus(400);
         }
 
+        $base = rtrim($request->getUri()->getBasePath(), '/');
         $uri = $request->getUri()
-            ->withPath('/onboarding')
+            ->withPath($base . '/onboarding')
             ->withQuery(http_build_query([
                 'email' => $email,
                 'verified' => 1,
