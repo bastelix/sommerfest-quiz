@@ -4,12 +4,11 @@
 
 {% block head %}
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/dark.css" disabled>
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   <link rel="stylesheet" href="{{ basePath }}/css/calhelp.css">
 {% endblock %}
 
-{% block body_class %}index-page uk-padding@m{% endblock %}
+{% block body_class %}index-page uk-padding@m uk-dark{% endblock %}
 
 {% block body %}
   {% embed 'topbar.twig' %}
