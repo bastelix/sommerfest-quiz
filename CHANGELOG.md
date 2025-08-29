@@ -171,6 +171,8 @@
 - Bump version to 0.2.158 [skip ci]
 - Bump version to 0.2.159 [skip ci]
 - Bump version to 0.2.160 [skip ci]
+- Bump version to 0.2.161 [skip ci]
+- Bump version to 0.2.162 [skip ci]
 
 ### Docs
 
@@ -241,6 +243,8 @@
 - Use accent color variable in dark mode
 - Use CSS variables for landing page
 - Update topbar text colors
+- Unify landing page theme variables
+- Scope dark mode styles
 
 ### Style
 
