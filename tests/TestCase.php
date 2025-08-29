@@ -12,7 +12,6 @@ use Slim\Factory\AppFactory;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\Headers;
 use Slim\Psr7\Request as SlimRequest;
-use Slim\Psr7\Uri;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use App\Application\Middleware\SessionMiddleware;
