@@ -167,6 +167,10 @@
 - Bump version to 0.2.154 [skip ci]
 - Bump version to 0.2.155 [skip ci]
 - Bump version to 0.2.156 [skip ci]
+- Bump version to 0.2.157 [skip ci]
+- Bump version to 0.2.158 [skip ci]
+- Bump version to 0.2.159 [skip ci]
+- Bump version to 0.2.160 [skip ci]
 
 ### Docs
 
@@ -236,6 +240,7 @@
 - Externalize onboarding styles
 - Use accent color variable in dark mode
 - Use CSS variables for landing page
+- Update topbar text colors
 
 ### Style
 
