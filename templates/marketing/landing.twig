@@ -14,11 +14,21 @@
       --text: #fff;
       --drop-bg: #0c86d0;
       --drop-border: rgba(255, 255, 255, 0.32);
+      --landing-primary: #0c86d0;
     }
     html body.landing-page {
       --text: #fff;
       --drop-bg: #0c86d0;
       --drop-border: rgba(255, 255, 255, 0.32);
+      --landing-primary: #0c86d0;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --landing-primary: #005a8e;
+      }
+      html body.landing-page {
+        --landing-primary: #005a8e;
+      }
     }
     body, .uk-card-default {
       font-family: 'Poppins', Arial, sans-serif;
@@ -189,7 +199,7 @@
       flex-wrap: nowrap;
       display: flex;
       align-items: center;
-      background: #0c86d0 !important;
+      background-color: var(--landing-primary);
     }
     .topbar .uk-navbar-left {
       padding-left: 0.5rem;
