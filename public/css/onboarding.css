@@ -71,3 +71,14 @@
 .pricing-grid .uk-card-quizrace .btn {
   margin-top: auto;
 }
+
+@media (prefers-color-scheme: light) {
+  .site-footer {
+    background-color: var(--primary-color);
+    color: #fff;
+  }
+
+  .site-footer a {
+    color: #fff;
+  }
+}
