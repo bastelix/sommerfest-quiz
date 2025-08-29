@@ -10,27 +10,31 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     /* Landing page palette */
-    @media (prefers-color-scheme: light) {
-      :root,
-      body.landing-page {
-        --landing-bg: #fff;
-        --landing-text: #232323;
-        --landing-primary: #0c86d0;
-        --text: #fff;
-        --drop-bg: var(--landing-primary);
-        --drop-border: rgba(255, 255, 255, 0.32);
-      }
+    :root,
+    body.landing-page {
+      --landing-bg: #fff;
+      --landing-text: #232323;
+      --landing-primary: #0c86d0;
+      --text: #fff;
+      --drop-bg: var(--landing-primary);
+      --drop-border: rgba(255, 255, 255, 0.32);
     }
     @media (prefers-color-scheme: dark) {
       :root,
       body.landing-page {
         --landing-bg: #1e1e1e;
         --landing-text: #f5f5f5;
-        --landing-primary: #0c86d0;
         --text: #fff;
         --drop-bg: var(--landing-primary);
         --drop-border: rgba(255, 255, 255, 0.32);
       }
+    }
+    body.dark-mode.landing-page {
+      --landing-bg: #1e1e1e;
+      --landing-text: #f5f5f5;
+      --text: #fff;
+      --drop-bg: var(--landing-primary);
+      --drop-border: rgba(255, 255, 255, 0.32);
     }
     body, .uk-card-default {
       font-family: 'Poppins', Arial, sans-serif;
@@ -205,7 +209,11 @@
       flex-wrap: nowrap;
       display: flex;
       align-items: center;
-      background-color: var(--landing-primary);
+      background: var(--landing-bg);
+      color: var(--landing-text);
+    }
+    .topbar a {
+      color: var(--landing-text);
     }
     .topbar .uk-navbar-left {
       padding-left: 0.5rem;
