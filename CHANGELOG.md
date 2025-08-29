@@ -173,6 +173,7 @@
 - Bump version to 0.2.160 [skip ci]
 - Bump version to 0.2.161 [skip ci]
 - Bump version to 0.2.162 [skip ci]
+- Bump version to 0.2.163 [skip ci]
 
 ### Docs
 
@@ -219,6 +220,7 @@
 - Dark pricing cards
 - Toggle dark stylesheet via disabled attribute
 - Themeable landing topbar
+- Improve landing page theme variables
 
 ### Fix
 
@@ -253,6 +255,7 @@
 - Improve landing topbar contrast
 - Square icon buttons
 - Add dark mode styles for landing page
+- Align topbar link colors with theme
 
 ### Test
 
