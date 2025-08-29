@@ -32,7 +32,7 @@ class OnboardingEmailController
             return $response->withStatus(400);
         }
         $email = trim((string) ($data['email'] ?? ''));
-        if ($email === '') {
+        if ($email === '' || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
             return $response->withStatus(400);
         }
 

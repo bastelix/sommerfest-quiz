@@ -97,6 +97,63 @@ class OnboardingEmailControllerTest extends TestCase
         session_destroy();
     }
 
+    public function testPostRejectsInvalidEmailAddress(): void
+    {
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['csrf_token'] = 'tok';
+        unset($_SESSION['rate:/onboarding/email']);
+
+        $request = $this->createRequest('POST', '/onboarding/email', [
+            'Content-Type' => 'application/json',
+            'X-CSRF-Token' => 'tok',
+        ]);
+        $stream = fopen('php://temp', 'r+');
+        fwrite($stream, json_encode(['email' => 'invalid']));
+        rewind($stream);
+        $request = $request->withBody((new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream));
+
+        $response = $app->handle($request);
+        $this->assertSame(400, $response->getStatusCode());
+        session_destroy();
+    }
+
+    public function testPostAcceptsTrimmedValidEmail(): void
+    {
+        $app = $this->getAppInstance();
+        $this->setupEmailConfirmations();
+        session_start();
+        $_SESSION['csrf_token'] = 'tok';
+        unset($_SESSION['rate:/onboarding/email']);
+
+        $mailer = new class extends MailService {
+            public array $sent = [];
+            public function __construct()
+            {
+            }
+            public function sendDoubleOptIn(string $to, string $link): void
+            {
+                $this->sent[] = [$to, $link];
+            }
+        };
+
+        $request = $this->createRequest('POST', '/onboarding/email', [
+            'Content-Type' => 'application/json',
+            'X-CSRF-Token' => 'tok',
+        ]);
+        $stream = fopen('php://temp', 'r+');
+        fwrite($stream, json_encode(['email' => '  user@example.com  ']));
+        rewind($stream);
+        $request = $request->withBody((new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream));
+        $request = $request->withAttribute('mailService', $mailer);
+
+        $response = $app->handle($request);
+        $this->assertSame(204, $response->getStatusCode());
+        $this->assertCount(1, $mailer->sent);
+        $this->assertSame('user@example.com', $mailer->sent[0][0]);
+        session_destroy();
+    }
+
     public function testTokenCreationStoresTokenAndSendsMail(): void
     {
         $app = $this->getAppInstance();
