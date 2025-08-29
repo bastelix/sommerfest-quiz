@@ -10,30 +10,26 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     /* Landing page palette */
-    :root {
-      --landing-bg: #fff;
-      --landing-text: #232323;
-      --landing-primary: #0c86d0;
-      --text: #fff;
-      --drop-bg: var(--landing-primary);
-      --drop-border: rgba(255, 255, 255, 0.32);
-      --landing-primary: #0c86d0;
-    }
-    html body.landing-page {
-      --landing-bg: #fff;
-      --landing-text: #232323;
-      --landing-primary: #0c86d0;
-      --text: #fff;
-      --drop-bg: var(--landing-primary);
-      --drop-border: rgba(255, 255, 255, 0.32);
-      --landing-primary: #0c86d0;
+    @media (prefers-color-scheme: light) {
+      :root,
+      body.landing-page {
+        --landing-bg: #fff;
+        --landing-text: #232323;
+        --landing-primary: #0c86d0;
+        --text: #fff;
+        --drop-bg: var(--landing-primary);
+        --drop-border: rgba(255, 255, 255, 0.32);
+      }
     }
     @media (prefers-color-scheme: dark) {
-      :root {
+      :root,
+      body.landing-page {
+        --landing-bg: #000;
+        --landing-text: #f5f5f5;
         --landing-primary: #005a8e;
-      }
-      html body.landing-page {
-        --landing-primary: #005a8e;
+        --text: #fff;
+        --drop-bg: var(--landing-primary);
+        --drop-border: rgba(255, 255, 255, 0.32);
       }
     }
     body, .uk-card-default {
