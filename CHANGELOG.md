@@ -229,6 +229,7 @@
 - Themeable landing topbar
 - Improve landing page theme variables
 - Streamline dark mode handling
+- Improve dark theme colors
 
 ### Fix
 
