@@ -1,4 +1,41 @@
 /* Dark theme variables handled via UIkit classes. */
 :root {
   --uk-inverse: #f5f5f5;
+  --color-bg: #111;
+  --color-text: #f5f5f5;
+}
+
+body.uk-dark {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+body.uk-dark .uk-card-default {
+  background-color: #1a1a1a;
+  color: var(--color-text);
+}
+
+body.uk-dark .sortable-list li,
+body.uk-dark .terms li,
+body.uk-dark .dropzone,
+body.uk-dark .mc-option {
+  background: #1a1a1a;
+  border-color: #333;
+  color: var(--color-text);
+}
+
+body.uk-dark .dropzone.over {
+  background: #2a2a2a;
+}
+
+body.uk-dark .page-editor {
+  background: #1a1a1a;
+  border-color: #333;
+  color: var(--color-text);
+}
+
+body.uk-dark .qr-label {
+  background: #1a1a1a;
+  border-color: #444;
+  color: var(--color-text);
 }
