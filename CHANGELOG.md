@@ -146,6 +146,10 @@
 - Bump version to 0.2.133 [skip ci]
 - Bump version to 0.2.134 [skip ci]
 - Bump version to 0.2.135 [skip ci]
+- Bump version to 0.2.136 [skip ci]
+- Bump version to 0.2.137 [skip ci]
+- Bump version to 0.2.138 [skip ci]
+- Bump version to 0.2.139 [skip ci]
 
 ### Docs
 
@@ -189,6 +193,7 @@
 - Consolidate admin toolbar actions
 - Improve navigation accessibility
 - Dark pricing cards
+- Toggle dark stylesheet via disabled attribute
 
 ### Fix
 
@@ -201,6 +206,7 @@
 - Handle missing player name key
 - Align config button to navbar edge
 - Remove opacity from accessibility toggle icon
+- Ensure landing navbar uses UIKit-specific background
 
 ### Refactor
 
@@ -209,6 +215,7 @@
 - Sanitize subscription DOM updates
 - Build pagination DOM and escape paths
 - Externalize onboarding styles
+- Use accent color variable in dark mode
 
 ### Style
 
