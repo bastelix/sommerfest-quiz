@@ -145,6 +145,7 @@
 - Bump version to 0.2.132 [skip ci]
 - Bump version to 0.2.133 [skip ci]
 - Bump version to 0.2.134 [skip ci]
+- Bump version to 0.2.135 [skip ci]
 
 ### Docs
 
@@ -207,6 +208,7 @@
 - Wrap invoice return docblock
 - Sanitize subscription DOM updates
 - Build pagination DOM and escape paths
+- Externalize onboarding styles
 
 ### Style
 
