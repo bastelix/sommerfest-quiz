@@ -1,0 +1,63 @@
+<!-- ===== Scripts ===== -->
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>
+<script>
+  // 3.1 Sticky-Nav Schatten
+  (function(){
+    const n=document.querySelector('.gh-nav'); if(!n) return;
+    const f=()=> n.classList.toggle('scrolled', window.scrollY>8);
+    addEventListener('scroll', f, {passive:true}); f();
+  })();
+
+  // 3.2 Offcanvas beim Link-Klick schließen
+  (function(){
+    const oc = UIkit && UIkit.offcanvas ? UIkit.offcanvas('#mobile-nav') : null;
+    const list = document.querySelector('#mobile-nav .uk-nav');
+    if(oc && list){
+      list.addEventListener('click', (e)=>{
+        const a = e.target.closest('a'); if(!a) return;
+        oc.hide();
+      });
+    }
+  })();
+
+  // 3.3 Pricing Toggle (Monat/Jahr)
+  (function(){
+    const toggle = document.getElementById('billing-toggle');
+    const note = document.getElementById('billing-note');
+    const prices = document.querySelectorAll('.price');
+    if(!toggle || !prices.length) return;
+    function apply(){
+      const yearly = toggle.checked;
+      prices.forEach(p=>{
+        const m = p.getAttribute('data-monthly');
+        const y = p.getAttribute('data-yearly');
+        p.textContent = yearly ? y : m;
+      });
+      note.textContent = yearly ? 'Jährliche Abrechnung (-15 %).' : 'Monatliche Abrechnung.';
+    }
+    toggle.addEventListener('change', apply); apply();
+  })();
+
+  // 3.4 Kontakt: Inline-Fehler (Minimalbeispiel)
+  (function(){
+    const form = document.getElementById('contact-form');
+    if(!form) return;
+    const email = form.querySelector('#form-email');
+    const name  = form.querySelector('#form-name');
+    const msg   = form.querySelector('#form-msg');
+    function req(input, id){
+      const el = document.getElementById(id);
+      const ok = input.value.trim().length>0 && (input!==email || /\S+@\S+\.\S+/.test(input.value));
+      input.classList.toggle('is-invalid', !ok);
+      if(el) el.hidden = ok;
+      input.setAttribute('aria-invalid', String(!ok));
+      return ok;
+    }
+    form.addEventListener('submit', (e)=>{
+      const ok = [req(name,'err-name'), req(email,'err-email'), req(msg,'err-msg')].every(Boolean);
+      if(!ok) e.preventDefault();
+    });
+  })();
+</script>
