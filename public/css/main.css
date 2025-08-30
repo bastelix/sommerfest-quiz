@@ -32,6 +32,17 @@ body.uk-background-default {
   border-color: var(--accent-color, #1e87f0);
 }
 
+.git-btn {
+  background-color: rgba(0, 0, 0, 0.05);
+  border: 1px solid #ddd;
+  color: #666;
+}
+
+.git-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-color: #bbb;
+}
+
 .about-section {
   background-color: #000;
   color: #fff;
@@ -94,6 +105,15 @@ body.uk-padding {
 .login-card .uk-input {
   background: #fff;
   border-color: #bbb;
+  color: #222;
+}
+
+.login-card .uk-input::placeholder {
+  color: #888;
+}
+
+.login-card .uk-form-icon {
+  color: #666;
 }
 
 .login-card .uk-input:focus {
@@ -579,6 +599,29 @@ a.uk-accordion-title {
 
 #adminTabs {
   display: none;
+}
+
+/* Backend form readability in light mode */
+.admin-page .uk-input,
+.admin-page .uk-select,
+.admin-page .uk-textarea {
+  background: #fff;
+  color: #222;
+  border-color: #bbb;
+}
+
+.admin-page .uk-input::placeholder,
+.admin-page .uk-select::placeholder,
+.admin-page .uk-textarea::placeholder {
+  color: #888;
+}
+
+.admin-page .uk-form-label {
+  color: #222;
+}
+
+.admin-page .uk-form-icon {
+  color: #666;
 }
 
 body.admin-page {
