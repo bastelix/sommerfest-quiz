@@ -1,152 +1,103 @@
-/* =========
-   GitHub-inspired Theme (light/dark via prefers-color-scheme)
-   ========= */
+/* === Farb-Tokens (GitHub-ish + Brand Blue) === */
 :root{
-  /* GitHub-ish neutrals */
-  --gh-canvas-default: #ffffff;
-  --gh-canvas-subtle: #f6f8fa;
-  --gh-border-muted: #d0d7de;
-  --gh-fg-default: #24292f;
-  --gh-fg-muted: #57606a;
-  --gh-accent: #0969da; /* GitHub blue */
-  --gh-success: #1a7f37;
-  --gh-attention: #9a6700;
-  --qr-shadow: 0 10px 30px rgba(0,0,0,.12);
-  --qr-shadow-soft: 0 2px 8px rgba(0,0,0,.08);
-  --radius-md: 12px;
-  --radius-sm: 8px;
-  --nav-bg: rgba(255,255,255,.86);
-  --nav-fg: #24292f;
-  --nav-muted: #57606a;
-  --nav-sep: #d0d7de;
+  /* Neutrals Light */
+  --canvas: #ffffff;
+  --canvas-subtle: #f6f8fa;
+  --border: #d0d7de;
+  --fg: #24292f;
+  --fg-muted: #57606a;
+
+  /* Neutrals Dark */
+  --canvas-dark: #0d1117;
+  --canvas-dark-subtle: #161b22;
+  --border-dark: #30363d;
+  --fg-dark: #e6edf3;
+  --fg-dark-muted: #7d8590;
+
+  /* Brand Blues (zweistufig für Accessibility) */
+  --brand-450: #2f81f7; /* für dunkle Flächen */
+  --brand-600: #0969da; /* für helle Flächen (Buttons/Links auf Weiß) */
+
+  /* Nav */
+  --nav-bg: rgba(255,255,255,.88);
+  --nav-fg: var(--fg);
+  --nav-muted: var(--fg-muted);
+  --nav-sep: var(--border);
   --nav-shadow: 0 2px 8px rgba(0,0,0,.06);
-  --accent: #2f81f7;
 }
 @media (prefers-color-scheme: dark){
   :root{
-    --gh-canvas-default: #0d1117;
-    --gh-canvas-subtle: #161b22;
-    --gh-border-muted: #30363d;
-    --gh-fg-default: #e6edf3;
-    --gh-fg-muted: #7d8590;
-    --gh-accent: #2f81f7;
-    --qr-shadow: 0 14px 36px rgba(0,0,0,.45);
-    --qr-shadow-soft: 0 2px 8px rgba(0,0,0,.35);
     --nav-bg: rgba(13,17,23,.78);
-    --nav-fg: #e6edf3;
-    --nav-muted: #9aa4ad;
-    --nav-sep: #30363d;
+    --nav-fg: var(--fg-dark);
+    --nav-muted: var(--fg-dark-muted);
+    --nav-sep: var(--border-dark);
     --nav-shadow: 0 6px 20px rgba(0,0,0,.45);
   }
 }
-html, body{
-  background: var(--gh-canvas-default);
-  color: var(--gh-fg-default);
-}
-/* Typo/Containers slightly wider like GitHub */
-.container-xl { max-width: 1200px; margin: 0 auto; }
 
-/* Sticky Topbar */
+/* === Topbar: starker Kontrast + Scroll-State === */
 .gh-nav{
   position: sticky; top:0; z-index:1000;
   background: var(--nav-bg);
-  -webkit-backdrop-filter: saturate(1.2) blur(8px);
   backdrop-filter: saturate(1.2) blur(8px);
+  -webkit-backdrop-filter: saturate(1.2) blur(8px);
   border-bottom: 1px solid var(--nav-sep);
-  box-shadow: none;
 }
-.gh-nav-inner{
-  display:flex; align-items:center; gap:14px;
-  padding: 10px 16px;
-}
-.brand{
-  display:flex; align-items:center; gap:10px; font-weight:700;
-  letter-spacing: .2px;
-}
-.brand .dot{ width:10px; height:10px; border-radius:50%; background:var(--accent); display:inline-block; }
-.gh-nav .nav-links{ display:flex; gap:16px; margin-left: 12px; flex-wrap:wrap; }
-.gh-nav .nav-cta{ margin-left:auto; display:flex; gap:8px; }
 .gh-nav .nav-links a{
   color: var(--nav-muted);
-  font-weight: 600;
-  letter-spacing: .2px;
+  font-weight: 600; letter-spacing:.2px;
 }
 .gh-nav .nav-links a:hover,
 .gh-nav .nav-links a:focus-visible{
   color: var(--nav-fg);
-  text-decoration: underline;
-  text-underline-offset: 6px;
+  text-decoration: underline; text-underline-offset: 6px;
 }
 .gh-nav .nav-links .is-active,
 .gh-nav .nav-links a[aria-current="page"]{
-  color: var(--nav-fg);
-  position: relative;
+  color: var(--nav-fg); position: relative;
 }
 .gh-nav .nav-links .is-active::after,
 .gh-nav .nav-links a[aria-current="page"]::after{
   content:""; position:absolute; left:0; right:0; bottom:-12px; height:2px;
-  background: var(--accent); border-radius:2px;
+  background: var(--brand-450); border-radius:2px;
 }
 .gh-nav .btn-primary{
-  background: var(--accent); color:#fff; border:1px solid transparent;
-  border-radius: 8px; box-shadow:none;
+  background: var(--brand-600); color:#fff; border:1px solid transparent; /* #0969da auf weiß => 5.19:1 */
+  border-radius: 8px;
 }
 .gh-nav .btn-secondary{
   background: transparent; color: var(--nav-fg);
   border:1px solid var(--nav-sep); border-radius: 8px;
 }
-.gh-nav .btn-secondary:hover{ background: color-mix(in oklab, var(--nav-fg) 6%, transparent); }
-.gh-nav [uk-icon], .gh-nav .uk-navbar-toggle{
-  color: var(--nav-fg) !important;
-}
-.gh-nav.scrolled{
-  background: color-mix(in oklab, var(--nav-bg) 95%, transparent);
-  box-shadow: var(--nav-shadow);
-  border-bottom-color: var(--nav-sep);
-}
+.gh-nav.scrolled{ box-shadow: var(--nav-shadow); }
 
-/* Buttons tuned to GH Blue */
-.btn-primary{
-  background: var(--accent); color:#fff; border:1px solid transparent;
-  border-radius: 8px; box-shadow: var(--qr-shadow-soft);
-}
-.btn-primary:hover{ filter: brightness(1.05); }
-.btn-secondary{
-  background: transparent; color: var(--gh-fg-default);
-  border:1px solid var(--gh-border-muted); border-radius: 8px;
-}
-.btn-secondary:hover{ background: var(--gh-canvas-subtle); }
-
-/* HERO */
-.hero{
-  position: relative; color:#fff;
-}
+/* === Hero: blauer Verlauf statt flächigem Grau === */
 .hero__overlay{
   position:absolute; inset:0; pointer-events:none;
   background:
-    linear-gradient(180deg, rgba(8,12,20,.70) 0%, rgba(8,12,20,.52) 45%, rgba(8,12,20,.80) 100%),
-    radial-gradient(1100px 520px at 12% 10%, rgba(47,129,247,.35), rgba(47,129,247,0) 60%),
-    radial-gradient(900px 460px at 92% 18%, rgba(14,165,233,.22), rgba(14,165,233,0) 62%);
+    linear-gradient(180deg, rgba(8,12,20,.70) 0%, rgba(8,12,20,.50) 42%, rgba(8,12,20,.80) 100%),
+    radial-gradient(1100px 520px at 14% 12%, color-mix(in oklab, var(--brand-450) 35%, transparent), transparent 60%),
+    radial-gradient(900px 460px at 92% 18%, color-mix(in oklab, #0ea5e9 25%, transparent), transparent 62%);
 }
-.hero h1{
-  color:#fff;
-  line-height:1.1;
-  text-wrap: balance;
-}
+.hero h1{ color:#fff; line-height:1.1; text-wrap: balance; }
 .marker-text{
-  background: linear-gradient(90deg,#9bd3ff, var(--accent));
+  background: linear-gradient(90deg, #9bd3ff, var(--brand-450));
   -webkit-background-clip:text; background-clip:text; color:transparent;
 }
-.hero__media{
-  background:#fff; border-radius:12px; overflow:hidden;
-  border:1px solid var(--nav-sep);
-  box-shadow: 0 14px 36px rgba(0,0,0,.18);
+
+/* === CTA & Links: sichere Blauwahl pro Surface === */
+.uk-button.btn-primary,
+.uk-button-primary{ /* Buttons auf hellen Flächen */
+  background: var(--brand-600) !important; color:#fff !important; /* 5.19:1 */
+}
+a, .uk-link, .uk-link-text{
+  color: var(--brand-600);
 }
 @media (prefers-color-scheme: dark){
-  .hero__media{ background:#0d1117; }
+  a, .uk-link, .uk-link-text{ color: var(--brand-450); } /* 5.05:1 auf #0d1117 */
 }
 
-/* Chips / Trust badges (GitHub-like) */
+/* === Chips/Badges unter dem Hero: mehr Pop, aber dezent === */
 .chips{ display:flex; gap:10px; flex-wrap:wrap; }
 .chip{
   display:inline-flex; align-items:center; gap:6px;
@@ -156,63 +107,30 @@ html, body{
   color: var(--nav-fg);
   box-shadow: 0 1px 0 rgba(0,0,0,.04);
 }
-.chip [uk-icon]{ opacity:.85; }
 
-/* Cards */
-.card{
-  background: var(--gh-canvas-default);
-  border:1px solid var(--gh-border-muted);
-  border-radius: var(--radius-md);
-  box-shadow: var(--qr-shadow-soft);
-  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
-}
-.card:hover{ transform: translateY(-2px); box-shadow: var(--qr-shadow); }
-
-.uk-card-quizrace{ /* keep compatibility */
-  background: var(--gh-canvas-default);
-  border:1px solid var(--gh-border-muted);
-  border-radius: var(--radius-md);
-  box-shadow: var(--qr-shadow-soft);
-  transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
-}
-.uk-card-quizrace:hover{ transform: translateY(-2px); box-shadow: var(--qr-shadow); }
-
-/* Pricing highlight */
-.uk-card-popular{
-  background: linear-gradient(180deg, rgba(9,105,218,.08), transparent 30%), var(--gh-canvas-default);
-  border: 1px solid color-mix(in oklab, var(--gh-accent) 30%, var(--gh-border-muted));
-  box-shadow: 0 14px 36px rgba(9,105,218,.22);
-  color: var(--gh-fg-default);
+/* === Dark-Mode Lesbarkeit für Fließtext (Muted aufhellen) === */
+@media (prefers-color-scheme: dark){
+  body{ color: var(--fg-dark); }
+  .uk-text-meta, .uk-text-muted{ color: var(--fg-dark-muted) !important; } /* statt #57606a */
 }
 
-/* Section backgrounds */
-.uk-section-muted{ background: var(--gh-canvas-subtle); }
-
-/* Headings minor tweaks */
-.section-title{ letter-spacing: .2px; }
-.subtle-divider{ height:1px; background: var(--gh-border-muted); width: 100%; }
-
-/* Step badges */
-.step-badge{
-  display:inline-flex; align-items:center; justify-content:center;
-  width: 36px; height: 36px; border-radius: 50%;
-  background: var(--gh-accent); color:#fff; font-weight:700;
-  box-shadow: var(--qr-shadow-soft);
+/* === Karten/Mockup leicht kontrastreicher === */
+.hero__media{
+  background: var(--canvas); border-radius:12px; overflow:hidden;
+  border:1px solid var(--border); box-shadow: 0 14px 36px rgba(0,0,0,.18);
+}
+@media (prefers-color-scheme: dark){
+  .hero__media{ background: var(--canvas-dark); border-color: var(--border-dark); }
 }
 
-/* Footer */
-footer{
-  border-top: 1px solid var(--gh-border-muted);
-  background: var(--gh-canvas-subtle);
-  color: var(--gh-fg-muted);
-}
-
-/* Scrollspy/Motion reduce */
-@media (prefers-reduced-motion: reduce){
-  [uk-scrollspy]{ opacity:1 !important; transform:none !important; }
-  .uk-animation-* { animation: none !important; }
-}
-
-/* Accessibility helpers */
-.sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; clip-path: inset(50%); }
-
+/* Additional existing styles */
+.container-xl { max-width: 1200px; margin: 0 auto; }
+.gh-nav-inner{ display:flex; align-items:center; gap:14px; padding: 10px 16px; }
+.brand{ display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.2px; }
+.brand .dot{ width:10px; height:10px; border-radius:50%; background:var(--brand-450); display:inline-block; }
+.gh-nav .nav-links{ display:flex; gap:16px; margin-left: 12px; flex-wrap:wrap; }
+.gh-nav .nav-cta{ margin-left:auto; display:flex; gap:8px; }
+.gh-nav .btn-secondary:hover{ background: color-mix(in oklab, var(--nav-fg) 6%, transparent); }
+.gh-nav [uk-icon], .gh-nav .uk-navbar-toggle{ color: var(--nav-fg) !important; }
+.btn-secondary{ background: transparent; color: var(--fg); border:1px solid var(--border); border-radius: 8px; }
+.btn-secondary:hover{ background: var(--canvas-subtle); }
