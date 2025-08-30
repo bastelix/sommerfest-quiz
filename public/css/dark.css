@@ -1,13 +1,20 @@
 /* Zusätzliche Styles für Dark Mode */
 html.uk-dark {
   --color-bg: #1e1e1e;
+  --color-bg-alt: #000;
   --color-primary: #0c86d0;
   --color-text: #f5f5f5;
+  --color-contrast: #333;
+  --color-border: #444;
+  --color-border-strong: #555;
+  --color-border-darker: #666;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
 }
 html.uk-dark,
 html.uk-dark body {
-  background-color: #000 !important;
-  color: #f5f5f5;
+  background-color: var(--color-bg-alt) !important;
+  color: var(--color-text);
 }
 html.uk-dark body a {
   color: var(--accent-color, #9dc6ff);
@@ -18,24 +25,24 @@ html.uk-dark body h3,
 html.uk-dark body h4,
 html.uk-dark body h5,
 html.uk-dark body h6 {
-  color: #f5f5f5;
+  color: var(--color-text);
 }
 html.uk-dark body .uk-card-title {
-  color: #f5f5f5;
+  color: var(--color-text);
 }
 html.uk-dark body .uk-card-default {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }
 html.uk-dark body .uk-card-default a {
   color: var(--accent-color, #9dc6ff);
 }
 html.uk-dark body .uk-card h3,
 html.uk-dark body .uk-card p {
-  color: #f5f5f5;
+  color: var(--color-text);
 }
 html.uk-dark body .uk-progress {
-  background-color: #333;
+  background-color: var(--color-contrast);
   color: var(--accent-color, #1e87f0);
 }
 html.uk-dark body .uk-button-primary {
@@ -45,18 +52,18 @@ html.uk-dark body .uk-button-primary {
 html.uk-dark body .uk-button,
 html.uk-dark body .uk-button-default {
   color: #fff;
-  background-color: #333;
-  border-color: #555;
+  background-color: var(--color-contrast);
+  border-color: var(--color-border-strong);
 }
 html.uk-dark body .btn-black {
-  background-color: #333 !important;
-  color: #f5f5f5 !important;
-  border: 2px solid #666;
+  background-color: var(--color-contrast) !important;
+  color: var(--color-text) !important;
+  border: 2px solid var(--color-border-darker);
 }
 html.uk-dark body .btn-black:hover {
-  background-color: #f5f5f5 !important;
-  color: #000 !important;
-  border-color: #f5f5f5;
+  background-color: var(--color-text) !important;
+  color: var(--color-bg-alt) !important;
+  border-color: var(--color-text);
 }
 html.uk-dark body .btn-transparent {
   background-color: transparent !important;
@@ -65,14 +72,14 @@ html.uk-dark body .btn-transparent {
 }
 html.uk-dark body .btn-transparent:hover {
   background-color: var(--accent-color, #9dc6ff) !important;
-  color: #000 !important;
+  color: var(--color-bg-alt) !important;
 }
 html.uk-dark body input,
 html.uk-dark body textarea,
 html.uk-dark body select {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-  border-color: #555;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
 }
 html.uk-dark body .login-card .uk-input {
   background-color: #1e1e1e;
@@ -86,11 +93,11 @@ html.uk-dark body .sortable-list li,
 html.uk-dark body .terms li,
 html.uk-dark body .dropzone,
 html.uk-dark body .mc-option {
-  background-color: #1e1e1e;
-  border-color: #444;
-  color: #f5f5f5;
+  background-color: var(--color-bg);
+  border-color: var(--color-border);
+  color: var(--color-text);
   font-size: 1rem;
-  padding: 16px;
+  padding: var(--spacing-md);
   white-space: normal;
 }
 html.uk-dark body .dropzone.over {
@@ -111,33 +118,33 @@ html.uk-dark body .uk-alert-primary {
 
 html.uk-dark body .mc-option input {
   transform: scale(1.3);
-  margin-right: 8px;
+  margin-right: var(--spacing-sm);
 }
 
 /* Einheitlicher Kartenrahmen fuer Admin-Tabs im Dunkelmodus */
 html.uk-dark body .tab-card {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }
 
 html.uk-dark body .topbar {
-  background-color: #1e1e1e;
-  border-color: #444;
+  background-color: var(--color-bg);
+  border-color: var(--color-border);
   padding-top: env(safe-area-inset-top);
 }
 
 html.uk-dark body .git-btn,
 html.uk-dark body .uk-icon-button:not(.uk-button-primary) {
   background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid #444;
+  border: 1px solid var(--color-border);
 }
 html.uk-dark body .event-header-bar {
-  background-color: #1e1e1e;
-  border-color: #444;
+  background-color: var(--color-bg);
+  border-color: var(--color-border);
 }
 
 html.uk-dark body .modern-info-card {
-  border-color: #444;
+  border-color: var(--color-border);
 }
 
 /* Sticky actions and onboarding components in Dark Mode */
@@ -146,19 +153,19 @@ html.uk-dark body .sticky-actions {
 }
 
 html.uk-dark body .onboarding-step {
-  border-color: #444;
-  background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
+  border-color: var(--color-border);
+  background: linear-gradient(135deg, var(--color-bg) 0%, #2a2a2a 100%);
   box-shadow: 0 6px 30px rgba(0,0,0,0.5);
 }
 
 html.uk-dark body .onboarding-timeline .timeline-step {
-  border-color: #555;
+  border-color: var(--color-border-strong);
   color: #ddd;
 }
 
 html.uk-dark body .onboarding-timeline .timeline-step.inactive {
-  color: #444;
-  border-color: #555;
+  color: var(--color-border);
+  border-color: var(--color-border-strong);
   cursor: not-allowed;
 }
 
@@ -170,13 +177,13 @@ html.uk-dark body .onboarding-timeline .timeline-step.completed {
 
 html.uk-dark body .uk-icon,
 html.uk-dark body .uk-icon-button {
-  color: #f5f5f5;
+  color: var(--color-text);
 }
 
 html.uk-dark body .site-footer {
-  background-color: #1e1e1e;
-  border-color: #444;
-  color: #f5f5f5;
+  background-color: var(--color-bg);
+  border-color: var(--color-border);
+  color: var(--color-text);
   padding-bottom: calc(1rem + env(safe-area-inset-bottom));
 }
 
@@ -209,51 +216,51 @@ html.uk-dark body .uk-nav-default > li.uk-active > a {
 /* Styles for Trumbowyg editor in Dark Mode */
 html.uk-dark body .trumbowyg-box,
 html.uk-dark body .trumbowyg-editor {
-  background-color: #1e1e1e !important;
-  color: #f5f5f5 !important;
+  background-color: var(--color-bg) !important;
+  color: var(--color-text) !important;
 }
 
 html.uk-dark body .trumbowyg-button-pane {
   background-color: #2a2a2a;
-  border-color: #444;
+  border-color: var(--color-border);
 }
 
 html.uk-dark body .trumbowyg-button-pane button {
-  color: #f5f5f5;
+  color: var(--color-text);
 }
 
 html.uk-dark body .trumbowyg-button-pane button svg {
-  fill: #f5f5f5;
+  fill: var(--color-text);
 }
 
 html.uk-dark body .trumbowyg-button-pane button:hover {
-  background-color: #333;
+  background-color: var(--color-contrast);
 }
 
 /* Styles fuer QR-Scan-Popup im Dunkelmodus */
 html.uk-dark body .uk-modal-dialog {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }
 
 /* Hoverfarbe für Katalogkarten im Dunkelmodus */
 html.uk-dark body .uk-card-hover:hover {
-  background-color: #333;
-  color: #f5f5f5;
+  background-color: var(--color-contrast);
+  color: var(--color-text);
 }
 
 /* Tabellenlesbarkeit im Dunkelmodus verbessern */
 html.uk-dark body .uk-table th,
 html.uk-dark body .uk-table td {
-  color: #f5f5f5;
-  background-color: #1e1e1e;
-  border-color: #444;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  border-color: var(--color-border);
 }
 html.uk-dark body .uk-table thead th {
-  background-color: #333;
+  background-color: var(--color-contrast);
 }
 html.uk-dark body .uk-table tr {
-  border-color: #444;
+  border-color: var(--color-border);
 }
 
   @media (min-width: 640px) {
@@ -279,28 +286,28 @@ html.uk-dark body .mc-option input {
 
 html.uk-dark body .flip-card-front,
 html.uk-dark body .flip-card-back {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-  border: 1px solid #444;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
 }
 
 /* FAQ page elements in Dark Mode */
 html.uk-dark body .uk-heading-divider {
-  border-bottom-color: #444;
-  color: #f5f5f5;
+  border-bottom-color: var(--color-border);
+  color: var(--color-text);
 }
 
 html.uk-dark body .uk-heading-bullet {
-  color: #f5f5f5;
+  color: var(--color-text);
 }
 
 html.uk-dark body .uk-heading-bullet::before {
-  border-color: #444;
+  border-color: var(--color-border);
 }
 
 html.uk-dark body .uk-accordion-title {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }
 
 html.uk-dark body .uk-accordion-title::before {
@@ -308,337 +315,15 @@ html.uk-dark body .uk-accordion-title::before {
 }
 
 html.uk-dark body .uk-accordion-content {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-}
-}
-
-  html.dark-mode,
-html.uk-dark body.dark-mode {
-  background-color: #000 !important;
-  color: #f5f5f5;
-}
-html.uk-dark body.dark-mode a {
-  color: var(--accent-color, #9dc6ff);
-}
-html.uk-dark body.dark-mode h1,
-html.uk-dark body.dark-mode h2,
-html.uk-dark body.dark-mode h3,
-html.uk-dark body.dark-mode h4,
-html.uk-dark body.dark-mode h5,
-html.uk-dark body.dark-mode h6 {
-  color: #f5f5f5;
-}
-html.uk-dark body.dark-mode .uk-card-title {
-  color: #f5f5f5;
-}
-html.uk-dark body.dark-mode .uk-card-default {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-}
-html.uk-dark body.dark-mode .uk-card-default a {
-  color: var(--accent-color, #9dc6ff);
-}
-html.uk-dark body.dark-mode .uk-card h3,
-html.uk-dark body.dark-mode .uk-card p {
-  color: #f5f5f5;
-}
-html.uk-dark body.dark-mode .uk-progress {
-  background-color: #333;
-  color: var(--accent-color, #1e87f0);
-}
-html.uk-dark body.dark-mode .uk-button-primary {
-  background-color: var(--accent-color, #1e87f0);
-  border-color: var(--accent-color, #1e87f0);
-}
-html.uk-dark body.dark-mode .uk-button,
-html.uk-dark body.dark-mode .uk-button-default {
-  color: #fff;
-  background-color: #333;
-  border-color: #555;
-}
-html.uk-dark body.dark-mode .btn-black {
-  background-color: #333 !important;
-  color: #f5f5f5 !important;
-  border: 2px solid #666;
-}
-html.uk-dark body.dark-mode .btn-black:hover {
-  background-color: #f5f5f5 !important;
-  color: #000 !important;
-  border-color: #f5f5f5;
-}
-html.uk-dark body.dark-mode .btn-transparent {
-  background-color: transparent !important;
-  color: var(--accent-color, #9dc6ff) !important;
-  border: 2px solid var(--accent-color, #9dc6ff);
-}
-html.uk-dark body.dark-mode .btn-transparent:hover {
-  background-color: var(--accent-color, #9dc6ff) !important;
-  color: #000 !important;
-}
-html.uk-dark body.dark-mode input,
-html.uk-dark body.dark-mode textarea,
-html.uk-dark body.dark-mode select {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-  border-color: #555;
-}
-html.uk-dark body.dark-mode .sortable-list li,
-html.uk-dark body.dark-mode .terms li,
-html.uk-dark body.dark-mode .dropzone,
-html.uk-dark body.dark-mode .mc-option {
-  background-color: #1e1e1e;
-  border-color: #444;
-  color: #f5f5f5;
-  font-size: 1rem;
-  padding: 16px;
-  white-space: normal;
-}
-html.uk-dark body.dark-mode .dropzone.over {
-  background-color: #2a2a2a;
-}
-html.uk-dark body.dark-mode .uk-alert-success {
-  background-color: #145214;
-  color: #fff;
-}
-html.uk-dark body.dark-mode .uk-alert-danger {
-  background-color: #5a1a1a;
-  color: #fff;
-}
-html.uk-dark body.dark-mode .uk-alert-primary {
-  background-color: var(--accent-color, #003366);
-  color: #fff;
-}
-
-html.uk-dark body.dark-mode .mc-option input {
-  transform: scale(1.3);
-  margin-right: 8px;
-}
-
-/* Einheitlicher Kartenrahmen fuer Admin-Tabs im Dunkelmodus */
-html.uk-dark body.dark-mode .tab-card {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-}
-
-html.uk-dark body.dark-mode .topbar {
-  background-color: #1e1e1e;
-  border-color: #444;
-  padding-top: env(safe-area-inset-top);
-}
-html.uk-dark body.dark-mode .event-header-bar {
-  background-color: #1e1e1e;
-  border-color: #444;
-}
-
-html.uk-dark body.dark-mode .modern-info-card {
-  border-color: #444;
-}
-
-/* Sticky actions and onboarding components in Dark Mode */
-html.uk-dark body.dark-mode .sticky-actions {
-  background: rgba(0, 0, 0, 0.95);
-}
-
-html.uk-dark body.dark-mode .onboarding-step {
-  border-color: #444;
-  background: linear-gradient(135deg, #1e1e1e 0%, #2a2a2a 100%);
-  box-shadow: 0 6px 30px rgba(0,0,0,0.5);
-}
-
-html.uk-dark body.dark-mode .onboarding-timeline .timeline-step {
-  border-color: #555;
-  color: #ddd;
-}
-
-html.uk-dark body.dark-mode .onboarding-timeline .timeline-step.inactive {
-  color: #444;
-  border-color: #555;
-  cursor: not-allowed;
-}
-
-html.uk-dark body.dark-mode .onboarding-timeline .timeline-step.active,
-html.uk-dark body.dark-mode .onboarding-timeline .timeline-step.completed {
-  border-color: var(--accent-color, #1e87f0);
-  color: var(--accent-color, #1e87f0);
-}
-
-html.uk-dark body .pricing-grid .uk-card-quizrace {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-}
-
-html.uk-dark body .pricing-grid .uk-card-quizrace.uk-card-popular {
-  background-color: #0c86d0;
-  color: #fff;
-}
-
-html.uk-dark body .pricing-grid .uk-card-quizrace .uk-text-meta,
-html.uk-dark body .pricing-grid .uk-card-quizrace li,
-html.uk-dark body .pricing-grid .uk-card-quizrace h3 {
-  color: #f5f5f5;
-}
-
-html.uk-dark body.dark-mode .pricing-grid .uk-card-quizrace {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-}
-
-html.uk-dark body.dark-mode .pricing-grid .uk-card-quizrace.uk-card-popular {
-  background-color: #0c86d0;
-  color: #fff;
-}
-
-html.uk-dark body.dark-mode .pricing-grid .uk-card-quizrace .uk-text-meta,
-html.uk-dark body.dark-mode .pricing-grid .uk-card-quizrace li,
-html.uk-dark body.dark-mode .pricing-grid .uk-card-quizrace h3 {
-  color: #f5f5f5;
-}
-
-html.uk-dark body.dark-mode .uk-icon,
-html.uk-dark body.dark-mode .uk-icon-button {
-  color: #f5f5f5;
-}
-
-html.uk-dark body.dark-mode .site-footer {
-  background-color: #1e1e1e;
-  border-color: #444;
-  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
-}
-
-html.uk-dark body.dark-mode .uk-icon-button {
-  color: #fff;
-  background-color: rgba(255, 255, 255, 0.2);
-}
-html.uk-dark body.dark-mode .uk-icon-button.uk-button-primary {
-  background-color: var(--accent-color, #1e87f0);
-  border-color: var(--accent-color, #1e87f0);
-}
-
-/* Active state for navigation items in dark off-canvas menus */
-html.uk-dark .uk-offcanvas-bar .uk-nav-default > li.uk-active > a {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: #fff;
-}
-
-/* Active state for navigation items in dark mode */
-html.uk-dark body.dark-mode .uk-navbar-nav > li.uk-active > a,
-html.uk-dark body.dark-mode .uk-nav-default > li.uk-active > a {
-  background-color: rgba(255, 255, 255, 0.15);
-  color: #fff;
-}
-
-/* Styles for Trumbowyg editor in Dark Mode */
-html.uk-dark body.dark-mode .trumbowyg-box,
-html.uk-dark body.dark-mode .trumbowyg-editor {
-  background-color: #1e1e1e !important;
-  color: #f5f5f5 !important;
-}
-
-html.uk-dark body.dark-mode .trumbowyg-button-pane {
-  background-color: #2a2a2a;
-  border-color: #444;
-}
-
-html.uk-dark body.dark-mode .trumbowyg-button-pane button {
-  color: #f5f5f5;
-}
-
-html.uk-dark body.dark-mode .trumbowyg-button-pane button svg {
-  fill: #f5f5f5;
-}
-
-html.uk-dark body.dark-mode .trumbowyg-button-pane button:hover {
-  background-color: #333;
-}
-
-/* Styles fuer QR-Scan-Popup im Dunkelmodus */
-html.uk-dark body.dark-mode .uk-modal-dialog {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-}
-
-/* Hoverfarbe für Katalogkarten im Dunkelmodus */
-html.uk-dark body.dark-mode .uk-card-hover:hover {
-  background-color: #333;
-  color: #f5f5f5;
-}
-
-/* Tabellenlesbarkeit im Dunkelmodus verbessern */
-html.uk-dark body.dark-mode .uk-table th,
-html.uk-dark body.dark-mode .uk-table td {
-  color: #f5f5f5;
-  background-color: #1e1e1e;
-  border-color: #444;
-}
-html.uk-dark body.dark-mode .uk-table thead th {
-  background-color: #333;
-}
-html.uk-dark body.dark-mode .uk-table tr {
-  border-color: #444;
-}
-
-  @media (min-width: 640px) {
-html.uk-dark body.dark-mode .sortable-list li,
-html.uk-dark body.dark-mode .terms li,
-html.uk-dark body.dark-mode .dropzone,
-html.uk-dark body.dark-mode .mc-option {
-  font-size: 1.3rem;
-}
-}
-
-  @media (min-width: 960px) {
-html.uk-dark body.dark-mode .sortable-list li,
-html.uk-dark body.dark-mode .terms li,
-html.uk-dark body.dark-mode .dropzone,
-html.uk-dark body.dark-mode .mc-option {
-  font-size: 1.5rem;
-}
-html.uk-dark body.dark-mode .mc-option input {
-  transform: scale(1.3);
-}
-}
-
-html.uk-dark body.dark-mode .flip-card-front,
-html.uk-dark body.dark-mode .flip-card-back {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-  border: 1px solid #444;
-}
-
-/* FAQ page elements in Dark Mode */
-html.uk-dark body.dark-mode .uk-heading-divider {
-  border-bottom-color: #444;
-  color: #f5f5f5;
-}
-
-html.uk-dark body.dark-mode .uk-heading-bullet {
-  color: #f5f5f5;
-}
-
-html.uk-dark body.dark-mode .uk-heading-bullet::before {
-  border-color: #444;
-}
-
-html.uk-dark body.dark-mode .uk-accordion-title {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
-}
-
-html.uk-dark body.dark-mode .uk-accordion-title::before {
-  filter: invert(1);
-}
-
-html.uk-dark body.dark-mode .uk-accordion-content {
-  background-color: #1e1e1e;
-  color: #f5f5f5;
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }
 
 /* Landing page adjustments in Dark Mode */
 html.uk-dark body.landing-page {
-  --landing-bg: #1e1e1e;
-  --landing-text: #f5f5f5;
-  --landing-primary: #0c86d0;
+  --landing-bg: var(--color-bg);
+  --landing-text: var(--color-text);
+  --landing-primary: var(--color-primary);
   background: var(--landing-bg);
   color: var(--landing-text);
 }
