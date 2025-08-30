@@ -13,6 +13,7 @@ html { color-scheme: light dark; }
   --qr-accent: #2f81f7;
   --qr-accent-2: #0ea5e9;
   --qr-accent-3: #8b5cf6;
+  --accent: var(--qr-accent);
 
   /* Shadows / Radii */
   --qr-shadow-soft: 0 6px 18px rgba(2,6,23,.10);
@@ -20,11 +21,11 @@ html { color-scheme: light dark; }
   --qr-radius: 14px;
 
   /* Nav */
-  --nav-bg: rgba(255,255,255,.92);
-  --nav-fg: #0f172a;
-  --nav-muted: #475569;
+  --nav-bg: rgba(255,255,255,.90);
+  --nav-fg: #24292f;
+  --nav-muted: #57606a;
   --nav-sep: #d0d7de;
-  --nav-shadow: 0 8px 24px rgba(2,6,23,.12);
+  --nav-shadow: 0 6px 18px rgba(0,0,0,.08);
 }
 @media (prefers-color-scheme: dark){
   :root{
@@ -38,11 +39,11 @@ html { color-scheme: light dark; }
     --qr-shadow-soft: 0 10px 28px rgba(0,0,0,.45);
     --qr-shadow-strong: 0 36px 84px rgba(0,0,0,.6);
 
-    --nav-bg: rgba(13,17,23,.86);
+    --nav-bg: rgba(13,17,23,.82);
     --nav-fg: #e6edf3;
     --nav-muted: #9aa4ad;
     --nav-sep: #30363d;
-    --nav-shadow: 0 14px 36px rgba(0,0,0,.55);
+    --nav-shadow: 0 10px 24px rgba(0,0,0,.45);
   }
 }
 
@@ -54,16 +55,35 @@ html.theme-dark { color-scheme: dark; }
 .gh-nav{
   position: sticky; top:0; z-index:1000;
   background: var(--nav-bg);
-  border-bottom: 1px solid var(--nav-sep);
   -webkit-backdrop-filter: saturate(1.2) blur(10px);
   backdrop-filter: saturate(1.2) blur(10px);
+  border-bottom: 1px solid var(--nav-sep);
 }
-.gh-nav .nav-links a{ color: var(--nav-muted); font-weight:600; letter-spacing:.2px; }
-.gh-nav .nav-links a:hover, .gh-nav .nav-links a:focus-visible{
-  color: var(--nav-fg); text-decoration: underline; text-underline-offset:6px;
+.gh-nav .nav-links a{
+  color: var(--nav-muted); font-weight:600; letter-spacing:.2px;
 }
-.gh-nav .btn-primary{ background: var(--qr-accent); color:#fff; border-radius:10px; }
-.gh-nav .btn-secondary{ border:1px solid var(--nav-sep); border-radius:10px; color:var(--nav-fg); background:transparent; }
+.gh-nav .nav-links a:hover,
+.gh-nav .nav-links a:focus-visible{
+  color: var(--nav-fg);
+  text-decoration: underline; text-underline-offset: 6px;
+}
+.gh-nav .nav-links .is-active,
+.gh-nav .nav-links a[aria-current="page"]{
+  color: var(--nav-fg); position:relative;
+}
+.gh-nav .nav-links .is-active::after,
+.gh-nav .nav-links a[aria-current="page"]::after{
+  content:""; position:absolute; left:0; right:0; bottom:-12px; height:2px;
+  background: var(--qr-accent); border-radius:2px;
+}
+.gh-nav .btn-primary{
+  background: var(--qr-accent); color:#fff; border:1px solid transparent; border-radius:8px;
+}
+.gh-nav .btn-secondary{
+  background: transparent; color: var(--nav-fg);
+  border:1px solid var(--nav-sep); border-radius:8px;
+}
+.gh-nav .btn-secondary:hover{ background: color-mix(in oklab, var(--nav-fg) 6%, transparent); }
 .gh-nav.scrolled{ box-shadow: var(--nav-shadow); }
 
 /* ===== Section Patterns ===== */
@@ -72,14 +92,8 @@ html.theme-dark { color-scheme: dark; }
 .section--plain{ background: var(--qr-bg); color: var(--qr-text); }
 .section--alt  { background: var(--qr-bg-alt); color: var(--qr-text); }
 
-/* Verlauf mit Markenblau – ideal für HERO oder Highlights */
-.section--gradient{
-  color:#fff;
-  background:
-    radial-gradient(1200px 520px at 12% 10%, rgba(47,129,247,.35), rgba(47,129,247,0) 60%),
-    radial-gradient(900px 480px at 88% 22%, rgba(14,165,233,.24), rgba(14,165,233,0) 62%),
-    linear-gradient(180deg, rgba(8,12,20,.82) 0%, rgba(8,12,20,.58) 45%, rgba(8,12,20,.86) 100%);
-}
+/* Hero gradient overlay */
+.hero{ color:#fff; }
 
 /* Bildhintergrund (mitlaufend) – UIkit Parallax für Cross‑Browser */
 .section--image{ overflow: clip; color:#fff; }
@@ -138,9 +152,19 @@ h2.section-title{ letter-spacing:.2px; }
   color: var(--nav-fg);
   box-shadow: 0 1px 0 rgba(0,0,0,.04);
 }
+.hero__overlay{
+  position:absolute; inset:0; pointer-events:none;
+  background:
+    linear-gradient(180deg, rgba(8,12,20,.70) 0%, rgba(8,12,20,.52) 45%, rgba(8,12,20,.80) 100%),
+    radial-gradient(1100px 520px at 12% 10%, rgba(47,129,247,.35), rgba(47,129,247,0) 60%),
+    radial-gradient(900px 480px at 88% 20%, rgba(14,165,233,.24), rgba(14,165,233,0) 62%);
+}
 .hero__media{
-  background: var(--qr-surface); border-radius: var(--qr-radius); overflow:hidden;
-  border:1px solid var(--qr-border); box-shadow: var(--qr-shadow-strong);
+  background:#fff; border:1px solid var(--nav-sep); border-radius:12px; overflow:hidden;
+  box-shadow: 0 14px 36px rgba(0,0,0,.18);
+}
+@media (prefers-color-scheme: dark){
+  .hero__media{ background:#0d1117; }
 }
 
 /* Additional existing styles */
@@ -150,7 +174,6 @@ h2.section-title{ letter-spacing:.2px; }
 .brand .dot{ width:10px; height:10px; border-radius:50%; background:var(--qr-accent); display:inline-block; }
 .gh-nav .nav-links{ display:flex; gap:16px; margin-left: 12px; flex-wrap:wrap; }
 .gh-nav .nav-cta{ margin-left:auto; display:flex; gap:8px; }
-.gh-nav .btn-secondary:hover{ background: color-mix(in oklab, var(--nav-fg) 6%, transparent); }
 .gh-nav [uk-icon], .gh-nav .uk-navbar-toggle{ color: var(--nav-fg) !important; }
 .btn-secondary{ background: transparent; color: var(--qr-text); border:1px solid var(--qr-border); border-radius: 10px; }
 .btn-secondary:hover{ background: var(--qr-bg-alt); }
