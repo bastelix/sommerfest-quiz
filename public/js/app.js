@@ -19,13 +19,13 @@ document.addEventListener('DOMContentLoaded', function () {
     if (darkStylesheet) {
       darkStylesheet.disabled = !dark;
     }
-    document.body.classList.toggle('uk-dark', !dark);
-    document.body.classList.toggle('uk-light', dark);
-    document.documentElement.classList.toggle('uk-dark', !dark);
-    document.documentElement.classList.toggle('uk-light', dark);
+    document.body.classList.toggle('uk-dark', dark);
+    document.body.classList.toggle('uk-light', !dark);
+    document.documentElement.classList.toggle('uk-dark', dark);
+    document.documentElement.classList.toggle('uk-light', !dark);
     document.querySelectorAll('.topbar').forEach(el => {
-      el.classList.toggle('uk-dark', !dark);
-      el.classList.toggle('uk-light', dark);
+      el.classList.toggle('uk-dark', dark);
+      el.classList.toggle('uk-light', !dark);
     });
   }
 
