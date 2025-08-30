@@ -611,25 +611,25 @@ a.uk-accordion-title {
 }
 
 /* Backend form readability in light mode */
-.admin-page .uk-input,
-.admin-page .uk-select,
-.admin-page .uk-textarea {
+body.admin-page input,
+body.admin-page select,
+body.admin-page textarea {
   background: #fff;
   color: #222;
   border-color: #bbb;
 }
 
-.admin-page .uk-input::placeholder,
-.admin-page .uk-select::placeholder,
-.admin-page .uk-textarea::placeholder {
+body.admin-page input::placeholder,
+body.admin-page select::placeholder,
+body.admin-page textarea::placeholder {
   color: #888;
 }
 
-.admin-page .uk-form-label {
+body.admin-page .uk-form-label {
   color: #222;
 }
 
-.admin-page .uk-form-icon {
+body.admin-page .uk-form-icon {
   color: #666;
 }
 
