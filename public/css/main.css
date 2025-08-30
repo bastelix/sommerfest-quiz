@@ -1049,4 +1049,12 @@ body.admin-page {
   }
 }
 
+/* Increase contrast for form error state */
+.uk-form-danger,
+.uk-form-danger:focus {
+  color: #c72426;
+  border-color: #c72426;
+  background-color: #ffe5e5;
+}
+
 
