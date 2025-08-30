@@ -181,6 +181,9 @@
 - Bump version to 0.2.168 [skip ci]
 - Bump version to 0.2.169 [skip ci]
 - Bump version to 0.2.170 [skip ci]
+- Bump version to 0.2.171 [skip ci]
+- Bump version to 0.2.172 [skip ci]
+- Bump version to 0.2.173 [skip ci]
 
 ### Docs
 
@@ -230,6 +233,8 @@
 - Improve landing page theme variables
 - Streamline dark mode handling
 - Improve dark theme colors
+- Use Poppins font for body
+- Replace landing page with new design
 
 ### Fix
 
@@ -244,6 +249,7 @@
 - Remove opacity from accessibility toggle icon
 - Ensure landing navbar uses UIKit-specific background
 - Improve landing page contrast
+- Restore backend light mode styles
 
 ### Refactor
 
