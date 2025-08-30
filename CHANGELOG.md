@@ -195,6 +195,10 @@
 - Bump version to 0.2.182 [skip ci]
 - Bump version to 0.2.183 [skip ci]
 - Bump version to 0.2.184 [skip ci]
+- Bump version to 0.2.185 [skip ci]
+- Bump version to 0.2.186 [skip ci]
+- Bump version to 0.2.187 [skip ci]
+- Bump version to 0.2.188 [skip ci]
 
 ### Docs
 
@@ -247,6 +251,8 @@
 - Use Poppins font for body
 - Replace landing page with new design
 - Apply design system to landing
+- Refresh landing page
+- *(dark-mode)* Refine login input styling
 
 ### Fix
 
@@ -288,6 +294,7 @@
 - Add dark mode styles for landing page
 - Align topbar link colors with theme
 - Use variables for footer colors
+- Refine landing visuals
 
 ### Test
 
