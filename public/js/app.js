@@ -9,12 +9,16 @@ document.addEventListener('DOMContentLoaded', function () {
   const themeIcon = document.getElementById('themeIcon');
   const accessibilityIcon = document.getElementById('accessibilityIcon');
   const helpBtn = document.getElementById('helpBtn');
+  const darkStylesheet = document.getElementById('darkStylesheet');
 
   const storedTheme = localStorage.getItem('darkMode');
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   let dark = storedTheme === 'true' || (storedTheme === null && prefersDark);
 
   function applyTheme () {
+    if (darkStylesheet) {
+      darkStylesheet.disabled = !dark;
+    }
     document.body.classList.toggle('uk-dark', dark);
     document.body.classList.toggle('uk-light', !dark);
     document.documentElement.classList.toggle('uk-dark', dark);
