@@ -13,7 +13,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   const storedTheme = localStorage.getItem('darkMode');
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  let dark = storedTheme === 'true' || (storedTheme === null && prefersDark);
+  let dark;
+  if (document.documentElement.classList.contains('uk-dark')) {
+    dark = true;
+  } else if (document.documentElement.classList.contains('uk-light')) {
+    dark = false;
+  } else {
+    dark = storedTheme === 'true' || (storedTheme === null && prefersDark);
+  }
 
   function applyTheme () {
     if (darkStylesheet) {
