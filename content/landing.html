@@ -27,6 +27,7 @@
         <span class="dot" aria-hidden="true"></span>
         <span>QuizRace</span>
       </a>
+      <button class="uk-navbar-toggle uk-hidden@m" uk-toggle="target: #mobile-nav" aria-label="Menü öffnen"></button>
       <div class="nav-links uk-visible@m">
         <a href="#warum" class="uk-link-reset is-active" aria-current="page">Warum</a>
         <a href="#features" class="uk-link-reset">Features</a>
@@ -43,9 +44,23 @@
     </div>
   </nav>
 
+  <div id="mobile-nav" uk-offcanvas="overlay: true">
+    <div class="uk-offcanvas-bar">
+      <ul class="uk-nav uk-nav-default">
+        <li class="uk-active"><a href="#warum">Warum</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#editor">Editor</a></li>
+        <li><a href="#vivid-vision">Vision</a></li>
+        <li><a href="#pricing">Preise</a></li>
+        <li><a href="#steps">Ablauf</a></li>
+        <li><a href="#contact-us">Kontakt</a></li>
+      </ul>
+    </div>
+  </div>
+
   <!-- ===== HERO ===== -->
   <section class="uk-section uk-padding-remove-top uk-flex uk-flex-middle uk-background-cover hero"
-    data-src="{{ basePath }}/img/quizrace-bg.jpg" uk-img uk-height-viewport="offset-top: true" role="banner">
+    style="background-image: url('{{ basePath }}/img/quizrace-bg.jpg');" uk-height-viewport="offset-top: true" role="banner">
 
     <div class="hero__overlay" aria-hidden="true"></div>
 
@@ -281,7 +296,7 @@
 }
 
 .qr-browser-content{
-  aspect-ratio: 16/9;
+  aspect-ratio: 4/3;
   background: var(--qr-subtle);
   overflow:hidden;
 }
@@ -300,10 +315,7 @@
   position: relative; padding: 30px 10px 10px; /* breathing */
 }
 .qr-browser-mockup.is-back{
-  position: absolute; inset: 0 24px 24px 0; transform: translate3d(-12px, 14px, 0) scale(.985);
-  filter: blur(.6px) saturate(.9);
-  z-index:0; pointer-events:none;
-  opacity:.85;
+  display:none;
 }
 
 /* =========================
@@ -320,10 +332,16 @@
   .tilt-target{ transition: none !important; transform: none !important; }
 }
 
-/* Helpers for spacing on small screens */
-@media (max-width: 959.98px){
-  .qr-browser-content{ aspect-ratio: 4/3; }
-  .qr-browser-mockup.is-back{ display:none; }
+/* Helpers for spacing on large screens */
+@media (min-width: 960px){
+  .qr-browser-content{ aspect-ratio: 16/9; }
+  .qr-browser-mockup.is-back{
+    display:block;
+    position: absolute; inset: 0 24px 24px 0; transform: translate3d(-12px, 14px, 0) scale(.985);
+    filter: blur(.6px) saturate(.9);
+    z-index:0; pointer-events:none;
+    opacity:.85;
+  }
 }
 </style>
 
