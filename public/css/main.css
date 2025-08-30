@@ -10,15 +10,21 @@ html {
 :root {
   --primary-color: #0c86d0;
   --accent-color: #39f;
-  --color-bg: #fff;
+  --color-bg: #f5f5f5;
   --color-primary: #0c86d0;
-  --color-text: #232323;
+  --color-text: #222;
 }
 
 body {
   min-height: 100vh;
   overflow-x: hidden;
-  background-color: var(--primary-color, #ffffff);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+body.uk-background-default {
+  background-color: var(--color-bg);
+  color: var(--color-text);
 }
 
 .uk-button-primary {
@@ -76,6 +82,29 @@ body.uk-padding {
 .footer-menu a {
   color: #222;
   text-decoration: none;
+}
+
+/* Login page enhancements */
+.login-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.login-card .uk-input {
+  background: #fff;
+  border-color: #bbb;
+}
+
+.login-card .uk-input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(12, 134, 208, 0.2);
+}
+
+.login-card .uk-button-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #fff;
 }
 
 .sortable-list li,
