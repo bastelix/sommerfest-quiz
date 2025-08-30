@@ -38,6 +38,7 @@
         <a href="#contact-us" class="uk-link-reset">Kontakt</a>
       </div>
       <div class="nav-cta">
+        <button class="uk-button btn-secondary" type="button" onclick="qrToggleTheme()">Theme</button>
         <a class="uk-button btn-secondary" href="https://demo.quizrace.app" target="_blank" rel="noopener" aria-label="Demo in neuem Tab öffnen">Demo</a>
         <a class="uk-button btn-primary" href="{{ basePath }}/onboarding">Event starten</a>
       </div>
@@ -59,10 +60,7 @@
   </div>
 
   <!-- ===== HERO ===== -->
-  <section class="uk-section uk-padding-remove-top uk-flex uk-flex-middle uk-background-cover hero"
-    style="background-image: url('{{ basePath }}/img/quizrace-bg.jpg');" uk-height-viewport="offset-top: true" role="banner">
-
-    <div class="hero__overlay" aria-hidden="true"></div>
+  <section class="uk-section section section--gradient uk-padding-remove-top uk-flex uk-flex-middle hero" uk-height-viewport="offset-top: true" role="banner">
 
     <div class="uk-container container-xl uk-position-relative">
       <div class="uk-grid uk-flex-middle uk-child-width-1-1 uk-child-width-1-2@m" uk-grid>
@@ -111,7 +109,7 @@
   <!-- =========================
      GitHub-style Screenshot Preview for quizrace.app
      ========================= -->
-<section class="qr-screenshot-section uk-section uk-padding-remove-top">
+<section class="qr-screenshot-section uk-section section section--plain uk-padding-remove-top">
   <div class="qr-screenshot-bg" aria-hidden="true"></div>
 
   <div class="uk-container uk-container-expand">
@@ -369,7 +367,7 @@
 </script>
 
   <!-- ===== Warum ===== -->
-  <section id="warum" class="uk-section uk-section-default">
+  <section id="warum" class="uk-section section section--plain">
     <div class="uk-container container-xl">
       <div class="uk-grid uk-flex-middle" uk-grid>
         <div class="uk-width-expand@m">
@@ -394,7 +392,7 @@
   </section>
 
   <!-- ===== Features ===== -->
-  <section id="features" class="uk-section uk-section-muted">
+  <section id="features" class="uk-section section section--alt">
     <div class="uk-container container-xl">
       <h2 class="uk-text-center uk-heading-medium section-title" uk-scrollspy="cls: uk-animation-slide-top-small">Was macht QuizRace einzigartig?</h2>
       <div class="uk-grid uk-child-width-1-4@m uk-child-width-1-2@s uk-flex-center uk-grid-match uk-margin-large-top" uk-grid>
@@ -431,33 +429,37 @@
   </section>
 
   <!-- ===== Editor Highlight ===== -->
-  <section id="editor" class="uk-section uk-section-default">
+  <section id="editor" class="uk-section section section--image">
+    <div class="section__bg uk-background-cover" data-src="{{ basePath }}/img/bg-editor.jpg" uk-img uk-parallax="bgy: -120"></div>
+    <div class="section__overlay" aria-hidden="true"></div>
     <div class="uk-container container-xl">
-      <div class="uk-text-center uk-margin-large-bottom">
-        <h2 class="uk-heading-medium section-title" uk-scrollspy="cls: uk-animation-slide-top-small">NEU: Interaktiver Event-Editor</h2>
-        <p class="uk-text-lead" uk-scrollspy="cls: uk-animation-fade; delay: 150">Der Editor führt Sie Schritt für Schritt durchs Quiz – ohne Vorkenntnisse, mit Live-Vorschau und flexiblem Team-Management.</p>
-        <div class="subtle-divider uk-margin-large-top"></div>
-      </div>
+      <div class="glass">
+        <div class="uk-text-center uk-margin-large-bottom">
+          <h2 class="uk-heading-medium section-title" uk-scrollspy="cls: uk-animation-slide-top-small">NEU: Interaktiver Event-Editor</h2>
+          <p class="uk-text-lead" uk-scrollspy="cls: uk-animation-fade; delay: 150">Der Editor führt Sie Schritt für Schritt durchs Quiz – ohne Vorkenntnisse, mit Live-Vorschau und flexiblem Team-Management.</p>
+          <div class="subtle-divider uk-margin-large-top"></div>
+        </div>
 
-      <ul class="uk-list uk-list-large uk-list-divider uk-text-left" uk-scrollspy="target: > li; cls: uk-animation-slide-left-small; delay: 150">
-        <li>
-          <h3 class="uk-h5 uk-text-bold">Intuitiv & visuell</h3>
-          <p>Einfach per Drag&amp;Drop das eigene Quiz zusammenstellen, Vorschau inklusive.</p>
-        </li>
-        <li>
-          <h3 class="uk-h5 uk-text-bold">Flexible Team-Verwaltung</h3>
-          <p>Teams spontan anlegen, QR-Codes ausdrucken, fertig!</p>
-        </li>
-        <li>
-          <h3 class="uk-h5 uk-text-bold">Jede Frageform</h3>
-          <p>Von Wissensfragen über Foto-Missionen bis hin zu Matching-Aufgaben – alles möglich.</p>
-        </li>
-      </ul>
+        <ul class="uk-list uk-list-large uk-list-divider uk-text-left" uk-scrollspy="target: > li; cls: uk-animation-slide-left-small; delay: 150">
+          <li>
+            <h3 class="uk-h5 uk-text-bold">Intuitiv & visuell</h3>
+            <p>Einfach per Drag&amp;Drop das eigene Quiz zusammenstellen, Vorschau inklusive.</p>
+          </li>
+          <li>
+            <h3 class="uk-h5 uk-text-bold">Flexible Team-Verwaltung</h3>
+            <p>Teams spontan anlegen, QR-Codes ausdrucken, fertig!</p>
+          </li>
+          <li>
+            <h3 class="uk-h5 uk-text-bold">Jede Frageform</h3>
+            <p>Von Wissensfragen über Foto-Missionen bis hin zu Matching-Aufgaben – alles möglich.</p>
+          </li>
+        </ul>
+      </div>
     </div>
   </section>
 
   <!-- ===== Vivid Vision ===== -->
-  <section id="vivid-vision" class="uk-section uk-section-muted">
+  <section id="vivid-vision" class="uk-section section section--alt">
     <div class="uk-container container-xl">
       <div class="uk-text-center uk-margin-medium-bottom">
         <h2 class="uk-heading-line"><span>So fühlt sich Ihr Event mit QuizRace an</span></h2>
@@ -507,7 +509,7 @@
   </section>
 
   <!-- ===== Pricing ===== -->
-  <section id="pricing" class="uk-section uk-section-muted">
+  <section id="pricing" class="uk-section section section--plain">
     <div class="uk-container container-xl">
       <h2 class="uk-heading-medium uk-text-center section-title" uk-scrollspy="cls: uk-animation-slide-top-small">Abomodelle für jedes Event</h2>
       <p class="uk-text-center uk-text-lead uk-margin-small" uk-scrollspy="cls: uk-animation-fade; delay: 150">Einfacher Start – faire Preise – alle Abos 7 Tage kostenlos testen!</p>
@@ -598,7 +600,7 @@
   </section>
 
   <!-- ===== Steps ===== -->
-  <section id="steps" class="uk-section uk-section-default">
+  <section id="steps" class="uk-section section section--alt">
     <div class="uk-container container-xl">
       <h2 class="uk-text-center uk-heading-medium section-title" uk-scrollspy="cls: uk-animation-slide-top-small">In 4 Schritten zum Erlebnis-Quiz mit QuizRace</h2>
       <p class="uk-text-lead uk-text-center" uk-scrollspy="cls: uk-animation-fade; delay: 150">
@@ -631,22 +633,26 @@
   </section>
 
   <!-- ===== Founder/About ===== -->
-  <section class="uk-section uk-background-secondary uk-light">
+  <section class="uk-section section section--image">
+    <div class="section__bg uk-background-cover" data-src="{{ basePath }}/img/bg-about.jpg" uk-img uk-parallax="bgy: -120"></div>
+    <div class="section__overlay" aria-hidden="true"></div>
     <div class="uk-container container-xl">
-      <h2 class="uk-text-center uk-heading-medium" uk-scrollspy="cls: uk-animation-slide-top-small">Wer steckt hinter QuizRace?</h2>
-      <div class="uk-width-2xlarge uk-margin-auto uk-text-center uk-text-lead" uk-scrollspy="cls: uk-animation-fade; delay: 150">
-        <b>QuizRace wurde von René Buske entwickelt – Softwarearchitekt & Digital-Event-Profi mit über 20 Jahren Erfahrung.</b>
-        <br>
-        <span>
-          Nach langjähriger Tätigkeit als IT-Berater, Dozent und Entwickler von Individualsoftware bringt René fundiertes Wissen rund um Online-Events, Gamification und Datenschutz in QuizRace ein.<br>
-          Ziel: <b>Quiz-Events für alle sicher, einfach und modern machen</b> – mit einer Lösung, die begeistert und zuverlässig funktioniert.
-        </span>
+      <div class="glass uk-text-center">
+        <h2 class="uk-heading-medium" uk-scrollspy="cls: uk-animation-slide-top-small">Wer steckt hinter QuizRace?</h2>
+        <div class="uk-width-2xlarge uk-margin-auto uk-text-center uk-text-lead" uk-scrollspy="cls: uk-animation-fade; delay: 150">
+          <b>QuizRace wurde von René Buske entwickelt – Softwarearchitekt & Digital-Event-Profi mit über 20 Jahren Erfahrung.</b>
+          <br>
+          <span>
+            Nach langjähriger Tätigkeit als IT-Berater, Dozent und Entwickler von Individualsoftware bringt René fundiertes Wissen rund um Online-Events, Gamification und Datenschutz in QuizRace ein.<br>
+            Ziel: <b>Quiz-Events für alle sicher, einfach und modern machen</b> – mit einer Lösung, die begeistert und zuverlässig funktioniert.
+          </span>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- ===== Kontakt ===== -->
-  <section id="contact-us" class="uk-section uk-section-primary uk-light">
+  <section id="contact-us" class="uk-section section section--plain">
     <div class="uk-container container-xl">
       <h2 class="uk-heading-medium uk-text-center" uk-scrollspy="cls: uk-animation-slide-top-small">Kontaktieren Sie uns – persönlich & praxisnah</h2>
       <p class="uk-text-lead uk-text-center" uk-scrollspy="cls: uk-animation-fade; delay: 150">Sie möchten QuizRace testen, ein Angebot anfordern oder haben individuelle Fragen?<br>
@@ -727,12 +733,22 @@
     // Year
     document.getElementById('year').textContent = new Date().getFullYear();
 
+    // Scroll-Schatten aktivieren
+    (function(){ const n=document.querySelector('.gh-nav'); if(!n) return;
+      const f=()=> n.classList.toggle('scrolled', window.scrollY>8);
+      addEventListener('scroll', f,{passive:true}); f();
+    })();
+    // Theme Toggle (optional)
     (function(){
-      const nav = document.querySelector('.gh-nav');
-      if(!nav) return;
-      const onScroll=()=> nav.classList.toggle('scrolled', window.scrollY > 8);
-      window.addEventListener('scroll', onScroll, {passive:true});
-      onScroll();
+      const key='qr-theme';
+      const cur=localStorage.getItem(key);
+      if(cur) document.documentElement.classList.add(cur);
+      window.qrToggleTheme=()=>{
+        const el=document.documentElement;
+        const to=el.classList.contains('theme-dark')?'theme-light':'theme-dark';
+        el.classList.remove('theme-dark','theme-light'); el.classList.add(to);
+        localStorage.setItem(key,to);
+      };
     })();
 
     // Rotating word (respects reduced motion, ARIA-friendly)
