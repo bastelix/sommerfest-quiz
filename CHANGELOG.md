@@ -199,6 +199,7 @@
 - Bump version to 0.2.186 [skip ci]
 - Bump version to 0.2.187 [skip ci]
 - Bump version to 0.2.188 [skip ci]
+- Bump version to 0.2.189 [skip ci]
 
 ### Docs
 
@@ -253,6 +254,7 @@
 - Apply design system to landing
 - Refresh landing page
 - *(dark-mode)* Refine login input styling
+- Initialize theme before css load
 
 ### Fix
 
