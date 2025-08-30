@@ -28,7 +28,7 @@
         <span>QuizRace</span>
       </a>
       <div class="nav-links uk-visible@m">
-        <a href="#warum" class="uk-link-reset">Warum</a>
+        <a href="#warum" class="uk-link-reset is-active" aria-current="page">Warum</a>
         <a href="#features" class="uk-link-reset">Features</a>
         <a href="#editor" class="uk-link-reset">Editor</a>
         <a href="#vivid-vision" class="uk-link-reset">Vision</a>
@@ -451,6 +451,14 @@
   <script>
     // Year
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    (function(){
+      const nav = document.querySelector('.gh-nav');
+      if(!nav) return;
+      const onScroll=()=> nav.classList.toggle('scrolled', window.scrollY > 8);
+      window.addEventListener('scroll', onScroll, {passive:true});
+      onScroll();
+    })();
 
     // Rotating word (respects reduced motion, ARIA-friendly)
     (function () {

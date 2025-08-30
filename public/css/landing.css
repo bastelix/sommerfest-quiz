@@ -15,6 +15,12 @@
   --qr-shadow-soft: 0 2px 8px rgba(0,0,0,.08);
   --radius-md: 12px;
   --radius-sm: 8px;
+  --nav-bg: rgba(255,255,255,.86);
+  --nav-fg: #24292f;
+  --nav-muted: #57606a;
+  --nav-sep: #d0d7de;
+  --nav-shadow: 0 2px 8px rgba(0,0,0,.06);
+  --accent: #2f81f7;
 }
 @media (prefers-color-scheme: dark){
   :root{
@@ -26,6 +32,11 @@
     --gh-accent: #2f81f7;
     --qr-shadow: 0 14px 36px rgba(0,0,0,.45);
     --qr-shadow-soft: 0 2px 8px rgba(0,0,0,.35);
+    --nav-bg: rgba(13,17,23,.78);
+    --nav-fg: #e6edf3;
+    --nav-muted: #9aa4ad;
+    --nav-sep: #30363d;
+    --nav-shadow: 0 6px 20px rgba(0,0,0,.45);
   }
 }
 html, body{
@@ -35,13 +46,14 @@ html, body{
 /* Typo/Containers slightly wider like GitHub */
 .container-xl { max-width: 1200px; margin: 0 auto; }
 
-/* Top Nav (GitHub vibe: subtle border, compact) */
+/* Sticky Topbar */
 .gh-nav{
-  position: sticky; top: 0; z-index: 1000;
-  background: rgba( var(--gh-rgb,13,17,23) , .7);
-  backdrop-filter: saturate(1.2) blur(8px);
+  position: sticky; top:0; z-index:1000;
+  background: var(--nav-bg);
   -webkit-backdrop-filter: saturate(1.2) blur(8px);
-  border-bottom: 1px solid var(--gh-border-muted);
+  backdrop-filter: saturate(1.2) blur(8px);
+  border-bottom: 1px solid var(--nav-sep);
+  box-shadow: none;
 }
 .gh-nav-inner{
   display:flex; align-items:center; gap:14px;
@@ -51,15 +63,51 @@ html, body{
   display:flex; align-items:center; gap:10px; font-weight:700;
   letter-spacing: .2px;
 }
-.brand .dot{ width:10px; height:10px; border-radius:50%; background:var(--gh-accent); display:inline-block; }
-.gh-nav a{ color: var(--gh-fg-muted); }
-.gh-nav a:hover{ color: var(--gh-fg-default); }
+.brand .dot{ width:10px; height:10px; border-radius:50%; background:var(--accent); display:inline-block; }
 .gh-nav .nav-links{ display:flex; gap:16px; margin-left: 12px; flex-wrap:wrap; }
 .gh-nav .nav-cta{ margin-left:auto; display:flex; gap:8px; }
+.gh-nav .nav-links a{
+  color: var(--nav-muted);
+  font-weight: 600;
+  letter-spacing: .2px;
+}
+.gh-nav .nav-links a:hover,
+.gh-nav .nav-links a:focus-visible{
+  color: var(--nav-fg);
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+.gh-nav .nav-links .is-active,
+.gh-nav .nav-links a[aria-current="page"]{
+  color: var(--nav-fg);
+  position: relative;
+}
+.gh-nav .nav-links .is-active::after,
+.gh-nav .nav-links a[aria-current="page"]::after{
+  content:""; position:absolute; left:0; right:0; bottom:-12px; height:2px;
+  background: var(--accent); border-radius:2px;
+}
+.gh-nav .btn-primary{
+  background: var(--accent); color:#fff; border:1px solid transparent;
+  border-radius: 8px; box-shadow:none;
+}
+.gh-nav .btn-secondary{
+  background: transparent; color: var(--nav-fg);
+  border:1px solid var(--nav-sep); border-radius: 8px;
+}
+.gh-nav .btn-secondary:hover{ background: color-mix(in oklab, var(--nav-fg) 6%, transparent); }
+.gh-nav [uk-icon], .gh-nav .uk-navbar-toggle{
+  color: var(--nav-fg) !important;
+}
+.gh-nav.scrolled{
+  background: color-mix(in oklab, var(--nav-bg) 95%, transparent);
+  box-shadow: var(--nav-shadow);
+  border-bottom-color: var(--nav-sep);
+}
 
 /* Buttons tuned to GH Blue */
 .btn-primary{
-  background: var(--gh-accent); color:#fff; border:1px solid transparent;
+  background: var(--accent); color:#fff; border:1px solid transparent;
   border-radius: 8px; box-shadow: var(--qr-shadow-soft);
 }
 .btn-primary:hover{ filter: brightness(1.05); }
@@ -74,31 +122,41 @@ html, body{
   position: relative; color:#fff;
 }
 .hero__overlay{
-  position:absolute; inset:0;
+  position:absolute; inset:0; pointer-events:none;
   background:
-    linear-gradient(180deg, rgba(8,12,20,.65) 0%, rgba(8,12,20,.35) 40%, rgba(8,12,20,.7) 100%),
-    radial-gradient(1000px 500px at 10% 10%, rgba(15,120,240,.28), transparent 60%);
-  pointer-events: none;
+    linear-gradient(180deg, rgba(8,12,20,.70) 0%, rgba(8,12,20,.52) 45%, rgba(8,12,20,.80) 100%),
+    radial-gradient(1100px 520px at 12% 10%, rgba(47,129,247,.35), rgba(47,129,247,0) 60%),
+    radial-gradient(900px 460px at 92% 18%, rgba(14,165,233,.22), rgba(14,165,233,0) 62%);
 }
-.hero h1{ color:#fff; }
+.hero h1{
+  color:#fff;
+  line-height:1.1;
+  text-wrap: balance;
+}
 .marker-text{
-  background: linear-gradient(90deg,#a0d7ff, var(--gh-accent));
+  background: linear-gradient(90deg,#9bd3ff, var(--accent));
   -webkit-background-clip:text; background-clip:text; color:transparent;
 }
 .hero__media{
-  box-shadow: var(--qr-shadow);
-  background: var(--gh-canvas-default);
-  border-radius: var(--radius-md); overflow:hidden; border:1px solid var(--gh-border-muted);
+  background:#fff; border-radius:12px; overflow:hidden;
+  border:1px solid var(--nav-sep);
+  box-shadow: 0 14px 36px rgba(0,0,0,.18);
+}
+@media (prefers-color-scheme: dark){
+  .hero__media{ background:#0d1117; }
 }
 
 /* Chips / Trust badges (GitHub-like) */
 .chips{ display:flex; gap:10px; flex-wrap:wrap; }
 .chip{
   display:inline-flex; align-items:center; gap:6px;
-  font-size: .9rem; padding: 6px 10px; border-radius: 999px;
-  border:1px solid var(--gh-border-muted); background: var(--gh-canvas-subtle);
-  color: var(--gh-fg-muted);
+  padding:6px 10px; border-radius:999px;
+  border:1px solid var(--nav-sep);
+  background: color-mix(in oklab, var(--nav-bg) 85%, transparent);
+  color: var(--nav-fg);
+  box-shadow: 0 1px 0 rgba(0,0,0,.04);
 }
+.chip [uk-icon]{ opacity:.85; }
 
 /* Cards */
 .card{
