@@ -186,6 +186,12 @@
 - Bump version to 0.2.173 [skip ci]
 - Bump version to 0.2.174 [skip ci]
 - Bump version to 0.2.175 [skip ci]
+- Bump version to 0.2.176 [skip ci]
+- Bump version to 0.2.177 [skip ci]
+- Bump version to 0.2.178 [skip ci]
+- Bump version to 0.2.179 [skip ci]
+- Bump version to 0.2.180 [skip ci]
+- Bump version to 0.2.181 [skip ci]
 
 ### Docs
 
@@ -266,6 +272,7 @@
 - Unify landing page theme variables
 - Scope dark mode styles
 - Replace landing page inline styles
+- Improve dark mode handling
 
 ### Style
 
