@@ -13,10 +13,10 @@
 
   <!-- UIkit -->
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@latest/dist/css/uikit.min.css" />
-  <link rel="stylesheet" href="{{ basePath }}/css/landing.css" />
-  <script defer src="https://cdn.jsdelivr.net/npm/uikit@latest/dist/js/uikit.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/uikit@latest/dist/js/uikit-icons.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.19.0/dist/css/uikit.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/uikit@3.19.0/dist/js/uikit.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/uikit@3.19.0/dist/js/uikit-icons.min.js"></script>
+  <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
 </head>
 <body>
 
@@ -38,7 +38,6 @@
         <a href="#contact-us" class="uk-link-reset">Kontakt</a>
       </div>
       <div class="nav-cta">
-        <button class="uk-button btn-secondary" type="button" onclick="qrToggleTheme()">Theme</button>
         <a class="uk-button btn-secondary" href="https://demo.quizrace.app" target="_blank" rel="noopener" aria-label="Demo in neuem Tab öffnen">Demo</a>
         <a class="uk-button btn-primary" href="{{ basePath }}/onboarding">Event starten</a>
       </div>
@@ -60,48 +59,39 @@
   </div>
 
   <!-- ===== HERO ===== -->
-  <section class="uk-section section uk-padding-remove-top uk-flex uk-flex-middle hero" uk-height-viewport="offset-top: true" role="banner">
-
-    <div class="hero__overlay" aria-hidden="true"></div>
-    <div class="uk-container container-xl uk-position-relative">
-      <div class="uk-grid uk-flex-middle uk-child-width-1-1 uk-child-width-1-2@m" uk-grid>
+  <section class="uk-section section section--plain hero" role="banner">
+    <div class="uk-container container-xl">
+      <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" uk-grid>
         <div>
-          <div class="uk-text-left uk-text-center@m">
-            <h1 class="uk-heading-medium uk-text-bold">
-              Das Team-Quiz, das Ihr Event
-              <span id="rotating-word" class="marker-text">unvergesslich</span>
-              macht.
-            </h1>
-            <p class="uk-text-lead">
-              Trete gegen Freunde und Kollegen an.<br>
-              Interaktive Quiz-Rallyes für Firmen, Schulen &amp; Teams.<br>
-              In Minuten startklar – live, vor Ort oder hybrid!<br>
-              Ohne App-Download, 100&nbsp;% datensicher, individuell anpassbar.
-            </p>
-
-            <div class="uk-margin-small">
-              <div class="chips" role="list">
-                <span class="chip" role="listitem"><span uk-icon="lock"></span> DSGVO-konform</span>
-                <span class="chip" role="listitem"><span uk-icon="cloud"></span> Hosting in DE</span>
-                <span class="chip" role="listitem"><span uk-icon="users"></span> Single-Tenant</span>
-              </div>
-            </div>
-
-            <div class="uk-margin-top uk-grid-small uk-child-width-1-1 uk-child-width-auto@s uk-flex-left uk-flex-center@m" uk-grid>
-              <a class="uk-button uk-button-large btn-primary" href="{{ basePath }}/onboarding">Event starten</a>
-              <a class="uk-button uk-button-large btn-secondary" href="https://demo.quizrace.app" target="_blank" rel="noopener">Demo ansehen</a>
+          <h1 class="uk-heading-medium uk-text-bold">
+            Das Team-Quiz, das Ihr Event <span class="marker-text">unvergesslich</span> macht.
+          </h1>
+          <p class="uk-text-lead">
+            In Minuten startklar – live, vor Ort oder hybrid. Ohne App-Download. 100&nbsp;% datensicher.
+          </p>
+          <div class="uk-margin">
+            <a class="uk-button uk-button-large uk-button-primary" href="{{ basePath }}/onboarding">Event starten</a>
+            <a class="uk-button uk-button-large uk-button-default" href="https://demo.quizrace.app" target="_blank" rel="noopener">Demo ansehen</a>
+          </div>
+          <div class="uk-margin-small">
+            <div class="chips" role="list">
+              <span class="chip" role="listitem"><span uk-icon="lock"></span> DSGVO-konform</span>
+              <span class="chip" role="listitem"><span uk-icon="cloud"></span> Hosting in DE</span>
+              <span class="chip" role="listitem"><span uk-icon="users"></span> Single-Tenant</span>
             </div>
           </div>
         </div>
-
         <div>
-          <div class="hero__media">
-            <video class="uk-width-1-1" controls playsinline preload="metadata" poster="{{ basePath }}/img/quizrace-poster.jpg" aria-label="QuizRace Kurzvorstellung">
-              <source src="{{ basePath }}/media/quizrace-intro.webm" type="video/webm">
-              <source src="{{ basePath }}/media/quizrace-intro.mp4" type="video/mp4">
-              Ihr Browser unterstützt das Video-Tag nicht.
-            </video>
-          </div>
+          <figure class="qr-browser-mockup">
+            <div class="qr-browser-chrome">
+              <div class="qr-traffic"><span></span><span></span><span></span></div>
+              <div class="qr-tab"><span class="qr-favicon">🏁</span><span class="qr-tab-title">QuizRace</span></div>
+              <div class="qr-url">https://quizrace.app</div>
+            </div>
+            <div class="qr-browser-content">
+              <img src="{{ basePath }}/img/preview-hero.webp" alt="QuizRace Oberfläche" width="1280" height="720" fetchpriority="high">
+            </div>
+          </figure>
         </div>
       </div>
     </div>
@@ -148,12 +138,13 @@
               <img
                 src="{{ basePath }}/img/preview-editor-blurred.jpg"
                 alt=""
+                width="1280" height="720"
                 loading="lazy" decoding="async">
             </div>
           </div>
 
           <!-- Front layer (interactive) -->
-          <figure class="qr-browser-mockup tilt-target">
+          <figure class="qr-browser-mockup">
             <div class="qr-browser-chrome" role="group" aria-label="Browserfenster Vorschau">
               <div class="qr-traffic" aria-hidden="true">
                 <span></span><span></span><span></span>
@@ -169,6 +160,7 @@
               <img
                 src="{{ basePath }}/img/preview-editor.jpg"
                 alt="QuizRace Editor – Fragenkatalog mit Live-Vorschau"
+                width="1280" height="720"
                 loading="lazy" decoding="async">
               <!-- Variante B: Video – ersetze <img> durch <video> -->
               <!--
@@ -317,7 +309,6 @@
 }
 
 /* --- Screenshot-Preview stabilisieren --- */
-.tilt-target{ transform: none !important; }
 .qr-browser-mockup.is-back{
   transform: translate3d(0, 10px, 0) scale(.985) !important;
 }
@@ -345,26 +336,18 @@
 }
 </style>
 
-<script>
-(function(){
-  const el = document.querySelector('.tilt-target');
-  const mm = window.matchMedia;
-  const prefersReduced = mm && mm('(prefers-reduced-motion: reduce)').matches;
-  const canTilt = mm && mm('(hover: hover) and (pointer: fine)').matches;
-  if (!el || prefersReduced || !canTilt) return;
 
-  const damp = 14;
-  function onMove(e){
-    const r = el.getBoundingClientRect();
-    const x = (e.clientX - (r.left + r.width/2)) / r.width;
-    const y = (e.clientY - (r.top + r.height/2)) / r.height;
-    el.style.transform = `perspective(1000px) rotateY(${x*-damp}deg) rotateX(${y*damp}deg)`;
-  }
-  function reset(){ el.style.transform = ""; }
-  el.addEventListener('mousemove', onMove);
-  el.addEventListener('mouseleave', reset);
-})();
-</script>
+<section class="uk-section section section--plain">
+  <div class="uk-container container-xl">
+    <video class="uk-width-1-1" controls playsinline preload="metadata" poster="{{ basePath }}/img/quizrace-poster.jpg" width="1280" height="720" loading="lazy">
+      <source src="{{ basePath }}/media/quizrace-intro.webm" type="video/webm">
+      <source src="{{ basePath }}/media/quizrace-intro.mp4" type="video/mp4">
+      Ihr Browser unterstützt das Video-Tag nicht.
+    </video>
+  </div>
+</section>
+
+
 
   <!-- ===== Warum ===== -->
   <section id="warum" class="uk-section section section--plain">
@@ -429,34 +412,72 @@
   </section>
 
   <!-- ===== Editor Highlight ===== -->
-  <section id="editor" class="uk-section section section--image">
-    <div class="section__bg uk-background-cover" data-src="{{ basePath }}/img/bg-editor.jpg" uk-img uk-parallax="bgy: -120"></div>
-    <div class="section__overlay" aria-hidden="true"></div>
-    <div class="uk-container container-xl">
-      <div class="glass">
-        <div class="uk-text-center uk-margin-large-bottom">
-          <h2 class="uk-heading-medium section-title" uk-scrollspy="cls: uk-animation-slide-top-small">NEU: Interaktiver Event-Editor</h2>
-          <p class="uk-text-lead" uk-scrollspy="cls: uk-animation-fade; delay: 150">Der Editor führt Sie Schritt für Schritt durchs Quiz – ohne Vorkenntnisse, mit Live-Vorschau und flexiblem Team-Management.</p>
-          <div class="subtle-divider uk-margin-large-top"></div>
+  <section id="editor" class="uk-section section section--alt">
+  <div class="uk-container container-xl">
+    <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" uk-grid>
+      <div>
+        <h2 class="uk-heading-medium uk-margin-small">NEU: Interaktiver Event-Editor</h2>
+        <p class="uk-text-lead uk-margin">
+          Schritt für Schritt durchs Quiz – mit Live-Vorschau & flexiblem Team-Management.
+        </p>
+
+        <div class="uk-grid-small uk-child-width-1-2@s uk-grid-match" uk-grid>
+          <div>
+            <div class="feature-tile">
+              <div class="uk-flex uk-flex-middle" style="gap:12px">
+                <span uk-icon="thumbnails; ratio:1.4" aria-hidden="true"></span>
+                <div>
+                  <h3>Intuitiv & visuell</h3>
+                  <p>Drag&Drop mit Live-Vorschau.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="feature-tile">
+              <div class="uk-flex uk-flex-middle" style="gap:12px">
+                <span uk-icon="users; ratio:1.4" aria-hidden="true"></span>
+                <div>
+                  <h3>Flexible Team-Verwaltung</h3>
+                  <p>Teams spontan anlegen, QR-Codes drucken.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="feature-tile">
+              <div class="uk-flex uk-flex-middle" style="gap:12px">
+                <span uk-icon="question; ratio:1.4" aria-hidden="true"></span>
+                <div>
+                  <h3>Jede Frageform</h3>
+                  <p>Wissen, Foto-Mission, Matching u. a.</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <ul class="uk-list uk-list-large uk-list-divider uk-text-left" uk-scrollspy="target: > li; cls: uk-animation-slide-left-small; delay: 150">
-          <li>
-            <h3 class="uk-h5 uk-text-bold">Intuitiv & visuell</h3>
-            <p>Einfach per Drag&amp;Drop das eigene Quiz zusammenstellen, Vorschau inklusive.</p>
-          </li>
-          <li>
-            <h3 class="uk-h5 uk-text-bold">Flexible Team-Verwaltung</h3>
-            <p>Teams spontan anlegen, QR-Codes ausdrucken, fertig!</p>
-          </li>
-          <li>
-            <h3 class="uk-h5 uk-text-bold">Jede Frageform</h3>
-            <p>Von Wissensfragen über Foto-Missionen bis hin zu Matching-Aufgaben – alles möglich.</p>
-          </li>
-        </ul>
+        <div class="uk-margin">
+          <a class="uk-button uk-button-primary" href="{{ basePath }}/onboarding">Event starten</a>
+          <a class="uk-button uk-button-default" href="https://demo.quizrace.app" target="_blank" rel="noopener">Demo ansehen</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="qr-browser-mockup">
+          <div class="qr-browser-chrome">
+            <div class="qr-traffic"><span></span><span></span><span></span></div>
+            <div class="qr-tab"><span class="qr-favicon">🏁</span><span class="qr-tab-title">QuizRace – Editor</span></div>
+            <div class="qr-url">https://quizrace.app/editor</div>
+          </div>
+          <div class="qr-browser-content">
+            <img src="{{ basePath }}/img/preview-editor.webp" alt="Editor mit Live-Vorschau" width="1280" height="720" loading="lazy" decoding="async">
+          </div>
+        </div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
   <!-- ===== Vivid Vision ===== -->
   <section id="vivid-vision" class="uk-section section section--alt">
@@ -510,94 +531,65 @@
 
   <!-- ===== Pricing ===== -->
   <section id="pricing" class="uk-section section section--plain">
-    <div class="uk-container container-xl">
-      <h2 class="uk-heading-medium uk-text-center section-title" uk-scrollspy="cls: uk-animation-slide-top-small">Abomodelle für jedes Event</h2>
-      <p class="uk-text-center uk-text-lead uk-margin-small" uk-scrollspy="cls: uk-animation-fade; delay: 150">Einfacher Start – faire Preise – alle Abos 7 Tage kostenlos testen!</p>
+  <div class="uk-container container-xl">
+    <h2 class="uk-text-center uk-heading-medium">Abomodelle für jedes Event</h2>
+    <p class="uk-text-center uk-text-lead uk-margin-small">7 Tage kostenlos testen – fair & transparent.</p>
 
-      <!-- Billing Toggle (Monthly/Yearly) -->
-      <div class="uk-text-center uk-margin">
-        <div class="uk-inline">
-          <span class="uk-margin-small-right">Monat</span>
-          <label class="uk-switch">
-            <input type="checkbox" id="billing-toggle" aria-label="Abrechnung auf jährlich umstellen">
-            <div class="uk-switch-slider"></div>
-          </label>
-          <span class="uk-margin-small-left">Jahr <span class="uk-badge">-15&nbsp;%</span></span>
-        </div>
-        <div id="billing-note" class="uk-text-meta uk-margin-small-top" aria-live="polite"></div>
-      </div>
-
-      <div class="uk-grid-large uk-child-width-1-3@m uk-flex-center uk-grid-match pricing-grid" uk-grid>
-        <!-- Starter -->
-        <div>
-          <div class="uk-card uk-card-quizrace uk-text-center uk-padding">
-            <span class="uk-label uk-label-success uk-label-large">Kostenlos testen</span>
-            <h3 class="uk-card-title uk-text-primary uk-margin-small-top">Starter</h3>
-            <div class="uk-text-xxlarge uk-text-bold uk-margin-small-bottom price"
-                 data-monthly="9&nbsp;€/Monat" data-yearly="92&nbsp;€/Jahr">9&nbsp;€/Monat</div>
-            <div class="uk-text-meta uk-margin-small-bottom">Für kleine Events & Einsteiger</div>
-            <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom">
-              <li><b>7 Tage kostenlos testen</b></li>
-              <li><b>1 Event gleichzeitig</b></li>
-              <li>5 Teams & 5 Kataloge à 5 Fragen</li>
-              <li>Unbegrenzte Teilnehmende pro Team¹</li>
-              <li>Live-Ranking & Basis-PDF-Export²</li>
-              <li>Alle Fragetypen & QR-Codes</li>
-              <li>Backup & editierbare Texte³</li>
-            </ul>
-            <a href="{{ basePath }}/onboarding" class="uk-button uk-button-large btn-secondary uk-width-1-1 uk-margin-small-top" aria-label="Starter jetzt starten">Jetzt starten</a>
-          </div>
-        </div>
-
-        <!-- Standard -->
-        <div>
-          <div class="uk-card uk-card-popular uk-text-center uk-padding uk-light">
-            <span class="uk-label uk-label-large">Meist gewählt</span>
-            <h3 class="uk-card-title uk-margin-small-top">Standard</h3>
-            <div class="uk-text-xxlarge uk-text-bold uk-margin-small-bottom price"
-                 data-monthly="39&nbsp;€/Monat" data-yearly="398&nbsp;€/Jahr">39&nbsp;€/Monat</div>
-            <div class="uk-text-meta uk-margin-small-bottom">Beliebt bei Schulen & Teams</div>
-            <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom">
-              <li><b>7 Tage kostenlos testen</b></li>
-              <li><b>Alle Starter-Funktionen</b></li>
-              <li>Bis zu 3 Events gleichzeitig</li>
-              <li>10 Teams & 10 Kataloge à 10 Fragen</li>
-              <li>Eigene Subdomain</li>
-              <li>Vollständiger PDF-Export</li>
-            </ul>
-            <a href="{{ basePath }}/onboarding" class="uk-button uk-button-large uk-button-secondary uk-width-1-1" aria-label="Standard jetzt upgraden">Jetzt upgraden</a>
-          </div>
-        </div>
-
-        <!-- Professional -->
-        <div>
-          <div class="uk-card uk-card-quizrace uk-text-center uk-padding">
-            <span class="uk-label uk-label-primary uk-label-large">Professional</span>
-            <h3 class="uk-card-title uk-text-primary uk-margin-small-top">Professional</h3>
-            <div class="uk-text-xxlarge uk-text-bold uk-margin-small-bottom price"
-                 data-monthly="79&nbsp;€/Monat" data-yearly="806&nbsp;€/Jahr">79&nbsp;€/Monat</div>
-            <div class="uk-text-meta uk-margin-small-bottom">Für Agenturen & Unternehmen</div>
-            <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom">
-              <li><b>7 Tage kostenlos testen</b></li>
-              <li><b>Alle Standard-Funktionen</b></li>
-              <li>20 Events gleichzeitig (mehr auf Anfrage)</li>
-              <li>100 Teams & 50 Kataloge à 50 Fragen</li>
-              <li>White-Label & Rollenverwaltung</li>
-            </ul>
-            <a href="{{ basePath }}/onboarding" class="uk-button uk-button-large btn-secondary uk-width-1-1" aria-label="Professional Beratung anfragen">Beratung anfragen</a>
-          </div>
-        </div>
-      </div>
-
-      <p class="uk-text-meta uk-text-center uk-margin-large-top">Alle Preise zzgl. MwSt. – individuelle Lösungen auf Anfrage.</p>
-      <details class="uk-margin-small">
-        <summary class="uk-text-meta">Fußnoten anzeigen</summary>
-        <p class="uk-text-meta uk-margin-small">1 Die Teamgröße ist nicht technisch limitiert und kann bedarfsgerecht festgelegt werden.</p>
-        <p class="uk-text-meta uk-margin-small">2 Im Starter-Paket mit Wasserzeichen oder ohne individuelles Layout/Logo.</p>
-        <p class="uk-text-meta uk-margin-small">3 (z.&nbsp;B. Datenschutz, AGB, Einladung, FAQ, Spielanleitung – alles eigenständig editierbar)</p>
-      </details>
+    <div class="uk-text-center uk-margin">
+      <span class="uk-margin-small-right">Monat</span>
+      <label class="uk-switch">
+        <input type="checkbox" id="billing-toggle" aria-label="Jährliche Abrechnung aktivieren">
+        <div class="uk-switch-slider"></div>
+      </label>
+      <span class="uk-margin-small-left">Jahr <span class="uk-badge">-15&nbsp;%</span></span>
+      <div id="billing-note" class="uk-text-meta uk-margin-small-top" aria-live="polite"></div>
     </div>
-  </section>
+
+    <div class="uk-grid-large uk-child-width-1-3@m uk-grid-match" uk-grid>
+      <div>
+        <div class="uk-card uk-card-quizrace uk-text-center uk-padding">
+          <h3 class="uk-card-title uk-text-primary uk-margin-small">Starter</h3>
+          <div class="uk-text-xxlarge uk-text-bold price" data-monthly="9 €/Monat" data-yearly="92 €/Jahr">9 €/Monat</div>
+          <ul class="uk-list uk-text-left uk-margin">
+            <li><b>1 Event</b> gleichzeitig</li>
+            <li>5 Teams · 5 Kataloge à 5</li>
+            <li>Live-Ranking · Basis-PDF</li>
+          </ul>
+          <a href="{{ basePath }}/onboarding" class="uk-button uk-button-default uk-width-1-1">Jetzt starten</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="uk-card uk-card-popular uk-text-center uk-padding uk-light">
+          <span class="uk-label">Meist gewählt</span>
+          <h3 class="uk-card-title uk-margin-small">Standard</h3>
+          <div class="uk-text-xxlarge uk-text-bold price" data-monthly="39 €/Monat" data-yearly="398 €/Jahr">39 €/Monat</div>
+          <ul class="uk-list uk-text-left uk-margin">
+            <li><b>bis 3</b> Events gleichzeitig</li>
+            <li>10 Teams · 10 Kataloge à 10</li>
+            <li>Eigene Subdomain · Voll-PDF</li>
+          </ul>
+          <a href="{{ basePath }}/onboarding" class="uk-button uk-button-secondary uk-width-1-1">Jetzt upgraden</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="uk-card uk-card-quizrace uk-text-center uk-padding">
+          <h3 class="uk-card-title uk-text-primary uk-margin-small">Professional</h3>
+          <div class="uk-text-xxlarge uk-text-bold price" data-monthly="79 €/Monat" data-yearly="806 €/Jahr">79 €/Monat</div>
+          <ul class="uk-list uk-text-left uk-margin">
+            <li><b>20+</b> Events gleichzeitig</li>
+            <li>100 Teams · 50 Kataloge à 50</li>
+            <li>White-Label · Rollen</li>
+          </ul>
+          <a href="{{ basePath }}/onboarding" class="uk-button uk-button-default uk-width-1-1">Beratung anfragen</a>
+        </div>
+      </div>
+    </div>
+
+    <p class="uk-text-meta uk-text-center uk-margin-large-top">Alle Preise zzgl. MwSt.</p>
+  </div>
+</section>
 
   <!-- ===== Steps ===== -->
   <section id="steps" class="uk-section section section--alt">
@@ -651,8 +643,44 @@
     </div>
   </section>
 
+  <!-- ===== FAQ ===== -->
+  <section id="faq" class="uk-section section section--alt">
+  <div class="uk-container container-xl">
+    <h2 class="uk-text-center uk-heading-medium">Häufige Fragen</h2>
+    <div class="uk-grid-large" uk-grid>
+      <div class="uk-width-2-3@m uk-width-1-1">
+        <ul uk-accordion="multiple: true">
+          <li>
+            <a class="uk-accordion-title" href="#">Braucht man eine App?</a>
+            <div class="uk-accordion-content"><p>Nein. Alles läuft im Browser. Teams scannen QR-Codes und spielen direkt.</p></div>
+          </li>
+          <li>
+            <a class="uk-accordion-title" href="#">Wie schnell ist ein Event startklar?</a>
+            <div class="uk-accordion-content"><p>In der Regel in &lt; 15 Minuten: Kataloge wählen, QR-Codes drucken, fertig.</p></div>
+          </li>
+          <li>
+            <a class="uk-accordion-title" href="#">Ist das DSGVO-konform?</a>
+            <div class="uk-accordion-content"><p>Ja. Hosting in DE, Single-Tenant je Organisation, AVV möglich.</p></div>
+          </li>
+          <li>
+            <a class="uk-accordion-title" href="#">Welche Fragetypen gibt es?</a>
+            <div class="uk-accordion-content"><p>Wissensfragen, Foto-Missionen, Matching, Multiple Choice u. a.</p></div>
+          </li>
+        </ul>
+      </div>
+      <div class="uk-width-expand">
+        <div class="uk-card uk-card-quizrace uk-card-body">
+          <h3 class="uk-margin-remove">Noch Fragen?</h3>
+          <p class="uk-text-muted uk-margin-small">Wir beraten persönlich & praxisnah.</p>
+          <a class="uk-button uk-button-primary" href="#contact-us" uk-scroll>Kontakt aufnehmen</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
   <!-- ===== Kontakt ===== -->
-  <section id="contact-us" class="uk-section section section--plain">
+<section id="contact-us" class="uk-section section section--plain">
     <div class="uk-container container-xl">
       <h2 class="uk-heading-medium uk-text-center" uk-scrollspy="cls: uk-animation-slide-top-small">Kontaktieren Sie uns – persönlich & praxisnah</h2>
       <p class="uk-text-lead uk-text-center" uk-scrollspy="cls: uk-animation-fade; delay: 150">Sie möchten QuizRace testen, ein Angebot anfordern oder haben individuelle Fragen?<br>
@@ -660,20 +688,23 @@
 
       <div class="uk-grid uk-child-width-1-2@m uk-grid-large uk-flex-middle" uk-grid uk-scrollspy="target: > div; cls: uk-animation-slide-right-small; delay: 150">
         <div>
-          <form id="contact-form" class="uk-form-stacked uk-width-large uk-margin-auto" novalidate>
+          <form id="contact-form" class="uk-form-stacked uk-width-large uk-margin-auto" action="{{ basePath }}/landing/contact" method="post" novalidate>
             <!-- Honeypot -->
             <input type="text" name="website" tabindex="-1" autocomplete="off" class="uk-hidden" aria-hidden="true">
             <div class="uk-margin">
               <label class="uk-form-label" for="form-name">Ihr Name</label>
-              <input class="uk-input" id="form-name" name="name" type="text" required autocomplete="name">
+              <input class="uk-input" id="form-name" name="name" type="text" required autocomplete="name" aria-describedby="err-name">
+              <div id="err-name" class="help-error" hidden>Bitte Namen eingeben.</div>
             </div>
             <div class="uk-margin">
               <label class="uk-form-label" for="form-email">E-Mail</label>
-              <input class="uk-input" id="form-email" name="email" type="email" required autocomplete="email" inputmode="email">
+              <input class="uk-input" id="form-email" name="email" type="email" required autocomplete="email" inputmode="email" aria-describedby="err-email">
+              <div id="err-email" class="help-error" hidden>Bitte eine gültige E-Mail eingeben.</div>
             </div>
             <div class="uk-margin">
               <label class="uk-form-label" for="form-msg">Nachricht</label>
-              <textarea class="uk-textarea" id="form-msg" name="message" rows="5" required></textarea>
+              <textarea class="uk-textarea" id="form-msg" name="message" rows="5" required aria-describedby="err-msg"></textarea>
+              <div id="err-msg" class="help-error" hidden>Bitte eine Nachricht eingeben.</div>
             </div>
             <div class="uk-margin">
               <label><input class="uk-checkbox" name="privacy" type="checkbox" required> Ich stimme der Speicherung meiner Daten zur Bearbeitung zu.</label>
@@ -730,110 +761,67 @@
 
   <!-- ===== Scripts ===== -->
   <script>
-    // Year
     document.getElementById('year').textContent = new Date().getFullYear();
-
-    // Scroll-Schatten aktivieren
-    (function(){ const n=document.querySelector('.gh-nav'); if(!n) return;
-      const f=()=> n.classList.toggle('scrolled', window.scrollY>8);
-      addEventListener('scroll', f,{passive:true}); f();
-    })();
-    // Theme Toggle (optional)
+  </script>
+  <script>
+    // 3.1 Sticky-Nav Schatten
     (function(){
-      const key='qr-theme';
-      const cur=localStorage.getItem(key);
-      if(cur) document.documentElement.classList.add(cur);
-      window.qrToggleTheme=()=>{
-        const el=document.documentElement;
-        const to=el.classList.contains('theme-dark')?'theme-light':'theme-dark';
-        el.classList.remove('theme-dark','theme-light'); el.classList.add(to);
-        localStorage.setItem(key,to);
-      };
+      const n=document.querySelector('.gh-nav'); if(!n) return;
+      const f=()=> n.classList.toggle('scrolled', window.scrollY>8);
+      addEventListener('scroll', f, {passive:true}); f();
     })();
 
-    // Rotating word (respects reduced motion, ARIA-friendly)
-    (function () {
-      const el = document.getElementById("rotating-word");
-      if (!el) return;
-      const words = ["unvergesslich", "spannend", "interaktiv", "einzigartig", "unterhaltsam"];
-      const changeInterval = 5500;
-      const fadeDuration = 300;
-      let i = 0;
-      const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (prefersReduced) return; // static for a11y
-
-      setInterval(() => {
-        el.style.transition = `opacity ${fadeDuration}ms ease`;
-        el.style.opacity = 0;
-        setTimeout(() => {
-          i = (i + 1) % words.length;
-          el.textContent = words[i];
-          el.style.opacity = 1;
-        }, fadeDuration);
-      }, changeInterval);
+    // 3.2 Offcanvas beim Link-Klick schließen
+    (function(){
+      const oc = UIkit && UIkit.offcanvas ? UIkit.offcanvas('#mobile-nav') : null;
+      const list = document.querySelector('#mobile-nav .uk-nav');
+      if(oc && list){
+        list.addEventListener('click', (e)=>{
+          const a = e.target.closest('a'); if(!a) return;
+          oc.hide();
+        });
+      }
     })();
 
-    // Pricing Toggle
+    // 3.3 Pricing Toggle (Monat/Jahr)
     (function(){
       const toggle = document.getElementById('billing-toggle');
       const note = document.getElementById('billing-note');
       const prices = document.querySelectorAll('.price');
       if(!toggle || !prices.length) return;
-
       function apply(){
         const yearly = toggle.checked;
-        prices.forEach(p => {
-          const monthly = p.getAttribute('data-monthly');
-          const yearlyPrice = p.getAttribute('data-yearly');
-          p.innerHTML = yearly ? yearlyPrice : monthly;
-          p.setAttribute('aria-label', yearly ? ('Preis ' + yearlyPrice.replace('&nbsp;',' ') ) : ('Preis ' + monthly.replace('&nbsp;',' ')));
+        prices.forEach(p=>{
+          const m = p.getAttribute('data-monthly');
+          const y = p.getAttribute('data-yearly');
+          p.textContent = yearly ? y : m;
         });
-        note.textContent = yearly ? 'Jährliche Abrechnung aktiviert (-15 %).'
-                                  : 'Monatliche Abrechnung aktiviert.';
+        note.textContent = yearly ? 'Jährliche Abrechnung (-15 %).' : 'Monatliche Abrechnung.';
       }
-      toggle.addEventListener('change', apply);
-      apply();
+      toggle.addEventListener('change', apply); apply();
     })();
 
-    // Contact Form
-    document.addEventListener('DOMContentLoaded', () => {
+    // 3.4 Kontakt: Inline-Fehler (Minimalbeispiel)
+    (function(){
       const form = document.getElementById('contact-form');
-      const btn  = document.getElementById('contact-submit');
-      const status = document.getElementById('contact-status');
-      const modal = UIkit.modal('#contact-modal');
       if(!form) return;
-
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        // Honeypot
-        if (form.website && form.website.value) return;
-
-        btn.disabled = true; btn.classList.add('uk-disabled');
-        status.textContent = 'Senden…';
-
-        try{
-          const body = new URLSearchParams(new FormData(form));
-          const res  = await fetch('{{ basePath }}/landing/contact', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-            credentials: 'same-origin',
-            body
-          });
-          const ok = res.ok;
-          document.getElementById('contact-modal-message').textContent =
-            ok ? 'Vielen Dank für Ihre Nachricht!' : 'Fehler beim Versenden. Bitte versuchen Sie es erneut.';
-          if (ok) form.reset();
-          modal.show();
-          setTimeout(() => document.querySelector('#contact-modal .uk-modal-close')?.focus(), 10);
-        }catch(err){
-          document.getElementById('contact-modal-message').textContent = 'Fehler beim Versenden. Bitte versuchen Sie es erneut.';
-          modal.show();
-        }finally{
-          btn.disabled = false; btn.classList.remove('uk-disabled');
-          status.textContent = '';
-        }
+      const email = form.querySelector('#form-email');
+      const name  = form.querySelector('#form-name');
+      const msg   = form.querySelector('#form-msg');
+      function req(input, id){
+        const el = document.getElementById(id);
+        const ok = input.value.trim().length>0 && (input!==email || /\S+@\S+\.\S+/.test(input.value));
+        input.classList.toggle('is-invalid', !ok);
+        if(el) el.hidden = ok;
+        input.setAttribute('aria-invalid', String(!ok));
+        return ok;
+      }
+      form.addEventListener('submit', (e)=>{
+        const ok = [req(name,'err-name'), req(email,'err-email'), req(msg,'err-msg')].every(Boolean);
+        if(!ok) e.preventDefault();
       });
-    });
+    })();
   </script>
 </body>
 </html>
+
