@@ -127,6 +127,15 @@ body.uk-padding {
   color: #fff;
 }
 
+.login-card a {
+  color: var(--accent-color, #1e87f0);
+}
+
+.login-version {
+  color: var(--color-text);
+  opacity: 0.7;
+}
+
 .sortable-list li,
 .terms li,
 .dropzone,
