@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (darkStylesheet) {
       darkStylesheet.disabled = !dark;
     }
+    // uk-dark indicates light mode, uk-light indicates dark mode
     document.body.classList.toggle('uk-dark', !dark);
     document.body.classList.toggle('uk-light', dark);
     document.documentElement.classList.toggle('uk-dark', !dark);
