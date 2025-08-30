@@ -200,6 +200,9 @@
 - Bump version to 0.2.187 [skip ci]
 - Bump version to 0.2.188 [skip ci]
 - Bump version to 0.2.189 [skip ci]
+- Bump version to 0.2.190 [skip ci]
+- Bump version to 0.2.191 [skip ci]
+- Bump version to 0.2.192 [skip ci]
 
 ### Docs
 
@@ -297,6 +300,7 @@
 - Align topbar link colors with theme
 - Use variables for footer colors
 - Refine landing visuals
+- Improve form error contrast
 
 ### Test
 
