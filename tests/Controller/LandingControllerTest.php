@@ -88,12 +88,12 @@ class LandingControllerTest extends TestCase
         unset($_ENV['SMTP_HOST'], $_ENV['SMTP_USER'], $_ENV['SMTP_PASS']);
     }
 
-    public function testLandingPageContainsFaqLink(): void
+    public function testLandingPageContainsOnboardingLink(): void
     {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/landing');
         $response = $app->handle($request);
         $body = (string) $response->getBody();
-        $this->assertStringContainsString('href="/faq"', $body);
+        $this->assertStringContainsString('href="/onboarding"', $body);
     }
 }
