@@ -192,6 +192,8 @@
 - Bump version to 0.2.179 [skip ci]
 - Bump version to 0.2.180 [skip ci]
 - Bump version to 0.2.181 [skip ci]
+- Bump version to 0.2.182 [skip ci]
+- Bump version to 0.2.183 [skip ci]
 
 ### Docs
 
@@ -273,6 +275,7 @@
 - Scope dark mode styles
 - Replace landing page inline styles
 - Improve dark mode handling
+- Apply accessibility landing style patch
 
 ### Style
 
