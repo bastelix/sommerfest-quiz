@@ -194,6 +194,7 @@
 - Bump version to 0.2.181 [skip ci]
 - Bump version to 0.2.182 [skip ci]
 - Bump version to 0.2.183 [skip ci]
+- Bump version to 0.2.184 [skip ci]
 
 ### Docs
 
@@ -245,6 +246,7 @@
 - Improve dark theme colors
 - Use Poppins font for body
 - Replace landing page with new design
+- Apply design system to landing
 
 ### Fix
 
