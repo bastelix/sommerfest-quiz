@@ -1,14 +1,14 @@
 /* Design-Tokens NUR für die Landing */
 .page-landing {
-  --bg: #0d1117;
-  --text: #fff;
-  --muted: #e6eaf3;
-  --section-bg: #161b22;
-  --card-bg: #161b22;
-  --card-border: rgba(240,246,252,.1);
-  --shadow: 0 6px 24px rgba(0,0,0,.35);
-  --landing-bg: #0d1117;
-  --landing-text: #fff;
+  --bg: #ffffff;
+  --text: #111827;
+  --muted: #374151;
+  --section-bg: #f3f4f6;
+  --card-bg: #ffffff;
+  --card-border: rgba(0, 0, 0, 0.1);
+  --shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+  --landing-bg: #ffffff;
+  --landing-text: #111827;
   --landing-primary: #1f6feb;
   --danger-500: #ff6b6b;
   --danger-600: #ff4c4c;
@@ -16,10 +16,10 @@
   --brand-50:#eff6ff; --brand-100:#dbeafe; --brand-200:#bfdbfe;
   --brand-300:#93c5fd; --brand-400:#60a5fa; --brand-500:#3b82f6;
   --brand-600:#2563eb; --brand-700:#1d4ed8; --brand-800:#1e40af; --brand-900:#1e3a8a;
-  --hero-grad-start:#0d1117;
+  --hero-grad-start:#ffffff;
   --hero-grad-end:#6e40c9;
-  --link: #58a6ff;
-  --link-hover: #1f6feb;
+  --link: #1f6feb;
+  --link-hover: #174ea6;
   --focus-ring: 0 0 0 3px rgba(31,111,235,.35);
 }
 
@@ -42,6 +42,7 @@
   --hero-grad-end:#6e40c9;
   --link:#58a6ff;
   --link-hover:#1f6feb;
+  --focus-ring: 0 0 0 3px rgba(31,111,235,.35);
 }
 
 /* Flächen */
@@ -50,9 +51,9 @@
 .page-landing .uk-section.uk-section-default { background: var(--bg); }
 
 /* Farbschemata für Bereiche */
-.page-landing .section-blue { background: #0d1117; color: var(--text); }
-.page-landing .section-gray { background: #161b22; color: var(--text); }
-.page-landing .section-white { background: #0d1117; color: var(--text); }
+.page-landing .section-blue { background: #eff6ff; color: var(--text); }
+.page-landing .section-gray { background: #f3f4f6; color: var(--text); }
+.page-landing .section-white { background: #ffffff; color: var(--text); }
 
 .theme-dark .page-landing .section-blue,
 .theme-dark .page-landing .section-white { background: #0d1117; color: var(--text); }
@@ -97,11 +98,14 @@
 
 /* Topbar */
 .page-landing .github-header{
-  background: linear-gradient(180deg, #0d1117 0%, #161b22 100%) !important;
+  background: linear-gradient(180deg, #ffffff 0%, #f3f4f6 100%) !important;
   color:var(--text);
   min-height:64px;
   height:64px;
   border-bottom: 1px solid var(--card-border);
+}
+.theme-dark .page-landing .github-header{
+  background: linear-gradient(180deg, #0d1117 0%, #161b22 100%) !important;
 }
 .page-landing .github-header .uk-navbar-nav>li>a{ color:var(--text)!important; font-weight:500; opacity:.9; }
 .page-landing .github-header .uk-navbar-nav>li>a:hover,
@@ -179,7 +183,7 @@
   transform:translateY(-1px);
 }
 .page-landing .btn.btn-black.uk-button-secondary{
-  background:#111827!important; color:var(--landing-text)!important; border:0; border-radius:12px; line-height:46px; height:48px;
+  background:#e5e7eb!important; color:var(--landing-text)!important; border:0; border-radius:12px; line-height:46px; height:48px;
 }
 .theme-dark .page-landing .btn.btn-black.uk-button-secondary{ background:#0d1117!important; }
 
