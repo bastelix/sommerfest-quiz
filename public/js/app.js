@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (dark) {
     document.body.classList.add('dark-mode');
     document.documentElement.classList.add('dark-mode');
+    document.documentElement.classList.add('theme-dark');
     if (uikitStylesheet) {
       document.body.classList.add('uk-light');
     }
@@ -95,6 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();
         dark = document.body.classList.toggle('dark-mode');
         document.documentElement.classList.toggle('dark-mode', dark);
+        document.documentElement.classList.toggle('theme-dark', dark);
         if (uikitStylesheet) {
           document.body.classList.toggle('uk-light', dark);
         }
