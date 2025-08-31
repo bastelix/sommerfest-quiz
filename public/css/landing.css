@@ -16,8 +16,8 @@
   --brand-50:#eff6ff; --brand-100:#dbeafe; --brand-200:#bfdbfe;
   --brand-300:#93c5fd; --brand-400:#60a5fa; --brand-500:#3b82f6;
   --brand-600:#2563eb; --brand-700:#1d4ed8; --brand-800:#1e40af; --brand-900:#1e3a8a;
-  --hero-grad-start:#0047ab;
-  --hero-grad-end:#0088ff;
+  --hero-grad-start:#0d1117;
+  --hero-grad-end:#6e40c9;
   --link: var(--brand-700);
   --link-hover: var(--brand-600);
   --focus-ring: 0 0 0 3px rgba(59,130,246,.35);
@@ -38,8 +38,8 @@
   --danger-500: #ff6b6b;
   --danger-600: #ff4c4c;
 
-  --hero-grad-start:#002858;
-  --hero-grad-end:#0047ab;
+  --hero-grad-start:#0d1117;
+  --hero-grad-end:#6e40c9;
   --link:#93c5fd;
   --link-hover:#bfdbfe;
 }
@@ -130,7 +130,7 @@
 /* Hero */
 .page-landing .hero-bg-quizrace{
   background:
-    radial-gradient(1200px 600px at 80% -10%, color-mix(in oklab, var(--hero-grad-end) 22%, transparent), transparent 60%),
+    radial-gradient(1200px 600px at 80% -10%, color-mix(in oklab, var(--hero-grad-end) 35%, transparent), transparent 60%),
     linear-gradient(135deg, var(--hero-grad-start) 0%, var(--hero-grad-end) 100%);
   color:#fff;
 }
@@ -140,15 +140,26 @@
   pointer-events:none;
 }
 .page-landing .hero-bg-quizrace .hero-content{ position:relative; z-index:1; }
+.page-landing .hero-bg-quizrace .hero-text{
+  max-width:800px;
+  margin-inline:auto;
+  text-align:center;
+}
 .page-landing .hero-bg-quizrace .hero-headline,
 .page-landing .hero-bg-quizrace .hero-subtext{ color:#fff; }
 .page-landing .hero-bg-quizrace .hero-headline{
-  font-size:clamp(2.5rem,5vw,4rem);
+  font-size:clamp(3rem,5vw,4.5rem);
   line-height:1.2;
 }
 .page-landing .hero-bg-quizrace .hero-subtext{
-  font-size:clamp(1.125rem,2.5vw,1.5rem);
+  font-size:clamp(1.25rem,2.5vw,1.75rem);
   line-height:1.6;
+}
+.page-landing .hero-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:16px;
+  justify-content:center;
 }
 .page-landing .marker-text::after{ /* vorhandene Unterstreichung beibehalten */ }
 
