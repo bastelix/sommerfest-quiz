@@ -167,6 +167,51 @@
 - Bump version to 0.2.154 [skip ci]
 - Bump version to 0.2.155 [skip ci]
 - Bump version to 0.2.156 [skip ci]
+- Bump version to 0.2.157 [skip ci]
+- Bump version to 0.2.158 [skip ci]
+- Bump version to 0.2.159 [skip ci]
+- Bump version to 0.2.160 [skip ci]
+- Bump version to 0.2.161 [skip ci]
+- Bump version to 0.2.162 [skip ci]
+- Bump version to 0.2.163 [skip ci]
+- Bump version to 0.2.164 [skip ci]
+- Bump version to 0.2.165 [skip ci]
+- Bump version to 0.2.166 [skip ci]
+- Bump version to 0.2.167 [skip ci]
+- Bump version to 0.2.168 [skip ci]
+- Bump version to 0.2.169 [skip ci]
+- Bump version to 0.2.170 [skip ci]
+- Bump version to 0.2.171 [skip ci]
+- Bump version to 0.2.172 [skip ci]
+- Bump version to 0.2.173 [skip ci]
+- Bump version to 0.2.174 [skip ci]
+- Bump version to 0.2.175 [skip ci]
+- Bump version to 0.2.176 [skip ci]
+- Bump version to 0.2.177 [skip ci]
+- Bump version to 0.2.178 [skip ci]
+- Bump version to 0.2.179 [skip ci]
+- Bump version to 0.2.180 [skip ci]
+- Bump version to 0.2.181 [skip ci]
+- Bump version to 0.2.182 [skip ci]
+- Bump version to 0.2.183 [skip ci]
+- Bump version to 0.2.184 [skip ci]
+- Bump version to 0.2.185 [skip ci]
+- Bump version to 0.2.186 [skip ci]
+- Bump version to 0.2.187 [skip ci]
+- Bump version to 0.2.188 [skip ci]
+- Bump version to 0.2.189 [skip ci]
+- Bump version to 0.2.190 [skip ci]
+- Bump version to 0.2.191 [skip ci]
+- Bump version to 0.2.192 [skip ci]
+- Bump version to 0.2.193 [skip ci]
+- Bump version to 0.2.194 [skip ci]
+- Bump version to 0.2.195 [skip ci]
+- Bump version to 0.2.196 [skip ci]
+- Bump version to 0.2.158 [skip ci]
+- Bump version to 0.2.159 [skip ci]
+- Scope landing page styles
+- Bump version to 0.2.160 [skip ci]
+- Bump version to 0.2.161 [skip ci]
 
 ### Docs
 
@@ -213,6 +258,18 @@
 - Dark pricing cards
 - Toggle dark stylesheet via disabled attribute
 - Themeable landing topbar
+- Improve landing page theme variables
+- Streamline dark mode handling
+- Improve dark theme colors
+- Use Poppins font for body
+- Replace landing page with new design
+- Apply design system to landing
+- Refresh landing page
+- *(dark-mode)* Refine login input styling
+- Initialize theme before css load
+- Mobil-first landing styles
+- Darken login version tag
+- Add redirects table
 
 ### Fix
 
@@ -226,6 +283,8 @@
 - Align config button to navbar edge
 - Remove opacity from accessibility toggle icon
 - Ensure landing navbar uses UIKit-specific background
+- Improve landing page contrast
+- Restore backend light mode styles
 
 ### Refactor
 
@@ -236,6 +295,13 @@
 - Externalize onboarding styles
 - Use accent color variable in dark mode
 - Use CSS variables for landing page
+- Update topbar text colors
+- Unify landing page theme variables
+- Scope dark mode styles
+- Replace landing page inline styles
+- Improve dark mode handling
+- Apply accessibility landing style patch
+- Extract landing tokens into scss
 
 ### Style
 
@@ -244,6 +310,12 @@
 - Improve landing topbar contrast
 - Square icon buttons
 - Add dark mode styles for landing page
+- Align topbar link colors with theme
+- Use variables for footer colors
+- Refine landing visuals
+- Improve form error contrast
+- Darken options button in light mode
+- Improve landing backgrounds for themes
 
 ### Test
 
