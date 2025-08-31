@@ -3,7 +3,9 @@
   --brand:#2F81F7; --accent:#0EA5E9;
   --text:#24292F; --muted:#57606A;
   --bg:#FFFFFF; --bg-alt:#F6F8FA; --border:#D0D7DE;
-  --radius:14px; --gap:16px;
+  --radius:14px; --gap:clamp(12px,2vw,20px);
+  --fs-h1:clamp(2rem,5vw,3rem); --fs-h2:clamp(1.5rem,3.5vw,2.25rem);
+  --fs-h3:clamp(1.25rem,3vw,1.5rem); --pad-section:clamp(48px,8vw,72px);
   --shadow-1:0 8px 24px rgba(31,35,40,.08);
   --shadow-2:0 16px 40px rgba(31,35,40,.12);
 }
@@ -15,12 +17,15 @@
 }
 
 /* === 2.2 Layout & Typo === */
-.section{ padding:72px 0; }
+.section{ padding:var(--pad-section) 0; }
 .section--plain{ background:var(--bg); }
 .section--alt{ background:var(--bg-alt); }
 .container-xl{ max-width:1200px; }
 h1,h2,h3{ letter-spacing:-.01em; }
-.uk-text-lead{ max-width:68ch; }
+h1{ font-size:var(--fs-h1); }
+h2{ font-size:var(--fs-h2); }
+h3{ font-size:var(--fs-h3); }
+.uk-text-lead{ max-width:68ch; font-size:clamp(1.125rem,2vw,1.375rem); }
 img{ height:auto; }
 
 /* === 2.3 Navbar === */
@@ -28,12 +33,16 @@ img{ height:auto; }
   background:var(--bg); border-bottom:1px solid var(--border);
   backdrop-filter:saturate(140%) blur(8px);
 }
-.gh-nav .nav-links a{ padding:10px 12px; border-radius:8px; color:var(--muted); }
+.gh-nav .nav-links{ display:none; margin-left:12px; flex-wrap:wrap; }
+.gh-nav .nav-links a{ padding:clamp(8px,1vw,10px) clamp(10px,1.5vw,12px); border-radius:8px; color:var(--muted); }
 .gh-nav .nav-links a:hover,.gh-nav .nav-links a.is-active{
   color:var(--text);
   background:color-mix(in oklab, var(--bg-alt) 85%, transparent);
 }
 .gh-nav.scrolled{ box-shadow:0 6px 18px rgba(0,0,0,.06); }
+@media (min-width:960px){
+  .gh-nav .nav-links{ display:flex; gap:var(--gap); }
+}
 
 /* === 2.4 Buttons (UIkit-Mapping) === */
 .btn-primary{ /* optionaler Alias */ }
@@ -60,7 +69,7 @@ img{ height:auto; }
   border-radius:18px; box-shadow:var(--shadow-2); overflow:hidden;
 }
 .qr-browser-chrome{
-  display:grid; grid-template-columns:auto 1fr auto; gap:10px; padding:10px 12px;
+  display:grid; grid-template-columns:auto 1fr auto; gap:clamp(8px,1.2vw,12px); padding:clamp(8px,1vw,12px) clamp(10px,1.5vw,14px);
   border-bottom:1px solid var(--border); background:var(--bg-alt);
 }
 .qr-browser-content{ aspect-ratio:16/9; background:var(--bg-alt); }
@@ -69,26 +78,25 @@ img{ height:auto; }
 /* === 2.7 Feature-Tiles === */
 .feature-tile{
   border:1px solid var(--border); border-radius:var(--radius);
-  padding:16px; background:var(--bg); height:100%;
+  padding:clamp(12px,2vw,16px); background:var(--bg); height:100%;
 }
-.feature-tile h3{ margin:0; font-size:1.05rem; }
-.feature-tile p{ margin:4px 0 0; color:var(--muted); }
+.feature-tile h3{ margin:0; font-size:clamp(1rem,2.5vw,1.05rem); }
+.feature-tile p{ margin:clamp(2px,.5vw,4px) 0 0; color:var(--muted); }
 
 /* === 2.8 Form A11y === */
 input.uk-input, textarea.uk-textarea, select.uk-select{
   border-radius:var(--radius);
 }
 .is-invalid{ border-color:#D14343 !important; }
-.help-error{ color:#D14343; font-size:.9rem; margin-top:6px; }
+.help-error{ color:#D14343; font-size:.9rem; margin-top:clamp(4px,1vw,6px); }
 
 /* === Additional Custom Styles === */
-.gh-nav-inner{ display:flex; align-items:center; gap:var(--gap); padding:10px var(--gap); }
-.brand{ display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.2px; }
+.gh-nav-inner{ display:flex; align-items:center; gap:var(--gap); padding:clamp(8px,1vw,12px) var(--gap); }
+.brand{ display:flex; align-items:center; gap:clamp(8px,1vw,12px); font-weight:700; letter-spacing:.2px; }
 .brand .dot{ width:10px; height:10px; border-radius:50%; background:var(--brand); display:inline-block; }
-.gh-nav .nav-links{ display:flex; gap:var(--gap); margin-left:12px; flex-wrap:wrap; }
-.gh-nav .nav-cta{ margin-left:auto; display:flex; gap:8px; }
-.chips{ display:flex; flex-wrap:wrap; gap:10px; }
-.chip{ display:inline-flex; align-items:center; gap:6px; padding:6px 10px;
+.gh-nav .nav-cta{ margin-left:auto; display:flex; gap:clamp(6px,1vw,8px); }
+.chips{ display:flex; flex-wrap:wrap; gap:clamp(8px,1vw,12px); }
+.chip{ display:inline-flex; align-items:center; gap:clamp(4px,.8vw,6px); padding:clamp(4px,1vw,6px) clamp(8px,2vw,10px);
   border-radius:999px; border:1px solid var(--border); color:var(--text);
   background:color-mix(in oklab, var(--bg-alt) 85%, transparent);
 }
