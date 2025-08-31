@@ -1,4 +1,4 @@
-<nav class="uk-navbar-container uk-padding-small topbar {{ mode is defined and mode == 'light' ? 'uk-light' : 'uk-dark' }}" role="navigation" aria-label="{{ t('primary_navigation') }}" uk-navbar>
+<nav class="uk-navbar-container uk-padding-small topbar" role="navigation" aria-label="{{ t('primary_navigation') }}" uk-navbar>
     <div class="uk-navbar-left">
       <div class="uk-navbar-item">
         <button id="offcanvas-toggle"
@@ -65,14 +65,6 @@
         {% endblock %}
       </div>
     </nav>
-{% block offcanvas %}
-  <div id="qr-offcanvas" uk-offcanvas="overlay: true">
-    <div class="uk-offcanvas-bar">
-      <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
-      {% include '_topbar_controls.twig' %}
-    </div>
-  </div>
-{% endblock %}
 <div id="helpDrawer" uk-offcanvas="flip: true; overlay: true">
   <div class="uk-offcanvas-bar">
     <button class="uk-offcanvas-close" type="button" uk-close></button>

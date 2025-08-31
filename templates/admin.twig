@@ -29,13 +29,13 @@
 {% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
 
 {% block body %}
-    {% embed 'topbar.twig' %}
-      {% block left %}
-        <a href="{{ basePath }}/admin/summary" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
-          QuizRace Admin
-          <div class="uk-text-meta uk-text-small">v{{ version }}</div>
-        </a>
-      {% endblock %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <a href="{{ basePath }}/admin/summary" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
+        QuizRace Admin
+        <div class="uk-text-meta uk-text-small">v{{ version }}</div>
+      </a>
+    {% endblock %}
     {% block center %}
       <div class="uk-flex uk-flex-middle">
         <div id="eventSelectWrap" class="uk-form-custom uk-flex-1" uk-form-custom="target: > * > span:first-child">
@@ -48,21 +48,12 @@
         <button id="eventOpenBtn" class="uk-icon-button uk-margin-small-left uk-visible@s" uk-icon="icon: link-external" aria-label="{{ t('tip_event_open') }}" uk-tooltip="title: {{ t('tip_event_open') }}; pos: bottom"></button>
       </div>
     {% endblock %}
-      {% block right %}{% endblock %}
-      {% block offcanvas %}
-        <div id="qr-offcanvas" uk-offcanvas="overlay: true">
-          <div class="uk-offcanvas-bar">
-            <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
-            <h3 class="uk-margin-small">QuizRace</h3>
-            {% include 'admin/_nav.twig' %}
-          </div>
-        </div>
-      {% endblock %}
-      {% block headerbar %}
-        {% set activeRoute = currentPath|split('/admin/')|last %}
-        {% if activeRoute == '' %}
-          {% set activeRoute = 'dashboard' %}
-        {% endif %}
+    {% block right %}{% endblock %}
+    {% block headerbar %}
+      {% set activeRoute = currentPath|split('/admin/')|last %}
+      {% if activeRoute == '' %}
+        {% set activeRoute = 'dashboard' %}
+      {% endif %}
       {% if activeRoute == 'dashboard' %}
         <div class="uk-container uk-container-large">
           <h2 class="uk-heading-bullet">Willkommen {{ username }}</h2>
@@ -1183,6 +1174,13 @@
     <div class="uk-offcanvas-bar uk-width-medium">
       <h3 class="uk-margin-remove-top">Hilfe</h3>
       <div id="helpContent"></div>
+    </div>
+  </div>
+  <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+    <div class="uk-offcanvas-bar">
+      <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+      <h3 class="uk-margin-small">QuizRace</h3>
+      {% include 'admin/_nav.twig' %}
     </div>
   </div>
 {% endblock %}
