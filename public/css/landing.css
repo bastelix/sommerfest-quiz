@@ -69,3 +69,16 @@
 @media (min-width: 960px) {
   .page-landing .uk-section { padding-top: 72px; padding-bottom: 72px; }
 }
+
+/* Hero background and overlay */
+.hero-bg-quizrace {
+  background: #e0f2ff;
+  position: relative;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.1);
+}
+
