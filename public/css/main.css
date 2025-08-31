@@ -10,58 +10,20 @@ html {
 :root {
   --primary-color: #0c86d0;
   --accent-color: #39f;
-  --color-bg: #f5f5f5;
+  --color-bg: #fff;
   --color-primary: #0c86d0;
-  --color-text: #222;
+  --color-text: #232323;
 }
 
 body {
   min-height: 100vh;
   overflow-x: hidden;
-  background-color: var(--color-bg);
-  color: var(--color-text);
-}
-
-body.uk-background-default {
-  background-color: var(--color-bg);
-  color: var(--color-text);
-}
-
-/* Darken focused form controls for better visibility */
-.uk-input:focus,
-.uk-select:focus,
-.uk-textarea:focus {
-  background-color: #333;
-  color: #fff;
 }
 
 .uk-button-primary {
   background-color: var(--accent-color, #1e87f0);
   border-color: var(--accent-color, #1e87f0);
 }
-
-.git-btn {
-  background-color: rgba(0, 0, 0, 0.05);
-  border: 1px solid #ddd;
-  color: #666;
-}
-
-.git-btn:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-  border-color: #bbb;
-}
-
-.about-section {
-  background-color: #000;
-  color: #fff;
-}
-
-.about-section .uk-text-lead,
-.uk-light .uk-text-lead {
-  color: #fff;
-}
-
-
 body.uk-padding {
   padding-top: 0;
   padding-left: 8px;
@@ -82,11 +44,9 @@ body.uk-padding {
   flex: 1;
 }
 
+
 .site-footer {
-  background-color: #f5f5f5;
-  color: #222;
   padding: 1rem;
-  text-align: center;
 }
 
 .footer-menu ul {
@@ -99,53 +59,7 @@ body.uk-padding {
 }
 
 .footer-menu a {
-  color: #222;
   text-decoration: none;
-}
-
-/* Login page enhancements */
-.login-card {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-}
-
-.login-card .uk-input {
-  background: #fff;
-  border-color: #bbb;
-  color: #222;
-}
-
-.login-card .uk-input::placeholder {
-  color: #888;
-}
-
-.login-card .uk-form-icon {
-  color: #666;
-}
-
-.login-card .uk-input:focus {
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 2px rgba(12, 134, 208, 0.2);
-}
-
-.login-card .uk-button-primary {
-  background-color: var(--primary-color);
-  border-color: var(--primary-color);
-  color: #fff;
-}
-
-.login-card a {
-  color: var(--accent-color, #1e87f0);
-}
-
-.login-version {
-  color: #444;
-}
-
-html.uk-dark .login-version {
-  color: var(--color-text);
-  opacity: 0.7;
 }
 
 .sortable-list li,
@@ -622,36 +536,6 @@ a.uk-accordion-title {
   display: none;
 }
 
-/* Backend form readability in light mode */
-body.admin-page input,
-body.admin-page select,
-body.admin-page textarea {
-  background: #fff;
-  color: #222;
-  border-color: #bbb;
-}
-
-body.admin-page input:focus,
-body.admin-page select:focus,
-body.admin-page textarea:focus {
-  background: #333;
-  color: #fff;
-}
-
-body.admin-page input::placeholder,
-body.admin-page select::placeholder,
-body.admin-page textarea::placeholder {
-  color: #888;
-}
-
-body.admin-page .uk-form-label {
-  color: #222;
-}
-
-body.admin-page .uk-form-icon {
-  color: #666;
-}
-
 body.admin-page {
   padding-top: 0;
 }
@@ -1066,14 +950,6 @@ body.admin-page {
   .dashboard-grid > * {
     padding-left: 8px;
   }
-}
-
-/* Increase contrast for form error state */
-.uk-form-danger,
-.uk-form-danger:focus {
-  color: #c72426;
-  border-color: #c72426;
-  background-color: #ffe5e5;
 }
 
 

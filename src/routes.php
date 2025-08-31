@@ -81,6 +81,7 @@ use App\Controller\BackupController;
 use App\Domain\Roles;
 use App\Domain\Plan;
 
+use function App\runBackgroundProcess;
 use function App\runSyncProcess;
 
 require_once __DIR__ . '/Controller/HomeController.php';
@@ -1150,26 +1151,12 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
 
-        $result = runSyncProcess($script, [$slug]);
+        runBackgroundProcess($script, [$slug]);
 
-        if (!$result['success']) {
-            $message = trim($result['stderr'] !== '' ? $result['stderr'] : $result['stdout']);
-            $response->getBody()->write(json_encode(['error' => $message]));
-
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
-        }
-
-        $lines = array_filter(array_map('trim', explode("\n", $result['stdout'])));
-        $payload = json_decode(end($lines) ?: '', true);
-        if (!is_array($payload)) {
-            $payload = ['status' => 'success', 'tenant' => $slug];
-        }
-
+        $payload = ['status' => 'queued', 'tenant' => $slug];
         $response->getBody()->write(json_encode($payload));
 
-        return $response->withHeader('Content-Type', 'application/json');
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(202);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::SERVICE_ACCOUNT))->add(new CsrfMiddleware());
 
     $app->delete('/api/tenants/{slug}', function (Request $request, Response $response, array $args) {

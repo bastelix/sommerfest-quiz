@@ -184,25 +184,6 @@
 - Bump version to 0.2.171 [skip ci]
 - Bump version to 0.2.172 [skip ci]
 - Bump version to 0.2.173 [skip ci]
-- Bump version to 0.2.174 [skip ci]
-- Bump version to 0.2.175 [skip ci]
-- Bump version to 0.2.176 [skip ci]
-- Bump version to 0.2.177 [skip ci]
-- Bump version to 0.2.178 [skip ci]
-- Bump version to 0.2.179 [skip ci]
-- Bump version to 0.2.180 [skip ci]
-- Bump version to 0.2.181 [skip ci]
-- Bump version to 0.2.182 [skip ci]
-- Bump version to 0.2.183 [skip ci]
-- Bump version to 0.2.184 [skip ci]
-- Bump version to 0.2.185 [skip ci]
-- Bump version to 0.2.186 [skip ci]
-- Bump version to 0.2.187 [skip ci]
-- Bump version to 0.2.188 [skip ci]
-- Bump version to 0.2.189 [skip ci]
-- Bump version to 0.2.190 [skip ci]
-- Bump version to 0.2.191 [skip ci]
-- Bump version to 0.2.192 [skip ci]
 
 ### Docs
 
@@ -254,11 +235,6 @@
 - Improve dark theme colors
 - Use Poppins font for body
 - Replace landing page with new design
-- Apply design system to landing
-- Refresh landing page
-- *(dark-mode)* Refine login input styling
-- Initialize theme before css load
-- Mobil-first landing styles
 
 ### Fix
 
@@ -288,8 +264,6 @@
 - Unify landing page theme variables
 - Scope dark mode styles
 - Replace landing page inline styles
-- Improve dark mode handling
-- Apply accessibility landing style patch
 
 ### Style
 
@@ -300,8 +274,6 @@
 - Add dark mode styles for landing page
 - Align topbar link colors with theme
 - Use variables for footer colors
-- Refine landing visuals
-- Improve form error contrast
 
 ### Test
 
