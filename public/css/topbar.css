@@ -53,6 +53,8 @@ body.dark-mode.high-contrast{
   box-shadow:0 0 0 3px var(--focus-ring);
 }
 .git-btn svg{width:24px;height:24px;}
+.uk-navbar-toggle.git-btn{height:40px;padding:0;}
+.uk-navbar-toggle.git-btn .uk-navbar-toggle-icon{width:24px;height:24px;}
 #offcanvas-toggle.git-btn{border-color:var(--btn-border);}
 #menuDrop{
   background:var(--drop-bg);
