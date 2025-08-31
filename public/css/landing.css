@@ -1,0 +1,62 @@
+/* Design-Tokens NUR für die Landing */
+.page-landing {
+  --bg: #ffffff;
+  --text: #0f172a;
+  --muted: #475569;
+  --section-bg: #f7f8fa;
+  --card-bg: #ffffff;
+  --card-border: rgba(15,23,42,.08);
+  --shadow: 0 4px 18px rgba(0,0,0,.08);
+}
+
+/* Dark-Mode auf der Landing (klassisch via .theme-dark am <html>) */
+.theme-dark .page-landing {
+  --bg: #0b1020;
+  --text: #e6eaf3;
+  --muted: #a3adc2;
+  --section-bg: #0e1426;
+  --card-bg: #121a31;
+  --card-border: rgba(255,255,255,.06);
+  --shadow: 0 6px 24px rgba(0,0,0,.35);
+}
+
+/* Flächen */
+.page-landing,
+.page-landing .uk-section { background: var(--section-bg); color: var(--text); }
+.page-landing .uk-section.uk-section-default { background: var(--bg); }
+
+/* Karten/Kacheln auf der Landing (UIKit gezielt überstimmen) */
+.page-landing .uk-card,
+.page-landing .uk-card-default,
+.page-landing .feature-box {
+  background: var(--card-bg) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow);
+  border-radius: 12px;
+}
+
+/* Headings, Copy & Icons */
+.page-landing h1,
+.page-landing h2,
+.page-landing h3 { color: var(--text); }
+.page-landing p { color: var(--muted); }
+.page-landing .uk-icon,
+.page-landing .feature-box svg {
+  color: var(--text);
+  stroke: currentColor;
+  fill: none; /* wenn Outline-Icons */
+}
+
+/* Navbar NUR auf Landing, damit Kontrast stimmt */
+.page-landing .uk-navbar,
+.page-landing .uk-navbar-container {
+  background: var(--bg);
+  color: var(--text);
+}
+.page-landing .uk-navbar a { color: var(--text); }
+
+/* Abstände/Responsiveness (klein & safe) */
+@media (min-width: 960px) {
+  .page-landing .uk-section { padding-top: 72px; padding-bottom: 72px; }
+}
