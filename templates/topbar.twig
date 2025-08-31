@@ -3,17 +3,13 @@
       <div class="uk-navbar-item">
         <button id="offcanvas-toggle"
                 type="button"
-                class="uk-button uk-button-default git-btn uk-hidden@m"
+                class="uk-navbar-toggle uk-hidden@m"
+                uk-navbar-toggle-icon
                 uk-toggle="target: #qr-offcanvas"
                 aria-controls="qr-offcanvas"
                 aria-expanded="false"
                 aria-haspopup="true"
                 aria-label="{{ t('menu') }}">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <line x1="4" y1="6" x2="20" y2="6" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
-            <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
-            <line x1="4" y1="18" x2="20" y2="18" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
-          </svg>
         </button>
         {% block left %}{% endblock %}
       </div>
