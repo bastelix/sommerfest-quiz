@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const offcanvasToggle = document.getElementById('offcanvas-toggle');
   const offcanvas = document.getElementById('qr-offcanvas');
   const darkStylesheet = document.querySelector('link[href$="dark.css"]');
+  const uikitStylesheet = document.querySelector('link[href*="uikit"]');
   const themeIcon = document.getElementById('themeIcon');
   const accessibilityIcon = document.getElementById('accessibilityIcon');
   const helpBtn = document.getElementById('helpBtn');
@@ -19,9 +20,12 @@ document.addEventListener('DOMContentLoaded', function () {
     darkStylesheet.toggleAttribute('disabled', !dark);
   }
 
-  if (darkStylesheet && dark) {
-    document.body.classList.add('dark-mode', 'uk-light');
+  if (dark) {
+    document.body.classList.add('dark-mode');
     document.documentElement.classList.add('dark-mode');
+    if (uikitStylesheet) {
+      document.body.classList.add('uk-light');
+    }
   }
 
   const sunSVG = `
@@ -91,8 +95,10 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();
         dark = document.body.classList.toggle('dark-mode');
         document.documentElement.classList.toggle('dark-mode', dark);
-        if (darkStylesheet) {
+        if (uikitStylesheet) {
           document.body.classList.toggle('uk-light', dark);
+        }
+        if (darkStylesheet) {
           darkStylesheet.toggleAttribute('disabled', !dark);
         }
         localStorage.setItem('darkMode', dark ? 'true' : 'false');
