@@ -222,6 +222,7 @@
 - Apply dark blue landing theme
 - Improve landing page contrast
 - Bump version to 0.2.169 [skip ci]
+- Bump version to 0.2.170 [skip ci]
 
 ### Docs
 
@@ -284,6 +285,7 @@
 - Simplify landing hero
 - Use uikit navbar toggle
 - Add offcanvas nav to marketing landing
+- Add light landing theme with dark override
 
 ### Fix
 
@@ -334,6 +336,7 @@
 - Add danger color tokens
 - Emulate GitHub header on landing
 - Update landing hero styling
+- Add git style to menu toggle
 
 ### Test
 
