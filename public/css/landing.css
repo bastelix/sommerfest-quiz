@@ -1,14 +1,14 @@
 /* Design-Tokens NUR für die Landing */
- .page-landing {
+.page-landing {
   --bg: #ffffff;
-  --text: #000;
-  --muted: #333;
-  --section-bg: #f5f5f5;
+  --text: #111827;
+  --muted: #374151;
+  --section-bg: #f3f4f6;
   --card-bg: #ffffff;
-  --card-border: rgba(0,0,0,.1);
-  --shadow: 0 6px 24px rgba(0,0,0,.15);
+  --card-border: rgba(0, 0, 0, 0.1);
+  --shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
   --landing-bg: #ffffff;
-  --landing-text: #000;
+  --landing-text: #111827;
   --landing-primary: #1f6feb;
   --danger-500: #ff6b6b;
   --danger-600: #ff4c4c;
@@ -19,7 +19,7 @@
   --hero-grad-start:#ffffff;
   --hero-grad-end:#6e40c9;
   --link: #1f6feb;
-  --link-hover: #1158c7;
+  --link-hover: #174ea6;
   --focus-ring: 0 0 0 3px rgba(31,111,235,.35);
 }
 
