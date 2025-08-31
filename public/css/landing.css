@@ -1,14 +1,14 @@
 /* Design-Tokens NUR für die Landing */
 .page-landing {
   --bg: #0d1117;
-  --text: #f0f6fc;
-  --muted: #a3adc2;
+  --text: #fff;
+  --muted: #e6eaf3;
   --section-bg: #161b22;
   --card-bg: #161b22;
   --card-border: rgba(240,246,252,.1);
   --shadow: 0 6px 24px rgba(0,0,0,.35);
   --landing-bg: #0d1117;
-  --landing-text: #f0f6fc;
+  --landing-text: #fff;
   --landing-primary: #1f6feb;
   --danger-500: #ff6b6b;
   --danger-600: #ff4c4c;
@@ -26,14 +26,14 @@
 /* Dark-Mode auf der Landing (klassisch via .theme-dark am <html>) */
 .theme-dark .page-landing {
   --bg: #0d1117;
-  --text: #f0f6fc;
-  --muted: #a3adc2;
+  --text: #fff;
+  --muted: #e6eaf3;
   --section-bg: #161b22;
   --card-bg: #161b22;
   --card-border: rgba(240,246,252,.1);
   --shadow: 0 6px 24px rgba(0,0,0,.35);
   --landing-bg: #0d1117;
-  --landing-text: #f0f6fc;
+  --landing-text: #fff;
   --landing-primary: #1f6feb;
   --danger-500: #ff6b6b;
   --danger-600: #ff4c4c;
@@ -98,31 +98,31 @@
 /* Topbar */
 .page-landing .github-header{
   background: linear-gradient(180deg, #0d1117 0%, #161b22 100%) !important;
-  color:#f0f6fc;
+  color:var(--text);
   min-height:64px;
   height:64px;
   border-bottom: 1px solid var(--card-border);
 }
-.page-landing .github-header .uk-navbar-nav>li>a{ color:#f0f6fc!important; font-weight:500; opacity:.9; }
+.page-landing .github-header .uk-navbar-nav>li>a{ color:var(--text)!important; font-weight:500; opacity:.9; }
 .page-landing .github-header .uk-navbar-nav>li>a:hover,
 .page-landing .github-header .uk-navbar-nav>li.uk-active>a{ opacity:1; text-decoration:none; }
 .page-landing .github-header .uk-navbar-nav>li>a:focus-visible{ outline:none; box-shadow:var(--focus-ring); border-radius:8px; }
-.page-landing .github-header .uk-navbar-toggle{ color:#f0f6fc!important; }
+.page-landing .github-header .uk-navbar-toggle{ color:var(--text)!important; }
 .page-landing .top-cta{
   border-radius:10px;
   padding:0 16px;
   line-height:38px;
   height:40px;
-  background:#0d1117!important;
-  color:#f0f6fc!important;
-  border:1px solid #1f6feb;
+  background:var(--bg)!important;
+  color:var(--text)!important;
+  border:1px solid var(--landing-primary);
   box-shadow:none;
   transition:background .2s,color .2s;
 }
 .page-landing .top-cta:hover{
-  background:#f0f6fc!important;
-  color:#0d1117!important;
-  border-color:#1f6feb;
+  background:var(--text)!important;
+  color:var(--bg)!important;
+  border-color:var(--landing-primary);
   transform:translateY(-1px);
 }
 .page-landing .top-cta:focus-visible{ box-shadow:var(--focus-ring); }
@@ -132,7 +132,7 @@
   background:
     radial-gradient(1200px 600px at 80% -10%, color-mix(in oklab, var(--hero-grad-end) 35%, transparent), transparent 60%),
     linear-gradient(135deg, var(--hero-grad-start) 0%, var(--hero-grad-end) 100%);
-  color:#fff;
+  color:var(--landing-text);
 }
 .page-landing .hero-bg-quizrace .hero-overlay{
   position:absolute; inset:0; z-index:0;
@@ -146,7 +146,7 @@
   text-align:center;
 }
 .page-landing .hero-bg-quizrace .hero-headline,
-.page-landing .hero-bg-quizrace .hero-subtext{ color:#fff; }
+.page-landing .hero-bg-quizrace .hero-subtext{ color:var(--landing-text); }
 .page-landing .hero-bg-quizrace .hero-headline{
   font-size:clamp(3rem,5vw,4.5rem);
   line-height:1.2;
@@ -179,7 +179,7 @@
   transform:translateY(-1px);
 }
 .page-landing .btn.btn-black.uk-button-secondary{
-  background:#111827!important; color:#fff!important; border:0; border-radius:12px; line-height:46px; height:48px;
+  background:#111827!important; color:var(--landing-text)!important; border:0; border-radius:12px; line-height:46px; height:48px;
 }
 .theme-dark .page-landing .btn.btn-black.uk-button-secondary{ background:#0d1117!important; }
 
@@ -214,7 +214,7 @@
 .page-landing .uk-step-circle{
   width:56px; height:56px; border-radius:50%;
   display:inline-flex; align-items:center; justify-content:center;
-  background:var(--brand-600); color:#fff; font-weight:700; font-size:1.1rem;
+  background:var(--brand-600); color:var(--landing-text); font-weight:700; font-size:1.1rem;
   box-shadow:0 10px 24px rgba(37,99,235,.20);
 }
 
