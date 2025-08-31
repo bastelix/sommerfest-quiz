@@ -1,0 +1,458 @@
+<!-- HERO / HEADER -->
+<section class="hero-bg-quizrace uk-section uk-padding-remove-top uk-flex uk-flex-middle" style="min-height:100vh; position:relative;">
+  <div class="hero-overlay"></div>
+  <div class="uk-container hero-content">
+    <div class="uk-grid uk-flex-middle uk-child-width-1-1 uk-child-width-1-2@m" uk-grid>
+      <div>
+        <div class="hero-text">
+          <h2 class="hero-headline" uk-scrollspy="cls: uk-animation-slide-right-small">
+            Das Team-Quiz, das Ihr Event <span id="rotating-word" class="marker-text">unvergesslich</span> macht.
+          </h2>
+          <p class="hero-subtext" uk-scrollspy="cls: uk-animation-fade; delay: 150">
+            Trete gegen Freunde und Kollegen an.<br>
+            Interaktive Quiz-Rallyes für Firmen, Schulen &amp; Teams.<br>
+            In Minuten startklar – live, vor Ort oder hybrid!<br>
+            Ohne App-Download, 100% datensicher, individuell anpassbar.
+          </p>
+        </div>
+        <div class="separator width-100 bottom-border border-2px border-color-gray-light margin-top-bottom-30px uk-width-1-2@s" uk-scrollspy="cls: uk-animation-fade; delay: 250"></div>
+        <div class="hero-buttons uk-margin-top" uk-scrollspy="cls: uk-animation-scale-up; delay: 300">
+          <a class="cta-main" href="{{ basePath }}/onboarding">Event starten</a>
+          <a class="btn btn-black" href="https://demo.quizrace.app" target="_blank" rel="noopener">Demo anschauen</a>
+        </div>
+      </div>
+      <div>
+        <div class="hero-video" uk-scrollspy="cls: uk-animation-slide-left-small; delay: 300">
+          <div class="video-placeholder uk-flex uk-flex-middle uk-flex-center uk-border-rounded">
+            <span>Video Placeholder</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  const words = ["unvergesslich", "spannend", "interaktiv", "einzigartig", "unterhaltsam"]; // Wörterliste
+  const changeInterval = 5500; // Wechselintervall in Millisekunden
+  const fadeDuration = 1000; // Dauer der Ein-/Ausblendung
+
+  const el = document.getElementById("rotating-word");
+  let i = 0;
+
+  function triggerUnderline() {
+    el.classList.remove('underline-animate');
+    void el.offsetWidth;
+    el.classList.add('underline-animate');
+  }
+
+  // initial underline animation
+  triggerUnderline();
+  setInterval(() => {
+    el.style.opacity = 0;
+
+    setTimeout(() => {
+      i = (i + 1) % words.length;
+      el.textContent = words[i];
+      el.style.opacity = 1;
+      triggerUnderline();
+    }, fadeDuration);
+  }, changeInterval);
+
+  window.addEventListener('load', () => {
+    setTimeout(triggerUnderline, 100);
+  });
+})();
+</script>
+
+<style>
+#rotating-word {
+  transition: opacity 1s ease;
+}
+
+.marker-text {
+  display: inline-block;
+  font-weight: bold;
+  position: relative;
+}
+
+/* Chalk-style underline drawn left to right */
+.marker-text::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  height: 0.4em;
+  width: 0;
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAiIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPgogIDxmaWx0ZXIgaWQ9InJvdWdoIj4KICAgIDxmZVR1cmJ1bGVuY2UgdHlwZT0iZnJhY3RhbE5vaXNlIiBiYXNlRnJlcXVlbmN5PSIwLjgiIG51bU9jdGF2ZXM9IjMiLz4KICAgIDxmZURpc3BsYWNlbWVudE1hcCBpbj0iU291cmNlR3JhcGhpYyIgc2NhbGU9IjIiLz4KICA8L2ZpbHRlcj4KICA8cGF0aCBkPSJNMiAxMCBRNTAgMiAxMDAgMTAgVDE5OCAxMCIgc3Ryb2tlPSJyZ2JhKDI0OCwyNDYsMjQwLDAuNykiIHN0cm9rZS13aWR0aD0iNiIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBmaWx0ZXI9InVybCgjcm91Z2gpIi8+Cjwvc3ZnPgo=");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.underline-animate::after {
+  animation: drawUnderline 0.6s ease-out forwards;
+  animation-delay: 0.3s;
+}
+
+@keyframes drawUnderline {
+  from { width: 0; }
+  to { width: 100%; }
+}
+</style>
+
+<!-- Warum QuizRace? -->
+<section class="uk-section uk-section-default">
+  <div class="uk-container">
+    <div class="uk-grid uk-flex-middle" uk-grid>
+      <div class="uk-width-expand@m">
+        <h3 class="uk-heading-medium uk-text-bold">Warum QuizRace?</h3>
+        <p class="uk-text-lead">
+          <strong>Wir bringen Spaß, Wettbewerb und Teamgeist in jedes Event.</strong><br>
+          QuizRace verwandelt Veranstaltungen in Erlebnisse, die verbinden, Wissen spielerisch vermitteln und in Erinnerung bleiben.<br>
+          <em>Interaktiv, datensicher und in unter 10 Minuten startklar.</em>
+        </p>
+        <ul class="uk-list uk-list-bullet uk-margin-top">
+          <li>Alle Inhalte frei anpassbar</li>
+          <li>Live-Ranking &amp; Sofortauswertung</li>
+          <li>Funktioniert auf jedem Gerät, ohne App</li>
+          <li>DSGVO-konform &amp; made in Germany</li>
+        </ul>
+      </div>
+      <div class="uk-width-auto@m uk-text-center">
+        <a class="btn btn-black uk-button-large" href="{{ basePath }}/onboarding">Jetzt ausprobieren</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- USPs / Features -->
+<section id="features" class="uk-section uk-section-default" style="background:#f9f9f9">
+  <div class="uk-container">
+    <h3 class="uk-text-center uk-heading-medium poppins text-black uk-margin-large-bottom" uk-scrollspy="cls: uk-animation-slide-top-small">Was macht QuizRace einzigartig?</h3>
+    <div class="uk-grid uk-child-width-1-4@m uk-child-width-1-2@s uk-flex-center uk-grid-match uk-margin-large-bottom" uk-grid uk-scrollspy="target: > div; cls: uk-animation-slide-left-small; delay: 150">
+      <div>
+        <div class="uk-card uk-card-quizrace uk-text-center">
+          <span uk-icon="icon: bolt; ratio: 2" class="uk-margin-bottom"></span>
+          <h4 class="uk-text-bold uk-margin-small-bottom">Quizspaß für alle – sofort im Browser</h4>
+          <p>Kein technischer Aufwand, keine App – Teams scannen einfach den QR-Code und sind dabei.</p>
+        </div>
+      </div>
+      <div>
+        <div class="uk-card uk-card-quizrace uk-text-center">
+          <span uk-icon="icon: lock; ratio: 2" class="uk-margin-bottom"></span>
+          <h4 class="uk-text-bold uk-margin-small-bottom">Datensicherheit made in Germany</h4>
+          <p>Hosting &amp; Datenschutz nach höchsten Standards. Sie behalten die Kontrolle.</p>
+        </div>
+      </div>
+      <div>
+        <div class="uk-card uk-card-quizrace uk-text-center">
+          <span uk-icon="icon: database; ratio: 2" class="uk-margin-bottom"></span>
+          <h4 class="uk-text-bold uk-margin-small-bottom">Live-Ranking &amp; Auswertung</h4>
+          <p>Sofort Siegerehrung, Urkunden &amp; PDF-Statistiken – alles mit einem Klick.</p>
+        </div>
+      </div>
+      <div>
+        <div class="uk-card uk-card-quizrace uk-text-center">
+          <span uk-icon="icon: users; ratio: 2" class="uk-margin-bottom"></span>
+          <h4 class="uk-text-bold uk-margin-small-bottom">Maximale Flexibilität</h4>
+          <p>Egal ob Teambuilding, Schulfest, Messe oder private Feier – QuizRace passt sich an.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Highlight / Kurs oder Feature -->
+<section class="uk-section uk-section-default">
+  <div class="uk-container">
+      <div class="uk-text-center uk-margin-large-bottom">
+        <h2 class="uk-heading-medium text-black" uk-scrollspy="cls: uk-animation-slide-top-small">NEU: Interaktiver Event-Editor</h2>
+        <p class="uk-text-lead" uk-scrollspy="cls: uk-animation-fade; delay: 150">Der Editor führt Sie Schritt für Schritt durchs Quiz – ohne Vorkenntnisse, mit Live-Vorschau und flexiblem Team-Management.</p>
+        <div class="separator width-10 bottom-border border-5px border-color-gray-light margin-top-10px margin-bottom-60px uk-margin-auto" uk-scrollspy="cls: uk-animation-fade; delay: 300"></div>
+      </div>
+      <div class="uk-grid uk-child-width-1-3@m uk-flex-center uk-grid-match" uk-grid uk-scrollspy="target: > div; cls: uk-animation-slide-left-small; delay: 150">
+        <div>
+          <div class="uk-card uk-card-default uk-card-body uk-card-quizrace text-left padding-30px">
+            <h6 class="text-gray-extra-dark bottom-border border-1px border-color-gray-regular padding-bottom-20px margin-bottom-20px">Intuitiv &amp; visuell</h6>
+            <p>Einfach per Drag&amp;Drop das eigene Quiz zusammenstellen, Vorschau inklusive.</p>
+          </div>
+        </div>
+        <div>
+          <div class="uk-card uk-card-default uk-card-body uk-card-quizrace text-left padding-30px">
+            <h6 class="text-gray-extra-dark bottom-border border-1px border-color-gray-regular padding-bottom-20px margin-bottom-20px">Flexible Team-Verwaltung</h6>
+            <p>Teams spontan anlegen, QR-Codes ausdrucken, fertig!</p>
+          </div>
+        </div>
+        <div>
+          <div class="uk-card uk-card-default uk-card-body uk-card-quizrace text-left padding-30px">
+            <h6 class="text-gray-extra-dark bottom-border border-1px border-color-gray-regular padding-bottom-20px margin-bottom-20px">Jede Frageform</h6>
+            <p>Von Wissensfragen über Foto-Missionen bis hin zu Matching-Aufgaben – alles möglich.</p>
+          </div>
+        </div>
+      </div>
+  </div>
+</section>
+
+<!-- Vivid Vision -->
+<section id="vivid-vision" class="uk-section uk-section-muted">
+  <div class="uk-container">
+    <div class="uk-text-center uk-margin-medium-bottom">
+      <h2 class="uk-heading-line"><span>So fühlt sich Ihr Event mit QuizRace an</span></h2>
+      <p class="uk-text-lead">
+        In unter einer Stunde vom Login zur Siegerehrung – ohne App, datensicher, mit Live-Spannung.
+        Jede Organisation erhält ihre eigene Instanz für maximale Kontrolle und Compliance.
+      </p>
+    </div>
+
+    <div class="uk-grid-large uk-child-width-1-3@m" uk-grid>
+      <!-- Veranstalter:innen -->
+      <div>
+        <div class="uk-card uk-card-default uk-card-body uk-height-1-1">
+          <h3 class="uk-margin-remove-bottom">Für Veranstalter:innen</h3>
+          <p class="uk-text-meta uk-margin-small">Ergebnis vor Aufwand</p>
+          <ul class="uk-list uk-list-bullet">
+            <li>Vom Login zur spielfertigen Rallye in <strong>&le; 15 Minuten</strong> (Assistent &amp; Vorschau).</li>
+            <li><strong>Live-Ranking</strong> und <strong>PDF-Report</strong> auf Knopfdruck.</li>
+            <li>Eigene Subdomain &amp; Datenbank – <strong>Single-Tenant</strong> by default.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Teilnehmende -->
+      <div>
+        <div class="uk-card uk-card-default uk-card-body uk-height-1-1">
+          <h3 class="uk-margin-remove-bottom">Für Teilnehmende</h3>
+          <p class="uk-text-meta uk-margin-small">Einfach rein, sofort Spaß</p>
+          <ul class="uk-list uk-list-bullet">
+            <li><strong>QR-Code scannen</strong>, im Browser spielen – keine App nötig.</li>
+            <li>Klare Navigation, schnelle Fragen, <strong>Live-Feedback</strong>.</li>
+            <li>Fair &amp; barrierearm: funktioniert auf allen Geräten.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- IT & Datenschutz -->
+      <div>
+        <div class="uk-card uk-card-default uk-card-body uk-height-1-1">
+          <h3 class="uk-margin-remove-bottom">Für IT &amp; Datenschutz</h3>
+          <p class="uk-text-meta uk-margin-small">Sicher &amp; revisionsfest</p>
+          <ul class="uk-list uk-list-bullet">
+            <li>Hosting in Deutschland, <strong>DSGVO-konform</strong>, AVV möglich.</li>
+            <li>Getrennte Backups/Restore, Logs &amp; API-Zugriff.</li>
+            <li>Optional <strong>SSO</strong> (Azure/Google), IP-Restriktionen.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Pricing / Abomodelle -->
+<section id="pricing" class="uk-section" style="background:#f9f9f9">
+    <div class="uk-container">
+      <h2 class="uk-heading-medium uk-text-center text-black" uk-scrollspy="cls: uk-animation-slide-top-small">Abomodelle für jedes Event</h2>
+      <p class="uk-text-center uk-text-lead uk-margin-large-bottom" uk-scrollspy="cls: uk-animation-fade; delay: 150">Einfacher Start – faire Preise – alle Abos 7 Tage kostenlos testen!</p>
+      <div class="uk-grid-large uk-child-width-1-3@m uk-flex-center uk-grid-match pricing-grid" uk-grid uk-scrollspy="target: > div; cls: uk-animation-slide-right-small; delay: 150">
+      <!-- Starter -->
+      <div>
+        <div class="uk-card uk-card-price uk-card-quizrace uk-text-center">
+          <span class="uk-label uk-label-success uk-label-large">Kostenlos testen</span>
+          <h3 class="uk-card-title uk-text-primary uk-margin-small-top">Starter</h3>
+          <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700;">9&nbsp;€/Monat</div>
+          <div class="uk-text-meta uk-margin-small-bottom">Für kleine Events & Einsteiger</div>
+          <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom">
+            <li><b>7 Tage kostenlos testen</b></li>
+            <li><b>1 Event gleichzeitig</b></li>
+            <li>5 Teams &amp; 5 Kataloge à 5 Fragen</li>
+            <li>Unbegrenzte Teilnehmende pro Team¹</li>
+            <li>Live-Ranking &amp; Basis-PDF-Export²</li>
+            <li>Alle Fragetypen &amp; QR-Codes</li>
+            <li>Backup &amp; editierbare Texte³</li>
+          </ul>
+          <a href="{{ basePath }}/onboarding" class="btn btn-transparent uk-width-1-1 uk-button-large uk-margin-small-top">Jetzt starten</a>
+        </div>
+      </div>
+      <!-- Standard -->
+      <div>
+        <div class="uk-card uk-card-popular uk-card-quizrace uk-text-center">
+          <span class="uk-label uk-label-large">Meist gewählt</span>
+          <h3 class="uk-card-title uk-margin-small-top" style="color:#fff;">Standard</h3>
+          <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700; color:#fff;">39&nbsp;€/Monat</div>
+          <div class="uk-text-meta uk-margin-small-bottom" style="color:#fff;">Beliebt bei Schulen & Teams</div>
+          <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom" style="color:#fff;">
+            <li><b>7 Tage kostenlos testen</b></li>
+            <li><b>Alle Starter-Funktionen</b></li>
+            <li>Bis zu 3 Events gleichzeitig</li>
+            <li>10 Teams &amp; 10 Kataloge à 10 Fragen</li>
+            <li>Eigene Subdomain</li>
+            <li>Vollständiger PDF-Export</li>
+          </ul>
+          <a href="{{ basePath }}/onboarding" class="btn btn-black uk-width-1-1 uk-button-large">Jetzt upgraden</a>
+        </div>
+      </div>
+      <!-- Professional -->
+      <div>
+        <div class="uk-card uk-card-price uk-card-quizrace uk-text-center">
+          <span class="uk-label uk-label-primary uk-label-large">Professional</span>
+          <h3 class="uk-card-title uk-text-primary uk-margin-small-top">Professional</h3>
+          <div class="uk-text-xxlarge uk-margin-small-bottom" style="font-weight:700;">79&nbsp;€/Monat</div>
+          <div class="uk-text-meta uk-margin-small-bottom">Für Agenturen & Unternehmen</div>
+          <ul class="uk-list uk-list-large uk-text-left uk-margin-small-bottom">
+            <li><b>7 Tage kostenlos testen</b></li>
+            <li><b>Alle Standard-Funktionen</b></li>
+            <li>20 Events gleichzeitig (mehr auf Anfrage)</li>
+            <li>100 Teams &amp; 50 Kataloge à 50 Fragen</li>
+            <li>White-Label &amp; Rollenverwaltung</li>
+          </ul>
+          <a href="{{ basePath }}/onboarding" class="btn btn-transparent uk-width-1-1 uk-button-large">Beratung anfragen</a>
+        </div>
+      </div>
+    </div>
+    <p class="uk-text-meta uk-text-center uk-margin-large-top">Alle Preise zzgl. MwSt. – individuelle Lösungen auf Anfrage.</p>
+    <p class="uk-text-meta uk-margin-top">1 (Die Teamgröße ist nicht technisch limitiert und kann bedarfsgerecht festgelegt werden.)</p>
+    <p class="uk-text-meta uk-margin-top">2 (Im Starter-Paket mit Wasserzeichen oder ohne individuelles Layout/Logo)</p>
+    <p class="uk-text-meta uk-margin-top">3 (z.&nbsp;B. Datenschutz, AGB, Einladung, FAQ, Spielanleitung – alles eigenständig editierbar)</p>
+  </div>
+</section>
+
+<!-- Steps / Ablauf -->
+<section class="uk-section uk-section-default">
+  <div class="uk-container">
+      <h3 class="uk-text-center uk-heading-medium poppins text-black" uk-scrollspy="cls: uk-animation-slide-top-small">In 4 Schritten zum Erlebnis-Quiz mit QuizRace</h3>
+      <p class="uk-text-lead uk-text-center" uk-scrollspy="cls: uk-animation-fade; delay: 150"><strong>QuizRace bringt Action ins Event: Erstelle Fragenkataloge, drucke QR-Codes aus, klebe sie an spannende Stationen – und lass die Teams live gegeneinander antreten. Jedes Team erlebt das Quiz direkt vor Ort, beantwortet Fragen oder erhält Info-Karten und sammelt am Ende die Lösung fürs große Rätselwort!</strong></p>
+        <div class="uk-grid uk-child-width-1-4@m uk-child-width-1-2@s uk-flex-center uk-margin-large-top uk-margin-large-bottom" uk-grid uk-scrollspy="target: > div; cls: uk-animation-slide-left-small; delay: 150">
+        <div class="uk-text-center">
+          <div class="uk-step-circle">1</div>
+          <p class="uk-text-uppercase uk-text-bold uk-margin-small-top" style="letter-spacing:2px;">Event anlegen &amp; Fragen gestalten</p>
+          <p class="uk-text-small uk-text-muted">Erstelle in wenigen Minuten dein individuelles Quiz-Event im Online-Editor: Wähle Fragetypen und baue Quiz-Kataloge – jeder Katalog ist ein eigener Parcours-Stopp.</p>
+        </div>
+        <div class="uk-text-center">
+          <div class="uk-step-circle">2</div>
+          <p class="uk-text-uppercase uk-text-bold uk-margin-small-top" style="letter-spacing:2px;">QR-Codes drucken &amp; Stationen gestalten</p>
+          <p class="uk-text-small uk-text-muted">Drucke die automatisch generierten QR-Codes aus und platziere sie an beliebigen Stationen, Objekten oder Orten. Die Teilnehmenden scannen vor Ort mit ihrem Smartphone – und sind sofort im richtigen Quizbereich.</p>
+        </div>
+        <div class="uk-text-center">
+          <div class="uk-step-circle">3</div>
+          <p class="uk-text-uppercase uk-text-bold uk-margin-small-top" style="letter-spacing:2px;">Teams per QR-Code starten lassen</p>
+          <p class="uk-text-small uk-text-muted">Die Teams melden sich eigenständig per Team-QR-Code an. Jeder Stationen-QR-Code führt direkt zu den passenden Aufgaben oder Info-Karten – kein Suchen, keine Verwirrung.</p>
+        </div>
+        <div class="uk-text-center">
+          <div class="uk-step-circle">4</div>
+          <p class="uk-text-uppercase uk-text-bold uk-margin-small-top" style="letter-spacing:2px;">Auswertung</p>
+          <p class="uk-text-small uk-text-muted">Live-Ranking, detaillierte Statistiken &amp; PDF-Export: Verfolge den Fortschritt in Echtzeit, werte die Ergebnisse komfortabel aus und küre am Ende das Siegerteam.</p>
+        </div>
+        </div>
+  </div>
+</section>
+
+<!-- Über uns / Founder -->
+<section class="uk-section about-section" style="color:#fff;">
+  <div class="uk-container">
+    <h2 class="uk-text-center uk-heading-medium" uk-scrollspy="cls: uk-animation-slide-top-small" style="color:#fff;">Wer steckt hinter QuizRace?</h2>
+    <div class="uk-width-2xlarge uk-margin-auto uk-text-center uk-text-lead" uk-scrollspy="cls: uk-animation-fade; delay: 150">
+      <b>QuizRace wurde von René Buske entwickelt – einem erfahrenen Softwarearchitekten und Digital-Event-Profi mit über 20 Jahren Erfahrung.</b>
+      <br>
+      <span>
+        Nach langjähriger Tätigkeit als IT-Berater, Dozent und Entwickler von Individualsoftware bringt René fundiertes Wissen rund um Online-Events, Gamification und Datenschutz in QuizRace ein.<br>
+        Sein Ziel: <b>Quiz-Events für alle sicher, einfach und modern machen</b> – mit einer Lösung, die jeden begeistert und stets zuverlässig funktioniert.
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- Kontakt / Kontaktformular und Cards -->
+<section id="contact-us" class="uk-section uk-section-primary uk-light">
+  <div class="uk-container">
+    <h3 class="uk-heading-medium uk-text-center" uk-scrollspy="cls: uk-animation-slide-top-small">Kontaktieren Sie uns – persönlich & praxisnah</h3>
+    <p class="uk-text-lead uk-text-center" uk-scrollspy="cls: uk-animation-fade; delay: 150">Sie möchten QuizRace testen, ein Angebot anfordern oder haben individuelle Fragen?<br>
+    Schreiben Sie uns – wir melden uns garantiert persönlich zurück!</p>
+    <div class="uk-grid uk-child-width-1-2@m uk-grid-large uk-flex-middle" uk-grid uk-scrollspy="target: > div; cls: uk-animation-slide-right-small; delay: 150">
+      <div>
+        <form id="contact-form" class="uk-form-stacked uk-width-large uk-margin-auto">
+          <div class="uk-margin">
+            <label class="uk-form-label" for="form-name">Ihr Name</label>
+            <input class="uk-input" id="form-name" name="name" type="text" required>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="form-email">E-Mail</label>
+            <input class="uk-input" id="form-email" name="email" type="email" required>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="form-msg">Nachricht</label>
+            <textarea class="uk-textarea" id="form-msg" name="message" rows="5" required></textarea>
+          </div>
+          <div class="uk-margin">
+            <label><input class="uk-checkbox" name="privacy" type="checkbox" required> Ich stimme der Speicherung meiner Daten zur Bearbeitung zu.</label>
+          </div>
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button class="btn btn-black uk-button-large uk-width-1-1" type="submit">Senden</button>
+        </form>
+      </div>
+      <div>
+        <div class="uk-grid uk-child-width-1-1 uk-grid-small">
+          <div>
+            <div class="uk-card uk-card-primary uk-card-body uk-light uk-text-left padding-30px">
+              <p class="uk-margin-small-bottom uk-text-large">E-Mail</p>
+              <a href="mailto:office@quizrace.app" class="uk-text-lead uk-link-reset">office@quizrace.app</a>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-primary uk-card-body uk-light uk-text-left padding-30px">
+              <p class="uk-margin-small-bottom uk-text-large">Telefon</p>
+              <a href="tel:+4933203609080" class="uk-text-lead uk-link-reset">+49 33203 609080</a>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-primary uk-card-body uk-light uk-text-left padding-30px">
+              <p class="uk-margin-small-bottom uk-text-large">Adresse</p>
+              <span class="uk-text-lead">Weidenbusch 8, 14532 Kleinmachnow</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="contact-modal" uk-modal>
+  <div class="uk-modal-dialog uk-modal-body">
+    <p id="contact-modal-message"></p>
+    <button class="uk-button uk-button-primary uk-modal-close" type="button">OK</button>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('contact-form');
+    const modal = UIkit.modal('#contact-modal');
+    if (!form) {
+      return;
+    }
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const data = new URLSearchParams(new FormData(form));
+      fetch('{{ basePath }}/landing/contact', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        credentials: 'same-origin',
+        body: data
+      }).then(res => {
+        if (res.ok) {
+          document.getElementById('contact-modal-message').textContent = 'Vielen Dank für Ihre Nachricht!';
+          form.reset();
+        } else {
+          document.getElementById('contact-modal-message').textContent = 'Fehler beim Versenden. Bitte versuchen Sie es erneut.';
+        }
+        modal.show();
+      }).catch(() => {
+        document.getElementById('contact-modal-message').textContent = 'Fehler beim Versenden. Bitte versuchen Sie es erneut.';
+        modal.show();
+      });
+    });
+  });
+</script>

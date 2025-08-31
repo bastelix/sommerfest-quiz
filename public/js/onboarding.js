@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
           subdomainInput.classList.add('uk-form-danger');
           return;
         }
-        const res = await fetch(withBase('/onboarding/tenants/' + encodeURIComponent(subdomain)), {
+        const res = await fetch(withBase('/tenants/' + encodeURIComponent(subdomain)), {
           credentials: 'same-origin',
           headers: { 'X-Requested-With': 'fetch' }
         });
@@ -434,12 +434,16 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (_) {
         data = undefined;
       }
-      if (!res.ok || !data || data.status !== 'success') {
+      if (res.status === 202 && (!body || !data)) {
+        addLog('Server akzeptierte die Anfrage, lieferte jedoch keine Rückmeldung.');
+        return false;
+      }
+      if (!res.ok || !data || data.status !== 'queued') {
         const msg = data && data.error ? data.error : body || 'onboard';
         addLog('Fehler beim Onboarding: ' + msg);
         throw new Error(msg);
       }
-      addLog('Onboarding abgeschlossen …');
+      addLog('Onboarding gestartet …');
       return true;
     };
 
@@ -582,12 +586,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       return;
     } catch (e) {
-      ['import', 'proxy', 'ssl', 'wait'].forEach(id => {
-        const entry = taskEls[id];
-        if (entry && !entry.spinner.hidden && !entry.li.querySelector('span:not([uk-spinner])')) {
-          mark(id, false);
-        }
-      });
+      if (taskEls.wait && !taskEls.wait.spinner.hidden && !taskEls.wait.li.querySelector('span:not([uk-spinner])')) {
+        mark('wait', false);
+      }
       const msg = e.message === 'timeout'
         ? 'Mandant wurde erstellt, ist jedoch noch nicht verfügbar. Bitte später erneut versuchen.'
         : 'Fehler: ' + e.message;

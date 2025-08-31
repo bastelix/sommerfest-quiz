@@ -77,8 +77,6 @@ class EmailConfirmationService
         $stmt = $this->pdo->prepare('UPDATE email_confirmations SET confirmed = 1 WHERE email = ?');
         $stmt->execute([$email]);
 
-        $this->deleteToken($email);
-
         $this->logger->info('Email confirmed', ['email' => $email]);
 
         return $email;

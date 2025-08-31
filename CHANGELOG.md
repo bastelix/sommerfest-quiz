@@ -140,75 +140,11 @@
 - Bump version to 0.2.127 [skip ci]
 - Bump version to 0.2.128 [skip ci]
 - Bump version to 0.2.129 [skip ci]
-- Bump version to 0.2.130 [skip ci]
-- Bump version to 0.2.131 [skip ci]
-- Bump version to 0.2.132 [skip ci]
-- Bump version to 0.2.133 [skip ci]
-- Bump version to 0.2.134 [skip ci]
-- Bump version to 0.2.135 [skip ci]
-- Bump version to 0.2.136 [skip ci]
-- Bump version to 0.2.137 [skip ci]
-- Bump version to 0.2.138 [skip ci]
-- Bump version to 0.2.139 [skip ci]
-- Bump version to 0.2.140 [skip ci]
-- Bump version to 0.2.141 [skip ci]
-- Bump version to 0.2.142 [skip ci]
-- Bump version to 0.2.143 [skip ci]
-- Bump version to 0.2.144 [skip ci]
-- Bump version to 0.2.145 [skip ci]
-- Bump version to 0.2.146 [skip ci]
-- Bump version to 0.2.147 [skip ci]
-- Bump version to 0.2.148 [skip ci]
-- Bump version to 0.2.149 [skip ci]
-- Bump version to 0.2.150 [skip ci]
-- Bump version to 0.2.151 [skip ci]
-- Bump version to 0.2.152 [skip ci]
-- Bump version to 0.2.153 [skip ci]
-- Bump version to 0.2.154 [skip ci]
-- Bump version to 0.2.155 [skip ci]
-- Bump version to 0.2.156 [skip ci]
-- Bump version to 0.2.157 [skip ci]
-- Bump version to 0.2.158 [skip ci]
-- Bump version to 0.2.159 [skip ci]
-- Bump version to 0.2.160 [skip ci]
-- Bump version to 0.2.161 [skip ci]
-- Bump version to 0.2.162 [skip ci]
-- Bump version to 0.2.163 [skip ci]
-- Bump version to 0.2.164 [skip ci]
-- Bump version to 0.2.165 [skip ci]
-- Bump version to 0.2.166 [skip ci]
-- Bump version to 0.2.167 [skip ci]
-- Bump version to 0.2.168 [skip ci]
-- Bump version to 0.2.169 [skip ci]
-- Bump version to 0.2.170 [skip ci]
-- Bump version to 0.2.171 [skip ci]
-- Bump version to 0.2.172 [skip ci]
-- Bump version to 0.2.173 [skip ci]
-- Bump version to 0.2.174 [skip ci]
-- Bump version to 0.2.175 [skip ci]
-- Bump version to 0.2.176 [skip ci]
-- Bump version to 0.2.177 [skip ci]
-- Bump version to 0.2.178 [skip ci]
-- Bump version to 0.2.179 [skip ci]
-- Bump version to 0.2.180 [skip ci]
-- Bump version to 0.2.181 [skip ci]
-- Bump version to 0.2.182 [skip ci]
-- Bump version to 0.2.183 [skip ci]
-- Bump version to 0.2.184 [skip ci]
-- Bump version to 0.2.185 [skip ci]
-- Bump version to 0.2.186 [skip ci]
-- Bump version to 0.2.187 [skip ci]
-- Bump version to 0.2.188 [skip ci]
-- Bump version to 0.2.189 [skip ci]
-- Bump version to 0.2.190 [skip ci]
-- Bump version to 0.2.191 [skip ci]
-- Bump version to 0.2.192 [skip ci]
 
 ### Docs
 
 - Remove version bump entries from changelog
 - Note removal of docker tag for tenant upgrade
-- Note landing page style overrides
 
 ### Feat
 
@@ -246,19 +182,6 @@
 - Allow custom image tag for tenant upgrade
 - Consolidate admin toolbar actions
 - Improve navigation accessibility
-- Dark pricing cards
-- Toggle dark stylesheet via disabled attribute
-- Themeable landing topbar
-- Improve landing page theme variables
-- Streamline dark mode handling
-- Improve dark theme colors
-- Use Poppins font for body
-- Replace landing page with new design
-- Apply design system to landing
-- Refresh landing page
-- *(dark-mode)* Refine login input styling
-- Initialize theme before css load
-- Mobil-first landing styles
 
 ### Fix
 
@@ -270,10 +193,6 @@
 - Always show topbar icons
 - Handle missing player name key
 - Align config button to navbar edge
-- Remove opacity from accessibility toggle icon
-- Ensure landing navbar uses UIKit-specific background
-- Improve landing page contrast
-- Restore backend light mode styles
 
 ### Refactor
 
@@ -281,15 +200,6 @@
 - Wrap invoice return docblock
 - Sanitize subscription DOM updates
 - Build pagination DOM and escape paths
-- Externalize onboarding styles
-- Use accent color variable in dark mode
-- Use CSS variables for landing page
-- Update topbar text colors
-- Unify landing page theme variables
-- Scope dark mode styles
-- Replace landing page inline styles
-- Improve dark mode handling
-- Apply accessibility landing style patch
 
 ### Style
 
@@ -297,11 +207,6 @@
 - Match hamburger menu toggle to options button
 - Improve landing topbar contrast
 - Square icon buttons
-- Add dark mode styles for landing page
-- Align topbar link colors with theme
-- Use variables for footer colors
-- Refine landing visuals
-- Improve form error contrast
 
 ### Test
 

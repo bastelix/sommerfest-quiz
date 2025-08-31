@@ -238,65 +238,6 @@ class OnboardingEmailControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testLinkAndRedirectRespectBasePath(): void
-    {
-        $oldBase = getenv('BASE_PATH');
-        putenv('BASE_PATH=/base');
-        $_ENV['BASE_PATH'] = '/base';
-
-        $app = $this->getAppInstance();
-        $pdo = $this->setupEmailConfirmations();
-        session_start();
-        $_SESSION['csrf_token'] = 'tok';
-        unset($_SESSION['rate:/onboarding/email']);
-
-        $mailer = new class extends MailService {
-            public array $sent = [];
-            public function __construct()
-            {
-            }
-            public function sendDoubleOptIn(string $to, string $link): void
-            {
-                $this->sent[] = [$to, $link];
-            }
-        };
-
-        $request = $this->createRequest('POST', '/base/onboarding/email', [
-            'Content-Type' => 'application/json',
-            'X-CSRF-Token' => 'tok',
-        ]);
-        $request = $request->withUri($request->getUri()->withBasePath('/base'));
-        $stream = fopen('php://temp', 'r+');
-        fwrite($stream, json_encode(['email' => 'user@example.com']));
-        rewind($stream);
-        $request = $request->withBody((new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream));
-        $request = $request->withAttribute('mailService', $mailer);
-
-        $response = $app->handle($request);
-        $this->assertSame(204, $response->getStatusCode());
-        $this->assertStringStartsWith('/base/onboarding/email/confirm?token=', $mailer->sent[0][1]);
-
-        $token = (string) $pdo->query('SELECT token FROM email_confirmations')->fetchColumn();
-        $confirm = $this->createRequest('GET', '/base/onboarding/email/confirm?token=' . $token);
-        $confirm = $confirm->withUri($confirm->getUri()->withBasePath('/base'));
-        $confirmResp = $app->handle($confirm);
-        $this->assertSame(302, $confirmResp->getStatusCode());
-        $this->assertStringStartsWith(
-            '/base/onboarding?email=user%40example.com&verified=1',
-            $confirmResp->getHeaderLine('Location')
-        );
-
-        session_destroy();
-
-        if ($oldBase === false) {
-            putenv('BASE_PATH');
-            unset($_ENV['BASE_PATH']);
-        } else {
-            putenv('BASE_PATH=' . $oldBase);
-            $_ENV['BASE_PATH'] = $oldBase;
-        }
-    }
-
     public function testConfirmValidAndInvalidTokens(): void
     {
         $app = $this->getAppInstance();
@@ -332,10 +273,10 @@ class OnboardingEmailControllerTest extends TestCase
             '/onboarding?email=user%40example.com&verified=1',
             $response->getHeaderLine('Location')
         );
-        $count = (int) $pdo
-            ->query('SELECT COUNT(*) FROM email_confirmations WHERE token = ' . $pdo->quote($token))
+        $confirmed = (string) $pdo
+            ->query('SELECT confirmed FROM email_confirmations WHERE token = ' . $pdo->quote($token))
             ->fetchColumn();
-        $this->assertSame(0, $count);
+        $this->assertSame('1', $confirmed);
 
         $bad = $this->createRequest('GET', '/onboarding/email/confirm?token=invalid');
         $badResp = $app->handle($bad);
@@ -343,7 +284,7 @@ class OnboardingEmailControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testStatusEndpointReturns404AfterTokenRemoval(): void
+    public function testStatusEndpointForConfirmedAndUnconfirmedEmails(): void
     {
         $app = $this->getAppInstance();
         $pdo = $this->setupEmailConfirmations();
@@ -376,7 +317,7 @@ class OnboardingEmailControllerTest extends TestCase
         $app->handle($this->createRequest('GET', '/onboarding/email/confirm?token=' . $token));
 
         $status2 = $app->handle($this->createRequest('GET', '/onboarding/email/status?email=user@example.com'));
-        $this->assertSame(404, $status2->getStatusCode());
+        $this->assertSame(204, $status2->getStatusCode());
 
         $status3 = $app->handle($this->createRequest('GET', '/onboarding/email/status?email=other@example.com'));
         $this->assertSame(404, $status3->getStatusCode());

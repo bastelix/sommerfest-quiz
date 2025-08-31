@@ -81,6 +81,7 @@ use App\Controller\BackupController;
 use App\Domain\Roles;
 use App\Domain\Plan;
 
+use function App\runBackgroundProcess;
 use function App\runSyncProcess;
 
 require_once __DIR__ . '/Controller/HomeController.php';
@@ -348,17 +349,6 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/onboarding/email/status', function (Request $request, Response $response) {
         return $request->getAttribute('onboardingEmailController')->status($request, $response);
     });
-    $app->get('/onboarding/tenants/{subdomain}', function (Request $request, Response $response, array $args) {
-        if ($request->getAttribute('domainType') !== 'main') {
-            return $response->withStatus(404);
-        }
-        $sub = strtolower((string) ($args['subdomain'] ?? ''));
-        if ($sub === '' || !preg_match('/^[a-z0-9-]{3,63}$/', $sub)) {
-            return $response->withStatus(400);
-        }
-        $args['subdomain'] = $sub;
-        return $request->getAttribute('tenantController')->exists($request, $response, $args);
-    })->add(new RateLimitMiddleware(10, 60));
     $app->post('/onboarding/checkout', StripeCheckoutController::class);
     $app->get('/onboarding/checkout/{id}', StripeSessionController::class);
     $app->post('/stripe/webhook', StripeWebhookController::class);
@@ -1150,26 +1140,12 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
         }
 
-        $result = runSyncProcess($script, [$slug]);
+        runBackgroundProcess($script, [$slug]);
 
-        if (!$result['success']) {
-            $message = trim($result['stderr'] !== '' ? $result['stderr'] : $result['stdout']);
-            $response->getBody()->write(json_encode(['error' => $message]));
-
-            return $response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
-        }
-
-        $lines = array_filter(array_map('trim', explode("\n", $result['stdout'])));
-        $payload = json_decode(end($lines) ?: '', true);
-        if (!is_array($payload)) {
-            $payload = ['status' => 'success', 'tenant' => $slug];
-        }
-
+        $payload = ['status' => 'queued', 'tenant' => $slug];
         $response->getBody()->write(json_encode($payload));
 
-        return $response->withHeader('Content-Type', 'application/json');
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(202);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::SERVICE_ACCOUNT))->add(new CsrfMiddleware());
 
     $app->delete('/api/tenants/{slug}', function (Request $request, Response $response, array $args) {

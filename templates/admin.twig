@@ -5,7 +5,7 @@
 {% block head %}
   <meta name="csrf-token" content="{{ csrf_token }}">
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  <link id="darkStylesheet" rel="stylesheet" href="{{ basePath }}/css/dark.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/ui/trumbowyg.min.css">
   <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
@@ -29,13 +29,13 @@
 {% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
 
 {% block body %}
-    {% embed 'topbar.twig' %}
-      {% block left %}
-        <a href="{{ basePath }}/admin/summary" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
-          QuizRace Admin
-          <div class="uk-text-meta uk-text-small">v{{ version }}</div>
-        </a>
-      {% endblock %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <a href="{{ basePath }}/admin/summary" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
+        QuizRace Admin
+        <div class="uk-text-meta uk-text-small">v{{ version }}</div>
+      </a>
+    {% endblock %}
     {% block center %}
       <div class="uk-flex uk-flex-middle">
         <div id="eventSelectWrap" class="uk-form-custom uk-flex-1" uk-form-custom="target: > * > span:first-child">
@@ -48,16 +48,18 @@
         <button id="eventOpenBtn" class="uk-icon-button uk-margin-small-left uk-visible@s" uk-icon="icon: link-external" aria-label="{{ t('tip_event_open') }}" uk-tooltip="title: {{ t('tip_event_open') }}; pos: bottom"></button>
       </div>
     {% endblock %}
-      {% block right %}{% endblock %}
-      {% block offcanvas %}
-        <div id="qr-offcanvas" uk-offcanvas="overlay: true">
-          <div class="uk-offcanvas-bar">
-            <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
-            <h3 class="uk-margin-small">QuizRace</h3>
-            {% include 'admin/_nav.twig' %}
-          </div>
+    {% block right %}{% endblock %}
+    {% block headerbar %}
+      {% set activeRoute = currentPath|split('/admin/')|last %}
+      {% if activeRoute == '' %}
+        {% set activeRoute = 'dashboard' %}
+      {% endif %}
+      {% if activeRoute == 'dashboard' %}
+        <div class="uk-container uk-container-large">
+          <h2 class="uk-heading-bullet">Willkommen {{ username }}</h2>
         </div>
-      {% endblock %}
+      {% endif %}
+    {% endblock %}
   {% endembed %}
   {% if not stripe_configured %}
     <div class="uk-container uk-container-large">
@@ -88,7 +90,6 @@
       <ul id="adminSwitcher" class="uk-switcher uk-margin">
     <li class="{{ activeRoute == 'dashboard' ? 'uk-active' }}">
       <div class="uk-container uk-container-large dashboard-container">
-        <h2 class="uk-heading-bullet">Willkommen {{ username }}</h2>
         <div id="dashboard" class="uk-margin-large-top">
           <div class="uk-grid-large" uk-grid>
             <!-- Spalte 2–3: Inhalt -->
@@ -1173,6 +1174,13 @@
     <div class="uk-offcanvas-bar uk-width-medium">
       <h3 class="uk-margin-remove-top">Hilfe</h3>
       <div id="helpContent"></div>
+    </div>
+  </div>
+  <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+    <div class="uk-offcanvas-bar">
+      <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+      <h3 class="uk-margin-small">QuizRace</h3>
+      {% include 'admin/_nav.twig' %}
     </div>
   </div>
 {% endblock %}

@@ -8,7 +8,6 @@ use App\Service\EmailConfirmationService;
 use App\Service\MailService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
-use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 
 /**
@@ -38,9 +37,8 @@ class OnboardingEmailController
         }
 
         $token = $this->service->createToken($email);
-        $base = rtrim(RouteContext::fromRequest($request)->getBasePath(), '/');
         $uri = $request->getUri()
-            ->withPath($base . '/onboarding/email/confirm')
+            ->withPath('/onboarding/email/confirm')
             ->withQuery('token=' . urlencode($token));
 
         $mailer = $request->getAttribute('mailService');
@@ -71,9 +69,8 @@ class OnboardingEmailController
             return $response->withStatus(400);
         }
 
-        $base = rtrim(RouteContext::fromRequest($request)->getBasePath(), '/');
         $uri = $request->getUri()
-            ->withPath($base . '/onboarding')
+            ->withPath('/onboarding')
             ->withQuery(http_build_query([
                 'email' => $email,
                 'verified' => 1,

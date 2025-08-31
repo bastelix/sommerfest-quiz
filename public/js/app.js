@@ -6,38 +6,23 @@ document.addEventListener('DOMContentLoaded', function () {
   const configMenu = document.getElementById('menuDrop');
   const offcanvasToggle = document.getElementById('offcanvas-toggle');
   const offcanvas = document.getElementById('qr-offcanvas');
+  const darkStylesheet = document.querySelector('link[href$="dark.css"]');
   const themeIcon = document.getElementById('themeIcon');
   const accessibilityIcon = document.getElementById('accessibilityIcon');
   const helpBtn = document.getElementById('helpBtn');
-  const darkStylesheet = document.getElementById('darkStylesheet');
 
   const storedTheme = localStorage.getItem('darkMode');
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  let dark;
-  if (document.documentElement.classList.contains('uk-dark')) {
-    dark = true;
-  } else if (document.documentElement.classList.contains('uk-light')) {
-    dark = false;
-  } else {
-    dark = storedTheme === 'true' || (storedTheme === null && prefersDark);
+  let dark = storedTheme === 'true' || (storedTheme === null && prefersDark);
+
+  if (darkStylesheet) {
+    darkStylesheet.disabled = !dark;
   }
 
-  function applyTheme () {
-    if (darkStylesheet) {
-      darkStylesheet.disabled = !dark;
-    }
-    // uk-dark indicates light mode, uk-light indicates dark mode
-    document.body.classList.toggle('uk-dark', !dark);
-    document.body.classList.toggle('uk-light', dark);
-    document.documentElement.classList.toggle('uk-dark', !dark);
-    document.documentElement.classList.toggle('uk-light', dark);
-    document.querySelectorAll('.topbar').forEach(el => {
-      el.classList.toggle('uk-dark', !dark);
-      el.classList.toggle('uk-light', dark);
-    });
+  if (dark) {
+    document.body.classList.add('dark-mode', 'uk-light');
+    document.documentElement.classList.add('dark-mode');
   }
-
-  applyTheme();
 
   const sunSVG = `
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="currentColor"/>
@@ -104,8 +89,12 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       toggle.addEventListener('click', function (event) {
         event.preventDefault();
-        dark = !dark;
-        applyTheme();
+        dark = document.body.classList.toggle('dark-mode');
+        document.documentElement.classList.toggle('dark-mode', dark);
+        document.body.classList.toggle('uk-light', dark);
+        if (darkStylesheet) {
+          darkStylesheet.disabled = !dark;
+        }
         localStorage.setItem('darkMode', dark ? 'true' : 'false');
         if (themeIcon) {
           themeIcon.innerHTML = dark ? sunSVG : moonSVG;

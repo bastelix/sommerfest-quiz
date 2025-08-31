@@ -4,30 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Impressum</title>
-  <script>
-  (function () {
-    const storedTheme = localStorage.getItem('darkMode');
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const dark = storedTheme === 'true' || (storedTheme === null && prefersDark);
-    const root = document.documentElement;
-    root.classList.add(dark ? 'uk-dark' : 'uk-light');
-    root.classList.remove(dark ? 'uk-light' : 'uk-dark');
-    window.__initialDark = dark;
-    const mo = new MutationObserver(() => {
-      const ds = document.getElementById('darkStylesheet');
-      if (ds) {
-        ds.disabled = !dark;
-        mo.disconnect();
-      }
-    });
-    mo.observe(document.head, { childList: true });
-  })();
-  </script>
   <link rel="stylesheet" href="/css/uikit.min.css">
   <link rel="stylesheet" href="/css/main.css">
-  <link id="darkStylesheet" rel="stylesheet" href="/css/dark.css">
+  <link rel="stylesheet" href="/css/dark.css">
 </head>
-<body class="uk-padding uk-background-default">
+<body class="uk-padding uk-background-muted">
   <div class="wrapper">
     <main class="content">
       <h1>Impressum</h1>
@@ -55,7 +36,7 @@
       <p>Der Quellcode dieser Anwendung ist unter der MIT-Lizenz auf GitHub verfügbar:<br>
       <a href="https://github.com/bastelix/sommerfest-quiz">https://github.com/bastelix/sommerfest-quiz</a></p>
     </main>
-    <footer class="site-footer uk-section uk-section-default uk-text-center">
+    <footer class="site-footer">
       <nav class="footer-menu">
         <ul>
           <li><a href="Datenschutz.html">Datenschutz</a></li>

@@ -38,25 +38,6 @@
   }
   </script>
   <link rel="icon" href="{{ basePath }}/favicon.svg" type="image/svg+xml">
-  <script>
-  (function () {
-    const storedTheme = localStorage.getItem('darkMode');
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const dark = storedTheme === 'true' || (storedTheme === null && prefersDark);
-    const root = document.documentElement;
-    root.classList.add(dark ? 'uk-dark' : 'uk-light');
-    root.classList.remove(dark ? 'uk-light' : 'uk-dark');
-    window.__initialDark = dark;
-    const mo = new MutationObserver(() => {
-      const ds = document.getElementById('darkStylesheet');
-      if (ds) {
-        ds.disabled = !dark;
-        mo.disconnect();
-      }
-    });
-    mo.observe(document.head, { childList: true });
-  })();
-  </script>
   <link rel="stylesheet" href="{{ basePath }}/css/uikit.min.css">
   {% block head %}{% endblock %}
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
@@ -69,12 +50,12 @@
   </style>
   {% endif %}
 </head>
-<body class="uk-background-default {% block body_class %}{% endblock %}">
+<body class="{% block body_class %}{% endblock %}">
   <div class="wrapper">
     <main class="content">
       {% block body %}{% endblock %}
     </main>
-    <footer class="site-footer uk-section uk-section-default uk-text-center">
+    <footer class="site-footer">
       <nav class="footer-menu">
         <ul>
           <li><a href="{{ basePath }}/impressum">{{ t('imprint') }}</a></li>
@@ -84,6 +65,14 @@
       </nav>
     </footer>
   </div>
+  {% include 'partials/bottom-nav.twig' with {
+    links: [
+      { href: basePath ~ '/', text: t('tab_dashboard') },
+      { href: basePath ~ '/faq', text: t('help') },
+      { href: basePath ~ '/impressum', text: t('imprint') },
+      { href: basePath ~ '/datenschutz', text: t('privacy') }
+    ]
+  } %}
   <script src="{{ basePath }}/js/uikit.min.js" defer></script>
   <script src="{{ basePath }}/js/uikit-icons.min.js" defer></script>
   <script>window.basePath = '{{ basePath }}';</script>

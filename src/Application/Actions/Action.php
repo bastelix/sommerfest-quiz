@@ -8,7 +8,6 @@ use App\Domain\DomainException\DomainRecordNotFoundException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Log\LoggerInterface;
-use JsonException;
 use Slim\Exception\HttpBadRequestException;
 use Slim\Exception\HttpNotFoundException;
 
@@ -83,20 +82,11 @@ abstract class Action
 
     protected function respond(ActionPayload $payload): Response
     {
-        try {
-            $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
-            $this->response->getBody()->write($json);
-        } catch (JsonException $e) {
-            $this->logger->error('JSON encode error: ' . $e->getMessage());
-            $this->response->getBody()->write('{"error":"Encoding error"}');
-
-            return $this->response
-                ->withHeader('Content-Type', 'application/json')
-                ->withStatus(500);
-        }
+        $json = json_encode($payload, JSON_PRETTY_PRINT);
+        $this->response->getBody()->write($json);
 
         return $this->response
-            ->withHeader('Content-Type', 'application/json')
-            ->withStatus($payload->getStatusCode());
+                    ->withHeader('Content-Type', 'application/json')
+                    ->withStatus($payload->getStatusCode());
     }
 }

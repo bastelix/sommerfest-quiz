@@ -4,9 +4,83 @@
 
 {% block head %}
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  <link id="darkStylesheet" rel="stylesheet" href="{{ basePath }}/css/dark.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/onboarding.css">
+  <style>
+    .btn {
+      font-size: 1rem;
+      font-weight: 500;
+      letter-spacing: .04em;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-family: 'Poppins',sans-serif;
+    }
+    .btn-black {
+      background: #232323 !important;
+      color: #fff !important;
+      border: 2px solid #232323;
+      transition: all 0.18s;
+    }
+    .btn-black:hover {
+      background: #fff !important;
+      color: #232323 !important;
+    }
+    .btn-transparent {
+      background: transparent !important;
+      color: #0c86d0 !important;
+      border: 2px solid #0c86d0;
+      transition: all 0.18s;
+    }
+    .btn-transparent:hover {
+      background: #0c86d0 !important;
+      color: #fff !important;
+    }
+    .uk-card-quizrace {
+      border-radius: 14px;
+      box-shadow: 0 6px 22px 0 rgba(18,32,73,.06);
+      padding: 32px 24px;
+      background: #fff;
+    }
+    .uk-label-large {
+      font-size: 1.1rem;
+      padding: 0.55em 1.3em;
+      border-radius: 22px;
+      letter-spacing: 0.03em;
+    }
+    .uk-card-price {
+      border: 2px solid #0c86d0;
+      background: #fff;
+    }
+    .uk-card-popular {
+      border: 2px solid #232323;
+      background: #0c86d0;
+      color: #fff;
+      transform: scale(1.05);
+      z-index: 1;
+      position: relative;
+    }
+    .uk-card-popular .uk-label {
+      background: #232323;
+      color: #fff;
+    }
+    .uk-card-price .uk-text-meta, .uk-text-meta {
+      color: #7b7b7b;
+      font-size: 0.95rem;
+    }
+    .uk-card-popular .btn-black {
+      background: #fff !important;
+      color: #0c86d0 !important;
+      border: 2px solid #fff;
+    }
+    .pricing-grid .uk-card-quizrace {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    .pricing-grid .uk-card-quizrace .btn {
+      margin-top: auto;
+    }
+  </style>
 {% endblock %}
 
 {% block body_class %}uk-padding{% endblock %}
