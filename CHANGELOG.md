@@ -212,6 +212,7 @@
 - Scope landing page styles
 - Bump version to 0.2.160 [skip ci]
 - Bump version to 0.2.161 [skip ci]
+- Bump version to 0.2.162 [skip ci]
 
 ### Docs
 
@@ -270,6 +271,7 @@
 - Mobil-first landing styles
 - Darken login version tag
 - Add redirects table
+- Apply dark mode classes without stylesheet
 
 ### Fix
 
