@@ -50,12 +50,12 @@
   </style>
   {% endif %}
 </head>
-<body class="uk-background-default {% block body_class %}{% endblock %}">
+<body class="{% block body_class %}{% endblock %}">
   <div class="wrapper">
     <main class="content">
       {% block body %}{% endblock %}
     </main>
-    <footer class="site-footer uk-section uk-section-default uk-text-center">
+    <footer class="site-footer">
       <nav class="footer-menu">
         <ul>
           <li><a href="{{ basePath }}/impressum">{{ t('imprint') }}</a></li>

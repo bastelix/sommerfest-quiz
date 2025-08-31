@@ -1,0 +1,7 @@
+[
+    {
+        "from": "\/start",
+        "to": "\/changed",
+        "status": 301
+    }
+]
