@@ -215,6 +215,11 @@
 - Bump version to 0.2.162 [skip ci]
 - Bump version to 0.2.163 [skip ci]
 - Bump version to 0.2.164 [skip ci]
+- Bump version to 0.2.165 [skip ci]
+- Bump version to 0.2.166 [skip ci]
+- Bump version to 0.2.167 [skip ci]
+- Bump version to 0.2.168 [skip ci]
+- Apply dark blue landing theme
 
 ### Docs
 
@@ -274,6 +279,8 @@
 - Darken login version tag
 - Add redirects table
 - Apply dark mode classes without stylesheet
+- Simplify landing hero
+- Use uikit navbar toggle
 
 ### Fix
 
@@ -322,6 +329,8 @@
 - Darken options button in light mode
 - Improve landing backgrounds for themes
 - Add danger color tokens
+- Emulate GitHub header on landing
+- Update landing hero styling
 
 ### Test
 
