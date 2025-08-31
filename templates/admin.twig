@@ -5,7 +5,7 @@
 {% block head %}
   <meta name="csrf-token" content="{{ csrf_token }}">
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  <link id="darkStylesheet" rel="stylesheet" href="{{ basePath }}/css/dark.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/ui/trumbowyg.min.css">
   <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
@@ -58,6 +58,17 @@
           </div>
         </div>
       {% endblock %}
+      {% block headerbar %}
+        {% set activeRoute = currentPath|split('/admin/')|last %}
+        {% if activeRoute == '' %}
+          {% set activeRoute = 'dashboard' %}
+        {% endif %}
+      {% if activeRoute == 'dashboard' %}
+        <div class="uk-container uk-container-large">
+          <h2 class="uk-heading-bullet">Willkommen {{ username }}</h2>
+        </div>
+      {% endif %}
+    {% endblock %}
   {% endembed %}
   {% if not stripe_configured %}
     <div class="uk-container uk-container-large">
@@ -88,7 +99,6 @@
       <ul id="adminSwitcher" class="uk-switcher uk-margin">
     <li class="{{ activeRoute == 'dashboard' ? 'uk-active' }}">
       <div class="uk-container uk-container-large dashboard-container">
-        <h2 class="uk-heading-bullet">Willkommen {{ username }}</h2>
         <div id="dashboard" class="uk-margin-large-top">
           <div class="uk-grid-large" uk-grid>
             <!-- Spalte 2–3: Inhalt -->

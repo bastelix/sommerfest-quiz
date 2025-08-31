@@ -9,31 +9,19 @@ document.addEventListener('DOMContentLoaded', function () {
   const themeIcon = document.getElementById('themeIcon');
   const accessibilityIcon = document.getElementById('accessibilityIcon');
   const helpBtn = document.getElementById('helpBtn');
-  const darkStylesheet = document.getElementById('darkStylesheet');
 
   const storedTheme = localStorage.getItem('darkMode');
   const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  let dark;
-  if (document.documentElement.classList.contains('uk-dark')) {
-    dark = true;
-  } else if (document.documentElement.classList.contains('uk-light')) {
-    dark = false;
-  } else {
-    dark = storedTheme === 'true' || (storedTheme === null && prefersDark);
-  }
+  let dark = storedTheme === 'true' || (storedTheme === null && prefersDark);
 
   function applyTheme () {
-    if (darkStylesheet) {
-      darkStylesheet.disabled = !dark;
-    }
-    // uk-dark indicates light mode, uk-light indicates dark mode
-    document.body.classList.toggle('uk-dark', !dark);
-    document.body.classList.toggle('uk-light', dark);
-    document.documentElement.classList.toggle('uk-dark', !dark);
-    document.documentElement.classList.toggle('uk-light', dark);
+    document.body.classList.toggle('uk-dark', dark);
+    document.body.classList.toggle('uk-light', !dark);
+    document.documentElement.classList.toggle('uk-dark', dark);
+    document.documentElement.classList.toggle('uk-light', !dark);
     document.querySelectorAll('.topbar').forEach(el => {
-      el.classList.toggle('uk-dark', !dark);
-      el.classList.toggle('uk-light', dark);
+      el.classList.toggle('uk-dark', dark);
+      el.classList.toggle('uk-light', !dark);
     });
   }
 

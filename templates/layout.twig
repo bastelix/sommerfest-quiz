@@ -38,25 +38,6 @@
   }
   </script>
   <link rel="icon" href="{{ basePath }}/favicon.svg" type="image/svg+xml">
-  <script>
-  (function () {
-    const storedTheme = localStorage.getItem('darkMode');
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const dark = storedTheme === 'true' || (storedTheme === null && prefersDark);
-    const root = document.documentElement;
-    root.classList.add(dark ? 'uk-dark' : 'uk-light');
-    root.classList.remove(dark ? 'uk-light' : 'uk-dark');
-    window.__initialDark = dark;
-    const mo = new MutationObserver(() => {
-      const ds = document.getElementById('darkStylesheet');
-      if (ds) {
-        ds.disabled = !dark;
-        mo.disconnect();
-      }
-    });
-    mo.observe(document.head, { childList: true });
-  })();
-  </script>
   <link rel="stylesheet" href="{{ basePath }}/css/uikit.min.css">
   {% block head %}{% endblock %}
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
