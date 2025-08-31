@@ -12,7 +12,7 @@
 
 {% block body %}
   <div class="landing-content">
-    {% embed 'topbar.twig' %}
+    {% embed 'topbar.twig' with { nav_class: 'github-header' } %}
       {% block left %}
         <a class="uk-logo" href="{{ basePath }}/landing">QuizRace</a>
         {% endblock %}
