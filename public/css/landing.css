@@ -103,6 +103,12 @@
   height:64px;
   border-bottom: 1px solid var(--card-border);
 }
+@media (max-width: 959px) {
+  .page-landing .github-header{
+    min-height:56px;
+    height:56px;
+  }
+}
 .page-landing .github-header .uk-navbar-nav>li>a{ color:var(--text)!important; font-weight:500; opacity:.9; }
 .page-landing .github-header .uk-navbar-nav>li>a:hover,
 .page-landing .github-header .uk-navbar-nav>li.uk-active>a{ opacity:1; text-decoration:none; }
