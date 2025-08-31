@@ -69,7 +69,7 @@ body.high-contrast .uk-alert-success {
   color: #ffffff;
 }
 body.high-contrast .uk-alert-danger {
-  background-color: #8b0000;
+  background-color: var(--danger-500);
   color: #ffffff;
 }
 body.high-contrast .uk-alert-primary {
@@ -175,13 +175,18 @@ body.dark-mode.high-contrast .uk-alert-success {
 }
 
 body.dark-mode.high-contrast .uk-alert-danger {
-  background-color: #8b0000;
+  background-color: var(--danger-500);
   color: #ffffff;
 }
 
 body.dark-mode.high-contrast .uk-alert-primary {
   background-color: #00008b;
   color: #ffffff;
+}
+
+body.high-contrast .uk-form-danger,
+body.dark-mode.high-contrast .uk-form-danger {
+  border-color: var(--danger-600) !important;
 }
 
 body.high-contrast .flip-card-front,
