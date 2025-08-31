@@ -12,6 +12,15 @@
   --landing-primary: #0c86d0;
   --danger-500: #8b0000;
   --danger-600: #660000;
+
+  --brand-50:#eff6ff; --brand-100:#dbeafe; --brand-200:#bfdbfe;
+  --brand-300:#93c5fd; --brand-400:#60a5fa; --brand-500:#3b82f6;
+  --brand-600:#2563eb; --brand-700:#1d4ed8; --brand-800:#1e40af; --brand-900:#1e3a8a;
+  --hero-grad-start: var(--brand-900);
+  --hero-grad-end: var(--brand-600);
+  --link: var(--brand-700);
+  --link-hover: var(--brand-600);
+  --focus-ring: 0 0 0 3px rgba(59,130,246,.35);
 }
 
 /* Dark-Mode auf der Landing (klassisch via .theme-dark am <html>) */
@@ -28,6 +37,11 @@
   --landing-primary: #0c86d0;
   --danger-500: #ff6b6b;
   --danger-600: #ff4c4c;
+
+  --hero-grad-start:#0b1020;
+  --hero-grad-end:#10214a;
+  --link:#93c5fd;
+  --link-hover:#bfdbfe;
 }
 
 /* Flächen */
@@ -80,36 +94,6 @@
   .page-landing .uk-section { padding-top: 72px; padding-bottom: 72px; }
 }
 
-/* Design-Tokens erweitern */
-.page-landing {
-  --bg: #ffffff;
-  --text: #0f172a;
-  --muted: #475569;
-  --section-bg: #f7f8fa;
-  --card-bg: #ffffff;
-  --card-border: rgba(15,23,42,.08);
-  --shadow: 0 4px 18px rgba(0,0,0,.08);
-
-  --brand-50:#eff6ff; --brand-100:#dbeafe; --brand-200:#bfdbfe;
-  --brand-300:#93c5fd; --brand-400:#60a5fa; --brand-500:#3b82f6;
-  --brand-600:#2563eb; --brand-700:#1d4ed8; --brand-800:#1e40af; --brand-900:#1e3a8a;
-  --hero-grad-start: var(--brand-900);
-  --hero-grad-end: var(--brand-600);
-  --link: var(--brand-700);
-  --link-hover: var(--brand-600);
-  --focus-ring: 0 0 0 3px rgba(59,130,246,.35);
-  --landing-bg: #ffffff;
-  --landing-text: #0f172a;
-  --landing-primary: #0c86d0;
-  --danger-500: #8b0000;
-  --danger-600: #660000;
-}
-.theme-dark .page-landing {
-  --bg:#0b1020; --text:#e6eaf3; --muted:#a3adc2; --section-bg:#0e1426;
-  --card-bg:#121a31; --card-border:rgba(255,255,255,.06); --shadow:0 6px 24px rgba(0,0,0,.35);
-  --hero-grad-start:#0b1020; --hero-grad-end:#10214a; --link:#93c5fd; --link-hover:#bfdbfe;
-  --landing-bg:#1e1e1e; --landing-text:#f5f5f5; --landing-primary:#0c86d0; --danger-500:#ff6b6b; --danger-600:#ff4c4c;
-}
 
 /* Topbar */
 .page-landing .uk-navbar-container{
