@@ -20,7 +20,6 @@ use PDO;
 class PageSeoConfigService
 {
     private PDO $pdo;
-    private string $file;
     private RedirectManager $redirects;
     private SeoValidator $validator;
     private PageSeoCache $cache;
@@ -28,14 +27,12 @@ class PageSeoConfigService
 
     public function __construct(
         ?PDO $pdo = null,
-        ?string $file = null,
         ?RedirectManager $redirects = null,
         ?SeoValidator $validator = null,
         ?PageSeoCache $cache = null,
         ?EventDispatcher $dispatcher = null
     ) {
         $this->pdo = $pdo ?? Database::connectFromEnv();
-        $this->file = $file ?? dirname(__DIR__, 3) . '/data/page-seo.json';
         $this->redirects = $redirects ?? new RedirectManager();
         $this->validator = $validator ?? new SeoValidator();
         $this->cache = $cache ?? new PageSeoCache();
@@ -75,29 +72,7 @@ class PageSeoConfigService
             return $config;
         }
 
-        if (!is_file($this->file)) {
-            return null;
-        }
-        $data = json_decode((string) file_get_contents($this->file), true);
-        if (!is_array($data) || !isset($data[$pageId]) || !is_array($data[$pageId])) {
-            return null;
-        }
-        $cfg = $data[$pageId];
-        $config = new PageSeoConfig(
-            $pageId,
-            (string) ($cfg['slug'] ?? ''),
-            $cfg['metaTitle'] ?? null,
-            $cfg['metaDescription'] ?? null,
-            $cfg['canonicalUrl'] ?? null,
-            $cfg['robotsMeta'] ?? null,
-            $cfg['ogTitle'] ?? null,
-            $cfg['ogDescription'] ?? null,
-            $cfg['ogImage'] ?? null,
-            $cfg['schemaJson'] ?? null,
-            $cfg['hreflang'] ?? null
-        );
-        $this->cache->set($config);
-        return $config;
+        return null;
     }
 
     public function save(PageSeoConfig $config): void
@@ -152,18 +127,6 @@ class PageSeoConfigService
             . 'VALUES(?,?,?,?,?,?,?,?,?,?,?)'
         );
         $history->execute($params);
-
-        $data = [];
-        if (is_file($this->file)) {
-            $json = json_decode((string) file_get_contents($this->file), true);
-            if (is_array($json)) {
-                $data = $json;
-            }
-        }
-        $serialized = $config->jsonSerialize();
-        $serialized['schemaJson'] = $this->normalizeSchemaJson($config->getSchemaJson());
-        $data[$config->getPageId()] = $serialized;
-        file_put_contents($this->file, json_encode($data, JSON_PRETTY_PRINT) . "\n");
 
         $event = is_array($existing)
             ? new SeoConfigUpdated($config)

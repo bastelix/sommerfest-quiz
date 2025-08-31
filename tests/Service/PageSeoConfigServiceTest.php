@@ -6,17 +6,25 @@ namespace Tests\Service;
 
 use App\Application\Seo\PageSeoConfigService;
 use App\Application\Seo\SeoValidator;
+use App\Application\Routing\RedirectManager;
 use App\Domain\PageSeoConfig;
 use App\Infrastructure\Cache\PageSeoCache;
 use PDO;
 use PHPUnit\Framework\TestCase;
+
+class NullRedirectManager extends RedirectManager
+{
+    public function __construct() {}
+    public function register(string $from, string $to, int $status = 301): void {}
+}
 
 class PageSeoConfigServiceTest extends TestCase
 {
     public function testValidateLimitsAndUrl(): void
     {
         $pdo = new PDO('sqlite::memory:');
-        $service = new PageSeoConfigService($pdo);
+        $redirects = new NullRedirectManager();
+        $service = new PageSeoConfigService($pdo, $redirects);
         $errors = $service->validate([
             'slug' => 'test',
             'metaTitle' => str_repeat('a', SeoValidator::TITLE_MAX_LENGTH + 1),
@@ -46,9 +54,9 @@ class PageSeoConfigServiceTest extends TestCase
             . 'og_title TEXT, og_description TEXT, og_image TEXT, schema_json TEXT, '
             . 'hreflang TEXT, created_at TEXT)'
         );
-        $file = tempnam(sys_get_temp_dir(), 'seo');
         $cache = new PageSeoCache();
-        $service = new PageSeoConfigService($pdo, $file, null, null, $cache);
+        $redirects = new NullRedirectManager();
+        $service = new PageSeoConfigService($pdo, $redirects, null, $cache);
         $config = new PageSeoConfig(1, 'start');
         $service->save($config);
         $first = $service->load(1);
@@ -58,13 +66,13 @@ class PageSeoConfigServiceTest extends TestCase
         $this->assertSame('changed', $second->getSlug());
         $row = $pdo->query('SELECT slug FROM page_seo_config WHERE page_id = 1')->fetch(PDO::FETCH_ASSOC);
         $this->assertSame('changed', $row['slug']);
-        unlink($file);
     }
 
     public function testSlugAllowsSlashesAndUnderscores(): void
     {
         $pdo = new PDO('sqlite::memory:');
-        $service = new PageSeoConfigService($pdo);
+        $redirects = new NullRedirectManager();
+        $service = new PageSeoConfigService($pdo, $redirects);
         $valid = $service->validate(['slug' => 'foo/bar_baz-1']);
         $this->assertArrayNotHasKey('slug', $valid);
         $invalid = $service->validate(['slug' => 'Foo']);
@@ -89,14 +97,11 @@ class PageSeoConfigServiceTest extends TestCase
             . 'og_title TEXT, og_description TEXT, og_image TEXT, schema_json TEXT, '
             . 'hreflang TEXT, created_at TEXT)'
         );
-        $file = tempnam(sys_get_temp_dir(), 'seo');
-        $service = new PageSeoConfigService($pdo, $file);
+        $redirects = new NullRedirectManager();
+        $service = new PageSeoConfigService($pdo, $redirects);
         $config = new PageSeoConfig(1, 'slug', schemaJson: '');
         $service->save($config);
         $row = $pdo->query('SELECT schema_json FROM page_seo_config WHERE page_id = 1')->fetch(PDO::FETCH_ASSOC);
         $this->assertNull($row['schema_json']);
-        $json = json_decode((string) file_get_contents($file), true);
-        $this->assertNull($json['1']['schemaJson']);
-        unlink($file);
     }
 }
