@@ -214,6 +214,7 @@
 - Bump version to 0.2.161 [skip ci]
 - Bump version to 0.2.162 [skip ci]
 - Bump version to 0.2.163 [skip ci]
+- Bump version to 0.2.164 [skip ci]
 
 ### Docs
 
@@ -305,6 +306,7 @@
 - Improve dark mode handling
 - Apply accessibility landing style patch
 - Extract landing tokens into scss
+- Consolidate landing page design tokens
 
 ### Style
 
@@ -319,6 +321,7 @@
 - Improve form error contrast
 - Darken options button in light mode
 - Improve landing backgrounds for themes
+- Add danger color tokens
 
 ### Test
 
