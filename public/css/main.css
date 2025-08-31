@@ -132,6 +132,10 @@ body.uk-padding {
 }
 
 .login-version {
+  color: #444;
+}
+
+html.uk-dark .login-version {
   color: var(--color-text);
   opacity: 0.7;
 }
