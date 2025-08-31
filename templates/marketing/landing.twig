@@ -30,6 +30,19 @@
       {% endblock %}
     {% endembed %}
 
+    <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+      <div class="uk-offcanvas-bar">
+        <button class="uk-offcanvas-close" type="button" uk-close aria-label="Menu"></button>
+        <ul class="uk-nav uk-nav-default">
+          <li><a href="#features">Features</a></li>
+          <li><a href="#pricing">Preise</a></li>
+          <li><a href="#contact-us">Kontakt</a></li>
+          <li><a href="{{ basePath }}/faq">FAQ</a></li>
+          <li><a href="{{ basePath }}/login">Login</a></li>
+        </ul>
+      </div>
+    </div>
+
     {{ content|raw }}
   </div>
 {% endblock %}
