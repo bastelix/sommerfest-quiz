@@ -220,6 +220,8 @@
 - Bump version to 0.2.167 [skip ci]
 - Bump version to 0.2.168 [skip ci]
 - Apply dark blue landing theme
+- Improve landing page contrast
+- Bump version to 0.2.169 [skip ci]
 
 ### Docs
 
@@ -281,6 +283,7 @@
 - Apply dark mode classes without stylesheet
 - Simplify landing hero
 - Use uikit navbar toggle
+- Add offcanvas nav to marketing landing
 
 ### Fix
 
