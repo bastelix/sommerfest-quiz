@@ -25,6 +25,15 @@
 .page-landing .uk-section { background: var(--section-bg); color: var(--text); }
 .page-landing .uk-section.uk-section-default { background: var(--bg); }
 
+/* Farbschemata für Bereiche */
+.page-landing .section-blue { background: #e0f2ff; color: var(--text); }
+.page-landing .section-gray { background: #f1f5f9; color: var(--text); }
+.page-landing .section-white { background: #ffffff; color: var(--text); }
+
+.theme-dark .page-landing .section-blue,
+.theme-dark .page-landing .section-white { background: #000000; color: var(--text); }
+.theme-dark .page-landing .section-gray { background: #121a31; color: var(--text); }
+
 /* Karten/Kacheln auf der Landing (UIKit gezielt überstimmen) */
 .page-landing .uk-card,
 .page-landing .uk-card-default,
