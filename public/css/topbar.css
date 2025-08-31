@@ -78,3 +78,11 @@ body.dark-mode.high-contrast{
 .uk-dropdown-nav, .uk-dropdown-nav *{
   color:var(--text);
 }
+
+body:not(.dark-mode) #configMenuToggle{
+  border-color:#444;
+  color:#444;
+}
+body:not(.dark-mode) #configMenuToggle:hover{
+  border-color:#222;
+}
