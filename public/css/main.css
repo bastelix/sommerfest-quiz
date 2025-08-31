@@ -13,6 +13,8 @@ html {
   --color-bg: #fff;
   --color-primary: #0c86d0;
   --color-text: #232323;
+  --danger-500: #8b0000;
+  --danger-600: #660000;
 }
 
 body {
@@ -478,8 +480,17 @@ a.uk-accordion-title {
 }
 
 .uk-text-danger.uk-text-italic {
-  color: #e54b4b !important;
+  color: var(--danger-500) !important;
   font-style: italic;
+}
+
+body .uk-alert-danger {
+  background-color: var(--danger-600);
+  color: #fff;
+}
+
+.uk-form-danger {
+  border-color: var(--danger-600) !important;
 }
 
 /* Modern style for onboarding steps */

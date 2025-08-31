@@ -10,6 +10,8 @@
   --landing-bg: #ffffff;
   --landing-text: #0f172a;
   --landing-primary: #0c86d0;
+  --danger-500: #8b0000;
+  --danger-600: #660000;
 }
 
 /* Dark-Mode auf der Landing (klassisch via .theme-dark am <html>) */
@@ -24,6 +26,8 @@
   --landing-bg: #1e1e1e;
   --landing-text: #f5f5f5;
   --landing-primary: #0c86d0;
+  --danger-500: #ff6b6b;
+  --danger-600: #ff4c4c;
 }
 
 /* Flächen */
@@ -97,12 +101,14 @@
   --landing-bg: #ffffff;
   --landing-text: #0f172a;
   --landing-primary: #0c86d0;
+  --danger-500: #8b0000;
+  --danger-600: #660000;
 }
 .theme-dark .page-landing {
   --bg:#0b1020; --text:#e6eaf3; --muted:#a3adc2; --section-bg:#0e1426;
   --card-bg:#121a31; --card-border:rgba(255,255,255,.06); --shadow:0 6px 24px rgba(0,0,0,.35);
   --hero-grad-start:#0b1020; --hero-grad-end:#10214a; --link:#93c5fd; --link-hover:#bfdbfe;
-  --landing-bg:#1e1e1e; --landing-text:#f5f5f5; --landing-primary:#0c86d0;
+  --landing-bg:#1e1e1e; --landing-text:#f5f5f5; --landing-primary:#0c86d0; --danger-500:#ff6b6b; --danger-600:#ff4c4c;
 }
 
 /* Topbar */
