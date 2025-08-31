@@ -104,6 +104,11 @@
   height:64px;
   border-bottom: 1px solid var(--card-border);
 }
+@media (max-width: 959px) {
+  .page-landing .github-header{
+    min-height:56px;
+    height:56px;
+  }
 .theme-dark .page-landing .github-header{
   background: linear-gradient(180deg, #0d1117 0%, #161b22 100%) !important;
 }
