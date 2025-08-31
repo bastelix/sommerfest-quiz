@@ -258,6 +258,7 @@
 - Refresh landing page
 - *(dark-mode)* Refine login input styling
 - Initialize theme before css load
+- Mobil-first landing styles
 
 ### Fix
 
