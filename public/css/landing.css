@@ -65,6 +65,50 @@ body.qr-landing { color: var(--qr-fg); }
 .qr-landing .uk-section { background: transparent; }
 .qr-landing .section--alt { background: var(--qr-bg-soft); color: var(--qr-fg); }
 
+/* Divider zwischen Sektionen */
+.section-divider{
+  height:1px;
+  background:linear-gradient(90deg, transparent, var(--qr-border), transparent);
+  opacity:.5;
+}
+
+/* Eyebrow/Überzeile */
+.eyebrow{
+  display:inline-block;
+  font-size:12px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  opacity:.7;
+  border:1px solid var(--qr-border);
+  padding:4px 8px;
+  border-radius:999px;
+}
+
+/* Pill-Cloud */
+.pill-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px 12px;
+  justify-content:center;
+  list-style:none;
+  margin:24px 0 0;
+  padding:0;
+}
+.pill{
+  background:color-mix(in oklab, var(--qr-brand-400) 20%, var(--qr-card));
+  border:1px solid var(--qr-border);
+  border-radius:999px;
+  padding:8px 14px;
+  line-height:1;
+  box-shadow:0 1px 0 rgba(0,0,0,.08) inset;
+  transition:transform .08s ease, background .2s ease;
+  white-space:nowrap;
+}
+.pill:hover{
+  transform:translateY(-1px);
+  background:color-mix(in oklab, var(--qr-brand-400) 28%, var(--qr-card));
+}
+
 /* Karten/Kacheln auf der Landing (UIKit gezielt überstimmen) */
 .qr-landing .uk-card,
 .qr-landing .qr-card,
