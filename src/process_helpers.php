@@ -14,23 +14,31 @@ function runBackgroundProcess(string $script, array $args = []): void
 {
     $cmd = array_merge([$script], $args);
 
+    $logDir = dirname(__DIR__) . '/logs';
+    if (!is_dir($logDir)) {
+        mkdir($logDir, 0777, true);
+    }
+
+    $logFile = $logDir . '/onboarding.log';
+    $escapedCommand = implode(' ', array_map('escapeshellarg', $cmd));
+    $commandLine = $escapedCommand . ' >> ' . escapeshellarg($logFile) . ' 2>&1';
+    file_put_contents(
+        $logFile,
+        '[' . date('c') . '] ' . $escapedCommand . PHP_EOL,
+        FILE_APPEND
+    );
+
     try {
         if (!class_exists(Process::class)) {
             throw new \RuntimeException('Symfony Process component is unavailable.');
         }
 
-        $process = new Process($cmd);
-        $process->disableOutput();
+        $process = Process::fromShellCommandline($commandLine);
         $process->start();
         return;
     } catch (\Throwable $e) {
         error_log('runBackgroundProcess failed: ' . $e->getMessage());
-
-        $command = escapeshellarg($script);
-        foreach ($args as $arg) {
-            $command .= ' ' . escapeshellarg($arg);
-        }
-        exec($command . ' > /dev/null 2>&1 &');
+        exec($commandLine . ' &');
     }
 }
 
