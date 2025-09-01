@@ -347,8 +347,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (e) {
           const msg = e.message === 'no plan'
             ? 'Es wurde kein Tarif übermittelt.'
-            : 'Fehler bei der Zahlungsprüfung.';
+            : 'Zahlung nicht bestätigt – bitte erneut versuchen';
           alert(msg);
+          const url = new URL(window.location);
+          url.searchParams.delete('session_id');
+          url.searchParams.set('step', '4');
+          window.history.replaceState({}, '', url);
+          showStep(4);
           tenantFinalizing = false;
           return;
         }
@@ -626,6 +631,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         : 'Fehler: ' + e.message;
       addLog(msg);
       alert(msg);
+      const url = new URL(window.location);
+      url.searchParams.delete('session_id');
+      url.searchParams.set('step', '4');
+      window.history.replaceState({}, '', url);
+      showStep(4);
       tenantFinalizing = false;
     }
   }
