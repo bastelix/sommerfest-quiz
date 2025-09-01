@@ -263,6 +263,7 @@
 - Note removal of docker tag for tenant upgrade
 - Note landing page style overrides
 - Clarify tenant wait probing and HTTPS upgrade
+- Document Docker Compose project name
 
 ### Feat
 
