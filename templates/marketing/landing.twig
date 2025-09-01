@@ -13,11 +13,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="preload" href="{{ basePath }}/css/landing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
-  <link rel="preload" href="{{ basePath }}/css/dark.css" as="style">
-  <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
 {% endblock %}
 
-{% block body_class %}page-landing{% endblock %}
+{% block body_class %}qr-landing{% endblock %}
 
 {% block body %}
   <div class="landing-content">
@@ -35,7 +33,7 @@
           <a class="uk-navbar-item uk-button uk-button-primary top-cta" href="https://demo.quizrace.app" target="_blank" rel="noopener">Live-Demo</a>
         </div>
         <div class="uk-navbar-right uk-hidden@m">
-          <button id="themeToggle" class="uk-button uk-button-default theme-toggle" aria-label="Design umschalten">
+          <button id="themeToggle" class="uk-button uk-button-default" aria-label="Design umschalten">
             <span id="themeIcon" aria-hidden="true"></span>
           </button>
           <button id="offcanvas-toggle"
