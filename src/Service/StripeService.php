@@ -304,6 +304,7 @@ class StripeService
         $priceStarter = getenv($prefix . 'PRICE_STARTER') ?: '';
         $priceStandard = getenv($prefix . 'PRICE_STANDARD') ?: '';
         $pricePro = getenv($prefix . 'PRICE_PROFESSIONAL') ?: '';
+        $pricingTableId = getenv($prefix . 'PRICING_TABLE_ID') ?: '';
 
         $mapRequired = [
             $prefix . 'SECRET_KEY' => $sk,
@@ -311,6 +312,7 @@ class StripeService
             $prefix . 'PRICE_STARTER' => $priceStarter,
             $prefix . 'PRICE_STANDARD' => $priceStandard,
             $prefix . 'PRICE_PROFESSIONAL' => $pricePro,
+            $prefix . 'PRICING_TABLE_ID' => $pricingTableId,
         ];
 
         $missing = [];

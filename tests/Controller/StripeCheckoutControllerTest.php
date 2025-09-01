@@ -17,6 +17,7 @@ class StripeCheckoutControllerTest extends TestCase
         putenv('STRIPE_PRICE_STARTER=starter');
         putenv('STRIPE_PRICE_STANDARD=price_standard');
         putenv('STRIPE_PRICE_PROFESSIONAL=pro');
+        putenv('STRIPE_PRICING_TABLE_ID=tbl');
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['csrf_token'] = 'tok';
@@ -40,6 +41,7 @@ class StripeCheckoutControllerTest extends TestCase
         putenv('STRIPE_PRICE_STARTER=starter');
         putenv('STRIPE_PRICE_STANDARD=price_standard');
         putenv('STRIPE_PRICE_PROFESSIONAL=pro');
+        putenv('STRIPE_PRICING_TABLE_ID=tbl');
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['csrf_token'] = 'tok';
@@ -95,6 +97,7 @@ class StripeCheckoutControllerTest extends TestCase
         putenv('STRIPE_PRICE_STARTER=starter');
         putenv('STRIPE_PRICE_STANDARD=price_standard');
         putenv('STRIPE_PRICE_PROFESSIONAL=pro');
+        putenv('STRIPE_PRICING_TABLE_ID=tbl');
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['csrf_token'] = 'tok';
