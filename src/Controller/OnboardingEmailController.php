@@ -37,6 +37,11 @@ class OnboardingEmailController
             return $response->withStatus(400);
         }
 
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $_SESSION['onboarding']['email'] = $email;
+
         $token = $this->service->createToken($email);
         $base = rtrim(RouteContext::fromRequest($request)->getBasePath(), '/');
         $uri = $request->getUri()
@@ -70,6 +75,12 @@ class OnboardingEmailController
         if ($email === null) {
             return $response->withStatus(400);
         }
+
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $_SESSION['onboarding']['email'] = $email;
+        $_SESSION['onboarding']['verified'] = true;
 
         $base = rtrim(RouteContext::fromRequest($request)->getBasePath(), '/');
         $uri = $request->getUri()

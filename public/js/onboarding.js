@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const step1 = document.getElementById('step1');
   const step2 = document.getElementById('step2');
   const step3 = document.getElementById('step3');
@@ -60,17 +60,28 @@ document.addEventListener('DOMContentLoaded', () => {
   let sessionId = params.get('session_id');
   const stepParam = params.get('step');
   const emailParam = params.get('email');
-  const storedEmail = localStorage.getItem('onboard_email') || '';
-  let subdomainStored = localStorage.getItem('onboard_subdomain') || '';
-  const imprintDone = localStorage.getItem('onboard_imprint_done') === '1';
-  const storedImprintName = localStorage.getItem('onboard_imprint_name') || '';
-  const storedImprintStreet = localStorage.getItem('onboard_imprint_street') || '';
-  const storedImprintZip = localStorage.getItem('onboard_imprint_zip') || '';
-  const storedImprintCity = localStorage.getItem('onboard_imprint_city') || '';
-  const storedImprintEmail = localStorage.getItem('onboard_imprint_email') || '';
-  let verified = params.get('verified') === '1' || localStorage.getItem('onboard_verified') === '1';
+  let sessionData = {};
+  try {
+    const res = await fetch(withBase('/onboarding/session'), {
+      credentials: 'same-origin',
+      headers: { 'X-Requested-With': 'fetch' }
+    });
+    if (res.ok) {
+      sessionData = await res.json();
+    }
+  } catch (e) {}
+
+  const storedEmail = sessionData.email || '';
+  let subdomainStored = sessionData.subdomain || '';
+  const imprintData = sessionData.imprint || {};
+  const imprintDone = imprintData.done === true;
+  const storedImprintName = imprintData.name || '';
+  const storedImprintStreet = imprintData.street || '';
+  const storedImprintZip = imprintData.zip || '';
+  const storedImprintCity = imprintData.city || '';
+  const storedImprintEmail = imprintData.email || '';
+  let verified = params.get('verified') === '1' || sessionData.verified === true;
   if (params.get('verified') === '1') {
-    localStorage.setItem('onboard_verified', '1');
     verified = true;
   }
 
@@ -88,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (imprintCityInput) imprintCityInput.value = storedImprintCity;
   if (imprintEmailInput) imprintEmailInput.value = storedImprintEmail;
   if (useAsImprintCheckbox) {
-    useAsImprintCheckbox.checked = localStorage.getItem('onboard_use_as_imprint') === '1';
+    useAsImprintCheckbox.checked = imprintData.use_as_imprint === true;
   }
 
   let currentStep = 1;
@@ -146,7 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({ email })
       });
       if (res.ok) {
-        localStorage.setItem('onboard_email', email);
         emailStatus.textContent = 'E-Mail versendet. Bitte prüfe dein Postfach.';
         emailStatus.hidden = false;
       }
@@ -206,14 +216,24 @@ document.addEventListener('DOMContentLoaded', () => {
           subdomainStatus.hidden = false;
         }
         subdomainInput.classList.add('uk-form-success');
-        localStorage.setItem('onboard_subdomain', subdomain);
+        await fetch(withBase('/onboarding/session'), {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': window.csrfToken || '',
+            'X-Requested-With': 'fetch'
+          },
+          body: JSON.stringify({ subdomain })
+        });
+        sessionData.subdomain = subdomain;
         subdomainStored = subdomain;
         showStep(3);
       });
     }
 
   if (saveImprintBtn) {
-    saveImprintBtn.addEventListener('click', () => {
+    saveImprintBtn.addEventListener('click', async () => {
       const name = imprintNameInput.value.trim();
       const street = imprintStreetInput.value.trim();
       const zip = imprintZipInput.value.trim();
@@ -223,13 +243,36 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Bitte alle Felder ausfüllen.');
         return;
       }
-      localStorage.setItem('onboard_imprint_name', name);
-      localStorage.setItem('onboard_imprint_street', street);
-      localStorage.setItem('onboard_imprint_zip', zip);
-      localStorage.setItem('onboard_imprint_city', city);
-      localStorage.setItem('onboard_imprint_email', email);
-      localStorage.setItem('onboard_use_as_imprint', useAsImprintCheckbox.checked ? '1' : '0');
-      localStorage.setItem('onboard_imprint_done', '1');
+      await fetch(withBase('/onboarding/session'), {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': window.csrfToken || '',
+          'X-Requested-With': 'fetch'
+        },
+        body: JSON.stringify({
+          imprint: {
+            name,
+            street,
+            zip,
+            city,
+            email,
+            use_as_imprint: useAsImprintCheckbox.checked,
+            done: true
+          }
+        })
+      });
+      sessionData.imprint = {
+        name,
+        street,
+        zip,
+        city,
+        email,
+        use_as_imprint: useAsImprintCheckbox.checked,
+        done: true
+      };
+      subdomainStored = sessionData.subdomain || subdomainStored;
       const s4 = document.querySelector('.timeline-step[data-step="4"]');
       if (s4) s4.classList.remove('inactive');
       const url = new URL(window.location);
@@ -259,18 +302,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (restartBtn) {
-    restartBtn.addEventListener('click', () => {
-      localStorage.removeItem('onboard_subdomain');
-      localStorage.removeItem('onboard_plan');
-      localStorage.removeItem('onboard_email');
-      localStorage.removeItem('onboard_verified');
-      localStorage.removeItem('onboard_imprint_name');
-      localStorage.removeItem('onboard_imprint_street');
-      localStorage.removeItem('onboard_imprint_zip');
-      localStorage.removeItem('onboard_imprint_city');
-      localStorage.removeItem('onboard_imprint_email');
-      localStorage.removeItem('onboard_use_as_imprint');
-      localStorage.removeItem('onboard_imprint_done');
+    restartBtn.addEventListener('click', async () => {
+      await fetch(withBase('/onboarding/session'), {
+        method: 'DELETE',
+        credentials: 'same-origin',
+        headers: {
+          'X-CSRF-Token': window.csrfToken || '',
+          'X-Requested-With': 'fetch'
+        }
+      });
+      sessionData = {};
       const onboardingPath = withBase('/onboarding');
       if (isAllowed(onboardingPath, [onboardingPath])) {
         window.location.href = escape(onboardingPath);
@@ -283,8 +324,8 @@ document.addEventListener('DOMContentLoaded', () => {
   async function finalizeTenant() {
       if (tenantFinalizing) { return; }
       tenantFinalizing = true;
-      const subdomain = localStorage.getItem('onboard_subdomain') || '';
-      const email = localStorage.getItem('onboard_email') || '';
+      const subdomain = sessionData.subdomain || '';
+      const email = sessionData.email || '';
       let plan = '';
       if (sessionId) {
         try {
@@ -312,12 +353,12 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
       }
-      const imprintName = localStorage.getItem('onboard_imprint_name') || '';
-      const imprintStreet = localStorage.getItem('onboard_imprint_street') || '';
-      const imprintZip = localStorage.getItem('onboard_imprint_zip') || '';
-      const imprintCity = localStorage.getItem('onboard_imprint_city') || '';
-      const imprintEmail = localStorage.getItem('onboard_imprint_email') || '';
-      const useImprint = localStorage.getItem('onboard_use_as_imprint') === '1';
+      const imprintName = (sessionData.imprint && sessionData.imprint.name) || '';
+      const imprintStreet = (sessionData.imprint && sessionData.imprint.street) || '';
+      const imprintZip = (sessionData.imprint && sessionData.imprint.zip) || '';
+      const imprintCity = (sessionData.imprint && sessionData.imprint.city) || '';
+      const imprintEmail = (sessionData.imprint && sessionData.imprint.email) || '';
+      const useImprint = !!(sessionData.imprint && sessionData.imprint.use_as_imprint);
     const billingInfo = JSON.stringify({
       name: imprintName,
       street: imprintStreet,
@@ -560,17 +601,15 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({ schema: subdomain, email })
       });
 
-      localStorage.removeItem('onboard_subdomain');
-      localStorage.removeItem('onboard_plan');
-      localStorage.removeItem('onboard_email');
-      localStorage.removeItem('onboard_verified');
-      localStorage.removeItem('onboard_imprint_name');
-      localStorage.removeItem('onboard_imprint_street');
-      localStorage.removeItem('onboard_imprint_zip');
-      localStorage.removeItem('onboard_imprint_city');
-      localStorage.removeItem('onboard_imprint_email');
-      localStorage.removeItem('onboard_use_as_imprint');
-      localStorage.removeItem('onboard_imprint_done');
+      await fetch(withBase('/onboarding/session'), {
+        method: 'DELETE',
+        credentials: 'same-origin',
+        headers: {
+          'X-CSRF-Token': window.csrfToken || '',
+          'X-Requested-With': 'fetch'
+        }
+      });
+      sessionData = {};
       const targetUrl = `https://${subdomain}.${window.mainDomain}/`;
       if (isAllowed(targetUrl)) {
         window.location.href = escape(targetUrl);
@@ -617,8 +656,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   if (sessionId) {
-      const subdomain = localStorage.getItem('onboard_subdomain') || '';
-      const email = localStorage.getItem('onboard_email') || '';
+      const subdomain = sessionData.subdomain || '';
+      const email = sessionData.email || '';
 
       if (isValidSubdomain(subdomain) && isValidEmail(email)) {
         const s5 = document.querySelector('.timeline-step[data-step="5"]');
