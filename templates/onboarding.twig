@@ -94,7 +94,7 @@
       <h3 class="uk-card-title">4. Tarif wählen</h3>
       {% if stripe_configured and stripe_pricing_table_id %}
       <p>Wähle einen Tarif und schließe die Zahlung über Stripe ab. Du kannst jeden kostenpflichtigen Tarif 7 Tage lang kostenlos testen.</p>
-      <stripe-pricing-table pricing-table-id="{{ stripe_pricing_table_id }}" publishable-key="{{ stripe_publishable_key }}"></stripe-pricing-table>
+      <stripe-pricing-table id="pricingTable" pricing-table-id="{{ stripe_pricing_table_id }}" publishable-key="{{ stripe_publishable_key }}"></stripe-pricing-table>
       <p class="uk-text-meta uk-text-center uk-margin-large-top">Alle Preise zzgl. MwSt. – individuelle Lösungen auf Anfrage.</p>
       <p class="uk-text-meta uk-margin-top">1 (Die Teamgröße ist nicht technisch limitiert und kann bedarfsgerecht festgelegt werden.)</p>
       <p class="uk-text-meta uk-margin-top">2 (Im Starter-Paket mit Wasserzeichen oder ohne individuelles Layout/Logo)</p>

@@ -23,8 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const withBase = p => basePath + p;
   const timelineSteps = document.querySelectorAll('.timeline-step');
   const restartBtn = document.getElementById('restartOnboarding');
-  const hostWhitelist = ['stripe.com'];
+  const hostWhitelist = ['stripe.com', 'payments.stripe.com'];
   let tenantFinalizing = false;
+
 
   function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -56,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const params = new URLSearchParams(window.location.search);
-  const sessionId = params.get('session_id');
+  let sessionId = params.get('session_id');
   const stepParam = params.get('step');
   const emailParam = params.get('email');
   const storedEmail = localStorage.getItem('onboard_email') || '';
@@ -279,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-    async function finalizeTenant() {
+  async function finalizeTenant() {
       if (tenantFinalizing) { return; }
       tenantFinalizing = true;
       const subdomain = localStorage.getItem('onboard_subdomain') || '';
@@ -584,7 +585,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-    if (sessionId) {
+  window.addEventListener('message', event => {
+    try {
+      const originHost = new URL(event.origin).hostname;
+      const allowed = hostWhitelist.some(d => originHost === d || originHost.endsWith('.' + d));
+      if (!allowed) return;
+    } catch (_) {
+      return;
+    }
+    const data = event.data || {};
+    if (data.type !== 'checkout.session.completed') return;
+    const table = document.getElementById('pricingTable');
+    if (table) table.remove();
+    const url = new URL(window.location);
+    if (data.session_id) {
+      sessionId = data.session_id;
+      url.searchParams.set('session_id', sessionId);
+    }
+    url.searchParams.set('step', '5');
+    window.history.replaceState({}, '', url);
+    showStep(5);
+    finalizeTenant();
+  });
+
+  if (sessionId) {
       const subdomain = localStorage.getItem('onboard_subdomain') || '';
       const email = localStorage.getItem('onboard_email') || '';
 
