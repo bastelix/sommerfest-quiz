@@ -260,6 +260,12 @@
 - Bump version to 0.2.204 [skip ci]
 - Bump version to 0.2.205 [skip ci]
 - Bump version to 0.2.206 [skip ci]
+- Bump version to 0.2.207 [skip ci]
+- Bump version to 0.2.208 [skip ci]
+- Bump version to 0.2.209 [skip ci]
+- Bump version to 0.2.210 [skip ci]
+- Bump version to 0.2.211 [skip ci]
+- Bump version to 0.2.212 [skip ci]
 
 ### Docs
 
@@ -334,6 +340,7 @@
 - Improve tenant health check and TLS logging
 - Require Stripe pricing table
 - Toggle dark mode class
+- *(editor)* Add section template after hero
 
 ### Fix
 
@@ -355,6 +362,7 @@
 - Allow landing offcanvas to overlay viewport
 - Improve topbar contrast in light theme
 - Override UIkit card backgrounds
+- Remove redundant nullsafe operator
 
 ### Refactor
 
@@ -376,6 +384,7 @@
 - Centralize landing navigation links
 - Use data-theme for dark mode
 - Add log details container
+- Replace UIkit card modifiers with qr-card
 
 ### Style
 
