@@ -92,6 +92,16 @@ SQL;
         $this->assertSame('u1@example.com', $email);
     }
 
+    public function testCreateTenantRunsMigrations(): void
+    {
+        $dir = sys_get_temp_dir() . '/mig' . uniqid();
+        $pdo = new PDO('sqlite::memory:');
+        $service = $this->createService($dir, $pdo);
+        $service->createTenant('ux', 'sx');
+        $applied = $pdo->query('SELECT version FROM migrations')->fetchAll(PDO::FETCH_COLUMN);
+        $this->assertContains('20240910_base_schema.sql', $applied);
+    }
+
     public function testDeleteTenantRemovesRow(): void
     {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
@@ -334,9 +344,12 @@ SQL;
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
+        if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) !== 'pgsql') {
+            $this->markTestSkipped('Requires pgsql driver');
+        }
         $service->createTenant('u13', 'sub13', Plan::STANDARD->value);
-        $pdo->exec("INSERT INTO events(uid) VALUES('e1')");
-        $pdo->exec("INSERT INTO events(uid) VALUES('e2')");
+        $pdo->exec("INSERT INTO events(uid, name) VALUES('e1','E1')");
+        $pdo->exec("INSERT INTO events(uid, name) VALUES('e2','E2')");
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('max-events-exceeded');

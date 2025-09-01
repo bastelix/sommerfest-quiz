@@ -6,6 +6,7 @@ namespace App\Service;
 
 use PDO;
 use PDOException;
+use App\Infrastructure\Database;
 use App\Infrastructure\Migrations\Migrator;
 use App\Domain\Plan;
 
@@ -35,9 +36,9 @@ class TenantService
         'kz',
     ];
 
-    public function __construct(PDO $pdo, ?string $migrationsDir = null, ?NginxService $nginxService = null)
+    public function __construct(?PDO $pdo = null, ?string $migrationsDir = null, ?NginxService $nginxService = null)
     {
-        $this->pdo = $pdo;
+        $this->pdo = $pdo ?? Database::connectFromEnv();
         $this->migrationsDir = $migrationsDir ?? dirname(__DIR__, 2) . '/migrations';
         $this->nginxService = $nginxService;
     }
@@ -64,11 +65,24 @@ class TenantService
             throw new \RuntimeException('invalid-plan');
         }
 
-        $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $schema));
-        $this->pdo->exec(sprintf('SET search_path TO "%s", public', $schema));
-        Migrator::migrate($this->pdo, $this->migrationsDir);
-        $this->seedDemoData();
-        $this->pdo->exec('SET search_path TO public');
+        try {
+            $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $schema));
+        } catch (PDOException $e) {
+            if ($e->getCode() === '42P06') {
+                throw new \RuntimeException('schema-exists', 0, $e);
+            }
+            throw new \RuntimeException('schema-create-failed: ' . $e->getMessage(), 0, $e);
+        }
+
+        try {
+            $this->pdo->exec(sprintf('SET search_path TO "%s", public', $schema));
+            Migrator::migrate($this->pdo, $this->migrationsDir);
+            $this->seedDemoData();
+        } catch (PDOException $e) {
+            throw new \RuntimeException('migration-failed: ' . $e->getMessage(), 0, $e);
+        } finally {
+            $this->pdo->exec('SET search_path TO public');
+        }
         $start = $plan !== null ? new \DateTimeImmutable() : null;
         $end = $start?->modify('+30 days');
         $stmt = $this->pdo->prepare(
