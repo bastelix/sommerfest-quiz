@@ -78,7 +78,7 @@
   {% endif %}
   <div class="uk-grid-collapse" uk-grid>
     <aside class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
-      <div class="uk-card uk-card-default uk-card-body qr-sidebar-card">
+      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
         {% include 'admin/_nav.twig' %}
       </div>
     </aside>
@@ -94,7 +94,7 @@
           <div class="uk-grid-large" uk-grid>
             <!-- Spalte 2–3: Inhalt -->
             <div class="uk-width-1-1 uk-width-2-3@m">
-              <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+              <div class="uk-card qr-card uk-card-body uk-margin-small">
                 <div class="uk-flex uk-flex-between uk-flex-middle">
                   <h3 class="uk-card-title uk-margin-remove">Für heute geplant</h3>
                   <div>
@@ -119,14 +119,14 @@
 
               <div class="uk-child-width-1-2@m uk-grid-small uk-margin-small dashboard-grid" uk-grid>
                 <div>
-                  <div class="uk-card uk-card-default uk-card-body">
+                  <div class="uk-card qr-card uk-card-body">
                     <h4 class="uk-margin-remove-bottom">Teams anlegen & organisieren</h4>
                     <p class="uk-text-meta uk-margin-small-top">Erstelle Teams, generiere QR-Codes und teile Einladungen.</p>
                     <a href="{{ basePath }}/admin/teams" class="uk-link-reset uk-text-bold">Teams verwalten →</a>
                   </div>
                 </div>
                 <div>
-                  <div class="uk-card uk-card-default uk-card-body">
+                  <div class="uk-card qr-card uk-card-body">
                     <h4 class="uk-margin-remove-bottom">Auswertung & Ergebnisse</h4>
                     <p class="uk-text-meta uk-margin-small-top">Live-Ergebnisse prüfen und PDF-Berichte exportieren.</p>
                     <a href="{{ basePath }}/admin/results" class="uk-link-reset uk-text-bold">Zur Auswertung →</a>
@@ -134,7 +134,7 @@
                 </div>
               </div>
 
-              <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+              <div class="uk-card qr-card uk-card-body uk-margin-small">
                 <h3 class="uk-card-title uk-margin-remove">{{ t('heading_subscription_usage') }}</h3>
                 <div data-subscription
                      data-label-plan="{{ t('label_plan') }}"
@@ -157,7 +157,7 @@
 
             <!-- Spalte 1: Kalender -->
             <div class="uk-width-1-1 uk-width-1-3@m">
-              <div class="uk-card uk-card-default uk-card-small uk-card-body uk-margin-small">
+              <div class="uk-card qr-card uk-card-small uk-card-body uk-margin-small">
                 <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom">
                   <h3 class="uk-card-title uk-margin-remove">August 2025</h3>
                   <div>
@@ -516,7 +516,7 @@
         <div class="card-grid" uk-grid id="summaryCatalogs">
           {% for c in catalogs %}
           <div class="uk-width-1-1 uk-width-1-2@s">
-            <div class="export-card uk-card uk-card-default uk-card-body">
+            <div class="export-card uk-card qr-card uk-card-body">
               {% if event.uid %}
                 {% set link = baseUrl ? baseUrl ~ '/?event=' ~ event.uid ~ '&katalog=' ~ c.slug : '?event=' ~ event.uid ~ '&katalog=' ~ c.slug %}
               {% else %}
@@ -530,7 +530,7 @@
           </div>
           {% else %}
           <div class="uk-width-1-1">
-            <div class="export-card uk-card uk-card-default uk-card-body">{{ t('text_no_catalogs') }}</div>
+            <div class="export-card uk-card qr-card uk-card-body">{{ t('text_no_catalogs') }}</div>
           </div>
           {% endfor %}
         </div>
@@ -539,7 +539,7 @@
         <div class="card-grid" uk-grid id="summaryTeams">
           {% for t in teams %}
           <div class="uk-width-1-1 uk-width-1-2@s">
-            <div class="export-card uk-card uk-card-default uk-card-body uk-position-relative">
+            <div class="export-card uk-card qr-card uk-card-body uk-position-relative">
               <button class="qr-print-btn uk-icon-button uk-position-top-right" data-team="{{ t }}" uk-icon="icon: print" aria-label="QR-Code drucken"></button>
               <h4 class="uk-card-title">{{ t }}</h4>
               <img class="qr-img" src="{{ basePath }}/qr/team?t={{ t|url_encode }}" alt="Team QR" width="96" height="96">
@@ -548,7 +548,7 @@
           </div>
           {% else %}
           <div class="uk-width-1-1">
-            <div class="export-card uk-card uk-card-default uk-card-body">{{ t('text_no_data') }}</div>
+            <div class="export-card uk-card qr-card uk-card-body">{{ t('text_no_data') }}</div>
           </div>
           {% endfor %}
         </div>
@@ -1051,7 +1051,7 @@
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_subscription') }}</h2>
         {% set hasCustomer = tenant and tenant.stripe_customer_id %}
-        <div class="uk-card uk-card-default uk-card-body uk-margin-small" id="subscription-card">
+        <div class="uk-card qr-card uk-card-body uk-margin-small" id="subscription-card">
           <div id="subscription-details"
             data-label-plan="{{ t('label_plan') }}"
             data-label-price="{{ t('label_price') }}"
@@ -1074,7 +1074,7 @@
           {% endif %}
         </div>
         {% if stripe_configured and hasCustomer %}
-        <div class="uk-card uk-card-default uk-card-body uk-margin-small">
+        <div class="uk-card qr-card uk-card-body uk-margin-small">
           <h3 class="uk-card-title uk-margin-remove">{{ t('heading_invoices') }}</h3>
           <div id="invoice-list"
                data-label-invoice="{{ t('billing_invoice') }}"

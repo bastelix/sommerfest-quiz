@@ -8,7 +8,7 @@ body.high-contrast a {
   color: #0000ee;
   text-decoration: underline;
 }
-body.high-contrast .uk-card-default {
+body.high-contrast .qr-card {
   background-color: #ffffff;
   color: #000000;
   border-color: #000000;
@@ -88,7 +88,7 @@ body[data-theme="dark"].high-contrast a {
   text-decoration: underline;
 }
 
-body[data-theme="dark"].high-contrast .uk-card-default {
+body[data-theme="dark"].high-contrast .qr-card {
   background-color: #000000;
   color: #ffffff;
   border-color: #ffffff;

@@ -306,7 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cards.forEach(card => {
       const col = document.createElement('div');
       const c = document.createElement('div');
-      c.className = 'uk-card uk-card-default uk-card-body';
+      c.className = 'uk-card qr-card uk-card-body';
       const h = document.createElement('h4');
       h.className = 'uk-card-title';
       h.append(document.createTextNode(card.title));

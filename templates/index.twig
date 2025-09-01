@@ -23,7 +23,7 @@
     {% endblock %}
   {% endembed %}
   <div class="uk-container uk-width-1-1 uk-width-1-2@s uk-width-2-3@m">
-    <div class="uk-card uk-card-default uk-card-body uk-box-shadow-large uk-margin" uk-scrollspy="cls: uk-animation-fade">
+    <div class="uk-card qr-card uk-card-body uk-box-shadow-large uk-margin" uk-scrollspy="cls: uk-animation-fade">
       <div id="quiz-header" class="uk-text-center uk-margin" uk-scrollspy="cls: uk-animation-scale-up; delay: 100">
         <img id="quiz-logo" class="logo-placeholder"
              src="{% if config.logoPath %}{{ basePath ~ config.logoPath }}{% else %}{{ basePath }}/logo-160.svg{% endif %}"

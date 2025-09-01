@@ -29,11 +29,11 @@ body h6 {
 body .uk-card-title {
   color: #f5f5f5;
 }
-body .uk-card-default {
+body .qr-card {
   background-color: #1e1e1e;
   color: #f5f5f5;
 }
-body .uk-card-default a {
+body .qr-card a {
   color: var(--accent-color, #9dc6ff);
 }
 body .uk-card h3,
@@ -335,11 +335,11 @@ body[data-theme="dark"] h6 {
 body[data-theme="dark"] .uk-card-title {
   color: #f5f5f5;
 }
-body[data-theme="dark"] .uk-card-default {
+body[data-theme="dark"] .qr-card {
   background-color: #1e1e1e;
   color: #f5f5f5;
 }
-body[data-theme="dark"] .uk-card-default a {
+body[data-theme="dark"] .qr-card a {
   color: var(--accent-color, #9dc6ff);
 }
 body[data-theme="dark"] .uk-card h3,

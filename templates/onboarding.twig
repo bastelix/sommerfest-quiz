@@ -54,7 +54,7 @@
     <div class="uk-text-center uk-margin">
       <button class="uk-button uk-button-default" id="restartOnboarding">Neu starten</button>
     </div>
-    <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step1">
+    <div class="uk-card qr-card uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step1">
       <h3 class="uk-card-title">1. E-Mail eingeben und bestätigen</h3>
       <div class="uk-margin">
         <input id="email" class="uk-input" type="email" placeholder="E-Mail-Adresse" required>
@@ -64,7 +64,7 @@
       <div id="emailStatus" class="uk-margin-small-top uk-text-success" hidden></div>
     </div>
 
-    <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step2" hidden>
+    <div class="uk-card qr-card uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step2" hidden>
       <h3 class="uk-card-title">2. Subdomain wählen</h3>
       <div id="verifiedHint" class="uk-alert-success" uk-alert hidden>
         <p>Deine E-Mail-Adresse wurde erfolgreich bestätigt.</p>
@@ -79,7 +79,7 @@
       <button class="uk-button uk-button-primary" id="saveSubdomain">Subdomain speichern</button>
     </div>
 
-    <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-margin-auto" id="step3" hidden>
+    <div class="uk-card qr-card uk-card-body onboarding-step uk-width-1-1 uk-margin-auto" id="step3" hidden>
       <h3 class="uk-card-title">3. Rechnungsdaten</h3>
       <div class="uk-margin"><input id="imprintName" class="uk-input" type="text" placeholder="Name/Firma" required></div>
       <div class="uk-margin"><input id="imprintStreet" class="uk-input" type="text" placeholder="Straße und Hausnummer" required></div>
@@ -90,7 +90,7 @@
       <button class="uk-button uk-button-primary" id="saveImprint">Weiter</button>
     </div>
 
-    <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-margin-auto" id="step4" hidden>
+    <div class="uk-card qr-card uk-card-body onboarding-step uk-width-1-1 uk-margin-auto" id="step4" hidden>
       <h3 class="uk-card-title">4. Tarif wählen</h3>
       {% if stripe_configured and stripe_pricing_table_id %}
       <p>Wähle einen Tarif und schließe die Zahlung über Stripe ab. Du kannst jeden kostenpflichtigen Tarif 7 Tage lang kostenlos testen.</p>
@@ -109,7 +109,7 @@
       {% endif %}
     </div>
 
-      <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step5" hidden>
+      <div class="uk-card qr-card uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step5" hidden>
         <h3 class="uk-card-title">5. App erstellen</h3>
         <p>Deine App wird erstellt. Bitte warten …</p>
         <ul id="task-status" class="uk-list uk-text-left uk-margin"></ul>

@@ -983,7 +983,9 @@ body.admin-page {
 }
 
 /* Standardsektionen neutralisieren und selbst einfärben */
+
 .uk-card,
+.qr-card,
 .uk-panel {
   background: var(--qr-card);
   color: inherit;
