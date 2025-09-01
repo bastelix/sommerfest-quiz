@@ -68,6 +68,7 @@ use App\Controller\Marketing\ContactController;
 use App\Controller\RegisterController;
 use App\Controller\OnboardingController;
 use App\Controller\OnboardingEmailController;
+use App\Controller\OnboardingSessionController;
 use App\Controller\StripeCheckoutController;
 use App\Controller\StripeSessionController;
 use App\Controller\StripeWebhookController;
@@ -120,6 +121,7 @@ require_once __DIR__ . '/Controller/Marketing/ContactController.php';
 require_once __DIR__ . '/Controller/RegisterController.php';
 require_once __DIR__ . '/Controller/OnboardingController.php';
 require_once __DIR__ . '/Controller/OnboardingEmailController.php';
+require_once __DIR__ . '/Controller/OnboardingSessionController.php';
 require_once __DIR__ . '/Controller/StripeCheckoutController.php';
 require_once __DIR__ . '/Controller/StripeSessionController.php';
 require_once __DIR__ . '/Controller/StripeWebhookController.php';
@@ -349,6 +351,18 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/onboarding/email/status', function (Request $request, Response $response) {
         return $request->getAttribute('onboardingEmailController')->status($request, $response);
     });
+    $app->get('/onboarding/session', function (Request $request, Response $response) {
+        $controller = new OnboardingSessionController();
+        return $controller->get($request, $response);
+    });
+    $app->post('/onboarding/session', function (Request $request, Response $response) {
+        $controller = new OnboardingSessionController();
+        return $controller->store($request, $response);
+    })->add(new CsrfMiddleware());
+    $app->delete('/onboarding/session', function (Request $request, Response $response) {
+        $controller = new OnboardingSessionController();
+        return $controller->clear($request, $response);
+    })->add(new CsrfMiddleware());
     $app->get('/onboarding/tenants/{subdomain}', function (Request $request, Response $response, array $args) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(404);
