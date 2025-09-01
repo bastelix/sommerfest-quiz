@@ -514,6 +514,13 @@ body[data-theme="dark"] .qr-landing .btn.btn-black.uk-button-secondary{
   box-shadow:0 10px 24px rgba(37,99,235,.20);
 }
 
+/* Contact details card */
+body.qr-landing:not([data-theme="dark"]) .contact-card,
+body.qr-landing:not([data-theme="dark"]) .contact-card a,
+body.qr-landing:not([data-theme="dark"]) .contact-card span{
+  color:#000;
+}
+
 /* Form & A11y */
 .qr-landing #contact-form .uk-input,
 .qr-landing #contact-form .uk-textarea{
