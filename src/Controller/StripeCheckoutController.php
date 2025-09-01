@@ -22,9 +22,6 @@ class StripeCheckoutController
             return $response->withStatus(400);
         }
 
-        // Debug environment for Stripe setup
-        error_log('ENV ' . json_encode($_ENV));
-
         $plan = Plan::tryFrom((string) ($data['plan'] ?? ''));
         $email = (string) ($data['email'] ?? '');
         $subdomain = (string) ($data['subdomain'] ?? '');
