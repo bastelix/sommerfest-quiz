@@ -172,7 +172,8 @@ body .onboarding-timeline .timeline-step.completed {
 }
 
 body .uk-icon,
-body .uk-icon-button {
+body .uk-icon-button,
+body .uk-form-icon {
   color: #f5f5f5;
 }
 
@@ -508,7 +509,8 @@ body[data-theme="dark"] .pricing-grid .uk-card-quizrace h3 {
 }
 
 body[data-theme="dark"] .uk-icon,
-body[data-theme="dark"] .uk-icon-button {
+body[data-theme="dark"] .uk-icon-button,
+body[data-theme="dark"] .uk-form-icon {
   color: #f5f5f5;
 }
 
