@@ -102,6 +102,7 @@
 - Ensure btn icons match text color
 - Add use case slider
 - Expand landing FAQ
+- Update contact block copy
 
 ### Fix
 
