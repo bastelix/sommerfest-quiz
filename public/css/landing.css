@@ -51,6 +51,16 @@ body:not(.dark-mode){
   --qr-landing-text:var(--qr-fg);
 }
 
+/* System-Fallback: nutzt bevorzugtes Farbschema, falls JS-Toggle ausfällt */
+@media (prefers-color-scheme: dark) {
+  body:not(.dark-mode) {
+    --qr-bg:#0d1117;
+    --qr-fg:#e6e9ef;
+    --qr-bg-soft:#11151b;
+    --qr-card:#161b22;
+  }
+}
+
 body { background: var(--qr-bg); color: var(--qr-fg); }
 .uk-section { background: transparent; }
 .section--alt { background: var(--qr-bg-soft); color: var(--qr-fg); }
