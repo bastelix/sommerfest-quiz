@@ -56,30 +56,13 @@
       {% block body %}{% endblock %}
     </main>
     <footer class="site-footer">
-      <div class="footer-columns">
-        <div class="footer-section footer-about">
-          <strong>QuizRace</strong>
-          <p>Interaktive QR-Code-Rallyes für Events &ndash; schnell startklar und datensicher.</p>
+      {% block footer %}
+        <div class="uk-text-center">
+          <a href="{{ basePath }}/impressum">{{ t('imprint') }}</a> |
+          <a href="{{ basePath }}/datenschutz">{{ t('privacy') }}</a> |
+          <a href="{{ basePath }}/lizenz">{{ t('license') }}</a>
         </div>
-        <div class="footer-section footer-contact">
-          <strong>Kontakt</strong>
-          <p>
-            René Buske<br>
-            Weidenbusch&nbsp;8<br>
-            14532&nbsp;Kleinmachnow<br>
-            <a href="mailto:office@quizrace.app">office@quizrace.app</a><br>
-            <a href="tel:+4933203609080">+49&nbsp;33203&nbsp;609080</a>
-          </p>
-        </div>
-        <div class="footer-section footer-legal">
-          <strong>Rechtliches</strong>
-          <ul>
-            <li><a href="{{ basePath }}/impressum">{{ t('imprint') }}</a></li>
-            <li><a href="{{ basePath }}/datenschutz">{{ t('privacy') }}</a></li>
-            <li><a href="{{ basePath }}/lizenz">{{ t('license') }}</a></li>
-          </ul>
-        </div>
-      </div>
+      {% endblock %}
     </footer>
   </div>
   <script src="{{ basePath }}/js/uikit.min.js" defer></script>
