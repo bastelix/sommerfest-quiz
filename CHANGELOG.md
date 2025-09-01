@@ -292,6 +292,10 @@
 - Bump version to 0.2.236 [skip ci]
 - Bump version to 0.2.237 [skip ci]
 - Bump version to 0.2.238 [skip ci]
+- Bump version to 0.2.239 [skip ci]
+- Bump version to 0.2.240 [skip ci]
+- Bump version to 0.2.241 [skip ci]
+- Bump version to 0.2.242 [skip ci]
 
 ### Docs
 
@@ -437,6 +441,8 @@
 - Switch landing page to light theme
 - Refine landing focus and hover styles
 - Expand scenario pill list
+- Unify landing footer layout
+- Use black text for contact details on light theme
 
 ### Test
 
