@@ -502,7 +502,9 @@ body.dark-mode .qr-landing .qr-badge{
   transform:translateY(-1px);
 }
 .cta-ghost{
-  display:inline-block;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   border:2px solid var(--qr-blue,#2F81F7);
   color:var(--qr-blue,#2F81F7)!important;
   background:transparent;
@@ -523,7 +525,6 @@ body.dark-mode .qr-landing .qr-badge{
 }
 @media (max-width: 640px) {
   .cta-ghost{
-    display:block;
     width:100%;
   }
 }
