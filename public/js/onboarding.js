@@ -282,10 +282,23 @@ document.addEventListener('DOMContentLoaded', () => {
           const data = await res.json();
           if (res.ok && data.url) {
             if (isAllowed(data.url)) {
-              window.location.href = escape(data.url);
+              try {
+                const verify = await fetch(data.url, { method: 'HEAD', redirect: 'manual' });
+                if (verify.ok || verify.type === 'opaque') {
+                  window.location.href = escape(data.url);
+                  return;
+                }
+              } catch (_) {
+                // network error, handled below
+              }
+              const retry = confirm('Die Zahlungsseite konnte nicht geladen werden. Erneut versuchen?');
+              if (retry) {
+                setTimeout(() => btn.click(), 0);
+              }
               return;
             }
             console.error('Blocked redirect to untrusted URL:', data.url);
+            alert('Unzulässige Weiterleitung. Zahlung wurde nicht gestartet.');
           } else {
             alert(data.error || 'Fehler beim Start der Zahlung.');
           }
