@@ -242,8 +242,8 @@ body[data-theme="dark"] .qr-landing .qr-badge{
 .qr-landing .qr-mockup{
   background:var(--qr-card-bg);
   border:1px solid var(--qr-card-border);
-  box-shadow:var(--qr-shadow);
-  border-radius:12px;
+  box-shadow:0 20px 60px rgba(2,6,23,.45);
+  border-radius:18px;
   overflow:hidden;
 }
 .qr-landing .qr-mockup img{ display:block; width:100%; height:auto; }
