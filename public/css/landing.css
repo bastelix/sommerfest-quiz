@@ -156,6 +156,9 @@ body[data-theme="dark"] .qr-landing .section-gray { background: #161b22; color: 
   min-height:64px;
   height:64px;
   border-bottom: 1px solid var(--qr-card-border);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 @media (max-width: 959px) {
   .qr-landing .qr-topbar{
