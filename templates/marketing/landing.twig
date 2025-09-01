@@ -1,10 +1,11 @@
 {% extends 'layout.twig' %}
 
 {% set links = [
-  { 'href': '#features', 'label': 'Features', 'icon': 'star' },
+  { 'href': '#how-it-works', 'label': 'So funktioniert\u2019s', 'icon': 'settings' },
+  { 'href': '#scenarios', 'label': 'Szenarien', 'icon': 'thumbnails' },
   { 'href': '#pricing', 'label': 'Preise', 'icon': 'credit-card' },
-  { 'href': '#contact-us', 'label': 'Kontakt', 'icon': 'mail' },
-  { 'href': 'faq', 'label': 'FAQ', 'icon': 'question' }
+  { 'href': '#faq', 'label': 'FAQ', 'icon': 'question' },
+  { 'href': '#contact-us', 'label': 'Kontakt', 'icon': 'mail' }
 ] %}
 
 {% block title %}QuizRace – Das interaktive Team-Quiz für Events{% endblock %}
@@ -85,7 +86,7 @@
               <a class="uk-button uk-button-primary cta-main" href="https://demo.quizrace.app" target="_blank" rel="noopener">
                 <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt Demo starten
               </a>
-              <a class="uk-button uk-button-secondary btn btn-black" href="#features">
+              <a class="uk-button uk-button-secondary btn btn-black" href="#how-it-works">
                 <span class="uk-margin-small-right" uk-icon="icon: info"></span>Mehr erfahren
               </a>
             </div>
@@ -105,41 +106,6 @@
       </div>
     </section>
     <div class="section-divider"></div>
-
-    <section class="uk-section section--alt">
-      <div class="uk-container uk-text-center">
-        <span class="eyebrow" aria-hidden="true">Einsatzszenarien</span>
-        <h2 class="uk-margin-small">Wo QuizRace glänzt</h2>
-        <p class="uk-text-lead uk-margin-small">
-          Von der spontanen Team-Challenge bis zur großen Stadtrallye – in Minuten startklar.
-        </p>
-
-        <ul class="scenario-cloud" aria-label="Einsatzszenarien">
-          <li><a href="/szenarien/schnitzeljagd">Schnitzeljagd</a></li>
-          <li><a href="/szenarien/teamtag">Teamtag</a></li>
-          <li><a href="/szenarien/stadtrallye">Stadtrallye</a></li>
-          <li><a href="/szenarien/schulfeier">Schulfeier</a></li>
-          <li><a href="/szenarien/sommerfest">Sommerfest</a></li>
-          <li><a href="/szenarien/messe-leadspiel">Messe-Leadspiel</a></li>
-          <li><a href="/szenarien/kickoff">Kick-off</a></li>
-          <li><a href="/szenarien/onboarding">Onboarding</a></li>
-          <li><a href="/szenarien/workshop-icebreaker">Workshop-Icebreaker</a></li>
-          <li><a href="/szenarien/tag-der-offenen-tuer">Tag der offenen Tür</a></li>
-          <li><a href="/szenarien/vereinsfest">Vereinsfest</a></li>
-          <li><a href="/szenarien/weihnachtsfeier">Weihnachtsfeier</a></li>
-          <li><a href="/szenarien/firmenjubilaeum">Firmenjubiläum</a></li>
-          <li><a href="/szenarien/networking-event">Networking-Event</a></li>
-          <li><a href="/szenarien/spendenlauf">Spendenlauf</a></li>
-          <li><a href="/szenarien/klassentreffen">Klassentreffen</a></li>
-          <li><a href="/szenarien/sportfest">Sportfest</a></li>
-          <li><a href="/szenarien/offsite">Offsite-Meeting</a></li>
-          <li><a href="/szenarien/orientierungstag">Orientierungstag</a></li>
-          <li><a href="/szenarien/kunden-event">Kunden-Event</a></li>
-        </ul>
-
-        <a class="uk-button uk-button-primary uk-margin-top" href="#pricing">Jetzt Szenario auswählen</a>
-      </div>
-    </section>
 
     {{ content|raw }}
   </div>
