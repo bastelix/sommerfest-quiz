@@ -6,10 +6,6 @@
 
 - Tag image as sommerfest-quiz
 
-### Fix
-
-- Ensure landing button icons match text color in dark theme
-
 ### Chore
 
 - Add pages table for SEO config
@@ -401,6 +397,7 @@
 - Improve topbar contrast in light theme
 - Override UIkit card backgrounds
 - Remove redundant nullsafe operator
+- Align landing button icon color
 
 ### Refactor
 
