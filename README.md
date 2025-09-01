@@ -216,6 +216,7 @@ Zum Start genügt:
 cp sample.env .env
 docker compose up --build -d
 ```
+Die Datei setzt `COMPOSE_PROJECT_NAME=sommerfest-quiz`, damit Docker Compose vorhandene Container und Volumes bei späteren Deployments wiederverwendet.
 Falls der Reverse Proxy das Docker-Netzwerk noch nicht kennt, lege es vorher an:
 ```bash
 docker network create ${NETWORK:-webproxy}
@@ -441,7 +442,7 @@ Das Projekt *QuizRace* ist eine Web-Applikation zur Erstellung und Verwaltung vo
    composer install
    ```
    Beim ersten Aufruf wird eine `composer.lock` erzeugt und alle benötigten Bibliotheken geladen.
-2. Die Beispieldatei `sample.env` in `.env` kopieren und bei Bedarf anpassen:
+2. Die Beispieldatei `sample.env` in `.env` kopieren und bei Bedarf anpassen. Sie enthält `COMPOSE_PROJECT_NAME=sommerfest-quiz`, wodurch Docker Compose bei späteren Deployments bestehende Container und Volumes wiederverwendet:
    ```bash
    cp sample.env .env
    ```
