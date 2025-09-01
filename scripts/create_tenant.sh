@@ -99,5 +99,12 @@ elif [ "$NGINX_RELOAD" = "1" ]; then
   fi
 fi
 
-curl -fs -b "$COOKIE_FILE" -X POST "$API_BASE/api/tenants/${SUBDOMAIN}/onboard" >/dev/null || true
-rm -f "$COOKIE_FILE"
+HTTP_STATUS=$(curl -s -o /tmp/onboard.out -w "%{http_code}" -b "$COOKIE_FILE" -X POST \
+  "$API_BASE/api/tenants/${SUBDOMAIN}/onboard")
+CURL_EXIT=$?
+if [ "$CURL_EXIT" -ne 0 ] || [ "$HTTP_STATUS" -ge 400 ]; then
+  echo "Tenant onboarding failed (status $HTTP_STATUS): $(cat /tmp/onboard.out 2>/dev/null)" >&2
+  rm -f /tmp/onboard.out "$COOKIE_FILE"
+  exit 1
+fi
+rm -f /tmp/onboard.out "$COOKIE_FILE"
