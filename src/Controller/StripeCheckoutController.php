@@ -22,6 +22,9 @@ class StripeCheckoutController
             return $response->withStatus(400);
         }
 
+        // Debug environment for Stripe setup
+        error_log('ENV ' . json_encode($_ENV));
+
         $plan = Plan::tryFrom((string) ($data['plan'] ?? ''));
         $email = (string) ($data['email'] ?? '');
         $subdomain = (string) ($data['subdomain'] ?? '');
@@ -49,6 +52,7 @@ class StripeCheckoutController
         ];
         $priceId = $priceMap[$plan->value];
         if ($priceId === '') {
+            error_log('Missing priceId for plan ' . $plan->value);
             return $this->jsonError($response, 422, 'invalid plan');
         }
 
@@ -72,7 +76,9 @@ class StripeCheckoutController
                 $subdomain,
                 7
             );
+            error_log('createCheckoutSession returned ' . $url);
         } catch (Throwable $e) {
+            error_log('Stripe API error for plan ' . $plan->value . ': ' . $e->getMessage());
             $this->reportError($e);
             return $this->jsonError($response, 500, 'internal error');
         }
