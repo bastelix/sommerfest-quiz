@@ -22,7 +22,6 @@
   --qr-ring:rgba(31,111,235,.35);
   --qr-text:var(--qr-fg);
   --qr-section-bg:var(--qr-bg);
-  --qr-card-bg:var(--qr-card);
   --qr-card-border:var(--qr-border);
   --qr-landing-bg:var(--qr-bg);
   --qr-landing-text:var(--qr-fg);
@@ -45,7 +44,6 @@ body.qr-landing:not(.dark-mode){
   --qr-shadow:0 6px 24px rgba(0,0,0,0.05);
   --qr-text:var(--qr-fg);
   --qr-section-bg:var(--qr-bg);
-  --qr-card-bg:var(--qr-card);
   --qr-card-border:var(--qr-border);
   --qr-landing-bg:var(--qr-bg);
   --qr-landing-text:var(--qr-fg);
@@ -59,7 +57,7 @@ body.qr-landing { background: var(--qr-bg); color: var(--qr-fg); }
 .qr-landing .uk-card,
 .qr-landing .qr-card,
 .qr-landing .feature-box {
-  background: var(--qr-card-bg) !important;
+  background: var(--qr-card) !important;
   color: var(--qr-text) !important;
   border: 1px solid var(--qr-card-border);
   box-shadow: var(--qr-shadow);
@@ -223,7 +221,7 @@ body.dark-mode .qr-landing .qr-badge{
   color:var(--qr-muted);
 }
 .qr-landing .qr-mockup{
-  background:var(--qr-card-bg);
+  background:var(--qr-card);
   border:1px solid var(--qr-card-border);
   box-shadow:0 20px 60px rgba(2,6,23,.45);
   border-radius:18px;
@@ -288,7 +286,7 @@ body.dark-mode .qr-landing .btn.btn-black.uk-button-secondary{ background:#0d111
 .qr-landing .qr-hero{ padding-top:96px; }
 
 .qr-landing .uk-card-quizrace{
-  background:var(--qr-landing-bg); color:var(--qr-landing-text); border:1px solid var(--qr-card-border);
+  background:var(--qr-card); color:var(--qr-landing-text); border:1px solid var(--qr-card-border);
   box-shadow:var(--qr-shadow); border-radius:14px; padding:24px;
   transition:transform .15s ease, box-shadow .15s ease;
 }
@@ -299,11 +297,11 @@ body.dark-mode .qr-landing .btn.btn-black.uk-button-secondary{ background:#0d111
 .qr-landing .pricing-grid>div{ display:flex; }
 .qr-landing .uk-card-price, .qr-landing .uk-card-popular{
   display:flex; flex-direction:column; align-items:stretch;
-  background:var(--qr-card-bg); color:var(--qr-text); border:1px solid var(--qr-card-border);
+  background:var(--qr-card); color:var(--qr-text); border:1px solid var(--qr-card-border);
   box-shadow:var(--qr-shadow); border-radius:16px; padding:28px;
 }
 .qr-landing .uk-card-popular{
-  background: linear-gradient(180deg, color-mix(in oklab, var(--qr-brand-600) 12%, var(--qr-card-bg)) 0%, var(--qr-card-bg) 70%);
+  background: var(--qr-card);
   outline:2px solid color-mix(in oklab, var(--qr-brand-600) 35%, transparent);
   box-shadow:0 18px 36px rgba(37,99,235,.16);
 }
@@ -320,7 +318,7 @@ body.dark-mode .qr-landing .btn.btn-black.uk-button-secondary{ background:#0d111
 /* Form & A11y */
 .qr-landing #contact-form .uk-input,
 .qr-landing #contact-form .uk-textarea{
-  background:var(--qr-card-bg); color:var(--qr-text);
+  background:var(--qr-card); color:var(--qr-text);
   border:1px solid var(--qr-card-border); border-radius:10px;
 }
 .qr-landing #contact-form .uk-input:focus,
