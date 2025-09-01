@@ -118,7 +118,7 @@ body.dark-mode {
   color: var(--qr-text);
 }
 
-html[data-theme],
+body[data-theme],
 body.qr-landing {
   background: var(--qr-hero-gradient);
   background-color: var(--qr-hero-grad-start);
