@@ -114,6 +114,22 @@ body[data-theme="dark"] .qr-landing .section-gray { background: #161b22; color: 
 .qr-landing h1,
 .qr-landing h2,
 .qr-landing h3 { color: var(--qr-text); }
+
+.qr-landing {
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.qr-landing h1 {
+  font-size: clamp(2.5rem, 4vw, 3.25rem);
+  line-height: 1.15;
+}
+
+.qr-landing h2 {
+  font-size: clamp(1.75rem, 3vw, 2.125rem);
+  line-height: 1.2;
+}
+
 .qr-landing p { color: var(--qr-muted); }
 .qr-landing .uk-icon,
 .qr-landing .feature-box svg {
@@ -257,6 +273,9 @@ body[data-theme="dark"] .qr-landing .btn.btn-black.uk-button-secondary{ backgrou
 @media (min-width:1200px){ .qr-landing .uk-section{ padding-top:88px; padding-bottom:88px; } }
 .qr-landing .uk-section:nth-of-type(odd){ background:var(--qr-bg); }
 .qr-landing .uk-section:nth-of-type(even){ background:var(--qr-section-bg); }
+
+/* Hero spacing */
+.qr-landing .qr-hero{ padding-top:96px; }
 
 .qr-landing .uk-card-quizrace{
   background:var(--qr-landing-bg); color:var(--qr-landing-text); border:1px solid var(--qr-card-border);
