@@ -57,6 +57,10 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
 - **tenants**-Tabelle – Profildaten für die Main-Umgebung
 - **src/** – PHP-Code mit Routen, Controllern und Services
 - **docs/** – Zusätzliche Dokumentation, z.B. [Richtlinien zur Worttrennung](docs/frontend-word-break.md)
+-
+## Theme-Strategie
+
+Der Wechsel zwischen hellem und dunklem Design erfolgt über das `data-theme`-Attribut auf dem `<body>`-Element. CSS-Regeln greifen auf `[data-theme="dark"]`, während JavaScript den Wert (`light` oder `dark`) setzt und in `localStorage` speichert. Klassen wie `dark-mode` werden nicht mehr verwendet.
 
 ## Schnellstart
 
