@@ -361,7 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const taskStatus = document.getElementById('task-status');
     const taskLog = document.getElementById('task-log');
-    const taskLogDetails = taskLog ? taskLog.closest('details') : null;
+    const taskLogDetails = document.getElementById('task-log-details');
 
     const tasks = [
       { id: 'create', label: 'Mandant anlegen' },
