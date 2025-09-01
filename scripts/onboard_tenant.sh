@@ -11,6 +11,14 @@ error_exit() {
   exit 1
 }
 
+SCRIPT_DIR="$(dirname "$0")"
+if [ -f "$SCRIPT_DIR/../.env" ]; then
+  set -a
+  # shellcheck source=/dev/null
+  . "$SCRIPT_DIR/../.env"
+  set +a
+fi
+
 if [ "$#" -lt 1 ]; then
   error_exit "Usage: $0 <tenant-slug>"
 fi
