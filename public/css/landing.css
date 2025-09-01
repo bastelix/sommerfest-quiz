@@ -22,6 +22,7 @@
   --qr-link:#58a6ff;
   --qr-ring:rgba(31,111,235,.35);
   --qr-text:var(--qr-fg);
+  --qr-icon-color:var(--qr-text);
   --qr-section-bg:var(--qr-bg);
   --qr-card-border:var(--qr-border);
   --qr-landing-bg:var(--qr-bg);
@@ -45,6 +46,7 @@ body.qr-landing:not(.dark-mode){
   --qr-muted:#374151;
   --qr-shadow:0 6px 24px rgba(0,0,0,0.05);
   --qr-text:var(--qr-fg);
+  --qr-icon-color:var(--qr-text);
   --qr-section-bg:var(--qr-bg);
   --qr-card-border:var(--qr-border);
   --qr-landing-bg:var(--qr-bg);
@@ -99,9 +101,13 @@ body.qr-landing { color: var(--qr-fg); }
 .qr-landing p { color: var(--qr-muted); }
 .qr-landing .uk-icon,
 .qr-landing .feature-box svg {
-  color: var(--qr-text);
+  color: var(--qr-icon-color);
   stroke: currentColor;
-  fill: none; /* wenn Outline-Icons */
+  fill: currentColor;
+}
+.qr-landing .uk-icon [fill="none"],
+.qr-landing .feature-box svg [fill="none"] {
+  fill: none;
 }
 
 /* Navbar NUR auf Landing, damit Kontrast stimmt */
