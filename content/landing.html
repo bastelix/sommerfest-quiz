@@ -85,12 +85,11 @@
     <h2 class="uk-text-center uk-heading-medium">Szenarien &amp; Anwendungsfälle</h2>
     <p class="uk-text-center uk-text-lead uk-margin-small">Von der Schnitzeljagd bis zum Schulfest – QuizRace passt sich an.</p>
 
-    <!-- Tag-Cloud / Pills -->
-    <ul class="scenario-cloud">
+    <!-- Pills -->
+    <ul class="uk-subnav uk-subnav-pill uk-flex-center uk-margin" uk-switcher="connect: .usecase-slider">
       <li><a href="#">Schnitzeljagd</a></li>
       <li><a href="#">Teamtag</a></li>
       <li><a href="#">Schulfeier</a></li>
-      <li><a href="#">Stadtrallye</a></li>
       <li><a href="#">Messe-Quiz</a></li>
       <li><a href="#">Onboarding</a></li>
       <li><a href="#">Sommerfest</a></li>
@@ -105,44 +104,222 @@
       <li><a href="#">Kick-off</a></li>
       <li><a href="#">Produktlaunch</a></li>
       <li><a href="#">Sportfest</a></li>
+      <li><a href="#">Trainings</a></li>
     </ul>
 
-    <!-- Cards mit Mini-Story -->
-    <div class="uk-grid-large uk-child-width-1-3@m uk-grid-match uk-margin-large-top" uk-grid>
-      <div>
-        <div class="uk-card uk-card-quizrace uk-card-body">
-          <h3 class="uk-h5 uk-margin-remove">Schnitzeljagd / Stadtrallye</h3>
-          <p class="uk-text-small uk-margin-small">Orte &amp; Aufgaben mischen, Foto-Missionen einbauen, Live-Punkte&mdash;ideal für Innenstädte &amp; Campus.</p>
-          <ul class="uk-list uk-text-small uk-margin-remove">
-            <li>QR-Stationen &amp; Hinweise</li>
-            <li>Rätselwort am Ende</li>
-          </ul>
-        </div>
+    <!-- Slider -->
+    <div class="uk-position-relative uk-visible-toggle" tabindex="-1" uk-slider="finite: true; center: true">
+      <div class="uk-slider-container">
+        <ul class="uk-slider-items uk-child-width-1-3@m uk-child-width-1-1@s usecase-slider">
+
+          <li>
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <h3 class="uk-h5">Schnitzeljagd / Stadtrallye</h3>
+              <p>Orte &amp; Aufgaben kombinieren, Foto-Missionen einbauen, Punkte live sammeln – ideal für Stadt, Campus oder Gelände.</p>
+              <ul class="uk-list uk-text-small">
+                <li>QR-Stationen &amp; Hinweise</li>
+                <li>Rätselwort am Ende</li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <h3 class="uk-h5">Teamtag / Firmen-Event</h3>
+              <p>Teams bilden, Wissen &amp; Spaß kombinieren, Ergebnisse sofort anzeigen.</p>
+              <ul class="uk-list uk-text-small">
+                <li>Live-Ranking auf TV oder Beamer</li>
+                <li>Urkunden als PDF</li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <h3 class="uk-h5">Schulfeier / Projekttag</h3>
+              <p>Barrierefrei im Browser – ohne App. Große Gruppen spielen gleichzeitig.</p>
+              <ul class="uk-list uk-text-small">
+                <li>Einladungen per QR-Code</li>
+                <li>Rollen &amp; Limits steuerbar</li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <h3 class="uk-h5">Messe-Quiz</h3>
+              <p>Besucher aktiv einbinden, Aufmerksamkeit am Stand erhöhen.</p>
+              <ul class="uk-list uk-text-small">
+                <li>Fragen rund ums Unternehmen</li>
+                <li>Sofortige Auswertung &amp; Gewinnspiel</li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <h3 class="uk-h5">Onboarding</h3>
+              <p>Neue Mitarbeitende spielerisch einführen und Wissen abfragen.</p>
+              <ul class="uk-list uk-text-small">
+                <li>Interaktive Fragen zu Prozessen &amp; Werten</li>
+                <li>Ergebnisse für HR dokumentiert</li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <h3 class="uk-h5">Sommerfest</h3>
+              <p>Abwechslungsreiche Quiz-Rallye für alle Generationen – leicht umsetzbar im Freien.</p>
+              <ul class="uk-list uk-text-small">
+                <li>Kreative Aufgaben &amp; Foto-Missionen</li>
+                <li>Teams spontan starten lassen</li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <h3 class="uk-h5">Fundraising</h3>
+              <p>Spendenaktion spielerisch auflockern und Teilnehmende einbinden.</p>
+              <ul class="uk-list uk-text-small">
+                <li>Quizfragen rund um das Thema</li>
+                <li>Ranking für extra Motivation</li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <h3 class="uk-h5">Teambuilding</h3>
+              <p>Zusammenhalt durch Team-Challenges stärken.</p>
+              <ul class="uk-list uk-text-small">
+                <li>Gruppen gegeneinander antreten lassen</li>
+                <li>Aufgaben für Kooperation &amp; Spaß</li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <h3 class="uk-h5">Firmenfeier</h3>
+              <p>Mitarbeitende unterhalten &amp; Wissen spielerisch vermitteln.</p>
+              <ul class="uk-list uk-text-small">
+                <li>Personalisierte Quizfragen</li>
+                <li>Live-Siegerehrung</li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <h3 class="uk-h5">Weihnachtsfeier</h3>
+              <p>Feierlicher Rahmen mit Quiz-Highlights.</p>
+              <ul class="uk-list uk-text-small">
+                <li>Fragen zu Firmengeschichte oder Weihnachten</li>
+                <li>Urkunden als Erinnerung</li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <h3 class="uk-h5">Stadtfest</h3>
+              <p>Große Gruppen einfach einbinden, flexibel steuerbar.</p>
+              <ul class="uk-list uk-text-small">
+                <li>Stationen über das ganze Fest verteilt</li>
+                <li>Live-Punkte auf Großbildschirm</li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <h3 class="uk-h5">Vereinsfest</h3>
+              <p>Mitglieder &amp; Gäste interaktiv einbeziehen.</p>
+              <ul class="uk-list uk-text-small">
+                <li>Quiz zu Vereinsgeschichte oder Sportarten</li>
+                <li>Sofortige Siegerehrung</li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <h3 class="uk-h5">Kindergeburtstag</h3>
+              <p>Spiele &amp; Rätsel altersgerecht gestalten, ohne App.</p>
+              <ul class="uk-list uk-text-small">
+                <li>QR-Aufkleber für jede Station</li>
+                <li>Fotos &amp; kleine Aufgaben</li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <h3 class="uk-h5">Workshop</h3>
+              <p>Inhalte interaktiv vermitteln und gleich prüfen.</p>
+              <ul class="uk-list uk-text-small">
+                <li>Quizfragen zum Thema</li>
+                <li>Feedback in Echtzeit</li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <h3 class="uk-h5">Kick-off</h3>
+              <p>Projekte motivierend starten, alle aktiv beteiligen.</p>
+              <ul class="uk-list uk-text-small">
+                <li>Icebreaker-Quiz zum Einstieg</li>
+                <li>Team-Ranking als Energizer</li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <h3 class="uk-h5">Produktlaunch</h3>
+              <p>Features spielerisch vorstellen, Zielgruppe aktiv einbinden.</p>
+              <ul class="uk-list uk-text-small">
+                <li>Quiz zu Produktneuheiten</li>
+                <li>Live-Umfrage für Feedback</li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <h3 class="uk-h5">Sportfest</h3>
+              <p>Bewegung &amp; Wissen verbinden.</p>
+              <ul class="uk-list uk-text-small">
+                <li>QR-Stationen an Sportplätzen</li>
+                <li>Punkte für Teams sammeln</li>
+              </ul>
+            </div>
+          </li>
+
+          <li>
+            <div class="uk-card uk-card-quizrace uk-card-body">
+              <h3 class="uk-h5">Trainings</h3>
+              <p>Trainings lebendig machen, Inhalte testen &amp; verankern.</p>
+              <ul class="uk-list uk-text-small">
+                <li>Multiple Choice &amp; Kreativfragen</li>
+                <li>Reports für Trainer</li>
+              </ul>
+            </div>
+          </li>
+
+        </ul>
       </div>
-      <div>
-        <div class="uk-card uk-card-quizrace uk-card-body">
-          <h3 class="uk-h5 uk-margin-remove">Teamtag / Firmen-Event</h3>
-          <p class="uk-text-small uk-margin-small">Wissensfragen + Company-Fun, Teams spontan bilden, direkt auswerten.</p>
-          <ul class="uk-list uk-text-small uk-margin-remove">
-            <li>Live-Ranking auf TV</li>
-            <li>Urkunden als PDF</li>
-          </ul>
-        </div>
-      </div>
-      <div>
-        <div class="uk-card uk-card-quizrace uk-card-body">
-          <h3 class="uk-h5 uk-margin-remove">Schulfeier / Projekttag</h3>
-          <p class="uk-text-small uk-margin-small">Barrierearm im Browser, ohne App&mdash;ideal für große Gruppen &amp; kurze Slots.</p>
-          <ul class="uk-list uk-text-small uk-margin-remove">
-            <li>Einladungen per QR</li>
-            <li>Rollen &amp; Limits steuerbar</li>
-          </ul>
-        </div>
-      </div>
+
+      <!-- Navigation -->
+      <a class="uk-position-center-left uk-position-small uk-hidden-hover" href="#" uk-slidenav-previous uk-slider-item="previous"></a>
+      <a class="uk-position-center-right uk-position-small uk-hidden-hover" href="#" uk-slidenav-next uk-slider-item="next"></a>
     </div>
 
     <div class="uk-text-center uk-margin-large">
-      <a class="uk-button uk-button-primary" href="{{ basePath }}/onboarding">Use-Case auswählen &amp; starten</a>
+      <a class="uk-button uk-button-primary uk-button-large" href="{{ basePath }}/onboarding">Use-Case auswählen &amp; starten</a>
     </div>
   </div>
 </section>
