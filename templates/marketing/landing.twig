@@ -27,7 +27,16 @@
     <header class="qr-topbar">
       <nav class="uk-navbar-container" uk-navbar>
         <div class="uk-navbar-left">
-          <a class="uk-navbar-item uk-logo" href="landing">QuizRace</a>
+          <div class="uk-navbar-item">
+            <button id="offcanvas-toggle"
+                    class="uk-navbar-toggle uk-hidden@m git-btn"
+                    uk-navbar-toggle-icon
+                    uk-toggle="target: #qr-offcanvas"
+                    aria-controls="qr-offcanvas"
+                    aria-expanded="false"
+                    aria-label="Menü"></button>
+            <a class="uk-logo" href="landing">QuizRace</a>
+          </div>
         </div>
         <div class="uk-navbar-right">
           <ul class="uk-navbar-nav uk-visible@m">
@@ -61,19 +70,12 @@
               </ul>
             </div>
           </div>
-          <button id="offcanvas-toggle"
-                  class="uk-navbar-toggle uk-hidden@m git-btn"
-                  uk-navbar-toggle-icon
-                  uk-toggle="target: #qr-offcanvas"
-                  aria-controls="qr-offcanvas"
-                  aria-expanded="false"
-                  aria-label="Menü"></button>
         </div>
       </nav>
     </header>
-    <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+    <div id="qr-offcanvas" uk-offcanvas="overlay: true; flip: true">
       <div class="uk-offcanvas-bar">
-        <button class="uk-offcanvas-close" type="button" uk-close aria-label="Menü schließen"></button>
+        <button class="uk-offcanvas-close git-btn" type="button" uk-close aria-label="Menü schließen"></button>
         <ul class="uk-nav uk-nav-default">
           {% for link in links %}
             <li>
@@ -83,7 +85,7 @@
             </li>
           {% endfor %}
         </ul>
-        <a class="btn btn-black uk-width-1-1 uk-margin-top" href="https://demo.quizrace.app" target="_blank" rel="noopener">
+        <a class="btn btn-black uk-width-1-1 uk-margin-top git-btn offcanvas-cta" href="https://demo.quizrace.app" target="_blank" rel="noopener">
           <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt Demo starten
         </a>
       </div>

@@ -244,6 +244,16 @@ body.dark-mode .qr-landing .qr-topbar{
 }
 .qr-landing .top-cta:focus-visible{ box-shadow:0 0 0 3px var(--qr-ring); }
 
+/* Offcanvas */
+#qr-offcanvas .uk-offcanvas-close.git-btn{
+  position:absolute;
+  top:8px;
+  right:8px;
+}
+#qr-offcanvas .offcanvas-cta.git-btn{
+  width:100%;
+}
+
 /* Hero */
 .qr-landing .qr-hero.uk-section{ background:transparent !important; position:relative; overflow:hidden; }
 .qr-landing .qr-hero-bg{
