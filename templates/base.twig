@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>{% block title %}Admin{% endblock %}</title>
     <link rel="stylesheet" href="{{ basePath }}/css/uikit.min.css">
+    <link rel="stylesheet" href="{{ basePath }}/css/topbar.css">
     <script src="{{ basePath }}/js/uikit.min.js"></script>
     <script src="{{ basePath }}/js/uikit-icons.min.js"></script>
     <style>
@@ -33,7 +34,7 @@
         </div>
         <div class="uk-navbar-right">
             <a href="{{ basePath }}/logout" class="uk-button uk-button-danger uk-margin-small-right">Abmelden</a>
-            <a class="uk-navbar-toggle" href="#" uk-icon="icon: cog"></a>
+            <a class="uk-navbar-toggle git-btn" href="#" uk-icon="icon: cog"></a>
         </div>
     </nav>
 
