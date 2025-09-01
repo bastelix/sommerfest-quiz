@@ -452,10 +452,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const waitForTenant = async slug => {
-      const url = `https://${slug}.${window.mainDomain}/healthz`;
-      for (let i = 0; i < 30; i++) {
+      const httpUrl = `http://${slug}.${window.mainDomain}/healthz`;
+      const httpsUrl = `https://${slug}.${window.mainDomain}/healthz`;
+      const attempts = window.waitForTenantRetries || 90;
+      const delay = window.waitForTenantDelay || 2000;
+      for (let i = 0; i < attempts; i++) {
         try {
-          const res = await fetch(url, {
+          const res = await fetch(httpUrl, {
             headers: { Accept: 'application/json' },
             credentials: 'omit'
           });
@@ -463,14 +466,34 @@ document.addEventListener('DOMContentLoaded', () => {
             const ct = res.headers.get('Content-Type') || '';
             if (ct.includes('application/json')) {
               const data = await res.json();
-              if (data.status === 'ok') return;
+              if (data.status === 'ok') {
+                try {
+                  const secure = await fetch(httpsUrl, {
+                    headers: { Accept: 'application/json' },
+                    credentials: 'omit'
+                  });
+                  if (secure.ok && !secure.redirected) {
+                    const ct2 = secure.headers.get('Content-Type') || '';
+                    if (ct2.includes('application/json')) {
+                      const data2 = await secure.json();
+                      if (data2.status === 'ok') return;
+                    }
+                  }
+                } catch (e) {
+                  if (e instanceof Error && /certificate|tls|ssl/i.test(e.message)) {
+                    addLog('Zertifikat noch nicht verfügbar');
+                  }
+                }
+              }
             }
           }
-        } catch (_) {
-          /* ignore fetch errors */
+        } catch (e) {
+          if (e instanceof Error && /certificate|tls|ssl/i.test(e.message)) {
+            addLog('Zertifikat noch nicht verfügbar');
+          }
         }
         addLog('Warten auf Tenant …');
-        await wait(2000);
+        await wait(delay);
       }
       throw new Error('timeout');
     };
