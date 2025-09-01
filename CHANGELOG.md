@@ -248,12 +248,21 @@
 - Bump version to 0.2.193 [skip ci]
 - Bump version to 0.2.194 [skip ci]
 - Bump version to 0.2.195 [skip ci]
+- Bump version to 0.2.196 [skip ci]
+- Bump version to 0.2.197 [skip ci]
+- Bump version to 0.2.198 [skip ci]
+- Refine compose project handling
+- Bump version to 0.2.199 [skip ci]
+- Bump version to 0.2.200 [skip ci]
+- Bump version to 0.2.201 [skip ci]
+- Bump version to 0.2.202 [skip ci]
 
 ### Docs
 
 - Remove version bump entries from changelog
 - Note removal of docker tag for tenant upgrade
 - Note landing page style overrides
+- Clarify tenant wait probing and HTTPS upgrade
 
 ### Feat
 
@@ -357,6 +366,7 @@
 - Consolidate landing page design tokens
 - Centralize landing navigation links
 - Use data-theme for dark mode
+- Add log details container
 
 ### Style
 
