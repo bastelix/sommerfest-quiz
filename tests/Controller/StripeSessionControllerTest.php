@@ -25,7 +25,8 @@ final class StripeSessionControllerTest extends TestCase
                 return ['paid' => true, 'customer_id' => null, 'client_reference_id' => null];
             }
         };
-        $request = $this->createRequest('GET', '/onboarding/checkout/sess_123');
+        $request = $this->createRequest('GET', '/onboarding/checkout/sess_123')
+            ->withHeader('X-Requested-With', 'fetch');
         $request = $request->withAttribute('stripeService', $service);
         $response = $app->handle($request);
         $this->assertSame(200, $response->getStatusCode());

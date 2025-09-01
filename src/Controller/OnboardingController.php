@@ -80,6 +80,12 @@ class OnboardingController
             ];
         }
 
+        $stripeService = new StripeService();
+        $publishableKey = $stripeService->getPublishableKey();
+        $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
+        $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
+        $pricingTableId = getenv($prefix . 'PRICING_TABLE_ID') ?: '';
+
         return $view->render(
             $response,
             'onboarding.twig',
@@ -92,6 +98,8 @@ class OnboardingController
                 'stripe_missing' => $stripeConfig['missing'],
                 'stripe_warnings' => $stripeConfig['warnings'],
                 'stripe_error' => $stripeConfig['error'] ?? null,
+                'stripe_publishable_key' => $publishableKey,
+                'stripe_pricing_table_id' => $pricingTableId,
             ]
         );
     }
