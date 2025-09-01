@@ -93,12 +93,6 @@
       <h3 class="uk-card-title">4. Tarif wählen</h3>
       {% if stripe_configured %}
       <p>Wähle einen Tarif und schließe die Zahlung über Stripe ab. Du kannst jeden kostenpflichtigen Tarif 7 Tage lang kostenlos testen.</p>
-      {% else %}
-      <p class="uk-text-danger">Zahlungsdienstleister nicht konfiguriert. Nur der Starter-Tarif ist verfügbar.</p>
-      {% if stripe_missing %}
-      <p class="uk-text-meta">Fehlende Variablen: {{ stripe_missing|join(', ') }}</p>
-      {% endif %}
-      {% endif %}
       <div class="pricing-grid uk-child-width-1-1 uk-child-width-1-3@m" uk-grid>
         <div>
           <div class="uk-card uk-card-price uk-card-quizrace uk-text-center">
@@ -118,7 +112,6 @@
             <button class="btn btn-transparent uk-width-1-1 uk-button-large uk-margin-small-top plan-select" data-plan="starter">Tarif wählen</button>
           </div>
         </div>
-        {% if stripe_configured %}
         <div>
           <div class="uk-card uk-card-popular uk-card-quizrace uk-text-center">
             <span class="uk-label uk-label-large">Meist gewählt</span>
@@ -152,12 +145,17 @@
             <button class="btn btn-transparent uk-width-1-1 uk-button-large plan-select" data-plan="professional">Tarif wählen</button>
           </div>
         </div>
-        {% endif %}
       </div>
       <p class="uk-text-meta uk-text-center uk-margin-large-top">Alle Preise zzgl. MwSt. – individuelle Lösungen auf Anfrage.</p>
       <p class="uk-text-meta uk-margin-top">1 (Die Teamgröße ist nicht technisch limitiert und kann bedarfsgerecht festgelegt werden.)</p>
       <p class="uk-text-meta uk-margin-top">2 (Im Starter-Paket mit Wasserzeichen oder ohne individuelles Layout/Logo)</p>
       <p class="uk-text-meta uk-margin-top">3 (z.&nbsp;B. Datenschutz, AGB, Einladung, FAQ, Spielanleitung – alles eigenständig editierbar)</p>
+      {% else %}
+      <p class="uk-text-danger">Zahlungsdienstleister nicht konfiguriert.</p>
+      {% if stripe_missing %}
+      <p class="uk-text-meta">Fehlende Variablen: {{ stripe_missing|join(', ') }}</p>
+      {% endif %}
+      {% endif %}
     </div>
 
       <div class="uk-card uk-card-default uk-card-body onboarding-step uk-width-1-1 uk-width-1-2@m uk-margin-auto" id="step5" hidden>
