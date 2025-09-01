@@ -243,6 +243,10 @@
 - Bump version to 0.2.188 [skip ci]
 - Bump version to 0.2.189 [skip ci]
 
+### Fix
+
+- Allow landing offcanvas menu to expand beyond topbar on mobile
+
 ### Docs
 
 - Remove version bump entries from changelog
