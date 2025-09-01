@@ -291,6 +291,7 @@
 - Bump version to 0.2.235 [skip ci]
 - Bump version to 0.2.236 [skip ci]
 - Bump version to 0.2.237 [skip ci]
+- Bump version to 0.2.238 [skip ci]
 
 ### Docs
 
@@ -369,6 +370,7 @@
 - Enable dark mode by default on landing
 - Load .env variables in onboarding script
 - Limit onboarding task log height
+- Add language menu to landing
 
 ### Fix
 
