@@ -72,6 +72,15 @@
   margin-top: auto;
 }
 
+details > summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
 @media (prefers-color-scheme: light) {
   .site-footer {
     background-color: var(--primary-color);
