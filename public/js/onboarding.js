@@ -268,20 +268,6 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
         localStorage.setItem('onboard_plan', plan);
-        if (plan === 'starter') {
-          const s5 = document.querySelector('.timeline-step[data-step="5"]');
-          if (s5) s5.classList.remove('inactive');
-          const url = new URL(window.location);
-          url.searchParams.set('step', '5');
-          window.history.replaceState({}, '', url);
-          showStep(5);
-          try {
-            await finalizeTenant();
-          } finally {
-            reset();
-          }
-          return;
-        }
         try {
           const res = await fetch(withBase('/onboarding/checkout'), {
             method: 'POST',
