@@ -86,7 +86,7 @@
     <p class="uk-text-center uk-text-lead uk-margin-small">Von der Schnitzeljagd bis zum Schulfest – QuizRace passt sich an.</p>
 
     <!-- Pills -->
-    <ul class="uk-subnav uk-subnav-pill uk-flex-center uk-margin" uk-switcher="connect: .usecase-slider">
+    <ul id="scenario-nav" class="scenario-cloud">
       <li><a href="#">Schnitzeljagd</a></li>
       <li><a href="#">Teamtag</a></li>
       <li><a href="#">Schulfeier</a></li>
@@ -108,7 +108,7 @@
     </ul>
 
     <!-- Slider -->
-    <div class="uk-position-relative uk-visible-toggle" tabindex="-1" uk-slider="finite: true; center: true">
+    <div id="scenario-slider" class="uk-position-relative uk-visible-toggle" tabindex="-1" uk-slider="center: true; autoplay: true; autoplay-interval: 4000; finite: false">
       <div class="uk-slider-container">
         <ul class="uk-slider-items uk-child-width-1-3@m uk-child-width-1-1@s usecase-slider">
 
@@ -317,6 +317,31 @@
       <a class="uk-position-center-left uk-position-small uk-hidden-hover" href="#" uk-slidenav-previous uk-slider-item="previous"></a>
       <a class="uk-position-center-right uk-position-small uk-hidden-hover" href="#" uk-slidenav-next uk-slider-item="next"></a>
     </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const slider = UIkit.slider('#scenario-slider');
+        const pills = Array.from(document.querySelectorAll('#scenario-nav > li'));
+
+        function setActive(index) {
+          pills.forEach((li, i) => li.classList.toggle('uk-active', i === index));
+        }
+
+        pills.forEach((li, i) => {
+          li.addEventListener('click', (e) => {
+            e.preventDefault();
+            slider.show(i);
+            setActive(i);
+          });
+        });
+
+        UIkit.util.on('#scenario-slider', 'itemshown', () => {
+          setActive(slider.index);
+        });
+
+        setActive(0);
+      });
+    </script>
 
     <div class="uk-text-center uk-margin-large">
       <a class="uk-button uk-button-primary uk-button-large" href="{{ basePath }}/onboarding">Use-Case auswählen &amp; starten</a>
