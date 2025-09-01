@@ -461,12 +461,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const waitForTenant = async slug => {
+      // check HTTP endpoint first; HTTPS might be unavailable until certificates are issued
       const httpUrl = `http://${slug}.${window.mainDomain}/healthz`;
       const httpsUrl = `https://${slug}.${window.mainDomain}/healthz`;
-      const attempts = window.waitForTenantRetries || 90;
-      const delay = window.waitForTenantDelay || 2000;
+      // allow longer waiting periods for SSL certificate issuance
+      const attempts = Number(window.waitForTenantRetries ?? 180);
+      const delay = Number(window.waitForTenantDelay ?? 2000);
       for (let i = 0; i < attempts; i++) {
         try {
+          // initial HTTP probe
           const res = await fetch(httpUrl, {
             headers: { Accept: 'application/json' },
             credentials: 'omit'
@@ -477,6 +480,7 @@ document.addEventListener('DOMContentLoaded', () => {
               const data = await res.json();
               if (data.status === 'ok') {
                 try {
+                  // verify HTTPS once HTTP responds
                   const secure = await fetch(httpsUrl, {
                     headers: { Accept: 'application/json' },
                     credentials: 'omit'
