@@ -170,6 +170,7 @@
 - Expand scenario pill list
 - Unify landing footer layout
 - Use black text for contact details on light theme
+- Enhance landing slider
 
 ### Test
 
