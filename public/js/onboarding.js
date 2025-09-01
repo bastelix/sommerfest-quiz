@@ -283,16 +283,15 @@ document.addEventListener('DOMContentLoaded', () => {
           if (res.ok && data.url) {
             if (isAllowed(data.url)) {
               window.location.href = escape(data.url);
-            } else {
-              console.error('Blocked redirect to untrusted URL:', data.url);
-              reset();
+              return;
             }
-            return;
+            console.error('Blocked redirect to untrusted URL:', data.url);
+          } else {
+            alert(data.error || 'Fehler beim Start der Zahlung.');
           }
-          alert(data.error || 'Fehler beim Start der Zahlung.');
-          reset();
         } catch (e) {
           alert('Fehler beim Start der Zahlung.');
+        } finally {
           reset();
         }
       });
@@ -421,6 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
       mark('create', false);
       addLog('Ungültige Daten für die Registrierung.');
       alert('Ungültige Daten für die Registrierung.');
+      tenantFinalizing = false;
       return;
     }
 
