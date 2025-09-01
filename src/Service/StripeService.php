@@ -140,14 +140,43 @@ class StripeService
     }
 
     /**
-     * Retrieve checkout session payment status, customer id and client reference.
+     * Retrieve checkout session payment status, customer id, client reference and plan.
      *
-     * @return array{paid:bool, customer_id:?string, client_reference_id:?string}
+     * @return array{paid:bool, customer_id:?string, client_reference_id:?string, plan:?string}
      */
     public function getCheckoutSessionInfo(string $sessionId): array
     {
         try {
-            $session = $this->client->checkout->sessions->retrieve($sessionId, []);
+            $session = $this->client->checkout->sessions->retrieve(
+                $sessionId,
+                ['expand' => ['line_items']]
+            );
+
+            $plan = null;
+            if (isset($session->metadata['plan'])) {
+                $plan = (string) $session->metadata['plan'];
+            } else {
+                $item = $session->line_items->data[0] ?? null;
+                $priceId = $item?->price?->id ?? '';
+                if ($priceId !== '') {
+                    $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
+                    $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
+                    $map = [];
+                    $starter = getenv($prefix . 'PRICE_STARTER') ?: '';
+                    if ($starter !== '') {
+                        $map[$starter] = 'starter';
+                    }
+                    $standard = getenv($prefix . 'PRICE_STANDARD') ?: '';
+                    if ($standard !== '') {
+                        $map[$standard] = 'standard';
+                    }
+                    $pro = getenv($prefix . 'PRICE_PROFESSIONAL') ?: '';
+                    if ($pro !== '') {
+                        $map[$pro] = 'professional';
+                    }
+                    $plan = $map[$priceId] ?? null;
+                }
+            }
 
             return [
                 'paid' => ($session->payment_status ?? '') === 'paid',
@@ -155,9 +184,10 @@ class StripeService
                 'client_reference_id' => isset($session->client_reference_id)
                     ? (string) $session->client_reference_id
                     : null,
+                'plan' => $plan,
             ];
         } catch (\Throwable $e) {
-            return ['paid' => false, 'customer_id' => null, 'client_reference_id' => null];
+            return ['paid' => false, 'customer_id' => null, 'client_reference_id' => null, 'plan' => null];
         }
     }
 

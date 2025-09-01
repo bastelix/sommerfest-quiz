@@ -27,6 +27,7 @@ final class StripeServiceTest extends TestCase
                         $this->sessions = new class {
                             public array $lastParams = [];
                             public string $lastRetrievedId = '';
+                            public ?object $retrieveResponse = null;
 
                             public function create(array $params)
                             {
@@ -37,10 +38,14 @@ final class StripeServiceTest extends TestCase
                             public function retrieve(string $id, array $params)
                             {
                                 $this->lastRetrievedId = $id;
+                                if ($this->retrieveResponse !== null) {
+                                    return $this->retrieveResponse;
+                                }
                                 return (object) [
                                     'payment_status' => 'paid',
                                     'customer' => 'cus_123',
                                     'client_reference_id' => 'tenant1',
+                                    'metadata' => ['plan' => 'starter'],
                                 ];
                             }
                         };
@@ -217,6 +222,26 @@ final class StripeServiceTest extends TestCase
             'tenant1',
             $info['client_reference_id']
         );
+        $this->assertSame('starter', $info['plan']);
+    }
+
+    public function testGetCheckoutSessionInfoUsesPriceIdForPlan(): void
+    {
+        $client = $this->createFakeStripeClient();
+        $client->checkout->sessions->retrieveResponse = (object) [
+            'payment_status' => 'paid',
+            'customer' => 'cus_123',
+            'client_reference_id' => 'tenant1',
+            'line_items' => (object) [
+                'data' => [
+                    (object) ['price' => (object) ['id' => 'price_standard']],
+                ],
+            ],
+        ];
+        putenv('STRIPE_PRICE_STANDARD=price_standard');
+        $service = new StripeService(client: $client);
+        $info = $service->getCheckoutSessionInfo('sess_123');
+        $this->assertSame('standard', $info['plan']);
     }
 
     public function testGetActiveSubscriptionReturnsDetails(): void
