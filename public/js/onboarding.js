@@ -355,8 +355,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       } catch (e) {
         const msg = e.message === 'no plan'
           ? 'Es wurde kein Tarif übermittelt.'
-          : 'Zahlung nicht bestätigt – bitte erneut versuchen';
+          : 'Zahlung nicht bestätigt – bitte kontaktiere uns.';
         alert(msg);
+        await fetch(withBase('/onboarding/checkout/' + encodeURIComponent(sessionId) + '/cancel'), {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: {
+            'X-CSRF-Token': window.csrfToken || '',
+            'X-Requested-With': 'fetch'
+          }
+        });
         const url = new URL(window.location);
         url.searchParams.delete('session_id');
         url.searchParams.set('step', '4');
