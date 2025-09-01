@@ -239,16 +239,29 @@ document.addEventListener('DOMContentLoaded', () => {
     planButtons.forEach(btn => {
       btn.addEventListener('click', async () => {
         btn.disabled = true;
+        const spinner = document.createElement('span');
+        spinner.setAttribute('uk-spinner', 'ratio: 0.5');
+        spinner.classList.add('uk-margin-small-left');
+        btn.appendChild(spinner);
+        const reset = () => {
+          btn.disabled = false;
+          spinner.remove();
+        };
         const plan = btn.dataset.plan;
         const email = localStorage.getItem('onboard_email') || emailInput.value.trim();
         const subdomain = localStorage.getItem('onboard_subdomain') || '';
-        if (!plan) return;
+        if (!plan) {
+          reset();
+          return;
+        }
         if (!isValidEmail(email)) {
           alert('Ungültige E-Mail-Adresse.');
+          reset();
           return;
         }
         if (!isValidSubdomain(subdomain)) {
           alert('Ungültige Subdomain.');
+          reset();
           return;
         }
         localStorage.setItem('onboard_plan', plan);
@@ -279,12 +292,15 @@ document.addEventListener('DOMContentLoaded', () => {
               window.location.href = escape(data.url);
             } else {
               console.error('Blocked redirect to untrusted URL:', data.url);
+              reset();
             }
             return;
           }
           alert(data.error || 'Fehler beim Start der Zahlung.');
+          reset();
         } catch (e) {
           alert('Fehler beim Start der Zahlung.');
+          reset();
         }
       });
     });
