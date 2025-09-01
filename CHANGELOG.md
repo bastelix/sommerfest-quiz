@@ -277,6 +277,20 @@
 - Bump version to 0.2.221 [skip ci]
 - Bump version to 0.2.222 [skip ci]
 - Bump version to 0.2.223 [skip ci]
+- Bump version to 0.2.224 [skip ci]
+- Bump version to 0.2.225 [skip ci]
+- Bump version to 0.2.226 [skip ci]
+- Bump version to 0.2.227 [skip ci]
+- Bump version to 0.2.228 [skip ci]
+- Bump version to 0.2.229 [skip ci]
+- Bump version to 0.2.230 [skip ci]
+- Bump version to 0.2.231 [skip ci]
+- Bump version to 0.2.232 [skip ci]
+- Bump version to 0.2.233 [skip ci]
+- Bump version to 0.2.234 [skip ci]
+- Bump version to 0.2.235 [skip ci]
+- Bump version to 0.2.236 [skip ci]
+- Bump version to 0.2.237 [skip ci]
 
 ### Docs
 
@@ -353,6 +367,8 @@
 - Toggle dark mode class
 - *(editor)* Add section template after hero
 - Enable dark mode by default on landing
+- Load .env variables in onboarding script
+- Limit onboarding task log height
 
 ### Fix
 
@@ -418,6 +434,7 @@
 - Add git style to menu toggle
 - Switch landing page to light theme
 - Refine landing focus and hover styles
+- Expand scenario pill list
 
 ### Test
 
