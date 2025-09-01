@@ -243,17 +243,17 @@ body.qr-landing .site-footer {
   height:100%;
 }
 
-.usecase-slider li.uk-active{
+.usecase-slider li.uk-current{
   z-index:1;
 }
 
-.usecase-slider li.uk-active .uk-card-quizrace{
-  transform:scale(1.05);
+.usecase-slider li.uk-current .uk-card-quizrace{
+  transform:scale(1.08);
   box-shadow:0 12px 28px rgba(0,0,0,.08);
 }
 
-.usecase-slider li.uk-active .uk-card-quizrace:hover{
-  transform:scale(1.05) translateY(-2px);
+.usecase-slider li.uk-current .uk-card-quizrace:hover{
+  transform:scale(1.08) translateY(-2px);
 }
 
 /* Karten/Kacheln auf der Landing (UIKit gezielt überstimmen) */

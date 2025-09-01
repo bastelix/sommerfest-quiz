@@ -322,9 +322,14 @@
       document.addEventListener('DOMContentLoaded', () => {
         const slider = UIkit.slider('#scenario-slider');
         const pills = Array.from(document.querySelectorAll('#scenario-nav > li'));
+        const slides = Array.from(document.querySelectorAll('.usecase-slider > li'));
 
         function setActive(index) {
           pills.forEach((li, i) => li.classList.toggle('uk-active', i === index));
+        }
+
+        function setCurrent(index) {
+          slides.forEach((li, i) => li.classList.toggle('uk-current', i === index));
         }
 
         pills.forEach((li, i) => {
@@ -332,14 +337,17 @@
             e.preventDefault();
             slider.show(i);
             setActive(i);
+            setCurrent(i);
           });
         });
 
         UIkit.util.on('#scenario-slider', 'itemshown', () => {
           setActive(slider.index);
+          setCurrent(slider.index);
         });
 
         setActive(0);
+        setCurrent(0);
       });
     </script>
 
