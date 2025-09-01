@@ -22,4 +22,6 @@ jobs:
             export $(grep -v '^#' .env | xargs)
             BASE_IMAGE="${APP_IMAGE%:*}"
             docker build -t "$APP_IMAGE" -t "${BASE_IMAGE}:latest" .
-            docker compose up -d --build
+            export COMPOSE_PROJECT_NAME=sommerfest-quiz
+            docker compose -p sommerfest-quiz up -d --build --remove-orphans --wait
+            docker compose -p sommerfest-quiz ps slim
