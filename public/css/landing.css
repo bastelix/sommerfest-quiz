@@ -336,6 +336,7 @@ body.dark-mode .qr-landing .qr-topbar{
 .qr-landing .qr-topbar #offcanvas-toggle.git-btn{
   width:56px;
   height:56px;
+  min-height:56px;
   aspect-ratio:1/1;
   border-radius:6px;
 }
