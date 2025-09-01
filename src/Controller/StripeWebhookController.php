@@ -41,8 +41,11 @@ class StripeWebhookController
         $type = (string) $data['type'];
         $object = $data['data']['object'] ?? [];
 
-        $base = Database::connectFromEnv();
-        $tenantService = new TenantService($base);
+        $tenantService = $request->getAttribute('tenantService');
+        if (!$tenantService instanceof TenantService) {
+            $base = Database::connectFromEnv();
+            $tenantService = new TenantService($base);
+        }
 
         switch ($type) {
             case 'checkout.session.completed':
@@ -50,15 +53,48 @@ class StripeWebhookController
                 $customerId = (string) ($object['customer'] ?? '');
                 $subscriptionId = (string) ($object['subscription'] ?? '');
                 $plan = (string) ($object['metadata']['plan'] ?? '');
-                if ($sub !== '' && $customerId !== '') {
-                    $data = ['stripe_customer_id' => $customerId];
-                    if ($subscriptionId !== '') {
-                        $data['stripe_subscription_id'] = $subscriptionId;
+                if ($sub !== '') {
+                    if (!$tenantService->exists($sub)) {
+                        $path = __DIR__ . '/../../data/onboarding/' . $sub . '.json';
+                        if (is_file($path)) {
+                            $onboarding = json_decode((string) file_get_contents($path), true);
+                            if (is_array($onboarding)) {
+                                $email = (string) ($onboarding['email'] ?? '');
+                                $imp = $onboarding['imprint'] ?? [];
+                                $imprintName = (string) ($imp['name'] ?? '');
+                                $imprintStreet = (string) ($imp['street'] ?? '');
+                                $imprintZip = (string) ($imp['zip'] ?? '');
+                                $imprintCity = (string) ($imp['city'] ?? '');
+                                $imprintEmail = (string) ($imp['email'] ?? $email);
+                                try {
+                                    $tenantService->createTenant(
+                                        bin2hex(random_bytes(16)),
+                                        $sub,
+                                        $plan !== '' ? $plan : null,
+                                        null,
+                                        $imprintEmail,
+                                        $imprintName,
+                                        $imprintStreet,
+                                        $imprintZip,
+                                        $imprintCity
+                                    );
+                                    @unlink($path);
+                                } catch (\RuntimeException $e) {
+                                    // ignore if tenant exists or creation fails
+                                }
+                            }
+                        }
                     }
-                    if ($plan !== '') {
-                        $data['plan'] = $plan;
+                    if ($customerId !== '') {
+                        $data = ['stripe_customer_id' => $customerId];
+                        if ($subscriptionId !== '') {
+                            $data['stripe_subscription_id'] = $subscriptionId;
+                        }
+                        if ($plan !== '') {
+                            $data['plan'] = $plan;
+                        }
+                        $tenantService->updateProfile($sub, $data);
                     }
-                    $tenantService->updateProfile($sub, $data);
                 }
                 break;
             case 'invoice.paid':

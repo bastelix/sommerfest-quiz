@@ -29,6 +29,81 @@ class StripeWebhookControllerTest extends TestCase
         return $request;
     }
 
+    public function testCheckoutSessionCompletedCreatesTenantFromOnboardingData(): void
+    {
+        putenv('STRIPE_WEBHOOK_SECRET=whsec_test');
+        $pdo = new class('sqlite::memory:') extends \PDO {
+            public function __construct(string $dsn)
+            {
+                parent::__construct($dsn);
+            }
+
+            public function exec($statement): int|false
+            {
+                if (
+                    preg_match('/^(CREATE|DROP) SCHEMA/i', $statement)
+                    || str_starts_with($statement, 'SET search_path')
+                ) {
+                    return 0;
+                }
+                return parent::exec($statement);
+            }
+        };
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        Migrator::migrate($pdo, __DIR__ . '/../../migrations');
+        $service = new \App\Service\TenantService($pdo);
+
+        $dir = __DIR__ . '/../../data/onboarding';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+        file_put_contents($dir . '/bar.json', json_encode([
+            'email' => 'b@example.com',
+            'imprint' => [
+                'name' => 'Bar Inc',
+                'street' => 'Main 1',
+                'zip' => '12345',
+                'city' => 'Town',
+                'email' => 'b@example.com',
+            ],
+        ]));
+
+        $payload = json_encode([
+            'type' => 'checkout.session.completed',
+            'data' => ['object' => [
+                'client_reference_id' => 'bar',
+                'customer' => 'cus_456',
+                'subscription' => 'sub_456',
+                'metadata' => ['plan' => 'starter'],
+            ]],
+        ]);
+        $request = $this->createSignedRequest($payload !== false ? $payload : '');
+        $request = $request->withAttribute('tenantService', $service);
+        $app = $this->getAppInstance();
+        $response = $app->handle($request);
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $row = $pdo->query(
+            "SELECT subdomain, plan, stripe_customer_id, stripe_subscription_id, imprint_name, imprint_email " .
+            "FROM tenants WHERE subdomain = 'bar'"
+        )->fetch(\PDO::FETCH_ASSOC);
+        $this->assertSame('bar', $row['subdomain']);
+        $this->assertSame('starter', $row['plan']);
+        $this->assertSame('cus_456', $row['stripe_customer_id']);
+        $this->assertSame('sub_456', $row['stripe_subscription_id']);
+        $this->assertSame('Bar Inc', $row['imprint_name']);
+        $this->assertSame('b@example.com', $row['imprint_email']);
+
+        $request2 = $this->createSignedRequest($payload !== false ? $payload : '');
+        $request2 = $request2->withAttribute('tenantService', $service);
+        $response2 = $app->handle($request2);
+        $this->assertEquals(200, $response2->getStatusCode());
+        $count = (int) $pdo->query(
+            "SELECT COUNT(*) FROM tenants WHERE subdomain = 'bar'"
+        )->fetchColumn();
+        $this->assertSame(1, $count);
+    }
+
     public function testCheckoutSessionCompletedUpdatesCustomerId(): void
     {
         putenv('STRIPE_WEBHOOK_SECRET=whsec_test');
