@@ -127,6 +127,51 @@ body.qr-landing { color: var(--qr-fg); }
 .qr-landing .uk-section { background: transparent; }
 .qr-landing .section--alt { background: var(--qr-bg-soft); color: var(--qr-fg); }
 
+/* Footer */
+.site-footer {
+  background: var(--qr-bg-soft);
+  color: var(--qr-landing-text);
+  padding: 2rem 1rem;
+  font-size: 0.875rem;
+}
+
+.footer-columns {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  text-align: center;
+}
+
+.footer-section strong {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.footer-section p {
+  margin: 0;
+}
+
+.footer-section ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.footer-section a {
+  color: var(--qr-landing-text);
+}
+
+@media (min-width: 640px) {
+  .footer-columns {
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: left;
+  }
+  .footer-section {
+    flex: 1;
+  }
+}
+
 /* Divider zwischen Sektionen */
 .section-divider{
   height:1px;
