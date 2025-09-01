@@ -11,8 +11,8 @@
 
 {% block head %}
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <link rel="preload" href="css/landing.css" as="style">
-  <link rel="stylesheet" href="css/landing.css">
+  <link rel="preload" href="{{ basePath }}/css/landing.css" as="style">
+  <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
 {% endblock %}
 
 {% block body_class %}qr-landing{% endblock %}
@@ -71,15 +71,15 @@
               <a class="uk-button uk-button-secondary btn btn-black" href="#features">Mehr erfahren</a>
             </div>
             <div class="qr-proof uk-margin-top">
-              <img src="img/trust-badges.avif" alt="Logos">
+              <img src="{{ basePath }}/img/trust-badges.avif" alt="Logos">
               <span>Bereits bei Firmen-Events &amp; Schulfesten im Einsatz</span>
             </div>
           </div>
           <div>
             <div class="qr-mockup uk-card uk-card-default">
               <picture>
-                <source srcset="img/quizrace-shot.avif" type="image/avif">
-                <img src="img/quizrace-shot.webp" width="960" height="540" loading="lazy" alt="QuizRace Screenshot">
+                <source srcset="{{ basePath }}/img/quizrace-shot.avif" type="image/avif">
+                <img src="{{ basePath }}/img/quizrace-shot.webp" width="960" height="540" loading="lazy" alt="QuizRace Screenshot">
               </picture>
             </div>
           </div>
@@ -92,6 +92,6 @@
 {% endblock %}
 
 {% block scripts %}
-  <script src="js/app.js"></script>
-  <script src="js/landing.js" defer></script>
+  <script src="{{ basePath }}/js/app.js"></script>
+  <script src="{{ basePath }}/js/landing.js" defer></script>
 {% endblock %}
