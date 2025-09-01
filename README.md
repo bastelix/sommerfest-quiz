@@ -288,7 +288,9 @@ scripts/delete_tenant.sh foo
 ```
 
 Beide Skripte lesen die Variable `DOMAIN` aus `.env` und nutzen sie
-für die vhost-Konfiguration.
+für die vhost-Konfiguration. Befindet sich im Projektverzeichnis eine `.env`,
+lädt `scripts/onboard_tenant.sh` sie automatisch und übernimmt die dort
+definierten Variablen.
 
 Das Proxy-Setup legt zudem standardmäßig ein Docker-Netzwerk namens
 `webproxy` an. Nach dem Aufruf von `scripts/create_tenant.sh` oder einem
