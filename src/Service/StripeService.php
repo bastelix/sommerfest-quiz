@@ -157,7 +157,7 @@ class StripeService
                 $plan = (string) $session->metadata['plan'];
             } else {
                 $item = $session->line_items->data[0] ?? null;
-                $priceId = $item?->price?->id ?? '';
+                $priceId = $item?->price->id ?? '';
                 if ($priceId !== '') {
                     $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
                     $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
