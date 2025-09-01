@@ -55,6 +55,7 @@ curl -X DELETE http://$DOMAIN/tenants \
 
 Die Mandanten-Logik nutzt folgende Variablen aus `.env` oder `sample.env`:
 
+- `COMPOSE_PROJECT_NAME` hält den Docker-Compose-Projektnamen stabil, damit Container und Volumes bei Updates weiterverwendet werden.
 - `DOMAIN` legt die Basis-Domain für alle Mandanten fest.
 - `MAIN_DOMAIN` definiert die Hauptdomain des Quiz-Containers.
 - `POSTGRES_DSN`, `POSTGRES_USER` und `POSTGRES_PASSWORD` bestimmen den Datenbankzugang.
