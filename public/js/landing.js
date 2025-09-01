@@ -88,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     theme = theme === 'dark' ? 'light' : 'dark';
     localStorage.setItem('qr-theme', theme);
+    document.body.classList.toggle('dark-mode', theme === 'dark');
     apply();
   });
 });
