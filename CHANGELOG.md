@@ -227,6 +227,9 @@
 - Bump version to 0.2.172 [skip ci]
 - Bump version to 0.2.173 [skip ci]
 - Bump version to 0.2.174 [skip ci]
+- Bump version to 0.2.175 [skip ci]
+- Bump version to 0.2.176 [skip ci]
+- Bump version to 0.2.177 [skip ci]
 
 ### Docs
 
@@ -290,6 +293,7 @@
 - Use uikit navbar toggle
 - Add offcanvas nav to marketing landing
 - Add light landing theme with dark override
+- Redesign landing topbar
 
 ### Fix
 
@@ -305,6 +309,7 @@
 - Ensure landing navbar uses UIKit-specific background
 - Improve landing page contrast
 - Restore backend light mode styles
+- Make landing topbar github buttons rectangular
 
 ### Refactor
 
