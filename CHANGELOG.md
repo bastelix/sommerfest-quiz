@@ -6,6 +6,10 @@
 
 - Tag image as sommerfest-quiz
 
+### Fix
+
+- Ensure landing button icons match text color in dark theme
+
 ### Chore
 
 - Add pages table for SEO config
