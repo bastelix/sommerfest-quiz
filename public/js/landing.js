@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', () => {
   const themeToggles = document.querySelectorAll('.theme-toggle');
   const accessibilityToggles = document.querySelectorAll('.accessibility-toggle');
+  const langButtons = document.querySelectorAll('.lang-option');
 
   const applyTheme = () => {
     const dark = localStorage.getItem('darkMode') !== 'false';
@@ -85,5 +86,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   accessibilityToggles.forEach(btn => btn.addEventListener('click', () => {
     setTimeout(applyContrast, 0);
+  }));
+
+  langButtons.forEach(btn => btn.addEventListener('click', () => {
+    const lang = btn.dataset.lang;
+    const url = new URL(window.location.href);
+    url.searchParams.set('lang', lang);
+    window.location.href = url.toString();
   }));
 });
