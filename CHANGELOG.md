@@ -245,6 +245,8 @@
 - Bump version to 0.2.190 [skip ci]
 - Bump version to 0.2.191 [skip ci]
 - Bump version to 0.2.192 [skip ci]
+- Bump version to 0.2.193 [skip ci]
+- Bump version to 0.2.194 [skip ci]
 
 ### Docs
 
@@ -313,6 +315,8 @@
 - Improve tenant creation error handling
 - Set default light theme
 - Add icons to landing page navigation
+- Add collapsible log to onboarding
+- Improve tenant health check and TLS logging
 
 ### Fix
 
