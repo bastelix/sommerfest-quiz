@@ -603,9 +603,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (data.type !== 'checkout.session.completed') return;
     const table = document.getElementById('pricingTable');
     if (table) table.remove();
+    const s5 = document.querySelector('.timeline-step[data-step="5"]');
+    if (s5) s5.classList.remove('inactive');
     const url = new URL(window.location);
-    if (data.session_id) {
-      sessionId = data.session_id;
+    sessionId = data.sessionId || data.session_id || '';
+    if (sessionId) {
       url.searchParams.set('session_id', sessionId);
     }
     url.searchParams.set('step', '5');
