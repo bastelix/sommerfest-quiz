@@ -15,6 +15,9 @@ html {
   --color-text: #232323;
   --danger-500: #8b0000;
   --danger-600: #660000;
+  --qr-card: #ffffff;
+  --qr-border: rgba(0, 0, 0, 0.1);
+  --qr-bg-soft: #f3f4f6;
 }
 
 body {
@@ -977,6 +980,23 @@ body.admin-page {
   .dashboard-grid > * {
     padding-left: 8px;
   }
+}
+
+/* Standardsektionen neutralisieren und selbst einfärben */
+.uk-card,
+.uk-panel {
+  background: var(--qr-card);
+  color: inherit;
+  border: 1px solid var(--qr-border);
+  border-radius: 12px;
+}
+
+.section--muted {
+  background: var(--qr-bg-soft);
+}
+
+.section--transparent {
+  background: transparent;
 }
 
 
