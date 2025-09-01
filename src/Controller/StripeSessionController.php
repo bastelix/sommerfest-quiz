@@ -18,7 +18,10 @@ class StripeSessionController
     public function __invoke(Request $request, Response $response, array $args): Response
     {
         $sessionId = (string) ($args['id'] ?? '');
-        $service = new StripeService();
+        $service = $request->getAttribute('stripeService');
+        if (!$service instanceof StripeService) {
+            $service = new StripeService();
+        }
         $info = $sessionId !== ''
             ? $service->getCheckoutSessionInfo($sessionId)
             : ['paid' => false, 'customer_id' => null, 'client_reference_id' => null];
