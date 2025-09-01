@@ -1,10 +1,10 @@
 {% extends 'layout.twig' %}
 
 {% set links = [
-  { 'href': '#features', 'label': 'Features' },
-  { 'href': '#pricing', 'label': 'Preise' },
-  { 'href': '#contact-us', 'label': 'Kontakt' },
-  { 'href': 'faq', 'label': 'FAQ' }
+  { 'href': '#features', 'label': 'Features', 'icon': 'star' },
+  { 'href': '#pricing', 'label': 'Preise', 'icon': 'credit-card' },
+  { 'href': '#contact-us', 'label': 'Kontakt', 'icon': 'mail' },
+  { 'href': 'faq', 'label': 'FAQ', 'icon': 'question' }
 ] %}
 
 {% block title %}QuizRace – Das interaktive Team-Quiz für Events{% endblock %}
@@ -27,10 +27,16 @@
         <div class="uk-navbar-right uk-visible@m">
           <ul class="uk-navbar-nav">
             {% for link in links %}
-              <li><a href="{{ link.href }}">{{ link.label }}</a></li>
+              <li>
+                <a href="{{ link.href }}">
+                  <span class="uk-margin-small-right" uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
+                </a>
+              </li>
             {% endfor %}
           </ul>
-          <a class="uk-navbar-item uk-button uk-button-primary top-cta" href="https://demo.quizrace.app" target="_blank" rel="noopener">Jetzt Demo starten</a>
+          <a class="uk-navbar-item uk-button uk-button-primary top-cta" href="https://demo.quizrace.app" target="_blank" rel="noopener">
+            <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt Demo starten
+          </a>
         </div>
         <div class="uk-navbar-right uk-hidden@m">
           <button id="themeToggle" class="uk-button uk-button-default" aria-label="Design umschalten">
@@ -50,10 +56,16 @@
           <button class="uk-offcanvas-close" type="button" uk-close aria-label="Menü schließen"></button>
           <ul class="uk-nav uk-nav-default">
             {% for link in links %}
-              <li><a href="{{ link.href }}">{{ link.label }}</a></li>
+              <li>
+                <a href="{{ link.href }}">
+                  <span class="uk-margin-small-right" uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
+                </a>
+              </li>
             {% endfor %}
           </ul>
-          <a class="uk-button uk-button-primary uk-width-1-1 uk-margin-top" href="https://demo.quizrace.app" target="_blank" rel="noopener">Jetzt Demo starten</a>
+          <a class="uk-button uk-button-primary uk-width-1-1 uk-margin-top" href="https://demo.quizrace.app" target="_blank" rel="noopener">
+            <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt Demo starten
+          </a>
         </div>
       </div>
     </header>
@@ -67,8 +79,12 @@
             <h1 class="qr-h1">Das Team-Quiz, das Ihr Event unvergesslich macht.</h1>
             <p class="qr-sub">Interaktive Quiz-Rallyes für Firmen, Schulen &amp; Teams. In Minuten startklar – live, vor Ort oder hybrid.</p>
             <div class="uk-margin-medium-top uk-flex uk-flex-left uk-flex-wrap" style="gap:16px;">
-              <a class="uk-button uk-button-primary cta-main" href="https://demo.quizrace.app" target="_blank" rel="noopener">Jetzt Demo starten</a>
-              <a class="uk-button uk-button-secondary btn btn-black" href="#features">Mehr erfahren</a>
+              <a class="uk-button uk-button-primary cta-main" href="https://demo.quizrace.app" target="_blank" rel="noopener">
+                <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt Demo starten
+              </a>
+              <a class="uk-button uk-button-secondary btn btn-black" href="#features">
+                <span class="uk-margin-small-right" uk-icon="icon: info"></span>Mehr erfahren
+              </a>
             </div>
             <div class="qr-proof uk-margin-top">
               <img src="{{ basePath }}/img/trust-badges.avif" alt="Logos">
