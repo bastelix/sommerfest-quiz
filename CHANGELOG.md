@@ -268,6 +268,11 @@
 - Bump version to 0.2.212 [skip ci]
 - Bump version to 0.2.213 [skip ci]
 - Bump version to 0.2.214 [skip ci]
+- Bump version to 0.2.215 [skip ci]
+- Bump version to 0.2.216 [skip ci]
+- Bump version to 0.2.217 [skip ci]
+- Bump version to 0.2.218 [skip ci]
+- Bump version to 0.2.219 [skip ci]
 
 ### Docs
 
@@ -388,6 +393,7 @@
 - Use data-theme for dark mode
 - Add log details container
 - Replace UIkit card modifiers with qr-card
+- Add theme-aware icon color
 
 ### Style
 
