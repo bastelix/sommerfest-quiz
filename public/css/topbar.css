@@ -35,6 +35,25 @@ body[data-theme="dark"].high-contrast{
   --topbar-btn-bg-hover: rgba(255,255,255,0.16);
   --topbar-focus-ring: rgba(140,200,255,0.8);
 }
+
+/* Buttons in der Topbar */
+.topbar .uk-button,
+.topbar .uk-navbar-nav>li>a{
+  color: var(--qr-fg);
+  border-color: var(--btn-border, rgba(0,0,0,0.12));
+}
+body:not(.dark-mode) .topbar .uk-button,
+body:not(.dark-mode) .topbar .uk-navbar-nav>li>a{
+  color: #0f172a;
+  border-color: rgba(0,0,0,0.12);
+}
+
+/* Dropdown/Offcanvas */
+.uk-dropdown, .uk-drop, .uk-offcanvas-bar{
+  background: var(--drop-bg, var(--qr-card));
+  color: var(--qr-fg);
+  border: 1px solid var(--drop-border, var(--qr-border));
+}
 .git-btn{
   width:40px;height:40px;padding:0;
   border-radius:6px;
