@@ -10,9 +10,9 @@ Die Marketing-Seite nutzt eigene CSS-Variablen, um Farben für Text und Dropdown
 ```twig
 <style>
   :root {
-    --text: #fff;
-    --drop-bg: #0c86d0;
-    --drop-border: rgba(255, 255, 255, 0.32);
+    --topbar-text: #fff;
+    --topbar-drop-bg: #0c86d0;
+    --topbar-drop-border: rgba(255, 255, 255, 0.32);
   }
 </style>
 ```

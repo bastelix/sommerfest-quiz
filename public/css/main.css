@@ -214,7 +214,7 @@ body.uk-padding {
 
 .uk-icon-button {
   border-radius: 6px;
-  border: 1px solid var(--btn-border, #ddd);
+  border: 1px solid var(--topbar-btn-border, #ddd);
 }
 
 .topbar .uk-navbar-item,
@@ -637,7 +637,7 @@ body.admin-page {
   font-size: clamp(20px, 1.5vw + 16px, 24px);
   z-index: 1100;
   border-radius: 6px;
-  border: 1px solid var(--btn-border, #ddd);
+  border: 1px solid var(--topbar-btn-border, #ddd);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 .fab-save {
@@ -677,7 +677,7 @@ body.admin-page {
   background-color: white;
   transition: 0.4s;
   border-radius: 6px;
-  border: 1px solid var(--btn-border, #ddd);
+  border: 1px solid var(--topbar-btn-border, #ddd);
 }
 .switch input:checked + .slider {
   background-color: var(--accent-color);

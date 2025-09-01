@@ -5,7 +5,7 @@ return [
     'design_toggle' => 'Design wechseln',
     'contrast_toggle' => 'Barrierefrei',
     'configuration' => 'Konfiguration',
-    'help_modal_text' => 'Dark-Mode und Barrierefrei-Modus lassen sich hier im Menü umschalten. Der Barrierefrei-Modus vergrößert die Schrift für bessere Lesbarkeit. Passe Farben zentral über CSS-Variablen an (<code>--text</code>, <code>--drop-bg</code> …).',
+    'help_modal_text' => 'Dark-Mode und Barrierefrei-Modus lassen sich hier im Menü umschalten. Der Barrierefrei-Modus vergrößert die Schrift für bessere Lesbarkeit. Passe Farben zentral über CSS-Variablen an (<code>--topbar-text</code>, <code>--topbar-drop-bg</code> …).',
     'quiz_progress' => 'Fortschritt des Quiz',
     'manual_open' => 'Handbuch öffnen',
     'privacy' => 'Datenschutz',
