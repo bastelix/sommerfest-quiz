@@ -223,6 +223,10 @@
 - Improve landing page contrast
 - Bump version to 0.2.169 [skip ci]
 - Bump version to 0.2.170 [skip ci]
+- Bump version to 0.2.171 [skip ci]
+- Bump version to 0.2.172 [skip ci]
+- Bump version to 0.2.173 [skip ci]
+- Bump version to 0.2.174 [skip ci]
 
 ### Docs
 
@@ -319,6 +323,7 @@
 - Apply accessibility landing style patch
 - Extract landing tokens into scss
 - Consolidate landing page design tokens
+- Centralize landing navigation links
 
 ### Style
 
@@ -337,6 +342,7 @@
 - Emulate GitHub header on landing
 - Update landing hero styling
 - Add git style to menu toggle
+- Switch landing page to light theme
 
 ### Test
 
