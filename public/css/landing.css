@@ -118,6 +118,9 @@
 .page-landing .github-header .uk-navbar-nav>li.uk-active>a{ opacity:1; text-decoration:none; }
 .page-landing .github-header .uk-navbar-nav>li>a:focus-visible{ outline:none; box-shadow:var(--focus-ring); border-radius:8px; }
 .page-landing .github-header .uk-navbar-toggle{ color:var(--text)!important; }
+.page-landing .github-header .git-btn{
+  border-radius:0;
+}
 .page-landing .top-cta{
   border-radius:10px;
   padding:0 16px;
