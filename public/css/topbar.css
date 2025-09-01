@@ -99,3 +99,10 @@ body:not(.dark-mode) .topbar .uk-navbar-nav>li>a{
 .uk-dropdown-nav, .uk-dropdown-nav *{
   color:var(--topbar-text);
 }
+
+@media (max-width: 640px) {
+  .topbar .uk-navbar-right {
+    justify-content: flex-end;
+    padding-right: 0;
+  }
+}
