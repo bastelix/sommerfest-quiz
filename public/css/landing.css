@@ -279,16 +279,21 @@ body.dark-mode .qr-landing .qr-badge{
   transform:translateY(-1px);
 }
 .qr-landing .btn.btn-black.uk-button-secondary{
-  background:#e5e7eb!important;
+  background-color:#e5e7eb!important;
   color:var(--qr-landing-text)!important;
-  border:0;
+  border:0!important;
   border-radius:12px;
   line-height:46px;
   height:48px;
   transition:opacity .2s;
 }
 .qr-landing .btn.btn-black.uk-button-secondary:hover{ opacity:.85; }
-body.dark-mode .qr-landing .btn.btn-black.uk-button-secondary{ background:#0d1117!important; }
+body.dark-mode .qr-landing .btn.btn-black.uk-button-secondary,
+body[data-theme="dark"] .qr-landing .btn.btn-black.uk-button-secondary{
+  background-color:#0d1117!important;
+  color:var(--qr-landing-text)!important;
+  border:0!important;
+}
 
 .qr-landing .uk-section{ padding-top:72px; padding-bottom:72px; }
 @media (min-width:1200px){ .qr-landing .uk-section{ padding-top:88px; padding-bottom:88px; } }
