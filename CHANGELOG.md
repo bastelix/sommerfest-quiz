@@ -242,10 +242,9 @@
 - Bump version to 0.2.187 [skip ci]
 - Bump version to 0.2.188 [skip ci]
 - Bump version to 0.2.189 [skip ci]
-
-### Fix
-
-- Allow landing offcanvas menu to expand beyond topbar on mobile
+- Bump version to 0.2.190 [skip ci]
+- Bump version to 0.2.191 [skip ci]
+- Bump version to 0.2.192 [skip ci]
 
 ### Docs
 
@@ -331,6 +330,8 @@
 - Restore backend light mode styles
 - Make landing topbar github buttons rectangular
 - Serve assets with base path
+- Reveal hero gradient
+- Allow landing offcanvas to overlay viewport
 
 ### Refactor
 
@@ -350,6 +351,7 @@
 - Extract landing tokens into scss
 - Consolidate landing page design tokens
 - Centralize landing navigation links
+- Use data-theme for dark mode
 
 ### Style
 
