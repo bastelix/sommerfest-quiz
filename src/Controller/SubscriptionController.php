@@ -9,6 +9,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use App\Service\StripeService;
 use App\Service\TenantService;
 use App\Infrastructure\Database;
+use Stripe\StripeClient;
 
 /**
  * Redirects the user to the Stripe customer portal.
@@ -44,5 +45,36 @@ class SubscriptionController
         $service = new StripeService();
         $url = $service->createBillingPortal($customerId, $returnUrl);
         return $response->withHeader('Location', $url)->withStatus(302);
+    }
+
+    public function cancelOnboardingCheckout(
+        Request $request,
+        Response $response,
+        array $args
+    ): Response {
+        $sessionId = (string) ($args['id'] ?? '');
+        if ($sessionId !== '') {
+            $service = $request->getAttribute('stripeService');
+            if (!$service instanceof StripeService) {
+                $service = new StripeService();
+            }
+            try {
+                $info = $service->getCheckoutSessionInfo($sessionId);
+                $customerId = $info['customer_id'];
+                if ($customerId !== null) {
+                    $service->cancelSubscriptionForCustomer($customerId);
+                } else {
+                    $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
+                    $envKey = $useSandbox ? 'STRIPE_SANDBOX_SECRET_KEY' : 'STRIPE_SECRET_KEY';
+                    $altKey = $useSandbox ? 'STRIPE_SANDBOX_SECRET' : 'STRIPE_SECRET';
+                    $apiKey = getenv($envKey) ?: getenv($altKey) ?: '';
+                    $client = new StripeClient($apiKey);
+                    $client->checkout->sessions->expire($sessionId, []);
+                }
+            } catch (\Throwable $e) {
+                // ignore errors
+            }
+        }
+        return $response->withStatus(204);
     }
 }

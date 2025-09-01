@@ -376,6 +376,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add(new RateLimitMiddleware(10, 60));
     $app->post('/onboarding/checkout', StripeCheckoutController::class);
     $app->get('/onboarding/checkout/{id}', StripeSessionController::class);
+    $app->post('/onboarding/checkout/{id}/cancel', [SubscriptionController::class, 'cancelOnboardingCheckout']);
     $app->post('/stripe/webhook', StripeWebhookController::class);
     $app->get('/login', [LoginController::class, 'show']);
     $app->post('/login', [LoginController::class, 'login']);
