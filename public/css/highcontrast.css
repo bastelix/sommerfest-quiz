@@ -78,34 +78,34 @@ body.high-contrast .uk-alert-primary {
 }
 
 /* High contrast styles when dark mode is also enabled */
-body.dark-mode.high-contrast {
+body.high-contrast[data-theme='dark'] {
   background-color: #000000 !important;
   color: #ffffff !important;
 }
 
-body.dark-mode.high-contrast a {
+body.high-contrast[data-theme='dark'] a {
   color: #ffff00;
   text-decoration: underline;
 }
 
-body.dark-mode.high-contrast .uk-card-default {
+body.high-contrast[data-theme='dark'] .uk-card-default {
   background-color: #000000;
   color: #ffffff;
   border-color: #ffffff;
 }
-body.dark-mode.high-contrast .modern-info-card {
+body.high-contrast[data-theme='dark'] .modern-info-card {
   border-color: #ffffff;
 }
-body.dark-mode.high-contrast .onboarding-step {
+body.high-contrast[data-theme='dark'] .onboarding-step {
   border-color: #ffffff;
   box-shadow: none;
 }
-body.dark-mode.high-contrast .onboarding-timeline .timeline-step {
+body.high-contrast[data-theme='dark'] .onboarding-timeline .timeline-step {
   border-color: #ffffff;
   color: #ffffff;
 }
-body.dark-mode.high-contrast .onboarding-timeline .timeline-step.active,
-body.dark-mode.high-contrast .onboarding-timeline .timeline-step.completed {
+body.high-contrast[data-theme='dark'] .onboarding-timeline .timeline-step.active,
+body.high-contrast[data-theme='dark'] .onboarding-timeline .timeline-step.completed {
   border-color: #ffffff;
   color: #ffffff;
 }
@@ -119,73 +119,73 @@ body.high-contrast .git-btn {
   color: #000000;
 }
 
-body.dark-mode.high-contrast .uk-icon-button,
-body.dark-mode.high-contrast .git-btn {
+body.high-contrast[data-theme='dark'] .uk-icon-button,
+body.high-contrast[data-theme='dark'] .git-btn {
   border: 2px solid #ffffff;
   background-color: #000000;
 }
 
-body.dark-mode.high-contrast .git-btn {
+body.high-contrast[data-theme='dark'] .git-btn {
   color: #ffffff;
 }
-body.dark-mode.high-contrast .onboarding-timeline .timeline-step.inactive {
+body.high-contrast[data-theme='dark'] .onboarding-timeline .timeline-step.inactive {
   border-color: #999999;
   color: #999999;
   cursor: not-allowed;
 }
 
-body.dark-mode.high-contrast .uk-button-primary {
+body.high-contrast[data-theme='dark'] .uk-button-primary {
   background-color: #ffff00;
   border-color: #ffff00;
   color: #000000;
 }
 
-body.dark-mode.high-contrast .uk-button,
-body.dark-mode.high-contrast .uk-button-default {
+body.high-contrast[data-theme='dark'] .uk-button,
+body.high-contrast[data-theme='dark'] .uk-button-default {
   background-color: #000000;
   color: #ffffff;
   border-color: #ffffff;
 }
 
-body.dark-mode.high-contrast input,
-body.dark-mode.high-contrast textarea,
-body.dark-mode.high-contrast select {
+body.high-contrast[data-theme='dark'] input,
+body.high-contrast[data-theme='dark'] textarea,
+body.high-contrast[data-theme='dark'] select {
   background-color: #000000;
   color: #ffffff;
   border-color: #ffffff;
 }
 
-body.dark-mode.high-contrast .sortable-list li,
-body.dark-mode.high-contrast .terms li,
-body.dark-mode.high-contrast .dropzone,
-body.dark-mode.high-contrast .mc-option {
+body.high-contrast[data-theme='dark'] .sortable-list li,
+body.high-contrast[data-theme='dark'] .terms li,
+body.high-contrast[data-theme='dark'] .dropzone,
+body.high-contrast[data-theme='dark'] .mc-option {
   background: #000000;
   border: 2px solid #ffffff;
   color: #ffffff;
 }
 
-body.dark-mode.high-contrast .dropzone.over {
+body.high-contrast[data-theme='dark'] .dropzone.over {
   background: #333333;
   border-color: #ffffff;
 }
 
-body.dark-mode.high-contrast .uk-alert-success {
+body.high-contrast[data-theme='dark'] .uk-alert-success {
   background-color: #008000;
   color: #ffffff;
 }
 
-body.dark-mode.high-contrast .uk-alert-danger {
+body.high-contrast[data-theme='dark'] .uk-alert-danger {
   background-color: var(--danger-500);
   color: #ffffff;
 }
 
-body.dark-mode.high-contrast .uk-alert-primary {
+body.high-contrast[data-theme='dark'] .uk-alert-primary {
   background-color: #00008b;
   color: #ffffff;
 }
 
 body.high-contrast .uk-form-danger,
-body.dark-mode.high-contrast .uk-form-danger {
+body.high-contrast[data-theme='dark'] .uk-form-danger {
   border-color: var(--danger-600) !important;
 }
 
@@ -196,8 +196,8 @@ body.high-contrast .flip-card-back {
   border: 2px solid #000000;
 }
 
-body.dark-mode.high-contrast .flip-card-front,
-body.dark-mode.high-contrast .flip-card-back {
+body.high-contrast[data-theme='dark'] .flip-card-front,
+body.high-contrast[data-theme='dark'] .flip-card-back {
   background-color: #000000;
   color: #ffffff;
   border: 2px solid #ffffff;

@@ -58,6 +58,13 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
 - **src/** – PHP-Code mit Routen, Controllern und Services
 - **docs/** – Zusätzliche Dokumentation, z.B. [Richtlinien zur Worttrennung](docs/frontend-word-break.md)
 
+## Theme-Steuerung
+
+Das Erscheinungsbild wechselt zwischen Hell- und Dunkelmodus über das
+`data-theme`-Attribut am `<body>`- und `<html>`-Element. Styles greifen
+mit Selektoren wie `[data-theme="dark"]` auf den aktuellen Modus zu;
+die frühere Klasse `.dark-mode` kommt nicht mehr zum Einsatz.
+
 ## Schnellstart
 
 Stelle sicher, dass PHP 8.2 oder höher installiert ist:

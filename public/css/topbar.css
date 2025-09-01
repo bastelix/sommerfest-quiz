@@ -1,4 +1,4 @@
-body:not(.dark-mode){
+body:not([data-theme='dark']){
   --btn-bg: transparent;
   --btn-border: rgba(0,0,0,0.6);
   --btn-border-hover: rgba(0,0,0,0.8);
@@ -8,7 +8,7 @@ body:not(.dark-mode){
   --drop-border: rgba(27,31,35,0.12);
   --text: #000;
 }
-body.dark-mode{
+body[data-theme='dark']{
   --btn-border: rgba(255,255,255,0.3);
   --btn-border-hover: rgba(255,255,255,0.5);
   --btn-bg-hover: rgba(255,255,255,0.08);
@@ -26,7 +26,7 @@ body.high-contrast{
   --btn-bg-hover: #e6e6e6;
   --focus-ring: rgba(0,120,255,0.6);
 }
-body.dark-mode.high-contrast{
+body.high-contrast[data-theme='dark']{
   --text: #ffffff;
   --drop-bg: #000000;
   --drop-border: #ffffff;

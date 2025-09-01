@@ -20,13 +20,11 @@ document.addEventListener('DOMContentLoaded', function () {
     darkStylesheet.toggleAttribute('disabled', !dark);
   }
 
-  if (dark) {
-    document.body.classList.add('dark-mode');
-    document.documentElement.classList.add('dark-mode');
-    document.documentElement.classList.add('theme-dark');
-    if (uikitStylesheet) {
-      document.body.classList.add('uk-light');
-    }
+  document.body.dataset.theme = dark ? 'dark' : 'light';
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+  document.documentElement.classList.toggle('theme-dark', dark);
+  if (uikitStylesheet) {
+    document.body.classList.toggle('uk-light', dark);
   }
 
   const sunSVG = `
@@ -94,8 +92,10 @@ document.addEventListener('DOMContentLoaded', function () {
       });
       toggle.addEventListener('click', function (event) {
         event.preventDefault();
-        dark = document.body.classList.toggle('dark-mode');
-        document.documentElement.classList.toggle('dark-mode', dark);
+        dark = document.body.dataset.theme === 'dark';
+        dark = !dark;
+        document.body.dataset.theme = dark ? 'dark' : 'light';
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
         document.documentElement.classList.toggle('theme-dark', dark);
         if (uikitStylesheet) {
           document.body.classList.toggle('uk-light', dark);
