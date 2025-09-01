@@ -101,6 +101,7 @@
 - Update how-it-works section
 - Ensure btn icons match text color
 - Add use case slider
+- Expand landing FAQ
 
 ### Fix
 
