@@ -6,11 +6,16 @@ document.addEventListener('DOMContentLoaded', function () {
   const configMenu = document.getElementById('menuDrop');
   const offcanvasToggle = document.getElementById('offcanvas-toggle');
   const offcanvas = document.getElementById('qr-offcanvas');
+  const offcanvasHasItems = offcanvas && offcanvas.querySelector('li');
   const darkStylesheet = document.querySelector('link[href$="dark.css"]');
   const uikitStylesheet = document.querySelector('link[href*="uikit"]');
   const themeIcon = document.getElementById('themeIcon');
   const accessibilityIcon = document.getElementById('accessibilityIcon');
   const helpBtn = document.getElementById('helpBtn');
+
+  if (offcanvasToggle && !offcanvasHasItems) {
+    offcanvasToggle.hidden = true;
+  }
 
   const storedTheme = localStorage.getItem('darkMode');
   let dark = storedTheme !== 'false';
@@ -146,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  if (offcanvasToggle && offcanvas) {
+  if (offcanvasToggle && offcanvasHasItems) {
     UIkit.util.on(offcanvas, 'show', () => {
       offcanvasToggle.setAttribute('aria-expanded', 'true');
     });
