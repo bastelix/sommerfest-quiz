@@ -235,6 +235,11 @@
 - Bump version to 0.2.180 [skip ci]
 - Bump version to 0.2.181 [skip ci]
 - Bump version to 0.2.182 [skip ci]
+- Bump version to 0.2.183 [skip ci]
+- Bump version to 0.2.184 [skip ci]
+- Bump version to 0.2.185 [skip ci]
+- Bump version to 0.2.186 [skip ci]
+- Bump version to 0.2.187 [skip ci]
 
 ### Docs
 
@@ -301,6 +306,8 @@
 - Redesign landing topbar
 - Implement theme toggle and qr tokens for landing
 - Improve tenant creation error handling
+- Set default light theme
+- Add icons to landing page navigation
 
 ### Fix
 
@@ -317,6 +324,7 @@
 - Improve landing page contrast
 - Restore backend light mode styles
 - Make landing topbar github buttons rectangular
+- Serve assets with base path
 
 ### Refactor
 
@@ -355,6 +363,7 @@
 - Update landing hero styling
 - Add git style to menu toggle
 - Switch landing page to light theme
+- Refine landing focus and hover styles
 
 ### Test
 
