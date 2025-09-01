@@ -256,6 +256,7 @@
 - Bump version to 0.2.200 [skip ci]
 - Bump version to 0.2.201 [skip ci]
 - Bump version to 0.2.202 [skip ci]
+- Bump version to 0.2.203 [skip ci]
 
 ### Docs
 
@@ -348,6 +349,7 @@
 - Serve assets with base path
 - Reveal hero gradient
 - Allow landing offcanvas to overlay viewport
+- Improve topbar contrast in light theme
 
 ### Refactor
 
