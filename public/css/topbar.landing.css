@@ -4,7 +4,7 @@ body.qr-landing:not([data-theme="dark"]){
   --topbar-btn-border-hover: color-mix(in oklab,var(--qr-text) 40%, transparent);
   --topbar-btn-bg-hover: color-mix(in oklab,var(--qr-text) 8%, transparent);
   --topbar-focus-ring: var(--qr-ring);
-  --topbar-drop-bg: var(--qr-card-bg);
+  --topbar-drop-bg: var(--qr-card);
   --topbar-drop-border: var(--qr-card-border);
   --topbar-text: var(--qr-text);
 }
@@ -13,7 +13,7 @@ body.qr-landing[data-theme="dark"]{
   --topbar-btn-border-hover: color-mix(in oklab,var(--qr-text) 60%, transparent);
   --topbar-btn-bg-hover: color-mix(in oklab,var(--qr-text) 16%, transparent);
   --topbar-focus-ring: var(--qr-ring);
-  --topbar-drop-bg: var(--qr-card-bg);
+  --topbar-drop-bg: var(--qr-card);
   --topbar-drop-border: var(--qr-card-border);
   --topbar-text: var(--qr-text);
 }

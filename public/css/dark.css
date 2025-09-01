@@ -8,6 +8,7 @@
     --danger-600: #ff4c4c;
     --qr-card: #1e1e1e;
     --qr-border: rgba(255, 255, 255, 0.1);
+    --qr-card-border: var(--qr-border);
     --qr-bg-soft: #161b22;
   }
 html,
@@ -30,7 +31,7 @@ body .uk-card-title {
   color: #f5f5f5;
 }
 body .qr-card {
-  background-color: #1e1e1e;
+  background-color: var(--qr-card);
   color: #f5f5f5;
 }
 body .qr-card a {
@@ -240,7 +241,7 @@ body .uk-modal-dialog {
 
 /* Hoverfarbe für Katalogkarten im Dunkelmodus */
 body .uk-card-hover:hover {
-  background-color: #333;
+  background-color: var(--qr-card);
   color: #f5f5f5;
 }
 
@@ -336,7 +337,7 @@ body[data-theme="dark"] .uk-card-title {
   color: #f5f5f5;
 }
 body[data-theme="dark"] .qr-card {
-  background-color: #1e1e1e;
+  background-color: var(--qr-card);
   color: #f5f5f5;
 }
 body[data-theme="dark"] .qr-card a {
@@ -471,13 +472,15 @@ body[data-theme="dark"] .onboarding-timeline .timeline-step.completed {
 }
 
 body .pricing-grid .uk-card-quizrace {
-  background-color: #1e1e1e;
+  background-color: var(--qr-card);
   color: #f5f5f5;
+  border: 1px solid var(--qr-card-border);
 }
 
 body .pricing-grid .uk-card-quizrace.uk-card-popular {
-  background-color: #0c86d0;
+  background-color: var(--qr-card);
   color: #fff;
+  border: 1px solid var(--qr-card-border);
 }
 
 body .pricing-grid .uk-card-quizrace .uk-text-meta,
@@ -487,13 +490,15 @@ body .pricing-grid .uk-card-quizrace h3 {
 }
 
 body[data-theme="dark"] .pricing-grid .uk-card-quizrace {
-  background-color: #1e1e1e;
+  background-color: var(--qr-card);
   color: #f5f5f5;
+  border: 1px solid var(--qr-card-border);
 }
 
 body[data-theme="dark"] .pricing-grid .uk-card-quizrace.uk-card-popular {
-  background-color: #0c86d0;
+  background-color: var(--qr-card);
   color: #fff;
+  border: 1px solid var(--qr-card-border);
 }
 
 body[data-theme="dark"] .pricing-grid .uk-card-quizrace .uk-text-meta,
@@ -567,7 +572,7 @@ body[data-theme="dark"] .uk-modal-dialog {
 
 /* Hoverfarbe für Katalogkarten im Dunkelmodus */
 body[data-theme="dark"] .uk-card-hover:hover {
-  background-color: #333;
+  background-color: var(--qr-card);
   color: #f5f5f5;
 }
 
