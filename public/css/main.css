@@ -13,6 +13,7 @@ html {
   --color-bg: #fff;
   --color-primary: #0c86d0;
   --color-text: #232323;
+  --qr-fg: var(--color-text);
   --danger-500: #8b0000;
   --danger-600: #660000;
 }
@@ -21,6 +22,7 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   background-color: var(--primary-color, #ffffff);
+  color: var(--qr-fg);
 }
 
 .uk-button-primary {
@@ -978,5 +980,12 @@ body.admin-page {
     padding-left: 8px;
   }
 }
+
+/* Kontrast-Guard */
+h1,h2,h3,h4,h5,h6 { color: var(--qr-fg); }
+.uk-text-muted { color: color-mix(in oklab, var(--qr-fg) 70%, transparent); }
+/* Links/CTAs klarer */
+a, .uk-link, .cta-link { color: #60a5fa; }
+a:hover{ text-decoration: underline; }
 
 

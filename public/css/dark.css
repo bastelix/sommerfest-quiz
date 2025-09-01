@@ -10,10 +10,10 @@
 html,
 body {
   background-color: #000 !important;
-  color: #f5f5f5;
+  color: var(--qr-fg);
 }
 body a {
-  color: var(--accent-color, #9dc6ff);
+  color: #60a5fa;
 }
 body h1,
 body h2,
@@ -21,21 +21,21 @@ body h3,
 body h4,
 body h5,
 body h6 {
-  color: #f5f5f5;
+  color: var(--qr-fg);
 }
 body .uk-card-title {
-  color: #f5f5f5;
+  color: var(--qr-fg);
 }
 body .uk-card-default {
   background-color: #1e1e1e;
-  color: #f5f5f5;
+  color: var(--qr-fg);
 }
 body .uk-card-default a {
-  color: var(--accent-color, #9dc6ff);
+  color: #60a5fa;
 }
 body .uk-card h3,
 body .uk-card p {
-  color: #f5f5f5;
+  color: var(--qr-fg);
 }
 body .uk-progress {
   background-color: #333;
