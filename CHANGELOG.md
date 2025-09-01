@@ -247,6 +247,7 @@
 - Bump version to 0.2.192 [skip ci]
 - Bump version to 0.2.193 [skip ci]
 - Bump version to 0.2.194 [skip ci]
+- Bump version to 0.2.195 [skip ci]
 
 ### Docs
 
