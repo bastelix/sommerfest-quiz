@@ -22,7 +22,12 @@ final class StripeSessionControllerTest extends TestCase
             public function getCheckoutSessionInfo(string $sessionId): array
             {
                 $this->args[] = $sessionId;
-                return ['paid' => true, 'customer_id' => null, 'client_reference_id' => null];
+                return [
+                    'paid' => true,
+                    'customer_id' => null,
+                    'client_reference_id' => null,
+                    'plan' => 'starter',
+                ];
             }
         };
         $request = $this->createRequest('GET', '/onboarding/checkout/sess_123')
@@ -33,5 +38,6 @@ final class StripeSessionControllerTest extends TestCase
         $this->assertSame(['sess_123'], $service->args);
         $data = json_decode((string) $response->getBody(), true);
         $this->assertTrue($data['paid']);
+        $this->assertSame('starter', $data['plan']);
     }
 }

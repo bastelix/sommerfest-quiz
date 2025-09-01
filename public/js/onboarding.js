@@ -298,9 +298,15 @@ document.addEventListener('DOMContentLoaded', () => {
           if (!data.paid) {
             throw new Error('not paid');
           }
-          plan = data.client_reference_id || '';
+          plan = data.plan || '';
+          if (!plan) {
+            throw new Error('no plan');
+          }
         } catch (e) {
-          alert('Fehler bei der Zahlungsprüfung.');
+          const msg = e.message === 'no plan'
+            ? 'Es wurde kein Tarif übermittelt.'
+            : 'Fehler bei der Zahlungsprüfung.';
+          alert(msg);
           tenantFinalizing = false;
           return;
         }

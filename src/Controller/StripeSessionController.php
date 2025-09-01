@@ -24,7 +24,7 @@ class StripeSessionController
         }
         $info = $sessionId !== ''
             ? $service->getCheckoutSessionInfo($sessionId)
-            : ['paid' => false, 'customer_id' => null, 'client_reference_id' => null];
+            : ['paid' => false, 'customer_id' => null, 'client_reference_id' => null, 'plan' => null];
 
         $isFetch = strtolower($request->getHeaderLine('X-Requested-With')) === 'fetch';
 
@@ -43,6 +43,7 @@ class StripeSessionController
         $payload = json_encode([
             'paid' => $info['paid'],
             'client_reference_id' => $info['client_reference_id'],
+            'plan' => $info['plan'],
         ]);
         $response->getBody()->write($payload !== false ? $payload : '{}');
 
