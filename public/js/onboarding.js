@@ -137,6 +137,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     showStep(currentStep);
   }
 
+  if (stepParam === '5' && !sessionId) {
+    alert('Stripe-Sitzung nicht gefunden – bitte Zahlung erneut abschließen');
+    const url = new URL(window.location);
+    url.searchParams.delete('session_id');
+    url.searchParams.set('step', '4');
+    window.history.replaceState({}, '', url);
+    showStep(4);
+  }
+
   if (sendEmailBtn) {
     sendEmailBtn.addEventListener('click', async () => {
       const email = emailInput.value.trim();
@@ -322,41 +331,39 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   async function finalizeTenant() {
-      if (tenantFinalizing) { return; }
+      if (!sessionId || tenantFinalizing) { return; }
       tenantFinalizing = true;
       const subdomain = sessionData.subdomain || '';
       const email = sessionData.email || '';
       let plan = '';
-      if (sessionId) {
-        try {
-          const res = await fetch(withBase('/onboarding/checkout/' + encodeURIComponent(sessionId)), {
-            credentials: 'same-origin',
-            headers: { 'X-Requested-With': 'fetch' }
-          });
-          if (!res.ok) {
-            throw new Error('checkout');
-          }
-          const data = await res.json();
-          if (!data.paid) {
-            throw new Error('not paid');
-          }
-          plan = data.plan || '';
-          if (!plan) {
-            throw new Error('no plan');
-          }
-        } catch (e) {
-          const msg = e.message === 'no plan'
-            ? 'Es wurde kein Tarif übermittelt.'
-            : 'Zahlung nicht bestätigt – bitte erneut versuchen';
-          alert(msg);
-          const url = new URL(window.location);
-          url.searchParams.delete('session_id');
-          url.searchParams.set('step', '4');
-          window.history.replaceState({}, '', url);
-          showStep(4);
-          tenantFinalizing = false;
-          return;
+      try {
+        const res = await fetch(withBase('/onboarding/checkout/' + encodeURIComponent(sessionId)), {
+          credentials: 'same-origin',
+          headers: { 'X-Requested-With': 'fetch' }
+        });
+        if (!res.ok) {
+          throw new Error('checkout');
         }
+        const data = await res.json();
+        if (!data.paid) {
+          throw new Error('not paid');
+        }
+        plan = data.plan || '';
+        if (!plan) {
+          throw new Error('no plan');
+        }
+      } catch (e) {
+        const msg = e.message === 'no plan'
+          ? 'Es wurde kein Tarif übermittelt.'
+          : 'Zahlung nicht bestätigt – bitte erneut versuchen';
+        alert(msg);
+        const url = new URL(window.location);
+        url.searchParams.delete('session_id');
+        url.searchParams.set('step', '4');
+        window.history.replaceState({}, '', url);
+        showStep(4);
+        tenantFinalizing = false;
+        return;
       }
       const imprintName = (sessionData.imprint && sessionData.imprint.name) || '';
       const imprintStreet = (sessionData.imprint && sessionData.imprint.street) || '';
