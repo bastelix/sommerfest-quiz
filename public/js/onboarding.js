@@ -601,19 +601,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const data = event.data || {};
     if (data.type !== 'checkout.session.completed') return;
-    const table = document.getElementById('pricingTable');
-    if (table) table.remove();
-    const s5 = document.querySelector('.timeline-step[data-step="5"]');
-    if (s5) s5.classList.remove('inactive');
     const url = new URL(window.location);
     sessionId = data.sessionId || data.session_id || '';
     if (sessionId) {
+      const table = document.getElementById('pricingTable');
+      if (table) table.remove();
+      const s5 = document.querySelector('.timeline-step[data-step="5"]');
+      if (s5) s5.classList.remove('inactive');
       url.searchParams.set('session_id', sessionId);
+      url.searchParams.set('step', '5');
+      window.history.replaceState({}, '', url);
+      showStep(5);
+      finalizeTenant();
+    } else {
+      const msg = 'Fehler: Keine Session-ID erhalten.';
+      addLog(msg);
+      alert(msg);
+      url.searchParams.set('step', '4');
+      window.history.replaceState({}, '', url);
+      showStep(4);
     }
-    url.searchParams.set('step', '5');
-    window.history.replaceState({}, '', url);
-    showStep(5);
-    finalizeTenant();
   });
 
   if (sessionId) {
