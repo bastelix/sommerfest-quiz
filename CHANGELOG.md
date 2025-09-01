@@ -230,6 +230,11 @@
 - Bump version to 0.2.175 [skip ci]
 - Bump version to 0.2.176 [skip ci]
 - Bump version to 0.2.177 [skip ci]
+- Bump version to 0.2.178 [skip ci]
+- Bump version to 0.2.179 [skip ci]
+- Bump version to 0.2.180 [skip ci]
+- Bump version to 0.2.181 [skip ci]
+- Bump version to 0.2.182 [skip ci]
 
 ### Docs
 
@@ -294,6 +299,8 @@
 - Add offcanvas nav to marketing landing
 - Add light landing theme with dark override
 - Redesign landing topbar
+- Implement theme toggle and qr tokens for landing
+- Improve tenant creation error handling
 
 ### Fix
 
