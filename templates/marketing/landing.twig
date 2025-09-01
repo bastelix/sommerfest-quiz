@@ -14,6 +14,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="preload" href="{{ basePath }}/css/landing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/onboarding.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.landing.css">
 {% endblock %}
 
@@ -28,8 +29,8 @@
         <div class="uk-navbar-left">
           <a class="uk-navbar-item uk-logo" href="landing">QuizRace</a>
         </div>
-        <div class="uk-navbar-right uk-visible@m">
-          <ul class="uk-navbar-nav">
+        <div class="uk-navbar-right">
+          <ul class="uk-navbar-nav uk-visible@m">
             {% for link in links %}
               <li>
                 <a href="{{ link.href }}">
@@ -38,16 +39,30 @@
               </li>
             {% endfor %}
           </ul>
-          <a class="uk-navbar-item uk-button uk-button-primary top-cta" href="https://demo.quizrace.app" target="_blank" rel="noopener">
+          <a class="uk-navbar-item btn btn-black top-cta uk-visible@m" href="https://demo.quizrace.app" target="_blank" rel="noopener">
             <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt Demo starten
           </a>
-        </div>
-        <div class="uk-navbar-right uk-hidden@m">
-          <button id="themeToggle" class="uk-button uk-button-default" aria-label="Design umschalten">
-            <span id="themeIcon" aria-hidden="true"></span>
-          </button>
+          <div class="uk-navbar-item config-menu uk-inline">
+            <button id="configMenuToggle" type="button" class="uk-button uk-button-default git-btn" aria-label="Konfiguration" aria-expanded="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.14 12.94a7.5 7.5 0 0 0 .05-.94 7.5 7.5 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.33a.5.5 0 0 0-.6-.22l-2.39.96a7.6 7.6 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.43h-3.84a.5.5 0 0 0-.5.43l-.36 2.54c-.57.24-1.12.55-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.7 7.84a.5.5 0 0 0 .12.64l2.03 1.58c-.03.31-.05.63-.05.94s.02.63.05.94L2.82 13.5a.5.5 0 0 0-.12.64l1.92 3.33a.5.5 0 0 0 .6.22l2.39-.96c.51.39 1.06.7 1.63.94l.36 2.54a.5.5 0 0 0 .5.43h3.84a.5.5 0 0 0 .5-.43l.36-2.54c.57-.24 1.12-.55 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.33a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z" fill="currentColor"/></svg>
+            </button>
+            <div id="menuDrop" class="uk-dropdown" hidden uk-dropdown="mode: click; pos: bottom-right; flip: false; animation: uk-animation-slide-top-small">
+              <ul class="uk-nav uk-dropdown-nav" role="menu">
+                <li>
+                  <button id="themeToggle" class="uk-button uk-button-default git-btn theme-toggle" aria-label="Design umschalten" role="menuitem">
+                    <span id="themeIcon" aria-hidden="true"></span>
+                  </button>
+                </li>
+                <li>
+                  <button id="accessibilityToggle" class="uk-button uk-button-default git-btn accessibility-toggle" aria-label="Kontrast umschalten" role="menuitem">
+                    <span id="accessibilityIcon" aria-hidden="true"></span>
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
           <button id="offcanvas-toggle"
-                  class="uk-navbar-toggle"
+                  class="uk-navbar-toggle uk-hidden@m git-btn"
                   uk-navbar-toggle-icon
                   uk-toggle="target: #qr-offcanvas"
                   aria-controls="qr-offcanvas"
@@ -68,7 +83,7 @@
             </li>
           {% endfor %}
         </ul>
-        <a class="uk-button uk-button-primary uk-width-1-1 uk-margin-top" href="https://demo.quizrace.app" target="_blank" rel="noopener">
+        <a class="btn btn-black uk-width-1-1 uk-margin-top" href="https://demo.quizrace.app" target="_blank" rel="noopener">
           <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt Demo starten
         </a>
       </div>
@@ -83,10 +98,10 @@
             <h1 class="qr-h1">Das Team-Quiz, das Ihr Event unvergesslich macht.</h1>
             <p class="qr-sub">Interaktive Quiz-Rallyes für Firmen, Schulen &amp; Teams. In Minuten startklar – live, vor Ort oder hybrid.</p>
             <div class="uk-margin-medium-top uk-flex uk-flex-left uk-flex-wrap" style="gap:16px;">
-              <a class="uk-button uk-button-primary cta-main" href="https://demo.quizrace.app" target="_blank" rel="noopener">
+              <a class="btn btn-black cta-main" href="https://demo.quizrace.app" target="_blank" rel="noopener">
                 <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt Demo starten
               </a>
-              <a class="uk-button uk-button-secondary btn btn-black" href="#how-it-works">
+              <a class="btn btn-transparent" href="#how-it-works">
                 <span class="uk-margin-small-right" uk-icon="icon: info"></span>Mehr erfahren
               </a>
             </div>
