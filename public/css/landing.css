@@ -331,6 +331,18 @@ body.dark-mode .qr-landing .qr-topbar{
   border-radius:6px;
 }
 .qr-landing .qr-topbar .uk-navbar-toggle{ color:var(--qr-text)!important; }
+.qr-landing .qr-topbar #offcanvas-toggle.git-btn{
+  width:56px;
+  height:56px;
+  aspect-ratio:1/1;
+  border-radius:6px;
+}
+.qr-landing .qr-topbar .uk-logo{
+  margin-left:8px;
+  font-family:'Poppins',sans-serif;
+  font-weight:700;
+  text-transform:uppercase;
+}
 .qr-landing .top-cta{
   transition:opacity .2s,transform .2s;
   display:inline-flex;
@@ -351,6 +363,7 @@ body.dark-mode .qr-landing .qr-topbar{
 }
 #qr-offcanvas .offcanvas-cta.git-btn{
   width:100%;
+  height:48px;
 }
 
 /* Hero */
