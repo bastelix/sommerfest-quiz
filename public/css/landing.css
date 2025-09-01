@@ -18,6 +18,7 @@
   --qr-card:#161b22;
   --qr-border:rgba(255,255,255,0.14);
   --qr-hero-grad-start:#0d1117;
+  --qr-hero-gradient:linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
   --qr-link:#58a6ff;
   --qr-ring:rgba(31,111,235,.35);
   --qr-text:var(--qr-fg);
@@ -39,6 +40,7 @@ body.qr-landing:not(.dark-mode){
   --qr-border:rgba(27,31,35,0.12);
   --qr-hero-grad-start:#f6f8fa;
   --qr-hero-grad-end:#e8ecff;
+  --qr-hero-gradient:linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
   --qr-link:#1f6feb;
   --qr-muted:#374151;
   --qr-shadow:0 6px 24px rgba(0,0,0,0.05);
@@ -49,7 +51,12 @@ body.qr-landing:not(.dark-mode){
   --qr-landing-text:var(--qr-fg);
 }
 
-body.qr-landing { background: var(--qr-bg); color: var(--qr-fg); }
+html[data-theme],
+body.qr-landing {
+  background: var(--qr-hero-gradient);
+  background-color: var(--qr-hero-grad-start);
+}
+body.qr-landing { color: var(--qr-fg); }
 .qr-landing .uk-section { background: transparent; }
 .qr-landing .section--alt { background: var(--qr-bg-soft); color: var(--qr-fg); }
 
@@ -184,12 +191,15 @@ body.dark-mode .qr-landing .qr-topbar{
   inset:0;
   z-index:0;
   pointer-events:none;
+  background: var(--qr-hero-gradient);
+  background-color: var(--qr-hero-grad-start);
 }
 .qr-landing .hero-bg-quizrace {
   background:
     radial-gradient(600px 400px at 0% 0%, color-mix(in oklab, var(--qr-hero-grad-end) 35%, transparent), transparent),
     radial-gradient(500px 350px at 100% 0%, color-mix(in oklab, #60a5fa 40%, transparent), transparent),
-    linear-gradient(135deg, var(--qr-hero-grad-start) 0%, var(--qr-hero-grad-end) 100%);
+    var(--qr-hero-gradient);
+  background-color: var(--qr-hero-grad-start);
 }
 .qr-landing .qr-hero>*{ position:relative; z-index:1; }
 .qr-landing .qr-badge{
