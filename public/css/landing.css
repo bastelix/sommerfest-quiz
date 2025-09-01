@@ -86,29 +86,36 @@ body.qr-landing { color: var(--qr-fg); }
   border-radius:999px;
 }
 
-/* Pill-Cloud */
-.pill-list{
+/* Szenarien als Outline-Pills */
+.scenario-cloud{
+  --pill-bg: transparent;
+  --pill-border: var(--qr-border);
+  --pill-fg: color-mix(in oklab, var(--qr-fg) 85%, transparent);
   display:flex;
   flex-wrap:wrap;
-  gap:10px 12px;
+  gap:8px 10px;
   justify-content:center;
-  list-style:none;
-  margin:24px 0 0;
+  max-width:1100px;
+  margin:18px auto 0;
   padding:0;
+  list-style:none;
 }
-.pill{
-  background:color-mix(in oklab, var(--qr-brand-400) 20%, var(--qr-card));
-  border:1px solid var(--qr-border);
-  border-radius:999px;
-  padding:8px 14px;
-  line-height:1;
-  box-shadow:0 1px 0 rgba(0,0,0,.08) inset;
-  transition:transform .08s ease, background .2s ease;
+.scenario-cloud a{
+  display:inline-block;
+  padding:6px 12px;
+  line-height:1.15;
+  font-size:14px;
   white-space:nowrap;
+  border:1px solid var(--pill-border);
+  border-radius:999px;
+  background:var(--pill-bg);
+  color:var(--pill-fg);
+  text-decoration:none;
+  transition:transform .08s ease, background .2s ease, border-color .2s ease;
 }
-.pill:hover{
+.scenario-cloud a:hover{
   transform:translateY(-1px);
-  background:color-mix(in oklab, var(--qr-brand-400) 28%, var(--qr-card));
+  border-color:color-mix(in oklab, #60a5fa 40%, var(--pill-border));
 }
 
 /* Karten/Kacheln auf der Landing (UIKit gezielt überstimmen) */
