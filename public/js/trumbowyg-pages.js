@@ -27,7 +27,14 @@ $.extend(true, $.trumbowyg, {
                   <h1 class="uk-heading-large">Hero-Titel</h1>
                   <p class="uk-text-lead">Introtext</p>
                 </div>
-              </div>`);
+              </div>
+              <!-- Beispiel: Abschnitt mit alternierender Hintergrundfarbe -->
+              <section class="uk-section section--alt">
+                <div class="uk-container">
+                  <h2>Abschnittstitel</h2>
+                  <p>Inhalt hier</p>
+                </div>
+              </section>`);
           },
           title: 'UIkit Hero'
         });
