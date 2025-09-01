@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let theme = stored || (prefersDark ? 'dark' : 'light');
 
   const apply = () => {
-    document.body.dataset.theme = theme;
+    document.documentElement.dataset.theme = theme;
     if (icon) {
       icon.innerHTML = theme === 'dark' ? sunSVG : moonSVG;
     }

@@ -46,7 +46,7 @@
     --qr-ring: rgba(31,111,235,.35);
   }
 }
-body[data-theme="dark"] {
+:root[data-theme="dark"] {
   --qr-bg: #0d1117;
   --qr-text: #fff;
   --qr-muted: #e6eaf3;
@@ -63,7 +63,7 @@ body[data-theme="dark"] {
   --qr-link:#58a6ff;
   --qr-ring: rgba(31,111,235,.35);
 }
-body[data-theme="light"] {
+:root[data-theme="light"] {
   --qr-bg: #ffffff;
   --qr-text: #111827;
   --qr-muted: #374151;
@@ -91,9 +91,9 @@ body[data-theme="light"] {
 .qr-landing .section-gray { background: #f3f4f6; color: var(--qr-text); }
 .qr-landing .section-white { background: #ffffff; color: var(--qr-text); }
 
-body[data-theme="dark"] .qr-landing .section-blue,
-body[data-theme="dark"] .qr-landing .section-white { background: #0d1117; color: var(--qr-text); }
-body[data-theme="dark"] .qr-landing .section-gray { background: #161b22; color: var(--qr-text); }
+html[data-theme="dark"] .qr-landing .section-blue,
+html[data-theme="dark"] .qr-landing .section-white { background: #0d1117; color: var(--qr-text); }
+html[data-theme="dark"] .qr-landing .section-gray { background: #161b22; color: var(--qr-text); }
 
 /* Karten/Kacheln auf der Landing (UIKit gezielt überstimmen) */
 .qr-landing .uk-card,
@@ -166,7 +166,7 @@ body[data-theme="dark"] .qr-landing .section-gray { background: #161b22; color: 
     height:56px;
   }
 }
-body[data-theme="dark"] .qr-landing .qr-topbar{
+html[data-theme="dark"] .qr-landing .qr-topbar{
   background: linear-gradient(180deg, rgba(13,17,23,0.8) 0%, rgba(22,27,34,0.8) 100%);
 }
 .qr-landing .qr-topbar .uk-navbar-nav>li>a{
@@ -240,7 +240,7 @@ body[data-theme="dark"] .qr-landing .qr-topbar{
   border-radius:9999px;
   margin-bottom:16px;
 }
-body[data-theme="dark"] .qr-landing .qr-badge{
+html[data-theme="dark"] .qr-landing .qr-badge{
   background: color-mix(in oklab, var(--qr-brand-800) 40%, transparent);
   color:var(--qr-brand-100);
 }
@@ -316,7 +316,7 @@ body[data-theme="dark"] .qr-landing .qr-badge{
   transition:opacity .2s;
 }
 .qr-landing .btn.btn-black.uk-button-secondary:hover{ opacity:.85; }
-body[data-theme="dark"] .qr-landing .btn.btn-black.uk-button-secondary{ background:#0d1117!important; }
+html[data-theme="dark"] .qr-landing .btn.btn-black.uk-button-secondary{ background:#0d1117!important; }
 
 .qr-landing .uk-section{ padding-top:72px; padding-bottom:72px; }
 @media (min-width:1200px){ .qr-landing .uk-section{ padding-top:88px; padding-bottom:88px; } }
