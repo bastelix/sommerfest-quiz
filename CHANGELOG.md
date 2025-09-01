@@ -257,6 +257,9 @@
 - Bump version to 0.2.201 [skip ci]
 - Bump version to 0.2.202 [skip ci]
 - Bump version to 0.2.203 [skip ci]
+- Bump version to 0.2.204 [skip ci]
+- Bump version to 0.2.205 [skip ci]
+- Bump version to 0.2.206 [skip ci]
 
 ### Docs
 
@@ -330,6 +333,7 @@
 - Add collapsible log to onboarding
 - Improve tenant health check and TLS logging
 - Require Stripe pricing table
+- Toggle dark mode class
 
 ### Fix
 
@@ -350,6 +354,7 @@
 - Reveal hero gradient
 - Allow landing offcanvas to overlay viewport
 - Improve topbar contrast in light theme
+- Override UIkit card backgrounds
 
 ### Refactor
 
