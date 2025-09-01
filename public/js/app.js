@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   document.body.dataset.theme = dark ? 'dark' : 'light';
+  document.body.classList.toggle('dark-mode', dark);
   if (uikitStylesheet) {
     document.body.classList.toggle('uk-light', dark);
   }
@@ -92,6 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
         event.preventDefault();
         dark = document.body.dataset.theme !== 'dark';
         document.body.dataset.theme = dark ? 'dark' : 'light';
+        document.body.classList.toggle('dark-mode', dark);
         if (uikitStylesheet) {
           document.body.classList.toggle('uk-light', dark);
         }
