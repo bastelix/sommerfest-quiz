@@ -4,8 +4,7 @@
   { 'href': '#features', 'label': 'Features' },
   { 'href': '#pricing', 'label': 'Preise' },
   { 'href': '#contact-us', 'label': 'Kontakt' },
-  { 'href': basePath ~ '/faq', 'label': 'FAQ' },
-  { 'href': basePath ~ '/login', 'label': 'Login' }
+  { 'href': basePath ~ '/faq', 'label': 'FAQ' }
 ] %}
 
 {% block title %}QuizRace – Das interaktive Team-Quiz für Events{% endblock %}
@@ -22,32 +21,44 @@
 
 {% block body %}
   <div class="landing-content">
-    {% embed 'topbar.twig' with { nav_class: 'github-header' } %}
-      {% block left %}
-        <a class="uk-logo" href="{{ basePath }}/landing">QuizRace</a>
-        {% endblock %}
-      {% block center %}
-        <ul class="uk-navbar-nav uk-visible@m">
-          {% for link in links %}
-            <li><a href="{{ link.href }}">{{ link.label }}</a></li>
-          {% endfor %}
-        </ul>
-      {% endblock %}
-      {% block right %}
-        <a class="uk-navbar-item uk-button uk-button-primary top-cta" href="https://demo.quizrace.app" target="_blank" rel="noopener">Jetzt testen</a>
-      {% endblock %}
-    {% endembed %}
-
-    <div id="qr-offcanvas" uk-offcanvas="overlay: true">
-      <div class="uk-offcanvas-bar">
-        <button class="uk-offcanvas-close" type="button" uk-close aria-label="Menu"></button>
-        <ul class="uk-nav uk-nav-default">
-          {% for link in links %}
-            <li><a href="{{ link.href }}">{{ link.label }}</a></li>
-          {% endfor %}
-        </ul>
+    <header class="qr-topbar">
+      <nav class="uk-navbar-container" uk-navbar>
+        <div class="uk-navbar-left">
+          <a class="uk-navbar-item uk-logo" href="{{ basePath }}/landing">QuizRace</a>
+        </div>
+        <div class="uk-navbar-right uk-visible@m">
+          <ul class="uk-navbar-nav">
+            {% for link in links %}
+              <li><a href="{{ link.href }}">{{ link.label }}</a></li>
+            {% endfor %}
+          </ul>
+          <a class="uk-navbar-item uk-button uk-button-primary top-cta" href="https://demo.quizrace.app" target="_blank" rel="noopener">Live-Demo</a>
+        </div>
+        <div class="uk-navbar-right uk-hidden@m">
+          <button id="themeToggle" class="uk-button uk-button-default theme-toggle" aria-label="Design umschalten">
+            <span id="themeIcon" aria-hidden="true"></span>
+          </button>
+          <button id="offcanvas-toggle"
+                  class="uk-navbar-toggle"
+                  uk-navbar-toggle-icon
+                  uk-toggle="target: #qr-offcanvas"
+                  aria-controls="qr-offcanvas"
+                  aria-expanded="false"
+                  aria-label="Menü"></button>
+        </div>
+      </nav>
+      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+          <button class="uk-offcanvas-close" type="button" uk-close aria-label="Menü schließen"></button>
+          <ul class="uk-nav uk-nav-default">
+            {% for link in links %}
+              <li><a href="{{ link.href }}">{{ link.label }}</a></li>
+            {% endfor %}
+          </ul>
+          <a class="uk-button uk-button-primary uk-width-1-1 uk-margin-top" href="https://demo.quizrace.app" target="_blank" rel="noopener">Live-Demo</a>
+        </div>
       </div>
-    </div>
+    </header>
 
     {{ content|raw }}
   </div>
