@@ -225,6 +225,11 @@ body.qr-landing .site-footer {
   border-color:color-mix(in oklab, #60a5fa 40%, var(--pill-border));
 }
 
+.scenario-cloud li.uk-active a{
+  border-color:color-mix(in oklab, #60a5fa 40%, var(--pill-border));
+  background:color-mix(in oklab, #60a5fa 15%, var(--pill-bg));
+}
+
 /* Karten/Kacheln auf der Landing (UIKit gezielt überstimmen) */
 .qr-landing .uk-card,
 .qr-landing .qr-card,
