@@ -397,6 +397,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const li = document.createElement('li');
       li.textContent = msg;
       taskLog.appendChild(li);
+      taskLog.scrollTop = taskLog.scrollHeight;
       if (taskLogDetails) {
         taskLogDetails.open = true;
       }

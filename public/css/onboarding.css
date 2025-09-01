@@ -87,6 +87,11 @@ details > summary::-webkit-details-marker {
   padding: 0.5rem 1rem;
 }
 
+#task-log {
+  max-height: calc(1.5rem * 5);
+  overflow-y: auto;
+}
+
 @media (prefers-color-scheme: light) {
   .site-footer {
     background-color: var(--primary-color);
