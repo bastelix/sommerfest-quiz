@@ -992,7 +992,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Erstellt ein Bearbeitungsformular für eine Frage
   function createCard(q, index = -1) {
     const card = document.createElement('div');
-    card.className = 'uk-card uk-card-default uk-card-body uk-margin question-card';
+    card.className = 'uk-card qr-card uk-card-body uk-margin question-card';
     if (index >= 0) {
       card.dataset.index = String(index);
     }
@@ -1265,7 +1265,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Vorschau-Bereich anlegen
     const preview = document.createElement('div');
-    preview.className = 'uk-card uk-card-muted uk-card-body question-preview';
+    preview.className = 'uk-card qr-card uk-card-body question-preview';
 
     const formCol = document.createElement('div');
     formCol.appendChild(typeSelect);
@@ -2556,7 +2556,7 @@ document.addEventListener('DOMContentLoaded', function () {
           // mobile card
           if (tenantCards) {
             const card = document.createElement('div');
-            card.className = 'uk-card uk-card-default uk-card-small uk-margin-small';
+            card.className = 'uk-card qr-card uk-card-small uk-margin-small';
             card.innerHTML = `
               <div class="uk-card-header uk-flex uk-flex-between uk-flex-middle">
                 <div>
@@ -2836,7 +2836,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const wrapper = document.createElement('div');
         wrapper.className = 'uk-width-1-1 uk-width-1-2@s';
         const card = document.createElement('div');
-        card.className = 'export-card uk-card uk-card-default uk-card-body';
+        card.className = 'export-card uk-card qr-card uk-card-body';
         let href = withBase('/?katalog=' + encodeURIComponent(c.slug));
         if (ev.uid) {
           href = withBase('/?event=' + encodeURIComponent(ev.uid) + '&katalog=' + encodeURIComponent(c.slug));
@@ -2884,7 +2884,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const wrapper = document.createElement('div');
         wrapper.className = 'uk-width-1-1 uk-width-1-2@s';
         const card = document.createElement('div');
-        card.className = 'export-card uk-card uk-card-default uk-card-body uk-position-relative';
+        card.className = 'export-card uk-card qr-card uk-card-body uk-position-relative';
         const btn = document.createElement('button');
         btn.className = 'qr-print-btn uk-icon-button uk-position-top-right';
         btn.setAttribute('data-team', t);

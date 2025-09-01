@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderQuestionPreview(q, catMap){
     const card = document.createElement('div');
-    card.className = 'uk-card uk-card-muted uk-card-body question-preview';
+    card.className = 'uk-card qr-card uk-card-body question-preview';
     const title = document.createElement('h5');
     const info = catMap[q.catalog];
     const cat = q.catalogName || (info ? info.name : q.catalog);
@@ -382,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dialog = document.createElement('div');
     dialog.className = 'uk-modal-dialog uk-modal-body';
     const card = document.createElement('div');
-    card.className = 'uk-card uk-card-default uk-card-body uk-padding-small uk-width-1-1';
+    card.className = 'uk-card qr-card uk-card-body uk-padding-small uk-width-1-1';
 
     const p = document.createElement('p');
     p.className = 'uk-text-small';

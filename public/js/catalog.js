@@ -73,7 +73,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
     if(!block){
       block = document.createElement('div');
       block.dataset.role = 'catalog-comment-block';
-      block.className = 'modern-info-card uk-card uk-card-default uk-card-body uk-box-shadow-medium uk-margin';
+      block.className = 'modern-info-card uk-card qr-card uk-card-body uk-box-shadow-medium uk-margin';
       block.style.whiteSpace = 'pre-wrap';
       headerEl.appendChild(block);
     }
@@ -310,7 +310,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
     catalogs.forEach(cat => {
       const cardWrap = document.createElement('div');
       const card = document.createElement('div');
-      card.className = 'uk-card uk-card-default uk-card-body uk-card-hover';
+      card.className = 'uk-card qr-card uk-card-body uk-card-hover';
       card.style.cursor = 'pointer';
       card.addEventListener('click', () => {
         const localSolved = new Set(JSON.parse(sessionStorage.getItem('quizSolved') || '[]'));

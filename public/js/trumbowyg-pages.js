@@ -35,7 +35,7 @@ $.extend(true, $.trumbowyg, {
         trumbowyg.addBtnDef('uikit-card', {
           fn: function () {
             trumbowyg.execCmd('insertHTML',
-              `<div class="uk-card uk-card-default uk-card-body">
+              `<div class="uk-card qr-card uk-card-body">
                 <h3 class="uk-card-title">Karte</h3>
                 <p>Inhalt hier</p>
               </div>`);

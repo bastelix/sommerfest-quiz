@@ -57,7 +57,7 @@ body.qr-landing { background: var(--qr-bg); color: var(--qr-fg); }
 
 /* Karten/Kacheln auf der Landing (UIKit gezielt überstimmen) */
 .qr-landing .uk-card,
-.qr-landing .uk-card-default,
+.qr-landing .qr-card,
 .qr-landing .feature-box {
   background: var(--qr-card-bg) !important;
   color: var(--qr-text) !important;

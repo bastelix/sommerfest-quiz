@@ -1410,7 +1410,7 @@ async function runQuiz(questions, skipIntro){
     modal.setAttribute('aria-modal', 'true');
     modal.innerHTML =
       '<div class="uk-modal-dialog uk-modal-body">' +
-        '<div class="uk-card uk-card-default uk-card-body uk-padding-small uk-width-1-1">' +
+        '<div class="uk-card qr-card uk-card-body uk-padding-small uk-width-1-1">' +
           '<p class="uk-text-small">Hinweis zum Hochladen von Gruppenfotos:<br>' +
             'Ich bestätige, dass alle auf dem Foto abgebildeten Personen vor der Aufnahme darüber informiert wurden, dass das Gruppenfoto zu Dokumentationszwecken erstellt und ggf. veröffentlicht wird. Alle Anwesenden hatten Gelegenheit, der Aufnahme zu widersprechen, indem sie den Aufnahmebereich verlassen oder dies ausdrücklich mitteilen konnten.' +
           '</p>' +
