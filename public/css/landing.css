@@ -32,6 +32,9 @@
   --qr-danger-600:#ff4c4c;
   --qr-muted:#e6eaf3;
   --qr-shadow:0 6px 24px rgba(0,0,0,.35);
+  --color-bg: var(--qr-bg);
+  --color-text: var(--qr-text);
+  --color-primary: var(--qr-landing-primary);
 }
 body.qr-landing:not(.dark-mode){
   --qr-bg:#ffffff;
@@ -51,6 +54,9 @@ body.qr-landing:not(.dark-mode){
   --qr-card-border:var(--qr-border);
   --qr-landing-bg:var(--qr-bg);
   --qr-landing-text:var(--qr-fg);
+  --color-bg: var(--qr-bg);
+  --color-text: var(--qr-text);
+  --color-primary: var(--qr-landing-primary);
 }
 
 body.dark-mode {
@@ -219,7 +225,7 @@ body.dark-mode .qr-landing .qr-topbar{
   text-decoration:none;
 }
 .qr-landing .qr-topbar .uk-navbar-nav>li>a:focus-visible,
-.qr-landing .qr-topbar #themeToggle:focus-visible,
+.qr-landing .qr-topbar #configMenuToggle:focus-visible,
 .qr-landing .qr-topbar .uk-navbar-toggle:focus-visible{
   outline:none;
   box-shadow:0 0 0 3px var(--qr-ring);
@@ -227,14 +233,6 @@ body.dark-mode .qr-landing .qr-topbar{
 }
 .qr-landing .qr-topbar .uk-navbar-toggle{ color:var(--qr-text)!important; }
 .qr-landing .top-cta{
-  border-radius:10px;
-  padding:0 16px;
-  line-height:38px;
-  height:40px;
-  background:var(--qr-bg)!important;
-  color:var(--qr-text)!important;
-  border:1px solid var(--qr-landing-primary);
-  box-shadow:none;
   transition:opacity .2s,transform .2s;
   display:inline-flex;
   align-items:center;
