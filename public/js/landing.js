@@ -75,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const apply = () => {
     document.documentElement.dataset.theme = theme;
+    document.body.classList.toggle('dark-mode', theme === 'dark');
     if (icon) {
       icon.innerHTML = theme === 'dark' ? sunSVG : moonSVG;
     }
