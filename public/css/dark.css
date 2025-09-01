@@ -320,11 +320,15 @@ body .uk-accordion-content {
 body[data-theme="dark"] {
   background-color: #000 !important;
   color: #f5f5f5;
+  --color-bg: #1e1e1e;
+  --color-primary: #0c86d0;
+  --color-text: #f5f5f5;
   --danger-500: #ff6b6b;
   --danger-600: #ff4c4c;
   --qr-card: #1e1e1e;
   --qr-border: rgba(255, 255, 255, 0.1);
   --qr-card-border: var(--qr-border);
+  --qr-bg-soft: #161b22;
 }
 body[data-theme="dark"] a {
   color: var(--accent-color, #9dc6ff);

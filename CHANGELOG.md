@@ -342,6 +342,7 @@
 - Require Stripe pricing table
 - Toggle dark mode class
 - *(editor)* Add section template after hero
+- Enable dark mode by default on landing
 
 ### Fix
 

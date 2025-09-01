@@ -13,8 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const helpBtn = document.getElementById('helpBtn');
 
   const storedTheme = localStorage.getItem('darkMode');
-  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  let dark = storedTheme === 'true' || (storedTheme === null && prefersDark);
+  let dark = storedTheme !== 'false';
 
   if (darkStylesheet) {
     darkStylesheet.toggleAttribute('disabled', !dark);
