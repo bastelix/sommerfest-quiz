@@ -49,6 +49,32 @@
       </div>
     </div>
 
+    <section class="qr-hero uk-section uk-section-large">
+      <div class="qr-hero-bg" aria-hidden="true"></div>
+      <div class="uk-container">
+        <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle" uk-grid>
+          <div>
+            <span class="qr-badge">Made in Germany</span>
+            <h1 class="qr-h1">Das Team-Quiz, das Ihr Event unvergesslich macht.</h1>
+            <p class="qr-sub">Interaktive Quiz-Rallyes für Firmen, Schulen &amp; Teams. In Minuten startklar – live, vor Ort oder hybrid.</p>
+            <div class="uk-margin-medium-top uk-flex uk-flex-left uk-flex-wrap" style="gap:16px;">
+              <a class="uk-button uk-button-primary cta-main" href="{{ basePath }}/onboarding">Event starten</a>
+              <a class="uk-button uk-button-secondary btn btn-black" href="#features">Mehr erfahren</a>
+            </div>
+            <p class="uk-text-small uk-margin-top">Über 1.000 Teams vertrauen QuizRace.</p>
+          </div>
+          <div>
+            <div class="qr-mockup uk-card uk-card-default">
+              <picture>
+                <source srcset="{{ basePath }}/img/quizrace-shot.avif" type="image/avif">
+                <img src="{{ basePath }}/img/quizrace-shot.webp" width="960" height="540" loading="lazy" alt="QuizRace Screenshot">
+              </picture>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     {{ content|raw }}
   </div>
 {% endblock %}
