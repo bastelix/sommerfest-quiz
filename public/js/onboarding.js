@@ -353,6 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     const taskStatus = document.getElementById('task-status');
     const taskLog = document.getElementById('task-log');
+    const taskLogDetails = taskLog ? taskLog.closest('details') : null;
 
     const tasks = [
       { id: 'create', label: 'Mandant anlegen' },
@@ -369,6 +370,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const li = document.createElement('li');
       li.textContent = msg;
       taskLog.appendChild(li);
+      if (taskLogDetails) {
+        taskLogDetails.open = true;
+      }
     };
 
     const start = id => {
