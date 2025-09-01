@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const withBase = p => basePath + p;
   const timelineSteps = document.querySelectorAll('.timeline-step');
   const restartBtn = document.getElementById('restartOnboarding');
+  const hostWhitelist = ['stripe.com'];
   let tenantFinalizing = false;
 
   function isValidEmail(email) {
@@ -45,7 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (window.location.hostname) domains.push(window.location.hostname.toLowerCase());
       if (window.mainDomain) domains.push(window.mainDomain.toLowerCase());
       const host = parsed.hostname.toLowerCase();
-      const domainOk = parsed.protocol === 'https:' && domains.some(d => host === d || host.endsWith('.' + d));
+      const domainMatch = domains.some(d => host === d || host.endsWith('.' + d));
+      const whitelistMatch = hostWhitelist.some(d => host === d || host.endsWith('.' + d));
+      const domainOk = parsed.protocol === 'https:' && (domainMatch || whitelistMatch);
       const pathOk = !allowedPaths.length || allowedPaths.some(p => parsed.pathname.startsWith(p));
       return domainOk && pathOk;
     } catch (e) {
