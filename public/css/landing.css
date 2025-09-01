@@ -267,6 +267,9 @@ body.qr-landing .site-footer {
 .qr-landing .feature-box svg [fill="none"] {
   fill: none;
 }
+.qr-landing .uk-button .uk-icon {
+  color: currentColor;
+}
 
 /* Navbar NUR auf Landing, damit Kontrast stimmt */
 .qr-landing .uk-navbar,
