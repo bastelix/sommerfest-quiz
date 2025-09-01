@@ -328,6 +328,7 @@
 - Add icons to landing page navigation
 - Add collapsible log to onboarding
 - Improve tenant health check and TLS logging
+- Require Stripe pricing table
 
 ### Fix
 
