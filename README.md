@@ -309,6 +309,12 @@ Welches Docker-Image dabei verwendet wird, lässt sich über die Variable `APP_I
 Dieses Tag sollte dem lokal gebauten Slim-Image entsprechen (`docker build -t <tag> .`),
 da das Onboarding-Skript diese Variable nutzt.
 
+Schlägt das Onboarding fehl, hilft ein Blick in das Log:
+
+```bash
+tail -n 50 logs/onboarding.log
+```
+
 Das Skript legt dabei eine Compose-Datei an, die analog zum Hauptcontainer
 einen PHP-Webserver auf Port `8080` startet und `VIRTUAL_PORT=8080` setzt.
 Nur so kann der `acme-companion` die HTTP-Challenge beantworten und das
