@@ -26,6 +26,8 @@ class StripeSessionController
             ? $service->getCheckoutSessionInfo($sessionId)
             : ['paid' => false, 'customer_id' => null, 'client_reference_id' => null];
 
+        $isFetch = strtolower($request->getHeaderLine('X-Requested-With')) === 'fetch';
+
         $sub = $info['client_reference_id'];
         if ($info['paid'] && $info['customer_id'] !== null && $sub !== null) {
             $base = Database::connectFromEnv();
@@ -33,7 +35,15 @@ class StripeSessionController
             $tenantService->updateProfile($sub, ['stripe_customer_id' => $info['customer_id']]);
         }
 
-        $payload = json_encode(['paid' => $info['paid']]);
+        if (!$isFetch) {
+            $url = '/onboarding?session_id=' . rawurlencode($sessionId);
+            return $response->withHeader('Location', $url)->withStatus(302);
+        }
+
+        $payload = json_encode([
+            'paid' => $info['paid'],
+            'client_reference_id' => $info['client_reference_id'],
+        ]);
         $response->getBody()->write($payload !== false ? $payload : '{}');
 
         return $response->withHeader('Content-Type', 'application/json');

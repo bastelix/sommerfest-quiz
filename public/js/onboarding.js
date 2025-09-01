@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const subdomainPreview = document.getElementById('subdomainPreview');
   const subdomainStatus = document.getElementById('subdomainStatus');
   const saveSubdomainBtn = document.getElementById('saveSubdomain');
-  const planButtons = document.querySelectorAll('.plan-select');
   const verifiedHint = document.getElementById('verifiedHint');
   const basePath = window.basePath || '';
   const withBase = p => basePath + p;
@@ -238,79 +237,6 @@ document.addEventListener('DOMContentLoaded', () => {
       showStep(4);
     });
   }
-  if (planButtons.length) {
-    planButtons.forEach(btn => {
-      btn.addEventListener('click', async () => {
-        btn.disabled = true;
-        const spinner = document.createElement('span');
-        spinner.setAttribute('uk-spinner', 'ratio: 0.5');
-        spinner.classList.add('uk-margin-small-left');
-        btn.appendChild(spinner);
-        const reset = () => {
-          btn.disabled = false;
-          spinner.remove();
-        };
-        const plan = btn.dataset.plan;
-        const email = localStorage.getItem('onboard_email') || emailInput.value.trim();
-        const subdomain = localStorage.getItem('onboard_subdomain') || '';
-        if (!plan) {
-          reset();
-          return;
-        }
-        if (!isValidEmail(email)) {
-          alert('Ungültige E-Mail-Adresse.');
-          reset();
-          return;
-        }
-        if (!isValidSubdomain(subdomain)) {
-          alert('Ungültige Subdomain.');
-          reset();
-          return;
-        }
-        localStorage.setItem('onboard_plan', plan);
-        try {
-          const res = await fetch(withBase('/onboarding/checkout'), {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-CSRF-Token': window.csrfToken || '',
-              'X-Requested-With': 'fetch'
-            },
-            body: JSON.stringify({ plan, email, subdomain })
-          });
-          const data = await res.json();
-          if (res.ok && data.url) {
-            if (isAllowed(data.url)) {
-              try {
-                const verify = await fetch(data.url, { method: 'HEAD', redirect: 'manual' });
-                if (verify.ok || verify.type === 'opaque') {
-                  window.location.href = escape(data.url);
-                  return;
-                }
-              } catch (_) {
-                // network error, handled below
-              }
-              const retry = confirm('Die Zahlungsseite konnte nicht geladen werden. Erneut versuchen?');
-              if (retry) {
-                setTimeout(() => btn.click(), 0);
-              }
-              return;
-            }
-            console.error('Blocked redirect to untrusted URL:', data.url);
-            alert('Unzulässige Weiterleitung. Zahlung wurde nicht gestartet.');
-          } else {
-            alert(data.error || 'Fehler beim Start der Zahlung.');
-          }
-        } catch (e) {
-          alert('Fehler beim Start der Zahlung.');
-        } finally {
-          reset();
-        }
-      });
-    });
-  }
-
   if (timelineSteps.length) {
     timelineSteps.forEach(el => {
       if (el.classList.contains('inactive')) {
@@ -353,18 +279,38 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  async function finalizeTenant() {
-    if (tenantFinalizing) { return; }
-    tenantFinalizing = true;
-    const subdomain = localStorage.getItem('onboard_subdomain') || '';
-    const plan = localStorage.getItem('onboard_plan') || '';
-    const email = localStorage.getItem('onboard_email') || '';
-    const imprintName = localStorage.getItem('onboard_imprint_name') || '';
-    const imprintStreet = localStorage.getItem('onboard_imprint_street') || '';
-    const imprintZip = localStorage.getItem('onboard_imprint_zip') || '';
-    const imprintCity = localStorage.getItem('onboard_imprint_city') || '';
-    const imprintEmail = localStorage.getItem('onboard_imprint_email') || '';
-    const useImprint = localStorage.getItem('onboard_use_as_imprint') === '1';
+    async function finalizeTenant() {
+      if (tenantFinalizing) { return; }
+      tenantFinalizing = true;
+      const subdomain = localStorage.getItem('onboard_subdomain') || '';
+      const email = localStorage.getItem('onboard_email') || '';
+      let plan = '';
+      if (sessionId) {
+        try {
+          const res = await fetch(withBase('/onboarding/checkout/' + encodeURIComponent(sessionId)), {
+            credentials: 'same-origin',
+            headers: { 'X-Requested-With': 'fetch' }
+          });
+          if (!res.ok) {
+            throw new Error('checkout');
+          }
+          const data = await res.json();
+          if (!data.paid) {
+            throw new Error('not paid');
+          }
+          plan = data.client_reference_id || '';
+        } catch (e) {
+          alert('Fehler bei der Zahlungsprüfung.');
+          tenantFinalizing = false;
+          return;
+        }
+      }
+      const imprintName = localStorage.getItem('onboard_imprint_name') || '';
+      const imprintStreet = localStorage.getItem('onboard_imprint_street') || '';
+      const imprintZip = localStorage.getItem('onboard_imprint_zip') || '';
+      const imprintCity = localStorage.getItem('onboard_imprint_city') || '';
+      const imprintEmail = localStorage.getItem('onboard_imprint_email') || '';
+      const useImprint = localStorage.getItem('onboard_use_as_imprint') === '1';
     const billingInfo = JSON.stringify({
       name: imprintName,
       street: imprintStreet,
@@ -524,37 +470,24 @@ document.addEventListener('DOMContentLoaded', () => {
       throw new Error('timeout');
     };
 
-    try {
-      if (sessionId) {
-        const res = await fetch(withBase('/onboarding/checkout/' + encodeURIComponent(sessionId)), {
+      try {
+        start('create');
+        const tRes = await fetch(withBase('/tenants'), {
+          method: 'POST',
           credentials: 'same-origin',
-          headers: { 'X-Requested-With': 'fetch' }
-        });
-        if (!res.ok) {
-          throw new Error('checkout');
-        }
-        const data = await res.json();
-        if (!data.paid) {
-          throw new Error('not paid');
-        }
-      }
-      start('create');
-      const tRes = await fetch(withBase('/tenants'), {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': window.csrfToken || '',
-          'X-Requested-With': 'fetch'
-        },
-        body: JSON.stringify({
-          uid: subdomain,
-          schema: subdomain,
-          plan,
-          billing: billingInfo,
-          email: useImprint ? imprintEmail : null,
-          imprint_name: useImprint ? imprintName : null,
-          imprint_street: useImprint ? imprintStreet : null,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': window.csrfToken || '',
+            'X-Requested-With': 'fetch'
+          },
+          body: JSON.stringify({
+            uid: subdomain,
+            schema: subdomain,
+            plan,
+            billing: billingInfo,
+            email: useImprint ? imprintEmail : null,
+            imprint_name: useImprint ? imprintName : null,
+            imprint_street: useImprint ? imprintStreet : null,
           imprint_zip: useImprint ? imprintZip : null,
           imprint_city: useImprint ? imprintCity : null
         })
@@ -651,30 +584,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  if (sessionId) {
-    const subdomain = localStorage.getItem('onboard_subdomain') || '';
-    const plan = localStorage.getItem('onboard_plan') || '';
-    const email = localStorage.getItem('onboard_email') || '';
+    if (sessionId) {
+      const subdomain = localStorage.getItem('onboard_subdomain') || '';
+      const email = localStorage.getItem('onboard_email') || '';
 
-    if (isValidSubdomain(subdomain) && isValidEmail(email) && plan) {
-      const s5 = document.querySelector('.timeline-step[data-step="5"]');
-      if (s5) s5.classList.remove('inactive');
-      const url = new URL(window.location);
-      url.searchParams.set('step', '5');
-      window.history.replaceState({}, '', url);
-      showStep(5);
-      finalizeTenant();
-    } else {
-      const url = new URL(window.location);
-      url.searchParams.delete('session_id');
-      let step = 1;
-      if (isValidEmail(email)) {
-        step = isValidSubdomain(subdomain) ? 3 : 2;
+      if (isValidSubdomain(subdomain) && isValidEmail(email)) {
+        const s5 = document.querySelector('.timeline-step[data-step="5"]');
+        if (s5) s5.classList.remove('inactive');
+        const url = new URL(window.location);
+        url.searchParams.set('step', '5');
+        window.history.replaceState({}, '', url);
+        showStep(5);
+        finalizeTenant();
+      } else {
+        const url = new URL(window.location);
+        url.searchParams.delete('session_id');
+        let step = 1;
+        if (isValidEmail(email)) {
+          step = isValidSubdomain(subdomain) ? 3 : 2;
+        }
+        url.searchParams.set('step', String(step));
+        window.history.replaceState({}, '', url);
+        showStep(step);
       }
-      url.searchParams.set('step', String(step));
-      window.history.replaceState({}, '', url);
-      showStep(step);
     }
-  }
 });
 

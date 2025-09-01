@@ -55,8 +55,8 @@ class StripeCheckoutController
 
         $uri = $request->getUri();
         $base = $uri->getScheme() . '://' . $uri->getHost();
-        $successUrl = $base . '/onboarding?paid=1&session_id={CHECKOUT_SESSION_ID}&step=4';
-        $cancelUrl = $base . '/onboarding?canceled=1&session_id={CHECKOUT_SESSION_ID}';
+        $successUrl = $base . '/onboarding/checkout/{CHECKOUT_SESSION_ID}';
+        $cancelUrl = $base . '/onboarding/checkout/{CHECKOUT_SESSION_ID}';
 
         $service = $request->getAttribute('stripeService');
         if (!$service instanceof StripeService) {
