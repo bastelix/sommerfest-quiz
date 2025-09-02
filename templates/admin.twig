@@ -488,11 +488,11 @@
                   <th scope="col"></th>
                 </tr>
               </thead>
-              <tbody id="teamsList" uk-sortable="handle: .uk-sortable-handle; group: sortable-group"></tbody>
+              <tbody id="teamsList" uk-sortable="handle: .qr-handle; group: sortable-group"></tbody>
             </table>
           </div>
         </div>
-        <ul id="teamsCards" class="uk-hidden@m uk-list"></ul>
+        <ul id="teamsCards" class="uk-hidden@m uk-list" uk-sortable="handle: .qr-handle; group: sortable-group"></ul>
         <div class="uk-margin">
           <button id="teamAddBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_team_add') }}; pos: left"></button>
         </div>
