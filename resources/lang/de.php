@@ -173,8 +173,6 @@ return [
     'action_open_invitations' => 'Einladungen öffnen',
     'action_print_summary' => 'Übersicht Drucken',
     'action_design_qrcodes' => 'QR-Codes gestalten',
-    'action_team_add' => 'Team hinzufügen',
-    'action_team_confirm' => 'Auswahl bestätigen',
     'column_username' => 'Benutzername',
     'column_role' => 'Rolle',
     'column_subdomain' => 'Subdomain',

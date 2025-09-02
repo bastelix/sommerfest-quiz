@@ -493,24 +493,11 @@
           </div>
         </div>
         <ul id="teamsCards" class="uk-hidden@m uk-list" uk-sortable="handle: .qr-handle; group: sortable-group"></ul>
-        <div class="uk-inline">
-          <button class="uk-icon-button uk-button-primary fab" type="button" uk-icon="plus"></button>
-          <div uk-drop="mode: click; pos: top-right; offset: 4">
-            <div class="uk-card uk-card-body uk-card-default uk-card-small">
-              <ul class="uk-nav uk-dropdown-nav">
-                <li>
-                  <button id="teamAddAction" class="uk-button uk-button-text" type="button">
-                    <span uk-icon="plus"></span> {{ t('action_team_add') }}
-                  </button>
-                </li>
-                <li>
-                  <button id="teamConfirmAction" class="uk-button uk-button-text" type="button">
-                    <span uk-icon="check"></span> {{ t('action_team_confirm') }}
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </div>
+        <div class="uk-margin">
+          <button id="teamAddBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_team_add') }}; pos: left"></button>
+        </div>
+        <div class="uk-margin uk-flex uk-flex-right">
+          <button id="teamsSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: {{ t('tip_team_save') }}; pos: left"></button>
         </div>
         <div id="teamEditModal" uk-modal>
           <div class="uk-modal-dialog uk-modal-body">
