@@ -486,6 +486,10 @@ body.dark-mode .qr-landing .qr-badge{
   opacity:.85;
 }
 
+.qr-landing .uk-button-primary{
+  color:#fff!important;
+}
+
 .qr-landing .cta-main.uk-button-primary{
   background:var(--qr-landing-primary)!important;
   color:var(--qr-landing-text)!important;
