@@ -125,6 +125,7 @@
 - Add mobile card rendering with accessibility
 - Polish table layout and theme variables
 - Add table macros and update docs
+- Add table manager utility
 
 ### Fix
 
