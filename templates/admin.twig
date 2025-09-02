@@ -501,7 +501,7 @@
             <p id="summaryEventDesc">{{ event.description }}</p>
           </div>
           <div class="uk-text-center uk-margin-small-bottom">
-            <img id="summaryEventQr" class="qr-img" src="{{ basePath }}/qr/event?t={{ (baseUrl ? baseUrl : '?event=' ~ event.uid)|url_encode }}" alt="QR" width="96" height="96">
+            <img id="summaryEventQr" class="qr-img" src="{{ basePath }}/qr/event?t={{ (baseUrl ? baseUrl ~ '/?event=' ~ event.uid : '?event=' ~ event.uid)|url_encode }}" alt="QR" width="96" height="96">
             <div id="summaryEventLabel" class="qr-label">{{ event.name }}</div>
             <button id="summaryEventDesignBtn" class="uk-icon-button uk-margin-small-top" uk-icon="icon: paint-bucket" aria-label="QR-Design" type="button"></button>
           </div>
