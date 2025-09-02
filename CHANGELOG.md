@@ -127,6 +127,7 @@
 - Override UIkit card backgrounds
 - Remove redundant nullsafe operator
 - Align landing button icon color
+- Preserve player name across catalogs
 
 ### Refactor
 
