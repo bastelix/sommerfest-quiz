@@ -25,6 +25,7 @@ fi
 
 SLUG=$(echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
 TENANT_DIR="$(dirname "$0")/../tenants/$SLUG"
+DATA_DIR="$TENANT_DIR/data"
 COMPOSE_FILE="$TENANT_DIR/docker-compose.yml"
 DOMAIN_SUFFIX="${MAIN_DOMAIN:-$DOMAIN}"
 EMAIL="${LETSENCRYPT_EMAIL:-admin@quizrace.app}"
@@ -89,13 +90,13 @@ if [ "$AVAILABLE_MB" -lt "$MIN_DISK_MB" ]; then
   error_exit "Zu wenig Speicherplatz (nur ${AVAILABLE_MB}MB verfügbar)."
 fi
 
-log "Erstelle Tenant-Verzeichnis"
+log "Erstelle Tenant- und Datenverzeichnis"
 if [ -d "$TENANT_DIR" ]; then
   error_exit "Tenant directory '$TENANT_DIR' already exists"
 fi
 
-if ! mkdir -p "$TENANT_DIR"; then
-  error_exit "Konnte Verzeichnis '$TENANT_DIR' nicht anlegen"
+if ! mkdir -p "$DATA_DIR"; then
+  error_exit "Konnte Verzeichnis '$DATA_DIR' nicht anlegen"
 fi
 
 log "Erstelle docker-compose Datei"
@@ -113,6 +114,8 @@ services:
     command: php -S 0.0.0.0:8080 -t public public/router.php
     expose:
       - "8080"
+    volumes:
+      - ./data:/var/www/data
     networks:
       - ${NETWORK}
     labels:
