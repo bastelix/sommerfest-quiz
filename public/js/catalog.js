@@ -629,14 +629,14 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       sessionStorage.removeItem('quizSolved');
       localStorage.removeItem(playerNameKey);
     }
-    [playerNameKey,'quizCatalog'].forEach(k => {
+    [playerNameKey, 'quizCatalog', 'quizSolved'].forEach(k => {
       const v = localStorage.getItem(k);
       if(v && !sessionStorage.getItem(k)){
         sessionStorage.setItem(k, v);
       }
     });
-    applyConfig();
     updateUserName();
+    applyConfig();
     const catalogs = await loadCatalogList();
     const params = new URLSearchParams(window.location.search);
     const id = params.get('katalog');
