@@ -103,6 +103,7 @@
 - Add use case slider
 - Expand landing FAQ
 - Update contact block copy
+- Greet returning team name
 
 ### Fix
 
