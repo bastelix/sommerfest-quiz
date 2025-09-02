@@ -49,6 +49,7 @@ CREATE TABLE IF NOT EXISTS config (
     qrLabelLine1 TEXT,
     qrLabelLine2 TEXT,
     qrLogoPath TEXT,
+    qrLogoWidth INTEGER,
     qrRoundMode TEXT,
     qrLogoPunchout BOOLEAN,
     qrRounded BOOLEAN,

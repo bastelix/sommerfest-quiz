@@ -146,6 +146,7 @@ class QrControllerTest extends TestCase
                 qrLabelLine1 TEXT,
                 qrLabelLine2 TEXT,
                 qrLogoPath TEXT,
+                qrLogoWidth INTEGER,
                 qrRoundMode TEXT,
                 qrLogoPunchout INTEGER,
                 qrRounded INTEGER,
@@ -223,6 +224,7 @@ class QrControllerTest extends TestCase
                 qrLabelLine1 TEXT,
                 qrLabelLine2 TEXT,
                 qrLogoPath TEXT,
+                qrLogoWidth INTEGER,
                 qrRoundMode TEXT,
                 qrLogoPunchout INTEGER,
                 event_uid TEXT
@@ -273,6 +275,7 @@ class QrControllerTest extends TestCase
                 qrLabelLine1 TEXT,
                 qrLabelLine2 TEXT,
                 qrLogoPath TEXT,
+                qrLogoWidth INTEGER,
                 qrRoundMode TEXT,
                 qrLogoPunchout INTEGER,
                 event_uid TEXT
@@ -332,6 +335,7 @@ class QrControllerTest extends TestCase
                 qrLabelLine1 TEXT,
                 qrLabelLine2 TEXT,
                 qrLogoPath TEXT,
+                qrLogoWidth INTEGER,
                 qrRoundMode TEXT,
                 qrLogoPunchout INTEGER,
                 event_uid TEXT
@@ -399,6 +403,7 @@ class QrControllerTest extends TestCase
                 qrLabelLine1 TEXT,
                 qrLabelLine2 TEXT,
                 qrLogoPath TEXT,
+                qrLogoWidth INTEGER,
                 qrRoundMode TEXT,
                 qrLogoPunchout INTEGER,
                 event_uid TEXT
@@ -517,6 +522,7 @@ class QrControllerTest extends TestCase
                 qrLabelLine1 TEXT,
                 qrLabelLine2 TEXT,
                 qrLogoPath TEXT,
+                qrLogoWidth INTEGER,
                 qrRoundMode TEXT,
                 qrLogoPunchout INTEGER,
                 event_uid TEXT

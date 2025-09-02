@@ -21,6 +21,7 @@
   "qrLabelLine1": "",
   "qrLabelLine2": "",
   "qrLogoPath": "",
+  "qrLogoWidth": 80,
   "qrRoundMode": "margin",
   "qrLogoPunchout": true,
   "qrRounded": true,
