@@ -123,10 +123,11 @@ class QrController
 
         $response->getBody()->write($result->getString());
 
-        $extension = $format === 'svg' ? 'svg' : 'png';
+        $mime = $result->getMimeType();
+        $extension = str_contains($mime, 'svg') ? 'svg' : 'png';
 
         return $response
-            ->withHeader('Content-Type', $result->getMimeType())
+            ->withHeader('Content-Type', $mime)
             ->withHeader('Content-Disposition', 'inline; filename="qr.' . $extension . '"');
     }
 

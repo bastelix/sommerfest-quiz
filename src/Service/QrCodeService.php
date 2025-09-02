@@ -37,7 +37,7 @@ class QrCodeService
      * @param array{fg?:string,bg?:string,logoText?:string} $options
      * @throws Throwable
      */
-    public function generateQrCode(string $data, string $format = 'png', array $options = []): ResultInterface
+    public function generateQrCode(string $data, string $format = 'svg', array $options = []): ResultInterface
     {
         $fgHex = $options['fg'] ?? '2E2E2E';
         $bgHex = $options['bg'] ?? 'F9F9F9';
@@ -59,7 +59,12 @@ class QrCodeService
             }
         }
 
-        $writer = strtolower($format) === 'svg' ? new SvgWriter() : new PngWriter();
+        $format = strtolower($format);
+        if ($format === 'png' && !extension_loaded('gd')) {
+            $format = 'svg';
+        }
+
+        $writer = $format === 'svg' ? new SvgWriter() : new PngWriter();
         $punchout = $logoPath !== null && !($writer instanceof SvgWriter);
 
         try {
