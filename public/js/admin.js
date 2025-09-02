@@ -1875,7 +1875,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamListEl = document.getElementById('teamsList');
   const teamCardsEl = document.getElementById('teamsCards');
   const teamAddBtn = document.getElementById('teamAddBtn');
-  const teamSaveBtn = document.getElementById('teamsSaveBtn');
   const teamRestrictTeams = document.getElementById('teamRestrict');
   const teamEditModal = UIkit.modal('#teamEditModal');
   const teamEditInput = document.getElementById('teamEditInput');
@@ -2137,18 +2136,6 @@ document.addEventListener('DOMContentLoaded', function () {
     teamEditModal.hide();
   });
 
-  teamSaveBtn?.addEventListener('click', e => {
-    e.preventDefault();
-    saveTeamList(true);
-    if (teamRestrictTeams) {
-      cfgInitial.QRRestrict = teamRestrictTeams.checked;
-      apiFetch('/config.json', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(cfgInitial)
-      }).catch(() => {});
-    }
-  });
 
   // --------- Benutzer ---------
   const usersListEl = document.getElementById('usersList');
