@@ -998,6 +998,13 @@ body.admin-page {
   border-radius: 12px;
 }
 
+.qr-rowcard {
+  background: var(--qr-card);
+  border: 1px solid var(--qr-border);
+  border-radius: 12px;
+  padding: 0.5rem;
+}
+
 .section--muted {
   background: var(--qr-bg-soft);
 }
