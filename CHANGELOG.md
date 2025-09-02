@@ -32,7 +32,6 @@
 - Note landing page style overrides
 - Clarify tenant wait probing and HTTPS upgrade
 - Document Docker Compose project name
-- Explain persistent data volume for tenants
 
 ### Feat
 
@@ -122,7 +121,6 @@
 - Update phpstan config for v2
 - Ensure page content respects dynamic topbar height
 - *(events)* Prevent table frame from clipping actions
-- Mount tenant data directory for persistence
 - Respect flex-wrap when sizing nav placeholder
 - Remove empty hamburger menu and align settings toggle
 - Always show topbar icons
