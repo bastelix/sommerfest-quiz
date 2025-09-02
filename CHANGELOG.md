@@ -16,6 +16,7 @@
 - Improve landing page contrast
 - Refine compose project handling
 - *(deps)* Bump symfony/process from 7.3.0 to 7.3.3
+- *(deps)* Bump symfony/mailer from 7.3.2 to 7.3.3
 
 ### Ci
 
