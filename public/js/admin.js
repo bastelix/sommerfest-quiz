@@ -1970,11 +1970,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const delCell = document.createElement('td');
     delCell.setAttribute('role', 'gridcell');
     delCell.className = 'uk-table-shrink uk-text-center';
+    const pdf = document.createElement('button');
+    pdf.className = 'uk-icon-button qr-action';
+    pdf.setAttribute('uk-icon', 'file-text');
+    pdf.setAttribute('aria-label', window.transTeamPdf || 'PDF');
+    pdf.setAttribute('uk-tooltip', 'title: ' + (window.transTeamPdf || 'PDF') + '; pos: left');
+    pdf.onclick = () => openTeamPdf(name);
     const del = document.createElement('button');
     del.className = 'uk-icon-button qr-action';
     del.setAttribute('uk-icon', 'trash');
     del.setAttribute('aria-label', 'Löschen');
     del.onclick = () => removeTeam(id);
+    delCell.appendChild(pdf);
     delCell.appendChild(del);
 
     row.appendChild(handleCell);
@@ -2005,6 +2012,12 @@ document.addEventListener('DOMContentLoaded', function () {
     nameSpan.title = name;
     nameSpan.addEventListener('click', () => openTeamModal(nameSpan));
 
+    const pdf = document.createElement('button');
+    pdf.className = 'uk-icon-button qr-action';
+    pdf.setAttribute('uk-icon', 'file-text');
+    pdf.setAttribute('aria-label', window.transTeamPdf || 'PDF');
+    pdf.setAttribute('uk-tooltip', 'title: ' + (window.transTeamPdf || 'PDF') + '; pos: left');
+    pdf.onclick = () => openTeamPdf(name);
     const del = document.createElement('button');
     del.className = 'uk-icon-button uk-button-danger';
     del.setAttribute('uk-icon', 'trash');
@@ -2013,6 +2026,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     li.appendChild(handleBtn);
     li.appendChild(nameSpan);
+    li.appendChild(pdf);
     li.appendChild(del);
     return li;
   }
@@ -2071,6 +2085,10 @@ document.addEventListener('DOMContentLoaded', function () {
       renderTeamsPage(currentPage);
       saveTeamList();
     }
+  }
+
+  function openTeamPdf(teamName){
+    window.open(withBase('/results.pdf?team=' + encodeURIComponent(teamName)), '_blank');
   }
 
   if (teamListEl && window.UIkit && UIkit.util) {
