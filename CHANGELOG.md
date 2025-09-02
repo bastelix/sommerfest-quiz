@@ -106,6 +106,7 @@
 - Greet returning team name
 - Preserve catalog questions on slug change
 - *(admin)* Edit teams via modal
+- Add qr action button style
 
 ### Fix
 
