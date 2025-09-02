@@ -811,10 +811,6 @@ async function runQuiz(questions, skipIntro){
 
     const container = document.createElement('div');
     container.className = 'swipe-container';
-    container.style.position = 'relative';
-    container.style.height = '250px';
-    container.style.userSelect = 'none';
-    container.style.touchAction = 'none';
     div.appendChild(container);
 
     const controls = document.createElement('div');
