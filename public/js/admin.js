@@ -1920,7 +1920,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function openTeamModal(cell) {
     currentTeamId = cell.dataset.teamId;
-    const name = cell.textContent.trim();
+    const nameEl = cell.querySelector('.uk-text-truncate');
+    const name = nameEl ? nameEl.textContent.trim() : cell.textContent.trim();
     teamEditInput.value = name;
     if (teamEditTitle) {
       teamEditTitle.textContent = name ? `${teamEditTitleBase}: ${name}` : teamEditTitleBase;
