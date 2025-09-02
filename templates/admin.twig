@@ -5,9 +5,6 @@
 
 {% block head %}
   <meta name="csrf-token" content="{{ csrf_token }}">
-  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/ui/trumbowyg.min.css">
   <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/trumbowyg.min.js"></script>
@@ -167,40 +164,21 @@
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_events') }}</h2>
         <p class="uk-hidden">Professionelles Quiz-Hosting</p>
-        <div class="uk-overflow-auto">
-          <table id="eventsTable" class="uk-table uk-table-divider uk-table-small" role="table" aria-label="{{ t('heading_events') }}">
-            <thead class="table-headings">
-              <tr>
-                <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top" tabindex="0"></span></th>
-                <th scope="col">{{ t('column_number') }}</th>
-                <th scope="col">{{ t('column_name') }}</th>
-                <th scope="col">{{ t('column_start') }}</th>
-                <th scope="col">{{ t('column_end') }}</th>
-                <th scope="col">{{ t('column_description') }}</th>
-                <th scope="col">{{ t('column_current') }}</th>
-                <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_event_remove') }}; pos: top" tabindex="0"></span></th>
-              </tr>
-            </thead>
-            <tbody id="eventsList" role="rowgroup"
-              data-label-number="{{ t('column_number') }}"
-              data-label-name="{{ t('column_name') }}"
-              data-label-start="{{ t('column_start') }}"
-              data-label-end="{{ t('column_end') }}"
-              data-label-description="{{ t('column_description') }}"
-              data-label-current="{{ t('column_current') }}"
-              data-tip-select-event="{{ t('tip_select_event') }}"
-              data-label-actions="{{ t('column_actions') }}"
-              uk-sortable="handle: .uk-sortable-handle; group: sortable-group"></tbody>
-          </table>
-        </div>
+        {{
+          qr_table([
+            {'label': '<span uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_sort_rows') ~ '; pos: top" tabindex="0"></span>', 'class': 'uk-table-shrink uk-text-center'},
+            {'label': t('column_number'), 'class': 'uk-table-shrink'},
+            {'label': t('column_name'), 'class': 'uk-table-expand'},
+            {'label': t('column_start')},
+            {'label': t('column_end')},
+            {'label': t('column_description')},
+            {'label': t('column_current'), 'class': 'uk-text-center'},
+            {'label': '<span uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_event_remove') ~ '; pos: top" tabindex="0"></span>', 'class': 'uk-table-shrink uk-text-center'}
+          ], 'eventsList')
+        }}
+        {{ qr_rowcards('eventsCards') }}
         <div class="uk-margin">
-          <button
-            id="eventAddBtn"
-            class="uk-icon-button uk-button-primary fab"
-            uk-icon="plus"
-            uk-tooltip="title: {{ t('tip_event_add') }}; pos: left"
-            aria-label="{{ t('tip_event_add') }}"
-          ></button>
+          <button id="eventAddBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_event_add') }}; pos: left" aria-label="{{ t('tip_event_add') }}"></button>
         </div>
       </div>
     </li>
@@ -392,44 +370,19 @@
     <li class="{{ activeRoute == 'catalogs' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <div>
-          <h2 class="uk-heading-bullet">{{ t('heading_catalogs') }}</h2>
-          <div class="uk-overflow-auto">
-          <table id="catalogTable" class="uk-table uk-table-divider uk-table-small" role="table" aria-label="{{ t('heading_catalogs') }}">
-            <thead class="table-headings">
-              <tr>
-                <th scope="col">
-                  <span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top" tabindex="0"></span>
-                </th>
-                  <th scope="col">{{ t('column_slug') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_slug') }}; pos: top" tabindex="0"></span>
-                  </th>
-                  <th scope="col">{{ t('column_name') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_name') }}; pos: top" tabindex="0"></span>
-                  </th>
-                  <th scope="col">{{ t('column_description') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_desc') }}; pos: top" tabindex="0"></span>
-                  </th>
-                  <th scope="col">{{ t('column_letter') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_puzzle_letter') }}; pos: top" tabindex="0"></span>
-                  </th>
-                  <th scope="col">{{ t('column_comment') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_comment') }}; pos: top" tabindex="0"></span>
-                  </th>
-                  <th scope="col">
-                    <span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_remove') }}; pos: top" tabindex="0"></span>
-                  </th>
-              </tr>
-            </thead>
-            <tbody id="catalogList" role="rowgroup"
-              data-label-slug="{{ t('column_slug') }}"
-              data-label-name="{{ t('column_name') }}"
-              data-label-description="{{ t('column_description') }}"
-              data-label-letter="{{ t('column_letter') }}"
-              data-label-comment="{{ t('column_comment') }}"
-              data-label-actions="{{ t('column_actions') }}"
-              uk-sortable="handle: .uk-sortable-handle; group: sortable-group"></tbody>
-          </table>
-        </div>
+        <h2 class="uk-heading-bullet">{{ t('heading_catalogs') }}</h2>
+        {{
+          qr_table([
+            {'label': '<span uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_sort_rows') ~ '; pos: top" tabindex="0"></span>', 'class': 'uk-table-shrink uk-text-center'},
+            {'label': t('column_slug') ~ ' <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_slug') ~ '; pos: top" tabindex="0"></span>', 'class': 'uk-table-shrink'},
+            {'label': t('column_name') ~ ' <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_name') ~ '; pos: top" tabindex="0"></span>', 'class': 'uk-table-expand'},
+            {'label': t('column_description') ~ ' <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_desc') ~ '; pos: top" tabindex="0"></span>'},
+            {'label': t('column_letter') ~ ' <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_puzzle_letter') ~ '; pos: top" tabindex="0"></span>'},
+            {'label': t('column_comment') ~ ' <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_comment') ~ '; pos: top" tabindex="0"></span>'},
+            {'label': '<span uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_remove') ~ '; pos: top" tabindex="0"></span>', 'class': 'uk-table-shrink uk-text-center'}
+          ], 'catalogList')
+        }}
+        {{ qr_rowcards('catalogCards') }}
         <div class="uk-margin">
           <button id="newCatBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_cat_add') }}; pos: left" aria-label="{{ t('tip_cat_add') }}"></button>
         </div>
