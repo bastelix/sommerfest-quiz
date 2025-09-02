@@ -142,8 +142,18 @@ body.uk-padding {
 }
 
 /* Stripe-ähnliche Lesbarkeit für Tenant-Tabelle */
+.qr-table-wrap {
+  max-height: 60vh;
+}
 .qr-table thead th {
   font-weight: 600;
+  position: sticky;
+  top: 0;
+  background: var(--qr-card);
+  z-index: 1;
+}
+.qr-table td {
+  padding: 0.6rem;
 }
 .qr-mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
