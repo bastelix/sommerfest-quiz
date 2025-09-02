@@ -1877,6 +1877,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // --------- Teams/Personen ---------
   const teamListEl = document.getElementById('teamsList');
+  const teamCardsEl = document.getElementById('teamsCards');
   const teamAddBtn = document.getElementById('teamAddBtn');
   const teamSaveBtn = document.getElementById('teamsSaveBtn');
   const teamRestrictTeams = document.getElementById('teamRestrict');
@@ -1885,7 +1886,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamEditSave = document.getElementById('teamEditSave');
   const teamEditCancel = document.getElementById('teamEditCancel');
   const teamEditError = document.getElementById('teamEditError');
-  let currentTeamCell = null;
+  let currentTeamId = null;
 
   function collectTeams() {
     return Array.from(teamListEl.querySelectorAll('.team-row .team-name'))
@@ -1911,15 +1912,16 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function openTeamModal(cell) {
-    currentTeamCell = cell;
+    currentTeamId = cell.dataset.teamId;
     teamEditInput.value = cell.textContent.trim();
     teamEditError.hidden = true;
     teamEditModal.show();
   }
 
-  function createTeamRow(name = ''){
+  function createTeamRow(name = '', id = crypto.randomUUID()){
     const row = document.createElement('tr');
     row.className = 'team-row';
+    row.dataset.teamId = id;
 
     const handleCell = document.createElement('td');
     const handleSpan = document.createElement('span');
@@ -1929,6 +1931,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const nameCell = document.createElement('td');
     nameCell.className = 'team-name';
+    nameCell.dataset.teamId = id;
     nameCell.tabIndex = 0;
     const span = document.createElement('span');
     span.className = 'uk-text-truncate';
@@ -1942,7 +1945,11 @@ document.addEventListener('DOMContentLoaded', function () {
     del.className = 'uk-icon-button uk-button-danger';
     del.setAttribute('uk-icon', 'trash');
     del.setAttribute('aria-label', 'Löschen');
-    del.onclick = () => { row.remove(); saveTeamList(); };
+    del.onclick = () => {
+      document.querySelector('li[data-team-id="' + id + '"]')?.remove();
+      row.remove();
+      saveTeamList();
+    };
     delCell.appendChild(del);
 
     row.appendChild(handleCell);
@@ -1951,13 +1958,57 @@ document.addEventListener('DOMContentLoaded', function () {
     return row;
   }
 
+  function createTeamCard(name = '', id){
+    const li = document.createElement('li');
+    li.className = 'qr-rowcard uk-flex uk-flex-middle uk-flex-between';
+    li.dataset.teamId = id;
+
+    const handleSpan = document.createElement('span');
+    handleSpan.className = 'uk-sortable-handle uk-icon';
+    handleSpan.setAttribute('uk-icon', 'icon: table');
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'team-name uk-flex-1';
+    nameSpan.dataset.teamId = id;
+    nameSpan.tabIndex = 0;
+    const inner = document.createElement('span');
+    inner.className = 'uk-text-truncate';
+    inner.textContent = name;
+    nameSpan.appendChild(inner);
+    nameSpan.title = name;
+    nameSpan.addEventListener('click', () => openTeamModal(nameSpan));
+
+    const del = document.createElement('button');
+    del.className = 'uk-icon-button uk-button-danger';
+    del.setAttribute('uk-icon', 'trash');
+    del.setAttribute('aria-label', 'Löschen');
+    del.onclick = () => {
+      document.querySelector('tr[data-team-id="' + id + '"]')?.remove();
+      li.remove();
+      saveTeamList();
+    };
+
+    li.appendChild(handleSpan);
+    li.appendChild(nameSpan);
+    li.appendChild(del);
+    return li;
+  }
+
   function renderTeams(list){
     teamListEl.innerHTML = '';
-    list.forEach(n => teamListEl.appendChild(createTeamRow(n)));
+    if (teamCardsEl) teamCardsEl.innerHTML = '';
+    list.forEach(n => {
+      const id = crypto.randomUUID();
+      teamListEl.appendChild(createTeamRow(n, id));
+      if (teamCardsEl) teamCardsEl.appendChild(createTeamCard(n, id));
+    });
   }
 
   if (teamListEl && window.UIkit && UIkit.util) {
     UIkit.util.on(teamListEl, 'moved', () => saveTeamList());
+  }
+  if (teamCardsEl && window.UIkit && UIkit.util) {
+    UIkit.util.on(teamCardsEl, 'moved', () => saveTeamList());
   }
 
   if(teamListEl){
@@ -1972,8 +2023,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   teamAddBtn?.addEventListener('click', e => {
     e.preventDefault();
-    const row = createTeamRow('');
+    const id = crypto.randomUUID();
+    const row = createTeamRow('', id);
     teamListEl.appendChild(row);
+    if (teamCardsEl) teamCardsEl.appendChild(createTeamCard('', id));
     openTeamModal(row.querySelector('.team-name'));
   });
 
@@ -1984,8 +2037,10 @@ document.addEventListener('DOMContentLoaded', function () {
       teamEditError.hidden = false;
       return;
     }
-    currentTeamCell.querySelector('.uk-text-truncate').textContent = val;
-    currentTeamCell.title = val;
+    document.querySelectorAll('.team-name[data-team-id="' + currentTeamId + '"]').forEach(cell => {
+      cell.querySelector('.uk-text-truncate').textContent = val;
+      cell.title = val;
+    });
     saveTeamList();
     teamEditModal.hide();
   });
