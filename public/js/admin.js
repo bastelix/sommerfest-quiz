@@ -1878,8 +1878,8 @@ document.addEventListener('DOMContentLoaded', function () {
   // --------- Teams/Personen ---------
   const teamListEl = document.getElementById('teamsList');
   const teamCardsEl = document.getElementById('teamsCards');
-  const teamAddBtn = document.getElementById('teamAddBtn');
-  const teamSaveBtn = document.getElementById('teamsSaveBtn');
+  const teamAddAction = document.getElementById('teamAddAction');
+  const teamConfirmAction = document.getElementById('teamConfirmAction');
   const teamRestrictTeams = document.getElementById('teamRestrict');
   const teamEditModal = UIkit.modal('#teamEditModal');
   const teamEditInput = document.getElementById('teamEditInput');
@@ -2025,7 +2025,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  teamAddBtn?.addEventListener('click', e => {
+  teamAddAction?.addEventListener('click', e => {
     e.preventDefault();
     const id = crypto.randomUUID();
     const row = createTeamRow('', id);
@@ -2054,7 +2054,7 @@ document.addEventListener('DOMContentLoaded', function () {
     teamEditModal.hide();
   });
 
-  teamSaveBtn?.addEventListener('click', e => {
+  teamConfirmAction?.addEventListener('click', e => {
     e.preventDefault();
     saveTeamList(true);
     if (teamRestrictTeams) {
