@@ -20,6 +20,7 @@
 - *(deps)* Bump stripe/stripe-php from 17.5.0 to 17.6.0
 - *(deps)* Bump slim/slim from 4.14.0 to 4.15.0
 - *(deps)* Bump guzzlehttp/guzzle from 7.9.3 to 7.10.0
+- Normalize invite setup indentation
 - Restore config backup
 
 ### Ci
