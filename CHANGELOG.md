@@ -168,6 +168,7 @@
 - Add theme-aware icon color
 - Derive base url from request
 - Add qr color variables
+- Extract table styles and theme variables
 
 ### Style
 
