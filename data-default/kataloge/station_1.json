@@ -23,5 +23,16 @@
     "type": "flip",
     "prompt": "Wie viele Bits ergeben ein Byte?",
     "answer": "8"
+  },
+  {
+    "type": "swipe",
+    "prompt": "Wische nach rechts für 'Richtig' und nach links für 'Falsch'",
+    "rightLabel": "Richtig",
+    "leftLabel": "Falsch",
+    "cards": [
+      { "text": "Ein Byte besteht aus 8 Bits.", "correct": true },
+      { "text": "SSD steht für Super Speed Drive.", "correct": false },
+      { "text": "RAM ist ein flüchtiger Speicher.", "correct": true }
+    ]
   }
 ]
