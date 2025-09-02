@@ -98,8 +98,8 @@ class ResultController
         $data = json_decode((string) $request->getBody(), true);
         $result = ['success' => false];
         if (is_array($data)) {
+            $name = (string)($data['name'] ?? '');
             if (isset($data['puzzleTime'])) {
-                $name = (string)($data['name'] ?? '');
                 $catalog = (string)($data['catalog'] ?? '');
                 $time = (int)$data['puzzleTime'];
                 $answer = (string)($data['puzzleAnswer'] ?? '');
@@ -130,6 +130,9 @@ class ResultController
             } else {
                 $this->service->add($data);
                 $result['success'] = true;
+            }
+            if ($name !== '' && $result['success']) {
+                $this->teams->addIfMissing($name);
             }
         }
         $response->getBody()->write(json_encode($result));
