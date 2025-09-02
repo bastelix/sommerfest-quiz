@@ -13,6 +13,6 @@
 </div>
 {% endmacro %}
 
-{% macro qr_rowcards(list_id) %}
-<ul class="uk-hidden@m uk-list" id="{{ list_id }}"></ul>
+{% macro qr_rowcards(list_id, sortable=true) %}
+<ul class="uk-hidden@m uk-list" id="{{ list_id }}"{% if sortable %} uk-sortable="handle: .qr-handle; group: sortable-group"{% endif %}></ul>
 {% endmacro %}
