@@ -220,6 +220,35 @@ class CatalogServiceTest extends TestCase
         $this->assertCount(2, $remaining);
     }
 
+    public function testSlugChangeDoesNotDeleteQuestions(): void
+    {
+        $pdo = $this->createPdo();
+        $cfg = new ConfigService($pdo);
+        $service = new CatalogService($pdo, $cfg);
+        $service->write('catalogs.json', [[
+            'uid' => 'uid8',
+            'sort_order' => 1,
+            'slug' => 'old',
+            'file' => 'old.json',
+            'name' => 'Old',
+            'comment' => '',
+        ]]);
+        $questions = [['type' => 'text', 'prompt' => 'Q1']];
+        $service->write('old.json', $questions);
+
+        $service->write('catalogs.json', [[
+            'uid' => 'uid8',
+            'sort_order' => 1,
+            'slug' => 'new',
+            'file' => 'old.json',
+            'name' => 'New',
+            'comment' => '',
+        ]]);
+
+        $stmt = $pdo->query("SELECT COUNT(*) FROM questions WHERE catalog_uid='uid8'");
+        $this->assertSame(1, (int) $stmt->fetchColumn());
+    }
+
     public function testReorderCatalogs(): void
     {
         $pdo = $this->createPdo();

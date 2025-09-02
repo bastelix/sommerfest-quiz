@@ -290,27 +290,60 @@ class CatalogService
             }
             $uid = $this->config->getActiveEventUid();
             $this->pdo->beginTransaction();
-            if ($uid !== '') {
-                $del = $this->pdo->prepare('DELETE FROM catalogs WHERE event_uid=?');
-                $del->execute([$uid]);
-            } else {
-                $this->pdo->exec('DELETE FROM catalogs');
-            }
-            $fields = 'uid,sort_order,slug,file,name,description,raetsel_buchstabe,event_uid';
-            $placeholders = '?,?,?,?,?,?,?,?';
+
+            $fields = ['uid', 'sort_order', 'slug', 'file', 'name', 'description', 'raetsel_buchstabe', 'event_uid'];
+            $placeholders = array_fill(0, count($fields), '?');
+            $updates = [
+                'sort_order=excluded.sort_order',
+                'slug=excluded.slug',
+                'file=excluded.file',
+                'name=excluded.name',
+                'description=excluded.description',
+                'raetsel_buchstabe=excluded.raetsel_buchstabe',
+                'event_uid=excluded.event_uid',
+            ];
             if ($this->hasCommentColumn()) {
-                $fields .= ',comment';
-                $placeholders .= ',?';
+                $fields[] = 'comment';
+                $placeholders[] = '?';
+                $updates[] = 'comment=excluded.comment';
             }
             if ($this->hasDesignColumn()) {
-                $fields .= ',design_path';
-                $placeholders .= ',?';
+                $fields[] = 'design_path';
+                $placeholders[] = '?';
+                $updates[] = 'design_path=excluded.design_path';
             }
-            $insertSql = "INSERT INTO catalogs($fields) VALUES($placeholders)";
-            $ins = $this->pdo->prepare($insertSql);
+
+            $insertSql = sprintf(
+                'INSERT INTO catalogs(%s) VALUES(%s) ON CONFLICT(uid) DO UPDATE SET %s',
+                implode(',', $fields),
+                implode(',', $placeholders),
+                implode(',', $updates)
+            );
+            $uids = [];
+            $prepared = [];
             foreach ($data as $cat) {
+                $catUid = $cat['uid'] ?? bin2hex(random_bytes(16));
+                $cat['uid'] = $catUid;
+                $prepared[] = $cat;
+                $uids[] = $catUid;
+            }
+
+            if ($uids !== []) {
+                foreach ($uids as $i => $u) {
+                    if ($uid !== '') {
+                        $clr = $this->pdo->prepare('UPDATE catalogs SET sort_order=? WHERE uid=? AND event_uid=?');
+                        $clr->execute([-$i - 1, $u, $uid]);
+                    } else {
+                        $clr = $this->pdo->prepare('UPDATE catalogs SET sort_order=? WHERE uid=?');
+                        $clr->execute([-$i - 1, $u]);
+                    }
+                }
+            }
+
+            $ins = $this->pdo->prepare($insertSql);
+            foreach ($prepared as $cat) {
                 $row = [
-                    $cat['uid'] ?? bin2hex(random_bytes(16)),
+                    $cat['uid'],
                     isset($cat['sort_order'])
                         ? (int) $cat['sort_order']
                         : (isset($cat['id']) ? (int) $cat['id'] : 0),
@@ -329,6 +362,23 @@ class CatalogService
                 }
                 $ins->execute($row);
             }
+
+            if ($uids !== []) {
+                $in = implode(',', array_fill(0, count($uids), '?'));
+                if ($uid !== '') {
+                    $del = $this->pdo->prepare("DELETE FROM catalogs WHERE uid NOT IN ($in) AND event_uid=?");
+                    $del->execute(array_merge($uids, [$uid]));
+                } else {
+                    $del = $this->pdo->prepare("DELETE FROM catalogs WHERE uid NOT IN ($in)");
+                    $del->execute($uids);
+                }
+            } elseif ($uid !== '') {
+                $del = $this->pdo->prepare('DELETE FROM catalogs WHERE event_uid=?');
+                $del->execute([$uid]);
+            } else {
+                $this->pdo->exec('DELETE FROM catalogs');
+            }
+
             $this->pdo->commit();
             return;
         }
