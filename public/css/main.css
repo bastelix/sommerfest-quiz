@@ -203,17 +203,13 @@ body.uk-padding {
   line-height: 44px;
 }
 .qr-cell {
-  background-color: var(--qr-row);
-  outline: 2px solid transparent;
-  border-radius: 8px;
-  transition: background-color 0.2s;
+  position: relative;
+  cursor: pointer;
+  transition: background-color .2s, box-shadow .2s;
+  border-radius: 4px;
 }
-.qr-table tbody tr:nth-child(even) .qr-cell {
-  background-color: var(--qr-row-alt);
-}
-.qr-cell:hover {
-  background-color: var(--qr-bg-soft);
-}
+
+.qr-cell:hover,
 .qr-cell:focus-within {
   background-color: var(--qr-bg-soft);
   outline: 2px solid var(--accent-color);
