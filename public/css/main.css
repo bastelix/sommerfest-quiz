@@ -143,6 +143,7 @@ body.uk-padding {
   align-items: center;
   justify-content: center;
   padding: 0;
+  margin: 0;
   background: transparent;
   border: none;
   cursor: grab;
@@ -197,8 +198,8 @@ body.uk-padding {
   z-index: 1;
 }
 .qr-table td {
-  padding: 0.6rem;
-  vertical-align: middle;
+  padding: 0 0.6rem;
+  height: 44px;
   line-height: 44px;
 }
 .qr-cell {
@@ -216,6 +217,7 @@ body.uk-padding {
 .qr-cell:focus-within {
   background-color: var(--qr-bg-soft);
   outline: 2px solid var(--accent-color);
+  outline-offset: -2px;
 }
 .qr-editable-icon {
   margin-left: 4px;
@@ -1117,6 +1119,7 @@ body.admin-page {
   border-radius: 8px;
   background-color: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(4px);
+  margin: 0;
 }
 
 .qr-action:focus {
