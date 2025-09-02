@@ -1973,8 +1973,11 @@ document.addEventListener('DOMContentLoaded', function () {
     del.setAttribute('uk-icon', 'trash');
     del.setAttribute('aria-label', 'Löschen');
     del.onclick = () => removeTeam(id);
-    delCell.appendChild(pdf);
-    delCell.appendChild(del);
+    const actions = document.createElement('div');
+    actions.className = 'uk-button-group';
+    actions.appendChild(pdf);
+    actions.appendChild(del);
+    delCell.appendChild(actions);
 
     row.appendChild(handleCell);
     row.appendChild(nameCell);
@@ -2015,11 +2018,14 @@ document.addEventListener('DOMContentLoaded', function () {
     del.setAttribute('uk-icon', 'trash');
     del.setAttribute('aria-label', 'Löschen');
     del.onclick = () => removeTeam(id);
+    const actions = document.createElement('div');
+    actions.className = 'uk-button-group';
+    actions.appendChild(pdf);
+    actions.appendChild(del);
 
     li.appendChild(handleBtn);
     li.appendChild(nameSpan);
-    li.appendChild(pdf);
-    li.appendChild(del);
+    li.appendChild(actions);
     return li;
   }
 
