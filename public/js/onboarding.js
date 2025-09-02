@@ -499,16 +499,30 @@ document.addEventListener('DOMContentLoaded', async () => {
             headers: { Accept: 'application/json' },
             credentials: 'omit'
           });
+          const ct = res.headers.get('Content-Type') || '';
           if (res.ok) {
-            const ct = res.headers.get('Content-Type') || '';
             if (ct.includes('application/json')) {
               const data = await res.json();
+              if (data.error) throw new Error(data.error);
               if (data.status === 'ok') return;
             }
+          } else {
+            let msg = 'Tenant nicht verfügbar';
+            try {
+              if (ct.includes('application/json')) {
+                const data = await res.json();
+                msg = data.error || msg;
+              } else {
+                msg = await res.text();
+              }
+            } catch (_) {}
+            throw new Error(msg);
           }
         } catch (e) {
           if (e instanceof Error && /certificate|tls|ssl/i.test(e.message)) {
             addLog('HTTPS-Zertifikat noch nicht verfügbar');
+          } else {
+            throw e;
           }
         }
         addLog('Warten auf Tenant …');
@@ -535,53 +549,57 @@ document.addEventListener('DOMContentLoaded', async () => {
             email: useImprint ? imprintEmail : null,
             imprint_name: useImprint ? imprintName : null,
             imprint_street: useImprint ? imprintStreet : null,
-          imprint_zip: useImprint ? imprintZip : null,
-          imprint_city: useImprint ? imprintCity : null
-        })
-      });
-
-      if (!tRes.ok) {
-        mark('create', false);
-        let msg = '';
-        switch (tRes.status) {
-          case 400:
-            msg = 'Ungültige oder unvollständige Daten.';
-            break;
-          case 403:
-            msg = 'Zugriff verweigert – Domäne oder Service-Login prüfen.';
-            break;
-          case 409:
-            msg = 'Mandant existiert bereits.';
-            break;
-          default:
-            try {
-              const ct = tRes.headers.get('Content-Type');
-              if (ct && ct.includes('application/json')) {
-                const data = await tRes.json();
-                msg = data.error || '';
-              } else {
-                msg = await tRes.text();
-              }
-            } catch (_) {
-              // ignore
+            imprint_zip: useImprint ? imprintZip : null,
+            imprint_city: useImprint ? imprintCity : null
+          })
+        });
+        const ct = tRes.headers.get('Content-Type');
+        let tData;
+        let tText = '';
+        try {
+          if (ct && ct.includes('application/json')) {
+            tData = await tRes.json();
+          } else {
+            tText = await tRes.text();
+          }
+        } catch (_) {}
+        if (!tRes.ok || !tData || tData.queued !== true) {
+          mark('create', false);
+          let msg = '';
+          if (!tRes.ok) {
+            switch (tRes.status) {
+              case 400:
+                msg = 'Ungültige oder unvollständige Daten.';
+                break;
+              case 403:
+                msg = 'Zugriff verweigert – Domäne oder Service-Login prüfen.';
+                break;
+              case 409:
+                msg = 'Mandant existiert bereits.';
+                break;
+              default:
+                msg = (tData && tData.error) || tText || 'Mandant anlegen fehlgeschlagen';
             }
-            if (!msg) {
-              msg = 'Mandant anlegen fehlgeschlagen';
-            }
+          } else {
+            msg = (tData && tData.error) || 'Mandant anlegen fehlgeschlagen';
+          }
+          throw new Error(msg);
         }
-        throw new Error(msg);
-      }
-      mark('create', true);
-      start('import');
-      const onboarded = await onboardTenant(subdomain);
-      if (!onboarded) {
-        mark('import', false);
-        throw new Error('Onboarding konnte nicht gestartet werden.');
-      }
-      mark('import', true);
-      start('proxy');
-      await wait(0);
-      mark('proxy', true);
+        mark('create', true);
+        start('import');
+        try {
+          const onboarded = await onboardTenant(subdomain);
+          if (!onboarded) {
+            throw new Error('Onboarding konnte nicht gestartet werden.');
+          }
+          mark('import', true);
+        } catch (e) {
+          mark('import', false);
+          throw e;
+        }
+        start('proxy');
+        await wait(0);
+        mark('proxy', true);
       start('ssl');
       await wait(0);
       mark('ssl', true);
