@@ -83,6 +83,10 @@ body.uk-padding {
   text-decoration: none;
 }
 
+.qr-section-title {
+  letter-spacing: .03em;
+}
+
 .sortable-list li,
 .terms li,
 .dropzone,
@@ -163,6 +167,7 @@ body.uk-padding {
 }
 .qr-table thead th {
   font-weight: 600;
+  letter-spacing: .04em;
   position: sticky;
   top: 0;
   background: var(--qr-card);
