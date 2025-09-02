@@ -26,6 +26,7 @@
 ### Ci
 
 - Rebase changelog updates before push
+- Add GitHub Pages workflow
 
 ### Docs
 
