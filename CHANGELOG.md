@@ -34,6 +34,7 @@
 - Note landing page style overrides
 - Clarify tenant wait probing and HTTPS upgrade
 - Document Docker Compose project name
+- Dokumentation des table frameworks
 
 ### Feat
 
