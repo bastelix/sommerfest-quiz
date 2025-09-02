@@ -105,6 +105,7 @@
 - Update contact block copy
 - Greet returning team name
 - Preserve catalog questions on slug change
+- *(admin)* Edit teams via modal
 
 ### Fix
 
