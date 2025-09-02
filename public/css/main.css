@@ -202,29 +202,16 @@ body.uk-padding {
   line-height: 44px;
 }
 .qr-cell {
-  background-color: var(--qr-row);
-  outline: 2px solid transparent;
-  border-radius: 8px;
-  transition: background-color 0.2s;
+  position: relative;
+  cursor: pointer;
+  transition: background-color .2s, box-shadow .2s;
+  border-radius: 4px;
 }
-.qr-table tbody tr:nth-child(even) .qr-cell {
-  background-color: var(--qr-row-alt);
-}
-.qr-cell:hover {
-  background-color: var(--qr-bg-soft);
-}
+
+.qr-cell:hover,
 .qr-cell:focus-within {
-  background-color: var(--qr-bg-soft);
-  outline: 2px solid var(--accent-color);
-}
-.qr-editable-icon {
-  margin-left: 4px;
-  color: var(--color-text);
-  opacity: 0.4;
-  transition: opacity 0.2s;
-}
-.qr-cell:hover .qr-editable-icon {
-  opacity: 1;
+  background-color: rgba(0,0,0,.03);
+  box-shadow: inset 0 0 0 2px rgba(47,129,247,.6);
 }
 .qr-mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;

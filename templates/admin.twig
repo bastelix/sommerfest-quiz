@@ -559,7 +559,6 @@
         <div class="uk-margin" uk-grid>
           <div class="uk-width-1-1 uk-width-auto@m">
             <button id="inviteTextBtn" class="uk-button uk-button-default uk-margin-small-bottom uk-margin-right@m" type="button" uk-toggle="target: #inviteTextModal">
-              <span id="inviteTextIcon" uk-icon="icon: pencil"></span>
               <span id="inviteTextLabel">{{ t('action_invite_text') }}</span>
             </button>
           </div>
@@ -667,13 +666,13 @@
           <tbody id="resultsTableBody" uk-lightbox="nav: thumbnav; slidenav: false">
             {% for r in results %}
             <tr>
-              <td>{{ r.name }}</td>
-              <td>{{ r.attempt }}</td>
-              <td>{{ r.catalogName ?? r.catalog }}</td>
-              <td>{{ r.correct }}/{{ r.total }}</td>
-              <td>{{ r.time | date('Y-m-d H:i') }}</td>
-              <td>{% if r.puzzleTime is defined %}{{ r.puzzleTime | date('Y-m-d H:i') }}{% endif %}</td>
-              <td>
+              <td class="qr-cell">{{ r.name }}</td>
+              <td class="qr-cell">{{ r.attempt }}</td>
+              <td class="qr-cell">{{ r.catalogName ?? r.catalog }}</td>
+              <td class="qr-cell">{{ r.correct }}/{{ r.total }}</td>
+              <td class="qr-cell">{{ r.time | date('Y-m-d H:i') }}</td>
+              <td class="qr-cell">{% if r.puzzleTime is defined %}{{ r.puzzleTime | date('Y-m-d H:i') }}{% endif %}</td>
+              <td class="qr-cell">
                 {% if r.photo is defined and r.photo %}
                 <span class="photo-wrapper">
                   <a class="uk-inline rotate-link" href="{{ basePath ~ r.photo }}" data-caption='<button class="uk-icon-button lightbox-rotate-btn" type="button" uk-icon="history" data-path="{{ basePath ~ r.photo }}" aria-label="Drehen"></button>' data-attrs="class: uk-inverse-light">

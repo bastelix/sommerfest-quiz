@@ -324,17 +324,14 @@ document.addEventListener('DOMContentLoaded', function () {
     UIkit.icon(puzzleIcon, { icon: puzzleIcon.getAttribute('uk-icon').split(': ')[1] });
   }
 
-  function updateInviteTextUI() {
-    if (!inviteIcon || !inviteLabel) return;
-    if (inviteText.trim().length > 0) {
-      inviteIcon.setAttribute('uk-icon', 'icon: check');
-      inviteLabel.textContent = 'Einladungstext bearbeiten';
-    } else {
-      inviteIcon.setAttribute('uk-icon', 'icon: pencil');
-      inviteLabel.textContent = 'Einladungstext eingeben';
+    function updateInviteTextUI() {
+      if (!inviteLabel) return;
+      if (inviteText.trim().length > 0) {
+        inviteLabel.textContent = 'Einladungstext bearbeiten';
+      } else {
+        inviteLabel.textContent = 'Einladungstext eingeben';
+      }
     }
-    UIkit.icon(inviteIcon, { icon: inviteIcon.getAttribute('uk-icon').split(': ')[1] });
-  }
   // --------- Konfiguration bearbeiten ---------
   // Ausgangswerte aus der bestehenden Konfiguration
   const cfgInitial = window.quizConfig || {};
@@ -365,7 +362,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const puzzleSaveBtn = document.getElementById('puzzleFeedbackSave');
   const puzzleModal = UIkit.modal('#puzzleFeedbackModal');
   const inviteTextBtn = document.getElementById('inviteTextBtn');
-  const inviteIcon = document.getElementById('inviteTextIcon');
   const inviteLabel = document.getElementById('inviteTextLabel');
   const inviteTextarea = document.getElementById('inviteTextTextarea');
   const inviteSaveBtn = document.getElementById('inviteTextSave');
@@ -1954,10 +1950,6 @@ document.addEventListener('DOMContentLoaded', function () {
     span.className = 'uk-text-truncate';
     span.textContent = name;
     nameCell.appendChild(span);
-    const editIcon = document.createElement('span');
-    editIcon.className = 'qr-editable-icon';
-    editIcon.setAttribute('uk-icon', 'pencil');
-    nameCell.appendChild(editIcon);
     const desc = document.createElement('span');
     desc.id = 'team-edit-desc-' + id;
     desc.className = 'uk-hidden-visually';
