@@ -1307,7 +1307,6 @@ async function runQuiz(questions, skipIntro){
         restart.addEventListener('click', () => {
           sessionStorage.removeItem(playerNameKey);
           sessionStorage.removeItem('quizSolved');
-          localStorage.removeItem(playerNameKey);
           const topbar = document.getElementById('topbar-title');
           if(topbar){
             topbar.textContent = topbar.dataset.defaultTitle || '';
