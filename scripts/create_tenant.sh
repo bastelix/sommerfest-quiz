@@ -102,7 +102,7 @@ fi
 HTTP_STATUS=$(curl -s -o /tmp/onboard.out -w "%{http_code}" -b "$COOKIE_FILE" -X POST \
   "$API_BASE/api/tenants/${SUBDOMAIN}/onboard")
 CURL_EXIT=$?
-if [ "$CURL_EXIT" -ne 0 ] || [ "$HTTP_STATUS" -ge 400 ]; then
+if [ "$CURL_EXIT" -ne 0 ] || [ "$HTTP_STATUS" -lt 200 ] || [ "$HTTP_STATUS" -ge 300 ]; then
   echo "Tenant onboarding failed (status $HTTP_STATUS): $(cat /tmp/onboard.out 2>/dev/null)" >&2
   rm -f /tmp/onboard.out "$COOKIE_FILE"
   exit 1
