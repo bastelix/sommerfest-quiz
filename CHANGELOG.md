@@ -124,6 +124,7 @@
 - Add generic table manager
 - Add mobile card rendering with accessibility
 - Polish table layout and theme variables
+- Add table macros and update docs
 
 ### Fix
 
