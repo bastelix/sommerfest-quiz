@@ -213,6 +213,7 @@ class ResultControllerTest extends TestCase
             ');'
         );
         $pdo->exec("INSERT INTO teams(sort_order,name,uid,event_uid) VALUES(1,'Team1','1','1')");
+        $pdo->exec("INSERT INTO teams(sort_order,name,uid,event_uid) VALUES(2,'Team2','2','2')");
 
         $cfg = new \App\Service\ConfigService($pdo);
         $teams = new \App\Service\TeamService($pdo, $cfg);
