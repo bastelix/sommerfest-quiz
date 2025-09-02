@@ -44,6 +44,7 @@ return [
     'heading_catalogs' => 'Kataloge',
     'heading_questions' => 'Fragen bearbeiten',
     'heading_teams' => 'Teams/Personen',
+    'heading_team_edit' => 'Team bearbeiten',
     'heading_results' => 'Ergebnisse',
     'heading_statistics' => 'Statistik',
     'heading_pages' => 'Seiten',
