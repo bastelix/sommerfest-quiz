@@ -118,6 +118,7 @@
 - Add pagination for team management
 - Add light mode row styling
 - Refine QR code defaults
+- Add swipe card styles
 
 ### Fix
 
