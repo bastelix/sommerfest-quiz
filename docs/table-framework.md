@@ -1,8 +1,8 @@
 # Table Framework
 
 Die Listenansichten im Admin-Bereich nutzen eine Kombination aus Twig-Makros und dem JavaScript-`TableManager`.
-Die Makros erzeugen die HTML-Struktur, während der `TableManager` die Daten rendert, sortierbar macht und optional eine
-mobile Kartenansicht verwaltet.
+Die Makros `qr_table(headings, body_id, sortable=true)` und `qr_rowcards(list_id)` erzeugen die HTML-Struktur, während der
+`TableManager` die Daten rendert, sortierbar macht und optional eine mobile Kartenansicht verwaltet.
 
 ## Twig-Makro einbinden
 
@@ -11,7 +11,7 @@ mobile Kartenansicht verwaltet.
 {{ qr_table([
   {'label': '', 'class': 'uk-table-shrink'},
   {'label': t('column_name'), 'class': 'uk-table-expand'}
-], 'teamsList') }}
+], 'teamsList', true) }}
 {{ qr_rowcards('teamsCards') }}
 ```
 
