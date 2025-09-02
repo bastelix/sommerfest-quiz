@@ -82,7 +82,6 @@ use App\Controller\BackupController;
 use App\Domain\Roles;
 use App\Domain\Plan;
 
-use function App\runBackgroundProcess;
 use function App\runSyncProcess;
 
 require_once __DIR__ . '/Controller/HomeController.php';
@@ -1160,18 +1159,40 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $script = realpath(__DIR__ . '/../scripts/onboard_tenant.sh');
 
-        if (!is_file($script)) {
-            $response->getBody()->write(json_encode(['error' => 'Onboard script not found']));
+        $logPath = __DIR__ . '/../logs/onboarding.log';
+        $log = is_file($logPath) ? (string) file_get_contents($logPath) : '';
 
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        if (!is_file($script)) {
+            $response->getBody()->write(json_encode([
+                'error' => 'Onboard script not found',
+                'log' => $log,
+            ]));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
         }
 
-        runBackgroundProcess($script, [$slug]);
+        $result = runSyncProcess($script, [$slug]);
+        $tenantDir = __DIR__ . '/../tenants/' . $slug;
+        $composeFile = $tenantDir . '/docker-compose.yml';
 
-        $payload = ['status' => 'queued', 'tenant' => $slug];
+        if (!$result['success'] || !is_file($composeFile)) {
+            $response->getBody()->write(json_encode([
+                'error' => 'Failed to onboard tenant',
+                'stderr' => $result['stderr'],
+                'log' => $log,
+            ]));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $payload = ['status' => 'completed', 'tenant' => $slug, 'log' => $log];
         $response->getBody()->write(json_encode($payload));
 
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(202);
+        return $response->withHeader('Content-Type', 'application/json');
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::SERVICE_ACCOUNT))->add(new CsrfMiddleware());
 
     $app->delete('/api/tenants/{slug}', function (Request $request, Response $response, array $args) {

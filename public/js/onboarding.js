@@ -475,16 +475,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       } catch (_) {
         data = undefined;
       }
-      if (res.status === 202 && (!body || !data)) {
-        addLog('Server akzeptierte die Anfrage, lieferte jedoch keine Rückmeldung.');
-        return false;
-      }
-      if (!res.ok || !data || data.status !== 'queued') {
+      if (!res.ok) {
         const msg = data && data.error ? data.error : body || 'onboard';
         addLog('Fehler beim Onboarding: ' + msg);
         throw new Error(msg);
       }
-      addLog('Onboarding gestartet …');
+      if (data && data.log) {
+        addLog(data.log);
+      }
+      addLog('Onboarding abgeschlossen …');
       return true;
     };
 
