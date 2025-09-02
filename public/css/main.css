@@ -155,6 +155,19 @@ body.uk-padding {
 .qr-table td {
   padding: 0.6rem;
 }
+.qr-cell {
+  background-color: var(--qr-card);
+  outline: 2px solid transparent;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+.qr-cell:hover {
+  background-color: var(--qr-bg-soft);
+}
+.qr-cell:focus-within {
+  background-color: var(--qr-bg-soft);
+  outline: 2px solid var(--accent-color);
+}
 .qr-mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 }
