@@ -22,6 +22,7 @@
 - *(deps)* Bump guzzlehttp/guzzle from 7.9.3 to 7.10.0
 - Normalize invite setup indentation
 - Restore config backup
+- *(docs)* Remove unused jekyll rtd theme
 
 ### Ci
 
