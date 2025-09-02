@@ -1939,7 +1939,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const delCell = document.createElement('td');
     const del = document.createElement('button');
-    del.className = 'uk-icon-button uk-button-danger';
+    del.className = 'uk-icon-button qr-action';
     del.setAttribute('uk-icon', 'trash');
     del.setAttribute('aria-label', 'Löschen');
     del.onclick = () => { row.remove(); saveTeamList(); };
