@@ -178,6 +178,8 @@ body.uk-padding {
 }
 .qr-table td {
   padding: 0.6rem;
+  vertical-align: middle;
+  line-height: 44px;
 }
 .qr-cell {
   background-color: var(--qr-row);
@@ -216,7 +218,7 @@ body.uk-padding {
 .uk-text-truncate {
   max-width: 36ch;
   display: inline-block;
-  vertical-align: bottom;
+  vertical-align: middle;
 }
 .uk-iconnav > li > a {
   padding: 4px;
