@@ -115,6 +115,7 @@
 - Add teams speed dial
 - Add pagination for team management
 - Add light mode row styling
+- Refine QR code defaults
 
 ### Fix
 
