@@ -1958,6 +1958,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const delCell = document.createElement('td');
     delCell.setAttribute('role', 'gridcell');
+    delCell.className = 'uk-table-shrink uk-text-center';
     const del = document.createElement('button');
     del.className = 'uk-icon-button qr-action';
     del.setAttribute('uk-icon', 'trash');
