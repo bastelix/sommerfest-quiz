@@ -41,7 +41,9 @@
             "node tests/test_competition_mode.js",
             "node tests/test_results_rankings.js",
             "node tests/test_random_name_prompt.js",
-            "node tests/test_onboarding_plan.js"
+            "node tests/test_onboarding_plan.js",
+            "node tests/test_onboarding_success.js",
+            "node tests/test_onboarding_failure.js"
         ]
     }
 }

@@ -476,8 +476,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         data = undefined;
       }
       if (res.status === 202 && (!body || !data)) {
-        addLog('Server akzeptierte die Anfrage, lieferte jedoch keine Rückmeldung.');
-        return false;
+        const msg = 'Server akzeptierte die Anfrage, lieferte jedoch keine Rückmeldung.';
+        addLog(msg);
+        throw new Error(msg);
       }
       if (!res.ok || !data || data.status !== 'queued') {
         const msg = data && data.error ? data.error : body || 'onboard';
@@ -505,11 +506,30 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (ct.includes('application/json')) {
               const data = await res.json();
               if (data.status === 'ok') return;
+              if (data.error || data.status === 'error') {
+                throw new Error(data.error || data.message || 'unbekannter Fehler');
+              }
             }
+          } else {
+            let err = res.statusText;
+            try {
+              const ct = res.headers.get('Content-Type') || '';
+              if (ct.includes('application/json')) {
+                const data = await res.json();
+                err = data.error || data.message || err;
+              } else {
+                err = await res.text();
+              }
+            } catch (_) {}
+            throw new Error(err || 'Request failed');
           }
         } catch (e) {
           if (e instanceof Error && /certificate|tls|ssl/i.test(e.message)) {
             addLog('HTTPS-Zertifikat noch nicht verfügbar');
+          } else if (e instanceof Error) {
+            throw e;
+          } else {
+            throw new Error(String(e));
           }
         }
         addLog('Warten auf Tenant …');
@@ -574,12 +594,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       mark('create', true);
       start('import');
-      const onboarded = await onboardTenant(subdomain);
-      if (!onboarded) {
+      try {
+        await onboardTenant(subdomain);
+        mark('import', true);
+      } catch (e) {
         mark('import', false);
-        throw new Error('Onboarding konnte nicht gestartet werden.');
+        throw e;
       }
-      mark('import', true);
       start('proxy');
       await wait(0);
       mark('proxy', true);
