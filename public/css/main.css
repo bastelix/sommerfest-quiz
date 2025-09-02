@@ -572,11 +572,14 @@ body.admin-page {
 
 .admin-page .topbar .uk-navbar-right {
   order: 2;
+  position: relative;
+  z-index: 1;
 }
 
 .admin-page .topbar .uk-navbar-center {
   order: 3;
-  width: 100%;
+  width: auto;
+  flex: 1 1 auto;
   position: static;
   transform: none;
 }
