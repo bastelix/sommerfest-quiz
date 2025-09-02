@@ -12,6 +12,7 @@
   --qr-border: rgba(0, 0, 0, 0.1);
   --qr-head: #ffffff;
   --qr-bg-soft: #f3f4f6;
+  --qr-fg: #000000;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -27,5 +28,6 @@
     --qr-head: #1e1e1e;
     --qr-border: rgba(255, 255, 255, 0.1);
     --qr-bg-soft: #161b22;
+    --qr-fg: #e6e9ef;
   }
 }
