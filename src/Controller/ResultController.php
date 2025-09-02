@@ -208,9 +208,29 @@ class ResultController
      */
     public function pdf(Request $request, Response $response): Response
     {
-        $teams = $this->teams->getAll();
         $results = $this->service->getAll();
         $questionResults = $this->service->getQuestionResults();
+        $teams = $this->teams->getAll();
+
+        if ($teams === []) {
+            $names = array_merge(
+                array_column($results, 'name'),
+                array_column($questionResults, 'name')
+            );
+            $names = array_filter(
+                $names,
+                static fn ($n) => is_string($n) && $n !== ''
+            );
+            $teams = array_values(array_unique($names));
+        }
+
+        if ($teams === []) {
+            $response->getBody()->write('Keine Ergebnisse vorhanden.');
+            return $response
+                ->withStatus(404)
+                ->withHeader('Content-Type', 'text/plain; charset=UTF-8');
+        }
+
         $catalogMax = [];
         $scores = [];
         $photos = [];
