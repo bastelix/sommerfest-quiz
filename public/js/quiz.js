@@ -876,12 +876,29 @@ async function runQuiz(questions, skipIntro){
     let cards = (q.cards || []).map(c => ({...c}));
     const resultsLocal = [];
     let startX=0,startY=0,offsetX=0,offsetY=0,dragging=false;
+    const SWIPE_THRESHOLD = 80;
+    const SWIPE_OUT_DISTANCE = 1000;
+    const SWIPE_ANIM_MS = 300;
 
     function render(){
       container.querySelectorAll('.swipe-card').forEach(el => el.remove());
       cards.forEach((c,i) => {
         const card = document.createElement('div');
         card.className = 'swipe-card';
+        card.style.position = 'absolute';
+        card.style.left = '2rem';
+        card.style.right = '2rem';
+        card.style.top = '0';
+        card.style.bottom = '0';
+        card.style.background = 'white';
+        card.style.borderRadius = '8px';
+        card.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+        card.style.display = 'flex';
+        card.style.alignItems = 'center';
+        card.style.justifyContent = 'center';
+        card.style.padding = '1rem';
+        card.style.transition = 'transform 0.3s';
+        card.style.touchAction = 'none';
         const off = (cards.length - i - 1) * 4;
         card.style.transform = `translate(0,-${off}px)`;
         card.style.zIndex = i;
@@ -904,6 +921,7 @@ async function runQuiz(questions, skipIntro){
       startX = p.x; startY = p.y;
       dragging = true;
       offsetX = 0; offsetY = 0;
+      e.preventDefault();
     }
 
     function move(e){
@@ -926,28 +944,10 @@ async function runQuiz(questions, skipIntro){
     function end(){
       if(!dragging) return;
       dragging = false;
-      const cardEl = container.querySelector('.swipe-card:last-child');
-      const card = cards[cards.length-1];
-      const threshold = 80;
-      if(Math.abs(offsetX) > threshold){
-        const dir = offsetX > 0 ? 'right' : 'left';
-        const labelText = offsetX > 0 ? (q.rightLabel || 'Ja') : (q.leftLabel || 'Nein');
-        const correct = (dir === 'right') === !!card.correct;
-        resultsLocal.push({text: card.text, label: labelText, correct});
-        if(cardEl){
-          cardEl.style.transform = `translate(${offsetX > 0 ? 1000 : -1000}px,${offsetY}px)`;
-        }
-        setTimeout(() => {
-          cards.pop();
-          offsetX = offsetY = 0;
-          label.textContent = '';
-          render();
-          if(!cards.length){
-            results[idx] = resultsLocal.every(r => r.correct);
-            next();
-          }
-        },300);
+      if(Math.abs(offsetX) > SWIPE_THRESHOLD){
+        handleSwipe(offsetX > 0 ? 'right' : 'left', offsetY);
       } else {
+        const cardEl = container.querySelector('.swipe-card:last-child');
         if(cardEl){
           cardEl.style.transform = 'translate(0,0)';
         }
@@ -956,15 +956,19 @@ async function runQuiz(questions, skipIntro){
       }
     }
 
-    function manualSwipe(dir){
+    function handleSwipe(dir, yOffset){
       if(!cards.length) return;
       const cardEl = container.querySelector('.swipe-card:last-child');
       const card = cards[cards.length-1];
       const labelText = dir === 'right' ? (q.rightLabel || 'Ja') : (q.leftLabel || 'Nein');
+      label.textContent = dir === 'right'
+        ? '\u27A1 ' + (q.rightLabel || 'Ja')
+        : '\u2B05 ' + (q.leftLabel || 'Nein');
+      label.style.color = dir === 'right' ? 'green' : 'red';
       const correct = (dir === 'right') === !!card.correct;
       resultsLocal.push({text: card.text, label: labelText, correct});
       if(cardEl){
-        cardEl.style.transform = `translate(${dir === 'right' ? 1000 : -1000}px,0)`;
+        cardEl.style.transform = `translate(${dir === 'right' ? SWIPE_OUT_DISTANCE : -SWIPE_OUT_DISTANCE}px,${yOffset || 0}px)`;
       }
       setTimeout(() => {
         cards.pop();
@@ -975,7 +979,11 @@ async function runQuiz(questions, skipIntro){
           results[idx] = resultsLocal.every(r => r.correct);
           next();
         }
-      },300);
+      }, SWIPE_ANIM_MS);
+    }
+
+    function manualSwipe(dir){
+      handleSwipe(dir, 0);
     }
 
     div.appendChild(controls);
