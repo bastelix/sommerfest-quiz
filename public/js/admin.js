@@ -1924,10 +1924,12 @@ document.addEventListener('DOMContentLoaded', function () {
     row.dataset.teamId = id;
 
     const handleCell = document.createElement('td');
-    const handleSpan = document.createElement('span');
-    handleSpan.className = 'uk-sortable-handle uk-icon';
-    handleSpan.setAttribute('uk-icon', 'icon: table');
-    handleCell.appendChild(handleSpan);
+    const handleBtn = document.createElement('button');
+    handleBtn.type = 'button';
+    handleBtn.className = 'qr-handle';
+    handleBtn.setAttribute('uk-icon', 'icon: menu');
+    handleBtn.setAttribute('aria-label', 'Verschieben');
+    handleCell.appendChild(handleBtn);
 
     const nameCell = document.createElement('td');
     nameCell.className = 'team-name';
@@ -1963,9 +1965,11 @@ document.addEventListener('DOMContentLoaded', function () {
     li.className = 'qr-rowcard uk-flex uk-flex-middle uk-flex-between';
     li.dataset.teamId = id;
 
-    const handleSpan = document.createElement('span');
-    handleSpan.className = 'uk-sortable-handle uk-icon';
-    handleSpan.setAttribute('uk-icon', 'icon: table');
+    const handleBtn = document.createElement('button');
+    handleBtn.type = 'button';
+    handleBtn.className = 'qr-handle';
+    handleBtn.setAttribute('uk-icon', 'icon: menu');
+    handleBtn.setAttribute('aria-label', 'Verschieben');
 
     const nameSpan = document.createElement('span');
     nameSpan.className = 'team-name uk-flex-1';
@@ -1988,7 +1992,7 @@ document.addEventListener('DOMContentLoaded', function () {
       saveTeamList();
     };
 
-    li.appendChild(handleSpan);
+    li.appendChild(handleBtn);
     li.appendChild(nameSpan);
     li.appendChild(del);
     return li;

@@ -64,6 +64,22 @@ body.high-contrast .dropzone.over {
   background: #ffffcc;
   border-color: #000000;
 }
+
+body.high-contrast .qr-handle {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: grab;
+}
+
+body.high-contrast .qr-handle:focus {
+  outline: 2px solid #000000;
+}
 body.high-contrast .uk-alert-success {
   background-color: #006400;
   color: #ffffff;

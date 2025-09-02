@@ -109,6 +109,22 @@ body.uk-padding {
   outline: 2px solid var(--accent-color);
 }
 
+.qr-handle {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: grab;
+}
+
+.qr-handle:focus {
+  outline: 2px solid var(--accent-color);
+}
+
 .dropzone {
   min-height: 3.5em;
   background: #f3f7fa;
