@@ -1,5 +1,4 @@
 {% extends 'layout.twig' %}
-{% from 'components/table.twig' import qr_table, qr_rowcards %}
 
 {% block title %}{{ t('admin_title') }}{% endblock %}
 
@@ -469,14 +468,21 @@
     <li class="{{ activeRoute == 'teams' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_teams') }}</h2>
-        {{
-          qr_table([
-            {'label': '', 'class': 'uk-table-shrink uk-text-center'},
-            {'label': t('column_name'), 'class': 'uk-table-expand'},
-            {'label': '', 'class': 'uk-table-shrink uk-text-center'}
-          ], 'teamsList')
-        }}
-        {{ qr_rowcards('teamsCards') }}
+        <div class="uk-visible@m">
+          <div class="uk-overflow-auto">
+            <table id="teamsTable" class="uk-table uk-table-divider uk-table-small qr-table">
+              <thead class="table-headings">
+                <tr>
+                  <th scope="col" class="uk-table-shrink uk-text-center"></th>
+                  <th scope="col" class="uk-table-expand">{{ t('column_name') }}</th>
+                  <th scope="col" class="uk-table-shrink uk-text-center"></th>
+                </tr>
+              </thead>
+              <tbody id="teamsList" role="rowgroup" uk-sortable="handle: .qr-handle; group: sortable-group"></tbody>
+            </table>
+          </div>
+        </div>
+        <ul id="teamsCards" class="uk-hidden@m uk-list" uk-sortable="handle: .qr-handle; group: sortable-group"></ul>
         <div class="uk-margin">
           <button id="teamAddBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_team_add') }}; pos: left" aria-label="{{ t('tip_team_add') }}"></button>
         </div>
