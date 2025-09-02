@@ -16,6 +16,9 @@ html {
   --danger-500: #8b0000;
   --danger-600: #660000;
   --qr-card: #ffffff;
+  --qr-row: #f3f7fa;
+  --qr-row-alt: #e0f7fa;
+  --qr-head: #ffffff;
   --qr-border: rgba(0, 0, 0, 0.1);
   --qr-bg-soft: #f3f4f6;
 }
@@ -92,8 +95,8 @@ body.uk-padding {
 .dropzone,
 .mc-option {
   cursor: grab;
-  background: #f3f7fa;
-  border: 1px solid #ddd;
+  background: var(--qr-row);
+  border: 1px solid var(--qr-border);
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 12px;
@@ -131,8 +134,8 @@ body.uk-padding {
 
 .dropzone {
   min-height: 3.5em;
-  background: #f3f7fa;
-  border: 1.5px dashed #aaa;
+  background: var(--qr-row);
+  border: 1.5px dashed var(--qr-border);
   border-radius: 8px;
   margin-bottom: 12px;
   display: flex;
@@ -143,7 +146,7 @@ body.uk-padding {
 
 .dropzone.over {
   border-color: var(--accent-color);
-  background: #e0f7fa;
+  background: var(--qr-row-alt);
 }
 
 .dropzone:focus {
@@ -170,17 +173,20 @@ body.uk-padding {
   letter-spacing: .04em;
   position: sticky;
   top: 0;
-  background: var(--qr-card);
+  background: var(--qr-head);
   z-index: 1;
 }
 .qr-table td {
   padding: 0.6rem;
 }
 .qr-cell {
-  background-color: var(--qr-card);
+  background-color: var(--qr-row);
   outline: 2px solid transparent;
   border-radius: 8px;
   transition: background-color 0.2s;
+}
+.qr-table tbody tr:nth-child(even) .qr-cell {
+  background-color: var(--qr-row-alt);
 }
 .qr-cell:hover {
   background-color: var(--qr-bg-soft);
@@ -195,7 +201,7 @@ body.uk-padding {
 .qr-table .sticky {
   position: sticky;
   left: 0;
-  background: #fff;
+  background: var(--qr-head);
   z-index: 1;
 }
 .uk-text-truncate {
@@ -290,7 +296,7 @@ body.uk-padding {
 
 .event-header-bar {
   background: #fff;
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid var(--qr-border);
   padding: 0.25rem 0.5rem;
   line-height: 1.2;
 }
@@ -368,7 +374,7 @@ a.uk-accordion-title {
 /* Vorschau innerhalb der Fragekarte */
 .question-preview {
   min-height: 100px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--qr-border);
   border-radius: 8px;
   margin-top: 8px;
 }
@@ -384,7 +390,7 @@ a.uk-accordion-title {
 }
 
 .export-card {
-  border: 1px solid #ddd;
+  border: 1px solid var(--qr-border);
   padding: 20px;
   text-align: center;
   page-break-inside: avoid;
@@ -428,7 +434,7 @@ a.uk-accordion-title {
 .logo-frame {
   width: 160px;
   height: 240px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--qr-border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -489,7 +495,7 @@ a.uk-accordion-title {
 .modern-info-card {
   border-radius: 1.5rem;
   box-shadow: 0 6px 30px rgba(0,0,0,0.08);
-  border: 1.5px solid #f3f4f6;
+  border: 1.5px solid var(--qr-border);
   padding: 1.1rem 0.7rem;
   margin: 1.5rem auto;
   max-width: 98vw;
@@ -544,7 +550,7 @@ body .uk-alert-danger {
 .onboarding-step {
   border-radius: 1rem;
   box-shadow: 0 6px 30px rgba(0,0,0,0.08);
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--qr-border);
   background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
 }
 
@@ -761,10 +767,14 @@ body.admin-page {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.25rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--qr-border);
   border-radius: 8px;
   padding: 0.5rem;
   margin-bottom: 0.75rem;
+  background: var(--qr-row);
+}
+#eventsList tr:nth-child(even) {
+  background: var(--qr-row-alt);
 }
 
 .cell-label {
@@ -836,10 +846,14 @@ body.admin-page {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.25rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--qr-border);
   border-radius: 8px;
   padding: 0.5rem;
   margin-bottom: 0.75rem;
+  background: var(--qr-row);
+}
+#catalogList tr:nth-child(even) {
+  background: var(--qr-row-alt);
 }
 #catalogList td {
   display: flex;
@@ -909,11 +923,15 @@ body.admin-page {
   display: block;
 }
 #teamsList tr {
-  border: 1px solid #ddd;
+  border: 1px solid var(--qr-border);
   border-radius: 8px;
   padding: 0.5rem;
   margin-bottom: 0.75rem;
+  background: var(--qr-row);
   position: relative;
+}
+#teamsList tr:nth-child(even) {
+  background: var(--qr-row-alt);
 }
 #teamsList td {
   padding: 4px 0;
@@ -955,7 +973,7 @@ body.admin-page {
 
 /* Page editor styles */
 .page-editor {
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--qr-border);
   border-radius: 4px;
   padding: 10px;
   background: #fff;
@@ -975,7 +993,7 @@ body.admin-page {
   display: inline-block;
   margin-top: 0;
   padding: 2px 6px;
-  border: 0.5px solid #ccc;
+  border: 0.5px solid var(--qr-border);
   border-radius: 0 0 4px 4px;
   white-space: pre-line;
 }
@@ -1043,10 +1061,13 @@ body.admin-page {
 }
 
 .qr-rowcard {
-  background: var(--qr-card);
+  background: var(--qr-row);
   border: 1px solid var(--qr-border);
   border-radius: 12px;
   padding: 0.5rem;
+}
+.qr-rowcard:nth-child(even) {
+  background: var(--qr-row-alt);
 }
 
 .section--muted {
