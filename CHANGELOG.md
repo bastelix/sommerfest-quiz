@@ -15,6 +15,7 @@
 - Apply dark blue landing theme
 - Improve landing page contrast
 - Refine compose project handling
+- *(deps)* Bump symfony/process from 7.3.0 to 7.3.3
 
 ### Ci
 
