@@ -840,6 +840,16 @@ body.admin-page {
   padding: 8px 4px;
 }
 
+#teamsList td.team-name {
+  cursor: pointer;
+}
+
+#teamsList td.team-name .uk-text-truncate {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
 #teamsTable {
   width: 100%;
   max-width: 100%;
@@ -870,9 +880,6 @@ body.admin-page {
   right: 4px;
   display: block;
 }
-#teamsList input[type="text"] {
-  width: 100%;
-}
 
 @media (min-width: 640px) {
   #teamsTable thead {
@@ -899,9 +906,7 @@ body.admin-page {
     right: auto;
     display: table-cell;
   }
-  #teamsList input[type="text"] {
-    width: auto;
-  }
+  /* no text inputs in team list */
 }
 
 /* Page editor styles */

@@ -496,6 +496,17 @@
         <div class="uk-margin uk-flex uk-flex-right">
           <button id="teamsSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: {{ t('tip_team_save') }}; pos: left"></button>
         </div>
+        <div id="teamEditModal" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body">
+            <h3 class="uk-modal-title">{{ t('heading_team_edit') }}</h3>
+            <input id="teamEditInput" class="uk-input" type="text">
+            <p id="teamEditError" class="uk-text-danger uk-margin-small-top" hidden></p>
+            <div class="uk-margin-top uk-text-right">
+              <button id="teamEditCancel" class="uk-button uk-button-default" type="button">{{ t('action_cancel') }}</button>
+              <button id="teamEditSave" class="uk-button uk-button-primary" type="button">{{ t('action_save') }}</button>
+            </div>
+          </div>
+        </div>
       </div>
     </li>
     <li class="{{ activeRoute == 'summary' ? 'uk-active' }}">

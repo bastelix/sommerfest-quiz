@@ -1880,22 +1880,42 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamAddBtn = document.getElementById('teamAddBtn');
   const teamSaveBtn = document.getElementById('teamsSaveBtn');
   const teamRestrictTeams = document.getElementById('teamRestrict');
+  const teamEditModal = UIkit.modal('#teamEditModal');
+  const teamEditInput = document.getElementById('teamEditInput');
+  const teamEditSave = document.getElementById('teamEditSave');
+  const teamEditCancel = document.getElementById('teamEditCancel');
+  const teamEditError = document.getElementById('teamEditError');
+  let currentTeamCell = null;
 
   function collectTeams() {
-    return Array.from(teamListEl.querySelectorAll('.team-row input.team-name'))
-      .map(i => i.value.trim())
+    return Array.from(teamListEl.querySelectorAll('.team-row .team-name'))
+      .map(td => td.textContent.trim())
       .filter(Boolean);
   }
 
-  function saveTeamOrder() {
+  function saveTeamList(show = false) {
     const names = collectTeams();
     apiFetch('/teams.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(names)
-    }).catch(() => {});
+    }).then(r => {
+      if (!r.ok) throw new Error(r.statusText);
+      if (show) notify('Liste gespeichert', 'success');
+    }).catch(err => {
+      if (show) {
+        console.error(err);
+        notify('Fehler beim Speichern', 'danger');
+      }
+    });
   }
 
+  function openTeamModal(cell) {
+    currentTeamCell = cell;
+    teamEditInput.value = cell.textContent.trim();
+    teamEditError.hidden = true;
+    teamEditModal.show();
+  }
 
   function createTeamRow(name = ''){
     const row = document.createElement('tr');
@@ -1908,19 +1928,21 @@ document.addEventListener('DOMContentLoaded', function () {
     handleCell.appendChild(handleSpan);
 
     const nameCell = document.createElement('td');
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.className = 'uk-input team-name';
-    input.value = name;
-    input.setAttribute('aria-label', 'Name');
-    nameCell.appendChild(input);
+    nameCell.className = 'team-name';
+    nameCell.tabIndex = 0;
+    const span = document.createElement('span');
+    span.className = 'uk-text-truncate';
+    span.textContent = name;
+    nameCell.appendChild(span);
+    nameCell.title = name;
+    nameCell.addEventListener('click', () => openTeamModal(nameCell));
 
     const delCell = document.createElement('td');
     const del = document.createElement('button');
     del.className = 'uk-icon-button uk-button-danger';
     del.setAttribute('uk-icon', 'trash');
     del.setAttribute('aria-label', 'Löschen');
-    del.onclick = () => row.remove();
+    del.onclick = () => { row.remove(); saveTeamList(); };
     delCell.appendChild(del);
 
     row.appendChild(handleCell);
@@ -1935,7 +1957,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (teamListEl && window.UIkit && UIkit.util) {
-    UIkit.util.on(teamListEl, 'moved', saveTeamOrder);
+    UIkit.util.on(teamListEl, 'moved', () => saveTeamList());
   }
 
   if(teamListEl){
@@ -1950,32 +1972,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
   teamAddBtn?.addEventListener('click', e => {
     e.preventDefault();
-    teamListEl.appendChild(createTeamRow(''));
+    const row = createTeamRow('');
+    teamListEl.appendChild(row);
+    openTeamModal(row.querySelector('.team-name'));
+  });
+
+  teamEditSave?.addEventListener('click', () => {
+    const val = teamEditInput.value.trim();
+    if (!val) {
+      teamEditError.textContent = 'Name darf nicht leer sein';
+      teamEditError.hidden = false;
+      return;
+    }
+    currentTeamCell.querySelector('.uk-text-truncate').textContent = val;
+    currentTeamCell.title = val;
+    saveTeamList();
+    teamEditModal.hide();
+  });
+
+  teamEditCancel?.addEventListener('click', e => {
+    e.preventDefault();
+    teamEditModal.hide();
   });
 
   teamSaveBtn?.addEventListener('click', e => {
     e.preventDefault();
-    const names = Array.from(teamListEl.querySelectorAll('input.uk-input'))
-      .map(i => i.value.trim())
-      .filter(Boolean);
-    apiFetch('/teams.json', {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json' },
-      body: JSON.stringify(names)
-    }).then(r => {
-      if(!r.ok) throw new Error(r.statusText);
-      notify('Liste gespeichert','success');
-    }).catch(err => {
-      console.error(err);
-      notify('Fehler beim Speichern','danger');
-    });
+    saveTeamList(true);
     if (teamRestrictTeams) {
       cfgInitial.QRRestrict = teamRestrictTeams.checked;
       apiFetch('/config.json', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(cfgInitial)
-      }).catch(()=>{});
+      }).catch(() => {});
     }
   });
 
