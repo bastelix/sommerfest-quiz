@@ -167,7 +167,8 @@ class QrControllerTest extends TestCase
         $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
         $catalogs = new \App\Service\CatalogService($pdo, $cfg);
-        $qr = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService());
+        $results = new \App\Service\ResultService($pdo, $cfg);
+        $qr = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService(), $results);
         $logo = new \App\Controller\LogoController($cfg);
 
         $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo']);
@@ -249,7 +250,8 @@ class QrControllerTest extends TestCase
         $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
         $catalogs = new \App\Service\CatalogService($pdo, $cfg);
-        $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService());
+        $results = new \App\Service\ResultService($pdo, $cfg);
+        $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService(), $results);
 
         $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo']);
         $response = $qr->pdf($req, new Response());
@@ -293,7 +295,8 @@ class QrControllerTest extends TestCase
         $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
         $catalogs = new \App\Service\CatalogService($pdo, $cfg);
-        $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService());
+        $results = new \App\Service\ResultService($pdo, $cfg);
+        $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService(), $results);
 
         $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo']);
         $response = $qr->pdf($req, new Response());
@@ -356,7 +359,8 @@ class QrControllerTest extends TestCase
         $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
         $catalogs = new \App\Service\CatalogService($pdo, $cfg);
-        $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService());
+        $results = new \App\Service\ResultService($pdo, $cfg);
+        $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService(), $results);
 
         $req = $this->createRequest('GET', '/invites.pdf');
         $response = $qr->pdfAll($req, new Response());
@@ -366,6 +370,124 @@ class QrControllerTest extends TestCase
         $pdf = (string)$response->getBody();
         $this->assertNotEmpty($pdf);
         $this->assertEquals(2, substr_count($pdf, 'Event'));
+    }
+
+    public function testInvitesPdfUsesResultsWhenTeamsMissing(): void
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                displayErrorDetails INTEGER,
+                QRUser INTEGER,
+                QRRemember INTEGER,
+                logoPath TEXT,
+                pageTitle TEXT,
+                backgroundColor TEXT,
+                buttonColor TEXT,
+                CheckAnswerButton TEXT,
+                QRRestrict INTEGER,
+                randomNames INTEGER DEFAULT 1,
+                competitionMode INTEGER,
+                teamResults INTEGER,
+                photoUpload INTEGER,
+                puzzleWordEnabled INTEGER,
+                puzzleWord TEXT,
+                puzzleFeedback TEXT,
+                inviteText TEXT,
+                qrLabelLine1 TEXT,
+                qrLabelLine2 TEXT,
+                qrLogoPath TEXT,
+                qrRoundMode TEXT,
+                qrLogoPunchout INTEGER,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            'CREATE TABLE events(' .
+            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT, sort_order INTEGER DEFAULT 0' .
+            ');'
+        );
+        $pdo->exec("INSERT INTO events(uid,name) VALUES('1','Event')");
+        $pdo->exec(
+            'CREATE TABLE teams(' .
+            'sort_order INTEGER UNIQUE NOT NULL, name TEXT NOT NULL, uid TEXT PRIMARY KEY, event_uid TEXT' .
+            ');'
+        );
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT' .
+            ');'
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                attempt INTEGER,
+                correct INTEGER,
+                total INTEGER,
+                time INTEGER,
+                puzzleTime INTEGER,
+                photo TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            "INSERT INTO results(name,catalog,attempt,correct,total,time,event_uid) VALUES" .
+            "('A','cat',1,0,0,0,'1'),('B','cat',1,0,0,0,'1')"
+        );
+
+        $cfg = new \App\Service\ConfigService($pdo);
+        $cfg->setActiveEventUid('1');
+        $teams = new \App\Service\TeamService($pdo, $cfg);
+        $events = new \App\Service\EventService($pdo);
+        $catalogs = new \App\Service\CatalogService($pdo, $cfg);
+        $results = new \App\Service\ResultService($pdo, $cfg);
+        $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService(), $results);
+
+        $req = $this->createRequest('GET', '/invites.pdf');
+        $response = $qr->pdfAll($req, new Response());
+
+        $this->assertSame(200, $response->getStatusCode());
+        $pdf = (string)$response->getBody();
+        $this->assertNotEmpty($pdf);
+        $this->assertEquals(2, substr_count($pdf, 'Event'));
+    }
+
+    public function testInvitesPdfReturnsErrorWhenNoTeams(): void
+    {
+        $pdo = new \PDO('sqlite::memory:');
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT, sort_order INTEGER DEFAULT 0);');
+        $pdo->exec("INSERT INTO events(uid,name) VALUES('1','Event')");
+        $pdo->exec('CREATE TABLE teams(sort_order INTEGER UNIQUE NOT NULL, name TEXT NOT NULL, uid TEXT PRIMARY KEY, event_uid TEXT);');
+        $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT);');
+        $pdo->exec('CREATE TABLE results(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, catalog TEXT, attempt INTEGER, correct INTEGER, total INTEGER, time INTEGER, puzzleTime INTEGER, photo TEXT, event_uid TEXT);');
+
+        $cfg = new \App\Service\ConfigService($pdo);
+        $cfg->setActiveEventUid('1');
+        $teams = new \App\Service\TeamService($pdo, $cfg);
+        $events = new \App\Service\EventService($pdo);
+        $catalogs = new \App\Service\CatalogService($pdo, $cfg);
+        $results = new \App\Service\ResultService($pdo, $cfg);
+        $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService(), $results);
+
+        $req = $this->createRequest('GET', '/invites.pdf');
+        $response = $qr->pdfAll($req, new Response());
+
+        $this->assertSame(404, $response->getStatusCode());
     }
 
     public function testActiveEventSwitchUpdatesPdf(): void
@@ -413,7 +535,8 @@ class QrControllerTest extends TestCase
         $teams = new \App\Service\TeamService($pdo, $cfg);
         $events = new \App\Service\EventService($pdo);
         $catalogs = new \App\Service\CatalogService($pdo, $cfg);
-        $qr = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService());
+        $results = new \App\Service\ResultService($pdo, $cfg);
+        $qr = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService(), $results);
 
         $cfg->setActiveEventUid('1');
         $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo']);
