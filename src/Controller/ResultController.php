@@ -210,6 +210,7 @@ class ResultController
     {
         $results = $this->service->getAll();
         $questionResults = $this->service->getQuestionResults();
+        $allResults = $results;
         $teams = $this->teams->getAll();
 
         if ($teams === []) {
@@ -222,6 +223,23 @@ class ResultController
                 static fn ($n) => is_string($n) && $n !== ''
             );
             $teams = array_values(array_unique($names));
+        }
+
+        $params = $request->getQueryParams();
+        $teamFilter = (string) ($params['team'] ?? $request->getAttribute('team') ?? '');
+        if ($teamFilter !== '') {
+            $results = array_values(array_filter(
+                $results,
+                static fn ($r) => ($r['name'] ?? '') === $teamFilter
+            ));
+            $questionResults = array_values(array_filter(
+                $questionResults,
+                static fn ($r) => ($r['name'] ?? '') === $teamFilter
+            ));
+            $teams = array_values(array_filter(
+                $teams,
+                static fn ($t) => $t === $teamFilter
+            ));
         }
 
         if ($teams === []) {
@@ -269,7 +287,7 @@ class ResultController
         }
 
         $awardService = new AwardService();
-        $rankings = $awardService->computeRankings($results, $catalogCount);
+        $rankings = $awardService->computeRankings($allResults, $catalogCount);
 
         $params = $request->getQueryParams();
         $uid = (string)($params['event'] ?? '');

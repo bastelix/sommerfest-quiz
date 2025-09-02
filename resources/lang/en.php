@@ -101,6 +101,7 @@ return [
     'tip_question_save' => 'Save question catalog',
     'tip_team_add' => 'Add new team or person',
     'tip_team_save' => 'Save teams or people',
+    'tip_team_pdf' => 'Open team PDF',
     'tip_invitations_open' => 'Open all invitations',
     'tip_summary_print' => 'Print summary',
     'tip_results_reset' => 'Delete all stored results',
