@@ -2009,7 +2009,6 @@ document.addEventListener('DOMContentLoaded', function () {
   let currentTeamId = null;
   const TEAMS_PER_PAGE = 50;
   let allTeams = [];
-  let currentPage = 1;
   const teamPaginationEl = document.createElement('ul');
   teamPaginationEl.id = 'teamsPagination';
   teamPaginationEl.className = 'uk-pagination uk-flex-center';
@@ -2037,7 +2036,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function openTeamModal(cell) {
-    currentTeamId = cell.dataset.teamId;
+    currentTeamId = cell.dataset.id;
     const nameEl = cell.querySelector('.uk-text-truncate');
     const name = nameEl ? nameEl.textContent.trim() : cell.textContent.trim();
     teamEditInput.value = name;
@@ -2048,161 +2047,11 @@ document.addEventListener('DOMContentLoaded', function () {
     teamEditModal.show();
   }
 
-  function createTeamRow(name = '', id = crypto.randomUUID()){
-    const row = document.createElement('tr');
-    row.className = 'team-row';
-    row.dataset.teamId = id;
-    row.setAttribute('role', 'row');
-
-    const handleCell = document.createElement('td');
-    handleCell.setAttribute('role', 'gridcell');
-    const handleBtn = document.createElement('button');
-    handleBtn.type = 'button';
-    handleBtn.className = 'qr-handle';
-    handleBtn.setAttribute('uk-icon', 'icon: menu');
-    handleBtn.setAttribute('aria-label', 'Verschieben');
-    handleCell.appendChild(handleBtn);
-
-    const nameCell = document.createElement('td');
-    nameCell.setAttribute('role', 'gridcell');
-    nameCell.className = 'team-name qr-cell';
-    nameCell.dataset.teamId = id;
-    nameCell.tabIndex = 0;
-    const span = document.createElement('span');
-    span.className = 'uk-text-truncate';
-    span.textContent = name;
-    nameCell.appendChild(span);
-    const desc = document.createElement('span');
-    desc.id = 'team-edit-desc-' + id;
-    desc.className = 'uk-hidden-visually';
-    desc.textContent = 'klicken zum Bearbeiten';
-    nameCell.appendChild(desc);
-    nameCell.setAttribute('aria-describedby', desc.id);
-    nameCell.title = name;
-    nameCell.addEventListener('click', () => openTeamModal(nameCell));
-
-    const delCell = document.createElement('td');
-    delCell.setAttribute('role', 'gridcell');
-    delCell.className = 'uk-table-shrink uk-text-center';
-    const pdf = document.createElement('button');
-    pdf.className = 'uk-icon-button qr-action';
-    pdf.setAttribute('uk-icon', 'file-text');
-    pdf.setAttribute('aria-label', window.transTeamPdf || 'PDF');
-    pdf.setAttribute('uk-tooltip', 'title: ' + (window.transTeamPdf || 'PDF') + '; pos: left');
-    pdf.onclick = () => openTeamPdf(name);
-    const del = document.createElement('button');
-    del.className = 'uk-icon-button qr-action';
-    del.setAttribute('uk-icon', 'trash');
-    del.setAttribute('aria-label', 'Löschen');
-    del.onclick = () => removeTeam(id);
-    const actions = document.createElement('div');
-    actions.className = 'uk-button-group';
-    actions.appendChild(pdf);
-    actions.appendChild(del);
-    delCell.appendChild(actions);
-
-    row.appendChild(handleCell);
-    row.appendChild(nameCell);
-    row.appendChild(delCell);
-    return row;
-  }
-
-  function createTeamCard(name = '', id){
-    const li = document.createElement('li');
-    li.className = 'qr-rowcard uk-flex uk-flex-middle uk-flex-between';
-    li.dataset.teamId = id;
-
-    const handleBtn = document.createElement('button');
-    handleBtn.type = 'button';
-    handleBtn.className = 'qr-handle';
-    handleBtn.setAttribute('uk-icon', 'icon: menu');
-    handleBtn.setAttribute('aria-label', 'Verschieben');
-
-    const nameSpan = document.createElement('span');
-    nameSpan.className = 'team-name uk-flex-1';
-    nameSpan.dataset.teamId = id;
-    nameSpan.tabIndex = 0;
-    const inner = document.createElement('span');
-    inner.className = 'uk-text-truncate';
-    inner.textContent = name;
-    nameSpan.appendChild(inner);
-    nameSpan.title = name;
-    nameSpan.addEventListener('click', () => openTeamModal(nameSpan));
-
-    const pdf = document.createElement('button');
-    pdf.className = 'uk-icon-button qr-action';
-    pdf.setAttribute('uk-icon', 'file-text');
-    pdf.setAttribute('aria-label', window.transTeamPdf || 'PDF');
-    pdf.setAttribute('uk-tooltip', 'title: ' + (window.transTeamPdf || 'PDF') + '; pos: left');
-    pdf.onclick = () => openTeamPdf(name);
-    const del = document.createElement('button');
-    del.className = 'uk-icon-button uk-button-danger';
-    del.setAttribute('uk-icon', 'trash');
-    del.setAttribute('aria-label', 'Löschen');
-    del.onclick = () => removeTeam(id);
-    const actions = document.createElement('div');
-    actions.className = 'uk-button-group';
-    actions.appendChild(pdf);
-    actions.appendChild(del);
-
-    li.appendChild(handleBtn);
-    li.appendChild(nameSpan);
-    li.appendChild(actions);
-    return li;
-  }
-
-  function renderTeamsPage(page = 1){
-    currentPage = page;
-    teamListEl.innerHTML = '';
-    if (teamCardsEl) teamCardsEl.innerHTML = '';
-    const start = (page - 1) * TEAMS_PER_PAGE;
-    const segment = allTeams.slice(start, start + TEAMS_PER_PAGE);
-    segment.forEach(t => {
-      teamListEl.appendChild(createTeamRow(t.name, t.id));
-      if (teamCardsEl) teamCardsEl.appendChild(createTeamCard(t.name, t.id));
-    });
-    updatePagination(page);
-  }
-
-  function updatePagination(page){
-    const total = Math.max(1, Math.ceil(allTeams.length / TEAMS_PER_PAGE));
-    teamPaginationEl.innerHTML = '';
-
-    const createItem = (p, label, disabled = false, active = false) => {
-      const li = document.createElement('li');
-      if (disabled) li.classList.add('uk-disabled');
-      if (active) li.classList.add('uk-active');
-      const a = document.createElement('a');
-      a.href = '#';
-      a.innerHTML = label;
-      if (!disabled) {
-        a.addEventListener('click', e => { e.preventDefault(); renderTeamsPage(p); });
-      }
-      li.appendChild(a);
-      return li;
-    };
-
-    teamPaginationEl.appendChild(createItem(page - 1, '<span uk-pagination-previous></span>', page === 1));
-    for (let i = 1; i <= total; i++) {
-      teamPaginationEl.appendChild(createItem(i, String(i), false, i === page));
-    }
-    teamPaginationEl.appendChild(createItem(page + 1, '<span uk-pagination-next></span>', page === total));
-  }
-
-  function updatePageOrder(container){
-    const ids = Array.from(container.querySelectorAll('[data-team-id]')).map(el => el.dataset.teamId);
-    const start = (currentPage - 1) * TEAMS_PER_PAGE;
-    const segment = ids.map(id => allTeams.find(t => t.id === id)).filter(Boolean);
-    allTeams.splice(start, segment.length, ...segment);
-  }
-
-  function removeTeam(id){
+  function removeTeam(id) {
     const idx = allTeams.findIndex(t => t.id === id);
     if (idx !== -1) {
       allTeams.splice(idx, 1);
-      const totalPages = Math.max(1, Math.ceil(allTeams.length / TEAMS_PER_PAGE));
-      if (currentPage > totalPages) currentPage = totalPages;
-      renderTeamsPage(currentPage);
+      teamManager.render(allTeams);
       saveTeamList();
     }
   }
@@ -2211,21 +2060,131 @@ document.addEventListener('DOMContentLoaded', function () {
     window.open(withBase('/results.pdf?team=' + encodeURIComponent(teamName)), '_blank');
   }
 
-  if (teamListEl && window.UIkit && UIkit.util) {
-    UIkit.util.on(teamListEl, 'moved', () => { updatePageOrder(teamListEl); renderTeamsPage(currentPage); saveTeamList(); });
-  }
-  if (teamCardsEl && window.UIkit && UIkit.util) {
-    UIkit.util.on(teamCardsEl, 'moved', () => { updatePageOrder(teamCardsEl); renderTeamsPage(currentPage); saveTeamList(); });
-  }
+  const teamManager = teamListEl ? new TableManager({
+    tbody: teamListEl,
+    columns: [
+      {
+        render: () => {
+          const cell = document.createElement('td');
+          cell.setAttribute('role', 'gridcell');
+          const handleBtn = document.createElement('button');
+          handleBtn.type = 'button';
+          handleBtn.className = 'qr-handle';
+          handleBtn.setAttribute('uk-icon', 'icon: menu');
+          handleBtn.setAttribute('aria-label', 'Verschieben');
+          cell.appendChild(handleBtn);
+          return cell;
+        }
+      },
+      {
+        render: (t, mgr) => {
+          const cell = document.createElement('td');
+          cell.setAttribute('role', 'gridcell');
+          cell.className = 'team-name qr-cell';
+          cell.dataset.id = t.id;
+          cell.tabIndex = 0;
+          const span = document.createElement('span');
+          span.className = 'uk-text-truncate';
+          span.textContent = t.name;
+          cell.appendChild(span);
+          const desc = document.createElement('span');
+          desc.id = 'team-edit-desc-' + t.id;
+          desc.className = 'uk-hidden-visually';
+          desc.textContent = 'klicken zum Bearbeiten';
+          cell.appendChild(desc);
+          cell.setAttribute('aria-describedby', desc.id);
+          cell.title = t.name;
+          cell.addEventListener('click', () => mgr.onEdit(cell));
+          return cell;
+        }
+      },
+      {
+        render: (t, mgr) => {
+          const cell = document.createElement('td');
+          cell.setAttribute('role', 'gridcell');
+          cell.className = 'uk-table-shrink uk-text-center';
+          const pdf = document.createElement('button');
+          pdf.className = 'uk-icon-button qr-action';
+          pdf.setAttribute('uk-icon', 'file-text');
+          pdf.setAttribute('aria-label', window.transTeamPdf || 'PDF');
+          pdf.setAttribute('uk-tooltip', 'title: ' + (window.transTeamPdf || 'PDF') + '; pos: left');
+          pdf.onclick = () => openTeamPdf(t.name);
+          const del = document.createElement('button');
+          del.className = 'uk-icon-button qr-action';
+          del.setAttribute('uk-icon', 'trash');
+          del.setAttribute('aria-label', 'Löschen');
+          del.onclick = () => mgr.onDelete(t.id);
+          const actions = document.createElement('div');
+          actions.className = 'uk-button-group';
+          actions.appendChild(pdf);
+          actions.appendChild(del);
+          cell.appendChild(actions);
+          return cell;
+        }
+      }
+    ],
+    onEdit: cell => openTeamModal(cell),
+    onDelete: id => removeTeam(id),
+    sortable: true,
+    mobileCards: teamCardsEl ? {
+      container: teamCardsEl,
+      render: (t, mgr) => {
+        const li = document.createElement('li');
+        li.className = 'qr-rowcard uk-flex uk-flex-middle uk-flex-between';
+        li.dataset.id = t.id;
 
-  if(teamListEl){
-    apiFetch('/teams.json', { headers: { 'Accept':'application/json' } })
+        const handleBtn = document.createElement('button');
+        handleBtn.type = 'button';
+        handleBtn.className = 'qr-handle';
+        handleBtn.setAttribute('uk-icon', 'icon: menu');
+        handleBtn.setAttribute('aria-label', 'Verschieben');
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'team-name uk-flex-1';
+        nameSpan.dataset.id = t.id;
+        nameSpan.tabIndex = 0;
+        const inner = document.createElement('span');
+        inner.className = 'uk-text-truncate';
+        inner.textContent = t.name;
+        nameSpan.appendChild(inner);
+        nameSpan.title = t.name;
+        nameSpan.addEventListener('click', () => mgr.onEdit(nameSpan));
+
+        const pdf = document.createElement('button');
+        pdf.className = 'uk-icon-button qr-action';
+        pdf.setAttribute('uk-icon', 'file-text');
+        pdf.setAttribute('aria-label', window.transTeamPdf || 'PDF');
+        pdf.setAttribute('uk-tooltip', 'title: ' + (window.transTeamPdf || 'PDF') + '; pos: left');
+        pdf.onclick = () => openTeamPdf(t.name);
+        const del = document.createElement('button');
+        del.className = 'uk-icon-button uk-button-danger';
+        del.setAttribute('uk-icon', 'trash');
+        del.setAttribute('aria-label', 'Löschen');
+        del.onclick = () => mgr.onDelete(t.id);
+        const actions = document.createElement('div');
+        actions.className = 'uk-button-group';
+        actions.appendChild(pdf);
+        actions.appendChild(del);
+
+        li.appendChild(handleBtn);
+        li.appendChild(nameSpan);
+        li.appendChild(actions);
+        return li;
+      }
+    } : null,
+    onReorder: () => saveTeamList()
+  }) : null;
+
+  teamManager?.bindPagination(teamPaginationEl, TEAMS_PER_PAGE);
+
+  if (teamListEl) {
+    apiFetch('/teams.json', { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(data => {
         allTeams = data.map(n => ({ id: crypto.randomUUID(), name: n }));
-        renderTeamsPage(1);
+        teamManager.render(allTeams);
       })
-      .catch(()=>{});
+      .catch(() => {});
     if (teamRestrictTeams) {
       teamRestrictTeams.checked = !!cfgInitial.QRRestrict;
     }
@@ -2235,9 +2194,9 @@ document.addEventListener('DOMContentLoaded', function () {
     e.preventDefault();
     const id = crypto.randomUUID();
     allTeams.push({ id, name: '' });
-    currentPage = Math.ceil(allTeams.length / TEAMS_PER_PAGE);
-    renderTeamsPage(currentPage);
-    openTeamModal(document.querySelector('.team-name[data-team-id="' + id + '"]'));
+    teamManager.currentPage = Math.ceil(allTeams.length / TEAMS_PER_PAGE);
+    teamManager.render(allTeams);
+    openTeamModal(document.querySelector('.team-name[data-id="' + id + '"]'));
   });
 
   teamEditSave?.addEventListener('click', () => {
@@ -2249,7 +2208,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     const team = allTeams.find(t => t.id === currentTeamId);
     if (team) team.name = val;
-    renderTeamsPage(currentPage);
+    teamManager.render(allTeams);
     saveTeamList();
     teamEditModal.hide();
   });
