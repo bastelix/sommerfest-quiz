@@ -313,6 +313,7 @@ class CatalogService
                 $updates[] = 'design_path=excluded.design_path';
             }
 
+            // Upsert catalogs by UID so renaming a slug keeps its questions
             $insertSql = sprintf(
                 'INSERT INTO catalogs(%s) VALUES(%s) ON CONFLICT(uid) DO UPDATE SET %s',
                 implode(',', $fields),
@@ -364,6 +365,7 @@ class CatalogService
             }
 
             if ($uids !== []) {
+                // Remove catalogs that are no longer present in the input set
                 $in = implode(',', array_fill(0, count($uids), '?'));
                 if ($uid !== '') {
                     $del = $this->pdo->prepare("DELETE FROM catalogs WHERE uid NOT IN ($in) AND event_uid=?");
