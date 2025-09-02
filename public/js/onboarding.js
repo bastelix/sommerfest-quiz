@@ -489,48 +489,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const waitForTenant = async slug => {
-      // check HTTP endpoint first; HTTPS might be unavailable until certificates are issued
-      const httpUrl = `http://${slug}.${window.mainDomain}/healthz`;
-      const httpsUrl = `https://${slug}.${window.mainDomain}/healthz`;
+      // directly probe HTTPS endpoint and retry on TLS errors until certificates are issued
+      const url = `https://${slug}.${window.mainDomain}/healthz`;
       // allow longer waiting periods for SSL certificate issuance
       const attempts = Number(window.waitForTenantRetries ?? 180);
       const delay = Number(window.waitForTenantDelay ?? 2000);
       for (let i = 0; i < attempts; i++) {
         try {
-          // initial HTTP probe
-          const res = await fetch(httpUrl, {
+          const res = await fetch(url, {
             headers: { Accept: 'application/json' },
             credentials: 'omit'
           });
-          if (res.ok && !res.redirected) {
+          if (res.ok) {
             const ct = res.headers.get('Content-Type') || '';
             if (ct.includes('application/json')) {
               const data = await res.json();
-              if (data.status === 'ok') {
-                try {
-                  // verify HTTPS once HTTP responds
-                  const secure = await fetch(httpsUrl, {
-                    headers: { Accept: 'application/json' },
-                    credentials: 'omit'
-                  });
-                  if (secure.ok && !secure.redirected) {
-                    const ct2 = secure.headers.get('Content-Type') || '';
-                    if (ct2.includes('application/json')) {
-                      const data2 = await secure.json();
-                      if (data2.status === 'ok') return;
-                    }
-                  }
-                } catch (e) {
-                  if (e instanceof Error && /certificate|tls|ssl/i.test(e.message)) {
-                    addLog('Zertifikat noch nicht verfügbar');
-                  }
-                }
-              }
+              if (data.status === 'ok') return;
             }
           }
         } catch (e) {
           if (e instanceof Error && /certificate|tls|ssl/i.test(e.message)) {
-            addLog('Zertifikat noch nicht verfügbar');
+            addLog('HTTPS-Zertifikat noch nicht verfügbar');
           }
         }
         addLog('Warten auf Tenant …');
