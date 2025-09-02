@@ -1,0 +1,90 @@
+/* Table and draggable row styles */
+.qr-handle {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  cursor: grab;
+}
+
+.qr-handle:focus {
+  outline: 2px solid var(--accent-color);
+}
+
+.qr-table-wrap {
+  max-height: 60vh;
+}
+
+.qr-table thead th {
+  font-weight: 600;
+  letter-spacing: .04em;
+  position: sticky;
+  top: 0;
+  background: var(--qr-head);
+  z-index: 1;
+}
+
+.qr-table td {
+  padding: 0 0.6rem;
+  height: 44px;
+  line-height: 44px;
+}
+
+.qr-cell {
+  position: relative;
+  cursor: pointer;
+  transition: background-color .2s, box-shadow .2s;
+  border-radius: 4px;
+}
+
+.qr-cell:hover,
+.qr-cell:focus-within {
+  background-color: var(--qr-bg-soft);
+  outline: 2px solid var(--accent-color);
+  outline-offset: -2px;
+}
+
+.qr-editable-icon {
+  margin-left: 4px;
+  color: var(--color-text);
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.qr-cell:hover .qr-editable-icon {
+  opacity: 1;
+}
+
+.qr-table .sticky {
+  position: sticky;
+  left: 0;
+  background: var(--qr-head);
+  z-index: 1;
+}
+
+.qr-rowcard {
+  background: var(--qr-row);
+  border: 1px solid var(--qr-border);
+  border-radius: 12px;
+  padding: 0.5rem;
+}
+
+.qr-rowcard:nth-child(even) {
+  background: var(--qr-row-alt);
+}
+
+.qr-action {
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(4px);
+  margin: 0;
+}
+
+.qr-action:focus {
+  outline: 2px solid var(--accent-color);
+}

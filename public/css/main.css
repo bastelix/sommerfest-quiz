@@ -6,26 +6,6 @@ html, body {
 html {
   font-size: clamp(14px, 1vw + 0.5rem, 18px);
 }
-
-:root {
-  --primary-color: #0c86d0;
-  --accent-color: #39f;
-  --color-bg: #fff;
-  --color-primary: #0c86d0;
-  --color-text: #232323;
-  --danger-500: #8b0000;
-  --danger-600: #660000;
-  --qr-card: #ffffff;
-  --qr-row-light: #f3f7fa;
-  --qr-row-alt-light: #e0f7fa;
-  --qr-border-light: rgba(0, 0, 0, 0.1);
-  --qr-row: var(--qr-row-light);
-  --qr-row-alt: var(--qr-row-alt-light);
-  --qr-head: #ffffff;
-  --qr-border: var(--qr-border-light);
-  --qr-bg-soft: #f3f4f6;
-}
-
 body {
   min-height: 100vh;
   overflow-x: hidden;
@@ -113,12 +93,6 @@ body.uk-padding {
 }
 
 @media (prefers-color-scheme: light) {
-  :root {
-    --qr-row: var(--qr-row-light);
-    --qr-row-alt: var(--qr-row-alt-light);
-    --qr-border: var(--qr-border-light);
-  }
-
   .sortable-list li:nth-child(2n),
   .terms li:nth-child(2n),
   .mc-option:nth-child(2n) {
@@ -135,24 +109,6 @@ body.uk-padding {
 .sortable-list li:focus {
   outline: 2px solid var(--accent-color);
 }
-
-.qr-handle {
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  margin: 0;
-  background: transparent;
-  border: none;
-  cursor: grab;
-}
-
-.qr-handle:focus {
-  outline: 2px solid var(--accent-color);
-}
-
 .dropzone {
   min-height: 3.5em;
   background: var(--qr-row);
@@ -185,53 +141,8 @@ body.uk-padding {
   min-height: 2.5em;
 }
 
-/* Stripe-ähnliche Lesbarkeit für Tenant-Tabelle */
-.qr-table-wrap {
-  max-height: 60vh;
-}
-.qr-table thead th {
-  font-weight: 600;
-  letter-spacing: .04em;
-  position: sticky;
-  top: 0;
-  background: var(--qr-head);
-  z-index: 1;
-}
-.qr-table td {
-  padding: 0 0.6rem;
-  height: 44px;
-  line-height: 44px;
-}
-.qr-cell {
-  position: relative;
-  cursor: pointer;
-  transition: background-color .2s, box-shadow .2s;
-  border-radius: 4px;
-}
-
-.qr-cell:hover,
-.qr-cell:focus-within {
-  background-color: var(--qr-bg-soft);
-  outline: 2px solid var(--accent-color);
-  outline-offset: -2px;
-}
-.qr-editable-icon {
-  margin-left: 4px;
-  color: var(--color-text);
-  opacity: 0.4;
-  transition: opacity 0.2s;
-}
-.qr-cell:hover .qr-editable-icon {
-  opacity: 1;
-}
 .qr-mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-}
-.qr-table .sticky {
-  position: sticky;
-  left: 0;
-  background: var(--qr-head);
-  z-index: 1;
 }
 .uk-text-truncate {
   max-width: 36ch;
@@ -1092,14 +1003,6 @@ body.admin-page {
   border-radius: 12px;
 }
 
-.qr-rowcard {
-  background: var(--qr-row);
-  border: 1px solid var(--qr-border);
-  border-radius: 12px;
-  padding: 0.5rem;
-}
-.qr-rowcard:nth-child(even) {
-  background: var(--qr-row-alt);
 }
 
 .section--muted {
@@ -1110,16 +1013,6 @@ body.admin-page {
   background: transparent;
 }
 
-/* QR code action buttons */
-.qr-action {
-  border-radius: 8px;
-  background-color: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(4px);
-  margin: 0;
-}
-
-.qr-action:focus {
-  outline: 2px solid var(--accent-color);
 }
 
 /* Swipe card layout */
