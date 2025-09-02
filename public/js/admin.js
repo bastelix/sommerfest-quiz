@@ -1305,15 +1305,138 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         preview.appendChild(ul);
       } else if (typeSelect.value === 'swipe') {
-        const ul = document.createElement('ul');
-        Array.from(fields.querySelectorAll('.card-row')).forEach(r => {
-          const text = r.querySelector('.card-text').value;
-          const check = r.querySelector('.card-correct').checked;
-          const li = document.createElement('li');
-          li.textContent = insertSoftHyphens(text) + (check ? ' ✓' : '');
-          ul.appendChild(li);
-        });
-        preview.appendChild(ul);
+        const container = document.createElement('div');
+        container.style.position = 'relative';
+        container.style.height = '200px';
+        container.style.userSelect = 'none';
+        container.style.touchAction = 'none';
+
+        const leftLabel = fields.querySelector('.left-label')?.value || 'Nein';
+        const rightLabel = fields.querySelector('.right-label')?.value || 'Ja';
+
+        const leftStatic = document.createElement('div');
+        leftStatic.textContent = '⬅ ' + insertSoftHyphens(leftLabel);
+        leftStatic.style.position = 'absolute';
+        leftStatic.style.left = '0';
+        leftStatic.style.top = '50%';
+        leftStatic.style.transform = 'translate(-50%, -50%) rotate(180deg)';
+        leftStatic.style.writingMode = 'vertical-rl';
+        leftStatic.style.pointerEvents = 'none';
+        leftStatic.style.color = 'red';
+        leftStatic.style.zIndex = '10';
+        container.appendChild(leftStatic);
+
+        const rightStatic = document.createElement('div');
+        rightStatic.textContent = insertSoftHyphens(rightLabel) + ' ➡';
+        rightStatic.style.position = 'absolute';
+        rightStatic.style.right = '0';
+        rightStatic.style.top = '50%';
+        rightStatic.style.transform = 'translate(50%, -50%)';
+        rightStatic.style.writingMode = 'vertical-rl';
+        rightStatic.style.pointerEvents = 'none';
+        rightStatic.style.color = 'green';
+        rightStatic.style.zIndex = '10';
+        container.appendChild(rightStatic);
+
+        const label = document.createElement('div');
+        label.style.position = 'absolute';
+        label.style.top = '8px';
+        label.style.left = '8px';
+        label.style.fontWeight = 'bold';
+        label.style.pointerEvents = 'none';
+        container.appendChild(label);
+
+        let cards = Array.from(fields.querySelectorAll('.card-row')).map(r => ({
+          text: r.querySelector('.card-text').value
+        }));
+
+        let startX = 0, startY = 0, offsetX = 0, offsetY = 0, dragging = false;
+
+        function render() {
+          container.querySelectorAll('.swipe-card').forEach(el => el.remove());
+          cards.forEach((c, i) => {
+            const card = document.createElement('div');
+            card.className = 'swipe-card';
+            card.style.position = 'absolute';
+            card.style.left = '2rem';
+            card.style.right = '2rem';
+            card.style.top = '0';
+            card.style.bottom = '0';
+            card.style.background = 'white';
+            card.style.borderRadius = '8px';
+            card.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+            card.style.display = 'flex';
+            card.style.alignItems = 'center';
+            card.style.justifyContent = 'center';
+            card.style.padding = '1rem';
+            card.style.transition = 'transform 0.3s';
+            const off = (cards.length - i - 1) * 4;
+            card.style.transform = `translate(0,-${off}px)`;
+            card.style.zIndex = i;
+            card.textContent = insertSoftHyphens(c.text);
+            if (i === cards.length - 1) {
+              card.addEventListener('pointerdown', start);
+              card.addEventListener('pointermove', move);
+              card.addEventListener('pointerup', end);
+              card.addEventListener('pointercancel', end);
+            }
+            container.appendChild(card);
+          });
+        }
+
+        function point(e) { return { x: e.clientX, y: e.clientY }; }
+
+        function start(e) {
+          if (!cards.length) return;
+          const p = point(e);
+          startX = p.x; startY = p.y;
+          dragging = true;
+          offsetX = 0; offsetY = 0;
+        }
+
+        function move(e) {
+          if (!dragging) return;
+          const p = point(e);
+          offsetX = p.x - startX;
+          offsetY = p.y - startY;
+          const card = container.querySelector('.swipe-card:last-child');
+          if (card) {
+            const rot = offsetX / 10;
+            card.style.transform = `translate(${offsetX}px,${offsetY}px) rotate(${rot}deg)`;
+          }
+          label.textContent = offsetX >= 0
+            ? '➡ ' + insertSoftHyphens(rightLabel)
+            : '⬅ ' + insertSoftHyphens(leftLabel);
+          label.style.color = offsetX >= 0 ? 'green' : 'red';
+          e.preventDefault();
+        }
+
+        function end() {
+          if (!dragging) return;
+          dragging = false;
+          const cardEl = container.querySelector('.swipe-card:last-child');
+          const threshold = 80;
+          if (Math.abs(offsetX) > threshold) {
+            if (cardEl) {
+              cardEl.style.transform = `translate(${offsetX > 0 ? 1000 : -1000}px,${offsetY}px)`;
+            }
+            setTimeout(() => {
+              cards.pop();
+              offsetX = offsetY = 0;
+              label.textContent = '';
+              render();
+            }, 300);
+          } else {
+            if (cardEl) {
+              cardEl.style.transform = 'translate(0,0)';
+            }
+            offsetX = offsetY = 0;
+            label.textContent = '';
+          }
+        }
+
+        render();
+        preview.appendChild(container);
       } else if (typeSelect.value === 'flip') {
         const p = document.createElement('p');
         const ans = fields.querySelector('.flip-answer');
