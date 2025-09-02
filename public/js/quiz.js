@@ -811,10 +811,6 @@ async function runQuiz(questions, skipIntro){
 
     const container = document.createElement('div');
     container.className = 'swipe-container';
-    container.style.position = 'relative';
-    container.style.height = '250px';
-    container.style.userSelect = 'none';
-    container.style.touchAction = 'none';
     div.appendChild(container);
 
     const controls = document.createElement('div');
@@ -886,19 +882,6 @@ async function runQuiz(questions, skipIntro){
       cards.forEach((c,i) => {
         const card = document.createElement('div');
         card.className = 'swipe-card';
-        card.style.position = 'absolute';
-        card.style.left = '2rem';
-        card.style.right = '2rem';
-        card.style.top = '0';
-        card.style.bottom = '0';
-        card.style.background = 'white';
-        card.style.borderRadius = '8px';
-        card.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
-        card.style.display = 'flex';
-        card.style.alignItems = 'center';
-        card.style.justifyContent = 'center';
-        card.style.padding = '1rem';
-        card.style.transition = 'transform 0.3s';
         const off = (cards.length - i - 1) * 4;
         card.style.transform = `translate(0,-${off}px)`;
         card.style.zIndex = i;
