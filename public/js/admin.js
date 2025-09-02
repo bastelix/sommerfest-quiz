@@ -1886,6 +1886,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamEditSave = document.getElementById('teamEditSave');
   const teamEditCancel = document.getElementById('teamEditCancel');
   const teamEditError = document.getElementById('teamEditError');
+  const teamEditTitle = document.querySelector('#teamEditModal .uk-modal-title');
+  const teamEditTitleBase = teamEditTitle?.textContent.trim();
   let currentTeamId = null;
 
   function collectTeams() {
@@ -1913,7 +1915,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function openTeamModal(cell) {
     currentTeamId = cell.dataset.teamId;
-    teamEditInput.value = cell.textContent.trim();
+    const name = cell.textContent.trim();
+    teamEditInput.value = name;
+    if (teamEditTitle) {
+      teamEditTitle.textContent = name ? `${teamEditTitleBase}: ${name}` : teamEditTitleBase;
+    }
     teamEditError.hidden = true;
     teamEditModal.show();
   }
