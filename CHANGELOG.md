@@ -156,6 +156,7 @@
 - Replace UIkit card modifiers with qr-card
 - Add theme-aware icon color
 - Derive base url from request
+- Add qr color variables
 
 ### Style
 
