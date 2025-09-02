@@ -292,16 +292,6 @@
                 </div>
               </div>
               <div class="uk-width-1-1">
-                <h4 class="uk-heading-bullet">{{ t('heading_access') }}</h4>
-              </div>
-              <div>
-                <div class="uk-margin">
-                  <label><input class="uk-checkbox" type="checkbox" id="cfgTeamRestrict"> {{ t('label_team_restrict') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_team_restrict') }}; pos: right" tabindex="0"></span>
-                  </label>
-                </div>
-              </div>
-              <div class="uk-width-1-1">
                 <h4 class="uk-heading-bullet">{{ t('heading_gameplay') }}</h4>
               </div>
               <div>
@@ -485,6 +475,11 @@
         <ul id="teamsCards" class="uk-hidden@m uk-list" uk-sortable="handle: .qr-handle; group: sortable-group"></ul>
         <div class="uk-margin">
           <button id="teamAddBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_team_add') }}; pos: left" aria-label="{{ t('tip_team_add') }}"></button>
+        </div>
+        <div class="uk-margin">
+          <label><input class="uk-checkbox" type="checkbox" id="cfgTeamRestrict"> {{ t('label_team_restrict') }}
+            <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_team_restrict') }}; pos: right" tabindex="0"></span>
+          </label>
         </div>
         <div class="uk-margin uk-flex uk-flex-right">
           <button id="teamsSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: {{ t('tip_team_save') }}; pos: left" aria-label="{{ t('tip_team_save') }}"></button>

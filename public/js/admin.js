@@ -1876,7 +1876,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamCardsEl = document.getElementById('teamsCards');
   const teamAddBtn = document.getElementById('teamAddBtn');
   const teamSaveBtn = document.getElementById('teamsSaveBtn');
-  const teamRestrictTeams = document.getElementById('teamRestrict');
   const teamEditModal = UIkit.modal('#teamEditModal');
   const teamEditInput = document.getElementById('teamEditInput');
   const teamEditSave = document.getElementById('teamEditSave');
@@ -2104,9 +2103,6 @@ document.addEventListener('DOMContentLoaded', function () {
         renderTeamsPage(1);
       })
       .catch(()=>{});
-    if (teamRestrictTeams) {
-      teamRestrictTeams.checked = !!cfgInitial.QRRestrict;
-    }
   }
 
   teamAddBtn?.addEventListener('click', e => {
@@ -2140,14 +2136,7 @@ document.addEventListener('DOMContentLoaded', function () {
   teamSaveBtn?.addEventListener('click', e => {
     e.preventDefault();
     saveTeamList(true);
-    if (teamRestrictTeams) {
-      cfgInitial.QRRestrict = teamRestrictTeams.checked;
-      apiFetch('/config.json', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(cfgInitial)
-      }).catch(() => {});
-    }
+    saveConfig(false);
   });
 
   // --------- Benutzer ---------
