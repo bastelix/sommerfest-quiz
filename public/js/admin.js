@@ -2009,8 +2009,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamEditTitle = document.querySelector('#teamEditModal .uk-modal-title');
   const teamEditTitleBase = teamEditTitle?.textContent.trim();
   let currentTeamId = null;
+  let currentTeamKey = null;
   const TEAMS_PER_PAGE = 50;
-  let allTeams = [];
   const teamPaginationEl = document.createElement('ul');
   teamPaginationEl.id = 'teamsPagination';
   teamPaginationEl.className = 'uk-pagination uk-flex-center';
@@ -2045,16 +2045,12 @@ document.addEventListener('DOMContentLoaded', function () {
     sortable: true,
     onEdit: openTeamModal,
     onDelete: removeTeam,
-    onReorder: reorderTeams
+    onReorder: () => reorderTeams(teamManager.getData())
   });
   teamManager.bindPagination(teamPaginationEl, TEAMS_PER_PAGE);
 
-  function collectTeams() {
-    return allTeams.map(t => t.name);
-  }
-
-  function saveTeamList(show = false) {
-    const names = collectTeams();
+  function saveTeamList(list = teamManager.getData(), show = false) {
+    const names = list.map(t => t.name);
     apiFetch('/teams.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -2070,9 +2066,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  function openTeamModal(_cell, team) {
-    currentTeamId = team.id;
-    const name = team.name || '';
+  function openTeamModal(cell) {
+    currentTeamId = cell?.dataset.id || null;
+    currentTeamKey = cell?.dataset.key || null;
+    const team = teamManager.getData().find(t => t.id === currentTeamId) || {};
+    const name = currentTeamKey ? (team[currentTeamKey] || '') : '';
     teamEditInput.value = name;
     if (teamEditTitle) {
       teamEditTitle.textContent = name ? `${teamEditTitleBase}: ${name}` : teamEditTitleBase;
@@ -2081,17 +2079,17 @@ document.addEventListener('DOMContentLoaded', function () {
     teamEditModal.show();
   }
 
-  function reorderTeams(ids) {
-    allTeams = ids.map(id => allTeams.find(t => t.id === id)).filter(Boolean);
-    saveTeamList();
+  function reorderTeams(list) {
+    saveTeamList(list);
   }
 
   function removeTeam(id) {
-    const idx = allTeams.findIndex(t => t.id === id);
+    const list = teamManager.getData();
+    const idx = list.findIndex(t => t.id === id);
     if (idx !== -1) {
-      allTeams.splice(idx, 1);
-      teamManager.render(allTeams);
-      saveTeamList();
+      list.splice(idx, 1);
+      teamManager.render(list);
+      saveTeamList(list);
     }
   }
 
@@ -2103,8 +2101,8 @@ document.addEventListener('DOMContentLoaded', function () {
     apiFetch('/teams.json', { headers: { 'Accept':'application/json' } })
       .then(r => r.json())
       .then(data => {
-        allTeams = data.map(n => ({ id: crypto.randomUUID(), name: n }));
-        teamManager.render(allTeams);
+        const list = data.map(n => ({ id: crypto.randomUUID(), name: n }));
+        teamManager.render(list);
       })
       .catch(()=>{});
     if (teamRestrictTeams) {
@@ -2116,12 +2114,14 @@ document.addEventListener('DOMContentLoaded', function () {
     e.preventDefault();
     const id = crypto.randomUUID();
     const team = { id, name: '' };
-    allTeams.push(team);
+    const list = teamManager.getData();
+    list.push(team);
     if (teamManager.pagination) {
-      teamManager.pagination.page = Math.max(1, Math.ceil(allTeams.length / TEAMS_PER_PAGE));
+      teamManager.pagination.page = Math.max(1, Math.ceil(list.length / TEAMS_PER_PAGE));
     }
-    teamManager.render(allTeams);
-    openTeamModal(null, team);
+    teamManager.render(list);
+    const cell = document.querySelector(`[data-id="${id}"][data-key="name"]`);
+    if (cell) openTeamModal(cell);
   });
 
   teamEditSave?.addEventListener('click', () => {
@@ -2131,10 +2131,11 @@ document.addEventListener('DOMContentLoaded', function () {
       teamEditError.hidden = false;
       return;
     }
-    const team = allTeams.find(t => t.id === currentTeamId);
-    if (team) team.name = val;
-    teamManager.render(allTeams);
-    saveTeamList();
+    const list = teamManager.getData();
+    const team = list.find(t => t.id === currentTeamId);
+    if (team && currentTeamKey) team[currentTeamKey] = val;
+    teamManager.render(list);
+    saveTeamList(list);
     teamEditModal.hide();
   });
 

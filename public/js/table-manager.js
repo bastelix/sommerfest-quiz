@@ -33,9 +33,10 @@ export default class TableManager {
   }
 
   #handleReorder() {
+    const ids = Array.from(this.tbody.children).map(r => r.dataset.id);
+    this.data = ids.map(id => this.data.find(d => d.id === id)).filter(Boolean);
     if (typeof this.onReorder === 'function') {
-      const ids = Array.from(this.tbody.children).map(r => r.dataset.id);
-      this.onReorder(ids);
+      this.onReorder();
     }
   }
 
@@ -89,6 +90,10 @@ export default class TableManager {
       if (col.editable) {
         cell.classList.add('qr-cell');
         cell.tabIndex = 0;
+        cell.dataset.id = item.id;
+        if (col.key) {
+          cell.dataset.key = col.key;
+        }
         const span = document.createElement('span');
         span.className = 'uk-text-truncate';
         if (content instanceof Node) {
@@ -105,7 +110,7 @@ export default class TableManager {
         cell.setAttribute('aria-describedby', descId);
         cell.appendChild(desc);
         if (typeof this.onEdit === 'function') {
-          cell.addEventListener('click', () => this.onEdit(cell, item));
+          cell.addEventListener('click', () => this.onEdit(cell));
         }
       } else {
         if (content instanceof Node) {
@@ -195,8 +200,12 @@ export default class TableManager {
           wrapper.appendChild(span);
         }
         wrapper.appendChild(desc);
+        wrapper.dataset.id = item.id;
+        if (col.key) {
+          wrapper.dataset.key = col.key;
+        }
         if (typeof this.onEdit === 'function') {
-          wrapper.addEventListener('click', () => this.onEdit(wrapper, item));
+          wrapper.addEventListener('click', () => this.onEdit(wrapper));
         }
         contentWrap.appendChild(wrapper);
       } else {
@@ -262,6 +271,10 @@ export default class TableManager {
       li.appendChild(a);
       el.appendChild(li);
     }
+  }
+
+  getData() {
+    return this.data;
   }
 }
 
