@@ -23,6 +23,7 @@
 - Normalize invite setup indentation
 - Restore config backup
 - *(docs)* Remove unused jekyll rtd theme
+- Add migration for logo width
 
 ### Ci
 
