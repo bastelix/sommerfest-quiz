@@ -602,6 +602,15 @@ body.qr-landing:not([data-theme="dark"]) .contact-card span{
   box-shadow:0 0 0 3px var(--qr-ring);
   border-color: color-mix(in oklab, var(--qr-brand-600) 50%, transparent);
 }
+.qr-landing:not(.dark-mode) #contact-form .uk-checkbox{
+  border:1px solid var(--qr-muted);
+  background:var(--qr-card);
+  accent-color:var(--qr-landing-primary);
+}
+.qr-landing:not(.dark-mode) #contact-form .uk-checkbox:focus{
+  box-shadow:0 0 0 3px var(--qr-ring);
+  border-color: color-mix(in oklab, var(--qr-brand-600) 50%, transparent);
+}
 .qr-landing a:focus-visible,
 .qr-landing button:focus-visible,
 .qr-landing .uk-button:focus-visible{
