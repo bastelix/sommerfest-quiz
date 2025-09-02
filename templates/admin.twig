@@ -180,14 +180,14 @@
           <table id="eventsTable" class="uk-table uk-table-divider uk-table-small" role="table" aria-label="{{ t('heading_events') }}">
             <thead class="table-headings">
               <tr>
-                <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top"></span></th>
+                <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top" tabindex="0"></span></th>
                 <th scope="col">{{ t('column_number') }}</th>
                 <th scope="col">{{ t('column_name') }}</th>
                 <th scope="col">{{ t('column_start') }}</th>
                 <th scope="col">{{ t('column_end') }}</th>
                 <th scope="col">{{ t('column_description') }}</th>
                 <th scope="col">{{ t('column_current') }}</th>
-                <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_event_remove') }}; pos: top"></span></th>
+                <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_event_remove') }}; pos: top" tabindex="0"></span></th>
               </tr>
             </thead>
             <tbody id="eventsList" role="rowgroup"
@@ -221,7 +221,7 @@
             <div>
               <div class="uk-margin">
                 <label class="uk-form-label" for="cfgLogoFile">{{ t('label_logo_upload') }}
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_logo_upload') }}; pos: right"></span>
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_logo_upload') }}; pos: right" tabindex="0"></span>
                 </label>
                 <div class="uk-form-controls">
                   <div class="js-upload uk-placeholder uk-text-center">
@@ -260,7 +260,7 @@
             <div>
               <div class="uk-margin">
                 <label class="uk-form-label" for="cfgPageTitle">{{ t('label_page_title') }}
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_page_title') }}; pos: right"></span>
+                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_page_title') }}; pos: right" tabindex="0"></span>
                 </label>
                 <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgPageTitle"></div>
               </div>
@@ -269,13 +269,13 @@
               <div class="uk-margin uk-child-width-1-2@s uk-grid-small" uk-grid>
                 <div>
                   <label class="uk-form-label" for="cfgBackgroundColor">{{ t('label_background_color') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_background_color') }}; pos: right"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_background_color') }}; pos: right" tabindex="0"></span>
                   </label>
                   <div class="uk-form-controls"><input class="uk-input" type="color" id="cfgBackgroundColor"></div>
                 </div>
                 <div>
                   <label class="uk-form-label" for="cfgButtonColor">{{ t('label_button_color') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_button_color') }}; pos: right"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_button_color') }}; pos: right" tabindex="0"></span>
                   </label>
                   <div class="uk-form-controls"><input class="uk-input" type="color" id="cfgButtonColor"></div>
                 </div>
@@ -290,14 +290,14 @@
               <div>
                 <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgQRUser"> {{ t('label_qr_login') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_qr_button') }}; pos:right"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_qr_button') }}; pos:right" tabindex="0"></span>
                   </label>
                 </div>
               </div>
               <div>
                 <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgRandomNames"> {{ t('label_random_names') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_random_names') }}; pos: right"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_random_names') }}; pos: right" tabindex="0"></span>
                   </label>
                 </div>
               </div>
@@ -307,7 +307,7 @@
               <div>
                 <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgTeamRestrict"> {{ t('label_team_restrict') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_team_restrict') }}; pos: right"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_team_restrict') }}; pos: right" tabindex="0"></span>
                   </label>
                 </div>
               </div>
@@ -317,21 +317,21 @@
               <div>
                 <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgCheckAnswerButton"> {{ t('label_check_button') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_check_button') }}; pos: right"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_check_button') }}; pos: right" tabindex="0"></span>
                   </label>
                 </div>
               </div>
               <div>
                 <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgCompetitionMode"> {{ t('label_competition_mode') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_competition_mode') }}; pos: right"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_competition_mode') }}; pos: right" tabindex="0"></span>
                   </label>
                 </div>
               </div>
               <div>
                 <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgTeamResults"> {{ t('label_team_results') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_team_results') }}; pos: right"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_team_results') }}; pos: right" tabindex="0"></span>
                   </label>
                 </div>
               </div>
@@ -341,14 +341,14 @@
               <div>
                 <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgPhotoUpload"> {{ t('label_photo_upload') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_photo_upload') }}; pos: right"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_photo_upload') }}; pos: right" tabindex="0"></span>
                   </label>
                 </div>
               </div>
               <div>
                 <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgPuzzleEnabled"> {{ t('label_puzzle_word') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_puzzle_word') }}; pos: right"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_puzzle_word') }}; pos: right" tabindex="0"></span>
                   </label>
                   <div id="cfgPuzzleWordWrap" class="uk-margin-small-top uk-grid uk-child-width-1-2@m uk-grid-small uk-flex-middle" uk-grid>
                     <div>
@@ -390,7 +390,7 @@
             </div>
             <textarea id="catalogCommentTextarea" class="uk-textarea" rows="5" placeholder="{{ t('placeholder_catalog_comment') }}"></textarea>
             <div class="uk-flex uk-flex-right uk-margin-top">
-              <button id="catalogCommentSave" class="uk-icon-button uk-button-primary" uk-icon="check" type="button"></button>
+              <button id="catalogCommentSave" class="uk-icon-button uk-button-primary" uk-icon="check" type="button" aria-label="{{ t('action_save') }}"></button>
               <button class="uk-button uk-button-default uk-modal-close" type="button">{{ t('action_cancel') }}</button>
             </div>
           </div>
@@ -407,25 +407,25 @@
             <thead class="table-headings">
               <tr>
                 <th scope="col">
-                  <span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top"></span>
+                  <span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top" tabindex="0"></span>
                 </th>
                   <th scope="col">{{ t('column_slug') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_slug') }}; pos: top"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_slug') }}; pos: top" tabindex="0"></span>
                   </th>
                   <th scope="col">{{ t('column_name') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_name') }}; pos: top"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_name') }}; pos: top" tabindex="0"></span>
                   </th>
                   <th scope="col">{{ t('column_description') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_desc') }}; pos: top"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_desc') }}; pos: top" tabindex="0"></span>
                   </th>
                   <th scope="col">{{ t('column_letter') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_puzzle_letter') }}; pos: top"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_puzzle_letter') }}; pos: top" tabindex="0"></span>
                   </th>
                   <th scope="col">{{ t('column_comment') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_comment') }}; pos: top"></span>
+                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_comment') }}; pos: top" tabindex="0"></span>
                   </th>
                   <th scope="col">
-                    <span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_remove') }}; pos: top"></span>
+                    <span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_remove') }}; pos: top" tabindex="0"></span>
                   </th>
               </tr>
             </thead>
@@ -440,10 +440,10 @@
           </table>
         </div>
         <div class="uk-margin">
-          <button id="newCatBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_cat_add') }}; pos: left"></button>
+          <button id="newCatBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_cat_add') }}; pos: left" aria-label="{{ t('tip_cat_add') }}"></button>
         </div>
         <div class="uk-margin uk-flex uk-flex-right">
-          <button id="catalogsSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: {{ t('tip_cat_save') }}; pos: left"></button>
+          <button id="catalogsSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: {{ t('tip_cat_save') }}; pos: left" aria-label="{{ t('tip_cat_save') }}"></button>
         </div>
         </div>
       </div>
@@ -453,7 +453,7 @@
         <h2 class="uk-heading-bullet">{{ t('heading_questions') }}</h2>
         <div class="uk-margin">
           <label class="uk-form-label" for="catalogSelect">{{ t('label_catalog_select') }}
-            <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_catalog_select') }}; pos: right"></span>
+            <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_catalog_select') }}; pos: right" tabindex="0"></span>
           </label>
           <div class="uk-form-controls">
             <select id="catalogSelect" class="uk-select uk-margin-small-top"></select>
@@ -464,11 +464,11 @@
         <!-- Bedienleiste fuer Frageneditor -->
         <div id="questionActions">
           <div class="uk-margin">
-            <button id="addBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_question_add') }}; pos: left"></button>
+            <button id="addBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_question_add') }}; pos: left" aria-label="{{ t('tip_question_add') }}"></button>
           </div>
           <div class="uk-margin uk-flex uk-flex-right">
             <button id="resetBtn" class="uk-button uk-button-default uk-margin-right" uk-tooltip="title: {{ t('tip_question_reset') }}; pos: left">{{ t('action_reset') }}</button>
-            <button id="saveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: {{ t('tip_question_save') }}; pos: left"></button>
+            <button id="saveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: {{ t('tip_question_save') }}; pos: left" aria-label="{{ t('tip_question_save') }}"></button>
           </div>
         </div>
         <!-- Ende Hauptdatenbereich -->
@@ -488,16 +488,16 @@
                   <th scope="col"></th>
                 </tr>
               </thead>
-              <tbody id="teamsList" uk-sortable="handle: .qr-handle; group: sortable-group"></tbody>
+              <tbody id="teamsList" role="rowgroup" uk-sortable="handle: .qr-handle; group: sortable-group"></tbody>
             </table>
           </div>
         </div>
         <ul id="teamsCards" class="uk-hidden@m uk-list" uk-sortable="handle: .qr-handle; group: sortable-group"></ul>
         <div class="uk-margin">
-          <button id="teamAddBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_team_add') }}; pos: left"></button>
+          <button id="teamAddBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_team_add') }}; pos: left" aria-label="{{ t('tip_team_add') }}"></button>
         </div>
         <div class="uk-margin uk-flex uk-flex-right">
-          <button id="teamsSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: {{ t('tip_team_save') }}; pos: left"></button>
+          <button id="teamsSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: {{ t('tip_team_save') }}; pos: left" aria-label="{{ t('tip_team_save') }}"></button>
         </div>
         <div id="teamEditModal" uk-modal>
           <div class="uk-modal-dialog uk-modal-body">
@@ -860,19 +860,19 @@
           <table class="uk-table uk-table-divider uk-table-small">
             <thead>
                 <tr>
-                  <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top"></span></th>
+                  <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top" tabindex="0"></span></th>
                   <th scope="col">{{ t('column_username') }}</th>
                   <th scope="col">{{ t('column_role') }}</th>
                   <th scope="col">Aktiv</th>
-                  <th scope="col"><span uk-icon="icon: key" uk-tooltip="title: {{ t('tip_user_pass') }}; pos: top"></span></th>
-                  <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_user_remove') }}; pos: top"></span></th>
+                  <th scope="col"><span uk-icon="icon: key" uk-tooltip="title: {{ t('tip_user_pass') }}; pos: top" tabindex="0"></span></th>
+                  <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_user_remove') }}; pos: top" tabindex="0"></span></th>
                 </tr>
               </thead>
             <tbody id="usersList" uk-sortable="handle: .uk-sortable-handle; group: sortable-group"></tbody>
           </table>
         </div>
         <div class="uk-margin">
-          <button id="userAddBtn" class="uk-icon-button uk-button-default" uk-icon="plus" uk-tooltip="title: {{ t('tip_user_add') }}; pos: right"></button>
+          <button id="userAddBtn" class="uk-icon-button uk-button-default" uk-icon="plus" uk-tooltip="title: {{ t('tip_user_add') }}; pos: right" aria-label="{{ t('tip_user_add') }}"></button>
         </div>
 
         <div id="userPassModal" uk-modal>
@@ -881,7 +881,7 @@
             <div class="uk-margin"><input id="userPassInput" class="uk-input" type="password" placeholder="Passwort"></div>
             <div class="uk-margin"><input id="userPassRepeat" class="uk-input" type="password" placeholder="Wiederholen"></div>
             <div class="uk-flex uk-flex-right uk-margin-top">
-              <button id="userPassSave" class="uk-icon-button uk-button-primary" uk-icon="check" type="button"></button>
+              <button id="userPassSave" class="uk-icon-button uk-button-primary" uk-icon="check" type="button" aria-label="{{ t('action_save') }}"></button>
               <button class="uk-button uk-button-default uk-modal-close" type="button">{{ t('action_cancel') }}</button>
             </div>
           </div>
@@ -1053,7 +1053,7 @@
             <button id="welcomeMailBtn" type="button" class="uk-button uk-button-default">{{ t('action_send_welcome_mail') }}</button>
           </div>
           {% endif %}
-          <button id="profileSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: {{ t('tip_save_changes') }}; pos: left"></button>
+          <button id="profileSaveBtn" class="uk-icon-button uk-button-primary fab fab-save" uk-icon="check" uk-tooltip="title: {{ t('tip_save_changes') }}; pos: left" aria-label="{{ t('tip_save_changes') }}"></button>
         </form>
         {% else %}
         <p>{{ t('text_no_data') }}</p>
