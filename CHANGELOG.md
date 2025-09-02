@@ -38,6 +38,7 @@
 - Document Docker Compose project name
 - Dokumentation des table frameworks
 - Update table framework guide
+- Add local documentation build instructions
 
 ### Feat
 
