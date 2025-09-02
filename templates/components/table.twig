@@ -1,0 +1,20 @@
+{% macro qr_table(headings, body_id, sortable=true) %}
+<div class="uk-visible@m">
+  <div class="uk-overflow-auto">
+    <table class="uk-table uk-table-divider uk-table-small qr-table">
+      <thead class="table-headings">
+        <tr>
+          {% for h in headings %}
+          <th scope="col"{% if h.class is defined %} class="{{ h.class }}"{% endif %}>{{ h.label|raw }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody id="{{ body_id }}" role="rowgroup"{% if sortable %} uk-sortable="handle: .qr-handle; group: sortable-group"{% endif %}></tbody>
+    </table>
+  </div>
+</div>
+{% endmacro %}
+
+{% macro qr_rowcards(list_id) %}
+<ul id="{{ list_id }}" class="uk-hidden@m uk-list" uk-sortable="handle: .qr-handle; group: sortable-group"></ul>
+{% endmacro %}
