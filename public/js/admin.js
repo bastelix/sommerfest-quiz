@@ -1922,10 +1922,11 @@ document.addEventListener('DOMContentLoaded', function () {
     row.className = 'team-row';
 
     const handleCell = document.createElement('td');
-    const handleSpan = document.createElement('span');
-    handleSpan.className = 'uk-sortable-handle uk-icon';
-    handleSpan.setAttribute('uk-icon', 'icon: table');
-    handleCell.appendChild(handleSpan);
+    const handleBtn = document.createElement('button');
+    handleBtn.className = 'uk-button uk-button-default qr-handle';
+    handleBtn.setAttribute('uk-icon', 'menu');
+    handleBtn.setAttribute('aria-label', 'Reihenfolge ändern');
+    handleCell.appendChild(handleBtn);
 
     const nameCell = document.createElement('td');
     nameCell.className = 'team-name';
