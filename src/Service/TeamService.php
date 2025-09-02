@@ -54,6 +54,42 @@ class TeamService
     }
 
     /**
+     * Create a team with the given name if it does not exist yet.
+     */
+    public function addIfMissing(string $name): void
+    {
+        $uid = $this->config->getActiveEventUid();
+        $sql = 'SELECT uid FROM teams WHERE name=?';
+        $params = [$name];
+        if ($uid !== '') {
+            $sql .= ' AND event_uid=?';
+            $params[] = $uid;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        if ($stmt->fetchColumn() !== false) {
+            return;
+        }
+
+        if ($uid !== '') {
+            $stmt = $this->pdo->prepare('SELECT COALESCE(MAX(sort_order),0) FROM teams WHERE event_uid=?');
+            $stmt->execute([$uid]);
+        } else {
+            $stmt = $this->pdo->query('SELECT COALESCE(MAX(sort_order),0) FROM teams');
+        }
+        $sort = ((int) $stmt->fetchColumn()) + 1;
+        $teamUid = bin2hex(random_bytes(16));
+
+        if ($uid !== '') {
+            $stmt = $this->pdo->prepare('INSERT INTO teams(uid,event_uid,sort_order,name) VALUES(?,?,?,?)');
+            $stmt->execute([$teamUid, $uid, $sort, $name]);
+        } else {
+            $stmt = $this->pdo->prepare('INSERT INTO teams(uid,sort_order,name) VALUES(?,?,?)');
+            $stmt->execute([$teamUid, $sort, $name]);
+        }
+    }
+
+    /**
      * @param array<int, string> $teams
      */
     public function saveAll(array $teams): void
