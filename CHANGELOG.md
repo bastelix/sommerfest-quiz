@@ -123,6 +123,7 @@
 - Add table macros for admin views
 - Add generic table manager
 - Add mobile card rendering with accessibility
+- Polish table layout and theme variables
 
 ### Fix
 
