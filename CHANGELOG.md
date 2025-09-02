@@ -191,6 +191,7 @@
 - Use black text for contact details on light theme
 - Enhance landing slider
 - Make event start button text white
+- Adjust team table layout
 
 ### Test
 
