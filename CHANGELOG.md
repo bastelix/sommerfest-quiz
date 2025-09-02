@@ -108,6 +108,7 @@
 - *(admin)* Edit teams via modal
 - Add qr action button style
 - Add teams speed dial
+- Add pagination for team management
 
 ### Fix
 
