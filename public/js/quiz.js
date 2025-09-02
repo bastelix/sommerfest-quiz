@@ -102,13 +102,32 @@ function insertSoftHyphens(text){
 
 async function promptTeamName(){
   return new Promise(resolve => {
+    const existing = getStored('quizUser');
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
     modal.setAttribute('aria-modal', 'true');
     const dialog = document.createElement('div');
     dialog.className = 'uk-modal-dialog uk-modal-body';
+    modal.appendChild(dialog);
     const title = document.createElement('h3');
     title.className = 'uk-modal-title uk-text-center';
+    dialog.appendChild(title);
+
+    if(existing){
+      title.textContent = `Ah - dich kenne ich. Du bist ${existing}. Willkommen zurück.`;
+      const btn = document.createElement('button');
+      btn.id = 'team-name-submit';
+      btn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
+      btn.textContent = 'Weiter';
+      dialog.appendChild(btn);
+      document.body.appendChild(modal);
+      const ui = UIkit.modal(modal, { bgClose: false, escClose: false });
+      UIkit.util.on(modal, 'hidden', () => { modal.remove(); resolve(); });
+      btn.addEventListener('click', () => { ui.hide(); });
+      ui.show();
+      return;
+    }
+
     title.textContent = 'Teamname eingeben';
     const input = document.createElement('input');
     input.id = 'team-name-input';
@@ -119,10 +138,8 @@ async function promptTeamName(){
     btn.id = 'team-name-submit';
     btn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
     btn.textContent = 'Weiter';
-    dialog.appendChild(title);
     dialog.appendChild(input);
     dialog.appendChild(btn);
-    modal.appendChild(dialog);
     btn.addEventListener('click', () => {
       const name = (input.value || '').trim();
       if(name){
