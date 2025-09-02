@@ -107,6 +107,7 @@
 - Preserve catalog questions on slug change
 - *(admin)* Edit teams via modal
 - Add qr action button style
+- Add teams speed dial
 
 ### Fix
 
