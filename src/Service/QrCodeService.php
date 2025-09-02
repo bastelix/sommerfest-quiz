@@ -211,6 +211,7 @@ class QrCodeService
      *     text1?:string,
      *     text2?:string,
      *     round_mode?:string,
+     *     eye?:string,
      *     logo_punchout?:bool,
      *     logo_path?:string
      * } $defaults
@@ -238,6 +239,11 @@ class QrCodeService
         $rounded = $this->boolParam($q['rounded'] ?? null, true);
         $roundModeParam = $q['round_mode'] ?? ($defaults['round_mode'] ?? null);
         $logoPunchout = $this->boolParam($q['logo_punchout'] ?? ($defaults['logo_punchout'] ?? null), true);
+        $eyeStyleParam = $q['eye'] ?? ($defaults['eye'] ?? 'square');
+        $eyeStyle = strtolower((string) $eyeStyleParam);
+        if (!in_array($eyeStyle, ['round', 'square'], true)) {
+            $eyeStyle = 'square';
+        }
         $ec = $this->ecFromParam($q['ec'] ?? null);
 
         $roundMode = $this->roundModeFromParam($roundModeParam, $rounded);
@@ -263,6 +269,7 @@ class QrCodeService
         try {
             $result = (new Builder(
                 writer: $writer,
+                writerOptions: ['eye' => $eyeStyle],
                 data: $data,
                 encoding: new Encoding('UTF-8'),
                 errorCorrectionLevel: $ec,
@@ -313,6 +320,9 @@ class QrCodeService
         }
         if (array_key_exists('qrRounded', $cfg) && $cfg['qrRounded'] !== null) {
             $defaults['rounded'] = $cfg['qrRounded'] ? '1' : '0';
+        }
+        if (($cfg['qrEyeStyle'] ?? '') !== '') {
+            $defaults['eye'] = (string) $cfg['qrEyeStyle'];
         }
         return $defaults;
     }

@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS config (
     qrRoundMode TEXT,
     qrLogoPunchout BOOLEAN,
     qrRounded BOOLEAN,
+    qrEyeStyle TEXT,
     qrColorTeam TEXT,
     qrColorCatalog TEXT,
     qrColorEvent TEXT,

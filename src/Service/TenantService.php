@@ -248,6 +248,7 @@ class TenantService
                     'qr_round_mode' => 'qrRoundMode',
                     'qr_logo_punchout' => 'qrLogoPunchout',
                     'qr_rounded' => 'qrRounded',
+                    'qr_eye_style' => 'qrEyeStyle',
                     'qr_color_team' => 'qrColorTeam',
                     'qr_color_catalog' => 'qrColorCatalog',
                     'qr_color_event' => 'qrColorEvent',

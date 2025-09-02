@@ -149,6 +149,7 @@ class QrControllerTest extends TestCase
                 qrRoundMode TEXT,
                 qrLogoPunchout INTEGER,
                 qrRounded INTEGER,
+                qrEyeStyle TEXT,
                 qrColorTeam TEXT,
                 qrColorCatalog TEXT,
                 qrColorEvent TEXT,

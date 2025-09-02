@@ -24,6 +24,7 @@
   "qrRoundMode": "margin",
   "qrLogoPunchout": true,
   "qrRounded": true,
+  "qrEyeStyle": "square",
   "qrColorTeam": "#004bc8",
   "qrColorCatalog": "#dc0000",
   "qrColorEvent": "#00a65a",

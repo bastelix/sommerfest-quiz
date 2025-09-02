@@ -2888,6 +2888,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const qrRoundModeSelect = document.getElementById('qrRoundModeSelect');
   const qrColorInput = document.getElementById('qrColorInput');
   const qrRoundedInput = document.getElementById('qrRoundedInput');
+  const qrEyeStyleSelect = document.getElementById('qrEyeStyleSelect');
   const qrPreview = document.getElementById('qrDesignPreview');
   const qrApplyBtn = document.getElementById('qrDesignApply');
   const qrLogoFile = document.getElementById('qrLogoFile');
@@ -2934,6 +2935,8 @@ document.addEventListener('DOMContentLoaded', function () {
     params.set('round_mode', roundMode);
     params.set('rounded', rounded ? '1' : '0');
     params.set('logo_punchout', qrPunchoutInput?.checked ? '1' : '0');
+    const eyeStyle = qrEyeStyleSelect?.value || 'square';
+    params.set('eye', eyeStyle);
     if (qrPreview) qrPreview.src = withBase(currentQrEndpoint + '?' + params.toString());
   }
 
@@ -2973,13 +2976,16 @@ document.addEventListener('DOMContentLoaded', function () {
       const mode = cfgInitial.qrRoundMode || 'margin';
       qrRoundModeSelect.value = cfgInitial.qrRounded === false ? 'none' : mode;
     }
+    if (qrEyeStyleSelect) {
+      qrEyeStyleSelect.value = cfgInitial.qrEyeStyle || 'square';
+    }
     qrLogoPath = global ? (cfgInitial.qrLogoPath || '') : '';
     if (qrLogoFile) qrLogoFile.value = '';
     updateQrPreview();
     if (qrDesignModal) UIkit.modal(qrDesignModal).show();
   }
 
-  [qrLabelInput, qrPunchoutInput, qrRoundModeSelect, qrColorInput, qrRoundedInput].forEach(el => {
+  [qrLabelInput, qrPunchoutInput, qrRoundModeSelect, qrColorInput, qrRoundedInput, qrEyeStyleSelect].forEach(el => {
     el?.addEventListener('input', updateQrPreview);
     el?.addEventListener('change', updateQrPreview);
   });
@@ -3006,6 +3012,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const rounded = qrRoundedInput?.checked !== false;
     const roundMode = rounded ? (qrRoundModeSelect?.value || 'margin') : 'none';
     const punchout = qrPunchoutInput?.checked ? '1' : '0';
+    const eyeStyle = qrEyeStyleSelect?.value || 'square';
     const field = currentQrEndpoint === '/qr/team' ? 'qrColorTeam'
       : currentQrEndpoint === '/qr/catalog' ? 'qrColorCatalog'
       : 'qrColorEvent';
@@ -3027,6 +3034,7 @@ document.addEventListener('DOMContentLoaded', function () {
         params.set('round_mode', roundMode);
         params.set('rounded', rounded ? '1' : '0');
         params.set('logo_punchout', punchout);
+        params.set('eye', eyeStyle);
         img.src = withBase(endpoint + '?' + params.toString());
       });
       const lines = (qrLabelInput?.value || '').split(/\n/, 2);
@@ -3036,6 +3044,7 @@ document.addEventListener('DOMContentLoaded', function () {
         qrRoundMode: roundMode,
         qrLogoPunchout: punchout === '1',
         qrRounded: rounded,
+        qrEyeStyle: eyeStyle,
       };
       if (qrLogoPath) data.qrLogoPath = qrLogoPath;
       data[field] = colorVal;
@@ -3047,7 +3056,7 @@ document.addEventListener('DOMContentLoaded', function () {
       Object.assign(cfgInitial, data);
     } else if (currentQrImg) {
       currentQrImg.src = qrPreview.src;
-      const data = { qrRounded: rounded };
+      const data = { qrRounded: rounded, qrEyeStyle: eyeStyle };
       data[field] = colorVal;
       apiFetch('/config.json', {
         method: 'POST',
@@ -3093,6 +3102,7 @@ document.addEventListener('DOMContentLoaded', function () {
         params.set('round_mode', roundMode);
         params.set('rounded', rounded ? '1' : '0');
         params.set('logo_punchout', cfgInitial.qrLogoPunchout !== false ? '1' : '0');
+        params.set('eye', cfgInitial.qrEyeStyle || 'square');
         const col = cfgInitial[colorKey] || '';
         if (col) params.set('fg', col.replace('#', ''));
       };

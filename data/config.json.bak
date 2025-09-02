@@ -25,6 +25,7 @@
     "qrRoundMode": null,
     "qrLogoPunchout": null,
     "qrRounded": null,
+    "qrEyeStyle": null,
     "qrColorTeam": null,
     "qrColorCatalog": null,
     "qrColorEvent": null
