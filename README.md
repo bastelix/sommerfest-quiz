@@ -303,8 +303,10 @@ Haupt-Stack dieses Netzwerk erstellt oder verwaltet. Den Namen kannst du
 
 Das Skript `scripts/onboard_tenant.sh` steht weiterhin zur Verfügung, um
 einen Container manuell zu starten oder neu aufzusetzen. Es schreibt unter
-`tenants/<slug>/` eine eigene `docker-compose.yml` und fordert ebenfalls das
-SSL-Zertifikat an.
+`tenants/<slug>/` eine eigene `docker-compose.yml`, legt dort ein
+persistentes `data/`-Verzeichnis an und bindet es im Container unter
+`/var/www/data` ein. So bleiben hochgeladene Logos oder Fotos auch bei
+Upgrades erhalten. Zusätzlich fordert das Skript das SSL-Zertifikat an.
 Welches Docker-Image dabei verwendet wird, lässt sich über die Variable `APP_IMAGE` in der `.env` steuern.
 Dieses Tag sollte dem lokal gebauten Slim-Image entsprechen (`docker build -t <tag> .`),
 da das Onboarding-Skript diese Variable nutzt.
