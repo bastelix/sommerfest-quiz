@@ -1920,7 +1920,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function openTeamModal(cell) {
     currentTeamId = cell.dataset.teamId;
-    const name = cell.textContent.trim();
+    const nameEl = cell.querySelector('.uk-text-truncate');
+    const name = nameEl ? nameEl.textContent.trim() : cell.textContent.trim();
     teamEditInput.value = name;
     if (teamEditTitle) {
       teamEditTitle.textContent = name ? `${teamEditTitleBase}: ${name}` : teamEditTitleBase;
@@ -1953,6 +1954,16 @@ document.addEventListener('DOMContentLoaded', function () {
     span.className = 'uk-text-truncate';
     span.textContent = name;
     nameCell.appendChild(span);
+    const editIcon = document.createElement('span');
+    editIcon.className = 'qr-editable-icon';
+    editIcon.setAttribute('uk-icon', 'pencil');
+    nameCell.appendChild(editIcon);
+    const desc = document.createElement('span');
+    desc.id = 'team-edit-desc-' + id;
+    desc.className = 'uk-hidden-visually';
+    desc.textContent = 'klicken zum Bearbeiten';
+    nameCell.appendChild(desc);
+    nameCell.setAttribute('aria-describedby', desc.id);
     nameCell.title = name;
     nameCell.addEventListener('click', () => openTeamModal(nameCell));
 
