@@ -745,6 +745,11 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
 
     $app->get('/results.pdf', function (Request $request, Response $response) {
+        $team = $request->getQueryParams()['team'] ?? null;
+        if ($team !== null) {
+            $request = $request->withAttribute('team', (string) $team);
+        }
+
         return $request->getAttribute('resultController')->pdf($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
 

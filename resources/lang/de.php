@@ -100,6 +100,7 @@ return [
     'tip_question_save' => 'Fragenkatalog speichern',
     'tip_team_add' => 'Neues Team oder Person hinzufügen',
     'tip_team_save' => 'Änderungen an Teams oder Personen speichern',
+    'tip_team_pdf' => 'PDF für dieses Team öffnen',
     'tip_invitations_open' => 'Alle Einladungen öffnen',
     'tip_summary_print' => 'Übersicht drucken',
     'tip_results_reset' => 'Löscht alle gespeicherten Ergebnisse',
