@@ -1922,8 +1922,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const row = document.createElement('tr');
     row.className = 'team-row';
     row.dataset.teamId = id;
+    row.setAttribute('role', 'row');
 
     const handleCell = document.createElement('td');
+    handleCell.setAttribute('role', 'gridcell');
     const handleBtn = document.createElement('button');
     handleBtn.type = 'button';
     handleBtn.className = 'qr-handle';
@@ -1932,6 +1934,7 @@ document.addEventListener('DOMContentLoaded', function () {
     handleCell.appendChild(handleBtn);
 
     const nameCell = document.createElement('td');
+    nameCell.setAttribute('role', 'gridcell');
     nameCell.className = 'team-name qr-cell';
     nameCell.dataset.teamId = id;
     nameCell.tabIndex = 0;
@@ -1943,6 +1946,7 @@ document.addEventListener('DOMContentLoaded', function () {
     nameCell.addEventListener('click', () => openTeamModal(nameCell));
 
     const delCell = document.createElement('td');
+    delCell.setAttribute('role', 'gridcell');
     const del = document.createElement('button');
     del.className = 'uk-icon-button qr-action';
     del.setAttribute('uk-icon', 'trash');
