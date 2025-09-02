@@ -114,6 +114,7 @@
 - Add qr action button style
 - Add teams speed dial
 - Add pagination for team management
+- Add light mode row styling
 
 ### Fix
 
