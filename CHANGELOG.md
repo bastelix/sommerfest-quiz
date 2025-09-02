@@ -121,6 +121,7 @@
 - Add swipe card styles
 - Add table macros for admin views
 - Add generic table manager
+- Add mobile card rendering with accessibility
 
 ### Fix
 
