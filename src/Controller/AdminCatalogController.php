@@ -10,6 +10,7 @@ use Slim\Views\Twig;
 use App\Service\CatalogService;
 use App\Service\ConfigService;
 use App\Service\EventService;
+use App\Service\UrlService;
 use App\Infrastructure\Database;
 use PDO;
 
@@ -64,21 +65,7 @@ class AdminCatalogController
         if ($catalogsJson !== null) {
             $catalogs = json_decode($catalogsJson, true) ?? [];
         }
-        $uri    = $request->getUri();
-        $domain = getenv('DOMAIN');
-        if ($domain !== false && $domain !== '') {
-            if (preg_match('#^https?://#', $domain) === 1) {
-                $baseUrl = rtrim($domain, '/');
-            } else {
-                $baseUrl = 'https://' . $domain;
-            }
-        } else {
-            $baseUrl = $uri->getScheme() . '://' . $uri->getHost();
-            $port    = $uri->getPort();
-            if ($port !== null && !in_array($port, [80, 443], true)) {
-                $baseUrl .= ':' . $port;
-            }
-        }
+        $baseUrl = UrlService::determineBaseUrl($request);
 
         return $view->render($response, 'kataloge.twig', [
             'kataloge' => $catalogs,
