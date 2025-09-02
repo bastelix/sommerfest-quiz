@@ -217,7 +217,8 @@ return function (\Slim\App $app, TranslationService $translator) {
                 $teamService,
                 $eventService,
                 $catalogService,
-                new QrCodeService()
+                new QrCodeService(),
+                $resultService
             ))
             ->withAttribute('onboardingEmailController', new OnboardingEmailController($emailConfirmService))
             ->withAttribute('catalogDesignController', new CatalogDesignController($catalogService))

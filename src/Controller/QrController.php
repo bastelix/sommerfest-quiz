@@ -9,6 +9,7 @@ use App\Service\TeamService;
 use App\Service\EventService;
 use App\Service\CatalogService;
 use App\Service\QrCodeService;
+use App\Service\ResultService;
 use App\Service\Pdf;
 use FPDF;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -25,6 +26,7 @@ class QrController
     private EventService $events;
     private CatalogService $catalogs;
     private QrCodeService $qrService;
+    private ResultService $results;
     /**
      * Stack for keeping track of currently selected PDF font.
      * Each entry is an array with [family, style, size].
@@ -41,13 +43,15 @@ class QrController
         TeamService $teams,
         EventService $events,
         CatalogService $catalogs,
-        QrCodeService $qrService
+        QrCodeService $qrService,
+        ResultService $results
     ) {
         $this->config = $config;
         $this->teams = $teams;
         $this->events = $events;
         $this->catalogs = $catalogs;
         $this->qrService = $qrService;
+        $this->results = $results;
     }
 
     /**
@@ -233,6 +237,21 @@ class QrController
     {
         $params = $request->getQueryParams();
         $teams = $this->teams->getAll();
+        if ($teams === []) {
+            $rows = $this->results->getAll();
+            $names = [];
+            foreach ($rows as $row) {
+                $name = (string)($row['name'] ?? '');
+                if ($name !== '') {
+                    $names[$name] = true;
+                }
+            }
+            $teams = array_keys($names);
+        }
+        if ($teams === []) {
+            $response->getBody()->write('no teams available');
+            return $response->withStatus(404)->withHeader('Content-Type', 'text/plain');
+        }
 
         $cfg = $this->config->getConfig();
         $uid = $this->config->getActiveEventUid();
