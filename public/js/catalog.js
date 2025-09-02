@@ -627,7 +627,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       // Ohne Namensübernahme gespeicherte Daten löschen
       sessionStorage.removeItem(playerNameKey);
       sessionStorage.removeItem('quizSolved');
-      localStorage.removeItem(playerNameKey);
+      // localStorage.removeItem(playerNameKey);
     }
     [playerNameKey, 'quizCatalog', 'quizSolved'].forEach(k => {
       const v = localStorage.getItem(k);
