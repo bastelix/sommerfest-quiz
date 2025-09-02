@@ -1932,7 +1932,7 @@ document.addEventListener('DOMContentLoaded', function () {
     handleCell.appendChild(handleBtn);
 
     const nameCell = document.createElement('td');
-    nameCell.className = 'team-name';
+    nameCell.className = 'team-name qr-cell';
     nameCell.dataset.teamId = id;
     nameCell.tabIndex = 0;
     const span = document.createElement('span');
