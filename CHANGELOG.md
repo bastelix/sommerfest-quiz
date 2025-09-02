@@ -119,6 +119,7 @@
 - Add light mode row styling
 - Refine QR code defaults
 - Add swipe card styles
+- Add table macros for admin views
 
 ### Fix
 
