@@ -35,6 +35,7 @@
 - Clarify tenant wait probing and HTTPS upgrade
 - Document Docker Compose project name
 - Dokumentation des table frameworks
+- Update table framework guide
 
 ### Feat
 
