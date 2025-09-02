@@ -2,7 +2,25 @@
 [![Deploy](https://github.com/bastelix/sommerfest-quiz/actions/workflows/deploy.yml/badge.svg)](https://github.com/bastelix/sommerfest-quiz/actions/workflows/deploy.yml)
 [![HTML Validity Test](https://github.com/bastelix/sommerfest-quiz/actions/workflows/html-validity.yml/badge.svg)](https://github.com/bastelix/sommerfest-quiz/actions/workflows/html-validity.yml)
 
-**Dokumentation:** Die ausführliche Anleitung findest du auf GitHub Pages: <https://bastelix.github.io/sommerfest-quiz/>
+## Dokumentation
+
+Die ausführliche Anleitung findest du auf GitHub Pages: <https://bastelix.github.io/sommerfest-quiz/>
+
+### Dokumentation lokal bauen
+
+1. Abhängigkeiten installieren:
+   ```bash
+   bundle install
+   ```
+2. Dokumentation anzeigen:
+   ```bash
+   bundle exec jekyll serve
+   ```
+   Danach ist sie unter <http://localhost:4000> erreichbar.
+
+### Deployment
+
+Änderungen an der Dokumentation werden automatisch über GitHub Pages veröffentlicht, sobald sie auf den `main`-Branch gepusht werden.
 
 Das **QuizRace** ist eine sofort einsetzbare Web-App, mit der Sie Besucherinnen und Besucher spielerisch an Events beteiligen. Dank Slim Framework und UIkit3 funktioniert alles ohne komplizierte Server-Setups direkt im Browser.
 
