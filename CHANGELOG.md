@@ -188,6 +188,7 @@
 - Unify landing footer layout
 - Use black text for contact details on light theme
 - Enhance landing slider
+- Make event start button text white
 
 ### Test
 
