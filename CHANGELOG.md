@@ -120,6 +120,7 @@
 - Refine QR code defaults
 - Add swipe card styles
 - Add table macros for admin views
+- Add generic table manager
 
 ### Fix
 
