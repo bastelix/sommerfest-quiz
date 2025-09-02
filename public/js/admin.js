@@ -3064,7 +3064,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const descEl = document.getElementById('summaryEventDesc');
     const qrImg = document.getElementById('summaryEventQr');
     const qrLabel = document.getElementById('summaryEventLabel');
-    const qrDesignBtn = document.getElementById('summaryEventDesignBtn');
     const catalogsEl = document.getElementById('summaryCatalogs');
     const teamsEl = document.getElementById('summaryTeams');
     if (!nameEl || !catalogsEl || !teamsEl) return;
@@ -3105,11 +3104,6 @@ document.addEventListener('DOMContentLoaded', function () {
         params.set('t', link);
         applyDesign(params, 'qrColorEvent');
         qrImg.src = withBase('/qr/event?' + params.toString());
-        if (qrDesignBtn) {
-          qrDesignBtn.onclick = () => {
-            openQrDesignModal(qrImg, '/qr/event', link, ev.name || '');
-          };
-        }
       }
       if (qrLabel) qrLabel.textContent = ev.name || '';
       catalogsEl.innerHTML = '';
