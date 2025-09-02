@@ -6,17 +6,10 @@ namespace Tests\Service;
 
 use App\Application\Seo\PageSeoConfigService;
 use App\Application\Seo\SeoValidator;
-use App\Application\Routing\RedirectManager;
 use App\Domain\PageSeoConfig;
 use App\Infrastructure\Cache\PageSeoCache;
 use PDO;
 use PHPUnit\Framework\TestCase;
-
-class NullRedirectManager extends RedirectManager
-{
-    public function __construct() {}
-    public function register(string $from, string $to, int $status = 301): void {}
-}
 
 class PageSeoConfigServiceTest extends TestCase
 {
