@@ -20,7 +20,7 @@ class UrlService
         $domain = getenv('DOMAIN');
         if ($domain !== false && $domain !== '') {
             $envHost = parse_url($domain, PHP_URL_HOST) ?: $domain;
-            if ($envHost !== '' && $envHost !== $uri->getHost()) {
+            if ($envHost !== $uri->getHost()) {
                 if (preg_match('#^https?://#', $domain) === 1) {
                     $baseUrl = rtrim($domain, '/');
                 } else {
