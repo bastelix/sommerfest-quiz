@@ -1887,11 +1887,16 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamEditCancel = document.getElementById('teamEditCancel');
   const teamEditError = document.getElementById('teamEditError');
   let currentTeamId = null;
+  const TEAMS_PER_PAGE = 50;
+  let allTeams = [];
+  let currentPage = 1;
+  const teamPaginationEl = document.createElement('ul');
+  teamPaginationEl.id = 'teamsPagination';
+  teamPaginationEl.className = 'uk-pagination uk-flex-center';
+  teamAddBtn?.parentElement?.before(teamPaginationEl);
 
   function collectTeams() {
-    return Array.from(teamListEl.querySelectorAll('.team-row .team-name'))
-      .map(td => td.textContent.trim())
-      .filter(Boolean);
+    return allTeams.map(t => t.name);
   }
 
   function saveTeamList(show = false) {
@@ -1951,11 +1956,7 @@ document.addEventListener('DOMContentLoaded', function () {
     del.className = 'uk-icon-button qr-action';
     del.setAttribute('uk-icon', 'trash');
     del.setAttribute('aria-label', 'Löschen');
-    del.onclick = () => {
-      document.querySelector('li[data-team-id="' + id + '"]')?.remove();
-      row.remove();
-      saveTeamList();
-    };
+    del.onclick = () => removeTeam(id);
     delCell.appendChild(del);
 
     row.appendChild(handleCell);
@@ -1990,11 +1991,7 @@ document.addEventListener('DOMContentLoaded', function () {
     del.className = 'uk-icon-button uk-button-danger';
     del.setAttribute('uk-icon', 'trash');
     del.setAttribute('aria-label', 'Löschen');
-    del.onclick = () => {
-      document.querySelector('tr[data-team-id="' + id + '"]')?.remove();
-      li.remove();
-      saveTeamList();
-    };
+    del.onclick = () => removeTeam(id);
 
     li.appendChild(handleBtn);
     li.appendChild(nameSpan);
@@ -2002,27 +1999,76 @@ document.addEventListener('DOMContentLoaded', function () {
     return li;
   }
 
-  function renderTeams(list){
+  function renderTeamsPage(page = 1){
+    currentPage = page;
     teamListEl.innerHTML = '';
     if (teamCardsEl) teamCardsEl.innerHTML = '';
-    list.forEach(n => {
-      const id = crypto.randomUUID();
-      teamListEl.appendChild(createTeamRow(n, id));
-      if (teamCardsEl) teamCardsEl.appendChild(createTeamCard(n, id));
+    const start = (page - 1) * TEAMS_PER_PAGE;
+    const segment = allTeams.slice(start, start + TEAMS_PER_PAGE);
+    segment.forEach(t => {
+      teamListEl.appendChild(createTeamRow(t.name, t.id));
+      if (teamCardsEl) teamCardsEl.appendChild(createTeamCard(t.name, t.id));
     });
+    updatePagination(page);
+  }
+
+  function updatePagination(page){
+    const total = Math.max(1, Math.ceil(allTeams.length / TEAMS_PER_PAGE));
+    teamPaginationEl.innerHTML = '';
+
+    const createItem = (p, label, disabled = false, active = false) => {
+      const li = document.createElement('li');
+      if (disabled) li.classList.add('uk-disabled');
+      if (active) li.classList.add('uk-active');
+      const a = document.createElement('a');
+      a.href = '#';
+      a.innerHTML = label;
+      if (!disabled) {
+        a.addEventListener('click', e => { e.preventDefault(); renderTeamsPage(p); });
+      }
+      li.appendChild(a);
+      return li;
+    };
+
+    teamPaginationEl.appendChild(createItem(page - 1, '<span uk-pagination-previous></span>', page === 1));
+    for (let i = 1; i <= total; i++) {
+      teamPaginationEl.appendChild(createItem(i, String(i), false, i === page));
+    }
+    teamPaginationEl.appendChild(createItem(page + 1, '<span uk-pagination-next></span>', page === total));
+  }
+
+  function updatePageOrder(container){
+    const ids = Array.from(container.querySelectorAll('[data-team-id]')).map(el => el.dataset.teamId);
+    const start = (currentPage - 1) * TEAMS_PER_PAGE;
+    const segment = ids.map(id => allTeams.find(t => t.id === id)).filter(Boolean);
+    allTeams.splice(start, segment.length, ...segment);
+  }
+
+  function removeTeam(id){
+    const idx = allTeams.findIndex(t => t.id === id);
+    if (idx !== -1) {
+      allTeams.splice(idx, 1);
+      const totalPages = Math.max(1, Math.ceil(allTeams.length / TEAMS_PER_PAGE));
+      if (currentPage > totalPages) currentPage = totalPages;
+      renderTeamsPage(currentPage);
+      saveTeamList();
+    }
   }
 
   if (teamListEl && window.UIkit && UIkit.util) {
-    UIkit.util.on(teamListEl, 'moved', () => saveTeamList());
+    UIkit.util.on(teamListEl, 'moved', () => { updatePageOrder(teamListEl); renderTeamsPage(currentPage); saveTeamList(); });
   }
   if (teamCardsEl && window.UIkit && UIkit.util) {
-    UIkit.util.on(teamCardsEl, 'moved', () => saveTeamList());
+    UIkit.util.on(teamCardsEl, 'moved', () => { updatePageOrder(teamCardsEl); renderTeamsPage(currentPage); saveTeamList(); });
   }
 
   if(teamListEl){
     apiFetch('/teams.json', { headers: { 'Accept':'application/json' } })
       .then(r => r.json())
-      .then(data => { renderTeams(data); })
+      .then(data => {
+        allTeams = data.map(n => ({ id: crypto.randomUUID(), name: n }));
+        renderTeamsPage(1);
+      })
       .catch(()=>{});
     if (teamRestrictTeams) {
       teamRestrictTeams.checked = !!cfgInitial.QRRestrict;
@@ -2032,10 +2078,10 @@ document.addEventListener('DOMContentLoaded', function () {
   teamAddBtn?.addEventListener('click', e => {
     e.preventDefault();
     const id = crypto.randomUUID();
-    const row = createTeamRow('', id);
-    teamListEl.appendChild(row);
-    if (teamCardsEl) teamCardsEl.appendChild(createTeamCard('', id));
-    openTeamModal(row.querySelector('.team-name'));
+    allTeams.push({ id, name: '' });
+    currentPage = Math.ceil(allTeams.length / TEAMS_PER_PAGE);
+    renderTeamsPage(currentPage);
+    openTeamModal(document.querySelector('.team-name[data-team-id="' + id + '"]'));
   });
 
   teamEditSave?.addEventListener('click', () => {
@@ -2045,10 +2091,9 @@ document.addEventListener('DOMContentLoaded', function () {
       teamEditError.hidden = false;
       return;
     }
-    document.querySelectorAll('.team-name[data-team-id="' + currentTeamId + '"]').forEach(cell => {
-      cell.querySelector('.uk-text-truncate').textContent = val;
-      cell.title = val;
-    });
+    const team = allTeams.find(t => t.id === currentTeamId);
+    if (team) team.name = val;
+    renderTeamsPage(currentPage);
     saveTeamList();
     teamEditModal.hide();
   });
