@@ -49,17 +49,6 @@
       </div>
     {% endblock %}
     {% block right %}{% endblock %}
-    {% block headerbar %}
-      {% set activeRoute = currentPath|split('/admin/')|last %}
-      {% if activeRoute == '' %}
-        {% set activeRoute = 'dashboard' %}
-      {% endif %}
-      {% if activeRoute == 'dashboard' %}
-        <div class="uk-container uk-container-large">
-          <h2 class="uk-heading-bullet qr-section-title">Willkommen {{ username }}</h2>
-        </div>
-      {% endif %}
-    {% endblock %}
   {% endembed %}
   {% if not stripe_configured %}
     <div class="uk-container uk-container-large">
@@ -88,11 +77,12 @@
         {% set activeRoute = 'dashboard' %}
       {% endif %}
       <ul id="adminSwitcher" class="uk-switcher uk-margin">
-    <li class="{{ activeRoute == 'dashboard' ? 'uk-active' }}">
-      <div class="uk-container uk-container-large dashboard-container">
-        <div id="dashboard" class="uk-margin-large-top">
-          <div class="uk-grid-large" uk-grid>
-            <!-- Spalte 2–3: Inhalt -->
+      <li class="{{ activeRoute == 'dashboard' ? 'uk-active' }}">
+        <div class="uk-container uk-container-large dashboard-container">
+          <h1 class="uk-heading-bullet">Willkommen {{ username }}</h1>
+          <div id="dashboard" class="uk-margin-large-top">
+            <div class="uk-grid-large" uk-grid>
+              <!-- Spalte 2–3: Inhalt -->
             <div class="uk-width-1-1 uk-width-2-3@m">
               <div class="uk-card qr-card uk-card-body uk-margin-small">
                 <div class="uk-flex uk-flex-between uk-flex-middle">
