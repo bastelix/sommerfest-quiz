@@ -18,7 +18,7 @@ class QrCodeService
 {
     private const QR_SIZE_DEF = 360;
     private const QR_MARGIN_DEF = 20;
-    private const LOGO_WIDTH_DEF = 60;
+    private const LOGO_WIDTH_DEF = 80;
     private const FONT_SIZE_DEF = 20;
     private const FALLBACK_LOGO_PNG_BASE64 =
         'iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAIAAAABc2X6AAABrUlEQVR4nO3aL4sCQRzG8Tk9DBbB'
@@ -230,7 +230,7 @@ class QrCodeService
         $fgRgb = $this->parseHex((string) ($q['fg'] ?? $defaults['fg']));
         $bgRgb = $this->parseHex((string) ($q['bg'] ?? 'ffffff'), 'ffffff');
 
-        $logoW = $this->clampInt($q['logo_width'] ?? null, 20, 200, self::LOGO_WIDTH_DEF);
+        $logoW = $this->clampInt($q['logo_width'] ?? ($defaults['logo_width'] ?? null), 20, 200, self::LOGO_WIDTH_DEF);
         $fontSz = $this->clampInt($q['font_size'] ?? null, 8, 48, self::FONT_SIZE_DEF);
         $text1 = (string) ($q['text1'] ?? ($defaults['text1'] ?? 'QUIZ'));
         $text2 = (string) ($q['text2'] ?? ($defaults['text2'] ?? 'RACE'));
@@ -304,6 +304,9 @@ class QrCodeService
         }
         if (($cfg['qrLogoPath'] ?? '') !== '') {
             $defaults['logo_path'] = (string) $cfg['qrLogoPath'];
+        }
+        if (($cfg['qrLogoWidth'] ?? '') !== '') {
+            $defaults['logo_width'] = (string) $cfg['qrLogoWidth'];
         }
         if (($cfg['qrRoundMode'] ?? '') !== '') {
             $defaults['round_mode'] = (string) $cfg['qrRoundMode'];

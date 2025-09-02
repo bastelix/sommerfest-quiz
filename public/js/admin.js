@@ -2888,6 +2888,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const qrRoundModeSelect = document.getElementById('qrRoundModeSelect');
   const qrColorInput = document.getElementById('qrColorInput');
   const qrRoundedInput = document.getElementById('qrRoundedInput');
+  const qrLogoWidthInput = document.getElementById('qrLogoWidthInput');
   const qrPreview = document.getElementById('qrDesignPreview');
   const qrApplyBtn = document.getElementById('qrDesignApply');
   const qrLogoFile = document.getElementById('qrLogoFile');
@@ -2929,6 +2930,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     const color = qrColorInput?.value ? qrColorInput.value.replace('#', '') : '';
     if (color) params.set('fg', color);
+    const w = qrLogoWidthInput?.value || '';
+    if (w) params.set('logo_width', w);
     const rounded = qrRoundedInput?.checked !== false;
     const roundMode = rounded ? (qrRoundModeSelect?.value || 'margin') : 'none';
     params.set('round_mode', roundMode);
@@ -2973,13 +2976,16 @@ document.addEventListener('DOMContentLoaded', function () {
       const mode = cfgInitial.qrRoundMode || 'margin';
       qrRoundModeSelect.value = cfgInitial.qrRounded === false ? 'none' : mode;
     }
+    if (qrLogoWidthInput) {
+      qrLogoWidthInput.value = global ? (cfgInitial.qrLogoWidth || '') : '';
+    }
     qrLogoPath = global ? (cfgInitial.qrLogoPath || '') : '';
     if (qrLogoFile) qrLogoFile.value = '';
     updateQrPreview();
     if (qrDesignModal) UIkit.modal(qrDesignModal).show();
   }
 
-  [qrLabelInput, qrPunchoutInput, qrRoundModeSelect, qrColorInput, qrRoundedInput].forEach(el => {
+  [qrLabelInput, qrPunchoutInput, qrRoundModeSelect, qrColorInput, qrRoundedInput, qrLogoWidthInput].forEach(el => {
     el?.addEventListener('input', updateQrPreview);
     el?.addEventListener('change', updateQrPreview);
   });
@@ -2996,6 +3002,10 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(cfg => {
         qrLogoPath = cfg.qrLogoPath || '';
         cfgInitial.qrLogoPath = qrLogoPath;
+        if (typeof cfg.qrLogoWidth !== 'undefined') {
+          cfgInitial.qrLogoWidth = cfg.qrLogoWidth;
+          if (qrLogoWidthInput) qrLogoWidthInput.value = cfg.qrLogoWidth || '';
+        }
         updateQrPreview();
       })
       .catch(() => {});
@@ -3006,6 +3016,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const rounded = qrRoundedInput?.checked !== false;
     const roundMode = rounded ? (qrRoundModeSelect?.value || 'margin') : 'none';
     const punchout = qrPunchoutInput?.checked ? '1' : '0';
+    const logoWidthVal = qrLogoWidthInput?.value || '';
     const field = currentQrEndpoint === '/qr/team' ? 'qrColorTeam'
       : currentQrEndpoint === '/qr/catalog' ? 'qrColorCatalog'
       : 'qrColorEvent';
@@ -3024,6 +3035,7 @@ document.addEventListener('DOMContentLoaded', function () {
           if (lns[1]) params.set('text2', lns[1]);
         }
         if (colorVal) params.set('fg', colorVal.replace('#', ''));
+        if (logoWidthVal) params.set('logo_width', logoWidthVal);
         params.set('round_mode', roundMode);
         params.set('rounded', rounded ? '1' : '0');
         params.set('logo_punchout', punchout);
@@ -3039,6 +3051,7 @@ document.addEventListener('DOMContentLoaded', function () {
       };
       if (qrLogoPath) data.qrLogoPath = qrLogoPath;
       data[field] = colorVal;
+      if (logoWidthVal) data.qrLogoWidth = parseInt(logoWidthVal, 10);
       apiFetch('/config.json', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -3049,6 +3062,7 @@ document.addEventListener('DOMContentLoaded', function () {
       currentQrImg.src = qrPreview.src;
       const data = { qrRounded: rounded };
       data[field] = colorVal;
+      if (logoWidthVal) data.qrLogoWidth = parseInt(logoWidthVal, 10);
       apiFetch('/config.json', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -3087,6 +3101,9 @@ document.addEventListener('DOMContentLoaded', function () {
           const l2 = cfgInitial.qrLabelLine2 || '';
           if (l1) params.set('text1', l1);
           if (l2) params.set('text2', l2);
+        }
+        if (cfgInitial.qrLogoWidth) {
+          params.set('logo_width', String(cfgInitial.qrLogoWidth));
         }
         const rounded = cfgInitial.qrRounded !== false;
         const roundMode = rounded ? (cfgInitial.qrRoundMode || 'margin') : 'none';

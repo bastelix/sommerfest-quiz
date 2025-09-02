@@ -22,6 +22,7 @@
     "qrLabelLine1": null,
     "qrLabelLine2": null,
     "qrLogoPath": null,
+    "qrLogoWidth": null,
     "qrRoundMode": null,
     "qrLogoPunchout": null,
     "qrRounded": null,
