@@ -20,6 +20,7 @@ use App\Infrastructure\Database;
 use App\Service\StripeService;
 use App\Service\VersionService;
 use App\Application\Seo\PageSeoConfigService;
+use App\Service\UrlService;
 use PDO;
 
 /**
@@ -173,21 +174,8 @@ class AdminController
             }
         }
 
-        $uri    = $request->getUri();
-        $domain = getenv('DOMAIN');
-        if ($domain !== false && $domain !== '') {
-            if (preg_match('#^https?://#', $domain) === 1) {
-                $baseUrl = rtrim($domain, '/');
-            } else {
-                $baseUrl = 'https://' . $domain;
-            }
-        } else {
-            $baseUrl = $uri->getScheme() . '://' . $uri->getHost();
-            $port    = $uri->getPort();
-            if ($port !== null && !in_array($port, [80, 443], true)) {
-                $baseUrl .= ':' . $port;
-            }
-        }
+        $baseUrl = UrlService::determineBaseUrl($request);
+        $uri = $request->getUri();
 
         $mainDomain = getenv('MAIN_DOMAIN')
             ?: getenv('DOMAIN')
