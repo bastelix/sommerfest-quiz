@@ -248,9 +248,14 @@ body .uk-modal-dialog {
 }
 
 /* Hoverfarbe für Katalogkarten im Dunkelmodus */
-body .uk-card-hover:hover {
-  background-color: var(--qr-card);
-  color: #f5f5f5;
+body .qr-card.uk-card-hover:hover {
+  background-color: #fff;
+  color: #000;
+}
+
+body .qr-card.uk-card-hover:hover h3,
+body .qr-card.uk-card-hover:hover p {
+  color: #000;
 }
 
 /* Tabellenlesbarkeit im Dunkelmodus verbessern */
@@ -587,9 +592,14 @@ body[data-theme="dark"] .uk-modal-dialog {
 }
 
 /* Hoverfarbe für Katalogkarten im Dunkelmodus */
-body[data-theme="dark"] .uk-card-hover:hover {
-  background-color: var(--qr-card);
-  color: #f5f5f5;
+body[data-theme="dark"] .qr-card.uk-card-hover:hover {
+  background-color: #fff;
+  color: #000;
+}
+
+body[data-theme="dark"] .qr-card.uk-card-hover:hover h3,
+body[data-theme="dark"] .qr-card.uk-card-hover:hover p {
+  color: #000;
 }
 
 /* Tabellenlesbarkeit im Dunkelmodus verbessern */
