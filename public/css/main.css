@@ -242,6 +242,7 @@ body.uk-padding {
   max-width: 36ch;
   display: inline-block;
   vertical-align: middle;
+  line-height: 44px;
 }
 .uk-iconnav > li > a {
   padding: 4px;
@@ -995,6 +996,8 @@ body.admin-page {
   #teamsList td {
     display: table-cell;
     padding: 8px 4px;
+    vertical-align: middle;
+    line-height: 44px;
   }
   #teamsList td:first-child {
     position: static;
