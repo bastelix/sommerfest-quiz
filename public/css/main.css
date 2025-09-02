@@ -1023,4 +1023,15 @@ body.admin-page {
   background: transparent;
 }
 
+/* QR code action buttons */
+.qr-action {
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.qr-action:focus {
+  outline: 2px solid var(--accent-color);
+}
+
 
