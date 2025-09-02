@@ -20,6 +20,8 @@
 - *(deps)* Bump stripe/stripe-php from 17.5.0 to 17.6.0
 - *(deps)* Bump slim/slim from 4.14.0 to 4.15.0
 - *(deps)* Bump guzzlehttp/guzzle from 7.9.3 to 7.10.0
+- Normalize invite setup indentation
+- Restore config backup
 
 ### Ci
 
@@ -115,6 +117,7 @@
 - Add teams speed dial
 - Add pagination for team management
 - Add light mode row styling
+- Refine QR code defaults
 
 ### Fix
 
@@ -189,6 +192,7 @@
 - Use black text for contact details on light theme
 - Enhance landing slider
 - Make event start button text white
+- Adjust team table layout
 
 ### Test
 

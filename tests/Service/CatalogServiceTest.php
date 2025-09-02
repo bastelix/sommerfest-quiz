@@ -247,6 +247,10 @@ class CatalogServiceTest extends TestCase
 
         $stmt = $pdo->query("SELECT COUNT(*) FROM questions WHERE catalog_uid='uid8'");
         $this->assertSame(1, (int) $stmt->fetchColumn());
+        $this->assertSame(
+            $questions,
+            json_decode((string) $service->read('old.json'), true)
+        );
     }
 
     public function testReorderCatalogs(): void

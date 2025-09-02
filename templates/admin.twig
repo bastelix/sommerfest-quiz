@@ -49,17 +49,6 @@
       </div>
     {% endblock %}
     {% block right %}{% endblock %}
-    {% block headerbar %}
-      {% set activeRoute = currentPath|split('/admin/')|last %}
-      {% if activeRoute == '' %}
-        {% set activeRoute = 'dashboard' %}
-      {% endif %}
-      {% if activeRoute == 'dashboard' %}
-        <div class="uk-container uk-container-large">
-          <h2 class="uk-heading-bullet qr-section-title">Willkommen {{ username }}</h2>
-        </div>
-      {% endif %}
-    {% endblock %}
   {% endembed %}
   {% if not stripe_configured %}
     <div class="uk-container uk-container-large">
@@ -88,11 +77,12 @@
         {% set activeRoute = 'dashboard' %}
       {% endif %}
       <ul id="adminSwitcher" class="uk-switcher uk-margin">
-    <li class="{{ activeRoute == 'dashboard' ? 'uk-active' }}">
-      <div class="uk-container uk-container-large dashboard-container">
-        <div id="dashboard" class="uk-margin-large-top">
-          <div class="uk-grid-large" uk-grid>
-            <!-- Spalte 2–3: Inhalt -->
+      <li class="{{ activeRoute == 'dashboard' ? 'uk-active' }}">
+        <div class="uk-container uk-container-large dashboard-container">
+          <h1 class="uk-heading-bullet">Willkommen {{ username }}</h1>
+          <div id="dashboard" class="uk-margin-large-top">
+            <div class="uk-grid-large" uk-grid>
+              <!-- Spalte 2–3: Inhalt -->
             <div class="uk-width-1-1 uk-width-2-3@m">
               <div class="uk-card qr-card uk-card-body uk-margin-small">
                 <div class="uk-flex uk-flex-between uk-flex-middle">
@@ -480,7 +470,7 @@
         <h2 class="uk-heading-bullet">{{ t('heading_teams') }}</h2>
         <div class="uk-visible@m">
           <div class="uk-overflow-auto">
-            <table id="teamsTable" class="uk-table uk-table-divider uk-table-small">
+            <table id="teamsTable" class="uk-table uk-table-divider uk-table-small qr-table">
               <thead class="table-headings">
                 <tr>
                   <th scope="col" class="uk-table-shrink uk-text-center"></th>
@@ -569,7 +559,6 @@
         <div class="uk-margin" uk-grid>
           <div class="uk-width-1-1 uk-width-auto@m">
             <button id="inviteTextBtn" class="uk-button uk-button-default uk-margin-small-bottom uk-margin-right@m" type="button" uk-toggle="target: #inviteTextModal">
-              <span id="inviteTextIcon" uk-icon="icon: pencil"></span>
               <span id="inviteTextLabel">{{ t('action_invite_text') }}</span>
             </button>
           </div>
@@ -677,13 +666,13 @@
           <tbody id="resultsTableBody" uk-lightbox="nav: thumbnav; slidenav: false">
             {% for r in results %}
             <tr>
-              <td>{{ r.name }}</td>
-              <td>{{ r.attempt }}</td>
-              <td>{{ r.catalogName ?? r.catalog }}</td>
-              <td>{{ r.correct }}/{{ r.total }}</td>
-              <td>{{ r.time | date('Y-m-d H:i') }}</td>
-              <td>{% if r.puzzleTime is defined %}{{ r.puzzleTime | date('Y-m-d H:i') }}{% endif %}</td>
-              <td>
+              <td class="qr-cell">{{ r.name }}</td>
+              <td class="qr-cell">{{ r.attempt }}</td>
+              <td class="qr-cell">{{ r.catalogName ?? r.catalog }}</td>
+              <td class="qr-cell">{{ r.correct }}/{{ r.total }}</td>
+              <td class="qr-cell">{{ r.time | date('Y-m-d H:i') }}</td>
+              <td class="qr-cell">{% if r.puzzleTime is defined %}{{ r.puzzleTime | date('Y-m-d H:i') }}{% endif %}</td>
+              <td class="qr-cell">
                 {% if r.photo is defined and r.photo %}
                 <span class="photo-wrapper">
                   <a class="uk-inline rotate-link" href="{{ basePath ~ r.photo }}" data-caption='<button class="uk-icon-button lightbox-rotate-btn" type="button" uk-icon="history" data-path="{{ basePath ~ r.photo }}" aria-label="Drehen"></button>' data-attrs="class: uk-inverse-light">

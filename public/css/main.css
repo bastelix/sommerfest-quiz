@@ -89,9 +89,6 @@ body.uk-padding {
   text-decoration: none;
 }
 
-.qr-section-title {
-  letter-spacing: .03em;
-}
 
 .sortable-list li,
 .terms li,
@@ -146,6 +143,7 @@ body.uk-padding {
   align-items: center;
   justify-content: center;
   padding: 0;
+  margin: 0;
   background: transparent;
   border: none;
   cursor: grab;
@@ -200,25 +198,22 @@ body.uk-padding {
   z-index: 1;
 }
 .qr-table td {
-  padding: 0.6rem;
-  vertical-align: middle;
+  padding: 0 0.6rem;
+  height: 44px;
   line-height: 44px;
 }
 .qr-cell {
-  background-color: var(--qr-row);
-  outline: 2px solid transparent;
-  border-radius: 8px;
-  transition: background-color 0.2s;
+  position: relative;
+  cursor: pointer;
+  transition: background-color .2s, box-shadow .2s;
+  border-radius: 4px;
 }
-.qr-table tbody tr:nth-child(even) .qr-cell {
-  background-color: var(--qr-row-alt);
-}
-.qr-cell:hover {
-  background-color: var(--qr-bg-soft);
-}
+
+.qr-cell:hover,
 .qr-cell:focus-within {
   background-color: var(--qr-bg-soft);
   outline: 2px solid var(--accent-color);
+  outline-offset: -2px;
 }
 .qr-editable-icon {
   margin-left: 4px;
@@ -1120,6 +1115,7 @@ body.admin-page {
   border-radius: 8px;
   background-color: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(4px);
+  margin: 0;
 }
 
 .qr-action:focus {
