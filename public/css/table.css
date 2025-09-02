@@ -20,6 +20,12 @@
   max-height: 60vh;
 }
 
+.qr-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
 .qr-table thead th {
   font-weight: 600;
   letter-spacing: .04em;
@@ -72,6 +78,7 @@
   border: 1px solid var(--qr-border);
   border-radius: 12px;
   padding: 0.5rem;
+  min-height: 44px;
 }
 
 .qr-rowcard:nth-child(even) {
@@ -79,12 +86,21 @@
 }
 
 .qr-action {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
   border-radius: 8px;
   background-color: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(4px);
   margin: 0;
 }
 
+.qr-action:hover,
 .qr-action:focus {
+  background-color: var(--qr-bg-soft);
   outline: 2px solid var(--accent-color);
 }
