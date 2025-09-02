@@ -16,9 +16,9 @@ use Throwable;
 
 class QrCodeService
 {
-    private const QR_SIZE_DEF = 300;
-    private const QR_MARGIN_DEF = 10;
-    private const LOGO_WIDTH_DEF = 80;
+    private const QR_SIZE_DEF = 360;
+    private const QR_MARGIN_DEF = 20;
+    private const LOGO_WIDTH_DEF = 60;
     private const FONT_SIZE_DEF = 20;
     private const FALLBACK_LOGO_PNG_BASE64 =
         'iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAIAAAABc2X6AAABrUlEQVR4nO3aL4sCQRzG8Tk9DBbB'
@@ -39,12 +39,12 @@ class QrCodeService
      */
     public function generateQrCode(string $data, string $format = 'png', array $options = []): ResultInterface
     {
-        $fgHex = $options['fg'] ?? '004BC8';
-        $bgHex = $options['bg'] ?? 'FFFFFF';
+        $fgHex = $options['fg'] ?? '2E2E2E';
+        $bgHex = $options['bg'] ?? 'F9F9F9';
         $logoText = $options['logoText'] ?? "QUIZ\nRACE";
 
-        $fg = $this->parseColor($fgHex, new Color(0, 75, 200));
-        $bg = $this->parseColor($bgHex, new Color(255, 255, 255));
+        $fg = $this->parseColor($fgHex, new Color(46, 46, 46));
+        $bg = $this->parseColor($bgHex, new Color(249, 249, 249));
 
         $font = $this->getFontFile();
         $logoPath = null;
@@ -67,9 +67,10 @@ class QrCodeService
                 writer: $writer,
                 data: $data,
                 encoding: new Encoding('UTF-8'),
-                errorCorrectionLevel: ErrorCorrectionLevel::High,
+                errorCorrectionLevel: ErrorCorrectionLevel::Medium,
                 size: self::QR_SIZE_DEF,
                 margin: self::QR_MARGIN_DEF,
+                rounded: true,
                 roundBlockSizeMode: RoundBlockSizeMode::Margin,
                 foregroundColor: $fg,
                 backgroundColor: $bg,
@@ -263,6 +264,7 @@ class QrCodeService
                 errorCorrectionLevel: $ec,
                 size: $size,
                 margin: $margin,
+                rounded: $rounded,
                 roundBlockSizeMode: $roundMode,
                 foregroundColor: new Color($fgRgb[0], $fgRgb[1], $fgRgb[2]),
                 backgroundColor: new Color($bgRgb[0], $bgRgb[1], $bgRgb[2]),
@@ -346,7 +348,7 @@ class QrCodeService
             'low' => ErrorCorrectionLevel::Low,
             'medium' => ErrorCorrectionLevel::Medium,
             'quartile' => ErrorCorrectionLevel::Quartile,
-            default => ErrorCorrectionLevel::High,
+            default => ErrorCorrectionLevel::Medium,
         };
     }
 
