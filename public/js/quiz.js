@@ -842,7 +842,7 @@ async function runQuiz(questions, skipIntro){
     controls.appendChild(rightBtn);
 
     const leftStatic = document.createElement('div');
-    leftStatic.textContent = '\u2B05 ' + insertSoftHyphens(q.leftLabel || 'Falsch');
+    leftStatic.textContent = '\u2B05 ' + insertSoftHyphens(q.leftLabel || 'Nein');
     leftStatic.style.position = 'absolute';
     leftStatic.style.left = '0';
     leftStatic.style.top = '50%';
@@ -854,7 +854,7 @@ async function runQuiz(questions, skipIntro){
     container.appendChild(leftStatic);
 
     const rightStatic = document.createElement('div');
-    rightStatic.textContent = insertSoftHyphens(q.rightLabel || 'Richtig') + ' \u27A1';
+    rightStatic.textContent = insertSoftHyphens(q.rightLabel || 'Ja') + ' \u27A1';
     rightStatic.style.position = 'absolute';
     rightStatic.style.right = '0';
     rightStatic.style.top = '50%';
