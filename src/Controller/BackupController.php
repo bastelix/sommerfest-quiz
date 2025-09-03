@@ -6,32 +6,50 @@ namespace App\Controller;
 
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
+use Slim\Views\Twig;
 
 /**
- * Provides endpoints for listing, downloading and deleting backups.
+ * Provides endpoints for listing, restoring, downloading and deleting backups.
  */
 class BackupController
 {
     private string $dir;
 
+    private ?ImportController $importController;
+
     /**
-     * Set the backup directory path.
+     * Configure backup directory and optional import controller.
      */
-    public function __construct(string $dir)
+    public function __construct(string $dir, ?ImportController $importController = null)
     {
         $this->dir = rtrim($dir, '/');
+        $this->importController = $importController;
     }
 
     /**
-     * Return a JSON list of available backups.
+     * Render the backup table rows server-side.
      */
-    public function list(Request $request, Response $response): Response
+    public function index(Request $request, Response $response): Response
     {
         $dirs = glob($this->dir . '/*', GLOB_ONLYDIR) ?: [];
         rsort($dirs);
         $names = array_map('basename', $dirs);
-        $response->getBody()->write(json_encode($names, JSON_PRETTY_PRINT));
-        return $response->withHeader('Content-Type', 'application/json');
+
+        $view = Twig::fromRequest($request);
+        return $view->render($response, 'admin/_backup_table.twig', [
+            'backups' => $names,
+        ]);
+    }
+
+    /**
+     * Restore a backup by delegating to the ImportController.
+     */
+    public function restore(Request $request, Response $response, array $args): Response
+    {
+        if ($this->importController === null) {
+            return $response->withStatus(500);
+        }
+        return $this->importController->import($request, $response, $args);
     }
 
     /**
@@ -114,3 +132,4 @@ class BackupController
         return $response->withStatus(204);
     }
 }
+
