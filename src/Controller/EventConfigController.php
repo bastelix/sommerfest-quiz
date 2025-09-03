@@ -35,7 +35,9 @@ class EventConfigController
         }
         $cfg = $this->config->getConfigForEvent($uid);
         $payload = ['event' => $event, 'config' => $cfg];
-        return $response->withJson($payload);
+        $content = json_encode($payload, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
+        $response->getBody()->write($content);
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
     /**
@@ -59,6 +61,8 @@ class EventConfigController
         $this->config->saveConfig($data);
         $cfg = $this->config->getConfigForEvent($uid);
         $payload = ['event' => $event, 'config' => $cfg];
-        return $response->withJson($payload);
+        $content = json_encode($payload, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
+        $response->getBody()->write($content);
+        return $response->withHeader('Content-Type', 'application/json');
     }
 }
