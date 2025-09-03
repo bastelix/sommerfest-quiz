@@ -1,4 +1,5 @@
-/* global UIkit, Html5Qrcode, generateUserName, basePath */
+/* global UIkit, Html5Qrcode, generateUserName */
+const basePath = window.basePath || '';
 const withBase = p => basePath + p;
 // Hilfsfunktion, um nur eine Front- und eine Rückkamera zu behalten
 window.filterCameraOrientations = window.filterCameraOrientations || function(cams){
@@ -157,7 +158,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
   }
   async function loadCatalogList(){
     try{
-      const res = await fetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } });
+      const res = await fetch(withBase('/kataloge/catalogs.json'), { headers: { 'Accept': 'application/json' } });
       if(res.ok){
         return await res.json();
       }
@@ -209,7 +210,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       }
     }
     try{
-      const res = await fetch('/kataloge/' + file, { headers: { 'Accept': 'application/json' } });
+      const res = await fetch(withBase('/kataloge/' + file), { headers: { 'Accept': 'application/json' } });
       const data = await res.json();
       window.quizQuestions = data;
       showCatalogIntro(data);
@@ -602,7 +603,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
     let solved = new Set(JSON.parse(sessionStorage.getItem('quizSolved') || '[]'));
     if(cfg.competitionMode){
       try{
-        const r = await fetch('/results.json', {headers:{'Accept':'application/json'}});
+        const r = await fetch(withBase('/results.json'), {headers:{'Accept':'application/json'}});
         if(r.ok){
           const data = await r.json();
           const key = typeof playerNameKey !== 'undefined' ? playerNameKey : 'quizUser';

@@ -19,7 +19,8 @@ const context = {
         ok: true,
         json: async() => [{ name: 'Team1', catalog: 'uid1' }]
     }),
-    console
+    console,
+    withBase: p => p
 };
 
 const buildSolvedSet = vm.runInNewContext('(' + match[0] + ')', context);
