@@ -648,14 +648,18 @@ document.addEventListener('DOMContentLoaded', function () {
   // --------- Fragen bearbeiten ---------
   const container = document.getElementById('questions');
   const addBtn = document.getElementById('addBtn');
-  const saveBtn = document.getElementById('saveBtn');
-  const resetBtn = document.getElementById('resetBtn');
   const catSelect = document.getElementById('catalogSelect');
   const catalogList = document.getElementById('catalogList');
   const newCatBtn = document.getElementById('newCatBtn');
   let catalogs = [];
   let catalogFile = '';
   let initial = [];
+
+  container?.addEventListener('input', () => saveQuestions());
+  container?.addEventListener('change', () => saveQuestions());
+  if (container && window.UIkit && UIkit.util) {
+    UIkit.util.on(container, 'moved', () => saveQuestions());
+  }
 
   const catalogPaginationEl = document.getElementById('catalogsPagination');
 
@@ -813,10 +817,12 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(data => {
         initial = data;
         renderAll(initial);
+        undoStack = [JSON.parse(JSON.stringify(initial))];
       })
       .catch(() => {
         initial = [];
         renderAll(initial);
+        undoStack = [JSON.parse(JSON.stringify(initial))];
       });
   }
 
@@ -979,11 +985,13 @@ document.addEventListener('DOMContentLoaded', function () {
     removeBtn.onclick = () => {
       const idx = card.dataset.index;
       if (idx !== undefined) {
+        undoStack.push(JSON.parse(JSON.stringify(initial)));
         apiFetch('/kataloge/' + catalogFile + '/' + idx, { method: 'DELETE' })
           .then(r => {
             if (!r.ok) throw new Error(r.statusText);
             initial.splice(Number(idx), 1);
             renderAll(initial);
+            saveQuestions(initial, true);
           })
           .catch(err => {
             console.error(err);
@@ -991,6 +999,7 @@ document.addEventListener('DOMContentLoaded', function () {
           });
       } else {
         card.remove();
+        saveQuestions();
       }
     };
 
@@ -1007,7 +1016,7 @@ document.addEventListener('DOMContentLoaded', function () {
       btn.className = 'uk-icon-button uk-button-danger uk-button-small uk-margin-left';
       btn.setAttribute('uk-icon', 'trash');
       btn.setAttribute('aria-label', 'Entfernen');
-      btn.onclick = () => div.remove();
+      btn.onclick = () => { div.remove(); saveQuestions(); };
       div.appendChild(input);
       div.appendChild(btn);
       return div;
@@ -1033,7 +1042,7 @@ document.addEventListener('DOMContentLoaded', function () {
       rem.className = 'uk-icon-button uk-button-danger uk-button-small';
       rem.setAttribute('uk-icon', 'trash');
       rem.setAttribute('aria-label', 'Entfernen');
-      rem.onclick = () => row.remove();
+      rem.onclick = () => { row.remove(); saveQuestions(); };
       const tDiv = document.createElement('div');
       tDiv.appendChild(tInput);
       const dDiv = document.createElement('div');
@@ -1067,7 +1076,7 @@ document.addEventListener('DOMContentLoaded', function () {
       rem.className = 'uk-icon-button uk-button-danger uk-button-small uk-margin-left';
       rem.setAttribute('uk-icon', 'trash');
       rem.setAttribute('aria-label', 'Entfernen');
-      rem.onclick = () => row.remove();
+      rem.onclick = () => { row.remove(); saveQuestions(); };
       row.appendChild(radio);
       row.appendChild(input);
       row.appendChild(rem);
@@ -1092,7 +1101,7 @@ document.addEventListener('DOMContentLoaded', function () {
       rem.className = 'uk-icon-button uk-button-danger uk-button-small uk-margin-left';
       rem.setAttribute('uk-icon', 'trash');
       rem.setAttribute('aria-label', 'Entfernen');
-      rem.onclick = () => row.remove();
+      rem.onclick = () => { row.remove(); saveQuestions(); };
       row.appendChild(input);
       row.appendChild(rem);
       row.appendChild(check);
@@ -1452,34 +1461,49 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // Speichert die eingegebenen Fragen
-  saveBtn.addEventListener('click', function (e) {
-    e.preventDefault();
-    const data = collect();
-    apiFetch('/kataloge/' + catalogFile, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    })
-      .then(r => {
-        if (r.ok) {
-          notify('Fragen gespeichert', 'success');
-        } else if (r.status === 400) {
-          notify('Ungültige Daten', 'danger');
-        } else {
-          throw new Error(r.statusText);
-        }
+  // Speichert die Fragen automatisch auf dem Server
+  let saveTimer;
+  let undoStack = [];
+  function saveQuestions(list, skipHistory = false) {
+    if (!catalogFile) return;
+    const data = list || collect();
+    if (!skipHistory) {
+      undoStack.push(JSON.parse(JSON.stringify(initial)));
+      if (undoStack.length > 50) undoStack.shift();
+    }
+    initial = data;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      apiFetch('/kataloge/' + catalogFile, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
       })
-      .catch(err => {
-        console.error(err);
-        notify('Fehler beim Speichern', 'danger');
-      });
-  });
+        .then(r => {
+          if (!r.ok && r.status !== 400) {
+            throw new Error(r.statusText);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          notify('Fehler beim Speichern', 'danger');
+        });
+    }, 300);
+  }
 
-  // Setzt den Editor auf die Anfangswerte zurück
-  resetBtn.addEventListener('click', function (e) {
-    e.preventDefault();
-    renderAll(initial);
+  function undo() {
+    const prev = undoStack.pop();
+    if (prev) {
+      renderAll(prev);
+      saveQuestions(prev, true);
+    }
+  }
+
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+      e.preventDefault();
+      undo();
+    }
   });
 
   // Fügt eine neue leere Frage hinzu
