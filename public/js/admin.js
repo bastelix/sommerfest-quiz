@@ -575,14 +575,20 @@ document.addEventListener('DOMContentLoaded', function () {
     notify('Einladungstext gespeichert', 'success');
   });
 
-  commentSaveBtn?.addEventListener('click', () => {
+  commentSaveBtn?.addEventListener('click', async () => {
     if (!currentCommentItem || !commentTextarea) return;
     currentCommentItem.comment = commentTextarea.value;
     const list = catalogManager.getData();
     catalogManager.render(list);
-    commentModal.hide();
-    saveCatalogs(list, true);
-    currentCommentItem = null;
+    try {
+      await saveCatalogs(list);
+      commentModal.hide();
+      currentCommentItem = null;
+      notify('Kommentar gespeichert', 'success');
+    } catch (err) {
+      console.error(err);
+      notify('Fehler beim Speichern', 'danger');
+    }
   });
 
 
