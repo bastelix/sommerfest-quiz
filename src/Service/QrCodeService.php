@@ -44,7 +44,7 @@ use function unlink;
 class QrCodeService
 {
     private const QR_SIZE_DEF = 360;
-    private const QR_MARGIN_DEF = 20;
+    private const QR_MARGIN_DEF = 40;
     private const LOGO_WIDTH_DEF = 120;
     private const FONT_SIZE_DEF = 20;
 

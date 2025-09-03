@@ -866,6 +866,7 @@ body.admin-page {
 
 .qr-img {
   border-radius: 8px;
+  image-rendering: pixelated;
 }
 
 .qr-label {
