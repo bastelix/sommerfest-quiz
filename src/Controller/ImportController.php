@@ -70,7 +70,10 @@ class ImportController
      */
     public function restoreDefaults(Request $request, Response $response): Response
     {
-        $data = json_decode((string) $request->getBody(), true);
+        $data = $this->decodeJson((string) $request->getBody(), $response);
+        if ($data instanceof Response) {
+            return $data;
+        }
         $schema = '';
         if (is_array($data) && isset($data['schema'])) {
             $schema = preg_replace('/[^a-z0-9_\-]/i', '', (string) $data['schema']);
@@ -113,6 +116,26 @@ class ImportController
     }
 
     /**
+     * Decode JSON and return data or a response with error details.
+     *
+     * @return mixed|Response
+     */
+    private function decodeJson(string $json, Response $response): mixed
+    {
+        $data = json_decode($json, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            $response->getBody()->write(
+                json_encode(['error' => 'Invalid JSON: ' . json_last_error_msg()])
+            );
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(400);
+        }
+
+        return $data;
+    }
+
+    /**
      * Helper to import configuration, catalogs, results and more from a directory.
      */
     private function importFromDir(string $dir, Response $response): Response
@@ -124,7 +147,10 @@ class ImportController
         }
         $eventsFile = $dir . '/events.json';
         if (is_readable($eventsFile)) {
-            $events = json_decode((string)file_get_contents($eventsFile), true) ?? [];
+            $events = $this->decodeJson((string) file_get_contents($eventsFile), $response);
+            if ($events instanceof Response) {
+                return $events;
+            }
             if (is_array($events)) {
                 $this->events->saveAll($events);
             }
@@ -132,46 +158,67 @@ class ImportController
 
         $cfgFile = $dir . '/config.json';
         if (is_readable($cfgFile)) {
-            $cfg = json_decode((string)file_get_contents($cfgFile), true) ?? [];
+            $cfg = $this->decodeJson((string) file_get_contents($cfgFile), $response);
+            if ($cfg instanceof Response) {
+                return $cfg;
+            }
             $this->config->saveConfig($cfg);
         }
         $teamsFile = $dir . '/teams.json';
         if (is_readable($teamsFile)) {
-            $teams = json_decode((string)file_get_contents($teamsFile), true) ?? [];
+            $teams = $this->decodeJson((string) file_get_contents($teamsFile), $response);
+            if ($teams instanceof Response) {
+                return $teams;
+            }
             if (is_array($teams)) {
                 $this->teams->saveAll($teams);
             }
         }
         $resultsFile = $dir . '/results.json';
         if (is_readable($resultsFile)) {
-            $results = json_decode((string)file_get_contents($resultsFile), true) ?? [];
+            $results = $this->decodeJson((string) file_get_contents($resultsFile), $response);
+            if ($results instanceof Response) {
+                return $results;
+            }
             if (is_array($results)) {
                 $this->results->saveAll($results);
             }
         }
         $qResultsFile = $dir . '/question_results.json';
         if (is_readable($qResultsFile)) {
-            $qres = json_decode((string)file_get_contents($qResultsFile), true) ?? [];
+            $qres = $this->decodeJson((string) file_get_contents($qResultsFile), $response);
+            if ($qres instanceof Response) {
+                return $qres;
+            }
             if (is_array($qres)) {
                 $this->results->saveQuestionRows($qres);
             }
         }
         $consentsFile = $dir . '/photo_consents.json';
         if (is_readable($consentsFile)) {
-            $consents = json_decode((string)file_get_contents($consentsFile), true) ?? [];
+            $consents = $this->decodeJson((string) file_get_contents($consentsFile), $response);
+            if ($consents instanceof Response) {
+                return $consents;
+            }
             if (is_array($consents)) {
                 $this->consents->saveAll($consents);
             }
         }
         $summaryFile = $dir . '/summary_photos.json';
         if (is_readable($summaryFile)) {
-            $photos = json_decode((string)file_get_contents($summaryFile), true) ?? [];
+            $photos = $this->decodeJson((string) file_get_contents($summaryFile), $response);
+            if ($photos instanceof Response) {
+                return $photos;
+            }
             if (is_array($photos)) {
                 $this->summaryPhotos->saveAll($photos);
             }
         }
 
-        $catalogs = json_decode((string)file_get_contents($catalogsFile), true) ?? [];
+        $catalogs = $this->decodeJson((string) file_get_contents($catalogsFile), $response);
+        if ($catalogs instanceof Response) {
+            return $catalogs;
+        }
         $this->catalogs->write('catalogs.json', $catalogs);
         foreach ($catalogs as $cat) {
             if (!isset($cat['file'])) {
@@ -182,7 +229,10 @@ class ImportController
             if (!is_readable($path)) {
                 continue;
             }
-            $questions = json_decode((string)file_get_contents($path), true) ?? [];
+            $questions = $this->decodeJson((string) file_get_contents($path), $response);
+            if ($questions instanceof Response) {
+                return $questions;
+            }
             $this->catalogs->write($file, $questions);
         }
         return $response->withStatus(204);
