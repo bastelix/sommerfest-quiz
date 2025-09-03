@@ -149,6 +149,7 @@
 - Add paginated catalog endpoint
 - Add accessible table loading spinners
 - Allow custom QR code options
+- Add mobile labels for table columns
 
 ### Fix
 
