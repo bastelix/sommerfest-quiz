@@ -138,6 +138,32 @@ class ImportControllerTest extends TestCase
         rmdir($tmp);
     }
 
+    public function testImportRejectsInvalidName(): void
+    {
+        [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
+        $tmp = sys_get_temp_dir() . '/import_' . uniqid();
+        mkdir($tmp, 0777, true);
+
+        $controller = new ImportController(
+            $catalog,
+            $config,
+            $results,
+            $teams,
+            $consents,
+            $summary,
+            $events,
+            $tmp,
+            $tmp
+        );
+
+        $request = $this->createRequest('POST', '/import/../etc');
+        $response = $controller->import($request, new Response(), ['name' => '../etc']);
+
+        $this->assertEquals(400, $response->getStatusCode());
+
+        rmdir($tmp);
+    }
+
     public function testRestoreDefaults(): void
     {
         [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
