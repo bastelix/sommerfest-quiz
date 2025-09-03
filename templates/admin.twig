@@ -392,43 +392,17 @@
       <div class="uk-container uk-container-large">
         <div>
           <h2 class="uk-heading-bullet">{{ t('heading_catalogs') }}</h2>
-          <div class="uk-overflow-auto">
-          <table id="catalogTable" class="uk-table uk-table-divider uk-table-small" role="table" aria-label="{{ t('heading_catalogs') }}">
-            <thead class="table-headings">
-              <tr>
-                <th scope="col">
-                  <span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top" tabindex="0"></span>
-                </th>
-                  <th scope="col">{{ t('column_slug') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_slug') }}; pos: top" tabindex="0"></span>
-                  </th>
-                  <th scope="col">{{ t('column_name') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_name') }}; pos: top" tabindex="0"></span>
-                  </th>
-                  <th scope="col">{{ t('column_description') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_desc') }}; pos: top" tabindex="0"></span>
-                  </th>
-                  <th scope="col">{{ t('column_letter') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_puzzle_letter') }}; pos: top" tabindex="0"></span>
-                  </th>
-                  <th scope="col">{{ t('column_comment') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_comment') }}; pos: top" tabindex="0"></span>
-                  </th>
-                  <th scope="col">
-                    <span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_cat_remove') }}; pos: top" tabindex="0"></span>
-                  </th>
-              </tr>
-            </thead>
-            <tbody id="catalogList" role="rowgroup"
-              data-label-slug="{{ t('column_slug') }}"
-              data-label-name="{{ t('column_name') }}"
-              data-label-description="{{ t('column_description') }}"
-              data-label-letter="{{ t('column_letter') }}"
-              data-label-comment="{{ t('column_comment') }}"
-              data-label-actions="{{ t('column_actions') }}"
-              uk-sortable="handle: .uk-sortable-handle; group: sortable-group"></tbody>
-          </table>
-        </div>
+        {% from 'components/table.twig' import qr_table, qr_rowcards %}
+        {{ qr_table([
+          { 'label': ('<span uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_sort_rows') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-shrink' },
+          { 'label': (t('column_slug') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_slug') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-shrink' },
+          { 'label': (t('column_name') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_name') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-expand' },
+          { 'label': (t('column_description') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_desc') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-expand' },
+          { 'label': (t('column_letter') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_puzzle_letter') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-shrink' },
+          { 'label': (t('column_comment') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_comment') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-expand' },
+          { 'label': ('<span uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_remove') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-shrink uk-text-center' }
+        ], 'catalogList') }}
+        {{ qr_rowcards('catalogCards') }}
         <div class="uk-margin">
           <button id="newCatBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_cat_add') }}; pos: left" aria-label="{{ t('tip_cat_add') }}"></button>
         </div>
