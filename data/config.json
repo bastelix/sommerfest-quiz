@@ -21,6 +21,7 @@
     "event_uid": "ev1",
     "qrLabelLine1": null,
     "qrLabelLine2": null,
+    "qrLabelBottom": null,
     "qrLogoPath": null,
     "qrLogoWidth": null,
     "qrRoundMode": null,

@@ -8,6 +8,8 @@ use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
+use Endroid\QrCode\Label\Font\Font;
+use Endroid\QrCode\Label\LabelAlignment;
 use Endroid\QrCode\RoundBlockSizeMode;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Writer\SvgWriter;
@@ -234,6 +236,7 @@ class QrCodeService
         $fontSz = $this->clampInt($q['font_size'] ?? null, 8, 48, self::FONT_SIZE_DEF);
         $text1 = (string) ($q['text1'] ?? ($defaults['text1'] ?? 'QUIZ'));
         $text2 = (string) ($q['text2'] ?? ($defaults['text2'] ?? 'RACE'));
+        $labelText = (string) ($q['label_text'] ?? ($defaults['label_text'] ?? ''));
 
         $rounded = $this->boolParam($q['rounded'] ?? null, true);
         $roundModeParam = $q['round_mode'] ?? ($defaults['round_mode'] ?? null);
@@ -260,21 +263,31 @@ class QrCodeService
         $writer = $format === 'svg' ? new SvgWriter() : new PngWriter();
         $punchout = $logoPath !== null && !($writer instanceof SvgWriter) ? $logoPunchout : false;
 
+        $args = [
+            'writer' => $writer,
+            'data' => $data,
+            'encoding' => new Encoding('UTF-8'),
+            'errorCorrectionLevel' => $ec,
+            'size' => $size,
+            'margin' => $margin,
+            'roundBlockSizeMode' => $roundMode,
+            'foregroundColor' => new Color($fgRgb[0], $fgRgb[1], $fgRgb[2]),
+            'backgroundColor' => new Color($bgRgb[0], $bgRgb[1], $bgRgb[2]),
+            'logoPath' => $logoPath ?? '',
+            'logoResizeToWidth' => $logoPath !== null ? $logoW : null,
+            'logoPunchoutBackground' => $punchout,
+        ];
+        if ($labelText !== '') {
+            $fontFile = $this->getFontFile();
+            $args['labelText'] = $labelText;
+            if ($fontFile !== null) {
+                $args['labelFont'] = new Font($fontFile, $fontSz);
+            }
+            $args['labelAlignment'] = LabelAlignment::Center;
+        }
+
         try {
-            $result = (new Builder(
-                writer: $writer,
-                data: $data,
-                encoding: new Encoding('UTF-8'),
-                errorCorrectionLevel: $ec,
-                size: $size,
-                margin: $margin,
-                roundBlockSizeMode: $roundMode,
-                foregroundColor: new Color($fgRgb[0], $fgRgb[1], $fgRgb[2]),
-                backgroundColor: new Color($bgRgb[0], $bgRgb[1], $bgRgb[2]),
-                logoPath: $logoPath ?? '',
-                logoResizeToWidth: $logoPath !== null ? $logoW : null,
-                logoPunchoutBackground: $punchout,
-            ))->build();
+            $result = (new Builder(...$args))->build();
         } finally {
             if ($logoPath !== null) {
                 @unlink($logoPath);
@@ -310,6 +323,9 @@ class QrCodeService
         }
         if (($cfg['qrRoundMode'] ?? '') !== '') {
             $defaults['round_mode'] = (string) $cfg['qrRoundMode'];
+        }
+        if (($cfg['qrLabelBottom'] ?? '') !== '') {
+            $defaults['label_text'] = (string) $cfg['qrLabelBottom'];
         }
         if (array_key_exists('qrLogoPunchout', $cfg) && $cfg['qrLogoPunchout'] !== null) {
             $defaults['logo_punchout'] = $cfg['qrLogoPunchout'] ? '1' : '0';

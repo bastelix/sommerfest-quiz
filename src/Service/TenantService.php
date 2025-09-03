@@ -244,6 +244,7 @@ class TenantService
                 $mapping = [
                     'qr_label_line1' => 'qrLabelLine1',
                     'qr_label_line2' => 'qrLabelLine2',
+                    'qr_label_bottom' => 'qrLabelBottom',
                     'qr_logo_path' => 'qrLogoPath',
                     'qr_round_mode' => 'qrRoundMode',
                     'qr_logo_punchout' => 'qrLogoPunchout',
