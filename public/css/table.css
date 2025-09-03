@@ -18,6 +18,7 @@
 
 .qr-table-wrap {
   max-height: 60vh;
+  scrollbar-gutter: stable;
 }
 
 .qr-table {
@@ -33,6 +34,11 @@
   top: 0;
   background: var(--qr-head);
   z-index: 1;
+}
+
+.qr-table th {
+  padding: 0 0.6rem;
+  box-sizing: border-box;
 }
 
 .qr-table td {
