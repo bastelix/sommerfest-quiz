@@ -52,8 +52,9 @@ class ConfigController
     /**
      * Return configuration for the specified event UID.
      */
-    public function getByEvent(string $uid, Response $response): Response
+    public function getByEvent(Request $request, Response $response, array $args): Response
     {
+        $uid = (string) ($args['uid'] ?? '');
         $cfg = $this->service->getConfigForEvent($uid);
         if (session_status() === PHP_SESSION_NONE) {
             session_start();

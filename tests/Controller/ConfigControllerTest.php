@@ -108,7 +108,8 @@ class ConfigControllerTest extends TestCase
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
 
-        $response = $controller->getByEvent('ev1', new Response());
+        $request = $this->createRequest('GET', '/events/ev1/config.json');
+        $response = $controller->getByEvent($request, new Response(), ['uid' => 'ev1']);
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertStringContainsString('Demo', (string) $response->getBody());
         session_destroy();

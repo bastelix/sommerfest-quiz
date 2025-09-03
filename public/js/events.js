@@ -64,6 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const eventOpenBtn = document.getElementById('eventOpenBtn');
   const eventTitle = document.getElementById('eventTitle');
   let activeEventUid = '';
+  const params = new URLSearchParams(window.location.search);
+  const pageEventUid = params.get('event') || '';
 
   function populate(list) {
     if (!eventSelect) return;
@@ -103,11 +105,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (eventSelect) {
+    const cfgUrl = pageEventUid ? `/events/${pageEventUid}/config.json` : '/config.json';
     Promise.all([
-      csrfFetch('/config.json').then((r) => r.json()).catch(() => ({})),
+      csrfFetch(cfgUrl).then((r) => r.json()).catch(() => ({})),
       csrfFetch('/events.json', { headers: { Accept: 'application/json' } }).then((r) => r.json()).catch(() => [])
     ]).then(([cfg, events]) => {
       activeEventUid = cfg.event_uid || '';
+      window.quizConfig = cfg;
       populate(events);
     }).catch(() => {});
   }
