@@ -290,11 +290,10 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function getUsedIds() {
-    const set = new Set(catalogs.map(c => c.slug || c.sort_order));
-    document
-      .querySelectorAll('.catalog-row .cat-id')
-      .forEach(el => set.add(el.value.trim()));
-    return set;
+    const list = typeof catalogManager !== 'undefined' && catalogManager
+      ? catalogManager.getData()
+      : catalogs;
+    return new Set(list.map(c => c.slug || c.sort_order));
   }
 
   function uniqueId(text) {
@@ -631,10 +630,13 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   commentSaveBtn?.addEventListener('click', () => {
-    if(!currentCommentInput || !commentTextarea) return;
+    if (!currentCommentInput || !commentTextarea) return;
     currentCommentInput.value = commentTextarea.value;
+    if (currentCommentInput._item) {
+      currentCommentInput._item.comment = commentTextarea.value;
+    }
     const btn = currentCommentInput.previousSibling;
-    if(btn && btn.textContent !== undefined){
+    if (btn && btn.textContent !== undefined) {
       btn.textContent = commentTextarea.value.trim() ? 'Kommentar bearbeiten' : 'Kommentar eingeben';
     }
     commentModal.hide();
@@ -724,12 +726,102 @@ document.addEventListener('DOMContentLoaded', function () {
   let catalogFile = '';
   let initial = [];
 
-  if (catalogList && window.UIkit && UIkit.util) {
-    UIkit.util.on(catalogList, 'moved', saveCatalogOrder);
-  }
+  const catalogManager = new TableManager({
+    tbody: catalogList,
+    mobileCards: { container: document.getElementById('catalogCards') },
+    sortable: true,
+    columns: [
+      {
+        render: item => {
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'uk-input cat-id';
+          input.placeholder = 'Slug';
+          input.value = item.slug || '';
+          input.addEventListener('input', () => {
+            item.slug = input.value.trim();
+            item.file = item.slug ? item.slug + '.json' : '';
+          });
+          item._slugInput = input;
+          return input;
+        }
+      },
+      {
+        render: item => {
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'uk-input cat-name';
+          input.placeholder = 'Name';
+          input.value = item.name || '';
+          input.addEventListener('input', () => {
+            item.name = input.value;
+            if (item.new && item._slugInput && item._slugInput.value.trim() === '') {
+              const id = uniqueId(input.value);
+              item.slug = id;
+              item.file = id ? id + '.json' : '';
+              item._slugInput.value = id;
+            }
+          });
+          return input;
+        }
+      },
+      {
+        render: item => {
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'uk-input cat-desc';
+          input.placeholder = 'Beschreibung';
+          input.value = item.description || '';
+          input.addEventListener('input', () => {
+            item.description = input.value;
+          });
+          return input;
+        }
+      },
+      {
+        render: item => {
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'uk-input cat-letter';
+          input.placeholder = 'Buchstabe';
+          input.maxLength = 1;
+          input.value = item.raetsel_buchstabe || '';
+          input.addEventListener('input', () => {
+            item.raetsel_buchstabe = input.value;
+          });
+          return input;
+        }
+      },
+      {
+        render: item => {
+          const btn = document.createElement('button');
+          btn.className = 'uk-button uk-button-default';
+          const hidden = document.createElement('input');
+          hidden.type = 'hidden';
+          hidden.className = 'cat-comment';
+          hidden.value = item.comment || '';
+          hidden._item = item;
+          const updateBtn = () => {
+            btn.textContent = hidden.value.trim() ? 'Kommentar bearbeiten' : 'Kommentar eingeben';
+          };
+          updateBtn();
+          btn.addEventListener('click', () => {
+            currentCommentInput = hidden;
+            if (commentTextarea) commentTextarea.value = hidden.value;
+            commentModal.show();
+          });
+          const container = document.createElement('div');
+          container.appendChild(btn);
+          container.appendChild(hidden);
+          return container;
+        }
+      }
+    ],
+    onDelete: id => deleteCatalogById(id)
+  });
 
   function loadCatalog(identifier) {
-    const cat = catalogs.find(c => c.uid === identifier || (c.slug || c.sort_order) === identifier);
+    const cat = catalogs.find(c => c.id === identifier || c.uid === identifier || (c.slug || c.sort_order) === identifier);
     if (!cat) return;
     catalogFile = cat.file;
     apiFetch('/kataloge/' + catalogFile, { headers: { 'Accept': 'application/json' } })
@@ -747,42 +839,46 @@ document.addEventListener('DOMContentLoaded', function () {
   apiFetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } })
     .then(r => r.json())
     .then(list => {
-      catalogs = list;
+      catalogs = list.map(c => ({ ...c, id: c.uid || c.slug || c.sort_order }));
       catSelect.innerHTML = '';
       catalogs.forEach(c => {
         const opt = document.createElement('option');
-        opt.value = c.uid || c.slug || c.sort_order;
+        opt.value = c.id;
         opt.textContent = c.name || c.sort_order || c.slug;
         catSelect.appendChild(opt);
       });
-      renderCatalogs(catalogs);
+      catalogManager.render(catalogs);
       const params = new URLSearchParams(window.location.search);
       const slug = params.get('katalog');
       const selected = catalogs.find(c => (c.slug || c.sort_order) === slug) || catalogs[0];
       if (selected) {
-        catSelect.value = selected.uid || selected.slug || selected.sort_order;
-        loadCatalog(selected.uid || selected.slug || selected.sort_order);
+        catSelect.value = selected.id;
+        loadCatalog(selected.id);
       }
     });
 
   catSelect.addEventListener('change', () => loadCatalog(catSelect.value));
 
-  function deleteCatalog(cat, row) {
-    if (row.dataset.new === 'true' || !cat.file) {
-      row.remove();
+  function deleteCatalogById(id) {
+    const list = catalogManager.getData();
+    const cat = list.find(c => c.id === id);
+    if (!cat) return;
+    if (cat.new || !cat.file) {
+      catalogManager.render(list.filter(c => c.id !== id));
       return;
     }
     if (!confirm('Katalog wirklich löschen?')) return;
     apiFetch('/kataloge/' + cat.file, { method: 'DELETE' })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
-        catalogs = catalogs.filter(c => c.uid !== cat.uid);
-        const opt = catSelect.querySelector('option[value="' + cat.uid + '"]');
+        const updated = list.filter(c => c.id !== id);
+        catalogManager.render(updated);
+        catalogs = updated;
+        const opt = catSelect.querySelector('option[value="' + id + '"]');
         opt?.remove();
-        row.remove();
         if (catalogs[0]) {
-          if (catSelect.value === cat.uid) {
-            catSelect.value = catalogs[0].uid || catalogs[0].slug || catalogs[0].sort_order;
+          if (catSelect.value === String(id)) {
+            catSelect.value = catalogs[0].id;
             loadCatalog(catSelect.value);
           }
         } else {
@@ -796,189 +892,6 @@ document.addEventListener('DOMContentLoaded', function () {
         console.error(err);
         notify('Fehler beim Löschen', 'danger');
       });
-  }
-
-  function createCatalogRow(cat) {
-    const row = document.createElement('tr');
-    row.className = 'catalog-row';
-    row.setAttribute('role', 'row');
-    if (cat.new) row.dataset.new = 'true';
-    row.dataset.sortOrder = cat.sort_order !== undefined ? String(cat.sort_order) : '';
-    row.dataset.slug = cat.slug || '';
-    row.dataset.file = cat.file || '';
-    row.dataset.initialFile = cat.file || '';
-    row.dataset.uid = cat.uid || crypto.randomUUID();
-
-    const rowId = 'cat-' + catalogRowIndex++;
-
-    const labels = catalogList?.dataset || {};
-
-    const idCell = document.createElement('td');
-    idCell.setAttribute('role', 'cell');
-    const idLabel = document.createElement('span');
-    idLabel.className = 'cell-label uk-hidden@s';
-    idLabel.textContent = labels.labelSlug || '';
-    idCell.appendChild(idLabel);
-    const handleCell = document.createElement('td');
-    handleCell.setAttribute('role', 'cell');
-    const handleLabel = document.createElement('span');
-    handleLabel.className = 'cell-label uk-hidden@s';
-    handleLabel.textContent = labels.labelActions || '';
-    handleCell.appendChild(handleLabel);
-    const handleSpan = document.createElement('span');
-    handleSpan.className = 'uk-sortable-handle uk-icon';
-    handleSpan.setAttribute('uk-icon', 'icon: table');
-    handleCell.appendChild(handleSpan);
-
-    const idInput = document.createElement('input');
-    idInput.type = 'text';
-    idInput.className = 'uk-input cat-id';
-    idInput.placeholder = 'Slug';
-    idInput.id = rowId + '-id';
-    idInput.value = cat.slug || '';
-    idCell.appendChild(idInput);
-
-    const nameCell = document.createElement('td');
-    nameCell.setAttribute('role', 'cell');
-    const nameLabel = document.createElement('span');
-    nameLabel.className = 'cell-label uk-hidden@s';
-    nameLabel.textContent = labels.labelName || '';
-    nameCell.appendChild(nameLabel);
-    const name = document.createElement('input');
-    name.type = 'text';
-    name.className = 'uk-input cat-name';
-    name.placeholder = 'Name';
-    name.id = rowId + '-name';
-    name.value = cat.name || '';
-    name.addEventListener('input', () => {
-      if (row.dataset.new === 'true' && idInput.value.trim() === '') {
-        idInput.value = uniqueId(name.value);
-        update();
-      }
-    });
-    nameCell.appendChild(name);
-
-    const descCell = document.createElement('td');
-    descCell.setAttribute('role', 'cell');
-    const descLabel = document.createElement('span');
-    descLabel.className = 'cell-label uk-hidden@s';
-    descLabel.textContent = labels.labelDescription || '';
-    descCell.appendChild(descLabel);
-    const desc = document.createElement('input');
-    desc.type = 'text';
-    desc.className = 'uk-input cat-desc';
-    desc.placeholder = 'Beschreibung';
-    desc.id = rowId + '-desc';
-    desc.value = cat.description || '';
-    descCell.appendChild(desc);
-
-    const letterCell = document.createElement('td');
-    letterCell.setAttribute('role', 'cell');
-    const letterLabel = document.createElement('span');
-    letterLabel.className = 'cell-label uk-hidden@s';
-    letterLabel.textContent = labels.labelLetter || '';
-    letterCell.appendChild(letterLabel);
-    const letter = document.createElement('input');
-    letter.type = 'text';
-    letter.className = 'uk-input cat-letter';
-    letter.placeholder = 'Buchstabe';
-    letter.id = rowId + '-letter';
-    letter.value = cat.raetsel_buchstabe || '';
-    letter.maxLength = 1;
-    letterCell.appendChild(letter);
-
-    const commentCell = document.createElement('td');
-    commentCell.setAttribute('role', 'cell');
-    const commentLabel = document.createElement('span');
-    commentLabel.className = 'cell-label uk-hidden@s';
-    commentLabel.textContent = labels.labelComment || '';
-    commentCell.appendChild(commentLabel);
-    const commentBtn = document.createElement('button');
-    commentBtn.className = 'uk-button uk-button-default';
-    const commentField = document.createElement('input');
-    commentField.type = 'hidden';
-    commentField.className = 'cat-comment';
-    commentField.value = cat.comment || '';
-    function updateCommentBtn(){
-      commentBtn.textContent = commentField.value.trim() ? 'Kommentar bearbeiten' : 'Kommentar eingeben';
-    }
-    updateCommentBtn();
-    commentBtn.addEventListener('click', () => {
-      currentCommentInput = commentField;
-      if(commentTextarea) commentTextarea.value = commentField.value;
-      commentModal.show();
-    });
-    commentCell.appendChild(commentBtn);
-    commentCell.appendChild(commentField);
-
-    const delCell = document.createElement('td');
-    delCell.setAttribute('role', 'cell');
-    const delLabel = document.createElement('span');
-    delLabel.className = 'cell-label uk-hidden@s';
-    delLabel.textContent = labels.labelActions || '';
-    delCell.appendChild(delLabel);
-    const del = document.createElement('button');
-    del.className = 'uk-icon-button uk-button-danger';
-    del.setAttribute('uk-icon', 'trash');
-    del.setAttribute('aria-label', 'Löschen');
-    del.addEventListener('click', () => deleteCatalog(cat, row));
-    delCell.appendChild(del);
-
-    function update() {
-      const slug = idInput.value.trim();
-      row.dataset.slug = slug;
-      row.dataset.file = slug ? slug + '.json' : '';
-    }
-    idInput.addEventListener('input', update);
-    update();
-
-    row.appendChild(handleCell);
-    row.appendChild(idCell);
-    row.appendChild(nameCell);
-    row.appendChild(descCell);
-    row.appendChild(letterCell);
-    row.appendChild(commentCell);
-    row.appendChild(delCell);
-
-    return row;
-  }
-
-  function renderCatalogs(list) {
-    if (!catalogList) return;
-    catalogList.innerHTML = '';
-    list
-      .slice()
-      .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
-      .forEach(cat => catalogList.appendChild(createCatalogRow(cat)));
-  }
-
-  function collectCatalogs() {
-    return Array.from(catalogList.querySelectorAll('.catalog-row'))
-      .map((row, idx) => {
-        const slug = row.querySelector('.cat-id').value.trim();
-        const file = slug ? slug + '.json' : '';
-        row.dataset.sortOrder = String(idx + 1);
-        return {
-          uid: row.dataset.uid,
-          sort_order: idx + 1,
-          slug,
-          file,
-          name: row.querySelector('.cat-name').value.trim(),
-          description: row.querySelector('.cat-desc').value.trim(),
-          raetsel_buchstabe: row.querySelector('.cat-letter').value.trim(),
-          comment: row.querySelector('.cat-comment').value.trim()
-        };
-      })
-      .filter(c => c.slug);
-  }
-
-  function saveCatalogOrder() {
-    const data = collectCatalogs();
-    apiFetch('/kataloge/catalogs.json', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    }).catch(() => {});
   }
 
   // Rendert alle Fragen im Editor neu
@@ -1557,22 +1470,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
   newCatBtn.addEventListener('click', function (e) {
     e.preventDefault();
-    catalogList.appendChild(createCatalogRow({ id: '', slug: '', file: '', name: '', description: '', raetsel_buchstabe: '', new: true }));
+    catalogManager.addRow({
+      id: crypto.randomUUID(),
+      slug: '',
+      file: '',
+      name: '',
+      description: '',
+      raetsel_buchstabe: '',
+      comment: '',
+      new: true
+    });
   });
 
   catalogsSaveBtn?.addEventListener('click', async e => {
     e.preventDefault();
-    const rows = Array.from(catalogList.querySelectorAll('.catalog-row'));
-    for (const row of rows) {
-      const currentId = row.querySelector('.cat-id').value.trim();
+    const list = catalogManager.getData();
+    for (const item of list) {
+      const currentId = item.slug?.trim() || '';
       const newFile = currentId ? currentId + '.json' : '';
-      if (row.dataset.new === 'true') {
+      if (item.new) {
         let id = currentId;
         if (!id) {
-          const nameEl = row.querySelector('.cat-name');
-          if (nameEl) {
-            id = uniqueId(nameEl.value);
-            row.querySelector('.cat-id').value = id;
+          id = uniqueId(item.name || '');
+          if (item._slugInput) {
+            item._slugInput.value = id;
           }
         }
         if (!id) continue;
@@ -1582,27 +1503,41 @@ document.addEventListener('DOMContentLoaded', function () {
             headers: { 'Content-Type': 'application/json' },
             body: '[]'
           });
-          row.dataset.new = '';
-          row.dataset.initialFile = id + '.json';
+          item.new = false;
+          item.file = id + '.json';
+          item.slug = id;
         } catch (err) {
           console.error(err);
           notify('Fehler beim Erstellen', 'danger');
         }
-      } else if (currentId && row.dataset.initialFile && row.dataset.initialFile !== newFile) {
+      } else if (currentId && item.file && item.file !== newFile) {
         try {
-          const res = await apiFetch('/kataloge/' + row.dataset.initialFile, { headers: { 'Accept': 'application/json' } });
+          const res = await apiFetch('/kataloge/' + item.file, { headers: { 'Accept': 'application/json' } });
           const content = await res.text();
           await apiFetch('/kataloge/' + newFile, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: content });
-          await apiFetch('/kataloge/' + row.dataset.initialFile, { method: 'DELETE' });
-          row.dataset.initialFile = newFile;
+          await apiFetch('/kataloge/' + item.file, { method: 'DELETE' });
+          item.file = newFile;
         } catch (err) {
           console.error(err);
           notify('Fehler beim Umbenennen', 'danger');
         }
       }
+      item.file = newFile;
     }
 
-    const data = collectCatalogs();
+    const data = list
+      .map((c, idx) => ({
+        uid: c.id,
+        sort_order: idx + 1,
+        slug: c.slug,
+        file: c.slug ? c.slug + '.json' : '',
+        name: c.name,
+        description: c.description,
+        raetsel_buchstabe: c.raetsel_buchstabe,
+        comment: c.comment
+      }))
+      .filter(c => c.slug);
+
     apiFetch('/kataloge/catalogs.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1610,16 +1545,17 @@ document.addEventListener('DOMContentLoaded', function () {
     })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
-        catalogs = data;
+        catalogs = data.map(c => ({ ...c, id: c.uid }));
         catSelect.innerHTML = '';
         catalogs.forEach(c => {
           const opt = document.createElement('option');
-          opt.value = c.uid || c.slug || c.sort_order;
+          opt.value = c.id;
           opt.textContent = c.name || c.sort_order || c.slug;
           catSelect.appendChild(opt);
         });
+        catalogManager.render(catalogs);
         if (!catalogFile && catalogs.length > 0) {
-          catSelect.value = catalogs[0].uid || catalogs[0].slug || catalogs[0].sort_order;
+          catSelect.value = catalogs[0].id;
           loadCatalog(catSelect.value);
         }
         notify('Katalogliste gespeichert', 'success');
@@ -2590,7 +2526,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // Zähler für eindeutige Namen von Eingabefeldern
-  let catalogRowIndex = 0;
   let cardIndex = 0;
 
   // --------- Hilfe-Seitenleiste ---------
