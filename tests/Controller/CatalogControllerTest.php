@@ -44,6 +44,9 @@ class CatalogControllerTest extends TestCase
                 answers TEXT,
                 terms TEXT,
                 items TEXT,
+                cards TEXT,
+                right_label TEXT,
+                left_label TEXT,
                 UNIQUE(catalog_uid, sort_order)
             );
             SQL
@@ -91,6 +94,9 @@ class CatalogControllerTest extends TestCase
                 answers TEXT,
                 terms TEXT,
                 items TEXT,
+                cards TEXT,
+                right_label TEXT,
+                left_label TEXT,
                 UNIQUE(catalog_uid, sort_order)
             );
             SQL
@@ -142,6 +148,9 @@ class CatalogControllerTest extends TestCase
                 answers TEXT,
                 terms TEXT,
                 items TEXT,
+                cards TEXT,
+                right_label TEXT,
+                left_label TEXT,
                 UNIQUE(catalog_uid, sort_order)
             );
             SQL
@@ -154,8 +163,11 @@ class CatalogControllerTest extends TestCase
 
         $request = $this->createRequest('POST', '/kataloge/test.json');
         $request = $request->withParsedBody([[
-            'type' => 'text',
+            'type' => 'swipe',
             'prompt' => 'Q1',
+            'cards' => [['text' => 'A', 'correct' => true]],
+            'rightLabel' => 'Yes',
+            'leftLabel' => 'No',
         ]]);
         $postResponse = $controller->post($request, new Response(), ['file' => 'test.json']);
         $this->assertEquals(204, $postResponse->getStatusCode());
@@ -167,8 +179,11 @@ class CatalogControllerTest extends TestCase
         );
         $this->assertEquals(200, $getResponse->getStatusCode());
         $expected = json_encode([[
-            'type' => 'text',
+            'type' => 'swipe',
             'prompt' => 'Q1',
+            'cards' => [['text' => 'A', 'correct' => true]],
+            'rightLabel' => 'Yes',
+            'leftLabel' => 'No',
         ]], JSON_PRETTY_PRINT);
         $this->assertJsonStringEqualsJsonString($expected, (string) $getResponse->getBody());
 
@@ -207,6 +222,9 @@ class CatalogControllerTest extends TestCase
                 answers TEXT,
                 terms TEXT,
                 items TEXT,
+                cards TEXT,
+                right_label TEXT,
+                left_label TEXT,
                 UNIQUE(catalog_uid, sort_order)
             );
             SQL
@@ -283,6 +301,9 @@ class CatalogControllerTest extends TestCase
                 answers TEXT,
                 terms TEXT,
                 items TEXT,
+                cards TEXT,
+                right_label TEXT,
+                left_label TEXT,
                 UNIQUE(catalog_uid, sort_order)
             );
             SQL
@@ -341,6 +362,9 @@ class CatalogControllerTest extends TestCase
                 answers TEXT,
                 terms TEXT,
                 items TEXT,
+                cards TEXT,
+                right_label TEXT,
+                left_label TEXT,
                 UNIQUE(catalog_uid, sort_order)
             );
             SQL

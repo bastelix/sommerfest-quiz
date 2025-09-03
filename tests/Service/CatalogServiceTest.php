@@ -46,6 +46,9 @@ class CatalogServiceTest extends TestCase
                 answers TEXT,
                 terms TEXT,
                 items TEXT,
+                cards TEXT,
+                right_label TEXT,
+                left_label TEXT,
                 UNIQUE(catalog_uid, sort_order)
             );
             SQL
@@ -102,6 +105,9 @@ class CatalogServiceTest extends TestCase
                 answers TEXT,
                 terms TEXT,
                 items TEXT,
+                cards TEXT,
+                right_label TEXT,
+                left_label TEXT,
                 UNIQUE(catalog_uid, sort_order)
             );
             SQL
@@ -140,10 +146,19 @@ class CatalogServiceTest extends TestCase
             'comment' => ''
         ]];
         $service->write('catalogs.json', $catalog);
-        $data = [['type' => 'text', 'prompt' => 'Hello']];
+        $data = [[
+            'type' => 'swipe',
+            'prompt' => 'Hello',
+            'cards' => [['text' => 'A', 'correct' => true]],
+            'rightLabel' => 'Yes',
+            'leftLabel' => 'No',
+        ]];
 
         $service->write($file, $data);
-        $this->assertJsonStringEqualsJsonString(json_encode($data, JSON_PRETTY_PRINT), $service->read($file));
+        $this->assertJsonStringEqualsJsonString(
+            json_encode($data, JSON_PRETTY_PRINT),
+            $service->read($file)
+        );
     }
 
     public function testWriteWithoutCommentColumn(): void

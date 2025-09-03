@@ -130,6 +130,9 @@ CREATE TABLE IF NOT EXISTS questions (
     answers JSONB DEFAULT '[]'::JSONB,
     terms JSONB DEFAULT '{}'::JSONB,
     items JSONB DEFAULT '{}'::JSONB,
+    cards JSONB DEFAULT '[]'::JSONB,
+    right_label TEXT,
+    left_label TEXT,
     FOREIGN KEY (catalog_uid) REFERENCES catalogs(uid) ON DELETE CASCADE,
     CONSTRAINT uq_questions_catalog_sort UNIQUE (catalog_uid, sort_order)
 );

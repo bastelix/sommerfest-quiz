@@ -295,16 +295,22 @@ class CatalogService
             return null;
         }
         $qStmt = $this->pdo->prepare(
-            'SELECT type,prompt,options,answers,terms,items ' .
+            'SELECT type,prompt,options,answers,terms,items,cards,' .
+            ' right_label AS "rightLabel",left_label AS "leftLabel" ' .
             'FROM questions WHERE catalog_uid=? ORDER BY sort_order'
         );
         $qStmt->execute([$cat['uid']]);
         $questions = [];
         while ($row = $qStmt->fetch(PDO::FETCH_ASSOC)) {
-            foreach (["options","answers","terms","items"] as $k) {
+            foreach (["options","answers","terms","items","cards"] as $k) {
                 if ($row[$k] !== null) {
                     $row[$k] = json_decode((string)$row[$k], true);
                 } else {
+                    unset($row[$k]);
+                }
+            }
+            foreach (["rightLabel","leftLabel"] as $k) {
+                if ($row[$k] === null) {
                     unset($row[$k]);
                 }
             }
@@ -542,8 +548,8 @@ class CatalogService
         $del->execute([$cat['uid']]);
         $qStmt = $this->pdo->prepare(
             'INSERT INTO questions(' .
-            'catalog_uid,type,prompt,options,answers,terms,items,sort_order)' .
-            ' VALUES(?,?,?,?,?,?,?,?)'
+            'catalog_uid,type,prompt,options,answers,terms,items,cards,right_label,left_label,sort_order)' .
+            ' VALUES(?,?,?,?,?,?,?,?,?,?,?)'
         );
         foreach ($data as $i => $q) {
             $answers = null;
@@ -561,6 +567,9 @@ class CatalogService
                 $answers,
                 isset($q['terms']) ? json_encode($q['terms']) : null,
                 isset($q['items']) ? json_encode($q['items']) : null,
+                isset($q['cards']) ? json_encode($q['cards']) : null,
+                $q['rightLabel'] ?? null,
+                $q['leftLabel'] ?? null,
                 $i + 1,
             ]);
         }

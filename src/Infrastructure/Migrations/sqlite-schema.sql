@@ -142,6 +142,9 @@ CREATE TABLE IF NOT EXISTS questions (
     answers TEXT DEFAULT '[]',
     terms TEXT DEFAULT '{}',
     items TEXT DEFAULT '{}',
+    cards TEXT DEFAULT '[]',
+    right_label TEXT,
+    left_label TEXT,
     FOREIGN KEY (catalog_uid) REFERENCES catalogs(uid) ON DELETE CASCADE,
     UNIQUE(catalog_uid, sort_order)
 );
