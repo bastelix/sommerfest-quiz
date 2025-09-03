@@ -15,18 +15,23 @@
       ...(options.headers || {}),
       ...(token ? { 'X-CSRF-Token': token } : {})
     };
+    if (options.body instanceof FormData) {
+      delete headers['Content-Type'];
+    }
     return fetch(withBase(path), { credentials: 'same-origin', cache: 'no-store', ...options, headers });
   };
 
   function collectData() {
-    const data = {};
+    const data = new FormData();
     document.querySelectorAll('form input, form textarea, form select').forEach((el) => {
       const key = el.name || el.id;
       if (!key) return;
       if (el.type === 'checkbox') {
-        data[key] = el.checked;
+        data.append(key, el.checked ? '1' : '0');
+      } else if (el.type === 'file') {
+        if (el.files?.[0]) data.append(key, el.files[0]);
       } else {
-        data[key] = el.value;
+        data.append(key, el.value);
       }
     });
     return data;
@@ -67,10 +72,9 @@
 
   function save() {
     if (!eventId) return;
-    const body = JSON.stringify(collectData());
+    const body = collectData();
     csrfFetch(`/admin/event/${eventId}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
       body
     }).catch(() => {});
   }
