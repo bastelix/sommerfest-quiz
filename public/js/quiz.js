@@ -63,6 +63,9 @@ const eventUid = (window.quizConfig || {}).event_uid || '';
 const playerNameKey = eventUid ? `qr_player_name:${eventUid}` : 'quizUser';
 const playerUidKey = `qr_player_uid:${eventUid}`;
 
+const basePath = window.basePath || '';
+const withBase = path => basePath + path;
+
 function setStored(key, value){
   if(key === 'quizUser') key = playerNameKey;
   try{
@@ -83,7 +86,7 @@ function formatPuzzleTime(ts){
 
 async function fetchLatestPuzzleEntry(name, catalog){
   try{
-    const list = await fetch('/results.json').then(r => r.json());
+    const list = await fetch(withBase('/results.json')).then(r => r.json());
     if(Array.isArray(list)){
       return list.slice().reverse().find(e => e.name === name && e.catalog === catalog && e.puzzleTime);
     }
@@ -165,8 +168,6 @@ async function runQuiz(questions, skipIntro){
   // Konfiguration laden und einstellen, ob der "Antwort prüfen"-Button
   // eingeblendet werden soll
   const cfg = window.quizConfig || {};
-  const basePath = window.basePath || '';
-  const withBase = path => basePath + path;
   const showCheck = cfg.CheckAnswerButton !== 'no';
   if(cfg.colors){
     if(cfg.colors.primary){
@@ -326,7 +327,7 @@ async function runQuiz(questions, skipIntro){
     if(puzzleSolved && puzzleTs){
       data.puzzleTime = parseInt(puzzleTs, 10) || Math.floor(Date.now()/1000);
     }
-    fetch('/results', {
+    fetch(withBase('/results'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -1346,7 +1347,7 @@ async function runQuiz(questions, skipIntro){
           const uid = getStored(playerUidKey);
           if(uid) data.player_uid = uid;
         }
-        fetch('/results?debug=1', {
+        fetch(withBase('/results?debug=1'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
