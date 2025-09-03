@@ -6,6 +6,7 @@ namespace Tests\Controller;
 
 use App\Controller\ConfigController;
 use App\Service\ConfigService;
+use App\Service\ConfigValidator;
 use Tests\TestCase;
 use Slim\Psr7\Response;
 
@@ -14,7 +15,7 @@ class ConfigControllerTest extends TestCase
     public function testGetNotFound(): void
     {
         $pdo = $this->createDatabase();
-        $controller = new ConfigController(new ConfigService($pdo));
+        $controller = new ConfigController(new ConfigService($pdo), new ConfigValidator());
         $request = $this->createRequest('GET', '/config.json');
         $response = $controller->get($request, new Response());
 
@@ -25,7 +26,7 @@ class ConfigControllerTest extends TestCase
     {
         $pdo = $this->createDatabase();
         $service = new ConfigService($pdo);
-        $controller = new ConfigController($service);
+        $controller = new ConfigController($service, new ConfigValidator());
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'event-manager'];
         session_start();
@@ -46,7 +47,7 @@ class ConfigControllerTest extends TestCase
     {
         $pdo = $this->createDatabase();
         $service = new ConfigService($pdo);
-        $controller = new ConfigController($service);
+        $controller = new ConfigController($service, new ConfigValidator());
 
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'event-manager'];
@@ -58,6 +59,22 @@ class ConfigControllerTest extends TestCase
         $stream = (new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream);
         $request = $request->withBody($stream);
 
+        $response = $controller->post($request, new Response());
+        $this->assertEquals(400, $response->getStatusCode());
+        session_destroy();
+    }
+
+    public function testPostInvalidColor(): void
+    {
+        $pdo = $this->createDatabase();
+        $service = new ConfigService($pdo);
+        $controller = new ConfigController($service, new ConfigValidator());
+
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'event-manager'];
+
+        $request = $this->createRequest('POST', '/config.json');
+        $request = $request->withParsedBody(['pageTitle' => 'Demo', 'backgroundColor' => 'blue']);
         $response = $controller->post($request, new Response());
         $this->assertEquals(400, $response->getStatusCode());
         session_destroy();
