@@ -86,7 +86,40 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    applyRules(false);
+    if (eventId) {
+      fetch(withBase(`/admin/event/${eventId}`), { credentials: 'same-origin', cache: 'no-store' })
+        .then((res) => {
+          if (!res.ok) throw new Error('Failed to load');
+          return res.json();
+        })
+        .then(({ event, config }) => {
+          const data = { ...config };
+          if (event?.name) data.title = event.name;
+          Object.entries(data).forEach(([key, value]) => {
+            const el = document.getElementById(key);
+            if (!el) return;
+            if (el.type === 'checkbox') {
+              el.checked = !!value;
+            } else if (el.tagName === 'IMG') {
+              el.src = value;
+              el.hidden = !value;
+            } else if (el.type !== 'file') {
+              el.value = value ?? '';
+            }
+          });
+          if (config?.logoPath && logoPreview) {
+            logoPreview.src = withBase(config.logoPath);
+            logoPreview.hidden = false;
+          }
+          applyRules(false);
+        })
+        .catch(() => {
+          UIkit?.notification({ message: 'Konfiguration konnte nicht geladen werden', status: 'danger' });
+          applyRules(false);
+        });
+    } else {
+      applyRules(false);
+    }
     puzzleWordEnabled?.addEventListener('change', applyRules);
     optCompetition?.addEventListener('change', applyRules);
     optQrLogin?.addEventListener('change', applyRules);
