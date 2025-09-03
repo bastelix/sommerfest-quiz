@@ -75,4 +75,29 @@ class QrCodeServiceTest extends TestCase
         $this->assertLessThan($imagePos, $rectPos);
         $this->assertMatchesRegularExpression('/<rect[^>]*fill="#ffffff"/i', $svg);
     }
+
+    public function testSvgLogoKeepsAspectRatio(): void
+    {
+        $svc = new QrCodeService();
+
+        $dir = dirname(__DIR__, 2) . '/data';
+        $logo = imagecreatetruecolor(80, 40); // rectangular logo
+        imagesavealpha($logo, true);
+        $trans = imagecolorallocatealpha($logo, 0, 0, 0, 127);
+        imagefill($logo, 0, 0, $trans);
+        imagepng($logo, $dir . '/logo-rect.png');
+        imagedestroy($logo);
+
+        $result = $svc->generateCatalog([
+            't' => 'https://example.com',
+            'format' => 'svg',
+            'logo_path' => 'logo-rect.png',
+            'logo_punchout' => '1',
+            'logo_width' => '100',
+        ]);
+
+        $svg = $result['body'];
+        $this->assertMatchesRegularExpression('/<image[^>]*width="100"[^>]*height="50"/i', $svg);
+        $this->assertMatchesRegularExpression('/<rect[^>]*width="100"[^>]*height="50"/i', $svg);
+    }
 }
