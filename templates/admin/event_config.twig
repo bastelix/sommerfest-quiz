@@ -124,28 +124,40 @@
         </ul>
       </div>
       <aside class="uk-width-1-4@m event-config-sidebar">
-        <div uk-sticky="offset: 20">
+        <div uk-sticky="offset: 20; bottom: true">
           <div class="uk-card uk-card-default uk-card-body">
+            <h3 class="uk-card-title uk-margin-remove">Vorschau</h3>
+            <div class="uk-text-center uk-margin-small-top">
+              <img id="preview-logo" src="{{ basePath }}/logo-160.svg" alt="Logo" class="uk-margin-small-bottom">
+              <div>
+                <button class="uk-button uk-button-primary uk-margin-small-right">Primär</button>
+                <button class="uk-button uk-button-default">Standard</button>
+              </div>
+            </div>
+          </div>
+          <div class="uk-card uk-card-default uk-card-body uk-margin-small-top">
             <h3 class="uk-card-title uk-margin-remove">Status</h3>
             <p class="uk-text-meta uk-margin-small">Entwurf</p>
             <button class="uk-button uk-button-primary uk-width-1-1">Veröffentlichen</button>
           </div>
           <div class="uk-card uk-card-default uk-card-body uk-margin-small-top">
             <h3 class="uk-card-title uk-margin-remove">Presets</h3>
-            <ul class="uk-list uk-list-divider uk-margin-small-top">
-              <li><a href="#">Fragen importieren</a></li>
-              <li><a href="#">Layout laden</a></li>
-            </ul>
+            <div class="uk-margin-small-top">
+              <button class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom" data-preset="simple">Simple</button>
+              <button class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom" data-preset="rallye">Rallye</button>
+              <button class="uk-button uk-button-default uk-width-1-1" data-preset="competitive">Competitive</button>
+            </div>
           </div>
           <div class="uk-card uk-card-default uk-card-body uk-margin-small-top">
             <h3 class="uk-card-title uk-margin-remove">QR-Links</h3>
-            <ul class="uk-list uk-list-divider uk-margin-small-top">
-              <li><a href="#">Team QR-Code</a></li>
-              <li><a href="#">Publikums QR-Code</a></li>
-            </ul>
+            <div class="uk-margin-small-top">
+              <a class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom" href="{{ basePath }}/qr/event?t={{ ('?event=' ~ (event.uid|default('demo')))|url_encode }}" target="_blank">Event‑QR</a>
+              <a class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom" href="{{ basePath }}/qr/catalog?t={{ ('?event=' ~ (event.uid|default('demo')) ~ '&katalog=' ~ (catalog.slug|default('default')))|url_encode }}" target="_blank">Katalog‑QR</a>
+              <a class="uk-button uk-button-default uk-width-1-1" href="{{ basePath }}/qr/team?t={{ (team|default('team-1'))|url_encode }}" target="_blank">Team‑QR</a>
+            </div>
           </div>
           <div class="uk-margin-top">
-            <button class="uk-button uk-button-secondary uk-width-1-1">Speichern</button>
+            <button class="uk-button uk-button-primary uk-width-1-1">Speichern</button>
           </div>
         </div>
       </aside>
