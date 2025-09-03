@@ -477,7 +477,7 @@
             <p id="summaryEventDesc">{{ event.description }}</p>
           </div>
           <div class="uk-text-center uk-margin-small-bottom">
-            <img id="summaryEventQr" class="qr-img" src="{{ basePath }}/qr/event?t={{ (baseUrl ? baseUrl ~ '/?event=' ~ event.uid : '?event=' ~ event.uid)|url_encode }}" alt="QR" width="96" height="96">
+            <img id="summaryEventQr" class="qr-img" src="{{ basePath }}/qr/event?t={{ (baseUrl ? baseUrl ~ '/?event=' ~ event.uid : '?event=' ~ event.uid)|url_encode }}&size=150&margin=40" alt="QR">
             <div id="summaryEventLabel" class="qr-label">{{ event.name }}</div>
           </div>
         </div>
@@ -494,7 +494,7 @@
               {% endif %}
               <h4 class="uk-card-title"><a href="{{ link }}" target="_blank">{{ c.name }}</a></h4>
               <p>{{ c.description }}</p>
-              <img class="qr-img" src="{{ basePath }}/qr/catalog?t={{ link|url_encode }}" alt="QR" width="96" height="96">
+              <img class="qr-img" src="{{ basePath }}/qr/catalog?t={{ link|url_encode }}&size=150&margin=40" alt="QR">
               <div class="qr-label">{{ c.name }}</div>
             </div>
           </div>
@@ -512,7 +512,7 @@
             <div class="export-card uk-card qr-card uk-card-body uk-position-relative">
               <button class="qr-print-btn uk-icon-button uk-position-top-right" data-team="{{ t }}" uk-icon="icon: print" aria-label="QR-Code drucken"></button>
               <h4 class="uk-card-title">{{ t }}</h4>
-              <img class="qr-img" src="{{ basePath }}/qr/team?t={{ t|url_encode }}" alt="Team QR" width="96" height="96">
+              <img class="qr-img" src="{{ basePath }}/qr/team?t={{ t|url_encode }}&size=150&margin=40" alt="Team QR">
               <div class="qr-label">{{ t }}</div>
             </div>
           </div>
