@@ -1,13 +1,13 @@
-{% macro qr_table(headings, body_id, sortable=true, table_id='', table_class='', wrap_class='uk-overflow-auto qr-table-wrap uk-visible@m', body_html='', tbody_attrs={}, handle_label='') %}
+{% macro qr_table(headings, body_id, sortable=true, table_id='', table_class='', wrap_class='uk-overflow-auto qr-table-wrap uk-visible@m', body_html='', tbody_attrs={}, handle_label='', handle_tooltip='') %}
 <div class="{{ wrap_class }}">
     <table{% if table_id %} id="{{ table_id }}"{% endif %} class="uk-table uk-table-divider uk-table-small uk-table-hover qr-table{% if table_class %} {{ table_class }}{% endif %}">
         <thead class="table-headings">
             <tr>
             {% if sortable %}
-                <th scope="col" class="uk-table-shrink">{{ handle_label|raw }}</th>
+                <th scope="col" class="uk-table-shrink"{% if handle_tooltip %} uk-tooltip="title: {{ handle_tooltip }}; pos: top" aria-label="{{ handle_tooltip }}" tabindex="0"{% endif %}>{{ handle_label|raw }}</th>
             {% endif %}
             {% for heading in headings %}
-                <th scope="col"{% if heading.class is defined and heading.class %} class="{{ heading.class }}"{% endif %}{% if heading.key is defined %} data-key="{{ heading.key }}"{% endif %}>
+                <th scope="col"{% if heading.class is defined and heading.class %} class="{{ heading.class }}"{% endif %}{% if heading.key is defined %} data-key="{{ heading.key }}"{% endif %}{% if heading.tooltip is defined %} uk-tooltip="title: {{ heading.tooltip }}; pos: top" aria-label="{{ heading.tooltip }}" tabindex="0"{% endif %}>
                     {{ heading.label|raw }}
                     <span class="qr-col-spinner uk-margin-small-left" uk-spinner hidden aria-live="polite"></span>
                 </th>
