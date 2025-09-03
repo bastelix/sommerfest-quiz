@@ -223,14 +223,14 @@ body .uk-icon-button.uk-button-primary {
 /* Active state for navigation items in dark off-canvas menus */
 .uk-offcanvas-bar .uk-nav-default > li.uk-active > a {
   background-color: rgba(255, 255, 255, 0.15);
-  color: #fff;
+  color: var(--qr-fg);
 }
 
 /* Active state for navigation items in dark mode */
 body .uk-navbar-nav > li.uk-active > a,
 body .uk-nav-default > li.uk-active > a {
   background-color: rgba(255, 255, 255, 0.15);
-  color: #fff;
+  color: var(--qr-fg);
 }
 
 /* Styles for Trumbowyg editor in Dark Mode */
@@ -567,14 +567,14 @@ body[data-theme="dark"] .uk-icon-button.uk-button-primary {
 /* Active state for navigation items in dark off-canvas menus */
 .uk-offcanvas-bar .uk-nav-default > li.uk-active > a {
   background-color: rgba(255, 255, 255, 0.15);
-  color: #fff;
+  color: var(--qr-fg);
 }
 
 /* Active state for navigation items in dark mode */
 body[data-theme="dark"] .uk-navbar-nav > li.uk-active > a,
 body[data-theme="dark"] .uk-nav-default > li.uk-active > a {
   background-color: rgba(255, 255, 255, 0.15);
-  color: #fff;
+  color: var(--qr-fg);
 }
 
 /* Styles for Trumbowyg editor in Dark Mode */
