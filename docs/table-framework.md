@@ -9,6 +9,7 @@ Die Makros erzeugen das HTML-Grundgerüst:
 - `qr_table(headings, body_id, sortable=true)`
 - `qr_rowcards(list_id)`
 
+{% raw %}
 ```twig
 {% from 'components/table.twig' import qr_table, qr_rowcards %}
 {{ qr_table([
@@ -18,6 +19,7 @@ Die Makros erzeugen das HTML-Grundgerüst:
 ], 'teamsBody', true) }}
 {{ qr_rowcards('teamsCards') }}
 ```
+{% endraw %}
 
 ## TableManager
 
