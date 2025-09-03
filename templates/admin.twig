@@ -406,11 +406,34 @@
       <div class="uk-container uk-container-large">
         <div>
           <h2 class="uk-heading-bullet">{{ t('heading_catalogs') }}</h2>
-        {% from 'components/table.twig' import qr_rowcards %}
-        {{ qr_rowcards('catalogCards') }}
-        <div class="uk-margin">
-          <button id="newCatBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_cat_add') }}; pos: left" aria-label="{{ t('tip_cat_add') }}"></button>
-        </div>
+          {% from 'components/table.twig' import qr_rowcards %}
+          <div class="uk-overflow-auto uk-visible@m">
+            <table class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive">
+              <thead>
+                <tr>
+                  <th class="uk-table-shrink"></th>
+                  <th data-key="slug">{{ t('column_slug') }}</th>
+                  <th data-key="name">{{ t('column_name') }}</th>
+                  <th data-key="description">{{ t('column_description') }}</th>
+                  <th data-key="raetsel_buchstabe">{{ t('column_letter') }}</th>
+                  <th data-key="comment">{{ t('column_comment') }}</th>
+                </tr>
+              </thead>
+              <tbody
+                id="catalogList"
+                data-label-slug="{{ t('column_slug') }}"
+                data-label-name="{{ t('column_name') }}"
+                data-label-description="{{ t('column_description') }}"
+                data-label-letter="{{ t('column_letter') }}"
+                data-label-comment="{{ t('column_comment') }}"
+              ></tbody>
+            </table>
+          </div>
+          {{ qr_rowcards('catalogCards') }}
+          <ul id="catalogsPagination" class="uk-pagination uk-flex-center"></ul>
+          <div class="uk-margin">
+            <button id="newCatBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_cat_add') }}; pos: left" aria-label="{{ t('tip_cat_add') }}"></button>
+          </div>
         </div>
       </div>
     </li>
@@ -440,7 +463,23 @@
     <li class="{{ activeRoute == 'teams' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_teams') }}</h2>
-          {% from 'components/table.twig' import qr_rowcards %}
+        {% from 'components/table.twig' import qr_rowcards %}
+        <div class="uk-overflow-auto uk-visible@m">
+          <table class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive">
+            <thead>
+              <tr>
+                <th class="uk-table-shrink"></th>
+                <th data-key="name">{{ t('column_name') }}</th>
+                <th class="uk-table-shrink" data-key="actions">{{ t('column_actions') }}</th>
+              </tr>
+            </thead>
+            <tbody
+              id="teamsList"
+              data-label-name="{{ t('column_name') }}"
+              data-label-actions="{{ t('column_actions') }}"
+            ></tbody>
+          </table>
+        </div>
         {{ qr_rowcards('teamsCards') }}
         <div class="uk-margin">
           <button id="teamAddBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_team_add') }}; pos: left" aria-label="{{ t('tip_team_add') }}"></button>
