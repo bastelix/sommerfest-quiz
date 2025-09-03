@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Landing-Seite: Styles
+title: "Landing-Seite: Styles"
 ---
 
 ## CSS-Variablen der Landing-Seite
