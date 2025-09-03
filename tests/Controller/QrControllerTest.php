@@ -53,7 +53,6 @@ class QrControllerTest extends TestCase
                 't' => 'Demo',
                 'fg' => 'ff0000',
                 'bg' => '00ff00',
-                'logoText' => 'TEST',
             ]);
         $response = $app->handle($request);
 

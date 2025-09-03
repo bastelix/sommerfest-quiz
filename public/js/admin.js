@@ -632,7 +632,7 @@ document.addEventListener('DOMContentLoaded', function () {
       e.preventDefault();
       const team = btn.getAttribute('data-team');
       if (team) {
-        window.open(withBase('/qr.pdf?t=' + encodeURIComponent(team) + '&logoText=QUIZ%0ARACE&rounded=1'), '_blank');
+        window.open(withBase('/qr.pdf?t=' + encodeURIComponent(team) + '&rounded=1'), '_blank');
       }
     });
   });
