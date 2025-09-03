@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Service\EventService;
 use App\Service\ConfigService;
+use App\Service\ConfigValidator;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Intervention\Image\ImageManager;
@@ -59,12 +60,22 @@ class EventConfigController
             return $response->withStatus(400);
         }
 
+        $validation = (new ConfigValidator())->validate($data);
+        if ($validation['errors'] !== []) {
+            $response->getBody()->write(json_encode(['errors' => $validation['errors']]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+        $data = array_merge($data, $validation['config']);
+
         $files = $request->getUploadedFiles();
         if (isset($files['logo']) && $files['logo']->getError() === UPLOAD_ERR_OK) {
             $file = $files['logo'];
             if ($file->getSize() === null || $file->getSize() <= 5 * 1024 * 1024) {
                 $extension = strtolower(pathinfo($file->getClientFilename(), PATHINFO_EXTENSION));
-                if (in_array($extension, ['png', 'webp'], true) && class_exists('\\Intervention\\Image\\ImageManager')) {
+                if (
+                    in_array($extension, ['png', 'webp'], true) &&
+                    class_exists('\\Intervention\\Image\\ImageManager')
+                ) {
                     $base = "logo-$uid.$extension";
                     $target = __DIR__ . "/../../data/" . $base;
                     $manager = extension_loaded('imagick') ? ImageManager::imagick() : ImageManager::gd();
