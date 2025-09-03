@@ -32,12 +32,6 @@ class HomeControllerTest extends TestCase
 
     private function withCompetitionMode(callable $fn): void
     {
-        $cfgPath = dirname(__DIR__, 2) . '/data/config.json';
-        $orig = file_get_contents($cfgPath);
-        $cfg = json_decode($orig, true);
-        $cfg['competitionMode'] = true;
-        file_put_contents($cfgPath, json_encode($cfg, JSON_PRETTY_PRINT) . "\n");
-
         // Ensure a fresh database and seed a catalog entry for the tests
         $db = $this->setupDb();
         $this->getAppInstance();
@@ -49,10 +43,12 @@ class HomeControllerTest extends TestCase
             "VALUES('c1',1,'station_1','station_1.json','Station 1','1')"
         );
 
+        $config = new \App\Service\ConfigService($pdo);
+        $config->saveConfig(['event_uid' => '1', 'competitionMode' => true]);
+
         try {
             $fn();
         } finally {
-            file_put_contents($cfgPath, $orig);
             unlink($db);
         }
     }
