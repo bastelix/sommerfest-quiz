@@ -7,7 +7,7 @@ Die Administrationsoberfläche erreichen Sie über `/admin/dashboard` (kurz `/ad
   * **Events** – `/admin/events`
   * **Event-Konfiguration** – `/admin/event/settings`
 * **Inhalte**
-* **Kataloge** – `/admin/kataloge`
+* **Kataloge** – `/admin/catalogs`
   * **Fragen bearbeiten** – `/admin/questions`
   * **Seiten** – `/admin/pages` (nur Administratoren)
 * **Teams**

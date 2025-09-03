@@ -703,11 +703,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new AdminController();
         return $controller($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
-    $app->get('/admin/kataloge', function (Request $request, Response $response) {
+    $app->get('/admin/catalogs', function (Request $request, Response $response) {
         $controller = $request->getAttribute('adminCatalogController');
         return $controller($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-    $app->get('/admin/catalogs', function (Request $request, Response $response) {
+    $app->get('/admin/catalogs/data', function (Request $request, Response $response) {
         $controller = $request->getAttribute('adminCatalogController');
         return $controller->catalogs($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));

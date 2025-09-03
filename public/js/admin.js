@@ -810,7 +810,7 @@ document.addEventListener('DOMContentLoaded', function () {
   async function loadCatalogs(page = 1) {
     catalogManager?.setColumnLoading('name', true);
     try {
-      const res = await fetch(withBase('/admin/catalogs?page=' + page));
+      const res = await fetch(withBase('/admin/catalogs/data?page=' + page));
       if (!res.ok) throw new Error('fail');
       const data = await res.json();
       const list = data.items || data;
