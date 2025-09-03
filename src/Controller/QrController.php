@@ -11,6 +11,7 @@ use App\Service\CatalogService;
 use App\Service\QrCodeService;
 use App\Service\ResultService;
 use App\Service\Pdf;
+use App\Service\LogService;
 use FPDF;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -60,7 +61,15 @@ class QrController
     public function catalog(Request $request, Response $response): Response
     {
         $cfg = $this->config->getConfig();
-        $out = $this->qrService->generateCatalog($request->getQueryParams(), $cfg);
+
+        try {
+            $out = $this->qrService->generateCatalog($request->getQueryParams(), $cfg);
+        } catch (Throwable $e) {
+            LogService::create('qr')->error('Catalog QR generation failed', ['exception' => $e]);
+            $response->getBody()->write('Error generating catalog QR code');
+            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
+        }
+
         $response->getBody()->write($out['body']);
         return $response
             ->withHeader('Content-Type', $out['mime'])
@@ -73,7 +82,15 @@ class QrController
     public function team(Request $request, Response $response): Response
     {
         $cfg = $this->config->getConfig();
-        $out = $this->qrService->generateTeam($request->getQueryParams(), $cfg);
+
+        try {
+            $out = $this->qrService->generateTeam($request->getQueryParams(), $cfg);
+        } catch (Throwable $e) {
+            LogService::create('qr')->error('Team QR generation failed', ['exception' => $e]);
+            $response->getBody()->write('Error generating team QR code');
+            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
+        }
+
         $response->getBody()->write($out['body']);
         return $response
             ->withHeader('Content-Type', $out['mime'])
@@ -86,7 +103,15 @@ class QrController
     public function event(Request $request, Response $response): Response
     {
         $cfg = $this->config->getConfig();
-        $out = $this->qrService->generateEvent($request->getQueryParams(), $cfg);
+
+        try {
+            $out = $this->qrService->generateEvent($request->getQueryParams(), $cfg);
+        } catch (Throwable $e) {
+            LogService::create('qr')->error('Event QR generation failed', ['exception' => $e]);
+            $response->getBody()->write('Error generating event QR code');
+            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
+        }
+
         $response->getBody()->write($out['body']);
         return $response
             ->withHeader('Content-Type', $out['mime'])
