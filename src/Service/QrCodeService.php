@@ -258,16 +258,24 @@ class QrCodeService
                     $matrix = $qr->getMatrix();
                     $dim = ($matrix->getSize() + 2 * $marginModules) * $scale;
                     $logoData = base64_encode(file_get_contents($p['logoPath']));
-                    $x = (int)(($dim - $p['logoWidth']) / 2);
-                    $y = (int)(($dim - $p['logoWidth']) / 2);
+                    $size = @getimagesize($p['logoPath']);
+                    $lw = (int)($size[0] ?? 0);
+                    $lh = (int)($size[1] ?? 0);
+                    if ($lw <= 0 || $lh <= 0) {
+                        $lw = $lh = 1; // prevent division by zero
+                    }
+                    $targetW = $p['logoWidth'];
+                    $targetH = (int)($lh * $targetW / $lw);
+                    $x = (int)(($dim - $targetW) / 2);
+                    $y = (int)(($dim - $targetH) / 2);
                     $rect = '';
                     if ($p['logoPunchout']) {
                         $rect = sprintf(
                             '<rect x="%d" y="%d" width="%d" height="%d" fill="%s" />',
                             $x,
                             $y,
-                            $p['logoWidth'],
-                            $p['logoWidth'],
+                            $targetW,
+                            $targetH,
                             $bgColor
                         );
                     }
@@ -275,8 +283,8 @@ class QrCodeService
                         '<image x="%d" y="%d" width="%d" height="%d" href="data:%s;base64,%s" />',
                         $x,
                         $y,
-                        $p['logoWidth'],
-                        $p['logoWidth'],
+                        $targetW,
+                        $targetH,
                         $mime,
                         $logoData
                     );
