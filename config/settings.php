@@ -1,10 +1,6 @@
 <?php
 
-$path = __DIR__ . '/../data/config.json';
 $settings = [];
-if (file_exists($path)) {
-    $settings = json_decode(file_get_contents($path), true) ?? [];
-}
 
 // Load environment variables from .env if available
 $envFile = __DIR__ . '/../.env';

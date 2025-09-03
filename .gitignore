@@ -11,3 +11,6 @@ data/admin_password.txt
 data/page-seo.json
 data/redirects.json
 resources/fonts/*.ttf
+
+data/config.json
+data-default/config.json

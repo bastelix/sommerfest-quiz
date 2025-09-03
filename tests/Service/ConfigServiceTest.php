@@ -51,7 +51,7 @@ class ConfigServiceTest extends TestCase
         $this->assertTrue($cfg['QRRemember']);
     }
 
-    public function testGetJsonReturnsNullIfFileMissing(): void
+    public function testGetJsonReturnsNullIfEmpty(): void
     {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -82,7 +82,7 @@ class ConfigServiceTest extends TestCase
         $service = new ConfigService($pdo);
 
         $this->assertNull($service->getJson());
-        $this->assertNotEmpty($service->getConfig());
+        $this->assertSame([], $service->getConfig());
     }
 
     public function testSetActiveEventUidRollsBackOnInsertFailure(): void

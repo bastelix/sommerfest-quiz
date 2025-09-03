@@ -47,7 +47,7 @@ Mit dieser App zeigen wir, was heute schon möglich ist, wenn Menschen und versc
 
 - **Einfache Installation**: Nur Composer-Abhängigkeiten installieren und einen PHP-Server starten.
 - **Intuitives UI**: Komplett auf UIkit3 basierendes Frontend mit flüssigen Animationen und responsive Design.
-- **Stark anpassbar**: Farben, Logo und Texte lassen sich über `data/config.json` anpassen.
+- **Stark anpassbar**: Farben, Logo und Texte werden in der Datenbank gespeichert und können über die Administrationsoberfläche angepasst werden.
 - **Backup per JSON**: Alle Daten lassen sich exportieren und wieder importieren.
 - **Automatische Bildkompression**: Hochgeladene Fotos werden nun standardmäßig verkleinert und komprimiert.
 - **Rätselwort und Foto-Einwilligung**: Optionales Puzzlewort-Spiel mit DSGVO-konformen Foto-Uploads.
@@ -404,7 +404,7 @@ Bleibt das Feld leer, erzeugt die Anwendung automatisch ein sicheres Passwort un
 
 ## Anpassung
 
-Alle wichtigen Einstellungen finden Sie in `data/config.json`. Ändern Sie hier Logo, Farben oder die Verwendung des QR-Code-Logins. Die Fragen selbst liegen in `data/kataloge/*.json` und können mit jedem Texteditor angepasst werden. Jede Katalogdefinition besitzt weiterhin ein `slug` für die URL. Fragen verknüpfen den Katalog nun über `catalog_uid`. Das bisherige `id` dient ausschließlich der Sortierung und wird automatisch vergeben.
+Alle wichtigen Einstellungen werden in der Datenbank gespeichert und lassen sich über die Administrationsoberfläche ändern. Die Fragen selbst liegen in `data/kataloge/*.json` und können mit jedem Texteditor angepasst werden. Jede Katalogdefinition besitzt weiterhin ein `slug` für die URL. Fragen verknüpfen den Katalog nun über `catalog_uid`. Das bisherige `id` dient ausschließlich der Sortierung und wird automatisch vergeben.
 
 QR-Codes können pro Eintrag über `qr_image` hinterlegt werden, etwa als Data-URI oder lokaler Pfad.
 
@@ -484,8 +484,8 @@ Das Projekt *QuizRace* ist eine Web-Applikation zur Erstellung und Verwaltung vo
 
 Für Docker-Betrieb steht ein `docker-compose.yml` bereit. Zertifikate und weitere Konfigurationen werden in Volumes gesichert, sodass keine lokalen Ordner benötigt werden.
 
-### Konfigurationsdatei
-Alle wesentlichen Einstellungen stehen in `data/config.json` und werden beim ersten Import in die Datenbank übernommen. Über die Administration können sie später angepasst werden:
+### Konfiguration
+Alle wesentlichen Einstellungen werden in der Datenbank gespeichert und können über die Administration angepasst werden:
 
 ```json
 {
@@ -512,12 +512,12 @@ Alle wesentlichen Einstellungen stehen in `data/config.json` und werden beim ers
 }
 ```
 
-Statt in `config.json` kann der Parameter auch über die Umgebungsvariable
+Der Parameter `displayErrorDetails` kann auch über die Umgebungsvariable
 `DISPLAY_ERROR_DETAILS` gesetzt werden.
 
 Optional kann `baseUrl` gesetzt werden, um in QR-Codes vollständige Links mit Domain zu erzeugen. `QRRemember` speichert gescannte Namen und erspart das erneute Einscannen. Der Parameter `competitionMode` blendet im Quiz alle Neustart-Schaltflächen aus, verhindert Wiederholungen bereits abgeschlossener Kataloge und unterbindet die Anzeige der Katalogübersicht. Ein Fragenkatalog kann dann nur über einen direkten QR-Code-Link gestartet werden. Im Wettkampfmodus führt ein Aufruf der Hauptseite ohne gültigen Katalog-Parameter automatisch zur Hilfe-Seite. Über `teamResults` lässt sich steuern, ob Teams nach Abschluss aller Kataloge ihre eigene Ergebnisübersicht angezeigt bekommen. `photoUpload` blendet die Buttons zum Hochladen von Beweisfotos ein oder aus. `puzzleWordEnabled` schaltet das Rätselwort-Spiel frei und `puzzleFeedback` definiert den Text, der nach korrekter Eingabe angezeigt wird. `inviteText` enthält ein optionales Anschreiben für teilnehmende Teams.
 
-`ConfigService` liest und speichert diese Datei. Jeder Event besitzt dabei eine eigene Konfiguration.
+`ConfigService` verwaltet diese Werte in der Datenbank. Jeder Event besitzt dabei eine eigene Konfiguration.
 Welcher Event aktuell bearbeitet wird, steht in der Tabelle `active_event`. Ein GET auf `/config.json`
 liefert die Einstellungen des aktiven Events, ein POST auf dieselbe URL speichert die Änderungen.
 Über den URL-Parameter `event` kann im Frontend ein beliebiger Event zur Ansicht gewählt werden,
@@ -604,7 +604,7 @@ beschreibbar sein.
 Neben Mandanten-Zertifikaten kann das SSL-Zertifikat der Admin-Domain über einen POST auf `/api/renew-ssl` erneuert werden. Der Aufruf startet den Hauptcontainer neu.
 
 ### Logo hochladen
-Das aktuelle Logo wird unter `/logo.png` oder `/logo.webp` bereitgestellt. Über einen POST auf diese URLs lässt sich eine neue PNG- oder WebP-Datei hochladen. Nach dem Upload wird der Pfad automatisch in `config.json` gespeichert. Die Datei landet im Verzeichnis `data/`, damit auch PDFs das Logo einbinden können.
+Das aktuelle Logo wird unter `/logo.png` oder `/logo.webp` bereitgestellt. Über einen POST auf diese URLs lässt sich eine neue PNG- oder WebP-Datei hochladen. Nach dem Upload wird der Pfad automatisch in der Datenbank gespeichert. Die Datei landet im Verzeichnis `data/`, damit auch PDFs das Logo einbinden können.
 
 ### Sicherheit und Haftung
 Die Software wird ohne Gewähr bereitgestellt. Alle Rechte liegen bei René Buske. Eine Haftung für Schäden, die aus der Nutzung entstehen, ist ausgeschlossen. Die integrierten Maßnahmen zur Barrierefreiheit verbessern die Zugänglichkeit, sie ersetzen jedoch keine individuelle Prüfung.

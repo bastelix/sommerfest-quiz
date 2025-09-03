@@ -13,16 +13,12 @@ class ConfigControllerTest extends TestCase
 {
     public function testGetNotFound(): void
     {
-        $path = dirname(__DIR__, 2) . '/data/config.json';
-        $backup = $path . '.bak';
-        rename($path, $backup);
         $pdo = $this->createDatabase();
         $controller = new ConfigController(new ConfigService($pdo));
         $request = $this->createRequest('GET', '/config.json');
         $response = $controller->get($request, new Response());
 
         $this->assertEquals(404, $response->getStatusCode());
-        rename($backup, $path);
     }
 
     public function testPostAndGet(): void

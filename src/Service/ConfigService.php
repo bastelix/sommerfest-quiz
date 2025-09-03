@@ -116,18 +116,6 @@ class ConfigService
             return $this->normalizeKeys($row);
         }
 
-        $path = dirname(__DIR__, 2) . '/data/config.json';
-        if (is_readable($path)) {
-            try {
-                $json = json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
-                if (is_array($json)) {
-                    return $json;
-                }
-            } catch (JsonException $e) {
-                throw new RuntimeException('Invalid config file: ' . $e->getMessage(), 0, $e);
-            }
-        }
-
         return [];
     }
 
@@ -273,12 +261,6 @@ class ConfigService
         }
 
         $this->setActiveEventUid($uid);
-
-        $json = $this->getJson();
-        if ($json !== null) {
-            $path = dirname(__DIR__, 2) . '/data/config.json';
-            file_put_contents($path, $json . "\n");
-        }
     }
 
     /**
@@ -328,19 +310,6 @@ class ConfigService
         if ($uid === false || $uid === null || $uid === '') {
             $stmt = $this->pdo->query('SELECT event_uid FROM config LIMIT 1');
             $uid = $stmt->fetchColumn();
-            if ($uid === false || $uid === null || $uid === '') {
-                $path = dirname(__DIR__, 2) . '/data/config.json';
-                if (is_readable($path)) {
-                    try {
-                        $json = json_decode(file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
-                        if (is_array($json) && isset($json['event_uid'])) {
-                            $uid = $json['event_uid'];
-                        }
-                    } catch (JsonException $e) {
-                        throw new RuntimeException('Invalid config file: ' . $e->getMessage(), 0, $e);
-                    }
-                }
-            }
         }
         $this->activeEvent = $uid !== false && $uid !== null ? (string)$uid : '';
         return $this->activeEvent;
