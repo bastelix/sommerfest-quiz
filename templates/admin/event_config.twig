@@ -10,15 +10,20 @@
 {% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
 
 {% block body %}
-  {% embed 'topbar.twig' %}
-    {% block left %}
-      <a href="{{ basePath }}/admin/events" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">QuizRace Admin</a>
-    {% endblock %}
-    {% block center %}
-      <h1 class="uk-heading-bullet uk-margin-remove">Event konfigurieren</h1>
-    {% endblock %}
-    {% block right %}{% endblock %}
-  {% endembed %}
+  <div class="uk-section uk-section-xsmall uk-padding-small uk-section-default" uk-sticky="offset:0">
+    <div class="uk-container uk-container-large">
+      <div class="uk-flex uk-flex-between uk-flex-middle">
+        <div>
+          <h1 class="uk-heading-bullet uk-margin-remove">Event konfigurieren</h1>
+          <div class="uk-text-meta">ID: {{ event.uid|default('—') }} · letzte Änderung: {{ event.updated_at|default('—') }}</div>
+        </div>
+        <div class="uk-button-group">
+          <a class="uk-button uk-button-default" href="{{ basePath }}/?event={{ event.uid|default('demo') }}" target="_blank">Vorschau</a>
+          <button class="uk-button uk-button-primary">Speichern</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="uk-container uk-container-large uk-margin-top">
     <div class="uk-grid-large" uk-grid>
