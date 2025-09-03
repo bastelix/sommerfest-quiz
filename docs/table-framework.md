@@ -61,6 +61,10 @@ manager.render(teams);
 
 Enthält eine mobile Karte mehrere Elemente mit der Klasse `qr-action`, fasst der `TableManager` diese automatisch in einem aufklappbaren Menü zusammen. Dadurch bleibt die Darstellung kompakt, selbst wenn mehrere Aktionen wie PDF-Download und Löschen verfügbar sind.
 
+### Mobile Darstellung
+
+Auf Mobilgeräten erscheinen die Spalten einer Karte untereinander. Überlange Inhalte werden automatisch mit `…` gekürzt, damit sie den verfügbaren Platz nicht überschreiten.
+
 ### Katalogtabelle
 
 Beim Bearbeiten der Katalogtabelle kommen Modalfenster zum Einsatz, um Felder wie `slug`, `name` oder `description` zu ändern. Browser-Prompts werden dabei nicht mehr verwendet.

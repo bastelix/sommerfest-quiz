@@ -92,6 +92,19 @@
   background: var(--qr-row-alt);
 }
 
+.qr-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.qr-card-content > * {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .qr-action {
   width: 44px;
   height: 44px;
