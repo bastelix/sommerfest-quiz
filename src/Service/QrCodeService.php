@@ -75,6 +75,7 @@ class QrCodeService
             'bg' => $bg,
             'logoPath' => $logoPath,
             'logoWidth' => self::LOGO_WIDTH_DEF,
+            'logoPunchout' => true,
         ]);
 
         if ($logoPath !== null && file_exists($logoPath)) {
@@ -145,6 +146,9 @@ class QrCodeService
         $fontSz = $this->clampInt($q['font_size'] ?? null, 8, 48, self::FONT_SIZE_DEF);
         $text1 = (string)($q['text1'] ?? ($defaults['text1'] ?? 'QUIZ'));
         $text2 = (string)($q['text2'] ?? ($defaults['text2'] ?? 'RACE'));
+        $logoPunchout = isset($q['logo_punchout'])
+            ? ((string)$q['logo_punchout'] !== '0')
+            : ($defaults['logo_punchout'] ?? true);
 
         $ecParam = strtolower((string)($q['ec'] ?? 'medium'));
         $ec = match ($ecParam) {
@@ -178,6 +182,7 @@ class QrCodeService
             'bg' => $bg,
             'logoPath' => $logoPath,
             'logoWidth' => $logoW,
+            'logoPunchout' => $logoPunchout,
         ]);
 
         if ($logoPath !== null && file_exists($logoPath)) {
@@ -197,6 +202,7 @@ class QrCodeService
      *     bg: array{0:int,1:int,2:int},
      *     logoPath: ?string,
      *     logoWidth: int,
+     *     logoPunchout: bool,
      * } $p
      * @return array{mime:string,body:string}
      */
@@ -204,6 +210,7 @@ class QrCodeService
     {
         $scale = max(1, (int)round($p['size'] / 41));
         $marginModules = max(0, (int)round($p['margin'] / $scale));
+        $logoPunchout = $p['logoPunchout'] ?? true;
 
         $options = [
             'version' => 5,
@@ -243,6 +250,18 @@ class QrCodeService
                     $logoData = base64_encode(file_get_contents($p['logoPath']));
                     $x = (int)(($dim - $p['logoWidth']) / 2);
                     $y = (int)(($dim - $p['logoWidth']) / 2);
+                    $rect = '';
+                    if ($logoPunchout) {
+                        $bg = sprintf('#%02x%02x%02x', $p['bg'][0], $p['bg'][1], $p['bg'][2]);
+                        $rect = sprintf(
+                            '<rect x="%d" y="%d" width="%d" height="%d" fill="%s" />',
+                            $x,
+                            $y,
+                            $p['logoWidth'],
+                            $p['logoWidth'],
+                            $bg
+                        );
+                    }
                     $image = sprintf(
                         '<image x="%d" y="%d" width="%d" height="%d" href="data:%s;base64,%s" />',
                         $x,
@@ -252,7 +271,7 @@ class QrCodeService
                         $mime,
                         $logoData
                     );
-                    $svg = preg_replace('/<\/svg>/', $image . '</svg>', $svg);
+                    $svg = preg_replace('/<\/svg>/', $rect . $image . '</svg>', $svg);
                 }
             }
             return ['mime' => 'image/svg+xml', 'body' => $svg];
@@ -296,8 +315,10 @@ class QrCodeService
                 $targetH = (int)($lh * $targetW / $lw);
                 $x = (imagesx($im) - $targetW) / 2;
                 $y = (imagesy($im) - $targetH) / 2;
-                $bgCol = imagecolorallocate($im, $p['bg'][0], $p['bg'][1], $p['bg'][2]);
-                imagefilledrectangle($im, (int)$x, (int)$y, (int)($x + $targetW), (int)($y + $targetH), $bgCol);
+                if ($logoPunchout) {
+                    $bgCol = imagecolorallocate($im, $p['bg'][0], $p['bg'][1], $p['bg'][2]);
+                    imagefilledrectangle($im, (int)$x, (int)$y, (int)($x + $targetW), (int)($y + $targetH), $bgCol);
+                }
                 imagecopyresampled($im, $logo, (int)$x, (int)$y, 0, 0, $targetW, $targetH, $lw, $lh);
                 imagedestroy($logo);
             }
@@ -367,6 +388,9 @@ class QrCodeService
         }
         if (($cfg['qrLogoWidth'] ?? '') !== '') {
             $defaults['logo_width'] = (int)$cfg['qrLogoWidth'];
+        }
+        if (array_key_exists('qrLogoPunchout', $cfg)) {
+            $defaults['logo_punchout'] = (bool)$cfg['qrLogoPunchout'];
         }
         return $defaults;
     }
