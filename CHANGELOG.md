@@ -143,6 +143,7 @@
 - Add pagination and classes to catalog manager
 - Guard table manager init
 - Add mobile action menu and modal editing for catalogs
+- Improve mobile table layout
 
 ### Fix
 
