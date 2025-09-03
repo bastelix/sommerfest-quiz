@@ -12,6 +12,8 @@ use Endroid\QrCode\RoundBlockSizeMode;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Writer\SvgWriter;
 use Endroid\QrCode\Writer\Result\ResultInterface;
+use BaconQrCode\Renderer\Eye\EyeInterface;
+use BaconQrCode\Renderer\Eye\SimpleCircleEye;
 use Throwable;
 
 class QrCodeService
@@ -34,7 +36,7 @@ class QrCodeService
     /**
      * Generate a QR code with the project's default styling.
      *
-     * @param array{fg?:string,bg?:string,logoText?:string} $options
+     * @param array{fg?:string,bg?:string,logoText?:string,eye?:string} $options
      * @throws Throwable
      */
     public function generateQrCode(string $data, string $format = 'svg', array $options = []): ResultInterface
@@ -42,6 +44,8 @@ class QrCodeService
         $fgHex = $options['fg'] ?? '2E2E2E';
         $bgHex = $options['bg'] ?? 'F9F9F9';
         $logoText = $options['logoText'] ?? "QUIZ\nRACE";
+
+        $eye = $this->eyeFromStyle($options['eye'] ?? null);
 
         $fg = $this->parseColor($fgHex, new Color(46, 46, 46));
         $bg = $this->parseColor($bgHex, new Color(249, 249, 249));
@@ -68,20 +72,24 @@ class QrCodeService
         $punchout = $logoPath !== null && !($writer instanceof SvgWriter);
 
         try {
-            $result = (new Builder(
-                writer: $writer,
-                data: $data,
-                encoding: new Encoding('UTF-8'),
-                errorCorrectionLevel: ErrorCorrectionLevel::Medium,
-                size: self::QR_SIZE_DEF,
-                margin: self::QR_MARGIN_DEF,
-                roundBlockSizeMode: RoundBlockSizeMode::Margin,
-                foregroundColor: $fg,
-                backgroundColor: $bg,
-                logoPath: $logoPath ?? '',
-                logoResizeToWidth: $logoPath !== null ? self::LOGO_WIDTH_DEF : null,
-                logoPunchoutBackground: $punchout,
-            ))->build();
+            $params = [
+                'writer' => $writer,
+                'data' => $data,
+                'encoding' => new Encoding('UTF-8'),
+                'errorCorrectionLevel' => ErrorCorrectionLevel::Medium,
+                'size' => self::QR_SIZE_DEF,
+                'margin' => self::QR_MARGIN_DEF,
+                'roundBlockSizeMode' => RoundBlockSizeMode::Margin,
+                'foregroundColor' => $fg,
+                'backgroundColor' => $bg,
+                'logoPath' => $logoPath ?? '',
+                'logoResizeToWidth' => $logoPath !== null ? self::LOGO_WIDTH_DEF : null,
+                'logoPunchoutBackground' => $punchout,
+            ];
+            if ($eye !== null && $this->builderSupportsEye()) {
+                $params['eye'] = $eye;
+            }
+            $result = (new Builder(...$params))->build();
         } finally {
             if ($logoPath !== null && file_exists($logoPath)) {
                 @unlink($logoPath);
@@ -212,7 +220,8 @@ class QrCodeService
      *     text2?:string,
      *     round_mode?:string,
      *     logo_punchout?:bool,
-     *     logo_path?:string
+     *     logo_path?:string,
+     *     eye?:string
      * } $defaults
      * @return array{mime:string,body:string}
      */
@@ -241,6 +250,7 @@ class QrCodeService
         $ec = $this->ecFromParam($q['ec'] ?? null);
 
         $roundMode = $this->roundModeFromParam($roundModeParam, $rounded);
+        $eye = $this->eyeFromStyle($q['eye'] ?? ($defaults['eye'] ?? null));
 
         $logoPath = null;
         $logoParam = (string) ($q['logo_path'] ?? ($defaults['logo_path'] ?? ''));
@@ -261,20 +271,24 @@ class QrCodeService
         $punchout = $logoPath !== null && !($writer instanceof SvgWriter) ? $logoPunchout : false;
 
         try {
-            $result = (new Builder(
-                writer: $writer,
-                data: $data,
-                encoding: new Encoding('UTF-8'),
-                errorCorrectionLevel: $ec,
-                size: $size,
-                margin: $margin,
-                roundBlockSizeMode: $roundMode,
-                foregroundColor: new Color($fgRgb[0], $fgRgb[1], $fgRgb[2]),
-                backgroundColor: new Color($bgRgb[0], $bgRgb[1], $bgRgb[2]),
-                logoPath: $logoPath ?? '',
-                logoResizeToWidth: $logoPath !== null ? $logoW : null,
-                logoPunchoutBackground: $punchout,
-            ))->build();
+            $params = [
+                'writer' => $writer,
+                'data' => $data,
+                'encoding' => new Encoding('UTF-8'),
+                'errorCorrectionLevel' => $ec,
+                'size' => $size,
+                'margin' => $margin,
+                'roundBlockSizeMode' => $roundMode,
+                'foregroundColor' => new Color($fgRgb[0], $fgRgb[1], $fgRgb[2]),
+                'backgroundColor' => new Color($bgRgb[0], $bgRgb[1], $bgRgb[2]),
+                'logoPath' => $logoPath ?? '',
+                'logoResizeToWidth' => $logoPath !== null ? $logoW : null,
+                'logoPunchoutBackground' => $punchout,
+            ];
+            if ($eye !== null && $this->builderSupportsEye()) {
+                $params['eye'] = $eye;
+            }
+            $result = (new Builder(...$params))->build();
         } finally {
             if ($logoPath !== null) {
                 @unlink($logoPath);
@@ -317,7 +331,38 @@ class QrCodeService
         if (array_key_exists('qrRounded', $cfg) && $cfg['qrRounded'] !== null) {
             $defaults['rounded'] = $cfg['qrRounded'] ? '1' : '0';
         }
+        if (($cfg['qrEyeStyle'] ?? '') !== '') {
+            $defaults['eye'] = (string) $cfg['qrEyeStyle'];
+        }
         return $defaults;
+    }
+
+    private function eyeFromStyle(mixed $style): ?EyeInterface
+    {
+        if (is_string($style) && strtolower($style) === 'circle') {
+            return SimpleCircleEye::instance();
+        }
+        return null;
+    }
+
+    private function builderSupportsEye(): bool
+    {
+        static $supported = null;
+        if ($supported !== null) {
+            return $supported;
+        }
+        try {
+            $ctor = (new \ReflectionClass(Builder::class))->getConstructor();
+            if ($ctor !== null) {
+                foreach ($ctor->getParameters() as $param) {
+                    if ($param->getName() === 'eye') {
+                        return $supported = true;
+                    }
+                }
+            }
+        } catch (\ReflectionException) {
+        }
+        return $supported = false;
     }
 
     /**

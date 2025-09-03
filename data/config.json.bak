@@ -1,9 +1,9 @@
 {
-    "id": 1,
+    "id": 2,
     "displayErrorDetails": null,
     "QRUser": null,
     "logoPath": null,
-    "pageTitle": "Demo",
+    "pageTitle": null,
     "backgroundColor": null,
     "buttonColor": null,
     "CheckAnswerButton": null,
@@ -18,7 +18,7 @@
     "collectPlayerUid": null,
     "inviteText": null,
     "QRRemember": false,
-    "event_uid": "e1",
+    "event_uid": "ev1",
     "qrLabelLine1": null,
     "qrLabelLine2": null,
     "qrLogoPath": null,
@@ -26,6 +26,7 @@
     "qrRoundMode": null,
     "qrLogoPunchout": null,
     "qrRounded": null,
+    "qrEyeStyle": null,
     "qrColorTeam": null,
     "qrColorCatalog": null,
     "qrColorEvent": null

@@ -153,6 +153,7 @@ class QrControllerTest extends TestCase
                 qrColorTeam TEXT,
                 qrColorCatalog TEXT,
                 qrColorEvent TEXT,
+                qrEyeStyle TEXT,
                 event_uid TEXT
             );
             SQL
@@ -227,6 +228,7 @@ class QrControllerTest extends TestCase
                 qrLogoWidth INTEGER,
                 qrRoundMode TEXT,
                 qrLogoPunchout INTEGER,
+                qrEyeStyle TEXT,
                 event_uid TEXT
             );
             SQL
@@ -278,6 +280,7 @@ class QrControllerTest extends TestCase
                 qrLogoWidth INTEGER,
                 qrRoundMode TEXT,
                 qrLogoPunchout INTEGER,
+                qrEyeStyle TEXT,
                 event_uid TEXT
             );
             SQL
@@ -338,6 +341,7 @@ class QrControllerTest extends TestCase
                 qrLogoWidth INTEGER,
                 qrRoundMode TEXT,
                 qrLogoPunchout INTEGER,
+                qrEyeStyle TEXT,
                 event_uid TEXT
             );
             SQL
@@ -406,6 +410,7 @@ class QrControllerTest extends TestCase
                 qrLogoWidth INTEGER,
                 qrRoundMode TEXT,
                 qrLogoPunchout INTEGER,
+                qrEyeStyle TEXT,
                 event_uid TEXT
             );
             SQL
@@ -525,6 +530,7 @@ class QrControllerTest extends TestCase
                 qrLogoWidth INTEGER,
                 qrRoundMode TEXT,
                 qrLogoPunchout INTEGER,
+                qrEyeStyle TEXT,
                 event_uid TEXT
             );
             SQL

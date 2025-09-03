@@ -50,6 +50,7 @@ class ResultControllerTest extends TestCase
                 qrColorTeam TEXT,
                 qrColorCatalog TEXT,
                 qrColorEvent TEXT,
+                qrEyeStyle TEXT,
                 event_uid TEXT
             );
             SQL
@@ -167,6 +168,7 @@ class ResultControllerTest extends TestCase
                 qrLogoWidth INTEGER,
                 qrRoundMode TEXT,
                 qrLogoPunchout INTEGER,
+                qrEyeStyle TEXT,
                 event_uid TEXT
             );
             SQL
