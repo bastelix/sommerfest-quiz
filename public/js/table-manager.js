@@ -7,6 +7,7 @@ export default class TableManager {
     this.onEdit = onEdit;
     this.onDelete = onDelete;
     this.onReorder = onReorder;
+    this.thead = this.tbody?.closest('table')?.querySelector('thead');
     this.data = [];
     if (this.sortable) {
       this.#initSortable();
@@ -51,6 +52,14 @@ export default class TableManager {
     this.data.forEach(item => this.addRow(item));
     if (this.pagination) {
       this.#updatePagination();
+    }
+  }
+
+  setColumnLoading(key, loading = true) {
+    const th = this.thead?.querySelector(`th[data-key="${key}"]`);
+    const spinner = th?.querySelector('.qr-col-spinner');
+    if (spinner) {
+      spinner.hidden = !loading;
     }
   }
 

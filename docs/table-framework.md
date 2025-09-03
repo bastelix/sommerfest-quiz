@@ -6,7 +6,7 @@ Die Listenansichten im Admin-Bereich nutzen Twig-Makros und den JavaScript-`Tabl
 
 Die Makros erzeugen das HTML-Grundgerüst:
 
-- `qr_table(headings, body_id, sortable=true)`
+- `qr_table(headings, body_id, sortable=true)`: Jede Spaltenüberschrift enthält einen versteckten Spinner mit `aria-live="polite"`.
 - `qr_rowcards(list_id)`
 
 {% raw %}
@@ -56,6 +56,7 @@ manager.render(teams);
 - `render(list)`: Rendert die übergebene Datenliste.
 - `addRow(item)`: Fügt eine Zeile hinzu.
 - `bindPagination(el, perPage)`: Fügt Pagination hinzu.
+- `setColumnLoading(key, loading)`: Blendet den Spinner einer Spalte ein oder aus.
 
 ### Mobile Aktionsmenüs
 

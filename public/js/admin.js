@@ -808,6 +808,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   async function loadCatalogs(page = 1) {
+    catalogManager?.setColumnLoading('name', true);
     try {
       const res = await fetch(withBase('/admin/catalogs?page=' + page));
       if (!res.ok) throw new Error('fail');
@@ -865,6 +866,8 @@ document.addEventListener('DOMContentLoaded', function () {
           }
         })
         .catch(e => console.error(e));
+    } finally {
+      catalogManager?.setColumnLoading('name', false);
     }
   }
 
@@ -2048,14 +2051,16 @@ document.addEventListener('DOMContentLoaded', function () {
     window.open(withBase('/results.pdf?team=' + encodeURIComponent(teamName)), '_blank');
   }
 
-  if(teamListEl){
-    apiFetch('/teams.json', { headers: { 'Accept':'application/json' } })
+  if (teamListEl) {
+    teamManager.setColumnLoading('name', true);
+    apiFetch('/teams.json', { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(data => {
         const list = data.map(n => ({ id: crypto.randomUUID(), name: n }));
         teamManager.render(list);
       })
-      .catch(()=>{});
+      .catch(() => {})
+      .finally(() => teamManager.setColumnLoading('name', false));
     if (teamRestrictTeams) {
       teamRestrictTeams.checked = !!cfgInitial.QRRestrict;
     }
