@@ -44,15 +44,12 @@
   const puzzleWordEnabled = document.getElementById('puzzleWordEnabled');
   const puzzleWord = document.getElementById('puzzleWord');
   const puzzleFeedback = document.getElementById('puzzleFeedback');
-  const optCompetition = document.getElementById('optCompetition');
-  const optResults = document.getElementById('optResults');
+  const competitionMode = document.getElementById('competitionMode');
   const optQrLogin = document.getElementById('QRUser');
-  const optTeamname = document.getElementById('optTeamname');
   const logoInput = document.getElementById('logo');
   const logoPreview = document.getElementById('logoPreview');
   const saveBtn = document.querySelector('.event-config-sidebar .uk-button-secondary');
   const publishBtn = document.querySelector('.event-config-sidebar .uk-button-primary');
-  const presetLinks = document.querySelectorAll('.event-config-sidebar [data-preset]');
 
   function applyRules(shouldQueue) {
     const queue = typeof shouldQueue === 'boolean' ? shouldQueue : true;
@@ -60,16 +57,6 @@
       const enabled = puzzleWordEnabled.checked;
       puzzleWord.disabled = !enabled;
       puzzleFeedback.disabled = !enabled;
-    }
-    if (optCompetition && optResults) {
-      const competition = optCompetition.checked;
-      optResults.disabled = competition;
-      if (competition) optResults.checked = false;
-    }
-    if (optQrLogin && optTeamname) {
-      const qrEnabled = optQrLogin.checked;
-      optTeamname.disabled = qrEnabled;
-      if (qrEnabled) optTeamname.checked = false;
     }
     if (queue) queueAutosave();
   }
@@ -98,7 +85,7 @@
         })
         .then(({ event, config }) => {
           const data = { ...config };
-          if (event?.name) data.title = event.name;
+          if (event?.name && !data.pageTitle) data.pageTitle = event.name;
           Object.entries(data).forEach(([key, value]) => {
             const el = document.getElementById(key);
             if (!el) return;
@@ -125,34 +112,10 @@
       applyRules(false);
     }
     puzzleWordEnabled?.addEventListener('change', applyRules);
-    optCompetition?.addEventListener('change', applyRules);
-    optQrLogin?.addEventListener('change', applyRules);
+    competitionMode?.addEventListener('change', queueAutosave);
+    optQrLogin?.addEventListener('change', queueAutosave);
     saveBtn?.addEventListener('click', (e) => { e.preventDefault(); save(); });
     publishBtn?.addEventListener('click', (e) => { e.preventDefault(); save(); });
-    presetLinks.forEach((link) => {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        const preset = link.dataset.preset;
-        switch (preset) {
-          case 'simple':
-            if (optQrLogin) optQrLogin.checked = false;
-            if (optTeamname) optTeamname.checked = true;
-            break;
-          case 'rallye':
-            if (optQrLogin) optQrLogin.checked = true;
-            if (optCompetition) optCompetition.checked = false;
-            break;
-          case 'competitive':
-            if (optCompetition) optCompetition.checked = true;
-            if (optResults) optResults.checked = false;
-            break;
-          default:
-            return;
-        }
-        applyRules();
-        UIkit.notification({ message: `Preset "${preset}" applied`, status: 'success' });
-      });
-    });
     document.querySelectorAll('input, textarea, select').forEach((el) => {
       el.addEventListener('input', queueAutosave);
       el.addEventListener('change', queueAutosave);
