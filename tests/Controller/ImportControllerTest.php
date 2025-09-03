@@ -164,6 +164,37 @@ class ImportControllerTest extends TestCase
         rmdir($tmp);
     }
 
+    public function testImportRejectsInvalidJsonFile(): void
+    {
+        [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
+        $tmp = sys_get_temp_dir() . '/import_' . uniqid();
+        mkdir($tmp . '/kataloge', 0777, true);
+        file_put_contents($tmp . '/kataloge/catalogs.json', '{invalid');
+
+        $controller = new ImportController(
+            $catalog,
+            $config,
+            $results,
+            $teams,
+            $consents,
+            $summary,
+            $events,
+            $tmp,
+            $tmp
+        );
+        $request = $this->createRequest('POST', '/import');
+        $response = $controller->post($request, new Response());
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $err = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($err);
+        $this->assertArrayHasKey('error', $err);
+
+        unlink($tmp . '/kataloge/catalogs.json');
+        rmdir($tmp . '/kataloge');
+        rmdir($tmp);
+    }
+
     public function testRestoreDefaults(): void
     {
         [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
@@ -189,6 +220,11 @@ class ImportControllerTest extends TestCase
             $base
         );
         $request = $this->createRequest('POST', '/restore-default');
+        $stream = fopen('php://temp', 'r+');
+        fwrite($stream, '{}');
+        rewind($stream);
+        $stream = (new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream);
+        $request = $request->withBody($stream);
         $response = $controller->restoreDefaults($request, new Response());
         $this->assertEquals(204, $response->getStatusCode());
 
@@ -200,5 +236,39 @@ class ImportControllerTest extends TestCase
         unlink($default . '/kataloge/catalogs.json');
         rmdir($default . '/kataloge');
         rmdir($default);
+    }
+
+    public function testRestoreDefaultsRejectsInvalidJson(): void
+    {
+        [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
+        $base = sys_get_temp_dir() . '/import_' . uniqid();
+        mkdir($base, 0777, true);
+
+        $controller = new ImportController(
+            $catalog,
+            $config,
+            $results,
+            $teams,
+            $consents,
+            $summary,
+            $events,
+            $base,
+            $base
+        );
+        $request = $this->createRequest('POST', '/restore-default');
+        $stream = fopen('php://temp', 'r+');
+        fwrite($stream, '{invalid');
+        rewind($stream);
+        $stream = (new \Slim\Psr7\Factory\StreamFactory())->createStreamFromResource($stream);
+        $request = $request->withBody($stream);
+
+        $response = $controller->restoreDefaults($request, new Response());
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $err = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($err);
+        $this->assertArrayHasKey('error', $err);
+
+        rmdir($base);
     }
 }
