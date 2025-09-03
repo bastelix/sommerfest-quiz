@@ -161,6 +161,7 @@
 - Auto-save catalog changes
 - *(admin)* Add missing events table
 - Autosave questions
+- Add event-specific config endpoint
 
 ### Fix
 
