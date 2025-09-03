@@ -782,7 +782,7 @@ document.addEventListener('DOMContentLoaded', function () {
         li.appendChild(contentWrap);
         const delBtn = document.createElement('button');
         delBtn.type = 'button';
-        delBtn.className = 'uk-icon-button uk-button-danger';
+        delBtn.className = 'uk-icon-button qr-action';
         delBtn.setAttribute('uk-icon', 'trash');
         delBtn.setAttribute('aria-label', 'Löschen');
         delBtn.addEventListener('click', () => deleteCatalogById(item.id));

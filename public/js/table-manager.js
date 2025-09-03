@@ -126,9 +126,10 @@ export default class TableManager {
       const delCell = document.createElement('td');
       delCell.setAttribute('role', 'gridcell');
       delCell.className = 'uk-table-shrink';
+      delCell.classList.add('uk-text-center');
       const delBtn = document.createElement('button');
       delBtn.type = 'button';
-      delBtn.className = 'uk-icon-button uk-button-danger';
+      delBtn.className = 'uk-icon-button qr-action';
       delBtn.setAttribute('uk-icon', 'trash');
       delBtn.setAttribute('aria-label', 'Löschen');
       delBtn.addEventListener('click', () => this.onDelete(item.id));
