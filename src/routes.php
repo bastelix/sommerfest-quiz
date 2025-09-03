@@ -59,6 +59,7 @@ use App\Controller\SummaryController;
 use App\Controller\EvidenceController;
 use App\Controller\EventController;
 use App\Controller\EventListController;
+use App\Controller\EventConfigController;
 use App\Controller\SettingsController;
 use App\Controller\Admin\PageController;
 use App\Controller\Admin\LandingpageController;
@@ -111,6 +112,7 @@ require_once __DIR__ . '/Controller/EvidenceController.php';
 require_once __DIR__ . '/Controller/ExportController.php';
 require_once __DIR__ . '/Controller/EventController.php';
 require_once __DIR__ . '/Controller/EventListController.php';
+require_once __DIR__ . '/Controller/EventConfigController.php';
 require_once __DIR__ . '/Controller/SettingsController.php';
 require_once __DIR__ . '/Controller/BackupController.php';
 require_once __DIR__ . '/Controller/UserController.php';
@@ -189,6 +191,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             ))
             ->withAttribute('teamController', new TeamController($teamService))
             ->withAttribute('eventController', new EventController($eventService))
+            ->withAttribute('eventConfigController', new EventConfigController($eventService, $configService))
             ->withAttribute(
                 'tenantController',
                 new TenantController(
@@ -421,6 +424,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/dashboard', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/events', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/event/settings', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->get('/admin/konfig', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/catalogs', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/questions', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/teams', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
@@ -837,6 +841,13 @@ return function (\Slim\App $app, TranslationService $translator) {
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
     $app->post('/events/{uid}/publish', function (Request $request, Response $response, array $args) {
         return $request->getAttribute('eventController')->publish($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+
+    $app->get('/admin/event/{id}', function (Request $request, Response $response, array $args) {
+        return $request->getAttribute('eventConfigController')->show($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
+    $app->patch('/admin/event/{id}', function (Request $request, Response $response, array $args) {
+        return $request->getAttribute('eventConfigController')->update($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
 
     $app->post('/invite', function (Request $request, Response $response) {
