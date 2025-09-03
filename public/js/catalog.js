@@ -246,6 +246,18 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
     const container = document.getElementById('quiz');
     if(!container) return;
     container.textContent = '';
+    const desc = sessionStorage.getItem('quizCatalogDesc');
+    if(desc){
+      const p = document.createElement('p');
+      p.textContent = desc;
+      container.appendChild(p);
+    }
+    const comment = sessionStorage.getItem('quizCatalogComment');
+    if(comment){
+      const p = document.createElement('p');
+      p.textContent = comment;
+      container.appendChild(p);
+    }
     const btn = document.createElement('button');
     btn.className = 'uk-button uk-button-primary uk-button-large uk-align-right';
     btn.textContent = 'Los geht es!';
