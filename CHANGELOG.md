@@ -134,6 +134,7 @@
 - Add table macros and update docs
 - Add table manager utility
 - Add twig template for tenant rows
+- Update catalog manager save logic
 
 ### Fix
 
