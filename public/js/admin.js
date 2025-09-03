@@ -1909,21 +1909,26 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   teamManager.bindPagination(teamPaginationEl, TEAMS_PER_PAGE);
 
-  function saveTeamList(list = teamManager.getData(), show = false) {
+  function saveTeamList(list = teamManager.getData(), show = false, retries = 1) {
     const names = list.map(t => t.name);
     apiFetch('/teams.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(names)
-    }).then(r => {
-      if (!r.ok) throw new Error(r.statusText);
-      if (show) notify('Liste gespeichert', 'success');
-    }).catch(err => {
-      if (show) {
+    })
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        if (show) notify('Liste gespeichert', 'success');
+      })
+      .catch(err => {
         console.error(err);
-        notify('Fehler beim Speichern', 'danger');
-      }
-    });
+        if (retries > 0) {
+          notify('Fehler beim Speichern, versuche es erneut …', 'warning');
+          setTimeout(() => saveTeamList(list, show, retries - 1), 1000);
+        } else {
+          notify('Fehler beim Speichern', 'danger');
+        }
+      });
   }
 
   function openTeamModal(cell) {
