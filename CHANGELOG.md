@@ -160,6 +160,7 @@
 - *(admin)* Add catalog edit modal
 - Auto-save catalog changes
 - *(admin)* Add missing events table
+- Autosave questions
 
 ### Fix
 
