@@ -72,6 +72,14 @@ class ConfigController
             return $response->withStatus(400);
         }
 
+        if (isset($data['event_uid'])) {
+            $this->service->setActiveEventUid((string) $data['event_uid']);
+            unset($data['event_uid']);
+            if ($data === []) {
+                return $response->withStatus(204);
+            }
+        }
+
         $validation = $this->validator->validate($data);
         if ($validation['errors'] !== []) {
             $response->getBody()->write(json_encode(['errors' => $validation['errors']]));
