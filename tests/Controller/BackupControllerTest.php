@@ -7,6 +7,11 @@ namespace App\Controller {
     {
         return \Tests\Controller\BackupControllerTest::callRmdir($dir);
     }
+
+    function unlink(string $filename): bool
+    {
+        return \Tests\Controller\BackupControllerTest::callUnlink($filename);
+    }
 }
 
 namespace Tests\Controller {
@@ -20,6 +25,9 @@ namespace Tests\Controller {
         /** @var callable|null */
         public static $rmdirCallback = null;
 
+        /** @var callable|null */
+        public static $unlinkCallback = null;
+
         public static function callRmdir(string $dir): bool
         {
             if (self::$rmdirCallback !== null) {
@@ -28,9 +36,18 @@ namespace Tests\Controller {
             return \rmdir($dir);
         }
 
+        public static function callUnlink(string $file): bool
+        {
+            if (self::$unlinkCallback !== null) {
+                return (self::$unlinkCallback)($file);
+            }
+            return \unlink($file);
+        }
+
         protected function tearDown(): void
         {
             self::$rmdirCallback = null;
+            self::$unlinkCallback = null;
             parent::tearDown();
         }
 
@@ -68,12 +85,40 @@ namespace Tests\Controller {
             );
 
             $this->assertEquals(500, $res->getStatusCode());
-            $body = (string) $res->getBody();
-            $this->assertStringContainsString('delete backup directory', $body);
+            $body = json_decode((string) $res->getBody(), true);
+            $this->assertSame('Failed to delete backup directory', $body['error'] ?? '');
+            $this->assertSame($base . '/fail', $body['path'] ?? '');
 
             // cleanup
             self::$rmdirCallback = null;
-            unlink($base . '/fail/test.txt');
+            @unlink($base . '/fail/test.txt');
+            \rmdir($base . '/fail');
+            \rmdir($base);
+        }
+
+        public function testDeleteFileFailure(): void
+        {
+            $base = sys_get_temp_dir() . '/bct_' . uniqid();
+            mkdir($base . '/fail', 0777, true);
+            file_put_contents($base . '/fail/test.txt', 'a');
+
+            self::$unlinkCallback = fn(string $file) => false;
+
+            $controller = new BackupController($base);
+            $res = $controller->delete(
+                $this->createRequest('DELETE', '/backups/fail'),
+                new Response(),
+                ['name' => 'fail']
+            );
+
+            $this->assertEquals(500, $res->getStatusCode());
+            $body = json_decode((string) $res->getBody(), true);
+            $this->assertSame('Failed to delete file', $body['error'] ?? '');
+            $this->assertSame($base . '/fail/test.txt', $body['path'] ?? '');
+
+            // cleanup
+            self::$unlinkCallback = null;
+            @unlink($base . '/fail/test.txt');
             \rmdir($base . '/fail');
             \rmdir($base);
         }
