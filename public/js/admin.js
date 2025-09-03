@@ -765,6 +765,7 @@ document.addEventListener('DOMContentLoaded', function () {
         opt.textContent = c.name || c.sort_order || c.slug;
         catSelect.appendChild(opt);
       });
+      console.log(catalogs);
       catalogManager.render(catalogs);
       const params = new URLSearchParams(window.location.search);
       const slug = params.get('katalog');
@@ -773,7 +774,8 @@ document.addEventListener('DOMContentLoaded', function () {
         catSelect.value = selected.id;
         loadCatalog(selected.id);
       }
-    });
+    })
+    .catch(err => console.error(err));
 
   catSelect.addEventListener('change', () => loadCatalog(catSelect.value));
 
