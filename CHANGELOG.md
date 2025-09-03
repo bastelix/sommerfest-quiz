@@ -26,6 +26,7 @@
 - Add migration for logo width
 - Mark admin script as module
 - Streamline catalog styles
+- Preserve query string on rewrite
 
 ### Ci
 
@@ -43,6 +44,7 @@
 - Update table framework guide
 - Add local documentation build instructions
 - Escape twig example in docs
+- Describe QR code endpoint requirements
 
 ### Feat
 
