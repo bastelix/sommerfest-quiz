@@ -176,9 +176,10 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
     return [];
   }
 
-  async function loadQuestions(id, file, letter, uid, name, desc, comment){
-    setStored('quizCatalog', uid || id);
-    sessionStorage.setItem('quizCatalogName', name || id);
+  async function loadQuestions(slug, sort_order, file, letter, uid, name, desc, comment){
+    const catalogKey = uid ?? slug ?? sort_order;
+    setStored('quizCatalog', catalogKey);
+    sessionStorage.setItem('quizCatalogName', name || slug || sort_order);
     if(desc !== undefined){
       sessionStorage.setItem('quizCatalogDesc', desc);
     } else {
@@ -197,7 +198,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
         title.className = 'uk-margin-remove-bottom';
         headerEl.appendChild(title);
       }
-      title.textContent = name || id;
+      title.textContent = name || slug || sort_order;
     }
     setSubHeader(desc || '');
     setComment(comment || '');
@@ -218,7 +219,8 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
     }catch(e){
       console.warn('Fragen konnten nicht geladen werden, versuche inline Daten', e);
     }
-    const inline = document.getElementById(id + '-data');
+    const inlineId = slug ?? sort_order;
+    const inline = inlineId ? document.getElementById(inlineId + '-data') : null;
     if(inline){
       try{
         const data = JSON.parse(inline.textContent);
@@ -331,32 +333,37 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
     grid.className = 'uk-child-width-1-1 uk-child-width-1-2@s uk-child-width-1-4@m uk-grid-small uk-text-center';
     grid.setAttribute('uk-grid', '');
     catalogs.forEach(cat => {
+      const catalogKey = cat.uid ?? cat.slug ?? cat.sort_order ?? cat.id;
       const cardWrap = document.createElement('div');
       const card = document.createElement('div');
       card.className = 'uk-card qr-card uk-card-body uk-card-hover';
       card.style.cursor = 'pointer';
       card.addEventListener('click', () => {
         const localSolved = new Set(JSON.parse(sessionStorage.getItem('quizSolved') || '[]'));
-        if((window.quizConfig || {}).competitionMode && localSolved.has(cat.uid)){
-          const remaining = catalogs.filter(c => !localSolved.has(c.uid)).map(c => c.name || c.slug || c.sort_order).join(', ');
-          showCatalogSolvedModal(cat.name || cat.slug || cat.sort_order, remaining);
+        if((window.quizConfig || {}).competitionMode && localSolved.has(catalogKey)){
+          const remaining = catalogs.filter(c => {
+            const key = c.uid ?? c.slug ?? c.sort_order ?? c.id;
+            return !localSolved.has(key);
+          }).map(c => c.name || c.slug || c.sort_order || c.id).join(', ');
+          showCatalogSolvedModal(cat.name || cat.slug || cat.sort_order || cat.id, remaining);
           return;
         }
-        let qs = '?katalog=' + (cat.slug || cat.sort_order);
+        let qs = '?katalog=' + (cat.slug || cat.sort_order || cat.id);
         if(eventUid) qs += '&event=' + encodeURIComponent(eventUid);
         history.replaceState(null, '', qs);
         loadQuestions(
-          cat.slug || cat.sort_order,
+          cat.slug,
+          cat.sort_order || cat.id,
           cat.file,
           cat.raetsel_buchstabe,
           cat.uid,
-          cat.name || cat.slug || cat.sort_order,
+          cat.name || cat.slug || cat.sort_order || cat.id,
           cat.description || cat.beschreibung || '',
           cat.comment || cat.kommentar || ''
         );
       });
       const title = document.createElement('h3');
-      title.textContent = cat.name || cat.slug || cat.sort_order;
+      title.textContent = cat.name || cat.slug || cat.sort_order || cat.id;
       const desc = document.createElement('p');
       desc.textContent = cat.description || cat.beschreibung || '';
       card.appendChild(title);
@@ -665,23 +672,28 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
     const id = params.get('katalog');
     const proceed = async () => {
       const solvedNow = await buildSolvedSet(cfg);
-      const selected = catalogs.find(c => (c.slug || c.sort_order) === id);
+      const selected = catalogs.find(c => (c.slug || c.sort_order || c.id || c.uid) === id);
       if(selected){
-          if(cfg.competitionMode && solvedNow.has(selected.uid)){
-            const remaining = catalogs.filter(c => !solvedNow.has(c.uid)).map(c => c.name || c.slug || c.sort_order).join(', ');
-            if(catalogs.length && solvedNow.size === catalogs.length){
-              showAllSolvedModal();
-              return;
-            }
-            showCatalogSolvedModal(selected.name || selected.slug || selected.id, remaining);
+        const selectedKey = selected.uid ?? selected.slug ?? selected.sort_order ?? selected.id;
+        if(cfg.competitionMode && solvedNow.has(selectedKey)){
+          const remaining = catalogs.filter(c => {
+            const key = c.uid ?? c.slug ?? c.sort_order ?? c.id;
+            return !solvedNow.has(key);
+          }).map(c => c.name || c.slug || c.sort_order || c.id).join(', ');
+          if(catalogs.length && solvedNow.size === catalogs.length){
+            showAllSolvedModal();
             return;
           }
+          showCatalogSolvedModal(selected.name || selected.slug || selected.sort_order || selected.id, remaining);
+          return;
+        }
         loadQuestions(
-          selected.slug || selected.id,
+          selected.slug,
+          selected.sort_order || selected.id,
           selected.file,
           selected.raetsel_buchstabe,
           selected.uid,
-          selected.name || selected.slug || selected.id,
+          selected.name || selected.slug || selected.sort_order || selected.id,
           selected.description || selected.beschreibung || '',
           selected.comment || selected.kommentar || ''
         );
