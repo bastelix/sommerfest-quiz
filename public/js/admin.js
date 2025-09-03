@@ -609,11 +609,8 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }).catch(() => notify('Fehler beim Speichern', 'danger'));
   });
-  [
-    cfgFields.pageTitle,
-    cfgFields.backgroundColor,
-    cfgFields.buttonColor,
-    // Former auto-save fields removed; form submission handled by backend.
+  // Former auto-save fields removed; form submission handled by backend.
+
   const summaryPrintBtn = document.getElementById('summaryPrintBtn');
   summaryPrintBtn?.addEventListener('click', function (e) {
     e.preventDefault();
