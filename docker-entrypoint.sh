@@ -11,8 +11,8 @@ if [ -r .env ]; then
     done < .env
 fi
 
-# Install composer dependencies if autoloader is missing
-if [ ! -f vendor/autoload.php ]; then
+# Install composer dependencies if autoloader or QR code library is missing
+if [ ! -f vendor/autoload.php ] || [ ! -d vendor/chillerlan/php-qrcode ]; then
     composer install --no-interaction --prefer-dist --no-progress
 fi
 
