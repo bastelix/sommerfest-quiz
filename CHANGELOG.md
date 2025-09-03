@@ -137,6 +137,7 @@
 - Add twig template for tenant rows
 - Update catalog manager save logic
 - *(admin)* Render catalog mobile cards
+- Expose event config endpoints
 
 ### Fix
 
