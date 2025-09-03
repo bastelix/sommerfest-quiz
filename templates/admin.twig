@@ -383,6 +383,18 @@
           </div>
         </div>
 
+        <div id="catalogEditModal" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">{{ t('heading_catalog_edit') }}</h2>
+            <input id="catalogEditInput" class="uk-input" type="text">
+            <div id="catalogEditError" class="uk-text-danger uk-margin-small-top" hidden></div>
+            <div class="uk-flex uk-flex-right uk-margin-top">
+              <button id="catalogEditSave" class="uk-icon-button uk-button-primary" uk-icon="check" type="button" aria-label="{{ t('action_save') }}"></button>
+              <button id="catalogEditCancel" class="uk-button uk-button-default uk-modal-close" type="button">{{ t('action_cancel') }}</button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </li>
     <li class="{{ activeRoute == 'catalogs' ? 'uk-active' }}">
