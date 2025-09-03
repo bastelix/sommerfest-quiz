@@ -1752,12 +1752,12 @@ document.addEventListener('DOMContentLoaded', function () {
             label.setAttribute('uk-tooltip', `title: ${labels.tipSelectEvent || ''}; pos: top`);
             const input = document.createElement('input');
             input.type = 'radio';
-            input.name = 'currentEvent';
+            input.name = 'currentEventList';
             input.dataset.id = ev.id;
             input.checked = ev.id === activeEventUid;
             input.addEventListener('change', () => {
               if (input.checked) {
-                const twin = eventsCardsEl?.querySelector(`input[name="currentEvent"][data-id="${ev.id}"]`);
+                const twin = eventsCardsEl?.querySelector(`input[name="currentEventCard"][data-id="${ev.id}"]`);
                 if (twin) twin.checked = true;
                 setActiveEvent(ev.id, ev.name);
                 highlightActiveEvent();
@@ -1775,12 +1775,12 @@ document.addEventListener('DOMContentLoaded', function () {
             label.setAttribute('uk-tooltip', `title: ${labels.tipSelectEvent || ''}; pos: top`);
             const input = document.createElement('input');
             input.type = 'radio';
-            input.name = 'currentEvent';
+            input.name = 'currentEventCard';
             input.dataset.id = ev.id;
             input.checked = ev.id === activeEventUid;
             input.addEventListener('change', () => {
               if (input.checked) {
-                const twin = eventsListEl.querySelector(`input[name="currentEvent"][data-id="${ev.id}"]`);
+                const twin = eventsListEl.querySelector(`input[name="currentEventList"][data-id="${ev.id}"]`);
                 if (twin) twin.checked = true;
                 setActiveEvent(ev.id, ev.name);
                 highlightActiveEvent();
