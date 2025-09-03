@@ -801,6 +801,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('configController')->get($request, $response);
     });
 
+    $app->get('/events/{uid}/config.json', function (Request $request, Response $response, array $args) {
+        return $request->getAttribute('configController')->getByEvent((string) $args['uid'], $response);
+    });
+
     $app->post('/config.json', function (Request $request, Response $response) {
         return $request->getAttribute('configController')->post($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));

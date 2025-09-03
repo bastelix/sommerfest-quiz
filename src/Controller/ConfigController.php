@@ -50,6 +50,28 @@ class ConfigController
     }
 
     /**
+     * Return configuration for the specified event UID.
+     */
+    public function getByEvent(string $uid, Response $response): Response
+    {
+        $cfg = $this->service->getConfigForEvent($uid);
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        $role = $_SESSION['user']['role'] ?? null;
+        if ($role !== 'admin') {
+            $cfg = ConfigService::removePuzzleInfo($cfg);
+        }
+        if ($cfg === []) {
+            return $response->withStatus(404);
+        }
+
+        $content = json_encode($cfg, JSON_PRETTY_PRINT);
+        $response->getBody()->write($content);
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    /**
      * Persist a new configuration payload.
      */
     public function post(Request $request, Response $response): Response

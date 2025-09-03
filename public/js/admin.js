@@ -2620,7 +2620,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const uploadPath = '/qrlogo.' + ext + (activeEventUid ? `?event_uid=${encodeURIComponent(activeEventUid)}` : '');
     apiFetch(uploadPath, { method: 'POST', body: fd })
       .then(() => {
-        const cfgPath = activeEventUid ? `/admin/event/${activeEventUid}` : '/config.json';
+        const cfgPath = activeEventUid ? `/events/${activeEventUid}/config.json` : '/config.json';
         return apiFetch(cfgPath, { headers: { 'Accept': 'application/json' } });
       })
       .then(r => r.json())
@@ -2727,8 +2727,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const teamsEl = document.getElementById('summaryTeams');
     if (!nameEl || !catalogsEl || !teamsEl) return;
     const opts = { headers: { 'Accept': 'application/json' } };
+    const cfgPromise = activeEventUid
+      ? apiFetch(`/events/${activeEventUid}/config.json`, opts).then(r => r.json()).catch(() => ({}))
+      : apiFetch('/config.json', opts).then(r => r.json()).catch(() => ({}));
     Promise.all([
-      apiFetch('/config.json', opts).then(r => r.json()).catch(() => ({})),
+      cfgPromise,
       apiFetch('/events.json', opts).then(r => r.json()).catch(() => []),
       apiFetch('/kataloge/catalogs.json', opts).then(r => r.json()).catch(() => []),
       apiFetch('/teams.json', opts).then(r => r.json()).catch(() => [])
