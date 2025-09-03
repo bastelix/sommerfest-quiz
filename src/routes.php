@@ -802,7 +802,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     });
 
     $app->get('/events/{uid}/config.json', function (Request $request, Response $response, array $args) {
-        return $request->getAttribute('configController')->getByEvent((string) $args['uid'], $response);
+        return $request->getAttribute('configController')->getByEvent($request, $response, $args);
     });
 
     $app->post('/config.json', function (Request $request, Response $response) {
