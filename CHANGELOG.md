@@ -201,6 +201,7 @@
 - Extract table styles and theme variables
 - Move configuration fully to database
 - Filter tenants by status safely
+- Use table macro in admin
 
 ### Style
 
