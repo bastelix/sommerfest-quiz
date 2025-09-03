@@ -78,12 +78,16 @@ class BackupController
 
         $data = file_get_contents($zipFile);
         if ($data === false) {
-            @unlink($zipFile);
+            if (!unlink($zipFile)) {
+                return $this->deleteError($response, $zipFile, false);
+            }
             return $response->withStatus(500);
         }
 
         $size = filesize($zipFile);
-        @unlink($zipFile);
+        if (!unlink($zipFile)) {
+            return $this->deleteError($response, $zipFile, false);
+        }
 
         $response->getBody()->write($data);
         return $response
@@ -110,10 +114,15 @@ class BackupController
             \RecursiveIteratorIterator::CHILD_FIRST
         );
         foreach ($files as $file) {
+            $filePath = $file->getPathname();
             if ($file->isDir()) {
-                @rmdir($file->getPathname());
+                if (!rmdir($filePath)) {
+                    return $this->deleteError($response, $filePath, true);
+                }
             } else {
-                @unlink($file->getPathname());
+                if (!unlink($filePath)) {
+                    return $this->deleteError($response, $filePath, false);
+                }
             }
         }
 
@@ -123,12 +132,27 @@ class BackupController
             $message = $status === 403
                 ? 'Permission denied deleting backup directory'
                 : 'Failed to delete backup directory';
-            $response->getBody()->write(json_encode(['error' => $message]));
+            $response->getBody()->write(json_encode([
+                'error' => $message,
+                'path' => $path,
+            ]));
             return $response
                 ->withStatus($status)
                 ->withHeader('Content-Type', 'application/json');
         }
 
         return $response->withStatus(204);
+    }
+
+    private function deleteError(Response $response, string $path, bool $isDir): Response
+    {
+        $response->getBody()->write(json_encode([
+            'error' => 'Failed to delete ' . ($isDir ? 'directory' : 'file'),
+            'path' => $path,
+        ]));
+
+        return $response
+            ->withStatus(500)
+            ->withHeader('Content-Type', 'application/json');
     }
 }
