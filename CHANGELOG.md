@@ -154,6 +154,7 @@
 - Add explicit chillerlan qr options
 - Use table layout for admin events
 - Make QR logo punch-out configurable
+- Punchout logo area in svg QR codes
 
 ### Fix
 
