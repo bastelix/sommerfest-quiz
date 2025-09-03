@@ -43,7 +43,7 @@ class AdminCatalogControllerTest extends TestCase
 
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
-        $request = $this->createRequest('GET', '/admin/kataloge')
+        $request = $this->createRequest('GET', '/admin/catalogs')
             ->withAttribute('view', $twig)
             ->withAttribute('lang', 'de');
         $response = $controller($request, new Response());
@@ -79,7 +79,7 @@ class AdminCatalogControllerTest extends TestCase
 
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
-        $request = $this->createRequest('GET', '/admin/kataloge?event=e1&size=123&round_mode=margin')
+        $request = $this->createRequest('GET', '/admin/catalogs?event=e1&size=123&round_mode=margin')
             ->withAttribute('view', $twig)
             ->withAttribute('lang', 'de');
         $response = $controller($request, new Response());
@@ -108,7 +108,7 @@ class AdminCatalogControllerTest extends TestCase
         $service = new CatalogService($pdo, $cfgSvc);
         $controller = new AdminCatalogController($service);
 
-        $request = $this->createRequest('GET', '/admin/catalogs?page=1&perPage=2&order=asc');
+        $request = $this->createRequest('GET', '/admin/catalogs/data?page=1&perPage=2&order=asc');
         $response = $controller->catalogs($request, new Response());
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode((string) $response->getBody(), true);
