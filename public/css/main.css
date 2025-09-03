@@ -975,4 +975,8 @@ body.admin-page {
   transition: transform 0.3s;
 }
 
+.help-icon {
+  color: #999;
+}
+
 

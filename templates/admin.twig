@@ -174,7 +174,7 @@
           { 'label': t('column_end'), 'key': 'end' },
           { 'label': t('column_description'), 'key': 'description' },
           { 'label': t('column_current'), 'key': 'current' },
-          { 'label': '<span uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_event_remove') ~ '; pos: top" tabindex="0"></span>', 'class': 'uk-table-shrink' }
+          { 'label': '<span class="help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_event_remove') ~ '; pos: top" aria-label="' ~ t('tip_event_remove') ~ '" tabindex="0"></span>', 'class': 'uk-table-shrink' }
         ], 'eventsList', true, table_id='eventsTable', wrap_class='uk-overflow-auto qr-table-wrap', tbody_attrs={
           'data-label-number': t('column_number'),
           'data-label-name': t('column_name'),
@@ -184,7 +184,7 @@
           'data-label-current': t('column_current'),
           'data-tip-select-event': t('tip_select_event'),
           'data-label-actions': t('column_actions')
-        }, handle_label='<span uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_sort_rows') ~ '; pos: top" tabindex="0"></span>') }}
+        }, handle_label='<span class="help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_sort_rows') ~ '; pos: top" aria-label="' ~ t('tip_sort_rows') ~ '" tabindex="0"></span>') }}
         {{ qr_rowcards('eventsCards') }}
         <div class="uk-margin">
           <button
@@ -205,7 +205,7 @@
             <div>
               <div class="uk-margin">
                 <label class="uk-form-label" for="cfgLogoFile">{{ t('label_logo_upload') }}
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_logo_upload') }}; pos: right" tabindex="0"></span>
+                  <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_logo_upload') }}; pos: right" aria-label="{{ t('tip_logo_upload') }}" tabindex="0"></span>
                 </label>
                 <div class="uk-form-controls">
                   <div class="js-upload uk-placeholder uk-text-center">
@@ -244,7 +244,7 @@
             <div>
               <div class="uk-margin">
                 <label class="uk-form-label" for="cfgPageTitle">{{ t('label_page_title') }}
-                  <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_page_title') }}; pos: right" tabindex="0"></span>
+                  <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_page_title') }}; pos: right" aria-label="{{ t('tip_page_title') }}" tabindex="0"></span>
                 </label>
                 <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgPageTitle" name="pageTitle" value="{{ config.pageTitle|default('') }}"></div>
               </div>
@@ -253,13 +253,13 @@
               <div class="uk-margin uk-child-width-1-2@s uk-grid-small" uk-grid>
                 <div>
                   <label class="uk-form-label" for="cfgBackgroundColor">{{ t('label_background_color') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_background_color') }}; pos: right" tabindex="0"></span>
+                    <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_background_color') }}; pos: right" aria-label="{{ t('tip_background_color') }}" tabindex="0"></span>
                   </label>
                   <div class="uk-form-controls"><input class="uk-input" type="color" id="cfgBackgroundColor" name="backgroundColor" value="{{ config.backgroundColor|default('#ffffff') }}"></div>
                 </div>
                 <div>
                   <label class="uk-form-label" for="cfgButtonColor">{{ t('label_button_color') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_button_color') }}; pos: right" tabindex="0"></span>
+                    <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_button_color') }}; pos: right" aria-label="{{ t('tip_button_color') }}" tabindex="0"></span>
                   </label>
                   <div class="uk-form-controls"><input class="uk-input" type="color" id="cfgButtonColor" name="buttonColor" value="{{ config.buttonColor|default('#1e87f0') }}"></div>
                 </div>
@@ -274,14 +274,14 @@
               <div>
                 <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgQRUser" name="QRUser" value="1" {% if config.QRUser %}checked{% endif %}> {{ t('label_qr_login') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_qr_button') }}; pos:right" tabindex="0"></span>
+                    <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_qr_button') }}; pos:right" aria-label="{{ t('tip_qr_button') }}" tabindex="0"></span>
                   </label>
                 </div>
               </div>
               <div>
                 <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgRandomNames" name="randomNames" value="1" {% if config.randomNames %}checked{% endif %}> {{ t('label_random_names') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_random_names') }}; pos: right" tabindex="0"></span>
+                    <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_random_names') }}; pos: right" aria-label="{{ t('tip_random_names') }}" tabindex="0"></span>
                   </label>
                 </div>
               </div>
@@ -291,7 +291,7 @@
               <div>
                 <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgTeamRestrict" name="QRRestrict" value="1" {% if config.QRRestrict %}checked{% endif %}> {{ t('label_team_restrict') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_team_restrict') }}; pos: right" tabindex="0"></span>
+                    <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_team_restrict') }}; pos: right" aria-label="{{ t('tip_team_restrict') }}" tabindex="0"></span>
                   </label>
                 </div>
               </div>
@@ -301,21 +301,21 @@
               <div>
                 <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgCheckAnswerButton" name="CheckAnswerButton" value="yes" {% if config.CheckAnswerButton != 'no' %}checked{% endif %}> {{ t('label_check_button') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_check_button') }}; pos: right" tabindex="0"></span>
+                    <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_check_button') }}; pos: right" aria-label="{{ t('tip_check_button') }}" tabindex="0"></span>
                   </label>
                 </div>
               </div>
               <div>
                 <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgCompetitionMode" name="competitionMode" value="1" {% if config.competitionMode %}checked{% endif %}> {{ t('label_competition_mode') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_competition_mode') }}; pos: right" tabindex="0"></span>
+                    <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_competition_mode') }}; pos: right" aria-label="{{ t('tip_competition_mode') }}" tabindex="0"></span>
                   </label>
                 </div>
               </div>
               <div>
                 <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgTeamResults" name="teamResults" value="1" {% if config.teamResults %}checked{% endif %}> {{ t('label_team_results') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_team_results') }}; pos: right" tabindex="0"></span>
+                    <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_team_results') }}; pos: right" aria-label="{{ t('tip_team_results') }}" tabindex="0"></span>
                   </label>
                 </div>
               </div>
@@ -325,14 +325,14 @@
               <div>
                 <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgPhotoUpload" name="photoUpload" value="1" {% if config.photoUpload %}checked{% endif %}> {{ t('label_photo_upload') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_photo_upload') }}; pos: right" tabindex="0"></span>
+                    <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_photo_upload') }}; pos: right" aria-label="{{ t('tip_photo_upload') }}" tabindex="0"></span>
                   </label>
                 </div>
               </div>
               <div>
                 <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgPuzzleEnabled" name="puzzleWordEnabled" value="1" {% if config.puzzleWordEnabled %}checked{% endif %}> {{ t('label_puzzle_word') }}
-                    <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_puzzle_word') }}; pos: right" tabindex="0"></span>
+                    <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_puzzle_word') }}; pos: right" aria-label="{{ t('tip_puzzle_word') }}" tabindex="0"></span>
                   </label>
                   <div id="cfgPuzzleWordWrap" class="uk-margin-small-top uk-grid uk-child-width-1-2@m uk-grid-small uk-flex-middle" uk-grid>
                     <div>
@@ -403,12 +403,12 @@
           <h2 class="uk-heading-bullet">{{ t('heading_catalogs') }}</h2>
         {% from 'components/table.twig' import qr_table, qr_rowcards %}
         {{ qr_table([
-          { 'label': (t('column_slug') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_slug') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-shrink', 'key': 'slug' },
-          { 'label': (t('column_name') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_name') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-expand', 'key': 'name' },
-          { 'label': (t('column_description') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_desc') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-expand', 'key': 'description' },
-          { 'label': (t('column_letter') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_puzzle_letter') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-shrink', 'key': 'raetsel_buchstabe' },
-          { 'label': (t('column_comment') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_comment') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-expand', 'key': 'comment' },
-          { 'label': ('<span uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_remove') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-shrink uk-text-center' }
+          { 'label': (t('column_slug') ~ '<span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_slug') ~ '; pos: top" aria-label="' ~ t('tip_slug') ~ '" tabindex="0"></span>')|raw, 'class': 'uk-table-shrink', 'key': 'slug' },
+          { 'label': (t('column_name') ~ '<span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_cat_name') ~ '; pos: top" aria-label="' ~ t('tip_cat_name') ~ '" tabindex="0"></span>')|raw, 'class': 'uk-table-expand', 'key': 'name' },
+          { 'label': (t('column_description') ~ '<span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_cat_desc') ~ '; pos: top" aria-label="' ~ t('tip_cat_desc') ~ '" tabindex="0"></span>')|raw, 'class': 'uk-table-expand', 'key': 'description' },
+          { 'label': (t('column_letter') ~ '<span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_cat_puzzle_letter') ~ '; pos: top" aria-label="' ~ t('tip_cat_puzzle_letter') ~ '" tabindex="0"></span>')|raw, 'class': 'uk-table-shrink', 'key': 'raetsel_buchstabe' },
+          { 'label': (t('column_comment') ~ '<span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_cat_comment') ~ '; pos: top" aria-label="' ~ t('tip_cat_comment') ~ '" tabindex="0"></span>')|raw, 'class': 'uk-table-expand', 'key': 'comment' },
+          { 'label': ('<span class="help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_cat_remove') ~ '; pos: top" aria-label="' ~ t('tip_cat_remove') ~ '" tabindex="0"></span>')|raw, 'class': 'uk-table-shrink uk-text-center' }
         ], 'catalogList', true) }}
         {{ qr_rowcards('catalogCards') }}
         <div class="uk-margin">
@@ -425,7 +425,7 @@
         <h2 class="uk-heading-bullet">{{ t('heading_questions') }}</h2>
         <div class="uk-margin">
           <label class="uk-form-label" for="catalogSelect">{{ t('label_catalog_select') }}
-            <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_catalog_select') }}; pos: right" tabindex="0"></span>
+            <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_catalog_select') }}; pos: right" aria-label="{{ t('tip_catalog_select') }}" tabindex="0"></span>
           </label>
           <div class="uk-form-controls">
             <select id="catalogSelect" class="uk-select uk-margin-small-top"></select>
@@ -806,8 +806,8 @@
           { 'label': t('column_role') },
           { 'label': 'Aktiv' },
           { 'label': '<span uk-icon="icon: key" uk-tooltip="title: ' ~ t('tip_user_pass') ~ '; pos: top" tabindex="0"></span>', 'class': 'uk-table-shrink' },
-          { 'label': '<span uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_user_remove') ~ '; pos: top" tabindex="0"></span>', 'class': 'uk-table-shrink' }
-        ], 'usersList', true, wrap_class='uk-overflow-auto qr-table-wrap', handle_label='<span uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_sort_rows') ~ '; pos: top" tabindex="0"></span>') }}
+          { 'label': '<span class="help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_user_remove') ~ '; pos: top" aria-label="' ~ t('tip_user_remove') ~ '" tabindex="0"></span>', 'class': 'uk-table-shrink' }
+        ], 'usersList', true, wrap_class='uk-overflow-auto qr-table-wrap', handle_label='<span class="help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_sort_rows') ~ '; pos: top" aria-label="' ~ t('tip_sort_rows') ~ '" tabindex="0"></span>') }}
         <div class="uk-margin">
           <button id="userAddBtn" class="uk-icon-button uk-button-default" uk-icon="plus" uk-tooltip="title: {{ t('tip_user_add') }}; pos: right" aria-label="{{ t('tip_user_add') }}"></button>
         </div>
