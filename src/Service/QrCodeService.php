@@ -204,10 +204,18 @@ class QrCodeService
     {
         $scale = max(1, (int)round($p['size'] / 41));
         $marginModules = max(0, (int)round($p['margin'] / $scale));
+
         $options = [
+            'version' => 5,
             'eccLevel' => $p['ecc'],
-            'scale' => $scale,
+            'addQuietzone' => true,
             'quietzoneSize' => $marginModules,
+            'drawCircularModules' => true,
+            'circleRadius' => 0.45,
+            'drawSquareFinder' => true,
+            'drawSquareAlignment' => true,
+            'connectPaths' => true,
+            'scale' => $scale,
             'outputBase64' => false,
         ];
 
