@@ -63,6 +63,8 @@ class QrController
         try {
             $out = $this->qrService->generateCatalog($request->getQueryParams(), $cfg);
         } catch (Throwable $e) {
+            error_log('Catalog QR generation failed: ' . $e->getMessage());
+            error_log($e->getTraceAsString());
             return $this->errorResponse($response);
         }
         $response->getBody()->write($out['body']);
@@ -80,6 +82,8 @@ class QrController
         try {
             $out = $this->qrService->generateTeam($request->getQueryParams(), $cfg);
         } catch (Throwable $e) {
+            error_log('Team QR generation failed: ' . $e->getMessage());
+            error_log($e->getTraceAsString());
             return $this->errorResponse($response);
         }
         $response->getBody()->write($out['body']);
@@ -97,6 +101,8 @@ class QrController
         try {
             $out = $this->qrService->generateEvent($request->getQueryParams(), $cfg);
         } catch (Throwable $e) {
+            error_log('Event QR generation failed: ' . $e->getMessage());
+            error_log($e->getTraceAsString());
             return $this->errorResponse($response);
         }
         $response->getBody()->write($out['body']);
@@ -355,8 +361,8 @@ class QrController
 
     private function errorResponse(Response $response): Response
     {
-        $response->getBody()->write('QR code unavailable');
-        return $response->withHeader('Content-Type', 'text/plain')->withStatus(503);
+        $response->getBody()->write('Failed to generate QR code');
+        return $response->withHeader('Content-Type', 'text/plain')->withStatus(500);
     }
 
     /**
