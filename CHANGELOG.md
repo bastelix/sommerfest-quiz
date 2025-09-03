@@ -209,6 +209,7 @@
 - Filter tenants by status safely
 - Use table macro in admin
 - Wrap long lines in QrCodeService
+- Streamline catalog and team tables
 
 ### Style
 
