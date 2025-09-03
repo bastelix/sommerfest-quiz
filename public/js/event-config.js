@@ -35,18 +35,34 @@
   const puzzleWordEnabled = document.getElementById('puzzleWordEnabled');
   const puzzleWord = document.getElementById('puzzleWord');
   const puzzleFeedback = document.getElementById('puzzleFeedback');
+  const optCompetition = document.getElementById('optCompetition');
+  const optResults = document.getElementById('optResults');
+  const optQrLogin = document.getElementById('optQrLogin');
+  const optTeamname = document.getElementById('optTeamname');
   const logoInput = document.getElementById('logo');
   const logoPreview = document.getElementById('logoPreview');
   const saveBtn = document.querySelector('.event-config-sidebar .uk-button-secondary');
   const publishBtn = document.querySelector('.event-config-sidebar .uk-button-primary');
-  const presetLinks = document.querySelectorAll('.event-config-sidebar .uk-card:nth-child(2) .uk-list a');
+  const presetLinks = document.querySelectorAll('.event-config-sidebar [data-preset]');
 
-  function applyRules() {
+  function applyRules(shouldQueue) {
+    const queue = typeof shouldQueue === 'boolean' ? shouldQueue : true;
     if (puzzleWordEnabled && puzzleWord && puzzleFeedback) {
       const enabled = puzzleWordEnabled.checked;
       puzzleWord.disabled = !enabled;
       puzzleFeedback.disabled = !enabled;
     }
+    if (optCompetition && optResults) {
+      const competition = optCompetition.checked;
+      optResults.disabled = competition;
+      if (competition) optResults.checked = false;
+    }
+    if (optQrLogin && optTeamname) {
+      const qrEnabled = optQrLogin.checked;
+      optTeamname.disabled = qrEnabled;
+      if (qrEnabled) optTeamname.checked = false;
+    }
+    if (queue) queueAutosave();
   }
 
   function save() {
@@ -66,24 +82,34 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    applyRules();
+    applyRules(false);
     puzzleWordEnabled?.addEventListener('change', applyRules);
+    optCompetition?.addEventListener('change', applyRules);
+    optQrLogin?.addEventListener('change', applyRules);
     saveBtn?.addEventListener('click', (e) => { e.preventDefault(); save(); });
     publishBtn?.addEventListener('click', (e) => { e.preventDefault(); save(); });
     presetLinks.forEach((link) => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
-        const preset = link.textContent?.trim().toLowerCase();
-        if (preset === 'fragen importieren') {
-          // preset example: enable puzzle word
-          if (puzzleWordEnabled) {
-            puzzleWordEnabled.checked = true;
-            applyRules();
-          }
-        } else if (preset === 'layout laden') {
-          document.getElementById('primary-color')?.setAttribute('value', '#1e87f0');
+        const preset = link.dataset.preset;
+        switch (preset) {
+          case 'simple':
+            if (optQrLogin) optQrLogin.checked = false;
+            if (optTeamname) optTeamname.checked = true;
+            break;
+          case 'rallye':
+            if (optQrLogin) optQrLogin.checked = true;
+            if (optCompetition) optCompetition.checked = false;
+            break;
+          case 'competitive':
+            if (optCompetition) optCompetition.checked = true;
+            if (optResults) optResults.checked = false;
+            break;
+          default:
+            return;
         }
-        queueAutosave();
+        applyRules();
+        UIkit.notification({ message: `Preset "${preset}" applied`, status: 'success' });
       });
     });
     document.querySelectorAll('input, textarea, select').forEach((el) => {
