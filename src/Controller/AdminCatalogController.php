@@ -74,4 +74,28 @@ class AdminCatalogController
             'qrOptions' => $qrOptions,
         ]);
     }
+
+    /**
+     * Provide paginated catalog data as JSON.
+     */
+    public function catalogs(Request $request, Response $response): Response
+    {
+        $params = $request->getQueryParams();
+        $page = max(1, (int) ($params['page'] ?? 1));
+        $perPage = max(1, (int) ($params['perPage'] ?? 50));
+        $order = (string) ($params['order'] ?? 'asc');
+        $offset = ($page - 1) * $perPage;
+        $items = $this->service->fetchPagedCatalogs($offset, $perPage, $order);
+        $total = $this->service->countCatalogs();
+
+        $payload = [
+            'items' => $items,
+            'total' => $total,
+            'page' => $page,
+            'perPage' => $perPage,
+        ];
+
+        $response->getBody()->write((string) json_encode($payload));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
 }
