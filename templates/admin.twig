@@ -389,6 +389,18 @@
           </div>
         </div>
 
+        <div id="catalogEditModal" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body">
+            <h3 class="uk-modal-title">{{ t('heading_catalog_edit') }}</h3>
+            <input id="catalogEditInput" class="uk-input" type="text">
+            <p id="catalogEditError" class="uk-text-danger uk-margin-small-top" hidden></p>
+            <div class="uk-margin-top uk-text-right">
+              <button id="catalogEditCancel" class="uk-button uk-button-default" type="button">{{ t('action_cancel') }}</button>
+              <button id="catalogEditSave" class="uk-button uk-button-primary" type="button">{{ t('action_save') }}</button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </li>
     <li class="{{ activeRoute == 'catalogs' ? 'uk-active' }}">
@@ -1167,6 +1179,7 @@
     window.transImageReady = '{{ t('text_image_ready') }}';
     window.transEventSettingsHelp = '{{ t('text_event_settings_help')|e('js') }}';
     window.transTeamPdf = '{{ t('tip_team_pdf') }}';
+    window.transActions = '{{ t('column_actions') }}';
     window.stripeDashboard = '{{ stripe_sandbox ? 'https://dashboard.stripe.com/test' : 'https://dashboard.stripe.com' }}';
   </script>
   <script src="{{ basePath }}/js/dashboard.js"></script>

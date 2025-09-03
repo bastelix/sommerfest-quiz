@@ -57,6 +57,14 @@ manager.render(teams);
 - `addRow(item)`: Fügt eine Zeile hinzu.
 - `bindPagination(el, perPage)`: Fügt Pagination hinzu.
 
+### Mobile Aktionsmenüs
+
+Enthält eine mobile Karte mehrere Elemente mit der Klasse `qr-action`, fasst der `TableManager` diese automatisch in einem aufklappbaren Menü zusammen. Dadurch bleibt die Darstellung kompakt, selbst wenn mehrere Aktionen wie PDF-Download und Löschen verfügbar sind.
+
+### Katalogtabelle
+
+Beim Bearbeiten der Katalogtabelle kommen Modalfenster zum Einsatz, um Felder wie `slug`, `name` oder `description` zu ändern. Browser-Prompts werden dabei nicht mehr verwendet.
+
 ## Barrierefreiheit
 
 - `qr_table` erzeugt eine Desktop-Tabelle (`uk-visible@m`), `qr_rowcards` eine mobile Liste (`uk-hidden@m`).

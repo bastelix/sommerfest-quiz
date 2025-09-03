@@ -163,6 +163,7 @@ return [
     'placeholder_feedback' => 'Feedbacktext...',
     'heading_feedback' => 'Feedbacktext für das Rätselwort',
     'heading_catalog_comment' => 'Kommentar zum Katalog',
+    'heading_catalog_edit' => 'Katalog bearbeiten',
     'placeholder_catalog_comment' => 'Kommentar eingeben...',
     'label_catalog_select' => 'Fragenkatalog',
     'action_save' => 'Speichern',
