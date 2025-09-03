@@ -1637,6 +1637,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const langSelect = document.getElementById('langSelect');
   let activeEventUid = cfgInitial.event_uid || '';
   let eventManager;
+  let eventEditModal;
+  let eventEditInput;
+  let eventEditSave;
+  let eventEditCancel;
+  let currentEventId = null;
+  let currentEventKey = null;
 
   function createEventItem(ev = {}) {
     const id = ev.uid || ev.id || crypto.randomUUID();
@@ -1677,8 +1683,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function updateEventRowNumbers() {
     Array.from(eventsListEl?.querySelectorAll('tr') || []).forEach((row, idx) => {
-      const cell = row.querySelector('.row-number');
+      const cell = row.querySelector('.row-num');
       if (cell) cell.textContent = idx + 1;
+    });
+    Array.from(eventsCardsEl?.querySelectorAll('.qr-rowcard') || []).forEach((card, idx) => {
+      const span = card.querySelector('.qr-card-content > span:first-child');
+      if (span) span.textContent = idx + 1;
     });
   }
 
@@ -1726,129 +1736,13 @@ document.addEventListener('DOMContentLoaded', function () {
       mobileCards: { container: eventsCardsEl },
       sortable: true,
       columns: [
+        { className: 'row-num' },
+        { key: 'name', label: labels.labelName || 'Name', className: 'event-name', editable: true },
+        { key: 'start_date', label: labels.labelStart || 'Start', className: 'event-start', editable: true },
+        { key: 'end_date', label: labels.labelEnd || 'Ende', className: 'event-end', editable: true },
+        { key: 'description', label: labels.labelDescription || 'Beschreibung', className: 'event-desc', editable: true },
         {
-          className: 'row-num',
-          render: () => {
-            const span = document.createElement('span');
-            span.className = 'row-number';
-            return span;
-          },
-          renderCard: () => {
-            const span = document.createElement('span');
-            span.className = 'row-number';
-            return span;
-          }
-        },
-        {
-          className: 'event-name',
-          render: ev => {
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'uk-input event-name';
-            input.placeholder = 'Name';
-            input.value = ev.name;
-            input.addEventListener('change', () => { ev.name = input.value.trim(); saveEvents(); });
-            return input;
-          },
-          renderCard: ev => {
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'uk-input event-name';
-            input.placeholder = 'Name';
-            input.value = ev.name;
-            input.addEventListener('change', () => { ev.name = input.value.trim(); saveEvents(); });
-            return input;
-          }
-        },
-        {
-          render: ev => {
-            const wrap = document.createElement('div');
-            wrap.className = 'uk-inline';
-            const icon = document.createElement('span');
-            icon.className = 'uk-form-icon';
-            icon.setAttribute('uk-icon', 'icon: calendar');
-            const input = document.createElement('input');
-            input.type = 'datetime-local';
-            input.className = 'uk-input event-start';
-            input.placeholder = 'TT.MM.JJJJ HH:MM';
-            input.value = ev.start_date;
-            input.addEventListener('change', () => { ev.start_date = input.value; saveEvents(); });
-            wrap.appendChild(icon);
-            wrap.appendChild(input);
-            return wrap;
-          },
-          renderCard: ev => {
-            const wrap = document.createElement('div');
-            wrap.className = 'uk-inline';
-            const icon = document.createElement('span');
-            icon.className = 'uk-form-icon';
-            icon.setAttribute('uk-icon', 'icon: calendar');
-            const input = document.createElement('input');
-            input.type = 'datetime-local';
-            input.className = 'uk-input event-start';
-            input.placeholder = 'TT.MM.JJJJ HH:MM';
-            input.value = ev.start_date;
-            input.addEventListener('change', () => { ev.start_date = input.value; saveEvents(); });
-            wrap.appendChild(icon);
-            wrap.appendChild(input);
-            return wrap;
-          }
-        },
-        {
-          render: ev => {
-            const wrap = document.createElement('div');
-            wrap.className = 'uk-inline';
-            const icon = document.createElement('span');
-            icon.className = 'uk-form-icon';
-            icon.setAttribute('uk-icon', 'icon: calendar');
-            const input = document.createElement('input');
-            input.type = 'datetime-local';
-            input.className = 'uk-input event-end';
-            input.placeholder = 'TT.MM.JJJJ HH:MM';
-            input.value = ev.end_date;
-            input.addEventListener('change', () => { ev.end_date = input.value; saveEvents(); });
-            wrap.appendChild(icon);
-            wrap.appendChild(input);
-            return wrap;
-          },
-          renderCard: ev => {
-            const wrap = document.createElement('div');
-            wrap.className = 'uk-inline';
-            const icon = document.createElement('span');
-            icon.className = 'uk-form-icon';
-            icon.setAttribute('uk-icon', 'icon: calendar');
-            const input = document.createElement('input');
-            input.type = 'datetime-local';
-            input.className = 'uk-input event-end';
-            input.placeholder = 'TT.MM.JJJJ HH:MM';
-            input.value = ev.end_date;
-            input.addEventListener('change', () => { ev.end_date = input.value; saveEvents(); });
-            wrap.appendChild(icon);
-            wrap.appendChild(input);
-            return wrap;
-          }
-        },
-        {
-          render: ev => {
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'uk-input event-desc';
-            input.placeholder = 'Beschreibung';
-            input.value = ev.description;
-            input.addEventListener('change', () => { ev.description = input.value.trim(); saveEvents(); });
-            return input;
-          },
-          renderCard: ev => {
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'uk-input event-desc';
-            input.placeholder = 'Beschreibung';
-            input.value = ev.description;
-            input.addEventListener('change', () => { ev.description = input.value.trim(); saveEvents(); });
-            return input;
-          }
-        },
-        {
+          className: 'uk-table-shrink',
           render: ev => {
             const label = document.createElement('label');
             label.className = 'switch';
@@ -1897,12 +1791,69 @@ document.addEventListener('DOMContentLoaded', function () {
           }
         }
       ],
+      onEdit: openEventModal,
       onDelete: removeEvent,
       onReorder: () => {
         updateEventRowNumbers();
         saveEvents();
       }
     });
+  }
+
+  function ensureEventModal() {
+    if (eventEditModal) return;
+    const modal = document.createElement('div');
+    modal.id = 'eventEditModal';
+    modal.setAttribute('uk-modal', '');
+    modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
+      '<h3 class="uk-modal-title"></h3>' +
+      '<input id="eventEditInput" class="uk-input" type="text">' +
+      '<div class="uk-margin-top uk-text-right">' +
+      `<button id="eventEditCancel" class="uk-button uk-button-default" type="button">${window.transCancel || 'Abbrechen'}</button>` +
+      `<button id="eventEditSave" class="uk-button uk-button-primary" type="button">${window.transSave || 'Speichern'}</button>` +
+      '</div>' +
+      '</div>';
+    document.body.appendChild(modal);
+    eventEditModal = UIkit.modal(modal);
+    eventEditInput = modal.querySelector('#eventEditInput');
+    eventEditSave = modal.querySelector('#eventEditSave');
+    eventEditCancel = modal.querySelector('#eventEditCancel');
+    eventEditCancel.addEventListener('click', () => eventEditModal.hide());
+    eventEditSave.addEventListener('click', saveEventEdit);
+  }
+
+  function openEventModal(cell) {
+    currentEventId = cell?.dataset.id || null;
+    currentEventKey = cell?.dataset.key || null;
+    const ev = eventManager?.getData().find(e => e.id === currentEventId);
+    if (!ev || !currentEventKey) return;
+    ensureEventModal();
+    const titles = {
+      name: labels.labelName || 'Name',
+      start_date: labels.labelStart || 'Start',
+      end_date: labels.labelEnd || 'Ende',
+      description: labels.labelDescription || 'Beschreibung'
+    };
+    const title = eventEditModal.$el.querySelector('.uk-modal-title');
+    if (title) title.textContent = titles[currentEventKey] || '';
+    if (eventEditInput) {
+      eventEditInput.type = (currentEventKey === 'start_date' || currentEventKey === 'end_date') ? 'datetime-local' : 'text';
+      eventEditInput.value = ev[currentEventKey] || '';
+    }
+    eventEditModal.show();
+  }
+
+  function saveEventEdit() {
+    const list = eventManager.getData();
+    const ev = list.find(e => e.id === currentEventId);
+    if (ev && currentEventKey) {
+      ev[currentEventKey] = eventEditInput.value.trim();
+      eventManager.render(list);
+      updateEventRowNumbers();
+      highlightActiveEvent();
+      saveEvents();
+    }
+    eventEditModal.hide();
   }
 
   function removeEvent(id) {
@@ -1912,6 +1863,7 @@ document.addEventListener('DOMContentLoaded', function () {
       list.splice(idx, 1);
       eventManager.render(list);
       updateEventRowNumbers();
+      highlightActiveEvent();
       saveEvents();
       populateEventSelect(list);
     }
@@ -1940,15 +1892,10 @@ document.addEventListener('DOMContentLoaded', function () {
     list.push(item);
     eventManager.render(list);
     updateEventRowNumbers();
+    highlightActiveEvent();
     saveEvents();
   });
 
-  eventsListEl?.addEventListener('change', () => {
-    saveEvents();
-  });
-  eventsCardsEl?.addEventListener('change', () => {
-    saveEvents();
-  });
 
   function updateActiveHeader(name, uid) {
     if (eventSelect) {
