@@ -8,6 +8,7 @@ use App\Service\EventService;
 use App\Service\ConfigService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
+use Intervention\Image\ImageManager;
 
 /**
  * Provides endpoints to retrieve and update configuration for a specific event.
@@ -57,6 +58,25 @@ class EventConfigController
         if (!is_array($data)) {
             return $response->withStatus(400);
         }
+
+        $files = $request->getUploadedFiles();
+        if (isset($files['logo']) && $files['logo']->getError() === UPLOAD_ERR_OK) {
+            $file = $files['logo'];
+            if ($file->getSize() === null || $file->getSize() <= 5 * 1024 * 1024) {
+                $extension = strtolower(pathinfo($file->getClientFilename(), PATHINFO_EXTENSION));
+                if (in_array($extension, ['png', 'webp'], true) && class_exists('\\Intervention\\Image\\ImageManager')) {
+                    $base = "logo-$uid.$extension";
+                    $target = __DIR__ . "/../../data/" . $base;
+                    $manager = extension_loaded('imagick') ? ImageManager::imagick() : ImageManager::gd();
+                    $stream = $file->getStream();
+                    $img = $manager->read($stream->detach());
+                    $img->scaleDown(512, 512);
+                    $img->save($target, 80);
+                    $data['logoPath'] = '/' . $base;
+                }
+            }
+        }
+
         $data['event_uid'] = $uid;
         $this->config->saveConfig($data);
         $cfg = $this->config->getConfigForEvent($uid);
