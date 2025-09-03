@@ -80,6 +80,24 @@ class ConfigControllerTest extends TestCase
         session_destroy();
     }
 
+    public function testPostEventUidOnly(): void
+    {
+        $pdo = $this->createDatabase();
+        $service = new ConfigService($pdo);
+        $controller = new ConfigController($service, new ConfigValidator());
+
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'event-manager'];
+
+        $request = $this->createRequest('POST', '/config.json');
+        $request = $request->withParsedBody(['event_uid' => 'ev1']);
+        $response = $controller->post($request, new Response());
+
+        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertSame('ev1', $service->getActiveEventUid());
+        session_destroy();
+    }
+
     public function testPostDeniedForNonAdmin(): void
     {
         $app = $this->getAppInstance();
