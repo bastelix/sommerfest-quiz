@@ -36,19 +36,21 @@ class ConfigValidator
     /**
      * Validate incoming configuration data.
      *
-     * @param array<string,mixed> $data
+     * @param array<string,mixed> $data   Configuration payload to validate
+     * @param string|null        $eventName Optional event name used as fallback for the page title
+     *
      * @return array{config: array<string,mixed>, errors: array<string,string>}
      */
-    public function validate(array $data): array
+    public function validate(array $data, ?string $eventName = null): array
     {
         $config = [];
         $errors = [];
 
         // pageTitle
-        $title = trim((string)($data['pageTitle'] ?? self::DEFAULTS['pageTitle']));
+        $title = trim((string)($data['pageTitle'] ?? ''));
         if ($title === '') {
-            $errors['pageTitle'] = 'Page title is required';
-            $title = self::DEFAULTS['pageTitle'];
+            $fallback = $eventName !== null ? trim($eventName) : '';
+            $title = $fallback !== '' ? $fallback : self::DEFAULTS['pageTitle'];
         }
         $config['pageTitle'] = $title;
 
