@@ -75,6 +75,7 @@ class QrCodeService
             'bg' => $bg,
             'logoPath' => $logoPath,
             'logoWidth' => self::LOGO_WIDTH_DEF,
+            'logoPunchout' => true,
         ]);
 
         if ($logoPath !== null && file_exists($logoPath)) {
@@ -125,7 +126,15 @@ class QrCodeService
 
     /**
      * @param array<string,mixed> $q
-     * @param array{t:string,fg:string,text1?:string,text2?:string,logo_path?:string,logo_width?:int} $defaults
+     * @param array{
+     *     t: string,
+     *     fg: string,
+     *     text1?: string,
+     *     text2?: string,
+     *     logo_path?: string,
+     *     logo_width?: int,
+     *     logo_punchout?: bool,
+     * } $defaults
      * @return array{mime:string,body:string}
      */
     private function buildQrWithCenterLogoParam(array $q, array $defaults): array
@@ -145,6 +154,11 @@ class QrCodeService
         $fontSz = $this->clampInt($q['font_size'] ?? null, 8, 48, self::FONT_SIZE_DEF);
         $text1 = (string)($q['text1'] ?? ($defaults['text1'] ?? 'QUIZ'));
         $text2 = (string)($q['text2'] ?? ($defaults['text2'] ?? 'RACE'));
+        $logoPunchout = !in_array(
+            strtolower((string)($q['logo_punchout'] ?? ($defaults['logo_punchout'] ?? '1'))),
+            ['0', 'false', 'off'],
+            true
+        );
 
         $ecParam = strtolower((string)($q['ec'] ?? 'medium'));
         $ec = match ($ecParam) {
@@ -178,6 +192,7 @@ class QrCodeService
             'bg' => $bg,
             'logoPath' => $logoPath,
             'logoWidth' => $logoW,
+            'logoPunchout' => $logoPunchout,
         ]);
 
         if ($logoPath !== null && file_exists($logoPath)) {
@@ -197,6 +212,7 @@ class QrCodeService
      *     bg: array{0:int,1:int,2:int},
      *     logoPath: ?string,
      *     logoWidth: int,
+     *     logoPunchout: bool,
      * } $p
      * @return array{mime:string,body:string}
      */
@@ -296,8 +312,17 @@ class QrCodeService
                 $targetH = (int)($lh * $targetW / $lw);
                 $x = (imagesx($im) - $targetW) / 2;
                 $y = (imagesy($im) - $targetH) / 2;
-                $bgCol = imagecolorallocate($im, $p['bg'][0], $p['bg'][1], $p['bg'][2]);
-                imagefilledrectangle($im, (int)$x, (int)$y, (int)($x + $targetW), (int)($y + $targetH), $bgCol);
+                if ($p['logoPunchout']) {
+                    $bgCol = imagecolorallocate($im, $p['bg'][0], $p['bg'][1], $p['bg'][2]);
+                    imagefilledrectangle(
+                        $im,
+                        (int)$x,
+                        (int)$y,
+                        (int)($x + $targetW),
+                        (int)($y + $targetH),
+                        $bgCol
+                    );
+                }
                 imagecopyresampled($im, $logo, (int)$x, (int)$y, 0, 0, $targetW, $targetH, $lw, $lh);
                 imagedestroy($logo);
             }
@@ -367,6 +392,9 @@ class QrCodeService
         }
         if (($cfg['qrLogoWidth'] ?? '') !== '') {
             $defaults['logo_width'] = (int)$cfg['qrLogoWidth'];
+        }
+        if (array_key_exists('qrLogoPunchout', $cfg)) {
+            $defaults['logo_punchout'] = $cfg['qrLogoPunchout'] !== false;
         }
         return $defaults;
     }
