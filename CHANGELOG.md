@@ -135,6 +135,7 @@
 - Add table manager utility
 - Add twig template for tenant rows
 - Update catalog manager save logic
+- *(admin)* Render catalog mobile cards
 
 ### Fix
 
