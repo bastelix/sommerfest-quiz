@@ -17,6 +17,7 @@ use function file_get_contents;
 use function imagecolorallocate;
 use function imagecolorallocatealpha;
 use function imagecreatefrompng;
+use function imagecreatefromwebp;
 use function imagefilledrectangle;
 use function imagerectangle;
 use function imagecopyresampled;
@@ -234,17 +235,24 @@ class QrCodeService
         /** @var GdImage $im */
         $im = $qr->render($data);
         if ($p['logoPath'] !== null && is_readable($p['logoPath'])) {
-            $logo = imagecreatefrompng($p['logoPath']);
-            $lw = imagesx($logo);
-            $lh = imagesy($logo);
-            $targetW = $p['logoWidth'];
-            $targetH = (int)($lh * $targetW / $lw);
-            $x = (imagesx($im) - $targetW) / 2;
-            $y = (imagesy($im) - $targetH) / 2;
-            $bgCol = imagecolorallocate($im, $p['bg'][0], $p['bg'][1], $p['bg'][2]);
-            imagefilledrectangle($im, (int)$x, (int)$y, (int)($x + $targetW), (int)($y + $targetH), $bgCol);
-            imagecopyresampled($im, $logo, (int)$x, (int)$y, 0, 0, $targetW, $targetH, $lw, $lh);
-            imagedestroy($logo);
+            $ext = strtolower(pathinfo($p['logoPath'], PATHINFO_EXTENSION));
+            $logo = match ($ext) {
+                'png' => @imagecreatefrompng($p['logoPath']),
+                'webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($p['logoPath']) : false,
+                default => false,
+            };
+            if ($logo !== false) {
+                $lw = imagesx($logo);
+                $lh = imagesy($logo);
+                $targetW = $p['logoWidth'];
+                $targetH = (int)($lh * $targetW / $lw);
+                $x = (imagesx($im) - $targetW) / 2;
+                $y = (imagesy($im) - $targetH) / 2;
+                $bgCol = imagecolorallocate($im, $p['bg'][0], $p['bg'][1], $p['bg'][2]);
+                imagefilledrectangle($im, (int)$x, (int)$y, (int)($x + $targetW), (int)($y + $targetH), $bgCol);
+                imagecopyresampled($im, $logo, (int)$x, (int)$y, 0, 0, $targetW, $targetH, $lw, $lh);
+                imagedestroy($logo);
+            }
         }
         ob_start();
         imagepng($im);
