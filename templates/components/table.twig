@@ -1,10 +1,10 @@
-{% macro qr_table(headings, body_id, sortable=true) %}
-<div class="uk-overflow-auto qr-table-wrap uk-visible@m">
-    <table class="uk-table uk-table-divider uk-table-small uk-table-hover qr-table">
+{% macro qr_table(headings, body_id, sortable=true, table_id='', table_class='', wrap_class='uk-overflow-auto qr-table-wrap uk-visible@m', body_html='', tbody_attrs={}, handle_label='') %}
+<div class="{{ wrap_class }}">
+    <table{% if table_id %} id="{{ table_id }}"{% endif %} class="uk-table uk-table-divider uk-table-small uk-table-hover qr-table{% if table_class %} {{ table_class }}{% endif %}">
         <thead class="table-headings">
             <tr>
             {% if sortable %}
-                <th scope="col" class="uk-table-shrink"></th>
+                <th scope="col" class="uk-table-shrink">{{ handle_label|raw }}</th>
             {% endif %}
             {% for heading in headings %}
                 <th scope="col"{% if heading.class is defined and heading.class %} class="{{ heading.class }}"{% endif %}{% if heading.key is defined %} data-key="{{ heading.key }}"{% endif %}>
@@ -14,11 +14,11 @@
             {% endfor %}
             </tr>
         </thead>
-        <tbody id="{{ body_id }}" role="rowgroup"{% if sortable %} uk-sortable="handle: .qr-handle; group: sortable-group"{% endif %}></tbody>
+        <tbody id="{{ body_id }}" role="rowgroup"{% for name, val in tbody_attrs %} {{ name }}="{{ val }}"{% endfor %}{% if sortable %} uk-sortable="handle: .qr-handle; group: sortable-group"{% endif %}>{{ body_html|raw }}</tbody>
     </table>
 </div>
 {% endmacro %}
 
-{% macro qr_rowcards(list_id, sortable=true) %}
-<ul class="uk-hidden@m uk-list" id="{{ list_id }}"{% if sortable %} uk-sortable="handle: .qr-handle; group: sortable-group"{% endif %}></ul>
+{% macro qr_rowcards(list_id, sortable=true, list_class='uk-hidden@m uk-list', tag='ul') %}
+<{{ tag }} class="{{ list_class }}" id="{{ list_id }}"{% if sortable %} uk-sortable="handle: .qr-handle; group: sortable-group"{% endif %}></{{ tag }}>
 {% endmacro %}
