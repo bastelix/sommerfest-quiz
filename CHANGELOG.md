@@ -141,6 +141,7 @@
 - Implement event config page logic
 - *(admin)* Enhance event config sidebar
 - Add pagination and classes to catalog manager
+- Guard table manager init
 
 ### Fix
 
