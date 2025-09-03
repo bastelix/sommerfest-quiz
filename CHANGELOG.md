@@ -144,6 +144,7 @@
 - Guard table manager init
 - Add mobile action menu and modal editing for catalogs
 - Improve mobile table layout
+- Add paginated catalog endpoint
 
 ### Fix
 
