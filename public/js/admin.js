@@ -372,11 +372,18 @@ document.addEventListener('DOMContentLoaded', function () {
   const commentSaveBtn = document.getElementById('catalogCommentSave');
   const commentModal = UIkit.modal('#catalogCommentModal');
   const commentToolbar = document.getElementById('catalogCommentToolbar');
+  const catalogEditInput = document.getElementById('catalogEditInput');
+  const catalogEditSave = document.getElementById('catalogEditSave');
+  const catalogEditCancel = document.getElementById('catalogEditCancel');
+  const catalogEditModal = UIkit.modal('#catalogEditModal');
+  const catalogEditError = document.getElementById('catalogEditError');
   const resultsResetModal = UIkit.modal('#resultsResetModal');
   const resultsResetConfirm = document.getElementById('resultsResetConfirm');
   let puzzleFeedback = '';
   let inviteText = '';
   let currentCommentItem = null;
+  let currentCatalogItem = null;
+  let currentCatalogKey = null;
 
   function wrapSelection(textarea, before, after) {
     if (!textarea) return;
@@ -580,6 +587,32 @@ document.addEventListener('DOMContentLoaded', function () {
     currentCommentItem = null;
   });
 
+  catalogEditCancel?.addEventListener('click', () => catalogEditModal.hide());
+
+  catalogEditSave?.addEventListener('click', () => {
+    if (!catalogManager || !currentCatalogItem || !currentCatalogKey) return;
+    let val = catalogEditInput.value.trim();
+    if (currentCatalogKey === 'slug') {
+      currentCatalogItem.slug = val;
+      currentCatalogItem.file = val ? val + '.json' : '';
+    } else if (currentCatalogKey === 'name') {
+      currentCatalogItem.name = val;
+      if (currentCatalogItem.new && !currentCatalogItem.slug) {
+        const idSlug = uniqueId(val);
+        currentCatalogItem.slug = idSlug;
+        currentCatalogItem.file = idSlug ? idSlug + '.json' : '';
+      }
+    } else if (currentCatalogKey === 'description') {
+      currentCatalogItem.description = val;
+    } else if (currentCatalogKey === 'raetsel_buchstabe') {
+      currentCatalogItem.raetsel_buchstabe = val;
+    }
+    catalogManager.render(catalogManager.getData());
+    catalogEditModal.hide();
+    currentCatalogItem = null;
+    currentCatalogKey = null;
+  });
+
   cfgFields.homePage?.addEventListener('change', () => {
     settingsInitial.home_page = cfgFields.homePage.value;
     apiFetch('/settings.json', {
@@ -687,25 +720,10 @@ document.addEventListener('DOMContentLoaded', function () {
       commentModal.show();
       return;
     }
-    let val = prompt('', cat[key] || '');
-    if (val === null) return;
-    val = val.trim();
-    if (key === 'slug') {
-      cat.slug = val;
-      cat.file = val ? val + '.json' : '';
-    } else if (key === 'name') {
-      cat.name = val;
-      if (cat.new && !cat.slug) {
-        const idSlug = uniqueId(val);
-        cat.slug = idSlug;
-        cat.file = idSlug ? idSlug + '.json' : '';
-      }
-    } else if (key === 'description') {
-      cat.description = val;
-    } else if (key === 'raetsel_buchstabe') {
-      cat.raetsel_buchstabe = val;
-    }
-    catalogManager.render(list);
+    currentCatalogItem = cat;
+    currentCatalogKey = key;
+    if (catalogEditInput) catalogEditInput.value = cat[key] || '';
+    catalogEditModal.show();
   }
 
   function saveCatalogOrder() {

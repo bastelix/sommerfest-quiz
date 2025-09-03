@@ -165,6 +165,7 @@ return [
     'placeholder_feedback' => 'Feedback text...',
     'heading_feedback' => 'Feedback text for the puzzle word',
     'heading_catalog_comment' => 'Catalog comment',
+    'heading_catalog_edit' => 'Edit catalog',
     'placeholder_catalog_comment' => 'Enter comment...',
     'label_catalog_select' => 'Question catalog',
     'action_save' => 'Save',

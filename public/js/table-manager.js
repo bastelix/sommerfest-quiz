@@ -173,6 +173,7 @@ export default class TableManager {
     }
     const contentWrap = document.createElement('div');
     contentWrap.className = 'uk-flex-1';
+    const actions = [];
     this.columns.forEach((col, idx) => {
       let c = '';
       if (typeof col.renderCard === 'function') {
@@ -211,7 +212,11 @@ export default class TableManager {
         contentWrap.appendChild(wrapper);
       } else {
         if (c instanceof Node) {
-          contentWrap.appendChild(c);
+          if (c.classList && c.classList.contains('qr-action')) {
+            actions.push(c);
+          } else {
+            contentWrap.appendChild(c);
+          }
         } else {
           const span = document.createElement('span');
           span.innerHTML = c ?? '';
@@ -227,7 +232,25 @@ export default class TableManager {
       delBtn.setAttribute('uk-icon', 'trash');
       delBtn.setAttribute('aria-label', 'Löschen');
       delBtn.addEventListener('click', () => this.onDelete(item.id));
-      li.appendChild(delBtn);
+      actions.push(delBtn);
+    }
+    if (actions.length === 1) {
+      li.appendChild(actions[0]);
+    } else if (actions.length > 1) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'uk-inline qr-action-menu';
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'uk-icon-button qr-action';
+      toggle.setAttribute('uk-icon', 'more-vertical');
+      toggle.setAttribute('aria-label', window.transActions || 'Aktionen');
+      const dropdown = document.createElement('div');
+      dropdown.className = 'uk-dropdown';
+      dropdown.setAttribute('uk-dropdown', 'mode: click; pos: bottom-right');
+      actions.forEach(btn => dropdown.appendChild(btn));
+      wrapper.appendChild(toggle);
+      wrapper.appendChild(dropdown);
+      li.appendChild(wrapper);
     }
     return li;
   }
