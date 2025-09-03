@@ -210,24 +210,34 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
         sessionStorage.removeItem('quizLetter');
       }
     }
+    let loaded = false;
     try{
       const res = await fetch(withBase('/kataloge/' + file), { headers: { 'Accept': 'application/json' } });
       const data = await res.json();
       window.quizQuestions = data;
+      loaded = true;
       showCatalogIntro(data);
       return;
     }catch(e){
-      console.warn('Fragen konnten nicht geladen werden, versuche inline Daten', e);
-    }
-    const inlineId = slug ?? sort_order;
-    const inline = inlineId ? document.getElementById(inlineId + '-data') : null;
-    if(inline){
-      try{
-        const data = JSON.parse(inline.textContent);
-        window.quizQuestions = data;
-        showCatalogIntro(data);
-      }catch(err){
-        console.error('Inline-Daten ungültig.', err);
+      console.error('Fragen konnten nicht geladen werden, versuche inline Daten', e);
+    }finally{
+      if(!loaded){
+        const inlineId = slug ?? sort_order;
+        const inline = inlineId ? document.getElementById(inlineId + '-data') : null;
+        if(inline){
+          try{
+            const data = JSON.parse(inline.textContent);
+            window.quizQuestions = data;
+            loaded = true;
+            showCatalogIntro(data);
+          }catch(err){
+            console.error('Inline-Daten ungültig.', err);
+          }
+        }
+        if(!loaded){
+          alert('Fragen konnten nicht geladen werden.');
+          showCatalogIntro([]);
+        }
       }
     }
   }
