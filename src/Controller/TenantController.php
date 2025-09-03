@@ -165,8 +165,16 @@ class TenantController
         $status = isset($params['status']) ? (string) $params['status'] : '';
         $query = isset($params['query']) ? (string) $params['query'] : '';
         $list = $this->service->getAll($query);
+        /** @var array<array<string, mixed>> $list */
         if ($status !== '') {
-            $list = array_values(array_filter($list, static fn ($t) => ($t['status'] ?? '') === $status));
+            $list = array_values(
+                array_filter(
+                    $list,
+                    static function (array $t) use ($status): bool {
+                        return isset($t['status']) && $t['status'] === $status;
+                    }
+                )
+            );
         }
         $view = Twig::fromRequest($request);
         $html = $view->fetch('admin/tenant_list.twig', [
