@@ -683,32 +683,39 @@ body.admin-page {
   transform: translateX(18px);
 }
 
-/* Event list enhancements */
-#eventsList .event-row.active-event,
+/* Table enhancements */
+.qr-table .event-row.active-event,
 #eventsCards .active-event {
   background-color: #e7f9e7;
 }
-#eventsList td {
+.qr-table td {
   padding: 8px 4px;
 }
-#eventsList .row-num {
+.qr-table .row-num {
   width: 3ch;
   text-align: right;
   color: #555;
 }
+.qr-table tbody {
+  counter-reset: row-num;
+}
+.qr-table .row-num::before {
+  counter-increment: row-num;
+  content: counter(row-num);
+}
 
-#eventsTable {
+.qr-table {
   min-width: 100%;
 }
 
-/* Responsive event list */
-#eventsTable thead {
+/* Responsive tables */
+.qr-table thead {
   display: none;
 }
-#eventsList {
+.qr-table tbody {
   display: block;
 }
-#eventsList tr {
+.qr-table tbody tr {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.25rem;
@@ -718,53 +725,53 @@ body.admin-page {
   margin-bottom: 0.75rem;
   background: var(--qr-row);
 }
-#eventsList tr:nth-child(even) {
+.qr-table tbody tr:nth-child(even) {
   background: var(--qr-row-alt);
 }
 
-.cell-label {
+.qr-table .cell-label {
   display: block;
 }
-#eventsList td {
+.qr-table tbody td {
   display: flex;
   align-items: center;
   padding: 4px 0;
 }
-#eventsList .cell-label {
+.qr-table .cell-label {
   flex: 1 0 6rem;
   min-width: 6rem;
   font-weight: 600;
   margin-right: 0.5rem;
 }
-#eventsList input[type="text"],
-#eventsList input[type="datetime-local"] {
+.qr-table input[type="text"],
+.qr-table input[type="datetime-local"] {
   width: 100%;
   height: 42px;
 }
 
 @media (min-width: 640px) {
-  #eventsTable thead {
+  .qr-table thead {
     display: table-header-group;
   }
-  #eventsList {
+  .qr-table tbody {
     display: table-row-group;
   }
-  #eventsList tr {
+  .qr-table tbody tr {
     display: table-row;
     border: none;
     border-radius: 0;
     padding: 0;
     margin-bottom: 0;
   }
-  #eventsList td {
+  .qr-table tbody td {
     display: table-cell;
     padding: 12px 4px;
   }
-  .cell-label {
+  .qr-table .cell-label {
     display: none;
   }
-  #eventsList input[type="text"],
-  #eventsList input[type="datetime-local"] {
+  .qr-table input[type="text"],
+  .qr-table input[type="datetime-local"] {
     width: auto;
     height: 42px;
   }
