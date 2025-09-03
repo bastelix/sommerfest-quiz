@@ -2,3 +2,15 @@
 .event-config-sidebar .uk-card + .uk-card {
   margin-top: 20px;
 }
+
+.uk-card-body {
+  padding: 20px;
+  background: var(--qr-card);
+  border: 1px solid var(--qr-border);
+  color: var(--color-text);
+}
+
+.uk-form-label {
+  font-weight: 600;
+  color: var(--color-text);
+}
