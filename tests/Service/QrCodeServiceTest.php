@@ -46,4 +46,33 @@ class QrCodeServiceTest extends TestCase
 
         $this->assertNotSame($with['body'], $without['body']);
     }
+
+    public function testSvgPunchOutAddsRectBehindLogo(): void
+    {
+        $svc = new QrCodeService();
+
+        $dir = dirname(__DIR__, 2) . '/data';
+        $logo = imagecreatetruecolor(40, 40);
+        imagesavealpha($logo, true);
+        $trans = imagecolorallocatealpha($logo, 0, 0, 0, 127);
+        imagefill($logo, 0, 0, $trans);
+        imagepng($logo, $dir . '/logo-svg.png');
+        imagedestroy($logo);
+
+        $result = $svc->generateCatalog([
+            't' => 'https://example.com',
+            'format' => 'svg',
+            'logo_path' => 'logo-svg.png',
+            'logo_punchout' => '1',
+        ]);
+
+        $svg = $result['body'];
+        $rectPos = strpos($svg, '<rect');
+        $imagePos = strpos($svg, '<image');
+
+        $this->assertIsInt($rectPos);
+        $this->assertIsInt($imagePos);
+        $this->assertLessThan($imagePos, $rectPos);
+        $this->assertMatchesRegularExpression('/<rect[^>]*fill="#ffffff"/i', $svg);
+    }
 }
