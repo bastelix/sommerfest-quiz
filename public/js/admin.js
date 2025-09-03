@@ -2690,6 +2690,10 @@ document.addEventListener('DOMContentLoaded', function () {
       document.querySelectorAll('.qr-img').forEach(img => {
         const endpoint = img.dataset.endpoint;
         const target = img.dataset.target;
+        if (!endpoint || !target) {
+          console.warn('Skipping QR image without endpoint/target', img);
+          return;
+        }
         const params = new URLSearchParams();
         params.set('t', target);
         if (qrLogoPath) {
