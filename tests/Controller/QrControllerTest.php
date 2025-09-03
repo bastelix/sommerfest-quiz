@@ -107,6 +107,25 @@ class QrControllerTest extends TestCase
         $this->assertNotEmpty((string) $response->getBody());
     }
 
+    public function testTeamQrWebpLogo(): void
+    {
+        $logoFile = dirname(__DIR__, 2) . '/data/test-logo.webp';
+        imagewebp(imagecreatetruecolor(10, 10), $logoFile);
+
+        $pdo = $this->getDatabase();
+        $cfg = new \App\Service\ConfigService($pdo);
+        $cfg->saveConfig(['qrLogoPath' => '/test-logo.webp']);
+
+        $app = $this->getAppInstance();
+        $response = $app->handle($this->createRequest('GET', '/qr/team'));
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('image/png', $response->getHeaderLine('Content-Type'));
+        $this->assertNotEmpty((string) $response->getBody());
+
+        @unlink($logoFile);
+    }
+
     public function testQrPdfIsGenerated(): void
     {
         $app = $this->getAppInstance();
