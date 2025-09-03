@@ -8,6 +8,7 @@ use App\Service\TenantService;
 use PDOException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Views\Twig;
 
 /**
  * API endpoints for managing tenants.
@@ -153,6 +154,30 @@ class TenantController
         $list = $this->service->getAll($query);
         $response->getBody()->write(json_encode($list));
         return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    /**
+     * Render tenant list as HTML.
+     */
+    public function listHtml(Request $request, Response $response): Response
+    {
+        $params = $request->getQueryParams();
+        $status = isset($params['status']) ? (string) $params['status'] : '';
+        $query = isset($params['query']) ? (string) $params['query'] : '';
+        $list = $this->service->getAll($query);
+        if ($status !== '') {
+            $list = array_values(array_filter($list, static fn ($t) => ($t['status'] ?? '') === $status));
+        }
+        $view = Twig::fromRequest($request);
+        $html = $view->fetch('admin/tenant_list.twig', [
+            'tenants' => $list,
+            'main_domain' => getenv('MAIN_DOMAIN') ?: '',
+            'stripe_dashboard' => filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN)
+                ? 'https://dashboard.stripe.com/test'
+                : 'https://dashboard.stripe.com',
+        ]);
+        $response->getBody()->write($html);
+        return $response->withHeader('Content-Type', 'text/html');
     }
 
     /**
