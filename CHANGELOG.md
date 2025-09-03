@@ -24,6 +24,7 @@
 - Restore config backup
 - *(docs)* Remove unused jekyll rtd theme
 - Add migration for logo width
+- Mark admin script as module
 
 ### Ci
 
@@ -181,6 +182,7 @@
 - Derive base url from request
 - Add qr color variables
 - Extract table styles and theme variables
+- Move configuration fully to database
 
 ### Style
 
