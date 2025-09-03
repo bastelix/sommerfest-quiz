@@ -12,8 +12,10 @@ use chillerlan\QRCode\QROptions;
 use GdImage;
 
 use function base64_encode;
+use function extension_loaded;
 use function file_exists;
 use function file_get_contents;
+use function function_exists;
 use function imagecolorallocate;
 use function imagecolorallocatealpha;
 use function imagecreatefrompng;
@@ -31,6 +33,7 @@ use function imagettfbbox;
 use function imagettftext;
 use function ob_get_clean;
 use function ob_start;
+use function pathinfo;
 use function preg_replace;
 use function sprintf;
 use function str_starts_with;
@@ -222,6 +225,18 @@ class QrCodeService
             return ['mime' => 'image/svg+xml', 'body' => $svg];
         }
 
+        if (!extension_loaded('gd')) {
+            throw new \RuntimeException('GD extension is required for PNG output');
+        }
+        if (
+            $p['logoPath'] !== null &&
+            is_readable($p['logoPath']) &&
+            strtolower(pathinfo($p['logoPath'], PATHINFO_EXTENSION)) === 'webp' &&
+            !function_exists('imagecreatefromwebp')
+        ) {
+            throw new \RuntimeException('WebP logo requires imagecreatefromwebp()');
+        }
+
         $options['outputType'] = QROutputInterface::GDIMAGE_PNG;
         $options['returnResource'] = true;
         $options['bgColor'] = $p['bg'];
@@ -238,7 +253,7 @@ class QrCodeService
             $ext = strtolower(pathinfo($p['logoPath'], PATHINFO_EXTENSION));
             $logo = match ($ext) {
                 'png' => @imagecreatefrompng($p['logoPath']),
-                'webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($p['logoPath']) : false,
+                'webp' => @imagecreatefromwebp($p['logoPath']),
                 default => false,
             };
             if ($logo !== false) {

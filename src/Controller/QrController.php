@@ -60,7 +60,11 @@ class QrController
     public function catalog(Request $request, Response $response): Response
     {
         $cfg = $this->config->getConfig();
-        $out = $this->qrService->generateCatalog($request->getQueryParams(), $cfg);
+        try {
+            $out = $this->qrService->generateCatalog($request->getQueryParams(), $cfg);
+        } catch (Throwable $e) {
+            return $this->errorResponse($response);
+        }
         $response->getBody()->write($out['body']);
         return $response
             ->withHeader('Content-Type', $out['mime'])
@@ -73,7 +77,11 @@ class QrController
     public function team(Request $request, Response $response): Response
     {
         $cfg = $this->config->getConfig();
-        $out = $this->qrService->generateTeam($request->getQueryParams(), $cfg);
+        try {
+            $out = $this->qrService->generateTeam($request->getQueryParams(), $cfg);
+        } catch (Throwable $e) {
+            return $this->errorResponse($response);
+        }
         $response->getBody()->write($out['body']);
         return $response
             ->withHeader('Content-Type', $out['mime'])
@@ -86,7 +94,11 @@ class QrController
     public function event(Request $request, Response $response): Response
     {
         $cfg = $this->config->getConfig();
-        $out = $this->qrService->generateEvent($request->getQueryParams(), $cfg);
+        try {
+            $out = $this->qrService->generateEvent($request->getQueryParams(), $cfg);
+        } catch (Throwable $e) {
+            return $this->errorResponse($response);
+        }
         $response->getBody()->write($out['body']);
         return $response
             ->withHeader('Content-Type', $out['mime'])
@@ -118,7 +130,7 @@ class QrController
         try {
             $result = $this->qrService->generateQrCode($text, $format, $options);
         } catch (Throwable $e) {
-            return $response->withStatus(500);
+            return $this->errorResponse($response);
         }
 
         $response->getBody()->write($result['body']);
@@ -156,7 +168,7 @@ class QrController
         try {
             $out = $this->qrService->generateTeam($qrParams, $cfg);
         } catch (Throwable $e) {
-            return $response->withStatus(500);
+            return $this->errorResponse($response);
         }
 
         $png = $out['body'];
@@ -339,6 +351,12 @@ class QrController
         return $response
             ->withHeader('Content-Type', 'application/pdf')
             ->withHeader('Content-Disposition', 'inline; filename="invites.pdf"');
+    }
+
+    private function errorResponse(Response $response): Response
+    {
+        $response->getBody()->write('QR code unavailable');
+        return $response->withHeader('Content-Type', 'text/plain')->withStatus(503);
     }
 
     /**
