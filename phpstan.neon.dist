@@ -2,8 +2,6 @@ parameters:
   level: 4
   paths:
     - src
-  stubFiles:
-    - stubs/endroid_qr.stub
   bootstrapFiles:
     - phpstan-bootstrap.php
   ignoreErrors:

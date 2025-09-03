@@ -9,6 +9,7 @@ use chillerlan\QRCode\Data\QRMatrix;
 use chillerlan\QRCode\Output\QROutputInterface;
 use chillerlan\QRCode\QRCode;
 use chillerlan\QRCode\QROptions;
+use GdImage;
 
 use function base64_encode;
 use function file_exists;
@@ -35,8 +36,6 @@ use function str_starts_with;
 use function sys_get_temp_dir;
 use function tempnam;
 use function unlink;
-
-use GdImage;
 
 class QrCodeService
 {
@@ -211,7 +210,7 @@ class QrCodeService
             $qr = new QRCode(new QROptions($options));
             $svg = $qr->render($data);
             if ($p['logoPath'] !== null && is_readable($p['logoPath'])) {
-                $matrix = $qr->getMatrix($data);
+                $matrix = $qr->getMatrix();
                 $dim = ($matrix->getSize() + 2 * $marginModules) * $scale;
                 $logoData = base64_encode(file_get_contents($p['logoPath']));
                 $x = (int)(($dim - $p['logoWidth']) / 2);
@@ -413,4 +412,3 @@ class QrCodeService
         return $tmp;
     }
 }
-
