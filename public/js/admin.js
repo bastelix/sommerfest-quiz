@@ -817,8 +817,46 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
     ],
-    onDelete: id => deleteCatalogById(id)
+    onDelete: id => deleteCatalogById(id),
+    onReorder: saveCatalogOrder
   });
+
+  function saveCatalogOrder() {
+    const list = catalogManager.getData();
+    const data = list
+      .map((c, idx) => ({
+        uid: c.id,
+        sort_order: idx + 1,
+        slug: c.slug,
+        file: c.slug ? c.slug + '.json' : '',
+        name: c.name,
+        description: c.description,
+        raetsel_buchstabe: c.raetsel_buchstabe,
+        comment: c.comment
+      }))
+      .filter(c => c.slug);
+
+    apiFetch('/kataloge/catalogs.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+      .then(r => {
+        if (!r.ok) throw new Error(r.statusText);
+        catalogs = data.map(c => ({ ...c, id: c.uid }));
+        catSelect.innerHTML = '';
+        catalogs.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.name || c.sort_order || c.slug;
+          catSelect.appendChild(opt);
+        });
+      })
+      .catch(err => {
+        console.error(err);
+        notify('Fehler beim Speichern', 'danger');
+      });
+  }
 
   function loadCatalog(identifier) {
     const cat = catalogs.find(c => c.id === identifier || c.uid === identifier || (c.slug || c.sort_order) === identifier);
