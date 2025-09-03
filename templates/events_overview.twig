@@ -18,7 +18,6 @@
     {% endblock %}
   {% endembed %}
   <div class="uk-container uk-container-large">
-    {% from 'components/table.twig' import qr_table %}
     {% set rows %}
       {% for ev in events %}
         <tr>
@@ -37,11 +36,18 @@
         </tr>
       {% endfor %}
     {% endset %}
-    {{ qr_table([
-      { 'label': t('column_name'), 'key': 'name' },
-      { 'label': t('column_description'), 'key': 'description' },
-      { 'label': t('column_actions'), 'class': 'uk-table-shrink' }
-    ], 'eventsTableBody', false, table_id='eventsTable', wrap_class='uk-overflow-auto qr-table-wrap', body_html=rows) }}
+    <div class="uk-overflow-auto">
+      <table id="eventsTable" class="uk-table uk-table-divider uk-table-small uk-table-hover">
+        <thead>
+          <tr>
+            <th>{{ t('column_name') }}</th>
+            <th>{{ t('column_description') }}</th>
+            <th class="uk-table-shrink">{{ t('column_actions') }}</th>
+          </tr>
+        </thead>
+        <tbody id="eventsTableBody">{{ rows|raw }}</tbody>
+      </table>
+    </div>
   </div>
 {% endblock %}
 

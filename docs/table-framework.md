@@ -1,24 +1,15 @@
 # Table Framework
 
-Die Listenansichten im Admin-Bereich nutzen Twig-Makros und den JavaScript-`TableManager`.
+Die Listenansichten nutzen den Twig-Makro `qr_rowcards` und den JavaScript-`TableManager` zur Darstellung als Karten.
 
-## Makros
+## Makro
 
-Die Makros erzeugen das HTML-Grundgerüst:
+`qr_rowcards(list_id, sortable=true, list_class='uk-hidden@m uk-list', tag='ul')` erzeugt einen leeren Container für Karten.
 
-- `qr_table(headings, body_id, sortable=true)`: Jede Spaltenüberschrift enthält einen versteckten Spinner mit `aria-live="polite"`.
-- `qr_rowcards(list_id)`
-
-{% raw %}
 ```twig
-{% from 'components/table.twig' import qr_table, qr_rowcards %}
-{{ qr_table([
-  {'label': 'Team', 'class': 'uk-table-expand'},
-  {'label': 'Punkte', 'class': 'uk-table-shrink uk-text-right'}
-], 'teamsBody', true) }}
+{% from 'components/table.twig' import qr_rowcards %}
 {{ qr_rowcards('teamsCards') }}
 ```
-{% endraw %}
 
 ## TableManager
 
@@ -31,13 +22,12 @@ const teams = [
 ];
 
 const manager = new TableManager({
-  tbody: document.getElementById('teamsBody'),
   columns: [
-    { key: 'name', className: 'uk-text-bold' },
-    { key: 'points', className: 'uk-text-right' }
+    { key: 'name', className: 'uk-text-bold', label: 'Team' },
+    { key: 'points', className: 'uk-text-right', label: 'Punkte' }
   ],
-  sortable: true,
-  mobileCards: { container: document.getElementById('teamsCards') }
+  mobileCards: { container: document.getElementById('teamsCards') },
+  sortable: true
 });
 
 manager.render(teams);
@@ -45,37 +35,18 @@ manager.render(teams);
 
 ### Optionen
 
-- `tbody`: `tbody`-Element der Tabelle.
 - `columns`: Spaltendefinitionen (`key`, `className`, `render`, `renderCard`, `editable`, `ariaDesc`).
-- `sortable`: Aktiviert Drag-and-Drop für Tabelle und Karten.
 - `mobileCards`: Objekt mit `container` und optional eigener `render`-Funktion.
+- `sortable`: Aktiviert Drag-and-Drop für Karten.
 - `onEdit`, `onDelete`, `onReorder`: Callback-Funktionen für Aktionen.
-
-### Methoden
-
-- `render(list)`: Rendert die übergebene Datenliste.
-- `addRow(item)`: Fügt eine Zeile hinzu.
-- `bindPagination(el, perPage)`: Fügt Pagination hinzu.
-- `setColumnLoading(key, loading)`: Blendet den Spinner einer Spalte ein oder aus.
 
 ### Mobile Aktionsmenüs
 
-Enthält eine mobile Karte mehrere Elemente mit der Klasse `qr-action`, fasst der `TableManager` diese automatisch in einem aufklappbaren Menü zusammen. Dadurch bleibt die Darstellung kompakt, selbst wenn mehrere Aktionen wie PDF-Download und Löschen verfügbar sind.
+Enthält eine Karte mehrere Elemente mit der Klasse `qr-action`, fasst der `TableManager` diese automatisch in einem aufklappbaren Menü zusammen.
 
-### Mobile Darstellung
+### Barrierefreiheit
 
-Auf Mobilgeräten erscheinen die Spalten einer Karte untereinander. Überlange Inhalte werden automatisch mit `…` gekürzt, damit sie den verfügbaren Platz nicht überschreiten.
-
-Für jede Spalte kann in der JavaScript-Konfiguration ein optionales `label` definiert werden. Dieses wird in der mobilen Ansicht oberhalb des Wertes angezeigt. Fehlt das Feld, nutzt der `TableManager` den Text aus der Tabellenüberschrift.
-
-### Katalogtabelle
-
-Beim Bearbeiten der Katalogtabelle kommen Modalfenster zum Einsatz, um Felder wie `slug`, `name` oder `description` zu ändern. Browser-Prompts werden dabei nicht mehr verwendet.
-
-## Barrierefreiheit
-
-- `qr_table` erzeugt eine Desktop-Tabelle (`uk-visible@m`), `qr_rowcards` eine mobile Liste (`uk-hidden@m`).
-- TableManager setzt `role="row"` und `role="gridcell"` für Zeilen und Zellen.
+- `qr_rowcards` erzeugt eine Liste für mobile Kartenansichten.
+- TableManager setzt `role="row"` und `role="gridcell"` für Karten und Zellen.
 - Sortier-Handle und Lösch-Buttons erhalten ein `aria-label`.
-- Editierbare Zellen bekommen `tabindex="0"` und über `aria-describedby` einen Screenreader-Hinweis.
-- `uk-sortable` ermöglicht Drag-and-Drop in beiden Ansichten.
+- `uk-sortable` ermöglicht Drag-and-Drop innerhalb der Karten.
