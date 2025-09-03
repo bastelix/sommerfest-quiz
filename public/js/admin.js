@@ -704,8 +704,21 @@ document.addEventListener('DOMContentLoaded', function () {
       onDelete: id => deleteCatalogById(id),
       onReorder: saveCatalogOrder
     });
-    catalogManager.bindPagination(catalogPaginationEl, CATALOGS_PER_PAGE);
   }
+
+  let totalCatalogs = 0;
+  let currentCatalogPage = 1;
+
+  catalogPaginationEl.addEventListener('click', e => {
+    const link = e.target.closest('a[data-page]');
+    if (!link) return;
+    e.preventDefault();
+    const page = parseInt(link.dataset.page, 10);
+    if (!isNaN(page)) {
+      currentCatalogPage = page;
+      loadCatalogs(page);
+    }
+  });
 
   function editCatalogCell(cell) {
     const id = cell?.dataset.id;
@@ -779,17 +792,29 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
-  apiFetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } })
-    .then(r => r.json())
-    .then(list => {
-      let needsRender = false;
-      catalogs = list.map((c, i) => {
-        if (!c.uid && !c.slug) {
-          needsRender = true;
-          return { ...c, id: Date.now() + i };
-        }
-        return { ...c, id: c.uid || c.slug };
-      });
+  function renderCatalogPagination(total = 0, page = 1) {
+    const totalPages = Math.max(1, Math.ceil(total / CATALOGS_PER_PAGE));
+    catalogPaginationEl.innerHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+      const li = document.createElement('li');
+      if (i === page) li.classList.add('uk-active');
+      const a = document.createElement('a');
+      a.href = '#';
+      a.textContent = i;
+      a.dataset.page = String(i);
+      li.appendChild(a);
+      catalogPaginationEl.appendChild(li);
+    }
+  }
+
+  async function loadCatalogs(page = 1) {
+    try {
+      const res = await fetch(withBase('/admin/catalogs?page=' + page));
+      if (!res.ok) throw new Error('fail');
+      const data = await res.json();
+      const list = data.items || data;
+      totalCatalogs = data.total || list.length;
+      catalogs = list.map((c, i) => ({ ...c, id: c.uid || c.slug || (Date.now() + i) }));
       catSelect.innerHTML = '';
       catalogs.forEach(c => {
         const opt = document.createElement('option');
@@ -797,11 +822,8 @@ document.addEventListener('DOMContentLoaded', function () {
         opt.textContent = c.name || c.sort_order || c.slug;
         catSelect.appendChild(opt);
       });
-      console.log(catalogs);
       catalogManager.render(catalogs);
-      if (needsRender) {
-        catalogManager.render(catalogs);
-      }
+      renderCatalogPagination(totalCatalogs, page);
       const params = new URLSearchParams(window.location.search);
       const slug = params.get('katalog');
       const selected = catalogs.find(c => (c.slug || c.sort_order) === slug) || catalogs[0];
@@ -809,8 +831,44 @@ document.addEventListener('DOMContentLoaded', function () {
         catSelect.value = selected.id;
         loadCatalog(selected.id);
       }
-    })
-    .catch(err => console.error(err));
+    } catch (err) {
+      console.error(err);
+      apiFetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } })
+        .then(r => r.json())
+        .then(list => {
+          let needsRender = false;
+          catalogs = list.map((c, i) => {
+            if (!c.uid && !c.slug) {
+              needsRender = true;
+              return { ...c, id: Date.now() + i };
+            }
+            return { ...c, id: c.uid || c.slug };
+          });
+          catSelect.innerHTML = '';
+          catalogs.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.name || c.sort_order || c.slug;
+            catSelect.appendChild(opt);
+          });
+          catalogManager.render(catalogs);
+          catalogManager.bindPagination(catalogPaginationEl, CATALOGS_PER_PAGE);
+          if (needsRender) {
+            catalogManager.render(catalogs);
+          }
+          const params = new URLSearchParams(window.location.search);
+          const slug = params.get('katalog');
+          const selected = catalogs.find(c => (c.slug || c.sort_order) === slug) || catalogs[0];
+          if (selected) {
+            catSelect.value = selected.id;
+            loadCatalog(selected.id);
+          }
+        })
+        .catch(e => console.error(e));
+    }
+  }
+
+  loadCatalogs(1);
 
   catSelect.addEventListener('change', () => loadCatalog(catSelect.value));
 

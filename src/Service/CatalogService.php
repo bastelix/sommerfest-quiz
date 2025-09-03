@@ -84,6 +84,64 @@ class CatalogService
     }
 
     /**
+     * Fetch catalogs with pagination.
+     */
+    public function fetchPagedCatalogs(int $offset, int $limit, string $order): array
+    {
+        $fields = 'uid,sort_order,slug,file,name,description,raetsel_buchstabe';
+        if ($this->hasCommentColumn()) {
+            $fields .= ',comment';
+        }
+        if ($this->hasDesignColumn()) {
+            $fields .= ',design_path';
+        }
+        $uid = $this->config->getActiveEventUid();
+        $sql = "SELECT $fields FROM catalogs";
+        $params = [];
+        if ($uid !== '') {
+            $sql .= ' WHERE event_uid=?';
+            $params[] = $uid;
+        }
+        $sql .= ' ORDER BY sort_order ' . ($order === 'desc' ? 'DESC' : 'ASC') . ' LIMIT ? OFFSET ?';
+        $params[] = $limit;
+        $params[] = $offset;
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($data as &$row) {
+            $row['sort_order'] = (int) $row['sort_order'];
+        }
+        if (!$this->hasCommentColumn()) {
+            foreach ($data as &$row) {
+                $row['comment'] = '';
+            }
+        }
+        if (!$this->hasDesignColumn()) {
+            foreach ($data as &$row) {
+                $row['design_path'] = null;
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * Count catalogs for the active event.
+     */
+    public function countCatalogs(): int
+    {
+        $uid = $this->config->getActiveEventUid();
+        $sql = 'SELECT COUNT(*) FROM catalogs';
+        $params = [];
+        if ($uid !== '') {
+            $sql .= ' WHERE event_uid=?';
+            $params[] = $uid;
+        }
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
      * Return the catalog slug for the given file name.
      */
     public function slugByFile(string $file): ?string
