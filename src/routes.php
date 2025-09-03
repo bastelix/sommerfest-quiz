@@ -182,6 +182,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('plan', $plan)
             ->withAttribute('configController', new ConfigController($configService, new ConfigValidator()))
             ->withAttribute('catalogController', new CatalogController($catalogService))
+            ->withAttribute('adminCatalogController', new AdminCatalogController($catalogService))
             ->withAttribute('resultController', new ResultController(
                 $resultService,
                 $configService,
@@ -702,10 +703,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new AdminController();
         return $controller($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
-    $app->get('/admin/kataloge', AdminCatalogController::class)
-        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
-    $app->get('/admin/catalogs', [AdminCatalogController::class, 'catalogs'])
-        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->get('/admin/kataloge', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('adminCatalogController');
+        return $controller($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->get('/admin/catalogs', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('adminCatalogController');
+        return $controller->catalogs($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
 
     $app->get('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {
         $controller = new PageController();
