@@ -2613,6 +2613,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const qrColorInput = document.getElementById('qrColorInput');
   const qrRoundedInput = document.getElementById('qrRoundedInput');
   const qrLogoWidthInput = document.getElementById('qrLogoWidthInput');
+  const qrOptionsInput = document.getElementById('qrOptionsInput');
   const qrPreview = document.getElementById('qrDesignPreview');
   const qrApplyBtn = document.getElementById('qrDesignApply');
   const qrLogoFile = document.getElementById('qrLogoFile');
@@ -2661,6 +2662,12 @@ document.addEventListener('DOMContentLoaded', function () {
     params.set('round_mode', roundMode);
     params.set('rounded', rounded ? '1' : '0');
     params.set('logo_punchout', qrPunchoutInput?.checked ? '1' : '0');
+    const extra = qrOptionsInput?.value || '';
+    if (extra) {
+      try {
+        new URLSearchParams(extra).forEach((v, k) => params.set(k, v));
+      } catch (_) { /* ignore invalid */ }
+    }
     if (qrPreview) qrPreview.src = withBase(currentQrEndpoint + '?' + params.toString());
   }
 
@@ -2709,7 +2716,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (qrDesignModal) UIkit.modal(qrDesignModal).show();
   }
 
-  [qrLabelInput, qrPunchoutInput, qrRoundModeSelect, qrColorInput, qrRoundedInput, qrLogoWidthInput].forEach(el => {
+  [qrLabelInput, qrPunchoutInput, qrRoundModeSelect, qrColorInput, qrRoundedInput, qrLogoWidthInput, qrOptionsInput].forEach(el => {
     el?.addEventListener('input', updateQrPreview);
     el?.addEventListener('change', updateQrPreview);
   });

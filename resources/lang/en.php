@@ -149,6 +149,7 @@ return [
     'label_qr_login' => 'Use QR code login',
     'label_qr_remember' => 'Remember scanned login',
     'label_custom_logo' => 'Custom logo',
+    'label_qr_options' => 'QR library options',
     'label_random_names' => 'Prompt for team names',
     'label_team_restrict' => 'Only listed teams may join',
     'label_plan' => 'Plan',
