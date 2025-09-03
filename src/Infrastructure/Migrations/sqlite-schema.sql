@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS config (
     event_uid TEXT,
     qrLabelLine1 TEXT,
     qrLabelLine2 TEXT,
+    qrLabelBottom TEXT,
     qrLogoPath TEXT,
     qrRoundMode TEXT,
     qrLogoPunchout BOOLEAN,

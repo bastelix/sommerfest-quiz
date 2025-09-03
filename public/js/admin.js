@@ -2884,6 +2884,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const helpContent = document.getElementById('helpContent');
   const qrDesignModal = document.getElementById('qrDesignModal');
   const qrLabelInput = document.getElementById('qrLabelInput');
+  const qrLabelBottomInput = document.getElementById('qrLabelBottomInput');
   const qrPunchoutInput = document.getElementById('qrPunchoutInput');
   const qrRoundModeSelect = document.getElementById('qrRoundModeSelect');
   const qrColorInput = document.getElementById('qrColorInput');
@@ -2927,6 +2928,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (lines[0]) params.set('text1', lines[0]);
       if (lines[1]) params.set('text2', lines[1]);
     }
+    const bottom = qrLabelBottomInput?.value || '';
+    if (bottom) params.set('label_text', bottom);
     const color = qrColorInput?.value ? qrColorInput.value.replace('#', '') : '';
     if (color) params.set('fg', color);
     const rounded = qrRoundedInput?.checked !== false;
@@ -2950,6 +2953,9 @@ document.addEventListener('DOMContentLoaded', function () {
       } else {
         qrLabelInput.value = label || '';
       }
+    }
+    if (qrLabelBottomInput) {
+      qrLabelBottomInput.value = cfgInitial.qrLabelBottom || '';
     }
     if (qrPunchoutInput) {
       qrPunchoutInput.checked = global ? cfgInitial.qrLogoPunchout !== false : true;
@@ -2979,7 +2985,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (qrDesignModal) UIkit.modal(qrDesignModal).show();
   }
 
-  [qrLabelInput, qrPunchoutInput, qrRoundModeSelect, qrColorInput, qrRoundedInput].forEach(el => {
+  [qrLabelInput, qrLabelBottomInput, qrPunchoutInput, qrRoundModeSelect, qrColorInput, qrRoundedInput].forEach(el => {
     el?.addEventListener('input', updateQrPreview);
     el?.addEventListener('change', updateQrPreview);
   });
@@ -3023,6 +3029,9 @@ document.addEventListener('DOMContentLoaded', function () {
           if (lns[0]) params.set('text1', lns[0]);
           if (lns[1]) params.set('text2', lns[1]);
         }
+        if (qrLabelBottomInput?.value) {
+          params.set('label_text', qrLabelBottomInput.value);
+        }
         if (colorVal) params.set('fg', colorVal.replace('#', ''));
         params.set('round_mode', roundMode);
         params.set('rounded', rounded ? '1' : '0');
@@ -3030,9 +3039,11 @@ document.addEventListener('DOMContentLoaded', function () {
         img.src = withBase(endpoint + '?' + params.toString());
       });
       const lines = (qrLabelInput?.value || '').split(/\n/, 2);
+      const bottom = qrLabelBottomInput?.value || '';
       const data = {
         qrLabelLine1: lines[0] || '',
         qrLabelLine2: lines[1] || '',
+        qrLabelBottom: bottom,
         qrRoundMode: roundMode,
         qrLogoPunchout: punchout === '1',
         qrRounded: rounded,

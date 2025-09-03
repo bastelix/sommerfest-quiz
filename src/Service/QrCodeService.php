@@ -9,6 +9,8 @@ use Endroid\QrCode\Color\Color;
 use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\ErrorCorrectionLevel;
 use Endroid\QrCode\RoundBlockSizeMode;
+use Endroid\QrCode\Label\LabelAlignment;
+use Endroid\QrCode\Label\Font\OpenSans;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Writer\SvgWriter;
 use Endroid\QrCode\Writer\Result\ResultInterface;
@@ -212,7 +214,8 @@ class QrCodeService
      *     text2?:string,
      *     round_mode?:string,
      *     logo_punchout?:bool,
-     *     logo_path?:string
+     *     logo_path?:string,
+     *     label_text?:string
      * } $defaults
      * @return array{mime:string,body:string}
      */
@@ -234,6 +237,7 @@ class QrCodeService
         $fontSz = $this->clampInt($q['font_size'] ?? null, 8, 48, self::FONT_SIZE_DEF);
         $text1 = (string) ($q['text1'] ?? ($defaults['text1'] ?? 'QUIZ'));
         $text2 = (string) ($q['text2'] ?? ($defaults['text2'] ?? 'RACE'));
+        $labelText = (string) ($q['label_text'] ?? ($defaults['label_text'] ?? ''));
 
         $rounded = $this->boolParam($q['rounded'] ?? null, true);
         $roundModeParam = $q['round_mode'] ?? ($defaults['round_mode'] ?? null);
@@ -261,20 +265,40 @@ class QrCodeService
         $punchout = $logoPath !== null && !($writer instanceof SvgWriter) ? $logoPunchout : false;
 
         try {
-            $result = (new Builder(
-                writer: $writer,
-                data: $data,
-                encoding: new Encoding('UTF-8'),
-                errorCorrectionLevel: $ec,
-                size: $size,
-                margin: $margin,
-                roundBlockSizeMode: $roundMode,
-                foregroundColor: new Color($fgRgb[0], $fgRgb[1], $fgRgb[2]),
-                backgroundColor: new Color($bgRgb[0], $bgRgb[1], $bgRgb[2]),
-                logoPath: $logoPath ?? '',
-                logoResizeToWidth: $logoPath !== null ? $logoW : null,
-                logoPunchoutBackground: $punchout,
-            ))->build();
+            $builder = $labelText !== ''
+                ? new Builder(
+                    writer: $writer,
+                    data: $data,
+                    encoding: new Encoding('UTF-8'),
+                    errorCorrectionLevel: $ec,
+                    size: $size,
+                    margin: $margin,
+                    roundBlockSizeMode: $roundMode,
+                    foregroundColor: new Color($fgRgb[0], $fgRgb[1], $fgRgb[2]),
+                    backgroundColor: new Color($bgRgb[0], $bgRgb[1], $bgRgb[2]),
+                    logoPath: $logoPath ?? '',
+                    logoResizeToWidth: $logoPath !== null ? $logoW : null,
+                    logoPunchoutBackground: $punchout,
+                    labelText: $labelText,
+                    labelFont: new OpenSans(self::FONT_SIZE_DEF),
+                    labelAlignment: LabelAlignment::Center,
+                )
+                : new Builder(
+                    writer: $writer,
+                    data: $data,
+                    encoding: new Encoding('UTF-8'),
+                    errorCorrectionLevel: $ec,
+                    size: $size,
+                    margin: $margin,
+                    roundBlockSizeMode: $roundMode,
+                    foregroundColor: new Color($fgRgb[0], $fgRgb[1], $fgRgb[2]),
+                    backgroundColor: new Color($bgRgb[0], $bgRgb[1], $bgRgb[2]),
+                    logoPath: $logoPath ?? '',
+                    logoResizeToWidth: $logoPath !== null ? $logoW : null,
+                    logoPunchoutBackground: $punchout,
+                );
+
+            $result = $builder->build();
         } finally {
             if ($logoPath !== null) {
                 @unlink($logoPath);
@@ -301,6 +325,9 @@ class QrCodeService
         }
         if (($cfg['qrLabelLine2'] ?? '') !== '') {
             $defaults['text2'] = (string) $cfg['qrLabelLine2'];
+        }
+        if (($cfg['qrLabelBottom'] ?? '') !== '') {
+            $defaults['label_text'] = (string) $cfg['qrLabelBottom'];
         }
         if (($cfg['qrLogoPath'] ?? '') !== '') {
             $defaults['logo_path'] = (string) $cfg['qrLogoPath'];
