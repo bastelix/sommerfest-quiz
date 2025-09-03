@@ -156,6 +156,7 @@
 - Remove redundant nullsafe operator
 - Align landing button icon color
 - Preserve player name across catalogs
+- Ensure consistent table cell padding
 
 ### Refactor
 
