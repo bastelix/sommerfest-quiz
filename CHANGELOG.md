@@ -189,6 +189,7 @@
 - Add qr color variables
 - Extract table styles and theme variables
 - Move configuration fully to database
+- Filter tenants by status safely
 
 ### Style
 
