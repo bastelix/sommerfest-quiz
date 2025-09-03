@@ -18,7 +18,8 @@ class QrCodeService
 {
     private const QR_SIZE_DEF = 360;
     private const QR_MARGIN_DEF = 20;
-    private const LOGO_WIDTH_DEF = 80;
+    // Increase default logo width to make embedded logos more prominent
+    private const LOGO_WIDTH_DEF = 120;
     private const FONT_SIZE_DEF = 20;
     private const FALLBACK_LOGO_PNG_BASE64 =
         'iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAIAAAABc2X6AAABrUlEQVR4nO3aL4sCQRzG8Tk9DBbB'
