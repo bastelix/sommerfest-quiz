@@ -69,9 +69,9 @@
   <script id="catalogs-data" type="application/json">
     {{ catalogs|json_encode|raw }}
   </script>
+  <script src="{{ basePath }}/js/quiz.js" defer></script>
   <script src="{{ basePath }}/js/catalog.js" defer></script>
   <script src="{{ basePath }}/js/confetti.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js" defer></script>
-  <script src="{{ basePath }}/js/quiz.js" defer></script>
   <script src="{{ basePath }}/js/app.js" defer></script>
 {% endblock %}

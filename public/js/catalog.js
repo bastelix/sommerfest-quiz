@@ -243,9 +243,31 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       btn.style.borderColor = cfg.colors.accent;
       btn.style.color = '#fff';
     }
-    btn.addEventListener('click', () => {
-      if(window.startQuiz){
-        window.startQuiz(data, true);
+    btn.addEventListener('click', async () => {
+      const runQuiz = () => {
+        if(typeof window.startQuiz === 'function'){
+          window.startQuiz(data, true);
+          return true;
+        }
+        return false;
+      };
+      if(runQuiz()) return;
+      try{
+        await new Promise((resolve, reject) => {
+          const s = document.createElement('script');
+          s.src = withBase('/js/quiz.js');
+          s.defer = true;
+          s.onload = resolve;
+          s.onerror = reject;
+          document.head.appendChild(s);
+        });
+        if(!runQuiz()){
+          console.warn('startQuiz is still undefined after loading quiz.js');
+          alert('Quiz kann nicht gestartet werden.');
+        }
+      }catch(e){
+        console.warn('quiz.js could not be loaded', e);
+        alert('Quiz kann nicht gestartet werden.');
       }
     });
     container.appendChild(btn);
