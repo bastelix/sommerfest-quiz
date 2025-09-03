@@ -24,100 +24,116 @@
     <div class="uk-grid-large" uk-grid>
       <div class="uk-width-expand@m">
         <ul uk-tab>
-          <li><a href="#">Allgemein</a></li>
-          <li><a href="#">Design</a></li>
-          <li><a href="#">Texte</a></li>
-          <li><a href="#">Stationen</a></li>
-          <li><a href="#">Erweitert</a></li>
+          <li><a href="#">Basis</a></li>
+          <li><a href="#">Login &amp; Zugang</a></li>
+          <li><a href="#">Spielregeln</a></li>
+          <li><a href="#">Extras</a></li>
+          <li><a href="#">Integrationen</a></li>
         </ul>
         <ul class="uk-switcher uk-margin">
           <li>
             <form class="uk-form-stacked">
               <div class="uk-margin">
-                <label class="uk-form-label" for="event-name">Eventname</label>
+                <label class="uk-form-label" for="title">Titel</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" id="event-name" type="text" placeholder="Name">
+                  <input class="uk-input" id="title" name="title" type="text" placeholder="Titel">
                 </div>
-                <div class="uk-text-meta">Name des Events zur internen Zuordnung.</div>
+                <div class="uk-text-meta">Titel des Events für Teilnehmende.</div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="event-date">Datum</label>
+                <label class="uk-form-label" for="logo">Logo</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" id="event-date" type="date">
-                </div>
-                <div class="uk-text-meta">Startdatum des Quiz.</div>
-              </div>
-            </form>
-          </li>
-          <li>
-            <form class="uk-form-stacked">
-              <div class="uk-margin">
-                <label class="uk-form-label" for="primary-color">Primärfarbe</label>
-                <div class="uk-form-controls">
-                  <input class="uk-input" id="primary-color" type="color">
-                </div>
-                <div class="uk-text-meta">Steuert Buttons und Highlights.</div>
-              </div>
-              <div class="uk-margin">
-                <label class="uk-form-label" for="logo-url">Logo URL</label>
-                <div class="uk-form-controls">
-                  <input class="uk-input" id="logo-url" type="url" placeholder="https://">
+                  <div uk-form-custom="target: #logo-filename">
+                    <input type="file" id="logo" name="logo" accept="image/*">
+                    <button class="uk-button uk-button-default" type="button">Datei wählen</button>
+                  </div>
+                  <input class="uk-input uk-form-width-medium uk-margin-small-top" id="logo-filename" type="text" placeholder="Keine Datei ausgewählt" disabled>
+                  <img id="logoPreview" class="uk-margin-top" hidden alt="Logo Vorschau">
                 </div>
                 <div class="uk-text-meta">Optionales Logo für das Event.</div>
               </div>
-            </form>
-          </li>
-          <li>
-            <form class="uk-form-stacked">
               <div class="uk-margin">
-                <label class="uk-form-label" for="welcome-text">Begrüßung</label>
+                <label class="uk-form-label" for="primary-color">Primärfarbe</label>
                 <div class="uk-form-controls">
-                  <textarea class="uk-textarea" id="welcome-text" rows="3"></textarea>
+                  <input class="uk-input" id="primary-color" name="primary-color" type="color">
                 </div>
-                <div class="uk-text-meta">Kurzer Introtext, der Teilnehmenden angezeigt wird.</div>
-              </div>
-              <div class="uk-margin">
-                <label class="uk-form-label" for="farewell-text">Abschluss</label>
-                <div class="uk-form-controls">
-                  <textarea class="uk-textarea" id="farewell-text" rows="3"></textarea>
-                </div>
-                <div class="uk-text-meta">Text nach Beendigung des Quiz.</div>
+                <div class="uk-text-meta">Steuert Buttons und Highlights.</div>
               </div>
             </form>
           </li>
           <li>
             <form class="uk-form-stacked">
               <div class="uk-margin">
-                <label class="uk-form-label" for="station-count">Stationen</label>
+                <label class="uk-form-label" for="loginRequired">Login erforderlich</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" id="station-count" type="number" min="1">
+                  <input class="uk-checkbox" id="loginRequired" name="loginRequired" type="checkbox">
                 </div>
-                <div class="uk-text-meta">Anzahl der QR-Code-Stationen.</div>
+                <div class="uk-text-meta">Teilnehmende m&uuml;ssen sich anmelden.</div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="question-pool">Fragenpool</label>
+                <label class="uk-form-label" for="whitelist">Whitelist</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" id="question-pool" type="text" placeholder="Standard">
+                  <textarea class="uk-textarea" id="whitelist" name="whitelist" rows="3" placeholder="user@example.com"></textarea>
                 </div>
-                <div class="uk-text-meta">Vorlage für die Quizfragen.</div>
+                <div class="uk-text-meta">Zugelassene E-Mail-Adressen, eine pro Zeile.</div>
               </div>
             </form>
           </li>
           <li>
             <form class="uk-form-stacked">
               <div class="uk-margin">
-                <label class="uk-form-label" for="max-teams">Max. Teams</label>
+                <label class="uk-form-label" for="competitionMode">Wettkampfmodus</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" id="max-teams" type="number" min="1">
+                  <input class="uk-checkbox" id="competitionMode" name="competitionMode" type="checkbox">
                 </div>
-                <div class="uk-text-meta">Begrenzung der teilnehmenden Teams.</div>
+                <div class="uk-text-meta">Vergibt Punkte und erstellt ein Ranking.</div>
               </div>
               <div class="uk-margin">
-                <label class="uk-form-label" for="external-id">Externe ID</label>
+                <label><input class="uk-checkbox" id="puzzleWordEnabled" name="puzzleWordEnabled" type="checkbox"> R&auml;tselwort aktivieren</label>
+                <div class="uk-text-meta">Erfordert die Eingabe eines R&auml;tselworts zum Abschluss.</div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="puzzleWord">R&auml;tselwort</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" id="external-id" type="text">
+                  <input class="uk-input" id="puzzleWord" name="puzzleWord" type="text" disabled>
                 </div>
-                <div class="uk-text-meta">Referenz für externe Systeme.</div>
+                <div class="uk-text-meta">Geheimes Wort, das Teams finden m&uuml;ssen.</div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="puzzleFeedback">Feedback</label>
+                <div class="uk-form-controls">
+                  <textarea class="uk-textarea" id="puzzleFeedback" name="puzzleFeedback" rows="3" disabled></textarea>
+                </div>
+                <div class="uk-text-meta">Nachricht bei richtigem R&auml;tselwort.</div>
+              </div>
+            </form>
+          </li>
+          <li>
+            <form class="uk-form-stacked">
+              <div class="uk-margin">
+                <label class="uk-form-label" for="countdown">Countdown</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="countdown" name="countdown" type="number" min="0" placeholder="0">
+                </div>
+                <div class="uk-text-meta">Zeitlimit pro Frage in Sekunden. 0 bedeutet kein Limit.</div>
+              </div>
+            </form>
+          </li>
+          <li>
+            <form class="uk-form-stacked">
+              <div class="uk-margin">
+                <label class="uk-form-label" for="webhookUrl">Webhook URL</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="webhookUrl" name="webhookUrl" type="url" placeholder="https://">
+                </div>
+                <div class="uk-text-meta">Wird bei wichtigen Ereignissen aufgerufen.</div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="analyticsId">Analytics ID</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="analyticsId" name="analyticsId" type="text">
+                </div>
+                <div class="uk-text-meta">z.B. Google Analytics Tracking-ID.</div>
               </div>
             </form>
           </li>

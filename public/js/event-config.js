@@ -35,6 +35,8 @@
   const puzzleWordEnabled = document.getElementById('puzzleWordEnabled');
   const puzzleWord = document.getElementById('puzzleWord');
   const puzzleFeedback = document.getElementById('puzzleFeedback');
+  const logoInput = document.getElementById('logo');
+  const logoPreview = document.getElementById('logoPreview');
   const saveBtn = document.querySelector('.event-config-sidebar .uk-button-secondary');
   const publishBtn = document.querySelector('.event-config-sidebar .uk-button-primary');
   const presetLinks = document.querySelectorAll('.event-config-sidebar .uk-card:nth-child(2) .uk-list a');
@@ -87,6 +89,18 @@
     document.querySelectorAll('input, textarea, select').forEach((el) => {
       el.addEventListener('input', queueAutosave);
       el.addEventListener('change', queueAutosave);
+    });
+    logoInput?.addEventListener('change', () => {
+      const file = logoInput.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if (logoPreview) {
+          logoPreview.src = ev.target.result;
+          logoPreview.hidden = false;
+        }
+      };
+      reader.readAsDataURL(file);
     });
   });
 })();
