@@ -757,7 +757,14 @@ document.addEventListener('DOMContentLoaded', function () {
   apiFetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } })
     .then(r => r.json())
     .then(list => {
-      catalogs = list.map(c => ({ ...c, id: c.uid || c.slug || c.sort_order }));
+      let needsRender = false;
+      catalogs = list.map((c, i) => {
+        if (!c.uid && !c.slug) {
+          needsRender = true;
+          return { ...c, id: Date.now() + i };
+        }
+        return { ...c, id: c.uid || c.slug };
+      });
       catSelect.innerHTML = '';
       catalogs.forEach(c => {
         const opt = document.createElement('option');
@@ -766,6 +773,9 @@ document.addEventListener('DOMContentLoaded', function () {
         catSelect.appendChild(opt);
       });
       catalogManager.render(catalogs);
+      if (needsRender) {
+        catalogManager.render(catalogs);
+      }
       const params = new URLSearchParams(window.location.search);
       const slug = params.get('katalog');
       const selected = catalogs.find(c => (c.slug || c.sort_order) === slug) || catalogs[0];
