@@ -156,6 +156,7 @@
 - Make QR logo punch-out configurable
 - Punchout logo area in svg QR codes
 - Add reusable cell editor helper
+- Support event-specific QR logo endpoints
 
 ### Fix
 
