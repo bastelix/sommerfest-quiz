@@ -4,165 +4,81 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use Endroid\QrCode\Builder\Builder;
-use Endroid\QrCode\Color\Color;
-use Endroid\QrCode\Encoding\Encoding;
-use Endroid\QrCode\ErrorCorrectionLevel;
-use Endroid\QrCode\RoundBlockSizeMode;
-use Endroid\QrCode\Writer\PngWriter;
-use Endroid\QrCode\Writer\SvgWriter;
-use Endroid\QrCode\Writer\Result\ResultInterface;
-use Throwable;
+use chillerlan\QRCode\Common\EccLevel;
+use chillerlan\QRCode\Data\QRMatrix;
+use chillerlan\QRCode\Output\QROutputInterface;
+use chillerlan\QRCode\QRCode;
+use chillerlan\QRCode\QROptions;
+
+use function base64_encode;
+use function file_exists;
+use function file_get_contents;
+use function imagecolorallocate;
+use function imagecolorallocatealpha;
+use function imagecreatefrompng;
+use function imagefilledrectangle;
+use function imagerectangle;
+use function imagecopyresampled;
+use function imagecreatetruecolor;
+use function imagefill;
+use function imagepng;
+use function imagesavealpha;
+use function imagesx;
+use function imagesy;
+use function imagettfbbox;
+use function imagettftext;
+use function ob_get_clean;
+use function ob_start;
+use function preg_replace;
+use function sprintf;
+use function str_starts_with;
+use function sys_get_temp_dir;
+use function tempnam;
+use function unlink;
+
+use GdImage;
 
 class QrCodeService
 {
     private const QR_SIZE_DEF = 360;
     private const QR_MARGIN_DEF = 20;
-    // Increase default logo width to make embedded logos more prominent
     private const LOGO_WIDTH_DEF = 120;
     private const FONT_SIZE_DEF = 20;
-    private const FALLBACK_LOGO_PNG_BASE64 =
-        'iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAIAAAABc2X6AAABrUlEQVR4nO3aL4sCQRzG8Tk9DBbB'
-        . 'aLAKikUtMoIDk4yC78WXo8V3YNhgcMMaJyyKJpNRGIOwoLBz4UCEA0XYuT/PPZ82MsjvC79di2/O'
-        . 'OfGf5H56gO/GYHQMRsdgdAxGx2B0DEbHYHQMRsdgdAxGx2B0DEbH4C8mk0m73e52u51OZzabfX5Y'
-        . 'LBaVUv1+v9VqhWHoechMuYeCIJBSWmudc9ZaKWUYhs65Uqn0eSGO42az+fhLfpUnwVrr1Wp1O0ZR'
-        . 'NBgM3F1wmqblctnbeNl7ElypVJIkuR2TJKlWq+4uOAiC0Wjkbbzsvb+6/+fzWQhxuVyUUtfrdbfb'
-        . 'bTYbP0+bF09eWo1GwxhzOxpj6vW6EKJQKCyXyyiKxuPxdDr1OmLGHi/AYrGQUp5OJ+ectbbX683n'
-        . 'c3e30saY4XDodwsz9WSltdaHw0Frnc/nt9utEGK/399fqNVqcRynaZrL/Y2f9Df3yl8ejsfjer1W'
-        . 'Snmbx7vXggH8jT3MEIPRMRgdg9ExGB2D0TEYHYPRMRgdg9ExGB2D0TEYHYPRMRgdg9ExGB2D0TEY'
-        . 'HYPRMRgdg9F9AHRS1dmj7GtGAAAAAElFTkSuQmCC';
 
     /**
      * Generate a QR code with the project's default styling.
      *
      * @param array{fg?:string,bg?:string,logoText?:string} $options
-     * @throws Throwable
+     * @return array{mime:string,body:string}
      */
-    public function generateQrCode(string $data, string $format = 'svg', array $options = []): ResultInterface
+    public function generateQrCode(string $data, string $format = 'svg', array $options = []): array
     {
-        $fgHex = $options['fg'] ?? '2E2E2E';
-        $bgHex = $options['bg'] ?? 'F9F9F9';
+        $fg = $this->parseHex($options['fg'] ?? '2E2E2E', '2E2E2E');
+        $bg = $this->parseHex($options['bg'] ?? 'F9F9F9', 'F9F9F9');
         $logoText = $options['logoText'] ?? "QUIZ\nRACE";
 
-        $fg = $this->parseColor($fgHex, new Color(46, 46, 46));
-        $bg = $this->parseColor($bgHex, new Color(249, 249, 249));
-
-        $font = $this->getFontFile();
         $logoPath = null;
+        $font = $this->getFontFile();
         if ($font !== null && extension_loaded('gd')) {
             $logoPath = $this->createTextLogo($logoText, $font, self::FONT_SIZE_DEF, [0, 0, 0]);
-        } else {
-            $tmp = tempnam(sys_get_temp_dir(), 'qrlogo_fallback');
-            if ($tmp !== false) {
-                $data = base64_decode(self::FALLBACK_LOGO_PNG_BASE64, true);
-                file_put_contents($tmp, $data);
-                $logoPath = $tmp;
-            }
         }
 
-        $format = strtolower($format);
-        if ($format === 'png' && !extension_loaded('gd')) {
-            $format = 'svg';
-        }
+        $result = $this->renderQr($data, [
+            'format' => $format,
+            'size' => self::QR_SIZE_DEF,
+            'margin' => self::QR_MARGIN_DEF,
+            'ecc' => EccLevel::M,
+            'fg' => $fg,
+            'bg' => $bg,
+            'logoPath' => $logoPath,
+            'logoWidth' => self::LOGO_WIDTH_DEF,
+        ]);
 
-        $writer = $format === 'svg' ? new SvgWriter() : new PngWriter();
-        $punchout = $logoPath !== null && !($writer instanceof SvgWriter);
-
-        try {
-            $result = (new Builder(
-                writer: $writer,
-                data: $data,
-                encoding: new Encoding('UTF-8'),
-                errorCorrectionLevel: ErrorCorrectionLevel::Medium,
-                size: self::QR_SIZE_DEF,
-                margin: self::QR_MARGIN_DEF,
-                roundBlockSizeMode: RoundBlockSizeMode::Margin,
-                foregroundColor: $fg,
-                backgroundColor: $bg,
-                logoPath: $logoPath ?? '',
-                logoResizeToWidth: $logoPath !== null ? self::LOGO_WIDTH_DEF : null,
-                logoPunchoutBackground: $punchout,
-            ))->build();
-        } finally {
-            if ($logoPath !== null && file_exists($logoPath)) {
-                @unlink($logoPath);
-            }
+        if ($logoPath !== null && file_exists($logoPath)) {
+            @unlink($logoPath);
         }
 
         return $result;
-    }
-
-    /**
-     * Create a transparent PNG logo with multiline text.
-     * Returns the path to the temporary file.
-     *
-     * @param array{0:int,1:int,2:int} $color
-     */
-    public function createTextLogo(string $text, string $fontFile, int $fontSize, array $color): string
-    {
-        $lines = explode("\n", $text);
-        $lineHeights = [];
-        $width = 0;
-        $height = 0;
-        foreach ($lines as $line) {
-            $box = imagettfbbox($fontSize, 0, $fontFile, $line);
-            if ($box !== false) {
-                $w = $box[2] - $box[0];
-                $h = $box[1] - $box[7];
-                $width = max($width, $w);
-                $lineHeights[] = $h;
-                $height += $h;
-            }
-        }
-        $img = imagecreatetruecolor((int)$width, (int)$height);
-        imagesavealpha($img, true);
-        $transparent = imagecolorallocatealpha($img, 0, 0, 0, 127);
-        imagefill($img, 0, 0, $transparent);
-        $textColor = imagecolorallocate($img, $color[0], $color[1], $color[2]);
-        $y = 0;
-        foreach ($lines as $index => $line) {
-            $h = $lineHeights[$index];
-            $box = imagettfbbox($fontSize, 0, $fontFile, $line);
-            $lineWidth = $box[2] - $box[0];
-            $x = (int)(($width - $lineWidth) / 2);
-            $y += $h;
-            imagettftext($img, $fontSize, 0, $x, $y, $textColor, $fontFile, $line);
-        }
-        $tmp = tempnam(sys_get_temp_dir(), 'qrlogo');
-        if ($tmp === false) {
-            throw new \RuntimeException('Unable to create temp file');
-        }
-        imagepng($img, $tmp);
-        imagedestroy($img);
-        return $tmp;
-    }
-
-    private function parseColor(string $hex, Color $default): Color
-    {
-        $hex = ltrim($hex, '#');
-        if (strlen($hex) === 6) {
-            $r = hexdec(substr($hex, 0, 2));
-            $g = hexdec(substr($hex, 2, 2));
-            $b = hexdec(substr($hex, 4, 2));
-            return new Color($r, $g, $b);
-        }
-        return $default;
-    }
-
-    private function getFontFile(): ?string
-    {
-        $candidates = [
-            // Prefer bundled font to ensure consistent rendering
-            __DIR__ . '/../../resources/fonts/NotoSans-Bold.ttf',
-            '/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf',
-            '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
-        ];
-        foreach ($candidates as $file) {
-            if (is_readable($file)) {
-                return $file;
-            }
-        }
-        return null;
     }
 
     /**
@@ -206,45 +122,37 @@ class QrCodeService
 
     /**
      * @param array<string,mixed> $q
-     * @param array{
-     *     t:string,
-     *     fg:string,
-     *     text1?:string,
-     *     text2?:string,
-     *     round_mode?:string,
-     *     logo_punchout?:bool,
-     *     logo_path?:string
-     * } $defaults
+     * @param array{t:string,fg:string,text1?:string,text2?:string,logo_path?:string,logo_width?:int} $defaults
      * @return array{mime:string,body:string}
      */
     private function buildQrWithCenterLogoParam(array $q, array $defaults): array
     {
-        $data = (string) ($q['t'] ?? $defaults['t']);
-        $format = strtolower((string) ($q['format'] ?? 'png'));
+        $data = (string)($q['t'] ?? $defaults['t']);
+        $format = strtolower((string)($q['format'] ?? 'png'));
         if (!in_array($format, ['png', 'svg'], true)) {
             $format = 'png';
         }
 
         $size = $this->clampInt($q['size'] ?? null, 64, 2048, self::QR_SIZE_DEF);
         $margin = $this->clampInt($q['margin'] ?? null, 0, 40, self::QR_MARGIN_DEF);
-
-        $fgRgb = $this->parseHex((string) ($q['fg'] ?? $defaults['fg']));
-        $bgRgb = $this->parseHex((string) ($q['bg'] ?? 'ffffff'), 'ffffff');
+        $fg = $this->parseHex((string)($q['fg'] ?? $defaults['fg']));
+        $bg = $this->parseHex((string)($q['bg'] ?? 'ffffff'), 'ffffff');
 
         $logoW = $this->clampInt($q['logo_width'] ?? ($defaults['logo_width'] ?? null), 20, 200, self::LOGO_WIDTH_DEF);
         $fontSz = $this->clampInt($q['font_size'] ?? null, 8, 48, self::FONT_SIZE_DEF);
-        $text1 = (string) ($q['text1'] ?? ($defaults['text1'] ?? 'QUIZ'));
-        $text2 = (string) ($q['text2'] ?? ($defaults['text2'] ?? 'RACE'));
+        $text1 = (string)($q['text1'] ?? ($defaults['text1'] ?? 'QUIZ'));
+        $text2 = (string)($q['text2'] ?? ($defaults['text2'] ?? 'RACE'));
 
-        $rounded = $this->boolParam($q['rounded'] ?? null, true);
-        $roundModeParam = $q['round_mode'] ?? ($defaults['round_mode'] ?? null);
-        $logoPunchout = $this->boolParam($q['logo_punchout'] ?? ($defaults['logo_punchout'] ?? null), true);
-        $ec = $this->ecFromParam($q['ec'] ?? null);
-
-        $roundMode = $this->roundModeFromParam($roundModeParam, $rounded);
+        $ecParam = strtolower((string)($q['ec'] ?? 'medium'));
+        $ec = match ($ecParam) {
+            'low' => EccLevel::L,
+            'quartile' => EccLevel::Q,
+            'high', 'h' => EccLevel::H,
+            default => EccLevel::M,
+        };
 
         $logoPath = null;
-        $logoParam = (string) ($q['logo_path'] ?? ($defaults['logo_path'] ?? ''));
+        $logoParam = (string)($q['logo_path'] ?? ($defaults['logo_path'] ?? ''));
         if ($logoParam !== '') {
             $p = __DIR__ . '/../../data' . (str_starts_with($logoParam, '/') ? $logoParam : '/' . $logoParam);
             if (is_readable($p)) {
@@ -258,34 +166,130 @@ class QrCodeService
             }
         }
 
-        $writer = $format === 'svg' ? new SvgWriter() : new PngWriter();
-        $punchout = $logoPath !== null && !($writer instanceof SvgWriter) ? $logoPunchout : false;
+        $out = $this->renderQr($data, [
+            'format' => $format,
+            'size' => $size,
+            'margin' => $margin,
+            'ecc' => $ec,
+            'fg' => $fg,
+            'bg' => $bg,
+            'logoPath' => $logoPath,
+            'logoWidth' => $logoW,
+        ]);
 
-        try {
-            $result = (new Builder(
-                writer: $writer,
-                data: $data,
-                encoding: new Encoding('UTF-8'),
-                errorCorrectionLevel: $ec,
-                size: $size,
-                margin: $margin,
-                roundBlockSizeMode: $roundMode,
-                foregroundColor: new Color($fgRgb[0], $fgRgb[1], $fgRgb[2]),
-                backgroundColor: new Color($bgRgb[0], $bgRgb[1], $bgRgb[2]),
-                logoPath: $logoPath ?? '',
-                logoResizeToWidth: $logoPath !== null ? $logoW : null,
-                logoPunchoutBackground: $punchout,
-            ))->build();
-        } finally {
-            if ($logoPath !== null) {
-                @unlink($logoPath);
-            }
+        if ($logoPath !== null && file_exists($logoPath)) {
+            @unlink($logoPath);
         }
 
-        return [
-            'mime' => $result->getMimeType(),
-            'body' => $result->getString(),
+        return $out;
+    }
+
+    /**
+     * @param array{format:string,size:int,margin:int,ecc:int,fg:array{0:int,1:int,2:int},bg:array{0:int,1:int,2:int},logoPath:?string,logoWidth:int} $p
+     * @return array{mime:string,body:string}
+     */
+    private function renderQr(string $data, array $p): array
+    {
+        $scale = max(1, (int)round($p['size'] / 41));
+        $marginModules = max(0, (int)round($p['margin'] / $scale));
+        $options = [
+            'eccLevel' => $p['ecc'],
+            'scale' => $scale,
+            'quietzoneSize' => $marginModules,
+            'outputBase64' => false,
         ];
+
+        if ($p['format'] === 'svg') {
+            $options['outputType'] = QROutputInterface::MARKUP_SVG;
+            $options['bgColor'] = sprintf('#%02x%02x%02x', $p['bg'][0], $p['bg'][1], $p['bg'][2]);
+            $fg = sprintf('#%02x%02x%02x', $p['fg'][0], $p['fg'][1], $p['fg'][2]);
+            $options['moduleValues'] = [
+                QRMatrix::M_FINDER_DARK => $fg,
+                QRMatrix::M_DARKMODULE => $fg,
+                QRMatrix::M_DATA_DARK => $fg,
+            ];
+            $qr = new QRCode(new QROptions($options));
+            $svg = $qr->render($data);
+            if ($p['logoPath'] !== null && is_readable($p['logoPath'])) {
+                $matrix = $qr->getMatrix($data);
+                $dim = ($matrix->getSize() + 2 * $marginModules) * $scale;
+                $logoData = base64_encode(file_get_contents($p['logoPath']));
+                $x = (int)(($dim - $p['logoWidth']) / 2);
+                $y = (int)(($dim - $p['logoWidth']) / 2);
+                $image = '<image x="' . $x . '" y="' . $y . '" width="' . $p['logoWidth'] . '" height="' . $p['logoWidth'] . '" href="data:image/png;base64,' . $logoData . '" />';
+                $svg = preg_replace('/<\/svg>/', $image . '</svg>', $svg);
+            }
+            return ['mime' => 'image/svg+xml', 'body' => $svg];
+        }
+
+        $options['outputType'] = QROutputInterface::GDIMAGE_PNG;
+        $options['returnResource'] = true;
+        $options['bgColor'] = $p['bg'];
+        $options['moduleValues'] = [
+            QRMatrix::M_FINDER_DARK => $p['fg'],
+            QRMatrix::M_DARKMODULE => $p['fg'],
+            QRMatrix::M_DATA_DARK => $p['fg'],
+        ];
+
+        $qr = new QRCode(new QROptions($options));
+        /** @var GdImage $im */
+        $im = $qr->render($data);
+        if ($p['logoPath'] !== null && is_readable($p['logoPath'])) {
+            $logo = imagecreatefrompng($p['logoPath']);
+            $lw = imagesx($logo);
+            $lh = imagesy($logo);
+            $targetW = $p['logoWidth'];
+            $targetH = (int)($lh * $targetW / $lw);
+            $x = (imagesx($im) - $targetW) / 2;
+            $y = (imagesy($im) - $targetH) / 2;
+            $bgCol = imagecolorallocate($im, $p['bg'][0], $p['bg'][1], $p['bg'][2]);
+            imagefilledrectangle($im, (int)$x, (int)$y, (int)($x + $targetW), (int)($y + $targetH), $bgCol);
+            imagecopyresampled($im, $logo, (int)$x, (int)$y, 0, 0, $targetW, $targetH, $lw, $lh);
+            imagedestroy($logo);
+        }
+        ob_start();
+        imagepng($im);
+        $body = (string)ob_get_clean();
+        imagedestroy($im);
+        return ['mime' => 'image/png', 'body' => $body];
+    }
+
+    /**
+     * Create a transparent PNG logo with multiline text.
+     * Returns the path to the temporary file.
+     *
+     * @param array{0:int,1:int,2:int} $color
+     */
+    public function createTextLogo(string $text, string $fontFile, int $fontSize, array $color): string
+    {
+        $lines = explode("\n", $text);
+        $lineHeights = [];
+        $width = 0;
+        $height = 0;
+        foreach ($lines as $line) {
+            $box = imagettfbbox($fontSize, 0, $fontFile, $line);
+            if ($box !== false) {
+                $w = $box[2] - $box[0];
+                $h = $box[1] - $box[7];
+                $width = max($width, $w);
+                $lineHeights[] = $h;
+                $height += $h;
+            }
+        }
+        $img = imagecreatetruecolor((int)$width, (int)$height);
+        imagesavealpha($img, true);
+        $transparent = imagecolorallocatealpha($img, 0, 0, 0, 127);
+        imagefill($img, 0, 0, $transparent);
+        $textColor = imagecolorallocate($img, $color[0], $color[1], $color[2]);
+        $y = 0;
+        foreach ($lines as $index => $line) {
+            $y += $lineHeights[$index];
+            imagettftext($img, $fontSize, 0, 0, $y, $textColor, $fontFile, $line);
+        }
+        $tmp = tempnam(sys_get_temp_dir(), 'qrlogo_') . '.png';
+        imagepng($img, $tmp);
+        imagedestroy($img);
+        return $tmp;
     }
 
     /**
@@ -298,25 +302,16 @@ class QrCodeService
     private function mergeDesignDefaults(array $defaults, array $cfg): array
     {
         if (($cfg['qrLabelLine1'] ?? '') !== '') {
-            $defaults['text1'] = (string) $cfg['qrLabelLine1'];
+            $defaults['text1'] = (string)$cfg['qrLabelLine1'];
         }
         if (($cfg['qrLabelLine2'] ?? '') !== '') {
-            $defaults['text2'] = (string) $cfg['qrLabelLine2'];
+            $defaults['text2'] = (string)$cfg['qrLabelLine2'];
         }
         if (($cfg['qrLogoPath'] ?? '') !== '') {
-            $defaults['logo_path'] = (string) $cfg['qrLogoPath'];
+            $defaults['logo_path'] = (string)$cfg['qrLogoPath'];
         }
         if (($cfg['qrLogoWidth'] ?? '') !== '') {
-            $defaults['logo_width'] = (string) $cfg['qrLogoWidth'];
-        }
-        if (($cfg['qrRoundMode'] ?? '') !== '') {
-            $defaults['round_mode'] = (string) $cfg['qrRoundMode'];
-        }
-        if (array_key_exists('qrLogoPunchout', $cfg) && $cfg['qrLogoPunchout'] !== null) {
-            $defaults['logo_punchout'] = $cfg['qrLogoPunchout'] ? '1' : '0';
-        }
-        if (array_key_exists('qrRounded', $cfg) && $cfg['qrRounded'] !== null) {
-            $defaults['rounded'] = $cfg['qrRounded'] ? '1' : '0';
+            $defaults['logo_width'] = (int)$cfg['qrLogoWidth'];
         }
         return $defaults;
     }
@@ -341,36 +336,6 @@ class QrCodeService
         ];
     }
 
-    private function boolParam(mixed $v, bool $def = true): bool
-    {
-        if ($v === null) {
-            return $def;
-        }
-        return in_array(strtolower((string) $v), ['1', 'true', 'yes', 'on'], true);
-    }
-
-    private function ecFromParam(?string $v): ErrorCorrectionLevel
-    {
-        return match (strtolower((string) $v)) {
-            'low' => ErrorCorrectionLevel::Low,
-            'medium' => ErrorCorrectionLevel::Medium,
-            'quartile' => ErrorCorrectionLevel::Quartile,
-            default => ErrorCorrectionLevel::Medium,
-        };
-    }
-
-    private function roundModeFromParam(mixed $v, bool $rounded): RoundBlockSizeMode
-    {
-        if (is_string($v)) {
-            $mode = RoundBlockSizeMode::tryFrom(strtolower($v));
-            if ($mode !== null) {
-                return $mode;
-            }
-        }
-
-        return $rounded ? RoundBlockSizeMode::Margin : RoundBlockSizeMode::None;
-    }
-
     private function clampInt(mixed $v, int $min, int $max, int $def): int
     {
         $i = filter_var($v, FILTER_VALIDATE_INT);
@@ -380,19 +345,28 @@ class QrCodeService
         return max($min, min($max, $i));
     }
 
+    private function getFontFile(): ?string
+    {
+        $candidates = [
+            __DIR__ . '/../../resources/fonts/NotoSans-Bold.ttf',
+            '/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf',
+            '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+        ];
+        foreach ($candidates as $file) {
+            if (is_readable($file)) {
+                return $file;
+            }
+        }
+        return null;
+    }
+
     /**
-     * Create a PNG logo with one or two lines of centered text
-     * and a bordered background.
+     * Create a PNG logo with one or two lines of centered text and a bordered background.
      *
      * @param array{0:int,1:int,2:int} $rgb
      */
-    private function createTextLogoPng(
-        string $line1,
-        string $line2,
-        string $fontFile,
-        int $fontSize,
-        array $rgb
-    ): string {
+    private function createTextLogoPng(string $line1, string $line2, string $fontFile, int $fontSize, array $rgb): string
+    {
         $padding = 10;
         $lineHeight = $fontSize + 6;
         $measure = function (string $t) use ($fontFile, $fontSize): int {
@@ -400,7 +374,7 @@ class QrCodeService
             return abs($bb[2] - $bb[0]);
         };
 
-        $lines = array_values(array_filter([$line1, $line2], fn ($t) => $t !== ''));
+        $lines = array_values(array_filter([$line1, $line2], fn($t) => $t !== ''));
         if ($lines === []) {
             $lines = [''];
         }
@@ -423,7 +397,7 @@ class QrCodeService
         $draw = function (string $t, int $y) use ($im, $fontFile, $fontSize, $width, $borderCol): void {
             $bb = imagettfbbox($fontSize, 0, $fontFile, $t);
             $tw = abs($bb[2] - $bb[0]);
-            $x = (int) (($width - $tw) / 2);
+            $x = (int)(($width - $tw) / 2);
             imagettftext($im, $fontSize, 0, $x, $y, $borderCol, $fontFile, $t);
         };
 
@@ -439,3 +413,4 @@ class QrCodeService
         return $tmp;
     }
 }
+
