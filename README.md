@@ -408,7 +408,7 @@ Alle wichtigen Einstellungen werden in der Datenbank gespeichert und lassen sich
 
 QR-Codes können pro Eintrag über `qr_image` hinterlegt werden, etwa als Data-URI oder lokaler Pfad.
 
-Die Übersichtsseiten erzeugen ihre QR-Codes jetzt lokal mit der Bibliothek *Endroid\\QrCode*. Katalog-Links erscheinen rot, Team-Links blau.
+Die Übersichtsseiten erzeugen ihre QR-Codes jetzt lokal mit der Bibliothek *chillerlan\\php-qrcode*. Katalog-Links erscheinen rot, Team-Links blau.
 
 ### Rich-Text-Editor
 

@@ -1,8 +1,6 @@
 ## BSD-2-Clause
 Die BSD-2-Clause-Lizenz erlaubt freie Nutzung, Veraenderung und Weitergabe, auch kommerziell, sofern der urspruengliche Copyright-Hinweis bestehen bleibt. Diese Angabe gilt nur für die genannten Fremdbibliotheken; für die kommerzielle Nutzung der Anwendung ist eine schriftliche Lizenz erforderlich.
 
-- bacon/bacon-qr-code
-- dasprid/enum
 
 ## BSD-3-Clause
 Die BSD-3-Clause-Lizenz erweitert die BSD-2-Variante um einen Haftungsausschluss. Kommerzielle Nutzung ist erlaubt, sofern Lizenz- und Urheberhinweise erhalten bleiben. Dies betrifft ausschließlich die genannten Bibliotheken.
@@ -39,7 +37,9 @@ Die BSD-3-Clause-Lizenz erweitert die BSD-2-Variante um einen Haftungsausschluss
 ## MIT
 Die MIT-Lizenz erlaubt die Nutzung, Aenderung und Weitergabe der Software ohne Einschraenkung. Die aufgeführten Bibliotheken dürfen somit auch kommerziell eingesetzt werden, während für die Sommerfest-Quiz-App selbst eine kostenpflichtige Lizenz erforderlich ist.
 
-- endroid/qr-code
+- chillerlan/php-qrcode
+- chillerlan/php-qrcode
+- chillerlan/php-settings-container
 - fig/http-message-util
 - guzzlehttp/guzzle
 - guzzlehttp/promises

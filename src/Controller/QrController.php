@@ -121,9 +121,9 @@ class QrController
             return $response->withStatus(500);
         }
 
-        $response->getBody()->write($result->getString());
+        $response->getBody()->write($result['body']);
 
-        $mime = $result->getMimeType();
+        $mime = $result['mime'];
         $extension = str_contains($mime, 'svg') ? 'svg' : 'png';
 
         return $response
