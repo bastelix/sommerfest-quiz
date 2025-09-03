@@ -663,16 +663,19 @@ document.addEventListener('DOMContentLoaded', function () {
     { key: 'comment', className: 'uk-table-expand', editable: true, ariaDesc: 'Kommentar bearbeiten' }
   ];
 
-  const catalogManager = new TableManager({
-    tbody: catalogList,
-    mobileCards: { container: document.getElementById('catalogCards') },
-    sortable: true,
-    columns: catalogColumns,
-    onEdit: editCatalogCell,
-    onDelete: id => deleteCatalogById(id),
-    onReorder: saveCatalogOrder
-  });
-  catalogManager.bindPagination(catalogPaginationEl, CATALOGS_PER_PAGE);
+  let catalogManager;
+  if (catalogList) {
+    catalogManager = new TableManager({
+      tbody: catalogList,
+      mobileCards: { container: document.getElementById('catalogCards') },
+      sortable: true,
+      columns: catalogColumns,
+      onEdit: editCatalogCell,
+      onDelete: id => deleteCatalogById(id),
+      onReorder: saveCatalogOrder
+    });
+    catalogManager.bindPagination(catalogPaginationEl, CATALOGS_PER_PAGE);
+  }
 
   function editCatalogCell(cell) {
     const id = cell?.dataset.id;
@@ -1883,40 +1886,43 @@ document.addEventListener('DOMContentLoaded', function () {
   teamPaginationEl.className = 'uk-pagination uk-flex-center';
   teamAddBtn?.parentElement?.before(teamPaginationEl);
 
-  const teamManager = new TableManager({
-    tbody: teamListEl,
-    mobileCards: { container: teamCardsEl },
-    columns: [
-      { key: 'name', className: 'team-name', editable: true },
-      {
-        className: 'uk-table-shrink',
-        render: item => {
-          const btn = document.createElement('button');
-          btn.className = 'uk-icon-button qr-action';
-          btn.setAttribute('uk-icon', 'file-text');
-          btn.setAttribute('aria-label', window.transTeamPdf || 'PDF');
-          btn.setAttribute('uk-tooltip', 'title: ' + (window.transTeamPdf || 'PDF') + '; pos: left');
-          btn.addEventListener('click', () => openTeamPdf(item.name));
-          return btn;
-        },
-        renderCard: item => {
-          const btn = document.createElement('button');
-          btn.className = 'uk-icon-button qr-action';
-          btn.setAttribute('uk-icon', 'file-text');
-          btn.setAttribute('aria-label', window.transTeamPdf || 'PDF');
-          btn.addEventListener('click', () => openTeamPdf(item.name));
-          return btn;
+  let teamManager;
+  if (teamListEl) {
+    teamManager = new TableManager({
+      tbody: teamListEl,
+      mobileCards: { container: teamCardsEl },
+      columns: [
+        { key: 'name', className: 'team-name', editable: true },
+        {
+          className: 'uk-table-shrink',
+          render: item => {
+            const btn = document.createElement('button');
+            btn.className = 'uk-icon-button qr-action';
+            btn.setAttribute('uk-icon', 'file-text');
+            btn.setAttribute('aria-label', window.transTeamPdf || 'PDF');
+            btn.setAttribute('uk-tooltip', 'title: ' + (window.transTeamPdf || 'PDF') + '; pos: left');
+            btn.addEventListener('click', () => openTeamPdf(item.name));
+            return btn;
+          },
+          renderCard: item => {
+            const btn = document.createElement('button');
+            btn.className = 'uk-icon-button qr-action';
+            btn.setAttribute('uk-icon', 'file-text');
+            btn.setAttribute('aria-label', window.transTeamPdf || 'PDF');
+            btn.addEventListener('click', () => openTeamPdf(item.name));
+            return btn;
+          }
         }
-      }
-    ],
-    sortable: true,
-    onEdit: openTeamModal,
-    onDelete: removeTeam,
-    onReorder: () => reorderTeams(teamManager.getData())
-  });
-  teamManager.bindPagination(teamPaginationEl, TEAMS_PER_PAGE);
+      ],
+      sortable: true,
+      onEdit: openTeamModal,
+      onDelete: removeTeam,
+      onReorder: () => reorderTeams(teamManager.getData())
+    });
+    teamManager.bindPagination(teamPaginationEl, TEAMS_PER_PAGE);
+  }
 
-  function saveTeamList(list = teamManager.getData(), show = false, retries = 1) {
+  function saveTeamList(list = teamManager?.getData() || [], show = false, retries = 1) {
     const names = list.map(t => t.name);
     apiFetch('/teams.json', {
       method: 'POST',
@@ -1941,7 +1947,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function openTeamModal(cell) {
     currentTeamId = cell?.dataset.id || null;
     currentTeamKey = cell?.dataset.key || null;
-    const team = teamManager.getData().find(t => t.id === currentTeamId) || {};
+    const team = teamManager?.getData().find(t => t.id === currentTeamId) || {};
     const name = currentTeamKey ? (team[currentTeamKey] || '') : '';
     teamEditInput.value = name;
     if (teamEditTitle) {
@@ -1984,6 +1990,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   teamAddBtn?.addEventListener('click', e => {
     e.preventDefault();
+    if (!teamManager) return;
     const id = crypto.randomUUID();
     const team = { id, name: '' };
     const list = teamManager.getData();
@@ -1997,6 +2004,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   teamEditSave?.addEventListener('click', () => {
+    if (!teamManager) return;
     const val = teamEditInput.value.trim();
     if (!val) {
       teamEditError.textContent = 'Name darf nicht leer sein';
