@@ -1,0 +1,7 @@
+-- Add additional event configuration fields
+ALTER TABLE config ADD COLUMN IF NOT EXISTS title TEXT;
+ALTER TABLE config ADD COLUMN IF NOT EXISTS loginRequired BOOLEAN;
+ALTER TABLE config ADD COLUMN IF NOT EXISTS whitelist TEXT;
+ALTER TABLE config ADD COLUMN IF NOT EXISTS countdown INTEGER;
+ALTER TABLE config ADD COLUMN IF NOT EXISTS webhookUrl TEXT;
+ALTER TABLE config ADD COLUMN IF NOT EXISTS analyticsId TEXT;
