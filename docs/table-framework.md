@@ -66,6 +66,8 @@ Enthält eine mobile Karte mehrere Elemente mit der Klasse `qr-action`, fasst de
 
 Auf Mobilgeräten erscheinen die Spalten einer Karte untereinander. Überlange Inhalte werden automatisch mit `…` gekürzt, damit sie den verfügbaren Platz nicht überschreiten.
 
+Für jede Spalte kann in der JavaScript-Konfiguration ein optionales `label` definiert werden. Dieses wird in der mobilen Ansicht oberhalb des Wertes angezeigt. Fehlt das Feld, nutzt der `TableManager` den Text aus der Tabellenüberschrift.
+
 ### Katalogtabelle
 
 Beim Bearbeiten der Katalogtabelle kommen Modalfenster zum Einsatz, um Felder wie `slug`, `name` oder `description` zu ändern. Browser-Prompts werden dabei nicht mehr verwendet.

@@ -192,7 +192,15 @@ export default class TableManager {
       } else if (col.key) {
         c = item[col.key];
       }
+      const labelText = col.label || this.thead?.querySelector(`th[data-key="${col.key}"]`)?.textContent;
+      let lbl = null;
+      if (labelText) {
+        lbl = document.createElement('span');
+        lbl.className = 'qr-card-label';
+        lbl.textContent = labelText;
+      }
       if (col.editable) {
+        if (lbl) contentWrap.appendChild(lbl);
         const wrapper = document.createElement('span');
         wrapper.className = 'qr-cell';
         wrapper.tabIndex = 0;
@@ -224,9 +232,11 @@ export default class TableManager {
           if (c.classList && c.classList.contains('qr-action')) {
             actions.push(c);
           } else {
+            if (lbl) contentWrap.appendChild(lbl);
             contentWrap.appendChild(c);
           }
         } else {
+          if (lbl) contentWrap.appendChild(lbl);
           const span = document.createElement('span');
           span.innerHTML = c ?? '';
           contentWrap.appendChild(span);
