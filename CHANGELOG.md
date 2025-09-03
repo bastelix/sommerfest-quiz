@@ -157,6 +157,7 @@
 - Punchout logo area in svg QR codes
 - Add reusable cell editor helper
 - Support event-specific QR logo endpoints
+- *(admin)* Add catalog edit modal
 
 ### Fix
 
