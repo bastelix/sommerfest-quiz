@@ -684,7 +684,8 @@ body.admin-page {
 }
 
 /* Event list enhancements */
-#eventsList .event-row.active-event {
+#eventsList .event-row.active-event,
+#eventsCards .active-event {
   background-color: #e7f9e7;
 }
 #eventsList td {
