@@ -174,7 +174,7 @@
           { 'label': t('column_end'), 'key': 'end' },
           { 'label': t('column_description'), 'key': 'description' },
           { 'label': t('column_current'), 'key': 'current' },
-          { 'label': '<span class="help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_event_remove') ~ '; pos: top" aria-label="' ~ t('tip_event_remove') ~ '" tabindex="0"></span>', 'class': 'uk-table-shrink' }
+          { 'label': '', 'class': 'uk-table-shrink', 'tooltip': t('tip_event_remove') }
         ], 'eventsList', true, table_id='eventsTable', wrap_class='uk-overflow-auto qr-table-wrap', tbody_attrs={
           'data-label-number': t('column_number'),
           'data-label-name': t('column_name'),
@@ -184,7 +184,7 @@
           'data-label-current': t('column_current'),
           'data-tip-select-event': t('tip_select_event'),
           'data-label-actions': t('column_actions')
-        }, handle_label='<span class="help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_sort_rows') ~ '; pos: top" aria-label="' ~ t('tip_sort_rows') ~ '" tabindex="0"></span>') }}
+        }, handle_tooltip=t('tip_sort_rows')) }}
         {{ qr_rowcards('eventsCards') }}
         <div class="uk-margin">
           <button
@@ -391,12 +391,12 @@
           <h2 class="uk-heading-bullet">{{ t('heading_catalogs') }}</h2>
         {% from 'components/table.twig' import qr_table, qr_rowcards %}
         {{ qr_table([
-          { 'label': (t('column_slug') ~ '<span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_slug') ~ '; pos: top" aria-label="' ~ t('tip_slug') ~ '" tabindex="0"></span>')|raw, 'class': 'uk-table-shrink', 'key': 'slug' },
-          { 'label': (t('column_name') ~ '<span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_cat_name') ~ '; pos: top" aria-label="' ~ t('tip_cat_name') ~ '" tabindex="0"></span>')|raw, 'class': 'uk-table-expand', 'key': 'name' },
-          { 'label': (t('column_description') ~ '<span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_cat_desc') ~ '; pos: top" aria-label="' ~ t('tip_cat_desc') ~ '" tabindex="0"></span>')|raw, 'class': 'uk-table-expand', 'key': 'description' },
-          { 'label': (t('column_letter') ~ '<span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_cat_puzzle_letter') ~ '; pos: top" aria-label="' ~ t('tip_cat_puzzle_letter') ~ '" tabindex="0"></span>')|raw, 'class': 'uk-table-shrink', 'key': 'raetsel_buchstabe' },
-          { 'label': (t('column_comment') ~ '<span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_cat_comment') ~ '; pos: top" aria-label="' ~ t('tip_cat_comment') ~ '" tabindex="0"></span>')|raw, 'class': 'uk-table-expand', 'key': 'comment' },
-          { 'label': ('<span class="help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_cat_remove') ~ '; pos: top" aria-label="' ~ t('tip_cat_remove') ~ '" tabindex="0"></span>')|raw, 'class': 'uk-table-shrink uk-text-center' }
+          { 'label': t('column_slug'), 'class': 'uk-table-shrink', 'key': 'slug', 'tooltip': t('tip_slug') },
+          { 'label': t('column_name'), 'class': 'uk-table-expand', 'key': 'name', 'tooltip': t('tip_cat_name') },
+          { 'label': t('column_description'), 'class': 'uk-table-expand', 'key': 'description', 'tooltip': t('tip_cat_desc') },
+          { 'label': t('column_letter'), 'class': 'uk-table-shrink', 'key': 'raetsel_buchstabe', 'tooltip': t('tip_cat_puzzle_letter') },
+          { 'label': t('column_comment'), 'class': 'uk-table-expand', 'key': 'comment', 'tooltip': t('tip_cat_comment') },
+          { 'label': '', 'class': 'uk-table-shrink uk-text-center', 'tooltip': t('tip_cat_remove') }
         ], 'catalogList', true) }}
         {{ qr_rowcards('catalogCards') }}
         <div class="uk-margin">
@@ -804,8 +804,8 @@
           { 'label': t('column_role') },
           { 'label': 'Aktiv' },
           { 'label': '<span uk-icon="icon: key" uk-tooltip="title: ' ~ t('tip_user_pass') ~ '; pos: top" tabindex="0"></span>', 'class': 'uk-table-shrink' },
-          { 'label': '<span class="help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_user_remove') ~ '; pos: top" aria-label="' ~ t('tip_user_remove') ~ '" tabindex="0"></span>', 'class': 'uk-table-shrink' }
-        ], 'usersList', true, wrap_class='uk-overflow-auto qr-table-wrap', handle_label='<span class="help-icon" uk-icon="icon: info" uk-tooltip="title: ' ~ t('tip_sort_rows') ~ '; pos: top" aria-label="' ~ t('tip_sort_rows') ~ '" tabindex="0"></span>') }}
+          { 'label': '', 'class': 'uk-table-shrink', 'tooltip': t('tip_user_remove') }
+        ], 'usersList', true, wrap_class='uk-overflow-auto qr-table-wrap', handle_tooltip=t('tip_sort_rows')) }}
         <div class="uk-margin">
           <button id="userAddBtn" class="uk-icon-button uk-button-default" uk-icon="plus" uk-tooltip="title: {{ t('tip_user_add') }}; pos: right" aria-label="{{ t('tip_user_add') }}"></button>
         </div>
