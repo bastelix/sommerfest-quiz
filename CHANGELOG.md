@@ -132,6 +132,7 @@
 - Polish table layout and theme variables
 - Add table macros and update docs
 - Add table manager utility
+- Add twig template for tenant rows
 
 ### Fix
 
