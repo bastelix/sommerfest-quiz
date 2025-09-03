@@ -686,11 +686,11 @@ document.addEventListener('DOMContentLoaded', function () {
   newCatBtn?.parentElement?.before(catalogPaginationEl);
 
   const catalogColumns = [
-    { key: 'slug', className: 'uk-table-shrink', editable: true },
-    { key: 'name', className: 'uk-table-expand', editable: true },
-    { key: 'description', className: 'uk-table-expand', editable: true },
-    { key: 'raetsel_buchstabe', className: 'uk-table-shrink', editable: true },
-    { key: 'comment', className: 'uk-table-expand', editable: true, ariaDesc: 'Kommentar bearbeiten' }
+    { key: 'slug', label: 'Slug', className: 'uk-table-shrink', editable: true },
+    { key: 'name', label: 'Name', className: 'uk-table-expand', editable: true },
+    { key: 'description', label: 'Beschreibung', className: 'uk-table-expand', editable: true },
+    { key: 'raetsel_buchstabe', label: 'Rätsel-Buchstabe', className: 'uk-table-shrink', editable: true },
+    { key: 'comment', label: 'Kommentar', className: 'uk-table-expand', editable: true, ariaDesc: 'Kommentar bearbeiten' }
   ];
 
   let catalogManager;
@@ -2020,7 +2020,7 @@ document.addEventListener('DOMContentLoaded', function () {
       tbody: teamListEl,
       mobileCards: { container: teamCardsEl },
       columns: [
-        { key: 'name', className: 'team-name', editable: true },
+        { key: 'name', label: 'Name', className: 'team-name', editable: true },
         {
           className: 'uk-table-shrink',
           render: item => {
