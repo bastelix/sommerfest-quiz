@@ -1591,6 +1591,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventSelectWrap = document.getElementById('eventSelectWrap');
   const eventOpenBtn = document.getElementById('eventOpenBtn');
   const langSelect = document.getElementById('langSelect');
+  const EVENTS_PER_PAGE = 50;
+  const eventPaginationEl = document.createElement('ul');
+  eventPaginationEl.id = 'eventsPagination';
+  eventPaginationEl.className = 'uk-pagination uk-flex-center';
+  eventAddBtn?.parentElement?.before(eventPaginationEl);
   let activeEventUid = cfgInitial.event_uid || '';
   let eventManager;
   let eventEditor;
@@ -1629,18 +1634,6 @@ document.addEventListener('DOMContentLoaded', function () {
         populateEventSelect(list);
       })
       .catch(() => notify('Fehler beim Speichern', 'danger'));
-    updateEventRowNumbers();
-  }
-
-  function updateEventRowNumbers() {
-    Array.from(eventsListEl?.querySelectorAll('tr') || []).forEach((row, idx) => {
-      const cell = row.querySelector('.row-num');
-      if (cell) cell.textContent = idx + 1;
-    });
-    Array.from(eventsCardsEl?.querySelectorAll('.qr-rowcard') || []).forEach((card, idx) => {
-      const span = card.querySelector('.qr-card-content > span:first-child');
-      if (span) span.textContent = idx + 1;
-    });
   }
 
   function populateEventSelect(list) {
@@ -1682,6 +1675,62 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (eventsListEl) {
     const labels = eventsListEl.dataset || {};
+    const eventColumns = [
+      { className: 'row-num' },
+      { key: 'name', label: labels.labelName || 'Name', className: 'event-name', editable: true },
+      { key: 'start_date', label: labels.labelStart || 'Start', className: 'event-start', editable: true },
+      { key: 'end_date', label: labels.labelEnd || 'Ende', className: 'event-end', editable: true },
+      { key: 'description', label: labels.labelDescription || 'Beschreibung', className: 'event-desc', editable: true },
+      {
+        className: 'uk-table-shrink',
+        render: ev => {
+          const label = document.createElement('label');
+          label.className = 'switch';
+          label.setAttribute('uk-tooltip', `title: ${labels.tipSelectEvent || ''}; pos: top`);
+          const input = document.createElement('input');
+          input.type = 'radio';
+          input.name = 'currentEventList';
+          input.dataset.id = ev.id;
+          input.checked = ev.id === activeEventUid;
+          input.addEventListener('change', () => {
+            if (input.checked) {
+              const twin = eventsCardsEl?.querySelector(`input[name="currentEventCard"][data-id="${ev.id}"]`);
+              if (twin) twin.checked = true;
+              setActiveEvent(ev.id, ev.name);
+              highlightActiveEvent();
+            }
+          });
+          const slider = document.createElement('span');
+          slider.className = 'slider';
+          label.appendChild(input);
+          label.appendChild(slider);
+          return label;
+        },
+        renderCard: ev => {
+          const label = document.createElement('label');
+          label.className = 'switch';
+          label.setAttribute('uk-tooltip', `title: ${labels.tipSelectEvent || ''}; pos: top`);
+          const input = document.createElement('input');
+          input.type = 'radio';
+          input.name = 'currentEventCard';
+          input.dataset.id = ev.id;
+          input.checked = ev.id === activeEventUid;
+          input.addEventListener('change', () => {
+            if (input.checked) {
+              const twin = eventsListEl.querySelector(`input[name="currentEventList"][data-id="${ev.id}"]`);
+              if (twin) twin.checked = true;
+              setActiveEvent(ev.id, ev.name);
+              highlightActiveEvent();
+            }
+          });
+          const slider = document.createElement('span');
+          slider.className = 'slider';
+          label.appendChild(input);
+          label.appendChild(slider);
+          return label;
+        }
+      }
+    ];
     if (!document.getElementById('eventEditModal')) {
       const modal = document.createElement('div');
       modal.id = 'eventEditModal';
@@ -1700,68 +1749,10 @@ document.addEventListener('DOMContentLoaded', function () {
       tbody: eventsListEl,
       mobileCards: { container: eventsCardsEl },
       sortable: true,
-      columns: [
-        { className: 'row-num' },
-        { key: 'name', label: labels.labelName || 'Name', className: 'event-name', editable: true },
-        { key: 'start_date', label: labels.labelStart || 'Start', className: 'event-start', editable: true },
-        { key: 'end_date', label: labels.labelEnd || 'Ende', className: 'event-end', editable: true },
-        { key: 'description', label: labels.labelDescription || 'Beschreibung', className: 'event-desc', editable: true },
-        {
-          className: 'uk-table-shrink',
-          render: ev => {
-            const label = document.createElement('label');
-            label.className = 'switch';
-            label.setAttribute('uk-tooltip', `title: ${labels.tipSelectEvent || ''}; pos: top`);
-            const input = document.createElement('input');
-            input.type = 'radio';
-            input.name = 'currentEventList';
-            input.dataset.id = ev.id;
-            input.checked = ev.id === activeEventUid;
-            input.addEventListener('change', () => {
-              if (input.checked) {
-                const twin = eventsCardsEl?.querySelector(`input[name="currentEventCard"][data-id="${ev.id}"]`);
-                if (twin) twin.checked = true;
-                setActiveEvent(ev.id, ev.name);
-                highlightActiveEvent();
-              }
-            });
-            const slider = document.createElement('span');
-            slider.className = 'slider';
-            label.appendChild(input);
-            label.appendChild(slider);
-            return label;
-          },
-          renderCard: ev => {
-            const label = document.createElement('label');
-            label.className = 'switch';
-            label.setAttribute('uk-tooltip', `title: ${labels.tipSelectEvent || ''}; pos: top`);
-            const input = document.createElement('input');
-            input.type = 'radio';
-            input.name = 'currentEventCard';
-            input.dataset.id = ev.id;
-            input.checked = ev.id === activeEventUid;
-            input.addEventListener('change', () => {
-              if (input.checked) {
-                const twin = eventsListEl.querySelector(`input[name="currentEventList"][data-id="${ev.id}"]`);
-                if (twin) twin.checked = true;
-                setActiveEvent(ev.id, ev.name);
-                highlightActiveEvent();
-              }
-            });
-            const slider = document.createElement('span');
-            slider.className = 'slider';
-            label.appendChild(input);
-            label.appendChild(slider);
-            return label;
-          }
-        }
-      ],
+      columns: eventColumns,
       onEdit: cell => eventEditor.open(cell),
       onDelete: removeEvent,
-      onReorder: () => {
-        updateEventRowNumbers();
-        saveEvents();
-      }
+      onReorder: () => saveEvents()
     });
     eventEditor = createCellEditor(eventManager, {
       modalSelector: '#eventEditModal',
@@ -1776,11 +1767,11 @@ document.addEventListener('DOMContentLoaded', function () {
       })[key] || '',
       getType: key => (key === 'start_date' || key === 'end_date') ? 'datetime-local' : 'text',
       onSave: () => {
-        updateEventRowNumbers();
         highlightActiveEvent();
         saveEvents();
       }
     });
+    eventManager.bindPagination(eventPaginationEl, EVENTS_PER_PAGE);
   }
 
   function removeEvent(id) {
@@ -1789,7 +1780,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (idx !== -1) {
       list.splice(idx, 1);
       eventManager.render(list);
-      updateEventRowNumbers();
       highlightActiveEvent();
       saveEvents();
       populateEventSelect(list);
@@ -1803,7 +1793,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const list = data.map(d => createEventItem(d));
         if (eventManager) {
           eventManager.render(list);
-          updateEventRowNumbers();
           highlightActiveEvent();
         }
         populateEventSelect(list);
@@ -1817,8 +1806,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const list = eventManager.getData();
     const item = createEventItem();
     list.push(item);
+    if (eventManager.pagination) {
+      eventManager.pagination.page = Math.max(1, Math.ceil(list.length / EVENTS_PER_PAGE));
+    }
     eventManager.render(list);
-    updateEventRowNumbers();
     highlightActiveEvent();
     saveEvents();
   });
