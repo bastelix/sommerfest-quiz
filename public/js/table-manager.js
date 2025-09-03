@@ -297,6 +297,13 @@ export default class TableManager {
     }
   }
 
+  setColumnLoading(key, isLoading) {
+    const spinner = document.querySelector(`[data-spinner="${key}"]`);
+    if (spinner) {
+      spinner.hidden = !isLoading;
+    }
+  }
+
   getData() {
     return this.data;
   }

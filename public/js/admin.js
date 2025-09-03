@@ -767,6 +767,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const cat = catalogs.find(c => c.id === identifier || c.uid === identifier || (c.slug || c.sort_order) === identifier);
     if (!cat) return;
     catalogFile = cat.file;
+    catalogManager?.setColumnLoading('slug', true);
     apiFetch('/kataloge/' + catalogFile, { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(data => {
@@ -776,9 +777,11 @@ document.addEventListener('DOMContentLoaded', function () {
       .catch(() => {
         initial = [];
         renderAll(initial);
-      });
+      })
+      .finally(() => catalogManager?.setColumnLoading('slug', false));
   }
 
+  catalogManager?.setColumnLoading('slug', true);
   apiFetch('/kataloge/catalogs.json', { headers: { 'Accept': 'application/json' } })
     .then(r => r.json())
     .then(list => {
@@ -810,7 +813,8 @@ document.addEventListener('DOMContentLoaded', function () {
         loadCatalog(selected.id);
       }
     })
-    .catch(err => console.error(err));
+    .catch(err => console.error(err))
+    .finally(() => catalogManager?.setColumnLoading('slug', false));
 
   catSelect.addEventListener('change', () => loadCatalog(catSelect.value));
 
@@ -1991,13 +1995,15 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if(teamListEl){
+    teamManager?.setColumnLoading('name', true);
     apiFetch('/teams.json', { headers: { 'Accept':'application/json' } })
       .then(r => r.json())
       .then(data => {
         const list = data.map(n => ({ id: crypto.randomUUID(), name: n }));
         teamManager.render(list);
       })
-      .catch(()=>{});
+      .catch(()=>{})
+      .finally(() => teamManager?.setColumnLoading('name', false));
     if (teamRestrictTeams) {
       teamRestrictTeams.checked = !!cfgInitial.QRRestrict;
     }
