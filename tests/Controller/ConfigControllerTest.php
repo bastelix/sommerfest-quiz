@@ -98,6 +98,22 @@ class ConfigControllerTest extends TestCase
         session_destroy();
     }
 
+    public function testGetByEvent(): void
+    {
+        $pdo = $this->createDatabase();
+        $service = new ConfigService($pdo);
+        $service->saveConfig(['event_uid' => 'ev1', 'pageTitle' => 'Demo']);
+        $controller = new ConfigController($service, new ConfigValidator());
+
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+
+        $response = $controller->getByEvent('ev1', new Response());
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('Demo', (string) $response->getBody());
+        session_destroy();
+    }
+
     public function testPostDeniedForNonAdmin(): void
     {
         $app = $this->getAppInstance();
