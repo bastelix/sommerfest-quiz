@@ -229,6 +229,7 @@
 - Make event start button text white
 - Adjust team table layout
 - Add admin config CSS with dark mode variables
+- Remove extra blank line
 
 ### Test
 
