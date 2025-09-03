@@ -8,20 +8,44 @@ export function createCellEditor(manager, {
   validate = () => true,
   onSave = () => {}
 } = {}) {
-  const modal = UIkit.modal(modalSelector);
+  const modalEl = document.querySelector(modalSelector);
   const input = document.querySelector(inputSelector);
   const saveBtn = document.querySelector(saveSelector);
   const cancelBtn = document.querySelector(cancelSelector);
-  const titleEl = document.querySelector(`${modalSelector} .uk-modal-title`);
+
+  if (!modalEl) {
+    console.error(`createCellEditor: modal element not found for selector '${modalSelector}'`);
+    return null;
+  }
+  if (!input) {
+    console.error(`createCellEditor: input element not found for selector '${inputSelector}'`);
+    return null;
+  }
+  if (!saveBtn) {
+    console.error(`createCellEditor: save button not found for selector '${saveSelector}'`);
+    return null;
+  }
+  if (!cancelBtn) {
+    console.error(`createCellEditor: cancel button not found for selector '${cancelSelector}'`);
+    return null;
+  }
+
+  const modal = UIkit.modal(modalEl);
+  if (!modal) {
+    console.error(`createCellEditor: failed to initialize modal for selector '${modalSelector}'`);
+    return null;
+  }
+
+  const titleEl = modalEl.querySelector('.uk-modal-title');
   let currentId = null;
   let currentKey = null;
 
-  cancelBtn?.addEventListener('click', e => {
+  cancelBtn.addEventListener('click', e => {
     e.preventDefault();
     modal.hide();
   });
 
-  saveBtn?.addEventListener('click', () => {
+  saveBtn.addEventListener('click', () => {
     const val = input.value.trim();
     if (!validate(val, currentKey, input)) return;
     const list = manager.getData();
