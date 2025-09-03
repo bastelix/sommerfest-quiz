@@ -2654,8 +2654,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const ext = file.type === 'image/webp' ? 'webp' : 'png';
     const fd = new FormData();
     fd.append('file', file);
-    apiFetch('/qrlogo.' + ext, { method: 'POST', body: fd })
-      .then(() => apiFetch('/config.json', { headers: { 'Accept': 'application/json' } }))
+    const uploadPath = '/qrlogo.' + ext + (activeEventUid ? `?event_uid=${encodeURIComponent(activeEventUid)}` : '');
+    apiFetch(uploadPath, { method: 'POST', body: fd })
+      .then(() => {
+        const cfgPath = activeEventUid ? `/admin/event/${activeEventUid}` : '/config.json';
+        return apiFetch(cfgPath, { headers: { 'Accept': 'application/json' } });
+      })
       .then(r => r.json())
       .then(cfg => {
         qrLogoPath = cfg.qrLogoPath || '';
@@ -2718,8 +2722,10 @@ document.addEventListener('DOMContentLoaded', function () {
       if (qrLogoPath) data.qrLogoPath = qrLogoPath;
       data[field] = colorVal;
       if (logoWidthVal) data.qrLogoWidth = parseInt(logoWidthVal, 10);
-      apiFetch('/config.json', {
-        method: 'POST',
+      const cfgPath = activeEventUid ? `/admin/event/${activeEventUid}` : '/config.json';
+      const method = activeEventUid ? 'PATCH' : 'POST';
+      apiFetch(cfgPath, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       }).catch(() => {});
@@ -2734,8 +2740,10 @@ document.addEventListener('DOMContentLoaded', function () {
       const data = { qrRounded: rounded };
       data[field] = colorVal;
       if (logoWidthVal) data.qrLogoWidth = parseInt(logoWidthVal, 10);
-      apiFetch('/config.json', {
-        method: 'POST',
+      const cfgPath = activeEventUid ? `/admin/event/${activeEventUid}` : '/config.json';
+      const method = activeEventUid ? 'PATCH' : 'POST';
+      apiFetch(cfgPath, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       }).catch(() => {});
