@@ -25,6 +25,7 @@
 - *(docs)* Remove unused jekyll rtd theme
 - Add migration for logo width
 - Mark admin script as module
+- Streamline catalog styles
 
 ### Ci
 
