@@ -244,7 +244,10 @@ class ResultServiceTest extends TestCase
                 options TEXT,
                 answers TEXT,
                 terms TEXT,
-                items TEXT
+                items TEXT,
+                cards TEXT,
+                right_label TEXT,
+                left_label TEXT
             );
             SQL
         );
@@ -362,7 +365,10 @@ class ResultServiceTest extends TestCase
                 options TEXT,
                 answers TEXT,
                 terms TEXT,
-                items TEXT
+                items TEXT,
+                cards TEXT,
+                right_label TEXT,
+                left_label TEXT
             );
             SQL
         );

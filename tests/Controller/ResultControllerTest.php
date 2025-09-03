@@ -69,7 +69,8 @@ class ResultControllerTest extends TestCase
         $pdo->exec(
             'CREATE TABLE questions(' .
             'id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_uid TEXT NOT NULL, sort_order INTEGER,' .
-            ' type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT' .
+            ' type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT,' .
+            ' cards TEXT, right_label TEXT, left_label TEXT' .
             ');'
         );
         $pdo->exec(
@@ -189,7 +190,8 @@ class ResultControllerTest extends TestCase
         $pdo->exec(
             'CREATE TABLE questions(' .
             'id INTEGER PRIMARY KEY AUTOINCREMENT, catalog_uid TEXT NOT NULL, sort_order INTEGER,' .
-            ' type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT' .
+            ' type TEXT NOT NULL, prompt TEXT NOT NULL, options TEXT, answers TEXT, terms TEXT, items TEXT,' .
+            ' cards TEXT, right_label TEXT, left_label TEXT' .
             ');'
         );
         $pdo->exec(
