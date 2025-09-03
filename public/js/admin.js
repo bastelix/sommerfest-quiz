@@ -578,8 +578,10 @@ document.addEventListener('DOMContentLoaded', function () {
   commentSaveBtn?.addEventListener('click', () => {
     if (!currentCommentItem || !commentTextarea) return;
     currentCommentItem.comment = commentTextarea.value;
-    catalogManager.render(catalogManager.getData());
+    const list = catalogManager.getData();
+    catalogManager.render(list);
     commentModal.hide();
+    saveCatalogs(list, true);
     currentCommentItem = null;
   });
 
@@ -645,7 +647,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const catSelect = document.getElementById('catalogSelect');
   const catalogList = document.getElementById('catalogList');
   const newCatBtn = document.getElementById('newCatBtn');
-  const catalogsSaveBtn = document.getElementById('catalogsSaveBtn');
   let catalogs = [];
   let catalogFile = '';
   let initial = [];
@@ -683,7 +684,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       },
       onDelete: id => deleteCatalogById(id),
-      onReorder: saveCatalogOrder
+      onReorder: () => saveCatalogs(catalogManager.getData(), false, true)
     });
     catalogEditor = createCellEditor(catalogManager, {
       modalSelector: '#catalogEditModal',
@@ -709,6 +710,7 @@ document.addEventListener('DOMContentLoaded', function () {
           item.raetsel_buchstabe = val;
         }
         catalogManager.render(list);
+        saveCatalogs(list, true);
       }
     });
     if (catalogPaginationEl) {
@@ -716,8 +718,44 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  function saveCatalogOrder() {
-    const list = catalogManager.getData();
+  async function saveCatalogs(list = catalogManager?.getData() || [], show = false, reorder = false, retries = 1) {
+    for (const item of list) {
+      const currentId = item.slug?.trim() || '';
+      const newFile = currentId ? currentId + '.json' : '';
+      if (item.new) {
+        let id = currentId;
+        if (!id) {
+          id = uniqueId(item.name || '');
+        }
+        if (!id) continue;
+        try {
+          await apiFetch('/kataloge/' + id + '.json', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: '[]'
+          });
+          item.new = false;
+          item.file = id + '.json';
+          item.slug = id;
+        } catch (err) {
+          console.error(err);
+          notify('Fehler beim Erstellen', 'danger');
+        }
+      } else if (currentId && item.file && item.file !== newFile) {
+        try {
+          const res = await apiFetch('/kataloge/' + item.file, { headers: { 'Accept': 'application/json' } });
+          const content = await res.text();
+          await apiFetch('/kataloge/' + newFile, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: content });
+          await apiFetch('/kataloge/' + item.file, { method: 'DELETE' });
+          item.file = newFile;
+        } catch (err) {
+          console.error(err);
+          notify('Fehler beim Umbenennen', 'danger');
+        }
+      }
+      item.file = newFile;
+    }
+
     const data = list
       .map((c, idx) => ({
         uid: c.id,
@@ -731,26 +769,35 @@ document.addEventListener('DOMContentLoaded', function () {
       }))
       .filter(c => c.slug);
 
-    apiFetch('/kataloge/catalogs.json', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    })
-      .then(r => {
-        if (!r.ok) throw new Error(r.statusText);
-        catalogs = data.map(c => ({ ...c, id: c.uid }));
-        catSelect.innerHTML = '';
-        catalogs.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c.id;
-          opt.textContent = c.name || c.sort_order || c.slug;
-          catSelect.appendChild(opt);
-        });
-      })
-      .catch(err => {
-        console.error(err);
-        notify('Fehler beim Speichern', 'danger');
+    try {
+      const r = await apiFetch('/kataloge/catalogs.json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
       });
+      if (!r.ok) throw new Error(r.statusText);
+      catalogs = data.map(c => ({ ...c, id: c.uid }));
+      catSelect.innerHTML = '';
+      catalogs.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name || c.sort_order || c.slug;
+        catSelect.appendChild(opt);
+      });
+      if (!catalogFile && catalogs.length > 0) {
+        catSelect.value = catalogs[0].id;
+        loadCatalog(catSelect.value);
+      }
+      if (show && !reorder) notify('Katalogliste gespeichert', 'success');
+    } catch (err) {
+      console.error(err);
+      if (retries > 0) {
+        notify('Fehler beim Speichern, versuche es erneut …', 'warning');
+        setTimeout(() => saveCatalogs(list, show, reorder, retries - 1), 1000);
+      } else {
+        notify('Fehler beim Speichern', 'danger');
+      }
+    }
   }
 
   function loadCatalog(identifier) {
@@ -856,6 +903,7 @@ document.addEventListener('DOMContentLoaded', function () {
           initial = [];
           renderAll(initial);
         }
+        saveCatalogs(updated);
         notify('Katalog gelöscht', 'success');
       })
       .catch(err => {
@@ -1445,92 +1493,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const list = catalogManager.getData();
     list.push(item);
     catalogManager.render(list);
+    saveCatalogs(list, true);
     const cell = document.querySelector(`[data-id="${id}"][data-key="name"]`);
     if (cell) {
       catalogEditError.hidden = true;
       catalogEditor.open(cell);
     }
-  });
-
-  catalogsSaveBtn?.addEventListener('click', async e => {
-    e.preventDefault();
-    const list = catalogManager.getData();
-    for (const item of list) {
-      const currentId = item.slug?.trim() || '';
-      const newFile = currentId ? currentId + '.json' : '';
-      if (item.new) {
-        let id = currentId;
-        if (!id) {
-          id = uniqueId(item.name || '');
-        }
-        if (!id) continue;
-        try {
-          await apiFetch('/kataloge/' + id + '.json', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: '[]'
-          });
-          item.new = false;
-          item.file = id + '.json';
-          item.slug = id;
-        } catch (err) {
-          console.error(err);
-          notify('Fehler beim Erstellen', 'danger');
-        }
-      } else if (currentId && item.file && item.file !== newFile) {
-        try {
-          const res = await apiFetch('/kataloge/' + item.file, { headers: { 'Accept': 'application/json' } });
-          const content = await res.text();
-          await apiFetch('/kataloge/' + newFile, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: content });
-          await apiFetch('/kataloge/' + item.file, { method: 'DELETE' });
-          item.file = newFile;
-        } catch (err) {
-          console.error(err);
-          notify('Fehler beim Umbenennen', 'danger');
-        }
-      }
-      item.file = newFile;
-    }
-
-    const data = list
-      .map((c, idx) => ({
-        uid: c.id,
-        sort_order: idx + 1,
-        slug: c.slug,
-        file: c.slug ? c.slug + '.json' : '',
-        name: c.name,
-        description: c.description,
-        raetsel_buchstabe: c.raetsel_buchstabe,
-        comment: c.comment
-      }))
-      .filter(c => c.slug);
-
-    apiFetch('/kataloge/catalogs.json', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    })
-      .then(r => {
-        if (!r.ok) throw new Error(r.statusText);
-        catalogs = data.map(c => ({ ...c, id: c.uid }));
-        catSelect.innerHTML = '';
-        catalogs.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c.id;
-          opt.textContent = c.name || c.sort_order || c.slug;
-          catSelect.appendChild(opt);
-        });
-        catalogManager.render(catalogs);
-        if (!catalogFile && catalogs.length > 0) {
-          catSelect.value = catalogs[0].id;
-          loadCatalog(catSelect.value);
-        }
-        notify('Katalogliste gespeichert', 'success');
-      })
-      .catch(err => {
-        console.error(err);
-        notify('Fehler beim Speichern', 'danger');
-      });
   });
 
 
