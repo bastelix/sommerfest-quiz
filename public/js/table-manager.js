@@ -172,7 +172,7 @@ export default class TableManager {
       li.appendChild(handleBtn);
     }
     const contentWrap = document.createElement('div');
-    contentWrap.className = 'uk-flex-1';
+    contentWrap.className = 'uk-flex-1 qr-card-content';
     const actions = [];
     this.columns.forEach((col, idx) => {
       let c = '';
