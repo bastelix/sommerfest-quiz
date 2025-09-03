@@ -188,7 +188,16 @@ class QrCodeService
     }
 
     /**
-     * @param array{format:string,size:int,margin:int,ecc:int,fg:array{0:int,1:int,2:int},bg:array{0:int,1:int,2:int},logoPath:?string,logoWidth:int} $p
+     * @param array{
+     *     format: string,
+     *     size: int,
+     *     margin: int,
+     *     ecc: int,
+     *     fg: array{0:int,1:int,2:int},
+     *     bg: array{0:int,1:int,2:int},
+     *     logoPath: ?string,
+     *     logoWidth: int,
+     * } $p
      * @return array{mime:string,body:string}
      */
     private function renderQr(string $data, array $p): array
@@ -226,7 +235,15 @@ class QrCodeService
                     $logoData = base64_encode(file_get_contents($p['logoPath']));
                     $x = (int)(($dim - $p['logoWidth']) / 2);
                     $y = (int)(($dim - $p['logoWidth']) / 2);
-                    $image = '<image x="' . $x . '" y="' . $y . '" width="' . $p['logoWidth'] . '" height="' . $p['logoWidth'] . '" href="data:' . $mime . ';base64,' . $logoData . '" />';
+                    $image = sprintf(
+                        '<image x="%d" y="%d" width="%d" height="%d" href="data:%s;base64,%s" />',
+                        $x,
+                        $y,
+                        $p['logoWidth'],
+                        $p['logoWidth'],
+                        $mime,
+                        $logoData
+                    );
                     $svg = preg_replace('/<\/svg>/', $image . '</svg>', $svg);
                 }
             }
@@ -395,8 +412,13 @@ class QrCodeService
      *
      * @param array{0:int,1:int,2:int} $rgb
      */
-    private function createTextLogoPng(string $line1, string $line2, string $fontFile, int $fontSize, array $rgb): string
-    {
+    private function createTextLogoPng(
+        string $line1,
+        string $line2,
+        string $fontFile,
+        int $fontSize,
+        array $rgb
+    ): string {
         $padding = 10;
         $lineHeight = $fontSize + 6;
         $measure = function (string $t) use ($fontFile, $fontSize): int {
