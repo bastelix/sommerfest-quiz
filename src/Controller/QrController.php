@@ -130,7 +130,6 @@ class QrController
         $options = [
             'fg' => $params['fg'] ?? null,
             'bg' => $params['bg'] ?? null,
-            'logoText' => $params['logoText'] ?? null,
         ];
 
         try {
@@ -164,12 +163,6 @@ class QrController
 
         $qrParams = $params;
         $qrParams['format'] = 'png';
-        if (isset($qrParams['logoText'])) {
-            $parts = explode("\n", (string)$qrParams['logoText']);
-            $qrParams['text1'] = $parts[0];
-            $qrParams['text2'] = $parts[1] ?? '';
-            unset($qrParams['logoText']);
-        }
 
         try {
             $out = $this->qrService->generateTeam($qrParams, $cfg);
@@ -299,12 +292,6 @@ class QrController
             $q = $params;
             $q['t'] = $team;
             $q['format'] = 'png';
-            if (isset($q['logoText'])) {
-                $parts = explode("\n", (string)$q['logoText']);
-                $q['text1'] = $parts[0];
-                $q['text2'] = $parts[1] ?? '';
-                unset($q['logoText']);
-            }
             try {
                 $out = $this->qrService->generateTeam($q, $cfg);
             } catch (Throwable $e) {
