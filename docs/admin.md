@@ -26,6 +26,10 @@ Im Tab "Administration" lassen sich JSON-Sicherungen exportieren und bei Bedarf 
 
 Weitere Funktionen wie der QR-Code-Login mit Namensspeicherung oder der Wettkampfmodus lassen sich über die Event-Konfiguration in der Datenbank aktivieren.
 
+## Veranstaltung konfigurieren
+
+Unter **Event-Konfiguration** werden alle quizbezogenen Einstellungen gepflegt. Hier lässt sich etwa das Puzzlewort samt Feedback aktivieren oder ein voreingestelltes Layout laden. Die Bedienoberfläche speichert Änderungen automatisch und reagiert auf Presets wie "Fragen importieren", die zusätzliche Felder entsprechend vorbelegen.
+
 ## Statische Seiten bearbeiten
 
 Im Tab **Seiten** können Administratoren die HTML-Dateien `landing`, `impressum`, `datenschutz` und `faq` anpassen. Über das Untermenü wird die gewünschte Seite ausgewählt und im **Trumbowyg**-Editor bearbeitet. Zusätzlich stehen eigene UIkit-Blöcke zur Verfügung, etwa ein Hero-Abschnitt oder eine Card. Mit **Speichern** werden die Änderungen im Ordner `content/` abgelegt. Die Schaltfläche *Vorschau* zeigt den aktuellen Stand direkt im Modal an. Alternativ kann der Editor weiterhin über `/admin/pages/{slug}` aufgerufen werden.
