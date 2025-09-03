@@ -570,6 +570,15 @@ Unter `/admin` stehen folgende Tabs zur Verfügung:
 ### Teams und QR-Code-Login
 In `data/teams.json` können Teilnehmernamen gespeichert werden. `GET /teams.json` ruft die Liste ab, `POST /teams.json` speichert sie. Ein optionales Häkchen „Nur Teams/Personen aus der Liste dürfen teilnehmen“ aktiviert eine Zugangsbeschränkung via QR-Code. QR-Codes lassen sich direkt in der Oberfläche generieren.
 
+#### Voraussetzungen für QR-Code-Endpunkte
+
+Damit die QR-Code-Endpunkte unter `/qr/...` funktionieren, müssen folgende Bedingungen erfüllt sein:
+
+- Bei Apache ist `mod_rewrite` zu aktivieren oder bei Nginx entsprechende Rewrite-Regeln einzurichten.
+- Die PHP-Erweiterung `gd` muss aktiv sein, um die QR-Codes zu rendern.
+
+Ob die Konfiguration korrekt ist, lässt sich mit `/qr/team?t=Beispiel` testen.
+
 ### Spielerprofil
 Auf `/profile` legen Teilnehmende ihren Anzeigenamen fest. Ist die Option für Zufallsnamen aktiv und noch kein Name hinterlegt, leitet die Startseite automatisch auf diese Profilseite weiter. Nach dem Speichern werden Name und eine zufällige Kennung lokal gespeichert und über `/api/players` an den Server gemeldet.
 
