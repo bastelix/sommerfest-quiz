@@ -132,4 +132,3 @@ class BackupController
         return $response->withStatus(204);
     }
 }
-
