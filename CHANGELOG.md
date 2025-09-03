@@ -158,6 +158,7 @@
 - Add reusable cell editor helper
 - Support event-specific QR logo endpoints
 - *(admin)* Add catalog edit modal
+- Auto-save catalog changes
 
 ### Fix
 
