@@ -148,6 +148,7 @@
 - Improve mobile table layout
 - Add paginated catalog endpoint
 - Add accessible table loading spinners
+- Allow custom QR code options
 
 ### Fix
 
