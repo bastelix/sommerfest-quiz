@@ -251,6 +251,7 @@ class TenantService
                     'qr_color_team' => 'qrColorTeam',
                     'qr_color_catalog' => 'qrColorCatalog',
                     'qr_color_event' => 'qrColorEvent',
+                    'qr_eye_style' => 'qrEyeStyle',
                 ];
                 foreach ($mapping as $old => $new) {
                     if (array_key_exists($old, $cfg) && !array_key_exists($new, $cfg)) {

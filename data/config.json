@@ -28,5 +28,6 @@
     "qrRounded": null,
     "qrColorTeam": null,
     "qrColorCatalog": null,
-    "qrColorEvent": null
+    "qrColorEvent": null,
+    "qrEyeStyle": null
 }

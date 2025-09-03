@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS config (
     qrColorTeam TEXT,
     qrColorCatalog TEXT,
     qrColorEvent TEXT,
+    qrEyeStyle TEXT,
     FOREIGN KEY (event_uid) REFERENCES events(uid) ON DELETE CASCADE
 );
 

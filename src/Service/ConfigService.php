@@ -228,6 +228,7 @@ class ConfigService
             'qrColorTeam',
             'qrColorCatalog',
             'qrColorEvent',
+            'qrEyeStyle',
         ];
         $existing = array_map('strtolower', $this->getConfigColumns());
         $filtered = array_intersect_key($data, array_flip($keys));
@@ -385,6 +386,7 @@ class ConfigService
             'qrColorTeam',
             'qrColorCatalog',
             'qrColorEvent',
+            'qrEyeStyle',
         ];
         $map = [];
         foreach ($keys as $k) {

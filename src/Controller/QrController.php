@@ -113,6 +113,7 @@ class QrController
             'fg' => $params['fg'] ?? null,
             'bg' => $params['bg'] ?? null,
             'logoText' => $params['logoText'] ?? null,
+            'eye' => $params['eye'] ?? null,
         ];
 
         try {
