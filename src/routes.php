@@ -17,6 +17,7 @@ use App\Controller\ConfigController;
 use App\Controller\CatalogController;
 use App\Application\Middleware\RoleAuthMiddleware;
 use App\Service\ConfigService;
+use App\Service\ConfigValidator;
 use App\Service\CatalogService;
 use App\Service\ResultService;
 use App\Service\TeamService;
@@ -179,7 +180,7 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         $request = $request
             ->withAttribute('plan', $plan)
-            ->withAttribute('configController', new ConfigController($configService))
+            ->withAttribute('configController', new ConfigController($configService, new ConfigValidator()))
             ->withAttribute('catalogController', new CatalogController($catalogService))
             ->withAttribute('resultController', new ResultController(
                 $resultService,

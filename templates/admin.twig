@@ -206,7 +206,7 @@
     <li class="{{ activeRoute == 'event/settings' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_event_settings') }}</h2>
-        <form id="configForm" class="uk-form-stacked">
+        <form id="configForm" class="uk-form-stacked" method="post" action="/config.json">
           <div class="uk-child-width-1-1 uk-child-width-1-2@m uk-grid-small" uk-grid>
             <div>
               <div class="uk-margin">
@@ -252,7 +252,7 @@
                 <label class="uk-form-label" for="cfgPageTitle">{{ t('label_page_title') }}
                   <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_page_title') }}; pos: right" tabindex="0"></span>
                 </label>
-                <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgPageTitle"></div>
+                <div class="uk-form-controls"><input class="uk-input" type="text" id="cfgPageTitle" name="pageTitle" value="{{ config.pageTitle|default('') }}"></div>
               </div>
             </div>
             <div>
@@ -261,13 +261,13 @@
                   <label class="uk-form-label" for="cfgBackgroundColor">{{ t('label_background_color') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_background_color') }}; pos: right" tabindex="0"></span>
                   </label>
-                  <div class="uk-form-controls"><input class="uk-input" type="color" id="cfgBackgroundColor"></div>
+                  <div class="uk-form-controls"><input class="uk-input" type="color" id="cfgBackgroundColor" name="backgroundColor" value="{{ config.backgroundColor|default('#ffffff') }}"></div>
                 </div>
                 <div>
                   <label class="uk-form-label" for="cfgButtonColor">{{ t('label_button_color') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_button_color') }}; pos: right" tabindex="0"></span>
                   </label>
-                  <div class="uk-form-controls"><input class="uk-input" type="color" id="cfgButtonColor"></div>
+                  <div class="uk-form-controls"><input class="uk-input" type="color" id="cfgButtonColor" name="buttonColor" value="{{ config.buttonColor|default('#1e87f0') }}"></div>
                 </div>
               </div>
             </div>
@@ -279,14 +279,14 @@
               </div>
               <div>
                 <div class="uk-margin">
-                  <label><input class="uk-checkbox" type="checkbox" id="cfgQRUser"> {{ t('label_qr_login') }}
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgQRUser" name="QRUser" value="1" {% if config.QRUser %}checked{% endif %}> {{ t('label_qr_login') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_qr_button') }}; pos:right" tabindex="0"></span>
                   </label>
                 </div>
               </div>
               <div>
                 <div class="uk-margin">
-                  <label><input class="uk-checkbox" type="checkbox" id="cfgRandomNames"> {{ t('label_random_names') }}
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgRandomNames" name="randomNames" value="1" {% if config.randomNames %}checked{% endif %}> {{ t('label_random_names') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_random_names') }}; pos: right" tabindex="0"></span>
                   </label>
                 </div>
@@ -296,7 +296,7 @@
               </div>
               <div>
                 <div class="uk-margin">
-                  <label><input class="uk-checkbox" type="checkbox" id="cfgTeamRestrict"> {{ t('label_team_restrict') }}
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgTeamRestrict" name="QRRestrict" value="1" {% if config.QRRestrict %}checked{% endif %}> {{ t('label_team_restrict') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_team_restrict') }}; pos: right" tabindex="0"></span>
                   </label>
                 </div>
@@ -306,21 +306,21 @@
               </div>
               <div>
                 <div class="uk-margin">
-                  <label><input class="uk-checkbox" type="checkbox" id="cfgCheckAnswerButton"> {{ t('label_check_button') }}
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgCheckAnswerButton" name="CheckAnswerButton" value="yes" {% if config.CheckAnswerButton != 'no' %}checked{% endif %}> {{ t('label_check_button') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_check_button') }}; pos: right" tabindex="0"></span>
                   </label>
                 </div>
               </div>
               <div>
                 <div class="uk-margin">
-                  <label><input class="uk-checkbox" type="checkbox" id="cfgCompetitionMode"> {{ t('label_competition_mode') }}
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgCompetitionMode" name="competitionMode" value="1" {% if config.competitionMode %}checked{% endif %}> {{ t('label_competition_mode') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_competition_mode') }}; pos: right" tabindex="0"></span>
                   </label>
                 </div>
               </div>
               <div>
                 <div class="uk-margin">
-                  <label><input class="uk-checkbox" type="checkbox" id="cfgTeamResults"> {{ t('label_team_results') }}
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgTeamResults" name="teamResults" value="1" {% if config.teamResults %}checked{% endif %}> {{ t('label_team_results') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_team_results') }}; pos: right" tabindex="0"></span>
                   </label>
                 </div>
@@ -330,19 +330,19 @@
               </div>
               <div>
                 <div class="uk-margin">
-                  <label><input class="uk-checkbox" type="checkbox" id="cfgPhotoUpload"> {{ t('label_photo_upload') }}
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgPhotoUpload" name="photoUpload" value="1" {% if config.photoUpload %}checked{% endif %}> {{ t('label_photo_upload') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_photo_upload') }}; pos: right" tabindex="0"></span>
                   </label>
                 </div>
               </div>
               <div>
                 <div class="uk-margin">
-                  <label><input class="uk-checkbox" type="checkbox" id="cfgPuzzleEnabled"> {{ t('label_puzzle_word') }}
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgPuzzleEnabled" name="puzzleWordEnabled" value="1" {% if config.puzzleWordEnabled %}checked{% endif %}> {{ t('label_puzzle_word') }}
                     <span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: {{ t('tip_puzzle_word') }}; pos: right" tabindex="0"></span>
                   </label>
                   <div id="cfgPuzzleWordWrap" class="uk-margin-small-top uk-grid uk-child-width-1-2@m uk-grid-small uk-flex-middle" uk-grid>
                     <div>
-                      <input class="uk-input" type="text" id="cfgPuzzleWord" placeholder="{{ t('placeholder_puzzle_word') }}">
+                      <input class="uk-input" type="text" id="cfgPuzzleWord" name="puzzleWord" placeholder="{{ t('placeholder_puzzle_word') }}" value="{{ config.puzzleWord|default('') }}">
                     </div>
                     <div>
                       <button id="puzzleFeedbackBtn" class="uk-button uk-button-default uk-width-1-1@m" type="button" uk-toggle="target: #puzzleFeedbackModal">
@@ -353,6 +353,9 @@
                   </div>
                 </div>
               </div>
+          </div>
+          <div class="uk-margin">
+            <button class="uk-button uk-button-primary" type="submit">{{ t('action_save') }}</button>
           </div>
         </form>
 

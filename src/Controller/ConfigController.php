@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\ConfigService;
+use App\Service\ConfigValidator;
 use App\Domain\Roles;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -15,13 +16,15 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class ConfigController
 {
     private ConfigService $service;
+    private ConfigValidator $validator;
 
     /**
      * Inject configuration service dependency.
      */
-    public function __construct(ConfigService $service)
+    public function __construct(ConfigService $service, ConfigValidator $validator)
     {
         $this->service = $service;
+        $this->validator = $validator;
     }
 
     /**
@@ -69,7 +72,13 @@ class ConfigController
             return $response->withStatus(400);
         }
 
-        $this->service->saveConfig($data);
+        $validation = $this->validator->validate($data);
+        if ($validation['errors'] !== []) {
+            $response->getBody()->write(json_encode(['errors' => $validation['errors']]));
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        $this->service->saveConfig($validation['config']);
 
         return $response->withStatus(204);
     }

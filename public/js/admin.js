@@ -377,61 +377,6 @@ document.addEventListener('DOMContentLoaded', function () {
   let puzzleFeedback = '';
   let inviteText = '';
   let currentCommentInput = null;
-  let cfgSaveTimer = null;
-
-  function collectConfigData() {
-    return Object.assign({}, cfgInitial, {
-      logoPath: (function () {
-        if (cfgFields.logoPreview && cfgFields.logoPreview.src) {
-          const m = cfgFields.logoPreview.src.match(/\/logo(?:-[\w-]+)?\.(png|webp)/);
-          if (m) return m[0];
-        }
-        return cfgInitial.logoPath;
-      })(),
-      pageTitle: cfgFields.pageTitle.value.trim(),
-      backgroundColor: cfgFields.backgroundColor.value.trim(),
-      buttonColor: cfgFields.buttonColor.value.trim(),
-      CheckAnswerButton: cfgFields.checkAnswerButton.checked ? 'yes' : 'no',
-      QRUser: cfgFields.qrUser.checked,
-      QRRestrict: cfgFields.teamRestrict ? cfgFields.teamRestrict.checked : cfgInitial.QRRestrict,
-      randomNames: cfgFields.randomNames ? cfgFields.randomNames.checked : cfgInitial.randomNames,
-      competitionMode: cfgFields.competitionMode ? cfgFields.competitionMode.checked : cfgInitial.competitionMode,
-      teamResults: cfgFields.teamResults ? cfgFields.teamResults.checked : cfgInitial.teamResults,
-      photoUpload: cfgFields.photoUpload ? cfgFields.photoUpload.checked : cfgInitial.photoUpload,
-      puzzleWordEnabled: cfgFields.puzzleEnabled ? cfgFields.puzzleEnabled.checked : cfgInitial.puzzleWordEnabled,
-      puzzleWord: cfgFields.puzzleWord ? cfgFields.puzzleWord.value.trim() : cfgInitial.puzzleWord,
-      puzzleFeedback: puzzleFeedback,
-      inviteText: inviteText
-    });
-  }
-
-  function saveConfig(show = true) {
-    const data = collectConfigData();
-    apiFetch('/config.json', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    })
-      .then(r => {
-        if (r.ok) {
-          if (show) notify('Konfiguration gespeichert', 'success');
-          Object.assign(cfgInitial, data);
-        } else if (r.status === 400) {
-          notify('Ungültige Daten', 'danger');
-        } else {
-          throw new Error(r.statusText);
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        notify('Fehler beim Speichern', 'danger');
-      });
-  }
-
-  function scheduleConfigSave() {
-    clearTimeout(cfgSaveTimer);
-    cfgSaveTimer = setTimeout(saveConfig, 1000);
-  }
 
   function wrapSelection(textarea, before, after) {
     if (!textarea) return;
@@ -616,7 +561,6 @@ document.addEventListener('DOMContentLoaded', function () {
     puzzleModal.hide();
     cfgInitial.puzzleFeedback = puzzleFeedback;
     notify('Feedbacktext gespeichert', 'success');
-    saveConfig(false);
   });
 
   inviteSaveBtn?.addEventListener('click', () => {
@@ -626,7 +570,6 @@ document.addEventListener('DOMContentLoaded', function () {
     inviteModal.hide();
     cfgInitial.inviteText = inviteText;
     notify('Einladungstext gespeichert', 'success');
-    saveConfig(false);
   });
 
   commentSaveBtn?.addEventListener('click', () => {
@@ -676,21 +619,7 @@ document.addEventListener('DOMContentLoaded', function () {
     cfgFields.pageTitle,
     cfgFields.backgroundColor,
     cfgFields.buttonColor,
-    cfgFields.checkAnswerButton,
-    cfgFields.qrUser,
-    cfgFields.randomNames,
-    cfgFields.teamRestrict,
-    cfgFields.competitionMode,
-    cfgFields.teamResults,
-    cfgFields.photoUpload,
-    cfgFields.puzzleEnabled,
-    cfgFields.puzzleWord
-  ].forEach(field => {
-    const ev = field?.type === 'checkbox' ? 'change' : 'input';
-    field?.addEventListener(ev, scheduleConfigSave);
-  });
-
-
+    // Former auto-save fields removed; form submission handled by backend.
   const summaryPrintBtn = document.getElementById('summaryPrintBtn');
   summaryPrintBtn?.addEventListener('click', function (e) {
     e.preventDefault();
