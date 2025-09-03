@@ -222,6 +222,7 @@ return [
     'action_open_subscription' => 'Open customer portal',
     'action_start_subscription' => 'Subscribe',
     'action_open_evaluation' => 'Open evaluation',
+    'action_restore' => 'Restore',
     'action_download' => 'Download',
     'action_delete_tenant' => 'Delete tenant',
     'action_build_image' => 'Build Docker image',

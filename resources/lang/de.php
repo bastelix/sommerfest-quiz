@@ -220,6 +220,7 @@ return [
     'action_open_subscription' => 'Kundenportal öffnen',
     'action_start_subscription' => 'Buchen',
     'action_open_evaluation' => 'Auswertung öffnen',
+    'action_restore' => 'Wiederherstellen',
     'action_download' => 'Herunterladen',
     'action_delete_tenant' => 'Mandant löschen',
     'action_build_image' => 'Docker-Image bauen',

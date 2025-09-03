@@ -2394,76 +2394,53 @@ document.addEventListener('DOMContentLoaded', function () {
   function loadBackups() {
     if (!backupTableBody) return;
     apiFetch('/backups')
-      .then(r => r.json())
-      .then(list => {
-        backupTableBody.innerHTML = '';
-        if (list.length === 0) {
-          const row = document.createElement('tr');
-          const cell = document.createElement('td');
-          cell.colSpan = 2;
-          cell.textContent = 'Keine Backups';
-          row.appendChild(cell);
-          backupTableBody.appendChild(row);
-          return;
-        }
-        list.forEach(name => {
-          const tr = document.createElement('tr');
-          const nameTd = document.createElement('td');
-          nameTd.textContent = name;
-          const actionTd = document.createElement('td');
-          const imp = document.createElement('button');
-          imp.className = 'uk-button uk-button-primary uk-margin-small-right';
-          imp.textContent = 'Wiederherstellen';
-          imp.addEventListener('click', () => {
-            apiFetch('/backups/' + encodeURIComponent(name) + '/restore', { method: 'POST' })
-              .then(r => {
-                if (!r.ok) throw new Error(r.statusText);
-                notify('Import abgeschlossen', 'success');
-              })
-              .catch(() => notify('Fehler beim Import', 'danger'));
-          });
-          const dl = document.createElement('button');
-          dl.className = 'uk-button uk-button-default uk-margin-small-right';
-          dl.textContent = 'Download';
-          dl.addEventListener('click', () => {
-            apiFetch('/backups/' + encodeURIComponent(name) + '/download')
-              .then(r => r.blob())
-              .then(blob => {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = name + '.zip';
-                a.click();
-                URL.revokeObjectURL(url);
-              })
-              .catch(() => notify('Fehler beim Download', 'danger'));
-          });
-          const del = document.createElement('button');
-          del.className = 'uk-button uk-button-danger';
-          del.textContent = 'Löschen';
-          del.addEventListener('click', () => {
-            apiFetch('/backups/' + encodeURIComponent(name), { method: 'DELETE' })
-              .then(r => {
-                if (r.ok) {
-                  loadBackups();
-                  return;
-                }
-                return r.json().then(data => {
-                  throw new Error(data.error || r.statusText);
-                });
-              })
-              .catch(err => notify(err.message || 'Fehler beim Löschen', 'danger'));
-          });
-          actionTd.appendChild(imp);
-          actionTd.appendChild(dl);
-          actionTd.appendChild(del);
-          tr.appendChild(nameTd);
-          tr.appendChild(actionTd);
-          backupTableBody.appendChild(tr);
-        });
+      .then(r => r.text())
+      .then(html => {
+        backupTableBody.innerHTML = html;
       })
-      .catch(() => {});
+      .catch(() => {
+        backupTableBody.innerHTML = '<tr><td colspan="2">Fehler</td></tr>';
+      });
   }
+
+  backupTableBody?.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-action][data-name]');
+    if (!btn) return;
+    const { action, name } = btn.dataset;
+    if (!name) return;
+    if (action === 'restore') {
+      apiFetch('/backups/' + encodeURIComponent(name) + '/restore', { method: 'POST' })
+        .then(r => {
+          if (!r.ok) throw new Error(r.statusText);
+          notify('Import abgeschlossen', 'success');
+        })
+        .catch(() => notify('Fehler beim Import', 'danger'));
+    } else if (action === 'download') {
+      apiFetch('/backups/' + encodeURIComponent(name) + '/download')
+        .then(r => r.blob())
+        .then(blob => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = name + '.zip';
+          a.click();
+          URL.revokeObjectURL(url);
+        })
+        .catch(() => notify('Fehler beim Download', 'danger'));
+    } else if (action === 'delete') {
+      apiFetch('/backups/' + encodeURIComponent(name), { method: 'DELETE' })
+        .then(r => {
+          if (r.ok) {
+            loadBackups();
+            return;
+          }
+          return r.json().then(data => {
+            throw new Error(data.error || r.statusText);
+          });
+        })
+        .catch(err => notify(err.message || 'Fehler beim Löschen', 'danger'));
+    }
+  });
   importJsonBtn?.addEventListener('click', e => {
     e.preventDefault();
     apiFetch('/restore-default', { method: 'POST' })

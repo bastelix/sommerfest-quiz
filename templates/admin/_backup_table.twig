@@ -1,0 +1,15 @@
+{% if backups is empty %}
+  <tr><td colspan="2">{{ t('text_no_backups') }}</td></tr>
+{% else %}
+  {% for name in backups %}
+    <tr>
+      <td>{{ name }}</td>
+      <td>
+        <button class="uk-button uk-button-primary uk-margin-small-right" data-action="restore" data-name="{{ name }}">{{ t('action_restore') }}</button>
+        <button class="uk-button uk-button-default uk-margin-small-right" data-action="download" data-name="{{ name }}">{{ t('action_download') }}</button>
+        <button class="uk-button uk-button-danger" data-action="delete" data-name="{{ name }}">{{ t('action_delete') }}</button>
+      </td>
+    </tr>
+  {% endfor %}
+{% endif %}
+
