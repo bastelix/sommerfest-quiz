@@ -2756,7 +2756,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const nameEl = document.getElementById('summaryEventName');
     const descEl = document.getElementById('summaryEventDesc');
     const qrImg = document.getElementById('summaryEventQr');
-    const qrLabel = document.getElementById('summaryEventLabel');
     const catalogsEl = document.getElementById('summaryCatalogs');
     const teamsEl = document.getElementById('summaryTeams');
     if (!nameEl || !catalogsEl || !teamsEl) return;
@@ -2801,7 +2800,6 @@ document.addEventListener('DOMContentLoaded', function () {
         applyDesign(params, 'qrColorEvent');
         qrImg.src = withBase('/qr/event?' + params.toString());
       }
-      if (qrLabel) qrLabel.textContent = ev.name || '';
       catalogsEl.innerHTML = '';
       catalogs.forEach(c => {
         const wrapper = document.createElement('div');
@@ -2832,9 +2830,6 @@ document.addEventListener('DOMContentLoaded', function () {
         img.alt = 'QR';
         img.width = 96;
         img.height = 96;
-        const label = document.createElement('div');
-        label.className = 'qr-label';
-        label.textContent = c.name || '';
         const designBtn = document.createElement('button');
         designBtn.className = 'uk-icon-button uk-margin-small-top';
         designBtn.setAttribute('uk-icon', 'icon: paint-bucket');
@@ -2845,7 +2840,6 @@ document.addEventListener('DOMContentLoaded', function () {
         card.appendChild(h4);
         card.appendChild(p);
         card.appendChild(img);
-        card.appendChild(label);
         card.appendChild(designBtn);
         wrapper.appendChild(card);
         catalogsEl.appendChild(wrapper);
@@ -2874,9 +2868,6 @@ document.addEventListener('DOMContentLoaded', function () {
         img.alt = 'QR';
         img.width = 96;
         img.height = 96;
-        const label = document.createElement('div');
-        label.className = 'qr-label';
-        label.textContent = t;
         const designBtn = document.createElement('button');
         designBtn.className = 'uk-icon-button uk-position-top-left';
         designBtn.setAttribute('uk-icon', 'icon: paint-bucket');
@@ -2887,7 +2878,6 @@ document.addEventListener('DOMContentLoaded', function () {
         card.appendChild(btn);
         card.appendChild(h4);
         card.appendChild(img);
-        card.appendChild(label);
         card.appendChild(designBtn);
         wrapper.appendChild(card);
         teamsEl.appendChild(wrapper);
