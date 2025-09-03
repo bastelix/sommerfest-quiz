@@ -1629,31 +1629,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // --------- Veranstaltungen ---------
   const eventsListEl = document.getElementById('eventsList');
+  const eventsCardsEl = document.getElementById('eventsCards');
   const eventAddBtn = document.getElementById('eventAddBtn');
   const eventSelect = document.getElementById('eventSelect');
   const eventSelectWrap = document.getElementById('eventSelectWrap');
   const eventOpenBtn = document.getElementById('eventOpenBtn');
   const langSelect = document.getElementById('langSelect');
   let activeEventUid = cfgInitial.event_uid || '';
+  let eventManager;
 
-  function collectEvents() {
-    return Array.from(eventsListEl.querySelectorAll('.event-row')).map(row => {
-      const publishedInput = row.querySelector('.event-published');
-      const published = publishedInput ? publishedInput.checked : row.dataset.published === 'true';
-      row.dataset.published = published.toString();
-      return {
-        uid: row.dataset.uid || crypto.randomUUID(),
-        name: row.querySelector('.event-name').value.trim(),
-        start_date: row.querySelector('.event-start').value.trim() || new Date().toISOString().slice(0, 16),
-        end_date: row.querySelector('.event-end').value.trim() || new Date().toISOString().slice(0, 16),
-        description: row.querySelector('.event-desc').value.trim(),
-        published
-      };
-    }).filter(e => e.name);
+  function createEventItem(ev = {}) {
+    const id = ev.uid || ev.id || crypto.randomUUID();
+    return {
+      id,
+      uid: id,
+      name: ev.name || '',
+      start_date: ev.start_date || new Date().toISOString().slice(0, 16),
+      end_date: ev.end_date || new Date().toISOString().slice(0, 16),
+      description: ev.description || '',
+      published: ev.published || false
+    };
   }
 
   function saveEvents() {
-    const list = collectEvents();
+    if (!eventManager) return;
+    const list = eventManager.getData().map(ev => ({
+      uid: ev.id,
+      name: ev.name,
+      start_date: ev.start_date,
+      end_date: ev.end_date,
+      description: ev.description,
+      published: ev.published
+    })).filter(e => e.name);
     apiFetch('/events.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1669,179 +1676,10 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function updateEventRowNumbers() {
-    Array.from(eventsListEl.querySelectorAll('.event-row')).forEach((row, idx) => {
-      const cell = row.querySelector('.row-num .row-number');
+    Array.from(eventsListEl?.querySelectorAll('tr') || []).forEach((row, idx) => {
+      const cell = row.querySelector('.row-number');
       if (cell) cell.textContent = idx + 1;
     });
-  }
-
-  function createEventRow(ev = {}) {
-    const row = document.createElement('tr');
-    row.className = 'event-row';
-    row.setAttribute('role', 'row');
-    row.dataset.uid = ev.uid || crypto.randomUUID();
-    row.dataset.published = ev.published ? 'true' : 'false';
-
-    if (ev.uid === activeEventUid) {
-      row.classList.add('active-event');
-    }
-
-    const labels = eventsListEl?.dataset || {};
-
-    const handleCell = document.createElement('td');
-    handleCell.setAttribute('role', 'cell');
-    const handleLabel = document.createElement('span');
-    handleLabel.className = 'cell-label uk-hidden@s';
-    handleLabel.textContent = labels.labelActions || '';
-    handleCell.appendChild(handleLabel);
-    const handleSpan = document.createElement('span');
-    handleSpan.className = 'uk-sortable-handle uk-icon';
-    handleSpan.setAttribute('uk-icon', 'icon: table');
-    handleCell.appendChild(handleSpan);
-
-    const indexCell = document.createElement('td');
-    indexCell.className = 'row-num';
-    indexCell.setAttribute('role', 'cell');
-    const indexLabel = document.createElement('span');
-    indexLabel.className = 'cell-label uk-hidden@s';
-    indexLabel.textContent = labels.labelNumber || '';
-    const indexValue = document.createElement('span');
-    indexValue.className = 'row-number';
-    indexCell.appendChild(indexLabel);
-    indexCell.appendChild(indexValue);
-
-    const nameCell = document.createElement('td');
-    nameCell.setAttribute('role', 'cell');
-    const nameLabel = document.createElement('span');
-    nameLabel.className = 'cell-label uk-hidden@s';
-    nameLabel.textContent = labels.labelName || '';
-    nameCell.appendChild(nameLabel);
-    const nameInput = document.createElement('input');
-    nameInput.type = 'text';
-    nameInput.className = 'uk-input event-name';
-    nameInput.placeholder = 'Name';
-    nameInput.value = ev.name || '';
-    nameCell.appendChild(nameInput);
-
-    const startCell = document.createElement('td');
-    startCell.setAttribute('role', 'cell');
-    const startLabel = document.createElement('span');
-    startLabel.className = 'cell-label uk-hidden@s';
-    startLabel.textContent = labels.labelStart || '';
-    startCell.appendChild(startLabel);
-    const startWrapper = document.createElement('div');
-    startWrapper.className = 'uk-inline';
-    const startIcon = document.createElement('span');
-    startIcon.className = 'uk-form-icon';
-    startIcon.setAttribute('uk-icon', 'icon: calendar');
-    const startInput = document.createElement('input');
-    startInput.type = 'datetime-local';
-    startInput.className = 'uk-input event-start';
-    startInput.placeholder = 'TT.MM.JJJJ HH:MM';
-    const now = new Date().toISOString().slice(0, 16);
-    startInput.value = ev.start_date || now;
-    startWrapper.appendChild(startIcon);
-    startWrapper.appendChild(startInput);
-    startCell.appendChild(startWrapper);
-
-    const endCell = document.createElement('td');
-    endCell.setAttribute('role', 'cell');
-    const endLabel = document.createElement('span');
-    endLabel.className = 'cell-label uk-hidden@s';
-    endLabel.textContent = labels.labelEnd || '';
-    endCell.appendChild(endLabel);
-    const endWrapper = document.createElement('div');
-    endWrapper.className = 'uk-inline';
-    const endIcon = document.createElement('span');
-    endIcon.className = 'uk-form-icon';
-    endIcon.setAttribute('uk-icon', 'icon: calendar');
-    const endInput = document.createElement('input');
-    endInput.type = 'datetime-local';
-    endInput.className = 'uk-input event-end';
-    endInput.placeholder = 'TT.MM.JJJJ HH:MM';
-    endInput.value = ev.end_date || now;
-    endWrapper.appendChild(endIcon);
-    endWrapper.appendChild(endInput);
-    endCell.appendChild(endWrapper);
-
-    const descCell = document.createElement('td');
-    descCell.setAttribute('role', 'cell');
-    const descLabel = document.createElement('span');
-    descLabel.className = 'cell-label uk-hidden@s';
-    descLabel.textContent = labels.labelDescription || '';
-    descCell.appendChild(descLabel);
-    const descInput = document.createElement('input');
-    descInput.type = 'text';
-    descInput.className = 'uk-input event-desc';
-    descInput.placeholder = 'Beschreibung';
-    descInput.value = ev.description || '';
-    descCell.appendChild(descInput);
-
-    const activateCell = document.createElement('td');
-    activateCell.setAttribute('role', 'cell');
-    const activateCellLabel = document.createElement('span');
-    activateCellLabel.className = 'cell-label uk-hidden@s';
-    activateCellLabel.textContent = labels.labelCurrent || '';
-    activateCell.appendChild(activateCellLabel);
-    const activateLabel = document.createElement('label');
-    activateLabel.className = 'switch';
-    activateLabel.setAttribute('uk-tooltip', `title: ${labels.tipSelectEvent || ''}; pos: top`);
-    const activateInput = document.createElement('input');
-    activateInput.type = 'radio';
-    activateInput.name = 'currentEvent';
-    activateInput.checked = ev.uid === activeEventUid;
-    activateInput.setAttribute('aria-label', labels.tipSelectEvent || '');
-    const activateSlider = document.createElement('span');
-    activateSlider.className = 'slider';
-    activateInput.addEventListener('change', () => {
-      if (activateInput.checked) {
-        setActiveEvent(row.dataset.uid, nameInput.value.trim());
-        row.classList.add('active-event');
-      } else {
-        row.classList.remove('active-event');
-      }
-    });
-    activateLabel.appendChild(activateInput);
-    activateLabel.appendChild(activateSlider);
-    activateCell.appendChild(activateLabel);
-
-    const delCell = document.createElement('td');
-    delCell.setAttribute('role', 'cell');
-    const delLabel = document.createElement('span');
-    delLabel.className = 'cell-label uk-hidden@s';
-    delLabel.textContent = labels.labelActions || '';
-    delCell.appendChild(delLabel);
-    const del = document.createElement('button');
-    del.className = 'uk-icon-button uk-button-danger';
-    del.setAttribute('uk-icon', 'trash');
-    del.setAttribute('aria-label', 'Löschen');
-    del.addEventListener('click', () => {
-      UIkit.modal
-        .confirm('Veranstaltung wirklich löschen? Dabei werden auch alle angelegten Kataloge, Fragen und Teams entfernt.')
-        .then(() => {
-          row.remove();
-          saveEvents();
-        })
-        .catch(() => {});
-    });
-    delCell.appendChild(del);
-
-    row.appendChild(handleCell);
-    row.appendChild(indexCell);
-    row.appendChild(nameCell);
-    row.appendChild(startCell);
-    row.appendChild(endCell);
-    row.appendChild(descCell);
-    row.appendChild(activateCell);
-    row.appendChild(delCell);
-    return row;
-  }
-
-  function renderEvents(list) {
-    if (!eventsListEl) return;
-    eventsListEl.innerHTML = '';
-    list.forEach(ev => eventsListEl.appendChild(createEventRow(ev)));
-    updateEventRowNumbers();
   }
 
   function populateEventSelect(list) {
@@ -1858,6 +1696,259 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     updateEventSelectDisplay();
   }
+
+  function highlightActiveEvent() {
+    Array.from(eventsListEl?.querySelectorAll('tr') || []).forEach(row => {
+      row.classList.toggle('active-event', row.dataset.id === activeEventUid);
+    });
+    Array.from(eventsCardsEl?.children || []).forEach(card => {
+      card.classList.toggle('active-event', card.dataset.id === activeEventUid);
+    });
+  }
+
+  function setActiveEvent(uid, name) {
+    activeEventUid = uid;
+    cfgInitial.event_uid = uid;
+    updateActiveHeader(name, uid);
+    apiFetch('/config.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event_uid: uid })
+    }).then(() => {
+      window.location.reload();
+    }).catch(() => {});
+  }
+
+  if (eventsListEl) {
+    const labels = eventsListEl.dataset || {};
+    eventManager = new TableManager({
+      tbody: eventsListEl,
+      mobileCards: { container: eventsCardsEl },
+      sortable: true,
+      columns: [
+        {
+          className: 'row-num',
+          render: () => {
+            const span = document.createElement('span');
+            span.className = 'row-number';
+            return span;
+          },
+          renderCard: () => {
+            const span = document.createElement('span');
+            span.className = 'row-number';
+            return span;
+          }
+        },
+        {
+          className: 'event-name',
+          render: ev => {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'uk-input event-name';
+            input.placeholder = 'Name';
+            input.value = ev.name;
+            input.addEventListener('change', () => { ev.name = input.value.trim(); saveEvents(); });
+            return input;
+          },
+          renderCard: ev => {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'uk-input event-name';
+            input.placeholder = 'Name';
+            input.value = ev.name;
+            input.addEventListener('change', () => { ev.name = input.value.trim(); saveEvents(); });
+            return input;
+          }
+        },
+        {
+          render: ev => {
+            const wrap = document.createElement('div');
+            wrap.className = 'uk-inline';
+            const icon = document.createElement('span');
+            icon.className = 'uk-form-icon';
+            icon.setAttribute('uk-icon', 'icon: calendar');
+            const input = document.createElement('input');
+            input.type = 'datetime-local';
+            input.className = 'uk-input event-start';
+            input.placeholder = 'TT.MM.JJJJ HH:MM';
+            input.value = ev.start_date;
+            input.addEventListener('change', () => { ev.start_date = input.value; saveEvents(); });
+            wrap.appendChild(icon);
+            wrap.appendChild(input);
+            return wrap;
+          },
+          renderCard: ev => {
+            const wrap = document.createElement('div');
+            wrap.className = 'uk-inline';
+            const icon = document.createElement('span');
+            icon.className = 'uk-form-icon';
+            icon.setAttribute('uk-icon', 'icon: calendar');
+            const input = document.createElement('input');
+            input.type = 'datetime-local';
+            input.className = 'uk-input event-start';
+            input.placeholder = 'TT.MM.JJJJ HH:MM';
+            input.value = ev.start_date;
+            input.addEventListener('change', () => { ev.start_date = input.value; saveEvents(); });
+            wrap.appendChild(icon);
+            wrap.appendChild(input);
+            return wrap;
+          }
+        },
+        {
+          render: ev => {
+            const wrap = document.createElement('div');
+            wrap.className = 'uk-inline';
+            const icon = document.createElement('span');
+            icon.className = 'uk-form-icon';
+            icon.setAttribute('uk-icon', 'icon: calendar');
+            const input = document.createElement('input');
+            input.type = 'datetime-local';
+            input.className = 'uk-input event-end';
+            input.placeholder = 'TT.MM.JJJJ HH:MM';
+            input.value = ev.end_date;
+            input.addEventListener('change', () => { ev.end_date = input.value; saveEvents(); });
+            wrap.appendChild(icon);
+            wrap.appendChild(input);
+            return wrap;
+          },
+          renderCard: ev => {
+            const wrap = document.createElement('div');
+            wrap.className = 'uk-inline';
+            const icon = document.createElement('span');
+            icon.className = 'uk-form-icon';
+            icon.setAttribute('uk-icon', 'icon: calendar');
+            const input = document.createElement('input');
+            input.type = 'datetime-local';
+            input.className = 'uk-input event-end';
+            input.placeholder = 'TT.MM.JJJJ HH:MM';
+            input.value = ev.end_date;
+            input.addEventListener('change', () => { ev.end_date = input.value; saveEvents(); });
+            wrap.appendChild(icon);
+            wrap.appendChild(input);
+            return wrap;
+          }
+        },
+        {
+          render: ev => {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'uk-input event-desc';
+            input.placeholder = 'Beschreibung';
+            input.value = ev.description;
+            input.addEventListener('change', () => { ev.description = input.value.trim(); saveEvents(); });
+            return input;
+          },
+          renderCard: ev => {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'uk-input event-desc';
+            input.placeholder = 'Beschreibung';
+            input.value = ev.description;
+            input.addEventListener('change', () => { ev.description = input.value.trim(); saveEvents(); });
+            return input;
+          }
+        },
+        {
+          render: ev => {
+            const label = document.createElement('label');
+            label.className = 'switch';
+            label.setAttribute('uk-tooltip', `title: ${labels.tipSelectEvent || ''}; pos: top`);
+            const input = document.createElement('input');
+            input.type = 'radio';
+            input.name = 'currentEvent';
+            input.dataset.id = ev.id;
+            input.checked = ev.id === activeEventUid;
+            input.addEventListener('change', () => {
+              if (input.checked) {
+                const twin = eventsCardsEl?.querySelector(`input[name="currentEvent"][data-id="${ev.id}"]`);
+                if (twin) twin.checked = true;
+                setActiveEvent(ev.id, ev.name);
+                highlightActiveEvent();
+              }
+            });
+            const slider = document.createElement('span');
+            slider.className = 'slider';
+            label.appendChild(input);
+            label.appendChild(slider);
+            return label;
+          },
+          renderCard: ev => {
+            const label = document.createElement('label');
+            label.className = 'switch';
+            label.setAttribute('uk-tooltip', `title: ${labels.tipSelectEvent || ''}; pos: top`);
+            const input = document.createElement('input');
+            input.type = 'radio';
+            input.name = 'currentEvent';
+            input.dataset.id = ev.id;
+            input.checked = ev.id === activeEventUid;
+            input.addEventListener('change', () => {
+              if (input.checked) {
+                const twin = eventsListEl.querySelector(`input[name="currentEvent"][data-id="${ev.id}"]`);
+                if (twin) twin.checked = true;
+                setActiveEvent(ev.id, ev.name);
+                highlightActiveEvent();
+              }
+            });
+            const slider = document.createElement('span');
+            slider.className = 'slider';
+            label.appendChild(input);
+            label.appendChild(slider);
+            return label;
+          }
+        }
+      ],
+      onDelete: removeEvent,
+      onReorder: () => {
+        updateEventRowNumbers();
+        saveEvents();
+      }
+    });
+  }
+
+  function removeEvent(id) {
+    const list = eventManager.getData();
+    const idx = list.findIndex(e => e.id === id);
+    if (idx !== -1) {
+      list.splice(idx, 1);
+      eventManager.render(list);
+      updateEventRowNumbers();
+      saveEvents();
+      populateEventSelect(list);
+    }
+  }
+
+  if (eventManager || eventSelect) {
+    apiFetch('/events.json', { headers: { 'Accept': 'application/json' } })
+      .then(r => r.json())
+      .then(data => {
+        const list = data.map(d => createEventItem(d));
+        if (eventManager) {
+          eventManager.render(list);
+          updateEventRowNumbers();
+          highlightActiveEvent();
+        }
+        populateEventSelect(list);
+      })
+      .catch(() => {});
+  }
+
+  eventAddBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    if (!eventManager) return;
+    const list = eventManager.getData();
+    const item = createEventItem();
+    list.push(item);
+    eventManager.render(list);
+    updateEventRowNumbers();
+    saveEvents();
+  });
+
+  eventsListEl?.addEventListener('change', () => {
+    saveEvents();
+  });
+  eventsCardsEl?.addEventListener('change', () => {
+    saveEvents();
+  });
 
   function updateActiveHeader(name, uid) {
     if (eventSelect) {
@@ -1880,45 +1971,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     window.dispatchEvent(new Event('resize'));
   }
-
-  function setActiveEvent(uid, name) {
-    activeEventUid = uid;
-    cfgInitial.event_uid = uid;
-    updateActiveHeader(name, uid);
-    apiFetch('/config.json', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event_uid: uid })
-    }).then(() => {
-      window.location.reload();
-    }).catch(() => {});
-  }
-
-  if (eventsListEl && window.UIkit && UIkit.util) {
-    UIkit.util.on(eventsListEl, 'moved', () => {
-      saveEvents();
-    });
-  }
-
-  if (eventsListEl || eventSelect) {
-    apiFetch('/events.json', { headers: { 'Accept': 'application/json' } })
-      .then(r => r.json())
-      .then(data => {
-        renderEvents(data);
-        populateEventSelect(data);
-      })
-      .catch(() => {});
-  }
-
-  eventAddBtn?.addEventListener('click', e => {
-    e.preventDefault();
-    eventsListEl.appendChild(createEventRow());
-    updateEventRowNumbers();
-  });
-
-  eventsListEl?.addEventListener('change', () => {
-    saveEvents();
-  });
 
   eventSelect?.addEventListener('change', () => {
     const uid = eventSelect.value;
