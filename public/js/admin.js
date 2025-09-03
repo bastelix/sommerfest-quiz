@@ -1,6 +1,7 @@
 /* global UIkit */
 
 import TableManager from './table-manager.js';
+import { createCellEditor } from './edit-helpers.js';
 
 const basePath = window.basePath || '';
 const withBase = path => basePath + path;
@@ -373,17 +374,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const commentModal = UIkit.modal('#catalogCommentModal');
   const commentToolbar = document.getElementById('catalogCommentToolbar');
   const catalogEditInput = document.getElementById('catalogEditInput');
-  const catalogEditSave = document.getElementById('catalogEditSave');
-  const catalogEditCancel = document.getElementById('catalogEditCancel');
-  const catalogEditModal = UIkit.modal('#catalogEditModal');
   const catalogEditError = document.getElementById('catalogEditError');
   const resultsResetModal = UIkit.modal('#resultsResetModal');
   const resultsResetConfirm = document.getElementById('resultsResetConfirm');
   let puzzleFeedback = '';
   let inviteText = '';
   let currentCommentItem = null;
-  let currentCatalogItem = null;
-  let currentCatalogKey = null;
 
   function wrapSelection(textarea, before, after) {
     if (!textarea) return;
@@ -587,31 +583,6 @@ document.addEventListener('DOMContentLoaded', function () {
     currentCommentItem = null;
   });
 
-  catalogEditCancel?.addEventListener('click', () => catalogEditModal.hide());
-
-  catalogEditSave?.addEventListener('click', () => {
-    if (!catalogManager || !currentCatalogItem || !currentCatalogKey) return;
-    let val = catalogEditInput.value.trim();
-    if (currentCatalogKey === 'slug') {
-      currentCatalogItem.slug = val;
-      currentCatalogItem.file = val ? val + '.json' : '';
-    } else if (currentCatalogKey === 'name') {
-      currentCatalogItem.name = val;
-      if (currentCatalogItem.new && !currentCatalogItem.slug) {
-        const idSlug = uniqueId(val);
-        currentCatalogItem.slug = idSlug;
-        currentCatalogItem.file = idSlug ? idSlug + '.json' : '';
-      }
-    } else if (currentCatalogKey === 'description') {
-      currentCatalogItem.description = val;
-    } else if (currentCatalogKey === 'raetsel_buchstabe') {
-      currentCatalogItem.raetsel_buchstabe = val;
-    }
-    catalogManager.render(catalogManager.getData());
-    catalogEditModal.hide();
-    currentCatalogItem = null;
-    currentCatalogKey = null;
-  });
 
   cfgFields.homePage?.addEventListener('change', () => {
     settingsInitial.home_page = cfgFields.homePage.value;
@@ -694,15 +665,54 @@ document.addEventListener('DOMContentLoaded', function () {
   ];
 
   let catalogManager;
+  let catalogEditor;
   if (catalogList) {
     catalogManager = new TableManager({
       tbody: catalogList,
       mobileCards: { container: document.getElementById('catalogCards') },
       sortable: true,
       columns: catalogColumns,
-      onEdit: editCatalogCell,
+      onEdit: cell => {
+        const key = cell?.dataset.key;
+        if (key === 'comment') {
+          const id = cell?.dataset.id;
+          const list = catalogManager.getData();
+          const cat = list.find(c => c.id === id);
+          currentCommentItem = cat || null;
+          if (commentTextarea) commentTextarea.value = cat?.comment || '';
+          commentModal.show();
+        } else {
+          catalogEditError.hidden = true;
+          catalogEditor.open(cell);
+        }
+      },
       onDelete: id => deleteCatalogById(id),
       onReorder: saveCatalogOrder
+    });
+    catalogEditor = createCellEditor(catalogManager, {
+      modalSelector: '#catalogEditModal',
+      inputSelector: '#catalogEditInput',
+      saveSelector: '#catalogEditSave',
+      cancelSelector: '#catalogEditCancel',
+      onSave: (list, item, key) => {
+        const val = catalogEditInput.value.trim();
+        if (key === 'slug') {
+          item.slug = val;
+          item.file = val ? val + '.json' : '';
+        } else if (key === 'name') {
+          item.name = val;
+          if (item.new && !item.slug) {
+            const idSlug = uniqueId(val);
+            item.slug = idSlug;
+            item.file = idSlug ? idSlug + '.json' : '';
+          }
+        } else if (key === 'description') {
+          item.description = val;
+        } else if (key === 'raetsel_buchstabe') {
+          item.raetsel_buchstabe = val;
+        }
+        catalogManager.render(list);
+      }
     });
   }
 
@@ -719,25 +729,6 @@ document.addEventListener('DOMContentLoaded', function () {
       loadCatalogs(page);
     }
   });
-
-  function editCatalogCell(cell) {
-    const id = cell?.dataset.id;
-    const key = cell?.dataset.key;
-    if (!id || !key) return;
-    const list = catalogManager.getData();
-    const cat = list.find(c => c.id === id);
-    if (!cat) return;
-    if (key === 'comment') {
-      currentCommentItem = cat;
-      if (commentTextarea) commentTextarea.value = cat.comment || '';
-      commentModal.show();
-      return;
-    }
-    currentCatalogItem = cat;
-    currentCatalogKey = key;
-    if (catalogEditInput) catalogEditInput.value = cat[key] || '';
-    catalogEditModal.show();
-  }
 
   function saveCatalogOrder() {
     const list = catalogManager.getData();
@@ -1492,7 +1483,10 @@ document.addEventListener('DOMContentLoaded', function () {
     list.push(item);
     catalogManager.render(list);
     const cell = document.querySelector(`[data-id="${id}"][data-key="name"]`);
-    if (cell) editCatalogCell(cell);
+    if (cell) {
+      catalogEditError.hidden = true;
+      catalogEditor.open(cell);
+    }
   });
 
   catalogsSaveBtn?.addEventListener('click', async e => {
@@ -1637,12 +1631,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const langSelect = document.getElementById('langSelect');
   let activeEventUid = cfgInitial.event_uid || '';
   let eventManager;
-  let eventEditModal;
-  let eventEditInput;
-  let eventEditSave;
-  let eventEditCancel;
-  let currentEventId = null;
-  let currentEventKey = null;
+  let eventEditor;
 
   function createEventItem(ev = {}) {
     const id = ev.uid || ev.id || crypto.randomUUID();
@@ -1731,6 +1720,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (eventsListEl) {
     const labels = eventsListEl.dataset || {};
+    if (!document.getElementById('eventEditModal')) {
+      const modal = document.createElement('div');
+      modal.id = 'eventEditModal';
+      modal.setAttribute('uk-modal', '');
+      modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">'
+        + '<h3 class="uk-modal-title"></h3>'
+        + '<input id="eventEditInput" class="uk-input" type="text">'
+        + '<div class="uk-margin-top uk-text-right">'
+        + `<button id="eventEditCancel" class="uk-button uk-button-default" type="button">${window.transCancel || 'Abbrechen'}</button>`
+        + `<button id="eventEditSave" class="uk-button uk-button-primary" type="button">${window.transSave || 'Speichern'}</button>`
+        + '</div>'
+        + '</div>';
+      document.body.appendChild(modal);
+    }
     eventManager = new TableManager({
       tbody: eventsListEl,
       mobileCards: { container: eventsCardsEl },
@@ -1791,69 +1794,31 @@ document.addEventListener('DOMContentLoaded', function () {
           }
         }
       ],
-      onEdit: openEventModal,
+      onEdit: cell => eventEditor.open(cell),
       onDelete: removeEvent,
       onReorder: () => {
         updateEventRowNumbers();
         saveEvents();
       }
     });
-  }
-
-  function ensureEventModal() {
-    if (eventEditModal) return;
-    const modal = document.createElement('div');
-    modal.id = 'eventEditModal';
-    modal.setAttribute('uk-modal', '');
-    modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">' +
-      '<h3 class="uk-modal-title"></h3>' +
-      '<input id="eventEditInput" class="uk-input" type="text">' +
-      '<div class="uk-margin-top uk-text-right">' +
-      `<button id="eventEditCancel" class="uk-button uk-button-default" type="button">${window.transCancel || 'Abbrechen'}</button>` +
-      `<button id="eventEditSave" class="uk-button uk-button-primary" type="button">${window.transSave || 'Speichern'}</button>` +
-      '</div>' +
-      '</div>';
-    document.body.appendChild(modal);
-    eventEditModal = UIkit.modal(modal);
-    eventEditInput = modal.querySelector('#eventEditInput');
-    eventEditSave = modal.querySelector('#eventEditSave');
-    eventEditCancel = modal.querySelector('#eventEditCancel');
-    eventEditCancel.addEventListener('click', () => eventEditModal.hide());
-    eventEditSave.addEventListener('click', saveEventEdit);
-  }
-
-  function openEventModal(cell) {
-    currentEventId = cell?.dataset.id || null;
-    currentEventKey = cell?.dataset.key || null;
-    const ev = eventManager?.getData().find(e => e.id === currentEventId);
-    if (!ev || !currentEventKey) return;
-    ensureEventModal();
-    const titles = {
-      name: labels.labelName || 'Name',
-      start_date: labels.labelStart || 'Start',
-      end_date: labels.labelEnd || 'Ende',
-      description: labels.labelDescription || 'Beschreibung'
-    };
-    const title = eventEditModal.$el.querySelector('.uk-modal-title');
-    if (title) title.textContent = titles[currentEventKey] || '';
-    if (eventEditInput) {
-      eventEditInput.type = (currentEventKey === 'start_date' || currentEventKey === 'end_date') ? 'datetime-local' : 'text';
-      eventEditInput.value = ev[currentEventKey] || '';
-    }
-    eventEditModal.show();
-  }
-
-  function saveEventEdit() {
-    const list = eventManager.getData();
-    const ev = list.find(e => e.id === currentEventId);
-    if (ev && currentEventKey) {
-      ev[currentEventKey] = eventEditInput.value.trim();
-      eventManager.render(list);
-      updateEventRowNumbers();
-      highlightActiveEvent();
-      saveEvents();
-    }
-    eventEditModal.hide();
+    eventEditor = createCellEditor(eventManager, {
+      modalSelector: '#eventEditModal',
+      inputSelector: '#eventEditInput',
+      saveSelector: '#eventEditSave',
+      cancelSelector: '#eventEditCancel',
+      getTitle: key => ({
+        name: labels.labelName || 'Name',
+        start_date: labels.labelStart || 'Start',
+        end_date: labels.labelEnd || 'Ende',
+        description: labels.labelDescription || 'Beschreibung'
+      })[key] || '',
+      getType: key => (key === 'start_date' || key === 'end_date') ? 'datetime-local' : 'text',
+      onSave: () => {
+        updateEventRowNumbers();
+        highlightActiveEvent();
+        saveEvents();
+      }
+    });
   }
 
   function removeEvent(id) {
@@ -1946,15 +1911,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const teamCardsEl = document.getElementById('teamsCards');
   const teamAddBtn = document.getElementById('teamAddBtn');
   const teamRestrictTeams = document.getElementById('teamRestrict');
-  const teamEditModal = UIkit.modal('#teamEditModal');
   const teamEditInput = document.getElementById('teamEditInput');
-  const teamEditSave = document.getElementById('teamEditSave');
-  const teamEditCancel = document.getElementById('teamEditCancel');
   const teamEditError = document.getElementById('teamEditError');
   const teamEditTitle = document.querySelector('#teamEditModal .uk-modal-title');
   const teamEditTitleBase = teamEditTitle?.textContent.trim();
-  let currentTeamId = null;
-  let currentTeamKey = null;
   const TEAMS_PER_PAGE = 50;
   const teamPaginationEl = document.createElement('ul');
   teamPaginationEl.id = 'teamsPagination';
@@ -1962,6 +1922,7 @@ document.addEventListener('DOMContentLoaded', function () {
   teamAddBtn?.parentElement?.before(teamPaginationEl);
 
   let teamManager;
+  let teamEditor;
   if (teamListEl) {
     teamManager = new TableManager({
       tbody: teamListEl,
@@ -1990,9 +1951,31 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       ],
       sortable: true,
-      onEdit: openTeamModal,
+      onEdit: cell => {
+        teamEditError.hidden = true;
+        teamEditor.open(cell);
+      },
       onDelete: removeTeam,
       onReorder: () => reorderTeams(teamManager.getData())
+    });
+    teamEditor = createCellEditor(teamManager, {
+      modalSelector: '#teamEditModal',
+      inputSelector: '#teamEditInput',
+      saveSelector: '#teamEditSave',
+      cancelSelector: '#teamEditCancel',
+      getTitle: (key, item) => {
+        const name = item[key] || '';
+        return name ? `${teamEditTitleBase}: ${name}` : teamEditTitleBase;
+      },
+      validate: val => {
+        if (!val) {
+          teamEditError.textContent = 'Name darf nicht leer sein';
+          teamEditError.hidden = false;
+          return false;
+        }
+        return true;
+      },
+      onSave: list => saveTeamList(list)
     });
     teamManager.bindPagination(teamPaginationEl, TEAMS_PER_PAGE);
   }
@@ -2017,19 +2000,6 @@ document.addEventListener('DOMContentLoaded', function () {
           notify('Fehler beim Speichern', 'danger');
         }
       });
-  }
-
-  function openTeamModal(cell) {
-    currentTeamId = cell?.dataset.id || null;
-    currentTeamKey = cell?.dataset.key || null;
-    const team = teamManager?.getData().find(t => t.id === currentTeamId) || {};
-    const name = currentTeamKey ? (team[currentTeamKey] || '') : '';
-    teamEditInput.value = name;
-    if (teamEditTitle) {
-      teamEditTitle.textContent = name ? `${teamEditTitleBase}: ${name}` : teamEditTitleBase;
-    }
-    teamEditError.hidden = true;
-    teamEditModal.show();
   }
 
   function reorderTeams(list) {
@@ -2077,28 +2047,10 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     teamManager.render(list);
     const cell = document.querySelector(`[data-id="${id}"][data-key="name"]`);
-    if (cell) openTeamModal(cell);
-  });
-
-  teamEditSave?.addEventListener('click', () => {
-    if (!teamManager) return;
-    const val = teamEditInput.value.trim();
-    if (!val) {
-      teamEditError.textContent = 'Name darf nicht leer sein';
-      teamEditError.hidden = false;
-      return;
+    if (cell) {
+      teamEditError.hidden = true;
+      teamEditor.open(cell);
     }
-    const list = teamManager.getData();
-    const team = list.find(t => t.id === currentTeamId);
-    if (team && currentTeamKey) team[currentTeamKey] = val;
-    teamManager.render(list);
-    saveTeamList(list);
-    teamEditModal.hide();
-  });
-
-  teamEditCancel?.addEventListener('click', e => {
-    e.preventDefault();
-    teamEditModal.hide();
   });
 
 
