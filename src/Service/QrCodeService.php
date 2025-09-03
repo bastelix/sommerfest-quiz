@@ -237,7 +237,8 @@ class QrCodeService
 
         if ($p['format'] === 'svg') {
             $options['outputType'] = QROutputInterface::MARKUP_SVG;
-            $options['bgColor'] = sprintf('#%02x%02x%02x', $p['bg'][0], $p['bg'][1], $p['bg'][2]);
+            $bgColor = sprintf('#%02x%02x%02x', $p['bg'][0], $p['bg'][1], $p['bg'][2]);
+            $options['bgColor'] = $bgColor;
             $fg = sprintf('#%02x%02x%02x', $p['fg'][0], $p['fg'][1], $p['fg'][2]);
             $options['moduleValues'] = [
                 QRMatrix::M_FINDER_DARK => $fg,
@@ -259,6 +260,17 @@ class QrCodeService
                     $logoData = base64_encode(file_get_contents($p['logoPath']));
                     $x = (int)(($dim - $p['logoWidth']) / 2);
                     $y = (int)(($dim - $p['logoWidth']) / 2);
+                    $rect = '';
+                    if ($p['logoPunchout']) {
+                        $rect = sprintf(
+                            '<rect x="%d" y="%d" width="%d" height="%d" fill="%s" />',
+                            $x,
+                            $y,
+                            $p['logoWidth'],
+                            $p['logoWidth'],
+                            $bgColor
+                        );
+                    }
                     $image = sprintf(
                         '<image x="%d" y="%d" width="%d" height="%d" href="data:%s;base64,%s" />',
                         $x,
@@ -268,7 +280,7 @@ class QrCodeService
                         $mime,
                         $logoData
                     );
-                    $svg = preg_replace('/<\/svg>/', $image . '</svg>', $svg);
+                    $svg = preg_replace('/<\/svg>/', $rect . $image . '</svg>', $svg);
                 }
             }
             return ['mime' => 'image/svg+xml', 'body' => $svg];
