@@ -7,7 +7,7 @@
                 <th scope="col" class="uk-table-shrink"></th>
             {% endif %}
             {% for heading in headings %}
-                <th scope="col"{% if heading.class is defined and heading.class %} class="{{ heading.class }}"{% endif %}>{{ heading.label }}</th>
+                <th scope="col"{% if heading.class is defined and heading.class %} class="{{ heading.class }}"{% endif %}>{{ heading.label|raw }}</th>
             {% endfor %}
             </tr>
         </thead>
