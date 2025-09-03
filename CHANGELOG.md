@@ -215,6 +215,7 @@
 - Use table macro in admin
 - Wrap long lines in QrCodeService
 - Streamline catalog and team tables
+- Use catalogKey for identifiers
 
 ### Style
 
