@@ -99,10 +99,16 @@ class ImportController
      */
     public function import(Request $request, Response $response, array $args): Response
     {
-        $dir = basename((string)($args['name'] ?? ''));
-        if ($dir === '') {
+        $dir = (string)($args['name'] ?? '');
+        if (
+            $dir === ''
+            || $dir === '.'
+            || $dir === '..'
+            || preg_match('/^[A-Za-z0-9._-]+$/', $dir) !== 1
+        ) {
             return $response->withStatus(400);
         }
+
         return $this->importFromDir($this->backupDir . '/' . $dir, $response);
     }
 
