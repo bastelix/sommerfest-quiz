@@ -211,13 +211,21 @@ class QrCodeService
             $qr = new QRCode(new QROptions($options));
             $svg = $qr->render($data);
             if ($p['logoPath'] !== null && is_readable($p['logoPath'])) {
-                $matrix = $qr->getMatrix();
-                $dim = ($matrix->getSize() + 2 * $marginModules) * $scale;
-                $logoData = base64_encode(file_get_contents($p['logoPath']));
-                $x = (int)(($dim - $p['logoWidth']) / 2);
-                $y = (int)(($dim - $p['logoWidth']) / 2);
-                $image = '<image x="' . $x . '" y="' . $y . '" width="' . $p['logoWidth'] . '" height="' . $p['logoWidth'] . '" href="data:image/png;base64,' . $logoData . '" />';
-                $svg = preg_replace('/<\/svg>/', $image . '</svg>', $svg);
+                $ext = strtolower(pathinfo($p['logoPath'], PATHINFO_EXTENSION));
+                $mime = match ($ext) {
+                    'png' => 'image/png',
+                    'webp' => 'image/webp',
+                    default => null,
+                };
+                if ($mime !== null) {
+                    $matrix = $qr->getMatrix();
+                    $dim = ($matrix->getSize() + 2 * $marginModules) * $scale;
+                    $logoData = base64_encode(file_get_contents($p['logoPath']));
+                    $x = (int)(($dim - $p['logoWidth']) / 2);
+                    $y = (int)(($dim - $p['logoWidth']) / 2);
+                    $image = '<image x="' . $x . '" y="' . $y . '" width="' . $p['logoWidth'] . '" height="' . $p['logoWidth'] . '" href="data:' . $mime . ';base64,' . $logoData . '" />';
+                    $svg = preg_replace('/<\/svg>/', $image . '</svg>', $svg);
+                }
             }
             return ['mime' => 'image/svg+xml', 'body' => $svg];
         }
