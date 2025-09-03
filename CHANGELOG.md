@@ -150,6 +150,8 @@
 - Add accessible table loading spinners
 - Allow custom QR code options
 - Add mobile labels for table columns
+- Apply default QR code layout
+- Add explicit chillerlan qr options
 
 ### Fix
 
