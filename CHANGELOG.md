@@ -139,6 +139,7 @@
 - *(admin)* Render catalog mobile cards
 - Expose event config endpoints
 - Implement event config page logic
+- *(admin)* Enhance event config sidebar
 
 ### Fix
 
