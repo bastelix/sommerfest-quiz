@@ -702,13 +702,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const val = catalogEditInput.value.trim();
         if (key === 'slug') {
           item.slug = val;
-          item.file = val ? val + '.json' : '';
         } else if (key === 'name') {
           item.name = val;
           if (item.new && !item.slug) {
             const idSlug = uniqueId(val);
             item.slug = idSlug;
-            item.file = idSlug ? idSlug + '.json' : '';
           }
         } else if (key === 'description') {
           item.description = val;
