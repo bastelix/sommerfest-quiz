@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const resultsResetConfirm = document.getElementById('resultsResetConfirm');
   let puzzleFeedback = '';
   let inviteText = '';
-  let currentCommentInput = null;
+  let currentCommentItem = null;
 
   function wrapSelection(textarea, before, after) {
     if (!textarea) return;
@@ -573,17 +573,11 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   commentSaveBtn?.addEventListener('click', () => {
-    if (!currentCommentInput || !commentTextarea) return;
-    currentCommentInput.value = commentTextarea.value;
-    if (currentCommentInput._item) {
-      currentCommentInput._item.comment = commentTextarea.value;
-    }
-    const btn = currentCommentInput.previousSibling;
-    if (btn && btn.textContent !== undefined) {
-      btn.textContent = commentTextarea.value.trim() ? 'Kommentar bearbeiten' : 'Kommentar eingeben';
-    }
+    if (!currentCommentItem || !commentTextarea) return;
+    currentCommentItem.comment = commentTextarea.value;
+    catalogManager.render(catalogManager.getData());
     commentModal.hide();
-    currentCommentInput = null;
+    currentCommentItem = null;
   });
 
   cfgFields.homePage?.addEventListener('change', () => {
@@ -656,145 +650,56 @@ document.addEventListener('DOMContentLoaded', function () {
   let initial = [];
 
   const catalogColumns = [
-    {
-      render: item => {
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'uk-input cat-id';
-        input.placeholder = 'Slug';
-        input.value = item.slug || '';
-        input.addEventListener('input', () => {
-          item.slug = input.value.trim();
-          item.file = item.slug ? item.slug + '.json' : '';
-        });
-        item._slugInput = input;
-        return input;
-      }
-    },
-    {
-      render: item => {
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'uk-input cat-name';
-        input.placeholder = 'Name';
-        input.value = item.name || '';
-        input.addEventListener('input', () => {
-          item.name = input.value;
-          if (item.new && item._slugInput && item._slugInput.value.trim() === '') {
-            const id = uniqueId(input.value);
-            item.slug = id;
-            item.file = id ? id + '.json' : '';
-            item._slugInput.value = id;
-          }
-        });
-        return input;
-      }
-    },
-    {
-      render: item => {
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'uk-input cat-desc';
-        input.placeholder = 'Beschreibung';
-        input.value = item.description || '';
-        input.addEventListener('input', () => {
-          item.description = input.value;
-        });
-        return input;
-      }
-    },
-    {
-      render: item => {
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'uk-input cat-letter';
-        input.placeholder = 'Buchstabe';
-        input.maxLength = 1;
-        input.value = item.raetsel_buchstabe || '';
-        input.addEventListener('input', () => {
-          item.raetsel_buchstabe = input.value;
-        });
-        return input;
-      }
-    },
-    {
-      render: item => {
-        const btn = document.createElement('button');
-        btn.className = 'uk-button uk-button-default';
-        const hidden = document.createElement('input');
-        hidden.type = 'hidden';
-        hidden.className = 'cat-comment';
-        hidden.value = item.comment || '';
-        hidden._item = item;
-        const updateBtn = () => {
-          btn.textContent = hidden.value.trim() ? 'Kommentar bearbeiten' : 'Kommentar eingeben';
-        };
-        updateBtn();
-        btn.addEventListener('click', () => {
-          currentCommentInput = hidden;
-          if (commentTextarea) commentTextarea.value = hidden.value;
-          commentModal.show();
-        });
-        const container = document.createElement('div');
-        container.appendChild(btn);
-        container.appendChild(hidden);
-        return container;
-      }
-    }
+    { key: 'slug', editable: true },
+    { key: 'name', editable: true },
+    { key: 'description', editable: true },
+    { key: 'raetsel_buchstabe', editable: true },
+    { key: 'comment', editable: true, ariaDesc: 'Kommentar bearbeiten' }
   ];
 
   const catalogManager = new TableManager({
     tbody: catalogList,
-    mobileCards: {
-      container: document.getElementById('catalogCards'),
-      render: item => {
-        const li = document.createElement('li');
-        li.className = 'qr-rowcard uk-flex uk-flex-middle uk-flex-between';
-        li.setAttribute('role', 'row');
-        if (item?.id !== undefined) {
-          li.dataset.id = item.id;
-        }
-        const handleBtn = document.createElement('button');
-        handleBtn.type = 'button';
-        handleBtn.className = 'qr-handle';
-        handleBtn.setAttribute('uk-icon', 'icon: menu');
-        handleBtn.setAttribute('aria-label', 'Verschieben');
-        li.appendChild(handleBtn);
-        const contentWrap = document.createElement('div');
-        contentWrap.className = 'uk-flex-1';
-        catalogColumns.forEach(col => {
-          let c = '';
-          if (typeof col.renderCard === 'function') {
-            c = col.renderCard(item);
-          } else if (typeof col.render === 'function') {
-            c = col.render(item);
-          } else if (col.key) {
-            c = item[col.key];
-          }
-          if (c instanceof Node) {
-            contentWrap.appendChild(c);
-          } else if (c !== undefined) {
-            const span = document.createElement('span');
-            span.innerHTML = c ?? '';
-            contentWrap.appendChild(span);
-          }
-        });
-        li.appendChild(contentWrap);
-        const delBtn = document.createElement('button');
-        delBtn.type = 'button';
-        delBtn.className = 'uk-icon-button qr-action';
-        delBtn.setAttribute('uk-icon', 'trash');
-        delBtn.setAttribute('aria-label', 'Löschen');
-        delBtn.addEventListener('click', () => deleteCatalogById(item.id));
-        li.appendChild(delBtn);
-        return li;
-      }
-    },
+    mobileCards: { container: document.getElementById('catalogCards') },
     sortable: true,
     columns: catalogColumns,
+    onEdit: editCatalogCell,
     onDelete: id => deleteCatalogById(id),
     onReorder: saveCatalogOrder
   });
+
+  function editCatalogCell(cell) {
+    const id = cell?.dataset.id;
+    const key = cell?.dataset.key;
+    if (!id || !key) return;
+    const list = catalogManager.getData();
+    const cat = list.find(c => c.id === id);
+    if (!cat) return;
+    if (key === 'comment') {
+      currentCommentItem = cat;
+      if (commentTextarea) commentTextarea.value = cat.comment || '';
+      commentModal.show();
+      return;
+    }
+    let val = prompt('', cat[key] || '');
+    if (val === null) return;
+    val = val.trim();
+    if (key === 'slug') {
+      cat.slug = val;
+      cat.file = val ? val + '.json' : '';
+    } else if (key === 'name') {
+      cat.name = val;
+      if (cat.new && !cat.slug) {
+        const idSlug = uniqueId(val);
+        cat.slug = idSlug;
+        cat.file = idSlug ? idSlug + '.json' : '';
+      }
+    } else if (key === 'description') {
+      cat.description = val;
+    } else if (key === 'raetsel_buchstabe') {
+      cat.raetsel_buchstabe = val;
+    }
+    catalogManager.render(list);
+  }
 
   function saveCatalogOrder() {
     const list = catalogManager.getData();
@@ -1483,16 +1388,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   newCatBtn.addEventListener('click', function (e) {
     e.preventDefault();
-    catalogManager.addRow({
-      id: crypto.randomUUID(),
-      slug: '',
-      file: '',
-      name: '',
-      description: '',
-      raetsel_buchstabe: '',
-      comment: '',
-      new: true
-    });
+    const id = crypto.randomUUID();
+    const item = { id, slug: '', file: '', name: '', description: '', raetsel_buchstabe: '', comment: '', new: true };
+    const list = catalogManager.getData();
+    list.push(item);
+    catalogManager.render(list);
+    const cell = document.querySelector(`[data-id="${id}"][data-key="name"]`);
+    if (cell) editCatalogCell(cell);
   });
 
   catalogsSaveBtn?.addEventListener('click', async e => {
@@ -1505,9 +1407,6 @@ document.addEventListener('DOMContentLoaded', function () {
         let id = currentId;
         if (!id) {
           id = uniqueId(item.name || '');
-          if (item._slugInput) {
-            item._slugInput.value = id;
-          }
         }
         if (!id) continue;
         try {

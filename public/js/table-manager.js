@@ -129,7 +129,7 @@ export default class TableManager {
       delCell.classList.add('uk-text-center');
       const delBtn = document.createElement('button');
       delBtn.type = 'button';
-      delBtn.className = 'uk-icon-button qr-action';
+      delBtn.className = 'uk-icon-button qr-action uk-text-center';
       delBtn.setAttribute('uk-icon', 'trash');
       delBtn.setAttribute('aria-label', 'Löschen');
       delBtn.addEventListener('click', () => this.onDelete(item.id));
@@ -223,7 +223,7 @@ export default class TableManager {
     if (typeof this.onDelete === 'function') {
       const delBtn = document.createElement('button');
       delBtn.type = 'button';
-      delBtn.className = 'uk-icon-button uk-button-danger';
+      delBtn.className = 'uk-icon-button qr-action uk-text-center';
       delBtn.setAttribute('uk-icon', 'trash');
       delBtn.setAttribute('aria-label', 'Löschen');
       delBtn.addEventListener('click', () => this.onDelete(item.id));
