@@ -426,7 +426,6 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/events', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/event/settings', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/konfig', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
-    $app->get('/admin/catalogs', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/questions', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/teams', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/summary', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
