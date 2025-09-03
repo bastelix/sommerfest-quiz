@@ -12,7 +12,6 @@ Die Makros erzeugen das HTML-Grundgerüst:
 ```twig
 {% from 'components/table.twig' import qr_table, qr_rowcards %}
 {{ qr_table([
-  {'label': '', 'class': 'uk-table-shrink'},
   {'label': 'Team', 'class': 'uk-table-expand'},
   {'label': 'Punkte', 'class': 'uk-table-shrink uk-text-right'}
 ], 'teamsBody', true) }}

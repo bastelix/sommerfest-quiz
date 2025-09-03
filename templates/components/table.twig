@@ -3,6 +3,9 @@
     <table class="uk-table uk-table-divider uk-table-small uk-table-hover qr-table">
         <thead class="table-headings">
             <tr>
+            {% if sortable %}
+                <th scope="col" class="uk-table-shrink"></th>
+            {% endif %}
             {% for heading in headings %}
                 <th scope="col"{% if heading.class is defined and heading.class %} class="{{ heading.class }}"{% endif %}>{{ heading.label }}</th>
             {% endfor %}
