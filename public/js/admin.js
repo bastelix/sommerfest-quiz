@@ -2611,9 +2611,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const qrPunchoutInput = document.getElementById('qrPunchoutInput');
   const qrRoundModeSelect = document.getElementById('qrRoundModeSelect');
   const qrColorInput = document.getElementById('qrColorInput');
+  const qrBgColorInput = document.getElementById('qrBgColorInput');
+  const qrSizeInput = document.getElementById('qrSizeInput');
+  const qrMarginInput = document.getElementById('qrMarginInput');
+  const qrEcSelect = document.getElementById('qrEcSelect');
   const qrRoundedInput = document.getElementById('qrRoundedInput');
   const qrLogoWidthInput = document.getElementById('qrLogoWidthInput');
-  const qrOptionsInput = document.getElementById('qrOptionsInput');
   const qrPreview = document.getElementById('qrDesignPreview');
   const qrApplyBtn = document.getElementById('qrDesignApply');
   const qrLogoFile = document.getElementById('qrLogoFile');
@@ -2655,6 +2658,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     const color = qrColorInput?.value ? qrColorInput.value.replace('#', '') : '';
     if (color) params.set('fg', color);
+    const bg = qrBgColorInput?.value ? qrBgColorInput.value.replace('#', '') : '';
+    if (bg) params.set('bg', bg);
+    const size = qrSizeInput?.value || '';
+    if (size) params.set('size', size);
+    const margin = qrMarginInput?.value || '';
+    if (margin) params.set('margin', margin);
+    const ec = qrEcSelect?.value || '';
+    if (ec) params.set('ec', ec);
     const w = qrLogoWidthInput?.value || '';
     if (w) params.set('logo_width', w);
     const rounded = qrRoundedInput?.checked !== false;
@@ -2662,12 +2673,6 @@ document.addEventListener('DOMContentLoaded', function () {
     params.set('round_mode', roundMode);
     params.set('rounded', rounded ? '1' : '0');
     params.set('logo_punchout', qrPunchoutInput?.checked ? '1' : '0');
-    const extra = qrOptionsInput?.value || '';
-    if (extra) {
-      try {
-        new URLSearchParams(extra).forEach((v, k) => params.set(k, v));
-      } catch (_) { /* ignore invalid */ }
-    }
     if (qrPreview) qrPreview.src = withBase(currentQrEndpoint + '?' + params.toString());
   }
 
@@ -2700,6 +2705,18 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       qrColorInput.value = val;
     }
+    if (qrBgColorInput) {
+      qrBgColorInput.value = cfgInitial.qrBgColor || '#ffffff';
+    }
+    if (qrSizeInput) {
+      qrSizeInput.value = cfgInitial.qrSize || '360';
+    }
+    if (qrMarginInput) {
+      qrMarginInput.value = cfgInitial.qrMargin || '20';
+    }
+    if (qrEcSelect) {
+      qrEcSelect.value = cfgInitial.qrEc || 'medium';
+    }
     if (qrRoundedInput) {
       qrRoundedInput.checked = cfgInitial.qrRounded !== false;
     }
@@ -2716,7 +2733,18 @@ document.addEventListener('DOMContentLoaded', function () {
     if (qrDesignModal) UIkit.modal(qrDesignModal).show();
   }
 
-  [qrLabelInput, qrPunchoutInput, qrRoundModeSelect, qrColorInput, qrRoundedInput, qrLogoWidthInput, qrOptionsInput].forEach(el => {
+  [
+    qrLabelInput,
+    qrPunchoutInput,
+    qrRoundModeSelect,
+    qrColorInput,
+    qrBgColorInput,
+    qrSizeInput,
+    qrMarginInput,
+    qrEcSelect,
+    qrRoundedInput,
+    qrLogoWidthInput,
+  ].forEach(el => {
     el?.addEventListener('input', updateQrPreview);
     el?.addEventListener('change', updateQrPreview);
   });
@@ -2744,6 +2772,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   qrApplyBtn?.addEventListener('click', () => {
     const colorVal = qrColorInput?.value || '';
+    const bgVal = qrBgColorInput?.value || '';
+    const sizeVal = qrSizeInput?.value || '';
+    const marginVal = qrMarginInput?.value || '';
+    const ecVal = qrEcSelect?.value || '';
     const rounded = qrRoundedInput?.checked !== false;
     const roundMode = rounded ? (qrRoundModeSelect?.value || 'margin') : 'none';
     const punchout = qrPunchoutInput?.checked ? '1' : '0';
@@ -2766,6 +2798,10 @@ document.addEventListener('DOMContentLoaded', function () {
           if (lns[1]) params.set('text2', lns[1]);
         }
         if (colorVal) params.set('fg', colorVal.replace('#', ''));
+        if (bgVal) params.set('bg', bgVal.replace('#', ''));
+        if (sizeVal) params.set('size', sizeVal);
+        if (marginVal) params.set('margin', marginVal);
+        if (ecVal) params.set('ec', ecVal);
         if (logoWidthVal) params.set('logo_width', logoWidthVal);
         params.set('round_mode', roundMode);
         params.set('rounded', rounded ? '1' : '0');
@@ -2788,7 +2824,12 @@ document.addEventListener('DOMContentLoaded', function () {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       }).catch(() => {});
-      Object.assign(cfgInitial, data);
+      Object.assign(cfgInitial, data, {
+        qrBgColor: bgVal,
+        qrSize: sizeVal,
+        qrMargin: marginVal,
+        qrEc: ecVal,
+      });
     } else if (currentQrImg) {
       currentQrImg.src = qrPreview.src;
       const data = { qrRounded: rounded };

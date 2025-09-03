@@ -576,8 +576,29 @@
               <textarea class="uk-textarea" id="qrLabelInput" rows="2"></textarea>
             </div>
             <div class="uk-margin">
-              <label class="uk-form-label" for="qrColorInput">Farbe</label>
+              <label class="uk-form-label" for="qrColorInput">{{ t('label_qr_color') }}</label>
               <input class="uk-input" id="qrColorInput" type="color">
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="qrBgColorInput">{{ t('label_qr_bg_color') }}</label>
+              <input class="uk-input" id="qrBgColorInput" type="color" value="#ffffff">
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="qrSizeInput">{{ t('label_qr_size') }}</label>
+              <input class="uk-input" id="qrSizeInput" type="number" min="64" max="2048">
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="qrMarginInput">{{ t('label_qr_margin') }}</label>
+              <input class="uk-input" id="qrMarginInput" type="number" min="0" max="40">
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="qrEcSelect">{{ t('label_qr_ec') }}</label>
+              <select class="uk-select" id="qrEcSelect">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="quartile">Quartile</option>
+                <option value="high">High</option>
+              </select>
             </div>
             <div class="uk-margin">
               <label class="uk-form-label" for="qrLogoFile">{{ t('label_custom_logo') }}</label>
@@ -601,10 +622,6 @@
                 <option value="shrink">Shrink</option>
                 <option value="none">None</option>
               </select>
-            </div>
-            <div class="uk-margin">
-              <label class="uk-form-label" for="qrOptionsInput">{{ t('label_qr_options') }}</label>
-              <input class="uk-input" id="qrOptionsInput" type="text" placeholder="size=300&margin=10&ec=H">
             </div>
             <div class="uk-margin uk-text-center">
               <img id="qrDesignPreview" src="" alt="Preview" width="150" height="150">
