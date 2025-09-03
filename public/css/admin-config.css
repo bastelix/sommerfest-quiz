@@ -1,0 +1,4 @@
+/* Styles specific to admin event configuration page */
+.event-config-sidebar .uk-card + .uk-card {
+  margin-top: 20px;
+}

@@ -1,0 +1,155 @@
+{% extends 'layout.twig' %}
+
+{% block title %}Event konfigurieren{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/admin-config.css">
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <a href="{{ basePath }}/admin/events" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">QuizRace Admin</a>
+    {% endblock %}
+    {% block center %}
+      <h1 class="uk-heading-bullet uk-margin-remove">Event konfigurieren</h1>
+    {% endblock %}
+    {% block right %}{% endblock %}
+  {% endembed %}
+
+  <div class="uk-container uk-container-large uk-margin-top">
+    <div class="uk-grid-large" uk-grid>
+      <div class="uk-width-expand@m">
+        <ul uk-tab>
+          <li><a href="#">Allgemein</a></li>
+          <li><a href="#">Design</a></li>
+          <li><a href="#">Texte</a></li>
+          <li><a href="#">Stationen</a></li>
+          <li><a href="#">Erweitert</a></li>
+        </ul>
+        <ul class="uk-switcher uk-margin">
+          <li>
+            <form class="uk-form-stacked">
+              <div class="uk-margin">
+                <label class="uk-form-label" for="event-name">Eventname</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="event-name" type="text" placeholder="Name">
+                </div>
+                <div class="uk-text-meta">Name des Events zur internen Zuordnung.</div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="event-date">Datum</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="event-date" type="date">
+                </div>
+                <div class="uk-text-meta">Startdatum des Quiz.</div>
+              </div>
+            </form>
+          </li>
+          <li>
+            <form class="uk-form-stacked">
+              <div class="uk-margin">
+                <label class="uk-form-label" for="primary-color">Primärfarbe</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="primary-color" type="color">
+                </div>
+                <div class="uk-text-meta">Steuert Buttons und Highlights.</div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="logo-url">Logo URL</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="logo-url" type="url" placeholder="https://">
+                </div>
+                <div class="uk-text-meta">Optionales Logo für das Event.</div>
+              </div>
+            </form>
+          </li>
+          <li>
+            <form class="uk-form-stacked">
+              <div class="uk-margin">
+                <label class="uk-form-label" for="welcome-text">Begrüßung</label>
+                <div class="uk-form-controls">
+                  <textarea class="uk-textarea" id="welcome-text" rows="3"></textarea>
+                </div>
+                <div class="uk-text-meta">Kurzer Introtext, der Teilnehmenden angezeigt wird.</div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="farewell-text">Abschluss</label>
+                <div class="uk-form-controls">
+                  <textarea class="uk-textarea" id="farewell-text" rows="3"></textarea>
+                </div>
+                <div class="uk-text-meta">Text nach Beendigung des Quiz.</div>
+              </div>
+            </form>
+          </li>
+          <li>
+            <form class="uk-form-stacked">
+              <div class="uk-margin">
+                <label class="uk-form-label" for="station-count">Stationen</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="station-count" type="number" min="1">
+                </div>
+                <div class="uk-text-meta">Anzahl der QR-Code-Stationen.</div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="question-pool">Fragenpool</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="question-pool" type="text" placeholder="Standard">
+                </div>
+                <div class="uk-text-meta">Vorlage für die Quizfragen.</div>
+              </div>
+            </form>
+          </li>
+          <li>
+            <form class="uk-form-stacked">
+              <div class="uk-margin">
+                <label class="uk-form-label" for="max-teams">Max. Teams</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="max-teams" type="number" min="1">
+                </div>
+                <div class="uk-text-meta">Begrenzung der teilnehmenden Teams.</div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="external-id">Externe ID</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" id="external-id" type="text">
+                </div>
+                <div class="uk-text-meta">Referenz für externe Systeme.</div>
+              </div>
+            </form>
+          </li>
+        </ul>
+      </div>
+      <aside class="uk-width-1-4@m event-config-sidebar">
+        <div uk-sticky="offset: 20">
+          <div class="uk-card uk-card-default uk-card-body">
+            <h3 class="uk-card-title uk-margin-remove">Status</h3>
+            <p class="uk-text-meta uk-margin-small">Entwurf</p>
+            <button class="uk-button uk-button-primary uk-width-1-1">Veröffentlichen</button>
+          </div>
+          <div class="uk-card uk-card-default uk-card-body uk-margin-small-top">
+            <h3 class="uk-card-title uk-margin-remove">Presets</h3>
+            <ul class="uk-list uk-list-divider uk-margin-small-top">
+              <li><a href="#">Fragen importieren</a></li>
+              <li><a href="#">Layout laden</a></li>
+            </ul>
+          </div>
+          <div class="uk-card uk-card-default uk-card-body uk-margin-small-top">
+            <h3 class="uk-card-title uk-margin-remove">QR-Links</h3>
+            <ul class="uk-list uk-list-divider uk-margin-small-top">
+              <li><a href="#">Team QR-Code</a></li>
+              <li><a href="#">Publikums QR-Code</a></li>
+            </ul>
+          </div>
+          <div class="uk-margin-top">
+            <button class="uk-button uk-button-secondary uk-width-1-1">Speichern</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+{% endblock %}
+
