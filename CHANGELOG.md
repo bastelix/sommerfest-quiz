@@ -155,6 +155,7 @@
 - Use table layout for admin events
 - Make QR logo punch-out configurable
 - Punchout logo area in svg QR codes
+- Add reusable cell editor helper
 
 ### Fix
 
