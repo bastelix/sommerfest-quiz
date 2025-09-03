@@ -166,32 +166,25 @@
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_events') }}</h2>
         <p class="uk-hidden">Professionelles Quiz-Hosting</p>
-        <div class="uk-overflow-auto">
-          <table id="eventsTable" class="uk-table uk-table-divider uk-table-small" role="table" aria-label="{{ t('heading_events') }}">
-            <thead class="table-headings">
-              <tr>
-                <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top" tabindex="0"></span></th>
-                <th scope="col">{{ t('column_number') }}</th>
-                <th scope="col">{{ t('column_name') }}</th>
-                <th scope="col">{{ t('column_start') }}</th>
-                <th scope="col">{{ t('column_end') }}</th>
-                <th scope="col">{{ t('column_description') }}</th>
-                <th scope="col">{{ t('column_current') }}</th>
-                <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_event_remove') }}; pos: top" tabindex="0"></span></th>
-              </tr>
-            </thead>
-            <tbody id="eventsList" role="rowgroup"
-              data-label-number="{{ t('column_number') }}"
-              data-label-name="{{ t('column_name') }}"
-              data-label-start="{{ t('column_start') }}"
-              data-label-end="{{ t('column_end') }}"
-              data-label-description="{{ t('column_description') }}"
-              data-label-current="{{ t('column_current') }}"
-              data-tip-select-event="{{ t('tip_select_event') }}"
-              data-label-actions="{{ t('column_actions') }}"
-              uk-sortable="handle: .uk-sortable-handle; group: sortable-group"></tbody>
-          </table>
-        </div>
+        {% from 'components/table.twig' import qr_table %}
+        {{ qr_table([
+          { 'label': t('column_number'), 'key': 'number' },
+          { 'label': t('column_name'), 'key': 'name' },
+          { 'label': t('column_start'), 'key': 'start' },
+          { 'label': t('column_end'), 'key': 'end' },
+          { 'label': t('column_description'), 'key': 'description' },
+          { 'label': t('column_current'), 'key': 'current' },
+          { 'label': '<span uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_event_remove') ~ '; pos: top" tabindex="0"></span>', 'class': 'uk-table-shrink' }
+        ], 'eventsList', true, table_id='eventsTable', wrap_class='uk-overflow-auto qr-table-wrap', tbody_attrs={
+          'data-label-number': t('column_number'),
+          'data-label-name': t('column_name'),
+          'data-label-start': t('column_start'),
+          'data-label-end': t('column_end'),
+          'data-label-description': t('column_description'),
+          'data-label-current': t('column_current'),
+          'data-tip-select-event': t('tip_select_event'),
+          'data-label-actions': t('column_actions')
+        }, handle_label='<span uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_sort_rows') ~ '; pos: top" tabindex="0"></span>') }}
         <div class="uk-margin">
           <button
             id="eventAddBtn"
@@ -626,43 +619,32 @@
           <button id="resultsRefreshBtn" class="uk-icon-button" uk-icon="icon: refresh; ratio: 1.2" title="{{ t('action_refresh') }}" aria-label="{{ t('action_refresh') }}"></button>
         </div>
         <div id="rankingGrid" class="uk-grid-small uk-child-width-1-1 uk-child-width-1-3@m uk-margin-bottom" uk-grid uk-height-match="target: > div > .uk-card"></div>
-        <div style="overflow-x: auto">
-        <table class="uk-table uk-table-divider uk-table-responsive">
-          <thead>
-            <tr>
-              <th scope="col">{{ t('column_name') }}</th>
-              <th scope="col">{{ t('column_attempt') }}</th>
-              <th scope="col">{{ t('column_catalog') }}</th>
-              <th scope="col">{{ t('column_correct') }}</th>
-              <th scope="col">{{ t('column_time') }}</th>
-              <th scope="col">{{ t('column_puzzle_solved') }}</th>
-              <th scope="col">{{ t('column_proof_photo') }}</th>
-            </tr>
-          </thead>
-          <tbody id="resultsTableBody" uk-lightbox="nav: thumbnav; slidenav: false">
-            {% for r in results %}
-            <tr>
-              <td class="qr-cell">{{ r.name }}</td>
-              <td class="qr-cell">{{ r.attempt }}</td>
-              <td class="qr-cell">{{ r.catalogName ?? r.catalog }}</td>
-              <td class="qr-cell">{{ r.correct }}/{{ r.total }}</td>
-              <td class="qr-cell">{{ r.time | date('Y-m-d H:i') }}</td>
-              <td class="qr-cell">{% if r.puzzleTime is defined %}{{ r.puzzleTime | date('Y-m-d H:i') }}{% endif %}</td>
-              <td class="qr-cell">
-                {% if r.photo is defined and r.photo %}
-                <span class="photo-wrapper">
-                  <a class="uk-inline rotate-link" href="{{ basePath ~ r.photo }}" data-caption='<button class="uk-icon-button lightbox-rotate-btn" type="button" uk-icon="history" data-path="{{ basePath ~ r.photo }}" aria-label="Drehen"></button>' data-attrs="class: uk-inverse-light">
-                    <img src="{{ basePath ~ r.photo }}" alt="Beweisfoto" class="proof-thumb">
-                  </a>
-                </span>
-                {% endif %}
-              </td>
-            </tr>
-            {% else %}
-            <tr><td colspan="7">{{ t('text_no_data') }}</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        {% from 'components/table.twig' import qr_table %}
+        {% set resultsRows %}
+          {% for r in results %}
+          <tr>
+            <td class="qr-cell">{{ r.name }}</td>
+            <td class="qr-cell">{{ r.attempt }}</td>
+            <td class="qr-cell">{{ r.catalogName ?? r.catalog }}</td>
+            <td class="qr-cell">{{ r.correct }}/{{ r.total }}</td>
+            <td class="qr-cell">{{ r.time | date('Y-m-d H:i') }}</td>
+            <td class="qr-cell">{% if r.puzzleTime is defined %}{{ r.puzzleTime | date('Y-m-d H:i') }}{% endif %}</td>
+            <td class="qr-cell">{% if r.photo is defined and r.photo %}<span class="photo-wrapper"><a class="uk-inline rotate-link" href="{{ basePath ~ r.photo }}" data-caption='<button class="uk-icon-button lightbox-rotate-btn" type="button" uk-icon="history" data-path="{{ basePath ~ r.photo }}" aria-label="Drehen"></button>' data-attrs="class: uk-inverse-light"><img src="{{ basePath ~ r.photo }}" alt="Beweisfoto" class="proof-thumb"></a></span>{% endif %}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7">{{ t('text_no_data') }}</td></tr>
+          {% endfor %}
+        {% endset %}
+        <div uk-lightbox="nav: thumbnav; slidenav: false">
+          {{ qr_table([
+            { 'label': t('column_name'), 'class': 'uk-table-expand' },
+            { 'label': t('column_attempt') },
+            { 'label': t('column_catalog') },
+            { 'label': t('column_correct') },
+            { 'label': t('column_time') },
+            { 'label': t('column_puzzle_solved') },
+            { 'label': t('column_proof_photo') }
+          ], 'resultsTableBody', false, table_class='uk-table-responsive', wrap_class='uk-overflow-auto qr-table-wrap', body_html=resultsRows) }}
         </div>
         <ul id="resultsPagination" class="uk-pagination uk-flex-center"></ul>
         <div class="uk-margin uk-flex uk-flex-between">
@@ -695,21 +677,17 @@
             <button id="statsRefreshBtn" class="uk-icon-button" uk-icon="icon: refresh; ratio: 1.2" title="{{ t('action_refresh') }}" aria-label="{{ t('action_refresh') }}"></button>
           </div>
         </div>
-        <div style="overflow-x: auto">
-        <table class="uk-table uk-table-divider uk-table-responsive">
-          <thead>
-            <tr>
-              <th scope="col">{{ t('column_name') }}</th>
-              <th scope="col">{{ t('column_attempt') }}</th>
-              <th scope="col">{{ t('column_catalog') }}</th>
-              <th scope="col">{{ t('column_question') }}</th>
-              <th scope="col">{{ t('column_answer') }}</th>
-              <th scope="col">{{ t('column_correct') }}</th>
-              <th scope="col">{{ t('column_proof_photo') }}</th>
-            </tr>
-          </thead>
-          <tbody id="statsTableBody" uk-lightbox="nav: thumbnav; slidenav: false"></tbody>
-        </table>
+        {% from 'components/table.twig' import qr_table %}
+        <div uk-lightbox="nav: thumbnav; slidenav: false">
+          {{ qr_table([
+            { 'label': t('column_name') },
+            { 'label': t('column_attempt') },
+            { 'label': t('column_catalog') },
+            { 'label': t('column_question') },
+            { 'label': t('column_answer') },
+            { 'label': t('column_correct') },
+            { 'label': t('column_proof_photo') }
+          ], 'statsTableBody', false, table_class='uk-table-responsive', wrap_class='uk-overflow-auto qr-table-wrap') }}
         </div>
       </div>
       </li>
@@ -821,21 +799,14 @@
         </div>
 
         <h3 class="uk-heading-bullet">{{ t('heading_users') }}</h3>
-        <div class="uk-overflow-auto">
-          <table class="uk-table uk-table-divider uk-table-small">
-            <thead>
-                <tr>
-                  <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_sort_rows') }}; pos: top" tabindex="0"></span></th>
-                  <th scope="col">{{ t('column_username') }}</th>
-                  <th scope="col">{{ t('column_role') }}</th>
-                  <th scope="col">Aktiv</th>
-                  <th scope="col"><span uk-icon="icon: key" uk-tooltip="title: {{ t('tip_user_pass') }}; pos: top" tabindex="0"></span></th>
-                  <th scope="col"><span uk-icon="icon: question" uk-tooltip="title: {{ t('tip_user_remove') }}; pos: top" tabindex="0"></span></th>
-                </tr>
-              </thead>
-            <tbody id="usersList" uk-sortable="handle: .uk-sortable-handle; group: sortable-group"></tbody>
-          </table>
-        </div>
+        {% from 'components/table.twig' import qr_table %}
+        {{ qr_table([
+          { 'label': t('column_username') },
+          { 'label': t('column_role') },
+          { 'label': 'Aktiv' },
+          { 'label': '<span uk-icon="icon: key" uk-tooltip="title: ' ~ t('tip_user_pass') ~ '; pos: top" tabindex="0"></span>', 'class': 'uk-table-shrink' },
+          { 'label': '<span uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_user_remove') ~ '; pos: top" tabindex="0"></span>', 'class': 'uk-table-shrink' }
+        ], 'usersList', true, wrap_class='uk-overflow-auto qr-table-wrap', handle_label='<span uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_sort_rows') ~ '; pos: top" tabindex="0"></span>') }}
         <div class="uk-margin">
           <button id="userAddBtn" class="uk-icon-button uk-button-default" uk-icon="plus" uk-tooltip="title: {{ t('tip_user_add') }}; pos: right" aria-label="{{ t('tip_user_add') }}"></button>
         </div>
@@ -864,17 +835,12 @@
             <button id="saveDemoBtn" class="uk-button uk-button-default uk-width-1-1" uk-tooltip="title: {{ t('tip_backup_save') }}; pos: right">{{ t('action_save_demo') }}</button>
           </div>
         </div>
-          <table class="uk-table uk-table-divider">
-            <thead>
-              <tr>
-                <th scope="col">{{ t('column_folder') }}</th>
-                <th scope="col">{{ t('column_actions') }}</th>
-              </tr>
-            </thead>
-            <tbody id="backupTableBody">
-              <tr><td colspan="2">{{ t('text_no_backups') }}</td></tr>
-            </tbody>
-          </table>
+          {% from 'components/table.twig' import qr_table %}
+        {% set backupRows %}{% include 'admin/_backup_table.twig' %}{% endset %}
+        {{ qr_table([
+          { 'label': t('column_folder'), 'class': 'uk-table-expand' },
+          { 'label': t('column_actions'), 'class': 'uk-table-shrink uk-text-center' }
+        ], 'backupTableBody', false, wrap_class='uk-overflow-auto qr-table-wrap', body_html=backupRows) }}
       </div>
     </li>
     {% if domainType == 'main' %}
@@ -948,24 +914,15 @@
           </div>
         </div>
 
-        <!-- DESKTOP TABLE -->
-        <div class="uk-visible@s uk-overflow-auto qr-table-wrap">
-          <table class="uk-table uk-table-divider uk-table-middle uk-table-striped qr-table">
-              <thead>
-                <tr>
-                  <th scope="col" class="sticky">{{ t('column_subdomain') }}</th>
-                  <th scope="col">{{ t('column_plan') }}</th>
-                  <th scope="col">{{ t('column_billing') }}</th>
-                  <th scope="col">{{ t('column_created') }}</th>
-                  <th scope="col" class="uk-text-right">{{ t('column_actions') }}</th>
-                </tr>
-              </thead>
-              <tbody id="tenantTableBody"></tbody>
-            </table>
-          </div>
-
-        <!-- MOBILE CARDS -->
-        <div id="tenantCards" class="uk-hidden@s"></div>
+        {% from 'components/table.twig' import qr_table, qr_rowcards %}
+        {{ qr_table([
+          { 'label': t('column_subdomain'), 'class': 'sticky' },
+          { 'label': t('column_plan') },
+          { 'label': t('column_billing') },
+          { 'label': t('column_created') },
+          { 'label': t('column_actions'), 'class': 'uk-text-right' }
+        ], 'tenantTableBody', false, table_class='uk-table-middle uk-table-striped', wrap_class='uk-visible@s uk-overflow-auto qr-table-wrap') }}
+        {{ qr_rowcards('tenantCards', false, 'uk-hidden@s', 'div') }}
       </div>
     </li>
     {% endif %}
@@ -1075,64 +1032,51 @@
             <div class="uk-text-meta">Wird für Stripe-Kund*in verwendet.</div>
           </div>
           {% endif %}
-        <div class="uk-overflow-auto qr-table-wrap uk-margin-top">
-          <table class="uk-table uk-table-divider uk-table-small uk-text-center qr-table">
-              <thead>
-                <tr>
-                  <th scope="col"></th>
-                  <th scope="col">
-                    {{ t('plan_starter') }}<br>
-                    <div class="uk-text-large">9&nbsp;€/Monat</div>
-                  </th>
-                  <th scope="col">
-                    {{ t('plan_standard') }}<br>
-                    <div class="uk-text-large">39&nbsp;€/Monat</div>
-                  </th>
-                  <th scope="col">
-                    {{ t('plan_professional') }}<br>
-                    <div class="uk-text-large">79&nbsp;€/Monat</div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th scope="row">Gleichzeitige Events</th>
-                  <td>1</td>
-                  <td>3</td>
-                  <td>20</td>
-                </tr>
-                <tr>
-                  <th scope="row">Teams &amp; Kataloge</th>
-                  <td>5 Teams &amp; 5 Kataloge à 5 Fragen</td>
-                  <td>10 Teams &amp; 10 Kataloge à 10 Fragen</td>
-                  <td>100 Teams &amp; 50 Kataloge à 50 Fragen</td>
-                </tr>
-                <tr>
-                  <th scope="row">Subdomain</th>
-                  <td>–</td>
-                  <td>&#10003;</td>
-                  <td>&#10003;</td>
-                </tr>
-                <tr>
-                  <th scope="row">PDF-Export</th>
-                  <td>Basis</td>
-                  <td>Vollständig</td>
-                  <td>Vollständig</td>
-                </tr>
-                <tr>
-                  <th scope="row">White-Label &amp; Rollenverwaltung</th>
-                  <td>–</td>
-                  <td>–</td>
-                  <td>&#10003;</td>
-                </tr>
-                <tr>
-                  <th scope="row"></th>
-                  <td><button class="uk-button uk-button-default uk-width-1-1 plan-select" data-plan="starter">{{ t('action_start_subscription') }}</button></td>
-                  <td><button class="uk-button uk-button-primary uk-width-1-1 plan-select" data-plan="standard">{{ t('action_start_subscription') }}</button></td>
-                  <td><button class="uk-button uk-button-default uk-width-1-1 plan-select" data-plan="professional">{{ t('action_start_subscription') }}</button></td>
-                </tr>
-              </tbody>
-          </table>
+        {% from 'components/table.twig' import qr_table %}
+        {% set planRows %}
+        <tr>
+          <th scope="row">Gleichzeitige Events</th>
+          <td>1</td>
+          <td>3</td>
+          <td>20</td>
+        </tr>
+        <tr>
+          <th scope="row">Teams &amp; Kataloge</th>
+          <td>5 Teams &amp; 5 Kataloge à 5 Fragen</td>
+          <td>10 Teams &amp; 10 Kataloge à 10 Fragen</td>
+          <td>100 Teams &amp; 50 Kataloge à 50 Fragen</td>
+        </tr>
+        <tr>
+          <th scope="row">Subdomain</th>
+          <td>–</td>
+          <td>&#10003;</td>
+          <td>&#10003;</td>
+        </tr>
+        <tr>
+          <th scope="row">PDF-Export</th>
+          <td>Basis</td>
+          <td>Vollständig</td>
+          <td>Vollständig</td>
+        </tr>
+        <tr>
+          <th scope="row">White-Label &amp; Rollenverwaltung</th>
+          <td>–</td>
+          <td>–</td>
+          <td>&#10003;</td>
+        </tr>
+        <tr>
+          <th scope="row"></th>
+          <td><button class="uk-button uk-button-default uk-width-1-1 plan-select" data-plan="starter">{{ t('action_start_subscription') }}</button></td>
+          <td><button class="uk-button uk-button-primary uk-width-1-1 plan-select" data-plan="standard">{{ t('action_start_subscription') }}</button></td>
+          <td><button class="uk-button uk-button-default uk-width-1-1 plan-select" data-plan="professional">{{ t('action_start_subscription') }}</button></td>
+        </tr>
+        {% endset %}
+        {{ qr_table([
+          { 'label': '' },
+          { 'label': (t('plan_starter') ~ '<br><div class="uk-text-large">9&nbsp;€/Monat</div>')|raw },
+          { 'label': (t('plan_standard') ~ '<br><div class="uk-text-large">39&nbsp;€/Monat</div>')|raw },
+          { 'label': (t('plan_professional') ~ '<br><div class="uk-text-large">79&nbsp;€/Monat</div>')|raw }
+        ], 'planCompareBody', false, table_class='uk-text-center', wrap_class='uk-overflow-auto qr-table-wrap uk-margin-top', body_html=planRows) }}
         </div>
         {% endif %}
         {% if domainType == 'tenant' and hasCustomer %}
