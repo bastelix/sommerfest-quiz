@@ -33,6 +33,7 @@ class ConfigService
         'photoUpload',
         'puzzleWordEnabled',
         'collectPlayerUid',
+        'loginRequired',
         'qrLogoPunchout',
         'qrRounded',
     ];
@@ -184,13 +185,19 @@ class ConfigService
      */
     public function saveConfig(array $data): void
     {
+        if (isset($data['pageTitle']) && !isset($data['title'])) {
+            $data['title'] = $data['pageTitle'];
+        }
+        if (isset($data['QRUser']) && !isset($data['loginRequired'])) {
+            $data['loginRequired'] = $data['QRUser'];
+        }
         $keys = [
             'displayErrorDetails',
-            'QRUser',
+            'title',
+            'loginRequired',
             'QRRemember',
             'logoPath',
             'ogImagePath',
-            'pageTitle',
             'backgroundColor',
             'buttonColor',
             'CheckAnswerButton',
@@ -198,14 +205,18 @@ class ConfigService
             'randomNames',
             'competitionMode',
             'teamResults',
-        'photoUpload',
-        'puzzleWordEnabled',
-        'puzzleWord',
-        'puzzleFeedback',
-        'collectPlayerUid',
-        'inviteText',
-        'colors',
-        'event_uid',
+            'photoUpload',
+            'puzzleWordEnabled',
+            'puzzleWord',
+            'puzzleFeedback',
+            'collectPlayerUid',
+            'inviteText',
+            'whitelist',
+            'countdown',
+            'webhookUrl',
+            'analyticsId',
+            'colors',
+            'event_uid',
             'qrLabelLine1',
             'qrLabelLine2',
             'qrLogoPath',
@@ -342,6 +353,10 @@ class ConfigService
             'puzzleWord',
             'puzzleFeedback',
             'inviteText',
+            'whitelist',
+            'countdown',
+            'webhookUrl',
+            'analyticsId',
             'colors',
             'event_uid',
             'qrLabelLine1',
@@ -359,6 +374,8 @@ class ConfigService
         foreach ($keys as $k) {
             $map[strtolower($k)] = $k;
         }
+        $map['title'] = 'pageTitle';
+        $map['loginrequired'] = 'QRUser';
         $normalized = [];
         foreach ($row as $k => $v) {
             $key = $map[strtolower($k)] ?? $k;

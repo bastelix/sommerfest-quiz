@@ -37,7 +37,7 @@
   const puzzleFeedback = document.getElementById('puzzleFeedback');
   const optCompetition = document.getElementById('optCompetition');
   const optResults = document.getElementById('optResults');
-  const optQrLogin = document.getElementById('optQrLogin');
+  const optQrLogin = document.getElementById('QRUser');
   const optTeamname = document.getElementById('optTeamname');
   const logoInput = document.getElementById('logo');
   const logoPreview = document.getElementById('logoPreview');
