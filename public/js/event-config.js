@@ -31,7 +31,11 @@
       } else if (el.type === 'file') {
         if (el.files?.[0]) data.append(key, el.files[0]);
       } else {
-        data.append(key, el.value);
+        let value = el.value;
+        if (key === 'pageTitle' && !value) {
+          value = 'Modernes Quiz mit UIkit';
+        }
+        data.append(key, value);
       }
     });
     return data;
