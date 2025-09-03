@@ -649,12 +649,18 @@ document.addEventListener('DOMContentLoaded', function () {
   let catalogFile = '';
   let initial = [];
 
+  const CATALOGS_PER_PAGE = 50;
+  const catalogPaginationEl = document.createElement('ul');
+  catalogPaginationEl.id = 'catalogsPagination';
+  catalogPaginationEl.className = 'uk-pagination uk-flex-center';
+  newCatBtn?.parentElement?.before(catalogPaginationEl);
+
   const catalogColumns = [
-    { key: 'slug', editable: true },
-    { key: 'name', editable: true },
-    { key: 'description', editable: true },
-    { key: 'raetsel_buchstabe', editable: true },
-    { key: 'comment', editable: true, ariaDesc: 'Kommentar bearbeiten' }
+    { key: 'slug', className: 'uk-table-shrink', editable: true },
+    { key: 'name', className: 'uk-table-expand', editable: true },
+    { key: 'description', className: 'uk-table-expand', editable: true },
+    { key: 'raetsel_buchstabe', className: 'uk-table-shrink', editable: true },
+    { key: 'comment', className: 'uk-table-expand', editable: true, ariaDesc: 'Kommentar bearbeiten' }
   ];
 
   const catalogManager = new TableManager({
@@ -666,6 +672,7 @@ document.addEventListener('DOMContentLoaded', function () {
     onDelete: id => deleteCatalogById(id),
     onReorder: saveCatalogOrder
   });
+  catalogManager.bindPagination(catalogPaginationEl, CATALOGS_PER_PAGE);
 
   function editCatalogCell(cell) {
     const id = cell?.dataset.id;
