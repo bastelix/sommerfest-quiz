@@ -1,0 +1,127 @@
+<tbody id="tenantTableBody">
+{% for t in tenants %}
+  {% set sub = t.subdomain %}
+  {% set plan = t.plan ?? '' %}
+  {% set billing = t.billing_info ?? '' %}
+  {% set customerId = t.stripe_customer_id ?? '' %}
+  {% set subscriptionId = t.stripe_subscription_id ?? '' %}
+  {% set created = t.created_at|replace({'T': ' '})|replace({'Z': ''}) %}
+  {% set parts = created|split(' ') %}
+  {% set datePart = parts[0] ?? '' %}
+  {% set timePart = parts[1] ?? '' %}
+  {% set statusKey = t.status %}
+  {% if statusKey == 'canceled' %}
+    {% set statusText = 'Gekündigt' %}
+    {% set statusClass = 'uk-label-danger' %}
+  {% elseif statusKey == 'active' %}
+    {% set statusText = 'Aktiv' %}
+    {% set statusClass = 'uk-label-success' %}
+  {% else %}
+    {% set statusText = 'Simuliert' %}
+    {% set statusClass = 'uk-label-warning' %}
+  {% endif %}
+  <tr>
+    <td class="sticky">
+      {% if sub and main_domain %}
+        <a href="https://{{ sub }}.{{ main_domain }}" class="uk-link-heading">{{ sub }}</a>
+      {% else %}
+        {{ sub }}
+      {% endif %}
+      <span class="uk-label {{ statusClass }} uk-margin-small-left">{{ statusText }}</span>
+    </td>
+    <td class="col-plan">{{ plan }}</td>
+    <td class="col-billing">
+      <span class="uk-text-truncate qr-mono" title="{{ billing }}">{{ billing }}</span>
+    </td>
+    <td class="col-created">
+      <div class="uk-text-muted">
+        <div>{{ datePart }}</div>
+        <div class="uk-text-small">{{ timePart }}</div>
+      </div>
+    </td>
+    <td class="uk-text-right">
+      <div class="uk-inline">
+        <a class="uk-icon-button" uk-icon="more-vertical" href="#"></a>
+        <div uk-dropdown="mode: click; pos: bottom-right; container: body">
+          <ul class="uk-nav uk-dropdown-nav">
+            <li class="uk-nav-header">Aktionen</li>
+            <li><a href="#" data-action="welcome" data-sub="{{ sub }}"><span uk-icon="mail" class="uk-margin-small-right"></span>Willkommensmail</a></li>
+            <li><a href="#" data-action="upgrade-docker" data-sub="{{ sub }}"><span uk-icon="refresh" class="uk-margin-small-right"></span>{{ t('action_upgrade_docker') }}</a></li>
+            <li><a href="#" data-action="restart" data-sub="{{ sub }}"><span uk-icon="history" class="uk-margin-small-right"></span>{{ t('action_restart_tenant') }}</a></li>
+            <li><a href="#" data-action="renew" data-sub="{{ sub }}"><span uk-icon="lock" class="uk-margin-small-right"></span>SSL erneuern</a></li>
+            <li class="uk-nav-divider"></li>
+            <li><a class="uk-text-danger" href="#" data-action="delete" data-uid="{{ t.uid }}" data-sub="{{ sub }}">Mandant löschen …</a></li>
+            <li class="uk-nav-divider"></li>
+            <li class="uk-nav-header">Verbindungen</li>
+            {% set customerLink = customerId ? stripe_dashboard ~ '/customers/' ~ customerId : '#' %}
+            {% set subscriptionLink = subscriptionId ? stripe_dashboard ~ '/subscriptions/' ~ subscriptionId : '#' %}
+            {% set customerClass = customerId ? '' : 'uk-disabled' %}
+            {% set subscriptionClass = subscriptionId ? '' : 'uk-disabled' %}
+            <li><a href="{{ customerLink }}" class="{{ customerClass }}" data-action="show-customer" data-sub="{{ sub }}" target="_blank">Kunden anzeigen</a></li>
+            <li><a href="{{ subscriptionLink }}" class="{{ subscriptionClass }}" data-action="show-subscription" data-sub="{{ sub }}" target="_blank">Abo anzeigen</a></li>
+          </ul>
+        </div>
+      </div>
+    </td>
+  </tr>
+{% endfor %}
+</tbody>
+<div id="tenantCards" class="uk-hidden@s">
+{% for t in tenants %}
+  {% set sub = t.subdomain %}
+  {% set plan = t.plan ?? '' %}
+  {% set billing = t.billing_info ?? '' %}
+  {% set created = t.created_at|replace({'T': ' '})|replace({'Z': ''}) %}
+  {% set statusKey = t.status %}
+  {% if statusKey == 'canceled' %}
+    {% set statusText = 'Gekündigt' %}
+    {% set statusClass = 'uk-label-danger' %}
+  {% elseif statusKey == 'active' %}
+    {% set statusText = 'Aktiv' %}
+    {% set statusClass = 'uk-label-success' %}
+  {% else %}
+    {% set statusText = 'Simuliert' %}
+    {% set statusClass = 'uk-label-warning' %}
+  {% endif %}
+  <div class="uk-card qr-card uk-card-small uk-margin-small">
+    <div class="uk-card-header uk-flex uk-flex-between uk-flex-middle">
+      <div>
+        <a class="uk-h5 uk-margin-remove">{{ sub }}</a>
+        <span class="uk-label {{ statusClass }} uk-margin-small-left">{{ statusText }}</span>
+      </div>
+      <div>
+        <a class="uk-icon-button" uk-icon="more-vertical" href="#"></a>
+        <div uk-dropdown="mode: click; pos: bottom-right; container: body">
+          <ul class="uk-nav uk-dropdown-nav">
+            <li class="uk-nav-header">Aktionen</li>
+            <li><a href="#" data-action="welcome" data-sub="{{ sub }}"><span uk-icon="mail" class="uk-margin-small-right"></span>Willkommensmail</a></li>
+            <li><a href="#" data-action="upgrade-docker" data-sub="{{ sub }}"><span uk-icon="refresh" class="uk-margin-small-right"></span>{{ t('action_upgrade_docker') }}</a></li>
+            <li><a href="#" data-action="restart" data-sub="{{ sub }}"><span uk-icon="history" class="uk-margin-small-right"></span>{{ t('action_restart_tenant') }}</a></li>
+            <li><a href="#" data-action="renew" data-sub="{{ sub }}"><span uk-icon="lock" class="uk-margin-small-right"></span>SSL erneuern</a></li>
+            <li class="uk-nav-divider"></li>
+            <li><a class="uk-text-danger" href="#" data-action="delete" data-uid="{{ t.uid }}" data-sub="{{ sub }}">Mandant löschen …</a></li>
+            <li class="uk-nav-divider"></li>
+            <li class="uk-nav-header">Verbindungen</li>
+            {% set customerLink = t.stripe_customer_id ? stripe_dashboard ~ '/customers/' ~ t.stripe_customer_id : '#' %}
+            {% set subscriptionLink = t.stripe_subscription_id ? stripe_dashboard ~ '/subscriptions/' ~ t.stripe_subscription_id : '#' %}
+            {% set customerClass = t.stripe_customer_id ? '' : 'uk-disabled' %}
+            {% set subscriptionClass = t.stripe_subscription_id ? '' : 'uk-disabled' %}
+            <li><a href="{{ customerLink }}" class="{{ customerClass }}" data-action="show-customer" data-sub="{{ sub }}" target="_blank">Kunden anzeigen</a></li>
+            <li><a href="{{ subscriptionLink }}" class="{{ subscriptionClass }}" data-action="show-subscription" data-sub="{{ sub }}" target="_blank">Abo anzeigen</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="uk-card-body">
+      <dl class="uk-description-list">
+        <dt>Plan</dt>
+        <dd>{{ plan }}</dd>
+        <dt>Billing</dt>
+        <dd class="uk-text-truncate" title="{{ billing }}">{{ billing }}</dd>
+        <dt>Erstellt</dt>
+        <dd>{{ created }}</dd>
+      </dl>
+    </div>
+  </div>
+{% endfor %}
+</div>

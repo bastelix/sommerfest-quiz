@@ -2590,170 +2590,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function loadTenants(status = tenantStatusFilter?.value || '', query = tenantSearchInput?.value || '') {
     if (!tenantTableBody || window.domainType !== 'main') return;
-    const mainDomain = window.mainDomain || '';
-    const stripeBase = window.stripeDashboard || 'https://dashboard.stripe.com';
-    const escapeHtml = (str) =>
-      (str || '').replace(/[&<>"']/g, (m) => (
-        {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#39;',
-        }[m]
-      ));
     const params = new URLSearchParams();
     if (status) params.set('status', status);
     if (query) params.set('query', query);
-    const url = '/tenants.json' + (params.toString() ? ('?' + params.toString()) : '');
-    apiFetch(url, { headers: { 'Accept': 'application/json' } })
-      .then(r => r.json())
-      .then(list => {
-        tenantTableBody.innerHTML = '';
-        if (tenantCards) tenantCards.innerHTML = '';
-        list.forEach(t => {
-          const sub = t.subdomain || '';
-          const plan = t.plan || '';
-          const billing = t.billing_info || '';
-          const customerId = t.stripe_customer_id || '';
-          const subscriptionId = t.stripe_subscription_id || '';
-          const created = (t.created_at || '').replace('T', ' ').replace(/\..*/, '');
-          let statusText;
-          let statusClass;
-          let statusKey;
-          if (t.stripe_status === 'canceled') {
-            statusText = 'Gekündigt';
-            statusClass = 'uk-label-danger';
-            statusKey = 'canceled';
-          } else if (plan) {
-            statusText = 'Aktiv';
-            statusClass = 'uk-label-success';
-            statusKey = 'active';
-          } else {
-            statusText = 'Simuliert';
-            statusClass = 'uk-label-warning';
-            statusKey = 'simulated';
-          }
-          if (status && status !== statusKey) return;
-          const safeSub = escapeHtml(sub);
-          const safeBilling = escapeHtml(billing);
-          const safePlan = escapeHtml(plan);
-          const safeCreated = escapeHtml(created);
-          const safeUid = escapeHtml(t.uid || '');
-          const safeStatus = escapeHtml(statusText);
-
-          // desktop row
-          const tr = document.createElement('tr');
-          const subTd = document.createElement('td');
-          subTd.className = 'sticky';
-          if (sub && mainDomain) {
-            const a = document.createElement('a');
-            a.href = 'https://' + sub + '.' + mainDomain;
-            a.className = 'uk-link-heading';
-            a.textContent = sub;
-            subTd.appendChild(a);
-          } else {
-            subTd.textContent = sub;
-          }
-          const statusSpan = document.createElement('span');
-          statusSpan.className = 'uk-label ' + statusClass + ' uk-margin-small-left';
-          statusSpan.textContent = statusText;
-          subTd.appendChild(statusSpan);
-
-          const planTd = document.createElement('td');
-          planTd.textContent = plan;
-          planTd.classList.add('col-plan');
-
-          const billingTd = document.createElement('td');
-          const billingSpan = document.createElement('span');
-          billingSpan.className = 'uk-text-truncate qr-mono';
-          billingSpan.textContent = billing;
-          billingSpan.title = billing;
-          billingTd.appendChild(billingSpan);
-          billingTd.classList.add('col-billing');
-
-          const createdTd = document.createElement('td');
-          const createdWrap = document.createElement('div');
-          createdWrap.className = 'uk-text-muted';
-          const [datePart, timePart] = created.split(' ');
-          const dateDiv = document.createElement('div');
-          dateDiv.textContent = datePart || '';
-          const timeDiv = document.createElement('div');
-          timeDiv.className = 'uk-text-small';
-          timeDiv.textContent = timePart || '';
-          createdWrap.appendChild(dateDiv);
-          createdWrap.appendChild(timeDiv);
-          createdTd.appendChild(createdWrap);
-          createdTd.classList.add('col-created');
-
-          const actionTd = document.createElement('td');
-          actionTd.className = 'uk-text-right';
-          const customerLink = customerId ? stripeBase + '/customers/' + encodeURIComponent(customerId) : '#';
-          const subscriptionLink = subscriptionId ? stripeBase + '/subscriptions/' + encodeURIComponent(subscriptionId) : '#';
-          const customerClass = customerId ? '' : ' class="uk-disabled"';
-          const subscriptionClass = subscriptionId ? '' : ' class="uk-disabled"';
-          actionTd.innerHTML = `
-            <div class="uk-inline">
-              <a class="uk-icon-button" uk-icon="more-vertical" href="#"></a>
-              <div uk-dropdown="mode: click; pos: bottom-right; container: body">
-                <ul class="uk-nav uk-dropdown-nav">
-                  <li class="uk-nav-header">Aktionen</li>
-                  <li><a href="#" data-action="welcome" data-sub="${safeSub}"><span uk-icon="mail" class="uk-margin-small-right"></span>Willkommensmail</a></li>
-                  <li><a href="#" data-action="upgrade-docker" data-sub="${safeSub}"><span uk-icon="refresh" class="uk-margin-small-right"></span>${window.transUpgradeDocker || 'Docker aktualisieren'}</a></li>
-                  <li><a href="#" data-action="restart" data-sub="${safeSub}"><span uk-icon="history" class="uk-margin-small-right"></span>${window.transRestartTenant || 'Docker neu starten'}</a></li>
-                  <li><a href="#" data-action="renew" data-sub="${safeSub}"><span uk-icon="lock" class="uk-margin-small-right"></span>SSL erneuern</a></li>
-                  <li class="uk-nav-divider"></li>
-                  <li><a class="uk-text-danger" href="#" data-action="delete" data-uid="${safeUid}" data-sub="${safeSub}">Mandant löschen …</a></li>
-                  <li class="uk-nav-divider"></li>
-                  <li class="uk-nav-header">Verbindungen</li>
-                  <li><a href="${customerLink}"${customerClass} data-action="show-customer" data-sub="${safeSub}" target="_blank">Kunden anzeigen</a></li>
-                  <li><a href="${subscriptionLink}"${subscriptionClass} data-action="show-subscription" data-sub="${safeSub}" target="_blank">Abo anzeigen</a></li>
-                </ul>
-              </div>
-            </div>`;
-
-          tr.appendChild(subTd);
-          tr.appendChild(planTd);
-          tr.appendChild(billingTd);
-          tr.appendChild(createdTd);
-          tr.appendChild(actionTd);
-          tenantTableBody.appendChild(tr);
-
-          // mobile card
-          if (tenantCards) {
-            const card = document.createElement('div');
-            card.className = 'uk-card qr-card uk-card-small uk-margin-small';
-            card.innerHTML = `
-              <div class="uk-card-header uk-flex uk-flex-between uk-flex-middle">
-                <div>
-                  <a class="uk-h5 uk-margin-remove">${safeSub}</a>
-                  <span class="uk-label ${statusClass} uk-margin-small-left">${safeStatus}</span>
-                </div>
-                <div>
-                  <a class="uk-icon-button" uk-icon="more-vertical" href="#"></a>
-                  <div uk-dropdown="mode: click; pos: bottom-right; container: body">
-                    <ul class="uk-nav uk-dropdown-nav">
-                      <li class="uk-nav-header">Aktionen</li>
-                      <li><a href="#" data-action="welcome" data-sub="${safeSub}">Willkommensmail</a></li>
-                      <li><a href="#" data-action="upgrade-docker" data-sub="${safeSub}"><span uk-icon="refresh" class="uk-margin-small-right"></span>${window.transUpgradeDocker || 'Docker aktualisieren'}</a></li>
-                      <li><a href="#" data-action="restart" data-sub="${safeSub}"><span uk-icon="history" class="uk-margin-small-right"></span>${window.transRestartTenant || 'Docker neu starten'}</a></li>
-                      <li><a href="#" data-action="renew" data-sub="${safeSub}"><span uk-icon="lock" class="uk-margin-small-right"></span>SSL erneuern</a></li>
-                      <li class="uk-nav-divider"></li>
-                      <li><a class="uk-text-danger" href="#" data-action="delete" data-uid="${safeUid}" data-sub="${safeSub}">Mandant löschen …</a></li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
-              <div class="uk-card-body uk-padding-small">
-                <dl class="uk-description-list uk-margin-remove">
-                  <dt class="col-plan">Abo</dt><dd class="col-plan">${safePlan}</dd>
-                  <dt class="col-billing">Rechnungsinfo</dt><dd class="col-billing uk-text-truncate qr-mono" title="${safeBilling}">${safeBilling}</dd>
-                  <dt class="col-created">Erstellt</dt><dd class="col-created">${safeCreated}</dd>
-                </dl>
-              </div>`;
-            tenantCards.appendChild(card);
-          }
-        });
+    const url = '/tenants' + (params.toString() ? ('?' + params.toString()) : '');
+    apiFetch(url, { headers: { 'Accept': 'text/html' } })
+      .then((r) => r.text())
+      .then((html) => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const newBody = doc.getElementById('tenantTableBody');
+        const newCards = doc.getElementById('tenantCards');
+        if (newBody) {
+          tenantTableBody.innerHTML = newBody.innerHTML;
+        }
+        if (tenantCards && newCards) {
+          tenantCards.innerHTML = newCards.innerHTML;
+        }
         updateTenantColumnVisibility();
       })
       .catch(() => {});
