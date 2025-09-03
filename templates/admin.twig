@@ -409,11 +409,11 @@
           <h2 class="uk-heading-bullet">{{ t('heading_catalogs') }}</h2>
         {% from 'components/table.twig' import qr_table, qr_rowcards %}
         {{ qr_table([
-          { 'label': (t('column_slug') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_slug') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-shrink' },
-          { 'label': (t('column_name') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_name') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-expand' },
-          { 'label': (t('column_description') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_desc') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-expand' },
-          { 'label': (t('column_letter') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_puzzle_letter') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-shrink' },
-          { 'label': (t('column_comment') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_comment') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-expand' },
+          { 'label': (t('column_slug') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_slug') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-shrink', 'key': 'slug' },
+          { 'label': (t('column_name') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_name') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-expand', 'key': 'name' },
+          { 'label': (t('column_description') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_desc') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-expand', 'key': 'description' },
+          { 'label': (t('column_letter') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_puzzle_letter') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-shrink', 'key': 'raetsel_buchstabe' },
+          { 'label': (t('column_comment') ~ '<span class="uk-margin-small-left" uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_comment') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-expand', 'key': 'comment' },
           { 'label': ('<span uk-icon="icon: question" uk-tooltip="title: ' ~ t('tip_cat_remove') ~ '; pos: top" tabindex="0"></span>')|raw, 'class': 'uk-table-shrink uk-text-center' }
         ], 'catalogList', true) }}
         {{ qr_rowcards('catalogCards') }}
@@ -457,7 +457,7 @@
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_teams') }}</h2>
           {% from 'components/table.twig' import qr_table, qr_rowcards %}
-          {{ qr_table([{ 'label': t('column_name'), 'class': 'uk-table-expand' }, { 'label': '', 'class': 'uk-table-shrink uk-text-center' }], 'teamsList', true) }}
+          {{ qr_table([{ 'label': t('column_name'), 'class': 'uk-table-expand', 'key': 'name' }, { 'label': '', 'class': 'uk-table-shrink uk-text-center' }], 'teamsList', true) }}
         {{ qr_rowcards('teamsCards') }}
         <div class="uk-margin">
           <button id="teamAddBtn" class="uk-icon-button uk-button-primary fab" uk-icon="plus" uk-tooltip="title: {{ t('tip_team_add') }}; pos: left" aria-label="{{ t('tip_team_add') }}"></button>

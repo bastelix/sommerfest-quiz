@@ -7,7 +7,10 @@
                 <th scope="col" class="uk-table-shrink"></th>
             {% endif %}
             {% for heading in headings %}
-                <th scope="col"{% if heading.class is defined and heading.class %} class="{{ heading.class }}"{% endif %}>{{ heading.label|raw }}</th>
+                <th scope="col"{% if heading.class is defined and heading.class %} class="{{ heading.class }}"{% endif %}{% if heading.key is defined %} data-key="{{ heading.key }}"{% endif %}>
+                    {{ heading.label|raw }}
+                    <span class="qr-col-spinner uk-margin-small-left" uk-spinner hidden aria-live="polite"></span>
+                </th>
             {% endfor %}
             </tr>
         </thead>
