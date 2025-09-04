@@ -266,6 +266,7 @@
 - Verify health endpoint timestamp and tenant host
 - Ensure version displayed on login
 - Cover catalog question access
+- Verify catalog slug parameter
 
 ## [0.2.0] - 2025-08-18
 
