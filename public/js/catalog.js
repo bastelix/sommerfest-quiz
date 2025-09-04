@@ -274,7 +274,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
     }
     const btn = document.createElement('button');
     btn.className = 'uk-button uk-button-primary uk-button-large uk-align-right';
-    btn.textContent = 'Los geht es!';
+    btn.textContent = 'Los geht\'s!';
     const cfg = window.quizConfig || {};
     if(cfg.colors && cfg.colors.accent){
       btn.style.backgroundColor = cfg.colors.accent;
@@ -682,7 +682,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       if(!cfg.competitionMode || hasCatalog){
         const btn = document.createElement('button');
         btn.className = 'uk-button uk-button-primary uk-align-right';
-        btn.textContent = 'Los geht es!';
+        btn.textContent = 'Los geht\'s!';
         if(cfg.colors && cfg.colors.accent){
           btn.style.backgroundColor = cfg.colors.accent;
           btn.style.borderColor = cfg.colors.accent;
