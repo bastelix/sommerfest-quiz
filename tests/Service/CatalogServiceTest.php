@@ -268,6 +268,25 @@ class CatalogServiceTest extends TestCase
         );
     }
 
+    public function testDuplicateSlugUsesExistingUid(): void
+    {
+        $pdo = $this->createPdo();
+        $cfg = new ConfigService($pdo);
+        $service = new CatalogService($pdo, $cfg);
+        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name) VALUES('u1',1,'test','t.json','Old')");
+
+        $service->write('catalogs.json', [[
+            'sort_order' => 2,
+            'slug' => 'test',
+            'file' => 't.json',
+            'name' => 'New',
+        ]]);
+
+        $row = $pdo->query("SELECT uid, name FROM catalogs WHERE slug='test'")->fetch(PDO::FETCH_ASSOC);
+        $this->assertSame('u1', $row['uid']);
+        $this->assertSame('New', $row['name']);
+    }
+
     public function testReorderCatalogs(): void
     {
         $pdo = $this->createPdo();
