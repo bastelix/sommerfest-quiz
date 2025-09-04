@@ -37,7 +37,7 @@ class HomeControllerTest extends TestCase
         $this->getAppInstance();
         $pdo = \App\Infrastructure\Database::connectFromEnv();
         \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
-        $pdo->exec("INSERT INTO events(uid,name) VALUES('1','Event')");
+        $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('1','event','Event')");
         $pdo->exec(
             "INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) " .
             "VALUES('c1',1,'station_1','station_1.json','Station 1','1')"
@@ -80,7 +80,7 @@ class HomeControllerTest extends TestCase
         $pdo = \App\Infrastructure\Database::connectFromEnv();
         \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
         (new \App\Service\SettingsService($pdo))->save(['home_page' => 'events']);
-        $pdo->exec("INSERT INTO events(uid,name) VALUES('1','Event')");
+        $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('1','event','Event')");
 
         try {
             $app = $this->getAppInstance();
@@ -119,7 +119,7 @@ class HomeControllerTest extends TestCase
         $pdo = \App\Infrastructure\Database::connectFromEnv();
         \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
         (new \App\Service\SettingsService($pdo))->save(['home_page' => 'landing']);
-        $pdo->exec("INSERT INTO events(uid,name) VALUES('1','Event')");
+        $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('1','event','Event')");
         $pdo->exec(
             "INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) " .
             "VALUES('c1',1,'station_1','station_1.json','Station 1','1')"
@@ -133,6 +133,27 @@ class HomeControllerTest extends TestCase
             $body = (string) $response->getBody();
             $this->assertStringContainsString('Station 1', $body);
             $this->assertStringNotContainsString('Trete gegen Freunde und Kollegen an', $body);
+        } finally {
+            unlink($db);
+        }
+    }
+
+    public function testHomePageWithSlug(): void
+    {
+        $db = $this->setupDb();
+        $this->getAppInstance();
+        $pdo = \App\Infrastructure\Database::connectFromEnv();
+        \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
+        $uid = str_repeat('b', 32);
+        $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('$uid','sluggy','Event')");
+
+        try {
+            $app = $this->getAppInstance();
+            $request = $this->createRequest('GET', '/')->withQueryParams(['event' => 'sluggy']);
+            $response = $app->handle($request);
+            $this->assertEquals(200, $response->getStatusCode());
+            $cfg = new \App\Service\ConfigService($pdo);
+            $this->assertSame($uid, $cfg->getActiveEventUid());
         } finally {
             unlink($db);
         }

@@ -58,6 +58,7 @@ class EventService
      *
      * @param list<array{
      *     uid?:string,
+     *     slug?:string,
      *     name:string,
      *     start_date?:string,
      *     end_date?:string,
@@ -82,10 +83,10 @@ class EventService
 
         $updateStmt = $this->pdo->prepare(
             'UPDATE events SET name = ?, start_date = ?, end_date = ?, ' .
-            'description = ?, published = ?, sort_order = ? WHERE uid = ?'
+            'description = ?, published = ?, sort_order = ?, slug = ? WHERE uid = ?'
         );
         $insertStmt = $this->pdo->prepare(
-            'INSERT INTO events(uid,name,start_date,end_date,description,published,sort_order) VALUES(?,?,?,?,?,?,?)'
+            'INSERT INTO events(uid,slug,name,start_date,end_date,description,published,sort_order) VALUES(?,?,?,?,?,?,?,?)'
         );
         $uids = [];
         foreach ($events as $idx => $event) {
@@ -103,11 +104,12 @@ class EventService
             $desc = $event['description'] ?? null;
             $published = filter_var($event['published'] ?? false, FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
             $sort = $idx;
+            $slug = (string) ($event['slug'] ?? $uid);
 
             if (in_array($uid, $existing, true)) {
-                $updateStmt->execute([$name, $start, $end, $desc, $published, $sort, $uid]);
+                $updateStmt->execute([$name, $start, $end, $desc, $published, $sort, $slug, $uid]);
             } else {
-                $insertStmt->execute([$uid, $name, $start, $end, $desc, $published, $sort]);
+                $insertStmt->execute([$uid, $slug, $name, $start, $end, $desc, $published, $sort]);
                 $this->config->ensureConfigForEvent($uid);
             }
         }
@@ -157,10 +159,12 @@ class EventService
 
     /**
      * Retrieve a specific event by its UID.
+     *
+     * @return array{uid:string,slug:string,name:string,start_date:?string,end_date:?string,description:?string}|null
      */
     public function getByUid(string $uid): ?array
     {
-        $stmt = $this->pdo->prepare('SELECT uid,name,start_date,end_date,description FROM events WHERE uid = ?');
+        $stmt = $this->pdo->prepare('SELECT uid,slug,name,start_date,end_date,description FROM events WHERE uid = ?');
         $stmt->execute([$uid]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row !== false) {
@@ -177,6 +181,7 @@ class EventService
                     if ((string)($event['uid'] ?? '') === $uid) {
                         return [
                             'uid' => (string) $event['uid'],
+                            'slug' => (string) ($event['slug'] ?? $event['uid']),
                             'name' => (string) $event['name'],
                             'start_date' => $event['start_date'] ?? null,
                             'end_date' => $event['end_date'] ?? null,
@@ -188,6 +193,35 @@ class EventService
         }
 
         return null;
+    }
+
+    /**
+     * Retrieve a specific event by its slug.
+     *
+     * @return array{uid:string,slug:string,name:string,start_date:?string,end_date:?string,description:?string}|null
+     */
+    public function getBySlug(string $slug): ?array
+    {
+        $stmt = $this->pdo->prepare('SELECT uid,slug,name,start_date,end_date,description FROM events WHERE slug = ?');
+        $stmt->execute([$slug]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row !== false) {
+            $row['start_date'] = $this->formatDate($row['start_date']);
+            $row['end_date'] = $this->formatDate($row['end_date']);
+            return $row;
+        }
+        return null;
+    }
+
+    /**
+     * Find the UID for the given event slug.
+     */
+    public function uidBySlug(string $slug): ?string
+    {
+        $stmt = $this->pdo->prepare('SELECT uid FROM events WHERE slug = ?');
+        $stmt->execute([$slug]);
+        $uid = $stmt->fetchColumn();
+        return $uid === false ? null : (string) $uid;
     }
 
     private function formatDate(?string $value): ?string

@@ -140,7 +140,7 @@ class LogoControllerTest extends TestCase
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
-            'CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, sort_order INTEGER DEFAULT 0);'
+            'CREATE TABLE events(uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, sort_order INTEGER DEFAULT 0);'
         );
         $pdo->exec(
             'CREATE TABLE active_event(event_uid TEXT PRIMARY KEY);'
@@ -169,7 +169,7 @@ class LogoControllerTest extends TestCase
             );
             SQL
         );
-        $pdo->exec("INSERT INTO events(uid,name) VALUES('e1','Eins'),('e2','Zwei')");
+        $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('e1','e1','Eins'),('e2','e2','Zwei')");
 
         $cfg = new ConfigService($pdo);
         $cfg->ensureConfigForEvent('e1');
@@ -249,7 +249,7 @@ class LogoControllerTest extends TestCase
     {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, sort_order INTEGER DEFAULT 0);');
+        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, sort_order INTEGER DEFAULT 0);');
         $pdo->exec('CREATE TABLE active_event(event_uid TEXT PRIMARY KEY);');
         $pdo->exec(
             <<<'SQL'
@@ -275,7 +275,7 @@ class LogoControllerTest extends TestCase
             );
             SQL
         );
-        $pdo->exec("INSERT INTO events(uid,name) VALUES('e1','Eins'),('e2','Zwei')");
+        $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('e1','e1','Eins'),('e2','e2','Zwei')");
 
         $cfg = new ConfigService($pdo);
         $cfg->ensureConfigForEvent('e1');

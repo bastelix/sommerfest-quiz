@@ -12,7 +12,7 @@ class PlayerProfileTest extends TestCase
     public function testProfilePageAndApiPlayers(): void
     {
         $pdo = $this->getDatabase();
-        $pdo->exec("INSERT INTO events(uid, name) VALUES('ev1','Test')");
+        $pdo->exec("INSERT INTO events(uid, slug, name) VALUES('ev1','ev1','Test')");
 
         $app = $this->getAppInstance();
 

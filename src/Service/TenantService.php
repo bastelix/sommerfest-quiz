@@ -216,21 +216,25 @@ class TenantService
         $activeUid = null;
         if ($this->hasTable('events') && $this->hasColumn('events', 'name') && is_readable($eventsFile)) {
             $events = json_decode(file_get_contents($eventsFile), true) ?? [];
-            $stmt = $this->pdo->prepare(
-                'INSERT INTO events(uid,name,start_date,end_date,description) VALUES(?,?,?,?,?)'
-            );
+            $hasSlug = $this->hasColumn('events', 'slug');
+            $sql = $hasSlug
+                ? 'INSERT INTO events(uid,slug,name,start_date,end_date,description) VALUES(?,?,?,?,?,?)'
+                : 'INSERT INTO events(uid,name,start_date,end_date,description) VALUES(?,?,?,?,?)';
+            $stmt = $this->pdo->prepare($sql);
             foreach ($events as $e) {
                 $uid = $e['uid'] ?? bin2hex(random_bytes(16));
                 if ($activeUid === null) {
                     $activeUid = $uid;
                 }
-                $stmt->execute([
-                    $uid,
-                    $e['name'] ?? '',
-                    $e['start_date'] ?? date('Y-m-d\TH:i'),
-                    $e['end_date'] ?? date('Y-m-d\TH:i'),
-                    $e['description'] ?? null,
-                ]);
+                $params = [$uid];
+                if ($hasSlug) {
+                    $params[] = $e['slug'] ?? $uid;
+                }
+                $params[] = $e['name'] ?? '';
+                $params[] = $e['start_date'] ?? date('Y-m-d\TH:i');
+                $params[] = $e['end_date'] ?? date('Y-m-d\TH:i');
+                $params[] = $e['description'] ?? null;
+                $stmt->execute($params);
             }
         }
 
