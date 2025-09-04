@@ -828,6 +828,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('settingsController')->post($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
+    $app->get('/catalog/questions/{file}', function (Request $request, Response $response, array $args) {
+        $req = $request->withAttribute('file', $args['file']);
+        return $request->getAttribute('catalogController')->getQuestions($req, $response, $args);
+    });
+
     $app->get('/kataloge/{file}', function (Request $request, Response $response, array $args) {
         $req = $request->withAttribute('file', $args['file']);
         return $request->getAttribute('catalogController')->get($req, $response, $args);

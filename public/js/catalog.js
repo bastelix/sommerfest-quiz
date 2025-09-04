@@ -4,6 +4,9 @@ const withBase = p => basePath + p;
 
 (function () {
   const eventUid = (window.quizConfig || {}).event_uid || '';
+  const csrfToken =
+    document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+    window.csrfToken || '';
 
   function setStored(key, value) {
     try {
@@ -88,9 +91,13 @@ const withBase = p => basePath + p;
 
     let loaded = false;
     try {
+      const headers = { Accept: 'application/json' };
+      if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken;
+      }
       const res = await fetch(
-        withBase(withEvent('/kataloge/' + file)),
-        { headers: { 'Accept': 'application/json' } }
+        withBase(withEvent('/catalog/questions/' + file)),
+        { headers }
       );
       const data = await res.json();
       window.quizQuestions = data;

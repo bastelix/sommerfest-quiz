@@ -68,6 +68,36 @@ class CatalogController
     }
 
     /**
+     * Retrieve catalog questions after validating session token and access.
+     */
+    public function getQuestions(Request $request, Response $response, array $args): Response
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        $headerToken = $request->getHeaderLine('X-CSRF-Token');
+        $sessionToken = (string) ($_SESSION['csrf_token'] ?? '');
+        if ($sessionToken === '' || $headerToken === '' || !hash_equals($sessionToken, $headerToken)) {
+            return $response->withStatus(403);
+        }
+
+        $file = basename($args['file']);
+        $allowed = $_SESSION['catalog_files'] ?? [];
+        if (!in_array($file, $allowed, true)) {
+            return $response->withStatus(403);
+        }
+
+        $content = $this->service->read($file);
+        if ($content === null) {
+            return $response->withStatus(404);
+        }
+
+        $response->getBody()->write($content);
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    /**
      * Update the specified catalog file with the provided data.
      */
     public function post(Request $request, Response $response, array $args): Response
