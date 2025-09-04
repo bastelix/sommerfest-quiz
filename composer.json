@@ -42,7 +42,8 @@
             "node tests/test_results_rankings.js",
             "node tests/test_random_name_prompt.js",
             "node tests/test_onboarding_plan.js",
-            "node tests/test_onboarding_flow.js"
+            "node tests/test_onboarding_flow.js",
+            "node tests/test_login_free_catalog.js"
         ]
     }
 }
