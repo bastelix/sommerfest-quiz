@@ -156,10 +156,17 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       }
     }
   }
+  function withEvent(url){
+    const sep = url.includes('?') ? '&' : '?';
+    return url + sep + 'event=' + encodeURIComponent(eventUid);
+  }
+
   async function loadCatalogList(){
     try{
-      const url = '/kataloge/catalogs.json' + (eventUid ? '?event=' + encodeURIComponent(eventUid) : '');
-      const res = await fetch(withBase(url), { headers: { 'Accept': 'application/json' } });
+      const res = await fetch(
+        withBase(withEvent('/kataloge/catalogs.json')),
+        { headers: { 'Accept': 'application/json' } }
+      );
       if(res.ok){
         return await res.json();
       }
@@ -216,7 +223,10 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       if(!eventUid){
         console.warn('eventUid not set when loading questions');
       }
-      const res = await fetch(withBase('/kataloge/' + file + '?event=' + encodeURIComponent(eventUid)), { headers: { 'Accept': 'application/json' } });
+      const res = await fetch(
+        withBase(withEvent('/kataloge/' + file)),
+        { headers: { 'Accept': 'application/json' } }
+      );
       const data = await res.json();
       window.quizQuestions = data;
       loaded = true;

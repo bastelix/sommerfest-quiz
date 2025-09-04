@@ -48,6 +48,7 @@ class CatalogController
         $accept = strtolower($request->getHeaderLine('Accept'));
         $params = $request->getQueryParams();
         $event = (string) ($params['event'] ?? '');
+        $this->config->setActiveEventUid($event);
 
         if ($accept === '' || strpos($accept, 'application/json') === false) {
             $slug = $this->service->slugByFile($file) ?? pathinfo($file, PATHINFO_FILENAME);
@@ -61,11 +62,6 @@ class CatalogController
                 ->withHeader('Location', $location)
                 ->withStatus(302);
         }
-
-        if ($event !== '') {
-            $this->config->setActiveEventUid($event);
-        }
-
         $content = $this->service->read($file);
         if ($content === null) {
             return $response->withStatus(404);
