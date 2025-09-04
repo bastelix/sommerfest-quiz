@@ -214,30 +214,37 @@ const withBase = p => basePath + p;
       const opt = select.selectedOptions[0];
       handleSelection(opt);
     });
-    if (id) {
-      const opt = Array.from(select.options).find(o => {
-        const value = (o.value || '').toLowerCase();
-        const slug = (o.dataset.slug || '').toLowerCase();
-        return value === id || slug === id;
-      });
-      if (opt) {
-        select.value = opt.value;
-        // Trigger selection manually so setComment() and showCatalogIntro() run
-        handleSelection(opt);
-        return;
-      }
-    }
+if (id) {
+  const opt = Array.from(select.options).find(o => {
+    const value = (o.value || '').toLowerCase();
+    const slug = (o.dataset.slug || '').toLowerCase();
+    return value === id || slug === id;
+  });
+  if (opt) {
+    select.value = opt.value;
+    // Dropdown ausblenden, nur Quiz anzeigen
+    select.style.display = 'none';
+    const selectLabel = document.querySelector('label[for="catalog-select"]');
+    if (selectLabel) selectLabel.style.display = 'none';
 
-    const opt = select.selectedOptions[0];
-    if (opt) {
-      // Run on initial load so showCatalogIntro() displays the catalog intro
-      handleSelection(opt);
-    }
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    handleSelection(opt);
+    return;
   } else {
-    init();
+    // Fehlerbehandlung: Katalog nicht gefunden
+    console.warn('Ungültiger Katalog-Parameter:', id);
+    if (typeof UIkit !== 'undefined' && UIkit.notification) {
+      UIkit.notification({ message: 'Katalog nicht gefunden', status: 'warning' });
+    }
+    // Fallback: Wähle erste Option im Dropdown (falls vorhanden)
+    const fallbackOpt = select.selectedOptions[0];
+    if (fallbackOpt) {
+      handleSelection(fallbackOpt);
+    }
   }
+} else {
+  const opt = select.selectedOptions[0];
+  if (opt) {
+    handleSelection(opt);
+  }
+}
 })();
