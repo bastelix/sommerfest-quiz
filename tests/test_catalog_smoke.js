@@ -32,47 +32,14 @@ class Element {
   }
   addEventListener() {}
 }
-class SelectElement extends Element {
-  constructor() {
-    super('select');
-    this.options = [];
-    this.value = '';
-  }
-  appendChild(child) {
-    if (child.tagName === 'OPTION') {
-      this.options.push(child);
-    }
-    return super.appendChild(child);
-  }
-  addEventListener() {}
-}
-class OptionElement extends Element {
-  constructor(value, text) {
-    super('option');
-    this.value = value;
-    this.textContent = text;
-  }
-}
-
 const header = new Element('div');
 header.id = 'quiz-header';
 const quiz = new Element('div');
 quiz.id = 'quiz';
-const select = new SelectElement();
-select.id = 'catalog-select';
-const opt = new OptionElement('valid', 'Valid');
-opt.dataset.slug = 'valid';
-opt.dataset.file = 'file';
-opt.dataset.uid = 'uid';
-opt.dataset.sortOrder = '1';
-opt.dataset.desc = 'Desc';
-opt.dataset.comment = 'Comment';
-select.appendChild(opt);
 
 const elements = {
   'quiz-header': header,
-  'quiz': quiz,
-  'catalog-select': select
+  'quiz': quiz
 };
 
 const document = {
@@ -99,6 +66,17 @@ const localStorage = storage();
 const window = {
   location: { search: '?slug=valid' },
   quizConfig: {},
+  quizCatalogs: [
+    {
+      slug: 'valid',
+      file: 'file',
+      uid: 'uid',
+      sort_order: 1,
+      name: 'Valid',
+      description: 'Desc',
+      comment: 'Comment'
+    }
+  ],
   basePath: '',
   startQuiz: () => {},
   document
@@ -113,7 +91,9 @@ const context = {
   alert: () => {},
   UIkit: {},
   console,
-  URLSearchParams
+  URLSearchParams,
+  promptTeamName: async () => {},
+  generateUserName: () => {}
 };
 context.window.window = context.window; // self-reference
 context.global = context;
