@@ -200,6 +200,7 @@
 - Preserve svg logo aspect ratio
 - Reuse catalog uid for existing slug
 - Avoid autosave after load
+- Reuse existing catalog uid for duplicate slug
 
 ### Refactor
 
