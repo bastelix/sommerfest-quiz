@@ -58,7 +58,7 @@ class HelpController
             $invite = ConfigService::sanitizeHtml((string)$cfg['inviteText']);
             $invite = str_ireplace('[team]', 'Team´s', $invite);
             if ($event !== null) {
-                $invite = str_ireplace('[event_name]', (string)($event['name'] ?? ''), $invite);
+                $invite = str_ireplace('[event_name]', (string)$event['name'], $invite);
                 $invite = str_ireplace('[event_start]', (string)($event['start_date'] ?? ''), $invite);
                 $invite = str_ireplace('[event_end]', (string)($event['end_date'] ?? ''), $invite);
                 $invite = str_ireplace('[event_description]', (string)($event['description'] ?? ''), $invite);

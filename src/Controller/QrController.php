@@ -231,7 +231,7 @@ class QrController
                 $team = 'Team';
             }
             $invite = str_ireplace('[team]', $team, $invite);
-            $invite = str_ireplace('[event_name]', (string)($ev['name'] ?? ''), $invite);
+            $invite = str_ireplace('[event_name]', (string)$ev['name'], $invite);
             $invite = str_ireplace('[event_start]', (string)($ev['start_date'] ?? ''), $invite);
             $invite = str_ireplace('[event_end]', (string)($ev['end_date'] ?? ''), $invite);
             $invite = str_ireplace('[event_description]', (string)($ev['description'] ?? ''), $invite);
@@ -335,7 +335,7 @@ class QrController
             if ($invite !== '') {
                 $invite = ConfigService::sanitizeHtml($invite);
                 $invite = str_ireplace('[team]', $team ?: 'Team', $invite);
-                $invite = str_ireplace('[event_name]', (string)($ev['name'] ?? ''), $invite);
+                $invite = str_ireplace('[event_name]', (string)$ev['name'], $invite);
                 $invite = str_ireplace('[event_start]', (string)($ev['start_date'] ?? ''), $invite);
                 $invite = str_ireplace('[event_end]', (string)($ev['end_date'] ?? ''), $invite);
                 $invite = str_ireplace('[event_description]', (string)($ev['description'] ?? ''), $invite);
