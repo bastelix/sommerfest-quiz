@@ -131,6 +131,64 @@ class CatalogServiceTest extends TestCase
         return $pdo;
     }
 
+    private function createPdoNoOptionalColumns(): PDO
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE catalogs(
+                uid TEXT PRIMARY KEY,
+                sort_order INTEGER NOT NULL,
+                slug TEXT UNIQUE NOT NULL,
+                file TEXT NOT NULL,
+                name TEXT NOT NULL,
+                description TEXT,
+                raetsel_buchstabe TEXT,
+                event_uid TEXT
+            );
+            CREATE UNIQUE INDEX catalogs_unique_sort_order ON catalogs(event_uid, sort_order);
+            SQL
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE questions(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                catalog_uid TEXT NOT NULL,
+                sort_order INTEGER,
+                type TEXT NOT NULL,
+                prompt TEXT NOT NULL,
+                options TEXT,
+                answers TEXT,
+                terms TEXT,
+                items TEXT,
+                cards TEXT,
+                right_label TEXT,
+                left_label TEXT,
+                UNIQUE(catalog_uid, sort_order)
+            );
+            SQL
+        );
+        $pdo->exec(
+            'CREATE TABLE tenants('
+            . 'uid TEXT, '
+            . 'subdomain TEXT, '
+            . 'plan TEXT, '
+            . 'custom_limits TEXT, '
+            . 'plan_started_at TEXT, '
+            . 'plan_expires_at TEXT, '
+            . 'stripe_customer_id TEXT, '
+            . 'stripe_subscription_id TEXT, '
+            . 'stripe_price_id TEXT, '
+            . 'stripe_status TEXT, '
+            . 'stripe_current_period_end TEXT, '
+            . 'stripe_cancel_at_period_end INTEGER'
+            . ');'
+        );
+        return $pdo;
+    }
+
     public function testReadWrite(): void
     {
         $pdo = $this->createPdo();
@@ -177,6 +235,26 @@ class CatalogServiceTest extends TestCase
         $service->write('catalogs.json', $catalog);
         $rows = json_decode($service->read('catalogs.json'), true);
         $this->assertSame('ignored', $rows[0]['comment']);
+    }
+
+    public function testWriteWithoutOptionalColumns(): void
+    {
+        $pdo = $this->createPdoNoOptionalColumns();
+        $cfg = new ConfigService($pdo);
+        $service = new CatalogService($pdo, $cfg);
+        $catalog = [[
+            'uid' => 'uid9',
+            'sort_order' => 'no',
+            'slug' => 'no',
+            'file' => 'no.json',
+            'name' => 'NoCols',
+            'comment' => 'c',
+            'design_path' => 'd.svg',
+        ]];
+        $service->write('catalogs.json', $catalog);
+        $rows = json_decode($service->read('catalogs.json'), true);
+        $this->assertSame('c', $rows[0]['comment']);
+        $this->assertSame('d.svg', $rows[0]['design_path']);
     }
 
     public function testReadReturnsNullIfMissing(): void
