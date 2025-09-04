@@ -27,6 +27,7 @@
 - Mark admin script as module
 - Streamline catalog styles
 - Preserve query string on rewrite
+- Remove obsolete comment
 
 ### Ci
 
