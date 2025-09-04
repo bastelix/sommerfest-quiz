@@ -38,7 +38,12 @@ class HomeController
         $role = $_SESSION['user']['role'] ?? null;
 
         $params = $request->getQueryParams();
-        $uid = (string)($params['event'] ?? '');
+        $evParam = (string)($params['event'] ?? '');
+        if ($evParam !== '' && !preg_match('/^[0-9a-fA-F]{32}$/', $evParam)) {
+            $uid = $eventSvc->uidBySlug($evParam) ?? '';
+        } else {
+            $uid = $evParam;
+        }
         $cfgSvc->setActiveEventUid($uid);
         if ($uid !== '') {
             $cfg = $cfgSvc->getConfigForEvent($uid);

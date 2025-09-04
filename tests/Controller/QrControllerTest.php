@@ -177,10 +177,10 @@ class QrControllerTest extends TestCase
         );
         $pdo->exec(
             'CREATE TABLE events(' .
-            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT, ' .
+            'uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, start_date TEXT, end_date TEXT, description TEXT, ' .
             'sort_order INTEGER DEFAULT 0);'
         );
-        $pdo->exec("INSERT INTO events(uid,name,description) VALUES('1','Event','Sub')");
+        $pdo->exec("INSERT INTO events(uid,slug,name,description) VALUES('1','event','Event','Sub')");
         $cfg = new \App\Service\ConfigService($pdo);
         $cfg->setActiveEventUid('1');
         $teams = new \App\Service\TeamService($pdo, $cfg);
@@ -251,13 +251,13 @@ class QrControllerTest extends TestCase
         );
         $pdo->exec(
             'CREATE TABLE events(' .
-            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, ' .
+            'uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, start_date TEXT, end_date TEXT, ' .
             'description TEXT, sort_order INTEGER DEFAULT 0' .
             ');'
         );
         $pdo->exec(
-            "INSERT INTO events(uid,name,start_date,end_date,description) " .
-            "VALUES('1','Event','2024-01-01T10:00','2024-01-01T12:00','Desc')"
+            "INSERT INTO events(uid,slug,name,start_date,end_date,description) " .
+            "VALUES('1','event','Event','2024-01-01T10:00','2024-01-01T12:00','Desc')"
         );
         $pdo->exec(
             "INSERT INTO config(inviteText, event_uid) VALUES(" .
@@ -302,11 +302,11 @@ class QrControllerTest extends TestCase
         );
         $pdo->exec(
             'CREATE TABLE events(' .
-            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, ' .
+            'uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, start_date TEXT, end_date TEXT, ' .
             'description TEXT, sort_order INTEGER DEFAULT 0' .
             ');'
         );
-        $pdo->exec("INSERT INTO events(uid,name,description) VALUES('1','Event','Desc')");
+        $pdo->exec("INSERT INTO events(uid,slug,name,description) VALUES('1','event','Event','Desc')");
         $pdo->exec(
             "INSERT INTO config(inviteText, event_uid) VALUES('<script>evil()</script>Hi [TEAM]','1')"
         );
@@ -362,11 +362,11 @@ class QrControllerTest extends TestCase
         );
         $pdo->exec(
             'CREATE TABLE events(' .
-            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, ' .
+            'uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, start_date TEXT, end_date TEXT, ' .
             'description TEXT, sort_order INTEGER DEFAULT 0' .
             ');'
         );
-        $pdo->exec("INSERT INTO events(uid,name) VALUES('1','Event')");
+        $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('1','event','Event')");
         $pdo->exec(
             'CREATE TABLE teams(' .
             'sort_order INTEGER UNIQUE NOT NULL, name TEXT NOT NULL, uid TEXT PRIMARY KEY, event_uid TEXT' .
@@ -430,10 +430,10 @@ class QrControllerTest extends TestCase
         );
         $pdo->exec(
             'CREATE TABLE events(' .
-            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT, sort_order INTEGER DEFAULT 0' .
+            'uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, start_date TEXT, end_date TEXT, description TEXT, sort_order INTEGER DEFAULT 0' .
             ');'
         );
-        $pdo->exec("INSERT INTO events(uid,name) VALUES('1','Event')");
+        $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('1','event','Event')");
         $pdo->exec(
             'CREATE TABLE teams(' .
             'sort_order INTEGER UNIQUE NOT NULL, name TEXT NOT NULL, uid TEXT PRIMARY KEY, event_uid TEXT' .
@@ -493,8 +493,8 @@ class QrControllerTest extends TestCase
             );
             SQL
         );
-        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT, sort_order INTEGER DEFAULT 0);');
-        $pdo->exec("INSERT INTO events(uid,name) VALUES('1','Event')");
+        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, start_date TEXT, end_date TEXT, description TEXT, sort_order INTEGER DEFAULT 0);');
+        $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('1','event','Event')");
         $pdo->exec('CREATE TABLE teams(sort_order INTEGER UNIQUE NOT NULL, name TEXT NOT NULL, uid TEXT PRIMARY KEY, event_uid TEXT);');
         $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT);');
         $pdo->exec('CREATE TABLE results(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, catalog TEXT, attempt INTEGER, correct INTEGER, total INTEGER, time INTEGER, puzzleTime INTEGER, photo TEXT, event_uid TEXT);');
@@ -549,11 +549,11 @@ class QrControllerTest extends TestCase
         );
         $pdo->exec(
             'CREATE TABLE events(' .
-            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, ' .
+            'uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, start_date TEXT, end_date TEXT, ' .
             'description TEXT, sort_order INTEGER DEFAULT 0' .
             ');'
         );
-        $pdo->exec("INSERT INTO events(uid,name,description) VALUES('1','First','A'),('2','Second','B')");
+        $pdo->exec("INSERT INTO events(uid,slug,name,description) VALUES('1','one','First','A'),('2','two','Second','B')");
 
         $cfg = new \App\Service\ConfigService($pdo);
         $teams = new \App\Service\TeamService($pdo, $cfg);

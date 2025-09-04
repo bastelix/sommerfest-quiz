@@ -19,7 +19,7 @@
           <div class="uk-text-meta">ID: {{ event.uid|default('—') }} · letzte Änderung: {{ event.updated_at|default('—') }}</div>
         </div>
         <div class="uk-button-group">
-          <a class="uk-button uk-button-default" href="{{ basePath }}/?event={{ event.uid|default('demo') }}" target="_blank">Vorschau</a>
+          <a class="uk-button uk-button-default" href="{{ basePath }}/?event={{ event.slug|default('demo') }}" target="_blank">Vorschau</a>
           <button class="uk-button uk-button-primary">Speichern</button>
         </div>
       </div>
@@ -173,8 +173,8 @@
           <div class="uk-card uk-card-default uk-card-body uk-margin-small-top">
             <h3 class="uk-card-title uk-margin-remove">QR-Links</h3>
             <div class="uk-margin-small-top">
-              <a class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom" href="{{ basePath }}/qr/event?t={{ ('?event=' ~ (event.uid|default('demo')))|url_encode }}" target="_blank">Event‑QR</a>
-              <a class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom" href="{{ basePath }}/qr/catalog?t={{ ('?event=' ~ (event.uid|default('demo')) ~ '&katalog=' ~ (catalog.slug|default('default')))|url_encode }}" target="_blank">Katalog‑QR</a>
+              <a class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom" href="{{ basePath }}/qr/event?t={{ ('?event=' ~ (event.slug|default('demo')))|url_encode }}" target="_blank">Event‑QR</a>
+              <a class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom" href="{{ basePath }}/qr/catalog?t={{ ('?event=' ~ (event.slug|default('demo')) ~ '&katalog=' ~ (catalog.slug|default('default')))|url_encode }}" target="_blank">Katalog‑QR</a>
               <a class="uk-button uk-button-default uk-width-1-1" href="{{ basePath }}/qr/team?t={{ (team|default('team-1'))|url_encode }}" target="_blank">Team‑QR</a>
             </div>
           </div>

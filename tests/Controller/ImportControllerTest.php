@@ -21,7 +21,7 @@ class ImportControllerTest extends TestCase
     private function createServices(): array
     {
         $pdo = $this->createDatabase();
-        $pdo->exec("INSERT INTO events(uid,name) VALUES('ev1','Event1')");
+        $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('ev1','ev1','Event1')");
         $pdo->exec("INSERT INTO config(event_uid) VALUES('ev1')");
 
         $cfg = new ConfigService($pdo);

@@ -98,8 +98,18 @@ class QrController
     public function event(Request $request, Response $response): Response
     {
         $cfg = $this->config->getConfig();
+        $params = $request->getQueryParams();
+        if (($params['t'] ?? '') === '') {
+            $uid = $this->config->getActiveEventUid();
+            $slug = null;
+            if ($uid !== '') {
+                $ev = $this->events->getByUid($uid);
+                $slug = $ev['slug'] ?? null;
+            }
+            $params['t'] = '?event=' . ($slug ?? $uid);
+        }
         try {
-            $out = $this->qrService->generateEvent($request->getQueryParams(), $cfg);
+            $out = $this->qrService->generateEvent($params, $cfg);
         } catch (Throwable $e) {
             error_log('Event QR generation failed: ' . $e->getMessage());
             error_log($e->getTraceAsString());

@@ -43,7 +43,7 @@ class TenantServiceTest extends TestCase
             mkdir($dir);
         }
         $sql = <<<'SQL'
-CREATE TABLE events(uid TEXT PRIMARY KEY, sort_order INTEGER DEFAULT 0);
+CREATE TABLE events(uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, sort_order INTEGER DEFAULT 0);
 CREATE TABLE catalogs(
     uid TEXT PRIMARY KEY,
     sort_order INTEGER,
@@ -348,8 +348,8 @@ SQL;
             $this->markTestSkipped('Requires pgsql driver');
         }
         $service->createTenant('u13', 'sub13', Plan::STANDARD->value);
-        $pdo->exec("INSERT INTO events(uid, name) VALUES('e1','E1')");
-        $pdo->exec("INSERT INTO events(uid, name) VALUES('e2','E2')");
+        $pdo->exec("INSERT INTO events(uid, slug, name) VALUES('e1','e1','E1')");
+        $pdo->exec("INSERT INTO events(uid, slug, name) VALUES('e2','e2','E2')");
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('max-events-exceeded');

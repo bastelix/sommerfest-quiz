@@ -18,6 +18,7 @@ class EventServiceTest extends TestCase
         $pdo->exec(
             'CREATE TABLE events('
             . 'uid TEXT PRIMARY KEY, '
+            . 'slug TEXT UNIQUE NOT NULL, '
             . 'name TEXT NOT NULL, '
             . 'start_date TEXT, '
             . 'end_date TEXT, '
@@ -74,8 +75,8 @@ class EventServiceTest extends TestCase
     {
         $pdo = $this->createPdo();
         $pdo->exec(
-            "INSERT INTO events(uid,name,start_date,end_date) " .
-            "VALUES('a1','Evt','2025-07-04 18:00:00+00','2025-07-04 20:00:00+00')"
+            "INSERT INTO events(uid,slug,name,start_date,end_date) " .
+            "VALUES('a1','a1','Evt','2025-07-04 18:00:00+00','2025-07-04 20:00:00+00')"
         );
         $service = new EventService($pdo);
         $rows = $service->getAll();
@@ -194,5 +195,20 @@ class EventServiceTest extends TestCase
 
         $count = (int) $pdo->query('SELECT COUNT(*) FROM events')->fetchColumn();
         $this->assertSame(20, $count);
+    }
+
+    public function testGetBySlugAndUidBySlug(): void
+    {
+        $pdo = $this->createPdo();
+        $service = new EventService($pdo);
+        $uid = str_repeat('a', 32);
+        $service->saveAll([
+            ['uid' => $uid, 'slug' => 'summer', 'name' => 'Sommer']
+        ]);
+        $row = $service->getBySlug('summer');
+        $this->assertNotNull($row);
+        $this->assertSame('Sommer', $row['name']);
+        $foundUid = $service->uidBySlug('summer');
+        $this->assertSame($uid, $foundUid);
     }
 }

@@ -51,12 +51,12 @@ class HelpControllerTest extends TestCase
         );
         $pdo->exec(
             'CREATE TABLE events(' .
-            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, description TEXT, ' .
+            'uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, start_date TEXT, end_date TEXT, description TEXT, ' .
             'sort_order INTEGER DEFAULT 0);'
         );
         $pdo->exec(
-            "INSERT INTO events(uid,name,start_date,end_date,description) " .
-            "VALUES('1','Event','2024-01-01T10:00','2024-01-01T12:00','Desc')"
+            "INSERT INTO events(uid,slug,name,start_date,end_date,description) " .
+            "VALUES('1','event','Event','2024-01-01T10:00','2024-01-01T12:00','Desc')"
         );
         $pdo->exec(
             "INSERT INTO config(inviteText, event_uid) VALUES(" .
@@ -96,11 +96,11 @@ class HelpControllerTest extends TestCase
         );
         $pdo->exec(
             'CREATE TABLE events(' .
-            'uid TEXT PRIMARY KEY, name TEXT, start_date TEXT, end_date TEXT, ' .
+            'uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, start_date TEXT, end_date TEXT, ' .
             'description TEXT, sort_order INTEGER DEFAULT 0' .
             ');'
         );
-        $pdo->exec("INSERT INTO events(uid,name) VALUES('1','Event')");
+        $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('1','event','Event')");
         $pdo->exec(
             "INSERT INTO config(inviteText, event_uid) VALUES('<script>alert(1)</script>Hi [TEAM]','1')"
         );

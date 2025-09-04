@@ -23,7 +23,7 @@ class AdminCatalogControllerTest extends TestCase
         $pdo = new PDO('sqlite:' . $db);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
-        $pdo->exec("INSERT INTO events(uid,name) VALUES('e1','Event')");
+        $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('e1','e1','Event')");
         $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) VALUES('c1',1,'s1','s1.json','Cat1','e1')");
         $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) VALUES('c2',2,'s2','s2.json','Cat2','e1')");
         $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) VALUES('c3',3,'s3','s3.json','Cat3','e1')");
