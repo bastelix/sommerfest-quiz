@@ -3,6 +3,7 @@
 {% block title %}{{ config.pageTitle|default('Modernes Quiz mit UIkit') }}{% endblock %}
 
 {% block head %}
+  <meta name="csrf-token" content="{{ csrf_token }}">
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css" disabled>
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
@@ -63,6 +64,9 @@
   <script src="https://unpkg.com/html5-qrcode@2.3.7/html5-qrcode.min.js" defer></script>
   <script>
     window.quizConfig = {{ config|json_encode|raw }};
+  </script>
+  <script>
+    window.csrfToken = '{{ csrf_token|e('js') }}';
   </script>
   <script>
     function enforceProfile() {

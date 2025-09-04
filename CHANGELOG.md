@@ -27,6 +27,7 @@
 - Mark admin script as module
 - Streamline catalog styles
 - Preserve query string on rewrite
+- Remove obsolete comment
 
 ### Ci
 
@@ -169,6 +170,8 @@
 - Enable autosave for event configuration
 - Import existing page content
 - Add catalog load warning
+- *(catalog)* Show intro on initial load
+- Resolve catalog slug from URL path
 
 ### Fix
 
@@ -197,6 +200,7 @@
 - Preserve svg logo aspect ratio
 - Reuse catalog uid for existing slug
 - Avoid autosave after load
+- Reuse existing catalog uid for duplicate slug
 
 ### Refactor
 

@@ -97,7 +97,7 @@ const withBase = p => basePath + p;
       }
       const res = await fetch(
         withBase(withEvent('/catalog/questions/' + file)),
-        { headers }
+        { headers, credentials: 'same-origin' }
       );
       const data = await res.json();
       window.quizQuestions = data;
@@ -201,8 +201,12 @@ const withBase = p => basePath + p;
     const select = document.getElementById('catalog-select');
     if (!select) return;
 
+    const parts = window.location.pathname.split('/').filter(Boolean);
+    let id = (parts[parts.length - 1] || '').toLowerCase();
+
     const params = new URLSearchParams(window.location.search);
-    const id = (params.get('slug') || params.get('katalog') || '').toLowerCase();
+    const paramId = (params.get('slug') || params.get('katalog') || '').toLowerCase();
+    if (paramId) id = paramId;
 
     if (select.options.length === 1 && !id) handleSelection(select.options[0]);
 
@@ -210,34 +214,37 @@ const withBase = p => basePath + p;
       const opt = select.selectedOptions[0];
       handleSelection(opt);
     });
+if (id) {
+  const opt = Array.from(select.options).find(o => {
+    const value = (o.value || '').toLowerCase();
+    const slug = (o.dataset.slug || '').toLowerCase();
+    return value === id || slug === id;
+  });
+  if (opt) {
+    select.value = opt.value;
+    // Dropdown ausblenden, nur Quiz anzeigen
+    select.style.display = 'none';
+    const selectLabel = document.querySelector('label[for="catalog-select"]');
+    if (selectLabel) selectLabel.style.display = 'none';
 
-    if (id) {
-      const opt = Array.from(select.options).find(o => {
-        const value = (o.value || '').toLowerCase();
-        const slug = (o.dataset.slug || '').toLowerCase();
-        return value === id || slug === id;
-      });
-      if (opt) {
-        select.value = opt.value;
-      } else {
-        console.warn('Ungültiger Katalog-Parameter:', id);
-        if (typeof UIkit !== 'undefined' && UIkit.notification) {
-          UIkit.notification({ message: 'Katalog nicht gefunden', status: 'warning' });
-        }
-      }
-      handleSelection(opt || select.selectedOptions[0]);
-    } else {
-      const opt = select.selectedOptions[0];
-      if (opt) {
-        // Run on initial load so showCatalogIntro() displays the catalog intro
-        handleSelection(opt);
-      }
+    handleSelection(opt);
+    return;
+  } else {
+    // Fehlerbehandlung: Katalog nicht gefunden
+    console.warn('Ungültiger Katalog-Parameter:', id);
+    if (typeof UIkit !== 'undefined' && UIkit.notification) {
+      UIkit.notification({ message: 'Katalog nicht gefunden', status: 'warning' });
+    }
+    // Fallback: Wähle erste Option im Dropdown (falls vorhanden)
+    const fallbackOpt = select.selectedOptions[0];
+    if (fallbackOpt) {
+      handleSelection(fallbackOpt);
     }
   }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
+} else {
+  const opt = select.selectedOptions[0];
+  if (opt) {
+    handleSelection(opt);
   }
+}
 })();
