@@ -35,7 +35,25 @@
       </div>
       <progress id="progress" class="uk-progress" value="0" max="1" aria-label="{{ t('quiz_progress') }}" aria-valuenow="0" uk-scrollspy="cls: uk-animation-fade; delay: 200"></progress>
       <span id="question-announcer" class="uk-hidden-visually" aria-live="polite"></span>
-      <div id="quiz" uk-scrollspy="cls: uk-animation-slide-bottom-small; delay: 300"></div>
+      <div id="quiz" uk-scrollspy="cls: uk-animation-slide-bottom-small; delay: 300">
+        <select id="catalog-select" class="uk-select">
+          {% for cat in catalogs %}
+            {% set key = cat.slug ?? cat.uid ?? cat.sort_order ?? cat.id %}
+            <option
+              value="{{ key }}"
+              data-slug="{{ cat.slug|e }}"
+              data-sort-order="{{ cat.sort_order ?? cat.id }}"
+              data-file="{{ cat.file }}"
+              data-letter="{{ cat.raetsel_buchstabe }}"
+              data-uid="{{ cat.uid }}"
+              data-desc="{{ cat.description ?? cat.beschreibung }}"
+              data-comment="{{ cat.comment ?? cat.kommentar }}"
+            >
+              {{ cat.name ?? cat.slug ?? cat.uid ?? cat.sort_order ?? cat.id }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
     </div>
   </div>
 {% endblock %}
@@ -65,9 +83,6 @@
       }
     }
     enforceProfile();
-  </script>
-  <script id="catalogs-data" type="application/json">
-    {{ catalogs|json_encode|raw }}
   </script>
   <script src="{{ basePath }}/js/quiz.js" defer></script>
   <script src="{{ basePath }}/js/catalog.js" defer></script>
