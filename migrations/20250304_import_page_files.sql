@@ -1,4 +1,4 @@
-INSERT INTO pages (slug, content) VALUES ('landing', '<!-- Social Proof -->
+INSERT INTO pages (slug, title, content) VALUES ('landing', 'Landing', '<!-- Social Proof -->
 <section id="social-proof" class="uk-section">
   <div class="uk-container">
     <h2 class="uk-text-center uk-heading-medium">Vertrauen von Teams &amp; Events</h2>
@@ -572,7 +572,7 @@ INSERT INTO pages (slug, content) VALUES ('landing', '<!-- Social Proof -->
 </div>
 
 ') ON CONFLICT(slug) DO NOTHING;
-INSERT INTO pages (slug, content) VALUES ('impressum', '  <div class="uk-container uk-container-small legal-container">
+INSERT INTO pages (slug, title, content) VALUES ('impressum', 'Impressum', '  <div class="uk-container uk-container-small legal-container">
     <h1 class="uk-heading-divider uk-hidden">Impressum</h1>
 
     <p>Angaben gemäß § 5 TMG</p>
@@ -599,7 +599,7 @@ INSERT INTO pages (slug, content) VALUES ('impressum', '  <div class="uk-contain
     <p>Der Quellcode dieser Anwendung ist unter der MIT-Lizenz auf GitHub verfügbar:<br>
     <a href="https://github.com/bastelix/sommerfest-quiz">https://github.com/bastelix/sommerfest-quiz</a></p>
   </div>') ON CONFLICT(slug) DO NOTHING;
-INSERT INTO pages (slug, content) VALUES ('datenschutz', '  <div class="uk-container uk-container-small legal-container">
+INSERT INTO pages (slug, title, content) VALUES ('datenschutz', 'Datenschutz', '  <div class="uk-container uk-container-small legal-container">
     <h1 class="uk-heading-divider uk-hidden">Datenschutzerklärung</h1>
 
     <h2 class="uk-heading-bullet">1. Verantwortlicher</h2>
@@ -637,7 +637,7 @@ INSERT INTO pages (slug, content) VALUES ('datenschutz', '  <div class="uk-conta
     <p class="uk-text-small"><strong>Hinweis:</strong> Diese Datenschutzerklärung basiert auf dem aktuellen Stand der Technik und des Projekts. <strong>CalHelp übernimmt keine Verantwortung</strong> für bereits durch Administrator:innen eingegebene personenbezogene Daten. Sollte sich der Funktionsumfang ändern oder die App personenbezogene Daten erheben, ist eine Anpassung dieser Datenschutzerklärung erforderlich.</p>
   </div>
 ') ON CONFLICT(slug) DO NOTHING;
-INSERT INTO pages (slug, content) VALUES ('faq', '<div class="uk-container uk-container-small">
+INSERT INTO pages (slug, title, content) VALUES ('faq', 'FAQ', '<div class="uk-container uk-container-small">
   <h1 class="uk-heading-divider uk-hidden">FAQ</h1>
   <p class="uk-text-lead">Hier beantworten wir häufige Fragen zur Nutzung des QuizRace.</p>
 
@@ -700,7 +700,7 @@ INSERT INTO pages (slug, content) VALUES ('faq', '<div class="uk-container uk-co
   </ul>
 </div>
 ') ON CONFLICT(slug) DO NOTHING;
-INSERT INTO pages (slug, content) VALUES ('lizenz', '  <div class="uk-container uk-container-small legal-container">
+INSERT INTO pages (slug, title, content) VALUES ('lizenz', 'Lizenz', '  <div class="uk-container uk-container-small legal-container">
     <h1 class="uk-heading-divider uk-hidden">Lizenz</h1>
     <p>Diese Anwendung steht unter einer proprietären Lizenz. Den vollständigen Text finden Sie untenstehend sowie in der Datei <code>LICENSE</code>. Die kommerzielle Nutzung ist erlaubt, der Quellcode bleibt jedoch Eigentum von René Buske und darf nicht ohne vorherige schriftliche Genehmigung kopiert, verbreitet, verändert oder öffentlich zugänglich gemacht werden.</p>
     <div class="uk-card qr-card uk-card-body uk-margin">
