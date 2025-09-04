@@ -44,20 +44,16 @@
   const puzzleWordEnabled = document.getElementById('puzzleWordEnabled');
   const puzzleWord = document.getElementById('puzzleWord');
   const puzzleFeedback = document.getElementById('puzzleFeedback');
-  const competitionMode = document.getElementById('competitionMode');
-  const optQrLogin = document.getElementById('QRUser');
   const logoInput = document.getElementById('logo');
   const logoPreview = document.getElementById('logoPreview');
   const publishBtn = document.querySelector('.event-config-sidebar .uk-button-primary');
 
-  function applyRules(shouldQueue) {
-    const queue = typeof shouldQueue === 'boolean' ? shouldQueue : true;
+  function applyRules() {
     if (puzzleWordEnabled && puzzleWord && puzzleFeedback) {
       const enabled = puzzleWordEnabled.checked;
       puzzleWord.disabled = !enabled;
       puzzleFeedback.disabled = !enabled;
     }
-    if (queue) queueAutosave();
   }
 
   function save() {
@@ -77,7 +73,13 @@
   }
 
   let autosaveTimer;
+  let isDirty = false;
+  function markDirty() {
+    isDirty = true;
+    queueAutosave();
+  }
   function queueAutosave() {
+    if (!isDirty) return;
     clearTimeout(autosaveTimer);
     autosaveTimer = setTimeout(save, 800);
   }
@@ -108,23 +110,20 @@
             logoPreview.src = withBase(config.logoPath);
             logoPreview.hidden = false;
           }
-          applyRules(false);
-          queueAutosave();
+          applyRules();
         })
         .catch(() => {
           UIkit?.notification({ message: 'Konfiguration konnte nicht geladen werden', status: 'danger' });
-          applyRules(false);
+          applyRules();
         });
     } else {
-      applyRules(false);
+      applyRules();
     }
     puzzleWordEnabled?.addEventListener('change', applyRules);
-    competitionMode?.addEventListener('change', queueAutosave);
-    optQrLogin?.addEventListener('change', queueAutosave);
     publishBtn?.addEventListener('click', (e) => { e.preventDefault(); save(); });
     document.querySelectorAll('input, textarea, select').forEach((el) => {
-      el.addEventListener('input', queueAutosave);
-      el.addEventListener('change', queueAutosave);
+      el.addEventListener('input', markDirty);
+      el.addEventListener('change', markDirty);
     });
     logoInput?.addEventListener('change', () => {
       const file = logoInput.files?.[0];

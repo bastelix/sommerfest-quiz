@@ -167,6 +167,8 @@
 - Add autosave for loaded config
 - Make tenants directory configurable
 - Enable autosave for event configuration
+- Import existing page content
+- Add catalog load warning
 
 ### Fix
 
@@ -194,6 +196,7 @@
 - Ensure consistent table cell padding
 - Preserve svg logo aspect ratio
 - Reuse catalog uid for existing slug
+- Avoid autosave after load
 
 ### Refactor
 
@@ -265,6 +268,9 @@
 - Verify health endpoint timestamp and tenant host
 - Ensure version displayed on login
 - Cover catalog question access
+- Verify catalog slug parameter
+- Validate catalog slug selection
+- Verify slug option selection
 
 ## [0.2.0] - 2025-08-18
 

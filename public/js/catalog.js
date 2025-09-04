@@ -207,11 +207,16 @@ const withBase = p => basePath + p;
     });
 
     const params = new URLSearchParams(window.location.search);
-    const id = (params.get('katalog') || '').toLowerCase();
+    const id = (params.get('slug') || params.get('katalog') || '').toLowerCase();
     if (id) {
-      const opt = Array.from(select.options).find(o => (o.value || '').toLowerCase() === id);
+      const opt = Array.from(select.options).find(o => {
+        const value = (o.value || '').toLowerCase();
+        const slug = (o.dataset.slug || '').toLowerCase();
+        return value === id || slug === id;
+      });
       if (opt) {
         select.value = opt.value;
+        // Trigger selection manually so setComment() and showCatalogIntro() run
         handleSelection(opt);
       }
     }
