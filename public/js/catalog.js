@@ -569,6 +569,8 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
             return;
           }
           setStored('quizUser', name);
+          sessionStorage.removeItem('quizSolved');
+          updateUserName();
           stopScanner();
           ui.hide();
           onDone();
@@ -634,6 +636,48 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
         ui.show();
         await startScanner();
       }
+    }else if(cfg.QRRestrict){
+      if(!cfg.competitionMode || hasCatalog){
+        const input = document.createElement('input');
+        input.id = 'manual-team-name';
+        input.className = 'uk-input';
+        input.type = 'text';
+        input.placeholder = 'Teamname eingeben';
+        const submit = document.createElement('button');
+        submit.id = 'manual-team-submit';
+        submit.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
+        submit.textContent = 'Weiter';
+        if(cfg.colors && cfg.colors.accent){
+          submit.style.backgroundColor = cfg.colors.accent;
+          submit.style.borderColor = cfg.colors.accent;
+          submit.style.color = '#fff';
+        }
+        submit.addEventListener('click', () => {
+          const name = sanitize((input.value || '').trim());
+          if(!name) return;
+          if(allowed.indexOf(name.toLowerCase()) === -1){
+            alert('Unbekanntes oder nicht berechtigtes Team/Person');
+            return;
+          }
+          setStored('quizUser', name);
+          sessionStorage.removeItem('quizSolved');
+          updateUserName();
+          onDone();
+        });
+        input.addEventListener('keydown', (ev) => {
+          if(ev.key === 'Enter'){
+            ev.preventDefault();
+            submit.click();
+          }
+        });
+        div.appendChild(input);
+        div.appendChild(submit);
+        input.focus();
+      } else {
+        const p = document.createElement('p');
+        p.textContent = 'Bitte QR-Code verwenden, um das Quiz zu starten.';
+        div.appendChild(p);
+      }
     }else{
       if(!cfg.competitionMode || hasCatalog){
         const btn = document.createElement('button');
@@ -645,10 +689,6 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
           btn.style.color = '#fff';
         }
         btn.addEventListener('click', () => {
-          if(cfg.QRRestrict){
-            alert('Nur Registrierung per QR-Code erlaubt');
-            return;
-          }
           setStored('quizUser', generateUserName());
           sessionStorage.removeItem('quizSolved');
           updateUserName();
@@ -737,7 +777,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
         showSelection(catalogs, solvedNow);
       }
     };
-    if((window.quizConfig || {}).QRUser){
+    if(cfg.QRUser || cfg.QRRestrict){
       if(getStored('quizUser')){
         updateUserName();
         proceed();
@@ -746,11 +786,9 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       }
     }else{
       if(!getStored('quizUser')){
-          if(!cfg.QRRestrict){
-            setStored('quizUser', generateUserName());
-            sessionStorage.removeItem('quizSolved');
-          }
-        }
+        setStored('quizUser', generateUserName());
+        sessionStorage.removeItem('quizSolved');
+      }
       updateUserName();
       proceed();
     }
