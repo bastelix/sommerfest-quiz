@@ -35,7 +35,9 @@ class HomeController
 
         $params = $request->getQueryParams();
         $evParam = (string)($params['event'] ?? '');
-        $uid = $evParam !== '' && !preg_match('/^[0-9a-fA-F]{32}$/', $evParam)
+        $isUid = preg_match('/^[0-9a-fA-F]{32}$/', $evParam)
+            || preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $evParam);
+        $uid = $evParam !== '' && !$isUid
             ? $eventSvc->uidBySlug($evParam) ?? ''
             : $evParam;
         if ($uid !== '') {
