@@ -715,7 +715,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
           const user = (sessionStorage.getItem(key) || '') || (typeof localStorage !== 'undefined' ? localStorage.getItem(key) : '');
           data.forEach(entry => {
             if(entry.name === user){
-              solved.add(entry.catalog);
+              solved.add(String(entry.catalog));
             }
           });
         }
@@ -750,7 +750,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       const solvedNow = await buildSolvedSet(cfg);
       const selected = catalogs.find(c => ((c.slug || c.sort_order || c.id || c.uid || '').toLowerCase()) === id);
       if(selected){
-        const selectedKey = selected.uid ?? selected.slug ?? selected.sort_order ?? selected.id;
+        const selectedKey = String(selected.uid ?? selected.slug ?? selected.sort_order ?? selected.id);
         if(cfg.competitionMode && solvedNow.has(selectedKey)){
           const remaining = catalogs.filter(c => {
             const key = c.uid ?? c.slug ?? c.sort_order ?? c.id;
