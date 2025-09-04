@@ -30,7 +30,7 @@ class HomeController
             $pdo = Database::connectFromEnv();
         }
         $cfgSvc = new ConfigService($pdo);
-        $eventSvc = new EventService($pdo);
+        $eventSvc = new EventService($pdo, $cfgSvc);
         $settingsSvc = new SettingsService($pdo);
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
@@ -39,6 +39,7 @@ class HomeController
 
         $params = $request->getQueryParams();
         $uid = (string)($params['event'] ?? '');
+        $cfgSvc->setActiveEventUid($uid);
         if ($uid !== '') {
             $cfg = $cfgSvc->getConfigForEvent($uid);
             $event = $eventSvc->getByUid($uid) ?? $eventSvc->getFirst();
@@ -80,7 +81,7 @@ class HomeController
             $cfg = ConfigService::removePuzzleInfo($cfg);
         }
 
-        $catalogService = new CatalogService($pdo, new ConfigService($pdo));
+        $catalogService = new CatalogService($pdo, $cfgSvc);
 
         $catalogsJson = $catalogService->read('catalogs.json');
         $catalogs = [];
