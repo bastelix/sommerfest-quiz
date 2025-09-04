@@ -32,19 +32,18 @@ class HomeController
         $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo, $cfgSvc);
         $settingsSvc = new SettingsService($pdo);
+
+        $params = $request->getQueryParams();
+        $evParam = (string)($params['event'] ?? '');
+        $uid = $evParam !== '' && !preg_match('/^[0-9a-fA-F]{32}$/', $evParam)
+            ? $eventSvc->uidBySlug($evParam) ?? ''
+            : $evParam;
+        $cfgSvc->setActiveEventUid($uid);
+
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
         $role = $_SESSION['user']['role'] ?? null;
-
-        $params = $request->getQueryParams();
-        $evParam = (string)($params['event'] ?? '');
-        if ($evParam !== '' && !preg_match('/^[0-9a-fA-F]{32}$/', $evParam)) {
-            $uid = $eventSvc->uidBySlug($evParam) ?? '';
-        } else {
-            $uid = $evParam;
-        }
-        $cfgSvc->setActiveEventUid($uid);
         if ($uid !== '') {
             $cfg = $cfgSvc->getConfigForEvent($uid);
             $event = $eventSvc->getByUid($uid) ?? $eventSvc->getFirst();
