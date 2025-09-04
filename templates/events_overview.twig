@@ -26,11 +26,7 @@
           </td>
           <td>{{ ev.description }}</td>
           <td class="uk-text-nowrap">
-            {% if role in ['admin','event-manager'] %}
-            <button type="button" class="uk-button uk-button-primary event-action toggle-publish" data-uid="{{ ev.uid }}" data-published="{{ ev.published ? 'true' : 'false' }}">
-              {{ ev.published ? 'Nicht veröffentlichen' : 'Veröffentlichen' }}
-            </button>
-            {% endif %}
+            <button type="button" class="uk-button uk-button-primary event-action event-start" data-uid="{{ ev.uid }}">{{ t('button_start') }}</button>
             <button type="button" class="uk-button uk-button-default event-action copy-link" data-link="{{ basePath }}/?event={{ ev.uid }}">Link kopieren</button>
           </td>
         </tr>
@@ -46,6 +42,18 @@
           </tr>
         </thead>
         <tbody id="eventsTableBody">{{ rows|raw }}</tbody>
+      </table>
+    </div>
+    <div id="catalogsTableWrap" class="uk-overflow-auto uk-margin-top" hidden>
+      <h3 class="uk-heading-bullet">{{ t('heading_catalogs') }}</h3>
+      <table id="catalogsTable" class="uk-table uk-table-divider uk-table-small uk-table-hover" data-start-label="{{ t('button_start') }}">
+        <thead>
+          <tr>
+            <th>{{ t('column_name') }}</th>
+            <th class="uk-table-shrink">{{ t('column_actions') }}</th>
+          </tr>
+        </thead>
+        <tbody id="catalogsTableBody"></tbody>
       </table>
     </div>
   </div>

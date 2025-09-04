@@ -30,7 +30,7 @@ class EventListController
             session_start();
         }
         $role = $_SESSION['user']['role'] ?? null;
-        $events = $eventSvc->getAll(!in_array($role, ['admin', 'event-manager'], true));
+        $events = $eventSvc->getAll();
         $cfg = $cfgSvc->getConfig();
         if ($role !== 'admin') {
             $cfg = ConfigService::removePuzzleInfo($cfg);

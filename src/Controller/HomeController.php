@@ -63,7 +63,7 @@ class HomeController
             }
             $home = $settingsSvc->get('home_page', 'help');
             if ($home === 'events') {
-                $events = $eventSvc->getAll(!in_array($role, ['admin', 'event-manager'], true));
+                $events = $eventSvc->getAll();
                 return $view->render($response, 'events_overview.twig', [
                     'events' => $events,
                     'config' => $cfg,
