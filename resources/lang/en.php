@@ -141,6 +141,7 @@ return [
     'label_logo_upload' => 'Upload logo',
     'label_drag_file' => 'Drag file here or',
     'action_select' => 'select',
+    'button_start' => 'Start',
     'label_logo_preview' => 'Logo preview',
     'label_page_title' => 'Page title',
     'label_background_color' => 'Background color',

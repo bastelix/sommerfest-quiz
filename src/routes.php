@@ -864,10 +864,6 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/events.json', function (Request $request, Response $response) {
         return $request->getAttribute('eventController')->post($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
-    $app->post('/events/{uid}/publish', function (Request $request, Response $response, array $args) {
-        return $request->getAttribute('eventController')->publish($request, $response, $args);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));
-
     $app->get('/admin/event/{id}', function (Request $request, Response $response, array $args) {
         return $request->getAttribute('eventConfigController')->show($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::EVENT_MANAGER));

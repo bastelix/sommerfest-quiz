@@ -25,26 +25,6 @@ const notify = (msg, status = 'primary') => {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.toggle-publish').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const uid = btn.dataset.uid;
-      const published = btn.dataset.published === 'true';
-      csrfFetch(`/events/${uid}/publish`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ published: !published })
-      })
-        .then((resp) => {
-          if (resp.ok) {
-            btn.dataset.published = (!published).toString();
-            btn.textContent = !published ? 'Nicht veröffentlichen' : 'Veröffentlichen';
-          } else {
-            notify('Fehler beim Aktualisieren', 'danger');
-          }
-        })
-        .catch(() => notify('Fehler beim Aktualisieren', 'danger'));
-    });
-  });
   document.querySelectorAll('.copy-link').forEach((btn) => {
     btn.addEventListener('click', () => {
       const link = btn.dataset.link;
@@ -56,6 +36,50 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         notify('Zwischenablage nicht verfügbar', 'warning');
       }
+    });
+  });
+
+  const catalogsWrap = document.getElementById('catalogsTableWrap');
+  const catalogsBody = document.getElementById('catalogsTableBody');
+  const catalogsTable = document.getElementById('catalogsTable');
+  const startLabel = catalogsTable?.dataset.startLabel || 'Start';
+
+  document.querySelectorAll('.event-start').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const uid = btn.dataset.uid;
+      csrfFetch(`/kataloge/catalogs.json?event=${encodeURIComponent(uid)}`, {
+        headers: { Accept: 'application/json' }
+      })
+        .then((r) => r.json())
+        .then((list) => {
+          if (!catalogsBody || !Array.isArray(list)) return;
+          catalogsBody.innerHTML = '';
+          list.forEach((cat) => {
+            const tr = document.createElement('tr');
+            const tdName = document.createElement('td');
+            tdName.textContent = cat.name || cat.slug || '';
+            const tdAction = document.createElement('td');
+            tdAction.className = 'uk-table-shrink';
+            const startBtn = document.createElement('button');
+            startBtn.type = 'button';
+            startBtn.className = 'uk-button uk-button-primary';
+            startBtn.textContent = startLabel;
+            startBtn.addEventListener('click', () => {
+              const slug = cat.slug || cat.uid || '';
+              if (slug) {
+                window.open(withBase(`/?event=${encodeURIComponent(uid)}&katalog=${encodeURIComponent(slug)}`), '_blank');
+              }
+            });
+            tdAction.appendChild(startBtn);
+            tr.appendChild(tdName);
+            tr.appendChild(tdAction);
+            catalogsBody.appendChild(tr);
+          });
+          if (catalogsWrap) catalogsWrap.hidden = false;
+        })
+        .catch(() => {
+          if (catalogsWrap) catalogsWrap.hidden = true;
+        });
     });
   });
 

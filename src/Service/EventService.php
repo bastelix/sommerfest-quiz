@@ -33,16 +33,11 @@ class EventService
     /**
      * Retrieve all events ordered by name.
      *
-     * @param bool $publishedOnly When true, only published events are returned.
      * @return list<array{uid:string,name:string,start_date:?string,end_date:?string,description:?string,published:bool}>
      */
-    public function getAll(bool $publishedOnly = false): array
+    public function getAll(): array
     {
-        $sql = 'SELECT uid,name,start_date,end_date,description,published,sort_order FROM events';
-        if ($publishedOnly) {
-            $sql .= ' WHERE published = TRUE';
-        }
-        $sql .= ' ORDER BY sort_order';
+        $sql = 'SELECT uid,name,start_date,end_date,description,published,sort_order FROM events ORDER BY sort_order';
         $stmt = $this->pdo->query($sql);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return array_map(function (array $row) {
@@ -129,15 +124,6 @@ class EventService
         if (count($eventUids) === 1) {
             $this->config->setActiveEventUid((string) $eventUids[0]);
         }
-    }
-
-    /**
-     * Update the published state of an event.
-     */
-    public function setPublished(string $uid, bool $published): void
-    {
-        $stmt = $this->pdo->prepare('UPDATE events SET published = ? WHERE uid = ?');
-        $stmt->execute([$published, $uid]);
     }
 
     /**

@@ -37,18 +37,4 @@ class EventController
         return $response->withStatus(204);
     }
 
-    /**
-     * Set the published state of an event.
-     */
-    public function publish(Request $request, Response $response, array $args): Response
-    {
-        $data = json_decode((string)$request->getBody(), true);
-        if (!is_array($data)) {
-            return $response->withStatus(400);
-        }
-        $uid = (string)($args['uid'] ?? '');
-        $published = (bool)($data['published'] ?? false);
-        $this->service->setPublished($uid, $published);
-        return $response->withStatus(204);
-    }
 }

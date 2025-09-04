@@ -140,6 +140,7 @@ return [
     'label_logo_upload' => 'Logo hochladen',
     'label_drag_file' => 'Datei hierher ziehen oder',
     'action_select' => 'auswählen',
+    'button_start' => 'Starten',
     'label_logo_preview' => 'Logo Vorschau',
     'label_page_title' => 'Titel im Browser-Tab',
     'label_background_color' => 'Hintergrundfarbe',
