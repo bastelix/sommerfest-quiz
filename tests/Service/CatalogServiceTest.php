@@ -354,15 +354,17 @@ class CatalogServiceTest extends TestCase
         $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name) VALUES('u1',1,'test','t.json','Old')");
 
         $service->write('catalogs.json', [[
+            'uid' => 'u2',
             'sort_order' => 2,
             'slug' => 'test',
             'file' => 't.json',
             'name' => 'New',
         ]]);
 
-        $row = $pdo->query("SELECT uid, name FROM catalogs WHERE slug='test'")->fetch(PDO::FETCH_ASSOC);
-        $this->assertSame('u1', $row['uid']);
-        $this->assertSame('New', $row['name']);
+        $rows = $pdo->query('SELECT uid, name FROM catalogs')->fetchAll(PDO::FETCH_ASSOC);
+        $this->assertCount(1, $rows);
+        $this->assertSame('u1', $rows[0]['uid']);
+        $this->assertSame('New', $rows[0]['name']);
     }
 
     public function testReorderCatalogs(): void
