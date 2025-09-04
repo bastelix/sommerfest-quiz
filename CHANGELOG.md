@@ -164,6 +164,7 @@
 - Add event-specific config endpoint
 - Add eventless catalog fallback
 - Add save button identifier
+- Add autosave for loaded config
 
 ### Fix
 
