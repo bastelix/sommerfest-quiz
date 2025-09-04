@@ -163,6 +163,7 @@
 - Autosave questions
 - Add event-specific config endpoint
 - Add eventless catalog fallback
+- Add save button identifier
 
 ### Fix
 
