@@ -49,6 +49,7 @@
   const logoInput = document.getElementById('logo');
   const logoPreview = document.getElementById('logoPreview');
   const saveBtn = document.getElementById('saveConfig');
+  const saveHeaderBtn = document.getElementById('saveConfigHeader');
   const publishBtn = document.querySelector('.event-config-sidebar .uk-button-primary');
 
   function applyRules(shouldQueue) {
@@ -103,6 +104,7 @@
             logoPreview.hidden = false;
           }
           applyRules(false);
+          queueAutosave();
         })
         .catch(() => {
           UIkit?.notification({ message: 'Konfiguration konnte nicht geladen werden', status: 'danger' });
@@ -115,6 +117,7 @@
     competitionMode?.addEventListener('change', queueAutosave);
     optQrLogin?.addEventListener('change', queueAutosave);
     saveBtn?.addEventListener('click', (e) => { e.preventDefault(); save(); });
+    saveHeaderBtn?.addEventListener('click', (e) => { e.preventDefault(); save(); });
     publishBtn?.addEventListener('click', (e) => { e.preventDefault(); save(); });
     document.querySelectorAll('input, textarea, select').forEach((el) => {
       el.addEventListener('input', queueAutosave);
