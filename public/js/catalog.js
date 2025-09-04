@@ -774,7 +774,22 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
           selected.comment || selected.kommentar || ''
         );
       }else{
+        const container = document.getElementById('quiz');
+        let hint;
+        if(container){
+          hint = document.createElement('p');
+          hint.className = 'uk-text-center';
+          hint.textContent = 'Katalog nicht gefunden. ';
+          const link = document.createElement('a');
+          link.href = '/';
+          link.textContent = 'Zur Startseite';
+          hint.appendChild(link);
+          container.appendChild(hint);
+        }
         showSelection(catalogs, solvedNow);
+        if(container && hint){
+          container.insertAdjacentElement('afterbegin', hint);
+        }
       }
     };
     if(cfg.QRUser || cfg.QRRestrict){
