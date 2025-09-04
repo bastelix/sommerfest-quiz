@@ -18,10 +18,16 @@ class CatalogService
     private ConfigService $config;
     private ?TenantService $tenants;
     private string $subdomain;
+    private string $eventUid;
     /** @var bool|null detected presence of the comment column */
     private ?bool $hasComment = null;
     /** @var bool|null detected presence of the design_path column */
     private ?bool $hasDesign = null;
+    
+    private function event(): string
+    {
+        return $this->eventUid !== '' ? $this->eventUid : $this->config->getActiveEventUid();
+    }
 
     /**
      * Inject database connection.
@@ -30,12 +36,14 @@ class CatalogService
         PDO $pdo,
         ConfigService $config,
         ?TenantService $tenants = null,
-        string $subdomain = ''
+        string $subdomain = '',
+        string $eventUid = ''
     ) {
         $this->pdo = $pdo;
         $this->config = $config;
         $this->tenants = $tenants;
         $this->subdomain = $subdomain;
+        $this->eventUid = $eventUid;
     }
 
 
@@ -95,7 +103,7 @@ class CatalogService
         if ($this->hasDesignColumn()) {
             $fields .= ',design_path';
         }
-        $uid = $this->config->getActiveEventUid();
+        $uid = $this->event();
         $sql = "SELECT $fields FROM catalogs";
         $params = [];
         if ($uid !== '') {
@@ -136,7 +144,7 @@ class CatalogService
      */
     public function countCatalogs(): int
     {
-        $uid = $this->config->getActiveEventUid();
+        $uid = $this->event();
         $sql = 'SELECT COUNT(*) FROM catalogs';
         $params = [];
         if ($uid !== '') {
@@ -159,7 +167,7 @@ class CatalogService
      */
     public function slugByFile(string $file): ?string
     {
-        $uid = $this->config->getActiveEventUid();
+        $uid = $this->event();
         $sql = 'SELECT slug FROM catalogs WHERE file=?';
         $params = [basename($file)];
         if ($uid !== '') {
@@ -182,7 +190,7 @@ class CatalogService
      */
     public function uidBySlug(string $slug): ?string
     {
-        $event = $this->config->getActiveEventUid();
+        $event = $this->event();
         $sql = 'SELECT uid FROM catalogs WHERE slug=?';
         $params = [$slug];
         if ($event !== '') {
@@ -206,7 +214,7 @@ class CatalogService
     public function createCatalog(string $file): void
     {
         $slug = pathinfo($file, PATHINFO_FILENAME);
-        $event = $this->config->getActiveEventUid();
+        $event = $this->event();
 
         $sql = 'SELECT COUNT(*) FROM catalogs WHERE slug=?';
         $params = [$slug];
@@ -277,7 +285,7 @@ class CatalogService
             if ($this->hasDesignColumn()) {
                 $fields .= ',design_path';
             }
-            $uid = $this->config->getActiveEventUid();
+            $uid = $this->event();
             $sql = "SELECT $fields FROM catalogs";
             $params = [];
             if ($uid !== '') {
@@ -311,7 +319,7 @@ class CatalogService
             return json_encode($data, JSON_PRETTY_PRINT);
         }
 
-        $uid = $this->config->getActiveEventUid();
+        $uid = $this->event();
         $sql = 'SELECT uid FROM catalogs WHERE file=?';
         $params = [basename($file)];
         if ($uid !== '') {
@@ -387,7 +395,7 @@ class CatalogService
                     throw new \RuntimeException('max-catalogs-exceeded');
                 }
             }
-            $uid = $this->config->getActiveEventUid();
+            $uid = $this->event();
             $this->pdo->beginTransaction();
 
             $fields = ['uid', 'sort_order', 'slug', 'file', 'name', 'description', 'raetsel_buchstabe', 'event_uid'];
@@ -495,7 +503,7 @@ class CatalogService
             }
         }
         $slug = pathinfo($file, PATHINFO_FILENAME);
-        $uid = $this->config->getActiveEventUid();
+        $uid = $this->event();
         $sql = 'SELECT uid FROM catalogs WHERE slug=?';
         $params = [$slug];
         if ($uid !== '') {
@@ -617,7 +625,7 @@ class CatalogService
     public function delete(string $file): void
     {
         if ($file === 'catalogs.json') {
-            $uid = $this->config->getActiveEventUid();
+            $uid = $this->event();
             if ($uid !== '') {
                 $stmt = $this->pdo->prepare('DELETE FROM catalogs WHERE event_uid=?');
                 $stmt->execute([$uid]);
@@ -627,7 +635,7 @@ class CatalogService
             return;
         }
         $slug = pathinfo($file, PATHINFO_FILENAME);
-        $event = $this->config->getActiveEventUid();
+        $event = $this->event();
         $sql = 'SELECT uid FROM catalogs WHERE slug=?';
         $params = [$slug];
         if ($event !== '') {
@@ -654,7 +662,7 @@ class CatalogService
     public function deleteQuestion(string $file, int $index): void
     {
         $slug = pathinfo($file, PATHINFO_FILENAME);
-        $uid = $this->config->getActiveEventUid();
+        $uid = $this->event();
         $sql = 'SELECT uid FROM catalogs WHERE slug=?';
         $params = [$slug];
         if ($uid !== '') {
@@ -685,7 +693,7 @@ class CatalogService
         if (!$this->hasDesignColumn()) {
             return null;
         }
-        $uid = $this->config->getActiveEventUid();
+        $uid = $this->event();
         $sql = 'SELECT design_path FROM catalogs WHERE slug=?';
         $params = [$slug];
         if ($uid !== '') {
@@ -713,7 +721,7 @@ class CatalogService
         if (!$this->hasDesignColumn()) {
             return;
         }
-        $uid = $this->config->getActiveEventUid();
+        $uid = $this->event();
         $sql = 'UPDATE catalogs SET design_path=? WHERE slug=?';
         $params = [$path, $slug];
         if ($uid !== '') {

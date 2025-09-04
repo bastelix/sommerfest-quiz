@@ -53,7 +53,7 @@ class CatalogControllerTest extends TestCase
         );
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
-        $controller = new CatalogController($service, $cfg);
+        $controller = new CatalogController($service);
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
         $request = $this->createRequest('GET', '/kataloge/missing.json', ['HTTP_ACCEPT' => 'application/json']);
@@ -103,7 +103,7 @@ class CatalogControllerTest extends TestCase
         );
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
-        $controller = new CatalogController($service, $cfg);
+        $controller = new CatalogController($service);
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
 
@@ -157,7 +157,7 @@ class CatalogControllerTest extends TestCase
         );
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
-        $controller = new CatalogController($service, $cfg);
+        $controller = new CatalogController($service);
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
 
@@ -231,7 +231,7 @@ class CatalogControllerTest extends TestCase
         );
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
-        $controller = new CatalogController($service, $cfg);
+        $controller = new CatalogController($service);
         session_start();
         $_SESSION["user"] = ["id" => 1, "role" => "catalog-editor"];
 
@@ -310,7 +310,7 @@ class CatalogControllerTest extends TestCase
         );
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
-        $controller = new CatalogController($service, $cfg);
+        $controller = new CatalogController($service);
         session_start();
         $_SESSION["user"] = ["id" => 1, "role" => "catalog-editor"];
 
@@ -370,7 +370,7 @@ class CatalogControllerTest extends TestCase
             SQL
         );
         $cfg = new ConfigService($pdo);
-        $controller = new CatalogController(new CatalogService($pdo, $cfg), $cfg);
+        $controller = new CatalogController(new CatalogService($pdo, $cfg));
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
 
