@@ -396,6 +396,8 @@ class CatalogService
                 }
             }
             $uid = $this->event();
+            $hasComment = $this->hasCommentColumn();
+            $hasDesign = $this->hasDesignColumn();
             $this->pdo->beginTransaction();
 
             $fields = ['uid', 'sort_order', 'slug', 'file', 'name', 'description', 'raetsel_buchstabe', 'event_uid'];
@@ -409,12 +411,12 @@ class CatalogService
                 'raetsel_buchstabe=excluded.raetsel_buchstabe',
                 'event_uid=excluded.event_uid',
             ];
-            if ($this->hasCommentColumn()) {
+            if ($hasComment) {
                 $fields[] = 'comment';
                 $placeholders[] = '?';
                 $updates[] = 'comment=excluded.comment';
             }
-            if ($this->hasDesignColumn()) {
+            if ($hasDesign) {
                 $fields[] = 'design_path';
                 $placeholders[] = '?';
                 $updates[] = 'design_path=excluded.design_path';
@@ -462,10 +464,10 @@ class CatalogService
                     $cat['raetsel_buchstabe'] ?? null,
                     $uid !== '' ? $uid : null,
                 ];
-                if ($this->hasCommentColumn()) {
+                if ($hasComment) {
                     $row[] = $cat['comment'] ?? null;
                 }
-                if ($this->hasDesignColumn()) {
+                if ($hasDesign) {
                     $row[] = $cat['design_path'] ?? null;
                 }
                 $ins->execute($row);
