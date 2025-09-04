@@ -219,9 +219,13 @@ const withBase = p => basePath + p;
       });
       if (opt) {
         select.value = opt.value;
-        // Trigger selection manually so setComment() and showCatalogIntro() run
-        handleSelection(opt);
+      } else {
+        console.warn('Ungültiger Katalog-Parameter:', id);
+        if (typeof UIkit !== 'undefined' && UIkit.notification) {
+          UIkit.notification({ message: 'Katalog nicht gefunden', status: 'warning' });
+        }
       }
+      handleSelection(opt || select.selectedOptions[0]);
     } else {
       const opt = select.selectedOptions[0];
       if (opt) {
