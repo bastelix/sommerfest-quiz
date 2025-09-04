@@ -432,7 +432,7 @@ class CatalogService
             $uids = [];
             $prepared = [];
             foreach ($data as $cat) {
-                if (!isset($cat['uid']) && isset($cat['slug'])) {
+                if (isset($cat['slug'])) {
                     $sql = 'SELECT uid FROM catalogs WHERE slug=?';
                     $params = [$cat['slug']];
                     if ($uid !== '') {
