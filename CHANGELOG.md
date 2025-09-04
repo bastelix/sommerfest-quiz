@@ -196,6 +196,7 @@
 - Ensure consistent table cell padding
 - Preserve svg logo aspect ratio
 - Reuse catalog uid for existing slug
+- Avoid autosave after load
 
 ### Refactor
 
