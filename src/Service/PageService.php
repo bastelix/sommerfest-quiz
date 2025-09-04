@@ -29,7 +29,7 @@ class PageService
 
     public function save(string $slug, string $content): void
     {
-        $stmt = $this->pdo->prepare('INSERT INTO pages(slug, content) VALUES(?, ?) ON CONFLICT(slug) DO UPDATE SET content = excluded.content');
-        $stmt->execute([$slug, $content]);
+        $stmt = $this->pdo->prepare('UPDATE pages SET content = ?, updated_at = CURRENT_TIMESTAMP WHERE slug = ?');
+        $stmt->execute([$content, $slug]);
     }
 }
