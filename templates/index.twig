@@ -86,6 +86,26 @@
   </script>
   <script src="{{ basePath }}/js/quiz.js" defer></script>
   <script src="{{ basePath }}/js/catalog.js" defer></script>
+  <script>
+    (function () {
+      window.catalogInit = false;
+      const script = document.querySelector('script[src="{{ basePath }}/js/catalog.js"]');
+      if (script) {
+        script.addEventListener('load', function () {
+          window.catalogInit = true;
+        });
+      }
+      document.addEventListener('DOMContentLoaded', function () {
+        if (!window.catalogInit) {
+          const warning = document.createElement('div');
+          warning.className = 'uk-alert uk-alert-warning uk-text-center';
+          warning.textContent = 'Der Katalog konnte nicht geladen werden. Bitte laden Sie die Seite neu oder '
+            + 'kontaktieren Sie den Support.';
+          document.body.prepend(warning);
+        }
+      });
+    })();
+  </script>
   <script src="{{ basePath }}/js/confetti.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js" defer></script>
   <script src="{{ basePath }}/js/app.js" defer></script>
