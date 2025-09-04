@@ -48,7 +48,7 @@
   const optQrLogin = document.getElementById('QRUser');
   const logoInput = document.getElementById('logo');
   const logoPreview = document.getElementById('logoPreview');
-  const saveBtn = document.querySelector('.event-config-sidebar .uk-button-secondary');
+  const saveBtn = document.getElementById('saveConfig');
   const publishBtn = document.querySelector('.event-config-sidebar .uk-button-primary');
 
   function applyRules(shouldQueue) {
