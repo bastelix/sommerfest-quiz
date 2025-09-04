@@ -59,14 +59,19 @@ quiz.id = 'quiz';
 const select = new SelectElement();
 select.id = 'catalog-select';
 
-const opt = new OptionElement('valid', 'Valid');
-opt.dataset.slug = 'valid';
-opt.dataset.file = 'file.json';
-opt.dataset.uid = 'uid';
-opt.dataset.sortOrder = '1';
-opt.dataset.desc = 'Desc';
-opt.dataset.comment = 'Comment';
-select.appendChild(opt);
+const makeOption = (value, slug, text, comment) => {
+  const opt = new OptionElement(value, text);
+  opt.dataset.slug = slug;
+  opt.dataset.file = slug + '.json';
+  opt.dataset.uid = slug + '-uid';
+  opt.dataset.sortOrder = value;
+  opt.dataset.desc = 'Desc';
+  opt.dataset.comment = comment;
+  return opt;
+};
+
+select.appendChild(makeOption('first', 'first', 'First', 'First comment'));
+select.appendChild(makeOption('second', 'valid', 'Valid', 'Comment'));
 
 const elements = {
   'quiz-header': header,
@@ -74,14 +79,14 @@ const elements = {
   'catalog-select': select
 };
 
-let capturedInit = null;
+let initFn = null;
 const document = {
   readyState: 'loading',
   getElementById: id => elements[id] || null,
   querySelector: () => null,
   createElement: tag => new Element(tag),
   addEventListener: (ev, fn) => {
-    if (ev === 'DOMContentLoaded') capturedInit = fn;
+    if (ev === 'DOMContentLoaded') initFn = fn;
   },
   head: new Element('head')
 };
@@ -122,13 +127,13 @@ context.global = context;
 
 (async () => {
   vm.runInNewContext(fs.readFileSync('public/js/catalog.js', 'utf8'), context);
-  if (typeof capturedInit !== 'function') {
+  if (typeof initFn !== 'function') {
     throw new Error('init not captured');
   }
-  capturedInit();
+  initFn();
   await new Promise(r => setTimeout(r, 0));
 
-  if (select.value !== 'valid') {
+  if (select.value !== 'second') {
     throw new Error('selection by slug failed');
   }
   const comment = quiz.children.find(c => c.tagName === 'P' && c.textContent === 'Comment');
