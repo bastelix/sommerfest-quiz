@@ -356,7 +356,7 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       return;
     }
     const params = new URLSearchParams(window.location.search);
-    if(cfg.competitionMode && !params.get('katalog')){
+    if(cfg.competitionMode && (cfg.QRUser || cfg.randomNames) && !params.get('katalog')){
       const p = document.createElement('p');
       p.textContent = 'Bitte QR-Code verwenden, um einen Fragenkatalog zu starten.';
       p.className = 'uk-text-center';
@@ -801,8 +801,13 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
       }
     }else{
       if(!getStored('quizUser')){
-        setStored('quizUser', generateUserName());
-        sessionStorage.removeItem('quizSolved');
+        if(cfg.randomNames){
+          await promptTeamName();
+          sessionStorage.removeItem('quizSolved');
+        }else{
+          setStored('quizUser', generateUserName());
+          sessionStorage.removeItem('quizSolved');
+        }
       }
       updateUserName();
       proceed();
