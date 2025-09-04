@@ -34,5 +34,6 @@ $settings['postgres_pass'] = getenv('POSTGRES_PASSWORD')
 $settings['main_domain'] = getenv('MAIN_DOMAIN') ?: ($settings['main_domain'] ?? null);
 $settings['service_user'] = getenv('SERVICE_USER') ?: ($settings['service_user'] ?? null);
 $settings['service_pass'] = getenv('SERVICE_PASS') ?: ($settings['service_pass'] ?? null);
+$settings['tenants_dir'] = getenv('TENANTS_DIR') ?: (dirname(__DIR__) . '/tenants');
 
 return $settings;

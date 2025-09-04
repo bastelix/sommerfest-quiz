@@ -18,6 +18,7 @@ class TenantService
     private PDO $pdo;
     private string $migrationsDir;
     private ?NginxService $nginxService;
+    private string $tenantsDir;
 
     private const RESERVED_SUBDOMAINS = [
         'public',
@@ -36,11 +37,16 @@ class TenantService
         'kz',
     ];
 
-    public function __construct(?PDO $pdo = null, ?string $migrationsDir = null, ?NginxService $nginxService = null)
-    {
+    public function __construct(
+        ?PDO $pdo = null,
+        ?string $migrationsDir = null,
+        ?NginxService $nginxService = null,
+        ?string $tenantsDir = null
+    ) {
         $this->pdo = $pdo ?? Database::connectFromEnv();
         $this->migrationsDir = $migrationsDir ?? dirname(__DIR__, 2) . '/migrations';
         $this->nginxService = $nginxService;
+        $this->tenantsDir = $tenantsDir ?? (getenv('TENANTS_DIR') ?: dirname(__DIR__, 2) . '/tenants');
     }
 
     /**
@@ -644,7 +650,7 @@ class TenantService
             $count++;
         }
 
-        $tenantsDir = dirname(__DIR__, 2) . '/tenants';
+        $tenantsDir = $this->tenantsDir;
         if (is_dir($tenantsDir)) {
             foreach (scandir($tenantsDir) as $dir) {
                 if ($dir === '.' || $dir === '..') {

@@ -24,7 +24,8 @@ if [ "$#" -lt 1 ]; then
 fi
 
 SLUG=$(echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
-TENANT_DIR="$(dirname "$0")/../tenants/$SLUG"
+TENANTS_DIR="${TENANTS_DIR:-$SCRIPT_DIR/../tenants}"
+TENANT_DIR="$TENANTS_DIR/$SLUG"
 DATA_DIR="$TENANT_DIR/data"
 COMPOSE_FILE="$TENANT_DIR/docker-compose.yml"
 DOMAIN_SUFFIX="${MAIN_DOMAIN:-$DOMAIN}"

@@ -290,8 +290,10 @@ standardmäßig `https://` vorangestellt.
 
 ## Multi-Tenant Setup
 
-Mehrere Subdomains lassen sich als eigene Mandanten betreiben. Ein neuer
-Mandant wird mit `scripts/create_tenant.sh` angelegt:
+Mehrere Subdomains lassen sich als eigene Mandanten betreiben. Das Verzeichnis
+für die Compose-Dateien der Mandanten lässt sich über die Variable
+`TENANTS_DIR` steuern (Standard: `tenants/`). Ein neuer Mandant wird mit
+`scripts/create_tenant.sh` angelegt:
 
 ```bash
 scripts/create_tenant.sh foo
@@ -320,10 +322,11 @@ Haupt-Stack dieses Netzwerk erstellt oder verwaltet. Den Namen kannst du
 über die Umgebungsvariable `NETWORK` im Skript anpassen.
 
 Das Skript `scripts/onboard_tenant.sh` steht weiterhin zur Verfügung, um
-einen Container manuell zu starten oder neu aufzusetzen. Es schreibt unter
-`tenants/<slug>/` eine eigene `docker-compose.yml`, legt dort ein
-persistentes `data/`-Verzeichnis an und bindet es im Container unter
-`/var/www/data` ein. So bleiben hochgeladene Logos oder Fotos auch bei
+einen Container manuell zu starten oder neu aufzusetzen. Es legt im durch
+`TENANTS_DIR` festgelegten Verzeichnis (`Standard: tenants/`) den Ordner
+`<slug>/` an, erstellt dort eine eigene `docker-compose.yml` und ein
+persistentes `data/`-Verzeichnis, das im Container unter `/var/www/data`
+eingebunden wird. So bleiben hochgeladene Logos oder Fotos auch bei
 Upgrades erhalten. Zusätzlich fordert das Skript das SSL-Zertifikat an.
 Welches Docker-Image dabei verwendet wird, lässt sich über die Variable `APP_IMAGE` in der `.env` steuern.
 Dieses Tag sollte dem lokal gebauten Slim-Image entsprechen (`docker build -t <tag> .`),
@@ -348,7 +351,8 @@ alternativ direkt auf dem Host aus, wenn Docker im Container nicht
 verfügbar ist.
 
 Zum Entfernen einer isolierten Instanz nutzt du `scripts/offboard_tenant.sh`.
-Das Skript stoppt den Container und löscht das Verzeichnis `tenants/<slug>/`:
+Das Skript stoppt den Container und löscht das Verzeichnis
+`${TENANTS_DIR}/<slug>/`:
 
 ```bash
 scripts/offboard_tenant.sh foo
