@@ -264,6 +264,7 @@
 - Support sqlite memory db
 - Verify health endpoint timestamp and tenant host
 - Ensure version displayed on login
+- Cover catalog question access
 
 ## [0.2.0] - 2025-08-18
 
