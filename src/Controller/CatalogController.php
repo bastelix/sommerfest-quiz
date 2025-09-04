@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\CatalogService;
+use App\Service\ConfigService;
 use App\Domain\Roles;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -15,13 +16,15 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 class CatalogController
 {
     private CatalogService $service;
+    private ConfigService $config;
 
     /**
      * Inject catalog service dependency.
      */
-    public function __construct(CatalogService $service)
+    public function __construct(CatalogService $service, ConfigService $config)
     {
         $this->service = $service;
+        $this->config = $config;
     }
 
     /**
@@ -43,11 +46,11 @@ class CatalogController
     {
         $file = basename($args['file']);
         $accept = strtolower($request->getHeaderLine('Accept'));
+        $params = $request->getQueryParams();
+        $event = (string) ($params['event'] ?? '');
 
         if ($accept === '' || strpos($accept, 'application/json') === false) {
             $slug = $this->service->slugByFile($file) ?? pathinfo($file, PATHINFO_FILENAME);
-            $params = $request->getQueryParams();
-            $event = (string)($params['event'] ?? '');
             $location = '/?';
             if ($event !== '') {
                 $location .= 'event=' . urlencode($event) . '&';
@@ -59,6 +62,9 @@ class CatalogController
                 ->withStatus(302);
         }
 
+        if ($event !== '') {
+            $this->config->setActiveEventUid($event);
+        }
 
         $content = $this->service->read($file);
         if ($content === null) {
