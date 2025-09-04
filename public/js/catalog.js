@@ -95,3 +95,101 @@ function init() {
     handleSelection(opt);
   });
 }
+
+async function handleSelection(option) {
+  if (!option) return;
+
+  const basePath = window.basePath || '';
+  const withBase = p => basePath + p;
+
+  const name = option.textContent || '';
+  const desc = option.dataset.desc || '';
+  const comment = option.dataset.comment || '';
+  const uid = option.dataset.uid || option.dataset.slug || option.value || '';
+
+  try {
+    sessionStorage.setItem('quizCatalog', uid);
+    if (name) sessionStorage.setItem('quizCatalogName', name);
+    else sessionStorage.removeItem('quizCatalogName');
+    if (desc) sessionStorage.setItem('quizCatalogDesc', desc);
+    else sessionStorage.removeItem('quizCatalogDesc');
+    if (comment) sessionStorage.setItem('quizCatalogComment', comment);
+    else sessionStorage.removeItem('quizCatalogComment');
+  } catch (e) {
+    /* storage optional */
+  }
+
+  let data = [];
+  const file = option.dataset.file;
+  if (file) {
+    try {
+      const res = await fetch(withBase('/data/' + file));
+      data = await res.json();
+    } catch (e) {
+      console.warn('Katalog konnte nicht geladen werden:', e);
+    }
+  }
+
+  showCatalogIntro(data);
+}
+
+function showCatalogIntro(data) {
+  const quizContainer = document.getElementById('quiz');
+  if (quizContainer) quizContainer.innerHTML = '';
+
+  const header = document.getElementById('quiz-header');
+  const name = sessionStorage.getItem('quizCatalogName') || '';
+  const desc = sessionStorage.getItem('quizCatalogDesc');
+  const comment = sessionStorage.getItem('quizCatalogComment');
+  const basePath = window.basePath || '';
+  const withBase = p => basePath + p;
+
+  if (header) {
+    header.innerHTML = '';
+    if (name) {
+      const h1 = document.createElement('h1');
+      h1.textContent = name;
+      header.appendChild(h1);
+    }
+    if (desc) {
+      const sub = document.createElement('p');
+      sub.dataset.role = 'subheader';
+      sub.textContent = desc;
+      header.appendChild(sub);
+    }
+    if (comment) {
+      const block = document.createElement('div');
+      block.dataset.role = 'catalog-comment-block';
+      block.textContent = comment;
+      header.appendChild(block);
+    }
+  }
+
+  if (quizContainer) {
+    if (comment) {
+      const p = document.createElement('p');
+      p.textContent = comment;
+      quizContainer.appendChild(p);
+    }
+    const btn = document.createElement('button');
+    btn.className = 'uk-button uk-button-primary';
+    btn.textContent = "Los geht's!";
+    btn.addEventListener('click', () => {
+      window.quizQuestions = data;
+      if (typeof startQuiz === 'function') {
+        startQuiz(data, false);
+      } else {
+        const script = document.createElement('script');
+        script.src = withBase('/js/quiz.js');
+        document.head.appendChild(script);
+      }
+    });
+    quizContainer.appendChild(btn);
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
