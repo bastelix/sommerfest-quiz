@@ -162,6 +162,7 @@
 - *(admin)* Add missing events table
 - Autosave questions
 - Add event-specific config endpoint
+- Add eventless catalog fallback
 
 ### Fix
 
