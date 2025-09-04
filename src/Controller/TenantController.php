@@ -113,9 +113,18 @@ class TenantController
      */
     public function sync(Request $request, Response $response): Response
     {
-        $count = $this->service->importMissing();
-        $response->getBody()->write(json_encode(['imported' => $count]));
-        return $response->withHeader('Content-Type', 'application/json');
+        try {
+            $count = $this->service->importMissing();
+            $response->getBody()->write(json_encode(['imported' => $count]));
+            return $response->withHeader('Content-Type', 'application/json');
+        } catch (\Throwable $e) {
+            $msg = 'Error importing tenants: ' . $e->getMessage();
+            error_log($msg);
+            $response->getBody()->write(json_encode(['error' => $e->getMessage()]));
+            return $response
+                ->withStatus(500)
+                ->withHeader('Content-Type', 'application/json');
+        }
     }
 
     /**
