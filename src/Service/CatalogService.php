@@ -23,7 +23,7 @@ class CatalogService
     private ?bool $hasComment = null;
     /** @var bool|null detected presence of the design_path column */
     private ?bool $hasDesign = null;
-    
+
     private function event(): string
     {
         return $this->eventUid !== '' ? $this->eventUid : $this->config->getActiveEventUid();
@@ -430,6 +430,20 @@ class CatalogService
             $uids = [];
             $prepared = [];
             foreach ($data as $cat) {
+                if (!isset($cat['uid']) && isset($cat['slug'])) {
+                    $sql = 'SELECT uid FROM catalogs WHERE slug=?';
+                    $params = [$cat['slug']];
+                    if ($uid !== '') {
+                        $sql .= ' AND event_uid=?';
+                        $params[] = $uid;
+                    }
+                    $stmt = $this->pdo->prepare($sql);
+                    $stmt->execute($params);
+                    $existingUid = $stmt->fetchColumn();
+                    if ($existingUid !== false) {
+                        $cat['uid'] = $existingUid;
+                    }
+                }
                 $catUid = $cat['uid'] ?? bin2hex(random_bytes(16));
                 $cat['uid'] = $catUid;
                 $prepared[] = $cat;
