@@ -167,6 +167,7 @@
 - Add autosave for loaded config
 - Make tenants directory configurable
 - Enable autosave for event configuration
+- Import existing page content
 
 ### Fix
 
