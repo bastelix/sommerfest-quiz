@@ -193,6 +193,7 @@
 - Preserve player name across catalogs
 - Ensure consistent table cell padding
 - Preserve svg logo aspect ratio
+- Reuse catalog uid for existing slug
 
 ### Refactor
 
@@ -225,6 +226,7 @@
 - Wrap long lines in QrCodeService
 - Streamline catalog and team tables
 - Use catalogKey for identifiers
+- Remove redundant null coalesce
 
 ### Style
 
