@@ -116,6 +116,17 @@ class EventServiceTest extends TestCase
         $this->assertSame(0, $count);
     }
 
+    public function testSaveAllPersistsSlug(): void
+    {
+        $pdo = $this->createPdo();
+        $svc = new EventService($pdo);
+        $svc->saveAll([
+            ['uid' => 'e1', 'slug' => 's1', 'name' => 'One'],
+        ]);
+        $slug = $pdo->query("SELECT slug FROM events WHERE uid='e1'")->fetchColumn();
+        $this->assertSame('s1', $slug);
+    }
+
     public function testSaveAllRespectsStarterLimit(): void
     {
         $pdo = $this->createPdo();
