@@ -2425,13 +2425,13 @@ document.addEventListener('DOMContentLoaded', function () {
     tenantSyncBtn.disabled = true;
     tenantSyncBtn.innerHTML = '<div uk-spinner></div>';
     apiFetch('/tenants/sync', { method: 'POST' })
-      .then(r => r.json())
+      .then(r => (r.ok ? r.json() : Promise.reject()))
       .then(() => {
         notify('Mandanten eingelesen', 'success');
-        loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value);
       })
       .catch(() => notify('Fehler beim Synchronisieren', 'danger'))
       .finally(() => {
+        loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value);
         tenantSyncBtn.disabled = false;
         tenantSyncBtn.innerHTML = original;
       });
