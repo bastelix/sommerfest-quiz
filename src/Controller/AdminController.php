@@ -21,6 +21,7 @@ use App\Service\StripeService;
 use App\Service\VersionService;
 use App\Application\Seo\PageSeoConfigService;
 use App\Service\UrlService;
+use App\Service\PageService;
 use PDO;
 
 /**
@@ -128,10 +129,10 @@ class AdminController
             $users = (new UserService($pdo))->getAll();
         }
 
-        $pageSlugs = ['landing', 'impressum', 'datenschutz', 'faq'];
+        $pageSlugs = ['landing', 'impressum', 'datenschutz', 'faq', 'lizenz'];
+        $pageSvc = new PageService();
         foreach ($pageSlugs as $slug) {
-            $path       = dirname(__DIR__, 2) . '/content/' . $slug . '.html';
-            $pages[$slug] = is_file($path) ? file_get_contents($path) : '';
+            $pages[$slug] = $pageSvc->get($slug) ?? '';
         }
 
         $domainType = $request->getAttribute('domainType');

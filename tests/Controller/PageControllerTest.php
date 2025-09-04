@@ -10,13 +10,8 @@ class PageControllerTest extends TestCase
 {
     public function testEditAndUpdate(): void
     {
-        $dir = dirname(__DIR__, 2) . '/content';
-        if (!is_dir($dir)) {
-            mkdir($dir);
-        }
-        $file = $dir . '/landing.html';
-        $backup = is_file($file) ? file_get_contents($file) : null;
-        file_put_contents($file, '<p>old</p>');
+        $pdo = $this->getDatabase();
+        $pdo->exec("INSERT INTO pages(slug, content) VALUES('landing','<p>old</p>')");
 
         $app = $this->getAppInstance();
         session_start();
@@ -32,14 +27,10 @@ class PageControllerTest extends TestCase
         $req = $req->withParsedBody(['content' => '<p>new</p>']);
         $res = $app->handle($req);
         $this->assertEquals(204, $res->getStatusCode());
-        $this->assertStringEqualsFile($file, '<p>new</p>');
+        $content = $pdo->query("SELECT content FROM pages WHERE slug='landing'")->fetchColumn();
+        $this->assertSame('<p>new</p>', $content);
 
         session_destroy();
-        if ($backup === null) {
-            unlink($file);
-        } else {
-            file_put_contents($file, $backup);
-        }
     }
 
     public function testInvalidSlug(): void

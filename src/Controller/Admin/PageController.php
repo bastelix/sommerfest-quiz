@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Admin;
 
+use App\Service\PageService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -21,11 +22,11 @@ class PageController
             return $response->withStatus(404);
         }
 
-        $path = dirname(__DIR__, 3) . '/content/' . $slug . '.html';
-        if (!is_file($path)) {
+        $service = new PageService();
+        $content = $service->get($slug);
+        if ($content === null) {
             return $response->withStatus(404);
         }
-        $content = file_get_contents($path) ?: '';
         $view = Twig::fromRequest($request);
         return $view->render($response, 'admin/pages/edit.twig', [
             'slug' => $slug,
@@ -43,13 +44,13 @@ class PageController
         if (!in_array($slug, $allowed, true)) {
             return $response->withStatus(404);
         }
-        $path = dirname(__DIR__, 3) . '/content/' . $slug . '.html';
         $data = $request->getParsedBody();
         if (!is_array($data)) {
             return $response->withStatus(400);
         }
         $html = (string)($data['content'] ?? '');
-        file_put_contents($path, $html);
+        $service = new PageService();
+        $service->save($slug, $html);
         return $response->withStatus(204);
     }
 }
