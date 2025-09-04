@@ -291,7 +291,9 @@ class ConfigService
             $this->pdo->rollBack();
             throw $e;
         }
-        $this->ensureConfigForEvent($uid);
+        if ($uid !== '') {
+            $this->ensureConfigForEvent($uid);
+        }
         $this->activeEvent = $uid;
     }
 
@@ -300,6 +302,9 @@ class ConfigService
      */
     public function ensureConfigForEvent(string $uid): void
     {
+        if ($uid === '') {
+            return;
+        }
         $stmt = $this->pdo->prepare('SELECT 1 FROM config WHERE event_uid = ? LIMIT 1');
         $stmt->execute([$uid]);
         if ($stmt->fetchColumn() === false) {

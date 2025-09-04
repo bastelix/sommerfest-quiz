@@ -19,10 +19,10 @@ class ConfigServiceTest extends TestCase
             <<<'SQL'
             CREATE TABLE config(
                 displayErrorDetails INTEGER,
-                QRUser INTEGER,
+                loginRequired INTEGER,
                 QRRemember INTEGER,
                 logoPath TEXT,
-                pageTitle TEXT,
+                title TEXT,
                 backgroundColor TEXT,
                 buttonColor TEXT,
                 CheckAnswerButton TEXT,
@@ -59,10 +59,10 @@ class ConfigServiceTest extends TestCase
             <<<'SQL'
             CREATE TABLE config(
                 displayErrorDetails INTEGER,
-                QRUser INTEGER,
+                loginRequired INTEGER,
                 QRRemember INTEGER,
                 logoPath TEXT,
-                pageTitle TEXT,
+                title TEXT,
                 backgroundColor TEXT,
                 buttonColor TEXT,
                 CheckAnswerButton TEXT,
@@ -107,5 +107,17 @@ class ConfigServiceTest extends TestCase
 
         $uid = $pdo->query('SELECT event_uid FROM active_event')->fetchColumn();
         $this->assertSame('foo', $uid);
+    }
+
+    public function testSetActiveEventUidDoesNotInsertConfigForEmptyEvent(): void
+    {
+        $pdo = $this->createDatabase();
+        $pdo->exec('PRAGMA foreign_keys = ON');
+        $service = new ConfigService($pdo);
+
+        $service->setActiveEventUid('');
+
+        $count = (int) $pdo->query('SELECT COUNT(*) FROM config')->fetchColumn();
+        $this->assertSame(0, $count);
     }
 }
