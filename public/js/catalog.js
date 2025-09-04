@@ -745,10 +745,10 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
     applyConfig();
     const catalogs = await loadCatalogList();
     const params = new URLSearchParams(window.location.search);
-    const id = params.get('katalog');
+    const id = (params.get('katalog') || '').toLowerCase();
     const proceed = async () => {
       const solvedNow = await buildSolvedSet(cfg);
-      const selected = catalogs.find(c => (c.slug || c.sort_order || c.id || c.uid) === id);
+      const selected = catalogs.find(c => ((c.slug || c.sort_order || c.id || c.uid || '').toLowerCase()) === id);
       if(selected){
         const selectedKey = selected.uid ?? selected.slug ?? selected.sort_order ?? selected.id;
         if(cfg.competitionMode && solvedNow.has(selectedKey)){
