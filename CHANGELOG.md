@@ -168,6 +168,7 @@
 - Make tenants directory configurable
 - Enable autosave for event configuration
 - Import existing page content
+- Add catalog load warning
 
 ### Fix
 
