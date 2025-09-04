@@ -540,13 +540,68 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
   renderCfg(cfgInitial);
+  function collectCfgData() {
+    const data = {
+      pageTitle: cfgFields.pageTitle?.value || '',
+      backgroundColor: cfgFields.backgroundColor?.value || '',
+      buttonColor: cfgFields.buttonColor?.value || '',
+      CheckAnswerButton: cfgFields.checkAnswerButton?.checked ? 'yes' : 'no',
+      QRUser: cfgFields.qrUser?.checked ? '1' : '0'
+    };
+    if (cfgFields.randomNames) data.randomNames = cfgFields.randomNames.checked;
+    if (cfgFields.teamRestrict) data.QRRestrict = cfgFields.teamRestrict.checked ? '1' : '0';
+    if (cfgFields.competitionMode) data.competitionMode = cfgFields.competitionMode.checked;
+    if (cfgFields.teamResults) data.teamResults = cfgFields.teamResults.checked;
+    if (cfgFields.photoUpload) data.photoUpload = cfgFields.photoUpload.checked;
+    if (cfgFields.puzzleEnabled) {
+      data.puzzleWordEnabled = cfgFields.puzzleEnabled.checked;
+      data.puzzleWord = cfgFields.puzzleWord?.value || '';
+    }
+    if (puzzleFeedback) data.puzzleFeedback = puzzleFeedback;
+    if (inviteText) data.inviteText = inviteText;
+    return data;
+  }
+
+  let cfgSaveTimer;
+  function queueCfgSave() {
+    clearTimeout(cfgSaveTimer);
+    cfgSaveTimer = setTimeout(saveCfg, 800);
+  }
+
+  function saveCfg() {
+    const data = collectCfgData();
+    const cfgPath = activeEventUid ? `/admin/event/${activeEventUid}` : '/config.json';
+    const method = activeEventUid ? 'PATCH' : 'POST';
+    apiFetch(cfgPath, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    }).then(r => {
+      if (r.ok) {
+        Object.assign(cfgInitial, data);
+        notify('Einstellung gespeichert', 'success');
+      } else {
+        notify('Fehler beim Speichern', 'danger');
+      }
+    }).catch(() => notify('Fehler beim Speichern', 'danger'));
+  }
+
+  document.getElementById('configForm')?.addEventListener('submit', e => e.preventDefault());
+
   if (cfgFields.puzzleEnabled) {
     cfgFields.puzzleEnabled.addEventListener('change', () => {
       if (cfgFields.puzzleWrap) {
         cfgFields.puzzleWrap.style.display = cfgFields.puzzleEnabled.checked ? '' : 'none';
       }
+      queueCfgSave();
     });
   }
+
+  Object.entries(cfgFields).forEach(([key, el]) => {
+    if (!el || ['logoFile', 'logoPreview', 'homePage', 'registrationEnabled', 'puzzleEnabled'].includes(key)) return;
+    el.addEventListener('change', queueCfgSave);
+    el.addEventListener('input', queueCfgSave);
+  });
   puzzleFeedbackBtn?.addEventListener('click', () => {
     if (puzzleTextarea) {
       puzzleTextarea.value = puzzleFeedback;
@@ -564,6 +619,7 @@ document.addEventListener('DOMContentLoaded', function () {
     puzzleModal.hide();
     cfgInitial.puzzleFeedback = puzzleFeedback;
     notify('Feedbacktext gespeichert', 'success');
+    queueCfgSave();
   });
 
   inviteSaveBtn?.addEventListener('click', () => {
@@ -573,6 +629,7 @@ document.addEventListener('DOMContentLoaded', function () {
     inviteModal.hide();
     cfgInitial.inviteText = inviteText;
     notify('Einladungstext gespeichert', 'success');
+    queueCfgSave();
   });
 
   commentSaveBtn?.addEventListener('click', async () => {
@@ -621,8 +678,6 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }).catch(() => notify('Fehler beim Speichern', 'danger'));
   });
-  // Former auto-save fields removed; form submission handled by backend.
-
   const summaryPrintBtn = document.getElementById('summaryPrintBtn');
   summaryPrintBtn?.addEventListener('click', function (e) {
     e.preventDefault();
