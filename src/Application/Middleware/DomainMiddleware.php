@@ -20,10 +20,10 @@ class DomainMiddleware implements MiddlewareInterface
     public function process(Request $request, RequestHandler $handler): Response
     {
         $host = strtolower($request->getUri()->getHost());
-        $host = (string) preg_replace('/^www\./', '', $host);
+        $host = (string) preg_replace('/^(www|admin)\./', '', $host);
 
         $mainDomain = strtolower((string) getenv('MAIN_DOMAIN'));
-        $mainDomain = (string) preg_replace('/^www\./', '', $mainDomain);
+        $mainDomain = (string) preg_replace('/^(www|admin)\./', '', $mainDomain);
 
         $domainType = 'main';
         if (
