@@ -300,7 +300,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $response;
     });
 
-    $app->get('/', HomeController::class);
+    $app->get('/', HomeController::class)->add(new CsrfMiddleware());
     $app->get('/favicon.ico', function (Request $request, Response $response) {
         $iconPath = __DIR__ . '/../public/favicon.svg';
         if (file_exists($iconPath)) {

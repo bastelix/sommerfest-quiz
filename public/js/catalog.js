@@ -3,7 +3,21 @@ const basePath = window.basePath || '';
 const withBase = p => basePath + p;
 
 (function () {
-  const eventUid = (window.quizConfig || {}).event_uid || '';
+  // --- helpers ---
+  function getEventUid() {
+    const fromConfig = (window.quizConfig || {}).event_uid || '';
+    if (fromConfig) return fromConfig;
+    const fromUrl = new URLSearchParams(window.location.search).get('event') || '';
+    return fromUrl;
+  }
+
+  function withEvent(url) {
+    const ev = getEventUid();
+    if (!ev) return url; // nicht anhängen, wenn leer
+    const sep = url.includes('?') ? '&' : '?';
+    return url + sep + 'event=' + encodeURIComponent(ev);
+  }
+
   const csrfToken =
     document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
     window.csrfToken || '';
@@ -12,9 +26,7 @@ const withBase = p => basePath + p;
     try {
       sessionStorage.setItem(key, value);
       localStorage.setItem(key, value);
-    } catch (e) {
-      // ignore storage errors
-    }
+    } catch (_e) {}
   }
 
   function sanitize(text) {
@@ -56,25 +68,16 @@ const withBase = p => basePath + p;
     }
   }
 
-  function withEvent(url) {
-    const sep = url.includes('?') ? '&' : '?';
-    return url + sep + 'event=' + encodeURIComponent(eventUid);
-  }
-
   async function loadQuestions(slug, sort_order, file, letter, uid, name, desc, comment) {
     const catalogKey = uid ?? slug ?? sort_order;
     setStored('quizCatalog', catalogKey);
     sessionStorage.setItem('quizCatalogName', name || slug || uid || sort_order);
-    if (desc !== undefined) {
-      sessionStorage.setItem('quizCatalogDesc', desc);
-    } else {
-      sessionStorage.removeItem('quizCatalogDesc');
-    }
-    if (comment !== undefined) {
-      sessionStorage.setItem('quizCatalogComment', comment);
-    } else {
-      sessionStorage.removeItem('quizCatalogComment');
-    }
+
+    if (desc !== undefined) sessionStorage.setItem('quizCatalogDesc', desc);
+    else sessionStorage.removeItem('quizCatalogDesc');
+
+    if (comment !== undefined) sessionStorage.setItem('quizCatalogComment', comment);
+    else sessionStorage.removeItem('quizCatalogComment');
 
     const headerEl = document.getElementById('quiz-header');
     if (headerEl) {
@@ -91,19 +94,20 @@ const withBase = p => basePath + p;
 
     let loaded = false;
     try {
-      const headers = { Accept: 'application/json' };
-      if (csrfToken) {
-        headers['X-CSRF-Token'] = csrfToken;
+      if (file) {
+        const headers = { Accept: 'application/json' };
+        if (csrfToken) headers['X-CSRF-Token'] = csrfToken;
+        const res = await fetch(withBase(withEvent('/catalog/questions/' + file)), {
+          headers,
+          credentials: 'same-origin'
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        window.quizQuestions = data;
+        loaded = true;
+        showCatalogIntro(data);
+        return;
       }
-      const res = await fetch(
-        withBase(withEvent('/catalog/questions/' + file)),
-        { headers }
-      );
-      const data = await res.json();
-      window.quizQuestions = data;
-      loaded = true;
-      showCatalogIntro(data);
-      return;
     } catch (e) {
       console.error('Fragen konnten nicht geladen werden, versuche inline Daten', e);
     } finally {
@@ -121,7 +125,7 @@ const withBase = p => basePath + p;
           }
         }
         if (!loaded) {
-          alert('Fragen konnten nicht geladen werden.');
+          UIkit?.notification?.({ message: 'Fragen konnten nicht geladen werden.', status: 'danger' });
           showCatalogIntro([]);
         }
       }
@@ -132,18 +136,21 @@ const withBase = p => basePath + p;
     const container = document.getElementById('quiz');
     if (!container) return;
     container.textContent = '';
+
     const desc = sessionStorage.getItem('quizCatalogDesc');
     if (desc) {
       const p = document.createElement('p');
       p.textContent = desc;
       container.appendChild(p);
     }
+
     const comment = sessionStorage.getItem('quizCatalogComment');
     if (comment) {
       const p = document.createElement('p');
       p.textContent = comment;
       container.appendChild(p);
     }
+
     const btn = document.createElement('button');
     btn.className = 'uk-button uk-button-primary uk-button-large uk-align-right';
     btn.textContent = 'Los geht\'s!';
@@ -201,48 +208,53 @@ const withBase = p => basePath + p;
     const select = document.getElementById('catalog-select');
     if (!select) return;
 
-    const parts = window.location.pathname.split('/').filter(Boolean);
-    let id = (parts[parts.length - 1] || '').toLowerCase();
-
+    // slug bevorzugt aus URL
     const params = new URLSearchParams(window.location.search);
-    const paramId = (params.get('slug') || params.get('katalog') || '').toLowerCase();
-    if (paramId) id = paramId;
+    const paramId = (
+      params.get('slug') || params.get('katalog') || params.get('catalog') || params.get('k') || ''
+    ).toLowerCase();
 
-    // PATCH: Wenn ein passender Katalog gefunden wird, Dropdown ausblenden und Quiz starten
+    // slug evtl. aus Pfad (z.B. /catalog/a)
+    const parts = window.location.pathname.split('/').filter(Boolean);
+    let id = paramId || (parts[parts.length - 1] || '').toLowerCase();
+
+    // Eintrag per URL direkt auswählen
     if (id) {
-      const opt = Array.from(select.options).find(o => {
+      const match = Array.from(select.options).find(o => {
         const value = (o.value || '').toLowerCase();
         const slug = (o.dataset.slug || '').toLowerCase();
         return value === id || slug === id;
       });
-      if (opt) {
-        select.value = opt.value;
-
-        // Dropdown ausblenden, nur Quiz anzeigen
+      if (match) {
+        select.value = match.value;
+        // Dropdown ausblenden
         select.style.display = 'none';
         const selectLabel = document.querySelector('label[for="catalog-select"]');
         if (selectLabel) selectLabel.style.display = 'none';
-
-        handleSelection(opt);
+        handleSelection(match);
         return;
+      } else {
+        console.warn('Ungültiger Katalog-Parameter:', id);
+        UIkit?.notification?.({ message: 'Katalog nicht gefunden', status: 'warning' });
       }
     }
 
-    // Fallback: Übersicht anzeigen
+    // Fallback: Übersicht/erste Option
     select.style.display = '';
     const selectLabel = document.querySelector('label[for="catalog-select"]');
     if (selectLabel) selectLabel.style.display = '';
 
-    if (select.options.length === 1 && !id) handleSelection(select.options[0]);
+    if (select.options.length === 1 && !id) {
+      handleSelection(select.options[0]);
+    } else {
+      const opt = select.selectedOptions[0];
+      if (opt) handleSelection(opt);
+    }
+
     select.addEventListener('change', () => {
       const opt = select.selectedOptions[0];
       handleSelection(opt);
     });
-
-    const opt = select.selectedOptions[0];
-    if (opt) {
-      handleSelection(opt);
-    }
   }
 
   if (document.readyState === 'loading') {
