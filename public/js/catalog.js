@@ -17,6 +17,14 @@ const withBase = p => basePath + p;
     }
   }
 
+  function getStored(key) {
+    try {
+      return sessionStorage.getItem(key) || localStorage.getItem(key) || '';
+    } catch (e) {
+      return '';
+    }
+  }
+
   function sanitize(text) {
     const el = document.createElement('div');
     el.textContent = text == null ? '' : String(text);
@@ -59,6 +67,21 @@ const withBase = p => basePath + p;
   function withEvent(url) {
     const sep = url.includes('?') ? '&' : '?';
     return url + sep + 'event=' + encodeURIComponent(eventUid);
+  }
+
+  async function ensureUser() {
+    const cfg = window.quizConfig || {};
+    const params = new URLSearchParams(window.location.search);
+    if(cfg.competitionMode && (cfg.QRUser || cfg.randomNames) && !params.get('katalog')) return;
+    if(!getStored('quizUser')){
+      if(cfg.randomNames){
+        await promptTeamName();
+        sessionStorage.removeItem('quizSolved');
+      }else{
+        generateUserName();
+        sessionStorage.removeItem('quizSolved');
+      }
+    }
   }
 
   async function loadQuestions(slug, sort_order, file, letter, uid, name, desc, comment) {
@@ -183,55 +206,37 @@ const withBase = p => basePath + p;
     container.appendChild(btn);
   }
 
-  function handleSelection(option) {
-    if (!option) return;
-    loadQuestions(
-      option.dataset.slug,
-      option.dataset.sortOrder,
-      option.dataset.file,
-      option.dataset.letter,
-      option.dataset.uid,
-      option.textContent,
-      option.dataset.desc,
-      option.dataset.comment
-    );
-  }
-
-  function init() {
-    const select = document.getElementById('catalog-select');
-    if (!select) return;
-
-    const parts = window.location.pathname.split('/').filter(Boolean);
-    let id = (parts[parts.length - 1] || '').toLowerCase();
-
+  async function init() {
+    await ensureUser();
+    const catalogs = window.quizCatalogs || [];
     const params = new URLSearchParams(window.location.search);
-    const paramId = (params.get('slug') || params.get('katalog') || '').toLowerCase();
-    if (paramId) id = paramId;
-
-    if (select.options.length === 1 && !id) handleSelection(select.options[0]);
-
-    select.addEventListener('change', () => {
-      const opt = select.selectedOptions[0];
-      handleSelection(opt);
-    });
-    if (id) {
-      const opt = Array.from(select.options).find(o => {
-        const value = (o.value || '').toLowerCase();
-        const slug = (o.dataset.slug || '').toLowerCase();
-        return value === id || slug === id;
-      });
-      if (opt) {
-        select.value = opt.value;
-        // Trigger selection manually so setComment() and showCatalogIntro() run
-        handleSelection(opt);
-        return;
-      }
+    let id = (params.get('slug') || params.get('katalog') || '').toLowerCase();
+    if (!id) {
+      const parts = window.location.pathname.split('/').filter(Boolean);
+      id = (parts[parts.length - 1] || '').toLowerCase();
     }
-
-    const opt = select.selectedOptions[0];
-    if (opt) {
-      // Run on initial load so showCatalogIntro() displays the catalog intro
-      handleSelection(opt);
+    let cat = null;
+    if (id) {
+      cat = catalogs.find(c => {
+        const slug = (c.slug || '').toLowerCase();
+        const uid = (c.uid || '').toLowerCase();
+        const sort = String(c.sort_order ?? c.id ?? '').toLowerCase();
+        return slug === id || uid === id || sort === id;
+      });
+    } else if (catalogs.length === 1) {
+      cat = catalogs[0];
+    }
+    if (cat) {
+      loadQuestions(
+        cat.slug,
+        cat.sort_order ?? cat.id,
+        cat.file,
+        cat.raetsel_buchstabe,
+        cat.uid,
+        cat.name,
+        cat.description ?? cat.beschreibung,
+        cat.comment ?? cat.kommentar
+      );
     }
   }
 

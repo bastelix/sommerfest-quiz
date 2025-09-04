@@ -26,57 +26,14 @@ class Element {
   addEventListener() {}
 }
 
-class SelectElement extends Element {
-  constructor() {
-    super('select');
-    this.options = [];
-    this.value = '';
-  }
-  appendChild(child) {
-    if (child.tagName === 'OPTION') {
-      this.options.push(child);
-    }
-    return super.appendChild(child);
-  }
-  addEventListener() {}
-  get selectedOptions() {
-    return this.options.filter(o => o.value === this.value);
-  }
-}
-
-class OptionElement extends Element {
-  constructor(value, text) {
-    super('option');
-    this.value = value;
-    this.textContent = text;
-  }
-}
-
 const header = new Element('div');
 header.id = 'quiz-header';
 const quiz = new Element('div');
 quiz.id = 'quiz';
-const select = new SelectElement();
-select.id = 'catalog-select';
-
-const makeOption = (value, slug, text, comment) => {
-  const opt = new OptionElement(value, text);
-  opt.dataset.slug = slug;
-  opt.dataset.file = slug + '.json';
-  opt.dataset.uid = slug + '-uid';
-  opt.dataset.sortOrder = value;
-  opt.dataset.desc = 'Desc';
-  opt.dataset.comment = comment;
-  return opt;
-};
-
-select.appendChild(makeOption('first', 'first', 'First', 'First comment'));
-select.appendChild(makeOption('second', 'valid', 'Valid', 'Comment'));
 
 const elements = {
   'quiz-header': header,
-  quiz,
-  'catalog-select': select
+  quiz
 };
 
 let initFn = null;
@@ -106,6 +63,26 @@ const localStorage = storage();
 const window = {
   location: { search: '?slug=valid' },
   quizConfig: {},
+  quizCatalogs: [
+    {
+      slug: 'first',
+      file: 'first.json',
+      uid: 'first-uid',
+      sort_order: 1,
+      name: 'First',
+      description: 'Desc',
+      comment: 'First comment'
+    },
+    {
+      slug: 'valid',
+      file: 'valid.json',
+      uid: 'valid-uid',
+      sort_order: 2,
+      name: 'Valid',
+      description: 'Desc',
+      comment: 'Comment'
+    }
+  ],
   basePath: '',
   startQuiz: () => {},
   document
@@ -120,7 +97,9 @@ const context = {
   alert: () => {},
   UIkit: {},
   console,
-  URLSearchParams
+  URLSearchParams,
+  promptTeamName: async () => {},
+  generateUserName: () => {}
 };
 context.window.window = context.window; // self-reference
 context.global = context;
@@ -133,9 +112,6 @@ context.global = context;
   initFn();
   await new Promise(r => setTimeout(r, 0));
 
-  if (select.value !== 'second') {
-    throw new Error('selection by slug failed');
-  }
   const comment = quiz.children.find(c => c.tagName === 'P' && c.textContent === 'Comment');
   if (!comment) {
     throw new Error('catalog comment missing');
