@@ -66,7 +66,14 @@
     csrfFetch(`/admin/event/${eventId}`, {
       method: 'PATCH',
       body
-    }).catch(() => {});
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to save');
+        UIkit?.notification({ message: 'Erfolgreich gespeichert', status: 'success', timeout: 2000 });
+      })
+      .catch(() => {
+        UIkit?.notification({ message: 'Speichern fehlgeschlagen', status: 'danger' });
+      });
   }
 
   let autosaveTimer;
