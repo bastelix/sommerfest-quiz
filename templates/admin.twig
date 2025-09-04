@@ -172,6 +172,7 @@
               <tr>
                 <th class="uk-table-shrink"></th>
                 <th>{{ t('column_number') }}</th>
+                <th>{{ t('column_slug') }}</th>
                 <th>{{ t('column_name') }}</th>
                 <th>{{ t('column_start') }}</th>
                 <th>{{ t('column_end') }}</th>
@@ -181,6 +182,7 @@
             </thead>
             <tbody
               id="eventsList"
+              data-label-slug="{{ t('column_slug') }}"
               data-label-name="{{ t('column_name') }}"
               data-label-start="{{ t('column_start') }}"
               data-label-end="{{ t('column_end') }}"

@@ -34,11 +34,11 @@ class EventService
      * Retrieve all events ordered by name.
      *
      * @param bool $publishedOnly When true, only published events are returned.
-     * @return list<array{uid:string,name:string,start_date:?string,end_date:?string,description:?string,published:bool}>
+     * @return list<array{uid:string,slug:string,name:string,start_date:?string,end_date:?string,description:?string,published:bool}>
      */
     public function getAll(bool $publishedOnly = false): array
     {
-        $sql = 'SELECT uid,name,start_date,end_date,description,published,sort_order FROM events';
+        $sql = 'SELECT uid,slug,name,start_date,end_date,description,published,sort_order FROM events';
         if ($publishedOnly) {
             $sql .= ' WHERE published = TRUE';
         }

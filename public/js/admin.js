@@ -1602,6 +1602,7 @@ document.addEventListener('DOMContentLoaded', function () {
     return {
       id,
       uid: id,
+      slug: ev.slug || '',
       name: ev.name || '',
       start_date: ev.start_date || new Date().toISOString().slice(0, 16),
       end_date: ev.end_date || new Date().toISOString().slice(0, 16),
@@ -1614,6 +1615,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!eventManager) return;
     const list = eventManager.getData().map(ev => ({
       uid: ev.id,
+      slug: slugify(ev.slug || ev.name || ev.id),
       name: ev.name,
       start_date: ev.start_date,
       end_date: ev.end_date,
@@ -1674,6 +1676,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const labels = eventsListEl.dataset || {};
     const eventColumns = [
       { className: 'row-num' },
+      { key: 'slug', label: labels.labelSlug || 'Slug', className: 'event-slug', editable: true },
       { key: 'name', label: labels.labelName || 'Name', className: 'event-name', editable: true },
       { key: 'start_date', label: labels.labelStart || 'Start', className: 'event-start', editable: true },
       { key: 'end_date', label: labels.labelEnd || 'Ende', className: 'event-end', editable: true },
@@ -1757,6 +1760,7 @@ document.addEventListener('DOMContentLoaded', function () {
       saveSelector: '#eventEditSave',
       cancelSelector: '#eventEditCancel',
       getTitle: key => ({
+        slug: labels.labelSlug || 'Slug',
         name: labels.labelName || 'Name',
         start_date: labels.labelStart || 'Start',
         end_date: labels.labelEnd || 'Ende',
