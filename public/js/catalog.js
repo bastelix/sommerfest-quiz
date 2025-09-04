@@ -158,7 +158,8 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
   }
   async function loadCatalogList(){
     try{
-      const res = await fetch(withBase('/kataloge/catalogs.json'), { headers: { 'Accept': 'application/json' } });
+      const url = '/kataloge/catalogs.json' + (eventUid ? '?event=' + encodeURIComponent(eventUid) : '');
+      const res = await fetch(withBase(url), { headers: { 'Accept': 'application/json' } });
       if(res.ok){
         return await res.json();
       }
@@ -212,7 +213,10 @@ window.filterCameraOrientations = window.filterCameraOrientations || function(ca
     }
     let loaded = false;
     try{
-      const res = await fetch(withBase('/kataloge/' + file), { headers: { 'Accept': 'application/json' } });
+      if(!eventUid){
+        console.warn('eventUid not set when loading questions');
+      }
+      const res = await fetch(withBase('/kataloge/' + file + '?event=' + encodeURIComponent(eventUid)), { headers: { 'Accept': 'application/json' } });
       const data = await res.json();
       window.quizQuestions = data;
       loaded = true;
