@@ -108,6 +108,13 @@ class CatalogService
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if ($uid !== '' && $data === []) {
+            $sql = "SELECT $fields FROM catalogs WHERE event_uid IS NULL ORDER BY sort_order "
+                . ($order === 'desc' ? 'DESC' : 'ASC') . ' LIMIT ? OFFSET ?';
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$limit, $offset]);
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
         foreach ($data as &$row) {
             $row['sort_order'] = (int) $row['sort_order'];
         }
@@ -138,7 +145,13 @@ class CatalogService
         }
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
-        return (int) $stmt->fetchColumn();
+        $count = (int) $stmt->fetchColumn();
+        if ($uid !== '' && $count === 0) {
+            $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM catalogs WHERE event_uid IS NULL');
+            $stmt->execute();
+            $count = (int) $stmt->fetchColumn();
+        }
+        return $count;
     }
 
     /**
@@ -156,7 +169,12 @@ class CatalogService
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         $slug = $stmt->fetchColumn();
-        return $slug === false ? null : (string)$slug;
+        if ($uid !== '' && $slug === false) {
+            $stmt = $this->pdo->prepare('SELECT slug FROM catalogs WHERE file=? AND event_uid IS NULL');
+            $stmt->execute([basename($file)]);
+            $slug = $stmt->fetchColumn();
+        }
+        return $slug === false ? null : (string) $slug;
     }
 
     /**
@@ -164,17 +182,22 @@ class CatalogService
      */
     public function uidBySlug(string $slug): ?string
     {
-        $uid = $this->config->getActiveEventUid();
+        $event = $this->config->getActiveEventUid();
         $sql = 'SELECT uid FROM catalogs WHERE slug=?';
         $params = [$slug];
-        if ($uid !== '') {
+        if ($event !== '') {
             $sql .= ' AND event_uid=?';
-            $params[] = $uid;
+            $params[] = $event;
         }
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         $uid = $stmt->fetchColumn();
-        return $uid === false ? null : (string)$uid;
+        if ($event !== '' && $uid === false) {
+            $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE slug=? AND event_uid IS NULL');
+            $stmt->execute([$slug]);
+            $uid = $stmt->fetchColumn();
+        }
+        return $uid === false ? null : (string) $uid;
     }
 
     /**
@@ -265,8 +288,15 @@ class CatalogService
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($params);
             $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if ($uid !== '' && $data === []) {
+                $stmt = $this->pdo->prepare(
+                    "SELECT $fields FROM catalogs WHERE event_uid IS NULL ORDER BY sort_order"
+                );
+                $stmt->execute();
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            }
             foreach ($data as &$row) {
-                $row['sort_order'] = (int)$row['sort_order'];
+                $row['sort_order'] = (int) $row['sort_order'];
             }
             if (!$this->hasCommentColumn()) {
                 foreach ($data as &$row) {
@@ -291,6 +321,11 @@ class CatalogService
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         $cat = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($uid !== '' && $cat === false) {
+            $stmt = $this->pdo->prepare('SELECT uid FROM catalogs WHERE file=? AND event_uid IS NULL');
+            $stmt->execute([basename($file)]);
+            $cat = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
         if ($cat === false) {
             return null;
         }
@@ -660,7 +695,14 @@ class CatalogService
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
         $path = $stmt->fetchColumn();
-        return $path === false ? null : (string)$path;
+        if ($uid !== '' && $path === false) {
+            $stmt = $this->pdo->prepare(
+                'SELECT design_path FROM catalogs WHERE slug=? AND event_uid IS NULL'
+            );
+            $stmt->execute([$slug]);
+            $path = $stmt->fetchColumn();
+        }
+        return $path === false ? null : (string) $path;
     }
 
     /**
