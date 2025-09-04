@@ -97,7 +97,7 @@ const withBase = p => basePath + p;
       }
       const res = await fetch(
         withBase(withEvent('/catalog/questions/' + file)),
-        { headers }
+        { headers, credentials: 'same-origin' }
       );
       const data = await res.json();
       window.quizQuestions = data;

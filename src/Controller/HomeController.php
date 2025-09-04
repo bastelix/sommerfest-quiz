@@ -115,6 +115,7 @@ class HomeController
             'config' => $cfg,
             'catalogs' => $catalogs,
             'event' => $event,
+            'csrf_token' => $_SESSION['csrf_token'] ?? '',
         ]);
     }
 }
