@@ -2,6 +2,8 @@
 # Force renew SSL certificate for a tenant or the main system via acme-companion
 set -e
 
+SCRIPT_DIR="$(dirname "$0")"
+
 if [ "$#" -lt 1 ]; then
   echo "Usage: $0 <tenant-slug>|--main" >&2
   exit 1
@@ -20,11 +22,12 @@ fi
 
 if [ "$1" = "--main" ] || [ "$1" = "--system" ]; then
   SLUG="main"
-  COMPOSE_FILE="$(dirname "$0")/../docker-compose.yml"
+  COMPOSE_FILE="$SCRIPT_DIR/../docker-compose.yml"
   SERVICE="slim"
 else
   SLUG="$(echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')"
-  TENANT_DIR="$(dirname "$0")/../tenants/$SLUG"
+  TENANTS_DIR="${TENANTS_DIR:-$SCRIPT_DIR/../tenants}"
+  TENANT_DIR="$TENANTS_DIR/$SLUG"
   COMPOSE_FILE="$TENANT_DIR/docker-compose.yml"
   SERVICE="slim"
 

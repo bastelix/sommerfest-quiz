@@ -2,13 +2,16 @@
 # Stop and remove a tenant container and clean up resources
 set -e
 
+SCRIPT_DIR="$(dirname "$0")"
+
 if [ "$#" -lt 1 ]; then
   echo "Usage: $0 <tenant-slug>" >&2
   exit 1
 fi
 
 SLUG=$(echo "$1" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g')
-TENANT_DIR="$(dirname "$0")/../tenants/$SLUG"
+TENANTS_DIR="${TENANTS_DIR:-$SCRIPT_DIR/../tenants}"
+TENANT_DIR="$TENANTS_DIR/$SLUG"
 COMPOSE_FILE="$TENANT_DIR/docker-compose.yml"
 
 # detect docker compose command

@@ -31,6 +31,8 @@ done
 
 [ -z "$ARG" ] && usage
 
+SCRIPT_DIR="$(dirname "$0")"
+
 if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
   DOCKER_COMPOSE="docker compose"
 elif command -v docker-compose >/dev/null 2>&1; then
@@ -44,11 +46,12 @@ SLUG_SANITIZED="$(echo "$ARG" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-
 
 if [ "$ARG" = "--main" ] || [ "$ARG" = "--system" ] || [ "$SLUG_SANITIZED" = "main" ]; then
   SLUG="main"
-  COMPOSE_FILE="$(dirname "$0")/../docker-compose.yml"
+  COMPOSE_FILE="$SCRIPT_DIR/../docker-compose.yml"
   SERVICE="slim"
 else
   SLUG="$SLUG_SANITIZED"
-  TENANT_DIR="$(dirname "$0")/../tenants/$SLUG"
+  TENANTS_DIR="${TENANTS_DIR:-$SCRIPT_DIR/../tenants}"
+  TENANT_DIR="$TENANTS_DIR/$SLUG"
   COMPOSE_FILE="$TENANT_DIR/docker-compose.yml"
   SERVICE="app"
 fi
