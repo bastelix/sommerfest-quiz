@@ -201,8 +201,12 @@ const withBase = p => basePath + p;
     const select = document.getElementById('catalog-select');
     if (!select) return;
 
+    const parts = window.location.pathname.split('/').filter(Boolean);
+    let id = (parts[parts.length - 1] || '').toLowerCase();
+
     const params = new URLSearchParams(window.location.search);
-    const id = (params.get('slug') || params.get('katalog') || '').toLowerCase();
+    const paramId = (params.get('slug') || params.get('katalog') || '').toLowerCase();
+    if (paramId) id = paramId;
 
     if (select.options.length === 1 && !id) handleSelection(select.options[0]);
 
@@ -210,7 +214,6 @@ const withBase = p => basePath + p;
       const opt = select.selectedOptions[0];
       handleSelection(opt);
     });
-
     if (id) {
       const opt = Array.from(select.options).find(o => {
         const value = (o.value || '').toLowerCase();
@@ -221,13 +224,14 @@ const withBase = p => basePath + p;
         select.value = opt.value;
         // Trigger selection manually so setComment() and showCatalogIntro() run
         handleSelection(opt);
+        return;
       }
-    } else {
-      const opt = select.selectedOptions[0];
-      if (opt) {
-        // Run on initial load so showCatalogIntro() displays the catalog intro
-        handleSelection(opt);
-      }
+    }
+
+    const opt = select.selectedOptions[0];
+    if (opt) {
+      // Run on initial load so showCatalogIntro() displays the catalog intro
+      handleSelection(opt);
     }
   }
 
