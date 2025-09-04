@@ -201,13 +201,16 @@ const withBase = p => basePath + p;
     const select = document.getElementById('catalog-select');
     if (!select) return;
 
+    const params = new URLSearchParams(window.location.search);
+    const id = (params.get('slug') || params.get('katalog') || '').toLowerCase();
+
+    if (select.options.length === 1 && !id) handleSelection(select.options[0]);
+
     select.addEventListener('change', () => {
       const opt = select.selectedOptions[0];
       handleSelection(opt);
     });
 
-    const params = new URLSearchParams(window.location.search);
-    const id = (params.get('slug') || params.get('katalog') || '').toLowerCase();
     if (id) {
       const opt = Array.from(select.options).find(o => {
         const value = (o.value || '').toLowerCase();
