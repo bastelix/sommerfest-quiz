@@ -216,6 +216,7 @@ const withBase = p => basePath + p;
       });
       if (opt) {
         select.value = opt.value;
+        // Trigger selection manually so setComment() and showCatalogIntro() run
         handleSelection(opt);
       }
     }
