@@ -208,12 +208,7 @@ const withBase = p => basePath + p;
     const paramId = (params.get('slug') || params.get('katalog') || '').toLowerCase();
     if (paramId) id = paramId;
 
-    if (select.options.length === 1 && !id) handleSelection(select.options[0]);
-
-    select.addEventListener('change', () => {
-      const opt = select.selectedOptions[0];
-      handleSelection(opt);
-    });
+    // PATCH: Wenn ein passender Katalog gefunden wird, Dropdown ausblenden und Quiz starten
     if (id) {
       const opt = Array.from(select.options).find(o => {
         const value = (o.value || '').toLowerCase();
@@ -222,15 +217,30 @@ const withBase = p => basePath + p;
       });
       if (opt) {
         select.value = opt.value;
-        // Trigger selection manually so setComment() and showCatalogIntro() run
+
+        // Dropdown ausblenden, nur Quiz anzeigen
+        select.style.display = 'none';
+        const selectLabel = document.querySelector('label[for="catalog-select"]');
+        if (selectLabel) selectLabel.style.display = 'none';
+
         handleSelection(opt);
         return;
       }
     }
 
+    // Fallback: Übersicht anzeigen
+    select.style.display = '';
+    const selectLabel = document.querySelector('label[for="catalog-select"]');
+    if (selectLabel) selectLabel.style.display = '';
+
+    if (select.options.length === 1 && !id) handleSelection(select.options[0]);
+    select.addEventListener('change', () => {
+      const opt = select.selectedOptions[0];
+      handleSelection(opt);
+    });
+
     const opt = select.selectedOptions[0];
     if (opt) {
-      // Run on initial load so showCatalogIntro() displays the catalog intro
       handleSelection(opt);
     }
   }
