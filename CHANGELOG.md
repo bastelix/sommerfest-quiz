@@ -166,6 +166,7 @@
 - Add save button identifier
 - Add autosave for loaded config
 - Make tenants directory configurable
+- Enable autosave for event configuration
 
 ### Fix
 
