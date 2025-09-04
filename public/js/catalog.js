@@ -219,6 +219,12 @@ const withBase = p => basePath + p;
         // Trigger selection manually so setComment() and showCatalogIntro() run
         handleSelection(opt);
       }
+    } else {
+      const opt = select.selectedOptions[0];
+      if (opt) {
+        // Run on initial load so showCatalogIntro() displays the catalog intro
+        handleSelection(opt);
+      }
     }
   }
 
