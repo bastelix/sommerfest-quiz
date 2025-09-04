@@ -38,7 +38,9 @@ class HomeController
         $uid = $evParam !== '' && !preg_match('/^[0-9a-fA-F]{32}$/', $evParam)
             ? $eventSvc->uidBySlug($evParam) ?? ''
             : $evParam;
-        $cfgSvc->setActiveEventUid($uid);
+        if ($uid !== '') {
+            $cfgSvc->ensureConfigForEvent($uid);
+        }
 
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
@@ -85,7 +87,7 @@ class HomeController
             $cfg = ConfigService::removePuzzleInfo($cfg);
         }
 
-        $catalogService = new CatalogService($pdo, $cfgSvc);
+        $catalogService = new CatalogService($pdo, $cfgSvc, null, '', $uid);
 
         $catalogsJson = $catalogService->read('catalogs.json');
         $catalogs = [];

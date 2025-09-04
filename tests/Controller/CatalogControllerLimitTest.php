@@ -24,7 +24,7 @@ class CatalogControllerLimitTest extends TestCase
         $cfg->setActiveEventUid('e1');
         $tenantSvc = new TenantService($pdo);
         $service = new CatalogService($pdo, $cfg, $tenantSvc, 'sub1');
-        $controller = new CatalogController($service, $cfg);
+        $controller = new CatalogController($service);
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
 
@@ -71,7 +71,7 @@ class CatalogControllerLimitTest extends TestCase
         $tenantSvc = new TenantService($pdo);
         $service = new CatalogService($pdo, $cfg, $tenantSvc, 'sub1');
         $service->createCatalog('test.json');
-        $controller = new CatalogController($service, $cfg);
+        $controller = new CatalogController($service);
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
 

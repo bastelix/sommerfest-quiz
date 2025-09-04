@@ -158,12 +158,23 @@ return function (\Slim\App $app, TranslationService $translator) {
         $tenantService = new TenantService($base, null, $nginxService);
 
         $configService = new ConfigService($pdo);
-        $catalogService = new CatalogService($pdo, $configService, $tenantService, $sub);
+        $eventService = new EventService($pdo, $configService, $tenantService, $sub);
+        $params = $request->getQueryParams();
+        $evParam = (string)($params['event'] ?? '');
+        $eventUid = $evParam !== '' && !preg_match('/^[0-9a-fA-F]{32}$/', $evParam)
+            ? $eventService->uidBySlug($evParam) ?? ''
+            : $evParam;
+        if ($eventUid === '') {
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }
+            $eventUid = (string)($_SESSION['event_uid'] ?? '');
+        }
+        $catalogService = new CatalogService($pdo, $configService, $tenantService, $sub, $eventUid);
         $resultService = new ResultService($pdo, $configService);
         $teamService = new TeamService($pdo, $configService, $tenantService, $sub);
         $consentService = new PhotoConsentService($pdo, $configService);
         $summaryService = new SummaryPhotoService($pdo, $configService);
-        $eventService = new EventService($pdo, $configService, $tenantService, $sub);
         $plan = $tenantService->getPlanBySubdomain($sub);
         $userService = new \App\Service\UserService($pdo);
         $settingsService = new \App\Service\SettingsService($pdo);
@@ -181,7 +192,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $request = $request
             ->withAttribute('plan', $plan)
             ->withAttribute('configController', new ConfigController($configService, new ConfigValidator()))
-            ->withAttribute('catalogController', new CatalogController($catalogService, $configService))
+            ->withAttribute('catalogController', new CatalogController($catalogService))
             ->withAttribute('adminCatalogController', new AdminCatalogController($catalogService))
             ->withAttribute('resultController', new ResultController(
                 $resultService,
