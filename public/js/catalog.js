@@ -95,3 +95,8 @@ function init() {
     handleSelection(opt);
   });
 }
+
+document.addEventListener('DOMContentLoaded', init);
+if (document.readyState !== 'loading') {
+  init();
+}
