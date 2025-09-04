@@ -3,6 +3,7 @@
 {% block title %}Event konfigurieren{% endblock %}
 
 {% block head %}
+  <meta name="csrf-token" content="{{ csrf_token }}">
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   <link rel="stylesheet" href="{{ basePath }}/css/admin-config.css">
 {% endblock %}
@@ -187,6 +188,6 @@
 {% endblock %}
 
 {% block scripts %}
-  <script src="{{ basePath }}/js/event-config.js"></script>
+  <script src="{{ basePath }}/js/event-config.js" data-event-id="{{ event.uid }}" data-csrf="{{ csrf_token }}"></script>
 {% endblock %}
 
