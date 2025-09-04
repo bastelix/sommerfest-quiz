@@ -43,6 +43,35 @@ class DomainMiddlewareTest extends TestCase
         }
     }
 
+    public function testAdminHostTreatedAsMain(): void
+    {
+        $old = getenv('MAIN_DOMAIN');
+        putenv('MAIN_DOMAIN=main-domain.tld');
+
+        $middleware = new DomainMiddleware();
+        $factory = new ServerRequestFactory();
+        $request = $factory->createServerRequest('GET', 'https://admin.main-domain.tld/');
+
+        $handler = new class implements RequestHandlerInterface {
+            public ?Request $request = null;
+
+            public function handle(Request $request): ResponseInterface
+            {
+                $this->request = $request;
+                return new Response();
+            }
+        };
+
+        $middleware->process($request, $handler);
+        $this->assertSame('main', $handler->request->getAttribute('domainType'));
+
+        if ($old === false) {
+            putenv('MAIN_DOMAIN');
+        } else {
+            putenv('MAIN_DOMAIN=' . $old);
+        }
+    }
+
     public function testMissingMainDomainDefaultsToMain(): void
     {
         $old = getenv('MAIN_DOMAIN');
