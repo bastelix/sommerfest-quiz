@@ -173,6 +173,22 @@ async function handleSelection(opt, autostart = false) {
   setStored(STORAGE_KEYS.CATALOG_SORT, opt.dataset.sortOrder || '');
 
   setStored(STORAGE_KEYS.CATALOG, opt.value || opt.dataset.slug || '');
+
+  clearStored(STORAGE_KEYS.QUIZ_SOLVED);
+  clearStored(STORAGE_KEYS.PUZZLE_SOLVED);
+  clearStored(STORAGE_KEYS.PUZZLE_TIME);
+  clearStored(STORAGE_KEYS.LETTER);
+
+  const puzzleText = document.getElementById('puzzle-solved-text');
+  if (puzzleText) {
+    puzzleText.textContent = '';
+    puzzleText.style.display = 'none';
+  }
+  const puzzleBtn = document.getElementById('check-puzzle-btn');
+  if (puzzleBtn) puzzleBtn.style.display = 'none';
+  const puzzleInfo = document.getElementById('puzzle-info');
+  if (puzzleInfo) puzzleInfo.textContent = '';
+
   fetch('/session/catalog', {
     method: 'POST',
     body: JSON.stringify({ slug: opt.value }),
