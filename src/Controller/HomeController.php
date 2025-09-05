@@ -33,6 +33,9 @@ class HomeController
         $eventSvc = new EventService($pdo, $cfgSvc);
         $settingsSvc = new SettingsService($pdo);
 
+        /** @var array<string, string> $params */
+        $params = $request->getQueryParams();
+
         $catalogParam = (string)($params['katalog'] ?? '');
         if ($catalogParam === '') {
             $catalogParam = (string)($_SESSION['catalog_slug'] ?? '');
