@@ -179,7 +179,8 @@ async function handleSelection(opt, autostart = false) {
   try {
     if (file) {
       const base = window.basePath || '';
-      const res = await fetch(base + file, { headers: jsonHeaders });
+      const path = file.startsWith('/kataloge/') ? file : 'kataloge/' + file;
+      const res = await fetch(base + path, { headers: jsonHeaders });
       const data = await res.json();
       window.quizQuestions = data;
       await startQuizOnce(data || window.quizQuestions || [], false);
