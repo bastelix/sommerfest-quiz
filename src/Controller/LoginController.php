@@ -72,6 +72,10 @@ class LoginController
         }
 
         if ($valid) {
+            if (!session_regenerate_id(true)) {
+                error_log('Failed to regenerate session ID');
+            }
+
             $_SESSION['user'] = [
                 'id' => $record['id'],
                 'username' => $record['username'],
