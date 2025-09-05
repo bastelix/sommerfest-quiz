@@ -129,16 +129,32 @@ async function promptTeamName(){
     btn.textContent = 'Weiter';
     dialog.appendChild(input);
     dialog.appendChild(btn);
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       const name = (input.value || '').trim();
       if(name){
         setStored(STORAGE_KEYS.PLAYER_NAME, name);
-        fetch('/session/player', {
-          method: 'POST',
-          body: JSON.stringify({ name }),
-          headers: { 'Content-Type': 'application/json' }
-        });
-        ui.hide();
+        try {
+          const resp = await fetch('/session/player', {
+            method: 'POST',
+            body: JSON.stringify({ name }),
+            headers: { 'Content-Type': 'application/json' }
+          });
+          if(!resp.ok){
+            throw new Error('Request failed');
+          }
+          ui.hide();
+        } catch (e) {
+          if(typeof UIkit !== 'undefined' && UIkit.notification){
+            UIkit.notification({
+              message: 'Teamname konnte nicht gespeichert werden. Bitte erneut versuchen.',
+              status: 'danger',
+              pos: 'top-center',
+              timeout: 3000
+            });
+          } else {
+            alert('Teamname konnte nicht gespeichert werden. Bitte erneut versuchen.');
+          }
+        }
       }
     });
     input.addEventListener('keydown', ev => {
