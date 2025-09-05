@@ -1,5 +1,44 @@
 /* global UIkit, STORAGE_KEYS, getStored, setStored, clearStored */
 
+// Fallbacks, falls storage.js nicht geladen wurde
+if (typeof STORAGE_KEYS === 'undefined') {
+  globalThis.STORAGE_KEYS = {};
+}
+if (typeof getStored !== 'function') {
+  globalThis.getStored = key => {
+    try {
+      return (typeof sessionStorage !== 'undefined' && sessionStorage.getItem(key)) ||
+             (typeof localStorage !== 'undefined' && localStorage.getItem(key));
+    } catch (e) {
+      return null;
+    }
+  };
+}
+if (typeof setStored !== 'function') {
+  globalThis.setStored = (key, value) => {
+    try {
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem(key, value);
+      }
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(key, value);
+      }
+    } catch (e) { /* empty */ }
+  };
+}
+if (typeof clearStored !== 'function') {
+  globalThis.clearStored = key => {
+    try {
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.removeItem(key);
+      }
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem(key);
+      }
+    } catch (e) { /* empty */ }
+  };
+}
+
 const jsonHeaders = { Accept: 'application/json' };
 
 let quizScriptPromise;
