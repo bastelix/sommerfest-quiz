@@ -44,9 +44,6 @@ class HomeController
             $cfgSvc->ensureConfigForEvent($uid);
         }
 
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $role = $_SESSION['user']['role'] ?? null;
         if ($uid !== '') {
             $cfg = $cfgSvc->getConfigForEvent($uid);

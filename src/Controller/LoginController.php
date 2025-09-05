@@ -72,9 +72,6 @@ class LoginController
         }
 
         if ($valid) {
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
             $_SESSION['user'] = [
                 'id' => $record['id'],
                 'username' => $record['username'],

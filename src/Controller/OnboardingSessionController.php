@@ -17,9 +17,6 @@ class OnboardingSessionController
      */
     public function get(Request $request, Response $response): Response
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $data = $_SESSION['onboarding'] ?? [];
         $payload = json_encode($data, JSON_THROW_ON_ERROR);
         $response->getBody()->write($payload);
@@ -31,9 +28,6 @@ class OnboardingSessionController
      */
     public function store(Request $request, Response $response): Response
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $data = json_decode((string) $request->getBody(), true);
         if (!is_array($data)) {
             return $response->withStatus(400);
@@ -48,9 +42,6 @@ class OnboardingSessionController
      */
     public function clear(Request $request, Response $response): Response
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         unset($_SESSION['onboarding']);
         return $response->withStatus(204);
     }

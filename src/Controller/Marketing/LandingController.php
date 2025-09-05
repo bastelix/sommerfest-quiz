@@ -26,9 +26,6 @@ class LandingController
         $basePath = RouteContext::fromRequest($request)->getBasePath();
         $html = str_replace('{{ basePath }}', $basePath, $html);
 
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
         $_SESSION['csrf_token'] = $csrf;
         $html = str_replace('{{ csrf_token }}', $csrf, $html);

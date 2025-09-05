@@ -56,9 +56,6 @@ class PasswordController
             return $response->withStatus(400);
         }
 
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $id = $_SESSION['user']['id'] ?? null;
         if ($id === null) {
             return $response->withStatus(403);
