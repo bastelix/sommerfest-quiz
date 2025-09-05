@@ -1,3 +1,5 @@
+const jsonHeaders = { Accept: 'application/json' };
+
 async function init() {
   // Container sicherstellen
   let quizContainer = document.getElementById('quiz');
@@ -31,8 +33,6 @@ async function init() {
   const autostart = autoParam !== null &&
                     autoParam !== '0' &&
                     autoParam.toLowerCase() !== 'false';
-
-  const jsonHeaders = { Accept: 'application/json' };
 
   // Select suchen (ID oder data-role)
   const select = document.getElementById('catalog-select') ||
