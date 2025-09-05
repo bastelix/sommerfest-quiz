@@ -1,8 +1,16 @@
-/* global STORAGE_KEYS, getStored, setStored, clearStored */
+/* global STORAGE_KEYS, getStored, setStored, clearStored, UIkit */
 // Profile page logic for handling player names
 
 let nameInput;
 let eventUid;
+
+const notify = (msg, status = 'primary') => {
+  if (typeof UIkit !== 'undefined' && UIkit.notification) {
+    UIkit.notification({ message: msg, status });
+  } else {
+    alert(msg);
+  }
+};
 
 function generateRandomName() {
   const adjectives = [
@@ -37,6 +45,13 @@ function saveName(e) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ event_uid: eventUid, player_name: name, player_uid: uid })
   }).catch(() => {});
+  fetch('/session/player', {
+    method: 'POST',
+    body: JSON.stringify({ name }),
+    headers: { 'Content-Type': 'application/json' }
+  })
+    .then(() => notify('Name gespeichert', 'success'))
+    .catch(() => notify('Fehler beim Speichern', 'danger'));
   if (typeof returnUrl !== 'undefined' && returnUrl) {
     window.location.href = returnUrl;
   }
