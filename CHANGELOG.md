@@ -236,6 +236,7 @@
 - Streamline catalog and team tables
 - Use catalogKey for identifiers
 - Remove redundant null coalesce
+- Centralize quiz intro
 
 ### Style
 
