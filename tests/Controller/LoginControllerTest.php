@@ -7,6 +7,7 @@ namespace Tests\Controller;
 use Tests\TestCase;
 use App\Service\UserService;
 use App\Domain\Roles;
+use Slim\Psr7\Factory\StreamFactory;
 
 class LoginControllerTest extends TestCase
 {
@@ -53,6 +54,23 @@ class LoginControllerTest extends TestCase
         $app = $this->getAppInstance();
         $request = $this->createRequest('POST', '/login')
             ->withParsedBody(['username' => 'bob@example.com', 'password' => 'secret']);
+        $response = $app->handle($request);
+        $this->assertSame(302, $response->getStatusCode());
+    }
+
+    public function testLoginWithJsonCharset(): void
+    {
+        $pdo = $this->getDatabase();
+        $userService = new UserService($pdo);
+        $userService->create('dave', 'secret', 'dave@example.com', Roles::ADMIN);
+
+        $app = $this->getAppInstance();
+        $body = json_encode(['username' => 'dave', 'password' => 'secret']);
+        $stream = (new StreamFactory())->createStream((string) $body);
+        $request = $this->createRequest('POST', '/login')
+            ->withHeader('Content-Type', 'application/json; charset=UTF-8')
+            ->withBody($stream);
+
         $response = $app->handle($request);
         $this->assertSame(302, $response->getStatusCode());
     }
