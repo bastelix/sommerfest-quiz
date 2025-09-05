@@ -88,9 +88,14 @@
    * - darkMode                   – Aktiviertes Dunkelmodus-Flag
    * - barrierFree                – Barrierefrei-Flag
    * - qr-theme                   – Letztes Theme
-   * - qr-contrast                – Letzter Kontrastmodus
-   * - tenantColumns              – Sichtbare Mandantenspalten (JSON)
-   */
+  * - qr-contrast                – Letzter Kontrastmodus
+  * - tenantColumns              – Sichtbare Mandantenspalten (JSON)
+  */
+
+  const sessionName = globalThis.sessionPlayerName;
+  if (typeof sessionName === 'string' && sessionName && !getStored(STORAGE_KEYS.PLAYER_NAME)) {
+    setStored(STORAGE_KEYS.PLAYER_NAME, sessionName);
+  }
 
   globalThis.STORAGE_KEYS = STORAGE_KEYS;
   globalThis.getStored = getStored;

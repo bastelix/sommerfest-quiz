@@ -113,6 +113,7 @@ class HomeController
             'catalogs' => $catalogs,
             'event' => $event,
             'csrf_token' => $_SESSION['csrf_token'] ?? '',
+            'player_name' => $_SESSION['player_name'] ?? '',
         ]);
     }
 }
