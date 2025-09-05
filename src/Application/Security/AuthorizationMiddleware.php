@@ -27,9 +27,6 @@ class AuthorizationMiddleware implements MiddlewareInterface
         if ($this->requiredRole === '') {
             return $handler->handle($request);
         }
-        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
-            session_start();
-        }
         $role = $_SESSION['user']['role'] ?? null;
         if ($role !== $this->requiredRole) {
             $response = new SlimResponse();

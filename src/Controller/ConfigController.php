@@ -33,9 +33,6 @@ class ConfigController
     public function get(Request $request, Response $response): Response
     {
         $cfg = $this->service->getConfig();
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $role = $_SESSION['user']['role'] ?? null;
         if ($role !== 'admin') {
             $cfg = ConfigService::removePuzzleInfo($cfg);
@@ -56,9 +53,6 @@ class ConfigController
     {
         $uid = (string) ($args['uid'] ?? '');
         $cfg = $this->service->getConfigForEvent($uid);
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $role = $_SESSION['user']['role'] ?? null;
         if ($role !== 'admin') {
             $cfg = ConfigService::removePuzzleInfo($cfg);
@@ -77,9 +71,6 @@ class ConfigController
      */
     public function post(Request $request, Response $response): Response
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $role = $_SESSION['user']['role'] ?? null;
         if ($role !== Roles::ADMIN && $role !== Roles::EVENT_MANAGER) {
             return $response->withStatus(403);

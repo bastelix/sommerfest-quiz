@@ -35,9 +35,6 @@ class AdminController
     public function __invoke(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
         $_SESSION['csrf_token'] = $csrf;
         $role = $_SESSION['user']['role'] ?? null;

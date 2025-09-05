@@ -45,9 +45,6 @@ class OnboardingController
             $record = $service->getByUsername($serviceUser);
             if ($record !== null && (bool)$record['active']) {
                 if (password_verify($servicePass, (string)$record['password'])) {
-                    if (session_status() === PHP_SESSION_NONE) {
-                        session_start();
-                    }
                     $_SESSION['user'] = [
                         'id' => $record['id'],
                         'username' => $record['username'],
@@ -55,10 +52,6 @@ class OnboardingController
                     ];
                 }
             }
-        }
-
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
         }
 
         $loggedIn = isset($_SESSION['user']);

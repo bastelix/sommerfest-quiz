@@ -30,9 +30,6 @@ class SettingsController
 
     public function post(Request $request, Response $response): Response
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $role = $_SESSION['user']['role'] ?? null;
         if ($role !== Roles::ADMIN) {
             return $response->withStatus(403);

@@ -29,9 +29,6 @@ class CatalogController
      */
     private function hasRole(string ...$roles): bool
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $role = $_SESSION['user']['role'] ?? null;
         return $role !== null && in_array($role, $roles, true);
     }
@@ -72,10 +69,6 @@ class CatalogController
      */
     public function getQuestions(Request $request, Response $response, array $args): Response
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
         $headerToken = $request->getHeaderLine('X-CSRF-Token');
         $sessionToken = (string) ($_SESSION['csrf_token'] ?? '');
         if ($sessionToken === '' || $headerToken === '' || !hash_equals($sessionToken, $headerToken)) {
