@@ -10,13 +10,20 @@ async function init() {
 
   // URL-Parameter lesen (unterstützt mehrere Varianten)
   const params = new URLSearchParams(window.location.search);
-  const id = (
+  let id = (
     params.get('slug') ||
     params.get('katalog') ||
     params.get('catalog') ||
     params.get('k') ||
     ''
   ).toLowerCase();
+  if (!id) {
+    const segments = window.location.pathname.split('/').filter(Boolean);
+    const last = segments.pop();
+    if (last) {
+      id = decodeURIComponent(last).toLowerCase();
+    }
+  }
   const autoParam = params.get('autostart') ||
                     params.get('auto') ||
                     params.get('start') ||

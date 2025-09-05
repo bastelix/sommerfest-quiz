@@ -44,7 +44,8 @@
             "node tests/test_onboarding_plan.js",
             "node tests/test_onboarding_flow.js",
             "node tests/test_login_free_catalog.js",
-            "node tests/test_catalog_smoke.js"
+            "node tests/test_catalog_smoke.js",
+            "node tests/test_catalog_autostart_path.js"
         ]
     }
 }
