@@ -238,6 +238,7 @@
 - Use catalogKey for identifiers
 - Remove redundant null coalesce
 - Centralize quiz intro
+- Rely on SessionMiddleware
 
 ### Style
 
