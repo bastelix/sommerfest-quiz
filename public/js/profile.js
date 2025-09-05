@@ -48,7 +48,7 @@ function saveName(e) {
   fetch('/session/player', {
     method: 'POST',
     body: JSON.stringify({ name }),
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': window.csrfToken }
   })
     .then(() => notify('Name gespeichert', 'success'))
     .catch(() => notify('Fehler beim Speichern', 'danger'));
