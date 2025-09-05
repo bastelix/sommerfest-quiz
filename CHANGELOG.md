@@ -29,6 +29,7 @@
 - Preserve query string on rewrite
 - Remove obsolete comment
 - Send JSON accept header when fetching catalogs
+- Seed admin user
 
 ### Ci
 
