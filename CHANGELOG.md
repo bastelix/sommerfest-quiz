@@ -172,6 +172,7 @@
 - Add catalog load warning
 - *(catalog)* Show intro on initial load
 - Resolve catalog slug from URL path
+- Add async catalog selection
 
 ### Fix
 
