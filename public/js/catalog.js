@@ -155,35 +155,49 @@ async function handleSelection(opt, autostart = false) {
 
   // Katalogdaten laden
   const file = opt.dataset.file;
-  try {
-    if (file) {
-      const base = window.basePath || '';
-      const res = await fetch(base + file, { headers: jsonHeaders });
-      const data = await res.json();
-      window.quizQuestions = data;
-      if (autostart) {
-        if (typeof window.startQuiz !== 'function') {
-          await new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = (window.basePath || '') + 'js/quiz.js';
-            script.onload = resolve;
-            script.onerror = reject;
-            document.head.appendChild(script);
-          });
+  if (file) {
+    const base = window.basePath || '';
+    const url = base + file;
+    let data;
+    for (let attempt = 0; attempt < 2 && !data; attempt++) {
+      try {
+        const res = await fetch(url, { headers: jsonHeaders });
+        const ctype = res.headers.get('content-type') || '';
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!ctype.includes('application/json')) {
+          throw new Error(`Unexpected content-type: ${ctype}`);
         }
-        const qs = data || window.quizQuestions || [];
-        window.startQuiz(qs, false);
-      } else {
-        showCatalogIntro(data);
+        data = await res.json();
+      } catch (e) {
+        if (attempt === 1) {
+          console.error('Katalogdatei konnte nicht geladen werden', e);
+          UIkit?.notification?.({ message: 'Katalog konnte nicht geladen werden.', status: 'danger' });
+          showCatalogIntro([]);
+          return;
+        }
+        await new Promise(r => setTimeout(r, 500));
       }
-      return;
     }
-  } catch (e) {
-    console.error('Katalogdatei konnte nicht geladen werden', e);
+
+    window.quizQuestions = data;
+    if (autostart) {
+      if (typeof window.startQuiz !== 'function') {
+        await new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = (window.basePath || '') + 'js/quiz.js';
+          script.onload = resolve;
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+      const qs = data || window.quizQuestions || [];
+      window.startQuiz(qs, false);
+    } else {
+      showCatalogIntro(data);
+    }
+    return;
   }
-  if (!autostart) {
-    showCatalogIntro([]);
-  }
+  showCatalogIntro([]);
 }
 
 function showCatalogIntro(qs) {
