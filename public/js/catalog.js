@@ -126,7 +126,13 @@ async function handleSelection(opt) {
   try {
     if (file) {
       const base = window.basePath || '';
-      const res = await fetch(base + file);
+      const res = await fetch(base + file, {
+        credentials: 'same-origin',
+        headers: { 'Accept': 'application/json' }
+      });
+      if (!res.ok) {
+        throw new Error('HTTP ' + res.status);
+      }
       const data = await res.json();
       window.quizQuestions = data;
       showCatalogIntro(data);
