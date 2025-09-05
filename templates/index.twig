@@ -68,6 +68,9 @@
   <script>
     window.csrfToken = '{{ csrf_token|e('js') }}';
   </script>
+  <script>
+    window.sessionPlayerName = {{ player_name|json_encode|raw }};
+  </script>
   <script src="{{ basePath }}/js/storage.js"></script>
   <script>
     function enforceProfile() {

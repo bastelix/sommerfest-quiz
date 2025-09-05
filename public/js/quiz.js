@@ -133,6 +133,11 @@ async function promptTeamName(){
       const name = (input.value || '').trim();
       if(name){
         setStored(STORAGE_KEYS.PLAYER_NAME, name);
+        fetch('/session/player', {
+          method: 'POST',
+          body: JSON.stringify({ name }),
+          headers: { 'Content-Type': 'application/json' }
+        });
         ui.hide();
       }
     });
