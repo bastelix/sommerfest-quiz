@@ -66,6 +66,9 @@ $app->add(TwigMiddleware::create($app, $twig));
 $app->add(new UrlMiddleware($twig));
 $app->add(new DomainMiddleware());
 $app->add(new ProxyMiddleware());
+
+(require __DIR__ . '/../src/routes.php')($app, $translator);
+
 $app->add(new SessionMiddleware());
 $errorMiddleware = new \App\Application\Middleware\ErrorMiddleware(
     $app->getCallableResolver(),
@@ -76,5 +79,4 @@ $errorMiddleware = new \App\Application\Middleware\ErrorMiddleware(
     $logger
 );
 $app->add($errorMiddleware);
-(require __DIR__ . '/../src/routes.php')($app, $translator);
 $app->run();
