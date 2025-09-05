@@ -172,6 +172,9 @@ async function handleSelection(opt, autostart = false) {
   localStorage.setItem('quizCatalogUid', opt.dataset.uid || '');
   localStorage.setItem('quizCatalogSortOrder', opt.dataset.sortOrder || '');
 
+  sessionStorage.setItem('quizCatalog', opt.dataset.uid || opt.dataset.slug || opt.value);
+  localStorage.setItem('quizCatalog', opt.dataset.uid || opt.dataset.slug || opt.value);
+
   // Katalogdaten laden
   const file = opt.dataset.file;
   try {
