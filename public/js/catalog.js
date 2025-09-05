@@ -173,6 +173,11 @@ async function handleSelection(opt, autostart = false) {
   setStored(STORAGE_KEYS.CATALOG_SORT, opt.dataset.sortOrder || '');
 
   setStored(STORAGE_KEYS.CATALOG, opt.value || opt.dataset.slug || '');
+  fetch('/session/catalog', {
+    method: 'POST',
+    body: JSON.stringify({ slug: opt.value }),
+    headers: { 'Content-Type': 'application/json' }
+  });
 
   // Katalogdaten laden
   const file = opt.dataset.file;
