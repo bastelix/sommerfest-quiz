@@ -1,5 +1,34 @@
 const jsonHeaders = { Accept: 'application/json' };
 
+let quizScriptPromise;
+let quizStarted = false;
+
+async function loadQuizScript() {
+  if (typeof window.startQuiz === 'function') {
+    return;
+  }
+  if (!quizScriptPromise) {
+    quizScriptPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = (window.basePath || '') + 'js/quiz.js';
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+  await quizScriptPromise;
+}
+
+async function startQuizOnce(qs, skipIntro = false) {
+  if (quizStarted) {
+    return;
+  }
+  quizStarted = true;
+  await loadQuizScript();
+  const questions = qs || window.quizQuestions || [];
+  window.startQuiz(questions, skipIntro);
+}
+
 async function init() {
   // Container sicherstellen
   let quizContainer = document.getElementById('quiz');
@@ -51,17 +80,7 @@ async function init() {
           sessionStorage.removeItem('quizCatalogDesc');
           sessionStorage.removeItem('quizCatalogComment');
           if (autostart) {
-            if (typeof window.startQuiz !== 'function') {
-              await new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = (window.basePath || '') + 'js/quiz.js';
-                script.onload = resolve;
-                script.onerror = reject;
-                document.head.appendChild(script);
-              });
-            }
-            const qs = data || [];
-            window.startQuiz(qs, false);
+            await startQuizOnce(data || [], false);
           } else {
             showCatalogIntro(data);
           }
@@ -162,17 +181,7 @@ async function handleSelection(opt, autostart = false) {
       const data = await res.json();
       window.quizQuestions = data;
       if (autostart) {
-        if (typeof window.startQuiz !== 'function') {
-          await new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = (window.basePath || '') + 'js/quiz.js';
-            script.onload = resolve;
-            script.onerror = reject;
-            document.head.appendChild(script);
-          });
-        }
-        const qs = data || window.quizQuestions || [];
-        window.startQuiz(qs, false);
+        await startQuizOnce(data || window.quizQuestions || [], false);
       } else {
         showCatalogIntro(data);
       }
@@ -237,18 +246,8 @@ function showCatalogIntro(qs) {
 
   const button = document.createElement('button');
   button.textContent = "Los geht's!";
-  button.addEventListener('click', async () => {
-    if (typeof window.startQuiz !== 'function') {
-      await new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = (window.basePath || '') + 'js/quiz.js';
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-      });
-    }
-    const questions = qs || window.quizQuestions || [];
-    window.startQuiz(questions, false);
+  button.addEventListener('click', () => {
+    startQuizOnce(qs || window.quizQuestions || [], false);
   });
   quiz.appendChild(button);
 }
