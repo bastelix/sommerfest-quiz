@@ -63,9 +63,12 @@
       method: 'PATCH',
       body
     })
-      .catch(() => {})
-      .finally(() => {
-        isDirty = false;
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to save');
+        UIkit?.notification({ message: 'Erfolgreich gespeichert', status: 'success', timeout: 2000 });
+      })
+      .catch(() => {
+        UIkit?.notification({ message: 'Speichern fehlgeschlagen', status: 'danger' });
       });
   }
 
