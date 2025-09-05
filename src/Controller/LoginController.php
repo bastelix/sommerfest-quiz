@@ -49,7 +49,7 @@ class LoginController
     public function login(Request $request, Response $response): Response
     {
         $data = $request->getParsedBody();
-        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+        if (str_starts_with($request->getHeaderLine('Content-Type'), 'application/json')) {
             $data = json_decode((string) $request->getBody(), true);
         }
 
