@@ -28,7 +28,12 @@ class SessionMiddleware implements Middleware
         }
 
         if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+            $host = $request->getUri()->getHost();
             $domain = getenv('MAIN_DOMAIN') ?: '';
+            if ($domain === '' || !$this->hostMatchesDomain($host, $domain)) {
+                $domain = $host;
+            }
+
             if ($domain !== '') {
                 $secure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
                 session_set_cookie_params([
@@ -39,6 +44,7 @@ class SessionMiddleware implements Middleware
                     'samesite' => 'Lax',
                 ]);
             }
+
             session_start();
         }
 
@@ -58,5 +64,13 @@ class SessionMiddleware implements Middleware
         }
 
         return $response;
+    }
+
+    private function hostMatchesDomain(string $host, string $domain): bool
+    {
+        $domain = ltrim($domain, '.');
+
+        return strcasecmp($host, $domain) === 0
+            || str_ends_with($host, '.' . $domain);
     }
 }
