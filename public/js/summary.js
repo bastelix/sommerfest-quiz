@@ -1,22 +1,4 @@
-/* global UIkit */
-function mapKey(key){
-  if(key === 'quizUser'){
-    const eventUid = (window.quizConfig || {}).event_uid || '';
-    return eventUid ? `qr_player_name:${eventUid}` : 'quizUser';
-  }
-  return key;
-}
-function getStored(key){
-  key = mapKey(key);
-  return sessionStorage.getItem(key) || localStorage.getItem(key);
-}
-function setStored(key, value){
-  key = mapKey(key);
-  try{
-    sessionStorage.setItem(key, value);
-    localStorage.setItem(key, value);
-  }catch(e){ /* empty */ }
-}
+/* global UIkit, STORAGE_KEYS, getStored, setStored, clearStored */
 
 function insertSoftHyphens(text){
   return text ? text.replace(/\/-/g, '\u00AD') : '';
@@ -28,7 +10,7 @@ function safeUserName(name){
 document.addEventListener('DOMContentLoaded', () => {
   const eventUid = (window.quizConfig || {}).event_uid || '';
   const cfg = window.quizConfig || {};
-  const playerUidKey = `qr_player_uid:${eventUid}`;
+  const playerUidKey = STORAGE_KEYS.PLAYER_UID;
   const resultsBtn = document.getElementById('show-results-btn');
   const puzzleBtn = document.getElementById('check-puzzle-btn');
   const photoBtn = document.getElementById('upload-photo-btn');
@@ -43,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     photoBtn.remove();
   }
   const puzzleInfo = document.getElementById('puzzle-solved-text');
-  const user = safeUserName(getStored('quizUser') || '');
+  const user = safeUserName(getStored(STORAGE_KEYS.PLAYER_NAME) || '');
 
   let catalogMap = null;
   function fetchCatalogMap() {
@@ -93,17 +75,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   async function updatePuzzleInfo(){
-    let solved = sessionStorage.getItem('puzzleSolved') === 'true';
-    let ts = parseInt(sessionStorage.getItem('puzzleTime') || '0', 10);
+    let solved = getStored(STORAGE_KEYS.PUZZLE_SOLVED) === 'true';
+    let ts = parseInt(getStored(STORAGE_KEYS.PUZZLE_TIME) || '0', 10);
     if(!solved){
-      const name = getStored('quizUser') || '';
+      const name = getStored(STORAGE_KEYS.PLAYER_NAME) || '';
       if(name){
         const t = await fetchPuzzleTimeFromResults(name);
         if(t){
           solved = true;
           ts = t;
-          sessionStorage.setItem('puzzleSolved', 'true');
-          sessionStorage.setItem('puzzleTime', String(t));
+          setStored(STORAGE_KEYS.PUZZLE_SOLVED, 'true');
+          setStored(STORAGE_KEYS.PUZZLE_TIME, String(t));
         }
       }
     }
@@ -274,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function showPuzzle(){
-    const solvedBefore = sessionStorage.getItem('puzzleSolved') === 'true';
+    const solvedBefore = getStored(STORAGE_KEYS.PUZZLE_SOLVED) === 'true';
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
     modal.setAttribute('aria-modal', 'true');
@@ -308,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleCheck(){
           const valRaw = (input.value || '').trim();
           const ts = Math.floor(Date.now()/1000);
-          const userName = getStored('quizUser') || '';
+          const userName = getStored(STORAGE_KEYS.PLAYER_NAME) || '';
           const catalog = getStored('quizCatalog') || 'unknown';
           const data = { name: userName, catalog, puzzleTime: ts, puzzleAnswer: valRaw };
           if(cfg.collectPlayerUid){
@@ -347,8 +329,8 @@ document.addEventListener('DOMContentLoaded', () => {
                   : 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
               feedback.textContent = msg;
               feedback.className = 'uk-margin-top uk-text-center uk-text-success';
-              sessionStorage.setItem('puzzleSolved', 'true');
-              sessionStorage.setItem('puzzleTime', String(ts));
+              setStored(STORAGE_KEYS.PUZZLE_SOLVED, 'true');
+              setStored(STORAGE_KEYS.PUZZLE_TIME, String(ts));
               updatePuzzleInfo();
               input.disabled = true;
               btn.textContent = 'Schließen';

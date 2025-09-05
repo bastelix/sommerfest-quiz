@@ -1,4 +1,4 @@
-/* global UIkit, Html5Qrcode, generateUserName */
+/* global UIkit, Html5Qrcode, generateUserName, STORAGE_KEYS, setStored, getStored, clearStored */
 // Hauptskript des Quizzes. Dieses File erzeugt dynamisch alle Fragen,
 // wertet Antworten aus und speichert das Ergebnis im Browser.
 // Der Code wird ausgeführt, sobald das DOM geladen ist.
@@ -45,13 +45,13 @@
   ];
 
   window.generateUserName = function(){
-    const used = JSON.parse(localStorage.getItem('usedNames') || '[]');
+    const used = JSON.parse(getStored(STORAGE_KEYS.USED_NAMES) || '[]');
     const available = melodicNames.filter(n => !used.includes(n));
     let name;
     if(available.length){
       name = available[Math.floor(Math.random() * available.length)];
       used.push(name);
-      localStorage.setItem('usedNames', JSON.stringify(used));
+      setStored(STORAGE_KEYS.USED_NAMES, JSON.stringify(used));
     }else{
       name = 'Gast-' + Math.random().toString(36).substr(2,5);
     }
@@ -60,23 +60,9 @@
 })();
 
 const eventUid = (window.quizConfig || {}).event_uid || '';
-const playerNameKey = eventUid ? `qr_player_name:${eventUid}` : 'quizUser';
-const playerUidKey = `qr_player_uid:${eventUid}`;
 
 const basePath = window.basePath || '';
 const withBase = path => basePath + path;
-
-function setStored(key, value){
-  if(key === 'quizUser') key = playerNameKey;
-  try{
-    sessionStorage.setItem(key, value);
-    localStorage.setItem(key, value);
-  }catch(e){ /* empty */ }
-}
-function getStored(key){
-  if(key === 'quizUser') key = playerNameKey;
-  return sessionStorage.getItem(key) || localStorage.getItem(key);
-}
 
 function formatPuzzleTime(ts){
   const d = new Date(ts * 1000);
@@ -105,7 +91,7 @@ function insertSoftHyphens(text){
 
 async function promptTeamName(){
   return new Promise(resolve => {
-    const existing = getStored('quizUser');
+    const existing = getStored(STORAGE_KEYS.PLAYER_NAME);
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
     modal.setAttribute('aria-modal', 'true');
@@ -146,7 +132,7 @@ async function promptTeamName(){
     btn.addEventListener('click', () => {
       const name = (input.value || '').trim();
       if(name){
-        setStored('quizUser', name);
+        setStored(STORAGE_KEYS.PLAYER_NAME, name);
         ui.hide();
       }
     });
@@ -209,14 +195,12 @@ async function runQuiz(questions, skipIntro){
   elements.push(summaryEl);
   let summaryShown = false;
 
-  [playerNameKey,'quizCatalog'].forEach(k => {
-    const v = localStorage.getItem(k);
-    if(v && !sessionStorage.getItem(k)){
-      sessionStorage.setItem(k, v);
-    }
+  [STORAGE_KEYS.PLAYER_NAME, STORAGE_KEYS.CATALOG].forEach(k => {
+    const v = getStored(k);
+    if(v != null) setStored(k, v);
   });
 
-  if(!getStored('quizUser') && !cfg.QRRestrict && !cfg.QRUser){
+  if(!getStored(STORAGE_KEYS.PLAYER_NAME) && !cfg.QRRestrict && !cfg.QRUser){
     if(cfg.randomNames){
       await promptTeamName();
     }
@@ -226,9 +210,9 @@ async function runQuiz(questions, skipIntro){
 
   const headerEl = document.getElementById('quiz-header');
   if(headerEl){
-    const name = sessionStorage.getItem('quizCatalogName') || '';
-    const desc = sessionStorage.getItem('quizCatalogDesc') || '';
-    const comment = sessionStorage.getItem('quizCatalogComment');
+    const name = getStored(STORAGE_KEYS.CATALOG_NAME) || '';
+    const desc = getStored(STORAGE_KEYS.CATALOG_DESC) || '';
+    const comment = getStored(STORAGE_KEYS.CATALOG_COMMENT);
     headerEl.innerHTML = '';
     if(skipIntro){
       headerEl.classList.add('uk-hidden');
@@ -314,18 +298,18 @@ async function runQuiz(questions, skipIntro){
     if(summaryShown) return;
     summaryShown = true;
     const score = results.filter(r => r).length;
-    let user = getStored('quizUser');
+    let user = getStored(STORAGE_KEYS.PLAYER_NAME);
     if(!user && !cfg.QRRestrict && !cfg.QRUser){
       if(cfg.randomNames){
         await promptTeamName();
-        user = getStored('quizUser');
+        user = getStored(STORAGE_KEYS.PLAYER_NAME);
       }
     }
     const p = summaryEl.querySelector('p');
     if(p) p.textContent = `${user} hat ${score} von ${questionCount} Punkten erreicht.`;
     const heading = summaryEl.querySelector('h3');
     if(heading) heading.textContent = `🎉 Danke für die Teilnahme ${user}!`;
-    const letter = cfg.puzzleWordEnabled ? sessionStorage.getItem('quizLetter') : null;
+    const letter = cfg.puzzleWordEnabled ? getStored(STORAGE_KEYS.LETTER) : null;
     const letterEl = summaryEl.querySelector('#quiz-letter');
     if(letterEl){
       if(letter){
@@ -338,15 +322,15 @@ async function runQuiz(questions, skipIntro){
     if(score === questionCount && typeof window.startConfetti === 'function'){
       window.startConfetti();
     }
-      const catalog = getStored('quizCatalog') || 'unknown';
+      const catalog = getStored(STORAGE_KEYS.CATALOG) || 'unknown';
       const wrong = results.map((r,i)=> r ? null : i+1).filter(v=>v!==null);
       const data = { name: user, catalog, correct: score, total: questionCount, wrong, answers };
       if(cfg.collectPlayerUid){
-        const uid = getStored(playerUidKey);
+        const uid = getStored(STORAGE_KEYS.PLAYER_UID);
         if(uid) data.player_uid = uid;
       }
-      const puzzleSolved = sessionStorage.getItem('puzzleSolved') === 'true';
-    const puzzleTs = sessionStorage.getItem('puzzleTime');
+      const puzzleSolved = getStored(STORAGE_KEYS.PUZZLE_SOLVED) === 'true';
+    const puzzleTs = getStored(STORAGE_KEYS.PUZZLE_TIME);
     if(puzzleSolved && puzzleTs){
       data.puzzleTime = parseInt(puzzleTs, 10) || Math.floor(Date.now()/1000);
     }
@@ -355,10 +339,10 @@ async function runQuiz(questions, skipIntro){
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     }).catch(()=>{});
-    const solved = JSON.parse(sessionStorage.getItem('quizSolved') || '[]');
+    const solved = JSON.parse(getStored(STORAGE_KEYS.QUIZ_SOLVED) || '[]');
     if(solved.indexOf(catalog) === -1){
       solved.push(catalog);
-      sessionStorage.setItem('quizSolved', JSON.stringify(solved));
+      setStored(STORAGE_KEYS.QUIZ_SOLVED, JSON.stringify(solved));
     }
 
     if(cfg.teamResults){
@@ -384,15 +368,15 @@ async function runQuiz(questions, skipIntro){
 
     if(cfg.puzzleWordEnabled){
       const attemptKey = 'puzzleAttempt-' + catalog;
-      const puzzleSolved = sessionStorage.getItem('puzzleSolved') === 'true';
+      const puzzleSolved = getStored(STORAGE_KEYS.PUZZLE_SOLVED) === 'true';
       const puzzleInfo = summaryEl.querySelector('#puzzle-info');
       if(puzzleSolved && puzzleInfo){
-        const ts = parseInt(sessionStorage.getItem('puzzleTime') || '0', 10);
+        const ts = parseInt(getStored(STORAGE_KEYS.PUZZLE_TIME) || '0', 10);
         if(ts){
           puzzleInfo.textContent = `Rätselwort gelöst: ${formatPuzzleTime(ts)}`;
         }
       }
-      if(!puzzleSolved && !sessionStorage.getItem(attemptKey)){
+      if(!puzzleSolved && !getStored(attemptKey)){
         const puzzleBtn = document.createElement('button');
         puzzleBtn.className = 'uk-button uk-button-primary uk-margin-top';
         puzzleBtn.textContent = 'Rätselwort überprüfen';
@@ -412,7 +396,7 @@ async function runQuiz(questions, skipIntro){
       try{
         const dataEl = document.getElementById('catalogs-data');
         const catalogs = dataEl ? JSON.parse(dataEl.textContent) : [];
-        const solvedSet = new Set(JSON.parse(sessionStorage.getItem('quizSolved') || '[]'));
+        const solvedSet = new Set(JSON.parse(getStored(STORAGE_KEYS.QUIZ_SOLVED) || '[]'));
         const names = catalogs.filter(c => !solvedSet.has(c.uid || c.slug || c.sort_order))
           .map(c => c.name || c.slug || c.sort_order);
         if(names.length){
@@ -431,8 +415,8 @@ async function runQuiz(questions, skipIntro){
       photoBtn.textContent = 'Beweisfoto einreichen';
       styleButton(photoBtn);
       photoBtn.addEventListener('click', () => {
-        const name = getStored('quizUser') || '';
-        const catalogName = getStored('quizCatalog') || 'unknown';
+        const name = getStored(STORAGE_KEYS.PLAYER_NAME) || '';
+        const catalogName = getStored(STORAGE_KEYS.CATALOG) || 'unknown';
         showPhotoModal(name, catalogName);
       });
       summaryEl.appendChild(photoBtn);
@@ -1039,7 +1023,7 @@ async function runQuiz(questions, skipIntro){
     feedback.setAttribute('role','alert');
 
     uploadBtn.addEventListener('click', () => {
-      const user = getStored('quizUser') || '';
+      const user = getStored(STORAGE_KEYS.PLAYER_NAME) || '';
       showPhotoModal(user, '', path => {
         photoPath = path || '';
         feedback.textContent = 'Foto gespeichert';
@@ -1109,9 +1093,9 @@ async function runQuiz(questions, skipIntro){
     const stats = document.createElement('div');
     stats.className = 'uk-margin';
 
-    const title = sessionStorage.getItem('quizCatalogName') || '';
-    const desc = sessionStorage.getItem('quizCatalogDesc') || '';
-    const comment = sessionStorage.getItem('quizCatalogComment');
+    const title = getStored(STORAGE_KEYS.CATALOG_NAME) || '';
+    const desc = getStored(STORAGE_KEYS.CATALOG_DESC) || '';
+    const comment = getStored(STORAGE_KEYS.CATALOG_COMMENT);
     if(title){
       const h2 = document.createElement('h2');
       h2.textContent = title;
@@ -1128,7 +1112,7 @@ async function runQuiz(questions, skipIntro){
       div.appendChild(c);
     }
 
-    if(cfg.QRUser && !getStored('quizUser')){
+    if(cfg.QRUser && !getStored(STORAGE_KEYS.PLAYER_NAME)){
       const scanBtn = document.createElement('button');
       scanBtn.className = 'uk-button uk-button-primary uk-button-large';
       scanBtn.textContent = 'Name mit QR-Code scannen';
@@ -1159,7 +1143,7 @@ async function runQuiz(questions, skipIntro){
         flipBtn.disabled = true;
         try{
           await scanner.start(camId, { fps: 10, qrbox: 250 }, text => {
-            setStored('quizUser', text.trim());
+            setStored(STORAGE_KEYS.PLAYER_NAME, text.trim());
             stopScanner();
             UIkit.modal(modal).hide();
             next();
@@ -1218,7 +1202,7 @@ async function runQuiz(questions, skipIntro){
         const handleSubmit = () => {
           const name = (input.value || '').trim();
           if(name){
-            setStored('quizUser', name);
+            setStored(STORAGE_KEYS.PLAYER_NAME, name);
             stopScanner();
             UIkit.modal(modal).hide();
             next();
@@ -1297,7 +1281,7 @@ async function runQuiz(questions, skipIntro){
         alert('Nur Registrierung per QR-Code erlaubt');
         return;
       }
-      if(!getStored('quizUser')){
+      if(!getStored(STORAGE_KEYS.PLAYER_NAME)){
         if(cfg.randomNames){
           await promptTeamName();
         }
@@ -1339,8 +1323,8 @@ async function runQuiz(questions, skipIntro){
       restart.className = 'uk-button uk-button-primary uk-margin-top';
       styleButton(restart);
         restart.addEventListener('click', () => {
-          sessionStorage.removeItem(playerNameKey);
-          sessionStorage.removeItem('quizSolved');
+          clearStored(STORAGE_KEYS.PLAYER_NAME);
+          clearStored(STORAGE_KEYS.QUIZ_SOLVED);
           const topbar = document.getElementById('topbar-title');
           if(topbar){
             topbar.textContent = topbar.dataset.defaultTitle || '';
@@ -1382,11 +1366,11 @@ async function runQuiz(questions, skipIntro){
     function handleCheck(){
       const valRaw = (input.value || '').trim();
       const ts = Math.floor(Date.now()/1000);
-        const user = getStored('quizUser') || '';
-        const catalog = getStored('quizCatalog') || 'unknown';
+        const user = getStored(STORAGE_KEYS.PLAYER_NAME) || '';
+        const catalog = getStored(STORAGE_KEYS.CATALOG) || 'unknown';
         const data = { name: user, catalog, puzzleTime: ts, puzzleAnswer: valRaw };
         if(cfg.collectPlayerUid){
-          const uid = getStored(playerUidKey);
+          const uid = getStored(STORAGE_KEYS.PLAYER_UID);
           if(uid) data.player_uid = uid;
         }
         fetch(withBase('/results?debug=1'), {
@@ -1420,8 +1404,8 @@ async function runQuiz(questions, skipIntro){
                 : 'Herzlichen Glückwunsch, das Rätselwort ist korrekt!';
             feedback.textContent = msg;
             feedback.className = 'uk-margin-top uk-text-center uk-text-success';
-            sessionStorage.setItem('puzzleSolved', 'true');
-            sessionStorage.setItem('puzzleTime', String(ts));
+            setStored(STORAGE_KEYS.PUZZLE_SOLVED, 'true');
+            setStored(STORAGE_KEYS.PUZZLE_TIME, String(ts));
             const infoEl = summaryEl.querySelector('#puzzle-info');
             if(infoEl){
               infoEl.textContent = `Rätselwort gelöst: ${formatPuzzleTime(ts)}`;
@@ -1438,7 +1422,7 @@ async function runQuiz(questions, skipIntro){
       })
       .finally(() => {
         input.disabled = true;
-        if(attemptKey) sessionStorage.setItem(attemptKey, 'true');
+        if(attemptKey) setStored(attemptKey, 'true');
         if(btnEl){
           btnEl.disabled = true;
           btnEl.style.display = 'none';
@@ -1505,7 +1489,7 @@ async function runQuiz(questions, skipIntro){
         fd.append('catalog', catalog);
         fd.append('team', name);
         if(cfg.collectPlayerUid){
-          const uid = getStored(playerUidKey);
+          const uid = getStored(STORAGE_KEYS.PLAYER_UID);
           if(uid) fd.append('player_uid', uid);
         }
 

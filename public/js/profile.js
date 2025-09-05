@@ -1,8 +1,7 @@
+/* global STORAGE_KEYS, getStored, setStored, clearStored */
 // Profile page logic for handling player names
 
 let nameInput;
-let nameKey;
-let uidKey;
 let eventUid;
 
 function generateRandomName() {
@@ -24,14 +23,14 @@ function saveName(e) {
   e?.preventDefault();
   const name = nameInput.value.trim();
   if (name) {
-    localStorage.setItem(nameKey, name);
+    setStored(STORAGE_KEYS.PLAYER_NAME, name);
   } else {
-    localStorage.removeItem(nameKey);
+    clearStored(STORAGE_KEYS.PLAYER_NAME);
   }
-  let uid = localStorage.getItem(uidKey);
+  let uid = getStored(STORAGE_KEYS.PLAYER_UID);
   if (!uid) {
     uid = self.crypto?.randomUUID ? self.crypto.randomUUID() : Math.random().toString(36).slice(2);
-    localStorage.setItem(uidKey, uid);
+    setStored(STORAGE_KEYS.PLAYER_UID, uid);
   }
   fetch('/api/players', {
     method: 'POST',
@@ -45,8 +44,8 @@ function saveName(e) {
 
 function deleteName(e) {
   e?.preventDefault();
-  localStorage.removeItem(nameKey);
-  localStorage.removeItem(uidKey);
+  clearStored(STORAGE_KEYS.PLAYER_NAME);
+  clearStored(STORAGE_KEYS.PLAYER_UID);
   nameInput.value = generateRandomName();
 }
 
@@ -54,14 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
   nameInput = document.getElementById('playerName');
   const cfg = window.quizConfig || {};
   eventUid = cfg.event_uid || '';
-  nameKey = `qr_player_name:${eventUid}`;
-  uidKey = `qr_player_uid:${eventUid}`;
   const params = new URLSearchParams(location.search);
   const uidParam = params.get('uid') || params.get('player_uid');
   if (uidParam) {
-    localStorage.setItem(uidKey, uidParam);
+    setStored(STORAGE_KEYS.PLAYER_UID, uidParam);
   }
-  const storedName = localStorage.getItem(nameKey);
+  const storedName = getStored(STORAGE_KEYS.PLAYER_NAME);
   nameInput.value = storedName || generateRandomName();
   if (!storedName && uidParam && cfg.collectPlayerUid) {
     fetch(`/api/players?event_uid=${encodeURIComponent(eventUid)}&player_uid=${encodeURIComponent(uidParam)}`)
