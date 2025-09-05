@@ -71,6 +71,7 @@ use App\Controller\RegisterController;
 use App\Controller\OnboardingController;
 use App\Controller\OnboardingEmailController;
 use App\Controller\OnboardingSessionController;
+use App\Controller\CatalogSessionController;
 use App\Controller\PlayerSessionController;
 use App\Controller\StripeCheckoutController;
 use App\Controller\StripeSessionController;
@@ -125,6 +126,7 @@ require_once __DIR__ . '/Controller/RegisterController.php';
 require_once __DIR__ . '/Controller/OnboardingController.php';
 require_once __DIR__ . '/Controller/OnboardingEmailController.php';
 require_once __DIR__ . '/Controller/OnboardingSessionController.php';
+require_once __DIR__ . '/Controller/CatalogSessionController.php';
 require_once __DIR__ . '/Controller/PlayerSessionController.php';
 require_once __DIR__ . '/Controller/StripeCheckoutController.php';
 require_once __DIR__ . '/Controller/StripeSessionController.php';
@@ -378,6 +380,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new OnboardingSessionController();
         return $controller->clear($request, $response);
     })->add(new CsrfMiddleware());
+    $app->post('/session/catalog', CatalogSessionController::class);
     $app->post('/session/player', PlayerSessionController::class);
     $app->get('/onboarding/tenants/{subdomain}', function (Request $request, Response $response, array $args) {
         if ($request->getAttribute('domainType') !== 'main') {

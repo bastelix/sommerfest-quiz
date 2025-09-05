@@ -28,6 +28,17 @@ class SessionMiddleware implements Middleware
         }
 
         if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+            $domain = getenv('MAIN_DOMAIN') ?: '';
+            if ($domain !== '') {
+                $secure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+                session_set_cookie_params([
+                    'domain' => '.' . ltrim($domain, '.'),
+                    'path' => '/',
+                    'secure' => $secure,
+                    'httponly' => true,
+                    'samesite' => 'Lax',
+                ]);
+            }
             session_start();
         }
 
