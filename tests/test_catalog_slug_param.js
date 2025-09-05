@@ -146,6 +146,12 @@ context.global = context;
   if (!button) {
     throw new Error("start button missing");
   }
+  if (sessionStorage.getItem('quizCatalog') !== 'second') {
+    throw new Error('sessionStorage quizCatalog not set');
+  }
+  if (localStorage.getItem('quizCatalog') !== 'second') {
+    throw new Error('localStorage quizCatalog not set');
+  }
   console.log('ok');
 })().catch(err => { console.error(err); process.exit(1); });
 

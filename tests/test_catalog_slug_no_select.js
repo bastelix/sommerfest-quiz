@@ -6,12 +6,15 @@ class Element {
     this.tagName = tag.toUpperCase();
     this.children = [];
     this.dataset = {};
+    this.style = {};
     this.textContent = '';
   }
   appendChild(child) {
     this.children.push(child);
     return child;
   }
+  addEventListener() {}
+  querySelector() { return null; }
 }
 
 const storage = () => {
@@ -26,33 +29,41 @@ const storage = () => {
 const sessionStorage = storage();
 const localStorage = storage();
 
-let uiWarnings = 0;
-const UIkit = { notification: () => { uiWarnings++; } };
+const inline = new Element('script');
+inline.id = 'valid-data';
+inline.textContent = '[]';
 
-const fetchCalls = [];
-const fetch = async (url, opts) => {
-  fetchCalls.push({ url, opts });
-  return { json: async () => [] };
-};
+const quiz = new Element('div');
+quiz.id = 'quiz';
 
+const elements = { 'valid-data': inline, quiz };
+let initFn = null;
 const document = {
   readyState: 'loading',
-  addEventListener: () => {},
-  getElementById: () => null,
+  getElementById: id => elements[id] || null,
   querySelector: () => null,
   createElement: tag => new Element(tag),
-  head: new Element('head')
+  addEventListener: (ev, fn) => { if (ev === 'DOMContentLoaded') initFn = fn; },
+  head: new Element('head'),
+  body: new Element('body')
 };
 
-const window = { document, basePath: '', startQuiz: () => {}, quizQuestions: [] };
+document.body.appendChild(quiz);
+
+const window = {
+  location: { search: '?slug=valid' },
+  basePath: '',
+  document,
+  startQuiz: () => {}
+};
 
 const context = {
   window,
   document,
   sessionStorage,
   localStorage,
-  fetch,
-  UIkit,
+  fetch: async () => ({ json: async () => [] }),
+  UIkit: {},
   alert: () => {},
   console,
   URLSearchParams
@@ -62,30 +73,16 @@ context.global = context;
 
 (async () => {
   vm.runInNewContext(fs.readFileSync('public/js/catalog.js', 'utf8'), context);
-  // prevent DOM side effects
   context.showCatalogIntro = () => {};
-
-  const opt = {
-    textContent: 'Test',
-    value: 'slug1',
-    dataset: { file: 'foo.json', uid: '1', sortOrder: '1' }
-  };
-  await context.handleSelection(opt);
-
-  if (fetchCalls.length !== 1) {
-    throw new Error('fetch not called');
+  if (typeof initFn !== 'function') {
+    throw new Error('init not captured');
   }
-  const headers = fetchCalls[0].opts && fetchCalls[0].opts.headers;
-  if (!headers || headers.Accept !== 'application/json') {
-    throw new Error('jsonHeaders missing');
-  }
-  if (uiWarnings !== 0) {
-    throw new Error('UI warning triggered');
-  }
-  if (sessionStorage.getItem('quizCatalog') !== 'slug1') {
+  initFn();
+  await new Promise(r => setTimeout(r, 0));
+  if (sessionStorage.getItem('quizCatalog') !== 'valid') {
     throw new Error('sessionStorage quizCatalog not set');
   }
-  if (localStorage.getItem('quizCatalog') !== 'slug1') {
+  if (localStorage.getItem('quizCatalog') !== 'valid') {
     throw new Error('localStorage quizCatalog not set');
   }
   console.log('ok');

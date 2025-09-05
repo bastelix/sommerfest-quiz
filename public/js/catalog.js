@@ -77,6 +77,8 @@ async function init() {
           const data = JSON.parse(inline.textContent);
           // Optional: Name/Desc/Comment aus data oder Metas setzen
           sessionStorage.setItem('quizCatalogName', id.toUpperCase());
+          sessionStorage.setItem('quizCatalog', id);
+          localStorage.setItem('quizCatalog', id);
           sessionStorage.removeItem('quizCatalogDesc');
           sessionStorage.removeItem('quizCatalogComment');
           if (autostart) {
@@ -92,6 +94,8 @@ async function init() {
 
       // 2) Kein Inline: Zeige zumindest Intro, damit der Button erscheint
       sessionStorage.setItem('quizCatalogName', id.toUpperCase());
+      sessionStorage.setItem('quizCatalog', id);
+      localStorage.setItem('quizCatalog', id);
       sessionStorage.removeItem('quizCatalogDesc');
       sessionStorage.removeItem('quizCatalogComment');
       if (!autostart) {
@@ -172,8 +176,8 @@ async function handleSelection(opt, autostart = false) {
   localStorage.setItem('quizCatalogUid', opt.dataset.uid || '');
   localStorage.setItem('quizCatalogSortOrder', opt.dataset.sortOrder || '');
 
-  sessionStorage.setItem('quizCatalog', opt.dataset.uid || opt.dataset.slug || opt.value);
-  localStorage.setItem('quizCatalog', opt.dataset.uid || opt.dataset.slug || opt.value);
+  sessionStorage.setItem('quizCatalog', opt.value || opt.dataset.slug || '');
+  localStorage.setItem('quizCatalog', opt.value || opt.dataset.slug || '');
 
   // Katalogdaten laden
   const file = opt.dataset.file;
