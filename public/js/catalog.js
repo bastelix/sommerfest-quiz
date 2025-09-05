@@ -203,16 +203,9 @@ async function handleSelection(opt, autostart = false) {
   if (puzzleInfo) puzzleInfo.textContent = '';
 
   try {
-    const resp = await fetch('/session/catalog', {
-      method: 'POST',
-      body: JSON.stringify({ slug: opt.value }),
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': window.csrfToken }
-    });
-    if (!resp.ok) {
-      UIkit?.notification?.({ message: 'Session-Update fehlgeschlagen.', status: 'danger' });
-      console.error('session/catalog response not ok:', resp.status, resp.statusText);
-    }
+    await postSession('catalog', { slug: opt.value });
   } catch (e) {
+    UIkit?.notification?.({ message: 'Session-Update fehlgeschlagen.', status: 'danger' });
     console.error('session/catalog request failed', e);
   }
 

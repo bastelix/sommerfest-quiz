@@ -134,14 +134,7 @@ async function promptTeamName(){
       if(name){
         setStored(STORAGE_KEYS.PLAYER_NAME, name);
         try {
-          const resp = await fetch('/session/player', {
-            method: 'POST',
-            body: JSON.stringify({ name }),
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': window.csrfToken }
-          });
-          if(!resp.ok){
-            throw new Error('Request failed');
-          }
+          await postSession('player', { name });
           ui.hide();
         } catch (e) {
           if(typeof UIkit !== 'undefined' && UIkit.notification){
