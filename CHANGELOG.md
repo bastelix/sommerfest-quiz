@@ -278,6 +278,7 @@
 - Validate catalog slug selection
 - Verify slug option selection
 - Add handleSelection header test
+- Cover quiz autostart error cases
 
 ## [0.2.0] - 2025-08-18
 
