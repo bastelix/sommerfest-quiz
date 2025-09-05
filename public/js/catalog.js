@@ -81,11 +81,7 @@ async function init() {
           localStorage.setItem('quizCatalog', id);
           sessionStorage.removeItem('quizCatalogDesc');
           sessionStorage.removeItem('quizCatalogComment');
-          if (autostart) {
-            await startQuizOnce(data || [], false);
-          } else {
-            showCatalogIntro(data);
-          }
+          await startQuizOnce(data || [], false);
           return;
         } catch (e) {
           console.warn('Inline-Daten ungültig für slug=', id, e);
@@ -99,7 +95,7 @@ async function init() {
       sessionStorage.removeItem('quizCatalogDesc');
       sessionStorage.removeItem('quizCatalogComment');
       if (!autostart) {
-        showCatalogIntro([]); // Button sichtbar; quiz.js wird bei Klick nachgeladen
+        await startQuizOnce([], false);
       }
       UIkit?.notification?.({ message: 'Katalog nicht gefunden (slug: ' + id + ').', status: 'warning' });
       return;
@@ -187,76 +183,15 @@ async function handleSelection(opt, autostart = false) {
       const res = await fetch(base + file, { headers: jsonHeaders });
       const data = await res.json();
       window.quizQuestions = data;
-      if (autostart) {
-        await startQuizOnce(data || window.quizQuestions || [], false);
-      } else {
-        showCatalogIntro(data);
-      }
+      await startQuizOnce(data || window.quizQuestions || [], false);
       return;
     }
   } catch (e) {
     console.error('Katalogdatei konnte nicht geladen werden', e);
   }
   if (!autostart) {
-    showCatalogIntro([]);
+    await startQuizOnce([], false);
   }
-}
-
-function showCatalogIntro(qs) {
-  const header = document.getElementById('quiz-header');
-  if (header) {
-    const title = sessionStorage.getItem('quizCatalogName') || '';
-    const desc = sessionStorage.getItem('quizCatalogDesc') || '';
-    const comment = sessionStorage.getItem('quizCatalogComment');
-
-    let h1 = header.querySelector('h1');
-    if (!h1) {
-      h1 = document.createElement('h1');
-      header.appendChild(h1);
-    }
-    h1.textContent = title;
-
-    let sub = header.querySelector('p[data-role="subheader"]');
-    if (!sub) {
-      sub = document.createElement('p');
-      sub.dataset.role = 'subheader';
-      header.appendChild(sub);
-    }
-    sub.textContent = desc;
-
-    let cBlock = header.querySelector('div[data-role="catalog-comment-block"]');
-    if (comment) {
-      if (!cBlock) {
-        cBlock = document.createElement('div');
-        cBlock.dataset.role = 'catalog-comment-block';
-        header.appendChild(cBlock);
-      }
-      cBlock.textContent = comment;
-    } else if (cBlock) {
-      cBlock.remove();
-    }
-  }
-
-  const quiz = document.getElementById('quiz');
-  if (!quiz) {
-    return;
-  }
-
-  quiz.innerHTML = '';
-
-  const comment = sessionStorage.getItem('quizCatalogComment');
-  if (comment) {
-    const p = document.createElement('p');
-    p.textContent = comment;
-    quiz.appendChild(p);
-  }
-
-  const button = document.createElement('button');
-  button.textContent = "Los geht's!";
-  button.addEventListener('click', () => {
-    startQuizOnce(qs || window.quizQuestions || [], false);
-  });
-  quiz.appendChild(button);
 }
 
 document.addEventListener('DOMContentLoaded', init);

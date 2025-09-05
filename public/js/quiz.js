@@ -225,10 +225,33 @@ async function runQuiz(questions, skipIntro){
   // Farben werden über CSS-Variablen gesetzt
 
   const headerEl = document.getElementById('quiz-header');
-
-  if(skipIntro && headerEl){
-    headerEl.textContent = '';
-    headerEl.classList.add('uk-hidden');
+  if(headerEl){
+    const name = sessionStorage.getItem('quizCatalogName') || '';
+    const desc = sessionStorage.getItem('quizCatalogDesc') || '';
+    const comment = sessionStorage.getItem('quizCatalogComment');
+    headerEl.innerHTML = '';
+    if(skipIntro){
+      headerEl.classList.add('uk-hidden');
+    }else{
+      if(name){
+        const h1 = document.createElement('h1');
+        h1.textContent = name;
+        headerEl.appendChild(h1);
+      }
+      if(desc){
+        const sub = document.createElement('p');
+        sub.dataset.role = 'subheader';
+        sub.textContent = desc;
+        headerEl.appendChild(sub);
+      }
+      if(comment){
+        const cBlock = document.createElement('div');
+        cBlock.dataset.role = 'catalog-comment-block';
+        cBlock.textContent = comment;
+        headerEl.appendChild(cBlock);
+      }
+      headerEl.classList.remove('uk-hidden');
+    }
   }
 
   elements.forEach((el, i) => {
@@ -1085,6 +1108,25 @@ async function runQuiz(questions, skipIntro){
     div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
     const stats = document.createElement('div');
     stats.className = 'uk-margin';
+
+    const title = sessionStorage.getItem('quizCatalogName') || '';
+    const desc = sessionStorage.getItem('quizCatalogDesc') || '';
+    const comment = sessionStorage.getItem('quizCatalogComment');
+    if(title){
+      const h2 = document.createElement('h2');
+      h2.textContent = title;
+      div.appendChild(h2);
+    }
+    if(desc){
+      const p = document.createElement('p');
+      p.textContent = desc;
+      div.appendChild(p);
+    }
+    if(comment){
+      const c = document.createElement('div');
+      c.textContent = comment;
+      div.appendChild(c);
+    }
 
     if(cfg.QRUser && !getStored('quizUser')){
       const scanBtn = document.createElement('button');
