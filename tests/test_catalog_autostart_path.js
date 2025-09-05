@@ -8,6 +8,8 @@ class Element {
     this.dataset = {};
     this.style = {};
     this.textContent = '';
+    this.onload = null;
+    this.onerror = null;
   }
   appendChild(child) {
     this.children.push(child);
@@ -38,27 +40,6 @@ class OptionElement extends Element {
   }
 }
 
-const quiz = new Element('div');
-quiz.id = 'quiz';
-const select = new SelectElement();
-select.id = 'catalog-select';
-const opt = new OptionElement('valid', 'Valid');
-opt.dataset.slug = 'valid';
-opt.dataset.file = 'file';
-select.options.push(opt);
-select.selectedOptions = [opt];
-
-const elements = { quiz, 'catalog-select': select };
-
-const document = {
-  readyState: 'complete',
-  getElementById: id => elements[id] || null,
-  querySelector: () => null,
-  createElement: tag => new Element(tag),
-  addEventListener: () => {},
-  head: new Element('head')
-};
-
 const storage = () => {
   const data = {};
   return {
@@ -68,45 +49,103 @@ const storage = () => {
   };
 };
 
-const sessionStorage = storage();
-const localStorage = storage();
-let started = false;
+async function runScenario({ scriptFail = false, fetchFail = false }) {
+  const quiz = new Element('div');
+  quiz.id = 'quiz';
+  const select = new SelectElement();
+  select.id = 'catalog-select';
+  const opt = new OptionElement('valid', 'Valid');
+  opt.dataset.slug = 'valid';
+  opt.dataset.file = 'file';
+  select.appendChild(opt);
+  select.selectedOptions = [opt];
 
-const window = {
-  location: { search: '?autostart=1', pathname: '/catalog/valid' },
-  quizConfig: {},
-  basePath: '',
-  startQuiz: () => { started = true; },
-  document
-};
+  const elements = { quiz, 'catalog-select': select };
 
-const context = {
-  window,
-  document,
-  sessionStorage,
-  localStorage,
-  fetch: async () => ({ json: async () => [] }),
-  alert: () => {},
-  UIkit: {},
-  console,
-  URLSearchParams,
-  jsonHeaders: { Accept: 'application/json' }
-};
-context.window.window = context.window;
-context.global = context;
+  const head = new Element('head');
+  let startCount = 0;
+  head.appendChild = child => {
+    head.children.push(child);
+    if (child.tagName === 'SCRIPT') {
+      setTimeout(() => {
+        if (scriptFail) {
+          child.onerror && child.onerror(new Error('load error'));
+        } else {
+          window.startQuiz = () => { startCount++; };
+          child.onload && child.onload();
+        }
+      }, 0);
+    }
+    return child;
+  };
 
-(async () => {
+  const document = {
+    readyState: 'complete',
+    getElementById: id => elements[id] || null,
+    querySelector: () => null,
+    createElement: tag => new Element(tag),
+    addEventListener: () => {},
+    head
+  };
+
+  const sessionStorage = storage();
+  const localStorage = storage();
+
+  const window = {
+    location: { search: '?autostart=1', pathname: '/catalog/valid' },
+    quizConfig: {},
+    basePath: '',
+    document
+  };
+
+  const fetch = fetchFail
+    ? async () => { throw new Error('network'); }
+    : async () => ({ json: async () => [] });
+
+  const context = {
+    window,
+    document,
+    sessionStorage,
+    localStorage,
+    fetch,
+    alert: () => {},
+    UIkit: {},
+    console,
+    URLSearchParams,
+    jsonHeaders: { Accept: 'application/json' }
+  };
+  context.window.window = context.window;
+  context.global = context;
+
   vm.runInNewContext(fs.readFileSync('public/js/catalog.js', 'utf8'), context);
   await new Promise(r => setTimeout(r, 0));
-  if (select.value !== 'valid') {
+  await new Promise(r => setTimeout(r, 0));
+
+  const hasButton = quiz.children.some(c => c.tagName === 'BUTTON');
+  return { startCount, selectValue: select.value, hasButton };
+}
+
+(async () => {
+  let res = await runScenario({});
+  if (res.selectValue !== 'valid') {
     throw new Error('slug not pre-selected');
   }
-  if (!started) {
-    throw new Error('autostart did not run');
+  if (res.startCount !== 1) {
+    throw new Error('autostart did not run exactly once');
   }
-  const hasButton = quiz.children.some(c => c.tagName === 'BUTTON');
-  if (hasButton) {
+  if (res.hasButton) {
     throw new Error('intro button should not be rendered');
   }
+
+  res = await runScenario({ scriptFail: true });
+  if (res.startCount !== 0) {
+    throw new Error('autostart should not run on script load error');
+  }
+
+  res = await runScenario({ fetchFail: true });
+  if (res.startCount !== 0) {
+    throw new Error('autostart should not run on fetch error');
+  }
+
   console.log('ok');
 })().catch(err => { console.error(err); process.exit(1); });
