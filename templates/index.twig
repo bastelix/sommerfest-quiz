@@ -44,7 +44,7 @@
               value="{{ key }}"
               data-slug="{{ cat.slug|e }}"
               data-sort-order="{{ cat.sort_order ?? cat.id }}"
-              data-file="{{ cat.file }}"
+              data-file="/kataloge/{{ cat.file }}"
               data-letter="{{ cat.raetsel_buchstabe }}"
               data-uid="{{ cat.uid }}"
               data-desc="{{ cat.description ?? cat.beschreibung }}"
