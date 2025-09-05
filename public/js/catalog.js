@@ -206,7 +206,7 @@ async function handleSelection(opt, autostart = false) {
     const resp = await fetch('/session/catalog', {
       method: 'POST',
       body: JSON.stringify({ slug: opt.value }),
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': window.csrfToken }
     });
     if (!resp.ok) {
       UIkit?.notification?.({ message: 'Session-Update fehlgeschlagen.', status: 'danger' });
