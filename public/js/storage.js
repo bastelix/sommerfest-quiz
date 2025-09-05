@@ -12,7 +12,12 @@
     PUZZLE_SOLVED: 'puzzleSolved',
     PUZZLE_TIME: 'puzzleTime',
     QUIZ_SOLVED: 'quizSolved',
-    USED_NAMES: 'usedNames'
+    USED_NAMES: 'usedNames',
+    DARK_MODE: 'darkMode',
+    BARRIER_FREE: 'barrierFree',
+    QR_THEME: 'qr-theme',
+    QR_CONTRAST: 'qr-contrast',
+    TENANT_COLUMNS: 'tenantColumns'
   };
 
   const eventScoped = new Set([STORAGE_KEYS.PLAYER_NAME, STORAGE_KEYS.PLAYER_UID]);
@@ -80,6 +85,11 @@
    * - puzzleTime                 – Zeitstempel des Rätsels
    * - quizSolved                 – Liste gelöster Fragen (JSON)
    * - usedNames                  – Für Zufallsnamen verwendete Namen
+   * - darkMode                   – Aktiviertes Dunkelmodus-Flag
+   * - barrierFree                – Barrierefrei-Flag
+   * - qr-theme                   – Letztes Theme
+   * - qr-contrast                – Letzter Kontrastmodus
+   * - tenantColumns              – Sichtbare Mandantenspalten (JSON)
    */
 
   globalThis.STORAGE_KEYS = STORAGE_KEYS;
