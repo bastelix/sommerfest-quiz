@@ -2249,7 +2249,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const tenantColumnDefaults = tenantColumnDefs.map(c => c.key);
   let tenantColumns = [...tenantColumnDefaults];
   try {
-    const stored = JSON.parse(localStorage.getItem('tenantColumns'));
+    const stored = JSON.parse(getStored(STORAGE_KEYS.TENANT_COLUMNS));
     if (Array.isArray(stored)) {
       tenantColumns = tenantColumnDefaults.filter(k => stored.includes(k));
     }
@@ -2292,7 +2292,7 @@ document.addEventListener('DOMContentLoaded', function () {
           .filter(cb => cb.checked)
           .map(cb => cb.dataset.col);
         tenantColumns = tenantColumnDefaults.filter(k => selected.includes(k));
-        try { localStorage.setItem('tenantColumns', JSON.stringify(tenantColumns)); } catch (_) {}
+        try { setStored(STORAGE_KEYS.TENANT_COLUMNS, JSON.stringify(tenantColumns)); } catch (_) {}
         updateTenantColumnVisibility();
         loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value);
         UIkit.modal(modal).hide();

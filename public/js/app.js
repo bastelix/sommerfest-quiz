@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
     offcanvasToggle.hidden = true;
   }
 
-  const storedTheme = localStorage.getItem('darkMode');
+  const storedTheme = getStored(STORAGE_KEYS.DARK_MODE);
   let dark = storedTheme !== 'false';
 
   if (darkStylesheet) {
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
     themeIcon.innerHTML = dark ? sunSVG : moonSVG;
   }
 
-  let accessible = localStorage.getItem('barrierFree') === 'true';
+  let accessible = getStored(STORAGE_KEYS.BARRIER_FREE) === 'true';
   if (accessible) {
     document.body.classList.add('high-contrast');
   }
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (darkStylesheet) {
           darkStylesheet.toggleAttribute('disabled', !dark);
         }
-        localStorage.setItem('darkMode', dark ? 'true' : 'false');
+        setStored(STORAGE_KEYS.DARK_MODE, dark ? 'true' : 'false');
         if (themeIcon) {
           themeIcon.innerHTML = dark ? sunSVG : moonSVG;
         }
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function () {
       toggle.addEventListener('click', function (event) {
         event.preventDefault();
         accessible = document.body.classList.toggle('high-contrast');
-        localStorage.setItem('barrierFree', accessible ? 'true' : 'false');
+        setStored(STORAGE_KEYS.BARRIER_FREE, accessible ? 'true' : 'false');
         if (accessibilityIcon) {
           accessibilityIcon.innerHTML = accessible ? accessibilityOnSVG : accessibilityOffSVG;
         }

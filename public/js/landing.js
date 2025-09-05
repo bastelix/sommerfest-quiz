@@ -67,14 +67,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const langButtons = document.querySelectorAll('.lang-option');
 
   const applyTheme = () => {
-    const dark = localStorage.getItem('darkMode') !== 'false';
+    const dark = getStored(STORAGE_KEYS.DARK_MODE) !== 'false';
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-    localStorage.setItem('qr-theme', dark ? 'dark' : 'light');
+    setStored(STORAGE_KEYS.QR_THEME, dark ? 'dark' : 'light');
   };
 
   const applyContrast = () => {
-    const accessible = localStorage.getItem('barrierFree') === 'true';
-    localStorage.setItem('qr-contrast', accessible ? 'high' : 'normal');
+    const accessible = getStored(STORAGE_KEYS.BARRIER_FREE) === 'true';
+    setStored(STORAGE_KEYS.QR_CONTRAST, accessible ? 'high' : 'normal');
   };
 
   applyTheme();
