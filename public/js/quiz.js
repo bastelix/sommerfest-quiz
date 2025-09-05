@@ -1526,6 +1526,6 @@ function startQuiz(qs, skipIntro){
 }
 
 window.startQuiz = startQuiz;
-if(window.quizQuestions){
+if (window.quizQuestions && window.quizConfig?.autoStart) {
   startQuiz(window.quizQuestions, false);
 }
