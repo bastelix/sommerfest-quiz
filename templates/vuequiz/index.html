@@ -48,8 +48,10 @@ createApp({
     const answered = ref(false);
     const userAnswers = reactive({});
 
+    const jsonHeaders = { Accept: 'application/json' };
+
     onMounted(async () => {
-      const res = await fetch('questions.json', { headers: { 'Accept': 'application/json' } });
+      const res = await fetch('questions.json', { headers: jsonHeaders });
       questions.value = await res.json();
       loading.value = false;
     });
