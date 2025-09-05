@@ -19,6 +19,22 @@ class LogoutController
     {
         $_SESSION = [];
         session_destroy();
+
+        $domain = $request->getUri()->getHost();
+        $domain = getenv('MAIN_DOMAIN') ?: $domain;
+        $domain = $domain !== '' ? '.' . ltrim($domain, '.') : '';
+        $secure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+
+        setcookie(
+            session_name(),
+            '',
+            time() - 3600,
+            '/',
+            $domain,
+            $secure,
+            true
+        );
+
         return $response->withHeader('Location', '/login')->withStatus(302);
     }
 }
