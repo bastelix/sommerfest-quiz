@@ -21,9 +21,6 @@ class AdminSubscriptionCheckoutController
     {
         $logger = LogService::create('stripe');
         try {
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
             $sessionToken = $_SESSION['csrf_token'] ?? '';
             $headerToken = $request->getHeaderLine('X-CSRF-Token');
             if ($sessionToken === '' || $headerToken !== $sessionToken) {

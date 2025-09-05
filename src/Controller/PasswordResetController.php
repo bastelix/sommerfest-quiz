@@ -169,9 +169,6 @@ class PasswordResetController
         if ($next !== '' && str_starts_with($next, '/')) {
             $user = $this->users->getById($userId);
             if ($user !== null) {
-                if (session_status() === PHP_SESSION_NONE) {
-                    session_start();
-                }
                 $_SESSION['user'] = [
                     'id' => $user['id'],
                     'username' => $user['username'],

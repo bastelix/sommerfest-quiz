@@ -37,9 +37,6 @@ class OnboardingEmailController
             return $response->withStatus(400);
         }
 
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $_SESSION['onboarding']['email'] = $email;
 
         $token = $this->service->createToken($email);
@@ -76,9 +73,6 @@ class OnboardingEmailController
             return $response->withStatus(400);
         }
 
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $_SESSION['onboarding']['email'] = $email;
         $_SESSION['onboarding']['verified'] = true;
 

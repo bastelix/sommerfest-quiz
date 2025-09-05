@@ -20,9 +20,6 @@ class AdminLogsController
         $stripeLog = LogService::tail('stripe');
         $slimLog = LogService::tailDocker('slim-1');
         $view = Twig::fromRequest($request);
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $role = $_SESSION['user']['role'] ?? '';
         return $view->render($response, 'admin/logs.twig', [
             'appLog' => $appLog,

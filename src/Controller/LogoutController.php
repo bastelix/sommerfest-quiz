@@ -17,9 +17,6 @@ class LogoutController
      */
     public function __invoke(Request $request, Response $response): Response
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $_SESSION = [];
         session_destroy();
         return $response->withHeader('Location', '/login')->withStatus(302);

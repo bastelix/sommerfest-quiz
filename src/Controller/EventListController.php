@@ -26,9 +26,6 @@ class EventListController
         }
         $eventSvc = new EventService($pdo);
         $cfgSvc = new ConfigService($pdo);
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $role = $_SESSION['user']['role'] ?? null;
         $events = $eventSvc->getAll();
         $cfg = $cfgSvc->getConfig();
