@@ -165,10 +165,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             ? $eventService->uidBySlug($evParam) ?? ''
             : $evParam;
         if ($eventUid === '') {
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }
-            $eventUid = (string)($_SESSION['event_uid'] ?? '');
+            $eventUid = (string) ($_SESSION['event_uid'] ?? '');
         }
         $catalogService = new CatalogService($pdo, $configService, $tenantService, $sub, $eventUid);
         $resultService = new ResultService($pdo, $configService);
@@ -323,9 +320,6 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $configService = new ConfigService($pdo);
         $config = $configService->getConfig();
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $role = $_SESSION['user']['role'] ?? null;
         if ($role !== 'admin') {
             $config = ConfigService::removePuzzleInfo($config);

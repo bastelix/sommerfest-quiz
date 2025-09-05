@@ -49,9 +49,6 @@ class SummaryController
                 $event = $this->events->getFirst();
             }
         }
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $role = $_SESSION['user']['role'] ?? null;
         if ($role !== 'admin') {
             $cfg = ConfigService::removePuzzleInfo($cfg);
