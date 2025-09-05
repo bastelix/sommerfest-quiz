@@ -25,6 +25,8 @@ async function init() {
                     autoParam !== '0' &&
                     autoParam.toLowerCase() !== 'false';
 
+  const jsonHeaders = { Accept: 'application/json' };
+
   // Select suchen (ID oder data-role)
   const select = document.getElementById('catalog-select') ||
                  document.querySelector('[data-role="catalog-select"]');
@@ -149,7 +151,7 @@ async function handleSelection(opt, autostart = false) {
   try {
     if (file) {
       const base = window.basePath || '';
-      const res = await fetch(base + file, { headers: { 'Accept': 'application/json' } });
+      const res = await fetch(base + file, { headers: jsonHeaders });
       const data = await res.json();
       window.quizQuestions = data;
       if (autostart) {
