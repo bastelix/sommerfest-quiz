@@ -277,6 +277,7 @@
 - Verify catalog slug parameter
 - Validate catalog slug selection
 - Verify slug option selection
+- Add handleSelection header test
 
 ## [0.2.0] - 2025-08-18
 
