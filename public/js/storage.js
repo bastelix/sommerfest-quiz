@@ -20,7 +20,20 @@
     TENANT_COLUMNS: 'tenantColumns'
   };
 
-  const eventScoped = new Set([STORAGE_KEYS.PLAYER_NAME, STORAGE_KEYS.PLAYER_UID]);
+  const eventScoped = new Set([
+    STORAGE_KEYS.PLAYER_NAME,
+    STORAGE_KEYS.PLAYER_UID,
+    STORAGE_KEYS.CATALOG,
+    STORAGE_KEYS.CATALOG_NAME,
+    STORAGE_KEYS.CATALOG_DESC,
+    STORAGE_KEYS.CATALOG_COMMENT,
+    STORAGE_KEYS.CATALOG_UID,
+    STORAGE_KEYS.CATALOG_SORT,
+    STORAGE_KEYS.LETTER,
+    STORAGE_KEYS.PUZZLE_SOLVED,
+    STORAGE_KEYS.PUZZLE_TIME,
+    STORAGE_KEYS.QUIZ_SOLVED
+  ]);
 
   function mapKey(key){
     const uid = (window.quizConfig || {}).event_uid || '';
@@ -42,11 +55,14 @@
     try{
       let val = readStorage(mapped);
       if(val === null && eventScoped.has(key)){
-        const legacy = `${key}:`;
-        val = readStorage(legacy);
-        if(val !== null){
-          setStored(key, val);
-          try{ removeStorage(legacy); }catch(e){ /* empty */ }
+        const legacies = [`${key}:`, key];
+        for(const legacy of legacies){
+          val = readStorage(legacy);
+          if(val !== null){
+            setStored(key, val);
+            try{ removeStorage(legacy); }catch(e){ /* empty */ }
+            break;
+          }
         }
       }
       return val;
