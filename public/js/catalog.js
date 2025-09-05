@@ -1,4 +1,4 @@
-function init() {
+async function init() {
   // Container sicherstellen
   let quizContainer = document.getElementById('quiz');
   if (!quizContainer) {
@@ -17,6 +17,13 @@ function init() {
     params.get('k') ||
     ''
   ).toLowerCase();
+  const autoParam = params.get('autostart') ||
+                    params.get('auto') ||
+                    params.get('start') ||
+                    params.get('play');
+  const autostart = autoParam !== null &&
+                    autoParam !== '0' &&
+                    autoParam.toLowerCase() !== 'false';
 
   // Select suchen (ID oder data-role)
   const select = document.getElementById('catalog-select') ||
@@ -34,7 +41,21 @@ function init() {
           sessionStorage.setItem('quizCatalogName', id.toUpperCase());
           sessionStorage.removeItem('quizCatalogDesc');
           sessionStorage.removeItem('quizCatalogComment');
-          showCatalogIntro(data);
+          if (autostart) {
+            if (typeof window.startQuiz !== 'function') {
+              await new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = (window.basePath || '') + 'js/quiz.js';
+                script.onload = resolve;
+                script.onerror = reject;
+                document.head.appendChild(script);
+              });
+            }
+            const qs = data || [];
+            window.startQuiz(qs, false);
+          } else {
+            showCatalogIntro(data);
+          }
           return;
         } catch (e) {
           console.warn('Inline-Daten ungültig für slug=', id, e);
@@ -45,7 +66,9 @@ function init() {
       sessionStorage.setItem('quizCatalogName', id.toUpperCase());
       sessionStorage.removeItem('quizCatalogDesc');
       sessionStorage.removeItem('quizCatalogComment');
-      showCatalogIntro([]); // Button sichtbar; quiz.js wird bei Klick nachgeladen
+      if (!autostart) {
+        showCatalogIntro([]); // Button sichtbar; quiz.js wird bei Klick nachgeladen
+      }
       UIkit?.notification?.({ message: 'Katalog nicht gefunden (slug: ' + id + ').', status: 'warning' });
       return;
     }
@@ -69,7 +92,7 @@ function init() {
       select.style.display = 'none';
       const selectLabel = document.querySelector('label[for="catalog-select"]');
       if (selectLabel) selectLabel.style.display = 'none';
-      handleSelection(match);
+      handleSelection(match, autostart);
       return;
     } else {
       console.warn('Ungültiger Katalog-Parameter:', id);
@@ -84,10 +107,10 @@ function init() {
   if (selectLabel) selectLabel.style.display = '';
 
   if (select.options.length === 1 && !id) {
-    handleSelection(select.options[0]);
+    handleSelection(select.options[0], autostart);
   } else {
     const opt = select.selectedOptions[0];
-    if (opt) handleSelection(opt);
+    if (opt) handleSelection(opt, autostart);
   }
 
   select.addEventListener('change', () => {
@@ -96,7 +119,7 @@ function init() {
   });
 }
 
-async function handleSelection(opt) {
+async function handleSelection(opt, autostart = false) {
   if (!opt) {
     return;
   }
@@ -129,13 +152,29 @@ async function handleSelection(opt) {
       const res = await fetch(base + file, { headers: { 'Accept': 'application/json' } });
       const data = await res.json();
       window.quizQuestions = data;
-      showCatalogIntro(data);
+      if (autostart) {
+        if (typeof window.startQuiz !== 'function') {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = (window.basePath || '') + 'js/quiz.js';
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+        }
+        const qs = data || window.quizQuestions || [];
+        window.startQuiz(qs, false);
+      } else {
+        showCatalogIntro(data);
+      }
       return;
     }
   } catch (e) {
     console.error('Katalogdatei konnte nicht geladen werden', e);
   }
-  showCatalogIntro([]);
+  if (!autostart) {
+    showCatalogIntro([]);
+  }
 }
 
 function showCatalogIntro(qs) {
