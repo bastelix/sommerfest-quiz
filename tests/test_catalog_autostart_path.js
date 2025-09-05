@@ -7,10 +7,7 @@ class Element {
     this.children = [];
     this.dataset = {};
     this.className = '';
-    this.classList = {
-      add: () => {},
-      remove: () => {}
-    };
+    this.classList = { add: () => {}, remove: () => {} };
     this.style = {};
     this.textContent = '';
   }
@@ -19,19 +16,16 @@ class Element {
     return child;
   }
   querySelector(sel) {
-    if (sel === 'h1') {
-      return this.children.find(c => c.tagName === 'H1') || null;
-    }
-    if (sel === 'p[data-role="subheader"]') {
-      return this.children.find(c => c.tagName === 'P' && c.dataset.role === 'subheader') || null;
-    }
     if (sel === 'div[data-role="catalog-comment-block"]') {
-      return this.children.find(c => c.tagName === 'DIV' && c.dataset.role === 'catalog-comment-block') || null;
+      return this.children.find(
+        c => c.tagName === 'DIV' && c.dataset.role === 'catalog-comment-block'
+      ) || null;
     }
     return null;
   }
   addEventListener() {}
 }
+
 class SelectElement extends Element {
   constructor() {
     super('select');
@@ -45,7 +39,11 @@ class SelectElement extends Element {
     return super.appendChild(child);
   }
   addEventListener() {}
+  get selectedOptions() {
+    return this.options.filter(o => o.value === this.value);
+  }
 }
+
 class OptionElement extends Element {
   constructor(value, text) {
     super('option');
@@ -60,27 +58,35 @@ const quiz = new Element('div');
 quiz.id = 'quiz';
 const select = new SelectElement();
 select.id = 'catalog-select';
-const opt = new OptionElement('valid', 'Valid');
-opt.dataset.slug = 'valid';
-opt.dataset.file = 'file';
-opt.dataset.uid = 'uid';
-opt.dataset.sortOrder = '1';
-opt.dataset.desc = 'Desc';
-opt.dataset.comment = 'Comment';
-select.appendChild(opt);
+
+const makeOption = (value, slug, text) => {
+  const opt = new OptionElement(value, text);
+  opt.dataset.slug = slug;
+  opt.dataset.file = slug + '.json';
+  opt.dataset.uid = slug + '-uid';
+  opt.dataset.sortOrder = value;
+  opt.dataset.desc = 'Desc';
+  return opt;
+};
+
+select.appendChild(makeOption('first', 'first', 'First'));
+select.appendChild(makeOption('second', 'valid', 'Valid'));
 
 const elements = {
   'quiz-header': header,
-  'quiz': quiz,
+  quiz,
   'catalog-select': select
 };
 
+let initFn = null;
 const document = {
-  readyState: 'complete',
+  readyState: 'loading',
   getElementById: id => elements[id] || null,
   querySelector: () => null,
   createElement: tag => new Element(tag),
-  addEventListener: () => {},
+  addEventListener: (ev, fn) => {
+    if (ev === 'DOMContentLoaded') initFn = fn;
+  },
   head: new Element('head')
 };
 
@@ -96,11 +102,12 @@ const storage = () => {
 const sessionStorage = storage();
 const localStorage = storage();
 
+let started = false;
 const window = {
-  location: { search: '?slug=valid', pathname: '/catalog' },
+  location: { search: '?autostart=1', pathname: '/catalog/valid' },
   quizConfig: {},
   basePath: '',
-  startQuiz: () => {},
+  startQuiz: () => { started = true; },
   document
 };
 
@@ -115,20 +122,26 @@ const context = {
   console,
   URLSearchParams
 };
-context.window.window = context.window; // self-reference
+context.window.window = context.window;
 context.global = context;
 
 (async () => {
   vm.runInNewContext(fs.readFileSync('public/js/catalog.js', 'utf8'), context);
+  if (typeof initFn !== 'function') {
+    throw new Error('init not captured');
+  }
+  initFn();
   await new Promise(r => setTimeout(r, 0));
 
-  const commentBlock = header.querySelector('div[data-role="catalog-comment-block"]');
-  if (!commentBlock || commentBlock.textContent !== 'Comment') {
-    throw new Error('comment not rendered');
+  if (select.value !== 'second') {
+    throw new Error('selection by path slug failed');
+  }
+  if (!started) {
+    throw new Error('quiz not autostarted');
   }
   const button = quiz.children.find(c => c.tagName === 'BUTTON');
-  if (!button) {
-    throw new Error('start button missing');
+  if (button) {
+    throw new Error('button should not be rendered when autostarting');
   }
   console.log('ok');
 })().catch(err => { console.error(err); process.exit(1); });

@@ -104,7 +104,7 @@ const sessionStorage = storage();
 const localStorage = storage();
 
 const window = {
-  location: { search: '?slug=valid' },
+  location: { search: '?slug=valid', pathname: '/catalog' },
   quizConfig: {},
   basePath: '',
   startQuiz: () => {},
