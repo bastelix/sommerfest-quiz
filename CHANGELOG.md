@@ -175,6 +175,7 @@
 - Resolve catalog slug from URL path
 - Add async catalog selection
 - Centralize storage utilities
+- Add player session endpoint
 
 ### Fix
 
