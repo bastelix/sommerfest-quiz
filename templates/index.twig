@@ -68,15 +68,14 @@
   <script>
     window.csrfToken = '{{ csrf_token|e('js') }}';
   </script>
+  <script src="{{ basePath }}/js/storage.js"></script>
   <script>
     function enforceProfile() {
       const cfg = window.quizConfig || {};
       if (!cfg.randomNames || cfg.QRUser || cfg.QRRestrict) {
         return;
       }
-      const eventUid = cfg.event_uid || '';
-      const nameKey = `qr_player_name:${eventUid}`;
-      if (!localStorage.getItem(nameKey)) {
+      if (!getStored(STORAGE_KEYS.PLAYER_NAME)) {
         const params = new URLSearchParams(location.search);
         const uidParam = params.get('uid') || params.get('player_uid');
         let url = '/profile?return=' + encodeURIComponent(location.href);

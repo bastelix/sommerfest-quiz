@@ -8,14 +8,18 @@ const match = indexCode.match(/function enforceProfile\(\)\s*{[\s\S]*?}\s*enforc
 if (!match) {
   throw new Error('enforceProfile script not found');
 }
+const storageCode = fs.readFileSync('public/js/storage.js', 'utf8');
+const storageObj1 = {
+  data: {},
+  getItem(k) { return this.data[k] ?? null; },
+  setItem(k, v) { this.data[k] = String(v); },
+  removeItem(k) { delete this.data[k]; }
+};
 const ctx1 = {
   URLSearchParams,
   window: { quizConfig: { randomNames: true, event_uid: '' } },
-  localStorage: {
-    data: {},
-    getItem(k) { return this.data[k] ?? null; },
-    setItem(k, v) { this.data[k] = String(v); },
-  },
+  localStorage: storageObj1,
+  sessionStorage: storageObj1,
   location: {
     href: '/quiz',
     search: '',
@@ -23,6 +27,7 @@ const ctx1 = {
     replace(url) { this.replaced = url; }
   }
 };
+vm.runInNewContext(storageCode, ctx1);
 vm.runInNewContext(match[0], ctx1);
 assert.strictEqual(ctx1.location.replaced, '/profile?return=' + encodeURIComponent('/quiz'));
 
@@ -30,6 +35,7 @@ const ctx1b = {
   URLSearchParams,
   window: { quizConfig: { randomNames: true, event_uid: '' } },
   localStorage: ctx1.localStorage,
+  sessionStorage: ctx1.sessionStorage,
   location: {
     href: '/quiz?uid=abc',
     search: '?uid=abc',
@@ -37,6 +43,7 @@ const ctx1b = {
     replace(url) { this.replaced = url; }
   }
 };
+vm.runInNewContext(storageCode, ctx1b);
 vm.runInNewContext(match[0], ctx1b);
 assert.strictEqual(
   ctx1b.location.replaced,
@@ -45,16 +52,18 @@ assert.strictEqual(
 
 // Test saving profile name
 const profileCode = fs.readFileSync('public/js/profile.js', 'utf8');
+const storageObj2 = {
+  data: {},
+  getItem(k) { return this.data[k] ?? null; },
+  setItem(k, v) { this.data[k] = String(v); },
+  removeItem(k) { delete this.data[k]; }
+};
 const ctx2 = {
   URLSearchParams,
   window: { quizConfig: { event_uid: '' } },
   nameInput: { value: '' },
-  localStorage: {
-    data: {},
-    getItem(k) { return this.data[k] ?? null; },
-    setItem(k, v) { this.data[k] = String(v); },
-    removeItem(k) { delete this.data[k]; }
-  },
+  localStorage: storageObj2,
+  sessionStorage: storageObj2,
   fetchCalls: [],
   self: { crypto: { randomUUID: () => 'uid-123' } },
   returnUrl: '/quiz',
@@ -74,11 +83,9 @@ const ctx2 = {
 };
 ctx2.fetch = (url, opts) => { ctx2.fetchCalls.push({ url, opts }); return Promise.resolve(); };
 ctx2.window.location = ctx2.location;
+vm.runInNewContext(storageCode, ctx2);
 vm.runInNewContext(profileCode, ctx2);
 ctx2.nameInput.value = 'Alice';
-ctx2.nameKey = 'qr_player_name:';
-ctx2.uidKey = 'qr_player_uid:';
-ctx2.eventUid = '';
 (async () => {
   await ctx2.saveHandler?.({ preventDefault() {} });
   assert.strictEqual(ctx2.localStorage.getItem('qr_player_name:'), 'Alice');
@@ -95,6 +102,12 @@ const ctx3 = {
   window: { quizConfig: { event_uid: 'ev1', collectPlayerUid: true } },
   nameInput: { value: '' },
   localStorage: {
+    data: {},
+    getItem(k) { return this.data[k] ?? null; },
+    setItem(k, v) { this.data[k] = String(v); },
+    removeItem(k) { delete this.data[k]; }
+  },
+  sessionStorage: {
     data: {},
     getItem(k) { return this.data[k] ?? null; },
     setItem(k, v) { this.data[k] = String(v); },
@@ -122,6 +135,7 @@ ctx3.fetch = (url, opts) => {
   return Promise.resolve({ ok: true, json: () => Promise.resolve({ player_name: 'Bob' }) });
 };
 ctx3.window.location = ctx3.location;
+vm.runInNewContext(storageCode, ctx3);
 vm.runInNewContext(profileCode, ctx3);
 (async () => {
   await new Promise(r => setTimeout(r, 0));

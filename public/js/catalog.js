@@ -1,3 +1,5 @@
+/* global UIkit, STORAGE_KEYS, setStored, clearStored */
+
 const jsonHeaders = { Accept: 'application/json' };
 
 let quizScriptPromise;
@@ -76,11 +78,10 @@ async function init() {
         try {
           const data = JSON.parse(inline.textContent);
           // Optional: Name/Desc/Comment aus data oder Metas setzen
-          sessionStorage.setItem('quizCatalogName', id.toUpperCase());
-          sessionStorage.setItem('quizCatalog', id);
-          localStorage.setItem('quizCatalog', id);
-          sessionStorage.removeItem('quizCatalogDesc');
-          sessionStorage.removeItem('quizCatalogComment');
+          setStored(STORAGE_KEYS.CATALOG_NAME, id.toUpperCase());
+          setStored(STORAGE_KEYS.CATALOG, id);
+          clearStored(STORAGE_KEYS.CATALOG_DESC);
+          clearStored(STORAGE_KEYS.CATALOG_COMMENT);
           await startQuizOnce(data || [], false);
           return;
         } catch (e) {
@@ -89,11 +90,10 @@ async function init() {
       }
 
       // 2) Kein Inline: Zeige zumindest Intro, damit der Button erscheint
-      sessionStorage.setItem('quizCatalogName', id.toUpperCase());
-      sessionStorage.setItem('quizCatalog', id);
-      localStorage.setItem('quizCatalog', id);
-      sessionStorage.removeItem('quizCatalogDesc');
-      sessionStorage.removeItem('quizCatalogComment');
+      setStored(STORAGE_KEYS.CATALOG_NAME, id.toUpperCase());
+      setStored(STORAGE_KEYS.CATALOG, id);
+      clearStored(STORAGE_KEYS.CATALOG_DESC);
+      clearStored(STORAGE_KEYS.CATALOG_COMMENT);
       if (!autostart) {
         await startQuizOnce([], false);
       }
@@ -157,23 +157,22 @@ async function handleSelection(opt, autostart = false) {
   const desc = opt.dataset.desc || '';
   const comment = opt.dataset.comment || '';
 
-  sessionStorage.setItem('quizCatalogName', name);
+  setStored(STORAGE_KEYS.CATALOG_NAME, name);
   if (desc) {
-    sessionStorage.setItem('quizCatalogDesc', desc);
+    setStored(STORAGE_KEYS.CATALOG_DESC, desc);
   } else {
-    sessionStorage.removeItem('quizCatalogDesc');
+    clearStored(STORAGE_KEYS.CATALOG_DESC);
   }
   if (comment) {
-    sessionStorage.setItem('quizCatalogComment', comment);
+    setStored(STORAGE_KEYS.CATALOG_COMMENT, comment);
   } else {
-    sessionStorage.removeItem('quizCatalogComment');
+    clearStored(STORAGE_KEYS.CATALOG_COMMENT);
   }
 
-  localStorage.setItem('quizCatalogUid', opt.dataset.uid || '');
-  localStorage.setItem('quizCatalogSortOrder', opt.dataset.sortOrder || '');
+  setStored(STORAGE_KEYS.CATALOG_UID, opt.dataset.uid || '');
+  setStored(STORAGE_KEYS.CATALOG_SORT, opt.dataset.sortOrder || '');
 
-  sessionStorage.setItem('quizCatalog', opt.value || opt.dataset.slug || '');
-  localStorage.setItem('quizCatalog', opt.value || opt.dataset.slug || '');
+  setStored(STORAGE_KEYS.CATALOG, opt.value || opt.dataset.slug || '');
 
   // Katalogdaten laden
   const file = opt.dataset.file;
