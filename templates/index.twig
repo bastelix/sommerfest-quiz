@@ -72,6 +72,7 @@
     window.sessionPlayerName = {{ player_name|json_encode|raw }};
   </script>
   <script src="{{ basePath }}/js/storage.js"></script>
+  <script src="{{ basePath }}/js/session.js"></script>
   <script>
     function enforceProfile() {
       const cfg = window.quizConfig || {};

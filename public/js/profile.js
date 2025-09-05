@@ -45,11 +45,7 @@ function saveName(e) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ event_uid: eventUid, player_name: name, player_uid: uid })
   }).catch(() => {});
-  fetch('/session/player', {
-    method: 'POST',
-    body: JSON.stringify({ name }),
-    headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': window.csrfToken }
-  })
+  postSession('player', { name })
     .then(() => notify('Name gespeichert', 'success'))
     .catch(() => notify('Fehler beim Speichern', 'danger'));
   if (typeof returnUrl !== 'undefined' && returnUrl) {
