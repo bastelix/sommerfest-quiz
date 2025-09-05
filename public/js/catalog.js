@@ -189,11 +189,19 @@ async function handleSelection(opt, autostart = false) {
   const puzzleInfo = document.getElementById('puzzle-info');
   if (puzzleInfo) puzzleInfo.textContent = '';
 
-  fetch('/session/catalog', {
-    method: 'POST',
-    body: JSON.stringify({ slug: opt.value }),
-    headers: { 'Content-Type': 'application/json' }
-  });
+  try {
+    const resp = await fetch('/session/catalog', {
+      method: 'POST',
+      body: JSON.stringify({ slug: opt.value }),
+      headers: { 'Content-Type': 'application/json' }
+    });
+    if (!resp.ok) {
+      UIkit?.notification?.({ message: 'Session-Update fehlgeschlagen.', status: 'danger' });
+      console.error('session/catalog response not ok:', resp.status, resp.statusText);
+    }
+  } catch (e) {
+    console.error('session/catalog request failed', e);
+  }
 
   // Katalogdaten laden
   const file = opt.dataset.file;
