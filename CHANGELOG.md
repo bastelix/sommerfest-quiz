@@ -241,6 +241,7 @@
 - Remove redundant null coalesce
 - Centralize quiz intro
 - Rely on SessionMiddleware
+- Centralize session post requests
 
 ### Style
 
