@@ -1,6 +1,6 @@
 (function(){
   const STORAGE_KEYS = {
-    PLAYER_NAME: 'qr_player_name',
+    PLAYER_NAME: 'quizUser',
     PLAYER_UID: 'qr_player_uid',
     CATALOG: 'quizCatalog',
     CATALOG_NAME: 'quizCatalogName',
@@ -88,7 +88,7 @@
 
   /*
    * Standardized storage keys:
-   * - qr_player_name:<currentEventUid>  – Spielername
+   * - quizUser:<currentEventUid>  – Spielername
    * - qr_player_uid:<currentEventUid>   – Spieler-UID
    * - quizCatalog                – Aktueller Katalog-Slug
    * - quizCatalogName            – Katalognamen

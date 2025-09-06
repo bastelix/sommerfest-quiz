@@ -91,7 +91,7 @@ function insertSoftHyphens(text){
 
 async function promptTeamName(){
   return new Promise(resolve => {
-    const existing = getStored(STORAGE_KEYS.PLAYER_NAME);
+    const existing = getStored('quizUser');
     const modal = document.createElement('div');
     modal.setAttribute('uk-modal', '');
     modal.setAttribute('aria-modal', 'true');
@@ -132,7 +132,7 @@ async function promptTeamName(){
     btn.addEventListener('click', async () => {
       const name = (input.value || '').trim();
       if(name){
-        setStored(STORAGE_KEYS.PLAYER_NAME, name);
+        setStored('quizUser', name);
         try {
           await postSession('player', { name });
           ui.hide();
@@ -214,7 +214,7 @@ async function runQuiz(questions, skipIntro){
     if(v != null) setStored(k, v);
   });
 
-  if(!getStored(STORAGE_KEYS.PLAYER_NAME) && !cfg.QRRestrict && !cfg.QRUser){
+  if(!getStored('quizUser') && !cfg.QRRestrict && !cfg.QRUser){
     if(cfg.randomNames){
       await promptTeamName();
     }
@@ -1276,7 +1276,7 @@ async function runQuiz(questions, skipIntro){
         alert('Nur Registrierung per QR-Code erlaubt');
         return;
       }
-      if(!getStored(STORAGE_KEYS.PLAYER_NAME)){
+      if(!getStored('quizUser')){
         if(cfg.randomNames){
           await promptTeamName();
         }
