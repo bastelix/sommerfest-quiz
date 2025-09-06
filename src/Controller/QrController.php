@@ -194,7 +194,7 @@ class QrController
         if ($tmp !== false) {
             file_put_contents($tmp, $png);
         }
-        $title = (string)($ev['name'] ?? '');
+        $title = (string)$ev['name'];
         $subtitle = (string)($ev['description'] ?? '');
         $logoFile = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');
 
@@ -287,7 +287,7 @@ class QrController
             $response->getBody()->write('unknown event uid');
             return $response->withStatus(404)->withHeader('Content-Type', 'text/plain');
         }
-        $title = (string)($ev['name'] ?? '');
+        $title = (string)$ev['name'];
         $subtitle = (string)($ev['description'] ?? '');
         $logoPath = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');
 

@@ -28,7 +28,7 @@ class ImportControllerTest extends TestCase
         return [
             new CatalogService($pdo, $cfg),
             $cfg,
-            new ResultService($pdo, $cfg),
+            new ResultService($pdo),
             new TeamService($pdo, $cfg),
             new PhotoConsentService($pdo, $cfg),
             new SummaryPhotoService($pdo, $cfg),

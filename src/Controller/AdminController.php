@@ -89,7 +89,7 @@ class AdminController
         }
 
         if ($section === 'results') {
-            $results  = (new ResultService($pdo, $configSvc))->getAll();
+            $results  = (new ResultService($pdo))->getAll();
             $catMap   = [];
             foreach ($catalogs as $c) {
                 $name = $c['name'] ?? '';
