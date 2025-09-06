@@ -153,7 +153,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $stmt = $base->prepare('SELECT subdomain FROM tenants WHERE subdomain = ?');
         $stmt->execute([$sub]);
         $schema = $stmt->fetchColumn();
-        $schema = $schema === false ? 'public' : (string) $schema;
+        $schema = $schema === false || $schema === 'main' ? 'public' : (string) $schema;
 
         $pdo = Database::connectWithSchema($schema);
         Migrator::migrate($pdo, __DIR__ . '/../migrations');
