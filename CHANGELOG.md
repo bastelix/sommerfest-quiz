@@ -212,6 +212,7 @@
 - Reuse catalog uid for existing slug
 - Avoid autosave after load
 - Reuse existing catalog uid for duplicate slug
+- Address phpstan warnings
 
 ### Refactor
 
