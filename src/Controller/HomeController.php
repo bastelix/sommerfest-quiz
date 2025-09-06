@@ -103,10 +103,17 @@ class HomeController
         }
 
         if (($cfg['competitionMode'] ?? false) === true) {
-            $slug = $catalogParam;
+            $slug = strtolower($catalogParam);
             $allowed = array_map(
-                static fn($c) => $c['uid'] ?? $c['slug'] ?? $c['sort_order'] ?? '',
-                $catalogs
+                static fn ($v) => strtolower((string) $v),
+                array_filter(
+                    array_merge(
+                        array_column($catalogs, 'slug'),
+                        array_column($catalogs, 'uid'),
+                        array_column($catalogs, 'sort_order')
+                    ),
+                    static fn ($v) => $v !== null && $v !== ''
+                )
             );
             if ($slug === '' || !in_array($slug, $allowed, true)) {
                 return $response
