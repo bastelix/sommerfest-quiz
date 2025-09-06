@@ -34,8 +34,14 @@ class LoginControllerTest extends TestCase
         $this->assertIsArray($record);
 
         $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['csrf_token'] = 'tok';
         $request = $this->createRequest('POST', '/login')
-            ->withParsedBody(['username' => 'alice', 'password' => 'secret']);
+            ->withParsedBody([
+                'username' => 'alice',
+                'password' => 'secret',
+                'csrf_token' => 'tok',
+            ]);
         $response = $app->handle($request);
         $this->assertSame(302, $response->getStatusCode());
 
@@ -54,8 +60,14 @@ class LoginControllerTest extends TestCase
         $this->assertIsArray($record);
 
         $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['csrf_token'] = 'tok';
         $request = $this->createRequest('POST', '/login')
-            ->withParsedBody(['username' => 'frank', 'password' => 'secret'])
+            ->withParsedBody([
+                'username' => 'frank',
+                'password' => 'secret',
+                'csrf_token' => 'tok',
+            ])
             ->withHeader('Host', 'localhost');
         $response = $app->handle($request);
         $this->assertSame(302, $response->getStatusCode());
@@ -73,8 +85,14 @@ class LoginControllerTest extends TestCase
         $userService->create('bob', 'secret', 'bob@example.com', Roles::ADMIN);
 
         $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['csrf_token'] = 'tok';
         $request = $this->createRequest('POST', '/login')
-            ->withParsedBody(['username' => 'bob@example.com', 'password' => 'secret']);
+            ->withParsedBody([
+                'username' => 'bob@example.com',
+                'password' => 'secret',
+                'csrf_token' => 'tok',
+            ]);
         $response = $app->handle($request);
         $this->assertSame(302, $response->getStatusCode());
     }
@@ -86,10 +104,13 @@ class LoginControllerTest extends TestCase
         $userService->create('dave', 'secret', 'dave@example.com', Roles::ADMIN);
 
         $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['csrf_token'] = 'tok';
         $body = json_encode(['username' => 'dave', 'password' => 'secret']);
         $stream = (new StreamFactory())->createStream((string) $body);
         $request = $this->createRequest('POST', '/login')
             ->withHeader('Content-Type', 'application/json; charset=UTF-8')
+            ->withHeader('X-CSRF-Token', 'tok')
             ->withBody($stream);
 
         $response = $app->handle($request);
@@ -106,8 +127,14 @@ class LoginControllerTest extends TestCase
         $_ENV['BASE_PATH'] = '/base';
 
         $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['csrf_token'] = 'tok';
         $request = $this->createRequest('POST', '/base/login')
-            ->withParsedBody(['username' => 'erin', 'password' => 'secret']);
+            ->withParsedBody([
+                'username' => 'erin',
+                'password' => 'secret',
+                'csrf_token' => 'tok',
+            ]);
         $response = $app->handle($request);
 
         $this->assertSame(302, $response->getStatusCode());
@@ -120,8 +147,14 @@ class LoginControllerTest extends TestCase
     public function testUnknownUserShowsMessage(): void
     {
         $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['csrf_token'] = 'tok';
         $request = $this->createRequest('POST', '/login')
-            ->withParsedBody(['username' => 'nobody', 'password' => 'secret']);
+            ->withParsedBody([
+                'username' => 'nobody',
+                'password' => 'secret',
+                'csrf_token' => 'tok',
+            ]);
         $response = $app->handle($request);
         $this->assertSame(401, $response->getStatusCode());
         $this->assertStringContainsString('Benutzer nicht gefunden', (string) $response->getBody());
@@ -134,8 +167,14 @@ class LoginControllerTest extends TestCase
         $userService->create('carol', 'secret', 'carol@example.com', Roles::ADMIN);
 
         $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['csrf_token'] = 'tok';
         $request = $this->createRequest('POST', '/login')
-            ->withParsedBody(['username' => 'carol', 'password' => 'wrong']);
+            ->withParsedBody([
+                'username' => 'carol',
+                'password' => 'wrong',
+                'csrf_token' => 'tok',
+            ]);
         $response = $app->handle($request);
         $this->assertSame(401, $response->getStatusCode());
         $this->assertStringContainsString('Passwort falsch', (string) $response->getBody());
