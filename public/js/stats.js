@@ -124,6 +124,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  function renderNoEvent() {
+    if (tbody) {
+      tbody.innerHTML = '';
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 7;
+      td.textContent = 'Kein Event ausgewählt';
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+    if (filter) {
+      filter.innerHTML = '<option value="">Alle</option>';
+    }
+  }
+
   function updateFilterOptions() {
     if (!filter) return;
     const names = Array.from(new Set(data.map(r => r.name))).sort();
@@ -143,6 +158,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function load() {
+    const currentEventUid = (window.quizConfig || {}).event_uid || '';
+    if (!currentEventUid) {
+      data = [];
+      renderNoEvent();
+      return;
+    }
     Promise.all([
       fetchCatalogMap(),
       fetch(withBase('/question-results.json')).then(r => r.json())
