@@ -32,13 +32,15 @@ class LanguageMiddleware implements MiddlewareInterface
         $request = $request
             ->withAttribute('lang', $this->translator->getLocale())
             ->withAttribute('translator', $this->translator);
+        $path = $request->getUri()->getPath();
+        $base = $request->getUri()->getBasePath();
         if (
             $first &&
             empty($_SESSION['user']) &&
-            str_starts_with($request->getUri()->getPath(), '/admin/dashboard')
+            str_starts_with($path, $base . '/admin/dashboard')
         ) {
             return (new SlimResponse())
-                ->withHeader('Location', '/admin/dashboard')
+                ->withHeader('Location', $base . '/admin/dashboard')
                 ->withStatus(302);
         }
         return $handler->handle($request);
