@@ -38,7 +38,7 @@ class ResultServiceTest extends TestCase
         );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $cfg = new ConfigService($pdo);
-        $service = new ResultService($pdo, $cfg);
+        $service = new ResultService($pdo);
 
         $first = $service->add(['name' => 'TeamA', 'catalog' => 'cat1']);
         $this->assertSame(1, $first['attempt']);
@@ -74,7 +74,7 @@ class ResultServiceTest extends TestCase
         );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $cfg = new ConfigService($pdo);
-        $service = new ResultService($pdo, $cfg);
+        $service = new ResultService($pdo);
 
         $first = $service->add(['name' => 'TeamA', 'catalog' => 'cat1']);
         $this->assertSame(1, $first['attempt']);
@@ -110,7 +110,7 @@ class ResultServiceTest extends TestCase
         );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $cfg = new ConfigService($pdo);
-        $service = new ResultService($pdo, $cfg);
+        $service = new ResultService($pdo);
 
         $service->add(['name' => 'TeamA', 'catalog' => 'cat1']);
         $ts = time();
@@ -147,7 +147,7 @@ class ResultServiceTest extends TestCase
         );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $cfg = new ConfigService($pdo);
-        $service = new ResultService($pdo, $cfg);
+        $service = new ResultService($pdo);
 
         $service->add(['name' => 'TeamA', 'catalog' => 'cat1', 'puzzleTime' => 123]);
         $res = $service->markPuzzle('TeamA', 'cat1', 456);
@@ -183,7 +183,7 @@ class ResultServiceTest extends TestCase
         );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $cfg = new ConfigService($pdo);
-        $service = new ResultService($pdo, $cfg);
+        $service = new ResultService($pdo);
 
         $service->add(['name' => 'TeamA', 'catalog' => 'cat1']);
         $service->setPhoto('TeamA', 'cat1', '/photo/test.jpg');
@@ -256,7 +256,7 @@ class ResultServiceTest extends TestCase
         $pdo->exec("INSERT INTO questions(catalog_uid,sort_order,type,prompt) VALUES('u1',2,'text','Q2')");
 
         $cfg = new ConfigService($pdo);
-        $service = new ResultService($pdo, $cfg);
+        $service = new ResultService($pdo);
         $service->add(['name' => 'Team', 'catalog' => 'cat1', 'correct' => 1, 'total' => 2, 'wrong' => [2]]);
 
         $stmt = $pdo->query('SELECT question_id, correct FROM question_results ORDER BY id');
@@ -311,7 +311,7 @@ class ResultServiceTest extends TestCase
             SQL
         );
         $cfg = new ConfigService($pdo);
-        $service = new ResultService($pdo, $cfg);
+        $service = new ResultService($pdo);
         $service->add([ 'name' => 'Team', 'catalog' => 'cat1', 'correct' => 1, 'total' => 1 ]);
         $service->clear();
         $resCount = (int) $pdo->query('SELECT COUNT(*) FROM results')->fetchColumn();
@@ -391,7 +391,7 @@ class ResultServiceTest extends TestCase
             SQL
         );
         $cfg = new ConfigService($pdo);
-        $service = new ResultService($pdo, $cfg);
+        $service = new ResultService($pdo);
 
         $service->add(['name' => 'TeamA', 'catalog' => 'cat1']);
 
@@ -433,7 +433,7 @@ class ResultServiceTest extends TestCase
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $cfg = new ConfigService($pdo);
         $cfg->setActiveEventUid('ev1');
-        $service = new ResultService($pdo, $cfg);
+        $service = new ResultService($pdo);
 
         $pdo->exec("INSERT INTO results(name,catalog,attempt,correct,total,time,event_uid) VALUES('Team1','cat',1,0,0,0,'ev1')");
         $pdo->exec("INSERT INTO results(name,catalog,attempt,correct,total,time,event_uid) VALUES('Team2','cat',1,0,0,0,'ev2')");
@@ -491,7 +491,7 @@ class ResultServiceTest extends TestCase
         );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
         $cfg = new ConfigService($pdo);
-        $service = new ResultService($pdo, $cfg);
+        $service = new ResultService($pdo);
 
         $pdo->exec("INSERT INTO questions(id,catalog_uid,sort_order,type,prompt) VALUES(1,'u1',1,'text','Q1')");
 
@@ -558,7 +558,7 @@ class ResultServiceTest extends TestCase
 
         $cfg = new ConfigService($pdo);
         $cfg->setActiveEventUid('');
-        $service = new ResultService($pdo, $cfg);
+        $service = new ResultService($pdo);
 
         $this->assertSame([], $service->getAll());
         $this->assertSame([], $service->getQuestionResults());

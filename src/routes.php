@@ -175,7 +175,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             $_SESSION['event_uid'] = $eventUid;
         }
         $catalogService = new CatalogService($pdo, $configService, $tenantService, $sub, $eventUid);
-        $resultService = new ResultService($pdo, $configService);
+        $resultService = new ResultService($pdo);
         $teamService = new TeamService($pdo, $configService, $tenantService, $sub);
         $consentService = new PhotoConsentService($pdo, $configService);
         $summaryService = new SummaryPhotoService($pdo, $configService);

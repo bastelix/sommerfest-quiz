@@ -46,7 +46,7 @@ class SummaryController
             if ($event === null) {
                 return $response->withHeader('Location', '/events')->withStatus(302);
             }
-            $uid = (string)($event['uid'] ?? '');
+            $uid = (string)$event['uid'];
             $cfg = $this->config->getConfigForEvent($uid);
         }
         $role = $_SESSION['user']['role'] ?? null;

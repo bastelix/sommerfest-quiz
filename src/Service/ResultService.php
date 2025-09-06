@@ -6,7 +6,6 @@ namespace App\Service;
 
 use PDO;
 use PDOException;
-use App\Service\ConfigService;
 
 /**
  * Service for persisting and retrieving quiz results.
@@ -14,15 +13,13 @@ use App\Service\ConfigService;
 class ResultService
 {
     private PDO $pdo;
-    private ConfigService $config;
 
     /**
      * Inject database connection.
      */
-    public function __construct(PDO $pdo, ConfigService $config)
+    public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
-        $this->config = $config;
     }
 
 
