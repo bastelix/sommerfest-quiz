@@ -87,6 +87,17 @@ class LoginController
             ];
             $sessionService = new SessionService($pdo);
             $sessionService->persistSession((int) $record['id'], session_id());
+            $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
+            $mainDomain = (string) getenv('MAIN_DOMAIN');
+            if ($mainDomain !== '' && strcasecmp($host, $mainDomain) !== 0) {
+                $scheme = $request->getUri()->getScheme();
+                if ($scheme === '') {
+                    $scheme = 'https';
+                }
+                return $response
+                    ->withHeader('Location', $scheme . '://' . $mainDomain . '/admin')
+                    ->withStatus(302);
+            }
             $target = $record['role'] === 'admin' ? '/admin' : '/';
             $basePath = RouteContext::fromRequest($request)->getBasePath();
             return $response->withHeader('Location', $basePath . $target)->withStatus(302);
