@@ -249,6 +249,7 @@
 - Rely on SessionMiddleware
 - Centralize session post requests
 - Rename active event uid variable
+- Remove config fallback for empty event
 
 ### Style
 
