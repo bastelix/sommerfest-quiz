@@ -93,6 +93,17 @@ class LoginController
         $inactive = $record !== null && !(bool) $record['active'];
         $unknown = $record === null;
 
+        $ip = $request->getServerParams()['REMOTE_ADDR'] ?? 'unknown';
+        if ($unknown) {
+            error_log(sprintf('Unknown user "%s" from %s', $identifier, $ip));
+        } elseif ($inactive) {
+            $email = (string) ($record['email'] ?? '');
+            error_log(sprintf('Inactive user "%s" (%s) from %s', (string) $record['username'], $email, $ip));
+        } else {
+            $email = (string) ($record['email'] ?? '');
+            error_log(sprintf('Invalid password for "%s" (%s) from %s', (string) $record['username'], $email, $ip));
+        }
+
         return $view->render(
             $response->withStatus(401),
             'login.twig',
