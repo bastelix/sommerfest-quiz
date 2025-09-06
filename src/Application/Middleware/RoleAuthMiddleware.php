@@ -9,6 +9,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response as SlimResponse;
+use Slim\Routing\RouteContext;
 
 /**
  * Middleware ensuring the user has one of the allowed roles.
@@ -35,7 +36,7 @@ class RoleAuthMiddleware implements MiddlewareInterface
             $accept = $request->getHeaderLine('Accept');
             $xhr = $request->getHeaderLine('X-Requested-With');
             $path = $request->getUri()->getPath();
-            $base = $request->getUri()->getBasePath();
+            $base = RouteContext::fromRequest($request)->getBasePath();
             $isApi = str_starts_with($path, $base . '/api/')
                 || str_contains($accept, 'application/json')
                 || $xhr === 'fetch';

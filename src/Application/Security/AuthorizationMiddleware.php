@@ -9,6 +9,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response as SlimResponse;
+use Slim\Routing\RouteContext;
 
 /**
  * Middleware ensuring a user has a specific role.
@@ -30,7 +31,7 @@ class AuthorizationMiddleware implements MiddlewareInterface
         $role = $_SESSION['user']['role'] ?? null;
         if ($role !== $this->requiredRole) {
             $response = new SlimResponse();
-            $base = $request->getUri()->getBasePath();
+            $base = RouteContext::fromRequest($request)->getBasePath();
             return $response->withHeader('Location', $base . '/login')->withStatus(302);
         }
         return $handler->handle($request);
