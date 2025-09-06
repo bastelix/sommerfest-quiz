@@ -337,6 +337,8 @@ document.addEventListener('DOMContentLoaded', function () {
   // --------- Konfiguration bearbeiten ---------
   // Ausgangswerte aus der bestehenden Konfiguration
   const cfgInitial = window.quizConfig || {};
+  const params = new URLSearchParams(window.location.search);
+  let currentEventUid = params.get('event') || cfgInitial.event_uid || '';
   // Verweise auf die Formularfelder
   const cfgFields = {
     logoFile: document.getElementById('cfgLogoFile'),
@@ -486,8 +488,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }, 1000);
         const file = cfgFields.logoFile.files && cfgFields.logoFile.files[0];
         const ext = file && file.name.toLowerCase().endsWith('.webp') ? 'webp' : 'png';
-        cfgInitial.logoPath = activeEventUid
-          ? `/logo-${activeEventUid}.${ext}`
+        cfgInitial.logoPath = currentEventUid
+          ? `/logo-${currentEventUid}.${ext}`
           : `/logo.${ext}`;
         cfgFields.logoPreview.src = withBase(cfgInitial.logoPath) + '?' + Date.now();
         notify('Logo hochgeladen', 'success');
@@ -570,8 +572,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveCfg() {
     const data = collectCfgData();
-    const cfgPath = activeEventUid ? `/admin/event/${activeEventUid}` : '/config.json';
-    const method = activeEventUid ? 'PATCH' : 'POST';
+    const cfgPath = currentEventUid ? `/admin/event/${currentEventUid}` : '/config.json';
+    const method = currentEventUid ? 'PATCH' : 'POST';
     apiFetch(cfgPath, {
       method,
       headers: { 'Content-Type': 'application/json' },
@@ -1648,7 +1650,6 @@ document.addEventListener('DOMContentLoaded', function () {
   eventPaginationEl.id = 'eventsPagination';
   eventPaginationEl.className = 'uk-pagination uk-flex-center';
   eventAddBtn?.parentElement?.before(eventPaginationEl);
-  let activeEventUid = cfgInitial.event_uid || '';
   let eventManager;
   let eventEditor;
 
@@ -1695,7 +1696,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const opt = document.createElement('option');
       opt.value = ev.uid;
       opt.textContent = ev.name;
-      if (ev.uid === activeEventUid) {
+      if (ev.uid === currentEventUid) {
         opt.selected = true;
       }
       eventSelect.appendChild(opt);
@@ -1703,17 +1704,17 @@ document.addEventListener('DOMContentLoaded', function () {
     updateEventSelectDisplay();
   }
 
-  function highlightActiveEvent() {
+  function highlightCurrentEvent() {
     Array.from(eventsListEl?.querySelectorAll('tr') || []).forEach(row => {
-      row.classList.toggle('active-event', row.dataset.id === activeEventUid);
+      row.classList.toggle('active-event', row.dataset.id === currentEventUid);
     });
     Array.from(eventsCardsEl?.children || []).forEach(card => {
-      card.classList.toggle('active-event', card.dataset.id === activeEventUid);
+      card.classList.toggle('active-event', card.dataset.id === currentEventUid);
     });
   }
 
-  function setActiveEvent(uid, name) {
-    activeEventUid = uid;
+  function setCurrentEvent(uid, name) {
+    currentEventUid = uid;
     cfgInitial.event_uid = uid;
     updateActiveHeader(name, uid);
     apiFetch('/config.json', {
@@ -1753,13 +1754,13 @@ document.addEventListener('DOMContentLoaded', function () {
           input.type = 'radio';
           input.name = 'currentEventList';
           input.dataset.id = ev.id;
-          input.checked = ev.id === activeEventUid;
+          input.checked = ev.id === currentEventUid;
           input.addEventListener('change', () => {
             if (input.checked) {
               const twin = eventsCardsEl?.querySelector(`input[name="currentEventCard"][data-id="${ev.id}"]`);
               if (twin) twin.checked = true;
-              setActiveEvent(ev.id, ev.name);
-              highlightActiveEvent();
+              setCurrentEvent(ev.id, ev.name);
+              highlightCurrentEvent();
             }
           });
           const slider = document.createElement('span');
@@ -1776,13 +1777,13 @@ document.addEventListener('DOMContentLoaded', function () {
           input.type = 'radio';
           input.name = 'currentEventCard';
           input.dataset.id = ev.id;
-          input.checked = ev.id === activeEventUid;
+          input.checked = ev.id === currentEventUid;
           input.addEventListener('change', () => {
             if (input.checked) {
               const twin = eventsListEl.querySelector(`input[name="currentEventList"][data-id="${ev.id}"]`);
               if (twin) twin.checked = true;
-              setActiveEvent(ev.id, ev.name);
-              highlightActiveEvent();
+              setCurrentEvent(ev.id, ev.name);
+              highlightCurrentEvent();
             }
           });
           const slider = document.createElement('span');
@@ -1829,7 +1830,7 @@ document.addEventListener('DOMContentLoaded', function () {
       })[key] || '',
       getType: key => (key === 'start_date' || key === 'end_date') ? 'datetime-local' : 'text',
       onSave: () => {
-        highlightActiveEvent();
+        highlightCurrentEvent();
         saveEvents();
       }
     });
@@ -1842,7 +1843,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (idx !== -1) {
       list.splice(idx, 1);
       eventManager.render(list);
-      highlightActiveEvent();
+      highlightCurrentEvent();
       saveEvents();
       populateEventSelect(list);
     }
@@ -1855,7 +1856,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const list = data.map(d => createEventItem(d));
         if (eventManager) {
           eventManager.render(list);
-          highlightActiveEvent();
+          highlightCurrentEvent();
         }
         populateEventSelect(list);
       })
@@ -1872,7 +1873,7 @@ document.addEventListener('DOMContentLoaded', function () {
       eventManager.pagination.page = Math.max(1, Math.ceil(list.length / EVENTS_PER_PAGE));
     }
     eventManager.render(list);
-    highlightActiveEvent();
+    highlightCurrentEvent();
     saveEvents();
   });
 
@@ -1902,8 +1903,8 @@ document.addEventListener('DOMContentLoaded', function () {
   eventSelect?.addEventListener('change', () => {
     const uid = eventSelect.value;
     const name = eventSelect.options[eventSelect.selectedIndex]?.textContent || '';
-    if (uid && uid !== activeEventUid && typeof setActiveEvent === 'function') {
-      setActiveEvent(uid, name);
+    if (uid && uid !== currentEventUid && typeof setCurrentEvent === 'function') {
+      setCurrentEvent(uid, name);
     }
   });
 
@@ -2682,10 +2683,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const ext = file.type === 'image/webp' ? 'webp' : 'png';
     const fd = new FormData();
     fd.append('file', file);
-    const uploadPath = '/qrlogo.' + ext + (activeEventUid ? `?event_uid=${encodeURIComponent(activeEventUid)}` : '');
+    const uploadPath = '/qrlogo.' + ext + (currentEventUid ? `?event_uid=${encodeURIComponent(currentEventUid)}` : '');
     apiFetch(uploadPath, { method: 'POST', body: fd })
       .then(() => {
-        const cfgPath = activeEventUid ? `/events/${activeEventUid}/config.json` : '/config.json';
+        const cfgPath = currentEventUid ? `/events/${currentEventUid}/config.json` : '/config.json';
         return apiFetch(cfgPath, { headers: { 'Accept': 'application/json' } });
       })
       .then(r => r.json())
@@ -2754,8 +2755,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (qrLogoPath) data.qrLogoPath = qrLogoPath;
       data[field] = colorVal;
       if (logoWidthVal) data.qrLogoWidth = parseInt(logoWidthVal, 10);
-      const cfgPath = activeEventUid ? `/admin/event/${activeEventUid}` : '/config.json';
-      const method = activeEventUid ? 'PATCH' : 'POST';
+      const cfgPath = currentEventUid ? `/admin/event/${currentEventUid}` : '/config.json';
+      const method = currentEventUid ? 'PATCH' : 'POST';
       apiFetch(cfgPath, {
         method,
         headers: { 'Content-Type': 'application/json' },
@@ -2772,8 +2773,8 @@ document.addEventListener('DOMContentLoaded', function () {
       const data = { qrRounded: rounded };
       data[field] = colorVal;
       if (logoWidthVal) data.qrLogoWidth = parseInt(logoWidthVal, 10);
-      const cfgPath = activeEventUid ? `/admin/event/${activeEventUid}` : '/config.json';
-      const method = activeEventUid ? 'PATCH' : 'POST';
+      const cfgPath = currentEventUid ? `/admin/event/${currentEventUid}` : '/config.json';
+      const method = currentEventUid ? 'PATCH' : 'POST';
       apiFetch(cfgPath, {
         method,
         headers: { 'Content-Type': 'application/json' },
@@ -2792,8 +2793,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const teamsEl = document.getElementById('summaryTeams');
     if (!nameEl || !catalogsEl || !teamsEl) return;
     const opts = { headers: { 'Accept': 'application/json' } };
-    const cfgPromise = activeEventUid
-      ? apiFetch(`/events/${activeEventUid}/config.json`, opts).then(r => r.json()).catch(() => ({}))
+    const cfgPromise = currentEventUid
+      ? apiFetch(`/events/${currentEventUid}/config.json`, opts).then(r => r.json()).catch(() => ({}))
       : apiFetch('/config.json', opts).then(r => r.json()).catch(() => ({}));
     Promise.all([
       cfgPromise,
@@ -2802,8 +2803,8 @@ document.addEventListener('DOMContentLoaded', function () {
       apiFetch('/teams.json', opts).then(r => r.json()).catch(() => [])
     ]).then(([cfg, events, catalogs, teams]) => {
       Object.assign(cfgInitial, cfg);
-      activeEventUid = cfgInitial.event_uid || activeEventUid;
-      const ev = events.find(e => e.uid === activeEventUid) || events[0] || {};
+      currentEventUid = cfgInitial.event_uid || currentEventUid;
+      const ev = events.find(e => e.uid === currentEventUid) || events[0] || {};
       nameEl.textContent = ev.name || '';
       if (descEl) descEl.textContent = ev.description || '';
       const applyDesign = (params, colorKey) => {
