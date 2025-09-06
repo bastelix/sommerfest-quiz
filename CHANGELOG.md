@@ -287,6 +287,7 @@
 - Verify slug option selection
 - Add handleSelection header test
 - Cover quiz autostart error cases
+- Persist session on localhost
 
 ## [0.2.0] - 2025-08-18
 
