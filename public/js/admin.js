@@ -1720,9 +1720,19 @@ document.addEventListener('DOMContentLoaded', function () {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ event_uid: uid })
-    }).then(() => {
-      window.location.reload();
-    }).catch(() => {});
+    })
+      .then(resp => {
+        if (!resp.ok) {
+          return resp.text().then(text => {
+            notify(text || 'Fehler beim Wechseln des Events', 'danger');
+          });
+        }
+        window.location.reload();
+      })
+      .catch(err => {
+        console.error(err);
+        notify('Fehler beim Wechseln des Events', 'danger');
+      });
   }
 
   if (eventsListEl) {
@@ -1892,7 +1902,7 @@ document.addEventListener('DOMContentLoaded', function () {
   eventSelect?.addEventListener('change', () => {
     const uid = eventSelect.value;
     const name = eventSelect.options[eventSelect.selectedIndex]?.textContent || '';
-    if (uid && uid !== activeEventUid) {
+    if (uid && uid !== activeEventUid && typeof setActiveEvent === 'function') {
       setActiveEvent(uid, name);
     }
   });
