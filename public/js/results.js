@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const pagination = document.getElementById('resultsPagination');
   const basePath = window.basePath || '';
   const withBase = path => basePath + path;
+  const params = new URLSearchParams(window.location.search);
+  const eventUid = params.get('event') || '';
+  const eventQuery = eventUid ? `?event=${encodeURIComponent(eventUid)}` : '';
 
   const PAGE_SIZE = 10;
   let resultsData = [];
@@ -388,8 +391,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function load() {
     Promise.all([
       fetchCatalogMap(),
-      fetch(withBase('/results.json')).then(r => r.json()),
-      fetch(withBase('/question-results.json')).then(r => r.json())
+      fetch(withBase('/results.json' + eventQuery)).then(r => r.json()),
+      fetch(withBase('/question-results.json' + eventQuery)).then(r => r.json())
     ])
       .then(([catMap, rows, qrows]) => {
         rows.forEach(r => {
