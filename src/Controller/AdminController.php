@@ -56,15 +56,8 @@ class AdminController
             $cfg = $cfgSvc->getConfigForEvent($uid);
             $event = $eventSvc->getByUid($uid) ?? $eventSvc->getFirst();
         } else {
-            $cfg = $cfgSvc->getConfig();
+            $cfg = [];
             $event = null;
-            $evUid = (string)($cfg['event_uid'] ?? '');
-            if ($evUid !== '') {
-                $event = $eventSvc->getByUid($evUid);
-            }
-            if ($event === null) {
-                $event = $eventSvc->getFirst();
-            }
         }
         $context = \Slim\Routing\RouteContext::fromRequest($request);
         $route   = $context->getRoute();
