@@ -338,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Ausgangswerte aus der bestehenden Konfiguration
   const cfgInitial = window.quizConfig || {};
   const params = new URLSearchParams(window.location.search);
-  let currentEventUid = params.get('event') || cfgInitial.event_uid || '';
+  let currentEventUid = params.get('event') || '';
   // Verweise auf die Formularfelder
   const cfgFields = {
     logoFile: document.getElementById('cfgLogoFile'),
@@ -1692,6 +1692,17 @@ document.addEventListener('DOMContentLoaded', function () {
   function populateEventSelect(list) {
     if (!eventSelect) return;
     eventSelect.innerHTML = '';
+    if (!Array.isArray(list) || list.length === 0) {
+      currentEventUid = '';
+      cfgInitial.event_uid = '';
+      if (eventSelectWrap) eventSelectWrap.hidden = true;
+      if (eventOpenBtn) eventOpenBtn.disabled = true;
+      return;
+    }
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = eventSelect.dataset.placeholder || '';
+    eventSelect.appendChild(placeholder);
     list.forEach(ev => {
       const opt = document.createElement('option');
       opt.value = ev.uid;
@@ -1701,6 +1712,13 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       eventSelect.appendChild(opt);
     });
+    if (currentEventUid) {
+      eventSelect.value = currentEventUid;
+    } else {
+      eventSelect.value = '';
+    }
+    if (eventSelectWrap) eventSelectWrap.hidden = false;
+    if (eventOpenBtn) eventOpenBtn.disabled = !currentEventUid;
     updateEventSelectDisplay();
   }
 
@@ -1896,6 +1914,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (btnSpan) {
       const sel = eventSelect.options[eventSelect.selectedIndex];
       btnSpan.textContent = sel ? sel.textContent : '';
+      if (eventOpenBtn) eventOpenBtn.disabled = !sel || !sel.value;
     }
     window.dispatchEvent(new Event('resize'));
   }
@@ -2803,8 +2822,11 @@ document.addEventListener('DOMContentLoaded', function () {
       apiFetch('/teams.json', opts).then(r => r.json()).catch(() => [])
     ]).then(([cfg, events, catalogs, teams]) => {
       Object.assign(cfgInitial, cfg);
-      currentEventUid = cfgInitial.event_uid || currentEventUid;
-      const ev = events.find(e => e.uid === currentEventUid) || events[0] || {};
+      if (!events.some(e => e.uid === currentEventUid)) {
+        currentEventUid = '';
+        cfgInitial.event_uid = '';
+      }
+      const ev = events.find(e => e.uid === currentEventUid) || {};
       nameEl.textContent = ev.name || '';
       if (descEl) descEl.textContent = ev.description || '';
       const applyDesign = (params, colorKey) => {
