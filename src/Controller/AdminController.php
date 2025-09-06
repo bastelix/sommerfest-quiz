@@ -50,7 +50,8 @@ class AdminController
         $version = $versionSvc->getCurrentVersion();
 
         $params = $request->getQueryParams();
-        $uid = (string)($params['event'] ?? '');
+        $uid = (string) ($params['event'] ?? '');
+        $cfgSvc->setActiveEventUid($uid);
         if ($uid !== '') {
             $cfg = $cfgSvc->getConfigForEvent($uid);
             $event = $eventSvc->getByUid($uid) ?? $eventSvc->getFirst();
