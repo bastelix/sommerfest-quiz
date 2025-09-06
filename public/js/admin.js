@@ -2509,7 +2509,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (query) params.set('query', query);
     const url = '/tenants' + (params.toString() ? ('?' + params.toString()) : '');
     apiFetch(url, { headers: { 'Accept': 'text/html' } })
-      .then((r) => r.text())
+      .then(r => r.ok ? r.text() : Promise.reject(r))
       .then((html) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
@@ -2523,7 +2523,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         updateTenantColumnVisibility();
       })
-      .catch(() => {});
+      .catch(() => notify('Mandanten konnten nicht geladen werden', 'danger'));
   }
 
   // Zähler für eindeutige Namen von Eingabefeldern
