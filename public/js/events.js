@@ -111,30 +111,13 @@ document.addEventListener('DOMContentLoaded', () => {
     eventSelect.dispatchEvent(new Event('change'));
   }
 
-  function setActive(uid) {
-    activeEventUid = uid;
-    csrfFetch('/config.json', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event_uid: uid })
-    })
-      .then((resp) => {
-        if (resp.ok) {
-          window.location.reload();
-        } else {
-          notify('Fehler beim Speichern', 'danger');
-        }
-      })
-      .catch(() => notify('Fehler beim Speichern', 'danger'));
-  }
-
   if (eventSelect) {
     const cfgUrl = pageEventUid ? `/events/${pageEventUid}/config.json` : '/config.json';
     Promise.all([
       csrfFetch(cfgUrl).then((r) => r.json()).catch(() => ({})),
       csrfFetch('/events.json', { headers: { Accept: 'application/json' } }).then((r) => r.json()).catch(() => [])
     ]).then(([cfg, events]) => {
-      activeEventUid = cfg.event_uid || '';
+      activeEventUid = pageEventUid || cfg.event_uid || '';
       window.quizConfig = cfg;
       populate(events);
     }).catch(() => {});
@@ -143,7 +126,9 @@ document.addEventListener('DOMContentLoaded', () => {
   eventSelect?.addEventListener('change', () => {
     const uid = eventSelect.value;
     if (uid && uid !== activeEventUid) {
-      setActive(uid);
+      const url = new URL(window.location.href);
+      url.searchParams.set('event', uid);
+      window.location.href = url.toString();
     }
   });
 
