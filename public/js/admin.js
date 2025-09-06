@@ -1879,7 +1879,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (eventManager || eventSelect) {
     apiFetch('/events.json', { headers: { 'Accept': 'application/json' } })
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) {
+          if (r.status === 401 || r.status === 403) {
+            notify('Bitte einloggen', 'warning');
+          }
+          throw new Error(`HTTP ${r.status}`);
+        }
+        return r.json();
+      })
       .then(data => {
         const list = data.map(d => createEventItem(d));
         if (eventManager) {
@@ -1888,7 +1896,10 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         populateEventSelect(list);
       })
-      .catch(() => {});
+      .catch(err => {
+        console.error(err);
+        notify('Events konnten nicht geladen werden', 'danger');
+      });
   }
 
   eventAddBtn?.addEventListener('click', e => {
