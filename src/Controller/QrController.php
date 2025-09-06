@@ -97,17 +97,16 @@ class QrController
      */
     public function event(Request $request, Response $response): Response
     {
-        $cfg = $this->config->getConfig();
         $params = $request->getQueryParams();
-        if (($params['t'] ?? '') === '') {
-            $uid = $this->config->getActiveEventUid();
-            $slug = null;
-            if ($uid !== '') {
-                $ev = $this->events->getByUid($uid);
-                $slug = $ev['slug'] ?? null;
-            }
-            $params['t'] = '?event=' . ($slug ?? $uid);
+        $event = (string)($params['event'] ?? '');
+        if ($event === '') {
+            $response->getBody()->write('missing event uid');
+            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
+        if (($params['t'] ?? '') === '') {
+            $params['t'] = '?event=' . $event;
+        }
+        $cfg = $this->config->getConfigForEvent($event);
         try {
             $out = $this->qrService->generateEvent($params, $cfg);
         } catch (Throwable $e) {
@@ -169,7 +168,17 @@ class QrController
             return $response->withStatus(400);
         }
 
-        $cfg = $this->config->getConfig();
+        $uid = (string)($params['event'] ?? '');
+        if ($uid === '') {
+            $response->getBody()->write('missing event uid');
+            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
+        }
+        $cfg = $this->config->getConfigForEvent($uid);
+        $ev = $this->events->getByUid($uid);
+        if ($ev === null) {
+            $response->getBody()->write('unknown event uid');
+            return $response->withStatus(404)->withHeader('Content-Type', 'text/plain');
+        }
 
         $qrParams = $params;
         $qrParams['format'] = 'png';
@@ -185,16 +194,8 @@ class QrController
         if ($tmp !== false) {
             file_put_contents($tmp, $png);
         }
-        $uid = $this->config->getActiveEventUid();
-        $ev = null;
-        if ($uid !== '') {
-            $ev = $this->events->getByUid($uid);
-        }
-        if ($ev === null) {
-            $ev = ['name' => '', 'start_date' => '', 'end_date' => '', 'description' => ''];
-        }
-        $title = (string)$ev['name'];
-        $subtitle = (string)$ev['description'];
+        $title = (string)($ev['name'] ?? '');
+        $subtitle = (string)($ev['description'] ?? '');
         $logoFile = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');
 
         $pdf = new Pdf($title, $subtitle, $logoFile);
@@ -275,17 +276,19 @@ class QrController
             return $response->withStatus(404)->withHeader('Content-Type', 'text/plain');
         }
 
-        $cfg = $this->config->getConfig();
-        $uid = $this->config->getActiveEventUid();
-        $ev = null;
-        if ($uid !== '') {
-            $ev = $this->events->getByUid($uid);
+        $uid = (string)($params['event'] ?? '');
+        if ($uid === '') {
+            $response->getBody()->write('missing event uid');
+            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
+        $cfg = $this->config->getConfigForEvent($uid);
+        $ev = $this->events->getByUid($uid);
         if ($ev === null) {
-            $ev = ['name' => '', 'start_date' => '', 'end_date' => '', 'description' => ''];
+            $response->getBody()->write('unknown event uid');
+            return $response->withStatus(404)->withHeader('Content-Type', 'text/plain');
         }
-        $title = (string)$ev['name'];
-        $subtitle = (string)$ev['description'];
+        $title = (string)($ev['name'] ?? '');
+        $subtitle = (string)($ev['description'] ?? '');
         $logoPath = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');
 
         $pdf = new Pdf($title, $subtitle, $logoPath);
@@ -343,6 +346,7 @@ class QrController
                 $this->renderHtml($pdf, $invite, 'Arial', '', 11);
             }
 
+            // Draw footer separator about 1 cm from the bottom
             $footerY = $pdf->GetPageHeight() - 10;
             $pdf->SetLineWidth(0.2);
             $pdf->Line(10, $footerY, $pdf->GetPageWidth() - 10, $footerY);

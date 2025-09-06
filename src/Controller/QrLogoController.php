@@ -30,9 +30,14 @@ class QrLogoController
             $uid = $m[1];
         }
 
-        $cfg = $uid !== ''
-            ? $this->config->getConfigForEvent($uid)
-            : $this->config->getConfig();
+        if ($uid === '') {
+            $path = __DIR__ . '/../../public/favicon.svg';
+            $contentType = 'image/svg+xml';
+            $response->getBody()->write((string)file_get_contents($path));
+            return $response->withHeader('Content-Type', $contentType);
+        }
+
+        $cfg = $this->config->getConfigForEvent($uid);
 
         $relPath = $cfg['qrLogoPath'] ?? '';
         $path = '';
@@ -91,10 +96,15 @@ class QrLogoController
             return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
 
-        $uid = $this->config->getActiveEventUid();
-        $base = $uid !== '' ? "qrlogo-$uid.$extension" : "qrlogo.$extension";
+        $params = $request->getQueryParams();
+        $uid = (string)($params['event'] ?? '');
+        if ($uid === '') {
+            $response->getBody()->write('missing event uid');
+            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
+        }
+        $base = "qrlogo-$uid.$extension";
         $target = __DIR__ . "/../../data/" . $base;
-        if (!class_exists('\\Intervention\\Image\\ImageManager')) {
+        if (!class_exists('\Intervention\Image\ImageManager')) {
             $response->getBody()->write('Intervention Image NICHT installiert');
             return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
         }
@@ -105,7 +115,8 @@ class QrLogoController
         $img->scaleDown(512, 512);
         $img->save($target, 80);
 
-        $cfg = $this->config->getConfig();
+        $cfg = $this->config->getConfigForEvent($uid);
+        $cfg['event_uid'] = $uid;
         $cfg['qrLogoPath'] = '/' . $base;
         $this->config->saveConfig($cfg);
 
