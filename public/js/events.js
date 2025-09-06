@@ -95,6 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!eventSelect) return;
     eventSelect.innerHTML = '';
     if (!Array.isArray(list) || list.length === 0) {
+      currentEventUid = '';
+      window.quizConfig = {};
       if (selectWrap) selectWrap.hidden = true;
       if (eventTitle) eventTitle.hidden = false;
       return;
@@ -110,9 +112,15 @@ document.addEventListener('DOMContentLoaded', () => {
       if (ev.uid === currentEventUid) opt.selected = true;
       eventSelect.appendChild(opt);
     });
+    const hasCurrent = list.some((ev) => ev.uid === currentEventUid);
+    if (!hasCurrent) {
+      currentEventUid = '';
+      window.quizConfig = {};
+    }
     if (selectWrap) selectWrap.hidden = false;
     if (eventTitle) eventTitle.hidden = true;
     if (currentEventUid) {
+      eventSelect.value = currentEventUid;
       eventSelect.dispatchEvent(new Event('change'));
     } else {
       eventSelect.value = '';
