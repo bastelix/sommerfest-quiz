@@ -10,6 +10,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response as SlimResponse;
+use Slim\Routing\RouteContext;
 
 class LanguageMiddleware implements MiddlewareInterface
 {
@@ -33,7 +34,7 @@ class LanguageMiddleware implements MiddlewareInterface
             ->withAttribute('lang', $this->translator->getLocale())
             ->withAttribute('translator', $this->translator);
         $path = $request->getUri()->getPath();
-        $base = $request->getUri()->getBasePath();
+        $base = RouteContext::fromRequest($request)->getBasePath();
         if (
             $first &&
             empty($_SESSION['user']) &&
