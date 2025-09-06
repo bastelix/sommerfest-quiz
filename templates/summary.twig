@@ -29,6 +29,7 @@
     {% endblock %}
   {% endembed %}
   <div class="uk-container uk-container-small uk-text-center">
+    <div id="eventNotice" class="uk-alert uk-alert-primary" hidden data-empty="{{ t('text_no_events') }}" data-required="{{ t('text_event_required') }}"></div>
     <h2 class="uk-heading-bullet uk-margin-small-top">Herzlichen Glückwunsch, es wurden alle Kataloge gelöst!</h2>
     {% if config.teamResults is not defined or config.teamResults %}
     <button id="show-results-btn" class="uk-button uk-button-primary uk-margin-top">Ergebnisse anzeigen</button>

@@ -72,6 +72,7 @@
       </div>
     </aside>
     <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div id="eventNotice" class="uk-alert uk-alert-primary" hidden data-empty="{{ t('text_no_events') }}" data-required="{{ t('text_event_required') }}"></div>
       {% set activeRoute = currentPath|split('/admin/')|last %}
       {% if activeRoute == '' %}
         {% set activeRoute = 'dashboard' %}

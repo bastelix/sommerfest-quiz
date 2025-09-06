@@ -87,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const eventSelect = document.getElementById('eventSelect');
   const eventOpenBtn = document.getElementById('eventOpenBtn');
   const eventTitle = document.getElementById('eventTitle');
+  const eventNotice = document.getElementById('eventNotice');
   let currentEventUid = '';
   const params = new URLSearchParams(window.location.search);
   const pageEventUid = params.get('event') || '';
@@ -99,6 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
       window.quizConfig = {};
       if (selectWrap) selectWrap.hidden = true;
       if (eventTitle) eventTitle.hidden = false;
+      if (eventNotice) {
+        eventNotice.textContent = eventNotice.dataset.empty || 'Keine Veranstaltungen vorhanden';
+        eventNotice.hidden = false;
+      }
       return;
     }
     const placeholder = document.createElement('option');
@@ -120,10 +125,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (selectWrap) selectWrap.hidden = false;
     if (eventTitle) eventTitle.hidden = true;
     if (currentEventUid) {
-      eventSelect.value = currentEventUid;
+      if (eventNotice) eventNotice.hidden = true;
       eventSelect.dispatchEvent(new Event('change'));
     } else {
       eventSelect.value = '';
+      if (eventNotice) {
+        eventNotice.textContent = eventNotice.dataset.required || '';
+        eventNotice.hidden = false;
+      }
     }
   }
 
