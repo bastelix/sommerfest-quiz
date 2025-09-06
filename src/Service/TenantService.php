@@ -20,6 +20,10 @@ class TenantService
     private ?NginxService $nginxService;
     private string $tenantsDir;
 
+    /**
+     * Subdomain used for the default "public" schema.
+     */
+    private const MAIN_SUBDOMAIN = 'main';
     private const RESERVED_SUBDOMAINS = [
         'public',
         'www',
@@ -632,21 +636,22 @@ class TenantService
         $stmt = $this->pdo->query(
             "SELECT schema_name FROM information_schema.schemata " .
             "WHERE schema_name NOT LIKE 'pg_%' " .
-            "AND schema_name NOT IN ('information_schema','public')"
+            "AND schema_name NOT IN ('information_schema')"
         );
         $schemas = [];
         $ins = $this->pdo->prepare('INSERT INTO tenants(uid, subdomain) VALUES(?, ?)');
         $count = 0;
         while (($schema = $stmt->fetchColumn()) !== false) {
             $schemas[] = $schema;
-            if (in_array($schema, $existing, true)) {
+            $subdomain = $schema === 'public' ? self::MAIN_SUBDOMAIN : $schema;
+            if (in_array($subdomain, $existing, true)) {
                 continue;
             }
-            if ($this->isReserved($schema)) {
+            if ($this->isReserved($subdomain)) {
                 continue;
             }
-            $ins->execute([bin2hex(random_bytes(16)), $schema]);
-            $existing[] = $schema;
+            $ins->execute([bin2hex(random_bytes(16)), $subdomain]);
+            $existing[] = $subdomain;
             $count++;
         }
 
@@ -656,15 +661,16 @@ class TenantService
                 if ($dir === '.' || $dir === '..') {
                     continue;
                 }
+                $schemaName = $dir === self::MAIN_SUBDOMAIN ? 'public' : $dir;
                 if (in_array($dir, $existing, true)) {
                     continue;
                 }
                 if ($this->isReserved($dir)) {
                     continue;
                 }
-                if (!in_array($dir, $schemas, true)) {
-                    $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $dir));
-                    $schemas[] = $dir;
+                if (!in_array($schemaName, $schemas, true)) {
+                    $this->pdo->exec(sprintf('CREATE SCHEMA "%s"', $schemaName));
+                    $schemas[] = $schemaName;
                 }
                 $ins->execute([bin2hex(random_bytes(16)), $dir]);
                 $existing[] = $dir;

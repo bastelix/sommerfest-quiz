@@ -399,9 +399,9 @@ SQL;
         $pdo->exec("INSERT INTO information_schema.schemata(schema_name) VALUES('s1'),('public'),('s2')");
         $service = new TenantService($pdo);
         $count = $service->importMissing();
-        $this->assertSame(2, $count);
+        $this->assertSame(3, $count);
         $subs = $pdo->query('SELECT subdomain FROM tenants ORDER BY subdomain')->fetchAll(PDO::FETCH_COLUMN);
-        $this->assertSame(['s1', 's2'], $subs);
+        $this->assertSame(['main', 's1', 's2'], $subs);
     }
 
     public function testImportMissingSyncsTenantsDirectory(): void
@@ -450,11 +450,12 @@ SQL;
             'imprint_name TEXT, imprint_street TEXT, imprint_zip TEXT, imprint_city TEXT, ' .
             'imprint_email TEXT, custom_limits TEXT, plan_started_at TEXT, plan_expires_at TEXT, created_at TEXT)');
         $pdo->exec('CREATE TABLE information_schema.schemata(schema_name TEXT)');
+        $pdo->exec("INSERT INTO information_schema.schemata(schema_name) VALUES('public')");
         $service = new TenantService($pdo);
         $count = $service->importMissing();
-        $this->assertSame(1, $count);
+        $this->assertSame(2, $count);
         $subs = $pdo->query('SELECT subdomain FROM tenants')->fetchAll(PDO::FETCH_COLUMN);
-        $this->assertSame([$sub], $subs);
+        $this->assertSame(['main', $sub], $subs);
         $schemas = $pdo->query('SELECT schema_name FROM information_schema.schemata')->fetchAll(PDO::FETCH_COLUMN);
         $this->assertContains($sub, $schemas);
 
