@@ -11,6 +11,7 @@ use App\Service\VersionService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
+use Slim\Routing\RouteContext;
 use PDO;
 
 /**
@@ -84,7 +85,8 @@ class LoginController
             $sessionService = new SessionService($pdo);
             $sessionService->persistSession((int) $record['id'], session_id());
             $target = $record['role'] === 'admin' ? '/admin' : '/';
-            return $response->withHeader('Location', $target)->withStatus(302);
+            $basePath = RouteContext::fromRequest($request)->getBasePath();
+            return $response->withHeader('Location', $basePath . $target)->withStatus(302);
         }
 
         $view = Twig::fromRequest($request);

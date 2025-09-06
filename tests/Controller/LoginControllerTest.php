@@ -96,6 +96,27 @@ class LoginControllerTest extends TestCase
         $this->assertSame(302, $response->getStatusCode());
     }
 
+    public function testLoginRedirectRespectsBasePath(): void
+    {
+        $pdo = $this->getDatabase();
+        $userService = new UserService($pdo);
+        $userService->create('erin', 'secret', 'erin@example.com', Roles::ADMIN);
+
+        putenv('BASE_PATH=/base');
+        $_ENV['BASE_PATH'] = '/base';
+
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('POST', '/base/login')
+            ->withParsedBody(['username' => 'erin', 'password' => 'secret']);
+        $response = $app->handle($request);
+
+        $this->assertSame(302, $response->getStatusCode());
+        $this->assertSame('/base/admin', $response->getHeaderLine('Location'));
+
+        putenv('BASE_PATH');
+        unset($_ENV['BASE_PATH']);
+    }
+
     public function testUnknownUserShowsMessage(): void
     {
         $app = $this->getAppInstance();
