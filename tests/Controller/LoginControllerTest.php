@@ -144,6 +144,35 @@ class LoginControllerTest extends TestCase
         unset($_ENV['BASE_PATH']);
     }
 
+    public function testLoginRedirectsToMainDomainOnWrongHost(): void
+    {
+        $pdo = $this->getDatabase();
+        $userService = new UserService($pdo);
+        $userService->create('grace', 'secret', 'grace@example.com', Roles::ADMIN);
+
+        putenv('MAIN_DOMAIN=main.test');
+        $_ENV['MAIN_DOMAIN'] = 'main.test';
+
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['csrf_token'] = 'tok';
+        $_SERVER['HTTP_HOST'] = 'tenant.main.test';
+        $request = $this->createRequest('POST', '/login', ['HTTP_HOST' => 'tenant.main.test'])
+            ->withParsedBody([
+                'username' => 'grace',
+                'password' => 'secret',
+                'csrf_token' => 'tok',
+            ]);
+        $request = $request->withUri($request->getUri()->withHost('tenant.main.test')->withScheme('https'));
+        $response = $app->handle($request);
+
+        $this->assertSame(302, $response->getStatusCode());
+        $this->assertSame('https://main.test/admin', $response->getHeaderLine('Location'));
+
+        putenv('MAIN_DOMAIN');
+        unset($_ENV['MAIN_DOMAIN'], $_SERVER['HTTP_HOST']);
+    }
+
     public function testUnknownUserShowsMessage(): void
     {
         $app = $this->getAppInstance();
