@@ -57,9 +57,10 @@ class HomeControllerTest extends TestCase
     {
         $this->withCompetitionMode(function () {
             $app = $this->getAppInstance();
-            $request = $this->createRequest('GET', '/');
+            $request = $this->createRequest('GET', '/')->withQueryParams(['event' => 'event']);
             $response = $app->handle($request);
-            $this->assertEquals(200, $response->getStatusCode());
+            $this->assertEquals(302, $response->getStatusCode());
+            $this->assertEquals('/help', $response->getHeaderLine('Location'));
         });
     }
 
@@ -67,7 +68,23 @@ class HomeControllerTest extends TestCase
     {
         $this->withCompetitionMode(function () {
             $app = $this->getAppInstance();
-            $request = $this->createRequest('GET', '/')->withQueryParams(['katalog' => 'station_1']);
+            $request = $this->createRequest('GET', '/')->withQueryParams([
+                'event' => 'event',
+                'katalog' => 'station_1',
+            ]);
+            $response = $app->handle($request);
+            $this->assertEquals(200, $response->getStatusCode());
+        });
+    }
+
+    public function testCompetitionAllowsCatalogSlugCaseInsensitive(): void
+    {
+        $this->withCompetitionMode(function () {
+            $app = $this->getAppInstance();
+            $request = $this->createRequest('GET', '/')->withQueryParams([
+                'event' => 'event',
+                'katalog' => 'STATION_1',
+            ]);
             $response = $app->handle($request);
             $this->assertEquals(200, $response->getStatusCode());
         });
@@ -100,6 +117,9 @@ class HomeControllerTest extends TestCase
         $pdo = \App\Infrastructure\Database::connectFromEnv();
         \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
         (new \App\Service\SettingsService($pdo))->save(['home_page' => 'landing']);
+        $pdo->exec(
+            "INSERT INTO pages(slug,title,content) VALUES('landing','Landing','Trete gegen Freunde und Kollegen an')"
+        );
 
         try {
             $app = $this->getAppInstance();
