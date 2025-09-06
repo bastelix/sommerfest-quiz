@@ -26,6 +26,15 @@ Im Tab "Administration" lassen sich JSON-Sicherungen exportieren und bei Bedarf 
 
 Weitere Funktionen wie der QR-Code-Login mit Namensspeicherung oder der Wettkampfmodus lassen sich über die Event-Konfiguration in der Datenbank aktivieren.
 
+## Aktive Events
+
+Über zwei Mechanismen wird festgelegt, für welches Event der Server arbeitet:
+
+* **Admin-Flag** – Administratoren können im Backend ein Event als aktiv markieren. `ConfigService::setActiveEventUid` schreibt die jeweilige `event_uid` in die Tabelle `active_event`. `ConfigService::getActiveEventUid` liest diesen Wert und stellt ihn dem Backend als Standard bereit.
+* **Frontend-Auswahl** – Im Frontend wird das Event ausschließlich über den URL-Parameter `event` bestimmt. Der Wert landet in `window.quizConfig.event_uid` und steuert sämtliche clientseitige Funktionen.
+
+Der gesetzte Admin-Flag dient nur dazu, eine Vorauswahl für das Backend zu liefern. Die Anwendung im Browser orientiert sich ausschließlich am URL-basierten Event und ignoriert den in `active_event` gespeicherten Wert.
+
 ## Statische Seiten bearbeiten
 
 Im Tab **Seiten** können Administratoren die HTML-Dateien `landing`, `impressum`, `datenschutz` und `faq` anpassen. Über das Untermenü wird die gewünschte Seite ausgewählt und im **Trumbowyg**-Editor bearbeitet. Zusätzlich stehen eigene UIkit-Blöcke zur Verfügung, etwa ein Hero-Abschnitt oder eine Card. Mit **Speichern** werden die Änderungen im Ordner `content/` abgelegt. Die Schaltfläche *Vorschau* zeigt den aktuellen Stand direkt im Modal an. Alternativ kann der Editor weiterhin über `/admin/pages/{slug}` aufgerufen werden.
