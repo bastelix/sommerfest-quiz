@@ -109,12 +109,11 @@ class ConfigService
 
         $stmt = $this->pdo->prepare('SELECT * FROM config WHERE event_uid = ? LIMIT 1');
         $stmt->execute([$uid]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
-        if ($row !== null) {
-            return $this->normalizeKeys($row);
-        }
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return [];
+        return $row !== false && $row !== null
+            ? $this->normalizeKeys($row)
+            : [];
     }
 
     /**
@@ -318,14 +317,15 @@ class ConfigService
         if ($this->activeEvent !== null) {
             return $this->activeEvent;
         }
+
         $stmt = $this->pdo->query('SELECT event_uid FROM active_event LIMIT 1');
         $uid = $stmt->fetchColumn();
+
         if ($uid === false || $uid === null || $uid === '') {
-            $this->activeEvent = '';
-            return $this->activeEvent;
+            return $this->activeEvent = '';
         }
-        $this->activeEvent = (string) $uid;
-        return $this->activeEvent;
+
+        return $this->activeEvent = (string) $uid;
     }
 
     /**
