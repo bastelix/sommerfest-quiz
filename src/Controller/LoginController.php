@@ -52,6 +52,9 @@ class LoginController
         $data = $request->getParsedBody();
         if (str_starts_with($request->getHeaderLine('Content-Type'), 'application/json')) {
             $data = json_decode((string) $request->getBody(), true);
+            if (json_last_error() !== JSON_ERROR_NONE || !is_array($data)) {
+                return $response->withStatus(400);
+            }
         }
 
         $pdo = $request->getAttribute('pdo');
