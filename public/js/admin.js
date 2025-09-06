@@ -3120,8 +3120,8 @@ document.addEventListener('DOMContentLoaded', function () {
   // Page editors are handled in trumbowyg-pages.js
 
   loadBackups();
-  const path = window.location.pathname.replace(basePath + '/admin/', '');
-  const currentRoute = path === '' ? 'dashboard' : path.replace(/^\/?/, '');
+  const path = window.location.pathname.replace(basePath + '/admin', '');
+  const currentRoute = path.replace(/^\/|\/$/g, '') || 'dashboard';
   if (currentRoute === 'tenants') {
     syncTenants();
   }
