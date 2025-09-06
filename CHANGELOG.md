@@ -182,6 +182,7 @@
 - Provide storage fallbacks for catalog
 - Redirect event selection via query
 - Show event name in admin headings
+- Pass event uid to result service
 
 ### Fix
 
