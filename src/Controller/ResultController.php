@@ -51,11 +51,40 @@ class ResultController
     }
 
     /**
+     * Resolve event UID from query parameters or fall back to the first event.
+     *
+     * @return array{0:string,1:?array}
+     */
+    private function resolveEvent(Request $request): array
+    {
+        $params = $request->getQueryParams();
+        $uid = (string)($params['event'] ?? '');
+        if ($uid === '') {
+            $event = $this->events->getFirst();
+            if ($event === null) {
+                return ['', null];
+            }
+            $uid = (string)$event['uid'];
+        } else {
+            $event = $this->events->getByUid($uid);
+            if ($event === null) {
+                $event = $this->events->getFirst();
+                if ($event === null) {
+                    return ['', null];
+                }
+                $uid = (string)$event['uid'];
+            }
+        }
+        return [$uid, $event];
+    }
+
+    /**
      * Return all stored results as JSON.
      */
     public function get(Request $request, Response $response): Response
     {
-        $content = json_encode($this->service->getAll(), JSON_PRETTY_PRINT);
+        [$uid] = $this->resolveEvent($request);
+        $content = json_encode($this->service->getAll($uid), JSON_PRETTY_PRINT);
         $response->getBody()->write($content);
         return $response->withHeader('Content-Type', 'application/json');
     }
@@ -65,7 +94,8 @@ class ResultController
      */
     public function getQuestions(Request $request, Response $response): Response
     {
-        $content = json_encode($this->service->getQuestionResults(), JSON_PRETTY_PRINT);
+        [$uid] = $this->resolveEvent($request);
+        $content = json_encode($this->service->getQuestionResults($uid), JSON_PRETTY_PRINT);
         $response->getBody()->write($content);
         return $response->withHeader('Content-Type', 'application/json');
     }
@@ -75,14 +105,17 @@ class ResultController
      */
     public function download(Request $request, Response $response): Response
     {
-        $data = $this->service->getAll();
+        [$uid] = $this->resolveEvent($request);
+        if ($uid === '') {
+            return $response->withHeader('Location', '/events')->withStatus(302);
+        }
+        $data = $this->service->getAll($uid);
         $rows = array_map([$this, 'mapResultRow'], $data);
         array_unshift($rows, ['Name', 'Versuch', 'Katalog', 'Richtige', 'Gesamt', 'Zeit', 'Rätselwort', 'Beweisfoto']);
         // prepend UTF-8 BOM for better compatibility with spreadsheet tools
         $content = "\xEF\xBB\xBF" . $this->buildCsv($rows);
         $response->getBody()->write($content);
-
-        $cfg = $this->config->getConfig();
+        $cfg = $this->config->getConfigForEvent($uid);
         $name = ($cfg['header'] ?? 'results') . '.csv';
 
         return $response
@@ -97,13 +130,14 @@ class ResultController
     {
         $data = json_decode((string) $request->getBody(), true);
         $result = ['success' => false];
-        if (is_array($data)) {
+        [$uid] = $this->resolveEvent($request);
+        if (is_array($data) && $uid !== '') {
             $name = (string)($data['name'] ?? '');
             if (isset($data['puzzleTime'])) {
                 $catalog = (string)($data['catalog'] ?? '');
                 $time = (int)$data['puzzleTime'];
                 $answer = (string)($data['puzzleAnswer'] ?? '');
-                $cfg = $this->config->getConfig();
+                $cfg = $this->config->getConfigForEvent($uid);
                 $expected = (string)($cfg['puzzleWord'] ?? '');
                 $feedback = (string)($cfg['puzzleFeedback'] ?? '');
                 $a = mb_strtolower(trim($answer), 'UTF-8');
@@ -113,7 +147,7 @@ class ResultController
                 $result['normalizedAnswer'] = $a;
                 $result['normalizedExpected'] = $e;
                 if ($a !== '' && $a === $e) {
-                    $result['success'] = $this->service->markPuzzle($name, $catalog, $time);
+                    $result['success'] = $this->service->markPuzzle($name, $catalog, $time, $uid);
                     if (!$result['success']) {
                         $this->service->add([
                             'name' => $name,
@@ -122,17 +156,17 @@ class ResultController
                             'total' => 0,
                             'wrong' => [],
                             'puzzleTime' => $time,
-                        ]);
+                        ], $uid);
                         $result['success'] = true;
                     }
                     $result['feedback'] = $feedback;
                 }
             } else {
-                $this->service->add($data);
+                $this->service->add($data, $uid);
                 $result['success'] = true;
             }
             if ($name !== '' && $result['success']) {
-                $this->teams->addIfMissing($name);
+                $this->teams->addIfMissing($name, $uid);
             }
         }
         $response->getBody()->write(json_encode($result));
@@ -145,14 +179,19 @@ class ResultController
     public function page(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $results = $this->service->getAll();
+        [$uid, $event] = $this->resolveEvent($request);
+        if ($uid === '') {
+            return $response->withHeader('Location', '/events')->withStatus(302);
+        }
+
+        $results = $this->service->getAll($uid);
 
         $pdo = $request->getAttribute('pdo');
         if (!$pdo instanceof PDO) {
             $pdo = Database::connectFromEnv();
         }
         $configSvc = new ConfigService($pdo);
-        $catalogSvc = new CatalogService($pdo, $configSvc);
+        $catalogSvc = new CatalogService($pdo, $configSvc, null, '', $uid);
         $json = $catalogSvc->read('catalogs.json');
         $map = [];
         if ($json !== null) {
@@ -178,7 +217,10 @@ class ResultController
         }
         unset($row);
 
-        return $view->render($response, 'results.twig', ['results' => $results]);
+        return $view->render($response, 'results.twig', [
+            'results' => $results,
+            'event' => $event,
+        ]);
     }
 
     /**
@@ -186,7 +228,10 @@ class ResultController
      */
     public function delete(Request $request, Response $response): Response
     {
-        $this->service->clear();
+        [$uid] = $this->resolveEvent($request);
+        if ($uid !== '') {
+            $this->service->clear($uid);
+        }
         if (is_dir($this->photoDir)) {
             $files = new \RecursiveIteratorIterator(
                 new \RecursiveDirectoryIterator($this->photoDir, \FilesystemIterator::SKIP_DOTS),
@@ -208,10 +253,14 @@ class ResultController
      */
     public function pdf(Request $request, Response $response): Response
     {
-        $results = $this->service->getAll();
-        $questionResults = $this->service->getQuestionResults();
+        [$uid, $event] = $this->resolveEvent($request);
+        if ($uid === '') {
+            return $response->withHeader('Location', '/events')->withStatus(302);
+        }
+        $results = $this->service->getAll($uid);
+        $questionResults = $this->service->getQuestionResults($uid);
         $allResults = $results;
-        $teams = $this->teams->getAll();
+        $teams = $this->teams->getAll($uid);
 
         if ($teams === []) {
             $names = array_merge(
@@ -289,22 +338,8 @@ class ResultController
         $awardService = new AwardService();
         $rankings = $awardService->computeRankings($allResults, $catalogCount);
 
-        $params = $request->getQueryParams();
-        $uid = (string)($params['event'] ?? '');
-        if ($uid !== '') {
-            $cfg = $this->config->getConfigForEvent($uid);
-            $event = $this->events->getByUid($uid) ?? $this->events->getFirst() ?? ['name' => '', 'description' => ''];
-        } else {
-            $cfg = $this->config->getConfig();
-            $evUid = $this->config->getActiveEventUid();
-            $event = null;
-            if ($evUid !== '') {
-                $event = $this->events->getByUid($evUid);
-            }
-            if ($event === null) {
-                $event = $this->events->getFirst() ?? ['name' => '', 'description' => ''];
-            }
-        }
+        $cfg = $this->config->getConfigForEvent($uid);
+        $event = $event ?? ['name' => '', 'description' => ''];
         $title = (string)$event['name'];
         $subtitle = (string)$event['description'];
         $logoPath = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');

@@ -13,7 +13,7 @@
 {% block body %}
   {% embed 'topbar.twig' %}
     {% block left %}
-      <a href="{{ basePath }}/admin" class="uk-icon-button" uk-icon="icon: arrow-left; ratio: 2" title="Zurück" aria-label="Zurück"></a>
+      <a href="{{ basePath }}/admin{{ event.uid is defined ? ('?event=' ~ event.uid) : '' }}" class="uk-icon-button" uk-icon="icon: arrow-left; ratio: 2" title="Zurück" aria-label="Zurück"></a>
     {% endblock %}
     {% block center %}
       <div class="uk-flex uk-flex-middle">

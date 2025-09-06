@@ -30,7 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let catalogMap = null;
   function fetchCatalogMap() {
     if (catalogMap) return Promise.resolve(catalogMap);
-    return fetch(withBase('/kataloge/catalogs.json'), { headers: { 'Accept': 'application/json' } })
+    const catUrl = '/kataloge/catalogs.json' + (eventUid ? `?event=${encodeURIComponent(eventUid)}` : '');
+    return fetch(withBase(catUrl), { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(list => {
         const map = {};
@@ -59,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function fetchPuzzleTimeFromResults(name){
     try{
-      const list = await fetch(withBase('/results.json')).then(r => r.json());
+      const list = await fetch(withBase(`/results.json${eventUid ? `?event=${encodeURIComponent(eventUid)}` : ''}`)).then(r => r.json());
       if(Array.isArray(list)){
         for(let i=list.length-1; i>=0; i--){
           const e = list[i];
@@ -182,8 +183,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     Promise.all([
       fetchCatalogMap(),
-      fetch(withBase('/results.json')).then(r => r.json()),
-      fetch(withBase('/question-results.json')).then(r => r.json())
+      fetch(withBase(`/results.json${eventUid ? `?event=${encodeURIComponent(eventUid)}` : ''}`)).then(r => r.json()),
+      fetch(withBase(`/question-results.json${eventUid ? `?event=${encodeURIComponent(eventUid)}` : ''}`)).then(r => r.json())
     ])
       .then(([catMap, rows, qrows]) => {
         const filtered = rows.filter(row => row.name === user);
@@ -298,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(uid) data.player_uid = uid;
           }
           let debugTimer = null;
-          fetch(withBase('/results?debug=1'), {
+          fetch(withBase(`/results?debug=1${eventUid ? `&event=${encodeURIComponent(eventUid)}` : ''}`), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -457,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
       spinner.setAttribute('uk-spinner', '');
       btn.appendChild(spinner);
 
-      fetch(withBase('/photos'), { method: 'POST', body: fd })
+      fetch(withBase(`/photos${eventUid ? `?event=${encodeURIComponent(eventUid)}` : ''}`), { method: 'POST', body: fd })
         .then(async r => {
           if (!r.ok) {
             throw new Error(await r.text());

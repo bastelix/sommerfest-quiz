@@ -37,59 +37,60 @@ class HomeController
         $params = $request->getQueryParams();
 
         $catalogParam = (string)($params['katalog'] ?? '');
-        if ($catalogParam === '') {
-            $catalogParam = (string)($_SESSION['catalog_slug'] ?? '');
-        }
         $evParam = (string)($params['event'] ?? '');
-        if ($evParam === '') {
-            $evParam = (string)($_SESSION['event_uid'] ?? '');
-        }
         $isUid = preg_match('/^[0-9a-fA-F]{32}$/', $evParam)
             || preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $evParam);
         $uid = $evParam !== '' && !$isUid
             ? $eventSvc->uidBySlug($evParam) ?? ''
             : $evParam;
-        if ($uid !== '') {
-            $cfgSvc->ensureConfigForEvent($uid);
-        }
 
         $role = $_SESSION['user']['role'] ?? null;
-        if ($uid !== '') {
-            $cfg = $cfgSvc->getConfigForEvent($uid);
-            $event = $eventSvc->getByUid($uid) ?? $eventSvc->getFirst();
-        } else {
-            $cfg = $cfgSvc->getConfig();
-            $event = null;
-            $evUid = (string)($cfg['event_uid'] ?? '');
-            if ($evUid !== '') {
-                $event = $eventSvc->getByUid($evUid);
-            }
-            if ($event === null) {
-                $event = $eventSvc->getFirst();
-            }
+        if ($uid === '') {
             $home = $settingsSvc->get('home_page', 'help');
             if ($home === 'events') {
                 $events = $eventSvc->getAll();
+                $first = $eventSvc->getFirst();
+                $cfg = $first ? $cfgSvc->getConfigForEvent((string)$first['uid']) : [];
+                if ($role !== 'admin' && $cfg !== []) {
+                    $cfg = ConfigService::removePuzzleInfo($cfg);
+                }
                 return $view->render($response, 'events_overview.twig', [
                     'events' => $events,
                     'config' => $cfg,
                     'role' => $role,
                 ]);
-            } elseif ($home === 'help') {
+            }
+            if ($home === 'help') {
                 $ctrl = new HelpController();
                 return $ctrl($request, $response);
-            } elseif ($home === 'landing') {
-                if ($catalogParam === '') {
-                    $domainType = $request->getAttribute('domainType');
-                    $host = $request->getUri()->getHost();
-                    $mainDomain = getenv('MAIN_DOMAIN') ?: '';
-                    if ($domainType === null || $domainType === 'main' || $host === $mainDomain) {
-                        $ctrl = new \App\Controller\Marketing\LandingController();
-                        return $ctrl($request, $response);
-                    }
+            }
+            if ($home === 'landing' && $catalogParam === '') {
+                $domainType = $request->getAttribute('domainType');
+                $host = $request->getUri()->getHost();
+                $mainDomain = getenv('MAIN_DOMAIN') ?: '';
+                if ($domainType === null || $domainType === 'main' || $host === $mainDomain) {
+                    $ctrl = new \App\Controller\Marketing\LandingController();
+                    return $ctrl($request, $response);
                 }
             }
+            $event = $eventSvc->getFirst();
+            if ($event === null) {
+                return $response->withHeader('Location', '/events')->withStatus(302);
+            }
+            $uid = (string)$event['uid'];
+        } else {
+            $event = $eventSvc->getByUid($uid);
+            if ($event === null) {
+                $event = $eventSvc->getFirst();
+                if ($event === null) {
+                    return $response->withHeader('Location', '/events')->withStatus(302);
+                }
+                $uid = (string)$event['uid'];
+            }
         }
+
+        $cfgSvc->ensureConfigForEvent($uid);
+        $cfg = $cfgSvc->getConfigForEvent($uid);
         if ($role !== 'admin') {
             $cfg = ConfigService::removePuzzleInfo($cfg);
         }

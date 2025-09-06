@@ -32,20 +32,23 @@ class HelpController
 
         $params = $request->getQueryParams();
         $uid = (string)($params['event'] ?? '');
-        if ($uid !== '') {
-            $cfg = $cfgSvc->getConfigForEvent($uid);
-            $event = $eventSvc->getByUid($uid) ?? $eventSvc->getFirst();
-        } else {
-            $cfg = $cfgSvc->getConfig();
-            $event = null;
-            $evUid = (string)($cfg['event_uid'] ?? '');
-            if ($evUid !== '') {
-                $event = $eventSvc->getByUid($evUid);
+        if ($uid === '') {
+            $event = $eventSvc->getFirst();
+            if ($event === null) {
+                return $response->withHeader('Location', '/events')->withStatus(302);
             }
+            $uid = (string)$event['uid'];
+        } else {
+            $event = $eventSvc->getByUid($uid);
             if ($event === null) {
                 $event = $eventSvc->getFirst();
+                if ($event === null) {
+                    return $response->withHeader('Location', '/events')->withStatus(302);
+                }
+                $uid = (string)$event['uid'];
             }
         }
+        $cfg = $cfgSvc->getConfigForEvent($uid);
         $role = $_SESSION['user']['role'] ?? null;
         if ($role !== 'admin') {
             $cfg = ConfigService::removePuzzleInfo($cfg);

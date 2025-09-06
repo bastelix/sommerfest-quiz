@@ -31,13 +31,13 @@
   <div class="uk-container uk-container-small uk-text-center">
     <h2 class="uk-heading-bullet uk-margin-small-top">Herzlichen Glückwunsch, es wurden alle Kataloge gelöst!</h2>
     {% if config.teamResults is not defined or config.teamResults %}
-    <button id="show-results-btn" class="uk-button uk-button-primary uk-margin-top">Ergebnisse anzeigen</button>
+    <button id="show-results-btn" class="uk-button uk-button-primary uk-margin-top" data-event="{{ event.uid|default('') }}">Ergebnisse anzeigen</button>
     {% endif %}
     {% if config.photoUpload is not defined or config.photoUpload %}
-    <button id="upload-photo-btn" class="uk-button uk-button-primary uk-margin-top">Beweisfoto einreichen</button>
+    <button id="upload-photo-btn" class="uk-button uk-button-primary uk-margin-top" data-event="{{ event.uid|default('') }}">Beweisfoto einreichen</button>
     {% endif %}
     {% if config.puzzleWordEnabled %}
-    <button id="check-puzzle-btn" class="uk-button uk-button-primary uk-margin-top">Rätselwort prüfen</button>
+    <button id="check-puzzle-btn" class="uk-button uk-button-primary uk-margin-top" data-event="{{ event.uid|default('') }}">Rätselwort prüfen</button>
     <p id="puzzle-solved-text" class="uk-margin-top"></p>
     {% endif %}
   </div>
