@@ -50,21 +50,14 @@ class ResultController
         $this->events = $events;
     }
 
-    private function setEventFromRequest(Request $request): void
-    {
-        $params = $request->getQueryParams();
-        if (isset($params['event_uid'])) {
-            $this->config->setActiveEventUid((string) $params['event_uid']);
-        }
-    }
-
     /**
      * Return all stored results as JSON.
      */
     public function get(Request $request, Response $response): Response
     {
-        $this->setEventFromRequest($request);
-        $content = json_encode($this->service->getAll(), JSON_PRETTY_PRINT);
+        $params = $request->getQueryParams();
+        $eventUid = (string)($params['event_uid'] ?? '');
+        $content = json_encode($this->service->getAll($eventUid), JSON_PRETTY_PRINT);
         $response->getBody()->write($content);
         return $response->withHeader('Content-Type', 'application/json');
     }
@@ -74,8 +67,9 @@ class ResultController
      */
     public function getQuestions(Request $request, Response $response): Response
     {
-        $this->setEventFromRequest($request);
-        $content = json_encode($this->service->getQuestionResults(), JSON_PRETTY_PRINT);
+        $params = $request->getQueryParams();
+        $eventUid = (string)($params['event_uid'] ?? '');
+        $content = json_encode($this->service->getQuestionResults($eventUid), JSON_PRETTY_PRINT);
         $response->getBody()->write($content);
         return $response->withHeader('Content-Type', 'application/json');
     }
@@ -85,8 +79,9 @@ class ResultController
      */
     public function download(Request $request, Response $response): Response
     {
-        $this->setEventFromRequest($request);
-        $data = $this->service->getAll();
+        $params = $request->getQueryParams();
+        $eventUid = (string)($params['event_uid'] ?? '');
+        $data = $this->service->getAll($eventUid);
         $rows = array_map([$this, 'mapResultRow'], $data);
         array_unshift($rows, ['Name', 'Versuch', 'Katalog', 'Richtige', 'Gesamt', 'Zeit', 'Rätselwort', 'Beweisfoto']);
         // prepend UTF-8 BOM for better compatibility with spreadsheet tools
@@ -106,10 +101,14 @@ class ResultController
      */
     public function post(Request $request, Response $response): Response
     {
-        $this->setEventFromRequest($request);
+        $params = $request->getQueryParams();
+        $eventUid = (string)($params['event_uid'] ?? '');
         $data = json_decode((string) $request->getBody(), true);
         $result = ['success' => false];
         if (is_array($data)) {
+            if ($eventUid === '') {
+                $eventUid = (string)($data['event_uid'] ?? '');
+            }
             $name = (string)($data['name'] ?? '');
             if (isset($data['puzzleTime'])) {
                 $catalog = (string)($data['catalog'] ?? '');
@@ -125,7 +124,7 @@ class ResultController
                 $result['normalizedAnswer'] = $a;
                 $result['normalizedExpected'] = $e;
                 if ($a !== '' && $a === $e) {
-                    $result['success'] = $this->service->markPuzzle($name, $catalog, $time);
+                    $result['success'] = $this->service->markPuzzle($name, $catalog, $time, $eventUid);
                     if (!$result['success']) {
                         $this->service->add([
                             'name' => $name,
@@ -134,13 +133,13 @@ class ResultController
                             'total' => 0,
                             'wrong' => [],
                             'puzzleTime' => $time,
-                        ]);
+                        ], $eventUid);
                         $result['success'] = true;
                     }
                     $result['feedback'] = $feedback;
                 }
             } else {
-                $this->service->add($data);
+                $this->service->add($data, $eventUid);
                 $result['success'] = true;
             }
             if ($name !== '' && $result['success']) {
@@ -156,9 +155,10 @@ class ResultController
      */
     public function page(Request $request, Response $response): Response
     {
-        $this->setEventFromRequest($request);
+        $params = $request->getQueryParams();
+        $eventUid = (string)($params['event_uid'] ?? '');
         $view = Twig::fromRequest($request);
-        $results = $this->service->getAll();
+        $results = $this->service->getAll($eventUid);
 
         $pdo = $request->getAttribute('pdo');
         if (!$pdo instanceof PDO) {
@@ -199,7 +199,9 @@ class ResultController
      */
     public function delete(Request $request, Response $response): Response
     {
-        $this->service->clear();
+        $params = $request->getQueryParams();
+        $eventUid = (string)($params['event_uid'] ?? '');
+        $this->service->clear($eventUid);
         if (is_dir($this->photoDir)) {
             $files = new \RecursiveIteratorIterator(
                 new \RecursiveDirectoryIterator($this->photoDir, \FilesystemIterator::SKIP_DOTS),
@@ -221,9 +223,10 @@ class ResultController
      */
     public function pdf(Request $request, Response $response): Response
     {
-        $this->setEventFromRequest($request);
-        $results = $this->service->getAll();
-        $questionResults = $this->service->getQuestionResults();
+        $params = $request->getQueryParams();
+        $eventUid = (string)($params['event_uid'] ?? '');
+        $results = $this->service->getAll($eventUid);
+        $questionResults = $this->service->getQuestionResults($eventUid);
         $allResults = $results;
         $teams = $this->teams->getAll();
 
