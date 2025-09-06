@@ -38,9 +38,9 @@ class TeamService
     /**
      * Retrieve the ordered list of teams.
      */
-    public function getAll(): array
+    public function getAll(string $eventUid = ''): array
     {
-        $uid = $this->config->getActiveEventUid();
+        $uid = $eventUid !== '' ? $eventUid : $this->config->getActiveEventUid();
         $sql = 'SELECT name FROM teams';
         $params = [];
         if ($uid !== '') {
@@ -56,9 +56,9 @@ class TeamService
     /**
      * Create a team with the given name if it does not exist yet.
      */
-    public function addIfMissing(string $name): void
+    public function addIfMissing(string $name, string $eventUid = ''): void
     {
-        $uid = $this->config->getActiveEventUid();
+        $uid = $eventUid !== '' ? $eventUid : $this->config->getActiveEventUid();
         $sql = 'SELECT uid FROM teams WHERE name=?';
         $params = [$name];
         if ($uid !== '') {
@@ -92,9 +92,9 @@ class TeamService
     /**
      * @param array<int, string> $teams
      */
-    public function saveAll(array $teams): void
+    public function saveAll(array $teams, string $eventUid = ''): void
     {
-        $uid = $this->config->getActiveEventUid();
+        $uid = $eventUid !== '' ? $eventUid : $this->config->getActiveEventUid();
 
         $teamCount = count($teams);
         if ($this->tenants !== null && $this->subdomain !== '') {

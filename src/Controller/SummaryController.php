@@ -35,20 +35,23 @@ class SummaryController
         $view = Twig::fromRequest($request);
         $params = $request->getQueryParams();
         $uid = (string)($params['event'] ?? '');
-        if ($uid !== '') {
-            $cfg = $this->config->getConfigForEvent($uid);
-            $event = $this->events->getByUid($uid) ?? $this->events->getFirst();
-        } else {
-            $cfg = $this->config->getConfig();
-            $event = null;
-            $evUid = (string)($cfg['event_uid'] ?? '');
-            if ($evUid !== '') {
-                $event = $this->events->getByUid($evUid);
+        if ($uid === '') {
+            $event = $this->events->getFirst();
+            if ($event === null) {
+                return $response->withHeader('Location', '/events')->withStatus(302);
             }
+            $uid = (string)$event['uid'];
+        } else {
+            $event = $this->events->getByUid($uid);
             if ($event === null) {
                 $event = $this->events->getFirst();
+                if ($event === null) {
+                    return $response->withHeader('Location', '/events')->withStatus(302);
+                }
+                $uid = (string)$event['uid'];
             }
         }
+        $cfg = $this->config->getConfigForEvent($uid);
         $role = $_SESSION['user']['role'] ?? null;
         if ($role !== 'admin') {
             $cfg = ConfigService::removePuzzleInfo($cfg);

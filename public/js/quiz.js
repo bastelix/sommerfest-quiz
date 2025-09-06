@@ -72,7 +72,7 @@ function formatPuzzleTime(ts){
 
 async function fetchLatestPuzzleEntry(name, catalog){
   try{
-    const list = await fetch(withBase('/results.json')).then(r => r.json());
+    const list = await fetch(withBase(`/results.json${eventUid ? `?event=${encodeURIComponent(eventUid)}` : ''}`)).then(r => r.json());
     if(Array.isArray(list)){
       return list.slice().reverse().find(e => e.name === name && e.catalog === catalog && e.puzzleTime);
     }
@@ -348,7 +348,7 @@ async function runQuiz(questions, skipIntro){
     if(puzzleSolved && puzzleTs){
       data.puzzleTime = parseInt(puzzleTs, 10) || Math.floor(Date.now()/1000);
     }
-    fetch(withBase('/results'), {
+    fetch(withBase(`/results${eventUid ? `?event=${encodeURIComponent(eventUid)}` : ''}`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
@@ -1368,7 +1368,7 @@ async function runQuiz(questions, skipIntro){
           const uid = getStored(STORAGE_KEYS.PLAYER_UID);
           if(uid) data.player_uid = uid;
         }
-        fetch(withBase('/results?debug=1'), {
+        fetch(withBase(`/results?debug=1${eventUid ? `&event=${encodeURIComponent(eventUid)}` : ''}`), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)

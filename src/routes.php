@@ -168,12 +168,6 @@ return function (\Slim\App $app, TranslationService $translator) {
         $eventUid = $evParam !== '' && !preg_match('/^[0-9a-fA-F]{32}$/', $evParam)
             ? $eventService->uidBySlug($evParam) ?? ''
             : $evParam;
-        if ($eventUid === '') {
-            $eventUid = (string) ($_SESSION['event_uid'] ?? '');
-        }
-        if ($eventUid !== '') {
-            $_SESSION['event_uid'] = $eventUid;
-        }
         $catalogService = new CatalogService($pdo, $configService, $tenantService, $sub, $eventUid);
         $resultService = new ResultService($pdo, $configService);
         $teamService = new TeamService($pdo, $configService, $tenantService, $sub);

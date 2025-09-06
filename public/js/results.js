@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const pagination = document.getElementById('resultsPagination');
   const basePath = window.basePath || '';
   const withBase = path => basePath + path;
+  const eventUid = (window.quizConfig || {}).event_uid || '';
 
   const PAGE_SIZE = 10;
   let resultsData = [];
@@ -41,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function rotatePhotoImpl(path, img, link) {
     const cleanPath = path.replace(/\?.*$/, '');
-    return fetch(withBase('/photos/rotate'), {
+    return fetch(withBase(`/photos/rotate${eventUid ? `?event=${encodeURIComponent(eventUid)}` : ''}`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path: cleanPath })
@@ -388,8 +389,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function load() {
     Promise.all([
       fetchCatalogMap(),
-      fetch(withBase('/results.json')).then(r => r.json()),
-      fetch(withBase('/question-results.json')).then(r => r.json())
+      fetch(withBase(`/results.json${eventUid ? `?event=${encodeURIComponent(eventUid)}` : ''}`)).then(r => r.json()),
+      fetch(withBase(`/question-results.json${eventUid ? `?event=${encodeURIComponent(eventUid)}` : ''}`)).then(r => r.json())
     ])
       .then(([catMap, rows, qrows]) => {
         rows.forEach(r => {
