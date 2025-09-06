@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Routing\RouteContext;
 
 /**
  * Logs out the current user session.
@@ -35,6 +36,7 @@ class LogoutController
             true
         );
 
-        return $response->withHeader('Location', '/login')->withStatus(302);
+        $basePath = RouteContext::fromRequest($request)->getBasePath();
+        return $response->withHeader('Location', $basePath . '/login')->withStatus(302);
     }
 }

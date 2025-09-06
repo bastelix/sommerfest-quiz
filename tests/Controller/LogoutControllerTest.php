@@ -19,4 +19,22 @@ class LogoutControllerTest extends TestCase
         $this->assertEquals('/login', $response->getHeaderLine('Location'));
         session_destroy();
     }
+
+    public function testLogoutRedirectRespectsBasePath(): void
+    {
+        putenv('BASE_PATH=/base');
+        $_ENV['BASE_PATH'] = '/base';
+
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $request = $this->createRequest('GET', '/base/logout');
+        $response = $app->handle($request);
+        $this->assertEquals(302, $response->getStatusCode());
+        $this->assertEquals('/base/login', $response->getHeaderLine('Location'));
+        session_destroy();
+
+        putenv('BASE_PATH');
+        unset($_ENV['BASE_PATH']);
+    }
 }
