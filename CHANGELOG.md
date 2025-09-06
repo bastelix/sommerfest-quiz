@@ -48,6 +48,7 @@
 - Add local documentation build instructions
 - Escape twig example in docs
 - Describe QR code endpoint requirements
+- Document active event handling
 
 ### Feat
 
