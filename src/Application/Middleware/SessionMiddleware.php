@@ -34,7 +34,17 @@ class SessionMiddleware implements Middleware
                 $domain = $host;
             }
 
-            $secure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+            $envSecure = getenv('SESSION_COOKIE_SECURE');
+            if ($envSecure !== false) {
+                $secure = filter_var($envSecure, FILTER_VALIDATE_BOOLEAN);
+            } else {
+                $proto = $request->getHeaderLine('X-Forwarded-Proto');
+                if ($proto !== '') {
+                    $secure = strtolower($proto) === 'https';
+                } else {
+                    $secure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+                }
+            }
             $params = [
                 'path' => '/',
                 'secure' => $secure,
