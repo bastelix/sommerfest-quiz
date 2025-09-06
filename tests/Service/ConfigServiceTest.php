@@ -40,7 +40,7 @@ class ConfigServiceTest extends TestCase
             SQL
         );
         $service = new ConfigService($pdo);
-        $data = ['pageTitle' => 'Demo', 'QRUser' => false, 'QRRemember' => true];
+        $data = ['event_uid' => 'ev1', 'pageTitle' => 'Demo', 'QRUser' => false, 'QRRemember' => true];
 
         $service->saveConfig($data);
         $json = $service->getJson();
@@ -49,6 +49,24 @@ class ConfigServiceTest extends TestCase
         $this->assertSame('Demo', $cfg['pageTitle']);
         $this->assertFalse($cfg['QRUser']);
         $this->assertTrue($cfg['QRRemember']);
+    }
+
+    public function testGetConfigReturnsEmptyWithoutActiveEvent(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE config(
+                pageTitle TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $service = new ConfigService($pdo);
+        $pdo->exec("INSERT INTO config(pageTitle,event_uid) VALUES('Demo','ev1')");
+
+        $this->assertSame([], $service->getConfig());
     }
 
     public function testGetJsonReturnsNullIfEmpty(): void

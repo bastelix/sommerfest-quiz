@@ -33,7 +33,7 @@ class ConfigControllerTest extends TestCase
         $_SESSION['user'] = ['id' => 1, 'role' => 'event-manager'];
 
         $request = $this->createRequest('POST', '/config.json');
-        $request = $request->withParsedBody(['pageTitle' => 'Demo']);
+        $request = $request->withParsedBody(['event_uid' => 'ev1', 'pageTitle' => 'Demo']);
         $postResponse = $controller->post($request, new Response());
         $this->assertEquals(204, $postResponse->getStatusCode());
 
@@ -74,7 +74,11 @@ class ConfigControllerTest extends TestCase
         $_SESSION['user'] = ['id' => 1, 'role' => 'event-manager'];
 
         $request = $this->createRequest('POST', '/config.json');
-        $request = $request->withParsedBody(['pageTitle' => 'Demo', 'backgroundColor' => 'blue']);
+        $request = $request->withParsedBody([
+            'event_uid' => 'ev1',
+            'pageTitle' => 'Demo',
+            'backgroundColor' => 'blue',
+        ]);
         $response = $controller->post($request, new Response());
         $this->assertEquals(400, $response->getStatusCode());
         session_destroy();
