@@ -36,8 +36,8 @@
   ]);
 
   function mapKey(key){
-    const uid = (window.quizConfig || {}).event_uid || '';
-    return eventScoped.has(key) ? `${key}:${uid}` : key;
+    const currentEventUid = (window.quizConfig || {}).event_uid || '';
+    return eventScoped.has(key) ? `${key}:${currentEventUid}` : key;
   }
 
   function readStorage(key){
@@ -88,8 +88,8 @@
 
   /*
    * Standardized storage keys:
-   * - qr_player_name:<eventUid>  – Spielername
-   * - qr_player_uid:<eventUid>   – Spieler-UID
+   * - qr_player_name:<currentEventUid>  – Spielername
+   * - qr_player_uid:<currentEventUid>   – Spieler-UID
    * - quizCatalog                – Aktueller Katalog-Slug
    * - quizCatalogName            – Katalognamen
    * - quizCatalogDesc            – Katalogbeschreibung
