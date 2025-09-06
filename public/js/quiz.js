@@ -338,7 +338,7 @@ async function runQuiz(questions, skipIntro){
     }
       const catalog = getStored(STORAGE_KEYS.CATALOG) || 'unknown';
       const wrong = results.map((r,i)=> r ? null : i+1).filter(v=>v!==null);
-      const data = { name: user, catalog, correct: score, total: questionCount, wrong, answers };
+      const data = { name: user, catalog, correct: score, total: questionCount, wrong, answers, event_uid: eventUid };
       if(cfg.collectPlayerUid){
         const uid = getStored(STORAGE_KEYS.PLAYER_UID);
         if(uid) data.player_uid = uid;
