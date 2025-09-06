@@ -1644,6 +1644,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventSelect = document.getElementById('eventSelect');
   const eventSelectWrap = document.getElementById('eventSelectWrap');
   const eventOpenBtn = document.getElementById('eventOpenBtn');
+  const eventDependentSections = document.querySelectorAll('[data-event-dependent]');
   const langSelect = document.getElementById('langSelect');
   const EVENTS_PER_PAGE = 50;
   const eventPaginationEl = document.createElement('ul');
@@ -1695,8 +1696,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!Array.isArray(list) || list.length === 0) {
       currentEventUid = '';
       cfgInitial.event_uid = '';
+      window.quizConfig = {};
       if (eventSelectWrap) eventSelectWrap.hidden = true;
       if (eventOpenBtn) eventOpenBtn.disabled = true;
+      eventDependentSections.forEach(sec => { sec.hidden = true; });
       return;
     }
     const placeholder = document.createElement('option');
@@ -1712,11 +1715,18 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       eventSelect.appendChild(opt);
     });
+    const hasCurrent = list.some(ev => ev.uid === currentEventUid);
+    if (!hasCurrent) {
+      currentEventUid = '';
+      cfgInitial.event_uid = '';
+      window.quizConfig = {};
+    }
     if (currentEventUid) {
       eventSelect.value = currentEventUid;
     } else {
       eventSelect.value = '';
     }
+    eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
     if (eventSelectWrap) eventSelectWrap.hidden = false;
     if (eventOpenBtn) eventOpenBtn.disabled = !currentEventUid;
     updateEventSelectDisplay();
@@ -2825,7 +2835,9 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!events.some(e => e.uid === currentEventUid)) {
         currentEventUid = '';
         cfgInitial.event_uid = '';
+        window.quizConfig = {};
       }
+      eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
       const ev = events.find(e => e.uid === currentEventUid) || {};
       nameEl.textContent = ev.name || '';
       if (descEl) descEl.textContent = ev.description || '';

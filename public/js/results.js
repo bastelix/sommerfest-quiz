@@ -385,7 +385,39 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
+  function renderNoEvent() {
+    if (grid) {
+      grid.innerHTML = '<p>Kein Event ausgewählt</p>';
+    }
+    if (tbody) {
+      tbody.innerHTML = '';
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 7;
+      td.textContent = 'Kein Event ausgewählt';
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    }
+    if (wrongBody) {
+      wrongBody.innerHTML = '';
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = 3;
+      td.textContent = 'Kein Event ausgewählt';
+      tr.appendChild(td);
+      wrongBody.appendChild(tr);
+    }
+    if (pagination) {
+      pagination.textContent = '';
+    }
+  }
+
   function load() {
+    const currentEventUid = (window.quizConfig || {}).event_uid || '';
+    if (!currentEventUid) {
+      renderNoEvent();
+      return;
+    }
     Promise.all([
       fetchCatalogMap(),
       fetch(withBase('/results.json')).then(r => r.json()),
