@@ -45,6 +45,27 @@ class LoginControllerTest extends TestCase
         $this->assertSame(1, (int) $stmt->fetchColumn());
     }
 
+    public function testLoginPersistsSessionOnLocalhost(): void
+    {
+        $pdo = $this->getDatabase();
+        $userService = new UserService($pdo);
+        $userService->create('frank', 'secret', 'frank@example.com', Roles::ADMIN);
+        $record = $userService->getByUsername('frank');
+        $this->assertIsArray($record);
+
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('POST', '/login')
+            ->withParsedBody(['username' => 'frank', 'password' => 'secret'])
+            ->withHeader('Host', 'localhost');
+        $response = $app->handle($request);
+        $this->assertSame(302, $response->getStatusCode());
+
+        $sid = session_id();
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM user_sessions WHERE session_id = ?');
+        $stmt->execute([$sid]);
+        $this->assertSame(1, (int) $stmt->fetchColumn());
+    }
+
     public function testLoginByEmail(): void
     {
         $pdo = $this->getDatabase();
