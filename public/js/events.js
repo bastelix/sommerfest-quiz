@@ -136,9 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
   eventSelect?.addEventListener('change', () => {
     const uid = eventSelect.value;
     if (uid && uid !== activeEventUid) {
-      const url = new URL(window.location.href);
-      url.searchParams.set('event', uid);
-      window.location.href = url.toString();
+      location.search = '?event=' + uid;
     }
   });
 
