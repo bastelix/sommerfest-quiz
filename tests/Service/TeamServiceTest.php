@@ -44,6 +44,19 @@ class TeamServiceTest extends TestCase
         $this->assertNull($row['event_uid']);
     }
 
+    public function testGetAllWithoutActiveEventReturnsEmpty(): void
+    {
+        $pdo = $this->createDatabase();
+        $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('e1','e1','Event1')");
+        $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('e2','e2','Event2')");
+        $pdo->exec("INSERT INTO teams(uid,event_uid,sort_order,name) VALUES('t1','e1',1,'T1')");
+        $pdo->exec("INSERT INTO teams(uid,event_uid,sort_order,name) VALUES('t2','e2',2,'T2')");
+        $cfg = new ConfigService($pdo);
+        $cfg->setActiveEventUid('');
+        $svc = new TeamService($pdo, $cfg);
+        $this->assertSame([], $svc->getAll());
+    }
+
     public function testSaveAllRespectsTeamLimit(): void
     {
         $pdo = $this->createDatabase();

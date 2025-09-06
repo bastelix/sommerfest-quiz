@@ -24,7 +24,7 @@ class TeamControllerTest extends TestCase
         $cfg->setActiveEventUid('e1');
         $tenantSvc = new TenantService($pdo);
         $service = new TeamService($pdo, $cfg, $tenantSvc, 'sub1');
-        $controller = new TeamController($service);
+        $controller = new TeamController($service, $cfg);
 
         $callableResolver = new \Slim\CallableResolver();
         $responseFactory = new \Slim\Psr7\Factory\ResponseFactory();

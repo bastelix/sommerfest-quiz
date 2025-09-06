@@ -206,7 +206,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 __DIR__ . '/../data/photos',
                 $eventService
             ))
-            ->withAttribute('teamController', new TeamController($teamService))
+            ->withAttribute('teamController', new TeamController($teamService, $configService))
             ->withAttribute('eventController', new EventController($eventService))
             ->withAttribute('eventConfigController', new EventConfigController($eventService, $configService))
             ->withAttribute(
