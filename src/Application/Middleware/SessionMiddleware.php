@@ -34,16 +34,21 @@ class SessionMiddleware implements Middleware
                 $domain = $host;
             }
 
-            if ($domain !== '') {
-                $secure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
-                session_set_cookie_params([
-                    'domain' => '.' . ltrim($domain, '.'),
-                    'path' => '/',
-                    'secure' => $secure,
-                    'httponly' => true,
-                    'samesite' => 'Lax',
-                ]);
+            $secure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+            $params = [
+                'path' => '/',
+                'secure' => $secure,
+                'httponly' => true,
+                'samesite' => 'Lax',
+            ];
+            if (
+                $domain !== '' &&
+                str_contains($domain, '.') &&
+                filter_var($domain, FILTER_VALIDATE_IP) === false
+            ) {
+                $params['domain'] = '.' . ltrim($domain, '.');
             }
+            session_set_cookie_params($params);
 
             session_start();
         }
