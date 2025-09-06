@@ -398,7 +398,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/onboarding/checkout/{id}/cancel', [SubscriptionController::class, 'cancelOnboardingCheckout']);
     $app->post('/stripe/webhook', StripeWebhookController::class);
     $app->get('/login', [LoginController::class, 'show']);
-    $app->post('/login', [LoginController::class, 'login']);
+    $app->post('/login', [LoginController::class, 'login'])
+        ->add(new RateLimitMiddleware(3, 3600))
+        ->add(new CsrfMiddleware());
     $app->get('/register', [RegisterController::class, 'show']);
     $app->post('/register', [RegisterController::class, 'register']);
     $app->get('/password/reset/request', function (Request $request, Response $response) {
