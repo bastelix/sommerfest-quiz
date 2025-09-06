@@ -179,6 +179,7 @@
 - Add player session endpoint
 - *(storage)* Scope puzzle and catalog data
 - Provide storage fallbacks for catalog
+- Redirect event selection via query
 
 ### Fix
 
