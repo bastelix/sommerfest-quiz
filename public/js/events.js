@@ -99,6 +99,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (eventTitle) eventTitle.hidden = false;
       return;
     }
+    const placeholder = document.createElement('option');
+    placeholder.value = '';
+    placeholder.textContent = eventSelect.dataset.placeholder || '';
+    eventSelect.appendChild(placeholder);
     list.forEach((ev) => {
       const opt = document.createElement('option');
       opt.value = ev.uid;
@@ -108,7 +112,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     if (selectWrap) selectWrap.hidden = false;
     if (eventTitle) eventTitle.hidden = true;
-    eventSelect.dispatchEvent(new Event('change'));
+    if (currentEventUid) {
+      eventSelect.dispatchEvent(new Event('change'));
+    } else {
+      eventSelect.value = '';
+    }
   }
 
   if (eventSelect) {
@@ -116,13 +124,13 @@ document.addEventListener('DOMContentLoaded', () => {
       .then((r) => r.json())
       .catch(() => [])
       .then((events) => {
-        currentEventUid = pageEventUid || (events[0]?.uid || '');
+        currentEventUid = pageEventUid;
         const cfgPromise = currentEventUid
           ? csrfFetch(`/events/${encodeURIComponent(currentEventUid)}/config.json`).then((r) => r.json()).catch(() => ({}))
           : Promise.resolve({});
         cfgPromise
           .then((cfg) => {
-            window.quizConfig = cfg;
+            window.quizConfig = currentEventUid ? cfg : {};
             populate(events);
           })
           .catch(() => {
