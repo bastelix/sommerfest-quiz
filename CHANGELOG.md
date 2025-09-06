@@ -246,6 +246,7 @@
 - Centralize quiz intro
 - Rely on SessionMiddleware
 - Centralize session post requests
+- Rename active event uid variable
 
 ### Style
 
