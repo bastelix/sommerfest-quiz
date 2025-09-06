@@ -112,15 +112,25 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (eventSelect) {
-    const cfgUrl = pageEventUid ? `/events/${pageEventUid}/config.json` : '/config.json';
-    Promise.all([
-      csrfFetch(cfgUrl).then((r) => r.json()).catch(() => ({})),
-      csrfFetch('/events.json', { headers: { Accept: 'application/json' } }).then((r) => r.json()).catch(() => [])
-    ]).then(([cfg, events]) => {
-      activeEventUid = pageEventUid || cfg.event_uid || '';
-      window.quizConfig = cfg;
-      populate(events);
-    }).catch(() => {});
+    csrfFetch('/events.json', { headers: { Accept: 'application/json' } })
+      .then((r) => r.json())
+      .catch(() => [])
+      .then((events) => {
+        activeEventUid = pageEventUid || (events[0]?.uid || '');
+        const cfgPromise = activeEventUid
+          ? csrfFetch(`/events/${encodeURIComponent(activeEventUid)}/config.json`).then((r) => r.json()).catch(() => ({}))
+          : Promise.resolve({});
+        cfgPromise
+          .then((cfg) => {
+            window.quizConfig = cfg;
+            populate(events);
+          })
+          .catch(() => {
+            window.quizConfig = {};
+            populate(events);
+          });
+      })
+      .catch(() => {});
   }
 
   eventSelect?.addEventListener('change', () => {
