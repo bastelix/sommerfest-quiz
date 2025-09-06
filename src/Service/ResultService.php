@@ -32,6 +32,9 @@ class ResultService
     public function getAll(): array
     {
         $event = $this->config->getActiveEventUid();
+        if ($event === '') {
+            return [];
+        }
         $sql = <<<'SQL'
             SELECT r.name, r.catalog, r.attempt, r.correct, r.total, r.time,
                 r.puzzleTime AS "puzzleTime", r.photo,
@@ -42,16 +45,11 @@ class ResultService
                 OR CAST(c.sort_order AS TEXT) = r.catalog
                 OR c.slug = r.catalog
             ) AND (c.event_uid = r.event_uid OR c.event_uid IS NULL)
-
+            WHERE r.event_uid=?
+            ORDER BY r.id
         SQL;
-        $params = [];
-        if ($event !== '') {
-            $sql .= 'WHERE r.event_uid=? ';
-            $params[] = $event;
-        }
-        $sql .= 'ORDER BY r.id';
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
+        $stmt->execute([$event]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as &$row) {
             foreach (["options","answers","terms","items"] as $k) {
@@ -71,6 +69,9 @@ class ResultService
     public function getQuestionResults(): array
     {
         $event = $this->config->getActiveEventUid();
+        if ($event === '') {
+            return [];
+        }
         $sql = <<<'SQL'
             SELECT qr.name, qr.catalog, qr.question_id, qr.attempt, qr.correct,
                 qr.answer_text, qr.photo, qr.consent,
@@ -83,16 +84,11 @@ class ResultService
                 OR CAST(c.sort_order AS TEXT) = qr.catalog
                 OR c.slug = qr.catalog
             ) AND (c.event_uid = qr.event_uid OR c.event_uid IS NULL)
-
+            WHERE qr.event_uid=?
+            ORDER BY qr.id
         SQL;
-        $params = [];
-        if ($event !== '') {
-            $sql .= 'WHERE qr.event_uid=? ';
-            $params[] = $event;
-        }
-        $sql .= 'ORDER BY qr.id';
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
+        $stmt->execute([$event]);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($rows as &$row) {
             foreach (["options", "answers", "terms", "items"] as $k) {
@@ -114,16 +110,13 @@ class ResultService
     public function getQuestionRows(): array
     {
         $uid = $this->config->getActiveEventUid();
-        $sql = 'SELECT name,catalog,question_id,attempt,correct,answer_text,photo,consent'
-            . ',event_uid FROM question_results';
-        $params = [];
-        if ($uid !== '') {
-            $sql .= ' WHERE event_uid=?';
-            $params[] = $uid;
+        if ($uid === '') {
+            return [];
         }
-        $sql .= ' ORDER BY id';
+        $sql = 'SELECT name,catalog,question_id,attempt,correct,answer_text,photo,consent,event_uid '
+            . 'FROM question_results WHERE event_uid=? ORDER BY id';
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
+        $stmt->execute([$uid]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

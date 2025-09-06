@@ -41,15 +41,12 @@ class TeamService
     public function getAll(): array
     {
         $uid = $this->config->getActiveEventUid();
-        $sql = 'SELECT name FROM teams';
-        $params = [];
-        if ($uid !== '') {
-            $sql .= ' WHERE event_uid=?';
-            $params[] = $uid;
+        if ($uid === '') {
+            return [];
         }
-        $sql .= ' ORDER BY sort_order';
+        $sql = 'SELECT name FROM teams WHERE event_uid=? ORDER BY sort_order';
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
+        $stmt->execute([$uid]);
         return array_map(fn($r) => $r['name'], $stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
