@@ -38,16 +38,16 @@ class SummaryController
         if ($uid !== '') {
             $cfg = $this->config->getConfigForEvent($uid);
             $event = $this->events->getByUid($uid) ?? $this->events->getFirst();
-        } else {
-            $cfg = $this->config->getConfig();
-            $event = null;
-            $evUid = (string)($cfg['event_uid'] ?? '');
-            if ($evUid !== '') {
-                $event = $this->events->getByUid($evUid);
-            }
             if ($event === null) {
-                $event = $this->events->getFirst();
+                return $response->withHeader('Location', '/events')->withStatus(302);
             }
+        } else {
+            $event = $this->events->getFirst();
+            if ($event === null) {
+                return $response->withHeader('Location', '/events')->withStatus(302);
+            }
+            $uid = (string)($event['uid'] ?? '');
+            $cfg = $this->config->getConfigForEvent($uid);
         }
         $role = $_SESSION['user']['role'] ?? null;
         if ($role !== 'admin') {

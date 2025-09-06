@@ -291,22 +291,25 @@ class ResultController
 
         $params = $request->getQueryParams();
         $uid = (string)($params['event'] ?? '');
-        if ($uid !== '') {
-            $cfg = $this->config->getConfigForEvent($uid);
-            $event = $this->events->getByUid($uid) ?? $this->events->getFirst() ?? ['name' => '', 'description' => ''];
-        } else {
-            $cfg = $this->config->getConfig();
-            $evUid = $this->config->getActiveEventUid();
-            $event = null;
-            if ($evUid !== '') {
-                $event = $this->events->getByUid($evUid);
-            }
+        if ($uid === '') {
+            $event = $this->events->getFirst();
             if ($event === null) {
-                $event = $this->events->getFirst() ?? ['name' => '', 'description' => ''];
+                return $response->withHeader('Location', '/events')->withStatus(302);
+            }
+            $uid = (string)($event['uid'] ?? '');
+        } else {
+            $event = $this->events->getByUid($uid);
+            if ($event === null) {
+                $event = $this->events->getFirst();
+                if ($event === null) {
+                    return $response->withHeader('Location', '/events')->withStatus(302);
+                }
+                $uid = (string)($event['uid'] ?? '');
             }
         }
-        $title = (string)$event['name'];
-        $subtitle = (string)$event['description'];
+        $cfg = $this->config->getConfigForEvent($uid);
+        $title = (string)($event['name'] ?? '');
+        $subtitle = (string)($event['description'] ?? '');
         $logoPath = __DIR__ . '/../../data/' . ltrim((string)($cfg['logoPath'] ?? ''), '/');
 
         $pdf = new Pdf($title, $subtitle, $logoPath);
