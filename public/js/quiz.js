@@ -1107,25 +1107,6 @@ async function runQuiz(questions, skipIntro){
     const stats = document.createElement('div');
     stats.className = 'uk-margin';
 
-    const title = getStored(STORAGE_KEYS.CATALOG_NAME) || '';
-    const desc = getStored(STORAGE_KEYS.CATALOG_DESC) || '';
-    const comment = getStored(STORAGE_KEYS.CATALOG_COMMENT);
-    if(title){
-      const h2 = document.createElement('h2');
-      h2.textContent = title;
-      div.appendChild(h2);
-    }
-    if(desc){
-      const p = document.createElement('p');
-      p.textContent = desc;
-      div.appendChild(p);
-    }
-    if(comment){
-      const c = document.createElement('div');
-      c.textContent = comment;
-      div.appendChild(c);
-    }
-
     if(cfg.QRUser && !getStored(STORAGE_KEYS.PLAYER_NAME)){
       const scanBtn = document.createElement('button');
       scanBtn.className = 'uk-button uk-button-primary uk-button-large';
