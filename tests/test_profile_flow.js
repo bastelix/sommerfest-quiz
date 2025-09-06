@@ -68,6 +68,8 @@ const ctx2 = {
   self: { crypto: { randomUUID: () => 'uid-123' } },
   returnUrl: '/quiz',
   location: { href: '', search: '' },
+  postSession: () => Promise.resolve(),
+  alert: () => {},
   console,
   document: {
     getElementById(id) {
@@ -88,7 +90,7 @@ vm.runInNewContext(profileCode, ctx2);
 ctx2.nameInput.value = 'Alice';
 (async () => {
   await ctx2.saveHandler?.({ preventDefault() {} });
-  assert.strictEqual(ctx2.localStorage.getItem('qr_player_name:'), 'Alice');
+  assert.strictEqual(ctx2.localStorage.getItem('quizUser:'), 'Alice');
   assert.strictEqual(ctx2.localStorage.getItem('qr_player_uid:'), 'uid-123');
   assert.strictEqual(ctx2.fetchCalls[0].url, '/api/players');
   assert(ctx2.fetchCalls[0].opts.body.includes('Alice'));
@@ -117,6 +119,8 @@ const ctx3 = {
   self: { crypto: { randomUUID: () => 'uid-123' } },
   returnUrl: '/quiz',
   location: { href: '', search: '?uid=uid-123' },
+  postSession: () => Promise.resolve(),
+  alert: () => {},
   console,
   document: {
     getElementById(id) {
@@ -139,7 +143,7 @@ vm.runInNewContext(storageCode, ctx3);
 vm.runInNewContext(profileCode, ctx3);
 (async () => {
   await new Promise(r => setTimeout(r, 0));
-  assert.strictEqual(ctx3.localStorage.getItem('qr_player_name:ev1'), 'Bob');
+  assert.strictEqual(ctx3.localStorage.getItem('quizUser:ev1'), 'Bob');
   assert.strictEqual(ctx3.localStorage.getItem('qr_player_uid:ev1'), 'uid-123');
   assert.strictEqual(ctx3.location.href, '/quiz');
   assert(ctx3.fetchCalls[0].startsWith('/api/players?'));
