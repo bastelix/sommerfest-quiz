@@ -106,4 +106,14 @@ class TeamServiceTest extends TestCase
         $this->expectExceptionMessage('max-teams-exceeded');
         $svc->saveAll(['A', 'B', 'C', 'D', 'E', 'F', 'G']);
     }
+
+    public function testGetAllWithoutEventReturnsEmpty(): void
+    {
+        $pdo = $this->createDatabase();
+        $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('e1','e1','Event1')");
+        $pdo->exec("INSERT INTO teams(uid,event_uid,sort_order,name) VALUES('t1','e1',1,'Team1')");
+        $cfg = new ConfigService($pdo);
+        $svc = new TeamService($pdo, $cfg);
+        $this->assertSame([], $svc->getAll());
+    }
 }

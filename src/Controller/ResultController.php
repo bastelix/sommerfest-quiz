@@ -50,11 +50,19 @@ class ResultController
         $this->events = $events;
     }
 
+    private function setEventFromRequest(Request $request): void
+    {
+        $params = $request->getQueryParams();
+        $uid = (string) ($params['event'] ?? '');
+        $this->config->setActiveEventUid($uid);
+    }
+
     /**
      * Return all stored results as JSON.
      */
     public function get(Request $request, Response $response): Response
     {
+        $this->setEventFromRequest($request);
         $content = json_encode($this->service->getAll(), JSON_PRETTY_PRINT);
         $response->getBody()->write($content);
         return $response->withHeader('Content-Type', 'application/json');
@@ -65,6 +73,7 @@ class ResultController
      */
     public function getQuestions(Request $request, Response $response): Response
     {
+        $this->setEventFromRequest($request);
         $content = json_encode($this->service->getQuestionResults(), JSON_PRETTY_PRINT);
         $response->getBody()->write($content);
         return $response->withHeader('Content-Type', 'application/json');
@@ -75,6 +84,7 @@ class ResultController
      */
     public function download(Request $request, Response $response): Response
     {
+        $this->setEventFromRequest($request);
         $data = $this->service->getAll();
         $rows = array_map([$this, 'mapResultRow'], $data);
         array_unshift($rows, ['Name', 'Versuch', 'Katalog', 'Richtige', 'Gesamt', 'Zeit', 'Rätselwort', 'Beweisfoto']);
@@ -95,6 +105,7 @@ class ResultController
      */
     public function post(Request $request, Response $response): Response
     {
+        $this->setEventFromRequest($request);
         $data = json_decode((string) $request->getBody(), true);
         $result = ['success' => false];
         if (is_array($data)) {

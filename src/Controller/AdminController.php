@@ -86,6 +86,7 @@ class AdminController
         $sub       = '';
 
         $configSvc = new ConfigService($pdo);
+        $configSvc->setActiveEventUid((string) ($event['uid'] ?? ''));
         if (in_array($section, ['results', 'catalogs', 'questions', 'summary'], true)) {
             $catalogSvc   = new CatalogService($pdo, $configSvc);
             $catalogsJson = $catalogSvc->read('catalogs.json');

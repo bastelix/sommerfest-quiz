@@ -404,4 +404,36 @@ class ResultServiceTest extends TestCase
         $this->assertSame('/photo/img.jpg', $row['photo']);
         $this->assertSame('ev1', $row['event_uid']);
     }
+
+    public function testGetAllWithoutEventReturnsEmpty(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                attempt INTEGER NOT NULL,
+                correct INTEGER NOT NULL,
+                total INTEGER NOT NULL,
+                time INTEGER NOT NULL,
+                puzzleTime INTEGER,
+                photo TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT' .
+            ');'
+        );
+        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $pdo->exec("INSERT INTO results(name,catalog,attempt,correct,total,time,event_uid) VALUES('T','c',1,0,0,0,'e1')");
+        $cfg = new ConfigService($pdo);
+        $svc = new ResultService($pdo, $cfg);
+        $this->assertSame([], $svc->getAll());
+    }
 }
