@@ -404,4 +404,106 @@ class ResultServiceTest extends TestCase
         $this->assertSame('/photo/img.jpg', $row['photo']);
         $this->assertSame('ev1', $row['event_uid']);
     }
+
+    public function testGetAllAssociatesCatalogNameWithEvent(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                attempt INTEGER NOT NULL,
+                correct INTEGER NOT NULL,
+                total INTEGER NOT NULL,
+                time INTEGER NOT NULL,
+                puzzleTime INTEGER,
+                photo TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT' .
+            ');'
+        );
+        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $cfg = new ConfigService($pdo);
+        $service = new ResultService($pdo, $cfg);
+
+        $pdo->exec("INSERT INTO results(name,catalog,attempt,correct,total,time,event_uid) VALUES('Team1','cat',1,0,0,0,'ev1')");
+        $pdo->exec("INSERT INTO results(name,catalog,attempt,correct,total,time,event_uid) VALUES('Team2','cat',1,0,0,0,'ev2')");
+
+        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) VALUES('u1',1,'cat','c.json','Catalog 1','ev1')");
+        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) VALUES('u2',2,'cat','c.json','Catalog 2','ev2')");
+
+        $rows = $service->getAll();
+        $this->assertCount(2, $rows);
+        $this->assertSame('Catalog 1', $rows[0]['catalogName']);
+        $this->assertSame('Catalog 2', $rows[1]['catalogName']);
+    }
+
+    public function testGetQuestionResultsAssociatesCatalogNameWithEvent(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE question_results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                question_id INTEGER NOT NULL,
+                attempt INTEGER NOT NULL,
+                correct INTEGER NOT NULL,
+                answer_text TEXT,
+                photo TEXT,
+                consent INTEGER,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE questions(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                catalog_uid TEXT NOT NULL,
+                sort_order INTEGER,
+                type TEXT NOT NULL,
+                prompt TEXT NOT NULL,
+                options TEXT,
+                answers TEXT,
+                terms TEXT,
+                items TEXT,
+                cards TEXT,
+                right_label TEXT,
+                left_label TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT' .
+            ');'
+        );
+        $pdo->exec('CREATE TABLE config(event_uid TEXT);');
+        $cfg = new ConfigService($pdo);
+        $service = new ResultService($pdo, $cfg);
+
+        $pdo->exec("INSERT INTO questions(id,catalog_uid,sort_order,type,prompt) VALUES(1,'u1',1,'text','Q1')");
+
+        $pdo->exec("INSERT INTO question_results(name,catalog,question_id,attempt,correct,event_uid) VALUES('Team1','cat',1,1,1,'ev1')");
+        $pdo->exec("INSERT INTO question_results(name,catalog,question_id,attempt,correct,event_uid) VALUES('Team2','cat',1,1,1,'ev2')");
+
+        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) VALUES('u1',1,'cat','c.json','Catalog 1','ev1')");
+        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) VALUES('u2',2,'cat','c.json','Catalog 2','ev2')");
+
+        $rows = $service->getQuestionResults();
+        $this->assertCount(2, $rows);
+        $this->assertSame('Catalog 1', $rows[0]['catalogName']);
+        $this->assertSame('Catalog 2', $rows[1]['catalogName']);
+    }
 }

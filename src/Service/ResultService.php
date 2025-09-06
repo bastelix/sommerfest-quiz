@@ -37,9 +37,11 @@ class ResultService
                 r.puzzleTime AS "puzzleTime", r.photo,
                 c.name AS catalogName
             FROM results r
-            LEFT JOIN catalogs c ON c.uid = r.catalog
+            LEFT JOIN catalogs c ON (
+                c.uid = r.catalog
                 OR CAST(c.sort_order AS TEXT) = r.catalog
                 OR c.slug = r.catalog
+            ) AND (c.event_uid = r.event_uid OR c.event_uid IS NULL)
 
         SQL;
         $params = [];
@@ -76,9 +78,11 @@ class ResultService
                 c.name AS catalogName
             FROM question_results qr
             LEFT JOIN questions q ON q.id = qr.question_id
-            LEFT JOIN catalogs c ON c.uid = q.catalog_uid
+            LEFT JOIN catalogs c ON (
+                c.uid = q.catalog_uid
                 OR CAST(c.sort_order AS TEXT) = qr.catalog
                 OR c.slug = qr.catalog
+            ) AND (c.event_uid = qr.event_uid OR c.event_uid IS NULL)
 
         SQL;
         $params = [];
