@@ -2,7 +2,7 @@
 // Profile page logic for handling player names
 
 let nameInput;
-let eventUid;
+let currentEventUid;
 
 const notify = (msg, status = 'primary') => {
   if (typeof UIkit !== 'undefined' && UIkit.notification) {
@@ -43,7 +43,7 @@ function saveName(e) {
   fetch('/api/players', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ event_uid: eventUid, player_name: name, player_uid: uid })
+    body: JSON.stringify({ event_uid: currentEventUid, player_name: name, player_uid: uid })
   }).catch(() => {});
   postSession('player', { name })
     .then(() => notify('Name gespeichert', 'success'))
@@ -63,7 +63,7 @@ function deleteName(e) {
 document.addEventListener('DOMContentLoaded', () => {
   nameInput = document.getElementById('playerName');
   const cfg = window.quizConfig || {};
-  eventUid = cfg.event_uid || '';
+  currentEventUid = cfg.event_uid || '';
   const params = new URLSearchParams(location.search);
   const uidParam = params.get('uid') || params.get('player_uid');
   if (uidParam) {
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const storedName = getStored(STORAGE_KEYS.PLAYER_NAME);
   nameInput.value = storedName || generateRandomName();
   if (!storedName && uidParam && cfg.collectPlayerUid) {
-    fetch(`/api/players?event_uid=${encodeURIComponent(eventUid)}&player_uid=${encodeURIComponent(uidParam)}`)
+    fetch(`/api/players?event_uid=${encodeURIComponent(currentEventUid)}&player_uid=${encodeURIComponent(uidParam)}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data && data.player_name) {

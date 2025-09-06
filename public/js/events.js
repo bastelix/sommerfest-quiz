@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const eventSelect = document.getElementById('eventSelect');
   const eventOpenBtn = document.getElementById('eventOpenBtn');
   const eventTitle = document.getElementById('eventTitle');
-  let activeEventUid = '';
+  let currentEventUid = '';
   const params = new URLSearchParams(window.location.search);
   const pageEventUid = params.get('event') || '';
 
@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const opt = document.createElement('option');
       opt.value = ev.uid;
       opt.textContent = ev.name;
-      if (ev.uid === activeEventUid) opt.selected = true;
+      if (ev.uid === currentEventUid) opt.selected = true;
       eventSelect.appendChild(opt);
     });
     if (selectWrap) selectWrap.hidden = false;
@@ -116,9 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
       .then((r) => r.json())
       .catch(() => [])
       .then((events) => {
-        activeEventUid = pageEventUid || (events[0]?.uid || '');
-        const cfgPromise = activeEventUid
-          ? csrfFetch(`/events/${encodeURIComponent(activeEventUid)}/config.json`).then((r) => r.json()).catch(() => ({}))
+        currentEventUid = pageEventUid || (events[0]?.uid || '');
+        const cfgPromise = currentEventUid
+          ? csrfFetch(`/events/${encodeURIComponent(currentEventUid)}/config.json`).then((r) => r.json()).catch(() => ({}))
           : Promise.resolve({});
         cfgPromise
           .then((cfg) => {
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   eventSelect?.addEventListener('change', () => {
     const uid = eventSelect.value;
-    if (uid && uid !== activeEventUid) {
+    if (uid && uid !== currentEventUid) {
       location.search = '?event=' + uid;
     }
   });
