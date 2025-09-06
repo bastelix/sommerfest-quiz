@@ -29,6 +29,7 @@
     {% endblock %}
   {% endembed %}
   <div class="uk-container uk-container-small">
+    <div id="eventNotice" class="uk-alert uk-alert-primary" hidden data-empty="{{ t('text_no_events') }}" data-required="{{ t('text_event_required') }}"></div>
     <div class="uk-flex uk-flex-between uk-flex-middle">
       <h2 class="uk-heading-bullet">Ergebnisse</h2>
       <button id="resultsRefreshBtn" class="uk-icon-button" uk-icon="icon: refresh; ratio: 1.2" title="Aktualisieren" aria-label="Aktualisieren"></button>
