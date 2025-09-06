@@ -41,6 +41,38 @@ if (typeof clearStored !== 'function') {
 
 const jsonHeaders = { Accept: 'application/json' };
 
+async function buildSolvedSet(cfg){
+  const solved = new Set();
+  try{
+    const prev = sessionStorage.getItem('quizSolved');
+    if(prev){
+      JSON.parse(prev).forEach(s=>solved.add(s));
+    }
+  }catch(e){ /* empty */ }
+  if(cfg?.competitionMode){
+    try{
+      const res = await fetch(withBase('/results.json'), { headers: (typeof jsonHeaders !== 'undefined') ? jsonHeaders : { Accept: 'application/json' } });
+      if(res.ok){
+        const list = await res.json();
+        const user = sessionStorage.getItem('quizUser');
+        if(user){
+          for(const t of list){
+            if(t && t.name === user && t.catalog){
+              solved.add(t.catalog);
+            }
+          }
+        }
+      }
+    }catch(e){ /* empty */ }
+    try{
+      sessionStorage.setItem('quizSolved', JSON.stringify(Array.from(solved)));
+    }catch(e){ /* empty */ }
+  }
+  return solved;
+}
+
+globalThis.buildSolvedSet = buildSolvedSet;
+
 let quizScriptPromise;
 let quizStarted = false;
 
