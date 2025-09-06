@@ -180,6 +180,7 @@
 - *(storage)* Scope puzzle and catalog data
 - Provide storage fallbacks for catalog
 - Redirect event selection via query
+- Show event name in admin headings
 
 ### Fix
 
