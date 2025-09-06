@@ -30,7 +30,8 @@ class AuthorizationMiddleware implements MiddlewareInterface
         $role = $_SESSION['user']['role'] ?? null;
         if ($role !== $this->requiredRole) {
             $response = new SlimResponse();
-            return $response->withHeader('Location', '/login')->withStatus(302);
+            $base = $request->getUri()->getBasePath();
+            return $response->withHeader('Location', $base . '/login')->withStatus(302);
         }
         return $handler->handle($request);
     }

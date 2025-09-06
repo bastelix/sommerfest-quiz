@@ -35,7 +35,10 @@ class RoleAuthMiddleware implements MiddlewareInterface
             $accept = $request->getHeaderLine('Accept');
             $xhr = $request->getHeaderLine('X-Requested-With');
             $path = $request->getUri()->getPath();
-            $isApi = str_starts_with($path, '/api/') || str_contains($accept, 'application/json') || $xhr === 'fetch';
+            $base = $request->getUri()->getBasePath();
+            $isApi = str_starts_with($path, $base . '/api/')
+                || str_contains($accept, 'application/json')
+                || $xhr === 'fetch';
 
             if ($isApi) {
                 $response = new SlimResponse(401);
@@ -46,7 +49,7 @@ class RoleAuthMiddleware implements MiddlewareInterface
 
             $response = new SlimResponse();
 
-            return $response->withHeader('Location', '/login')->withStatus(302);
+            return $response->withHeader('Location', $base . '/login')->withStatus(302);
         }
 
         return $handler->handle($request);
