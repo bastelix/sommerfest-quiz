@@ -1,3 +1,5 @@
+import initEventSelector from './event-selector.js';
+
 const currentScript = document.currentScript;
 const basePath = window.basePath || (currentScript ? currentScript.dataset.base || '' : '');
 const withBase = (p) => basePath + p;
@@ -87,46 +89,18 @@ document.addEventListener('DOMContentLoaded', () => {
   const eventSelect = document.getElementById('eventSelect');
   const eventOpenBtn = document.getElementById('eventOpenBtn');
   const eventTitle = document.getElementById('eventTitle');
-  let activeEventUid = '';
   const params = new URLSearchParams(window.location.search);
   const pageEventUid = params.get('event') || '';
 
-  function populate(list) {
-    if (!eventSelect) return;
-    eventSelect.innerHTML = '';
-    if (!Array.isArray(list) || list.length === 0) {
-      if (selectWrap) selectWrap.hidden = true;
-      if (eventTitle) eventTitle.hidden = false;
-      return;
-    }
-    list.forEach((ev) => {
-      const opt = document.createElement('option');
-      opt.value = ev.uid;
-      opt.textContent = ev.name;
-      if (ev.uid === activeEventUid) opt.selected = true;
-      eventSelect.appendChild(opt);
-    });
-    if (selectWrap) selectWrap.hidden = false;
-    if (eventTitle) eventTitle.hidden = true;
-    eventSelect.dispatchEvent(new Event('change'));
-  }
-
-  function setActive(uid) {
-    activeEventUid = uid;
-    csrfFetch('/config.json', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event_uid: uid })
-    })
-      .then((resp) => {
-        if (resp.ok) {
-          window.location.reload();
-        } else {
-          notify('Fehler beim Speichern', 'danger');
-        }
-      })
-      .catch(() => notify('Fehler beim Speichern', 'danger'));
-  }
+  const selector = initEventSelector({
+    select: eventSelect,
+    wrap: selectWrap,
+    openBtn: eventOpenBtn,
+    titleEl: eventTitle,
+    fetchFn: csrfFetch,
+    withBase,
+    notifyFn: notify
+  });
 
   if (eventSelect) {
     const cfgUrl = pageEventUid ? `/events/${pageEventUid}/config.json` : '/config.json';
@@ -134,23 +108,8 @@ document.addEventListener('DOMContentLoaded', () => {
       csrfFetch(cfgUrl).then((r) => r.json()).catch(() => ({})),
       csrfFetch('/events.json', { headers: { Accept: 'application/json' } }).then((r) => r.json()).catch(() => [])
     ]).then(([cfg, events]) => {
-      activeEventUid = cfg.event_uid || '';
       window.quizConfig = cfg;
-      populate(events);
+      selector.populate(events, cfg.event_uid || '');
     }).catch(() => {});
   }
-
-  eventSelect?.addEventListener('change', () => {
-    const uid = eventSelect.value;
-    if (uid && uid !== activeEventUid) {
-      setActive(uid);
-    }
-  });
-
-  eventOpenBtn?.addEventListener('click', () => {
-    const uid = eventSelect?.value;
-    if (uid) {
-      window.open(withBase('/?event=' + uid), '_blank');
-    }
-  });
 });

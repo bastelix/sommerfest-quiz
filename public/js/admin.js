@@ -2,6 +2,7 @@
 
 import TableManager from './table-manager.js';
 import { createCellEditor } from './edit-helpers.js';
+import initEventSelector from './event-selector.js';
 
 const basePath = window.basePath || '';
 const withBase = path => basePath + path;
@@ -1651,6 +1652,7 @@ document.addEventListener('DOMContentLoaded', function () {
   let activeEventUid = cfgInitial.event_uid || '';
   let eventManager;
   let eventEditor;
+  let eventSelector;
 
   function createEventItem(ev = {}) {
     const id = ev.uid || ev.id || crypto.randomUUID();
@@ -1683,24 +1685,9 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
         notify('Veranstaltungen gespeichert', 'success');
-        populateEventSelect(list);
+        eventSelector?.populate(list, activeEventUid);
       })
       .catch(() => notify('Fehler beim Speichern', 'danger'));
-  }
-
-  function populateEventSelect(list) {
-    if (!eventSelect) return;
-    eventSelect.innerHTML = '';
-    list.forEach(ev => {
-      const opt = document.createElement('option');
-      opt.value = ev.uid;
-      opt.textContent = ev.name;
-      if (ev.uid === activeEventUid) {
-        opt.selected = true;
-      }
-      eventSelect.appendChild(opt);
-    });
-    updateEventSelectDisplay();
   }
 
   function highlightActiveEvent() {
@@ -1710,19 +1697,6 @@ document.addEventListener('DOMContentLoaded', function () {
     Array.from(eventsCardsEl?.children || []).forEach(card => {
       card.classList.toggle('active-event', card.dataset.id === activeEventUid);
     });
-  }
-
-  function setActiveEvent(uid, name) {
-    activeEventUid = uid;
-    cfgInitial.event_uid = uid;
-    updateActiveHeader(name, uid);
-    apiFetch('/config.json', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event_uid: uid })
-    }).then(() => {
-      window.location.reload();
-    }).catch(() => {});
   }
 
   if (eventsListEl) {
@@ -1748,8 +1722,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (input.checked) {
               const twin = eventsCardsEl?.querySelector(`input[name="currentEventCard"][data-id="${ev.id}"]`);
               if (twin) twin.checked = true;
-              setActiveEvent(ev.id, ev.name);
-              highlightActiveEvent();
+              eventSelector.setActive(ev.id, ev.name);
             }
           });
           const slider = document.createElement('span');
@@ -1771,8 +1744,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (input.checked) {
               const twin = eventsListEl.querySelector(`input[name="currentEventList"][data-id="${ev.id}"]`);
               if (twin) twin.checked = true;
-              setActiveEvent(ev.id, ev.name);
-              highlightActiveEvent();
+              eventSelector.setActive(ev.id, ev.name);
             }
           });
           const slider = document.createElement('span');
@@ -1834,7 +1806,7 @@ document.addEventListener('DOMContentLoaded', function () {
       eventManager.render(list);
       highlightActiveEvent();
       saveEvents();
-      populateEventSelect(list);
+      eventSelector.populate(list, activeEventUid);
     }
   }
 
@@ -1847,7 +1819,7 @@ document.addEventListener('DOMContentLoaded', function () {
           eventManager.render(list);
           highlightActiveEvent();
         }
-        populateEventSelect(list);
+        eventSelector.populate(list, activeEventUid);
       })
       .catch(() => {});
   }
@@ -1874,35 +1846,27 @@ document.addEventListener('DOMContentLoaded', function () {
         eventSelect.value = opt.value;
       }
     }
-    updateEventSelectDisplay();
+    eventSelector.updateDisplay();
     const top = document.getElementById('topbar-title');
     if (top) top.textContent = name || top.dataset.defaultTitle || '';
   }
 
-  function updateEventSelectDisplay() {
-    if (!eventSelectWrap || !eventSelect) return;
-    const btnSpan = eventSelectWrap.querySelector('button > span:first-child');
-    if (btnSpan) {
-      const sel = eventSelect.options[eventSelect.selectedIndex];
-      btnSpan.textContent = sel ? sel.textContent : '';
-    }
-    window.dispatchEvent(new Event('resize'));
-  }
-
-  eventSelect?.addEventListener('change', () => {
-    const uid = eventSelect.value;
-    const name = eventSelect.options[eventSelect.selectedIndex]?.textContent || '';
-    if (uid && uid !== activeEventUid) {
-      setActiveEvent(uid, name);
+  eventSelector = initEventSelector({
+    select: eventSelect,
+    wrap: eventSelectWrap,
+    openBtn: eventOpenBtn,
+    activeUid: activeEventUid,
+    fetchFn: apiFetch,
+    withBase,
+    notifyFn: notify,
+    onChange: (uid, name) => {
+      activeEventUid = uid;
+      cfgInitial.event_uid = uid;
+      updateActiveHeader(name, uid);
+      highlightActiveEvent();
     }
   });
 
-  eventOpenBtn?.addEventListener('click', () => {
-    const uid = eventSelect?.value;
-    if (uid) {
-      window.open(withBase('/?event=' + uid), '_blank');
-    }
-  });
 
   langSelect?.addEventListener('change', () => {
     const lang = langSelect.value;
