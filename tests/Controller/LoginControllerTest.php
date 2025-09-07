@@ -25,6 +25,28 @@ class LoginControllerTest extends TestCase
         unset($_ENV['APP_VERSION']);
     }
 
+    public function testLoginPageContainsCsrfToken(): void
+    {
+        $old = getenv('MAIN_DOMAIN');
+        putenv('MAIN_DOMAIN=example.com');
+        $_ENV['MAIN_DOMAIN'] = 'example.com';
+
+        $app = $this->getAppInstance();
+        session_start();
+        $request = $this->createRequest('GET', '/login', ['HTTP_HOST' => 'example.com']);
+        $request = $request->withUri($request->getUri()->withHost('example.com'));
+        $response = $app->handle($request);
+        $this->assertSame(200, $response->getStatusCode());
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('csrf_token', $body);
+
+        putenv('MAIN_DOMAIN');
+        if ($old !== false) {
+            putenv('MAIN_DOMAIN=' . $old);
+        }
+        unset($_ENV['MAIN_DOMAIN']);
+    }
+
     public function testLoginPersistsSession(): void
     {
         $pdo = $this->getDatabase();
