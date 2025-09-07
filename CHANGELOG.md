@@ -188,6 +188,7 @@
 - Preload events on admin page
 - Remove events pagination limit
 - Warn if no events present
+- Combine team actions into single column
 
 ### Fix
 
