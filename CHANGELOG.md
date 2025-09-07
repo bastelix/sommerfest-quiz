@@ -192,6 +192,7 @@
 - Move team name prompt to top bar
 - Globalize player name storage
 - Allow resetting stored team name
+- Show team name button
 
 ### Fix
 
