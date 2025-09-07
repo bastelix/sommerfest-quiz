@@ -173,7 +173,7 @@
           <div class="uk-card uk-card-default uk-card-body uk-margin-small-top">
             <h3 class="uk-card-title uk-margin-remove">QR-Links</h3>
             <div class="uk-margin-small-top">
-              <a class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom" href="{{ basePath }}/qr/event?t={{ ('?event=' ~ (event.slug|default('demo')))|url_encode }}" target="_blank">Event‑QR</a>
+              <a class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom" href="{{ basePath }}/qr/event?event={{ (event.slug|default('demo')) }}&t={{ ('?event=' ~ (event.slug|default('demo')))|url_encode }}" target="_blank">Event‑QR</a>
               <a class="uk-button uk-button-default uk-width-1-1 uk-margin-small-bottom" href="{{ basePath }}/qr/catalog?t={{ ('?event=' ~ (event.slug|default('demo')) ~ '&katalog=' ~ (catalog.slug|default('default')))|url_encode }}" target="_blank">Katalog‑QR</a>
               <a class="uk-button uk-button-default uk-width-1-1" href="{{ basePath }}/qr/team?t={{ (team|default('team-1'))|url_encode }}" target="_blank">Team‑QR</a>
             </div>
