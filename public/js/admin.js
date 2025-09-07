@@ -1873,6 +1873,14 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (eventManager || eventSelect) {
+    const initial = Array.isArray(window.initialEvents)
+      ? window.initialEvents.map(d => createEventItem(d))
+      : [];
+    if (eventManager) {
+      eventManager.render(initial);
+      highlightCurrentEvent();
+    }
+    populateEventSelect(initial);
     apiFetch('/events.json', { headers: { 'Accept': 'application/json' } })
       .then(r => {
         if (!r.ok) {

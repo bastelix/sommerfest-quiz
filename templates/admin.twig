@@ -1202,6 +1202,7 @@
     window.transTeamPdf = '{{ t('tip_team_pdf') }}';
     window.transActions = '{{ t('column_actions') }}';
     window.stripeDashboard = '{{ stripe_sandbox ? 'https://dashboard.stripe.com/test' : 'https://dashboard.stripe.com' }}';
+    window.initialEvents = {{ events|json_encode|raw }};
   </script>
   <script src="{{ basePath }}/js/dashboard.js"></script>
   <script type="module" src="{{ basePath }}/js/admin.js"></script>
