@@ -26,6 +26,19 @@ Im Tab "Administration" lassen sich JSON-Sicherungen exportieren und bei Bedarf 
 
 Weitere Funktionen wie der QR-Code-Login mit Namensspeicherung oder der Wettkampfmodus lassen sich über die Event-Konfiguration in der Datenbank aktivieren.
 
+## Domänen-Konfiguration
+
+Die Anwendung unterscheidet über die Umgebungsvariable `MAIN_DOMAIN` zwischen der Hauptdomain und möglichen Mandanten-Domains. Sie legt fest, unter welcher Basisadresse der Quiz-Container erreichbar ist, etwa `quiz.example`. Typische Subdomains sind:
+
+- `admin.` – Administrationsoberfläche
+- `{tenant}.` – individuelle Mandanteninstanzen
+
+Die `DomainMiddleware` prüft bei jeder Anfrage den Host gegen `MAIN_DOMAIN` und setzt entsprechend das Attribut `domainType` (`main` oder `tenant`). Ist `MAIN_DOMAIN` leer oder stimmt nicht mit der aufgerufenen Domain überein, blockiert die Middleware den Zugriff mit `403 Invalid main domain configuration.`
+
+### Beispiel für eine Fehlkonfiguration
+
+Ist `MAIN_DOMAIN=quiz.example` gesetzt, die Anwendung wird aber über `quiz.local` aufgerufen, funktioniert der Login unter `admin.quiz.local` zwar. Nach der Weiterleitung auf `/admin` greift die `DomainMiddleware` jedoch ein und der Browser zeigt einen `403` an. Erst wenn `MAIN_DOMAIN` auf die tatsächlich genutzte Domain gesetzt wird, lässt sich das Dashboard erreichen.
+
 ## Aktive Events
 
 Über zwei Mechanismen wird festgelegt, für welches Event der Server arbeitet:
