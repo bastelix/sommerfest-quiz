@@ -247,6 +247,22 @@ async function runQuiz(questions, skipIntro){
     if(skipIntro){
       headerEl.classList.add('uk-hidden');
     }else{
+      const logoPath = cfg.logoPath;
+      const logo = document.createElement('img');
+      logo.id = 'quiz-logo';
+      logo.className = 'logo-placeholder';
+      if (logoPath) {
+        logo.src = withBase(logoPath);
+      } else {
+        logo.src = withBase('/logo-160.svg');
+        logo.srcset = withBase('/logo-160.svg') + ' 160w, ' + withBase('/logo-320.svg') + ' 320w';
+        logo.sizes = '(max-width: 600px) 160px, 320px';
+      }
+      logo.alt = 'Logo';
+      logo.width = 160;
+      logo.height = 240;
+      logo.loading = 'lazy';
+      headerEl.appendChild(logo);
       if(name){
         const h1 = document.createElement('h1');
         h1.textContent = name;

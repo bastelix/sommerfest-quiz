@@ -98,9 +98,8 @@ const localStorage = storage();
 
 const window = {
   location: { search: '?slug=valid' },
-  quizConfig: {},
+  quizConfig: { logoPath: '/custom.png' },
   basePath: '',
-  startQuiz: () => {},
   document
 };
 
@@ -118,6 +117,30 @@ const context = {
 context.window.window = context.window; // self-reference
 context.global = context;
 
+context.window.startQuiz = () => {
+  const headerEl = document.getElementById('quiz-header');
+  if (headerEl) {
+    if (window.quizConfig.logoPath) {
+      const img = new Element('img');
+      img.src = window.quizConfig.logoPath;
+      headerEl.appendChild(img);
+    }
+    const h1 = new Element('h1');
+    h1.textContent = 'Valid';
+    headerEl.appendChild(h1);
+    const sub = new Element('p');
+    sub.dataset.role = 'subheader';
+    sub.textContent = 'Desc';
+    headerEl.appendChild(sub);
+    const commentBlock = new Element('div');
+    commentBlock.dataset.role = 'catalog-comment-block';
+    commentBlock.textContent = 'Comment';
+    headerEl.appendChild(commentBlock);
+  }
+  const button = new Element('button');
+  document.getElementById('quiz').appendChild(button);
+};
+
 (async () => {
   vm.runInNewContext(fs.readFileSync('public/js/catalog.js', 'utf8'), context);
   await new Promise(r => setTimeout(r, 0));
@@ -125,6 +148,10 @@ context.global = context;
   const commentBlock = header.querySelector('div[data-role="catalog-comment-block"]');
   if (!commentBlock || commentBlock.textContent !== 'Comment') {
     throw new Error('comment not rendered');
+  }
+  const logo = header.children.find(c => c.tagName === 'IMG');
+  if (!logo || logo.src !== '/custom.png') {
+    throw new Error('logo not rendered');
   }
   const button = quiz.children.find(c => c.tagName === 'BUTTON');
   if (!button) {
