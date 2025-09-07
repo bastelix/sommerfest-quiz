@@ -219,6 +219,7 @@
 - Reuse existing catalog uid for duplicate slug
 - Address phpstan warnings
 - Remove admin topbar position override
+- Avoid duplicate params declaration
 
 ### Refactor
 
