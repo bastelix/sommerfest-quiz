@@ -37,10 +37,14 @@ class LoginController
         if ($version === false || $version === '') {
             $version = (new VersionService())->getCurrentVersion();
         }
+        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
+        $_SESSION['csrf_token'] = $csrf;
+
         return $view->render($response, 'login.twig', [
             'registration_allowed' => $allowed,
             'reset_success' => $resetSuccess,
             'version' => $version,
+            'csrf_token' => $csrf,
         ]);
     }
 
