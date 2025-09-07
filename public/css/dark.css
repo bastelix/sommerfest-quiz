@@ -51,6 +51,17 @@ body[data-theme="dark"].uk-background-default {
   background-color: #000 !important;
   color: #f5f5f5;
 }
+
+body[data-theme="dark"].admin-page {
+  background: #000 !important;
+}
+
+body[data-theme="dark"].admin-page .uk-section,
+body[data-theme="dark"].admin-page .uk-container,
+body[data-theme="dark"].admin-page .uk-grid,
+body[data-theme="dark"].admin-page .uk-grid > * {
+  background: transparent !important;
+}
 body .uk-progress {
   background-color: #333;
   color: var(--accent-color, #1e87f0);
