@@ -187,6 +187,7 @@
 - Collect solved catalogs in competition mode
 - Preload events on admin page
 - Remove events pagination limit
+- Warn if no events present
 
 ### Fix
 
@@ -217,6 +218,7 @@
 - Avoid autosave after load
 - Reuse existing catalog uid for duplicate slug
 - Address phpstan warnings
+- Remove admin topbar position override
 
 ### Refactor
 
