@@ -70,20 +70,7 @@ function formatPuzzleTime(ts){
   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-async function fetchLatestPuzzleEntry(name, catalog){
-  try{
-    const list = await fetch(withBase('/results.json')).then(r => r.json());
-    if(Array.isArray(list)){
-      return list.slice().reverse().find(e => e.name === name && e.catalog === catalog && e.puzzleTime);
-    }
-  }catch(e){
-    return null;
-  }
-  return null;
-}
-
 window.formatPuzzleTime = formatPuzzleTime;
-window.fetchLatestPuzzleEntry = fetchLatestPuzzleEntry;
 
 function insertSoftHyphens(text){
   return text ? text.replace(/\/-/g, '\u00AD') : '';
@@ -1128,13 +1115,11 @@ async function runQuiz(questions, skipIntro){
     return div;
   }
 
-  // Startbildschirm mit Statistik und Startknopf
+  // Startbildschirm mit Startknopf – ohne Statistik
   function createStart(){
     const div = document.createElement('div');
     div.className = 'question uk-text-center';
     div.setAttribute('uk-scrollspy', 'cls: uk-animation-slide-bottom-small; target: > *; delay: 100');
-    const stats = document.createElement('div');
-    stats.className = 'uk-margin';
 
     if(cfg.QRUser && !getStored(STORAGE_KEYS.PLAYER_NAME)){
       const scanBtn = document.createElement('button');
@@ -1289,8 +1274,6 @@ async function runQuiz(questions, skipIntro){
     startBtn.className = 'uk-button uk-button-primary uk-button-large uk-align-right';
     startBtn.textContent = 'Los geht\'s!';
     styleButton(startBtn);
-    // Zeigt bisherige Ergebnisse als kleine Slideshow an
-    stats.textContent = 'Noch keine Ergebnisse vorhanden.';
 
     startBtn.addEventListener('click', async() => {
       if(cfg.QRRestrict){
@@ -1305,7 +1288,6 @@ async function runQuiz(questions, skipIntro){
       next();
     });
     div.appendChild(startBtn);
-    div.appendChild(stats);
     return div;
   }
 
