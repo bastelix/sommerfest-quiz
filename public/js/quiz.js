@@ -114,16 +114,38 @@ async function promptTeamName(){
     dialog.appendChild(title);
 
     if(existing){
-      title.textContent = `Ah - dich kenne ich. Du bist ${existing}. Willkommen zurück.`;
+      title.textContent = `Ah - dich kenne ich. Du bist ${existing}. Willkommen zurück. Möchtest du fortfahren oder den Teamnamen zurücksetzen?`;
       const btn = document.createElement('button');
       btn.id = 'team-name-submit';
       btn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
       btn.textContent = 'Weiter';
+      const resetBtn = document.createElement('button');
+      resetBtn.id = 'team-name-reset';
+      resetBtn.className = 'uk-button uk-button-danger uk-width-1-1 uk-margin-top';
+      resetBtn.textContent = 'Teamnamen zurücksetzen';
       dialog.appendChild(btn);
+      dialog.appendChild(resetBtn);
       document.body.appendChild(modal);
       const ui = UIkit.modal(modal, { bgClose: false, escClose: false });
-      UIkit.util.on(modal, 'hidden', () => { modal.remove(); updateTeamNameButton(); resolve(); });
+      let reopened = false;
+      UIkit.util.on(modal, 'hidden', () => {
+        modal.remove();
+        updateTeamNameButton();
+        if(!reopened){
+          resolve();
+        }
+      });
       btn.addEventListener('click', () => { ui.hide(); });
+      resetBtn.addEventListener('click', async () => {
+        reopened = true;
+        clearStored('quizUser');
+        clearStored(STORAGE_KEYS.PLAYER_UID);
+        try{
+          await postSession('player', { name: null });
+        }catch(e){ /* empty */ }
+        ui.hide();
+        UIkit.util.on(modal, 'hidden', () => { promptTeamName().then(resolve); });
+      });
       ui.show();
       return;
     }
