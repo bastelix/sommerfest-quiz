@@ -874,12 +874,14 @@
         <div id="userPassModal" uk-modal>
           <div class="uk-modal-dialog uk-modal-body">
             <h2 class="uk-modal-title">Passwort setzen</h2>
-            <div class="uk-margin"><input id="userPassInput" class="uk-input" type="password" placeholder="Passwort"></div>
-            <div class="uk-margin"><input id="userPassRepeat" class="uk-input" type="password" placeholder="Wiederholen"></div>
-            <div class="uk-flex uk-flex-right uk-margin-top">
-              <button id="userPassSave" class="uk-icon-button uk-button-primary" uk-icon="check" type="button" aria-label="{{ t('action_save') }}"></button>
-              <button class="uk-button uk-button-default uk-modal-close" type="button">{{ t('action_cancel') }}</button>
-            </div>
+            <form id="userPassForm">
+              <div class="uk-margin"><input id="userPassInput" class="uk-input" type="password" placeholder="Passwort"></div>
+              <div class="uk-margin"><input id="userPassRepeat" class="uk-input" type="password" placeholder="Wiederholen"></div>
+              <div class="uk-flex uk-flex-right uk-margin-top">
+                <button id="userPassSave" class="uk-icon-button uk-button-primary" uk-icon="check" type="submit" aria-label="{{ t('action_save') }}"></button>
+                <button class="uk-button uk-button-default uk-modal-close" type="button">{{ t('action_cancel') }}</button>
+              </div>
+            </form>
           </div>
         </div>
 

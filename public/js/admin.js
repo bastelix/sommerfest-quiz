@@ -2137,7 +2137,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const userPassModal = window.UIkit ? UIkit.modal('#userPassModal') : null;
   const userPassInput = document.getElementById('userPassInput');
   const userPassRepeat = document.getElementById('userPassRepeat');
-  const userPassSave = document.getElementById('userPassSave');
+  const userPassForm = document.getElementById('userPassForm');
   let currentUserRow = null;
 
   function collectUsers() {
@@ -2263,7 +2263,8 @@ document.addEventListener('DOMContentLoaded', function () {
     saveUsers();
   });
 
-  userPassSave?.addEventListener('click', () => {
+  userPassForm?.addEventListener('submit', e => {
+    e.preventDefault();
     if (!userPassInput || !userPassRepeat || !currentUserRow) return;
     const p1 = userPassInput.value;
     const p2 = userPassRepeat.value;
