@@ -89,6 +89,17 @@ function insertSoftHyphens(text){
   return text ? text.replace(/\/-/g, '\u00AD') : '';
 }
 
+function updateTeamNameButton(){
+  const btn = document.getElementById('teamNameBtn');
+  if(!btn) return;
+  const name = getStored('quizUser');
+  if(name){
+    btn.textContent = name;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', updateTeamNameButton);
+
 async function promptTeamName(){
   return new Promise(resolve => {
     const existing = getStored('quizUser');
@@ -111,7 +122,7 @@ async function promptTeamName(){
       dialog.appendChild(btn);
       document.body.appendChild(modal);
       const ui = UIkit.modal(modal, { bgClose: false, escClose: false });
-      UIkit.util.on(modal, 'hidden', () => { modal.remove(); resolve(); });
+      UIkit.util.on(modal, 'hidden', () => { modal.remove(); updateTeamNameButton(); resolve(); });
       btn.addEventListener('click', () => { ui.hide(); });
       ui.show();
       return;
@@ -159,7 +170,7 @@ async function promptTeamName(){
     document.body.appendChild(modal);
     const ui = UIkit.modal(modal, { bgClose: false, escClose: false });
     UIkit.util.on(modal, 'shown', () => { input.focus(); });
-    UIkit.util.on(modal, 'hidden', () => { modal.remove(); resolve(); });
+    UIkit.util.on(modal, 'hidden', () => { modal.remove(); updateTeamNameButton(); resolve(); });
     ui.show();
   });
 }
@@ -1262,14 +1273,6 @@ async function runQuiz(questions, skipIntro){
     styleButton(startBtn);
     // Zeigt bisherige Ergebnisse als kleine Slideshow an
     stats.textContent = 'Noch keine Ergebnisse vorhanden.';
-
-    if(cfg.randomNames){
-      const nameBtn = document.createElement('button');
-      nameBtn.className = 'uk-button uk-button-default uk-button-large uk-align-left';
-      nameBtn.textContent = 'Teamnamen eingeben';
-      nameBtn.addEventListener('click', () => { promptTeamName(); });
-      div.appendChild(nameBtn);
-    }
 
     startBtn.addEventListener('click', async() => {
       if(cfg.QRRestrict){
