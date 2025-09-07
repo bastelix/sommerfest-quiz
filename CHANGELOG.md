@@ -228,6 +228,7 @@
 - Avoid duplicate params declaration
 - Align admin action wrappers to right
 - Preserve player name on restart
+- Restore landing theme toggles
 
 ### Refactor
 
