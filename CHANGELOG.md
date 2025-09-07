@@ -50,6 +50,7 @@
 - Describe QR code endpoint requirements
 - Document active event handling
 - Add domain configuration section
+- Clarify quiz start comment
 
 ### Feat
 
