@@ -35,8 +35,6 @@ class DomainMiddleware implements MiddlewareInterface
             $domainType = 'tenant';
         }
 
-        $request = $request->withAttribute('domainType', $domainType);
-
         if (
             $mainDomain === ''
             || ($domainType === 'main' && $host !== $mainDomain)
@@ -56,18 +54,20 @@ class DomainMiddleware implements MiddlewareInterface
                 || str_contains($accept, 'application/json')
                 || $xhr === 'fetch';
 
-            $resp = new SlimResponse(403);
+            $response = new SlimResponse(403);
 
             if ($isApi) {
-                $resp->getBody()->write(json_encode(['error' => $message]));
+                $response->getBody()->write(json_encode(['error' => $message]));
 
-                return $resp->withHeader('Content-Type', 'application/json');
+                return $response->withHeader('Content-Type', 'application/json');
             }
 
-            $resp->getBody()->write($message);
+            $response->getBody()->write($message);
 
-            return $resp->withHeader('Content-Type', 'text/html');
+            return $response->withHeader('Content-Type', 'text/html');
         }
+
+        $request = $request->withAttribute('domainType', $domainType);
 
         return $handler->handle($request);
     }

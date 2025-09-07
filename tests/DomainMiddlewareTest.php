@@ -145,4 +145,37 @@ class DomainMiddlewareTest extends TestCase
             putenv('MAIN_DOMAIN=' . $old);
         }
     }
+
+    public function testInvalidMainDomainReturnsHtmlError(): void
+    {
+        $old = getenv('MAIN_DOMAIN');
+        putenv('MAIN_DOMAIN=main-domain.tld');
+
+        $middleware = new DomainMiddleware();
+        $factory = new ServerRequestFactory();
+        $request = $factory->createServerRequest('GET', 'https://wrong.tld/');
+
+        $handler = new class implements RequestHandlerInterface {
+            public bool $handled = false;
+
+            public function handle(Request $request): ResponseInterface
+            {
+                $this->handled = true;
+                return new Response();
+            }
+        };
+
+        $response = $middleware->process($request, $handler);
+
+        $this->assertFalse($handler->handled);
+        $this->assertSame(403, $response->getStatusCode());
+        $this->assertSame('text/html', $response->getHeaderLine('Content-Type'));
+        $this->assertSame('Invalid main domain configuration.', (string) $response->getBody());
+
+        if ($old === false) {
+            putenv('MAIN_DOMAIN');
+        } else {
+            putenv('MAIN_DOMAIN=' . $old);
+        }
+    }
 }
