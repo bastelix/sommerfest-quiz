@@ -2,14 +2,16 @@ const fs = require('fs');
 const vm = require('vm');
 const assert = require('assert');
 
-const code = fs.readFileSync('public/js/quiz.js', 'utf8');
-if (!/if\(cfg.randomNames\)\s*\{\n\s*const nameBtn/.test(code)) {
-    throw new Error('Team name button not found for randomNames');
-}
-const initMatch = code.match(/if\(!getStored\('quizUser'\) && !cfg\.QRRestrict && !cfg\.QRUser\)\{[\s\S]*?\n\s*\}\n\s*\}/);
-const handlerMatch = code.match(/startBtn.addEventListener\('click', async\(\) => \{([\s\S]*?)\n\s*\}\);/);
+const quizCode = fs.readFileSync('public/js/quiz.js', 'utf8');
+const initMatch = quizCode.match(/if\(!getStored\('quizUser'\) && !cfg\.QRRestrict && !cfg\.QRUser\)\{[\s\S]*?\n\s*\}\n\s*\}/);
+const handlerMatch = quizCode.match(/startBtn.addEventListener\('click', async\(\) => \{([\s\S]*?)\n\s*\}\);/);
 if (!initMatch || !handlerMatch) {
     throw new Error('Required code blocks not found');
+}
+
+const appCode = fs.readFileSync('public/js/app.js', 'utf8');
+if (!/getElementById\('teamNameBtn'\)/.test(appCode)) {
+    throw new Error('teamNameBtn handling missing in app.js');
 }
 
 (async() => {

@@ -16,7 +16,7 @@
   {% embed 'topbar.twig' %}
     {% block left %}
       {% if config.randomNames %}
-        <button id="teamNameBtn" class="uk-button uk-button-default uk-button-small" type="button" onclick="promptTeamName()">Teamnamen eingeben</button>
+        <button id="teamNameBtn" class="uk-button uk-button-default uk-button-small" type="button" data-placeholder="Teamnamen eingeben">{{ player_name|default('Teamnamen eingeben') }}</button>
       {% endif %}
     {% endblock %}
     {% block center %}
