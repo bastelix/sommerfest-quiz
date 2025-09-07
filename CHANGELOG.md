@@ -190,6 +190,7 @@
 - Warn if no events present
 - Combine team actions into single column
 - Move team name prompt to top bar
+- Globalize player name storage
 
 ### Fix
 
