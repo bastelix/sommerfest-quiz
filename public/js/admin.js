@@ -1693,39 +1693,34 @@ document.addEventListener('DOMContentLoaded', function () {
   function populateEventSelect(list) {
     if (!eventSelect) return;
     eventSelect.innerHTML = '';
-    if (!Array.isArray(list) || list.length === 0) {
-      currentEventUid = '';
-      cfgInitial.event_uid = '';
-      window.quizConfig = {};
-      if (eventSelectWrap) eventSelectWrap.hidden = true;
-      if (eventOpenBtn) eventOpenBtn.disabled = true;
-      eventDependentSections.forEach(sec => { sec.hidden = true; });
-      return;
-    }
     const placeholder = document.createElement('option');
     placeholder.value = '';
     placeholder.textContent = eventSelect.dataset.placeholder || '';
     eventSelect.appendChild(placeholder);
-    list.forEach(ev => {
-      const opt = document.createElement('option');
-      opt.value = ev.uid;
-      opt.textContent = ev.name;
-      if (ev.uid === currentEventUid) {
-        opt.selected = true;
+
+    if (Array.isArray(list) && list.length > 0) {
+      list.forEach(ev => {
+        const opt = document.createElement('option');
+        opt.value = ev.uid;
+        opt.textContent = ev.name;
+        if (ev.uid === currentEventUid) {
+          opt.selected = true;
+        }
+        eventSelect.appendChild(opt);
+      });
+      const hasCurrent = list.some(ev => ev.uid === currentEventUid);
+      if (!hasCurrent) {
+        currentEventUid = '';
+        cfgInitial.event_uid = '';
+        window.quizConfig = {};
       }
-      eventSelect.appendChild(opt);
-    });
-    const hasCurrent = list.some(ev => ev.uid === currentEventUid);
-    if (!hasCurrent) {
+    } else {
       currentEventUid = '';
       cfgInitial.event_uid = '';
       window.quizConfig = {};
     }
-    if (currentEventUid) {
-      eventSelect.value = currentEventUid;
-    } else {
-      eventSelect.value = '';
-    }
+
+    eventSelect.value = currentEventUid || '';
     eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
     if (eventSelectWrap) eventSelectWrap.hidden = false;
     if (eventOpenBtn) eventOpenBtn.disabled = !currentEventUid;
