@@ -2006,23 +2006,47 @@ document.addEventListener('DOMContentLoaded', function () {
     const teamColumns = [
       { key: 'name', label: 'Name', className: 'team-name', editable: true },
       {
-        className: 'uk-table-shrink',
+        className: 'uk-table-shrink uk-flex uk-flex-middle uk-flex-between',
         render: item => {
-          const btn = document.createElement('button');
-          btn.className = 'uk-icon-button qr-action';
-          btn.setAttribute('uk-icon', 'file-text');
-          btn.setAttribute('aria-label', window.transTeamPdf || 'PDF');
-          btn.setAttribute('uk-tooltip', 'title: ' + (window.transTeamPdf || 'PDF') + '; pos: left');
-          btn.addEventListener('click', () => openTeamPdf(item.name));
-          return btn;
+          const frag = document.createDocumentFragment();
+
+          const pdfBtn = document.createElement('button');
+          pdfBtn.className = 'uk-icon-button qr-action';
+          pdfBtn.setAttribute('uk-icon', 'file-text');
+          pdfBtn.setAttribute('aria-label', window.transTeamPdf || 'PDF');
+          pdfBtn.setAttribute('uk-tooltip', 'title: ' + (window.transTeamPdf || 'PDF') + '; pos: left');
+          pdfBtn.addEventListener('click', () => openTeamPdf(item.name));
+          frag.appendChild(pdfBtn);
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'uk-icon-button qr-action uk-text-danger';
+          delBtn.setAttribute('uk-icon', 'trash');
+          delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
+          delBtn.setAttribute('uk-tooltip', 'title: ' + (window.transDelete || 'Löschen') + '; pos: left');
+          delBtn.addEventListener('click', () => removeTeam(item.id));
+          frag.appendChild(delBtn);
+
+          return frag;
         },
         renderCard: item => {
-          const btn = document.createElement('button');
-          btn.className = 'uk-icon-button qr-action';
-          btn.setAttribute('uk-icon', 'file-text');
-          btn.setAttribute('aria-label', window.transTeamPdf || 'PDF');
-          btn.addEventListener('click', () => openTeamPdf(item.name));
-          return btn;
+          const wrapper = document.createElement('div');
+          wrapper.className = 'uk-flex uk-flex-middle uk-flex-between qr-action';
+
+          const pdfBtn = document.createElement('button');
+          pdfBtn.className = 'uk-icon-button qr-action';
+          pdfBtn.setAttribute('uk-icon', 'file-text');
+          pdfBtn.setAttribute('aria-label', window.transTeamPdf || 'PDF');
+          pdfBtn.addEventListener('click', () => openTeamPdf(item.name));
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'uk-icon-button qr-action uk-text-danger';
+          delBtn.setAttribute('uk-icon', 'trash');
+          delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
+          delBtn.addEventListener('click', () => removeTeam(item.id));
+
+          wrapper.appendChild(pdfBtn);
+          wrapper.appendChild(delBtn);
+          return wrapper;
         }
       }
     ];
@@ -2035,7 +2059,6 @@ document.addEventListener('DOMContentLoaded', function () {
         teamEditError.hidden = true;
         teamEditor.open(cell);
       },
-      onDelete: removeTeam,
       onReorder: () => reorderTeams(teamManager.getData())
     });
     teamEditor = createCellEditor(teamManager, {
