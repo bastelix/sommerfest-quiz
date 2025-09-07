@@ -1321,7 +1321,7 @@ async function runQuiz(questions, skipIntro){
       restart.className = 'uk-button uk-button-primary uk-margin-top';
       styleButton(restart);
         restart.addEventListener('click', () => {
-          clearStored(STORAGE_KEYS.PLAYER_NAME);
+          // keep player name across restarts but allow new quiz attempts
           clearStored(STORAGE_KEYS.QUIZ_SOLVED);
           const topbar = document.getElementById('topbar-title');
           if(topbar){
