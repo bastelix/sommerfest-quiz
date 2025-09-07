@@ -49,6 +49,7 @@
 - Escape twig example in docs
 - Describe QR code endpoint requirements
 - Document active event handling
+- Add domain configuration section
 
 ### Feat
 
@@ -295,6 +296,7 @@
 - Add handleSelection header test
 - Cover quiz autostart error cases
 - Persist session on localhost
+- Ensure login redirect on main domain
 
 ## [0.2.0] - 2025-08-18
 
