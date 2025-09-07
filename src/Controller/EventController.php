@@ -36,5 +36,4 @@ class EventController
         $this->service->saveAll($data);
         return $response->withStatus(204);
     }
-
 }

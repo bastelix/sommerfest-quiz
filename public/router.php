@@ -22,7 +22,24 @@ if (str_contains($decoded, '..') || str_contains($decoded, '\\')) {
 
 $publicDir = realpath(__DIR__);
 $path = realpath($publicDir . $decoded);
-$allowedExt = ['css', 'js', 'png', 'jpg', 'jpeg', 'gif', 'svg', 'ico', 'html', 'json', 'map', 'webp', 'woff', 'woff2', 'ttf'];
+$allowedExt = [
+    'css',
+    'js',
+    'png',
+    'jpg',
+    'jpeg',
+    'gif',
+    'svg',
+    'ico',
+    'html',
+    'json',
+    'txt',
+    'map',
+    'webp',
+    'woff',
+    'woff2',
+    'ttf',
+];
 
 if (
     $path !== false
@@ -40,6 +57,7 @@ if (
         'js' => 'application/javascript; charset=UTF-8',
         'json' => 'application/json; charset=UTF-8',
         'html' => 'text/html; charset=UTF-8',
+        'txt' => 'text/plain; charset=UTF-8',
         'svg' => 'image/svg+xml',
         'png' => 'image/png',
         'jpg' => 'image/jpeg',
