@@ -12,9 +12,23 @@ document.addEventListener('DOMContentLoaded', function () {
   const themeIcon = document.getElementById('themeIcon');
   const accessibilityIcon = document.getElementById('accessibilityIcon');
   const helpBtn = document.getElementById('helpBtn');
+  const teamNameBtn = document.getElementById('teamNameBtn');
 
   if (offcanvasToggle && !offcanvasHasItems) {
     offcanvasToggle.hidden = true;
+  }
+
+  if (teamNameBtn) {
+    const placeholder = teamNameBtn.textContent;
+    const update = () => {
+      const name = getStored(STORAGE_KEYS.PLAYER_NAME);
+      teamNameBtn.textContent = name || placeholder;
+    };
+    update();
+    teamNameBtn.addEventListener('click', async () => {
+      await promptTeamName();
+      update();
+    });
   }
 
   const storedTheme = getStored(STORAGE_KEYS.DARK_MODE);

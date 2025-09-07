@@ -92,13 +92,9 @@ function insertSoftHyphens(text){
 function updateTeamNameButton(){
   const btn = document.getElementById('teamNameBtn');
   if(!btn) return;
-  const name = getStored('quizUser');
-  if(name){
-    btn.textContent = name;
-  }
+  const name = getStored(STORAGE_KEYS.PLAYER_NAME);
+  btn.textContent = name || btn.getAttribute('data-placeholder') || 'Teamnamen eingeben';
 }
-
-document.addEventListener('DOMContentLoaded', updateTeamNameButton);
 
 async function promptTeamName(){
   return new Promise(resolve => {
