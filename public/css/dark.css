@@ -46,7 +46,8 @@ body[data-theme="dark"] .wrapper,
 body[data-theme="dark"] .content,
 body[data-theme="dark"] .uk-background-muted,
 body[data-theme="dark"] .uk-background-default,
-body[data-theme="dark"].uk-background-muted {
+body[data-theme="dark"].uk-background-muted,
+body[data-theme="dark"].uk-background-default {
   background-color: #000 !important;
   color: #f5f5f5;
 }
