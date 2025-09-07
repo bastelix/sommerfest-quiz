@@ -66,29 +66,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const accessibilityToggles = document.querySelectorAll('.accessibility-toggle');
   const langButtons = document.querySelectorAll('.lang-option');
 
-  let dark = getStored(STORAGE_KEYS.DARK_MODE) !== 'false';
-  document.body.dataset.theme = dark ? 'dark' : 'light';
-  document.body.classList.toggle('dark-mode', dark);
-  setStored(STORAGE_KEYS.QR_THEME, dark ? 'dark' : 'light');
+  // initial state already set by app.js; store for marketing preferences
+  setStored(
+    STORAGE_KEYS.QR_THEME,
+    document.body.dataset.theme === 'dark' ? 'dark' : 'light'
+  );
+  setStored(
+    STORAGE_KEYS.QR_CONTRAST,
+    document.body.classList.contains('high-contrast') ? 'high' : 'normal'
+  );
 
-  let accessible = getStored(STORAGE_KEYS.BARRIER_FREE) === 'true';
-  document.body.classList.toggle('high-contrast', accessible);
-  setStored(STORAGE_KEYS.QR_CONTRAST, accessible ? 'high' : 'normal');
+  themeToggles.forEach(btn =>
+    btn.addEventListener('click', () => {
+      const dark = document.body.dataset.theme === 'dark';
+      setStored(STORAGE_KEYS.QR_THEME, dark ? 'dark' : 'light');
+    })
+  );
 
-  themeToggles.forEach(btn => btn.addEventListener('click', () => {
-    dark = document.body.dataset.theme !== 'dark';
-    document.body.dataset.theme = dark ? 'dark' : 'light';
-    document.body.classList.toggle('dark-mode', dark);
-    setStored(STORAGE_KEYS.DARK_MODE, dark ? 'true' : 'false');
-    setStored(STORAGE_KEYS.QR_THEME, dark ? 'dark' : 'light');
-  }));
-
-  accessibilityToggles.forEach(btn => btn.addEventListener('click', () => {
-    accessible = !document.body.classList.contains('high-contrast');
-    document.body.classList.toggle('high-contrast', accessible);
-    setStored(STORAGE_KEYS.BARRIER_FREE, accessible ? 'true' : 'false');
-    setStored(STORAGE_KEYS.QR_CONTRAST, accessible ? 'high' : 'normal');
-  }));
+  accessibilityToggles.forEach(btn =>
+    btn.addEventListener('click', () => {
+      const accessible = document.body.classList.contains('high-contrast');
+      setStored(STORAGE_KEYS.QR_CONTRAST, accessible ? 'high' : 'normal');
+    })
+  );
 
   langButtons.forEach(btn => btn.addEventListener('click', () => {
     const lang = btn.dataset.lang;
