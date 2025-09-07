@@ -2884,6 +2884,7 @@ document.addEventListener('DOMContentLoaded', function () {
         qrImg.dataset.target = link;
         const params = new URLSearchParams();
         params.set('t', link);
+        params.set('event', ev.uid);
         applyDesign(params, 'qrColorEvent');
         qrImg.src = withBase('/qr/event?' + params.toString());
       }

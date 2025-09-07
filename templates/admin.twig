@@ -496,7 +496,7 @@
             <p id="summaryEventDesc">{{ event.description }}</p>
           </div>
           <div class="uk-text-center uk-margin-small-bottom">
-            <img id="summaryEventQr" class="qr-img" src="{{ basePath }}/qr/event?t={{ (baseUrl ? baseUrl ~ '/?event=' ~ event.uid : '?event=' ~ event.uid)|url_encode }}&size=150&margin=40" alt="QR">
+            <img id="summaryEventQr" class="qr-img" src="{{ basePath }}/qr/event?event={{ event.uid }}&t={{ (baseUrl ? baseUrl ~ '/?event=' ~ event.uid : '?event=' ~ event.uid)|url_encode }}&size=150&margin=40" alt="QR">
           </div>
         </div>
 
