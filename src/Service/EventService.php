@@ -51,12 +51,16 @@ class EventService
             }
         }
 
-        return array_map(function (array $row) {
+        $events = array_map(function (array $row) {
             $row['start_date'] = $this->formatDate($row['start_date'] ?? null);
             $row['end_date'] = $this->formatDate($row['end_date'] ?? null);
             $row['published'] = (bool)($row['published'] ?? false);
             return $row;
         }, $rows);
+
+        error_log('Event count: ' . count($events));
+
+        return $events;
     }
 
     /**
