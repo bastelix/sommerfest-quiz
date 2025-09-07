@@ -1261,7 +1261,6 @@ async function runQuiz(questions, skipIntro){
     startBtn.textContent = 'Los geht\'s!';
     styleButton(startBtn);
     // Zeigt bisherige Ergebnisse als kleine Slideshow an
-    stats.textContent = 'Noch keine Ergebnisse vorhanden.';
 
     if(cfg.randomNames){
       const nameBtn = document.createElement('button');
