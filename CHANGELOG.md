@@ -186,6 +186,7 @@
 - Pass event uid to result service
 - Collect solved catalogs in competition mode
 - Preload events on admin page
+- Remove events pagination limit
 
 ### Fix
 
