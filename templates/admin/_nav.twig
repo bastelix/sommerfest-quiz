@@ -38,17 +38,17 @@
   {
     header: t('menu_account'),
     items: [
-      { href: basePath ~ '/admin/profile', icon: 'user', text: t('tab_profile') },
-      { href: basePath ~ '/admin/subscription', icon: 'file-text', text: t('tab_subscription') },
+      { href: basePath ~ '/admin/profile', icon: 'user', text: t('tab_profile'), noEvent: true },
+      { href: basePath ~ '/admin/subscription', icon: 'file-text', text: t('tab_subscription'), noEvent: true },
     ]
   },
   {
     header: t('menu_admin'),
     admin: true,
     items: [
-      { href: basePath ~ '/admin/management', icon: 'cog', text: t('tab_management') },
-      { href: basePath ~ '/admin/logs', icon: 'file-text', text: t('tab_logs') },
-      { href: basePath ~ '/admin/tenants', icon: 'users', text: t('tab_tenants'), domain: 'main' },
+      { href: basePath ~ '/admin/management', icon: 'cog', text: t('tab_management'), noEvent: true },
+      { href: basePath ~ '/admin/logs', icon: 'file-text', text: t('tab_logs'), noEvent: true },
+      { href: basePath ~ '/admin/tenants', icon: 'users', text: t('tab_tenants'), domain: 'main', noEvent: true },
     ]
   },
 ] %}
@@ -62,7 +62,7 @@
           {% if (it.admin is not defined or role == 'admin') and (it.domain is not defined or it.domain == domainType) %}
             {% set active = current starts with it.href ? 'uk-active' : '' %}
             <li class="{{ active }}">
-              <a href="{{ it.href ~ eventSuffix }}">
+              <a href="{{ it.href ~ (it.noEvent ? '' : eventSuffix) }}">
                 <span uk-icon="icon: {{ it.icon }}; ratio: 0.95"></span>
                 <span class="qr-nav-text">{{ it.text }}</span>
               </a>
@@ -75,7 +75,7 @@
         {% if (it.admin is not defined or role == 'admin') and (it.domain is not defined or it.domain == domainType) %}
           {% set active = current starts with it.href ? 'uk-active' : '' %}
           <li class="{{ active }}">
-            <a href="{{ it.href ~ eventSuffix }}">
+            <a href="{{ it.href ~ (it.noEvent ? '' : eventSuffix) }}">
               <span uk-icon="icon: {{ it.icon }}; ratio: 0.95"></span>
               <span class="qr-nav-text">{{ it.text }}</span>
             </a>
