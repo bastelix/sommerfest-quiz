@@ -716,7 +716,17 @@ document.addEventListener('DOMContentLoaded', function () {
       e.preventDefault();
       const team = btn.getAttribute('data-team');
       if (team) {
-        let url = '/qr.pdf?t=' + encodeURIComponent(team) + '&rounded=1';
+        let link;
+        if (currentEventUid) {
+          link = window.baseUrl
+            ? window.baseUrl + '/?event=' + currentEventUid + '&t=' + team
+            : withBase('/?event=' + currentEventUid + '&t=' + team);
+        } else {
+          link = window.baseUrl
+            ? window.baseUrl + '/?t=' + team
+            : withBase('/?t=' + team);
+        }
+        let url = '/qr.pdf?t=' + encodeURIComponent(link) + '&rounded=1';
         if (currentEventUid) {
           url += '&event=' + encodeURIComponent(currentEventUid);
         }
@@ -3010,12 +3020,12 @@ document.addEventListener('DOMContentLoaded', function () {
         wrapper.className = 'uk-width-1-1 uk-width-1-2@s';
         const card = document.createElement('div');
         card.className = 'export-card uk-card qr-card uk-card-body';
-        let href = withBase('/?katalog=' + encodeURIComponent(c.slug));
-        if (ev.uid) {
-          href = withBase('/?event=' + encodeURIComponent(ev.uid) + '&katalog=' + encodeURIComponent(c.slug));
-        }
+        const path = ev.uid
+          ? '/?event=' + encodeURIComponent(ev.uid) + '&katalog=' + encodeURIComponent(c.slug)
+          : '/?katalog=' + encodeURIComponent(c.slug);
+        const qrLink = window.baseUrl + path;
         const linkEl = document.createElement('a');
-        linkEl.href = href;
+        linkEl.href = qrLink;
         linkEl.target = '_blank';
         linkEl.textContent = c.name || '';
         const h4 = document.createElement('h4');
@@ -3024,7 +3034,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const p = document.createElement('p');
         p.textContent = c.description || '';
         const img = document.createElement('img');
-        const qrLink = (window.baseUrl ? window.baseUrl + href : href);
         img.dataset.endpoint = '/qr/catalog';
         img.dataset.target = qrLink;
         const cParams = new URLSearchParams();
@@ -3064,9 +3073,19 @@ document.addEventListener('DOMContentLoaded', function () {
         h4.textContent = t;
         const img = document.createElement('img');
         img.dataset.endpoint = '/qr/team';
-        img.dataset.target = t;
+        let link;
+        if (currentEventUid) {
+          link = window.baseUrl
+            ? window.baseUrl + '/?event=' + currentEventUid + '&t=' + t
+            : withBase('/?event=' + currentEventUid + '&t=' + t);
+        } else {
+          link = window.baseUrl
+            ? window.baseUrl + '/?t=' + t
+            : withBase('/?t=' + t);
+        }
+        img.dataset.target = link;
         const tParams = new URLSearchParams();
-        tParams.set('t', t);
+        tParams.set('t', link);
         applyDesign(tParams, 'qrColorTeam');
         img.src = withBase('/qr/team?' + tParams.toString());
         img.alt = 'QR';
@@ -3077,7 +3096,7 @@ document.addEventListener('DOMContentLoaded', function () {
         designBtn.setAttribute('uk-icon', 'icon: paint-bucket');
         designBtn.type = 'button';
         designBtn.addEventListener('click', () => {
-          openQrDesignModal(img, '/qr/team', t, t);
+          openQrDesignModal(img, '/qr/team', link, t);
         });
         card.appendChild(btn);
         card.appendChild(h4);

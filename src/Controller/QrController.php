@@ -11,6 +11,7 @@ use App\Service\CatalogService;
 use App\Service\QrCodeService;
 use App\Service\ResultService;
 use App\Service\Pdf;
+use App\Service\UrlService;
 use FPDF;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -163,8 +164,8 @@ class QrController
     public function pdf(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $text   = (string)($params['t'] ?? '');
-        if ($text === '') {
+        $team   = (string)($params['t'] ?? '');
+        if ($team === '') {
             return $response->withStatus(400);
         }
 
@@ -182,6 +183,10 @@ class QrController
 
         $qrParams = $params;
         $qrParams['format'] = 'png';
+        $baseUrl = UrlService::determineBaseUrl($request);
+        if (!str_contains($team, '?')) {
+            $qrParams['t'] = $baseUrl . '/?event=' . rawurlencode($uid) . '&t=' . rawurlencode($team);
+        }
 
         try {
             $out = $this->qrService->generateTeam($qrParams, $cfg);
@@ -301,9 +306,10 @@ class QrController
             }
         }
 
+        $baseUrl = UrlService::determineBaseUrl($request);
         foreach ($teams as $team) {
             $q = $params;
-            $q['t'] = $team;
+            $q['t'] = $baseUrl . '/?event=' . rawurlencode($uid) . '&t=' . rawurlencode($team);
             $q['format'] = 'png';
             try {
                 $out = $this->qrService->generateTeam($q, $cfg);
