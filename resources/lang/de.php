@@ -87,6 +87,7 @@ return [
     'tip_event_open' => 'Veranstaltung im Frontend öffnen',
     'text_event_required' => 'Bitte wählen Sie eine Veranstaltung aus.',
     'text_no_events' => 'Keine Veranstaltungen vorhanden',
+    'text_events_fetch_error' => 'Veranstaltungen konnten nicht geladen werden',
     'tip_save_changes' => 'Änderungen speichern',
     'tip_slug' => 'Eindeutiger Name in der URL',
     'tip_cat_name' => 'Angezeigter Titel des Katalogs',

@@ -72,7 +72,7 @@
       </div>
     </aside>
     <main class="uk-width-expand uk-padding-small@xs uk-padding">
-      <div id="eventNotice" class="uk-alert uk-alert-primary" hidden data-empty="{{ t('text_no_events') }}" data-required="{{ t('text_event_required') }}"></div>
+      <div id="eventNotice" class="uk-alert uk-alert-primary" hidden data-empty="{{ t('text_no_events') }}" data-required="{{ t('text_event_required') }}" data-error="{{ t('text_events_fetch_error') }}"></div>
       {% set activeRoute = currentPath|split('/admin/')|last %}
       {% if activeRoute == '' %}
         {% set activeRoute = 'dashboard' %}

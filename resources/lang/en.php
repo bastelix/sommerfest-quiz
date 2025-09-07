@@ -88,6 +88,7 @@ return [
     'tip_event_open' => 'Open event in frontend',
     'text_event_required' => 'Please select an event.',
     'text_no_events' => 'No events available',
+    'text_events_fetch_error' => 'Events could not be loaded',
     'tip_save_changes' => 'Save changes',
     'tip_slug' => 'Unique name in the URL',
     'tip_cat_name' => 'Displayed catalog title',
