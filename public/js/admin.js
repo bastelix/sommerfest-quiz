@@ -2887,14 +2887,22 @@ document.addEventListener('DOMContentLoaded', function () {
         if (col) params.set('fg', col.replace('#', ''));
       };
       if (qrImg) {
-        const link = window.baseUrl ? window.baseUrl : withBase('/?event=' + encodeURIComponent(ev.uid || ''));
-        qrImg.dataset.endpoint = '/qr/event';
-        qrImg.dataset.target = link;
-        const params = new URLSearchParams();
-        params.set('t', link);
-        params.set('event', ev.uid);
-        applyDesign(params, 'qrColorEvent');
-        qrImg.src = withBase('/qr/event?' + params.toString());
+        if (ev.uid) {
+          qrImg.hidden = false;
+          const link = window.baseUrl ? window.baseUrl : withBase('/?event=' + encodeURIComponent(ev.uid));
+          qrImg.dataset.endpoint = '/qr/event';
+          qrImg.dataset.target = link;
+          const params = new URLSearchParams();
+          params.set('t', link);
+          params.set('event', ev.uid);
+          applyDesign(params, 'qrColorEvent');
+          qrImg.src = withBase('/qr/event?' + params.toString());
+        } else {
+          qrImg.removeAttribute('src');
+          qrImg.dataset.endpoint = '';
+          qrImg.dataset.target = '';
+          qrImg.hidden = true;
+        }
       }
       catalogsEl.innerHTML = '';
       catalogs.forEach(c => {
