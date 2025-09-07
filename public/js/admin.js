@@ -694,6 +694,13 @@ document.addEventListener('DOMContentLoaded', function () {
     window.print();
   });
 
+  const catalogStickerPdfBtn = document.getElementById('catalogStickerPdfBtn');
+  catalogStickerPdfBtn?.addEventListener('click', e => {
+    e.preventDefault();
+    const url = '/admin/reports/catalog-stickers.pdf?rows=2&cols=2&margin=8&lang=de';
+    window.open(withBase(url), '_blank');
+  });
+
   const openInvitesBtn = document.getElementById('openInvitesBtn');
   if (openInvitesBtn) openInvitesBtn.disabled = !currentEventUid;
   openInvitesBtn?.addEventListener('click', function (e) {

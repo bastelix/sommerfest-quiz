@@ -79,6 +79,7 @@ use App\Controller\StripeWebhookController;
 use App\Controller\SubscriptionController;
 use App\Controller\AdminSubscriptionCheckoutController;
 use App\Controller\InvitationController;
+use App\Controller\CatalogStickerController;
 use Slim\Views\Twig;
 use GuzzleHttp\Client;
 use Psr\Log\NullLogger;
@@ -134,6 +135,7 @@ require_once __DIR__ . '/Controller/StripeWebhookController.php';
 require_once __DIR__ . '/Controller/SubscriptionController.php';
 require_once __DIR__ . '/Controller/AdminSubscriptionCheckoutController.php';
 require_once __DIR__ . '/Controller/InvitationController.php';
+require_once __DIR__ . '/Controller/CatalogStickerController.php';
 
 use App\Infrastructure\Migrations\Migrator;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -245,6 +247,12 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('logoController', new LogoController($configService))
             ->withAttribute('qrLogoController', new QrLogoController($configService))
             ->withAttribute('summaryController', new SummaryController($configService, $eventService))
+            ->withAttribute('catalogStickerController', new CatalogStickerController(
+                $configService,
+                $eventService,
+                $catalogService,
+                new QrCodeService()
+            ))
             ->withAttribute('importController', $importController = new ImportController(
                 $catalogService,
                 $configService,
@@ -1106,6 +1114,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/invites.pdf', function (Request $request, Response $response) {
         return $request->getAttribute('qrController')->pdfAll($request, $response);
     })->add(new RoleAuthMiddleware('admin'));
+    $app->get('/admin/reports/catalog-stickers.pdf', function (Request $request, Response $response) {
+        return $request->getAttribute('catalogStickerController')->pdf($request, $response);
+    })->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/{file:logo(?:-[\w-]+)?\.png}', function (Request $request, Response $response) {
         return $request->getAttribute('logoController')->get($request->withAttribute('ext', 'png'), $response);
     });
