@@ -2078,7 +2078,7 @@ document.addEventListener('DOMContentLoaded', function () {
           wrapper.appendChild(pdfBtn);
 
           const delBtn = document.createElement('button');
-          delBtn.className = 'uk-icon-button qr-action uk-text-danger';
+          delBtn.className = 'uk-icon-button qr-action uk-text-danger uk-margin-small-left';
           delBtn.setAttribute('uk-icon', 'trash');
           delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
           delBtn.setAttribute('uk-tooltip', 'title: ' + (window.transDelete || 'Löschen') + '; pos: left');
@@ -2089,7 +2089,7 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         renderCard: item => {
           const wrapper = document.createElement('div');
-          wrapper.className = 'uk-flex uk-flex-middle uk-flex-between qr-action';
+          wrapper.className = 'uk-flex uk-flex-middle qr-action';
 
           const pdfBtn = document.createElement('button');
           pdfBtn.className = 'uk-icon-button qr-action';
@@ -2098,7 +2098,7 @@ document.addEventListener('DOMContentLoaded', function () {
           pdfBtn.addEventListener('click', () => openTeamPdf(item.name));
 
           const delBtn = document.createElement('button');
-          delBtn.className = 'uk-icon-button qr-action uk-text-danger';
+          delBtn.className = 'uk-icon-button qr-action uk-text-danger uk-margin-small-left';
           delBtn.setAttribute('uk-icon', 'trash');
           delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
           delBtn.addEventListener('click', () => removeTeam(item.id));
