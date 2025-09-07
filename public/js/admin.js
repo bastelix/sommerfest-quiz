@@ -37,9 +37,13 @@ function showUpgradeModal() {
     (window.transUpgradeAction || 'Upgrade') + '</a></p>' +
     '</div>';
   document.body.appendChild(modal);
-  const ui = UIkit.modal(modal);
-  UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
-  ui.show();
+  if (window.UIkit) {
+    const ui = UIkit.modal(modal);
+    if (UIkit.util) UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
+    ui.show();
+  } else {
+    modal.remove();
+  }
 }
 
 window.apiFetch = (path, options = {}) => {
@@ -323,7 +327,9 @@ document.addEventListener('DOMContentLoaded', function () {
       puzzleIcon.setAttribute('uk-icon', 'icon: pencil');
       puzzleLabel.textContent = 'Feedbacktext';
     }
-    UIkit.icon(puzzleIcon, { icon: puzzleIcon.getAttribute('uk-icon').split(': ')[1] });
+    if (window.UIkit && UIkit.icon) {
+      UIkit.icon(puzzleIcon, { icon: puzzleIcon.getAttribute('uk-icon').split(': ')[1] });
+    }
   }
 
     function updateInviteTextUI() {
@@ -364,20 +370,20 @@ document.addEventListener('DOMContentLoaded', function () {
   const puzzleLabel = document.getElementById('puzzleFeedbackLabel');
   const puzzleTextarea = document.getElementById('puzzleFeedbackTextarea');
   const puzzleSaveBtn = document.getElementById('puzzleFeedbackSave');
-  const puzzleModal = UIkit.modal('#puzzleFeedbackModal');
+  const puzzleModal = window.UIkit ? UIkit.modal('#puzzleFeedbackModal') : null;
   const inviteTextBtn = document.getElementById('inviteTextBtn');
   const inviteLabel = document.getElementById('inviteTextLabel');
   const inviteTextarea = document.getElementById('inviteTextTextarea');
   const inviteSaveBtn = document.getElementById('inviteTextSave');
-  const inviteModal = UIkit.modal('#inviteTextModal');
+  const inviteModal = window.UIkit ? UIkit.modal('#inviteTextModal') : null;
   const inviteToolbar = document.getElementById('inviteTextToolbar');
   const commentTextarea = document.getElementById('catalogCommentTextarea');
   const commentSaveBtn = document.getElementById('catalogCommentSave');
-  const commentModal = UIkit.modal('#catalogCommentModal');
+  const commentModal = window.UIkit ? UIkit.modal('#catalogCommentModal') : null;
   const commentToolbar = document.getElementById('catalogCommentToolbar');
   const catalogEditInput = document.getElementById('catalogEditInput');
   const catalogEditError = document.getElementById('catalogEditError');
-  const resultsResetModal = UIkit.modal('#resultsResetModal');
+  const resultsResetModal = window.UIkit ? UIkit.modal('#resultsResetModal') : null;
   const resultsResetConfirm = document.getElementById('resultsResetConfirm');
   let puzzleFeedback = '';
   let inviteText = '';
@@ -461,40 +467,42 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   if (cfgFields.logoFile && cfgFields.logoPreview) {
     const bar = document.getElementById('cfgLogoProgress');
-    UIkit.upload('.js-upload', {
-              url: withBase('/logo.png'),
-      name: 'file',
-      multiple: false,
-      error: function (e) {
-        const msg = (e && e.xhr && e.xhr.responseText) ? e.xhr.responseText : 'Fehler beim Hochladen';
-        notify(msg, 'danger');
-      },
-      loadStart: function (e) {
-        bar.removeAttribute('hidden');
-        bar.max = e.total;
-        bar.value = e.loaded;
-      },
-      progress: function (e) {
-        bar.max = e.total;
-        bar.value = e.loaded;
-      },
-      loadEnd: function (e) {
-        bar.max = e.total;
-        bar.value = e.loaded;
-      },
-      completeAll: function () {
-        setTimeout(function () {
-          bar.setAttribute('hidden', 'hidden');
-        }, 1000);
-        const file = cfgFields.logoFile.files && cfgFields.logoFile.files[0];
-        const ext = file && file.name.toLowerCase().endsWith('.webp') ? 'webp' : 'png';
-        cfgInitial.logoPath = currentEventUid
-          ? `/logo-${currentEventUid}.${ext}`
-          : `/logo.${ext}`;
-        cfgFields.logoPreview.src = withBase(cfgInitial.logoPath) + '?' + Date.now();
-        notify('Logo hochgeladen', 'success');
-      }
-    });
+    if (window.UIkit && UIkit.upload) {
+      UIkit.upload('.js-upload', {
+        url: withBase('/logo.png'),
+        name: 'file',
+        multiple: false,
+        error: function (e) {
+          const msg = (e && e.xhr && e.xhr.responseText) ? e.xhr.responseText : 'Fehler beim Hochladen';
+          notify(msg, 'danger');
+        },
+        loadStart: function (e) {
+          bar.removeAttribute('hidden');
+          bar.max = e.total;
+          bar.value = e.loaded;
+        },
+        progress: function (e) {
+          bar.max = e.total;
+          bar.value = e.loaded;
+        },
+        loadEnd: function (e) {
+          bar.max = e.total;
+          bar.value = e.loaded;
+        },
+        completeAll: function () {
+          setTimeout(function () {
+            bar.setAttribute('hidden', 'hidden');
+          }, 1000);
+          const file = cfgFields.logoFile.files && cfgFields.logoFile.files[0];
+          const ext = file && file.name.toLowerCase().endsWith('.webp') ? 'webp' : 'png';
+          cfgInitial.logoPath = currentEventUid
+            ? `/logo-${currentEventUid}.${ext}`
+            : `/logo.${ext}`;
+          cfgFields.logoPreview.src = withBase(cfgInitial.logoPath) + '?' + Date.now();
+          notify('Logo hochgeladen', 'success');
+        }
+      });
+    }
   }
   // Füllt das Formular mit den Werten aus einem Konfigurationsobjekt
   function renderCfg(data) {
@@ -2120,7 +2128,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // --------- Benutzer ---------
   const usersListEl = document.getElementById('usersList');
   const userAddBtn = document.getElementById('userAddBtn');
-  const userPassModal = UIkit.modal('#userPassModal');
+  const userPassModal = window.UIkit ? UIkit.modal('#userPassModal') : null;
   const userPassInput = document.getElementById('userPassInput');
   const userPassRepeat = document.getElementById('userPassRepeat');
   const userPassSave = document.getElementById('userPassSave');
@@ -2340,14 +2348,14 @@ document.addEventListener('DOMContentLoaded', function () {
         try { setStored(STORAGE_KEYS.TENANT_COLUMNS, JSON.stringify(tenantColumns)); } catch (_) {}
         updateTenantColumnVisibility();
         loadTenants(tenantStatusFilter?.value, tenantSearchInput?.value);
-        UIkit.modal(modal).hide();
+        if (window.UIkit) UIkit.modal(modal).hide();
       });
     } else {
       modal.querySelectorAll('input[type="checkbox"]').forEach(cb => {
         cb.checked = tenantColumns.includes(cb.dataset.col);
       });
     }
-    UIkit.modal(modal).show();
+    if (window.UIkit) UIkit.modal(modal).show();
   });
   updateTenantColumnVisibility();
 
@@ -2692,7 +2700,7 @@ document.addEventListener('DOMContentLoaded', function () {
     qrLogoPath = global ? (cfgInitial.qrLogoPath || '') : '';
     if (qrLogoFile) qrLogoFile.value = '';
     updateQrPreview();
-    if (qrDesignModal) UIkit.modal(qrDesignModal).show();
+    if (qrDesignModal && window.UIkit) UIkit.modal(qrDesignModal).show();
   }
 
   [
@@ -2816,7 +2824,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }).catch(() => {});
       Object.assign(cfgInitial, data);
     }
-    if (qrDesignModal) UIkit.modal(qrDesignModal).hide();
+    if (qrDesignModal && window.UIkit) UIkit.modal(qrDesignModal).hide();
   });
 
   function loadSummary() {
@@ -2973,16 +2981,16 @@ document.addEventListener('DOMContentLoaded', function () {
       text = window.transEventSettingsHelp || '';
     }
     helpContent.innerHTML = text;
-    UIkit.offcanvas(helpSidebar).show();
+    if (window.UIkit && UIkit.offcanvas) UIkit.offcanvas(helpSidebar).show();
   });
 
   adminMenuToggle?.addEventListener('click', e => {
     e.preventDefault();
-    if (adminNav) UIkit.offcanvas(adminNav).show();
+    if (adminNav && window.UIkit && UIkit.offcanvas) UIkit.offcanvas(adminNav).show();
   });
 
   if (adminMenu && adminTabs) {
-    const tabControl = UIkit.tab(adminTabs);
+    const tabControl = (window.UIkit && UIkit.tab) ? UIkit.tab(adminTabs) : null;
     adminTabs.querySelectorAll('a').forEach(a => {
       a.addEventListener('click', e => {
         e.preventDefault();
@@ -2997,7 +3005,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const summaryIdx = adminRoutes.indexOf('summary');
     const tenantIdx = adminRoutes.indexOf('tenants');
     const initIdx = adminRoutes.indexOf(initRoute);
-    if (initIdx >= 0) {
+    if (tabControl && initIdx >= 0) {
       tabControl.show(initIdx);
       if (initRoute === 'summary') {
         loadSummary();
@@ -3006,22 +3014,24 @@ document.addEventListener('DOMContentLoaded', function () {
         syncTenants();
       }
     }
-    UIkit.util.on(adminTabs, 'shown', (e, tab) => {
-      const index = Array.prototype.indexOf.call(adminTabs.children, tab);
-      const route = adminRoutes[index];
-      if (route) {
-        const url = basePath + '/admin/' + route;
-        if (window.history && window.history.replaceState) {
-          window.history.replaceState(null, '', url);
+    if (tabControl && window.UIkit && UIkit.util) {
+      UIkit.util.on(adminTabs, 'shown', (e, tab) => {
+        const index = Array.prototype.indexOf.call(adminTabs.children, tab);
+        const route = adminRoutes[index];
+        if (route) {
+          const url = basePath + '/admin/' + route;
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, '', url);
+          }
         }
-      }
-      if (index === summaryIdx) {
-        loadSummary();
-      }
-      if (index === tenantIdx) {
-        syncTenants();
-      }
-    });
+        if (index === summaryIdx) {
+          loadSummary();
+        }
+        if (index === tenantIdx) {
+          syncTenants();
+        }
+      });
+    }
     if (summaryIdx >= 0) {
       adminTabs.children[summaryIdx]?.addEventListener('click', () => {
         loadSummary();
@@ -3036,13 +3046,13 @@ document.addEventListener('DOMContentLoaded', function () {
       item.addEventListener('click', e => {
         e.preventDefault();
         const idx = parseInt(item.getAttribute('data-tab'), 10);
-        if (!isNaN(idx)) {
+        if (!isNaN(idx) && tabControl) {
           tabControl.show(idx);
           const route = adminRoutes[idx];
           if (route && window.history && window.history.replaceState) {
             window.history.replaceState(null, '', basePath + '/admin/' + route);
           }
-          if (adminNav) UIkit.offcanvas(adminNav).hide();
+          if (adminNav && window.UIkit && UIkit.offcanvas) UIkit.offcanvas(adminNav).hide();
           if (idx === summaryIdx) {
             loadSummary();
           }
