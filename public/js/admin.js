@@ -2622,6 +2622,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!currentQrEndpoint) return;
     const params = new URLSearchParams();
     params.set('t', currentQrTarget);
+    if (currentQrEndpoint === '/qr/event' && currentEventUid) {
+      params.set('event', currentEventUid);
+    }
     const label = qrLabelInput?.value || '';
     const lines = label.split(/\n/, 2).map(s => s.trim());
     if (qrLogoPath) {
@@ -2771,6 +2774,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         const params = new URLSearchParams();
         params.set('t', target);
+        if (endpoint === '/qr/event' && currentEventUid) {
+          params.set('event', currentEventUid);
+        }
         if (qrLogoPath) {
           params.set('logo_path', qrLogoPath);
         } else {
