@@ -137,9 +137,19 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   if (eventSelect) {
+    const initialOptionCount = eventSelect.options.length;
+    const warnIfEmpty = (list) => {
+      if (initialOptionCount === 0 && (!Array.isArray(list) || list.length === 0)) {
+        const msg = eventNotice?.dataset.empty || 'Keine Veranstaltungen vorhanden';
+        notify(msg, 'warning');
+      }
+    };
+
     csrfFetch('/events.json', { headers: { Accept: 'application/json' } })
-      .then((r) => r.json())
-      .catch(() => [])
+      .then((r) => {
+        if (!r.ok) throw new Error('HTTP error');
+        return r.json();
+      })
       .then((events) => {
         currentEventUid = pageEventUid;
         const cfgPromise = currentEventUid
@@ -149,13 +159,18 @@ document.addEventListener('DOMContentLoaded', () => {
           .then((cfg) => {
             window.quizConfig = currentEventUid ? cfg : {};
             populate(events);
+            warnIfEmpty(events);
           })
           .catch(() => {
             window.quizConfig = {};
             populate(events);
+            warnIfEmpty(events);
           });
       })
-      .catch(() => {});
+      .catch(() => {
+        const msg = eventNotice?.dataset.error || 'Veranstaltungen konnten nicht geladen werden';
+        notify(msg, 'danger');
+      });
   }
 
   eventSelect?.addEventListener('change', () => {
