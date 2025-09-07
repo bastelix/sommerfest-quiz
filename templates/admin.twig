@@ -512,9 +512,9 @@
           <div class="uk-width-1-1 uk-width-1-2@s">
             <div class="export-card uk-card qr-card uk-card-body">
               {% if event.uid %}
-                {% set link = baseUrl ? baseUrl ~ '/?event=' ~ event.uid ~ '&katalog=' ~ c.slug : '?event=' ~ event.uid ~ '&katalog=' ~ c.slug %}
+                {% set link = baseUrl ~ '/?event=' ~ event.uid ~ '&katalog=' ~ c.slug %}
               {% else %}
-                {% set link = baseUrl ? baseUrl ~ '/?katalog=' ~ c.slug : '?katalog=' ~ c.slug %}
+                {% set link = baseUrl ~ '/?katalog=' ~ c.slug %}
               {% endif %}
               <h4 class="uk-card-title"><a href="{{ link }}" target="_blank">{{ c.name }}</a></h4>
               <p>{{ c.description }}</p>
@@ -535,7 +535,12 @@
             <div class="export-card uk-card qr-card uk-card-body uk-position-relative">
               <button class="qr-print-btn uk-icon-button uk-position-top-right" data-team="{{ t }}" uk-icon="icon: print" aria-label="QR-Code drucken"></button>
               <h4 class="uk-card-title">{{ t }}</h4>
-              <img class="qr-img" src="{{ basePath }}/qr/team?t={{ t|url_encode }}&size=150&margin=40" alt="Team QR">
+              {% if event.uid %}
+                {% set link = baseUrl ? baseUrl ~ '/?event=' ~ event.uid ~ '&t=' ~ t : '?event=' ~ event.uid ~ '&t=' ~ t %}
+              {% else %}
+                {% set link = baseUrl ? baseUrl ~ '/?t=' ~ t : '?t=' ~ t %}
+              {% endif %}
+              <img class="qr-img" data-endpoint="/qr/team" data-target="{{ link }}" src="{{ basePath }}/qr/team?t={{ link|url_encode }}&size=150&margin=40" alt="Team QR">
             </div>
           </div>
           {% else %}

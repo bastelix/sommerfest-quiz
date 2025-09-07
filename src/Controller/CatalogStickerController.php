@@ -8,6 +8,7 @@ use App\Service\CatalogService;
 use App\Service\ConfigService;
 use App\Service\EventService;
 use App\Service\QrCodeService;
+use App\Service\UrlService;
 use FPDF;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -47,6 +48,8 @@ class CatalogStickerController
         $event = $uid !== '' ? $this->events->getByUid($uid) : null;
         $eventTitle = (string)($event['name'] ?? '');
         $eventDesc = (string)($event['description'] ?? '');
+
+        $baseUrl = UrlService::determineBaseUrl($request);
 
         $catsJson = $this->catalogs->read('catalogs.json');
         $catalogs = $catsJson ? json_decode($catsJson, true) : [];
@@ -114,9 +117,10 @@ class CatalogStickerController
                 $pdf->MultiCell($textW, 5, $this->sanitizePdfText($desc));
             }
 
-            $link = $uid !== ''
+            $path = $uid !== ''
                 ? '/?event=' . $uid . '&katalog=' . ($cat['slug'] ?? '')
                 : '/?katalog=' . ($cat['slug'] ?? '');
+            $link = $baseUrl . $path;
             $q = ['t' => $link, 'format' => 'png'];
             $qrX = $x + $cardW - $pad - $qrSize;
             $qrY = $y + ($cardH - $qrSize) / 2;
