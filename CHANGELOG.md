@@ -189,6 +189,7 @@
 - Remove events pagination limit
 - Warn if no events present
 - Combine team actions into single column
+- Move team name prompt to top bar
 
 ### Fix
 
