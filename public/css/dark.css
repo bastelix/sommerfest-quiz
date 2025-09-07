@@ -41,10 +41,12 @@ body .uk-card h3,
 body .uk-card p {
   color: #f5f5f5;
 }
+body[data-theme="dark"],
 body[data-theme="dark"] .wrapper,
 body[data-theme="dark"] .content,
 body[data-theme="dark"] .uk-background-muted,
-body[data-theme="dark"] .uk-background-default {
+body[data-theme="dark"] .uk-background-default,
+body[data-theme="dark"].uk-background-muted {
   background-color: #000 !important;
   color: #f5f5f5;
 }
