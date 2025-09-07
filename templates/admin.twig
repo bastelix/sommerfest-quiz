@@ -472,13 +472,12 @@
               <tr>
                 <th class="uk-table-shrink"></th>
                 <th data-key="name">{{ t('column_name') }}</th>
-                <th class="uk-table-shrink" data-key="actions">{{ t('column_actions') }}</th>
+                <th class="uk-table-shrink">{{ t('column_actions') }}</th>
               </tr>
             </thead>
             <tbody
               id="teamsList"
               data-label-name="{{ t('column_name') }}"
-              data-label-actions="{{ t('column_actions') }}"
             ></tbody>
           </table>
         </div>
@@ -1205,6 +1204,7 @@
     window.transEventSettingsHelp = '{{ t('text_event_settings_help')|e('js') }}';
     window.transTeamPdf = '{{ t('tip_team_pdf') }}';
     window.transActions = '{{ t('column_actions') }}';
+    window.transDelete = '{{ t('action_delete') }}';
     window.stripeDashboard = '{{ stripe_sandbox ? 'https://dashboard.stripe.com/test' : 'https://dashboard.stripe.com' }}';
     window.initialEvents = {{ events|json_encode|raw }};
   </script>
