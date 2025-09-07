@@ -738,7 +738,7 @@ document.addEventListener('DOMContentLoaded', function () {
       className: 'uk-table-shrink',
       render: item => {
         const wrapper = document.createElement('div');
-        wrapper.className = 'uk-flex uk-flex-middle uk-flex-between';
+        wrapper.className = 'uk-flex uk-flex-middle uk-flex-right';
 
         const delBtn = document.createElement('button');
         delBtn.className = 'uk-icon-button qr-action uk-text-danger';
@@ -752,7 +752,7 @@ document.addEventListener('DOMContentLoaded', function () {
       },
       renderCard: item => {
         const wrapper = document.createElement('div');
-        wrapper.className = 'uk-flex uk-flex-middle uk-flex-between qr-action';
+        wrapper.className = 'uk-flex uk-flex-middle uk-flex-right qr-action';
 
         const delBtn = document.createElement('button');
         delBtn.className = 'uk-icon-button qr-action uk-text-danger';
@@ -1854,7 +1854,7 @@ document.addEventListener('DOMContentLoaded', function () {
         className: 'uk-table-shrink',
         render: ev => {
           const wrapper = document.createElement('div');
-          wrapper.className = 'uk-flex uk-flex-middle uk-flex-between';
+          wrapper.className = 'uk-flex uk-flex-middle uk-flex-right';
 
           const delBtn = document.createElement('button');
           delBtn.className = 'uk-icon-button qr-action uk-text-danger';
@@ -1868,7 +1868,7 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         renderCard: ev => {
           const wrapper = document.createElement('div');
-          wrapper.className = 'uk-flex uk-flex-middle uk-flex-between qr-action';
+          wrapper.className = 'uk-flex uk-flex-middle uk-flex-right qr-action';
 
           const delBtn = document.createElement('button');
           delBtn.className = 'uk-icon-button qr-action uk-text-danger';
@@ -2067,7 +2067,7 @@ document.addEventListener('DOMContentLoaded', function () {
         className: 'uk-table-shrink',
         render: item => {
           const wrapper = document.createElement('div');
-          wrapper.className = 'uk-flex uk-flex-middle uk-flex-between';
+          wrapper.className = 'uk-flex uk-flex-middle uk-flex-right';
 
           const pdfBtn = document.createElement('button');
           pdfBtn.className = 'uk-icon-button qr-action';
