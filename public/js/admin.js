@@ -1646,7 +1646,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventOpenBtn = document.getElementById('eventOpenBtn');
   const eventDependentSections = document.querySelectorAll('[data-event-dependent]');
   const langSelect = document.getElementById('langSelect');
-  const EVENTS_PER_PAGE = 50;
+  const EVENTS_PER_PAGE = Number.MAX_SAFE_INTEGER;
   const eventPaginationEl = document.createElement('ul');
   eventPaginationEl.id = 'eventsPagination';
   eventPaginationEl.className = 'uk-pagination uk-flex-center';
