@@ -1646,11 +1646,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventOpenBtn = document.getElementById('eventOpenBtn');
   const eventDependentSections = document.querySelectorAll('[data-event-dependent]');
   const langSelect = document.getElementById('langSelect');
-  const EVENTS_PER_PAGE = Number.MAX_SAFE_INTEGER;
-  const eventPaginationEl = document.createElement('ul');
-  eventPaginationEl.id = 'eventsPagination';
-  eventPaginationEl.className = 'uk-pagination uk-flex-center';
-  eventAddBtn?.parentElement?.before(eventPaginationEl);
   let eventManager;
   let eventEditor;
 
@@ -1857,7 +1852,6 @@ document.addEventListener('DOMContentLoaded', function () {
         saveEvents();
       }
     });
-    eventManager.bindPagination(eventPaginationEl, EVENTS_PER_PAGE);
   }
 
   function removeEvent(id) {
@@ -1911,9 +1905,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const list = eventManager.getData();
     const item = createEventItem();
     list.push(item);
-    if (eventManager.pagination) {
-      eventManager.pagination.page = Math.max(1, Math.ceil(list.length / EVENTS_PER_PAGE));
-    }
     eventManager.render(list);
     highlightCurrentEvent();
     saveEvents();
