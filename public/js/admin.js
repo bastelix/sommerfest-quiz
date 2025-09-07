@@ -733,7 +733,37 @@ document.addEventListener('DOMContentLoaded', function () {
     { key: 'name', label: 'Name', className: 'uk-table-expand', editable: true },
     { key: 'description', label: 'Beschreibung', className: 'uk-table-expand', editable: true },
     { key: 'raetsel_buchstabe', label: 'Rätsel-Buchstabe', className: 'uk-table-shrink', editable: true },
-    { key: 'comment', label: 'Kommentar', className: 'uk-table-expand', editable: true, ariaDesc: 'Kommentar bearbeiten' }
+    { key: 'comment', label: 'Kommentar', className: 'uk-table-expand', editable: true, ariaDesc: 'Kommentar bearbeiten' },
+    {
+      className: 'uk-table-shrink',
+      render: item => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'uk-flex uk-flex-middle uk-flex-between';
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'uk-icon-button qr-action uk-text-danger';
+        delBtn.setAttribute('uk-icon', 'trash');
+        delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
+        delBtn.setAttribute('uk-tooltip', 'title: ' + (window.transDelete || 'Löschen') + '; pos: left');
+        delBtn.addEventListener('click', () => deleteCatalogById(item.id));
+
+        wrapper.appendChild(delBtn);
+        return wrapper;
+      },
+      renderCard: item => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'uk-flex uk-flex-middle uk-flex-between qr-action';
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'uk-icon-button qr-action uk-text-danger';
+        delBtn.setAttribute('uk-icon', 'trash');
+        delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
+        delBtn.addEventListener('click', () => deleteCatalogById(item.id));
+
+        wrapper.appendChild(delBtn);
+        return wrapper;
+      }
+    }
   ];
 
   let catalogManager;
@@ -758,7 +788,6 @@ document.addEventListener('DOMContentLoaded', function () {
           catalogEditor.open(cell);
         }
       },
-      onDelete: id => deleteCatalogById(id),
       onReorder: () => saveCatalogs(catalogManager.getData(), false, true)
     });
     catalogEditor = createCellEditor(catalogManager, {
@@ -1820,6 +1849,36 @@ document.addEventListener('DOMContentLoaded', function () {
           label.appendChild(slider);
           return label;
         }
+      },
+      {
+        className: 'uk-table-shrink',
+        render: ev => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'uk-flex uk-flex-middle uk-flex-between';
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'uk-icon-button qr-action uk-text-danger';
+          delBtn.setAttribute('uk-icon', 'trash');
+          delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
+          delBtn.setAttribute('uk-tooltip', 'title: ' + (window.transDelete || 'Löschen') + '; pos: left');
+          delBtn.addEventListener('click', () => removeEvent(ev.id));
+
+          wrapper.appendChild(delBtn);
+          return wrapper;
+        },
+        renderCard: ev => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'uk-flex uk-flex-middle uk-flex-between qr-action';
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'uk-icon-button qr-action uk-text-danger';
+          delBtn.setAttribute('uk-icon', 'trash');
+          delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
+          delBtn.addEventListener('click', () => removeEvent(ev.id));
+
+          wrapper.appendChild(delBtn);
+          return wrapper;
+        }
       }
     ];
     if (!document.getElementById('eventEditModal')) {
@@ -1842,7 +1901,6 @@ document.addEventListener('DOMContentLoaded', function () {
       sortable: true,
       columns: eventColumns,
       onEdit: cell => eventEditor.open(cell),
-      onDelete: removeEvent,
       onReorder: () => saveEvents()
     });
     eventEditor = createCellEditor(eventManager, {
@@ -2009,7 +2067,7 @@ document.addEventListener('DOMContentLoaded', function () {
         className: 'uk-table-shrink',
         render: item => {
           const wrapper = document.createElement('div');
-          wrapper.className = 'uk-flex uk-flex-middle';
+          wrapper.className = 'uk-flex uk-flex-middle uk-flex-between';
 
           const pdfBtn = document.createElement('button');
           pdfBtn.className = 'uk-icon-button qr-action';
