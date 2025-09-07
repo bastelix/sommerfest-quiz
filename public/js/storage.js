@@ -21,7 +21,6 @@
   };
 
   const eventScoped = new Set([
-    STORAGE_KEYS.PLAYER_NAME,
     STORAGE_KEYS.PLAYER_UID,
     STORAGE_KEYS.CATALOG,
     STORAGE_KEYS.CATALOG_NAME,
@@ -54,14 +53,24 @@
     const mapped = mapKey(key);
     try{
       let val = readStorage(mapped);
-      if(val === null && eventScoped.has(key)){
-        const legacies = [`${key}:`, key];
-        for(const legacy of legacies){
+      if(val === null){
+        if(eventScoped.has(key)){
+          const legacies = [`${key}:`, key];
+          for(const legacy of legacies){
+            val = readStorage(legacy);
+            if(val !== null){
+              setStored(key, val);
+              try{ removeStorage(legacy); }catch(e){ /* empty */ }
+              break;
+            }
+          }
+        }else{
+          const currentEventUid = (window.quizConfig || {}).event_uid || '';
+          const legacy = `${key}:${currentEventUid}`;
           val = readStorage(legacy);
           if(val !== null){
             setStored(key, val);
             try{ removeStorage(legacy); }catch(e){ /* empty */ }
-            break;
           }
         }
       }
@@ -88,7 +97,7 @@
 
   /*
    * Standardized storage keys:
-   * - quizUser:<currentEventUid>  – Spielername
+   * - quizUser               – Spielername (global)
    * - qr_player_uid:<currentEventUid>   – Spieler-UID
    * - quizCatalog                – Aktueller Katalog-Slug
    * - quizCatalogName            – Katalognamen
