@@ -55,7 +55,7 @@ class AdminController
             $uid = (string) $params['event'];
             $cfgSvc->setActiveEventUid($uid);
         } else {
-            $uid = (string) ($cfgSvc->getActiveEventUid() ?? '');
+            $uid = (string) $cfgSvc->getActiveEventUid();
         }
 
         if ($uid === '') {
