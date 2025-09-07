@@ -221,6 +221,7 @@
 - Address phpstan warnings
 - Remove admin topbar position override
 - Avoid duplicate params declaration
+- Align admin action wrappers to right
 
 ### Refactor
 

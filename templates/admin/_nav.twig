@@ -16,9 +16,9 @@
   {
     header: t('menu_content'),
     items: [
-      { href: basePath ~ '/admin/catalogs', icon: 'file-text', text: t('tab_catalogs') },
+      { href: basePath ~ '/admin/catalogs', icon: 'database', text: t('tab_catalogs') },
       { href: basePath ~ '/admin/questions', icon: 'question', text: t('tab_questions') },
-      { href: basePath ~ '/admin/pages', icon: 'file-text', text: t('tab_pages'), admin: true },
+      { href: basePath ~ '/admin/pages', icon: 'file-edit', text: t('tab_pages'), admin: true },
     ]
   },
   {
@@ -30,16 +30,16 @@
   {
     header: t('menu_evaluation'),
     items: [
-      { href: basePath ~ '/admin/summary', icon: 'list', text: t('tab_summary') },
-      { href: basePath ~ '/admin/results', icon: 'list', text: t('tab_results') },
-      { href: basePath ~ '/admin/statistics', icon: 'list', text: t('tab_statistics') },
+      { href: basePath ~ '/admin/summary', icon: 'table', text: t('tab_summary') },
+      { href: basePath ~ '/admin/results', icon: 'checklist', text: t('tab_results') },
+      { href: basePath ~ '/admin/statistics', icon: 'chart-bar', text: t('tab_statistics') },
     ]
   },
   {
     header: t('menu_account'),
     items: [
       { href: basePath ~ '/admin/profile', icon: 'user', text: t('tab_profile'), noEvent: true },
-      { href: basePath ~ '/admin/subscription', icon: 'file-text', text: t('tab_subscription'), noEvent: true },
+      { href: basePath ~ '/admin/subscription', icon: 'credit-card', text: t('tab_subscription'), noEvent: true },
     ]
   },
   {
@@ -47,7 +47,7 @@
     admin: true,
     items: [
       { href: basePath ~ '/admin/management', icon: 'cog', text: t('tab_management'), noEvent: true },
-      { href: basePath ~ '/admin/logs', icon: 'file-text', text: t('tab_logs'), noEvent: true },
+      { href: basePath ~ '/admin/logs', icon: 'history', text: t('tab_logs'), noEvent: true },
       { href: basePath ~ '/admin/tenants', icon: 'users', text: t('tab_tenants'), domain: 'main', noEvent: true },
     ]
   },
