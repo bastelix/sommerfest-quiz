@@ -757,10 +757,6 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->save($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
 
-    $app->get('/admin/{path:.*}', function (Request $request, Response $response) {
-        $base = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
-        return $response->withHeader('Location', $base . '/admin/dashboard')->withStatus(302);
-    });
     $app->get('/results', function (Request $request, Response $response) {
         return $request->getAttribute('resultController')->page($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::ANALYST));
@@ -1117,6 +1113,11 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/reports/catalog-stickers.pdf', function (Request $request, Response $response) {
         return $request->getAttribute('catalogStickerController')->pdf($request, $response);
     })->add(new RoleAuthMiddleware(...Roles::ALL));
+
+    $app->get('/admin/{path:.*}', function (Request $request, Response $response) {
+        $base = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
+        return $response->withHeader('Location', $base . '/admin/dashboard')->withStatus(302);
+    });
     $app->get('/{file:logo(?:-[\w-]+)?\.png}', function (Request $request, Response $response) {
         return $request->getAttribute('logoController')->get($request->withAttribute('ext', 'png'), $response);
     });
