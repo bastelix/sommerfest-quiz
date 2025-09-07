@@ -184,6 +184,7 @@
 - Redirect event selection via query
 - Show event name in admin headings
 - Pass event uid to result service
+- Collect solved catalogs in competition mode
 
 ### Fix
 
