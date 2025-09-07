@@ -1086,7 +1086,7 @@ async function runQuiz(questions, skipIntro){
     return div;
   }
 
-  // Startbildschirm mit Startknopf
+  // Startbildschirm mit Startknopf – ohne Statistik
   function createStart(){
     const div = document.createElement('div');
     div.className = 'question uk-text-center';
