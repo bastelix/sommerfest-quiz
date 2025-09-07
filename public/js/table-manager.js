@@ -128,17 +128,19 @@ export default class TableManager {
           cell.innerHTML = content ?? '';
         }
       }
+      if (cell.querySelector('.qr-action')) {
+        cell.classList.add('uk-text-right');
+      }
       row.appendChild(cell);
     });
 
     if (typeof this.onDelete === 'function') {
       const delCell = document.createElement('td');
       delCell.setAttribute('role', 'gridcell');
-      delCell.className = 'uk-table-shrink';
-      delCell.classList.add('uk-text-center');
+      delCell.className = 'uk-table-shrink uk-text-right';
       const delBtn = document.createElement('button');
       delBtn.type = 'button';
-      delBtn.className = 'uk-icon-button qr-action uk-text-center';
+      delBtn.className = 'uk-icon-button qr-action';
       delBtn.setAttribute('uk-icon', 'trash');
       delBtn.setAttribute('aria-label', 'Löschen');
       delBtn.addEventListener('click', () => this.onDelete(item.id));
