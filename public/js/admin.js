@@ -1754,7 +1754,9 @@ document.addEventListener('DOMContentLoaded', function () {
             notify(text || 'Fehler beim Wechseln des Events', 'danger');
           });
         }
-        window.location.reload();
+        const url = new URL(window.location);
+        url.searchParams.set('event', uid);
+        window.location.href = url.toString();
       })
       .catch(err => {
         console.error(err);
