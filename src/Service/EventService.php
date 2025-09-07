@@ -40,9 +40,20 @@ class EventService
         $sql = 'SELECT uid,name,start_date,end_date,description,published,sort_order FROM events ORDER BY sort_order';
         $stmt = $this->pdo->query($sql);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($rows === []) {
+            $path = dirname(__DIR__, 2) . '/data/events.json';
+            if (is_readable($path)) {
+                $json = json_decode(file_get_contents($path), true);
+                if (is_array($json)) {
+                    $rows = $json;
+                }
+            }
+        }
+
         return array_map(function (array $row) {
-            $row['start_date'] = $this->formatDate($row['start_date']);
-            $row['end_date'] = $this->formatDate($row['end_date']);
+            $row['start_date'] = $this->formatDate($row['start_date'] ?? null);
+            $row['end_date'] = $this->formatDate($row['end_date'] ?? null);
             $row['published'] = (bool)($row['published'] ?? false);
             return $row;
         }, $rows);
@@ -81,7 +92,8 @@ class EventService
             'description = ?, published = ?, sort_order = ?, slug = ? WHERE uid = ?'
         );
         $insertStmt = $this->pdo->prepare(
-            'INSERT INTO events(uid,slug,name,start_date,end_date,description,published,sort_order) VALUES(?,?,?,?,?,?,?,?)'
+            'INSERT INTO events(uid,slug,name,start_date,end_date,description,published,sort_order) ' .
+            'VALUES(?,?,?,?,?,?,?,?)'
         );
         $uids = [];
         foreach ($events as $idx => $event) {
