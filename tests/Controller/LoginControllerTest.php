@@ -25,6 +25,18 @@ class LoginControllerTest extends TestCase
         unset($_ENV['APP_VERSION']);
     }
 
+    public function testLoginPageGeneratesCsrfToken(): void
+    {
+        $app = $this->getAppInstance();
+        $response = $app->handle($this->createRequest('GET', '/login'));
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertNotEmpty($_SESSION['csrf_token']);
+        $this->assertStringContainsString(
+            '<input type="hidden" name="csrf_token"',
+            (string) $response->getBody()
+        );
+    }
+
     public function testLoginPersistsSession(): void
     {
         $pdo = $this->getDatabase();
