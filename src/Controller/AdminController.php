@@ -44,6 +44,7 @@ class AdminController
         }
         $cfgSvc = new ConfigService($pdo);
         $eventSvc = new EventService($pdo);
+        $events = $eventSvc->getAll();
         $settingsSvc = new SettingsService($pdo);
         $settings = $settingsSvc->getAll();
         $versionSvc = new VersionService();
@@ -186,6 +187,7 @@ class AdminController
               'catalogs' => $catalogs,
               'teams' => $teams,
               'users' => $users,
+              'events' => $events,
               'roles' => Roles::ALL,
               'baseUrl' => $baseUrl,
               'main_domain' => $mainDomain,

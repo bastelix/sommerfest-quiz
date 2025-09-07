@@ -122,6 +122,24 @@ class AdminControllerTest extends TestCase
         unlink($db);
     }
 
+    public function testEventsEmbeddedOnPage(): void
+    {
+        $db = $this->setupDb();
+        $pdo = new PDO('sqlite:' . $db);
+        Migrator::migrate($pdo, __DIR__ . '/../../migrations');
+        $pdo->exec("INSERT INTO events(uid, slug, name, start_date, end_date, description, published, sort_order) VALUES('e1','test','Test Event','2025-01-01 00:00:00','2025-01-01 01:00:00','',1,0)");
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $request = $this->createRequest('GET', '/admin/events');
+        $response = $app->handle($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('Test Event', $body);
+        session_destroy();
+        unlink($db);
+    }
+
     /**
      * Ensure stripe customer id is stored when loading subscription page on main domain.
      *
