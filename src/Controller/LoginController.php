@@ -89,11 +89,10 @@ class LoginController
             $sessionService->persistSession((int) $record['id'], session_id());
             $host = (string) ($_SERVER['HTTP_HOST'] ?? '');
             $mainDomain = (string) getenv('MAIN_DOMAIN');
+            // Redirect to the configured main domain if the login request
+            // was sent to a different host.
             if ($mainDomain !== '' && strcasecmp($host, $mainDomain) !== 0) {
-                $scheme = $request->getUri()->getScheme();
-                if ($scheme === '') {
-                    $scheme = 'https';
-                }
+                $scheme = $request->getUri()->getScheme() ?: 'https';
                 return $response
                     ->withHeader('Location', $scheme . '://' . $mainDomain . '/admin')
                     ->withStatus(302);
