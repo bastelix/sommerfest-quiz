@@ -343,8 +343,8 @@ document.addEventListener('DOMContentLoaded', function () {
   // --------- Konfiguration bearbeiten ---------
   // Ausgangswerte aus der bestehenden Konfiguration
   const cfgInitial = window.quizConfig || {};
-  const params = new URLSearchParams(window.location.search);
-  let currentEventUid = params.get('event') || '';
+  const cfgParams = new URLSearchParams(window.location.search);
+  let currentEventUid = cfgParams.get('event') || '';
   // Verweise auf die Formularfelder
   const cfgFields = {
     logoFile: document.getElementById('cfgLogoFile'),
