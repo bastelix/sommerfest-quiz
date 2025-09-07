@@ -8,9 +8,36 @@ use Tests\TestCase;
 use Slim\Psr7\Response;
 use Slim\Psr7\UploadedFile;
 use App\Service\QrCodeService;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class QrControllerTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        putenv('MAIN_DOMAIN=example.com');
+        $_ENV['MAIN_DOMAIN'] = 'example.com';
+    }
+
+    protected function tearDown(): void
+    {
+        putenv('MAIN_DOMAIN');
+        unset($_ENV['MAIN_DOMAIN']);
+        parent::tearDown();
+    }
+
+    protected function createRequest(
+        string $method,
+        string $path,
+        array $headers = ['HTTP_ACCEPT' => 'text/html'],
+        ?array $cookies = null,
+        array $serverParams = []
+    ): Request {
+        $request = parent::createRequest($method, $path, $headers, $cookies, $serverParams);
+        $uri = $request->getUri()->withHost('example.com');
+        return $request->withHeader('Host', 'example.com')->withUri($uri);
+    }
+
     public function testQrImageIsGenerated(): void
     {
         $app = $this->getAppInstance();
@@ -75,7 +102,7 @@ class QrControllerTest extends TestCase
     public function testEventQrDefaults(): void
     {
         $app = $this->getAppInstance();
-        $request = $this->createRequest('GET', '/qr/event');
+        $request = $this->createRequest('GET', '/qr/event')->withQueryParams(['event' => '1']);
         $response = $app->handle($request);
 
         $this->assertSame(200, $response->getStatusCode());
@@ -128,7 +155,7 @@ class QrControllerTest extends TestCase
     public function testQrPdfIsGenerated(): void
     {
         $app = $this->getAppInstance();
-        $request = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Test']);
+        $request = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Test', 'event' => '1']);
         $response = $app->handle($request);
 
         $this->assertSame(200, $response->getStatusCode());
@@ -190,7 +217,7 @@ class QrControllerTest extends TestCase
         $qr = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService(), $results);
         $logo = new \App\Controller\LogoController($cfg);
 
-        $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo']);
+        $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo', 'event' => '1']);
         $initial = $qr->pdf($req, new Response());
         $original = (string)$initial->getBody();
         $this->assertStringContainsString('Event', $original);
@@ -273,7 +300,7 @@ class QrControllerTest extends TestCase
         $results = new \App\Service\ResultService($pdo, $cfg);
         $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService(), $results);
 
-        $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo']);
+        $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo', 'event' => '1']);
         $response = $qr->pdf($req, new Response());
         $pdf = (string)$response->getBody();
 
@@ -319,7 +346,7 @@ class QrControllerTest extends TestCase
         $results = new \App\Service\ResultService($pdo, $cfg);
         $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService(), $results);
 
-        $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo']);
+        $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo', 'event' => '1']);
         $response = $qr->pdf($req, new Response());
         $pdf = (string)$response->getBody();
 
@@ -384,7 +411,7 @@ class QrControllerTest extends TestCase
         $results = new \App\Service\ResultService($pdo, $cfg);
         $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService(), $results);
 
-        $req = $this->createRequest('GET', '/invites.pdf');
+        $req = $this->createRequest('GET', '/invites.pdf?event=1');
         $response = $qr->pdfAll($req, new Response());
 
         $this->assertSame(200, $response->getStatusCode());
@@ -473,7 +500,7 @@ class QrControllerTest extends TestCase
         $results = new \App\Service\ResultService($pdo, $cfg);
         $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService(), $results);
 
-        $req = $this->createRequest('GET', '/invites.pdf');
+        $req = $this->createRequest('GET', '/invites.pdf?event=1');
         $response = $qr->pdfAll($req, new Response());
 
         $this->assertSame(200, $response->getStatusCode());
@@ -507,7 +534,7 @@ class QrControllerTest extends TestCase
         $results = new \App\Service\ResultService($pdo, $cfg);
         $qr  = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService(), $results);
 
-        $req = $this->createRequest('GET', '/invites.pdf');
+        $req = $this->createRequest('GET', '/invites.pdf?event=1');
         $response = $qr->pdfAll($req, new Response());
 
         $this->assertSame(404, $response->getStatusCode());
@@ -563,13 +590,14 @@ class QrControllerTest extends TestCase
         $qr = new \App\Controller\QrController($cfg, $teams, $events, $catalogs, new QrCodeService(), $results);
 
         $cfg->setActiveEventUid('1');
-        $req = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo']);
-        $res1 = $qr->pdf($req, new Response());
+        $req1 = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo', 'event' => '1']);
+        $res1 = $qr->pdf($req1, new Response());
         $pdf1 = (string)$res1->getBody();
         $this->assertStringContainsString('First', $pdf1);
 
         $cfg->setActiveEventUid('2');
-        $res2 = $qr->pdf($req, new Response());
+        $req2 = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Demo', 'event' => '2']);
+        $res2 = $qr->pdf($req2, new Response());
         $pdf2 = (string)$res2->getBody();
         $this->assertStringContainsString('Second', $pdf2);
         $this->assertNotEquals($pdf1, $pdf2);

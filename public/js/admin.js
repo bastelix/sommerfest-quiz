@@ -695,9 +695,13 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   const openInvitesBtn = document.getElementById('openInvitesBtn');
+  if (openInvitesBtn) openInvitesBtn.disabled = !currentEventUid;
   openInvitesBtn?.addEventListener('click', function (e) {
     e.preventDefault();
-    window.open(withBase('/invites.pdf'), '_blank');
+    if (currentEventUid) {
+      const url = '/invites.pdf?event=' + encodeURIComponent(currentEventUid);
+      window.open(withBase(url), '_blank');
+    }
   });
 
   document.querySelectorAll('.qr-print-btn').forEach(btn => {
@@ -705,7 +709,11 @@ document.addEventListener('DOMContentLoaded', function () {
       e.preventDefault();
       const team = btn.getAttribute('data-team');
       if (team) {
-        window.open(withBase('/qr.pdf?t=' + encodeURIComponent(team) + '&rounded=1'), '_blank');
+        let url = '/qr.pdf?t=' + encodeURIComponent(team) + '&rounded=1';
+        if (currentEventUid) {
+          url += '&event=' + encodeURIComponent(currentEventUid);
+        }
+        window.open(withBase(url), '_blank');
       }
     });
   });
@@ -1756,6 +1764,7 @@ document.addEventListener('DOMContentLoaded', function () {
     eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
     if (eventSelectWrap) eventSelectWrap.hidden = false;
     if (eventOpenBtn) eventOpenBtn.disabled = !currentEventUid;
+    if (openInvitesBtn) openInvitesBtn.disabled = !currentEventUid;
     updateEventSelectDisplay();
   }
 
@@ -2002,6 +2011,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const sel = eventSelect.options[eventSelect.selectedIndex];
       btnSpan.textContent = sel ? sel.textContent : '';
       if (eventOpenBtn) eventOpenBtn.disabled = !sel || !sel.value;
+      if (openInvitesBtn) openInvitesBtn.disabled = !sel || !sel.value;
     }
     window.dispatchEvent(new Event('resize'));
   }
