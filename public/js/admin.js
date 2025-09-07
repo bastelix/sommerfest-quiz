@@ -1878,6 +1878,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const initial = Array.isArray(window.initialEvents)
       ? window.initialEvents.map(d => createEventItem(d))
       : [];
+    const initialEmpty = initial.length === 0;
     if (eventManager) {
       eventManager.render(initial);
       highlightCurrentEvent();
@@ -1900,10 +1901,13 @@ document.addEventListener('DOMContentLoaded', function () {
           highlightCurrentEvent();
         }
         populateEventSelect(list);
+        if (initialEmpty && list.length === 0) {
+          notify('Keine Events gefunden', 'warning');
+        }
       })
       .catch(err => {
         console.error(err);
-        notify('Events konnten nicht geladen werden', 'danger');
+        notify(err.message || 'HTTP-Fehler', 'warning');
       });
   }
 
