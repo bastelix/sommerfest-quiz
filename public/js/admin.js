@@ -733,7 +733,27 @@ document.addEventListener('DOMContentLoaded', function () {
     { key: 'name', label: 'Name', className: 'uk-table-expand', editable: true },
     { key: 'description', label: 'Beschreibung', className: 'uk-table-expand', editable: true },
     { key: 'raetsel_buchstabe', label: 'Rätsel-Buchstabe', className: 'uk-table-shrink', editable: true },
-    { key: 'comment', label: 'Kommentar', className: 'uk-table-expand', editable: true, ariaDesc: 'Kommentar bearbeiten' }
+    { key: 'comment', label: 'Kommentar', className: 'uk-table-expand', editable: true, ariaDesc: 'Kommentar bearbeiten' },
+    {
+      className: 'uk-table-shrink',
+      render: item => {
+        const delBtn = document.createElement('button');
+        delBtn.className = 'uk-icon-button qr-action uk-text-danger';
+        delBtn.setAttribute('uk-icon', 'trash');
+        delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
+        delBtn.setAttribute('uk-tooltip', 'title: ' + (window.transDelete || 'Löschen') + '; pos: left');
+        delBtn.addEventListener('click', () => deleteCatalogById(item.id));
+        return delBtn;
+      },
+      renderCard: item => {
+        const delBtn = document.createElement('button');
+        delBtn.className = 'uk-icon-button qr-action uk-text-danger';
+        delBtn.setAttribute('uk-icon', 'trash');
+        delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
+        delBtn.addEventListener('click', () => deleteCatalogById(item.id));
+        return delBtn;
+      }
+    }
   ];
 
   let catalogManager;
@@ -758,7 +778,6 @@ document.addEventListener('DOMContentLoaded', function () {
           catalogEditor.open(cell);
         }
       },
-      onDelete: id => deleteCatalogById(id),
       onReorder: () => saveCatalogs(catalogManager.getData(), false, true)
     });
     catalogEditor = createCellEditor(catalogManager, {
@@ -1820,6 +1839,26 @@ document.addEventListener('DOMContentLoaded', function () {
           label.appendChild(slider);
           return label;
         }
+      },
+      {
+        className: 'uk-table-shrink',
+        render: ev => {
+          const delBtn = document.createElement('button');
+          delBtn.className = 'uk-icon-button qr-action uk-text-danger';
+          delBtn.setAttribute('uk-icon', 'trash');
+          delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
+          delBtn.setAttribute('uk-tooltip', 'title: ' + (window.transDelete || 'Löschen') + '; pos: left');
+          delBtn.addEventListener('click', () => removeEvent(ev.id));
+          return delBtn;
+        },
+        renderCard: ev => {
+          const delBtn = document.createElement('button');
+          delBtn.className = 'uk-icon-button qr-action uk-text-danger';
+          delBtn.setAttribute('uk-icon', 'trash');
+          delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
+          delBtn.addEventListener('click', () => removeEvent(ev.id));
+          return delBtn;
+        }
       }
     ];
     if (!document.getElementById('eventEditModal')) {
@@ -1842,7 +1881,6 @@ document.addEventListener('DOMContentLoaded', function () {
       sortable: true,
       columns: eventColumns,
       onEdit: cell => eventEditor.open(cell),
-      onDelete: removeEvent,
       onReorder: () => saveEvents()
     });
     eventEditor = createCellEditor(eventManager, {
@@ -2004,25 +2042,50 @@ document.addEventListener('DOMContentLoaded', function () {
   let teamEditor;
   if (teamListEl) {
     const teamColumns = [
-      { key: 'name', label: 'Name', className: 'team-name', editable: true },
-      {
-        className: 'uk-table-shrink',
-        render: item => {
-          const btn = document.createElement('button');
-          btn.className = 'uk-icon-button qr-action';
-          btn.setAttribute('uk-icon', 'file-text');
-          btn.setAttribute('aria-label', window.transTeamPdf || 'PDF');
-          btn.setAttribute('uk-tooltip', 'title: ' + (window.transTeamPdf || 'PDF') + '; pos: left');
-          btn.addEventListener('click', () => openTeamPdf(item.name));
-          return btn;
+        { key: 'name', label: 'Name', className: 'team-name', editable: true },
+        {
+          className: 'uk-table-shrink',
+          render: item => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'uk-flex uk-flex-middle';
+
+          const pdfBtn = document.createElement('button');
+          pdfBtn.className = 'uk-icon-button qr-action uk-margin-small-right';
+          pdfBtn.setAttribute('uk-icon', 'file-text');
+          pdfBtn.setAttribute('aria-label', window.transTeamPdf || 'PDF');
+          pdfBtn.setAttribute('uk-tooltip', 'title: ' + (window.transTeamPdf || 'PDF') + '; pos: left');
+          pdfBtn.addEventListener('click', () => openTeamPdf(item.name));
+          wrapper.appendChild(pdfBtn);
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'uk-icon-button qr-action uk-text-danger';
+          delBtn.setAttribute('uk-icon', 'trash');
+          delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
+          delBtn.setAttribute('uk-tooltip', 'title: ' + (window.transDelete || 'Löschen') + '; pos: left');
+          delBtn.addEventListener('click', () => removeTeam(item.id));
+          wrapper.appendChild(delBtn);
+
+          return wrapper;
         },
         renderCard: item => {
-          const btn = document.createElement('button');
-          btn.className = 'uk-icon-button qr-action';
-          btn.setAttribute('uk-icon', 'file-text');
-          btn.setAttribute('aria-label', window.transTeamPdf || 'PDF');
-          btn.addEventListener('click', () => openTeamPdf(item.name));
-          return btn;
+          const wrapper = document.createElement('div');
+          wrapper.className = 'uk-flex uk-flex-middle';
+
+          const pdfBtn = document.createElement('button');
+          pdfBtn.className = 'uk-icon-button qr-action uk-margin-small-right';
+          pdfBtn.setAttribute('uk-icon', 'file-text');
+          pdfBtn.setAttribute('aria-label', window.transTeamPdf || 'PDF');
+          pdfBtn.addEventListener('click', () => openTeamPdf(item.name));
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'uk-icon-button qr-action uk-text-danger';
+          delBtn.setAttribute('uk-icon', 'trash');
+          delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
+          delBtn.addEventListener('click', () => removeTeam(item.id));
+
+          wrapper.appendChild(pdfBtn);
+          wrapper.appendChild(delBtn);
+          return wrapper;
         }
       }
     ];
@@ -2035,7 +2098,6 @@ document.addEventListener('DOMContentLoaded', function () {
         teamEditError.hidden = true;
         teamEditor.open(cell);
       },
-      onDelete: removeTeam,
       onReorder: () => reorderTeams(teamManager.getData())
     });
     teamEditor = createCellEditor(teamManager, {
