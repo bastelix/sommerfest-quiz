@@ -694,11 +694,29 @@ document.addEventListener('DOMContentLoaded', function () {
     window.print();
   });
 
+  const catalogStickerModal = window.UIkit ? UIkit.modal('#catalogStickerModal') : null;
   const catalogStickerPdfBtn = document.getElementById('catalogStickerPdfBtn');
   catalogStickerPdfBtn?.addEventListener('click', e => {
     e.preventDefault();
-    const url = '/admin/reports/catalog-stickers.pdf?rows=2&cols=2&margin=8&lang=de';
+    if (catalogStickerModal) catalogStickerModal.show();
+  });
+  const catalogStickerForm = document.getElementById('catalogStickerForm');
+  const catalogStickerTemplate = document.getElementById('catalogStickerTemplate');
+  const catalogStickerLines = document.getElementById('catalogStickerLines');
+  const catalogStickerQrColor = document.getElementById('catalogStickerQrColor');
+  const catalogStickerQrSizePct = document.getElementById('catalogStickerQrSizePct');
+  catalogStickerForm?.addEventListener('submit', e => {
+    e.preventDefault();
+    const params = new URLSearchParams({
+      template: catalogStickerTemplate.value,
+      lines: catalogStickerLines.value,
+      qr_color: catalogStickerQrColor.value.replace(/^#/, ''),
+      qr_size_pct: catalogStickerQrSizePct.value
+    });
+    if (currentEventUid) params.set('event_uid', currentEventUid);
+    const url = '/admin/reports/catalog-stickers.pdf?' + params.toString();
     window.open(withBase(url), '_blank');
+    if (catalogStickerModal) catalogStickerModal.hide();
   });
 
   const openInvitesBtn = document.getElementById('openInvitesBtn');

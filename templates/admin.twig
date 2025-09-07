@@ -507,6 +507,40 @@
         <button id="catalogStickerPdfBtn" class="uk-button uk-button-default uk-margin-small-bottom">
           {{ t('action_catalog_stickers_pdf') }}
         </button>
+        <div id="catalogStickerModal" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">{{ t('heading_catalog_sticker_settings') }}</h2>
+            <form id="catalogStickerForm">
+              <div class="uk-margin">
+                <label for="catalogStickerTemplate">{{ t('label_template') }}</label>
+                <select id="catalogStickerTemplate" class="uk-select">
+                  <option value="avery_l7165">Avery L7165 (2×4)</option>
+                  <option value="avery_l7163">Avery L7163 (2×7)</option>
+                  <option value="avery_l7651">Avery L7651 (3×8)</option>
+                </select>
+              </div>
+              <div class="uk-margin">
+                <label for="catalogStickerLines">{{ t('label_lines') }}</label>
+                <select id="catalogStickerLines" class="uk-select">
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                </select>
+              </div>
+              <div class="uk-margin">
+                <label for="catalogStickerQrColor">{{ t('label_qr_color') }}</label>
+                <input type="color" id="catalogStickerQrColor" class="uk-input" value="#000000">
+              </div>
+              <div class="uk-margin">
+                <label for="catalogStickerQrSizePct">{{ t('label_qr_size_pct') }}</label>
+                <input type="number" id="catalogStickerQrSizePct" class="uk-input" value="42" min="35" max="50">
+              </div>
+              <div class="uk-text-right">
+                <button class="uk-button uk-button-primary" type="submit" id="catalogStickerGenerate">{{ t('action_download') }}</button>
+                <button class="uk-button uk-button-default uk-modal-close" type="button">{{ t('action_cancel') }}</button>
+              </div>
+            </form>
+          </div>
+        </div>
         <div class="card-grid" uk-grid id="summaryCatalogs">
           {% for c in catalogs %}
           <div class="uk-width-1-1 uk-width-1-2@s">
