@@ -51,11 +51,11 @@ class AdminController
 
         $params = $request->getQueryParams();
         $uid    = (string) ($params['event'] ?? '');
+        $cfgSvc->setActiveEventUid($uid);
         if ($uid === '') {
             $cfg   = [];
             $event = null;
         } else {
-            $cfgSvc->setActiveEventUid($uid);
             $cfg   = $cfgSvc->getConfigForEvent($uid);
             $event = $eventSvc->getByUid($uid);
         }
@@ -80,16 +80,19 @@ class AdminController
         $sub       = '';
 
         $configSvc = new ConfigService($pdo);
-        if (in_array($section, ['results', 'catalogs', 'questions', 'summary'], true)) {
-            $catalogSvc   = new CatalogService($pdo, $configSvc);
+        if (
+            $uid !== ''
+            && in_array($section, ['results', 'catalogs', 'questions', 'summary'], true)
+        ) {
+            $catalogSvc   = new CatalogService($pdo, $configSvc, null, '', $uid);
             $catalogsJson = $catalogSvc->read('catalogs.json');
             if ($catalogsJson !== null) {
                 $catalogs = json_decode($catalogsJson, true) ?? [];
             }
         }
 
-        if ($section === 'results') {
-            $results  = (new ResultService($pdo))->getAll();
+        if ($section === 'results' && $uid !== '') {
+            $results  = (new ResultService($pdo))->getAll($uid);
             $catMap   = [];
             foreach ($catalogs as $c) {
                 $name = $c['name'] ?? '';
