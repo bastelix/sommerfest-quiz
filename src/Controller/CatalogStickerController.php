@@ -16,6 +16,48 @@ use Throwable;
 
 class CatalogStickerController
 {
+    private const LABEL_TEMPLATES = [
+        'avery_l7165' => [
+            'page' => 'A4',
+            'rows' => 4,
+            'cols' => 2,
+            'label_w' => 99.1,
+            'label_h' => 67.7,
+            'margin_top' => 10.0,
+            'margin_left' => 5.0,
+            'gutter_x' => 2.5,
+            'gutter_y' => 2.5,
+            'padding' => 6.0,
+            'border' => 0.3,
+        ],
+        'avery_l7163' => [
+            'page' => 'A4',
+            'rows' => 7,
+            'cols' => 2,
+            'label_w' => 99.1,
+            'label_h' => 38.1,
+            'margin_top' => 10.0,
+            'margin_left' => 5.0,
+            'gutter_x' => 2.5,
+            'gutter_y' => 2.5,
+            'padding' => 5.0,
+            'border' => 0.3,
+        ],
+        'avery_l7651' => [
+            'page' => 'A4',
+            'rows' => 8,
+            'cols' => 3,
+            'label_w' => 63.5,
+            'label_h' => 38.1,
+            'margin_top' => 10.0,
+            'margin_left' => 7.0,
+            'gutter_x' => 2.5,
+            'gutter_y' => 2.5,
+            'padding' => 4.0,
+            'border' => 0.3,
+        ],
+    ];
+
     private ConfigService $config;
     private EventService $events;
     private CatalogService $catalogs;
@@ -36,9 +78,18 @@ class CatalogStickerController
     public function pdf(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $rows = max(1, (int)($params['rows'] ?? 2));
-        $cols = max(1, (int)($params['cols'] ?? 2));
-        $margin = max(0.0, (float)($params['margin'] ?? 8));
+        $template = (string)($params['template'] ?? 'avery_l7165');
+        if (!isset(self::LABEL_TEMPLATES[$template])) {
+            $template = 'avery_l7165';
+        }
+        $tpl = self::LABEL_TEMPLATES[$template];
+
+        $lines = (int)($params['lines'] ?? 3);
+        $lines = $lines === 4 ? 4 : 3;
+        $qrColor = preg_replace('/[^0-9A-Fa-f]/', '', (string)($params['qr_color'] ?? '000000'));
+        $qrColor = str_pad(substr($qrColor, 0, 6), 6, '0');
+        $qrSizePct = max(10, min(100, (int)($params['qr_size_pct'] ?? 42)));
+
         $uid = (string)($params['event_uid'] ?? ($params['event'] ?? ''));
         if ($uid === '') {
             $uid = $this->config->getActiveEventUid();
@@ -57,8 +108,8 @@ class CatalogStickerController
             $catalogs = [];
         }
 
-        $pdf = new FPDF('P', 'mm', 'A4');
-        $pdf->SetMargins($margin, $margin, $margin);
+        $pdf = new FPDF('P', 'mm', $tpl['page']);
+        $pdf->SetMargins(0.0, 0.0, 0.0);
         $pdf->SetAutoPageBreak(false);
         $pdf->AddPage();
 
@@ -72,58 +123,70 @@ class CatalogStickerController
                 ->withHeader('Content-Disposition', 'inline; filename="catalog-stickers.pdf"');
         }
 
-        $pageW = $pdf->GetPageWidth();
-        $pageH = $pdf->GetPageHeight();
-        $gutter = 6.0;
-        $cardW = ($pageW - 2 * $margin - ($cols - 1) * $gutter) / $cols;
-        $cardH = ($pageH - 2 * $margin - ($rows - 1) * $gutter) / $rows;
-        $pad = 4.0;
-        $qrSize = $cardW * 0.4;
-
         $count = 0;
+        $perPage = $tpl['rows'] * $tpl['cols'];
         foreach ($catalogs as $cat) {
-            if ($count > 0 && $count % ($rows * $cols) === 0) {
+            if ($count > 0 && $count % $perPage === 0) {
                 $pdf->AddPage();
             }
-            $pos = $count % ($rows * $cols);
-            $row = intdiv($pos, $cols);
-            $col = $pos % $cols;
-            $x = $margin + $col * ($cardW + $gutter);
-            $y = $margin + $row * ($cardH + $gutter);
+            $pos = $count % $perPage;
+            $row = intdiv($pos, $tpl['cols']);
+            $col = $pos % $tpl['cols'];
+            $x = $tpl['margin_left'] + $col * ($tpl['label_w'] + $tpl['gutter_x']);
+            $y = $tpl['margin_top'] + $row * ($tpl['label_h'] + $tpl['gutter_y']);
 
-            $pdf->SetDrawColor(221, 221, 221);
-            $pdf->SetLineWidth(0.3);
-            $pdf->Rect($x, $y, $cardW, $cardH);
+            if (($tpl['border'] ?? 0.0) > 0) {
+                $pdf->SetDrawColor(221, 221, 221);
+                $pdf->SetLineWidth($tpl['border'] * 0.352778);
+                $pdf->Rect($x, $y, $tpl['label_w'], $tpl['label_h']);
+            }
 
-            $innerX = $x + $pad;
-            $innerY = $y + $pad;
-            $textW = $cardW - 2 * $pad - $qrSize - $pad;
-            $pdf->SetXY($innerX, $innerY);
+            $innerX = $x + $tpl['padding'];
+            $innerY = $y + $tpl['padding'];
+            $innerW = $tpl['label_w'] - 2 * $tpl['padding'];
+            $innerH = $tpl['label_h'] - 2 * $tpl['padding'];
 
+            $textW = $innerW * 0.6;
+            $qrColW = $innerW - $textW;
+            $maxTextH = $innerH - 6.0;
+
+            $curY = $innerY;
+            $linesData = [];
             if ($eventTitle !== '') {
-                $pdf->SetFont('Arial', 'B', 14);
-                $pdf->MultiCell($textW, 6, $this->sanitizePdfText($eventTitle));
+                $linesData[] = ['Arial', 'B', 12, $eventTitle];
             }
             if ($eventDesc !== '') {
-                $pdf->SetFont('Arial', '', 10);
-                $pdf->MultiCell($textW, 5, $this->sanitizePdfText($eventDesc));
+                $linesData[] = ['Arial', '', 10, $eventDesc];
+            }
+            $linesData[] = ['Arial', 'B', 11, (string)($cat['name'] ?? '')];
+            $desc = (string)($cat['description'] ?? '');
+            if ($lines === 4 && $desc !== '') {
+                $linesData[] = ['Arial', '', 10, $desc];
+            }
+            $linesData = array_slice($linesData, 0, $lines);
+
+            foreach ($linesData as $data) {
+                [$fam, $style, $size, $text] = $data;
+                $pdf->SetFont($fam, $style, $size);
+                $lineH = $size * 1.2 * 0.352778;
+                if ($curY + $lineH - $innerY > $maxTextH) {
+                    break;
+                }
+                $pdf->SetXY($innerX, $curY);
+                $pdf->Cell($textW, $lineH, $this->fitText($pdf, $text, $textW));
+                $curY += $lineH;
             }
 
-            $pdf->SetFont('Arial', 'B', 12);
-            $pdf->MultiCell($textW, 5, $this->sanitizePdfText((string)($cat['name'] ?? '')));
-            $desc = (string)($cat['description'] ?? '');
-            if ($desc !== '') {
-                $pdf->SetFont('Arial', '', 10);
-                $pdf->MultiCell($textW, 5, $this->sanitizePdfText($desc));
-            }
+            $qrSize = min($innerW * $qrSizePct / 100.0, $innerH * 0.55);
+            $qrPad = 2.0;
+            $qrX = $innerX + $textW + $qrColW - $qrPad - $qrSize;
+            $qrY = $innerY + $innerH - $qrPad - $qrSize;
 
             $path = $uid !== ''
                 ? '/?event=' . $uid . '&katalog=' . ($cat['slug'] ?? '')
                 : '/?katalog=' . ($cat['slug'] ?? '');
             $link = $baseUrl . $path;
-            $q = ['t' => $link, 'format' => 'png'];
-            $qrX = $x + $cardW - $pad - $qrSize;
-            $qrY = $y + ($cardH - $qrSize) / 2;
+            $q = ['t' => $link, 'fg' => $qrColor, 'format' => 'png'];
             try {
                 $qr = $this->qr->generateCatalog($q, $cfg);
                 $tmp = tempnam(sys_get_temp_dir(), 'qr') . '.png';
@@ -151,6 +214,20 @@ class CatalogStickerController
             return preg_replace('/[^\x00-\x7F]/', '?', $text);
         }
         return $converted;
+    }
+
+    private function fitText(FPDF $pdf, string $text, float $maxWidth): string
+    {
+        $t = $this->sanitizePdfText($text);
+        if ($pdf->GetStringWidth($t) <= $maxWidth) {
+            return $t;
+        }
+        $ellipsis = $this->sanitizePdfText('…');
+        $str = $t;
+        while ($str !== '' && $pdf->GetStringWidth($str . $ellipsis) > $maxWidth) {
+            $str = mb_substr($str, 0, mb_strlen($str) - 1);
+        }
+        return $str . $ellipsis;
     }
 }
 
