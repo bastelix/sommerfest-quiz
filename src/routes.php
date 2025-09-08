@@ -1118,6 +1118,13 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('catalogStickerController')->pdf($request, $response);
     })->add(new RoleAuthMiddleware(...Roles::ALL));
 
+    $app->get('/admin/sticker-settings', function (Request $request, Response $response) {
+        return $request->getAttribute('catalogStickerController')->getSettings($request, $response);
+    })->add(new RoleAuthMiddleware(...Roles::ALL));
+    $app->post('/admin/sticker-settings', function (Request $request, Response $response) {
+        return $request->getAttribute('catalogStickerController')->saveSettings($request, $response);
+    })->add(new RoleAuthMiddleware(...Roles::ALL));
+
     $app->post('/admin/sticker-background', function (Request $request, Response $response) {
         return $request->getAttribute('catalogStickerController')->uploadBackground($request, $response);
     })->add(new RoleAuthMiddleware(...Roles::ALL));
