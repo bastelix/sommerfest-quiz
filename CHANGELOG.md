@@ -194,6 +194,7 @@
 - Globalize player name storage
 - Allow resetting stored team name
 - Show team name button
+- Stop resuming catalog from session
 
 ### Fix
 
