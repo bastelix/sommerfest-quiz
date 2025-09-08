@@ -7,6 +7,7 @@ namespace App\Controller;
 use App\Service\UserService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use PDOException;
 
 /**
  * CRUD operations for user accounts.
@@ -39,7 +40,19 @@ class UserController
         if (!is_array($data)) {
             return $response->withStatus(400);
         }
-        $this->service->saveAll($data);
-        return $response->withStatus(204);
+        try {
+            $this->service->saveAll($data);
+        } catch (PDOException $e) {
+            if ($e->getCode() === '23505') {
+                return $response->withStatus(409);
+            }
+
+            throw $e;
+        }
+
+        $list = $this->service->getAll();
+        $response->getBody()->write(json_encode($list));
+
+        return $response->withHeader('Content-Type', 'application/json');
     }
 }
