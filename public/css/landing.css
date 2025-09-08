@@ -543,7 +543,7 @@ body.dark-mode .qr-landing .qr-badge{
   align-items:center;
   justify-content:center;
   border:2px solid var(--landing-btn-fg);
-  color:var(--landing-btn-bg-hover)!important;
+  color:var(--landing-btn-fg)!important;
   background:transparent;
   border-radius:12px;
   font-weight:600;
@@ -555,8 +555,8 @@ body.dark-mode .qr-landing .qr-badge{
 }
 .cta-ghost:hover,
 .cta-ghost:focus{
-  background:var(--landing-btn-bg-hover);
-  color:var(--landing-btn-fg)!important;
+  background:var(--landing-btn-fg);
+  color:var(--landing-btn-bg-hover)!important;
   box-shadow:0 6px 18px rgba(47,129,247,.35);
   text-decoration:none;
 }
