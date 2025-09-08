@@ -705,6 +705,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const catalogStickerLines = document.getElementById('catalogStickerLines');
   const catalogStickerQrColor = document.getElementById('catalogStickerQrColor');
   const catalogStickerQrSizePct = document.getElementById('catalogStickerQrSizePct');
+  const catalogStickerBg = document.getElementById('catalogStickerBg');
   catalogStickerForm?.addEventListener('submit', e => {
     e.preventDefault();
     const params = new URLSearchParams({
@@ -717,6 +718,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const url = '/admin/reports/catalog-stickers.pdf?' + params.toString();
     window.open(withBase(url), '_blank');
     if (catalogStickerModal) catalogStickerModal.hide();
+  });
+
+  catalogStickerBg?.addEventListener('change', () => {
+    const file = catalogStickerBg.files && catalogStickerBg.files[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('file', file);
+    const url = '/admin/sticker-background' + (currentEventUid ? `?event_uid=${encodeURIComponent(currentEventUid)}` : '');
+    apiFetch(url, { method: 'POST', body: fd })
+      .then(res => {
+        if (!res.ok) throw new Error('upload failed');
+        notify(window.transImageReady || 'Image bereit', 'success');
+      })
+      .catch(() => notify('Fehler beim Hochladen', 'danger'));
   });
 
   const openInvitesBtn = document.getElementById('openInvitesBtn');

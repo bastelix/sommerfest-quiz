@@ -10,6 +10,7 @@ use App\Service\EventService;
 use App\Service\QrCodeService;
 use App\Service\UrlService;
 use FPDF;
+use Intervention\Image\ImageManager;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Throwable;
@@ -125,6 +126,8 @@ class CatalogStickerController
 
         $count = 0;
         $perPage = $tpl['rows'] * $tpl['cols'];
+        $bgFile = __DIR__ . '/../../data/uploads/sticker-bg.png';
+        $hasBg = file_exists($bgFile);
         foreach ($catalogs as $cat) {
             if ($count > 0 && $count % $perPage === 0) {
                 $pdf->AddPage();
@@ -134,7 +137,9 @@ class CatalogStickerController
             $col = $pos % $tpl['cols'];
             $x = $tpl['margin_left'] + $col * ($tpl['label_w'] + $tpl['gutter_x']);
             $y = $tpl['margin_top'] + $row * ($tpl['label_h'] + $tpl['gutter_y']);
-
+            if ($hasBg) {
+                $pdf->Image($bgFile, $x, $y, $tpl['label_w'], $tpl['label_h']);
+            }
             if (($tpl['border'] ?? 0.0) > 0) {
                 $pdf->SetDrawColor(221, 221, 221);
                 $pdf->SetLineWidth($tpl['border'] * 0.352778);
@@ -207,6 +212,49 @@ class CatalogStickerController
             ->withHeader('Content-Disposition', 'inline; filename="catalog-stickers.pdf"');
     }
 
+    public function uploadBackground(Request $request, Response $response): Response
+    {
+        $files = $request->getUploadedFiles();
+        if (!isset($files['file'])) {
+            $response->getBody()->write('missing file');
+            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
+        }
+
+        $file = $files['file'];
+        if ($file->getError() !== UPLOAD_ERR_OK) {
+            $response->getBody()->write('upload error');
+            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
+        }
+        if ($file->getSize() !== null && $file->getSize() > 5 * 1024 * 1024) {
+            $response->getBody()->write('file too large');
+            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
+        }
+
+        $extension = strtolower(pathinfo($file->getClientFilename(), PATHINFO_EXTENSION));
+        if (!in_array($extension, ['png', 'jpg', 'jpeg', 'webp'], true)) {
+            $response->getBody()->write('unsupported file type');
+            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
+        }
+
+        if (!class_exists('\\Intervention\\Image\\ImageManager')) {
+            $response->getBody()->write('Intervention Image NICHT installiert');
+            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
+        }
+
+        $dir = __DIR__ . '/../../data/uploads';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
+        $target = $dir . '/sticker-bg.png';
+
+        $manager = extension_loaded('imagick') ? ImageManager::imagick() : ImageManager::gd();
+        $stream = $file->getStream();
+        $img = $manager->read($stream->detach());
+        $img->save($target, 90);
+
+        return $response->withStatus(204);
+    }
+
     private function sanitizePdfText(string $text): string
     {
         $converted = @iconv('UTF-8', 'CP1252//TRANSLIT', $text);
@@ -230,4 +278,3 @@ class CatalogStickerController
         return $str . $ellipsis;
     }
 }
-
