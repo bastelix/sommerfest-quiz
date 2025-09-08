@@ -201,6 +201,7 @@
 - Improve sticker background upload UX
 - Improve sticker background upload UX
 - Add catalog sticker preview
+- Add dark-mode contrast for secondary buttons
 
 ### Fix
 
