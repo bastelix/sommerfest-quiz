@@ -333,6 +333,7 @@
 - Persist session on localhost
 - Ensure login redirect on main domain
 - Cover team name suggestion
+- Cover user position ordering
 
 ## [0.2.0] - 2025-08-18
 
