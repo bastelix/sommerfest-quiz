@@ -169,6 +169,7 @@ return [
     'label_team_restrict' => 'Only listed teams may join',
     'label_plan' => 'Plan',
     'label_events' => 'Events',
+    'label_event_select' => 'Select event',
     'label_catalogs' => 'Catalogs',
     'label_questions' => 'Questions',
     'word_of' => 'of',

@@ -167,6 +167,7 @@ return [
     'label_team_restrict' => 'Nur Teams/Personen aus der Liste dürfen teilnehmen.',
     'label_plan' => 'Abo',
     'label_events' => 'Veranstaltungen',
+    'label_event_select' => 'Veranstaltung wählen',
     'label_catalogs' => 'Kataloge',
     'label_questions' => 'Fragen',
     'word_of' => 'von',
