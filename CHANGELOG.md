@@ -208,6 +208,7 @@
 - Highlight catalog cards in dark mode
 - Prevent replaying solved catalogs
 - Add label for event selection
+- Use native select for event picker
 
 ### Fix
 
