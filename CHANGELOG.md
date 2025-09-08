@@ -196,6 +196,7 @@
 - Show team name button
 - Stop resuming catalog from session
 - Enhance event catalogs layout
+- Adapt onboarding buttons for dark mode
 
 ### Fix
 
