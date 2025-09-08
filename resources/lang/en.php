@@ -155,6 +155,7 @@ return [
     'label_qr_remember' => 'Remember scanned login',
     'label_custom_logo' => 'Custom logo',
     'label_qr_color' => 'QR code color',
+    'label_text_color' => 'Text color',
     'label_qr_bg_color' => 'Background color',
     'label_qr_size' => 'QR size',
     'label_qr_margin' => 'Margin',

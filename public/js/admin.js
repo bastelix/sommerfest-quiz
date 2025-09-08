@@ -709,6 +709,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const catalogStickerTemplate = document.getElementById('catalogStickerTemplate');
   const catalogStickerDesc = document.getElementById('catalogStickerDesc');
   const catalogStickerQrColor = document.getElementById('catalogStickerQrColor');
+  const catalogStickerTextColor = document.getElementById('catalogStickerTextColor');
   const catalogStickerQrSizePct = document.getElementById('catalogStickerQrSizePct');
   const catalogStickerBg = document.getElementById('catalogStickerBg');
   const catalogStickerGenerate = document.getElementById('catalogStickerGenerate');
@@ -916,7 +917,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const textH = Math.round(descH * scale);
     ctx.fillStyle = catalogStickerQrColor?.value || '#000';
     ctx.fillRect(qrX, qrY, qrSize, qrSize);
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = catalogStickerTextColor?.value || '#000';
     ctx.textBaseline = 'top';
     const linesData = [];
     if (stickerEventTitle) linesData.push({ font: 'bold 12px sans-serif', size: 12, text: stickerEventTitle });
@@ -970,6 +971,7 @@ document.addEventListener('DOMContentLoaded', function () {
   catalogStickerTemplate?.addEventListener('change', drawCatalogStickerPreview);
   catalogStickerDesc?.addEventListener('change', drawCatalogStickerPreview);
   catalogStickerQrColor?.addEventListener('input', drawCatalogStickerPreview);
+  catalogStickerTextColor?.addEventListener('input', drawCatalogStickerPreview);
   catalogStickerQrSizePct?.addEventListener('input', drawCatalogStickerPreview);
   let catalogStickerProgress;
   if (catalogStickerBg) {
@@ -986,6 +988,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const params = new URLSearchParams({
       template: catalogStickerTemplate.value,
       qr_color: catalogStickerQrColor.value.replace(/^#/, ''),
+      text_color: catalogStickerTextColor.value.replace(/^#/, ''),
       qr_size_pct: catalogStickerQrSizePct.value,
       print_desc: catalogStickerDesc.checked ? '1' : '0'
     });
