@@ -2727,6 +2727,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const data = list.map(u => ({
       ...u,
       id: u.id ?? crypto.randomUUID(),
+      role: u.role || (window.roles && window.roles[0]) || '',
       password: ''
     }));
     userManager.render(data);
@@ -2813,7 +2814,6 @@ document.addEventListener('DOMContentLoaded', function () {
     modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">'
       + '<h3 class="uk-modal-title"></h3>'
       + '<input id="userEditInput" class="uk-input" type="text">'
-      + '<select id="userEditSelect" class="uk-select" hidden></select>'
       + '<div class="uk-margin-top uk-text-right">'
       + `<button id="userEditCancel" class="uk-button uk-button-default" type="button">${window.transCancel || 'Abbrechen'}</button>`
       + `<button id="userEditSave" class="uk-button uk-button-primary" type="button">${window.transSave || 'Speichern'}</button>`
@@ -2823,7 +2823,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   const userEditModal = window.UIkit ? UIkit.modal('#userEditModal') : null;
   const userEditInput = document.getElementById('userEditInput');
-  const userEditSelect = document.getElementById('userEditSelect');
   const userEditSave = document.getElementById('userEditSave');
   const userEditCancel = document.getElementById('userEditCancel');
   const userEditTitle = document.querySelector('#userEditModal .uk-modal-title');
@@ -2837,22 +2836,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const id = cell?.dataset.id;
     const key = cell?.dataset.key;
     const item = userManager.getData().find(u => u.id === id);
-    if (!item) return;
+    if (!item || key !== 'username') return;
     currentUserId = id;
-    if (key === 'username') {
-      userEditInput.hidden = false;
-      userEditSelect.hidden = true;
-      userEditInput.value = item.username || '';
-      userEditTitle.textContent = labelUsername;
-    } else if (key === 'role') {
-      userEditInput.hidden = true;
-      userEditSelect.hidden = false;
-      userEditSelect.innerHTML = (window.roles || []).map(r => `<option value="${r}">${r}</option>`).join('');
-      userEditSelect.value = item.role || (window.roles && window.roles[0]) || '';
-      userEditTitle.textContent = labelRole;
-    } else {
-      return;
-    }
+    userEditInput.hidden = false;
+    userEditInput.value = item.username || '';
+    userEditTitle.textContent = labelUsername;
     userEditModal?.show();
   }
 
@@ -2863,20 +2851,40 @@ document.addEventListener('DOMContentLoaded', function () {
       userEditModal?.hide();
       return;
     }
-    if (!userEditInput.hidden) {
-      item.username = userEditInput.value.trim();
-    } else {
-      item.role = userEditSelect.value;
-    }
+    item.username = userEditInput.value.trim();
     userManager.render(list);
     saveUsers(list);
     userEditModal?.hide();
   });
 
   if (usersListEl) {
+    const roleTemplate = document.getElementById('userRoleSelect');
     const userColumns = [
       { key: 'username', label: labelUsername, editable: true },
-      { key: 'role', label: labelRole, editable: true },
+      {
+        key: 'role',
+        label: labelRole,
+        render: item => {
+          let select;
+          if (roleTemplate) {
+            select = roleTemplate.content.firstElementChild.cloneNode(true);
+          } else {
+            select = document.createElement('select');
+            (window.roles || []).forEach(r => {
+              const opt = document.createElement('option');
+              opt.value = r;
+              opt.textContent = r;
+              select.appendChild(opt);
+            });
+          }
+          select.value = item.role || (window.roles && window.roles[0]) || '';
+          select.addEventListener('change', () => {
+            item.role = select.value;
+            saveUsers(userManager.getData());
+          });
+          return select;
+        }
+      },
       {
         key: 'active',
         label: labelActive,
