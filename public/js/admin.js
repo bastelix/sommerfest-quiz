@@ -2823,30 +2823,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  if (!document.getElementById('userEditModal')) {
-    const modal = document.createElement('div');
-    modal.id = 'userEditModal';
-    modal.setAttribute('uk-modal', '');
-    modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">'
-      + '<h3 class="uk-modal-title"></h3>'
-      + '<input id="userEditInput" class="uk-input" type="text">'
-      + '<div class="uk-margin-top uk-text-right">'
-      + `<button id="userEditCancel" class="uk-button uk-button-default" type="button">${window.transCancel || 'Abbrechen'}</button>`
-      + `<button id="userEditSave" class="uk-button uk-button-primary" type="button">${window.transSave || 'Speichern'}</button>`
-      + '</div>'
-      + '</div>';
-    document.body.appendChild(modal);
-  }
-  const userEditModal = window.UIkit ? UIkit.modal('#userEditModal') : null;
-  const userEditInput = document.getElementById('userEditInput');
-  const userEditSave = document.getElementById('userEditSave');
-  const userEditCancel = document.getElementById('userEditCancel');
-  const userEditTitle = document.querySelector('#userEditModal .uk-modal-title');
-
-  userEditCancel?.addEventListener('click', e => {
-    e.preventDefault();
-    userEditModal?.hide();
-  });
+  const userNameModal = window.UIkit ? UIkit.modal('#userNameModal') : null;
+  const userNameForm = document.getElementById('userNameForm');
+  const userNameInput = document.getElementById('userNameInput');
 
   function openUserEditor(cell) {
     const id = cell?.dataset.id;
@@ -2854,23 +2833,27 @@ document.addEventListener('DOMContentLoaded', function () {
     const item = userManager.getData().find(u => u.id === id);
     if (!item || key !== 'username') return;
     currentUserId = id;
-    userEditInput.hidden = false;
-    userEditInput.value = item.username || '';
-    userEditTitle.textContent = labelUsername;
-    userEditModal?.show();
+    userNameInput.value = item.username || '';
+    userNameModal?.show();
   }
 
-  userEditSave?.addEventListener('click', () => {
+  userNameForm?.addEventListener('submit', e => {
+    e.preventDefault();
     const list = userManager.getData();
     const item = list.find(u => u.id === currentUserId);
     if (!item) {
-      userEditModal?.hide();
+      userNameModal?.hide();
       return;
     }
-    item.username = userEditInput.value.trim();
+    const value = userNameInput.value.trim();
+    if (!value) {
+      notify(window.transUsernameRequired || 'Benutzername darf nicht leer sein', 'warning');
+      return;
+    }
+    item.username = value;
     userManager.render(list);
     saveUsers(list);
-    userEditModal?.hide();
+    userNameModal?.hide();
   });
 
   if (usersListEl) {

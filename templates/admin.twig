@@ -975,6 +975,18 @@
         <div class="uk-margin">
           <button id="userAddBtn" class="uk-icon-button uk-button-default" uk-icon="plus" uk-tooltip="title: {{ t('tip_user_add') }}; pos: right" aria-label="{{ t('tip_user_add') }}"></button>
         </div>
+        <div id="userNameModal" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">{{ t('heading_username_modal') }}</h2>
+            <form id="userNameForm">
+              <div class="uk-margin"><input id="userNameInput" class="uk-input" type="text" placeholder="{{ t('placeholder_username_modal') }}" required></div>
+              <div class="uk-flex uk-flex-right uk-margin-top">
+                <button class="uk-icon-button uk-button-primary" uk-icon="check" type="submit" aria-label="{{ t('action_save') }}"></button>
+                <button class="uk-button uk-button-default uk-modal-close" type="button">{{ t('action_cancel') }}</button>
+              </div>
+            </form>
+          </div>
+        </div>
 
         <div id="userPassModal" uk-modal>
           <div class="uk-modal-dialog uk-modal-body">
@@ -1318,6 +1330,7 @@
     window.transTeamPdf = '{{ t('tip_team_pdf') }}';
     window.transActions = '{{ t('column_actions') }}';
     window.transDelete = '{{ t('action_delete') }}';
+    window.transUsernameRequired = '{{ t('text_username_required') }}';
     window.stripeDashboard = '{{ stripe_sandbox ? 'https://dashboard.stripe.com/test' : 'https://dashboard.stripe.com' }}';
     window.initialEvents = {{ events|json_encode|raw }};
   </script>
