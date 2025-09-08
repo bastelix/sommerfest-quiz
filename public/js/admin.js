@@ -710,6 +710,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const catalogStickerDesc = document.getElementById('catalogStickerDesc');
   const catalogStickerQrColor = document.getElementById('catalogStickerQrColor');
   const catalogStickerTextColor = document.getElementById('catalogStickerTextColor');
+  const catalogStickerHeaderFontSize = document.getElementById('catalogStickerHeaderFontSize');
+  const catalogStickerSubheaderFontSize = document.getElementById('catalogStickerSubheaderFontSize');
+  const catalogStickerCatalogFontSize = document.getElementById('catalogStickerCatalogFontSize');
+  const catalogStickerDescFontSize = document.getElementById('catalogStickerDescFontSize');
   const catalogStickerQrSizePct = document.getElementById('catalogStickerQrSizePct');
   const catalogStickerBg = document.getElementById('catalogStickerBg');
   const catalogStickerGenerate = document.getElementById('catalogStickerGenerate');
@@ -738,6 +742,15 @@ document.addEventListener('DOMContentLoaded', function () {
     avery_l7651: { label_w: 63.5, label_h: 38.1 }
   };
 
+  function getStickerFontSizes () {
+    return {
+      headerFontSize: parseFloat(catalogStickerHeaderFontSize?.value || '12'),
+      subheaderFontSize: parseFloat(catalogStickerSubheaderFontSize?.value || '10'),
+      catalogFontSize: parseFloat(catalogStickerCatalogFontSize?.value || '11'),
+      descFontSize: parseFloat(catalogStickerDescFontSize?.value || '10')
+    };
+  }
+
   async function loadStickerSample () {
     try {
       const url = '/admin/catalogs/data?perPage=1' + (currentEventUid ? `&event_uid=${encodeURIComponent(currentEventUid)}` : '');
@@ -755,7 +768,7 @@ document.addEventListener('DOMContentLoaded', function () {
         stickerEventDesc = evData?.event?.description || '';
       } catch (e) { /* ignore */ }
     }
-    drawCatalogStickerPreview();
+    drawCatalogStickerPreview(getStickerFontSizes());
   }
 
   async function loadStickerSettings () {
@@ -767,12 +780,16 @@ document.addEventListener('DOMContentLoaded', function () {
       if (catalogStickerDesc) catalogStickerDesc.checked = !!data.stickerPrintDesc;
       if (catalogStickerQrColor) catalogStickerQrColor.value = '#' + (data.stickerQrColor || '000000').replace(/^#/, '');
       if (catalogStickerQrSizePct) catalogStickerQrSizePct.value = data.stickerQrSizePct != null ? data.stickerQrSizePct : 42;
+      if (catalogStickerHeaderFontSize) catalogStickerHeaderFontSize.value = data.stickerHeaderFontSize != null ? data.stickerHeaderFontSize : 12;
+      if (catalogStickerSubheaderFontSize) catalogStickerSubheaderFontSize.value = data.stickerSubheaderFontSize != null ? data.stickerSubheaderFontSize : 10;
+      if (catalogStickerCatalogFontSize) catalogStickerCatalogFontSize.value = data.stickerCatalogFontSize != null ? data.stickerCatalogFontSize : 11;
+      if (catalogStickerDescFontSize) catalogStickerDescFontSize.value = data.stickerDescFontSize != null ? data.stickerDescFontSize : 10;
       if (descTopInput) descTopInput.value = data.stickerDescTop != null ? data.stickerDescTop : '';
       if (descLeftInput) descLeftInput.value = data.stickerDescLeft != null ? data.stickerDescLeft : '';
       if (qrTopInput) qrTopInput.value = data.stickerQrTop != null ? data.stickerQrTop : '';
       if (qrLeftInput) qrLeftInput.value = data.stickerQrLeft != null ? data.stickerQrLeft : '';
     } catch (e) { /* ignore */ }
-    drawCatalogStickerPreview();
+    drawCatalogStickerPreview(getStickerFontSizes());
   }
 
   async function saveStickerSettings () {
@@ -783,6 +800,10 @@ document.addEventListener('DOMContentLoaded', function () {
       stickerPrintDesc: catalogStickerDesc?.checked || false,
       stickerQrColor: (catalogStickerQrColor?.value || '#000000').replace(/^#/, ''),
       stickerQrSizePct: parseInt(catalogStickerQrSizePct?.value || '42', 10),
+      stickerHeaderFontSize: parseFloat(catalogStickerHeaderFontSize?.value || '12'),
+      stickerSubheaderFontSize: parseFloat(catalogStickerSubheaderFontSize?.value || '10'),
+      stickerCatalogFontSize: parseFloat(catalogStickerCatalogFontSize?.value || '11'),
+      stickerDescFontSize: parseFloat(catalogStickerDescFontSize?.value || '10'),
       stickerDescTop: parseFloat(descTopInput?.value || '0'),
       stickerDescLeft: parseFloat(descLeftInput?.value || '0'),
       stickerQrTop: parseFloat(qrTopInput?.value || '0'),
@@ -833,7 +854,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const scale = 4 * getScaleRatio();
       if (topInput) topInput.value = (y / scale).toFixed(1);
       if (leftInput) leftInput.value = (x / scale).toFixed(1);
-      drawCatalogStickerPreview();
+      drawCatalogStickerPreview(getStickerFontSizes());
       e.preventDefault();
     };
     const end = e => {
@@ -879,7 +900,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const scale = 4 * getScaleRatio();
       if (widthInput) widthInput.value = (newW / scale).toFixed(1);
       if (heightInput) heightInput.value = (newH / scale).toFixed(1);
-      drawCatalogStickerPreview();
+      drawCatalogStickerPreview(getStickerFontSizes());
       e.preventDefault();
     };
     const end = e => {
@@ -911,7 +932,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (line) lines.push(line);
     return lines;
   }
-  function drawCatalogStickerPreview () {
+  function drawCatalogStickerPreview (sizes = getStickerFontSizes()) {
     if (!catalogStickerPreview) return;
     const tpl = stickerTemplates[catalogStickerTemplate?.value] || stickerTemplates.avery_l7165;
     const scale = 4; // px per mm for preview
@@ -975,10 +996,10 @@ document.addEventListener('DOMContentLoaded', function () {
     ctx.fillStyle = catalogStickerTextColor?.value || '#000';
     ctx.textBaseline = 'top';
     const linesData = [];
-    if (stickerEventTitle) linesData.push({ font: 'bold 12px sans-serif', size: 12, text: stickerEventTitle });
-    if (stickerEventDesc) linesData.push({ font: 'normal 10px sans-serif', size: 10, text: stickerEventDesc });
-    if (stickerCatalogName) linesData.push({ font: 'bold 11px sans-serif', size: 11, text: stickerCatalogName });
-    if (catalogStickerDesc?.checked && stickerCatalogDesc) linesData.push({ font: 'normal 10px sans-serif', size: 10, text: stickerCatalogDesc });
+    if (stickerEventTitle) linesData.push({ font: `bold ${sizes.headerFontSize}px sans-serif`, size: sizes.headerFontSize, text: stickerEventTitle });
+    if (stickerEventDesc) linesData.push({ font: `normal ${sizes.subheaderFontSize}px sans-serif`, size: sizes.subheaderFontSize, text: stickerEventDesc });
+    if (stickerCatalogName) linesData.push({ font: `bold ${sizes.catalogFontSize}px sans-serif`, size: sizes.catalogFontSize, text: stickerCatalogName });
+    if (catalogStickerDesc?.checked && stickerCatalogDesc) linesData.push({ font: `normal ${sizes.descFontSize}px sans-serif`, size: sizes.descFontSize, text: stickerCatalogDesc });
     let curY = descY;
     const renderedLines = [];
     outer: for (const ln of linesData) {
@@ -1019,26 +1040,30 @@ document.addEventListener('DOMContentLoaded', function () {
   descWidthInput?.addEventListener('input', () => {
     const val = parseFloat(descWidthInput.value) * scale * stickerScaleRatio;
     if (stickerTextBox) stickerTextBox.style.width = `${Math.max(10, val)}px`;
-    drawCatalogStickerPreview();
+    drawCatalogStickerPreview(getStickerFontSizes());
   });
   descHeightInput?.addEventListener('input', () => {
     const val = parseFloat(descHeightInput.value) * scale * stickerScaleRatio;
     if (stickerTextBox) stickerTextBox.style.height = `${Math.max(10, val)}px`;
-    drawCatalogStickerPreview();
+    drawCatalogStickerPreview(getStickerFontSizes());
   });
   makeDraggable(stickerQrHandle, qrTopInput, qrLeftInput, false, () => stickerScaleRatio);
-  catalogStickerBgImg.onload = () => drawCatalogStickerPreview();
+  catalogStickerBgImg.onload = () => drawCatalogStickerPreview(getStickerFontSizes());
   if (catalogStickerModal && window.UIkit && UIkit.util) {
     UIkit.util.on(catalogStickerModal.$el, 'shown', () => {
       loadStickerSettings();
       loadStickerSample();
     });
   }
-  catalogStickerTemplate?.addEventListener('change', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
-  catalogStickerDesc?.addEventListener('change', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
-  catalogStickerQrColor?.addEventListener('input', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
-  catalogStickerTextColor?.addEventListener('input', drawCatalogStickerPreview);
-  catalogStickerQrSizePct?.addEventListener('input', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
+  catalogStickerTemplate?.addEventListener('change', () => { drawCatalogStickerPreview(getStickerFontSizes()); saveStickerSettings(); });
+  catalogStickerDesc?.addEventListener('change', () => { drawCatalogStickerPreview(getStickerFontSizes()); saveStickerSettings(); });
+  catalogStickerQrColor?.addEventListener('input', () => { drawCatalogStickerPreview(getStickerFontSizes()); saveStickerSettings(); });
+  catalogStickerTextColor?.addEventListener('input', () => { drawCatalogStickerPreview(getStickerFontSizes()); });
+  catalogStickerQrSizePct?.addEventListener('input', () => { drawCatalogStickerPreview(getStickerFontSizes()); saveStickerSettings(); });
+  catalogStickerHeaderFontSize?.addEventListener('input', () => { drawCatalogStickerPreview(getStickerFontSizes()); saveStickerSettings(); });
+  catalogStickerSubheaderFontSize?.addEventListener('input', () => { drawCatalogStickerPreview(getStickerFontSizes()); saveStickerSettings(); });
+  catalogStickerCatalogFontSize?.addEventListener('input', () => { drawCatalogStickerPreview(getStickerFontSizes()); saveStickerSettings(); });
+  catalogStickerDescFontSize?.addEventListener('input', () => { drawCatalogStickerPreview(getStickerFontSizes()); saveStickerSettings(); });
   let catalogStickerProgress;
   if (catalogStickerBg) {
     catalogStickerProgress = document.createElement('progress');
@@ -1059,6 +1084,10 @@ document.addEventListener('DOMContentLoaded', function () {
       qr_size_pct: catalogStickerQrSizePct.value,
       print_desc: catalogStickerDesc.checked ? '1' : '0'
     });
+    params.set('header_font_size', catalogStickerHeaderFontSize.value);
+    params.set('subheader_font_size', catalogStickerSubheaderFontSize.value);
+    params.set('catalog_font_size', catalogStickerCatalogFontSize.value);
+    params.set('desc_font_size', catalogStickerDescFontSize.value);
     if (descTopInput) params.set('desc_top', descTopInput.value);
     if (descLeftInput) params.set('desc_left', descLeftInput.value);
     if (descWidthInput) params.set('desc_width', descWidthInput.value);
@@ -1076,7 +1105,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!file) return;
     catalogStickerBgUrl = URL.createObjectURL(file);
     catalogStickerBgImg.src = catalogStickerBgUrl;
-    drawCatalogStickerPreview();
+    drawCatalogStickerPreview(getStickerFontSizes());
     const fd = new FormData();
     fd.append('file', file);
     const url = '/admin/sticker-background' + (currentEventUid ? `?event_uid=${encodeURIComponent(currentEventUid)}` : '');
