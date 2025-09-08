@@ -118,6 +118,12 @@ body.dark-mode {
   color: var(--qr-text);
 }
 
+body.qr-landing[data-theme="dark"] {
+  --landing-btn-bg: var(--qr-bg-soft);
+  --landing-btn-bg-hover: #30363d;
+  --landing-btn-fg: var(--qr-landing-text);
+}
+
 body[data-theme],
 body.qr-landing {
   background: var(--qr-hero-gradient);
@@ -523,12 +529,21 @@ body.dark-mode .qr-landing .qr-badge{
   opacity:.85;
   transform:translateY(-1px);
 }
+
+.qr-landing .onboarding-btn {
+  background: var(--landing-btn-bg);
+  color: var(--landing-btn-fg) !important;
+  border: 1px solid color-mix(in oklab, var(--landing-btn-bg) 80%, transparent);
+}
+.qr-landing .onboarding-btn:hover {
+  background: var(--landing-btn-bg-hover);
+}
 .cta-ghost{
   display:flex;
   align-items:center;
   justify-content:center;
-  border:2px solid var(--qr-blue,#2F81F7);
-  color:var(--qr-blue,#2F81F7)!important;
+  border:2px solid var(--landing-btn-fg);
+  color:var(--landing-btn-bg-hover)!important;
   background:transparent;
   border-radius:12px;
   font-weight:600;
@@ -540,8 +555,8 @@ body.dark-mode .qr-landing .qr-badge{
 }
 .cta-ghost:hover,
 .cta-ghost:focus{
-  background:var(--qr-blue,#2F81F7);
-  color:#fff!important;
+  background:var(--landing-btn-bg-hover);
+  color:var(--landing-btn-fg)!important;
   box-shadow:0 6px 18px rgba(47,129,247,.35);
   text-decoration:none;
 }
