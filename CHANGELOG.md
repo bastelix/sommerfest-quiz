@@ -234,6 +234,7 @@
 - Load storage helper for options menu
 - Scope topbar button bg for landing
 - Apply topbar button background on landing
+- Dark mode landing primary buttons
 
 ### Refactor
 
