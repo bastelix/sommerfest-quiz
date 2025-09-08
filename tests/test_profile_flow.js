@@ -88,8 +88,11 @@ ctx2.window.location = ctx2.location;
 vm.runInNewContext(storageCode, ctx2);
 vm.runInNewContext(profileCode, ctx2);
 ctx2.nameInput.value = 'Alice';
+
 (async () => {
-  await ctx2.saveHandler?.({ preventDefault() {} });
+  ctx2.saveHandler?.({ preventDefault() {} });
+  assert.strictEqual(ctx2.location.href, '');
+  await Promise.resolve();
   assert.strictEqual(ctx2.localStorage.getItem('quizUser'), 'Alice');
   assert.strictEqual(ctx2.getStored(ctx2.STORAGE_KEYS.PLAYER_NAME), 'Alice');
   assert.strictEqual(ctx2.localStorage.getItem('qr_player_uid:'), 'uid-123');
@@ -112,7 +115,7 @@ ctx2.nameInput.value = 'Alice';
   console.log('ok');
 })().catch(err => { console.error(err); process.exit(1); });
 
-// Verify handling of return URL with special characters
+// Test no redirect on failed save
 const storageObj2b = {
   data: {},
   getItem(k) { return this.data[k] ?? null; },
@@ -127,9 +130,10 @@ const ctx2b = {
   sessionStorage: storageObj2b,
   fetchCalls: [],
   self: { crypto: { randomUUID: () => 'uid-123' } },
-  returnUrl: '/quiz?foo=bar&baz=qux',
+  returnUrl: '/quiz',
   location: { href: '', search: '' },
-  postSession: () => Promise.resolve(),
+  postSession: () => Promise.reject(new Error('fail')),
+
   alert: () => {},
   console,
   document: {
@@ -148,10 +152,11 @@ ctx2b.fetch = (url, opts) => { ctx2b.fetchCalls.push({ url, opts }); return Prom
 ctx2b.window.location = ctx2b.location;
 vm.runInNewContext(storageCode, ctx2b);
 vm.runInNewContext(profileCode, ctx2b);
-ctx2b.nameInput.value = 'Bob';
+ctx2b.nameInput.value = 'Alice';
 (async () => {
-  await ctx2b.saveHandler?.({ preventDefault() {} });
-  assert.strictEqual(ctx2b.location.href, '/quiz?foo=bar&baz=qux');
+  ctx2b.saveHandler?.({ preventDefault() {} });
+  await Promise.resolve();
+  assert.strictEqual(ctx2b.location.href, '');
   console.log('ok');
 })().catch(err => { console.error(err); process.exit(1); });
 

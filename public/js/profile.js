@@ -46,11 +46,11 @@ function saveName(e) {
     body: JSON.stringify({ event_uid: currentEventUid, player_name: name, player_uid: uid })
   }).catch(() => {});
   postSession('player', { name })
-    .then(() => notify('Name gespeichert', 'success'))
+    .then(() => {
+      notify('Name gespeichert', 'success');
+      if (returnUrl) window.location.href = decodeURIComponent(returnUrl);
+    })
     .catch(() => notify('Fehler beim Speichern', 'danger'));
-  if (typeof returnUrl !== 'undefined' && returnUrl) {
-    window.location.href = decodeURIComponent(returnUrl);
-  }
 }
 
 function deleteName(e) {
