@@ -3,6 +3,9 @@ const vm = require('vm');
 const assert = require('assert');
 
 const quizCode = fs.readFileSync('public/js/quiz.js', 'utf8');
+if (!/setStored\('quizUser', name\);\s*setStored\(STORAGE_KEYS\.PLAYER_NAME, name\);/.test(quizCode)) {
+    throw new Error('Team name not stored under both keys');
+}
 const initMatch = quizCode.match(/if\(!getStored\('quizUser'\) && !cfg\.QRRestrict && !cfg\.QRUser\)\{[\s\S]*?\n\s*\}\n\s*\}/);
 const handlerMatch = quizCode.match(/startBtn.addEventListener\('click', async\(\) => \{([\s\S]*?)\n\s*\}\);/);
 if (!initMatch || !handlerMatch) {
