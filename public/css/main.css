@@ -587,15 +587,6 @@ body.admin-page {
   overflow: hidden;
 }
 
-.admin-page #eventSelectWrap button > span:first-child {
-  display: block;
-  line-height: 1.2;
-  margin-top: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 @media (min-width: 640px) {
   #adminTabs {
     display: flex;

@@ -2495,14 +2495,16 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function updateEventSelectDisplay() {
-    if (!eventSelectWrap || !eventSelect) return;
-    const btnSpan = eventSelectWrap.querySelector('button > span:first-child');
-    if (btnSpan) {
-      const sel = eventSelect.options[eventSelect.selectedIndex];
-      btnSpan.textContent = sel ? sel.textContent : '';
-      if (eventOpenBtn) eventOpenBtn.disabled = !sel || !sel.value;
-      if (openInvitesBtn) openInvitesBtn.disabled = !sel || !sel.value;
+    if (!eventSelect) return;
+    const sel = eventSelect.options[eventSelect.selectedIndex];
+    if (eventSelectWrap) {
+      const btnSpan = eventSelectWrap.querySelector('button > span:first-child');
+      if (btnSpan) {
+        btnSpan.textContent = sel ? sel.textContent : '';
+      }
     }
+    if (eventOpenBtn) eventOpenBtn.disabled = !sel || !sel.value;
+    if (openInvitesBtn) openInvitesBtn.disabled = !sel || !sel.value;
     window.dispatchEvent(new Event('resize'));
   }
 
