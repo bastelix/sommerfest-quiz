@@ -90,6 +90,10 @@ class CatalogStickerController
             'stickerDescLeft' => $cfg['stickerDescLeft'] ?? 0,
             'stickerQrTop' => $cfg['stickerQrTop'] ?? 0,
             'stickerQrLeft' => $cfg['stickerQrLeft'] ?? 0,
+            'stickerHeaderFontSize' => $cfg['stickerHeaderFontSize'] ?? 12,
+            'stickerSubheaderFontSize' => $cfg['stickerSubheaderFontSize'] ?? 10,
+            'stickerCatalogFontSize' => $cfg['stickerCatalogFontSize'] ?? 11,
+            'stickerDescFontSize' => $cfg['stickerDescFontSize'] ?? 10,
         ];
         $response->getBody()->write(json_encode($data));
         return $response->withHeader('Content-Type', 'application/json');
@@ -118,6 +122,10 @@ class CatalogStickerController
             'stickerDescLeft' => (float)($data['stickerDescLeft'] ?? 0),
             'stickerQrTop' => (float)($data['stickerQrTop'] ?? 0),
             'stickerQrLeft' => (float)($data['stickerQrLeft'] ?? 0),
+            'stickerHeaderFontSize' => (int)($data['stickerHeaderFontSize'] ?? 12),
+            'stickerSubheaderFontSize' => (int)($data['stickerSubheaderFontSize'] ?? 10),
+            'stickerCatalogFontSize' => (int)($data['stickerCatalogFontSize'] ?? 11),
+            'stickerDescFontSize' => (int)($data['stickerDescFontSize'] ?? 10),
         ];
         $this->config->saveConfig($save);
         return $response->withStatus(204);
@@ -168,6 +176,18 @@ class CatalogStickerController
         $qrLeft = isset($params['qr_left'])
             ? (float)$params['qr_left']
             : (float)($cfg['stickerQrLeft'] ?? 0.0);
+        $headerSize = isset($params['header_size'])
+            ? (int)$params['header_size']
+            : (int)($cfg['stickerHeaderFontSize'] ?? 12);
+        $subheaderSize = isset($params['subheader_size'])
+            ? (int)$params['subheader_size']
+            : (int)($cfg['stickerSubheaderFontSize'] ?? 10);
+        $catalogSize = isset($params['catalog_size'])
+            ? (int)$params['catalog_size']
+            : (int)($cfg['stickerCatalogFontSize'] ?? 11);
+        $descSize = isset($params['desc_size'])
+            ? (int)$params['desc_size']
+            : (int)($cfg['stickerDescFontSize'] ?? 10);
         $event = $uid !== '' ? $this->events->getByUid($uid) : null;
         $eventTitle = (string)($event['name'] ?? '');
         $eventDesc = (string)($event['description'] ?? '');
@@ -251,15 +271,15 @@ class CatalogStickerController
             $curY = $innerY;
             $linesData = [];
             if ($eventTitle !== '') {
-                $linesData[] = ['Arial', 'B', 12, $eventTitle];
+                $linesData[] = ['Arial', 'B', $headerSize, $eventTitle];
             }
             if ($eventDesc !== '') {
-                $linesData[] = ['Arial', '', 10, $eventDesc];
+                $linesData[] = ['Arial', '', $subheaderSize, $eventDesc];
             }
-            $linesData[] = ['Arial', 'B', 11, (string)($cat['name'] ?? '')];
+            $linesData[] = ['Arial', 'B', $catalogSize, (string)($cat['name'] ?? '')];
             $desc = (string)($cat['description'] ?? '');
             if ($printDesc && $desc !== '') {
-                $linesData[] = ['Arial', '', 10, $desc];
+                $linesData[] = ['Arial', '', $descSize, $desc];
             }
 
             foreach ($linesData as $data) {

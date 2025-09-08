@@ -234,6 +234,10 @@ class ConfigService
             'stickerDescLeft',
             'stickerQrTop',
             'stickerQrLeft',
+            'stickerHeaderFontSize',
+            'stickerSubheaderFontSize',
+            'stickerCatalogFontSize',
+            'stickerDescFontSize',
         ];
         $existing = array_map('strtolower', $this->getConfigColumns());
         $filtered = array_intersect_key($data, array_flip($keys));
