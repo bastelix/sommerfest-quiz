@@ -195,6 +195,7 @@
 - Allow resetting stored team name
 - Show team name button
 - Stop resuming catalog from session
+- Enhance event catalogs layout
 
 ### Fix
 
@@ -230,6 +231,8 @@
 - Align admin action wrappers to right
 - Preserve player name on restart
 - Restore landing theme toggles
+- Scope topbar button bg for landing
+- Apply topbar button background on landing
 
 ### Refactor
 
