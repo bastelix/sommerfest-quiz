@@ -38,12 +38,8 @@
     {% endblock %}
     {% block center %}
       <div class="uk-flex uk-flex-middle">
-        <div id="eventSelectWrap" class="uk-form-custom uk-flex-1" uk-form-custom="target: > * > span:first-child">
-          <select id="eventSelect" aria-label="{{ t('label_events') }}"></select>
-          <button class="uk-button uk-button-default" type="button" tabindex="-1">
-            <span></span>
-            <span uk-icon="icon: chevron-down"></span>
-          </button>
+        <div id="eventSelectWrap" class="uk-flex-1">
+          <select id="eventSelect" class="uk-select" aria-label="{{ t('label_events') }}"></select>
         </div>
         <button id="eventOpenBtn" class="uk-icon-button uk-margin-small-left uk-visible@s" uk-icon="icon: link-external" aria-label="{{ t('tip_event_open') }}" uk-tooltip="title: {{ t('tip_event_open') }}; pos: bottom"></button>
       </div>
