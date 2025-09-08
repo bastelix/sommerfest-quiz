@@ -238,6 +238,7 @@
 - Reuse existing catalog uid for duplicate slug
 - Address phpstan warnings
 - Remove admin topbar position override
+- *(competition)* Block catalog start when result already exists
 - Avoid duplicate params declaration
 - Align admin action wrappers to right
 - Preserve player name on restart

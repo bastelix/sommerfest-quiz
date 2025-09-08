@@ -10,6 +10,7 @@ use App\Service\ConfigService;
 use App\Service\CatalogService;
 use App\Service\EventService;
 use App\Service\SettingsService;
+use App\Service\ResultService;
 use App\Infrastructure\Database;
 use Slim\Views\Twig;
 use PDO;
@@ -113,6 +114,14 @@ class HomeController
                 return $response
                     ->withHeader('Location', '/help')
                     ->withStatus(302);
+            }
+            if (($name = (string) ($_SESSION['player_name'] ?? '')) !== '') {
+                $resultSvc = new ResultService($pdo);
+                if ($resultSvc->exists($name, $slug, $uid)) {
+                    return $response
+                        ->withHeader('Location', '/help')
+                        ->withStatus(302);
+                }
             }
         }
 
