@@ -191,6 +191,8 @@ return [
     'label_print_catalog_desc' => 'Katalogbeschreibung drucken',
     'label_qr_size_pct' => 'QR-Größe (%)',
     'label_sticker_bg' => 'Sticker-Hintergrund',
+    'label_desc_width' => 'Breite der Beschreibung (mm)',
+    'label_desc_height' => 'Höhe der Beschreibung (mm)',
     'action_design_qrcodes' => 'QR-Codes gestalten',
     'column_username' => 'Benutzername',
     'column_role' => 'Rolle',

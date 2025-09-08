@@ -547,11 +547,19 @@
                 <div id="stickerTextResize" class="uk-position-absolute"></div>
                 <input type="hidden" id="descTop" name="descTop" value="">
                 <input type="hidden" id="descLeft" name="descLeft" value="">
-                <input type="hidden" id="descWidth" name="descWidth" value="">
-                <input type="hidden" id="descHeight" name="descHeight" value="">
                 <div id="stickerQrHandle" class="uk-position-absolute"></div>
                 <input type="hidden" id="qrTop" name="qrTop" value="">
                 <input type="hidden" id="qrLeft" name="qrLeft" value="">
+              </div>
+              <div class="uk-grid-small uk-margin" uk-grid>
+                <div class="uk-width-1-2">
+                  <label for="descWidth">{{ t('label_desc_width') }}</label>
+                  <input type="number" id="descWidth" name="descWidth" class="uk-input" step="0.1">
+                </div>
+                <div class="uk-width-1-2">
+                  <label for="descHeight">{{ t('label_desc_height') }}</label>
+                  <input type="number" id="descHeight" name="descHeight" class="uk-input" step="0.1">
+                </div>
               </div>
               <div class="uk-text-right">
                 <button class="uk-button uk-button-primary" type="submit" id="catalogStickerGenerate">{{ t('action_download') }}</button>

@@ -193,6 +193,8 @@ return [
     'label_print_catalog_desc' => 'Print catalog description',
     'label_qr_size_pct' => 'QR size (%)',
     'label_sticker_bg' => 'Sticker background',
+    'label_desc_width' => 'Description width (mm)',
+    'label_desc_height' => 'Description height (mm)',
     'action_design_qrcodes' => 'Design QR codes',
     'column_username' => 'Username',
     'column_role' => 'Role',

@@ -807,9 +807,20 @@ document.addEventListener('DOMContentLoaded', function () {
       cursor: 'nwse-resize',
       position: 'absolute',
       right: '-6px',
-      bottom: '-6px'
+      bottom: '-6px',
+      zIndex: '10',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
     };
     Object.assign(handle.style, style);
+    handle.innerHTML = '<span uk-icon="move"></span>';
+    handle.setAttribute('uk-tooltip', 'title: Resize');
+    if (window.UIkit) {
+      window.UIkit.icon(handle.firstElementChild);
+      window.UIkit.tooltip(handle);
+    }
+    if (handle.firstElementChild) handle.firstElementChild.style.pointerEvents = 'none';
     handle.onpointerdown = e => {
       resizing = true;
       startX = e.clientX;
@@ -937,6 +948,17 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   makeDraggable(stickerTextBox, descTopInput, descLeftInput, true);
   makeResizable(stickerTextResize, descWidthInput, descHeightInput, stickerTextBox);
+  const scale = 4;
+  descWidthInput?.addEventListener('input', () => {
+    const val = parseFloat(descWidthInput.value) * scale;
+    if (stickerTextBox) stickerTextBox.style.width = `${Math.max(10, val)}px`;
+    drawCatalogStickerPreview();
+  });
+  descHeightInput?.addEventListener('input', () => {
+    const val = parseFloat(descHeightInput.value) * scale;
+    if (stickerTextBox) stickerTextBox.style.height = `${Math.max(10, val)}px`;
+    drawCatalogStickerPreview();
+  });
   makeDraggable(stickerQrHandle, qrTopInput, qrLeftInput);
   catalogStickerBgImg.onload = () => drawCatalogStickerPreview();
   if (catalogStickerModal && window.UIkit && UIkit.util) {
