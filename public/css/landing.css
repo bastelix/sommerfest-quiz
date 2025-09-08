@@ -506,13 +506,12 @@ body.dark-mode .qr-landing .qr-badge{
 }
 
 .qr-landing .uk-button-primary{
-  color:#fff!important;
-}
-
-.qr-landing .cta-main.uk-button-primary{
   background:var(--qr-landing-primary)!important;
   color:var(--qr-landing-text)!important;
   border:1px solid color-mix(in oklab,var(--qr-landing-primary) 60%,transparent);
+}
+
+.qr-landing .cta-main.uk-button-primary{
   box-shadow:0 10px 24px rgba(31,111,235,.22);
   border-radius:12px;
   padding:0 22px;

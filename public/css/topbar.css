@@ -9,6 +9,7 @@ body:not([data-theme="dark"]){
   --topbar-text: #000;
 }
 body[data-theme="dark"]{
+  --topbar-btn-bg: #1f232a;
   --topbar-btn-border: rgba(255,255,255,0.3);
   --topbar-btn-border-hover: rgba(255,255,255,0.5);
   --topbar-btn-bg-hover: rgba(255,255,255,0.08);
