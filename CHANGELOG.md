@@ -197,6 +197,7 @@
 - Stop resuming catalog from session
 - Enhance event catalogs layout
 - Adapt onboarding buttons for dark mode
+- Show event header outside topbar
 
 ### Fix
 
