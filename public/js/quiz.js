@@ -228,12 +228,20 @@ async function runQuiz(questions, skipIntro){
 
   // Fragen mischen, damit die Reihenfolge bei jedem Aufruf variiert
   const shuffled = cfg.shuffleQuestions !== false ? shuffleArray(questions) : questions.slice();
-  const questionCount = shuffled.length;
+  const scorableCounts = []; // Anzahl bewertbarer Fragen vor jeder Frage
+  let scorableIdx = 0;
+  const questionElements = shuffled.map(q => {
+    scorableCounts.push(scorableIdx);
+    const idx = q.type !== 'flip' ? scorableIdx++ : null;
+    return createQuestion(q, idx);
+  });
+  const questionCount = scorableIdx; // nur bewertbare Fragen
+  const totalQuestions = questionElements.length; // alle Fragen inkl. flip
 
   let current = skipIntro ? 1 : 0;
   // Zu jedem Eintrag im Array ein DOM-Element erzeugen
-  const elements = [createStart()].concat(shuffled.map((q, idx) => createQuestion(q, idx)));
-  // Speichert true/false für jede beantwortete Frage
+  const elements = [createStart(), ...questionElements];
+  // Speichert true/false für jede beantwortete (wertbare) Frage
   const results = new Array(questionCount).fill(false);
   const answers = new Array(questionCount).fill(null);
   const summaryEl = createSummary(); // Abschlussseite
@@ -317,13 +325,21 @@ async function runQuiz(questions, skipIntro){
       progress.classList.add('uk-hidden');
       progress.setAttribute('aria-valuenow', 0);
       if (announcer) announcer.textContent = '';
-    } else if(i <= questionCount && i > 0){
-      // Fragen anzeigen und Fortschritt aktualisieren
-      progress.classList.remove('uk-hidden');
-      progress.value = i;
-      progress.setAttribute('aria-valuenow', i);
-      if (announcer) announcer.textContent = `Frage ${i} von ${questionCount}`;
-    } else if(i === questionCount + 1){
+    } else if(i <= totalQuestions && i > 0){
+      const scorableBefore = scorableCounts[i - 1];
+      const isScorable = shuffled[i - 1].type !== 'flip';
+      const displayNum = isScorable ? scorableBefore + 1 : scorableBefore;
+      if(displayNum === 0){
+        progress.classList.add('uk-hidden');
+        progress.setAttribute('aria-valuenow', 0);
+        if (announcer) announcer.textContent = '';
+      } else {
+        progress.classList.remove('uk-hidden');
+        progress.value = displayNum;
+        progress.setAttribute('aria-valuenow', displayNum);
+        if (announcer) announcer.textContent = `Frage ${displayNum} von ${questionCount}`;
+      }
+    } else if(i === totalQuestions + 1){
       // Nach der letzten Frage Zusammenfassung anzeigen
       progress.value = questionCount;
       progress.setAttribute('aria-valuenow', questionCount);
@@ -339,7 +355,7 @@ async function runQuiz(questions, skipIntro){
       headerEl.textContent = '';
       headerEl.classList.add('uk-hidden');
     }
-    if(current < questionCount + 1){
+    if(current < totalQuestions + 1){
       current++;
       showQuestion(current);
     }
@@ -1140,7 +1156,7 @@ async function runQuiz(questions, skipIntro){
     nextBtn.className = 'uk-button uk-button-primary';
     nextBtn.textContent = 'Weiter';
     styleButton(nextBtn);
-    nextBtn.addEventListener('click', () => { results[idx] = true; next(); });
+    nextBtn.addEventListener('click', () => { next(); });
     div.appendChild(card);
     div.appendChild(nextBtn);
     return div;

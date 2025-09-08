@@ -186,7 +186,7 @@ class ResultService
         if ($uid === false) {
             return;
         }
-        $qStmt = $this->pdo->prepare('SELECT id FROM questions WHERE catalog_uid=? ORDER BY sort_order');
+        $qStmt = $this->pdo->prepare("SELECT id FROM questions WHERE catalog_uid=? AND type<>'flip' ORDER BY sort_order");
         $qStmt->execute([$uid]);
         $ids = $qStmt->fetchAll(PDO::FETCH_COLUMN);
         if (!$ids) {
