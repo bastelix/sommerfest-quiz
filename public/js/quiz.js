@@ -149,6 +149,7 @@ async function promptTeamName(){
       const name = (input.value || '').trim();
       if(name){
         setStored('quizUser', name);
+        setStored(STORAGE_KEYS.PLAYER_NAME, name);
         try {
           await postSession('player', { name });
           ui.hide();

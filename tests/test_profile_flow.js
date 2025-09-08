@@ -90,11 +90,25 @@ vm.runInNewContext(profileCode, ctx2);
 ctx2.nameInput.value = 'Alice';
 (async () => {
   await ctx2.saveHandler?.({ preventDefault() {} });
-  assert.strictEqual(ctx2.localStorage.getItem('quizUser:'), 'Alice');
+  assert.strictEqual(ctx2.localStorage.getItem('quizUser'), 'Alice');
+  assert.strictEqual(ctx2.getStored(ctx2.STORAGE_KEYS.PLAYER_NAME), 'Alice');
   assert.strictEqual(ctx2.localStorage.getItem('qr_player_uid:'), 'uid-123');
   assert.strictEqual(ctx2.fetchCalls[0].url, '/api/players');
   assert(ctx2.fetchCalls[0].opts.body.includes('Alice'));
   assert.strictEqual(ctx2.location.href, '/quiz');
+
+  const quizCode = fs.readFileSync('public/js/quiz.js', 'utf8');
+  const promptBlock = quizCode.match(/if\(!getStored\('quizUser'\) && !cfg\.QRRestrict && !cfg\.QRUser\)\{\s*if\(cfg\.randomNames\)\{\s*await promptTeamName\(\);\s*\}\s*\}/);
+  if (!promptBlock) { throw new Error('Prompt block not found'); }
+  const ctxAfter = {
+    cfg: { randomNames: true },
+    promptCalled: false,
+    getStored: ctx2.getStored,
+    promptTeamName: async () => { ctxAfter.promptCalled = true; }
+  };
+  await vm.runInNewContext('(async () => {' + promptBlock[0] + '})()', ctxAfter);
+  assert(!ctxAfter.promptCalled);
+
   console.log('ok');
 })().catch(err => { console.error(err); process.exit(1); });
 
@@ -143,7 +157,8 @@ vm.runInNewContext(storageCode, ctx3);
 vm.runInNewContext(profileCode, ctx3);
 (async () => {
   await new Promise(r => setTimeout(r, 0));
-  assert.strictEqual(ctx3.localStorage.getItem('quizUser:ev1'), 'Bob');
+  assert.strictEqual(ctx3.localStorage.getItem('quizUser'), 'Bob');
+  assert.strictEqual(ctx3.getStored(ctx3.STORAGE_KEYS.PLAYER_NAME), 'Bob');
   assert.strictEqual(ctx3.localStorage.getItem('qr_player_uid:ev1'), 'uid-123');
   assert.strictEqual(ctx3.location.href, '/quiz');
   assert(ctx3.fetchCalls[0].startsWith('/api/players?'));
