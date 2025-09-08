@@ -64,6 +64,14 @@ const currentEventUid = (window.quizConfig || {}).event_uid || '';
 const basePath = window.basePath || '';
 const withBase = path => basePath + path;
 
+let nameSuggestion;
+function getNameSuggestion(){
+  if(!nameSuggestion){
+    nameSuggestion = generateUserName();
+  }
+  return nameSuggestion;
+}
+
 function formatPuzzleTime(ts){
   const d = new Date(ts * 1000);
   const pad = n => n.toString().padStart(2, '0');
@@ -133,12 +141,18 @@ async function promptTeamName(){
       return;
     }
 
+    const suggestion = getNameSuggestion();
     title.textContent = 'Teamname eingeben';
+    const sugg = document.createElement('span');
+    sugg.className = 'uk-text-muted';
+    sugg.textContent = ` (Vorschlag: ${suggestion})`;
+    title.appendChild(sugg);
     const input = document.createElement('input');
     input.id = 'team-name-input';
     input.className = 'uk-input';
     input.type = 'text';
     input.placeholder = 'Teamname';
+    input.value = suggestion;
     const btn = document.createElement('button');
     btn.id = 'team-name-submit';
     btn.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
@@ -1213,12 +1227,18 @@ async function runQuiz(questions, skipIntro){
       function showManualInput(){
         const container = document.getElementById('qr-reader');
         container.textContent = '';
+        const suggestion = getNameSuggestion();
+        const hint = document.createElement('div');
+        hint.className = 'uk-text-center uk-margin-small-bottom';
+        hint.textContent = `Vorschlag: ${suggestion}`;
+        container.appendChild(hint);
         const input = document.createElement('input');
         input.id = 'manual-team-name';
         input.className = 'uk-input';
         input.type = 'text';
-        const suggestedName = generateUserName();
+        const suggestedName = generateUserName(); // oder wie auch immer du den Namen erzeugst
         input.placeholder = suggestedName || 'Teamname eingeben';
+        input.value = suggestedName || '';
         const submit = document.createElement('button');
         submit.id = 'manual-team-submit';
         submit.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
