@@ -710,6 +710,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const catalogStickerDesc = document.getElementById('catalogStickerDesc');
   const catalogStickerQrColor = document.getElementById('catalogStickerQrColor');
   const catalogStickerTextColor = document.getElementById('catalogStickerTextColor');
+  const catalogStickerHeaderSize = document.getElementById('catalogStickerHeaderSize');
+  const catalogStickerSubheaderSize = document.getElementById('catalogStickerSubheaderSize');
+  const catalogStickerCatalogSize = document.getElementById('catalogStickerCatalogSize');
+  const catalogStickerDescSize = document.getElementById('catalogStickerDescSize');
   const catalogStickerQrSizePct = document.getElementById('catalogStickerQrSizePct');
   const catalogStickerBg = document.getElementById('catalogStickerBg');
   const catalogStickerGenerate = document.getElementById('catalogStickerGenerate');
@@ -771,6 +775,10 @@ document.addEventListener('DOMContentLoaded', function () {
       if (descLeftInput) descLeftInput.value = data.stickerDescLeft != null ? data.stickerDescLeft : '';
       if (qrTopInput) qrTopInput.value = data.stickerQrTop != null ? data.stickerQrTop : '';
       if (qrLeftInput) qrLeftInput.value = data.stickerQrLeft != null ? data.stickerQrLeft : '';
+      if (catalogStickerHeaderSize) catalogStickerHeaderSize.value = data.stickerHeaderFontSize != null ? data.stickerHeaderFontSize : 12;
+      if (catalogStickerSubheaderSize) catalogStickerSubheaderSize.value = data.stickerSubheaderFontSize != null ? data.stickerSubheaderFontSize : 10;
+      if (catalogStickerCatalogSize) catalogStickerCatalogSize.value = data.stickerCatalogFontSize != null ? data.stickerCatalogFontSize : 11;
+      if (catalogStickerDescSize) catalogStickerDescSize.value = data.stickerDescFontSize != null ? data.stickerDescFontSize : 10;
     } catch (e) { /* ignore */ }
     drawCatalogStickerPreview();
   }
@@ -786,7 +794,11 @@ document.addEventListener('DOMContentLoaded', function () {
       stickerDescTop: parseFloat(descTopInput?.value || '0'),
       stickerDescLeft: parseFloat(descLeftInput?.value || '0'),
       stickerQrTop: parseFloat(qrTopInput?.value || '0'),
-      stickerQrLeft: parseFloat(qrLeftInput?.value || '0')
+      stickerQrLeft: parseFloat(qrLeftInput?.value || '0'),
+      stickerHeaderFontSize: parseInt(catalogStickerHeaderSize?.value || '12', 10),
+      stickerSubheaderFontSize: parseInt(catalogStickerSubheaderSize?.value || '10', 10),
+      stickerCatalogFontSize: parseInt(catalogStickerCatalogSize?.value || '11', 10),
+      stickerDescFontSize: parseInt(catalogStickerDescSize?.value || '10', 10)
     };
     try {
       await apiFetch('/admin/sticker-settings', {
@@ -979,10 +991,14 @@ document.addEventListener('DOMContentLoaded', function () {
     ctx.fillStyle = catalogStickerTextColor?.value || '#000';
     ctx.textBaseline = 'top';
     const linesData = [];
-    if (stickerEventTitle) linesData.push({ font: 'bold 12px Arial', size: 12, text: stickerEventTitle });
-    if (stickerEventDesc) linesData.push({ font: '10px Arial', size: 10, text: stickerEventDesc });
-    if (stickerCatalogName) linesData.push({ font: 'bold 11px Arial', size: 11, text: stickerCatalogName });
-    if (catalogStickerDesc?.checked && stickerCatalogDesc) linesData.push({ font: '10px Arial', size: 10, text: stickerCatalogDesc });
+    const headerSize = parseInt(catalogStickerHeaderSize?.value || '12', 10);
+    const subheaderSize = parseInt(catalogStickerSubheaderSize?.value || '10', 10);
+    const catalogSize = parseInt(catalogStickerCatalogSize?.value || '11', 10);
+    const descSize = parseInt(catalogStickerDescSize?.value || '10', 10);
+    if (stickerEventTitle) linesData.push({ font: `bold ${headerSize}px Arial`, size: headerSize, text: stickerEventTitle });
+    if (stickerEventDesc) linesData.push({ font: `${subheaderSize}px Arial`, size: subheaderSize, text: stickerEventDesc });
+    if (stickerCatalogName) linesData.push({ font: `bold ${catalogSize}px Arial`, size: catalogSize, text: stickerCatalogName });
+    if (catalogStickerDesc?.checked && stickerCatalogDesc) linesData.push({ font: `${descSize}px Arial`, size: descSize, text: stickerCatalogDesc });
     let curY = descY;
     const renderedLines = [];
     outer: for (const ln of linesData) {
@@ -1043,6 +1059,10 @@ document.addEventListener('DOMContentLoaded', function () {
   catalogStickerQrColor?.addEventListener('input', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
   catalogStickerTextColor?.addEventListener('input', drawCatalogStickerPreview);
   catalogStickerQrSizePct?.addEventListener('input', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
+  catalogStickerHeaderSize?.addEventListener('input', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
+  catalogStickerSubheaderSize?.addEventListener('input', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
+  catalogStickerCatalogSize?.addEventListener('input', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
+  catalogStickerDescSize?.addEventListener('input', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
   let catalogStickerProgress;
   if (catalogStickerBg) {
     catalogStickerProgress = document.createElement('progress');
@@ -1069,6 +1089,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (descHeightInput) params.set('desc_height', descHeightInput.value);
     if (qrTopInput) params.set('qr_top', qrTopInput.value);
     if (qrLeftInput) params.set('qr_left', qrLeftInput.value);
+    if (catalogStickerHeaderSize) params.set('header_size', catalogStickerHeaderSize.value);
+    if (catalogStickerSubheaderSize) params.set('subheader_size', catalogStickerSubheaderSize.value);
+    if (catalogStickerCatalogSize) params.set('catalog_size', catalogStickerCatalogSize.value);
+    if (catalogStickerDescSize) params.set('desc_size', catalogStickerDescSize.value);
     if (currentEventUid) params.set('event_uid', currentEventUid);
     const url = '/admin/reports/catalog-stickers.pdf?' + params.toString();
     window.open(withBase(url), '_blank');
