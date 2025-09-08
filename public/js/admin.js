@@ -2721,12 +2721,22 @@ document.addEventListener('DOMContentLoaded', function () {
       body: JSON.stringify(list)
     })
       .then(r => {
+        if (r.status === 409) {
+          notify('Benutzername bereits vergeben', 'danger');
+          return Promise.reject();
+        }
         if (!r.ok) throw new Error(r.statusText);
+        return r.json();
+      })
+      .then(data => {
+        renderUsers(data);
         notify('Liste gespeichert', 'success');
       })
       .catch(err => {
-        console.error(err);
-        notify('Fehler beim Speichern', 'danger');
+        if (err) {
+          console.error(err);
+          notify('Fehler beim Speichern', 'danger');
+        }
       });
   }
 
