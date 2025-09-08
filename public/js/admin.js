@@ -2737,6 +2737,10 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function saveUsers(list = userManager?.getData() || []) {
+    if (list.some(u => !u.username?.trim())) {
+      notify('Benutzername darf nicht leer sein', 'warning');
+      return;
+    }
     const payload = list
       .map(u => ({
         id: u.id && !isNaN(u.id) ? parseInt(u.id, 10) : undefined,
