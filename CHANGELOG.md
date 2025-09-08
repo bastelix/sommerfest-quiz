@@ -204,6 +204,7 @@
 - Add dark-mode contrast for secondary buttons
 - Suggest username for manual QR input
 - Enable dark theme on license page
+- Update user rendering
 
 ### Fix
 
