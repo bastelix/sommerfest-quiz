@@ -88,6 +88,9 @@ class CatalogStickerController
         $printDesc = filter_var($params['print_desc'] ?? false, FILTER_VALIDATE_BOOLEAN);
         $qrColor = preg_replace('/[^0-9A-Fa-f]/', '', (string)($params['qr_color'] ?? '000000'));
         $qrColor = str_pad(substr($qrColor, 0, 6), 6, '0');
+        $textColor = preg_replace('/[^0-9A-Fa-f]/', '', (string)($params['text_color'] ?? '000000'));
+        $textColor = str_pad(substr($textColor, 0, 6), 6, '0');
+        [$r, $g, $b] = array_map('hexdec', str_split($textColor, 2));
         $qrSizePct = max(10, min(100, (int)($params['qr_size_pct'] ?? 42)));
         $descTop = isset($params['desc_top']) ? (float)$params['desc_top'] : 0.0;
         $descLeft = isset($params['desc_left']) ? (float)$params['desc_left'] : 0.0;
@@ -135,6 +138,7 @@ class CatalogStickerController
         $pdf->SetMargins(0.0, 0.0, 0.0);
         $pdf->SetAutoPageBreak(false);
         $pdf->AddPage();
+        $pdf->SetTextColor($r, $g, $b);
 
         if ($catalogs === []) {
             $pdf->SetFont('Arial', 'B', 16);

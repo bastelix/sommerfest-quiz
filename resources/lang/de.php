@@ -153,6 +153,7 @@ return [
     'label_qr_login' => 'QR-Code-Login (Name merken)',
     'label_custom_logo' => 'Eigenes Logo',
     'label_qr_color' => 'QR-Code-Farbe',
+    'label_text_color' => 'Textfarbe',
     'label_qr_bg_color' => 'Hintergrundfarbe',
     'label_qr_size' => 'QR-Größe',
     'label_qr_margin' => 'Rand',
