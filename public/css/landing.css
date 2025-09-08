@@ -577,9 +577,9 @@ body.qr-landing:not(.dark-mode) .btn.btn-black.uk-button-secondary{
 .qr-landing .btn.btn-black.uk-button-secondary:hover{ opacity:.85; }
 body.dark-mode .qr-landing .btn.btn-black.uk-button-secondary,
 body[data-theme="dark"] .qr-landing .btn.btn-black.uk-button-secondary{
-  background-color:#0d1117;
+  background-color:#30363d;
   color:var(--qr-landing-text);
-  border:0;
+  border:1px solid var(--qr-border);
 }
 
 .qr-landing .uk-section{ padding-top:72px; padding-bottom:72px; }
