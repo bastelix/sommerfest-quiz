@@ -121,19 +121,11 @@ async function init() {
     params.get('k') ||
     ''
   ).toLowerCase();
-  let idFromStorage = false;
   if (!id) {
     const segments = window.location.pathname.split('/').filter(Boolean);
     const last = segments.pop();
     if (last) {
       id = decodeURIComponent(last).toLowerCase();
-    }
-  }
-  if (!id) {
-    const storedId = getStored(STORAGE_KEYS.CATALOG);
-    if (storedId) {
-      id = storedId.toLowerCase();
-      idFromStorage = true;
     }
   }
   const autoParam = params.get('autostart') ||
@@ -187,7 +179,6 @@ async function init() {
 
   // --- Fall B: <select> existiert ---
   // Direktwahl per slug, falls vorhanden
-  let handled = false;
   if (id) {
     const match = Array.from(select.options).find(o => {
       const value = (o.value || '').toLowerCase();
@@ -196,21 +187,16 @@ async function init() {
     });
     if (match) {
       select.value = match.value;
-      if (!idFromStorage) {
-        // Dropdown ausblenden
-        select.style.display = 'none';
-        const selectLabel = document.querySelector('label[for="catalog-select"]');
-        if (selectLabel) selectLabel.style.display = 'none';
-        handleSelection(match, autostart);
-        return;
-      }
-      handleSelection(match, false);
-      handled = true;
-    } else {
-      console.warn('Ungültiger Katalog-Parameter:', id);
-      UIkit?.notification?.({ message: 'Katalog nicht gefunden (slug: ' + id + ').', status: 'warning' });
-      // Fallback: Übersicht/erste Option anzeigen
+      // Dropdown ausblenden
+      select.style.display = 'none';
+      const selectLabel = document.querySelector('label[for="catalog-select"]');
+      if (selectLabel) selectLabel.style.display = 'none';
+      handleSelection(match, autostart);
+      return;
     }
+    console.warn('Ungültiger Katalog-Parameter:', id);
+    UIkit?.notification?.({ message: 'Katalog nicht gefunden (slug: ' + id + ').', status: 'warning' });
+    // Fallback: Übersicht/erste Option anzeigen
   }
 
   // Fallbacks, wenn kein slug oder kein Match
@@ -222,7 +208,7 @@ async function init() {
     handleSelection(select.options[0], autostart);
   } else {
     const opt = select.selectedOptions[0];
-    if (opt && !handled) handleSelection(opt, autostart);
+    if (opt) handleSelection(opt, autostart);
   }
 
   select.addEventListener('change', () => {

@@ -19,10 +19,13 @@ class CatalogSessionController
     {
         $data = json_decode((string) $request->getBody(), true);
         $slug = is_array($data) ? ($data['slug'] ?? '') : '';
+        $remember = is_array($data) ? (bool)($data['remember'] ?? false) : false;
         if (!is_string($slug) || trim($slug) === '') {
             return $response->withStatus(400);
         }
-        $_SESSION['catalog_slug'] = $slug;
+        if ($remember) {
+            $_SESSION['catalog_slug'] = $slug;
+        }
         return $response->withStatus(204);
     }
 }

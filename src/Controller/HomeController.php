@@ -37,13 +37,7 @@ class HomeController
         $params = $request->getQueryParams();
 
         $catalogParam = (string)($params['katalog'] ?? '');
-        if ($catalogParam === '') {
-            $catalogParam = (string)($_SESSION['catalog_slug'] ?? '');
-        }
         $evParam = (string)($params['event'] ?? '');
-        if ($evParam === '') {
-            $evParam = (string)($_SESSION['event_uid'] ?? '');
-        }
         $isUid = preg_match('/^[0-9a-fA-F]{32}$/', $evParam)
             || preg_match('/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/', $evParam);
         $uid = $evParam !== '' && !$isUid
