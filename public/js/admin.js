@@ -2742,12 +2742,13 @@ document.addEventListener('DOMContentLoaded', function () {
       return;
     }
     const payload = list
-      .map(u => ({
+      .map((u, index) => ({
         id: u.id && !isNaN(u.id) ? parseInt(u.id, 10) : undefined,
         username: u.username?.trim(),
         role: u.role,
         active: u.active !== false,
-        password: u.password || ''
+        password: u.password || '',
+        position: index
       }))
       .filter(u => u.username);
     apiFetch('/users.json', {
