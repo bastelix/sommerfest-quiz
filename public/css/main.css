@@ -205,12 +205,6 @@ body.uk-padding {
   flex-shrink: 0;
 }
 
-#topbar-title {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .uk-icon-button {
   border-radius: 6px;
   border: 1px solid var(--topbar-btn-border, #ddd);

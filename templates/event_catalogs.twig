@@ -12,13 +12,9 @@
 {% block body_class %}uk-padding{% endblock %}
 
 {% block body %}
-  {% embed 'topbar.twig' %}
-    {% block center %}
-      <span class="uk-navbar-title uk-text-center">{{ event.name }}</span>
-    {% endblock %}
-  {% endembed %}
+  {% embed 'topbar.twig' %}{% endembed %}
   <div class="uk-container uk-container-large">
-    <h1 class="uk-heading-medium uk-text-center">{{ event.name }}</h1>
+    <h1 class="uk-heading-small uk-heading-medium@m uk-text-center uk-text-light">{{ event.name }}</h1>
     <div class="uk-text-center uk-margin">
       <img class="logo-placeholder"
            src="{% if config.logoPath %}{{ basePath ~ config.logoPath }}{% else %}{{ basePath }}/logo-160.svg{% endif %}"

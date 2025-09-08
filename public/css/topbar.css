@@ -37,10 +37,6 @@ body[data-theme="dark"].high-contrast{
   --topbar-focus-ring: rgba(140,200,255,0.8);
 }
 
-#topbar-title {
-  color: var(--topbar-text);
-}
-
 /* Buttons in der Topbar */
 .topbar .uk-button,
 .topbar .uk-navbar-nav>li>a{

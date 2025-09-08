@@ -19,12 +19,9 @@
         <button id="teamNameBtn" class="uk-button uk-button-default uk-button-small" type="button" data-placeholder="Teamnamen eingeben">{{ player_name|default('Teamnamen eingeben') }}</button>
       {% endif %}
     {% endblock %}
-    {% block center %}
-      <span id="topbar-title" class="uk-navbar-title uk-text-center" data-default-title="{{ event.name|default('Sommerfest 2025') }}">{{ event.name|default('Sommerfest 2025') }}</span>
-    {% endblock %}
   {% endembed %}
   <div class="uk-container uk-container-large">
-    <h1 class="uk-heading-medium uk-text-center">{{ event.name }}</h1>
+    <h1 class="uk-heading-small uk-heading-medium@m uk-text-center uk-text-light">{{ event.name }}</h1>
     {% if event.description %}
       <p class="uk-text-lead uk-text-center">{{ event.description }}</p>
     {% endif %}
