@@ -556,12 +556,13 @@ Für den Versand der E-Mails müssen `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `SMT
 ### Administrationsoberfläche
 Unter `/admin` stehen folgende Tabs zur Verfügung:
 1. **Veranstaltung konfigurieren** – Einstellungen wie Logo, Farben und Texte.
-2. **Kataloge** – Fragenkataloge erstellen und verwalten.
-3. **Fragen anpassen** – Fragen eines Katalogs hinzufügen, bearbeiten oder löschen.
-4. **Teams/Personen** – Teilnehmerlisten pflegen, optional als Login-Beschränkung.
-5. **Ergebnisse** – Spielstände einsehen und herunterladen.
-6. **Statistik** – Einzelne Antworten analysieren und nach Teams filtern.
-7. **Administration** – Benutzer und Backups verwalten.
+2. **Übersicht** – Ergebnisse tabellarisch einsehen.
+3. **Kataloge** – Fragenkataloge erstellen und verwalten.
+4. **Fragen anpassen** – Fragen eines Katalogs hinzufügen, bearbeiten oder löschen.
+5. **Teams/Personen** – Teilnehmerlisten pflegen, optional als Login-Beschränkung.
+6. **Ergebnisse** – Spielstände einsehen und herunterladen.
+7. **Statistik** – Einzelne Antworten analysieren und nach Teams filtern.
+8. **Administration** – Benutzer und Backups verwalten.
 
 ### Fragenkataloge
 `data/kataloge/catalogs.json` listet verfügbare Kataloge mit `slug`, Name und optionaler QR-Code-Adresse. Die Reihenfolge wird durch das Feld `sort_order` bestimmt. Jede Frage speichert die zugehörige `catalog_uid`. Jeder Eintrag kann zusätzlich ein Feld `raetsel_buchstabe` enthalten, das den Buchstaben für das Rätselwort festlegt. Die API bietet hierzu folgende Endpunkte:
