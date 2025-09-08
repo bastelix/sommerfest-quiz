@@ -49,7 +49,7 @@ function saveName(e) {
     .then(() => notify('Name gespeichert', 'success'))
     .catch(() => notify('Fehler beim Speichern', 'danger'));
   if (typeof returnUrl !== 'undefined' && returnUrl) {
-    window.location.href = returnUrl;
+    window.location.href = decodeURIComponent(returnUrl);
   }
 }
 
