@@ -202,6 +202,7 @@
 - Improve sticker background upload UX
 - Add catalog sticker preview
 - Add dark-mode contrast for secondary buttons
+- Enable dark theme on license page
 
 ### Fix
 
