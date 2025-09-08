@@ -35,7 +35,8 @@ export default class TableManager {
 
   #handleReorder() {
     const ids = Array.from(this.tbody.children).map(r => r.dataset.id);
-    this.data = ids.map(id => this.data.find(d => d.id === id)).filter(Boolean);
+    const dataMap = new Map(this.data.map(d => [String(d.id), d]));
+    this.data = ids.map(id => dataMap.get(String(id))).filter(Boolean);
     if (typeof this.onReorder === 'function') {
       this.onReorder();
     }
