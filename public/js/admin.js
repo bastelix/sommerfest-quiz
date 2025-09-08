@@ -2762,15 +2762,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function addUser() {
     const list = userManager.getData();
+    const id = crypto.randomUUID();
     list.push({
-      id: crypto.randomUUID(),
+      id,
       username: '',
       role: (window.roles && window.roles[0]) || '',
       active: true,
       password: ''
     });
     userManager.render(list);
-    saveUsers(list);
+    const cell = usersListEl?.querySelector(`[data-id="${id}"][data-key="username"]`);
+    if (cell) {
+      openUserEditor(cell);
+    }
   }
 
   if (!document.getElementById('userEditModal')) {
