@@ -263,17 +263,20 @@ class CatalogStickerController
             }
 
             foreach ($linesData as $data) {
-                [$fam, $style, $size, $text] = $data;
-                $pdf->SetFont($fam, $style, $size);
-                $lineH = $size * 1.2 * 0.352778;
+                [$fam, $style, $sizePx, $text] = $data;
+                $pt = $sizePx * 72 / 96;
+                $lineH = $sizePx * 1.2 * 0.264583;
+                $pdf->SetFont($fam, $style, $pt);
                 $t = $this->sanitizePdfText($text);
-                $height = $this->getMultiCellHeight($pdf, $t, $textW, $lineH);
-                if ($curY + $height - $innerY > $maxTextH) {
-                    break;
+                $wrapped = $this->wrapText($pdf, $t, $textW);
+                foreach ($wrapped as $line) {
+                    if ($curY - $innerY + $lineH > $maxTextH) {
+                        break 2;
+                    }
+                    $pdf->SetXY($innerX, $curY);
+                    $pdf->Cell($textW, $lineH, $line);
+                    $curY += $lineH;
                 }
-                $pdf->SetXY($innerX, $curY);
-                $pdf->MultiCell($textW, $lineH, $t);
-                $curY += $height;
             }
 
             $qrX = $baseX + $qrLeft;
@@ -360,11 +363,23 @@ class CatalogStickerController
         return $converted;
     }
 
-    private function getMultiCellHeight(FPDF $pdf, string $text, float $width, float $lineHeight): float
+    private function wrapText(FPDF $pdf, string $text, float $maxWidth): array
     {
-        $tmp = clone $pdf;
-        $tmp->SetXY(0, 0);
-        $tmp->MultiCell($width, $lineHeight, $text);
-        return $tmp->GetY();
+        $words = preg_split('/\s+/', $text) ?: [];
+        $lines = [];
+        $line = '';
+        foreach ($words as $w) {
+            $test = $line === '' ? $w : $line . ' ' . $w;
+            if ($pdf->GetStringWidth($test) > $maxWidth && $line !== '') {
+                $lines[] = $line;
+                $line = $w;
+            } else {
+                $line = $test;
+            }
+        }
+        if ($line !== '') {
+            $lines[] = $line;
+        }
+        return $lines;
     }
 }

@@ -975,10 +975,10 @@ document.addEventListener('DOMContentLoaded', function () {
     ctx.fillStyle = catalogStickerTextColor?.value || '#000';
     ctx.textBaseline = 'top';
     const linesData = [];
-    if (stickerEventTitle) linesData.push({ font: 'bold 12px sans-serif', size: 12, text: stickerEventTitle });
-    if (stickerEventDesc) linesData.push({ font: 'normal 10px sans-serif', size: 10, text: stickerEventDesc });
-    if (stickerCatalogName) linesData.push({ font: 'bold 11px sans-serif', size: 11, text: stickerCatalogName });
-    if (catalogStickerDesc?.checked && stickerCatalogDesc) linesData.push({ font: 'normal 10px sans-serif', size: 10, text: stickerCatalogDesc });
+    if (stickerEventTitle) linesData.push({ font: 'bold 12px Arial', size: 12, text: stickerEventTitle });
+    if (stickerEventDesc) linesData.push({ font: '10px Arial', size: 10, text: stickerEventDesc });
+    if (stickerCatalogName) linesData.push({ font: 'bold 11px Arial', size: 11, text: stickerCatalogName });
+    if (catalogStickerDesc?.checked && stickerCatalogDesc) linesData.push({ font: '10px Arial', size: 10, text: stickerCatalogDesc });
     let curY = descY;
     const renderedLines = [];
     outer: for (const ln of linesData) {
