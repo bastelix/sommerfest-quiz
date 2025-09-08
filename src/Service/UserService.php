@@ -118,20 +118,20 @@ class UserService
     }
 
     /**
-     * Retrieve all users ordered by their id.
+     * Retrieve all users ordered by their position.
      *
-     * @return list<array{id:int,username:string,email:?string,role:string,active:bool}>
+     * @return list<array{id:int,username:string,email:?string,role:string,active:bool,position:int}>
      */
     public function getAll(): array
     {
-        $stmt = $this->pdo->query('SELECT id,username,email,role,active FROM users ORDER BY id');
+        $stmt = $this->pdo->query('SELECT id,username,email,role,active,position FROM users ORDER BY position');
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     /**
      * Replace the entire user list with the provided data.
      *
-     * @param list<array{id?:int,username:string,email?:?string,role:string,password?:string,active?:bool}> $users
+     * @param list<array{id?:int,username:string,email?:?string,role:string,password?:string,active?:bool,position?:int}> $users
      */
     public function saveAll(array $users): void
     {
@@ -141,12 +141,12 @@ class UserService
             $existing[(int) $row['id']] = true;
         }
 
-        $insert = $this->pdo->prepare('INSERT INTO users(username,password,email,role,active) VALUES(?,?,?,?,?)');
-        $update = $this->pdo->prepare('UPDATE users SET username=?,email=?,role=?,active=? WHERE id=?');
+        $insert = $this->pdo->prepare('INSERT INTO users(username,password,email,role,active,position) VALUES(?,?,?,?,?,?)');
+        $update = $this->pdo->prepare('UPDATE users SET username=?,email=?,role=?,active=?,position=? WHERE id=?');
         $updatePass = $this->pdo->prepare('UPDATE users SET password=? WHERE id=?');
         $delete = $this->pdo->prepare('DELETE FROM users WHERE id=?');
 
-        foreach ($users as $u) {
+        foreach ($users as $idx => $u) {
             $id = isset($u['id']) ? (int) $u['id'] : 0;
             $username = strtolower((string) $u['username']);
             $role = (string) $u['role'];
@@ -156,16 +156,17 @@ class UserService
             }
             $pass = $u['password'] ?? '';
             $active = isset($u['active']) ? (bool)$u['active'] : true;
+            $position = $idx;
 
             if ($id === 0 || !isset($existing[$id])) {
                 if ($pass === '') {
                     $pass = bin2hex(random_bytes(8));
                 }
-                $insert->execute([$username, password_hash($pass, PASSWORD_DEFAULT), $email, $role, $active]);
+                $insert->execute([$username, password_hash($pass, PASSWORD_DEFAULT), $email, $role, $active, $position]);
                 continue;
             }
 
-            $update->execute([$username, $email, $role, $active, $id]);
+            $update->execute([$username, $email, $role, $active, $position, $id]);
             if ($pass !== '') {
                 $updatePass->execute([password_hash($pass, PASSWORD_DEFAULT), $id]);
             }

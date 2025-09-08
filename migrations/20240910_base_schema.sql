@@ -174,7 +174,8 @@ CREATE TABLE IF NOT EXISTS users (
     password TEXT NOT NULL,
     email TEXT UNIQUE,
     active BOOLEAN NOT NULL DEFAULT TRUE,
-    role user_role NOT NULL DEFAULT 'catalog-editor'
+    role user_role NOT NULL DEFAULT 'catalog-editor',
+    position INTEGER NOT NULL DEFAULT 0
 );
 
 -- Sessions for logged-in users
