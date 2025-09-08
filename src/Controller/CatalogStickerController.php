@@ -89,6 +89,10 @@ class CatalogStickerController
         $qrColor = preg_replace('/[^0-9A-Fa-f]/', '', (string)($params['qr_color'] ?? '000000'));
         $qrColor = str_pad(substr($qrColor, 0, 6), 6, '0');
         $qrSizePct = max(10, min(100, (int)($params['qr_size_pct'] ?? 42)));
+        $descTop = isset($params['desc_top']) ? (float)$params['desc_top'] : 0.0;
+        $descLeft = isset($params['desc_left']) ? (float)$params['desc_left'] : 0.0;
+        $qrTop = isset($params['qr_top']) ? (float)$params['qr_top'] : null;
+        $qrLeft = isset($params['qr_left']) ? (float)$params['qr_left'] : null;
 
         $uid = (string)($params['event_uid'] ?? ($params['event'] ?? ''));
         if ($uid === '') {
@@ -107,6 +111,21 @@ class CatalogStickerController
         if (!is_array($catalogs)) {
             $catalogs = [];
         }
+
+        $innerMaxW = $tpl['label_w'] - 2 * $tpl['padding'];
+        $innerMaxH = $tpl['label_h'] - 2 * $tpl['padding'];
+        $descTop = max(0.0, min($innerMaxH, $descTop));
+        $descLeft = max(0.0, min($innerMaxW, $descLeft));
+        $innerW = $innerMaxW - $descLeft;
+        $innerH = $innerMaxH - $descTop;
+        $qrSize = min($innerW * $qrSizePct / 100.0, $innerH * 0.55);
+        $qrPad = 2.0;
+        $qrLeft = $qrLeft !== null
+            ? max(0.0, min($innerMaxW - $qrSize, $qrLeft))
+            : $innerMaxW - $qrPad - $qrSize;
+        $qrTop = $qrTop !== null
+            ? max(0.0, min($innerMaxH - $qrSize, $qrTop))
+            : $innerMaxH - $qrPad - $qrSize;
 
         $pdf = new FPDF('P', 'mm', $tpl['page']);
         $pdf->SetMargins(0.0, 0.0, 0.0);
@@ -145,13 +164,11 @@ class CatalogStickerController
                 $pdf->Rect($x, $y, $tpl['label_w'], $tpl['label_h']);
             }
 
-            $innerX = $x + $tpl['padding'];
-            $innerY = $y + $tpl['padding'];
-            $innerW = $tpl['label_w'] - 2 * $tpl['padding'];
-            $innerH = $tpl['label_h'] - 2 * $tpl['padding'];
-
+            $baseX = $x + $tpl['padding'];
+            $baseY = $y + $tpl['padding'];
+            $innerX = $baseX + $descLeft;
+            $innerY = $baseY + $descTop;
             $textW = $innerW * 0.6;
-            $qrColW = $innerW - $textW;
             $maxTextH = $innerH - 6.0;
 
             $curY = $innerY;
@@ -182,10 +199,8 @@ class CatalogStickerController
                 $curY += $height;
             }
 
-            $qrSize = min($innerW * $qrSizePct / 100.0, $innerH * 0.55);
-            $qrPad = 2.0;
-            $qrX = $innerX + $textW + $qrColW - $qrPad - $qrSize;
-            $qrY = $innerY + $innerH - $qrPad - $qrSize;
+            $qrX = $baseX + $qrLeft;
+            $qrY = $baseY + $qrTop;
 
             $path = $uid !== ''
                 ? '/?event=' . $uid . '&katalog=' . ($cat['slug'] ?? '')
