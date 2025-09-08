@@ -83,6 +83,38 @@ class ResultServiceTest extends TestCase
         $this->assertSame(1, $other['attempt']);
     }
 
+    public function testExistsChecksPlayerCatalogPair(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            <<<'SQL'
+            CREATE TABLE results(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                catalog TEXT NOT NULL,
+                attempt INTEGER NOT NULL,
+                correct INTEGER NOT NULL,
+                total INTEGER NOT NULL,
+                time INTEGER NOT NULL,
+                puzzleTime INTEGER,
+                photo TEXT,
+                event_uid TEXT
+            );
+            SQL
+        );
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT' .
+            ');'
+        );
+        $service = new ResultService($pdo);
+
+        $service->add(['name' => 'TeamA', 'catalog' => 'cat1']);
+        $this->assertTrue($service->exists('TeamA', 'cat1'));
+        $this->assertFalse($service->exists('TeamB', 'cat1'));
+    }
+
     public function testMarkPuzzleUpdatesEntry(): void
     {
         $pdo = new PDO('sqlite::memory:');

@@ -120,6 +120,23 @@ class ResultService
     }
 
     /**
+     * Check whether a result exists for the given player and catalog.
+     */
+    public function exists(string $name, string $catalog, string $eventUid = ''): bool
+    {
+        $sql = 'SELECT 1 FROM results WHERE name=? AND catalog=?';
+        $params = [$name, $catalog];
+        if ($eventUid !== '') {
+            $sql .= ' AND event_uid=?';
+            $params[] = $eventUid;
+        }
+        $sql .= ' LIMIT 1';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchColumn() !== false;
+    }
+
+    /**
      * @param array<string, mixed> $data
      */
     public function add(array $data, string $eventUid = ''): array
