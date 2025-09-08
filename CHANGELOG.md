@@ -231,6 +231,7 @@
 - Align admin action wrappers to right
 - Preserve player name on restart
 - Restore landing theme toggles
+- Load storage helper for options menu
 - Scope topbar button bg for landing
 - Apply topbar button background on landing
 
