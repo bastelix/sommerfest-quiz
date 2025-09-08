@@ -2708,6 +2708,15 @@ document.addEventListener('DOMContentLoaded', function () {
   let currentUserId = null;
   let userManager;
 
+  function renderUsers(list = []) {
+    const data = list.map(u => ({
+      ...u,
+      id: u.id ?? crypto.randomUUID(),
+      password: ''
+    }));
+    userManager.render(data);
+  }
+
   function saveUsers(list = userManager?.getData() || []) {
     const payload = list
       .map(u => ({
@@ -2889,8 +2898,7 @@ document.addEventListener('DOMContentLoaded', function () {
     apiFetch('/users.json', { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
       .then(data => {
-        const list = data.map(u => ({ ...u, id: u.id ?? crypto.randomUUID(), password: '' }));
-        userManager.render(list);
+        renderUsers(data);
       })
       .catch(() => {})
       .finally(() => userManager.setColumnLoading('username', false));
