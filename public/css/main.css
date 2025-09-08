@@ -240,13 +240,6 @@ body.uk-padding {
   justify-content: center;
 }
 
-.event-header-bar {
-  background: #fff;
-  border-bottom: 1px solid var(--qr-border);
-  padding: 0.25rem 0.5rem;
-  line-height: 1.2;
-}
-
 /* Admin sidebar navigation */
 .qr-sidebar { min-height: calc(100vh - 56px); }
 .qr-sidebar-card { height: 100%; overflow-y: auto; }

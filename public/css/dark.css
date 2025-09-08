@@ -171,11 +171,6 @@ body .uk-icon-button:not(.uk-button-primary) {
   background-color: rgba(255, 255, 255, 0.1);
   border: 1px solid #444;
 }
-body .event-header-bar {
-  background-color: #1e1e1e;
-  border-color: #444;
-}
-
 body .modern-info-card {
   border-color: #444;
 }
@@ -484,11 +479,6 @@ body[data-theme="dark"] .topbar {
   border-color: #444;
   padding-top: env(safe-area-inset-top);
 }
-body[data-theme="dark"] .event-header-bar {
-  background-color: #1e1e1e;
-  border-color: #444;
-}
-
 body[data-theme="dark"] .modern-info-card {
   border-color: #444;
 }
