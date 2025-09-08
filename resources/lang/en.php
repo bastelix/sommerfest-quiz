@@ -190,6 +190,7 @@ return [
     'label_template' => 'Template',
     'label_lines' => 'Lines',
     'label_qr_size_pct' => 'QR size (%)',
+    'label_sticker_bg' => 'Sticker background',
     'action_design_qrcodes' => 'Design QR codes',
     'column_username' => 'Username',
     'column_role' => 'Role',

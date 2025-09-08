@@ -188,6 +188,7 @@ return [
     'label_template' => 'Vorlage',
     'label_lines' => 'Zeilen',
     'label_qr_size_pct' => 'QR-Größe (%)',
+    'label_sticker_bg' => 'Sticker-Hintergrund',
     'action_design_qrcodes' => 'QR-Codes gestalten',
     'column_username' => 'Benutzername',
     'column_role' => 'Rolle',
