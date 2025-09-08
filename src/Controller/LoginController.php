@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Domain\Roles;
 use App\Service\UserService;
 use App\Service\SessionService;
 use App\Infrastructure\Database;
@@ -101,7 +102,22 @@ class LoginController
                     ->withHeader('Location', $scheme . '://' . $mainDomain . '/admin')
                     ->withStatus(302);
             }
-            $target = $record['role'] === 'admin' ? '/admin' : '/';
+            $dashboardRoles = [
+                Roles::ADMIN,
+                Roles::CATALOG_EDITOR,
+                Roles::EVENT_MANAGER,
+                Roles::ANALYST,
+                Roles::TEAM_MANAGER,
+            ];
+            // Service accounts are excluded: they are for automation and have no dashboard.
+            if (in_array($record['role'], $dashboardRoles, true)) {
+                $target = '/admin';
+            } elseif ($record['role'] === Roles::SERVICE_ACCOUNT) {
+                // Service accounts are used for automation and have no UI.
+                $target = '/';
+            } else {
+                $target = '/help';
+            }
             $basePath = RouteContext::fromRequest($request)->getBasePath();
             return $response->withHeader('Location', $basePath . $target)->withStatus(302);
         }
