@@ -706,6 +706,17 @@ document.addEventListener('DOMContentLoaded', function () {
   const catalogStickerQrColor = document.getElementById('catalogStickerQrColor');
   const catalogStickerQrSizePct = document.getElementById('catalogStickerQrSizePct');
   const catalogStickerBg = document.getElementById('catalogStickerBg');
+  const catalogStickerGenerate = document.getElementById('catalogStickerGenerate');
+  let catalogStickerProgress;
+  if (catalogStickerBg) {
+    catalogStickerProgress = document.createElement('progress');
+    catalogStickerProgress.id = 'catalogStickerProgress';
+    catalogStickerProgress.className = 'uk-progress';
+    catalogStickerProgress.value = 0;
+    catalogStickerProgress.max = 100;
+    catalogStickerProgress.hidden = true;
+    catalogStickerBg.insertAdjacentElement('afterend', catalogStickerProgress);
+  }
   catalogStickerForm?.addEventListener('submit', e => {
     e.preventDefault();
     const params = new URLSearchParams({
@@ -726,12 +737,51 @@ document.addEventListener('DOMContentLoaded', function () {
     const fd = new FormData();
     fd.append('file', file);
     const url = '/admin/sticker-background' + (currentEventUid ? `?event_uid=${encodeURIComponent(currentEventUid)}` : '');
-    apiFetch(url, { method: 'POST', body: fd })
-      .then(res => {
-        if (!res.ok) throw new Error('upload failed');
+    if (catalogStickerGenerate) catalogStickerGenerate.disabled = true;
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', withBase(url));
+    xhr.withCredentials = true;
+    const token = getCsrfToken();
+    if (token) xhr.setRequestHeader('X-CSRF-Token', token);
+    xhr.setRequestHeader('X-Requested-With', 'fetch');
+    xhr.upload.addEventListener('loadstart', e => {
+      catalogStickerProgress?.removeAttribute('hidden');
+      if (e.lengthComputable) {
+        catalogStickerProgress.max = e.total;
+        catalogStickerProgress.value = e.loaded;
+      }
+    });
+    xhr.upload.addEventListener('progress', e => {
+      if (catalogStickerProgress && e.lengthComputable) {
+        catalogStickerProgress.max = e.total;
+        catalogStickerProgress.value = e.loaded;
+      }
+    });
+    xhr.addEventListener('loadend', () => {
+      if (catalogStickerProgress) {
+        setTimeout(() => catalogStickerProgress.setAttribute('hidden', 'hidden'), 1000);
+      }
+    });
+    xhr.addEventListener('load', () => {
+      const text = (xhr.responseText || '').trim();
+      if (xhr.status >= 200 && xhr.status < 300) {
         notify(window.transImageReady || 'Image bereit', 'success');
-      })
-      .catch(() => notify('Fehler beim Hochladen', 'danger'));
+        if (catalogStickerGenerate) catalogStickerGenerate.disabled = false;
+      } else {
+        const errorMap = {
+          'missing file': 'Keine Datei ausgewählt',
+          'upload error': 'Fehler beim Hochladen',
+          'file too large': 'Datei zu groß (max. 5 MB)',
+          'unsupported file type': 'Nicht unterstützter Dateityp',
+          'Intervention Image NICHT installiert': 'Bildverarbeitung nicht installiert'
+        };
+        notify(errorMap[text] || text || 'Fehler beim Hochladen', 'danger');
+      }
+    });
+    xhr.addEventListener('error', () => {
+      notify('Fehler beim Hochladen', 'danger');
+    });
+    xhr.send(fd);
   });
 
   const openInvitesBtn = document.getElementById('openInvitesBtn');
