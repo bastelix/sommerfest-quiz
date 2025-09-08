@@ -583,11 +583,6 @@ body.admin-page {
 
 .admin-page #eventSelectWrap {
   flex: 1;
-  min-width: 150px;
-}
-
-.admin-page #eventSelectWrap select {
-  width: 100%;
 }
 
 @media (min-width: 640px) {
@@ -610,7 +605,6 @@ body.admin-page {
   }
   .admin-page #eventSelectWrap {
     flex: 0;
-    min-width: 220px;
   }
 }
 

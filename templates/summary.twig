@@ -16,7 +16,7 @@
       <div class="uk-flex uk-flex-middle">
         <div id="eventSelectWrap" class="uk-flex uk-flex-middle" hidden>
           <select id="eventSelect" class="uk-select uk-flex-1" aria-label="{{ t('label_events') }}"></select>
-          <button id="eventOpenBtn" class="uk-icon-button uk-margin-small-left" uk-icon="icon: link-external" aria-label="{{ t('tip_event_open') }}" uk-tooltip="title: {{ t('tip_event_open') }}; pos: bottom"></button>
+          <button id="eventOpenBtn" class="uk-icon-button uk-margin-small-left" data-event-btn disabled uk-icon="icon: link-external" aria-label="{{ t('tip_event_open') }}" uk-tooltip="title: {{ t('tip_event_open') }}; pos: bottom"></button>
         </div>
         <span id="eventTitle" class="uk-navbar-title uk-text-center">{{ event.name|default('Sommerfest 2025') }}</span>
       </div>

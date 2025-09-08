@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const selectWrap = document.getElementById('eventSelectWrap');
   const eventSelect = document.getElementById('eventSelect');
   const eventOpenBtn = document.getElementById('eventOpenBtn');
+  const eventButtons = document.querySelectorAll('[data-event-btn]');
   const eventTitle = document.getElementById('eventTitle');
   const eventNotice = document.getElementById('eventNotice');
   let currentEventUid = '';
@@ -104,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         eventNotice.textContent = eventNotice.dataset.empty || 'Keine Veranstaltungen vorhanden';
         eventNotice.hidden = false;
       }
+      updateEventButtons();
       return;
     }
     const placeholder = document.createElement('option');
@@ -134,6 +136,14 @@ document.addEventListener('DOMContentLoaded', () => {
         eventNotice.hidden = false;
       }
     }
+    updateEventButtons();
+  }
+
+  function updateEventButtons() {
+    const uid = eventSelect?.value;
+    eventButtons.forEach(btn => {
+      btn.disabled = !uid;
+    });
   }
 
   if (eventSelect) {
@@ -175,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   eventSelect?.addEventListener('change', () => {
     const uid = eventSelect.value;
+    updateEventButtons();
     if (uid && uid !== currentEventUid) {
       location.search = '?event=' + uid;
     }
