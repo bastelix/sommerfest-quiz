@@ -1236,8 +1236,9 @@ async function runQuiz(questions, skipIntro){
         input.id = 'manual-team-name';
         input.className = 'uk-input';
         input.type = 'text';
-        input.placeholder = 'Teamname eingeben';
-        input.value = suggestion;
+        const suggestedName = generateUserName(); // oder wie auch immer du den Namen erzeugst
+        input.placeholder = suggestedName || 'Teamname eingeben';
+        input.value = suggestedName || '';
         const submit = document.createElement('button');
         submit.id = 'manual-team-submit';
         submit.className = 'uk-button uk-button-primary uk-width-1-1 uk-margin-top';
@@ -1246,7 +1247,7 @@ async function runQuiz(questions, skipIntro){
         container.appendChild(submit);
         flipBtn.classList.add('uk-hidden');
         const handleSubmit = () => {
-          const name = (input.value || '').trim();
+          const name = (input.value || input.placeholder || '').trim();
           if(name){
             setStored(STORAGE_KEYS.PLAYER_NAME, name);
             stopScanner();
