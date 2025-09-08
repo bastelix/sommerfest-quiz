@@ -1069,6 +1069,13 @@
         {{ qr_rowcards('tenantCards', false, 'uk-hidden@s', 'div') }}
       </div>
     </li>
+    {% else %}
+    <li class="{{ activeRoute == 'tenants' ? 'uk-active' }}">
+      <div class="uk-container uk-container-large">
+        <h2 class="uk-heading-bullet">{{ t('heading_tenants') }}</h2>
+        <div class="uk-alert-warning" uk-alert>MAIN_DOMAIN falsch konfiguriert – Mandantenliste nicht geladen</div>
+      </div>
+    </li>
     {% endif %}
     {% endif %}
     {% if activeRoute == 'profile' %}
