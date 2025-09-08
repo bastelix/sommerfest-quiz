@@ -1332,7 +1332,9 @@ async function runQuiz(questions, skipIntro){
     div.appendChild(remainingInfo);
     if(!cfg.competitionMode){
       const restart = document.createElement('a');
-      restart.href = '/';
+      const catalogSlug = getStored(STORAGE_KEYS.CATALOG) || '';
+      const restartUrl = `/?event=${encodeURIComponent(currentEventUid)}&katalog=${encodeURIComponent(catalogSlug)}`;
+      restart.href = withBase(restartUrl);
       restart.textContent = 'Neu starten';
       restart.className = 'uk-button uk-button-primary uk-margin-top';
       styleButton(restart);
