@@ -718,6 +718,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const stickerTextResize = document.getElementById('stickerTextResize');
   if (stickerTextResize) stickerTextResize.style.zIndex = '10';
   const stickerQrHandle = document.getElementById('stickerQrHandle');
+  let stickerScaleRatio = 1;
   const descTopInput = document.getElementById('stickerDescTop');
   const descLeftInput = document.getElementById('stickerDescLeft');
   const descWidthInput = document.getElementById('descWidth');
@@ -795,7 +796,7 @@ document.addEventListener('DOMContentLoaded', function () {
     } catch (e) { /* ignore */ }
   }
 
-  function makeDraggable (handle, topInput, leftInput, skipStyle = false) {
+  function makeDraggable (handle, topInput, leftInput, skipStyle = false, getScaleRatio = () => 1) {
     if (!handle || !catalogStickerPreview) return;
     let dragging = false;
     let offsetX = 0;
@@ -828,7 +829,7 @@ document.addEventListener('DOMContentLoaded', function () {
       y = Math.max(0, Math.min(rect.height - handle.offsetHeight, y));
       handle.style.left = `${x}px`;
       handle.style.top = `${y}px`;
-      const scale = 4; // same as drawCatalogStickerPreview
+      const scale = 4 * getScaleRatio();
       if (topInput) topInput.value = (y / scale).toFixed(1);
       if (leftInput) leftInput.value = (x / scale).toFixed(1);
       drawCatalogStickerPreview();
@@ -847,7 +848,7 @@ document.addEventListener('DOMContentLoaded', function () {
     handle.ontouchmove = move;
     handle.ontouchend = handle.ontouchcancel = end;
   }
-  function makeResizable (handle, widthInput, heightInput, box) {
+  function makeResizable (handle, widthInput, heightInput, box, getScaleRatio = () => 1) {
     if (!handle || !box) return;
     let resizing = false;
     let startX = 0;
@@ -896,7 +897,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const newH = Math.max(10, startH + dy);
       box.style.width = `${newW}px`;
       box.style.height = `${newH}px`;
-      const scale = 4;
+      const scale = 4 * getScaleRatio();
       if (widthInput) widthInput.value = (newW / scale).toFixed(1);
       if (heightInput) heightInput.value = (newH / scale).toFixed(1);
       drawCatalogStickerPreview();
@@ -948,6 +949,8 @@ document.addEventListener('DOMContentLoaded', function () {
     ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, w, h);
+    const scaleRatio = canvas.clientWidth / canvas.width || 1;
+    stickerScaleRatio = scaleRatio;
     if (catalogStickerBgUrl && catalogStickerBgImg.complete) {
       ctx.drawImage(catalogStickerBgImg, 0, 0, w, h);
     }
@@ -1003,31 +1006,43 @@ document.addEventListener('DOMContentLoaded', function () {
         curY += lineH;
       }
     }
+    const scaledDescX = descX * scaleRatio;
+    const scaledDescY = descY * scaleRatio;
+    const scaledTextW = textW * scaleRatio;
+    const scaledTextH = textH * scaleRatio;
+    const scaledQrX = qrX * scaleRatio;
+    const scaledQrY = qrY * scaleRatio;
     if (stickerTextBox) {
-      stickerTextBox.style.left = `${descX}px`;
-      stickerTextBox.style.top = `${descY}px`;
-      stickerTextBox.style.width = `${textW}px`;
-      stickerTextBox.style.height = `${textH}px`;
+      stickerTextBox.style.left = `${scaledDescX}px`;
+      stickerTextBox.style.top = `${scaledDescY}px`;
+      stickerTextBox.style.width = `${scaledTextW}px`;
+      stickerTextBox.style.height = `${scaledTextH}px`;
+    }
+    if (stickerTextResize) {
+      stickerTextResize.style.left = `${scaledDescX}px`;
+      stickerTextResize.style.top = `${scaledDescY}px`;
+      stickerTextResize.style.width = `${scaledTextW}px`;
+      stickerTextResize.style.height = `${scaledTextH}px`;
     }
     if (stickerQrHandle) {
-      stickerQrHandle.style.left = `${qrX}px`;
-      stickerQrHandle.style.top = `${qrY}px`;
+      stickerQrHandle.style.left = `${scaledQrX}px`;
+      stickerQrHandle.style.top = `${scaledQrY}px`;
     }
   }
-  makeDraggable(stickerTextBox, descTopInput, descLeftInput, true);
-  makeResizable(stickerTextResize, descWidthInput, descHeightInput, stickerTextBox);
+  makeDraggable(stickerTextBox, descTopInput, descLeftInput, true, () => stickerScaleRatio);
+  makeResizable(stickerTextResize, descWidthInput, descHeightInput, stickerTextBox, () => stickerScaleRatio);
   const scale = 4;
   descWidthInput?.addEventListener('input', () => {
-    const val = parseFloat(descWidthInput.value) * scale;
+    const val = parseFloat(descWidthInput.value) * scale * stickerScaleRatio;
     if (stickerTextBox) stickerTextBox.style.width = `${Math.max(10, val)}px`;
     drawCatalogStickerPreview();
   });
   descHeightInput?.addEventListener('input', () => {
-    const val = parseFloat(descHeightInput.value) * scale;
+    const val = parseFloat(descHeightInput.value) * scale * stickerScaleRatio;
     if (stickerTextBox) stickerTextBox.style.height = `${Math.max(10, val)}px`;
     drawCatalogStickerPreview();
   });
-  makeDraggable(stickerQrHandle, qrTopInput, qrLeftInput);
+  makeDraggable(stickerQrHandle, qrTopInput, qrLeftInput, false, () => stickerScaleRatio);
   catalogStickerBgImg.onload = () => drawCatalogStickerPreview();
   if (catalogStickerModal && window.UIkit && UIkit.util) {
     UIkit.util.on(catalogStickerModal.$el, 'shown', () => {
