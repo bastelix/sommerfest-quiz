@@ -733,6 +733,10 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = $request->getAttribute('adminCatalogController');
         return $controller->catalogs($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
+    $app->get('/admin/catalogs/sample', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('adminCatalogController');
+        return $controller->sample($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
 
     $app->get('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {
         $controller = new PageController();

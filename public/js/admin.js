@@ -713,12 +713,28 @@ document.addEventListener('DOMContentLoaded', function () {
   const catalogStickerBg = document.getElementById('catalogStickerBg');
   const catalogStickerGenerate = document.getElementById('catalogStickerGenerate');
   const catalogStickerPreview = document.getElementById('catalogStickerPreview');
-  const stickerDescHandle = document.getElementById('stickerDescHandle');
+  const stickerTextBox = document.getElementById('stickerTextBox');
+  const stickerTextResize = document.getElementById('stickerTextResize');
   const stickerQrHandle = document.getElementById('stickerQrHandle');
   const descTopInput = document.getElementById('descTop');
   const descLeftInput = document.getElementById('descLeft');
+  const descWidthInput = document.getElementById('descWidth');
+  const descHeightInput = document.getElementById('descHeight');
   const qrTopInput = document.getElementById('qrTop');
   const qrLeftInput = document.getElementById('qrLeft');
+  let stickerEventTitle = '';
+  let stickerEventDesc = '';
+  let stickerCatalogName = '';
+  let stickerCatalogDesc = '';
+  if (stickerTextBox) {
+    Object.assign(stickerTextBox.style, {
+      border: '1px dashed #1e87f0',
+      color: '#000',
+      padding: '2px',
+      whiteSpace: 'pre-wrap',
+      cursor: 'move'
+    });
+  }
   const catalogStickerBgImg = new Image();
   let catalogStickerBgUrl = '';
   const stickerTemplates = {
@@ -727,7 +743,27 @@ document.addEventListener('DOMContentLoaded', function () {
     avery_l7651: { label_w: 63.5, label_h: 38.1 }
   };
 
-  function makeDraggable (handle, topInput, leftInput) {
+  async function loadStickerSample () {
+    try {
+      const url = '/admin/catalogs/data?perPage=1' + (currentEventUid ? `&event_uid=${encodeURIComponent(currentEventUid)}` : '');
+      const res = await apiFetch(url);
+      const data = await res.json();
+      const item = data?.items?.[0] || {};
+      stickerCatalogName = item.name || '';
+      stickerCatalogDesc = item.description || '';
+    } catch (e) { /* ignore */ }
+    if (currentEventUid) {
+      try {
+        const evRes = await apiFetch(`/admin/event/${encodeURIComponent(currentEventUid)}`);
+        const evData = await evRes.json();
+        stickerEventTitle = evData?.event?.name || '';
+        stickerEventDesc = evData?.event?.description || '';
+      } catch (e) { /* ignore */ }
+    }
+    drawCatalogStickerPreview();
+  }
+
+  function makeDraggable (handle, topInput, leftInput, skipStyle = false) {
     if (!handle || !catalogStickerPreview) return;
     let dragging = false;
     let offsetX = 0;
@@ -739,7 +775,7 @@ document.addEventListener('DOMContentLoaded', function () {
       border: '2px solid #1e87f0',
       cursor: 'move'
     };
-    Object.assign(handle.style, style);
+    if (!skipStyle) Object.assign(handle.style, style);
     handle.onpointerdown = e => {
       dragging = true;
       offsetX = e.offsetX;
@@ -764,6 +800,66 @@ document.addEventListener('DOMContentLoaded', function () {
       dragging = false;
       handle.releasePointerCapture(e.pointerId);
     };
+  }
+  function makeResizable (handle, widthInput, heightInput, box) {
+    if (!handle || !box) return;
+    let resizing = false;
+    let startX = 0;
+    let startY = 0;
+    let startW = 0;
+    let startH = 0;
+    const style = {
+      width: '12px',
+      height: '12px',
+      background: 'rgba(255,255,255,0.8)',
+      border: '2px solid #1e87f0',
+      cursor: 'nwse-resize',
+      position: 'absolute',
+      right: '-6px',
+      bottom: '-6px'
+    };
+    Object.assign(handle.style, style);
+    handle.onpointerdown = e => {
+      resizing = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      startW = box.offsetWidth;
+      startH = box.offsetHeight;
+      handle.setPointerCapture(e.pointerId);
+    };
+    handle.onpointermove = e => {
+      if (!resizing) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      const newW = Math.max(10, startW + dx);
+      const newH = Math.max(10, startH + dy);
+      box.style.width = `${newW}px`;
+      box.style.height = `${newH}px`;
+      const scale = 4;
+      if (widthInput) widthInput.value = (newW / scale).toFixed(1);
+      if (heightInput) heightInput.value = (newH / scale).toFixed(1);
+      drawCatalogStickerPreview();
+    };
+    handle.onpointerup = handle.onpointercancel = e => {
+      resizing = false;
+      handle.releasePointerCapture(e.pointerId);
+    };
+  }
+  function wrapText (ctx, text, maxWidth) {
+    const words = String(text).split(/\s+/);
+    const lines = [];
+    let line = '';
+    words.forEach(w => {
+      const test = line ? line + ' ' + w : w;
+      if (ctx.measureText(test).width > maxWidth && line) {
+        lines.push(line);
+        line = w;
+      } else {
+        line = test;
+      }
+    });
+    if (line) lines.push(line);
+    return lines;
   }
   function drawCatalogStickerPreview () {
     if (!catalogStickerPreview) return;
@@ -805,33 +901,58 @@ document.addEventListener('DOMContentLoaded', function () {
     const descY = Math.round(descTop * scale);
     const qrX = Math.round(qrLeft * scale);
     const qrY = Math.round(qrTop * scale);
+    const innerW = w - descX;
+    const innerH = h - descY;
+    const defaultDescWidth = innerW * 0.6 / scale;
+    const defaultDescHeight = (innerH - 24) / scale;
+    const descW = parseFloat(descWidthInput?.value || defaultDescWidth);
+    const descH = parseFloat(descHeightInput?.value || defaultDescHeight);
+    if (descWidthInput) descWidthInput.value = descW.toFixed(1);
+    if (descHeightInput) descHeightInput.value = descH.toFixed(1);
+    const textW = Math.round(descW * scale);
+    const textH = Math.round(descH * scale);
     ctx.fillStyle = catalogStickerQrColor?.value || '#000';
     ctx.fillRect(qrX, qrY, qrSize, qrSize);
     ctx.fillStyle = '#000';
-    ctx.font = 'bold 12px sans-serif';
     ctx.textBaseline = 'top';
-    const lines = ['Event', 'Catalog'];
-    if (catalogStickerDesc?.checked) lines.push('Desc');
-    let y = descY;
-    const textWidth = w - descX - 4;
-    lines.forEach(line => {
-      ctx.fillText(line, descX, y, textWidth);
-      y += 14;
-    });
-    if (stickerDescHandle) {
-      stickerDescHandle.style.left = `${descX}px`;
-      stickerDescHandle.style.top = `${descY}px`;
+    const linesData = [];
+    if (stickerEventTitle) linesData.push({ font: 'bold 12px sans-serif', size: 12, text: stickerEventTitle });
+    if (stickerEventDesc) linesData.push({ font: 'normal 10px sans-serif', size: 10, text: stickerEventDesc });
+    if (stickerCatalogName) linesData.push({ font: 'bold 11px sans-serif', size: 11, text: stickerCatalogName });
+    if (catalogStickerDesc?.checked && stickerCatalogDesc) linesData.push({ font: 'normal 10px sans-serif', size: 10, text: stickerCatalogDesc });
+    let curY = descY;
+    const renderedLines = [];
+    outer: for (const ln of linesData) {
+      ctx.font = ln.font;
+      const lineH = ln.size * 1.2;
+      const wrapped = wrapText(ctx, ln.text, textW);
+      for (const seg of wrapped) {
+        if (curY - descY + lineH > textH) break outer;
+        ctx.fillText(seg, descX, curY, textW);
+        renderedLines.push(seg);
+        curY += lineH;
+      }
+    }
+    if (stickerTextBox) {
+      stickerTextBox.style.left = `${descX}px`;
+      stickerTextBox.style.top = `${descY}px`;
+      stickerTextBox.style.width = `${textW}px`;
+      stickerTextBox.style.height = `${textH}px`;
+      stickerTextBox.textContent = renderedLines.join('\n');
     }
     if (stickerQrHandle) {
       stickerQrHandle.style.left = `${qrX}px`;
       stickerQrHandle.style.top = `${qrY}px`;
     }
   }
-  makeDraggable(stickerDescHandle, descTopInput, descLeftInput);
+  makeDraggable(stickerTextBox, descTopInput, descLeftInput, true);
+  makeResizable(stickerTextResize, descWidthInput, descHeightInput, stickerTextBox);
   makeDraggable(stickerQrHandle, qrTopInput, qrLeftInput);
   catalogStickerBgImg.onload = () => drawCatalogStickerPreview();
   if (catalogStickerModal && window.UIkit && UIkit.util) {
-    UIkit.util.on(catalogStickerModal.$el, 'shown', () => drawCatalogStickerPreview());
+    UIkit.util.on(catalogStickerModal.$el, 'shown', () => {
+      loadStickerSample();
+    });
   }
   catalogStickerTemplate?.addEventListener('change', drawCatalogStickerPreview);
   catalogStickerDesc?.addEventListener('change', drawCatalogStickerPreview);
@@ -857,6 +978,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     if (descTopInput) params.set('desc_top', descTopInput.value);
     if (descLeftInput) params.set('desc_left', descLeftInput.value);
+    if (descWidthInput) params.set('desc_width', descWidthInput.value);
+    if (descHeightInput) params.set('desc_height', descHeightInput.value);
     if (qrTopInput) params.set('qr_top', qrTopInput.value);
     if (qrLeftInput) params.set('qr_left', qrLeftInput.value);
     if (currentEventUid) params.set('event_uid', currentEventUid);

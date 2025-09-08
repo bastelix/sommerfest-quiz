@@ -46,4 +46,21 @@ class AdminCatalogController
         $response->getBody()->write((string) json_encode($payload));
         return $response->withHeader('Content-Type', 'application/json');
     }
+
+    /**
+     * Return the first catalog (name and description only).
+     */
+    public function sample(Request $request, Response $response): Response
+    {
+        $items = $this->service->fetchPagedCatalogs(0, 1, 'asc');
+        $first = $items[0] ?? null;
+        $payload = $first === null
+            ? null
+            : [
+                'name' => $first['name'] ?? '',
+                'description' => $first['description'] ?? '',
+            ];
+        $response->getBody()->write((string) json_encode($payload));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
 }

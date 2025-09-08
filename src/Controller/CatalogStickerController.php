@@ -91,6 +91,8 @@ class CatalogStickerController
         $qrSizePct = max(10, min(100, (int)($params['qr_size_pct'] ?? 42)));
         $descTop = isset($params['desc_top']) ? (float)$params['desc_top'] : 0.0;
         $descLeft = isset($params['desc_left']) ? (float)$params['desc_left'] : 0.0;
+        $descWidth = isset($params['desc_width']) ? (float)$params['desc_width'] : null;
+        $descHeight = isset($params['desc_height']) ? (float)$params['desc_height'] : null;
         $qrTop = isset($params['qr_top']) ? (float)$params['qr_top'] : null;
         $qrLeft = isset($params['qr_left']) ? (float)$params['qr_left'] : null;
 
@@ -118,6 +120,8 @@ class CatalogStickerController
         $descLeft = max(0.0, min($innerMaxW, $descLeft));
         $innerW = $innerMaxW - $descLeft;
         $innerH = $innerMaxH - $descTop;
+        $descWidth = $descWidth !== null ? max(0.0, min($innerW, $descWidth)) : $innerW * 0.6;
+        $descHeight = $descHeight !== null ? max(0.0, min($innerH, $descHeight)) : $innerH - 6.0;
         $qrSize = min($innerW * $qrSizePct / 100.0, $innerH * 0.55);
         $qrPad = 2.0;
         $qrLeft = $qrLeft !== null
@@ -168,8 +172,8 @@ class CatalogStickerController
             $baseY = $y + $tpl['padding'];
             $innerX = $baseX + $descLeft;
             $innerY = $baseY + $descTop;
-            $textW = $innerW * 0.6;
-            $maxTextH = $innerH - 6.0;
+            $textW = $descWidth;
+            $maxTextH = $descHeight;
 
             $curY = $innerY;
             $linesData = [];
