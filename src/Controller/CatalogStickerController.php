@@ -188,7 +188,7 @@ class CatalogStickerController
         $innerH = $innerMaxH - $descTop;
         $descWidth = $descWidth !== null ? max(0.0, min($innerW, $descWidth)) : $innerW * 0.6;
         $descHeight = $descHeight !== null ? max(0.0, min($innerH, $descHeight)) : $innerH - 6.0;
-        $qrSize = min($innerW * $qrSizePct / 100.0, $innerH * 0.55);
+        $qrSize = min($innerW, $innerH) * ($qrSizePct / 100.0);
         $qrPad = 2.0;
         $qrLeft = $qrLeft !== null
             ? max(0.0, min($innerMaxW - $qrSize, $qrLeft))

@@ -733,9 +733,9 @@ document.addEventListener('DOMContentLoaded', function () {
   let catalogStickerBgUrl = '';
   let qrOverlapWarned = false;
   const stickerTemplates = {
-    avery_l7165: { label_w: 99.1, label_h: 67.7 },
-    avery_l7163: { label_w: 99.1, label_h: 38.1 },
-    avery_l7651: { label_w: 63.5, label_h: 38.1 }
+    avery_l7165: { label_w: 99.1, label_h: 67.7, padding: 6.0 },
+    avery_l7163: { label_w: 99.1, label_h: 38.1, padding: 5.0 },
+    avery_l7651: { label_w: 63.5, label_h: 38.1, padding: 4.0 }
   };
 
   async function loadStickerSample () {
@@ -934,27 +934,31 @@ document.addEventListener('DOMContentLoaded', function () {
       ctx.drawImage(catalogStickerBgImg, 0, 0, w, h);
     }
     const qrSizePct = Math.min(100, parseFloat(catalogStickerQrSizePct?.value || '42'));
-    const qrSizeMm = Math.min(tpl.label_w, tpl.label_h) * (qrSizePct / 100);
-    const qrSize = Math.round(qrSizeMm * scale);
     const qrPad = 2; // mm
     const defaultDescTop = 0;
     const defaultDescLeft = 0;
-    const defaultQrLeft = tpl.label_w - qrSizeMm - qrPad;
-    const defaultQrTop = tpl.label_h - qrSizeMm - qrPad;
     const descTop = parseFloat(descTopInput?.value || defaultDescTop);
     const descLeft = parseFloat(descLeftInput?.value || defaultDescLeft);
-    const qrTop = parseFloat(qrTopInput?.value || defaultQrTop);
-    const qrLeft = parseFloat(qrLeftInput?.value || defaultQrLeft);
     if (descTopInput) descTopInput.value = descTop.toFixed(1);
     if (descLeftInput) descLeftInput.value = descLeft.toFixed(1);
+    const innerMaxWmm = tpl.label_w - 2 * (tpl.padding || 0);
+    const innerMaxHmm = tpl.label_h - 2 * (tpl.padding || 0);
+    const innerWmm = innerMaxWmm - descLeft;
+    const innerHmm = innerMaxHmm - descTop;
+    const qrSizeMm = Math.min(innerWmm, innerHmm) * (qrSizePct / 100);
+    const defaultQrLeft = innerMaxWmm - qrSizeMm - qrPad;
+    const defaultQrTop = innerMaxHmm - qrSizeMm - qrPad;
+    const qrTop = parseFloat(qrTopInput?.value || defaultQrTop);
+    const qrLeft = parseFloat(qrLeftInput?.value || defaultQrLeft);
     if (qrTopInput) qrTopInput.value = qrTop.toFixed(1);
     if (qrLeftInput) qrLeftInput.value = qrLeft.toFixed(1);
-    const descX = Math.round(descLeft * scale);
-    const descY = Math.round(descTop * scale);
-    const qrX = Math.round(qrLeft * scale);
-    const qrY = Math.round(qrTop * scale);
-    const innerW = w - descX;
-    const innerH = h - descY;
+    const descX = Math.round((tpl.padding + descLeft) * scale);
+    const descY = Math.round((tpl.padding + descTop) * scale);
+    const qrSize = Math.round(qrSizeMm * scale);
+    const qrX = Math.round((tpl.padding + qrLeft) * scale);
+    const qrY = Math.round((tpl.padding + qrTop) * scale);
+    const innerW = Math.round(innerWmm * scale);
+    const innerH = Math.round(innerHmm * scale);
     const defaultDescWidth = innerW * 0.6 / scale;
     const defaultDescHeight = (innerH - 24) / scale;
     const descW = parseFloat(descWidthInput?.value || defaultDescWidth);
