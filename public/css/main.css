@@ -879,6 +879,12 @@ body.admin-page {
   background: transparent;
   border: 1px dashed #1e87f0;
   cursor: move;
+  z-index: 1000;
+}
+
+#stickerTextResize,
+#stickerQrHandle {
+  z-index: 1001;
 }
 
 
