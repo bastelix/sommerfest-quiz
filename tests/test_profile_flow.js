@@ -112,6 +112,49 @@ ctx2.nameInput.value = 'Alice';
   console.log('ok');
 })().catch(err => { console.error(err); process.exit(1); });
 
+// Verify handling of return URL with special characters
+const storageObj2b = {
+  data: {},
+  getItem(k) { return this.data[k] ?? null; },
+  setItem(k, v) { this.data[k] = String(v); },
+  removeItem(k) { delete this.data[k]; }
+};
+const ctx2b = {
+  URLSearchParams,
+  window: { quizConfig: { event_uid: '' } },
+  nameInput: { value: '' },
+  localStorage: storageObj2b,
+  sessionStorage: storageObj2b,
+  fetchCalls: [],
+  self: { crypto: { randomUUID: () => 'uid-123' } },
+  returnUrl: '/quiz?foo=bar&baz=qux',
+  location: { href: '', search: '' },
+  postSession: () => Promise.resolve(),
+  alert: () => {},
+  console,
+  document: {
+    getElementById(id) {
+      if (id === 'playerName') return ctx2b.nameInput;
+      if (id === 'save-name') return { addEventListener: (ev, fn) => { ctx2b.saveHandler = fn; } };
+      if (id === 'delete-name') return { addEventListener: () => {} };
+      return null;
+    },
+    addEventListener(ev, fn) {
+      if (ev === 'DOMContentLoaded') fn();
+    }
+  }
+};
+ctx2b.fetch = (url, opts) => { ctx2b.fetchCalls.push({ url, opts }); return Promise.resolve(); };
+ctx2b.window.location = ctx2b.location;
+vm.runInNewContext(storageCode, ctx2b);
+vm.runInNewContext(profileCode, ctx2b);
+ctx2b.nameInput.value = 'Bob';
+(async () => {
+  await ctx2b.saveHandler?.({ preventDefault() {} });
+  assert.strictEqual(ctx2b.location.href, '/quiz?foo=bar&baz=qux');
+  console.log('ok');
+})().catch(err => { console.error(err); process.exit(1); });
+
 // Test auto-loading profile name via UID
 const ctx3 = {
   URLSearchParams,
