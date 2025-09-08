@@ -39,7 +39,7 @@
 {% block scripts %}
   <script>
     window.quizConfig = {{ config|json_encode|raw }};
-    const returnUrl = '{{ return }}';
+    const returnUrl = '{{ return|e('js') }}';
   </script>
   <script src="{{ basePath }}/js/app.js"></script>
   <script src="{{ basePath }}/js/storage.js"></script>
