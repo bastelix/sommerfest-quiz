@@ -205,6 +205,7 @@
 - Suggest username for manual QR input
 - Enable dark theme on license page
 - Update user rendering
+- Highlight catalog cards in dark mode
 
 ### Fix
 
