@@ -342,11 +342,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         $params = $request->getQueryParams();
         $return = (string)($params['return'] ?? '');
         $eventUid = (string)($config['event_uid'] ?? '');
+        $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
+        $_SESSION['csrf_token'] = $csrf;
 
         return $view->render($response, 'profile.twig', [
-            'config'   => $config,
-            'return'   => $return,
-            'eventUid' => $eventUid,
+            'config'     => $config,
+            'return'     => $return,
+            'eventUid'   => $eventUid,
+            'csrf_token' => $csrf,
         ]);
     });
     $app->get('/landing', function (Request $request, Response $response) {

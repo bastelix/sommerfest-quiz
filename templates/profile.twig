@@ -3,9 +3,11 @@
 {% block title %}{{ t('title_profile') }}{% endblock %}
 
 {% block head %}
+  <meta name="csrf-token" content="{{ csrf_token }}">
   <link rel="stylesheet" href="{{ basePath }}/css/main.css">
   <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <script>window.csrfToken = '{{ csrf_token|e('js') }}';</script>
 {% endblock %}
 
 {% block body_class %}uk-padding{% endblock %}
