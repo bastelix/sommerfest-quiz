@@ -801,24 +801,29 @@ document.addEventListener('DOMContentLoaded', function () {
     let offsetX = 0;
     let offsetY = 0;
     const style = {
-      width: '12px',
-      height: '12px',
+      width: '20px',
+      height: '20px',
       background: 'rgba(255,255,255,0.8)',
       border: '2px solid #1e87f0',
-      cursor: 'move'
+      cursor: 'move',
+      touchAction: 'none'
     };
     if (!skipStyle) Object.assign(handle.style, style);
-    handle.onpointerdown = e => {
+    const start = e => {
       dragging = true;
-      offsetX = e.offsetX;
-      offsetY = e.offsetY;
-      handle.setPointerCapture(e.pointerId);
+      const point = e.touches ? e.touches[0] : e;
+      const rect = handle.getBoundingClientRect();
+      offsetX = point.clientX - rect.left;
+      offsetY = point.clientY - rect.top;
+      if (e.pointerId !== undefined) handle.setPointerCapture(e.pointerId);
+      e.preventDefault();
     };
-    handle.onpointermove = e => {
+    const move = e => {
       if (!dragging) return;
+      const point = e.touches ? e.touches[0] : e;
       const rect = catalogStickerPreview.getBoundingClientRect();
-      let x = e.clientX - rect.left - offsetX;
-      let y = e.clientY - rect.top - offsetY;
+      let x = point.clientX - rect.left - offsetX;
+      let y = point.clientY - rect.top - offsetY;
       x = Math.max(0, Math.min(rect.width - handle.offsetWidth, x));
       y = Math.max(0, Math.min(rect.height - handle.offsetHeight, y));
       handle.style.left = `${x}px`;
@@ -827,12 +832,20 @@ document.addEventListener('DOMContentLoaded', function () {
       if (topInput) topInput.value = (y / scale).toFixed(1);
       if (leftInput) leftInput.value = (x / scale).toFixed(1);
       drawCatalogStickerPreview();
+      e.preventDefault();
     };
-    handle.onpointerup = handle.onpointercancel = e => {
+    const end = e => {
       dragging = false;
-      handle.releasePointerCapture(e.pointerId);
+      if (e.pointerId !== undefined) handle.releasePointerCapture(e.pointerId);
       saveStickerSettings();
+      e.preventDefault();
     };
+    handle.onpointerdown = start;
+    handle.onpointermove = move;
+    handle.onpointerup = handle.onpointercancel = end;
+    handle.ontouchstart = start;
+    handle.ontouchmove = move;
+    handle.ontouchend = handle.ontouchcancel = end;
   }
   function makeResizable (handle, widthInput, heightInput, box) {
     if (!handle || !box) return;
@@ -842,18 +855,19 @@ document.addEventListener('DOMContentLoaded', function () {
     let startW = 0;
     let startH = 0;
     const style = {
-      width: '12px',
-      height: '12px',
+      width: '20px',
+      height: '20px',
       background: 'rgba(255,255,255,0.8)',
       border: '2px solid #1e87f0',
       cursor: 'nwse-resize',
       position: 'absolute',
-      right: '-6px',
-      bottom: '-6px',
+      right: '-10px',
+      bottom: '-10px',
       zIndex: '10',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center'
+      justifyContent: 'center',
+      touchAction: 'none'
     };
     Object.assign(handle.style, style);
     handle.innerHTML = '<span uk-icon="move"></span>';
@@ -863,18 +877,21 @@ document.addEventListener('DOMContentLoaded', function () {
       window.UIkit.tooltip(handle);
     }
     if (handle.firstElementChild) handle.firstElementChild.style.pointerEvents = 'none';
-    handle.onpointerdown = e => {
+    const start = e => {
       resizing = true;
-      startX = e.clientX;
-      startY = e.clientY;
+      const point = e.touches ? e.touches[0] : e;
+      startX = point.clientX;
+      startY = point.clientY;
       startW = box.offsetWidth;
       startH = box.offsetHeight;
-      handle.setPointerCapture(e.pointerId);
+      if (e.pointerId !== undefined) handle.setPointerCapture(e.pointerId);
+      e.preventDefault();
     };
-    handle.onpointermove = e => {
+    const move = e => {
       if (!resizing) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
+      const point = e.touches ? e.touches[0] : e;
+      const dx = point.clientX - startX;
+      const dy = point.clientY - startY;
       const newW = Math.max(10, startW + dx);
       const newH = Math.max(10, startH + dy);
       box.style.width = `${newW}px`;
@@ -883,12 +900,20 @@ document.addEventListener('DOMContentLoaded', function () {
       if (widthInput) widthInput.value = (newW / scale).toFixed(1);
       if (heightInput) heightInput.value = (newH / scale).toFixed(1);
       drawCatalogStickerPreview();
+      e.preventDefault();
     };
-    handle.onpointerup = handle.onpointercancel = e => {
+    const end = e => {
       resizing = false;
-      handle.releasePointerCapture(e.pointerId);
+      if (e.pointerId !== undefined) handle.releasePointerCapture(e.pointerId);
       saveStickerSettings();
+      e.preventDefault();
     };
+    handle.onpointerdown = start;
+    handle.onpointermove = move;
+    handle.onpointerup = handle.onpointercancel = end;
+    handle.ontouchstart = start;
+    handle.ontouchmove = move;
+    handle.ontouchend = handle.ontouchcancel = end;
   }
   function wrapText (ctx, text, maxWidth) {
     const words = String(text).split(/\s+/);
