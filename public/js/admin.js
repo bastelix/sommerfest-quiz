@@ -2862,13 +2862,48 @@ document.addEventListener('DOMContentLoaded', function () {
       {
         className: 'uk-table-shrink',
         render: item => {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'uk-icon-button qr-action';
-          btn.setAttribute('uk-icon', 'key');
-          btn.setAttribute('aria-label', window.transUserPass || 'Passwort setzen');
-          btn.addEventListener('click', () => openPassModal(item.id));
-          return btn;
+          const wrapper = document.createElement('div');
+          wrapper.className = 'uk-flex uk-flex-middle uk-flex-right';
+
+          const passBtn = document.createElement('button');
+          passBtn.type = 'button';
+          passBtn.className = 'uk-icon-button qr-action';
+          passBtn.setAttribute('uk-icon', 'key');
+          passBtn.setAttribute('aria-label', window.transUserPass || 'Passwort setzen');
+          passBtn.setAttribute('uk-tooltip', 'title: ' + (window.transUserPass || 'Passwort setzen') + '; pos: left');
+          passBtn.addEventListener('click', () => openPassModal(item.id));
+          wrapper.appendChild(passBtn);
+
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'uk-icon-button qr-action uk-text-danger uk-margin-small-left';
+          delBtn.setAttribute('uk-icon', 'trash');
+          delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
+          delBtn.setAttribute('uk-tooltip', 'title: ' + (window.transDelete || 'Löschen') + '; pos: left');
+          delBtn.addEventListener('click', () => removeUser(item.id));
+          wrapper.appendChild(delBtn);
+
+          return wrapper;
+        },
+        renderCard: item => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'uk-flex uk-flex-middle qr-action';
+
+          const passBtn = document.createElement('button');
+          passBtn.className = 'uk-icon-button qr-action';
+          passBtn.setAttribute('uk-icon', 'key');
+          passBtn.setAttribute('aria-label', window.transUserPass || 'Passwort setzen');
+          passBtn.addEventListener('click', () => openPassModal(item.id));
+          wrapper.appendChild(passBtn);
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'uk-icon-button qr-action uk-text-danger uk-margin-small-left';
+          delBtn.setAttribute('uk-icon', 'trash');
+          delBtn.setAttribute('aria-label', window.transDelete || 'Löschen');
+          delBtn.addEventListener('click', () => removeUser(item.id));
+          wrapper.appendChild(delBtn);
+
+          return wrapper;
         }
       }
     ];
@@ -2878,7 +2913,6 @@ document.addEventListener('DOMContentLoaded', function () {
       sortable: true,
       mobileCards: { container: usersCardsEl },
       onEdit: cell => openUserEditor(cell),
-      onDelete: id => removeUser(id),
       onReorder: () => saveUsers()
     });
     userManager.setColumnLoading('username', true);
