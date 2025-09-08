@@ -779,6 +779,13 @@ document.addEventListener('DOMContentLoaded', function () {
       if (catalogStickerSubheaderSize) catalogStickerSubheaderSize.value = data.stickerSubheaderFontSize != null ? data.stickerSubheaderFontSize : 10;
       if (catalogStickerCatalogSize) catalogStickerCatalogSize.value = data.stickerCatalogFontSize != null ? data.stickerCatalogFontSize : 11;
       if (catalogStickerDescSize) catalogStickerDescSize.value = data.stickerDescFontSize != null ? data.stickerDescFontSize : 10;
+      if (catalogStickerTextColor) catalogStickerTextColor.value = '#' + (data.stickerTextColor || '000000').replace(/^#/, '');
+      if (descWidthInput) descWidthInput.value = data.stickerDescWidth != null ? data.stickerDescWidth : '';
+      if (descHeightInput) descHeightInput.value = data.stickerDescHeight != null ? data.stickerDescHeight : '';
+      if (data.stickerBgPath) {
+        catalogStickerBgUrl = withBase(data.stickerBgPath);
+        catalogStickerBgImg.src = catalogStickerBgUrl;
+      }
     } catch (e) { /* ignore */ }
     drawCatalogStickerPreview();
   }
@@ -798,7 +805,11 @@ document.addEventListener('DOMContentLoaded', function () {
       stickerHeaderFontSize: parseInt(catalogStickerHeaderSize?.value || '12', 10),
       stickerSubheaderFontSize: parseInt(catalogStickerSubheaderSize?.value || '10', 10),
       stickerCatalogFontSize: parseInt(catalogStickerCatalogSize?.value || '11', 10),
-      stickerDescFontSize: parseInt(catalogStickerDescSize?.value || '10', 10)
+      stickerDescFontSize: parseInt(catalogStickerDescSize?.value || '10', 10),
+      stickerTextColor: (catalogStickerTextColor?.value || '#000000').replace(/^#/, ''),
+      stickerDescWidth: parseFloat(descWidthInput?.value || '0'),
+      stickerDescHeight: parseFloat(descHeightInput?.value || '0'),
+      stickerBgPath: catalogStickerBgUrl.replace(withBase(''), '').split('?')[0] || ''
     };
     try {
       await apiFetch('/admin/sticker-settings', {
@@ -1040,11 +1051,13 @@ document.addEventListener('DOMContentLoaded', function () {
     const val = parseFloat(descWidthInput.value) * scale * stickerScaleRatio;
     if (stickerTextBox) stickerTextBox.style.width = `${Math.max(10, val)}px`;
     drawCatalogStickerPreview();
+    saveStickerSettings();
   });
   descHeightInput?.addEventListener('input', () => {
     const val = parseFloat(descHeightInput.value) * scale * stickerScaleRatio;
     if (stickerTextBox) stickerTextBox.style.height = `${Math.max(10, val)}px`;
     drawCatalogStickerPreview();
+    saveStickerSettings();
   });
   makeDraggable(stickerQrHandle, qrTopInput, qrLeftInput, false, () => stickerScaleRatio);
   catalogStickerBgImg.onload = () => drawCatalogStickerPreview();
@@ -1057,7 +1070,7 @@ document.addEventListener('DOMContentLoaded', function () {
   catalogStickerTemplate?.addEventListener('change', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
   catalogStickerDesc?.addEventListener('change', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
   catalogStickerQrColor?.addEventListener('input', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
-  catalogStickerTextColor?.addEventListener('input', drawCatalogStickerPreview);
+  catalogStickerTextColor?.addEventListener('input', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
   catalogStickerQrSizePct?.addEventListener('input', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
   catalogStickerHeaderSize?.addEventListener('input', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
   catalogStickerSubheaderSize?.addEventListener('input', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
@@ -1137,6 +1150,12 @@ document.addEventListener('DOMContentLoaded', function () {
       const text = (xhr.responseText || '').trim();
       if (xhr.status >= 200 && xhr.status < 300) {
         notify(window.transImageReady || 'Image bereit', 'success');
+        const path = currentEventUid
+          ? `/data/events/${encodeURIComponent(currentEventUid)}/sticker-bg.png?${Date.now()}`
+          : `/data/uploads/sticker-bg.png?${Date.now()}`;
+        catalogStickerBgUrl = withBase(path);
+        catalogStickerBgImg.src = catalogStickerBgUrl;
+        saveStickerSettings();
         if (catalogStickerGenerate) catalogStickerGenerate.disabled = false;
       } else {
         const errorMap = {

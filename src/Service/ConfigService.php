@@ -238,6 +238,10 @@ class ConfigService
             'stickerSubheaderFontSize',
             'stickerCatalogFontSize',
             'stickerDescFontSize',
+            'stickerTextColor',
+            'stickerDescWidth',
+            'stickerDescHeight',
+            'stickerBgPath',
         ];
         $existing = array_map('strtolower', $this->getConfigColumns());
         $filtered = array_intersect_key($data, array_flip($keys));
@@ -395,6 +399,10 @@ class ConfigService
             'stickerDescLeft',
             'stickerQrTop',
             'stickerQrLeft',
+            'stickerTextColor',
+            'stickerDescWidth',
+            'stickerDescHeight',
+            'stickerBgPath',
         ];
         $map = [];
         foreach ($keys as $k) {
