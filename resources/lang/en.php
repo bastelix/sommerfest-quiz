@@ -203,6 +203,7 @@ return [
     'action_design_qrcodes' => 'Design QR codes',
     'column_username' => 'Username',
     'column_role' => 'Role',
+    'column_active' => 'Active',
     'column_subdomain' => 'Subdomain',
     'column_created' => 'Created',
       'column_plan' => 'Plan',

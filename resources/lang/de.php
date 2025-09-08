@@ -201,6 +201,7 @@ return [
     'action_design_qrcodes' => 'QR-Codes gestalten',
     'column_username' => 'Benutzername',
     'column_role' => 'Rolle',
+    'column_active' => 'Aktiv',
     'column_subdomain' => 'Subdomain',
     'column_created' => 'Erstellt',
       'column_plan' => 'Abo',
