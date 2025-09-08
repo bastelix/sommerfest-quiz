@@ -22,12 +22,13 @@
     {% block center %}
       <span id="topbar-title" class="uk-navbar-title uk-text-center" data-default-title="{{ event.name|default('Sommerfest 2025') }}">{{ event.name|default('Sommerfest 2025') }}</span>
     {% endblock %}
-    {% block headerbar %}
-      {% if event.description %}
-        <div class="event-header-bar uk-text-center">{{ event.description }}</div>
-      {% endif %}
-    {% endblock %}
   {% endembed %}
+  <div class="uk-container uk-container-large">
+    <h1 class="uk-heading-medium uk-text-center">{{ event.name }}</h1>
+    {% if event.description %}
+      <p class="uk-text-lead uk-text-center">{{ event.description }}</p>
+    {% endif %}
+  </div>
   <div class="uk-container uk-width-1-1 uk-width-1-2@s uk-width-2-3@m">
     <div class="uk-card qr-card uk-card-body uk-box-shadow-large uk-margin" uk-scrollspy="cls: uk-animation-fade">
       <div id="quiz-header" class="uk-text-center uk-margin" uk-scrollspy="cls: uk-animation-scale-up; delay: 100">
