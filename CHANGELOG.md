@@ -209,6 +209,8 @@
 - Prevent replaying solved catalogs
 - Add label for event selection
 - Use native select for event picker
+- Inline role editing
+- Add username modal for admin
 
 ### Fix
 
