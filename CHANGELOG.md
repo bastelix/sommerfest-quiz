@@ -324,6 +324,7 @@
 - Cover quiz autostart error cases
 - Persist session on localhost
 - Ensure login redirect on main domain
+- Cover team name suggestion
 
 ## [0.2.0] - 2025-08-18
 
