@@ -172,12 +172,14 @@ class CatalogStickerController
                 [$fam, $style, $size, $text] = $data;
                 $pdf->SetFont($fam, $style, $size);
                 $lineH = $size * 1.2 * 0.352778;
-                if ($curY + $lineH - $innerY > $maxTextH) {
+                $t = $this->sanitizePdfText($text);
+                $height = $this->getMultiCellHeight($pdf, $t, $textW, $lineH);
+                if ($curY + $height - $innerY > $maxTextH) {
                     break;
                 }
                 $pdf->SetXY($innerX, $curY);
-                $pdf->Cell($textW, $lineH, $this->fitText($pdf, $text, $textW));
-                $curY += $lineH;
+                $pdf->MultiCell($textW, $lineH, $t);
+                $curY += $height;
             }
 
             $qrSize = min($innerW * $qrSizePct / 100.0, $innerH * 0.55);
@@ -262,17 +264,11 @@ class CatalogStickerController
         return $converted;
     }
 
-    private function fitText(FPDF $pdf, string $text, float $maxWidth): string
+    private function getMultiCellHeight(FPDF $pdf, string $text, float $width, float $lineHeight): float
     {
-        $t = $this->sanitizePdfText($text);
-        if ($pdf->GetStringWidth($t) <= $maxWidth) {
-            return $t;
-        }
-        $ellipsis = $this->sanitizePdfText('…');
-        $str = $t;
-        while ($str !== '' && $pdf->GetStringWidth($str . $ellipsis) > $maxWidth) {
-            $str = mb_substr($str, 0, mb_strlen($str) - 1);
-        }
-        return $str . $ellipsis;
+        $tmp = clone $pdf;
+        $tmp->SetXY(0, 0);
+        $tmp->MultiCell($width, $lineHeight, $text);
+        return $tmp->GetY();
     }
 }
