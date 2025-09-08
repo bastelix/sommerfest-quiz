@@ -2733,6 +2733,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const userPassInput = document.getElementById('userPassInput');
   const userPassRepeat = document.getElementById('userPassRepeat');
   const userPassForm = document.getElementById('userPassForm');
+  const userNameModal = window.UIkit ? UIkit.modal('#userNameModal') : null;
+  const userNameForm = document.getElementById('userNameForm');
+  const userNameInput = document.getElementById('userNameInput');
   const labelUsername = usersListEl?.dataset.labelUsername || 'Benutzername';
   const labelRole = usersListEl?.dataset.labelRole || 'Rolle';
   const labelActive = usersListEl?.dataset.labelActive || 'Aktiv';
@@ -2750,7 +2753,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveUsers(list = userManager?.getData() || []) {
     if (list.some(u => !u.username?.trim())) {
-      notify('Benutzername darf nicht leer sein', 'warning');
+      notify(window.transUsernameEmpty || 'Benutzername darf nicht leer sein', 'warning');
       return;
     }
     const payload = list
@@ -2828,8 +2831,7 @@ document.addEventListener('DOMContentLoaded', function () {
     modal.setAttribute('uk-modal', '');
     modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">'
       + '<h3 class="uk-modal-title"></h3>'
-      + '<input id="userEditInput" class="uk-input" type="text">'
-      + '<select id="userEditSelect" class="uk-select" hidden></select>'
+      + '<select id="userEditSelect" class="uk-select"></select>'
       + '<div class="uk-margin-top uk-text-right">'
       + `<button id="userEditCancel" class="uk-button uk-button-default" type="button">${window.transCancel || 'Abbrechen'}</button>`
       + `<button id="userEditSave" class="uk-button uk-button-primary" type="button">${window.transSave || 'Speichern'}</button>`
@@ -2838,7 +2840,6 @@ document.addEventListener('DOMContentLoaded', function () {
     document.body.appendChild(modal);
   }
   const userEditModal = window.UIkit ? UIkit.modal('#userEditModal') : null;
-  const userEditInput = document.getElementById('userEditInput');
   const userEditSelect = document.getElementById('userEditSelect');
   const userEditSave = document.getElementById('userEditSave');
   const userEditCancel = document.getElementById('userEditCancel');
@@ -2856,20 +2857,14 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!item) return;
     currentUserId = id;
     if (key === 'username') {
-      userEditInput.hidden = false;
-      userEditSelect.hidden = true;
-      userEditInput.value = item.username || '';
-      userEditTitle.textContent = labelUsername;
+      if (userNameInput) userNameInput.value = item.username || '';
+      userNameModal?.show();
     } else if (key === 'role') {
-      userEditInput.hidden = true;
-      userEditSelect.hidden = false;
       userEditSelect.innerHTML = (window.roles || []).map(r => `<option value="${r}">${r}</option>`).join('');
       userEditSelect.value = item.role || (window.roles && window.roles[0]) || '';
       userEditTitle.textContent = labelRole;
-    } else {
-      return;
+      userEditModal?.show();
     }
-    userEditModal?.show();
   }
 
   userEditSave?.addEventListener('click', () => {
@@ -2879,14 +2874,29 @@ document.addEventListener('DOMContentLoaded', function () {
       userEditModal?.hide();
       return;
     }
-    if (!userEditInput.hidden) {
-      item.username = userEditInput.value.trim();
-    } else {
-      item.role = userEditSelect.value;
-    }
+    item.role = userEditSelect.value;
     userManager.render(list);
     saveUsers(list);
     userEditModal?.hide();
+  });
+
+  userNameForm?.addEventListener('submit', e => {
+    e.preventDefault();
+    const list = userManager.getData();
+    const item = list.find(u => u.id === currentUserId);
+    const name = userNameInput?.value.trim() || '';
+    if (!item) {
+      userNameModal?.hide();
+      return;
+    }
+    if (!name) {
+      notify(window.transUsernameEmpty || 'Benutzername darf nicht leer sein', 'danger');
+      return;
+    }
+    item.username = name;
+    userManager.render(list);
+    saveUsers(list);
+    userNameModal?.hide();
   });
 
   if (usersListEl) {
