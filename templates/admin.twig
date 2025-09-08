@@ -1,5 +1,4 @@
 {% extends 'layout.twig' %}
-{% import 'components/standard_table.twig' as std_table %}
 
 {% block title %}{{ t('admin_title') }}{% endblock %}
 
@@ -947,14 +946,28 @@
         </div>
 
         <h3 class="uk-heading-bullet">{{ t('heading_users') }}</h3>
-        {{ std_table.render([
-          {label: '', class: 'uk-table-shrink'},
-          {label: t('column_username')},
-          {label: t('column_role')},
-          {label: 'Aktiv'},
-          {label: '<span uk-icon="icon: key" uk-tooltip="title: ' ~ t('tip_user_pass') ~ '; pos: top" tabindex="0"></span>', class: 'uk-table-shrink'},
-          {label: '', class: 'uk-table-shrink'}
-        ], 'usersList') }}
+        {% from 'components/table.twig' import qr_rowcards %}
+        <div class="uk-overflow-auto uk-visible@m">
+          <table class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive">
+            <thead>
+              <tr>
+                <th class="uk-table-shrink"></th>
+                <th data-key="username">{{ t('column_username') }}</th>
+                <th data-key="role">{{ t('column_role') }}</th>
+                <th data-key="active" class="uk-table-shrink">{{ t('column_active') }}</th>
+                <th class="uk-table-shrink"><span uk-icon="icon: key" uk-tooltip="title: {{ t('tip_user_pass') }}; pos: top"></span></th>
+                <th class="uk-table-shrink uk-text-right">{{ t('column_actions') }}</th>
+              </tr>
+            </thead>
+            <tbody
+              id="usersList"
+              data-label-username="{{ t('column_username') }}"
+              data-label-role="{{ t('column_role') }}"
+              data-label-active="{{ t('column_active') }}"
+            ></tbody>
+          </table>
+        </div>
+        {{ qr_rowcards('usersCards') }}
         <div class="uk-margin">
           <button id="userAddBtn" class="uk-icon-button uk-button-default" uk-icon="plus" uk-tooltip="title: {{ t('tip_user_add') }}; pos: right" aria-label="{{ t('tip_user_add') }}"></button>
         </div>

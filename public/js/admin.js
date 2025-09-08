@@ -2696,29 +2696,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // --------- Benutzer ---------
   const usersListEl = document.getElementById('usersList');
+  const usersCardsEl = document.getElementById('usersCards');
   const userAddBtn = document.getElementById('userAddBtn');
   const userPassModal = window.UIkit ? UIkit.modal('#userPassModal') : null;
   const userPassInput = document.getElementById('userPassInput');
   const userPassRepeat = document.getElementById('userPassRepeat');
   const userPassForm = document.getElementById('userPassForm');
-  let currentUserRow = null;
+  const labelUsername = usersListEl?.dataset.labelUsername || 'Benutzername';
+  const labelRole = usersListEl?.dataset.labelRole || 'Rolle';
+  const labelActive = usersListEl?.dataset.labelActive || 'Aktiv';
+  let currentUserId = null;
+  let userManager;
 
-  function collectUsers() {
-    return Array.from(usersListEl.querySelectorAll('.user-row')).map(row => ({
-      id: row.dataset.id ? parseInt(row.dataset.id, 10) : undefined,
-      username: row.querySelector('.user-name').value.trim(),
-      password: row.dataset.pass || '',
-      role: row.querySelector('.user-role').value,
-      active: row.querySelector('.user-active')?.checked
-    })).filter(u => u.username);
-  }
-
-  function saveUsers() {
-    const list = collectUsers();
+  function saveUsers(list = userManager?.getData() || []) {
+    const payload = list
+      .map(u => ({
+        id: u.id && !isNaN(u.id) ? parseInt(u.id, 10) : undefined,
+        username: u.username?.trim(),
+        role: u.role,
+        active: u.active !== false,
+        password: u.password || ''
+      }))
+      .filter(u => u.username);
     apiFetch('/users.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(list)
+      body: JSON.stringify(payload)
     })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
@@ -2730,108 +2733,163 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
-  function createUserRow(u = {}) {
-    const row = document.createElement('tr');
-    row.className = 'user-row';
-    if (u.id) row.dataset.id = u.id;
-
-    const handleCell = document.createElement('td');
-    handleCell.className = 'uk-table-shrink';
-    const handleSpan = document.createElement('span');
-    handleSpan.className = 'uk-sortable-handle uk-icon';
-    handleSpan.setAttribute('uk-icon', 'icon: table');
-    handleCell.appendChild(handleSpan);
-
-    const nameCell = document.createElement('td');
-    const nameInput = document.createElement('input');
-    nameInput.type = 'text';
-    nameInput.className = 'uk-input user-name';
-    nameInput.placeholder = 'Benutzername';
-    nameInput.value = u.username || '';
-    nameCell.appendChild(nameInput);
-
-    const activeCell = document.createElement('td');
-    const activeCheckbox = document.createElement('input');
-    activeCheckbox.type = 'checkbox';
-    activeCheckbox.className = 'user-active';
-    activeCheckbox.checked = u.active !== false;
-    activeCell.appendChild(activeCheckbox);
-
-    const passCell = document.createElement('td');
-    passCell.className = 'uk-table-shrink';
-    const passBtn = document.createElement('button');
-    passBtn.className = 'uk-button uk-button-default';
-    passBtn.setAttribute('uk-icon', 'icon: key');
-    passBtn.setAttribute('aria-label', 'Passwort setzen');
-    passBtn.addEventListener('click', () => {
-      currentUserRow = row;
-      if (userPassInput) userPassInput.value = '';
-      if (userPassRepeat) userPassRepeat.value = '';
-      userPassModal.show();
-    });
-    passCell.appendChild(passBtn);
-    row.dataset.pass = '';
-
-    const roleCell = document.createElement('td');
-    const roleSelect = document.createElement('select');
-    roleSelect.className = 'uk-select user-role';
-    const roles = window.roles || [];
-    roles.forEach(r => {
-      const opt = document.createElement('option');
-      opt.value = r;
-      opt.textContent = r;
-      if ((u.role || roles[0]) === r) opt.selected = true;
-      roleSelect.appendChild(opt);
-    });
-    roleCell.appendChild(roleSelect);
-
-    const delCell = document.createElement('td');
-    delCell.className = 'uk-table-shrink';
-    const delBtn = document.createElement('button');
-    delBtn.className = 'uk-icon-button uk-button-danger';
-    delBtn.setAttribute('uk-icon', 'trash');
-    delBtn.setAttribute('aria-label', 'Löschen');
-    delBtn.addEventListener('click', () => {
-      row.remove();
-      saveUsers();
-    });
-    delCell.appendChild(delBtn);
-
-    row.appendChild(handleCell);
-    row.appendChild(nameCell);
-    row.appendChild(roleCell);
-    row.appendChild(activeCell);
-    row.appendChild(passCell);
-    row.appendChild(delCell);
-    return row;
+  function removeUser(id) {
+    const list = userManager.getData();
+    const idx = list.findIndex(u => u.id === id);
+    if (idx !== -1) {
+      list.splice(idx, 1);
+      userManager.render(list);
+      saveUsers(list);
+    }
   }
 
-  function renderUsers(list) {
-    if (!usersListEl) return;
-    usersListEl.innerHTML = '';
-    list.forEach(u => usersListEl.appendChild(createUserRow(u)));
+  function openPassModal(id) {
+    currentUserId = id;
+    if (userPassInput) userPassInput.value = '';
+    if (userPassRepeat) userPassRepeat.value = '';
+    userPassModal?.show();
   }
 
-  if (usersListEl && window.UIkit && UIkit.util) {
-    UIkit.util.on(usersListEl, 'moved', saveUsers);
+  function addUser() {
+    const list = userManager.getData();
+    list.push({
+      id: crypto.randomUUID(),
+      username: '',
+      role: (window.roles && window.roles[0]) || '',
+      active: true,
+      password: ''
+    });
+    userManager.render(list);
+    saveUsers(list);
   }
+
+  if (!document.getElementById('userEditModal')) {
+    const modal = document.createElement('div');
+    modal.id = 'userEditModal';
+    modal.setAttribute('uk-modal', '');
+    modal.innerHTML = '<div class="uk-modal-dialog uk-modal-body">'
+      + '<h3 class="uk-modal-title"></h3>'
+      + '<input id="userEditInput" class="uk-input" type="text">'
+      + '<select id="userEditSelect" class="uk-select" hidden></select>'
+      + '<div class="uk-margin-top uk-text-right">'
+      + `<button id="userEditCancel" class="uk-button uk-button-default" type="button">${window.transCancel || 'Abbrechen'}</button>`
+      + `<button id="userEditSave" class="uk-button uk-button-primary" type="button">${window.transSave || 'Speichern'}</button>`
+      + '</div>'
+      + '</div>';
+    document.body.appendChild(modal);
+  }
+  const userEditModal = window.UIkit ? UIkit.modal('#userEditModal') : null;
+  const userEditInput = document.getElementById('userEditInput');
+  const userEditSelect = document.getElementById('userEditSelect');
+  const userEditSave = document.getElementById('userEditSave');
+  const userEditCancel = document.getElementById('userEditCancel');
+  const userEditTitle = document.querySelector('#userEditModal .uk-modal-title');
+
+  userEditCancel?.addEventListener('click', e => {
+    e.preventDefault();
+    userEditModal?.hide();
+  });
+
+  function openUserEditor(cell) {
+    const id = cell?.dataset.id;
+    const key = cell?.dataset.key;
+    const item = userManager.getData().find(u => u.id === id);
+    if (!item) return;
+    currentUserId = id;
+    if (key === 'username') {
+      userEditInput.hidden = false;
+      userEditSelect.hidden = true;
+      userEditInput.value = item.username || '';
+      userEditTitle.textContent = labelUsername;
+    } else if (key === 'role') {
+      userEditInput.hidden = true;
+      userEditSelect.hidden = false;
+      userEditSelect.innerHTML = (window.roles || []).map(r => `<option value="${r}">${r}</option>`).join('');
+      userEditSelect.value = item.role || (window.roles && window.roles[0]) || '';
+      userEditTitle.textContent = labelRole;
+    } else {
+      return;
+    }
+    userEditModal?.show();
+  }
+
+  userEditSave?.addEventListener('click', () => {
+    const list = userManager.getData();
+    const item = list.find(u => u.id === currentUserId);
+    if (!item) {
+      userEditModal?.hide();
+      return;
+    }
+    if (!userEditInput.hidden) {
+      item.username = userEditInput.value.trim();
+    } else {
+      item.role = userEditSelect.value;
+    }
+    userManager.render(list);
+    saveUsers(list);
+    userEditModal?.hide();
+  });
 
   if (usersListEl) {
+    const userColumns = [
+      { key: 'username', label: labelUsername, editable: true },
+      { key: 'role', label: labelRole, editable: true },
+      {
+        key: 'active',
+        label: labelActive,
+        className: 'uk-table-shrink',
+        render: item => {
+          const cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.checked = item.active !== false;
+          cb.addEventListener('change', () => {
+            item.active = cb.checked;
+            saveUsers(userManager.getData());
+          });
+          return cb;
+        }
+      },
+      {
+        className: 'uk-table-shrink',
+        render: item => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'uk-icon-button qr-action';
+          btn.setAttribute('uk-icon', 'key');
+          btn.setAttribute('aria-label', window.transUserPass || 'Passwort setzen');
+          btn.addEventListener('click', () => openPassModal(item.id));
+          return btn;
+        }
+      }
+    ];
+    userManager = new TableManager({
+      tbody: usersListEl,
+      columns: userColumns,
+      sortable: true,
+      mobileCards: { container: usersCardsEl },
+      onEdit: cell => openUserEditor(cell),
+      onDelete: id => removeUser(id),
+      onReorder: () => saveUsers()
+    });
+    userManager.setColumnLoading('username', true);
     apiFetch('/users.json', { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
-      .then(data => renderUsers(data))
-      .catch(() => {});
+      .then(data => {
+        const list = data.map(u => ({ ...u, id: u.id ?? crypto.randomUUID(), password: '' }));
+        userManager.render(list);
+      })
+      .catch(() => {})
+      .finally(() => userManager.setColumnLoading('username', false));
   }
 
   userAddBtn?.addEventListener('click', e => {
     e.preventDefault();
-    usersListEl.appendChild(createUserRow());
-    saveUsers();
+    addUser();
   });
 
   userPassForm?.addEventListener('submit', e => {
     e.preventDefault();
-    if (!userPassInput || !userPassRepeat || !currentUserRow) return;
+    if (!userPassInput || !userPassRepeat) return;
     const p1 = userPassInput.value;
     const p2 = userPassRepeat.value;
     if (p1 === '' || p2 === '') {
@@ -2842,15 +2900,15 @@ document.addEventListener('DOMContentLoaded', function () {
       notify('Passwörter stimmen nicht überein', 'danger');
       return;
     }
-    currentUserRow.dataset.pass = p1;
-    userPassModal.hide();
+    const list = userManager.getData();
+    const item = list.find(u => u.id === currentUserId);
+    if (item) {
+      item.password = p1;
+      saveUsers(list);
+    }
+    userPassModal?.hide();
     userPassInput.value = '';
     userPassRepeat.value = '';
-    saveUsers();
-  });
-
-  usersListEl?.addEventListener('change', () => {
-    saveUsers();
   });
 
   const importJsonBtn = document.getElementById('importJsonBtn');
