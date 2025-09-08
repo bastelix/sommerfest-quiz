@@ -712,6 +712,58 @@ document.addEventListener('DOMContentLoaded', function () {
   const catalogStickerQrSizePct = document.getElementById('catalogStickerQrSizePct');
   const catalogStickerBg = document.getElementById('catalogStickerBg');
   const catalogStickerGenerate = document.getElementById('catalogStickerGenerate');
+  const catalogStickerPreview = document.getElementById('catalogStickerPreview');
+  const catalogStickerBgImg = new Image();
+  let catalogStickerBgUrl = '';
+  const stickerTemplates = {
+    avery_l7165: { label_w: 99.1, label_h: 67.7 },
+    avery_l7163: { label_w: 99.1, label_h: 38.1 },
+    avery_l7651: { label_w: 63.5, label_h: 38.1 }
+  };
+  function drawCatalogStickerPreview () {
+    if (!catalogStickerPreview) return;
+    const tpl = stickerTemplates[catalogStickerTemplate?.value] || stickerTemplates.avery_l7165;
+    const scale = 4; // px per mm for preview
+    const w = Math.round(tpl.label_w * scale);
+    const h = Math.round(tpl.label_h * scale);
+    let canvas = catalogStickerPreview.querySelector('canvas');
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      catalogStickerPreview.appendChild(canvas);
+    }
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, w, h);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, w, h);
+    if (catalogStickerBgUrl && catalogStickerBgImg.complete) {
+      ctx.drawImage(catalogStickerBgImg, 0, 0, w, h);
+    }
+    const qrSizePct = parseFloat(catalogStickerQrSizePct?.value || '42');
+    const qrSize = Math.min((w * qrSizePct) / 100, h * 0.55);
+    ctx.fillStyle = catalogStickerQrColor?.value || '#000';
+    ctx.fillRect(w - qrSize - 4, h - qrSize - 4, qrSize, qrSize);
+    ctx.fillStyle = '#000';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textBaseline = 'top';
+    const lines = ['Event', 'Catalog'];
+    if (catalogStickerDesc?.checked) lines.push('Desc');
+    let y = 4;
+    const textWidth = w - qrSize - 8;
+    lines.forEach(line => {
+      ctx.fillText(line, 4, y, textWidth);
+      y += 14;
+    });
+  }
+  catalogStickerBgImg.onload = () => drawCatalogStickerPreview();
+  if (catalogStickerModal && window.UIkit && UIkit.util) {
+    UIkit.util.on(catalogStickerModal.$el, 'shown', () => drawCatalogStickerPreview());
+  }
+  catalogStickerTemplate?.addEventListener('change', drawCatalogStickerPreview);
+  catalogStickerDesc?.addEventListener('change', drawCatalogStickerPreview);
+  catalogStickerQrColor?.addEventListener('input', drawCatalogStickerPreview);
+  catalogStickerQrSizePct?.addEventListener('input', drawCatalogStickerPreview);
   let catalogStickerProgress;
   if (catalogStickerBg) {
     catalogStickerProgress = document.createElement('progress');
@@ -739,6 +791,9 @@ document.addEventListener('DOMContentLoaded', function () {
   catalogStickerBg?.addEventListener('change', () => {
     const file = catalogStickerBg.files && catalogStickerBg.files[0];
     if (!file) return;
+    catalogStickerBgUrl = URL.createObjectURL(file);
+    catalogStickerBgImg.src = catalogStickerBgUrl;
+    drawCatalogStickerPreview();
     const fd = new FormData();
     fd.append('file', file);
     const url = '/admin/sticker-background' + (currentEventUid ? `?event_uid=${encodeURIComponent(currentEventUid)}` : '');
