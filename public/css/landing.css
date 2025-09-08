@@ -371,6 +371,25 @@ body.dark-mode .qr-landing .qr-topbar{
   border-radius:6px;
 }
 .qr-landing .qr-topbar .uk-navbar-toggle{ color:var(--qr-text)!important; }
+.git-btn{
+  width:40px;height:40px;padding:0;
+  border-radius:6px;
+  border:1px solid var(--topbar-btn-border);
+  color:var(--topbar-text);
+  background:var(--topbar-btn-bg);
+  display:inline-flex;align-items:center;justify-content:center;
+  box-sizing:border-box;cursor:pointer;
+  transition:background .12s,border-color .12s,box-shadow .12s;
+}
+.git-btn:hover{
+  background:var(--topbar-btn-bg-hover);
+  border-color:var(--topbar-btn-border-hover);
+}
+.git-btn:focus{
+  outline:none;
+  box-shadow:0 0 0 3px var(--topbar-focus-ring);
+}
+.git-btn svg{width:24px;height:24px;}
 .qr-landing .qr-topbar #offcanvas-toggle.git-btn{
   width:56px;
   height:56px;
@@ -487,13 +506,12 @@ body.dark-mode .qr-landing .qr-badge{
 }
 
 .qr-landing .uk-button-primary{
-  color:#fff!important;
-}
-
-.qr-landing .cta-main.uk-button-primary{
   background:var(--qr-landing-primary)!important;
   color:var(--qr-landing-text)!important;
   border:1px solid color-mix(in oklab,var(--qr-landing-primary) 60%,transparent);
+}
+
+.qr-landing .cta-main.uk-button-primary{
   box-shadow:0 10px 24px rgba(31,111,235,.22);
   border-radius:12px;
   padding:0 22px;

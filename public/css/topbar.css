@@ -9,6 +9,7 @@ body:not([data-theme="dark"]){
   --topbar-text: #000;
 }
 body[data-theme="dark"]{
+  --topbar-btn-bg: #1f232a;
   --topbar-btn-border: rgba(255,255,255,0.3);
   --topbar-btn-border-hover: rgba(255,255,255,0.5);
   --topbar-btn-bg-hover: rgba(255,255,255,0.08);
@@ -67,6 +68,7 @@ body:not(.dark-mode) .topbar .uk-navbar-nav>li>a{
   border-radius:6px;
   border:1px solid var(--topbar-btn-border);
   color:var(--topbar-text);
+  background:var(--topbar-btn-bg);
   display:inline-flex;align-items:center;justify-content:center;
   box-sizing:border-box;cursor:pointer;
   transition:background .12s,border-color .12s,box-shadow .12s;
