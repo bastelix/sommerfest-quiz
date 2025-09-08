@@ -46,19 +46,20 @@ async function buildSolvedSet(cfg){
   try{
     const prev = sessionStorage.getItem('quizSolved');
     if(prev){
-      JSON.parse(prev).forEach(s=>solved.add(s));
+      JSON.parse(prev).forEach(s=>solved.add(String(s).toLowerCase()));
     }
   }catch(e){ /* empty */ }
   if(cfg?.competitionMode){
     try{
-      const res = await fetch(withBase('/results.json'), { headers: (typeof jsonHeaders !== 'undefined') ? jsonHeaders : { Accept: 'application/json' } });
+      const url = (typeof withBase === 'function') ? withBase('/results.json') : '/results.json';
+      const res = await fetch(url, { headers: (typeof jsonHeaders !== 'undefined') ? jsonHeaders : { Accept: 'application/json' } });
       if(res.ok){
         const list = await res.json();
         const user = sessionStorage.getItem('quizUser');
         if(user){
           for(const t of list){
             if(t && t.name === user && t.catalog){
-              solved.add(t.catalog);
+              solved.add(String(t.catalog).toLowerCase());
             }
           }
         }
@@ -75,6 +76,7 @@ globalThis.buildSolvedSet = buildSolvedSet;
 
 let quizScriptPromise;
 let quizStarted = false;
+let solvedSet = new Set();
 
 async function loadQuizScript() {
   if (typeof window.startQuiz === 'function') {
@@ -103,6 +105,9 @@ async function startQuizOnce(qs, skipIntro = false) {
 }
 
 async function init() {
+  const cfg = window.quizConfig || {};
+  solvedSet = await buildSolvedSet(cfg);
+
   // Container sicherstellen
   let quizContainer = document.getElementById('quiz');
   if (!quizContainer) {
@@ -139,6 +144,21 @@ async function init() {
   // Select suchen (ID oder data-role)
   const select = document.getElementById('catalog-select') ||
                  document.querySelector('[data-role="catalog-select"]');
+
+  if (cfg.competitionMode) {
+    if (id && solvedSet.has(id)) {
+      UIkit?.notification?.({ message: 'Dieser Katalog wurde bereits gelöst', status: 'warning' });
+      return;
+    }
+    if (select) {
+      Array.from(select.options).forEach(o => {
+        const slugOpt = (o.value || o.dataset.slug || '').toLowerCase();
+        if (solvedSet.has(slugOpt)) {
+          o.disabled = true;
+        }
+      });
+    }
+  }
 
   // --- Fall A: Kein <select> vorhanden ---
   if (!select) {
@@ -219,6 +239,14 @@ async function init() {
 
 async function handleSelection(opt, autostart = false) {
   if (!opt) {
+    return;
+  }
+
+  const cfg = window.quizConfig || {};
+  const slug = (opt.value || opt.dataset.slug || '').toLowerCase();
+  if (cfg.competitionMode && solvedSet.has(slug)) {
+    UIkit?.notification?.({ message: 'Dieser Katalog wurde bereits gelöst', status: 'warning' });
+    opt.disabled = true;
     return;
   }
 
