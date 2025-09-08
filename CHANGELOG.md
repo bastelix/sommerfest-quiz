@@ -206,6 +206,7 @@
 - Enable dark theme on license page
 - Update user rendering
 - Highlight catalog cards in dark mode
+- Prevent replaying solved catalogs
 
 ### Fix
 
