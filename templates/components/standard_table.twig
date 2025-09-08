@@ -1,0 +1,14 @@
+{% macro render(headings, body_id, body='') %}
+<div class="uk-overflow-auto">
+  <table class="uk-table uk-table-divider uk-table-small uk-table-hover">
+    <thead>
+      <tr>
+        {% for h in headings %}
+          <th{% if h.class %} class="{{ h.class }}"{% endif %}>{{ h.label|raw }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody id="{{ body_id }}">{{ body|raw }}</tbody>
+  </table>
+</div>
+{% endmacro %}
