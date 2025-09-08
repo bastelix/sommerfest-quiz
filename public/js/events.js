@@ -88,9 +88,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const eventOpenBtn = document.getElementById('eventOpenBtn');
   const eventTitle = document.getElementById('eventTitle');
   const eventNotice = document.getElementById('eventNotice');
+  const eventButtons = document.querySelectorAll('[data-event-btn]');
+  const isAdminPage = document.body?.classList.contains('admin-page');
   let currentEventUid = '';
   const params = new URLSearchParams(window.location.search);
   const pageEventUid = params.get('event') || '';
+
+  const updateEventButtons = (uid) => {
+    eventButtons.forEach((btn) => {
+      btn.disabled = !uid;
+    });
+  };
 
   function populate(list) {
     if (!eventSelect) return;
@@ -104,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         eventNotice.textContent = eventNotice.dataset.empty || 'Keine Veranstaltungen vorhanden';
         eventNotice.hidden = false;
       }
+      updateEventButtons('');
       return;
     }
     const placeholder = document.createElement('option');
@@ -126,9 +135,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (eventTitle) eventTitle.hidden = true;
     if (currentEventUid) {
       if (eventNotice) eventNotice.hidden = true;
+      updateEventButtons(currentEventUid);
       eventSelect.dispatchEvent(new Event('change'));
     } else {
       eventSelect.value = '';
+      updateEventButtons('');
       if (eventNotice) {
         eventNotice.textContent = eventNotice.dataset.required || '';
         eventNotice.hidden = false;
@@ -136,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  if (eventSelect) {
+  if (eventSelect && !isAdminPage) {
     const initialOptionCount = eventSelect.options.length;
     const warnIfEmpty = (list) => {
       if (initialOptionCount === 0 && (!Array.isArray(list) || list.length === 0)) {
@@ -171,11 +182,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const msg = eventNotice?.dataset.error || 'Veranstaltungen konnten nicht geladen werden';
         notify(msg, 'danger');
       });
+  } else if (eventSelect) {
+    updateEventButtons(eventSelect.value);
   }
 
   eventSelect?.addEventListener('change', () => {
     const uid = eventSelect.value;
-    if (uid && uid !== currentEventUid) {
+    updateEventButtons(uid);
+    if (!isAdminPage && uid && uid !== currentEventUid) {
       location.search = '?event=' + uid;
     }
   });
