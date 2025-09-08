@@ -200,6 +200,7 @@
 - Show event header outside topbar
 - Improve sticker background upload UX
 - Improve sticker background upload UX
+- Add catalog sticker preview
 
 ### Fix
 
