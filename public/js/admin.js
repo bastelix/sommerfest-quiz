@@ -718,12 +718,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const stickerTextResize = document.getElementById('stickerTextResize');
   if (stickerTextResize) stickerTextResize.style.zIndex = '10';
   const stickerQrHandle = document.getElementById('stickerQrHandle');
-  const descTopInput = document.getElementById('descTop');
-  const descLeftInput = document.getElementById('descLeft');
+  const descTopInput = document.getElementById('stickerDescTop');
+  const descLeftInput = document.getElementById('stickerDescLeft');
   const descWidthInput = document.getElementById('descWidth');
   const descHeightInput = document.getElementById('descHeight');
-  const qrTopInput = document.getElementById('qrTop');
-  const qrLeftInput = document.getElementById('qrLeft');
+  const qrTopInput = document.getElementById('stickerQrTop');
+  const qrLeftInput = document.getElementById('stickerQrLeft');
   let stickerEventTitle = '';
   let stickerEventDesc = '';
   let stickerCatalogName = '';
@@ -754,6 +754,45 @@ document.addEventListener('DOMContentLoaded', function () {
       } catch (e) { /* ignore */ }
     }
     drawCatalogStickerPreview();
+  }
+
+  async function loadStickerSettings () {
+    if (!currentEventUid) return;
+    try {
+      const res = await apiFetch(`/admin/sticker-settings?event_uid=${encodeURIComponent(currentEventUid)}`);
+      const data = await res.json();
+      if (data.stickerTemplate && catalogStickerTemplate) catalogStickerTemplate.value = data.stickerTemplate;
+      if (catalogStickerDesc) catalogStickerDesc.checked = !!data.stickerPrintDesc;
+      if (catalogStickerQrColor) catalogStickerQrColor.value = '#' + (data.stickerQrColor || '000000').replace(/^#/, '');
+      if (catalogStickerQrSizePct) catalogStickerQrSizePct.value = data.stickerQrSizePct != null ? data.stickerQrSizePct : 42;
+      if (descTopInput) descTopInput.value = data.stickerDescTop != null ? data.stickerDescTop : '';
+      if (descLeftInput) descLeftInput.value = data.stickerDescLeft != null ? data.stickerDescLeft : '';
+      if (qrTopInput) qrTopInput.value = data.stickerQrTop != null ? data.stickerQrTop : '';
+      if (qrLeftInput) qrLeftInput.value = data.stickerQrLeft != null ? data.stickerQrLeft : '';
+    } catch (e) { /* ignore */ }
+    drawCatalogStickerPreview();
+  }
+
+  async function saveStickerSettings () {
+    if (!currentEventUid) return;
+    const payload = {
+      event_uid: currentEventUid,
+      stickerTemplate: catalogStickerTemplate?.value || '',
+      stickerPrintDesc: catalogStickerDesc?.checked || false,
+      stickerQrColor: (catalogStickerQrColor?.value || '#000000').replace(/^#/, ''),
+      stickerQrSizePct: parseInt(catalogStickerQrSizePct?.value || '42', 10),
+      stickerDescTop: parseFloat(descTopInput?.value || '0'),
+      stickerDescLeft: parseFloat(descLeftInput?.value || '0'),
+      stickerQrTop: parseFloat(qrTopInput?.value || '0'),
+      stickerQrLeft: parseFloat(qrLeftInput?.value || '0')
+    };
+    try {
+      await apiFetch('/admin/sticker-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) { /* ignore */ }
   }
 
   function makeDraggable (handle, topInput, leftInput, skipStyle = false) {
@@ -792,6 +831,7 @@ document.addEventListener('DOMContentLoaded', function () {
     handle.onpointerup = handle.onpointercancel = e => {
       dragging = false;
       handle.releasePointerCapture(e.pointerId);
+      saveStickerSettings();
     };
   }
   function makeResizable (handle, widthInput, heightInput, box) {
@@ -847,6 +887,7 @@ document.addEventListener('DOMContentLoaded', function () {
     handle.onpointerup = handle.onpointercancel = e => {
       resizing = false;
       handle.releasePointerCapture(e.pointerId);
+      saveStickerSettings();
     };
   }
   function wrapText (ctx, text, maxWidth) {
@@ -965,14 +1006,15 @@ document.addEventListener('DOMContentLoaded', function () {
   catalogStickerBgImg.onload = () => drawCatalogStickerPreview();
   if (catalogStickerModal && window.UIkit && UIkit.util) {
     UIkit.util.on(catalogStickerModal.$el, 'shown', () => {
+      loadStickerSettings();
       loadStickerSample();
     });
   }
-  catalogStickerTemplate?.addEventListener('change', drawCatalogStickerPreview);
-  catalogStickerDesc?.addEventListener('change', drawCatalogStickerPreview);
-  catalogStickerQrColor?.addEventListener('input', drawCatalogStickerPreview);
+  catalogStickerTemplate?.addEventListener('change', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
+  catalogStickerDesc?.addEventListener('change', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
+  catalogStickerQrColor?.addEventListener('input', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
   catalogStickerTextColor?.addEventListener('input', drawCatalogStickerPreview);
-  catalogStickerQrSizePct?.addEventListener('input', drawCatalogStickerPreview);
+  catalogStickerQrSizePct?.addEventListener('input', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
   let catalogStickerProgress;
   if (catalogStickerBg) {
     catalogStickerProgress = document.createElement('progress');
@@ -985,6 +1027,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   catalogStickerForm?.addEventListener('submit', e => {
     e.preventDefault();
+    saveStickerSettings();
     const params = new URLSearchParams({
       template: catalogStickerTemplate.value,
       qr_color: catalogStickerQrColor.value.replace(/^#/, ''),

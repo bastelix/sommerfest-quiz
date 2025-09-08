@@ -76,35 +76,98 @@ class CatalogStickerController
         $this->qr = $qr;
     }
 
+    public function getSettings(Request $request, Response $response): Response
+    {
+        $params = $request->getQueryParams();
+        $uid = (string)($params['event_uid'] ?? $this->config->getActiveEventUid());
+        $cfg = $uid !== '' ? $this->config->getConfigForEvent($uid) : $this->config->getConfig();
+        $data = [
+            'stickerTemplate' => $cfg['stickerTemplate'] ?? 'avery_l7165',
+            'stickerPrintDesc' => (bool)($cfg['stickerPrintDesc'] ?? false),
+            'stickerQrColor' => $cfg['stickerQrColor'] ?? '000000',
+            'stickerQrSizePct' => $cfg['stickerQrSizePct'] ?? 42,
+            'stickerDescTop' => $cfg['stickerDescTop'] ?? 0,
+            'stickerDescLeft' => $cfg['stickerDescLeft'] ?? 0,
+            'stickerQrTop' => $cfg['stickerQrTop'] ?? 0,
+            'stickerQrLeft' => $cfg['stickerQrLeft'] ?? 0,
+        ];
+        $response->getBody()->write(json_encode($data));
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    public function saveSettings(Request $request, Response $response): Response
+    {
+        $data = $request->getParsedBody();
+        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+            $data = json_decode((string) $request->getBody(), true);
+        }
+        if (!is_array($data)) {
+            return $response->withStatus(400);
+        }
+        $uid = (string)($data['event_uid'] ?? '');
+        if ($uid === '') {
+            return $response->withStatus(400);
+        }
+        $save = [
+            'event_uid' => $uid,
+            'stickerTemplate' => (string)($data['stickerTemplate'] ?? ''),
+            'stickerPrintDesc' => filter_var($data['stickerPrintDesc'] ?? false, FILTER_VALIDATE_BOOL),
+            'stickerQrColor' => preg_replace('/[^0-9A-Fa-f]/', '', (string)($data['stickerQrColor'] ?? '000000')),
+            'stickerQrSizePct' => (int)($data['stickerQrSizePct'] ?? 42),
+            'stickerDescTop' => (float)($data['stickerDescTop'] ?? 0),
+            'stickerDescLeft' => (float)($data['stickerDescLeft'] ?? 0),
+            'stickerQrTop' => (float)($data['stickerQrTop'] ?? 0),
+            'stickerQrLeft' => (float)($data['stickerQrLeft'] ?? 0),
+        ];
+        $this->config->saveConfig($save);
+        return $response->withStatus(204);
+    }
+
     public function pdf(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $template = (string)($params['template'] ?? 'avery_l7165');
-        if (!isset(self::LABEL_TEMPLATES[$template])) {
-            $template = 'avery_l7165';
-        }
-        $tpl = self::LABEL_TEMPLATES[$template];
-
-        $printDesc = filter_var($params['print_desc'] ?? false, FILTER_VALIDATE_BOOLEAN);
-        $qrColor = preg_replace('/[^0-9A-Fa-f]/', '', (string)($params['qr_color'] ?? '000000'));
-        $qrColor = str_pad(substr($qrColor, 0, 6), 6, '0');
-        $textColor = preg_replace('/[^0-9A-Fa-f]/', '', (string)($params['text_color'] ?? '000000'));
-        $textColor = str_pad(substr($textColor, 0, 6), 6, '0');
-        [$r, $g, $b] = array_map('hexdec', str_split($textColor, 2));
-        $qrSizePct = max(10, min(100, (int)($params['qr_size_pct'] ?? 42)));
-        $descTop = isset($params['desc_top']) ? (float)$params['desc_top'] : 0.0;
-        $descLeft = isset($params['desc_left']) ? (float)$params['desc_left'] : 0.0;
-        $descWidth = isset($params['desc_width']) ? (float)$params['desc_width'] : null;
-        $descHeight = isset($params['desc_height']) ? (float)$params['desc_height'] : null;
-        $qrTop = isset($params['qr_top']) ? (float)$params['qr_top'] : null;
-        $qrLeft = isset($params['qr_left']) ? (float)$params['qr_left'] : null;
-
         $uid = (string)($params['event_uid'] ?? ($params['event'] ?? ''));
         if ($uid === '') {
             $uid = $this->config->getActiveEventUid();
         }
 
         $cfg = $uid !== '' ? $this->config->getConfigForEvent($uid) : $this->config->getConfig();
+        $template = (string)($params['template'] ?? ($cfg['stickerTemplate'] ?? 'avery_l7165'));
+        if (!isset(self::LABEL_TEMPLATES[$template])) {
+            $template = 'avery_l7165';
+        }
+        $tpl = self::LABEL_TEMPLATES[$template];
+
+        $printDesc = isset($params['print_desc'])
+            ? filter_var($params['print_desc'], FILTER_VALIDATE_BOOLEAN)
+            : (bool)($cfg['stickerPrintDesc'] ?? false);
+        $qrColor = preg_replace(
+            '/[^0-9A-Fa-f]/',
+            '',
+            (string)($params['qr_color'] ?? ($cfg['stickerQrColor'] ?? '000000'))
+        );
+        $qrColor = str_pad(substr($qrColor, 0, 6), 6, '0');
+        $textColor = preg_replace('/[^0-9A-Fa-f]/', '', (string)($params['text_color'] ?? '000000'));
+        $textColor = str_pad(substr($textColor, 0, 6), 6, '0');
+        [$r, $g, $b] = array_map('hexdec', str_split($textColor, 2));
+        $qrSizePct = isset($params['qr_size_pct'])
+            ? max(10, min(100, (int)$params['qr_size_pct']))
+            : (int)($cfg['stickerQrSizePct'] ?? 42);
+        $qrSizePct = max(10, min(100, $qrSizePct));
+        $descTop = isset($params['desc_top'])
+            ? (float)$params['desc_top']
+            : (float)($cfg['stickerDescTop'] ?? 0.0);
+        $descLeft = isset($params['desc_left'])
+            ? (float)$params['desc_left']
+            : (float)($cfg['stickerDescLeft'] ?? 0.0);
+        $descWidth = isset($params['desc_width']) ? (float)$params['desc_width'] : null;
+        $descHeight = isset($params['desc_height']) ? (float)$params['desc_height'] : null;
+        $qrTop = isset($params['qr_top'])
+            ? (float)$params['qr_top']
+            : (float)($cfg['stickerQrTop'] ?? 0.0);
+        $qrLeft = isset($params['qr_left'])
+            ? (float)$params['qr_left']
+            : (float)($cfg['stickerQrLeft'] ?? 0.0);
         $event = $uid !== '' ? $this->events->getByUid($uid) : null;
         $eventTitle = (string)($event['name'] ?? '');
         $eventDesc = (string)($event['description'] ?? '');
@@ -153,6 +216,12 @@ class CatalogStickerController
         $count = 0;
         $perPage = $tpl['rows'] * $tpl['cols'];
         $bgFile = __DIR__ . '/../../data/uploads/sticker-bg.png';
+        if ($uid !== '') {
+            $eventBg = __DIR__ . '/../../data/events/' . $uid . '/sticker-bg.png';
+            if (file_exists($eventBg)) {
+                $bgFile = $eventBg;
+            }
+        }
         $hasBg = file_exists($bgFile);
         foreach ($catalogs as $cat) {
             if ($count > 0 && $count % $perPage === 0) {
@@ -264,7 +333,11 @@ class CatalogStickerController
             return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
         }
 
-        $dir = __DIR__ . '/../../data/uploads';
+        $params = $request->getQueryParams();
+        $uid = (string)($params['event_uid'] ?? '');
+        $dir = $uid !== ''
+            ? __DIR__ . '/../../data/events/' . $uid
+            : __DIR__ . '/../../data/uploads';
         if (!is_dir($dir)) {
             mkdir($dir, 0775, true);
         }

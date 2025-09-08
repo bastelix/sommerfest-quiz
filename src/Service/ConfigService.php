@@ -37,6 +37,7 @@ class ConfigService
         'loginRequired',
         'qrLogoPunchout',
         'qrRounded',
+        'stickerPrintDesc',
     ];
 
     /**
@@ -225,6 +226,14 @@ class ConfigService
             'qrColorTeam',
             'qrColorCatalog',
             'qrColorEvent',
+            'stickerTemplate',
+            'stickerPrintDesc',
+            'stickerQrColor',
+            'stickerQrSizePct',
+            'stickerDescTop',
+            'stickerDescLeft',
+            'stickerQrTop',
+            'stickerQrLeft',
         ];
         $existing = array_map('strtolower', $this->getConfigColumns());
         $filtered = array_intersect_key($data, array_flip($keys));
@@ -374,6 +383,14 @@ class ConfigService
             'qrColorTeam',
             'qrColorCatalog',
             'qrColorEvent',
+            'stickerTemplate',
+            'stickerPrintDesc',
+            'stickerQrColor',
+            'stickerQrSizePct',
+            'stickerDescTop',
+            'stickerDescLeft',
+            'stickerQrTop',
+            'stickerQrLeft',
         ];
         $map = [];
         foreach ($keys as $k) {

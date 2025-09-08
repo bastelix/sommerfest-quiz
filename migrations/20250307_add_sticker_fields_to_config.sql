@@ -1,0 +1,9 @@
+-- Add sticker configuration fields to config table
+ALTER TABLE config ADD COLUMN IF NOT EXISTS stickerTemplate TEXT;
+ALTER TABLE config ADD COLUMN IF NOT EXISTS stickerPrintDesc BOOLEAN;
+ALTER TABLE config ADD COLUMN IF NOT EXISTS stickerQrColor TEXT;
+ALTER TABLE config ADD COLUMN IF NOT EXISTS stickerQrSizePct INTEGER;
+ALTER TABLE config ADD COLUMN IF NOT EXISTS stickerDescTop REAL;
+ALTER TABLE config ADD COLUMN IF NOT EXISTS stickerDescLeft REAL;
+ALTER TABLE config ADD COLUMN IF NOT EXISTS stickerQrTop REAL;
+ALTER TABLE config ADD COLUMN IF NOT EXISTS stickerQrLeft REAL;
