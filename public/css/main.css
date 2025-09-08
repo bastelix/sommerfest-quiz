@@ -878,7 +878,7 @@ body.admin-page {
 #stickerTextBox {
   background: transparent;
   border: 1px dashed #1e87f0;
-  pointer-events: none;
+  cursor: move;
 }
 
 
