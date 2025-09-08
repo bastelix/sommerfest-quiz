@@ -730,6 +730,7 @@ document.addEventListener('DOMContentLoaded', function () {
   let stickerCatalogDesc = '';
   const catalogStickerBgImg = new Image();
   let catalogStickerBgUrl = '';
+  let qrOverlapWarned = false;
   const stickerTemplates = {
     avery_l7165: { label_w: 99.1, label_h: 67.7 },
     avery_l7163: { label_w: 99.1, label_h: 38.1 },
@@ -951,8 +952,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (catalogStickerBgUrl && catalogStickerBgImg.complete) {
       ctx.drawImage(catalogStickerBgImg, 0, 0, w, h);
     }
-    const qrSizePct = parseFloat(catalogStickerQrSizePct?.value || '42');
-    const qrSizeMm = Math.min((tpl.label_w * qrSizePct) / 100, tpl.label_h * 0.55);
+    const qrSizePct = Math.min(100, parseFloat(catalogStickerQrSizePct?.value || '42'));
+    const qrSizeMm = Math.min(tpl.label_w, tpl.label_h) * (qrSizePct / 100);
     const qrSize = Math.round(qrSizeMm * scale);
     const qrPad = 2; // mm
     const defaultDescTop = 0;
@@ -981,6 +982,13 @@ document.addEventListener('DOMContentLoaded', function () {
     if (descHeightInput) descHeightInput.value = descH.toFixed(1);
     const textW = Math.round(descW * scale);
     const textH = Math.round(descH * scale);
+    const overlap = qrX < descX + textW && qrX + qrSize > descX && qrY < descY + textH && qrY + qrSize > descY;
+    if (overlap && !qrOverlapWarned) {
+      notify('QR-Code überlappt Textbereich', 'warning');
+      qrOverlapWarned = true;
+    } else if (!overlap) {
+      qrOverlapWarned = false;
+    }
     ctx.fillStyle = catalogStickerQrColor?.value || '#000';
     ctx.fillRect(qrX, qrY, qrSize, qrSize);
     ctx.fillStyle = catalogStickerTextColor?.value || '#000';
