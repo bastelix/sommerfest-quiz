@@ -212,7 +212,7 @@ async function runQuiz(questions, skipIntro){
   }
 
   // Fragen mischen, damit die Reihenfolge bei jedem Aufruf variiert
-  const shuffled = shuffleArray(questions);
+  const shuffled = cfg.shuffleQuestions !== false ? shuffleArray(questions) : questions.slice();
   const questionCount = shuffled.length;
 
   let current = skipIntro ? 1 : 0;

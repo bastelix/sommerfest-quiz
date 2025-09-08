@@ -355,6 +355,7 @@ document.addEventListener('DOMContentLoaded', function () {
     checkAnswerButton: document.getElementById('cfgCheckAnswerButton'),
     qrUser: document.getElementById('cfgQRUser'),
     randomNames: document.getElementById('cfgRandomNames'),
+    shuffleQuestions: document.getElementById('cfgShuffleQuestions'),
     teamRestrict: document.getElementById('cfgTeamRestrict'),
     competitionMode: document.getElementById('cfgCompetitionMode'),
     teamResults: document.getElementById('cfgTeamResults'),
@@ -517,6 +518,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cfgFields.randomNames) {
       cfgFields.randomNames.checked = data.randomNames !== false;
     }
+    if (cfgFields.shuffleQuestions) {
+      cfgFields.shuffleQuestions.checked = data.shuffleQuestions !== false;
+    }
     if (cfgFields.teamRestrict) {
       cfgFields.teamRestrict.checked = !!data.QRRestrict;
     }
@@ -559,6 +563,7 @@ document.addEventListener('DOMContentLoaded', function () {
       QRUser: cfgFields.qrUser?.checked ? '1' : '0'
     };
     if (cfgFields.randomNames) data.randomNames = cfgFields.randomNames.checked;
+    if (cfgFields.shuffleQuestions) data.shuffleQuestions = cfgFields.shuffleQuestions.checked;
     if (cfgFields.teamRestrict) data.QRRestrict = cfgFields.teamRestrict.checked ? '1' : '0';
     if (cfgFields.competitionMode) data.competitionMode = cfgFields.competitionMode.checked;
     if (cfgFields.teamResults) data.teamResults = cfgFields.teamResults.checked;

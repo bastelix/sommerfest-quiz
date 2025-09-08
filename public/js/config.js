@@ -25,6 +25,9 @@ window.quizConfig = {
   // Zufällige Teamnamen verwenden (sonst Eingabeaufforderung)
   randomNames: true,
 
+  // Fragen zufällig mischen
+  shuffleQuestions: true,
+
   // Wettkampfmodus aktivieren
   competitionMode: false,
 

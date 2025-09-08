@@ -317,6 +317,13 @@
               </div>
               <div>
                 <div class="uk-margin">
+                  <label><input class="uk-checkbox" type="checkbox" id="cfgShuffleQuestions" name="shuffleQuestions" value="1" {% if config.shuffleQuestions %}checked{% endif %}> {{ t('label_shuffle_questions') }}
+                    <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_shuffle_questions') }}; pos: right" aria-label="{{ t('tip_shuffle_questions') }}" tabindex="0"></span>
+                  </label>
+                </div>
+              </div>
+              <div>
+                <div class="uk-margin">
                   <label><input class="uk-checkbox" type="checkbox" id="cfgCompetitionMode" name="competitionMode" value="1" {% if config.competitionMode %}checked{% endif %}> {{ t('label_competition_mode') }}
                     <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_competition_mode') }}; pos: right" aria-label="{{ t('tip_competition_mode') }}" tabindex="0"></span>
                   </label>
