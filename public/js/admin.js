@@ -2178,6 +2178,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventAddBtn = document.getElementById('eventAddBtn');
   const eventSelect = document.getElementById('eventSelect');
   const eventSelectWrap = document.getElementById('eventSelectWrap');
+  const eventSearchInput = document.getElementById('eventSearchInput');
   const eventOpenBtn = document.getElementById('eventOpenBtn');
   const eventDependentSections = document.querySelectorAll('[data-event-dependent]');
   const langSelect = document.getElementById('langSelect');
@@ -2255,6 +2256,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if (eventSelectWrap) eventSelectWrap.hidden = false;
     if (eventOpenBtn) eventOpenBtn.disabled = !currentEventUid;
     if (openInvitesBtn) openInvitesBtn.disabled = !currentEventUid;
+    if (eventSearchInput) {
+      eventSearchInput.hidden = !(Array.isArray(list) && list.length > 0);
+      eventSearchInput.value = '';
+      eventSearchInput.dispatchEvent(new Event('input'));
+    }
     updateEventSelectDisplay();
   }
 
@@ -2508,6 +2514,16 @@ document.addEventListener('DOMContentLoaded', function () {
     if (uid && uid !== currentEventUid && typeof setCurrentEvent === 'function') {
       setCurrentEvent(uid, name);
     }
+  });
+
+  eventSearchInput?.addEventListener('input', () => {
+    const term = eventSearchInput.value.toLowerCase();
+    Array.from(eventSelect?.options || []).forEach(opt => {
+      if (!opt.value) return;
+      const match = opt.textContent.toLowerCase().includes(term);
+      opt.style.display = match ? '' : 'none';
+    });
+    updateEventSelectDisplay();
   });
 
   eventOpenBtn?.addEventListener('click', () => {
