@@ -88,8 +88,11 @@ ctx2.window.location = ctx2.location;
 vm.runInNewContext(storageCode, ctx2);
 vm.runInNewContext(profileCode, ctx2);
 ctx2.nameInput.value = 'Alice';
+
 (async () => {
-  await ctx2.saveHandler?.({ preventDefault() {} });
+  ctx2.saveHandler?.({ preventDefault() {} });
+  assert.strictEqual(ctx2.location.href, '');
+  await Promise.resolve();
   assert.strictEqual(ctx2.localStorage.getItem('quizUser'), 'Alice');
   assert.strictEqual(ctx2.getStored(ctx2.STORAGE_KEYS.PLAYER_NAME), 'Alice');
   assert.strictEqual(ctx2.localStorage.getItem('qr_player_uid:'), 'uid-123');
@@ -109,6 +112,50 @@ ctx2.nameInput.value = 'Alice';
   await vm.runInNewContext('(async () => {' + promptBlock[0] + '})()', ctxAfter);
   assert(!ctxAfter.promptCalled);
 
+  console.log('ok');
+})().catch(err => { console.error(err); process.exit(1); });
+
+// Test no redirect on failed save
+const storageObj2b = {
+  data: {},
+  getItem(k) { return this.data[k] ?? null; },
+  setItem(k, v) { this.data[k] = String(v); },
+  removeItem(k) { delete this.data[k]; }
+};
+const ctx2b = {
+  URLSearchParams,
+  window: { quizConfig: { event_uid: '' } },
+  nameInput: { value: '' },
+  localStorage: storageObj2b,
+  sessionStorage: storageObj2b,
+  fetchCalls: [],
+  self: { crypto: { randomUUID: () => 'uid-123' } },
+  returnUrl: '/quiz',
+  location: { href: '', search: '' },
+  postSession: () => Promise.reject(new Error('fail')),
+  alert: () => {},
+  console,
+  document: {
+    getElementById(id) {
+      if (id === 'playerName') return ctx2b.nameInput;
+      if (id === 'save-name') return { addEventListener: (ev, fn) => { ctx2b.saveHandler = fn; } };
+      if (id === 'delete-name') return { addEventListener: () => {} };
+      return null;
+    },
+    addEventListener(ev, fn) {
+      if (ev === 'DOMContentLoaded') fn();
+    }
+  }
+};
+ctx2b.fetch = (url, opts) => { ctx2b.fetchCalls.push({ url, opts }); return Promise.resolve(); };
+ctx2b.window.location = ctx2b.location;
+vm.runInNewContext(storageCode, ctx2b);
+vm.runInNewContext(profileCode, ctx2b);
+ctx2b.nameInput.value = 'Alice';
+(async () => {
+  ctx2b.saveHandler?.({ preventDefault() {} });
+  await Promise.resolve();
+  assert.strictEqual(ctx2b.location.href, '');
   console.log('ok');
 })().catch(err => { console.error(err); process.exit(1); });
 
