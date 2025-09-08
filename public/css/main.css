@@ -586,10 +586,6 @@ body.admin-page {
   min-width: 150px;
 }
 
-.admin-page #eventSelectWrap select {
-  width: 100%;
-}
-
 .admin-page #eventSearchInput {
   width: 120px;
 }

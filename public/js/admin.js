@@ -1175,7 +1175,6 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   const openInvitesBtn = document.getElementById('openInvitesBtn');
-  if (openInvitesBtn) openInvitesBtn.disabled = !currentEventUid;
   openInvitesBtn?.addEventListener('click', function (e) {
     e.preventDefault();
     if (currentEventUid) {
@@ -2252,10 +2251,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     eventSelect.value = currentEventUid || '';
+    eventSelect.dispatchEvent(new Event('change'));
     eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
     if (eventSelectWrap) eventSelectWrap.hidden = false;
-    if (eventOpenBtn) eventOpenBtn.disabled = !currentEventUid;
-    if (openInvitesBtn) openInvitesBtn.disabled = !currentEventUid;
     if (eventSearchInput) {
       eventSearchInput.hidden = !(Array.isArray(list) && list.length > 0);
       eventSearchInput.value = '';
@@ -2493,6 +2491,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const opt = Array.from(eventSelect.options).find(o => o.value === uid);
       if (opt) {
         eventSelect.value = opt.value;
+        eventSelect.dispatchEvent(new Event('change'));
       }
     }
     updateEventSelectDisplay();
@@ -2502,9 +2501,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function updateEventSelectDisplay() {
     if (!eventSelect) return;
-    const sel = eventSelect.options[eventSelect.selectedIndex];
-    if (eventOpenBtn) eventOpenBtn.disabled = !sel || !sel.value;
-    if (openInvitesBtn) openInvitesBtn.disabled = !sel || !sel.value;
     window.dispatchEvent(new Event('resize'));
   }
 
