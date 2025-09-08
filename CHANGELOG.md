@@ -199,6 +199,7 @@
 - Adapt onboarding buttons for dark mode
 - Show event header outside topbar
 - Improve sticker background upload UX
+- Improve sticker background upload UX
 
 ### Fix
 
