@@ -116,6 +116,15 @@ class HomeController
             }
         }
 
+        if ($uid !== '' && $catalogParam === '') {
+            return $view->render($response, 'event_catalogs.twig', [
+                'config' => $cfg,
+                'catalogs' => $catalogs,
+                'event' => $event,
+                'csrf_token' => $_SESSION['csrf_token'] ?? '',
+            ]);
+        }
+
         return $view->render($response, 'index.twig', [
             'config' => $cfg,
             'catalogs' => $catalogs,

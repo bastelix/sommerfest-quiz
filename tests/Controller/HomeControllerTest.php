@@ -44,6 +44,31 @@ class HomeControllerTest extends TestCase
         unlink($db);
     }
 
+    public function testEventCatalogOverview(): void
+    {
+        $db = $this->setupDb();
+        $this->getAppInstance();
+        $pdo = \App\Infrastructure\Database::connectFromEnv();
+        \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
+        $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('1','event','Event')");
+        $pdo->exec(
+            "INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) " .
+            "VALUES('c1',1,'station_1','station_1.json','Station 1','1')"
+        );
+
+        try {
+            $app = $this->getAppInstance();
+            $request = $this->createRequest('GET', '/')->withQueryParams(['event' => 'event']);
+            $response = $app->handle($request);
+            $this->assertEquals(200, $response->getStatusCode());
+            $body = (string) $response->getBody();
+            $this->assertStringContainsString('Station 1', $body);
+            $this->assertStringContainsString('Event', $body);
+        } finally {
+            unlink($db);
+        }
+    }
+
     private function withCompetitionMode(callable $fn): void
     {
         // Ensure a fresh database and seed a catalog entry for the tests
