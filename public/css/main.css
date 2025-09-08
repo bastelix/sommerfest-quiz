@@ -164,6 +164,12 @@ body.uk-padding {
   height: 44px;
 }
 
+#catalogStickerPreview canvas {
+  max-width: none;
+  position: relative;
+  display: block;
+}
+
 /* Ensure dropdown menus appear above table rows */
 .uk-dropdown {
   z-index: 1200;
