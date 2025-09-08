@@ -282,6 +282,7 @@
 - Centralize session post requests
 - Rename active event uid variable
 - Remove config fallback for empty event
+- Merge password action into user actions
 
 ### Style
 
