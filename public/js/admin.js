@@ -2300,6 +2300,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (u.id) row.dataset.id = u.id;
 
     const handleCell = document.createElement('td');
+    handleCell.className = 'uk-table-shrink';
     const handleSpan = document.createElement('span');
     handleSpan.className = 'uk-sortable-handle uk-icon';
     handleSpan.setAttribute('uk-icon', 'icon: table');
@@ -2321,6 +2322,7 @@ document.addEventListener('DOMContentLoaded', function () {
     activeCell.appendChild(activeCheckbox);
 
     const passCell = document.createElement('td');
+    passCell.className = 'uk-table-shrink';
     const passBtn = document.createElement('button');
     passBtn.className = 'uk-button uk-button-default';
     passBtn.setAttribute('uk-icon', 'icon: key');
@@ -2348,6 +2350,7 @@ document.addEventListener('DOMContentLoaded', function () {
     roleCell.appendChild(roleSelect);
 
     const delCell = document.createElement('td');
+    delCell.className = 'uk-table-shrink';
     const delBtn = document.createElement('button');
     delBtn.className = 'uk-icon-button uk-button-danger';
     delBtn.setAttribute('uk-icon', 'trash');

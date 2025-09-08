@@ -1,4 +1,5 @@
 {% extends 'layout.twig' %}
+{% import 'components/standard_table.twig' as std_table %}
 
 {% block title %}{{ t('admin_title') }}{% endblock %}
 
@@ -896,20 +897,14 @@
         </div>
 
         <h3 class="uk-heading-bullet">{{ t('heading_users') }}</h3>
-        <div class="uk-overflow-auto">
-          <table class="uk-table uk-table-divider uk-table-small uk-table-hover">
-            <thead>
-              <tr>
-                <th>{{ t('column_username') }}</th>
-                <th>{{ t('column_role') }}</th>
-                <th>Aktiv</th>
-                <th class="uk-table-shrink"><span uk-icon="icon: key" uk-tooltip="title: {{ t('tip_user_pass') }}; pos: top" tabindex="0"></span></th>
-                <th class="uk-table-shrink"></th>
-              </tr>
-            </thead>
-            <tbody id="usersList"></tbody>
-          </table>
-        </div>
+        {{ std_table.render([
+          {label: '', class: 'uk-table-shrink'},
+          {label: t('column_username')},
+          {label: t('column_role')},
+          {label: 'Aktiv'},
+          {label: '<span uk-icon="icon: key" uk-tooltip="title: ' ~ t('tip_user_pass') ~ '; pos: top" tabindex="0"></span>', class: 'uk-table-shrink'},
+          {label: '', class: 'uk-table-shrink'}
+        ], 'usersList') }}
         <div class="uk-margin">
           <button id="userAddBtn" class="uk-icon-button uk-button-default" uk-icon="plus" uk-tooltip="title: {{ t('tip_user_add') }}; pos: right" aria-label="{{ t('tip_user_add') }}"></button>
         </div>
