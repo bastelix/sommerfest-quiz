@@ -34,7 +34,7 @@
       {% for cat in catalogs %}
         {% set key = cat.slug ?? cat.uid ?? cat.sort_order ?? cat.id %}
         <div>
-          <div class="uk-card uk-card-default uk-card-hover catalog-card" tabindex="0" data-start-url="{{ basePath }}/?event={{ event.uid }}&katalog={{ key|url_encode }}">
+          <div class="uk-card uk-card-default uk-card-hover catalog-card qr-card" tabindex="0" data-start-url="{{ basePath }}/?event={{ event.uid }}&katalog={{ key|url_encode }}">
             <div class="uk-card-body">
               <h3 class="uk-card-title">{{ cat.name ?? key }}</h3>
               {% if cat.description %}
