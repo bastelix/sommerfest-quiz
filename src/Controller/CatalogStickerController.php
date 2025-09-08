@@ -172,10 +172,10 @@ class CatalogStickerController
         $descHeight = isset($params['desc_height']) ? (float)$params['desc_height'] : null;
         $qrTop = isset($params['qr_top'])
             ? (float)$params['qr_top']
-            : (float)($cfg['stickerQrTop'] ?? 0.0);
+            : (isset($cfg['stickerQrTop']) ? (float)$cfg['stickerQrTop'] : null);
         $qrLeft = isset($params['qr_left'])
             ? (float)$params['qr_left']
-            : (float)($cfg['stickerQrLeft'] ?? 0.0);
+            : (isset($cfg['stickerQrLeft']) ? (float)$cfg['stickerQrLeft'] : null);
         $headerSize = isset($params['header_size'])
             ? (int)$params['header_size']
             : (int)($cfg['stickerHeaderFontSize'] ?? 12);
@@ -255,11 +255,9 @@ class CatalogStickerController
             if ($hasBg) {
                 $pdf->Image($bgFile, $x, $y, $tpl['label_w'], $tpl['label_h']);
             }
-            if (($tpl['border'] ?? 0.0) > 0) {
-                $pdf->SetDrawColor(221, 221, 221);
-                $pdf->SetLineWidth($tpl['border'] * 0.352778);
-                $pdf->Rect($x, $y, $tpl['label_w'], $tpl['label_h']);
-            }
+            $pdf->SetDrawColor(221, 221, 221);
+            $pdf->SetLineWidth($tpl['border'] * 0.352778);
+            $pdf->Rect($x, $y, $tpl['label_w'], $tpl['label_h']);
 
             $baseX = $x + $tpl['padding'];
             $baseY = $y + $tpl['padding'];
