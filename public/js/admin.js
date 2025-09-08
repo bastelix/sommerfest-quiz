@@ -715,6 +715,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const catalogStickerPreview = document.getElementById('catalogStickerPreview');
   const stickerTextBox = document.getElementById('stickerTextBox');
   const stickerTextResize = document.getElementById('stickerTextResize');
+  if (stickerTextResize) stickerTextResize.style.zIndex = '10';
   const stickerQrHandle = document.getElementById('stickerQrHandle');
   const descTopInput = document.getElementById('descTop');
   const descLeftInput = document.getElementById('descLeft');
