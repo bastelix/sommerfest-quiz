@@ -965,6 +965,13 @@
           </table>
         </div>
         {{ qr_rowcards('usersCards') }}
+        <template id="userRoleSelect">
+          <select class="uk-select">
+            {% for role in roles %}
+              <option value="{{ role }}">{{ role }}</option>
+            {% endfor %}
+          </select>
+        </template>
         <div class="uk-margin">
           <button id="userAddBtn" class="uk-icon-button uk-button-default" uk-icon="plus" uk-tooltip="title: {{ t('tip_user_add') }}; pos: right" aria-label="{{ t('tip_user_add') }}"></button>
         </div>
