@@ -856,29 +856,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let startY = 0;
     let startW = 0;
     let startH = 0;
-    const style = {
-      width: '20px',
-      height: '20px',
-      background: 'rgba(255,255,255,0.8)',
-      border: '2px solid #1e87f0',
-      cursor: 'nwse-resize',
-      position: 'absolute',
-      right: '-10px',
-      bottom: '-10px',
-      zIndex: '10',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      touchAction: 'none'
-    };
-    Object.assign(handle.style, style);
-    handle.innerHTML = '<span uk-icon="move"></span>';
-    handle.setAttribute('uk-tooltip', 'title: Resize');
-    if (window.UIkit) {
-      window.UIkit.icon(handle.firstElementChild);
-      window.UIkit.tooltip(handle);
-    }
-    if (handle.firstElementChild) handle.firstElementChild.style.pointerEvents = 'none';
+    handle.style.touchAction = 'none';
     const start = e => {
       resizing = true;
       const point = e.touches ? e.touches[0] : e;
@@ -1027,10 +1005,8 @@ document.addEventListener('DOMContentLoaded', function () {
       stickerTextBox.style.height = `${scaledTextH}px`;
     }
     if (stickerTextResize) {
-      stickerTextResize.style.left = `${scaledDescX}px`;
-      stickerTextResize.style.top = `${scaledDescY}px`;
-      stickerTextResize.style.width = `${scaledTextW}px`;
-      stickerTextResize.style.height = `${scaledTextH}px`;
+      stickerTextResize.style.left = `${scaledDescX + scaledTextW - 10}px`;
+      stickerTextResize.style.top = `${scaledDescY + scaledTextH - 10}px`;
     }
     if (stickerQrHandle) {
       stickerQrHandle.style.left = `${scaledQrX}px`;

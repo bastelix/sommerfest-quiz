@@ -890,7 +890,20 @@ body.admin-page {
 
 #stickerTextResize,
 #stickerQrHandle {
+  width: 20px;
+  height: 20px;
+  background: #1e87f0;
+  opacity: 0.7;
+  border-radius: 2px;
   z-index: 1001;
+}
+
+#stickerTextResize {
+  cursor: se-resize;
+}
+
+#stickerQrHandle {
+  cursor: move;
 }
 
 
