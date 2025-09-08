@@ -94,6 +94,10 @@ class CatalogStickerController
             'stickerSubheaderFontSize' => $cfg['stickerSubheaderFontSize'] ?? 10,
             'stickerCatalogFontSize' => $cfg['stickerCatalogFontSize'] ?? 11,
             'stickerDescFontSize' => $cfg['stickerDescFontSize'] ?? 10,
+            'stickerTextColor' => $cfg['stickerTextColor'] ?? '000000',
+            'stickerDescWidth' => $cfg['stickerDescWidth'] ?? null,
+            'stickerDescHeight' => $cfg['stickerDescHeight'] ?? null,
+            'stickerBgPath' => $cfg['stickerBgPath'] ?? null,
         ];
         $response->getBody()->write(json_encode($data));
         return $response->withHeader('Content-Type', 'application/json');
@@ -126,6 +130,10 @@ class CatalogStickerController
             'stickerSubheaderFontSize' => (int)($data['stickerSubheaderFontSize'] ?? 10),
             'stickerCatalogFontSize' => (int)($data['stickerCatalogFontSize'] ?? 11),
             'stickerDescFontSize' => (int)($data['stickerDescFontSize'] ?? 10),
+            'stickerTextColor' => preg_replace('/[^0-9A-Fa-f]/', '', (string)($data['stickerTextColor'] ?? '000000')),
+            'stickerDescWidth' => isset($data['stickerDescWidth']) ? (float)$data['stickerDescWidth'] : null,
+            'stickerDescHeight' => isset($data['stickerDescHeight']) ? (float)$data['stickerDescHeight'] : null,
+            'stickerBgPath' => (string)($data['stickerBgPath'] ?? ''),
         ];
         $this->config->saveConfig($save);
         return $response->withStatus(204);
@@ -155,7 +163,11 @@ class CatalogStickerController
             (string)($params['qr_color'] ?? ($cfg['stickerQrColor'] ?? '000000'))
         );
         $qrColor = str_pad(substr($qrColor, 0, 6), 6, '0');
-        $textColor = preg_replace('/[^0-9A-Fa-f]/', '', (string)($params['text_color'] ?? '000000'));
+        $textColor = preg_replace(
+            '/[^0-9A-Fa-f]/',
+            '',
+            (string)($params['text_color'] ?? ($cfg['stickerTextColor'] ?? '000000'))
+        );
         $textColor = str_pad(substr($textColor, 0, 6), 6, '0');
         [$r, $g, $b] = array_map('hexdec', str_split($textColor, 2));
         $qrSizePct = isset($params['qr_size_pct'])
@@ -168,8 +180,12 @@ class CatalogStickerController
         $descLeft = isset($params['desc_left'])
             ? (float)$params['desc_left']
             : (float)($cfg['stickerDescLeft'] ?? 0.0);
-        $descWidth = isset($params['desc_width']) ? (float)$params['desc_width'] : null;
-        $descHeight = isset($params['desc_height']) ? (float)$params['desc_height'] : null;
+        $descWidth = isset($params['desc_width'])
+            ? (float)$params['desc_width']
+            : (isset($cfg['stickerDescWidth']) ? (float)$cfg['stickerDescWidth'] : null);
+        $descHeight = isset($params['desc_height'])
+            ? (float)$params['desc_height']
+            : (isset($cfg['stickerDescHeight']) ? (float)$cfg['stickerDescHeight'] : null);
         $qrTop = isset($params['qr_top'])
             ? (float)$params['qr_top']
             : (isset($cfg['stickerQrTop']) ? (float)$cfg['stickerQrTop'] : null);
