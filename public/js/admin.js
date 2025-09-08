@@ -702,7 +702,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   const catalogStickerForm = document.getElementById('catalogStickerForm');
   const catalogStickerTemplate = document.getElementById('catalogStickerTemplate');
-  const catalogStickerLines = document.getElementById('catalogStickerLines');
+  const catalogStickerDesc = document.getElementById('catalogStickerDesc');
   const catalogStickerQrColor = document.getElementById('catalogStickerQrColor');
   const catalogStickerQrSizePct = document.getElementById('catalogStickerQrSizePct');
   const catalogStickerBg = document.getElementById('catalogStickerBg');
@@ -710,9 +710,9 @@ document.addEventListener('DOMContentLoaded', function () {
     e.preventDefault();
     const params = new URLSearchParams({
       template: catalogStickerTemplate.value,
-      lines: catalogStickerLines.value,
       qr_color: catalogStickerQrColor.value.replace(/^#/, ''),
-      qr_size_pct: catalogStickerQrSizePct.value
+      qr_size_pct: catalogStickerQrSizePct.value,
+      print_desc: catalogStickerDesc.checked ? '1' : '0'
     });
     if (currentEventUid) params.set('event_uid', currentEventUid);
     const url = '/admin/reports/catalog-stickers.pdf?' + params.toString();

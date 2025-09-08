@@ -85,8 +85,7 @@ class CatalogStickerController
         }
         $tpl = self::LABEL_TEMPLATES[$template];
 
-        $lines = (int)($params['lines'] ?? 3);
-        $lines = $lines === 4 ? 4 : 3;
+        $printDesc = filter_var($params['print_desc'] ?? false, FILTER_VALIDATE_BOOLEAN);
         $qrColor = preg_replace('/[^0-9A-Fa-f]/', '', (string)($params['qr_color'] ?? '000000'));
         $qrColor = str_pad(substr($qrColor, 0, 6), 6, '0');
         $qrSizePct = max(10, min(100, (int)($params['qr_size_pct'] ?? 42)));
@@ -165,10 +164,9 @@ class CatalogStickerController
             }
             $linesData[] = ['Arial', 'B', 11, (string)($cat['name'] ?? '')];
             $desc = (string)($cat['description'] ?? '');
-            if ($lines === 4 && $desc !== '') {
+            if ($printDesc && $desc !== '') {
                 $linesData[] = ['Arial', '', 10, $desc];
             }
-            $linesData = array_slice($linesData, 0, $lines);
 
             foreach ($linesData as $data) {
                 [$fam, $style, $size, $text] = $data;

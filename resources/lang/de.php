@@ -186,7 +186,7 @@ return [
     'action_catalog_stickers_pdf' => 'Katalog-Sticker (PDF)',
     'heading_catalog_sticker_settings' => 'Sticker-Einstellungen',
     'label_template' => 'Vorlage',
-    'label_lines' => 'Zeilen',
+    'label_print_catalog_desc' => 'Katalogbeschreibung drucken',
     'label_qr_size_pct' => 'QR-Größe (%)',
     'label_sticker_bg' => 'Sticker-Hintergrund',
     'action_design_qrcodes' => 'QR-Codes gestalten',

@@ -188,7 +188,7 @@ return [
     'action_catalog_stickers_pdf' => 'Catalog stickers (PDF)',
     'heading_catalog_sticker_settings' => 'Sticker settings',
     'label_template' => 'Template',
-    'label_lines' => 'Lines',
+    'label_print_catalog_desc' => 'Print catalog description',
     'label_qr_size_pct' => 'QR size (%)',
     'label_sticker_bg' => 'Sticker background',
     'action_design_qrcodes' => 'Design QR codes',
