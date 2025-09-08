@@ -596,6 +596,10 @@ body.admin-page {
   white-space: nowrap;
 }
 
+.admin-page #eventSearchInput {
+  width: 120px;
+}
+
 @media (min-width: 640px) {
   #adminTabs {
     display: flex;
@@ -617,6 +621,9 @@ body.admin-page {
   .admin-page #eventSelectWrap {
     flex: 0;
     min-width: 220px;
+  }
+  .admin-page #eventSearchInput {
+    width: 180px;
   }
 }
 
