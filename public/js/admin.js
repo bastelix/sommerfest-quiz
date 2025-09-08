@@ -726,15 +726,6 @@ document.addEventListener('DOMContentLoaded', function () {
   let stickerEventDesc = '';
   let stickerCatalogName = '';
   let stickerCatalogDesc = '';
-  if (stickerTextBox) {
-    Object.assign(stickerTextBox.style, {
-      border: '1px dashed #1e87f0',
-      color: '#000',
-      padding: '2px',
-      whiteSpace: 'pre-wrap',
-      cursor: 'move'
-    });
-  }
   const catalogStickerBgImg = new Image();
   let catalogStickerBgUrl = '';
   const stickerTemplates = {
@@ -938,7 +929,6 @@ document.addEventListener('DOMContentLoaded', function () {
       stickerTextBox.style.top = `${descY}px`;
       stickerTextBox.style.width = `${textW}px`;
       stickerTextBox.style.height = `${textH}px`;
-      stickerTextBox.textContent = renderedLines.join('\n');
     }
     if (stickerQrHandle) {
       stickerQrHandle.style.left = `${qrX}px`;

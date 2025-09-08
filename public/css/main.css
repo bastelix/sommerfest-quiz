@@ -875,4 +875,10 @@ body.admin-page {
   color: #999;
 }
 
+#stickerTextBox {
+  background: transparent;
+  border: 1px dashed #1e87f0;
+  pointer-events: none;
+}
+
 
