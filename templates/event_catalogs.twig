@@ -18,6 +18,7 @@
     {% endblock %}
   {% endembed %}
   <div class="uk-container uk-container-large">
+    <h1 class="uk-heading-medium uk-text-center">{{ event.name }}</h1>
     <div class="uk-text-center uk-margin">
       <img class="logo-placeholder"
            src="{% if config.logoPath %}{{ basePath ~ config.logoPath }}{% else %}{{ basePath }}/logo-160.svg{% endif %}"
@@ -43,6 +44,9 @@
               {% if cat.description %}
                 <p>{{ cat.description }}</p>
               {% endif %}
+              {% if cat.comment %}
+                <p>{{ cat.comment|raw }}</p>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -53,6 +57,7 @@
 
 {% block scripts %}
   <script src="{{ basePath }}/js/custom-icons.js" defer></script>
+  <script src="{{ basePath }}/js/storage.js" defer></script>
   <script src="{{ basePath }}/js/app.js" defer></script>
   <script src="{{ basePath }}/js/catalog-grid.js" defer></script>
 {% endblock %}
