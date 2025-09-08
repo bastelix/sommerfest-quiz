@@ -133,6 +133,7 @@ const ctx2b = {
   returnUrl: '/quiz',
   location: { href: '', search: '' },
   postSession: () => Promise.reject(new Error('fail')),
+
   alert: () => {},
   console,
   document: {
