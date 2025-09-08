@@ -3024,7 +3024,11 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   function loadTenants(status = tenantStatusFilter?.value || '', query = tenantSearchInput?.value || '') {
-    if (!tenantTableBody || (typeof window.domainType !== 'undefined' && window.domainType !== 'main')) return;
+    if (!tenantTableBody) return;
+    if (typeof window.domainType !== 'undefined' && window.domainType !== 'main') {
+      notify('MAIN_DOMAIN falsch konfiguriert – Mandantenliste nicht geladen', 'warning');
+      return;
+    }
     const params = new URLSearchParams();
     if (status) params.set('status', status);
     if (query) params.set('query', query);
