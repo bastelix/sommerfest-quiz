@@ -38,12 +38,12 @@
     {% endblock %}
     {% block center %}
       <div class="uk-flex uk-flex-middle">
-        <label for="eventSelect" class="uk-form-label uk-margin-small-right">{{ t('label_event_select') }}</label>
-        <div id="eventSelectWrap" class="uk-flex-1">
+        <label for="eventSelect" class="uk-form-label uk-margin-small-right uk-visible@m">{{ t('label_event_select') }}</label>
+        <div id="eventSelectWrap" class="uk-flex-1 uk-visible@m">
           <select id="eventSelect" class="uk-select" aria-label="{{ t('label_event_select') }}"></select>
         </div>
         <input id="eventSearchInput" class="uk-input uk-form-small uk-width-small uk-margin-small-left" type="search" placeholder="Suchen" hidden>
-        <button id="eventOpenBtn" class="uk-icon-button uk-margin-small-left uk-visible@s" uk-icon="icon: link-external" aria-label="{{ t('tip_event_open') }}" uk-tooltip="title: {{ t('tip_event_open') }}; pos: bottom" data-event-btn disabled></button>
+        <button id="eventOpenBtn" class="uk-icon-button uk-margin-small-left uk-visible@m" uk-icon="icon: link-external" aria-label="{{ t('tip_event_open') }}" uk-tooltip="title: {{ t('tip_event_open') }}; pos: bottom" data-event-btn disabled></button>
       </div>
     {% endblock %}
     {% block right %}{% endblock %}
