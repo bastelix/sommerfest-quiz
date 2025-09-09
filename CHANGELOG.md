@@ -30,6 +30,7 @@
 - Remove obsolete comment
 - Send JSON accept header when fetching catalogs
 - Seed admin user
+- Handle network errors in event switcher
 
 ### Ci
 
