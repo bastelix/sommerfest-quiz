@@ -82,6 +82,34 @@ class CatalogStickerControllerTest extends TestCase
         $this->assertGreaterThan(0, strlen($body));
     }
 
+    public function testPdfWithAdditionalTemplate(): void
+    {
+        $pdo = $this->createDatabase();
+        $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
+        $pdo->exec("INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) VALUES('c1',0,'c1','c1.json','Cat','Desc','A','ev1')");
+        $config = new ConfigService($pdo);
+        $events = new EventService($pdo);
+        $catalogs = new CatalogService($pdo, $config);
+        $qr = new class extends QrCodeService {
+            public function generateCatalog(array $q, array $cfg = []): array
+            {
+                $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==');
+                return ['mime' => 'image/png', 'body' => $img];
+            }
+        };
+        $controller = new CatalogStickerController($config, $events, $catalogs, $qr);
+        $request = $this->createRequest('GET', '/catalog-sticker.pdf')
+            ->withQueryParams([
+                'event_uid' => 'ev1',
+                'template' => 'avery_l7651',
+            ]);
+        $response = $controller->pdf($request, new Response());
+        $this->assertSame('application/pdf', $response->getHeaderLine('Content-Type'));
+        $body = (string) $response->getBody();
+        $this->assertStringStartsWith('%PDF', $body);
+        $this->assertGreaterThan(0, strlen($body));
+    }
+
     public function testPdfUsesDefaultTemplateL7163(): void
     {
         $pdo = $this->createDatabase();
