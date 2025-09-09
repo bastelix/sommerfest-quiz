@@ -170,6 +170,14 @@ body.uk-padding {
   display: block;
 }
 
+#stickerTextBox,
+#stickerQrHandle {
+  border: 1px dashed #333;
+  background: rgba(0, 0, 0, 0.1);
+  cursor: move;
+  z-index: 10;
+}
+
 /* Ensure dropdown menus appear above table rows */
 .uk-dropdown {
   z-index: 1200;
