@@ -1,3 +1,4 @@
+import { setCurrentEvent } from './event-switcher.js';
 const currentScript = document.currentScript;
 const basePath = window.basePath || (currentScript ? currentScript.dataset.base || '' : '');
 const withBase = (p) => basePath + p;
@@ -188,10 +189,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   eventSelect?.addEventListener('change', () => {
     const uid = eventSelect.value;
+    const name = eventSelect.options[eventSelect.selectedIndex]?.textContent || '';
     updateEventButtons(uid);
-    if (!isAdminPage && uid && uid !== currentEventUid) {
-      location.search = '?event=' + uid;
+    if (uid && uid !== currentEventUid) {
+      setCurrentEvent(uid, name)
+        .then((cfg) => {
+          currentEventUid = uid;
+          window.quizConfig = uid ? cfg : {};
+          if (!isAdminPage) {
+            location.search = '?event=' + uid;
+          }
+        })
+        .catch((err) => {
+          notify(err.message || 'Fehler beim Wechseln des Events', 'danger');
+          eventSelect.value = currentEventUid;
+          updateEventButtons(currentEventUid);
+        });
     }
+  });
+
+  document.addEventListener('current-event-changed', (e) => {
+    const uid = e.detail.uid || '';
+    currentEventUid = uid;
+    updateEventButtons(uid);
   });
 
   eventOpenBtn?.addEventListener('click', () => {
