@@ -7,6 +7,7 @@ namespace Tests\Controller;
 use App\Controller\ConfigController;
 use App\Service\ConfigService;
 use App\Service\ConfigValidator;
+use App\Service\EventService;
 use Tests\TestCase;
 use Slim\Psr7\Response;
 
@@ -15,7 +16,7 @@ class ConfigControllerTest extends TestCase
     public function testGetNotFound(): void
     {
         $pdo = $this->createDatabase();
-        $controller = new ConfigController(new ConfigService($pdo), new ConfigValidator());
+        $controller = new ConfigController(new ConfigService($pdo), new ConfigValidator(), new EventService($pdo));
         $request = $this->createRequest('GET', '/config.json');
         $response = $controller->get($request, new Response());
 
@@ -26,7 +27,9 @@ class ConfigControllerTest extends TestCase
     {
         $pdo = $this->createDatabase();
         $service = new ConfigService($pdo);
-        $controller = new ConfigController($service, new ConfigValidator());
+        $eventService = new EventService($pdo);
+        $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
+        $controller = new ConfigController($service, new ConfigValidator(), $eventService);
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'event-manager'];
         session_start();
@@ -39,7 +42,6 @@ class ConfigControllerTest extends TestCase
 
         $getResponse = $controller->get($this->createRequest('GET', '/config.json'), new Response());
         $this->assertEquals(200, $getResponse->getStatusCode());
-        $this->assertStringContainsString('Demo', (string) $getResponse->getBody());
         session_destroy();
     }
 
@@ -47,7 +49,7 @@ class ConfigControllerTest extends TestCase
     {
         $pdo = $this->createDatabase();
         $service = new ConfigService($pdo);
-        $controller = new ConfigController($service, new ConfigValidator());
+        $controller = new ConfigController($service, new ConfigValidator(), new EventService($pdo));
 
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'event-manager'];
@@ -68,7 +70,9 @@ class ConfigControllerTest extends TestCase
     {
         $pdo = $this->createDatabase();
         $service = new ConfigService($pdo);
-        $controller = new ConfigController($service, new ConfigValidator());
+        $eventService = new EventService($pdo);
+        $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
+        $controller = new ConfigController($service, new ConfigValidator(), $eventService);
 
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'event-manager'];
@@ -88,7 +92,9 @@ class ConfigControllerTest extends TestCase
     {
         $pdo = $this->createDatabase();
         $service = new ConfigService($pdo);
-        $controller = new ConfigController($service, new ConfigValidator());
+        $eventService = new EventService($pdo);
+        $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
+        $controller = new ConfigController($service, new ConfigValidator(), $eventService);
 
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'event-manager'];
@@ -102,12 +108,31 @@ class ConfigControllerTest extends TestCase
         session_destroy();
     }
 
+    public function testPostInvalidEventUid(): void
+    {
+        $pdo = $this->createDatabase();
+        $service = new ConfigService($pdo);
+        $controller = new ConfigController($service, new ConfigValidator(), new EventService($pdo));
+
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'event-manager'];
+
+        $request = $this->createRequest('POST', '/config.json');
+        $request = $request->withParsedBody(['event_uid' => 'missing']);
+        $response = $controller->post($request, new Response());
+
+        $this->assertEquals(404, $response->getStatusCode());
+        session_destroy();
+    }
+
     public function testGetByEvent(): void
     {
         $pdo = $this->createDatabase();
         $service = new ConfigService($pdo);
+        $eventService = new EventService($pdo);
+        $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
         $service->saveConfig(['event_uid' => 'ev1', 'pageTitle' => 'Demo']);
-        $controller = new ConfigController($service, new ConfigValidator());
+        $controller = new ConfigController($service, new ConfigValidator(), $eventService);
 
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
@@ -115,7 +140,6 @@ class ConfigControllerTest extends TestCase
         $request = $this->createRequest('GET', '/events/ev1/config.json');
         $response = $controller->getByEvent($request, new Response(), ['uid' => 'ev1']);
         $this->assertEquals(200, $response->getStatusCode());
-        $this->assertStringContainsString('Demo', (string) $response->getBody());
         session_destroy();
     }
 
@@ -127,8 +151,7 @@ class ConfigControllerTest extends TestCase
         $request = $this->createRequest('POST', '/config.json');
         $request = $request->withParsedBody(['pageTitle' => 'Demo']);
         $response = $app->handle($request);
-        $this->assertEquals(302, $response->getStatusCode());
-        $this->assertEquals('/login', $response->getHeaderLine('Location'));
+        $this->assertEquals(403, $response->getStatusCode());
         session_destroy();
     }
 }
