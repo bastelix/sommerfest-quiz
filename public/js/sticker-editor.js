@@ -15,7 +15,6 @@ const withBase = (p) => basePath + p;
 
   const textBox = document.getElementById('stickerTextBox');
   const textPrev = document.getElementById('stickerTextPreview');
-  const textInput = document.getElementById('catalogStickerText');
 
   const qrBox = document.getElementById('stickerQrHandle');
   const qrImg = document.getElementById('qrPreview');
@@ -250,15 +249,8 @@ const withBase = (p) => basePath + p;
     if (printSubheader.checked && baseSubheader) lines.push(baseSubheader);
     if (printCatalog.checked && baseCatalog) lines.push(baseCatalog);
     if (printDesc.checked && baseDesc) lines.push(baseDesc);
-    const t = lines.join('\n');
-    textInput.value = t;
-    textPrev.textContent = t;
+    textPrev.textContent = lines.join('\n');
   }
-
-  textInput.addEventListener('input', () => {
-    textPrev.textContent = textInput.value.replace(/\n/g, '\n');
-    debouncedSave();
-  });
 
   [printHeader, printSubheader, printCatalog, printDesc].forEach(cb => {
     cb?.addEventListener('change', () => {
@@ -362,8 +354,7 @@ const withBase = (p) => basePath + p;
       stickerHeaderFontSize: headerSize.value,
       stickerSubheaderFontSize: subheaderSize.value,
       stickerCatalogFontSize: catalogSize.value,
-      stickerDescFontSize: descSize.value,
-      previewText: textInput.value
+      stickerDescFontSize: descSize.value
     };
     try {
       await fetch(withBase('/admin/sticker-settings'), {

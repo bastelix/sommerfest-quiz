@@ -179,7 +179,7 @@ class CatalogStickerControllerTest extends TestCase
         $this->assertSame(1, preg_match_all('/\/Subtype\s*\/Image\b/', $withBg));
     }
 
-    public function testGetSettingsProvidesPreviewText(): void
+    public function testGetSettingsProvidesPreviewFields(): void
     {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid, slug, name, description, published, sort_order) VALUES('ev1','ev1','EventTitle','EventDesc',1,0)");
@@ -201,20 +201,13 @@ class CatalogStickerControllerTest extends TestCase
         $response = $controller->getSettings($request, new Response());
         $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
         $data = json_decode((string)$response->getBody(), true);
-        $this->assertSame("EventTitle\nEventDesc\nCatName\nCatDesc", $data['previewText']);
+        $this->assertSame('EventTitle', $data['previewHeader']);
+        $this->assertSame('EventDesc', $data['previewSubheader']);
+        $this->assertSame('CatName', $data['previewCatalog']);
+        $this->assertSame('CatDesc', $data['previewDesc']);
+        $this->assertArrayNotHasKey('previewText', $data);
         $this->assertFalse($data['stickerPrintHeader']);
         $this->assertFalse($data['stickerPrintSubheader']);
         $this->assertFalse($data['stickerPrintCatalog']);
-
-        $config->saveConfig([
-            'event_uid' => 'ev1',
-            'stickerPrintHeader' => false,
-            'stickerPrintSubheader' => false,
-            'stickerPrintCatalog' => false,
-            'stickerPrintDesc' => false,
-        ]);
-        $response = $controller->getSettings($request, new Response());
-        $data = json_decode((string)$response->getBody(), true);
-        $this->assertSame("EventTitle\nEventDesc\nCatName", $data['previewText']);
     }
 }
