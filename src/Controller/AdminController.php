@@ -179,6 +179,7 @@ class AdminController
         }
 
         $baseUrl = UrlService::determineBaseUrl($request);
+        $eventUrl = $uid !== '' ? $baseUrl . '/?event=' . rawurlencode($uid) : $baseUrl;
         $uri = $request->getUri();
 
         $mainDomain = getenv('MAIN_DOMAIN')
@@ -198,6 +199,7 @@ class AdminController
               'events' => $events,
               'roles' => Roles::ALL,
               'baseUrl' => $baseUrl,
+              'eventUrl' => $eventUrl,
               'main_domain' => $mainDomain,
               'event' => $event,
               'role' => $role,
