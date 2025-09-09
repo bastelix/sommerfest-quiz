@@ -5,7 +5,20 @@ const getCsrfToken = () =>
   document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
   window.csrfToken || '';
 
+export let switchPending = false;
+export let lastSwitchFailed = false;
+
+export function resetSwitchError() {
+  lastSwitchFailed = false;
+}
+
+export function markSwitchFailed() {
+  lastSwitchFailed = true;
+}
+
 export function setCurrentEvent(uid, name) {
+  switchPending = true;
+  lastSwitchFailed = false;
   const token = getCsrfToken();
   const headers = {
     'Content-Type': 'application/json',
@@ -38,5 +51,12 @@ export function setCurrentEvent(uid, name) {
         new CustomEvent('current-event-changed', { detail: { uid, name, config: cfg } })
       );
       return cfg;
+    })
+    .catch((err) => {
+      lastSwitchFailed = true;
+      throw err;
+    })
+    .finally(() => {
+      switchPending = false;
     });
 }

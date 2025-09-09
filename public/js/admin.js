@@ -2,7 +2,11 @@
 
 import TableManager from './table-manager.js';
 import { createCellEditor } from './edit-helpers.js';
-import { setCurrentEvent as switchEvent } from './event-switcher.js';
+import {
+  setCurrentEvent as switchEvent,
+  switchPending,
+  lastSwitchFailed
+} from './event-switcher.js';
 
 const basePath = window.basePath || '';
 const withBase = path => basePath + path;
@@ -1781,7 +1785,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     eventSelect.value = currentEventUid || '';
-    eventSelect.dispatchEvent(new Event('change'));
+    if (!switchPending && !lastSwitchFailed) {
+      eventSelect.dispatchEvent(new Event('change'));
+    }
     eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
     if (eventSelectWrap) eventSelectWrap.hidden = false;
     if (eventSearchInput) {
@@ -2032,7 +2038,9 @@ document.addEventListener('DOMContentLoaded', function () {
       const opt = Array.from(eventSelect.options).find(o => o.value === uid);
       if (opt) {
         eventSelect.value = opt.value;
-        eventSelect.dispatchEvent(new Event('change'));
+        if (!switchPending && !lastSwitchFailed) {
+          eventSelect.dispatchEvent(new Event('change'));
+        }
       }
     }
     updateEventSelectDisplay();
@@ -2050,6 +2058,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const name = eventSelect.options[eventSelect.selectedIndex]?.textContent || '';
     if (eventOpenBtn) {
       eventOpenBtn.disabled = !uid;
+    }
+    if (switchPending) {
+      eventSelect.value = currentEventUid;
+      if (eventOpenBtn) eventOpenBtn.disabled = !currentEventUid;
+      return;
     }
     if (uid && uid !== currentEventUid) {
       setCurrentEvent(uid, name);

@@ -1,4 +1,10 @@
-import { setCurrentEvent } from './event-switcher.js';
+import {
+  setCurrentEvent,
+  switchPending,
+  lastSwitchFailed,
+  resetSwitchError,
+  markSwitchFailed
+} from './event-switcher.js';
 const currentScript = document.currentScript;
 const basePath = window.basePath || (currentScript ? currentScript.dataset.base || '' : '');
 const withBase = (p) => basePath + p;
@@ -140,7 +146,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentEventUid) {
       if (eventNotice) eventNotice.hidden = true;
       updateEventButtons(currentEventUid);
-      eventSelect.dispatchEvent(new Event('change'));
+      if (!switchPending && !lastSwitchFailed) {
+        eventSelect.dispatchEvent(new Event('change'));
+      }
     } else {
       eventSelect.value = '';
       updateEventButtons('');
@@ -173,11 +181,13 @@ document.addEventListener('DOMContentLoaded', () => {
         cfgPromise
           .then((cfg) => {
             window.quizConfig = currentEventUid ? cfg : {};
+            resetSwitchError();
             populate(events);
             warnIfEmpty(events);
           })
           .catch(() => {
             window.quizConfig = {};
+            markSwitchFailed();
             populate(events);
             warnIfEmpty(events);
           });
@@ -195,14 +205,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const name = eventSelect.options[eventSelect.selectedIndex]?.textContent || '';
     updateEventButtons(uid);
     const urlEventUid = new URLSearchParams(window.location.search).get('event') || '';
+    if (switchPending) {
+      eventSelect.value = currentEventUid;
+      updateEventButtons(currentEventUid);
+      return;
+    }
     if (e.isTrusted && uid && uid !== currentEventUid && uid !== urlEventUid) {
       setCurrentEvent(uid, name)
         .then((cfg) => {
           currentEventUid = uid;
           window.quizConfig = uid ? cfg : {};
+          resetSwitchError();
           location.search = '?event=' + uid;
         })
         .catch((err) => {
+          markSwitchFailed();
           notify(err.message || 'Fehler beim Wechseln des Events', 'danger');
           eventSelect.value = currentEventUid;
           updateEventButtons(currentEventUid);
