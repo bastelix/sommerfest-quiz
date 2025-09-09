@@ -219,6 +219,7 @@
 - Persist letter in puzzle mode
 - Prevent admin event change auto reload
 - Widen sticker editor modal
+- Reintroduce additional Avery sticker templates
 
 ### Fix
 
