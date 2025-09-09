@@ -44,7 +44,7 @@ let started = 0;
 const window = {
   document,
   location: { search: '?slug=slug1' },
-  quizConfig: { competitionMode: true },
+  quizConfig: { competitionMode: true, event_uid: 'event1' },
   basePath: '',
   startQuiz: () => { started++; }
 };
@@ -64,8 +64,9 @@ const context = {
 context.global = context;
 
 (async () => {
+  vm.runInNewContext(fs.readFileSync('public/js/storage.js', 'utf8'), context);
+  context.setStored(context.STORAGE_KEYS.QUIZ_SOLVED, JSON.stringify(['slug1']));
   vm.runInNewContext(fs.readFileSync('public/js/catalog.js', 'utf8'), context);
-  context.buildSolvedSet = async () => new Set(['slug1']);
   await context.init();
   assert.strictEqual(warnings, 1);
   assert.strictEqual(started, 0);
