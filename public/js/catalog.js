@@ -244,6 +244,7 @@ async function handleSelection(opt, autostart = false) {
 
   const cfg = window.quizConfig || {};
   const slug = (opt.value || opt.dataset.slug || '').toLowerCase();
+  const letter = opt.dataset.letter || '';
   if (cfg.competitionMode && solvedSet.has(slug)) {
     UIkit?.notification?.({ message: 'Dieser Katalog wurde bereits gelöst', status: 'warning' });
     opt.disabled = true;
@@ -276,6 +277,12 @@ async function handleSelection(opt, autostart = false) {
   clearStored(STORAGE_KEYS.PUZZLE_SOLVED);
   clearStored(STORAGE_KEYS.PUZZLE_TIME);
   clearStored(STORAGE_KEYS.LETTER);
+
+  if (cfg.puzzleWordEnabled && letter) {
+    setStored(STORAGE_KEYS.LETTER, letter);
+  } else {
+    clearStored(STORAGE_KEYS.LETTER);
+  }
 
   const puzzleText = document.getElementById('puzzle-solved-text');
   if (puzzleText) {
