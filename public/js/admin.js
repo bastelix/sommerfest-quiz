@@ -2283,8 +2283,14 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(resp => {
         if (!resp.ok) {
           return resp.text().then(text => {
-            notify(text || 'Fehler beim Wechseln des Events', 'danger');
-            eventSelect.value = prevUid;
+            if (eventSelect) {
+              eventSelect.value = prevUid;
+              updateEventSelectDisplay();
+            }
+            if (eventOpenBtn) {
+              eventOpenBtn.disabled = !prevUid;
+            }
+            throw new Error(text || 'Fehler beim Wechseln des Events');
           });
         }
         if (uid) {
@@ -2310,9 +2316,13 @@ document.addEventListener('DOMContentLoaded', function () {
       })
       .catch(err => {
         console.error(err);
-        notify('Fehler beim Wechseln des Events', 'danger');
+        notify(err.message || 'Fehler beim Wechseln des Events', 'danger');
         if (eventSelect) {
           eventSelect.value = prevUid;
+          updateEventSelectDisplay();
+        }
+        if (eventOpenBtn) {
+          eventOpenBtn.disabled = !prevUid;
         }
         updateActiveHeader(prevName, prevUid);
         eventDependentSections.forEach(sec => { sec.hidden = !prevUid; });
