@@ -822,58 +822,6 @@ document.addEventListener('DOMContentLoaded', function () {
     } catch (e) { /* ignore */ }
   }
 
-  function makeDraggable (handle, topInput, leftInput, skipStyle = false, getScaleRatio = () => 1) {
-    if (!handle || !catalogStickerPreview) return;
-    let dragging = false;
-    let offsetX = 0;
-    let offsetY = 0;
-    const style = {
-      width: '20px',
-      height: '20px',
-      background: 'rgba(255,255,255,0.8)',
-      border: '2px solid #1e87f0',
-      cursor: 'move',
-      touchAction: 'none'
-    };
-    if (!skipStyle) Object.assign(handle.style, style);
-    const start = e => {
-      dragging = true;
-      const point = e.touches ? e.touches[0] : e;
-      const rect = handle.getBoundingClientRect();
-      offsetX = point.clientX - rect.left;
-      offsetY = point.clientY - rect.top;
-      if (e.pointerId !== undefined) handle.setPointerCapture(e.pointerId);
-      e.preventDefault();
-    };
-    const move = e => {
-      if (!dragging) return;
-      const point = e.touches ? e.touches[0] : e;
-      const rect = catalogStickerPreview.getBoundingClientRect();
-      let x = point.clientX - rect.left - offsetX;
-      let y = point.clientY - rect.top - offsetY;
-      x = Math.max(0, Math.min(rect.width - handle.offsetWidth, x));
-      y = Math.max(0, Math.min(rect.height - handle.offsetHeight, y));
-      handle.style.left = `${x}px`;
-      handle.style.top = `${y}px`;
-      const scale = 4 * getScaleRatio();
-      if (topInput) topInput.value = (y / scale).toFixed(1);
-      if (leftInput) leftInput.value = (x / scale).toFixed(1);
-      drawCatalogStickerPreview();
-      e.preventDefault();
-    };
-    const end = e => {
-      dragging = false;
-      if (e.pointerId !== undefined) handle.releasePointerCapture(e.pointerId);
-      saveStickerSettings();
-      e.preventDefault();
-    };
-    handle.onpointerdown = start;
-    handle.onpointermove = move;
-    handle.onpointerup = handle.onpointercancel = end;
-    handle.ontouchstart = start;
-    handle.ontouchmove = move;
-    handle.ontouchend = handle.ontouchcancel = end;
-  }
   function makeResizable (handle, widthInput, heightInput, box, getScaleRatio = () => 1) {
     if (!handle || !box) return;
     let resizing = false;
@@ -1049,26 +997,79 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
   function makeDraggable (handle, topInput, leftInput) {
-    if (!handle || !catalogStickerPreview || !window.interact) return;
-    interact(handle).draggable({
-      listeners: {
-        move (event) {
-          const rect = catalogStickerPreview.getBoundingClientRect();
-          const startX = parseFloat(leftInput?.value || '0') * rect.width;
-          const startY = parseFloat(topInput?.value || '0') * rect.height;
-          const x = startX + event.dx;
-          const y = startY + event.dy;
-          const xPct = Math.max(0, Math.min(1, x / rect.width));
-          const yPct = Math.max(0, Math.min(1, y / rect.height));
-          handle.style.left = `${xPct * rect.width}px`;
-          handle.style.top = `${yPct * rect.height}px`;
-          if (leftInput) leftInput.value = xPct.toFixed(4);
-          if (topInput) topInput.value = yPct.toFixed(4);
-          drawCatalogStickerPreview();
-        },
-        end () { saveStickerSettings(); }
-      }
-    });
+    if (!handle || !catalogStickerPreview) return;
+    const style = {
+      background: 'rgba(255,255,255,0.8)',
+      border: '2px solid #1e87f0',
+      cursor: 'move',
+      touchAction: 'none'
+    };
+    if (!handle.style.width) style.width = '20px';
+    if (!handle.style.height) style.height = '20px';
+    Object.assign(handle.style, style);
+    if (window.interact) {
+      interact(handle).draggable({
+        listeners: {
+          move (event) {
+            const rect = catalogStickerPreview.getBoundingClientRect();
+            const startX = parseFloat(leftInput?.value || '0') * rect.width;
+            const startY = parseFloat(topInput?.value || '0') * rect.height;
+            const x = startX + event.dx;
+            const y = startY + event.dy;
+            const xPct = Math.max(0, Math.min(1, x / rect.width));
+            const yPct = Math.max(0, Math.min(1, y / rect.height));
+            handle.style.left = `${xPct * rect.width}px`;
+            handle.style.top = `${yPct * rect.height}px`;
+            if (leftInput) leftInput.value = xPct.toFixed(4);
+            if (topInput) topInput.value = yPct.toFixed(4);
+            drawCatalogStickerPreview();
+          },
+          end () { saveStickerSettings(); }
+        }
+      });
+    } else {
+      let dragging = false;
+      let offsetX = 0;
+      let offsetY = 0;
+      const start = e => {
+        dragging = true;
+        const point = e.touches ? e.touches[0] : e;
+        const rect = handle.getBoundingClientRect();
+        offsetX = point.clientX - rect.left;
+        offsetY = point.clientY - rect.top;
+        if (e.pointerId !== undefined) handle.setPointerCapture(e.pointerId);
+        e.preventDefault();
+      };
+      const move = e => {
+        if (!dragging) return;
+        const point = e.touches ? e.touches[0] : e;
+        const rect = catalogStickerPreview.getBoundingClientRect();
+        let x = point.clientX - rect.left - offsetX;
+        let y = point.clientY - rect.top - offsetY;
+        x = Math.max(0, Math.min(rect.width - handle.offsetWidth, x));
+        y = Math.max(0, Math.min(rect.height - handle.offsetHeight, y));
+        handle.style.left = `${x}px`;
+        handle.style.top = `${y}px`;
+        const xPct = x / rect.width;
+        const yPct = y / rect.height;
+        if (leftInput) leftInput.value = xPct.toFixed(4);
+        if (topInput) topInput.value = yPct.toFixed(4);
+        drawCatalogStickerPreview();
+        e.preventDefault();
+      };
+      const end = e => {
+        dragging = false;
+        if (e.pointerId !== undefined) handle.releasePointerCapture(e.pointerId);
+        saveStickerSettings();
+        e.preventDefault();
+      };
+      handle.onpointerdown = start;
+      handle.onpointermove = move;
+      handle.onpointerup = handle.onpointercancel = end;
+      handle.ontouchstart = start;
+      handle.ontouchmove = move;
+      handle.ontouchend = handle.ontouchcancel = end;
+    }
   }
 
   if (stickerTextBox) {
