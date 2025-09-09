@@ -214,6 +214,7 @@
 - Add username modal for admin
 - Dynamically switch admin events
 - Hide event selector on small screens
+- Persist letter in puzzle mode
 
 ### Fix
 
