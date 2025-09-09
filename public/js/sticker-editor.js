@@ -29,6 +29,7 @@ const withBase = (p) => basePath + p;
   const catalogSize = document.getElementById('catalogStickerCatalogFontSize');
   const descSize = document.getElementById('catalogStickerDescFontSize');
   const bgInput = document.getElementById('catalogStickerBg');
+  const bgNameInput = document.getElementById('catalogStickerBgName');
   const bgProgress = document.getElementById('stickerBgProgress');
 
   const descTop = document.getElementById('stickerDescTop');
@@ -245,7 +246,11 @@ const withBase = (p) => basePath + p;
 
   bgInput?.addEventListener('change', async () => {
     const file = bgInput.files?.[0];
-    if (!file) return;
+    if (!file) {
+      if (bgNameInput) bgNameInput.value = '';
+      return;
+    }
+    if (bgNameInput) bgNameInput.value = file.name;
     const fd = new FormData();
     fd.append('file', file);
     bgProgress?.removeAttribute('hidden');

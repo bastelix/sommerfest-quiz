@@ -622,16 +622,13 @@
                 </div>
               </div>
 
-              <div class="uk-margin">
+              <div class="uk-margin-small">
                 <label class="uk-form-label" for="catalogStickerBg">{{ t('label_sticker_bg') }}</label>
                 <div class="uk-form-controls">
-                  <div class="js-upload uk-placeholder uk-text-center">
-                    <span uk-icon="icon: cloud-upload"></span>
-                    <span class="uk-text-middle">{{ t('label_drag_file') }}&nbsp;</span>
-                    <div uk-form-custom>
-                      <input type="file" id="catalogStickerBg" accept="image/png,image/jpeg,image/webp">
-                      <span class="uk-link">{{ t('action_select') }}</span>
-                    </div>
+                  <div uk-form-custom>
+                    <input type="file" id="catalogStickerBg" accept="image/png,image/jpeg,image/webp" hidden>
+                    <input class="uk-input uk-form-small" id="catalogStickerBgName" type="text" readonly>
+                    <button class="uk-button uk-button-default uk-form-small">Datei wählen</button>
                   </div>
                   <progress id="stickerBgProgress" class="uk-progress" value="0" max="100" hidden></progress>
                 </div>
