@@ -4020,7 +4020,14 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-  document.addEventListener('current-event-changed', () => {
+  document.addEventListener('current-event-changed', e => {
+    const { uid, name, config } = e.detail || {};
+    currentEventUid = uid || '';
+    cfgInitial.event_uid = currentEventUid;
+    Object.assign(cfgInitial, config || {});
+    window.quizConfig = config || {};
+    updateActiveHeader(name, uid);
+    eventDependentSections.forEach(sec => { sec.hidden = !uid; });
     if (catSelect) loadCatalogs();
     if (teamListEl) loadTeamList();
     loadSummary();
