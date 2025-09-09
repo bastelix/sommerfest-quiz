@@ -47,6 +47,7 @@
   const logoInput = document.getElementById('logo');
   const logoPreview = document.getElementById('logoPreview');
   const publishBtn = document.querySelector('.event-config-sidebar .uk-button-primary');
+  const eventSettingsHeading = document.getElementById('eventSettingsHeading');
 
   function applyRules() {
     if (puzzleWordEnabled && puzzleWord && puzzleFeedback) {
@@ -137,10 +138,15 @@
   }
 
   document.addEventListener('current-event-changed', (e) => {
-    const uid = e.detail?.uid || '';
+    const { uid = '', name = '' } = e.detail || {};
     eventId = uid;
     isDirty = false;
     clearForm();
+    if (eventSettingsHeading) {
+      eventSettingsHeading.textContent = name
+        ? `${name} – ${eventSettingsHeading.dataset.title}`
+        : eventSettingsHeading.dataset.title;
+    }
     if (uid) {
       loadConfig(uid).catch(() => {
         window.location.href = withBase(`/admin/event-config?event=${uid}`);
