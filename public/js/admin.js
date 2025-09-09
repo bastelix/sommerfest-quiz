@@ -2,6 +2,7 @@
 
 import TableManager from './table-manager.js';
 import { createCellEditor } from './edit-helpers.js';
+import { setCurrentEvent as switchEvent } from './event-switcher.js';
 
 const basePath = window.basePath || '';
 const withBase = path => basePath + path;
@@ -2276,31 +2277,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const prevUid = currentEventUid;
     const prevOpt = eventSelect?.querySelector(`option[value="${prevUid}"]`);
     const prevName = prevOpt ? prevOpt.textContent : '';
-    apiFetch('/config.json', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ event_uid: uid })
-    })
-      .then(resp => {
-        if (!resp.ok) {
-          return resp.text().then(text => {
-            if (eventSelect) {
-              eventSelect.value = prevUid;
-              updateEventSelectDisplay();
-            }
-            if (eventOpenBtn) {
-              eventOpenBtn.disabled = !prevUid;
-            }
-            throw new Error(text || 'Fehler beim Wechseln des Events');
-          });
-        }
-        if (uid) {
-          return apiFetch(`/events/${encodeURIComponent(uid)}/config.json`, { headers: { 'Accept': 'application/json' } })
-            .then(r => r.json())
-            .catch(() => ({}));
-        }
-        return {};
-      })
+    return switchEvent(uid, name)
       .then(cfg => {
         currentEventUid = uid;
         cfgInitial.event_uid = uid;
@@ -2313,7 +2290,6 @@ document.addEventListener('DOMContentLoaded', function () {
         if (window.history && window.history.replaceState) {
           window.history.replaceState(null, '', url.toString());
         }
-        document.dispatchEvent(new CustomEvent('current-event-changed', { detail: { uid, name } }));
       })
       .catch(err => {
         console.error(err);
@@ -2358,8 +2334,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (input.checked) {
               const twin = eventsCardsEl?.querySelector(`input[name="currentEventCard"][data-id="${ev.id}"]`);
               if (twin) twin.checked = true;
-              setCurrentEvent(ev.id, ev.name);
-              highlightCurrentEvent();
+              setCurrentEvent(ev.id, ev.name).finally(highlightCurrentEvent);
             }
           });
           const slider = document.createElement('span');
@@ -2381,8 +2356,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (input.checked) {
               const twin = eventsListEl.querySelector(`input[name="currentEventList"][data-id="${ev.id}"]`);
               if (twin) twin.checked = true;
-              setCurrentEvent(ev.id, ev.name);
-              highlightCurrentEvent();
+              setCurrentEvent(ev.id, ev.name).finally(highlightCurrentEvent);
             }
           });
           const slider = document.createElement('span');
@@ -2546,7 +2520,10 @@ document.addEventListener('DOMContentLoaded', function () {
   eventSelect?.addEventListener('change', () => {
     const uid = eventSelect.value;
     const name = eventSelect.options[eventSelect.selectedIndex]?.textContent || '';
-    if (uid && uid !== currentEventUid && typeof setCurrentEvent === 'function') {
+    if (eventOpenBtn) {
+      eventOpenBtn.disabled = !uid;
+    }
+    if (uid && uid !== currentEventUid) {
       setCurrentEvent(uid, name);
     }
   });

@@ -1345,7 +1345,7 @@
     window.initialEvents = {{ events|json_encode|raw }};
   </script>
   <script src="{{ basePath }}/js/dashboard.js"></script>
-  <script src="{{ basePath }}/js/events.js"></script>
+  <script type="module" src="{{ basePath }}/js/events.js"></script>
   <script type="module" src="{{ basePath }}/js/admin.js"></script>
   <script src="{{ basePath }}/js/subscription.js"></script>
   <script src="{{ basePath }}/js/storage.js"></script>
