@@ -794,6 +794,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   async function saveStickerSettings () {
     if (!currentEventUid) return;
+    if (!descWidthInput?.value || !descHeightInput?.value ||
+        !descTopInput?.value || !descLeftInput?.value ||
+        !qrTopInput?.value || !qrLeftInput?.value) {
+      drawCatalogStickerPreview();
+    }
     const payload = {
       event_uid: currentEventUid,
       stickerTemplate: catalogStickerTemplate?.value || '',

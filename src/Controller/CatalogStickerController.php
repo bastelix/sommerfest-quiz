@@ -284,6 +284,28 @@ class CatalogStickerController
             ? max(0.0, min($innerMaxH - $qrSize, $qrTop))
             : $innerMaxH - $qrPad - $qrSize;
 
+        if ($descWidth <= 0.0) {
+            $descWidth = $innerW * 0.6;
+        }
+        if ($descHeight <= 0.0) {
+            $descHeight = $innerH - 6.0;
+        }
+        if ($qrSize <= 0.0) {
+            $qrSize = min($innerW, $innerH) * ($qrSizePct / 100.0);
+        }
+        if ($qrLeft <= 0.0) {
+            $qrLeft = $innerMaxW - $qrPad - $qrSize;
+        }
+        if ($qrTop <= 0.0) {
+            $qrTop = $innerMaxH - $qrPad - $qrSize;
+        }
+
+        $descWidth = max(0.0, min($innerW, $descWidth));
+        $descHeight = max(0.0, min($innerH, $descHeight));
+        $qrSize = max(0.0, min(min($innerW, $innerH), $qrSize));
+        $qrLeft = max(0.0, min($innerMaxW - $qrSize, $qrLeft));
+        $qrTop = max(0.0, min($innerMaxH - $qrSize, $qrTop));
+
         $pdf = new FPDF('P', 'mm', $tpl['page']);
         $pdf->SetMargins(0.0, 0.0, 0.0);
         $pdf->SetAutoPageBreak(false);
