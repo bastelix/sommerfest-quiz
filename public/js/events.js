@@ -196,9 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then((cfg) => {
           currentEventUid = uid;
           window.quizConfig = uid ? cfg : {};
-          if (!isAdminPage) {
-            location.search = '?event=' + uid;
-          }
+          location.search = '?event=' + uid;
         })
         .catch((err) => {
           notify(err.message || 'Fehler beim Wechseln des Events', 'danger');
