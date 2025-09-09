@@ -336,6 +336,7 @@
 - Ensure login redirect on main domain
 - Cover team name suggestion
 - Cover user position ordering
+- Ensure managers redirect to admin
 
 ## [0.2.0] - 2025-08-18
 
