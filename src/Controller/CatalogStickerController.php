@@ -89,6 +89,14 @@ class CatalogStickerController
             'stickerQrTop' => $cfg['stickerQrTop'] ?? 10,
             'stickerQrLeft' => $cfg['stickerQrLeft'] ?? 75,
             'stickerQrSizePct' => $cfg['stickerQrSizePct'] ?? 28,
+            'stickerPrintDesc' => (bool)($cfg['stickerPrintDesc'] ?? false),
+            'stickerQrColor' => $cfg['stickerQrColor'] ?? '000000',
+            'stickerTextColor' => $cfg['stickerTextColor'] ?? '000000',
+            'stickerHeaderFontSize' => (int)($cfg['stickerHeaderFontSize'] ?? 12),
+            'stickerSubheaderFontSize' => (int)($cfg['stickerSubheaderFontSize'] ?? 10),
+            'stickerCatalogFontSize' => (int)($cfg['stickerCatalogFontSize'] ?? 11),
+            'stickerDescFontSize' => (int)($cfg['stickerDescFontSize'] ?? 10),
+            'stickerBgPath' => $cfg['stickerBgPath'] ?? null,
         ];
         $response->getBody()->write(json_encode($data));
         return $response->withHeader('Content-Type', 'application/json');
@@ -111,6 +119,11 @@ class CatalogStickerController
             ? (string)$data['stickerTemplate']
             : 'avery_l7163';
 
+        $qrColor = preg_replace('/[^0-9A-Fa-f]/', '', (string)($data['stickerQrColor'] ?? '000000'));
+        $qrColor = substr(str_pad($qrColor, 6, '0'), 0, 6);
+        $textColor = preg_replace('/[^0-9A-Fa-f]/', '', (string)($data['stickerTextColor'] ?? '000000'));
+        $textColor = substr(str_pad($textColor, 6, '0'), 0, 6);
+
         $save = [
             'event_uid' => $uid,
             'stickerTemplate' => $tpl,
@@ -121,6 +134,13 @@ class CatalogStickerController
             'stickerQrTop' => $this->pct($data['stickerQrTop'] ?? 10),
             'stickerQrLeft' => $this->pct($data['stickerQrLeft'] ?? 75),
             'stickerQrSizePct' => $this->pct($data['stickerQrSizePct'] ?? 28),
+            'stickerPrintDesc' => filter_var($data['stickerPrintDesc'] ?? false, FILTER_VALIDATE_BOOLEAN),
+            'stickerQrColor' => $qrColor,
+            'stickerTextColor' => $textColor,
+            'stickerHeaderFontSize' => (int)($data['stickerHeaderFontSize'] ?? 12),
+            'stickerSubheaderFontSize' => (int)($data['stickerSubheaderFontSize'] ?? 10),
+            'stickerCatalogFontSize' => (int)($data['stickerCatalogFontSize'] ?? 11),
+            'stickerDescFontSize' => (int)($data['stickerDescFontSize'] ?? 10),
         ];
         $this->config->saveConfig($save);
         return $response->withStatus(204);
