@@ -392,8 +392,32 @@ const withBase = (p) => basePath + p;
   }
 
   saveBtn.addEventListener('click', saveStickerSettings);
-  pdfCreateBtn?.addEventListener('click', () => {
-    window.open(withBase('/admin/reports/catalog-stickers.pdf'), '_blank');
+  pdfCreateBtn?.addEventListener('click', async () => {
+    await saveStickerSettings();
+    const params = new URLSearchParams({
+      template: tplSel.value,
+      print_header: printHeader.checked,
+      print_subheader: printSubheader.checked,
+      print_catalog: printCatalog.checked,
+      print_desc: printDesc.checked,
+      qr_color: qrColor.value.replace('#', ''),
+      text_color: textColor.value.replace('#', ''),
+      qr_size_pct: qrSizePct.value,
+      desc_top: descTop.value,
+      desc_left: descLeft.value,
+      desc_width: descW.value,
+      desc_height: descH.value,
+      qr_top: qrTop.value,
+      qr_left: qrLeft.value,
+      header_size: headerSize.value,
+      subheader_size: subheaderSize.value,
+      catalog_size: catalogSize.value,
+      desc_size: descSize.value
+    });
+    window.open(
+      withBase(`/admin/reports/catalog-stickers.pdf?${params.toString()}`),
+      '_blank'
+    );
   });
 })();
 
