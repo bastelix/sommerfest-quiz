@@ -94,6 +94,42 @@ async function loadQuizScript() {
   await quizScriptPromise;
 }
 
+function getRemainingCatalogNames() {
+  try {
+    const dataEl = document.getElementById('catalogs-data');
+    const catalogs = dataEl ? JSON.parse(dataEl.textContent) : [];
+    const solved = new Set(JSON.parse(getStored(STORAGE_KEYS.QUIZ_SOLVED) || '[]'));
+    return catalogs
+      .filter(c => !solved.has(c.uid || c.slug || c.sort_order))
+      .map(c => c.name || c.slug || c.sort_order);
+  } catch (e) {
+    return [];
+  }
+}
+
+function showRemainingModal(names) {
+  const modal = document.createElement('div');
+  modal.setAttribute('uk-modal', '');
+  modal.setAttribute('aria-modal', 'true');
+  const list = names.map(n => `<li>${n}</li>`).join('');
+  modal.innerHTML = `
+    <div class="uk-modal-dialog uk-modal-body">
+      <div class="uk-card qr-card uk-card-body uk-padding-small uk-width-1-1">
+        ${names.length
+          ? `<p>Folgende Kataloge sind noch offen:</p>
+        <ul class="uk-list uk-list-bullet">${list}</ul>`
+          : '<p>Alle Kataloge wurden bereits gelöst.</p>'}
+        <button id="remaining-close" class="uk-button uk-button-primary uk-width-1-1">Schließen</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  const ui = UIkit.modal(modal);
+  const btn = modal.querySelector('#remaining-close');
+  btn.addEventListener('click', () => ui.hide());
+  UIkit.util.on(modal, 'hidden', () => { modal.remove(); });
+  ui.show();
+}
+
 async function startQuizOnce(qs, skipIntro = false) {
   if (quizStarted) {
     return;
@@ -147,7 +183,12 @@ async function init() {
 
   if (cfg.competitionMode) {
     if (id && solvedSet.has(id)) {
-      UIkit?.notification?.({ message: 'Dieser Katalog wurde bereits gelöst', status: 'warning' });
+      const names = getRemainingCatalogNames();
+      if (names.length) {
+        showRemainingModal(names);
+      } else {
+        UIkit?.notification?.({ message: 'Dieser Katalog wurde bereits gelöst', status: 'warning' });
+      }
       return;
     }
     if (select) {
@@ -246,7 +287,12 @@ async function handleSelection(opt, autostart = false) {
   const slug = (opt.value || opt.dataset.slug || '').toLowerCase();
   const letter = opt.dataset.letter || '';
   if (cfg.competitionMode && solvedSet.has(slug)) {
-    UIkit?.notification?.({ message: 'Dieser Katalog wurde bereits gelöst', status: 'warning' });
+    const names = getRemainingCatalogNames();
+    if (names.length) {
+      showRemainingModal(names);
+    } else {
+      UIkit?.notification?.({ message: 'Dieser Katalog wurde bereits gelöst', status: 'warning' });
+    }
     opt.disabled = true;
     return;
   }
