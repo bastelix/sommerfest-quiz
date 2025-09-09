@@ -2277,6 +2277,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventSearchInput = document.getElementById('eventSearchInput');
   const eventOpenBtn = document.getElementById('eventOpenBtn');
   const eventDependentSections = document.querySelectorAll('[data-event-dependent]');
+  const eventSettingsHeading = document.getElementById('eventSettingsHeading');
+  const catalogsHeading = document.getElementById('catalogsHeading');
+  const questionsHeading = document.getElementById('questionsHeading');
   const langSelect = document.getElementById('langSelect');
   let eventManager;
   let eventEditor;
@@ -4021,6 +4024,11 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
+  function updateHeading(el, name) {
+    if (!el) return;
+    el.textContent = name ? `${name} – ${el.dataset.title}` : el.dataset.title;
+  }
+
   document.addEventListener('current-event-changed', e => {
     const { uid, name, config } = e.detail || {};
     currentEventUid = uid || '';
@@ -4028,6 +4036,9 @@ document.addEventListener('DOMContentLoaded', function () {
     Object.assign(cfgInitial, config || {});
     window.quizConfig = config || {};
     updateActiveHeader(name, uid);
+    updateHeading(eventSettingsHeading, name);
+    updateHeading(catalogsHeading, name);
+    updateHeading(questionsHeading, name);
     eventDependentSections.forEach(sec => { sec.hidden = !uid; });
     if (catSelect) loadCatalogs();
     if (teamListEl) loadTeamList();
