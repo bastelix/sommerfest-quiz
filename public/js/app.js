@@ -107,24 +107,6 @@ document.addEventListener('DOMContentLoaded', function () {
           toggle.click();
         }
       });
-      toggle.addEventListener('click', function (event) {
-        event.preventDefault();
-        dark = document.body.dataset.theme !== 'dark';
-        document.body.dataset.theme = dark ? 'dark' : 'light';
-        document.body.classList.toggle('dark-mode', dark);
-        if (uikitStylesheet) {
-          document.body.classList.toggle('uk-light', dark);
-        }
-        if (darkStylesheet) {
-          darkStylesheet.toggleAttribute('disabled', !dark);
-        }
-        setStored(STORAGE_KEYS.DARK_MODE, dark ? 'true' : 'false');
-        if (themeIcon) {
-          themeIcon.innerHTML = dark ? sunSVG : moonSVG;
-        }
-        updateThemePressed();
-        try { UIkit.dropdown('#menuDrop').hide(); } catch (e) {}
-      });
     });
   }
 
@@ -136,18 +118,43 @@ document.addEventListener('DOMContentLoaded', function () {
           toggle.click();
         }
       });
-      toggle.addEventListener('click', function (event) {
-        event.preventDefault();
-        accessible = document.body.classList.toggle('high-contrast');
-        setStored(STORAGE_KEYS.BARRIER_FREE, accessible ? 'true' : 'false');
-        if (accessibilityIcon) {
-          accessibilityIcon.innerHTML = accessible ? accessibilityOnSVG : accessibilityOffSVG;
-        }
-        updateAccessibilityPressed();
-        try { UIkit.dropdown('#menuDrop').hide(); } catch (e) {}
-      });
     });
   }
+
+  document.addEventListener('click', function (event) {
+    const themeBtn = event.target.closest('.theme-toggle');
+    if (themeBtn) {
+      event.preventDefault();
+      dark = document.body.dataset.theme !== 'dark';
+      document.body.dataset.theme = dark ? 'dark' : 'light';
+      document.body.classList.toggle('dark-mode', dark);
+      if (uikitStylesheet) {
+        document.body.classList.toggle('uk-light', dark);
+      }
+      if (darkStylesheet) {
+        darkStylesheet.toggleAttribute('disabled', !dark);
+      }
+      setStored(STORAGE_KEYS.DARK_MODE, dark ? 'true' : 'false');
+      if (themeIcon) {
+        themeIcon.innerHTML = dark ? sunSVG : moonSVG;
+      }
+      updateThemePressed();
+      try { UIkit.dropdown('#menuDrop').hide(); } catch (e) {}
+      return;
+    }
+
+    const accessibilityBtn = event.target.closest('.accessibility-toggle');
+    if (accessibilityBtn) {
+      event.preventDefault();
+      accessible = document.body.classList.toggle('high-contrast');
+      setStored(STORAGE_KEYS.BARRIER_FREE, accessible ? 'true' : 'false');
+      if (accessibilityIcon) {
+        accessibilityIcon.innerHTML = accessible ? accessibilityOnSVG : accessibilityOffSVG;
+      }
+      updateAccessibilityPressed();
+      try { UIkit.dropdown('#menuDrop').hide(); } catch (e) {}
+    }
+  });
 
   if (helpBtn) {
     helpBtn.addEventListener('click', function () {
