@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/ui/trumbowyg.min.css">
   <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/trumbowyg.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
   <script>
     window.profileVars = {
       NAME: {{ tenant.imprint_name|default('')|json_encode|raw }},
@@ -568,7 +569,6 @@
               </div>
               <div id="catalogStickerPreview" class="uk-margin uk-position-relative">
                 <div id="stickerTextBox" class="uk-position-absolute"></div>
-                <div id="stickerTextResize" class="uk-position-absolute" uk-tooltip="title: Größe ändern; pos: bottom" aria-label="Größe ändern"></div>
                 <input type="hidden" id="stickerDescTop" name="stickerDescTop" value="">
                 <input type="hidden" id="stickerDescLeft" name="stickerDescLeft" value="">
                 <div id="stickerQrHandle" class="uk-position-absolute" uk-tooltip="title: Verschieben; pos: bottom" aria-label="Verschieben"></div>

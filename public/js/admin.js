@@ -721,10 +721,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const catalogStickerGenerate = document.getElementById('catalogStickerGenerate');
   const catalogStickerPreview = document.getElementById('catalogStickerPreview');
   const stickerTextBox = document.getElementById('stickerTextBox');
-  const stickerTextResize = document.getElementById('stickerTextResize');
-  if (stickerTextResize) stickerTextResize.style.zIndex = '10';
   const stickerQrHandle = document.getElementById('stickerQrHandle');
-  let stickerScaleRatio = 1;
   const descTopInput = document.getElementById('stickerDescTop');
   const descLeftInput = document.getElementById('stickerDescLeft');
   const descWidthInput = document.getElementById('descWidth');
@@ -956,30 +953,31 @@ document.addEventListener('DOMContentLoaded', function () {
     ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, w, h);
-    const scaleRatio = canvas.clientWidth / canvas.width || 1;
-    stickerScaleRatio = scaleRatio;
+    const scaleRatio = canvas.clientWidth ? (canvas.clientWidth / canvas.width) : 1;
     if (catalogStickerBgUrl && catalogStickerBgImg.complete) {
       ctx.drawImage(catalogStickerBgImg, 0, 0, w, h);
     }
     const qrSizePct = Math.min(100, parseFloat(catalogStickerQrSizePct?.value || '42'));
     const qrPad = 2; // mm
-    const defaultDescTop = 0;
-    const defaultDescLeft = 0;
-    const descTop = parseFloat(descTopInput?.value || defaultDescTop);
-    const descLeft = parseFloat(descLeftInput?.value || defaultDescLeft);
-    if (descTopInput) descTopInput.value = descTop.toFixed(1);
-    if (descLeftInput) descLeftInput.value = descLeft.toFixed(1);
+    const descTopPct = parseFloat(descTopInput?.value || '0');
+    const descLeftPct = parseFloat(descLeftInput?.value || '0');
+    if (descTopInput) descTopInput.value = descTopPct.toFixed(4);
+    if (descLeftInput) descLeftInput.value = descLeftPct.toFixed(4);
     const innerMaxWmm = tpl.label_w - 2 * (tpl.padding || 0);
     const innerMaxHmm = tpl.label_h - 2 * (tpl.padding || 0);
+    const descTop = descTopPct * innerMaxHmm;
+    const descLeft = descLeftPct * innerMaxWmm;
     const innerWmm = innerMaxWmm - descLeft;
     const innerHmm = innerMaxHmm - descTop;
     const qrSizeMm = Math.min(innerWmm, innerHmm) * (qrSizePct / 100);
-    const defaultQrLeft = innerMaxWmm - qrSizeMm - qrPad;
-    const defaultQrTop = innerMaxHmm - qrSizeMm - qrPad;
-    const qrTop = parseFloat(qrTopInput?.value || defaultQrTop);
-    const qrLeft = parseFloat(qrLeftInput?.value || defaultQrLeft);
-    if (qrTopInput) qrTopInput.value = qrTop.toFixed(1);
-    if (qrLeftInput) qrLeftInput.value = qrLeft.toFixed(1);
+    const defaultQrLeftPct = (innerMaxWmm - qrSizeMm - qrPad) / innerMaxWmm;
+    const defaultQrTopPct = (innerMaxHmm - qrSizeMm - qrPad) / innerMaxHmm;
+    const qrTopPct = parseFloat(qrTopInput?.value || defaultQrTopPct);
+    const qrLeftPct = parseFloat(qrLeftInput?.value || defaultQrLeftPct);
+    if (qrTopInput) qrTopInput.value = qrTopPct.toFixed(4);
+    if (qrLeftInput) qrLeftInput.value = qrLeftPct.toFixed(4);
+    const qrTop = qrTopPct * innerMaxHmm;
+    const qrLeft = qrLeftPct * innerMaxWmm;
     const descX = Math.round((tpl.padding + descLeft) * scale);
     const descY = Math.round((tpl.padding + descTop) * scale);
     const qrSize = Math.round(qrSizeMm * scale);
@@ -987,14 +985,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const qrY = Math.round((tpl.padding + qrTop) * scale);
     const innerW = Math.round(innerWmm * scale);
     const innerH = Math.round(innerHmm * scale);
-    const defaultDescWidth = innerW * 0.6 / scale;
-    const defaultDescHeight = (innerH - 24) / scale;
-    const descW = parseFloat(descWidthInput?.value || defaultDescWidth);
-    const descH = parseFloat(descHeightInput?.value || defaultDescHeight);
-    if (descWidthInput) descWidthInput.value = descW.toFixed(1);
-    if (descHeightInput) descHeightInput.value = descH.toFixed(1);
-    const textW = Math.round(descW * scale);
-    const textH = Math.round(descH * scale);
+    const descWidthPctDefault = 0.6 * (1 - descLeftPct);
+    const descHeightPctDefault = (innerHmm - 6) / innerMaxHmm;
+    const descWidthPct = parseFloat(descWidthInput?.value || descWidthPctDefault);
+    const descHeightPct = parseFloat(descHeightInput?.value || descHeightPctDefault);
+    if (descWidthInput) descWidthInput.value = descWidthPct.toFixed(4);
+    if (descHeightInput) descHeightInput.value = descHeightPct.toFixed(4);
+    const descWmm = Math.min(descWidthPct * innerMaxWmm, innerWmm);
+    const descHmm = Math.min(descHeightPct * innerMaxHmm, innerHmm);
+    const textW = Math.round(descWmm * scale);
+    const textH = Math.round(descHmm * scale);
     const overlap = qrX < descX + textW && qrX + qrSize > descX && qrY < descY + textH && qrY + qrSize > descY;
     if (overlap && !qrOverlapWarned) {
       notify('QR-Code überlappt Textbereich', 'warning');
@@ -1034,37 +1034,84 @@ document.addEventListener('DOMContentLoaded', function () {
     const scaledTextH = textH * scaleRatio;
     const scaledQrX = qrX * scaleRatio;
     const scaledQrY = qrY * scaleRatio;
+    const scaledQrSize = qrSize * scaleRatio;
     if (stickerTextBox) {
       stickerTextBox.style.left = `${scaledDescX}px`;
       stickerTextBox.style.top = `${scaledDescY}px`;
       stickerTextBox.style.width = `${scaledTextW}px`;
       stickerTextBox.style.height = `${scaledTextH}px`;
     }
-    if (stickerTextResize) {
-      stickerTextResize.style.left = `${scaledDescX + scaledTextW - 10}px`;
-      stickerTextResize.style.top = `${scaledDescY + scaledTextH - 10}px`;
-    }
     if (stickerQrHandle) {
       stickerQrHandle.style.left = `${scaledQrX}px`;
       stickerQrHandle.style.top = `${scaledQrY}px`;
+      stickerQrHandle.style.width = `${scaledQrSize}px`;
+      stickerQrHandle.style.height = `${scaledQrSize}px`;
     }
   }
-  makeDraggable(stickerTextBox, descTopInput, descLeftInput, true, () => stickerScaleRatio);
-  makeResizable(stickerTextResize, descWidthInput, descHeightInput, stickerTextBox, () => stickerScaleRatio);
-  const scale = 4;
+  function makeDraggable (handle, topInput, leftInput) {
+    if (!handle || !catalogStickerPreview || !window.interact) return;
+    interact(handle).draggable({
+      listeners: {
+        move (event) {
+          const rect = catalogStickerPreview.getBoundingClientRect();
+          const startX = parseFloat(leftInput?.value || '0') * rect.width;
+          const startY = parseFloat(topInput?.value || '0') * rect.height;
+          const x = startX + event.dx;
+          const y = startY + event.dy;
+          const xPct = Math.max(0, Math.min(1, x / rect.width));
+          const yPct = Math.max(0, Math.min(1, y / rect.height));
+          handle.style.left = `${xPct * rect.width}px`;
+          handle.style.top = `${yPct * rect.height}px`;
+          if (leftInput) leftInput.value = xPct.toFixed(4);
+          if (topInput) topInput.value = yPct.toFixed(4);
+          drawCatalogStickerPreview();
+        },
+        end () { saveStickerSettings(); }
+      }
+    });
+  }
+
+  if (stickerTextBox) {
+    makeDraggable(stickerTextBox, descTopInput, descLeftInput);
+    if (window.interact) {
+      interact(stickerTextBox).resizable({
+        edges: { left: false, top: false, right: true, bottom: true },
+        listeners: {
+          move (event) {
+            const rect = catalogStickerPreview.getBoundingClientRect();
+            const wPct = event.rect.width / rect.width;
+            const hPct = event.rect.height / rect.height;
+            if (descWidthInput) descWidthInput.value = wPct.toFixed(4);
+            if (descHeightInput) descHeightInput.value = hPct.toFixed(4);
+            Object.assign(event.target.style, {
+              width: `${event.rect.width}px`,
+              height: `${event.rect.height}px`
+            });
+            drawCatalogStickerPreview();
+          },
+          end () { saveStickerSettings(); }
+        }
+      });
+    }
+  }
+  if (stickerQrHandle) {
+    makeDraggable(stickerQrHandle, qrTopInput, qrLeftInput);
+  }
+
   descWidthInput?.addEventListener('input', () => {
-    const val = parseFloat(descWidthInput.value) * scale * stickerScaleRatio;
-    if (stickerTextBox) stickerTextBox.style.width = `${Math.max(10, val)}px`;
+    const rect = catalogStickerPreview.getBoundingClientRect();
+    const val = parseFloat(descWidthInput.value);
+    if (stickerTextBox) stickerTextBox.style.width = `${Math.max(10, val * rect.width)}px`;
     drawCatalogStickerPreview();
     saveStickerSettings();
   });
   descHeightInput?.addEventListener('input', () => {
-    const val = parseFloat(descHeightInput.value) * scale * stickerScaleRatio;
-    if (stickerTextBox) stickerTextBox.style.height = `${Math.max(10, val)}px`;
+    const rect = catalogStickerPreview.getBoundingClientRect();
+    const val = parseFloat(descHeightInput.value);
+    if (stickerTextBox) stickerTextBox.style.height = `${Math.max(10, val * rect.height)}px`;
     drawCatalogStickerPreview();
     saveStickerSettings();
   });
-  makeDraggable(stickerQrHandle, qrTopInput, qrLeftInput, false, () => stickerScaleRatio);
   catalogStickerBgImg.onload = () => drawCatalogStickerPreview();
   if (catalogStickerModal && window.UIkit && UIkit.util) {
     UIkit.util.on(catalogStickerModal.$el, 'shown', () => {

@@ -213,22 +213,22 @@ class CatalogStickerController
             ? max(10, min(100, (int)$params['qr_size_pct']))
             : (int)($cfg['stickerQrSizePct'] ?? 42);
         $qrSizePct = max(10, min(100, $qrSizePct));
-        $descTop = isset($params['desc_top'])
+        $descTopPct = isset($params['desc_top'])
             ? (float)$params['desc_top']
             : (float)($cfg['stickerDescTop'] ?? 0.0);
-        $descLeft = isset($params['desc_left'])
+        $descLeftPct = isset($params['desc_left'])
             ? (float)$params['desc_left']
             : (float)($cfg['stickerDescLeft'] ?? 0.0);
-        $descWidth = isset($params['desc_width'])
+        $descWidthPct = isset($params['desc_width'])
             ? (float)$params['desc_width']
             : (isset($cfg['stickerDescWidth']) ? (float)$cfg['stickerDescWidth'] : null);
-        $descHeight = isset($params['desc_height'])
+        $descHeightPct = isset($params['desc_height'])
             ? (float)$params['desc_height']
             : (isset($cfg['stickerDescHeight']) ? (float)$cfg['stickerDescHeight'] : null);
-        $qrTop = isset($params['qr_top'])
+        $qrTopPct = isset($params['qr_top'])
             ? (float)$params['qr_top']
             : (isset($cfg['stickerQrTop']) ? (float)$cfg['stickerQrTop'] : null);
-        $qrLeft = isset($params['qr_left'])
+        $qrLeftPct = isset($params['qr_left'])
             ? (float)$params['qr_left']
             : (isset($cfg['stickerQrLeft']) ? (float)$cfg['stickerQrLeft'] : null);
         $headerSize = isset($params['header_size'])
@@ -257,14 +257,26 @@ class CatalogStickerController
 
         $innerMaxW = $tpl['label_w'] - 2 * $tpl['padding'];
         $innerMaxH = $tpl['label_h'] - 2 * $tpl['padding'];
-        $descTop = max(0.0, min($innerMaxH, $descTop));
-        $descLeft = max(0.0, min($innerMaxW, $descLeft));
+        $descTop = max(0.0, min(1.0, $descTopPct)) * $innerMaxH;
+        $descLeft = max(0.0, min(1.0, $descLeftPct)) * $innerMaxW;
         $innerW = $innerMaxW - $descLeft;
         $innerH = $innerMaxH - $descTop;
+        $descWidth = $descWidthPct !== null
+            ? max(0.0, min(1.0, $descWidthPct)) * $innerMaxW
+            : null;
+        $descHeight = $descHeightPct !== null
+            ? max(0.0, min(1.0, $descHeightPct)) * $innerMaxH
+            : null;
         $descWidth = $descWidth !== null ? max(0.0, min($innerW, $descWidth)) : $innerW * 0.6;
         $descHeight = $descHeight !== null ? max(0.0, min($innerH, $descHeight)) : $innerH - 6.0;
         $qrSize = min($innerW, $innerH) * ($qrSizePct / 100.0);
         $qrPad = 2.0;
+        $qrLeft = $qrLeftPct !== null
+            ? max(0.0, min(1.0, $qrLeftPct)) * $innerMaxW
+            : null;
+        $qrTop = $qrTopPct !== null
+            ? max(0.0, min(1.0, $qrTopPct)) * $innerMaxH
+            : null;
         $qrLeft = $qrLeft !== null
             ? max(0.0, min($innerMaxW - $qrSize, $qrLeft))
             : $innerMaxW - $qrPad - $qrSize;
