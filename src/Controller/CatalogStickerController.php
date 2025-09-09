@@ -98,6 +98,37 @@ class CatalogStickerController
             'stickerDescFontSize' => (int)($cfg['stickerDescFontSize'] ?? 10),
             'stickerBgPath' => $cfg['stickerBgPath'] ?? null,
         ];
+
+        $event = $this->events->getByUid($uid);
+        $catalogs = $this->catalogs->fetchPagedCatalogs(0, 1, 'asc');
+        $catalog = $catalogs[0] ?? null;
+
+        $lines = [];
+        if ($event !== null) {
+            $name = (string)($event['name'] ?? '');
+            if ($name !== '') {
+                $lines[] = $name;
+            }
+            $desc = (string)($event['description'] ?? '');
+            if ($desc !== '') {
+                $lines[] = $desc;
+            }
+        }
+
+        if ($catalog !== null) {
+            $catName = (string)($catalog['name'] ?? '');
+            if ($catName !== '') {
+                $lines[] = $catName;
+            }
+            if (
+                $data['stickerPrintDesc'] &&
+                ($catalog['description'] ?? '') !== ''
+            ) {
+                $lines[] = (string) $catalog['description'];
+            }
+        }
+
+        $data['previewText'] = implode("\n", $lines);
         $response->getBody()->write(json_encode($data));
         return $response->withHeader('Content-Type', 'application/json');
     }
