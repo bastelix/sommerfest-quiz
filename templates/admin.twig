@@ -536,79 +536,57 @@
         </button>
         <div id="catalogStickerModal" uk-modal>
           <div class="uk-modal-dialog uk-modal-body">
-            <h2 class="uk-modal-title">{{ t('heading_catalog_sticker_settings') }}</h2>
-            <form id="catalogStickerForm">
+            <h2 class="uk-modal-title">Sticker-Editor</h2>
+
+            <form id="catalogStickerForm" class="uk-form-stacked">
               <div class="uk-margin">
-                <label for="catalogStickerTemplate">{{ t('label_template') }}</label>
-                <select id="catalogStickerTemplate" class="uk-select">
-                  <option value="avery_l7165">Avery L7165 (2×4)</option>
-                  <option value="avery_l7163">Avery L7163 (2×7)</option>
-                  <option value="avery_l7651">Avery L7651 (3×8)</option>
-                  <option value="avery_l7992">Avery L7992 (1×5)</option>
-                  <option value="avery_j8165">Avery L7165 / J8165 (1×8)</option>
-                  <option value="avery_l7168">Avery L7168 (1×4)</option>
-                </select>
-              </div>
-              <div class="uk-margin">
-                <label><input type="checkbox" id="catalogStickerDesc" class="uk-checkbox"> {{ t('label_print_catalog_desc') }}</label>
-              </div>
-              <div class="uk-margin">
-                <label for="catalogStickerQrColor">{{ t('label_qr_color') }}</label>
-                <input type="color" id="catalogStickerQrColor" class="uk-input" value="#000000">
-              </div>
-              <div class="uk-margin">
-                <label for="catalogStickerTextColor">{{ t('label_text_color') }}</label>
-                <input type="color" id="catalogStickerTextColor" class="uk-input" value="#000000">
-              </div>
-              <div class="uk-grid-small uk-margin" uk-grid>
-                <div class="uk-width-1-2">
-                  <label for="catalogStickerHeaderSize">{{ t('label_header_font_size') }}</label>
-                  <input type="number" id="catalogStickerHeaderSize" class="uk-input" value="12" min="1">
-                </div>
-                <div class="uk-width-1-2">
-                  <label for="catalogStickerSubheaderSize">{{ t('label_subheader_font_size') }}</label>
-                  <input type="number" id="catalogStickerSubheaderSize" class="uk-input" value="10" min="1">
+                <label class="uk-form-label">Template</label>
+                <div class="uk-form-controls">
+                  <select id="catalogStickerTemplate" class="uk-select">
+                    <option value="avery_l7163">Avery L7163 (99.1×38.1)</option>
+                    <option value="avery_l7165">Avery L7165 (99.1×67.7)</option>
+                  </select>
                 </div>
               </div>
-              <div class="uk-grid-small uk-margin" uk-grid>
-                <div class="uk-width-1-2">
-                  <label for="catalogStickerCatalogSize">{{ t('label_catalog_font_size') }}</label>
-                  <input type="number" id="catalogStickerCatalogSize" class="uk-input" value="11" min="1">
+
+              <div id="catalogStickerPreview" class="uk-margin uk-position-relative uk-border-rounded" style="width: 600px; aspect-ratio: 99.1/38.1; background: #fff url('') center/100% 100% no-repeat; border:1px solid rgba(0,0,0,.1)">
+                <!-- B: TEXT-BOX -->
+                <div id="stickerTextBox" class="dragzone" role="group" aria-label="Textfeld verschieben/größenändern">
+                  <div class="drag-handle" aria-hidden="true" uk-icon="move"></div>
+                  <div class="resize-handle" aria-hidden="true"></div>
+                  <div class="preview-text" id="stickerTextPreview">Beispiel-Text\nWeitere Zeile</div>
                 </div>
-                <div class="uk-width-1-2">
-                  <label for="catalogStickerDescSize">{{ t('label_desc_font_size') }}</label>
-                  <input type="number" id="catalogStickerDescSize" class="uk-input" value="10" min="1">
+
+                <!-- A: QR-ZONE (quadratisch, nicht resizable) -->
+                <div id="stickerQrHandle" class="dragzone dragzone--square" role="group" aria-label="QR-Position verschieben">
+                  <div class="drag-handle" aria-hidden="true" uk-icon="move"></div>
+                  <img id="qrPreview" alt="QR-Vorschau" />
                 </div>
-              </div>
-              <div class="uk-margin">
-                <label for="catalogStickerQrSizePct">{{ t('label_qr_size_pct') }}</label>
-                <input type="number" id="catalogStickerQrSizePct" class="uk-input" value="42" min="35" max="100">
-              </div>
-              <div class="uk-margin">
-                <label for="catalogStickerBg">{{ t('label_sticker_bg') }}</label>
-                <input type="file" id="catalogStickerBg" class="uk-input" accept="image/*">
-              </div>
-              <div id="catalogStickerPreview" class="uk-margin uk-position-relative">
-                <div id="stickerTextBox" class="uk-position-absolute"></div>
-                <input type="hidden" id="stickerDescTop" name="stickerDescTop" value="">
+
+                <!-- Hidden: Prozentwerte relativ zum Sticker -->
+                <input type="hidden" id="stickerDescTop"  name="stickerDescTop"  value="">
                 <input type="hidden" id="stickerDescLeft" name="stickerDescLeft" value="">
-                <div id="stickerQrHandle" class="uk-position-absolute" uk-tooltip="title: Verschieben; pos: bottom" aria-label="Verschieben"><span uk-icon="icon: move"></span></div>
-                <input type="hidden" id="stickerQrTop" name="stickerQrTop" value="">
+                <input type="hidden" id="stickerDescW"    name="stickerDescWidth"  value="">
+                <input type="hidden" id="stickerDescH"    name="stickerDescHeight" value="">
+
+                <input type="hidden" id="stickerQrTop"  name="stickerQrTop"  value="">
                 <input type="hidden" id="stickerQrLeft" name="stickerQrLeft" value="">
+                <input type="hidden" id="stickerQrSize" name="stickerQrSizePct" value="">
               </div>
-              <div class="uk-grid-small uk-margin" uk-grid>
+
+              <div class="uk-grid-small" uk-grid>
                 <div class="uk-width-1-2">
-                  <label for="descWidth">{{ t('label_desc_width') }}</label>
-                  <input type="number" id="descWidth" name="descWidth" class="uk-input" step="0.1">
+                  <label class="uk-form-label">QR-Größe (%)</label>
+                  <input id="catalogStickerQrSizePct" type="range" min="10" max="80" step="1" class="uk-range">
                 </div>
                 <div class="uk-width-1-2">
-                  <label for="descHeight">{{ t('label_desc_height') }}</label>
-                  <input type="number" id="descHeight" name="descHeight" class="uk-input" step="0.1">
+                  <label class="uk-form-label">Vorschau-Text</label>
+                  <input id="catalogStickerText" class="uk-input" placeholder="Vorschau-Text">
                 </div>
               </div>
-              <div class="uk-text-right">
-                <button class="uk-button uk-button-primary" type="submit" id="catalogStickerGenerate">{{ t('action_download') }}</button>
-                <button class="uk-button uk-button-default uk-modal-close" type="button">{{ t('action_cancel') }}</button>
+
+              <div class="uk-margin">
+                <button type="button" class="uk-button uk-button-primary" id="saveStickerBtn">Speichern</button>
               </div>
             </form>
           </div>
@@ -1371,6 +1349,7 @@
   <script src="{{ basePath }}/js/dashboard.js"></script>
   <script type="module" src="{{ basePath }}/js/events.js"></script>
   <script type="module" src="{{ basePath }}/js/admin.js"></script>
+  <script type="module" src="{{ basePath }}/js/sticker-editor.js"></script>
   <script src="{{ basePath }}/js/subscription.js"></script>
   <script src="{{ basePath }}/js/storage.js"></script>
   <script src="{{ basePath }}/js/app.js"></script>
