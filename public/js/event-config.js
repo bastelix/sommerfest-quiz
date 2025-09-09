@@ -2,7 +2,7 @@
   const currentScript = document.currentScript;
   const basePath = window.basePath || (currentScript ? currentScript.dataset.base || '' : '');
   const withBase = (p) => basePath + p;
-  const eventId = document.body?.dataset.eventId || currentScript?.dataset.eventId || window.eventId || '';
+  let eventId = document.body?.dataset.eventId || currentScript?.dataset.eventId || window.eventId || '';
 
   const getCsrfToken = () =>
     document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
@@ -56,6 +56,61 @@
     }
   }
 
+  function clearForm() {
+    document.querySelectorAll('form input, form textarea, form select').forEach((el) => {
+      if (el.type === 'checkbox') {
+        el.checked = false;
+      } else if (el.type === 'file') {
+        el.value = '';
+      } else {
+        el.value = '';
+      }
+    });
+    if (logoPreview) {
+      logoPreview.src = '';
+      logoPreview.hidden = true;
+    }
+    applyRules();
+  }
+
+  function loadConfig(uid) {
+    if (!uid) {
+      applyRules();
+      return Promise.resolve();
+    }
+    return fetch(withBase(`/admin/event/${uid}`), { credentials: 'same-origin', cache: 'no-store' })
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to load');
+        return res.json();
+      })
+      .then(({ event, config }) => {
+        const data = { ...config };
+        if (event?.name && !data.pageTitle) data.pageTitle = event.name;
+        Object.entries(data).forEach(([key, value]) => {
+          const el = document.getElementById(key);
+          if (!el) return;
+          if (el.type === 'checkbox') {
+            el.checked = !!value;
+          } else if (el.tagName === 'IMG') {
+            el.src = value;
+            el.hidden = !value;
+          } else if (el.type !== 'file') {
+            el.value = value ?? '';
+          }
+        });
+        if (config?.logoPath && logoPreview) {
+          logoPreview.src = withBase(config.logoPath);
+          logoPreview.hidden = false;
+        }
+        applyRules();
+        isDirty = false;
+      })
+      .catch(() => {
+        UIkit?.notification({ message: 'Konfiguration konnte nicht geladen werden', status: 'danger' });
+        applyRules();
+      });
+  }
+
   function save() {
     if (!eventId) return;
     const body = collectData();
@@ -81,38 +136,23 @@
     autosaveTimer = setTimeout(save, 800);
   }
 
+  document.addEventListener('current-event-changed', (e) => {
+    const uid = e.detail?.uid || '';
+    eventId = uid;
+    isDirty = false;
+    clearForm();
+    if (uid) {
+      loadConfig(uid).catch(() => {
+        window.location.href = withBase(`/admin/event-config?event=${uid}`);
+      });
+    } else {
+      applyRules();
+    }
+  });
+
   document.addEventListener('DOMContentLoaded', () => {
     if (eventId) {
-      fetch(withBase(`/admin/event/${eventId}`), { credentials: 'same-origin', cache: 'no-store' })
-        .then((res) => {
-          if (!res.ok) throw new Error('Failed to load');
-          return res.json();
-        })
-        .then(({ event, config }) => {
-          const data = { ...config };
-          if (event?.name && !data.pageTitle) data.pageTitle = event.name;
-          Object.entries(data).forEach(([key, value]) => {
-            const el = document.getElementById(key);
-            if (!el) return;
-            if (el.type === 'checkbox') {
-              el.checked = !!value;
-            } else if (el.tagName === 'IMG') {
-              el.src = value;
-              el.hidden = !value;
-            } else if (el.type !== 'file') {
-              el.value = value ?? '';
-            }
-          });
-          if (config?.logoPath && logoPreview) {
-            logoPreview.src = withBase(config.logoPath);
-            logoPreview.hidden = false;
-          }
-          applyRules();
-        })
-        .catch(() => {
-          UIkit?.notification({ message: 'Konfiguration konnte nicht geladen werden', status: 'danger' });
-          applyRules();
-        });
+      loadConfig(eventId);
     } else {
       applyRules();
     }
