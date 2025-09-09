@@ -294,6 +294,7 @@
 - Remove config fallback for empty event
 - Merge password action into user actions
 - Centralize event switching
+- Add manual drag fallback
 
 ### Style
 
