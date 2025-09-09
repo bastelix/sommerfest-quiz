@@ -2,7 +2,11 @@
 
 import TableManager from './table-manager.js';
 import { createCellEditor } from './edit-helpers.js';
-import { setCurrentEvent as switchEvent } from './event-switcher.js';
+import {
+  setCurrentEvent as switchEvent,
+  switchPending,
+  lastSwitchFailed
+} from './event-switcher.js';
 
 const basePath = window.basePath || '';
 const withBase = path => basePath + path;
@@ -1794,14 +1798,27 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function highlightCurrentEvent() {
     Array.from(eventsListEl?.querySelectorAll('tr') || []).forEach(row => {
-      row.classList.toggle('active-event', row.dataset.id === currentEventUid);
+      const isCurrent = row.dataset.id === currentEventUid;
+      row.classList.toggle('active-event', isCurrent);
+      const input = row.querySelector('input[name="currentEventList"]');
+      if (input) input.checked = isCurrent;
     });
     Array.from(eventsCardsEl?.children || []).forEach(card => {
-      card.classList.toggle('active-event', card.dataset.id === currentEventUid);
+      const isCurrent = card.dataset.id === currentEventUid;
+      card.classList.toggle('active-event', isCurrent);
+      const input = card.querySelector('input[name="currentEventCard"]');
+      if (input) input.checked = isCurrent;
     });
   }
 
   function setCurrentEvent(uid, name) {
+    if (switchPending || lastSwitchFailed) {
+      if (eventSelect) {
+        eventSelect.value = currentEventUid;
+        updateEventSelectDisplay();
+      }
+      return Promise.resolve();
+    }
     const prevUid = currentEventUid;
     const prevOpt = eventSelect?.querySelector(`option[value="${prevUid}"]`);
     const prevName = prevOpt ? prevOpt.textContent : '';
@@ -1859,11 +1876,14 @@ document.addEventListener('DOMContentLoaded', function () {
           input.dataset.id = ev.id;
           input.checked = ev.id === currentEventUid;
           input.addEventListener('change', () => {
-            if (input.checked) {
-              const twin = eventsCardsEl?.querySelector(`input[name="currentEventCard"][data-id="${ev.id}"]`);
-              if (twin) twin.checked = true;
-              setCurrentEvent(ev.id, ev.name).finally(highlightCurrentEvent);
+            if (!input.checked) return;
+            if (switchPending || lastSwitchFailed) {
+              highlightCurrentEvent();
+              return;
             }
+            const twin = eventsCardsEl?.querySelector(`input[name="currentEventCard"][data-id="${ev.id}"]`);
+            if (twin) twin.checked = true;
+            setCurrentEvent(ev.id, ev.name).finally(highlightCurrentEvent);
           });
           const slider = document.createElement('span');
           slider.className = 'slider';
@@ -1881,11 +1901,14 @@ document.addEventListener('DOMContentLoaded', function () {
           input.dataset.id = ev.id;
           input.checked = ev.id === currentEventUid;
           input.addEventListener('change', () => {
-            if (input.checked) {
-              const twin = eventsListEl.querySelector(`input[name="currentEventList"][data-id="${ev.id}"]`);
-              if (twin) twin.checked = true;
-              setCurrentEvent(ev.id, ev.name).finally(highlightCurrentEvent);
+            if (!input.checked) return;
+            if (switchPending || lastSwitchFailed) {
+              highlightCurrentEvent();
+              return;
             }
+            const twin = eventsListEl.querySelector(`input[name="currentEventList"][data-id="${ev.id}"]`);
+            if (twin) twin.checked = true;
+            setCurrentEvent(ev.id, ev.name).finally(highlightCurrentEvent);
           });
           const slider = document.createElement('span');
           slider.className = 'slider';
@@ -2050,6 +2073,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const name = eventSelect.options[eventSelect.selectedIndex]?.textContent || '';
     if (eventOpenBtn) {
       eventOpenBtn.disabled = !uid;
+    }
+    if (switchPending || lastSwitchFailed) {
+      eventSelect.value = currentEventUid || '';
+      updateEventSelectDisplay();
+      highlightCurrentEvent();
+      return;
     }
     if (uid && uid !== currentEventUid) {
       setCurrentEvent(uid, name);

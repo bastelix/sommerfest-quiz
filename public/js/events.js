@@ -1,4 +1,10 @@
-import { setCurrentEvent } from './event-switcher.js';
+import {
+  setCurrentEvent,
+  switchPending,
+  lastSwitchFailed,
+  resetSwitchState,
+  markSwitchError
+} from './event-switcher.js';
 const currentScript = document.currentScript;
 const basePath = window.basePath || (currentScript ? currentScript.dataset.base || '' : '');
 const withBase = (p) => basePath + p;
@@ -168,16 +174,21 @@ document.addEventListener('DOMContentLoaded', () => {
       .then((events) => {
         currentEventUid = pageEventUid;
         const cfgPromise = currentEventUid
-          ? csrfFetch(`/events/${encodeURIComponent(currentEventUid)}/config.json`).then((r) => r.json()).catch(() => ({}))
+          ? csrfFetch(`/events/${encodeURIComponent(currentEventUid)}/config.json`).then((r) => {
+              if (!r.ok) throw new Error('HTTP error');
+              return r.json();
+            })
           : Promise.resolve({});
         cfgPromise
           .then((cfg) => {
             window.quizConfig = currentEventUid ? cfg : {};
+            resetSwitchState();
             populate(events);
             warnIfEmpty(events);
           })
           .catch(() => {
             window.quizConfig = {};
+            markSwitchError();
             populate(events);
             warnIfEmpty(events);
           });
@@ -195,6 +206,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const name = eventSelect.options[eventSelect.selectedIndex]?.textContent || '';
     updateEventButtons(uid);
     const urlEventUid = new URLSearchParams(window.location.search).get('event') || '';
+    if (switchPending || lastSwitchFailed) {
+      eventSelect.value = currentEventUid;
+      updateEventButtons(currentEventUid);
+      return;
+    }
     if (e.isTrusted && uid && uid !== currentEventUid && uid !== urlEventUid) {
       setCurrentEvent(uid, name)
         .then((cfg) => {
