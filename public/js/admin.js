@@ -2272,9 +2272,9 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function setCurrentEvent(uid, name) {
-    currentEventUid = uid;
-    cfgInitial.event_uid = uid;
-    updateActiveHeader(name, uid);
+    const prevUid = currentEventUid;
+    const prevOpt = eventSelect?.querySelector(`option[value="${prevUid}"]`);
+    const prevName = prevOpt ? prevOpt.textContent : '';
     apiFetch('/config.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -2284,15 +2284,43 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!resp.ok) {
           return resp.text().then(text => {
             notify(text || 'Fehler beim Wechseln des Events', 'danger');
+            eventSelect.value = prevUid;
           });
         }
+        if (uid) {
+          return apiFetch(`/events/${encodeURIComponent(uid)}/config.json`, { headers: { 'Accept': 'application/json' } })
+            .then(r => r.json())
+            .catch(() => ({}));
+        }
+        return {};
+      })
+      .then(cfg => {
+        currentEventUid = uid;
+        cfgInitial.event_uid = uid;
+        Object.assign(cfgInitial, cfg);
+        window.quizConfig = cfg || {};
+        updateActiveHeader(name, uid);
+        eventDependentSections.forEach(sec => { sec.hidden = !uid; });
         const url = new URL(window.location);
-        url.searchParams.set('event', uid);
-        window.location.href = url.toString();
+        if (uid) url.searchParams.set('event', uid); else url.searchParams.delete('event');
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, '', url.toString());
+        }
+        document.dispatchEvent(new CustomEvent('current-event-changed', { detail: { uid, name } }));
       })
       .catch(err => {
         console.error(err);
         notify('Fehler beim Wechseln des Events', 'danger');
+        if (eventSelect) {
+          eventSelect.value = prevUid;
+        }
+        updateActiveHeader(prevName, prevUid);
+        eventDependentSections.forEach(sec => { sec.hidden = !prevUid; });
+        const url = new URL(window.location);
+        if (prevUid) url.searchParams.set('event', prevUid); else url.searchParams.delete('event');
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, '', url.toString());
+        }
       });
   }
 
@@ -2687,7 +2715,8 @@ document.addEventListener('DOMContentLoaded', function () {
     window.open(withBase('/results.pdf?team=' + encodeURIComponent(teamName)), '_blank');
   }
 
-  if (teamListEl) {
+  function loadTeamList() {
+    if (!teamManager) return;
     teamManager.setColumnLoading('name', true);
     apiFetch('/teams.json', { headers: { 'Accept': 'application/json' } })
       .then(r => r.json())
@@ -2700,6 +2729,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (teamRestrictTeams) {
       teamRestrictTeams.checked = !!cfgInitial.QRRestrict;
     }
+  }
+
+  if (teamListEl) {
+    loadTeamList();
   }
 
   teamAddBtn?.addEventListener('click', e => {
@@ -3904,6 +3937,12 @@ document.addEventListener('DOMContentLoaded', function () {
         notify('Fehler beim Starten der Zahlung', 'danger', 0);
       }
     });
+
+  document.addEventListener('current-event-changed', () => {
+    if (catSelect) loadCatalogs();
+    if (teamListEl) loadTeamList();
+    loadSummary();
+  });
 
   // Page editors are handled in trumbowyg-pages.js
 
