@@ -531,7 +531,7 @@
         </div>
 
         <h3 class="uk-heading-bullet">{{ t('heading_catalogs') }}</h3>
-        <button id="catalogStickerPdfBtn" class="uk-button uk-button-default uk-margin-small-bottom">
+        <button id="openStickerEditorBtn" class="uk-button uk-button-default uk-margin-small-bottom">
           {{ t('action_catalog_stickers_pdf') }}
         </button>
         <div id="catalogStickerModal" uk-modal>
@@ -546,6 +546,72 @@
                     <option value="avery_l7163">Avery L7163 (99.1×38.1)</option>
                     <option value="avery_l7165">Avery L7165 (99.1×67.7)</option>
                   </select>
+                </div>
+              </div>
+              <div class="uk-grid-small" uk-grid>
+                <div class="uk-width-1-2">
+                  <label class="uk-form-label">{{ t('label_qr_size_pct') }}</label>
+                  <input id="catalogStickerQrSizePct" type="range" min="10" max="80" step="1" class="uk-range">
+                </div>
+                <div class="uk-width-1-2">
+                  <label class="uk-form-label">Vorschau-Text</label>
+                  <input id="catalogStickerText" class="uk-input" placeholder="Vorschau-Text">
+                </div>
+              </div>
+              <div class="uk-grid-small" uk-grid>
+                <div class="uk-width-1-2">
+                  <label class="uk-form-label">{{ t('label_qr_color') }}</label>
+                  <input id="catalogStickerQrColor" class="uk-input" type="color">
+                </div>
+                <div class="uk-width-1-2">
+                  <label class="uk-form-label">{{ t('label_text_color') }}</label>
+                  <input id="catalogStickerTextColor" class="uk-input" type="color">
+                </div>
+              </div>
+
+              <div class="uk-grid-small" uk-grid>
+                <div class="uk-width-1-2">
+                  <label class="uk-form-label" for="catalogStickerHeaderFontSize">{{ t('label_header_font_size') }}</label>
+                  <div class="uk-form-controls uk-flex uk-flex-middle">
+                    <input class="uk-checkbox uk-margin-right" id="catalogStickerPrintHeader" type="checkbox">
+                    <input id="catalogStickerHeaderFontSize" class="uk-input" type="number">
+                  </div>
+                </div>
+                <div class="uk-width-1-2">
+                  <label class="uk-form-label" for="catalogStickerSubheaderFontSize">{{ t('label_subheader_font_size') }}</label>
+                  <div class="uk-form-controls uk-flex uk-flex-middle">
+                    <input class="uk-checkbox uk-margin-right" id="catalogStickerPrintSubheader" type="checkbox">
+                    <input id="catalogStickerSubheaderFontSize" class="uk-input" type="number">
+                  </div>
+                </div>
+              </div>
+
+              <div class="uk-grid-small" uk-grid>
+                <div class="uk-width-1-2">
+                  <label class="uk-form-label" for="catalogStickerCatalogFontSize">{{ t('label_catalog_font_size') }}</label>
+                  <div class="uk-form-controls uk-flex uk-flex-middle">
+                    <input class="uk-checkbox uk-margin-right" id="catalogStickerPrintCatalog" type="checkbox">
+                    <input id="catalogStickerCatalogFontSize" class="uk-input" type="number">
+                  </div>
+                </div>
+                <div class="uk-width-1-2">
+                  <label class="uk-form-label" for="catalogStickerDescFontSize">{{ t('label_desc_font_size') }}</label>
+                  <div class="uk-form-controls uk-flex uk-flex-middle">
+                    <input class="uk-checkbox uk-margin-right" id="catalogStickerPrintDesc" type="checkbox">
+                    <input id="catalogStickerDescFontSize" class="uk-input" type="number">
+                  </div>
+                </div>
+              </div>
+
+              <div class="uk-margin">
+                <label class="uk-form-label" for="catalogStickerBg">{{ t('label_sticker_bg') }}</label>
+                <div class="uk-form-controls">
+                  <div uk-form-custom>
+                    <input type="file" id="catalogStickerBg" accept="image/png,image/jpeg,image/webp" hidden>
+                    <input class="uk-input uk-form-small" id="catalogStickerBgName" type="text" readonly>
+                    <button class="uk-button uk-button-default uk-form-small">Datei wählen</button>
+                  </div>
+                  <progress id="stickerBgProgress" class="uk-progress" value="0" max="100" hidden></progress>
                 </div>
               </div>
 
@@ -574,71 +640,9 @@
                 <input type="hidden" id="stickerQrSize" name="stickerQrSizePct" value="">
               </div>
 
-              <div class="uk-grid-small" uk-grid>
-                <div class="uk-width-1-2">
-                  <label class="uk-form-label">{{ t('label_qr_size_pct') }}</label>
-                  <input id="catalogStickerQrSizePct" type="range" min="10" max="80" step="1" class="uk-range">
-                </div>
-                <div class="uk-width-1-2">
-                  <label class="uk-form-label">Vorschau-Text</label>
-                  <input id="catalogStickerText" class="uk-input" placeholder="Vorschau-Text">
-                </div>
-              </div>
-
-              <div class="uk-margin">
-                <label><input class="uk-checkbox" id="catalogStickerPrintDesc" type="checkbox"> {{ t('label_print_catalog_desc') }}</label>
-              </div>
-
-              <div class="uk-grid-small" uk-grid>
-                <div class="uk-width-1-2">
-                  <label class="uk-form-label">{{ t('label_qr_color') }}</label>
-                  <input id="catalogStickerQrColor" class="uk-input" type="color">
-                </div>
-                <div class="uk-width-1-2">
-                  <label class="uk-form-label">{{ t('label_text_color') }}</label>
-                  <input id="catalogStickerTextColor" class="uk-input" type="color">
-                </div>
-              </div>
-
-              <div class="uk-grid-small" uk-grid>
-                <div class="uk-width-1-2">
-                  <label class="uk-form-label">{{ t('label_header_font_size') }}</label>
-                  <input id="catalogStickerHeaderFontSize" class="uk-input" type="number">
-                </div>
-                <div class="uk-width-1-2">
-                  <label class="uk-form-label">{{ t('label_subheader_font_size') }}</label>
-                  <input id="catalogStickerSubheaderFontSize" class="uk-input" type="number">
-                </div>
-              </div>
-
-              <div class="uk-grid-small" uk-grid>
-                <div class="uk-width-1-2">
-                  <label class="uk-form-label">{{ t('label_catalog_font_size') }}</label>
-                  <input id="catalogStickerCatalogFontSize" class="uk-input" type="number">
-                </div>
-                <div class="uk-width-1-2">
-                  <label class="uk-form-label">{{ t('label_desc_font_size') }}</label>
-                  <input id="catalogStickerDescFontSize" class="uk-input" type="number">
-                </div>
-              </div>
-
-              <div class="uk-margin">
-                <label class="uk-form-label" for="catalogStickerBg">{{ t('label_sticker_bg') }}</label>
-                <div class="uk-form-controls">
-                  <div class="js-upload uk-placeholder uk-text-center">
-                    <span uk-icon="icon: cloud-upload"></span>
-                    <span class="uk-text-middle">{{ t('label_drag_file') }}&nbsp;</span>
-                    <div uk-form-custom>
-                      <input type="file" id="catalogStickerBg" accept="image/png,image/jpeg,image/webp">
-                      <span class="uk-link">{{ t('action_select') }}</span>
-                    </div>
-                  </div>
-                  <progress id="stickerBgProgress" class="uk-progress" value="0" max="100" hidden></progress>
-                </div>
-              </div>
-
-              <div class="uk-margin">
+              <div class="uk-margin uk-flex uk-flex-right">
                 <button type="button" class="uk-button uk-button-primary" id="saveStickerBtn">Speichern</button>
+                <button type="button" class="uk-button uk-button-default uk-margin-left" id="catalogStickerPdfCreateBtn">PDF erstellen</button>
               </div>
             </form>
           </div>

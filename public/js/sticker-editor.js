@@ -2,9 +2,9 @@ const basePath = window.basePath || '';
 const withBase = (p) => basePath + p;
 
 (() => {
-  const pdfBtn = document.getElementById('catalogStickerPdfBtn');
+  const openBtn = document.getElementById('openStickerEditorBtn');
   const modal = window.UIkit ? UIkit.modal('#catalogStickerModal') : null;
-  pdfBtn?.addEventListener('click', (e) => {
+  openBtn?.addEventListener('click', (e) => {
     e.preventDefault();
     modal?.show();
   });
@@ -21,6 +21,9 @@ const withBase = (p) => basePath + p;
   const qrImg = document.getElementById('qrPreview');
   const qrSize = document.getElementById('catalogStickerQrSizePct');
 
+  const printHeader = document.getElementById('catalogStickerPrintHeader');
+  const printSubheader = document.getElementById('catalogStickerPrintSubheader');
+  const printCatalog = document.getElementById('catalogStickerPrintCatalog');
   const printDesc = document.getElementById('catalogStickerPrintDesc');
   const qrColor = document.getElementById('catalogStickerQrColor');
   const textColor = document.getElementById('catalogStickerTextColor');
@@ -29,6 +32,7 @@ const withBase = (p) => basePath + p;
   const catalogSize = document.getElementById('catalogStickerCatalogFontSize');
   const descSize = document.getElementById('catalogStickerDescFontSize');
   const bgInput = document.getElementById('catalogStickerBg');
+  const bgName = document.getElementById('catalogStickerBgName');
   const bgProgress = document.getElementById('stickerBgProgress');
 
   const descTop = document.getElementById('stickerDescTop');
@@ -41,6 +45,12 @@ const withBase = (p) => basePath + p;
   const qrSizePct = document.getElementById('stickerQrSize');
 
   const saveBtn = document.getElementById('saveStickerBtn');
+  const pdfCreateBtn = document.getElementById('catalogStickerPdfCreateBtn');
+
+  let baseHeader = '';
+  let baseSubheader = '';
+  let baseCatalog = '';
+  let baseDesc = '';
 
   const templates = {
     avery_l7163: { w: 99.1, h: 38.1, bg: null },
@@ -230,12 +240,29 @@ const withBase = (p) => basePath + p;
     syncInputsFromLayout();
     debouncedSave();
   });
+  function updatePreviewText() {
+    const lines = [];
+    if (printHeader.checked && baseHeader) lines.push(baseHeader);
+    if (printSubheader.checked && baseSubheader) lines.push(baseSubheader);
+    if (printCatalog.checked && baseCatalog) lines.push(baseCatalog);
+    if (printDesc.checked && baseDesc) lines.push(baseDesc);
+    const t = lines.join('\n');
+    textInput.value = t;
+    textPrev.textContent = t;
+  }
 
   textInput.addEventListener('input', () => {
     textPrev.textContent = textInput.value.replace(/\n/g, '\n');
+    debouncedSave();
   });
 
-  printDesc?.addEventListener('change', debouncedSave);
+  [printHeader, printSubheader, printCatalog, printDesc].forEach(cb => {
+    cb?.addEventListener('change', () => {
+      updatePreviewText();
+      debouncedSave();
+    });
+  });
+
   qrColor?.addEventListener('change', debouncedSave);
   textColor?.addEventListener('change', debouncedSave);
   headerSize?.addEventListener('input', debouncedSave);
@@ -246,6 +273,7 @@ const withBase = (p) => basePath + p;
   bgInput?.addEventListener('change', async () => {
     const file = bgInput.files?.[0];
     if (!file) return;
+    if (bgName) bgName.value = file.name;
     const fd = new FormData();
     fd.append('file', file);
     bgProgress?.removeAttribute('hidden');
@@ -278,9 +306,15 @@ const withBase = (p) => basePath + p;
       qrLeft.value = data.stickerQrLeft ?? '75';
       qrSize.value = data.stickerQrSizePct ?? '28';
       qrSizePct.value = qrSize.value;
-      textInput.value = data.previewText || 'Beispiel-Text\nWeitere Zeile';
-      textPrev.textContent = textInput.value;
+      printHeader.checked = data.stickerPrintHeader ?? true;
+      printSubheader.checked = data.stickerPrintSubheader ?? true;
+      printCatalog.checked = data.stickerPrintCatalog ?? true;
       printDesc.checked = data.stickerPrintDesc ?? false;
+      baseHeader = data.previewHeader || '';
+      baseSubheader = data.previewSubheader || '';
+      baseCatalog = data.previewCatalog || '';
+      baseDesc = data.previewDesc || '';
+      updatePreviewText();
       qrColor.value = '#' + (data.stickerQrColor ?? '000000');
       textColor.value = '#' + (data.stickerTextColor ?? '000000');
       headerSize.value = data.stickerHeaderFontSize ?? '12';
@@ -314,6 +348,9 @@ const withBase = (p) => basePath + p;
       stickerQrTop: qrTop.value,
       stickerQrLeft: qrLeft.value,
       stickerQrSizePct: qrSizePct.value,
+      stickerPrintHeader: printHeader.checked,
+      stickerPrintSubheader: printSubheader.checked,
+      stickerPrintCatalog: printCatalog.checked,
       stickerPrintDesc: printDesc.checked,
       stickerQrColor: qrColor.value.replace('#', ''),
       stickerTextColor: textColor.value.replace('#', ''),
@@ -355,5 +392,8 @@ const withBase = (p) => basePath + p;
   }
 
   saveBtn.addEventListener('click', saveStickerSettings);
+  pdfCreateBtn?.addEventListener('click', () => {
+    window.open(withBase('/admin/reports/catalog-stickers.pdf'), '_blank');
+  });
 })();
 
