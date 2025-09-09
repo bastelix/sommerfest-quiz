@@ -260,6 +260,7 @@ return [
     'action_restart_tenant' => 'Docker neu starten',
     'action_send_welcome_mail' => 'Willkommensmail senden',
     'text_image_ready' => 'Docker-Image bereit',
+    'text_background_uploaded' => 'Hintergrundbild hochgeladen',
     'help_admin_pass' => 'Setzt das Admin-Passwort für den neuen Mandanten. Bleibt das Feld leer, wird ein zufälliges Passwort erstellt.',
     'info_admin_email' => 'Der Link zum Admin-Passwort kommt per E-Mail.',
     'text_admin_email_sent' => 'Ein Link zum Setzen des Admin-Passworts wurde an %s gesendet.',
