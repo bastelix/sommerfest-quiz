@@ -21,6 +21,16 @@ const withBase = (p) => basePath + p;
   const qrImg = document.getElementById('qrPreview');
   const qrSize = document.getElementById('catalogStickerQrSizePct');
 
+  const printDesc = document.getElementById('catalogStickerPrintDesc');
+  const qrColor = document.getElementById('catalogStickerQrColor');
+  const textColor = document.getElementById('catalogStickerTextColor');
+  const headerSize = document.getElementById('catalogStickerHeaderFontSize');
+  const subheaderSize = document.getElementById('catalogStickerSubheaderFontSize');
+  const catalogSize = document.getElementById('catalogStickerCatalogFontSize');
+  const descSize = document.getElementById('catalogStickerDescFontSize');
+  const bgInput = document.getElementById('catalogStickerBg');
+  const bgProgress = document.getElementById('stickerBgProgress');
+
   const descTop = document.getElementById('stickerDescTop');
   const descLeft = document.getElementById('stickerDescLeft');
   const descW = document.getElementById('stickerDescW');
@@ -225,6 +235,30 @@ const withBase = (p) => basePath + p;
     textPrev.textContent = textInput.value.replace(/\n/g, '\n');
   });
 
+  printDesc?.addEventListener('change', debouncedSave);
+  qrColor?.addEventListener('change', debouncedSave);
+  textColor?.addEventListener('change', debouncedSave);
+  headerSize?.addEventListener('input', debouncedSave);
+  subheaderSize?.addEventListener('input', debouncedSave);
+  catalogSize?.addEventListener('input', debouncedSave);
+  descSize?.addEventListener('input', debouncedSave);
+
+  bgInput?.addEventListener('change', async () => {
+    const file = bgInput.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append('file', file);
+    bgProgress?.removeAttribute('hidden');
+    try {
+      await fetch(withBase('/admin/sticker-background'), { method: 'POST', body: fd });
+    } catch (e) {
+      // ignore
+    }
+    bgProgress?.setAttribute('value', '100');
+    setTimeout(() => bgProgress?.setAttribute('hidden', ''), 500);
+    loadStickerSettings();
+  });
+
   let saveTimer = null;
   function debouncedSave() {
     clearTimeout(saveTimer);
@@ -246,6 +280,22 @@ const withBase = (p) => basePath + p;
       qrSizePct.value = qrSize.value;
       textInput.value = data.previewText || 'Beispiel-Text\nWeitere Zeile';
       textPrev.textContent = textInput.value;
+      printDesc.checked = data.stickerPrintDesc ?? false;
+      qrColor.value = '#' + (data.stickerQrColor ?? '000000');
+      textColor.value = '#' + (data.stickerTextColor ?? '000000');
+      headerSize.value = data.stickerHeaderFontSize ?? '12';
+      subheaderSize.value = data.stickerSubheaderFontSize ?? '10';
+      catalogSize.value = data.stickerCatalogFontSize ?? '11';
+      descSize.value = data.stickerDescFontSize ?? '10';
+      if (data.stickerBgPath) {
+        Object.keys(templates).forEach(k => {
+          templates[k].bg = withBase(data.stickerBgPath);
+        });
+      } else {
+        Object.keys(templates).forEach(k => {
+          templates[k].bg = null;
+        });
+      }
     } catch (e) {
       // ignore
     }
@@ -264,6 +314,13 @@ const withBase = (p) => basePath + p;
       stickerQrTop: qrTop.value,
       stickerQrLeft: qrLeft.value,
       stickerQrSizePct: qrSizePct.value,
+      stickerPrintDesc: printDesc.checked,
+      stickerQrColor: qrColor.value.replace('#', ''),
+      stickerTextColor: textColor.value.replace('#', ''),
+      stickerHeaderFontSize: headerSize.value,
+      stickerSubheaderFontSize: subheaderSize.value,
+      stickerCatalogFontSize: catalogSize.value,
+      stickerDescFontSize: descSize.value,
       previewText: textInput.value
     };
     try {
