@@ -38,5 +38,11 @@ export function setCurrentEvent(uid, name) {
         new CustomEvent('current-event-changed', { detail: { uid, name, config: cfg } })
       );
       return cfg;
+    })
+    .catch((err) => {
+      if (err instanceof TypeError) {
+        throw new Error('Server unreachable');
+      }
+      throw err;
     });
 }
