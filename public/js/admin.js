@@ -735,13 +735,39 @@ document.addEventListener('DOMContentLoaded', function () {
   const catalogStickerBgImg = new Image();
   let catalogStickerBgUrl = '';
   let qrOverlapWarned = false;
+  function makeTemplate (label_w, label_h, padding = 0) {
+    const innerMaxWmm = label_w - 2 * padding;
+    const innerMaxHmm = label_h - 2 * padding;
+    const qrSizePct = 42;
+    const qrPad = 2;
+    const qrSizeMm = Math.min(innerMaxWmm, innerMaxHmm) * (qrSizePct / 100);
+    const defaultQrLeft = (innerMaxWmm - qrSizeMm - qrPad) / innerMaxWmm;
+    const defaultQrTop = (innerMaxHmm - qrSizeMm - qrPad) / innerMaxHmm;
+    const defaultDescTop = 0;
+    const defaultDescLeft = 0;
+    const defaultDescWidth = 0.6 * (1 - defaultDescLeft);
+    const defaultDescHeight = (innerMaxHmm - 6) / innerMaxHmm;
+    return {
+      label_w,
+      label_h,
+      padding,
+      defaults: {
+        descTop: defaultDescTop,
+        descLeft: defaultDescLeft,
+        descWidth: defaultDescWidth,
+        descHeight: defaultDescHeight,
+        qrTop: defaultQrTop,
+        qrLeft: defaultQrLeft
+      }
+    };
+  }
   const stickerTemplates = {
-    avery_l7165: { label_w: 99.1, label_h: 67.7, padding: 6.0 },
-    avery_l7163: { label_w: 99.1, label_h: 38.1, padding: 5.0 },
-    avery_l7651: { label_w: 63.5, label_h: 38.1, padding: 4.0 },
-    avery_l7992: { label_w: 210.0, label_h: 41.0, padding: 6.0 },
-    avery_j8165: { label_w: 199.6, label_h: 67.7, padding: 6.0 },
-    avery_l7168: { label_w: 199.6, label_h: 143.5, padding: 6.0 }
+    avery_l7165: makeTemplate(99.1, 67.7, 6.0),
+    avery_l7163: makeTemplate(99.1, 38.1, 5.0),
+    avery_l7651: makeTemplate(63.5, 38.1, 4.0),
+    avery_l7992: makeTemplate(210.0, 41.0, 6.0),
+    avery_j8165: makeTemplate(199.6, 67.7, 6.0),
+    avery_l7168: makeTemplate(199.6, 143.5, 6.0)
   };
 
   async function loadStickerSample () {
@@ -912,8 +938,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     const qrSizePct = Math.min(100, parseFloat(catalogStickerQrSizePct?.value || '42'));
     const qrPad = 2; // mm
-    const descTopPct = parseFloat(descTopInput?.value || '0');
-    const descLeftPct = parseFloat(descLeftInput?.value || '0');
+    const defaults = tpl.defaults || {};
+    const descTopPct = parseFloat(descTopInput?.value || defaults.descTop || '0');
+    const descLeftPct = parseFloat(descLeftInput?.value || defaults.descLeft || '0');
     if (descTopInput) descTopInput.value = descTopPct.toFixed(4);
     if (descLeftInput) descLeftInput.value = descLeftPct.toFixed(4);
     const innerMaxWmm = tpl.label_w - 2 * (tpl.padding || 0);
@@ -923,8 +950,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const innerWmm = innerMaxWmm - descLeft;
     const innerHmm = innerMaxHmm - descTop;
     const qrSizeMm = Math.min(innerWmm, innerHmm) * (qrSizePct / 100);
-    const defaultQrLeftPct = (innerMaxWmm - qrSizeMm - qrPad) / innerMaxWmm;
-    const defaultQrTopPct = (innerMaxHmm - qrSizeMm - qrPad) / innerMaxHmm;
+    const defaultQrLeftPct = defaults.qrLeft != null ? defaults.qrLeft : (innerMaxWmm - qrSizeMm - qrPad) / innerMaxWmm;
+    const defaultQrTopPct = defaults.qrTop != null ? defaults.qrTop : (innerMaxHmm - qrSizeMm - qrPad) / innerMaxHmm;
     const qrTopPct = parseFloat(qrTopInput?.value || defaultQrTopPct);
     const qrLeftPct = parseFloat(qrLeftInput?.value || defaultQrLeftPct);
     if (qrTopInput) qrTopInput.value = qrTopPct.toFixed(4);
@@ -938,8 +965,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const qrY = Math.round((tpl.padding + qrTop) * scale);
     const innerW = Math.round(innerWmm * scale);
     const innerH = Math.round(innerHmm * scale);
-    const descWidthPctDefault = 0.6 * (1 - descLeftPct);
-    const descHeightPctDefault = (innerHmm - 6) / innerMaxHmm;
+    const descWidthPctDefault = defaults.descWidth != null ? defaults.descWidth : 0.6 * (1 - descLeftPct);
+    const descHeightPctDefault = defaults.descHeight != null ? defaults.descHeight : (innerHmm - 6) / innerMaxHmm;
     const descWidthPct = parseFloat(descWidthInput?.value || descWidthPctDefault);
     const descHeightPct = parseFloat(descHeightInput?.value || descHeightPctDefault);
     if (descWidthInput) descWidthInput.value = descWidthPct.toFixed(4);
@@ -1125,7 +1152,18 @@ document.addEventListener('DOMContentLoaded', function () {
       loadStickerSample();
     });
   }
-  catalogStickerTemplate?.addEventListener('change', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
+  catalogStickerTemplate?.addEventListener('change', () => {
+    const tpl = stickerTemplates[catalogStickerTemplate.value] || stickerTemplates.avery_l7165;
+    const defaults = tpl.defaults || {};
+    if (descTopInput) descTopInput.value = (defaults.descTop ?? 0).toFixed(4);
+    if (descLeftInput) descLeftInput.value = (defaults.descLeft ?? 0).toFixed(4);
+    if (descWidthInput) descWidthInput.value = (defaults.descWidth ?? 0).toFixed(4);
+    if (descHeightInput) descHeightInput.value = (defaults.descHeight ?? 0).toFixed(4);
+    if (qrTopInput) qrTopInput.value = (defaults.qrTop ?? 0).toFixed(4);
+    if (qrLeftInput) qrLeftInput.value = (defaults.qrLeft ?? 0).toFixed(4);
+    drawCatalogStickerPreview();
+    saveStickerSettings();
+  });
   catalogStickerDesc?.addEventListener('change', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
   catalogStickerQrColor?.addEventListener('input', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
   catalogStickerTextColor?.addEventListener('input', () => { drawCatalogStickerPreview(); saveStickerSettings(); });
