@@ -93,20 +93,6 @@ class CatalogStickerController
         $catName = (string)($cat['name'] ?? '');
         $catDesc = (string)($cat['description'] ?? '');
 
-        $lines = [];
-        if ($eventTitle !== '') {
-            $lines[] = $eventTitle;
-        }
-        if ($eventDesc !== '') {
-            $lines[] = $eventDesc;
-        }
-        if ($catName !== '') {
-            $lines[] = $catName;
-        }
-        if ($printDesc && $catDesc !== '') {
-            $lines[] = $catDesc;
-        }
-
         $data = [
             'stickerTemplate' => $cfg['stickerTemplate'] ?? 'avery_l7163',
             'stickerDescTop' => $cfg['stickerDescTop'] ?? 10,
@@ -131,7 +117,6 @@ class CatalogStickerController
             'previewSubheader' => $eventDesc,
             'previewCatalog' => $catName,
             'previewDesc' => $catDesc,
-            'previewText' => implode("\n", $lines),
         ];
         $response->getBody()->write(json_encode($data));
         return $response->withHeader('Content-Type', 'application/json');
@@ -371,20 +356,20 @@ class CatalogStickerController
             $maxTextH = $descHeight;
 
             $curY = $innerY;
-        $linesData = [];
-        if ($printHeader && $eventTitle !== '') {
-            $linesData[] = ['Arial', 'B', $headerSize, $eventTitle];
-        }
-        if ($printSubheader && $eventDesc !== '') {
-            $linesData[] = ['Arial', '', $subheaderSize, $eventDesc];
-        }
-        if ($printCatalog) {
-            $linesData[] = ['Arial', 'B', $catalogSize, (string)($cat['name'] ?? '')];
-        }
-        $desc = (string)($cat['description'] ?? '');
-        if ($printDesc && $desc !== '') {
-            $linesData[] = ['Arial', '', $descSize, $desc];
-        }
+            $linesData = [];
+            if ($printHeader && $eventTitle !== '') {
+                $linesData[] = ['Arial', 'B', $headerSize, $eventTitle];
+            }
+            if ($printSubheader && $eventDesc !== '') {
+                $linesData[] = ['Arial', '', $subheaderSize, $eventDesc];
+            }
+            if ($printCatalog) {
+                $linesData[] = ['Arial', 'B', $catalogSize, (string)($cat['name'] ?? '')];
+            }
+            $desc = (string)($cat['description'] ?? '');
+            if ($printDesc && $desc !== '') {
+                $linesData[] = ['Arial', '', $descSize, $desc];
+            }
 
             foreach ($linesData as $data) {
                 [$fam, $style, $sizePx, $text] = $data;
