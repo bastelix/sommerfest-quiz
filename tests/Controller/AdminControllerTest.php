@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Tests\Controller;
 
 use Slim\Psr7\Uri;
+use Slim\Psr7\Response;
+use Slim\Views\Twig;
+use App\Controller\AdminController;
 use App\Infrastructure\Migrations\Migrator;
 use PDO;
 use Tests\TestCase;
@@ -127,7 +130,10 @@ class AdminControllerTest extends TestCase
         $db = $this->setupDb();
         $pdo = new PDO('sqlite:' . $db);
         Migrator::migrate($pdo, __DIR__ . '/../../migrations');
-        $pdo->exec("INSERT INTO events(uid, slug, name, start_date, end_date, description, published, sort_order) VALUES('e1','test','Test Event','2025-01-01 00:00:00','2025-01-01 01:00:00','',1,0)");
+        $pdo->exec(
+            "INSERT INTO events(uid, slug, name, start_date, end_date, description, published, sort_order) " .
+            "VALUES('e1','test','Test Event','2025-01-01 00:00:00','2025-01-01 01:00:00','',1,0)"
+        );
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
@@ -136,6 +142,24 @@ class AdminControllerTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $body = (string) $response->getBody();
         $this->assertStringContainsString('Test Event', $body);
+        session_destroy();
+        unlink($db);
+    }
+
+    public function testInvalidEventQueryReturns404(): void
+    {
+        $db = $this->setupDb();
+        $pdo = new PDO('sqlite:' . $db);
+        Migrator::migrate($pdo, __DIR__ . '/../../migrations');
+        $controller = new AdminController();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $twig = Twig::create(__DIR__ . '/../../templates', ['cache' => false]);
+        $request = $this->createRequest('GET', '/admin/dashboard?event=missing')
+            ->withAttribute('view', $twig)
+            ->withAttribute('pdo', $pdo);
+        $response = $controller($request, new Response());
+        $this->assertEquals(404, $response->getStatusCode());
         session_destroy();
         unlink($db);
     }

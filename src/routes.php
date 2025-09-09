@@ -197,7 +197,7 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         $request = $request
             ->withAttribute('plan', $plan)
-            ->withAttribute('configController', new ConfigController($configService, new ConfigValidator()))
+            ->withAttribute('configController', new ConfigController($configService, new ConfigValidator(), $eventService))
             ->withAttribute('catalogController', new CatalogController($catalogService))
             ->withAttribute('adminCatalogController', new AdminCatalogController($catalogService))
             ->withAttribute('resultController', new ResultController(
