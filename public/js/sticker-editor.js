@@ -322,8 +322,9 @@ const withBase = (p) => basePath + p;
       catalogSize.value = data.stickerCatalogFontSize ?? '11';
       descSize.value = data.stickerDescFontSize ?? '10';
       if (data.stickerBgPath) {
+        const cacheBustedBg = `${data.stickerBgPath}?${Date.now()}`;
         Object.keys(templates).forEach(k => {
-          templates[k].bg = withBase(data.stickerBgPath);
+          templates[k].bg = withBase(cacheBustedBg);
         });
       } else {
         Object.keys(templates).forEach(k => {
