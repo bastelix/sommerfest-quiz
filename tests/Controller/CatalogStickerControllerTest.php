@@ -81,4 +81,31 @@ class CatalogStickerControllerTest extends TestCase
         $this->assertStringStartsWith('%PDF', $body);
         $this->assertGreaterThan(0, strlen($body));
     }
+
+    public function testGetSettingsProvidesPreviewText(): void
+    {
+        $pdo = $this->createDatabase();
+        $pdo->exec("INSERT INTO events(uid, slug, name, description, published, sort_order) VALUES('ev1','ev1','EventTitle','EventDesc',1,0)");
+        $pdo->exec("INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) VALUES('c1',0,'c1','c1.json','CatName','CatDesc','A','ev1')");
+        $config = new ConfigService($pdo);
+        $config->saveConfig([
+            'event_uid' => 'ev1',
+            'stickerPrintHeader' => true,
+            'stickerPrintSubheader' => false,
+            'stickerPrintCatalog' => true,
+            'stickerPrintDesc' => true,
+        ]);
+        $events = new EventService($pdo);
+        $catalogs = new CatalogService($pdo, $config);
+        $qr = new QrCodeService();
+        $controller = new CatalogStickerController($config, $events, $catalogs, $qr);
+        $request = $this->createRequest('GET', '/admin/sticker-settings')
+            ->withQueryParams(['event_uid' => 'ev1']);
+        $response = $controller->getSettings($request, new Response());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        $data = json_decode((string)$response->getBody(), true);
+        $this->assertSame("EventTitle\nCatName\nCatDesc", $data['previewText']);
+        $this->assertTrue($data['stickerPrintHeader']);
+        $this->assertFalse($data['stickerPrintSubheader']);
+    }
 }

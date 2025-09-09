@@ -39,6 +39,9 @@ class ConfigService
         'qrLogoPunchout',
         'qrRounded',
         'stickerPrintDesc',
+        'stickerPrintHeader',
+        'stickerPrintSubheader',
+        'stickerPrintCatalog',
     ];
 
     /**
@@ -228,6 +231,9 @@ class ConfigService
             'qrColorCatalog',
             'qrColorEvent',
             'stickerTemplate',
+            'stickerPrintHeader',
+            'stickerPrintSubheader',
+            'stickerPrintCatalog',
             'stickerPrintDesc',
             'stickerQrColor',
             'stickerQrSizePct',
@@ -405,6 +411,9 @@ class ConfigService
             'qrColorCatalog',
             'qrColorEvent',
             'stickerTemplate',
+            'stickerPrintHeader',
+            'stickerPrintSubheader',
+            'stickerPrintCatalog',
             'stickerPrintDesc',
             'stickerQrColor',
             'stickerQrSizePct',

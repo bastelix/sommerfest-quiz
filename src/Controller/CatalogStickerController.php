@@ -80,6 +80,33 @@ class CatalogStickerController
             $uid = $this->config->getActiveEventUid();
         }
         $cfg = $this->config->getConfigForEvent($uid);
+        $printHeader = (bool)($cfg['stickerPrintHeader'] ?? true);
+        $printSubheader = (bool)($cfg['stickerPrintSubheader'] ?? true);
+        $printCatalog = (bool)($cfg['stickerPrintCatalog'] ?? true);
+        $printDesc = (bool)($cfg['stickerPrintDesc'] ?? false);
+
+        $event = $uid !== '' ? $this->events->getByUid($uid) : null;
+        $eventTitle = (string)($event['name'] ?? '');
+        $eventDesc = (string)($event['description'] ?? '');
+        $first = $this->catalogs->fetchPagedCatalogs(0, 1, 'asc');
+        $cat = $first[0] ?? null;
+        $catName = (string)($cat['name'] ?? '');
+        $catDesc = (string)($cat['description'] ?? '');
+
+        $lines = [];
+        if ($printHeader && $eventTitle !== '') {
+            $lines[] = $eventTitle;
+        }
+        if ($printSubheader && $eventDesc !== '') {
+            $lines[] = $eventDesc;
+        }
+        if ($printCatalog && $catName !== '') {
+            $lines[] = $catName;
+        }
+        if ($printDesc && $catDesc !== '') {
+            $lines[] = $catDesc;
+        }
+
         $data = [
             'stickerTemplate' => $cfg['stickerTemplate'] ?? 'avery_l7163',
             'stickerDescTop' => $cfg['stickerDescTop'] ?? 10,
@@ -89,7 +116,10 @@ class CatalogStickerController
             'stickerQrTop' => $cfg['stickerQrTop'] ?? 10,
             'stickerQrLeft' => $cfg['stickerQrLeft'] ?? 75,
             'stickerQrSizePct' => $cfg['stickerQrSizePct'] ?? 28,
-            'stickerPrintDesc' => (bool)($cfg['stickerPrintDesc'] ?? false),
+            'stickerPrintHeader' => $printHeader,
+            'stickerPrintSubheader' => $printSubheader,
+            'stickerPrintCatalog' => $printCatalog,
+            'stickerPrintDesc' => $printDesc,
             'stickerQrColor' => $cfg['stickerQrColor'] ?? '000000',
             'stickerTextColor' => $cfg['stickerTextColor'] ?? '000000',
             'stickerHeaderFontSize' => (int)($cfg['stickerHeaderFontSize'] ?? 12),
@@ -97,6 +127,11 @@ class CatalogStickerController
             'stickerCatalogFontSize' => (int)($cfg['stickerCatalogFontSize'] ?? 11),
             'stickerDescFontSize' => (int)($cfg['stickerDescFontSize'] ?? 10),
             'stickerBgPath' => $cfg['stickerBgPath'] ?? null,
+            'previewHeader' => $eventTitle,
+            'previewSubheader' => $eventDesc,
+            'previewCatalog' => $catName,
+            'previewDesc' => $catDesc,
+            'previewText' => implode("\n", $lines),
         ];
         $response->getBody()->write(json_encode($data));
         return $response->withHeader('Content-Type', 'application/json');
@@ -134,6 +169,9 @@ class CatalogStickerController
             'stickerQrTop' => $this->pct($data['stickerQrTop'] ?? 10),
             'stickerQrLeft' => $this->pct($data['stickerQrLeft'] ?? 75),
             'stickerQrSizePct' => $this->pct($data['stickerQrSizePct'] ?? 28),
+            'stickerPrintHeader' => filter_var($data['stickerPrintHeader'] ?? true, FILTER_VALIDATE_BOOLEAN),
+            'stickerPrintSubheader' => filter_var($data['stickerPrintSubheader'] ?? true, FILTER_VALIDATE_BOOLEAN),
+            'stickerPrintCatalog' => filter_var($data['stickerPrintCatalog'] ?? true, FILTER_VALIDATE_BOOLEAN),
             'stickerPrintDesc' => filter_var($data['stickerPrintDesc'] ?? false, FILTER_VALIDATE_BOOLEAN),
             'stickerQrColor' => $qrColor,
             'stickerTextColor' => $textColor,
@@ -161,6 +199,15 @@ class CatalogStickerController
         }
         $tpl = self::LABEL_TEMPLATES[$template];
 
+        $printHeader = isset($params['print_header'])
+            ? filter_var($params['print_header'], FILTER_VALIDATE_BOOLEAN)
+            : (bool)($cfg['stickerPrintHeader'] ?? true);
+        $printSubheader = isset($params['print_subheader'])
+            ? filter_var($params['print_subheader'], FILTER_VALIDATE_BOOLEAN)
+            : (bool)($cfg['stickerPrintSubheader'] ?? true);
+        $printCatalog = isset($params['print_catalog'])
+            ? filter_var($params['print_catalog'], FILTER_VALIDATE_BOOLEAN)
+            : (bool)($cfg['stickerPrintCatalog'] ?? true);
         $printDesc = isset($params['print_desc'])
             ? filter_var($params['print_desc'], FILTER_VALIDATE_BOOLEAN)
             : (bool)($cfg['stickerPrintDesc'] ?? false);
@@ -324,18 +371,20 @@ class CatalogStickerController
             $maxTextH = $descHeight;
 
             $curY = $innerY;
-            $linesData = [];
-            if ($eventTitle !== '') {
-                $linesData[] = ['Arial', 'B', $headerSize, $eventTitle];
-            }
-            if ($eventDesc !== '') {
-                $linesData[] = ['Arial', '', $subheaderSize, $eventDesc];
-            }
+        $linesData = [];
+        if ($printHeader && $eventTitle !== '') {
+            $linesData[] = ['Arial', 'B', $headerSize, $eventTitle];
+        }
+        if ($printSubheader && $eventDesc !== '') {
+            $linesData[] = ['Arial', '', $subheaderSize, $eventDesc];
+        }
+        if ($printCatalog) {
             $linesData[] = ['Arial', 'B', $catalogSize, (string)($cat['name'] ?? '')];
-            $desc = (string)($cat['description'] ?? '');
-            if ($printDesc && $desc !== '') {
-                $linesData[] = ['Arial', '', $descSize, $desc];
-            }
+        }
+        $desc = (string)($cat['description'] ?? '');
+        if ($printDesc && $desc !== '') {
+            $linesData[] = ['Arial', '', $descSize, $desc];
+        }
 
             foreach ($linesData as $data) {
                 [$fam, $style, $sizePx, $text] = $data;
