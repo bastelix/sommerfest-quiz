@@ -44,9 +44,9 @@ const jsonHeaders = { Accept: 'application/json' };
 async function buildSolvedSet(cfg){
   const solved = new Set();
   try{
-    const prev = sessionStorage.getItem('quizSolved');
+    const prev = getStored?.(STORAGE_KEYS.QUIZ_SOLVED);
     if(prev){
-      JSON.parse(prev).forEach(s=>solved.add(String(s).toLowerCase()));
+      JSON.parse(prev).forEach(s => solved.add(String(s).toLowerCase()));
     }
   }catch(e){ /* empty */ }
   if(cfg?.competitionMode){
@@ -55,7 +55,7 @@ async function buildSolvedSet(cfg){
       const res = await fetch(url, { headers: (typeof jsonHeaders !== 'undefined') ? jsonHeaders : { Accept: 'application/json' } });
       if(res.ok){
         const list = await res.json();
-        const user = sessionStorage.getItem('quizUser');
+        const user = (typeof getStored === 'function') ? getStored(STORAGE_KEYS.PLAYER_NAME) : sessionStorage.getItem('quizUser');
         if(user){
           for(const t of list){
             if(t && t.name === user && t.catalog){
@@ -66,7 +66,7 @@ async function buildSolvedSet(cfg){
       }
     }catch(e){ /* empty */ }
     try{
-      sessionStorage.setItem('quizSolved', JSON.stringify(Array.from(solved)));
+      setStored?.(STORAGE_KEYS.QUIZ_SOLVED, JSON.stringify(Array.from(solved)));
     }catch(e){ /* empty */ }
   }
   return solved;
