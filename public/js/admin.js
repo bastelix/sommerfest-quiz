@@ -384,7 +384,8 @@ document.addEventListener('DOMContentLoaded', function () {
   const commentToolbar = document.getElementById('catalogCommentToolbar');
   const catalogEditInput = document.getElementById('catalogEditInput');
   const catalogEditError = document.getElementById('catalogEditError');
-  const resultsResetModal = window.UIkit ? UIkit.modal('#resultsResetModal') : null;
+  const resultsResetModalEl = document.getElementById('resultsResetModal');
+  const resultsResetModal = resultsResetModalEl && window.UIkit ? UIkit.modal(resultsResetModalEl) : null;
   const resultsResetConfirm = document.getElementById('resultsResetConfirm');
   let puzzleFeedback = '';
   let inviteText = '';
@@ -2127,7 +2128,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   resultsResetBtn?.addEventListener('click', function (e) {
     e.preventDefault();
-    resultsResetModal.show();
+    resultsResetModal?.show();
   });
 
   resultsResetConfirm?.addEventListener('click', function () {
@@ -2135,7 +2136,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
         notify('Ergebnisse gelöscht', 'success');
-        resultsResetModal.hide();
+        resultsResetModal?.hide();
         window.location.reload();
       })
       .catch(err => {

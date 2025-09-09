@@ -786,14 +786,23 @@
           </div>
         </div>
         <ul id="resultsPagination" class="uk-pagination uk-flex-center"></ul>
-        <div class="uk-margin uk-flex uk-flex-between">
+        {% set showReset = role == 'admin' %}
+        {% set showDownloads = role in ['admin','analyst'] %}
+        {% if showReset or showDownloads %}
+        <div class="uk-margin uk-flex {% if showReset and showDownloads %}uk-flex-between{% elseif showDownloads %}uk-flex-right{% endif %}">
+          {% if showReset %}
           <button id="resultsResetBtn" class="uk-button uk-button-default" uk-tooltip="title: {{ t('tip_results_reset') }}; pos: right">{{ t('action_reset') }}</button>
+          {% endif %}
+          {% if showDownloads %}
           <div class="uk-flex">
             <button id="resultsPdfBtn" class="uk-button uk-button-primary uk-margin-right" uk-tooltip="title: {{ t('tip_results_pdf') }}; pos: right">{{ t('action_open_evaluation') }}</button>
             <button id="resultsDownloadBtn" class="uk-button uk-button-primary" uk-tooltip="title: {{ t('tip_results_download') }}; pos: right">{{ t('action_download') }}</button>
           </div>
+          {% endif %}
         </div>
+        {% endif %}
 
+        {% if showReset %}
         <div id="resultsResetModal" uk-modal>
           <div class="uk-modal-dialog uk-modal-body">
             <p>Beim Zurücksetzen der Statistik werden auch alle hochgeladenen Beweisfotos unwiderruflich gelöscht. Dieser Vorgang kann nicht rückgängig gemacht werden.<br>Soll die Statistik nun zurückgesetzt werden?</p>
@@ -803,6 +812,7 @@
             </div>
           </div>
         </div>
+        {% endif %}
       </div>
     </li>
     <li class="{{ activeRoute == 'statistics' ? 'uk-active' }}">
