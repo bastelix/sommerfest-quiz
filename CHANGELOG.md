@@ -212,6 +212,7 @@
 - Inline role editing
 - Add username modal for admin
 - Dynamically switch admin events
+- Hide event selector on small screens
 
 ### Fix
 
