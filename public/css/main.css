@@ -932,4 +932,10 @@ body.admin-page {
   color: #999;
 }
 
+/* Prevent truncation of long team names in rankings */
+.ranking-team {
+  overflow: visible;
+  white-space: normal;
+}
+
 
