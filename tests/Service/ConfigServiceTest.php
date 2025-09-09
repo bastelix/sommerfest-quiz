@@ -39,6 +39,10 @@ class ConfigServiceTest extends TestCase
             );
             SQL
         );
+        $pdo->exec('PRAGMA foreign_keys = ON');
+        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY)');
+        $pdo->exec('CREATE TABLE active_event(event_uid TEXT PRIMARY KEY REFERENCES events(uid))');
+        $pdo->exec("INSERT INTO events(uid) VALUES('ev1')");
         $service = new ConfigService($pdo);
         $data = ['event_uid' => 'ev1', 'pageTitle' => 'Demo', 'QRUser' => false, 'QRRemember' => true];
 
@@ -125,6 +129,23 @@ class ConfigServiceTest extends TestCase
 
         $uid = $pdo->query('SELECT event_uid FROM active_event')->fetchColumn();
         $this->assertSame('foo', $uid);
+    }
+
+    public function testSetActiveEventUidIgnoresUnknownEvent(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('PRAGMA foreign_keys = ON');
+        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY)');
+        $pdo->exec('CREATE TABLE active_event(event_uid TEXT PRIMARY KEY REFERENCES events(uid))');
+        $pdo->exec("INSERT INTO events(uid) VALUES('ev1')");
+        $pdo->exec("INSERT INTO active_event(event_uid) VALUES('ev1')");
+        $service = new ConfigService($pdo);
+
+        $service->setActiveEventUid('ev2');
+
+        $uid = $pdo->query('SELECT event_uid FROM active_event')->fetchColumn();
+        $this->assertSame('ev1', $uid);
     }
 
     public function testSetActiveEventUidDoesNotInsertConfigForEmptyEvent(): void
