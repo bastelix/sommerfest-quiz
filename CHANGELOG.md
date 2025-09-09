@@ -211,6 +211,7 @@
 - Use native select for event picker
 - Inline role editing
 - Add username modal for admin
+- Dynamically switch admin events
 
 ### Fix
 
