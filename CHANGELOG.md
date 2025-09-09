@@ -218,6 +218,7 @@
 - Hide event selector on small screens
 - Persist letter in puzzle mode
 - Prevent admin event change auto reload
+- Widen sticker editor modal
 
 ### Fix
 
