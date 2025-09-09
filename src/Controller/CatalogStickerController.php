@@ -44,6 +44,58 @@ class CatalogStickerController
             'padding' => 5.0,
             'border' => 0.3,
         ],
+        'avery_l7651' => [
+            'page' => 'A4',
+            'rows' => 8,
+            'cols' => 3,
+            'label_w' => 63.5,
+            'label_h' => 38.1,
+            'margin_top' => 10.0,
+            'margin_left' => 7.0,
+            'gutter_x' => 2.5,
+            'gutter_y' => 2.5,
+            'padding' => 4.0,
+            'border' => 0.3,
+        ],
+        'avery_l7992' => [
+            'page' => 'A4',
+            'rows' => 5,
+            'cols' => 1,
+            'label_w' => 210.0,
+            'label_h' => 41.0,
+            'margin_top' => 10.0,
+            'margin_left' => 0.0,
+            'gutter_x' => 0.0,
+            'gutter_y' => 2.5,
+            'padding' => 6.0,
+            'border' => 0.3,
+        ],
+        'avery_j8165' => [
+            'page' => 'A4',
+            'rows' => 8,
+            'cols' => 1,
+            'label_w' => 199.6,
+            'label_h' => 67.7,
+            'margin_top' => 10.0,
+            'margin_left' => 5.2,
+            'gutter_x' => 0.0,
+            'gutter_y' => 2.5,
+            'padding' => 6.0,
+            'border' => 0.3,
+        ],
+        'avery_l7168' => [
+            'page' => 'A4',
+            'rows' => 4,
+            'cols' => 1,
+            'label_w' => 199.6,
+            'label_h' => 143.5,
+            'margin_top' => 10.0,
+            'margin_left' => 5.2,
+            'gutter_x' => 0.0,
+            'gutter_y' => 2.5,
+            'padding' => 6.0,
+            'border' => 0.3,
+        ],
     ];
 
     private ConfigService $config;
@@ -150,8 +202,12 @@ class CatalogStickerController
         if ($uid === '') {
             $uid = $this->config->getActiveEventUid();
         }
-        $tpl = in_array((string)($data['stickerTemplate'] ?? ''), ['avery_l7163', 'avery_l7165'], true)
-            ? (string)$data['stickerTemplate']
+        $tpl = in_array(
+            (string)($data['stickerTemplate'] ?? ''),
+            ['avery_l7163', 'avery_l7165', 'avery_l7651', 'avery_l7992', 'avery_j8165', 'avery_l7168'],
+            true
+        )
+            ? (string) $data['stickerTemplate']
             : 'avery_l7163';
 
         $qrColor = preg_replace('/[^0-9A-Fa-f]/', '', (string)($data['stickerQrColor'] ?? '000000'));

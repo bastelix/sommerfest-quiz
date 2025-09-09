@@ -54,7 +54,11 @@ const withBase = (p) => basePath + p;
 
   const templates = {
     avery_l7163: { w: 99.1, h: 38.1, bg: null },
-    avery_l7165: { w: 99.1, h: 67.7, bg: null }
+    avery_l7165: { w: 99.1, h: 67.7, bg: null },
+    avery_l7651: { w: 63.5, h: 38.1, bg: null },
+    avery_l7992: { w: 210.0, h: 41.0, bg: null },
+    avery_j8165: { w: 199.6, h: 67.7, bg: null },
+    avery_l7168: { w: 199.6, h: 143.5, bg: null }
   };
 
   function setTemplateBg() {
