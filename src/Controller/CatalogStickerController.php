@@ -94,13 +94,13 @@ class CatalogStickerController
         $catDesc = (string)($cat['description'] ?? '');
 
         $lines = [];
-        if ($printHeader && $eventTitle !== '') {
+        if ($eventTitle !== '') {
             $lines[] = $eventTitle;
         }
-        if ($printSubheader && $eventDesc !== '') {
+        if ($eventDesc !== '') {
             $lines[] = $eventDesc;
         }
-        if ($printCatalog && $catName !== '') {
+        if ($catName !== '') {
             $lines[] = $catName;
         }
         if ($printDesc && $catDesc !== '') {

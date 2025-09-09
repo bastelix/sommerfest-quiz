@@ -90,9 +90,9 @@ class CatalogStickerControllerTest extends TestCase
         $config = new ConfigService($pdo);
         $config->saveConfig([
             'event_uid' => 'ev1',
-            'stickerPrintHeader' => true,
+            'stickerPrintHeader' => false,
             'stickerPrintSubheader' => false,
-            'stickerPrintCatalog' => true,
+            'stickerPrintCatalog' => false,
             'stickerPrintDesc' => true,
         ]);
         $events = new EventService($pdo);
@@ -104,8 +104,20 @@ class CatalogStickerControllerTest extends TestCase
         $response = $controller->getSettings($request, new Response());
         $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
         $data = json_decode((string)$response->getBody(), true);
-        $this->assertSame("EventTitle\nCatName\nCatDesc", $data['previewText']);
-        $this->assertTrue($data['stickerPrintHeader']);
+        $this->assertSame("EventTitle\nEventDesc\nCatName\nCatDesc", $data['previewText']);
+        $this->assertFalse($data['stickerPrintHeader']);
         $this->assertFalse($data['stickerPrintSubheader']);
+        $this->assertFalse($data['stickerPrintCatalog']);
+
+        $config->saveConfig([
+            'event_uid' => 'ev1',
+            'stickerPrintHeader' => false,
+            'stickerPrintSubheader' => false,
+            'stickerPrintCatalog' => false,
+            'stickerPrintDesc' => false,
+        ]);
+        $response = $controller->getSettings($request, new Response());
+        $data = json_decode((string)$response->getBody(), true);
+        $this->assertSame("EventTitle\nEventDesc\nCatName", $data['previewText']);
     }
 }
