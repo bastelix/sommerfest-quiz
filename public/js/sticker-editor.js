@@ -392,8 +392,8 @@ const withBase = (p) => basePath + p;
   }
 
   saveBtn.addEventListener('click', saveStickerSettings);
-  pdfCreateBtn?.addEventListener('click', async () => {
-    await saveStickerSettings();
+  pdfCreateBtn?.addEventListener('click', () => {
+    saveStickerSettings();
     const params = new URLSearchParams({
       template: tplSel.value,
       print_header: printHeader.checked,
