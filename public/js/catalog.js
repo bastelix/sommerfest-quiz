@@ -273,7 +273,9 @@ async function handleSelection(opt, autostart = false) {
 
   setStored(STORAGE_KEYS.CATALOG, opt.value || opt.dataset.slug || '');
 
-  clearStored(STORAGE_KEYS.QUIZ_SOLVED);
+  if (!cfg.competitionMode) {
+    clearStored(STORAGE_KEYS.QUIZ_SOLVED);
+  }
   clearStored(STORAGE_KEYS.PUZZLE_SOLVED);
   clearStored(STORAGE_KEYS.PUZZLE_TIME);
   clearStored(STORAGE_KEYS.LETTER);
