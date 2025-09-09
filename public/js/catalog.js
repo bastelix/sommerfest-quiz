@@ -98,9 +98,15 @@ function getRemainingCatalogNames() {
   try {
     const dataEl = document.getElementById('catalogs-data');
     const catalogs = dataEl ? JSON.parse(dataEl.textContent) : [];
-    const solved = new Set(JSON.parse(getStored(STORAGE_KEYS.QUIZ_SOLVED) || '[]'));
+    const solved = new Set(
+      JSON.parse(getStored(STORAGE_KEYS.QUIZ_SOLVED) || '[]')
+        .map(s => String(s).toLowerCase())
+    );
     return catalogs
-      .filter(c => !solved.has(c.uid || c.slug || c.sort_order))
+      .filter(c => {
+        const id = (c.slug || c.uid || c.sort_order).toString().toLowerCase();
+        return !solved.has(id);
+      })
       .map(c => c.name || c.slug || c.sort_order);
   } catch (e) {
     return [];

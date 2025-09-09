@@ -399,7 +399,7 @@ async function runQuiz(questions, skipIntro){
     if(score === questionCount && typeof window.startConfetti === 'function'){
       window.startConfetti();
     }
-      const catalog = getStored(STORAGE_KEYS.CATALOG) || 'unknown';
+      const catalog = (getStored(STORAGE_KEYS.CATALOG) || 'unknown').toLowerCase();
       const wrong = results.map((r,i)=> r ? null : i+1).filter(v=>v!==null);
       const data = { name: user, catalog, correct: score, total: questionCount, wrong, answers, event_uid: currentEventUid };
       if(cfg.collectPlayerUid){
@@ -416,7 +416,8 @@ async function runQuiz(questions, skipIntro){
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     }).catch(()=>{});
-    const solved = JSON.parse(getStored(STORAGE_KEYS.QUIZ_SOLVED) || '[]');
+    const solved = JSON.parse(getStored(STORAGE_KEYS.QUIZ_SOLVED) || '[]')
+      .map(s => String(s).toLowerCase());
     if(solved.indexOf(catalog) === -1){
       solved.push(catalog);
       setStored(STORAGE_KEYS.QUIZ_SOLVED, JSON.stringify(solved));
@@ -473,9 +474,14 @@ async function runQuiz(questions, skipIntro){
       try{
         const dataEl = document.getElementById('catalogs-data');
         const catalogs = dataEl ? JSON.parse(dataEl.textContent) : [];
-        const solvedSet = new Set(JSON.parse(getStored(STORAGE_KEYS.QUIZ_SOLVED) || '[]'));
-        const names = catalogs.filter(c => !solvedSet.has(c.uid || c.slug || c.sort_order))
-          .map(c => c.name || c.slug || c.sort_order);
+        const solvedSet = new Set(
+          JSON.parse(getStored(STORAGE_KEYS.QUIZ_SOLVED) || '[]')
+            .map(s => String(s).toLowerCase())
+        );
+        const names = catalogs.filter(c => {
+          const id = (c.slug || c.uid || c.sort_order).toString().toLowerCase();
+          return !solvedSet.has(id);
+        }).map(c => c.name || c.slug || c.sort_order);
         if(names.length){
           remainingEl.textContent = 'Auf zur nächsten Station. Es fehlen noch: ' + names.join(', ');
         } else {
