@@ -51,6 +51,7 @@
 - Document active event handling
 - Add domain configuration section
 - Clarify quiz start comment
+- Note management role redirect
 
 ### Feat
 
