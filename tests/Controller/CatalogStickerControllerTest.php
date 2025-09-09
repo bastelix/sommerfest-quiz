@@ -67,12 +67,12 @@ class CatalogStickerControllerTest extends TestCase
         $request = $this->createRequest('GET', '/catalog-sticker.pdf')
             ->withQueryParams([
                 'event_uid' => 'ev1',
-                'desc_width' => '0.5',
-                'desc_height' => '0.4',
-                'desc_top' => '0.1',
-                'desc_left' => '0.2',
-                'qr_top' => '0.3',
-                'qr_left' => '0.4',
+                'desc_width' => '50',
+                'desc_height' => '40',
+                'desc_top' => '10',
+                'desc_left' => '20',
+                'qr_top' => '30',
+                'qr_left' => '40',
                 'qr_size_pct' => '50',
             ]);
         $response = $controller->pdf($request, new Response());
