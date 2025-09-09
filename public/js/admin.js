@@ -2255,7 +2255,7 @@ document.addEventListener('DOMContentLoaded', function () {
     eventDependentSections.forEach(sec => { sec.hidden = !currentEventUid; });
     if (eventSelectWrap) eventSelectWrap.hidden = false;
     if (eventSearchInput) {
-      eventSearchInput.hidden = !(Array.isArray(list) && list.length > 0);
+      eventSearchInput.hidden = !(Array.isArray(list) && list.length >= 10);
       eventSearchInput.value = '';
       eventSearchInput.dispatchEvent(new Event('input'));
     }
