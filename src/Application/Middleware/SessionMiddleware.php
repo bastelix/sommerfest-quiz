@@ -28,8 +28,12 @@ class SessionMiddleware implements Middleware
         }
 
         if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
-            $host = $request->getUri()->getHost();
-            $domain = getenv('MAIN_DOMAIN') ?: '';
+            $host = strtolower($request->getUri()->getHost());
+            $host = (string) preg_replace('/^(www|admin)\./', '', $host);
+
+            $domain = strtolower((string) getenv('MAIN_DOMAIN'));
+            $domain = (string) preg_replace('/^(www|admin)\./', '', $domain);
+
             if ($domain === '' || !$this->hostMatchesDomain($host, $domain)) {
                 $domain = $host;
             }
