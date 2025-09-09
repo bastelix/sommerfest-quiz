@@ -272,25 +272,25 @@ class CatalogStickerController
 
         $innerMaxW = $tpl['label_w'] - 2 * $tpl['padding'];
         $innerMaxH = $tpl['label_h'] - 2 * $tpl['padding'];
-        $descTop = max(0.0, min(1.0, $descTopPct)) * $innerMaxH;
-        $descLeft = max(0.0, min(1.0, $descLeftPct)) * $innerMaxW;
+        $descTop = max(0.0, min(100.0, $descTopPct)) / 100.0 * $innerMaxH;
+        $descLeft = max(0.0, min(100.0, $descLeftPct)) / 100.0 * $innerMaxW;
         $innerW = $innerMaxW - $descLeft;
         $innerH = $innerMaxH - $descTop;
         $descWidth = $descWidthPct !== null
-            ? max(0.0, min(1.0, $descWidthPct)) * $innerMaxW
+            ? max(0.0, min(100.0, $descWidthPct)) / 100.0 * $innerMaxW
             : null;
         $descHeight = $descHeightPct !== null
-            ? max(0.0, min(1.0, $descHeightPct)) * $innerMaxH
+            ? max(0.0, min(100.0, $descHeightPct)) / 100.0 * $innerMaxH
             : null;
         $descWidth = $descWidth !== null ? max(0.0, min($innerW, $descWidth)) : $innerW * 0.6;
         $descHeight = $descHeight !== null ? max(0.0, min($innerH, $descHeight)) : $innerH - 6.0;
         $qrSize = min($innerW, $innerH) * ($qrSizePct / 100.0);
         $qrPad = 2.0;
         $qrLeft = $qrLeftPct !== null
-            ? max(0.0, min(1.0, $qrLeftPct)) * $innerMaxW
+            ? max(0.0, min(100.0, $qrLeftPct)) / 100.0 * $innerMaxW
             : null;
         $qrTop = $qrTopPct !== null
-            ? max(0.0, min(1.0, $qrTopPct)) * $innerMaxH
+            ? max(0.0, min(100.0, $qrTopPct)) / 100.0 * $innerMaxH
             : null;
         $qrLeft = $qrLeft !== null
             ? max(0.0, min($innerMaxW - $qrSize, $qrLeft))
