@@ -94,6 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentEventUid = '';
   const params = new URLSearchParams(window.location.search);
   const pageEventUid = params.get('event') || '';
+  if (isAdminPage) {
+    currentEventUid = eventSelect?.value || pageEventUid;
+  }
 
   const updateEventButtons = (uid) => {
     eventButtons.forEach((btn) => {
@@ -187,11 +190,12 @@ document.addEventListener('DOMContentLoaded', () => {
     updateEventButtons(eventSelect.value);
   }
 
-  eventSelect?.addEventListener('change', () => {
+  eventSelect?.addEventListener('change', (e) => {
     const uid = eventSelect.value;
     const name = eventSelect.options[eventSelect.selectedIndex]?.textContent || '';
     updateEventButtons(uid);
-    if (uid && uid !== currentEventUid) {
+    const urlEventUid = new URLSearchParams(window.location.search).get('event') || '';
+    if (e.isTrusted && uid && uid !== currentEventUid && uid !== urlEventUid) {
       setCurrentEvent(uid, name)
         .then((cfg) => {
           currentEventUid = uid;
