@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .then(r => r.json().then(data => ({ ok: r.ok, data })))
         .then(({ ok, data }) => {
           if (!ok) throw new Error(data.error || 'Fehler');
-          notify(window.transImageReady || 'Image bereit', 'success');
+          notify(window.transImageReady, 'success');
         })
         .catch(err => notify(err.message || 'Fehler beim Erstellen', 'danger'))
         .finally(() => {
@@ -1245,7 +1245,7 @@ document.addEventListener('DOMContentLoaded', function () {
     xhr.addEventListener('load', () => {
       const text = (xhr.responseText || '').trim();
       if (xhr.status >= 200 && xhr.status < 300) {
-        notify(window.transImageReady || 'Image bereit', 'success');
+        notify(window.transImageReady, 'success');
         const path = currentEventUid
           ? `/data/events/${encodeURIComponent(currentEventUid)}/sticker-bg.png?${Date.now()}`
           : `/data/uploads/sticker-bg.png?${Date.now()}`;

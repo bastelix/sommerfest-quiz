@@ -262,6 +262,7 @@ return [
     'action_restart_tenant' => 'Restart Docker',
     'action_send_welcome_mail' => 'Send welcome email',
     'text_image_ready' => 'Docker image ready',
+    'text_background_uploaded' => 'Background image uploaded',
     'help_admin_pass' => 'Defines the admin password for the new tenant. Leave empty to generate a random one',
     'info_admin_email' => 'The link to set the admin password will be sent by email.',
     'text_admin_email_sent' => 'A link to set the admin password has been sent to %s.',
