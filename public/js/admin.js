@@ -791,9 +791,11 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   async function loadStickerSettings () {
-    if (!currentEventUid) return;
     try {
-      const res = await apiFetch(`/admin/sticker-settings?event_uid=${encodeURIComponent(currentEventUid)}`);
+      const url = currentEventUid
+        ? `/admin/sticker-settings?event_uid=${encodeURIComponent(currentEventUid)}`
+        : '/admin/sticker-settings';
+      const res = await apiFetch(url);
       const data = await res.json();
       if (data.stickerTemplate && catalogStickerTemplate) catalogStickerTemplate.value = data.stickerTemplate;
       if (catalogStickerDesc) catalogStickerDesc.checked = !!data.stickerPrintDesc;
@@ -819,14 +821,13 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   async function saveStickerSettings () {
-    if (!currentEventUid) return;
     if (!descWidthInput?.value || !descHeightInput?.value ||
         !descTopInput?.value || !descLeftInput?.value ||
         !qrTopInput?.value || !qrLeftInput?.value) {
       drawCatalogStickerPreview();
     }
     const payload = {
-      event_uid: currentEventUid,
+      ...(currentEventUid ? { event_uid: currentEventUid } : {}),
       stickerTemplate: catalogStickerTemplate?.value || '',
       stickerPrintDesc: catalogStickerDesc?.checked || false,
       stickerQrColor: (catalogStickerQrColor?.value || '#000000').replace(/^#/, ''),

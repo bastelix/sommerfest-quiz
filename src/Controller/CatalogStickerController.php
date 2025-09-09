@@ -118,8 +118,11 @@ class CatalogStickerController
     public function getSettings(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $uid = (string)($params['event_uid'] ?? $this->config->getActiveEventUid());
-        $cfg = $uid !== '' ? $this->config->getConfigForEvent($uid) : $this->config->getConfig();
+        $uid = (string)($params['event_uid'] ?? '');
+        if ($uid === '') {
+            $uid = $this->config->getActiveEventUid();
+        }
+        $cfg = $this->config->getConfigForEvent($uid);
         $data = [
             'stickerTemplate' => $cfg['stickerTemplate'] ?? 'avery_l7165',
             'stickerPrintDesc' => (bool)($cfg['stickerPrintDesc'] ?? false),
@@ -153,7 +156,7 @@ class CatalogStickerController
         }
         $uid = (string)($data['event_uid'] ?? '');
         if ($uid === '') {
-            return $response->withStatus(400);
+            $uid = $this->config->getActiveEventUid();
         }
         $save = [
             'event_uid' => $uid,
@@ -445,6 +448,9 @@ class CatalogStickerController
 
         $params = $request->getQueryParams();
         $uid = (string)($params['event_uid'] ?? '');
+        if ($uid === '') {
+            $uid = $this->config->getActiveEventUid();
+        }
         $dir = $uid !== ''
             ? __DIR__ . '/../../data/events/' . $uid
             : __DIR__ . '/../../data/uploads';
@@ -457,6 +463,14 @@ class CatalogStickerController
         $stream = $file->getStream();
         $img = $manager->read($stream->detach());
         $img->save($target, 90);
+
+        $path = $uid !== ''
+            ? '/events/' . $uid . '/sticker-bg.png'
+            : '/uploads/sticker-bg.png';
+        $this->config->saveConfig([
+            'event_uid' => $uid,
+            'stickerBgPath' => $path,
+        ]);
 
         return $response->withStatus(204);
     }
