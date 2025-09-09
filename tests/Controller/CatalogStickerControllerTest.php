@@ -82,6 +82,35 @@ class CatalogStickerControllerTest extends TestCase
         $this->assertGreaterThan(0, strlen($body));
     }
 
+    public function testPdfUsesDefaultTemplateL7163(): void
+    {
+        $pdo = $this->createDatabase();
+        $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
+        for ($i = 0; $i < 14; $i++) {
+            $uid = 'c' . $i;
+            $pdo->exec(
+                "INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) " .
+                "VALUES('{$uid}',{$i},'{$uid}','{$uid}.json','Cat{$i}','Desc{$i}','A','ev1')"
+            );
+        }
+        $config = new ConfigService($pdo);
+        $events = new EventService($pdo);
+        $catalogs = new CatalogService($pdo, $config);
+        $qr = new class extends QrCodeService {
+            public function generateCatalog(array $q, array $cfg = []): array
+            {
+                $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==');
+                return ['mime' => 'image/png', 'body' => $img];
+            }
+        };
+        $controller = new CatalogStickerController($config, $events, $catalogs, $qr);
+        $request = $this->createRequest('GET', '/catalog-sticker.pdf')
+            ->withQueryParams(['event_uid' => 'ev1']);
+        $response = $controller->pdf($request, new Response());
+        $body = (string) $response->getBody();
+        $this->assertSame(1, preg_match_all('/\/Type \/Page\b/', $body));
+    }
+
     public function testGetSettingsProvidesPreviewText(): void
     {
         $pdo = $this->createDatabase();
