@@ -44,58 +44,6 @@ class CatalogStickerController
             'padding' => 5.0,
             'border' => 0.3,
         ],
-        'avery_l7651' => [
-            'page' => 'A4',
-            'rows' => 8,
-            'cols' => 3,
-            'label_w' => 63.5,
-            'label_h' => 38.1,
-            'margin_top' => 10.0,
-            'margin_left' => 7.0,
-            'gutter_x' => 2.5,
-            'gutter_y' => 2.5,
-            'padding' => 4.0,
-            'border' => 0.3,
-        ],
-        'avery_l7992' => [
-            'page' => 'A4',
-            'rows' => 5,
-            'cols' => 1,
-            'label_w' => 210.0,
-            'label_h' => 41.0,
-            'margin_top' => 10.0,
-            'margin_left' => 0.0,
-            'gutter_x' => 0.0,
-            'gutter_y' => 2.5,
-            'padding' => 6.0,
-            'border' => 0.3,
-        ],
-        'avery_j8165' => [
-            'page' => 'A4',
-            'rows' => 8,
-            'cols' => 1,
-            'label_w' => 199.6,
-            'label_h' => 67.7,
-            'margin_top' => 10.0,
-            'margin_left' => 5.2,
-            'gutter_x' => 0.0,
-            'gutter_y' => 2.5,
-            'padding' => 6.0,
-            'border' => 0.3,
-        ],
-        'avery_l7168' => [
-            'page' => 'A4',
-            'rows' => 4,
-            'cols' => 1,
-            'label_w' => 199.6,
-            'label_h' => 143.5,
-            'margin_top' => 10.0,
-            'margin_left' => 5.2,
-            'gutter_x' => 0.0,
-            'gutter_y' => 2.5,
-            'padding' => 6.0,
-            'border' => 0.3,
-        ],
     ];
 
     private ConfigService $config;
@@ -115,6 +63,15 @@ class CatalogStickerController
         $this->qr = $qr;
     }
 
+    private function pct(float|string|null $v): float
+    {
+        $f = (float) $v;
+        if (!is_finite($f)) {
+            $f = 0.0;
+        }
+        return max(0.0, min(100.0, $f));
+    }
+
     public function getSettings(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
@@ -124,22 +81,14 @@ class CatalogStickerController
         }
         $cfg = $this->config->getConfigForEvent($uid);
         $data = [
-            'stickerTemplate' => $cfg['stickerTemplate'] ?? 'avery_l7165',
-            'stickerPrintDesc' => (bool)($cfg['stickerPrintDesc'] ?? false),
-            'stickerQrColor' => $cfg['stickerQrColor'] ?? '000000',
-            'stickerQrSizePct' => $cfg['stickerQrSizePct'] ?? 42,
-            'stickerDescTop' => $cfg['stickerDescTop'] ?? 0,
-            'stickerDescLeft' => $cfg['stickerDescLeft'] ?? 0,
-            'stickerQrTop' => $cfg['stickerQrTop'] ?? 0,
-            'stickerQrLeft' => $cfg['stickerQrLeft'] ?? 0,
-            'stickerHeaderFontSize' => $cfg['stickerHeaderFontSize'] ?? 12,
-            'stickerSubheaderFontSize' => $cfg['stickerSubheaderFontSize'] ?? 10,
-            'stickerCatalogFontSize' => $cfg['stickerCatalogFontSize'] ?? 11,
-            'stickerDescFontSize' => $cfg['stickerDescFontSize'] ?? 10,
-            'stickerTextColor' => $cfg['stickerTextColor'] ?? '000000',
-            'stickerDescWidth' => $cfg['stickerDescWidth'] ?? null,
-            'stickerDescHeight' => $cfg['stickerDescHeight'] ?? null,
-            'stickerBgPath' => $cfg['stickerBgPath'] ?? null,
+            'stickerTemplate' => $cfg['stickerTemplate'] ?? 'avery_l7163',
+            'stickerDescTop' => $cfg['stickerDescTop'] ?? 10,
+            'stickerDescLeft' => $cfg['stickerDescLeft'] ?? 10,
+            'stickerDescWidth' => $cfg['stickerDescWidth'] ?? 60,
+            'stickerDescHeight' => $cfg['stickerDescHeight'] ?? 60,
+            'stickerQrTop' => $cfg['stickerQrTop'] ?? 10,
+            'stickerQrLeft' => $cfg['stickerQrLeft'] ?? 75,
+            'stickerQrSizePct' => $cfg['stickerQrSizePct'] ?? 28,
         ];
         $response->getBody()->write(json_encode($data));
         return $response->withHeader('Content-Type', 'application/json');
@@ -158,24 +107,20 @@ class CatalogStickerController
         if ($uid === '') {
             $uid = $this->config->getActiveEventUid();
         }
+        $tpl = in_array((string)($data['stickerTemplate'] ?? ''), ['avery_l7163', 'avery_l7165'], true)
+            ? (string)$data['stickerTemplate']
+            : 'avery_l7163';
+
         $save = [
             'event_uid' => $uid,
-            'stickerTemplate' => (string)($data['stickerTemplate'] ?? ''),
-            'stickerPrintDesc' => filter_var($data['stickerPrintDesc'] ?? false, FILTER_VALIDATE_BOOL),
-            'stickerQrColor' => preg_replace('/[^0-9A-Fa-f]/', '', (string)($data['stickerQrColor'] ?? '000000')),
-            'stickerQrSizePct' => (int)($data['stickerQrSizePct'] ?? 42),
-            'stickerDescTop' => (float)($data['stickerDescTop'] ?? 0),
-            'stickerDescLeft' => (float)($data['stickerDescLeft'] ?? 0),
-            'stickerQrTop' => (float)($data['stickerQrTop'] ?? 0),
-            'stickerQrLeft' => (float)($data['stickerQrLeft'] ?? 0),
-            'stickerHeaderFontSize' => (int)($data['stickerHeaderFontSize'] ?? 12),
-            'stickerSubheaderFontSize' => (int)($data['stickerSubheaderFontSize'] ?? 10),
-            'stickerCatalogFontSize' => (int)($data['stickerCatalogFontSize'] ?? 11),
-            'stickerDescFontSize' => (int)($data['stickerDescFontSize'] ?? 10),
-            'stickerTextColor' => preg_replace('/[^0-9A-Fa-f]/', '', (string)($data['stickerTextColor'] ?? '000000')),
-            'stickerDescWidth' => isset($data['stickerDescWidth']) ? (float)$data['stickerDescWidth'] : null,
-            'stickerDescHeight' => isset($data['stickerDescHeight']) ? (float)$data['stickerDescHeight'] : null,
-            'stickerBgPath' => (string)($data['stickerBgPath'] ?? ''),
+            'stickerTemplate' => $tpl,
+            'stickerDescTop' => $this->pct($data['stickerDescTop'] ?? 10),
+            'stickerDescLeft' => $this->pct($data['stickerDescLeft'] ?? 10),
+            'stickerDescWidth' => $this->pct($data['stickerDescWidth'] ?? 60),
+            'stickerDescHeight' => $this->pct($data['stickerDescHeight'] ?? 60),
+            'stickerQrTop' => $this->pct($data['stickerQrTop'] ?? 10),
+            'stickerQrLeft' => $this->pct($data['stickerQrLeft'] ?? 75),
+            'stickerQrSizePct' => $this->pct($data['stickerQrSizePct'] ?? 28),
         ];
         $this->config->saveConfig($save);
         return $response->withStatus(204);
