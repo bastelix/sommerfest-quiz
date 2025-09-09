@@ -349,6 +349,7 @@
 - Cover user position ordering
 - Ensure managers redirect to admin
 - Ensure summary updates after event switch
+- Generate sticker background during test
 
 ## [0.2.0] - 2025-08-18
 
