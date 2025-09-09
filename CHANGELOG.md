@@ -323,6 +323,7 @@
 - Adjust team table layout
 - Add admin config CSS with dark mode variables
 - Remove extra blank line
+- Add draggable sticker handle
 
 ### Test
 
