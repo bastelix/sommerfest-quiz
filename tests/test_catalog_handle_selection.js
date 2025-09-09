@@ -29,6 +29,13 @@ const localStorage = storage();
 let uiWarnings = 0;
 const UIkit = { notification: () => { uiWarnings++; } };
 
+const STORAGE_KEYS = {
+  CATALOG: 'quizCatalog',
+  LETTER: 'quizLetter'
+};
+
+const postSession = () => Promise.resolve();
+
 const fetchCalls = [];
 const fetch = async (url, opts) => {
   fetchCalls.push({ url, opts });
@@ -51,11 +58,13 @@ const context = {
   document,
   sessionStorage,
   localStorage,
+  STORAGE_KEYS,
   fetch,
   UIkit,
   alert: () => {},
   console,
-  URLSearchParams
+  URLSearchParams,
+  postSession
 };
 context.window.window = context.window;
 context.global = context;
@@ -65,10 +74,12 @@ context.global = context;
   // prevent DOM side effects
   context.showCatalogIntro = () => {};
 
+  context.window.quizConfig = { puzzleWordEnabled: true };
+  const letter = 'A';
   const opt = {
     textContent: 'Test',
     value: 'slug1',
-    dataset: { file: 'foo.json', uid: '1', sortOrder: '1' }
+    dataset: { file: 'foo.json', uid: '1', sortOrder: '1', letter }
   };
   await context.handleSelection(opt);
 
@@ -87,6 +98,12 @@ context.global = context;
   }
   if (localStorage.getItem('quizCatalog') !== 'slug1') {
     throw new Error('localStorage quizCatalog not set');
+  }
+  if (sessionStorage.getItem('quizLetter') !== letter) {
+    throw new Error('sessionStorage quizLetter not set');
+  }
+  if (localStorage.getItem('quizLetter') !== letter) {
+    throw new Error('localStorage quizLetter not set');
   }
   console.log('ok');
 })().catch(err => { console.error(err); process.exit(1); });
