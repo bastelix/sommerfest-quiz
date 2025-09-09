@@ -111,6 +111,46 @@ class CatalogStickerControllerTest extends TestCase
         $this->assertSame(1, preg_match_all('/\/Type \/Page\b/', $body));
     }
 
+    public function testPdfEmbedsBackgroundImage(): void
+    {
+        $pdo = $this->createDatabase();
+        $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
+        $pdo->exec("INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) VALUES('c1',0,'c1','c1.json','Cat','Desc','A','ev1')");
+        $config = new ConfigService($pdo);
+        $events = new EventService($pdo);
+        $catalogs = new CatalogService($pdo, $config);
+        $qr = new class extends QrCodeService {
+            public function generateCatalog(array $q, array $cfg = []): array
+            {
+                $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==');
+                return ['mime' => 'image/png', 'body' => $img];
+            }
+        };
+        $controller = new CatalogStickerController($config, $events, $catalogs, $qr);
+        $request = $this->createRequest('GET', '/catalog-sticker.pdf')
+            ->withQueryParams(['event_uid' => 'ev1']);
+
+        $bg = __DIR__ . '/../../data/uploads/sticker-bg.png';
+        @unlink($bg);
+        $noBg = (string) $controller->pdf($request, new Response())->getBody();
+
+        $dir = dirname($bg);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+        $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR4nGP8z8DAwMDAxMDAwMDAAAANHQEDasKb6QAAAABJRU5ErkJggg==');
+        file_put_contents($bg, $img);
+        try {
+            $responseWithBg = $controller->pdf($request, new Response());
+        } finally {
+            unlink($bg);
+        }
+        $withBg = (string) $responseWithBg->getBody();
+        $this->assertSame('application/pdf', $responseWithBg->getHeaderLine('Content-Type'));
+        $this->assertSame(0, preg_match_all('/\/Subtype\s*\/Image\b/', $noBg));
+        $this->assertSame(1, preg_match_all('/\/Subtype\s*\/Image\b/', $withBg));
+    }
+
     public function testGetSettingsProvidesPreviewText(): void
     {
         $pdo = $this->createDatabase();
