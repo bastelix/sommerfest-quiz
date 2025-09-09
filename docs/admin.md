@@ -1,6 +1,6 @@
 # Administration
 
-Die Administrationsoberfläche erreichen Sie über `/admin/dashboard` (kurz `/admin`) nach einem erfolgreichen Login. Die Navigation ist in folgende Kategorien gegliedert:
+Die Administrationsoberfläche erreichen Sie über `/admin/dashboard` (kurz `/admin`) nach einem erfolgreichen Login. Alle Management-Rollen (z. B. `event-manager`, `team-manager`) werden nach dem Login automatisch zum Admin-Dashboard weitergeleitet. Die Navigation ist in folgende Kategorien gegliedert:
 
 * **Event**
   * **Startseite** – `/admin/dashboard`
