@@ -336,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gridItem.setAttribute('uk-grid', '');
 
             const teamDiv = document.createElement('div');
-            teamDiv.className = 'uk-width-expand';
+            teamDiv.className = 'uk-width-expand ranking-team';
             teamDiv.setAttribute('uk-leader', '');
             teamDiv.style.setProperty('--uk-leader-fill-content', ' ');
             teamDiv.textContent = `${i + 1}. ${item.name}`;
