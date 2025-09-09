@@ -8,9 +8,36 @@ use Tests\TestCase;
 use App\Service\UserService;
 use App\Domain\Roles;
 use Slim\Psr7\Factory\StreamFactory;
+use Psr\Http\Message\ServerRequestInterface as Request;
 
 class LoginControllerTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        putenv('MAIN_DOMAIN=example.com');
+        $_ENV['MAIN_DOMAIN'] = 'example.com';
+        $_SERVER['HTTP_HOST'] = 'example.com';
+    }
+
+    protected function tearDown(): void
+    {
+        putenv('MAIN_DOMAIN');
+        unset($_ENV['MAIN_DOMAIN'], $_SERVER['HTTP_HOST']);
+        parent::tearDown();
+    }
+
+    protected function createRequest(
+        string $method,
+        string $path,
+        array $headers = ['HTTP_ACCEPT' => 'text/html'],
+        ?array $cookies = null,
+        array $serverParams = []
+    ): Request {
+        $request = parent::createRequest($method, $path, $headers, $cookies, $serverParams);
+        return $request->withUri($request->getUri()->withHost('example.com'));
+    }
+
     public function testLoginPageShowsVersion(): void
     {
         putenv('APP_VERSION=1.2.3');
@@ -127,6 +154,60 @@ class LoginControllerTest extends TestCase
 
         $response = $app->handle($request);
         $this->assertSame(302, $response->getStatusCode());
+    }
+
+    public function testEventManagerLoginRedirectsToAdmin(): void
+    {
+        $pdo = $this->getDatabase();
+        $userService = new UserService($pdo);
+        $userService->create('eva', 'secret', 'eva@example.com', Roles::EVENT_MANAGER);
+
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['csrf_token'] = 'tok';
+        $request = $this->createRequest('POST', '/login')
+            ->withParsedBody([
+                'username' => 'eva',
+                'password' => 'secret',
+                'csrf_token' => 'tok',
+            ]);
+        $response = $app->handle($request);
+
+        $this->assertSame(302, $response->getStatusCode());
+        $location = $response->getHeaderLine('Location');
+        $this->assertTrue(in_array($location, ['/admin', '/admin/dashboard'], true));
+
+        $pdo->exec('DELETE FROM user_sessions');
+        $pdo->exec('DELETE FROM users');
+        session_unset();
+        session_destroy();
+    }
+
+    public function testTeamManagerLoginRedirectsToAdmin(): void
+    {
+        $pdo = $this->getDatabase();
+        $userService = new UserService($pdo);
+        $userService->create('trent', 'secret', 'trent@example.com', Roles::TEAM_MANAGER);
+
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['csrf_token'] = 'tok';
+        $request = $this->createRequest('POST', '/login')
+            ->withParsedBody([
+                'username' => 'trent',
+                'password' => 'secret',
+                'csrf_token' => 'tok',
+            ]);
+        $response = $app->handle($request);
+
+        $this->assertSame(302, $response->getStatusCode());
+        $location = $response->getHeaderLine('Location');
+        $this->assertTrue(in_array($location, ['/admin', '/admin/dashboard'], true));
+
+        $pdo->exec('DELETE FROM user_sessions');
+        $pdo->exec('DELETE FROM users');
+        session_unset();
+        session_destroy();
     }
 
     public function testLoginRedirectRespectsBasePath(): void
