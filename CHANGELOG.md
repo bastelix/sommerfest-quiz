@@ -215,6 +215,7 @@
 - Dynamically switch admin events
 - Hide event selector on small screens
 - Persist letter in puzzle mode
+- Prevent admin event change auto reload
 
 ### Fix
 
