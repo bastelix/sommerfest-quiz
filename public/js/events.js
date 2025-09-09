@@ -92,6 +92,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const eventButtons = document.querySelectorAll('[data-event-btn]');
   const isAdminPage = document.body?.classList.contains('admin-page');
   let currentEventUid = '';
+  let isEventSwitchInProgress = false;
+  let hasEventSwitchError = false;
   const params = new URLSearchParams(window.location.search);
   const pageEventUid = params.get('event') || '';
 
@@ -137,7 +139,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentEventUid) {
       if (eventNotice) eventNotice.hidden = true;
       updateEventButtons(currentEventUid);
-      eventSelect.dispatchEvent(new Event('change'));
+      if (!isEventSwitchInProgress && !hasEventSwitchError) {
+        eventSelect.dispatchEvent(new Event('change'));
+      }
     } else {
       eventSelect.value = '';
       updateEventButtons('');
@@ -170,11 +174,13 @@ document.addEventListener('DOMContentLoaded', () => {
         cfgPromise
           .then((cfg) => {
             window.quizConfig = currentEventUid ? cfg : {};
+            hasEventSwitchError = false;
             populate(events);
             warnIfEmpty(events);
           })
           .catch(() => {
             window.quizConfig = {};
+            hasEventSwitchError = true;
             populate(events);
             warnIfEmpty(events);
           });
@@ -190,18 +196,30 @@ document.addEventListener('DOMContentLoaded', () => {
   eventSelect?.addEventListener('change', () => {
     const uid = eventSelect.value;
     const name = eventSelect.options[eventSelect.selectedIndex]?.textContent || '';
+    if (isEventSwitchInProgress) {
+      eventSelect.value = currentEventUid;
+      return;
+    }
+    if (hasEventSwitchError) {
+      hasEventSwitchError = false;
+    }
     updateEventButtons(uid);
     if (uid && uid !== currentEventUid) {
+      isEventSwitchInProgress = true;
       setCurrentEvent(uid, name)
         .then((cfg) => {
           currentEventUid = uid;
           window.quizConfig = uid ? cfg : {};
+          isEventSwitchInProgress = false;
+          hasEventSwitchError = false;
           location.search = '?event=' + uid;
         })
         .catch((err) => {
           notify(err.message || 'Fehler beim Wechseln des Events', 'danger');
           eventSelect.value = currentEventUid;
           updateEventButtons(currentEventUid);
+          isEventSwitchInProgress = false;
+          hasEventSwitchError = true;
         });
     }
   });
