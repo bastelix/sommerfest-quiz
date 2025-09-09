@@ -6,6 +6,7 @@ namespace App\Service;
 
 use JsonException;
 use PDO;
+use PDOException;
 use RuntimeException;
 use Throwable;
 
@@ -294,6 +295,18 @@ class ConfigService
      */
     public function setActiveEventUid(string $uid): void
     {
+        if ($uid !== '') {
+            try {
+                $check = $this->pdo->prepare('SELECT 1 FROM events WHERE uid = ? LIMIT 1');
+                $check->execute([$uid]);
+                if ($check->fetchColumn() === false) {
+                    return;
+                }
+            } catch (PDOException) {
+                return;
+            }
+        }
+
         $this->pdo->beginTransaction();
         try {
             $this->pdo->exec('DELETE FROM active_event');
