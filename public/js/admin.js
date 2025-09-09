@@ -741,7 +741,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const stickerTemplates = {
     avery_l7165: { label_w: 99.1, label_h: 67.7, padding: 6.0 },
     avery_l7163: { label_w: 99.1, label_h: 38.1, padding: 5.0 },
-    avery_l7651: { label_w: 63.5, label_h: 38.1, padding: 4.0 }
+    avery_l7651: { label_w: 63.5, label_h: 38.1, padding: 4.0 },
+    avery_l7992: { label_w: 210.0, label_h: 41.0, padding: 6.0 },
+    avery_j8165: { label_w: 199.6, label_h: 67.7, padding: 6.0 },
+    avery_l7168: { label_w: 199.6, label_h: 143.5, padding: 6.0 }
   };
 
   async function loadStickerSample () {
