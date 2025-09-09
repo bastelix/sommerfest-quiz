@@ -344,6 +344,7 @@
 - Cover team name suggestion
 - Cover user position ordering
 - Ensure managers redirect to admin
+- Ensure summary updates after event switch
 
 ## [0.2.0] - 2025-08-18
 
