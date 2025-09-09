@@ -925,8 +925,9 @@ document.addEventListener('DOMContentLoaded', function () {
     let canvas = catalogStickerPreview.querySelector('canvas');
     if (!canvas) {
       canvas = document.createElement('canvas');
-      catalogStickerPreview.appendChild(canvas);
+      catalogStickerPreview.prepend(canvas);
     }
+    canvas.style.zIndex = '0';
     canvas.width = w;
     canvas.height = h;
     const ctx = canvas.getContext('2d');
