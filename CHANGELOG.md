@@ -315,6 +315,7 @@
 - Centralize event switching
 - Add manual drag fallback
 - Replace sticker background upload
+- Add stage container for sticker editor
 
 ### Style
 
