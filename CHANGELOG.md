@@ -230,6 +230,7 @@
 - Use UIkit uploader for sticker backgrounds
 - Preserve text box position during resize
 - *(sticker)* Support padding in editor
+- Add mm grid snapping for sticker editor
 
 ### Fix
 
