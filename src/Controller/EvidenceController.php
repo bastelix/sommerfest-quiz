@@ -100,7 +100,14 @@ class EvidenceController
         $dir = $uid !== ''
             ? 'events/' . $uid . '/images/photos/' . $safeUser
             : 'photos/' . $safeUser;
-        $stored = $this->images->saveImage($img, $dir, $fileName, 1500, 1500, 70);
+        $stored = $this->images->saveImage(
+            $img,
+            $dir,
+            $fileName,
+            1500,
+            1500,
+            ImageUploadService::QUALITY_PHOTO
+        );
 
         $this->consent->add($team, time());
 

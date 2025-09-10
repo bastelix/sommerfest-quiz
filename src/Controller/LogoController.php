@@ -89,7 +89,15 @@ class LogoController
 
         $uid = $this->config->getActiveEventUid();
         $dir = $uid !== '' ? 'events/' . $uid . '/images' : 'uploads';
-        $path = $this->images->saveUploadedFile($file, $dir, 'logo', 512, 512, 80, true);
+        $path = $this->images->saveUploadedFile(
+            $file,
+            $dir,
+            'logo',
+            512,
+            512,
+            ImageUploadService::QUALITY_LOGO,
+            true
+        );
 
         if ($uid !== '') {
             $cfg = $this->config->getConfig();
