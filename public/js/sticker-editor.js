@@ -87,6 +87,38 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
   const pctToPx = (p, total) => Math.round((p / 100) * total);
   const pxToPct = (px, total) => Math.max(0, Math.min(100, (px / total) * 100));
 
+  function mmToPx(mm, axis = 'x') {
+    const rect = preview.getBoundingClientRect();
+    const tpl = templates[tplSel.value] || templates.avery_l7163;
+    const padPx = (tpl.padding / tpl.w) * rect.width;
+    const innerW = rect.width - 2 * padPx;
+    const innerH = rect.height - 2 * padPx;
+    const widthMm = tpl.w - 2 * tpl.padding;
+    const heightMm = tpl.h - 2 * tpl.padding;
+    return Math.round(axis === 'y' ? (mm / heightMm) * innerH : (mm / widthMm) * innerW);
+  }
+
+  function pxToMm(px, axis = 'x') {
+    const rect = preview.getBoundingClientRect();
+    const tpl = templates[tplSel.value] || templates.avery_l7163;
+    const padPx = (tpl.padding / tpl.w) * rect.width;
+    const innerW = rect.width - 2 * padPx;
+    const innerH = rect.height - 2 * padPx;
+    const widthMm = tpl.w - 2 * tpl.padding;
+    const heightMm = tpl.h - 2 * tpl.padding;
+    return axis === 'y' ? (px / innerH) * heightMm : (px / innerW) * widthMm;
+  }
+
+  const GRID_MM = 1;
+  const MIN_SIZE_MM = 10;
+
+  function snap(px, axis = 'x') {
+    return mmToPx(Math.round(pxToMm(px, axis) / GRID_MM) * GRID_MM, axis);
+  }
+
+  window.stickerMmToPx = mmToPx;
+  window.stickerPxToMm = pxToMm;
+
   function applyPositionsFromInputs() {
     const rect = preview.getBoundingClientRect();
     const tpl = templates[tplSel.value] || templates.avery_l7163;
@@ -147,6 +179,7 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
 
     const shortK = Math.min(innerW, innerH);
     qrSizePct.value = pxToPct(qRect.width, shortK).toFixed(2);
+    qrSize.value = qrSizePct.value;
   }
 
   function makeDraggable(el) {
@@ -198,8 +231,14 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
       left = Math.max(0, Math.min(left, innerW - w));
       top = Math.max(0, Math.min(top, innerH - h));
 
-      el.style.left = `${Math.round(left)}px`;
-      el.style.top = `${Math.round(top)}px`;
+      left = snap(left, 'x');
+      top = snap(top, 'y');
+
+      left = Math.max(0, Math.min(left, innerW - w));
+      top = Math.max(0, Math.min(top, innerH - h));
+
+      el.style.left = `${left}px`;
+      el.style.top = `${top}px`;
     }
 
     el.addEventListener('mousedown', onDown);
@@ -260,12 +299,28 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
         const pad = (tpl.padding / tpl.w) * pRect.width;
         const innerW = pRect.width - 2 * pad;
         const innerH = pRect.height - 2 * pad;
-        let newW = Math.max(40, sOrig.w + dx);
-        let newH = Math.max(40, sOrig.h + dy);
-        newW = Math.min(newW, innerW - anchor.x);
-        newH = Math.min(newH, innerH - anchor.y);
-        el.style.width = `${Math.round(newW)}px`;
-        el.style.height = `${Math.round(newH)}px`;
+        const maxW = innerW - anchor.x;
+        const maxH = innerH - anchor.y;
+        const minW = mmToPx(MIN_SIZE_MM, 'x');
+        const minH = mmToPx(MIN_SIZE_MM, 'y');
+
+        if (el.classList.contains('dragzone--square')) {
+          const maxSize = Math.min(maxW, maxH);
+          let size = sOrig.w + Math.max(dx, dy);
+          size = Math.max(minW, Math.min(size, maxSize));
+          size = snap(size, 'x');
+          el.style.width = `${size}px`;
+          el.style.height = `${size}px`;
+        } else {
+          let newW = sOrig.w + dx;
+          let newH = sOrig.h + dy;
+          newW = Math.max(minW, Math.min(newW, maxW));
+          newH = Math.max(minH, Math.min(newH, maxH));
+          newW = snap(newW, 'x');
+          newH = snap(newH, 'y');
+          el.style.width = `${newW}px`;
+          el.style.height = `${newH}px`;
+        }
       };
 
       const onRUp = () => {
@@ -291,7 +346,10 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
     const innerW = rect.width - 2 * pad;
     const innerH = rect.height - 2 * pad;
     const shortK = Math.min(innerW, innerH);
-    const px = Math.round((parseInt(qrSize.value, 10) / 100) * shortK);
+    const minPx = mmToPx(MIN_SIZE_MM, 'x');
+    let px = Math.round((parseInt(qrSize.value, 10) / 100) * shortK);
+    px = Math.max(minPx, Math.min(px, shortK));
+    px = snap(px, 'x');
     qrBox.style.width = `${px}px`;
     qrBox.style.height = `${px}px`;
     syncInputsFromLayout();
