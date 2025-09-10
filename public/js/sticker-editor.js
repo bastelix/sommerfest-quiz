@@ -10,7 +10,6 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
     modal?.show();
   });
 
-  const modalEl = document.getElementById('catalogStickerModal');
   const preview = document.getElementById('catalogStickerPreview');
   const tplSel = document.getElementById('catalogStickerTemplate');
 
@@ -92,6 +91,15 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
     qrBox.style.left = `${qLeftPx}px`;
     qrBox.style.width = `${qSizePx}px`;
     qrBox.style.height = `${qSizePx}px`;
+  }
+
+  function applyPositionsWhenVisible() {
+    const rect = preview.getBoundingClientRect();
+    if (!rect.width || !rect.height) {
+      requestAnimationFrame(applyPositionsWhenVisible);
+    } else {
+      applyPositionsFromInputs();
+    }
   }
 
   function syncInputsFromLayout() {
@@ -361,7 +369,7 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
       // ignore
     }
     setTemplateBg();
-    applyPositionsFromInputs();
+    applyPositionsWhenVisible();
     qrImg.src = makeDemoQr();
   }
 
@@ -411,9 +419,9 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
     debouncedSave();
   });
 
-  if (window.UIkit?.util && modalEl?.$el) {
-    UIkit.util.on(modalEl.$el, 'shown', () => loadStickerSettings());
-  } else {
+  if (window.UIkit?.util && modal?.$el) {
+    UIkit.util.on(modal.$el, 'shown', loadStickerSettings);
+  } else if (!window.UIkit) {
     loadStickerSettings();
   }
 
