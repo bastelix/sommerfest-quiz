@@ -6,10 +6,10 @@ namespace App\Controller;
 
 use App\Service\EventService;
 use App\Service\ConfigService;
+use App\Service\ImageUploadService;
 use App\Service\ConfigValidator;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
-use Intervention\Image\ImageManager;
 
 /**
  * Provides endpoints to retrieve and update configuration for a specific event.
@@ -18,11 +18,13 @@ class EventConfigController
 {
     private EventService $events;
     private ConfigService $config;
+    private ImageUploadService $images;
 
-    public function __construct(EventService $events, ConfigService $config)
+    public function __construct(EventService $events, ConfigService $config, ImageUploadService $images)
     {
         $this->events = $events;
         $this->config = $config;
+        $this->images = $images;
     }
 
     /**
@@ -70,21 +72,17 @@ class EventConfigController
         $files = $request->getUploadedFiles();
         if (isset($files['logo']) && $files['logo']->getError() === UPLOAD_ERR_OK) {
             $file = $files['logo'];
-            if ($file->getSize() === null || $file->getSize() <= 5 * 1024 * 1024) {
-                $extension = strtolower(pathinfo($file->getClientFilename(), PATHINFO_EXTENSION));
-                if (
-                    in_array($extension, ['png', 'webp'], true) &&
-                    class_exists('\\Intervention\\Image\\ImageManager')
-                ) {
-                    $base = "logo-$uid.$extension";
-                    $target = __DIR__ . "/../../data/" . $base;
-                    $manager = extension_loaded('imagick') ? ImageManager::imagick() : ImageManager::gd();
-                    $stream = $file->getStream();
-                    $img = $manager->read($stream->detach());
-                    $img->scaleDown(512, 512);
-                    $img->save($target, 80);
-                    $data['logoPath'] = '/' . $base;
-                }
+            try {
+                $this->images->validate(
+                    $file,
+                    5 * 1024 * 1024,
+                    ['png', 'webp'],
+                    ['image/png', 'image/webp']
+                );
+                $data['logoPath'] = $this->images->saveUploadedFile($file, 'events/' . $uid, 'logo', 512, 512, 80);
+            } catch (\RuntimeException $e) {
+                $response->getBody()->write($e->getMessage());
+                return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
             }
         }
 

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\ConfigService;
+use App\Service\ImageUploadService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Intervention\Image\ImageManager;
 
 /**
  * Manages uploading and serving the site logo image.
@@ -15,13 +15,15 @@ use Intervention\Image\ImageManager;
 class LogoController
 {
     private ConfigService $config;
+    private ImageUploadService $images;
 
     /**
-     * Inject configuration service.
+     * Inject services.
      */
-    public function __construct(ConfigService $config)
+    public function __construct(ConfigService $config, ImageUploadService $images)
     {
         $this->config = $config;
+        $this->images = $images;
     }
 
     /**
@@ -76,37 +78,25 @@ class LogoController
         }
 
         $file = $files['file'];
-        if ($file->getError() !== UPLOAD_ERR_OK) {
-            $response->getBody()->write('upload error');
-            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
-        }
-        if ($file->getSize() !== null && $file->getSize() > 5 * 1024 * 1024) {
-            $response->getBody()->write('file too large');
-            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
-        }
 
-        $extension = strtolower(pathinfo($file->getClientFilename(), PATHINFO_EXTENSION));
-        if (!in_array($extension, ['png', 'webp'], true)) {
-            $response->getBody()->write('unsupported file type');
+        try {
+            $this->images->validate(
+                $file,
+                5 * 1024 * 1024,
+                ['png', 'webp'],
+                ['image/png', 'image/webp']
+            );
+        } catch (\RuntimeException $e) {
+            $response->getBody()->write($e->getMessage());
             return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
 
         $uid = $this->config->getActiveEventUid();
-        $base = $uid !== '' ? "logo-$uid.$extension" : "logo.$extension";
-        $target = __DIR__ . "/../../data/" . $base;
-        if (!class_exists('\\Intervention\\Image\\ImageManager')) {
-            $response->getBody()->write('Intervention Image NICHT installiert');
-            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
-        }
-
-        $manager = extension_loaded('imagick') ? ImageManager::imagick() : ImageManager::gd();
-        $stream = $file->getStream();
-        $img = $manager->read($stream->detach());
-        $img->scaleDown(512, 512);
-        $img->save($target, 80);
+        $dir = $uid !== '' ? 'events/' . $uid : 'uploads';
+        $path = $this->images->saveUploadedFile($file, $dir, 'logo', 512, 512, 80);
 
         $cfg = $this->config->getConfig();
-        $cfg['logoPath'] = '/' . $base;
+        $cfg['logoPath'] = $path;
         $this->config->saveConfig($cfg);
 
         return $response->withStatus(204);

@@ -7,8 +7,8 @@ namespace App\Controller;
 use App\Service\ResultService;
 use App\Service\PhotoConsentService;
 use App\Service\SummaryPhotoService;
+use App\Service\ImageUploadService;
 use Psr\Log\LoggerInterface;
-use Intervention\Image\ImageManager;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -20,24 +20,24 @@ class EvidenceController
     private ResultService $results;
     private PhotoConsentService $consent;
     private SummaryPhotoService $summary;
+    private ImageUploadService $images;
     private LoggerInterface $logger;
-    private string $dir;
 
     /**
-     * Set up controller dependencies and target directory.
+     * Set up controller dependencies.
      */
     public function __construct(
         ResultService $results,
         PhotoConsentService $consent,
         SummaryPhotoService $summary,
-        LoggerInterface $logger,
-        string $dir
+        ImageUploadService $images,
+        LoggerInterface $logger
     ) {
         $this->results = $results;
         $this->consent = $consent;
         $this->summary = $summary;
+        $this->images = $images;
         $this->logger = $logger;
-        $this->dir = rtrim($dir, '/');
     }
 
     /**
@@ -50,20 +50,20 @@ class EvidenceController
             $response->getBody()->write('missing file');
             return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
+
         $file = $files['photo'];
-        if ($file->getError() !== UPLOAD_ERR_OK) {
-            $response->getBody()->write('upload error');
+        try {
+            $this->images->validate(
+                $file,
+                20 * 1024 * 1024,
+                ['jpg', 'jpeg', 'png', 'webp'],
+                ['image/jpeg', 'image/png', 'image/webp']
+            );
+        } catch (\RuntimeException $e) {
+            $response->getBody()->write($e->getMessage());
             return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
-        if ($file->getSize() !== null && $file->getSize() > 20 * 1024 * 1024) {
-            $response->getBody()->write('file too large');
-            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
-        }
-        $ext = strtolower(pathinfo($file->getClientFilename(), PATHINFO_EXTENSION));
-        if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp'], true)) {
-            $response->getBody()->write('unsupported file type');
-            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
-        }
+
         $parsed = $request->getParsedBody() ?? [];
         $user = isset($parsed['name']) ? (string)$parsed['name'] : '';
         $catalog = isset($parsed['catalog']) ? (string)$parsed['catalog'] : '';
@@ -81,78 +81,25 @@ class EvidenceController
         $safeCatalog = preg_replace('/[^A-Za-z0-9_-]/', '_', $catalog);
         $date = date('Y-m-d_H-i-s');
         $fileName = $safeCatalog . '_' . $date . '.jpg';
+        $img = $this->images->readImage($file);
 
-        $dir = $this->dir . '/' . $safeUser;
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
+        try {
+            $img->orient();
+        } catch (\Throwable $e) {
+            $this->logger->warning('Photo rotation failed: ' . $e->getMessage());
+        }
+        if ($rotate !== 0) {
+            $img->rotate(-$rotate);
         }
 
-        $target = $dir . '/' . $fileName;
-        if (!class_exists('\\Intervention\\Image\\ImageManager')) {
-            $response->getBody()->write('Intervention Image NICHT installiert');
-            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
-        }
-
-        $tmpPath = tempnam(sys_get_temp_dir(), 'upload_');
-        if ($tmpPath === false || !file_exists($tmpPath)) {
-            $response->getBody()->write('temporary file unavailable');
-            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
-        }
-        $file->moveTo($tmpPath);
-        if (!is_file($tmpPath)) {
-            $response->getBody()->write('temporary file unavailable');
-            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
-        }
-
-        $manager = extension_loaded('imagick') ? ImageManager::imagick() : ImageManager::gd();
-        $img = $manager->read($tmpPath);
-
-        $orientationHandled = false;
-        if (function_exists('exif_read_data')) {
-            try {
-                $img->orient();
-                $orientationHandled = true;
-            } catch (\Throwable $e) {
-                $this->logger->warning('Photo rotation failed: ' . $e->getMessage());
-            }
-        }
-        if (!$orientationHandled) {
-            if ($rotate !== 0) {
-                $img->rotate(-$rotate);
-                $orientationHandled = true;
-            } elseif (extension_loaded('imagick') && class_exists('\\Imagick')) {
-                try {
-                    $imagick = new \Imagick($tmpPath);
-                    try {
-                        // korrigiert die Ausrichtung anhand der EXIF-Orientation
-                        $imagick->autoOrient();
-                    } catch (\ImagickException $e) {
-                        // Fallback: harte Normalisierung der Orientation (Top-Left)
-                        try {
-                            $imagick->setImageOrientation(\Imagick::ORIENTATION_TOPLEFT);
-                        } catch (\Throwable $ignore) {
-                            // no-op
-                        }
-                    }
-                    $imagick->writeImage($tmpPath);
-                    $img = $manager->read($tmpPath);
-                    $orientationHandled = true;
-                } catch (\Throwable $e) {
-                    $this->logger->warning('Photo auto-orient failed: ' . $e->getMessage());
-                }
-            }
-        }
-
-        $img->scaleDown(1500, 1500);
-        $img->save($target, 70);
-        unlink($tmpPath);
+        $stored = $this->images->saveImage($img, 'photos/' . $safeUser, $fileName, 1500, 1500, 70);
 
         $this->consent->add($team, time());
 
-        $path = '/photo/' . rawurlencode($safeUser) . '/' . rawurlencode($fileName);
-        if ($user !== "" && $catalog === "summary") {
+        $path = str_replace('/photos/', '/photo/', $stored);
+        if ($user !== '' && $catalog === 'summary') {
             $this->summary->add($user, $path, time());
-        } elseif ($user !== "" && $catalog !== "") {
+        } elseif ($user !== '' && $catalog !== '') {
             $this->results->setPhoto($user, $catalog, $path);
         }
 
@@ -167,7 +114,8 @@ class EvidenceController
     {
         $team = isset($args['team']) ? preg_replace('/[^A-Za-z0-9_-]/', '_', (string)$args['team']) : '';
         $file = basename((string)($args['file'] ?? ''));
-        $path = $this->dir . '/' . $team . '/' . $file;
+        $base = $this->images->getDataDir() . '/photos';
+        $path = $base . '/' . $team . '/' . $file;
         if (!is_file($path)) {
             return $response->withStatus(404);
         }
@@ -202,7 +150,7 @@ class EvidenceController
         }
         $team = preg_replace('/[^A-Za-z0-9_-]/', '_', $m[1]);
         $file = basename($m[2]);
-        $filePath = $this->dir . '/' . $team . '/' . $file;
+        $filePath = $this->images->getDataDir() . '/photos/' . $team . '/' . $file;
         if (!is_file($filePath)) {
             return $response->withStatus(404);
         }
