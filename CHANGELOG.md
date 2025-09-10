@@ -226,6 +226,7 @@
 - Add image format option
 - Support per-line font sizes in sticker preview
 - Add catalog fallback
+- Use new image upload controller for sticker background
 
 ### Fix
 
