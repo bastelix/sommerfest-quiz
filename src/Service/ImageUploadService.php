@@ -47,10 +47,14 @@ class ImageUploadService
         }
     }
 
-    public function readImage(UploadedFileInterface $file): ImageInterface
+    public function readImage(UploadedFileInterface $file, bool $autoOrient = false): ImageInterface
     {
         $stream = $file->getStream();
-        return $this->manager->read($stream->detach());
+        $image = $this->manager->read($stream->detach());
+        if ($autoOrient) {
+            $image->orient();
+        }
+        return $image;
     }
 
     public function saveImage(
@@ -80,11 +84,12 @@ class ImageUploadService
         string $baseName,
         ?int $maxWidth = null,
         ?int $maxHeight = null,
-        int $quality = 80
+        int $quality = 80,
+        bool $autoOrient = false
     ): string {
         $extension = strtolower(pathinfo($file->getClientFilename(), PATHINFO_EXTENSION));
         $filename = $baseName . '.' . $extension;
-        $image = $this->readImage($file);
+        $image = $this->readImage($file, $autoOrient);
         return $this->saveImage($image, $dir, $filename, $maxWidth, $maxHeight, $quality);
     }
 }
