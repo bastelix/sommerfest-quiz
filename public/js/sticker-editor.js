@@ -293,33 +293,49 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
   subheaderSize?.addEventListener('input', () => { updatePreviewText(); debouncedSave(); });
   catalogSize?.addEventListener('input', () => { updatePreviewText(); debouncedSave(); });
   descSize?.addEventListener('input', () => { updatePreviewText(); debouncedSave(); });
-
-  bgInput?.addEventListener('change', async () => {
-    const file = bgInput.files?.[0];
-    if (!file) return;
-    if (bgName) bgName.value = file.name;
-    const fd = new FormData();
-    fd.append('file', file);
-    bgProgress?.removeAttribute('hidden');
-    try {
-      const res = await apiFetch('/admin/sticker-background', { method: 'POST', body: fd });
-      if (!res.ok) throw new Error('Upload failed');
-      bgProgress?.setAttribute('value', '100');
-      setTimeout(() => bgProgress?.setAttribute('hidden', ''), 500);
-      if (typeof window.notify === 'function') {
-        window.notify(window.transImageReady || 'Hintergrundbild hochgeladen', 'success');
+  if (bgInput && window.UIkit && UIkit.upload) {
+    UIkit.upload('#catalogStickerBg', {
+      url: withBase('/admin/sticker-background'),
+      name: 'file',
+      multiple: false,
+      beforeAll: function () {
+        const file = bgInput.files && bgInput.files[0];
+        if (bgName && file) bgName.value = file.name;
+      },
+      error: function (e) {
+        const msg = (e && e.xhr && e.xhr.responseText) ? e.xhr.responseText : 'Hintergrund konnte nicht hochgeladen werden.';
+        if (typeof window.notify === 'function') {
+          window.notify(msg, 'danger');
+        } else if (typeof UIkit !== 'undefined' && UIkit.notification) {
+          UIkit.notification({ message: msg, status: 'danger' });
+        } else {
+          alert(msg);
+        }
+        bgProgress?.setAttribute('value', '0');
+        setTimeout(() => bgProgress?.setAttribute('hidden', ''), 500);
+      },
+      loadStart: function (e) {
+        bgProgress?.removeAttribute('hidden');
+        bgProgress.max = e.total;
+        bgProgress.value = e.loaded;
+      },
+      progress: function (e) {
+        bgProgress.max = e.total;
+        bgProgress.value = e.loaded;
+      },
+      loadEnd: function (e) {
+        bgProgress.max = e.total;
+        bgProgress.value = e.loaded;
+      },
+      completeAll: function () {
+        setTimeout(() => bgProgress?.setAttribute('hidden', 'hidden'), 1000);
+        if (typeof window.notify === 'function') {
+          window.notify(window.transImageReady || 'Hintergrundbild hochgeladen', 'success');
+        }
+        loadStickerSettings();
       }
-      loadStickerSettings();
-    } catch (e) {
-      if (typeof UIkit !== 'undefined' && UIkit.notification) {
-        UIkit.notification({ message: 'Hintergrund konnte nicht hochgeladen werden.', status: 'danger' });
-      } else {
-        alert('Hintergrund konnte nicht hochgeladen werden.');
-      }
-      bgProgress?.setAttribute('value', '0');
-      setTimeout(() => bgProgress?.setAttribute('hidden', ''), 500);
-    }
-  });
+    });
+  }
 
   let saveTimer = null;
   function debouncedSave() {
