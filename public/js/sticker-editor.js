@@ -424,6 +424,9 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
     qrBox.style.width = `${px}px`;
     qrBox.style.height = `${px}px`;
     syncInputsFromLayout();
+  });
+  qrSize.addEventListener('change', () => {
+    syncInputsFromLayout();
     debouncedSave();
   });
   function updatePreviewText() {
@@ -464,10 +467,10 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
 
   qrColor?.addEventListener('change', debouncedSave);
   textColor?.addEventListener('change', debouncedSave);
-  headerSize?.addEventListener('input', () => { updatePreviewText(); debouncedSave(); });
-  subheaderSize?.addEventListener('input', () => { updatePreviewText(); debouncedSave(); });
-  catalogSize?.addEventListener('input', () => { updatePreviewText(); debouncedSave(); });
-  descSize?.addEventListener('input', () => { updatePreviewText(); debouncedSave(); });
+  [headerSize, subheaderSize, catalogSize, descSize].forEach(inp => {
+    inp?.addEventListener('input', updatePreviewText);
+    ['change', 'mouseup', 'touchend'].forEach(ev => inp?.addEventListener(ev, debouncedSave));
+  });
   if (bgInput) {
     bgInput.addEventListener('change', async () => {
       const file = bgInput.files && bgInput.files[0];
@@ -622,8 +625,8 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
         qrSize.value = inp.value;
       }
       applyPositionsFromInputs();
-      debouncedSave();
     });
+    ['change', 'mouseup', 'touchend'].forEach(ev => inp?.addEventListener(ev, debouncedSave));
   });
 
   tplSel.addEventListener('change', () => {

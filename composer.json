@@ -49,7 +49,8 @@
             "node tests/test_shuffle_questions.js",
             "node tests/test_team_name_suggestion.js",
             "node tests/test_catalog_prevent_repeat.js",
-            "node tests/test_event_summary_switch.js"
+            "node tests/test_event_summary_switch.js",
+            "node tests/test_sticker_editor_save_events.js"
         ]
     }
 }
