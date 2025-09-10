@@ -33,15 +33,15 @@ class EvidenceController
         ResultService $results,
         PhotoConsentService $consent,
         SummaryPhotoService $summary,
-        ?ImageUploadService $images = null,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        ?ImageUploadService $images = null
     ) {
         $this->config = $config;
         $this->results = $results;
         $this->consent = $consent;
         $this->summary = $summary;
-        $this->images = $images ?? new ImageUploadService(sys_get_temp_dir());
         $this->logger = $logger;
+        $this->images = $images ?? new ImageUploadService(sys_get_temp_dir());
     }
 
     /**
