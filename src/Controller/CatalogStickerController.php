@@ -508,7 +508,7 @@ class CatalogStickerController
             $uid = $this->config->getActiveEventUid();
         }
 
-        $dir = $uid !== '' ? 'events/' . $uid : 'uploads';
+        $dir = $uid !== '' ? 'events/' . $uid . '/images' : 'uploads';
         try {
             $path = $this->images->saveUploadedFile(
                 $file,
