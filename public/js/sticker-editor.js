@@ -67,6 +67,7 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
       const img = new Image();
       img.onload = () => {
         preview.style.backgroundImage = `url('${tpl.bg}')`;
+        applyPositionsWhenVisible();
       };
       img.onerror = () => {
         console.error('Failed to load sticker background', tpl.bg);
@@ -74,10 +75,12 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
           window.notify(window.transImageLoadError || 'Hintergrundbild konnte nicht geladen werden', 'danger');
         }
         preview.style.backgroundImage = 'none';
+        applyPositionsWhenVisible();
       };
       img.src = tpl.bg;
     } else {
       preview.style.backgroundImage = 'none';
+      applyPositionsWhenVisible();
     }
   }
 
@@ -442,7 +445,7 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
       descSize.value = data.stickerDescFontSize ?? '10';
       if (data.stickerBgPath) {
         const rawPath = `${data.stickerBgPath}?${Date.now()}`;
-        const bgUrl = data.stickerBgPath.startsWith('/') ? rawPath : withBase(rawPath);
+        const bgUrl = /^https?:\/\//.test(data.stickerBgPath) ? rawPath : withBase(rawPath);
         Object.keys(templates).forEach(k => {
           templates[k].bg = bgUrl;
         });
