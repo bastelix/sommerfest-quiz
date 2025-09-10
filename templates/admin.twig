@@ -604,11 +604,11 @@
               <div class="uk-margin">
                 <label class="uk-form-label" for="catalogStickerBg">{{ t('label_sticker_bg') }}</label>
                 <div class="uk-form-controls">
-                  <div uk-form-custom>
-                    <input type="file" id="catalogStickerBg" accept="image/png,image/jpeg,image/webp" hidden>
-                    <input class="uk-input uk-form-small" id="catalogStickerBgName" type="text" readonly>
-                    <button class="uk-button uk-button-default uk-form-small">Datei wählen</button>
+                  <div uk-form-custom="target: #catalogStickerBgName">
+                    <input type="file" id="catalogStickerBg" accept="image/png,image/jpeg,image/webp">
+                    <button class="uk-button uk-button-default uk-form-small" type="button">Datei wählen</button>
                   </div>
+                  <input class="uk-input uk-form-small uk-margin-small-top" id="catalogStickerBgName" type="text" placeholder="Keine Datei ausgewählt" readonly>
                   <progress id="stickerBgProgress" class="uk-progress" value="0" max="100" hidden></progress>
                 </div>
               </div>
