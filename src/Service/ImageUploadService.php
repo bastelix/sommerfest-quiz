@@ -13,6 +13,7 @@ class ImageUploadService
     public const QUALITY_LOGO = 80;
     public const QUALITY_STICKER = 90;
     public const QUALITY_PHOTO = 70;
+    public const MAX_PIXELS = 20_000_000;
 
     private string $dataDir;
     private ImageManager $manager;
@@ -55,6 +56,13 @@ class ImageUploadService
     {
         $stream = $file->getStream();
         $image = $this->manager->read($stream->detach());
+        $width = $image->width();
+        $height = $image->height();
+        $pixelCount = $width * $height;
+        if ($pixelCount > self::MAX_PIXELS) {
+            $ratio = sqrt(self::MAX_PIXELS / $pixelCount);
+            $image->scaleDown((int) floor($width * $ratio), (int) floor($height * $ratio));
+        }
         if ($autoOrient) {
             $image->orient();
         }
