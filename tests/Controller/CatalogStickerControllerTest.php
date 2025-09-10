@@ -231,13 +231,15 @@ class CatalogStickerControllerTest extends TestCase
         $stream = fopen($filePath, 'rb');
         $uploaded = new UploadedFile(new Stream($stream), 'bg.png', 'image/png', filesize($filePath), UPLOAD_ERR_OK);
 
-        $request = $this->createRequest('POST', '/admin/sticker-bg')
+        $request = $this->createRequest('POST', '/admin/sticker-background')
             ->withUploadedFiles(['file' => $uploaded])
             ->withQueryParams(['event_uid' => 'ev1']);
         $response = $controller->uploadBackground($request, new Response());
 
-        $this->assertSame(204, $response->getStatusCode());
+        $this->assertSame(200, $response->getStatusCode());
         $expected = '/events/ev1/images/sticker-bg.png';
+        $payload = json_decode((string) $response->getBody(), true);
+        $this->assertSame($expected, $payload['stickerBgPath']);
         $cfg = $config->getConfigForEvent('ev1');
         $this->assertSame($expected, $cfg['stickerBgPath']);
         $this->assertFileExists(sys_get_temp_dir() . $expected);

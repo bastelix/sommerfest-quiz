@@ -341,10 +341,12 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
     const uploadUrl = uid
       ? withBase(`/admin/sticker-background?event_uid=${encodeURIComponent(uid)}`)
       : withBase('/admin/sticker-background');
+    let uploadResp = null;
     UIkit.upload('#catalogStickerBg', {
       url: uploadUrl,
       name: 'file',
       multiple: false,
+      responseType: 'json',
       beforeAll: function () {
         const file = bgInput.files && bgInput.files[0];
         if (bgName && file) bgName.value = file.name;
@@ -374,13 +376,28 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
         bgProgress.max = e.total;
         bgProgress.value = e.loaded;
       },
+      complete: function (res) {
+        uploadResp = res;
+      },
       completeAll: async function () {
         setTimeout(() => bgProgress?.setAttribute('hidden', 'hidden'), 1000);
-        if (typeof window.notify === 'function') {
-          window.notify(window.transImageReady || 'Hintergrundbild hochgeladen', 'success');
+        bgProgress?.setAttribute('value', '0');
+        if (uploadResp && uploadResp.stickerBgPath) {
+          if (typeof window.notify === 'function') {
+            window.notify(window.transImageReady || 'Hintergrundbild hochgeladen', 'success');
+          }
+          await loadStickerSettings();
+          setTemplateBg();
+        } else {
+          const msg = 'Hintergrund konnte nicht hochgeladen werden.';
+          if (typeof window.notify === 'function') {
+            window.notify(msg, 'danger');
+          } else if (typeof UIkit !== 'undefined' && UIkit.notification) {
+            UIkit.notification({ message: msg, status: 'danger' });
+          } else {
+            alert(msg);
+          }
         }
-        await loadStickerSettings();
-        setTemplateBg();
       }
     });
   }
