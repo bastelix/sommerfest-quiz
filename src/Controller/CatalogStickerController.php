@@ -496,8 +496,8 @@ class CatalogStickerController
             return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
 
-        if (!class_exists('\\Intervention\\Image\\ImageManager')) {
-            $response->getBody()->write('Intervention Image NICHT installiert');
+        if (!extension_loaded('gd') && !extension_loaded('imagick')) {
+            $response->getBody()->write('GD or Imagick extension required');
             return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
         }
 
@@ -516,8 +516,13 @@ class CatalogStickerController
 
         $manager = extension_loaded('imagick') ? ImageManager::imagick() : ImageManager::gd();
         $stream = $file->getStream();
-        $img = $manager->read($stream->detach());
-        $img->save($target, 90);
+        try {
+            $img = $manager->read($stream->detach());
+            $img->save($target, 90);
+        } catch (Throwable $e) {
+            $response->getBody()->write('image processing failed');
+            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
+        }
 
         $path = $uid !== ''
             ? '/events/' . $uid . '/sticker-bg.png'
