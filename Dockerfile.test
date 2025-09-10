@@ -19,9 +19,12 @@ RUN apk add --no-cache \
         freetype-dev \
         libwebp-dev \
         postgresql-dev \
+        imagemagick-dev \
         $PHPIZE_DEPS \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install gd pdo_pgsql exif \
+    && pecl install imagick \
+    && docker-php-ext-enable imagick \
     && apk del .build-deps \
     && pip3 install --no-cache-dir pytest
 
