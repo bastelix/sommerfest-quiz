@@ -80,6 +80,7 @@ use App\Controller\SubscriptionController;
 use App\Controller\AdminSubscriptionCheckoutController;
 use App\Controller\InvitationController;
 use App\Controller\CatalogStickerController;
+use App\Controller\EventImageController;
 use App\Service\ImageUploadService;
 use Slim\Views\Twig;
 use GuzzleHttp\Client;
@@ -137,6 +138,7 @@ require_once __DIR__ . '/Controller/SubscriptionController.php';
 require_once __DIR__ . '/Controller/AdminSubscriptionCheckoutController.php';
 require_once __DIR__ . '/Controller/InvitationController.php';
 require_once __DIR__ . '/Controller/CatalogStickerController.php';
+require_once __DIR__ . '/Controller/EventImageController.php';
 
 use App\Infrastructure\Migrations\Migrator;
 use Psr\Http\Server\RequestHandlerInterface;
@@ -256,6 +258,7 @@ return function (\Slim\App $app, TranslationService $translator) {
                 new QrCodeService(),
                 $imageUploadService
             ))
+            ->withAttribute('eventImageController', new EventImageController($configService))
             ->withAttribute('importController', $importController = new ImportController(
                 $catalogService,
                 $configService,
@@ -1135,6 +1138,13 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/admin/sticker-background', function (Request $request, Response $response) {
         return $request->getAttribute('catalogStickerController')->uploadBackground($request, $response);
     })->add(new RoleAuthMiddleware(...Roles::ALL));
+
+    $app->get('/events/{uid}/images/{file}', function (Request $request, Response $response, array $args) {
+        $req = $request
+            ->withAttribute('uid', $args['uid'])
+            ->withAttribute('file', $args['file']);
+        return $request->getAttribute('eventImageController')->get($req, $response);
+    });
 
     $app->get('/admin/{path:.*}', function (Request $request, Response $response) {
         $base = \Slim\Routing\RouteContext::fromRequest($request)->getBasePath();
