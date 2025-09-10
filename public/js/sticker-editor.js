@@ -102,13 +102,15 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
     }
   }
 
-  function syncInputsFromLayout() {
+  function syncInputsFromLayout({ lockDescPos = false } = {}) {
     const rect = preview.getBoundingClientRect();
     const tRect = textBox.getBoundingClientRect();
     const qRect = qrBox.getBoundingClientRect();
 
-    descTop.value = pxToPct(tRect.top - rect.top, rect.height).toFixed(2);
-    descLeft.value = pxToPct(tRect.left - rect.left, rect.width).toFixed(2);
+    if (!lockDescPos) {
+      descTop.value = pxToPct(tRect.top - rect.top, rect.height).toFixed(2);
+      descLeft.value = pxToPct(tRect.left - rect.left, rect.width).toFixed(2);
+    }
     descW.value = pxToPct(tRect.width, rect.width).toFixed(2);
     descH.value = pxToPct(tRect.height, rect.height).toFixed(2);
 
@@ -229,7 +231,7 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
       const onRUp = () => {
         if (!resizing) return;
         resizing = false;
-        syncInputsFromLayout();
+        syncInputsFromLayout({ lockDescPos: el === textBox });
         debouncedSave();
       };
 
