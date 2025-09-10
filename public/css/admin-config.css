@@ -14,3 +14,29 @@
   font-weight: 600;
   color: var(--color-text);
 }
+
+/* Sticker editor preview */
+.sticker-preview {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  box-sizing: content-box;
+}
+
+.sticker-stage {
+  position: absolute;
+  left: 0;
+  top: 0;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
+}
+
+.sticker-box {
+  position: absolute;
+  left: 0;
+  top: 0;
+  box-sizing: border-box;
+  touch-action: none;
+}

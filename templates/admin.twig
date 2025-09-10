@@ -613,19 +613,21 @@
                 </div>
               </div>
 
-              <div id="catalogStickerPreview" class="uk-margin uk-margin-auto uk-position-relative uk-border-rounded" style="width: 595px; height: 229px; background: #fff url('') center/100% 100% no-repeat; border:1px solid rgba(0,0,0,.1); box-sizing: border-box; padding: 0">
-                <!-- B: TEXT-BOX -->
-                <div id="stickerTextBox" class="dragzone" role="group" aria-label="Textfeld verschieben/größenändern">
-                  <div class="drag-handle" aria-hidden="true" uk-icon="move"></div>
-                  <div class="resize-handle" aria-hidden="true"></div>
-                  <div class="preview-text" id="stickerTextPreview"></div>
-                </div>
+              <div id="catalogStickerPreview" class="uk-margin uk-margin-auto uk-position-relative uk-border-rounded sticker-preview" style="width: 595px; height: 229px; background: #fff url('') center/100% 100% no-repeat; border:1px solid rgba(0,0,0,.1); padding: 0">
+                <div id="stickerStage" class="sticker-stage">
+                  <!-- B: TEXT-BOX -->
+                  <div id="stickerTextBox" class="dragzone sticker-box" role="group" aria-label="Textfeld verschieben/größenändern">
+                    <div class="drag-handle" aria-hidden="true" uk-icon="move"></div>
+                    <div class="resize-handle" aria-hidden="true"></div>
+                    <div class="preview-text" id="stickerTextPreview"></div>
+                  </div>
 
-                <!-- A: QR-ZONE (quadratisch, resizable) -->
-                <div id="stickerQrHandle" class="dragzone dragzone--square" role="group" aria-label="QR-Position verschieben">
-                  <div class="drag-handle" aria-hidden="true" uk-icon="move"></div>
-                  <div class="resize-handle" aria-hidden="true"></div>
-                  <img id="qrPreview" alt="QR-Vorschau" />
+                  <!-- A: QR-ZONE (quadratisch, resizable) -->
+                  <div id="stickerQrHandle" class="dragzone dragzone--square sticker-box" role="group" aria-label="QR-Position verschieben">
+                    <div class="drag-handle" aria-hidden="true" uk-icon="move"></div>
+                    <div class="resize-handle" aria-hidden="true"></div>
+                    <img id="qrPreview" alt="QR-Vorschau" />
+                  </div>
                 </div>
 
                 <!-- Hidden: Prozentwerte relativ zum Sticker -->
