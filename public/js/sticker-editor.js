@@ -11,6 +11,7 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
   });
 
   const preview = document.getElementById('catalogStickerPreview');
+  const stage = document.getElementById('stickerStage');
   const tplSel = document.getElementById('catalogStickerTemplate');
 
   const textBox = document.getElementById('stickerTextBox');
@@ -68,7 +69,11 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
     const padPx = Math.round(tpl.padding * PX_PER_MM);
     preview.style.width = `${widthPx}px`;
     preview.style.height = `${heightPx}px`;
-    preview.style.padding = `${padPx}px`;
+    preview.style.padding = '0';
+    stage.style.left = `${padPx}px`;
+    stage.style.top = `${padPx}px`;
+    stage.style.width = `${widthPx - padPx * 2}px`;
+    stage.style.height = `${heightPx - padPx * 2}px`;
     if (tpl.bg) {
       const img = new Image();
       img.onload = () => {
@@ -95,11 +100,8 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
 
   function mmToPx(mm, axis = 'x') {
     const tpl = templates[tplSel.value] || templates.avery_l7163;
-    const style = getComputedStyle(preview);
-    const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
-    const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
-    const innerW = preview.clientWidth - padX;
-    const innerH = preview.clientHeight - padY;
+    const innerW = stage.clientWidth;
+    const innerH = stage.clientHeight;
     const widthMm = tpl.w - 2 * tpl.padding;
     const heightMm = tpl.h - 2 * tpl.padding;
     return Math.round(axis === 'y' ? (mm / heightMm) * innerH : (mm / widthMm) * innerW);
@@ -107,11 +109,8 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
 
   function pxToMm(px, axis = 'x') {
     const tpl = templates[tplSel.value] || templates.avery_l7163;
-    const style = getComputedStyle(preview);
-    const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
-    const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
-    const innerW = preview.clientWidth - padX;
-    const innerH = preview.clientHeight - padY;
+    const innerW = stage.clientWidth;
+    const innerH = stage.clientHeight;
     const widthMm = tpl.w - 2 * tpl.padding;
     const heightMm = tpl.h - 2 * tpl.padding;
     return axis === 'y' ? (px / innerH) * heightMm : (px / innerW) * widthMm;
@@ -128,11 +127,8 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
   window.stickerPxToMm = pxToMm;
 
   function applyPositionsFromInputs() {
-    const style = getComputedStyle(preview);
-    const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
-    const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
-    const innerW = preview.clientWidth - padX;
-    const innerH = preview.clientHeight - padY;
+    const innerW = stage.clientWidth;
+    const innerH = stage.clientHeight;
 
     const minWPct = pxToPct(mmToPx(MIN_SIZE_MM, 'x'), innerW);
     const minHPct = pxToPct(mmToPx(MIN_SIZE_MM, 'y'), innerH);
@@ -207,16 +203,11 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
   }
 
   function syncInputsFromLayout({ lockDescPos = false } = {}) {
-    const rect = preview.getBoundingClientRect();
-    const style = getComputedStyle(preview);
-    const padLeft = parseFloat(style.paddingLeft);
-    const padTop = parseFloat(style.paddingTop);
-    const padRight = parseFloat(style.paddingRight);
-    const padBottom = parseFloat(style.paddingBottom);
-    const innerW = preview.clientWidth - padLeft - padRight;
-    const innerH = preview.clientHeight - padTop - padBottom;
-    const innerLeft = rect.left + preview.clientLeft + padLeft;
-    const innerTop = rect.top + preview.clientTop + padTop;
+    const rect = stage.getBoundingClientRect();
+    const innerW = stage.clientWidth;
+    const innerH = stage.clientHeight;
+    const innerLeft = rect.left;
+    const innerTop = rect.top;
     const tRect = textBox.getBoundingClientRect();
     const qRect = qrBox.getBoundingClientRect();
 
@@ -237,26 +228,38 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
 
   function makeDraggable(el) {
     let dragging = false;
-    let start = { x: 0, y: 0 };
-    let orig = { x: 0, y: 0 };
+    let startX = 0;
+    let startY = 0;
+    let startLeft = 0;
+    let startTop = 0;
+
+    function moveTo(nx, ny) {
+      const maxX = Math.floor(stage.clientWidth - el.offsetWidth);
+      const maxY = Math.floor(stage.clientHeight - el.offsetHeight);
+      let x = Math.round(nx);
+      let y = Math.round(ny);
+      if (x < 0) x = 0; else if (x > maxX) x = maxX;
+      if (y < 0) y = 0; else if (y > maxY) y = maxY;
+      el.style.left = `${x}px`;
+      el.style.top = `${y}px`;
+    }
 
     const onDown = (ev) => {
       const e = ev.touches ? ev.touches[0] : ev;
       dragging = true;
-      const r = el.getBoundingClientRect();
-      orig.x = r.left;
-      orig.y = r.top;
-      start.x = e.clientX;
-      start.y = e.clientY;
+      startX = e.clientX;
+      startY = e.clientY;
+      startLeft = el.offsetLeft;
+      startTop = el.offsetTop;
       ev.preventDefault();
     };
 
     const onMove = (ev) => {
       if (!dragging) return;
       const e = ev.touches ? ev.touches[0] : ev;
-      const dx = e.clientX - start.x;
-      const dy = e.clientY - start.y;
-      moveTo(orig.x + dx, orig.y + dy);
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      moveTo(startLeft + dx, startTop + dy);
     };
 
     const onUp = () => {
@@ -265,39 +268,6 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
       syncInputsFromLayout();
       debouncedSave();
     };
-
-    function moveTo(absX, absY) {
-      const pRect = preview.getBoundingClientRect();
-      const style = getComputedStyle(preview);
-      const padLeft = parseFloat(style.paddingLeft);
-      const padTop = parseFloat(style.paddingTop);
-      const padRight = parseFloat(style.paddingRight);
-      const padBottom = parseFloat(style.paddingBottom);
-
-      const innerLeft = pRect.left + preview.clientLeft + padLeft;
-      const innerTop = pRect.top + preview.clientTop + padTop;
-      const innerW = preview.clientWidth - padLeft - padRight;
-      const innerH = preview.clientHeight - padTop - padBottom;
-
-      const r = el.getBoundingClientRect();
-      const wPct = (r.width / innerW) * 100;
-      const hPct = (r.height / innerH) * 100;
-
-      let leftPct = ((absX - innerLeft) / innerW) * 100;
-      let topPct = ((absY - innerTop) / innerH) * 100;
-
-      leftPct = Math.max(0, Math.min(leftPct, 100 - wPct));
-      topPct = Math.max(0, Math.min(topPct, 100 - hPct));
-
-      leftPct = snap(leftPct);
-      topPct = snap(topPct);
-
-      leftPct = Math.max(0, Math.min(leftPct, 100 - wPct));
-      topPct = Math.max(0, Math.min(topPct, 100 - hPct));
-
-      el.style.left = `${pctToPx(leftPct, innerW)}px`;
-      el.style.top = `${pctToPx(topPct, innerH)}px`;
-    }
 
     el.addEventListener('mousedown', onDown);
     el.addEventListener('touchstart', onDown, { passive: false });
@@ -308,7 +278,6 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
 
     el.tabIndex = 0;
     el.addEventListener('keydown', (e) => {
-      const r = el.getBoundingClientRect();
       let dx = 0;
       let dy = 0;
       const step = e.shiftKey ? 10 : 1;
@@ -317,7 +286,7 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
       if (e.key === 'ArrowUp') dy = -step;
       if (e.key === 'ArrowDown') dy = step;
       if (dx || dy) {
-        moveTo(r.left + dx, r.top + dy);
+        moveTo(el.offsetLeft + dx, el.offsetTop + dy);
         syncInputsFromLayout();
         debouncedSave();
         e.preventDefault();
@@ -335,21 +304,16 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
         resizing = true;
         const e = ev.touches ? ev.touches[0] : ev;
         const r = el.getBoundingClientRect();
-        const pRect = preview.getBoundingClientRect();
-        const style = getComputedStyle(preview);
-        const padLeft = parseFloat(style.paddingLeft);
-        const padTop = parseFloat(style.paddingTop);
-        const padRight = parseFloat(style.paddingRight);
-        const padBottom = parseFloat(style.paddingBottom);
-        const innerW = preview.clientWidth - padLeft - padRight;
-        const innerH = preview.clientHeight - padTop - padBottom;
+        const sRect = stage.getBoundingClientRect();
+        const innerW = stage.clientWidth;
+        const innerH = stage.clientHeight;
         sStart.x = e.clientX;
         sStart.y = e.clientY;
         sOrig.w = (r.width / innerW) * 100;
         sOrig.h = (r.height / innerH) * 100;
         sOrig.size = (r.width / Math.min(innerW, innerH)) * 100;
-        anchor.x = r.left - (pRect.left + preview.clientLeft + padLeft);
-        anchor.y = r.top - (pRect.top + preview.clientTop + padTop);
+        anchor.x = r.left - sRect.left;
+        anchor.y = r.top - sRect.top;
         ev.preventDefault();
       };
 
@@ -358,13 +322,8 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
         const e = ev.touches ? ev.touches[0] : ev;
         const dx = e.clientX - sStart.x;
         const dy = e.clientY - sStart.y;
-        const style = getComputedStyle(preview);
-        const padLeft = parseFloat(style.paddingLeft);
-        const padTop = parseFloat(style.paddingTop);
-        const padRight = parseFloat(style.paddingRight);
-        const padBottom = parseFloat(style.paddingBottom);
-        const innerW = preview.clientWidth - padLeft - padRight;
-        const innerH = preview.clientHeight - padTop - padBottom;
+        const innerW = stage.clientWidth;
+        const innerH = stage.clientHeight;
         const maxWPct = 100 - (anchor.x / innerW) * 100;
         const maxHPct = 100 - (anchor.y / innerH) * 100;
         const minWPct = pxToPct(mmToPx(MIN_SIZE_MM, 'x'), innerW);
@@ -410,11 +369,8 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
   }
 
   qrSize.addEventListener('input', () => {
-    const style = getComputedStyle(preview);
-    const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
-    const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
-    const innerW = preview.clientWidth - padX;
-    const innerH = preview.clientHeight - padY;
+    const innerW = stage.clientWidth;
+    const innerH = stage.clientHeight;
     const shortK = Math.min(innerW, innerH);
     const minPct = pxToPct(mmToPx(MIN_SIZE_MM, 'x'), shortK);
     let pct = parseFloat(qrSize.value);
