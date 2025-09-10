@@ -227,6 +227,7 @@
 - Support per-line font sizes in sticker preview
 - Add catalog fallback
 - Use new image upload controller for sticker background
+- Use UIkit uploader for sticker backgrounds
 
 ### Fix
 
