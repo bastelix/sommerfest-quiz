@@ -24,7 +24,6 @@ const storage = () => {
 };
 
 const sessionStorage = storage();
-sessionStorage.setItem('quizSolved', JSON.stringify(['slug1']));
 const localStorage = storage();
 
 const body = new Element('body');
@@ -65,6 +64,8 @@ const context = {
 context.global = context;
 
 (async () => {
+  vm.runInNewContext(fs.readFileSync('public/js/storage.js', 'utf8'), context);
+  context.setStored(context.STORAGE_KEYS.QUIZ_SOLVED, JSON.stringify(['slug1']));
   vm.runInNewContext(fs.readFileSync('public/js/catalog.js', 'utf8'), context);
   await context.init();
   assert.strictEqual(warnings, 1);
