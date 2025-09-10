@@ -506,7 +506,15 @@ class CatalogStickerController
 
         $dir = $uid !== '' ? 'events/' . $uid : 'uploads';
         try {
-            $path = $this->images->saveUploadedFile($file, $dir, 'sticker-bg', null, null, 90, true);
+            $path = $this->images->saveUploadedFile(
+                $file,
+                $dir,
+                'sticker-bg',
+                null,
+                null,
+                ImageUploadService::QUALITY_STICKER,
+                true
+            );
         } catch (Throwable $e) {
             $response->getBody()->write('image processing failed');
             return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');

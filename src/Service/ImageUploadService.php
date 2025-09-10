@@ -10,6 +10,10 @@ use Psr\Http\Message\UploadedFileInterface;
 
 class ImageUploadService
 {
+    public const QUALITY_LOGO = 80;
+    public const QUALITY_STICKER = 90;
+    public const QUALITY_PHOTO = 70;
+
     private string $dataDir;
     private ImageManager $manager;
 
@@ -63,7 +67,8 @@ class ImageUploadService
         string $filename,
         ?int $maxWidth = null,
         ?int $maxHeight = null,
-        int $quality = 80
+        int $quality = self::QUALITY_LOGO,
+        ?string $format = null
     ): string {
         if ($maxWidth !== null || $maxHeight !== null) {
             $image->scaleDown($maxWidth ?? 0, $maxHeight ?? 0);
@@ -74,7 +79,13 @@ class ImageUploadService
             throw new \RuntimeException('unable to create directory');
         }
         $path = $targetDir . '/' . $filename;
-        $image->save($path, $quality);
+        $format = strtolower($format ?? pathinfo($filename, PATHINFO_EXTENSION));
+        match ($format) {
+            'png' => $image->toPng()->save($path),
+            'jpg', 'jpeg' => $image->toJpeg($quality)->save($path),
+            'webp' => $image->toWebp($quality)->save($path),
+            default => $image->save($path, $quality),
+        };
         return '/' . $dir . '/' . $filename;
     }
 
@@ -84,12 +95,13 @@ class ImageUploadService
         string $baseName,
         ?int $maxWidth = null,
         ?int $maxHeight = null,
-        int $quality = 80,
-        bool $autoOrient = false
+        int $quality = self::QUALITY_LOGO,
+        bool $autoOrient = false,
+        ?string $format = null
     ): string {
         $extension = strtolower(pathinfo($file->getClientFilename(), PATHINFO_EXTENSION));
         $filename = $baseName . '.' . $extension;
         $image = $this->readImage($file, $autoOrient);
-        return $this->saveImage($image, $dir, $filename, $maxWidth, $maxHeight, $quality);
+        return $this->saveImage($image, $dir, $filename, $maxWidth, $maxHeight, $quality, $format ?? $extension);
     }
 }

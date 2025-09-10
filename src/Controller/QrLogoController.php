@@ -101,7 +101,15 @@ class QrLogoController
             return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
 
-        $path = $this->images->saveUploadedFile($file, 'events/' . $uid . '/images', 'qrlogo', 512, 512, 80, true);
+        $path = $this->images->saveUploadedFile(
+            $file,
+            'events/' . $uid . '/images',
+            'qrlogo',
+            512,
+            512,
+            ImageUploadService::QUALITY_LOGO,
+            true
+        );
 
         $cfg = $this->config->getConfigForEvent($uid);
         $cfg['event_uid'] = $uid;
