@@ -294,13 +294,20 @@ const withBase = (p) => basePath + p;
     fd.append('file', file);
     bgProgress?.removeAttribute('hidden');
     try {
-      await fetch(withBase('/admin/sticker-background'), { method: 'POST', body: fd });
+      const res = await fetch(withBase('/admin/sticker-background'), { method: 'POST', body: fd });
+      if (!res.ok) throw new Error('Upload failed');
+      bgProgress?.setAttribute('value', '100');
+      setTimeout(() => bgProgress?.setAttribute('hidden', ''), 500);
+      loadStickerSettings();
     } catch (e) {
-      // ignore
+      if (typeof UIkit !== 'undefined' && UIkit.notification) {
+        UIkit.notification({ message: 'Hintergrund konnte nicht hochgeladen werden.', status: 'danger' });
+      } else {
+        alert('Hintergrund konnte nicht hochgeladen werden.');
+      }
+      bgProgress?.setAttribute('value', '0');
+      setTimeout(() => bgProgress?.setAttribute('hidden', ''), 500);
     }
-    bgProgress?.setAttribute('value', '100');
-    setTimeout(() => bgProgress?.setAttribute('hidden', ''), 500);
-    loadStickerSettings();
   });
 
   let saveTimer = null;
