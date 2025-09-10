@@ -221,6 +221,7 @@
 - Widen sticker editor modal
 - Reintroduce additional Avery sticker templates
 - Introduce image upload service
+- Centralize event image storage
 
 ### Fix
 
