@@ -272,6 +272,7 @@
 - Apply topbar button background on landing
 - Dark mode landing primary buttons
 - Verify sticker background path
+- Remove quoted identifiers in sticker migration
 
 ### Refactor
 
