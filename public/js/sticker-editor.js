@@ -531,6 +531,7 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
       : withBase('/admin/sticker-settings');
     try {
       const res = await fetch(url);
+      if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
       tplSel.value = data.stickerTemplate || 'avery_l7163';
       descTop.value = data.stickerDescTop ?? '10';
@@ -568,7 +569,14 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
         });
       }
     } catch (e) {
-      // ignore
+      const msg = window.transStickerLoadError || 'Sticker-Einstellungen konnten nicht geladen werden.';
+      if (typeof window.notify === 'function') {
+        window.notify(msg, 'danger');
+      } else if (typeof UIkit !== 'undefined' && UIkit.notification) {
+        UIkit.notification({ message: msg, status: 'danger' });
+      } else {
+        alert(msg);
+      }
     }
     applyPositionsWhenVisible();
     qrImg.src = makeDemoQr();
@@ -600,13 +608,21 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
       payload.event_uid = uid;
     }
     try {
-      await fetch(withBase('/admin/sticker-settings'), {
+      const res = await fetch(withBase('/admin/sticker-settings'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
+      if (!res.ok) throw new Error(await res.text());
     } catch (e) {
-      // ignore
+      const msg = window.transStickerSaveError || 'Sticker-Einstellungen konnten nicht gespeichert werden.';
+      if (typeof window.notify === 'function') {
+        window.notify(msg, 'danger');
+      } else if (typeof UIkit !== 'undefined' && UIkit.notification) {
+        UIkit.notification({ message: msg, status: 'danger' });
+      } else {
+        alert(msg);
+      }
     }
   }
 
