@@ -223,6 +223,7 @@
 - Introduce image upload service
 - Centralize event image storage
 - Auto orient image uploads
+- Add image format option
 
 ### Fix
 
