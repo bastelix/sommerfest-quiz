@@ -229,6 +229,7 @@
 - Use new image upload controller for sticker background
 - Use UIkit uploader for sticker backgrounds
 - Preserve text box position during resize
+- *(sticker)* Support padding in editor
 
 ### Fix
 
