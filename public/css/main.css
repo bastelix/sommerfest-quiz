@@ -205,8 +205,9 @@ body.uk-padding {
   background: rgba(255,255,255,.9);
 }
 
+/* allow resizing on square dragzones (e.g., QR) */
 .dragzone--square .resize-handle {
-  display: none;
+  display: block;
 }
 
 .preview-text {
