@@ -7,10 +7,10 @@ namespace App\Controller;
 use App\Service\CatalogService;
 use App\Service\ConfigService;
 use App\Service\EventService;
+use App\Service\ImageUploadService;
 use App\Service\QrCodeService;
 use App\Service\UrlService;
 use FPDF;
-use Intervention\Image\ImageManager;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Throwable;
@@ -102,17 +102,20 @@ class CatalogStickerController
     private EventService $events;
     private CatalogService $catalogs;
     private QrCodeService $qr;
+    private ImageUploadService $images;
 
     public function __construct(
         ConfigService $config,
         EventService $events,
         CatalogService $catalogs,
-        QrCodeService $qr
+        QrCodeService $qr,
+        ImageUploadService $images
     ) {
         $this->config = $config;
         $this->events = $events;
         $this->catalogs = $catalogs;
         $this->qr = $qr;
+        $this->images = $images;
     }
 
     private function pct(float|string|null $v): float
@@ -481,24 +484,17 @@ class CatalogStickerController
         }
 
         $file = $files['file'];
-        if ($file->getError() !== UPLOAD_ERR_OK) {
-            $response->getBody()->write('upload error');
-            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
-        }
-        if ($file->getSize() !== null && $file->getSize() > 5 * 1024 * 1024) {
-            $response->getBody()->write('file too large');
-            return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
-        }
 
-        $extension = strtolower(pathinfo($file->getClientFilename(), PATHINFO_EXTENSION));
-        if (!in_array($extension, ['png', 'jpg', 'jpeg', 'webp'], true)) {
-            $response->getBody()->write('unsupported file type');
+        try {
+            $this->images->validate(
+                $file,
+                5 * 1024 * 1024,
+                ['png', 'jpg', 'jpeg', 'webp'],
+                ['image/png', 'image/jpeg', 'image/webp']
+            );
+        } catch (\RuntimeException $e) {
+            $response->getBody()->write($e->getMessage());
             return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
-        }
-
-        if (!extension_loaded('gd') && !extension_loaded('imagick')) {
-            $response->getBody()->write('GD or Imagick extension required');
-            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
         }
 
         $params = $request->getQueryParams();
@@ -506,27 +502,15 @@ class CatalogStickerController
         if ($uid === '') {
             $uid = $this->config->getActiveEventUid();
         }
-        $dir = $uid !== ''
-            ? __DIR__ . '/../../data/events/' . $uid
-            : __DIR__ . '/../../data/uploads';
-        if (!is_dir($dir)) {
-            mkdir($dir, 0775, true);
-        }
-        $target = $dir . '/sticker-bg.png';
 
-        $manager = extension_loaded('imagick') ? ImageManager::imagick() : ImageManager::gd();
-        $stream = $file->getStream();
+        $dir = $uid !== '' ? 'events/' . $uid : 'uploads';
         try {
-            $img = $manager->read($stream->detach());
-            $img->save($target, 90);
+            $path = $this->images->saveUploadedFile($file, $dir, 'sticker-bg', null, null, 90);
         } catch (Throwable $e) {
             $response->getBody()->write('image processing failed');
             return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
         }
 
-        $path = $uid !== ''
-            ? '/events/' . $uid . '/sticker-bg.png'
-            : '/uploads/sticker-bg.png';
         $this->config->saveConfig([
             'event_uid' => $uid,
             'stickerBgPath' => $path,

@@ -80,6 +80,7 @@ use App\Controller\SubscriptionController;
 use App\Controller\AdminSubscriptionCheckoutController;
 use App\Controller\InvitationController;
 use App\Controller\CatalogStickerController;
+use App\Service\ImageUploadService;
 use Slim\Views\Twig;
 use GuzzleHttp\Client;
 use Psr\Log\NullLogger;
@@ -194,6 +195,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $auditLogger = new AuditLogger($pdo);
         $sessionService = new SessionService($pdo);
         $playerService = new PlayerService($pdo);
+        $imageUploadService = new ImageUploadService();
 
         $request = $request
             ->withAttribute('plan', $plan)
@@ -210,7 +212,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             ))
             ->withAttribute('teamController', new TeamController($teamService, $configService))
             ->withAttribute('eventController', new EventController($eventService))
-            ->withAttribute('eventConfigController', new EventConfigController($eventService, $configService))
+            ->withAttribute('eventConfigController', new EventConfigController($eventService, $configService, $imageUploadService))
             ->withAttribute(
                 'tenantController',
                 new TenantController(
@@ -244,14 +246,15 @@ return function (\Slim\App $app, TranslationService $translator) {
             ))
             ->withAttribute('onboardingEmailController', new OnboardingEmailController($emailConfirmService))
             ->withAttribute('catalogDesignController', new CatalogDesignController($catalogService))
-            ->withAttribute('logoController', new LogoController($configService))
-            ->withAttribute('qrLogoController', new QrLogoController($configService))
+            ->withAttribute('logoController', new LogoController($configService, $imageUploadService))
+            ->withAttribute('qrLogoController', new QrLogoController($configService, $imageUploadService))
             ->withAttribute('summaryController', new SummaryController($configService, $eventService))
             ->withAttribute('catalogStickerController', new CatalogStickerController(
                 $configService,
                 $eventService,
                 $catalogService,
-                new QrCodeService()
+                new QrCodeService(),
+                $imageUploadService
             ))
             ->withAttribute('importController', $importController = new ImportController(
                 $catalogService,
@@ -280,8 +283,8 @@ return function (\Slim\App $app, TranslationService $translator) {
                 $resultService,
                 $consentService,
                 $summaryService,
-                new NullLogger(),
-                __DIR__ . '/../data/photos'
+                $imageUploadService,
+                new NullLogger()
             ))
             ->withAttribute('pdo', $pdo)
             ->withAttribute('translator', $translator)
