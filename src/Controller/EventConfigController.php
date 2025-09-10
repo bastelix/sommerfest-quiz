@@ -79,7 +79,7 @@ class EventConfigController
                     ['png', 'webp'],
                     ['image/png', 'image/webp']
                 );
-                $data['logoPath'] = $this->images->saveUploadedFile($file, 'events/' . $uid, 'logo', 512, 512, 80);
+                $data['logoPath'] = $this->images->saveUploadedFile($file, 'events/' . $uid, 'logo', 512, 512, 80, true);
             } catch (\RuntimeException $e) {
                 $response->getBody()->write($e->getMessage());
                 return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
