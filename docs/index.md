@@ -107,4 +107,5 @@ curl -X POST http://$DOMAIN/users.json \
 * [Datenschutz](datenschutz.md)
 * [Impressum](impressum.md)
 * [Lizenz](lizenz.md)
+* [Migrationen](migrationen.md)
 * [Landing-Seiten-Stile](landing-style-overrides.md)
