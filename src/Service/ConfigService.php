@@ -423,6 +423,13 @@ class ConfigService
             @rename($globalSticker, $newSticker);
         }
 
+        if (is_file($newSticker)) {
+            $this->saveConfig([
+                'event_uid' => $uid,
+                'stickerBgPath' => $this->getEventImagesPath($uid) . '/sticker-bg.png',
+            ]);
+        }
+
         $oldPhotos = $dataDir . '/photos';
         if (is_dir($oldPhotos)) {
             $newPhotos = $target . '/photos';
