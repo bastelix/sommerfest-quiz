@@ -528,8 +528,8 @@ class CatalogStickerController
             'event_uid' => $uid,
             'stickerBgPath' => $path,
         ]);
-
-        return $response->withStatus(204);
+        $response->getBody()->write(json_encode(['stickerBgPath' => $path]));
+        return $response->withHeader('Content-Type', 'application/json');
     }
 
     private function sanitizePdfText(string $text): string

@@ -233,6 +233,7 @@
 
 ### Fix
 
+- Ensure sticker background upload returns JSON path and reloads settings
 - Update phpstan config for v2
 - Ensure page content respects dynamic topbar height
 - *(events)* Prevent table frame from clipping actions
