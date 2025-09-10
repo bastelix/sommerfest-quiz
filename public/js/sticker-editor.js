@@ -59,10 +59,16 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
     avery_l7168: { w: 199.6, h: 143.5, padding: 6.0, bg: null }
   };
 
+  const PX_PER_MM = 6;
+
   function setTemplateBg() {
     const tpl = templates[tplSel.value] || templates.avery_l7163;
-    preview.style.aspectRatio = `${tpl.w}/${tpl.h}`;
-    preview.style.padding = `${(tpl.padding / tpl.w) * 100}%`;
+    const widthPx = Math.round(tpl.w * PX_PER_MM);
+    const heightPx = Math.round(tpl.h * PX_PER_MM);
+    const padPx = Math.round(tpl.padding * PX_PER_MM);
+    preview.style.width = `${widthPx}px`;
+    preview.style.height = `${heightPx}px`;
+    preview.style.padding = `${padPx}px`;
     if (tpl.bg) {
       const img = new Image();
       img.onload = () => {
@@ -88,22 +94,24 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
   const pxToPct = (px, total) => Math.max(0, Math.min(100, (px / total) * 100));
 
   function mmToPx(mm, axis = 'x') {
-    const rect = preview.getBoundingClientRect();
     const tpl = templates[tplSel.value] || templates.avery_l7163;
-    const padPx = (tpl.padding / tpl.w) * rect.width;
-    const innerW = rect.width - 2 * padPx;
-    const innerH = rect.height - 2 * padPx;
+    const style = getComputedStyle(preview);
+    const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+    const innerW = preview.clientWidth - padX;
+    const innerH = preview.clientHeight - padY;
     const widthMm = tpl.w - 2 * tpl.padding;
     const heightMm = tpl.h - 2 * tpl.padding;
     return Math.round(axis === 'y' ? (mm / heightMm) * innerH : (mm / widthMm) * innerW);
   }
 
   function pxToMm(px, axis = 'x') {
-    const rect = preview.getBoundingClientRect();
     const tpl = templates[tplSel.value] || templates.avery_l7163;
-    const padPx = (tpl.padding / tpl.w) * rect.width;
-    const innerW = rect.width - 2 * padPx;
-    const innerH = rect.height - 2 * padPx;
+    const style = getComputedStyle(preview);
+    const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+    const innerW = preview.clientWidth - padX;
+    const innerH = preview.clientHeight - padY;
     const widthMm = tpl.w - 2 * tpl.padding;
     const heightMm = tpl.h - 2 * tpl.padding;
     return axis === 'y' ? (px / innerH) * heightMm : (px / innerW) * widthMm;
@@ -120,11 +128,11 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
   window.stickerPxToMm = pxToMm;
 
   function applyPositionsFromInputs() {
-    const rect = preview.getBoundingClientRect();
-    const tpl = templates[tplSel.value] || templates.avery_l7163;
-    const pad = (tpl.padding / tpl.w) * rect.width;
-    const innerW = rect.width - 2 * pad;
-    const innerH = rect.height - 2 * pad;
+    const style = getComputedStyle(preview);
+    const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+    const innerW = preview.clientWidth - padX;
+    const innerH = preview.clientHeight - padY;
 
     const tTop = pctToPx(parseFloat(descTop.value || '10'), innerH);
     const tLeft = pctToPx(parseFloat(descLeft.value || '10'), innerW);
@@ -158,12 +166,15 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
 
   function syncInputsFromLayout({ lockDescPos = false } = {}) {
     const rect = preview.getBoundingClientRect();
-    const tpl = templates[tplSel.value] || templates.avery_l7163;
-    const pad = (tpl.padding / tpl.w) * rect.width;
-    const innerW = rect.width - 2 * pad;
-    const innerH = rect.height - 2 * pad;
-    const innerLeft = rect.left + pad;
-    const innerTop = rect.top + pad;
+    const style = getComputedStyle(preview);
+    const padLeft = parseFloat(style.paddingLeft);
+    const padTop = parseFloat(style.paddingTop);
+    const padRight = parseFloat(style.paddingRight);
+    const padBottom = parseFloat(style.paddingBottom);
+    const innerW = preview.clientWidth - padLeft - padRight;
+    const innerH = preview.clientHeight - padTop - padBottom;
+    const innerLeft = rect.left + preview.clientLeft + padLeft;
+    const innerTop = rect.top + preview.clientTop + padTop;
     const tRect = textBox.getBoundingClientRect();
     const qRect = qrBox.getBoundingClientRect();
 
@@ -215,15 +226,16 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
 
     function moveTo(absX, absY) {
       const pRect = preview.getBoundingClientRect();
-      const tpl = templates[tplSel.value] || templates.avery_l7163;
+      const style = getComputedStyle(preview);
+      const padLeft = parseFloat(style.paddingLeft);
+      const padTop = parseFloat(style.paddingTop);
+      const padRight = parseFloat(style.paddingRight);
+      const padBottom = parseFloat(style.paddingBottom);
 
-      const padX = (tpl.padding / tpl.w) * pRect.width;
-      const padY = (tpl.padding / tpl.h) * pRect.height;
-
-      const innerLeft = pRect.left + preview.clientLeft + padX;
-      const innerTop = pRect.top + preview.clientTop + padY;
-      const innerW = preview.clientWidth - 2 * padX;
-      const innerH = preview.clientHeight - 2 * padY;
+      const innerLeft = pRect.left + preview.clientLeft + padLeft;
+      const innerTop = pRect.top + preview.clientTop + padTop;
+      const innerW = preview.clientWidth - padLeft - padRight;
+      const innerH = preview.clientHeight - padTop - padBottom;
 
       const r = el.getBoundingClientRect();
       const w = r.width;
@@ -286,10 +298,11 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
         sOrig.w = r.width;
         sOrig.h = r.height;
         const pRect = preview.getBoundingClientRect();
-        const tpl = templates[tplSel.value] || templates.avery_l7163;
-        const pad = (tpl.padding / tpl.w) * pRect.width;
-        anchor.x = r.left - (pRect.left + pad);
-        anchor.y = r.top - (pRect.top + pad);
+        const style = getComputedStyle(preview);
+        const padLeft = parseFloat(style.paddingLeft);
+        const padTop = parseFloat(style.paddingTop);
+        anchor.x = r.left - (pRect.left + preview.clientLeft + padLeft);
+        anchor.y = r.top - (pRect.top + preview.clientTop + padTop);
         ev.preventDefault();
       };
 
@@ -299,10 +312,13 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
         const dx = e.clientX - sStart.x;
         const dy = e.clientY - sStart.y;
         const pRect = preview.getBoundingClientRect();
-        const tpl = templates[tplSel.value] || templates.avery_l7163;
-        const pad = (tpl.padding / tpl.w) * pRect.width;
-        const innerW = pRect.width - 2 * pad;
-        const innerH = pRect.height - 2 * pad;
+        const style = getComputedStyle(preview);
+        const padLeft = parseFloat(style.paddingLeft);
+        const padTop = parseFloat(style.paddingTop);
+        const padRight = parseFloat(style.paddingRight);
+        const padBottom = parseFloat(style.paddingBottom);
+        const innerW = preview.clientWidth - padLeft - padRight;
+        const innerH = preview.clientHeight - padTop - padBottom;
         const maxW = innerW - anchor.x;
         const maxH = innerH - anchor.y;
         const minW = mmToPx(MIN_SIZE_MM, 'x');
@@ -344,11 +360,11 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
   }
 
   qrSize.addEventListener('input', () => {
-    const rect = preview.getBoundingClientRect();
-    const tpl = templates[tplSel.value] || templates.avery_l7163;
-    const pad = (tpl.padding / tpl.w) * rect.width;
-    const innerW = rect.width - 2 * pad;
-    const innerH = rect.height - 2 * pad;
+    const style = getComputedStyle(preview);
+    const padX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    const padY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+    const innerW = preview.clientWidth - padX;
+    const innerH = preview.clientHeight - padY;
     const shortK = Math.min(innerW, innerH);
     const minPx = mmToPx(MIN_SIZE_MM, 'x');
     let px = Math.round((parseInt(qrSize.value, 10) / 100) * shortK);
