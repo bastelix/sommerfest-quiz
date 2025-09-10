@@ -86,6 +86,20 @@ class ImageUploadService
         if (!is_dir($targetDir) && !mkdir($targetDir, 0775, true) && !is_dir($targetDir)) {
             throw new \RuntimeException('unable to create directory');
         }
+        @chown($targetDir, 'www-data');
+        @chgrp($targetDir, 'www-data');
+        @chmod($targetDir, 0775);
+
+        if (preg_match('#^events/[^/]+/images$#', $dir) && basename($this->dataDir) === 'data') {
+            $publicDir = dirname($this->dataDir) . '/public/' . $dir;
+            if (!is_dir($publicDir) && !mkdir($publicDir, 0775, true) && !is_dir($publicDir)) {
+                throw new \RuntimeException('unable to create public directory');
+            }
+            @chown($publicDir, 'www-data');
+            @chgrp($publicDir, 'www-data');
+            @chmod($publicDir, 0775);
+        }
+
         $path = $targetDir . '/' . $filename;
         $format = strtolower($format ?? pathinfo($filename, PATHINFO_EXTENSION));
         match ($format) {
