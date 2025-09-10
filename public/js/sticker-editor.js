@@ -43,7 +43,6 @@ const withBase = (p) => basePath + p;
   const qrLeft = document.getElementById('stickerQrLeft');
   const qrSizePct = document.getElementById('stickerQrSize');
 
-  const saveBtn = document.getElementById('saveStickerBtn');
   const pdfCreateBtn = document.getElementById('catalogStickerPdfCreateBtn');
 
   let baseHeader = '';
@@ -414,7 +413,6 @@ const withBase = (p) => basePath + p;
     loadStickerSettings();
   }
 
-  saveBtn.addEventListener('click', saveStickerSettings);
   pdfCreateBtn?.addEventListener('click', () => {
     saveStickerSettings();
     const params = new URLSearchParams({
