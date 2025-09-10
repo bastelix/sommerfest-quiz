@@ -445,10 +445,16 @@ a.uk-accordion-title {
 }
 
 .js-upload {
-  min-height: 240px;
+  min-height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@media (min-width: 960px) {
+  .js-upload {
+    min-height: 240px;
+  }
 }
 
 .quiz-letter {
