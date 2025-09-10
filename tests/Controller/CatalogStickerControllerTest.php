@@ -247,4 +247,65 @@ class CatalogStickerControllerTest extends TestCase
         unlink(sys_get_temp_dir() . $expected);
         unlink($filePath);
     }
+
+    public function testGetSettingsClearsMissingBackground(): void
+    {
+        $pdo = $this->createDatabase();
+        $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
+        $config = new ConfigService($pdo);
+        $events = new EventService($pdo);
+        $catalogs = new CatalogService($pdo, $config);
+        $qr = new QrCodeService();
+        $controller = new CatalogStickerController($config, $events, $catalogs, $qr);
+
+        $config->saveConfig([
+            'event_uid' => 'ev1',
+            'stickerBgPath' => '/old/path/sticker-bg.png',
+        ]);
+
+        $request = $this->createRequest('GET', '/admin/sticker-settings')
+            ->withQueryParams(['event_uid' => 'ev1']);
+        $response = $controller->getSettings($request, new Response());
+
+        $payload = json_decode((string) $response->getBody(), true);
+        $this->assertNull($payload['stickerBgPath']);
+        $cfg = $config->getConfigForEvent('ev1');
+        $this->assertNull($cfg['stickerBgPath']);
+    }
+
+    public function testGetSettingsFixesOutdatedBackgroundPath(): void
+    {
+        $pdo = $this->createDatabase();
+        $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
+        $config = new ConfigService($pdo);
+        $events = new EventService($pdo);
+        $catalogs = new CatalogService($pdo, $config);
+        $qr = new QrCodeService();
+        $controller = new CatalogStickerController($config, $events, $catalogs, $qr);
+
+        $config->saveConfig([
+            'event_uid' => 'ev1',
+            'stickerBgPath' => '/some/old/bg.png',
+        ]);
+
+        $rel = '/events/ev1/images/sticker-bg.png';
+        $abs = dirname(__DIR__, 2) . '/data' . $rel;
+        if (!is_dir(dirname($abs))) {
+            mkdir(dirname($abs), 0777, true);
+        }
+        file_put_contents($abs, 'x');
+
+        $request = $this->createRequest('GET', '/admin/sticker-settings')
+            ->withQueryParams(['event_uid' => 'ev1']);
+        $response = $controller->getSettings($request, new Response());
+
+        $payload = json_decode((string) $response->getBody(), true);
+        $this->assertSame($rel, $payload['stickerBgPath']);
+        $cfg = $config->getConfigForEvent('ev1');
+        $this->assertSame($rel, $cfg['stickerBgPath']);
+
+        unlink($abs);
+        @rmdir(dirname($abs));
+        @rmdir(dirname(dirname($abs)));
+    }
 }
