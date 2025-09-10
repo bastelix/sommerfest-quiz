@@ -63,8 +63,22 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
     const tpl = templates[tplSel.value] || templates.avery_l7163;
     preview.style.aspectRatio = `${tpl.w}/${tpl.h}`;
     preview.style.padding = `${(tpl.padding / tpl.w) * 100}%`;
-    if (tpl.bg) preview.style.backgroundImage = `url('${tpl.bg}')`;
-    else preview.style.backgroundImage = 'none';
+    if (tpl.bg) {
+      const img = new Image();
+      img.onload = () => {
+        preview.style.backgroundImage = `url('${tpl.bg}')`;
+      };
+      img.onerror = () => {
+        console.error('Failed to load sticker background', tpl.bg);
+        if (typeof window.notify === 'function') {
+          window.notify(window.transImageLoadError || 'Hintergrundbild konnte nicht geladen werden', 'danger');
+        }
+        preview.style.backgroundImage = 'none';
+      };
+      img.src = tpl.bg;
+    } else {
+      preview.style.backgroundImage = 'none';
+    }
   }
 
   const pctToPx = (p, total) => Math.round((p / 100) * total);
@@ -360,12 +374,13 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
         bgProgress.max = e.total;
         bgProgress.value = e.loaded;
       },
-      completeAll: function () {
+      completeAll: async function () {
         setTimeout(() => bgProgress?.setAttribute('hidden', 'hidden'), 1000);
         if (typeof window.notify === 'function') {
           window.notify(window.transImageReady || 'Hintergrundbild hochgeladen', 'success');
         }
-        loadStickerSettings();
+        await loadStickerSettings();
+        setTemplateBg();
       }
     });
   }
@@ -409,8 +424,10 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
       catalogSize.value = data.stickerCatalogFontSize ?? '11';
       descSize.value = data.stickerDescFontSize ?? '10';
       if (data.stickerBgPath) {
+        const rawPath = `${data.stickerBgPath}?${Date.now()}`;
+        const bgUrl = data.stickerBgPath.startsWith('/') ? rawPath : withBase(rawPath);
         Object.keys(templates).forEach(k => {
-          templates[k].bg = withBase(`${data.stickerBgPath}?${Date.now()}`);
+          templates[k].bg = bgUrl;
         });
       } else {
         Object.keys(templates).forEach(k => {
@@ -420,7 +437,6 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
     } catch (e) {
       // ignore
     }
-    setTemplateBg();
     applyPositionsWhenVisible();
     qrImg.src = makeDemoQr();
   }
@@ -476,9 +492,12 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
   });
 
   if (window.UIkit?.util && modal?.$el) {
-    UIkit.util.on(modal.$el, 'shown', loadStickerSettings);
+    UIkit.util.on(modal.$el, 'shown', async () => {
+      await loadStickerSettings();
+      setTemplateBg();
+    });
   } else if (!window.UIkit) {
-    loadStickerSettings();
+    loadStickerSettings().then(setTemplateBg);
   }
 
   pdfCreateBtn?.addEventListener('click', () => {
