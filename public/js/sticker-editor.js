@@ -244,12 +244,32 @@ const withBase = (p) => basePath + p;
     debouncedSave();
   });
   function updatePreviewText() {
-    const lines = [];
-    if (printHeader.checked && baseHeader) lines.push(baseHeader);
-    if (printSubheader.checked && baseSubheader) lines.push(baseSubheader);
-    if (printCatalog.checked && baseCatalog) lines.push(baseCatalog);
-    if (printDesc.checked && baseDesc) lines.push(baseDesc);
-    textPrev.textContent = lines.join('\n');
+    if (!textPrev) return;
+    textPrev.innerHTML = '';
+    if (printHeader.checked && baseHeader) {
+      const el = document.createElement('div');
+      el.textContent = baseHeader;
+      el.style.fontSize = `${headerSize.value}px`;
+      textPrev.appendChild(el);
+    }
+    if (printSubheader.checked && baseSubheader) {
+      const el = document.createElement('div');
+      el.textContent = baseSubheader;
+      el.style.fontSize = `${subheaderSize.value}px`;
+      textPrev.appendChild(el);
+    }
+    if (printCatalog.checked && baseCatalog) {
+      const el = document.createElement('div');
+      el.textContent = baseCatalog;
+      el.style.fontSize = `${catalogSize.value}px`;
+      textPrev.appendChild(el);
+    }
+    if (printDesc.checked && baseDesc) {
+      const el = document.createElement('div');
+      el.textContent = baseDesc;
+      el.style.fontSize = `${descSize.value}px`;
+      textPrev.appendChild(el);
+    }
   }
 
   [printHeader, printSubheader, printCatalog, printDesc].forEach(cb => {
@@ -261,10 +281,10 @@ const withBase = (p) => basePath + p;
 
   qrColor?.addEventListener('change', debouncedSave);
   textColor?.addEventListener('change', debouncedSave);
-  headerSize?.addEventListener('input', debouncedSave);
-  subheaderSize?.addEventListener('input', debouncedSave);
-  catalogSize?.addEventListener('input', debouncedSave);
-  descSize?.addEventListener('input', debouncedSave);
+  headerSize?.addEventListener('input', () => { updatePreviewText(); debouncedSave(); });
+  subheaderSize?.addEventListener('input', () => { updatePreviewText(); debouncedSave(); });
+  catalogSize?.addEventListener('input', () => { updatePreviewText(); debouncedSave(); });
+  descSize?.addEventListener('input', () => { updatePreviewText(); debouncedSave(); });
 
   bgInput?.addEventListener('change', async () => {
     const file = bgInput.files?.[0];
