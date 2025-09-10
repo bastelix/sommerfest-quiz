@@ -8,6 +8,8 @@ import {
 const currentScript = document.currentScript;
 const basePath = window.basePath || (currentScript ? currentScript.dataset.base || '' : '');
 const withBase = (p) => basePath + p;
+const getStored = window.getStored || (() => null);
+const STORAGE_KEYS = window.STORAGE_KEYS || {};
 
 const getCsrfToken = () =>
   document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
@@ -50,10 +52,30 @@ document.addEventListener('DOMContentLoaded', () => {
   const catalogsBody = document.getElementById('catalogsTableBody');
   const catalogsTable = document.getElementById('catalogsTable');
   const startLabel = catalogsTable?.dataset.startLabel || 'Start';
+  const playedLabel = catalogsTable?.dataset.playedLabel || 'Played';
+  const missingLabel = catalogsTable?.dataset.missingLabel || 'Open';
 
   document.querySelectorAll('.event-start').forEach((btn) => {
     btn.addEventListener('click', () => {
       const uid = btn.dataset.uid;
+      const solved = new Set();
+      if (typeof getStored === 'function' && STORAGE_KEYS.QUIZ_SOLVED) {
+        const prevUid = (window.quizConfig || {}).event_uid;
+        if (!window.quizConfig) window.quizConfig = {};
+        window.quizConfig.event_uid = uid;
+        try {
+          JSON.parse(getStored(STORAGE_KEYS.QUIZ_SOLVED) || '[]').forEach((s) =>
+            solved.add(String(s).toLowerCase())
+          );
+        } catch (e) {
+          /* empty */
+        }
+        if (prevUid) {
+          window.quizConfig.event_uid = prevUid;
+        } else {
+          delete window.quizConfig.event_uid;
+        }
+      }
       csrfFetch(`/kataloge/catalogs.json?event=${encodeURIComponent(uid)}`, {
         headers: { Accept: 'application/json' }
       })
@@ -65,6 +87,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const tr = document.createElement('tr');
             const tdName = document.createElement('td');
             tdName.textContent = cat.name || cat.slug || '';
+            const tdStatus = document.createElement('td');
+            const key = (cat.slug || cat.uid || '').toString().toLowerCase();
+            tdStatus.textContent = solved.has(key) ? playedLabel : missingLabel;
             const tdAction = document.createElement('td');
             tdAction.className = 'uk-table-shrink';
             const startBtn = document.createElement('button');
@@ -79,6 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             tdAction.appendChild(startBtn);
             tr.appendChild(tdName);
+            tr.appendChild(tdStatus);
             tr.appendChild(tdAction);
             catalogsBody.appendChild(tr);
           });
