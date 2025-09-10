@@ -222,16 +222,18 @@ class CatalogStickerController
         $textColor = preg_replace('/[^0-9A-Fa-f]/', '', (string)($data['stickerTextColor'] ?? '000000'));
         $textColor = substr(str_pad($textColor, 6, '0'), 0, 6);
 
+        $norm = fn ($v) => (float) str_replace(',', '.', (string) $v);
+
         $save = [
             'event_uid' => $uid,
             'stickerTemplate' => $tpl,
-            'stickerDescTop' => $this->pct($data['stickerDescTop'] ?? 10),
-            'stickerDescLeft' => $this->pct($data['stickerDescLeft'] ?? 10),
-            'stickerDescWidth' => $this->pct($data['stickerDescWidth'] ?? 60),
-            'stickerDescHeight' => $this->pct($data['stickerDescHeight'] ?? 60),
-            'stickerQrTop' => $this->pct($data['stickerQrTop'] ?? 10),
-            'stickerQrLeft' => $this->pct($data['stickerQrLeft'] ?? 75),
-            'stickerQrSizePct' => $this->pct($data['stickerQrSizePct'] ?? 28),
+            'stickerDescTop' => $this->pct($norm($data['stickerDescTop'] ?? 10)),
+            'stickerDescLeft' => $this->pct($norm($data['stickerDescLeft'] ?? 10)),
+            'stickerDescWidth' => $this->pct($norm($data['stickerDescWidth'] ?? 60)),
+            'stickerDescHeight' => $this->pct($norm($data['stickerDescHeight'] ?? 60)),
+            'stickerQrTop' => $this->pct($norm($data['stickerQrTop'] ?? 10)),
+            'stickerQrLeft' => $this->pct($norm($data['stickerQrLeft'] ?? 75)),
+            'stickerQrSizePct' => $this->pct($norm($data['stickerQrSizePct'] ?? 28)),
             'stickerPrintHeader' => filter_var($data['stickerPrintHeader'] ?? true, FILTER_VALIDATE_BOOLEAN),
             'stickerPrintSubheader' => filter_var($data['stickerPrintSubheader'] ?? true, FILTER_VALIDATE_BOOLEAN),
             'stickerPrintCatalog' => filter_var($data['stickerPrintCatalog'] ?? true, FILTER_VALIDATE_BOOLEAN),

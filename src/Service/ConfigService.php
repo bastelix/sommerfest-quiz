@@ -193,6 +193,21 @@ class ConfigService
         if (isset($data['QRUser']) && !isset($data['loginRequired'])) {
             $data['loginRequired'] = $data['QRUser'];
         }
+        $norm = fn ($v) => (float) str_replace(',', '.', (string) $v);
+        $stickerKeys = [
+            'stickerDescTop',
+            'stickerDescLeft',
+            'stickerDescWidth',
+            'stickerDescHeight',
+            'stickerQrTop',
+            'stickerQrLeft',
+            'stickerQrSizePct',
+        ];
+        foreach ($stickerKeys as $k) {
+            if (isset($data[$k])) {
+                $data[$k] = $norm($data[$k]);
+            }
+        }
         $keys = [
             'displayErrorDetails',
             'title',
