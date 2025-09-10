@@ -294,8 +294,12 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
   catalogSize?.addEventListener('input', () => { updatePreviewText(); debouncedSave(); });
   descSize?.addEventListener('input', () => { updatePreviewText(); debouncedSave(); });
   if (bgInput && window.UIkit && UIkit.upload) {
+    const uid = (window.quizConfig || {}).event_uid || '';
+    const uploadUrl = uid
+      ? withBase(`/admin/sticker-background?event_uid=${encodeURIComponent(uid)}`)
+      : withBase('/admin/sticker-background');
     UIkit.upload('#catalogStickerBg', {
-      url: withBase('/admin/sticker-background'),
+      url: uploadUrl,
       name: 'file',
       multiple: false,
       beforeAll: function () {
@@ -344,8 +348,12 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
   }
 
   async function loadStickerSettings() {
+    const uid = (window.quizConfig || {}).event_uid || '';
+    const url = uid
+      ? withBase(`/admin/sticker-settings?event_uid=${encodeURIComponent(uid)}`)
+      : withBase('/admin/sticker-settings');
     try {
-      const res = await fetch(withBase('/admin/sticker-settings'));
+      const res = await fetch(url);
       const data = await res.json();
       tplSel.value = data.stickerTemplate || 'avery_l7163';
       descTop.value = data.stickerDescTop ?? '10';
@@ -390,6 +398,7 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
   }
 
   async function saveStickerSettings() {
+    const uid = (window.quizConfig || {}).event_uid || '';
     const payload = {
       stickerTemplate: tplSel.value,
       stickerDescTop: descTop.value,
@@ -410,6 +419,9 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
       stickerCatalogFontSize: catalogSize.value,
       stickerDescFontSize: descSize.value
     };
+    if (uid) {
+      payload.event_uid = uid;
+    }
     try {
       await fetch(withBase('/admin/sticker-settings'), {
         method: 'POST',

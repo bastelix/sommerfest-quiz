@@ -130,11 +130,14 @@ class CatalogStickerController
     public function getSettings(Request $request, Response $response): Response
     {
         $params = $request->getQueryParams();
-        $uid = (string)($params['event_uid'] ?? '');
+        $uid = (string) ($params['event_uid'] ?? '');
         if ($uid === '') {
+            // default to active event when no UID is provided
             $uid = $this->config->getActiveEventUid();
         }
-        $cfg = $this->config->getConfigForEvent($uid);
+        $cfg = $uid !== ''
+            ? $this->config->getConfigForEvent($uid)
+            : $this->config->getConfig();
         $printHeader = (bool)($cfg['stickerPrintHeader'] ?? true);
         $printSubheader = (bool)($cfg['stickerPrintSubheader'] ?? true);
         $printCatalog = (bool)($cfg['stickerPrintCatalog'] ?? true);
@@ -186,8 +189,9 @@ class CatalogStickerController
         if (!is_array($data)) {
             return $response->withStatus(400);
         }
-        $uid = (string)($data['event_uid'] ?? '');
+        $uid = (string) ($data['event_uid'] ?? '');
         if ($uid === '') {
+            // fall back to active event or global configuration
             $uid = $this->config->getActiveEventUid();
         }
         $tpl = in_array(
