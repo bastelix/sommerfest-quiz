@@ -51,17 +51,18 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
   let baseDesc = '';
 
   const templates = {
-    avery_l7163: { w: 99.1, h: 38.1, bg: null },
-    avery_l7165: { w: 99.1, h: 67.7, bg: null },
-    avery_l7651: { w: 63.5, h: 38.1, bg: null },
-    avery_l7992: { w: 210.0, h: 41.0, bg: null },
-    avery_j8165: { w: 199.6, h: 67.7, bg: null },
-    avery_l7168: { w: 199.6, h: 143.5, bg: null }
+    avery_l7165: { w: 99.1, h: 67.7, padding: 6.0, bg: null },
+    avery_l7163: { w: 99.1, h: 38.1, padding: 5.0, bg: null },
+    avery_l7651: { w: 63.5, h: 38.1, padding: 4.0, bg: null },
+    avery_l7992: { w: 210.0, h: 41.0, padding: 6.0, bg: null },
+    avery_j8165: { w: 199.6, h: 67.7, padding: 6.0, bg: null },
+    avery_l7168: { w: 199.6, h: 143.5, padding: 6.0, bg: null }
   };
 
   function setTemplateBg() {
     const tpl = templates[tplSel.value] || templates.avery_l7163;
     preview.style.aspectRatio = `${tpl.w}/${tpl.h}`;
+    preview.style.padding = `${(tpl.padding / tpl.w) * 100}%`;
     if (tpl.bg) preview.style.backgroundImage = `url('${tpl.bg}')`;
     else preview.style.backgroundImage = 'none';
   }
@@ -71,21 +72,25 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
 
   function applyPositionsFromInputs() {
     const rect = preview.getBoundingClientRect();
+    const tpl = templates[tplSel.value] || templates.avery_l7163;
+    const pad = (tpl.padding / tpl.w) * rect.width;
+    const innerW = rect.width - 2 * pad;
+    const innerH = rect.height - 2 * pad;
 
-    const tTop = pctToPx(parseFloat(descTop.value || '10'), rect.height);
-    const tLeft = pctToPx(parseFloat(descLeft.value || '10'), rect.width);
-    const tW = pctToPx(parseFloat(descW.value || '60'), rect.width);
-    const tH = pctToPx(parseFloat(descH.value || '60'), rect.height);
+    const tTop = pctToPx(parseFloat(descTop.value || '10'), innerH);
+    const tLeft = pctToPx(parseFloat(descLeft.value || '10'), innerW);
+    const tW = pctToPx(parseFloat(descW.value || '60'), innerW);
+    const tH = pctToPx(parseFloat(descH.value || '60'), innerH);
 
     textBox.style.top = `${tTop}px`;
     textBox.style.left = `${tLeft}px`;
     textBox.style.width = `${tW}px`;
     textBox.style.height = `${tH}px`;
 
-    const qTopPx = pctToPx(parseFloat(qrTop.value || '10'), rect.height);
-    const qLeftPx = pctToPx(parseFloat(qrLeft.value || '75'), rect.width);
+    const qTopPx = pctToPx(parseFloat(qrTop.value || '10'), innerH);
+    const qLeftPx = pctToPx(parseFloat(qrLeft.value || '75'), innerW);
     const qPct = parseFloat(qrSizePct.value || qrSize.value || '30');
-    const qSizePx = pctToPx(qPct, Math.min(rect.width, rect.height));
+    const qSizePx = pctToPx(qPct, Math.min(innerW, innerH));
 
     qrBox.style.top = `${qTopPx}px`;
     qrBox.style.left = `${qLeftPx}px`;
@@ -104,20 +109,26 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
 
   function syncInputsFromLayout({ lockDescPos = false } = {}) {
     const rect = preview.getBoundingClientRect();
+    const tpl = templates[tplSel.value] || templates.avery_l7163;
+    const pad = (tpl.padding / tpl.w) * rect.width;
+    const innerW = rect.width - 2 * pad;
+    const innerH = rect.height - 2 * pad;
+    const innerLeft = rect.left + pad;
+    const innerTop = rect.top + pad;
     const tRect = textBox.getBoundingClientRect();
     const qRect = qrBox.getBoundingClientRect();
 
     if (!lockDescPos) {
-      descTop.value = pxToPct(tRect.top - rect.top, rect.height).toFixed(2);
-      descLeft.value = pxToPct(tRect.left - rect.left, rect.width).toFixed(2);
+      descTop.value = pxToPct(tRect.top - innerTop, innerH).toFixed(2);
+      descLeft.value = pxToPct(tRect.left - innerLeft, innerW).toFixed(2);
     }
-    descW.value = pxToPct(tRect.width, rect.width).toFixed(2);
-    descH.value = pxToPct(tRect.height, rect.height).toFixed(2);
+    descW.value = pxToPct(tRect.width, innerW).toFixed(2);
+    descH.value = pxToPct(tRect.height, innerH).toFixed(2);
 
-    qrTop.value = pxToPct(qRect.top - rect.top, rect.height).toFixed(2);
-    qrLeft.value = pxToPct(qRect.left - rect.left, rect.width).toFixed(2);
+    qrTop.value = pxToPct(qRect.top - innerTop, innerH).toFixed(2);
+    qrLeft.value = pxToPct(qRect.left - innerLeft, innerW).toFixed(2);
 
-    const shortK = Math.min(rect.width, rect.height);
+    const shortK = Math.min(innerW, innerH);
     qrSizePct.value = pxToPct(qRect.width, shortK).toFixed(2);
   }
 
@@ -154,15 +165,21 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
 
     function moveTo(absX, absY) {
       const pRect = preview.getBoundingClientRect();
+      const tpl = templates[tplSel.value] || templates.avery_l7163;
+      const pad = (tpl.padding / tpl.w) * pRect.width;
+      const innerLeft = pRect.left + pad;
+      const innerTop = pRect.top + pad;
+      const innerW = pRect.width - 2 * pad;
+      const innerH = pRect.height - 2 * pad;
       const r = el.getBoundingClientRect();
       const w = r.width;
       const h = r.height;
 
-      let left = absX - pRect.left;
-      let top = absY - pRect.top;
+      let left = absX - innerLeft;
+      let top = absY - innerTop;
 
-      left = Math.max(0, Math.min(left, pRect.width - w));
-      top = Math.max(0, Math.min(top, pRect.height - h));
+      left = Math.max(0, Math.min(left, innerW - w));
+      top = Math.max(0, Math.min(top, innerH - h));
 
       el.style.left = `${Math.round(left)}px`;
       el.style.top = `${Math.round(top)}px`;
@@ -209,8 +226,10 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
         sOrig.w = r.width;
         sOrig.h = r.height;
         const pRect = preview.getBoundingClientRect();
-        anchor.x = r.left - pRect.left;
-        anchor.y = r.top - pRect.top;
+        const tpl = templates[tplSel.value] || templates.avery_l7163;
+        const pad = (tpl.padding / tpl.w) * pRect.width;
+        anchor.x = r.left - (pRect.left + pad);
+        anchor.y = r.top - (pRect.top + pad);
         ev.preventDefault();
       };
 
@@ -220,10 +239,14 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
         const dx = e.clientX - sStart.x;
         const dy = e.clientY - sStart.y;
         const pRect = preview.getBoundingClientRect();
+        const tpl = templates[tplSel.value] || templates.avery_l7163;
+        const pad = (tpl.padding / tpl.w) * pRect.width;
+        const innerW = pRect.width - 2 * pad;
+        const innerH = pRect.height - 2 * pad;
         let newW = Math.max(40, sOrig.w + dx);
         let newH = Math.max(40, sOrig.h + dy);
-        newW = Math.min(newW, pRect.width - anchor.x);
-        newH = Math.min(newH, pRect.height - anchor.y);
+        newW = Math.min(newW, innerW - anchor.x);
+        newH = Math.min(newH, innerH - anchor.y);
         el.style.width = `${Math.round(newW)}px`;
         el.style.height = `${Math.round(newH)}px`;
       };
@@ -246,7 +269,11 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
 
   qrSize.addEventListener('input', () => {
     const rect = preview.getBoundingClientRect();
-    const shortK = Math.min(rect.width, rect.height);
+    const tpl = templates[tplSel.value] || templates.avery_l7163;
+    const pad = (tpl.padding / tpl.w) * rect.width;
+    const innerW = rect.width - 2 * pad;
+    const innerH = rect.height - 2 * pad;
+    const shortK = Math.min(innerW, innerH);
     const px = Math.round((parseInt(qrSize.value, 10) / 100) * shortK);
     qrBox.style.width = `${px}px`;
     qrBox.style.height = `${px}px`;
