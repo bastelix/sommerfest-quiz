@@ -225,6 +225,7 @@
 - Auto orient image uploads
 - Add image format option
 - Support per-line font sizes in sticker preview
+- Add catalog fallback
 
 ### Fix
 
