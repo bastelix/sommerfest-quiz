@@ -17,10 +17,10 @@ class QrLogoController
     private ConfigService $config;
     private ImageUploadService $images;
 
-    public function __construct(ConfigService $config, ImageUploadService $images)
+    public function __construct(ConfigService $config, ?ImageUploadService $images = null)
     {
         $this->config = $config;
-        $this->images = $images;
+        $this->images = $images ?? new ImageUploadService(sys_get_temp_dir());
     }
 
     public function get(Request $request, Response $response): Response
@@ -39,36 +39,34 @@ class QrLogoController
             return $response->withHeader('Content-Type', $contentType);
         }
 
-        $cfg = $this->config->getConfigForEvent($uid);
-
-        $relPath = $cfg['qrLogoPath'] ?? '';
-        $path = '';
-        $contentType = 'image/png';
-
-        if ($relPath !== '') {
-            $path = __DIR__ . '/../../data' . $relPath;
-            if (file_exists($path)) {
-                $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-                $contentType = $ext === 'webp' ? 'image/webp' : 'image/png';
+        $this->config->migrateEventImages($uid);
+        $dir = $this->config->getEventImagesDir($uid);
+        $path = $dir . '/qrlogo.' . $ext;
+        if (!is_file($path)) {
+            $alt = $dir . '/qrlogo.' . ($ext === 'png' ? 'webp' : 'png');
+            if (is_file($alt)) {
+                $path = $alt;
+                $ext = strtolower(pathinfo($alt, PATHINFO_EXTENSION));
             } else {
-                $path = '';
+                $path = $dir . '/logo.' . $ext;
+                if (!is_file($path)) {
+                    $altLogo = $dir . '/logo.' . ($ext === 'png' ? 'webp' : 'png');
+                    if (is_file($altLogo)) {
+                        $path = $altLogo;
+                        $ext = strtolower(pathinfo($altLogo, PATHINFO_EXTENSION));
+                    } else {
+                        $path = __DIR__ . '/../../public/favicon.svg';
+                        $ext = 'svg';
+                    }
+                }
             }
         }
 
-        if ($path === '') {
-            // fallback to site logo if QR logo missing
-            $cfgLogo = $cfg['logoPath'] ?? '';
-            if ($cfgLogo !== '') {
-                $path = __DIR__ . '/../../data' . $cfgLogo;
-                $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-                $contentType = $ext === 'webp' ? 'image/webp' : 'image/png';
-            }
-        }
-
-        if ($path === '' || !file_exists($path)) {
-            $path = __DIR__ . '/../../public/favicon.svg';
-            $contentType = 'image/svg+xml';
-        }
+        $contentType = match ($ext) {
+            'webp' => 'image/webp',
+            'svg' => 'image/svg+xml',
+            default => 'image/png',
+        };
 
         $response->getBody()->write((string)file_get_contents($path));
         return $response->withHeader('Content-Type', $contentType);
@@ -103,7 +101,7 @@ class QrLogoController
             return $response->withStatus(400)->withHeader('Content-Type', 'text/plain');
         }
 
-        $path = $this->images->saveUploadedFile($file, 'events/' . $uid, 'qrlogo', 512, 512, 80);
+        $path = $this->images->saveUploadedFile($file, 'events/' . $uid . '/images', 'qrlogo', 512, 512, 80);
 
         $cfg = $this->config->getConfigForEvent($uid);
         $cfg['event_uid'] = $uid;

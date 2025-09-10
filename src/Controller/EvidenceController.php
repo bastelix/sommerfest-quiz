@@ -8,6 +8,7 @@ use App\Service\ResultService;
 use App\Service\PhotoConsentService;
 use App\Service\SummaryPhotoService;
 use App\Service\ImageUploadService;
+use App\Service\ConfigService;
 use Psr\Log\LoggerInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -22,21 +23,24 @@ class EvidenceController
     private SummaryPhotoService $summary;
     private ImageUploadService $images;
     private LoggerInterface $logger;
+    private ConfigService $config;
 
     /**
      * Set up controller dependencies.
      */
     public function __construct(
+        ConfigService $config,
         ResultService $results,
         PhotoConsentService $consent,
         SummaryPhotoService $summary,
-        ImageUploadService $images,
+        ?ImageUploadService $images = null,
         LoggerInterface $logger
     ) {
+        $this->config = $config;
         $this->results = $results;
         $this->consent = $consent;
         $this->summary = $summary;
-        $this->images = $images;
+        $this->images = $images ?? new ImageUploadService(sys_get_temp_dir());
         $this->logger = $logger;
     }
 
@@ -92,11 +96,15 @@ class EvidenceController
             $img->rotate(-$rotate);
         }
 
-        $stored = $this->images->saveImage($img, 'photos/' . $safeUser, $fileName, 1500, 1500, 70);
+        $uid = $this->config->getActiveEventUid();
+        $dir = $uid !== ''
+            ? 'events/' . $uid . '/images/photos/' . $safeUser
+            : 'photos/' . $safeUser;
+        $stored = $this->images->saveImage($img, $dir, $fileName, 1500, 1500, 70);
 
         $this->consent->add($team, time());
 
-        $path = str_replace('/photos/', '/photo/', $stored);
+        $path = '/photo/' . $safeUser . '/' . $fileName;
         if ($user !== '' && $catalog === 'summary') {
             $this->summary->add($user, $path, time());
         } elseif ($user !== '' && $catalog !== '') {
@@ -114,7 +122,7 @@ class EvidenceController
     {
         $team = isset($args['team']) ? preg_replace('/[^A-Za-z0-9_-]/', '_', (string)$args['team']) : '';
         $file = basename((string)($args['file'] ?? ''));
-        $base = $this->images->getDataDir() . '/photos';
+        $base = $this->config->getEventImagesDir() . '/photos';
         $path = $base . '/' . $team . '/' . $file;
         if (!is_file($path)) {
             return $response->withStatus(404);
@@ -150,7 +158,7 @@ class EvidenceController
         }
         $team = preg_replace('/[^A-Za-z0-9_-]/', '_', $m[1]);
         $file = basename($m[2]);
-        $filePath = $this->images->getDataDir() . '/photos/' . $team . '/' . $file;
+        $filePath = $this->config->getEventImagesDir() . '/photos/' . $team . '/' . $file;
         if (!is_file($filePath)) {
             return $response->withStatus(404);
         }

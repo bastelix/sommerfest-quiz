@@ -109,13 +109,13 @@ class CatalogStickerController
         EventService $events,
         CatalogService $catalogs,
         QrCodeService $qr,
-        ImageUploadService $images
+        ?ImageUploadService $images = null
     ) {
         $this->config = $config;
         $this->events = $events;
         $this->catalogs = $catalogs;
         $this->qr = $qr;
-        $this->images = $images;
+        $this->images = $images ?? new ImageUploadService(sys_get_temp_dir());
     }
 
     private function pct(float|string|null $v): float
@@ -383,14 +383,15 @@ class CatalogStickerController
 
         $count = 0;
         $perPage = $tpl['rows'] * $tpl['cols'];
-        $bgFile = __DIR__ . '/../../data/uploads/sticker-bg.png';
+        $bgFile = '';
         if ($uid !== '') {
-            $eventBg = __DIR__ . '/../../data/events/' . $uid . '/sticker-bg.png';
-            if (file_exists($eventBg)) {
-                $bgFile = $eventBg;
+            $this->config->migrateEventImages($uid);
+            $bgCandidate = $this->config->getEventImagesDir($uid) . '/sticker-bg.png';
+            if (file_exists($bgCandidate)) {
+                $bgFile = $bgCandidate;
             }
         }
-        $hasBg = file_exists($bgFile);
+        $hasBg = $bgFile !== '' && file_exists($bgFile);
         foreach ($catalogs as $cat) {
             if ($count > 0 && $count % $perPage === 0) {
                 $pdf->AddPage();

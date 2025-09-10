@@ -239,7 +239,7 @@ class QrControllerTest extends TestCase
         $this->assertStringContainsString('Event', (string)$updated->getBody());
 
         unlink($logoFile);
-        unlink(dirname(__DIR__, 2) . '/data/logo.png');
+        unlink(sys_get_temp_dir() . '/uploads/logo.png');
     }
 
     public function testInvitePlaceholderIsReplaced(): void
