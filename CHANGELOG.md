@@ -270,6 +270,7 @@
 - Scope topbar button bg for landing
 - Apply topbar button background on landing
 - Dark mode landing primary buttons
+- Verify sticker background path
 
 ### Refactor
 
