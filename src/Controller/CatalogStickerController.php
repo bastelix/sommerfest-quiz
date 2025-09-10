@@ -138,6 +138,21 @@ class CatalogStickerController
         $cfg = $uid !== ''
             ? $this->config->getConfigForEvent($uid)
             : $this->config->getConfig();
+
+        $bgPath = null;
+        if ($uid !== '') {
+            $expected = $this->config->getEventImagesPath($uid) . '/sticker-bg.png';
+            $abs = dirname(__DIR__, 2) . '/data' . $expected;
+            if (is_file($abs)) {
+                $bgPath = $expected;
+                if (($cfg['stickerBgPath'] ?? null) !== $bgPath) {
+                    $this->config->saveConfig(['event_uid' => $uid, 'stickerBgPath' => $bgPath]);
+                }
+            } elseif (!empty($cfg['stickerBgPath'])) {
+                $this->config->saveConfig(['event_uid' => $uid, 'stickerBgPath' => null]);
+            }
+        }
+
         $printHeader = (bool)($cfg['stickerPrintHeader'] ?? true);
         $printSubheader = (bool)($cfg['stickerPrintSubheader'] ?? true);
         $printCatalog = (bool)($cfg['stickerPrintCatalog'] ?? true);
@@ -170,7 +185,7 @@ class CatalogStickerController
             'stickerSubheaderFontSize' => (int)($cfg['stickerSubheaderFontSize'] ?? 10),
             'stickerCatalogFontSize' => (int)($cfg['stickerCatalogFontSize'] ?? 11),
             'stickerDescFontSize' => (int)($cfg['stickerDescFontSize'] ?? 10),
-            'stickerBgPath' => $cfg['stickerBgPath'] ?? null,
+            'stickerBgPath' => $bgPath,
             'previewHeader' => $eventTitle,
             'previewSubheader' => $eventDesc,
             'previewCatalog' => $catName,
