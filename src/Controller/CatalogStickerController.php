@@ -288,9 +288,9 @@ class CatalogStickerController
         $textColor = str_pad(substr($textColor, 0, 6), 6, '0');
         [$r, $g, $b] = array_map('hexdec', str_split($textColor, 2));
         $qrSizePct = isset($params['qr_size_pct'])
-            ? max(10, min(100, (int)$params['qr_size_pct']))
-            : (int)($cfg['stickerQrSizePct'] ?? 42);
-        $qrSizePct = max(10, min(100, $qrSizePct));
+            ? (float)$params['qr_size_pct']
+            : (float)($cfg['stickerQrSizePct'] ?? 42.0);
+        $qrSizePct = max(10.0, min(100.0, $qrSizePct));
         $descTopPct = isset($params['desc_top'])
             ? (float)$params['desc_top']
             : (float)($cfg['stickerDescTop'] ?? 0.0);

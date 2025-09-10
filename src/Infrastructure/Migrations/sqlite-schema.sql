@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS config (
     stickerPrintCatalog BOOLEAN,
     stickerPrintDesc BOOLEAN,
     stickerQrColor TEXT,
-    stickerQrSizePct INTEGER,
+    stickerQrSizePct REAL,
     stickerDescTop REAL,
     stickerDescLeft REAL,
     stickerQrTop REAL,
