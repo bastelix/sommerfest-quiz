@@ -61,6 +61,26 @@ class ExportController
      */
     public function post(Request $request, Response $response): Response
     {
+        if (!is_dir($this->backupDir)) {
+            if (!mkdir($this->backupDir, 0777, true)) {
+                $response->getBody()->write(json_encode([
+                    'error' => 'Failed to create backup directory',
+                ]));
+
+                return $response
+                    ->withStatus(500)
+                    ->withHeader('Content-Type', 'application/json');
+            }
+        } elseif (!is_writable($this->backupDir)) {
+            $response->getBody()->write(json_encode([
+                'error' => 'Backup directory not writable',
+            ]));
+
+            return $response
+                ->withStatus(500)
+                ->withHeader('Content-Type', 'application/json');
+        }
+
         $timestamp = date('Y-m-d_His');
         $backupPath = $this->backupDir . '/' . $timestamp;
         $this->exportToDir($this->dataDir);

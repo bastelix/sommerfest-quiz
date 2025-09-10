@@ -2662,12 +2662,21 @@ document.addEventListener('DOMContentLoaded', function () {
   function loadBackups() {
     if (!backupTableBody) return;
     apiFetch('/backups')
-      .then(r => r.text())
+      .then(r => {
+        if (!r.ok) {
+          return r.json().then(data => {
+            throw new Error(data.error || r.statusText);
+          });
+        }
+
+        return r.text();
+      })
       .then(html => {
         backupTableBody.innerHTML = html;
       })
-      .catch(() => {
+      .catch(err => {
         backupTableBody.innerHTML = '<tr><td colspan="2">Fehler</td></tr>';
+        notify(err.message || 'Fehlende Berechtigungen oder Ordner', 'danger');
       });
   }
 
@@ -2740,13 +2749,17 @@ document.addEventListener('DOMContentLoaded', function () {
     e.preventDefault();
     apiFetch('/export', { method: 'POST' })
       .then(r => {
-        if (!r.ok) throw new Error(r.statusText);
+        if (!r.ok) {
+          return r.json().then(data => {
+            throw new Error(data.error || r.statusText);
+          });
+        }
         notify('Export abgeschlossen', 'success');
         loadBackups();
       })
       .catch(err => {
         console.error(err);
-        notify('Fehler beim Export', 'danger');
+        notify(err.message || 'Fehlende Berechtigungen oder Ordner', 'danger');
       });
   });
 

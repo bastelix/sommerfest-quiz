@@ -31,6 +31,26 @@ class BackupController
      */
     public function index(Request $request, Response $response): Response
     {
+        if (!is_dir($this->dir)) {
+            $response->getBody()->write(json_encode([
+                'error' => 'Backup directory not found',
+            ]));
+
+            return $response
+                ->withStatus(404)
+                ->withHeader('Content-Type', 'application/json');
+        }
+
+        if (!is_readable($this->dir)) {
+            $response->getBody()->write(json_encode([
+                'error' => 'Backup directory not readable',
+            ]));
+
+            return $response
+                ->withStatus(403)
+                ->withHeader('Content-Type', 'application/json');
+        }
+
         $dirs = glob($this->dir . '/*', GLOB_ONLYDIR) ?: [];
         rsort($dirs);
         $names = array_map('basename', $dirs);
