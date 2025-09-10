@@ -8,8 +8,11 @@ use App\Controller\CatalogStickerController;
 use App\Service\CatalogService;
 use App\Service\ConfigService;
 use App\Service\EventService;
+use App\Service\ImageUploadService;
 use App\Service\QrCodeService;
 use Slim\Psr7\Response;
+use Slim\Psr7\Stream;
+use Slim\Psr7\UploadedFile;
 use Tests\TestCase;
 
 class CatalogStickerControllerTest extends TestCase
@@ -209,5 +212,37 @@ class CatalogStickerControllerTest extends TestCase
         $this->assertFalse($data['stickerPrintHeader']);
         $this->assertFalse($data['stickerPrintSubheader']);
         $this->assertFalse($data['stickerPrintCatalog']);
+    }
+
+    public function testUploadBackgroundStoresImageAndConfig(): void
+    {
+        $pdo = $this->createDatabase();
+        $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
+        $config = new ConfigService($pdo);
+        $events = new EventService($pdo);
+        $catalogs = new CatalogService($pdo, $config);
+        $qr = new QrCodeService();
+        $images = new ImageUploadService(sys_get_temp_dir());
+        $controller = new CatalogStickerController($config, $events, $catalogs, $qr, $images);
+
+        $filePath = sys_get_temp_dir() . '/bg.png';
+        $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAADElEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==');
+        file_put_contents($filePath, $img);
+        $stream = fopen($filePath, 'rb');
+        $uploaded = new UploadedFile(new Stream($stream), 'bg.png', 'image/png', filesize($filePath), UPLOAD_ERR_OK);
+
+        $request = $this->createRequest('POST', '/admin/sticker-bg')
+            ->withUploadedFiles(['file' => $uploaded])
+            ->withQueryParams(['event_uid' => 'ev1']);
+        $response = $controller->uploadBackground($request, new Response());
+
+        $this->assertSame(204, $response->getStatusCode());
+        $expected = '/events/ev1/images/sticker-bg.png';
+        $cfg = $config->getConfigForEvent('ev1');
+        $this->assertSame($expected, $cfg['stickerBgPath']);
+        $this->assertFileExists(sys_get_temp_dir() . $expected);
+
+        unlink(sys_get_temp_dir() . $expected);
+        unlink($filePath);
     }
 }
