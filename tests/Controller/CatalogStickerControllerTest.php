@@ -158,7 +158,7 @@ class CatalogStickerControllerTest extends TestCase
         $request = $this->createRequest('GET', '/catalog-sticker.pdf')
             ->withQueryParams(['event_uid' => 'ev1']);
 
-        $bg = __DIR__ . '/../../data/uploads/sticker-bg.png';
+        $bg = __DIR__ . '/../../data/events/ev1/images/sticker-bg.png';
         @unlink($bg);
         $noBg = (string) $controller->pdf($request, new Response())->getBody();
 

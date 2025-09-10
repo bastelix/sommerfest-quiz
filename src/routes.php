@@ -280,6 +280,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             ))
             ->withAttribute('backupController', new BackupController(__DIR__ . '/../backup', $importController))
             ->withAttribute('evidenceController', new EvidenceController(
+                $configService,
                 $resultService,
                 $consentService,
                 $summaryService,

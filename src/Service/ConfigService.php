@@ -367,6 +367,75 @@ class ConfigService
     }
 
     /**
+     * Return the relative path to the image directory of an event.
+     */
+    public function getEventImagesPath(?string $uid = null): string
+    {
+        $uid = $uid ?? $this->getActiveEventUid();
+        return '/events/' . $uid . '/images';
+    }
+
+    /**
+     * Return the absolute path to the image directory of an event and ensure it exists.
+     */
+    public function getEventImagesDir(?string $uid = null): string
+    {
+        $uid = $uid ?? $this->getActiveEventUid();
+        $dir = dirname(__DIR__, 2) . '/data' . $this->getEventImagesPath($uid);
+        if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
+            throw new RuntimeException('unable to create image directory');
+        }
+        return $dir;
+    }
+
+    /**
+     * Move legacy image files into the new event image directory structure.
+     */
+    public function migrateEventImages(?string $uid = null): void
+    {
+        $uid = $uid ?? $this->getActiveEventUid();
+        if ($uid === '') {
+            return;
+        }
+        $dataDir = dirname(__DIR__, 2) . '/data';
+        $target = $this->getEventImagesDir($uid);
+
+        foreach (['png', 'webp'] as $ext) {
+            $oldLogo = $dataDir . '/logo-' . $uid . '.' . $ext;
+            $newLogo = $target . '/logo.' . $ext;
+            if (is_file($oldLogo) && !is_file($newLogo)) {
+                @rename($oldLogo, $newLogo);
+            }
+
+            $oldQr = $dataDir . '/qrlogo-' . $uid . '.' . $ext;
+            $newQr = $target . '/qrlogo.' . $ext;
+            if (is_file($oldQr) && !is_file($newQr)) {
+                @rename($oldQr, $newQr);
+            }
+        }
+
+        $oldSticker = $dataDir . '/events/' . $uid . '/sticker-bg.png';
+        $globalSticker = $dataDir . '/uploads/sticker-bg.png';
+        $newSticker = $target . '/sticker-bg.png';
+        if (is_file($oldSticker) && !is_file($newSticker)) {
+            @rename($oldSticker, $newSticker);
+        } elseif (is_file($globalSticker) && !is_file($newSticker)) {
+            @rename($globalSticker, $newSticker);
+        }
+
+        $oldPhotos = $dataDir . '/photos';
+        if (is_dir($oldPhotos)) {
+            $newPhotos = $target . '/photos';
+            if (!is_dir($newPhotos)) {
+                mkdir($newPhotos, 0775, true);
+            }
+            foreach (glob($oldPhotos . '/*') as $p) {
+                @rename($p, $newPhotos . '/' . basename($p));
+            }
+        }
+    }
+
+    /**
      * Normalize database column names to expected camelCase keys.
      *
      * @param array<string,mixed> $row

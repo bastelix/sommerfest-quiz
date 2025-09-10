@@ -19,16 +19,16 @@ class LogoControllerTest extends TestCase
         $cfg = new ConfigService($pdo);
         $cfg->saveConfig([]);
         $controller = new LogoController($cfg);
-        @rename(dirname(__DIR__, 2) . '/data/logo.png', dirname(__DIR__, 2) . '/data/logo.png.bak');
-        @rename(dirname(__DIR__, 2) . '/data/logo.webp', dirname(__DIR__, 2) . '/data/logo.webp.bak');
+        @rename(dirname(__DIR__, 2) . '/data/uploads/logo.png', dirname(__DIR__, 2) . '/data/uploads/logo.png.bak');
+        @rename(dirname(__DIR__, 2) . '/data/uploads/logo.webp', dirname(__DIR__, 2) . '/data/uploads/logo.webp.bak');
         $request = $this->createRequest('GET', '/logo.png');
         $response = $controller->get($request, new Response());
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertSame('image/svg+xml', $response->getHeaderLine('Content-Type'));
         $this->assertNotEmpty((string) $response->getBody());
-        @rename(dirname(__DIR__, 2) . '/data/logo.png.bak', dirname(__DIR__, 2) . '/data/logo.png');
-        @rename(dirname(__DIR__, 2) . '/data/logo.webp.bak', dirname(__DIR__, 2) . '/data/logo.webp');
+        @rename(dirname(__DIR__, 2) . '/data/uploads/logo.png.bak', dirname(__DIR__, 2) . '/data/uploads/logo.png');
+        @rename(dirname(__DIR__, 2) . '/data/uploads/logo.webp.bak', dirname(__DIR__, 2) . '/data/uploads/logo.webp');
     }
 
     public function testPostAndGet(): void
@@ -77,7 +77,7 @@ class LogoControllerTest extends TestCase
 
         unlink($tmpConfig);
         unlink($logoFile);
-        unlink(sys_get_temp_dir() . '/logo.png');
+        unlink(sys_get_temp_dir() . '/uploads/logo.png');
     }
 
     public function testPostAndGetWebp(): void
@@ -132,7 +132,7 @@ class LogoControllerTest extends TestCase
 
         unlink($tmpConfig);
         unlink($logoFile);
-        unlink(sys_get_temp_dir() . '/logo.webp');
+        unlink(sys_get_temp_dir() . '/uploads/logo.webp');
     }
 
     public function testLogoPerEvent(): void
@@ -189,11 +189,11 @@ class LogoControllerTest extends TestCase
         $cfg1 = json_decode($cfg->getJsonForEvent('e1'), true);
         $cfg2 = json_decode($cfg->getJsonForEvent('e2'), true);
 
-        $this->assertSame('/logo-e1.png', $cfg1['logoPath']);
+        $this->assertSame('/events/e1/images/logo.png', $cfg1['logoPath']);
         $this->assertNull($cfg2['logoPath']);
 
         unlink($logoFile);
-        unlink(dirname(__DIR__, 2) . '/data/logo-e1.png');
+        unlink(sys_get_temp_dir() . '/events/e1/images/logo.png');
     }
 
     public function testGetWithDynamicFilename(): void
@@ -242,7 +242,7 @@ class LogoControllerTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
 
         unlink($logoFile);
-        unlink(dirname(__DIR__, 2) . '/data/logo-dyn.png');
+        unlink(sys_get_temp_dir() . '/events/dyn/images/logo.png');
     }
 
     public function testGetLogoForSpecificEventWhileAnotherActive(): void
@@ -297,6 +297,6 @@ class LogoControllerTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
 
         unlink($logoFile);
-        unlink(dirname(__DIR__, 2) . '/data/logo-e1.png');
+        unlink(sys_get_temp_dir() . '/events/e1/images/logo.png');
     }
 }

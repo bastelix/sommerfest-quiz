@@ -20,10 +20,10 @@ class LogoController
     /**
      * Inject services.
      */
-    public function __construct(ConfigService $config, ImageUploadService $images)
+    public function __construct(ConfigService $config, ?ImageUploadService $images = null)
     {
         $this->config = $config;
-        $this->images = $images;
+        $this->images = $images ?? new ImageUploadService(sys_get_temp_dir());
     }
 
     /**
@@ -36,32 +36,28 @@ class LogoController
         $uid = '';
         if (preg_match('/^logo-([\w-]+)\.' . preg_quote($ext, '/') . '$/', $file, $m)) {
             $uid = $m[1];
+        } else {
+            $uid = $this->config->getActiveEventUid();
         }
 
-        $cfg = $uid !== ''
-            ? $this->config->getConfigForEvent($uid)
-            : $this->config->getConfig();
-
-        $relPath = $cfg['logoPath'] ?? '';
-        $path = '';
-        $contentType = 'image/png';
-
-        if ($relPath !== '') {
-            $path = __DIR__ . '/../../data' . $relPath;
-            if (file_exists($path)) {
-                $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-                $contentType = $ext === 'webp' ? 'image/webp' : 'image/png';
+        $this->config->migrateEventImages($uid);
+        $dir = $this->config->getEventImagesDir($uid);
+        $path = $dir . '/logo.' . $ext;
+        if (!is_file($path)) {
+            $alt = $dir . '/logo.' . ($ext === 'png' ? 'webp' : 'png');
+            if (is_file($alt)) {
+                $path = $alt;
+                $ext = strtolower(pathinfo($alt, PATHINFO_EXTENSION));
             } else {
-                $path = '';
+                $path = __DIR__ . '/../../public/favicon.svg';
+                $ext = 'svg';
             }
         }
-
-        // Fallback to the public favicon when no custom logo is available.
-        if ($path === '') {
-            $path = __DIR__ . '/../../public/favicon.svg';
-            $contentType = 'image/svg+xml';
-        }
-
+        $contentType = match ($ext) {
+            'webp' => 'image/webp',
+            'svg' => 'image/svg+xml',
+            default => 'image/png',
+        };
         $response->getBody()->write((string)file_get_contents($path));
         return $response->withHeader('Content-Type', $contentType);
     }
@@ -92,12 +88,14 @@ class LogoController
         }
 
         $uid = $this->config->getActiveEventUid();
-        $dir = $uid !== '' ? 'events/' . $uid : 'uploads';
+        $dir = $uid !== '' ? 'events/' . $uid . '/images' : 'uploads';
         $path = $this->images->saveUploadedFile($file, $dir, 'logo', 512, 512, 80);
 
-        $cfg = $this->config->getConfig();
-        $cfg['logoPath'] = $path;
-        $this->config->saveConfig($cfg);
+        if ($uid !== '') {
+            $cfg = $this->config->getConfig();
+            $cfg['logoPath'] = $path;
+            $this->config->saveConfig($cfg);
+        }
 
         return $response->withStatus(204);
     }
