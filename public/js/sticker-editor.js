@@ -216,11 +216,15 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
     function moveTo(absX, absY) {
       const pRect = preview.getBoundingClientRect();
       const tpl = templates[tplSel.value] || templates.avery_l7163;
-      const pad = (tpl.padding / tpl.w) * pRect.width;
-      const innerLeft = pRect.left + pad;
-      const innerTop = pRect.top + pad;
-      const innerW = pRect.width - 2 * pad;
-      const innerH = pRect.height - 2 * pad;
+
+      const padX = (tpl.padding / tpl.w) * pRect.width;
+      const padY = (tpl.padding / tpl.h) * pRect.height;
+
+      const innerLeft = pRect.left + preview.clientLeft + padX;
+      const innerTop = pRect.top + preview.clientTop + padY;
+      const innerW = preview.clientWidth - 2 * padX;
+      const innerH = preview.clientHeight - 2 * padY;
+
       const r = el.getBoundingClientRect();
       const w = r.width;
       const h = r.height;
