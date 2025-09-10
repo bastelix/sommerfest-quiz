@@ -1,5 +1,6 @@
 const basePath = window.basePath || '';
 const withBase = (p) => basePath + p;
+const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
 
 (() => {
   const openBtn = document.getElementById('openStickerEditorBtn');
@@ -293,10 +294,13 @@ const withBase = (p) => basePath + p;
     fd.append('file', file);
     bgProgress?.removeAttribute('hidden');
     try {
-      const res = await fetch(withBase('/admin/sticker-background'), { method: 'POST', body: fd });
+      const res = await apiFetch('/admin/sticker-background', { method: 'POST', body: fd });
       if (!res.ok) throw new Error('Upload failed');
       bgProgress?.setAttribute('value', '100');
       setTimeout(() => bgProgress?.setAttribute('hidden', ''), 500);
+      if (typeof window.notify === 'function') {
+        window.notify(window.transImageReady || 'Hintergrundbild hochgeladen', 'success');
+      }
       loadStickerSettings();
     } catch (e) {
       if (typeof UIkit !== 'undefined' && UIkit.notification) {
