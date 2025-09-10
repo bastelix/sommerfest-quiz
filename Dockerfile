@@ -20,6 +20,9 @@ WORKDIR /var/www
 COPY . /var/www
 RUN composer install --no-interaction --prefer-dist --no-progress
 RUN mkdir -p /var/www/logs && chown www-data:www-data /var/www/logs
+RUN mkdir -p /var/www/backup \
+    && chown www-data:www-data /var/www/backup \
+    && test -w /var/www/backup
 
 # include custom PHP configuration
 COPY config/php.ini /usr/local/etc/php/conf.d/custom.ini
