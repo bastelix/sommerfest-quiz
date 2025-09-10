@@ -284,8 +284,8 @@ return function (\Slim\App $app, TranslationService $translator) {
                 $resultService,
                 $consentService,
                 $summaryService,
-                $imageUploadService,
-                new NullLogger()
+                new NullLogger(),
+                $imageUploadService
             ))
             ->withAttribute('pdo', $pdo)
             ->withAttribute('translator', $translator)
