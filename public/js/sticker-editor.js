@@ -397,23 +397,40 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
   subheaderSize?.addEventListener('input', () => { updatePreviewText(); debouncedSave(); });
   catalogSize?.addEventListener('input', () => { updatePreviewText(); debouncedSave(); });
   descSize?.addEventListener('input', () => { updatePreviewText(); debouncedSave(); });
-  if (bgInput && window.UIkit && UIkit.upload) {
-    const uid = (window.quizConfig || {}).event_uid || '';
-    const uploadUrl = uid
-      ? withBase(`/admin/sticker-background?event_uid=${encodeURIComponent(uid)}`)
-      : withBase('/admin/sticker-background');
-    let uploadResp = null;
-    UIkit.upload('#catalogStickerBg', {
-      url: uploadUrl,
-      name: 'file',
-      multiple: false,
-      responseType: 'json',
-      beforeAll: function () {
-        const file = bgInput.files && bgInput.files[0];
-        if (bgName && file) bgName.value = file.name;
-      },
-      error: function (e) {
-        const msg = (e && e.xhr && e.xhr.responseText) ? e.xhr.responseText : 'Hintergrund konnte nicht hochgeladen werden.';
+  if (bgInput) {
+    bgInput.addEventListener('change', async () => {
+      const file = bgInput.files && bgInput.files[0];
+      if (!file) return;
+      if (bgName) bgName.value = file.name;
+      const uid = (window.quizConfig || {}).event_uid || '';
+      const uploadUrl = uid
+        ? withBase(`/admin/sticker-background?event_uid=${encodeURIComponent(uid)}`)
+        : withBase('/admin/sticker-background');
+      try {
+        bgProgress?.removeAttribute('hidden');
+        bgProgress.value = 0;
+        bgProgress.max = 100;
+        const fd = new FormData();
+        fd.append('file', file);
+        const res = await fetch(uploadUrl, { method: 'POST', body: fd });
+        if (!res.ok) throw new Error(await res.text());
+        const uploadResp = await res.json();
+        bgProgress.value = 100;
+        setTimeout(() => {
+          bgProgress?.setAttribute('hidden', 'hidden');
+          bgProgress?.setAttribute('value', '0');
+        }, 1000);
+        if (uploadResp && uploadResp.stickerBgPath) {
+          if (typeof window.notify === 'function') {
+            window.notify(window.transImageReady || 'Hintergrundbild hochgeladen', 'success');
+          }
+          await loadStickerSettings();
+          setTemplateBg();
+        } else {
+          throw new Error('Hintergrund konnte nicht hochgeladen werden.');
+        }
+      } catch (err) {
+        const msg = (err && err.message) ? err.message : 'Hintergrund konnte nicht hochgeladen werden.';
         if (typeof window.notify === 'function') {
           window.notify(msg, 'danger');
         } else if (typeof UIkit !== 'undefined' && UIkit.notification) {
@@ -423,42 +440,6 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
         }
         bgProgress?.setAttribute('value', '0');
         setTimeout(() => bgProgress?.setAttribute('hidden', ''), 500);
-      },
-      loadStart: function (e) {
-        bgProgress?.removeAttribute('hidden');
-        bgProgress.max = e.total;
-        bgProgress.value = e.loaded;
-      },
-      progress: function (e) {
-        bgProgress.max = e.total;
-        bgProgress.value = e.loaded;
-      },
-      loadEnd: function (e) {
-        bgProgress.max = e.total;
-        bgProgress.value = e.loaded;
-      },
-      complete: function (res) {
-        uploadResp = res;
-      },
-      completeAll: async function () {
-        setTimeout(() => bgProgress?.setAttribute('hidden', 'hidden'), 1000);
-        bgProgress?.setAttribute('value', '0');
-        if (uploadResp && uploadResp.stickerBgPath) {
-          if (typeof window.notify === 'function') {
-            window.notify(window.transImageReady || 'Hintergrundbild hochgeladen', 'success');
-          }
-          await loadStickerSettings();
-          setTemplateBg();
-        } else {
-          const msg = 'Hintergrund konnte nicht hochgeladen werden.';
-          if (typeof window.notify === 'function') {
-            window.notify(msg, 'danger');
-          } else if (typeof UIkit !== 'undefined' && UIkit.notification) {
-            UIkit.notification({ message: msg, status: 'danger' });
-          } else {
-            alert(msg);
-          }
-        }
       }
     });
   }

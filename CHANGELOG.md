@@ -289,6 +289,7 @@
 - Extract landing tokens into scss
 - Consolidate landing page design tokens
 - Centralize landing navigation links
+- Replace UIkit uploader for sticker backgrounds with fetch-based upload
 - Use data-theme for dark mode
 - Add log details container
 - Replace UIkit card modifiers with qr-card
