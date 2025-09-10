@@ -226,7 +226,7 @@ class CatalogStickerControllerTest extends TestCase
         $controller = new CatalogStickerController($config, $events, $catalogs, $qr, $images);
 
         $filePath = sys_get_temp_dir() . '/bg.png';
-        $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAAAAAA6fptVAAAADElEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==');
+        $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAADElEQVQImWNgYGAAAAAEAAGjChXjAAAAAElFTkSuQmCC');
         file_put_contents($filePath, $img);
         $stream = fopen($filePath, 'rb');
         $uploaded = new UploadedFile(new Stream($stream), 'bg.png', 'image/png', filesize($filePath), UPLOAD_ERR_OK);
