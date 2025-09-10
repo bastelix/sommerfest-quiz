@@ -96,18 +96,41 @@ async function loadQuizScript() {
 
 function getRemainingCatalogNames() {
   try {
-    const dataEl = document.getElementById('catalogs-data');
-    const catalogs = dataEl ? JSON.parse(dataEl.textContent) : [];
     const solved = new Set(
       JSON.parse(getStored(STORAGE_KEYS.QUIZ_SOLVED) || '[]')
         .map(s => String(s).toLowerCase())
     );
+
+    let catalogs = [];
+    const dataEl = document.getElementById('catalogs-data');
+    if (dataEl) {
+      try {
+        catalogs = JSON.parse(dataEl.textContent);
+      } catch (e) {
+        catalogs = [];
+      }
+    }
+
+    if (!Array.isArray(catalogs) || catalogs.length === 0) {
+      const select = document.getElementById('catalog-select');
+      if (select) {
+        catalogs = Array.from(select.options).map(o => ({
+          name: o.textContent || o.dataset.name || '',
+          slug: o.dataset.slug || o.value || '',
+          uid: o.dataset.uid || '',
+          sort_order: o.dataset.sortOrder || ''
+        }));
+      }
+    }
+
     return catalogs
       .filter(c => {
-        const id = (c.slug || c.uid || c.sort_order).toString().toLowerCase();
-        return !solved.has(id);
+        const id = (c.slug || c.uid || c.sort_order || '')
+          .toString()
+          .toLowerCase();
+        return id && !solved.has(id);
       })
-      .map(c => c.name || c.slug || c.sort_order);
+      .map(c => c.name || c.slug || c.uid || c.sort_order);
   } catch (e) {
     return [];
   }
