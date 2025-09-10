@@ -510,8 +510,8 @@ class CatalogStickerController
                 $file,
                 $dir,
                 'sticker-bg',
-                null,
-                null,
+                2000,
+                2000,
                 ImageUploadService::QUALITY_STICKER,
                 true
             );
