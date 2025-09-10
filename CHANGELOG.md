@@ -220,6 +220,7 @@
 - Prevent admin event change auto reload
 - Widen sticker editor modal
 - Reintroduce additional Avery sticker templates
+- Introduce image upload service
 
 ### Fix
 
