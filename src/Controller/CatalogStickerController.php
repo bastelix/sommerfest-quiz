@@ -46,7 +46,7 @@ class CatalogStickerController
         ],
         'avery_l7651' => [
             'page' => 'A4',
-            'rows' => 8,
+            'rows' => 7,
             'cols' => 3,
             'label_w' => 63.5,
             'label_h' => 38.1,
@@ -72,7 +72,7 @@ class CatalogStickerController
         ],
         'avery_j8165' => [
             'page' => 'A4',
-            'rows' => 8,
+            'rows' => 4,
             'cols' => 1,
             'label_w' => 199.6,
             'label_h' => 67.7,
@@ -85,11 +85,11 @@ class CatalogStickerController
         ],
         'avery_l7168' => [
             'page' => 'A4',
-            'rows' => 4,
+            'rows' => 2,
             'cols' => 1,
             'label_w' => 199.6,
             'label_h' => 143.5,
-            'margin_top' => 10.0,
+            'margin_top' => 5.0,
             'margin_left' => 5.2,
             'gutter_x' => 0.0,
             'gutter_y' => 2.5,
