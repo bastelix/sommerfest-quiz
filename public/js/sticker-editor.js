@@ -234,10 +234,10 @@ const apiFetch = window.apiFetch || ((p, o) => fetch(withBase(p), o));
     let startTop = 0;
 
     function moveTo(nx, ny) {
-      const maxX = Math.floor(stage.clientWidth - el.offsetWidth);
-      const maxY = Math.floor(stage.clientHeight - el.offsetHeight);
-      let x = Math.round(nx);
-      let y = Math.round(ny);
+      const maxX = stage.clientWidth - el.clientWidth;
+      const maxY = stage.clientHeight - el.clientHeight;
+      let x = nx;
+      let y = ny;
       if (x < 0) x = 0; else if (x > maxX) x = maxX;
       if (y < 0) y = 0; else if (y > maxY) y = maxY;
       el.style.left = `${x}px`;
