@@ -877,47 +877,6 @@
       </div>
     </section>
 
-    <section class="uk-section uk-section-default">
-      <div class="uk-container">
-        <div class="quick-cta uk-margin-large-bottom">
-          <div class="uk-grid-large uk-flex-middle" uk-grid>
-            <div class="uk-width-expand@m">
-              <h4 class="uk-margin-remove">Noch Fragen?</h4>
-              <p class="muted uk-margin-small">Schreiben Sie uns – wir beraten zu Betriebsart, Datenübernahme und Preisen.</p>
-            </div>
-            <div class="uk-width-auto@m">
-              <a class="uk-button uk-button-primary" href="{{ basePath }}/kontakt">Kontakt aufnehmen</a>
-            </div>
-          </div>
-        </div>
-        <div class="uk-grid-large" uk-grid>
-          <div class="uk-width-1-2@m">
-            <h4>calServer</h4>
-            <p class="muted">Cloud-Software für Kalibrier- und Inventarverwaltung – entwickelt in Deutschland.</p>
-          </div>
-          <div class="uk-width-1-4@m">
-            <h5>Produkt</h5>
-            <ul class="uk-list uk-link-text">
-              <li><a href="#features">Funktionen</a></li>
-              <li><a href="#modules">Module</a></li>
-              <li><a href="#usecases">Anwendungsfälle</a></li>
-              <li><a href="#pricing">Preise</a></li>
-            </ul>
-          </div>
-          <div class="uk-width-1-4@m">
-            <h5>Rechtliches</h5>
-            <ul class="uk-list uk-link-text">
-              <li><a href="{{ basePath }}/impressum">Impressum</a></li>
-              <li><a href="{{ basePath }}/datenschutz">Datenschutz</a></li>
-              <li><a href="{{ basePath }}/lizenz">AGB</a></li>
-            </ul>
-          </div>
-        </div>
-        <div class="uk-text-center uk-text-small muted uk-margin-top">
-          © 2025 calHelp Inh. René Buske – Alle Rechte vorbehalten.
-        </div>
-      </div>
-    </section>
   </div>
 {% endblock %}
 
@@ -934,6 +893,14 @@
         <a href="mailto:office@quizrace.app">office@quizrace.app</a><br>
         <a href="tel:+4933203609080">+49&nbsp;33203&nbsp;609080</a>
       </p>
+    </div>
+    <div class="footer-section footer-navigation">
+      <strong>Seiten</strong>
+      <ul>
+        {% for link in links %}
+          <li><a href="{{ link.href }}">{{ link.label }}</a></li>
+        {% endfor %}
+      </ul>
     </div>
     <div class="footer-section footer-legal">
       <strong>Rechtliches</strong>
