@@ -157,6 +157,16 @@ body.qr-landing.calserver-theme .calserver-stats-strip__value {
     letter-spacing: -0.01em;
 }
 
+body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .calserver-stats-strip__value,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .calserver-stats-strip__value {
+    color: var(--qr-text);
+}
+
+body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-stats-strip__value,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-stats-strip__value {
+    color: color-mix(in oklab, var(--calserver-primary) 86%, #0c1a3a 14%);
+}
+
 body.qr-landing.calserver-theme .calserver-stats-strip__label {
     color: var(--qr-muted);
     font-size: 0.95rem;
