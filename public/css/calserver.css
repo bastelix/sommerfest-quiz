@@ -105,6 +105,8 @@ body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) {
         var(--qr-hero-grad-start) 0%,
         var(--qr-hero-grad-end) 100%
     );
+    --cs-card-focus-bg: color-mix(in oklab, var(--calserver-primary) 62%, var(--cs-card-dark) 38%);
+    --cs-card-focus-border: color-mix(in oklab, var(--calserver-primary) 68%, transparent);
 }
 
 body.qr-landing.calserver-theme:not(.high-contrast) .hero-bg-calserver {
