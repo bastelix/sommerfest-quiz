@@ -12,8 +12,30 @@ class DomainAccessTest extends TestCase
     {
         $old = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main.test');
+        $pdo = $this->getDatabase();
+        try {
+            $pdo->exec("INSERT INTO pages(slug,title,content) VALUES('landing','Landing','<p>Landing</p>')");
+        } catch (\PDOException $e) {
+            // Ignore duplicate inserts when the page already exists.
+        }
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/landing');
+        $request = $request->withUri($request->getUri()->withHost('main.test'));
+        $response = $app->handle($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        if ($old === false) {
+            putenv('MAIN_DOMAIN');
+        } else {
+            putenv('MAIN_DOMAIN=' . $old);
+        }
+    }
+
+    public function testCalserverRouteOnMainDomain(): void
+    {
+        $old = getenv('MAIN_DOMAIN');
+        putenv('MAIN_DOMAIN=main.test');
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/calserver');
         $request = $request->withUri($request->getUri()->withHost('main.test'));
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());

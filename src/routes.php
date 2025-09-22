@@ -66,6 +66,7 @@ use App\Controller\Admin\PageController;
 use App\Controller\Admin\LandingpageController;
 use App\Controller\TenantController;
 use App\Controller\Marketing\LandingController;
+use App\Controller\Marketing\CalserverController;
 use App\Controller\Marketing\ContactController;
 use App\Controller\RegisterController;
 use App\Controller\OnboardingController;
@@ -371,6 +372,20 @@ return function (\Slim\App $app, TranslationService $translator) {
             return $response->withStatus(404);
         }
         $controller = new LandingController();
+        return $controller($request, $response);
+    });
+    $app->get('/calserver', function (Request $request, Response $response) {
+        $domainType = $request->getAttribute('domainType');
+        if ($domainType === null) {
+            $host = $request->getUri()->getHost();
+            $mainDomain = getenv('MAIN_DOMAIN') ?: '';
+            $domainType = $host === $mainDomain || $mainDomain === '' ? 'main' : 'tenant';
+            $request = $request->withAttribute('domainType', $domainType);
+        }
+        if ($domainType !== 'main') {
+            return $response->withStatus(404);
+        }
+        $controller = new CalserverController();
         return $controller($request, $response);
     });
     $app->post('/landing/contact', ContactController::class)
