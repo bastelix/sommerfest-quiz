@@ -1,0 +1,151 @@
+/* calServer marketing overrides for landing layout */
+
+body.qr-landing.calserver-theme {
+    --calserver-primary: #1f63e6;
+    scroll-behavior: smooth;
+}
+
+body.qr-landing.calserver-theme:not(.high-contrast) {
+    --qr-landing-primary: var(--calserver-primary);
+    --qr-hero-grad-start: #0b101a;
+    --qr-hero-grad-end: color-mix(in oklab, var(--calserver-primary) 70%, #0b101a 30%);
+    --qr-hero-gradient: linear-gradient(
+        135deg,
+        var(--qr-hero-grad-start) 0%,
+        color-mix(in oklab, var(--calserver-primary) 55%, #111827 45%) 100%
+    );
+}
+
+body.qr-landing.calserver-theme:not(.high-contrast) .hero-bg-calserver {
+    background:
+        radial-gradient(
+            580px 360px at 0% 0%,
+            color-mix(in oklab, var(--calserver-primary) 40%, transparent),
+            transparent
+        ),
+        radial-gradient(
+            520px 320px at 100% 0%,
+            color-mix(in oklab, var(--calserver-primary) 30%, transparent),
+            transparent
+        ),
+        var(--qr-hero-gradient);
+    background-color: var(--qr-hero-grad-start);
+}
+
+body.qr-landing.calserver-theme .hero-list li {
+    color: var(--qr-muted);
+}
+
+body.qr-landing.calserver-theme .pill {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+body.qr-landing.calserver-theme .pill--soft {
+    background: color-mix(in oklab, var(--calserver-primary) 15%, transparent);
+    color: var(--qr-landing-primary);
+}
+
+body.qr-landing.calserver-theme .pill--accent {
+    background: var(--qr-card);
+    color: var(--qr-landing-primary);
+    box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.45);
+}
+
+body.qr-landing.calserver-theme .pill--badge {
+    background: rgba(255, 255, 255, 0.86);
+    color: color-mix(in oklab, var(--calserver-primary) 70%, #0c1a3a 30%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+body.qr-landing.calserver-theme .shadow-soft {
+    box-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.35),
+        0 12px 24px -18px rgba(15, 23, 42, 0.25);
+    border-radius: 18px;
+}
+
+body.qr-landing.calserver-theme .badge-card {
+    padding: 14px 12px;
+    border-radius: 12px;
+    background: var(--qr-card);
+    box-shadow: 0 10px 26px -20px rgba(15, 23, 42, 0.45);
+    font-weight: 600;
+}
+
+body.qr-landing.calserver-theme .logo-chip {
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 12px;
+    padding: 18px 12px;
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+body.qr-landing.calserver-theme .muted {
+    color: color-mix(in oklab, var(--qr-text) 60%, var(--qr-bg) 40%);
+}
+
+body.qr-landing.calserver-theme .quick-cta {
+    border-radius: 18px;
+    background: color-mix(in oklab, var(--calserver-primary) 10%, transparent);
+    padding: 24px 32px;
+}
+
+body.qr-landing.calserver-theme .uk-card-hover {
+    transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+body.qr-landing.calserver-theme .uk-card-hover:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 48px -28px rgba(15, 23, 42, 0.45);
+}
+
+body.qr-landing.calserver-theme .scenario-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin: 32px 0 24px;
+    padding: 0;
+    list-style: none;
+}
+
+body.qr-landing.calserver-theme .scenario-cloud li a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--calserver-primary) 12%, transparent);
+    color: var(--qr-landing-primary);
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 180ms ease, color 180ms ease,
+        box-shadow 180ms ease;
+}
+
+body.qr-landing.calserver-theme .scenario-cloud li a:hover,
+body.qr-landing.calserver-theme .scenario-cloud li a:focus {
+    background: var(--qr-landing-primary);
+    color: #fff;
+    box-shadow: 0 12px 24px -18px rgba(31, 99, 230, 0.85);
+}
+
+body.qr-landing.calserver-theme .feature-usecase-slider .uk-card {
+    min-height: 270px;
+}
+
+body.qr-landing.calserver-theme .testimonial-card {
+    min-height: 240px;
+}
+
+@media (max-width: 959px) {
+    body.qr-landing.calserver-theme .quick-cta {
+        padding: 20px;
+    }
+}
