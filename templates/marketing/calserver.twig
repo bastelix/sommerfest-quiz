@@ -148,8 +148,8 @@
     <section class="qr-hero uk-section uk-section-large">
       <div class="qr-hero-bg hero-bg-calserver" aria-hidden="true"></div>
       <div class="uk-container">
-        <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle" uk-grid>
-          <div uk-scrollspy="cls: uk-animation-slide-left-small; repeat: true">
+        <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle calserver-hero-grid" uk-grid>
+          <div class="calserver-hero-grid__content" uk-scrollspy="cls: uk-animation-slide-left-small; repeat: true">
             <span class="qr-badge pill pill--soft">Software Hosted in Germany</span>
             <h1 class="qr-h1">Mehr Überblick, weniger Aufwand mit calServer.</h1>
             <p class="qr-sub">Geräte, Termine und Dokumente – organisiert an einem Ort. calServer strukturiert die
@@ -173,18 +173,29 @@
               <span>Unbegrenzte Nutzer:innen · Flexible Rollenmodelle · Tägliche Datensicherung</span>
             </div>
           </div>
-          <div uk-scrollspy="cls: uk-animation-slide-right-small; repeat: true">
-            <div class="uk-card uk-card-default uk-card-body uk-text-center shadow-soft uk-position-relative">
-              <span class="pill pill--accent uk-position-absolute uk-position-top-right uk-margin-small">Live-Vorschau</span>
-              <div class="uk-cover-container uk-border-rounded uk-overflow-hidden uk-height-medium">
+          <div class="calserver-hero-grid__media" uk-scrollspy="cls: uk-animation-slide-right-small; repeat: true">
+            <div class="calserver-hero-video">
+              <span class="pill pill--accent calserver-hero-video__badge">Live-Vorschau</span>
+              <div class="calserver-hero-video__frame">
                 <iframe src="https://www.youtube-nocookie.com/embed/ovHo2SF84u0"
                         title="calServer Vorstellung"
                         loading="lazy"
-                        allowfullscreen
-                        uk-responsive
-                        class="uk-cover"></iframe>
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen></iframe>
               </div>
-              <p class="uk-margin-small-top muted">Schnelle Suche · Klare Tabellen · Intuitive Workflows</p>
+              <div class="calserver-hero-video__meta">
+                <div class="calserver-hero-video__meta-text">
+                  <strong>calServer Vorstellung</strong>
+                  <span>In 3 Minuten durch die wichtigsten Funktionen.</span>
+                </div>
+                <a class="calserver-hero-video__link"
+                   href="https://www.youtube.com/watch?v=ovHo2SF84u0"
+                   target="_blank"
+                   rel="noopener">
+                  <span class="uk-margin-small-right" uk-icon="icon: play-circle"></span>Auf YouTube ansehen
+                </a>
+              </div>
+              <p class="calserver-hero-video__footnote">Schnelle Suche · Klare Tabellen · Intuitive Workflows</p>
             </div>
           </div>
         </div>
