@@ -323,29 +323,51 @@
           </div>
         </div>
 
-        <ol class="trust-story uk-grid uk-child-width-1-1@s uk-child-width-1-3@m" uk-grid aria-label="So begleitet calServer dein Team">
-          <li class="trust-story__step">
-            <div class="trust-story__number" aria-hidden="true">1</div>
-            <h3 class="trust-story__title">Alle Geräte auf einen Blick</h3>
-            <p class="trust-story__text">
-              Importiere Bestandslisten oder starte direkt im Browser. calServer sammelt Stammdaten, Dokumente und Verantwortlichkeiten an einem Ort, damit nichts verloren geht.
-            </p>
-          </li>
-          <li class="trust-story__step">
-            <div class="trust-story__number" aria-hidden="true">2</div>
-            <h3 class="trust-story__title">Fristen melden sich von selbst</h3>
-            <p class="trust-story__text">
-              Erinnerungen, Eskalationspfade und mobile Checklisten halten dein Team auf Kurs. Jede Person sieht sofort, welche Prüfaufträge heute wichtig sind.
-            </p>
-          </li>
-          <li class="trust-story__step">
-            <div class="trust-story__number" aria-hidden="true">3</div>
-            <h3 class="trust-story__title">Auditbereit – jederzeit</h3>
-            <p class="trust-story__text">
-              Nachweise, Zertifikate und Gerätehistorien liegen revisionssicher bereit. Mit Hosting in Deutschland und täglichen Backups bist du auf Kontrollen vorbereitet.
-            </p>
-          </li>
-        </ol>
+        {% set trust_steps = [
+          {
+            'slug': 'devices',
+            'title': 'Alle Geräte auf einen Blick',
+            'text': 'Importiere Bestandslisten oder starte direkt im Browser. calServer sammelt Stammdaten, Dokumente und Verantwortlichkeiten an einem Ort, damit nichts verloren geht.',
+            'icon': 'database'
+          },
+          {
+            'slug': 'deadlines',
+            'title': 'Fristen melden sich von selbst',
+            'text': 'Erinnerungen, Eskalationspfade und mobile Checklisten halten dein Team auf Kurs. Jede Person sieht sofort, welche Prüfaufträge heute wichtig sind.',
+            'icon': 'bell'
+          },
+          {
+            'slug': 'audit',
+            'title': 'Auditbereit – jederzeit',
+            'text': 'Nachweise, Zertifikate und Gerätehistorien liegen revisionssicher bereit. Mit Hosting in Deutschland und täglichen Backups bist du auf Kontrollen vorbereitet.',
+            'icon': 'shield'
+          }
+        ] %}
+
+        <div class="trust-story trust-story--timeline" role="list" aria-label="So begleitet calServer dein Team">
+          {% for step in trust_steps %}
+            {% set step_id = 'trust-step-' ~ step.slug %}
+            {% set desc_id = step_id ~ '-description' %}
+            <article class="trust-story__step" role="listitem" tabindex="0" aria-labelledby="{{ step_id }}" aria-describedby="{{ desc_id }}">
+              <div class="trust-story__marker" aria-hidden="true">
+                <span class="trust-story__connector trust-story__connector--before"></span>
+                <span class="trust-story__badge" data-step-index="{{ loop.index }}">
+                  {% if step.icon %}
+                    <span class="trust-story__badge-icon" aria-hidden="true" uk-icon="icon: {{ step.icon }}"></span>
+                  {% endif %}
+                  <span class="trust-story__sr">Schritt {{ loop.index }}</span>
+                </span>
+                <span class="trust-story__connector trust-story__connector--after"></span>
+              </div>
+              <div class="trust-story__content">
+                <h3 id="{{ step_id }}" class="trust-story__title">{{ step.title }}</h3>
+                <p id="{{ desc_id }}" class="trust-story__text">
+                  {{ step.text }}
+                </p>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
 
         <div class="trust-story__closing uk-grid uk-grid-large uk-flex-middle" uk-grid>
           <div class="uk-width-1-1 uk-width-expand@m">

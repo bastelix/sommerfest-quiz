@@ -628,68 +628,184 @@ body.qr-landing.calserver-theme .calserver-logo-marquee__item img {
 }
 
 body.qr-landing.calserver-theme #trust {
-    --trust-step-accent: color-mix(in oklab, var(--calserver-primary) 18%, rgba(16, 35, 71, 0.32));
+    --trust-step-accent: color-mix(in oklab, var(--calserver-primary) 72%, var(--qr-text) 28%);
+    --trust-axis-color: color-mix(in oklab, var(--trust-step-accent) 45%, var(--qr-bg) 55%);
+    --trust-step-marker-bg: color-mix(in oklab, var(--qr-bg) 78%, var(--trust-step-accent) 22%);
+    --trust-step-marker-icon: color-mix(in oklab, var(--trust-step-accent) 72%, var(--qr-text) 28%);
+    --trust-step-surface: color-mix(in oklab, var(--qr-card) 18%, transparent 82%);
+    --trust-step-surface-hover: color-mix(in oklab, var(--trust-step-marker-bg) 30%, var(--trust-step-surface) 70%);
 }
 
 body.qr-landing.calserver-theme #trust .trust-story {
+    position: relative;
     list-style: none;
-    margin: 40px 0 0;
+    margin: 44px 0 0;
     padding: 0;
-    row-gap: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
 }
 
 body.qr-landing.calserver-theme #trust .trust-story__lead {
     margin: 12px 0 0;
     font-size: 1.1rem;
     line-height: 1.7;
-    color: color-mix(in oklab, var(--qr-text) 72%, var(--qr-bg) 28%);
+    color: color-mix(in oklab, var(--qr-text) 78%, var(--qr-bg) 22%);
 }
 
 body.qr-landing.calserver-theme #trust .trust-story__step {
-    background: var(--qr-card);
-    border-radius: 20px;
-    padding: 28px 24px;
-    box-shadow: 0 24px 44px -30px rgba(15, 23, 42, 0.55);
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    min-height: 100%;
     position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 72px) minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+    padding: 8px 0;
+    border-radius: 20px;
+    outline: none;
+    scroll-margin: 96px;
+    transition: color 220ms ease;
 }
 
-body.qr-landing.calserver-theme #trust .trust-story__number {
-    align-self: flex-start;
-    display: inline-flex;
+body.qr-landing.calserver-theme #trust .trust-story__marker {
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.125rem;
-    color: var(--qr-text);
-    background: var(--trust-step-accent);
-    border: 1px solid color-mix(in oklab, var(--calserver-primary) 42%, transparent);
+    gap: 14px;
+    min-width: 64px;
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__connector {
+    width: 2px;
+    flex: 1 1 24px;
+    min-height: 24px;
+    background: var(--trust-axis-color);
     border-radius: 999px;
-    min-width: 44px;
-    min-height: 44px;
+    transition: background 220ms ease;
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__step:first-child .trust-story__connector--before,
+body.qr-landing.calserver-theme #trust .trust-story__step:last-child .trust-story__connector--after {
+    display: none;
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__badge {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 999px;
+    background: var(--trust-step-marker-bg);
+    border: 2px solid color-mix(in oklab, var(--trust-step-accent) 80%, transparent);
+    color: var(--trust-step-marker-icon);
+    transition: transform 220ms ease, background 220ms ease, border-color 220ms ease, color 220ms ease;
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__badge::after {
+    content: attr(data-step-index);
+    position: absolute;
+    inset-inline-end: -8px;
+    inset-block-end: -8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--trust-step-accent) 75%, var(--qr-bg) 25%);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 0 0 2px var(--qr-bg);
+    transition: background 220ms ease, color 220ms ease, box-shadow 220ms ease;
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__badge-icon {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    color: inherit;
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__badge-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__content {
+    background: var(--trust-step-surface);
+    border-radius: 18px;
+    padding: 18px 22px;
+    border: 1px solid color-mix(in oklab, var(--qr-text) 12%, transparent);
+    transition: background 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
 }
 
 body.qr-landing.calserver-theme #trust .trust-story__title {
-    margin: 0;
+    margin: 0 0 12px;
     font-size: 1.35rem;
     line-height: 1.35;
 }
 
 body.qr-landing.calserver-theme #trust .trust-story__text {
     margin: 0;
-    color: color-mix(in oklab, var(--qr-text) 70%, var(--qr-bg) 30%);
-    line-height: 1.6;
+    color: color-mix(in oklab, var(--qr-text) 74%, var(--qr-bg) 26%);
+    line-height: 1.65;
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__step:hover .trust-story__content,
+body.qr-landing.calserver-theme #trust .trust-story__step:focus-visible .trust-story__content,
+body.qr-landing.calserver-theme #trust .trust-story__step:focus-within .trust-story__content {
+    background: var(--trust-step-surface-hover);
+    border-color: color-mix(in oklab, var(--trust-step-accent) 65%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--trust-step-accent) 45%, transparent);
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__step:hover .trust-story__badge,
+body.qr-landing.calserver-theme #trust .trust-story__step:focus-visible .trust-story__badge,
+body.qr-landing.calserver-theme #trust .trust-story__step:focus-within .trust-story__badge {
+    background: color-mix(in oklab, var(--trust-step-marker-bg) 40%, var(--trust-step-accent) 60%);
+    border-color: color-mix(in oklab, var(--trust-step-accent) 80%, #ffffff 20%);
+    color: color-mix(in oklab, #ffffff 70%, var(--trust-step-marker-icon) 30%);
+    transform: translateY(-2px);
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__step:hover .trust-story__badge::after,
+body.qr-landing.calserver-theme #trust .trust-story__step:focus-visible .trust-story__badge::after,
+body.qr-landing.calserver-theme #trust .trust-story__step:focus-within .trust-story__badge::after {
+    background: color-mix(in oklab, var(--trust-step-accent) 88%, var(--qr-bg) 12%);
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--qr-bg) 85%, transparent 15%);
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__step:hover .trust-story__connector,
+body.qr-landing.calserver-theme #trust .trust-story__step:focus-visible .trust-story__connector,
+body.qr-landing.calserver-theme #trust .trust-story__step:focus-within .trust-story__connector {
+    background: color-mix(in oklab, var(--trust-step-accent) 65%, transparent);
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__step:focus-visible {
+    outline: 3px solid color-mix(in oklab, var(--trust-step-accent) 68%, transparent);
+    outline-offset: 10px;
 }
 
 body.qr-landing.calserver-theme #trust .trust-story__closing {
-    background: color-mix(in oklab, var(--qr-card) 85%, var(--calserver-primary) 15%);
+    background: color-mix(in oklab, var(--qr-card) 88%, var(--calserver-primary) 12%);
     border-radius: 24px;
     padding: 36px 40px;
     margin-top: 52px;
-    box-shadow: 0 28px 46px -32px rgba(15, 23, 42, 0.55);
+    box-shadow: none;
+    border: 1px solid color-mix(in oklab, var(--trust-step-accent) 35%, transparent);
 }
 
 body.qr-landing.calserver-theme #trust .trust-story__closing-title {
@@ -719,6 +835,125 @@ body.qr-landing.calserver-theme #trust .trust-story__cta-group .btn {
     text-align: center;
 }
 
+body.high-contrast #trust,
+body[data-theme="dark"].high-contrast #trust {
+    --trust-step-surface: transparent;
+    --trust-step-surface-hover: rgba(0, 0, 0, 0.08);
+    --trust-axis-color: currentColor;
+    --trust-step-marker-bg: transparent;
+    --trust-step-marker-icon: currentColor;
+}
+
+body[data-theme="dark"].high-contrast #trust {
+    --trust-step-surface-hover: rgba(255, 255, 255, 0.1);
+}
+
+body.high-contrast #trust .trust-story__badge,
+body[data-theme="dark"].high-contrast #trust .trust-story__badge {
+    border-color: currentColor;
+}
+
+body.high-contrast #trust .trust-story__badge::after {
+    background: #000000;
+    color: #ffffff;
+    box-shadow: none;
+}
+
+body[data-theme="dark"].high-contrast #trust .trust-story__badge::after {
+    background: #ffffff;
+    color: #000000;
+}
+
+body.high-contrast #trust .trust-story__connector,
+body[data-theme="dark"].high-contrast #trust .trust-story__connector {
+    background: currentColor;
+}
+
+body.high-contrast #trust .trust-story__step:focus-visible,
+body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-visible {
+    outline-color: currentColor;
+}
+
+body.high-contrast #trust .trust-story__content,
+body[data-theme="dark"].high-contrast #trust .trust-story__content {
+    border-color: currentColor;
+    box-shadow: none;
+}
+
+body.high-contrast #trust .trust-story__step:hover .trust-story__badge,
+body.high-contrast #trust .trust-story__step:focus-visible .trust-story__badge,
+body.high-contrast #trust .trust-story__step:focus-within .trust-story__badge,
+body[data-theme="dark"].high-contrast #trust .trust-story__step:hover .trust-story__badge,
+body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-visible .trust-story__badge,
+body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-within .trust-story__badge {
+    background: transparent;
+    color: currentColor;
+    transform: none;
+}
+
+body.high-contrast #trust .trust-story__step:hover .trust-story__badge::after,
+body.high-contrast #trust .trust-story__step:focus-visible .trust-story__badge::after,
+body.high-contrast #trust .trust-story__step:focus-within .trust-story__badge::after {
+    background: #000000;
+    color: #ffffff;
+}
+
+body[data-theme="dark"].high-contrast #trust .trust-story__step:hover .trust-story__badge::after,
+body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-visible .trust-story__badge::after,
+body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-within .trust-story__badge::after {
+    background: #ffffff;
+    color: #000000;
+}
+
+body.high-contrast #trust .trust-story__step:hover .trust-story__connector,
+body.high-contrast #trust .trust-story__step:focus-visible .trust-story__connector,
+body.high-contrast #trust .trust-story__step:focus-within .trust-story__connector,
+body[data-theme="dark"].high-contrast #trust .trust-story__step:hover .trust-story__connector,
+body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-visible .trust-story__connector,
+body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-within .trust-story__connector {
+    background: currentColor;
+}
+
+@media (min-width: 960px) {
+    body.qr-landing.calserver-theme #trust .trust-story {
+        flex-direction: row;
+        align-items: stretch;
+        gap: 40px;
+    }
+
+    body.qr-landing.calserver-theme #trust .trust-story__step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        text-align: center;
+        gap: 24px;
+        padding: 16px 12px 24px;
+    }
+
+    body.qr-landing.calserver-theme #trust .trust-story__marker {
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        gap: 18px;
+    }
+
+    body.qr-landing.calserver-theme #trust .trust-story__connector {
+        min-height: 2px;
+        height: 2px;
+        width: 100%;
+    }
+
+    body.qr-landing.calserver-theme #trust .trust-story__content {
+        max-width: 360px;
+    }
+
+    body.qr-landing.calserver-theme #trust .trust-story__title {
+        margin: 0 0 10px;
+    }
+}
+
 @media (max-width: 1200px) {
     body.qr-landing.calserver-theme #trust .trust-story__closing {
         padding: 32px;
@@ -727,11 +962,29 @@ body.qr-landing.calserver-theme #trust .trust-story__cta-group .btn {
 
 @media (max-width: 959px) {
     body.qr-landing.calserver-theme #trust .trust-story {
-        margin-top: 32px;
+        margin-top: 36px;
+        gap: 32px;
     }
 
     body.qr-landing.calserver-theme #trust .trust-story__step {
-        padding: 24px 20px;
+        grid-template-columns: minmax(0, 60px) minmax(0, 1fr);
+        gap: 18px;
+        padding: 4px 0;
+    }
+
+    body.qr-landing.calserver-theme #trust .trust-story__badge {
+        width: 54px;
+        height: 54px;
+    }
+
+    body.qr-landing.calserver-theme #trust .trust-story__badge::after {
+        width: 24px;
+        height: 24px;
+        font-size: 0.8rem;
+    }
+
+    body.qr-landing.calserver-theme #trust .trust-story__content {
+        padding: 16px 18px;
     }
 
     body.qr-landing.calserver-theme #trust .trust-story__closing {
@@ -744,13 +997,12 @@ body.qr-landing.calserver-theme #trust .trust-story__cta-group .btn {
         font-size: 1rem;
     }
 
-    body.qr-landing.calserver-theme #trust .trust-story__number {
-        min-width: 40px;
-        min-height: 40px;
-    }
-
     body.qr-landing.calserver-theme #trust .trust-story__title {
         font-size: 1.2rem;
+    }
+
+    body.qr-landing.calserver-theme #trust .trust-story__text {
+        font-size: 1rem;
     }
 
     body.qr-landing.calserver-theme #trust .trust-story__cta-group {
