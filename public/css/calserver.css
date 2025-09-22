@@ -246,52 +246,136 @@ body.qr-landing.calserver-theme .calserver-logo-marquee__item img {
     }
 }
 
-body.qr-landing.calserver-theme #trust .uk-card {
-    border-radius: 14px;
-    box-shadow: 0 18px 38px -28px rgba(15, 23, 42, 0.45);
+body.qr-landing.calserver-theme #trust {
+    --trust-step-accent: color-mix(in oklab, var(--calserver-primary) 18%, rgba(16, 35, 71, 0.32));
+}
+
+body.qr-landing.calserver-theme #trust .trust-story {
+    list-style: none;
+    margin: 40px 0 0;
+    padding: 0;
+    row-gap: 28px;
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__lead {
+    margin: 12px 0 0;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: color-mix(in oklab, var(--qr-text) 72%, var(--qr-bg) 28%);
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__step {
     background: var(--qr-card);
-    color: var(--qr-text);
-}
-
-body.qr-landing.calserver-theme #trust .uk-card-default {
-    border: 1px solid rgba(15, 23, 42, 0.08);
-}
-
-body.qr-landing.calserver-theme #trust .uk-card-default .uk-card-body {
-    padding: 18px 12px;
-}
-
-body.qr-landing.calserver-theme #trust .trust-logo {
-    max-height: 40px;
-    width: auto;
-    display: inline-block;
-    filter: drop-shadow(0 4px 8px rgba(15, 23, 42, 0.12));
-}
-
-body.qr-landing.calserver-theme #trust .kpi {
-    min-height: 120px;
+    border-radius: 20px;
+    padding: 28px 24px;
+    box-shadow: 0 24px 44px -30px rgba(15, 23, 42, 0.55);
     display: flex;
     flex-direction: column;
+    gap: 16px;
+    min-height: 100%;
+    position: relative;
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__number {
+    align-self: flex-start;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--qr-text);
+    background: var(--trust-step-accent);
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 42%, transparent);
+    border-radius: 999px;
+    min-width: 44px;
+    min-height: 44px;
 }
 
-body.qr-landing.calserver-theme #trust .kpi .uk-text-bold {
-    color: var(--qr-landing-primary);
+body.qr-landing.calserver-theme #trust .trust-story__title {
+    margin: 0;
+    font-size: 1.35rem;
+    line-height: 1.35;
 }
 
-body.qr-landing.calserver-theme #trust .trust-badge {
-    padding: 16px 14px;
-    border-radius: 14px;
-    background: var(--qr-card);
-    box-shadow: 0 16px 32px -26px rgba(15, 23, 42, 0.45);
-    font-weight: 600;
+body.qr-landing.calserver-theme #trust .trust-story__text {
+    margin: 0;
+    color: color-mix(in oklab, var(--qr-text) 70%, var(--qr-bg) 30%);
+    line-height: 1.6;
 }
 
-body.qr-landing.calserver-theme #trust .testimonial-card {
-    background: color-mix(in oklab, var(--calserver-primary) 22%, #102347 78%);
-    border: 1px solid color-mix(in oklab, var(--calserver-primary) 38%, transparent);
+body.qr-landing.calserver-theme #trust .trust-story__closing {
+    background: color-mix(in oklab, var(--qr-card) 85%, var(--calserver-primary) 15%);
+    border-radius: 24px;
+    padding: 36px 40px;
+    margin-top: 52px;
+    box-shadow: 0 28px 46px -32px rgba(15, 23, 42, 0.55);
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__closing-title {
+    margin: 0 0 12px;
+    font-size: 1.6rem;
+    line-height: 1.4;
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__closing-text {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: color-mix(in oklab, var(--qr-text) 78%, var(--qr-bg) 22%);
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__cta-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: flex-start;
+}
+
+body.qr-landing.calserver-theme #trust .trust-story__cta-group .uk-button,
+body.qr-landing.calserver-theme #trust .trust-story__cta-group .btn {
+    flex: 1 1 auto;
+    min-width: 180px;
+    text-align: center;
+}
+
+@media (max-width: 1200px) {
+    body.qr-landing.calserver-theme #trust .trust-story__closing {
+        padding: 32px;
+    }
+}
+
+@media (max-width: 959px) {
+    body.qr-landing.calserver-theme #trust .trust-story {
+        margin-top: 32px;
+    }
+
+    body.qr-landing.calserver-theme #trust .trust-story__step {
+        padding: 24px 20px;
+    }
+
+    body.qr-landing.calserver-theme #trust .trust-story__closing {
+        margin-top: 44px;
+    }
+}
+
+@media (max-width: 640px) {
+    body.qr-landing.calserver-theme #trust .trust-story__lead {
+        font-size: 1rem;
+    }
+
+    body.qr-landing.calserver-theme #trust .trust-story__number {
+        min-width: 40px;
+        min-height: 40px;
+    }
+
+    body.qr-landing.calserver-theme #trust .trust-story__title {
+        font-size: 1.2rem;
+    }
+
+    body.qr-landing.calserver-theme #trust .trust-story__cta-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
 }
 
 body.qr-landing.calserver-theme .muted {
