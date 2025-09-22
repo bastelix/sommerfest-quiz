@@ -178,6 +178,28 @@ body.qr-landing.calserver-theme .feature-slider__card {
     transition: transform 220ms ease, box-shadow 220ms ease;
 }
 
+body.qr-landing.calserver-theme .feature-slider__card p {
+    color: var(--qr-muted);
+}
+
+body.qr-landing.calserver-theme .feature-slider__card.uk-card-primary {
+    background: color-mix(in oklab, var(--calserver-primary) 18%, var(--qr-card) 82%) !important;
+    border-color: color-mix(in oklab, var(--calserver-primary) 35%, transparent);
+    color: var(--qr-text) !important;
+}
+
+body.qr-landing.calserver-theme .feature-slider__card.uk-card-primary .uk-card-title {
+    color: var(--qr-text) !important;
+}
+
+body.qr-landing.calserver-theme .feature-slider__card.uk-card-primary p {
+    color: var(--qr-muted) !important;
+}
+
+body.qr-landing.calserver-theme .feature-slider__card.uk-card-primary li {
+    color: var(--qr-text) !important;
+}
+
 body.qr-landing.calserver-theme .feature-slider__item.uk-current .feature-slider__card {
     transform: scale(1.04);
     box-shadow: 0 22px 48px -32px rgba(15, 23, 42, 0.45);
