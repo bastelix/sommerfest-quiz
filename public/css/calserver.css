@@ -90,6 +90,144 @@ body.qr-landing.calserver-theme .shadow-soft {
     border-radius: 18px;
 }
 
+body.qr-landing.calserver-theme .calserver-highlight {
+    position: relative;
+    padding: 32px 0 28px;
+    background: color-mix(in oklab, var(--calserver-primary) 12%, var(--qr-card) 88%);
+    border-top: 1px solid color-mix(in oklab, var(--calserver-primary) 22%, transparent);
+    border-bottom: 1px solid color-mix(in oklab, var(--calserver-primary) 14%, transparent);
+    overflow: hidden;
+    z-index: 0;
+}
+
+body.qr-landing.calserver-theme .calserver-highlight::before,
+body.qr-landing.calserver-theme .calserver-highlight::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 160px;
+    pointer-events: none;
+    background: linear-gradient(
+        90deg,
+        color-mix(in oklab, var(--calserver-primary) 16%, transparent) 0%,
+        transparent 100%
+    );
+    z-index: 0;
+}
+
+body.qr-landing.calserver-theme .calserver-highlight::before {
+    left: 0;
+}
+
+body.qr-landing.calserver-theme .calserver-highlight::after {
+    right: 0;
+    transform: scaleX(-1);
+}
+
+body.qr-landing.calserver-theme .calserver-stats-strip {
+    display: grid;
+    gap: 18px;
+    position: relative;
+    z-index: 1;
+}
+
+@media (min-width: 640px) {
+    body.qr-landing.calserver-theme .calserver-stats-strip {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+body.qr-landing.calserver-theme .calserver-stats-strip__item {
+    padding: 18px 20px;
+    border-radius: 18px;
+    background: color-mix(in oklab, var(--calserver-primary) 12%, transparent);
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 30%, transparent);
+    box-shadow: 0 18px 34px -28px rgba(15, 23, 42, 0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 120px;
+}
+
+body.qr-landing.calserver-theme .calserver-stats-strip__value {
+    font-size: clamp(2rem, 2.2vw + 1.2rem, 3rem);
+    font-weight: 700;
+    color: var(--qr-landing-primary);
+    letter-spacing: -0.01em;
+}
+
+body.qr-landing.calserver-theme .calserver-stats-strip__label {
+    color: var(--qr-muted);
+    font-size: 0.95rem;
+    line-height: 1.35;
+}
+
+body.qr-landing.calserver-theme .calserver-logo-marquee {
+    margin-top: 34px;
+    position: relative;
+    overflow: hidden;
+    padding: 6px 0;
+}
+
+body.qr-landing.calserver-theme .calserver-logo-marquee::before,
+body.qr-landing.calserver-theme .calserver-logo-marquee::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    pointer-events: none;
+    z-index: 1;
+    background: linear-gradient(90deg, var(--qr-card), transparent);
+}
+
+body.qr-landing.calserver-theme .calserver-logo-marquee::before {
+    left: 0;
+}
+
+body.qr-landing.calserver-theme .calserver-logo-marquee::after {
+    right: 0;
+    transform: scaleX(-1);
+}
+
+body.qr-landing.calserver-theme .calserver-logo-marquee__track {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    animation: calserver-marquee 26s linear infinite;
+}
+
+body.qr-landing.calserver-theme .calserver-logo-marquee__item {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 130px;
+    opacity: 0.88;
+}
+
+body.qr-landing.calserver-theme .calserver-logo-marquee__item img {
+    max-height: 40px;
+    width: auto;
+    filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.25));
+}
+
+@keyframes calserver-marquee {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.qr-landing.calserver-theme .calserver-logo-marquee__track {
+        animation: none;
+    }
+}
+
 body.qr-landing.calserver-theme #trust .uk-card {
     border-radius: 14px;
     box-shadow: 0 18px 38px -28px rgba(15, 23, 42, 0.45);

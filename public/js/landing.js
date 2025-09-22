@@ -97,3 +97,76 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = url.toString();
   }));
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const counters = document.querySelectorAll('[data-counter-target]');
+  if (!counters.length) return;
+
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const locale = document.documentElement.lang?.toLowerCase().startsWith('en') ? 'en-US' : 'de-DE';
+
+  const formatValue = (value, decimals) => new Intl.NumberFormat(locale, {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals
+  }).format(value);
+
+  const setFinalValue = (el) => {
+    const target = Number(el.dataset.counterTarget);
+    if (!Number.isFinite(target)) return;
+    const decimals = Number(el.dataset.counterDecimals ?? 0) || 0;
+    const prefix = el.dataset.counterPrefix ?? '';
+    const suffix = el.dataset.counterSuffix ?? '';
+    el.textContent = `${prefix}${formatValue(target, decimals)}${suffix}`;
+  };
+
+  const animateCounter = (el) => {
+    const target = Number(el.dataset.counterTarget);
+    if (!Number.isFinite(target)) return;
+
+    const duration = Number(el.dataset.counterDuration ?? 0) || 1500;
+    const decimals = Number(el.dataset.counterDecimals ?? 0) || 0;
+    const prefix = el.dataset.counterPrefix ?? '';
+    const suffix = el.dataset.counterSuffix ?? '';
+    const startValue = Number(el.dataset.counterStart ?? 0) || 0;
+    const diff = target - startValue;
+    let start = null;
+
+    el.textContent = `${prefix}${formatValue(startValue, decimals)}${suffix}`;
+
+    const step = (timestamp) => {
+      if (start === null) start = timestamp;
+      const progress = Math.min((timestamp - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = startValue + diff * eased;
+      el.textContent = `${prefix}${formatValue(current, decimals)}${suffix}`;
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+
+    window.requestAnimationFrame(step);
+  };
+
+  if (prefersReduced) {
+    counters.forEach(setFinalValue);
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      animateCounter(el);
+      setTimeout(() => setFinalValue(el), Number(el.dataset.counterDuration ?? 0) || 1500);
+      obs.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+
+  counters.forEach((counter) => {
+    if (counter.dataset.counterInstant === 'true') {
+      setFinalValue(counter);
+    } else {
+      observer.observe(counter);
+    }
+  });
+});
