@@ -388,6 +388,33 @@ body.qr-landing .site-footer {
 body.dark-mode .qr-landing .qr-topbar{
   background: linear-gradient(180deg, rgba(13,17,23,0.8) 0%, rgba(22,27,34,0.8) 100%);
 }
+.qr-landing .qr-topbar .uk-navbar-container,
+.qr-landing .qr-topbar .uk-navbar-right{
+  display:flex;
+  align-items:center;
+  flex-wrap:nowrap;
+  gap:12px;
+}
+.qr-landing .qr-topbar .uk-navbar-right{
+  flex:1 1 auto;
+  min-width:0;
+  justify-content:flex-end;
+}
+.qr-landing .qr-topbar .uk-navbar-right .uk-navbar-nav{
+  display:flex;
+  flex:1 1 auto;
+  min-width:0;
+  flex-wrap:nowrap;
+  justify-content:flex-end;
+  gap:8px;
+}
+.qr-landing .qr-topbar .uk-navbar-right .uk-navbar-nav>li{
+  flex:0 0 auto;
+}
+.qr-landing .qr-topbar .top-cta,
+.qr-landing .qr-topbar .config-menu{
+  flex:0 0 auto;
+}
 .qr-landing .qr-topbar .uk-navbar-nav>li>a{
   color:var(--qr-text)!important;
   font-weight:500;
