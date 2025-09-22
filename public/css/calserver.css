@@ -105,39 +105,44 @@ body.qr-landing.calserver-theme .uk-card-hover:hover {
     box-shadow: 0 22px 48px -28px rgba(15, 23, 42, 0.45);
 }
 
-body.qr-landing.calserver-theme .scenario-cloud {
+body.qr-landing.calserver-theme .feature-nav {
+    margin: 0 auto 12px;
+    max-width: 1024px;
+}
+
+body.qr-landing.calserver-theme .feature-nav__list {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
     justify-content: center;
-    margin: 32px 0 24px;
+    margin: 0;
     padding: 0;
     list-style: none;
 }
 
-body.qr-landing.calserver-theme .scenario-cloud li a {
+body.qr-landing.calserver-theme .feature-nav__pill {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 10px 18px;
     border-radius: 999px;
-    background: color-mix(in oklab, var(--calserver-primary) 12%, transparent);
+    background: color-mix(in oklab, var(--calserver-primary) 10%, transparent);
     color: var(--qr-landing-primary);
     font-weight: 600;
+    letter-spacing: 0.01em;
     text-decoration: none;
+    box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.3) inset,
+        0 14px 28px -24px rgba(31, 99, 230, 0.9);
     transition: background-color 180ms ease, color 180ms ease,
-        box-shadow 180ms ease;
+        transform 180ms ease, box-shadow 180ms ease;
 }
 
-body.qr-landing.calserver-theme .scenario-cloud li a:hover,
-body.qr-landing.calserver-theme .scenario-cloud li a:focus {
+body.qr-landing.calserver-theme .feature-nav__pill:hover,
+body.qr-landing.calserver-theme .feature-nav__pill:focus {
     background: var(--qr-landing-primary);
     color: #fff;
-    box-shadow: 0 12px 24px -18px rgba(31, 99, 230, 0.85);
-}
-
-body.qr-landing.calserver-theme .feature-usecase-slider .uk-card {
-    min-height: 270px;
+    transform: translateY(-2px);
+    box-shadow: 0 18px 32px -22px rgba(31, 99, 230, 0.9);
 }
 
 body.qr-landing.calserver-theme .testimonial-card {
