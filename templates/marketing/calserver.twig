@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   <link rel="stylesheet" href="{{ basePath }}/css/onboarding.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.landing.css">
+  <meta name="page-name" content="calServer – Marketingseite">
 {% endblock %}
 
 {% block body_theme %}dark{% endblock %}
@@ -190,6 +191,99 @@
         </div>
       </div>
     </section>
+
+    <section class="calserver-highlight" aria-label="calServer in Zahlen">
+      <div class="uk-container">
+        <div class="calserver-stats-strip" role="list">
+          <div class="calserver-stats-strip__item" role="listitem">
+            <span class="calserver-stats-strip__value"
+                  data-counter-target="1250"
+                  data-counter-duration="1600"
+                  data-counter-suffix="+"
+                  data-counter-start="0">
+              1.250+
+            </span>
+            <span class="calserver-stats-strip__label">Messmittel im Bestand verwaltet</span>
+          </div>
+          <div class="calserver-stats-strip__item" role="listitem">
+            <span class="calserver-stats-strip__value"
+                  data-counter-target="98.7"
+                  data-counter-duration="1800"
+                  data-counter-decimals="1"
+                  data-counter-suffix="%"
+                  data-counter-start="0">
+              98,7%
+            </span>
+            <span class="calserver-stats-strip__label">Zufriedenheit bei Audit-Abnahmen</span>
+          </div>
+          <div class="calserver-stats-strip__item" role="listitem">
+            <span class="calserver-stats-strip__value"
+                  data-counter-target="180"
+                  data-counter-duration="1400"
+                  data-counter-suffix=" Std."
+                  data-counter-start="0">
+              180 Std.
+            </span>
+            <span class="calserver-stats-strip__label">eingesparte Teamstunden pro Monat</span>
+          </div>
+        </div>
+
+        <div class="calserver-logo-marquee"
+             aria-label="Unternehmen, die calServer vertrauen">
+          <div class="calserver-logo-marquee__track">
+            <div class="calserver-logo-marquee__item">
+              <img src="{{ basePath }}/img/calserver/trust/alphalab.svg"
+                   alt="AlphaLab"
+                   loading="lazy">
+            </div>
+            <div class="calserver-logo-marquee__item">
+              <img src="{{ basePath }}/img/calserver/trust/nordwerk.svg"
+                   alt="NordWerk"
+                   loading="lazy">
+            </div>
+            <div class="calserver-logo-marquee__item">
+              <img src="{{ basePath }}/img/calserver/trust/solartec.svg"
+                   alt="SolarTec"
+                   loading="lazy">
+            </div>
+            <div class="calserver-logo-marquee__item">
+              <img src="{{ basePath }}/img/calserver/trust/praezifit.svg"
+                   alt="PräziFit"
+                   loading="lazy">
+            </div>
+            <div class="calserver-logo-marquee__item">
+              <img src="{{ basePath }}/img/calserver/trust/metalliq.svg"
+                   alt="Metall IQ"
+                   loading="lazy">
+            </div>
+            <div class="calserver-logo-marquee__item">
+              <img src="{{ basePath }}/img/calserver/trust/energiepro.svg"
+                   alt="EnergiePro"
+                   loading="lazy">
+            </div>
+
+            <div class="calserver-logo-marquee__item" aria-hidden="true">
+              <img src="{{ basePath }}/img/calserver/trust/alphalab.svg" alt="" loading="lazy">
+            </div>
+            <div class="calserver-logo-marquee__item" aria-hidden="true">
+              <img src="{{ basePath }}/img/calserver/trust/nordwerk.svg" alt="" loading="lazy">
+            </div>
+            <div class="calserver-logo-marquee__item" aria-hidden="true">
+              <img src="{{ basePath }}/img/calserver/trust/solartec.svg" alt="" loading="lazy">
+            </div>
+            <div class="calserver-logo-marquee__item" aria-hidden="true">
+              <img src="{{ basePath }}/img/calserver/trust/praezifit.svg" alt="" loading="lazy">
+            </div>
+            <div class="calserver-logo-marquee__item" aria-hidden="true">
+              <img src="{{ basePath }}/img/calserver/trust/metalliq.svg" alt="" loading="lazy">
+            </div>
+            <div class="calserver-logo-marquee__item" aria-hidden="true">
+              <img src="{{ basePath }}/img/calserver/trust/energiepro.svg" alt="" loading="lazy">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
     <div class="section-divider"></div>
 
     <section id="trust" class="uk-section uk-section-muted">
@@ -200,58 +294,6 @@
           <a class="uk-link-toggle uk-visible@m" href="#usecases">
             <span class="uk-link-text">Mehr Anwendungsfälle</span> <span uk-icon="icon: arrow-right"></span>
           </a>
-        </div>
-
-        <div class="uk-position-relative" tabindex="-1" uk-slider="autoplay: true; autoplay-interval: 2400">
-          <ul class="uk-slider-items uk-child-width-1-3@s uk-child-width-1-6@m uk-grid-small uk-text-center">
-            <li>
-              <div class="uk-card uk-card-default uk-card-body">
-                <img src="{{ basePath }}/img/calserver/trust/alphalab.svg"
-                     class="trust-logo"
-                     alt="AlphaLab" uk-img>
-              </div>
-            </li>
-            <li>
-              <div class="uk-card uk-card-default uk-card-body">
-                <img src="{{ basePath }}/img/calserver/trust/nordwerk.svg"
-                     class="trust-logo"
-                     alt="NordWerk" uk-img>
-              </div>
-            </li>
-            <li>
-              <div class="uk-card uk-card-default uk-card-body">
-                <img src="{{ basePath }}/img/calserver/trust/solartec.svg"
-                     class="trust-logo"
-                     alt="SolarTec" uk-img>
-              </div>
-            </li>
-            <li>
-              <div class="uk-card uk-card-default uk-card-body">
-                <img src="{{ basePath }}/img/calserver/trust/praezifit.svg"
-                     class="trust-logo"
-                     alt="PräziFit" uk-img>
-              </div>
-            </li>
-            <li>
-              <div class="uk-card uk-card-default uk-card-body">
-                <img src="{{ basePath }}/img/calserver/trust/metalliq.svg"
-                     class="trust-logo"
-                     alt="Metall IQ" uk-img>
-              </div>
-            </li>
-            <li>
-              <div class="uk-card uk-card-default uk-card-body">
-                <img src="{{ basePath }}/img/calserver/trust/energiepro.svg"
-                     class="trust-logo"
-                     alt="EnergiePro" uk-img>
-              </div>
-            </li>
-          </ul>
-
-          <a class="uk-position-center-left uk-position-small uk-hidden-hover" href="#" uk-slidenav-previous
-             uk-slider-item="previous" aria-label="Vorheriger Partner"></a>
-          <a class="uk-position-center-right uk-position-small uk-hidden-hover" href="#" uk-slidenav-next
-             uk-slider-item="next" aria-label="Nächster Partner"></a>
         </div>
 
         <div class="uk-grid-large uk-margin-large-top" uk-grid>
