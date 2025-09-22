@@ -192,44 +192,134 @@
     </section>
     <div class="section-divider"></div>
 
-    <section class="uk-section uk-section-muted">
-      <div class="uk-container"
-           uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .anim; delay: 75; repeat: true">
-        <div class="uk-child-width-1-2 uk-child-width-1-5@m uk-grid-small uk-text-center" uk-grid>
-          <div class="anim"><div class="badge-card">Hosting in Deutschland</div></div>
-          <div class="anim"><div class="badge-card">DSGVO-konform</div></div>
-          <div class="anim"><div class="badge-card">Software Made in Germany</div></div>
-          <div class="anim"><div class="badge-card">REST-API &amp; Webhooks</div></div>
-          <div class="anim"><div class="badge-card">Autom. Backups</div></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="uk-section uk-section-primary uk-light">
+    <section id="trust" class="uk-section uk-section-muted">
       <div class="uk-container">
-        <div class="uk-flex uk-flex-middle uk-flex-between uk-margin-medium-bottom uk-flex-wrap">
-          <h2 class="uk-heading-line uk-light"><span>Vertrauen von Laboren, Service &amp; Industrie</span></h2>
-          <a class="uk-link-text" href="#usecases">Mehr Anwendungsfälle</a>
+
+        <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-medium-bottom">
+          <h2 class="uk-heading-line uk-margin-remove"><span>Vertrauen von Laboren, Service &amp; Industrie</span></h2>
+          <a class="uk-link-toggle uk-visible@m" href="#usecases">
+            <span class="uk-link-text">Mehr Anwendungsfälle</span> <span uk-icon="icon: arrow-right"></span>
+          </a>
         </div>
-        <div class="uk-position-relative uk-visible-toggle" tabindex="-1"
-             uk-slider="autoplay: true; autoplay-interval: 3800">
-          <ul class="uk-slider-items uk-child-width-1-3@s uk-child-width-1-6@m uk-grid-small">
-            <li><div class="logo-chip">AlphaLab</div></li>
-            <li><div class="logo-chip">NordWerk</div></li>
-            <li><div class="logo-chip">SolarTec</div></li>
-            <li><div class="logo-chip">PräziFit</div></li>
-            <li><div class="logo-chip">Metall IQ</div></li>
-            <li><div class="logo-chip">EnergiePro</div></li>
+
+        <div class="uk-position-relative" tabindex="-1" uk-slider="autoplay: true; autoplay-interval: 2400">
+          <ul class="uk-slider-items uk-child-width-1-3@s uk-child-width-1-6@m uk-grid-small uk-text-center">
+            <li>
+              <div class="uk-card uk-card-default uk-card-body">
+                <img src="{{ basePath }}/img/calserver/trust/alphalab.svg"
+                     class="trust-logo"
+                     alt="AlphaLab" uk-img>
+              </div>
+            </li>
+            <li>
+              <div class="uk-card uk-card-default uk-card-body">
+                <img src="{{ basePath }}/img/calserver/trust/nordwerk.svg"
+                     class="trust-logo"
+                     alt="NordWerk" uk-img>
+              </div>
+            </li>
+            <li>
+              <div class="uk-card uk-card-default uk-card-body">
+                <img src="{{ basePath }}/img/calserver/trust/solartec.svg"
+                     class="trust-logo"
+                     alt="SolarTec" uk-img>
+              </div>
+            </li>
+            <li>
+              <div class="uk-card uk-card-default uk-card-body">
+                <img src="{{ basePath }}/img/calserver/trust/praezifit.svg"
+                     class="trust-logo"
+                     alt="PräziFit" uk-img>
+              </div>
+            </li>
+            <li>
+              <div class="uk-card uk-card-default uk-card-body">
+                <img src="{{ basePath }}/img/calserver/trust/metalliq.svg"
+                     class="trust-logo"
+                     alt="Metall IQ" uk-img>
+              </div>
+            </li>
+            <li>
+              <div class="uk-card uk-card-default uk-card-body">
+                <img src="{{ basePath }}/img/calserver/trust/energiepro.svg"
+                     class="trust-logo"
+                     alt="EnergiePro" uk-img>
+              </div>
+            </li>
           </ul>
-          <a class="uk-position-center-left uk-position-small" href="#"
-             uk-slidenav-previous
-             uk-slider-item="previous"
-             aria-label="Vorheriger Partner"></a>
-          <a class="uk-position-center-right uk-position-small" href="#"
-             uk-slidenav-next
-             uk-slider-item="next"
-             aria-label="Nächster Partner"></a>
+
+          <a class="uk-position-center-left uk-position-small uk-hidden-hover" href="#" uk-slidenav-previous
+             uk-slider-item="previous" aria-label="Vorheriger Partner"></a>
+          <a class="uk-position-center-right uk-position-small uk-hidden-hover" href="#" uk-slidenav-next
+             uk-slider-item="next" aria-label="Nächster Partner"></a>
         </div>
+
+        <div class="uk-grid-large uk-margin-large-top" uk-grid>
+          <div class="uk-width-2-3@m">
+            <div class="uk-child-width-1-2@s uk-child-width-1-4@m" uk-grid
+                 uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .kpi; delay: 75;">
+              <div>
+                <div class="uk-card uk-card-default uk-card-body uk-text-center kpi">
+                  <div class="uk-text-bold uk-text-large">100.000+</div>
+                  <div class="uk-text-meta">verwaltete Geräte</div>
+                </div>
+              </div>
+              <div>
+                <div class="uk-card uk-card-default uk-card-body uk-text-center kpi">
+                  <div class="uk-text-bold uk-text-large">Sekundenschnell</div>
+                  <div class="uk-text-meta">Suche &amp; Filter</div>
+                </div>
+              </div>
+              <div>
+                <div class="uk-card uk-card-default uk-card-body uk-text-center kpi">
+                  <div class="uk-text-bold uk-text-large">Beliebig viele</div>
+                  <div class="uk-text-meta">Nutzer:innen &amp; Rollen</div>
+                </div>
+              </div>
+              <div>
+                <div class="uk-card uk-card-default uk-card-body uk-text-center kpi">
+                  <div class="uk-text-bold uk-text-large">Tägliche</div>
+                  <div class="uk-text-meta">Datensicherung</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="uk-width-1-3@m">
+            <div class="uk-card uk-card-primary uk-light uk-card-body uk-border-rounded uk-box-shadow-medium testimonial-card">
+              <div class="uk-flex uk-flex-middle uk-margin-small-bottom">
+                <span class="uk-margin-small-right" uk-icon="icon: quote-right; ratio: 1.2"></span>
+                <strong>„30% weniger Suchaufwand im Alltag.“</strong>
+              </div>
+              <p class="uk-margin-small-top uk-margin-remove-bottom">
+                calServer bringt Ordnung in Geräte, Termine und Dokumente. Wir arbeiten schneller – und entspannter.
+              </p>
+              <div class="uk-margin-small-top uk-text-meta">Leitung Kalibrierlabor · Beispiel GmbH</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="uk-margin-large-top uk-visible@m">
+          <div class="uk-child-width-1-2 uk-child-width-1-5@m uk-grid-small uk-text-center" uk-grid
+               uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .trust-badge; delay: 75;">
+            <div>
+              <div class="uk-card uk-card-default uk-card-body trust-badge">Hosting in Deutschland</div>
+            </div>
+            <div>
+              <div class="uk-card uk-card-default uk-card-body trust-badge">DSGVO-konform</div>
+            </div>
+            <div>
+              <div class="uk-card uk-card-default uk-card-body trust-badge">Software Made in Germany</div>
+            </div>
+            <div>
+              <div class="uk-card uk-card-default uk-card-body trust-badge">REST-API &amp; Webhooks</div>
+            </div>
+            <div>
+              <div class="uk-card uk-card-default uk-card-body trust-badge">Autom. Backups</div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </section>
 
