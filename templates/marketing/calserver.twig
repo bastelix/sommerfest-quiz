@@ -10,14 +10,123 @@
   <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.10/dist/js/uikit.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/uikit@3.17.10/dist/js/uikit-icons.min.js"></script>
   <style>
-    /* Kleine Helfer für konsistenten Look */
-    .pill { display:inline-block; padding:.25rem .6rem; border:1px solid rgba(0,0,0,.08); border-radius:9999px; font-size:.8rem; }
-    .shadow-soft { box-shadow: 0 12px 28px -12px rgba(0,0,0,.15), 0 6px 12px -8px rgba(0,0,0,.08); }
-    .brand-primary { color:#1f63e6; }
-    .uk-card-primary { background:#1f63e6; }
-    .uk-card-primary .uk-card-title, .uk-card-primary p { color:#fff; }
-    .badge-card { padding:14px 10px; border:1px solid rgba(0,0,0,.06); border-radius:12px; background:#fff; }
-    .muted { color:#6b7280; }
+    :root {
+      --brand-primary: #1f63e6;
+      --brand-primary-dark: #154bb4;
+    }
+
+    body {
+      scroll-behavior: smooth;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .pill--soft {
+      background: rgba(31, 99, 230, 0.08);
+      color: var(--brand-primary);
+    }
+
+    .pill--accent {
+      background: #fff;
+      color: var(--brand-primary);
+      box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.5);
+    }
+
+    .pill--badge {
+      background: rgba(255, 255, 255, 0.86);
+      color: var(--brand-primary-dark);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    .shadow-soft {
+      box-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.35), 0 12px 24px -18px rgba(15, 23, 42, 0.25);
+      border-radius: 18px;
+    }
+
+    .badge-card {
+      padding: 14px 12px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 10px 26px -20px rgba(15, 23, 42, 0.45);
+      font-weight: 600;
+    }
+
+    .logo-chip {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 18px 12px;
+      text-align: center;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .uk-button-primary,
+    .uk-button-primary:focus,
+    .uk-button-primary:hover {
+      background-color: var(--brand-primary);
+      border-color: var(--brand-primary);
+      color: #fff;
+    }
+
+    .uk-link-text > a,
+    .uk-link-text a {
+      color: inherit;
+    }
+
+    .uk-section-primary {
+      background: linear-gradient(135deg, rgba(31, 99, 230, 0.92), rgba(21, 75, 180, 0.95));
+    }
+
+    .uk-card-primary {
+      background: var(--brand-primary);
+    }
+
+    .uk-card-primary .uk-card-title,
+    .uk-card-primary p,
+    .uk-card-primary li,
+    .uk-card-primary h3 {
+      color: #fff;
+    }
+
+    .muted {
+      color: #6b7280;
+    }
+
+    .testimonial-card {
+      min-height: 240px;
+    }
+
+    .uk-section {
+      padding-top: 88px;
+      padding-bottom: 88px;
+    }
+
+    .uk-navbar-container {
+      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    }
+
+    .quick-cta {
+      border-radius: 18px;
+      background: rgba(31, 99, 230, 0.08);
+      padding: 24px 32px;
+    }
+
+    .uk-card-hover {
+      transition: transform 220ms ease, box-shadow 220ms ease;
+    }
+
+    .uk-card-hover:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 22px 48px -28px rgba(15, 23, 42, 0.45);
+    }
   </style>
 </head>
 <body>
@@ -27,7 +136,7 @@
   <div class="uk-container uk-container-expand">
     <div class="uk-navbar-left">
       <a class="uk-navbar-item uk-logo" href="{{ basePath }}/calserver">
-        <span uk-icon="icon: grid; ratio: 1.1" class="brand-primary uk-margin-small-right"></span> calServer
+        <span uk-icon="icon: grid; ratio: 1.1" class="uk-margin-small-right" style="color: var(--brand-primary);"></span> calServer
       </a>
     </div>
     <div class="uk-navbar-right">
@@ -67,22 +176,30 @@
 </div>
 
 <!-- HERO -->
-<section class="uk-section uk-section-default">
+<section class="uk-section uk-section-default uk-section-large">
   <div class="uk-container">
     <div class="uk-grid-large uk-flex-middle" uk-grid>
-      <div class="uk-width-1-2@m">
-        <span class="pill uk-margin-small-bottom">Software Hosted in Germany</span>
-        <h1 class="uk-heading-medium uk-margin-small-top">Ihre Kalibrier- und Inventarverwaltung. Einfach in der Cloud.</h1>
-        <p class="uk-text-lead">Geräte, Kalibrierungen und Aufträge – alles an einem Ort. Klar strukturiert, leicht zu bedienen und sofort einsatzbereit.</p>
+      <div class="uk-width-1-2@m" uk-scrollspy="cls: uk-animation-slide-left-small; repeat: true">
+        <span class="pill pill--soft uk-margin-small-bottom">Software Hosted in Germany</span>
+        <h1 class="uk-heading-medium uk-margin-small-top">
+          <span class="uk-text-primary">Mehr Überblick,</span> weniger Aufwand.
+        </h1>
+        <p class="uk-text-lead">Geräte, Termine und Dokumente – organisiert an einem Ort. calServer strukturiert Ihre Kalibrier- und Inventarverwaltung für das ganze Team.</p>
+        <ul class="uk-list uk-list-bullet muted uk-margin-small">
+          <li>Fälligkeiten kommen zu dir, nicht umgekehrt.</li>
+          <li>Transparente Workflows für Labor, Service und Verwaltung.</li>
+          <li>In Deutschland betrieben, DSGVO-konform.</li>
+        </ul>
         <p class="uk-margin-medium-top">
-          <a class="uk-button uk-button-primary uk-margin-small-right" href="#trial">Kostenfrei testen</a>
-          <a class="uk-button uk-button-default" href="#demo">Live-Demo buchen</a>
+          <a class="uk-button uk-button-primary uk-margin-small-right" href="#trial">Jetzt testen</a>
+          <a class="uk-button uk-button-default" href="#demo">Demo buchen</a>
         </p>
-        <p class="muted">Unbegrenzte Nutzer:innen · Flexible Rollen · Tägliche Datensicherung</p>
+        <p class="muted">Unbegrenzte Nutzer:innen · Flexible Rollenmodelle · Tägliche Datensicherung</p>
       </div>
-      <div class="uk-width-1-2@m">
-        <div class="uk-card uk-card-default uk-card-body uk-text-center shadow-soft">
-          <div class="uk-height-medium uk-flex uk-flex-center uk-flex-middle uk-background-muted">
+      <div class="uk-width-1-2@m" uk-scrollspy="cls: uk-animation-slide-right-small; repeat: true">
+        <div class="uk-card uk-card-default uk-card-body uk-text-center shadow-soft uk-position-relative">
+          <span class="pill pill--accent uk-position-absolute uk-position-top-right uk-margin-small">Live-Vorschau</span>
+          <div class="uk-height-medium uk-flex uk-flex-center uk-flex-middle uk-background-muted uk-border-rounded">
             <span class="muted">[Dashboard-Mockup Platzhalter]</span>
           </div>
           <p class="uk-margin-small-top muted">Schnelle Suche · Klare Tabellen · Intuitive Workflows</p>
@@ -92,30 +209,66 @@
   </div>
 </section>
 
-<!-- TRUST BADGES (ohne Normbezug) -->
+<!-- TRUST BADGES -->
 <section class="uk-section uk-section-muted">
-  <div class="uk-container">
+  <div class="uk-container" uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .anim; delay: 75; repeat: true">
     <div class="uk-child-width-1-2 uk-child-width-1-5@m uk-grid-small uk-text-center" uk-grid>
-      <div><div class="badge-card">Hosting in Deutschland</div></div>
-      <div><div class="badge-card">DSGVO-konform</div></div>
-      <div><div class="badge-card">Software Made in Germany</div></div>
-      <div><div class="badge-card">REST-API</div></div>
-      <div><div class="badge-card">Autom. Backups</div></div>
+      <div class="anim"><div class="badge-card">Hosting in Deutschland</div></div>
+      <div class="anim"><div class="badge-card">DSGVO-konform</div></div>
+      <div class="anim"><div class="badge-card">Software Made in Germany</div></div>
+      <div class="anim"><div class="badge-card">REST-API &amp; Webhooks</div></div>
+      <div class="anim"><div class="badge-card">Autom. Backups</div></div>
     </div>
   </div>
 </section>
 
-<!-- FUNKTIONEN -->
-<section id="features" class="uk-section">
+<!-- LOGO SLIDER -->
+<section class="uk-section uk-section-primary uk-light">
   <div class="uk-container">
-    <h2 class="uk-heading-line"><span>Funktionen, die den Alltag erleichtern</span></h2>
+    <div class="uk-flex uk-flex-middle uk-flex-between uk-margin-medium-bottom uk-flex-wrap">
+      <h2 class="uk-heading-line uk-light"><span>Vertrauen von Laboren, Service &amp; Industrie</span></h2>
+      <a class="uk-link-text" href="#usecases">Mehr Anwendungsfälle</a>
+    </div>
+    <div class="uk-position-relative uk-visible-toggle" tabindex="-1" uk-slider="autoplay: true; autoplay-interval: 3800">
+      <ul class="uk-slider-items uk-child-width-1-3@s uk-child-width-1-6@m uk-grid-small">
+        <li>
+          <div class="logo-chip">AlphaLab</div>
+        </li>
+        <li>
+          <div class="logo-chip">NordWerk</div>
+        </li>
+        <li>
+          <div class="logo-chip">SolarTec</div>
+        </li>
+        <li>
+          <div class="logo-chip">PräziFit</div>
+        </li>
+        <li>
+          <div class="logo-chip">Metall IQ</div>
+        </li>
+        <li>
+          <div class="logo-chip">EnergiePro</div>
+        </li>
+      </ul>
+      <a class="uk-position-center-left uk-position-small" href="#" uk-slidenav-previous uk-slider-item="previous"></a>
+      <a class="uk-position-center-right uk-position-small" href="#" uk-slidenav-next uk-slider-item="next"></a>
+    </div>
+  </div>
+</section>
 
-    <div class="uk-child-width-1-2@s uk-child-width-1-3@m" uk-grid>
-      <!-- F1 -->
-      <div>
-        <div class="uk-card uk-card-default uk-card-body">
-          <h3 class="uk-card-title">Inventare & Intervalle</h3>
-          <p>Fälligkeiten kommen zu dir: Erinnerungen, Abrufe und Planungsübersichten sorgen für Ruhe im Tagesgeschäft.</p>
+<!-- FEATURES -->
+<section id="features" class="uk-section uk-section-default uk-section-large">
+  <div class="uk-container">
+    <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+      <h2 class="uk-heading-line"><span>Funktionen, die den Alltag erleichtern</span></h2>
+      <span class="muted">Scroll &amp; entdecke die wichtigsten Bereiche</span>
+    </div>
+    <div class="uk-child-width-1-2@s uk-child-width-1-3@m uk-grid-large uk-grid-match" uk-grid
+         uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .anim; delay: 75; repeat: true">
+      <div class="anim">
+        <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
+          <h3 class="uk-card-title">Inventare &amp; Intervalle</h3>
+          <p>Fälligkeiten kommen zu dir – Erinnerungen, Abrufe und Planungsübersichten sorgen für Ruhe.</p>
           <ul class="uk-list uk-list-bullet">
             <li>Automatische Erinnerungslogik</li>
             <li>Klare Statusfarben</li>
@@ -123,71 +276,65 @@
           </ul>
         </div>
       </div>
-      <!-- F2 -->
-      <div>
-        <div class="uk-card uk-card-default uk-card-body">
+      <div class="anim">
+        <div class="uk-card uk-card-primary uk-card-body uk-card-hover uk-box-shadow-large">
           <h3 class="uk-card-title">Kalibrierscheine digitalisieren</h3>
-          <p>Ablage ohne Umwege: Datei ablegen, der Rest ist Zuordnung & Versionierung.</p>
+          <p>Einfach hochladen, alles Weitere erledigt die Zuordnung mit Versionierung &amp; Vorschau.</p>
           <ul class="uk-list uk-list-bullet">
-            <li>Intelligente Dateinamen-Zuordnung</li>
-            <li>Versionen & Vorschau</li>
+            <li>Intelligente Dateinamen-Erkennung</li>
+            <li>Versionen &amp; Freigaben</li>
             <li>Teilen per Link</li>
           </ul>
         </div>
       </div>
-      <!-- F3 -->
-      <div>
-        <div class="uk-card uk-card-default uk-card-body">
-          <h3 class="uk-card-title">E-Mail-Abrufe & Erinnerungen</h3>
-          <p>Persönlich und planbar: Serien mit System statt Einzelmails.</p>
+      <div class="anim">
+        <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
+          <h3 class="uk-card-title">E-Mail-Abrufe &amp; Erinnerungen</h3>
+          <p>Persönlich und planbar – Serien mit System statt Einzelmails.</p>
           <ul class="uk-list uk-list-bullet">
-            <li>Vorlagen & Platzhalter</li>
+            <li>Vorlagen &amp; Platzhalter</li>
             <li>Zeitpläne je Zielgruppe</li>
             <li>Versandprotokoll</li>
           </ul>
         </div>
       </div>
-      <!-- F4 -->
-      <div>
-        <div class="uk-card uk-card-default uk-card-body">
+      <div class="anim">
+        <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
           <h3 class="uk-card-title">Geräteverwaltung</h3>
           <p>Ob 100 oder 100.000 Geräte – Suche, Filter und Gruppen bleiben schnell.</p>
           <ul class="uk-list uk-list-bullet">
-            <li>Schnellsuche & Filter</li>
-            <li>Sets & Zubehör</li>
-            <li>Export (CSV/PDF)</li>
+            <li>Schnellsuche &amp; Filter</li>
+            <li>Sets &amp; Zubehör</li>
+            <li>Exporte (CSV/PDF)</li>
           </ul>
         </div>
       </div>
-      <!-- F5 -->
-      <div>
-        <div class="uk-card uk-card-default uk-card-body">
-          <h3 class="uk-card-title">Kalibrier- & Reparaturverwaltung</h3>
-          <p>Von Messwerten bis Bericht – ohne Medienbrüche.</p>
+      <div class="anim">
+        <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
+          <h3 class="uk-card-title">Kalibrier- &amp; Reparaturverwaltung</h3>
+          <p>Von Messwerten bis Bericht – ohne Medienbrüche, mit revisionssicheren Freigaben.</p>
           <ul class="uk-list uk-list-bullet">
-            <li>Bearbeitbare Übersichten</li>
             <li>Messwerte erfassen/importieren</li>
+            <li>Bearbeitbare Übersichten</li>
             <li>Berichte direkt erzeugen</li>
           </ul>
         </div>
       </div>
-      <!-- F6 -->
-      <div>
-        <div class="uk-card uk-card-default uk-card-body">
+      <div class="anim">
+        <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
           <h3 class="uk-card-title">Auftragsbearbeitung</h3>
-          <p>Ein Flow für alles: Angebot → Auftrag → Rechnung.</p>
+          <p>Ein Flow für alles: Angebot → Auftrag → Rechnung – mit eigenem Briefpapier.</p>
           <ul class="uk-list uk-list-bullet">
-            <li>Sammel- & Teilrechnungen</li>
-            <li>Preislisten & Nummernkreise</li>
-            <li>Eigenes Briefpapier</li>
+            <li>Sammel- &amp; Teilrechnungen</li>
+            <li>Preislisten &amp; Nummernkreise</li>
+            <li>Automatische Status</li>
           </ul>
         </div>
       </div>
-      <!-- F7 -->
-      <div>
-        <div class="uk-card uk-card-default uk-card-body">
+      <div class="anim">
+        <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
           <h3 class="uk-card-title">Leihverwaltung</h3>
-          <p>Reservieren statt rumtelefonieren: Kalender auf, Gerät rein, fertig.</p>
+          <p>Reservieren statt Telefonkette – Kalender auf, Gerät rein, fertig.</p>
           <ul class="uk-list uk-list-bullet">
             <li>Drag-and-Drop Kalender</li>
             <li>Zubehör-Sets</li>
@@ -195,21 +342,19 @@
           </ul>
         </div>
       </div>
-      <!-- F8 -->
-      <div>
-        <div class="uk-card uk-card-default uk-card-body">
-          <h3 class="uk-card-title">Dokumentationen & Wiki</h3>
+      <div class="anim">
+        <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
+          <h3 class="uk-card-title">Dokumentationen &amp; Wiki</h3>
           <p>Wissen bleibt im Team – gepflegt, versioniert und durchsuchbar.</p>
           <ul class="uk-list uk-list-bullet">
             <li>Editor mit Inhaltsverzeichnis</li>
-            <li>Versionen & Berechtigungen</li>
-            <li>Interne Links</li>
+            <li>Versionen &amp; Berechtigungen</li>
+            <li>Interne Verlinkungen</li>
           </ul>
         </div>
       </div>
-      <!-- F9 -->
-      <div>
-        <div class="uk-card uk-card-default uk-card-body">
+      <div class="anim">
+        <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
           <h3 class="uk-card-title">Dateimanagement (DMS)</h3>
           <p>„Nur speichern, nicht sortieren“ – Zuordnung läuft im Hintergrund.</p>
           <ul class="uk-list uk-list-bullet">
@@ -219,10 +364,9 @@
           </ul>
         </div>
       </div>
-      <!-- F10 -->
-      <div>
-        <div class="uk-card uk-card-default uk-card-body">
-          <h3 class="uk-card-title">Meldungen & Tickets</h3>
+      <div class="anim">
+        <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
+          <h3 class="uk-card-title">Meldungen &amp; Tickets</h3>
           <p>Alles an einem Ort: Anliegen, Verlauf, Benachrichtigungen.</p>
           <ul class="uk-list uk-list-bullet">
             <li>Zentrales Ticketing</li>
@@ -231,9 +375,8 @@
           </ul>
         </div>
       </div>
-      <!-- F11 -->
-      <div>
-        <div class="uk-card uk-card-default uk-card-body">
+      <div class="anim">
+        <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
           <h3 class="uk-card-title">Moderne Cloud-Basis</h3>
           <p>Schnell, stabil und updatefreundlich – ohne großen Admin-Aufwand.</p>
           <ul class="uk-list uk-list-bullet">
@@ -244,105 +387,286 @@
         </div>
       </div>
     </div>
-
   </div>
 </section>
+
+<hr class="uk-divider-icon">
 
 <!-- MODULE -->
 <section id="modules" class="uk-section uk-section-muted">
   <div class="uk-container">
-    <h2 class="uk-heading-line"><span>Module, die den Unterschied machen</span></h2>
-    <div class="uk-child-width-1-2@m" uk-grid>
-      <div>
-        <div class="uk-card uk-card-default uk-card-body">
-          <h3 class="uk-card-title">Abruflisten & E-Mail-Erinnerungen</h3>
+    <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+      <h2 class="uk-heading-line"><span>Module, die den Unterschied machen</span></h2>
+      <span class="muted">Individuell kombinierbar – ohne versteckte Kosten</span>
+    </div>
+    <div class="uk-child-width-1-2@m uk-grid-large uk-grid-match" uk-grid
+         uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .anim; delay: 75; repeat: true">
+      <div class="anim">
+        <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
+          <h3 class="uk-card-title">Abruflisten &amp; E-Mail-Erinnerungen</h3>
           <p>Planbare Serien mit persönlicher Ansprache – so bleiben Fristen entspannt.</p>
         </div>
       </div>
-      <div>
-        <div class="uk-card uk-card-default uk-card-body">
+      <div class="anim">
+        <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
           <h3 class="uk-card-title">Leihverwaltung</h3>
           <p>Kalenderbasierte Buchungen für Geräte und Sets – inklusive Benachrichtigungen.</p>
         </div>
       </div>
-      <div>
-        <div class="uk-card uk-card-default uk-card-body">
-          <h3 class="uk-card-title">Tickets & Meldungen</h3>
-          <p>Sichtbar für alle Beteiligten, nachvollziehbar für jedes Team.</p>
+      <div class="anim">
+        <div class="uk-card uk-card-primary uk-card-body uk-card-hover uk-box-shadow-large">
+          <h3 class="uk-card-title">Tickets &amp; Meldungen</h3>
+          <p>Sichtbar für alle Beteiligten, nachvollziehbar für jedes Team – inklusive SLA-Tracking.</p>
         </div>
       </div>
-      <div>
-        <div class="uk-card uk-card-default uk-card-body">
-          <h3 class="uk-card-title">Benutzer & Rollen</h3>
-          <p>Jede:r sieht nur das Wesentliche – flexibel und sicher.</p>
+      <div class="anim">
+        <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
+          <h3 class="uk-card-title">Benutzer &amp; Rollen</h3>
+          <p>Jede:r sieht nur das Wesentliche – flexibel, sicher, auditierbar.</p>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ANWENDUNGSFÄLLE -->
-<section id="usecases" class="uk-section">
+<!-- SCREEN SLIDESHOW -->
+<section id="screens" class="uk-section uk-section-primary uk-light">
+  <div class="uk-container">
+    <h2 class="uk-heading-line uk-light"><span>Screens &amp; Workflows im Überblick</span></h2>
+    <div class="uk-position-relative uk-visible-toggle" tabindex="-1" uk-slideshow="ratio: 16:9; animation: push">
+      <ul class="uk-slideshow-items">
+        <li>
+          <div class="uk-cover-container uk-flex uk-flex-center uk-flex-middle">
+            <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-text-center">
+              <h3 class="uk-card-title">Dashboard</h3>
+              <p class="muted">Live-KPIs zu Fälligkeiten, offenen Tickets und Auslastung.</p>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="uk-cover-container uk-flex uk-flex-center uk-flex-middle">
+            <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-text-center">
+              <h3 class="uk-card-title">Kalibrierauftrag</h3>
+              <p class="muted">Schritt-für-Schritt-Workflow mit Messwerten und Freigaben.</p>
+            </div>
+          </div>
+        </li>
+        <li>
+          <div class="uk-cover-container uk-flex uk-flex-center uk-flex-middle">
+            <div class="uk-card uk-card-default uk-card-body uk-width-1-1 uk-text-center">
+              <h3 class="uk-card-title">Geräteakte</h3>
+              <p class="muted">Historie, Dokumente und Termine auf einen Blick.</p>
+            </div>
+          </div>
+        </li>
+      </ul>
+      <a class="uk-position-center-left uk-position-small" href="#" uk-slidenav-previous uk-slideshow-item="previous"></a>
+      <a class="uk-position-center-right uk-position-small" href="#" uk-slidenav-next uk-slideshow-item="next"></a>
+    </div>
+  </div>
+</section>
+
+<!-- USE CASE STORIES -->
+<section id="usecases" class="uk-section uk-section-default">
   <div class="uk-container">
     <h2 class="uk-heading-line"><span>Anwendungsfälle aus der Praxis</span></h2>
-    <div class="uk-child-width-1-2@s uk-child-width-1-3@m" uk-grid>
-      <div><div class="uk-card uk-card-default uk-card-body">Laborverwaltung – Ordnung für Prüfstände & Geräte.</div></div>
-      <div><div class="uk-card uk-card-default uk-card-body">MET/TEAM Oberfläche – vertraut für Umsteiger:innen.</div></div>
-      <div><div class="uk-card uk-card-default uk-card-body">Geräteverwaltung – von Werkzeug bis Großanlage.</div></div>
-      <div><div class="uk-card uk-card-default uk-card-body">Projektverwaltung – Budgets, Termine, Teams im Griff.</div></div>
-      <div><div class="uk-card uk-card-default uk-card-body">Solar & Energie – Gerätemanagement für Anlagen.</div></div>
-      <div><div class="uk-card uk-card-default uk-card-body">Individuelle Szenarien – passend zu Ihren Abläufen.</div></div>
+    <div class="uk-margin-large" uk-grid="masonry: true">
+      <div class="uk-width-1-1">
+        <div class="uk-grid-large uk-flex-middle" uk-grid uk-scrollspy="cls: uk-animation-slide-bottom-small; repeat: true">
+          <div class="uk-width-1-2@m">
+            <span class="pill pill--soft uk-text-uppercase">Labor &amp; Prüfstände</span>
+            <h3 class="uk-heading-bullet">Laborverwaltung – Ordnung für Prüfstände &amp; Geräte.</h3>
+            <p class="muted">Kalibrierintervalle, Prüfprotokolle und Auslastungsplanung bleiben in einem System. Dashboards zeigen, welche Geräte als nächstes dran sind.</p>
+            <a class="uk-link-toggle" href="#demo"><span class="uk-link-heading">Mehr erfahren</span> <span uk-icon="icon: arrow-right"></span></a>
+          </div>
+          <div class="uk-width-1-2@m">
+            <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-large shadow-soft">
+              <div class="uk-height-medium uk-flex uk-flex-center uk-flex-middle uk-background-muted">
+                <span class="muted">[Labor-Kalender Mockup]</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-1">
+        <div class="uk-grid-large uk-flex-middle uk-flex-right" uk-grid uk-scrollspy="cls: uk-animation-slide-bottom-small; repeat: true">
+          <div class="uk-width-1-2@m uk-flex-first@m">
+            <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-large shadow-soft">
+              <div class="uk-height-medium uk-flex uk-flex-center uk-flex-middle uk-background-muted">
+                <span class="muted">[Serviceauftrag Mockup]</span>
+              </div>
+            </div>
+          </div>
+          <div class="uk-width-1-2@m">
+            <span class="pill pill--soft uk-text-uppercase">Service &amp; Außendienst</span>
+            <h3 class="uk-heading-bullet">MET/TEAM Oberfläche – vertraut für Umsteiger:innen.</h3>
+            <p class="muted">Serviceaufträge, Checklisten und Messwerte wandern sauber ins System. Teams arbeiten synchron – auch mobil.</p>
+            <a class="uk-link-toggle" href="#demo"><span class="uk-link-heading">Mehr erfahren</span> <span uk-icon="icon: arrow-right"></span></a>
+          </div>
+        </div>
+      </div>
+      <div class="uk-width-1-1">
+        <div class="uk-grid-large uk-flex-middle" uk-grid uk-scrollspy="cls: uk-animation-slide-bottom-small; repeat: true">
+          <div class="uk-width-1-2@m">
+            <span class="pill pill--soft uk-text-uppercase">Industrie &amp; Energie</span>
+            <h3 class="uk-heading-bullet">Geräteverwaltung für Solar- &amp; Energieanlagen.</h3>
+            <p class="muted">Von Werkzeug bis Großanlage: Standorte, Wartungen und Sicherheitsprüfungen bleiben nachweisbar dokumentiert.</p>
+            <a class="uk-link-toggle" href="#demo"><span class="uk-link-heading">Mehr erfahren</span> <span uk-icon="icon: arrow-right"></span></a>
+          </div>
+          <div class="uk-width-1-2@m">
+            <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-large shadow-soft">
+              <div class="uk-height-medium uk-flex uk-flex-center uk-flex-middle uk-background-muted">
+                <span class="muted">[Asset-Übersicht Mockup]</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- BETRIEBSARTEN -->
-<section id="modes" class="uk-section uk-section-muted">
+<!-- TESTIMONIALS -->
+<section class="uk-section uk-section-muted">
   <div class="uk-container">
-    <h2 class="uk-heading-line"><span>Betriebsarten</span></h2>
-    <div class="uk-child-width-1-2@m" uk-grid>
-      <div>
-        <div class="uk-card uk-card-default uk-card-body">
-          <h3 class="uk-card-title">Cloud</h3>
-          <p>Sofort startklar, in Deutschland gehostet und flexibel erweiterbar.</p>
-        </div>
-      </div>
-      <div>
-        <div class="uk-card uk-card-default uk-card-body">
-          <h3 class="uk-card-title">On-Premise</h3>
-          <p>Volle Kontrolle in Ihrer eigenen IT – mit maximaler Flexibilität.</p>
-        </div>
-      </div>
+    <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+      <h2 class="uk-heading-line"><span>„So bleiben wir audit-ready.“</span></h2>
+      <span class="muted">Ausgewählte Stimmen unserer Kund:innen</span>
+    </div>
+    <div class="uk-position-relative uk-visible-toggle" tabindex="-1" uk-slider="autoplay: true; autoplay-interval: 5200">
+      <ul class="uk-slider-items uk-child-width-1-1 uk-child-width-1-3@m" uk-grid>
+        <li>
+          <div class="uk-card uk-card-default uk-card-body uk-card-hover testimonial-card">
+            <p class="uk-text-large">„Mit calServer wissen alle sofort, welche Geräte wann fällig sind – ohne Excel-Listen.“</p>
+            <p class="muted uk-margin-small">Leitung Qualitätssicherung, AlphaLab</p>
+          </div>
+        </li>
+        <li>
+          <div class="uk-card uk-card-primary uk-card-body uk-card-hover testimonial-card">
+            <p class="uk-text-large">„Die Umstellung von MET/TEAM war in zwei Wochen erledigt. Das Team fühlte sich sofort zuhause.“</p>
+            <p class="uk-margin-small">Technischer Leiter, NordWerk Services</p>
+          </div>
+        </li>
+        <li>
+          <div class="uk-card uk-card-default uk-card-body uk-card-hover testimonial-card">
+            <p class="uk-text-large">„Unsere Audits laufen entspannter, weil Dokumente und Prüfprotokolle sauber abgelegt sind.“</p>
+            <p class="muted uk-margin-small">QS-Managerin, SolarTec GmbH</p>
+          </div>
+        </li>
+      </ul>
+      <a class="uk-position-center-left uk-position-small" href="#" uk-slidenav-previous uk-slider-item="previous"></a>
+      <a class="uk-position-center-right uk-position-small" href="#" uk-slidenav-next uk-slider-item="next"></a>
     </div>
   </div>
 </section>
 
-<!-- PREISE -->
-<section id="pricing" class="uk-section">
+<!-- MODES SWITCHER -->
+<section id="modes" class="uk-section uk-section-primary uk-light">
   <div class="uk-container">
-    <h2 class="uk-heading-line"><span>Preise, die Klarheit schaffen</span></h2>
-    <div class="uk-child-width-1-3@m" uk-grid>
-      <div>
-        <div class="uk-card uk-card-default uk-card-body uk-text-center shadow-soft">
+    <h2 class="uk-heading-line uk-light"><span>Betriebsarten, die zu Ihnen passen</span></h2>
+    <ul class="uk-subnav uk-subnav-pill uk-margin" uk-switcher>
+      <li><a href="#">Cloud</a></li>
+      <li><a href="#">On-Premise</a></li>
+    </ul>
+    <ul class="uk-switcher uk-margin" uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .anim; delay: 75; repeat: true">
+      <li>
+        <div class="uk-grid-large uk-child-width-1-2@m uk-grid-match" uk-grid>
+          <div class="anim">
+            <div class="uk-card uk-card-default uk-card-body uk-card-hover">
+              <h3 class="uk-card-title">Sofort startklar</h3>
+              <ul class="uk-list uk-list-bullet muted">
+                <li>Bereitstellung in wenigen Tagen</li>
+                <li>Automatisierte Updates &amp; Monitoring</li>
+                <li>Backup-Strategie inklusive</li>
+              </ul>
+            </div>
+          </div>
+          <div class="anim">
+            <div class="uk-card uk-card-default uk-card-body uk-card-hover">
+              <h3 class="uk-card-title">Sicher &amp; skalierbar</h3>
+              <ul class="uk-list uk-list-bullet muted">
+                <li>Rechenzentrum in Deutschland</li>
+                <li>ISO 27001 zertifizierte Infrastruktur</li>
+                <li>Flexible Nutzer:innenzahlen</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="uk-grid-large uk-child-width-1-2@m uk-grid-match" uk-grid>
+          <div class="anim">
+            <div class="uk-card uk-card-default uk-card-body uk-card-hover">
+              <h3 class="uk-card-title">Volle Kontrolle</h3>
+              <ul class="uk-list uk-list-bullet muted">
+                <li>Betrieb im eigenen Netzwerk</li>
+                <li>Unterstützung bei Installation &amp; Updates</li>
+                <li>Integration in bestehende Systeme</li>
+              </ul>
+            </div>
+          </div>
+          <div class="anim">
+            <div class="uk-card uk-card-default uk-card-body uk-card-hover">
+              <h3 class="uk-card-title">Individuelle Sicherheit</h3>
+              <ul class="uk-list uk-list-bullet muted">
+                <li>Anbindung an Ihr Identity-Management</li>
+                <li>Flexible Backup- und Wartungsfenster</li>
+                <li>Support per SLA vereinbar</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="uk-section uk-section-default">
+  <div class="uk-container">
+    <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
+      <h2 class="uk-heading-line"><span>Preise, die Klarheit schaffen</span></h2>
+      <span class="muted">Ehrlich, transparent, ohne versteckte Kosten.</span>
+    </div>
+    <div class="uk-child-width-1-1 uk-child-width-1-3@m uk-grid-large uk-grid-match" uk-grid
+         uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .anim; delay: 75; repeat: true">
+      <div class="anim">
+        <div class="uk-card uk-card-default uk-card-body uk-text-center uk-card-hover shadow-soft">
           <h3>Standard</h3>
-          <p class="uk-margin-small">Die solide Basis für jedes Team</p>
+          <p class="muted">Die solide Basis für kleine Teams.</p>
           <p class="uk-text-large uk-text-bold">ab 250 €/Monat</p>
+          <ul class="uk-list uk-list-bullet uk-text-left muted">
+            <li>Bis 2 Mandanten</li>
+            <li>Alle Kernmodule inklusive</li>
+            <li>E-Mail-Support innerhalb von 24 h</li>
+          </ul>
           <a class="uk-button uk-button-default" href="#offer">Unverbindliches Angebot</a>
         </div>
       </div>
-      <div>
-        <div class="uk-card uk-card-primary uk-card-body uk-text-center shadow-soft">
+      <div class="anim">
+        <div class="uk-card uk-card-primary uk-card-body uk-text-center uk-card-hover shadow-soft uk-position-relative">
+          <span class="pill pill--badge uk-position-absolute uk-position-top-right uk-margin-small">Empfohlen</span>
           <h3>Performance</h3>
-          <p class="uk-margin-small">Für größere Teams mit mehr Tempo</p>
+          <p>Für größere Teams mit mehr Tempo.</p>
           <p class="uk-text-large uk-text-bold">auf Anfrage</p>
+          <ul class="uk-list uk-list-bullet uk-text-left">
+            <li>Unbegrenzte Nutzer:innen</li>
+            <li>Erweiterte Automatisierungen</li>
+            <li>Priorisierter Support &amp; SLA</li>
+          </ul>
           <a class="uk-button uk-button-default" href="#offer">Beratung anfragen</a>
         </div>
       </div>
-      <div>
-        <div class="uk-card uk-card-default uk-card-body uk-text-center shadow-soft">
+      <div class="anim">
+        <div class="uk-card uk-card-default uk-card-body uk-text-center uk-card-hover shadow-soft">
           <h3>Enterprise</h3>
-          <p class="uk-margin-small">Individuell zugeschnitten</p>
+          <p class="muted">Individuell zugeschnitten auf Ihre Prozesse.</p>
           <p class="uk-text-large uk-text-bold">individuell</p>
+          <ul class="uk-list uk-list-bullet uk-text-left muted">
+            <li>Eigene Mandanten-Strukturen</li>
+            <li>On-Premise oder Hybrid</li>
+            <li>Integrationen &amp; Projektbegleitung</li>
+          </ul>
           <a class="uk-button uk-button-default" href="#offer">Angebot anfordern</a>
         </div>
       </div>
@@ -356,45 +680,60 @@
     <h2 class="uk-heading-line"><span>Häufige Fragen</span></h2>
     <ul uk-accordion>
       <li>
-        <a class="uk-accordion-title" href="#">Gibt es eine Begrenzung der Nutzer:innen?</a>
-        <div class="uk-accordion-content"><p>Nein – beliebig viele Accounts möglich.</p></div>
+        <a class="uk-accordion-title" href="#">Wie schnell bin ich mit der Cloud-Version startklar?</a>
+        <div class="uk-accordion-content"><p>In der Regel innerhalb weniger Tage – wir begleiten den Kick-off persönlich.</p></div>
       </li>
       <li>
         <a class="uk-accordion-title" href="#">Kann ich zwischen Cloud und On-Premise wechseln?</a>
-        <div class="uk-accordion-content"><p>Ja, beide Modelle sind flexibel nutzbar.</p></div>
+        <div class="uk-accordion-content"><p>Ja, ein Wechsel ist jederzeit möglich. Wir unterstützen bei Migration und Datenübernahme.</p></div>
       </li>
       <li>
-        <a class="uk-accordion-title" href="#">Wie schnell bin ich startklar?</a>
-        <div class="uk-accordion-content"><p>Cloud meist innerhalb weniger Tage, On-Premise nach gemeinsamer Einrichtung.</p></div>
+        <a class="uk-accordion-title" href="#">Welche Datenimporte sind möglich?</a>
+        <div class="uk-accordion-content"><p>Excel/CSV-Importe, API-Schnittstellen sowie individuelle Integrationen.</p></div>
       </li>
       <li>
-        <a class="uk-accordion-title" href="#">Kann ich bestehende Daten übernehmen?</a>
-        <div class="uk-accordion-content"><p>Ja, z. B. via Excel-Import oder über Schnittstellen.</p></div>
+        <a class="uk-accordion-title" href="#">Wie funktioniert der Support?</a>
+        <div class="uk-accordion-content"><p>Support per E-Mail, Telefon oder Ticketsystem – je nach Paket sogar mit SLA.</p></div>
       </li>
       <li>
-        <a class="uk-accordion-title" href="#">Gibt es Support?</a>
-        <div class="uk-accordion-content"><p>Ja, per E-Mail, Telefon oder Ticketsystem.</p></div>
+        <a class="uk-accordion-title" href="#">Was passiert mit meinen Daten nach dem Test?</a>
+        <div class="uk-accordion-content"><p>Nach Testende entscheiden Sie: weiter nutzen, exportieren oder löschen lassen – ganz transparent.</p></div>
       </li>
     </ul>
+    <div class="uk-margin-top">
+      <span class="muted">Noch nicht fündig geworden?</span>
+      <a class="uk-margin-small-left" href="{{ basePath }}/kontakt">Weitere Fragen → Kontakt</a>
+    </div>
   </div>
 </section>
 
 <!-- CTA ABSCHLUSS -->
-<section id="demo" class="uk-section uk-section-default uk-text-center">
+<section id="demo" class="uk-section uk-section-primary uk-light uk-text-center">
   <div class="uk-container">
     <h3 class="uk-heading-small uk-margin-small">Bereit, calServer live zu erleben?</h3>
-    <p class="muted">Buchen Sie eine Demo oder starten Sie mit einem kostenlosen Test.</p>
+    <p>Jetzt testen oder Demo buchen – wir zeigen, wie Ihre Prozesse in calServer aussehen.</p>
     <p class="uk-margin-medium-top">
-      <a class="uk-button uk-button-primary uk-margin-small-right" href="https://calendly.com/calhelp/calserver-vorstellung" target="_blank" rel="noopener">Demo buchen</a>
-      <a id="trial" class="uk-button uk-button-default" href="#!">Kostenlos testen</a>
+      <a class="uk-button uk-button-default uk-margin-small-right" href="https://calendly.com/calhelp/calserver-vorstellung" target="_blank" rel="noopener">Demo buchen</a>
+      <a id="trial" class="uk-button uk-button-primary" href="#!">Jetzt testen</a>
     </p>
-    <p class="muted uk-text-small uk-margin-small">* Demo-Zugang und Testumgebung nach kurzer Abstimmung.</p>
+    <p class="uk-text-small uk-margin-small">* Demo-Zugang und Testumgebung nach kurzer Abstimmung.</p>
   </div>
 </section>
 
 <!-- FOOTER -->
-<footer class="uk-section uk-section-muted">
+<footer class="uk-section uk-section-default">
   <div class="uk-container">
+    <div class="quick-cta uk-margin-large-bottom">
+      <div class="uk-grid-large uk-flex-middle" uk-grid>
+        <div class="uk-width-expand@m">
+          <h4 class="uk-margin-remove">Noch Fragen?</h4>
+          <p class="muted uk-margin-small">Schreiben Sie uns – wir beraten zu Betriebsart, Datenübernahme und Preisen.</p>
+        </div>
+        <div class="uk-width-auto@m">
+          <a class="uk-button uk-button-primary" href="{{ basePath }}/kontakt">Kontakt aufnehmen</a>
+        </div>
+      </div>
+    </div>
     <div class="uk-grid-large" uk-grid>
       <div class="uk-width-1-2@m">
         <h4>calServer</h4>
