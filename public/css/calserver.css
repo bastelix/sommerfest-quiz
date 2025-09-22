@@ -125,6 +125,160 @@ body.qr-landing.calserver-theme:not(.high-contrast) .hero-bg-calserver {
     background-color: var(--qr-hero-grad-start);
 }
 
+body.qr-landing.calserver-theme .calserver-hero-grid {
+    align-items: stretch;
+}
+
+body.qr-landing.calserver-theme .calserver-hero-grid__media {
+    display: flex;
+}
+
+body.qr-landing.calserver-theme .calserver-hero-grid__media > * {
+    width: 100%;
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 28px 32px 32px;
+    background: linear-gradient(
+            132deg,
+            color-mix(in oklab, var(--calserver-primary) 34%, #0c1734 66%) 0%,
+            color-mix(in oklab, var(--calserver-primary) 48%, #050b1f 52%) 100%
+        );
+    border-radius: 26px;
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 46%, transparent);
+    box-shadow: 0 26px 60px -32px rgba(9, 15, 32, 0.65);
+    overflow: hidden;
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__badge {
+    align-self: flex-start;
+    font-weight: 600;
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__frame {
+    position: relative;
+    border-radius: 22px;
+    overflow: hidden;
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 38%, transparent);
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__frame::before {
+    content: "";
+    display: block;
+    padding-top: 56.25%;
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 18px;
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__meta-text {
+    display: grid;
+    gap: 4px;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__meta-text strong {
+    font-size: 1.12rem;
+    letter-spacing: 0.01em;
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__meta-text span {
+    font-size: 0.95rem;
+    color: color-mix(in oklab, #ffffff 86%, rgba(255, 255, 255, 0.4) 14%);
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 68%, rgba(255, 255, 255, 0.45));
+    background: color-mix(in oklab, var(--calserver-primary) 38%, rgba(255, 255, 255, 0.05));
+    color: rgba(255, 255, 255, 0.96);
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease, border-color 180ms ease;
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__link:hover,
+body.qr-landing.calserver-theme .calserver-hero-video__link:focus-visible {
+    background: color-mix(in oklab, var(--calserver-primary) 56%, rgba(255, 255, 255, 0.08));
+    border-color: color-mix(in oklab, var(--calserver-primary) 82%, rgba(255, 255, 255, 0.6));
+    box-shadow: 0 18px 36px -24px rgba(9, 15, 32, 0.45);
+    transform: translateY(-1px);
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__footnote {
+    margin: 0;
+    font-size: 0.9rem;
+    color: color-mix(in oklab, #ffffff 78%, rgba(255, 255, 255, 0.4) 22%);
+}
+
+@media (max-width: 959px) {
+    body.qr-landing.calserver-theme .calserver-hero-video {
+        padding: 24px;
+    }
+
+    body.qr-landing.calserver-theme .calserver-hero-video__meta {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    body.qr-landing.calserver-theme .calserver-hero-video__link {
+        justify-content: center;
+    }
+}
+
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video {
+    background: var(--qr-card);
+    border-color: currentColor;
+    box-shadow: none;
+}
+
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__meta-text,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__meta-text,
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__meta-text span,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__meta-text span,
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__footnote,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__footnote {
+    color: currentColor;
+}
+
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__link,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__link {
+    color: currentColor;
+    background: transparent;
+    border-color: currentColor;
+    box-shadow: none;
+}
+
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__link:hover,
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__link:focus-visible,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__link:hover,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__link:focus-visible {
+    background: currentColor;
+    color: var(--qr-bg);
+}
+
 body.qr-landing.calserver-theme .hero-list li {
     color: var(--qr-muted);
 }
