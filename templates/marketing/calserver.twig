@@ -600,58 +600,103 @@
 
     <hr class="uk-divider-icon">
 
+    {% set modulePlaceholder = 'module-placeholder.svg' %}
+    {% set modules = [
+      {
+        'slug': 'device-management',
+        'title': 'Geräteverwaltung & Historie',
+        'description': 'Geräteakten, Anhänge und Historie in einer Oberfläche – inklusive Messwerten.',
+        'alt': 'Platzhaltergrafik für die calServer-Geräteverwaltung – finaler Screenshot folgt',
+        'image': modulePlaceholder,
+        'features': [
+          'Geräte- & Standortverwaltung',
+          'Versionierte Dokumente & Bilder',
+          'Messwerte direkt verknüpfen'
+        ]
+      },
+      {
+        'slug': 'calendar-resources',
+        'title': 'Kalender & Ressourcen',
+        'description': 'Planung von Terminen, Leihgeräten und Personal in einer Ansicht.',
+        'alt': 'Platzhaltergrafik für den calServer-Kalender – finaler Screenshot folgt',
+        'image': modulePlaceholder,
+        'features': [
+          'Gantt & Kalender',
+          'Verfügbarkeits-Check in Echtzeit',
+          'Outlook/iCal-Integration'
+        ]
+      },
+      {
+        'slug': 'order-ticketing',
+        'title': 'Auftrags- & Ticketverwaltung',
+        'description': 'Vom Auftrag bis zur Rechnung – mit klaren Status, Workflows und Dokumenten.',
+        'alt': 'Platzhaltergrafik für die calServer-Auftragsverwaltung – finaler Screenshot folgt',
+        'image': modulePlaceholder,
+        'features': [
+          'Service & Ticketsystem',
+          'Angebote, Aufträge, Rechnungen',
+          'Eskalationen & SLAs'
+        ]
+      },
+      {
+        'slug': 'self-service',
+        'title': 'Self-Service & Extranet',
+        'description': 'Stellen Sie Kunden & Partnern Geräteinfos, Zertifikate und Formulare bereit.',
+        'alt': 'Platzhaltergrafik für das calServer-Kundenportal – finaler Screenshot folgt',
+        'image': modulePlaceholder,
+        'features': [
+          'Kundenportale',
+          'Dokumente & Zertifikate',
+          'Individuelle Rechte'
+        ]
+      }
+    ] %}
     <section id="modules" class="uk-section uk-section-muted">
       <div class="uk-container">
         <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
           <h2 class="uk-heading-line"><span>Module, die den Unterschied machen</span></h2>
           <span class="muted">Individuell kombinierbar – ohne versteckte Kosten</span>
         </div>
-        <div class="uk-child-width-1-1 uk-child-width-1-2@m uk-grid-large uk-grid-match"
-             uk-grid
-             uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .anim; delay: 75; repeat: true">
-          <div class="anim">
-            <div class="uk-card uk-card-default uk-card-body uk-card-hover">
-              <h3 class="uk-card-title">Geräteverwaltung &amp; Historie</h3>
-              <p class="muted">Geräteakten, Anhänge und Historie in einer Oberfläche – inklusive Messwerten.</p>
-              <ul class="uk-list uk-list-bullet muted">
-                <li>Geräte- &amp; Standortverwaltung</li>
-                <li>Versionierte Dokumente &amp; Bilder</li>
-                <li>Messwerte direkt verknüpfen</li>
-              </ul>
-            </div>
+        <div class="calserver-modules-grid" uk-scrollspy="cls: uk-animation-slide-bottom-small; target: > *; delay: 100; repeat: true">
+          <div>
+            <ul class="uk-tab calserver-modules-nav"
+                uk-switcher="connect: #calserver-modules-switcher; animation: uk-animation-fade">
+              {% for module in modules %}
+                <li>
+                  <a class="calserver-modules-nav__link" href="#module-{{ module.slug }}">
+                    <span class="calserver-modules-nav__title">{{ module.title }}</span>
+                    <span class="calserver-modules-nav__desc">{{ module.description }}</span>
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
           </div>
-          <div class="anim">
-            <div class="uk-card uk-card-default uk-card-body uk-card-hover">
-              <h3 class="uk-card-title">Kalender &amp; Ressourcen</h3>
-              <p class="muted">Planung von Terminen, Leihgeräten und Personal in einer Ansicht.</p>
-              <ul class="uk-list uk-list-bullet muted">
-                <li>Gantt &amp; Kalender</li>
-                <li>Verfügbarkeits-Check in Echtzeit</li>
-                <li>Outlook/iCal-Integration</li>
-              </ul>
-            </div>
-          </div>
-          <div class="anim">
-            <div class="uk-card uk-card-default uk-card-body uk-card-hover">
-              <h3 class="uk-card-title">Auftrags- &amp; Ticketverwaltung</h3>
-              <p class="muted">Vom Auftrag bis zur Rechnung – mit klaren Status, Workflows und Dokumenten.</p>
-              <ul class="uk-list uk-list-bullet muted">
-                <li>Service &amp; Ticketsystem</li>
-                <li>Angebote, Aufträge, Rechnungen</li>
-                <li>Eskalationen &amp; SLAs</li>
-              </ul>
-            </div>
-          </div>
-          <div class="anim">
-            <div class="uk-card uk-card-default uk-card-body uk-card-hover">
-              <h3 class="uk-card-title">Self-Service &amp; Extranet</h3>
-              <p class="muted">Stellen Sie Kunden &amp; Partnern Geräteinfos, Zertifikate und Formulare bereit.</p>
-              <ul class="uk-list uk-list-bullet muted">
-                <li>Kundenportale</li>
-                <li>Dokumente &amp; Zertifikate</li>
-                <li>Individuelle Rechte</li>
-              </ul>
-            </div>
+          <div>
+            <ul id="calserver-modules-switcher" class="uk-switcher calserver-modules-switcher">
+              {% for module in modules %}
+                <li>
+                  <figure id="module-{{ module.slug }}" class="calserver-module-figure">
+                    <img src="{{ basePath }}/img/calserver/modules/{{ module.image|default('module-placeholder.svg') }}"
+                         width="1200"
+                         height="675"
+                         loading="lazy"
+                         decoding="async"
+                         alt="{{ module.alt }}">
+                    <figcaption>
+                      <h3 class="uk-h3">{{ module.title }}</h3>
+                      <p class="muted">{{ module.description }}</p>
+                      {% if module.features is not empty %}
+                        <ul class="uk-list uk-list-bullet muted">
+                          {% for feature in module.features %}
+                            <li>{{ feature }}</li>
+                          {% endfor %}
+                        </ul>
+                      {% endif %}
+                    </figcaption>
+                  </figure>
+                </li>
+              {% endfor %}
+            </ul>
           </div>
         </div>
       </div>

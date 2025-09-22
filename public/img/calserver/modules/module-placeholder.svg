@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="675" viewBox="0 0 1200 675" role="img" aria-label="Platzhaltergrafik für calServer-Modulscreenshots">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1f63e6" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#0b1532" stop-opacity="0.95" />
+    </linearGradient>
+    <linearGradient id="panel" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#f8fafc" stop-opacity="0.94" />
+      <stop offset="100%" stop-color="#e2e8f0" stop-opacity="0.94" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="675" fill="url(#bg)" />
+  <g opacity="0.28">
+    <circle cx="180" cy="120" r="96" fill="#ffffff" />
+    <circle cx="1020" cy="540" r="120" fill="#1f63e6" />
+    <circle cx="840" cy="156" r="72" fill="#22d3ee" />
+  </g>
+  <rect x="140" y="128" width="920" height="420" rx="28" fill="url(#panel)" stroke="#cbd5f5" stroke-width="4" />
+  <g font-family="'Poppins', 'Helvetica Neue', Arial, sans-serif" text-anchor="middle" fill="#0f172a">
+    <text x="600" y="252" font-size="58" font-weight="700">calServer Modul</text>
+    <text x="600" y="324" font-size="28" opacity="0.82">Hier wird später ein Screenshot eingebunden.</text>
+    <text x="600" y="392" font-size="24" opacity="0.72">Dieser Platzhalter markiert die benötigte Grafik.</text>
+  </g>
+  <g transform="translate(200 460)" opacity="0.88">
+    <rect width="720" height="68" rx="14" fill="#1f63e6" />
+    <text x="360" y="46" font-family="'Poppins', 'Helvetica Neue', Arial, sans-serif" font-size="28" font-weight="600" fill="#ffffff">
+      Screenshot folgt im finalen Stand
+    </text>
+  </g>
+</svg>

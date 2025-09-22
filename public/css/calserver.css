@@ -559,6 +559,139 @@ body.qr-landing.calserver-theme .feature-slider__list > li.is-center .feature-ca
     box-shadow: var(--cs-card-focus-shadow);
 }
 
+body.qr-landing.calserver-theme #modules .calserver-modules-grid {
+    display: grid;
+    gap: 32px;
+    grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+    margin-top: 40px;
+    align-items: start;
+}
+
+body.qr-landing.calserver-theme .calserver-modules-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-bottom: none;
+}
+
+body.qr-landing.calserver-theme .calserver-modules-nav__link {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    padding: 18px 20px;
+    border-radius: 18px;
+    background: color-mix(in oklab, var(--calserver-primary) 10%, transparent);
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 15%, var(--qr-card-border) 85%);
+    box-shadow: 0 18px 36px -28px rgba(15, 23, 42, 0.28);
+    color: var(--qr-text);
+    text-decoration: none;
+    transition: background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease,
+        transform 200ms ease;
+}
+
+body.qr-landing.calserver-theme .calserver-modules-nav__title {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+body.qr-landing.calserver-theme .calserver-modules-nav__desc {
+    color: color-mix(in oklab, var(--qr-text) 68%, var(--qr-bg) 32%);
+    font-size: 0.92rem;
+}
+
+body.qr-landing.calserver-theme .calserver-modules-nav li.uk-active .calserver-modules-nav__link,
+body.qr-landing.calserver-theme .calserver-modules-nav__link:hover {
+    background: color-mix(in oklab, var(--calserver-primary) 18%, var(--qr-card) 82%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 45%, transparent);
+    box-shadow: 0 24px 48px -30px rgba(15, 23, 42, 0.42);
+    transform: translateY(-2px);
+}
+
+body.qr-landing.calserver-theme .calserver-modules-nav__link:focus-visible {
+    outline: 3px solid color-mix(in oklab, var(--calserver-primary) 60%, #ffffff 40%);
+    outline-offset: 3px;
+}
+
+body.qr-landing.calserver-theme .calserver-modules-nav > li {
+    margin: 0;
+}
+
+body.qr-landing.calserver-theme .calserver-modules-switcher {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+body.qr-landing.calserver-theme .calserver-modules-switcher > li {
+    list-style: none;
+}
+
+body.qr-landing.calserver-theme .calserver-module-figure {
+    margin: 0;
+    background: var(--qr-card);
+    border: 1px solid var(--qr-card-border);
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 22px 48px -28px rgba(15, 23, 42, 0.35);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+body.qr-landing.calserver-theme .calserver-module-figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+body.qr-landing.calserver-theme .calserver-module-figure figcaption {
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+body.qr-landing.calserver-theme .calserver-module-figure h3 {
+    margin: 0;
+}
+
+body.qr-landing.calserver-theme .calserver-module-figure .uk-list {
+    margin-bottom: 0;
+}
+
+@media (max-width: 1024px) {
+    body.qr-landing.calserver-theme #modules .calserver-modules-grid {
+        grid-template-columns: 1fr;
+    }
+
+    body.qr-landing.calserver-theme .calserver-modules-nav {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+    }
+
+    body.qr-landing.calserver-theme .calserver-modules-nav > li {
+        min-width: 240px;
+        flex: 0 0 auto;
+    }
+}
+
+@media (max-width: 640px) {
+    body.qr-landing.calserver-theme .calserver-modules-nav__link {
+        padding: 16px;
+    }
+
+    body.qr-landing.calserver-theme .calserver-module-figure figcaption {
+        padding: 22px;
+    }
+}
+
 body.qr-landing.calserver-theme .feature-slider__list > li.is-center .feature-card:not(.feature-card--focus) {
     box-shadow: 0 22px 48px -32px rgba(15, 23, 42, 0.45);
 }
