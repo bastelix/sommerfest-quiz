@@ -315,6 +315,46 @@ body.qr-landing.calserver-theme .shadow-soft {
     border-radius: 18px;
 }
 
+body.qr-landing.calserver-theme .pricing-card--featured {
+    position: relative;
+    z-index: 1;
+    padding: clamp(36px, 3vw, 52px);
+    border-radius: 22px;
+    box-shadow: 0 28px 64px -28px rgba(15, 30, 56, 0.55),
+        0 18px 38px -24px rgba(10, 22, 44, 0.4);
+    transform: none;
+    transform-origin: center top;
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+body.qr-landing.calserver-theme .pricing-card--featured h3 {
+    font-size: clamp(1.7rem, 1.2vw + 1.2rem, 2.2rem);
+}
+
+body.qr-landing.calserver-theme .pricing-card--featured p,
+body.qr-landing.calserver-theme .pricing-card--featured li {
+    font-size: 1.08rem;
+}
+
+@media (min-width: 960px) {
+    body.qr-landing.calserver-theme .pricing-card--featured {
+        transform: scale(1.06) translateY(-10px);
+    }
+
+    body.qr-landing.calserver-theme .pricing-card--featured:hover {
+        transform: scale(1.08) translateY(-14px);
+        box-shadow: 0 36px 78px -28px rgba(12, 25, 48, 0.6),
+            0 20px 42px -24px rgba(10, 22, 44, 0.45);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.qr-landing.calserver-theme .pricing-card--featured {
+        transition: none;
+        transform: none !important;
+    }
+}
+
 body.qr-landing.calserver-theme .calserver-highlight {
     position: relative;
     padding: 32px 0 28px;
