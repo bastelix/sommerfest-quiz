@@ -2,6 +2,13 @@
 
 body.qr-landing.calserver-theme {
     --calserver-primary: #1f63e6;
+    --cs-card-dark: #0f1625;
+    --cs-card-dark-border: #1b2437;
+    --cs-text-on-dark: #ffffff;
+    --cs-card-focus-bg: color-mix(in oklab, var(--calserver-primary) 18%, var(--qr-card) 82%);
+    --cs-card-focus-border: color-mix(in oklab, var(--calserver-primary) 35%, transparent);
+    --cs-card-focus-shadow: 0 22px 48px -32px rgba(15, 23, 42, 0.55),
+        0 14px 25px rgba(0, 0, 0, 0.16);
     scroll-behavior: smooth;
 }
 
@@ -200,46 +207,60 @@ body.qr-landing.calserver-theme .feature-slider__list > li {
     padding: 12px;
 }
 
-body.qr-landing.calserver-theme .feature-slider__card {
+body.qr-landing.calserver-theme .feature-card {
     flex: 1;
     display: flex;
     flex-direction: column;
     height: 100%;
-    transition: transform 220ms ease, box-shadow 220ms ease;
+    background: var(--cs-card-dark);
+    border: 1px solid var(--cs-card-dark-border);
+    border-radius: 14px;
+    padding: 24px;
+    color: var(--cs-text-on-dark);
+    box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.35),
+        0 6px 12px -8px rgba(0, 0, 0, 0.25);
+    transition: background-color 250ms ease, border-color 250ms ease, box-shadow 250ms ease,
+        transform 250ms ease, opacity 200ms ease;
 }
 
-body.qr-landing.calserver-theme .feature-slider__card p {
-    color: var(--qr-muted);
+body.qr-landing.calserver-theme .feature-card__title,
+body.qr-landing.calserver-theme .feature-card p,
+body.qr-landing.calserver-theme .feature-card li {
+    color: var(--cs-text-on-dark);
 }
 
-body.qr-landing.calserver-theme .feature-slider__card.uk-card-primary {
-    background: color-mix(in oklab, var(--calserver-primary) 18%, var(--qr-card) 82%) !important;
-    border-color: color-mix(in oklab, var(--calserver-primary) 35%, transparent);
-    color: var(--qr-text) !important;
+body.qr-landing.calserver-theme .feature-card .uk-list-bullet > li::before {
+    border-color: var(--cs-text-on-dark);
 }
 
-body.qr-landing.calserver-theme .feature-slider__card.uk-card-primary .uk-card-title {
-    color: var(--qr-text) !important;
+body.qr-landing.calserver-theme .feature-card--focus {
+    background: var(--cs-card-focus-bg);
+    border-color: var(--cs-card-focus-border);
+    box-shadow: var(--cs-card-focus-shadow);
 }
 
-body.qr-landing.calserver-theme .feature-slider__card.uk-card-primary p {
-    color: var(--qr-muted) !important;
-}
-
-body.qr-landing.calserver-theme .feature-slider__card.uk-card-primary li {
-    color: var(--qr-text) !important;
-}
-
-body.qr-landing.calserver-theme .feature-slider__item.uk-current .feature-slider__card {
+body.qr-landing.calserver-theme .feature-slider__list > li.is-center .feature-card {
     transform: scale(1.04);
+}
+
+body.qr-landing.calserver-theme .feature-slider__list > li.is-center .feature-card.feature-card--focus {
+    transform: scale(1.04) translateY(-2px);
+    box-shadow: var(--cs-card-focus-shadow);
+}
+
+body.qr-landing.calserver-theme .feature-slider__list > li.is-center .feature-card:not(.feature-card--focus) {
     box-shadow: 0 22px 48px -32px rgba(15, 23, 42, 0.45);
 }
 
-body.qr-landing.calserver-theme .feature-slider__item.uk-current .feature-slider__card:hover {
+body.qr-landing.calserver-theme .feature-slider__list > li.is-center .feature-card:hover {
     transform: scale(1.04) translateY(-2px);
 }
 
-body.qr-landing.calserver-theme .feature-slider__item:not(.uk-current) .feature-slider__card:hover {
+body.qr-landing.calserver-theme .feature-slider__list > li:not(.is-center) .feature-card {
+    opacity: 0.92;
+}
+
+body.qr-landing.calserver-theme .feature-slider__list > li:not(.is-center) .feature-card:hover {
     transform: translateY(-4px);
 }
 
