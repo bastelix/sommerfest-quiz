@@ -199,7 +199,7 @@ body.qr-landing .site-footer {
   border-radius:999px;
 }
 
-/* Szenarien als Outline-Pills */
+/* Szenarien als Outline-Pills (Legacy Slider Support) */
 .scenario-cloud{
   --pill-bg: transparent;
   --pill-border: var(--qr-border);
@@ -260,6 +260,47 @@ body.qr-landing .site-footer {
 
 .usecase-slider li.uk-current .uk-card-quizrace:hover{
   transform:scale(1.08) translateY(-2px);
+}
+
+/* Feature navigation pills */
+.feature-nav{
+  margin:0 auto 12px;
+  max-width:1100px;
+}
+
+.feature-nav__list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px 12px;
+  justify-content:center;
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+
+.feature-nav__pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:7px 14px;
+  line-height:1.2;
+  font-size:14px;
+  font-weight:600;
+  border-radius:999px;
+  background:color-mix(in oklab, var(--qr-primary) 12%, transparent);
+  color:color-mix(in oklab, var(--qr-fg) 75%, transparent);
+  text-decoration:none;
+  border:1px solid color-mix(in oklab, var(--qr-primary) 32%, transparent);
+  box-shadow:0 12px 24px -22px rgba(15,23,42,.4);
+  transition:transform .16s ease, background .2s ease, color .2s ease, box-shadow .2s ease;
+}
+
+.feature-nav__pill:hover,
+.feature-nav__pill:focus{
+  transform:translateY(-2px);
+  background:color-mix(in oklab, var(--qr-primary) 32%, transparent);
+  color:#fff;
+  box-shadow:0 18px 36px -24px rgba(37,99,235,.55);
 }
 
 /* Karten/Kacheln auf der Landing (UIKit gezielt überstimmen) */
