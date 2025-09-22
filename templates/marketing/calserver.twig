@@ -127,6 +127,40 @@
       transform: translateY(-6px);
       box-shadow: 0 22px 48px -28px rgba(15, 23, 42, 0.45);
     }
+
+    .scenario-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      margin: 32px 0 24px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .scenario-cloud li a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: rgba(31, 99, 230, 0.08);
+      color: var(--brand-primary);
+      font-weight: 600;
+      text-decoration: none;
+      transition: background-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .scenario-cloud li a:hover,
+    .scenario-cloud li a:focus {
+      background: var(--brand-primary);
+      color: #fff;
+      box-shadow: 0 12px 24px -18px rgba(31, 99, 230, 0.85);
+    }
+
+    .feature-usecase-slider .uk-card {
+      min-height: 270px;
+    }
   </style>
 </head>
 <body>
@@ -262,6 +296,94 @@
     <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
       <h2 class="uk-heading-line"><span>Funktionen, die den Alltag erleichtern</span></h2>
       <span class="muted">Scroll &amp; entdecke die wichtigsten Bereiche</span>
+    </div>
+    <div class="uk-margin-large-top">
+      <div class="uk-text-center uk-margin-medium-bottom">
+        <h3 class="uk-heading-bullet">Alltagsszenarien mit calServer</h3>
+        <p class="muted">So unterstützt die Plattform Teams bei wiederkehrenden Aufgaben – vom Labor bis zum Außendienst.</p>
+      </div>
+      <ul class="scenario-cloud" aria-label="Alltagsszenarien">
+        <li><a href="#features">Kalibriertermine</a></li>
+        <li><a href="#features">Audit-Vorbereitung</a></li>
+        <li><a href="#features">Serviceeinsatz</a></li>
+        <li><a href="#features">Leihgeräte</a></li>
+        <li><a href="#features">Dokumente</a></li>
+        <li><a href="#features">Inventur</a></li>
+      </ul>
+      <div class="uk-position-relative uk-visible-toggle feature-usecase-slider" tabindex="-1" uk-slider="center: true; autoplay: true; autoplay-interval: 5200; finite: false">
+        <div class="uk-slider-container">
+          <ul class="uk-slider-items uk-child-width-1-1@s uk-child-width-1-3@m uk-grid-small">
+            <li>
+              <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
+                <h3 class="uk-card-title">Kalibriertermine planen</h3>
+                <p class="muted">Wartungen &amp; Prüfungen bleiben im Blick – egal wie groß der Gerätepool ist.</p>
+                <ul class="uk-list uk-list-bullet">
+                  <li>Automatische Intervalle &amp; Eskalationen</li>
+                  <li>Teamaufgaben direkt zuweisen</li>
+                  <li>Export für externe Dienstleister</li>
+                </ul>
+              </div>
+            </li>
+            <li>
+              <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
+                <h3 class="uk-card-title">Audit vorbereiten</h3>
+                <p class="muted">Nachweise, Protokolle und Dokumente liegen sortiert an einem Ort.</p>
+                <ul class="uk-list uk-list-bullet">
+                  <li>Versionierte Dokumentenablage</li>
+                  <li>Checklisten mit Freigabestatus</li>
+                  <li>Audit-Trail für Änderungen</li>
+                </ul>
+              </div>
+            </li>
+            <li>
+              <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
+                <h3 class="uk-card-title">Serviceeinsätze steuern</h3>
+                <p class="muted">Tickets, Messwerte und Kommunikation laufen sauber zusammen.</p>
+                <ul class="uk-list uk-list-bullet">
+                  <li>Tickets mit SLA-Tracking</li>
+                  <li>Mobile Datenerfassung</li>
+                  <li>Serienmails für Rückfragen</li>
+                </ul>
+              </div>
+            </li>
+            <li>
+              <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
+                <h3 class="uk-card-title">Leihgeräte koordinieren</h3>
+                <p class="muted">Reservierungen bleiben transparent – Teams sehen Verfügbarkeiten live.</p>
+                <ul class="uk-list uk-list-bullet">
+                  <li>Kalender mit Verfügbarkeiten</li>
+                  <li>Automatische Rückgabe-Erinnerung</li>
+                  <li>Übergabeprotokolle als PDF</li>
+                </ul>
+              </div>
+            </li>
+            <li>
+              <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
+                <h3 class="uk-card-title">Dokumente verteilen</h3>
+                <p class="muted">Relevante Infos landen beim richtigen Team – nachvollziehbar versioniert.</p>
+                <ul class="uk-list uk-list-bullet">
+                  <li>Freigaben nach Rollen</li>
+                  <li>Teilbare Links &amp; Zugriffshistorie</li>
+                  <li>Serienmail mit Anhang-Vorlagen</li>
+                </ul>
+              </div>
+            </li>
+            <li>
+              <div class="uk-card uk-card-default uk-card-body uk-card-hover uk-box-shadow-small">
+                <h3 class="uk-card-title">Inventur abschließen</h3>
+                <p class="muted">Geräteakten bleiben vollständig und revisionssicher dokumentiert.</p>
+                <ul class="uk-list uk-list-bullet">
+                  <li>Serien- &amp; Inventarnummern im Blick</li>
+                  <li>Historie mit Messwerten vereint</li>
+                  <li>Berichte als CSV/PDF exportieren</li>
+                </ul>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <a class="uk-position-center-left uk-position-small" href="#" uk-slidenav-previous uk-slider-item="previous" aria-label="Vorheriges Szenario"></a>
+        <a class="uk-position-center-right uk-position-small" href="#" uk-slidenav-next uk-slider-item="next" aria-label="Nächstes Szenario"></a>
+      </div>
     </div>
     <div class="uk-child-width-1-2@s uk-child-width-1-3@m uk-grid-large uk-grid-match" uk-grid
          uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .anim; delay: 75; repeat: true">
