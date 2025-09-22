@@ -204,7 +204,15 @@ body.qr-landing.calserver-theme .calserver-logo-marquee__item {
     align-items: center;
     justify-content: center;
     min-width: 130px;
-    opacity: 0.88;
+    padding: 10px 24px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--calserver-primary) 16%, transparent);
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 32%, transparent);
+    color: color-mix(in oklab, var(--calserver-primary) 85%, #f8fafc 15%);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-align: center;
+    opacity: 0.96;
 }
 
 body.qr-landing.calserver-theme .calserver-logo-marquee__item img {
