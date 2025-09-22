@@ -496,7 +496,7 @@ body.qr-landing.calserver-theme .calserver-stats-strip__header {
 body.qr-landing.calserver-theme .calserver-stats-strip__title-group {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
     flex: 1;
     min-width: 0;
 }
@@ -534,7 +534,7 @@ body.qr-landing.calserver-theme .calserver-stats-strip__label {
 }
 
 body.qr-landing.calserver-theme .calserver-stats-strip__benefit {
-    margin: 10px 0 0;
+    margin: 8px 0 0;
     color: var(--qr-text);
     font-size: 0.95rem;
     line-height: 1.45;
