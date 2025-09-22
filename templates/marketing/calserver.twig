@@ -558,8 +558,9 @@
                 return;
               }
 
-              const containerRect = itemsContainer.getBoundingClientRect();
-              const midpoint = containerRect.left + containerRect.width / 2;
+              const viewportElement = sliderElement.querySelector('.uk-slider-container') || sliderElement;
+              const viewportRect = viewportElement.getBoundingClientRect();
+              const midpoint = viewportRect.left + viewportRect.width / 2;
 
               let nearest = null;
               let minDistance = Number.POSITIVE_INFINITY;
