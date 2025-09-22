@@ -464,6 +464,18 @@ body.dark-mode .qr-landing .qr-topbar{
   box-shadow:0 0 0 3px var(--topbar-focus-ring);
 }
 .git-btn svg{width:24px;height:24px;}
+.qr-landing .qr-topbar .git-btn{
+  width:48px;
+  height:48px;
+  min-height:48px;
+  min-width:48px;
+  line-height:1;
+  padding:0;
+}
+.qr-landing .qr-topbar .git-btn svg{
+  width:26px;
+  height:26px;
+}
 .qr-landing .qr-topbar #offcanvas-toggle.git-btn{
   width:56px;
   height:56px;
