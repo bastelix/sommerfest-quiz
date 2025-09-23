@@ -779,10 +779,10 @@
           <span class="muted">Vom Labor bis zum Außendienst</span>
         </div>
         <ul class="uk-subnav uk-subnav-pill uk-margin-large-top usecase-tabs" uk-switcher="animation: uk-animation-fade">
-          <li><a href="#">Thermo Fisher Scientific (EMEA)</a></li>
-          <li><a href="#">ZF Friedrichshafen</a></li>
-          <li><a href="#">Berliner Stadtwerke</a></li>
-          <li><a href="#">VDE Deutschland</a></li>
+          <li><a href="#">ifm electronic (2 Standorte)</a></li>
+          <li><a href="#">KSW Kalibrierservice GmbH</a></li>
+          <li><a href="#">Systems Engineering GmbH</a></li>
+          <li><a href="#">TERAMESS (DAkkS-Labor)</a></li>
         </ul>
         <ul class="uk-switcher uk-margin-large-top"
             uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .usecase-story, .usecase-highlight; delay: 100; repeat: true">
@@ -790,12 +790,12 @@
             <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" uk-grid>
               <div class="usecase-story">
                 <span class="pill pill--badge uk-margin-small-bottom">Kalibrierlabor</span>
-                <h3 class="uk-h2">Thermo Fisher Scientific – EMEA Labore</h3>
-                <p class="uk-text-lead">calServer orchestriert EMEA-weit Leihgeräte, Geräteakten und ISO-/DAkkS-konforme Zertifikate auf einer Plattform.</p>
-                <p>Mehrere Labore arbeiten in einem konsistenten Workflow: Leihverwaltung, Prüffristen und Zertifikate werden zentral gesteuert, während Aufträge und Rückgaben standortübergreifend nachvollziehbar bleiben. Die bidirektionale Synchronisation mit Fluke MET/TEAM und MET/CAL hält Stammdaten, Kalibrierläufe und Ergebnisse automatisch aktuell.</p>
+                <h3 class="uk-h2">ifm – Störungsbearbeitung &amp; Verbesserungen über zwei Standorte</h3>
+                <p class="uk-text-lead">calServer steuert die interne Kalibrier- und Störungsbearbeitung über zwei Standorte hinweg.</p>
+                <p>Fehlermeldungen werden im Ticketmanagement strukturiert aufgenommen, priorisiert und nachverfolgt; gleichzeitig dient es der Chancen-/Risiken-Betrachtung für kontinuierliche Verbesserungen. Die bidirektionale Synchronisation mit Fluke MET/TEAM und MET/CAL hält Geräte- und Kalibrierdaten standortübergreifend konsistent.</p>
                 <ul class="uk-list uk-list-bullet muted">
-                  <li>Zentrale Leihverwaltung mit Termin- &amp; Rückgabe-Erinnerungen</li>
-                  <li>Revisionssicheres DMS für Zertifikate &amp; Historie</li>
+                  <li>Ticketmanagement für Störungen &amp; CAPA-nahe Auswertungen</li>
+                  <li>Standortübergreifende Geräteakten &amp; Zertifikate im DMS</li>
                   <li>Bidirektionale MET/TEAM- &amp; MET/CAL-Synchronisation</li>
                 </ul>
               </div>
@@ -803,31 +803,32 @@
                 <div class="uk-card uk-card-default uk-card-body uk-card-hover usecase-card">
                   <h4 class="uk-heading-bullet">Key Facts</h4>
                   <ul class="uk-list uk-list-divider">
-                    <li>EMEA-weit einheitliche Leihverwaltung &amp; Geräteakten</li>
-                    <li>Revisionssicheres DMS für Zertifikate &amp; Historie</li>
+                    <li>Zwei Standorte, konsistente Datenbasis</li>
+                    <li>Tickets + Chancen-/Risiken-Bewertung</li>
                     <li>Bidirektionale Synchronisation mit Fluke MET/TEAM &amp; MET/CAL</li>
                   </ul>
                   <div class="uk-grid-small uk-child-width-1-3@s uk-text-center uk-margin-top" uk-grid>
                     <div>
                       <span class="uk-h2 uk-display-block">{TBD}</span>
-                      <span class="muted uk-text-small">EMEA-Standorte</span>
+                      <span class="muted uk-text-small">Tickets/Monat</span>
                     </div>
                     <div>
                       <span class="uk-h2 uk-display-block">{TBD} %</span>
-                      <span class="muted uk-text-small">weniger Dispositionsaufwand</span>
+                      <span class="muted uk-text-small">schnellere Bearbeitung</span>
                     </div>
                     <div>
                       <span class="uk-h2 uk-display-block">{TBD}</span>
-                      <span class="muted uk-text-small">Geräte im Bestand</span>
+                      <span class="muted uk-text-small">CAPA-Maßnahmen/Jahr</span>
                     </div>
                   </div>
                   <a class="uk-button uk-button-text uk-margin-top" href="#">
                     <span class="uk-margin-small-right" uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
+                  <p class="muted uk-text-small uk-margin-top">Kein Kundenportal im Einsatz.</p>
                 </div>
                 <div class="usecase-visual uk-margin-top">
                   <div class="uk-height-medium uk-background-muted uk-border-rounded uk-flex uk-flex-middle uk-flex-center">
-                    <span class="muted">Leihverwaltung &amp; Geräteakten</span>
+                    <span class="muted">Ticketmanagement &amp; Verbesserungen</span>
                   </div>
                 </div>
               </div>
@@ -836,36 +837,36 @@
           <li>
             <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" uk-grid>
               <div class="usecase-story">
-                <span class="pill pill--badge uk-margin-small-bottom">Industrielabor</span>
-                <h3 class="uk-h2">ZF – API-Messwerte auf Kubernetes mit SSO</h3>
-                <p class="uk-text-lead">calServer verbindet skalierbare Messwert-APIs auf Kubernetes mit SSO und Geräteakten-Management.</p>
-                <p>Messwerte fließen über Microservices automatisiert ein; Geräte, Zertifikate und Auswertungen bleiben im Zugriff der berechtigten Teams. Single Sign-On vereinfacht den Zugang, die bidirektionale Synchronisation mit Fluke MET/TEAM und MET/CAL stellt durchgehend konsistente Kalibrierdaten sicher.</p>
+                <span class="pill pill--badge uk-margin-small-bottom">Kalibrierlabor</span>
+                <h3 class="uk-h2">KSW – End-to-End vom Wareneingang bis zur Rechnung</h3>
+                <p class="uk-text-lead">calServer bildet den gesamten Ablauf von Wareneingang über Labor bis zur Abrechnung ab.</p>
+                <p>Laborbegleitscheine, Geräteakten und Zertifikate liegen zentral vor; Auftragsbearbeitung, Status und Kommunikation greifen ineinander — revisionssicher, schnell, transparent.</p>
                 <ul class="uk-list uk-list-bullet muted">
-                  <li>API-Ingestion von Messwerten (Microservices/Kubernetes)</li>
-                  <li>SSO (z. B. EntraID/Google) für nahtlosen Zugriff</li>
-                  <li>Bidirektionale MET/TEAM- &amp; MET/CAL-Synchronisation</li>
+                  <li>Auftragsbearbeitung mit SLAs, Eskalation &amp; Serienmails</li>
+                  <li>DMS für Zertifikate, Berichte und Historie</li>
+                  <li>Durchgängige Übergabe an Abrechnung &amp; Reporting</li>
                 </ul>
               </div>
               <div class="usecase-highlight">
                 <div class="uk-card uk-card-default uk-card-body uk-card-hover usecase-card">
                   <h4 class="uk-heading-bullet">Key Facts</h4>
                   <ul class="uk-list uk-list-divider">
-                    <li>Microservices auf Kubernetes</li>
-                    <li>SSO für schnellen, sicheren Zugang</li>
-                    <li>Bidirektionale Synchronisation mit Fluke MET/TEAM &amp; MET/CAL</li>
+                    <li>Wareneingang → Labor → Rechnung</li>
+                    <li>Auftragsbearbeitung als Taktgeber</li>
+                    <li>DMS &amp; Reporting integriert</li>
                   </ul>
                   <div class="uk-grid-small uk-child-width-1-3@s uk-text-center uk-margin-top" uk-grid>
                     <div>
-                      <span class="uk-h2 uk-display-block">{TBD}/Tag</span>
-                      <span class="muted uk-text-small">Messwerte verarbeitet</span>
-                    </div>
-                    <div>
-                      <span class="uk-h2 uk-display-block">{TBD} %</span>
-                      <span class="muted uk-text-small">automatisierte Flows</span>
+                      <span class="uk-h2 uk-display-block">{TBD} h</span>
+                      <span class="muted uk-text-small">Ø Durchlaufzeit</span>
                     </div>
                     <div>
                       <span class="uk-h2 uk-display-block">{TBD}</span>
-                      <span class="muted uk-text-small">SSO-Nutzer:innen</span>
+                      <span class="muted uk-text-small">Zertifikate/Jahr</span>
+                    </div>
+                    <div>
+                      <span class="uk-h2 uk-display-block">{TBD}</span>
+                      <span class="muted uk-text-small">Kund:innen im Portal</span>
                     </div>
                   </div>
                   <a class="uk-button uk-button-text uk-margin-top" href="#">
@@ -874,7 +875,7 @@
                 </div>
                 <div class="usecase-visual uk-margin-top">
                   <div class="uk-height-medium uk-background-muted uk-border-rounded uk-flex uk-flex-middle uk-flex-center">
-                    <span class="muted">Messwerte &amp; SSO-Workflows</span>
+                    <span class="muted">Wareneingang bis Abrechnung</span>
                   </div>
                 </div>
               </div>
@@ -883,36 +884,36 @@
           <li>
             <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" uk-grid>
               <div class="usecase-story">
-                <span class="pill pill--badge uk-margin-small-bottom">Assetmanagement</span>
-                <h3 class="uk-h2">Berliner Stadtwerke – Projekte &amp; Wartung für erneuerbare Anlagen</h3>
-                <p class="uk-text-lead">calServer steuert Projekte, Wartungspläne und Einsätze für regenerative Energieanlagen der Stadt Berlin.</p>
-                <p>Vom Maßnahmenplan bis zur Einsatzplanung: Teams behalten Verfügbarkeit, Leistung und Kosten im Blick. Checklisten, Offline-Fähigkeit und Eskalationslogik sichern die fristgerechte Abarbeitung. (Ohne MET/CAL/MET/TEAM – Fokus auf Projekt- &amp; Wartungssteuerung.)</p>
+                <span class="pill pill--badge uk-margin-small-bottom">Kalibrierlabor</span>
+                <h3 class="uk-h2">Systems Engineering – Auftragsbearbeitung als Herzstück</h3>
+                <p class="uk-text-lead">calServer macht die Auftragsbearbeitung zum steuernden Zentrum des Labors.</p>
+                <p>Interne Aufgaben werden klar priorisiert, Reportings kommen direkt aus dem System und bleiben dank Versionierung nachvollziehbar — für verlässliche Termine und klare Zuständigkeiten.</p>
                 <ul class="uk-list uk-list-bullet muted">
-                  <li>Projekt- &amp; Maßnahmensteuerung inkl. Einsatzplanung</li>
-                  <li>Geplante/ungeplante Wartung mit Checklisten &amp; Offline-Modus</li>
-                  <li>Dashboards für Verfügbarkeit, Leistung &amp; Kosten/Nutzen</li>
+                  <li>Aufgaben-/Rollensteuerung mit Status &amp; Checklisten</li>
+                  <li>Eigene Reports aus Auftrags- und Gerätedaten</li>
+                  <li>DMS &amp; Historie für Audit- und Nachweispflichten</li>
                 </ul>
               </div>
               <div class="usecase-highlight">
                 <div class="uk-card uk-card-default uk-card-body uk-card-hover usecase-card">
                   <h4 class="uk-heading-bullet">Key Facts</h4>
                   <ul class="uk-list uk-list-divider">
-                    <li>Stadtweite EE-Anlagen im Überblick</li>
-                    <li>Geplante &amp; ungeplante Wartung aus einem System</li>
-                    <li>Dashboards für Verfügbarkeit &amp; Performance</li>
+                    <li>Klarer Status- &amp; Rollenfluss</li>
+                    <li>Reports direkt aus den Prozessdaten</li>
+                    <li>Versionierung &amp; Nachvollziehbarkeit (DMS)</li>
                   </ul>
                   <div class="uk-grid-small uk-child-width-1-3@s uk-text-center uk-margin-top" uk-grid>
                     <div>
                       <span class="uk-h2 uk-display-block">{TBD}</span>
-                      <span class="muted uk-text-small">Anlagen/Standorte</span>
+                      <span class="muted uk-text-small">Aufträge/Monat</span>
                     </div>
                     <div>
                       <span class="uk-h2 uk-display-block">{TBD} %</span>
-                      <span class="muted uk-text-small">höhere Anlagenverfügbarkeit</span>
+                      <span class="muted uk-text-small">SLA-Erfüllung</span>
                     </div>
                     <div>
                       <span class="uk-h2 uk-display-block">{TBD}/Monat</span>
-                      <span class="muted uk-text-small">geplante Wartungsaufträge</span>
+                      <span class="muted uk-text-small">aktive Nutzer:innen</span>
                     </div>
                   </div>
                   <a class="uk-button uk-button-text uk-margin-top" href="#">
@@ -921,7 +922,7 @@
                 </div>
                 <div class="usecase-visual uk-margin-top">
                   <div class="uk-height-medium uk-background-muted uk-border-rounded uk-flex uk-flex-middle uk-flex-center">
-                    <span class="muted">Wartungs- &amp; Projektplanung</span>
+                    <span class="muted">Auftragssteuerung &amp; Reporting</span>
                   </div>
                 </div>
               </div>
@@ -930,36 +931,36 @@
           <li>
             <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" uk-grid>
               <div class="usecase-story">
-                <span class="pill pill--badge uk-margin-small-bottom">Qualitätsmanagement</span>
-                <h3 class="uk-h2">VDE – Agile Auftragssteuerung &amp; Intranet</h3>
-                <p class="uk-text-lead">calServer bündelt agile Auftragssteuerung und Dokumentenflüsse für Prüf- und Zertifizierungsprozesse.</p>
-                <p>Teams planen, priorisieren und dokumentieren Vorgänge auf einem anpassbaren Board; Freigaben sind versioniert, nachvollziehbar und auditfest. Rollen und Vorlagen verteilen Informationen zielgerichtet. Die bidirektionale Synchronisation mit Fluke MET/TEAM und MET/CAL sorgt für konsistente Mess- und Auftragsdaten.</p>
+                <span class="pill pill--badge uk-margin-small-bottom">Kalibrierlabor</span>
+                <h3 class="uk-h2">TERAMESS – DAkkS-konforme Zertifikate in der Cloud</h3>
+                <p class="uk-text-lead">calServer CLOUD bündelt DAkkS-konforme Zertifikate, Geräteakten und Prüfberichte.</p>
+                <p>Zertifikate werden revisionssicher abgelegt; Wiederhol- und Folgemessungen bleiben transparent nachvollziehbar. Kommunikation und Dokumente laufen in klaren, prüffesten Bahnen.</p>
                 <ul class="uk-list uk-list-bullet muted">
-                  <li>Agiles Auftragsboard mit SLAs, Eskalationen und Vorlagen</li>
-                  <li>Revisionssichere DMS-Ablage inkl. Freigabe-Workflow</li>
-                  <li>Bidirektionale MET/TEAM- &amp; MET/CAL-Synchronisation</li>
+                  <li>Revisionssichere Ablage mit Versionierung</li>
+                  <li>Strukturierte Prüf- &amp; Messhistorie</li>
+                  <li>Auswertungen &amp; Serienexports für Kund:innenkommunikation</li>
                 </ul>
               </div>
               <div class="usecase-highlight">
                 <div class="uk-card uk-card-default uk-card-body uk-card-hover usecase-card">
                   <h4 class="uk-heading-bullet">Key Facts</h4>
                   <ul class="uk-list uk-list-divider">
-                    <li>Agiles Auftragsboard (SLAs, Eskalationslogik)</li>
-                    <li>Audit-Trails &amp; versionierte Freigaben</li>
-                    <li>Bidirektionale Synchronisation mit Fluke MET/TEAM &amp; MET/CAL</li>
+                    <li>Revisionssicheres DMS in der Cloud</li>
+                    <li>DAkkS-konforme Prüfhistorie</li>
+                    <li>Serienexports &amp; Auswertungen</li>
                   </ul>
                   <div class="uk-grid-small uk-child-width-1-3@s uk-text-center uk-margin-top" uk-grid>
                     <div>
                       <span class="uk-h2 uk-display-block">{TBD}</span>
-                      <span class="muted uk-text-small">aktive Vorgänge/Monat</span>
+                      <span class="muted uk-text-small">Zertifikate/Jahr</span>
                     </div>
                     <div>
                       <span class="uk-h2 uk-display-block">{TBD} %</span>
-                      <span class="muted uk-text-small">Termintreue</span>
+                      <span class="muted uk-text-small">weniger Rückfragen</span>
                     </div>
                     <div>
-                      <span class="uk-h2 uk-display-block">{TBD}×</span>
-                      <span class="muted uk-text-small">schnellere Freigaben</span>
+                      <span class="uk-h2 uk-display-block">{TBD}</span>
+                      <span class="muted uk-text-small">Kund:innen mit Portalzugang</span>
                     </div>
                   </div>
                   <a class="uk-button uk-button-text uk-margin-top" href="#">
@@ -968,7 +969,7 @@
                 </div>
                 <div class="usecase-visual uk-margin-top">
                   <div class="uk-height-medium uk-background-muted uk-border-rounded uk-flex uk-flex-middle uk-flex-center">
-                    <span class="muted">Agiles Auftragsboard &amp; DMS</span>
+                    <span class="muted">DAkkS-Zertifikate &amp; Historie</span>
                   </div>
                 </div>
               </div>
