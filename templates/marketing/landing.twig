@@ -157,7 +157,12 @@
       <strong>Kontakt</strong>
       <p>
         René Buske<br>
-        <a href="mailto:office@quizrace.app">office@quizrace.app</a><br>
+        <a
+          class="js-email-link"
+          data-user="office"
+          data-domain="calhelp.de"
+          href="#"
+        >office [at] calhelp.de</a><br>
         <a href="tel:+4933203609080">+49&nbsp;33203&nbsp;609080</a>
       </p>
     </div>
@@ -176,4 +181,17 @@
   <script src="{{ basePath }}/js/storage.js"></script>
   <script src="{{ basePath }}/js/app.js"></script>
   <script src="{{ basePath }}/js/landing.js" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.js-email-link').forEach(function (anchor) {
+        var user = anchor.getAttribute('data-user');
+        var domain = anchor.getAttribute('data-domain');
+        if (user && domain) {
+          var email = user + '@' + domain;
+          anchor.href = 'mailto:' + email;
+          anchor.textContent = email;
+        }
+      });
+    });
+  </script>
 {% endblock %}
