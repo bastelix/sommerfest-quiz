@@ -31,6 +31,35 @@ class ContactController
             return $response->withStatus(400);
         }
 
+        $honeypot = trim((string) ($data['company'] ?? ''));
+        if ($honeypot !== '') {
+            $serverParams = $request->getServerParams();
+            $ip = (string) ($serverParams['REMOTE_ADDR'] ?? 'unknown');
+            $key = 'contact_honeypot:' . $ip;
+            $shouldLog = true;
+
+            if (
+                function_exists('apcu_fetch') &&
+                function_exists('apcu_store') &&
+                function_exists('apcu_exists') &&
+                (!function_exists('apcu_enabled') || apcu_enabled())
+            ) {
+                $count = 0;
+                if (apcu_exists($key)) {
+                    $count = (int) apcu_fetch($key);
+                }
+                $shouldLog = $count < 5;
+                apcu_store($key, $count + 1, 300);
+            }
+
+            if ($shouldLog) {
+                $ua = (string) ($serverParams['HTTP_USER_AGENT'] ?? 'unknown');
+                error_log(sprintf('Contact honeypot triggered (ip=%s, ua=%s)', $ip, $ua));
+            }
+
+            return $response->withStatus(204);
+        }
+
         $name = trim((string) ($data['name'] ?? ''));
         $email = trim((string) ($data['email'] ?? ''));
         $message = trim((string) ($data['message'] ?? ''));
