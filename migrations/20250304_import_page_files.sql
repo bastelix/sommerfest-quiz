@@ -549,7 +549,12 @@ INSERT INTO pages (slug, title, content) VALUES ('landing', 'Landing', '<!-- Soc
           <div>
             <div class="uk-card uk-card-default uk-card-body uk-text-left padding-30px contact-card">
               <p class="uk-margin-small-bottom uk-text-large">E-Mail</p>
-              <a href="mailto:office@quizrace.app" class="uk-text-lead uk-link-reset">office@quizrace.app</a>
+              <a
+                class="uk-text-lead uk-link-reset js-email-link"
+                data-user="office"
+                data-domain="calhelp.de"
+                href="#"
+              >office [at] calhelp.de</a>
             </div>
           </div>
           <div>
@@ -563,6 +568,20 @@ INSERT INTO pages (slug, title, content) VALUES ('landing', 'Landing', '<!-- Soc
     </div>
   </div>
 </section>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.js-email-link').forEach(function (anchor) {
+      var user = anchor.getAttribute('data-user');
+      var domain = anchor.getAttribute('data-domain');
+      if (user && domain) {
+        var email = user + '@' + domain;
+        anchor.href = 'mailto:' + email;
+        anchor.textContent = email;
+      }
+    });
+  });
+</script>
 
 <div id="contact-modal" uk-modal>
   <div class="uk-modal-dialog uk-modal-body">
