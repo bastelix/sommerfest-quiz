@@ -20,30 +20,36 @@ class DomainMiddleware implements MiddlewareInterface
      */
     public function process(Request $request, RequestHandler $handler): Response
     {
-        $host = strtolower($request->getUri()->getHost());
-        $host = (string) preg_replace('/^(www|admin)\./', '', $host);
+        $originalHost = strtolower($request->getUri()->getHost());
+        $host = $this->normalizeHost($originalHost);
+        $marketingHost = $this->normalizeHost($originalHost, stripAdmin: false);
 
-        $mainDomain = strtolower((string) getenv('MAIN_DOMAIN'));
-        $mainDomain = (string) preg_replace('/^(www|admin)\./', '', $mainDomain);
+        $mainDomain = $this->normalizeHost((string) getenv('MAIN_DOMAIN'));
+        $marketingDomains = $this->getMarketingDomains();
 
-        $domainType = 'main';
-        if (
-            $mainDomain !== ''
-            && $host !== $mainDomain
-            && str_ends_with($host, '.' . $mainDomain)
-        ) {
-            $domainType = 'tenant';
+        $domainType = null;
+
+        if ($mainDomain !== '') {
+            if ($host === $mainDomain) {
+                $domainType = 'main';
+            } elseif ($host !== '' && str_ends_with($host, '.' . $mainDomain)) {
+                $domainType = 'tenant';
+            }
+        }
+
+        if ($domainType === null && in_array($marketingHost, $marketingDomains, true)) {
+            $domainType = 'marketing';
         }
 
         if (
             $mainDomain === ''
-            || ($domainType === 'main' && $host !== $mainDomain)
+            || $domainType === null
         ) {
             $message = 'Invalid main domain configuration.';
             error_log(sprintf(
                 'MAIN_DOMAIN misconfiguration: "%s" (request host: "%s")',
                 $mainDomain,
-                $host
+                $marketingHost !== '' ? $marketingHost : $host
             ));
 
             $accept = $request->getHeaderLine('Accept');
@@ -70,5 +76,42 @@ class DomainMiddleware implements MiddlewareInterface
         $request = $request->withAttribute('domainType', $domainType);
 
         return $handler->handle($request);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getMarketingDomains(): array
+    {
+        $env = (string) getenv('MARKETING_DOMAINS');
+        if ($env === '') {
+            return [];
+        }
+
+        $domains = preg_split('/[\s,]+/', $env);
+        if ($domains === false) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($domains as $domain) {
+            $domain = trim($domain);
+            if ($domain === '') {
+                continue;
+            }
+
+            $normalized[] = $this->normalizeHost($domain, stripAdmin: false);
+        }
+
+        return array_values(array_unique($normalized));
+    }
+
+    private function normalizeHost(string $host, bool $stripAdmin = true): string
+    {
+        $host = strtolower($host);
+
+        $pattern = $stripAdmin ? '/^(www|admin)\./' : '/^www\./';
+
+        return (string) preg_replace($pattern, '', $host);
     }
 }

@@ -111,7 +111,12 @@ class TestCase extends PHPUnit_TestCase
         if (str_contains($path, '?')) {
             [$path, $query] = explode('?', $path, 2);
         }
-        $uri = new Uri('', '', 80, $path, $query);
+        $host = getenv('MAIN_DOMAIN');
+        if ($host === false || $host === '') {
+            $host = 'example.com';
+        }
+
+        $uri = new Uri('https', $host, 443, $path, $query);
         $handle = fopen('php://temp', 'w+');
         $stream = (new StreamFactory())->createStreamFromResource($handle);
 
@@ -163,6 +168,14 @@ class TestCase extends PHPUnit_TestCase
             session_destroy();
         }
         $_COOKIE = [];
+        if (getenv('MAIN_DOMAIN') === false || getenv('MAIN_DOMAIN') === '') {
+            putenv('MAIN_DOMAIN=example.com');
+            $_ENV['MAIN_DOMAIN'] = 'example.com';
+        }
+        if (getenv('MARKETING_DOMAINS') === false) {
+            putenv('MARKETING_DOMAINS');
+            unset($_ENV['MARKETING_DOMAINS']);
+        }
         $this->pdo = null;
         parent::tearDown();
     }
