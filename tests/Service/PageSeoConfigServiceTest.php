@@ -35,14 +35,18 @@ class PageSeoConfigServiceTest extends TestCase
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
             'CREATE TABLE page_seo_config('
-            . 'page_id INTEGER PRIMARY KEY, meta_title TEXT, meta_description TEXT, '
-            . 'slug TEXT UNIQUE NOT NULL, canonical_url TEXT, robots_meta TEXT, '
+            . 'page_id INTEGER PRIMARY KEY, domain TEXT, meta_title TEXT, meta_description TEXT, '
+            . 'slug TEXT NOT NULL, canonical_url TEXT, robots_meta TEXT, '
             . 'og_title TEXT, og_description TEXT, og_image TEXT, schema_json TEXT, '
             . 'hreflang TEXT, created_at TEXT, updated_at TEXT)'
         );
         $pdo->exec(
+            'CREATE UNIQUE INDEX idx_page_seo_config_domain_slug '
+            . 'ON page_seo_config(COALESCE(domain, \'\'), slug)'
+        );
+        $pdo->exec(
             'CREATE TABLE page_seo_config_history('
-            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, page_id INTEGER, meta_title TEXT, '
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, page_id INTEGER, domain TEXT, meta_title TEXT, '
             . 'meta_description TEXT, slug TEXT, canonical_url TEXT, robots_meta TEXT, '
             . 'og_title TEXT, og_description TEXT, og_image TEXT, schema_json TEXT, '
             . 'hreflang TEXT, created_at TEXT)'
@@ -50,11 +54,11 @@ class PageSeoConfigServiceTest extends TestCase
         $cache = new PageSeoCache();
         $redirects = new NullRedirectManager();
         $service = new PageSeoConfigService($pdo, $redirects, null, $cache);
-        $config = new PageSeoConfig(1, 'start');
+        $config = new PageSeoConfig(1, 'start', domain: 'quizrace.app');
         $service->save($config);
         $first = $service->load(1);
         $this->assertSame('start', $first->getSlug());
-        $service->save(new PageSeoConfig(1, 'changed'));
+        $service->save(new PageSeoConfig(1, 'changed', domain: 'quizrace.app'));
         $second = $service->load(1);
         $this->assertSame('changed', $second->getSlug());
         $row = $pdo->query('SELECT slug FROM page_seo_config WHERE page_id = 1')->fetch(PDO::FETCH_ASSOC);
@@ -78,23 +82,75 @@ class PageSeoConfigServiceTest extends TestCase
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
             'CREATE TABLE page_seo_config('
-            . 'page_id INTEGER PRIMARY KEY, meta_title TEXT, meta_description TEXT, '
-            . 'slug TEXT UNIQUE NOT NULL, canonical_url TEXT, robots_meta TEXT, '
+            . 'page_id INTEGER PRIMARY KEY, domain TEXT, meta_title TEXT, meta_description TEXT, '
+            . 'slug TEXT NOT NULL, canonical_url TEXT, robots_meta TEXT, '
             . 'og_title TEXT, og_description TEXT, og_image TEXT, schema_json TEXT, '
             . 'hreflang TEXT, created_at TEXT, updated_at TEXT)'
         );
         $pdo->exec(
+            'CREATE UNIQUE INDEX idx_page_seo_config_domain_slug '
+            . 'ON page_seo_config(COALESCE(domain, \'\'), slug)'
+        );
+        $pdo->exec(
             'CREATE TABLE page_seo_config_history('
-            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, page_id INTEGER, meta_title TEXT, '
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, page_id INTEGER, domain TEXT, meta_title TEXT, '
             . 'meta_description TEXT, slug TEXT, canonical_url TEXT, robots_meta TEXT, '
             . 'og_title TEXT, og_description TEXT, og_image TEXT, schema_json TEXT, '
             . 'hreflang TEXT, created_at TEXT)'
         );
         $redirects = new NullRedirectManager();
         $service = new PageSeoConfigService($pdo, $redirects);
-        $config = new PageSeoConfig(1, 'slug', schemaJson: '');
+        $config = new PageSeoConfig(1, 'slug', schemaJson: '', domain: 'quizrace.app');
         $service->save($config);
         $row = $pdo->query('SELECT schema_json FROM page_seo_config WHERE page_id = 1')->fetch(PDO::FETCH_ASSOC);
         $this->assertNull($row['schema_json']);
+    }
+
+    public function testCanonicalAndRobotsUpdatedOnUpsert(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            'CREATE TABLE page_seo_config('
+            . 'page_id INTEGER PRIMARY KEY, domain TEXT, meta_title TEXT, meta_description TEXT, '
+            . 'slug TEXT NOT NULL, canonical_url TEXT, robots_meta TEXT, '
+            . 'og_title TEXT, og_description TEXT, og_image TEXT, schema_json TEXT, '
+            . 'hreflang TEXT, created_at TEXT, updated_at TEXT)'
+        );
+        $pdo->exec(
+            'CREATE UNIQUE INDEX idx_page_seo_config_domain_slug '
+            . 'ON page_seo_config(COALESCE(domain, \'\'), slug)'
+        );
+        $pdo->exec(
+            'CREATE TABLE page_seo_config_history('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, page_id INTEGER, domain TEXT, meta_title TEXT, '
+            . 'meta_description TEXT, slug TEXT, canonical_url TEXT, robots_meta TEXT, '
+            . 'og_title TEXT, og_description TEXT, og_image TEXT, schema_json TEXT, '
+            . 'hreflang TEXT, created_at TEXT)'
+        );
+        $redirects = new NullRedirectManager();
+        $service = new PageSeoConfigService($pdo, $redirects);
+
+        $service->save(new PageSeoConfig(
+            1,
+            '/',
+            canonicalUrl: 'https://quizrace.app/',
+            robotsMeta: 'index, follow',
+            domain: 'quizrace.app'
+        ));
+
+        $service->save(new PageSeoConfig(
+            1,
+            '/',
+            canonicalUrl: 'https://quizrace.app/landing',
+            robotsMeta: 'noindex, follow',
+            domain: 'quizrace.app'
+        ));
+
+        $row = $pdo->query('SELECT canonical_url, robots_meta FROM page_seo_config WHERE page_id = 1')
+            ->fetch(PDO::FETCH_ASSOC);
+
+        $this->assertSame('https://quizrace.app/landing', $row['canonical_url']);
+        $this->assertSame('noindex, follow', $row['robots_meta']);
     }
 }

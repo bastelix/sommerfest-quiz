@@ -48,7 +48,7 @@ class PageSeoConfigService
         }
 
         $stmt = $this->pdo->prepare(
-            'SELECT slug, meta_title, meta_description, canonical_url, robots_meta, '
+            'SELECT slug, domain, meta_title, meta_description, canonical_url, robots_meta, '
             . 'og_title, og_description, og_image, schema_json, hreflang '
             . 'FROM page_seo_config WHERE page_id = ?'
         );
@@ -66,7 +66,8 @@ class PageSeoConfigService
                 $row['og_description'] !== null ? (string) $row['og_description'] : null,
                 $row['og_image'] !== null ? (string) $row['og_image'] : null,
                 $row['schema_json'] !== null ? (string) $row['schema_json'] : null,
-                $row['hreflang'] !== null ? (string) $row['hreflang'] : null
+                $row['hreflang'] !== null ? (string) $row['hreflang'] : null,
+                $row['domain'] !== null ? (string) $row['domain'] : null
             );
             $this->cache->set($config);
             return $config;
@@ -77,14 +78,16 @@ class PageSeoConfigService
 
     public function save(PageSeoConfig $config): void
     {
-        $stmt = $this->pdo->prepare('SELECT slug, canonical_url FROM page_seo_config WHERE page_id = ?');
+        $stmt = $this->pdo->prepare('SELECT slug, canonical_url, domain FROM page_seo_config WHERE page_id = ?');
         $stmt->execute([$config->getPageId()]);
         $existing = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 
         if (is_array($existing)) {
             $oldSlug = $existing['slug'] ?? null;
             $oldCanonical = $existing['canonical_url'] ?? null;
-            if ($oldSlug && $oldSlug !== $config->getSlug()) {
+            $oldDomain = isset($existing['domain']) ? (string) $existing['domain'] : null;
+            $normalizedDomain = $this->normalizeDomain($config->getDomain());
+            if ($oldSlug && $oldSlug !== $config->getSlug() && $oldDomain === $normalizedDomain) {
                 $this->redirects->register('/' . ltrim((string) $oldSlug, '/'), '/' . ltrim($config->getSlug(), '/'));
             }
             if ($oldCanonical && $config->getCanonicalUrl() && $oldCanonical !== $config->getCanonicalUrl()) {
@@ -92,8 +95,11 @@ class PageSeoConfigService
             }
         }
 
+        $normalizedDomain = $this->normalizeDomain($config->getDomain());
+
         $params = [
             $config->getPageId(),
+            $normalizedDomain,
             $config->getMetaTitle(),
             $config->getMetaDescription(),
             $config->getSlug(),
@@ -108,10 +114,10 @@ class PageSeoConfigService
 
         $upsert = $this->pdo->prepare(
             'INSERT INTO page_seo_config('
-            . 'page_id, meta_title, meta_description, slug, canonical_url, robots_meta, '
+            . 'page_id, domain, meta_title, meta_description, slug, canonical_url, robots_meta, '
             . 'og_title, og_description, og_image, schema_json, hreflang) '
-            . 'VALUES(?,?,?,?,?,?,?,?,?,?,?) '
-            . 'ON CONFLICT(page_id) DO UPDATE SET meta_title=excluded.meta_title, '
+            . 'VALUES(?,?,?,?,?,?,?,?,?,?,?,?) '
+            . 'ON CONFLICT(page_id) DO UPDATE SET domain=excluded.domain, meta_title=excluded.meta_title, '
             . 'meta_description=excluded.meta_description, slug=excluded.slug, '
             . 'canonical_url=excluded.canonical_url, robots_meta=excluded.robots_meta, '
             . 'og_title=excluded.og_title, og_description=excluded.og_description, '
@@ -122,9 +128,9 @@ class PageSeoConfigService
 
         $history = $this->pdo->prepare(
             'INSERT INTO page_seo_config_history('
-            . 'page_id, meta_title, meta_description, slug, canonical_url, robots_meta, '
+            . 'page_id, domain, meta_title, meta_description, slug, canonical_url, robots_meta, '
             . 'og_title, og_description, og_image, schema_json, hreflang) '
-            . 'VALUES(?,?,?,?,?,?,?,?,?,?,?)'
+            . 'VALUES(?,?,?,?,?,?,?,?,?,?,?,?)'
         );
         $history->execute($params);
 
@@ -144,6 +150,7 @@ class PageSeoConfigService
         return [
             'pageId' => $pageId,
             'slug' => '',
+            'domain' => null,
             'metaTitle' => null,
             'metaDescription' => null,
             'canonicalUrl' => null,
@@ -180,6 +187,41 @@ class PageSeoConfigService
      */
     public function validate(array $data): array
     {
-        return $this->validator->validate($data);
+        $data['domain'] = $this->normalizeDomain(isset($data['domain']) ? (string) $data['domain'] : null);
+
+        $errors = $this->validator->validate($data);
+
+        $slug = isset($data['slug']) ? (string) $data['slug'] : '';
+        $pageId = isset($data['pageId']) ? (int) $data['pageId'] : 0;
+        $domainKey = $data['domain'] ?? '';
+
+        if ($slug !== '' && $pageId > 0) {
+            $stmt = $this->pdo->prepare(
+                'SELECT 1 FROM page_seo_config '
+                . 'WHERE slug = ? AND COALESCE(domain, \'\') = COALESCE(?, \'\') AND page_id <> ?'
+            );
+            $stmt->execute([$slug, $domainKey, $pageId]);
+            if ($stmt->fetchColumn() !== false) {
+                $errors['slug'] = 'Slug bereits für diese Domain vergeben';
+            }
+        }
+
+        return $errors;
+    }
+
+    private function normalizeDomain(?string $domain): ?string
+    {
+        if ($domain === null) {
+            return null;
+        }
+
+        $normalized = strtolower(trim($domain));
+        if ($normalized === '') {
+            return null;
+        }
+
+        $normalized = (string) preg_replace('/^(www|admin)\./', '', $normalized);
+
+        return $normalized === '' ? null : $normalized;
     }
 }

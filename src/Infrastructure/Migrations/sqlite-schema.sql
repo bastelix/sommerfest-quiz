@@ -294,9 +294,10 @@ CREATE TABLE IF NOT EXISTS pages (
 -- Page SEO config
 CREATE TABLE IF NOT EXISTS page_seo_config (
     page_id INTEGER PRIMARY KEY REFERENCES pages(id) ON DELETE CASCADE,
+    domain TEXT,
     meta_title TEXT,
     meta_description TEXT,
-    slug TEXT UNIQUE NOT NULL,
+    slug TEXT NOT NULL,
     canonical_url TEXT,
     robots_meta TEXT,
     og_title TEXT,
@@ -307,11 +308,13 @@ CREATE TABLE IF NOT EXISTS page_seo_config (
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
-CREATE UNIQUE INDEX IF NOT EXISTS idx_page_seo_config_slug ON page_seo_config(slug);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_page_seo_config_domain_slug
+    ON page_seo_config(COALESCE(domain, ''), slug);
 
 CREATE TABLE IF NOT EXISTS page_seo_config_history (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     page_id INTEGER NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
+    domain TEXT,
     meta_title TEXT,
     meta_description TEXT,
     slug TEXT,

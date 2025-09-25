@@ -19,6 +19,8 @@ class PageSeoConfig implements JsonSerializable
 
     private string $slug;
 
+    private ?string $domain;
+
     private ?string $canonicalUrl;
 
     private ?string $robotsMeta;
@@ -47,10 +49,12 @@ class PageSeoConfig implements JsonSerializable
         ?string $ogDescription = null,
         ?string $ogImage = null,
         ?string $schemaJson = null,
-        ?string $hreflang = null
+        ?string $hreflang = null,
+        ?string $domain = null
     ) {
         $this->pageId = $pageId;
         $this->slug = $slug;
+        $this->domain = $domain;
         $this->metaTitle = $metaTitle;
         $this->metaDescription = $metaDescription;
         $this->canonicalUrl = $canonicalUrl;
@@ -85,6 +89,11 @@ class PageSeoConfig implements JsonSerializable
     public function getCanonicalUrl(): ?string
     {
         return $this->canonicalUrl;
+    }
+
+    public function getDomain(): ?string
+    {
+        return $this->domain;
     }
 
     public function getRobotsMeta(): ?string
@@ -141,6 +150,7 @@ class PageSeoConfig implements JsonSerializable
             'metaTitle' => $this->metaTitle,
             'metaDescription' => $this->metaDescription,
             'slug' => $this->slug,
+            'domain' => $this->domain,
             'canonicalUrl' => $this->canonicalUrl,
             'robotsMeta' => $this->robotsMeta,
             'ogTitle' => $this->ogTitle,
