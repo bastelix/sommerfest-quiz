@@ -1062,6 +1062,13 @@ body.qr-landing.calserver-theme .feature-nav__pill {
         transform 180ms ease, box-shadow 180ms ease;
 }
 
+body.qr-landing.calserver-theme .feature-nav__pill.is-active {
+    background: var(--qr-landing-primary);
+    color: #fff;
+    box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.4) inset,
+        0 20px 34px -24px rgba(31, 99, 230, 0.95);
+}
+
 body.qr-landing.calserver-theme .feature-nav__pill:hover,
 body.qr-landing.calserver-theme .feature-nav__pill:focus {
     background: var(--qr-landing-primary);
