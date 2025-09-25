@@ -624,7 +624,22 @@
             };
 
             const setActive = (index) => {
-              pills.forEach((li, i) => li.classList.toggle('uk-active', i === index));
+              pills.forEach((li, i) => {
+                const isActive = i === index;
+                li.classList.toggle('uk-active', isActive);
+
+                const link = li.querySelector('.feature-nav__pill');
+                if (!link) {
+                  return;
+                }
+
+                link.classList.toggle('is-active', isActive);
+                if (isActive) {
+                  link.setAttribute('aria-current', 'true');
+                } else {
+                  link.removeAttribute('aria-current');
+                }
+              });
             };
 
             const setCurrent = (index) => {
