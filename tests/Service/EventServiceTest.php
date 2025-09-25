@@ -197,6 +197,42 @@ class EventServiceTest extends TestCase
         $this->assertSame(20, $count);
     }
 
+    public function testDraftEventsAreIgnoredOnSave(): void
+    {
+        $pdo = $this->createPdo();
+        $service = new EventService($pdo);
+
+        $service->saveAll([
+            ['uid' => 'draft-1', 'name' => '__draft__draft-1', 'draft' => true],
+            ['uid' => 'valid-1', 'name' => '  Valid Name  '],
+        ]);
+
+        $rows = $pdo->query('SELECT uid, name FROM events ORDER BY sort_order')->fetchAll(PDO::FETCH_ASSOC);
+        $this->assertSame([
+            ['uid' => 'valid-1', 'name' => 'Valid Name'],
+        ], $rows);
+    }
+
+    public function testDraftOnlyPayloadKeepsExistingEvents(): void
+    {
+        $pdo = $this->createPdo();
+        $service = new EventService($pdo);
+
+        $service->saveAll([
+            ['uid' => 'persist', 'name' => 'Keep Me'],
+        ]);
+
+        $service->saveAll([
+            ['uid' => 'draft-1', 'name' => '__draft__draft-1', 'draft' => true],
+            ['uid' => 'draft-2', 'name' => '  ', 'draft' => true],
+        ]);
+
+        $rows = $pdo->query('SELECT uid, name FROM events ORDER BY sort_order')->fetchAll(PDO::FETCH_ASSOC);
+        $this->assertSame([
+            ['uid' => 'persist', 'name' => 'Keep Me'],
+        ], $rows);
+    }
+
     public function testGetBySlugAndUidBySlug(): void
     {
         $pdo = $this->createPdo();
