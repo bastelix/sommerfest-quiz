@@ -4,25 +4,27 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Application\Seo\PageSeoConfigService;
+use App\Controller\Admin\LandingpageController as LandingpageSeoController;
+use App\Domain\Page;
+use App\Domain\Roles;
+use App\Infrastructure\Database;
+use App\Service\CatalogService;
+use App\Service\ConfigService;
+use App\Service\EventService;
+use App\Service\PageService;
+use App\Service\ResultService;
+use App\Service\SettingsService;
+use App\Service\StripeService;
+use App\Service\TeamService;
+use App\Service\TenantService;
+use App\Service\UrlService;
+use App\Service\UserService;
+use App\Service\VersionService;
+use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
-use App\Service\ConfigService;
-use App\Service\ResultService;
-use App\Service\CatalogService;
-use App\Service\TeamService;
-use App\Service\EventService;
-use App\Service\SettingsService;
-use App\Service\UserService;
-use App\Service\TenantService;
-use App\Domain\Roles;
-use App\Infrastructure\Database;
-use App\Service\StripeService;
-use App\Service\VersionService;
-use App\Application\Seo\PageSeoConfigService;
-use App\Service\UrlService;
-use App\Service\PageService;
-use PDO;
 
 /**
  * Shows the main administration dashboard.
@@ -133,10 +135,12 @@ class AdminController
         }
 
         $pageSlugs = ['landing', 'impressum', 'datenschutz', 'faq', 'lizenz'];
-        $pageSvc = new PageService();
+        $pageSvc = new PageService($pdo);
         foreach ($pageSlugs as $slug) {
             $pages[$slug] = $pageSvc->get($slug) ?? '';
         }
+
+        $marketingPages = $this->filterMarketingPages($pageSvc->getAll());
 
         $domainType = $request->getAttribute('domainType');
         if ($domainType === 'main') {
@@ -186,8 +190,13 @@ class AdminController
             ?: getenv('DOMAIN')
             ?: $uri->getHost();
 
-        $seoSvc    = new PageSeoConfigService($pdo);
-        $seoConfig = $seoSvc->load(1);
+        $seoSvc = new PageSeoConfigService($pdo);
+        $selectedSeoSlug = isset($params['seoPage']) ? (string) $params['seoPage'] : '';
+        $selectedSeoPage = $this->selectSeoPage($marketingPages, $selectedSeoSlug);
+        $seoPages = $this->buildSeoPageData($seoSvc, $marketingPages);
+        $seoConfig = $selectedSeoPage !== null && isset($seoPages[$selectedSeoPage->getId()])
+            ? $seoPages[$selectedSeoPage->getId()]['config']
+            : [];
 
           return $view->render($response, 'admin.twig', [
               'config' => $cfg,
@@ -204,7 +213,9 @@ class AdminController
               'event' => $event,
               'role' => $role,
               'pages' => $pages,
-              'seo_config' => $seoConfig ? $seoConfig->jsonSerialize() : [],
+              'seo_config' => $seoConfig,
+              'seo_pages' => array_values($seoPages),
+              'selectedSeoPageId' => $selectedSeoPage?->getId(),
               'domainType' => $request->getAttribute('domainType'),
               'tenant' => $tenant,
               'stripe_configured' => StripeService::isConfigured()['ok'],
@@ -214,5 +225,55 @@ class AdminController
               'csrf_token' => $csrf,
               'version' => $version,
           ]);
+    }
+
+    /**
+     * @param Page[] $pages
+     * @return Page[]
+     */
+    private function filterMarketingPages(array $pages): array
+    {
+        return array_values(array_filter(
+            $pages,
+            static fn (Page $page): bool => !in_array($page->getSlug(), LandingpageSeoController::EXCLUDED_SLUGS, true)
+        ));
+    }
+
+    /**
+     * @param Page[] $pages
+     */
+    private function selectSeoPage(array $pages, string $slug): ?Page
+    {
+        if ($pages === []) {
+            return null;
+        }
+
+        foreach ($pages as $page) {
+            if ($slug !== '' && $page->getSlug() === $slug) {
+                return $page;
+            }
+        }
+
+        return $pages[0];
+    }
+
+    /**
+     * @param Page[] $pages
+     * @return array<int,array{id:int,slug:string,title:string,config:array<string,mixed>}> keyed by page id
+     */
+    private function buildSeoPageData(PageSeoConfigService $service, array $pages): array
+    {
+        $result = [];
+        foreach ($pages as $page) {
+            $config = $service->load($page->getId());
+            $result[$page->getId()] = [
+                'id' => $page->getId(),
+                'slug' => $page->getSlug(),
+                'title' => $page->getTitle(),
+                'config' => $config ? $config->jsonSerialize() : $service->defaultConfig($page->getId()),
+            ];
+        }
+
+        return $result;
     }
 }

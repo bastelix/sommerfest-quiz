@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Domain\Page;
 use App\Infrastructure\Database;
 use PDO;
 
@@ -31,5 +32,54 @@ class PageService
     {
         $stmt = $this->pdo->prepare('UPDATE pages SET content = ?, updated_at = CURRENT_TIMESTAMP WHERE slug = ?');
         $stmt->execute([$content, $slug]);
+    }
+
+    /**
+     * Fetch all stored pages.
+     *
+     * @return Page[]
+     */
+    public function getAll(): array
+    {
+        $stmt = $this->pdo->query('SELECT id, slug, title, content FROM pages ORDER BY title');
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+        $pages = [];
+        foreach ($rows as $row) {
+            $id = isset($row['id']) ? (int) $row['id'] : 0;
+            $slug = isset($row['slug']) ? (string) $row['slug'] : '';
+            $title = isset($row['title']) ? (string) $row['title'] : '';
+            $content = isset($row['content']) ? (string) $row['content'] : '';
+
+            if ($id <= 0 || $slug === '' || $title === '') {
+                continue;
+            }
+
+            $pages[] = new Page($id, $slug, $title, $content);
+        }
+
+        return $pages;
+    }
+
+    public function findById(int $id): ?Page
+    {
+        if ($id <= 0) {
+            return null;
+        }
+
+        $stmt = $this->pdo->prepare('SELECT id, slug, title, content FROM pages WHERE id = ?');
+        $stmt->execute([$id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            return null;
+        }
+
+        $slug = isset($row['slug']) ? (string) $row['slug'] : '';
+        $title = isset($row['title']) ? (string) $row['title'] : '';
+        if ($slug === '' || $title === '') {
+            return null;
+        }
+
+        return new Page((int) $row['id'], $slug, $title, (string) ($row['content'] ?? ''));
     }
 }

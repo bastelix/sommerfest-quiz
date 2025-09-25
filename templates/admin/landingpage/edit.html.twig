@@ -13,9 +13,33 @@
 {% block body %}
   <div class="uk-container uk-container-small">
     <h1 class="uk-heading-bullet">Landingpage bearbeiten</h1>
+    {% if seoPages|default([]) is empty %}
+      <div class="uk-alert uk-alert-warning">Keine Marketing-Seiten gefunden.</div>
+    {% else %}
     <form class="uk-form-stacked seo-form" action="{{ basePath }}/admin/landingpage/seo" method="post">
-      <input type="hidden" name="pageId" value="1">
+      <input type="hidden" name="pageId" value="{{ config.pageId|default(selectedPageId)|default('') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <div class="uk-margin">
+        <label class="uk-form-label" for="seoPageSelect">Marketing-Seite</label>
+        <div class="uk-form-controls">
+          <select
+            id="seoPageSelect"
+            class="uk-select"
+            data-configs="{{ seoPages|json_encode|e('html_attr') }}"
+            data-selected="{{ selectedPageId|default(config.pageId|default('')) }}"
+          >
+            {% for page in seoPages %}
+              <option
+                value="{{ page.id }}"{% if page.id == selectedPageId %} selected{% endif %}
+                data-slug="{{ page.slug }}"
+                data-title="{{ page.title }}"
+              >
+                {{ page.title }} ({{ page.slug }})
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
       <h2>SEO</h2>
       <div class="uk-margin">
         <label class="uk-form-label" for="metaTitle">Meta Title</label>
@@ -74,6 +98,7 @@
         <button type="submit" class="uk-button uk-button-primary uk-margin-left">Speichern</button>
       </div>
     </form>
+    {% endif %}
   </div>
 {% endblock %}
 
