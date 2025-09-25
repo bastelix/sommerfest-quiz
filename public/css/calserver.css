@@ -1264,6 +1264,7 @@ body.qr-landing.calserver-theme .calserver-module-figure .uk-list {
     body.qr-landing.calserver-theme .calserver-modules-nav > li {
         min-width: 0;
         width: min(100%, 360px);
+        margin-inline: auto;
     }
 
     body.qr-landing.calserver-theme .calserver-modules-nav__link {
