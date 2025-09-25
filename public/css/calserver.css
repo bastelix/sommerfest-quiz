@@ -1245,6 +1245,20 @@ body.qr-landing.calserver-theme .calserver-module-figure .uk-list {
 }
 
 @media (max-width: 640px) {
+    body.qr-landing.calserver-theme .calserver-modules-nav {
+        flex-direction: column;
+        align-items: center;
+        overflow-x: visible;
+        padding-bottom: 0;
+        margin-bottom: 0;
+        gap: 12px;
+    }
+
+    body.qr-landing.calserver-theme .calserver-modules-nav > li {
+        min-width: 0;
+        width: min(100%, 360px);
+    }
+
     body.qr-landing.calserver-theme .calserver-modules-nav__link {
         padding: 16px;
     }
