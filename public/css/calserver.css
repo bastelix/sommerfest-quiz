@@ -12,24 +12,6 @@ body.qr-landing.calserver-theme {
     --cs-hero-overlay-top: color-mix(in oklab, var(--calserver-primary) 16%, transparent);
     --cs-hero-overlay-bottom: color-mix(in oklab, var(--calserver-primary) 4%, transparent);
     --cs-hero-shadow: 0 42px 82px -58px rgba(15, 23, 42, 0.6);
-    --cs-hero-surface-bg: linear-gradient(
-        180deg,
-        color-mix(in oklab, var(--calserver-primary) 14%, rgba(248, 251, 255, 0.95)) 0%,
-        color-mix(in oklab, var(--calserver-primary) 6%, rgba(255, 255, 255, 0.98)) 100%
-    );
-    --cs-hero-surface-overlay: radial-gradient(
-            120% 110% at 0% 0%,
-            color-mix(in oklab, var(--calserver-primary) 18%, transparent) 0%,
-            transparent 62%
-        ),
-        radial-gradient(
-            120% 120% at 100% 0%,
-            color-mix(in oklab, var(--calserver-primary) 22%, transparent) 0%,
-            transparent 66%
-        );
-    --cs-hero-surface-border: color-mix(in oklab, var(--calserver-primary) 30%, rgba(17, 49, 105, 0.16));
-    --cs-hero-surface-shadow: 0 32px 76px -46px rgba(48, 88, 170, 0.22),
-        0 22px 52px -42px rgba(30, 64, 132, 0.18);
     --cs-highlight-bg: color-mix(in oklab, var(--calserver-primary) 12%, var(--qr-card) 88%);
     --cs-highlight-border-top: color-mix(in oklab, var(--calserver-primary) 22%, transparent);
     --cs-highlight-border-bottom: color-mix(in oklab, var(--calserver-primary) 14%, transparent);
@@ -38,11 +20,6 @@ body.qr-landing.calserver-theme {
     --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 12%, transparent);
     --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 30%, transparent);
     --cs-highlight-card-shadow: 0 18px 34px -28px rgba(15, 23, 42, 0.5);
-    --cs-highlight-surface-overlay: radial-gradient(
-        140% 120% at 50% 0%,
-        color-mix(in oklab, var(--calserver-primary) 16%, rgba(255, 255, 255, 0.75)) 0%,
-        transparent 70%
-    );
     scroll-behavior: smooth;
 }
 
@@ -62,41 +39,18 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) {
     --cs-hero-overlay-top: color-mix(in oklab, var(--calserver-primary) 42%, rgba(7, 12, 26, 0.9));
     --cs-hero-overlay-bottom: color-mix(in oklab, var(--calserver-primary) 22%, rgba(5, 9, 19, 0.92));
     --cs-hero-shadow: 0 48px 90px -60px rgba(5, 10, 22, 0.85);
-    --cs-hero-surface-bg: linear-gradient(
-        180deg,
-        color-mix(in oklab, var(--calserver-primary) 32%, rgba(8, 14, 28, 0.96)) 0%,
-        color-mix(in oklab, var(--calserver-primary) 18%, rgba(5, 10, 22, 0.94)) 100%
-    );
-    --cs-hero-surface-overlay: radial-gradient(
-            135% 120% at 12% 0%,
-            color-mix(in oklab, var(--calserver-primary) 46%, rgba(22, 44, 96, 0.85)) 0%,
-            transparent 64%
-        ),
-        radial-gradient(
-            130% 140% at 100% 10%,
-            color-mix(in oklab, var(--calserver-primary) 52%, rgba(18, 36, 80, 0.82)) 0%,
-            transparent 66%
-        );
-    --cs-hero-surface-border: color-mix(in oklab, var(--calserver-primary) 60%, rgba(255, 255, 255, 0.22));
-    --cs-hero-surface-shadow: 0 50px 118px -66px rgba(3, 6, 18, 0.94),
-        0 30px 62px -50px rgba(20, 58, 148, 0.6);
     --cs-highlight-bg: linear-gradient(
         180deg,
-        color-mix(in oklab, var(--calserver-primary) 32%, rgba(8, 15, 30, 0.94)) 0%,
-        color-mix(in oklab, var(--calserver-primary) 20%, rgba(6, 12, 26, 0.9)) 100%
+        color-mix(in oklab, var(--calserver-primary) 26%, rgba(7, 12, 26, 0.96)) 0%,
+        color-mix(in oklab, var(--calserver-primary) 18%, rgba(5, 10, 21, 0.94)) 100%
     );
     --cs-highlight-border-top: color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.14));
-    --cs-highlight-border-bottom: color-mix(in oklab, var(--calserver-primary) 44%, rgba(255, 255, 255, 0.12));
-    --cs-highlight-shadow: 0 44px 102px -62px rgba(4, 9, 22, 0.86),
-        0 30px 64px -50px rgba(14, 30, 60, 0.62);
-    --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 32%, rgba(9, 16, 32, 0.86));
-    --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 64%, rgba(255, 255, 255, 0.2));
-    --cs-highlight-card-shadow: 0 30px 58px -36px rgba(6, 12, 28, 0.75);
-    --cs-highlight-surface-overlay: radial-gradient(
-        140% 120% at 50% 0%,
-        color-mix(in oklab, var(--calserver-primary) 32%, rgba(10, 18, 38, 0.9)) 0%,
-        transparent 68%
-    );
+    --cs-highlight-border-bottom: color-mix(in oklab, var(--calserver-primary) 42%, rgba(255, 255, 255, 0.12));
+    --cs-highlight-shadow: 0 -28px 72px -54px rgba(5, 10, 20, 0.78),
+        0 36px 84px -52px rgba(6, 12, 28, 0.88);
+    --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 28%, rgba(6, 12, 26, 0.86));
+    --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 60%, rgba(255, 255, 255, 0.18));
+    --cs-highlight-card-shadow: 0 26px 46px -30px rgba(4, 10, 24, 0.72);
 }
 
 body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary,
@@ -253,41 +207,18 @@ body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) {
     --cs-hero-overlay-top: color-mix(in oklab, var(--calserver-primary) 18%, rgba(248, 251, 255, 0.94));
     --cs-hero-overlay-bottom: color-mix(in oklab, var(--calserver-primary) 8%, rgba(255, 255, 255, 0.96));
     --cs-hero-shadow: 0 34px 76px -54px rgba(38, 72, 150, 0.45);
-    --cs-hero-surface-bg: linear-gradient(
-        180deg,
-        color-mix(in oklab, var(--calserver-primary) 16%, rgba(246, 249, 255, 0.96)) 0%,
-        color-mix(in oklab, var(--calserver-primary) 8%, rgba(255, 255, 255, 0.98)) 100%
-    );
-    --cs-hero-surface-overlay: radial-gradient(
-            120% 120% at 0% 0%,
-            color-mix(in oklab, var(--calserver-primary) 22%, rgba(255, 255, 255, 0.82)) 0%,
-            transparent 62%
-        ),
-        radial-gradient(
-            120% 130% at 100% 0%,
-            color-mix(in oklab, var(--calserver-primary) 24%, rgba(255, 255, 255, 0.84)) 0%,
-            transparent 64%
-        );
-    --cs-hero-surface-border: color-mix(in oklab, var(--calserver-primary) 36%, rgba(17, 49, 105, 0.18));
-    --cs-hero-surface-shadow: 0 34px 80px -48px rgba(44, 82, 164, 0.24),
-        0 24px 54px -44px rgba(30, 64, 138, 0.2);
     --cs-highlight-bg: linear-gradient(
         180deg,
-        color-mix(in oklab, var(--calserver-primary) 12%, rgba(243, 247, 255, 0.96)) 0%,
-        color-mix(in oklab, var(--calserver-primary) 7%, rgba(255, 255, 255, 0.98)) 100%
+        color-mix(in oklab, var(--calserver-primary) 10%, rgba(243, 247, 255, 0.96)) 0%,
+        color-mix(in oklab, var(--calserver-primary) 6%, rgba(255, 255, 255, 0.98)) 100%
     );
-    --cs-highlight-border-top: color-mix(in oklab, var(--calserver-primary) 36%, rgba(17, 49, 105, 0.18));
-    --cs-highlight-border-bottom: color-mix(in oklab, var(--calserver-primary) 20%, rgba(17, 49, 105, 0.14));
-    --cs-highlight-shadow: 0 32px 80px -54px rgba(48, 82, 160, 0.22),
-        0 24px 58px -46px rgba(34, 68, 140, 0.18);
-    --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 12%, rgba(255, 255, 255, 0.96));
-    --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 28%, rgba(17, 49, 105, 0.12));
-    --cs-highlight-card-shadow: 0 24px 50px -34px rgba(32, 72, 150, 0.22);
-    --cs-highlight-surface-overlay: radial-gradient(
-        140% 120% at 50% 0%,
-        color-mix(in oklab, var(--calserver-primary) 18%, rgba(255, 255, 255, 0.78)) 0%,
-        transparent 68%
-    );
+    --cs-highlight-border-top: color-mix(in oklab, var(--calserver-primary) 34%, rgba(17, 49, 105, 0.18));
+    --cs-highlight-border-bottom: color-mix(in oklab, var(--calserver-primary) 22%, rgba(17, 49, 105, 0.14));
+    --cs-highlight-shadow: 0 -20px 48px -36px rgba(58, 100, 200, 0.22),
+        0 26px 54px -38px rgba(34, 68, 140, 0.18);
+    --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 9%, rgba(255, 255, 255, 0.96));
+    --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 26%, rgba(17, 49, 105, 0.12));
+    --cs-highlight-card-shadow: 0 22px 42px -28px rgba(31, 73, 160, 0.22);
 }
 
 body.qr-landing.calserver-theme:not(.high-contrast) .hero-bg-calserver {
@@ -306,22 +237,6 @@ body.qr-landing.calserver-theme:not(.high-contrast) .hero-bg-calserver {
         var(--qr-hero-gradient);
     background-color: var(--qr-hero-grad-start);
     box-shadow: var(--cs-hero-shadow);
-}
-
-body.qr-landing.calserver-theme .calserver-hero-surface {
-    position: relative;
-    z-index: 0;
-    padding: clamp(24px, 6vw, 56px);
-    border-radius: clamp(24px, 5vw, 42px);
-    background: var(--cs-hero-surface-overlay), var(--cs-hero-surface-bg);
-    border: 1px solid var(--cs-hero-surface-border);
-    box-shadow: var(--cs-hero-surface-shadow);
-    overflow: hidden;
-}
-
-body.qr-landing.calserver-theme .calserver-hero-surface > * {
-    position: relative;
-    z-index: 1;
 }
 
 body.qr-landing.calserver-theme .calserver-hero-grid {
@@ -556,36 +471,22 @@ body.qr-landing.calserver-theme .pricing-card--featured li {
 
 body.qr-landing.calserver-theme .calserver-highlight {
     position: relative;
-    padding: clamp(68px, 9vw, 108px) 0;
-    z-index: 0;
-}
-
-body.qr-landing.calserver-theme .calserver-highlight .uk-container {
-    position: relative;
-    z-index: 1;
-}
-
-body.qr-landing.calserver-theme .calserver-highlight-surface {
-    position: relative;
-    z-index: 0;
-    padding: clamp(32px, 6vw, 64px);
-    border-radius: clamp(28px, 6vw, 44px);
-    background: var(--cs-highlight-surface-overlay), var(--cs-highlight-bg);
+    padding: 32px 0 28px;
+    background: var(--cs-highlight-bg);
     border-top: 1px solid var(--cs-highlight-border-top);
     border-bottom: 1px solid var(--cs-highlight-border-bottom);
-    border-left: 1px solid color-mix(in oklab, var(--calserver-primary) 22%, transparent);
-    border-right: 1px solid color-mix(in oklab, var(--calserver-primary) 22%, transparent);
-    box-shadow: var(--cs-highlight-shadow);
     overflow: hidden;
+    box-shadow: var(--cs-highlight-shadow);
+    z-index: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-highlight-surface::before,
-body.qr-landing.calserver-theme .calserver-highlight-surface::after {
+body.qr-landing.calserver-theme .calserver-highlight::before,
+body.qr-landing.calserver-theme .calserver-highlight::after {
     content: "";
     position: absolute;
     top: 0;
     bottom: 0;
-    width: clamp(90px, 12vw, 160px);
+    width: 160px;
     pointer-events: none;
     background: linear-gradient(
         90deg,
@@ -595,18 +496,13 @@ body.qr-landing.calserver-theme .calserver-highlight-surface::after {
     z-index: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-highlight-surface::before {
+body.qr-landing.calserver-theme .calserver-highlight::before {
     left: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-highlight-surface::after {
+body.qr-landing.calserver-theme .calserver-highlight::after {
     right: 0;
     transform: scaleX(-1);
-}
-
-body.qr-landing.calserver-theme .calserver-highlight-surface > * {
-    position: relative;
-    z-index: 1;
 }
 
 body.qr-landing.calserver-theme .calserver-stats-strip {
