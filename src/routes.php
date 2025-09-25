@@ -363,12 +363,29 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/landing', function (Request $request, Response $response) {
         $domainType = $request->getAttribute('domainType');
         if ($domainType === null) {
-            $host = $request->getUri()->getHost();
-            $mainDomain = getenv('MAIN_DOMAIN') ?: '';
-            $domainType = $host === $mainDomain || $mainDomain === '' ? 'main' : 'tenant';
+            $host = strtolower($request->getUri()->getHost());
+            $mainDomain = strtolower((string) getenv('MAIN_DOMAIN'));
+            $marketingDomains = getenv('MARKETING_DOMAINS') ?: '';
+
+            $domainType = 'tenant';
+            if ($mainDomain === '' || $host === $mainDomain) {
+                $domainType = 'main';
+            } else {
+                $marketingList = array_filter(preg_split('/[\s,]+/', strtolower($marketingDomains)) ?: []);
+                $marketingList = array_map(
+                    static fn (string $domain): string => (string) preg_replace('/^www\./', '', $domain),
+                    $marketingList
+                );
+                $normalizedHost = (string) preg_replace('/^www\./', '', $host);
+                if (in_array($normalizedHost, $marketingList, true)) {
+                    $domainType = 'marketing';
+                }
+            }
+
             $request = $request->withAttribute('domainType', $domainType);
         }
-        if ($domainType !== 'main') {
+
+        if (!in_array($domainType, ['main', 'marketing'], true)) {
             return $response->withStatus(404);
         }
         $controller = new LandingController();
@@ -377,12 +394,29 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/calserver', function (Request $request, Response $response) {
         $domainType = $request->getAttribute('domainType');
         if ($domainType === null) {
-            $host = $request->getUri()->getHost();
-            $mainDomain = getenv('MAIN_DOMAIN') ?: '';
-            $domainType = $host === $mainDomain || $mainDomain === '' ? 'main' : 'tenant';
+            $host = strtolower($request->getUri()->getHost());
+            $mainDomain = strtolower((string) getenv('MAIN_DOMAIN'));
+            $marketingDomains = getenv('MARKETING_DOMAINS') ?: '';
+
+            $domainType = 'tenant';
+            if ($mainDomain === '' || $host === $mainDomain) {
+                $domainType = 'main';
+            } else {
+                $marketingList = array_filter(preg_split('/[\s,]+/', strtolower($marketingDomains)) ?: []);
+                $marketingList = array_map(
+                    static fn (string $domain): string => (string) preg_replace('/^www\./', '', $domain),
+                    $marketingList
+                );
+                $normalizedHost = (string) preg_replace('/^www\./', '', $host);
+                if (in_array($normalizedHost, $marketingList, true)) {
+                    $domainType = 'marketing';
+                }
+            }
+
             $request = $request->withAttribute('domainType', $domainType);
         }
-        if ($domainType !== 'main') {
+
+        if (!in_array($domainType, ['main', 'marketing'], true)) {
             return $response->withStatus(404);
         }
         $controller = new CalserverController();

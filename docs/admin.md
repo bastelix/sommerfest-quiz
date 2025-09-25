@@ -33,7 +33,9 @@ Die Anwendung unterscheidet über die Umgebungsvariable `MAIN_DOMAIN` zwischen d
 - `admin.` – Administrationsoberfläche
 - `{tenant}.` – individuelle Mandanteninstanzen
 
-Die `DomainMiddleware` prüft bei jeder Anfrage den Host gegen `MAIN_DOMAIN` und setzt entsprechend das Attribut `domainType` (`main` oder `tenant`). Ist `MAIN_DOMAIN` leer oder stimmt nicht mit der aufgerufenen Domain überein, blockiert die Middleware den Zugriff mit `403 Invalid main domain configuration.`
+Zusätzlich lassen sich weitere Marketing-Domains über die Umgebungsvariable `MARKETING_DOMAINS` (Komma- oder Zeilen-separiert) freischalten. Diese Domains liefern die Inhalte der Landing Pages aus, ohne eine Mandanten-Subdomain verwenden zu müssen.
+
+Die `DomainMiddleware` prüft bei jeder Anfrage den Host gegen `MAIN_DOMAIN` und die Marketing-Liste und setzt entsprechend das Attribut `domainType` (`main`, `tenant` oder `marketing`). Ist `MAIN_DOMAIN` leer oder stimmt keine der konfigurierten Domains mit der aufgerufenen Domain überein, blockiert die Middleware den Zugriff mit `403 Invalid main domain configuration.`
 
 ### Beispiel für eine Fehlkonfiguration
 
