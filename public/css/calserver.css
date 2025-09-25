@@ -20,6 +20,18 @@ body.qr-landing.calserver-theme {
     --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 12%, transparent);
     --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 30%, transparent);
     --cs-highlight-card-shadow: 0 18px 34px -28px rgba(15, 23, 42, 0.5);
+    --cs-mode-pill-bg: rgba(31, 99, 230, 0.18);
+    --cs-mode-pill-hover-bg: rgba(31, 99, 230, 0.32);
+    --cs-mode-pill-active-bg: color-mix(in oklab, var(--calserver-primary) 82%, rgba(12, 19, 35, 0.18));
+    --cs-mode-pill-text: color-mix(in oklab, #ffffff 92%, rgba(255, 255, 255, 0.7) 8%);
+    --cs-mode-pill-hover-text: #ffffff;
+    --cs-mode-pill-active-text: #ffffff;
+    --cs-mode-pill-border: color-mix(in oklab, var(--calserver-primary) 52%, rgba(255, 255, 255, 0.3));
+    --cs-mode-pill-hover-border: color-mix(in oklab, var(--calserver-primary) 68%, rgba(255, 255, 255, 0.34));
+    --cs-mode-pill-active-border: color-mix(in oklab, var(--calserver-primary) 82%, rgba(255, 255, 255, 0.4));
+    --cs-mode-pill-shadow: 0 16px 32px -28px rgba(9, 16, 32, 0.72);
+    --cs-mode-pill-hover-shadow: 0 20px 40px -30px rgba(9, 16, 32, 0.78);
+    --cs-mode-pill-focus-ring: color-mix(in oklab, var(--calserver-primary) 78%, #7eaaff 22%);
     scroll-behavior: smooth;
 }
 
@@ -219,6 +231,18 @@ body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) {
     --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 9%, rgba(255, 255, 255, 0.96));
     --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 26%, rgba(17, 49, 105, 0.12));
     --cs-highlight-card-shadow: 0 22px 42px -28px rgba(31, 73, 160, 0.22);
+    --cs-mode-pill-bg: color-mix(in oklab, #ffffff 86%, var(--calserver-primary) 14%);
+    --cs-mode-pill-hover-bg: color-mix(in oklab, #ffffff 72%, var(--calserver-primary) 28%);
+    --cs-mode-pill-active-bg: color-mix(in oklab, var(--calserver-primary) 92%, #ffffff 8%);
+    --cs-mode-pill-text: color-mix(in oklab, var(--calserver-primary) 72%, #061440 28%);
+    --cs-mode-pill-hover-text: color-mix(in oklab, var(--calserver-primary) 94%, #061440 6%);
+    --cs-mode-pill-active-text: #ffffff;
+    --cs-mode-pill-border: color-mix(in oklab, var(--calserver-primary) 32%, rgba(17, 49, 105, 0.18));
+    --cs-mode-pill-hover-border: color-mix(in oklab, var(--calserver-primary) 48%, rgba(17, 49, 105, 0.2));
+    --cs-mode-pill-active-border: color-mix(in oklab, var(--calserver-primary) 68%, rgba(17, 49, 105, 0.24));
+    --cs-mode-pill-shadow: 0 16px 28px -24px rgba(34, 68, 140, 0.18);
+    --cs-mode-pill-hover-shadow: 0 20px 36px -26px rgba(34, 68, 140, 0.24);
+    --cs-mode-pill-focus-ring: color-mix(in oklab, var(--calserver-primary) 68%, #97b8ff 32%);
 }
 
 body.qr-landing.calserver-theme:not(.high-contrast) .hero-bg-calserver {
@@ -475,6 +499,82 @@ body.qr-landing.calserver-theme .calserver-highlight {
     border-top: 1px solid var(--cs-highlight-border-top);
     border-bottom: 1px solid var(--cs-highlight-border-bottom);
     box-shadow: var(--cs-highlight-shadow);
+}
+
+body.qr-landing.calserver-theme:not(.high-contrast)
+    .calserver-highlight
+    .uk-subnav.uk-subnav-pill {
+    gap: 12px;
+}
+
+body.qr-landing.calserver-theme:not(.high-contrast)
+    .calserver-highlight
+    .uk-subnav.uk-subnav-pill
+    > *
+    > a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 10px 22px;
+    border-radius: 999px;
+    background: var(--cs-mode-pill-bg);
+    color: var(--cs-mode-pill-text);
+    border: 1px solid var(--cs-mode-pill-border);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    box-shadow: var(--cs-mode-pill-shadow);
+    transition: background-color 180ms ease, color 180ms ease,
+        border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+body.qr-landing.calserver-theme:not(.high-contrast)
+    .calserver-highlight
+    .uk-subnav.uk-subnav-pill
+    > *
+    > a:hover,
+body.qr-landing.calserver-theme:not(.high-contrast)
+    .calserver-highlight
+    .uk-subnav.uk-subnav-pill
+    > *
+    > a:focus {
+    background: var(--cs-mode-pill-hover-bg);
+    color: var(--cs-mode-pill-hover-text);
+    border-color: var(--cs-mode-pill-hover-border);
+    box-shadow: var(--cs-mode-pill-hover-shadow);
+    transform: translateY(-1px);
+}
+
+body.qr-landing.calserver-theme:not(.high-contrast)
+    .calserver-highlight
+    .uk-subnav.uk-subnav-pill
+    > *
+    > a:focus-visible {
+    outline: 3px solid var(--cs-mode-pill-focus-ring);
+    outline-offset: 3px;
+}
+
+body.qr-landing.calserver-theme:not(.high-contrast)
+    .calserver-highlight
+    .uk-subnav.uk-subnav-pill
+    > .uk-active
+    > a,
+body.qr-landing.calserver-theme:not(.high-contrast)
+    .calserver-highlight
+    .uk-subnav.uk-subnav-pill
+    > .uk-active
+    > a:hover,
+body.qr-landing.calserver-theme:not(.high-contrast)
+    .calserver-highlight
+    .uk-subnav.uk-subnav-pill
+    > .uk-active
+    > a:focus {
+    background: var(--cs-mode-pill-active-bg);
+    color: var(--cs-mode-pill-active-text);
+    border-color: var(--cs-mode-pill-active-border);
+    box-shadow: var(--cs-mode-pill-hover-shadow);
+    transform: translateY(-1px);
 }
 
 body.qr-landing.calserver-theme .calserver-highlight__intro {
