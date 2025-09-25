@@ -2174,7 +2174,14 @@ document.addEventListener('DOMContentLoaded', function () {
     list.push(item);
     eventManager.render(list);
     highlightCurrentEvent();
-    saveEvents();
+    const nameCell = eventsListEl?.querySelector(`tr[data-id="${item.id}"] td[data-key="name"]`);
+    const nameCard = eventsCardsEl?.querySelector(`.qr-cell[data-id="${item.id}"][data-key="name"]`);
+    const target = nameCell || nameCard;
+    if (target && eventEditor) {
+      requestAnimationFrame(() => {
+        eventEditor.open(target);
+      });
+    }
   });
 
 
