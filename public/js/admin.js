@@ -104,6 +104,15 @@ document.addEventListener('DOMContentLoaded', function () {
   const planButtons = document.querySelectorAll('.plan-select');
   const emailInput = document.getElementById('subscription-email');
   const planSelect = document.getElementById('planSelect');
+  const domainStartPageTable = document.getElementById('domainStartPageTable');
+  const domainStartPageOptions = window.domainStartPageOptions || {};
+  const domainStartPageTypeLabels = window.domainStartPageTypeLabels || {};
+  const transDomainStartPageSaved = window.transDomainStartPageSaved || 'Startseite gespeichert';
+  const transDomainStartPageError = window.transDomainStartPageError || 'Fehler beim Speichern';
+  let mainDomainNormalized = '';
+  let domainStartPageData = [];
+  let domainStartPageUpdater = null;
+  let reloadDomainStartPages = null;
   if (emailInput) {
     emailInput.addEventListener('input', () => {
       emailInput.classList.remove('uk-form-danger');
@@ -560,6 +569,146 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
   renderCfg(cfgInitial);
+
+  if (domainStartPageTable) {
+    const tbody = domainStartPageTable.querySelector('tbody');
+    const columnCount = domainStartPageTable.querySelectorAll('thead th').length || 3;
+    const messages = {
+      loading: domainStartPageTable.dataset.loading || '',
+      empty: domainStartPageTable.dataset.empty || '',
+      error: domainStartPageTable.dataset.error || transDomainStartPageError
+    };
+
+    const renderMessageRow = message => {
+      if (!tbody) return;
+      const tr = document.createElement('tr');
+      const td = document.createElement('td');
+      td.colSpan = columnCount;
+      td.textContent = message;
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    };
+
+    const renderDomainTable = () => {
+      if (!tbody) {
+        return;
+      }
+      tbody.innerHTML = '';
+      if (!domainStartPageData.length) {
+        if (messages.empty) {
+          renderMessageRow(messages.empty);
+        }
+        return;
+      }
+
+      domainStartPageData.forEach(item => {
+        const tr = document.createElement('tr');
+
+        const domainCell = document.createElement('td');
+        domainCell.textContent = item.domain;
+        tr.appendChild(domainCell);
+
+        const selectCell = document.createElement('td');
+        const select = document.createElement('select');
+        select.className = 'uk-select';
+        Object.entries(domainStartPageOptions).forEach(([value, label]) => {
+          const option = document.createElement('option');
+          option.value = value;
+          option.textContent = label || value;
+          select.appendChild(option);
+        });
+        if (!domainStartPageOptions[item.start_page]) {
+          const option = document.createElement('option');
+          option.value = item.start_page;
+          option.textContent = item.start_page;
+          select.appendChild(option);
+        }
+        select.value = item.start_page;
+        selectCell.appendChild(select);
+        tr.appendChild(selectCell);
+
+        const typeCell = document.createElement('td');
+        typeCell.textContent = domainStartPageTypeLabels[item.type] || item.type;
+        tr.appendChild(typeCell);
+
+        select.addEventListener('change', () => {
+          const previous = item.start_page;
+          const newValue = select.value;
+          select.disabled = true;
+          domainStartPageUpdater(item.normalized, newValue)
+            .then(() => {
+              item.start_page = newValue;
+              if (item.type === 'main' && cfgFields.homePage) {
+                settingsInitial.home_page = newValue;
+                cfgFields.homePage.value = newValue;
+              }
+              notify(transDomainStartPageSaved, 'success');
+            })
+            .catch(err => {
+              select.value = previous;
+              notify(err.message || transDomainStartPageError, 'danger');
+            })
+            .finally(() => {
+              select.disabled = false;
+            });
+        });
+
+        tbody.appendChild(tr);
+      });
+    };
+
+    domainStartPageUpdater = (domain, startPage) => {
+      return apiFetch('/admin/domain-start-pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ domain, start_page: startPage })
+      }).then(res => {
+        if (!res.ok) {
+          return res.json().catch(() => ({})).then(data => {
+            throw new Error(data.error || transDomainStartPageError);
+          });
+        }
+      });
+    };
+
+    const loadDomainStartPages = () => {
+      if (!tbody) {
+        return;
+      }
+      tbody.innerHTML = '';
+      if (messages.loading) {
+        renderMessageRow(messages.loading);
+      }
+
+      apiFetch('/admin/domain-start-pages')
+        .then(res => {
+          if (!res.ok) {
+            return res.json().catch(() => ({})).then(data => {
+              throw new Error(data.error || messages.error);
+            });
+          }
+          return res.json();
+        })
+        .then(data => {
+          domainStartPageData = Array.isArray(data?.domains) ? data.domains : [];
+          mainDomainNormalized = typeof data?.main === 'string' ? data.main : '';
+          const mainEntry = domainStartPageData.find(it => it.type === 'main');
+          if (mainEntry && cfgFields.homePage) {
+            cfgFields.homePage.value = mainEntry.start_page;
+            settingsInitial.home_page = mainEntry.start_page;
+          }
+          tbody.innerHTML = '';
+          renderDomainTable();
+        })
+        .catch(err => {
+          tbody.innerHTML = '';
+          renderMessageRow(err.message || messages.error);
+        });
+    };
+
+    reloadDomainStartPages = loadDomainStartPages;
+    loadDomainStartPages();
+  }
   function collectCfgData() {
     const data = {
       pageTitle: cfgFields.pageTitle?.value || '',
@@ -671,11 +820,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
   cfgFields.homePage?.addEventListener('change', () => {
-    settingsInitial.home_page = cfgFields.homePage.value;
+    const value = cfgFields.homePage.value;
+    settingsInitial.home_page = value;
+    if (mainDomainNormalized && domainStartPageUpdater) {
+      domainStartPageUpdater(mainDomainNormalized, value)
+        .then(() => {
+          notify('Einstellung gespeichert', 'success');
+          const mainEntry = domainStartPageData.find(it => it.type === 'main');
+          if (mainEntry) {
+            mainEntry.start_page = value;
+          }
+          if (typeof reloadDomainStartPages === 'function') {
+            reloadDomainStartPages();
+          }
+        })
+        .catch(err => {
+          notify(err.message || transDomainStartPageError, 'danger');
+        });
+      return;
+    }
+
     apiFetch('/settings.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ home_page: cfgFields.homePage.value })
+      body: JSON.stringify({ home_page: value })
     }).then(r => {
       if (r.ok) {
         notify('Einstellung gespeichert', 'success');

@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Application\Middleware;
 
+use App\Infrastructure\Database;
+use App\Service\DomainStartPageService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response as SlimResponse;
+use Throwable;
 
 /**
  * Determines domain type based on request host.
@@ -73,7 +76,21 @@ class DomainMiddleware implements MiddlewareInterface
             return $response->withHeader('Content-Type', 'text/html');
         }
 
-        $request = $request->withAttribute('domainType', $domainType);
+        $startPage = null;
+        try {
+            $pdo = Database::connectFromEnv();
+            $service = new DomainStartPageService($pdo);
+            $startPage = $service->getStartPage($host);
+            if ($startPage === null && $marketingHost !== $host) {
+                $startPage = $service->getStartPage($marketingHost);
+            }
+        } catch (Throwable $e) {
+            // Ignore errors so the request can continue even if the table is missing.
+        }
+
+        $request = $request
+            ->withAttribute('domainType', $domainType)
+            ->withAttribute('domainStartPage', $startPage);
 
         return $handler->handle($request);
     }

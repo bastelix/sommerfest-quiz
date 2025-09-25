@@ -29,6 +29,7 @@ use App\Service\UserService;
 use App\Service\TenantService;
 use App\Service\NginxService;
 use App\Service\SettingsService;
+use App\Service\DomainStartPageService;
 use App\Service\TranslationService;
 use App\Service\PasswordResetService;
 use App\Service\PasswordPolicy;
@@ -64,6 +65,7 @@ use App\Controller\EventConfigController;
 use App\Controller\SettingsController;
 use App\Controller\Admin\PageController;
 use App\Controller\Admin\LandingpageController;
+use App\Controller\Admin\DomainStartPageController;
 use App\Controller\TenantController;
 use App\Controller\Marketing\LandingController;
 use App\Controller\Marketing\CalserverController;
@@ -111,6 +113,7 @@ require_once __DIR__ . '/Controller/AdminCatalogController.php';
 require_once __DIR__ . '/Controller/AdminLogsController.php';
 require_once __DIR__ . '/Controller/Admin/PageController.php';
 require_once __DIR__ . '/Controller/Admin/LandingpageController.php';
+require_once __DIR__ . '/Controller/Admin/DomainStartPageController.php';
 require_once __DIR__ . '/Controller/QrController.php';
 require_once __DIR__ . '/Controller/LogoController.php';
 require_once __DIR__ . '/Controller/CatalogDesignController.php';
@@ -188,6 +191,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $plan = $tenantService->getPlanBySubdomain($sub);
         $userService = new \App\Service\UserService($pdo);
         $settingsService = new \App\Service\SettingsService($pdo);
+        $domainStartPageService = new DomainStartPageService($pdo);
         $passwordResetService = new PasswordResetService(
             $pdo,
             3600,
@@ -239,6 +243,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             )
             ->withAttribute('userController', new UserController($userService))
             ->withAttribute('settingsController', new SettingsController($settingsService))
+            ->withAttribute('domainStartPageController', new DomainStartPageController($domainStartPageService, $settingsService))
             ->withAttribute('qrController', new QrController(
                 $configService,
                 $teamService,
@@ -898,6 +903,18 @@ return function (\Slim\App $app, TranslationService $translator) {
 
     $app->post('/settings.json', function (Request $request, Response $response) {
         return $request->getAttribute('settingsController')->post($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->get('/admin/domain-start-pages', function (Request $request, Response $response) {
+        /** @var DomainStartPageController $controller */
+        $controller = $request->getAttribute('domainStartPageController');
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->post('/admin/domain-start-pages', function (Request $request, Response $response) {
+        /** @var DomainStartPageController $controller */
+        $controller = $request->getAttribute('domainStartPageController');
+        return $controller->save($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
     $app->get('/catalog/questions/{file}', function (Request $request, Response $response, array $args) {

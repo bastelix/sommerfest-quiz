@@ -63,6 +63,10 @@ class HomeController
                 $event = $eventSvc->getFirst();
             }
             $home = $settingsSvc->get('home_page', 'help');
+            $domainStartPage = $request->getAttribute('domainStartPage');
+            if (is_string($domainStartPage) && $domainStartPage !== '') {
+                $home = $domainStartPage;
+            }
             if ($home === 'events') {
                 $events = $eventSvc->getAll();
                 return $view->render($response, 'events_overview.twig', [
@@ -78,10 +82,20 @@ class HomeController
                     $domainType = $request->getAttribute('domainType');
                     $host = $request->getUri()->getHost();
                     $mainDomain = getenv('MAIN_DOMAIN') ?: '';
-                    if ($domainType === null || $domainType === 'main' || $host === $mainDomain) {
+                    if (
+                        $domainType === null
+                        || $domainType === 'main'
+                        || $host === $mainDomain
+                        || $domainType === 'marketing'
+                    ) {
                         $ctrl = new \App\Controller\Marketing\LandingController();
                         return $ctrl($request, $response);
                     }
+                }
+            } elseif ($home === 'calserver') {
+                if ($catalogParam === '') {
+                    $ctrl = new \App\Controller\Marketing\CalserverController();
+                    return $ctrl($request, $response);
                 }
             }
         }

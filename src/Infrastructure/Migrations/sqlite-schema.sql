@@ -87,6 +87,13 @@ CREATE TABLE IF NOT EXISTS settings (
 INSERT OR IGNORE INTO settings(key, value) VALUES('home_page', 'help');
 INSERT OR IGNORE INTO settings(key, value) VALUES('registration_enabled', '0');
 
+-- Domain start pages
+CREATE TABLE IF NOT EXISTS domain_start_pages (
+    domain TEXT PRIMARY KEY,
+    start_page TEXT NOT NULL,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Teams
 CREATE TABLE IF NOT EXISTS teams (
     sort_order INTEGER NOT NULL,
