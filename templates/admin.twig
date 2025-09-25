@@ -1005,6 +1005,31 @@
             <option value="landing"{% if settings.home_page == 'landing' %} selected{% endif %}>{{ t('option_landing_page') }}</option>
           </select>
         </div>
+        <div class="uk-margin-top">
+          <p class="uk-text-meta">{{ t('text_domain_start_page_hint') }}</p>
+          <div class="uk-overflow-auto">
+            <table
+              id="domainStartPageTable"
+              class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive"
+              data-loading="{{ t('text_domain_start_pages_loading') }}"
+              data-empty="{{ t('text_domain_start_pages_empty') }}"
+              data-error="{{ t('text_domain_start_pages_error') }}"
+            >
+              <thead>
+                <tr>
+                  <th>{{ t('column_domain') }}</th>
+                  <th>{{ t('column_start_page') }}</th>
+                  <th>{{ t('column_domain_type') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="3">{{ t('text_domain_start_pages_loading') }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
 
         <h3 class="uk-heading-bullet">{{ t('heading_registration') }}</h3>
         <div class="uk-margin uk-flex uk-flex-middle">
@@ -1387,6 +1412,19 @@
     window.baseUrl = '{{ baseUrl }}';
     window.mainDomain = '{{ main_domain }}';
     window.domainType = '{{ domainType }}';
+    window.domainStartPageOptions = {{ {
+      'help': t('option_help_page'),
+      'events': t('option_events_page'),
+      'landing': t('option_landing_page'),
+      'calserver': t('option_calserver_page')
+    }|json_encode|raw }};
+    window.domainStartPageTypeLabels = {{ {
+      'main': t('label_domain_type_main'),
+      'marketing': t('label_domain_type_marketing'),
+      'custom': t('label_domain_type_custom')
+    }|json_encode|raw }};
+    window.transDomainStartPageSaved = '{{ t('notify_domain_start_page_saved')|e('js') }}';
+    window.transDomainStartPageError = '{{ t('notify_domain_start_page_error')|e('js') }}';
     window.pagesContent = {{ pages|json_encode|raw }};
     window.transUpgradeTitle = '{{ t('heading_limit_reached') }}';
     window.transUpgradeText = '{{ t('text_upgrade_required') }}';
