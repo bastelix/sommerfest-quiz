@@ -52,6 +52,11 @@ class SeoValidator
             $errors['canonicalUrl'] = 'Invalid URL';
         }
 
+        $domain = $data['domain'] ?? null;
+        if ($domain !== null && $domain !== '' && !preg_match('/^[a-z0-9.-]+$/', (string) $domain)) {
+            $errors['domain'] = 'Invalid domain';
+        }
+
         return $errors;
     }
 }

@@ -12,6 +12,7 @@ use App\Infrastructure\Database;
 use App\Service\CatalogService;
 use App\Service\ConfigService;
 use App\Service\EventService;
+use App\Service\DomainStartPageService;
 use App\Service\PageService;
 use App\Service\ResultService;
 use App\Service\SettingsService;
@@ -191,9 +192,15 @@ class AdminController
             ?: $uri->getHost();
 
         $seoSvc = new PageSeoConfigService($pdo);
+        $domainService = new DomainStartPageService($pdo);
         $selectedSeoSlug = isset($params['seoPage']) ? (string) $params['seoPage'] : '';
         $selectedSeoPage = $this->selectSeoPage($marketingPages, $selectedSeoSlug);
-        $seoPages = $this->buildSeoPageData($seoSvc, $marketingPages);
+        $seoPages = $this->buildSeoPageData(
+            $seoSvc,
+            $marketingPages,
+            $domainService,
+            $request->getUri()->getHost()
+        );
         $seoConfig = $selectedSeoPage !== null && isset($seoPages[$selectedSeoPage->getId()])
             ? $seoPages[$selectedSeoPage->getId()]['config']
             : [];
@@ -261,16 +268,56 @@ class AdminController
      * @param Page[] $pages
      * @return array<int,array{id:int,slug:string,title:string,config:array<string,mixed>}> keyed by page id
      */
-    private function buildSeoPageData(PageSeoConfigService $service, array $pages): array
+    private function buildSeoPageData(
+        PageSeoConfigService $service,
+        array $pages,
+        DomainStartPageService $domainService,
+        string $host
+    ): array
     {
+        $mappings = $domainService->getAllMappings();
+        $domainsBySlug = [];
+        foreach ($mappings as $domain => $slug) {
+            $domainsBySlug[$slug][] = $domain;
+        }
+
+        $mainDomain = $domainService->normalizeDomain((string) getenv('MAIN_DOMAIN'));
+        if ($mainDomain !== '') {
+            $domainsBySlug['landing'][] = $mainDomain;
+        }
+
+        $currentHost = $domainService->normalizeDomain($host);
+        $fallbackHost = $currentHost !== '' ? $currentHost : $mainDomain;
+
         $result = [];
         foreach ($pages as $page) {
+            $pageDomains = $domainsBySlug[$page->getSlug()] ?? [];
+            if ($pageDomains === [] && $page->getSlug() === 'landing' && $mainDomain !== '') {
+                $pageDomains[] = $mainDomain;
+            }
+            if ($pageDomains === [] && $fallbackHost !== '') {
+                $pageDomains[] = $fallbackHost;
+            }
+            $pageDomains = array_values(array_unique(array_filter($pageDomains, static fn ($value): bool => $value !== '')));
+
             $config = $service->load($page->getId());
+            $configData = $config ? $config->jsonSerialize() : $service->defaultConfig($page->getId());
+
+            if (($configData['domain'] ?? null) !== null) {
+                $domainValue = (string) $configData['domain'];
+                if ($domainValue !== '' && !in_array($domainValue, $pageDomains, true)) {
+                    array_unshift($pageDomains, $domainValue);
+                }
+            } elseif ($pageDomains !== []) {
+                $configData['domain'] = $pageDomains[0];
+            }
+
             $result[$page->getId()] = [
                 'id' => $page->getId(),
                 'slug' => $page->getSlug(),
                 'title' => $page->getTitle(),
-                'config' => $config ? $config->jsonSerialize() : $service->defaultConfig($page->getId()),
+                'domains' => $pageDomains,
+                'config' => $configData,
             ];
         }
 

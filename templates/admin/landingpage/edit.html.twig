@@ -18,6 +18,7 @@
     {% else %}
     <form class="uk-form-stacked seo-form" action="{{ basePath }}/admin/landingpage/seo" method="post">
       <input type="hidden" name="pageId" value="{{ config.pageId|default(selectedPageId)|default('') }}">
+      <input type="hidden" name="domain" id="seoDomain" value="{{ config.domain|default('') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
       <div class="uk-margin">
         <label class="uk-form-label" for="seoPageSelect">Marketing-Seite</label>

@@ -7,6 +7,8 @@ namespace App\Controller\Admin;
 use App\Application\Seo\PageSeoConfigService;
 use App\Domain\Page;
 use App\Domain\PageSeoConfig;
+use App\Infrastructure\Database;
+use App\Service\DomainStartPageService;
 use App\Service\PageService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -20,14 +22,20 @@ class LandingpageController
 {
     private PageSeoConfigService $seoService;
     private PageService $pageService;
+    private DomainStartPageService $domainService;
 
     /** @var string[] */
     public const EXCLUDED_SLUGS = ['impressum', 'datenschutz', 'faq', 'lizenz'];
 
-    public function __construct(?PageSeoConfigService $seoService = null, ?PageService $pageService = null)
+    public function __construct(
+        ?PageSeoConfigService $seoService = null,
+        ?PageService $pageService = null,
+        ?DomainStartPageService $domainService = null
+    )
     {
         $this->seoService = $seoService ?? new PageSeoConfigService();
         $this->pageService = $pageService ?? new PageService();
+        $this->domainService = $domainService ?? new DomainStartPageService(Database::connectFromEnv());
     }
 
     /**
@@ -49,7 +57,7 @@ class LandingpageController
         $selectedSlug = isset($query['slug']) ? (string) $query['slug'] : '';
         $selectedPage = $this->determineSelectedPage($pages, $selectedSlug);
 
-        $seoPages = $this->buildSeoPageList($pages, $selectedPage);
+        $seoPages = $this->buildSeoPageList($pages, $selectedPage, $request->getUri()->getHost());
         $config = $seoPages[$selectedPage->getId()]['config'];
 
         return $view->render($response, 'admin/landingpage/edit.html.twig', [
@@ -69,6 +77,10 @@ class LandingpageController
             return $response->withStatus(400);
         }
 
+        $normalizedDomain = isset($data['domain'])
+            ? $this->domainService->normalizeDomain((string) $data['domain'])
+            : '';
+
         $payload = [
             'pageId' => (int) ($data['pageId'] ?? 0),
             'slug' => (string) ($data['slug'] ?? ''),
@@ -81,6 +93,7 @@ class LandingpageController
             'ogImage' => $data['ogImage'] ?? $data['og_image'] ?? null,
             'schemaJson' => $data['schemaJson'] ?? $data['schema'] ?? null,
             'hreflang' => $data['hreflang'] ?? null,
+            'domain' => $normalizedDomain !== '' ? $normalizedDomain : null,
         ];
 
         $errors = $this->seoService->validate($payload);
@@ -105,7 +118,8 @@ class LandingpageController
             $payload['ogDescription'],
             $payload['ogImage'],
             $payload['schemaJson'],
-            $payload['hreflang']
+            $payload['hreflang'],
+            $payload['domain']
         );
 
         $this->seoService->save($config);
@@ -161,25 +175,75 @@ class LandingpageController
      * @param Page[] $pages
      * @return array<int,array{id:int,slug:string,title:string,config:array<string,mixed>}> keyed by page id
      */
-    private function buildSeoPageList(array $pages, Page $selected): array
+    private function buildSeoPageList(array $pages, Page $selected, string $host): array
     {
+        $mappings = $this->domainService->getAllMappings();
+        $domainsBySlug = [];
+        foreach ($mappings as $domain => $slug) {
+            $domainsBySlug[$slug][] = $domain;
+        }
+
+        $mainDomain = $this->domainService->normalizeDomain((string) getenv('MAIN_DOMAIN'));
+        if ($mainDomain !== '') {
+            $domainsBySlug['landing'][] = $mainDomain;
+        }
+
+        $currentHost = $this->domainService->normalizeDomain($host);
+        $fallbackHost = $currentHost !== '' ? $currentHost : $mainDomain;
+
         $result = [];
         foreach ($pages as $page) {
+            $pageDomains = $domainsBySlug[$page->getSlug()] ?? [];
+            if ($pageDomains === [] && $page->getSlug() === 'landing' && $mainDomain !== '') {
+                $pageDomains[] = $mainDomain;
+            }
+            if ($pageDomains === [] && $fallbackHost !== '') {
+                $pageDomains[] = $fallbackHost;
+            }
+            $pageDomains = array_values(array_unique(array_filter($pageDomains, static fn ($value): bool => $value !== '')));
+
             $config = $this->seoService->load($page->getId());
+            $configData = $config ? $config->jsonSerialize() : $this->seoService->defaultConfig($page->getId());
+
+            if (($configData['domain'] ?? null) !== null) {
+                $domainValue = (string) $configData['domain'];
+                if ($domainValue !== '' && !in_array($domainValue, $pageDomains, true)) {
+                    array_unshift($pageDomains, $domainValue);
+                }
+            } elseif ($pageDomains !== []) {
+                $configData['domain'] = $pageDomains[0];
+            }
+
             $result[$page->getId()] = [
                 'id' => $page->getId(),
                 'slug' => $page->getSlug(),
                 'title' => $page->getTitle(),
-                'config' => $config ? $config->jsonSerialize() : $this->seoService->defaultConfig($page->getId()),
+                'domains' => $pageDomains,
+                'config' => $configData,
             ];
         }
 
         if (!isset($result[$selected->getId()])) {
+            $pageDomains = $domainsBySlug[$selected->getSlug()] ?? [];
+            if ($pageDomains === [] && $selected->getSlug() === 'landing' && $mainDomain !== '') {
+                $pageDomains[] = $mainDomain;
+            }
+            if ($pageDomains === [] && $fallbackHost !== '') {
+                $pageDomains[] = $fallbackHost;
+            }
+            $pageDomains = array_values(array_unique(array_filter($pageDomains, static fn ($value): bool => $value !== '')));
+
+            $configData = $this->seoService->defaultConfig($selected->getId());
+            if (($configData['domain'] ?? null) === null && $pageDomains !== []) {
+                $configData['domain'] = $pageDomains[0];
+            }
+
             $result[$selected->getId()] = [
                 'id' => $selected->getId(),
                 'slug' => $selected->getSlug(),
                 'title' => $selected->getTitle(),
-                'config' => $this->seoService->defaultConfig($selected->getId()),
+                'domains' => $pageDomains,
+                'config' => $configData,
             ];
         }
 
