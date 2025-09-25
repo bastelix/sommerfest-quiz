@@ -1861,23 +1861,39 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function saveEvents() {
     if (!eventManager) return;
-    const list = eventManager.getData().map(ev => ({
-      uid: ev.id,
-      name: ev.name,
-      start_date: ev.start_date,
-      end_date: ev.end_date,
-      description: ev.description,
-      published: ev.published
-    })).filter(e => e.name);
+    const mapped = eventManager.getData().map(ev => {
+      const trimmedName = (ev.name || '').trim();
+      const isDraft = trimmedName === '';
+      return {
+        uid: ev.id,
+        name: isDraft ? `__draft__${ev.id}` : trimmedName,
+        start_date: ev.start_date,
+        end_date: ev.end_date,
+        description: ev.description,
+        published: ev.published,
+        draft: isDraft
+      };
+    });
+
+    const hasOnlyDrafts = mapped.length > 0 && mapped.every(ev => ev.draft);
+    if (hasOnlyDrafts) {
+      return;
+    }
+
+    const payload = mapped.map(({ draft, ...rest }) => rest);
+    const selectable = mapped
+      .filter(ev => !ev.draft)
+      .map(({ draft, ...rest }) => rest);
+
     apiFetch('/events.json', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(list)
+      body: JSON.stringify(payload)
     })
       .then(r => {
         if (!r.ok) throw new Error(r.statusText);
         notify('Veranstaltungen gespeichert', 'success');
-        populateEventSelect(list);
+        populateEventSelect(selectable);
       })
       .catch(() => notify('Fehler beim Speichern', 'danger'));
   }

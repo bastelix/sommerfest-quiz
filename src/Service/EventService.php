@@ -73,7 +73,8 @@ class EventService
      *     start_date?:string,
      *     end_date?:string,
      *     description?:string,
-     *     published?:bool
+     *     published?:bool,
+     *     draft?:bool
      * }> $events
      */
     public function saveAll(array $events): void
@@ -100,10 +101,20 @@ class EventService
             'VALUES(?,?,?,?,?,?,?,?)'
         );
         $uids = [];
+        $processed = 0;
+
         foreach ($events as $idx => $event) {
             $uid = $event['uid'] ?? bin2hex(random_bytes(16));
+            $rawName = (string) ($event['name'] ?? '');
+            $name = trim($rawName);
+            $isDraft = !empty($event['draft'])
+                || str_starts_with($rawName, '__draft__')
+                || str_starts_with($name, '__draft__');
+            if ($name === '' || $isDraft) {
+                continue;
+            }
             $uids[] = $uid;
-            $name = (string) $event['name'];
+            $processed++;
             $start = $event['start_date'] ?? '';
             if ($start === '') {
                 $start = date('Y-m-d\TH:i');
@@ -125,11 +136,11 @@ class EventService
             }
         }
 
-        if ($uids) {
+        if ($processed > 0 && $uids) {
             $placeholders = implode(',', array_fill(0, count($uids), '?'));
             $delStmt = $this->pdo->prepare("DELETE FROM events WHERE uid NOT IN ($placeholders)");
             $delStmt->execute($uids);
-        } else {
+        } elseif (empty($events)) {
             $this->pdo->exec('DELETE FROM events');
         }
 
