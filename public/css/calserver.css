@@ -486,6 +486,34 @@ body.qr-landing.calserver-theme .calserver-highlight__intro p {
     color: color-mix(in oklab, rgba(255, 255, 255, 0.92) 92%, rgba(255, 255, 255, 0.62) 8%);
 }
 
+body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast)
+    .calserver-highlight__intro
+    p,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+    .calserver-highlight__intro
+    p {
+    color: color-mix(in oklab, var(--qr-text) 92%, var(--qr-bg) 8%);
+}
+
+body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-highlight.uk-light,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-highlight.uk-light {
+    color: var(--qr-text);
+}
+
+body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast)
+    .calserver-highlight.uk-light
+    :is(h1, h2, h3, h4, h5, h6, .uk-heading-small, .uk-heading-medium, .uk-heading-large, .uk-heading-xlarge,
+        .uk-heading-line > span, .uk-text-lead) {
+    color: inherit;
+}
+
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast)
+    .calserver-highlight.uk-light
+    :is(h1, h2, h3, h4, h5, h6, .uk-heading-small, .uk-heading-medium, .uk-heading-large, .uk-heading-xlarge,
+        .uk-heading-line > span, .uk-text-lead) {
+    color: inherit;
+}
+
 body.qr-landing.calserver-theme .calserver-highlight-card {
     background: var(--cs-highlight-card-bg) !important;
     border: 1px solid var(--cs-highlight-card-border) !important;
