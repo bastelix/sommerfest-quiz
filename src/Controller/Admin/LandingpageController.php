@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Application\Seo\PageSeoConfigService;
+use App\Domain\Page;
 use App\Domain\PageSeoConfig;
+use App\Service\PageService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
@@ -17,10 +19,15 @@ use Slim\Views\Twig;
 class LandingpageController
 {
     private PageSeoConfigService $seoService;
+    private PageService $pageService;
 
-    public function __construct(?PageSeoConfigService $seoService = null)
+    /** @var string[] */
+    public const EXCLUDED_SLUGS = ['impressum', 'datenschutz', 'faq', 'lizenz'];
+
+    public function __construct(?PageSeoConfigService $seoService = null, ?PageService $pageService = null)
     {
         $this->seoService = $seoService ?? new PageSeoConfigService();
+        $this->pageService = $pageService ?? new PageService();
     }
 
     /**
@@ -29,9 +36,26 @@ class LandingpageController
     public function page(Request $request, Response $response): Response
     {
         $view = Twig::fromRequest($request);
-        $config = $this->seoService->load(1);
+        $pages = $this->getMarketingPages();
+        if ($pages === []) {
+            return $view->render($response, 'admin/landingpage/edit.html.twig', [
+                'config' => [],
+                'seoPages' => [],
+                'selectedPageId' => null,
+            ]);
+        }
+
+        $query = $request->getQueryParams();
+        $selectedSlug = isset($query['slug']) ? (string) $query['slug'] : '';
+        $selectedPage = $this->determineSelectedPage($pages, $selectedSlug);
+
+        $seoPages = $this->buildSeoPageList($pages, $selectedPage);
+        $config = $seoPages[$selectedPage->getId()]['config'];
+
         return $view->render($response, 'admin/landingpage/edit.html.twig', [
-            'config' => $config ? $config->jsonSerialize() : [],
+            'config' => $config,
+            'seoPages' => array_values($seoPages),
+            'selectedPageId' => $selectedPage->getId(),
         ]);
     }
 
@@ -65,7 +89,8 @@ class LandingpageController
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
 
-        if ($payload['pageId'] <= 0) {
+        $page = $this->pageService->findById($payload['pageId']);
+        if ($page === null || in_array($page->getSlug(), self::EXCLUDED_SLUGS, true)) {
             return $response->withStatus(400);
         }
 
@@ -87,13 +112,77 @@ class LandingpageController
 
         $accept = $request->getHeaderLine('Accept');
         if (str_contains($accept, 'application/json')) {
-            $response->getBody()->write(json_encode(['status' => 'ok']));
+            $response->getBody()->write(json_encode([
+                'status' => 'ok',
+                'config' => $config->jsonSerialize(),
+                'page' => [
+                    'id' => $page->getId(),
+                    'slug' => $page->getSlug(),
+                    'title' => $page->getTitle(),
+                ],
+            ]));
             return $response->withHeader('Content-Type', 'application/json');
         }
 
         $base = RouteContext::fromRequest($request)->getBasePath();
         return $response
-            ->withHeader('Location', $base . '/admin/landingpage/seo')
+            ->withHeader('Location', $base . '/admin/landingpage/seo?slug=' . rawurlencode($page->getSlug()))
             ->withStatus(303);
+    }
+
+    /**
+     * @return Page[]
+     */
+    private function getMarketingPages(): array
+    {
+        $pages = $this->pageService->getAll();
+
+        return array_values(array_filter(
+            $pages,
+            static fn (Page $page): bool => !in_array($page->getSlug(), self::EXCLUDED_SLUGS, true)
+        ));
+    }
+
+    /**
+     * @param Page[] $pages
+     */
+    private function determineSelectedPage(array $pages, string $slug): Page
+    {
+        foreach ($pages as $page) {
+            if ($slug !== '' && $page->getSlug() === $slug) {
+                return $page;
+            }
+        }
+
+        return $pages[0];
+    }
+
+    /**
+     * @param Page[] $pages
+     * @return array<int,array{id:int,slug:string,title:string,config:array<string,mixed>}> keyed by page id
+     */
+    private function buildSeoPageList(array $pages, Page $selected): array
+    {
+        $result = [];
+        foreach ($pages as $page) {
+            $config = $this->seoService->load($page->getId());
+            $result[$page->getId()] = [
+                'id' => $page->getId(),
+                'slug' => $page->getSlug(),
+                'title' => $page->getTitle(),
+                'config' => $config ? $config->jsonSerialize() : $this->seoService->defaultConfig($page->getId()),
+            ];
+        }
+
+        if (!isset($result[$selected->getId()])) {
+            $result[$selected->getId()] = [
+                'id' => $selected->getId(),
+                'slug' => $selected->getSlug(),
+                'title' => $selected->getTitle(),
+                'config' => $this->seoService->defaultConfig($selected->getId()),
+            ];
+        }
+
+        return $result;
     }
 }

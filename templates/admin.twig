@@ -917,9 +917,33 @@
           </ul>
           <ul id="pageSwitcher" class="uk-switcher uk-margin">
             <li>
+              {% if seo_pages|default([]) is empty %}
+                <div class="uk-alert uk-alert-warning">Keine Marketing-Seiten gefunden.</div>
+              {% else %}
               <form class="uk-form-stacked seo-form" action="{{ basePath }}/admin/landingpage/seo" method="post">
-                <input type="hidden" name="pageId" value="1">
+                <input type="hidden" name="pageId" value="{{ seo_config.pageId|default(selectedSeoPageId|default('')) }}">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="seoPageSelect">Marketing-Seite</label>
+                  <div class="uk-form-controls">
+                    <select
+                      id="seoPageSelect"
+                      class="uk-select"
+                      data-configs="{{ seo_pages|json_encode|e('html_attr') }}"
+                      data-selected="{{ selectedSeoPageId|default(seo_config.pageId|default('')) }}"
+                    >
+                      {% for page in seo_pages %}
+                        <option
+                          value="{{ page.id }}"{% if page.id == selectedSeoPageId %} selected{% endif %}
+                          data-slug="{{ page.slug }}"
+                          data-title="{{ page.title }}"
+                        >
+                          {{ page.title }} ({{ page.slug }})
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
                 <div class="uk-margin">
                   <label class="uk-form-label" for="metaTitle">Meta Title</label>
                   <div class="uk-form-controls">
@@ -977,6 +1001,7 @@
                   <button type="submit" class="uk-button uk-button-primary uk-margin-left">Speichern</button>
                 </div>
               </form>
+              {% endif %}
             </li>
             {% for slug, html in pages %}
             <li>

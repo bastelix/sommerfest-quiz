@@ -134,6 +134,28 @@ class PageSeoConfigService
         $this->dispatcher->dispatch($event);
     }
 
+    /**
+     * Build a default configuration array for the given page.
+     *
+     * @return array<string,mixed>
+     */
+    public function defaultConfig(int $pageId): array
+    {
+        return [
+            'pageId' => $pageId,
+            'slug' => '',
+            'metaTitle' => null,
+            'metaDescription' => null,
+            'canonicalUrl' => null,
+            'robotsMeta' => null,
+            'ogTitle' => null,
+            'ogDescription' => null,
+            'ogImage' => null,
+            'schemaJson' => null,
+            'hreflang' => null,
+        ];
+    }
+
     private function normalizeSchemaJson(?string $json): ?string
     {
         if ($json === null) {

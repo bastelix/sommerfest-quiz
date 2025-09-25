@@ -77,12 +77,23 @@ class RoleAccessTest extends TestCase
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
         $_SESSION['csrf_token'] = 'token';
+        $pdo = $this->getDatabase();
+        $pdo->exec("INSERT OR IGNORE INTO pages (id, slug, title, content) VALUES (1, 'landing', 'Landing', '')");
         $req = $this->createRequest('POST', '/admin/landingpage/seo', [
             'HTTP_X_CSRF_TOKEN' => 'token',
+            'HTTP_ACCEPT' => 'application/json',
         ]);
-        $req = $req->withParsedBody(['pageId' => 1, 'slug' => 'test']);
+        $req = $req->withParsedBody([
+            'pageId' => 1,
+            'slug' => 'test',
+            'meta_title' => 'Title',
+            'meta_description' => 'Description',
+        ]);
         $res = $app->handle($req);
-        $this->assertEquals(204, $res->getStatusCode());
+        $this->assertEquals(200, $res->getStatusCode());
+        $payload = json_decode((string) $res->getBody(), true);
+        $this->assertIsArray($payload);
+        $this->assertSame('ok', $payload['status'] ?? null);
         session_destroy();
     }
 
