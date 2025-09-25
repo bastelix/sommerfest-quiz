@@ -998,13 +998,6 @@
         <h2 class="uk-heading-bullet">{{ t('heading_management') }}</h2>
 
         <h3 class="uk-heading-bullet">{{ t('heading_homepage') }}</h3>
-        <div class="uk-margin uk-flex uk-flex-middle">
-          <select id="cfgHomePage" class="uk-select uk-width-auto">
-            <option value="help"{% if settings.home_page != 'events' and settings.home_page != 'landing' %} selected{% endif %}>{{ t('option_help_page') }}</option>
-            <option value="events"{% if settings.home_page == 'events' %} selected{% endif %}>{{ t('option_events_page') }}</option>
-            <option value="landing"{% if settings.home_page == 'landing' %} selected{% endif %}>{{ t('option_landing_page') }}</option>
-          </select>
-        </div>
         <div class="uk-margin-top">
           <p class="uk-text-meta">{{ t('text_domain_start_page_hint') }}</p>
           <div class="uk-overflow-auto">

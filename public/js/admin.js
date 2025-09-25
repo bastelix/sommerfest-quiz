@@ -377,7 +377,6 @@ document.addEventListener('DOMContentLoaded', function () {
     puzzleEnabled: document.getElementById('cfgPuzzleEnabled'),
     puzzleWord: document.getElementById('cfgPuzzleWord'),
     puzzleWrap: document.getElementById('cfgPuzzleWordWrap'),
-    homePage: document.getElementById('cfgHomePage'),
     registrationEnabled: document.getElementById('cfgRegistrationEnabled')
   };
   const puzzleFeedbackBtn = document.getElementById('puzzleFeedbackBtn');
@@ -554,9 +553,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (cfgFields.puzzleWord) {
       cfgFields.puzzleWord.value = data.puzzleWord || '';
     }
-    if (cfgFields.homePage) {
-      cfgFields.homePage.value = settingsInitial.home_page || 'help';
-    }
     if (cfgFields.registrationEnabled) {
       cfgFields.registrationEnabled.checked = settingsInitial.registration_enabled === '1';
     }
@@ -638,9 +634,8 @@ document.addEventListener('DOMContentLoaded', function () {
           domainStartPageUpdater(item.normalized, newValue)
             .then(() => {
               item.start_page = newValue;
-              if (item.type === 'main' && cfgFields.homePage) {
+              if (item.type === 'main') {
                 settingsInitial.home_page = newValue;
-                cfgFields.homePage.value = newValue;
               }
               notify(transDomainStartPageSaved, 'success');
             })
@@ -693,8 +688,7 @@ document.addEventListener('DOMContentLoaded', function () {
           domainStartPageData = Array.isArray(data?.domains) ? data.domains : [];
           mainDomainNormalized = typeof data?.main === 'string' ? data.main : '';
           const mainEntry = domainStartPageData.find(it => it.type === 'main');
-          if (mainEntry && cfgFields.homePage) {
-            cfgFields.homePage.value = mainEntry.start_page;
+          if (mainEntry) {
             settingsInitial.home_page = mainEntry.start_page;
           }
           tbody.innerHTML = '';
@@ -768,7 +762,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   Object.entries(cfgFields).forEach(([key, el]) => {
-    if (!el || ['logoFile', 'logoPreview', 'homePage', 'registrationEnabled', 'puzzleEnabled'].includes(key)) return;
+    if (!el || ['logoFile', 'logoPreview', 'registrationEnabled', 'puzzleEnabled'].includes(key)) return;
     el.addEventListener('change', queueCfgSave);
     el.addEventListener('input', queueCfgSave);
   });
@@ -818,40 +812,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-
-  cfgFields.homePage?.addEventListener('change', () => {
-    const value = cfgFields.homePage.value;
-    settingsInitial.home_page = value;
-    if (mainDomainNormalized && domainStartPageUpdater) {
-      domainStartPageUpdater(mainDomainNormalized, value)
-        .then(() => {
-          notify('Einstellung gespeichert', 'success');
-          const mainEntry = domainStartPageData.find(it => it.type === 'main');
-          if (mainEntry) {
-            mainEntry.start_page = value;
-          }
-          if (typeof reloadDomainStartPages === 'function') {
-            reloadDomainStartPages();
-          }
-        })
-        .catch(err => {
-          notify(err.message || transDomainStartPageError, 'danger');
-        });
-      return;
-    }
-
-    apiFetch('/settings.json', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ home_page: value })
-    }).then(r => {
-      if (r.ok) {
-        notify('Einstellung gespeichert', 'success');
-      } else {
-        notify('Fehler beim Speichern', 'danger');
-      }
-    }).catch(() => notify('Fehler beim Speichern', 'danger'));
-  });
 
   cfgFields.registrationEnabled?.addEventListener('change', () => {
     settingsInitial.registration_enabled = cfgFields.registrationEnabled.checked ? '1' : '0';
