@@ -470,18 +470,26 @@ body.qr-landing.calserver-theme .pricing-card--featured li {
 }
 
 body.qr-landing.calserver-theme .calserver-highlight {
-    position: relative;
     padding: 32px 0 28px;
     background: var(--cs-highlight-bg);
     border-top: 1px solid var(--cs-highlight-border-top);
     border-bottom: 1px solid var(--cs-highlight-border-bottom);
-    overflow: hidden;
     box-shadow: var(--cs-highlight-shadow);
+}
+
+body.qr-landing.calserver-theme .calserver-section-glow {
+    position: relative;
+    overflow: hidden;
     z-index: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-highlight::before,
-body.qr-landing.calserver-theme .calserver-highlight::after {
+body.qr-landing.calserver-theme .calserver-section-glow > * {
+    position: relative;
+    z-index: 1;
+}
+
+body.qr-landing.calserver-theme .calserver-section-glow::before,
+body.qr-landing.calserver-theme .calserver-section-glow::after {
     content: "";
     position: absolute;
     top: 0;
@@ -496,11 +504,11 @@ body.qr-landing.calserver-theme .calserver-highlight::after {
     z-index: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-highlight::before {
+body.qr-landing.calserver-theme .calserver-section-glow::before {
     left: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-highlight::after {
+body.qr-landing.calserver-theme .calserver-section-glow::after {
     right: 0;
     transform: scaleX(-1);
 }
