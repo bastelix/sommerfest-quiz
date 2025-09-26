@@ -39,6 +39,19 @@ export function initSeoForm() {
   const pageConfigs = {};
   const pageMeta = {};
 
+  const buildOptionLabel = (slug, title) => {
+    const trimmedTitle = (title || '').trim();
+    if (trimmedTitle) {
+      return `${trimmedTitle} (${slug})`;
+    }
+    const fallback = (slug || '')
+      .split('-')
+      .filter(Boolean)
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+    return `${fallback || slug} (${slug})`;
+  };
+
   const faviconInput = form.querySelector('#faviconPath');
   const mediaButton = form.querySelector('#faviconSelectButton');
   const mediaModalEl = document.getElementById('seoMediaModal');
@@ -424,6 +437,51 @@ export function initSeoForm() {
       }
     });
   }
+
+  document.addEventListener('marketing-page:created', event => {
+    const detail = event.detail || {};
+    const pageIdRaw = detail.id;
+    const slug = (detail.slug || '').trim();
+    if (pageIdRaw == null || slug === '') {
+      return;
+    }
+    const id = String(pageIdRaw);
+    const title = detail.title || '';
+
+    if (pageSelect) {
+      const hasOption = Array.from(pageSelect.options).some(option => option.value === id);
+      if (!hasOption) {
+        const option = document.createElement('option');
+        option.value = id;
+        option.dataset.slug = slug;
+        option.dataset.title = title;
+        option.textContent = buildOptionLabel(slug, title);
+        pageSelect.append(option);
+      }
+    }
+
+    pageConfigs[id] = {
+      pageId: detail.id,
+      metaTitle: '',
+      metaDescription: '',
+      slug,
+      domain: '',
+      canonicalUrl: '',
+      robotsMeta: '',
+      ogTitle: '',
+      ogDescription: '',
+      ogImage: '',
+      faviconPath: '',
+      schemaJson: '',
+      hreflang: ''
+    };
+
+    pageMeta[id] = {
+      slug,
+      title: title || '',
+      domains: []
+    };
+  });
 
   const importBtn = form.querySelector('.import-seo-example');
   if (importBtn) {

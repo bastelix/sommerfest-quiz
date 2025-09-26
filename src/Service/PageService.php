@@ -6,7 +6,11 @@ namespace App\Service;
 
 use App\Domain\Page;
 use App\Infrastructure\Database;
+use InvalidArgumentException;
+use LogicException;
 use PDO;
+use PDOException;
+use RuntimeException;
 
 /**
  * Simple service for loading and saving static pages from the database.
@@ -30,6 +34,44 @@ class PageService
     {
         $stmt = $this->pdo->prepare('UPDATE pages SET content = ?, updated_at = CURRENT_TIMESTAMP WHERE slug = ?');
         $stmt->execute([$content, $slug]);
+    }
+
+    public function create(string $slug, string $title, string $content): Page
+    {
+        $normalizedSlug = strtolower(trim($slug));
+        if ($normalizedSlug === '') {
+            throw new InvalidArgumentException('Bitte gib einen Slug an.');
+        }
+
+        if (!preg_match('/^[a-z0-9][a-z0-9\-]{0,99}$/', $normalizedSlug)) {
+            throw new InvalidArgumentException('Der Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten (max. 100 Zeichen).');
+        }
+
+        $normalizedTitle = trim($title);
+        if ($normalizedTitle === '') {
+            throw new InvalidArgumentException('Bitte gib einen Titel für die Seite an.');
+        }
+
+        if ($this->findBySlug($normalizedSlug) !== null) {
+            throw new LogicException(sprintf('Eine Seite mit dem Slug "%s" existiert bereits.', $normalizedSlug));
+        }
+
+        $html = (string) $content;
+
+        $stmt = $this->pdo->prepare('INSERT INTO pages (slug, title, content) VALUES (?, ?, ?)');
+
+        try {
+            $stmt->execute([$normalizedSlug, $normalizedTitle, $html]);
+        } catch (PDOException $exception) {
+            throw new RuntimeException('Die Seite konnte nicht angelegt werden.', 0, $exception);
+        }
+
+        $page = $this->findBySlug($normalizedSlug);
+        if ($page === null) {
+            throw new RuntimeException('Die neu angelegte Seite konnte nicht geladen werden.');
+        }
+
+        return $page;
     }
 
     /**
