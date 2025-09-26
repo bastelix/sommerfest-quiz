@@ -118,24 +118,35 @@ export function initSeoForm() {
       domain: ctx.domain
     }),
     calserver: ctx => ({
-      metaTitle: 'calServer – Digitale Termin- und Ressourcenplanung für Schulen',
+      metaTitle: 'calServer – Kalibrier- & Prüfmittelmanagement',
       metaDescription:
-        'calServer organisiert Unterricht, Räume und Vertretungen mit einem zentralen Kalender – DSGVO-konform, cloudbasiert und mit persönlichem Support.',
+        'calServer digitalisiert Kalibrier- und Prüfmittelverwaltung: Geräteakten, Terminplanung und Workflows in einer Plattform – Hosting & Support in Deutschland.',
       slug: '/',
       canonical: `${ctx.baseUrl}/`,
       robots: 'index, follow',
-      ogTitle: 'calServer – Mehr Zeit für Schule statt Terminchaos',
+      ogTitle: 'calServer – Plattform für Kalibrier- & Prüfmittelteams',
       ogDescription:
-        'Mit calServer verwalten Schulen Ressourcen, Teams und Veranstaltungen intuitiv. Sichere Infrastruktur, persönlicher Support und flexible Workflows.',
-      ogImage: `${ctx.baseUrl}/img/social-preview.jpg`,
+        'Überwachen Sie Prüfmittel, Kalibrierfristen, Serviceaufträge und Dokumentation zentral. calServer liefert Workflows, Erinnerungen und Hosting in Deutschland.',
+      ogImage: `${ctx.baseUrl}/img/calserver/modules/module-placeholder.svg`,
       schema: `{
   "@context": "https://schema.org",
-  "@type": "WebSite",
+  "@type": "SoftwareApplication",
   "name": "calServer",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "Web",
   "url": "${ctx.baseUrl}/",
-  "description": "calServer digitalisiert Terminplanung und Ressourcenverwaltung für Schulen – zuverlässig, sicher und datenschutzkonform."
+  "description": "calServer digitalisiert Kalibrier- und Prüfmittelverwaltung für Teams – inklusive Geräteakten, Terminplanung, Workflows und Dokumentation.",
+  "provider": {
+    "@type": "Organization",
+    "name": "calServer",
+    "url": "${ctx.baseUrl}/"
+  },
+  "sameAs": [
+    "https://calserver.de",
+    "https://calserver.com"
+  ]
 }`,
-      hreflang: `<link rel="alternate" href="${ctx.baseUrl}/" hreflang="de" />`,
+      hreflang: `<link rel="alternate" href="${ctx.baseUrl}/" hreflang="de" />\n<link rel="alternate" href="${ctx.baseUrl}/en/" hreflang="en" />`,
       domain: ctx.domain
     })
   };
