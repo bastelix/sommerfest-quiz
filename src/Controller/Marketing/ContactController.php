@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Marketing;
 
+use App\Service\DomainContactTemplateService;
+use App\Service\DomainStartPageService;
 use App\Service\MailService;
 use App\Infrastructure\Database;
 use App\Service\TenantService;
@@ -73,6 +75,19 @@ class ContactController
         }
 
         $pdo = Database::connectFromEnv();
+        $domainService = new DomainStartPageService($pdo);
+        $templateService = new DomainContactTemplateService($pdo, $domainService);
+        $host = strtolower($request->getUri()->getHost());
+        $domainConfig = $domainService->getDomainConfig($host);
+        $domainEmail = null;
+        if ($domainConfig !== null && array_key_exists('email', $domainConfig) && $domainConfig['email'] !== null) {
+            $domainEmail = trim((string) $domainConfig['email']);
+            if ($domainEmail === '') {
+                $domainEmail = null;
+            }
+        }
+        $template = $templateService->getForHost($host);
+
         $tenant = (new TenantService($pdo))->getMainTenant();
         $to = (string) ($tenant['imprint_email'] ?? '');
         if ($to === '') {
@@ -89,7 +104,7 @@ class ContactController
             $mailer = new MailService($twig);
         }
         try {
-            $mailer->sendContact($to, $name, $email, $message);
+            $mailer->sendContact($to, $name, $email, $message, $template, $domainEmail);
         } catch (RuntimeException $e) {
             error_log('Contact mail failed: ' . $e->getMessage());
             $response->getBody()->write('Mailversand fehlgeschlagen');

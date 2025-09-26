@@ -30,11 +30,41 @@ class ContactControllerTest extends TestCase
                 public function __construct()
                 {
                 }
-                public function sendContact(string $to, string $name, string $replyTo, string $message): void
-                {
-                    $this->args = [$to, $name, $replyTo, $message];
+                public function sendContact(
+                    string $to,
+                    string $name,
+                    string $replyTo,
+                    string $message,
+                    ?array $templateData = null,
+                    ?string $fromEmail = null
+                ): void {
+                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail];
                 }
             };
+
+            $pdo = $this->getDatabase();
+            $stmt = $pdo->prepare(
+                'INSERT INTO domain_start_pages(domain, start_page, email) VALUES(?, ?, ?)
+                 ON CONFLICT(domain) DO UPDATE SET start_page = excluded.start_page, email = excluded.email'
+            );
+            $stmt->execute(['main.test', 'landing', 'contact@main.test']);
+            $pdo->prepare(
+                'INSERT INTO domain_contact_templates(domain, sender_name, recipient_html, recipient_text, sender_html, sender_text)
+                 VALUES(?, ?, ?, ?, ?, ?)
+                 ON CONFLICT(domain) DO UPDATE SET
+                    sender_name = excluded.sender_name,
+                    recipient_html = excluded.recipient_html,
+                    recipient_text = excluded.recipient_text,
+                    sender_html = excluded.sender_html,
+                    sender_text = excluded.sender_text'
+            )->execute([
+                'main.test',
+                'Main Contact',
+                '<p>{{ name }}</p>',
+                'Name: {{ name }}',
+                '<div>{{ message_html }}</div>',
+                'Copy: {{ message_plain }}',
+            ]);
 
             $body = json_encode([
                 'name' => 'John Doe',
@@ -69,6 +99,15 @@ class ContactControllerTest extends TestCase
                 'John Doe',
                 'john@example.com',
                 'Hello',
+                [
+                    'domain' => 'main.test',
+                    'sender_name' => 'Main Contact',
+                    'recipient_html' => '<p>{{ name }}</p>',
+                    'recipient_text' => 'Name: {{ name }}',
+                    'sender_html' => '<div>{{ message_html }}</div>',
+                    'sender_text' => 'Copy: {{ message_plain }}',
+                ],
+                'contact@main.test',
             ], $mailer->args);
         } finally {
             if ($oldMainDomain === false) {
@@ -105,8 +144,14 @@ class ContactControllerTest extends TestCase
                 public function __construct()
                 {
                 }
-                public function sendContact(string $to, string $name, string $replyTo, string $message): void
-                {
+                public function sendContact(
+                    string $to,
+                    string $name,
+                    string $replyTo,
+                    string $message,
+                    ?array $templateData = null,
+                    ?string $fromEmail = null
+                ): void {
                     $this->called = true;
                 }
             };

@@ -1042,15 +1042,62 @@
                   <th>{{ t('column_domain') }}</th>
                   <th>{{ t('column_start_page') }}</th>
                   <th>{{ t('column_domain_email') }}</th>
+                  <th class="uk-table-shrink">{{ t('column_contact_template') }}</th>
                   <th>{{ t('column_domain_type') }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td colspan="4">{{ t('text_domain_start_pages_loading') }}</td>
+                  <td colspan="5">{{ t('text_domain_start_pages_loading') }}</td>
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+
+        <div id="domainContactTemplateModal" uk-modal>
+          <div class="uk-modal-dialog uk-modal-body">
+            <h2 class="uk-modal-title">{{ t('heading_domain_contact_template') }}</h2>
+            <p id="domainContactTemplateInfo" class="uk-text-meta uk-margin-remove"></p>
+            <p class="uk-text-meta">{{ t('text_domain_contact_template_hint') }}</p>
+            <p class="uk-text-meta uk-margin-small">{{ t('help_contact_template_placeholders')|raw }}</p>
+            <form id="domainContactTemplateForm" class="uk-form-stacked">
+              <input type="hidden" id="domainContactTemplateDomain">
+              <div class="uk-margin">
+                <label class="uk-form-label" for="domainContactTemplateSenderName">{{ t('label_contact_sender_name') }}</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" type="text" id="domainContactTemplateSenderName" placeholder="{{ t('label_contact_sender_name') }}">
+                </div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="domainContactTemplateRecipientHtml">{{ t('label_contact_recipient_html') }}</label>
+                <div class="uk-form-controls">
+                  <textarea class="uk-textarea" id="domainContactTemplateRecipientHtml" rows="6" data-template-editor="html"></textarea>
+                </div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="domainContactTemplateRecipientText">{{ t('label_contact_recipient_text') }}</label>
+                <div class="uk-form-controls">
+                  <textarea class="uk-textarea" id="domainContactTemplateRecipientText" rows="4"></textarea>
+                </div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="domainContactTemplateSenderHtml">{{ t('label_contact_sender_html') }}</label>
+                <div class="uk-form-controls">
+                  <textarea class="uk-textarea" id="domainContactTemplateSenderHtml" rows="6" data-template-editor="html"></textarea>
+                </div>
+              </div>
+              <div class="uk-margin">
+                <label class="uk-form-label" for="domainContactTemplateSenderText">{{ t('label_contact_sender_text') }}</label>
+                <div class="uk-form-controls">
+                  <textarea class="uk-textarea" id="domainContactTemplateSenderText" rows="4"></textarea>
+                </div>
+              </div>
+              <div class="uk-flex uk-flex-right uk-margin-top">
+                <button type="submit" class="uk-button uk-button-primary">{{ t('action_save') }}</button>
+                <button type="button" class="uk-button uk-button-default uk-margin-small-left uk-modal-close">{{ t('action_cancel') }}</button>
+              </div>
+            </form>
           </div>
         </div>
 
@@ -1449,6 +1496,11 @@
     window.transDomainStartPageSaved = '{{ t('notify_domain_start_page_saved')|e('js') }}';
     window.transDomainStartPageError = '{{ t('notify_domain_start_page_error')|e('js') }}';
     window.transDomainStartPageInvalidEmail = '{{ t('notify_domain_start_page_invalid_email')|e('js') }}';
+    window.transDomainContactTemplateEdit = '{{ t('action_edit_contact_template')|e('js') }}';
+    window.transDomainContactTemplateSaved = '{{ t('notify_domain_contact_template_saved')|e('js') }}';
+    window.transDomainContactTemplateError = '{{ t('notify_domain_contact_template_error')|e('js') }}';
+    window.transDomainContactTemplateLoadError = '{{ t('notify_domain_contact_template_load_error')|e('js') }}';
+    window.transDomainContactTemplateInvalidDomain = '{{ t('notify_domain_contact_template_invalid_domain')|e('js') }}';
     window.pagesContent = {{ pages|json_encode|raw }};
     window.transUpgradeTitle = '{{ t('heading_limit_reached') }}';
     window.transUpgradeText = '{{ t('text_upgrade_required') }}';

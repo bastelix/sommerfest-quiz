@@ -110,10 +110,204 @@ document.addEventListener('DOMContentLoaded', function () {
   const transDomainStartPageSaved = window.transDomainStartPageSaved || 'Startseite gespeichert';
   const transDomainStartPageError = window.transDomainStartPageError || 'Fehler beim Speichern';
   const transDomainStartPageInvalidEmail = window.transDomainStartPageInvalidEmail || transDomainStartPageError;
+  const transDomainContactTemplateEdit = window.transDomainContactTemplateEdit || 'Template bearbeiten';
+  const transDomainContactTemplateSaved = window.transDomainContactTemplateSaved || 'Template gespeichert';
+  const transDomainContactTemplateError = window.transDomainContactTemplateError || 'Fehler beim Speichern';
+  const transDomainContactTemplateLoadError = window.transDomainContactTemplateLoadError || transDomainContactTemplateError;
+  const transDomainContactTemplateInvalidDomain = window.transDomainContactTemplateInvalidDomain || transDomainContactTemplateError;
+  const contactTemplateModalEl = document.getElementById('domainContactTemplateModal');
+  const contactTemplateModal = contactTemplateModalEl && window.UIkit ? UIkit.modal(contactTemplateModalEl) : null;
+  const contactTemplateForm = document.getElementById('domainContactTemplateForm');
+  const contactTemplateInfo = document.getElementById('domainContactTemplateInfo');
+  const contactTemplateFields = contactTemplateForm
+    ? {
+        domain: document.getElementById('domainContactTemplateDomain'),
+        senderName: document.getElementById('domainContactTemplateSenderName'),
+        recipientHtml: document.getElementById('domainContactTemplateRecipientHtml'),
+        recipientText: document.getElementById('domainContactTemplateRecipientText'),
+        senderHtml: document.getElementById('domainContactTemplateSenderHtml'),
+        senderText: document.getElementById('domainContactTemplateSenderText'),
+      }
+    : null;
+  const contactTemplateSubmit = contactTemplateForm?.querySelector('button[type="submit"]') || null;
   let mainDomainNormalized = '';
   let domainStartPageData = [];
   let domainStartPageUpdater = null;
   let reloadDomainStartPages = null;
+  const trumbowygAvailable = () => !!(window.jQuery && window.jQuery.fn && typeof window.jQuery.fn.trumbowyg === 'function');
+  const ensureTemplateEditor = element => {
+    if (!element || element.dataset.templateEditor !== 'html' || !trumbowygAvailable()) {
+      return null;
+    }
+    if (!element.dataset.editorReady) {
+      window.jQuery(element).trumbowyg({
+        autogrow: true,
+        semantic: false,
+        removeformatPasted: true,
+      });
+      element.dataset.editorReady = '1';
+    }
+    return window.jQuery(element);
+  };
+  const setTemplateFieldValue = (element, value) => {
+    if (!element) return;
+    if (element.dataset.templateEditor === 'html') {
+      const editor = ensureTemplateEditor(element);
+      if (editor) {
+        editor.trumbowyg('html', typeof value === 'string' ? value : '');
+        return;
+      }
+    }
+    element.value = typeof value === 'string' ? value : '';
+  };
+  const getTemplateFieldValue = element => {
+    if (!element) return '';
+    if (element.dataset.templateEditor === 'html') {
+      const editor = ensureTemplateEditor(element);
+      if (editor) {
+        return editor.trumbowyg('html');
+      }
+    }
+    return element.value || '';
+  };
+  const resetContactTemplateForm = () => {
+    if (!contactTemplateFields) return;
+    if (contactTemplateFields.senderName) contactTemplateFields.senderName.value = '';
+    if (contactTemplateFields.recipientText) contactTemplateFields.recipientText.value = '';
+    if (contactTemplateFields.senderText) contactTemplateFields.senderText.value = '';
+    setTemplateFieldValue(contactTemplateFields.recipientHtml, '');
+    setTemplateFieldValue(contactTemplateFields.senderHtml, '');
+  };
+  const toggleContactTemplateDisabled = disabled => {
+    if (!contactTemplateForm) return;
+    const elements = contactTemplateForm.querySelectorAll('input, textarea, button[type="submit"]');
+    elements.forEach(el => {
+      el.disabled = disabled;
+    });
+  };
+  const loadContactTemplateData = normalized => {
+    if (!normalized) {
+      return Promise.reject(new Error(transDomainContactTemplateInvalidDomain));
+    }
+    toggleContactTemplateDisabled(true);
+    return apiFetch(`/admin/domain-contact-template/${encodeURIComponent(normalized)}`)
+      .then(res => {
+        if (!res.ok) {
+          return res
+            .json()
+            .catch(() => ({}))
+            .then(data => {
+              throw new Error(data.error || transDomainContactTemplateLoadError);
+            });
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (!contactTemplateFields) {
+          return;
+        }
+        setTemplateFieldValue(contactTemplateFields.recipientHtml, data?.recipient_html || '');
+        setTemplateFieldValue(contactTemplateFields.senderHtml, data?.sender_html || '');
+        if (contactTemplateFields.senderName) {
+          contactTemplateFields.senderName.value = data?.sender_name || '';
+        }
+        if (contactTemplateFields.recipientText) {
+          contactTemplateFields.recipientText.value = data?.recipient_text || '';
+        }
+        if (contactTemplateFields.senderText) {
+          contactTemplateFields.senderText.value = data?.sender_text || '';
+        }
+      })
+      .finally(() => {
+        toggleContactTemplateDisabled(false);
+      });
+  };
+  const openContactTemplateEditor = item => {
+    if (!contactTemplateModal || !contactTemplateFields) {
+      return;
+    }
+    const normalized = (item?.normalized || '').trim();
+    if (!normalized) {
+      notify(transDomainContactTemplateInvalidDomain, 'danger');
+      return;
+    }
+    if (contactTemplateFields.domain) {
+      contactTemplateFields.domain.value = normalized;
+    }
+    if (contactTemplateInfo) {
+      contactTemplateInfo.textContent = item?.domain || normalized;
+    }
+    ensureTemplateEditor(contactTemplateFields?.recipientHtml);
+    ensureTemplateEditor(contactTemplateFields?.senderHtml);
+    resetContactTemplateForm();
+    contactTemplateModal.show();
+    loadContactTemplateData(normalized).catch(err => {
+      notify(err.message || transDomainContactTemplateLoadError, 'danger');
+      contactTemplateModal.hide();
+    });
+  };
+
+  if (contactTemplateForm && contactTemplateFields) {
+    contactTemplateForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const domainValue = (contactTemplateFields.domain?.value || '').trim();
+      if (!domainValue) {
+        notify(transDomainContactTemplateInvalidDomain, 'danger');
+        return;
+      }
+
+      const payload = {
+        domain: domainValue,
+        sender_name: contactTemplateFields.senderName
+          ? contactTemplateFields.senderName.value.trim()
+          : '',
+        recipient_html: getTemplateFieldValue(contactTemplateFields.recipientHtml),
+        recipient_text: contactTemplateFields.recipientText?.value || '',
+        sender_html: getTemplateFieldValue(contactTemplateFields.senderHtml),
+        sender_text: contactTemplateFields.senderText?.value || '',
+      };
+
+      toggleContactTemplateDisabled(true);
+      if (contactTemplateSubmit) {
+        contactTemplateSubmit.disabled = true;
+      }
+
+      apiFetch('/admin/domain-contact-template', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+        .then(res => {
+          if (!res.ok) {
+            return res
+              .json()
+              .catch(() => ({}))
+              .then(data => {
+                const fallback = res.status === 422
+                  ? transDomainContactTemplateInvalidDomain
+                  : transDomainContactTemplateError;
+                throw new Error(data.error || fallback);
+              });
+          }
+          return res.json().catch(() => ({}));
+        })
+        .then(() => {
+          notify(transDomainContactTemplateSaved, 'success');
+          if (contactTemplateModal) {
+            contactTemplateModal.hide();
+          }
+        })
+        .catch(err => {
+          notify(err.message || transDomainContactTemplateError, 'danger');
+        })
+        .finally(() => {
+          toggleContactTemplateDisabled(false);
+          if (contactTemplateSubmit) {
+            contactTemplateSubmit.disabled = false;
+          }
+        });
+    });
+  }
   if (emailInput) {
     emailInput.addEventListener('input', () => {
       emailInput.classList.remove('uk-form-danger');
@@ -569,7 +763,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (domainStartPageTable) {
     const tbody = domainStartPageTable.querySelector('tbody');
-    const columnCount = domainStartPageTable.querySelectorAll('thead th').length || 4;
+    const columnCount = domainStartPageTable.querySelectorAll('thead th').length || 5;
     const messages = {
       loading: domainStartPageTable.dataset.loading || '',
       empty: domainStartPageTable.dataset.empty || '',
@@ -631,6 +825,16 @@ document.addEventListener('DOMContentLoaded', function () {
         emailInput.value = typeof item.email === 'string' ? item.email : '';
         emailCell.appendChild(emailInput);
         tr.appendChild(emailCell);
+
+        const templateCell = document.createElement('td');
+        templateCell.className = 'uk-table-shrink';
+        const templateButton = document.createElement('button');
+        templateButton.type = 'button';
+        templateButton.className = 'uk-button uk-button-default uk-button-small';
+        templateButton.textContent = transDomainContactTemplateEdit;
+        templateButton.addEventListener('click', () => openContactTemplateEditor(item));
+        templateCell.appendChild(templateButton);
+        tr.appendChild(templateCell);
 
         const typeCell = document.createElement('td');
         typeCell.textContent = domainStartPageTypeLabels[item.type] || item.type;
