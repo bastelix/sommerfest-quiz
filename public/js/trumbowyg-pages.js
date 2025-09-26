@@ -115,6 +115,41 @@ export function initPageEditors() {
   });
 }
 
+export function initPageSelection() {
+  const select = document.getElementById('pageContentSelect');
+  if (!select) {
+    return;
+  }
+
+  const forms = Array.from(document.querySelectorAll('.page-form'));
+  if (!forms.length) {
+    return;
+  }
+
+  const toggleForms = slug => {
+    let activeSlug = slug;
+    if (!forms.some(form => form.dataset.slug === activeSlug)) {
+      activeSlug = forms[0]?.dataset.slug || '';
+    }
+    forms.forEach(form => {
+      form.classList.toggle('uk-hidden', form.dataset.slug !== activeSlug);
+    });
+  };
+
+  let selected = select.dataset.selected || select.value;
+  if (!selected && select.options.length > 0) {
+    selected = select.options[0].value;
+  }
+  if (selected) {
+    select.value = selected;
+  }
+  toggleForms(selected);
+
+  select.addEventListener('change', () => {
+    toggleForms(select.value);
+  });
+}
+
 export function showPreview() {
   const editor = document.querySelector('.page-editor');
   if (!editor) return;
@@ -127,8 +162,12 @@ export function showPreview() {
 }
 
 window.showPreview = showPreview;
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initPageEditors);
-} else {
+const initPagesModule = () => {
   initPageEditors();
+  initPageSelection();
+};
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPagesModule);
+} else {
+  initPagesModule();
 }

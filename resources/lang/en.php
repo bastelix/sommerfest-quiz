@@ -30,6 +30,7 @@ return [
     'tab_statistics' => 'Statistics',
     'tab_pages' => 'Pages',
     'tab_landingpage_seo' => 'Landing Page SEO',
+    'tab_landingpage_content' => 'Landing Page Content',
     'tab_management' => 'Management',
     'tab_logs' => 'Logs',
     'tab_tenants' => 'Subdomains',

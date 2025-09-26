@@ -215,6 +215,11 @@ class AdminController
             ? $seoPages[$selectedSeoPage->getId()]['config']
             : [];
 
+        $selectedPageSlug = $selectedSeoPage?->getSlug() ?? '';
+        if ($selectedPageSlug === '') {
+            $selectedPageSlug = $pages[0]['slug'] ?? '';
+        }
+
         $mediaService = new MediaLibraryService($configSvc, new ImageUploadService());
         $mediaLimits = $mediaService->getLimits();
 
@@ -237,6 +242,7 @@ class AdminController
               'seo_config' => $seoConfig,
               'seo_pages' => array_values($seoPages),
               'selectedSeoPageId' => $selectedSeoPage?->getId(),
+              'selectedPageSlug' => $selectedPageSlug,
               'domainType' => $request->getAttribute('domainType'),
               'tenant' => $tenant,
               'stripe_configured' => StripeService::isConfigured()['ok'],

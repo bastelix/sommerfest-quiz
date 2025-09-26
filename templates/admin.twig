@@ -913,10 +913,7 @@
           <h2 class="uk-heading-bullet">{{ t('heading_pages') }}</h2>
           <ul id="pageTabs" class="uk-tab" uk-tab="connect: #pageSwitcher">
             <li class="uk-active"><a href="#">{{ t('tab_landingpage_seo') }}</a></li>
-            {% for page in pages %}
-              {% set pageLabel = page.title is not empty ? page.title : page.slug|replace({'-': ' '})|title %}
-              <li data-slug="{{ page.slug }}"><a href="#">{{ pageLabel }}</a></li>
-            {% endfor %}
+            <li><a href="#">{{ t('tab_landingpage_content') }}</a></li>
           </ul>
           <ul id="pageSwitcher" class="uk-switcher uk-margin">
             <li>
@@ -1007,18 +1004,48 @@
               </form>
               {% endif %}
             </li>
-            {% for page in pages %}
             <li>
-              <form class="page-form" data-slug="{{ page.slug }}">
-                <input type="hidden" id="page_{{ page.slug }}" name="content" value="{{ page.content|e('html_attr') }}">
-                <div class="page-editor" data-content="{{ page.content|e('html_attr') }}"></div>
-                <div class="uk-margin-top">
-                  <button class="uk-button uk-button-primary save-page-btn">Speichern</button>
-                  <a class="uk-button uk-button-default preview-link" href="{{ basePath }}/{{ page.slug }}" target="_blank">Vorschau</a>
+              {% if pages|default([]) is empty %}
+                <div class="uk-alert uk-alert-warning">Keine Marketing-Seiten gefunden.</div>
+              {% else %}
+                {% set selectedSlug = selectedPageSlug|default('') %}
+                {% if selectedSlug == '' and pages|length > 0 %}
+                  {% set selectedSlug = (pages|first).slug %}
+                {% endif %}
+                <div class="uk-margin">
+                  <label class="uk-form-label" for="pageContentSelect">Marketing-Seite</label>
+                  <div class="uk-form-controls">
+                    <select
+                      id="pageContentSelect"
+                      class="uk-select"
+                      data-selected="{{ selectedSlug }}"
+                    >
+                      {% for page in pages %}
+                        {% set pageLabel = page.title is not empty ? page.title : page.slug|replace({'-': ' '})|title %}
+                        <option
+                          value="{{ page.slug }}"
+                          {% if page.slug == selectedSlug %}selected{% endif %}
+                        >{{ pageLabel }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
                 </div>
-              </form>
+                {% for page in pages %}
+                <form class="page-form{% if page.slug != selectedSlug %} uk-hidden{% endif %}" data-slug="{{ page.slug }}">
+                  <input type="hidden" id="page_{{ page.slug }}" name="content" value="{{ page.content|e('html_attr') }}">
+                  <div class="page-editor" data-content="{{ page.content|e('html_attr') }}"></div>
+                  <div class="uk-margin-top">
+                    <button class="uk-button uk-button-primary save-page-btn">Speichern</button>
+                    <a
+                      class="uk-button uk-button-default preview-link"
+                      href="{{ basePath }}/{{ page.slug }}"
+                      target="_blank"
+                    >Vorschau</a>
+                  </div>
+                </form>
+                {% endfor %}
+              {% endif %}
             </li>
-            {% endfor %}
           </ul>
         </div>
       </li>
