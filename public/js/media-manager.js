@@ -120,7 +120,17 @@ ready(() => {
       modifiedLabel: 'Modified',
       nameLabel: 'File',
       selectedLabel: 'Selected file:',
-      uploading: 'Uploading…'
+      uploading: 'Uploading…',
+      metadataSaved: 'Metadata saved.',
+      addTag: 'Add tag',
+      clearFolder: 'Clear folder',
+      saveFolder: 'Save folder',
+      noTags: 'No tags yet.',
+      filterTags: 'Filter by tags',
+      filterFolder: 'Filter by folder',
+      allFolders: 'All folders',
+      noFolder: 'Without folder',
+      clearFilters: 'Reset filters'
     };
 
     const translations = {
@@ -139,10 +149,15 @@ ready(() => {
     const emptyMessage = root.querySelector('[data-media-empty]');
     const errorBox = root.querySelector('[data-media-error]');
     const eventHint = root.querySelector('[data-media-event-hint]');
+    const tagFilterContainer = root.querySelector('[data-media-filter-tags]');
+    const folderFilterSelect = root.querySelector('[data-media-filter-folder]');
+    const clearFiltersBtn = root.querySelector('[data-media-clear-filters]');
     const dropZone = root.querySelector('[data-media-dropzone]');
     const chooseBtn = root.querySelector('[data-media-choose]');
     const fileInput = root.querySelector('[data-media-file]');
     const nameInput = root.querySelector('[data-media-name]');
+    const uploadTagsInput = root.querySelector('[data-media-upload-tags]');
+    const uploadFolderInput = root.querySelector('[data-media-upload-folder]');
     const form = root.querySelector('[data-media-form]');
     const progress = root.querySelector('[data-media-progress]');
     const statusText = root.querySelector('[data-media-upload-status]');
@@ -158,10 +173,18 @@ ready(() => {
     const previewDownload = root.querySelector('[data-media-download]');
     const previewRename = root.querySelector('[data-media-rename]');
     const previewDelete = root.querySelector('[data-media-delete]');
+    const metadataPanel = root.querySelector('[data-media-metadata]');
+    const metadataTagList = root.querySelector('[data-media-meta-tags]');
+    const metadataTagInput = root.querySelector('[data-media-meta-tag-input]');
+    const metadataAddTag = root.querySelector('[data-media-meta-add-tag]');
+    const metadataFolderInput = root.querySelector('[data-media-meta-folder]');
+    const metadataSaveFolder = root.querySelector('[data-media-meta-save-folder]');
+    const metadataClearFolder = root.querySelector('[data-media-meta-clear-folder]');
 
     const initialLimits = parseJsonAttribute(root, 'data-limits', {});
     const limitTemplate = limitText?.dataset.template || '';
     const initialEventUid = root.getAttribute('data-event-uid') || '';
+    const NO_FOLDER_FILTER = '__no_folder__';
 
     const state = {
       scope: 'global',
@@ -174,7 +197,16 @@ ready(() => {
       pendingFile: null,
       uploading: false,
       eventUid: initialEventUid,
-      loading: false
+      loading: false,
+      filters: {
+        tags: [],
+        folder: '',
+      },
+      available: {
+        tags: [],
+        folders: [],
+      },
+      metadataSaving: false
     };
 
     function updateLimitText(limits) {
@@ -223,6 +255,40 @@ ready(() => {
       });
     }
 
+    function tagKey(tag) {
+      return String(tag ?? '').toLocaleLowerCase();
+    }
+
+    function sanitizeTagValue(value) {
+      if (value === null || value === undefined) return '';
+      let tag = String(value);
+      if (typeof tag.normalize === 'function') {
+        tag = tag.normalize('NFC');
+      }
+      tag = tag.replace(/[^\p{L}\p{N}\s_-]+/gu, ' ');
+      tag = tag.replace(/\s+/g, ' ');
+      tag = tag.trim();
+      return tag;
+    }
+
+    function uniqueTags(list) {
+      const result = [];
+      const seen = new Set();
+      list.forEach((item) => {
+        const tag = sanitizeTagValue(item);
+        if (!tag) {
+          return;
+        }
+        const key = tagKey(tag);
+        if (seen.has(key)) {
+          return;
+        }
+        seen.add(key);
+        result.push(tag);
+      });
+      return result;
+    }
+
     function getSelectedFile() {
       return state.files.find((file) => file.name === state.selectedName) || null;
     }
@@ -239,6 +305,7 @@ ready(() => {
           previewDownload.href = '#';
           previewDownload.removeAttribute('download');
         }
+        renderMetadataEditor(null);
         return;
       }
       previewPlaceholder.hidden = true;
@@ -255,6 +322,64 @@ ready(() => {
         previewDownload.href = url || '#';
         previewDownload.setAttribute('download', file.name || '');
       }
+      renderMetadataEditor(file);
+    }
+
+    function updateMetadataControlsState(file) {
+      const disabled = state.metadataSaving || !file;
+      [metadataTagInput, metadataAddTag, metadataFolderInput, metadataSaveFolder, metadataClearFolder]
+        .filter(Boolean)
+        .forEach((element) => {
+          element.disabled = disabled;
+        });
+    }
+
+    function renderMetadataTags(file) {
+      if (!metadataTagList) return;
+      metadataTagList.innerHTML = '';
+      const tags = Array.isArray(file?.tags) ? file.tags : [];
+      if (!tags.length) {
+        const empty = document.createElement('span');
+        empty.className = 'uk-text-meta';
+        empty.textContent = translations.noTags || '';
+        metadataTagList.appendChild(empty);
+        return;
+      }
+
+      tags.forEach((tag) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'uk-button uk-button-default uk-button-xsmall uk-margin-small-right';
+        button.textContent = tag;
+        button.dataset.mediaRemoveTag = 'true';
+        button.dataset.tag = tag;
+        button.setAttribute('aria-label', `${translations.delete || 'Delete'}: ${tag}`);
+        metadataTagList.appendChild(button);
+      });
+    }
+
+    function renderMetadataEditor(file) {
+      if (!metadataPanel) return;
+      if (!file) {
+        metadataPanel.hidden = true;
+        if (metadataTagList) metadataTagList.innerHTML = '';
+        if (metadataTagInput) metadataTagInput.value = '';
+        if (metadataFolderInput) metadataFolderInput.value = '';
+        updateMetadataControlsState(null);
+        return;
+      }
+
+      metadataPanel.hidden = false;
+      renderMetadataTags(file);
+      if (metadataFolderInput && !state.metadataSaving) {
+        metadataFolderInput.value = file.folder || '';
+      }
+      updateMetadataControlsState(file);
+    }
+
+    function setMetadataSaving(busy) {
+      state.metadataSaving = !!busy;
+      updateMetadataControlsState(getSelectedFile());
     }
 
     function renderFiles() {
@@ -292,6 +417,24 @@ ready(() => {
           selectFile(file);
         });
         nameTd.appendChild(nameBtn);
+
+        if (Array.isArray(file.tags) && file.tags.length) {
+          const tagWrap = document.createElement('div');
+          tagWrap.className = 'media-file-tags uk-margin-small-top';
+          file.tags.forEach((tag) => {
+            const badge = document.createElement('span');
+            badge.className = 'uk-label uk-label-light uk-margin-small-right';
+            badge.textContent = tag;
+            tagWrap.appendChild(badge);
+          });
+          nameTd.appendChild(tagWrap);
+        }
+        if (typeof file.folder === 'string' && file.folder !== '') {
+          const folderInfo = document.createElement('span');
+          folderInfo.className = 'uk-text-meta uk-display-block';
+          folderInfo.textContent = file.folder;
+          nameTd.appendChild(folderInfo);
+        }
 
         const sizeTd = document.createElement('td');
         sizeTd.textContent = formatSize(file.size);
@@ -346,6 +489,82 @@ ready(() => {
       } else {
         updatePreview(selected);
       }
+    }
+
+    function renderTagFilters() {
+      if (!tagFilterContainer) return;
+      tagFilterContainer.innerHTML = '';
+
+      const tags = Array.isArray(state.available.tags) ? state.available.tags.slice() : [];
+      state.filters.tags.forEach((activeTag) => {
+        if (!tags.map(tagKey).includes(tagKey(activeTag))) {
+          tags.push(activeTag);
+        }
+      });
+      if (!tags.length) {
+        const hint = document.createElement('span');
+        hint.className = 'uk-text-meta';
+        hint.textContent = translations.noTags || '';
+        tagFilterContainer.appendChild(hint);
+        return;
+      }
+
+      const activeKeys = state.filters.tags.map(tagKey);
+      tags.forEach((tag) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        const isActive = activeKeys.includes(tagKey(tag));
+        button.className = 'uk-button uk-button-default uk-button-xsmall uk-margin-small-right';
+        if (isActive) {
+          button.classList.add('uk-button-primary');
+        }
+        button.dataset.tag = tag;
+        button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        button.textContent = tag;
+        tagFilterContainer.appendChild(button);
+      });
+    }
+
+    function renderFolderFilter() {
+      if (!folderFilterSelect) return;
+      const folders = Array.isArray(state.available.folders) ? state.available.folders : [];
+      const current = state.filters.folder || '';
+      folderFilterSelect.innerHTML = '';
+
+      const allOption = document.createElement('option');
+      allOption.value = '';
+      allOption.textContent = translations.allFolders || '';
+      folderFilterSelect.appendChild(allOption);
+
+      const noneOption = document.createElement('option');
+      noneOption.value = NO_FOLDER_FILTER;
+      noneOption.textContent = translations.noFolder || '';
+      folderFilterSelect.appendChild(noneOption);
+
+      folders.forEach((folder) => {
+        const option = document.createElement('option');
+        option.value = folder;
+        option.textContent = folder;
+        folderFilterSelect.appendChild(option);
+      });
+
+      if (
+        current &&
+        current !== NO_FOLDER_FILTER &&
+        !folders.map((folder) => tagKey(folder)).includes(tagKey(current))
+      ) {
+        const customOption = document.createElement('option');
+        customOption.value = current;
+        customOption.textContent = current;
+        folderFilterSelect.appendChild(customOption);
+      }
+
+      folderFilterSelect.value = current;
+    }
+
+    function renderFilterControls() {
+      renderTagFilters();
+      renderFolderFilter();
     }
 
     function updateEventHint() {
@@ -420,9 +639,12 @@ ready(() => {
         state.files = [];
         state.page = 1;
         state.totalPages = 1;
+        state.available.tags = [];
+        state.available.folders = [];
         renderFiles();
         showError(translations.eventRequired);
         updatePagination();
+        renderFilterControls();
         return;
       }
       state.loading = true;
@@ -434,6 +656,12 @@ ready(() => {
         perPage: String(state.perPage)
       });
       if (state.search) params.set('search', state.search);
+      if (state.filters.tags.length) {
+        params.set('tags', state.filters.tags.join(','));
+      }
+      if (state.filters.folder) {
+        params.set('folder', state.filters.folder);
+      }
       if (state.scope === 'event' && state.eventUid) {
         params.set('event', state.eventUid);
       }
@@ -444,16 +672,25 @@ ready(() => {
         state.page = Number(pagination.page) || 1;
         state.totalPages = Number(pagination.totalPages) || 1;
         updateLimitText(data.limits || {});
+        const filters = data.filters || {};
+        state.available.tags = Array.isArray(filters.tags) ? filters.tags : [];
+        state.available.folders = Array.isArray(filters.folders) ? filters.folders : [];
+        const activeFilters = filters.active || {};
+        state.filters.tags = Array.isArray(activeFilters.tags) ? uniqueTags(activeFilters.tags) : [];
+        state.filters.folder = typeof activeFilters.folder === 'string' ? activeFilters.folder : '';
         renderFiles();
         clearError();
       } catch (err) {
         state.files = [];
         renderFiles();
         showError(err.message);
+        state.available.tags = [];
+        state.available.folders = [];
       } finally {
         state.loading = false;
         if (root) root.setAttribute('aria-busy', 'false');
         updatePagination();
+        renderFilterControls();
       }
     }
 
@@ -497,6 +734,14 @@ ready(() => {
       const nameValue = nameInput?.value?.trim();
       if (nameValue) {
         formData.append('name', nameValue);
+      }
+      const tagsValue = uploadTagsInput?.value?.trim();
+      if (tagsValue) {
+        formData.append('tags', tagsValue);
+      }
+      const folderValue = uploadFolderInput?.value?.trim();
+      if (folderValue) {
+        formData.append('folder', folderValue);
       }
 
       const xhr = new XMLHttpRequest();
@@ -560,6 +805,78 @@ ready(() => {
       });
 
       xhr.send(formData);
+    }
+
+    async function updateMetadata(file, changes) {
+      if (!file || state.metadataSaving) return;
+      const payload = {
+        scope: state.scope,
+        oldName: file.name,
+        newName: file.name,
+        event: state.scope === 'event' ? state.eventUid : '',
+      };
+
+      if (Object.prototype.hasOwnProperty.call(changes, 'tags')) {
+        payload.tags = changes.tags;
+      }
+      if (Object.prototype.hasOwnProperty.call(changes, 'folder')) {
+        payload.folder = changes.folder;
+      }
+
+      try {
+        setMetadataSaving(true);
+        const data = await fetchJson('/admin/media/rename', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        updateLimitText(data.limits || {});
+        notify(translations.metadataSaved, 'success');
+        state.selectedName = data.file?.name || file.name;
+        await loadFiles();
+      } catch (err) {
+        notify(err.message || translations.requestFailed, 'danger');
+      } finally {
+        setMetadataSaving(false);
+      }
+    }
+
+    function handleAddTag() {
+      if (!metadataTagInput) return;
+      const value = sanitizeTagValue(metadataTagInput.value);
+      if (!value) return;
+      const file = getSelectedFile();
+      if (!file) return;
+      const existing = Array.isArray(file.tags) ? file.tags.slice() : [];
+      if (existing.map(tagKey).includes(tagKey(value))) {
+        metadataTagInput.value = '';
+        return;
+      }
+      metadataTagInput.value = '';
+      const tags = uniqueTags([...existing, value]);
+      updateMetadata(file, { tags });
+    }
+
+    function handleSaveFolder() {
+      const file = getSelectedFile();
+      if (!file || !metadataFolderInput) return;
+      const value = metadataFolderInput.value.trim();
+      if ((file.folder || '') === value) {
+        return;
+      }
+      updateMetadata(file, { folder: value });
+    }
+
+    function handleClearFolder() {
+      const file = getSelectedFile();
+      if (!file) return;
+      if (metadataFolderInput) {
+        metadataFolderInput.value = '';
+      }
+      if (!file.folder) {
+        return;
+      }
+      updateMetadata(file, { folder: null });
     }
 
     async function handleRename(file) {
@@ -632,6 +949,48 @@ ready(() => {
       });
     }
 
+    tagFilterContainer?.addEventListener('click', (event) => {
+      const target = event.target;
+      const button = target && typeof target.closest === 'function'
+        ? target.closest('button[data-tag]')
+        : null;
+      if (!button) return;
+      event.preventDefault();
+      const tag = button.dataset.tag || '';
+      if (!tag) return;
+      const key = tagKey(tag);
+      const existing = state.filters.tags.slice();
+      const index = existing.findIndex((item) => tagKey(item) === key);
+      if (index === -1) {
+        existing.push(tag);
+      } else {
+        existing.splice(index, 1);
+      }
+      state.filters.tags = uniqueTags(existing);
+      state.page = 1;
+      loadFiles();
+    });
+
+    folderFilterSelect?.addEventListener('change', () => {
+      const value = folderFilterSelect.value || '';
+      if (state.filters.folder === value) {
+        return;
+      }
+      state.filters.folder = value;
+      state.page = 1;
+      loadFiles();
+    });
+
+    clearFiltersBtn?.addEventListener('click', () => {
+      if (!state.filters.tags.length && !state.filters.folder) {
+        return;
+      }
+      state.filters.tags = [];
+      state.filters.folder = '';
+      state.page = 1;
+      loadFiles();
+    });
+
     refreshBtn?.addEventListener('click', () => {
       state.page = 1;
       loadFiles();
@@ -689,6 +1048,51 @@ ready(() => {
       event.preventDefault();
       if (state.pendingFile) {
         startUpload(state.pendingFile);
+      }
+    });
+
+    metadataAddTag?.addEventListener('click', () => {
+      handleAddTag();
+    });
+
+    metadataTagInput?.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        handleAddTag();
+      }
+    });
+
+    metadataTagList?.addEventListener('click', (event) => {
+      const target = event.target;
+      const button = target && typeof target.closest === 'function'
+        ? target.closest('[data-media-remove-tag]')
+        : null;
+      if (!button) return;
+      event.preventDefault();
+      const tag = button.getAttribute('data-tag') || '';
+      if (!tag) return;
+      const file = getSelectedFile();
+      if (!file) return;
+      const existing = Array.isArray(file.tags) ? file.tags : [];
+      const updated = existing.filter((item) => tagKey(item) !== tagKey(tag));
+      if (updated.length === existing.length) {
+        return;
+      }
+      updateMetadata(file, { tags: updated });
+    });
+
+    metadataSaveFolder?.addEventListener('click', () => {
+      handleSaveFolder();
+    });
+
+    metadataClearFolder?.addEventListener('click', () => {
+      handleClearFolder();
+    });
+
+    metadataFolderInput?.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        handleSaveFolder();
       }
     });
 

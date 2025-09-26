@@ -77,12 +77,24 @@ class DomainMiddleware implements MiddlewareInterface
         }
 
         $startPage = null;
+        $contactEmail = null;
         try {
             $pdo = Database::connectFromEnv();
             $service = new DomainStartPageService($pdo);
-            $startPage = $service->getStartPage($host);
-            if ($startPage === null && $marketingHost !== $host) {
-                $startPage = $service->getStartPage($marketingHost);
+            $config = $service->getConfigForHost($originalHost);
+            if ($config !== null) {
+                $startPage = (string) ($config['start_page'] ?? '');
+                if ($startPage === '') {
+                    $startPage = null;
+                }
+
+                $email = $config['email'] ?? null;
+                if (is_string($email)) {
+                    $email = trim($email);
+                    if ($email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                        $contactEmail = $email;
+                    }
+                }
             }
         } catch (Throwable $e) {
             // Ignore errors so the request can continue even if the table is missing.
@@ -90,7 +102,8 @@ class DomainMiddleware implements MiddlewareInterface
 
         $request = $request
             ->withAttribute('domainType', $domainType)
-            ->withAttribute('domainStartPage', $startPage);
+            ->withAttribute('domainStartPage', $startPage)
+            ->withAttribute('domainContactEmail', $contactEmail);
 
         return $handler->handle($request);
     }

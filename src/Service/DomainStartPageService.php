@@ -29,7 +29,7 @@ class DomainStartPageService
      */
     public function getStartPage(string $host): ?string
     {
-        $config = $this->getDomainConfig($host);
+        $config = $this->getConfigForHost($host);
 
         if ($config === null) {
             return null;
@@ -38,6 +38,39 @@ class DomainStartPageService
         $startPage = (string) ($config['start_page'] ?? '');
 
         return $startPage === '' ? null : $startPage;
+    }
+
+    /**
+     * Determine the stored domain configuration for the given host.
+     *
+     * @return array{domain:string,start_page:string,email:?string}|null
+     */
+    public function getConfigForHost(string $host): ?array
+    {
+        $host = strtolower(trim($host));
+        if ($host === '') {
+            return null;
+        }
+
+        $candidates = [];
+        $normalizedHost = $this->normalizeDomain($host);
+        if ($normalizedHost !== '') {
+            $candidates[] = $normalizedHost;
+        }
+
+        $marketingHost = $this->normalizeDomain($host, stripAdmin: false);
+        if ($marketingHost !== '' && $marketingHost !== $normalizedHost) {
+            $candidates[] = $marketingHost;
+        }
+
+        foreach ($candidates as $candidate) {
+            $config = $this->getDomainConfig($candidate);
+            if ($config !== null) {
+                return $config;
+            }
+        }
+
+        return null;
     }
 
     /**

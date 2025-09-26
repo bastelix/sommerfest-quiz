@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Controller;
 
+use App\Service\DomainStartPageService;
 use App\Service\MailService;
 use Tests\TestCase;
 
@@ -123,6 +124,83 @@ class ContactControllerTest extends TestCase
         }
     }
 
+    public function testContactFormUsesDomainSpecificEmail(): void
+    {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+        session_id('contactdomain');
+        session_start();
+        $_SESSION['csrf_token'] = 'token';
+        $_COOKIE[session_name()] = session_id();
+
+        $oldMainDomain = getenv('MAIN_DOMAIN');
+        $oldEnvMainDomain = $_ENV['MAIN_DOMAIN'] ?? null;
+        putenv('MAIN_DOMAIN=main.test');
+        $_ENV['MAIN_DOMAIN'] = 'main.test';
+
+        try {
+            $pdo = $this->getDatabase();
+            $domainService = new DomainStartPageService($pdo);
+            $domainService->saveDomainConfig('main.test', 'landing', 'contact@domain.test');
+
+            $mailer = new class extends MailService {
+                public array $args = [];
+                public function __construct()
+                {
+                }
+                public function sendContact(string $to, string $name, string $replyTo, string $message): void
+                {
+                    $this->args = [$to, $name, $replyTo, $message];
+                }
+            };
+
+            $body = json_encode([
+                'name' => 'Jane Doe',
+                'email' => 'jane@example.com',
+                'message' => 'Hi there',
+                'company' => '',
+            ], JSON_THROW_ON_ERROR);
+
+            $request = $this->createRequest(
+                'POST',
+                '/landing/contact',
+                [
+                    'Content-Type' => 'application/json',
+                    'X-CSRF-Token' => 'token',
+                ],
+                [session_name() => session_id()]
+            );
+            $request->getBody()->write($body);
+            $request->getBody()->rewind();
+            $request = $request
+                ->withUri($request->getUri()->withHost('main.test'))
+                ->withAttribute('mailService', $mailer);
+
+            $app = $this->getAppInstance();
+            $response = $app->handle($request);
+
+            $this->assertEquals(204, $response->getStatusCode());
+            $this->assertSame([
+                'contact@domain.test',
+                'Jane Doe',
+                'jane@example.com',
+                'Hi there',
+            ], $mailer->args);
+        } finally {
+            if ($oldMainDomain === false) {
+                putenv('MAIN_DOMAIN');
+            } else {
+                putenv('MAIN_DOMAIN=' . $oldMainDomain);
+            }
+            if ($oldEnvMainDomain === null) {
+                unset($_ENV['MAIN_DOMAIN']);
+            } else {
+                $_ENV['MAIN_DOMAIN'] = $oldEnvMainDomain;
+            }
+        }
+    }
+
     public function testContactFormHoneypotBlocksMail(): void
     {
         if (session_status() === PHP_SESSION_ACTIVE) {
@@ -183,6 +261,84 @@ class ContactControllerTest extends TestCase
 
             $this->assertEquals(204, $response->getStatusCode());
             $this->assertFalse($mailer->called, 'Honeypot submissions must not trigger mail delivery.');
+        } finally {
+            if ($oldMainDomain === false) {
+                putenv('MAIN_DOMAIN');
+            } else {
+                putenv('MAIN_DOMAIN=' . $oldMainDomain);
+            }
+            if ($oldEnvMainDomain === null) {
+                unset($_ENV['MAIN_DOMAIN']);
+            } else {
+                $_ENV['MAIN_DOMAIN'] = $oldEnvMainDomain;
+            }
+        }
+    }
+
+    public function testContactFormIgnoresInvalidDomainEmail(): void
+    {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+        session_id('contactinvalid');
+        session_start();
+        $_SESSION['csrf_token'] = 'token';
+        $_COOKIE[session_name()] = session_id();
+
+        $oldMainDomain = getenv('MAIN_DOMAIN');
+        $oldEnvMainDomain = $_ENV['MAIN_DOMAIN'] ?? null;
+        putenv('MAIN_DOMAIN=main.test');
+        $_ENV['MAIN_DOMAIN'] = 'main.test';
+
+        try {
+            $pdo = $this->getDatabase();
+            $domainService = new DomainStartPageService($pdo);
+            $domainService->saveDomainConfig('main.test', 'landing', 'not-an-email');
+
+            $mailer = new class extends MailService {
+                public array $args = [];
+                public function __construct()
+                {
+                }
+                public function sendContact(string $to, string $name, string $replyTo, string $message): void
+                {
+                    $this->args = [$to, $name, $replyTo, $message];
+                }
+            };
+
+            $body = json_encode([
+                'name' => 'Invalid Email',
+                'email' => 'valid@example.com',
+                'message' => 'Please ignore',
+                'company' => '',
+            ], JSON_THROW_ON_ERROR);
+
+            $request = $this->createRequest(
+                'POST',
+                '/landing/contact',
+                [
+                    'Content-Type' => 'application/json',
+                    'X-CSRF-Token' => 'token',
+                ],
+                [session_name() => session_id()]
+            );
+            $request->getBody()->write($body);
+            $request->getBody()->rewind();
+            $request = $request
+                ->withUri($request->getUri()->withHost('main.test'))
+                ->withAttribute('mailService', $mailer);
+
+            $app = $this->getAppInstance();
+            $response = $app->handle($request);
+
+            $this->assertEquals(204, $response->getStatusCode());
+            $imprintEmail = $pdo->query("SELECT imprint_email FROM tenants WHERE subdomain = 'main'")?->fetchColumn();
+            $this->assertSame([
+                (string) $imprintEmail,
+                'Invalid Email',
+                'valid@example.com',
+                'Please ignore',
+            ], $mailer->args);
         } finally {
             if ($oldMainDomain === false) {
                 putenv('MAIN_DOMAIN');
