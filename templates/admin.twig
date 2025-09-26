@@ -1041,12 +1041,13 @@
                 <tr>
                   <th>{{ t('column_domain') }}</th>
                   <th>{{ t('column_start_page') }}</th>
+                  <th>{{ t('column_domain_email') }}</th>
                   <th>{{ t('column_domain_type') }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td colspan="3">{{ t('text_domain_start_pages_loading') }}</td>
+                  <td colspan="4">{{ t('text_domain_start_pages_loading') }}</td>
                 </tr>
               </tbody>
             </table>
@@ -1447,6 +1448,7 @@
     }|json_encode|raw }};
     window.transDomainStartPageSaved = '{{ t('notify_domain_start_page_saved')|e('js') }}';
     window.transDomainStartPageError = '{{ t('notify_domain_start_page_error')|e('js') }}';
+    window.transDomainStartPageInvalidEmail = '{{ t('notify_domain_start_page_invalid_email')|e('js') }}';
     window.pagesContent = {{ pages|json_encode|raw }};
     window.transUpgradeTitle = '{{ t('heading_limit_reached') }}';
     window.transUpgradeText = '{{ t('text_upgrade_required') }}';
