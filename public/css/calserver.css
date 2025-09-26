@@ -299,11 +299,21 @@ body.qr-landing.calserver-theme .calserver-hero-grid__media > * {
     width: 100%;
 }
 
-
 body.qr-landing.calserver-theme .calserver-hero-video {
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
+    padding: 28px 32px 32px;
+    background: linear-gradient(
+            132deg,
+            color-mix(in oklab, var(--calserver-primary) 34%, #0c1734 66%) 0%,
+            color-mix(in oklab, var(--calserver-primary) 48%, #050b1f 52%) 100%
+        );
+    border-radius: 26px;
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 46%, transparent);
+    box-shadow: 0 26px 60px -32px rgba(9, 15, 32, 0.65);
+    overflow: hidden;
 }
 
 body.qr-landing.calserver-theme .calserver-hero-video__badge {
@@ -311,104 +321,44 @@ body.qr-landing.calserver-theme .calserver-hero-video__badge {
     font-weight: 600;
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__card {
+body.qr-landing.calserver-theme .calserver-hero-video__frame {
     position: relative;
-    display: grid;
-    gap: 24px;
-    padding: 28px 32px 32px;
-    background: linear-gradient(
-            136deg,
-            color-mix(in oklab, var(--calserver-primary) 32%, #0c1734 68%) 0%,
-            color-mix(in oklab, var(--calserver-primary) 48%, #050b1f 52%) 100%
-        );
-    border-radius: 24px;
-    border: 1px solid color-mix(in oklab, var(--calserver-primary) 44%, transparent);
-    box-shadow: 0 26px 60px -32px rgba(9, 15, 32, 0.65);
+    border-radius: 22px;
     overflow: hidden;
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 38%, transparent);
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__media {
-    position: relative;
-    border-radius: 20px;
-    overflow: hidden;
-    background: #050b1f;
-    aspect-ratio: 16 / 9;
-}
-
-body.qr-landing.calserver-theme .calserver-hero-video__poster {
-    position: relative;
+body.qr-landing.calserver-theme .calserver-hero-video__frame::before {
+    content: "";
     display: block;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    border: 0;
-    padding: 0;
-    cursor: pointer;
-    border-radius: inherit;
-    overflow: hidden;
-    background: #050b1f;
+    padding-top: 56.25%;
 }
-
-body.qr-landing.calserver-theme .calserver-hero-video__poster[hidden] {
-    display: none;
-}
-
-body.qr-landing.calserver-theme .calserver-hero-video__poster img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    filter: brightness(0.7);
-}
-
-body.qr-landing.calserver-theme .calserver-hero-video__poster-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(184deg, rgba(4, 10, 28, 0.05) 0%, rgba(4, 10, 28, 0.55) 100%);
-}
-
-body.qr-landing.calserver-theme .calserver-hero-video__teaser {
-    position: absolute;
-    top: 18px;
-    left: 18px;
-    padding: 6px 14px;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.1);
-    font-size: 0.86rem;
-    font-weight: 600;
-}
-
-body.qr-landing.calserver-theme .calserver-hero-video__play {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.14);
-    backdrop-filter: blur(6px);
-    color: rgba(255, 255, 255, 0.95);
-    font-size: 1.4rem;
-}
-
-body.qr-landing.calserver-theme .calserver-hero-video__play .uk-icon {
-    width: 28px;
-    height: 28px;
-}
-
 
 body.qr-landing.calserver-theme .calserver-hero-video__embed {
     position: absolute;
     inset: 0;
-    border-radius: inherit;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 24px 28px;
+    text-align: center;
+    background: linear-gradient(
+            144deg,
+            color-mix(in oklab, var(--calserver-primary) 28%, rgba(0, 10, 32, 0.86)) 0%,
+            color-mix(in oklab, var(--calserver-primary) 52%, rgba(1, 5, 18, 0.82)) 100%
+        );
+    color: rgba(255, 255, 255, 0.94);
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__embed[hidden] {
-    display: none;
+body.qr-landing.calserver-theme .calserver-hero-video__embed.is-loaded {
+    display: block;
+    padding: 0;
+    background: transparent;
 }
 
+body.qr-landing.calserver-theme .calserver-hero-video__frame iframe,
 body.qr-landing.calserver-theme .calserver-hero-video__embed iframe {
     position: absolute;
     inset: 0;
@@ -417,108 +367,36 @@ body.qr-landing.calserver-theme .calserver-hero-video__embed iframe {
     border: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__consent {
+body.qr-landing.calserver-theme .calserver-hero-video__preview {
     display: flex;
-    flex-direction: column;
-    gap: 12px;
-    color: rgba(255, 255, 255, 0.86);
-}
-
-body.qr-landing.calserver-theme .calserver-hero-video__card.is-loaded .calserver-hero-video__consent {
-    display: none;
-}
-
-
-body.qr-landing.calserver-theme .calserver-hero-video__actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-}
-
-body.qr-landing.calserver-theme .calserver-hero-video__actions .btn,
-body.qr-landing.calserver-theme .calserver-hero-video__actions .uk-button {
-    border-radius: 12px;
-    padding: 0.6rem 1.1rem;
-}
-
-body.qr-landing.calserver-theme .calserver-hero-video__consent-copy {
-    margin: 0;
-    font-size: 0.82rem;
-    line-height: 1.5;
-}
-
-body.qr-landing.calserver-theme .calserver-hero-video__consent-copy a {
-    color: inherit;
-    text-decoration: underline;
-}
-
-body.qr-landing.calserver-theme .calserver-hero-video__info {
-    display: grid;
-    gap: 16px;
-    align-content: start;
-    color: rgba(255, 255, 255, 0.92);
-}
-
-body.qr-landing.calserver-theme .calserver-hero-video__headline {
-    display: grid;
-    gap: 4px;
-}
-
-body.qr-landing.calserver-theme .calserver-hero-video__title {
-    margin: 0;
-    font-size: 1.32rem;
-    font-weight: 600;
-}
-
-body.qr-landing.calserver-theme .calserver-hero-video__subtitle {
-    margin: 0;
-    font-size: 0.92rem;
-    opacity: 0.9;
-}
-
-body.qr-landing.calserver-theme .calserver-hero-video__facts {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 10px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-body.qr-landing.calserver-theme .calserver-hero-video__facts .pill {
-    display: inline-flex;
-    justify-content: center;
-    padding: 8px 14px;
-    font-size: 0.86rem;
-}
-
-body.qr-landing.calserver-theme .calserver-hero-video__alt-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px 18px;
     align-items: center;
-    font-size: 0.9rem;
-    opacity: 0.92;
+    justify-content: center;
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__alt-link {
-    color: rgba(255, 255, 255, 0.92);
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.2s ease, color 0.2s ease;
+body.qr-landing.calserver-theme .calserver-hero-video__preview .uk-icon {
+    color: rgba(255, 255, 255, 0.9);
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__alt-link:hover,
-body.qr-landing.calserver-theme .calserver-hero-video__alt-link:focus-visible {
-    color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.6);
-}
-
+body.qr-landing.calserver-theme .calserver-hero-video__hint,
+body.qr-landing.calserver-theme .calserver-hero-video__privacy-note,
 body.qr-landing.calserver-theme .calserver-hero-video__noscript-note {
     margin: 0;
-    font-size: 0.82rem;
+    font-size: 0.9rem;
     line-height: 1.5;
     color: rgba(255, 255, 255, 0.86);
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__hint {
+    max-width: 420px;
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__privacy-note {
+    font-size: 0.78rem;
+    opacity: 0.9;
 }
 
 body.qr-landing.calserver-theme .calserver-hero-video__noscript-note a {
@@ -526,45 +404,128 @@ body.qr-landing.calserver-theme .calserver-hero-video__noscript-note a {
     text-decoration: underline;
 }
 
-@media (min-width: 960px) {
-    body.qr-landing.calserver-theme .calserver-hero-video__card {
-        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-        align-items: start;
-    }
+body.qr-landing.calserver-theme .calserver-hero-video__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 18px;
+}
 
-    body.qr-landing.calserver-theme .calserver-hero-video__info {
-        padding-left: 8px;
-    }
+body.qr-landing.calserver-theme .calserver-hero-video__meta-text {
+    display: grid;
+    gap: 4px;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__meta-text strong {
+    font-size: 1.12rem;
+    letter-spacing: 0.01em;
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__meta-text span {
+    font-size: 0.95rem;
+    color: color-mix(in oklab, #ffffff 86%, rgba(255, 255, 255, 0.4) 14%);
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 68%, rgba(255, 255, 255, 0.45));
+    background: color-mix(in oklab, var(--calserver-primary) 38%, rgba(255, 255, 255, 0.05));
+    color: rgba(255, 255, 255, 0.96);
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease, border-color 180ms ease;
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__link:hover,
+body.qr-landing.calserver-theme .calserver-hero-video__link:focus-visible {
+    background: color-mix(in oklab, var(--calserver-primary) 56%, rgba(255, 255, 255, 0.08));
+    border-color: color-mix(in oklab, var(--calserver-primary) 82%, rgba(255, 255, 255, 0.6));
+    box-shadow: 0 18px 36px -24px rgba(9, 15, 32, 0.45);
+    transform: translateY(-1px);
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__footnote {
+    margin: 0;
+    font-size: 0.9rem;
+    color: color-mix(in oklab, #ffffff 78%, rgba(255, 255, 255, 0.4) 22%);
 }
 
 @media (max-width: 959px) {
-    body.qr-landing.calserver-theme .calserver-hero-video__card {
+    body.qr-landing.calserver-theme .calserver-hero-video {
         padding: 24px;
+    }
+
+    body.qr-landing.calserver-theme .calserver-hero-video__meta {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    body.qr-landing.calserver-theme .calserver-hero-video__link {
+        justify-content: center;
     }
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__card,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__card {
-    background: linear-gradient(144deg, #1b2b52 0%, #060b1d 100%);
-    border-color: color-mix(in oklab, #608df7 55%, transparent);
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video {
+    background: var(--qr-card);
+    border-color: currentColor;
+    box-shadow: none;
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__teaser,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__teaser {
-    background: rgba(255, 255, 255, 0.18);
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__embed,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__embed {
+    background: var(--qr-card);
+    color: currentColor;
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__alt-link,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__alt-link {
-    color: rgba(255, 255, 255, 0.96);
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__hint,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__hint,
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__privacy-note,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__privacy-note,
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__noscript-note,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__noscript-note {
+    color: currentColor;
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__alt-link:hover,
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__alt-link:focus-visible,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__alt-link:hover,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__alt-link:focus-visible {
-    color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.7);
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__preview,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__preview {
+    background: currentColor;
+}
+
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__preview .uk-icon,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__preview .uk-icon {
+    color: var(--qr-bg);
+}
+
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__meta-text,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__meta-text,
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__meta-text span,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__meta-text span,
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__footnote,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__footnote {
+    color: currentColor;
+}
+
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__link,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__link {
+    color: currentColor;
+    background: transparent;
+    border-color: currentColor;
+    box-shadow: none;
+}
+
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__link:hover,
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__link:focus-visible,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__link:hover,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__link:focus-visible {
+    background: currentColor;
+    color: var(--qr-bg);
 }
 
 body.qr-landing.calserver-theme .hero-list li {

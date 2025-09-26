@@ -175,65 +175,29 @@
           </div>
           <div class="calserver-hero-grid__media" data-uk-scrollspy="cls: uk-animation-slide-right-small; repeat: true">
             <div class="calserver-hero-video">
-              <span class="pill pill--accent calserver-hero-video__badge">Live-Vorschau · ohne Tracking bis zur Zustimmung</span>
-              <div class="calserver-hero-video__card"
-                   data-calserver-video
-                   data-video-id="ovHo2SF84u0"
-                   data-video-title="calServer Vorstellung"
-                   data-video-params="rel=0&playlist=ovHo2SF84u0&loop=1">
-                <div class="calserver-hero-video__media">
-                  <button class="calserver-hero-video__poster"
-                          type="button"
-                          aria-label="calServer Vorstellung abspielen"
-                          data-calserver-video-trigger>
-                    <img src="{{ basePath }}/media/proxy/calserver-preview.jpg"
-                         alt=""
-                         loading="lazy">
-                    <span class="calserver-hero-video__poster-overlay" aria-hidden="true"></span>
-                    <span class="calserver-hero-video__teaser">calServer in 3 Minuten</span>
-                    <span class="calserver-hero-video__play" aria-hidden="true">
-                      <span data-uk-icon="icon: play"></span>
-                    </span>
-                  </button>
-                  <div class="calserver-hero-video__embed" data-calserver-video-slot hidden></div>
-                </div>
-                <div class="calserver-hero-video__consent">
-                  <div class="calserver-hero-video__actions">
-                    <button class="uk-button uk-button-primary" type="button" data-calserver-video-load="once">
-                      Video laden
+              <span class="pill pill--accent calserver-hero-video__badge">Live-Vorschau</span>
+              <div class="calserver-hero-video__frame">
+                <div class="calserver-hero-video__embed"
+                     data-calserver-video
+                     data-video-id="ovHo2SF84u0"
+                     data-video-title="calServer Vorstellung"
+                     data-video-params="rel=0&playlist=ovHo2SF84u0&loop=1">
+                  <div class="calserver-hero-video__placeholder" role="group" aria-label="YouTube Video">
+                    <div class="calserver-hero-video__preview" aria-hidden="true">
+                      <span class="uk-icon" data-uk-icon="icon: play-circle; ratio: 2"></span>
+                    </div>
+                    <p class="calserver-hero-video__hint">
+                      Mit Klick auf „YouTube laden“ stimmst du zu, dass Inhalte von YouTube geladen werden.
+                      Dabei können personenbezogene Daten übertragen werden.
+                    </p>
+                    <button class="uk-button uk-button-primary calserver-hero-video__consent-button"
+                            type="button"
+                            data-calserver-video-consent>
+                      YouTube laden
                     </button>
-                    <button class="btn btn-transparent" type="button" data-calserver-video-load="always">
-                      Immer laden
-                    </button>
-                  </div>
-                  <small class="calserver-hero-video__consent-copy">
-                    Mit Klick auf <em>Video laden</em> werden Inhalte von YouTube angezeigt. Details in der
-                    <a href="{{ basePath }}/privacy">Datenschutzerklärung</a>.
-                  </small>
-                </div>
-                <div class="calserver-hero-video__info">
-                  <div class="calserver-hero-video__headline">
-                    <h3 class="calserver-hero-video__title">calServer Vorstellung</h3>
-                    <p class="calserver-hero-video__subtitle">In 3 Minuten durch die wichtigsten Funktionen.</p>
-                  </div>
-                  <ul class="calserver-hero-video__facts" role="list">
-                    <li class="pill pill--soft" role="listitem">Suche</li>
-                    <li class="pill pill--soft" role="listitem">Tabellen</li>
-                    <li class="pill pill--soft" role="listitem">Workflows</li>
-                    <li class="pill pill--soft" role="listitem">Analysen</li>
-                    <li class="pill pill--soft" role="listitem">Insights</li>
-                    <li class="pill pill--soft" role="listitem">Integrationen</li>
-                  </ul>
-                  <div class="calserver-hero-video__alt-links">
-                    <a href="{{ basePath }}/docs/calserver-kurzinfo.pdf" class="calserver-hero-video__alt-link">
-                      PDF-Kurzinfo
-                    </a>
-                    <a href="{{ basePath }}/docs/calserver-overview" class="calserver-hero-video__alt-link">
-                      Funktionsübersicht (3 Slides)
-                    </a>
-                    <a href="{{ basePath }}/docs/calserver-transkript" class="calserver-hero-video__alt-link">
-                      Transkript lesen
-                    </a>
+                    <p class="calserver-hero-video__privacy-note">
+                      Du kannst deine Einwilligung jederzeit über deine Browser-Einstellungen widerrufen.
+                    </p>
                   </div>
                 </div>
                 <noscript>
@@ -245,6 +209,23 @@
                   </p>
                 </noscript>
               </div>
+              <div class="calserver-hero-video__meta">
+                <div class="calserver-hero-video__meta-text">
+                  <strong>calServer Vorstellung</strong>
+                  <span>In 3 Minuten durch die wichtigsten Funktionen.</span>
+                </div>
+                <a class="calserver-hero-video__link"
+                   href="https://www.youtube.com/watch?v=ovHo2SF84u0"
+                   target="_blank"
+                   rel="noopener">
+                  <span class="uk-margin-small-right" data-uk-icon="icon: play-circle"></span>Auf YouTube ansehen
+                </a>
+              </div>
+              <p class="calserver-hero-video__footnote">
+                <strong>Schnelle Suche · Klare Tabellen · Intuitive Workflows · Smarte Analysen · Echtzeit-Insights · Nahtlose Integrationen</strong>
+                <br>
+                <span>Mehr Überblick, mehr Tempo, mehr Wow für dein Team.</span>
+              </p>
             </div>
           </div>
         </div>
