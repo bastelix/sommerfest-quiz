@@ -59,70 +59,81 @@
     data-translations="{{ translations|json_encode|e('html_attr') }}"
   >
     <div class="uk-width-1-1 uk-width-2-3@l media-column">
-      <div class="uk-card uk-card-default uk-card-small uk-card-body uk-margin media-controls-card">
-        <div class="uk-grid-small uk-flex-middle" uk-grid>
-          <div class="uk-width-1-1 uk-width-auto@m">
-            <label class="uk-form-label" for="mediaScope">{{ t('label_media_scope') }}</label>
-            <select
-              id="mediaScope"
-              class="uk-select uk-form-small"
-              data-media-scope
-              aria-describedby="mediaScopeHint"
-            >
-              <option value="global" selected>{{ t('label_media_scope_global') }}</option>
-              <option value="event"{% if initialEventUid == '' %} disabled{% endif %}>{{ t('label_media_scope_event') }}</option>
-            </select>
-          </div>
-          <div class="uk-width-1-1 uk-width-expand@m">
-            <label class="uk-form-label" for="mediaSearch">{{ t('label_media_search') }}</label>
-            <input
-              id="mediaSearch"
-              class="uk-input uk-form-small"
-              type="search"
-              placeholder="{{ t('label_media_search') }}"
-              aria-label="{{ t('label_media_search') }}"
-              data-media-search
-            >
-          </div>
-          <div class="uk-width-1-1 uk-width-auto@m uk-flex uk-flex-right@m uk-margin-small-top@s">
-            <button type="button" class="uk-button uk-button-default uk-button-small" data-media-refresh>
-              <span class="uk-margin-small-right" uk-icon="refresh" aria-hidden="true"></span>
-              {{ t('button_media_refresh') }}
-            </button>
-          </div>
-          <div class="uk-width-1-1">
-            <label class="uk-form-label" for="mediaTagFilter">{{ t('label_media_filter_tags') }}</label>
-            <div
-              id="mediaTagFilter"
-              class="media-filter-tags uk-margin-small-top"
-              data-media-filter-tags
-              aria-live="polite"
-            ></div>
-          </div>
-          <div class="uk-width-1-1">
-            <label class="uk-form-label" for="mediaFolderFilter">{{ t('label_media_filter_folder') }}</label>
-            <div class="uk-flex uk-flex-middle uk-grid-small" uk-grid>
-              <div class="uk-width-expand">
-                <select
-                  id="mediaFolderFilter"
-                  class="uk-select uk-form-small"
-                  data-media-filter-folder
-                  aria-label="{{ t('label_media_filter_folder') }}"
+      <div class="uk-card uk-card-default uk-card-small uk-margin media-controls-card">
+        <div class="uk-card-header uk-padding-small">
+          <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid>
+            <div class="uk-width-1-1 uk-width-expand@m">
+              <label class="uk-form-label" for="mediaScope">{{ t('label_media_scope') }}</label>
+              <select
+                id="mediaScope"
+                class="uk-select uk-form-small"
+                data-media-scope
+                aria-describedby="mediaScopeHint"
+              >
+                <option value="global" selected>{{ t('label_media_scope_global') }}</option>
+                <option value="event"{% if initialEventUid == '' %} disabled{% endif %}>{{ t('label_media_scope_event') }}</option>
+              </select>
+            </div>
+            <div class="uk-width-1-1 uk-width-expand@m">
+              <label class="uk-form-label" for="mediaSearch">{{ t('label_media_search') }}</label>
+              <div class="uk-inline uk-width-1-1">
+                <span class="uk-form-icon" uk-icon="icon: search" aria-hidden="true"></span>
+                <input
+                  id="mediaSearch"
+                  class="uk-input uk-form-small"
+                  type="search"
+                  placeholder="{{ t('label_media_search') }}"
+                  aria-label="{{ t('label_media_search') }}"
+                  data-media-search
                 >
-                  <option value="">{{ t('option_media_all_folders') }}</option>
-                </select>
               </div>
-              <div class="uk-width-auto">
-                <button type="button" class="uk-button uk-button-default uk-button-small" data-media-clear-filters>
-                  {{ t('button_media_clear_filters') }}
-                </button>
+            </div>
+            <div class="uk-width-1-1 uk-width-auto@m uk-flex uk-flex-right@m">
+              <button type="button" class="uk-button uk-button-default uk-button-small uk-width-1-1 uk-width-auto@m" data-media-refresh>
+                <span class="uk-margin-small-right" uk-icon="refresh" aria-hidden="true"></span>
+                {{ t('button_media_refresh') }}
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="uk-card-body uk-padding-small">
+          <div class="uk-grid-small uk-grid-row-small uk-grid-divider uk-grid" uk-grid>
+            <div class="uk-width-1-1">
+              <label class="uk-form-label" for="mediaTagFilter">{{ t('label_media_filter_tags') }}</label>
+              <div
+                id="mediaTagFilter"
+                class="media-filter-tags uk-margin-small-top"
+                data-media-filter-tags
+                aria-live="polite"
+              ></div>
+            </div>
+            <div class="uk-width-1-1">
+              <label class="uk-form-label" for="mediaFolderFilter">{{ t('label_media_filter_folder') }}</label>
+              <div class="uk-grid-small uk-flex-middle uk-grid" uk-grid>
+                <div class="uk-width-expand">
+                  <select
+                    id="mediaFolderFilter"
+                    class="uk-select uk-form-small"
+                    data-media-filter-folder
+                    aria-label="{{ t('label_media_filter_folder') }}"
+                  >
+                    <option value="">{{ t('option_media_all_folders') }}</option>
+                  </select>
+                </div>
+                <div class="uk-width-auto">
+                  <button type="button" class="uk-button uk-button-default uk-button-small" data-media-clear-filters>
+                    {{ t('button_media_clear_filters') }}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <p class="uk-text-meta uk-margin-small-top" id="mediaScopeHint" data-media-event-hint hidden>
-          {{ t('text_media_event_hint') }}
-        </p>
+        <div class="uk-card-footer uk-padding-small">
+          <p class="uk-text-meta uk-margin-remove" id="mediaScopeHint" data-media-event-hint hidden>
+            {{ t('text_media_event_hint') }}
+          </p>
+        </div>
       </div>
 
       <div
