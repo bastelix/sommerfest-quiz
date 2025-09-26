@@ -23,4 +23,5 @@
     <!-- Paths to check -->
     <file>src</file>
     <file>tests</file>
+    <exclude-pattern>tests/.*\.js$</exclude-pattern>
 </ruleset>
