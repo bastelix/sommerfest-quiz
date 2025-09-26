@@ -124,8 +124,8 @@ VALUES (
         </div>
 
         
-        <div class="trust-story trust-story--timeline" role="list" aria-label="So begleitet calServer dein Team">
-                                              <article class="trust-story__step" role="listitem" tabindex="0" aria-labelledby="trust-step-devices" aria-describedby="trust-step-devices-description">
+        <ul class="trust-story trust-story--timeline" role="list" aria-label="So begleitet calServer dein Team">
+                                              <li class="trust-story__step" role="listitem" tabindex="0" aria-labelledby="trust-step-devices" aria-describedby="trust-step-devices-description">
               <div class="trust-story__marker" aria-hidden="true">
                 <span class="trust-story__connector trust-story__connector--before"></span>
                 <span class="trust-story__badge" data-step-index="1">
@@ -140,8 +140,8 @@ VALUES (
                   Importiere Bestandslisten oder starte direkt im Browser. calServer sammelt Stammdaten, Dokumente und Verantwortlichkeiten an einem Ort, damit nichts verloren geht.
                 </p>
               </div>
-            </article>
-                                              <article class="trust-story__step" role="listitem" tabindex="0" aria-labelledby="trust-step-deadlines" aria-describedby="trust-step-deadlines-description">
+            </li>
+                                              <li class="trust-story__step" role="listitem" tabindex="0" aria-labelledby="trust-step-deadlines" aria-describedby="trust-step-deadlines-description">
               <div class="trust-story__marker" aria-hidden="true">
                 <span class="trust-story__connector trust-story__connector--before"></span>
                 <span class="trust-story__badge" data-step-index="2">
@@ -156,8 +156,8 @@ VALUES (
                   Erinnerungen, Eskalationspfade und mobile Checklisten halten dein Team auf Kurs. Jede Person sieht sofort, welche Prüfaufträge heute wichtig sind.
                 </p>
               </div>
-            </article>
-                                              <article class="trust-story__step" role="listitem" tabindex="0" aria-labelledby="trust-step-audit" aria-describedby="trust-step-audit-description">
+            </li>
+                                              <li class="trust-story__step" role="listitem" tabindex="0" aria-labelledby="trust-step-audit" aria-describedby="trust-step-audit-description">
               <div class="trust-story__marker" aria-hidden="true">
                 <span class="trust-story__connector trust-story__connector--before"></span>
                 <span class="trust-story__badge" data-step-index="3">
@@ -172,8 +172,8 @@ VALUES (
                   Nachweise, Zertifikate und Gerätehistorien liegen revisionssicher bereit. Mit Hosting in Deutschland und täglichen Backups bist du auf Kontrollen vorbereitet.
                 </p>
               </div>
-            </article>
-                  </div>
+            </li>
+                  </ul>
 
         <div class="trust-story__closing uk-grid uk-grid-large uk-flex-middle" data-uk-grid>
           <div class="uk-width-1-1 uk-width-expand@m">
