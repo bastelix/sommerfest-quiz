@@ -22,10 +22,8 @@ class PageService
 
     public function get(string $slug): ?string
     {
-        $stmt = $this->pdo->prepare('SELECT content FROM pages WHERE slug = ?');
-        $stmt->execute([$slug]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row !== false ? (string) ($row['content'] ?? '') : null;
+        $page = $this->findBySlug($slug);
+        return $page?->getContent();
     }
 
     public function save(string $slug, string $content): void
@@ -81,5 +79,28 @@ class PageService
         }
 
         return new Page((int) $row['id'], $slug, $title, (string) ($row['content'] ?? ''));
+    }
+
+    public function findBySlug(string $slug): ?Page
+    {
+        $normalized = trim($slug);
+        if ($normalized === '') {
+            return null;
+        }
+
+        $stmt = $this->pdo->prepare('SELECT id, slug, title, content FROM pages WHERE slug = ?');
+        $stmt->execute([$normalized]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            return null;
+        }
+
+        $pageSlug = isset($row['slug']) ? (string) $row['slug'] : '';
+        $title = isset($row['title']) ? (string) $row['title'] : '';
+        if ($pageSlug === '' || $title === '') {
+            return null;
+        }
+
+        return new Page((int) $row['id'], $pageSlug, $title, (string) ($row['content'] ?? ''));
     }
 }

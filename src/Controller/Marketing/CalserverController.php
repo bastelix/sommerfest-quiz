@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Marketing;
 
+use App\Application\Seo\PageSeoConfigService;
 use App\Service\MailService;
 use App\Service\PageService;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -16,13 +17,22 @@ use Slim\Views\Twig;
  */
 class CalserverController
 {
+    private PageService $pages;
+    private PageSeoConfigService $seo;
+
+    public function __construct(?PageService $pages = null, ?PageSeoConfigService $seo = null)
+    {
+        $this->pages = $pages ?? new PageService();
+        $this->seo = $seo ?? new PageSeoConfigService();
+    }
+
     public function __invoke(Request $request, Response $response): Response
     {
-        $service = new PageService();
-        $html = $service->get('calserver');
-        if ($html === null) {
+        $page = $this->pages->findBySlug('calserver');
+        if ($page === null) {
             return $response->withStatus(404);
         }
+        $html = $page->getContent();
 
         $basePath = RouteContext::fromRequest($request)->getBasePath();
         $html = str_replace('{{ basePath }}', $basePath, $html);
@@ -40,8 +50,10 @@ class CalserverController
         }
 
         $view = Twig::fromRequest($request);
+        $config = $this->seo->load($page->getId());
         return $view->render($response, 'marketing/calserver.twig', [
             'content' => $html,
+            'pageFavicon' => $config?->getFaviconPath(),
         ]);
     }
 }

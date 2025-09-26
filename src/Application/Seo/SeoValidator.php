@@ -57,6 +57,11 @@ class SeoValidator
             $errors['domain'] = 'Invalid domain';
         }
 
+        $favicon = $data['faviconPath'] ?? null;
+        if ($favicon !== null && $favicon !== '' && mb_strlen((string) $favicon) > 255) {
+            $errors['faviconPath'] = 'Favicon path too long';
+        }
+
         return $errors;
     }
 }

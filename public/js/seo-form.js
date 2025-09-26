@@ -1,4 +1,4 @@
-/* global apiFetch, notify */
+/* global apiFetch, notify, UIkit */
 
 export function initSeoForm() {
   const form = document.querySelector('.seo-form');
@@ -32,11 +32,141 @@ export function initSeoForm() {
     ogDescription: 'ogDescription',
     ogImage: 'ogImage',
     schemaJson: 'schema',
-    hreflang: 'hreflang'
+    hreflang: 'hreflang',
+    faviconPath: 'faviconPath'
   };
 
   const pageConfigs = {};
   const pageMeta = {};
+
+  const faviconInput = form.querySelector('#faviconPath');
+  const mediaButton = form.querySelector('#faviconSelectButton');
+  const mediaModalEl = document.getElementById('seoMediaModal');
+  const mediaListEl = mediaModalEl ? mediaModalEl.querySelector('[data-role="media-list"]') : null;
+  const mediaEmptyEl = mediaModalEl ? mediaModalEl.querySelector('[data-role="media-empty"]') : null;
+  const mediaSearchInput = mediaModalEl ? mediaModalEl.querySelector('[data-role="media-search"]') : null;
+  const mediaModal = mediaModalEl && typeof UIkit !== 'undefined' ? UIkit.modal(mediaModalEl) : null;
+  let mediaFiles = [];
+  let mediaLoaded = false;
+  let mediaLoading = false;
+  let mediaSearchTimer;
+
+  const renderMediaList = files => {
+    if (!mediaListEl) return;
+    mediaListEl.innerHTML = '';
+    if (!Array.isArray(files) || files.length === 0) {
+      if (mediaEmptyEl) mediaEmptyEl.hidden = false;
+      return;
+    }
+    if (mediaEmptyEl) mediaEmptyEl.hidden = true;
+    files.forEach(file => {
+      const li = document.createElement('li');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'uk-button uk-button-text uk-text-left uk-width-1-1';
+      const path = file.path || file.url || '';
+      btn.dataset.path = path;
+      const displayName = file.name || path;
+      btn.textContent = path ? `${displayName} (${path})` : displayName;
+      li.append(btn);
+      mediaListEl.append(li);
+    });
+  };
+
+  const setMediaLoadingState = state => {
+    if (!mediaListEl) return;
+    if (state) {
+      mediaListEl.innerHTML = '<li class="uk-text-center">Lade Medien...</li>';
+      if (mediaEmptyEl) mediaEmptyEl.hidden = true;
+    }
+  };
+
+  const loadMedia = async (search = '') => {
+    if (!mediaListEl || mediaLoading) return;
+    mediaLoading = true;
+    setMediaLoadingState(true);
+    try {
+      const query = search ? `&search=${encodeURIComponent(search)}` : '';
+      const response = await apiFetch(`/admin/media/files?scope=global&perPage=100${query}`, {
+        headers: { Accept: 'application/json' }
+      });
+      if (!response.ok) throw new Error('media-load-failed');
+      const payload = await response.json().catch(() => ({}));
+      mediaFiles = Array.isArray(payload.files) ? payload.files : [];
+      mediaLoaded = true;
+      renderMediaList(mediaFiles);
+    } catch (error) {
+      mediaFiles = [];
+      renderMediaList(mediaFiles);
+      notify('Medien konnten nicht geladen werden', 'danger');
+      console.error(error);
+    } finally {
+      mediaLoading = false;
+    }
+  };
+
+  if (mediaListEl) {
+    mediaListEl.addEventListener('click', event => {
+      const target = event.target.closest('button[data-path]');
+      if (!target) return;
+      const path = target.dataset.path || '';
+      if (path && faviconInput) {
+        faviconInput.value = path;
+        faviconInput.dispatchEvent(new Event('input'));
+      }
+      if (mediaModal) {
+        mediaModal.hide();
+      }
+    });
+  }
+
+  if (mediaSearchInput) {
+    mediaSearchInput.addEventListener('input', () => {
+      if (mediaSearchTimer) {
+        clearTimeout(mediaSearchTimer);
+      }
+      const value = mediaSearchInput.value || '';
+      mediaSearchTimer = setTimeout(() => {
+        loadMedia(value.trim());
+      }, 250);
+    });
+  }
+
+  if (mediaButton) {
+    mediaButton.addEventListener('click', async () => {
+      if (mediaModal && mediaListEl) {
+        if (!mediaLoaded) {
+          await loadMedia('');
+        } else {
+          renderMediaList(mediaFiles);
+        }
+        if (mediaSearchInput) {
+          mediaSearchInput.value = '';
+        }
+        mediaModal.show();
+        return;
+      }
+
+      try {
+        const response = await apiFetch('/admin/media/files?scope=global&perPage=100', {
+          headers: { Accept: 'application/json' }
+        });
+        if (!response.ok) throw new Error('media-load-failed');
+        const payload = await response.json().catch(() => ({}));
+        const files = Array.isArray(payload.files) ? payload.files : [];
+        const paths = files.map(item => item.path || item.url || '').filter(Boolean);
+        const suggestion = paths[0] || '';
+        const entered = window.prompt('Pfad des Favicons eingeben', suggestion);
+        if (entered && faviconInput) {
+          faviconInput.value = entered.trim();
+          faviconInput.dispatchEvent(new Event('input'));
+        }
+      } catch (error) {
+        notify('Medien konnten nicht geladen werden', 'danger');
+        console.error(error);
+      }
+    });
+  }
 
   const normalizeDomainValue = domain => {
     if (!domain) return '';
@@ -258,6 +388,7 @@ export function initSeoForm() {
           ogTitle: config.ogTitle ?? '',
           ogDescription: config.ogDescription ?? '',
           ogImage: config.ogImage ?? '',
+          faviconPath: config.faviconPath ?? '',
           schemaJson: config.schemaJson ?? '',
           hreflang: config.hreflang ?? ''
         };
@@ -367,6 +498,7 @@ export function initSeoForm() {
             ogTitle: data.config.ogTitle ?? '',
             ogDescription: data.config.ogDescription ?? '',
             ogImage: data.config.ogImage ?? '',
+            faviconPath: data.config.faviconPath ?? '',
             schemaJson: data.config.schemaJson ?? '',
             hreflang: data.config.hreflang ?? ''
           };

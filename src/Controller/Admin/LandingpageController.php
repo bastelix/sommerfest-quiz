@@ -94,6 +94,7 @@ class LandingpageController
             'schemaJson' => $data['schemaJson'] ?? $data['schema'] ?? null,
             'hreflang' => $data['hreflang'] ?? null,
             'domain' => $normalizedDomain !== '' ? $normalizedDomain : null,
+            'faviconPath' => $data['faviconPath'] ?? $data['favicon_path'] ?? null,
         ];
 
         $errors = $this->seoService->validate($payload);
@@ -101,6 +102,10 @@ class LandingpageController
             $response->getBody()->write(json_encode(['errors' => $errors]));
             return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
         }
+
+        $payload['faviconPath'] = $this->seoService->normalizeFaviconPath(
+            isset($payload['faviconPath']) ? (string) $payload['faviconPath'] : null
+        );
 
         $page = $this->pageService->findById($payload['pageId']);
         if ($page === null || in_array($page->getSlug(), self::EXCLUDED_SLUGS, true)) {
@@ -119,7 +124,8 @@ class LandingpageController
             $payload['ogImage'],
             $payload['schemaJson'],
             $payload['hreflang'],
-            $payload['domain']
+            $payload['domain'],
+            $payload['faviconPath']
         );
 
         $this->seoService->save($config);
