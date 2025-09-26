@@ -35,6 +35,8 @@ class PageSeoConfig implements JsonSerializable
 
     private ?string $hreflang;
 
+    private ?string $faviconPath;
+
     /** @var Page|null */
     private $page;
 
@@ -50,7 +52,8 @@ class PageSeoConfig implements JsonSerializable
         ?string $ogImage = null,
         ?string $schemaJson = null,
         ?string $hreflang = null,
-        ?string $domain = null
+        ?string $domain = null,
+        ?string $faviconPath = null
     ) {
         $this->pageId = $pageId;
         $this->slug = $slug;
@@ -64,6 +67,7 @@ class PageSeoConfig implements JsonSerializable
         $this->ogImage = $ogImage;
         $this->schemaJson = $schemaJson;
         $this->hreflang = $hreflang;
+        $this->faviconPath = $faviconPath;
     }
 
     public function getPageId(): int
@@ -126,6 +130,11 @@ class PageSeoConfig implements JsonSerializable
         return $this->hreflang;
     }
 
+    public function getFaviconPath(): ?string
+    {
+        return $this->faviconPath;
+    }
+
     /**
      * @return Page|null
      */
@@ -156,6 +165,7 @@ class PageSeoConfig implements JsonSerializable
             'ogTitle' => $this->ogTitle,
             'ogDescription' => $this->ogDescription,
             'ogImage' => $this->ogImage,
+            'faviconPath' => $this->faviconPath,
             'schemaJson' => $this->schemaJson,
             'hreflang' => $this->hreflang,
         ];

@@ -69,6 +69,14 @@
         </div>
       </div>
       <div class="uk-margin">
+        <label class="uk-form-label" for="faviconPath">Favicon</label>
+        <div class="uk-form-controls uk-flex uk-flex-middle uk-flex-wrap" style="gap:8px;">
+          <input class="uk-input uk-flex-auto" id="faviconPath" name="favicon_path" type="text" placeholder="/uploads/favicon.svg" value="{{ config.faviconPath|default('') }}">
+          <button type="button" class="uk-button uk-button-default" id="faviconSelectButton">Aus Medien wählen</button>
+        </div>
+        <small class="uk-text-meta">Optionaler relativer Pfad oder HTTPS-URL.</small>
+      </div>
+      <div class="uk-margin">
         <label class="uk-form-label" for="robots">Robots</label>
         <div class="uk-form-controls">
           <input class="uk-input" id="robots" name="robots" type="text" placeholder="index, follow" value="{{ config.robotsMeta|default('') }}">
@@ -99,6 +107,19 @@
         <button type="submit" class="uk-button uk-button-primary uk-margin-left">Speichern</button>
       </div>
     </form>
+    <div id="seoMediaModal" class="uk-modal" uk-modal>
+      <div class="uk-modal-dialog uk-modal-body">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <h2 class="uk-modal-title">Favicon auswählen</h2>
+        <div class="uk-margin-small">
+          <input class="uk-input" type="search" placeholder="Suchen..." data-role="media-search">
+        </div>
+        <div class="uk-overflow-auto" style="max-height: 320px;">
+          <ul class="uk-list uk-list-divider" data-role="media-list"></ul>
+        </div>
+        <p class="uk-text-meta" data-role="media-empty" hidden>Keine Medien gefunden.</p>
+      </div>
+    </div>
     {% endif %}
   </div>
 {% endblock %}

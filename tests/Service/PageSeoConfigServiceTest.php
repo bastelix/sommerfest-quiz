@@ -37,7 +37,7 @@ class PageSeoConfigServiceTest extends TestCase
             'CREATE TABLE page_seo_config('
             . 'page_id INTEGER PRIMARY KEY, domain TEXT, meta_title TEXT, meta_description TEXT, '
             . 'slug TEXT NOT NULL, canonical_url TEXT, robots_meta TEXT, '
-            . 'og_title TEXT, og_description TEXT, og_image TEXT, schema_json TEXT, '
+            . 'og_title TEXT, og_description TEXT, og_image TEXT, favicon_path TEXT, schema_json TEXT, '
             . 'hreflang TEXT, created_at TEXT, updated_at TEXT)'
         );
         $pdo->exec(
@@ -48,7 +48,7 @@ class PageSeoConfigServiceTest extends TestCase
             'CREATE TABLE page_seo_config_history('
             . 'id INTEGER PRIMARY KEY AUTOINCREMENT, page_id INTEGER, domain TEXT, meta_title TEXT, '
             . 'meta_description TEXT, slug TEXT, canonical_url TEXT, robots_meta TEXT, '
-            . 'og_title TEXT, og_description TEXT, og_image TEXT, schema_json TEXT, '
+            . 'og_title TEXT, og_description TEXT, og_image TEXT, favicon_path TEXT, schema_json TEXT, '
             . 'hreflang TEXT, created_at TEXT)'
         );
         $cache = new PageSeoCache();
@@ -84,7 +84,7 @@ class PageSeoConfigServiceTest extends TestCase
             'CREATE TABLE page_seo_config('
             . 'page_id INTEGER PRIMARY KEY, domain TEXT, meta_title TEXT, meta_description TEXT, '
             . 'slug TEXT NOT NULL, canonical_url TEXT, robots_meta TEXT, '
-            . 'og_title TEXT, og_description TEXT, og_image TEXT, schema_json TEXT, '
+            . 'og_title TEXT, og_description TEXT, og_image TEXT, favicon_path TEXT, schema_json TEXT, '
             . 'hreflang TEXT, created_at TEXT, updated_at TEXT)'
         );
         $pdo->exec(
@@ -95,7 +95,7 @@ class PageSeoConfigServiceTest extends TestCase
             'CREATE TABLE page_seo_config_history('
             . 'id INTEGER PRIMARY KEY AUTOINCREMENT, page_id INTEGER, domain TEXT, meta_title TEXT, '
             . 'meta_description TEXT, slug TEXT, canonical_url TEXT, robots_meta TEXT, '
-            . 'og_title TEXT, og_description TEXT, og_image TEXT, schema_json TEXT, '
+            . 'og_title TEXT, og_description TEXT, og_image TEXT, favicon_path TEXT, schema_json TEXT, '
             . 'hreflang TEXT, created_at TEXT)'
         );
         $redirects = new NullRedirectManager();
@@ -114,7 +114,7 @@ class PageSeoConfigServiceTest extends TestCase
             'CREATE TABLE page_seo_config('
             . 'page_id INTEGER PRIMARY KEY, domain TEXT, meta_title TEXT, meta_description TEXT, '
             . 'slug TEXT NOT NULL, canonical_url TEXT, robots_meta TEXT, '
-            . 'og_title TEXT, og_description TEXT, og_image TEXT, schema_json TEXT, '
+            . 'og_title TEXT, og_description TEXT, og_image TEXT, favicon_path TEXT, schema_json TEXT, '
             . 'hreflang TEXT, created_at TEXT, updated_at TEXT)'
         );
         $pdo->exec(
@@ -125,7 +125,7 @@ class PageSeoConfigServiceTest extends TestCase
             'CREATE TABLE page_seo_config_history('
             . 'id INTEGER PRIMARY KEY AUTOINCREMENT, page_id INTEGER, domain TEXT, meta_title TEXT, '
             . 'meta_description TEXT, slug TEXT, canonical_url TEXT, robots_meta TEXT, '
-            . 'og_title TEXT, og_description TEXT, og_image TEXT, schema_json TEXT, '
+            . 'og_title TEXT, og_description TEXT, og_image TEXT, favicon_path TEXT, schema_json TEXT, '
             . 'hreflang TEXT, created_at TEXT)'
         );
         $redirects = new NullRedirectManager();
@@ -152,5 +152,47 @@ class PageSeoConfigServiceTest extends TestCase
 
         $this->assertSame('https://quizrace.app/landing', $row['canonical_url']);
         $this->assertSame('noindex, follow', $row['robots_meta']);
+    }
+
+    public function testFaviconPathStoredAndValidated(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo->exec(
+            'CREATE TABLE page_seo_config('
+            . 'page_id INTEGER PRIMARY KEY, domain TEXT, meta_title TEXT, meta_description TEXT, '
+            . 'slug TEXT NOT NULL, canonical_url TEXT, robots_meta TEXT, '
+            . 'og_title TEXT, og_description TEXT, og_image TEXT, favicon_path TEXT, schema_json TEXT, '
+            . 'hreflang TEXT, created_at TEXT, updated_at TEXT)'
+        );
+        $pdo->exec(
+            'CREATE UNIQUE INDEX idx_page_seo_config_domain_slug '
+            . 'ON page_seo_config(COALESCE(domain, \'\'), slug)'
+        );
+        $pdo->exec(
+            'CREATE TABLE page_seo_config_history('
+            . 'id INTEGER PRIMARY KEY AUTOINCREMENT, page_id INTEGER, domain TEXT, meta_title TEXT, '
+            . 'meta_description TEXT, slug TEXT, canonical_url TEXT, robots_meta TEXT, '
+            . 'og_title TEXT, og_description TEXT, og_image TEXT, favicon_path TEXT, schema_json TEXT, '
+            . 'hreflang TEXT, created_at TEXT)'
+        );
+
+        $service = new PageSeoConfigService($pdo, new NullRedirectManager());
+        $config = new PageSeoConfig(1, 'slug', domain: 'quizrace.app', faviconPath: '/uploads/icon.png');
+        $service->save($config);
+
+        $row = $pdo->query('SELECT favicon_path FROM page_seo_config WHERE page_id = 1')
+            ->fetch(PDO::FETCH_ASSOC);
+        $this->assertSame('/uploads/icon.png', $row['favicon_path']);
+        $loaded = $service->load(1);
+        $this->assertSame('/uploads/icon.png', $loaded?->getFaviconPath());
+
+        $errors = $service->validate([
+            'pageId' => 1,
+            'slug' => 'slug',
+            'domain' => 'quizrace.app',
+            'faviconPath' => 'javascript:alert(1)'
+        ]);
+        $this->assertArrayHasKey('faviconPath', $errors);
     }
 }

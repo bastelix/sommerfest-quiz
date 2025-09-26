@@ -49,7 +49,7 @@ class PageSeoConfigService
 
         $stmt = $this->pdo->prepare(
             'SELECT slug, domain, meta_title, meta_description, canonical_url, robots_meta, '
-            . 'og_title, og_description, og_image, schema_json, hreflang '
+            . 'og_title, og_description, og_image, favicon_path, schema_json, hreflang '
             . 'FROM page_seo_config WHERE page_id = ?'
         );
         $stmt->execute([$pageId]);
@@ -67,7 +67,8 @@ class PageSeoConfigService
                 $row['og_image'] !== null ? (string) $row['og_image'] : null,
                 $row['schema_json'] !== null ? (string) $row['schema_json'] : null,
                 $row['hreflang'] !== null ? (string) $row['hreflang'] : null,
-                $row['domain'] !== null ? (string) $row['domain'] : null
+                $row['domain'] !== null ? (string) $row['domain'] : null,
+                $row['favicon_path'] !== null ? (string) $row['favicon_path'] : null
             );
             $this->cache->set($config);
             return $config;
@@ -96,6 +97,7 @@ class PageSeoConfigService
         }
 
         $normalizedDomain = $this->normalizeDomain($config->getDomain());
+        $normalizedFavicon = $this->normalizeFaviconPath($config->getFaviconPath());
 
         $params = [
             $config->getPageId(),
@@ -108,6 +110,7 @@ class PageSeoConfigService
             $config->getOgTitle(),
             $config->getOgDescription(),
             $config->getOgImage(),
+            $normalizedFavicon,
             $this->normalizeSchemaJson($config->getSchemaJson()),
             $config->getHreflang(),
         ];
@@ -115,13 +118,13 @@ class PageSeoConfigService
         $upsert = $this->pdo->prepare(
             'INSERT INTO page_seo_config('
             . 'page_id, domain, meta_title, meta_description, slug, canonical_url, robots_meta, '
-            . 'og_title, og_description, og_image, schema_json, hreflang) '
-            . 'VALUES(?,?,?,?,?,?,?,?,?,?,?,?) '
+            . 'og_title, og_description, og_image, favicon_path, schema_json, hreflang) '
+            . 'VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?) '
             . 'ON CONFLICT(page_id) DO UPDATE SET domain=excluded.domain, meta_title=excluded.meta_title, '
             . 'meta_description=excluded.meta_description, slug=excluded.slug, '
             . 'canonical_url=excluded.canonical_url, robots_meta=excluded.robots_meta, '
             . 'og_title=excluded.og_title, og_description=excluded.og_description, '
-            . 'og_image=excluded.og_image, schema_json=excluded.schema_json, '
+            . 'og_image=excluded.og_image, favicon_path=excluded.favicon_path, schema_json=excluded.schema_json, '
             . 'hreflang=excluded.hreflang, updated_at=CURRENT_TIMESTAMP'
         );
         $upsert->execute($params);
@@ -129,8 +132,8 @@ class PageSeoConfigService
         $history = $this->pdo->prepare(
             'INSERT INTO page_seo_config_history('
             . 'page_id, domain, meta_title, meta_description, slug, canonical_url, robots_meta, '
-            . 'og_title, og_description, og_image, schema_json, hreflang) '
-            . 'VALUES(?,?,?,?,?,?,?,?,?,?,?,?)'
+            . 'og_title, og_description, og_image, favicon_path, schema_json, hreflang) '
+            . 'VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)'
         );
         $history->execute($params);
 
@@ -158,6 +161,7 @@ class PageSeoConfigService
             'ogTitle' => null,
             'ogDescription' => null,
             'ogImage' => null,
+            'faviconPath' => null,
             'schemaJson' => null,
             'hreflang' => null,
         ];
@@ -189,7 +193,17 @@ class PageSeoConfigService
     {
         $data['domain'] = $this->normalizeDomain(isset($data['domain']) ? (string) $data['domain'] : null);
 
+        $rawFavicon = isset($data['faviconPath']) ? (string) $data['faviconPath'] : '';
+        $normalizedFavicon = $this->normalizeFaviconPath($rawFavicon);
+        if ($rawFavicon === '' || $normalizedFavicon !== null) {
+            $data['faviconPath'] = $normalizedFavicon;
+        }
+
         $errors = $this->validator->validate($data);
+
+        if ($rawFavicon !== '' && $normalizedFavicon === null) {
+            $errors['faviconPath'] = 'Ungültiger Pfad';
+        }
 
         $slug = isset($data['slug']) ? (string) $data['slug'] : '';
         $pageId = isset($data['pageId']) ? (int) $data['pageId'] : 0;
@@ -223,5 +237,35 @@ class PageSeoConfigService
         $normalized = (string) preg_replace('/^(www|admin)\./', '', $normalized);
 
         return $normalized === '' ? null : $normalized;
+    }
+
+    public function normalizeFaviconPath(?string $path): ?string
+    {
+        if ($path === null) {
+            return null;
+        }
+
+        $trimmed = trim($path);
+        if ($trimmed === '') {
+            return null;
+        }
+
+        if (preg_match('/\s/', $trimmed)) {
+            return null;
+        }
+
+        if (str_contains($trimmed, '..')) {
+            return null;
+        }
+
+        if (str_starts_with($trimmed, 'https://')) {
+            return filter_var($trimmed, FILTER_VALIDATE_URL) ? $trimmed : null;
+        }
+
+        if ($trimmed[0] !== '/') {
+            return null;
+        }
+
+        return $trimmed;
     }
 }

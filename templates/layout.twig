@@ -37,7 +37,24 @@
     ]
   }
   </script>
-  <link rel="icon" href="{{ basePath }}/favicon.svg" type="image/svg+xml">
+  {% set rawFavicon = pageFavicon is defined and pageFavicon ? pageFavicon : '/favicon.svg' %}
+  {% set faviconSource = rawFavicon starts with 'http' ? rawFavicon : basePath ~ rawFavicon %}
+  {% set faviconExt = (rawFavicon|split('?')|first|split('#')|first|split('.')|last|lower) %}
+  {% set faviconType = 'image/svg+xml' %}
+  {% if faviconExt in ['png'] %}
+    {% set faviconType = 'image/png' %}
+  {% elseif faviconExt in ['ico', 'cur'] %}
+    {% set faviconType = 'image/x-icon' %}
+  {% elseif faviconExt in ['jpg', 'jpeg'] %}
+    {% set faviconType = 'image/jpeg' %}
+  {% elseif faviconExt == 'gif' %}
+    {% set faviconType = 'image/gif' %}
+  {% elseif faviconExt == 'webp' %}
+    {% set faviconType = 'image/webp' %}
+  {% elseif faviconExt == 'svg' %}
+    {% set faviconType = 'image/svg+xml' %}
+  {% endif %}
+  <link rel="icon" href="{{ faviconSource }}" type="{{ faviconType }}">
   <link rel="stylesheet" href="{{ basePath }}/css/uikit.min.css">
   <link rel="stylesheet" href="{{ basePath }}/css/variables.css">
   <link rel="stylesheet" href="{{ basePath }}/css/table.css">
