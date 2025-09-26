@@ -37,7 +37,109 @@ class MediaLibraryServiceTest extends TestCase
 
     public function testMetadataPersistenceRoundTrip(): void
     {
+        [$service, $config, $images] = $this->createService();
+
+        $tmp = tempnam($this->tempDir, 'img');
+        file_put_contents($tmp, 'test-image');
+        $stream = (new StreamFactory())->createStreamFromFile($tmp);
+        $uploaded = new UploadedFile($stream, 'banner.png', 'image/png', $stream->getSize(), UPLOAD_ERR_OK);
+
+        $uploadedInfo = $service->uploadFile(MediaLibraryService::SCOPE_GLOBAL, $uploaded, null, [
+            'name' => 'homepage-banner',
+            'tags' => ['Hero', 'Summer'],
+            'folder' => 'marketing/home',
+        ]);
+
+        $this->assertSame(['Hero', 'Summer'], $uploadedInfo['tags']);
+        $this->assertSame('marketing/home', $uploadedInfo['folder']);
+
+        $files = $service->listFiles(MediaLibraryService::SCOPE_GLOBAL);
+        $this->assertCount(1, $files);
+        $this->assertSame(['Hero', 'Summer'], $files[0]['tags']);
+        $this->assertSame('marketing/home', $files[0]['folder']);
+
+        $updated = $service->renameFile(
+            MediaLibraryService::SCOPE_GLOBAL,
+            $uploadedInfo['name'],
+            $uploadedInfo['name'],
+            null,
+            [
+                'tags' => ['Highlight'],
+                'folder' => 'marketing',
+            ]
+        );
+
+        $this->assertSame(['Highlight'], $updated['tags']);
+        $this->assertSame('marketing', $updated['folder']);
+
+        $listed = $service->listFiles(MediaLibraryService::SCOPE_GLOBAL);
+        $this->assertCount(1, $listed);
+        $this->assertSame(['Highlight'], $listed[0]['tags']);
+        $this->assertSame('marketing', $listed[0]['folder']);
+
+        $metadataPath = $config->getGlobalUploadsDir() . DIRECTORY_SEPARATOR . '.media-metadata.json';
+        $this->assertFileExists($metadataPath);
+
+        $service->deleteFile(MediaLibraryService::SCOPE_GLOBAL, $updated['name']);
+
+        $this->assertFileDoesNotExist($metadataPath);
+        $this->assertSame([], $service->listFiles(MediaLibraryService::SCOPE_GLOBAL));
+        $this->assertTrue($images->saveCalled, 'Raster uploads should be processed via ImageUploadService');
+    }
+
+    public function testSvgUploadBypassesRasterProcessing(): void
+    {
+        [$service, $config, $images] = $this->createService();
+
+        $svg = <<<SVG
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4"/></svg>
+SVG;
+
+        $tmp = tempnam($this->tempDir, 'svg');
+        file_put_contents($tmp, $svg);
+        $stream = (new StreamFactory())->createStreamFromFile($tmp);
+        $uploaded = new UploadedFile($stream, 'icon.svg', 'image/svg+xml', $stream->getSize(), UPLOAD_ERR_OK);
+
+        $info = $service->uploadFile(MediaLibraryService::SCOPE_GLOBAL, $uploaded);
+
+        $this->assertSame('icon.svg', $info['name']);
+        $this->assertSame('svg', $info['extension']);
+        $this->assertFalse($images->saveCalled, 'SVG uploads must not invoke ImageUploadService');
+
+        $storedPath = $config->getGlobalUploadsDir() . DIRECTORY_SEPARATOR . 'icon.svg';
+        $this->assertFileExists($storedPath);
+        $this->assertStringEqualsFile($storedPath, $svg);
+    }
+
+    private function removeDir(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+
+        $items = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($items as $item) {
+            if ($item->isDir()) {
+                @rmdir($item->getPathname());
+            } else {
+                @unlink($item->getPathname());
+            }
+        }
+
+        @rmdir($dir);
+    }
+
+    /**
+     * @return array{0:MediaLibraryService,1:ConfigService,2:ImageUploadService}
+     */
+    private function createService(): array
+    {
         $pdo = new PDO('sqlite::memory:');
+
         $config = new class ($pdo, $this->tempDir) extends ConfigService {
             private string $baseDir;
             private string $activeUid = 'event-test';
@@ -90,6 +192,7 @@ class MediaLibraryServiceTest extends TestCase
         };
 
         $images = new class ($this->tempDir) extends ImageUploadService {
+            public bool $saveCalled = false;
             private string $baseDir;
 
             public function __construct(string $baseDir)
@@ -130,6 +233,8 @@ class MediaLibraryServiceTest extends TestCase
                 bool $autoOrient = false,
                 ?string $format = null
             ): string {
+                $this->saveCalled = true;
+
                 $extension = strtolower((string) pathinfo((string) $file->getClientFilename(), PATHINFO_EXTENSION));
                 $filename = $baseName . '.' . $extension;
                 $relative = trim($dir, '/');
@@ -151,74 +256,6 @@ class MediaLibraryServiceTest extends TestCase
             }
         };
 
-        $service = new MediaLibraryService($config, $images);
-
-        $tmp = tempnam($this->tempDir, 'img');
-        file_put_contents($tmp, 'test-image');
-        $stream = (new StreamFactory())->createStreamFromFile($tmp);
-        $uploaded = new UploadedFile($stream, 'banner.png', 'image/png', $stream->getSize(), UPLOAD_ERR_OK);
-
-        $uploadedInfo = $service->uploadFile(MediaLibraryService::SCOPE_GLOBAL, $uploaded, null, [
-            'name' => 'homepage-banner',
-            'tags' => ['Hero', 'Summer'],
-            'folder' => 'marketing/home',
-        ]);
-
-        $this->assertSame(['Hero', 'Summer'], $uploadedInfo['tags']);
-        $this->assertSame('marketing/home', $uploadedInfo['folder']);
-
-        $files = $service->listFiles(MediaLibraryService::SCOPE_GLOBAL);
-        $this->assertCount(1, $files);
-        $this->assertSame(['Hero', 'Summer'], $files[0]['tags']);
-        $this->assertSame('marketing/home', $files[0]['folder']);
-
-        $updated = $service->renameFile(
-            MediaLibraryService::SCOPE_GLOBAL,
-            $uploadedInfo['name'],
-            $uploadedInfo['name'],
-            null,
-            [
-                'tags' => ['Highlight'],
-                'folder' => 'marketing',
-            ]
-        );
-
-        $this->assertSame(['Highlight'], $updated['tags']);
-        $this->assertSame('marketing', $updated['folder']);
-
-        $listed = $service->listFiles(MediaLibraryService::SCOPE_GLOBAL);
-        $this->assertCount(1, $listed);
-        $this->assertSame(['Highlight'], $listed[0]['tags']);
-        $this->assertSame('marketing', $listed[0]['folder']);
-
-        $metadataPath = $config->getGlobalUploadsDir() . DIRECTORY_SEPARATOR . '.media-metadata.json';
-        $this->assertFileExists($metadataPath);
-
-        $service->deleteFile(MediaLibraryService::SCOPE_GLOBAL, $updated['name']);
-
-        $this->assertFileDoesNotExist($metadataPath);
-        $this->assertSame([], $service->listFiles(MediaLibraryService::SCOPE_GLOBAL));
-    }
-
-    private function removeDir(string $dir): void
-    {
-        if (!is_dir($dir)) {
-            return;
-        }
-
-        $items = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::CHILD_FIRST
-        );
-
-        foreach ($items as $item) {
-            if ($item->isDir()) {
-                @rmdir($item->getPathname());
-            } else {
-                @unlink($item->getPathname());
-            }
-        }
-
-        @rmdir($dir);
+        return [new MediaLibraryService($config, $images), $config, $images];
     }
 }
