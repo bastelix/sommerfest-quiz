@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Marketing;
 
-use App\Service\MailService;
 use App\Infrastructure\Database;
+use App\Service\DomainStartPageService;
+use App\Service\MailService;
 use App\Service\TenantService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -73,8 +74,23 @@ class ContactController
         }
 
         $pdo = Database::connectFromEnv();
+        $domainService = new DomainStartPageService($pdo);
+        $host = (string) $request->getUri()->getHost();
+        $domainConfig = $domainService->getConfigForHost($host);
+
+        $domainEmail = null;
+        if ($domainConfig !== null && ($domainConfig['start_page'] ?? null) === 'landing') {
+            $emailCandidate = $domainConfig['email'] ?? null;
+            if (is_string($emailCandidate)) {
+                $emailCandidate = trim($emailCandidate);
+                if ($emailCandidate !== '' && filter_var($emailCandidate, FILTER_VALIDATE_EMAIL)) {
+                    $domainEmail = $emailCandidate;
+                }
+            }
+        }
+
         $tenant = (new TenantService($pdo))->getMainTenant();
-        $to = (string) ($tenant['imprint_email'] ?? '');
+        $to = $domainEmail ?? (string) ($tenant['imprint_email'] ?? '');
         if ($to === '') {
             return $response->withStatus(500);
         }
