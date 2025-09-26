@@ -10,6 +10,7 @@ use App\Controller\ImpressumController;
 use App\Controller\LizenzController;
 use App\Controller\AdminController;
 use App\Controller\AdminCatalogController;
+use App\Controller\AdminMediaController;
 use App\Controller\AdminLogsController;
 use App\Controller\LoginController;
 use App\Controller\LogoutController;
@@ -85,6 +86,7 @@ use App\Controller\InvitationController;
 use App\Controller\CatalogStickerController;
 use App\Controller\EventImageController;
 use App\Service\ImageUploadService;
+use App\Service\MediaLibraryService;
 use Slim\Views\Twig;
 use GuzzleHttp\Client;
 use Psr\Log\NullLogger;
@@ -111,6 +113,7 @@ require_once __DIR__ . '/Controller/PasswordController.php';
 require_once __DIR__ . '/Controller/PasswordResetController.php';
 require_once __DIR__ . '/Controller/AdminCatalogController.php';
 require_once __DIR__ . '/Controller/AdminLogsController.php';
+require_once __DIR__ . '/Controller/AdminMediaController.php';
 require_once __DIR__ . '/Controller/Admin/PageController.php';
 require_once __DIR__ . '/Controller/Admin/LandingpageController.php';
 require_once __DIR__ . '/Controller/Admin/DomainStartPageController.php';
@@ -203,9 +206,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         $sessionService = new SessionService($pdo);
         $playerService = new PlayerService($pdo);
         $imageUploadService = new ImageUploadService();
+        $mediaLibraryService = new MediaLibraryService($configService, $imageUploadService);
 
         $request = $request
             ->withAttribute('plan', $plan)
+            ->withAttribute('configService', $configService)
             ->withAttribute('configController', new ConfigController($configService, new ConfigValidator(), $eventService))
             ->withAttribute('catalogController', new CatalogController($catalogService))
             ->withAttribute('adminCatalogController', new AdminCatalogController($catalogService))
@@ -254,6 +259,8 @@ return function (\Slim\App $app, TranslationService $translator) {
             ))
             ->withAttribute('onboardingEmailController', new OnboardingEmailController($emailConfirmService))
             ->withAttribute('catalogDesignController', new CatalogDesignController($catalogService))
+            ->withAttribute('mediaLibraryService', $mediaLibraryService)
+            ->withAttribute('adminMediaController', new AdminMediaController($mediaLibraryService, $configService))
             ->withAttribute('logoController', new LogoController($configService, $imageUploadService))
             ->withAttribute('qrLogoController', new QrLogoController($configService, $imageUploadService))
             ->withAttribute('summaryController', new SummaryController($configService, $eventService))
@@ -521,6 +528,71 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/results', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/statistics', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/logs', AdminLogsController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->get('/admin/media', function (Request $request, Response $response): Response {
+        $controller = $request->getAttribute('adminMediaController');
+        if (!$controller instanceof AdminMediaController) {
+            $service = $request->getAttribute('mediaLibraryService');
+            $config = $request->getAttribute('configService');
+            if ($service instanceof MediaLibraryService && $config instanceof ConfigService) {
+                $controller = new AdminMediaController($service, $config);
+            } else {
+                return $response->withStatus(500);
+            }
+        }
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR))->add(new CsrfMiddleware());
+    $app->get('/admin/media/files', function (Request $request, Response $response): Response {
+        $controller = $request->getAttribute('adminMediaController');
+        if (!$controller instanceof AdminMediaController) {
+            $service = $request->getAttribute('mediaLibraryService');
+            $config = $request->getAttribute('configService');
+            if ($service instanceof MediaLibraryService && $config instanceof ConfigService) {
+                $controller = new AdminMediaController($service, $config);
+            } else {
+                return $response->withStatus(500);
+            }
+        }
+        return $controller->list($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR))->add(new CsrfMiddleware());
+    $app->post('/admin/media/upload', function (Request $request, Response $response): Response {
+        $controller = $request->getAttribute('adminMediaController');
+        if (!$controller instanceof AdminMediaController) {
+            $service = $request->getAttribute('mediaLibraryService');
+            $config = $request->getAttribute('configService');
+            if ($service instanceof MediaLibraryService && $config instanceof ConfigService) {
+                $controller = new AdminMediaController($service, $config);
+            } else {
+                return $response->withStatus(500);
+            }
+        }
+        return $controller->upload($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR))->add(new CsrfMiddleware());
+    $app->post('/admin/media/rename', function (Request $request, Response $response): Response {
+        $controller = $request->getAttribute('adminMediaController');
+        if (!$controller instanceof AdminMediaController) {
+            $service = $request->getAttribute('mediaLibraryService');
+            $config = $request->getAttribute('configService');
+            if ($service instanceof MediaLibraryService && $config instanceof ConfigService) {
+                $controller = new AdminMediaController($service, $config);
+            } else {
+                return $response->withStatus(500);
+            }
+        }
+        return $controller->rename($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR))->add(new CsrfMiddleware());
+    $app->post('/admin/media/delete', function (Request $request, Response $response): Response {
+        $controller = $request->getAttribute('adminMediaController');
+        if (!$controller instanceof AdminMediaController) {
+            $service = $request->getAttribute('mediaLibraryService');
+            $config = $request->getAttribute('configService');
+            if ($service instanceof MediaLibraryService && $config instanceof ConfigService) {
+                $controller = new AdminMediaController($service, $config);
+            } else {
+                return $response->withStatus(500);
+            }
+        }
+        return $controller->delete($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR))->add(new CsrfMiddleware());
     $app->get('/admin/dashboard.json', function (Request $request, Response $response) {
         $month = (string)($request->getQueryParams()['month'] ?? (new DateTimeImmutable('now'))->format('Y-m'));
         $pdo = $request->getAttribute('pdo');

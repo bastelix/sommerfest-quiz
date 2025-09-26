@@ -1,0 +1,150 @@
+{% extends 'layout.twig' %}
+
+{% block title %}{{ t('tab_media') }}{% endblock %}
+
+{% block head %}
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
+
+{% block body %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <a class="uk-navbar-toggle git-btn" uk-toggle="target: #qr-offcanvas" aria-label="{{ t('menu') }}">
+        <span uk-navbar-toggle-icon></span>
+      </a>
+      <a href="{{ basePath }}/admin/summary" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
+        QuizRace Admin
+      </a>
+    {% endblock %}
+    {% block offcanvas %}
+      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
+        <div class="uk-offcanvas-bar">
+          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
+          <h3 class="uk-margin-small">QuizRace</h3>
+          {% include 'admin/_nav.twig' %}
+        </div>
+      </div>
+    {% endblock %}
+    {% block headerbar %}
+      <div class="uk-container uk-container-large">
+        <h2 class="uk-heading-bullet">{{ t('heading_media') }}</h2>
+        <p class="uk-text-meta" id="mediaLimitText">
+          {{ t('text_media_limits')|format((limits.maxSize / 1048576)|number_format(1, '.', ''), limits.allowedExtensions|join(', ')) }}
+        </p>
+      </div>
+    {% endblock %}
+  {% endembed %}
+  <div class="uk-grid-collapse" uk-grid>
+    <aside class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
+        {% include 'admin/_nav.twig' %}
+      </div>
+    </aside>
+    <main class="uk-width-expand uk-padding-small@xs uk-padding">
+      <div class="uk-container uk-container-expand">
+        <div class="uk-card uk-card-default uk-card-body uk-margin">
+          <div class="uk-grid-small uk-child-width-auto uk-flex-middle" uk-grid>
+            <div>
+              <label class="uk-form-label" for="mediaScope">{{ t('label_media_scope') }}</label>
+              <select id="mediaScope" class="uk-select uk-form-small">
+                <option value="global">{{ t('label_media_scope_global') }}</option>
+                <option value="event"{% if eventUid == '' %} disabled{% endif %}>{{ t('label_media_scope_event') }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="uk-form-label" for="mediaSearch">{{ t('label_media_search') }}</label>
+              <input id="mediaSearch" class="uk-input uk-form-small" type="search" placeholder="{{ t('label_media_search') }}">
+            </div>
+            <div class="uk-flex uk-flex-middle">
+              <button id="mediaRefresh" type="button" class="uk-button uk-button-default uk-button-small uk-margin-small-top">{{ t('button_media_refresh') }}</button>
+            </div>
+          </div>
+          {% if eventUid == '' %}
+            <p class="uk-text-meta uk-margin-small-top">{{ t('text_media_event_hint') }}</p>
+          {% endif %}
+        </div>
+
+        <div class="uk-card uk-card-default uk-card-body uk-margin">
+          <h3 class="uk-card-title">{{ t('label_media_upload') }}</h3>
+          <form id="mediaUploadForm" class="uk-form-horizontal">
+            <div class="uk-margin">
+              <div uk-form-custom="target: true">
+                <input type="file" name="file" id="mediaFile" accept="image/*">
+                <input class="uk-input" type="text" placeholder="{{ t('label_media_choose') }}" disabled>
+              </div>
+            </div>
+            <div class="uk-margin">
+              <label class="uk-form-label" for="mediaName">{{ t('label_media_name_optional') }}</label>
+              <div class="uk-form-controls">
+                <input id="mediaName" name="name" type="text" class="uk-input" placeholder="{{ t('label_media_name_placeholder') }}">
+              </div>
+            </div>
+            <div class="uk-margin">
+              <button class="uk-button uk-button-primary" type="submit">{{ t('button_media_upload') }}</button>
+            </div>
+            <div id="mediaUploadMessage" class="uk-text-meta"></div>
+          </form>
+        </div>
+
+        <div class="uk-card uk-card-default uk-card-body uk-margin">
+          <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom">
+            <h3 class="uk-card-title uk-margin-remove">{{ t('heading_media_files') }}</h3>
+            <div id="mediaPagination" class="uk-text-meta"></div>
+          </div>
+          <div class="uk-overflow-auto">
+            <table class="uk-table uk-table-divider uk-table-small uk-table-hover">
+              <thead>
+                <tr>
+                  <th>{{ t('column_media_name') }}</th>
+                  <th class="uk-table-shrink">{{ t('column_media_size') }}</th>
+                  <th class="uk-table-shrink">{{ t('column_media_modified') }}</th>
+                  <th class="uk-table-shrink">{{ t('column_actions') }}</th>
+                </tr>
+              </thead>
+              <tbody id="mediaTableBody">
+              </tbody>
+            </table>
+          </div>
+          <div class="uk-flex uk-flex-between uk-flex-middle">
+            <button id="mediaPrev" class="uk-button uk-button-default uk-button-small" type="button">« {{ t('button_media_prev') }}</button>
+            <button id="mediaNext" class="uk-button uk-button-default uk-button-small" type="button">{{ t('button_media_next') }} »</button>
+          </div>
+          <div id="mediaEmpty" class="uk-text-meta uk-margin-small-top" hidden>{{ t('text_media_no_files') }}</div>
+          <div id="mediaError" class="uk-alert uk-alert-danger uk-margin-small-top" hidden></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    window.mediaConfig = {
+      basePath: '{{ basePath }}',
+      eventUid: '{{ eventUid }}',
+      limits: {{ limits|json_encode|raw }},
+      translations: {
+        noFiles: '{{ t('text_media_no_files')|e('js') }}',
+        renamePrompt: '{{ t('prompt_media_rename')|e('js') }}',
+        rename: '{{ t('button_media_rename')|e('js') }}',
+        deleteConfirm: '{{ t('confirm_media_delete')|e('js') }}',
+        delete: '{{ t('button_media_delete')|e('js') }}',
+        uploaded: '{{ t('message_media_uploaded')|e('js') }}',
+        renamed: '{{ t('message_media_renamed')|e('js') }}',
+        deleted: '{{ t('message_media_deleted')|e('js') }}',
+        requestFailed: '{{ t('error_media_request_failed')|e('js') }}',
+        eventRequired: '{{ t('error_media_event_required')|e('js') }}'
+      }
+    };
+  </script>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ basePath }}/js/storage.js" defer></script>
+  <script src="{{ basePath }}/js/app.js" defer></script>
+  <script src="{{ basePath }}/js/admin-media.js" defer></script>
+{% endblock %}
+
