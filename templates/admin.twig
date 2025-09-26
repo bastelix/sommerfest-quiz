@@ -913,10 +913,10 @@
           <h2 class="uk-heading-bullet">{{ t('heading_pages') }}</h2>
           <ul id="pageTabs" class="uk-tab" uk-tab="connect: #pageSwitcher">
             <li class="uk-active"><a href="#">{{ t('tab_landingpage_seo') }}</a></li>
-            <li data-slug="landing"><a href="#">Landing</a></li>
-            <li data-slug="impressum"><a href="#">Impressum</a></li>
-            <li data-slug="datenschutz"><a href="#">Datenschutz</a></li>
-            <li data-slug="faq"><a href="#">FAQ</a></li>
+            {% for page in pages %}
+              {% set pageLabel = page.title is not empty ? page.title : page.slug|replace({'-': ' '})|title %}
+              <li data-slug="{{ page.slug }}"><a href="#">{{ pageLabel }}</a></li>
+            {% endfor %}
           </ul>
           <ul id="pageSwitcher" class="uk-switcher uk-margin">
             <li>
@@ -1007,14 +1007,14 @@
               </form>
               {% endif %}
             </li>
-            {% for slug, html in pages %}
+            {% for page in pages %}
             <li>
-              <form class="page-form" data-slug="{{ slug }}">
-                <input type="hidden" id="page_{{ slug }}" name="content" value="{{ html|e('html_attr') }}">
-                <div class="page-editor" data-content="{{ html|e('html_attr') }}"></div>
+              <form class="page-form" data-slug="{{ page.slug }}">
+                <input type="hidden" id="page_{{ page.slug }}" name="content" value="{{ page.content|e('html_attr') }}">
+                <div class="page-editor" data-content="{{ page.content|e('html_attr') }}"></div>
                 <div class="uk-margin-top">
                   <button class="uk-button uk-button-primary save-page-btn">Speichern</button>
-                  <a class="uk-button uk-button-default preview-link" href="{{ basePath }}/{{ slug }}" target="_blank">Vorschau</a>
+                  <a class="uk-button uk-button-default preview-link" href="{{ basePath }}/{{ page.slug }}" target="_blank">Vorschau</a>
                 </div>
               </form>
             </li>
@@ -1501,7 +1501,7 @@
     window.transDomainContactTemplateError = '{{ t('notify_domain_contact_template_error')|e('js') }}';
     window.transDomainContactTemplateLoadError = '{{ t('notify_domain_contact_template_load_error')|e('js') }}';
     window.transDomainContactTemplateInvalidDomain = '{{ t('notify_domain_contact_template_invalid_domain')|e('js') }}';
-    window.pagesContent = {{ pages|json_encode|raw }};
+    window.pagesContent = {{ page_contents|json_encode|raw }};
     window.transUpgradeTitle = '{{ t('heading_limit_reached') }}';
     window.transUpgradeText = '{{ t('text_upgrade_required') }}';
     window.transUpgradeAction = '{{ t('action_upgrade') }}';
