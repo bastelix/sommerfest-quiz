@@ -18,10 +18,10 @@ class MediaLibraryService
     public const MAX_UPLOAD_SIZE = 5 * 1024 * 1024;
 
     /** @var list<string> */
-    public const ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp'];
+    public const ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp', 'svg'];
 
     /** @var list<string> */
-    public const ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
+    public const ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
 
     private const METADATA_FILE = '.media-metadata.json';
 
@@ -114,15 +114,19 @@ class MediaLibraryService
         }
 
         $unique = $this->uniqueBaseName($dir, $baseName, $extension);
-        $storedPath = $this->images->saveUploadedFile(
-            $file,
-            $relative,
-            $unique,
-            null,
-            null,
-            ImageUploadService::QUALITY_PHOTO,
-            true
-        );
+        if ($extension === 'svg') {
+            $storedPath = $this->storeRawUpload($file, $dir, $relative, $unique, $extension);
+        } else {
+            $storedPath = $this->images->saveUploadedFile(
+                $file,
+                $relative,
+                $unique,
+                null,
+                null,
+                ImageUploadService::QUALITY_PHOTO,
+                true
+            );
+        }
 
         $fileName = basename($storedPath);
         $absolutePath = $dir . DIRECTORY_SEPARATOR . $fileName;
@@ -322,6 +326,27 @@ class MediaLibraryService
         }
 
         return $candidate;
+    }
+
+    private function storeRawUpload(
+        UploadedFileInterface $file,
+        string $targetDir,
+        string $relativeDir,
+        string $baseName,
+        string $extension
+    ): string {
+        $filename = $baseName . '.' . $extension;
+        $path = $targetDir . DIRECTORY_SEPARATOR . $filename;
+
+        $file->moveTo($path);
+        @chown($path, 'www-data');
+        @chgrp($path, 'www-data');
+        @chmod($path, 0664);
+
+        $relativeDir = trim($relativeDir, '/');
+        $relativePath = $relativeDir !== '' ? '/' . $relativeDir . '/' . $filename : '/' . $filename;
+
+        return $relativePath;
     }
 
     /**
