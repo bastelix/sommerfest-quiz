@@ -497,7 +497,7 @@ Alle wesentlichen Einstellungen werden in der Datenbank gespeichert und können 
   "QRUser": true,
   "QRRemember": false,
   "logoPath": "/logo.png",
-  "ogImagePath": "/img/social-preview.jpg",
+  "ogImagePath": "/uploads/seo/social-preview.jpg",
   "pageTitle": "Modernes Quiz mit UIkit",
   "backgroundColor": "#ffffff",
   "buttonColor": "#1e87f0",
@@ -515,6 +515,8 @@ Alle wesentlichen Einstellungen werden in der Datenbank gespeichert und können 
   "postgres_pass": "***"
 }
 ```
+
+Hinweis: Platzhaltergrafiken für Landingpage, calServer und SEO werden nicht mitgeliefert. Legen Sie bei Bedarf eigene Dateien im Bereich "Global" des Media-Managers unter `/uploads/...` an und passen die Pfade (z. B. `ogImagePath`) entsprechend an.
 
 Der Parameter `displayErrorDetails` kann auch über die Umgebungsvariable
 `DISPLAY_ERROR_DETAILS` gesetzt werden.

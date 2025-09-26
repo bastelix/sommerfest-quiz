@@ -236,7 +236,7 @@ export function initSeoForm() {
       ogTitle: 'QuizRace – Gestalten Sie Ihr interaktives Team-Quiz für Events',
       ogDescription:
         'Erstellen Sie Ihr eigenes Event-Quiz mit QR-Code-Stationen, Live-Ranking & Rätselspaß. DSGVO-konform, flexibel, ohne App. Jetzt kostenlos testen!',
-      ogImage: `${ctx.baseUrl}/img/social-preview.jpg`,
+      ogImage: `${ctx.baseUrl}/uploads/seo/social-preview.jpg`,
       schema: `{
   "@context": "https://schema.org",
   "@type": "WebSite",
@@ -248,7 +248,7 @@ export function initSeoForm() {
     "name": "QuizRace",
     "logo": {
       "@type": "ImageObject",
-      "url": "${ctx.baseUrl}/img/logo.png"
+      "url": "${ctx.baseUrl}/uploads/branding/logo.png"
     }
   },
   "sameAs": [
@@ -270,7 +270,7 @@ export function initSeoForm() {
       ogTitle: 'calServer – Plattform für Kalibrier- & Prüfmittelteams',
       ogDescription:
         'Überwachen Sie Prüfmittel, Kalibrierfristen, Serviceaufträge und Dokumentation zentral. calServer liefert Workflows, Erinnerungen und Hosting in Deutschland.',
-      ogImage: `${ctx.baseUrl}/img/calserver/modules/module-placeholder.svg`,
+      ogImage: `${ctx.baseUrl}/uploads/calserver/modules/module-placeholder.svg`,
       schema: `{
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
@@ -308,7 +308,7 @@ export function initSeoForm() {
       robots: 'index, follow',
       ogTitle: title,
       ogDescription: `${title} auf ${ctx.domain}.`,
-      ogImage: `${ctx.baseUrl}/img/social-preview.jpg`,
+      ogImage: `${ctx.baseUrl}/uploads/seo/social-preview.jpg`,
       schema: `{
   "@context": "https://schema.org",
   "@type": "WebPage",

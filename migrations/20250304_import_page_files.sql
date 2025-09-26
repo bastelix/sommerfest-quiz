@@ -384,8 +384,8 @@ INSERT INTO pages (slug, title, content) VALUES ('landing', 'Landing', '<!-- Soc
       <div>
         <div class="uk-card uk-card-quizrace uk-card-body">
           <picture>
-            <source srcset="{{ basePath }}/img/quizrace-shot.avif" type="image/avif">
-            <img src="{{ basePath }}/img/quizrace-shot.webp" width="960" height="540" loading="lazy" alt="QuizRace Editor">
+            <source srcset="{{ basePath }}/uploads/landing/quizrace-shot.avif" type="image/avif">
+            <img src="{{ basePath }}/uploads/landing/quizrace-shot.webp" width="960" height="540" loading="lazy" alt="QuizRace Editor">
           </picture>
         </div>
       </div>
