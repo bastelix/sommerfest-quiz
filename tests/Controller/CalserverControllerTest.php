@@ -8,6 +8,17 @@ use Tests\TestCase;
 
 class CalserverControllerTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $pdo = $this->getDatabase();
+        try {
+            $pdo->exec("INSERT INTO pages(slug,title,content) VALUES('calserver','calServer','<p>calServer</p>')");
+        } catch (\PDOException $e) {
+            // Ignore duplicates when running multiple tests with shared databases.
+        }
+    }
+
     public function testCalserverPage(): void
     {
         $old = getenv('MAIN_DOMAIN');

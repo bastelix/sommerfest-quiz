@@ -315,6 +315,7 @@ CREATE TABLE IF NOT EXISTS page_seo_config (
     og_title TEXT,
     og_description TEXT,
     og_image TEXT,
+    favicon_path TEXT,
     schema_json TEXT,
     hreflang TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -335,6 +336,7 @@ CREATE TABLE IF NOT EXISTS page_seo_config_history (
     og_title TEXT,
     og_description TEXT,
     og_image TEXT,
+    favicon_path TEXT,
     schema_json TEXT,
     hreflang TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP

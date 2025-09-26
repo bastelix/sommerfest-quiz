@@ -156,6 +156,7 @@ class AdminController
         $domainService = new DomainStartPageService($pdo);
         $translator = $request->getAttribute('translator');
         $translationService = $translator instanceof TranslationService ? $translator : null;
+        $domainService = new DomainStartPageService($pdo);
         $domainStartPageOptions = $domainService->getStartPageOptions($pageSvc);
         if ($translationService !== null) {
             $domainStartPageOptions['help'] = $translationService->translate('option_help_page');
