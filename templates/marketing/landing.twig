@@ -192,6 +192,10 @@
           anchor.textContent = email;
         }
       });
+      var contactForm = document.getElementById('contact-form');
+      if (contactForm && !contactForm.hasAttribute('data-contact-endpoint')) {
+        contactForm.setAttribute('data-contact-endpoint', '{{ basePath }}/landing/contact');
+      }
     });
   </script>
 {% endblock %}

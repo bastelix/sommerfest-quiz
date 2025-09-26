@@ -288,6 +288,10 @@
           anchor.textContent = email;
         }
       });
+      var contactForm = document.getElementById('contact-form');
+      if (contactForm && !contactForm.hasAttribute('data-contact-endpoint')) {
+        contactForm.setAttribute('data-contact-endpoint', '{{ basePath }}/calserver/contact');
+      }
     });
   </script>
   <script src="{{ basePath }}/js/app.js"></script>
