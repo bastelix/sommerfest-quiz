@@ -32,7 +32,7 @@ class StripeWebhookControllerTest extends TestCase
     public function testCheckoutSessionCompletedCreatesTenantFromOnboardingData(): void
     {
         putenv('STRIPE_WEBHOOK_SECRET=whsec_test');
-        $pdo = new class('sqlite::memory:') extends \PDO {
+        $pdo = new class ('sqlite::memory:') extends \PDO {
             public function __construct(string $dsn)
             {
                 parent::__construct($dsn);
