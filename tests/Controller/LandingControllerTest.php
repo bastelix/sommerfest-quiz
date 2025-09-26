@@ -16,7 +16,7 @@ class LandingControllerTest extends TestCase
             $stmt = $pdo->prepare('INSERT INTO pages(slug,title,content) VALUES(?,?,?)');
             $content = <<<'HTML'
 <p>Landing <a href="/faq">FAQ</a></p>
-<form id="contact-form"><input type="text" name="name"></form>
+<form id="contact-form" data-contact-endpoint="/landing/contact"><input type="text" name="name"></form>
 HTML;
             $stmt->execute(['landing', 'Landing', $content]);
         } catch (\PDOException $e) {
@@ -97,6 +97,7 @@ HTML;
 
         $this->assertEquals(200, $response->getStatusCode());
         $this->assertStringContainsString('id="contact-form"', $body);
+        $this->assertStringContainsString('data-contact-endpoint="/landing/contact"', $body);
 
         putenv('SMTP_HOST');
         putenv('SMTP_USER');

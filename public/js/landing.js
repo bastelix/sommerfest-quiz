@@ -33,6 +33,35 @@ document.addEventListener('DOMContentLoaded', () => {
   const msg = document.getElementById('contact-modal-message');
   if (!form || !modal || !msg) return;
 
+  const basePath = (window.basePath || '').replace(/\/+$/, '');
+  const defaultEndpoint = `${basePath}/landing/contact`;
+
+  const resolveEndpoint = (value) => {
+    if (!value) {
+      return defaultEndpoint;
+    }
+
+    const trimmed = value.trim();
+    if (trimmed === '') {
+      return defaultEndpoint;
+    }
+
+    if (/^(https?:)?\/\//i.test(trimmed)) {
+      return trimmed;
+    }
+
+    if (basePath !== '' && trimmed.startsWith(`${basePath}/`)) {
+      return trimmed;
+    }
+
+    if (trimmed.startsWith('/')) {
+      return basePath === '' ? trimmed : `${basePath}${trimmed}`;
+    }
+
+    const prefix = basePath === '' ? '/' : `${basePath}/`;
+    return `${prefix}${trimmed.replace(/^\/+/, '')}`;
+  };
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
 
@@ -41,7 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hp && hp.value.trim() !== '') return;
 
     const data = new URLSearchParams(new FormData(form));
-    fetch(`${window.basePath}/landing/contact`, {
+    const endpoint = resolveEndpoint(form.dataset.contactEndpoint);
+    fetch(endpoint, {
       method: 'POST',
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       credentials: 'same-origin',

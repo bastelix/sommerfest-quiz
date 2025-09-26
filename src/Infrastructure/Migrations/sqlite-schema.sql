@@ -1453,7 +1453,9 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
         <p class="uk-text-lead uk-text-center" data-uk-scrollspy="cls: uk-animation-fade; delay: 150">Ob Testzugang, Angebot oder individuelle Beratung – wir melden uns garantiert persönlich zurück.</p>
         <div class="uk-grid uk-child-width-1-2@m uk-grid-large uk-flex-top" data-uk-grid data-uk-scrollspy="target: > div; cls: uk-animation-slide-right-small; delay: 150">
           <div>
-                          <form id="contact-form" class="uk-form-stacked uk-width-large uk-margin-auto">
+                          <form id="contact-form"
+                                class="uk-form-stacked uk-width-large uk-margin-auto"
+                                data-contact-endpoint="{{ basePath }}/calserver/contact">
                 <div class="uk-margin">
                   <label class="uk-form-label" for="form-name">Ihr Name</label>
                   <input class="uk-input" id="form-name" name="name" type="text" required>
