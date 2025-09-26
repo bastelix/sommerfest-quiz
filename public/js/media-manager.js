@@ -130,7 +130,11 @@ ready(() => {
       filterFolder: 'Filter by folder',
       allFolders: 'All folders',
       noFolder: 'Without folder',
-      clearFilters: 'Reset filters'
+      clearFilters: 'Reset filters',
+      copyUrl: 'Copy URL',
+      copyUrlSuccess: 'Link copied to clipboard.',
+      copyUrlFallback: 'Copy the URL manually from the field.',
+      copyUrlError: 'Copy failed. Copy the link manually.'
     };
 
     const translations = {
@@ -170,6 +174,9 @@ ready(() => {
     const previewSize = root.querySelector('[data-media-preview-size]');
     const previewModified = root.querySelector('[data-media-preview-modified]');
     const previewActions = root.querySelector('[data-media-preview-actions]');
+    const previewUrlContainer = root.querySelector('[data-media-preview-url]');
+    const previewUrlInput = root.querySelector('[data-media-preview-url-input]');
+    const previewCopyButton = root.querySelector('[data-media-preview-copy]');
     const previewDownload = root.querySelector('[data-media-download]');
     const previewRename = root.querySelector('[data-media-rename]');
     const previewDelete = root.querySelector('[data-media-delete]');
@@ -301,6 +308,12 @@ ready(() => {
         previewPlaceholder.hidden = false;
         previewMeta.hidden = true;
         previewActions.hidden = true;
+        if (previewUrlContainer) previewUrlContainer.hidden = true;
+        if (previewUrlInput) previewUrlInput.value = '';
+        if (previewCopyButton) {
+          previewCopyButton.disabled = true;
+          previewCopyButton.setAttribute('aria-disabled', 'true');
+        }
         if (previewDownload) {
           previewDownload.href = '#';
           previewDownload.removeAttribute('download');
@@ -310,6 +323,7 @@ ready(() => {
       }
       previewPlaceholder.hidden = true;
       const url = withBase(file.url || file.path || '');
+      const hasUrl = !!url;
       previewImage.src = url;
       previewImage.alt = `${translations.preview}: ${file.name}`;
       previewImage.hidden = false;
@@ -318,11 +332,53 @@ ready(() => {
       if (previewModified) previewModified.textContent = formatDate(file.modified);
       previewMeta.hidden = false;
       previewActions.hidden = false;
+      if (previewUrlInput) {
+        previewUrlInput.value = hasUrl ? url : '';
+      }
+      if (previewUrlContainer) {
+        previewUrlContainer.hidden = !hasUrl;
+      }
+      if (previewCopyButton) {
+        previewCopyButton.disabled = !hasUrl;
+        previewCopyButton.setAttribute('aria-disabled', previewCopyButton.disabled ? 'true' : 'false');
+      }
       if (previewDownload) {
         previewDownload.href = url || '#';
         previewDownload.setAttribute('download', file.name || '');
       }
       renderMetadataEditor(file);
+    }
+
+    async function handleCopyUrl() {
+      const value = previewUrlInput?.value?.trim();
+      if (!value) {
+        return;
+      }
+      if (
+        typeof navigator !== 'undefined' &&
+        navigator.clipboard &&
+        typeof navigator.clipboard.writeText === 'function'
+      ) {
+        try {
+          await navigator.clipboard.writeText(value);
+          notify(translations.copyUrlSuccess || translations.metadataSaved, 'success');
+          return;
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      try {
+        previewUrlInput?.focus?.();
+        previewUrlInput?.select?.();
+      } catch (err) {
+        console.error(err);
+      }
+      notify(
+        translations.copyUrlFallback ||
+          translations.copyUrlError ||
+          translations.requestFailed,
+        'warning'
+      );
     }
 
     function updateMetadataControlsState(file) {
@@ -1094,6 +1150,10 @@ ready(() => {
         event.preventDefault();
         handleSaveFolder();
       }
+    });
+
+    previewCopyButton?.addEventListener('click', () => {
+      handleCopyUrl();
     });
 
     previewRename?.addEventListener('click', () => {
