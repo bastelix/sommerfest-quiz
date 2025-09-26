@@ -653,7 +653,6 @@ VALUES (
                                     <a class="uk-button uk-button-text uk-margin-top" href="#">
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
-                  <p class="muted uk-text-small uk-margin-top">Kein Kundenportal im Einsatz.</p>
                 </div>
                 <div class="usecase-visual uk-margin-top">
                   <div class="uk-height-medium uk-background-muted uk-border-rounded uk-flex uk-flex-middle uk-flex-center">
