@@ -91,6 +91,7 @@ INSERT OR IGNORE INTO settings(key, value) VALUES('registration_enabled', '0');
 CREATE TABLE IF NOT EXISTS domain_start_pages (
     domain TEXT PRIMARY KEY,
     start_page TEXT NOT NULL,
+    email TEXT,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 

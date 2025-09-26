@@ -29,19 +29,15 @@ class DomainStartPageService
      */
     public function getStartPage(string $host): ?string
     {
-        $normalized = $this->normalizeDomain($host);
-        if ($normalized === '') {
+        $config = $this->getDomainConfig($host);
+
+        if ($config === null) {
             return null;
         }
 
-        $stmt = $this->pdo->prepare('SELECT start_page FROM domain_start_pages WHERE domain = ?');
-        $stmt->execute([$normalized]);
-        $value = $stmt->fetchColumn();
-        if ($value === false || $value === null) {
-            return null;
-        }
+        $startPage = (string) ($config['start_page'] ?? '');
 
-        return (string) $value;
+        return $startPage === '' ? null : $startPage;
     }
 
     /**
@@ -49,26 +45,42 @@ class DomainStartPageService
      */
     public function saveStartPage(string $domain, string $startPage): void
     {
+        $this->saveDomainConfig($domain, $startPage, null);
+    }
+
+    /**
+     * Persist or update the configuration for a given domain.
+     */
+    public function saveDomainConfig(string $domain, string $startPage, ?string $email = null): void
+    {
         $normalized = $this->normalizeDomain($domain);
         if ($normalized === '') {
             throw new PDOException('Invalid domain supplied');
         }
 
+        $emailValue = $email;
+        if ($emailValue !== null) {
+            $emailValue = trim($emailValue);
+            if ($emailValue === '') {
+                $emailValue = null;
+            }
+        }
+
         $stmt = $this->pdo->prepare(
-            'INSERT INTO domain_start_pages(domain, start_page) VALUES(?, ?)
-            ON CONFLICT(domain) DO UPDATE SET start_page = excluded.start_page'
+            'INSERT INTO domain_start_pages(domain, start_page, email) VALUES(?, ?, ?)
+            ON CONFLICT(domain) DO UPDATE SET start_page = excluded.start_page, email = excluded.email'
         );
-        $stmt->execute([$normalized, $startPage]);
+        $stmt->execute([$normalized, $startPage, $emailValue]);
     }
 
     /**
      * Fetch all configured domain mappings.
      *
-     * @return array<string,string> Associative array of domain => start_page
+     * @return array<string,array{start_page:string,email:?string}> Associative array of domain => config
      */
     public function getAllMappings(): array
     {
-        $stmt = $this->pdo->query('SELECT domain, start_page FROM domain_start_pages');
+        $stmt = $this->pdo->query('SELECT domain, start_page, email FROM domain_start_pages');
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
         $mappings = [];
@@ -78,10 +90,53 @@ class DomainStartPageService
             if ($domain === '' || $page === '') {
                 continue;
             }
-            $mappings[$domain] = $page;
+            $email = null;
+            if (array_key_exists('email', $row) && $row['email'] !== null) {
+                $email = (string) $row['email'];
+            }
+            $mappings[$domain] = [
+                'start_page' => $page,
+                'email' => $email,
+            ];
         }
 
         return $mappings;
+    }
+
+    /**
+     * Fetch the stored configuration for a domain.
+     *
+     * @return array{domain:string,start_page:string,email:?string}|null
+     */
+    public function getDomainConfig(string $domain): ?array
+    {
+        $normalized = $this->normalizeDomain($domain);
+        if ($normalized === '') {
+            return null;
+        }
+
+        $stmt = $this->pdo->prepare('SELECT domain, start_page, email FROM domain_start_pages WHERE domain = ?');
+        $stmt->execute([$normalized]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            return null;
+        }
+
+        $startPage = isset($row['start_page']) ? (string) $row['start_page'] : '';
+        if ($startPage === '') {
+            return null;
+        }
+
+        $email = null;
+        if (array_key_exists('email', $row) && $row['email'] !== null) {
+            $email = (string) $row['email'];
+        }
+
+        return [
+            'domain' => $normalized,
+            'start_page' => $startPage,
+            'email' => $email,
+        ];
     }
 
     /**

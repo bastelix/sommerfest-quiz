@@ -109,6 +109,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const domainStartPageTypeLabels = window.domainStartPageTypeLabels || {};
   const transDomainStartPageSaved = window.transDomainStartPageSaved || 'Startseite gespeichert';
   const transDomainStartPageError = window.transDomainStartPageError || 'Fehler beim Speichern';
+  const transDomainStartPageInvalidEmail = window.transDomainStartPageInvalidEmail || transDomainStartPageError;
   let mainDomainNormalized = '';
   let domainStartPageData = [];
   let domainStartPageUpdater = null;
@@ -568,7 +569,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (domainStartPageTable) {
     const tbody = domainStartPageTable.querySelector('tbody');
-    const columnCount = domainStartPageTable.querySelectorAll('thead th').length || 3;
+    const columnCount = domainStartPageTable.querySelectorAll('thead th').length || 4;
     const messages = {
       loading: domainStartPageTable.dataset.loading || '',
       empty: domainStartPageTable.dataset.empty || '',
@@ -623,6 +624,14 @@ document.addEventListener('DOMContentLoaded', function () {
         selectCell.appendChild(select);
         tr.appendChild(selectCell);
 
+        const emailCell = document.createElement('td');
+        const emailInput = document.createElement('input');
+        emailInput.type = 'email';
+        emailInput.className = 'uk-input';
+        emailInput.value = typeof item.email === 'string' ? item.email : '';
+        emailCell.appendChild(emailInput);
+        tr.appendChild(emailCell);
+
         const typeCell = document.createElement('td');
         typeCell.textContent = domainStartPageTypeLabels[item.type] || item.type;
         tr.appendChild(typeCell);
@@ -631,11 +640,24 @@ document.addEventListener('DOMContentLoaded', function () {
           const previous = item.start_page;
           const newValue = select.value;
           select.disabled = true;
-          domainStartPageUpdater(item.normalized, newValue)
-            .then(() => {
-              item.start_page = newValue;
+          const payload = {
+            domain: item.normalized,
+            start_page: newValue,
+            email: emailInput.value.trim()
+          };
+          domainStartPageUpdater(payload)
+            .then(data => {
+              const config = data?.config || null;
+              if (config) {
+                item.start_page = config.start_page || newValue;
+                item.email = typeof config.email === 'string' ? config.email : '';
+                emailInput.value = item.email || '';
+              } else {
+                item.start_page = newValue;
+              }
+              select.value = item.start_page;
               if (item.type === 'main') {
-                settingsInitial.home_page = newValue;
+                settingsInitial.home_page = item.start_page;
               }
               notify(transDomainStartPageSaved, 'success');
             })
@@ -648,21 +670,62 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
 
+        emailInput.addEventListener('change', () => {
+          const previous = typeof item.email === 'string' ? item.email : '';
+          const newValue = emailInput.value.trim();
+          if (newValue === previous) {
+            emailInput.value = previous;
+            return;
+          }
+
+          emailInput.disabled = true;
+          const payload = {
+            domain: item.normalized,
+            start_page: item.start_page,
+            email: newValue
+          };
+          domainStartPageUpdater(payload)
+            .then(data => {
+              const config = data?.config || null;
+              if (config) {
+                item.start_page = config.start_page || item.start_page;
+                item.email = typeof config.email === 'string' ? config.email : '';
+              } else {
+                item.email = newValue;
+              }
+              select.value = item.start_page;
+              emailInput.value = item.email || '';
+              notify(transDomainStartPageSaved, 'success');
+            })
+            .catch(err => {
+              emailInput.value = previous;
+              notify(err.message || transDomainStartPageError, 'danger');
+            })
+            .finally(() => {
+              emailInput.disabled = false;
+            });
+        });
+
         tbody.appendChild(tr);
       });
     };
 
-    domainStartPageUpdater = (domain, startPage) => {
+    domainStartPageUpdater = payload => {
       return apiFetch('/admin/domain-start-pages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ domain, start_page: startPage })
+        body: JSON.stringify(payload)
       }).then(res => {
-        if (!res.ok) {
-          return res.json().catch(() => ({})).then(data => {
-            throw new Error(data.error || transDomainStartPageError);
+        return res
+          .json()
+          .catch(() => ({}))
+          .then(data => {
+            if (!res.ok) {
+              const fallback = res.status === 422 ? transDomainStartPageInvalidEmail : transDomainStartPageError;
+              throw new Error(data.error || fallback);
+            }
+            return data;
           });
-        }
       });
     };
 
@@ -686,6 +749,10 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(data => {
           domainStartPageData = Array.isArray(data?.domains) ? data.domains : [];
+          domainStartPageData = domainStartPageData.map(item => ({
+            ...item,
+            email: typeof item.email === 'string' ? item.email : ''
+          }));
           mainDomainNormalized = typeof data?.main === 'string' ? data.main : '';
           const mainEntry = domainStartPageData.find(it => it.type === 'main');
           if (mainEntry) {

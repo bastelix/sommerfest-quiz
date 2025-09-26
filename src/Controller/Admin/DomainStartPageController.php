@@ -6,6 +6,7 @@ namespace App\Controller\Admin;
 
 use App\Service\DomainStartPageService;
 use App\Service\SettingsService;
+use App\Service\TranslationService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -34,22 +35,66 @@ class DomainStartPageController
         $mainNormalized = $this->domainService->normalizeDomain((string) $mainDomain);
         $defaultMain = $this->settingsService->get('home_page', 'help');
 
-        $items = [];
+        $combined = [];
         foreach ($domains as $item) {
-            $normalized = $item['normalized'];
-            $type = $item['type'];
-            $startPage = $mappings[$normalized] ?? null;
-            if ($type === 'main' && ($startPage === null || $startPage === '')) {
+            $combined[$item['normalized']] = [
+                'domain' => $item['domain'],
+                'normalized' => $item['normalized'],
+                'type' => $item['type'],
+                'start_page' => null,
+                'email' => null,
+            ];
+        }
+
+        foreach ($mappings as $domain => $config) {
+            if (!isset($combined[$domain])) {
+                $combined[$domain] = [
+                    'domain' => $domain,
+                    'normalized' => $domain,
+                    'type' => 'custom',
+                    'start_page' => $config['start_page'] ?? null,
+                    'email' => $config['email'] ?? null,
+                ];
+                continue;
+            }
+
+            $combined[$domain]['start_page'] = $config['start_page'] ?? null;
+            $combined[$domain]['email'] = $config['email'] ?? null;
+        }
+
+        $ordered = [];
+        $normalizedOrder = array_map(static fn (array $item): string => $item['normalized'], $domains);
+        foreach ($normalizedOrder as $key) {
+            if (!isset($combined[$key])) {
+                continue;
+            }
+            $ordered[] = $combined[$key];
+            unset($combined[$key]);
+        }
+
+        if ($combined !== []) {
+            ksort($combined);
+            foreach ($combined as $item) {
+                $ordered[] = $item;
+            }
+        }
+
+        $items = [];
+        foreach ($ordered as $item) {
+            $startPage = $item['start_page'];
+            if ($item['type'] === 'main' && ($startPage === null || $startPage === '')) {
                 $startPage = $defaultMain;
             }
             if ($startPage === null || $startPage === '') {
                 $startPage = 'landing';
             }
+
             $items[] = [
                 'domain' => $item['domain'],
-                'normalized' => $normalized,
-                'type' => $type,
+                'normalized' => $item['normalized'],
+                'type' => $item['type'],
                 'start_page' => $startPage,
+                'email' => $item['email'] ?? null,
             ];
         }
 
@@ -65,6 +110,9 @@ class DomainStartPageController
 
     public function save(Request $request, Response $response): Response
     {
+        $translator = $request->getAttribute('translator');
+        $translationService = $translator instanceof TranslationService ? $translator : null;
+
         $data = $request->getParsedBody();
         if ($request->getHeaderLine('Content-Type') === 'application/json') {
             $data = json_decode((string) $request->getBody(), true);
@@ -75,8 +123,20 @@ class DomainStartPageController
 
         $domain = isset($data['domain']) ? (string) $data['domain'] : '';
         $startPage = isset($data['start_page']) ? (string) $data['start_page'] : '';
+        $email = isset($data['email']) ? trim((string) $data['email']) : '';
         if ($domain === '' || $startPage === '' || !in_array($startPage, DomainStartPageService::START_PAGE_OPTIONS, true)) {
             return $response->withStatus(400);
+        }
+
+        $emailValue = $email === '' ? null : $email;
+        if ($emailValue !== null && filter_var($emailValue, FILTER_VALIDATE_EMAIL) === false) {
+            $message = $translationService?->translate('notify_domain_start_page_invalid_email')
+                ?? 'Please provide a valid email address or leave the field empty.';
+            $response->getBody()->write(json_encode(['error' => $message]));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(422);
         }
 
         $mainDomain = getenv('MAIN_DOMAIN') ?: '';
@@ -96,12 +156,16 @@ class DomainStartPageController
             return $response->withStatus(404);
         }
 
-        $this->domainService->saveStartPage($normalized, $startPage);
+        $this->domainService->saveDomainConfig($normalized, $startPage, $emailValue);
         if ($type === 'main') {
             $this->settingsService->save(['home_page' => $startPage]);
         }
 
-        $response->getBody()->write(json_encode(['status' => 'ok']));
+        $config = $this->domainService->getDomainConfig($normalized);
+        $response->getBody()->write(json_encode([
+            'status' => 'ok',
+            'config' => $config,
+        ]));
         return $response->withHeader('Content-Type', 'application/json');
     }
 }
