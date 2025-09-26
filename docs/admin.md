@@ -68,6 +68,8 @@ Alle Bilder werden über den `ImageUploadService` verarbeitet. Globale Dateien l
 
 Die Qualität entspricht den Konstanten in `ImageUploadService` und sorgt für einheitlich komprimierte Dateien.
 
+Globale Dateien lassen sich direkt über `/uploads/<dateiname>` abrufen, beispielsweise damit Vorschaubilder im Medienmanager korrekt geladen werden können.
+
 Über `/admin/media` steht eine Medienbibliothek bereit, die globale und eventbezogene Uploads kapselt. Die Oberfläche listet alle Dateien mit Größe und Änderungsdatum auf, erlaubt eine Volltextsuche sowie das seitenweise Durchblättern (20 Einträge pro Seite). Uploads werden serverseitig auf 5 MB und die Formate PNG/JPG/WEBP begrenzt; fehlerhafte Anfragen liefern strukturierte Antworten mit einem `error`-Feld und den gültigen `limits`. Die gleichen Informationen stehen nach erfolgreichen Aktionen zur Verfügung, etwa nach dem Hochladen (`message: uploaded`) oder beim Umbenennen (`message: renamed`).
 
 Alle XHR-Endpunkte (`/admin/media/files`, `/admin/media/upload`, `/admin/media/rename`, `/admin/media/delete`) sind per CSRF-Token und `RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR)` abgesichert. Die JSON-Antworten enthalten neben der Dateiliste zusätzliche Metadaten (`mime`, `size`, `modified`) sowie die Upload-Limits, damit Clients die Vorgaben unmittelbar in der Oberfläche anzeigen können. Pfad-Traversal wird serverseitig verhindert, indem Dateinamen strikt normalisiert und nur bekannte Verzeichnisse zugelassen werden.
