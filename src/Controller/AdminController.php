@@ -22,6 +22,8 @@ use App\Service\TenantService;
 use App\Service\UrlService;
 use App\Service\UserService;
 use App\Service\VersionService;
+use App\Service\MediaLibraryService;
+use App\Service\ImageUploadService;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -205,6 +207,9 @@ class AdminController
             ? $seoPages[$selectedSeoPage->getId()]['config']
             : [];
 
+        $mediaService = new MediaLibraryService($configSvc, new ImageUploadService());
+        $mediaLimits = $mediaService->getLimits();
+
           return $view->render($response, 'admin.twig', [
               'config' => $cfg,
               'settings' => $settings,
@@ -231,6 +236,8 @@ class AdminController
               'username' => $_SESSION['user']['username'] ?? '',
               'csrf_token' => $csrf,
               'version' => $version,
+              'mediaLimits' => $mediaLimits,
+              'mediaEventUid' => $uid,
           ]);
     }
 

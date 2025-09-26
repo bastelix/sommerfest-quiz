@@ -528,19 +528,8 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->get('/admin/results', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/statistics', AdminController::class)->add(new RoleAuthMiddleware(...Roles::ALL));
     $app->get('/admin/logs', AdminLogsController::class)->add(new RoleAuthMiddleware(Roles::ADMIN));
-    $app->get('/admin/media', function (Request $request, Response $response): Response {
-        $controller = $request->getAttribute('adminMediaController');
-        if (!$controller instanceof AdminMediaController) {
-            $service = $request->getAttribute('mediaLibraryService');
-            $config = $request->getAttribute('configService');
-            if ($service instanceof MediaLibraryService && $config instanceof ConfigService) {
-                $controller = new AdminMediaController($service, $config);
-            } else {
-                return $response->withStatus(500);
-            }
-        }
-        return $controller->index($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR))->add(new CsrfMiddleware());
+    $app->get('/admin/media', AdminController::class)
+        ->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
     $app->get('/admin/media/files', function (Request $request, Response $response): Response {
         $controller = $request->getAttribute('adminMediaController');
         if (!$controller instanceof AdminMediaController) {

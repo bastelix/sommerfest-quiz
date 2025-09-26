@@ -946,4 +946,73 @@ body.admin-page {
   white-space: normal;
 }
 
+/* Media manager */
+.media-tab .media-dropzone {
+  border: 2px dashed rgba(30, 135, 240, 0.35);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.7);
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.media-tab .media-dropzone.is-dragover {
+  border-color: rgba(30, 135, 240, 0.8);
+  background: rgba(30, 135, 240, 0.12);
+}
+
+.media-tab .media-dropzone.is-disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.media-tab .media-dropzone button {
+  font-weight: 600;
+}
+
+.media-preview-frame {
+  position: relative;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.media-preview-frame img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.media-preview-placeholder {
+  color: #666;
+  padding: 1rem;
+  text-align: center;
+}
+
+.media-table tr.is-active {
+  background: rgba(30, 135, 240, 0.1);
+}
+
+.media-table .media-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.media-upload-form .uk-progress[hidden] {
+  display: none;
+}
+
+.media-upload-form .uk-progress {
+  margin-bottom: 0.25rem;
+}
+
 
