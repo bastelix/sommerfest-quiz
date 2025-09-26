@@ -14,3 +14,5 @@ resources/fonts/*.ttf
 
 data/config.json
 data-default/config.json
+data/uploads/**
+!data/uploads/.gitkeep
