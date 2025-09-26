@@ -54,6 +54,7 @@ const context = {
     calls.push(path);
     return path;
   },
+  renderMetadataEditor: () => {},
   console
 };
 

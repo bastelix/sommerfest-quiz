@@ -19,6 +19,7 @@ class AdminMediaController
 {
     private MediaLibraryService $media;
     private ConfigService $config;
+    private const FOLDER_NONE = '__no_folder__';
 
     public function __construct(MediaLibraryService $media, ConfigService $config)
     {
@@ -75,10 +76,58 @@ class AdminMediaController
             return $this->jsonError($response, $e->getMessage(), 400);
         }
 
+        $availableTags = $this->collectTags($files);
+        $availableFolders = $this->collectFolders($files);
+
         if ($search !== '') {
             $files = array_values(array_filter(
                 $files,
                 static fn(array $file): bool => stripos((string) $file['name'], $search) !== false
+            ));
+        }
+
+        $rawTagFilters = $this->normalizeTags($params['tags'] ?? []);
+        $activeTagFilters = array_map(static fn(string $tag): string => mb_strtolower($tag), $rawTagFilters);
+        if ($activeTagFilters !== []) {
+            $files = array_values(array_filter(
+                $files,
+                static function (array $file) use ($activeTagFilters): bool {
+                    $fileTags = array_map(static fn(string $tag): string => mb_strtolower($tag),
+                        array_map('strval', $file['tags'] ?? [])
+                    );
+                    foreach ($activeTagFilters as $tag) {
+                        if (!in_array($tag, $fileTags, true)) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            ));
+        }
+
+        $folderParam = $params['folder'] ?? null;
+        $withoutFolder = is_string($folderParam)
+            && mb_strtolower(trim($folderParam)) === self::FOLDER_NONE;
+        $rawFolderFilter = $withoutFolder ? null : $this->normalizeFolder($folderParam);
+        if ($withoutFolder) {
+            $files = array_values(array_filter(
+                $files,
+                static function (array $file): bool {
+                    $folder = $file['folder'] ?? null;
+                    return !is_string($folder) || $folder === '';
+                }
+            ));
+        } elseif ($rawFolderFilter !== null) {
+            $files = array_values(array_filter(
+                $files,
+                static function (array $file) use ($rawFolderFilter): bool {
+                    $folder = $file['folder'] ?? null;
+                    if (!is_string($folder) || $folder === '') {
+                        return false;
+                    }
+                    return mb_strtolower($folder) === $rawFolderFilter;
+                }
             ));
         }
 
@@ -97,6 +146,14 @@ class AdminMediaController
                 'totalPages' => $totalPages,
             ],
             'limits' => $this->media->getLimits(),
+            'filters' => [
+                'tags' => $availableTags,
+                'folders' => $availableFolders,
+                'active' => [
+                    'tags' => $rawTagFilters,
+                    'folder' => $withoutFolder ? self::FOLDER_NONE : $rawFolderFilter,
+                ],
+            ],
         ];
 
         return $this->json($response, $payload);
@@ -124,10 +181,21 @@ class AdminMediaController
 
         $file = $files['file'];
 
+        $metadata = $this->extractMetadata($body);
+        $options = [];
+        $nameOption = (string) ($body['name'] ?? '');
+        if ($nameOption !== '') {
+            $options['name'] = $nameOption;
+        }
+        if ($metadata['tagsProvided']) {
+            $options['tags'] = $metadata['tags'];
+        }
+        if ($metadata['folderProvided']) {
+            $options['folder'] = $metadata['folder'];
+        }
+
         try {
-            $stored = $this->media->uploadFile($scope, $file, $eventUid !== '' ? $eventUid : null, [
-                'name' => (string) ($body['name'] ?? ''),
-            ]);
+            $stored = $this->media->uploadFile($scope, $file, $eventUid !== '' ? $eventUid : null, $options !== [] ? $options : null);
         } catch (RuntimeException $e) {
             return $this->jsonError($response, $e->getMessage(), 400);
         }
@@ -159,8 +227,23 @@ class AdminMediaController
             return $this->jsonError($response, 'invalid filename', 400);
         }
 
+        $metadata = $this->extractMetadata($data);
+        $options = [];
+        if ($metadata['tagsProvided']) {
+            $options['tags'] = $metadata['tags'];
+        }
+        if ($metadata['folderProvided']) {
+            $options['folder'] = $metadata['folder'];
+        }
+
         try {
-            $file = $this->media->renameFile($scope, $old, $new, $eventUid !== '' ? $eventUid : null);
+            $file = $this->media->renameFile(
+                $scope,
+                $old,
+                $new,
+                $eventUid !== '' ? $eventUid : null,
+                $options !== [] ? $options : null
+            );
         } catch (RuntimeException $e) {
             return $this->jsonError($response, $e->getMessage(), 400);
         }
@@ -199,6 +282,171 @@ class AdminMediaController
             'message' => 'deleted',
             'limits' => $this->media->getLimits(),
         ]);
+    }
+
+    /**
+     * @param list<array<string,mixed>> $files
+     * @return list<string>
+     */
+    private function collectTags(array $files): array
+    {
+        $tags = [];
+        foreach ($files as $file) {
+            $entries = $file['tags'] ?? [];
+            if (!is_array($entries)) {
+                continue;
+            }
+            foreach ($entries as $tag) {
+                if (!is_string($tag)) {
+                    continue;
+                }
+                $tag = trim($tag);
+                if ($tag === '') {
+                    continue;
+                }
+                $tags[mb_strtolower($tag)] = $tag;
+            }
+        }
+
+        if ($tags === []) {
+            return [];
+        }
+
+        ksort($tags, SORT_NATURAL);
+
+        return array_values($tags);
+    }
+
+    /**
+     * @param list<array<string,mixed>> $files
+     * @return list<string>
+     */
+    private function collectFolders(array $files): array
+    {
+        $folders = [];
+        foreach ($files as $file) {
+            $folder = $file['folder'] ?? null;
+            if (!is_string($folder) || $folder === '') {
+                continue;
+            }
+            $folders[$folder] = $folder;
+        }
+
+        if ($folders === []) {
+            return [];
+        }
+
+        ksort($folders, SORT_NATURAL);
+
+        return array_values($folders);
+    }
+
+    /**
+     * @param mixed $value
+     * @return list<string>
+     */
+    private function normalizeTags($value): array
+    {
+        if (is_string($value)) {
+            try {
+                $decoded = json_decode($value, true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $e) {
+                $decoded = null;
+            }
+            if (is_array($decoded)) {
+                $value = $decoded;
+            } else {
+                $value = preg_split('/[,;]/', $value) ?: [];
+            }
+        }
+
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $normalized = [];
+        $seen = [];
+        foreach ($value as $item) {
+            if (!is_string($item)) {
+                continue;
+            }
+            $tag = preg_replace('/[^\p{L}\p{N}\s_-]/u', '', $item) ?? '';
+            $tag = preg_replace('/\s+/', ' ', $tag) ?? '';
+            $tag = trim($tag);
+            if ($tag === '') {
+                continue;
+            }
+            $key = mb_strtolower($tag);
+            if (isset($seen[$key])) {
+                continue;
+            }
+            $seen[$key] = true;
+            $normalized[] = $tag;
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function normalizeFolder($value): ?string
+    {
+        if (is_array($value)) {
+            $value = reset($value);
+        }
+
+        if (!is_string($value)) {
+            return null;
+        }
+
+        $folder = str_replace('\\', '/', trim($value));
+        if ($folder === '') {
+            return null;
+        }
+
+        $segments = preg_split('#/+?#', $folder) ?: [];
+        $clean = [];
+        foreach ($segments as $segment) {
+            $segment = preg_replace('/[^\p{L}\p{N}_-]/u', '-', (string) $segment) ?? '';
+            $segment = trim($segment, '-_');
+            if ($segment === '' || $segment === '.' || $segment === '..') {
+                continue;
+            }
+            $clean[] = mb_strtolower($segment);
+        }
+
+        if ($clean === []) {
+            return null;
+        }
+
+        return implode('/', $clean);
+    }
+
+    /**
+     * @param array<string,mixed> $input
+     * @return array{tagsProvided:bool,tags:list<string>,folderProvided:bool,folder:?string}
+     */
+    private function extractMetadata(array $input): array
+    {
+        $result = [
+            'tagsProvided' => false,
+            'tags' => [],
+            'folderProvided' => false,
+            'folder' => null,
+        ];
+
+        if (array_key_exists('tags', $input)) {
+            $result['tagsProvided'] = true;
+            $result['tags'] = $this->normalizeTags($input['tags']);
+        }
+
+        if (array_key_exists('folder', $input)) {
+            $result['folderProvided'] = true;
+            $result['folder'] = $this->normalizeFolder($input['folder']);
+        }
+
+        return $result;
     }
 
     /**
