@@ -177,11 +177,37 @@
             <div class="calserver-hero-video">
               <span class="pill pill--accent calserver-hero-video__badge">Live-Vorschau</span>
               <div class="calserver-hero-video__frame">
-                <iframe src="https://www.youtube-nocookie.com/embed/ovHo2SF84u0?rel=0&playlist=ovHo2SF84u0&loop=1"
-                        title="calServer Vorstellung"
-                        loading="lazy"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowfullscreen></iframe>
+                <div class="calserver-hero-video__embed"
+                     data-calserver-video
+                     data-video-id="ovHo2SF84u0"
+                     data-video-title="calServer Vorstellung"
+                     data-video-params="rel=0&playlist=ovHo2SF84u0&loop=1">
+                  <div class="calserver-hero-video__placeholder" role="group" aria-label="YouTube Video">
+                    <div class="calserver-hero-video__preview" aria-hidden="true">
+                      <span class="uk-icon" uk-icon="icon: play-circle; ratio: 2"></span>
+                    </div>
+                    <p class="calserver-hero-video__hint">
+                      Mit Klick auf „YouTube laden“ stimmst du zu, dass Inhalte von YouTube geladen werden.
+                      Dabei können personenbezogene Daten übertragen werden.
+                    </p>
+                    <button class="uk-button uk-button-primary calserver-hero-video__consent-button"
+                            type="button"
+                            data-calserver-video-consent>
+                      YouTube laden
+                    </button>
+                    <p class="calserver-hero-video__privacy-note">
+                      Du kannst deine Einwilligung jederzeit über deine Browser-Einstellungen widerrufen.
+                    </p>
+                  </div>
+                </div>
+                <noscript>
+                  <p class="calserver-hero-video__noscript-note">
+                    JavaScript ist deaktiviert. Öffne das Video direkt auf
+                    <a href="https://www.youtube.com/watch?v=ovHo2SF84u0" target="_blank" rel="noopener">
+                      YouTube
+                    </a>.
+                  </p>
+                </noscript>
               </div>
               <div class="calserver-hero-video__meta">
                 <div class="calserver-hero-video__meta-text">
@@ -1535,5 +1561,6 @@
     });
   </script>
   <script src="{{ basePath }}/js/app.js"></script>
+  <script src="{{ basePath }}/js/calserver.js" defer></script>
   <script src="{{ basePath }}/js/landing.js" defer></script>
 {% endblock %}
