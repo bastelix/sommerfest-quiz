@@ -13,17 +13,33 @@ function ready(callback) {
 }
 
 function withBase(path) {
-  if (!path) return '';
-  if (/^https?:\/\//i.test(path)) {
-    return path;
+  if (!path && path !== 0) return '';
+
+  const normalized = String(path).trim();
+  if (!normalized) return '';
+
+  if (/^https?:\/\//i.test(normalized) || normalized.startsWith('//')) {
+    const url = new URL(normalized.startsWith('//') ? `https:${normalized}` : normalized);
+    if (url.origin !== window.location.origin) {
+      throw new Error(`Refusing to use cross-origin URL: ${normalized}`);
+    }
+    return `${url.pathname}${url.search}${url.hash}`;
   }
+
+  if (/^[a-z][a-z\d+\-.]*:/i.test(normalized)) {
+    throw new Error(`Unsupported URL scheme: ${normalized}`);
+  }
+
   if (!basePath) {
-    return path;
+    return normalized;
   }
-  if (path.startsWith('/')) {
-    return `${basePath}${path}`;
+
+  const trimmedBase = basePath.replace(/\/$/, '');
+  if (normalized.startsWith('/')) {
+    return `${trimmedBase}${normalized}`;
   }
-  return `${basePath.replace(/\/$/, '')}/${path}`;
+
+  return `${trimmedBase}/${normalized}`;
 }
 
 function getCsrfToken() {
