@@ -1012,39 +1012,106 @@
                 {% if selectedSlug == '' and pages|length > 0 %}
                   {% set selectedSlug = (pages|first).slug %}
                 {% endif %}
-                <div class="uk-margin">
-                  <label class="uk-form-label" for="pageContentSelect">Marketing-Seite</label>
-                  <div class="uk-form-controls">
-                    <select
-                      id="pageContentSelect"
-                      class="uk-select"
-                      data-selected="{{ selectedSlug }}"
-                    >
-                      {% for page in pages %}
-                        {% set pageLabel = page.title is not empty ? page.title : page.slug|replace({'-': ' '})|title %}
-                        <option
-                          value="{{ page.slug }}"
-                          {% if page.slug == selectedSlug %}selected{% endif %}
-                        >{{ pageLabel }}</option>
-                      {% endfor %}
-                    </select>
+                <div class="uk-margin uk-flex uk-flex-middle uk-flex-between uk-flex-wrap" data-page-controls>
+                  <div class="uk-flex-1@m uk-margin-small-right@m">
+                    <label class="uk-form-label" for="pageContentSelect">Marketing-Seite</label>
+                    <div class="uk-form-controls">
+                      <select
+                        id="pageContentSelect"
+                        class="uk-select"
+                        data-selected="{{ selectedSlug }}"
+                      >
+                        {% for page in pages %}
+                          {% set pageLabel = page.title is not empty ? page.title : page.slug|replace({'-': ' '})|title %}
+                          <option
+                            value="{{ page.slug }}"
+                            {% if page.slug == selectedSlug %}selected{% endif %}
+                          >{{ pageLabel }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                  <div class="uk-margin-small-top uk-margin-remove-top@m">
+                    <button
+                      type="button"
+                      class="uk-button uk-button-primary"
+                      id="pageCreateOpen"
+                      uk-toggle="target: #pageCreateModal"
+                    >Neue Seite</button>
                   </div>
                 </div>
-                {% for page in pages %}
-                <form class="page-form{% if page.slug != selectedSlug %} uk-hidden{% endif %}" data-slug="{{ page.slug }}">
-                  <input type="hidden" id="page_{{ page.slug }}" name="content" value="{{ page.content|e('html_attr') }}">
-                  <div class="page-editor" data-content="{{ page.content|e('html_attr') }}"></div>
-                  <div class="uk-margin-top">
-                    <button class="uk-button uk-button-primary save-page-btn">Speichern</button>
-                    <a
-                      class="uk-button uk-button-default preview-link"
-                      href="{{ basePath }}/{{ page.slug }}"
-                      target="_blank"
-                    >Vorschau</a>
-                  </div>
-                </form>
-                {% endfor %}
+                <div id="pageFormsContainer">
+                  {% for page in pages %}
+                  <form class="page-form{% if page.slug != selectedSlug %} uk-hidden{% endif %}" data-slug="{{ page.slug }}">
+                    <input type="hidden" id="page_{{ page.slug }}" name="content" value="{{ page.content|e('html_attr') }}">
+                    <div class="page-editor" data-content="{{ page.content|e('html_attr') }}"></div>
+                    <div class="uk-margin-top">
+                      <button class="uk-button uk-button-primary save-page-btn">Speichern</button>
+                      <a
+                        class="uk-button uk-button-default preview-link"
+                        href="{{ basePath }}/{{ page.slug }}"
+                        target="_blank"
+                      >Vorschau</a>
+                    </div>
+                  </form>
+                  {% endfor %}
+                </div>
               {% endif %}
+              <div id="pageCreateModal" class="uk-flex-top" uk-modal>
+                <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
+                  <button class="uk-modal-close-default" type="button" uk-close></button>
+                  <h2 class="uk-modal-title">Neue Seite erstellen</h2>
+                  <div id="pageCreateMessage" class="uk-alert" hidden></div>
+                  <form id="pageCreateForm" class="uk-form-stacked">
+                    <div class="uk-margin">
+                      <label class="uk-form-label" for="newPageSlug">Slug</label>
+                      <div class="uk-form-controls">
+                        <input
+                          class="uk-input"
+                          id="newPageSlug"
+                          name="slug"
+                          type="text"
+                          maxlength="100"
+                          required
+                          pattern="[a-z0-9\-]+"
+                          placeholder="z. B. landing"
+                        >
+                        <small class="uk-text-meta">Nur Kleinbuchstaben, Zahlen und Bindestriche.</small>
+                      </div>
+                    </div>
+                    <div class="uk-margin">
+                      <label class="uk-form-label" for="newPageTitle">Titel</label>
+                      <div class="uk-form-controls">
+                        <input
+                          class="uk-input"
+                          id="newPageTitle"
+                          name="title"
+                          type="text"
+                          maxlength="150"
+                          required
+                          placeholder="Neue Marketing-Seite"
+                        >
+                      </div>
+                    </div>
+                    <div class="uk-margin">
+                      <label class="uk-form-label" for="newPageContent">Initiales HTML (optional)</label>
+                      <div class="uk-form-controls">
+                        <textarea
+                          class="uk-textarea"
+                          id="newPageContent"
+                          name="content"
+                          rows="6"
+                          placeholder="&lt;section class=&quot;uk-section&quot;&gt;...&lt;/section&gt;"
+                        ></textarea>
+                      </div>
+                    </div>
+                    <div class="uk-margin">
+                      <button type="button" class="uk-button uk-button-default uk-modal-close">Abbrechen</button>
+                      <button type="submit" class="uk-button uk-button-primary">Seite anlegen</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
             </li>
           </ul>
         </div>
@@ -1499,6 +1566,7 @@
     </div>
   </div>
 {% endblock %}
+
 
 {% block scripts %}
   <script src="{{ basePath }}/js/custom-icons.js"></script>

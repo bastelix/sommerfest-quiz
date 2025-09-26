@@ -52,6 +52,103 @@ class PageControllerTest extends TestCase
         session_destroy();
     }
 
+    public function testCreatePageSuccess(): void
+    {
+        $pdo = $this->getDatabase();
+        $app = $this->getAppInstance();
+
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $_SESSION['csrf_token'] = 'token';
+
+        $request = $this->createRequest('POST', '/admin/pages', [
+            'HTTP_ACCEPT' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => 'token',
+            'CONTENT_TYPE' => 'application/json',
+        ])->withParsedBody([
+            'slug' => 'marketing-neu',
+            'title' => 'Marketing Neu',
+            'content' => '<p>Start</p>',
+        ]);
+
+        $response = $app->handle($request);
+        $this->assertSame(201, $response->getStatusCode());
+
+        $payload = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($payload);
+        $this->assertArrayHasKey('page', $payload);
+        $page = $payload['page'];
+        $this->assertSame('marketing-neu', $page['slug']);
+        $this->assertSame('Marketing Neu', $page['title']);
+
+        $row = $pdo->query("SELECT slug, title, content FROM pages WHERE slug = 'marketing-neu'")->fetch(PDO::FETCH_ASSOC);
+        $this->assertNotFalse($row);
+        $this->assertSame('Marketing Neu', $row['title']);
+        $this->assertSame('<p>Start</p>', $row['content']);
+
+        session_destroy();
+    }
+
+    public function testCreatePageValidationErrors(): void
+    {
+        $app = $this->getAppInstance();
+
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $_SESSION['csrf_token'] = 'token';
+
+        $request = $this->createRequest('POST', '/admin/pages', [
+            'HTTP_ACCEPT' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => 'token',
+            'CONTENT_TYPE' => 'application/json',
+        ])->withParsedBody([
+            'slug' => '',
+            'title' => '',
+        ]);
+
+        $response = $app->handle($request);
+        $this->assertSame(422, $response->getStatusCode());
+
+        $payload = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($payload);
+        $this->assertArrayHasKey('errors', $payload);
+        $this->assertArrayHasKey('slug', $payload['errors']);
+        $this->assertArrayHasKey('title', $payload['errors']);
+
+        session_destroy();
+    }
+
+    public function testCreatePageDuplicateSlug(): void
+    {
+        $pdo = $this->getDatabase();
+        $this->seedPage($pdo, 'landing', 'Landing', '<p>landing</p>');
+
+        $app = $this->getAppInstance();
+
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $_SESSION['csrf_token'] = 'token';
+
+        $request = $this->createRequest('POST', '/admin/pages', [
+            'HTTP_ACCEPT' => 'application/json',
+            'HTTP_X_CSRF_TOKEN' => 'token',
+            'CONTENT_TYPE' => 'application/json',
+        ])->withParsedBody([
+            'slug' => 'landing',
+            'title' => 'Landing Copy',
+        ]);
+
+        $response = $app->handle($request);
+        $this->assertSame(409, $response->getStatusCode());
+
+        $payload = json_decode((string) $response->getBody(), true);
+        $this->assertIsArray($payload);
+        $this->assertArrayHasKey('error', $payload);
+        $this->assertStringContainsString('existiert bereits', (string) $payload['error']);
+
+        session_destroy();
+    }
+
     public function testInvalidSlug(): void
     {
         $app = $this->getAppInstance();

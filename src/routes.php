@@ -873,6 +873,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->sample($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
 
+    $app->post('/admin/pages', function (Request $request, Response $response) {
+        $controller = new PageController();
+        return $controller->create($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
     $app->get('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {
         $controller = new PageController();
         return $controller->edit($request, $response, $args);

@@ -6,7 +6,10 @@ namespace App\Service;
 
 use App\Domain\Page;
 use App\Infrastructure\Database;
+use InvalidArgumentException;
 use PDO;
+use PDOException;
+use RuntimeException;
 
 /**
  * Simple service for loading and saving static pages from the database.
@@ -30,6 +33,58 @@ class PageService
     {
         $stmt = $this->pdo->prepare('UPDATE pages SET content = ?, updated_at = CURRENT_TIMESTAMP WHERE slug = ?');
         $stmt->execute([$content, $slug]);
+    }
+
+    public function create(string $slug, string $title, string $content): Page
+    {
+        $normalizedSlug = strtolower(trim($slug));
+        if ($normalizedSlug === '') {
+            throw new InvalidArgumentException('Slug darf nicht leer sein.');
+        }
+        if (!preg_match('/^[a-z0-9][a-z0-9\-]*$/', $normalizedSlug)) {
+            throw new InvalidArgumentException('Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten.');
+        }
+        if (strlen($normalizedSlug) > 100) {
+            throw new InvalidArgumentException('Slug darf maximal 100 Zeichen lang sein.');
+        }
+
+        $normalizedTitle = trim($title);
+        if ($normalizedTitle === '') {
+            throw new InvalidArgumentException('Titel darf nicht leer sein.');
+        }
+        if (mb_strlen($normalizedTitle) > 150) {
+            throw new InvalidArgumentException('Titel darf maximal 150 Zeichen lang sein.');
+        }
+
+        $page = $this->findBySlug($normalizedSlug);
+        if ($page !== null) {
+            throw new RuntimeException('Eine Seite mit diesem Slug existiert bereits.');
+        }
+
+        $contentValue = (string) $content;
+
+        try {
+            $stmt = $this->pdo->prepare('INSERT INTO pages (slug, title, content) VALUES (?, ?, ?)');
+            $stmt->execute([$normalizedSlug, $normalizedTitle, $contentValue]);
+        } catch (PDOException $e) {
+            if (stripos($e->getMessage(), 'unique') !== false) {
+                throw new RuntimeException('Eine Seite mit diesem Slug existiert bereits.', 0, $e);
+            }
+
+            throw new RuntimeException('Seite konnte nicht erstellt werden.', 0, $e);
+        }
+
+        $id = (int) $this->pdo->lastInsertId();
+        if ($id <= 0) {
+            $created = $this->findBySlug($normalizedSlug);
+            if ($created !== null) {
+                return $created;
+            }
+
+            throw new RuntimeException('Seite konnte nach dem Speichern nicht geladen werden.');
+        }
+
+        return new Page($id, $normalizedSlug, $normalizedTitle, $contentValue);
     }
 
     /**
