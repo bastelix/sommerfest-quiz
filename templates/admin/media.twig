@@ -34,6 +34,10 @@
   'allFolders': t('option_media_all_folders'),
   'noFolder': t('option_media_no_folder'),
   'clearFilters': t('button_media_clear_filters'),
+  'copyUrl': t('button_media_copy_url'),
+  'copyUrlSuccess': t('message_media_url_copied'),
+  'copyUrlFallback': t('message_media_url_copy_fallback'),
+  'copyUrlError': t('error_media_url_copy_failed'),
 } %}
 {% set initialEventUid = mediaEventUid|default(event.uid|default('')) %}
 
@@ -245,6 +249,34 @@
             <dd data-media-preview-modified></dd>
           </div>
         </dl>
+        <div class="uk-margin-small-top" data-media-preview-url hidden>
+          <label class="uk-form-label uk-margin-small-bottom" for="mediaPreviewUrl">{{ t('label_media_file_url') }}</label>
+          <div class="uk-flex uk-flex-middle uk-grid-small" uk-grid>
+            <div class="uk-width-expand">
+              <input
+                id="mediaPreviewUrl"
+                class="uk-input uk-form-small"
+                type="text"
+                readonly
+                data-media-preview-url-input
+                aria-describedby="mediaPreviewUrlHelp"
+              >
+            </div>
+            <div class="uk-width-auto">
+              <button
+                type="button"
+                class="uk-button uk-button-default uk-button-small"
+                data-media-preview-copy
+                uk-tooltip
+                title="{{ t('tooltip_media_copy_url') }}"
+                aria-label="{{ t('aria_media_copy_url') }}"
+              >
+                {{ t('button_media_copy_url') }}
+              </button>
+            </div>
+          </div>
+          <div id="mediaPreviewUrlHelp" class="uk-text-meta">{{ t('help_media_copy_url') }}</div>
+        </div>
         <div class="media-metadata-editor uk-margin-top" data-media-metadata hidden>
           <h4 class="uk-heading-bullet">{{ t('label_media_file_tags') }}</h4>
           <div class="media-tag-list" data-media-meta-tags aria-live="polite"></div>
