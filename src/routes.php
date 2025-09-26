@@ -71,8 +71,7 @@ use App\Controller\Admin\LandingpageController;
 use App\Controller\Admin\DomainStartPageController;
 use App\Controller\Admin\DomainContactTemplateController;
 use App\Controller\TenantController;
-use App\Controller\Marketing\LandingController;
-use App\Controller\Marketing\CalserverController;
+use App\Controller\Marketing\MarketingPageController;
 use App\Controller\Marketing\ContactController;
 use App\Controller\RegisterController;
 use App\Controller\OnboardingController;
@@ -134,7 +133,9 @@ require_once __DIR__ . '/Controller/SettingsController.php';
 require_once __DIR__ . '/Controller/BackupController.php';
 require_once __DIR__ . '/Controller/UserController.php';
 require_once __DIR__ . '/Controller/TenantController.php';
+require_once __DIR__ . '/Controller/Marketing/MarketingPageController.php';
 require_once __DIR__ . '/Controller/Marketing/LandingController.php';
+require_once __DIR__ . '/Controller/Marketing/CalserverController.php';
 require_once __DIR__ . '/Controller/Marketing/ContactController.php';
 require_once __DIR__ . '/Controller/RegisterController.php';
 require_once __DIR__ . '/Controller/OnboardingController.php';
@@ -156,6 +157,34 @@ use App\Infrastructure\Migrations\Migrator;
 use Psr\Http\Server\RequestHandlerInterface;
 
 return function (\Slim\App $app, TranslationService $translator) {
+    $resolveMarketingAccess = static function (Request $request): array {
+        $domainType = $request->getAttribute('domainType');
+        if (!in_array($domainType, ['main', 'marketing'], true)) {
+            $host = strtolower($request->getUri()->getHost());
+            $mainDomain = strtolower((string) getenv('MAIN_DOMAIN'));
+            $marketingDomains = getenv('MARKETING_DOMAINS') ?: '';
+
+            $computed = 'tenant';
+            if ($mainDomain === '' || $host === $mainDomain) {
+                $computed = 'main';
+            } else {
+                $marketingList = array_filter(preg_split('/[\s,]+/', strtolower($marketingDomains)) ?: []);
+                $marketingList = array_map(
+                    static fn (string $domain): string => (string) preg_replace('/^www\./', '', $domain),
+                    $marketingList
+                );
+                $normalizedHost = (string) preg_replace('/^www\./', '', $host);
+                if (in_array($normalizedHost, $marketingList, true)) {
+                    $computed = 'marketing';
+                }
+            }
+
+            $request = $request->withAttribute('domainType', $computed);
+            $domainType = $computed;
+        }
+
+        return [$request, in_array($domainType, ['main', 'marketing'], true)];
+    };
     $app->add(function (Request $request, RequestHandlerInterface $handler) use ($translator) {
         if ($request->getUri()->getPath() === '/healthz') {
             return $handler->handle($request);
@@ -386,67 +415,29 @@ return function (\Slim\App $app, TranslationService $translator) {
             'csrf_token' => $csrf,
         ]);
     });
-    $app->get('/landing', function (Request $request, Response $response) {
-        $domainType = $request->getAttribute('domainType');
-        if ($domainType === null) {
-            $host = strtolower($request->getUri()->getHost());
-            $mainDomain = strtolower((string) getenv('MAIN_DOMAIN'));
-            $marketingDomains = getenv('MARKETING_DOMAINS') ?: '';
-
-            $domainType = 'tenant';
-            if ($mainDomain === '' || $host === $mainDomain) {
-                $domainType = 'main';
-            } else {
-                $marketingList = array_filter(preg_split('/[\s,]+/', strtolower($marketingDomains)) ?: []);
-                $marketingList = array_map(
-                    static fn (string $domain): string => (string) preg_replace('/^www\./', '', $domain),
-                    $marketingList
-                );
-                $normalizedHost = (string) preg_replace('/^www\./', '', $host);
-                if (in_array($normalizedHost, $marketingList, true)) {
-                    $domainType = 'marketing';
-                }
-            }
-
-            $request = $request->withAttribute('domainType', $domainType);
-        }
-
-        if (!in_array($domainType, ['main', 'marketing'], true)) {
+    $app->get('/landing', function (Request $request, Response $response) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
             return $response->withStatus(404);
         }
-        $controller = new LandingController();
+        $controller = new MarketingPageController('landing');
         return $controller($request, $response);
     });
-    $app->get('/calserver', function (Request $request, Response $response) {
-        $domainType = $request->getAttribute('domainType');
-        if ($domainType === null) {
-            $host = strtolower($request->getUri()->getHost());
-            $mainDomain = strtolower((string) getenv('MAIN_DOMAIN'));
-            $marketingDomains = getenv('MARKETING_DOMAINS') ?: '';
-
-            $domainType = 'tenant';
-            if ($mainDomain === '' || $host === $mainDomain) {
-                $domainType = 'main';
-            } else {
-                $marketingList = array_filter(preg_split('/[\s,]+/', strtolower($marketingDomains)) ?: []);
-                $marketingList = array_map(
-                    static fn (string $domain): string => (string) preg_replace('/^www\./', '', $domain),
-                    $marketingList
-                );
-                $normalizedHost = (string) preg_replace('/^www\./', '', $host);
-                if (in_array($normalizedHost, $marketingList, true)) {
-                    $domainType = 'marketing';
-                }
-            }
-
-            $request = $request->withAttribute('domainType', $domainType);
-        }
-
-        if (!in_array($domainType, ['main', 'marketing'], true)) {
+    $app->get('/calserver', function (Request $request, Response $response) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
             return $response->withStatus(404);
         }
-        $controller = new CalserverController();
+        $controller = new MarketingPageController('calserver');
         return $controller($request, $response);
+    });
+    $app->get('/m/{slug:[a-z0-9-]+}', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingPageController();
+        return $controller($request, $response, $args);
     });
     $app->post('/landing/contact', ContactController::class)
         ->add(new RateLimitMiddleware(3, 3600))
@@ -1728,4 +1719,13 @@ return function (\Slim\App $app, TranslationService $translator) {
         $location = 'https://adminer.' . $uri->getHost();
         return $response->withHeader('Location', $location)->withStatus(302);
     })->add(new RoleAuthMiddleware('admin'));
+
+    $app->get('/{slug:[a-z0-9-]+}', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed || $request->getAttribute('domainType') !== 'marketing') {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingPageController();
+        return $controller($request, $response, $args);
+    });
 };

@@ -91,4 +91,64 @@ class DomainAccessTest extends TestCase
             putenv('MAIN_DOMAIN=' . $old);
         }
     }
+
+    public function testMarketingSlugOnMarketingDomain(): void
+    {
+        $oldMain = getenv('MAIN_DOMAIN');
+        $oldMarketing = getenv('MARKETING_DOMAINS');
+        putenv('MAIN_DOMAIN=main.test');
+        putenv('MARKETING_DOMAINS=marketing.test');
+        $_ENV['MARKETING_DOMAINS'] = 'marketing.test';
+        $pdo = $this->getDatabase();
+        try {
+            $pdo->exec("INSERT INTO pages(slug,title,content) VALUES('landing','Landing','<p>Landing</p>')");
+        } catch (\PDOException $e) {
+            // Ignore duplicates when running tests multiple times.
+        }
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/landing');
+        $request = $request->withUri($request->getUri()->withHost('marketing.test'));
+        $response = $app->handle($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('<p>Landing', $body);
+        if ($oldMain === false) {
+            putenv('MAIN_DOMAIN');
+        } else {
+            putenv('MAIN_DOMAIN=' . $oldMain);
+        }
+        if ($oldMarketing === false) {
+            putenv('MARKETING_DOMAINS');
+            unset($_ENV['MARKETING_DOMAINS']);
+        } else {
+            putenv('MARKETING_DOMAINS=' . $oldMarketing);
+            $_ENV['MARKETING_DOMAINS'] = $oldMarketing;
+        }
+    }
+
+    public function testUnknownSlugOnMarketingDomainReturns404(): void
+    {
+        $oldMain = getenv('MAIN_DOMAIN');
+        $oldMarketing = getenv('MARKETING_DOMAINS');
+        putenv('MAIN_DOMAIN=main.test');
+        putenv('MARKETING_DOMAINS=marketing.test');
+        $_ENV['MARKETING_DOMAINS'] = 'marketing.test';
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/does-not-exist');
+        $request = $request->withUri($request->getUri()->withHost('marketing.test'));
+        $response = $app->handle($request);
+        $this->assertEquals(404, $response->getStatusCode());
+        if ($oldMain === false) {
+            putenv('MAIN_DOMAIN');
+        } else {
+            putenv('MAIN_DOMAIN=' . $oldMain);
+        }
+        if ($oldMarketing === false) {
+            putenv('MARKETING_DOMAINS');
+            unset($_ENV['MARKETING_DOMAINS']);
+        } else {
+            putenv('MARKETING_DOMAINS=' . $oldMarketing);
+            $_ENV['MARKETING_DOMAINS'] = $oldMarketing;
+        }
+    }
 }

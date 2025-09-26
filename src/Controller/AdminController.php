@@ -155,6 +155,7 @@ class AdminController
         $marketingPages = $this->filterMarketingPages($allPages);
         $translator = $request->getAttribute('translator');
         $translationService = $translator instanceof TranslationService ? $translator : null;
+        $domainService = new DomainStartPageService($pdo);
         $domainStartPageOptions = $domainService->getStartPageOptions($pageSvc);
         if ($translationService !== null) {
             $domainStartPageOptions['help'] = $translationService->translate('option_help_page');
@@ -219,7 +220,6 @@ class AdminController
             ?: $uri->getHost();
 
         $seoSvc = new PageSeoConfigService($pdo);
-        $domainService = new DomainStartPageService($pdo);
         $selectedSeoSlug = isset($params['seoPage']) ? (string) $params['seoPage'] : '';
         $selectedSeoPage = $this->selectSeoPage($marketingPages, $selectedSeoSlug);
         $seoPages = $this->buildSeoPageData(

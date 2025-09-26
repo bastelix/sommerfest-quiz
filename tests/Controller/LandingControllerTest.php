@@ -8,6 +8,22 @@ use Tests\TestCase;
 
 class LandingControllerTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $pdo = $this->getDatabase();
+        try {
+            $stmt = $pdo->prepare('INSERT INTO pages(slug,title,content) VALUES(?,?,?)');
+            $content = <<<'HTML'
+<p>Landing <a href="/faq">FAQ</a></p>
+<form id="contact-form"><input type="text" name="name"></form>
+HTML;
+            $stmt->execute(['landing', 'Landing', $content]);
+        } catch (\PDOException $e) {
+            // Ignore duplicates when running multiple tests with shared databases.
+        }
+    }
+
     public function testLandingPage(): void
     {
         $app = $this->getAppInstance();
@@ -95,5 +111,39 @@ class LandingControllerTest extends TestCase
         $response = $app->handle($request);
         $body = (string) $response->getBody();
         $this->assertStringContainsString('href="/faq"', $body);
+    }
+
+    public function testMarketingRouteAliasReturnsLandingPage(): void
+    {
+        $old = getenv('MAIN_DOMAIN');
+        putenv('MAIN_DOMAIN=main.test');
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/m/landing');
+        $request = $request->withUri($request->getUri()->withHost('main.test'));
+        $response = $app->handle($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('href="/faq"', $body);
+        if ($old === false) {
+            putenv('MAIN_DOMAIN');
+        } else {
+            putenv('MAIN_DOMAIN=' . $old);
+        }
+    }
+
+    public function testUnknownMarketingSlugReturns404(): void
+    {
+        $old = getenv('MAIN_DOMAIN');
+        putenv('MAIN_DOMAIN=main.test');
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/m/unknown');
+        $request = $request->withUri($request->getUri()->withHost('main.test'));
+        $response = $app->handle($request);
+        $this->assertEquals(404, $response->getStatusCode());
+        if ($old === false) {
+            putenv('MAIN_DOMAIN');
+        } else {
+            putenv('MAIN_DOMAIN=' . $old);
+        }
     }
 }
