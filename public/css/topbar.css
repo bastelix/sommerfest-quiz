@@ -69,6 +69,9 @@ body:not(.dark-mode) .topbar .uk-navbar-nav>li>a{
   box-sizing:border-box;cursor:pointer;
   transition:background .12s,border-color .12s,box-shadow .12s;
 }
+.config-menu #configMenuToggle.git-btn{
+  border-radius:0 0 6px 6px;
+}
 .git-btn:hover{
   background:var(--topbar-btn-bg-hover);
   border-color:var(--topbar-btn-border-hover);
