@@ -113,6 +113,30 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-
         0 16px 30px -20px rgba(19, 71, 179, 0.6);
 }
 
+body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary {
+    background: color-mix(in oklab, var(--calserver-primary) 82%, rgba(10, 16, 32, 0.92) 18%);
+    color: color-mix(in oklab, #ffffff 92%, var(--calserver-primary) 8%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 70%, rgba(255, 255, 255, 0.28));
+    box-shadow: 0 22px 46px -28px color-mix(in oklab, var(--calserver-primary) 72%, rgba(17, 37, 78, 0.85));
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:hover,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:hover {
+    background: color-mix(in oklab, var(--calserver-primary) 94%, rgba(12, 22, 42, 0.9) 6%);
+    color: #ffffff;
+    box-shadow: 0 28px 52px -26px color-mix(in oklab, var(--calserver-primary) 82%, rgba(17, 37, 78, 0.92));
+}
+
+body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:focus-visible,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--calserver-primary) 78%, rgba(126, 170, 255, 0.45));
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 68%, rgba(255, 255, 255, 0.24)),
+        0 24px 48px -26px color-mix(in oklab, var(--calserver-primary) 78%, rgba(17, 37, 78, 0.88));
+}
+
 body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default:hover,
 body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default:hover {
     background: color-mix(in oklab, #ffffff 74%, var(--calserver-primary) 26%);
