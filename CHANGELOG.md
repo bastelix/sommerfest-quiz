@@ -232,6 +232,7 @@
 - *(sticker)* Support padding in editor
 - Add mm grid snapping for sticker editor
 - Refine sticker QR size field
+- Allow marketing contact forms to define endpoint
 
 ### Fix
 
