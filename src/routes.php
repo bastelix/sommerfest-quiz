@@ -31,6 +31,7 @@ use App\Service\TenantService;
 use App\Service\NginxService;
 use App\Service\SettingsService;
 use App\Service\DomainStartPageService;
+use App\Service\DomainContactTemplateService;
 use App\Service\TranslationService;
 use App\Service\PasswordResetService;
 use App\Service\PasswordPolicy;
@@ -67,6 +68,7 @@ use App\Controller\SettingsController;
 use App\Controller\Admin\PageController;
 use App\Controller\Admin\LandingpageController;
 use App\Controller\Admin\DomainStartPageController;
+use App\Controller\Admin\DomainContactTemplateController;
 use App\Controller\TenantController;
 use App\Controller\Marketing\LandingController;
 use App\Controller\Marketing\CalserverController;
@@ -197,6 +199,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         $userService = new \App\Service\UserService($pdo);
         $settingsService = new \App\Service\SettingsService($pdo);
         $domainStartPageService = new DomainStartPageService($pdo);
+        $domainContactTemplateService = new DomainContactTemplateService($pdo, $domainStartPageService);
         $passwordResetService = new PasswordResetService(
             $pdo,
             3600,
@@ -251,6 +254,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('userController', new UserController($userService))
             ->withAttribute('settingsController', new SettingsController($settingsService))
             ->withAttribute('domainStartPageController', new DomainStartPageController($domainStartPageService, $settingsService))
+            ->withAttribute(
+                'domainContactTemplateController',
+                new DomainContactTemplateController($domainContactTemplateService, $domainStartPageService)
+            )
             ->withAttribute('qrController', new QrController(
                 $configService,
                 $teamService,
@@ -978,6 +985,18 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/admin/domain-start-pages', function (Request $request, Response $response) {
         /** @var DomainStartPageController $controller */
         $controller = $request->getAttribute('domainStartPageController');
+        return $controller->save($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->get('/admin/domain-contact-template/{domain}', function (Request $request, Response $response, array $args) {
+        /** @var DomainContactTemplateController $controller */
+        $controller = $request->getAttribute('domainContactTemplateController');
+        return $controller->show($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->post('/admin/domain-contact-template', function (Request $request, Response $response) {
+        /** @var DomainContactTemplateController $controller */
+        $controller = $request->getAttribute('domainContactTemplateController');
         return $controller->save($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 

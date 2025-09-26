@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use RuntimeException;
 use App\Infrastructure\Database;
+use App\Service\AuditLogger;
 use App\Service\TenantService;
+use RuntimeException;
+use Throwable;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mailer\Transport;
 use Symfony\Component\Mime\Email;
 use Twig\Environment;
+use Twig\Markup;
 
 /**
  * Simple wrapper around Symfony Mailer.
@@ -220,38 +223,128 @@ class MailService
     /**
      * Send contact form message to given recipient.
      */
-    public function sendContact(string $to, string $name, string $replyTo, string $message): void
+    public function sendContact(
+        string $to,
+        string $name,
+        string $replyTo,
+        string $message,
+        ?array $templateData = null,
+        ?string $fromEmail = null
+    ): void
     {
-        $html = $this->twig->render('emails/contact.twig', [
-            'name'     => $name,
-            'email'    => $replyTo,
-            'message'  => $message,
-            'base_url' => $this->baseUrl,
-        ]);
+        $context = $this->buildContactContext($name, $replyTo, $message);
+        $templateArray = is_array($templateData) ? $templateData : [];
+        $senderName = isset($templateArray['sender_name']) ? trim((string) $templateArray['sender_name']) : null;
+        $context['sender_name'] = $senderName ?? '';
+
+        $recipientHtml = $this->renderTemplateString($templateArray['recipient_html'] ?? null, $context);
+        $recipientText = $this->renderTemplateString($templateArray['recipient_text'] ?? null, $context);
+        $senderHtml = $this->renderTemplateString($templateArray['sender_html'] ?? null, $context);
+        $senderText = $this->renderTemplateString($templateArray['sender_text'] ?? null, $context);
+
+        if ($recipientHtml === null) {
+            $recipientHtml = $this->twig->render('emails/contact.twig', [
+                'name'     => $name,
+                'email'    => $replyTo,
+                'message'  => $message,
+                'base_url' => $this->baseUrl,
+            ]);
+        }
+        if ($recipientText === null) {
+            $recipientText = $this->buildDefaultRecipientText($name, $replyTo, $message);
+        }
+
+        if ($senderHtml === null) {
+            $senderHtml = $this->twig->render('emails/contact_copy.twig', [
+                'name'     => $name,
+                'message'  => $message,
+                'base_url' => $this->baseUrl,
+            ]);
+        }
+        if ($senderText === null) {
+            $senderText = $this->buildDefaultSenderText($name, $message);
+        }
+
+        $fromOverride = $this->determineContactFromAddress($fromEmail, $senderName);
 
         $email = (new Email())
-            ->from($this->from)
+            ->from($fromOverride)
             ->to($to)
             ->replyTo($replyTo)
             ->subject('Kontaktanfrage')
-            ->html($html);
+            ->html($recipientHtml)
+            ->text($recipientText);
 
         $this->mailer->send($email);
 
-        $copyHtml = $this->twig->render('emails/contact_copy.twig', [
-            'name'     => $name,
-            'message'  => $message,
-            'base_url' => $this->baseUrl,
-        ]);
-
         $copyEmail = (new Email())
-            ->from($this->from)
+            ->from($fromOverride)
             ->to($replyTo)
             ->subject('Ihre Kontaktanfrage')
-            ->html($copyHtml);
+            ->html($senderHtml)
+            ->text($senderText);
 
         $this->mailer->send($copyEmail);
 
         $this->audit?->log('contact_mail', ['from' => $replyTo]);
+    }
+
+    private function buildContactContext(string $name, string $replyTo, string $message): array
+    {
+        $safeMessage = nl2br(htmlspecialchars($message, ENT_QUOTES, 'UTF-8'));
+
+        return [
+            'name' => $name,
+            'email' => $replyTo,
+            'message' => $message,
+            'message_plain' => new Markup($message, 'UTF-8'),
+            'message_html' => new Markup($safeMessage, 'UTF-8'),
+            'base_url' => $this->baseUrl,
+        ];
+    }
+
+    private function renderTemplateString(?string $template, array $context): ?string
+    {
+        if ($template === null) {
+            return null;
+        }
+
+        $template = trim($template);
+        if ($template === '') {
+            return null;
+        }
+
+        try {
+            return $this->twig->createTemplate($template)->render($context);
+        } catch (Throwable $e) {
+            error_log('Failed to render contact template: ' . $e->getMessage());
+        }
+
+        return null;
+    }
+
+    private function determineContactFromAddress(?string $fromEmail, ?string $senderName): string
+    {
+        $email = $fromEmail !== null ? trim($fromEmail) : '';
+        if ($email === '') {
+            return $this->from;
+        }
+
+        $name = $senderName !== null ? trim($senderName) : '';
+        if ($name === '') {
+            return $email;
+        }
+
+        return sprintf('%s <%s>', $name, $email);
+    }
+
+    private function buildDefaultRecipientText(string $name, string $replyTo, string $message): string
+    {
+        return sprintf("Kontaktanfrage von %s (%s)\n\n%s", $name, $replyTo, $message);
+    }
+
+    private function buildDefaultSenderText(string $name, string $message): string
+    {
+        return sprintf("Hallo %s,\n\n%s\n\n%s", $name, 'vielen Dank für Ihre Nachricht. Hier ist eine Kopie Ihrer Anfrage:', $message);
     }
 }

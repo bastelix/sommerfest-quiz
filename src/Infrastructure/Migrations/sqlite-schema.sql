@@ -95,6 +95,17 @@ CREATE TABLE IF NOT EXISTS domain_start_pages (
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Domain contact templates
+CREATE TABLE IF NOT EXISTS domain_contact_templates (
+    domain TEXT PRIMARY KEY,
+    sender_name TEXT,
+    recipient_html TEXT,
+    recipient_text TEXT,
+    sender_html TEXT,
+    sender_text TEXT,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Teams
 CREATE TABLE IF NOT EXISTS teams (
     sort_order INTEGER NOT NULL,
