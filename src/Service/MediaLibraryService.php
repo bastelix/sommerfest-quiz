@@ -23,6 +23,8 @@ class MediaLibraryService
     /** @var list<string> */
     public const ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
 
+    private const METADATA_FILE = '.media-metadata.json';
+
     private ConfigService $config;
     private ImageUploadService $images;
 
@@ -40,6 +42,7 @@ class MediaLibraryService
     public function listFiles(string $scope, ?string $eventUid = null): array
     {
         [$dir, , $publicPath, $resolvedUid] = $this->resolveScope($scope, $eventUid);
+        $metadata = $this->readMetadata($dir);
 
         if (!is_dir($dir)) {
             return [];
@@ -55,11 +58,15 @@ class MediaLibraryService
             if ($entry === '.' || $entry === '..') {
                 continue;
             }
+            if ($entry === self::METADATA_FILE) {
+                continue;
+            }
             $path = $dir . DIRECTORY_SEPARATOR . $entry;
             if (!is_file($path)) {
                 continue;
             }
-            $files[] = $this->buildFileInfo($path, $publicPath, $scope, $resolvedUid);
+            $entryMeta = $metadata[$entry] ?? ['tags' => [], 'folder' => null];
+            $files[] = $this->buildFileInfo($path, $publicPath, $scope, $resolvedUid, $entryMeta);
         }
         closedir($handle);
 
@@ -120,7 +127,27 @@ class MediaLibraryService
         $fileName = basename($storedPath);
         $absolutePath = $dir . DIRECTORY_SEPARATOR . $fileName;
 
-        return $this->buildFileInfo($absolutePath, $publicPath, $scope, $resolvedUid);
+        $metadata = $this->readMetadata($dir);
+        $updateTags = is_array($options) && array_key_exists('tags', $options);
+        $updateFolder = is_array($options) && array_key_exists('folder', $options);
+        if ($updateTags || $updateFolder) {
+            $tags = $updateTags ? $this->normalizeTags($options['tags'] ?? []) : [];
+            $folder = $updateFolder ? $this->normalizeFolder($options['folder'] ?? null) : null;
+            $metadata = $this->applyMetadata(
+                $dir,
+                $metadata,
+                $fileName,
+                $tags,
+                $folder,
+                $updateTags,
+                $updateFolder,
+                null
+            );
+        }
+
+        $entryMeta = $metadata[$fileName] ?? ['tags' => [], 'folder' => null];
+
+        return $this->buildFileInfo($absolutePath, $publicPath, $scope, $resolvedUid, $entryMeta);
     }
 
     /**
@@ -130,7 +157,8 @@ class MediaLibraryService
         string $scope,
         string $oldName,
         string $newName,
-        ?string $eventUid = null
+        ?string $eventUid = null,
+        ?array $options = null
     ): array {
         $oldName = $this->sanitizeExistingName($oldName);
         $newName = trim($newName);
@@ -139,6 +167,7 @@ class MediaLibraryService
         }
 
         [$dir, , $publicPath, $resolvedUid] = $this->resolveScope($scope, $eventUid);
+        $metadata = $this->readMetadata($dir);
 
         $oldPath = $dir . DIRECTORY_SEPARATOR . $oldName;
         if (!is_file($oldPath)) {
@@ -163,20 +192,42 @@ class MediaLibraryService
 
         $targetName = $base . ($newExtension !== '' ? '.' . $newExtension : '');
         $targetPath = $dir . DIRECTORY_SEPARATOR . $targetName;
+        $updateTags = is_array($options) && array_key_exists('tags', $options);
+        $updateFolder = is_array($options) && array_key_exists('folder', $options);
+        $tags = $updateTags ? $this->normalizeTags($options['tags'] ?? []) : [];
+        $folder = $updateFolder ? $this->normalizeFolder($options['folder'] ?? null) : null;
 
-        if (strcasecmp($oldName, $targetName) === 0) {
-            return $this->buildFileInfo($oldPath, $publicPath, $scope, $resolvedUid);
+        $resultPath = $oldPath;
+        $resultName = $oldName;
+
+        if (strcasecmp($oldName, $targetName) !== 0) {
+            if (is_file($targetPath)) {
+                throw new RuntimeException('file exists');
+            }
+
+            if (!rename($oldPath, $targetPath)) {
+                throw new RuntimeException('rename failed');
+            }
+
+            unset($metadata[$oldName]);
+            $resultPath = $targetPath;
+            $resultName = $targetName;
         }
 
-        if (is_file($targetPath)) {
-            throw new RuntimeException('file exists');
-        }
+        $metadata = $this->applyMetadata(
+            $dir,
+            $metadata,
+            $resultName,
+            $tags,
+            $folder,
+            $updateTags,
+            $updateFolder,
+            $resultName !== $oldName ? $oldName : null
+        );
 
-        if (!rename($oldPath, $targetPath)) {
-            throw new RuntimeException('rename failed');
-        }
+        $entryMeta = $metadata[$resultName] ?? ['tags' => [], 'folder' => null];
 
-        return $this->buildFileInfo($targetPath, $publicPath, $scope, $resolvedUid);
+        return $this->buildFileInfo($resultPath, $publicPath, $scope, $resolvedUid, $entryMeta);
     }
 
     /**
@@ -192,6 +243,11 @@ class MediaLibraryService
         }
         if (!@unlink($path)) {
             throw new RuntimeException('delete failed');
+        }
+        $metadata = $this->readMetadata($dir);
+        if (isset($metadata[$name])) {
+            unset($metadata[$name]);
+            $this->persistMetadata($dir, $metadata);
         }
     }
 
@@ -271,13 +327,23 @@ class MediaLibraryService
     /**
      * @return array<string, mixed>
      */
-    private function buildFileInfo(string $path, string $publicPath, string $scope, ?string $eventUid): array
-    {
+    private function buildFileInfo(
+        string $path,
+        string $publicPath,
+        string $scope,
+        ?string $eventUid,
+        ?array $metadata = null
+    ): array {
         $name = basename($path);
         $size = filesize($path);
         $modified = filemtime($path) ?: time();
         $mime = mime_content_type($path) ?: 'application/octet-stream';
         $public = rtrim($publicPath, '/') . '/' . $name;
+
+        $meta = $metadata ?? ['tags' => [], 'folder' => null];
+        $tags = array_values(array_map('strval', $meta['tags'] ?? []));
+        $folder = $meta['folder'] ?? null;
+        $folder = $folder !== null ? (string) $folder : null;
 
         return [
             'name' => $name,
@@ -289,7 +355,194 @@ class MediaLibraryService
             'url' => $public,
             'extension' => strtolower((string) pathinfo($name, PATHINFO_EXTENSION)),
             'mime' => $mime,
+            'tags' => $tags,
+            'folder' => $folder,
         ];
+    }
+
+    /**
+     * @return array<string, array{tags:list<string>,folder:?string}>
+     */
+    private function readMetadata(string $dir): array
+    {
+        $path = $dir . DIRECTORY_SEPARATOR . self::METADATA_FILE;
+        if (!is_file($path)) {
+            return [];
+        }
+
+        $raw = @file_get_contents($path);
+        if ($raw === false || $raw === '') {
+            return [];
+        }
+
+        $data = json_decode($raw, true);
+        if (!is_array($data)) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($data as $name => $meta) {
+            if (!is_string($name) || $name === '') {
+                continue;
+            }
+            $normalized[$name] = $this->normalizeMetadataEntry(is_array($meta) ? $meta : []);
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @param array<string, array{tags:list<string>,folder:?string}> $metadata
+     */
+    private function persistMetadata(string $dir, array $metadata): void
+    {
+        $path = $dir . DIRECTORY_SEPARATOR . self::METADATA_FILE;
+        if ($metadata === []) {
+            if (is_file($path)) {
+                @unlink($path);
+            }
+            return;
+        }
+
+        $encoded = json_encode($metadata, JSON_PRETTY_PRINT);
+        if ($encoded === false) {
+            throw new RuntimeException('unable to encode metadata');
+        }
+
+        if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
+            throw new RuntimeException('unable to create metadata directory');
+        }
+
+        if (@file_put_contents($path, $encoded) === false) {
+            throw new RuntimeException('unable to write metadata');
+        }
+    }
+
+    /**
+     * @param array<string, array{tags:list<string>,folder:?string}> $metadata
+     * @return array<string, array{tags:list<string>,folder:?string}>
+     */
+    private function applyMetadata(
+        string $dir,
+        array $metadata,
+        string $name,
+        array $tags,
+        ?string $folder,
+        bool $updateTags,
+        bool $updateFolder,
+        ?string $oldName
+    ): array {
+        $current = $metadata[$name] ?? ['tags' => [], 'folder' => null];
+
+        if ($oldName !== null && isset($metadata[$oldName])) {
+            $current = $metadata[$oldName];
+            unset($metadata[$oldName]);
+        }
+
+        if ($updateTags) {
+            $current['tags'] = $tags;
+        }
+        if ($updateFolder) {
+            $current['folder'] = $folder;
+        }
+
+        $current = $this->normalizeMetadataEntry($current);
+
+        if ($current['tags'] === [] && $current['folder'] === null) {
+            unset($metadata[$name]);
+        } else {
+            $metadata[$name] = $current;
+        }
+
+        $this->persistMetadata($dir, $metadata);
+
+        return $metadata;
+    }
+
+    /**
+     * @param array<string,mixed>|null $meta
+     * @return array{tags:list<string>,folder:?string}
+     */
+    private function normalizeMetadataEntry(?array $meta): array
+    {
+        $meta = $meta ?? [];
+        $tags = $this->normalizeTags($meta['tags'] ?? []);
+        $folder = $this->normalizeFolder($meta['folder'] ?? null);
+
+        return [
+            'tags' => $tags,
+            'folder' => $folder,
+        ];
+    }
+
+    /**
+     * @param mixed $value
+     * @return list<string>
+     */
+    private function normalizeTags($value): array
+    {
+        $items = [];
+        if (is_string($value)) {
+            $items = preg_split('/[,;]/', $value) ?: [];
+        } elseif (is_array($value)) {
+            $items = $value;
+        } else {
+            return [];
+        }
+
+        $normalized = [];
+        $seen = [];
+        foreach ($items as $item) {
+            if (!is_string($item)) {
+                continue;
+            }
+            $tag = preg_replace('/[^\p{L}\p{N}\s_-]/u', '', $item) ?? '';
+            $tag = preg_replace('/\s+/', ' ', $tag) ?? '';
+            $tag = trim($tag);
+            if ($tag === '') {
+                continue;
+            }
+            $key = mb_strtolower($tag);
+            if (isset($seen[$key])) {
+                continue;
+            }
+            $seen[$key] = true;
+            $normalized[] = $tag;
+        }
+
+        return $normalized;
+    }
+
+    /**
+     * @param mixed $value
+     */
+    private function normalizeFolder($value): ?string
+    {
+        if (!is_string($value)) {
+            return null;
+        }
+
+        $folder = str_replace('\\', '/', trim($value));
+        if ($folder === '') {
+            return null;
+        }
+
+        $segments = preg_split('#/+?#', $folder) ?: [];
+        $clean = [];
+        foreach ($segments as $segment) {
+            $segment = preg_replace('/[^\p{L}\p{N}_-]/u', '-', (string) $segment) ?? '';
+            $segment = trim($segment, '-_');
+            if ($segment === '' || $segment === '.' || $segment === '..') {
+                continue;
+            }
+            $clean[] = mb_strtolower($segment);
+        }
+
+        if ($clean === []) {
+            return null;
+        }
+
+        return implode('/', $clean);
     }
 }
 

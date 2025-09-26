@@ -1,0 +1,224 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Service;
+
+use App\Service\ConfigService;
+use App\Service\ImageUploadService;
+use App\Service\MediaLibraryService;
+use PDO;
+use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\UploadedFileInterface;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use RuntimeException;
+use Slim\Psr7\Factory\StreamFactory;
+use Slim\Psr7\UploadedFile;
+
+class MediaLibraryServiceTest extends TestCase
+{
+    private string $tempDir;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->tempDir = sys_get_temp_dir() . '/media-lib-' . uniqid('', true);
+        if (!is_dir($this->tempDir) && !mkdir($this->tempDir, 0775, true) && !is_dir($this->tempDir)) {
+            throw new RuntimeException('unable to create temp directory');
+        }
+    }
+
+    protected function tearDown(): void
+    {
+        $this->removeDir($this->tempDir);
+        parent::tearDown();
+    }
+
+    public function testMetadataPersistenceRoundTrip(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $config = new class ($pdo, $this->tempDir) extends ConfigService {
+            private string $baseDir;
+            private string $activeUid = 'event-test';
+
+            public function __construct(PDO $pdo, string $baseDir)
+            {
+                $this->baseDir = $baseDir;
+                parent::__construct($pdo);
+            }
+
+            public function setActiveEventUid(string $uid): void
+            {
+                $this->activeUid = $uid;
+            }
+
+            public function getActiveEventUid(): string
+            {
+                return $this->activeUid;
+            }
+
+            public function getGlobalUploadsPath(): string
+            {
+                return '/uploads';
+            }
+
+            public function getGlobalUploadsDir(): string
+            {
+                $dir = $this->baseDir . '/uploads';
+                if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
+                    throw new RuntimeException('unable to create uploads directory');
+                }
+                return $dir;
+            }
+
+            public function getEventImagesPath(?string $uid = null): string
+            {
+                $uid = $uid ?? $this->activeUid;
+                return '/events/' . $uid . '/images';
+            }
+
+            public function getEventImagesDir(?string $uid = null): string
+            {
+                $uid = $uid ?? $this->activeUid;
+                $dir = $this->baseDir . '/events/' . $uid . '/images';
+                if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
+                    throw new RuntimeException('unable to create event directory');
+                }
+                return $dir;
+            }
+        };
+
+        $images = new class ($this->tempDir) extends ImageUploadService {
+            private string $baseDir;
+
+            public function __construct(string $baseDir)
+            {
+                $this->baseDir = rtrim($baseDir, '/');
+            }
+
+            public function validate(
+                UploadedFileInterface $file,
+                int $maxSize,
+                array $allowedExtensions,
+                array $allowedMimeTypes = []
+            ): void {
+                if ($file->getError() !== UPLOAD_ERR_OK) {
+                    throw new RuntimeException('upload error');
+                }
+                $size = $file->getSize();
+                if ($size !== null && $size > $maxSize) {
+                    throw new RuntimeException('file too large');
+                }
+                $extension = strtolower((string) pathinfo((string) $file->getClientFilename(), PATHINFO_EXTENSION));
+                if (!in_array($extension, $allowedExtensions, true)) {
+                    throw new RuntimeException('unsupported file type');
+                }
+                $mime = strtolower((string) $file->getClientMediaType());
+                if ($allowedMimeTypes !== [] && !in_array($mime, $allowedMimeTypes, true)) {
+                    throw new RuntimeException('invalid mime type');
+                }
+            }
+
+            public function saveUploadedFile(
+                UploadedFileInterface $file,
+                string $dir,
+                string $baseName,
+                ?int $maxWidth = null,
+                ?int $maxHeight = null,
+                int $quality = self::QUALITY_LOGO,
+                bool $autoOrient = false,
+                ?string $format = null
+            ): string {
+                $extension = strtolower((string) pathinfo((string) $file->getClientFilename(), PATHINFO_EXTENSION));
+                $filename = $baseName . '.' . $extension;
+                $relative = trim($dir, '/');
+                $targetDir = $this->baseDir . '/' . $relative;
+                if (!is_dir($targetDir) && !mkdir($targetDir, 0775, true) && !is_dir($targetDir)) {
+                    throw new RuntimeException('unable to create directory');
+                }
+                $stream = $file->getStream();
+                if (method_exists($stream, 'rewind')) {
+                    $stream->rewind();
+                }
+                $contents = $stream->getContents();
+                $path = $targetDir . '/' . $filename;
+                if (@file_put_contents($path, $contents) === false) {
+                    throw new RuntimeException('unable to write file');
+                }
+
+                return '/' . $relative . '/' . $filename;
+            }
+        };
+
+        $service = new MediaLibraryService($config, $images);
+
+        $tmp = tempnam($this->tempDir, 'img');
+        file_put_contents($tmp, 'test-image');
+        $stream = (new StreamFactory())->createStreamFromFile($tmp);
+        $uploaded = new UploadedFile($stream, 'banner.png', 'image/png', $stream->getSize(), UPLOAD_ERR_OK);
+
+        $uploadedInfo = $service->uploadFile(MediaLibraryService::SCOPE_GLOBAL, $uploaded, null, [
+            'name' => 'homepage-banner',
+            'tags' => ['Hero', 'Summer'],
+            'folder' => 'marketing/home',
+        ]);
+
+        $this->assertSame(['Hero', 'Summer'], $uploadedInfo['tags']);
+        $this->assertSame('marketing/home', $uploadedInfo['folder']);
+
+        $files = $service->listFiles(MediaLibraryService::SCOPE_GLOBAL);
+        $this->assertCount(1, $files);
+        $this->assertSame(['Hero', 'Summer'], $files[0]['tags']);
+        $this->assertSame('marketing/home', $files[0]['folder']);
+
+        $updated = $service->renameFile(
+            MediaLibraryService::SCOPE_GLOBAL,
+            $uploadedInfo['name'],
+            $uploadedInfo['name'],
+            null,
+            [
+                'tags' => ['Highlight'],
+                'folder' => 'marketing',
+            ]
+        );
+
+        $this->assertSame(['Highlight'], $updated['tags']);
+        $this->assertSame('marketing', $updated['folder']);
+
+        $listed = $service->listFiles(MediaLibraryService::SCOPE_GLOBAL);
+        $this->assertCount(1, $listed);
+        $this->assertSame(['Highlight'], $listed[0]['tags']);
+        $this->assertSame('marketing', $listed[0]['folder']);
+
+        $metadataPath = $config->getGlobalUploadsDir() . DIRECTORY_SEPARATOR . '.media-metadata.json';
+        $this->assertFileExists($metadataPath);
+
+        $service->deleteFile(MediaLibraryService::SCOPE_GLOBAL, $updated['name']);
+
+        $this->assertFileDoesNotExist($metadataPath);
+        $this->assertSame([], $service->listFiles(MediaLibraryService::SCOPE_GLOBAL));
+    }
+
+    private function removeDir(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+
+        $items = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($items as $item) {
+            if ($item->isDir()) {
+                @rmdir($item->getPathname());
+            } else {
+                @unlink($item->getPathname());
+            }
+        }
+
+        @rmdir($dir);
+    }
+}

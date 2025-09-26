@@ -24,6 +24,16 @@
   'nameLabel': t('column_media_name'),
   'selectedLabel': t('label_media_selected'),
   'uploading': t('status_media_uploading'),
+  'metadataSaved': t('message_media_metadata_saved'),
+  'addTag': t('button_media_add_tag'),
+  'clearFolder': t('button_media_clear_folder'),
+  'saveFolder': t('button_media_save_folder'),
+  'noTags': t('text_media_no_tags'),
+  'filterTags': t('label_media_filter_tags'),
+  'filterFolder': t('label_media_filter_folder'),
+  'allFolders': t('option_media_all_folders'),
+  'noFolder': t('option_media_no_folder'),
+  'clearFilters': t('button_media_clear_filters'),
 } %}
 {% set initialEventUid = mediaEventUid|default(event.uid|default('')) %}
 
@@ -76,6 +86,35 @@
               {{ t('button_media_refresh') }}
             </button>
           </div>
+          <div class="uk-width-1-1">
+            <label class="uk-form-label" for="mediaTagFilter">{{ t('label_media_filter_tags') }}</label>
+            <div
+              id="mediaTagFilter"
+              class="media-filter-tags uk-margin-small-top"
+              data-media-filter-tags
+              aria-live="polite"
+            ></div>
+          </div>
+          <div class="uk-width-1-1">
+            <label class="uk-form-label" for="mediaFolderFilter">{{ t('label_media_filter_folder') }}</label>
+            <div class="uk-flex uk-flex-middle uk-grid-small" uk-grid>
+              <div class="uk-width-expand">
+                <select
+                  id="mediaFolderFilter"
+                  class="uk-select uk-form-small"
+                  data-media-filter-folder
+                  aria-label="{{ t('label_media_filter_folder') }}"
+                >
+                  <option value="">{{ t('option_media_all_folders') }}</option>
+                </select>
+              </div>
+              <div class="uk-width-auto">
+                <button type="button" class="uk-button uk-button-default uk-button-small" data-media-clear-filters>
+                  {{ t('button_media_clear_filters') }}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
         <p class="uk-text-meta uk-margin-small-top" id="mediaScopeHint" data-media-event-hint hidden>
           {{ t('text_media_event_hint') }}
@@ -113,6 +152,28 @@
             placeholder="{{ t('label_media_name_placeholder') }}"
             data-media-name
           >
+        </div>
+        <div class="uk-margin-small">
+          <label class="uk-form-label" for="mediaUploadTags">{{ t('label_media_tags_optional') }}</label>
+          <input
+            id="mediaUploadTags"
+            class="uk-input"
+            type="text"
+            placeholder="{{ t('label_media_tags_placeholder') }}"
+            data-media-upload-tags
+          >
+          <div class="uk-text-meta">{{ t('help_media_tags') }}</div>
+        </div>
+        <div class="uk-margin-small">
+          <label class="uk-form-label" for="mediaUploadFolder">{{ t('label_media_folder_optional') }}</label>
+          <input
+            id="mediaUploadFolder"
+            class="uk-input"
+            type="text"
+            placeholder="{{ t('label_media_folder_placeholder') }}"
+            data-media-upload-folder
+          >
+          <div class="uk-text-meta">{{ t('help_media_folder') }}</div>
         </div>
         <div class="uk-margin-small">
           <span class="uk-text-meta" data-media-selected hidden></span>
@@ -184,6 +245,50 @@
             <dd data-media-preview-modified></dd>
           </div>
         </dl>
+        <div class="media-metadata-editor uk-margin-top" data-media-metadata hidden>
+          <h4 class="uk-heading-bullet">{{ t('label_media_file_tags') }}</h4>
+          <div class="media-tag-list" data-media-meta-tags aria-live="polite"></div>
+          <div class="uk-flex uk-flex-middle uk-grid-small uk-margin-small-top" uk-grid>
+            <div class="uk-width-expand">
+              <input
+                type="text"
+                class="uk-input uk-form-small"
+                placeholder="{{ t('label_media_tags_placeholder') }}"
+                data-media-meta-tag-input
+              >
+            </div>
+            <div class="uk-width-auto">
+              <button type="button" class="uk-button uk-button-default uk-button-small" data-media-meta-add-tag>
+                {{ t('button_media_add_tag') }}
+              </button>
+            </div>
+          </div>
+          <div class="uk-text-meta uk-margin-small-top">{{ t('help_media_tag_editor') }}</div>
+          <hr class="uk-divider-icon">
+          <label class="uk-form-label" for="mediaMetaFolder">{{ t('label_media_file_folder') }}</label>
+          <div class="uk-flex uk-flex-middle uk-grid-small" uk-grid>
+            <div class="uk-width-expand">
+              <input
+                id="mediaMetaFolder"
+                type="text"
+                class="uk-input uk-form-small"
+                placeholder="{{ t('label_media_folder_placeholder') }}"
+                data-media-meta-folder
+              >
+            </div>
+            <div class="uk-width-auto">
+              <button type="button" class="uk-button uk-button-default uk-button-small" data-media-meta-save-folder>
+                {{ t('button_media_save_folder') }}
+              </button>
+            </div>
+            <div class="uk-width-auto">
+              <button type="button" class="uk-button uk-button-text uk-button-small" data-media-meta-clear-folder>
+                {{ t('button_media_clear_folder') }}
+              </button>
+            </div>
+          </div>
+          <div class="uk-text-meta uk-margin-small-top">{{ t('help_media_folder') }}</div>
+        </div>
         <div class="uk-margin-top uk-flex uk-flex-wrap uk-grid-small media-preview-actions" uk-grid data-media-preview-actions hidden>
           <div>
             <a class="uk-button uk-button-default uk-button-small" data-media-download href="#" download>
