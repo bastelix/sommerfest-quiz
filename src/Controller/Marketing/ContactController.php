@@ -8,8 +8,6 @@ use App\Service\DomainContactTemplateService;
 use App\Service\DomainStartPageService;
 use App\Service\MailService;
 use App\Infrastructure\Database;
-use App\Service\DomainStartPageService;
-use App\Service\MailService;
 use App\Service\TenantService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
