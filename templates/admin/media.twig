@@ -1,150 +1,207 @@
-{% extends 'layout.twig' %}
+{# Media management tab content #}
+{% set limits = mediaLimits|default({}) %}
+{% set allowedExtensions = limits.allowedExtensions|default([]) %}
+{% set acceptValue = allowedExtensions ? '.' ~ allowedExtensions|join(',.') : '' %}
+{% set sizeMb = (limits.maxSize|default(0) / 1048576)|number_format(1, '.', '') %}
+{% set limitText = t('text_media_limits')|format(sizeMb, allowedExtensions|join(', ')) %}
+{% set translations = {
+  'renamePrompt': t('prompt_media_rename'),
+  'deleteConfirm': t('confirm_media_delete'),
+  'uploaded': t('message_media_uploaded'),
+  'renamed': t('message_media_renamed'),
+  'deleted': t('message_media_deleted'),
+  'requestFailed': t('error_media_request_failed'),
+  'eventRequired': t('error_media_event_required'),
+  'eventHint': t('text_media_event_hint'),
+  'noFiles': t('text_media_no_files'),
+  'download': t('action_download'),
+  'rename': t('button_media_rename'),
+  'delete': t('button_media_delete'),
+  'preview': t('label_media_preview'),
+  'selectPreview': t('text_media_select_preview'),
+  'sizeLabel': t('column_media_size'),
+  'modifiedLabel': t('column_media_modified'),
+  'nameLabel': t('column_media_name'),
+  'selectedLabel': t('label_media_selected'),
+  'uploading': t('status_media_uploading'),
+} %}
+{% set initialEventUid = mediaEventUid|default(event.uid|default('')) %}
 
-{% block title %}{{ t('tab_media') }}{% endblock %}
-
-{% block head %}
-  <meta name="csrf-token" content="{{ csrf_token }}">
-  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
-  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
-{% endblock %}
-
-{% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
-
-{% block body %}
-  {% embed 'topbar.twig' %}
-    {% block left %}
-      <a class="uk-navbar-toggle git-btn" uk-toggle="target: #qr-offcanvas" aria-label="{{ t('menu') }}">
-        <span uk-navbar-toggle-icon></span>
-      </a>
-      <a href="{{ basePath }}/admin/summary" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
-        QuizRace Admin
-      </a>
-    {% endblock %}
-    {% block offcanvas %}
-      <div id="qr-offcanvas" uk-offcanvas="overlay: true">
-        <div class="uk-offcanvas-bar">
-          <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
-          <h3 class="uk-margin-small">QuizRace</h3>
-          {% include 'admin/_nav.twig' %}
+<div class="media-tab" data-media-section>
+  <h2 class="uk-heading-bullet">{{ t('heading_media') }}</h2>
+  <p
+    class="uk-text-meta"
+    data-media-limit
+    data-template="{{ t('text_media_limits')|e('html_attr') }}"
+  >
+    {{ limitText }}
+  </p>
+  <div
+    class="uk-grid-large media-grid"
+    uk-grid
+    data-media-root
+    data-event-uid="{{ initialEventUid }}"
+    data-limits="{{ limits|json_encode|e('html_attr') }}"
+    data-translations="{{ translations|json_encode|e('html_attr') }}"
+  >
+    <div class="uk-width-1-1 uk-width-2-3@l media-column">
+      <div class="uk-card uk-card-default uk-card-small uk-card-body uk-margin media-controls-card">
+        <div class="uk-grid-small uk-flex-middle" uk-grid>
+          <div class="uk-width-1-1 uk-width-auto@m">
+            <label class="uk-form-label" for="mediaScope">{{ t('label_media_scope') }}</label>
+            <select
+              id="mediaScope"
+              class="uk-select uk-form-small"
+              data-media-scope
+              aria-describedby="mediaScopeHint"
+            >
+              <option value="global" selected>{{ t('label_media_scope_global') }}</option>
+              <option value="event"{% if initialEventUid == '' %} disabled{% endif %}>{{ t('label_media_scope_event') }}</option>
+            </select>
+          </div>
+          <div class="uk-width-1-1 uk-width-expand@m">
+            <label class="uk-form-label" for="mediaSearch">{{ t('label_media_search') }}</label>
+            <input
+              id="mediaSearch"
+              class="uk-input uk-form-small"
+              type="search"
+              placeholder="{{ t('label_media_search') }}"
+              aria-label="{{ t('label_media_search') }}"
+              data-media-search
+            >
+          </div>
+          <div class="uk-width-1-1 uk-width-auto@m uk-flex uk-flex-right@m uk-margin-small-top@s">
+            <button type="button" class="uk-button uk-button-default uk-button-small" data-media-refresh>
+              <span class="uk-margin-small-right" uk-icon="refresh" aria-hidden="true"></span>
+              {{ t('button_media_refresh') }}
+            </button>
+          </div>
         </div>
-      </div>
-    {% endblock %}
-    {% block headerbar %}
-      <div class="uk-container uk-container-large">
-        <h2 class="uk-heading-bullet">{{ t('heading_media') }}</h2>
-        <p class="uk-text-meta" id="mediaLimitText">
-          {{ t('text_media_limits')|format((limits.maxSize / 1048576)|number_format(1, '.', ''), limits.allowedExtensions|join(', ')) }}
+        <p class="uk-text-meta uk-margin-small-top" id="mediaScopeHint" data-media-event-hint hidden>
+          {{ t('text_media_event_hint') }}
         </p>
       </div>
-    {% endblock %}
-  {% endembed %}
-  <div class="uk-grid-collapse" uk-grid>
-    <aside class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
-      <div class="uk-card qr-card uk-card-body qr-sidebar-card">
-        {% include 'admin/_nav.twig' %}
-      </div>
-    </aside>
-    <main class="uk-width-expand uk-padding-small@xs uk-padding">
-      <div class="uk-container uk-container-expand">
-        <div class="uk-card uk-card-default uk-card-body uk-margin">
-          <div class="uk-grid-small uk-child-width-auto uk-flex-middle" uk-grid>
-            <div>
-              <label class="uk-form-label" for="mediaScope">{{ t('label_media_scope') }}</label>
-              <select id="mediaScope" class="uk-select uk-form-small">
-                <option value="global">{{ t('label_media_scope_global') }}</option>
-                <option value="event"{% if eventUid == '' %} disabled{% endif %}>{{ t('label_media_scope_event') }}</option>
-              </select>
-            </div>
-            <div>
-              <label class="uk-form-label" for="mediaSearch">{{ t('label_media_search') }}</label>
-              <input id="mediaSearch" class="uk-input uk-form-small" type="search" placeholder="{{ t('label_media_search') }}">
-            </div>
-            <div class="uk-flex uk-flex-middle">
-              <button id="mediaRefresh" type="button" class="uk-button uk-button-default uk-button-small uk-margin-small-top">{{ t('button_media_refresh') }}</button>
-            </div>
-          </div>
-          {% if eventUid == '' %}
-            <p class="uk-text-meta uk-margin-small-top">{{ t('text_media_event_hint') }}</p>
-          {% endif %}
-        </div>
 
-        <div class="uk-card uk-card-default uk-card-body uk-margin">
-          <h3 class="uk-card-title">{{ t('label_media_upload') }}</h3>
-          <form id="mediaUploadForm" class="uk-form-horizontal">
-            <div class="uk-margin">
-              <div uk-form-custom="target: true">
-                <input type="file" name="file" id="mediaFile" accept="image/*">
-                <input class="uk-input" type="text" placeholder="{{ t('label_media_choose') }}" disabled>
-              </div>
-            </div>
-            <div class="uk-margin">
-              <label class="uk-form-label" for="mediaName">{{ t('label_media_name_optional') }}</label>
-              <div class="uk-form-controls">
-                <input id="mediaName" name="name" type="text" class="uk-input" placeholder="{{ t('label_media_name_placeholder') }}">
-              </div>
-            </div>
-            <div class="uk-margin">
-              <button class="uk-button uk-button-primary" type="submit">{{ t('button_media_upload') }}</button>
-            </div>
-            <div id="mediaUploadMessage" class="uk-text-meta"></div>
-          </form>
-        </div>
-
-        <div class="uk-card uk-card-default uk-card-body uk-margin">
-          <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom">
-            <h3 class="uk-card-title uk-margin-remove">{{ t('heading_media_files') }}</h3>
-            <div id="mediaPagination" class="uk-text-meta"></div>
-          </div>
-          <div class="uk-overflow-auto">
-            <table class="uk-table uk-table-divider uk-table-small uk-table-hover">
-              <thead>
-                <tr>
-                  <th>{{ t('column_media_name') }}</th>
-                  <th class="uk-table-shrink">{{ t('column_media_size') }}</th>
-                  <th class="uk-table-shrink">{{ t('column_media_modified') }}</th>
-                  <th class="uk-table-shrink">{{ t('column_actions') }}</th>
-                </tr>
-              </thead>
-              <tbody id="mediaTableBody">
-              </tbody>
-            </table>
-          </div>
-          <div class="uk-flex uk-flex-between uk-flex-middle">
-            <button id="mediaPrev" class="uk-button uk-button-default uk-button-small" type="button">« {{ t('button_media_prev') }}</button>
-            <button id="mediaNext" class="uk-button uk-button-default uk-button-small" type="button">{{ t('button_media_next') }} »</button>
-          </div>
-          <div id="mediaEmpty" class="uk-text-meta uk-margin-small-top" hidden>{{ t('text_media_no_files') }}</div>
-          <div id="mediaError" class="uk-alert uk-alert-danger uk-margin-small-top" hidden></div>
+      <div
+        class="uk-tile uk-tile-default uk-padding media-dropzone"
+        data-media-dropzone
+        role="button"
+        tabindex="0"
+        aria-describedby="mediaDropDescription"
+      >
+        <div class="media-dropzone-inner">
+          <p id="mediaDropDescription" class="uk-text-center uk-margin-remove">
+            {{ t('label_drag_file') }}
+            <button type="button" class="uk-button uk-button-text" data-media-choose>{{ t('action_select') }}</button>
+          </p>
+          <input
+            class="uk-hidden"
+            type="file"
+            data-media-file
+            {% if acceptValue %}accept="{{ acceptValue }}"{% endif %}
+          >
         </div>
       </div>
-    </main>
+
+      <form class="uk-form-stacked uk-margin media-upload-form" data-media-form novalidate>
+        <div class="uk-margin-small">
+          <label class="uk-form-label" for="mediaName">{{ t('label_media_name_optional') }}</label>
+          <input
+            id="mediaName"
+            class="uk-input"
+            type="text"
+            placeholder="{{ t('label_media_name_placeholder') }}"
+            data-media-name
+          >
+        </div>
+        <div class="uk-margin-small">
+          <span class="uk-text-meta" data-media-selected hidden></span>
+        </div>
+        <div class="uk-margin-small">
+          <progress class="uk-progress" value="0" max="100" hidden data-media-progress></progress>
+          <div class="uk-text-meta" data-media-upload-status aria-live="polite"></div>
+        </div>
+        <div class="uk-margin-small uk-text-right">
+          <button type="submit" class="uk-button uk-button-primary" data-media-submit disabled>
+            {{ t('button_media_upload') }}
+          </button>
+        </div>
+      </form>
+
+      <div class="uk-card uk-card-default uk-card-body uk-margin media-table-card">
+        <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom">
+          <h3 class="uk-card-title uk-margin-remove">{{ t('heading_media_files') }}</h3>
+          <div class="uk-text-meta" data-media-pagination aria-live="polite">1 / 1</div>
+        </div>
+        <div class="uk-overflow-auto">
+          <table class="uk-table uk-table-divider uk-table-small uk-table-hover media-table" data-media-table>
+            <thead>
+              <tr>
+                <th scope="col">{{ t('column_media_name') }}</th>
+                <th scope="col" class="uk-table-shrink">{{ t('column_media_size') }}</th>
+                <th scope="col" class="uk-table-shrink">{{ t('column_media_modified') }}</th>
+                <th scope="col" class="uk-table-shrink">{{ t('column_actions') }}</th>
+              </tr>
+            </thead>
+            <tbody data-media-table-body></tbody>
+          </table>
+        </div>
+        <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-top">
+          <button type="button" class="uk-button uk-button-default uk-button-small" data-media-prev>
+            « {{ t('button_media_prev') }}
+          </button>
+          <button type="button" class="uk-button uk-button-default uk-button-small" data-media-next>
+            {{ t('button_media_next') }} »
+          </button>
+        </div>
+        <p class="uk-text-meta uk-margin-small-top" data-media-empty hidden aria-live="polite">
+          {{ t('text_media_no_files') }}
+        </p>
+        <div class="uk-alert uk-alert-danger uk-margin-small-top" role="alert" data-media-error hidden></div>
+      </div>
+    </div>
+
+    <div class="uk-width-1-1 uk-width-1-3@l">
+      <div class="uk-card uk-card-default uk-card-small uk-card-body media-preview-card">
+        <h3 class="uk-card-title uk-margin-remove">{{ t('label_media_preview') }}</h3>
+        <div class="media-preview-frame">
+          <img src="" alt="{{ t('label_media_preview') }}" data-media-preview-image hidden>
+          <div class="media-preview-placeholder" data-media-preview-placeholder>
+            {{ t('text_media_select_preview') }}
+          </div>
+        </div>
+        <dl class="uk-description-list uk-margin-small-top media-preview-list" data-media-preview-meta hidden>
+          <div>
+            <dt>{{ t('column_media_name') }}</dt>
+            <dd data-media-preview-name></dd>
+          </div>
+          <div>
+            <dt>{{ t('column_media_size') }}</dt>
+            <dd data-media-preview-size></dd>
+          </div>
+          <div>
+            <dt>{{ t('column_media_modified') }}</dt>
+            <dd data-media-preview-modified></dd>
+          </div>
+        </dl>
+        <div class="uk-margin-top uk-flex uk-flex-wrap uk-grid-small media-preview-actions" uk-grid data-media-preview-actions hidden>
+          <div>
+            <a class="uk-button uk-button-default uk-button-small" data-media-download href="#" download>
+              {{ t('action_download') }}
+            </a>
+          </div>
+          <div>
+            <button type="button" class="uk-button uk-button-default uk-button-small" data-media-rename>
+              {{ t('button_media_rename') }}
+            </button>
+          </div>
+          <div>
+            <button type="button" class="uk-button uk-button-danger uk-button-small" data-media-delete>
+              {{ t('button_media_delete') }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <script>
-    window.mediaConfig = {
-      basePath: '{{ basePath }}',
-      eventUid: '{{ eventUid }}',
-      limits: {{ limits|json_encode|raw }},
-      translations: {
-        noFiles: '{{ t('text_media_no_files')|e('js') }}',
-        renamePrompt: '{{ t('prompt_media_rename')|e('js') }}',
-        rename: '{{ t('button_media_rename')|e('js') }}',
-        deleteConfirm: '{{ t('confirm_media_delete')|e('js') }}',
-        delete: '{{ t('button_media_delete')|e('js') }}',
-        uploaded: '{{ t('message_media_uploaded')|e('js') }}',
-        renamed: '{{ t('message_media_renamed')|e('js') }}',
-        deleted: '{{ t('message_media_deleted')|e('js') }}',
-        requestFailed: '{{ t('error_media_request_failed')|e('js') }}',
-        eventRequired: '{{ t('error_media_event_required')|e('js') }}'
-      }
-    };
-  </script>
-{% endblock %}
-
-{% block scripts %}
-  <script src="{{ basePath }}/js/storage.js" defer></script>
-  <script src="{{ basePath }}/js/app.js" defer></script>
-  <script src="{{ basePath }}/js/admin-media.js" defer></script>
-{% endblock %}
-
+</div>
