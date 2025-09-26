@@ -827,6 +827,16 @@ body.admin-page {
   background: #fff;
 }
 
+.page-editor.landing-editor {
+  background: var(--qr-bg);
+  color: var(--qr-text);
+  border-color: var(--qr-border);
+}
+
+.page-editor.landing-editor a {
+  color: var(--qr-link);
+}
+
 /* Prevent huge heights from UIkit's height-viewport plugin inside the editor */
 .page-editor [uk-height-viewport] {
   min-height: auto !important;
