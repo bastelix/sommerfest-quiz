@@ -2,12 +2,14 @@
 
 // Define custom UIkit templates for Trumbowyg
 const sanitize = str => {
-  if (window.DOMPurify) {
-    return window.DOMPurify.sanitize(str);
+  const value = typeof str === 'string' ? str : String(str ?? '');
+  if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
+    return window.DOMPurify.sanitize(value);
   }
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
+  if (window.console && typeof window.console.warn === 'function') {
+    window.console.warn('DOMPurify not available, skipping HTML sanitization for page editor content.');
+  }
+  return value;
 };
 $.extend(true, $.trumbowyg, {
   langs: { de: { template: 'Vorlage', variable: 'Variable' } },
