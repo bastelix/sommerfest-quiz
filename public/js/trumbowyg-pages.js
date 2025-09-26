@@ -260,17 +260,99 @@ function applyLandingStyling(element) {
   element.classList.add('dark-mode');
 }
 
-export function initPageEditors() {
-  document.querySelectorAll('.page-form').forEach(form => {
-    const slug = form.dataset.slug;
-    const input = form.querySelector('input[name="content"]');
-    const editorEl = form.querySelector('.page-editor');
-    const isLandingPage = form.dataset.landing === 'true';
-    const initial = editorEl.dataset.content;
+const basePath = (window.basePath || '').replace(/\/$/, '');
+const withBase = path => `${basePath}${path}`;
+
+let pageSelectionState = null;
+
+const formatPageLabel = page => {
+  const title = (page?.title || '').trim();
+  if (title) {
+    return title;
+  }
+  const slug = (page?.slug || '').trim();
+  if (!slug) {
+    return 'Neue Seite';
+  }
+  return slug
+    .split('-')
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+};
+
+const getExcludedLandingSlugs = () => {
+  const select = document.getElementById('pageContentSelect');
+  if (!select) {
+    return [];
+  }
+  return (select.dataset.excludedLanding || '')
+    .split(',')
+    .map(value => value.trim())
+    .filter(Boolean);
+};
+
+const buildPageForm = page => {
+  const slug = (page?.slug || '').trim();
+  const content = page?.content || '';
+  const excluded = getExcludedLandingSlugs();
+  const form = document.createElement('form');
+  form.className = 'page-form uk-hidden';
+  form.dataset.slug = slug;
+  form.dataset.landing = excluded.includes(slug) ? 'false' : 'true';
+
+  const hiddenInput = document.createElement('input');
+  hiddenInput.type = 'hidden';
+  hiddenInput.name = 'content';
+  hiddenInput.id = `page_${slug}`;
+  hiddenInput.value = content;
+
+  const editor = document.createElement('div');
+  editor.className = 'page-editor';
+  editor.dataset.content = content;
+
+  const actions = document.createElement('div');
+  actions.className = 'uk-margin-top';
+
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'uk-button uk-button-primary save-page-btn';
+  saveBtn.type = 'button';
+  saveBtn.textContent = 'Speichern';
+
+  const previewLink = document.createElement('a');
+  previewLink.className = 'uk-button uk-button-default preview-link';
+  previewLink.href = withBase(`/${slug}`);
+  previewLink.target = '_blank';
+  previewLink.textContent = 'Vorschau';
+
+  actions.append(saveBtn, previewLink);
+  form.append(hiddenInput, editor, actions);
+
+  return form;
+};
+
+const setupPageForm = form => {
+  if (!form || form.dataset.pageReady === '1') {
+    return;
+  }
+
+  const slug = (form.dataset.slug || '').trim();
+  if (!slug) {
+    return;
+  }
+
+  const input = form.querySelector('input[name="content"]');
+  const editorEl = form.querySelector('.page-editor');
+  if (!input || !editorEl) {
+    return;
+  }
+
+  const initial = editorEl.dataset.content || '';
+  if (!editorEl.dataset.editorInitialized) {
     if (initial) {
       editorEl.innerHTML = sanitize(initial);
     }
-    if (isLandingPage) {
+    if (form.dataset.landing === 'true') {
       applyLandingStyling(editorEl);
     }
     $(editorEl).trumbowyg({
@@ -288,35 +370,94 @@ export function initPageEditors() {
       ],
       plugins: { template: true, variable: true }
     });
-    const saveBtn = form.querySelector('.save-page-btn');
-    saveBtn?.addEventListener('click', e => {
-      e.preventDefault();
+    editorEl.dataset.editorInitialized = '1';
+  }
+
+  const saveBtn = form.querySelector('.save-page-btn');
+  if (saveBtn && !saveBtn.dataset.bound) {
+    saveBtn.addEventListener('click', event => {
+      event.preventDefault();
       const html = sanitize($(editorEl).trumbowyg('html'));
       input.value = html;
-      apiFetch('/admin/pages/' + slug, {
+      apiFetch(`/admin/pages/${encodeURIComponent(slug)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ content: html })
-      }).then(r => {
-        if (!r.ok) throw new Error(r.statusText);
-        notify('Seite gespeichert', 'success');
-      }).catch(() => notify('Fehler beim Speichern', 'danger'));
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(response.statusText || 'save-failed');
+          }
+          notify('Seite gespeichert', 'success');
+        })
+        .catch(() => notify('Fehler beim Speichern', 'danger'));
     });
-  });
+    saveBtn.dataset.bound = '1';
+  }
+
+  form.dataset.pageReady = '1';
+};
+
+const addPageToInterface = page => {
+  if (!page) {
+    return;
+  }
+
+  const select = document.getElementById('pageContentSelect');
+  const container = document.getElementById('pageFormsContainer');
+  const slug = (page.slug || '').trim();
+  if (!select || !container || !slug) {
+    return;
+  }
+
+  const existingOption = Array.from(select.options).find(option => option.value === slug);
+  if (!existingOption) {
+    const option = document.createElement('option');
+    option.value = slug;
+    option.textContent = formatPageLabel(page);
+    select.append(option);
+  }
+
+  let form = container.querySelector(`.page-form[data-slug="${slug}"]`);
+  if (!form) {
+    form = buildPageForm(page);
+    container.append(form);
+    setupPageForm(form);
+  }
+
+  if (pageSelectionState) {
+    pageSelectionState.refresh();
+    select.value = slug;
+    pageSelectionState.toggleForms(slug);
+  }
+
+  document.dispatchEvent(new CustomEvent('marketing-page:created', { detail: page }));
+};
+
+export function initPageEditors() {
+  document.querySelectorAll('.page-form').forEach(setupPageForm);
 }
 
 export function initPageSelection() {
   const select = document.getElementById('pageContentSelect');
   if (!select) {
-    return;
+    pageSelectionState = null;
+    return null;
   }
 
-  const forms = Array.from(document.querySelectorAll('.page-form'));
-  if (!forms.length) {
-    return;
-  }
+  const container = document.getElementById('pageFormsContainer');
+  let forms = [];
+
+  const refresh = () => {
+    forms = container
+      ? Array.from(container.querySelectorAll('.page-form'))
+      : Array.from(document.querySelectorAll('.page-form'));
+  };
 
   const toggleForms = slug => {
+    if (!forms.length) {
+      refresh();
+    }
     let activeSlug = slug;
     if (!forms.some(form => form.dataset.slug === activeSlug)) {
       activeSlug = forms[0]?.dataset.slug || '';
@@ -325,6 +466,8 @@ export function initPageSelection() {
       form.classList.toggle('uk-hidden', form.dataset.slug !== activeSlug);
     });
   };
+
+  refresh();
 
   let selected = select.dataset.selected || select.value;
   if (!selected && select.options.length > 0) {
@@ -338,7 +481,95 @@ export function initPageSelection() {
   select.addEventListener('change', () => {
     toggleForms(select.value);
   });
+
+  const state = { select, refresh, toggleForms };
+  pageSelectionState = state;
+  return state;
 }
+
+const initPageCreation = () => {
+  const form = document.getElementById('createPageForm');
+  if (!form) {
+    return;
+  }
+
+  const slugInput = form.querySelector('#newPageSlug');
+  const titleInput = form.querySelector('#newPageTitle');
+  const contentInput = form.querySelector('#newPageContent');
+  const feedback = document.getElementById('createPageFeedback');
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const modalEl = document.getElementById('createPageModal');
+  const modal = modalEl && window.UIkit ? window.UIkit.modal(modalEl) : null;
+
+  const setFeedback = (message, status = 'danger') => {
+    if (!feedback) {
+      return;
+    }
+    feedback.classList.remove('uk-alert-danger', 'uk-alert-success');
+    if (!message) {
+      feedback.hidden = true;
+      feedback.textContent = '';
+      return;
+    }
+    feedback.textContent = message;
+    feedback.hidden = false;
+    feedback.classList.add(status === 'success' ? 'uk-alert-success' : 'uk-alert-danger');
+  };
+
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    setFeedback('');
+
+    const slugValue = (slugInput?.value || '').trim().toLowerCase();
+    const titleValue = (titleInput?.value || '').trim();
+    const contentValue = contentInput ? contentInput.value : '';
+
+    if (!slugValue || !titleValue) {
+      setFeedback('Bitte fülle Slug und Titel aus.');
+      return;
+    }
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+    }
+
+    try {
+      const response = await apiFetch('/admin/pages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        body: JSON.stringify({
+          slug: slugValue,
+          title: titleValue,
+          content: contentValue
+        })
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || !payload.page) {
+        const errorMessage = payload.error || 'Die Seite konnte nicht erstellt werden.';
+        throw new Error(errorMessage);
+      }
+
+      addPageToInterface(payload.page);
+      form.reset();
+      if (modal) {
+        modal.hide();
+      }
+      setFeedback('');
+      notify('Seite erstellt', 'success');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Die Seite konnte nicht erstellt werden.';
+      setFeedback(message);
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+      }
+    }
+  });
+};
 
 export function showPreview() {
   const editor = document.querySelector('.page-editor');
@@ -363,6 +594,7 @@ window.showPreview = showPreview;
 const initPagesModule = () => {
   initPageEditors();
   initPageSelection();
+  initPageCreation();
 };
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initPagesModule);

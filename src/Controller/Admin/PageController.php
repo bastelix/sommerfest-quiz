@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Service\PageService;
+use InvalidArgumentException;
+use LogicException;
+use RuntimeException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -62,6 +65,57 @@ class PageController
         $this->pageService->save($slug, $html);
 
         return $response->withStatus(204);
+    }
+
+    public function create(Request $request, Response $response): Response
+    {
+        $data = $request->getParsedBody();
+        $contentType = strtolower($request->getHeaderLine('Content-Type'));
+        if (str_contains($contentType, 'application/json')) {
+            $raw = (string) $request->getBody();
+            if ($raw !== '') {
+                $decoded = json_decode($raw, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $data = $decoded;
+                }
+            }
+        }
+
+        if (!is_array($data)) {
+            return $response->withStatus(400);
+        }
+
+        $slug = isset($data['slug']) ? (string) $data['slug'] : '';
+        $title = isset($data['title']) ? (string) $data['title'] : '';
+        $content = isset($data['content']) ? (string) $data['content'] : '';
+
+        try {
+            $page = $this->pageService->create($slug, $title, $content);
+        } catch (InvalidArgumentException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(422);
+        } catch (LogicException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(409);
+        } catch (RuntimeException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()], JSON_PRETTY_PRINT));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(500);
+        }
+
+        $response->getBody()->write(json_encode(['page' => $page], JSON_PRETTY_PRINT));
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus(201);
     }
 
     /**
