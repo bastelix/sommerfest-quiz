@@ -391,6 +391,14 @@ class ConfigService
     }
 
     /**
+     * Return the relative path to the shared uploads directory.
+     */
+    public function getGlobalUploadsPath(): string
+    {
+        return '/uploads';
+    }
+
+    /**
      * Return the absolute path to the image directory of an event and ensure it exists.
      */
     public function getEventImagesDir(?string $uid = null): string
@@ -399,6 +407,18 @@ class ConfigService
         $dir = dirname(__DIR__, 2) . '/data' . $this->getEventImagesPath($uid);
         if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
             throw new RuntimeException('unable to create image directory');
+        }
+        return $dir;
+    }
+
+    /**
+     * Return the absolute path to the shared uploads directory and ensure it exists.
+     */
+    public function getGlobalUploadsDir(): string
+    {
+        $dir = dirname(__DIR__, 2) . '/data' . $this->getGlobalUploadsPath();
+        if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
+            throw new RuntimeException('unable to create uploads directory');
         }
         return $dir;
     }
