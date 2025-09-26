@@ -19,6 +19,7 @@ use App\Service\SettingsService;
 use App\Service\StripeService;
 use App\Service\TeamService;
 use App\Service\TenantService;
+use App\Service\TranslationService;
 use App\Service\UrlService;
 use App\Service\UserService;
 use App\Service\VersionService;
@@ -152,6 +153,22 @@ class AdminController
         }
 
         $marketingPages = $this->filterMarketingPages($allPages);
+        $translator = $request->getAttribute('translator');
+        $translationService = $translator instanceof TranslationService ? $translator : null;
+        $domainStartPageOptions = $domainService->getStartPageOptions($pageSvc);
+        if ($translationService !== null) {
+            $domainStartPageOptions['help'] = $translationService->translate('option_help_page');
+            $domainStartPageOptions['events'] = $translationService->translate('option_events_page');
+        }
+        $coreOrder = ['help', 'events'];
+        $orderedDomainOptions = [];
+        foreach ($coreOrder as $slug) {
+            if (isset($domainStartPageOptions[$slug])) {
+                $orderedDomainOptions[$slug] = $domainStartPageOptions[$slug];
+                unset($domainStartPageOptions[$slug]);
+            }
+        }
+        $domainStartPageOptions = $orderedDomainOptions + $domainStartPageOptions;
 
         $domainType = $request->getAttribute('domainType');
         if ($domainType === 'main') {
@@ -243,6 +260,7 @@ class AdminController
               'seo_pages' => array_values($seoPages),
               'selectedSeoPageId' => $selectedSeoPage?->getId(),
               'selectedPageSlug' => $selectedPageSlug,
+              'domain_start_page_options' => $domainStartPageOptions,
               'domainType' => $request->getAttribute('domainType'),
               'tenant' => $tenant,
               'stripe_configured' => StripeService::isConfigured()['ok'],

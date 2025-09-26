@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Admin;
 
 use App\Service\DomainStartPageService;
+use App\Service\PageService;
 use App\Service\SettingsService;
 use App\Service\TranslationService;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -18,14 +19,23 @@ class DomainStartPageController
     private DomainStartPageService $domainService;
     private SettingsService $settingsService;
 
-    public function __construct(DomainStartPageService $domainService, SettingsService $settingsService)
-    {
+    private PageService $pageService;
+
+    public function __construct(
+        DomainStartPageService $domainService,
+        SettingsService $settingsService,
+        PageService $pageService
+    ) {
         $this->domainService = $domainService;
         $this->settingsService = $settingsService;
+        $this->pageService = $pageService;
     }
 
     public function index(Request $request, Response $response): Response
     {
+        $translator = $request->getAttribute('translator');
+        $translationService = $translator instanceof TranslationService ? $translator : null;
+
         $mainDomain = getenv('MAIN_DOMAIN') ?: '';
         $marketing = getenv('MARKETING_DOMAINS') ?: '';
         $host = strtolower($request->getUri()->getHost());
@@ -34,6 +44,7 @@ class DomainStartPageController
         $mappings = $this->domainService->getAllMappings();
         $mainNormalized = $this->domainService->normalizeDomain((string) $mainDomain);
         $defaultMain = $this->settingsService->get('home_page', 'help');
+        $options = $this->buildOptionLabels($translationService);
 
         $combined = [];
         foreach ($domains as $item) {
@@ -100,7 +111,7 @@ class DomainStartPageController
 
         $payload = [
             'domains' => $items,
-            'options' => DomainStartPageService::START_PAGE_OPTIONS,
+            'options' => $options,
             'main' => $mainNormalized,
         ];
 
@@ -113,6 +124,9 @@ class DomainStartPageController
         $translator = $request->getAttribute('translator');
         $translationService = $translator instanceof TranslationService ? $translator : null;
 
+        $options = $this->buildOptionLabels($translationService);
+        $validStartPages = array_keys($options);
+
         $data = $request->getParsedBody();
         if ($request->getHeaderLine('Content-Type') === 'application/json') {
             $data = json_decode((string) $request->getBody(), true);
@@ -124,7 +138,7 @@ class DomainStartPageController
         $domain = isset($data['domain']) ? (string) $data['domain'] : '';
         $startPage = isset($data['start_page']) ? (string) $data['start_page'] : '';
         $email = isset($data['email']) ? trim((string) $data['email']) : '';
-        if ($domain === '' || $startPage === '' || !in_array($startPage, DomainStartPageService::START_PAGE_OPTIONS, true)) {
+        if ($domain === '' || $startPage === '' || !in_array($startPage, $validStartPages, true)) {
             return $response->withStatus(400);
         }
 
@@ -165,7 +179,32 @@ class DomainStartPageController
         $response->getBody()->write(json_encode([
             'status' => 'ok',
             'config' => $config,
+            'options' => $options,
         ]));
         return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    /**
+     * @return array<string,string>
+     */
+    private function buildOptionLabels(?TranslationService $translationService): array
+    {
+        $options = $this->domainService->getStartPageOptions($this->pageService);
+
+        if ($translationService !== null) {
+            $options['help'] = $translationService->translate('option_help_page');
+            $options['events'] = $translationService->translate('option_events_page');
+        }
+
+        $coreOrder = ['help', 'events'];
+        $ordered = [];
+        foreach ($coreOrder as $slug) {
+            if (isset($options[$slug])) {
+                $ordered[$slug] = $options[$slug];
+                unset($options[$slug]);
+            }
+        }
+
+        return $ordered + $options;
     }
 }

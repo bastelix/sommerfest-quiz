@@ -105,7 +105,53 @@ document.addEventListener('DOMContentLoaded', function () {
   const emailInput = document.getElementById('subscription-email');
   const planSelect = document.getElementById('planSelect');
   const domainStartPageTable = document.getElementById('domainStartPageTable');
-  const domainStartPageOptions = window.domainStartPageOptions || {};
+  const initialDomainStartPageOptions = window.domainStartPageOptions || {};
+  const domainStartPageOptions = { ...initialDomainStartPageOptions };
+  window.domainStartPageOptions = domainStartPageOptions;
+  const coreDomainStartPageOrder = ['help', 'events'];
+  const labelFromSlug = slug => {
+    if (typeof slug !== 'string' || slug === '') {
+      return '';
+    }
+    const parts = slug.split('-').filter(Boolean);
+    if (!parts.length) {
+      return slug.charAt(0).toUpperCase() + slug.slice(1);
+    }
+    return parts
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' ');
+  };
+  const ensureDomainStartPageOption = (slug, label) => {
+    if (typeof slug !== 'string' || slug === '') {
+      return;
+    }
+    const normalizedLabel = typeof label === 'string' && label.trim() !== '' ? label : labelFromSlug(slug);
+    domainStartPageOptions[slug] = normalizedLabel;
+  };
+  const mergeDomainStartPageOptions = options => {
+    if (!options || typeof options !== 'object') {
+      return;
+    }
+    Object.entries(options).forEach(([slug, label]) => {
+      ensureDomainStartPageOption(slug, label);
+    });
+  };
+  const getDomainStartPageOptionEntries = () => {
+    const coreEntries = [];
+    coreDomainStartPageOrder.forEach(slug => {
+      if (Object.prototype.hasOwnProperty.call(domainStartPageOptions, slug)) {
+        coreEntries.push([slug, domainStartPageOptions[slug]]);
+      }
+    });
+    const rest = Object.entries(domainStartPageOptions).filter(
+      ([slug]) => !coreDomainStartPageOrder.includes(slug)
+    );
+    rest.sort((a, b) => {
+      return a[1].localeCompare(b[1], undefined, { sensitivity: 'base' });
+    });
+    return coreEntries.concat(rest);
+  };
+  mergeDomainStartPageOptions(initialDomainStartPageOptions);
   const domainStartPageTypeLabels = window.domainStartPageTypeLabels || {};
   const transDomainStartPageSaved = window.transDomainStartPageSaved || 'Startseite gespeichert';
   const transDomainStartPageError = window.transDomainStartPageError || 'Fehler beim Speichern';
@@ -802,18 +848,15 @@ document.addEventListener('DOMContentLoaded', function () {
         const selectCell = document.createElement('td');
         const select = document.createElement('select');
         select.className = 'uk-select';
-        Object.entries(domainStartPageOptions).forEach(([value, label]) => {
+        if (!Object.prototype.hasOwnProperty.call(domainStartPageOptions, item.start_page)) {
+          ensureDomainStartPageOption(item.start_page, item.start_page);
+        }
+        getDomainStartPageOptionEntries().forEach(([value, label]) => {
           const option = document.createElement('option');
           option.value = value;
           option.textContent = label || value;
           select.appendChild(option);
         });
-        if (!domainStartPageOptions[item.start_page]) {
-          const option = document.createElement('option');
-          option.value = item.start_page;
-          option.textContent = item.start_page;
-          select.appendChild(option);
-        }
         select.value = item.start_page;
         selectCell.appendChild(select);
         tr.appendChild(selectCell);
@@ -928,6 +971,7 @@ document.addEventListener('DOMContentLoaded', function () {
               const fallback = res.status === 422 ? transDomainStartPageInvalidEmail : transDomainStartPageError;
               throw new Error(data.error || fallback);
             }
+            mergeDomainStartPageOptions(data?.options || {});
             return data;
           });
       });
@@ -952,6 +996,7 @@ document.addEventListener('DOMContentLoaded', function () {
           return res.json();
         })
         .then(data => {
+          mergeDomainStartPageOptions(data?.options || {});
           domainStartPageData = Array.isArray(data?.domains) ? data.domains : [];
           domainStartPageData = domainStartPageData.map(item => ({
             ...item,
