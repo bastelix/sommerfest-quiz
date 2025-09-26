@@ -32,6 +32,7 @@ use App\Service\NginxService;
 use App\Service\SettingsService;
 use App\Service\DomainStartPageService;
 use App\Service\DomainContactTemplateService;
+use App\Service\PageService;
 use App\Service\TranslationService;
 use App\Service\PasswordResetService;
 use App\Service\PasswordPolicy;
@@ -253,7 +254,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             )
             ->withAttribute('userController', new UserController($userService))
             ->withAttribute('settingsController', new SettingsController($settingsService))
-            ->withAttribute('domainStartPageController', new DomainStartPageController($domainStartPageService, $settingsService))
+            ->withAttribute(
+                'domainStartPageController',
+                new DomainStartPageController($domainStartPageService, $settingsService, new PageService($pdo))
+            )
             ->withAttribute(
                 'domainContactTemplateController',
                 new DomainContactTemplateController($domainContactTemplateService, $domainStartPageService)

@@ -12,16 +12,56 @@ use PDOException;
  */
 class DomainStartPageService
 {
-    /**
-     * Allowed start page identifiers that can be assigned to a domain.
-     */
-    public const START_PAGE_OPTIONS = ['help', 'events', 'landing', 'calserver'];
+    private const CORE_START_PAGES = ['help', 'events'];
+
+    private const EXCLUDED_LEGAL_SLUGS = ['impressum', 'datenschutz', 'faq', 'lizenz'];
 
     private PDO $pdo;
 
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
+    }
+
+    /**
+     * Build the available start page options combining core pages and marketing pages.
+     *
+     * @return array<string,string> Map of slug => label
+     */
+    public function getStartPageOptions(PageService $pageService): array
+    {
+        $options = [];
+
+        foreach (self::CORE_START_PAGES as $slug) {
+            $options[$slug] = $this->buildLabelFromSlug($slug);
+        }
+
+        foreach ($pageService->getAll() as $page) {
+            $slug = $page->getSlug();
+            if ($slug === '' || in_array($slug, self::EXCLUDED_LEGAL_SLUGS, true)) {
+                continue;
+            }
+
+            $title = trim($page->getTitle());
+            $options[$slug] = $title !== '' ? $title : $this->buildLabelFromSlug($slug);
+        }
+
+        return $options;
+    }
+
+    private function buildLabelFromSlug(string $slug): string
+    {
+        $parts = array_filter(explode('-', $slug), static fn ($part): bool => $part !== '');
+        if ($parts === []) {
+            return ucfirst($slug);
+        }
+
+        $parts = array_map(
+            static fn (string $part): string => ucfirst($part),
+            $parts
+        );
+
+        return implode(' ', $parts);
     }
 
     /**

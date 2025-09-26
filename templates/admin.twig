@@ -1556,12 +1556,7 @@
     window.baseUrl = '{{ baseUrl }}';
     window.mainDomain = '{{ main_domain }}';
     window.domainType = '{{ domainType }}';
-    window.domainStartPageOptions = {{ {
-      'help': t('option_help_page'),
-      'events': t('option_events_page'),
-      'landing': t('option_landing_page'),
-      'calserver': t('option_calserver_page')
-    }|json_encode|raw }};
+    window.domainStartPageOptions = {{ domain_start_page_options|default({})|json_encode|raw }};
     window.domainStartPageTypeLabels = {{ {
       'main': t('label_domain_type_main'),
       'marketing': t('label_domain_type_marketing'),
