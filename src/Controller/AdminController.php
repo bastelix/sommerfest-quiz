@@ -137,13 +137,21 @@ class AdminController
             $users = (new UserService($pdo))->getAll();
         }
 
-        $pageSlugs = ['landing', 'impressum', 'datenschutz', 'faq', 'lizenz'];
         $pageSvc = new PageService($pdo);
-        foreach ($pageSlugs as $slug) {
-            $pages[$slug] = $pageSvc->get($slug) ?? '';
+        $pages = [];
+        $pageContents = [];
+        $allPages = $pageSvc->getAll();
+        foreach ($allPages as $page) {
+            $pages[] = [
+                'id' => $page->getId(),
+                'slug' => $page->getSlug(),
+                'title' => $page->getTitle(),
+                'content' => $page->getContent(),
+            ];
+            $pageContents[$page->getSlug()] = $page->getContent();
         }
 
-        $marketingPages = $this->filterMarketingPages($pageSvc->getAll());
+        $marketingPages = $this->filterMarketingPages($allPages);
 
         $domainType = $request->getAttribute('domainType');
         if ($domainType === 'main') {
@@ -225,6 +233,7 @@ class AdminController
               'event' => $event,
               'role' => $role,
               'pages' => $pages,
+              'page_contents' => $pageContents,
               'seo_config' => $seoConfig,
               'seo_pages' => array_values($seoPages),
               'selectedSeoPageId' => $selectedSeoPage?->getId(),
