@@ -29,13 +29,13 @@
 {% block body %}
   <div class="landing-content">
     <header class="qr-topbar">
-      <nav class="uk-navbar-container" uk-navbar>
+      <nav class="uk-navbar-container" data-uk-navbar>
         <div class="uk-navbar-left">
           <div class="uk-navbar-item">
             <button id="offcanvas-toggle"
                     class="uk-navbar-toggle uk-hidden@m git-btn"
-                    uk-navbar-toggle-icon
-                    uk-toggle="target: #qr-offcanvas"
+                    data-uk-navbar-toggle-icon
+                    data-uk-toggle="target: #qr-offcanvas"
                     aria-controls="qr-offcanvas"
                     aria-expanded="false"
                     aria-label="Menü"></button>
@@ -47,7 +47,7 @@
             {% for link in links %}
               <li>
                 <a href="{{ link.href }}">
-                  <span class="uk-margin-small-right" uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
+                  <span class="uk-margin-small-right" data-uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
                 </a>
               </li>
             {% endfor %}
@@ -66,7 +66,7 @@
             <div id="menuDrop"
                  class="uk-dropdown"
                  hidden
-                 uk-dropdown="mode: click; pos: bottom-right; flip: false; animation: uk-animation-slide-top-small">
+                 data-uk-dropdown="mode: click; pos: bottom-right; flip: false; animation: uk-animation-slide-top-small">
               <ul class="uk-nav uk-dropdown-nav" role="menu">
                 <li>
                   <button id="themeToggle"
@@ -97,7 +97,7 @@
                               fill="currentColor"/>
                       </svg>
                     </button>
-                    <div id="languageDrop" class="uk-dropdown" hidden uk-dropdown="mode: click; pos: left-top; offset: 0">
+                    <div id="languageDrop" class="uk-dropdown" hidden data-uk-dropdown="mode: click; pos: left-top; offset: 0">
                       <ul class="uk-nav uk-dropdown-nav" role="menu">
                         <li>
                           <button class="uk-button uk-button-default git-btn lang-option"
@@ -120,14 +120,14 @@
       </nav>
     </header>
 
-    <div id="qr-offcanvas" uk-offcanvas="overlay: true; flip: true">
+    <div id="qr-offcanvas" data-uk-offcanvas="overlay: true; flip: true">
       <div class="uk-offcanvas-bar">
-        <button class="uk-offcanvas-close git-btn" type="button" uk-close aria-label="Menü schließen"></button>
+        <button class="uk-offcanvas-close git-btn" type="button" data-uk-close aria-label="Menü schließen"></button>
         <ul class="uk-nav uk-nav-default">
           {% for link in links %}
             <li>
               <a href="{{ link.href }}">
-                <span class="uk-margin-small-right" uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
+                <span class="uk-margin-small-right" data-uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
               </a>
             </li>
           {% endfor %}
@@ -136,11 +136,11 @@
            href="https://calendly.com/calhelp/calserver-vorstellung"
            target="_blank"
            rel="noopener">
-          <span class="uk-margin-small-right" uk-icon="icon: calendar"></span>Demo buchen
+          <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>Demo buchen
         </a>
         <a class="uk-button uk-button-primary git-btn uk-width-1-1 uk-margin-top offcanvas-cta"
            href="#trial">
-          <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt testen
+          <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Jetzt testen
         </a>
       </div>
     </div>
@@ -148,8 +148,8 @@
     <section class="qr-hero uk-section uk-section-large">
       <div class="qr-hero-bg hero-bg-calserver" aria-hidden="true"></div>
       <div class="uk-container">
-        <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle calserver-hero-grid" uk-grid>
-          <div class="calserver-hero-grid__content" uk-scrollspy="cls: uk-animation-slide-left-small; repeat: true">
+        <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle calserver-hero-grid" data-uk-grid>
+          <div class="calserver-hero-grid__content" data-uk-scrollspy="cls: uk-animation-slide-left-small; repeat: true">
             <span class="qr-badge pill pill--soft">Software Hosted in Germany</span>
             <h1 class="qr-h1">Mehr Überblick, weniger Aufwand mit calServer.</h1>
             <p class="qr-sub">Geräte, Termine und Dokumente – organisiert an einem Ort. calServer strukturiert die
@@ -161,19 +161,19 @@
             </ul>
             <div class="uk-margin-medium-top uk-flex uk-flex-left uk-flex-wrap" style="gap:16px;">
               <a class="uk-button uk-button-primary cta-main" href="#trial">
-                <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt testen
+                <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Jetzt testen
               </a>
               <a class="btn btn-transparent" href="https://calendly.com/calhelp/calserver-vorstellung"
                  target="_blank"
                  rel="noopener">
-                <span class="uk-margin-small-right" uk-icon="icon: calendar"></span>Demo buchen
+                <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>Demo buchen
               </a>
             </div>
             <div class="qr-proof uk-margin-top">
               <span>Unbegrenzte Nutzer:innen · Flexible Rollenmodelle · Tägliche Datensicherung</span>
             </div>
           </div>
-          <div class="calserver-hero-grid__media" uk-scrollspy="cls: uk-animation-slide-right-small; repeat: true">
+          <div class="calserver-hero-grid__media" data-uk-scrollspy="cls: uk-animation-slide-right-small; repeat: true">
             <div class="calserver-hero-video">
               <span class="pill pill--accent calserver-hero-video__badge">Live-Vorschau</span>
               <div class="calserver-hero-video__frame">
@@ -184,7 +184,7 @@
                      data-video-params="rel=0&playlist=ovHo2SF84u0&loop=1">
                   <div class="calserver-hero-video__placeholder" role="group" aria-label="YouTube Video">
                     <div class="calserver-hero-video__preview" aria-hidden="true">
-                      <span class="uk-icon" uk-icon="icon: play-circle; ratio: 2"></span>
+                      <span class="uk-icon" data-uk-icon="icon: play-circle; ratio: 2"></span>
                     </div>
                     <p class="calserver-hero-video__hint">
                       Mit Klick auf „YouTube laden“ stimmst du zu, dass Inhalte von YouTube geladen werden.
@@ -218,7 +218,7 @@
                    href="https://www.youtube.com/watch?v=ovHo2SF84u0"
                    target="_blank"
                    rel="noopener">
-                  <span class="uk-margin-small-right" uk-icon="icon: play-circle"></span>Auf YouTube ansehen
+                  <span class="uk-margin-small-right" data-uk-icon="icon: play-circle"></span>Auf YouTube ansehen
                 </a>
               </div>
               <p class="calserver-hero-video__footnote">

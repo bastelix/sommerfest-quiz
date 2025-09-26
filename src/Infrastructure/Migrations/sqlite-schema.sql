@@ -359,8 +359,8 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                 <span class="calserver-stats-strip__label">Stand: 23.09.2025</span>
               </div>
               <span class="calserver-stats-strip__tooltip"
-                    uk-icon="icon: info"
-                    uk-tooltip="title: „Priorisierte Kundenanforderungen, ausgeliefert und abgenommen.“; pos: bottom"
+                    data-uk-icon="icon: info"
+                    data-uk-tooltip="title: „Priorisierte Kundenanforderungen, ausgeliefert und abgenommen.“; pos: bottom"
                     aria-label="Priorisierte Kundenanforderungen, ausgeliefert und abgenommen."
                     tabindex="0"></span>
             </div>
@@ -381,8 +381,8 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                 <span class="calserver-stats-strip__label">Stand: 23.09.2025</span>
               </div>
               <span class="calserver-stats-strip__tooltip"
-                    uk-icon="icon: info"
-                    uk-tooltip="title: „Zeitanteil, in dem der Service erreichbar war.“; pos: bottom"
+                    data-uk-icon="icon: info"
+                    data-uk-tooltip="title: „Zeitanteil, in dem der Service erreichbar war.“; pos: bottom"
                     aria-label="Zeitanteil, in dem der Service erreichbar war."
                     tabindex="0"></span>
             </div>
@@ -402,8 +402,8 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                 <span class="calserver-stats-strip__label">Stand: 23.09.2025</span>
               </div>
               <span class="calserver-stats-strip__tooltip"
-                    uk-icon="icon: info"
-                    uk-tooltip="title: „calServer wird seit über 15 Jahren produktiv eingesetzt.“; pos: bottom"
+                    data-uk-icon="icon: info"
+                    data-uk-tooltip="title: „calServer wird seit über 15 Jahren produktiv eingesetzt.“; pos: bottom"
                     aria-label="calServer wird seit über 15 Jahren produktiv eingesetzt."
                     tabindex="0"></span>
             </div>
@@ -453,7 +453,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
 
     <section id="trust" class="uk-section uk-section-muted">
       <div class="uk-container">
-        <div class="uk-grid-large uk-flex-middle" uk-grid>
+        <div class="uk-grid-large uk-flex-middle" data-uk-grid>
           <div class="uk-width-1-1 uk-width-2-3@m">
             <h2 class="uk-heading-line uk-margin-remove-bottom"><span>So fühlt sich calServer im Alltag an</span></h2>
           </div>
@@ -470,7 +470,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
               <div class="trust-story__marker" aria-hidden="true">
                 <span class="trust-story__connector trust-story__connector--before"></span>
                 <span class="trust-story__badge" data-step-index="1">
-                                      <span class="trust-story__badge-icon" aria-hidden="true" uk-icon="icon: database"></span>
+                                      <span class="trust-story__badge-icon" aria-hidden="true" data-uk-icon="icon: database"></span>
                                     <span class="trust-story__sr">Schritt 1</span>
                 </span>
                 <span class="trust-story__connector trust-story__connector--after"></span>
@@ -486,7 +486,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
               <div class="trust-story__marker" aria-hidden="true">
                 <span class="trust-story__connector trust-story__connector--before"></span>
                 <span class="trust-story__badge" data-step-index="2">
-                                      <span class="trust-story__badge-icon" aria-hidden="true" uk-icon="icon: bell"></span>
+                                      <span class="trust-story__badge-icon" aria-hidden="true" data-uk-icon="icon: bell"></span>
                                     <span class="trust-story__sr">Schritt 2</span>
                 </span>
                 <span class="trust-story__connector trust-story__connector--after"></span>
@@ -502,7 +502,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
               <div class="trust-story__marker" aria-hidden="true">
                 <span class="trust-story__connector trust-story__connector--before"></span>
                 <span class="trust-story__badge" data-step-index="3">
-                                      <span class="trust-story__badge-icon" aria-hidden="true" uk-icon="icon: shield"></span>
+                                      <span class="trust-story__badge-icon" aria-hidden="true" data-uk-icon="icon: shield"></span>
                                     <span class="trust-story__sr">Schritt 3</span>
                 </span>
                 <span class="trust-story__connector trust-story__connector--after"></span>
@@ -516,7 +516,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
             </article>
                   </div>
 
-        <div class="trust-story__closing uk-grid uk-grid-large uk-flex-middle" uk-grid>
+        <div class="trust-story__closing uk-grid uk-grid-large uk-flex-middle" data-uk-grid>
           <div class="uk-width-1-1 uk-width-expand@m">
             <h3 class="trust-story__closing-title">Beruhigende Sicherheit für dein Team</h3>
             <p class="trust-story__closing-text">
@@ -526,10 +526,10 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
           <div class="uk-width-1-1 uk-width-auto@m">
             <div class="trust-story__cta-group">
               <a class="uk-button uk-button-primary cta-main" href="#trial">
-                <span class="uk-margin-small-right" uk-icon="icon: play"></span>Jetzt testen
+                <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Jetzt testen
               </a>
               <a class="btn btn-transparent" href="https://calendly.com/calhelp/calserver-vorstellung" target="_blank" rel="noopener">
-                <span class="uk-margin-small-right" uk-icon="icon: calendar"></span>Demo buchen
+                <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>Demo buchen
               </a>
             </div>
           </div>
@@ -568,10 +568,10 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
         <div id="feature-slider"
              class="uk-position-relative uk-visible-toggle feature-slider"
              tabindex="-1"
-             uk-slider="center: true; autoplay: true; autoplay-interval: 4200; finite: false">
+             data-uk-slider="center: true; autoplay: true; autoplay-interval: 4200; finite: false">
           <div class="uk-slider-container">
             <ul class="uk-slider-items uk-child-width-1-1@s uk-child-width-1-2@m uk-child-width-1-3@l feature-slider__list"
-                uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .feature-slider__item; delay: 75; repeat: true">
+                data-uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .feature-slider__item; delay: 75; repeat: true">
               <li class="feature-slider__item" id="feature-inventare-intervalle">
                 <article class="feature-card">
                   <h3 class="uk-card-title feature-card__title">Inventare &amp; Intervalle</h3>
@@ -697,13 +697,13 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
           </div>
           <a class="uk-position-center-left uk-position-small uk-hidden-hover"
              href="#"
-             uk-slidenav-previous
-             uk-slider-item="previous"
+             data-uk-slidenav-previous
+             data-uk-slider-item="previous"
              aria-label="Vorherige Funktion"></a>
           <a class="uk-position-center-right uk-position-small uk-hidden-hover"
              href="#"
-             uk-slidenav-next
-             uk-slider-item="next"
+             data-uk-slidenav-next
+             data-uk-slider-item="next"
              aria-label="Nächste Funktion"></a>
         </div>
         <script>
@@ -838,10 +838,10 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
           <h2 class="uk-heading-line"><span>Module, die den Unterschied machen</span></h2>
           <span class="muted">Individuell kombinierbar – ohne versteckte Kosten</span>
         </div>
-        <div class="calserver-modules-grid" uk-scrollspy="cls: uk-animation-slide-bottom-small; target: > *; delay: 100; repeat: true">
+        <div class="calserver-modules-grid" data-uk-scrollspy="cls: uk-animation-slide-bottom-small; target: > *; delay: 100; repeat: true">
           <div>
             <ul class="uk-tab calserver-modules-nav"
-                uk-switcher="connect: #calserver-modules-switcher; animation: uk-animation-fade">
+                data-uk-switcher="connect: #calserver-modules-switcher; animation: uk-animation-fade">
                               <li>
                   <a class="calserver-modules-nav__link" href="#module-device-management">
                     <span class="calserver-modules-nav__title">Geräteverwaltung & Historie</span>
@@ -958,7 +958,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
           <h2 class="uk-heading-line"><span>Anwendungsfälle aus der Praxis</span></h2>
           <span class="muted">Vom Labor bis zum Außendienst</span>
         </div>
-        <ul class="uk-subnav uk-subnav-pill uk-margin-large-top usecase-tabs" uk-switcher="animation: uk-animation-fade">
+        <ul class="uk-subnav uk-subnav-pill uk-margin-large-top usecase-tabs" data-uk-switcher="animation: uk-animation-fade">
           <li><a href="#">ifm electronic (2 Standorte)</a></li>
           <li><a href="#">KSW Kalibrierservice GmbH</a></li>
           <li><a href="#">Systems Engineering GmbH</a></li>
@@ -969,9 +969,9 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
           <li><a href="#">VDE Deutschland</a></li>
         </ul>
         <ul class="uk-switcher uk-margin-large-top"
-            uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .usecase-story, .usecase-highlight; delay: 100; repeat: true">
+            data-uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .usecase-story, .usecase-highlight; delay: 100; repeat: true">
           <li>
-            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" uk-grid>
+            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
               <div class="usecase-story">
                 <span class="pill pill--badge uk-margin-small-bottom">Kalibrierlabor</span>
                 <h3 class="uk-h2">ifm – Störungsbearbeitung &amp; Verbesserungen über zwei Standorte</h3>
@@ -992,7 +992,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                     <li>Bidirektionale Synchronisation mit Fluke MET/TEAM &amp; MET/CAL</li>
                   </ul>
                                     <a class="uk-button uk-button-text uk-margin-top" href="#">
-                    <span class="uk-margin-small-right" uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
+                    <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                   <p class="muted uk-text-small uk-margin-top">Kein Kundenportal im Einsatz.</p>
                 </div>
@@ -1005,7 +1005,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
             </div>
           </li>
           <li>
-            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" uk-grid>
+            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
               <div class="usecase-story">
                 <span class="pill pill--badge uk-margin-small-bottom">Kalibrierlabor</span>
                 <h3 class="uk-h2">KSW – End-to-End vom Wareneingang bis zur Rechnung</h3>
@@ -1026,7 +1026,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                     <li>DMS &amp; Reporting integriert</li>
                   </ul>
                                     <a class="uk-button uk-button-text uk-margin-top" href="#">
-                    <span class="uk-margin-small-right" uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
+                    <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
                 <div class="usecase-visual uk-margin-top">
@@ -1038,7 +1038,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
             </div>
           </li>
           <li>
-            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" uk-grid>
+            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
               <div class="usecase-story">
                 <span class="pill pill--badge uk-margin-small-bottom">Kalibrierlabor</span>
                 <h3 class="uk-h2">Systems Engineering – Auftragsbearbeitung als Herzstück</h3>
@@ -1059,7 +1059,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                     <li>Versionierung &amp; Nachvollziehbarkeit (DMS)</li>
                   </ul>
                                     <a class="uk-button uk-button-text uk-margin-top" href="#">
-                    <span class="uk-margin-small-right" uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
+                    <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
                 <div class="usecase-visual uk-margin-top">
@@ -1071,7 +1071,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
             </div>
           </li>
           <li>
-            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" uk-grid>
+            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
               <div class="usecase-story">
                 <span class="pill pill--badge uk-margin-small-bottom">Kalibrierlabor</span>
                 <h3 class="uk-h2">TERAMESS – DAkkS-konforme Zertifikate in der Cloud</h3>
@@ -1092,7 +1092,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                     <li>Serienexports &amp; Auswertungen</li>
                   </ul>
                                     <a class="uk-button uk-button-text uk-margin-top" href="#">
-                    <span class="uk-margin-small-right" uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
+                    <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
                 <div class="usecase-visual uk-margin-top">
@@ -1104,7 +1104,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
             </div>
           </li>
           <li>
-            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" uk-grid>
+            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
               <div class="usecase-story">
                 <span class="pill pill--badge uk-margin-small-bottom">Kalibrierlabor</span>
                 <h3 class="uk-h2">Thermo Fisher Scientific – EMEA Labore</h3>
@@ -1125,7 +1125,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                     <li>Bidirektionale Synchronisation mit Fluke MET/TEAM &amp; MET/CAL</li>
                   </ul>
                                     <a class="uk-button uk-button-text uk-margin-top" href="#">
-                    <span class="uk-margin-small-right" uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
+                    <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
                 <div class="usecase-visual uk-margin-top">
@@ -1137,7 +1137,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
             </div>
           </li>
           <li>
-            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" uk-grid>
+            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
               <div class="usecase-story">
                 <span class="pill pill--badge uk-margin-small-bottom">Industrielabor</span>
                 <h3 class="uk-h2">ZF – API-Messwerte auf Kubernetes mit SSO</h3>
@@ -1158,7 +1158,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                     <li>Bidirektionale Synchronisation mit Fluke MET/TEAM &amp; MET/CAL</li>
                   </ul>
                                     <a class="uk-button uk-button-text uk-margin-top" href="#">
-                    <span class="uk-margin-small-right" uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
+                    <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
                 <div class="usecase-visual uk-margin-top">
@@ -1170,7 +1170,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
             </div>
           </li>
           <li>
-            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" uk-grid>
+            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
               <div class="usecase-story">
                 <span class="pill pill--badge uk-margin-small-bottom">Assetmanagement</span>
                 <h3 class="uk-h2">Berliner Stadtwerke – Projekte &amp; Wartung für erneuerbare Anlagen</h3>
@@ -1191,7 +1191,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                     <li>Dashboards für Verfügbarkeit &amp; Performance</li>
                   </ul>
                                     <a class="uk-button uk-button-text uk-margin-top" href="#">
-                    <span class="uk-margin-small-right" uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
+                    <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
                 <div class="usecase-visual uk-margin-top">
@@ -1203,7 +1203,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
             </div>
           </li>
           <li>
-            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" uk-grid>
+            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
               <div class="usecase-story">
                 <span class="pill pill--badge uk-margin-small-bottom">Qualitätsmanagement</span>
                 <h3 class="uk-h2">VDE – Agile Auftragssteuerung &amp; Intranet</h3>
@@ -1224,7 +1224,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                     <li>Bidirektionale Synchronisation mit Fluke MET/TEAM &amp; MET/CAL</li>
                   </ul>
                                     <a class="uk-button uk-button-text uk-margin-top" href="#">
-                    <span class="uk-margin-small-right" uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
+                    <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
                 <div class="usecase-visual uk-margin-top">
@@ -1242,14 +1242,14 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
     <section id="modes" class="uk-section uk-section-primary uk-light calserver-highlight calserver-section-glow">
       <div class="uk-container">
         <h2 class="uk-heading-line uk-light"><span>Betriebsarten, die zu Ihnen passen</span></h2>
-        <ul class="uk-subnav uk-subnav-pill uk-margin" uk-switcher>
+        <ul class="uk-subnav uk-subnav-pill uk-margin" data-uk-switcher>
           <li><a href="#">Cloud</a></li>
           <li><a href="#">On-Premise</a></li>
         </ul>
         <ul class="uk-switcher uk-margin"
-            uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .anim; delay: 75; repeat: true">
+            data-uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .anim; delay: 75; repeat: true">
           <li>
-            <div class="uk-grid-large uk-child-width-1-2@m uk-grid-match" uk-grid>
+            <div class="uk-grid-large uk-child-width-1-2@m uk-grid-match" data-uk-grid>
               <div class="anim">
                 <div class="uk-card uk-card-default uk-card-body uk-card-hover calserver-highlight-card">
                   <h3 class="uk-card-title">Sofort startklar</h3>
@@ -1273,7 +1273,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
             </div>
           </li>
           <li>
-            <div class="uk-grid-large uk-child-width-1-2@m uk-grid-match" uk-grid>
+            <div class="uk-grid-large uk-child-width-1-2@m uk-grid-match" data-uk-grid>
               <div class="anim">
                 <div class="uk-card uk-card-default uk-card-body uk-card-hover calserver-highlight-card">
                   <h3 class="uk-card-title">Volle Kontrolle</h3>
@@ -1307,8 +1307,8 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
           <span class="muted">Ehrlich, transparent, ohne versteckte Kosten.</span>
         </div>
         <div class="uk-child-width-1-1 uk-child-width-1-3@m uk-grid-large uk-grid-match"
-             uk-grid
-             uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .anim; delay: 75; repeat: true">
+             data-uk-grid
+             data-uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .anim; delay: 75; repeat: true">
           <div class="anim">
             <div class="uk-card uk-card-default uk-card-body uk-text-center uk-card-hover shadow-soft">
               <h3>Standard</h3>
@@ -1356,7 +1356,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
     <section id="faq" class="uk-section uk-section-muted">
       <div class="uk-container">
         <h2 class="uk-heading-line"><span>Häufige Fragen</span></h2>
-        <ul uk-accordion>
+        <ul data-uk-accordion>
           <li>
             <a class="uk-accordion-title" href="#">Wie schnell bin ich mit der Cloud-Version startklar?</a>
             <div class="uk-accordion-content">
@@ -1402,8 +1402,8 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
           <p class="uk-text-lead uk-margin-small-top">Jetzt testen oder Demo buchen – wir zeigen, wie Ihre Prozesse in calServer aussehen.</p>
         </div>
         <div class="uk-grid-large uk-child-width-1-1 uk-child-width-1-2@m uk-grid-match"
-             uk-grid
-             uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .anim; delay: 75; repeat: true">
+             data-uk-grid
+             data-uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .anim; delay: 75; repeat: true">
           <div class="anim">
             <div class="uk-card uk-card-default uk-card-body uk-card-hover calserver-highlight-card">
               <div>
@@ -1448,9 +1448,9 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
 
     <section id="contact-us" class="uk-section">
       <div class="uk-container">
-        <h2 class="uk-heading-medium uk-text-center" uk-scrollspy="cls: uk-animation-slide-top-small">Noch Fragen? Wir sind für Sie da.</h2>
-        <p class="uk-text-lead uk-text-center" uk-scrollspy="cls: uk-animation-fade; delay: 150">Ob Testzugang, Angebot oder individuelle Beratung – wir melden uns garantiert persönlich zurück.</p>
-        <div class="uk-grid uk-child-width-1-2@m uk-grid-large uk-flex-top" uk-grid uk-scrollspy="target: > div; cls: uk-animation-slide-right-small; delay: 150">
+        <h2 class="uk-heading-medium uk-text-center" data-uk-scrollspy="cls: uk-animation-slide-top-small">Noch Fragen? Wir sind für Sie da.</h2>
+        <p class="uk-text-lead uk-text-center" data-uk-scrollspy="cls: uk-animation-fade; delay: 150">Ob Testzugang, Angebot oder individuelle Beratung – wir melden uns garantiert persönlich zurück.</p>
+        <div class="uk-grid uk-child-width-1-2@m uk-grid-large uk-flex-top" data-uk-grid data-uk-scrollspy="target: > div; cls: uk-animation-slide-right-small; delay: 150">
           <div>
                           <form id="contact-form" class="uk-form-stacked uk-width-large uk-margin-auto">
                 <div class="uk-margin">
@@ -1499,7 +1499,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
       </div>
     </section>
 
-    <div id="contact-modal" uk-modal>
+    <div id="contact-modal" data-uk-modal>
       <div class="uk-modal-dialog uk-modal-body">
         <p id="contact-modal-message" aria-live="polite"></p>
         <button class="uk-button uk-button-primary uk-modal-close" type="button">OK</button>
