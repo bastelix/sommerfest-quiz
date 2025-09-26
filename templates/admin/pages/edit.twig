@@ -15,10 +15,17 @@
 
 {% block body_class %}uk-background-muted uk-padding{% endblock %}
 
+{% set excludedLandingSlugs = ['impressum', 'datenschutz', 'faq', 'lizenz'] %}
+
 {% block body %}
   <div class="uk-container uk-container-expand">
     <h1 class="uk-heading-bullet">Seite bearbeiten: {{ slug }}</h1>
-    <form method="post" class="uk-form-stacked page-form" data-slug="{{ slug }}">
+    <form
+      method="post"
+      class="uk-form-stacked page-form"
+      data-slug="{{ slug }}"
+      data-landing="{{ slug not in excludedLandingSlugs ? 'true' : 'false' }}"
+    >
       <input type="hidden" id="pageContent" name="content" value="{{ content|e('html_attr') }}">
       <div class="page-editor" data-content="{{ content|e('html_attr') }}"></div>
       <div class="uk-margin-top">
