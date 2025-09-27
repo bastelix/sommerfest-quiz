@@ -7,6 +7,7 @@ namespace App\Service;
 use App\Application\Seo\PageSeoConfigService;
 use App\Domain\Page;
 use App\Domain\PageSeoConfig;
+use DOMDocument;
 use RuntimeException;
 
 /**
@@ -151,6 +152,8 @@ class LandingMediaReferenceService
             return [];
         }
 
+        $altMap = $this->collectImageAltMap($content);
+
         $matches = [];
         preg_match_all('~(?:\{\{\s*basePath\s*\}\}\s*)?/?uploads/[A-Za-z0-9_@./-]+~i', $content, $matches);
         if (!isset($matches[0])) {
@@ -163,13 +166,18 @@ class LandingMediaReferenceService
             if ($normalized === '') {
                 continue;
             }
-            $references[] = [
+            $reference = [
                 'slug' => $page->getSlug(),
                 'title' => $page->getTitle(),
                 'path' => $normalized,
                 'type' => self::TYPE_MARKUP,
                 'field' => 'content',
             ];
+            $altText = $altMap[$normalized] ?? null;
+            if (is_string($altText) && $altText !== '') {
+                $reference['alt'] = $altText;
+            }
+            $references[] = $reference;
         }
 
         return $this->deduplicateReferences($references);
@@ -281,6 +289,43 @@ class LandingMediaReferenceService
         $reference['extension'] = is_string($extension) ? strtolower($extension) : null;
 
         return $reference;
+    }
+
+    /**
+     * Extract image alt texts keyed by their normalized upload paths.
+     *
+     * @return array<string,string>
+     */
+    private function collectImageAltMap(string $content): array
+    {
+        if ($content === '') {
+            return [];
+        }
+
+        $map = [];
+        $previous = libxml_use_internal_errors(true);
+
+        $document = new DOMDocument();
+        $html = '<!DOCTYPE html><html><body>' . $content . '</body></html>';
+        if ($document->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
+            foreach ($document->getElementsByTagName('img') as $image) {
+                $src = $image->getAttribute('src');
+                $alt = trim($image->getAttribute('alt'));
+                if ($src === '' || $alt === '') {
+                    continue;
+                }
+                $normalized = $this->sanitizeUploadPath($src);
+                if ($normalized === '') {
+                    continue;
+                }
+                $map[$normalized] = $alt;
+            }
+        }
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+
+        return $map;
     }
 
     private function extractFolder(string $path): ?string
