@@ -4,6 +4,7 @@
 {% set acceptValue = allowedExtensions ? '.' ~ allowedExtensions|join(',.') : '' %}
 {% set sizeMb = (limits.maxSize|default(0) / 1048576)|number_format(1, '.', '') %}
 {% set limitText = t('text_media_limits')|format(sizeMb, allowedExtensions|join(', ')) %}
+{% set landingSlugs = mediaLandingSlugs|default([]) %}
 {% set translations = {
   'renamePrompt': t('prompt_media_rename'),
   'deleteConfirm': t('confirm_media_delete'),
@@ -42,6 +43,15 @@
   'copyUrlFallback': t('message_media_url_copy_fallback'),
   'copyUrlError': t('error_media_url_copy_failed'),
   'convert': t('button_media_convert'),
+  'landingFilter': t('label_media_filter_landing'),
+  'landingAll': t('option_media_all_landings'),
+  'landingMissingHeading': t('heading_media_landing_missing'),
+  'landingMissingEmpty': t('text_media_landing_missing'),
+  'landingPrefill': t('button_media_landing_prefill'),
+  'landingUsage': t('label_media_landing_references'),
+  'landingPreview': t('label_media_landing_preview'),
+  'landingMarkup': t('tooltip_media_landing_markup'),
+  'landingSeo': t('tooltip_media_landing_seo'),
 } %}
 {% set initialEventUid = mediaEventUid|default(event.uid|default('')) %}
 
@@ -61,6 +71,7 @@
     data-event-uid="{{ initialEventUid }}"
     data-limits="{{ limits|json_encode|e('html_attr') }}"
     data-translations="{{ translations|json_encode|e('html_attr') }}"
+    data-landing-slugs="{{ landingSlugs|json_encode|e('html_attr') }}"
   >
     <div class="uk-width-1-1 uk-width-2-3@l media-column">
       <div class="uk-card uk-card-default uk-card-small uk-margin media-controls-card">
@@ -76,6 +87,20 @@
               >
                 <option value="global" selected>{{ t('label_media_scope_global') }}</option>
                 <option value="event"{% if initialEventUid == '' %} disabled{% endif %}>{{ t('label_media_scope_event') }}</option>
+              </select>
+            </div>
+            <div class="uk-width-1-1 uk-width-expand@m" data-media-landing-filter>
+              <label class="uk-form-label" for="mediaLanding">{{ t('label_media_filter_landing') }}</label>
+              <select
+                id="mediaLanding"
+                class="uk-select uk-form-small"
+                data-media-landing
+                aria-label="{{ t('label_media_filter_landing') }}"
+              >
+                <option value="">{{ t('option_media_all_landings') }}</option>
+                {% for landing in landingSlugs %}
+                  <option value="{{ landing.slug|e }}">{{ landing.title|default(landing.slug)|e }}</option>
+                {% endfor %}
               </select>
             </div>
             <div class="uk-width-1-1 uk-width-expand@m">
@@ -239,6 +264,18 @@
         </p>
         <div class="uk-alert uk-alert-danger uk-margin-small-top" role="alert" data-media-error hidden></div>
       </div>
+
+      <div
+        class="uk-card uk-card-default uk-card-small uk-card-body uk-margin media-missing-card"
+        data-media-landing-missing-card
+        hidden
+      >
+        <h3 class="uk-card-title uk-margin-remove">{{ t('heading_media_landing_missing') }}</h3>
+        <p class="uk-text-meta uk-margin-small-bottom" data-media-landing-missing-empty>
+          {{ t('text_media_landing_missing') }}
+        </p>
+        <ul class="uk-list uk-list-divider" data-media-landing-missing></ul>
+      </div>
     </div>
 
     <div class="uk-width-1-1 uk-width-1-3@l">
@@ -335,6 +372,10 @@
             </div>
           </div>
           <div class="uk-text-meta uk-margin-small-top">{{ t('help_media_folder') }}</div>
+        </div>
+        <div class="media-landing-preview uk-margin-top" data-media-preview-landing hidden>
+          <h4 class="uk-heading-bullet">{{ t('label_media_landing_preview') }}</h4>
+          <ul class="uk-list uk-list-divider uk-text-small" data-media-preview-landing-list></ul>
         </div>
         <div class="uk-margin-top uk-flex uk-flex-wrap uk-grid-small media-preview-actions" uk-grid data-media-preview-actions hidden>
           <div>

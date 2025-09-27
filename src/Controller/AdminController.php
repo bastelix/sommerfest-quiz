@@ -25,6 +25,7 @@ use App\Service\UserService;
 use App\Service\VersionService;
 use App\Service\MediaLibraryService;
 use App\Service\ImageUploadService;
+use App\Service\LandingMediaReferenceService;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -139,6 +140,8 @@ class AdminController
         }
 
         $pageSvc = new PageService($pdo);
+        $seoSvc = new PageSeoConfigService($pdo);
+        $landingReferenceService = new LandingMediaReferenceService($pageSvc, $seoSvc, $configSvc);
         $pages = [];
         $pageContents = [];
         $allPages = $pageSvc->getAll();
@@ -220,7 +223,6 @@ class AdminController
             ?: getenv('DOMAIN')
             ?: $uri->getHost();
 
-        $seoSvc = new PageSeoConfigService($pdo);
         $selectedSeoSlug = isset($params['seoPage']) ? (string) $params['seoPage'] : '';
         $selectedSeoPage = $this->selectSeoPage($marketingPages, $selectedSeoSlug);
         $seoPages = $this->buildSeoPageData(
@@ -271,6 +273,7 @@ class AdminController
               'csrf_token' => $csrf,
               'version' => $version,
               'mediaLimits' => $mediaLimits,
+              'mediaLandingSlugs' => $landingReferenceService->getLandingSlugs(),
               'mediaEventUid' => $uid,
           ]);
     }

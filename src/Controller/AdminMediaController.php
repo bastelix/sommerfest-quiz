@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\ConfigService;
+use App\Service\LandingMediaReferenceService;
 use App\Service\MediaLibraryService;
 use JsonException;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -19,12 +20,18 @@ class AdminMediaController
 {
     private MediaLibraryService $media;
     private ConfigService $config;
+    private LandingMediaReferenceService $landing;
     private const FOLDER_NONE = '__no_folder__';
 
-    public function __construct(MediaLibraryService $media, ConfigService $config)
+    public function __construct(
+        MediaLibraryService $media,
+        ConfigService $config,
+        LandingMediaReferenceService $landing
+    )
     {
         $this->media = $media;
         $this->config = $config;
+        $this->landing = $landing;
     }
 
     /**
@@ -47,6 +54,7 @@ class AdminMediaController
             'csrf_token' => $csrf,
             'eventUid' => $eventUid,
             'limits' => $this->media->getLimits(),
+            'mediaLandingSlugs' => $this->landing->getLandingSlugs(),
             'role' => $role,
             'currentPath' => $request->getUri()->getPath(),
             'domainType' => $request->getAttribute('domainType'),
@@ -74,6 +82,52 @@ class AdminMediaController
             $files = $this->media->listFiles($scope, $eventUid !== '' ? $eventUid : null);
         } catch (RuntimeException $e) {
             return $this->jsonError($response, $e->getMessage(), 400);
+        }
+
+        $landingFilter = '';
+        $landingData = [
+            'slugs' => $this->landing->getLandingSlugs(),
+            'missing' => [],
+            'active' => '',
+        ];
+
+        if ($scope === MediaLibraryService::SCOPE_GLOBAL) {
+            $landingReferences = $this->landing->collect();
+            $landingData['slugs'] = $landingReferences['slugs'];
+            $landingData['missing'] = $landingReferences['missing'];
+
+            $map = $landingReferences['files'];
+            foreach ($files as &$file) {
+                $normalized = $this->landing->normalizeFilePath((string) ($file['path'] ?? $file['url'] ?? ''));
+                if ($normalized !== null && isset($map[$normalized])) {
+                    $file['landing'] = $map[$normalized];
+                }
+            }
+            unset($file);
+
+            $landingFilter = trim((string) ($params['landing'] ?? ''));
+            if ($landingFilter !== '') {
+                $files = array_values(array_filter(
+                    $files,
+                    static function (array $file) use ($landingFilter): bool {
+                        if (!isset($file['landing']) || !is_array($file['landing'])) {
+                            return false;
+                        }
+                        foreach ($file['landing'] as $reference) {
+                            if (!is_array($reference)) {
+                                continue;
+                            }
+                            if ((string) ($reference['slug'] ?? '') === $landingFilter) {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    }
+                ));
+            }
+
+            $landingData['active'] = $landingFilter;
         }
 
         $availableTags = $this->collectTags($files);
@@ -152,8 +206,10 @@ class AdminMediaController
                 'active' => [
                     'tags' => $rawTagFilters,
                     'folder' => $withoutFolder ? self::FOLDER_NONE : $rawFolderFilter,
+                    'landing' => $landingFilter,
                 ],
             ],
+            'landing' => $landingData,
         ];
 
         return $this->json($response, $payload);
@@ -542,6 +598,11 @@ class AdminMediaController
         $payload = [
             'error' => $message,
             'limits' => $this->media->getLimits(),
+            'landing' => [
+                'slugs' => $this->landing->getLandingSlugs(),
+                'missing' => [],
+                'active' => '',
+            ],
         ];
 
         return $this->json($response, $payload, $status);

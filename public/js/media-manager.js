@@ -138,7 +138,16 @@ ready(() => {
       copyUrlSuccess: 'Link copied to clipboard.',
       copyUrlFallback: 'Copy the URL manually from the field.',
       copyUrlError: 'Copy failed. Copy the link manually.',
-      convert: 'Convert to WebP'
+      convert: 'Convert to WebP',
+      landingFilter: 'Landing page',
+      landingAll: 'All landing pages',
+      landingMissingHeading: 'Missing landing assets',
+      landingMissingEmpty: 'All landing assets available.',
+      landingPrefill: 'Prefill upload',
+      landingUsage: 'Landing pages',
+      landingPreview: 'Landing references',
+      landingMarkup: 'Landing content',
+      landingSeo: 'Landing SEO'
     };
 
     const translations = {
@@ -194,10 +203,18 @@ ready(() => {
     const metadataFolderInput = root.querySelector('[data-media-meta-folder]');
     const metadataSaveFolder = root.querySelector('[data-media-meta-save-folder]');
     const metadataClearFolder = root.querySelector('[data-media-meta-clear-folder]');
+    const landingFilterContainer = root.querySelector('[data-media-landing-filter]');
+    const landingFilterSelect = root.querySelector('[data-media-landing]');
+    const landingMissingCard = root.querySelector('[data-media-landing-missing-card]');
+    const landingMissingList = root.querySelector('[data-media-landing-missing]');
+    const landingMissingEmpty = root.querySelector('[data-media-landing-missing-empty]');
+    const previewLanding = root.querySelector('[data-media-preview-landing]');
+    const previewLandingList = root.querySelector('[data-media-preview-landing-list]');
 
     const initialLimits = parseJsonAttribute(root, 'data-limits', {});
     const limitTemplate = limitText?.dataset.template || '';
     const initialEventUid = root.getAttribute('data-event-uid') || '';
+    const initialLandingSlugs = parseJsonAttribute(root, 'data-landing-slugs', []);
     const NO_FOLDER_FILTER = '__no_folder__';
 
     const state = {
@@ -219,6 +236,11 @@ ready(() => {
       available: {
         tags: [],
         folders: [],
+      },
+      landing: {
+        slug: '',
+        slugs: Array.isArray(initialLandingSlugs) ? initialLandingSlugs : [],
+        missing: [],
       },
       metadataSaving: false,
       replacing: false,
@@ -242,6 +264,9 @@ ready(() => {
     }
 
     updateLimitText(initialLimits);
+    renderLandingFilter();
+    updateLandingFilterVisibility();
+    renderLandingMissing();
 
     function clearError() {
       if (!errorBox) return;
@@ -325,6 +350,39 @@ ready(() => {
       return state.files.find((file) => file.name === state.selectedName) || null;
     }
 
+    function renderLandingPreview(file) {
+      if (!previewLanding || !previewLandingList) return;
+      previewLandingList.innerHTML = '';
+      const references = Array.isArray(file?.landing) ? file.landing : [];
+      if (!references.length) {
+        previewLanding.hidden = true;
+        return;
+      }
+      previewLanding.hidden = false;
+      references.forEach((reference) => {
+        if (!reference || typeof reference !== 'object') {
+          return;
+        }
+        const item = document.createElement('li');
+        item.className = 'media-landing-preview-item';
+        const title = document.createElement('div');
+        title.className = 'uk-text-small uk-text-bold';
+        const label = reference.title || reference.slug || '';
+        title.textContent = label || (reference.slug ? String(reference.slug) : '');
+        item.appendChild(title);
+        const meta = document.createElement('div');
+        meta.className = 'uk-text-meta';
+        const type = typeof reference.type === 'string' ? reference.type.toLowerCase() : '';
+        const typeLabel = type === 'seo'
+          ? (translations.landingSeo || fallbackTranslations.landingSeo)
+          : (translations.landingMarkup || fallbackTranslations.landingMarkup);
+        const field = reference.field ? String(reference.field) : '';
+        meta.textContent = field ? `${typeLabel} · ${field}` : typeLabel;
+        item.appendChild(meta);
+        previewLandingList.appendChild(item);
+      });
+    }
+
     function updatePreview(file) {
       if (!previewImage || !previewPlaceholder || !previewMeta || !previewActions) return;
       if (!file) {
@@ -348,6 +406,8 @@ ready(() => {
           previewConvert.disabled = true;
           previewConvert.setAttribute('aria-disabled', 'true');
         }
+        if (previewLanding) previewLanding.hidden = true;
+        if (previewLandingList) previewLandingList.innerHTML = '';
         renderMetadataEditor(null);
         return;
       }
@@ -384,6 +444,7 @@ ready(() => {
         previewConvert.disabled = !convertible || state.converting;
         previewConvert.setAttribute('aria-disabled', previewConvert.disabled ? 'true' : 'false');
       }
+      renderLandingPreview(file);
       renderMetadataEditor(file);
     }
 
@@ -530,6 +591,28 @@ ready(() => {
           nameTd.appendChild(folderInfo);
         }
 
+        if (Array.isArray(file.landing) && file.landing.length) {
+          const landingWrap = document.createElement('div');
+          landingWrap.className = 'media-landing-badges uk-margin-small-top';
+          file.landing.forEach((reference) => {
+            if (!reference || typeof reference !== 'object') {
+              return;
+            }
+            const badge = document.createElement('span');
+            badge.className = 'uk-label uk-label-warning uk-margin-small-right';
+            const label = reference.title || reference.slug || '';
+            badge.textContent = label;
+            const type = typeof reference.type === 'string' ? reference.type.toLowerCase() : '';
+            const tooltip = type === 'seo'
+              ? (translations.landingSeo || fallbackTranslations.landingSeo)
+              : (translations.landingMarkup || fallbackTranslations.landingMarkup);
+            badge.title = tooltip;
+            badge.setAttribute('aria-label', tooltip);
+            landingWrap.appendChild(badge);
+          });
+          nameTd.appendChild(landingWrap);
+        }
+
         const sizeTd = document.createElement('td');
         sizeTd.textContent = formatSize(file.size);
         const modifiedTd = document.createElement('td');
@@ -644,6 +727,11 @@ ready(() => {
         row.appendChild(sizeTd);
         row.appendChild(modifiedTd);
         row.appendChild(actionsTd);
+        if (state.landing.slug) {
+          const matchesLanding = Array.isArray(file.landing)
+            && file.landing.some((reference) => (reference?.slug || '') === state.landing.slug);
+          row.classList.toggle('media-landing-match', matchesLanding);
+        }
         tableBody.appendChild(row);
       });
       highlightRows();
@@ -731,9 +819,106 @@ ready(() => {
       folderFilterSelect.value = current;
     }
 
+    function renderLandingFilter() {
+      if (!landingFilterSelect) return;
+      const options = Array.isArray(state.landing.slugs) ? state.landing.slugs : [];
+      const selected = state.landing.slug || '';
+      const defaultText = translations.landingAll || fallbackTranslations.landingAll;
+      landingFilterSelect.innerHTML = '';
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = defaultText;
+      landingFilterSelect.appendChild(defaultOption);
+      options.forEach((entry) => {
+        if (!entry || typeof entry !== 'object') {
+          return;
+        }
+        const slug = typeof entry.slug === 'string' ? entry.slug : '';
+        if (!slug) {
+          return;
+        }
+        const option = document.createElement('option');
+        option.value = slug;
+        const title = typeof entry.title === 'string' && entry.title !== '' ? entry.title : slug;
+        option.textContent = title;
+        landingFilterSelect.appendChild(option);
+      });
+      landingFilterSelect.value = selected;
+    }
+
+    function updateLandingFilterVisibility() {
+      const isGlobal = state.scope === 'global';
+      if (landingFilterContainer) {
+        landingFilterContainer.hidden = !isGlobal;
+      }
+      if (landingFilterSelect) {
+        landingFilterSelect.disabled = !isGlobal;
+      }
+    }
+
+    function renderLandingMissing() {
+      if (!landingMissingCard) return;
+      const isGlobal = state.scope === 'global';
+      const missing = Array.isArray(state.landing.missing) ? state.landing.missing : [];
+      if (!isGlobal || missing.length === 0) {
+        landingMissingCard.hidden = true;
+        if (landingMissingList) landingMissingList.innerHTML = '';
+        if (landingMissingEmpty) {
+          landingMissingEmpty.hidden = false;
+          landingMissingEmpty.textContent = translations.landingMissingEmpty
+            || fallbackTranslations.landingMissingEmpty;
+        }
+        return;
+      }
+
+      landingMissingCard.hidden = false;
+      if (landingMissingEmpty) landingMissingEmpty.hidden = true;
+      if (landingMissingList) {
+        landingMissingList.innerHTML = '';
+        missing.forEach((entry) => {
+          if (!entry || typeof entry !== 'object') {
+            return;
+          }
+          const item = document.createElement('li');
+          item.className = 'media-landing-missing-item';
+          const pathLabel = document.createElement('div');
+          pathLabel.className = 'uk-text-small uk-text-bold';
+          const displayPath = typeof entry.displayPath === 'string' && entry.displayPath !== ''
+            ? entry.displayPath
+            : entry.path ? `/${String(entry.path).replace(/^\/+/, '')}` : '';
+          pathLabel.textContent = displayPath;
+          item.appendChild(pathLabel);
+          const meta = document.createElement('div');
+          meta.className = 'uk-text-meta';
+          const slugTitle = entry.title || entry.slug || '';
+          const type = typeof entry.type === 'string' ? entry.type.toLowerCase() : '';
+          const typeLabel = type === 'seo'
+            ? (translations.landingSeo || fallbackTranslations.landingSeo)
+            : (translations.landingMarkup || fallbackTranslations.landingMarkup);
+          meta.textContent = slugTitle ? `${slugTitle} · ${typeLabel}` : typeLabel;
+          item.appendChild(meta);
+          const actions = document.createElement('div');
+          actions.className = 'uk-margin-small-top';
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'uk-button uk-button-default uk-button-xsmall';
+          button.dataset.mediaLandingPrefill = 'true';
+          button.dataset.name = entry.suggestedName || '';
+          button.dataset.folder = entry.suggestedFolder || '';
+          button.dataset.slug = entry.slug || '';
+          button.dataset.extension = entry.extension || '';
+          button.textContent = translations.landingPrefill || fallbackTranslations.landingPrefill;
+          actions.appendChild(button);
+          item.appendChild(actions);
+          landingMissingList.appendChild(item);
+        });
+      }
+    }
+
     function renderFilterControls() {
       renderTagFilters();
       renderFolderFilter();
+      renderLandingFilter();
     }
 
     function updateEventHint() {
@@ -810,10 +995,13 @@ ready(() => {
         state.totalPages = 1;
         state.available.tags = [];
         state.available.folders = [];
+        state.landing.missing = [];
         renderFiles();
         showError(translations.eventRequired);
         updatePagination();
         renderFilterControls();
+        renderLandingMissing();
+        updateLandingFilterVisibility();
         return;
       }
       state.loading = true;
@@ -831,6 +1019,9 @@ ready(() => {
       if (state.filters.folder) {
         params.set('folder', state.filters.folder);
       }
+      if (state.scope === 'global' && state.landing.slug) {
+        params.set('landing', state.landing.slug);
+      }
       if (state.scope === 'event' && state.eventUid) {
         params.set('event', state.eventUid);
       }
@@ -847,19 +1038,34 @@ ready(() => {
         const activeFilters = filters.active || {};
         state.filters.tags = Array.isArray(activeFilters.tags) ? uniqueTags(activeFilters.tags) : [];
         state.filters.folder = typeof activeFilters.folder === 'string' ? activeFilters.folder : '';
+        if (state.scope === 'global') {
+          const landing = data.landing || {};
+          if (Array.isArray(landing.slugs)) {
+            state.landing.slugs = landing.slugs;
+          }
+          state.landing.missing = Array.isArray(landing.missing) ? landing.missing : [];
+          state.landing.slug = typeof landing.active === 'string' ? landing.active : state.landing.slug;
+        } else {
+          state.landing.missing = [];
+          state.landing.slug = '';
+        }
         renderFiles();
         clearError();
+        renderLandingMissing();
       } catch (err) {
         state.files = [];
         renderFiles();
         showError(err.message);
         state.available.tags = [];
         state.available.folders = [];
+        state.landing.missing = [];
       } finally {
         state.loading = false;
         if (root) root.setAttribute('aria-busy', 'false');
         updatePagination();
         renderFilterControls();
+        renderLandingMissing();
+        updateLandingFilterVisibility();
       }
     }
 
@@ -1215,7 +1421,15 @@ ready(() => {
       scopeSelect.addEventListener('change', () => {
         state.scope = scopeSelect.value || 'global';
         state.page = 1;
+        if (state.scope !== 'global') {
+          state.landing.slug = '';
+          state.landing.missing = [];
+          if (landingFilterSelect) landingFilterSelect.value = '';
+        }
         updateUploadState();
+        updateLandingFilterVisibility();
+        renderLandingFilter();
+        renderLandingMissing();
         loadFiles();
       });
     }
@@ -1263,13 +1477,64 @@ ready(() => {
     });
 
     clearFiltersBtn?.addEventListener('click', () => {
-      if (!state.filters.tags.length && !state.filters.folder) {
+      if (!state.filters.tags.length && !state.filters.folder && !state.landing.slug) {
         return;
       }
       state.filters.tags = [];
       state.filters.folder = '';
+      state.landing.slug = '';
+      if (landingFilterSelect) landingFilterSelect.value = '';
       state.page = 1;
       loadFiles();
+    });
+
+    landingFilterSelect?.addEventListener('change', () => {
+      if (state.scope !== 'global') {
+        if (landingFilterSelect) landingFilterSelect.value = '';
+        return;
+      }
+      const value = landingFilterSelect.value || '';
+      if (state.landing.slug === value) {
+        return;
+      }
+      state.landing.slug = value;
+      state.page = 1;
+      loadFiles();
+    });
+
+    landingMissingList?.addEventListener('click', (event) => {
+      const target = event.target;
+      const button = target && typeof target.closest === 'function'
+        ? target.closest('[data-media-landing-prefill]')
+        : null;
+      if (!button) {
+        return;
+      }
+      event.preventDefault();
+      const suggestedName = button.getAttribute('data-name') || '';
+      const suggestedFolder = button.getAttribute('data-folder') || '';
+      const slug = button.getAttribute('data-slug') || '';
+      if (nameInput && suggestedName) {
+        nameInput.value = suggestedName;
+      }
+      if (uploadFolderInput) {
+        uploadFolderInput.value = suggestedFolder;
+      }
+      if (slug && landingFilterSelect) {
+        landingFilterSelect.value = slug;
+        state.landing.slug = slug;
+      }
+      if (state.scope !== 'global' && scopeSelect) {
+        scopeSelect.value = 'global';
+        state.scope = 'global';
+        state.page = 1;
+        updateUploadState();
+        updateLandingFilterVisibility();
+        loadFiles();
+      } else {
+        updateUploadState();
+      }
+      nameInput?.focus?.();
     });
 
     refreshBtn?.addEventListener('click', () => {
