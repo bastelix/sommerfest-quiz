@@ -9,6 +9,7 @@
   'deleteConfirm': t('confirm_media_delete'),
   'uploaded': t('message_media_uploaded'),
   'replaced': t('message_media_replaced'),
+  'converted': t('message_media_converted'),
   'renamed': t('message_media_renamed'),
   'deleted': t('message_media_deleted'),
   'requestFailed': t('error_media_request_failed'),
@@ -40,6 +41,7 @@
   'copyUrlSuccess': t('message_media_url_copied'),
   'copyUrlFallback': t('message_media_url_copy_fallback'),
   'copyUrlError': t('error_media_url_copy_failed'),
+  'convert': t('button_media_convert'),
 } %}
 {% set initialEventUid = mediaEventUid|default(event.uid|default('')) %}
 
@@ -343,6 +345,11 @@
           <div>
             <button type="button" class="uk-button uk-button-default uk-button-small" data-media-replace>
               {{ t('button_media_replace') }}
+            </button>
+          </div>
+          <div data-media-convert-container hidden>
+            <button type="button" class="uk-button uk-button-default uk-button-small" data-media-convert>
+              {{ t('button_media_convert') }}
             </button>
           </div>
           <div>

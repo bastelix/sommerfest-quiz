@@ -106,6 +106,7 @@ ready(() => {
       deleteConfirm: 'Delete this file?',
       uploaded: 'File uploaded.',
       replaced: 'File replaced.',
+      converted: 'WebP file created.',
       renamed: 'File renamed.',
       deleted: 'File deleted.',
       requestFailed: 'Action failed.',
@@ -136,7 +137,8 @@ ready(() => {
       copyUrl: 'Copy URL',
       copyUrlSuccess: 'Link copied to clipboard.',
       copyUrlFallback: 'Copy the URL manually from the field.',
-      copyUrlError: 'Copy failed. Copy the link manually.'
+      copyUrlError: 'Copy failed. Copy the link manually.',
+      convert: 'Convert to WebP'
     };
 
     const translations = {
@@ -181,6 +183,8 @@ ready(() => {
     const previewCopyButton = root.querySelector('[data-media-preview-copy]');
     const previewDownload = root.querySelector('[data-media-download]');
     const previewReplace = root.querySelector('[data-media-replace]');
+    const previewConvert = root.querySelector('[data-media-convert]');
+    const previewConvertContainer = root.querySelector('[data-media-convert-container]');
     const previewRename = root.querySelector('[data-media-rename]');
     const previewDelete = root.querySelector('[data-media-delete]');
     const metadataPanel = root.querySelector('[data-media-metadata]');
@@ -217,7 +221,8 @@ ready(() => {
         folders: [],
       },
       metadataSaving: false,
-      replacing: false
+      replacing: false,
+      converting: false
     };
 
     function updateLimitText(limits) {
@@ -300,6 +305,22 @@ ready(() => {
       return result;
     }
 
+    function canConvert(file) {
+      if (!file) {
+        return false;
+      }
+      const name = String(file.name || '').toLowerCase();
+      const extension = String(file.extension || '').toLowerCase();
+      const ext = extension || (name.includes('.') ? name.split('.').pop() : '');
+      if (!ext) {
+        return false;
+      }
+      if (ext === 'webp' || ext === 'svg') {
+        return false;
+      }
+      return ['png', 'jpg', 'jpeg'].includes(ext);
+    }
+
     function getSelectedFile() {
       return state.files.find((file) => file.name === state.selectedName) || null;
     }
@@ -321,6 +342,11 @@ ready(() => {
         if (previewDownload) {
           previewDownload.href = '#';
           previewDownload.removeAttribute('download');
+        }
+        if (previewConvertContainer) previewConvertContainer.hidden = true;
+        if (previewConvert) {
+          previewConvert.disabled = true;
+          previewConvert.setAttribute('aria-disabled', 'true');
         }
         renderMetadataEditor(null);
         return;
@@ -349,6 +375,14 @@ ready(() => {
       if (previewDownload) {
         previewDownload.href = url || '#';
         previewDownload.setAttribute('download', file.name || '');
+      }
+      const convertible = canConvert(file);
+      if (previewConvertContainer) {
+        previewConvertContainer.hidden = !convertible;
+      }
+      if (previewConvert) {
+        previewConvert.disabled = !convertible || state.converting;
+        previewConvert.setAttribute('aria-disabled', previewConvert.disabled ? 'true' : 'false');
       }
       renderMetadataEditor(file);
     }
@@ -555,6 +589,22 @@ ready(() => {
         });
         replaceItem.appendChild(replaceLink);
         dropdownList.appendChild(replaceItem);
+
+        if (canConvert(file)) {
+          const convertItem = document.createElement('li');
+          const convertLink = document.createElement('a');
+          convertLink.href = '#';
+          convertLink.setAttribute('role', 'button');
+          convertLink.textContent = translations.convert;
+          convertLink.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            handleConvert(file);
+            hideDropdown();
+          });
+          convertItem.appendChild(convertLink);
+          dropdownList.appendChild(convertItem);
+        }
 
         const renameItem = document.createElement('li');
         const renameLink = document.createElement('a');
@@ -1061,6 +1111,55 @@ ready(() => {
       }
     }
 
+    function handleConvert(file) {
+      if (!file || state.converting || !canConvert(file)) {
+        return;
+      }
+      if (state.scope === 'event' && !state.eventUid) {
+        showError(translations.eventRequired);
+        return;
+      }
+      startConvert(file);
+    }
+
+    async function startConvert(file) {
+      if (!file || state.converting) {
+        return;
+      }
+      if (!canConvert(file)) {
+        return;
+      }
+      if (state.scope === 'event' && !state.eventUid) {
+        showError(translations.eventRequired);
+        return;
+      }
+      try {
+        state.converting = true;
+        updatePreview(file);
+        const data = await fetchJson('/admin/media/convert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            scope: state.scope,
+            name: file.name,
+            event: state.scope === 'event' ? state.eventUid : ''
+          })
+        });
+        updateLimitText(data.limits || {});
+        notify(translations.converted || translations.metadataSaved, 'success');
+        if (data.file?.name) {
+          state.selectedName = data.file.name;
+        }
+        await loadFiles();
+      } catch (err) {
+        notify(err.message || translations.requestFailed, 'danger');
+      } finally {
+        state.converting = false;
+        const current = getSelectedFile();
+        updatePreview(current);
+      }
+    }
+
     async function handleRename(file) {
       const newName = window.prompt(translations.renamePrompt, file.name);
       if (!newName || newName === file.name) {
@@ -1286,6 +1385,13 @@ ready(() => {
       const file = getSelectedFile();
       if (file) {
         handleReplace(file);
+      }
+    });
+
+    previewConvert?.addEventListener('click', () => {
+      const file = getSelectedFile();
+      if (file) {
+        handleConvert(file);
       }
     });
 

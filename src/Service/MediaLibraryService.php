@@ -217,6 +217,74 @@ class MediaLibraryService
     }
 
     /**
+     * Convert an existing raster image to WebP and store it alongside the original file.
+     */
+    public function convertFileToWebp(string $scope, string $name, ?string $eventUid = null): array
+    {
+        $name = $this->sanitizeExistingName($name);
+
+        [$dir, $relative, $publicPath, $resolvedUid] = $this->resolveScope($scope, $eventUid);
+        $sourcePath = $dir . DIRECTORY_SEPARATOR . $name;
+        if (!is_file($sourcePath)) {
+            throw new RuntimeException('file not found');
+        }
+
+        $extension = strtolower((string) pathinfo($name, PATHINFO_EXTENSION));
+        if (in_array($extension, ['webp', 'svg'], true)) {
+            throw new RuntimeException('unsupported conversion');
+        }
+
+        if (!in_array($extension, ['png', 'jpg', 'jpeg'], true)) {
+            throw new RuntimeException('unsupported conversion');
+        }
+
+        $baseName = (string) pathinfo($name, PATHINFO_FILENAME);
+        $baseName = $this->sanitizeBaseName($baseName);
+        if ($baseName === '') {
+            $baseName = 'image';
+        }
+
+        $targetBase = $this->uniqueBaseName($dir, $baseName, 'webp');
+        $targetName = $targetBase . '.webp';
+
+        $image = $this->images->readExistingImage($sourcePath, true);
+        $this->images->saveImage(
+            $image,
+            $relative,
+            $targetName,
+            null,
+            null,
+            ImageUploadService::QUALITY_PHOTO,
+            'webp'
+        );
+
+        $targetPath = $dir . DIRECTORY_SEPARATOR . $targetName;
+        clearstatcache(true, $targetPath);
+
+        $metadata = $this->readMetadata($dir);
+        $sourceMeta = $metadata[$name] ?? null;
+        if ($sourceMeta !== null) {
+            $tags = array_values(array_map('strval', $sourceMeta['tags'] ?? []));
+            $folderValue = $sourceMeta['folder'] ?? null;
+            $folder = is_string($folderValue) && $folderValue !== '' ? $folderValue : null;
+            $metadata = $this->applyMetadata(
+                $dir,
+                $metadata,
+                $targetName,
+                $tags,
+                $folder,
+                true,
+                true,
+                null
+            );
+        }
+
+        $entryMeta = $metadata[$targetName] ?? ['tags' => [], 'folder' => null];
+
+        return $this->buildFileInfo($targetPath, $publicPath, $scope, $resolvedUid, $entryMeta);
+    }
+
+    /**
      * Rename an existing file.
      */
     public function renameFile(

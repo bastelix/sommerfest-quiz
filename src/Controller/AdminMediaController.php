@@ -251,6 +251,36 @@ class AdminMediaController
     }
 
     /**
+     * Convert an existing image to WebP.
+     */
+    public function convert(Request $request, Response $response): Response
+    {
+        $data = $this->parseBody($request);
+        $scope = (string) ($data['scope'] ?? MediaLibraryService::SCOPE_GLOBAL);
+        $name = (string) ($data['name'] ?? '');
+        $eventUid = (string) ($data['event'] ?? '');
+        if ($eventUid === '') {
+            $eventUid = (string) ($_SESSION['event_uid'] ?? $this->config->getActiveEventUid());
+        }
+
+        if ($name === '') {
+            return $this->jsonError($response, 'invalid filename', 400);
+        }
+
+        try {
+            $file = $this->media->convertFileToWebp($scope, $name, $eventUid !== '' ? $eventUid : null);
+        } catch (RuntimeException $e) {
+            return $this->jsonError($response, $e->getMessage(), 400);
+        }
+
+        return $this->json($response, [
+            'file' => $file,
+            'message' => 'converted',
+            'limits' => $this->media->getLimits(),
+        ]);
+    }
+
+    /**
      * Rename a file.
      */
     public function rename(Request $request, Response $response): Response
