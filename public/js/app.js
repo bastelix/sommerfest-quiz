@@ -4,6 +4,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const accessibilityToggles = document.querySelectorAll('.accessibility-toggle');
   const configMenuToggle = document.getElementById('configMenuToggle');
   const configMenu = document.getElementById('menuDrop');
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const adminSidebar = document.getElementById('adminSidebar');
+  const sidebarHasItems = adminSidebar && adminSidebar.querySelector('li');
   const offcanvasToggle = document.getElementById('offcanvas-toggle');
   const offcanvas = document.getElementById('qr-offcanvas');
   const offcanvasHasItems = offcanvas && offcanvas.querySelector('li');
@@ -16,6 +19,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (offcanvasToggle && !offcanvasHasItems) {
     offcanvasToggle.hidden = true;
+  }
+
+  if (sidebarToggle) {
+    if (!sidebarHasItems) {
+      sidebarToggle.hidden = true;
+    } else {
+      const collapsedKey = (typeof STORAGE_KEYS !== 'undefined' && STORAGE_KEYS.ADMIN_SIDEBAR)
+        ? STORAGE_KEYS.ADMIN_SIDEBAR
+        : 'adminSidebarCollapsed';
+      const setCollapsedState = (collapsed) => {
+        document.body.classList.toggle('sidebar-collapsed', collapsed);
+        sidebarToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+        sidebarToggle.setAttribute('aria-pressed', collapsed ? 'true' : 'false');
+      };
+      const storedSidebar = (typeof getStored === 'function') ? getStored(collapsedKey) : null;
+      const initialCollapsed = storedSidebar === 'true' || storedSidebar === '1';
+      setCollapsedState(initialCollapsed);
+      sidebarToggle.addEventListener('click', () => {
+        const collapsed = !document.body.classList.contains('sidebar-collapsed');
+        setCollapsedState(collapsed);
+        if (typeof setStored === 'function') {
+          setStored(collapsedKey, collapsed ? '1' : '0');
+        }
+      });
+    }
   }
 
   if (teamNameBtn) {
