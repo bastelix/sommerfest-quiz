@@ -650,7 +650,10 @@ VALUES (
                     <li>Tickets + Chancen-/Risiken-Bewertung</li>
                     <li>Bidirektionale Synchronisation mit Fluke MET/TEAM &amp; MET/CAL</li>
                   </ul>
-                                    <a class="uk-button uk-button-text uk-margin-top" href="#">
+                  <a class="uk-button uk-button-text uk-margin-top"
+                    href="{{ basePath }}/ipload/calserver-usecase-ifm-highlights.pdf"
+                    target="_blank"
+                    rel="noopener">
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
@@ -689,7 +692,10 @@ VALUES (
                     <li>Auftragsbearbeitung als Taktgeber</li>
                     <li>DMS &amp; Reporting integriert</li>
                   </ul>
-                                    <a class="uk-button uk-button-text uk-margin-top" href="#">
+                  <a class="uk-button uk-button-text uk-margin-top"
+                    href="{{ basePath }}/ipload/calserver-usecase-ksw-highlights.pdf"
+                    target="_blank"
+                    rel="noopener">
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
@@ -728,7 +734,10 @@ VALUES (
                     <li>Reports direkt aus den Prozessdaten</li>
                     <li>Versionierung &amp; Nachvollziehbarkeit (DMS)</li>
                   </ul>
-                                    <a class="uk-button uk-button-text uk-margin-top" href="#">
+                  <a class="uk-button uk-button-text uk-margin-top"
+                    href="{{ basePath }}/ipload/calserver-usecase-systems-highlights.pdf"
+                    target="_blank"
+                    rel="noopener">
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
@@ -767,7 +776,10 @@ VALUES (
                     <li>DAkkS-konforme Prüfhistorie</li>
                     <li>Serienexports &amp; Auswertungen</li>
                   </ul>
-                                    <a class="uk-button uk-button-text uk-margin-top" href="#">
+                  <a class="uk-button uk-button-text uk-margin-top"
+                    href="{{ basePath }}/ipload/calserver-usecase-teramess-highlights.pdf"
+                    target="_blank"
+                    rel="noopener">
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
@@ -806,7 +818,10 @@ VALUES (
                     <li>Revisionssicheres DMS für Zertifikate &amp; Historie</li>
                     <li>Bidirektionale Synchronisation mit Fluke MET/TEAM &amp; MET/CAL</li>
                   </ul>
-                                    <a class="uk-button uk-button-text uk-margin-top" href="#">
+                  <a class="uk-button uk-button-text uk-margin-top"
+                    href="{{ basePath }}/ipload/calserver-usecase-thermo-highlights.pdf"
+                    target="_blank"
+                    rel="noopener">
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
@@ -845,7 +860,10 @@ VALUES (
                     <li>SSO für schnellen, sicheren Zugang</li>
                     <li>Bidirektionale Synchronisation mit Fluke MET/TEAM &amp; MET/CAL</li>
                   </ul>
-                                    <a class="uk-button uk-button-text uk-margin-top" href="#">
+                  <a class="uk-button uk-button-text uk-margin-top"
+                    href="{{ basePath }}/ipload/calserver-usecase-zf-highlights.pdf"
+                    target="_blank"
+                    rel="noopener">
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
@@ -884,7 +902,10 @@ VALUES (
                     <li>Geplante &amp; ungeplante Wartung aus einem System</li>
                     <li>Dashboards für Verfügbarkeit &amp; Performance</li>
                   </ul>
-                                    <a class="uk-button uk-button-text uk-margin-top" href="#">
+                  <a class="uk-button uk-button-text uk-margin-top"
+                    href="{{ basePath }}/ipload/calserver-usecase-berlin-highlights.pdf"
+                    target="_blank"
+                    rel="noopener">
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
@@ -923,7 +944,10 @@ VALUES (
                     <li>Audit-Trails &amp; versionierte Freigaben</li>
                     <li>Bidirektionale Synchronisation mit Fluke MET/TEAM &amp; MET/CAL</li>
                   </ul>
-                                    <a class="uk-button uk-button-text uk-margin-top" href="#">
+                  <a class="uk-button uk-button-text uk-margin-top"
+                    href="{{ basePath }}/ipload/calserver-usecase-vde-highlights.pdf"
+                    target="_blank"
+                    rel="noopener">
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
