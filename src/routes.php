@@ -16,6 +16,7 @@ use App\Controller\LoginController;
 use App\Controller\LogoutController;
 use App\Controller\ConfigController;
 use App\Controller\CatalogController;
+use App\Application\Seo\PageSeoConfigService;
 use App\Application\Middleware\RoleAuthMiddleware;
 use App\Service\ConfigService;
 use App\Service\ConfigValidator;
@@ -90,6 +91,7 @@ use App\Controller\EventImageController;
 use App\Controller\GlobalMediaController;
 use App\Service\ImageUploadService;
 use App\Service\MediaLibraryService;
+use App\Service\LandingMediaReferenceService;
 use Slim\Views\Twig;
 use GuzzleHttp\Client;
 use Psr\Log\NullLogger;
@@ -242,6 +244,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         $playerService = new PlayerService($pdo);
         $imageUploadService = new ImageUploadService();
         $mediaLibraryService = new MediaLibraryService($configService, $imageUploadService);
+        $landingReferenceService = new LandingMediaReferenceService(
+            new PageService($pdo),
+            new PageSeoConfigService($pdo),
+            $configService
+        );
 
         $request = $request
             ->withAttribute('plan', $plan)
@@ -302,7 +309,12 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('onboardingEmailController', new OnboardingEmailController($emailConfirmService))
             ->withAttribute('catalogDesignController', new CatalogDesignController($catalogService))
             ->withAttribute('mediaLibraryService', $mediaLibraryService)
-            ->withAttribute('adminMediaController', new AdminMediaController($mediaLibraryService, $configService))
+            ->withAttribute('landingMediaReferenceService', $landingReferenceService)
+            ->withAttribute('adminMediaController', new AdminMediaController(
+                $mediaLibraryService,
+                $configService,
+                $landingReferenceService
+            ))
             ->withAttribute('logoController', new LogoController($configService, $imageUploadService))
             ->withAttribute('qrLogoController', new QrLogoController($configService, $imageUploadService))
             ->withAttribute('summaryController', new SummaryController($configService, $eventService))
@@ -541,7 +553,16 @@ return function (\Slim\App $app, TranslationService $translator) {
             $service = $request->getAttribute('mediaLibraryService');
             $config = $request->getAttribute('configService');
             if ($service instanceof MediaLibraryService && $config instanceof ConfigService) {
-                $controller = new AdminMediaController($service, $config);
+                $landing = $request->getAttribute('landingMediaReferenceService');
+                if (!$landing instanceof LandingMediaReferenceService) {
+                    $pdo = Database::connectFromEnv();
+                    $landing = new LandingMediaReferenceService(
+                        new PageService($pdo),
+                        new PageSeoConfigService($pdo),
+                        $config
+                    );
+                }
+                $controller = new AdminMediaController($service, $config, $landing);
             } else {
                 return $response->withStatus(500);
             }
@@ -554,7 +575,16 @@ return function (\Slim\App $app, TranslationService $translator) {
             $service = $request->getAttribute('mediaLibraryService');
             $config = $request->getAttribute('configService');
             if ($service instanceof MediaLibraryService && $config instanceof ConfigService) {
-                $controller = new AdminMediaController($service, $config);
+                $landing = $request->getAttribute('landingMediaReferenceService');
+                if (!$landing instanceof LandingMediaReferenceService) {
+                    $pdo = Database::connectFromEnv();
+                    $landing = new LandingMediaReferenceService(
+                        new PageService($pdo),
+                        new PageSeoConfigService($pdo),
+                        $config
+                    );
+                }
+                $controller = new AdminMediaController($service, $config, $landing);
             } else {
                 return $response->withStatus(500);
             }
@@ -567,7 +597,16 @@ return function (\Slim\App $app, TranslationService $translator) {
             $service = $request->getAttribute('mediaLibraryService');
             $config = $request->getAttribute('configService');
             if ($service instanceof MediaLibraryService && $config instanceof ConfigService) {
-                $controller = new AdminMediaController($service, $config);
+                $landing = $request->getAttribute('landingMediaReferenceService');
+                if (!$landing instanceof LandingMediaReferenceService) {
+                    $pdo = Database::connectFromEnv();
+                    $landing = new LandingMediaReferenceService(
+                        new PageService($pdo),
+                        new PageSeoConfigService($pdo),
+                        $config
+                    );
+                }
+                $controller = new AdminMediaController($service, $config, $landing);
             } else {
                 return $response->withStatus(500);
             }
@@ -580,7 +619,16 @@ return function (\Slim\App $app, TranslationService $translator) {
             $service = $request->getAttribute('mediaLibraryService');
             $config = $request->getAttribute('configService');
             if ($service instanceof MediaLibraryService && $config instanceof ConfigService) {
-                $controller = new AdminMediaController($service, $config);
+                $landing = $request->getAttribute('landingMediaReferenceService');
+                if (!$landing instanceof LandingMediaReferenceService) {
+                    $pdo = Database::connectFromEnv();
+                    $landing = new LandingMediaReferenceService(
+                        new PageService($pdo),
+                        new PageSeoConfigService($pdo),
+                        $config
+                    );
+                }
+                $controller = new AdminMediaController($service, $config, $landing);
             } else {
                 return $response->withStatus(500);
             }
@@ -593,7 +641,16 @@ return function (\Slim\App $app, TranslationService $translator) {
             $service = $request->getAttribute('mediaLibraryService');
             $config = $request->getAttribute('configService');
             if ($service instanceof MediaLibraryService && $config instanceof ConfigService) {
-                $controller = new AdminMediaController($service, $config);
+                $landing = $request->getAttribute('landingMediaReferenceService');
+                if (!$landing instanceof LandingMediaReferenceService) {
+                    $pdo = Database::connectFromEnv();
+                    $landing = new LandingMediaReferenceService(
+                        new PageService($pdo),
+                        new PageSeoConfigService($pdo),
+                        $config
+                    );
+                }
+                $controller = new AdminMediaController($service, $config, $landing);
             } else {
                 return $response->withStatus(500);
             }
@@ -606,7 +663,16 @@ return function (\Slim\App $app, TranslationService $translator) {
             $service = $request->getAttribute('mediaLibraryService');
             $config = $request->getAttribute('configService');
             if ($service instanceof MediaLibraryService && $config instanceof ConfigService) {
-                $controller = new AdminMediaController($service, $config);
+                $landing = $request->getAttribute('landingMediaReferenceService');
+                if (!$landing instanceof LandingMediaReferenceService) {
+                    $pdo = Database::connectFromEnv();
+                    $landing = new LandingMediaReferenceService(
+                        new PageService($pdo),
+                        new PageSeoConfigService($pdo),
+                        $config
+                    );
+                }
+                $controller = new AdminMediaController($service, $config, $landing);
             } else {
                 return $response->withStatus(500);
             }
