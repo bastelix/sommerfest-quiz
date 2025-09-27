@@ -630,8 +630,8 @@ VALUES (
         <ul class="uk-switcher uk-margin-large-top"
             data-uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .usecase-story, .usecase-highlight; delay: 100; repeat: true">
           <li>
-            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
-              <div class="usecase-story">
+            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-top" data-uk-grid>
+              <div class="usecase-story uk-first-column uk-scrollspy-inview">
                 <span class="pill pill--badge uk-margin-small-bottom">Kalibrierlabor</span>
                 <h3 class="uk-h2">ifm – Störungsbearbeitung &amp; Verbesserungen über zwei Standorte</h3>
                 <p class="uk-text-lead">calServer steuert die interne Kalibrier- und Störungsbearbeitung über zwei Standorte hinweg.</p>
@@ -669,8 +669,8 @@ VALUES (
             </div>
           </li>
           <li>
-            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
-              <div class="usecase-story">
+            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-top" data-uk-grid>
+              <div class="usecase-story uk-first-column uk-scrollspy-inview">
                 <span class="pill pill--badge uk-margin-small-bottom">Kalibrierlabor</span>
                 <h3 class="uk-h2">KSW – End-to-End vom Wareneingang bis zur Rechnung</h3>
                 <p class="uk-text-lead">calServer bildet den gesamten Ablauf von Wareneingang über Labor bis zur Abrechnung ab.</p>
@@ -708,8 +708,8 @@ VALUES (
             </div>
           </li>
           <li>
-            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
-              <div class="usecase-story">
+            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-top" data-uk-grid>
+              <div class="usecase-story uk-first-column uk-scrollspy-inview">
                 <span class="pill pill--badge uk-margin-small-bottom">Kalibrierlabor</span>
                 <h3 class="uk-h2">Systems Engineering – Auftragsbearbeitung als Herzstück</h3>
                 <p class="uk-text-lead">calServer macht die Auftragsbearbeitung zum steuernden Zentrum des Labors.</p>
@@ -747,8 +747,8 @@ VALUES (
             </div>
           </li>
           <li>
-            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
-              <div class="usecase-story">
+            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-top" data-uk-grid>
+              <div class="usecase-story uk-first-column uk-scrollspy-inview">
                 <span class="pill pill--badge uk-margin-small-bottom">Kalibrierlabor</span>
                 <h3 class="uk-h2">TERAMESS – DAkkS-konforme Zertifikate in der Cloud</h3>
                 <p class="uk-text-lead">calServer CLOUD bündelt DAkkS-konforme Zertifikate, Geräteakten und Prüfberichte.</p>
@@ -786,8 +786,8 @@ VALUES (
             </div>
           </li>
           <li>
-            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
-              <div class="usecase-story">
+            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-top" data-uk-grid>
+              <div class="usecase-story uk-first-column uk-scrollspy-inview">
                 <span class="pill pill--badge uk-margin-small-bottom">Kalibrierlabor</span>
                 <h3 class="uk-h2">Thermo Fisher Scientific – EMEA Labore</h3>
                 <p class="uk-text-lead">calServer orchestriert EMEA-weit Leihgeräte, Geräteakten und ISO-/DAkkS-konforme Zertifikate auf einer Plattform.</p>
@@ -825,8 +825,8 @@ VALUES (
             </div>
           </li>
           <li>
-            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
-              <div class="usecase-story">
+            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-top" data-uk-grid>
+              <div class="usecase-story uk-first-column uk-scrollspy-inview">
                 <span class="pill pill--badge uk-margin-small-bottom">Industrielabor</span>
                 <h3 class="uk-h2">ZF – API-Messwerte auf Kubernetes mit SSO</h3>
                 <p class="uk-text-lead">calServer verbindet skalierbare Messwert-APIs auf Kubernetes mit SSO und Geräteakten-Management.</p>
@@ -864,8 +864,8 @@ VALUES (
             </div>
           </li>
           <li>
-            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
-              <div class="usecase-story">
+            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-top" data-uk-grid>
+              <div class="usecase-story uk-first-column uk-scrollspy-inview">
                 <span class="pill pill--badge uk-margin-small-bottom">Assetmanagement</span>
                 <h3 class="uk-h2">Berliner Stadtwerke – Projekte &amp; Wartung für erneuerbare Anlagen</h3>
                 <p class="uk-text-lead">calServer steuert Projekte, Wartungspläne und Einsätze für regenerative Energieanlagen der Stadt Berlin.</p>
@@ -903,8 +903,8 @@ VALUES (
             </div>
           </li>
           <li>
-            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
-              <div class="usecase-story">
+            <div class="uk-grid-large uk-child-width-1-2@m uk-flex-top" data-uk-grid>
+              <div class="usecase-story uk-first-column uk-scrollspy-inview">
                 <span class="pill pill--badge uk-margin-small-bottom">Qualitätsmanagement</span>
                 <h3 class="uk-h2">VDE – Agile Auftragssteuerung &amp; Intranet</h3>
                 <p class="uk-text-lead">calServer bündelt agile Auftragssteuerung und Dokumentenflüsse für Prüf- und Zertifizierungsprozesse.</p>
