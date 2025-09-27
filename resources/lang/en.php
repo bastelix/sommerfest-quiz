@@ -170,6 +170,7 @@ return [
     'column_media_modified' => 'Modified',
     'heading_media_landing_missing' => 'Missing landing assets',
     'button_media_landing_prefill' => 'Prefill upload',
+    'button_media_landing_open_pdf' => 'Open PDF',
     'label_media_landing_references' => 'Landing pages',
     'label_media_landing_preview' => 'Landing references',
     'tooltip_media_landing_markup' => 'Referenced in landing page content',

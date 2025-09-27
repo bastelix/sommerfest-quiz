@@ -169,6 +169,7 @@ return [
     'column_media_modified' => 'Geändert',
     'heading_media_landing_missing' => 'Fehlende Landing-Assets',
     'button_media_landing_prefill' => 'Upload vorausfüllen',
+    'button_media_landing_open_pdf' => 'PDF öffnen',
     'label_media_landing_references' => 'Landingpages',
     'label_media_landing_preview' => 'Landing-Verweise',
     'tooltip_media_landing_markup' => 'In Landingpage-Inhalten verwendet',
