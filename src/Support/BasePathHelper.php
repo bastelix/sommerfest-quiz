@@ -24,7 +24,7 @@ final class BasePathHelper
         $normalized = '/' . trim($basePath, '/');
         $normalized = preg_replace('#/+#', '/', $normalized) ?: '/';
 
-        if ($normalized === '/' || $normalized === '') {
+        if ($normalized === '/') {
             return '';
         }
 
