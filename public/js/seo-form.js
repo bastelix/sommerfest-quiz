@@ -264,32 +264,32 @@ export function initSeoForm() {
       metaTitle: 'calServer – Kalibrier- & Prüfmittelmanagement',
       metaDescription:
         'calServer digitalisiert Kalibrier- und Prüfmittelverwaltung: Geräteakten, Terminplanung und Workflows in einer Plattform – Hosting & Support in Deutschland.',
-      slug: '/',
-      canonical: `${ctx.baseUrl}/`,
+      slug: '/calserver',
+      canonical: `${ctx.baseUrl}/calserver`,
       robots: 'index, follow',
       ogTitle: 'calServer – Plattform für Kalibrier- & Prüfmittelteams',
       ogDescription:
         'Überwachen Sie Prüfmittel, Kalibrierfristen, Serviceaufträge und Dokumentation zentral. calServer liefert Workflows, Erinnerungen und Hosting in Deutschland.',
-      ogImage: `${ctx.baseUrl}/uploads/module-placeholder.svg`,
+      ogImage: `${ctx.baseUrl}/uploads/calserver-module-device-management.webp`,
       schema: `{
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "calServer",
   "applicationCategory": "BusinessApplication",
   "operatingSystem": "Web",
-  "url": "${ctx.baseUrl}/",
+  "url": "${ctx.baseUrl}/calserver",
   "description": "calServer digitalisiert Kalibrier- und Prüfmittelverwaltung für Teams – inklusive Geräteakten, Terminplanung, Workflows und Dokumentation.",
   "provider": {
     "@type": "Organization",
     "name": "calServer",
-    "url": "${ctx.baseUrl}/"
+    "url": "${ctx.baseUrl}/calserver"
   },
   "sameAs": [
     "https://calserver.de",
     "https://calserver.com"
   ]
 }`,
-      hreflang: `<link rel="alternate" href="${ctx.baseUrl}/" hreflang="de" />\n<link rel="alternate" href="${ctx.baseUrl}/en/" hreflang="en" />`,
+      hreflang: `<link rel="alternate" href="${ctx.baseUrl}/calserver" hreflang="de" />\n<link rel="alternate" href="${ctx.baseUrl}/en/calserver" hreflang="en" />`,
       domain: ctx.domain
     })
   };
