@@ -18,10 +18,16 @@ class MediaLibraryService
     public const MAX_UPLOAD_SIZE = 5 * 1024 * 1024;
 
     /** @var list<string> */
-    public const ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp', 'svg'];
+    public const ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'pdf'];
 
     /** @var list<string> */
-    public const ALLOWED_MIME_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
+    public const ALLOWED_MIME_TYPES = [
+        'image/png',
+        'image/jpeg',
+        'image/webp',
+        'image/svg+xml',
+        'application/pdf',
+    ];
 
     private const METADATA_FILE = '.media-metadata.json';
 
@@ -114,7 +120,7 @@ class MediaLibraryService
         }
 
         $unique = $this->uniqueBaseName($dir, $baseName, $extension);
-        if ($extension === 'svg') {
+        if (in_array($extension, ['svg', 'pdf'], true)) {
             $storedPath = $this->storeRawUpload($file, $dir, $relative, $unique, $extension);
         } else {
             $storedPath = $this->images->saveUploadedFile(
@@ -194,7 +200,7 @@ class MediaLibraryService
 
         $baseName = (string) pathinfo($name, PATHINFO_FILENAME);
 
-        if ($targetExtension === 'svg') {
+        if (in_array($targetExtension, ['svg', 'pdf'], true)) {
             $this->storeRawUpload($file, $dir, $relative, $baseName, $targetExtension);
         } else {
             $this->images->saveUploadedFile(
