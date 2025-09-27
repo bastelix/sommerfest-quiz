@@ -7,6 +7,7 @@ namespace App\Controller\Marketing;
 use App\Application\Seo\PageSeoConfigService;
 use App\Service\MailService;
 use App\Service\PageService;
+use App\Support\BasePathHelper;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
@@ -39,7 +40,7 @@ class MarketingPageController
         }
 
         $html = $page->getContent();
-        $basePath = RouteContext::fromRequest($request)->getBasePath();
+        $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
         $html = str_replace('{{ basePath }}', $basePath, $html);
 
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));

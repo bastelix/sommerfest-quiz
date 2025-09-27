@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Support\BasePathHelper;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
@@ -36,7 +37,7 @@ class LogoutController
             true
         );
 
-        $basePath = RouteContext::fromRequest($request)->getBasePath();
+        $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
         return $response->withHeader('Location', $basePath . '/login')->withStatus(302);
     }
 }
