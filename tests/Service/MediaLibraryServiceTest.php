@@ -111,6 +111,28 @@ SVG;
         $this->assertStringEqualsFile($storedPath, $svg);
     }
 
+    public function testPdfUploadBypassesRasterProcessing(): void
+    {
+        [$service, $config, $images] = $this->createService();
+
+        $pdf = "%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF\n";
+
+        $tmp = tempnam($this->tempDir, 'pdf');
+        file_put_contents($tmp, $pdf);
+        $stream = (new StreamFactory())->createStreamFromFile($tmp);
+        $uploaded = new UploadedFile($stream, 'document.pdf', 'application/pdf', $stream->getSize(), UPLOAD_ERR_OK);
+
+        $info = $service->uploadFile(MediaLibraryService::SCOPE_GLOBAL, $uploaded);
+
+        $this->assertSame('document.pdf', $info['name']);
+        $this->assertSame('pdf', $info['extension']);
+        $this->assertFalse($images->saveCalled, 'PDF uploads must not invoke ImageUploadService');
+
+        $storedPath = $config->getGlobalUploadsDir() . DIRECTORY_SEPARATOR . 'document.pdf';
+        $this->assertFileExists($storedPath);
+        $this->assertStringEqualsFile($storedPath, $pdf);
+    }
+
     private function removeDir(string $dir): void
     {
         if (!is_dir($dir)) {

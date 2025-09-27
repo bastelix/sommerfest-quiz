@@ -209,6 +209,7 @@ return [
     'label_media_file_url' => 'Datei-URL',
     'label_media_selected' => 'Ausgewählte Datei:',
     'text_media_select_preview' => 'Bitte eine Datei auswählen, um die Vorschau zu sehen.',
+    'text_media_no_preview' => 'Für diesen Dateityp ist keine Vorschau verfügbar.',
     'status_media_uploading' => 'Upload läuft …',
     'label_media_search' => 'Filter',
     'label_media_upload' => 'Datei hochladen',

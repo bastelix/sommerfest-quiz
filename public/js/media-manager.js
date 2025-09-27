@@ -119,6 +119,7 @@ ready(() => {
       delete: 'Delete',
       preview: 'Preview',
       selectPreview: 'Select a file to view its preview.',
+      noPreview: 'Preview not available for this file type.',
       sizeLabel: 'Size',
       modifiedLabel: 'Modified',
       nameLabel: 'File',
@@ -194,6 +195,8 @@ ready(() => {
     const metadataFolderInput = root.querySelector('[data-media-meta-folder]');
     const metadataSaveFolder = root.querySelector('[data-media-meta-save-folder]');
     const metadataClearFolder = root.querySelector('[data-media-meta-clear-folder]');
+
+    const defaultPreviewPlaceholderText = previewPlaceholder?.textContent || '';
 
     const initialLimits = parseJsonAttribute(root, 'data-limits', {});
     const limitTemplate = limitText?.dataset.template || '';
@@ -321,6 +324,19 @@ ready(() => {
       return ['png', 'jpg', 'jpeg'].includes(ext);
     }
 
+    function canPreview(file) {
+      if (!file) {
+        return false;
+      }
+      const name = String(file.name || '').toLowerCase();
+      const extension = String(file.extension || '').toLowerCase();
+      const ext = extension || (name.includes('.') ? name.split('.').pop() : '');
+      if (!ext) {
+        return false;
+      }
+      return ['png', 'jpg', 'jpeg', 'webp', 'svg'].includes(ext);
+    }
+
     function getSelectedFile() {
       return state.files.find((file) => file.name === state.selectedName) || null;
     }
@@ -330,6 +346,7 @@ ready(() => {
       if (!file) {
         previewImage.hidden = true;
         previewImage.src = '';
+        previewPlaceholder.textContent = defaultPreviewPlaceholderText;
         previewPlaceholder.hidden = false;
         previewMeta.hidden = true;
         previewActions.hidden = true;
@@ -351,12 +368,21 @@ ready(() => {
         renderMetadataEditor(null);
         return;
       }
-      previewPlaceholder.hidden = true;
       const url = withBase(file.url || file.path || '');
       const hasUrl = !!url;
-      previewImage.src = url;
-      previewImage.alt = `${translations.preview}: ${file.name}`;
-      previewImage.hidden = false;
+      const previewable = canPreview(file) && hasUrl;
+      if (previewable) {
+        previewImage.src = url;
+        previewImage.alt = `${translations.preview}: ${file.name}`;
+        previewImage.hidden = false;
+        previewPlaceholder.textContent = defaultPreviewPlaceholderText;
+        previewPlaceholder.hidden = true;
+      } else {
+        previewImage.hidden = true;
+        previewImage.src = '';
+        previewPlaceholder.textContent = translations.noPreview || defaultPreviewPlaceholderText;
+        previewPlaceholder.hidden = false;
+      }
       if (previewName) previewName.textContent = file.name;
       if (previewSize) previewSize.textContent = formatSize(file.size);
       if (previewModified) previewModified.textContent = formatDate(file.modified);

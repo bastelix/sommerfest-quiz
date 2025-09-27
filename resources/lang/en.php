@@ -211,6 +211,7 @@ return [
     'label_media_file_url' => 'File URL',
     'label_media_selected' => 'Selected file:',
     'text_media_select_preview' => 'Select a file to view its preview.',
+    'text_media_no_preview' => 'No preview available for this file type.',
     'status_media_uploading' => 'Uploading…',
     'label_media_search' => 'Filter',
     'label_media_upload' => 'Upload file',
