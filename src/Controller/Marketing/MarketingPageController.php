@@ -57,7 +57,7 @@ class MarketingPageController
         $view = Twig::fromRequest($request);
         $template = sprintf('marketing/%s.twig', $slug);
         $loader = $view->getEnvironment()->getLoader();
-        if (method_exists($loader, 'exists') && !$loader->exists($template)) {
+        if (!$loader->exists($template)) {
             return $response->withStatus(404);
         }
 

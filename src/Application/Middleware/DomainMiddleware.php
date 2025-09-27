@@ -83,9 +83,9 @@ class DomainMiddleware implements MiddlewareInterface
             $service = new DomainStartPageService($pdo);
             $config = $service->getConfigForHost($originalHost);
             if ($config !== null) {
-                $startPage = (string) ($config['start_page'] ?? '');
-                if ($startPage === '') {
-                    $startPage = null;
+                $startPageValue = trim($config['start_page']);
+                if ($startPageValue !== '') {
+                    $startPage = $startPageValue;
                 }
 
                 $email = $config['email'] ?? null;

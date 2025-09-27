@@ -66,12 +66,7 @@ class PageService
             throw new RuntimeException('Die Seite konnte nicht angelegt werden.', 0, $exception);
         }
 
-        $page = $this->findBySlug($normalizedSlug);
-        if ($page === null) {
-            throw new RuntimeException('Die neu angelegte Seite konnte nicht geladen werden.');
-        }
-
-        return $page;
+        return $this->loadCreatedPage($normalizedSlug);
     }
 
     /**
@@ -144,5 +139,15 @@ class PageService
         }
 
         return new Page((int) $row['id'], $pageSlug, $title, (string) ($row['content'] ?? ''));
+    }
+
+    private function loadCreatedPage(string $slug): Page
+    {
+        $page = $this->findBySlug($slug);
+        if ($page === null) {
+            throw new RuntimeException('Die neu angelegte Seite konnte nicht geladen werden.');
+        }
+
+        return $page;
     }
 }

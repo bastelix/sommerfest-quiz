@@ -81,7 +81,7 @@ class MediaLibraryService
     /**
      * Upload a file for the requested scope.
      *
-     * @param array{name?:string}|null $options
+     * @param array{name?:string,tags?:list<string>,folder?:string|null}|null $options
      */
     public function uploadFile(
         string $scope,

@@ -319,7 +319,7 @@ class AdminController
         $mappings = $domainService->getAllMappings();
         $domainsBySlug = [];
         foreach ($mappings as $domain => $config) {
-            $slug = $config['start_page'] ?? '';
+            $slug = trim($config['start_page']);
             if ($slug === '') {
                 continue;
             }
