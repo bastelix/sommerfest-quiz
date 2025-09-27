@@ -874,7 +874,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
             <ul id="calserver-modules-switcher" class="uk-switcher calserver-modules-switcher">
                               <li>
                   <figure id="module-device-management" class="calserver-module-figure">
-                    <img src="{{ basePath }}/uploads/calserver/modules/module-placeholder.svg"
+                    <img src="{{ basePath }}/uploads/module-placeholder.svg"
                          width="1200"
                          height="675"
                          loading="lazy"
@@ -893,7 +893,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                 </li>
                               <li>
                   <figure id="module-calendar-resources" class="calserver-module-figure">
-                    <img src="{{ basePath }}/uploads/calserver/modules/module-placeholder.svg"
+                    <img src="{{ basePath }}/uploads/module-placeholder.svg"
                          width="1200"
                          height="675"
                          loading="lazy"
@@ -912,7 +912,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                 </li>
                               <li>
                   <figure id="module-order-ticketing" class="calserver-module-figure">
-                    <img src="{{ basePath }}/uploads/calserver/modules/module-placeholder.svg"
+                    <img src="{{ basePath }}/uploads/module-placeholder.svg"
                          width="1200"
                          height="675"
                          loading="lazy"
@@ -931,7 +931,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                 </li>
                               <li>
                   <figure id="module-self-service" class="calserver-module-figure">
-                    <img src="{{ basePath }}/uploads/calserver/modules/module-placeholder.svg"
+                    <img src="{{ basePath }}/uploads/module-placeholder.svg"
                          width="1200"
                          height="675"
                          loading="lazy"

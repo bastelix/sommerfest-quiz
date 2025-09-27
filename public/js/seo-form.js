@@ -270,7 +270,7 @@ export function initSeoForm() {
       ogTitle: 'calServer – Plattform für Kalibrier- & Prüfmittelteams',
       ogDescription:
         'Überwachen Sie Prüfmittel, Kalibrierfristen, Serviceaufträge und Dokumentation zentral. calServer liefert Workflows, Erinnerungen und Hosting in Deutschland.',
-      ogImage: `${ctx.baseUrl}/uploads/calserver/modules/module-placeholder.svg`,
+      ogImage: `${ctx.baseUrl}/uploads/module-placeholder.svg`,
       schema: `{
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
