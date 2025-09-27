@@ -531,12 +531,12 @@ VALUES (
             <ul id="calserver-modules-switcher" class="uk-switcher calserver-modules-switcher">
                               <li>
                   <figure id="module-device-management" class="calserver-module-figure">
-                    <img src="{{ basePath }}/uploads/module-placeholder.svg"
+                    <img src="{{ basePath }}/uploads/calserver-module-device-management.webp"
                          width="1200"
                          height="675"
                          loading="lazy"
                          decoding="async"
-                         alt="Platzhaltergrafik für die calServer-Geräteverwaltung – finaler Screenshot folgt">
+                         alt="Screenshot der calServer-Geräteverwaltung mit Geräteakte, Historie und Messwerten">
                     <figcaption>
                       <h3 class="uk-h3">Geräteverwaltung & Historie</h3>
                       <p class="muted">Geräteakten, Anhänge und Historie in einer Oberfläche – inklusive Messwerten.</p>
@@ -550,12 +550,12 @@ VALUES (
                 </li>
                               <li>
                   <figure id="module-calendar-resources" class="calserver-module-figure">
-                    <img src="{{ basePath }}/uploads/module-placeholder.svg"
+                    <img src="{{ basePath }}/uploads/calserver-module-calendar-resources.webp"
                          width="1200"
                          height="675"
                          loading="lazy"
                          decoding="async"
-                         alt="Platzhaltergrafik für den calServer-Kalender – finaler Screenshot folgt">
+                         alt="Screenshot des calServer-Kalenders mit Ressourcen- und Terminplanung">
                     <figcaption>
                       <h3 class="uk-h3">Kalender & Ressourcen</h3>
                       <p class="muted">Planung von Terminen, Leihgeräten und Personal in einer Ansicht.</p>
@@ -569,12 +569,12 @@ VALUES (
                 </li>
                               <li>
                   <figure id="module-order-ticketing" class="calserver-module-figure">
-                    <img src="{{ basePath }}/uploads/module-placeholder.svg"
+                    <img src="{{ basePath }}/uploads/calserver-module-order-ticketing.webp"
                          width="1200"
                          height="675"
                          loading="lazy"
                          decoding="async"
-                         alt="Platzhaltergrafik für die calServer-Auftragsverwaltung – finaler Screenshot folgt">
+                         alt="Screenshot der calServer-Auftrags- und Ticketverwaltung mit Workflow-Status">
                     <figcaption>
                       <h3 class="uk-h3">Auftrags- & Ticketverwaltung</h3>
                       <p class="muted">Vom Auftrag bis zur Rechnung – mit klaren Status, Workflows und Dokumenten.</p>
@@ -588,12 +588,12 @@ VALUES (
                 </li>
                               <li>
                   <figure id="module-self-service" class="calserver-module-figure">
-                    <img src="{{ basePath }}/uploads/module-placeholder.svg"
+                    <img src="{{ basePath }}/uploads/calserver-module-self-service.webp"
                          width="1200"
                          height="675"
                          loading="lazy"
                          decoding="async"
-                         alt="Platzhaltergrafik für das calServer-Kundenportal – finaler Screenshot folgt">
+                         alt="Screenshot des calServer-Self-Service-Portals mit Kundenansicht und Zertifikaten">
                     <figcaption>
                       <h3 class="uk-h3">Self-Service & Extranet</h3>
                       <p class="muted">Stellen Sie Kunden & Partnern Geräteinfos, Zertifikate und Formulare bereit.</p>
@@ -655,9 +655,13 @@ VALUES (
                   </a>
                 </div>
                 <div class="usecase-visual uk-margin-top">
-                  <div class="uk-height-medium uk-background-muted uk-border-rounded uk-flex uk-flex-middle uk-flex-center">
-                    <span class="muted">Ticketmanagement &amp; Verbesserungen</span>
-                  </div>
+                  <img class="uk-border-rounded usecase-visual__image"
+                       src="{{ basePath }}/uploads/calserver-usecase-ifm-ticketmanagement.webp"
+                       width="960"
+                       height="540"
+                       loading="lazy"
+                       decoding="async"
+                       alt="Screenshot des calServer-Ticketboards im ifm-Use-Case mit CAPA-Bewertung">
                 </div>
               </div>
             </div>
@@ -688,9 +692,13 @@ VALUES (
                   </a>
                 </div>
                 <div class="usecase-visual uk-margin-top">
-                  <div class="uk-height-medium uk-background-muted uk-border-rounded uk-flex uk-flex-middle uk-flex-center">
-                    <span class="muted">Wareneingang bis Abrechnung</span>
-                  </div>
+                  <img class="uk-border-rounded usecase-visual__image"
+                       src="{{ basePath }}/uploads/calserver-usecase-ksw-prozesskette.webp"
+                       width="960"
+                       height="540"
+                       loading="lazy"
+                       decoding="async"
+                       alt="Screenshot des calServer-Prozessflusses von Wareneingang bis Abrechnung im KSW-Use-Case">
                 </div>
               </div>
             </div>
@@ -721,9 +729,13 @@ VALUES (
                   </a>
                 </div>
                 <div class="usecase-visual uk-margin-top">
-                  <div class="uk-height-medium uk-background-muted uk-border-rounded uk-flex uk-flex-middle uk-flex-center">
-                    <span class="muted">Auftragssteuerung &amp; Reporting</span>
-                  </div>
+                  <img class="uk-border-rounded usecase-visual__image"
+                       src="{{ basePath }}/uploads/calserver-usecase-systems-reporting.webp"
+                       width="960"
+                       height="540"
+                       loading="lazy"
+                       decoding="async"
+                       alt="Screenshot der calServer-Auftragssteuerung und Reporting-Widgets im Systems-Engineering-Use-Case">
                 </div>
               </div>
             </div>
@@ -754,9 +766,13 @@ VALUES (
                   </a>
                 </div>
                 <div class="usecase-visual uk-margin-top">
-                  <div class="uk-height-medium uk-background-muted uk-border-rounded uk-flex uk-flex-middle uk-flex-center">
-                    <span class="muted">DAkkS-Zertifikate &amp; Historie</span>
-                  </div>
+                  <img class="uk-border-rounded usecase-visual__image"
+                       src="{{ basePath }}/uploads/calserver-usecase-teramess-dakks.webp"
+                       width="960"
+                       height="540"
+                       loading="lazy"
+                       decoding="async"
+                       alt="Screenshot der calServer-Zertifikatsverwaltung mit DAkkS-Historie im TERAMESS-Use-Case">
                 </div>
               </div>
             </div>
@@ -787,9 +803,13 @@ VALUES (
                   </a>
                 </div>
                 <div class="usecase-visual uk-margin-top">
-                  <div class="uk-height-medium uk-background-muted uk-border-rounded uk-flex uk-flex-middle uk-flex-center">
-                    <span class="muted">Leihverwaltung &amp; Geräteakten</span>
-                  </div>
+                  <img class="uk-border-rounded usecase-visual__image"
+                       src="{{ basePath }}/uploads/calserver-usecase-thermo-leihverwaltung.webp"
+                       width="960"
+                       height="540"
+                       loading="lazy"
+                       decoding="async"
+                       alt="Screenshot der calServer-Leihgeräte- und Geräteaktenübersicht im Thermo-Fisher-Use-Case">
                 </div>
               </div>
             </div>
@@ -820,9 +840,13 @@ VALUES (
                   </a>
                 </div>
                 <div class="usecase-visual uk-margin-top">
-                  <div class="uk-height-medium uk-background-muted uk-border-rounded uk-flex uk-flex-middle uk-flex-center">
-                    <span class="muted">Messwerte &amp; SSO-Workflows</span>
-                  </div>
+                  <img class="uk-border-rounded usecase-visual__image"
+                       src="{{ basePath }}/uploads/calserver-usecase-zf-messwerte-sso.webp"
+                       width="960"
+                       height="540"
+                       loading="lazy"
+                       decoding="async"
+                       alt="Screenshot der calServer-Messwert-APIs und SSO-Konfiguration im ZF-Use-Case">
                 </div>
               </div>
             </div>
@@ -853,9 +877,13 @@ VALUES (
                   </a>
                 </div>
                 <div class="usecase-visual uk-margin-top">
-                  <div class="uk-height-medium uk-background-muted uk-border-rounded uk-flex uk-flex-middle uk-flex-center">
-                    <span class="muted">Wartungs- &amp; Projektplanung</span>
-                  </div>
+                  <img class="uk-border-rounded usecase-visual__image"
+                       src="{{ basePath }}/uploads/calserver-usecase-berlin-wartung.webp"
+                       width="960"
+                       height="540"
+                       loading="lazy"
+                       decoding="async"
+                       alt="Screenshot der calServer-Wartungs- und Projektplanung für Berliner Stadtwerke">
                 </div>
               </div>
             </div>
@@ -886,9 +914,13 @@ VALUES (
                   </a>
                 </div>
                 <div class="usecase-visual uk-margin-top">
-                  <div class="uk-height-medium uk-background-muted uk-border-rounded uk-flex uk-flex-middle uk-flex-center">
-                    <span class="muted">Agiles Auftragsboard &amp; DMS</span>
-                  </div>
+                  <img class="uk-border-rounded usecase-visual__image"
+                       src="{{ basePath }}/uploads/calserver-usecase-vde-auftragsboard.webp"
+                       width="960"
+                       height="540"
+                       loading="lazy"
+                       decoding="async"
+                       alt="Screenshot des calServer-Auftragsboards mit DMS-Integration im VDE-Use-Case">
                 </div>
               </div>
             </div>
