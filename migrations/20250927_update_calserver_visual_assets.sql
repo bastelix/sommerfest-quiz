@@ -651,7 +651,7 @@ VALUES (
                     <li>Bidirektionale Synchronisation mit Fluke MET/TEAM &amp; MET/CAL</li>
                   </ul>
                   <a class="uk-button uk-button-text uk-margin-top"
-                    href="{{ basePath }}/ipload/calserver-usecase-ifm-highlights.pdf"
+                    href="{{ basePath }}/uploads/calserver-usecase-ifm-highlights.pdf"
                     target="_blank"
                     rel="noopener">
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
@@ -693,7 +693,7 @@ VALUES (
                     <li>DMS &amp; Reporting integriert</li>
                   </ul>
                   <a class="uk-button uk-button-text uk-margin-top"
-                    href="{{ basePath }}/ipload/calserver-usecase-ksw-highlights.pdf"
+                    href="{{ basePath }}/uploads/calserver-usecase-ksw-highlights.pdf"
                     target="_blank"
                     rel="noopener">
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
@@ -735,7 +735,7 @@ VALUES (
                     <li>Versionierung &amp; Nachvollziehbarkeit (DMS)</li>
                   </ul>
                   <a class="uk-button uk-button-text uk-margin-top"
-                    href="{{ basePath }}/ipload/calserver-usecase-systems-highlights.pdf"
+                    href="{{ basePath }}/uploads/calserver-usecase-systems-highlights.pdf"
                     target="_blank"
                     rel="noopener">
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
@@ -777,7 +777,7 @@ VALUES (
                     <li>Serienexports &amp; Auswertungen</li>
                   </ul>
                   <a class="uk-button uk-button-text uk-margin-top"
-                    href="{{ basePath }}/ipload/calserver-usecase-teramess-highlights.pdf"
+                    href="{{ basePath }}/uploads/calserver-usecase-teramess-highlights.pdf"
                     target="_blank"
                     rel="noopener">
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
@@ -819,7 +819,7 @@ VALUES (
                     <li>Bidirektionale Synchronisation mit Fluke MET/TEAM &amp; MET/CAL</li>
                   </ul>
                   <a class="uk-button uk-button-text uk-margin-top"
-                    href="{{ basePath }}/ipload/calserver-usecase-thermo-highlights.pdf"
+                    href="{{ basePath }}/uploads/calserver-usecase-thermo-highlights.pdf"
                     target="_blank"
                     rel="noopener">
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
@@ -861,7 +861,7 @@ VALUES (
                     <li>Bidirektionale Synchronisation mit Fluke MET/TEAM &amp; MET/CAL</li>
                   </ul>
                   <a class="uk-button uk-button-text uk-margin-top"
-                    href="{{ basePath }}/ipload/calserver-usecase-zf-highlights.pdf"
+                    href="{{ basePath }}/uploads/calserver-usecase-zf-highlights.pdf"
                     target="_blank"
                     rel="noopener">
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
@@ -903,7 +903,7 @@ VALUES (
                     <li>Dashboards für Verfügbarkeit &amp; Performance</li>
                   </ul>
                   <a class="uk-button uk-button-text uk-margin-top"
-                    href="{{ basePath }}/ipload/calserver-usecase-berlin-highlights.pdf"
+                    href="{{ basePath }}/uploads/calserver-usecase-berlin-highlights.pdf"
                     target="_blank"
                     rel="noopener">
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
@@ -945,7 +945,7 @@ VALUES (
                     <li>Bidirektionale Synchronisation mit Fluke MET/TEAM &amp; MET/CAL</li>
                   </ul>
                   <a class="uk-button uk-button-text uk-margin-top"
-                    href="{{ basePath }}/ipload/calserver-usecase-vde-highlights.pdf"
+                    href="{{ basePath }}/uploads/calserver-usecase-vde-highlights.pdf"
                     target="_blank"
                     rel="noopener">
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
