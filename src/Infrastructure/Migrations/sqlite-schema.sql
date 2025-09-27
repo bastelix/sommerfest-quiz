@@ -997,14 +997,16 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
-                <div class="usecase-visual uk-margin-top">
-                  <img class="uk-border-rounded usecase-visual__image"
+                <div class="uk-card uk-card-default uk-card-body uk-card-hover usecase-card usecase-card--visual uk-margin-top">
+                  <div class="usecase-visual">
+                    <img class="uk-border-rounded usecase-visual__image"
                        src="{{ basePath }}/uploads/calserver-usecase-ifm-ticketmanagement.webp"
                        width="960"
                        height="540"
                        loading="lazy"
                        decoding="async"
                        alt="Screenshot des calServer-Ticketboards im ifm-Use-Case mit CAPA-Bewertung">
+                  </div>
                 </div>
               </div>
             </div>
@@ -1034,14 +1036,16 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
-                <div class="usecase-visual uk-margin-top">
-                  <img class="uk-border-rounded usecase-visual__image"
+                <div class="uk-card uk-card-default uk-card-body uk-card-hover usecase-card usecase-card--visual uk-margin-top">
+                  <div class="usecase-visual">
+                    <img class="uk-border-rounded usecase-visual__image"
                        src="{{ basePath }}/uploads/calserver-usecase-ksw-prozesskette.webp"
                        width="960"
                        height="540"
                        loading="lazy"
                        decoding="async"
                        alt="Screenshot des calServer-Prozessflusses von Wareneingang bis Abrechnung im KSW-Use-Case">
+                  </div>
                 </div>
               </div>
             </div>
@@ -1071,14 +1075,16 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
-                <div class="usecase-visual uk-margin-top">
-                  <img class="uk-border-rounded usecase-visual__image"
+                <div class="uk-card uk-card-default uk-card-body uk-card-hover usecase-card usecase-card--visual uk-margin-top">
+                  <div class="usecase-visual">
+                    <img class="uk-border-rounded usecase-visual__image"
                        src="{{ basePath }}/uploads/calserver-usecase-systems-reporting.webp"
                        width="960"
                        height="540"
                        loading="lazy"
                        decoding="async"
                        alt="Screenshot der calServer-Auftragssteuerung und Reporting-Widgets im Systems-Engineering-Use-Case">
+                  </div>
                 </div>
               </div>
             </div>
@@ -1108,14 +1114,16 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
-                <div class="usecase-visual uk-margin-top">
-                  <img class="uk-border-rounded usecase-visual__image"
+                <div class="uk-card uk-card-default uk-card-body uk-card-hover usecase-card usecase-card--visual uk-margin-top">
+                  <div class="usecase-visual">
+                    <img class="uk-border-rounded usecase-visual__image"
                        src="{{ basePath }}/uploads/calserver-usecase-teramess-dakks.webp"
                        width="960"
                        height="540"
                        loading="lazy"
                        decoding="async"
                        alt="Screenshot der calServer-Zertifikatsverwaltung mit DAkkS-Historie im TERAMESS-Use-Case">
+                  </div>
                 </div>
               </div>
             </div>
@@ -1145,14 +1153,16 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
-                <div class="usecase-visual uk-margin-top">
-                  <img class="uk-border-rounded usecase-visual__image"
+                <div class="uk-card uk-card-default uk-card-body uk-card-hover usecase-card usecase-card--visual uk-margin-top">
+                  <div class="usecase-visual">
+                    <img class="uk-border-rounded usecase-visual__image"
                        src="{{ basePath }}/uploads/calserver-usecase-thermo-leihverwaltung.webp"
                        width="960"
                        height="540"
                        loading="lazy"
                        decoding="async"
                        alt="Screenshot der calServer-Leihgeräte- und Geräteaktenübersicht im Thermo-Fisher-Use-Case">
+                  </div>
                 </div>
               </div>
             </div>
@@ -1182,14 +1192,16 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
-                <div class="usecase-visual uk-margin-top">
-                  <img class="uk-border-rounded usecase-visual__image"
+                <div class="uk-card uk-card-default uk-card-body uk-card-hover usecase-card usecase-card--visual uk-margin-top">
+                  <div class="usecase-visual">
+                    <img class="uk-border-rounded usecase-visual__image"
                        src="{{ basePath }}/uploads/calserver-usecase-zf-messwerte-sso.webp"
                        width="960"
                        height="540"
                        loading="lazy"
                        decoding="async"
                        alt="Screenshot der calServer-Messwert-APIs und SSO-Konfiguration im ZF-Use-Case">
+                  </div>
                 </div>
               </div>
             </div>
@@ -1219,14 +1231,16 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
-                <div class="usecase-visual uk-margin-top">
-                  <img class="uk-border-rounded usecase-visual__image"
+                <div class="uk-card uk-card-default uk-card-body uk-card-hover usecase-card usecase-card--visual uk-margin-top">
+                  <div class="usecase-visual">
+                    <img class="uk-border-rounded usecase-visual__image"
                        src="{{ basePath }}/uploads/calserver-usecase-berlin-wartung.webp"
                        width="960"
                        height="540"
                        loading="lazy"
                        decoding="async"
                        alt="Screenshot der calServer-Wartungs- und Projektplanung für Berliner Stadtwerke">
+                  </div>
                 </div>
               </div>
             </div>
@@ -1256,14 +1270,16 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                     <span class="uk-margin-small-right" data-uk-icon="icon: file-pdf"></span>HIGHLIGHTS ALS PDF
                   </a>
                 </div>
-                <div class="usecase-visual uk-margin-top">
-                  <img class="uk-border-rounded usecase-visual__image"
+                <div class="uk-card uk-card-default uk-card-body uk-card-hover usecase-card usecase-card--visual uk-margin-top">
+                  <div class="usecase-visual">
+                    <img class="uk-border-rounded usecase-visual__image"
                        src="{{ basePath }}/uploads/calserver-usecase-vde-auftragsboard.webp"
                        width="960"
                        height="540"
                        loading="lazy"
                        decoding="async"
                        alt="Screenshot des calServer-Auftragsboards mit DMS-Integration im VDE-Use-Case">
+                  </div>
                 </div>
               </div>
             </div>
