@@ -1717,6 +1717,21 @@ body.qr-landing.calserver-theme .testimonial-card {
     min-height: 240px;
 }
 
+body.qr-landing.calserver-theme .usecase-card--visual {
+    padding: 0;
+    overflow: hidden;
+}
+
+body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual {
+    margin: 0;
+}
+
+body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual__image {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
 @media (max-width: 959px) {
     body.qr-landing.calserver-theme .quick-cta {
         padding: 20px;
