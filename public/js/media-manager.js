@@ -158,6 +158,7 @@ ready(() => {
     const tagFilterContainer = root.querySelector('[data-media-filter-tags]');
     const folderFilterSelect = root.querySelector('[data-media-filter-folder]');
     const clearFiltersBtn = root.querySelector('[data-media-clear-filters]');
+    const landingFilterSelect = root.querySelector('[data-media-filter-landing]');
     const dropZone = root.querySelector('[data-media-dropzone]');
     const chooseBtn = root.querySelector('[data-media-choose]');
     const fileInput = root.querySelector('[data-media-file]');
@@ -194,6 +195,7 @@ ready(() => {
     const initialLimits = parseJsonAttribute(root, 'data-limits', {});
     const limitTemplate = limitText?.dataset.template || '';
     const initialEventUid = root.getAttribute('data-event-uid') || '';
+    const initialLandingOptions = parseJsonAttribute(root, 'data-landing-options', []);
     const NO_FOLDER_FILTER = '__no_folder__';
 
     const state = {
@@ -216,6 +218,9 @@ ready(() => {
         tags: [],
         folders: [],
       },
+      landing: '',
+      landingInfo: null,
+      availableLandings: Array.isArray(initialLandingOptions) ? initialLandingOptions : [],
       metadataSaving: false,
       replacing: false
     };
@@ -311,6 +316,29 @@ ready(() => {
         previewImage.src = '';
         previewPlaceholder.hidden = false;
         previewMeta.hidden = true;
+        previewActions.hidden = true;
+        if (previewUrlContainer) previewUrlContainer.hidden = true;
+        if (previewUrlInput) previewUrlInput.value = '';
+        if (previewCopyButton) {
+          previewCopyButton.disabled = true;
+          previewCopyButton.setAttribute('aria-disabled', 'true');
+        }
+        if (previewDownload) {
+          previewDownload.href = '#';
+          previewDownload.removeAttribute('download');
+        }
+        renderMetadataEditor(null);
+        return;
+      }
+      if (file.missing) {
+        previewImage.hidden = true;
+        previewImage.src = '';
+        previewPlaceholder.hidden = false;
+        previewPlaceholder.textContent = translations.missingReference || translations.noFiles || '';
+        if (previewName) previewName.textContent = file.name;
+        if (previewSize) previewSize.textContent = '-';
+        if (previewModified) previewModified.textContent = '';
+        previewMeta.hidden = false;
         previewActions.hidden = true;
         if (previewUrlContainer) previewUrlContainer.hidden = true;
         if (previewUrlInput) previewUrlInput.value = '';
@@ -442,6 +470,31 @@ ready(() => {
       updateMetadataControlsState(getSelectedFile());
     }
 
+    function suggestUploadForReference(file, openPicker = false) {
+      if (!file || !file.landing) return;
+      const landing = file.landing;
+      if (nameInput) {
+        const rawName = file.name || '';
+        const dotIndex = rawName.lastIndexOf('.');
+        const baseName = dotIndex > 0 ? rawName.slice(0, dotIndex) : rawName;
+        if (baseName) {
+          nameInput.value = baseName;
+        }
+      }
+      if (uploadFolderInput) {
+        const relative = typeof landing.relativePath === 'string' ? landing.relativePath : '';
+        if (relative) {
+          const parts = relative.split('/').slice(0, -1).filter((segment) => !!segment);
+          if (parts.length) {
+            uploadFolderInput.value = parts.join('/');
+          }
+        }
+      }
+      if (openPicker && !state.uploading) {
+        fileInput?.click();
+      }
+    }
+
     function renderFiles() {
       if (!tableBody) return;
       tableBody.innerHTML = '';
@@ -478,6 +531,15 @@ ready(() => {
         });
         nameTd.appendChild(nameBtn);
 
+        if (file.missing) {
+          row.classList.add('media-row-missing');
+          nameBtn.classList.add('uk-text-danger');
+          const badge = document.createElement('span');
+          badge.className = 'uk-label uk-label-danger uk-margin-small-left';
+          badge.textContent = translations.missingReference || 'Missing';
+          nameTd.appendChild(badge);
+        }
+
         if (Array.isArray(file.tags) && file.tags.length) {
           const tagWrap = document.createElement('div');
           tagWrap.className = 'media-file-tags uk-margin-small-top';
@@ -495,6 +557,16 @@ ready(() => {
           folderInfo.textContent = file.folder;
           nameTd.appendChild(folderInfo);
         }
+        const landing = file.landing;
+        if (landing && Array.isArray(landing.sources) && landing.sources.length) {
+          const info = document.createElement('span');
+          info.className = 'uk-text-meta uk-display-block';
+          const template = translations.landingSources || 'Used in: %s';
+          info.textContent = template.includes('%s')
+            ? template.replace('%s', landing.sources.join(', '))
+            : `${template} ${landing.sources.join(', ')}`;
+          nameTd.appendChild(info);
+        }
 
         const sizeTd = document.createElement('td');
         sizeTd.textContent = formatSize(file.size);
@@ -503,92 +575,104 @@ ready(() => {
 
         const actionsTd = document.createElement('td');
         actionsTd.className = 'media-actions';
+        if (file.missing) {
+          const uploadButton = document.createElement('button');
+          uploadButton.type = 'button';
+          uploadButton.className = 'uk-button uk-button-primary uk-button-small';
+          uploadButton.textContent = translations.uploadMissing || translations.uploaded || 'Upload';
+          uploadButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            suggestUploadForReference(file, true);
+          });
+          actionsTd.appendChild(uploadButton);
+        } else {
+          const actionsWrapper = document.createElement('div');
+          actionsWrapper.className = 'uk-inline';
 
-        const actionsWrapper = document.createElement('div');
-        actionsWrapper.className = 'uk-inline';
+          const toggleButton = document.createElement('button');
+          toggleButton.type = 'button';
+          toggleButton.className = 'uk-icon-button uk-button-default uk-button-small';
+          toggleButton.setAttribute('uk-icon', 'more');
+          toggleButton.setAttribute('aria-label', translations.actionsMenu || translations.actions || 'Actions');
+          toggleButton.addEventListener('click', (event) => event.stopPropagation());
 
-        const toggleButton = document.createElement('button');
-        toggleButton.type = 'button';
-        toggleButton.className = 'uk-icon-button uk-button-default uk-button-small';
-        toggleButton.setAttribute('uk-icon', 'more');
-        toggleButton.setAttribute('aria-label', translations.actionsMenu || translations.actions || 'Actions');
-        toggleButton.addEventListener('click', (event) => event.stopPropagation());
+          const dropdown = document.createElement('div');
+          dropdown.setAttribute('uk-dropdown', 'mode: click; pos: bottom-right');
+          dropdown.className = 'media-actions-dropdown';
 
-        const dropdown = document.createElement('div');
-        dropdown.setAttribute('uk-dropdown', 'mode: click; pos: bottom-right');
-        dropdown.className = 'media-actions-dropdown';
+          const hideDropdown = () => {
+            try {
+              const component = window.UIkit?.dropdown?.(dropdown);
+              component?.hide?.(false);
+            } catch (err) {
+              console.error(err);
+            }
+          };
 
-        const hideDropdown = () => {
-          try {
-            const component = window.UIkit?.dropdown?.(dropdown);
-            component?.hide?.(false);
-          } catch (err) {
-            console.error(err);
-          }
-        };
+          const dropdownList = document.createElement('ul');
+          dropdownList.className = 'uk-nav uk-dropdown-nav';
 
-        const dropdownList = document.createElement('ul');
-        dropdownList.className = 'uk-nav uk-dropdown-nav';
+          const downloadItem = document.createElement('li');
+          const downloadLink = document.createElement('a');
+          downloadLink.href = withBase(file.url || file.path || '#');
+          downloadLink.textContent = translations.download;
+          downloadLink.setAttribute('download', file.name || '');
+          downloadLink.addEventListener('click', (event) => {
+            event.stopPropagation();
+            hideDropdown();
+          });
+          downloadItem.appendChild(downloadLink);
+          dropdownList.appendChild(downloadItem);
 
-        const downloadItem = document.createElement('li');
-        const downloadLink = document.createElement('a');
-        downloadLink.href = withBase(file.url || file.path || '#');
-        downloadLink.textContent = translations.download;
-        downloadLink.setAttribute('download', file.name || '');
-        downloadLink.addEventListener('click', (event) => {
-          event.stopPropagation();
-          hideDropdown();
-        });
-        downloadItem.appendChild(downloadLink);
-        dropdownList.appendChild(downloadItem);
+          const replaceItem = document.createElement('li');
+          const replaceLink = document.createElement('a');
+          replaceLink.href = '#';
+          replaceLink.setAttribute('role', 'button');
+          replaceLink.textContent = translations.replace;
+          replaceLink.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            handleReplace(file);
+            hideDropdown();
+          });
+          replaceItem.appendChild(replaceLink);
+          dropdownList.appendChild(replaceItem);
 
-        const replaceItem = document.createElement('li');
-        const replaceLink = document.createElement('a');
-        replaceLink.href = '#';
-        replaceLink.setAttribute('role', 'button');
-        replaceLink.textContent = translations.replace;
-        replaceLink.addEventListener('click', (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          handleReplace(file);
-          hideDropdown();
-        });
-        replaceItem.appendChild(replaceLink);
-        dropdownList.appendChild(replaceItem);
+          const renameItem = document.createElement('li');
+          const renameLink = document.createElement('a');
+          renameLink.href = '#';
+          renameLink.setAttribute('role', 'button');
+          renameLink.textContent = translations.rename;
+          renameLink.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            handleRename(file);
+            hideDropdown();
+          });
+          renameItem.appendChild(renameLink);
+          dropdownList.appendChild(renameItem);
 
-        const renameItem = document.createElement('li');
-        const renameLink = document.createElement('a');
-        renameLink.href = '#';
-        renameLink.setAttribute('role', 'button');
-        renameLink.textContent = translations.rename;
-        renameLink.addEventListener('click', (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          handleRename(file);
-          hideDropdown();
-        });
-        renameItem.appendChild(renameLink);
-        dropdownList.appendChild(renameItem);
+          const deleteItem = document.createElement('li');
+          const deleteLink = document.createElement('a');
+          deleteLink.href = '#';
+          deleteLink.setAttribute('role', 'button');
+          deleteLink.className = 'uk-text-danger';
+          deleteLink.textContent = translations.delete;
+          deleteLink.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            handleDelete(file);
+            hideDropdown();
+          });
+          deleteItem.appendChild(deleteLink);
+          dropdownList.appendChild(deleteItem);
 
-        const deleteItem = document.createElement('li');
-        const deleteLink = document.createElement('a');
-        deleteLink.href = '#';
-        deleteLink.setAttribute('role', 'button');
-        deleteLink.className = 'uk-text-danger';
-        deleteLink.textContent = translations.delete;
-        deleteLink.addEventListener('click', (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          handleDelete(file);
-          hideDropdown();
-        });
-        deleteItem.appendChild(deleteLink);
-        dropdownList.appendChild(deleteItem);
-
-        dropdown.appendChild(dropdownList);
-        actionsWrapper.appendChild(toggleButton);
-        actionsWrapper.appendChild(dropdown);
-        actionsTd.appendChild(actionsWrapper);
+          dropdown.appendChild(dropdownList);
+          actionsWrapper.appendChild(toggleButton);
+          actionsWrapper.appendChild(dropdown);
+          actionsTd.appendChild(actionsWrapper);
+        }
 
         row.appendChild(nameTd);
         row.appendChild(sizeTd);
@@ -681,9 +765,35 @@ ready(() => {
       folderFilterSelect.value = current;
     }
 
+    function renderLandingFilter() {
+      if (!landingFilterSelect) return;
+      const options = Array.isArray(state.availableLandings) ? state.availableLandings.slice() : [];
+      const current = state.landing || '';
+      landingFilterSelect.innerHTML = '';
+
+      const defaultOption = document.createElement('option');
+      defaultOption.value = '';
+      defaultOption.textContent = translations.allLandings || '';
+      landingFilterSelect.appendChild(defaultOption);
+
+      if (current && !options.includes(current)) {
+        options.push(current);
+      }
+
+      options.forEach((slug) => {
+        const option = document.createElement('option');
+        option.value = slug;
+        option.textContent = slug;
+        landingFilterSelect.appendChild(option);
+      });
+
+      landingFilterSelect.value = current;
+    }
+
     function renderFilterControls() {
       renderTagFilters();
       renderFolderFilter();
+      renderLandingFilter();
     }
 
     function updateEventHint() {
@@ -730,6 +840,9 @@ ready(() => {
     function selectFile(file) {
       state.selectedName = file.name || '';
       highlightRows();
+      if (file.missing) {
+        suggestUploadForReference(file, false);
+      }
       updatePreview(file);
     }
 
@@ -781,6 +894,9 @@ ready(() => {
       if (state.filters.folder) {
         params.set('folder', state.filters.folder);
       }
+      if (state.landing) {
+        params.set('landing', state.landing);
+      }
       if (state.scope === 'event' && state.eventUid) {
         params.set('event', state.eventUid);
       }
@@ -797,6 +913,18 @@ ready(() => {
         const activeFilters = filters.active || {};
         state.filters.tags = Array.isArray(activeFilters.tags) ? uniqueTags(activeFilters.tags) : [];
         state.filters.folder = typeof activeFilters.folder === 'string' ? activeFilters.folder : '';
+        const landing = data.landing || null;
+        if (landing && typeof landing === 'object') {
+          state.landingInfo = landing;
+          if (typeof landing.slug === 'string') {
+            state.landing = landing.slug;
+          }
+        } else {
+          state.landingInfo = null;
+          if (!state.landing) {
+            state.landing = '';
+          }
+        }
         renderFiles();
         clearError();
       } catch (err) {
@@ -1163,12 +1291,23 @@ ready(() => {
       loadFiles();
     });
 
+    landingFilterSelect?.addEventListener('change', () => {
+      const value = landingFilterSelect.value || '';
+      if (state.landing === value) {
+        return;
+      }
+      state.landing = value;
+      state.page = 1;
+      loadFiles();
+    });
+
     clearFiltersBtn?.addEventListener('click', () => {
-      if (!state.filters.tags.length && !state.filters.folder) {
+      if (!state.filters.tags.length && !state.filters.folder && !state.landing) {
         return;
       }
       state.filters.tags = [];
       state.filters.folder = '';
+      state.landing = '';
       state.page = 1;
       loadFiles();
     });

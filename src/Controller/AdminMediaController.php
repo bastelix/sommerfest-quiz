@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Service\ConfigService;
+use App\Service\LandingMediaReferenceService;
 use App\Service\MediaLibraryService;
 use JsonException;
+use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use RuntimeException;
 use Slim\Views\Twig;
+use function is_array;
 
 /**
  * Administration endpoints for managing uploaded media files.
@@ -19,12 +22,18 @@ class AdminMediaController
 {
     private MediaLibraryService $media;
     private ConfigService $config;
+    private LandingMediaReferenceService $landingReferences;
     private const FOLDER_NONE = '__no_folder__';
 
-    public function __construct(MediaLibraryService $media, ConfigService $config)
+    public function __construct(
+        MediaLibraryService $media,
+        ConfigService $config,
+        LandingMediaReferenceService $landingReferences
+    )
     {
         $this->media = $media;
         $this->config = $config;
+        $this->landingReferences = $landingReferences;
     }
 
     /**
@@ -50,6 +59,7 @@ class AdminMediaController
             'role' => $role,
             'currentPath' => $request->getUri()->getPath(),
             'domainType' => $request->getAttribute('domainType'),
+            'landingSlugs' => $this->landingReferences->getAvailableSlugs(),
         ]);
     }
 
@@ -64,6 +74,7 @@ class AdminMediaController
         $perPage = (int) ($params['perPage'] ?? 20);
         $perPage = max(1, min(100, $perPage));
         $search = trim((string) ($params['search'] ?? ''));
+        $landingSlug = trim((string) ($params['landing'] ?? ''));
 
         $eventUid = (string) ($params['event'] ?? '');
         if ($eventUid === '') {
@@ -131,11 +142,46 @@ class AdminMediaController
             ));
         }
 
-        $total = count($files);
-        $totalPages = max(1, (int) ceil($total / $perPage));
-        $page = min($page, $totalPages);
-        $offset = ($page - 1) * $perPage;
-        $items = array_slice($files, $offset, $perPage);
+        $landingData = null;
+        if ($landingSlug !== '') {
+            try {
+                $references = $this->landingReferences->getReferences($landingSlug);
+            } catch (InvalidArgumentException $exception) {
+                return $this->jsonError($response, $exception->getMessage(), 400);
+            }
+
+            $items = $this->mergeLandingReferences(
+                $files,
+                $references,
+                $scope,
+                $eventUid !== '' ? $eventUid : null
+            );
+            $items = $this->filterBySearch($items, $search);
+            $items = $this->filterByTags($items, $activeTagFilters);
+            $items = $this->filterByFolder($items, $withoutFolder, $rawFolderFilter);
+
+            $total = count($items);
+            $totalPages = max(1, (int) ceil($total / $perPage));
+            $page = min($page, $totalPages);
+            $offset = ($page - 1) * $perPage;
+            $items = array_slice($items, $offset, $perPage);
+
+            $landingData = [
+                'slug' => $landingSlug,
+                'totalReferences' => count($references),
+                'missing' => array_reduce(
+                    $references,
+                    static fn (int $carry, array $reference): int => $carry + ((bool) ($reference['missing'] ?? false) ? 1 : 0),
+                    0
+                ),
+            ];
+        } else {
+            $total = count($files);
+            $totalPages = max(1, (int) ceil($total / $perPage));
+            $page = min($page, $totalPages);
+            $offset = ($page - 1) * $perPage;
+            $items = array_slice($files, $offset, $perPage);
+        }
 
         $payload = [
             'files' => $items,
@@ -156,7 +202,182 @@ class AdminMediaController
             ],
         ];
 
+        if ($landingData !== null) {
+            $payload['landing'] = $landingData;
+        }
+
         return $this->json($response, $payload);
+    }
+
+    /**
+     * @param list<array<string,mixed>> $files
+     * @param list<array{path:string,relativePath:string,sources:list<string>,missing:bool}> $references
+     * @return list<array<string,mixed>>
+     */
+    private function mergeLandingReferences(
+        array $files,
+        array $references,
+        string $scope,
+        ?string $eventUid
+    ): array {
+        $filesByPath = [];
+        foreach ($files as $file) {
+            $path = isset($file['path']) ? (string) $file['path'] : '';
+            if ($path === '') {
+                continue;
+            }
+            $filesByPath[$path] = $file;
+        }
+
+        $items = [];
+        foreach ($references as $reference) {
+            $path = isset($reference['path']) ? (string) $reference['path'] : '';
+            if ($path === '') {
+                continue;
+            }
+
+            $landing = $reference;
+            $exists = isset($filesByPath[$path]);
+            $landing['missing'] = !$exists;
+
+            if ($exists) {
+                $file = $filesByPath[$path];
+                $file['missing'] = false;
+                $file['landing'] = $landing;
+            } else {
+                $file = $this->buildMissingLandingEntry($landing, $scope, $eventUid);
+            }
+
+            $items[] = $file;
+        }
+
+        return $items;
+    }
+
+    /**
+     * @param list<array<string,mixed>> $items
+     * @return list<array<string,mixed>>
+     */
+    private function filterBySearch(array $items, string $search): array
+    {
+        if ($search === '') {
+            return $items;
+        }
+
+        $needle = mb_strtolower($search);
+
+        return array_values(array_filter(
+            $items,
+            static function (array $file) use ($needle): bool {
+                $candidates = [
+                    isset($file['name']) ? (string) $file['name'] : '',
+                    isset($file['path']) ? (string) $file['path'] : '',
+                ];
+                $landing = $file['landing'] ?? [];
+                if (is_array($landing)) {
+                    $candidates[] = isset($landing['relativePath'])
+                        ? (string) $landing['relativePath']
+                        : '';
+                }
+
+                foreach ($candidates as $candidate) {
+                    if ($candidate !== '' && mb_stripos($candidate, $needle) !== false) {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        ));
+    }
+
+    /**
+     * @param list<array<string,mixed>> $items
+     * @param list<string> $activeTagFilters
+     * @return list<array<string,mixed>>
+     */
+    private function filterByTags(array $items, array $activeTagFilters): array
+    {
+        if ($activeTagFilters === []) {
+            return $items;
+        }
+
+        return array_values(array_filter(
+            $items,
+            static function (array $file) use ($activeTagFilters): bool {
+                $fileTags = array_map(
+                    static fn (string $tag): string => mb_strtolower($tag),
+                    array_map('strval', $file['tags'] ?? [])
+                );
+                foreach ($activeTagFilters as $tag) {
+                    if (!in_array($tag, $fileTags, true)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+        ));
+    }
+
+    /**
+     * @param list<array<string,mixed>> $items
+     * @return list<array<string,mixed>>
+     */
+    private function filterByFolder(array $items, bool $withoutFolder, ?string $rawFolderFilter): array
+    {
+        if ($withoutFolder) {
+            return array_values(array_filter(
+                $items,
+                static function (array $file): bool {
+                    $folder = $file['folder'] ?? null;
+                    return !is_string($folder) || $folder === '';
+                }
+            ));
+        }
+
+        if ($rawFolderFilter === null) {
+            return $items;
+        }
+
+        return array_values(array_filter(
+            $items,
+            static function (array $file) use ($rawFolderFilter): bool {
+                $folder = $file['folder'] ?? null;
+                if (!is_string($folder) || $folder === '') {
+                    return false;
+                }
+
+                return mb_strtolower($folder) === $rawFolderFilter;
+            }
+        ));
+    }
+
+    /**
+     * @param array{path:string,relativePath:string,sources:list<string>,missing:bool} $reference
+     * @return array<string,mixed>
+     */
+    private function buildMissingLandingEntry(array $reference, string $scope, ?string $eventUid): array
+    {
+        $path = (string) $reference['path'];
+        $name = basename($path);
+        $extension = strtolower((string) pathinfo($name, PATHINFO_EXTENSION));
+
+        return [
+            'name' => $name,
+            'scope' => $scope,
+            'eventUid' => $eventUid,
+            'size' => 0,
+            'modified' => null,
+            'path' => $path,
+            'url' => null,
+            'extension' => $extension,
+            'mime' => null,
+            'tags' => [],
+            'folder' => null,
+            'missing' => true,
+            'landing' => $reference + ['missing' => true],
+        ];
     }
 
     /**

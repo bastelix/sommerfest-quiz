@@ -4,6 +4,7 @@
 {% set acceptValue = allowedExtensions ? '.' ~ allowedExtensions|join(',.') : '' %}
 {% set sizeMb = (limits.maxSize|default(0) / 1048576)|number_format(1, '.', '') %}
 {% set limitText = t('text_media_limits')|format(sizeMb, allowedExtensions|join(', ')) %}
+{% set landingOptions = landingSlugs|default([]) %}
 {% set translations = {
   'renamePrompt': t('prompt_media_rename'),
   'deleteConfirm': t('confirm_media_delete'),
@@ -40,6 +41,11 @@
   'copyUrlSuccess': t('message_media_url_copied'),
   'copyUrlFallback': t('message_media_url_copy_fallback'),
   'copyUrlError': t('error_media_url_copy_failed'),
+  'filterLanding': t('label_media_filter_landing'),
+  'allLandings': t('option_media_all_landings'),
+  'missingReference': t('label_media_missing_reference'),
+  'uploadMissing': t('button_media_upload_missing'),
+  'landingSources': t('text_media_landing_sources'),
 } %}
 {% set initialEventUid = mediaEventUid|default(event.uid|default('')) %}
 
@@ -59,6 +65,7 @@
     data-event-uid="{{ initialEventUid }}"
     data-limits="{{ limits|json_encode|e('html_attr') }}"
     data-translations="{{ translations|json_encode|e('html_attr') }}"
+    data-landing-options="{{ landingOptions|json_encode|e('html_attr') }}"
   >
     <div class="uk-width-1-1 uk-width-2-3@l media-column">
       <div class="uk-card uk-card-default uk-card-small uk-margin media-controls-card">
@@ -128,6 +135,20 @@
                   </button>
                 </div>
               </div>
+            </div>
+            <div class="uk-width-1-1">
+              <label class="uk-form-label" for="mediaLandingFilter">{{ t('label_media_filter_landing') }}</label>
+              <select
+                id="mediaLandingFilter"
+                class="uk-select uk-form-small"
+                data-media-filter-landing
+                aria-label="{{ t('label_media_filter_landing') }}"
+              >
+                <option value="">{{ t('option_media_all_landings') }}</option>
+                {% for slug in landingOptions %}
+                  <option value="{{ slug }}">{{ slug }}</option>
+                {% endfor %}
+              </select>
             </div>
           </div>
         </div>

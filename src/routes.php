@@ -17,6 +17,7 @@ use App\Controller\LogoutController;
 use App\Controller\ConfigController;
 use App\Controller\CatalogController;
 use App\Application\Middleware\RoleAuthMiddleware;
+use App\Application\Seo\PageSeoConfigService;
 use App\Service\ConfigService;
 use App\Service\ConfigValidator;
 use App\Service\CatalogService;
@@ -33,6 +34,7 @@ use App\Service\SettingsService;
 use App\Service\DomainStartPageService;
 use App\Service\DomainContactTemplateService;
 use App\Service\PageService;
+use App\Service\LandingMediaReferenceService;
 use App\Service\TranslationService;
 use App\Service\PasswordResetService;
 use App\Service\PasswordPolicy;
@@ -242,6 +244,9 @@ return function (\Slim\App $app, TranslationService $translator) {
         $playerService = new PlayerService($pdo);
         $imageUploadService = new ImageUploadService();
         $mediaLibraryService = new MediaLibraryService($configService, $imageUploadService);
+        $pageService = new PageService($pdo);
+        $pageSeoService = new PageSeoConfigService($pdo);
+        $landingMediaReferenceService = new LandingMediaReferenceService($pageService, $pageSeoService);
 
         $request = $request
             ->withAttribute('plan', $plan)
@@ -285,7 +290,7 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('settingsController', new SettingsController($settingsService))
             ->withAttribute(
                 'domainStartPageController',
-                new DomainStartPageController($domainStartPageService, $settingsService, new PageService($pdo))
+                new DomainStartPageController($domainStartPageService, $settingsService, $pageService)
             )
             ->withAttribute(
                 'domainContactTemplateController',
@@ -302,7 +307,8 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('onboardingEmailController', new OnboardingEmailController($emailConfirmService))
             ->withAttribute('catalogDesignController', new CatalogDesignController($catalogService))
             ->withAttribute('mediaLibraryService', $mediaLibraryService)
-            ->withAttribute('adminMediaController', new AdminMediaController($mediaLibraryService, $configService))
+            ->withAttribute('landingMediaReferenceService', $landingMediaReferenceService)
+            ->withAttribute('adminMediaController', new AdminMediaController($mediaLibraryService, $configService, $landingMediaReferenceService))
             ->withAttribute('logoController', new LogoController($configService, $imageUploadService))
             ->withAttribute('qrLogoController', new QrLogoController($configService, $imageUploadService))
             ->withAttribute('summaryController', new SummaryController($configService, $eventService))
@@ -540,8 +546,13 @@ return function (\Slim\App $app, TranslationService $translator) {
         if (!$controller instanceof AdminMediaController) {
             $service = $request->getAttribute('mediaLibraryService');
             $config = $request->getAttribute('configService');
-            if ($service instanceof MediaLibraryService && $config instanceof ConfigService) {
-                $controller = new AdminMediaController($service, $config);
+            $landing = $request->getAttribute('landingMediaReferenceService');
+            if (
+                $service instanceof MediaLibraryService
+                && $config instanceof ConfigService
+                && $landing instanceof LandingMediaReferenceService
+            ) {
+                $controller = new AdminMediaController($service, $config, $landing);
             } else {
                 return $response->withStatus(500);
             }
@@ -553,8 +564,13 @@ return function (\Slim\App $app, TranslationService $translator) {
         if (!$controller instanceof AdminMediaController) {
             $service = $request->getAttribute('mediaLibraryService');
             $config = $request->getAttribute('configService');
-            if ($service instanceof MediaLibraryService && $config instanceof ConfigService) {
-                $controller = new AdminMediaController($service, $config);
+            $landing = $request->getAttribute('landingMediaReferenceService');
+            if (
+                $service instanceof MediaLibraryService
+                && $config instanceof ConfigService
+                && $landing instanceof LandingMediaReferenceService
+            ) {
+                $controller = new AdminMediaController($service, $config, $landing);
             } else {
                 return $response->withStatus(500);
             }
@@ -566,8 +582,13 @@ return function (\Slim\App $app, TranslationService $translator) {
         if (!$controller instanceof AdminMediaController) {
             $service = $request->getAttribute('mediaLibraryService');
             $config = $request->getAttribute('configService');
-            if ($service instanceof MediaLibraryService && $config instanceof ConfigService) {
-                $controller = new AdminMediaController($service, $config);
+            $landing = $request->getAttribute('landingMediaReferenceService');
+            if (
+                $service instanceof MediaLibraryService
+                && $config instanceof ConfigService
+                && $landing instanceof LandingMediaReferenceService
+            ) {
+                $controller = new AdminMediaController($service, $config, $landing);
             } else {
                 return $response->withStatus(500);
             }
@@ -579,8 +600,13 @@ return function (\Slim\App $app, TranslationService $translator) {
         if (!$controller instanceof AdminMediaController) {
             $service = $request->getAttribute('mediaLibraryService');
             $config = $request->getAttribute('configService');
-            if ($service instanceof MediaLibraryService && $config instanceof ConfigService) {
-                $controller = new AdminMediaController($service, $config);
+            $landing = $request->getAttribute('landingMediaReferenceService');
+            if (
+                $service instanceof MediaLibraryService
+                && $config instanceof ConfigService
+                && $landing instanceof LandingMediaReferenceService
+            ) {
+                $controller = new AdminMediaController($service, $config, $landing);
             } else {
                 return $response->withStatus(500);
             }
@@ -592,8 +618,13 @@ return function (\Slim\App $app, TranslationService $translator) {
         if (!$controller instanceof AdminMediaController) {
             $service = $request->getAttribute('mediaLibraryService');
             $config = $request->getAttribute('configService');
-            if ($service instanceof MediaLibraryService && $config instanceof ConfigService) {
-                $controller = new AdminMediaController($service, $config);
+            $landing = $request->getAttribute('landingMediaReferenceService');
+            if (
+                $service instanceof MediaLibraryService
+                && $config instanceof ConfigService
+                && $landing instanceof LandingMediaReferenceService
+            ) {
+                $controller = new AdminMediaController($service, $config, $landing);
             } else {
                 return $response->withStatus(500);
             }
