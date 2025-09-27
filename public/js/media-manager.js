@@ -145,6 +145,7 @@ ready(() => {
       landingMissingHeading: 'Missing landing assets',
       landingMissingEmpty: 'All landing assets available.',
       landingPrefill: 'Prefill upload',
+      landingOpenPdf: 'Open PDF',
       landingUsage: 'Landing pages',
       landingPreview: 'Landing references',
       landingMarkup: 'Landing content',
@@ -918,6 +919,7 @@ ready(() => {
           meta.className = 'uk-text-meta';
           const slugTitle = entry.title || entry.slug || '';
           const type = typeof entry.type === 'string' ? entry.type.toLowerCase() : '';
+          const extension = typeof entry.extension === 'string' ? entry.extension.toLowerCase() : '';
           const typeLabel = type === 'seo'
             ? (translations.landingSeo || fallbackTranslations.landingSeo)
             : (translations.landingMarkup || fallbackTranslations.landingMarkup);
@@ -935,6 +937,19 @@ ready(() => {
           button.dataset.extension = entry.extension || '';
           button.textContent = translations.landingPrefill || fallbackTranslations.landingPrefill;
           actions.appendChild(button);
+          if (extension === 'pdf') {
+            const path = typeof entry.path === 'string' ? entry.path.trim() : '';
+            if (path) {
+              const urlPath = path.startsWith('/') ? path : `/${path}`;
+              const link = document.createElement('a');
+              link.href = withBase(urlPath);
+              link.target = '_blank';
+              link.rel = 'noopener';
+              link.className = 'uk-button uk-button-default uk-button-xsmall uk-margin-small-left';
+              link.textContent = translations.landingOpenPdf || fallbackTranslations.landingOpenPdf;
+              actions.appendChild(link);
+            }
+          }
           item.appendChild(actions);
           landingMissingList.appendChild(item);
         });
