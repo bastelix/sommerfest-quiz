@@ -499,33 +499,78 @@ ready(() => {
 
         const actionsTd = document.createElement('td');
         actionsTd.className = 'media-actions';
+
+        const actionsWrapper = document.createElement('div');
+        actionsWrapper.className = 'uk-inline';
+
+        const toggleButton = document.createElement('button');
+        toggleButton.type = 'button';
+        toggleButton.className = 'uk-icon-button uk-button-default uk-button-small';
+        toggleButton.setAttribute('uk-icon', 'more');
+        toggleButton.setAttribute('aria-label', translations.actionsMenu || translations.actions || 'Actions');
+        toggleButton.addEventListener('click', (event) => event.stopPropagation());
+
+        const dropdown = document.createElement('div');
+        dropdown.setAttribute('uk-dropdown', 'mode: click; pos: bottom-right');
+        dropdown.className = 'media-actions-dropdown';
+
+        const hideDropdown = () => {
+          try {
+            const component = window.UIkit?.dropdown?.(dropdown);
+            component?.hide?.(false);
+          } catch (err) {
+            console.error(err);
+          }
+        };
+
+        const dropdownList = document.createElement('ul');
+        dropdownList.className = 'uk-nav uk-dropdown-nav';
+
+        const downloadItem = document.createElement('li');
         const downloadLink = document.createElement('a');
         downloadLink.href = withBase(file.url || file.path || '#');
-        downloadLink.className = 'uk-button uk-button-default uk-button-small';
         downloadLink.textContent = translations.download;
         downloadLink.setAttribute('download', file.name || '');
-        downloadLink.addEventListener('click', (event) => event.stopPropagation());
-        actionsTd.appendChild(downloadLink);
+        downloadLink.addEventListener('click', (event) => {
+          event.stopPropagation();
+          hideDropdown();
+        });
+        downloadItem.appendChild(downloadLink);
+        dropdownList.appendChild(downloadItem);
 
-        const renameBtn = document.createElement('button');
-        renameBtn.type = 'button';
-        renameBtn.className = 'uk-button uk-button-default uk-button-small';
-        renameBtn.textContent = translations.rename;
-        renameBtn.addEventListener('click', (event) => {
+        const renameItem = document.createElement('li');
+        const renameLink = document.createElement('a');
+        renameLink.href = '#';
+        renameLink.setAttribute('role', 'button');
+        renameLink.textContent = translations.rename;
+        renameLink.addEventListener('click', (event) => {
+          event.preventDefault();
           event.stopPropagation();
           handleRename(file);
+          hideDropdown();
         });
-        actionsTd.appendChild(renameBtn);
+        renameItem.appendChild(renameLink);
+        dropdownList.appendChild(renameItem);
 
-        const deleteBtn = document.createElement('button');
-        deleteBtn.type = 'button';
-        deleteBtn.className = 'uk-button uk-button-danger uk-button-small';
-        deleteBtn.textContent = translations.delete;
-        deleteBtn.addEventListener('click', (event) => {
+        const deleteItem = document.createElement('li');
+        const deleteLink = document.createElement('a');
+        deleteLink.href = '#';
+        deleteLink.setAttribute('role', 'button');
+        deleteLink.className = 'uk-text-danger';
+        deleteLink.textContent = translations.delete;
+        deleteLink.addEventListener('click', (event) => {
+          event.preventDefault();
           event.stopPropagation();
           handleDelete(file);
+          hideDropdown();
         });
-        actionsTd.appendChild(deleteBtn);
+        deleteItem.appendChild(deleteLink);
+        dropdownList.appendChild(deleteItem);
+
+        dropdown.appendChild(dropdownList);
+        actionsWrapper.appendChild(toggleButton);
+        actionsWrapper.appendChild(dropdown);
+        actionsTd.appendChild(actionsWrapper);
 
         row.appendChild(nameTd);
         row.appendChild(sizeTd);
