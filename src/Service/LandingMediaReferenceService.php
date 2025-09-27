@@ -306,7 +306,7 @@ class LandingMediaReferenceService
         $previous = libxml_use_internal_errors(true);
 
         $document = new DOMDocument();
-        $html = '<!DOCTYPE html><html><body>' . $content . '</body></html>';
+        $html = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>' . $content . '</body></html>';
         if ($document->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD)) {
             foreach ($document->getElementsByTagName('img') as $image) {
                 $src = $image->getAttribute('src');
