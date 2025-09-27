@@ -574,6 +574,19 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         return $controller->replace($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR))->add(new CsrfMiddleware());
+    $app->post('/admin/media/convert', function (Request $request, Response $response): Response {
+        $controller = $request->getAttribute('adminMediaController');
+        if (!$controller instanceof AdminMediaController) {
+            $service = $request->getAttribute('mediaLibraryService');
+            $config = $request->getAttribute('configService');
+            if ($service instanceof MediaLibraryService && $config instanceof ConfigService) {
+                $controller = new AdminMediaController($service, $config);
+            } else {
+                return $response->withStatus(500);
+            }
+        }
+        return $controller->convert($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR))->add(new CsrfMiddleware());
     $app->post('/admin/media/rename', function (Request $request, Response $response): Response {
         $controller = $request->getAttribute('adminMediaController');
         if (!$controller instanceof AdminMediaController) {

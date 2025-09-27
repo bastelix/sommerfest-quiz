@@ -56,6 +56,23 @@ class ImageUploadService
     {
         $stream = $file->getStream();
         $image = $this->manager->read($stream->detach());
+
+        return $this->prepareImage($image, $autoOrient);
+    }
+
+    public function readExistingImage(string $path, bool $autoOrient = false): ImageInterface
+    {
+        if (!is_file($path)) {
+            throw new \RuntimeException('file not found');
+        }
+
+        $image = $this->manager->read($path);
+
+        return $this->prepareImage($image, $autoOrient);
+    }
+
+    private function prepareImage(ImageInterface $image, bool $autoOrient): ImageInterface
+    {
         $width = $image->width();
         $height = $image->height();
         $pixelCount = $width * $height;
