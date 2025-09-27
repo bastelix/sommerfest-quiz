@@ -1025,4 +1025,15 @@ body.admin-page {
   margin-bottom: 0.25rem;
 }
 
+@media (min-width: 960px) {
+  .media-refresh-container {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .media-refresh-container [data-media-refresh] {
+    margin-top: auto;
+  }
+}
+
 
