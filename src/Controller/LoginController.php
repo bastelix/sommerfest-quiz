@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Domain\Roles;
-use App\Service\UserService;
-use App\Service\SessionService;
 use App\Infrastructure\Database;
+use App\Service\SessionService;
+use App\Service\UserService;
 use App\Service\VersionService;
+use App\Support\BasePathHelper;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -118,7 +119,7 @@ class LoginController
             } else {
                 $target = '/help';
             }
-            $basePath = RouteContext::fromRequest($request)->getBasePath();
+            $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
             return $response->withHeader('Location', $basePath . $target)->withStatus(302);
         }
 
