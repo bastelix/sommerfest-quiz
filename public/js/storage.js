@@ -17,7 +17,8 @@
     BARRIER_FREE: 'barrierFree',
     QR_THEME: 'qr-theme',
     QR_CONTRAST: 'qr-contrast',
-    TENANT_COLUMNS: 'tenantColumns'
+    TENANT_COLUMNS: 'tenantColumns',
+    ADMIN_SIDEBAR: 'adminSidebarCollapsed'
   };
 
   const eventScoped = new Set([

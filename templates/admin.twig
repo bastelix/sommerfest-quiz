@@ -32,6 +32,17 @@
 {% block body %}
   {% embed 'topbar.twig' %}
     {% block left %}
+      <button
+        id="sidebarToggle"
+        type="button"
+        class="uk-navbar-toggle uk-visible@m uk-margin-small-right git-btn"
+        aria-controls="adminSidebar"
+        aria-expanded="true"
+        aria-pressed="false"
+        aria-label="{{ t('menu') }}"
+      >
+        <span uk-navbar-toggle-icon></span>
+      </button>
       <a href="{{ basePath }}/admin/summary" class="uk-navbar-item uk-logo uk-margin-small-left uk-visible@s">
         QuizRace Admin
         <div class="uk-text-meta uk-text-small">v{{ version }}</div>
@@ -65,7 +76,7 @@
     </div>
   {% endif %}
   <div class="uk-grid-collapse" uk-grid>
-    <aside class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
+    <aside id="adminSidebar" class="uk-width-1-4@m uk-width-1-5@l uk-visible@m qr-sidebar">
       <div class="uk-card qr-card uk-card-body qr-sidebar-card">
         {% include 'admin/_nav.twig' %}
       </div>
