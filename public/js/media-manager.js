@@ -923,7 +923,9 @@ ready(() => {
           const typeLabel = type === 'seo'
             ? (translations.landingSeo || fallbackTranslations.landingSeo)
             : (translations.landingMarkup || fallbackTranslations.landingMarkup);
-          meta.textContent = slugTitle ? `${slugTitle} · ${typeLabel}` : typeLabel;
+          const altText = typeof entry.alt === 'string' ? entry.alt.trim() : '';
+          const defaultMeta = slugTitle ? `${slugTitle} · ${typeLabel}` : typeLabel;
+          meta.textContent = altText || defaultMeta;
           item.appendChild(meta);
           const actions = document.createElement('div');
           actions.className = 'uk-margin-small-top';
@@ -932,7 +934,11 @@ ready(() => {
           button.className = 'uk-button uk-button-default uk-button-xsmall';
           button.dataset.mediaLandingPrefill = 'true';
           button.dataset.name = entry.suggestedName || '';
-          button.dataset.folder = entry.suggestedFolder || '';
+          const slugFolder = typeof entry.slug === 'string' ? entry.slug.trim() : '';
+          const fallbackFolder = entry.suggestedFolder && typeof entry.suggestedFolder === 'string'
+            ? entry.suggestedFolder
+            : '';
+          button.dataset.folder = slugFolder || fallbackFolder;
           button.dataset.slug = entry.slug || '';
           button.dataset.extension = entry.extension || '';
           button.textContent = translations.landingPrefill || fallbackTranslations.landingPrefill;
