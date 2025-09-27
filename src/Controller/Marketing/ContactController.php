@@ -80,7 +80,7 @@ class ContactController
         $host = strtolower($request->getUri()->getHost());
         $domainConfig = $domainService->getDomainConfig($host);
         $domainEmail = null;
-        if ($domainConfig !== null && array_key_exists('email', $domainConfig) && $domainConfig['email'] !== null) {
+        if ($domainConfig !== null && $domainConfig['email'] !== null) {
             $domainEmail = trim((string) $domainConfig['email']);
             if ($domainEmail === '') {
                 $domainEmail = null;

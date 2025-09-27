@@ -75,7 +75,7 @@ class DomainStartPageService
             return null;
         }
 
-        $startPage = (string) ($config['start_page'] ?? '');
+        $startPage = trim($config['start_page']);
 
         return $startPage === '' ? null : $startPage;
     }

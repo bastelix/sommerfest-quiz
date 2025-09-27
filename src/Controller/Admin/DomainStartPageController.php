@@ -63,14 +63,14 @@ class DomainStartPageController
                     'domain' => $domain,
                     'normalized' => $domain,
                     'type' => 'custom',
-                    'start_page' => $config['start_page'] ?? null,
-                    'email' => $config['email'] ?? null,
+                    'start_page' => $config['start_page'],
+                    'email' => $config['email'],
                 ];
                 continue;
             }
 
-            $combined[$domain]['start_page'] = $config['start_page'] ?? null;
-            $combined[$domain]['email'] = $config['email'] ?? null;
+            $combined[$domain]['start_page'] = $config['start_page'];
+            $combined[$domain]['email'] = $config['email'];
         }
 
         $ordered = [];
@@ -105,7 +105,7 @@ class DomainStartPageController
                 'normalized' => $item['normalized'],
                 'type' => $item['type'],
                 'start_page' => $startPage,
-                'email' => $item['email'] ?? null,
+                'email' => $item['email'],
             ];
         }
 

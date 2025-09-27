@@ -124,7 +124,7 @@ class DomainContactTemplateController
         $marketing = getenv('MARKETING_DOMAINS') ?: '';
         $known = $this->domains->determineDomains($mainDomain, (string) $marketing);
         foreach ($known as $entry) {
-            if (($entry['normalized'] ?? '') === $normalized) {
+            if ($entry['normalized'] === $normalized) {
                 return true;
             }
         }

@@ -105,7 +105,7 @@ class EventService
 
         foreach ($events as $idx => $event) {
             $uid = $event['uid'] ?? bin2hex(random_bytes(16));
-            $rawName = (string) ($event['name'] ?? '');
+            $rawName = (string) $event['name'];
             $name = trim($rawName);
             $isDraft = !empty($event['draft'])
                 || str_starts_with($rawName, '__draft__')
