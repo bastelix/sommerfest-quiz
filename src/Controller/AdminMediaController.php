@@ -210,6 +210,47 @@ class AdminMediaController
     }
 
     /**
+     * Replace an existing file with a new upload.
+     */
+    public function replace(Request $request, Response $response): Response
+    {
+        $body = $request->getParsedBody();
+        if (!is_array($body)) {
+            $body = [];
+        }
+
+        $scope = (string) ($body['scope'] ?? MediaLibraryService::SCOPE_GLOBAL);
+        $name = (string) ($body['name'] ?? '');
+        $eventUid = (string) ($body['event'] ?? '');
+        if ($eventUid === '') {
+            $eventUid = (string) ($_SESSION['event_uid'] ?? $this->config->getActiveEventUid());
+        }
+
+        if ($name === '') {
+            return $this->jsonError($response, 'invalid filename', 400);
+        }
+
+        $files = $request->getUploadedFiles();
+        if (!isset($files['file'])) {
+            return $this->jsonError($response, 'missing file', 400);
+        }
+
+        $file = $files['file'];
+
+        try {
+            $stored = $this->media->replaceFile($scope, $name, $file, $eventUid !== '' ? $eventUid : null);
+        } catch (RuntimeException $e) {
+            return $this->jsonError($response, $e->getMessage(), 400);
+        }
+
+        return $this->json($response, [
+            'file' => $stored,
+            'message' => 'replaced',
+            'limits' => $this->media->getLimits(),
+        ]);
+    }
+
+    /**
      * Rename a file.
      */
     public function rename(Request $request, Response $response): Response

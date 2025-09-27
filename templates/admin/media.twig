@@ -8,6 +8,7 @@
   'renamePrompt': t('prompt_media_rename'),
   'deleteConfirm': t('confirm_media_delete'),
   'uploaded': t('message_media_uploaded'),
+  'replaced': t('message_media_replaced'),
   'renamed': t('message_media_renamed'),
   'deleted': t('message_media_deleted'),
   'requestFailed': t('error_media_request_failed'),
@@ -15,6 +16,7 @@
   'eventHint': t('text_media_event_hint'),
   'noFiles': t('text_media_no_files'),
   'download': t('action_download'),
+  'replace': t('button_media_replace'),
   'rename': t('button_media_rename'),
   'delete': t('button_media_delete'),
   'preview': t('label_media_preview'),
@@ -337,6 +339,11 @@
             <a class="uk-button uk-button-default uk-button-small" data-media-download href="#" download>
               {{ t('action_download') }}
             </a>
+          </div>
+          <div>
+            <button type="button" class="uk-button uk-button-default uk-button-small" data-media-replace>
+              {{ t('button_media_replace') }}
+            </button>
           </div>
           <div>
             <button type="button" class="uk-button uk-button-default uk-button-small" data-media-rename>
