@@ -155,6 +155,68 @@ class MediaLibraryService
     }
 
     /**
+     * Replace the contents of an existing file while keeping its name and metadata.
+     */
+    public function replaceFile(
+        string $scope,
+        string $name,
+        UploadedFileInterface $file,
+        ?string $eventUid = null
+    ): array {
+        $name = $this->sanitizeExistingName($name);
+
+        $clientName = (string) $file->getClientFilename();
+        if ($clientName === '') {
+            throw new RuntimeException('missing filename');
+        }
+
+        $targetExtension = strtolower((string) pathinfo($name, PATHINFO_EXTENSION));
+        if ($targetExtension === '') {
+            throw new RuntimeException('invalid filename');
+        }
+
+        $uploadedExtension = strtolower((string) pathinfo($clientName, PATHINFO_EXTENSION));
+        if ($uploadedExtension === '') {
+            throw new RuntimeException('missing extension');
+        }
+
+        if ($uploadedExtension !== $targetExtension) {
+            throw new RuntimeException('extension mismatch');
+        }
+
+        $this->images->validate($file, self::MAX_UPLOAD_SIZE, self::ALLOWED_EXTENSIONS, self::ALLOWED_MIME_TYPES);
+
+        [$dir, $relative, $publicPath, $resolvedUid] = $this->resolveScope($scope, $eventUid);
+        $targetPath = $dir . DIRECTORY_SEPARATOR . $name;
+        if (!is_file($targetPath)) {
+            throw new RuntimeException('file not found');
+        }
+
+        $baseName = (string) pathinfo($name, PATHINFO_FILENAME);
+
+        if ($targetExtension === 'svg') {
+            $this->storeRawUpload($file, $dir, $relative, $baseName, $targetExtension);
+        } else {
+            $this->images->saveUploadedFile(
+                $file,
+                $relative,
+                $baseName,
+                null,
+                null,
+                ImageUploadService::QUALITY_PHOTO,
+                true
+            );
+        }
+
+        clearstatcache(true, $targetPath);
+
+        $metadata = $this->readMetadata($dir);
+        $entryMeta = $metadata[$name] ?? ['tags' => [], 'folder' => null];
+
+        return $this->buildFileInfo($targetPath, $publicPath, $scope, $resolvedUid, $entryMeta);
+    }
+
+    /**
      * Rename an existing file.
      */
     public function renameFile(

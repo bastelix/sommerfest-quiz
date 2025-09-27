@@ -105,6 +105,7 @@ ready(() => {
       renamePrompt: 'Enter a new filename:',
       deleteConfirm: 'Delete this file?',
       uploaded: 'File uploaded.',
+      replaced: 'File replaced.',
       renamed: 'File renamed.',
       deleted: 'File deleted.',
       requestFailed: 'Action failed.',
@@ -112,6 +113,7 @@ ready(() => {
       eventHint: '',
       noFiles: 'No files available.',
       download: 'Download',
+      replace: 'Replace',
       rename: 'Rename',
       delete: 'Delete',
       preview: 'Preview',
@@ -178,6 +180,7 @@ ready(() => {
     const previewUrlInput = root.querySelector('[data-media-preview-url-input]');
     const previewCopyButton = root.querySelector('[data-media-preview-copy]');
     const previewDownload = root.querySelector('[data-media-download]');
+    const previewReplace = root.querySelector('[data-media-replace]');
     const previewRename = root.querySelector('[data-media-rename]');
     const previewDelete = root.querySelector('[data-media-delete]');
     const metadataPanel = root.querySelector('[data-media-metadata]');
@@ -213,7 +216,8 @@ ready(() => {
         tags: [],
         folders: [],
       },
-      metadataSaving: false
+      metadataSaving: false,
+      replacing: false
     };
 
     function updateLimitText(limits) {
@@ -537,6 +541,20 @@ ready(() => {
         });
         downloadItem.appendChild(downloadLink);
         dropdownList.appendChild(downloadItem);
+
+        const replaceItem = document.createElement('li');
+        const replaceLink = document.createElement('a');
+        replaceLink.href = '#';
+        replaceLink.setAttribute('role', 'button');
+        replaceLink.textContent = translations.replace;
+        replaceLink.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          handleReplace(file);
+          hideDropdown();
+        });
+        replaceItem.appendChild(replaceLink);
+        dropdownList.appendChild(replaceItem);
 
         const renameItem = document.createElement('li');
         const renameLink = document.createElement('a');
@@ -980,6 +998,69 @@ ready(() => {
       updateMetadata(file, { folder: null });
     }
 
+    function handleReplace(file) {
+      if (!file || state.replacing || state.uploading) {
+        return;
+      }
+      if (state.scope === 'event' && !state.eventUid) {
+        showError(translations.eventRequired);
+        return;
+      }
+      const picker = document.createElement('input');
+      picker.type = 'file';
+      picker.style.display = 'none';
+      const acceptAttr = fileInput?.getAttribute('accept');
+      if (acceptAttr) {
+        picker.setAttribute('accept', acceptAttr);
+      }
+      document.body.appendChild(picker);
+      const cleanup = () => {
+        picker.remove();
+      };
+      picker.addEventListener('change', () => {
+        const replacement = picker.files && picker.files[0];
+        if (replacement) {
+          startReplace(file, replacement);
+        }
+        cleanup();
+      }, { once: true });
+      picker.addEventListener('cancel', cleanup, { once: true });
+      picker.addEventListener('blur', cleanup, { once: true });
+      picker.click();
+    }
+
+    async function startReplace(file, replacement) {
+      if (!file || !replacement || state.replacing) {
+        return;
+      }
+      if (state.scope === 'event' && !state.eventUid) {
+        showError(translations.eventRequired);
+        return;
+      }
+      const formData = new FormData();
+      formData.append('file', replacement);
+      formData.append('scope', state.scope);
+      formData.append('name', file.name);
+      if (state.scope === 'event' && state.eventUid) {
+        formData.append('event', state.eventUid);
+      }
+      try {
+        state.replacing = true;
+        const data = await fetchJson('/admin/media/replace', {
+          method: 'POST',
+          body: formData
+        });
+        updateLimitText(data.limits || {});
+        notify(translations.replaced, 'success');
+        state.selectedName = data.file?.name || file.name;
+        await loadFiles();
+      } catch (err) {
+        notify(err.message || translations.requestFailed, 'danger');
+      } finally {
+        state.replacing = false;
+      }
+    }
+
     async function handleRename(file) {
       const newName = window.prompt(translations.renamePrompt, file.name);
       if (!newName || newName === file.name) {
@@ -1199,6 +1280,13 @@ ready(() => {
 
     previewCopyButton?.addEventListener('click', () => {
       handleCopyUrl();
+    });
+
+    previewReplace?.addEventListener('click', () => {
+      const file = getSelectedFile();
+      if (file) {
+        handleReplace(file);
+      }
     });
 
     previewRename?.addEventListener('click', () => {
