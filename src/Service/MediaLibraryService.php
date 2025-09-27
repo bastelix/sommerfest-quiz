@@ -6,6 +6,7 @@ namespace App\Service;
 
 use Psr\Http\Message\UploadedFileInterface;
 use RuntimeException;
+use function str_starts_with;
 
 /**
  * Provides listing and file management for admin media uploads.
@@ -56,6 +57,9 @@ class MediaLibraryService
 
         while (($entry = readdir($handle)) !== false) {
             if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+            if (str_starts_with($entry, '.')) {
                 continue;
             }
             if ($entry === self::METADATA_FILE) {
