@@ -195,12 +195,28 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     return window.jQuery(element);
   };
+  const sanitizeTemplateHtml = value => {
+    if (typeof value !== 'string' || value === '') {
+      return '';
+    }
+    if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
+      return window.DOMPurify.sanitize(value, {
+        FORBID_TAGS: ['style', 'link', 'meta', 'html', 'head', 'body', 'base']
+      });
+    }
+    return value
+      .replace(/<style[\s\S]*?<\/style>/gi, '')
+      .replace(/<\/?(?:html|head|body)[^>]*>/gi, '')
+      .replace(/<link[^>]*>/gi, '')
+      .replace(/<meta[^>]*>/gi, '');
+  };
   const setTemplateFieldValue = (element, value) => {
     if (!element) return;
     if (element.dataset.templateEditor === 'html') {
       const editor = ensureTemplateEditor(element);
       if (editor) {
-        editor.trumbowyg('html', typeof value === 'string' ? value : '');
+        const sanitized = sanitizeTemplateHtml(value);
+        editor.trumbowyg('html', sanitized);
         return;
       }
     }
