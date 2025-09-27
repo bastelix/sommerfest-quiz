@@ -368,17 +368,25 @@ body.qr-landing.calserver-theme .calserver-hero-video__embed iframe {
 }
 
 body.qr-landing.calserver-theme .calserver-hero-video__preview {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 84px;
-    height: 84px;
-    border-radius: 50%;
+    display: grid;
+    gap: 6px;
+    justify-items: center;
+    padding: 18px 24px;
+    width: 100%;
+    border-radius: 16px;
     background: rgba(255, 255, 255, 0.08);
 }
 
-body.qr-landing.calserver-theme .calserver-hero-video__preview .uk-icon {
-    color: rgba(255, 255, 255, 0.9);
+body.qr-landing.calserver-theme .calserver-hero-video__preview-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: rgba(255, 255, 255, 0.94);
+}
+
+body.qr-landing.calserver-theme .calserver-hero-video__preview-subtitle {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.72);
 }
 
 body.qr-landing.calserver-theme .calserver-hero-video__hint,
@@ -496,11 +504,14 @@ body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-vide
 body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__preview,
 body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__preview {
     background: currentColor;
+    color: var(--qr-bg);
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__preview .uk-icon,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__preview .uk-icon {
-    color: var(--qr-bg);
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__preview-title,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__preview-title,
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__preview-subtitle,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-video__preview-subtitle {
+    color: inherit;
 }
 
 body.qr-landing.calserver-theme.high-contrast .calserver-hero-video__meta-text,
