@@ -3,18 +3,59 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>{% block title %}QuizRace – Das interaktive Team-Quiz für Events{% endblock %}</title>
-  <meta name="description" content="QuizRace macht Ihr Event einzigartig: QR-Code-Stationen, Live-Ranking & Rätselspaß – datensicher, flexibel, ohne App-Download.">
-  <meta name="robots" content="index, follow">
-  <link rel="canonical" href="{{ canonicalUrl }}">
-  <meta property="og:title" content="QuizRace – Das interaktive Team-Quiz für Events">
-  <meta property="og:description" content="Gestalten Sie in Minuten ein Event-Quiz mit QR-Code-Stationen, Live-Ranking & Rätselwort. DSGVO-konform, ohne App-Download.">
-  <meta property="og:image" content="{{ baseUrl ~ (config.ogImagePath ?? '/uploads/seo/social-preview.jpg') }}">
-    <meta property="og:url" content="{{ canonicalUrl }}">
+  {% set defaultTitle = 'QuizRace – Das interaktive Team-Quiz für Events' %}
+  {% set effectiveTitle = metaTitle|default(defaultTitle) %}
+  <title>{% block title %}{{ effectiveTitle }}{% endblock %}</title>
+  {% set defaultDescription = 'QuizRace macht Ihr Event einzigartig: QR-Code-Stationen, Live-Ranking & Rätselspaß – datensicher, flexibel, ohne App-Download.' %}
+  {% set effectiveDescription = metaDescription|default(defaultDescription) %}
+  <meta name="description" content="{{ effectiveDescription }}">
+  {% set effectiveRobots = robotsMeta|default('index, follow') %}
+  <meta name="robots" content="{{ effectiveRobots }}">
+  {% set effectiveCanonical = canonicalUrl|default('') %}
+  {% if effectiveCanonical %}
+  <link rel="canonical" href="{{ effectiveCanonical }}">
+  {% endif %}
+  {% set effectiveOgTitle = ogTitle|default(effectiveTitle) %}
+  <meta property="og:title" content="{{ effectiveOgTitle }}">
+  {% set effectiveOgDescription = ogDescription|default(effectiveDescription) %}
+  <meta property="og:description" content="{{ effectiveOgDescription }}">
+  {% set defaultOgImage = baseUrl ~ (config.ogImagePath ?? '/uploads/seo/social-preview.jpg') %}
+  {% if ogImage is defined and ogImage %}
+    {% if ogImage matches '/^https?:\\/\\//i' %}
+      {% set effectiveOgImage = ogImage %}
+    {% else %}
+      {% set effectiveOgImage = baseUrl ~ ogImage %}
+    {% endif %}
+  {% else %}
+    {% set effectiveOgImage = defaultOgImage %}
+  {% endif %}
+  <meta property="og:image" content="{{ effectiveOgImage }}">
+    {% if effectiveCanonical %}
+    <meta property="og:url" content="{{ effectiveCanonical }}">
+    {% endif %}
     <meta property="og:type" content="website">
     <meta property="og:locale" content="de_DE">
     <meta name="twitter:card" content="summary_large_image">
+  {% if hreflangLinks is defined and hreflangLinks is not empty %}
+    {% for link in hreflangLinks %}
+      <link rel="alternate" href="{{ link.href }}" hreflang="{{ link.hreflang }}">
+    {% endfor %}
+  {% elseif hreflang is defined and hreflang and effectiveCanonical %}
+    {% set hreflangCodes = hreflang|split(',') %}
+    {% for code in hreflangCodes %}
+      {% set trimmedCode = code|trim %}
+      {% if trimmedCode %}
+      <link rel="alternate" href="{{ effectiveCanonical }}" hreflang="{{ trimmedCode }}">
+      {% endif %}
+    {% endfor %}
+  {% else %}
   <link rel="alternate" href="https://quizrace.app/" hreflang="de">
+  {% endif %}
+  {% if schemaJson is defined and schemaJson %}
+  <script type="application/ld+json">
+  {{ schemaJson|raw }}
+  </script>
+  {% else %}
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -37,6 +78,7 @@
     ]
   }
   </script>
+  {% endif %}
   {% set rawFavicon = pageFavicon is defined and pageFavicon ? pageFavicon : '/favicon.svg' %}
   {% set faviconSource = rawFavicon starts with 'http' ? rawFavicon : basePath ~ rawFavicon %}
   {% set faviconExt = (rawFavicon|split('?')|first|split('#')|first|split('.')|last|lower) %}
