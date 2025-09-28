@@ -92,6 +92,12 @@ CREATE TABLE IF NOT EXISTS domain_start_pages (
     domain TEXT PRIMARY KEY,
     start_page TEXT NOT NULL,
     email TEXT,
+    smtp_host TEXT,
+    smtp_user TEXT,
+    smtp_pass TEXT,
+    smtp_port INTEGER,
+    smtp_encryption TEXT,
+    smtp_dsn TEXT,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 

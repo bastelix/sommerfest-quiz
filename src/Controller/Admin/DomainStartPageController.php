@@ -8,6 +8,7 @@ use App\Service\DomainStartPageService;
 use App\Service\PageService;
 use App\Service\SettingsService;
 use App\Service\TranslationService;
+use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
@@ -54,6 +55,12 @@ class DomainStartPageController
                 'type' => $item['type'],
                 'start_page' => null,
                 'email' => null,
+                'smtp_host' => null,
+                'smtp_user' => null,
+                'smtp_port' => null,
+                'smtp_encryption' => null,
+                'smtp_dsn' => null,
+                'has_smtp_pass' => false,
             ];
         }
 
@@ -65,12 +72,24 @@ class DomainStartPageController
                     'type' => 'custom',
                     'start_page' => $config['start_page'],
                     'email' => $config['email'],
+                    'smtp_host' => $config['smtp_host'],
+                    'smtp_user' => $config['smtp_user'],
+                    'smtp_port' => $config['smtp_port'],
+                    'smtp_encryption' => $config['smtp_encryption'],
+                    'smtp_dsn' => $config['smtp_dsn'],
+                    'has_smtp_pass' => $config['has_smtp_pass'],
                 ];
                 continue;
             }
 
             $combined[$domain]['start_page'] = $config['start_page'];
             $combined[$domain]['email'] = $config['email'];
+            $combined[$domain]['smtp_host'] = $config['smtp_host'];
+            $combined[$domain]['smtp_user'] = $config['smtp_user'];
+            $combined[$domain]['smtp_port'] = $config['smtp_port'];
+            $combined[$domain]['smtp_encryption'] = $config['smtp_encryption'];
+            $combined[$domain]['smtp_dsn'] = $config['smtp_dsn'];
+            $combined[$domain]['has_smtp_pass'] = $config['has_smtp_pass'];
         }
 
         $ordered = [];
@@ -106,6 +125,12 @@ class DomainStartPageController
                 'type' => $item['type'],
                 'start_page' => $startPage,
                 'email' => $item['email'],
+                'smtp_host' => $item['smtp_host'],
+                'smtp_user' => $item['smtp_user'],
+                'smtp_port' => $item['smtp_port'],
+                'smtp_encryption' => $item['smtp_encryption'],
+                'smtp_dsn' => $item['smtp_dsn'],
+                'has_smtp_pass' => $item['has_smtp_pass'],
             ];
         }
 
@@ -138,6 +163,22 @@ class DomainStartPageController
         $domain = isset($data['domain']) ? (string) $data['domain'] : '';
         $startPage = isset($data['start_page']) ? (string) $data['start_page'] : '';
         $email = isset($data['email']) ? trim((string) $data['email']) : '';
+        $smtpHost = array_key_exists('smtp_host', $data) ? trim((string) $data['smtp_host']) : null;
+        $smtpUser = array_key_exists('smtp_user', $data) ? trim((string) $data['smtp_user']) : null;
+        $smtpPort = $data['smtp_port'] ?? null;
+        if (is_string($smtpPort)) {
+            $smtpPort = trim($smtpPort);
+            if ($smtpPort === '') {
+                $smtpPort = null;
+            }
+        }
+        $smtpEncryption = array_key_exists('smtp_encryption', $data)
+            ? trim((string) $data['smtp_encryption'])
+            : null;
+        $smtpDsn = array_key_exists('smtp_dsn', $data) ? trim((string) $data['smtp_dsn']) : null;
+        $smtpPass = array_key_exists('smtp_pass', $data)
+            ? (string) $data['smtp_pass']
+            : DomainStartPageService::SECRET_PLACEHOLDER;
         if ($domain === '' || $startPage === '' || !in_array($startPage, $validStartPages, true)) {
             return $response->withStatus(400);
         }
@@ -152,6 +193,15 @@ class DomainStartPageController
                 ->withHeader('Content-Type', 'application/json')
                 ->withStatus(422);
         }
+
+        $smtpConfig = [
+            'smtp_host' => $smtpHost,
+            'smtp_user' => $smtpUser,
+            'smtp_port' => $smtpPort,
+            'smtp_encryption' => $smtpEncryption,
+            'smtp_dsn' => $smtpDsn,
+            'smtp_pass' => $smtpPass,
+        ];
 
         $mainDomain = getenv('MAIN_DOMAIN') ?: '';
         $marketing = getenv('MARKETING_DOMAINS') ?: '';
@@ -170,7 +220,17 @@ class DomainStartPageController
             return $response->withStatus(404);
         }
 
-        $this->domainService->saveDomainConfig($normalized, $startPage, $emailValue);
+        try {
+            $this->domainService->saveDomainConfig($normalized, $startPage, $emailValue, $smtpConfig);
+        } catch (InvalidArgumentException $e) {
+            $message = $translationService?->translate('notify_domain_start_page_invalid_smtp')
+                ?? $e->getMessage();
+            $response->getBody()->write(json_encode(['error' => $message]));
+
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(422);
+        }
         if ($type === 'main') {
             $this->settingsService->save(['home_page' => $startPage]);
         }

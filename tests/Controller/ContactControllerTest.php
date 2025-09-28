@@ -40,9 +40,10 @@ class ContactControllerTest extends TestCase
                     string $replyTo,
                     string $message,
                     ?array $templateData = null,
-                    ?string $fromEmail = null
+                    ?string $fromEmail = null,
+                    ?array $smtpOverride = null
                 ): void {
-                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail];
+                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail, $smtpOverride];
                 }
             };
 
@@ -110,6 +111,7 @@ class ContactControllerTest extends TestCase
                     'sender_text' => 'Copy: {{ message_plain }}',
                 ],
                 'contact@main.test',
+                null,
             ], $mailer->args);
         } finally {
             if ($oldMainDomain === false) {
@@ -167,9 +169,10 @@ class ContactControllerTest extends TestCase
                     string $replyTo,
                     string $message,
                     ?array $templateData = null,
-                    ?string $fromEmail = null
+                    ?string $fromEmail = null,
+                    ?array $smtpOverride = null
                 ): void {
-                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail];
+                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail, $smtpOverride];
                 }
             };
 
@@ -206,7 +209,102 @@ class ContactControllerTest extends TestCase
                 'Hi there',
                 null,
                 'contact@domain.test',
+                null,
             ], $mailer->args);
+        } finally {
+            if ($oldMainDomain === false) {
+                putenv('MAIN_DOMAIN');
+            } else {
+                putenv('MAIN_DOMAIN=' . $oldMainDomain);
+            }
+            if ($oldEnvMainDomain === null) {
+                unset($_ENV['MAIN_DOMAIN']);
+            } else {
+                $_ENV['MAIN_DOMAIN'] = $oldEnvMainDomain;
+            }
+        }
+    }
+
+    public function testContactFormUsesDomainSpecificSmtpOverride(): void
+    {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+        session_id('contactsmtp');
+        session_start();
+        $_SESSION['csrf_token'] = 'token';
+        $_COOKIE[session_name()] = session_id();
+
+        $oldMainDomain = getenv('MAIN_DOMAIN');
+        $oldEnvMainDomain = $_ENV['MAIN_DOMAIN'] ?? null;
+        putenv('MAIN_DOMAIN=main.test');
+        $_ENV['MAIN_DOMAIN'] = 'main.test';
+
+        try {
+            $pdo = $this->getDatabase();
+            $domainService = new DomainStartPageService($pdo);
+            $domainService->saveDomainConfig('main.test', 'landing', 'contact@domain.test', [
+                'smtp_host' => 'smtp.domain.test',
+                'smtp_user' => 'mailer@domain.test',
+                'smtp_pass' => 'supersecret',
+                'smtp_port' => 2525,
+                'smtp_encryption' => 'ssl',
+            ]);
+
+            $mailer = new class extends MailService {
+                public array $args = [];
+                public function __construct()
+                {
+                }
+                public function sendContact(
+                    string $to,
+                    string $name,
+                    string $replyTo,
+                    string $message,
+                    ?array $templateData = null,
+                    ?string $fromEmail = null,
+                    ?array $smtpOverride = null
+                ): void {
+                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail, $smtpOverride];
+                }
+            };
+
+            $body = json_encode([
+                'name' => 'Sam Sender',
+                'email' => 'sam@example.com',
+                'message' => 'Hi override',
+                'company' => '',
+            ], JSON_THROW_ON_ERROR);
+
+            $request = $this->createRequest(
+                'POST',
+                '/landing/contact',
+                [
+                    'Content-Type' => 'application/json',
+                    'X-CSRF-Token' => 'token',
+                ],
+                [session_name() => session_id()]
+            );
+            $request->getBody()->write($body);
+            $request->getBody()->rewind();
+            $request = $request
+                ->withUri($request->getUri()->withHost('main.test'))
+                ->withAttribute('mailService', $mailer);
+
+            $app = $this->getAppInstance();
+            $response = $app->handle($request);
+
+            $this->assertEquals(204, $response->getStatusCode());
+            $this->assertSame('contact@domain.test', $mailer->args[0]);
+            $this->assertSame('contact@domain.test', $mailer->args[5]);
+            $this->assertSame([
+                'smtp_host' => 'smtp.domain.test',
+                'smtp_user' => 'mailer@domain.test',
+                'smtp_pass' => 'supersecret',
+                'smtp_port' => 2525,
+                'smtp_encryption' => 'ssl',
+                'smtp_dsn' => null,
+            ], $mailer->args[6]);
         } finally {
             if ($oldMainDomain === false) {
                 putenv('MAIN_DOMAIN');
@@ -248,7 +346,8 @@ class ContactControllerTest extends TestCase
                     string $replyTo,
                     string $message,
                     ?array $templateData = null,
-                    ?string $fromEmail = null
+                    ?string $fromEmail = null,
+                    ?array $smtpOverride = null
                 ): void {
                     $this->called = true;
                 }
@@ -326,9 +425,10 @@ class ContactControllerTest extends TestCase
                     string $replyTo,
                     string $message,
                     ?array $templateData = null,
-                    ?string $fromEmail = null
+                    ?string $fromEmail = null,
+                    ?array $smtpOverride = null
                 ): void {
-                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail];
+                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail, $smtpOverride];
                 }
             };
 
@@ -365,6 +465,7 @@ class ContactControllerTest extends TestCase
                 'Please ignore',
                 null,
                 'not-an-email',
+                null,
             ], $mailer->args);
         } finally {
             if ($oldMainDomain === false) {

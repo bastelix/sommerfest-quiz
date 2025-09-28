@@ -337,7 +337,7 @@ class MailServiceTest extends TestCase
             }
         };
 
-        $svc->sendContact('to@example.org', 'John Doe', 'john@example.org', 'Hi', null, null);
+        $svc->sendContact('to@example.org', 'John Doe', 'john@example.org', 'Hi', null, null, null);
 
         $this->assertCount(2, $svc->messages);
         $this->assertSame('Kontaktanfrage', $svc->messages[0]->getSubject());
@@ -398,7 +398,8 @@ class MailServiceTest extends TestCase
                 'sender_html' => '<div>{{ sender_name }}</div><div>{{ message_html }}</div>',
                 'sender_text' => 'Copy: {{ message_plain }}',
             ],
-            'contact@example.org'
+            'contact@example.org',
+            null
         );
 
         $this->assertCount(2, $svc->messages);
@@ -465,5 +466,130 @@ class MailServiceTest extends TestCase
         $this->assertStringContainsString('https://foo.example.com/admin', $html);
         $this->assertStringContainsString('https://foo.example.com/password/set?token=abc', $html);
         $this->assertCount(1, $svc->messages);
+    }
+
+    public function testSendContactUsesDomainDsnOverride(): void
+    {
+        putenv('SMTP_HOST=localhost');
+        putenv('SMTP_USER=user@example.org');
+        putenv('SMTP_PASS=secret');
+        putenv('SMTP_PORT=587');
+        putenv('SMTP_FROM');
+        putenv('SMTP_FROM_NAME');
+        $_ENV['SMTP_HOST'] = 'localhost';
+        $_ENV['SMTP_USER'] = 'user@example.org';
+        $_ENV['SMTP_PASS'] = 'secret';
+        $_ENV['SMTP_PORT'] = '587';
+        unset($_ENV['SMTP_FROM'], $_ENV['SMTP_FROM_NAME']);
+
+        $twig = new Environment(new FilesystemLoader(dirname(__DIR__, 2) . '/templates'));
+
+        $svc = new class ($twig) extends MailService {
+            /** @var Email[] */
+            public array $messages = [];
+            public array $dsns = [];
+
+            protected function createTransport(string $dsn): MailerInterface
+            {
+                $this->dsns[] = $dsn;
+
+                return new class ($this) implements MailerInterface {
+                    private $outer;
+
+                    public function __construct($outer)
+                    {
+                        $this->outer = $outer;
+                    }
+
+                    public function send(
+                        \Symfony\Component\Mime\RawMessage $message,
+                        ?\Symfony\Component\Mailer\Envelope $envelope = null
+                    ): void {
+                        $this->outer->messages[] = $message;
+                    }
+                };
+            }
+        };
+
+        $svc->sendContact(
+            'to@example.org',
+            'Override User',
+            'from@example.org',
+            'Override message',
+            null,
+            null,
+            ['smtp_dsn' => 'smtp://override-user:pass@custom-host:2525']
+        );
+
+        $this->assertCount(2, $svc->messages);
+        $this->assertSame('smtp://user%40example.org:secret@localhost:587', $svc->dsns[0]);
+        $this->assertSame('smtp://override-user:pass@custom-host:2525', $svc->dsns[1]);
+    }
+
+    public function testSendContactUsesDomainSmtpSettings(): void
+    {
+        putenv('SMTP_HOST=localhost');
+        putenv('SMTP_USER=user@example.org');
+        putenv('SMTP_PASS=secret');
+        putenv('SMTP_PORT=587');
+        putenv('SMTP_FROM');
+        putenv('SMTP_FROM_NAME');
+        $_ENV['SMTP_HOST'] = 'localhost';
+        $_ENV['SMTP_USER'] = 'user@example.org';
+        $_ENV['SMTP_PASS'] = 'secret';
+        $_ENV['SMTP_PORT'] = '587';
+        unset($_ENV['SMTP_FROM'], $_ENV['SMTP_FROM_NAME']);
+
+        $twig = new Environment(new FilesystemLoader(dirname(__DIR__, 2) . '/templates'));
+
+        $svc = new class ($twig) extends MailService {
+            /** @var Email[] */
+            public array $messages = [];
+            public array $dsns = [];
+
+            protected function createTransport(string $dsn): MailerInterface
+            {
+                $this->dsns[] = $dsn;
+
+                return new class ($this) implements MailerInterface {
+                    private $outer;
+
+                    public function __construct($outer)
+                    {
+                        $this->outer = $outer;
+                    }
+
+                    public function send(
+                        \Symfony\Component\Mime\RawMessage $message,
+                        ?\Symfony\Component\Mailer\Envelope $envelope = null
+                    ): void {
+                        $this->outer->messages[] = $message;
+                    }
+                };
+            }
+        };
+
+        $svc->sendContact(
+            'to@example.org',
+            'Override User',
+            'from@example.org',
+            'Override message',
+            null,
+            null,
+            [
+                'smtp_host' => 'smtp.domain.test',
+                'smtp_user' => 'mailer@domain.test',
+                'smtp_pass' => 'override',
+                'smtp_port' => 2525,
+                'smtp_encryption' => 'tls',
+            ]
+        );
+
+        $this->assertCount(2, $svc->messages);
+        $this->assertSame('smtp://user%40example.org:secret@localhost:587', $svc->dsns[0]);
+        $this->assertSame(
+            'smtp://mailer%40domain.test:override@smtp.domain.test:2525?encryption=tls',
+            $svc->dsns[1]
+        );
     }
 }
