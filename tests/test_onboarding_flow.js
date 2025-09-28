@@ -45,7 +45,7 @@ function createCtx(map) {
 async function successScenario() {
   const ctx = createCtx({
     '/onboarding/checkout/sess': () => Promise.resolve({ ok: true, json: () => Promise.resolve({ paid: true, plan: 'basic' }) }),
-    '/tenants': () => Promise.resolve({ ok: true, status: 201, headers: { get: () => 'application/json' }, json: () => Promise.resolve({ queued: true }) }),
+    '/tenants': () => Promise.resolve({ ok: true, status: 201, headers: { get: () => 'application/json' }, json: () => Promise.resolve({ created: true }) }),
     '/api/tenants/tenant/onboard': () => Promise.resolve({ ok: true, headers: { get: () => 'application/json' }, json: () => Promise.resolve({}), text: () => Promise.resolve('') }),
     'https://tenant.example.com/healthz': () => Promise.resolve({ ok: true, headers: { get: () => 'application/json' }, json: () => Promise.resolve({ status: 'ok' }) }),
     '/tenant-welcome': () => Promise.resolve({ ok: true }),
@@ -59,7 +59,7 @@ async function successScenario() {
 async function failureScenario() {
   const ctx = createCtx({
     '/onboarding/checkout/sess': () => Promise.resolve({ ok: true, json: () => Promise.resolve({ paid: true, plan: 'basic' }) }),
-    '/tenants': () => Promise.resolve({ ok: true, status: 201, headers: { get: () => 'application/json' }, json: () => Promise.resolve({ queued: true }) }),
+    '/tenants': () => Promise.resolve({ ok: true, status: 201, headers: { get: () => 'application/json' }, json: () => Promise.resolve({ created: true }) }),
     '/api/tenants/tenant/onboard': () => Promise.resolve({ ok: false, status: 500, headers: { get: () => 'text/plain' }, text: () => Promise.resolve('fail') })
   });
   const fn = vm.runInNewContext('(' + finalizeCode + ')', ctx);
