@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Controller;
 
+use App\Application\Middleware\RateLimitMiddleware;
 use App\Service\DomainStartPageService;
 use App\Service\MailService;
 use Tests\TestCase;
@@ -15,6 +16,7 @@ class ContactControllerTest extends TestCase
      */
     public function testContactFormSendsMail(string $route): void
     {
+        RateLimitMiddleware::resetPersistentStorage();
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_destroy();
         }
@@ -138,6 +140,7 @@ class ContactControllerTest extends TestCase
 
     public function testContactFormUsesDomainSpecificEmail(): void
     {
+        RateLimitMiddleware::resetPersistentStorage();
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_destroy();
         }

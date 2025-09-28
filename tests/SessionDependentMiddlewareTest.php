@@ -64,6 +64,7 @@ class SessionDependentMiddlewareTest extends TestCase
 
     public function testRateLimitMiddlewareUsesSession(): void
     {
+        RateLimitMiddleware::resetPersistentStorage();
         $app = AppFactory::create();
         $app->add(new SessionMiddleware());
         $app->get('/limited', fn (Request $request, Response $response): Response => $response)
