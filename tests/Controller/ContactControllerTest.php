@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Controller;
 
+use App\Application\Security\Captcha\CaptchaVerifierInterface;
 use App\Service\DomainStartPageService;
 use App\Service\MailService;
 use Tests\TestCase;
@@ -207,6 +208,120 @@ class ContactControllerTest extends TestCase
                 null,
                 'contact@domain.test',
             ], $mailer->args);
+        } finally {
+            if ($oldMainDomain === false) {
+                putenv('MAIN_DOMAIN');
+            } else {
+                putenv('MAIN_DOMAIN=' . $oldMainDomain);
+            }
+            if ($oldEnvMainDomain === null) {
+                unset($_ENV['MAIN_DOMAIN']);
+            } else {
+                $_ENV['MAIN_DOMAIN'] = $oldEnvMainDomain;
+            }
+        }
+    }
+
+    public function testContactFormRequiresCaptchaWhenVerifierProvided(): void
+    {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+        session_id('contactcaptcha');
+        session_start();
+        $_SESSION['csrf_token'] = 'token';
+        $_COOKIE[session_name()] = session_id();
+
+        $oldMainDomain = getenv('MAIN_DOMAIN');
+        $oldEnvMainDomain = $_ENV['MAIN_DOMAIN'] ?? null;
+        putenv('MAIN_DOMAIN=main.test');
+        $_ENV['MAIN_DOMAIN'] = 'main.test';
+
+        try {
+            $pdo = $this->getDatabase();
+            $stmt = $pdo->prepare(
+                'INSERT INTO domain_start_pages(domain, start_page, email) VALUES(?, ?, ?)
+                 ON CONFLICT(domain) DO UPDATE SET start_page = excluded.start_page, email = excluded.email'
+            );
+            $stmt->execute(['main.test', 'landing', 'contact@main.test']);
+
+            $mailer = new class extends MailService {
+                public array $args = [];
+                public function __construct()
+                {
+                }
+                public function sendContact(
+                    string $to,
+                    string $name,
+                    string $replyTo,
+                    string $message,
+                    ?array $templateData = null,
+                    ?string $fromEmail = null
+                ): void {
+                    $this->args[] = [$to, $name, $replyTo, $message, $templateData, $fromEmail];
+                }
+            };
+
+            $verifier = new class implements CaptchaVerifierInterface {
+                public array $tokens = [];
+                public bool $result = true;
+
+                public function verify(string $token, ?string $ipAddress = null): bool
+                {
+                    $this->tokens[] = [$token, $ipAddress];
+                    return $this->result;
+                }
+            };
+
+            $app = $this->getAppInstance();
+
+            $makeRequest = function (array $payload) use ($mailer, $verifier) {
+                $body = json_encode($payload, JSON_THROW_ON_ERROR);
+                $request = $this->createRequest(
+                    'POST',
+                    '/landing/contact',
+                    [
+                        'Content-Type' => 'application/json',
+                        'X-CSRF-Token' => 'token',
+                    ],
+                    [session_name() => session_id()],
+                    ['REMOTE_ADDR' => '203.0.113.17']
+                );
+                $request->getBody()->write($body);
+                $request->getBody()->rewind();
+
+                return $request
+                    ->withUri($request->getUri()->withHost('main.test'))
+                    ->withAttribute('mailService', $mailer)
+                    ->withAttribute('captchaVerifier', $verifier);
+            };
+
+            $payload = [
+                'name' => 'Captcha User',
+                'email' => 'captcha@example.com',
+                'message' => 'Hi there',
+                'company' => '',
+            ];
+
+            $response = $app->handle($makeRequest($payload));
+            $this->assertSame(400, $response->getStatusCode());
+            $this->assertSame([], $verifier->tokens);
+            $this->assertSame([], $mailer->args);
+
+            $payload['captcha_token'] = 'invalid-token';
+            $verifier->result = false;
+            $response = $app->handle($makeRequest($payload));
+            $this->assertSame(429, $response->getStatusCode());
+            $this->assertSame([['invalid-token', '203.0.113.17']], $verifier->tokens);
+            $this->assertSame([], $mailer->args);
+
+            $payload['captcha_token'] = 'valid-token';
+            $verifier->result = true;
+            $response = $app->handle($makeRequest($payload));
+            $this->assertSame(204, $response->getStatusCode());
+            $this->assertCount(2, $verifier->tokens);
+            $this->assertCount(1, $mailer->args);
+            $this->assertSame('contact@main.test', $mailer->args[0][0]);
         } finally {
             if ($oldMainDomain === false) {
                 putenv('MAIN_DOMAIN');

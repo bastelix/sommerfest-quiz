@@ -7,6 +7,7 @@ namespace Tests;
 use App\Application\Middleware\AdminAuthMiddleware;
 use App\Application\Middleware\CsrfMiddleware;
 use App\Application\Middleware\RateLimitMiddleware;
+use App\Application\Middleware\RateLimitStoreInterface;
 use App\Application\Middleware\RoleAuthMiddleware;
 use App\Application\Middleware\SessionMiddleware;
 use PHPUnit\Framework\TestCase;
@@ -78,6 +79,50 @@ class SessionDependentMiddlewareTest extends TestCase
 
         $req2 = $factory->createServerRequest('GET', '/limited')
             ->withCookieParams([session_name() => $sid]);
+        $res2 = $app->handle($req2);
+        $this->assertSame(429, $res2->getStatusCode());
+    }
+
+    public function testRateLimitMiddlewarePersistsAcrossSessions(): void
+    {
+        $store = new class implements RateLimitStoreInterface {
+            public array $store = [];
+
+            public function increment(string $key, int $ttlSeconds): int
+            {
+                $now = time();
+                $entry = $this->store[$key] ?? ['count' => 0, 'expires' => $now + $ttlSeconds];
+                if ((int) $entry['expires'] < $now) {
+                    $entry = ['count' => 0, 'expires' => $now + $ttlSeconds];
+                }
+
+                $entry['count']++;
+                $this->store[$key] = $entry;
+
+                return $entry['count'];
+            }
+        };
+
+        $app = AppFactory::create();
+        $app->add(new SessionMiddleware());
+        $app->get('/persistent', fn (Request $request, Response $response): Response => $response)
+            ->add(new RateLimitMiddleware(5, 60, $store, 1));
+
+        $factory = new ServerRequestFactory();
+        $serverParams = [
+            'REMOTE_ADDR' => '203.0.113.42',
+            'HTTP_USER_AGENT' => 'PersistentBot/1.0',
+        ];
+
+        $req1 = $factory->createServerRequest('GET', '/persistent', $serverParams);
+        $res1 = $app->handle($req1);
+        $this->assertSame(200, $res1->getStatusCode());
+        $this->assertNotEmpty($store->store);
+
+        session_write_close();
+        session_destroy();
+
+        $req2 = $factory->createServerRequest('GET', '/persistent', $serverParams);
         $res2 = $app->handle($req2);
         $this->assertSame(429, $res2->getStatusCode());
     }

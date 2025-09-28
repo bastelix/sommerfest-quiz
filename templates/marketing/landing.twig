@@ -180,6 +180,9 @@
 {% block scripts %}
   <script src="{{ basePath }}/js/storage.js"></script>
   <script src="{{ basePath }}/js/app.js"></script>
+  {% if contactCaptcha.provider == 'turnstile' and contactCaptcha.siteKey %}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+  {% endif %}
   <script src="{{ basePath }}/js/landing.js" defer></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {

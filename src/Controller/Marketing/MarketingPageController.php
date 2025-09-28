@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Marketing;
 
+use App\Application\Security\Captcha\ContactCaptchaConfig;
 use App\Application\Seo\PageSeoConfigService;
 use App\Service\MailService;
 use App\Service\PageService;
@@ -47,6 +48,10 @@ class MarketingPageController
         $_SESSION['csrf_token'] = $csrf;
         $html = str_replace('{{ csrf_token }}', $csrf, $html);
 
+        $captchaConfig = ContactCaptchaConfig::fromEnv();
+        $html = str_replace('{{ contact_captcha_provider }}', $captchaConfig->isEnabled() ? $captchaConfig->getProvider() : '', $html);
+        $html = str_replace('{{ contact_captcha_sitekey }}', $captchaConfig->getSiteKey() ?? '', $html);
+
         if (!MailService::isConfigured()) {
             $html = preg_replace(
                 '/<form id="contact-form"[\s\S]*?<\/form>/',
@@ -84,6 +89,11 @@ class MarketingPageController
         if ($canonicalUrl !== null) {
             $data['hreflangLinks'] = $this->buildHreflangLinks($config?->getHreflang(), $canonicalUrl);
         }
+
+        $data['contactCaptcha'] = [
+            'provider' => $captchaConfig->isEnabled() ? $captchaConfig->getProvider() : null,
+            'siteKey' => $captchaConfig->isEnabled() ? $captchaConfig->getSiteKey() : null,
+        ];
 
         try {
             return $view->render($response, $template, $data);

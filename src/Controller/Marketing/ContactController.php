@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controller\Marketing;
 
+use App\Application\Security\Captcha\CaptchaVerifierInterface;
+use App\Application\Security\Captcha\ContactCaptchaConfig;
 use App\Service\DomainContactTemplateService;
 use App\Service\DomainStartPageService;
 use App\Service\MailService;
@@ -60,6 +62,24 @@ class ContactController
             }
 
             return $response->withStatus(204);
+        }
+
+        $config = ContactCaptchaConfig::fromEnv();
+        $captchaVerifier = $request->getAttribute('captchaVerifier');
+        if (!$captchaVerifier instanceof CaptchaVerifierInterface) {
+            $captchaVerifier = $config->createVerifier();
+        }
+
+        if ($captchaVerifier !== null) {
+            $token = trim((string) ($data['captcha_token'] ?? ''));
+            if ($token === '') {
+                return $response->withStatus(400);
+            }
+
+            $remoteIp = (string) ($request->getServerParams()['REMOTE_ADDR'] ?? '');
+            if (!$captchaVerifier->verify($token, $remoteIp === '' ? null : $remoteIp)) {
+                return $response->withStatus(429);
+            }
         }
 
         $name = trim((string) ($data['name'] ?? ''));

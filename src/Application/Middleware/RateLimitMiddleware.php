@@ -17,11 +17,19 @@ class RateLimitMiddleware implements MiddlewareInterface
 {
     private int $maxRequests;
     private int $windowSeconds;
+    private ?RateLimitStoreInterface $persistentStore;
+    private int $persistentMaxRequests;
 
-    public function __construct(int $maxRequests = 5, int $windowSeconds = 60)
-    {
+    public function __construct(
+        int $maxRequests = 5,
+        int $windowSeconds = 60,
+        ?RateLimitStoreInterface $persistentStore = null,
+        ?int $persistentMaxRequests = null
+    ) {
         $this->maxRequests = $maxRequests;
         $this->windowSeconds = $windowSeconds;
+        $this->persistentStore = $persistentStore ?? ApcuRateLimitStore::createIfAvailable();
+        $this->persistentMaxRequests = $persistentMaxRequests ?? $maxRequests;
     }
 
     /**
@@ -29,6 +37,28 @@ class RateLimitMiddleware implements MiddlewareInterface
      */
     public function process(Request $request, RequestHandler $handler): Response
     {
+        if ($this->persistentStore !== null) {
+            $serverParams = $request->getServerParams();
+            $ip = trim((string) ($serverParams['REMOTE_ADDR'] ?? ''));
+            $ua = trim((string) ($serverParams['HTTP_USER_AGENT'] ?? ''));
+            $path = $request->getUri()->getPath();
+            $hashBase = $ip === '' && $ua === '' ? 'unknown' : $ip . '|' . $ua;
+            $keys = [
+                sprintf('rate:bot:%s:%s', $path, hash('sha256', $hashBase)),
+            ];
+
+            if ($ip !== '') {
+                $keys[] = sprintf('rate:bot:%s:%s', $path, hash('sha256', $ip));
+            }
+
+            foreach ($keys as $storeKey) {
+                $count = $this->persistentStore->increment($storeKey, $this->windowSeconds);
+                if ($count > $this->persistentMaxRequests) {
+                    return (new SlimResponse())->withStatus(429);
+                }
+            }
+        }
+
         $key = 'rate:' . $request->getUri()->getPath();
         $entry = $_SESSION[$key] ?? ['count' => 0, 'start' => time()];
 

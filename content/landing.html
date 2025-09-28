@@ -524,7 +524,9 @@
       <div>
         <form id="contact-form"
               class="uk-form-stacked uk-width-large uk-margin-auto"
-              data-contact-endpoint="{{ basePath }}/landing/contact">
+              data-contact-endpoint="{{ basePath }}/landing/contact"
+              data-captcha-provider="{{ contact_captcha_provider }}"
+              data-captcha-sitekey="{{ contact_captcha_sitekey }}">
           <div class="uk-margin">
             <label class="uk-form-label" for="form-name">Ihr Name</label>
             <input class="uk-input" id="form-name" name="name" type="text" required>
@@ -540,7 +542,12 @@
           <div class="uk-margin">
             <label><input class="uk-checkbox" name="privacy" type="checkbox" required> Ich stimme der Speicherung meiner Daten zur Bearbeitung zu.</label>
           </div>
+          <div class="uk-margin" data-captcha-wrapper hidden>
+            <div class="cf-turnstile" data-captcha-container></div>
+            <p class="uk-text-small uk-text-danger" data-captcha-error hidden>Bitte verifizieren Sie sich.</p>
+          </div>
           <input type="text" name="company" autocomplete="off" tabindex="-1" class="uk-hidden" aria-hidden="true">
+          <input type="hidden" name="captcha_token" value="">
           <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
           <button class="btn btn-black uk-button uk-button-secondary uk-button-large uk-width-1-1" type="submit">Senden</button>
         </form>
