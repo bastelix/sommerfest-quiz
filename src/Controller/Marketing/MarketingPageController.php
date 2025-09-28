@@ -63,13 +63,95 @@ class MarketingPageController
         }
 
         $config = $this->seo->load($page->getId());
+        $globals = $view->getEnvironment()->getGlobals();
+        $canonicalFallback = isset($globals['canonicalUrl']) ? (string) $globals['canonicalUrl'] : null;
+        $canonicalUrl = $config?->getCanonicalUrl() ?? $canonicalFallback;
+
+        $data = [
+            'content' => $html,
+            'pageFavicon' => $config?->getFaviconPath(),
+            'metaTitle' => $config?->getMetaTitle(),
+            'metaDescription' => $config?->getMetaDescription(),
+            'canonicalUrl' => $canonicalUrl,
+            'robotsMeta' => $config?->getRobotsMeta(),
+            'ogTitle' => $config?->getOgTitle(),
+            'ogDescription' => $config?->getOgDescription(),
+            'ogImage' => $config?->getOgImage(),
+            'schemaJson' => $config?->getSchemaJson(),
+            'hreflang' => $config?->getHreflang(),
+        ];
+
+        if ($canonicalUrl !== null) {
+            $data['hreflangLinks'] = $this->buildHreflangLinks($config?->getHreflang(), $canonicalUrl);
+        }
+
         try {
-            return $view->render($response, $template, [
-                'content' => $html,
-                'pageFavicon' => $config?->getFaviconPath(),
-            ]);
+            return $view->render($response, $template, $data);
         } catch (LoaderError $e) {
             return $response->withStatus(404);
         }
+    }
+
+    /**
+     * Normalize hreflang definitions to a list of alternate link descriptors.
+     *
+     * @return array<int,array{href:string,hreflang:string}>
+     */
+    private function buildHreflangLinks(?string $hreflang, string $canonicalUrl): array
+    {
+        if ($hreflang === null) {
+            return [];
+        }
+
+        $hreflang = trim($hreflang);
+        if ($hreflang === '') {
+            return [];
+        }
+
+        $decoded = json_decode($hreflang, true);
+        if (is_array($decoded)) {
+            $links = [];
+            foreach ($decoded as $entry) {
+                if (!is_array($entry)) {
+                    continue;
+                }
+                $href = $entry['href'] ?? null;
+                $lang = $entry['hreflang'] ?? null;
+                if ($href === null || $lang === null) {
+                    continue;
+                }
+                $href = trim((string) $href);
+                $lang = trim((string) $lang);
+                if ($href === '' || $lang === '') {
+                    continue;
+                }
+                $links[] = [
+                    'href' => $href,
+                    'hreflang' => $lang,
+                ];
+            }
+            if ($links !== []) {
+                return $links;
+            }
+        }
+
+        $codes = preg_split('/[\s,;|]+/', $hreflang, -1, PREG_SPLIT_NO_EMPTY);
+        if (!is_array($codes)) {
+            return [];
+        }
+
+        $links = [];
+        foreach ($codes as $code) {
+            $code = trim((string) $code);
+            if ($code === '') {
+                continue;
+            }
+            $links[] = [
+                'href' => $canonicalUrl,
+                'hreflang' => $code,
+            ];
+        }
+
+        return $links;
     }
 }

@@ -9,7 +9,7 @@
     { 'href': '#faq', 'label': 'FAQ', 'icon': 'question' }
 ] %}
 
-{% block title %}calServer – Kalibrier- und Inventarverwaltung für Teams{% endblock %}
+{% block title %}{{ metaTitle|default('calServer – Kalibrier- und Inventarverwaltung für Teams') }}{% endblock %}
 
 {% block head %}
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
