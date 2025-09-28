@@ -715,14 +715,40 @@ body.qr-landing:not([data-theme="dark"]) .contact-card span{
   box-shadow:0 0 0 3px var(--qr-ring);
   border-color: color-mix(in oklab, var(--qr-brand-600) 50%, transparent);
 }
-.qr-landing:not(.dark-mode) #contact-form .uk-checkbox{
-  border:1px solid var(--qr-muted);
+body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox{
+  appearance:none;
+  width:20px; height:20px;
+  border:1.5px solid var(--qr-muted);
+  border-radius:6px;
   background:var(--qr-card);
-  accent-color:var(--qr-landing-primary);
+  display:inline-flex; align-items:center; justify-content:center;
+  position:relative;
+  margin-right:10px;
+  vertical-align:middle;
+  cursor:pointer;
+  transition:background-color .2s ease,border-color .2s ease,box-shadow .2s ease;
 }
-.qr-landing:not(.dark-mode) #contact-form .uk-checkbox:focus{
+body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox::after{
+  content:'';
+  width:10px; height:6px;
+  border:2px solid transparent;
+  border-left:0; border-top:0;
+  transform:rotate(45deg);
+  opacity:0;
+  transition:opacity .15s ease;
+}
+body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox:checked{
+  background:var(--qr-landing-primary);
+  border-color:color-mix(in oklab, var(--qr-landing-primary) 75%, transparent);
+  box-shadow:0 0 0 1px color-mix(in oklab, var(--qr-landing-primary) 55%, transparent);
+}
+body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox:checked::after{
+  border-color:color-mix(in oklab, #ffffff 92%, rgba(255,255,255,0.7) 8%);
+  opacity:1;
+}
+body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox:focus-visible{
   box-shadow:0 0 0 3px var(--qr-ring);
-  border-color: color-mix(in oklab, var(--qr-brand-600) 50%, transparent);
+  border-color: color-mix(in oklab, var(--qr-landing-primary) 50%, transparent);
 }
 .qr-landing a:focus-visible,
 .qr-landing button:focus-visible,
