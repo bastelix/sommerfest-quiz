@@ -58,6 +58,7 @@
 ### Feat
 
 - Allow selecting subscription plan
+- Allow deleting marketing pages from admin
 - Persist and extend QR design
 - Allow resending welcome mail
 - *(admin)* Allow column selection for tenants

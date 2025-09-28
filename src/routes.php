@@ -970,6 +970,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->update($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
 
+    $app->delete('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {
+        $controller = new PageController();
+        return $controller->delete($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
     $app->post('/admin/pages', function (Request $request, Response $response) {
         $controller = new PageController();
         return $controller->create($request, $response);

@@ -36,6 +36,17 @@ class PageService
         $stmt->execute([$content, $slug]);
     }
 
+    public function delete(string $slug): void
+    {
+        $normalized = trim($slug);
+        if ($normalized === '') {
+            return;
+        }
+
+        $stmt = $this->pdo->prepare('DELETE FROM pages WHERE slug = ?');
+        $stmt->execute([$normalized]);
+    }
+
     public function create(string $slug, string $title, string $content): Page
     {
         $normalizedSlug = strtolower(trim($slug));

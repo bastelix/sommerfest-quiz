@@ -53,6 +53,30 @@ class PageControllerTest extends TestCase
         session_destroy();
     }
 
+    public function testDeleteRemovesPage(): void
+    {
+        $pdo = $this->getDatabase();
+        $this->seedPage($pdo, 'landing', 'Landing', '<p>content</p>');
+
+        $app = $this->getAppInstance();
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $_SESSION['csrf_token'] = 'token';
+
+        $request = $this->createRequest('DELETE', '/admin/pages/landing', [
+            'HTTP_X_CSRF_TOKEN' => 'token',
+            'HTTP_ACCEPT' => 'application/json',
+        ]);
+        $response = $app->handle($request);
+
+        $this->assertSame(204, $response->getStatusCode());
+
+        $count = (int) $pdo->query("SELECT COUNT(*) FROM pages WHERE slug='landing'")->fetchColumn();
+        $this->assertSame(0, $count);
+
+        session_destroy();
+    }
+
     public function testInvalidSlug(): void
     {
         $app = $this->getAppInstance();
