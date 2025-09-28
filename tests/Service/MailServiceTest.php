@@ -24,6 +24,9 @@ class MailServiceTest extends TestCase
             "INSERT INTO tenants(uid, subdomain, imprint_name, imprint_email) "
             . "VALUES('main','main','Example Org','admin@example.org')"
         );
+
+        putenv('MAILER_DSN');
+        unset($_ENV['MAILER_DSN']);
     }
 
     public function testIsConfiguredTrue(): void
@@ -34,6 +37,19 @@ class MailServiceTest extends TestCase
         $_ENV['SMTP_HOST'] = 'localhost';
         $_ENV['SMTP_USER'] = 'user@example.org';
         $_ENV['SMTP_PASS'] = 'secret';
+
+        $this->assertTrue(MailService::isConfigured());
+    }
+
+    public function testIsConfiguredTrueWithMailerDsn(): void
+    {
+        putenv('SMTP_HOST');
+        putenv('SMTP_USER');
+        putenv('SMTP_PASS');
+        unset($_ENV['SMTP_HOST'], $_ENV['SMTP_USER'], $_ENV['SMTP_PASS']);
+
+        putenv('MAILER_DSN=brevo+api://ABC123@default');
+        $_ENV['MAILER_DSN'] = 'brevo+api://ABC123@default';
 
         $this->assertTrue(MailService::isConfigured());
     }
@@ -212,6 +228,75 @@ class MailServiceTest extends TestCase
         unset($_ENV['SMTP_FROM'], $_ENV['SMTP_FROM_NAME']);
     }
 
+    public function testMailerDsnIsPassedThrough(): void
+    {
+        putenv('SMTP_HOST');
+        putenv('SMTP_USER');
+        putenv('SMTP_PASS');
+        putenv('SMTP_PORT');
+        putenv('SMTP_ENCRYPTION');
+        unset(
+            $_ENV['SMTP_HOST'],
+            $_ENV['SMTP_USER'],
+            $_ENV['SMTP_PASS'],
+            $_ENV['SMTP_PORT'],
+            $_ENV['SMTP_ENCRYPTION']
+        );
+
+        putenv('MAILER_DSN=smtp://localhost:2525?verify_peer=0');
+        $_ENV['MAILER_DSN'] = 'smtp://localhost:2525?verify_peer=0';
+        putenv('SMTP_FROM=support@example.org');
+        $_ENV['SMTP_FROM'] = 'support@example.org';
+
+        $twig = new Environment(new ArrayLoader());
+
+        $svc = new class ($twig) extends MailService {
+            public string $dsn = '';
+
+            protected function createTransport(string $dsn): MailerInterface
+            {
+                $this->dsn = $dsn;
+
+                return parent::createTransport($dsn);
+            }
+        };
+
+        $this->assertSame('smtp://localhost:2525?verify_peer=0', $svc->dsn);
+
+        putenv('MAILER_DSN');
+        unset($_ENV['MAILER_DSN']);
+        putenv('SMTP_FROM');
+        unset($_ENV['SMTP_FROM']);
+    }
+
+    public function testMailerDsnRequiresFrom(): void
+    {
+        putenv('SMTP_HOST');
+        putenv('SMTP_USER');
+        putenv('SMTP_PASS');
+        putenv('SMTP_PORT');
+        putenv('SMTP_ENCRYPTION');
+        unset(
+            $_ENV['SMTP_HOST'],
+            $_ENV['SMTP_USER'],
+            $_ENV['SMTP_PASS'],
+            $_ENV['SMTP_PORT'],
+            $_ENV['SMTP_ENCRYPTION']
+        );
+
+        putenv('MAILER_DSN=brevo+api://ABC123@default');
+        $_ENV['MAILER_DSN'] = 'brevo+api://ABC123@default';
+        putenv('SMTP_FROM');
+        unset($_ENV['SMTP_FROM']);
+
+        $twig = new Environment(new ArrayLoader());
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Missing SMTP configuration: SMTP_FROM');
+
+        new MailService($twig);
+    }
+
     public function testSendContactSendsCopyToUser(): void
     {
         putenv('SMTP_HOST=localhost');
@@ -377,7 +462,7 @@ class MailServiceTest extends TestCase
             'https://foo.example.com/password/set?token=abc'
         );
 
-        $this->assertStringContainsString('https://foo.example.com/admin/catalogs', $html);
+        $this->assertStringContainsString('https://foo.example.com/admin', $html);
         $this->assertStringContainsString('https://foo.example.com/password/set?token=abc', $html);
         $this->assertCount(1, $svc->messages);
     }

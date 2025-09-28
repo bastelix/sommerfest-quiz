@@ -535,17 +535,24 @@ Die Übersetzungen befinden sich in `resources/lang/` sowie `public/js/i18n/`.
 Der Zugang zum Administrationsbereich erfolgt über `/login`. Benutzer und Rollen werden in der Tabelle `users` verwaltet. Nach erfolgreichem POST mit gültigen Zugangsdaten speichert das System die Benutzerinformationen inklusive Rolle in der Session und leitet Administratoren zur Route `/admin` weiter. Die Middleware `RoleAuthMiddleware` prüft die gespeicherte Rolle und leitet bei fehlenden Berechtigungen zum Login um.
 
 ### E-Mail-Versand
-Für Funktionen wie das Zurücksetzen von Passwörtern nutzt die Anwendung SMTP. Die Verbindung wird über folgende Umgebungsvariablen gesteuert:
+Für Funktionen wie das Zurücksetzen von Passwörtern nutzt die Anwendung Symfony Mailer. Für die Anbindung stehen zwei Varianten zur Verfügung:
 
-- `SMTP_HOST` – Hostname des Servers
-- `SMTP_USER` – Benutzername
-- `SMTP_PASS` – Passwort
-- `SMTP_PORT` – Port (z. B. 587)
-- `SMTP_ENCRYPTION` – Verschlüsselung (`none`, `tls` oder `ssl`)
-- `SMTP_FROM` – Absenderadresse
-- `SMTP_FROM_NAME` – Name des Absenders
+1. **Klassisches SMTP** über folgende Variablen:
+   - `SMTP_HOST` – Hostname des Servers
+   - `SMTP_USER` – Benutzername
+   - `SMTP_PASS` – Passwort
+   - `SMTP_PORT` – Port (z. B. 587)
+   - `SMTP_ENCRYPTION` – Verschlüsselung (`none`, `tls` oder `ssl`)
+2. **Direkter Mailer-DSN** über `MAILER_DSN`, falls ein Provider mit eigener API oder speziellen Parametern verwendet wird. In diesem Fall werden die Werte aus `SMTP_HOST` bis `SMTP_ENCRYPTION` ignoriert.
 
-Diese Variablen können in `.env` gesetzt werden.
+Unabhängig von der Variante legen `SMTP_FROM` (Absenderadresse) und `SMTP_FROM_NAME` (Absendername) den sichtbaren Absender fest. Diese Variablen können in `.env` gesetzt werden.
+
+Beispiele für DSNs:
+
+- Brevo SMTP: `smtp://support%40quizrace.app:DEIN_STARKES_PASSWORT@smtp.brevo.com:587?encryption=tls`
+- Mailgun API: `mailgun+https://API_KEY:DEINE-DOMAIN@default?region=eu`
+- Brevo API: `brevo+api://DEIN_API_KEY@default`
+- Mailchimp (Mandrill) API: `mailchimp+https://DEIN_MANDRILL_KEY@default`
 
 ### Passwort zurücksetzen
 Die API unterstützt ein zweistufiges Verfahren zum Zurücksetzen vergessener Passwörter:
@@ -553,7 +560,7 @@ Die API unterstützt ein zweistufiges Verfahren zum Zurücksetzen vergessener Pa
 1. `POST /password/reset/request` nimmt einen Benutzernamen oder eine E‑Mail-Adresse entgegen und verschickt einen Link mit einem Reset-Token.
 2. `POST /password/reset/confirm` setzt nach Validierung des Tokens das neue Passwort.
 
-Für den Versand der E-Mails müssen `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `SMTP_PORT` und `SMTP_ENCRYPTION` konfiguriert sein. Über `SMTP_FROM` und `SMTP_FROM_NAME` lässt sich der Absender zentral festlegen. Das Token ist aus Sicherheitsgründen nur eine Stunde gültig.
+Für den Versand der E-Mails muss entweder ein vollständiger `MAILER_DSN` gesetzt oder – beim SMTP-Fallback – `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS`, `SMTP_PORT` und `SMTP_ENCRYPTION` konfiguriert sein. Über `SMTP_FROM` und `SMTP_FROM_NAME` lässt sich der Absender zentral festlegen. Das Token ist aus Sicherheitsgründen nur eine Stunde gültig.
 
 ### Administrationsoberfläche
 Unter `/admin` stehen folgende Tabs zur Verfügung:
