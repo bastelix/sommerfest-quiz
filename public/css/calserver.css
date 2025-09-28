@@ -225,6 +225,9 @@ body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .uk-card
 
 body.qr-landing.calserver-theme:not(.high-contrast) .site-footer,
 body.qr-landing.calserver-theme:not(.high-contrast) .site-footer a,
+body.qr-landing.calserver-theme:not(.high-contrast) .footer-section,
+body.qr-landing.calserver-theme:not(.high-contrast) .footer-section p,
+body.qr-landing.calserver-theme:not(.high-contrast) .footer-section li,
 body.qr-landing.calserver-theme:not(.high-contrast) .footer-section strong {
     color: #ffffff;
 }
