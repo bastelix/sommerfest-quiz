@@ -563,7 +563,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             tText = await tRes.text();
           }
         } catch (_) {}
-        if (!tRes.ok || !tData || tData.queued !== true) {
+        if (!tRes.ok || (tData && tData.error)) {
           mark('create', false);
           let msg = '';
           if (!tRes.ok) {
@@ -581,7 +581,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 msg = (tData && tData.error) || tText || 'Mandant anlegen fehlgeschlagen';
             }
           } else {
-            msg = (tData && tData.error) || 'Mandant anlegen fehlgeschlagen';
+            msg = tData && tData.error ? tData.error : 'Mandant anlegen fehlgeschlagen';
           }
           throw new Error(msg);
         }
