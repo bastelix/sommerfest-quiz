@@ -10,7 +10,10 @@ use Tests\TestCase;
 
 class ContactControllerTest extends TestCase
 {
-    public function testContactFormSendsMail(): void
+    /**
+     * @dataProvider contactRoutesProvider
+     */
+    public function testContactFormSendsMail(string $route): void
     {
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_destroy();
@@ -76,7 +79,7 @@ class ContactControllerTest extends TestCase
 
             $request = $this->createRequest(
                 'POST',
-                '/landing/contact',
+                $route,
                 [
                     'Content-Type' => 'application/json',
                     'X-CSRF-Token' => 'token',
@@ -93,10 +96,8 @@ class ContactControllerTest extends TestCase
             $response = $app->handle($request);
 
             $this->assertEquals(204, $response->getStatusCode());
-            $pdo = new \PDO((string) getenv('POSTGRES_DSN'));
-            $email = $pdo->query("SELECT imprint_email FROM tenants WHERE subdomain = 'main'")?->fetchColumn();
             $this->assertSame([
-                (string) $email,
+                'contact@main.test',
                 'John Doe',
                 'john@example.com',
                 'Hello',
@@ -124,6 +125,17 @@ class ContactControllerTest extends TestCase
         }
     }
 
+    /**
+     * @return array<int, array<int, string>>
+     */
+    public function contactRoutesProvider(): array
+    {
+        return [
+            ['/landing/contact'],
+            ['/calserver/contact'],
+        ];
+    }
+
     public function testContactFormUsesDomainSpecificEmail(): void
     {
         if (session_status() === PHP_SESSION_ACTIVE) {
@@ -149,9 +161,15 @@ class ContactControllerTest extends TestCase
                 public function __construct()
                 {
                 }
-                public function sendContact(string $to, string $name, string $replyTo, string $message): void
-                {
-                    $this->args = [$to, $name, $replyTo, $message];
+                public function sendContact(
+                    string $to,
+                    string $name,
+                    string $replyTo,
+                    string $message,
+                    ?array $templateData = null,
+                    ?string $fromEmail = null
+                ): void {
+                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail];
                 }
             };
 
@@ -186,6 +204,8 @@ class ContactControllerTest extends TestCase
                 'Jane Doe',
                 'jane@example.com',
                 'Hi there',
+                null,
+                'contact@domain.test',
             ], $mailer->args);
         } finally {
             if ($oldMainDomain === false) {
@@ -300,9 +320,15 @@ class ContactControllerTest extends TestCase
                 public function __construct()
                 {
                 }
-                public function sendContact(string $to, string $name, string $replyTo, string $message): void
-                {
-                    $this->args = [$to, $name, $replyTo, $message];
+                public function sendContact(
+                    string $to,
+                    string $name,
+                    string $replyTo,
+                    string $message,
+                    ?array $templateData = null,
+                    ?string $fromEmail = null
+                ): void {
+                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail];
                 }
             };
 
@@ -332,12 +358,13 @@ class ContactControllerTest extends TestCase
             $response = $app->handle($request);
 
             $this->assertEquals(204, $response->getStatusCode());
-            $imprintEmail = $pdo->query("SELECT imprint_email FROM tenants WHERE subdomain = 'main'")?->fetchColumn();
             $this->assertSame([
-                (string) $imprintEmail,
+                'not-an-email',
                 'Invalid Email',
                 'valid@example.com',
                 'Please ignore',
+                null,
+                'not-an-email',
             ], $mailer->args);
         } finally {
             if ($oldMainDomain === false) {

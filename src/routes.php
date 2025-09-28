@@ -454,6 +454,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/landing/contact', ContactController::class)
         ->add(new RateLimitMiddleware(3, 3600))
         ->add(new CsrfMiddleware());
+    $app->post('/calserver/contact', ContactController::class)
+        ->add(new RateLimitMiddleware(3, 3600))
+        ->add(new CsrfMiddleware());
     $app->get('/onboarding', OnboardingController::class);
     $app->post('/onboarding/email', function (Request $request, Response $response) {
         return $request->getAttribute('onboardingEmailController')->request($request, $response);
