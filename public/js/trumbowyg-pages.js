@@ -292,6 +292,27 @@ const getExcludedLandingSlugs = () => {
     .filter(Boolean);
 };
 
+const getTranslation = (name, fallback) => {
+  const value = window[name];
+  return typeof value === 'string' && value ? value : fallback;
+};
+
+const removePagesEmptyMessage = (root = document.getElementById('pageFormsContainer')) => {
+  root?.querySelector('.pages-empty-alert')?.remove();
+};
+
+const showPagesEmptyMessage = () => {
+  const container = document.getElementById('pageFormsContainer');
+  if (!container) {
+    return;
+  }
+  removePagesEmptyMessage(container);
+  const alert = document.createElement('div');
+  alert.className = 'uk-alert uk-alert-warning pages-empty-alert';
+  alert.textContent = getTranslation('transMarketingPagesEmpty', 'Keine Marketing-Seiten gefunden.');
+  container.append(alert);
+};
+
 const buildPageForm = page => {
   const slug = (page?.slug || '').trim();
   const content = page?.content || '';
@@ -320,12 +341,17 @@ const buildPageForm = page => {
   saveBtn.textContent = 'Speichern';
 
   const previewLink = document.createElement('a');
-  previewLink.className = 'uk-button uk-button-default preview-link';
+  previewLink.className = 'uk-button uk-button-default uk-margin-small-left preview-link';
   previewLink.href = withBase(`/${slug}`);
   previewLink.target = '_blank';
   previewLink.textContent = 'Vorschau';
 
-  actions.append(saveBtn, previewLink);
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = 'uk-button uk-button-danger uk-margin-small-left delete-page-btn';
+  deleteBtn.type = 'button';
+  deleteBtn.textContent = getTranslation('transDelete', 'Löschen');
+
+  actions.append(saveBtn, previewLink, deleteBtn);
   form.append(hiddenInput, editor, actions);
 
   return form;
@@ -395,6 +421,36 @@ const setupPageForm = form => {
     saveBtn.dataset.bound = '1';
   }
 
+  const deleteBtn = form.querySelector('.delete-page-btn');
+  if (deleteBtn && !deleteBtn.dataset.bound) {
+    deleteBtn.addEventListener('click', event => {
+      event.preventDefault();
+      const confirmMessage = getTranslation('transDeletePageConfirm', 'Diese Seite wirklich löschen?');
+      if (typeof window.confirm === 'function' && !window.confirm(confirmMessage)) {
+        return;
+      }
+
+      apiFetch(`/admin/pages/${encodeURIComponent(slug)}`, { method: 'DELETE' })
+        .then(response => {
+          if (response.status === 204) {
+            removePageFromInterface(slug);
+            notify(getTranslation('transPageDeleted', 'Seite gelöscht'), 'success');
+            return;
+          }
+          if (response.status === 404) {
+            removePageFromInterface(slug);
+            throw new Error('not-found');
+          }
+          throw new Error('delete-failed');
+        })
+        .catch(error => {
+          const status = error instanceof Error && error.message === 'not-found' ? 'warning' : 'danger';
+          notify(getTranslation('transPageDeleteError', 'Seite konnte nicht gelöscht werden.'), status);
+        });
+    });
+    deleteBtn.dataset.bound = '1';
+  }
+
   form.dataset.pageReady = '1';
 };
 
@@ -409,6 +465,8 @@ const addPageToInterface = page => {
   if (!select || !container || !slug) {
     return;
   }
+
+  removePagesEmptyMessage(container);
 
   const existingOption = Array.from(select.options).find(option => option.value === slug);
   if (!existingOption) {
@@ -425,6 +483,10 @@ const addPageToInterface = page => {
     setupPageForm(form);
   }
 
+  if (window.pagesContent && typeof window.pagesContent === 'object') {
+    window.pagesContent[slug] = page.content || '';
+  }
+
   if (pageSelectionState) {
     pageSelectionState.refresh();
     select.value = slug;
@@ -432,6 +494,59 @@ const addPageToInterface = page => {
   }
 
   document.dispatchEvent(new CustomEvent('marketing-page:created', { detail: page }));
+};
+
+const removePageFromInterface = slug => {
+  const select = document.getElementById('pageContentSelect');
+  const container = document.getElementById('pageFormsContainer');
+  const normalized = (slug || '').trim();
+  if (!select || !container || !normalized) {
+    return;
+  }
+
+  const optionIndex = Array.from(select.options).findIndex(option => option.value === normalized);
+  if (optionIndex >= 0) {
+    select.remove(optionIndex);
+  }
+
+  const form = container.querySelector(`.page-form[data-slug="${normalized}"]`);
+  if (form) {
+    form.remove();
+  }
+
+  if (window.pagesContent && typeof window.pagesContent === 'object') {
+    delete window.pagesContent[normalized];
+  }
+
+  removePagesEmptyMessage(container);
+  pageSelectionState?.refresh();
+
+  const remainingForms = Array.from(container.querySelectorAll('.page-form'));
+  const remainingOptions = select.options.length;
+
+  if (!remainingForms.length || remainingOptions === 0) {
+    select.value = '';
+    showPagesEmptyMessage();
+  } else {
+    let nextValue = select.value;
+    if (!remainingForms.some(formEl => formEl.dataset.slug === nextValue)) {
+      nextValue = remainingForms[0]?.dataset.slug || select.options[0]?.value || '';
+    }
+    if (nextValue) {
+      select.value = nextValue;
+    }
+
+    const toggleForms = pageSelectionState?.toggleForms;
+    if (typeof toggleForms === 'function') {
+      toggleForms(select.value);
+    } else {
+      remainingForms.forEach(formEl => {
+        formEl.classList.toggle('uk-hidden', formEl.dataset.slug !== select.value);
+      });
+    }
+  }
+
+  document.dispatchEvent(new CustomEvent('marketing-page:deleted', { detail: { slug: normalized } }));
 };
 
 export function initPageEditors() {

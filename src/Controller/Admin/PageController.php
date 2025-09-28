@@ -67,6 +67,23 @@ class PageController
         return $response->withStatus(204);
     }
 
+    public function delete(Request $request, Response $response, array $args): Response
+    {
+        $slug = $args['slug'] ?? '';
+        if (!in_array($slug, $this->getEditableSlugs(), true)) {
+            return $response->withStatus(404);
+        }
+
+        if ($this->pageService->findBySlug($slug) === null) {
+            return $response->withStatus(404);
+        }
+
+        $this->pageService->delete($slug);
+        $this->editableSlugs = null;
+
+        return $response->withStatus(204);
+    }
+
     public function create(Request $request, Response $response): Response
     {
         $data = $request->getParsedBody();

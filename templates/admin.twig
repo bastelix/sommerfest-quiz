@@ -929,7 +929,7 @@
           <ul id="pageSwitcher" class="uk-switcher uk-margin">
             <li>
               {% if seo_pages|default([]) is empty %}
-                <div class="uk-alert uk-alert-warning">Keine Marketing-Seiten gefunden.</div>
+                <div class="uk-alert uk-alert-warning">{{ t('text_no_marketing_pages') }}</div>
               {% else %}
               <form class="uk-form-stacked seo-form" action="{{ basePath }}/admin/landingpage/seo" method="post">
                 <input type="hidden" name="pageId" value="{{ seo_config.pageId|default(selectedSeoPageId|default('')) }}">
@@ -1017,7 +1017,7 @@
             </li>
             <li>
               {% if pages|default([]) is empty %}
-                <div class="uk-alert uk-alert-warning">Keine Marketing-Seiten gefunden.</div>
+                <div class="uk-alert uk-alert-warning">{{ t('text_no_marketing_pages') }}</div>
               {% else %}
                 {% set selectedSlug = selectedPageSlug|default('') %}
                 {% if selectedSlug == '' and pages|length > 0 %}
@@ -1062,12 +1062,13 @@
                     <input type="hidden" id="page_{{ page.slug }}" name="content" value="{{ page.content|e('html_attr') }}">
                     <div class="page-editor" data-content="{{ page.content|e('html_attr') }}"></div>
                     <div class="uk-margin-top">
-                      <button class="uk-button uk-button-primary save-page-btn">Speichern</button>
+                      <button class="uk-button uk-button-primary save-page-btn" type="button">Speichern</button>
                       <a
-                        class="uk-button uk-button-default preview-link"
+                        class="uk-button uk-button-default uk-margin-small-left preview-link"
                         href="{{ basePath }}/{{ page.slug }}"
                         target="_blank"
                       >Vorschau</a>
+                      <button class="uk-button uk-button-danger uk-margin-small-left delete-page-btn" type="button">{{ t('action_delete') }}</button>
                     </div>
                   </form>
                   {% endfor %}
@@ -1592,6 +1593,10 @@
     window.transTeamPdf = '{{ t('tip_team_pdf') }}';
     window.transActions = '{{ t('column_actions') }}';
     window.transDelete = '{{ t('action_delete') }}';
+    window.transDeletePageConfirm = '{{ t('confirm_delete_page')|e('js') }}';
+    window.transPageDeleted = '{{ t('notify_page_deleted')|e('js') }}';
+    window.transPageDeleteError = '{{ t('notify_page_delete_error')|e('js') }}';
+    window.transMarketingPagesEmpty = '{{ t('text_no_marketing_pages')|e('js') }}';
     window.transUsernameRequired = '{{ t('text_username_required') }}';
     window.stripeDashboard = '{{ stripe_sandbox ? 'https://dashboard.stripe.com/test' : 'https://dashboard.stripe.com' }}';
     window.initialEvents = {{ events|json_encode|raw }};
