@@ -38,6 +38,7 @@ class MailService
         }
 
         return [
+            'mailer_dsn' => (string) ($env['MAILER_DSN'] ?? getenv('MAILER_DSN') ?: ''),
             'host'       => (string) ($env['SMTP_HOST'] ?? getenv('SMTP_HOST') ?: ''),
             'user'       => (string) ($env['SMTP_USER'] ?? getenv('SMTP_USER') ?: ''),
             'pass'       => (string) ($env['SMTP_PASS'] ?? getenv('SMTP_PASS') ?: ''),
@@ -52,6 +53,10 @@ class MailService
     {
         $config = self::loadEnvConfig();
 
+        if ($config['mailer_dsn'] !== '') {
+            return true;
+        }
+
         return $config['host'] !== '' && $config['user'] !== '' && $config['pass'] !== '';
     }
 
@@ -59,13 +64,14 @@ class MailService
     {
         $config = self::loadEnvConfig();
 
+        $mailerDsn  = $config['mailer_dsn'];
         $host       = $config['host'];
         $user       = $config['user'];
         $pass       = $config['pass'];
         $port       = $config['port'];
         $encryption = $config['encryption'];
 
-        if ($host === '' || $user === '' || $pass === '') {
+        if ($mailerDsn === '' && ($host === '' || $user === '' || $pass === '')) {
             $missing = [];
             if ($host === '') {
                 $missing[] = 'SMTP_HOST';
@@ -87,16 +93,24 @@ class MailService
         $fromName  = $config['from_name'] !== '' ? $config['from_name'] : ($profile['imprint_name'] ?? '');
         $from      = $fromName !== '' ? sprintf('%s <%s>', $fromName, $fromEmail) : $fromEmail;
 
-        $dsn = sprintf(
-            'smtp://%s:%s@%s:%s',
-            rawurlencode($user),
-            rawurlencode($pass),
-            $host,
-            $port
-        );
+        if ($fromEmail === '') {
+            throw new RuntimeException('Missing SMTP configuration: SMTP_FROM');
+        }
 
-        if (strtolower($encryption) !== 'none') {
-            $dsn .= '?encryption=' . rawurlencode($encryption);
+        if ($mailerDsn !== '') {
+            $dsn = $mailerDsn;
+        } else {
+            $dsn = sprintf(
+                'smtp://%s:%s@%s:%s',
+                rawurlencode($user),
+                rawurlencode($pass),
+                $host,
+                $port
+            );
+
+            if (strtolower($encryption) !== 'none') {
+                $dsn .= '?encryption=' . rawurlencode($encryption);
+            }
         }
 
         $this->mailer = $this->createTransport($dsn);
