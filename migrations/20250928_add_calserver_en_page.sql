@@ -889,52 +889,53 @@ VALUES (
 </section>
 <section class="uk-section uk-section-default" id="pricing">
 <div class="uk-container">
-<div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
-<h2 class="uk-heading-line"><span>Prices that create clarity</span></h2>
-<span class="muted">Honest, transparent and without hidden costs.</span>
+<div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap calserver-pricing__header">
+<h2 class="uk-heading-line"><span>Subscriptions built for your operations</span></h2>
+<span class="muted">Every plan includes a personal kick-off and a 7-day trial.</span>
 </div>
 <div class="uk-child-width-1-1 uk-child-width-1-3@m uk-grid-large uk-grid-match" data-uk-grid="" data-uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .anim; delay: 75; repeat: true">
 <div class="anim">
-<div class="uk-card uk-card-default uk-card-body uk-text-center uk-card-hover shadow-soft">
-<h3>Standard</h3>
-<p class="muted">The solid basis for small teams.</p>
-<p class="uk-text-large uk-text-bold">from 250 €/month</p>
+<div class="uk-card uk-card-default uk-card-body uk-text-center uk-card-hover shadow-soft calserver-pricing-card">
+<h3>Cloud Team</h3>
+<p class="muted">Managed SaaS for dedicated quality teams.</p>
+<p class="uk-text-large uk-text-bold">from €390/month</p>
 <ul class="uk-list uk-list-bullet uk-text-left muted">
-<li>Up to 2 clients</li>
-<li>All core modules included</li>
-<li>Email support within 24 hours</li>
+<li>Up to 3 tenants &amp; 1,000 instruments</li>
+<li>Core modules, reminders &amp; workflow automation</li>
+<li>Email support with next-business-day response</li>
 </ul>
-<a class="uk-button uk-button-default" href="#offer">Request a non-binding offer</a>
+<a class="uk-button uk-button-default" href="#offer">Request package</a>
 </div>
 </div>
 <div class="anim">
-<div class="uk-card uk-card-primary uk-card-primary--highlight uk-card-body uk-text-center uk-card-hover shadow-soft uk-position-relative">
-<span class="pill pill--badge uk-position-absolute uk-position-top-right uk-margin-small">Recommended</span>
-<h3>Performance</h3>
-<p>For larger teams that need more speed.</p>
-<p class="uk-text-large uk-text-bold">on request</p>
+<div class="uk-card uk-card-primary uk-card-primary--highlight uk-card-body uk-text-center uk-card-hover shadow-soft uk-position-relative calserver-pricing-card">
+<span class="pill pill--badge uk-position-absolute uk-position-top-right uk-margin-small">Most popular</span>
+<h3>Cloud Scale</h3>
+<p>For growing organisations operating across multiple sites.</p>
+<p class="uk-text-large uk-text-bold">from €690/month</p>
 <ul class="uk-list uk-list-bullet uk-text-left">
-<li>Unlimited users</li>
-<li>Extended automation</li>
-<li>Prioritised support &amp; SLA</li>
+<li>Unlimited users and tenants</li>
+<li>Advanced automation, API &amp; ticket workflows</li>
+<li>Priority support with committed response times</li>
 </ul>
-<a class="uk-button uk-button-default" href="#offer">Request advice</a>
+<a class="uk-button uk-button-default" href="#offer">Schedule consultation</a>
 </div>
 </div>
 <div class="anim">
-<div class="uk-card uk-card-default uk-card-body uk-text-center uk-card-hover shadow-soft">
+<div class="uk-card uk-card-default uk-card-body uk-text-center uk-card-hover shadow-soft calserver-pricing-card">
 <h3>Enterprise</h3>
-<p class="muted">Individually tailored to your processes.</p>
-<p class="uk-text-large uk-text-bold">custom quote</p>
+<p class="muted">Tailored projects for on-premise &amp; hybrid setups.</p>
+<p class="uk-text-large uk-text-bold">Project-based quote</p>
 <ul class="uk-list uk-list-bullet uk-text-left muted">
-<li>Own client structures</li>
-<li>On-premise or hybrid</li>
-<li>Integration &amp; project support</li>
+<li>Dedicated environments &amp; security concepts</li>
+<li>Integration with ERP, MES &amp; identity platforms</li>
+<li>Customer success guidance and SLA coverage</li>
 </ul>
-<a class="uk-button uk-button-default" href="#offer">Request offer</a>
+<a class="uk-button uk-button-default" href="#offer">Request custom quote</a>
 </div>
 </div>
 </div>
+<p class="muted uk-text-small uk-margin-top">Optional add-ons: validated processes, on-site training and a dedicated hotline — we scope your package together.</p>
 </div>
 </section>
 <section class="uk-section uk-section-muted" id="faq">

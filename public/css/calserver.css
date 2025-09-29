@@ -1047,6 +1047,31 @@ body.qr-landing.calserver-theme .calserver-logo-marquee__item img {
     filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.25));
 }
 
+body.qr-landing.calserver-theme .calserver-pricing__header {
+    gap: 12px;
+}
+
+body.qr-landing.calserver-theme .calserver-pricing-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 100%;
+}
+
+body.qr-landing.calserver-theme .calserver-pricing-card .uk-list {
+    margin-top: 4px;
+    flex-grow: 1;
+}
+
+body.qr-landing.calserver-theme .calserver-pricing-card .uk-button {
+    margin-top: auto;
+    align-self: center;
+}
+
+body.qr-landing.calserver-theme .calserver-pricing-card .uk-text-bold {
+    font-size: clamp(1.4rem, 1.1vw + 1.1rem, 2rem);
+}
+
 @keyframes calserver-marquee {
     0% {
         transform: translateX(0);
