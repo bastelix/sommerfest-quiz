@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Process\Process;
 
 class DeleteTenantScriptTest extends TestCase
 {
@@ -35,15 +36,28 @@ class DeleteTenantScriptTest extends TestCase
         chmod($stubDir . '/curl', 0755);
         $envPath = $stubDir . ':' . getenv('PATH');
 
-        $cmd = sprintf(
-            'PATH=%s %s/scripts/delete_tenant.sh %s --subdomain 2>&1',
-            escapeshellarg($envPath),
-            escapeshellarg($root),
-            escapeshellarg($slug)
+        $process = new Process(
+            [
+                $root . '/scripts/delete_tenant.sh',
+                $slug,
+                '--subdomain',
+            ],
+            $root,
+            [
+                'PATH' => $envPath,
+            ]
         );
-        exec($cmd, $output, $ret);
+        $process->run();
 
-        $this->assertSame(0, $ret, implode("\n", $output));
+        $this->assertSame(
+            0,
+            $process->getExitCode(),
+            sprintf(
+                "Process failed with output:%s%s",
+                PHP_EOL . $process->getOutput(),
+                $process->getErrorOutput() !== '' ? PHP_EOL . $process->getErrorOutput() : ''
+            )
+        );
         $this->assertFileDoesNotExist($vhost);
         $this->assertFileDoesNotExist($certCrt);
         $this->assertFileDoesNotExist($certKey);
