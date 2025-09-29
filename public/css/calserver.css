@@ -1818,6 +1818,9 @@ body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual__image {
 .calserver-cookie-trigger svg {
     width: 1.45rem;
     height: 1.45rem;
+    color: inherit;
+    stroke: currentColor;
+    fill: none;
 }
 
 .calserver-cookie-trigger:hover,
