@@ -153,6 +153,11 @@
             <div class="qr-proof uk-margin-top">
               <span>Bereits bei Firmen-Events &amp; Stadtfesten erprobt</span>
             </div>
+            {% if provenExpertRating is defined and provenExpertRating %}
+              <div class="provenexpert-rating uk-margin-top" aria-label="Bewertungen">
+                {{ provenExpertRating|raw }}
+              </div>
+            {% endif %}
           </div>
           <div>
             <div class="qr-mockup uk-card qr-card">

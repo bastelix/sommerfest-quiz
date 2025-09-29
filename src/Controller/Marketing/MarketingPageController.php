@@ -7,6 +7,7 @@ namespace App\Controller\Marketing;
 use App\Application\Seo\PageSeoConfigService;
 use App\Service\MailService;
 use App\Service\PageService;
+use App\Service\ProvenExpertRatingService;
 use App\Service\TurnstileConfig;
 use App\Support\BasePathHelper;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -22,18 +23,21 @@ class MarketingPageController
     private PageSeoConfigService $seo;
     private ?string $slug;
     private TurnstileConfig $turnstileConfig;
+    private ProvenExpertRatingService $provenExpert;
 
     public function __construct(
         ?string $slug = null,
         ?PageService $pages = null,
         ?PageSeoConfigService $seo = null,
-        ?TurnstileConfig $turnstileConfig = null
+        ?TurnstileConfig $turnstileConfig = null,
+        ?ProvenExpertRatingService $provenExpert = null
     )
     {
         $this->slug = $slug;
         $this->pages = $pages ?? new PageService();
         $this->seo = $seo ?? new PageSeoConfigService();
         $this->turnstileConfig = $turnstileConfig ?? TurnstileConfig::fromEnv();
+        $this->provenExpert = $provenExpert ?? new ProvenExpertRatingService();
     }
 
     public function __invoke(Request $request, Response $response, array $args = []): Response
@@ -108,6 +112,10 @@ class MarketingPageController
             'turnstileSiteKey' => $this->turnstileConfig->isEnabled() ? $this->turnstileConfig->getSiteKey() : null,
             'turnstileEnabled' => $this->turnstileConfig->isEnabled(),
         ];
+
+        if (in_array($templateSlug, ['calserver', 'landing'], true)) {
+            $data['provenExpertRating'] = $this->provenExpert->getAggregateRatingMarkup();
+        }
 
         if ($canonicalUrl !== null) {
             $data['hreflangLinks'] = $this->buildHreflangLinks($config?->getHreflang(), $canonicalUrl);
