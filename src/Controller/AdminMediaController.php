@@ -317,7 +317,7 @@ class AdminMediaController
     }
 
     /**
-     * Convert an existing image to WebP.
+     * Convert an existing media file to another supported format.
      */
     public function convert(Request $request, Response $response): Response {
         $data = $this->parseBody($request);
@@ -333,7 +333,7 @@ class AdminMediaController
         }
 
         try {
-            $file = $this->media->convertFileToWebp($scope, $name, $eventUid !== '' ? $eventUid : null);
+            $file = $this->media->convertFile($scope, $name, $eventUid !== '' ? $eventUid : null);
         } catch (RuntimeException $e) {
             return $this->jsonError($response, $e->getMessage(), 400);
         }

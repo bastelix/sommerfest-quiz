@@ -149,6 +149,27 @@ SVG;
         $this->assertStringEqualsFile($storedPath, $video);
     }
 
+    public function testMp3UploadBypassesRasterProcessing(): void {
+        [$service, $config, $images] = $this->createService();
+
+        $audio = str_repeat('mp3-audio', 16);
+
+        $tmp = tempnam($this->tempDir, 'mp3');
+        file_put_contents($tmp, $audio);
+        $stream = (new StreamFactory())->createStreamFromFile($tmp);
+        $uploaded = new UploadedFile($stream, 'theme.mp3', 'audio/mpeg', $stream->getSize(), UPLOAD_ERR_OK);
+
+        $info = $service->uploadFile(MediaLibraryService::SCOPE_GLOBAL, $uploaded);
+
+        $this->assertSame('theme.mp3', $info['name']);
+        $this->assertSame('mp3', $info['extension']);
+        $this->assertFalse($images->saveCalled, 'MP3 uploads must not invoke ImageUploadService');
+
+        $storedPath = $config->getGlobalUploadsDir() . DIRECTORY_SEPARATOR . 'theme.mp3';
+        $this->assertFileExists($storedPath);
+        $this->assertStringEqualsFile($storedPath, $audio);
+    }
+
     public function testWebmUploadBypassesRasterProcessing(): void {
         [$service, $config, $images] = $this->createService();
 
