@@ -1579,6 +1579,8 @@ body.qr-landing.calserver-theme .calserver-modules-nav {
     padding: 0;
     list-style: none;
     border-bottom: none;
+    position: relative;
+    z-index: 2;
 }
 
 body.qr-landing.calserver-theme .calserver-modules-nav__link {
@@ -1644,6 +1646,7 @@ body.qr-landing.calserver-theme .calserver-module-figure {
     display: flex;
     flex-direction: column;
     height: 100%;
+    z-index: 0;
 }
 
 body.qr-landing.calserver-theme .calserver-module-figure::before {
@@ -1655,7 +1658,7 @@ body.qr-landing.calserver-theme .calserver-module-figure::before {
     border: 1px solid var(--qr-card-border);
     box-shadow: 0 22px 48px -28px rgba(15, 23, 42, 0.35);
     pointer-events: none;
-    z-index: -1;
+    z-index: 0;
 }
 
 body.qr-landing.calserver-theme .calserver-module-figure img,
@@ -1679,8 +1682,9 @@ body.qr-landing.calserver-theme .calserver-module-figure figcaption {
     flex-direction: column;
     gap: 14px;
     background: var(--qr-card);
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 22%, var(--qr-card-border) 78%);
     border-top: 1px solid color-mix(in oklab, var(--calserver-primary) 28%, rgba(15, 23, 42, 0.32));
-    box-shadow: 0 -18px 32px -28px rgba(15, 23, 42, 0.55) inset;
+    border-radius: 0 0 22px 22px;
 }
 
 body.qr-landing.calserver-theme .calserver-module-figure h3 {
