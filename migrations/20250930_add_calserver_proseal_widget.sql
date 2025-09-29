@@ -1250,40 +1250,54 @@ VALUES (
             <div class="uk-grid uk-child-width-1-1 uk-grid-small">
               <div><div class="uk-form-label" aria-hidden="true">&nbsp;</div></div>
               <div>
-                <div class="uk-card uk-card-default uk-card-body uk-text-left padding-30px contact-card">
-                  <p class="uk-margin-small-bottom uk-text-large">E-Mail</p>
-                  <a
-                    class="uk-text-lead uk-link-reset js-email-link"
-                    data-user="office"
-                    data-domain="calhelp.de"
-                    href="#"
-                  >office [at] calhelp.de</a>
-                </div>
-              </div>
-              <div>
-                <div class="uk-card uk-card-default uk-card-body uk-text-left padding-30px contact-card">
-                  <p class="uk-margin-small-bottom uk-text-large">Telefon</p>
-                  <a href="tel:+4933203609080" class="uk-text-lead uk-link-reset">+49 33203 609080</a>
-                </div>
-              </div>
-              <div>
-                <div
-                  class="calserver-proseal"
-                  data-calserver-proseal
-                  data-widget-id="1503aa9a-ae86-41d0-8ce9-05ed6f0a4856"
-                  data-widget-language="de-DE">
-                  <div class="calserver-proseal__placeholder" data-calserver-proseal-placeholder>
-                    <p class="uk-text-small uk-margin-small-bottom">Bewertungen werden geladen, sobald du Marketing-Cookies erlaubst.</p>
-                    <button class="uk-button uk-button-primary uk-button-small" type="button" data-calserver-proseal-consent>Bewertungen anzeigen</button>
-                    <p class="uk-text-meta uk-margin-small-top">Du kannst deine Auswahl jederzeit in den Cookie-Einstellungen ändern.</p>
-                    <p class="uk-text-meta uk-margin-small-top calserver-proseal__error" data-calserver-proseal-error hidden>Bewertungen konnten nicht geladen werden. Bitte versuche es später erneut.</p>
+                <div class="uk-grid uk-child-width-1-1 uk-child-width-1-2@s uk-grid-small uk-grid-match">
+                  <div>
+                    <div class="uk-card uk-card-default uk-card-body uk-text-left padding-30px contact-card">
+                      <p class="uk-margin-small-bottom uk-text-large">E-Mail</p>
+                      <a
+                        class="uk-text-lead uk-link-reset js-email-link"
+                        data-user="office"
+                        data-domain="calhelp.de"
+                        href="#"
+                      >office [at] calhelp.de</a>
+                    </div>
                   </div>
-                  <div class="calserver-proseal__embed" id="proSealWidget" data-proseal-target hidden></div>
-                  <noscript>
-                    <p class="uk-text-small uk-margin-small-top">
-                      <a class="uk-link-muted" href="https://www.provenexpert.com/calhelp/?utm_source=seals&amp;utm_campaign=embedded-proseal&amp;utm_medium=profile&amp;utm_content=1503aa9a-ae86-41d0-8ce9-05ed6f0a4856" rel="noopener" target="_blank">Kundenbewertungen auf ProvenExpert ansehen</a>
-                    </p>
-                  </noscript>
+                  <div>
+                    <div class="uk-card uk-card-default uk-card-body uk-text-left padding-30px contact-card">
+                      <p class="uk-margin-small-bottom uk-text-large">Telefon</p>
+                      <a href="tel:+4933203609080" class="uk-text-lead uk-link-reset">+49 33203 609080</a>
+                    </div>
+                  </div>
+                </div>
+                <div class="calserver-proof-seals uk-margin-small-top">
+                  <div
+                    class="calserver-proseal"
+                    data-calserver-proseal
+                    data-widget-id="1503aa9a-ae86-41d0-8ce9-05ed6f0a4856"
+                    data-widget-language="de-DE">
+                    <div class="calserver-proseal__placeholder" data-calserver-proseal-placeholder>
+                      <p class="uk-text-small uk-margin-small-bottom">Bewertungen werden geladen, sobald du Marketing-Cookies erlaubst.</p>
+                      <button class="uk-button uk-button-primary uk-button-small" type="button" data-calserver-proseal-consent>Bewertungen anzeigen</button>
+                      <p class="uk-text-meta uk-margin-small-top">Du kannst deine Auswahl jederzeit in den Cookie-Einstellungen ändern.</p>
+                      <p class="uk-text-meta uk-margin-small-top calserver-proseal__error" data-calserver-proseal-error hidden>Bewertungen konnten nicht geladen werden. Bitte versuche es später erneut.</p>
+                    </div>
+                    <div class="calserver-proseal__embed" id="proSealWidget" data-proseal-target hidden></div>
+                    <noscript>
+                      <p class="uk-text-small uk-margin-small-top">
+                        <a class="uk-link-muted" href="https://www.provenexpert.com/calhelp/?utm_source=seals&amp;utm_campaign=embedded-proseal&amp;utm_medium=profile&amp;utm_content=1503aa9a-ae86-41d0-8ce9-05ed6f0a4856" rel="noopener" target="_blank">Kundenbewertungen auf ProvenExpert ansehen</a>
+                      </p>
+                    </noscript>
+                  </div>
+                  <figure class="calserver-proof-seals__figure">
+                    <img
+                      alt="Gütesiegel Hosting in Germany"
+                      class="calserver-proof-seals__badge"
+                      decoding="async"
+                      height="160"
+                      loading="lazy"
+                      src="{{ basePath }}/uploads/calserver-hosting-in-germany.webp"
+                      width="160"/>
+                  </figure>
                 </div>
               </div>
             </div>
@@ -2365,6 +2379,8 @@ VALUES (
 <div class="uk-grid uk-child-width-1-1 uk-grid-small">
 <div><div aria-hidden="true" class="uk-form-label"> </div></div>
 <div>
+<div class="uk-grid uk-child-width-1-1 uk-child-width-1-2@s uk-grid-small uk-grid-match">
+<div>
 <div class="uk-card uk-card-default uk-card-body uk-text-left padding-30px contact-card">
 <p class="uk-margin-small-bottom uk-text-large">Email</p>
 <a class="uk-text-lead uk-link-reset js-email-link" data-domain="calhelp.de" data-user="office" href="#">office [at] calhelp.de</a>
@@ -2376,7 +2392,8 @@ VALUES (
 <a class="uk-text-lead uk-link-reset" href="tel:+4933203609080">+49 33203 609080</a>
 </div>
 </div>
-<div>
+</div>
+<div class="calserver-proof-seals uk-margin-small-top">
 <div
   class="calserver-proseal"
   data-calserver-proseal
@@ -2394,6 +2411,17 @@ VALUES (
       <a class="uk-link-muted" href="https://www.provenexpert.com/calhelp/?utm_source=seals&amp;utm_campaign=embedded-proseal&amp;utm_medium=profile&amp;utm_content=1503aa9a-ae86-41d0-8ce9-05ed6f0a4856" rel="noopener" target="_blank">View customer reviews on ProvenExpert</a>
     </p>
   </noscript>
+</div>
+<figure class="calserver-proof-seals__figure">
+<img
+  alt="Hosting in Germany quality seal"
+  class="calserver-proof-seals__badge"
+  decoding="async"
+  height="160"
+  loading="lazy"
+  src="{{ basePath }}/uploads/calserver-hosting-in-germany.webp"
+  width="160"/>
+</figure>
 </div>
 </div>
 </div>

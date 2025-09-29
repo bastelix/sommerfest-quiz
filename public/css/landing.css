@@ -712,6 +712,32 @@ body.qr-landing:not([data-theme="dark"]) .contact-card span{
   color:#000;
 }
 
+.calserver-proof-seals{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  margin-top:12px;
+}
+
+@media (min-width: 960px){
+  .calserver-proof-seals{
+    justify-content:flex-start;
+  }
+}
+
+.calserver-proof-seals__figure{
+  margin:0;
+  display:flex;
+}
+
+.calserver-proof-seals__badge{
+  display:block;
+  height:72px;
+  width:auto;
+}
+
 .calserver-proseal{
   display:flex;
   flex-direction:column;
