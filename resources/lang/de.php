@@ -334,6 +334,7 @@ return [
     'calserver_nav_faq' => 'FAQ',
     'calserver_nav_demo' => 'Demo buchen',
     'calserver_nav_trial' => 'Jetzt testen',
+    'calserver_footer_tagline' => 'Kalibrier- und Inventarverwaltung aus Deutschland – mit klaren Workflows und sicheren Prozessen.',
     'text_no_catalogs' => 'Keine Kataloge',
     'text_no_marketing_pages' => 'Keine Marketing-Seiten gefunden.',
     'text_no_data' => 'Keine Daten',
