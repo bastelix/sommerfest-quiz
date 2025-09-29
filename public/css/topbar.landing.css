@@ -71,6 +71,13 @@ body.qr-landing.calserver-theme:not([data-theme="dark"]):not(.dark-mode):not(.hi
   padding:0 12px;
   height:auto;
 }
+.qr-landing .qr-topbar .lang-option.git-btn{
+  width:100%;
+  min-width:160px;
+  min-height:48px;
+  padding:0 12px;
+  height:auto;
+}
 .lang-option__icon{
   flex-shrink:0;
   display:inline-flex;
