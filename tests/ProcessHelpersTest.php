@@ -36,4 +36,49 @@ class ProcessHelpersTest extends TestCase
         unlink($script);
         rmdir($dir);
     }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testRunSyncProcessFallsBackWhenProcessThrows(): void {
+        require_once __DIR__ . '/Stubs/FailingProcess.php';
+
+        $dir = sys_get_temp_dir() . '/proc_open dir ' . uniqid();
+        mkdir($dir);
+        $script = $dir . '/fallback.sh';
+        file_put_contents($script, "#!/bin/sh\necho 'ok'\nexit 0\n");
+        chmod($script, 0755);
+
+        $result = \App\runSyncProcess($script);
+
+        $this->assertTrue($result['success']);
+        $this->assertSame("ok\n", $result['stdout']);
+        $this->assertSame('', $result['stderr']);
+
+        unlink($script);
+        rmdir($dir);
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testRunSyncProcessFallbackThrowsOnErrorWhenConfigured(): void {
+        require_once __DIR__ . '/Stubs/FailingProcess.php';
+
+        $dir = sys_get_temp_dir() . '/proc_open dir ' . uniqid();
+        mkdir($dir);
+        $script = $dir . '/fallback_error.sh';
+        file_put_contents($script, "#!/bin/sh\necho 'fail' 1>&2\nexit 1\n");
+        chmod($script, 0755);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('fail');
+
+        try {
+            \App\runSyncProcess($script, [], true);
+        } finally {
+            unlink($script);
+            rmdir($dir);
+        }
+    }
 }
