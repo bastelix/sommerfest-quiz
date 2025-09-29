@@ -336,6 +336,7 @@ return [
     'calserver_nav_faq' => 'FAQ',
     'calserver_nav_demo' => 'Book demo',
     'calserver_nav_trial' => 'Start trial',
+    'calserver_footer_tagline' => 'Calibration and inventory management from Germany – with clear workflows and secure processes.',
     'text_no_catalogs' => 'No catalogs',
     'text_no_marketing_pages' => 'No marketing pages found.',
     'text_no_data' => 'No data',
