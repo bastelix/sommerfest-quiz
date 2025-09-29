@@ -178,6 +178,9 @@
 {% endblock %}
 
 {% block scripts %}
+  {% if turnstileSiteKey %}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+  {% endif %}
   <script src="{{ basePath }}/js/storage.js"></script>
   <script src="{{ basePath }}/js/app.js"></script>
   <script src="{{ basePath }}/js/landing.js" defer></script>

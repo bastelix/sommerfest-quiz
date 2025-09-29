@@ -105,6 +105,63 @@ HTML;
         unset($_ENV['SMTP_HOST'], $_ENV['SMTP_USER'], $_ENV['SMTP_PASS']);
     }
 
+    public function testLandingPageRendersTurnstileWidgetWhenConfigured(): void
+    {
+        putenv('SMTP_HOST=localhost');
+        putenv('SMTP_USER=user@example.org');
+        putenv('SMTP_PASS=secret');
+        $_ENV['SMTP_HOST'] = 'localhost';
+        $_ENV['SMTP_USER'] = 'user@example.org';
+        $_ENV['SMTP_PASS'] = 'secret';
+
+        $oldSite = getenv('TURNSTILE_SITE_KEY');
+        $oldSecret = getenv('TURNSTILE_SECRET_KEY');
+        $oldEnvSite = $_ENV['TURNSTILE_SITE_KEY'] ?? null;
+        $oldEnvSecret = $_ENV['TURNSTILE_SECRET_KEY'] ?? null;
+        putenv('TURNSTILE_SITE_KEY=test-site');
+        putenv('TURNSTILE_SECRET_KEY=test-secret');
+        $_ENV['TURNSTILE_SITE_KEY'] = 'test-site';
+        $_ENV['TURNSTILE_SECRET_KEY'] = 'test-secret';
+
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/landing');
+        $response = $app->handle($request);
+        $body = (string) $response->getBody();
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('class="cf-turnstile"', $body);
+        $this->assertStringContainsString('https://challenges.cloudflare.com/turnstile/v0/api.js', $body);
+
+        putenv('SMTP_HOST');
+        putenv('SMTP_USER');
+        putenv('SMTP_PASS');
+        unset($_ENV['SMTP_HOST'], $_ENV['SMTP_USER'], $_ENV['SMTP_PASS']);
+
+        if ($oldSite === false) {
+            putenv('TURNSTILE_SITE_KEY');
+            unset($_ENV['TURNSTILE_SITE_KEY']);
+        } else {
+            putenv('TURNSTILE_SITE_KEY=' . $oldSite);
+            if ($oldEnvSite === null) {
+                unset($_ENV['TURNSTILE_SITE_KEY']);
+            } else {
+                $_ENV['TURNSTILE_SITE_KEY'] = $oldEnvSite;
+            }
+        }
+
+        if ($oldSecret === false) {
+            putenv('TURNSTILE_SECRET_KEY');
+            unset($_ENV['TURNSTILE_SECRET_KEY']);
+        } else {
+            putenv('TURNSTILE_SECRET_KEY=' . $oldSecret);
+            if ($oldEnvSecret === null) {
+                unset($_ENV['TURNSTILE_SECRET_KEY']);
+            } else {
+                $_ENV['TURNSTILE_SECRET_KEY'] = $oldEnvSecret;
+            }
+        }
+    }
+
     public function testLandingPageContainsFaqLink(): void
     {
         $app = $this->getAppInstance();

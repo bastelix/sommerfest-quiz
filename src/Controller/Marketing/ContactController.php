@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Controller\Marketing;
 
+use App\Application\Security\TurnstileConfig;
+use App\Application\Security\TurnstileVerifier;
+use App\Application\Security\TurnstileVerifierInterface;
 use App\Service\DomainContactTemplateService;
 use App\Service\DomainStartPageService;
 use App\Service\MailService;
@@ -30,7 +33,7 @@ class ContactController
             $data = json_decode((string) $body, true);
         }
         if (!is_array($data)) {
-            return $response->withStatus(400);
+            return $this->textResponse($response, 'Ungültige Anfrage.', 400);
         }
 
         $honeypot = trim((string) ($data['company'] ?? ''));
@@ -71,7 +74,41 @@ class ContactController
             $email === '' ||
             !filter_var($email, FILTER_VALIDATE_EMAIL)
         ) {
-            return $response->withStatus(400);
+            return $this->textResponse($response, 'Bitte überprüfen Sie Ihre Eingaben.', 400);
+        }
+
+        if (TurnstileConfig::isEnabled()) {
+            $token = trim((string) ($data['cf-turnstile-response'] ?? ''));
+            if ($token === '') {
+                return $this->textResponse(
+                    $response,
+                    'Bitte bestätigen Sie, dass Sie kein Roboter sind.',
+                    422
+                );
+            }
+
+            $verifier = $request->getAttribute('turnstileVerifier');
+            if (!$verifier instanceof TurnstileVerifierInterface) {
+                $secret = TurnstileConfig::getSecretKey();
+                if ($secret === null) {
+                    return $this->textResponse($response, 'Captcha-Dienst nicht verfügbar.', 503);
+                }
+                $verifier = new TurnstileVerifier($secret);
+            }
+
+            $serverParams = $request->getServerParams();
+            $ip = (string) ($serverParams['REMOTE_ADDR'] ?? '');
+            if ($ip === '') {
+                $ip = null;
+            }
+
+            if (!$verifier->verify($token, $ip)) {
+                return $this->textResponse(
+                    $response,
+                    'Captcha-Prüfung fehlgeschlagen. Bitte versuchen Sie es erneut.',
+                    422
+                );
+            }
         }
 
         $pdo = Database::connectFromEnv();
@@ -90,7 +127,7 @@ class ContactController
         $tenant = (new TenantService($pdo))->getMainTenant();
         $to = $domainEmail ?? (string) ($tenant['imprint_email'] ?? '');
         if ($to === '') {
-            return $response->withStatus(500);
+            return $this->textResponse($response, 'Kein Empfänger konfiguriert.', 500);
         }
 
         $mailer = $request->getAttribute('mailService');
@@ -106,10 +143,18 @@ class ContactController
             $mailer->sendContact($to, $name, $email, $message, $template, $domainEmail);
         } catch (RuntimeException $e) {
             error_log('Contact mail failed: ' . $e->getMessage());
-            $response->getBody()->write('Mailversand fehlgeschlagen');
-            return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
+            return $this->textResponse($response, 'Mailversand fehlgeschlagen', 500);
         }
 
         return $response->withStatus(204);
+    }
+
+    private function textResponse(Response $response, string $message, int $status): Response
+    {
+        $response->getBody()->write($message);
+
+        return $response
+            ->withStatus($status)
+            ->withHeader('Content-Type', 'text/plain; charset=UTF-8');
     }
 }

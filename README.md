@@ -175,10 +175,27 @@ php -v
   Passwort ersetzt werden. Jede Instanz benötigt eine eigene
   Umgebungsvariable `TENANT_ID`.
 
-   Wird `POSTGRES_DSN` gesetzt und enthält das Verzeichnis `data/` bereits JSON-Dateien,
-   legt das Entrypoint-Skript des Containers die Tabellen automatisch an und importiert
-   die Daten beim Start. Direkt danach werden alle Migrationen ausgeführt,
-   sodass neue Spalten sofort verfügbar sind.
+ Wird `POSTGRES_DSN` gesetzt und enthält das Verzeichnis `data/` bereits JSON-Dateien,
+ legt das Entrypoint-Skript des Containers die Tabellen automatisch an und importiert
+ die Daten beim Start. Direkt danach werden alle Migrationen ausgeführt,
+ sodass neue Spalten sofort verfügbar sind.
+
+## Captcha-Schutz für Kontaktformulare
+
+Die öffentlichen Kontaktformulare auf `landing`- und `calserver`-Seiten lassen sich mit
+[Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/) absichern. Sobald die
+folgenden Umgebungsvariablen gesetzt sind, wird automatisch ein Captcha-Widget angezeigt
+und jede Anfrage serverseitig verifiziert:
+
+```
+TURNSTILE_SITE_KEY=<öffentlicher Schlüssel>
+TURNSTILE_SECRET_KEY=<geheimer Schlüssel>
+```
+
+Der Site-Key wird im Frontend eingebettet, der Secret-Key verbleibt ausschließlich auf dem Server
+und wird für die Validierung verwendet. Sind eine oder beide Variablen nicht gesetzt, bleiben die
+Formulare ohne Captcha nutzbar. Nach erfolgreicher Validierung setzt die Anwendung das Widget zurück,
+damit erneut Nachrichten gesendet werden können.
 
 ## Testing
 

@@ -710,6 +710,9 @@ body.qr-landing:not([data-theme="dark"]) .contact-card span{
   background:var(--qr-card); color:var(--qr-text);
   border:1px solid var(--qr-card-border); border-radius:10px;
 }
+.qr-landing #contact-form .cf-turnstile{
+  margin-bottom:16px;
+}
 .qr-landing #contact-form .uk-input:focus,
 .qr-landing #contact-form .uk-textarea:focus{
   box-shadow:0 0 0 3px var(--qr-ring);

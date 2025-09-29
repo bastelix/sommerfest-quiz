@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Marketing;
 
+use App\Application\Security\TurnstileConfig;
 use App\Application\Seo\PageSeoConfigService;
 use App\Service\MailService;
 use App\Service\PageService;
@@ -47,12 +48,16 @@ class MarketingPageController
         $_SESSION['csrf_token'] = $csrf;
         $html = str_replace('{{ csrf_token }}', $csrf, $html);
 
+        $turnstileSiteKey = TurnstileConfig::isEnabled() ? TurnstileConfig::getSiteKey() : null;
+
         if (!MailService::isConfigured()) {
             $html = preg_replace(
                 '/<form id="contact-form"[\s\S]*?<\/form>/',
                 '<p class="uk-text-center">Kontaktformular derzeit nicht verfügbar.</p>',
                 $html
             );
+        } elseif ($turnstileSiteKey !== null) {
+            $html = $this->injectTurnstileWidget($html, $turnstileSiteKey);
         }
 
         $view = Twig::fromRequest($request);
@@ -79,6 +84,7 @@ class MarketingPageController
             'ogImage' => $config?->getOgImage(),
             'schemaJson' => $config?->getSchemaJson(),
             'hreflang' => $config?->getHreflang(),
+            'turnstileSiteKey' => $turnstileSiteKey,
         ];
 
         if ($canonicalUrl !== null) {
@@ -90,6 +96,34 @@ class MarketingPageController
         } catch (LoaderError $e) {
             return $response->withStatus(404);
         }
+    }
+
+    private function injectTurnstileWidget(string $html, string $siteKey): string
+    {
+        $widget = sprintf(
+            "\n          <div class=\"cf-turnstile\" data-sitekey=\"%s\" data-theme=\"auto\"></div>\n",
+            htmlspecialchars($siteKey, ENT_QUOTES, 'UTF-8')
+        );
+
+        $replaced = preg_replace_callback(
+            '/(<form\s+id="contact-form"[^>]*>)([\s\S]*?)(<\/form>)/i',
+            static function (array $matches) use ($widget): string {
+                if (str_contains($matches[0], 'cf-turnstile')) {
+                    return $matches[0];
+                }
+
+                return $matches[1] . $matches[2] . $widget . $matches[3];
+            },
+            $html,
+            1,
+            $count
+        );
+
+        if ($count > 0 && $replaced !== null) {
+            return $replaced;
+        }
+
+        return $html;
     }
 
     /**

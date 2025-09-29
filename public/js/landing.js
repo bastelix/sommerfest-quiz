@@ -69,6 +69,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const hp = form.querySelector('input[name="company"]');
     if (hp && hp.value.trim() !== '') return;
 
+    const captchaInput = form.querySelector('input[name="cf-turnstile-response"]');
+    if (captchaInput && captchaInput.value.trim() === '') {
+      msg.textContent = 'Bitte bestätigen Sie, dass Sie kein Roboter sind.';
+      modal.show();
+      return;
+    }
+
     const data = new URLSearchParams(new FormData(form));
     const endpoint = resolveEndpoint(form.dataset.contactEndpoint);
     fetch(endpoint, {
@@ -76,16 +83,32 @@ document.addEventListener('DOMContentLoaded', () => {
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       credentials: 'same-origin',
       body: data
-    }).then(res => {
+    }).then(async res => {
+      const text = (await res.text()).trim();
       if (res.ok) {
         msg.textContent = 'Vielen Dank für Ihre Nachricht!';
         form.reset();
+        if (window.turnstile && typeof window.turnstile.reset === 'function') {
+          window.turnstile.reset();
+        }
       } else {
-        msg.textContent = 'Fehler beim Versenden. Bitte versuchen Sie es erneut.';
+        if (text !== '') {
+          msg.textContent = text;
+        } else if (res.status === 422) {
+          msg.textContent = 'Bitte bestätigen Sie die Captcha-Abfrage.';
+        } else {
+          msg.textContent = 'Fehler beim Versenden. Bitte versuchen Sie es erneut.';
+        }
+        if (window.turnstile && typeof window.turnstile.reset === 'function') {
+          window.turnstile.reset();
+        }
       }
       modal.show();
     }).catch(() => {
       msg.textContent = 'Fehler beim Versenden. Bitte versuchen Sie es erneut.';
+      if (window.turnstile && typeof window.turnstile.reset === 'function') {
+        window.turnstile.reset();
+      }
       modal.show();
     });
   });

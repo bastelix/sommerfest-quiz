@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Controller;
 
 use App\Application\Middleware\RateLimitMiddleware;
+use App\Application\Security\TurnstileVerifierInterface;
 use App\Service\DomainStartPageService;
 use App\Service\MailService;
 use Tests\TestCase;
@@ -16,6 +17,7 @@ class ContactControllerTest extends TestCase
      */
     public function testContactFormSendsMail(string $route): void
     {
+        RateLimitMiddleware::setPersistentStore(null);
         RateLimitMiddleware::resetPersistentStorage();
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_destroy();
@@ -140,6 +142,7 @@ class ContactControllerTest extends TestCase
 
     public function testContactFormUsesDomainSpecificEmail(): void
     {
+        RateLimitMiddleware::setPersistentStore(null);
         RateLimitMiddleware::resetPersistentStorage();
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_destroy();
@@ -211,6 +214,241 @@ class ContactControllerTest extends TestCase
                 'contact@domain.test',
             ], $mailer->args);
         } finally {
+            if ($oldMainDomain === false) {
+                putenv('MAIN_DOMAIN');
+            } else {
+                putenv('MAIN_DOMAIN=' . $oldMainDomain);
+            }
+            if ($oldEnvMainDomain === null) {
+                unset($_ENV['MAIN_DOMAIN']);
+            } else {
+                $_ENV['MAIN_DOMAIN'] = $oldEnvMainDomain;
+            }
+        }
+    }
+
+    public function testContactFormRequiresTurnstileTokenWhenConfigured(): void
+    {
+        RateLimitMiddleware::setPersistentStore(null);
+        RateLimitMiddleware::resetPersistentStorage();
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+        session_id('contactcaptcha');
+        session_start();
+        $_SESSION['csrf_token'] = 'token';
+        $_COOKIE[session_name()] = session_id();
+
+        $oldSite = getenv('TURNSTILE_SITE_KEY');
+        $oldSecret = getenv('TURNSTILE_SECRET_KEY');
+        $oldEnvSite = $_ENV['TURNSTILE_SITE_KEY'] ?? null;
+        $oldEnvSecret = $_ENV['TURNSTILE_SECRET_KEY'] ?? null;
+        putenv('TURNSTILE_SITE_KEY=site-key');
+        putenv('TURNSTILE_SECRET_KEY=secret-key');
+        $_ENV['TURNSTILE_SITE_KEY'] = 'site-key';
+        $_ENV['TURNSTILE_SECRET_KEY'] = 'secret-key';
+
+        $oldMainDomain = getenv('MAIN_DOMAIN');
+        $oldEnvMainDomain = $_ENV['MAIN_DOMAIN'] ?? null;
+        putenv('MAIN_DOMAIN=main.test');
+        $_ENV['MAIN_DOMAIN'] = 'main.test';
+
+        try {
+            $mailer = new class extends MailService {
+                public bool $called = false;
+                public function __construct()
+                {
+                }
+                public function sendContact(
+                    string $to,
+                    string $name,
+                    string $replyTo,
+                    string $message,
+                    ?array $templateData = null,
+                    ?string $fromEmail = null
+                ): void {
+                    $this->called = true;
+                }
+            };
+
+            $pdo = $this->getDatabase();
+            $pdo->prepare(
+                'INSERT INTO domain_start_pages(domain, start_page, email) VALUES(?, ?, ?)
+                 ON CONFLICT(domain) DO UPDATE SET start_page = excluded.start_page, email = excluded.email'
+            )->execute(['main.test', 'landing', 'contact@main.test']);
+
+            $body = json_encode([
+                'name' => 'Captcha User',
+                'email' => 'captcha@example.com',
+                'message' => 'Test',
+                'company' => '',
+            ], JSON_THROW_ON_ERROR);
+
+            $request = $this->createRequest(
+                'POST',
+                '/landing/contact',
+                [
+                    'Content-Type' => 'application/json',
+                    'X-CSRF-Token' => 'token',
+                ],
+                [session_name() => session_id()]
+            );
+            $request->getBody()->write($body);
+            $request->getBody()->rewind();
+            $request = $request
+                ->withUri($request->getUri()->withHost('main.test'))
+                ->withAttribute('mailService', $mailer);
+
+            $app = $this->getAppInstance();
+            $response = $app->handle($request);
+
+            $this->assertEquals(422, $response->getStatusCode());
+            $this->assertFalse($mailer->called);
+        } finally {
+            if ($oldSite === false) {
+                putenv('TURNSTILE_SITE_KEY');
+                unset($_ENV['TURNSTILE_SITE_KEY']);
+            } else {
+                putenv('TURNSTILE_SITE_KEY=' . $oldSite);
+                if ($oldEnvSite === null) {
+                    unset($_ENV['TURNSTILE_SITE_KEY']);
+                } else {
+                    $_ENV['TURNSTILE_SITE_KEY'] = $oldEnvSite;
+                }
+            }
+            if ($oldSecret === false) {
+                putenv('TURNSTILE_SECRET_KEY');
+                unset($_ENV['TURNSTILE_SECRET_KEY']);
+            } else {
+                putenv('TURNSTILE_SECRET_KEY=' . $oldSecret);
+                if ($oldEnvSecret === null) {
+                    unset($_ENV['TURNSTILE_SECRET_KEY']);
+                } else {
+                    $_ENV['TURNSTILE_SECRET_KEY'] = $oldEnvSecret;
+                }
+            }
+            if ($oldMainDomain === false) {
+                putenv('MAIN_DOMAIN');
+            } else {
+                putenv('MAIN_DOMAIN=' . $oldMainDomain);
+            }
+            if ($oldEnvMainDomain === null) {
+                unset($_ENV['MAIN_DOMAIN']);
+            } else {
+                $_ENV['MAIN_DOMAIN'] = $oldEnvMainDomain;
+            }
+        }
+    }
+
+    public function testContactFormAcceptsValidTurnstileToken(): void
+    {
+        RateLimitMiddleware::setPersistentStore(null);
+        RateLimitMiddleware::resetPersistentStorage();
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+        session_id('contactcaptchavalid');
+        session_start();
+        $_SESSION['csrf_token'] = 'token';
+        $_COOKIE[session_name()] = session_id();
+
+        $oldSite = getenv('TURNSTILE_SITE_KEY');
+        $oldSecret = getenv('TURNSTILE_SECRET_KEY');
+        $oldEnvSite = $_ENV['TURNSTILE_SITE_KEY'] ?? null;
+        $oldEnvSecret = $_ENV['TURNSTILE_SECRET_KEY'] ?? null;
+        putenv('TURNSTILE_SITE_KEY=site-key');
+        putenv('TURNSTILE_SECRET_KEY=secret-key');
+        $_ENV['TURNSTILE_SITE_KEY'] = 'site-key';
+        $_ENV['TURNSTILE_SECRET_KEY'] = 'secret-key';
+
+        $oldMainDomain = getenv('MAIN_DOMAIN');
+        $oldEnvMainDomain = $_ENV['MAIN_DOMAIN'] ?? null;
+        putenv('MAIN_DOMAIN=main.test');
+        $_ENV['MAIN_DOMAIN'] = 'main.test';
+
+        try {
+            $mailer = new class extends MailService {
+                public array $args = [];
+                public function __construct()
+                {
+                }
+                public function sendContact(
+                    string $to,
+                    string $name,
+                    string $replyTo,
+                    string $message,
+                    ?array $templateData = null,
+                    ?string $fromEmail = null
+                ): void {
+                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail];
+                }
+            };
+
+            $pdo = $this->getDatabase();
+            $pdo->prepare(
+                'INSERT INTO domain_start_pages(domain, start_page, email) VALUES(?, ?, ?)
+                 ON CONFLICT(domain) DO UPDATE SET start_page = excluded.start_page, email = excluded.email'
+            )->execute(['main.test', 'landing', 'contact@main.test']);
+
+            $body = json_encode([
+                'name' => 'Captcha Valid',
+                'email' => 'valid@example.com',
+                'message' => 'Hello Captcha',
+                'company' => '',
+                'cf-turnstile-response' => 'token-123',
+            ], JSON_THROW_ON_ERROR);
+
+            $verifier = new class implements TurnstileVerifierInterface {
+                public function verify(string $token, ?string $ip = null): bool
+                {
+                    return $token === 'token-123';
+                }
+            };
+
+            $request = $this->createRequest(
+                'POST',
+                '/landing/contact',
+                [
+                    'Content-Type' => 'application/json',
+                    'X-CSRF-Token' => 'token',
+                ],
+                [session_name() => session_id()]
+            );
+            $request->getBody()->write($body);
+            $request->getBody()->rewind();
+            $request = $request
+                ->withUri($request->getUri()->withHost('main.test'))
+                ->withAttribute('mailService', $mailer)
+                ->withAttribute('turnstileVerifier', $verifier);
+
+            $app = $this->getAppInstance();
+            $response = $app->handle($request);
+
+            $this->assertEquals(204, $response->getStatusCode());
+            $this->assertSame('contact@main.test', $mailer->args[0] ?? null);
+        } finally {
+            if ($oldSite === false) {
+                putenv('TURNSTILE_SITE_KEY');
+                unset($_ENV['TURNSTILE_SITE_KEY']);
+            } else {
+                putenv('TURNSTILE_SITE_KEY=' . $oldSite);
+                if ($oldEnvSite === null) {
+                    unset($_ENV['TURNSTILE_SITE_KEY']);
+                } else {
+                    $_ENV['TURNSTILE_SITE_KEY'] = $oldEnvSite;
+                }
+            }
+            if ($oldSecret === false) {
+                putenv('TURNSTILE_SECRET_KEY');
+                unset($_ENV['TURNSTILE_SECRET_KEY']);
+            } else {
+                putenv('TURNSTILE_SECRET_KEY=' . $oldSecret);
+                if ($oldEnvSecret === null) {
+                    unset($_ENV['TURNSTILE_SECRET_KEY']);
+                } else {
+                    $_ENV['TURNSTILE_SECRET_KEY'] = $oldEnvSecret;
+                }
+            }
             if ($oldMainDomain === false) {
                 putenv('MAIN_DOMAIN');
             } else {
