@@ -231,7 +231,11 @@
     {% set hero = heroCopy[heroLocale] %}
 
     <section class="qr-hero uk-section uk-section-large">
-      <div class="qr-hero-bg hero-bg-calserver" aria-hidden="true"></div>
+      <div class="qr-hero-bg hero-bg-calserver"
+           aria-hidden="true"
+           data-calserver-hero-bg>
+        <canvas class="calserver-hero-bg__canvas" data-calserver-hero-canvas></canvas>
+      </div>
       <div class="uk-container">
         <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle calserver-hero-grid" data-uk-grid>
           <div class="calserver-hero-grid__content" data-uk-scrollspy="cls: uk-animation-slide-left-small; repeat: true">
