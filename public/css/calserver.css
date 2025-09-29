@@ -1732,6 +1732,7 @@ body.qr-landing.calserver-theme .calserver-module-figure .uk-list {
 
     body.qr-landing.calserver-theme .calserver-modules-nav__link {
         padding: 16px;
+        padding-inline-start: 0;
     }
 
     body.qr-landing.calserver-theme .calserver-module-figure figcaption {
