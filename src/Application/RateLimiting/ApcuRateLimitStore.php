@@ -79,7 +79,7 @@ class ApcuRateLimitStore implements RateLimitStore
      * @param RateLimitEntry $entry
      */
     private function isExpired(array $entry, int $now, int $windowSeconds): bool {
-        $start = (int) ($entry['start'] ?? 0);
+        $start = (int) $entry['start'];
 
         return $start === 0 || ($now - $start) > $windowSeconds;
     }

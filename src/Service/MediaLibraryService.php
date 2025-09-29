@@ -366,8 +366,8 @@ class MediaLibraryService
             return $metadata;
         }
 
-        $tags = array_values(array_map('strval', $sourceMeta['tags'] ?? []));
-        $folderValue = $sourceMeta['folder'] ?? null;
+        $tags = $sourceMeta['tags'];
+        $folderValue = $sourceMeta['folder'];
         $folder = is_string($folderValue) && $folderValue !== '' ? $folderValue : null;
 
         return $this->applyMetadata(
@@ -588,8 +588,8 @@ class MediaLibraryService
         $public = rtrim($publicPath, '/') . '/' . $name;
 
         $meta = $metadata ?? ['tags' => [], 'folder' => null];
-        $tags = array_values(array_map('strval', $meta['tags'] ?? []));
-        $folder = $meta['folder'] ?? null;
+        $tags = $meta['tags'];
+        $folder = $meta['folder'];
         $folder = $folder !== null ? (string) $folder : null;
 
         return [
