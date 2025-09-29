@@ -394,10 +394,38 @@
     document.head.appendChild(script);
   }
 
+  function unwrapProSealCard(container) {
+    if (!container) {
+      return;
+    }
+
+    const card = container.closest('.contact-card');
+    if (!card) {
+      return;
+    }
+
+    const parent = card.parentElement;
+    if (!parent) {
+      return;
+    }
+
+    const heading = card.querySelector('.uk-text-large');
+    if (heading) {
+      const text = heading.textContent.trim().toLowerCase();
+      if (text.includes('kundenstimmen') || text.includes('customer voices')) {
+        heading.remove();
+      }
+    }
+
+    parent.replaceChild(container, card);
+  }
+
   function setupProSealContainer(container) {
     if (!container) {
       return;
     }
+
+    unwrapProSealCard(container);
 
     const target = container.querySelector('[data-proseal-target]');
     if (!target) {
