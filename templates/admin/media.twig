@@ -5,6 +5,13 @@
 {% set sizeMb = (limits.maxSize|default(0) / 1048576)|number_format(1, '.', '') %}
 {% set limitText = t('text_media_limits')|format(sizeMb, allowedExtensions|join(', ')) %}
 {% set landingSlugs = mediaLandingSlugs|default([]) %}
+{% set landingTitleCounts = {} %}
+{% for landing in landingSlugs %}
+  {% set titleKey = landing.title|default(landing.slug)|default('') %}
+  {% if titleKey is not empty %}
+    {% set landingTitleCounts = landingTitleCounts|merge({ (titleKey): landingTitleCounts[titleKey]|default(0) + 1 }) %}
+  {% endif %}
+{% endfor %}
 {% set translations = {
   'renamePrompt': t('prompt_media_rename'),
   'deleteConfirm': t('confirm_media_delete'),
@@ -101,7 +108,10 @@
               >
                 <option value="">{{ t('option_media_all_landings') }}</option>
                 {% for landing in landingSlugs %}
-                  <option value="{{ landing.slug|e }}">{{ landing.title|default(landing.slug)|e }}</option>
+                  {% set baseTitle = landing.title|default(landing.slug)|default('') %}
+                  {% set showSlug = landingTitleCounts[baseTitle]|default(0) > 1 %}
+                  {% set optionLabel = showSlug ? baseTitle ~ ' (' ~ landing.slug|default('') ~ ')' : baseTitle %}
+                  <option value="{{ landing.slug|e }}">{{ optionLabel|e }}</option>
                 {% endfor %}
               </select>
             </div>
