@@ -1636,6 +1636,7 @@ body.qr-landing.calserver-theme .calserver-modules-switcher > li {
 
 body.qr-landing.calserver-theme .calserver-module-figure {
     position: relative;
+    isolation: isolate;
     margin: 0;
     border-radius: 22px;
     display: flex;
@@ -1652,7 +1653,7 @@ body.qr-landing.calserver-theme .calserver-module-figure::before {
     border: 1px solid var(--qr-card-border);
     box-shadow: 0 22px 48px -28px rgba(15, 23, 42, 0.35);
     pointer-events: none;
-    z-index: 0;
+    z-index: -1;
 }
 
 body.qr-landing.calserver-theme .calserver-module-figure img,
