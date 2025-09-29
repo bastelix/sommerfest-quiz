@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Process\Process;
 
 class OnboardingScriptTest extends TestCase
 {
@@ -24,19 +25,38 @@ class OnboardingScriptTest extends TestCase
         chmod($stubDir . '/curl', 0755);
 
         $envPath = $stubDir . ':' . getenv('PATH');
-        $cmd = sprintf(
-            'PATH=%s DOMAIN=example.test APP_IMAGE=image NETWORK=webproxy %s/scripts/onboard_tenant.sh %s 2>&1',
-            escapeshellarg($envPath),
-            escapeshellarg($root),
-            escapeshellarg($slug)
+        $process = new Process(
+            [
+                $root . '/scripts/onboard_tenant.sh',
+                $slug,
+            ],
+            $root,
+            [
+                'PATH' => $envPath,
+                'DOMAIN' => 'example.test',
+                'APP_IMAGE' => 'image',
+                'NETWORK' => 'webproxy',
+            ]
         );
-        exec($cmd, $output, $ret);
+        $process->run();
 
-        $this->assertSame(0, $ret, implode("\n", $output));
+        $this->assertSame(
+            0,
+            $process->getExitCode(),
+            sprintf(
+                "Process failed with output:%s%s",
+                PHP_EOL . $process->getOutput(),
+                $process->getErrorOutput() !== '' ? PHP_EOL . $process->getErrorOutput() : ''
+            )
+        );
+
         $compose = $root . '/tenants/' . $slug . '/docker-compose.yml';
         $this->assertFileExists($compose);
 
-        $json = json_decode(end($output), true);
+        $outputLines = preg_split('/\r?\n/', trim($process->getOutput()));
+        $outputLines = array_values(array_filter($outputLines, static fn ($line) => $line !== ''));
+        $lastLine = $outputLines !== [] ? end($outputLines) : '';
+        $json = json_decode($lastLine !== '' ? $lastLine : $process->getErrorOutput(), true);
         $this->assertIsArray($json);
         $this->assertSame('success', $json['status'] ?? '');
         $this->assertSame($slug, $json['slug'] ?? '');
@@ -62,20 +82,36 @@ class OnboardingScriptTest extends TestCase
 
         $envPath = $stubDir . ':' . getenv('PATH');
         file_put_contents($root . '/.env', "DOMAIN=example.test\nAPP_IMAGE=image\n");
-        $cmd = sprintf(
-            'PATH=%s %s/scripts/onboard_tenant.sh %s 2>&1',
-            escapeshellarg($envPath),
-            escapeshellarg($root),
-            escapeshellarg($slug)
+        $process = new Process(
+            [
+                $root . '/scripts/onboard_tenant.sh',
+                $slug,
+            ],
+            $root,
+            [
+                'PATH' => $envPath,
+            ]
         );
-        exec($cmd, $output, $ret);
+        $process->run();
         unlink($root . '/.env');
 
-        $this->assertSame(0, $ret, implode("\n", $output));
+        $this->assertSame(
+            0,
+            $process->getExitCode(),
+            sprintf(
+                "Process failed with output:%s%s",
+                PHP_EOL . $process->getOutput(),
+                $process->getErrorOutput() !== '' ? PHP_EOL . $process->getErrorOutput() : ''
+            )
+        );
+
         $compose = $root . '/tenants/' . $slug . '/docker-compose.yml';
         $this->assertFileExists($compose);
 
-        $json = json_decode(end($output), true);
+        $outputLines = preg_split('/\r?\n/', trim($process->getOutput()));
+        $outputLines = array_values(array_filter($outputLines, static fn ($line) => $line !== ''));
+        $lastLine = $outputLines !== [] ? end($outputLines) : '';
+        $json = json_decode($lastLine !== '' ? $lastLine : $process->getErrorOutput(), true);
         $this->assertIsArray($json);
         $this->assertSame('success', $json['status'] ?? '');
         $this->assertSame($slug, $json['slug'] ?? '');
