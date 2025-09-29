@@ -30,6 +30,7 @@ class CalserverControllerTest extends TestCase
         $this->assertEquals(200, $response->getStatusCode());
         $body = (string) $response->getBody();
         $this->assertStringContainsString('calServer – Marketingseite', $body);
+        $this->assertStringContainsString('data-calserver-cookie-banner', $body);
         if ($old === false) {
             putenv('MAIN_DOMAIN');
         } else {
