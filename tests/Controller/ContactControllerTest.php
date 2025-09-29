@@ -35,7 +35,7 @@ class ContactControllerTest extends TestCase
         $_ENV['MAIN_DOMAIN'] = 'main.test';
 
         try {
-            $mailer = new class extends MailService {
+            $mailer = new class () extends MailService {
                 public array $args = [];
                 public function __construct() {
                 }
@@ -257,7 +257,7 @@ class ContactControllerTest extends TestCase
             }
         };
 
-        $mailer = new class extends MailService {
+        $mailer = new class () extends MailService {
             public array $sent = [];
             public function __construct() {
             }
@@ -330,7 +330,7 @@ class ContactControllerTest extends TestCase
             $domainService = new DomainStartPageService($pdo);
             $domainService->saveDomainConfig('main.test', 'landing', 'contact@domain.test');
 
-            $mailer = new class extends MailService {
+            $mailer = new class () extends MailService {
                 public array $args = [];
                 public function __construct() {
                 }
@@ -421,7 +421,7 @@ class ContactControllerTest extends TestCase
                 'smtp_encryption' => 'ssl',
             ]);
 
-            $mailer = new class extends MailService {
+            $mailer = new class () extends MailService {
                 public array $args = [];
                 public function __construct() {
                 }
@@ -503,7 +503,7 @@ class ContactControllerTest extends TestCase
         $_ENV['MAIN_DOMAIN'] = 'main.test';
 
         try {
-            $mailer = new class extends MailService {
+            $mailer = new class () extends MailService {
                 public bool $called = false;
                 public function __construct() {
                 }
@@ -584,7 +584,7 @@ class ContactControllerTest extends TestCase
             $domainService = new DomainStartPageService($pdo);
             $domainService->saveDomainConfig('main.test', 'landing', 'not-an-email');
 
-            $mailer = new class extends MailService {
+            $mailer = new class () extends MailService {
                 public array $args = [];
                 public function __construct() {
                 }
