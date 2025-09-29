@@ -21,7 +21,30 @@ if (is_readable($envFile)) {
 use App\Infrastructure\Database;
 use App\Infrastructure\Migrations\Migrator;
 
-$base = Database::connectFromEnv();
+$availableDrivers = PDO::getAvailableDrivers();
+
+try {
+    $base = Database::connectFromEnv();
+} catch (PDOException $e) {
+    $dsn = getenv('POSTGRES_DSN') ?: '';
+    $driver = strtolower($dsn !== '' ? explode(':', $dsn, 2)[0] : '');
+    if ($driver === '') {
+        $driver = 'unknown';
+    }
+
+    $message = $e->getMessage();
+
+    if ($driver !== 'unknown' && !in_array($driver, $availableDrivers, true)) {
+        $message = sprintf(
+            "PDO driver '%s' is not available. Enable the extension for this driver or adjust POSTGRES_DSN (current: %s).",
+            $driver,
+            $dsn === '' ? '[empty]' : $dsn
+        );
+    }
+
+    fwrite(STDERR, '[ERROR] ' . $message . PHP_EOL);
+    exit(1);
+}
 Migrator::migrate($base, __DIR__ . '/../migrations');
 
 $host = getenv('SLIM_VIRTUAL_HOST') ?: getenv('DOMAIN');
