@@ -20,8 +20,8 @@ class FilesystemRateLimitStore implements RateLimitStore
         $now = time();
         $entry = $this->read($path, $now, $windowSeconds);
 
-        $count = (int) ($entry['count'] ?? 0) + 1;
-        $start = (int) ($entry['start'] ?? $now);
+        $count = $entry['count'] + 1;
+        $start = $entry['start'];
 
         $this->write($path, ['count' => $count, 'start' => $start]);
 

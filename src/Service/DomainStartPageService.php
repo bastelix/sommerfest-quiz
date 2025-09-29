@@ -209,13 +209,13 @@ class DomainStartPageService
             $mappings[$domain] = [
                 'start_page' => $page,
                 'email' => $email,
-                'smtp_host' => isset($row['smtp_host']) && $row['smtp_host'] !== null ? (string) $row['smtp_host'] : null,
-                'smtp_user' => isset($row['smtp_user']) && $row['smtp_user'] !== null ? (string) $row['smtp_user'] : null,
+                'smtp_host' => isset($row['smtp_host']) ? (string) $row['smtp_host'] : null,
+                'smtp_user' => isset($row['smtp_user']) ? (string) $row['smtp_user'] : null,
                 'smtp_port' => $smtpPort,
-                'smtp_encryption' => isset($row['smtp_encryption']) && $row['smtp_encryption'] !== null
+                'smtp_encryption' => isset($row['smtp_encryption'])
                     ? (string) $row['smtp_encryption']
                     : null,
-                'smtp_dsn' => isset($row['smtp_dsn']) && $row['smtp_dsn'] !== null ? (string) $row['smtp_dsn'] : null,
+                'smtp_dsn' => isset($row['smtp_dsn']) ? (string) $row['smtp_dsn'] : null,
                 'has_smtp_pass' => ((int) ($row['has_smtp_pass'] ?? 0)) === 1,
             ];
         }
@@ -271,13 +271,13 @@ class DomainStartPageService
             'domain' => $normalized,
             'start_page' => $startPage,
             'email' => $email,
-            'smtp_host' => isset($row['smtp_host']) && $row['smtp_host'] !== null ? (string) $row['smtp_host'] : null,
-            'smtp_user' => isset($row['smtp_user']) && $row['smtp_user'] !== null ? (string) $row['smtp_user'] : null,
+            'smtp_host' => isset($row['smtp_host']) ? (string) $row['smtp_host'] : null,
+            'smtp_user' => isset($row['smtp_user']) ? (string) $row['smtp_user'] : null,
             'smtp_port' => $smtpPort,
-            'smtp_encryption' => isset($row['smtp_encryption']) && $row['smtp_encryption'] !== null
+            'smtp_encryption' => isset($row['smtp_encryption'])
                 ? (string) $row['smtp_encryption']
                 : null,
-            'smtp_dsn' => isset($row['smtp_dsn']) && $row['smtp_dsn'] !== null ? (string) $row['smtp_dsn'] : null,
+            'smtp_dsn' => isset($row['smtp_dsn']) ? (string) $row['smtp_dsn'] : null,
             'has_smtp_pass' => $hasPass,
             'smtp_pass' => $includeSensitive ? $smtpPass : null,
         ];
@@ -378,14 +378,25 @@ class DomainStartPageService
      */
     private function normalizeSmtpConfig(array $smtpConfig, ?array $existing): array
     {
-        $host = isset($existing['smtp_host']) && $existing['smtp_host'] !== null ? (string) $existing['smtp_host'] : null;
-        $user = isset($existing['smtp_user']) && $existing['smtp_user'] !== null ? (string) $existing['smtp_user'] : null;
-        $port = isset($existing['smtp_port']) && $existing['smtp_port'] !== null ? (int) $existing['smtp_port'] : null;
-        $encryption = isset($existing['smtp_encryption']) && $existing['smtp_encryption'] !== null
-            ? (string) $existing['smtp_encryption']
-            : null;
-        $dsn = isset($existing['smtp_dsn']) && $existing['smtp_dsn'] !== null ? (string) $existing['smtp_dsn'] : null;
-        $pass = isset($existing['smtp_pass']) && $existing['smtp_pass'] !== null ? (string) $existing['smtp_pass'] : null;
+        $existingData = $existing ?? [];
+
+        $hostValue = $existingData['smtp_host'] ?? null;
+        $host = $hostValue !== null ? (string) $hostValue : null;
+
+        $userValue = $existingData['smtp_user'] ?? null;
+        $user = $userValue !== null ? (string) $userValue : null;
+
+        $portValue = $existingData['smtp_port'] ?? null;
+        $port = $portValue !== null ? (int) $portValue : null;
+
+        $encryptionValue = $existingData['smtp_encryption'] ?? null;
+        $encryption = $encryptionValue !== null ? (string) $encryptionValue : null;
+
+        $dsnValue = $existingData['smtp_dsn'] ?? null;
+        $dsn = $dsnValue !== null ? (string) $dsnValue : null;
+
+        $passValue = $existingData['smtp_pass'] ?? null;
+        $pass = $passValue !== null ? (string) $passValue : null;
 
         if (array_key_exists('smtp_host', $smtpConfig)) {
             $value = trim((string) $smtpConfig['smtp_host']);

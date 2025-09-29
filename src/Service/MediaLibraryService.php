@@ -275,9 +275,9 @@ class MediaLibraryService
         $metadata = $this->readMetadata($dir);
         $sourceMeta = $metadata[$name] ?? null;
         if ($sourceMeta !== null) {
-            $tags = array_values(array_map('strval', $sourceMeta['tags'] ?? []));
-            $folderValue = $sourceMeta['folder'] ?? null;
-            $folder = is_string($folderValue) && $folderValue !== '' ? $folderValue : null;
+            $tags = array_values(array_map('strval', $sourceMeta['tags']));
+            $folderValue = $sourceMeta['folder'];
+            $folder = $folderValue !== null && $folderValue !== '' ? $folderValue : null;
             $metadata = $this->applyMetadata(
                 $dir,
                 $metadata,

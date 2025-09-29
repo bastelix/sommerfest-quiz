@@ -71,9 +71,6 @@ class ProvenExpertRatingService
     public function getAggregateRatingMarkup(): string
     {
         $data = $this->loadData();
-        if ($data === null) {
-            return '';
-        }
 
         if (($data['status'] ?? null) === 'success' && isset($data['aggregateRating'])) {
             $markup = (string) $data['aggregateRating'];
@@ -86,9 +83,9 @@ class ProvenExpertRatingService
     }
 
     /**
-     * @return array<string,mixed>|null
+     * @return array<string,mixed>
      */
-    private function loadData(): ?array
+    private function loadData(): array
     {
         $cached = $this->readCache();
         $cacheFresh = $this->isCacheFresh();

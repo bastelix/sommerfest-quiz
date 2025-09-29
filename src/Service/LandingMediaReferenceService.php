@@ -156,7 +156,7 @@ class LandingMediaReferenceService
 
         $matches = [];
         preg_match_all('~(?:\{\{\s*basePath\s*\}\}\s*)?/?uploads/[A-Za-z0-9_@./-]+~i', $content, $matches);
-        if (!isset($matches[0])) {
+        if ($matches[0] === []) {
             return [];
         }
 
@@ -174,7 +174,7 @@ class LandingMediaReferenceService
                 'field' => 'content',
             ];
             $altText = $altMap[$normalized] ?? null;
-            if (is_string($altText) && $altText !== '') {
+            if ($altText !== null && $altText !== '') {
                 $reference['alt'] = $altText;
             }
             $references[] = $reference;
@@ -284,9 +284,9 @@ class LandingMediaReferenceService
 
         $reference['path'] = $path;
         $reference['displayPath'] = '/' . ltrim($path, '/');
-        $reference['suggestedName'] = is_string($name) ? $name : null;
+        $reference['suggestedName'] = $name !== '' ? $name : null;
         $reference['suggestedFolder'] = $folder;
-        $reference['extension'] = is_string($extension) ? strtolower($extension) : null;
+        $reference['extension'] = $extension !== '' ? strtolower($extension) : null;
 
         return $reference;
     }
@@ -361,7 +361,7 @@ class LandingMediaReferenceService
         }
 
         if (preg_match('~https?://[^/]+(/.*)$~i', $trimmed, $match)) {
-            $trimmed = (string) ($match[1] ?? '');
+            $trimmed = (string) $match[1];
         }
 
         $trimmed = ltrim($trimmed);

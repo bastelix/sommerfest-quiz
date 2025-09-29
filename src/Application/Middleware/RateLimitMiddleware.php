@@ -29,7 +29,7 @@ class RateLimitMiddleware implements MiddlewareInterface
 
     public function process(Request $request, RequestHandler $handler): Response
     {
-        if (!isset($_SESSION) || !is_array($_SESSION)) {
+        if (!isset($_SESSION)) {
             $_SESSION = [];
         }
 
