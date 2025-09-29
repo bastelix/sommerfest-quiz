@@ -59,6 +59,14 @@ body.qr-landing:not(.dark-mode){
   --color-primary: var(--qr-landing-primary);
 }
 
+body.qr-landing:not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .uk-button-primary{
+  color:#ffffff!important;
+}
+
+body.qr-landing:not(.dark-mode):not(.high-contrast):not([data-theme="dark"]) .uk-button-primary [data-uk-icon]{
+  color:inherit;
+}
+
 body.qr-landing.high-contrast{
   --qr-bg:#ffffff;
   --qr-fg:#000000;
