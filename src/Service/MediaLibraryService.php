@@ -371,7 +371,7 @@ class MediaLibraryService
             return $metadata;
         }
 
-        $tags = array_values(array_map('strval', $sourceMeta['tags'] ?? []));
+        $tags = array_values(array_map('strval', $sourceMeta['tags']));
         $folderValue = $sourceMeta['folder'] ?? null;
         $folder = is_string($folderValue) && $folderValue !== '' ? $folderValue : null;
 
