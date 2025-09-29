@@ -1193,13 +1193,17 @@ VALUES (
                   <label class="uk-form-label" for="form-email">E-Mail</label>
                   <input class="uk-input" id="form-email" name="email" type="email" required>
                 </div>
-                <div class="uk-margin">
-                  <label class="uk-form-label" for="form-msg">Nachricht</label>
-                  <textarea class="uk-textarea" id="form-msg" name="message" rows="5" required></textarea>
-                </div>
-                <div class="uk-margin">
-                  <label><input class="uk-checkbox" name="privacy" type="checkbox" required> Ich stimme der Speicherung meiner Daten zur Bearbeitung zu.</label>
-                </div>
+                  <div class="uk-margin">
+                    <label class="uk-form-label" for="form-msg">Nachricht</label>
+                    <textarea class="uk-textarea" id="form-msg" name="message" rows="5" required></textarea>
+                  </div>
+                  <div class="uk-margin turnstile-field" data-turnstile-container>
+                    <div class="turnstile-widget">{{ turnstile_widget }}</div>
+                    <p class="uk-text-small turnstile-hint" data-turnstile-hint hidden>Bitte bestätigen Sie, dass Sie kein Roboter sind.</p>
+                  </div>
+                  <div class="uk-margin">
+                    <label><input class="uk-checkbox" name="privacy" type="checkbox" required> Ich stimme der Speicherung meiner Daten zur Bearbeitung zu.</label>
+                  </div>
                 <input type="text" name="company" autocomplete="off" tabindex="-1" class="uk-hidden" aria-hidden="true">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <button class="btn btn-black uk-button uk-button-secondary uk-button-large uk-width-1-1" type="submit">Senden</button>

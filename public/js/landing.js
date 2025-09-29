@@ -33,6 +33,73 @@ document.addEventListener('DOMContentLoaded', () => {
   const msg = document.getElementById('contact-modal-message');
   if (!form || !modal || !msg) return;
 
+  const submitButton = form.querySelector('button[type="submit"]');
+  const turnstileContainer = form.querySelector('[data-turnstile-container]');
+  const turnstileHint = form.querySelector('[data-turnstile-hint]');
+  const hasTurnstile = !!(turnstileContainer && turnstileContainer.querySelector('.cf-turnstile'));
+  let turnstileToken = '';
+
+  const disableSubmit = () => {
+    if (submitButton) {
+      submitButton.disabled = true;
+    }
+    form.classList.add('is-turnstile-disabled');
+  };
+
+  const enableSubmit = () => {
+    if (submitButton) {
+      submitButton.disabled = false;
+    }
+    form.classList.remove('is-turnstile-disabled');
+  };
+
+  const showTurnstileHint = (text) => {
+    if (!turnstileHint) return;
+    if (text) {
+      turnstileHint.textContent = text;
+      turnstileHint.hidden = false;
+    } else {
+      turnstileHint.hidden = true;
+    }
+  };
+
+  if (!hasTurnstile && turnstileContainer) {
+    turnstileContainer.hidden = true;
+  }
+
+  if (hasTurnstile) {
+    form.dataset.turnstileRequired = 'true';
+    disableSubmit();
+    window.contactTurnstileSuccess = (token) => {
+      turnstileToken = typeof token === 'string' ? token : '';
+      if (turnstileToken) {
+        enableSubmit();
+        showTurnstileHint('');
+      } else {
+        disableSubmit();
+        showTurnstileHint('Bitte bestätigen Sie, dass Sie kein Roboter sind.');
+      }
+    };
+    window.contactTurnstileError = () => {
+      turnstileToken = '';
+      disableSubmit();
+      showTurnstileHint('Validierung fehlgeschlagen. Bitte versuchen Sie es erneut.');
+      if (window.turnstile && typeof window.turnstile.reset === 'function') {
+        window.turnstile.reset();
+      }
+    };
+    window.contactTurnstileExpired = () => {
+      turnstileToken = '';
+      disableSubmit();
+      showTurnstileHint('Bitte bestätigen Sie erneut, dass Sie kein Roboter sind.');
+      if (window.turnstile && typeof window.turnstile.reset === 'function') {
+        window.turnstile.reset();
+      }
+    };
+  } else {
+    form.dataset.turnstileRequired = 'false';
+  }
+
   const basePath = (window.basePath || '').replace(/\/+$/, '');
   const defaultEndpoint = `${basePath}/landing/contact`;
 
@@ -69,6 +136,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const hp = form.querySelector('input[name="company"]');
     if (hp && hp.value.trim() !== '') return;
 
+    if (form.dataset.turnstileRequired === 'true') {
+      const currentToken = turnstileToken || (form.querySelector('input[name="cf-turnstile-response"]')?.value ?? '').trim();
+      if (!currentToken) {
+        disableSubmit();
+        showTurnstileHint('Bitte bestätigen Sie, dass Sie kein Roboter sind.');
+        return;
+      }
+    }
+
     const data = new URLSearchParams(new FormData(form));
     const endpoint = resolveEndpoint(form.dataset.contactEndpoint);
     fetch(endpoint, {
@@ -80,12 +156,36 @@ document.addEventListener('DOMContentLoaded', () => {
       if (res.ok) {
         msg.textContent = 'Vielen Dank für Ihre Nachricht!';
         form.reset();
+        if (hasTurnstile) {
+          turnstileToken = '';
+          if (window.turnstile && typeof window.turnstile.reset === 'function') {
+            window.turnstile.reset();
+          }
+          disableSubmit();
+          showTurnstileHint('');
+        }
       } else {
         msg.textContent = 'Fehler beim Versenden. Bitte versuchen Sie es erneut.';
+        if (hasTurnstile) {
+          turnstileToken = '';
+          if (window.turnstile && typeof window.turnstile.reset === 'function') {
+            window.turnstile.reset();
+          }
+          disableSubmit();
+          showTurnstileHint('Validierung fehlgeschlagen. Bitte versuchen Sie es erneut.');
+        }
       }
       modal.show();
     }).catch(() => {
       msg.textContent = 'Fehler beim Versenden. Bitte versuchen Sie es erneut.';
+      if (hasTurnstile) {
+        turnstileToken = '';
+        if (window.turnstile && typeof window.turnstile.reset === 'function') {
+          window.turnstile.reset();
+        }
+        disableSubmit();
+        showTurnstileHint('Validierung fehlgeschlagen. Bitte versuchen Sie es erneut.');
+      }
       modal.show();
     });
   });

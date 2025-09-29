@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Application\Middleware;
 
 use App\Application\Middleware\RateLimitMiddleware;
+use App\Application\RateLimiting\FilesystemRateLimitStore;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -60,5 +61,36 @@ class RateLimitMiddlewareTest extends TestCase
         $response = $middleware->process($request, $handler);
         $this->assertSame(429, $response->getStatusCode());
         $this->assertSame('3600', $response->getHeaderLine('Retry-After'));
+    }
+
+    public function testInjectedPersistentStoreIsHonored(): void
+    {
+        $dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'rate_limit_injected_' . uniqid('', true);
+        $store = new FilesystemRateLimitStore($dir);
+        $store->reset();
+
+        $middleware = new RateLimitMiddleware(1, 60, $store);
+        $factory = new ServerRequestFactory();
+        $request = $factory->createServerRequest('POST', 'https://example.com/landing/contact');
+
+        $handler = new class implements RequestHandlerInterface {
+            public function handle(ServerRequestInterface $request): ResponseInterface
+            {
+                $factory = new ResponseFactory();
+
+                return $factory->createResponse(204);
+            }
+        };
+
+        $first = $middleware->process($request, $handler);
+        $this->assertSame(204, $first->getStatusCode());
+
+        $second = $middleware->process($request, $handler);
+        $this->assertSame(429, $second->getStatusCode());
+
+        $store->reset();
+        $_SESSION = [];
+        $third = $middleware->process($request, $handler);
+        $this->assertSame(204, $third->getStatusCode());
     }
 }

@@ -25,10 +25,12 @@ if (is_readable($envFile)) {
 
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
+use App\Application\Middleware\RateLimitMiddleware;
 use App\Application\Middleware\SessionMiddleware;
 use App\Application\Middleware\DomainMiddleware;
 use App\Application\Middleware\ProxyMiddleware;
 use App\Application\Middleware\UrlMiddleware;
+use App\Application\RateLimiting\RateLimitStoreFactory;
 use App\Twig\UikitExtension;
 use App\Twig\TranslationExtension;
 use App\Service\TranslationService;
@@ -66,6 +68,8 @@ $app->add(TwigMiddleware::create($app, $twig));
 $app->add(new UrlMiddleware($twig));
 $app->add(new DomainMiddleware());
 $app->add(new ProxyMiddleware());
+
+RateLimitMiddleware::setPersistentStore(RateLimitStoreFactory::createDefault());
 
 (require __DIR__ . '/../src/routes.php')($app, $translator);
 
