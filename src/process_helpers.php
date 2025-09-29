@@ -92,25 +92,59 @@ function runSyncProcess(string $script, array $args = [], bool $throwOnError = f
     } catch (\Throwable $e) {
         error_log('runSyncProcess failed: ' . $e->getMessage());
 
-        $command = escapeshellarg($script);
-        foreach ($args as $arg) {
-            $command .= ' ' . escapeshellarg($arg);
+        $descriptorSpec = [
+            0 => ['pipe', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w'],
+        ];
+
+        $process = @proc_open(
+            $cmd,
+            $descriptorSpec,
+            $pipes,
+            null,
+            null,
+            ['bypass_shell' => true]
+        );
+
+        if (!\is_resource($process)) {
+            $message = 'runSyncProcess proc_open fallback failed to start process';
+            error_log($message);
+            if ($throwOnError) {
+                throw new \RuntimeException($message, 0, $e);
+            }
+
+            return [
+                'success' => false,
+                'stdout' => '',
+                'stderr' => $message,
+            ];
         }
-        exec($command . ' 2>&1', $output, $exitCode);
-        $outputString = implode("\n", $output);
+
+        fclose($pipes[0]);
+        $stdout = stream_get_contents($pipes[1]);
+        fclose($pipes[1]);
+        $stderr = stream_get_contents($pipes[2]);
+        fclose($pipes[2]);
+
+        $stdout = $stdout === false ? '' : $stdout;
+        $stderr = $stderr === false ? '' : $stderr;
+
+        $exitCode = proc_close($process);
         $success = $exitCode === 0;
 
         if (!$success) {
-            error_log('runSyncProcess exec fallback failed: ' . $outputString);
+            $message = $stderr !== '' ? $stderr : $stdout;
+            error_log('runSyncProcess proc_open fallback failed: ' . $message);
             if ($throwOnError) {
-                throw new \RuntimeException($outputString, 0, $e);
+                throw new \RuntimeException($message, 0, $e);
             }
         }
 
         return [
             'success' => $success,
-            'stdout' => $success ? $outputString : '',
-            'stderr' => $success ? '' : $outputString,
+            'stdout' => $success ? $stdout : '',
+            'stderr' => $success ? '' : $stderr,
         ];
     }
 }
