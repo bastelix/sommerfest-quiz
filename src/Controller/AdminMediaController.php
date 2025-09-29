@@ -607,7 +607,6 @@ class AdminMediaController
 
         return $this->json($response, $payload, $status);
     }
-
     /**
      * @return array<string,mixed>
      */

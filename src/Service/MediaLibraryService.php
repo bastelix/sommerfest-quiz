@@ -665,7 +665,6 @@ class MediaLibraryService
 
         return $normalized;
     }
-
     /**
      * @param mixed $value
      */
