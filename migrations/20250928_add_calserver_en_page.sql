@@ -484,7 +484,11 @@ VALUES (
 <ul class="uk-switcher calserver-modules-switcher" id="calserver-modules-switcher">
 <li>
 <figure class="calserver-module-figure" id="module-device-management">
-<img alt="Screenshot of the calServer device management with device files, history and measured values" decoding="async" height="675" loading="lazy" src="{{ basePath }}/uploads/calserver-module-device-management.webp" width="1200"/>
+<video aria-label="Screenshot of the calServer device management with device files, history and measured values" class="calserver-module-figure__video" width="1200" height="675" autoplay muted loop playsinline preload="auto">
+<source src="{{ basePath }}/uploads/calserver-module-device-management.mp4" type="video/mp4"/>
+Your browser does not support HTML5 video.
+<a href="{{ basePath }}/uploads/calserver-module-device-management.mp4" target="_blank" rel="noopener">Download video</a>.
+</video>
 <figcaption>
 <h3 class="uk-h3">Device management &amp; history</h3>
 <p class="muted">Device files, attachments and history in one interface — including measurement values.</p>
@@ -498,7 +502,11 @@ VALUES (
 </li>
 <li>
 <figure class="calserver-module-figure" id="module-calendar-resources">
-<img alt="Screenshot of the calServer calendar with resource and scheduling" decoding="async" height="675" loading="lazy" src="{{ basePath }}/uploads/calserver-module-calendar-resources.webp" width="1200"/>
+<video aria-label="Screenshot of the calServer calendar with resource and scheduling" class="calserver-module-figure__video" width="1200" height="675" autoplay muted loop playsinline preload="auto">
+<source src="{{ basePath }}/uploads/calserver-module-calendar-resources.mp4" type="video/mp4"/>
+Your browser does not support HTML5 video.
+<a href="{{ basePath }}/uploads/calserver-module-calendar-resources.mp4" target="_blank" rel="noopener">Download video</a>.
+</video>
 <figcaption>
 <h3 class="uk-h3">Calendar &amp; resources</h3>
 <p class="muted">Plan appointments, loan devices and staff in a single view.</p>
@@ -512,7 +520,11 @@ VALUES (
 </li>
 <li>
 <figure class="calserver-module-figure" id="module-order-ticketing">
-<img alt="Screenshot of the calServer mandate and ticket management with workflow status" decoding="async" height="675" loading="lazy" src="{{ basePath }}/uploads/calserver-module-order-ticketing.webp" width="1200"/>
+<video aria-label="Screenshot of the calServer mandate and ticket management with workflow status" class="calserver-module-figure__video" width="1200" height="675" autoplay muted loop playsinline preload="auto">
+<source src="{{ basePath }}/uploads/calserver-module-order-ticketing.mp4" type="video/mp4"/>
+Your browser does not support HTML5 video.
+<a href="{{ basePath }}/uploads/calserver-module-order-ticketing.mp4" target="_blank" rel="noopener">Download video</a>.
+</video>
 <figcaption>
 <h3 class="uk-h3">Order &amp; ticket management</h3>
 <p class="muted">From order to invoice — with clear statuses, workflows and documents.</p>
@@ -526,7 +538,11 @@ VALUES (
 </li>
 <li>
 <figure class="calserver-module-figure" id="module-self-service">
-<img alt="Screenshot of the calServer self-service portal with customer view and certificates" decoding="async" height="675" loading="lazy" src="{{ basePath }}/uploads/calserver-module-self-service.webp" width="1200"/>
+<video aria-label="Screenshot of the calServer self-service portal with customer view and certificates" class="calserver-module-figure__video" width="1200" height="675" autoplay muted loop playsinline preload="auto">
+<source src="{{ basePath }}/uploads/calserver-module-self-service.mp4" type="video/mp4"/>
+Your browser does not support HTML5 video.
+<a href="{{ basePath }}/uploads/calserver-module-self-service.mp4" target="_blank" rel="noopener">Download video</a>.
+</video>
 <figcaption>
 <h3 class="uk-h3">Self-service &amp; extranet</h3>
 <p class="muted">Provide customers &amp; partners with instrument details, certificates and forms.</p>
