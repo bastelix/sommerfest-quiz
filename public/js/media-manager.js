@@ -106,7 +106,7 @@ ready(() => {
       deleteConfirm: 'Delete this file?',
       uploaded: 'File uploaded.',
       replaced: 'File replaced.',
-      converted: 'WebP file created.',
+      converted: 'Converted file created.',
       renamed: 'File renamed.',
       deleted: 'File deleted.',
       requestFailed: 'Action failed.',
@@ -139,7 +139,7 @@ ready(() => {
       copyUrlSuccess: 'Link copied to clipboard.',
       copyUrlFallback: 'Copy the URL manually from the field.',
       copyUrlError: 'Copy failed. Copy the link manually.',
-      convert: 'Convert to WebP',
+      convert: 'Convert file',
       landingFilter: 'Landing page',
       landingAll: 'All landing pages',
       landingMissingHeading: 'Missing landing assets',
@@ -347,7 +347,7 @@ ready(() => {
       if (ext === 'webp' || ext === 'svg') {
         return false;
       }
-      return ['png', 'jpg', 'jpeg'].includes(ext);
+      return ['png', 'jpg', 'jpeg', 'mp3'].includes(ext);
     }
 
     function canPreview(file) {
