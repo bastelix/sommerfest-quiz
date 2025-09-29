@@ -256,6 +256,11 @@
             <div class="qr-proof uk-margin-top">
               <span>{{ hero.proof }}</span>
             </div>
+            {% if provenExpertRating is defined and provenExpertRating %}
+              <div class="provenexpert-rating uk-margin-top" aria-label="Bewertungen">
+                {{ provenExpertRating|raw }}
+              </div>
+            {% endif %}
           </div>
           <div class="calserver-hero-grid__media" data-uk-scrollspy="cls: uk-animation-slide-right-small; repeat: true">
             <div class="calserver-hero-video">

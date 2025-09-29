@@ -847,3 +847,15 @@ body.qr-landing:not(.high-contrast) #contact-form .uk-checkbox:focus-visible{
 /* Proof badges */
 .qr-landing .qr-proof { display:flex; align-items:center; gap:16px; }
 .qr-landing .qr-proof img { height:28px; }
+
+.provenexpert-rating {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.provenexpert-rating iframe,
+.provenexpert-rating > * {
+  max-width: 100%;
+}
