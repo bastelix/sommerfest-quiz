@@ -15,6 +15,7 @@ use RecursiveIteratorIterator;
 use RuntimeException;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\UploadedFile;
+use function json_encode;
 
 class MediaLibraryServiceTest extends TestCase
 {
@@ -191,6 +192,62 @@ SVG;
         $this->assertStringEqualsFile($storedPath, $video);
     }
 
+    public function testConvertVideoToWebmSkipsAudioOptionsWithoutAudioTrack(): void {
+        [, $config, $images] = $this->createService();
+
+        $sourcePath = $config->getGlobalUploadsDir() . DIRECTORY_SEPARATOR . 'clip.mp4';
+        file_put_contents($sourcePath, 'dummy-video');
+
+        $service = $this->createConversionService($config, $images, false);
+
+        $info = $service->convertFile(MediaLibraryService::SCOPE_GLOBAL, 'clip.mp4');
+
+        $this->assertSame('clip.webm', $info['name']);
+        $this->assertSame('webm', $info['extension']);
+
+        $ffmpegCall = null;
+        foreach ($service->processCalls as $call) {
+            if ($call[0] === 'ffmpeg') {
+                $ffmpegCall = $call;
+            }
+        }
+
+        $this->assertNotNull($ffmpegCall);
+        $this->assertIsArray($ffmpegCall);
+        /** @var array{0:string,1:list<string>} $ffmpegCall */
+        $this->assertNotContains('-c:a', $ffmpegCall[1]);
+        $this->assertNotContains('-b:a', $ffmpegCall[1]);
+        $this->assertContains('-an', $ffmpegCall[1]);
+    }
+
+    public function testConvertVideoToWebmKeepsAudioOptionsWhenAudioIsPresent(): void {
+        [, $config, $images] = $this->createService();
+
+        $sourcePath = $config->getGlobalUploadsDir() . DIRECTORY_SEPARATOR . 'teaser.mp4';
+        file_put_contents($sourcePath, 'dummy-video');
+
+        $service = $this->createConversionService($config, $images, true);
+
+        $info = $service->convertFile(MediaLibraryService::SCOPE_GLOBAL, 'teaser.mp4');
+
+        $this->assertSame('teaser.webm', $info['name']);
+        $this->assertSame('webm', $info['extension']);
+
+        $ffmpegCall = null;
+        foreach ($service->processCalls as $call) {
+            if ($call[0] === 'ffmpeg') {
+                $ffmpegCall = $call;
+            }
+        }
+
+        $this->assertNotNull($ffmpegCall);
+        $this->assertIsArray($ffmpegCall);
+        /** @var array{0:string,1:list<string>} $ffmpegCall */
+        $this->assertContains('-c:a', $ffmpegCall[1]);
+        $this->assertContains('-b:a', $ffmpegCall[1]);
+        $this->assertNotContains('-an', $ffmpegCall[1]);
+    }
+
     private function removeDir(string $dir): void {
         if (!is_dir($dir)) {
             return;
@@ -327,5 +384,50 @@ SVG;
         };
 
         return [new MediaLibraryService($config, $images), $config, $images];
+    }
+
+    private function createConversionService(ConfigService $config, ImageUploadService $images, bool $hasAudio): MediaLibraryService
+    {
+        return new class ($config, $images, $hasAudio) extends MediaLibraryService {
+            /** @var list<array{0:string,1:list<string>}> */
+            public array $processCalls = [];
+
+            private bool $hasAudio;
+
+            public function __construct(ConfigService $config, ImageUploadService $images, bool $hasAudio)
+            {
+                parent::__construct($config, $images);
+                $this->hasAudio = $hasAudio;
+            }
+
+            protected function runProcess(string $binary, array $args): array
+            {
+                $this->processCalls[] = [$binary, $args];
+
+                if ($binary === 'ffprobe') {
+                    $streams = $this->hasAudio ? [['codec_type' => 'audio']] : [];
+                    return [
+                        'success' => true,
+                        'stdout' => json_encode(['streams' => $streams]),
+                        'stderr' => '',
+                    ];
+                }
+
+                if ($binary === 'ffmpeg') {
+                    $target = end($args);
+                    if (is_string($target)) {
+                        $dir = dirname($target);
+                        if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
+                            throw new RuntimeException('unable to create target directory');
+                        }
+                        file_put_contents($target, 'webm');
+                    }
+
+                    return ['success' => true, 'stdout' => '', 'stderr' => ''];
+                }
+
+                return ['success' => true, 'stdout' => '', 'stderr' => ''];
+            }
+        };
     }
 }

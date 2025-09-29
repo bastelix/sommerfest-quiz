@@ -8,6 +8,8 @@ use Psr\Http\Message\UploadedFileInterface;
 use RuntimeException;
 
 use function App\runSyncProcess;
+use function is_array;
+use function json_decode;
 use function str_starts_with;
 
 /**
@@ -319,7 +321,7 @@ class MediaLibraryService
         $targetName = $targetBase . '.webm';
         $targetPath = $dir . DIRECTORY_SEPARATOR . $targetName;
 
-        $result = runSyncProcess('ffmpeg', [
+        $args = [
             '-y',
             '-loglevel',
             'error',
@@ -331,14 +333,22 @@ class MediaLibraryService
             '2M',
             '-pix_fmt',
             'yuv420p',
-            '-c:a',
-            'libopus',
-            '-b:a',
-            '128k',
-            '-f',
-            'webm',
-            $targetPath,
-        ]);
+        ];
+
+        if ($this->videoHasAudioTrack($sourcePath)) {
+            $args[] = '-c:a';
+            $args[] = 'libopus';
+            $args[] = '-b:a';
+            $args[] = '128k';
+        } else {
+            $args[] = '-an';
+        }
+
+        $args[] = '-f';
+        $args[] = 'webm';
+        $args[] = $targetPath;
+
+        $result = $this->runProcess('ffmpeg', $args);
 
         if (!$result['success']) {
             $message = trim($result['stderr'] !== '' ? $result['stderr'] : $result['stdout']);
@@ -354,6 +364,52 @@ class MediaLibraryService
         @chmod($targetPath, 0664);
 
         return $targetName;
+    }
+
+    private function videoHasAudioTrack(string $sourcePath): bool
+    {
+        $result = $this->runProcess('ffprobe', [
+            '-v',
+            'error',
+            '-select_streams',
+            'a',
+            '-show_entries',
+            'stream=codec_type',
+            '-of',
+            'json',
+            $sourcePath,
+        ]);
+
+        if (!$result['success']) {
+            return true;
+        }
+
+        $data = json_decode($result['stdout'], true);
+        if (!is_array($data)) {
+            return true;
+        }
+
+        $streams = $data['streams'] ?? null;
+        if (!is_array($streams)) {
+            return false;
+        }
+
+        foreach ($streams as $stream) {
+            if (is_array($stream) && ($stream['codec_type'] ?? null) === 'audio') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param list<string> $args
+     * @return array{success: bool, stdout: string, stderr: string}
+     */
+    protected function runProcess(string $binary, array $args): array
+    {
+        return runSyncProcess($binary, $args);
     }
 
     /**
