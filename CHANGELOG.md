@@ -234,6 +234,7 @@
 - Add mm grid snapping for sticker editor
 - Refine sticker QR size field
 - Allow marketing contact forms to define endpoint
+- Add animated calserver hero background
 
 ### Fix
 
