@@ -32,6 +32,7 @@
 - Seed admin user
 - Handle network errors in event switcher
 - Add migration for sticker text toggles
+- Normalize spacing before EOF docblocks
 
 ### Ci
 
