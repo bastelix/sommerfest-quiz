@@ -26,8 +26,12 @@ use function sprintf;
 use function sys_get_temp_dir;
 use function touch;
 use function dirname;
+use function getenv;
 
+use Throwable;
 use const CURL_IPRESOLVE_V4;
+use const CURLOPT_CAINFO;
+use const CURLOPT_CAPATH;
 use const CURLOPT_CONNECTTIMEOUT;
 use const CURLOPT_IPRESOLVE;
 use const CURLOPT_RETURNTRANSFER;
@@ -51,10 +55,17 @@ class ProvenExpertRatingService
     private string $apiKey;
     private string $cacheFile;
     private string $errorFile;
+    private ?string $caInfo;
+    private ?string $caPath;
 
     public function __construct(?string $apiId = null, ?string $apiKey = null, ?string $cacheDirectory = null) {
         $this->apiId = $apiId ?? getenv('PROVENEXPERT_API_ID') ?: '1tmo5LmpmpQpmqGB1xGAiAmZ38zZmV3o';
         $this->apiKey = $apiKey ?? getenv('PROVENEXPERT_API_KEY') ?: 'AGyuLJEzAmx4BJV5LJDjLwEvMQMyLmxjBGuwAmRjBGp';
+
+        $caInfo = getenv('PROVENEXPERT_CAINFO');
+        $caPath = getenv('PROVENEXPERT_CAPATH');
+        $this->caInfo = $caInfo !== false && $caInfo !== '' ? $caInfo : null;
+        $this->caPath = $caPath !== false && $caPath !== '' ? $caPath : null;
 
         $directory = $cacheDirectory ?? sys_get_temp_dir();
         if (!is_dir($directory)) {
@@ -134,14 +145,26 @@ class ProvenExpertRatingService
         curl_setopt($handler, CURLOPT_TIMEOUT, 2);
         curl_setopt($handler, CURLOPT_CONNECTTIMEOUT, 2);
         curl_setopt($handler, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($handler, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($handler, CURLOPT_SSL_VERIFYPEER, true);
+        if ($this->caInfo !== null) {
+            curl_setopt($handler, CURLOPT_CAINFO, $this->caInfo);
+        }
+        if ($this->caPath !== null) {
+            curl_setopt($handler, CURLOPT_CAPATH, $this->caPath);
+        }
         curl_setopt($handler, CURLOPT_URL, self::API_URL . $query);
         curl_setopt($handler, CURLOPT_USERPWD, $this->apiId . ':' . $this->apiKey);
         if (defined('CURLOPT_IPRESOLVE') && defined('CURL_IPRESOLVE_V4')) {
             curl_setopt($handler, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
         }
 
-        $json = curl_exec($handler);
+        try {
+            $json = curl_exec($handler);
+        } catch (Throwable $exception) {
+            $this->logError('curl exec exception' . PHP_EOL . PHP_EOL . $exception->getMessage());
+            curl_close($handler);
+            return null;
+        }
         if ($json === false) {
             $this->logCurlError($handler);
             curl_close($handler);
