@@ -128,6 +128,48 @@ SVG;
         $this->assertStringEqualsFile($storedPath, $pdf);
     }
 
+    public function testMp4UploadBypassesRasterProcessing(): void {
+        [$service, $config, $images] = $this->createService();
+
+        $video = str_repeat('mp4-video', 32);
+
+        $tmp = tempnam($this->tempDir, 'mp4');
+        file_put_contents($tmp, $video);
+        $stream = (new StreamFactory())->createStreamFromFile($tmp);
+        $uploaded = new UploadedFile($stream, 'teaser.mp4', 'video/mp4', $stream->getSize(), UPLOAD_ERR_OK);
+
+        $info = $service->uploadFile(MediaLibraryService::SCOPE_GLOBAL, $uploaded);
+
+        $this->assertSame('teaser.mp4', $info['name']);
+        $this->assertSame('mp4', $info['extension']);
+        $this->assertFalse($images->saveCalled, 'MP4 uploads must not invoke ImageUploadService');
+
+        $storedPath = $config->getGlobalUploadsDir() . DIRECTORY_SEPARATOR . 'teaser.mp4';
+        $this->assertFileExists($storedPath);
+        $this->assertStringEqualsFile($storedPath, $video);
+    }
+
+    public function testWebmUploadBypassesRasterProcessing(): void {
+        [$service, $config, $images] = $this->createService();
+
+        $video = str_repeat('webm-video', 32);
+
+        $tmp = tempnam($this->tempDir, 'webm');
+        file_put_contents($tmp, $video);
+        $stream = (new StreamFactory())->createStreamFromFile($tmp);
+        $uploaded = new UploadedFile($stream, 'clip.webm', 'video/webm', $stream->getSize(), UPLOAD_ERR_OK);
+
+        $info = $service->uploadFile(MediaLibraryService::SCOPE_GLOBAL, $uploaded);
+
+        $this->assertSame('clip.webm', $info['name']);
+        $this->assertSame('webm', $info['extension']);
+        $this->assertFalse($images->saveCalled, 'WEBM uploads must not invoke ImageUploadService');
+
+        $storedPath = $config->getGlobalUploadsDir() . DIRECTORY_SEPARATOR . 'clip.webm';
+        $this->assertFileExists($storedPath);
+        $this->assertStringEqualsFile($storedPath, $video);
+    }
+
     private function removeDir(string $dir): void {
         if (!is_dir($dir)) {
             return;
