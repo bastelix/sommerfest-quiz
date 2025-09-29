@@ -1,32 +1,73 @@
 (function () {
-  const CONSENT_KEY = 'calserverVideoConsent';
+  const EVENT_NAME = 'calserver:cookie-preference-changed';
   const ALLOW_ATTR = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+  const STORAGE_KEY = (globalThis.STORAGE_KEYS && globalThis.STORAGE_KEYS.CALSERVER_COOKIE_CHOICES) || 'calserverCookieChoices';
 
-  function readConsent() {
+  function readPreferences() {
+    if (globalThis.calserverCookie && typeof globalThis.calserverCookie.getPreferences === 'function') {
+      return globalThis.calserverCookie.getPreferences();
+    }
+
+    let raw = null;
+
     try {
       if (typeof getStored === 'function') {
-        return getStored(CONSENT_KEY) === '1';
+        raw = getStored(STORAGE_KEY);
       }
     } catch (error) {
-      /* empty */
+      raw = null;
+    }
+
+    if (raw === null) {
+      try {
+        if (typeof localStorage !== 'undefined') {
+          raw = localStorage.getItem(STORAGE_KEY);
+        }
+      } catch (error) {
+        raw = null;
+      }
+    }
+
+    if (!raw) {
+      return null;
     }
 
     try {
-      if (typeof localStorage !== 'undefined') {
-        return localStorage.getItem(CONSENT_KEY) === '1';
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        return {
+          necessary: true,
+          marketing: !!parsed.marketing
+        };
       }
     } catch (error) {
-      /* empty */
+      return null;
     }
 
-    return false;
+    return null;
   }
 
-  function storeConsent() {
+  function marketingAllowed() {
+    const preferences = readPreferences();
+    return !!(preferences && preferences.marketing);
+  }
+
+  function ensureMarketingConsent() {
+    if (globalThis.calserverCookie && typeof globalThis.calserverCookie.allowMarketing === 'function') {
+      return globalThis.calserverCookie.allowMarketing();
+    }
+
+    const preferences = {
+      necessary: true,
+      marketing: true,
+      updatedAt: new Date().toISOString()
+    };
+
+    const serialized = JSON.stringify(preferences);
+
     try {
       if (typeof setStored === 'function') {
-        setStored(CONSENT_KEY, '1');
-        return;
+        setStored(STORAGE_KEY, serialized);
       }
     } catch (error) {
       /* empty */
@@ -34,11 +75,29 @@
 
     try {
       if (typeof localStorage !== 'undefined') {
-        localStorage.setItem(CONSENT_KEY, '1');
+        localStorage.setItem(STORAGE_KEY, serialized);
       }
     } catch (error) {
       /* empty */
     }
+
+    if (typeof document !== 'undefined') {
+      const detail = { preferences: preferences, marketing: true };
+      let event = null;
+
+      if (typeof CustomEvent === 'function') {
+        event = new CustomEvent(EVENT_NAME, { detail: detail });
+      } else if (typeof document.createEvent === 'function') {
+        event = document.createEvent('CustomEvent');
+        event.initCustomEvent(EVENT_NAME, false, false, detail);
+      }
+
+      if (event) {
+        document.dispatchEvent(event);
+      }
+    }
+
+    return preferences;
   }
 
   function buildSrc(element) {
@@ -81,9 +140,21 @@
       return;
     }
 
-    if (readConsent()) {
+    const loadAll = function () {
       containers.forEach(injectIframe);
-      return;
+    };
+
+    if (marketingAllowed()) {
+      loadAll();
+    } else {
+      const handlePreference = function (event) {
+        if (event && event.detail && event.detail.marketing) {
+          document.removeEventListener(EVENT_NAME, handlePreference);
+          loadAll();
+        }
+      };
+
+      document.addEventListener(EVENT_NAME, handlePreference);
     }
 
     containers.forEach(function (container) {
@@ -97,8 +168,8 @@
           return;
         }
 
-        storeConsent();
-        injectIframe(container);
+        ensureMarketingConsent();
+        loadAll();
       });
     });
   });

@@ -1771,3 +1771,114 @@ body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual__image {
         padding: 20px;
     }
 }
+
+.calserver-cookie-banner {
+    position: fixed;
+    inset: auto 24px 24px auto;
+    width: min(360px, calc(100% - 48px));
+    border-radius: 16px;
+    box-shadow: 0 24px 58px -34px rgba(15, 23, 42, 0.65),
+        0 18px 32px -28px rgba(12, 18, 32, 0.35);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+    z-index: 1050;
+}
+
+.calserver-cookie-banner--visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+}
+
+.calserver-cookie-banner__headline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 4px;
+}
+
+.calserver-cookie-banner__icon {
+    color: var(--calserver-primary);
+}
+
+.calserver-cookie-banner__copy {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.45;
+}
+
+.calserver-cookie-banner__fineprint {
+    margin: 0;
+    font-size: 0.85rem;
+    color: color-mix(in oklab, currentColor 72%, rgba(255, 255, 255, 0.4));
+}
+
+.calserver-cookie-banner__link {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+}
+
+.calserver-cookie-banner__link:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+}
+
+.calserver-cookie-banner__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.calserver-cookie-banner__button {
+    flex: 1 1 140px;
+}
+
+@media (max-width: 640px) {
+    .calserver-cookie-banner {
+        inset: auto 16px 16px 16px;
+        width: auto;
+    }
+}
+
+body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .calserver-cookie-banner,
+body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) .calserver-cookie-banner {
+    background: linear-gradient(
+        160deg,
+        color-mix(in oklab, var(--calserver-primary) 28%, rgba(10, 16, 28, 0.95)) 0%,
+        color-mix(in oklab, var(--calserver-primary) 18%, rgba(6, 10, 22, 0.96)) 100%
+    );
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 48%, rgba(255, 255, 255, 0.18));
+    color: color-mix(in oklab, #ffffff 92%, rgba(255, 255, 255, 0.08));
+}
+
+body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-cookie-banner,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-cookie-banner {
+    background: linear-gradient(
+        160deg,
+        color-mix(in oklab, var(--calserver-primary) 12%, #ffffff 88%) 0%,
+        color-mix(in oklab, var(--calserver-primary) 8%, #f5f7fb 92%) 100%
+    );
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 26%, rgba(15, 23, 42, 0.1));
+    color: color-mix(in oklab, #0b1532 88%, var(--calserver-primary) 12%);
+}
+
+body.qr-landing.calserver-theme.high-contrast .calserver-cookie-banner,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-cookie-banner,
+body.high-contrast .calserver-cookie-banner {
+    background: var(--qr-card, #000000);
+    color: var(--qr-text, #ffffff);
+    border: 2px solid currentColor;
+    box-shadow: none;
+}
+
+body.qr-landing.calserver-theme.high-contrast .calserver-cookie-banner__link,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-cookie-banner__link,
+body.high-contrast .calserver-cookie-banner__link {
+    text-decoration-thickness: 2px;
+}

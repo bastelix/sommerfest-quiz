@@ -18,7 +18,8 @@
     QR_THEME: 'qr-theme',
     QR_CONTRAST: 'qr-contrast',
     TENANT_COLUMNS: 'tenantColumns',
-    ADMIN_SIDEBAR: 'adminSidebarCollapsed'
+    ADMIN_SIDEBAR: 'adminSidebarCollapsed',
+    CALSERVER_COOKIE_CHOICES: 'calserverCookieChoices'
   };
 
   const eventScoped = new Set([
@@ -116,6 +117,7 @@
    * - qr-theme                   – Letztes Theme
   * - qr-contrast                – Letzter Kontrastmodus
   * - tenantColumns              – Sichtbare Mandantenspalten (JSON)
+  * - calserverCookieChoices     – Präferenzen für externe Inhalte auf der calServer-Seite (JSON)
   */
 
   const sessionName = globalThis.sessionPlayerName;
