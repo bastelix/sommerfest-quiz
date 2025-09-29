@@ -11,7 +11,9 @@ class PlayerProfileTest extends TestCase
 {
     public function testProfilePageAndApiPlayers(): void {
         $pdo = $this->getDatabase();
-        $pdo->exec("INSERT INTO events(uid, slug, name) VALUES('ev1','ev1','Test')");
+        $pdo->exec(
+            "INSERT INTO events(uid, slug, name) VALUES('ev1','ev1','Test')"
+        );
 
         $app = $this->getAppInstance();
 
@@ -27,7 +29,9 @@ class PlayerProfileTest extends TestCase
         $res = $app->handle($request);
         $this->assertSame(204, $res->getStatusCode());
 
-        $name = $pdo->query("SELECT player_name FROM players WHERE event_uid='ev1' AND player_uid='uid1'")?->fetchColumn();
+        $name = $pdo->query(
+            "SELECT player_name FROM players WHERE event_uid='ev1' AND player_uid='uid1'"
+        )?->fetchColumn();
         $this->assertSame('Alice', $name);
 
         $getReq = $this->createRequest('GET', '/api/players?event_uid=ev1&player_uid=uid1');

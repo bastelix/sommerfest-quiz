@@ -19,14 +19,22 @@ class CatalogStickerControllerTest extends TestCase
 {
     public function testPdfWithEmptyParameters(): void {
         $pdo = $this->createDatabase();
-        $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
-        $pdo->exec("INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) VALUES('c1',0,'c1','c1.json','Cat','Desc','A','ev1')");
+        $pdo->exec(
+            "INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)"
+        );
+        $pdo->exec(
+            "INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) " .
+            "VALUES('c1',0,'c1','c1.json','Cat','Desc','A','ev1')"
+        );
         $config = new ConfigService($pdo);
         $events = new EventService($pdo);
         $catalogs = new CatalogService($pdo, $config);
         $qr = new class extends QrCodeService {
             public function generateCatalog(array $q, array $cfg = []): array {
-                $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==');
+                $img = base64_decode(
+                    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU' .
+                    '5ErkJggg=='
+                );
                 return ['mime' => 'image/png', 'body' => $img];
             }
         };
@@ -51,14 +59,22 @@ class CatalogStickerControllerTest extends TestCase
 
     public function testPdfWithValidParameters(): void {
         $pdo = $this->createDatabase();
-        $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
-        $pdo->exec("INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) VALUES('c1',0,'c1','c1.json','Cat','Desc','A','ev1')");
+        $pdo->exec(
+            "INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)"
+        );
+        $pdo->exec(
+            "INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) " .
+            "VALUES('c1',0,'c1','c1.json','Cat','Desc','A','ev1')"
+        );
         $config = new ConfigService($pdo);
         $events = new EventService($pdo);
         $catalogs = new CatalogService($pdo, $config);
         $qr = new class extends QrCodeService {
             public function generateCatalog(array $q, array $cfg = []): array {
-                $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==');
+                $img = base64_decode(
+                    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU' .
+                    '5ErkJggg=='
+                );
                 return ['mime' => 'image/png', 'body' => $img];
             }
         };
@@ -83,14 +99,22 @@ class CatalogStickerControllerTest extends TestCase
 
     public function testPdfWithAdditionalTemplate(): void {
         $pdo = $this->createDatabase();
-        $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
-        $pdo->exec("INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) VALUES('c1',0,'c1','c1.json','Cat','Desc','A','ev1')");
+        $pdo->exec(
+            "INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)"
+        );
+        $pdo->exec(
+            "INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) " .
+            "VALUES('c1',0,'c1','c1.json','Cat','Desc','A','ev1')"
+        );
         $config = new ConfigService($pdo);
         $events = new EventService($pdo);
         $catalogs = new CatalogService($pdo, $config);
         $qr = new class extends QrCodeService {
             public function generateCatalog(array $q, array $cfg = []): array {
-                $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==');
+                $img = base64_decode(
+                    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU' .
+                    '5ErkJggg=='
+                );
                 return ['mime' => 'image/png', 'body' => $img];
             }
         };
@@ -109,7 +133,9 @@ class CatalogStickerControllerTest extends TestCase
 
     public function testPdfUsesDefaultTemplateL7163(): void {
         $pdo = $this->createDatabase();
-        $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
+        $pdo->exec(
+            "INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)"
+        );
         for ($i = 0; $i < 14; $i++) {
             $uid = 'c' . $i;
             $pdo->exec(
@@ -122,7 +148,10 @@ class CatalogStickerControllerTest extends TestCase
         $catalogs = new CatalogService($pdo, $config);
         $qr = new class extends QrCodeService {
             public function generateCatalog(array $q, array $cfg = []): array {
-                $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==');
+                $img = base64_decode(
+                    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU' .
+                    '5ErkJggg=='
+                );
                 return ['mime' => 'image/png', 'body' => $img];
             }
         };
@@ -136,14 +165,22 @@ class CatalogStickerControllerTest extends TestCase
 
     public function testPdfEmbedsBackgroundImage(): void {
         $pdo = $this->createDatabase();
-        $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
-        $pdo->exec("INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) VALUES('c1',0,'c1','c1.json','Cat','Desc','A','ev1')");
+        $pdo->exec(
+            "INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)"
+        );
+        $pdo->exec(
+            "INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) " .
+            "VALUES('c1',0,'c1','c1.json','Cat','Desc','A','ev1')"
+        );
         $config = new ConfigService($pdo);
         $events = new EventService($pdo);
         $catalogs = new CatalogService($pdo, $config);
         $qr = new class extends QrCodeService {
             public function generateCatalog(array $q, array $cfg = []): array {
-                $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==');
+                $img = base64_decode(
+                    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU' .
+                    '5ErkJggg=='
+                );
                 return ['mime' => 'image/png', 'body' => $img];
             }
         };
@@ -159,7 +196,10 @@ class CatalogStickerControllerTest extends TestCase
         if (!is_dir($dir)) {
             mkdir($dir, 0777, true);
         }
-        $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR4nGP8z8DAwMDAxMDAwMDAAAANHQEDasKb6QAAAABJRU5ErkJggg==');
+        $img = base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR4nGP8z8DAwMDAxMDAwMDAAAANHQEDa' .
+            'sKb6QAAAABJRU5ErkJggg=='
+        );
         file_put_contents($bg, $img);
         try {
             $responseWithBg = $controller->pdf($request, new Response());
@@ -174,8 +214,14 @@ class CatalogStickerControllerTest extends TestCase
 
     public function testGetSettingsProvidesPreviewFields(): void {
         $pdo = $this->createDatabase();
-        $pdo->exec("INSERT INTO events(uid, slug, name, description, published, sort_order) VALUES('ev1','ev1','EventTitle','EventDesc',1,0)");
-        $pdo->exec("INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) VALUES('c1',0,'c1','c1.json','CatName','CatDesc','A','ev1')");
+        $pdo->exec(
+            "INSERT INTO events(uid, slug, name, description, published, sort_order) " .
+            "VALUES('ev1','ev1','EventTitle','EventDesc',1,0)"
+        );
+        $pdo->exec(
+            "INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) " .
+            "VALUES('c1',0,'c1','c1.json','CatName','CatDesc','A','ev1')"
+        );
         $config = new ConfigService($pdo);
         $config->saveConfig([
             'event_uid' => 'ev1',
@@ -205,7 +251,9 @@ class CatalogStickerControllerTest extends TestCase
 
     public function testUploadBackgroundStoresImageAndConfig(): void {
         $pdo = $this->createDatabase();
-        $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
+        $pdo->exec(
+            "INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)"
+        );
         $config = new ConfigService($pdo);
         $events = new EventService($pdo);
         $catalogs = new CatalogService($pdo, $config);
@@ -214,7 +262,10 @@ class CatalogStickerControllerTest extends TestCase
         $controller = new CatalogStickerController($config, $events, $catalogs, $qr, $images);
 
         $filePath = sys_get_temp_dir() . '/bg.png';
-        $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAADElEQVQImWNgYGAAAAAEAAGjChXjAAAAAElFTkSuQmCC');
+        $img = base64_decode(
+            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAADElEQVQI' .
+            'mWNgYGAAAAAEAAGjChXjAAAAAElFTkSuQmCC'
+        );
         file_put_contents($filePath, $img);
         $stream = fopen($filePath, 'rb');
         $uploaded = new UploadedFile(new Stream($stream), 'bg.png', 'image/png', filesize($filePath), UPLOAD_ERR_OK);

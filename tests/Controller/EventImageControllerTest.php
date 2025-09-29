@@ -21,7 +21,9 @@ class EventImageControllerTest extends TestCase
 
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/events/evimg/images/sticker-bg.png');
-        $request = $request->withUri(new \Slim\Psr7\Uri('http', 'localhost', 80, '/events/evimg/images/sticker-bg.png'));
+        $request = $request->withUri(
+            new \Slim\Psr7\Uri('http', 'localhost', 80, '/events/evimg/images/sticker-bg.png')
+        );
         $response = $app->handle($request);
 
         $this->assertSame(200, $response->getStatusCode());

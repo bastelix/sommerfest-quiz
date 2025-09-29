@@ -15,6 +15,7 @@ use RecursiveIteratorIterator;
 use RuntimeException;
 use Slim\Psr7\Factory\StreamFactory;
 use Slim\Psr7\UploadedFile;
+
 use function json_encode;
 
 class MediaLibraryServiceTest extends TestCase
@@ -386,8 +387,11 @@ SVG;
         return [new MediaLibraryService($config, $images), $config, $images];
     }
 
-    private function createConversionService(ConfigService $config, ImageUploadService $images, bool $hasAudio): MediaLibraryService
-    {
+    private function createConversionService(
+        ConfigService $config,
+        ImageUploadService $images,
+        bool $hasAudio
+    ): MediaLibraryService {
         return new class ($config, $images, $hasAudio) extends MediaLibraryService {
             /** @var list<array{0:string,1:list<string>}> */
             public array $processCalls = [];

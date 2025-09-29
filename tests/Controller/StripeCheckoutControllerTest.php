@@ -83,7 +83,10 @@ class StripeCheckoutControllerTest extends TestCase
         $this->assertNull($service->args['create'][5] ?? null);
         $this->assertSame('tenant1', $service->args['create'][6] ?? null);
         $this->assertSame(7, $service->args['create'][7] ?? null);
-        $this->assertStringContainsString('/onboarding/checkout/{CHECKOUT_SESSION_ID}', $service->args['create'][1] ?? '');
+        $this->assertStringContainsString(
+            '/onboarding/checkout/{CHECKOUT_SESSION_ID}',
+            $service->args['create'][1] ?? ''
+        );
     }
 
     public function testPostReturnsCheckoutUrl(): void {

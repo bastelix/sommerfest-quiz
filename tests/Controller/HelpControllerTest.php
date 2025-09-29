@@ -49,17 +49,18 @@ class HelpControllerTest extends TestCase
         );
         $pdo->exec(
             'CREATE TABLE events(' .
-            'uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, start_date TEXT, end_date TEXT, description TEXT, ' .
-            'sort_order INTEGER DEFAULT 0);'
+            'uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, start_date TEXT, end_date TEXT, ' .
+            'description TEXT, sort_order INTEGER DEFAULT 0' .
+            ');'
         );
         $pdo->exec(
             "INSERT INTO events(uid,slug,name,start_date,end_date,description) " .
             "VALUES('1','event','Event','2024-01-01T10:00','2024-01-01T12:00','Desc')"
         );
         $pdo->exec(
-            "INSERT INTO config(inviteText, event_uid) VALUES(" .
+            'INSERT INTO config(inviteText, event_uid) VALUES(' .
             "'Hallo [Team], willkommen zu [EVENT_NAME] am [EVENT_START] " .
-            "bis [EVENT_END] - [EVENT_DESCRIPTION]!','1')"
+            "bis [EVENT_END] - [EVENT_DESCRIPTION]!', '1')"
         );
 
         putenv('POSTGRES_DSN=sqlite:' . $dbFile);

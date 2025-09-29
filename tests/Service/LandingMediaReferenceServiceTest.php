@@ -29,13 +29,20 @@ class LandingMediaReferenceServiceTest extends TestCase
             'updated_at TEXT DEFAULT CURRENT_TIMESTAMP)'
         );
         $stmt = $pdo->prepare('INSERT INTO pages (slug, title, content) VALUES (?, ?, ?)');
-        $stmt->execute(['landing', 'Landing', '<img src="{{ basePath }}/uploads/landing/hero.webp"><img src="/uploads/landing/missing.avif">']);
+        $stmt->execute([
+            'landing',
+            'Landing',
+            '<img src="{{ basePath }}/uploads/landing/hero.webp">' .
+            '<img src="/uploads/landing/missing.avif">',
+        ]);
         $landingId = (int) $pdo->lastInsertId();
         $stmt->execute(['impressum', 'Impressum', '<img src="/uploads/landing/ignore.webp">']);
 
         $seoInsert = $pdo->prepare(
-            'INSERT INTO page_seo_config (page_id, slug, domain, meta_title, meta_description, canonical_url, robots_meta, ' .
-            'og_title, og_description, og_image, favicon_path, schema_json, hreflang) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            'INSERT INTO page_seo_config (' .
+            'page_id, slug, domain, meta_title, meta_description, canonical_url, robots_meta, ' .
+            'og_title, og_description, og_image, favicon_path, schema_json, hreflang) ' .
+            'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
         $seoInsert->execute([
             $landingId,
@@ -118,9 +125,10 @@ class LandingMediaReferenceServiceTest extends TestCase
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE pages (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT, title TEXT, content TEXT)');
         $pdo->exec(
-            'CREATE TABLE page_seo_config (page_id INTEGER PRIMARY KEY, slug TEXT, domain TEXT, meta_title TEXT, ' .
-            'meta_description TEXT, canonical_url TEXT, robots_meta TEXT, og_title TEXT, og_description TEXT, og_image TEXT, ' .
-            'favicon_path TEXT, schema_json TEXT, hreflang TEXT, created_at TEXT, updated_at TEXT)'
+            'CREATE TABLE page_seo_config (' .
+            'page_id INTEGER PRIMARY KEY, slug TEXT, domain TEXT, meta_title TEXT, ' .
+            'meta_description TEXT, canonical_url TEXT, robots_meta TEXT, og_title TEXT, og_description TEXT, ' .
+            'og_image TEXT, favicon_path TEXT, schema_json TEXT, hreflang TEXT, created_at TEXT, updated_at TEXT)'
         );
         $config = new ConfigService($pdo);
         $pageService = new PageService($pdo);
@@ -133,10 +141,21 @@ class LandingMediaReferenceServiceTest extends TestCase
         );
         $service = new LandingMediaReferenceService($pageService, $seoService, $config);
 
-        $this->assertSame('uploads/landing/hero.webp', $service->normalizeFilePath('{{ basePath }}/uploads/landing/hero.webp'));
-        $this->assertSame('uploads/landing/hero.webp', $service->normalizeFilePath('/uploads/landing/hero.webp'));
-        $this->assertSame('uploads/landing/hero.webp', $service->normalizeFilePath('uploads/landing/hero.webp'));
-        $this->assertNull($service->normalizeFilePath('https://example.com/uploads/landing/hero.webp'));
+        $this->assertSame(
+            'uploads/landing/hero.webp',
+            $service->normalizeFilePath('{{ basePath }}/uploads/landing/hero.webp')
+        );
+        $this->assertSame(
+            'uploads/landing/hero.webp',
+            $service->normalizeFilePath('/uploads/landing/hero.webp')
+        );
+        $this->assertSame(
+            'uploads/landing/hero.webp',
+            $service->normalizeFilePath('uploads/landing/hero.webp')
+        );
+        $this->assertNull(
+            $service->normalizeFilePath('https://example.com/uploads/landing/hero.webp')
+        );
         $this->assertNull($service->normalizeFilePath('/images/hero.webp'));
     }
 }

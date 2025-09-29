@@ -457,11 +457,23 @@ class ResultServiceTest extends TestCase
         $cfg->setActiveEventUid('ev1');
         $service = new ResultService($pdo);
 
-        $pdo->exec("INSERT INTO results(name,catalog,attempt,correct,total,time,event_uid) VALUES('Team1','cat',1,0,0,0,'ev1')");
-        $pdo->exec("INSERT INTO results(name,catalog,attempt,correct,total,time,event_uid) VALUES('Team2','cat',1,0,0,0,'ev2')");
+        $pdo->exec(
+            "INSERT INTO results(name,catalog,attempt,correct,total,time,event_uid) " .
+            "VALUES('Team1','cat',1,0,0,0,'ev1')"
+        );
+        $pdo->exec(
+            "INSERT INTO results(name,catalog,attempt,correct,total,time,event_uid) " .
+            "VALUES('Team2','cat',1,0,0,0,'ev2')"
+        );
 
-        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) VALUES('u1',1,'cat','c.json','Catalog 1','ev1')");
-        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) VALUES('u2',2,'cat','c.json','Catalog 2','ev2')");
+        $pdo->exec(
+            "INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) " .
+            "VALUES('u1',1,'cat','c.json','Catalog 1','ev1')"
+        );
+        $pdo->exec(
+            "INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) " .
+            "VALUES('u2',2,'cat','c.json','Catalog 2','ev2')"
+        );
 
         $rows = $service->getAll();
         $this->assertCount(1, $rows);
@@ -516,11 +528,23 @@ class ResultServiceTest extends TestCase
 
         $pdo->exec("INSERT INTO questions(id,catalog_uid,sort_order,type,prompt) VALUES(1,'u1',1,'text','Q1')");
 
-        $pdo->exec("INSERT INTO question_results(name,catalog,question_id,attempt,correct,event_uid) VALUES('Team1','cat',1,1,1,'ev1')");
-        $pdo->exec("INSERT INTO question_results(name,catalog,question_id,attempt,correct,event_uid) VALUES('Team2','cat',1,1,1,'ev2')");
+        $pdo->exec(
+            "INSERT INTO question_results(name,catalog,question_id,attempt,correct,event_uid) " .
+            "VALUES('Team1','cat',1,1,1,'ev1')"
+        );
+        $pdo->exec(
+            "INSERT INTO question_results(name,catalog,question_id,attempt,correct,event_uid) " .
+            "VALUES('Team2','cat',1,1,1,'ev2')"
+        );
 
-        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) VALUES('u1',1,'cat','c.json','Catalog 1','ev1')");
-        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) VALUES('u2',2,'cat','c.json','Catalog 2','ev2')");
+        $pdo->exec(
+            "INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) " .
+            "VALUES('u1',1,'cat','c.json','Catalog 1','ev1')"
+        );
+        $pdo->exec(
+            "INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) " .
+            "VALUES('u2',2,'cat','c.json','Catalog 2','ev2')"
+        );
 
         $rows = $service->getQuestionResults();
         $this->assertCount(2, $rows);
@@ -568,13 +592,27 @@ class ResultServiceTest extends TestCase
             'prompt TEXT NOT NULL' .
             ')'
         );
-        $pdo->exec('CREATE TABLE catalogs(uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT);');
+        $pdo->exec(
+            'CREATE TABLE catalogs(' .
+            'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, event_uid TEXT' .
+            ');'
+        );
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
 
-        $pdo->exec("INSERT INTO results(name,catalog,attempt,correct,total,time,event_uid) VALUES('T','c',1,1,1,1,'ev1')");
-        $pdo->exec("INSERT INTO question_results(name,catalog,question_id,attempt,correct,event_uid) VALUES('T','c',1,1,1,'ev1')");
-        $pdo->exec("INSERT INTO questions(id,catalog_uid,sort_order,type,prompt) VALUES(1,'c',1,'text','Q')");
-        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) VALUES('c',1,'c','c.json','C','ev1')");
+        $pdo->exec(
+            "INSERT INTO results(name,catalog,attempt,correct,total,time,event_uid) " .
+            "VALUES('T','c',1,1,1,1,'ev1')"
+        );
+        $pdo->exec(
+            "INSERT INTO question_results(name,catalog,question_id,attempt,correct,event_uid) " .
+            "VALUES('T','c',1,1,1,'ev1')"
+        );
+        $pdo->exec(
+            "INSERT INTO questions(id,catalog_uid,sort_order,type,prompt) VALUES(1,'c',1,'text','Q')"
+        );
+        $pdo->exec(
+            "INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) VALUES('c',1,'c','c.json','C','ev1')"
+        );
 
         $cfg = new ConfigService($pdo);
         $cfg->setActiveEventUid('');
