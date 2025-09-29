@@ -260,9 +260,11 @@
     {{ content|raw }}
 
     <div class="calserver-cookie-banner uk-card uk-card-default uk-card-body"
+         id="calserver-cookie-banner"
          data-calserver-cookie-banner
          role="region"
          aria-live="polite"
+         tabindex="-1"
          hidden>
       <div class="calserver-cookie-banner__text">
         <p class="calserver-cookie-banner__headline">
@@ -291,6 +293,15 @@
         </button>
       </div>
     </div>
+    <button class="calserver-cookie-trigger"
+            type="button"
+            aria-controls="calserver-cookie-banner"
+            aria-expanded="false"
+            aria-label="Cookie-Einstellungen öffnen"
+            data-calserver-cookie-open
+            hidden>
+      <span aria-hidden="true" data-uk-icon="icon: fingerprint"></span>
+    </button>
   </div>
 {% endblock %}
 

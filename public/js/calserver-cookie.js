@@ -1,7 +1,7 @@
 (function () {
   const EVENT_NAME = 'calserver:cookie-preference-changed';
   const STORAGE_KEY = (globalThis.STORAGE_KEYS && globalThis.STORAGE_KEYS.CALSERVER_COOKIE_CHOICES) || 'calserverCookieChoices';
-  const state = { banner: null };
+  const state = { banner: null, trigger: null, preferences: null };
 
   function normalize(preferences) {
     const normalized = {
@@ -135,18 +135,67 @@
     }
   }
 
-  function updateBannerVisibility(preferences) {
+  function isBannerVisible() {
+    return !!(state.banner && !state.banner.hasAttribute('hidden'));
+  }
+
+  function focusBanner() {
+    if (!state.banner || typeof state.banner.focus !== 'function') {
+      return;
+    }
+
+    try {
+      state.banner.focus({ preventScroll: true });
+    } catch (error) {
+      state.banner.focus();
+    }
+  }
+
+  function refreshTriggerState() {
+    if (!state.trigger) {
+      return;
+    }
+
+    const bannerVisible = isBannerVisible();
+
+    if (!state.preferences && !bannerVisible) {
+      state.trigger.setAttribute('hidden', '');
+      state.trigger.setAttribute('aria-expanded', 'false');
+      state.trigger.classList.remove('calserver-cookie-trigger--active');
+      return;
+    }
+
+    state.trigger.removeAttribute('hidden');
+    state.trigger.setAttribute('aria-expanded', bannerVisible ? 'true' : 'false');
+    state.trigger.classList.toggle('calserver-cookie-trigger--active', bannerVisible);
+  }
+
+  function setBannerVisibility(visible, options) {
     if (!state.banner) {
       return;
     }
 
-    if (preferences) {
-      state.banner.setAttribute('hidden', '');
-      state.banner.classList.remove('calserver-cookie-banner--visible');
-    } else {
+    if (visible) {
       state.banner.removeAttribute('hidden');
       state.banner.classList.add('calserver-cookie-banner--visible');
+      if (options && options.focus === true) {
+        focusBanner();
+      }
+    } else {
+      state.banner.setAttribute('hidden', '');
+      state.banner.classList.remove('calserver-cookie-banner--visible');
     }
+
+    refreshTriggerState();
+  }
+
+  function showBanner(options) {
+    setBannerVisibility(true, options);
+  }
+
+  function updateBannerVisibility(preferences) {
+    state.preferences = preferences || null;
+    setBannerVisibility(!state.preferences);
   }
 
   function setPreferences(preferences, options) {
@@ -171,6 +220,25 @@
     }
 
     const existing = getPreferences();
+    state.trigger = document.querySelector('[data-calserver-cookie-open]');
+
+    if (state.trigger) {
+      state.trigger.addEventListener('click', function () {
+        if (!state.banner) {
+          return;
+        }
+
+        if (isBannerVisible()) {
+          if (state.preferences) {
+            setBannerVisibility(false);
+          }
+          return;
+        }
+
+        showBanner({ focus: true });
+      });
+    }
+
     updateBannerVisibility(existing);
 
     const acceptAll = state.banner.querySelector('[data-calserver-cookie-accept]');
@@ -186,6 +254,8 @@
         setPreferences({ marketing: false });
       });
     }
+
+    refreshTriggerState();
   });
 
   globalThis.calserverCookie = {
