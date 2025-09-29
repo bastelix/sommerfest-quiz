@@ -1586,6 +1586,8 @@ body.qr-landing.calserver-theme .calserver-modules-nav__link {
     flex-direction: column;
     gap: 6px;
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
     padding: 18px 20px;
     border-radius: 18px;
     background: color-mix(in oklab, var(--calserver-primary) 10%, transparent);
@@ -1715,6 +1717,7 @@ body.qr-landing.calserver-theme .calserver-module-figure .uk-list {
         padding-bottom: 0;
         margin-bottom: 0;
         gap: 12px;
+        width: 100%;
     }
 
     body.qr-landing.calserver-theme .calserver-modules-nav > li {
