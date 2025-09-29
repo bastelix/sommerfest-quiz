@@ -136,7 +136,9 @@ class LogoControllerTest extends TestCase
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
-            'CREATE TABLE events(uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, sort_order INTEGER DEFAULT 0);'
+            'CREATE TABLE events(' .
+            'uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, sort_order INTEGER DEFAULT 0' .
+            ');'
         );
         $pdo->exec(
             'CREATE TABLE active_event(event_uid TEXT PRIMARY KEY);'
@@ -243,7 +245,11 @@ class LogoControllerTest extends TestCase
     public function testGetLogoForSpecificEventWhileAnotherActive(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, sort_order INTEGER DEFAULT 0);');
+        $pdo->exec(
+            'CREATE TABLE events(' .
+            'uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, sort_order INTEGER DEFAULT 0' .
+            ');'
+        );
         $pdo->exec('CREATE TABLE active_event(event_uid TEXT PRIMARY KEY);');
         $pdo->exec(
             <<<'SQL'

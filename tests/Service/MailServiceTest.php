@@ -388,7 +388,10 @@ class MailServiceTest extends TestCase
         $this->assertSame('contact@example.org', $first->getFrom()[0]->getAddress());
         $this->assertSame('Kontaktanfrage', $first->getSubject());
         $this->assertStringContainsString('<p>Jane Doe</p>', (string) $first->getHtmlBody());
-        $this->assertStringContainsString('&lt;b&gt;World&lt;/b&gt;<br />' . PHP_EOL . 'Line', (string) $first->getHtmlBody());
+        $this->assertStringContainsString(
+            '&lt;b&gt;World&lt;/b&gt;<br />' . PHP_EOL . 'Line',
+            (string) $first->getHtmlBody()
+        );
         $this->assertSame("Plain: Hello <b>World</b>\nLine", $first->getTextBody());
 
         $copy = $svc->messages[1];

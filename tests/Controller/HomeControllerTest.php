@@ -193,7 +193,9 @@ class HomeControllerTest extends TestCase
         $pdo = \App\Infrastructure\Database::connectFromEnv();
         \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
         (new \App\Service\SettingsService($pdo))->save(['home_page' => 'landing']);
-        $pdo->exec("INSERT INTO pages(slug,title,content) VALUES('landing','Landing','Trete gegen Freunde und Kollegen an')");
+        $pdo->exec(
+            "INSERT INTO pages(slug,title,content) VALUES('landing','Landing','Trete gegen Freunde und Kollegen an')"
+        );
         $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('1','event','Event')");
         $pdo->exec(
             "INSERT INTO catalogs(uid,sort_order,slug,file,name,event_uid) " .

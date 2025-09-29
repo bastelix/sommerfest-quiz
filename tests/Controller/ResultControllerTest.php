@@ -54,10 +54,13 @@ class ResultControllerTest extends TestCase
         );
         $pdo->exec(
             'CREATE TABLE events(' .
-            'uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, start_date TEXT, end_date TEXT, description TEXT, ' .
-            'sort_order INTEGER DEFAULT 0);'
+            'uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, start_date TEXT, end_date TEXT, ' .
+            'description TEXT, sort_order INTEGER DEFAULT 0' .
+            ');'
         );
-        $pdo->exec("INSERT INTO events(uid,slug,name,description) VALUES('1','1','Event','Sub')");
+        $pdo->exec(
+            "INSERT INTO events(uid,slug,name,description) VALUES('1','1','Event','Sub')"
+        );
         $pdo->exec(
             'CREATE TABLE catalogs(' .
             'uid TEXT PRIMARY KEY, sort_order INTEGER, slug TEXT, file TEXT, name TEXT, description TEXT,' .

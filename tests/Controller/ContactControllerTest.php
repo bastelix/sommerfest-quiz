@@ -54,19 +54,20 @@ class ContactControllerTest extends TestCase
 
             $pdo = $this->getDatabase();
             $stmt = $pdo->prepare(
-                'INSERT INTO domain_start_pages(domain, start_page, email) VALUES(?, ?, ?)
-                 ON CONFLICT(domain) DO UPDATE SET start_page = excluded.start_page, email = excluded.email'
+                'INSERT INTO domain_start_pages(domain, start_page, email) VALUES(?, ?, ?)' .
+                ' ON CONFLICT(domain) DO UPDATE SET start_page = excluded.start_page, email = excluded.email'
             );
             $stmt->execute(['main.test', 'landing', 'contact@main.test']);
             $pdo->prepare(
-                'INSERT INTO domain_contact_templates(domain, sender_name, recipient_html, recipient_text, sender_html, sender_text)
-                 VALUES(?, ?, ?, ?, ?, ?)
-                 ON CONFLICT(domain) DO UPDATE SET
-                    sender_name = excluded.sender_name,
-                    recipient_html = excluded.recipient_html,
-                    recipient_text = excluded.recipient_text,
-                    sender_html = excluded.sender_html,
-                    sender_text = excluded.sender_text'
+                'INSERT INTO domain_contact_templates(' .
+                'domain, sender_name, recipient_html, recipient_text, sender_html, sender_text)' .
+                ' VALUES(?, ?, ?, ?, ?, ?)' .
+                ' ON CONFLICT(domain) DO UPDATE SET' .
+                '     sender_name = excluded.sender_name,' .
+                '     recipient_html = excluded.recipient_html,' .
+                '     recipient_text = excluded.recipient_text,' .
+                '     sender_html = excluded.sender_html,' .
+                '     sender_text = excluded.sender_text'
             )->execute([
                 'main.test',
                 'Main Contact',

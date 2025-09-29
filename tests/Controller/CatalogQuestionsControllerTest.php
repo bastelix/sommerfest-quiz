@@ -50,7 +50,10 @@ class CatalogQuestionsControllerTest extends TestCase
             );
             SQL
         );
-        $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name) VALUES('u1',1,'station_1','station_1.json','Station 1');");
+        $pdo->exec(
+            "INSERT INTO catalogs(uid,sort_order,slug,file,name) VALUES" .
+            "('u1',1,'station_1','station_1.json','Station 1');"
+        );
         $pdo->exec("INSERT INTO questions(catalog_uid,sort_order,type,prompt) VALUES('u1',1,'text','Frage?');");
 
         $cfg = new ConfigService($pdo);
