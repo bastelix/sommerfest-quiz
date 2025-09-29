@@ -76,10 +76,34 @@
                     <div id="languageDrop" class="uk-dropdown" hidden uk-dropdown="mode: click; pos: left-top; offset: 0">
                       <ul class="uk-nav uk-dropdown-nav" role="menu">
                         <li>
-                          <button class="uk-button uk-button-default git-btn lang-option" data-lang="de" role="menuitem">{{ t('german') }}</button>
+                          <button class="uk-button uk-button-default git-btn lang-option" data-lang="de" role="menuitem">
+                            <span class="lang-option__icon" aria-hidden="true">
+                              <svg class="lang-option__svg" viewBox="0 0 24 16" role="img" focusable="false">
+                                <rect width="24" height="16" fill="#ffce00" />
+                                <rect width="24" height="10.6667" fill="#dd0000" />
+                                <rect width="24" height="5.3333" fill="#000000" />
+                              </svg>
+                            </span>
+                            <span class="lang-option__label">{{ t('german') }}</span>
+                          </button>
                         </li>
                         <li>
-                          <button class="uk-button uk-button-default git-btn lang-option" data-lang="en" role="menuitem">{{ t('english') }}</button>
+                          <button class="uk-button uk-button-default git-btn lang-option" data-lang="en" role="menuitem">
+                            <span class="lang-option__icon" aria-hidden="true">
+                              <svg class="lang-option__svg" viewBox="0 0 24 16" role="img" focusable="false">
+                                <rect width="24" height="16" fill="#012169" />
+                                <path fill="#ffffff" d="M0 0h3.2L24 13.6V16h-3.2L0 2.4z" />
+                                <path fill="#ffffff" d="M24 0h-3.2L0 13.6V16h3.2L24 2.4z" />
+                                <path fill="#c8102e" d="M0 0h1.6L24 12.8V16h-1.6L0 3.2z" />
+                                <path fill="#c8102e" d="M24 0h-1.6L0 12.8V16h1.6L24 3.2z" />
+                                <rect x="10" width="4" height="16" fill="#ffffff" />
+                                <rect y="6" width="24" height="4" fill="#ffffff" />
+                                <rect x="10.8" width="2.4" height="16" fill="#c8102e" />
+                                <rect y="6.8" width="24" height="2.4" fill="#c8102e" />
+                              </svg>
+                            </span>
+                            <span class="lang-option__label">{{ t('english') }}</span>
+                          </button>
                         </li>
                       </ul>
                     </div>
