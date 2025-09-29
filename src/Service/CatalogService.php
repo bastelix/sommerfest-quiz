@@ -24,8 +24,7 @@ class CatalogService
     /** @var bool|null detected presence of the design_path column */
     private ?bool $hasDesign = null;
 
-    private function event(): string
-    {
+    private function event(): string {
         return $this->eventUid !== '' ? $this->eventUid : $this->config->getActiveEventUid();
     }
 
@@ -50,8 +49,7 @@ class CatalogService
     /**
      * Ensure the optional comment column exists and remember the result.
      */
-    private function hasCommentColumn(): bool
-    {
+    private function hasCommentColumn(): bool {
         if ($this->hasComment !== null) {
             return $this->hasComment;
         }
@@ -72,8 +70,7 @@ class CatalogService
     /**
      * Ensure the optional design_path column exists and remember the result.
      */
-    private function hasDesignColumn(): bool
-    {
+    private function hasDesignColumn(): bool {
         if ($this->hasDesign !== null) {
             return $this->hasDesign;
         }
@@ -94,8 +91,7 @@ class CatalogService
     /**
      * Fetch catalogs with pagination.
      */
-    public function fetchPagedCatalogs(int $offset, int $limit, string $order): array
-    {
+    public function fetchPagedCatalogs(int $offset, int $limit, string $order): array {
         $fields = 'uid,sort_order,slug,file,name,description,raetsel_buchstabe';
         if ($this->hasCommentColumn()) {
             $fields .= ',comment';
@@ -142,8 +138,7 @@ class CatalogService
     /**
      * Count catalogs for the active event.
      */
-    public function countCatalogs(): int
-    {
+    public function countCatalogs(): int {
         $uid = $this->event();
         $sql = 'SELECT COUNT(*) FROM catalogs';
         $params = [];
@@ -165,8 +160,7 @@ class CatalogService
     /**
      * Return the catalog slug for the given file name.
      */
-    public function slugByFile(string $file): ?string
-    {
+    public function slugByFile(string $file): ?string {
         $uid = $this->event();
         $sql = 'SELECT slug FROM catalogs WHERE file=?';
         $params = [basename($file)];
@@ -188,8 +182,7 @@ class CatalogService
     /**
      * Find the catalog UID by its slug.
      */
-    public function uidBySlug(string $slug): ?string
-    {
+    public function uidBySlug(string $slug): ?string {
         $event = $this->event();
         $sql = 'SELECT uid FROM catalogs WHERE slug=?';
         $params = [$slug];
@@ -211,8 +204,7 @@ class CatalogService
     /**
      * Create a catalog entry if it does not already exist.
      */
-    public function createCatalog(string $file): void
-    {
+    public function createCatalog(string $file): void {
         $slug = pathinfo($file, PATHINFO_FILENAME);
         $event = $this->event();
 
@@ -275,8 +267,7 @@ class CatalogService
     /**
      * Read a catalog or the catalog index and return it as JSON.
      */
-    public function read(string $file): ?string
-    {
+    public function read(string $file): ?string {
         if ($file === 'catalogs.json') {
             $fields = 'uid,sort_order,slug,file,name,description,raetsel_buchstabe';
             if ($this->hasCommentColumn()) {
@@ -382,8 +373,7 @@ class CatalogService
      *
      * @param array|string $data
      */
-    public function write(string $file, $data): void
-    {
+    public function write(string $file, $data): void {
         if ($file === 'catalogs.json') {
             if (!is_array($data)) {
                 $data = json_decode((string)$data, true) ?? [];
@@ -647,8 +637,7 @@ class CatalogService
     /**
      * Delete a catalog and all associated questions.
      */
-    public function delete(string $file): void
-    {
+    public function delete(string $file): void {
         if ($file === 'catalogs.json') {
             $uid = $this->event();
             if ($uid !== '') {
@@ -684,8 +673,7 @@ class CatalogService
     /**
      * Remove a question at a specific index from a catalog file.
      */
-    public function deleteQuestion(string $file, int $index): void
-    {
+    public function deleteQuestion(string $file, int $index): void {
         $slug = pathinfo($file, PATHINFO_FILENAME);
         $uid = $this->event();
         $sql = 'SELECT uid FROM catalogs WHERE slug=?';
@@ -713,8 +701,7 @@ class CatalogService
     /**
      * Return the design path for the given catalog slug.
      */
-    public function getDesignPath(string $slug): ?string
-    {
+    public function getDesignPath(string $slug): ?string {
         if (!$this->hasDesignColumn()) {
             return null;
         }
@@ -741,8 +728,7 @@ class CatalogService
     /**
      * Update the design path for the given catalog slug.
      */
-    public function setDesignPath(string $slug, ?string $path): void
-    {
+    public function setDesignPath(string $slug, ?string $path): void {
         if (!$this->hasDesignColumn()) {
             return;
         }

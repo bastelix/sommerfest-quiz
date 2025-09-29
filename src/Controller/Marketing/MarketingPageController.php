@@ -32,8 +32,7 @@ class MarketingPageController
         ?PageSeoConfigService $seo = null,
         ?TurnstileConfig $turnstileConfig = null,
         ?ProvenExpertRatingService $provenExpert = null
-    )
-    {
+    ) {
         $this->slug = $slug;
         $this->pages = $pages ?? new PageService();
         $this->seo = $seo ?? new PageSeoConfigService();
@@ -41,8 +40,7 @@ class MarketingPageController
         $this->provenExpert = $provenExpert ?? new ProvenExpertRatingService();
     }
 
-    public function __invoke(Request $request, Response $response, array $args = []): Response
-    {
+    public function __invoke(Request $request, Response $response, array $args = []): Response {
         $templateSlug = $this->slug ?? (string) ($args['slug'] ?? '');
         if ($templateSlug === '' || !preg_match('/^[a-z0-9-]+$/', $templateSlug)) {
             return $response->withStatus(404);
@@ -134,8 +132,7 @@ class MarketingPageController
      *
      * @return array<int,array{href:string,hreflang:string}>
      */
-    private function buildHreflangLinks(?string $hreflang, string $canonicalUrl): array
-    {
+    private function buildHreflangLinks(?string $hreflang, string $canonicalUrl): array {
         if ($hreflang === null) {
             return [];
         }
@@ -192,8 +189,7 @@ class MarketingPageController
         return $links;
     }
 
-    private function resolveLocalizedSlug(string $baseSlug, string $locale): string
-    {
+    private function resolveLocalizedSlug(string $baseSlug, string $locale): string {
         $locale = strtolower(trim($locale));
         if ($locale === '' || $locale === 'de') {
             return $baseSlug;

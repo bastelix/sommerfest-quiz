@@ -10,8 +10,7 @@ class TurnstileConfig
     private ?string $secretKey;
     private bool $enabled;
 
-    public function __construct(?string $siteKey, ?string $secretKey, bool $enabled = true)
-    {
+    public function __construct(?string $siteKey, ?string $secretKey, bool $enabled = true) {
         $siteKey = $this->normalize($siteKey);
         $secretKey = $this->normalize($secretKey);
         $this->enabled = $enabled;
@@ -19,31 +18,26 @@ class TurnstileConfig
         $this->secretKey = $secretKey;
     }
 
-    public static function fromEnv(): self
-    {
+    public static function fromEnv(): self {
         $siteKey = getenv('TURNSTILE_SITE_KEY') ?: null;
         $secretKey = getenv('TURNSTILE_SECRET_KEY') ?: null;
 
         return new self($siteKey, $secretKey);
     }
 
-    public function isEnabled(): bool
-    {
+    public function isEnabled(): bool {
         return $this->enabled && $this->siteKey !== null && $this->secretKey !== null;
     }
 
-    public function getSiteKey(): ?string
-    {
+    public function getSiteKey(): ?string {
         return $this->siteKey;
     }
 
-    public function getSecretKey(): ?string
-    {
+    public function getSecretKey(): ?string {
         return $this->secretKey;
     }
 
-    private function normalize(?string $value): ?string
-    {
+    private function normalize(?string $value): ?string {
         if ($value === null) {
             return null;
         }

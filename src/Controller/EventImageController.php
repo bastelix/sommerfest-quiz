@@ -15,16 +15,14 @@ class EventImageController
 {
     private ConfigService $config;
 
-    public function __construct(ConfigService $config)
-    {
+    public function __construct(ConfigService $config) {
         $this->config = $config;
     }
 
     /**
      * Return an image from the event's image directory.
      */
-    public function get(Request $request, Response $response): Response
-    {
+    public function get(Request $request, Response $response): Response {
         $uid = (string) $request->getAttribute('uid');
         $file = (string) $request->getAttribute('file');
         $uid = preg_replace('~[^a-z0-9\-]~i', '', $uid);

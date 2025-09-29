@@ -8,14 +8,12 @@ class FilesystemRateLimitStore implements RateLimitStore
 {
     private string $directory;
 
-    public function __construct(?string $directory = null)
-    {
+    public function __construct(?string $directory = null) {
         $directory = $directory ?? sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'rate_limit';
         $this->directory = rtrim($directory, DIRECTORY_SEPARATOR);
     }
 
-    public function increment(string $key, int $windowSeconds): int
-    {
+    public function increment(string $key, int $windowSeconds): int {
         $path = $this->pathFor($key);
         $now = time();
         $entry = $this->read($path, $now, $windowSeconds);
@@ -28,8 +26,7 @@ class FilesystemRateLimitStore implements RateLimitStore
         return $count;
     }
 
-    public function reset(): void
-    {
+    public function reset(): void {
         if (!is_dir($this->directory)) {
             return;
         }
@@ -46,8 +43,7 @@ class FilesystemRateLimitStore implements RateLimitStore
     /**
      * @return array{count:int,start:int}
      */
-    private function read(string $path, int $now, int $windowSeconds): array
-    {
+    private function read(string $path, int $now, int $windowSeconds): array {
         if (is_file($path)) {
             $contents = file_get_contents($path);
             if ($contents !== false) {
@@ -70,8 +66,7 @@ class FilesystemRateLimitStore implements RateLimitStore
     /**
      * @param array{count:int,start:int} $data
      */
-    private function write(string $path, array $data): void
-    {
+    private function write(string $path, array $data): void {
         $dir = dirname($path);
         if (!is_dir($dir)) {
             @mkdir($dir, 0777, true);
@@ -80,8 +75,7 @@ class FilesystemRateLimitStore implements RateLimitStore
         file_put_contents($path, json_encode($data), LOCK_EX);
     }
 
-    private function pathFor(string $key): string
-    {
+    private function pathFor(string $key): string {
         return $this->directory . DIRECTORY_SEPARATOR . 'rlm_' . $key . '.json';
     }
 }

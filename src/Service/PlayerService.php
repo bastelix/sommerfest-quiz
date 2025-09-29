@@ -13,16 +13,14 @@ class PlayerService
 {
     private PDO $pdo;
 
-    public function __construct(PDO $pdo)
-    {
+    public function __construct(PDO $pdo) {
         $this->pdo = $pdo;
     }
 
     /**
      * Store a player's data in the database.
      */
-    public function save(string $eventUid, string $playerName, string $playerUid): void
-    {
+    public function save(string $eventUid, string $playerName, string $playerUid): void {
         if ($eventUid === '' || $playerName === '' || $playerUid === '') {
             return;
         }
@@ -35,8 +33,7 @@ class PlayerService
     /**
      * Retrieve a player's name by event and UID.
      */
-    public function findName(string $eventUid, string $playerUid): ?string
-    {
+    public function findName(string $eventUid, string $playerUid): ?string {
         if ($eventUid === '' || $playerUid === '') {
             return null;
         }

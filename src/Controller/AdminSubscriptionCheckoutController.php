@@ -17,8 +17,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
  */
 class AdminSubscriptionCheckoutController
 {
-    public function __invoke(Request $request, Response $response): Response
-    {
+    public function __invoke(Request $request, Response $response): Response {
         $logger = LogService::create('stripe');
         try {
             $sessionToken = $_SESSION['csrf_token'] ?? '';
@@ -151,8 +150,7 @@ class AdminSubscriptionCheckoutController
         }
     }
 
-    private function jsonError(Response $response, int $status, string $message): Response
-    {
+    private function jsonError(Response $response, int $status, string $message): Response {
         $payload = ['error' => $message];
         $log = LogService::tail('stripe');
         if ($log !== '') {

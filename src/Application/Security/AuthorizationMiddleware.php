@@ -18,13 +18,11 @@ class AuthorizationMiddleware implements MiddlewareInterface
 {
     private string $requiredRole;
 
-    public function __construct(string $requiredRole)
-    {
+    public function __construct(string $requiredRole) {
         $this->requiredRole = $requiredRole;
     }
 
-    public function process(Request $request, RequestHandler $handler): Response
-    {
+    public function process(Request $request, RequestHandler $handler): Response {
         if ($this->requiredRole === '') {
             return $handler->handle($request);
         }

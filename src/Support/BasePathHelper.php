@@ -6,12 +6,10 @@ namespace App\Support;
 
 final class BasePathHelper
 {
-    private function __construct()
-    {
+    private function __construct() {
     }
 
-    public static function normalize(?string $basePath): string
-    {
+    public static function normalize(?string $basePath): string {
         if ($basePath === null) {
             return '';
         }

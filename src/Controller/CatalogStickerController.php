@@ -118,8 +118,7 @@ class CatalogStickerController
         $this->images = $images ?? new ImageUploadService(sys_get_temp_dir());
     }
 
-    private function pct(float|string|null $v): float
-    {
+    private function pct(float|string|null $v): float {
         $f = (float) $v;
         if (!is_finite($f)) {
             $f = 0.0;
@@ -127,8 +126,7 @@ class CatalogStickerController
         return max(0.0, min(100.0, $f));
     }
 
-    public function getSettings(Request $request, Response $response): Response
-    {
+    public function getSettings(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $uid = (string) ($params['event_uid'] ?? '');
         if ($uid === '') {
@@ -195,8 +193,7 @@ class CatalogStickerController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
-    public function saveSettings(Request $request, Response $response): Response
-    {
+    public function saveSettings(Request $request, Response $response): Response {
         $data = $request->getParsedBody();
         if ($request->getHeaderLine('Content-Type') === 'application/json') {
             $data = json_decode((string) $request->getBody(), true);
@@ -249,8 +246,7 @@ class CatalogStickerController
         return $response->withStatus(204);
     }
 
-    public function pdf(Request $request, Response $response): Response
-    {
+    public function pdf(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $uid = (string)($params['event_uid'] ?? ($params['event'] ?? ''));
         if ($uid === '') {
@@ -497,8 +493,7 @@ class CatalogStickerController
             ->withHeader('Content-Disposition', 'inline; filename="catalog-stickers.pdf"');
     }
 
-    public function uploadBackground(Request $request, Response $response): Response
-    {
+    public function uploadBackground(Request $request, Response $response): Response {
         $files = $request->getUploadedFiles();
         if (!isset($files['file'])) {
             $response->getBody()->write('missing file');
@@ -549,8 +544,7 @@ class CatalogStickerController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
-    private function sanitizePdfText(string $text): string
-    {
+    private function sanitizePdfText(string $text): string {
         $converted = @iconv('UTF-8', 'CP1252//TRANSLIT', $text);
         if ($converted === false) {
             return preg_replace('/[^\x00-\x7F]/', '?', $text);
@@ -558,8 +552,7 @@ class CatalogStickerController
         return $converted;
     }
 
-    private function wrapText(FPDF $pdf, string $text, float $maxWidth): array
-    {
+    private function wrapText(FPDF $pdf, string $text, float $maxWidth): array {
         $words = preg_split('/\s+/', $text) ?: [];
         $lines = [];
         $line = '';

@@ -13,16 +13,14 @@ class SessionService
 {
     private PDO $pdo;
 
-    public function __construct(PDO $pdo)
-    {
+    public function __construct(PDO $pdo) {
         $this->pdo = $pdo;
     }
 
     /**
      * Store the current session id for the given user.
      */
-    public function persistSession(int $userId, string $sessionId): void
-    {
+    public function persistSession(int $userId, string $sessionId): void {
         $stmt = $this->pdo->prepare(
             'INSERT INTO user_sessions(user_id, session_id) VALUES(?, ?) ON CONFLICT DO NOTHING'
         );
@@ -32,8 +30,7 @@ class SessionService
     /**
      * Invalidate all sessions associated with the given user id.
      */
-    public function invalidateUserSessions(int $userId): void
-    {
+    public function invalidateUserSessions(int $userId): void {
         $stmt = $this->pdo->prepare('SELECT session_id FROM user_sessions WHERE user_id=?');
         $stmt->execute([$userId]);
         $ids = $stmt->fetchAll(PDO::FETCH_COLUMN);

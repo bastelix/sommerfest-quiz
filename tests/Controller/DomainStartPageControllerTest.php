@@ -10,8 +10,7 @@ use Tests\TestCase;
 
 class DomainStartPageControllerTest extends TestCase
 {
-    public function testCanSaveNewMarketingPageAsStartPage(): void
-    {
+    public function testCanSaveNewMarketingPageAsStartPage(): void {
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_destroy();
         }

@@ -13,8 +13,7 @@ use Tests\TestCase;
 
 class NginxReloadRouteTest extends TestCase
 {
-    public function testRequestSentWhenUrlConfigured(): void
-    {
+    public function testRequestSentWhenUrlConfigured(): void {
         $old = getenv('NGINX_RELOADER_URL');
         putenv('NGINX_RELOAD_TOKEN=changeme');
         putenv('NGINX_RELOADER_URL=http://localhost/reload');

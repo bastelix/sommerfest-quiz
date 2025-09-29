@@ -17,8 +17,7 @@ class InvitationController
     private InvitationService $service;
     private MailService $mailer;
 
-    public function __construct(InvitationService $service, MailService $mailer)
-    {
+    public function __construct(InvitationService $service, MailService $mailer) {
         $this->service = $service;
         $this->mailer = $mailer;
     }
@@ -26,8 +25,7 @@ class InvitationController
     /**
      * Accept email and name, send invitation link.
      */
-    public function send(Request $request, Response $response): Response
-    {
+    public function send(Request $request, Response $response): Response {
         $data = json_decode((string) $request->getBody(), true);
         if (!is_array($data)) {
             return $response->withStatus(400);

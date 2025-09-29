@@ -11,8 +11,7 @@ use Tests\TestCase;
 
 class SummaryPhotoServiceTest extends TestCase
 {
-    public function testAddAndGetAll(): void
-    {
+    public function testAddAndGetAll(): void {
         $pdo = $this->createDatabase();
         $cfg = new ConfigService($pdo);
         $cfg->saveConfig(['event_uid' => 'ev1']);

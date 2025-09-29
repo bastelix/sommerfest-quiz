@@ -35,8 +35,7 @@ class NginxService
         $this->httpClient = $httpClient ?? new \GuzzleHttp\Client();
     }
 
-    public function createVhost(string $sub): void
-    {
+    public function createVhost(string $sub): void {
         if ($this->domain === '') {
             throw new \RuntimeException('DOMAIN not configured');
         }
@@ -61,8 +60,7 @@ class NginxService
     /**
      * Trigger nginx reload via the reloader service.
      */
-    public function reload(): void
-    {
+    public function reload(): void {
         try {
             $res = $this->httpClient->request(
                 'POST',

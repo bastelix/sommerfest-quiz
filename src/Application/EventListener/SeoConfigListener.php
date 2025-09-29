@@ -16,26 +16,22 @@ class SeoConfigListener
 {
     private PageSeoCache $cache;
 
-    public function __construct(PageSeoCache $cache)
-    {
+    public function __construct(PageSeoCache $cache) {
         $this->cache = $cache;
     }
 
-    public static function register(EventDispatcher $dispatcher, PageSeoCache $cache): void
-    {
+    public static function register(EventDispatcher $dispatcher, PageSeoCache $cache): void {
         $listener = new self($cache);
         $dispatcher->addListener(SeoConfigSaved::class, [$listener, 'onSaved']);
         $dispatcher->addListener(SeoConfigUpdated::class, [$listener, 'onUpdated']);
     }
 
-    public function onSaved(SeoConfigSaved $event): void
-    {
+    public function onSaved(SeoConfigSaved $event): void {
         // Invalidate cache and trigger any additional hooks such as search-console pings.
         $this->cache->invalidate($event->getConfig()->getPageId());
     }
 
-    public function onUpdated(SeoConfigUpdated $event): void
-    {
+    public function onUpdated(SeoConfigUpdated $event): void {
         // Invalidate cache and trigger any additional hooks such as search-console pings.
         $this->cache->invalidate($event->getConfig()->getPageId());
     }

@@ -9,8 +9,7 @@ use App\Service\PageVariableService;
 
 class PageVariableServiceTest extends TestCase
 {
-    public function testApplyReplacesPlaceholders(): void
-    {
+    public function testApplyReplacesPlaceholders(): void {
         $html = '<p>[NAME], [STREET], [ZIP] [CITY], [EMAIL]</p>';
         $result = PageVariableService::apply($html);
         $this->assertStringNotContainsString('[NAME]', $result);

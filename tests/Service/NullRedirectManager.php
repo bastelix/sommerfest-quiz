@@ -8,11 +8,9 @@ use App\Application\Routing\RedirectManager;
 
 class NullRedirectManager extends RedirectManager
 {
-    public function __construct()
-    {
+    public function __construct() {
     }
 
-    public function register(string $from, string $to, int $status = 301): void
-    {
+    public function register(string $from, string $to, int $status = 301): void {
     }
 }

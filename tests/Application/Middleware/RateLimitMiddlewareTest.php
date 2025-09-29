@@ -15,22 +15,19 @@ use Slim\Psr7\Factory\ServerRequestFactory;
 
 class RateLimitMiddlewareTest extends TestCase
 {
-    protected function setUp(): void
-    {
+    protected function setUp(): void {
         parent::setUp();
         RateLimitMiddleware::resetPersistentStorage();
         $_SESSION = [];
     }
 
-    protected function tearDown(): void
-    {
+    protected function tearDown(): void {
         RateLimitMiddleware::resetPersistentStorage();
         $_SESSION = [];
         parent::tearDown();
     }
 
-    public function testPersistentLimitBlocksAcrossSessions(): void
-    {
+    public function testPersistentLimitBlocksAcrossSessions(): void {
         $middleware = new RateLimitMiddleware(2, 3600);
         $factory = new ServerRequestFactory();
         $request = $factory->createServerRequest(
@@ -43,8 +40,7 @@ class RateLimitMiddlewareTest extends TestCase
         );
 
         $handler = new class implements RequestHandlerInterface {
-            public function handle(ServerRequestInterface $request): ResponseInterface
-            {
+            public function handle(ServerRequestInterface $request): ResponseInterface {
                 $factory = new ResponseFactory();
 
                 return $factory->createResponse(204);
@@ -63,8 +59,7 @@ class RateLimitMiddlewareTest extends TestCase
         $this->assertSame('3600', $response->getHeaderLine('Retry-After'));
     }
 
-    public function testInjectedPersistentStoreIsHonored(): void
-    {
+    public function testInjectedPersistentStoreIsHonored(): void {
         $dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'rate_limit_injected_' . uniqid('', true);
         $store = new FilesystemRateLimitStore($dir);
         $store->reset();
@@ -74,8 +69,7 @@ class RateLimitMiddlewareTest extends TestCase
         $request = $factory->createServerRequest('POST', 'https://example.com/landing/contact');
 
         $handler = new class implements RequestHandlerInterface {
-            public function handle(ServerRequestInterface $request): ResponseInterface
-            {
+            public function handle(ServerRequestInterface $request): ResponseInterface {
                 $factory = new ResponseFactory();
 
                 return $factory->createResponse(204);

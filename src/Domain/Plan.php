@@ -13,8 +13,7 @@ enum Plan: string
     /**
      * @return array<string,int|null>
      */
-    public function limits(): array
-    {
+    public function limits(): array {
         return match ($this) {
             self::STARTER => [
                 'maxEvents' => 1,

@@ -15,8 +15,7 @@ class CatalogSessionController
     /**
      * Handle the incoming request.
      */
-    public function __invoke(Request $request, Response $response): Response
-    {
+    public function __invoke(Request $request, Response $response): Response {
         $data = json_decode((string) $request->getBody(), true);
         $slug = is_array($data) ? ($data['slug'] ?? '') : '';
         $remember = is_array($data) ? (bool)($data['remember'] ?? false) : false;

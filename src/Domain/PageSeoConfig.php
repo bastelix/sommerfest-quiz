@@ -70,90 +70,74 @@ class PageSeoConfig implements JsonSerializable
         $this->faviconPath = $faviconPath;
     }
 
-    public function getPageId(): int
-    {
+    public function getPageId(): int {
         return $this->pageId;
     }
 
-    public function getMetaTitle(): ?string
-    {
+    public function getMetaTitle(): ?string {
         return $this->metaTitle;
     }
 
-    public function getMetaDescription(): ?string
-    {
+    public function getMetaDescription(): ?string {
         return $this->metaDescription;
     }
 
-    public function getSlug(): string
-    {
+    public function getSlug(): string {
         return $this->slug;
     }
 
-    public function getCanonicalUrl(): ?string
-    {
+    public function getCanonicalUrl(): ?string {
         return $this->canonicalUrl;
     }
 
-    public function getDomain(): ?string
-    {
+    public function getDomain(): ?string {
         return $this->domain;
     }
 
-    public function getRobotsMeta(): ?string
-    {
+    public function getRobotsMeta(): ?string {
         return $this->robotsMeta;
     }
 
-    public function getOgTitle(): ?string
-    {
+    public function getOgTitle(): ?string {
         return $this->ogTitle;
     }
 
-    public function getOgDescription(): ?string
-    {
+    public function getOgDescription(): ?string {
         return $this->ogDescription;
     }
 
-    public function getOgImage(): ?string
-    {
+    public function getOgImage(): ?string {
         return $this->ogImage;
     }
 
-    public function getSchemaJson(): ?string
-    {
+    public function getSchemaJson(): ?string {
         return $this->schemaJson;
     }
 
-    public function getHreflang(): ?string
-    {
+    public function getHreflang(): ?string {
         return $this->hreflang;
     }
 
-    public function getFaviconPath(): ?string
-    {
+    public function getFaviconPath(): ?string {
         return $this->faviconPath;
     }
 
     /**
      * @return Page|null
      */
-    public function getPage()
-    {
+    public function getPage() {
         return $this->page;
     }
 
     /**
      * @param Page $page
      */
-    public function setPage($page): void
-    {
+    public function setPage($page): void {
         $this->page = $page;
     }
 
     #[\ReturnTypeWillChange]
-    public function jsonSerialize(): array
-    {
+    public function jsonSerialize(): array {
         return [
             'pageId' => $this->pageId,
             'metaTitle' => $this->metaTitle,

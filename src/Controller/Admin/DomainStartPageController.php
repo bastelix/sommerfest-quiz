@@ -32,8 +32,7 @@ class DomainStartPageController
         $this->pageService = $pageService;
     }
 
-    public function index(Request $request, Response $response): Response
-    {
+    public function index(Request $request, Response $response): Response {
         $translator = $request->getAttribute('translator');
         $translationService = $translator instanceof TranslationService ? $translator : null;
 
@@ -144,8 +143,7 @@ class DomainStartPageController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
-    public function save(Request $request, Response $response): Response
-    {
+    public function save(Request $request, Response $response): Response {
         $translator = $request->getAttribute('translator');
         $translationService = $translator instanceof TranslationService ? $translator : null;
 
@@ -247,8 +245,7 @@ class DomainStartPageController
     /**
      * @return array<string,string>
      */
-    private function buildOptionLabels(?TranslationService $translationService): array
-    {
+    private function buildOptionLabels(?TranslationService $translationService): array {
         $options = $this->domainService->getStartPageOptions($this->pageService);
 
         if ($translationService !== null) {

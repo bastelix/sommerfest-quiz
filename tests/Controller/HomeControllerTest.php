@@ -9,8 +9,7 @@ use Tests\TestCase;
 
 class HomeControllerTest extends TestCase
 {
-    private function setupDb(): string
-    {
+    private function setupDb(): string {
         $db = tempnam(sys_get_temp_dir(), 'db');
         putenv('MAIN_DOMAIN=main.test');
         $_ENV['MAIN_DOMAIN'] = 'main.test';
@@ -34,8 +33,7 @@ class HomeControllerTest extends TestCase
         return $request->withUri($request->getUri()->withHost('main.test'));
     }
 
-    public function testHomePage(): void
-    {
+    public function testHomePage(): void {
         $db = $this->setupDb();
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/');
@@ -44,8 +42,7 @@ class HomeControllerTest extends TestCase
         unlink($db);
     }
 
-    public function testEventCatalogOverview(): void
-    {
+    public function testEventCatalogOverview(): void {
         $db = $this->setupDb();
         $this->getAppInstance();
         $pdo = \App\Infrastructure\Database::connectFromEnv();
@@ -69,8 +66,7 @@ class HomeControllerTest extends TestCase
         }
     }
 
-    private function withCompetitionMode(callable $fn): void
-    {
+    private function withCompetitionMode(callable $fn): void {
         // Ensure a fresh database and seed a catalog entry for the tests
         $db = $this->setupDb();
         $this->getAppInstance();
@@ -92,8 +88,7 @@ class HomeControllerTest extends TestCase
         }
     }
 
-    public function testCompetitionRedirect(): void
-    {
+    public function testCompetitionRedirect(): void {
         $this->withCompetitionMode(function () {
             $app = $this->getAppInstance();
             $request = $this->createRequest('GET', '/')->withQueryParams(['event' => 'event']);
@@ -103,8 +98,7 @@ class HomeControllerTest extends TestCase
         });
     }
 
-    public function testCompetitionAllowsCatalog(): void
-    {
+    public function testCompetitionAllowsCatalog(): void {
         $this->withCompetitionMode(function () {
             $app = $this->getAppInstance();
             $request = $this->createRequest('GET', '/')->withQueryParams([
@@ -116,8 +110,7 @@ class HomeControllerTest extends TestCase
         });
     }
 
-    public function testCompetitionAllowsCatalogSlugCaseInsensitive(): void
-    {
+    public function testCompetitionAllowsCatalogSlugCaseInsensitive(): void {
         $this->withCompetitionMode(function () {
             $app = $this->getAppInstance();
             $request = $this->createRequest('GET', '/')->withQueryParams([
@@ -129,8 +122,7 @@ class HomeControllerTest extends TestCase
         });
     }
 
-    public function testEventsAsHomePage(): void
-    {
+    public function testEventsAsHomePage(): void {
         $db = $this->setupDb();
         $this->getAppInstance();
         $pdo = \App\Infrastructure\Database::connectFromEnv();
@@ -149,8 +141,7 @@ class HomeControllerTest extends TestCase
         }
     }
 
-    public function testLandingAsHomePage(): void
-    {
+    public function testLandingAsHomePage(): void {
         $db = $this->setupDb();
         $this->getAppInstance();
         $pdo = \App\Infrastructure\Database::connectFromEnv();
@@ -171,8 +162,7 @@ class HomeControllerTest extends TestCase
         }
     }
 
-    public function testLandingSkippedWithCatalogLink(): void
-    {
+    public function testLandingSkippedWithCatalogLink(): void {
         $db = $this->setupDb();
         $this->getAppInstance();
         $pdo = \App\Infrastructure\Database::connectFromEnv();
@@ -197,8 +187,7 @@ class HomeControllerTest extends TestCase
         }
     }
 
-    public function testLandingShownWithoutParamsDespiteSessionCatalog(): void
-    {
+    public function testLandingShownWithoutParamsDespiteSessionCatalog(): void {
         $db = $this->setupDb();
         $this->getAppInstance();
         $pdo = \App\Infrastructure\Database::connectFromEnv();
@@ -228,8 +217,7 @@ class HomeControllerTest extends TestCase
         }
     }
 
-    public function testHomePageWithSlug(): void
-    {
+    public function testHomePageWithSlug(): void {
         $db = $this->setupDb();
         $this->getAppInstance();
         $pdo = \App\Infrastructure\Database::connectFromEnv();

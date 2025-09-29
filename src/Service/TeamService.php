@@ -38,8 +38,7 @@ class TeamService
     /**
      * Retrieve the ordered list of teams.
      */
-    public function getAll(): array
-    {
+    public function getAll(): array {
         $uid = $this->config->getActiveEventUid();
         if ($uid === '') {
             return [];
@@ -53,8 +52,7 @@ class TeamService
     /**
      * Create a team with the given name if it does not exist yet.
      */
-    public function addIfMissing(string $name): void
-    {
+    public function addIfMissing(string $name): void {
         $uid = $this->config->getActiveEventUid();
         $sql = 'SELECT uid FROM teams WHERE name=?';
         $params = [$name];
@@ -89,8 +87,7 @@ class TeamService
     /**
      * @param array<int, string> $teams
      */
-    public function saveAll(array $teams): void
-    {
+    public function saveAll(array $teams): void {
         $uid = $this->config->getActiveEventUid();
 
         $teamCount = count($teams);

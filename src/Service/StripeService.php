@@ -13,8 +13,7 @@ class StripeService
 {
     private StripeClient $client;
 
-    public function __construct(?string $apiKey = null, ?StripeClient $client = null)
-    {
+    public function __construct(?string $apiKey = null, ?StripeClient $client = null) {
         if ($client !== null) {
             $this->client = $client;
             return;
@@ -85,8 +84,7 @@ class StripeService
     /**
      * Get the publishable key for the current environment.
      */
-    public function getPublishableKey(): string
-    {
+    public function getPublishableKey(): string {
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
         $envKey = $useSandbox ? 'STRIPE_SANDBOX_PUBLISHABLE_KEY' : 'STRIPE_PUBLISHABLE_KEY';
         $altKey = $useSandbox ? 'STRIPE_SANDBOX_PUBLISHABLE' : 'STRIPE_PUBLISHABLE';
@@ -96,8 +94,7 @@ class StripeService
     /**
      * Look up a Stripe customer id by email address.
      */
-    public function findCustomerIdByEmail(string $email): ?string
-    {
+    public function findCustomerIdByEmail(string $email): ?string {
         $customers = $this->client->customers->all([
             'email' => $email,
             'limit' => 1,
@@ -109,8 +106,7 @@ class StripeService
     /**
      * Create a new customer and return its id.
      */
-    public function createCustomer(string $email, ?string $name = null): string
-    {
+    public function createCustomer(string $email, ?string $name = null): string {
         $params = ['email' => $email];
         if ($name !== null) {
             $params['name'] = $name;
@@ -122,8 +118,7 @@ class StripeService
     /**
      * Create a billing portal session and return its URL.
      */
-    public function createBillingPortal(string $customerId, string $returnUrl): string
-    {
+    public function createBillingPortal(string $customerId, string $returnUrl): string {
         $session = $this->client->billingPortal->sessions->create([
             'customer' => $customerId,
             'return_url' => $returnUrl,
@@ -134,8 +129,7 @@ class StripeService
     /**
      * Check whether a checkout session has been paid.
      */
-    public function isCheckoutSessionPaid(string $sessionId): bool
-    {
+    public function isCheckoutSessionPaid(string $sessionId): bool {
         return $this->getCheckoutSessionInfo($sessionId)['paid'];
     }
 
@@ -144,8 +138,7 @@ class StripeService
      *
      * @return array{paid:bool, customer_id:?string, client_reference_id:?string, plan:?string}
      */
-    public function getCheckoutSessionInfo(string $sessionId): array
-    {
+    public function getCheckoutSessionInfo(string $sessionId): array {
         try {
             $session = $this->client->checkout->sessions->retrieve(
                 $sessionId,
@@ -196,8 +189,7 @@ class StripeService
      *
      * @return array{plan:?string, amount:int, currency:string, status:string, next_payment:?string}|null
      */
-    public function getActiveSubscription(string $customerId): ?array
-    {
+    public function getActiveSubscription(string $customerId): ?array {
         $subs = $this->client->subscriptions->all([
             'customer' => $customerId,
             'status' => 'active',
@@ -243,8 +235,7 @@ class StripeService
     /**
      * Update the price of the first subscription for the given customer.
      */
-    public function updateSubscriptionForCustomer(string $customerId, string $priceId): void
-    {
+    public function updateSubscriptionForCustomer(string $customerId, string $priceId): void {
         $subs = $this->client->subscriptions->all([
             'customer' => $customerId,
             'limit' => 1,
@@ -268,8 +259,7 @@ class StripeService
     /**
      * Cancel the first subscription for the given customer.
      */
-    public function cancelSubscriptionForCustomer(string $customerId): void
-    {
+    public function cancelSubscriptionForCustomer(string $customerId): void {
         $subs = $this->client->subscriptions->all([
             'customer' => $customerId,
             'limit' => 1,
@@ -294,8 +284,7 @@ class StripeService
      *     invoice_pdf: ?string
      * }>
      */
-    public function listInvoices(string $customerId): array
-    {
+    public function listInvoices(string $customerId): array {
         $invoices = $this->client->invoices->all([
             'customer' => $customerId,
             'limit' => 24,
@@ -322,8 +311,7 @@ class StripeService
      *
      * @return array{ok:bool, missing:string[], warnings:string[]}
      */
-    public static function isConfigured(): array
-    {
+    public static function isConfigured(): array {
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
         $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
 
@@ -384,8 +372,7 @@ class StripeService
      *
      * @return array{ok:bool, issues:string[]}
      */
-    public static function preflight(): array
-    {
+    public static function preflight(): array {
         $issues = [];
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
         $sk = $useSandbox

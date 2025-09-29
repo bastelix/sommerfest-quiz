@@ -11,8 +11,7 @@ class ListUsersAction extends UserAction
     /**
      * {@inheritdoc}
      */
-    protected function action(): Response
-    {
+    protected function action(): Response {
         $users = $this->userRepository->findAll();
 
         $this->logger->info("Users list was viewed.");

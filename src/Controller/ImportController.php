@@ -60,16 +60,14 @@ class ImportController
     /**
      * Import data from the default data directory.
      */
-    public function post(Request $request, Response $response): Response
-    {
+    public function post(Request $request, Response $response): Response {
         return $this->importFromDir($this->dataDir, $response);
     }
 
     /**
      * Import demo data from the default directory used on first installation.
      */
-    public function restoreDefaults(Request $request, Response $response): Response
-    {
+    public function restoreDefaults(Request $request, Response $response): Response {
         $data = $this->decodeJson((string) $request->getBody(), $response);
         if ($data instanceof Response) {
             return $data;
@@ -100,8 +98,7 @@ class ImportController
     /**
      * Import data from a specified backup folder.
      */
-    public function import(Request $request, Response $response, array $args): Response
-    {
+    public function import(Request $request, Response $response, array $args): Response {
         $dir = (string)($args['name'] ?? '');
         if (
             $dir === ''
@@ -120,8 +117,7 @@ class ImportController
      *
      * @return mixed|Response
      */
-    private function decodeJson(string $json, Response $response): mixed
-    {
+    private function decodeJson(string $json, Response $response): mixed {
         $data = json_decode($json, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
             $response->getBody()->write(
@@ -138,8 +134,7 @@ class ImportController
     /**
      * Helper to import configuration, catalogs, results and more from a directory.
      */
-    private function importFromDir(string $dir, Response $response): Response
-    {
+    private function importFromDir(string $dir, Response $response): Response {
         $catalogDir = $dir . '/kataloge';
         $catalogsFile = $catalogDir . '/catalogs.json';
         if (!is_readable($catalogsFile)) {

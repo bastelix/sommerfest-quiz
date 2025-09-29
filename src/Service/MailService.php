@@ -27,8 +27,7 @@ class MailService
     private ?AuditLogger $audit;
     private string $baseUrl;
 
-    private static function loadEnvConfig(): array
-    {
+    private static function loadEnvConfig(): array {
         $root = dirname(__DIR__, 2);
         $envFile = $root . '/.env';
         $env = [];
@@ -49,8 +48,7 @@ class MailService
         ];
     }
 
-    public static function isConfigured(): bool
-    {
+    public static function isConfigured(): bool {
         $config = self::loadEnvConfig();
 
         if ($config['mailer_dsn'] !== '') {
@@ -60,8 +58,7 @@ class MailService
         return $config['host'] !== '' && $config['user'] !== '' && $config['pass'] !== '';
     }
 
-    public function __construct(Environment $twig, ?AuditLogger $audit = null)
-    {
+    public function __construct(Environment $twig, ?AuditLogger $audit = null) {
         $config = self::loadEnvConfig();
 
         $mailerDsn  = $config['mailer_dsn'];
@@ -121,15 +118,13 @@ class MailService
         $this->baseUrl = $mainDomain !== '' ? 'https://' . $mainDomain : '';
     }
 
-    protected function createTransport(string $dsn): MailerInterface
-    {
+    protected function createTransport(string $dsn): MailerInterface {
         $transport = Transport::fromDsn($dsn);
 
         return new Mailer($transport);
     }
 
-    private function baseUrlFromLink(string $link): string
-    {
+    private function baseUrlFromLink(string $link): string {
         $parts = parse_url($link);
         if (isset($parts['scheme'], $parts['host'])) {
             $url = $parts['scheme'] . '://' . $parts['host'];
@@ -145,8 +140,7 @@ class MailService
     /**
      * Send password reset mail with link.
      */
-    public function sendPasswordReset(string $to, string $link): void
-    {
+    public function sendPasswordReset(string $to, string $link): void {
         $html = $this->twig->render('emails/password_reset.twig', [
             'link'     => $link,
             'base_url' => $this->baseUrlFromLink($link),
@@ -166,8 +160,7 @@ class MailService
     /**
      * Send double opt-in email with confirmation link.
      */
-    public function sendDoubleOptIn(string $to, string $link): void
-    {
+    public function sendDoubleOptIn(string $to, string $link): void {
         $html = $this->twig->render('emails/double_optin.twig', [
             'link'     => $link,
             'base_url' => $this->baseUrlFromLink($link),
@@ -185,8 +178,7 @@ class MailService
     /**
      * Send invitation email with registration link.
      */
-    public function sendInvitation(string $to, string $name, string $link): void
-    {
+    public function sendInvitation(string $to, string $name, string $link): void {
         $html = $this->twig->render('emails/invitation.twig', [
             'name'     => $name,
             'link'     => $link,
@@ -209,8 +201,7 @@ class MailService
      *
      * @return string Rendered HTML content of the email
      */
-    public function sendWelcome(string $to, string $domain, string $link): string
-    {
+    public function sendWelcome(string $to, string $domain, string $link): string {
         $adminLink = sprintf('https://%s/admin', $domain);
 
         $baseUrl = 'https://' . $domain;
@@ -245,8 +236,7 @@ class MailService
         ?array $templateData = null,
         ?string $fromEmail = null,
         ?array $smtpOverride = null
-    ): void
-    {
+    ): void {
         $activeMailer = $this->mailer;
         if (is_array($smtpOverride)) {
             $overrideMailer = $this->buildOverrideMailer($smtpOverride);
@@ -312,8 +302,7 @@ class MailService
         $this->audit?->log('contact_mail', ['from' => $replyTo]);
     }
 
-    private function buildContactContext(string $name, string $replyTo, string $message): array
-    {
+    private function buildContactContext(string $name, string $replyTo, string $message): array {
         $safeMessage = nl2br(htmlspecialchars($message, ENT_QUOTES, 'UTF-8'));
 
         return [
@@ -326,8 +315,7 @@ class MailService
         ];
     }
 
-    private function renderTemplateString(?string $template, array $context): ?string
-    {
+    private function renderTemplateString(?string $template, array $context): ?string {
         if ($template === null) {
             return null;
         }
@@ -346,8 +334,7 @@ class MailService
         return null;
     }
 
-    private function determineContactFromAddress(?string $fromEmail, ?string $senderName): string
-    {
+    private function determineContactFromAddress(?string $fromEmail, ?string $senderName): string {
         $email = $fromEmail !== null ? trim($fromEmail) : '';
         if ($email === '') {
             return $this->from;
@@ -361,21 +348,18 @@ class MailService
         return sprintf('%s <%s>', $name, $email);
     }
 
-    private function buildDefaultRecipientText(string $name, string $replyTo, string $message): string
-    {
+    private function buildDefaultRecipientText(string $name, string $replyTo, string $message): string {
         return sprintf("Kontaktanfrage von %s (%s)\n\n%s", $name, $replyTo, $message);
     }
 
-    private function buildDefaultSenderText(string $name, string $message): string
-    {
+    private function buildDefaultSenderText(string $name, string $message): string {
         return sprintf("Hallo %s,\n\n%s\n\n%s", $name, 'vielen Dank für Ihre Nachricht. Hier ist eine Kopie Ihrer Anfrage:', $message);
     }
 
     /**
      * @param array<string,mixed> $config
      */
-    private function buildOverrideMailer(array $config): ?MailerInterface
-    {
+    private function buildOverrideMailer(array $config): ?MailerInterface {
         $dsnValue = isset($config['smtp_dsn']) ? trim((string) $config['smtp_dsn']) : '';
         if ($dsnValue !== '') {
             try {

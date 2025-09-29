@@ -14,18 +14,15 @@ class PageSeoCache
     /** @var array<int, PageSeoConfig> */
     private array $cache = [];
 
-    public function get(int $pageId): ?PageSeoConfig
-    {
+    public function get(int $pageId): ?PageSeoConfig {
         return $this->cache[$pageId] ?? null;
     }
 
-    public function set(PageSeoConfig $config): void
-    {
+    public function set(PageSeoConfig $config): void {
         $this->cache[$config->getPageId()] = $config;
     }
 
-    public function invalidate(int $pageId): void
-    {
+    public function invalidate(int $pageId): void {
         unset($this->cache[$pageId]);
     }
 }

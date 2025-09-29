@@ -17,8 +17,7 @@ class ResultService
     /**
      * Inject database connection.
      */
-    public function __construct(PDO $pdo)
-    {
+    public function __construct(PDO $pdo) {
         $this->pdo = $pdo;
     }
 
@@ -26,8 +25,7 @@ class ResultService
     /**
      * Fetch all stored results along with catalog names.
      */
-    public function getAll(string $eventUid = ''): array
-    {
+    public function getAll(string $eventUid = ''): array {
         $sql = <<<'SQL'
             SELECT r.name, r.catalog, r.attempt, r.correct, r.total, r.time,
                 r.puzzleTime AS "puzzleTime", r.photo,
@@ -63,8 +61,7 @@ class ResultService
     /**
      * Retrieve per-question results including prompts.
      */
-    public function getQuestionResults(string $eventUid = ''): array
-    {
+    public function getQuestionResults(string $eventUid = ''): array {
         $sql = <<<'SQL'
             SELECT qr.name, qr.catalog, qr.question_id, qr.attempt, qr.correct,
                 qr.answer_text, qr.photo, qr.consent,
@@ -104,8 +101,7 @@ class ResultService
      *
      * @return array<int, array<string, mixed>>
      */
-    public function getQuestionRows(string $eventUid = ''): array
-    {
+    public function getQuestionRows(string $eventUid = ''): array {
         $sql = 'SELECT name,catalog,question_id,attempt,correct,answer_text,photo,consent,event_uid '
             . 'FROM question_results';
         $params = [];
@@ -122,8 +118,7 @@ class ResultService
     /**
      * Check whether a result exists for the given player and catalog.
      */
-    public function exists(string $name, string $catalog, string $eventUid = ''): bool
-    {
+    public function exists(string $name, string $catalog, string $eventUid = ''): bool {
         $sql = 'SELECT 1 FROM results WHERE name=? AND catalog=?';
         $params = [$name, $catalog];
         if ($eventUid !== '') {
@@ -139,8 +134,7 @@ class ResultService
     /**
      * @param array<string, mixed> $data
      */
-    public function add(array $data, string $eventUid = ''): array
-    {
+    public function add(array $data, string $eventUid = ''): array {
         $name = (string)($data['name'] ?? '');
         $catalog = (string)($data['catalog'] ?? '');
         $wrong = array_map('intval', $data['wrong'] ?? []);
@@ -228,8 +222,7 @@ class ResultService
     /**
      * Remove all result entries including per-question logs.
      */
-    public function clear(string $eventUid = ''): void
-    {
+    public function clear(string $eventUid = ''): void {
         if ($eventUid !== '') {
             $del = $this->pdo->prepare('DELETE FROM results WHERE event_uid=?');
             $del->execute([$eventUid]);
@@ -244,8 +237,7 @@ class ResultService
     /**
      * Mark the puzzle word as solved for the latest entry of the given user.
      */
-    public function markPuzzle(string $name, string $catalog, int $time, string $eventUid = ''): bool
-    {
+    public function markPuzzle(string $name, string $catalog, int $time, string $eventUid = ''): bool {
         $sql = 'SELECT id, puzzleTime AS "puzzleTime" FROM results WHERE name=? AND catalog=?';
         $params = [$name, $catalog];
         if ($eventUid !== '') {
@@ -269,8 +261,7 @@ class ResultService
     /**
      * Associate a photo path with the latest result entry for the user.
      */
-    public function setPhoto(string $name, string $catalog, string $path, string $eventUid = ''): void
-    {
+    public function setPhoto(string $name, string $catalog, string $path, string $eventUid = ''): void {
         $baseSql = 'SELECT id FROM results WHERE name=? AND catalog=?';
         $params = [$name, $catalog];
         $id = false;
@@ -300,8 +291,7 @@ class ResultService
      *
      * @param list<array<string, mixed>> $results
      */
-    public function saveAll(array $results, string $eventUid = ''): void
-    {
+    public function saveAll(array $results, string $eventUid = ''): void {
         $this->pdo->beginTransaction();
         if ($eventUid !== '') {
             $del = $this->pdo->prepare('DELETE FROM results WHERE event_uid=?');
@@ -339,8 +329,7 @@ class ResultService
      *
      * @param list<array<string, mixed>> $rows
      */
-    public function saveQuestionRows(array $rows, string $eventUid = ''): void
-    {
+    public function saveQuestionRows(array $rows, string $eventUid = ''): void {
         $this->pdo->beginTransaction();
         if ($eventUid !== '') {
             $del = $this->pdo->prepare('DELETE FROM question_results WHERE event_uid=?');

@@ -12,8 +12,7 @@ use Tests\TestCase;
 
 class EventConfigControllerTest extends TestCase
 {
-    public function testUpdateInvalidData(): void
-    {
+    public function testUpdateInvalidData(): void {
         $pdo = $this->createDatabase();
         $eventService = new EventService($pdo);
         $eventService->saveAll([['uid' => 'ev1', 'name' => 'Test']]);
@@ -28,8 +27,7 @@ class EventConfigControllerTest extends TestCase
         $this->assertStringContainsString('errors', (string) $response->getBody());
     }
 
-    public function testUpdateValidData(): void
-    {
+    public function testUpdateValidData(): void {
         $pdo = $this->createDatabase();
         $eventService = new EventService($pdo);
         $eventService->saveAll([['uid' => 'ev1', 'name' => 'Test']]);

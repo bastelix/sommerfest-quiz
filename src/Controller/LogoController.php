@@ -20,8 +20,7 @@ class LogoController
     /**
      * Inject services.
      */
-    public function __construct(ConfigService $config, ?ImageUploadService $images = null)
-    {
+    public function __construct(ConfigService $config, ?ImageUploadService $images = null) {
         $this->config = $config;
         $this->images = $images ?? new ImageUploadService(sys_get_temp_dir());
     }
@@ -29,8 +28,7 @@ class LogoController
     /**
      * Return the stored logo image in the requested format.
      */
-    public function get(Request $request, Response $response, array $args = []): Response
-    {
+    public function get(Request $request, Response $response, array $args = []): Response {
         $file = (string)($request->getAttribute('file') ?? '');
         $ext = strtolower((string)($request->getAttribute('ext') ?? 'png'));
         $uid = '';
@@ -65,8 +63,7 @@ class LogoController
     /**
      * Upload and store a new logo image.
      */
-    public function post(Request $request, Response $response): Response
-    {
+    public function post(Request $request, Response $response): Response {
         $files = $request->getUploadedFiles();
         if (!isset($files['file'])) {
             $response->getBody()->write('missing file');

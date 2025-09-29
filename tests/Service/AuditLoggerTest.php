@@ -10,8 +10,7 @@ use Tests\TestCase;
 
 class AuditLoggerTest extends TestCase
 {
-    public function testLogInsertsRow(): void
-    {
+    public function testLogInsertsRow(): void {
         $pdo = $this->createDatabase();
         $logger = new AuditLogger($pdo);
 

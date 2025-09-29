@@ -9,8 +9,7 @@ use App\Service\PageService;
 
 class CalserverController extends MarketingPageController
 {
-    public function __construct(?PageService $pages = null, ?PageSeoConfigService $seo = null)
-    {
+    public function __construct(?PageService $pages = null, ?PageSeoConfigService $seo = null) {
         parent::__construct('calserver', $pages, $seo);
     }
 }

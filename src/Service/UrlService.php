@@ -8,8 +8,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class UrlService
 {
-    public static function determineBaseUrl(Request $req): string
-    {
+    public static function determineBaseUrl(Request $req): string {
         $uri = $req->getUri();
         $baseUrl = $uri->getScheme() . '://' . $uri->getHost();
         $port = $uri->getPort();

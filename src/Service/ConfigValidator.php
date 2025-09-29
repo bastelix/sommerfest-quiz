@@ -42,8 +42,7 @@ class ConfigValidator
      *
      * @return array{config: array<string,mixed>, errors: array<string,string>}
      */
-    public function validate(array $data, ?string $eventName = null): array
-    {
+    public function validate(array $data, ?string $eventName = null): array {
         $config = [];
         $errors = [];
 
@@ -99,8 +98,7 @@ class ConfigValidator
         return ['config' => $config, 'errors' => $errors];
     }
 
-    private function isValidColor(string $color): bool
-    {
+    private function isValidColor(string $color): bool {
         return (bool)preg_match('/^#([0-9a-fA-F]{3}){1,2}$/', $color);
     }
 }

@@ -53,8 +53,7 @@ class ResultController
     /**
      * Return all stored results as JSON.
      */
-    public function get(Request $request, Response $response): Response
-    {
+    public function get(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $eventUid = (string)($params['event_uid'] ?? '');
         $content = json_encode($this->service->getAll($eventUid), JSON_PRETTY_PRINT);
@@ -65,8 +64,7 @@ class ResultController
     /**
      * Return per-question results as JSON.
      */
-    public function getQuestions(Request $request, Response $response): Response
-    {
+    public function getQuestions(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $eventUid = (string)($params['event_uid'] ?? '');
         $content = json_encode($this->service->getQuestionResults($eventUid), JSON_PRETTY_PRINT);
@@ -77,8 +75,7 @@ class ResultController
     /**
      * Download all results as a CSV file.
      */
-    public function download(Request $request, Response $response): Response
-    {
+    public function download(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $eventUid = (string)($params['event_uid'] ?? '');
         $data = $this->service->getAll($eventUid);
@@ -99,8 +96,7 @@ class ResultController
     /**
      * Store a new result or mark a puzzle as solved.
      */
-    public function post(Request $request, Response $response): Response
-    {
+    public function post(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $eventUid = (string)($params['event_uid'] ?? '');
         $data = json_decode((string) $request->getBody(), true);
@@ -153,8 +149,7 @@ class ResultController
     /**
      * Render the HTML results page.
      */
-    public function page(Request $request, Response $response): Response
-    {
+    public function page(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $eventUid = (string)($params['event_uid'] ?? '');
         $view = Twig::fromRequest($request);
@@ -197,8 +192,7 @@ class ResultController
     /**
      * Clear all results and associated photos.
      */
-    public function delete(Request $request, Response $response): Response
-    {
+    public function delete(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $eventUid = (string)($params['event_uid'] ?? '');
         $this->service->clear($eventUid);
@@ -221,8 +215,7 @@ class ResultController
     /**
      * Render a PDF summary for all teams.
      */
-    public function pdf(Request $request, Response $response): Response
-    {
+    public function pdf(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $eventUid = (string)($params['event_uid'] ?? '');
         $results = $this->service->getAll($eventUid);
@@ -449,8 +442,7 @@ class ResultController
      * @param array<string,mixed> $r
      * @return list<string|int>
      */
-    private function mapResultRow(array $r): array
-    {
+    private function mapResultRow(array $r): array {
         return [
             (string)($r['name'] ?? ''),
             (int)($r['attempt'] ?? 0),
@@ -471,8 +463,7 @@ class ResultController
      *
      * @param list<array<string|int>> $rows
      */
-    private function buildCsv(array $rows): string
-    {
+    private function buildCsv(array $rows): string {
         $lines = [];
         foreach ($rows as $row) {
             $cells = array_map(static function ($v) {
@@ -483,8 +474,7 @@ class ResultController
         return implode("\n", $lines) . "\n";
     }
 
-    private function sanitizePdfText(string $text): string
-    {
+    private function sanitizePdfText(string $text): string {
         $converted = @iconv('UTF-8', 'CP1252//TRANSLIT', $text);
         if ($converted === false) {
             return preg_replace('/[^\x00-\x7F]/', '?', $text);

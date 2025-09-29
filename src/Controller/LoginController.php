@@ -24,8 +24,7 @@ class LoginController
     /**
      * Display the login form.
      */
-    public function show(Request $request, Response $response): Response
-    {
+    public function show(Request $request, Response $response): Response {
         $pdo = $request->getAttribute('pdo');
         if (!$pdo instanceof PDO) {
             $pdo = Database::connectFromEnv();
@@ -53,8 +52,7 @@ class LoginController
     /**
      * Verify credentials and start an admin session on success.
      */
-    public function login(Request $request, Response $response): Response
-    {
+    public function login(Request $request, Response $response): Response {
         $data = $request->getParsedBody();
         if (str_starts_with($request->getHeaderLine('Content-Type'), 'application/json')) {
             $data = json_decode((string) $request->getBody(), true);

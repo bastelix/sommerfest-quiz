@@ -8,8 +8,7 @@ use PDO;
 
 class Migrator
 {
-    public static function migrate(PDO $pdo, string $dir): void
-    {
+    public static function migrate(PDO $pdo, string $dir): void {
         $pdo->exec('CREATE TABLE IF NOT EXISTS migrations (version TEXT PRIMARY KEY)');
         $stmt = $pdo->query('SELECT version FROM migrations');
         $applied = $stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];

@@ -12,8 +12,7 @@ class VersionService
     /**
      * Return the current application version.
      */
-    public function getCurrentVersion(): string
-    {
+    public function getCurrentVersion(): string {
         $root = dirname(__DIR__, 2);
 
         $versionFile = $root . '/VERSION';

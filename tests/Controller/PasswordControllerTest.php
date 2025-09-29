@@ -12,8 +12,7 @@ use Tests\TestCase;
 
 class PasswordControllerTest extends TestCase
 {
-    private function createUser(): UserService
-    {
+    private function createUser(): UserService {
         $pdo = Database::connectFromEnv();
         Migrator::migrate($pdo, __DIR__ . '/../../migrations');
         $service = new UserService($pdo);
@@ -21,8 +20,7 @@ class PasswordControllerTest extends TestCase
         return $service;
     }
 
-    public function testRejectWeakPassword(): void
-    {
+    public function testRejectWeakPassword(): void {
         putenv('POSTGRES_DSN=');
         putenv('POSTGRES_USER=');
         putenv('POSTGRES_PASSWORD=');
@@ -44,8 +42,7 @@ class PasswordControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testAcceptStrongPassword(): void
-    {
+    public function testAcceptStrongPassword(): void {
         putenv('POSTGRES_DSN=');
         putenv('POSTGRES_USER=');
         putenv('POSTGRES_PASSWORD=');

@@ -17,8 +17,7 @@ use Tests\TestCase;
 
 class CatalogStickerControllerTest extends TestCase
 {
-    public function testPdfWithEmptyParameters(): void
-    {
+    public function testPdfWithEmptyParameters(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
         $pdo->exec("INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) VALUES('c1',0,'c1','c1.json','Cat','Desc','A','ev1')");
@@ -26,8 +25,7 @@ class CatalogStickerControllerTest extends TestCase
         $events = new EventService($pdo);
         $catalogs = new CatalogService($pdo, $config);
         $qr = new class extends QrCodeService {
-            public function generateCatalog(array $q, array $cfg = []): array
-            {
+            public function generateCatalog(array $q, array $cfg = []): array {
                 $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==');
                 return ['mime' => 'image/png', 'body' => $img];
             }
@@ -51,8 +49,7 @@ class CatalogStickerControllerTest extends TestCase
         $this->assertGreaterThan(0, strlen($body));
     }
 
-    public function testPdfWithValidParameters(): void
-    {
+    public function testPdfWithValidParameters(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
         $pdo->exec("INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) VALUES('c1',0,'c1','c1.json','Cat','Desc','A','ev1')");
@@ -60,8 +57,7 @@ class CatalogStickerControllerTest extends TestCase
         $events = new EventService($pdo);
         $catalogs = new CatalogService($pdo, $config);
         $qr = new class extends QrCodeService {
-            public function generateCatalog(array $q, array $cfg = []): array
-            {
+            public function generateCatalog(array $q, array $cfg = []): array {
                 $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==');
                 return ['mime' => 'image/png', 'body' => $img];
             }
@@ -85,8 +81,7 @@ class CatalogStickerControllerTest extends TestCase
         $this->assertGreaterThan(0, strlen($body));
     }
 
-    public function testPdfWithAdditionalTemplate(): void
-    {
+    public function testPdfWithAdditionalTemplate(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
         $pdo->exec("INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) VALUES('c1',0,'c1','c1.json','Cat','Desc','A','ev1')");
@@ -94,8 +89,7 @@ class CatalogStickerControllerTest extends TestCase
         $events = new EventService($pdo);
         $catalogs = new CatalogService($pdo, $config);
         $qr = new class extends QrCodeService {
-            public function generateCatalog(array $q, array $cfg = []): array
-            {
+            public function generateCatalog(array $q, array $cfg = []): array {
                 $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==');
                 return ['mime' => 'image/png', 'body' => $img];
             }
@@ -113,8 +107,7 @@ class CatalogStickerControllerTest extends TestCase
         $this->assertGreaterThan(0, strlen($body));
     }
 
-    public function testPdfUsesDefaultTemplateL7163(): void
-    {
+    public function testPdfUsesDefaultTemplateL7163(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
         for ($i = 0; $i < 14; $i++) {
@@ -128,8 +121,7 @@ class CatalogStickerControllerTest extends TestCase
         $events = new EventService($pdo);
         $catalogs = new CatalogService($pdo, $config);
         $qr = new class extends QrCodeService {
-            public function generateCatalog(array $q, array $cfg = []): array
-            {
+            public function generateCatalog(array $q, array $cfg = []): array {
                 $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==');
                 return ['mime' => 'image/png', 'body' => $img];
             }
@@ -142,8 +134,7 @@ class CatalogStickerControllerTest extends TestCase
         $this->assertSame(1, preg_match_all('/\/Type \/Page\b/', $body));
     }
 
-    public function testPdfEmbedsBackgroundImage(): void
-    {
+    public function testPdfEmbedsBackgroundImage(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
         $pdo->exec("INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) VALUES('c1',0,'c1','c1.json','Cat','Desc','A','ev1')");
@@ -151,8 +142,7 @@ class CatalogStickerControllerTest extends TestCase
         $events = new EventService($pdo);
         $catalogs = new CatalogService($pdo, $config);
         $qr = new class extends QrCodeService {
-            public function generateCatalog(array $q, array $cfg = []): array
-            {
+            public function generateCatalog(array $q, array $cfg = []): array {
                 $img = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==');
                 return ['mime' => 'image/png', 'body' => $img];
             }
@@ -182,8 +172,7 @@ class CatalogStickerControllerTest extends TestCase
         $this->assertSame(1, preg_match_all('/\/Subtype\s*\/Image\b/', $withBg));
     }
 
-    public function testGetSettingsProvidesPreviewFields(): void
-    {
+    public function testGetSettingsProvidesPreviewFields(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid, slug, name, description, published, sort_order) VALUES('ev1','ev1','EventTitle','EventDesc',1,0)");
         $pdo->exec("INSERT INTO catalogs(uid, sort_order, slug, file, name, description, raetsel_buchstabe, event_uid) VALUES('c1',0,'c1','c1.json','CatName','CatDesc','A','ev1')");
@@ -214,8 +203,7 @@ class CatalogStickerControllerTest extends TestCase
         $this->assertFalse($data['stickerPrintCatalog']);
     }
 
-    public function testUploadBackgroundStoresImageAndConfig(): void
-    {
+    public function testUploadBackgroundStoresImageAndConfig(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
         $config = new ConfigService($pdo);
@@ -248,8 +236,7 @@ class CatalogStickerControllerTest extends TestCase
         unlink($filePath);
     }
 
-    public function testGetSettingsClearsMissingBackground(): void
-    {
+    public function testGetSettingsClearsMissingBackground(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
         $config = new ConfigService($pdo);
@@ -273,8 +260,7 @@ class CatalogStickerControllerTest extends TestCase
         $this->assertNull($cfg['stickerBgPath']);
     }
 
-    public function testGetSettingsFixesOutdatedBackgroundPath(): void
-    {
+    public function testGetSettingsFixesOutdatedBackgroundPath(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid, slug, name, published, sort_order) VALUES('ev1','ev1','Event',1,0)");
         $config = new ConfigService($pdo);

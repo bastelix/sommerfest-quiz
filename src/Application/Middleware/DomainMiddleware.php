@@ -21,8 +21,7 @@ class DomainMiddleware implements MiddlewareInterface
     /**
      * {@inheritDoc}
      */
-    public function process(Request $request, RequestHandler $handler): Response
-    {
+    public function process(Request $request, RequestHandler $handler): Response {
         $originalHost = strtolower($request->getUri()->getHost());
         $host = $this->normalizeHost($originalHost);
         $marketingHost = $this->normalizeHost($originalHost, stripAdmin: false);
@@ -111,8 +110,7 @@ class DomainMiddleware implements MiddlewareInterface
     /**
      * @return list<string>
      */
-    private function getMarketingDomains(): array
-    {
+    private function getMarketingDomains(): array {
         $env = (string) getenv('MARKETING_DOMAINS');
         if ($env === '') {
             return [];
@@ -136,8 +134,7 @@ class DomainMiddleware implements MiddlewareInterface
         return array_values(array_unique($normalized));
     }
 
-    private function normalizeHost(string $host, bool $stripAdmin = true): string
-    {
+    private function normalizeHost(string $host, bool $stripAdmin = true): string {
         $host = strtolower($host);
 
         $pattern = $stripAdmin ? '/^(www|admin)\./' : '/^www\./';

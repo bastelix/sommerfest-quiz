@@ -8,8 +8,7 @@ use Tests\TestCase;
 
 class DomainAccessTest extends TestCase
 {
-    public function testMarketingRoutesOnMainDomain(): void
-    {
+    public function testMarketingRoutesOnMainDomain(): void {
         $old = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main.test');
         $pdo = $this->getDatabase();
@@ -30,8 +29,7 @@ class DomainAccessTest extends TestCase
         }
     }
 
-    public function testCalserverRouteOnMainDomain(): void
-    {
+    public function testCalserverRouteOnMainDomain(): void {
         $old = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main.test');
         $app = $this->getAppInstance();
@@ -46,8 +44,7 @@ class DomainAccessTest extends TestCase
         }
     }
 
-    public function testTenantApiRejectedOnSubdomain(): void
-    {
+    public function testTenantApiRejectedOnSubdomain(): void {
         $old = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main.test');
         $app = $this->getAppInstance();
@@ -69,8 +66,7 @@ class DomainAccessTest extends TestCase
         }
     }
 
-    public function testTenantCheckRejectedOnSubdomain(): void
-    {
+    public function testTenantCheckRejectedOnSubdomain(): void {
         $old = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main.test');
         $app = $this->getAppInstance();
@@ -92,8 +88,7 @@ class DomainAccessTest extends TestCase
         }
     }
 
-    public function testMarketingSlugOnMarketingDomain(): void
-    {
+    public function testMarketingSlugOnMarketingDomain(): void {
         $oldMain = getenv('MAIN_DOMAIN');
         $oldMarketing = getenv('MARKETING_DOMAINS');
         putenv('MAIN_DOMAIN=main.test');
@@ -126,8 +121,7 @@ class DomainAccessTest extends TestCase
         }
     }
 
-    public function testUnknownSlugOnMarketingDomainReturns404(): void
-    {
+    public function testUnknownSlugOnMarketingDomainReturns404(): void {
         $oldMain = getenv('MAIN_DOMAIN');
         $oldMarketing = getenv('MARKETING_DOMAINS');
         putenv('MAIN_DOMAIN=main.test');

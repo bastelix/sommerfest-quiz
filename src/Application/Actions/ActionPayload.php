@@ -27,27 +27,23 @@ class ActionPayload implements JsonSerializable
         $this->error = $error;
     }
 
-    public function getStatusCode(): int
-    {
+    public function getStatusCode(): int {
         return $this->statusCode;
     }
 
     /**
      * @return array|null|object
      */
-    public function getData()
-    {
+    public function getData() {
         return $this->data;
     }
 
-    public function getError(): ?ActionError
-    {
+    public function getError(): ?ActionError {
         return $this->error;
     }
 
     #[\ReturnTypeWillChange]
-    public function jsonSerialize(): array
-    {
+    public function jsonSerialize(): array {
         $payload = [
             'statusCode' => $this->statusCode,
         ];

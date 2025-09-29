@@ -23,8 +23,7 @@ class ConfigController
     /**
      * Inject configuration service dependency.
      */
-    public function __construct(ConfigService $service, ConfigValidator $validator, EventService $events)
-    {
+    public function __construct(ConfigService $service, ConfigValidator $validator, EventService $events) {
         $this->service   = $service;
         $this->validator = $validator;
         $this->events    = $events;
@@ -33,8 +32,7 @@ class ConfigController
     /**
      * Return the current configuration as JSON.
      */
-    public function get(Request $request, Response $response): Response
-    {
+    public function get(Request $request, Response $response): Response {
         $cfg = $this->service->getConfig();
         $role = $_SESSION['user']['role'] ?? null;
         if ($role !== 'admin') {
@@ -52,8 +50,7 @@ class ConfigController
     /**
      * Return configuration for the specified event UID.
      */
-    public function getByEvent(Request $request, Response $response, array $args): Response
-    {
+    public function getByEvent(Request $request, Response $response, array $args): Response {
         $uid = (string) ($args['uid'] ?? '');
         $cfg = $this->service->getConfigForEvent($uid);
         $role = $_SESSION['user']['role'] ?? null;
@@ -72,8 +69,7 @@ class ConfigController
     /**
      * Persist a new configuration payload.
      */
-    public function post(Request $request, Response $response): Response
-    {
+    public function post(Request $request, Response $response): Response {
         $role = $_SESSION['user']['role'] ?? null;
         if ($role !== Roles::ADMIN && $role !== Roles::EVENT_MANAGER) {
             return $response->withStatus(403);

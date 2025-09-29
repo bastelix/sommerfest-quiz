@@ -20,15 +20,13 @@ class RateLimitMiddleware implements MiddlewareInterface
 
     private static ?RateLimitStore $defaultStore = null;
 
-    public function __construct(int $maxRequests = 5, int $windowSeconds = 60, ?RateLimitStore $store = null)
-    {
+    public function __construct(int $maxRequests = 5, int $windowSeconds = 60, ?RateLimitStore $store = null) {
         $this->maxRequests = $maxRequests;
         $this->windowSeconds = $windowSeconds;
         $this->store = $store ?? self::getPersistentStore();
     }
 
-    public function process(Request $request, RequestHandler $handler): Response
-    {
+    public function process(Request $request, RequestHandler $handler): Response {
         if (!isset($_SESSION) || !is_array($_SESSION)) {
             $_SESSION = [];
         }
@@ -55,18 +53,15 @@ class RateLimitMiddleware implements MiddlewareInterface
         return $handler->handle($request);
     }
 
-    public static function setPersistentStore(RateLimitStore $store): void
-    {
+    public static function setPersistentStore(RateLimitStore $store): void {
         self::$defaultStore = $store;
     }
 
-    public static function resetPersistentStorage(): void
-    {
+    public static function resetPersistentStorage(): void {
         self::getPersistentStore()->reset();
     }
 
-    private static function getPersistentStore(): RateLimitStore
-    {
+    private static function getPersistentStore(): RateLimitStore {
         if (self::$defaultStore === null) {
             self::$defaultStore = RateLimitStoreFactory::createDefault();
         }
@@ -74,22 +69,19 @@ class RateLimitMiddleware implements MiddlewareInterface
         return self::$defaultStore;
     }
 
-    private function tooManyRequestsResponse(): Response
-    {
+    private function tooManyRequestsResponse(): Response {
         $response = new SlimResponse(429);
 
         return $response->withHeader('Retry-After', (string) $this->windowSeconds);
     }
 
-    private function incrementPersistentCounter(Request $request): int
-    {
+    private function incrementPersistentCounter(Request $request): int {
         $hash = $this->fingerprintRequest($request);
 
         return $this->store->increment($hash, $this->windowSeconds);
     }
 
-    private function fingerprintRequest(Request $request): string
-    {
+    private function fingerprintRequest(Request $request): string {
         $serverParams = $request->getServerParams();
         $ip = (string) ($serverParams['REMOTE_ADDR'] ?? 'unknown');
         $ua = $request->getHeaderLine('User-Agent');

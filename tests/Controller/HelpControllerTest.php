@@ -8,16 +8,14 @@ use Tests\TestCase;
 
 class HelpControllerTest extends TestCase
 {
-    public function testHelpPage(): void
-    {
+    public function testHelpPage(): void {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/help');
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testInvitePlaceholderIsReplaced(): void
-    {
+    public function testInvitePlaceholderIsReplaced(): void {
         $dbFile = tempnam(sys_get_temp_dir(), 'db');
         $pdo = new \PDO('sqlite:' . $dbFile);
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
@@ -81,8 +79,7 @@ class HelpControllerTest extends TestCase
         unlink($dbFile);
     }
 
-    public function testInviteTextIsSanitized(): void
-    {
+    public function testInviteTextIsSanitized(): void {
         $dbFile = tempnam(sys_get_temp_dir(), 'db');
         $pdo = new \PDO('sqlite:' . $dbFile);
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);

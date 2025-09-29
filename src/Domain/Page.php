@@ -19,37 +19,31 @@ class Page implements JsonSerializable
 
     private string $content;
 
-    public function __construct(int $id, string $slug, string $title, string $content)
-    {
+    public function __construct(int $id, string $slug, string $title, string $content) {
         $this->id = $id;
         $this->slug = $slug;
         $this->title = $title;
         $this->content = $content;
     }
 
-    public function getId(): int
-    {
+    public function getId(): int {
         return $this->id;
     }
 
-    public function getSlug(): string
-    {
+    public function getSlug(): string {
         return $this->slug;
     }
 
-    public function getTitle(): string
-    {
+    public function getTitle(): string {
         return $this->title;
     }
 
-    public function getContent(): string
-    {
+    public function getContent(): string {
         return $this->content;
     }
 
     #[\ReturnTypeWillChange]
-    public function jsonSerialize(): array
-    {
+    public function jsonSerialize(): array {
         return [
             'id' => $this->id,
             'slug' => $this->slug,

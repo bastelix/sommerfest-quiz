@@ -12,13 +12,11 @@ class EventDispatcher
     /** @var array<string, callable[]> */
     private array $listeners = [];
 
-    public function addListener(string $eventClass, callable $listener): void
-    {
+    public function addListener(string $eventClass, callable $listener): void {
         $this->listeners[$eventClass][] = $listener;
     }
 
-    public function dispatch(object $event): void
-    {
+    public function dispatch(object $event): void {
         $class = $event::class;
         foreach ($this->listeners[$class] ?? [] as $listener) {
             $listener($event);

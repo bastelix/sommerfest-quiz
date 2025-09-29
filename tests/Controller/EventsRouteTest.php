@@ -18,8 +18,7 @@ use Tests\TestCase;
 
 class EventsRouteTest extends TestCase
 {
-    public function testEventsListAccessibleForCatalogEditor(): void
-    {
+    public function testEventsListAccessibleForCatalogEditor(): void {
         $app = $this->getAppInstance();
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
@@ -33,8 +32,7 @@ class EventsRouteTest extends TestCase
         @session_destroy();
     }
 
-    public function testStarterPlanLimitExceeded(): void
-    {
+    public function testStarterPlanLimitExceeded(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','foo','starter')");
 
@@ -77,8 +75,7 @@ class EventsRouteTest extends TestCase
         @session_destroy();
     }
 
-    public function testStarterPlanLimitExceededOnMainDomain(): void
-    {
+    public function testStarterPlanLimitExceededOnMainDomain(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','main','starter')");
         putenv('MAIN_DOMAIN=example.com');

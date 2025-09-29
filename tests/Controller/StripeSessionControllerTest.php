@@ -9,18 +9,15 @@ use Tests\TestCase;
 
 final class StripeSessionControllerTest extends TestCase
 {
-    public function testUsesSessionIdFromRoute(): void
-    {
+    public function testUsesSessionIdFromRoute(): void {
         $app = $this->getAppInstance();
         $service = new class extends StripeService {
             public array $args = [];
 
-            public function __construct()
-            {
+            public function __construct() {
             }
 
-            public function getCheckoutSessionInfo(string $sessionId): array
-            {
+            public function getCheckoutSessionInfo(string $sessionId): array {
                 $this->args[] = $sessionId;
                 return [
                     'paid' => true,

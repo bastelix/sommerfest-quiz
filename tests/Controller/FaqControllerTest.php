@@ -8,8 +8,7 @@ use Tests\TestCase;
 
 class FaqControllerTest extends TestCase
 {
-    public function testFaqPage(): void
-    {
+    public function testFaqPage(): void {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/faq');
         $response = $app->handle($request);

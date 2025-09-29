@@ -8,8 +8,7 @@ use Tests\TestCase;
 
 class EventImageControllerTest extends TestCase
 {
-    public function testServesEventImage(): void
-    {
+    public function testServesEventImage(): void {
         $dir = __DIR__ . '/../../data/events/evimg/images';
         if (!is_dir($dir)) {
             mkdir($dir, 0775, true);

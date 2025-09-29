@@ -17,8 +17,7 @@ use Slim\Psr7\Response;
 
 class SessionDependentMiddlewareTest extends TestCase
 {
-    protected function tearDown(): void
-    {
+    protected function tearDown(): void {
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_unset();
             session_destroy();
@@ -26,8 +25,7 @@ class SessionDependentMiddlewareTest extends TestCase
         parent::tearDown();
     }
 
-    public function testCsrfMiddlewareSetsAndValidatesToken(): void
-    {
+    public function testCsrfMiddlewareSetsAndValidatesToken(): void {
         $app = AppFactory::create();
         $app->add(new SessionMiddleware());
         $app->map(['GET', 'POST'], '/csrf', fn (Request $request, Response $response): Response => $response)
@@ -48,8 +46,7 @@ class SessionDependentMiddlewareTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
     }
 
-    public function testCsrfMiddlewareReturnsJsonForApiPath(): void
-    {
+    public function testCsrfMiddlewareReturnsJsonForApiPath(): void {
         $app = AppFactory::create();
         $app->add(new SessionMiddleware());
         $app->post('/api/test', fn (Request $request, Response $response): Response => $response)
@@ -62,8 +59,7 @@ class SessionDependentMiddlewareTest extends TestCase
         $this->assertSame('application/json', $res->getHeaderLine('Content-Type'));
     }
 
-    public function testRateLimitMiddlewareUsesSession(): void
-    {
+    public function testRateLimitMiddlewareUsesSession(): void {
         RateLimitMiddleware::resetPersistentStorage();
         $app = AppFactory::create();
         $app->add(new SessionMiddleware());
@@ -83,8 +79,7 @@ class SessionDependentMiddlewareTest extends TestCase
         $this->assertSame(429, $res2->getStatusCode());
     }
 
-    public function testRoleAuthMiddlewareRedirectsWithoutRole(): void
-    {
+    public function testRoleAuthMiddlewareRedirectsWithoutRole(): void {
         $app = AppFactory::create();
         $app->add(new SessionMiddleware());
         $app->get('/protected', fn (Request $request, Response $response): Response => $response)
@@ -97,8 +92,7 @@ class SessionDependentMiddlewareTest extends TestCase
         $this->assertSame('/login', $res->getHeaderLine('Location'));
     }
 
-    public function testRoleAuthMiddlewareReturnsJsonForApiRequests(): void
-    {
+    public function testRoleAuthMiddlewareReturnsJsonForApiRequests(): void {
         $app = AppFactory::create();
         $app->add(new SessionMiddleware());
         $app->get('/protected', fn (Request $request, Response $response): Response => $response)
@@ -113,8 +107,7 @@ class SessionDependentMiddlewareTest extends TestCase
         $this->assertSame('application/json', $res->getHeaderLine('Content-Type'));
     }
 
-    public function testRoleAuthMiddlewareUsesApiPath(): void
-    {
+    public function testRoleAuthMiddlewareUsesApiPath(): void {
         $app = AppFactory::create();
         $app->add(new SessionMiddleware());
         $app->get('/api/protected', fn (Request $request, Response $response): Response => $response)
@@ -127,8 +120,7 @@ class SessionDependentMiddlewareTest extends TestCase
         $this->assertSame('application/json', $res->getHeaderLine('Content-Type'));
     }
 
-    public function testAdminAuthMiddlewareReturnsJsonForApiRequests(): void
-    {
+    public function testAdminAuthMiddlewareReturnsJsonForApiRequests(): void {
         $app = AppFactory::create();
         $app->add(new SessionMiddleware());
         $app->get('/api/admin', fn (Request $request, Response $response): Response => $response)
@@ -141,8 +133,7 @@ class SessionDependentMiddlewareTest extends TestCase
         $this->assertSame('application/json', $res->getHeaderLine('Content-Type'));
     }
 
-    public function testAdminAuthMiddlewareAllowsAdmin(): void
-    {
+    public function testAdminAuthMiddlewareAllowsAdmin(): void {
         $app = AppFactory::create();
         $app->add(new SessionMiddleware());
         $app->get('/set', function (Request $request, Response $response): Response {

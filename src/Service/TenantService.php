@@ -130,8 +130,7 @@ class TenantService
     /**
      * Drop the tenant schema and remove its record.
      */
-    public function deleteTenant(string $uid): void
-    {
+    public function deleteTenant(string $uid): void {
         $stmt = $this->pdo->prepare('SELECT subdomain FROM tenants WHERE uid = ?');
         $stmt->execute([$uid]);
         $schema = $stmt->fetchColumn();
@@ -146,8 +145,7 @@ class TenantService
     /**
      * Check whether a tenant with the given subdomain exists.
      */
-    public function exists(string $subdomain): bool
-    {
+    public function exists(string $subdomain): bool {
         if ($this->isReserved($subdomain)) {
             return true;
         }
@@ -173,13 +171,11 @@ class TenantService
         return false;
     }
 
-    private function isReserved(string $subdomain): bool
-    {
+    private function isReserved(string $subdomain): bool {
         return in_array(strtolower($subdomain), self::RESERVED_SUBDOMAINS, true);
     }
 
-    private function hasTable(string $name): bool
-    {
+    private function hasTable(string $name): bool {
         $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
         if ($driver === 'sqlite') {
             $stmt = $this->pdo->prepare("SELECT name FROM sqlite_master WHERE type='table' AND name = ?");
@@ -191,8 +187,7 @@ class TenantService
         return $stmt->fetchColumn() !== null;
     }
 
-    private function hasColumn(string $table, string $column): bool
-    {
+    private function hasColumn(string $table, string $column): bool {
         $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
         if ($driver === 'sqlite') {
             $stmt = $this->pdo->query('PRAGMA table_info(' . $this->pdo->quote($table) . ')');
@@ -212,8 +207,7 @@ class TenantService
     /**
      * Seed demo data from the bundled data directory into the current schema.
      */
-    private function seedDemoData(): void
-    {
+    private function seedDemoData(): void {
         $base = dirname(__DIR__, 2);
         $dataDir = $base . '/data';
         if (!is_dir($dataDir)) {
@@ -354,8 +348,7 @@ class TenantService
     /**
      * Retrieve the plan for a tenant identified by subdomain.
      */
-    public function getPlanBySubdomain(string $subdomain): ?string
-    {
+    public function getPlanBySubdomain(string $subdomain): ?string {
         $stmt = $this->pdo->prepare('SELECT plan FROM tenants WHERE subdomain = ?');
         $stmt->execute([$subdomain]);
         $plan = $stmt->fetchColumn();
@@ -367,8 +360,7 @@ class TenantService
      *
      * @return array<string,int|null>|null
      */
-    public function getCustomLimitsBySubdomain(string $subdomain): ?array
-    {
+    public function getCustomLimitsBySubdomain(string $subdomain): ?array {
         $stmt = $this->pdo->prepare('SELECT custom_limits FROM tenants WHERE subdomain = ?');
         $stmt->execute([$subdomain]);
         $json = $stmt->fetchColumn();
@@ -384,8 +376,7 @@ class TenantService
      *
      * @param array<string,int|null>|null $limits
      */
-    public function setCustomLimits(string $subdomain, ?array $limits): void
-    {
+    public function setCustomLimits(string $subdomain, ?array $limits): void {
         $stmt = $this->pdo->prepare('UPDATE tenants SET custom_limits = ? WHERE subdomain = ?');
         $stmt->execute([$limits !== null ? json_encode($limits) : null, $subdomain]);
     }
@@ -395,8 +386,7 @@ class TenantService
      *
      * @return array<string,int|null>
      */
-    public function getLimitsBySubdomain(string $subdomain): array
-    {
+    public function getLimitsBySubdomain(string $subdomain): array {
         $custom = $this->getCustomLimitsBySubdomain($subdomain);
         if ($custom !== null) {
             return $custom;
@@ -424,8 +414,7 @@ class TenantService
      *   created_at:string
      * }|null
      */
-    public function getBySubdomain(string $subdomain): ?array
-    {
+    public function getBySubdomain(string $subdomain): ?array {
         $stmt = $this->pdo->prepare(
             'SELECT uid, subdomain, plan, billing_info, stripe_customer_id, imprint_name, '
             . 'imprint_street, imprint_zip, imprint_city, imprint_email, custom_limits, '
@@ -448,8 +437,7 @@ class TenantService
      *
      * @return array<string,mixed>
      */
-    public function getMainTenant(): array
-    {
+    public function getMainTenant(): array {
         $tenant = $this->getBySubdomain('main');
         if ($tenant !== null) {
             return $tenant;
@@ -492,8 +480,7 @@ class TenantService
      *
      * @param array<string,mixed> $data
      */
-    public function updateProfile(string $subdomain, array $data): void
-    {
+    public function updateProfile(string $subdomain, array $data): void {
         foreach ($data as &$value) {
             if ($value === '') {
                 $value = null;
@@ -592,8 +579,7 @@ class TenantService
      *
      * @param array<string,mixed> $data
      */
-    public function updateByStripeCustomerId(string $customerId, array $data): void
-    {
+    public function updateByStripeCustomerId(string $customerId, array $data): void {
         $stmt = $this->pdo->prepare('SELECT subdomain FROM tenants WHERE stripe_customer_id = ?');
         $stmt->execute([$customerId]);
         $sub = $stmt->fetchColumn();
@@ -606,8 +592,7 @@ class TenantService
     /**
      * Remove Stripe association and plan for a given customer.
      */
-    public function removeStripeCustomer(string $customerId): void
-    {
+    public function removeStripeCustomer(string $customerId): void {
         $stmt = $this->pdo->prepare(
             'UPDATE tenants SET stripe_customer_id = NULL, plan = NULL WHERE stripe_customer_id = ?'
         );
@@ -617,8 +602,7 @@ class TenantService
     /**
      * Cancel the plan for a given customer.
      */
-    public function cancelPlanForCustomer(string $customerId): void
-    {
+    public function cancelPlanForCustomer(string $customerId): void {
         $stmt = $this->pdo->prepare(
             'UPDATE tenants SET plan = NULL WHERE stripe_customer_id = ?'
         );
@@ -628,8 +612,7 @@ class TenantService
     /**
      * Import tenant records for schemas that are missing in the tenants table.
      */
-    public function importMissing(): int
-    {
+    public function importMissing(): int {
         $existing = $this->pdo
             ->query('SELECT subdomain FROM tenants')
             ->fetchAll(PDO::FETCH_COLUMN);
@@ -700,8 +683,7 @@ class TenantService
      *   created_at:string
      * }>
      */
-    public function getAll(string $query = ''): array
-    {
+    public function getAll(string $query = ''): array {
         $sql = 'SELECT uid, subdomain, plan, billing_info, stripe_customer_id, '
             . 'stripe_subscription_id, stripe_status, imprint_name, imprint_street, imprint_zip, '
             . 'imprint_city, imprint_email, custom_limits, plan_started_at, '

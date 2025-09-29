@@ -15,8 +15,7 @@ class SummaryPhotoService
     private PDO $pdo;
     private ConfigService $config;
 
-    public function __construct(PDO $pdo, ConfigService $config)
-    {
+    public function __construct(PDO $pdo, ConfigService $config) {
         $this->pdo = $pdo;
         $this->config = $config;
     }
@@ -24,8 +23,7 @@ class SummaryPhotoService
     /**
      * Store a new summary photo path.
      */
-    public function add(string $name, string $path, int $time): void
-    {
+    public function add(string $name, string $path, int $time): void {
         $uid = $this->config->getActiveEventUid();
         $stmt = $this->pdo->prepare(
             'INSERT INTO summary_photos(name,path,time,event_uid) VALUES(?,?,?,?)'
@@ -38,8 +36,7 @@ class SummaryPhotoService
      *
      * @return list<array{name:string,path:string,time:int}>
      */
-    public function getAll(): array
-    {
+    public function getAll(): array {
         $uid = $this->config->getActiveEventUid();
         $sql = 'SELECT name,path,time FROM summary_photos';
         $params = [];
@@ -58,8 +55,7 @@ class SummaryPhotoService
      *
      * @param list<array<string, mixed>> $photos
      */
-    public function saveAll(array $photos): void
-    {
+    public function saveAll(array $photos): void {
         $uid = $this->config->getActiveEventUid();
         $this->pdo->beginTransaction();
         if ($uid !== '') {

@@ -6,8 +6,7 @@ namespace App\Application\RateLimiting;
 
 final class RateLimitStoreFactory
 {
-    public static function createDefault(?string $directory = null): RateLimitStore
-    {
+    public static function createDefault(?string $directory = null): RateLimitStore {
         if (ApcuRateLimitStore::isSupported()) {
             return new ApcuRateLimitStore();
         }

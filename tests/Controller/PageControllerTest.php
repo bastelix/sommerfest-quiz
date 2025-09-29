@@ -13,8 +13,7 @@ class PageControllerTest extends TestCase
     /**
      * @dataProvider editableSlugProvider
      */
-    public function testEditPageIsAccessible(string $slug, string $title): void
-    {
+    public function testEditPageIsAccessible(string $slug, string $title): void {
         $pdo = $this->getDatabase();
         $this->seedPage($pdo, $slug, $title, '<p>content</p>');
 
@@ -28,8 +27,7 @@ class PageControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testUpdatePersistsContent(): void
-    {
+    public function testUpdatePersistsContent(): void {
         $pdo = $this->getDatabase();
         $this->seedPage($pdo, 'landing', 'Landing', '<p>old</p>');
 
@@ -53,8 +51,7 @@ class PageControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testDeleteRemovesPage(): void
-    {
+    public function testDeleteRemovesPage(): void {
         $pdo = $this->getDatabase();
         $this->seedPage($pdo, 'landing', 'Landing', '<p>content</p>');
 
@@ -77,8 +74,7 @@ class PageControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testInvalidSlug(): void
-    {
+    public function testInvalidSlug(): void {
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
@@ -89,8 +85,7 @@ class PageControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testCreatePageSuccess(): void
-    {
+    public function testCreatePageSuccess(): void {
         $pdo = $this->getDatabase();
         $pdo->exec("DELETE FROM pages WHERE slug = 'neue-seite'");
 
@@ -128,8 +123,7 @@ class PageControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testCreatePageValidationError(): void
-    {
+    public function testCreatePageValidationError(): void {
         $pdo = $this->getDatabase();
         $pdo->exec("DELETE FROM pages WHERE slug = 'invalid'");
 
@@ -162,8 +156,7 @@ class PageControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testCreatePageConflict(): void
-    {
+    public function testCreatePageConflict(): void {
         $pdo = $this->getDatabase();
         $this->seedPage($pdo, 'konflikt', 'Konflikt', '<p>Alt</p>');
 
@@ -200,8 +193,7 @@ class PageControllerTest extends TestCase
     /**
      * @return array<int, array{0:string,1:string}>
      */
-    public function editableSlugProvider(): array
-    {
+    public function editableSlugProvider(): array {
         return [
             ['landing', 'Landing'],
             ['calserver', 'calServer'],
@@ -209,8 +201,7 @@ class PageControllerTest extends TestCase
         ];
     }
 
-    private function seedPage(PDO $pdo, string $slug, string $title, string $content): void
-    {
+    private function seedPage(PDO $pdo, string $slug, string $title, string $content): void {
         $stmt = $pdo->prepare('DELETE FROM pages WHERE slug = ?');
         $stmt->execute([$slug]);
 

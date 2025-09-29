@@ -14,8 +14,7 @@ class AdminLogsController
     /**
      * Display recent application logs.
      */
-    public function __invoke(Request $request, Response $response): Response
-    {
+    public function __invoke(Request $request, Response $response): Response {
         $appLog = LogService::tail('app');
         $stripeLog = LogService::tail('stripe');
         $slimLog = LogService::tailDocker('slim-1');

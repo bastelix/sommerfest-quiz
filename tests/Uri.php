@@ -10,13 +10,11 @@ class Uri extends SlimUri
 {
     private string $basePath = '';
 
-    public function getBasePath(): string
-    {
+    public function getBasePath(): string {
         return $this->basePath;
     }
 
-    public function withBasePath(string $basePath): self
-    {
+    public function withBasePath(string $basePath): self {
         $clone = clone $this;
         $clone->basePath = $basePath;
         return $clone;

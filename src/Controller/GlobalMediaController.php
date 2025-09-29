@@ -10,12 +10,10 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class GlobalMediaController
 {
-    public function __construct(private ConfigService $config)
-    {
+    public function __construct(private ConfigService $config) {
     }
 
-    public function get(Request $request, Response $response): Response
-    {
+    public function get(Request $request, Response $response): Response {
         $file = (string) $request->getAttribute('file');
         $file = basename($file);
         if ($file === '') {

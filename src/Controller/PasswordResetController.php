@@ -39,8 +39,7 @@ class PasswordResetController
     /**
      * Accept username or email, generate token and send reset link.
      */
-    public function request(Request $request, Response $response): Response
-    {
+    public function request(Request $request, Response $response): Response {
         $isJson = $request->getHeaderLine('Content-Type') === 'application/json';
         $data = $request->getParsedBody();
         if ($isJson) {
@@ -105,8 +104,7 @@ class PasswordResetController
     /**
      * Verify token and set new password.
      */
-    public function confirm(Request $request, Response $response): Response
-    {
+    public function confirm(Request $request, Response $response): Response {
         $data = $request->getParsedBody();
         if ($request->getHeaderLine('Content-Type') === 'application/json') {
             $data = json_decode((string) $request->getBody(), true);

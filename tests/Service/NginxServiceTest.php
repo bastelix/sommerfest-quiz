@@ -11,8 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class NginxServiceTest extends TestCase
 {
-    public function testReloadViaWebhook(): void
-    {
+    public function testReloadViaWebhook(): void {
         $dir = sys_get_temp_dir() . '/vhost' . uniqid();
         mkdir($dir);
         $client = $this->createMock(ClientInterface::class);
@@ -22,8 +21,7 @@ class NginxServiceTest extends TestCase
             ->willReturn(new Response(200));
         $svc = new class ($dir, 'example.com', '1m', true, 'http://webhook', 'tok', $client) extends NginxService {
             public bool $called = false;
-            public function reload(): void
-            {
+            public function reload(): void {
                 $this->called = true;
                 parent::reload();
             }
@@ -33,8 +31,7 @@ class NginxServiceTest extends TestCase
         $this->assertFileExists("$dir/test.example.com");
     }
 
-    public function testCreateVhostFailsOnUnwritableDir(): void
-    {
+    public function testCreateVhostFailsOnUnwritableDir(): void {
         $svc = new NginxService('/proc/sys', 'example.com', '1m', false);
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Vhost directory not writable');

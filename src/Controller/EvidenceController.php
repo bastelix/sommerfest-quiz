@@ -47,8 +47,7 @@ class EvidenceController
     /**
      * Store an uploaded photo and link it to a result entry.
      */
-    public function post(Request $request, Response $response): Response
-    {
+    public function post(Request $request, Response $response): Response {
         $files = $request->getUploadedFiles();
         if (!isset($files['photo'])) {
             $response->getBody()->write('missing file');
@@ -125,8 +124,7 @@ class EvidenceController
     /**
      * Serve a stored evidence photo.
      */
-    public function get(Request $request, Response $response, array $args = []): Response
-    {
+    public function get(Request $request, Response $response, array $args = []): Response {
         $team = isset($args['team']) ? preg_replace('/[^A-Za-z0-9_-]/', '_', (string)$args['team']) : '';
         $file = basename((string)($args['file'] ?? ''));
         $base = $this->config->getEventImagesDir() . '/photos';
@@ -148,8 +146,7 @@ class EvidenceController
     /**
      * Rotate an existing photo clockwise by 90 degrees.
      */
-    public function rotate(Request $request, Response $response): Response
-    {
+    public function rotate(Request $request, Response $response): Response {
         $data = $request->getParsedBody() ?? [];
         $ct = $request->getHeaderLine('Content-Type');
         if (str_starts_with($ct, 'application/json')) {

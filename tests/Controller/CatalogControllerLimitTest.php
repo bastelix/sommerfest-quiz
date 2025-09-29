@@ -14,8 +14,7 @@ use Tests\TestCase;
 
 class CatalogControllerLimitTest extends TestCase
 {
-    public function testPostCatalogsLimitExceededReturns402(): void
-    {
+    public function testPostCatalogsLimitExceededReturns402(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('e1','e1','Event1')");
         $pdo->exec("INSERT INTO config(event_uid) VALUES('e1')");
@@ -60,8 +59,7 @@ class CatalogControllerLimitTest extends TestCase
         session_destroy();
     }
 
-    public function testPostQuestionsLimitExceededReturns402(): void
-    {
+    public function testPostQuestionsLimitExceededReturns402(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('e1','e1','Event1')");
         $pdo->exec("INSERT INTO config(event_uid) VALUES('e1')");

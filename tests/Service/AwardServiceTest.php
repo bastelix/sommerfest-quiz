@@ -9,8 +9,7 @@ use Tests\TestCase;
 
 class AwardServiceTest extends TestCase
 {
-    public function testSecondPlaceStandaloneSingleCategory(): void
-    {
+    public function testSecondPlaceStandaloneSingleCategory(): void {
         $svc = new AwardService();
         $rankings = [
             'puzzle' => [
@@ -27,8 +26,7 @@ class AwardServiceTest extends TestCase
         $this->assertSame($expected, $text);
     }
 
-    public function testSecondPlaceAfterFirstMultipleCategories(): void
-    {
+    public function testSecondPlaceAfterFirstMultipleCategories(): void {
         $svc = new AwardService();
         $rankings = [
             'puzzle' => [
@@ -52,8 +50,7 @@ class AwardServiceTest extends TestCase
         $this->assertSame($expected, $text);
     }
 
-    public function testThirdPlaceOnly(): void
-    {
+    public function testThirdPlaceOnly(): void {
         $svc = new AwardService();
         $rankings = [
             'puzzle' => [
@@ -71,8 +68,7 @@ class AwardServiceTest extends TestCase
         $this->assertSame($expected, $text);
     }
 
-    public function testFullCombination(): void
-    {
+    public function testFullCombination(): void {
         $svc = new AwardService();
         $rankings = [
             'puzzle' => [
@@ -97,8 +93,7 @@ class AwardServiceTest extends TestCase
         $this->assertSame($expected, $text);
     }
 
-    public function testComputeRankingsCalculatesTopTeams(): void
-    {
+    public function testComputeRankingsCalculatesTopTeams(): void {
         $svc = new AwardService();
         $results = [
             ['name' => 'TeamA', 'catalog' => 'cat1', 'time' => 10, 'correct' => 5, 'puzzleTime' => 30],
@@ -139,8 +134,7 @@ class AwardServiceTest extends TestCase
         );
     }
 
-    public function testGetAwardsListsDescriptions(): void
-    {
+    public function testGetAwardsListsDescriptions(): void {
         $svc = new AwardService();
         $rankings = [
             'puzzle' => [

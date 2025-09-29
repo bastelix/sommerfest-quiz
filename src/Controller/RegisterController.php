@@ -21,8 +21,7 @@ class RegisterController
     /**
      * Display the registration form.
      */
-    public function show(Request $request, Response $response): Response
-    {
+    public function show(Request $request, Response $response): Response {
         $pdo = $request->getAttribute('pdo');
         if (!$pdo instanceof PDO) {
             $pdo = Database::connectFromEnv();
@@ -36,8 +35,7 @@ class RegisterController
     /**
      * Handle registration form submission.
      */
-    public function register(Request $request, Response $response): Response
-    {
+    public function register(Request $request, Response $response): Response {
         $pdo = $request->getAttribute('pdo');
         if (!$pdo instanceof PDO) {
             $pdo = Database::connectFromEnv();

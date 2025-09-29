@@ -19,8 +19,7 @@ class FaqController
     /**
      * Render the FAQ page.
      */
-    public function __invoke(Request $request, Response $response): Response
-    {
+    public function __invoke(Request $request, Response $response): Response {
         $service = new PageService();
         $html = $service->get('faq');
         if ($html === null) {

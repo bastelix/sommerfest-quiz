@@ -16,14 +16,12 @@ class LanguageMiddleware implements MiddlewareInterface
     private TranslationService $translator;
     private string $defaultLocale;
 
-    public function __construct(TranslationService $translator, string $defaultLocale = 'de')
-    {
+    public function __construct(TranslationService $translator, string $defaultLocale = 'de') {
         $this->translator = $translator;
         $this->defaultLocale = $defaultLocale;
     }
 
-    public function process(Request $request, RequestHandler $handler): Response
-    {
+    public function process(Request $request, RequestHandler $handler): Response {
         $first = empty($_SESSION['lang']);
         $params = $request->getQueryParams();
         $locale = (string)($params['lang'] ?? ($_SESSION['lang'] ?? $this->defaultLocale));

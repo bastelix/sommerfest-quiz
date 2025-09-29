@@ -31,8 +31,7 @@ class LandingpageController
         ?PageSeoConfigService $seoService = null,
         ?PageService $pageService = null,
         ?DomainStartPageService $domainService = null
-    )
-    {
+    ) {
         $this->seoService = $seoService ?? new PageSeoConfigService();
         $this->pageService = $pageService ?? new PageService();
         $this->domainService = $domainService ?? new DomainStartPageService(Database::connectFromEnv());
@@ -41,8 +40,7 @@ class LandingpageController
     /**
      * Display the SEO edit form.
      */
-    public function page(Request $request, Response $response): Response
-    {
+    public function page(Request $request, Response $response): Response {
         $view = Twig::fromRequest($request);
         $pages = $this->getMarketingPages();
         if ($pages === []) {
@@ -70,8 +68,7 @@ class LandingpageController
     /**
      * Persist SEO settings submitted via POST.
      */
-    public function save(Request $request, Response $response): Response
-    {
+    public function save(Request $request, Response $response): Response {
         $data = $request->getParsedBody();
         if (!is_array($data)) {
             return $response->withStatus(400);
@@ -153,8 +150,7 @@ class LandingpageController
     /**
      * @return Page[]
      */
-    private function getMarketingPages(): array
-    {
+    private function getMarketingPages(): array {
         $pages = $this->pageService->getAll();
 
         return array_values(array_filter(
@@ -166,8 +162,7 @@ class LandingpageController
     /**
      * @param Page[] $pages
      */
-    private function determineSelectedPage(array $pages, string $slug): Page
-    {
+    private function determineSelectedPage(array $pages, string $slug): Page {
         foreach ($pages as $page) {
             if ($slug !== '' && $page->getSlug() === $slug) {
                 return $page;
@@ -181,8 +176,7 @@ class LandingpageController
      * @param Page[] $pages
      * @return array<int,array{id:int,slug:string,title:string,config:array<string,mixed>}> keyed by page id
      */
-    private function buildSeoPageList(array $pages, Page $selected, string $host): array
-    {
+    private function buildSeoPageList(array $pages, Page $selected, string $host): array {
         $mappings = $this->domainService->getAllMappings();
         $domainsBySlug = [];
         foreach ($mappings as $domain => $config) {

@@ -15,8 +15,7 @@ use App\Infrastructure\Database;
  */
 class StripeSessionController
 {
-    public function __invoke(Request $request, Response $response, array $args): Response
-    {
+    public function __invoke(Request $request, Response $response, array $args): Response {
         $sessionId = (string) ($args['id'] ?? '');
         $service = $request->getAttribute('stripeService');
         if (!$service instanceof StripeService) {

@@ -9,13 +9,11 @@ class TranslationService
     private array $translations = [];
     private string $locale;
 
-    public function __construct(string $locale = 'de')
-    {
+    public function __construct(string $locale = 'de') {
         $this->loadLocale($locale);
     }
 
-    public function loadLocale(string $locale): void
-    {
+    public function loadLocale(string $locale): void {
         $file = __DIR__ . '/../../resources/lang/' . $locale . '.php';
         if (!is_readable($file)) {
             $locale = 'de';
@@ -25,13 +23,11 @@ class TranslationService
         $this->translations = is_readable($file) ? require $file : [];
     }
 
-    public function translate(string $key): string
-    {
+    public function translate(string $key): string {
         return $this->translations[$key] ?? $key;
     }
 
-    public function getLocale(): string
-    {
+    public function getLocale(): string {
         return $this->locale;
     }
 }

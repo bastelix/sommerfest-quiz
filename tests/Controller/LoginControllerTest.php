@@ -12,16 +12,14 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class LoginControllerTest extends TestCase
 {
-    protected function setUp(): void
-    {
+    protected function setUp(): void {
         parent::setUp();
         putenv('MAIN_DOMAIN=example.com');
         $_ENV['MAIN_DOMAIN'] = 'example.com';
         $_SERVER['HTTP_HOST'] = 'example.com';
     }
 
-    protected function tearDown(): void
-    {
+    protected function tearDown(): void {
         putenv('MAIN_DOMAIN');
         unset($_ENV['MAIN_DOMAIN'], $_SERVER['HTTP_HOST']);
         parent::tearDown();
@@ -38,8 +36,7 @@ class LoginControllerTest extends TestCase
         return $request->withUri($request->getUri()->withHost('example.com'));
     }
 
-    public function testLoginPageShowsVersion(): void
-    {
+    public function testLoginPageShowsVersion(): void {
         putenv('APP_VERSION=1.2.3');
         $_ENV['APP_VERSION'] = '1.2.3';
 
@@ -52,8 +49,7 @@ class LoginControllerTest extends TestCase
         unset($_ENV['APP_VERSION']);
     }
 
-    public function testLoginPageGeneratesCsrfToken(): void
-    {
+    public function testLoginPageGeneratesCsrfToken(): void {
         $app = $this->getAppInstance();
         $response = $app->handle($this->createRequest('GET', '/login'));
         $this->assertSame(200, $response->getStatusCode());
@@ -64,8 +60,7 @@ class LoginControllerTest extends TestCase
         );
     }
 
-    public function testLoginPersistsSession(): void
-    {
+    public function testLoginPersistsSession(): void {
         $pdo = $this->getDatabase();
         $userService = new UserService($pdo);
         $userService->create('alice', 'secret', 'alice@example.com', Roles::ADMIN);
@@ -90,8 +85,7 @@ class LoginControllerTest extends TestCase
         $this->assertSame(1, (int) $stmt->fetchColumn());
     }
 
-    public function testLoginPersistsSessionOnLocalhost(): void
-    {
+    public function testLoginPersistsSessionOnLocalhost(): void {
         $pdo = $this->getDatabase();
         $userService = new UserService($pdo);
         $userService->create('frank', 'secret', 'frank@example.com', Roles::ADMIN);
@@ -117,8 +111,7 @@ class LoginControllerTest extends TestCase
         $this->assertSame(1, (int) $stmt->fetchColumn());
     }
 
-    public function testLoginByEmail(): void
-    {
+    public function testLoginByEmail(): void {
         $pdo = $this->getDatabase();
         $userService = new UserService($pdo);
         $userService->create('bob', 'secret', 'bob@example.com', Roles::ADMIN);
@@ -136,8 +129,7 @@ class LoginControllerTest extends TestCase
         $this->assertSame(302, $response->getStatusCode());
     }
 
-    public function testLoginWithJsonCharset(): void
-    {
+    public function testLoginWithJsonCharset(): void {
         $pdo = $this->getDatabase();
         $userService = new UserService($pdo);
         $userService->create('dave', 'secret', 'dave@example.com', Roles::ADMIN);
@@ -156,8 +148,7 @@ class LoginControllerTest extends TestCase
         $this->assertSame(302, $response->getStatusCode());
     }
 
-    public function testEventManagerLoginRedirectsToAdmin(): void
-    {
+    public function testEventManagerLoginRedirectsToAdmin(): void {
         $pdo = $this->getDatabase();
         $userService = new UserService($pdo);
         $userService->create('eva', 'secret', 'eva@example.com', Roles::EVENT_MANAGER);
@@ -183,8 +174,7 @@ class LoginControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testTeamManagerLoginRedirectsToAdmin(): void
-    {
+    public function testTeamManagerLoginRedirectsToAdmin(): void {
         $pdo = $this->getDatabase();
         $userService = new UserService($pdo);
         $userService->create('trent', 'secret', 'trent@example.com', Roles::TEAM_MANAGER);
@@ -210,8 +200,7 @@ class LoginControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testLoginRedirectRespectsBasePath(): void
-    {
+    public function testLoginRedirectRespectsBasePath(): void {
         $pdo = $this->getDatabase();
         $userService = new UserService($pdo);
         $userService->create('erin', 'secret', 'erin@example.com', Roles::ADMIN);
@@ -237,8 +226,7 @@ class LoginControllerTest extends TestCase
         unset($_ENV['BASE_PATH']);
     }
 
-    public function testLoginRedirectsToMainDomainOnWrongHost(): void
-    {
+    public function testLoginRedirectsToMainDomainOnWrongHost(): void {
         $pdo = $this->getDatabase();
         $userService = new UserService($pdo);
         $userService->create('grace', 'secret', 'grace@example.com', Roles::ADMIN);
@@ -266,8 +254,7 @@ class LoginControllerTest extends TestCase
         unset($_ENV['MAIN_DOMAIN'], $_SERVER['HTTP_HOST']);
     }
 
-    public function testUnknownUserShowsMessage(): void
-    {
+    public function testUnknownUserShowsMessage(): void {
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['csrf_token'] = 'tok';
@@ -282,8 +269,7 @@ class LoginControllerTest extends TestCase
         $this->assertStringContainsString('Benutzer nicht gefunden', (string) $response->getBody());
     }
 
-    public function testWrongPasswordShowsMessage(): void
-    {
+    public function testWrongPasswordShowsMessage(): void {
         $pdo = $this->getDatabase();
         $userService = new UserService($pdo);
         $userService->create('carol', 'secret', 'carol@example.com', Roles::ADMIN);

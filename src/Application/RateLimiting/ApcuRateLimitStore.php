@@ -19,16 +19,14 @@ class ApcuRateLimitStore implements RateLimitStore
     /** @var array<string, true> */
     private array $keys = [];
 
-    public static function isSupported(): bool
-    {
+    public static function isSupported(): bool {
         return function_exists('apcu_fetch')
             && function_exists('apcu_store')
             && function_exists('apcu_delete')
             && (!function_exists('apcu_enabled') || apcu_enabled());
     }
 
-    public function increment(string $key, int $windowSeconds): int
-    {
+    public function increment(string $key, int $windowSeconds): int {
         $namespacedKey = self::PREFIX . $key;
         $now = time();
 
@@ -46,8 +44,7 @@ class ApcuRateLimitStore implements RateLimitStore
         return $count;
     }
 
-    public function reset(): void
-    {
+    public function reset(): void {
         if (!self::isSupported()) {
             return;
         }
@@ -70,8 +67,7 @@ class ApcuRateLimitStore implements RateLimitStore
     /**
      * @param array<string, int> $entry
      */
-    private function isExpired(array $entry, int $now, int $windowSeconds): bool
-    {
+    private function isExpired(array $entry, int $now, int $windowSeconds): bool {
         $start = (int) ($entry['start'] ?? 0);
 
         return $start === 0 || ($now - $start) > $windowSeconds;

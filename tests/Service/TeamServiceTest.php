@@ -12,8 +12,7 @@ use Tests\TestCase;
 
 class TeamServiceTest extends TestCase
 {
-    public function testSaveAllStoresUid(): void
-    {
+    public function testSaveAllStoresUid(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('ev1','ev1','Event1')");
         $pdo->exec("INSERT INTO config(event_uid) VALUES('ev1')");
@@ -31,8 +30,7 @@ class TeamServiceTest extends TestCase
         $this->assertNotSame($rows[0]['uid'], $rows[1]['uid']);
     }
 
-    public function testSaveAllWithoutEvent(): void
-    {
+    public function testSaveAllWithoutEvent(): void {
         $pdo = $this->createDatabase();
         $cfg = new ConfigService($pdo);
         $cfg->setActiveEventUid('');
@@ -44,8 +42,7 @@ class TeamServiceTest extends TestCase
         $this->assertNull($row['event_uid']);
     }
 
-    public function testGetAllWithoutActiveEventReturnsEmpty(): void
-    {
+    public function testGetAllWithoutActiveEventReturnsEmpty(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('e1','e1','Event1')");
         $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('e2','e2','Event2')");
@@ -57,8 +54,7 @@ class TeamServiceTest extends TestCase
         $this->assertSame([], $svc->getAll());
     }
 
-    public function testSaveAllRespectsTeamLimit(): void
-    {
+    public function testSaveAllRespectsTeamLimit(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('e1','e1','Event1')");
         $pdo->exec("INSERT INTO config(event_uid) VALUES('e1')");
@@ -75,8 +71,7 @@ class TeamServiceTest extends TestCase
         $svc->saveAll(['A', 'B', 'C', 'D', 'E', 'F']);
     }
 
-    public function testSaveAllRespectsStandardTeamLimit(): void
-    {
+    public function testSaveAllRespectsStandardTeamLimit(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('e1','e1','Event1')");
         $pdo->exec("INSERT INTO config(event_uid) VALUES('e1')");
@@ -98,8 +93,7 @@ class TeamServiceTest extends TestCase
         $svc->saveAll($teams);
     }
 
-    public function testCustomLimitOverridesTeamLimit(): void
-    {
+    public function testCustomLimitOverridesTeamLimit(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('e1','e1','Event1')");
         $pdo->exec("INSERT INTO config(event_uid) VALUES('e1')");

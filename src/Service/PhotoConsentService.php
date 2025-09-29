@@ -18,8 +18,7 @@ class PhotoConsentService
     /**
      * Inject database connection.
      */
-    public function __construct(PDO $pdo, ConfigService $config)
-    {
+    public function __construct(PDO $pdo, ConfigService $config) {
         $this->pdo = $pdo;
         $this->config = $config;
     }
@@ -27,8 +26,7 @@ class PhotoConsentService
     /**
      * Add a new photo consent entry.
      */
-    public function add(string $team, int $time): void
-    {
+    public function add(string $team, int $time): void {
         $uid = $this->config->getActiveEventUid();
         $stmt = $this->pdo->prepare('INSERT INTO photo_consents(team,time,event_uid) VALUES(?,?,?)');
         $stmt->execute([$team, $time, $uid]);
@@ -39,8 +37,7 @@ class PhotoConsentService
      *
      * @return array<int, array{team:string,time:int}>
      */
-    public function getAll(): array
-    {
+    public function getAll(): array {
         $uid = $this->config->getActiveEventUid();
         $sql = 'SELECT team,time FROM photo_consents';
         $params = [];
@@ -59,8 +56,7 @@ class PhotoConsentService
      *
      * @param list<array<string, mixed>> $consents
      */
-    public function saveAll(array $consents): void
-    {
+    public function saveAll(array $consents): void {
         $uid = $this->config->getActiveEventUid();
         $this->pdo->beginTransaction();
         if ($uid !== '') {

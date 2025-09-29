@@ -17,8 +17,7 @@ use Slim\Views\Twig;
  */
 class DatenschutzController
 {
-    public function __invoke(Request $request, Response $response): Response
-    {
+    public function __invoke(Request $request, Response $response): Response {
         $service = new PageService();
         $html = $service->get('datenschutz');
         if ($html === null) {

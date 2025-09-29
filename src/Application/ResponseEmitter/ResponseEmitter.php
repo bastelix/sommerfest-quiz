@@ -15,8 +15,7 @@ class ResponseEmitter extends SlimResponseEmitter
     /**
      * {@inheritdoc}
      */
-    public function emit(ResponseInterface $response): void
-    {
+    public function emit(ResponseInterface $response): void {
         // Allowed origin for cross-site requests. Adjust as needed for deployment.
         $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 

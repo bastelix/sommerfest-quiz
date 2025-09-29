@@ -13,8 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 class PageSeoConfigServiceTest extends TestCase
 {
-    public function testValidateLimitsAndUrl(): void
-    {
+    public function testValidateLimitsAndUrl(): void {
         $pdo = new PDO('sqlite::memory:');
         $redirects = new NullRedirectManager();
         $service = new PageSeoConfigService($pdo, $redirects);
@@ -29,8 +28,7 @@ class PageSeoConfigServiceTest extends TestCase
         $this->assertArrayHasKey('canonicalUrl', $errors);
     }
 
-    public function testCacheInvalidatedOnSave(): void
-    {
+    public function testCacheInvalidatedOnSave(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -65,8 +63,7 @@ class PageSeoConfigServiceTest extends TestCase
         $this->assertSame('changed', $row['slug']);
     }
 
-    public function testSlugAllowsSlashesAndUnderscores(): void
-    {
+    public function testSlugAllowsSlashesAndUnderscores(): void {
         $pdo = new PDO('sqlite::memory:');
         $redirects = new NullRedirectManager();
         $service = new PageSeoConfigService($pdo, $redirects);
@@ -76,8 +73,7 @@ class PageSeoConfigServiceTest extends TestCase
         $this->assertArrayHasKey('slug', $invalid);
     }
 
-    public function testEmptySchemaJsonSavedAsNull(): void
-    {
+    public function testEmptySchemaJsonSavedAsNull(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -106,8 +102,7 @@ class PageSeoConfigServiceTest extends TestCase
         $this->assertNull($row['schema_json']);
     }
 
-    public function testCanonicalAndRobotsUpdatedOnUpsert(): void
-    {
+    public function testCanonicalAndRobotsUpdatedOnUpsert(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -154,8 +149,7 @@ class PageSeoConfigServiceTest extends TestCase
         $this->assertSame('noindex, follow', $row['robots_meta']);
     }
 
-    public function testFaviconPathStoredAndValidated(): void
-    {
+    public function testFaviconPathStoredAndValidated(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(

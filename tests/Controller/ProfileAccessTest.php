@@ -8,8 +8,7 @@ use Tests\TestCase;
 
 class ProfileAccessTest extends TestCase
 {
-    private function setupDb(): string
-    {
+    private function setupDb(): string {
         $db = tempnam(sys_get_temp_dir(), 'db');
         putenv('POSTGRES_DSN=sqlite:' . $db);
         putenv('POSTGRES_USER=');
@@ -20,8 +19,7 @@ class ProfileAccessTest extends TestCase
         return $db;
     }
 
-    public function testNonAdminCanAccessProfileAndSubscription(): void
-    {
+    public function testNonAdminCanAccessProfileAndSubscription(): void {
         $db = $this->setupDb();
         $app = $this->getAppInstance();
         session_start();

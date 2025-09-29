@@ -20,8 +20,7 @@ class EventConfigController
     private ConfigService $config;
     private ImageUploadService $images;
 
-    public function __construct(EventService $events, ConfigService $config, ImageUploadService $images)
-    {
+    public function __construct(EventService $events, ConfigService $config, ImageUploadService $images) {
         $this->events = $events;
         $this->config = $config;
         $this->images = $images;
@@ -30,8 +29,7 @@ class EventConfigController
     /**
      * Return configuration details for the given event UID.
      */
-    public function show(Request $request, Response $response, array $args): Response
-    {
+    public function show(Request $request, Response $response, array $args): Response {
         $uid = (string) ($args['id'] ?? '');
         $event = $this->events->getByUid($uid);
         if ($event === null) {
@@ -47,8 +45,7 @@ class EventConfigController
     /**
      * Update configuration for the specified event UID.
      */
-    public function update(Request $request, Response $response, array $args): Response
-    {
+    public function update(Request $request, Response $response, array $args): Response {
         $uid = (string) ($args['id'] ?? '');
         $event = $this->events->getByUid($uid);
         if ($event === null) {

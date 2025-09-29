@@ -8,8 +8,7 @@ use Tests\TestCase;
 
 class SummaryControllerTest extends TestCase
 {
-    public function testSummaryPage(): void
-    {
+    public function testSummaryPage(): void {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/summary');
         $response = $app->handle($request);

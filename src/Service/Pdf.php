@@ -17,8 +17,7 @@ class Pdf extends Fpdi
     private string $logoPath;
     private float $bodyStartY = 10.0;
 
-    public function __construct(string $title, string $subtitle, string $logoPath = '')
-    {
+    public function __construct(string $title, string $subtitle, string $logoPath = '') {
         parent::__construct();
         $this->SetCompression(false);
         $this->title = $title;
@@ -30,8 +29,7 @@ class Pdf extends Fpdi
      * Render logo, title and subtitle at the top of each page.
      */
     // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
-    public function Header(): void
-    {
+    public function Header(): void {
         $logoFile = $this->logoPath;
         $logoTemp = null;
         $qrSize = 20.0; // keep same dimensions as original header code
@@ -66,8 +64,7 @@ class Pdf extends Fpdi
         }
     }
 
-    public function getBodyStartY(): float
-    {
+    public function getBodyStartY(): float {
         return $this->bodyStartY;
     }
 }

@@ -8,8 +8,7 @@ use Tests\TestCase;
 
 class PasswordResetRequestTest extends TestCase
 {
-    public function testRenderResetRequestForm(): void
-    {
+    public function testRenderResetRequestForm(): void {
         $app = $this->getAppInstance();
         session_start();
         $response = $app->handle($this->createRequest('GET', '/password/reset/request'));

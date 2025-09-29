@@ -18,16 +18,14 @@ class OnboardingEmailController
 {
     private EmailConfirmationService $service;
 
-    public function __construct(EmailConfirmationService $service)
-    {
+    public function __construct(EmailConfirmationService $service) {
         $this->service = $service;
     }
 
     /**
      * Accept email and send confirmation link.
      */
-    public function request(Request $request, Response $response): Response
-    {
+    public function request(Request $request, Response $response): Response {
         $data = json_decode((string) $request->getBody(), true);
         if (!is_array($data)) {
             return $response->withStatus(400);
@@ -61,8 +59,7 @@ class OnboardingEmailController
     /**
      * Confirm email via token and redirect back to onboarding.
      */
-    public function confirm(Request $request, Response $response): Response
-    {
+    public function confirm(Request $request, Response $response): Response {
         $token = (string) ($request->getQueryParams()['token'] ?? '');
         if ($token === '') {
             return $response->withStatus(400);
@@ -91,8 +88,7 @@ class OnboardingEmailController
     /**
      * Return 204 if email is confirmed, 404 otherwise.
      */
-    public function status(Request $request, Response $response): Response
-    {
+    public function status(Request $request, Response $response): Response {
         $email = (string) ($request->getQueryParams()['email'] ?? '');
         if ($email === '') {
             return $response->withStatus(400);

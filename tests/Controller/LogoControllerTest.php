@@ -13,8 +13,7 @@ use Slim\Psr7\Stream;
 
 class LogoControllerTest extends TestCase
 {
-    public function testGetFallbackLogo(): void
-    {
+    public function testGetFallbackLogo(): void {
         $pdo = $this->createDatabase();
         $cfg = new ConfigService($pdo);
         $cfg->saveConfig([]);
@@ -31,8 +30,7 @@ class LogoControllerTest extends TestCase
         @rename(dirname(__DIR__, 2) . '/data/uploads/logo.webp.bak', dirname(__DIR__, 2) . '/data/uploads/logo.webp');
     }
 
-    public function testPostAndGet(): void
-    {
+    public function testPostAndGet(): void {
         $tmpConfig = tempnam(sys_get_temp_dir(), 'cfg');
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
@@ -80,8 +78,7 @@ class LogoControllerTest extends TestCase
         unlink(sys_get_temp_dir() . '/uploads/logo.png');
     }
 
-    public function testPostAndGetWebp(): void
-    {
+    public function testPostAndGetWebp(): void {
         $tmpConfig = tempnam(sys_get_temp_dir(), 'cfg');
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
@@ -135,8 +132,7 @@ class LogoControllerTest extends TestCase
         unlink(sys_get_temp_dir() . '/uploads/logo.webp');
     }
 
-    public function testLogoPerEvent(): void
-    {
+    public function testLogoPerEvent(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -196,8 +192,7 @@ class LogoControllerTest extends TestCase
         unlink(sys_get_temp_dir() . '/events/e1/images/logo.png');
     }
 
-    public function testGetWithDynamicFilename(): void
-    {
+    public function testGetWithDynamicFilename(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE active_event(event_uid TEXT PRIMARY KEY);');
@@ -245,8 +240,7 @@ class LogoControllerTest extends TestCase
         unlink(sys_get_temp_dir() . '/events/dyn/images/logo.png');
     }
 
-    public function testGetLogoForSpecificEventWhileAnotherActive(): void
-    {
+    public function testGetLogoForSpecificEventWhileAnotherActive(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE events(uid TEXT PRIMARY KEY, slug TEXT UNIQUE NOT NULL, name TEXT, sort_order INTEGER DEFAULT 0);');

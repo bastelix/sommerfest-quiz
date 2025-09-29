@@ -8,8 +8,7 @@ use Tests\TestCase;
 
 class LizenzControllerTest extends TestCase
 {
-    public function testLizenzPage(): void
-    {
+    public function testLizenzPage(): void {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/lizenz');
         $response = $app->handle($request);

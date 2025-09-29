@@ -17,13 +17,11 @@ class UrlMiddleware implements MiddlewareInterface
 {
     private Twig $twig;
 
-    public function __construct(Twig $twig)
-    {
+    public function __construct(Twig $twig) {
         $this->twig = $twig;
     }
 
-    public function process(Request $request, RequestHandler $handler): Response
-    {
+    public function process(Request $request, RequestHandler $handler): Response {
         $uri = $request->getUri();
         $scheme = $uri->getScheme() !== '' ? $uri->getScheme() : 'http';
         $host = $uri->getHost() !== '' ? $uri->getHost() : 'localhost';

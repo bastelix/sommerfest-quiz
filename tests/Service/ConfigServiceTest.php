@@ -11,8 +11,7 @@ use Throwable;
 
 class ConfigServiceTest extends TestCase
 {
-    public function testReadWriteConfig(): void
-    {
+    public function testReadWriteConfig(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -55,8 +54,7 @@ class ConfigServiceTest extends TestCase
         $this->assertTrue($cfg['QRRemember']);
     }
 
-    public function testGetConfigReturnsEmptyWithoutActiveEvent(): void
-    {
+    public function testGetConfigReturnsEmptyWithoutActiveEvent(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -73,8 +71,7 @@ class ConfigServiceTest extends TestCase
         $this->assertSame([], $service->getConfig());
     }
 
-    public function testGetJsonReturnsNullIfEmpty(): void
-    {
+    public function testGetJsonReturnsNullIfEmpty(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -107,8 +104,7 @@ class ConfigServiceTest extends TestCase
         $this->assertSame([], $service->getConfig());
     }
 
-    public function testSetActiveEventUidRollsBackOnInsertFailure(): void
-    {
+    public function testSetActiveEventUidRollsBackOnInsertFailure(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE config(event_uid TEXT PRIMARY KEY)');
@@ -131,8 +127,7 @@ class ConfigServiceTest extends TestCase
         $this->assertSame('foo', $uid);
     }
 
-    public function testSetActiveEventUidIgnoresUnknownEvent(): void
-    {
+    public function testSetActiveEventUidIgnoresUnknownEvent(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec('PRAGMA foreign_keys = ON');
@@ -148,8 +143,7 @@ class ConfigServiceTest extends TestCase
         $this->assertSame('ev1', $uid);
     }
 
-    public function testSetActiveEventUidDoesNotInsertConfigForEmptyEvent(): void
-    {
+    public function testSetActiveEventUidDoesNotInsertConfigForEmptyEvent(): void {
         $pdo = $this->createDatabase();
         $pdo->exec('PRAGMA foreign_keys = ON');
         $service = new ConfigService($pdo);

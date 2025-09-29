@@ -8,8 +8,7 @@ use Tests\TestCase;
 
 class AdminRedirectTest extends TestCase
 {
-    public function testUnknownAdminPathRedirectsToAdmin(): void
-    {
+    public function testUnknownAdminPathRedirectsToAdmin(): void {
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];

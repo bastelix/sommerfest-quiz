@@ -37,8 +37,7 @@ class ShutdownHandler
     /**
      * Invoke the shutdown handler.
      */
-    public function __invoke()
-    {
+    public function __invoke() {
         $error = error_get_last();
         if ($error) {
             $errorFile = $error['file'];

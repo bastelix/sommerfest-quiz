@@ -8,8 +8,7 @@ use Tests\TestCase;
 
 class LogoutControllerTest extends TestCase
 {
-    public function testLogoutRedirectsToLogin(): void
-    {
+    public function testLogoutRedirectsToLogin(): void {
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
@@ -20,8 +19,7 @@ class LogoutControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testLogoutRedirectRespectsBasePath(): void
-    {
+    public function testLogoutRedirectRespectsBasePath(): void {
         putenv('BASE_PATH=/base');
         $_ENV['BASE_PATH'] = '/base';
 

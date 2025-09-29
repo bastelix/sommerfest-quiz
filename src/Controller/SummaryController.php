@@ -21,8 +21,7 @@ class SummaryController
     /**
      * Inject configuration service dependency.
      */
-    public function __construct(ConfigService $config, EventService $events)
-    {
+    public function __construct(ConfigService $config, EventService $events) {
         $this->config = $config;
         $this->events = $events;
     }
@@ -30,8 +29,7 @@ class SummaryController
     /**
      * Render the summary page.
      */
-    public function __invoke(Request $request, Response $response): Response
-    {
+    public function __invoke(Request $request, Response $response): Response {
         $view = Twig::fromRequest($request);
         $params = $request->getQueryParams();
         $uid = (string)($params['event'] ?? '');

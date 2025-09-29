@@ -17,8 +17,7 @@ use PHPUnit\Framework\TestCase;
 
 class LandingMediaReferenceServiceTest extends TestCase
 {
-    public function testCollectAggregatesLandingReferences(): void
-    {
+    public function testCollectAggregatesLandingReferences(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE pages (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT, title TEXT, content TEXT)');
@@ -114,8 +113,7 @@ class LandingMediaReferenceServiceTest extends TestCase
         }
     }
 
-    public function testNormalizeFilePath(): void
-    {
+    public function testNormalizeFilePath(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE pages (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT, title TEXT, content TEXT)');

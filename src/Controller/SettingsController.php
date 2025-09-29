@@ -16,20 +16,17 @@ class SettingsController
 {
     private SettingsService $service;
 
-    public function __construct(SettingsService $service)
-    {
+    public function __construct(SettingsService $service) {
         $this->service = $service;
     }
 
-    public function get(Request $request, Response $response): Response
-    {
+    public function get(Request $request, Response $response): Response {
         $settings = $this->service->getAll();
         $response->getBody()->write(json_encode($settings, JSON_PRETTY_PRINT));
         return $response->withHeader('Content-Type', 'application/json');
     }
 
-    public function post(Request $request, Response $response): Response
-    {
+    public function post(Request $request, Response $response): Response {
         $role = $_SESSION['user']['role'] ?? null;
         if ($role !== Roles::ADMIN) {
             return $response->withStatus(403);

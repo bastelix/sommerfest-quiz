@@ -13,8 +13,7 @@ use Slim\Psr7\Factory\StreamFactory;
 
 class TenantControllerTest extends TestCase
 {
-    private function setupDb(): string
-    {
+    private function setupDb(): string {
         $db = tempnam(sys_get_temp_dir(), 'db');
         putenv('POSTGRES_DSN=sqlite:' . $db);
         putenv('POSTGRES_USER=');
@@ -25,11 +24,9 @@ class TenantControllerTest extends TestCase
         return $db;
     }
 
-    public function testCreateReturns201(): void
-    {
+    public function testCreateReturns201(): void {
         $service = new class extends TenantService {
-            public function __construct()
-            {
+            public function __construct() {
             }
 
             public function createTenant(
@@ -46,8 +43,7 @@ class TenantControllerTest extends TestCase
             ): void {
             }
 
-            public function deleteTenant(string $uid): void
-            {
+            public function deleteTenant(string $uid): void {
             }
         };
         $controller = new TenantController($service);
@@ -62,14 +58,12 @@ class TenantControllerTest extends TestCase
         $this->assertEquals(201, $response->getStatusCode());
     }
 
-    public function testCreateStoresEmail(): void
-    {
+    public function testCreateStoresEmail(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->exec('CREATE TABLE tenants(uid TEXT, subdomain TEXT, imprint_email TEXT)');
         $service = new class ($pdo) extends TenantService {
             private PDO $pdo;
-            public function __construct(PDO $pdo)
-            {
+            public function __construct(PDO $pdo) {
                 $this->pdo = $pdo;
             }
 
@@ -89,8 +83,7 @@ class TenantControllerTest extends TestCase
                 $stmt->execute([$uid, $schema, $email]);
             }
 
-            public function deleteTenant(string $uid): void
-            {
+            public function deleteTenant(string $uid): void {
             }
         };
         $controller = new TenantController($service);
@@ -107,11 +100,9 @@ class TenantControllerTest extends TestCase
         $this->assertSame('stored@example.com', $email);
     }
 
-    public function testDeleteReturns204(): void
-    {
+    public function testDeleteReturns204(): void {
         $service = new class extends TenantService {
-            public function __construct()
-            {
+            public function __construct() {
             }
 
             public function createTenant(
@@ -128,8 +119,7 @@ class TenantControllerTest extends TestCase
             ): void {
             }
 
-            public function deleteTenant(string $uid): void
-            {
+            public function deleteTenant(string $uid): void {
             }
         };
         $controller = new TenantController($service);
@@ -140,8 +130,7 @@ class TenantControllerTest extends TestCase
         $this->assertEquals(204, $response->getStatusCode());
     }
 
-    public function testCreateDeniedForNonAdmin(): void
-    {
+    public function testCreateDeniedForNonAdmin(): void {
         $db = $this->setupDb();
         $app = $this->getAppInstance();
         session_start();
@@ -154,8 +143,7 @@ class TenantControllerTest extends TestCase
         unlink($db);
     }
 
-    public function testDeleteDeniedForNonAdmin(): void
-    {
+    public function testDeleteDeniedForNonAdmin(): void {
         $db = $this->setupDb();
         $app = $this->getAppInstance();
         session_start();
@@ -168,8 +156,7 @@ class TenantControllerTest extends TestCase
         unlink($db);
     }
 
-    public function testCreateForbiddenOnTenantDomain(): void
-    {
+    public function testCreateForbiddenOnTenantDomain(): void {
         $old = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main.test');
         $app = $this->getAppInstance();
@@ -187,8 +174,7 @@ class TenantControllerTest extends TestCase
         }
     }
 
-    public function testDeleteForbiddenOnTenantDomain(): void
-    {
+    public function testDeleteForbiddenOnTenantDomain(): void {
         $old = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main.test');
         $app = $this->getAppInstance();
@@ -206,8 +192,7 @@ class TenantControllerTest extends TestCase
         }
     }
 
-    public function testExistsReturns404ForUnknown(): void
-    {
+    public function testExistsReturns404ForUnknown(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->exec(
             'CREATE TABLE tenants('
@@ -238,8 +223,7 @@ class TenantControllerTest extends TestCase
         $this->assertEquals(404, $res->getStatusCode());
     }
 
-    public function testExistsReturns200ForExisting(): void
-    {
+    public function testExistsReturns200ForExisting(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->exec(
             'CREATE TABLE tenants('
@@ -277,8 +261,7 @@ class TenantControllerTest extends TestCase
         $this->assertEquals(200, $res->getStatusCode());
     }
 
-    public function testExistsReturns200ForReserved(): void
-    {
+    public function testExistsReturns200ForReserved(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->exec(
             'CREATE TABLE tenants('
@@ -309,17 +292,14 @@ class TenantControllerTest extends TestCase
         $this->assertEquals(200, $res->getStatusCode());
     }
 
-    public function testExistsReturns200IfTablesExist(): void
-    {
+    public function testExistsReturns200IfTablesExist(): void {
         $pdo = new class ('sqlite::memory:') extends PDO
         {
-            public function __construct($dsn)
-            {
+            public function __construct($dsn) {
                 parent::__construct($dsn);
             }
 
-            public function getAttribute($attr): mixed
-            {
+            public function getAttribute($attr): mixed {
                 if ($attr === PDO::ATTR_DRIVER_NAME) {
                     return 'pgsql';
                 }
@@ -345,11 +325,9 @@ class TenantControllerTest extends TestCase
         $this->assertEquals(200, $res->getStatusCode());
     }
 
-    public function testCreateHandlesPdoException(): void
-    {
+    public function testCreateHandlesPdoException(): void {
         $service = new class extends TenantService {
-            public function __construct()
-            {
+            public function __construct() {
             }
 
             public function createTenant(
@@ -367,8 +345,7 @@ class TenantControllerTest extends TestCase
                 throw new \PDOException('fail');
             }
 
-            public function deleteTenant(string $uid): void
-            {
+            public function deleteTenant(string $uid): void {
             }
         };
         $controller = new TenantController($service);
@@ -381,11 +358,9 @@ class TenantControllerTest extends TestCase
         $this->assertStringContainsString('fail', (string) $res->getBody());
     }
 
-    public function testCreateHandlesThrowable(): void
-    {
+    public function testCreateHandlesThrowable(): void {
         $service = new class extends TenantService {
-            public function __construct()
-            {
+            public function __construct() {
             }
 
             public function createTenant(
@@ -403,8 +378,7 @@ class TenantControllerTest extends TestCase
                 throw new \Exception('boom');
             }
 
-            public function deleteTenant(string $uid): void
-            {
+            public function deleteTenant(string $uid): void {
             }
         };
         $controller = new TenantController($service);
@@ -417,16 +391,13 @@ class TenantControllerTest extends TestCase
         $this->assertStringContainsString('boom', (string) $res->getBody());
     }
 
-    public function testListPassesQueryToService(): void
-    {
+    public function testListPassesQueryToService(): void {
         $service = new class extends TenantService {
             public string $received = '';
-            public function __construct()
-            {
+            public function __construct() {
             }
 
-            public function getAll(string $query = ''): array
-            {
+            public function getAll(string $query = ''): array {
                 $this->received = $query;
                 return [];
             }

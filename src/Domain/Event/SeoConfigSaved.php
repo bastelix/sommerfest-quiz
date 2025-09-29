@@ -13,13 +13,11 @@ class SeoConfigSaved
 {
     private PageSeoConfig $config;
 
-    public function __construct(PageSeoConfig $config)
-    {
+    public function __construct(PageSeoConfig $config) {
         $this->config = $config;
     }
 
-    public function getConfig(): PageSeoConfig
-    {
+    public function getConfig(): PageSeoConfig {
         return $this->config;
     }
 }

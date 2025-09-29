@@ -8,8 +8,7 @@ use Tests\TestCase;
 
 class DatenschutzControllerTest extends TestCase
 {
-    public function testDatenschutzPage(): void
-    {
+    public function testDatenschutzPage(): void {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/datenschutz');
         $response = $app->handle($request);

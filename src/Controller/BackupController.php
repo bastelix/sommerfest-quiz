@@ -20,8 +20,7 @@ class BackupController
     /**
      * Configure backup directory and optional import controller.
      */
-    public function __construct(string $dir, ?ImportController $importController = null)
-    {
+    public function __construct(string $dir, ?ImportController $importController = null) {
         $this->dir = rtrim($dir, '/');
         $this->importController = $importController;
     }
@@ -29,8 +28,7 @@ class BackupController
     /**
      * Render the backup table rows server-side.
      */
-    public function index(Request $request, Response $response): Response
-    {
+    public function index(Request $request, Response $response): Response {
         if (!is_dir($this->dir)) {
             $response->getBody()->write(json_encode([
                 'error' => 'Backup directory not found',
@@ -64,8 +62,7 @@ class BackupController
     /**
      * Restore a backup by delegating to the ImportController.
      */
-    public function restore(Request $request, Response $response, array $args): Response
-    {
+    public function restore(Request $request, Response $response, array $args): Response {
         if ($this->importController === null) {
             return $response->withStatus(500);
         }
@@ -75,8 +72,7 @@ class BackupController
     /**
      * Create a ZIP archive of the requested backup and return it for download.
      */
-    public function download(Request $request, Response $response, array $args): Response
-    {
+    public function download(Request $request, Response $response, array $args): Response {
         $name = basename((string)($args['name'] ?? ''));
         $path = $this->dir . '/' . $name;
         if (!is_dir($path)) {
@@ -119,8 +115,7 @@ class BackupController
     /**
      * Delete the specified backup directory.
      */
-    public function delete(Request $request, Response $response, array $args): Response
-    {
+    public function delete(Request $request, Response $response, array $args): Response {
         $name = basename((string)($args['name'] ?? ''));
         if (!preg_match('/^[A-Za-z0-9._-]+$/', $name) || $name === '.' || $name === '..') {
             return $response->withStatus(400);
@@ -164,8 +159,7 @@ class BackupController
         return $response->withStatus(204);
     }
 
-    private function deleteError(Response $response, string $path, bool $isDir): Response
-    {
+    private function deleteError(Response $response, string $path, bool $isDir): Response {
         $response->getBody()->write(json_encode([
             'error' => 'Failed to delete ' . ($isDir ? 'directory' : 'file'),
             'path' => $path,

@@ -47,8 +47,7 @@ class ConfigService
     /**
      * Inject PDO instance used for database operations.
      */
-    public function __construct(PDO $pdo)
-    {
+    public function __construct(PDO $pdo) {
         $this->pdo = $pdo;
         $this->pdo->exec(
             'CREATE TABLE IF NOT EXISTS active_event(' .
@@ -60,8 +59,7 @@ class ConfigService
     /**
      * Retrieve configuration as pretty printed JSON.
      */
-    public function getJson(): ?string
-    {
+    public function getJson(): ?string {
         $uid = $this->getActiveEventUid();
         $row = null;
         if ($uid !== '') {
@@ -87,8 +85,7 @@ class ConfigService
     /**
      * Retrieve configuration JSON for a specific event UID.
      */
-    public function getJsonForEvent(string $uid): ?string
-    {
+    public function getJsonForEvent(string $uid): ?string {
         $stmt = $this->pdo->prepare('SELECT * FROM config WHERE event_uid = ? LIMIT 1');
         $stmt->execute([$uid]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
@@ -106,8 +103,7 @@ class ConfigService
     /**
      * Return configuration values as an associative array.
      */
-    public function getConfig(): array
-    {
+    public function getConfig(): array {
         $uid = $this->getActiveEventUid();
         if ($uid === '') {
             return [];
@@ -125,8 +121,7 @@ class ConfigService
     /**
      * Return configuration for the given event UID or an empty array if none exists.
      */
-    public function getConfigForEvent(string $uid): array
-    {
+    public function getConfigForEvent(string $uid): array {
         $stmt = $this->pdo->prepare('SELECT * FROM config WHERE event_uid = ? LIMIT 1');
         $stmt->execute([$uid]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
@@ -142,8 +137,7 @@ class ConfigService
      * @param array<string,mixed> $cfg
      * @return array<string,mixed>
      */
-    public static function removePuzzleInfo(array $cfg): array
-    {
+    public static function removePuzzleInfo(array $cfg): array {
         unset($cfg['puzzleWord'], $cfg['puzzleFeedback']);
         return $cfg;
     }
@@ -156,8 +150,7 @@ class ConfigService
     /**
      * Remove unwanted HTML tags from user provided text.
      */
-    public static function sanitizeHtml(string $html): string
-    {
+    public static function sanitizeHtml(string $html): string {
         return strip_tags($html, self::ALLOWED_HTML_TAGS);
     }
 
@@ -166,8 +159,7 @@ class ConfigService
      *
      * @return list<string>
      */
-    private function getConfigColumns(): array
-    {
+    private function getConfigColumns(): array {
         $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
         if ($driver === 'sqlite') {
             $stmt = $this->pdo->query('PRAGMA table_info(config)');
@@ -185,8 +177,7 @@ class ConfigService
     /**
      * Replace stored configuration with new values.
      */
-    public function saveConfig(array $data): void
-    {
+    public function saveConfig(array $data): void {
         if (isset($data['pageTitle']) && !isset($data['title'])) {
             $data['title'] = $data['pageTitle'];
         }
@@ -314,8 +305,7 @@ class ConfigService
     /**
      * Update the UID of the currently active event.
      */
-    public function setActiveEventUid(string $uid): void
-    {
+    public function setActiveEventUid(string $uid): void {
         if ($uid !== '') {
             try {
                 $check = $this->pdo->prepare('SELECT 1 FROM events WHERE uid = ? LIMIT 1');
@@ -349,8 +339,7 @@ class ConfigService
     /**
      * Ensure a configuration row exists for the given event UID.
      */
-    public function ensureConfigForEvent(string $uid): void
-    {
+    public function ensureConfigForEvent(string $uid): void {
         if ($uid === '') {
             return;
         }
@@ -365,8 +354,7 @@ class ConfigService
     /**
      * Return the UID of the currently active event or an empty string.
      */
-    public function getActiveEventUid(): string
-    {
+    public function getActiveEventUid(): string {
         if ($this->activeEvent !== null) {
             return $this->activeEvent;
         }
@@ -384,8 +372,7 @@ class ConfigService
     /**
      * Return the relative path to the image directory of an event.
      */
-    public function getEventImagesPath(?string $uid = null): string
-    {
+    public function getEventImagesPath(?string $uid = null): string {
         $uid = $uid ?? $this->getActiveEventUid();
         return '/events/' . $uid . '/images';
     }
@@ -393,16 +380,14 @@ class ConfigService
     /**
      * Return the relative path to the shared uploads directory.
      */
-    public function getGlobalUploadsPath(): string
-    {
+    public function getGlobalUploadsPath(): string {
         return '/uploads';
     }
 
     /**
      * Return the absolute path to the image directory of an event and ensure it exists.
      */
-    public function getEventImagesDir(?string $uid = null): string
-    {
+    public function getEventImagesDir(?string $uid = null): string {
         $uid = $uid ?? $this->getActiveEventUid();
         $dir = dirname(__DIR__, 2) . '/data' . $this->getEventImagesPath($uid);
         if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
@@ -414,8 +399,7 @@ class ConfigService
     /**
      * Return the absolute path to the shared uploads directory and ensure it exists.
      */
-    public function getGlobalUploadsDir(): string
-    {
+    public function getGlobalUploadsDir(): string {
         $dir = dirname(__DIR__, 2) . '/data' . $this->getGlobalUploadsPath();
         if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
             throw new RuntimeException('unable to create uploads directory');
@@ -426,8 +410,7 @@ class ConfigService
     /**
      * Move legacy image files into the new event image directory structure.
      */
-    public function migrateEventImages(?string $uid = null): void
-    {
+    public function migrateEventImages(?string $uid = null): void {
         $uid = $uid ?? $this->getActiveEventUid();
         if ($uid === '') {
             return;
@@ -483,8 +466,7 @@ class ConfigService
      * @param array<string,mixed> $row
      * @return array<string,mixed>
      */
-    private function normalizeKeys(array $row): array
-    {
+    private function normalizeKeys(array $row): array {
         $keys = [
             'displayErrorDetails',
             'QRUser',
