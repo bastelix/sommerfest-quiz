@@ -1008,54 +1008,55 @@ VALUES (
 
     <section id="pricing" class="uk-section uk-section-default">
       <div class="uk-container">
-        <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap">
-          <h2 class="uk-heading-line"><span>Preise, die Klarheit schaffen</span></h2>
-          <span class="muted">Ehrlich, transparent, ohne versteckte Kosten.</span>
+        <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap calserver-pricing__header">
+          <h2 class="uk-heading-line"><span>Abomodelle für Ihren Betrieb</span></h2>
+          <span class="muted">Alle Pakete inkl. persönlichem Kick-off und 7 Tagen Testphase.</span>
         </div>
         <div class="uk-child-width-1-1 uk-child-width-1-3@m uk-grid-large uk-grid-match"
              data-uk-grid
              data-uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .anim; delay: 75; repeat: true">
           <div class="anim">
-            <div class="uk-card uk-card-default uk-card-body uk-text-center uk-card-hover shadow-soft">
-              <h3>Standard</h3>
-              <p class="muted">Die solide Basis für kleine Teams.</p>
-              <p class="uk-text-large uk-text-bold">ab 250 €/Monat</p>
+            <div class="uk-card uk-card-default uk-card-body uk-text-center uk-card-hover shadow-soft calserver-pricing-card">
+              <h3>Cloud Team</h3>
+              <p class="muted">Managed SaaS für kleinere Qualitäts-Teams.</p>
+              <p class="uk-text-large uk-text-bold">ab 390&nbsp;€/Monat</p>
               <ul class="uk-list uk-list-bullet uk-text-left muted">
-                <li>Bis 2 Mandanten</li>
-                <li>Alle Kernmodule inklusive</li>
-                <li>E-Mail-Support innerhalb von 24 h</li>
+                <li>Bis 3 Mandanten &amp; 1.000 Geräte</li>
+                <li>Alle Kernmodule, Erinnerungen &amp; Workflows</li>
+                <li>Support per E-Mail innerhalb eines Werktags</li>
               </ul>
-              <a class="uk-button uk-button-default" href="#offer">Unverbindliches Angebot</a>
+              <a class="uk-button uk-button-default" href="#offer">Paket anfragen</a>
             </div>
           </div>
           <div class="anim">
-            <div class="uk-card uk-card-primary uk-card-primary--highlight uk-card-body uk-text-center uk-card-hover shadow-soft uk-position-relative">
-              <span class="pill pill--badge uk-position-absolute uk-position-top-right uk-margin-small">Empfohlen</span>
-              <h3>Performance</h3>
-              <p>Für größere Teams mit mehr Tempo.</p>
-              <p class="uk-text-large uk-text-bold">auf Anfrage</p>
+            <div class="uk-card uk-card-primary uk-card-primary--highlight uk-card-body uk-text-center uk-card-hover shadow-soft uk-position-relative calserver-pricing-card">
+              <span class="pill pill--badge uk-position-absolute uk-position-top-right uk-margin-small">Beliebtestes Paket</span>
+              <h3>Cloud Scale</h3>
+              <p>Für wachsende Organisationen mit mehreren Standorten.</p>
+              <p class="uk-text-large uk-text-bold">ab 690&nbsp;€/Monat</p>
               <ul class="uk-list uk-list-bullet uk-text-left">
-                <li>Unbegrenzte Nutzer:innen</li>
-                <li>Erweiterte Automatisierungen</li>
-                <li>Priorisierter Support &amp; SLA</li>
+                <li>Unbegrenzte Nutzer:innen &amp; Mandanten</li>
+                <li>Automatisierungen, API &amp; Ticket-Workflows</li>
+                <li>Priorisierter Support mit festen Reaktionszeiten</li>
               </ul>
-              <a class="uk-button uk-button-default" href="#offer">Beratung anfragen</a>
+              <a class="uk-button uk-button-default" href="#offer">Beratung vereinbaren</a>
             </div>
           </div>
           <div class="anim">
-            <div class="uk-card uk-card-default uk-card-body uk-text-center uk-card-hover shadow-soft">
+            <div class="uk-card uk-card-default uk-card-body uk-text-center uk-card-hover shadow-soft calserver-pricing-card">
               <h3>Enterprise</h3>
-              <p class="muted">Individuell zugeschnitten auf Ihre Prozesse.</p>
-              <p class="uk-text-large uk-text-bold">individuell</p>
+              <p class="muted">Individuelle Projekte für On-Premise &amp; Hybrid.</p>
+              <p class="uk-text-large uk-text-bold">Projektangebot</p>
               <ul class="uk-list uk-list-bullet uk-text-left muted">
-                <li>Eigene Mandanten-Strukturen</li>
-                <li>On-Premise oder Hybrid</li>
-                <li>Integrationen &amp; Projektbegleitung</li>
+                <li>Dedizierte Umgebungen &amp; Sicherheitskonzepte</li>
+                <li>Integration in ERP, MES &amp; Identitätsmanagement</li>
+                <li>Begleitung durch Customer-Success &amp; SLA</li>
               </ul>
-              <a class="uk-button uk-button-default" href="#offer">Angebot anfordern</a>
+              <a class="uk-button uk-button-default" href="#offer">Individuelles Angebot</a>
             </div>
           </div>
         </div>
+        <p class="muted uk-text-small uk-margin-top">Optional buchbar: Validierte Prozesse, Schulungen vor Ort sowie dedizierte Hotline. Wir erstellen Ihr Angebot im persönlichen Gespräch.</p>
       </div>
     </section>
 
