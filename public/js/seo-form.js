@@ -289,7 +289,7 @@ export function initSeoForm() {
     "https://calserver.com"
   ]
 }`,
-      hreflang: `<link rel="alternate" href="${ctx.baseUrl}/calserver" hreflang="de" />\n<link rel="alternate" href="${ctx.baseUrl}/en/calserver" hreflang="en" />`,
+      hreflang: `<link rel="alternate" href="${ctx.baseUrl}/calserver" hreflang="de" />\n<link rel="alternate" href="${ctx.baseUrl}/calserver?lang=en" hreflang="en" />`,
       domain: ctx.domain
     })
   };
