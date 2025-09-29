@@ -1799,7 +1799,7 @@ body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual__image {
     justify-content: center;
     width: 3.25rem;
     height: 3.25rem;
-    border: none;
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 52%, rgba(255, 255, 255, 0.24));
     border-radius: 9999px;
     background: color-mix(in oklab, var(--calserver-primary) 22%, rgba(8, 13, 24, 0.94));
     color: #ffffff;
@@ -1816,6 +1816,7 @@ body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual__image {
 .calserver-cookie-trigger:hover,
 .calserver-cookie-trigger:focus-visible {
     background: color-mix(in oklab, var(--calserver-primary) 30%, rgba(8, 13, 24, 0.9));
+    border-color: color-mix(in oklab, var(--calserver-primary) 64%, rgba(255, 255, 255, 0.28));
     box-shadow: 0 22px 48px rgba(9, 15, 28, 0.36), 0 10px 20px rgba(9, 15, 28, 0.3);
 }
 
@@ -1830,7 +1831,20 @@ body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual__image {
 
 .calserver-cookie-trigger--active {
     background: color-mix(in oklab, var(--calserver-primary) 26%, rgba(8, 13, 24, 0.92));
+    border-color: color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.26));
     box-shadow: 0 16px 36px rgba(9, 15, 28, 0.28), 0 6px 14px rgba(9, 15, 28, 0.24);
+}
+
+body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-cookie-trigger,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-cookie-trigger {
+    color: #ffffff;
+    border-color: color-mix(in oklab, var(--calserver-primary) 46%, rgba(15, 23, 42, 0.16));
+}
+
+body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-cookie-trigger svg,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-cookie-trigger svg {
+    color: inherit;
+    stroke: currentColor;
 }
 
 @media (max-width: 640px) {
