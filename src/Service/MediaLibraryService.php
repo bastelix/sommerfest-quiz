@@ -255,8 +255,8 @@ class MediaLibraryService
 
         if (in_array($extension, ['png', 'jpg', 'jpeg'], true)) {
             $targetName = $this->convertImageToWebp($relative, $dir, $name, $sourcePath);
-        } elseif ($extension === 'mp3') {
-            $targetName = $this->convertAudioToWebm($dir, $name, $sourcePath);
+        } elseif ($extension === 'mp4') {
+            $targetName = $this->convertVideoToWebm($dir, $name, $sourcePath);
         } else {
             throw new RuntimeException('unsupported conversion');
         }
@@ -307,12 +307,12 @@ class MediaLibraryService
         return $targetName;
     }
 
-    private function convertAudioToWebm(string $dir, string $name, string $sourcePath): string
+    private function convertVideoToWebm(string $dir, string $name, string $sourcePath): string
     {
         $baseName = (string) pathinfo($name, PATHINFO_FILENAME);
         $baseName = $this->sanitizeBaseName($baseName);
         if ($baseName === '') {
-            $baseName = 'audio';
+            $baseName = 'video';
         }
 
         $targetBase = $this->uniqueBaseName($dir, $baseName, 'webm');
@@ -325,7 +325,12 @@ class MediaLibraryService
             'error',
             '-i',
             $sourcePath,
-            '-vn',
+            '-c:v',
+            'libvpx-vp9',
+            '-b:v',
+            '2M',
+            '-pix_fmt',
+            'yuv420p',
             '-c:a',
             'libopus',
             '-b:a',
@@ -366,8 +371,8 @@ class MediaLibraryService
             return $metadata;
         }
 
-        $tags = $sourceMeta['tags'];
-        $folderValue = $sourceMeta['folder'];
+        $tags = array_values(array_map('strval', $sourceMeta['tags'] ?? []));
+        $folderValue = $sourceMeta['folder'] ?? null;
         $folder = is_string($folderValue) && $folderValue !== '' ? $folderValue : null;
 
         return $this->applyMetadata(

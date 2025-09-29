@@ -347,7 +347,7 @@ ready(() => {
       if (ext === 'webp' || ext === 'svg') {
         return false;
       }
-      return ['png', 'jpg', 'jpeg', 'mp3'].includes(ext);
+      return ['png', 'jpg', 'jpeg', 'mp4'].includes(ext);
     }
 
     function canPreview(file) {
