@@ -353,7 +353,12 @@ class MailService
     }
 
     private function buildDefaultSenderText(string $name, string $message): string {
-        return sprintf("Hallo %s,\n\n%s\n\n%s", $name, 'vielen Dank für Ihre Nachricht. Hier ist eine Kopie Ihrer Anfrage:', $message);
+        return sprintf(
+            "Hallo %s,\n\n%s\n\n%s",
+            $name,
+            'vielen Dank für Ihre Nachricht. Hier ist eine Kopie Ihrer Anfrage:',
+            $message
+        );
     }
 
     /**

@@ -70,7 +70,8 @@ class MarketingPageController
         if ($this->turnstileConfig->isEnabled()) {
             $siteKey = $this->turnstileConfig->getSiteKey() ?? '';
             $widgetMarkup = sprintf(
-                '<div class="cf-turnstile" data-sitekey="%s" data-callback="contactTurnstileSuccess" data-error-callback="contactTurnstileError" data-expired-callback="contactTurnstileExpired"></div>',
+                '<div class="cf-turnstile" data-sitekey="%s" data-callback="contactTurnstileSuccess" ' .
+                'data-error-callback="contactTurnstileError" data-expired-callback="contactTurnstileExpired"></div>',
                 htmlspecialchars($siteKey, ENT_QUOTES)
             );
         }

@@ -197,7 +197,9 @@ class ResultService
         if ($uid === false) {
             return;
         }
-        $qStmt = $this->pdo->prepare("SELECT id FROM questions WHERE catalog_uid=? AND type<>'flip' ORDER BY sort_order");
+        $qStmt = $this->pdo->prepare(
+            "SELECT id FROM questions WHERE catalog_uid=? AND type<>'flip' ORDER BY sort_order"
+        );
         $qStmt->execute([$uid]);
         $ids = $qStmt->fetchAll(PDO::FETCH_COLUMN);
         if (!$ids) {
@@ -215,7 +217,17 @@ class ResultService
             $text = isset($ans['text']) ? (string)$ans['text'] : null;
             $photo = isset($ans['photo']) ? (string)$ans['photo'] : null;
             $consent = isset($ans['consent']) ? (int)((bool)$ans['consent']) : null;
-            $ins->execute([$name, $catalog, $qid, $attempt, $correct, $text, $photo, $consent, $eventUid]);
+            $ins->execute([
+                $name,
+                $catalog,
+                $qid,
+                $attempt,
+                $correct,
+                $text,
+                $photo,
+                $consent,
+                $eventUid,
+            ]);
         }
     }
 

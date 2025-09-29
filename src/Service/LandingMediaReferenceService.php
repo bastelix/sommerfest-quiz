@@ -119,7 +119,13 @@ class LandingMediaReferenceService
 
                 $absolute = $this->resolveAbsolutePath($path);
                 if (!is_file($absolute)) {
-                    $missingKey = sprintf('%s|%s|%s|%s', $reference['slug'], $path, $reference['type'], $reference['field']);
+                    $missingKey = sprintf(
+                        '%s|%s|%s|%s',
+                        $reference['slug'],
+                        $path,
+                        $reference['type'],
+                        $reference['field']
+                    );
                     if (!isset($seenMissing[$missingKey])) {
                         $missing[] = $this->buildMissingEntry($reference, $path);
                         $seenMissing[$missingKey] = true;
