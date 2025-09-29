@@ -9,6 +9,8 @@ use App\Service\DomainStartPageService;
 use App\Service\MailService;
 use App\Infrastructure\Database;
 use App\Service\TenantService;
+use App\Service\TurnstileConfig;
+use App\Service\TurnstileVerificationService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -72,6 +74,23 @@ class ContactController
             !filter_var($email, FILTER_VALIDATE_EMAIL)
         ) {
             return $response->withStatus(400);
+        }
+
+        $turnstileConfig = $request->getAttribute('turnstileConfig');
+        if (!$turnstileConfig instanceof TurnstileConfig) {
+            $turnstileConfig = TurnstileConfig::fromEnv();
+        }
+        $turnstileVerifier = $request->getAttribute('turnstileVerifier');
+        if (!$turnstileVerifier instanceof TurnstileVerificationService) {
+            $turnstileVerifier = new TurnstileVerificationService($turnstileConfig);
+        }
+        if ($turnstileConfig->isEnabled()) {
+            $token = (string) ($data['cf-turnstile-response'] ?? '');
+            $remoteIp = $request->getServerParams()['REMOTE_ADDR'] ?? null;
+            $ip = is_string($remoteIp) ? $remoteIp : null;
+            if ($token === '' || !$turnstileVerifier->verify($token, $ip)) {
+                return $response->withStatus(422);
+            }
         }
 
         $pdo = Database::connectFromEnv();

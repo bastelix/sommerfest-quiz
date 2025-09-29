@@ -105,6 +105,38 @@ HTML;
         unset($_ENV['SMTP_HOST'], $_ENV['SMTP_USER'], $_ENV['SMTP_PASS']);
     }
 
+    public function testLandingPageIncludesTurnstileWidgetWhenConfigured(): void
+    {
+        putenv('SMTP_HOST=localhost');
+        putenv('SMTP_USER=user@example.org');
+        putenv('SMTP_PASS=secret');
+        $_ENV['SMTP_HOST'] = 'localhost';
+        $_ENV['SMTP_USER'] = 'user@example.org';
+        $_ENV['SMTP_PASS'] = 'secret';
+
+        putenv('TURNSTILE_SITE_KEY=site-key');
+        putenv('TURNSTILE_SECRET_KEY=secret-key');
+        $_ENV['TURNSTILE_SITE_KEY'] = 'site-key';
+        $_ENV['TURNSTILE_SECRET_KEY'] = 'secret-key';
+
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/landing');
+        $response = $app->handle($request);
+        $body = (string) $response->getBody();
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertStringContainsString('cf-turnstile', $body);
+        $this->assertStringContainsString('https://challenges.cloudflare.com/turnstile', $body);
+
+        putenv('SMTP_HOST');
+        putenv('SMTP_USER');
+        putenv('SMTP_PASS');
+        unset($_ENV['SMTP_HOST'], $_ENV['SMTP_USER'], $_ENV['SMTP_PASS']);
+        putenv('TURNSTILE_SITE_KEY');
+        putenv('TURNSTILE_SECRET_KEY');
+        unset($_ENV['TURNSTILE_SITE_KEY'], $_ENV['TURNSTILE_SECRET_KEY']);
+    }
+
     public function testLandingPageContainsFaqLink(): void
     {
         $app = $this->getAppInstance();

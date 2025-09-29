@@ -176,6 +176,18 @@ class TestCase extends PHPUnit_TestCase
             putenv('MARKETING_DOMAINS');
             unset($_ENV['MARKETING_DOMAINS']);
         }
+        if (getenv('TURNSTILE_SITE_KEY') !== false) {
+            putenv('TURNSTILE_SITE_KEY');
+        }
+        if (array_key_exists('TURNSTILE_SITE_KEY', $_ENV)) {
+            unset($_ENV['TURNSTILE_SITE_KEY']);
+        }
+        if (getenv('TURNSTILE_SECRET_KEY') !== false) {
+            putenv('TURNSTILE_SECRET_KEY');
+        }
+        if (array_key_exists('TURNSTILE_SECRET_KEY', $_ENV)) {
+            unset($_ENV['TURNSTILE_SECRET_KEY']);
+        }
         $this->pdo = null;
         parent::tearDown();
     }

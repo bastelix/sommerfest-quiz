@@ -554,6 +554,15 @@ Beispiele für DSNs:
 - Brevo API: `brevo+api://DEIN_API_KEY@default`
 - Mailchimp (Mandrill) API: `mailchimp+https://DEIN_MANDRILL_KEY@default`
 
+### Cloudflare Turnstile
+
+Die Marketing-Kontaktformulare lassen sich zusätzlich mit einem Cloudflare-Turnstile-Captcha schützen. Dafür müssen in der `.env` beide Schlüssel hinterlegt werden:
+
+- `TURNSTILE_SITE_KEY` – öffentlicher Schlüssel für das Frontend-Widget
+- `TURNSTILE_SECRET_KEY` – geheimer Schlüssel für die Server-Validierung
+
+Sind beide Werte gesetzt, blendet die Landingpage automatisch das Turnstile-Widget ein und der `ContactController` validiert eingehende Token serverseitig. Ohne Konfiguration bleibt das Formular wie bisher frei zugänglich.
+
 ### Passwort zurücksetzen
 Die API unterstützt ein zweistufiges Verfahren zum Zurücksetzen vergessener Passwörter:
 

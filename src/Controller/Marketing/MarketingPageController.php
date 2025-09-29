@@ -7,24 +7,33 @@ namespace App\Controller\Marketing;
 use App\Application\Seo\PageSeoConfigService;
 use App\Service\MailService;
 use App\Service\PageService;
+use App\Service\TurnstileConfig;
 use App\Support\BasePathHelper;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 use Twig\Error\LoaderError;
+use function htmlspecialchars;
 
 class MarketingPageController
 {
     private PageService $pages;
     private PageSeoConfigService $seo;
     private ?string $slug;
+    private TurnstileConfig $turnstileConfig;
 
-    public function __construct(?string $slug = null, ?PageService $pages = null, ?PageSeoConfigService $seo = null)
+    public function __construct(
+        ?string $slug = null,
+        ?PageService $pages = null,
+        ?PageSeoConfigService $seo = null,
+        ?TurnstileConfig $turnstileConfig = null
+    )
     {
         $this->slug = $slug;
         $this->pages = $pages ?? new PageService();
         $this->seo = $seo ?? new PageSeoConfigService();
+        $this->turnstileConfig = $turnstileConfig ?? TurnstileConfig::fromEnv();
     }
 
     public function __invoke(Request $request, Response $response, array $args = []): Response
@@ -46,6 +55,16 @@ class MarketingPageController
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
         $_SESSION['csrf_token'] = $csrf;
         $html = str_replace('{{ csrf_token }}', $csrf, $html);
+
+        $widgetMarkup = '';
+        if ($this->turnstileConfig->isEnabled()) {
+            $siteKey = $this->turnstileConfig->getSiteKey() ?? '';
+            $widgetMarkup = sprintf(
+                '<div class="cf-turnstile" data-sitekey="%s" data-callback="contactTurnstileSuccess" data-error-callback="contactTurnstileError" data-expired-callback="contactTurnstileExpired"></div>',
+                htmlspecialchars($siteKey, ENT_QUOTES)
+            );
+        }
+        $html = str_replace('{{ turnstile_widget }}', $widgetMarkup, $html);
 
         if (!MailService::isConfigured()) {
             $html = preg_replace(
@@ -79,6 +98,8 @@ class MarketingPageController
             'ogImage' => $config?->getOgImage(),
             'schemaJson' => $config?->getSchemaJson(),
             'hreflang' => $config?->getHreflang(),
+            'turnstileSiteKey' => $this->turnstileConfig->isEnabled() ? $this->turnstileConfig->getSiteKey() : null,
+            'turnstileEnabled' => $this->turnstileConfig->isEnabled(),
         ];
 
         if ($canonicalUrl !== null) {
