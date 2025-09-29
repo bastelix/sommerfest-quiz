@@ -16,8 +16,7 @@ use Stripe\Webhook;
  */
 class StripeWebhookController
 {
-    public function __invoke(Request $request, Response $response): Response
-    {
+    public function __invoke(Request $request, Response $response): Response {
         $payload = (string) $request->getBody();
         $sigHeader = $request->getHeaderLine('Stripe-Signature');
         $webhookSecret = getenv('STRIPE_WEBHOOK_SECRET') ?: '';
@@ -149,8 +148,7 @@ class StripeWebhookController
         return $response->withStatus(200);
     }
 
-    private function mapPriceToPlan(string $priceId): ?string
-    {
+    private function mapPriceToPlan(string $priceId): ?string {
         $useSandbox = filter_var(getenv('STRIPE_SANDBOX'), FILTER_VALIDATE_BOOLEAN);
         $prefix = $useSandbox ? 'STRIPE_SANDBOX_' : 'STRIPE_';
         $map = [

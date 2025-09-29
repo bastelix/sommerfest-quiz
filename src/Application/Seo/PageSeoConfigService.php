@@ -40,8 +40,7 @@ class PageSeoConfigService
         SeoConfigListener::register($this->dispatcher, $this->cache);
     }
 
-    public function load(int $pageId): ?PageSeoConfig
-    {
+    public function load(int $pageId): ?PageSeoConfig {
         $cached = $this->cache->get($pageId);
         if ($cached !== null) {
             return $cached;
@@ -77,8 +76,7 @@ class PageSeoConfigService
         return null;
     }
 
-    public function save(PageSeoConfig $config): void
-    {
+    public function save(PageSeoConfig $config): void {
         $stmt = $this->pdo->prepare('SELECT slug, canonical_url, domain FROM page_seo_config WHERE page_id = ?');
         $stmt->execute([$config->getPageId()]);
         $existing = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
@@ -148,8 +146,7 @@ class PageSeoConfigService
      *
      * @return array<string,mixed>
      */
-    public function defaultConfig(int $pageId): array
-    {
+    public function defaultConfig(int $pageId): array {
         return [
             'pageId' => $pageId,
             'slug' => '',
@@ -167,8 +164,7 @@ class PageSeoConfigService
         ];
     }
 
-    private function normalizeSchemaJson(?string $json): ?string
-    {
+    private function normalizeSchemaJson(?string $json): ?string {
         if ($json === null) {
             return null;
         }
@@ -189,8 +185,7 @@ class PageSeoConfigService
      * @param array<string,mixed> $data
      * @return array<string,string>
      */
-    public function validate(array $data): array
-    {
+    public function validate(array $data): array {
         $data['domain'] = $this->normalizeDomain(isset($data['domain']) ? (string) $data['domain'] : null);
 
         $rawFavicon = isset($data['faviconPath']) ? (string) $data['faviconPath'] : '';
@@ -223,8 +218,7 @@ class PageSeoConfigService
         return $errors;
     }
 
-    private function normalizeDomain(?string $domain): ?string
-    {
+    private function normalizeDomain(?string $domain): ?string {
         if ($domain === null) {
             return null;
         }
@@ -239,8 +233,7 @@ class PageSeoConfigService
         return $normalized === '' ? null : $normalized;
     }
 
-    public function normalizeFaviconPath(?string $path): ?string
-    {
+    public function normalizeFaviconPath(?string $path): ?string {
         if ($path === null) {
             return null;
         }

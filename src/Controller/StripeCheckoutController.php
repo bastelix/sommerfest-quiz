@@ -15,8 +15,7 @@ use Throwable;
  */
 class StripeCheckoutController
 {
-    public function __invoke(Request $request, Response $response): Response
-    {
+    public function __invoke(Request $request, Response $response): Response {
         $data = json_decode((string) $request->getBody(), true);
         if (!is_array($data)) {
             return $response->withStatus(400);
@@ -85,15 +84,13 @@ class StripeCheckoutController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
-    private function jsonError(Response $response, int $status, string $message): Response
-    {
+    private function jsonError(Response $response, int $status, string $message): Response {
         $payload = json_encode(['error' => $message]);
         $response->getBody()->write($payload !== false ? $payload : '{}');
         return $response->withStatus($status)->withHeader('Content-Type', 'application/json');
     }
 
-    private function reportError(Throwable $e): void
-    {
+    private function reportError(Throwable $e): void {
         error_log($e->getMessage());
         error_log($e->getTraceAsString());
 

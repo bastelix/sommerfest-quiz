@@ -13,8 +13,7 @@ use Slim\Psr7\Response;
 
 class ConfigControllerTest extends TestCase
 {
-    public function testGetNotFound(): void
-    {
+    public function testGetNotFound(): void {
         $pdo = $this->createDatabase();
         $controller = new ConfigController(new ConfigService($pdo), new ConfigValidator(), new EventService($pdo));
         $request = $this->createRequest('GET', '/config.json');
@@ -23,8 +22,7 @@ class ConfigControllerTest extends TestCase
         $this->assertEquals(404, $response->getStatusCode());
     }
 
-    public function testPostAndGet(): void
-    {
+    public function testPostAndGet(): void {
         $pdo = $this->createDatabase();
         $service = new ConfigService($pdo);
         $eventService = new EventService($pdo);
@@ -45,8 +43,7 @@ class ConfigControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testPostInvalidJson(): void
-    {
+    public function testPostInvalidJson(): void {
         $pdo = $this->createDatabase();
         $service = new ConfigService($pdo);
         $controller = new ConfigController($service, new ConfigValidator(), new EventService($pdo));
@@ -66,8 +63,7 @@ class ConfigControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testPostInvalidColor(): void
-    {
+    public function testPostInvalidColor(): void {
         $pdo = $this->createDatabase();
         $service = new ConfigService($pdo);
         $eventService = new EventService($pdo);
@@ -88,8 +84,7 @@ class ConfigControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testPostEventUidOnly(): void
-    {
+    public function testPostEventUidOnly(): void {
         $pdo = $this->createDatabase();
         $service = new ConfigService($pdo);
         $eventService = new EventService($pdo);
@@ -108,8 +103,7 @@ class ConfigControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testPostInvalidEventUid(): void
-    {
+    public function testPostInvalidEventUid(): void {
         $pdo = $this->createDatabase();
         $service = new ConfigService($pdo);
         $controller = new ConfigController($service, new ConfigValidator(), new EventService($pdo));
@@ -125,8 +119,7 @@ class ConfigControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testGetByEvent(): void
-    {
+    public function testGetByEvent(): void {
         $pdo = $this->createDatabase();
         $service = new ConfigService($pdo);
         $eventService = new EventService($pdo);
@@ -143,8 +136,7 @@ class ConfigControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testPostDeniedForNonAdmin(): void
-    {
+    public function testPostDeniedForNonAdmin(): void {
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 2, 'role' => 'user'];

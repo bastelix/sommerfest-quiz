@@ -19,16 +19,14 @@ class PageController
     /** @var string[]|null */
     private ?array $editableSlugs = null;
 
-    public function __construct(?PageService $pageService = null)
-    {
+    public function __construct(?PageService $pageService = null) {
         $this->pageService = $pageService ?? new PageService();
     }
 
     /**
      * Display the edit form for a static page.
      */
-    public function edit(Request $request, Response $response, array $args): Response
-    {
+    public function edit(Request $request, Response $response, array $args): Response {
         $slug = $args['slug'] ?? '';
         if (!in_array($slug, $this->getEditableSlugs(), true)) {
             return $response->withStatus(404);
@@ -49,8 +47,7 @@ class PageController
     /**
      * Persist new HTML for a static page.
      */
-    public function update(Request $request, Response $response, array $args): Response
-    {
+    public function update(Request $request, Response $response, array $args): Response {
         $slug = $args['slug'] ?? '';
         if (!in_array($slug, $this->getEditableSlugs(), true)) {
             return $response->withStatus(404);
@@ -67,8 +64,7 @@ class PageController
         return $response->withStatus(204);
     }
 
-    public function delete(Request $request, Response $response, array $args): Response
-    {
+    public function delete(Request $request, Response $response, array $args): Response {
         $slug = $args['slug'] ?? '';
         if (!in_array($slug, $this->getEditableSlugs(), true)) {
             return $response->withStatus(404);
@@ -84,8 +80,7 @@ class PageController
         return $response->withStatus(204);
     }
 
-    public function create(Request $request, Response $response): Response
-    {
+    public function create(Request $request, Response $response): Response {
         $data = $request->getParsedBody();
         $contentType = strtolower($request->getHeaderLine('Content-Type'));
         if (str_contains($contentType, 'application/json')) {
@@ -140,8 +135,7 @@ class PageController
      *
      * @return string[]
      */
-    private function getEditableSlugs(): array
-    {
+    private function getEditableSlugs(): array {
         if ($this->editableSlugs !== null) {
             return $this->editableSlugs;
         }

@@ -18,8 +18,7 @@ class SeoValidator
      * @param array<string,mixed> $data
      * @return array<string,string>
      */
-    public function validate(array $data): array
-    {
+    public function validate(array $data): array {
         $errors = [];
 
         $slug = (string)($data['slug'] ?? '');

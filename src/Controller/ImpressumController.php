@@ -17,8 +17,7 @@ use Slim\Views\Twig;
  */
 class ImpressumController
 {
-    public function __invoke(Request $request, Response $response): Response
-    {
+    public function __invoke(Request $request, Response $response): Response {
         $service = new PageService();
         $html = $service->get('impressum');
         if ($html === null) {

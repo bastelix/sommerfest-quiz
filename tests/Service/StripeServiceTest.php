@@ -9,34 +9,29 @@ use PHPUnit\Framework\TestCase;
 
 final class StripeServiceTest extends TestCase
 {
-    private function createFakeStripeClient(): \Stripe\StripeClient
-    {
+    private function createFakeStripeClient(): \Stripe\StripeClient {
         return new class extends \Stripe\StripeClient {
             public object $checkout;
             public object $customers;
             public object $subscriptions;
 
-            public function __construct()
-            {
+            public function __construct() {
                 parent::__construct('sk_test_fake');
                 $this->checkout = new class {
                     public object $sessions;
 
-                    public function __construct()
-                    {
+                    public function __construct() {
                         $this->sessions = new class {
                             public array $lastParams = [];
                             public string $lastRetrievedId = '';
                             public ?object $retrieveResponse = null;
 
-                            public function create(array $params)
-                            {
+                            public function create(array $params) {
                                 $this->lastParams = $params;
                                 return (object) ['url' => 'https://example.com', 'client_secret' => 'sec_123'];
                             }
 
-                            public function retrieve(string $id, array $params)
-                            {
+                            public function retrieve(string $id, array $params) {
                                 $this->lastRetrievedId = $id;
                                 if ($this->retrieveResponse !== null) {
                                     return $this->retrieveResponse;
@@ -54,22 +49,19 @@ final class StripeServiceTest extends TestCase
                 $this->customers = new class {
                     public array $lastParams = [];
 
-                    public function create(array $params)
-                    {
+                    public function create(array $params) {
                         $this->lastParams = $params;
                         return (object) ['id' => 'cus_new'];
                     }
 
-                    public function all(array $params)
-                    {
+                    public function all(array $params) {
                         return (object) ['data' => []];
                     }
                 };
                 $this->subscriptions = new class {
                     public array $lastParams = [];
 
-                    public function all(array $params)
-                    {
+                    public function all(array $params) {
                         $this->lastParams = $params;
                         return (object) ['data' => [
                             (object) [
@@ -94,8 +86,7 @@ final class StripeServiceTest extends TestCase
         };
     }
 
-    public function testCreateCheckoutSessionAddsTrialPeriod(): void
-    {
+    public function testCreateCheckoutSessionAddsTrialPeriod(): void {
         $client = $this->createFakeStripeClient();
         $service = new StripeService(client: $client);
         $service->createCheckoutSession(
@@ -126,8 +117,7 @@ final class StripeServiceTest extends TestCase
         );
     }
 
-    public function testCreateCheckoutSessionDefaultsToSevenDayTrial(): void
-    {
+    public function testCreateCheckoutSessionDefaultsToSevenDayTrial(): void {
         $client = $this->createFakeStripeClient();
         $service = new StripeService(client: $client);
         putenv('STRIPE_TRIAL_DAYS');
@@ -147,8 +137,7 @@ final class StripeServiceTest extends TestCase
         );
     }
 
-    public function testCreateCheckoutSessionWithCustomerIdAndReference(): void
-    {
+    public function testCreateCheckoutSessionWithCustomerIdAndReference(): void {
         $client = $this->createFakeStripeClient();
         $service = new StripeService(client: $client);
         $service->createCheckoutSession(
@@ -170,8 +159,7 @@ final class StripeServiceTest extends TestCase
         );
     }
 
-    public function testCreateEmbeddedCheckoutSessionReturnsClientSecret(): void
-    {
+    public function testCreateEmbeddedCheckoutSessionReturnsClientSecret(): void {
         $client = $this->createFakeStripeClient();
         $service = new StripeService(client: $client);
         $secret = $service->createCheckoutSession(
@@ -192,8 +180,7 @@ final class StripeServiceTest extends TestCase
         $this->assertSame('sec_123', $secret);
     }
 
-    public function testCreateCustomer(): void
-    {
+    public function testCreateCustomer(): void {
         $client = $this->createFakeStripeClient();
         $service = new StripeService(client: $client);
         $id = $service->createCustomer('user@example.com', 'User');
@@ -208,8 +195,7 @@ final class StripeServiceTest extends TestCase
         $this->assertSame('cus_new', $id);
     }
 
-    public function testGetCheckoutSessionInfoReturnsReference(): void
-    {
+    public function testGetCheckoutSessionInfoReturnsReference(): void {
         $client = $this->createFakeStripeClient();
         $service = new StripeService(client: $client);
         $info = $service->getCheckoutSessionInfo('sess_123');
@@ -225,8 +211,7 @@ final class StripeServiceTest extends TestCase
         $this->assertSame('starter', $info['plan']);
     }
 
-    public function testGetCheckoutSessionInfoUsesPriceIdForPlan(): void
-    {
+    public function testGetCheckoutSessionInfoUsesPriceIdForPlan(): void {
         $client = $this->createFakeStripeClient();
         $client->checkout->sessions->retrieveResponse = (object) [
             'payment_status' => 'paid',
@@ -244,8 +229,7 @@ final class StripeServiceTest extends TestCase
         $this->assertSame('standard', $info['plan']);
     }
 
-    public function testGetActiveSubscriptionReturnsDetails(): void
-    {
+    public function testGetActiveSubscriptionReturnsDetails(): void {
         $client = $this->createFakeStripeClient();
         putenv('STRIPE_PRICE_STANDARD=price_standard');
         $service = new StripeService(client: $client);

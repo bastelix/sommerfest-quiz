@@ -17,14 +17,12 @@ class QrLogoController
     private ConfigService $config;
     private ImageUploadService $images;
 
-    public function __construct(ConfigService $config, ?ImageUploadService $images = null)
-    {
+    public function __construct(ConfigService $config, ?ImageUploadService $images = null) {
         $this->config = $config;
         $this->images = $images ?? new ImageUploadService(sys_get_temp_dir());
     }
 
-    public function get(Request $request, Response $response): Response
-    {
+    public function get(Request $request, Response $response): Response {
         $file = (string)($request->getAttribute('file') ?? '');
         $ext = strtolower((string)($request->getAttribute('ext') ?? 'png'));
         $uid = '';
@@ -72,8 +70,7 @@ class QrLogoController
         return $response->withHeader('Content-Type', $contentType);
     }
 
-    public function post(Request $request, Response $response): Response
-    {
+    public function post(Request $request, Response $response): Response {
         $files = $request->getUploadedFiles();
         if (!isset($files['file'])) {
             $response->getBody()->write('missing file');

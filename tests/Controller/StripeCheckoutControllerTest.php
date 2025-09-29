@@ -9,8 +9,7 @@ use Tests\TestCase;
 
 class StripeCheckoutControllerTest extends TestCase
 {
-    public function testPostRequiresSubdomain(): void
-    {
+    public function testPostRequiresSubdomain(): void {
         putenv('STRIPE_SECRET_KEY=key');
         putenv('STRIPE_PUBLISHABLE_KEY=pub');
         putenv('STRIPE_WEBHOOK_SECRET=wh');
@@ -33,8 +32,7 @@ class StripeCheckoutControllerTest extends TestCase
         $this->assertSame(422, $response->getStatusCode());
     }
 
-    public function testPostStartsCheckoutWithReference(): void
-    {
+    public function testPostStartsCheckoutWithReference(): void {
         putenv('STRIPE_SECRET_KEY=key');
         putenv('STRIPE_PUBLISHABLE_KEY=pub');
         putenv('STRIPE_WEBHOOK_SECRET=wh');
@@ -48,8 +46,7 @@ class StripeCheckoutControllerTest extends TestCase
         $service = new class extends StripeService {
             public array $args = [];
 
-            public function __construct()
-            {
+            public function __construct() {
             }
             public function createCheckoutSession(
                 string $priceId,
@@ -89,8 +86,7 @@ class StripeCheckoutControllerTest extends TestCase
         $this->assertStringContainsString('/onboarding/checkout/{CHECKOUT_SESSION_ID}', $service->args['create'][1] ?? '');
     }
 
-    public function testPostReturnsCheckoutUrl(): void
-    {
+    public function testPostReturnsCheckoutUrl(): void {
         putenv('STRIPE_SECRET_KEY=key');
         putenv('STRIPE_PUBLISHABLE_KEY=pub');
         putenv('STRIPE_WEBHOOK_SECRET=wh');
@@ -102,8 +98,7 @@ class StripeCheckoutControllerTest extends TestCase
         session_start();
         $_SESSION['csrf_token'] = 'tok';
         $service = new class extends StripeService {
-            public function __construct()
-            {
+            public function __construct() {
             }
             public function createCheckoutSession(
                 string $priceId,

@@ -20,8 +20,7 @@ class AwardService
      *     points:list<array{team:string,place:int}>
      * }
      */
-    public function computeRankings(array $results, ?int $catalogCount = null): array
-    {
+    public function computeRankings(array $results, ?int $catalogCount = null): array {
         $catalogs = [];
         $puzzleTimes = [];
         $catalogTimes = [];
@@ -104,8 +103,7 @@ class AwardService
      * } $rankings
      * @param array<string,array{title:string,desc:string}>|null $info
      */
-    public function buildText(string $team, array $rankings, ?array $info = null): ?string
-    {
+    public function buildText(string $team, array $rankings, ?array $info = null): ?string {
         $defaults = [
             'catalog' => [
                 'title' => 'Katalogmeister',
@@ -153,8 +151,7 @@ class AwardService
      * @param array<string,array{title:string,desc:string}>|null $info
      * @return list<array{place:int,title:string,desc:string}>
      */
-    public function getAwards(string $team, array $rankings, ?array $info = null): array
-    {
+    public function getAwards(string $team, array $rankings, ?array $info = null): array {
         $defaults = [
             'catalog' => [
                 'title' => 'Katalogmeister',
@@ -189,8 +186,7 @@ class AwardService
         return $list;
     }
 
-    private function placeDescription(string $key, int $place, string $default): string
-    {
+    private function placeDescription(string $key, int $place, string $default): string {
         return match ($place) {
             2 => match ($key) {
                 'puzzle' => 'zweit schnellstes Lösen des Rätselworts',
@@ -211,8 +207,7 @@ class AwardService
      *
      * @param list<string> $items
      */
-    private function join(array $items): string
-    {
+    private function join(array $items): string {
         if (count($items) === 0) {
             return '';
         }

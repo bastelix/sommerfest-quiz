@@ -8,8 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class RobotsTxtTest extends TestCase
 {
-    public function testRouterServesRobotsTxt(): void
-    {
+    public function testRouterServesRobotsTxt(): void {
         $originalBase = getenv('BASE_PATH');
         $originalUri = $_SERVER['REQUEST_URI'] ?? null;
         $originalMethod = $_SERVER['REQUEST_METHOD'] ?? null;

@@ -22,8 +22,7 @@ abstract class Action
 
     protected array $args;
 
-    public function __construct(LoggerInterface $logger)
-    {
+    public function __construct(LoggerInterface $logger) {
         $this->logger = $logger;
     }
 
@@ -31,8 +30,7 @@ abstract class Action
      * @throws HttpNotFoundException
      * @throws HttpBadRequestException
      */
-    public function __invoke(Request $request, Response $response, array $args): Response
-    {
+    public function __invoke(Request $request, Response $response, array $args): Response {
         $this->request = $request;
         $this->response = $response;
         $this->args = $args;
@@ -53,8 +51,7 @@ abstract class Action
     /**
      * @return array|object
      */
-    protected function getFormData()
-    {
+    protected function getFormData() {
         return $this->request->getParsedBody();
     }
 
@@ -62,8 +59,7 @@ abstract class Action
      * @return mixed
      * @throws HttpBadRequestException
      */
-    protected function resolveArg(string $name)
-    {
+    protected function resolveArg(string $name) {
         if (!isset($this->args[$name])) {
             throw new HttpBadRequestException($this->request, "Could not resolve argument `{$name}`.");
         }
@@ -74,15 +70,13 @@ abstract class Action
     /**
      * @param array|object|null $data
      */
-    protected function respondWithData($data = null, int $statusCode = 200): Response
-    {
+    protected function respondWithData($data = null, int $statusCode = 200): Response {
         $payload = new ActionPayload($statusCode, $data);
 
         return $this->respond($payload);
     }
 
-    protected function respond(ActionPayload $payload): Response
-    {
+    protected function respond(ActionPayload $payload): Response {
         try {
             $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR);
             $this->response->getBody()->write($json);

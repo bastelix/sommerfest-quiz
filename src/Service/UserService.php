@@ -14,8 +14,7 @@ class UserService
 {
     private PDO $pdo;
 
-    public function __construct(PDO $pdo)
-    {
+    public function __construct(PDO $pdo) {
         $this->pdo = $pdo;
     }
 
@@ -24,8 +23,7 @@ class UserService
      *
      * @return array{id:int,username:string,password:string,email:?string,role:string,active:bool}|null
      */
-    public function getByUsername(string $username): ?array
-    {
+    public function getByUsername(string $username): ?array {
         $stmt = $this->pdo->prepare(
             'SELECT id,username,password,email,role,active FROM users WHERE LOWER(username) = LOWER(?)'
         );
@@ -39,8 +37,7 @@ class UserService
      *
      * @return array{id:int,username:string,password:string,email:?string,role:string,active:bool}|null
      */
-    public function getByEmail(string $email): ?array
-    {
+    public function getByEmail(string $email): ?array {
         $stmt = $this->pdo->prepare(
             'SELECT id,username,password,email,role,active FROM users WHERE LOWER(email) = LOWER(?)'
         );
@@ -54,8 +51,7 @@ class UserService
      *
      * @return array{id:int,username:string,password:string,email:?string,role:string,active:bool}|null
      */
-    public function getById(int $id): ?array
-    {
+    public function getById(int $id): ?array {
         $stmt = $this->pdo->prepare('SELECT id,username,password,email,role,active FROM users WHERE id=?');
         $stmt->execute([$id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -88,8 +84,7 @@ class UserService
     /**
      * Update the password for a user identified by id.
      */
-    public function updatePassword(int $id, string $password): void
-    {
+    public function updatePassword(int $id, string $password): void {
         $stmt = $this->pdo->prepare('UPDATE users SET password=? WHERE id=?');
         $stmt->execute([
             password_hash($password, PASSWORD_DEFAULT),
@@ -100,8 +95,7 @@ class UserService
     /**
      * Retrieve the email for the given user id.
      */
-    public function getEmail(int $id): ?string
-    {
+    public function getEmail(int $id): ?string {
         $stmt = $this->pdo->prepare('SELECT email FROM users WHERE id=?');
         $stmt->execute([$id]);
         $value = $stmt->fetchColumn();
@@ -111,8 +105,7 @@ class UserService
     /**
      * Update the email for the given user id.
      */
-    public function setEmail(int $id, ?string $email): void
-    {
+    public function setEmail(int $id, ?string $email): void {
         $stmt = $this->pdo->prepare('UPDATE users SET email=? WHERE id=?');
         $stmt->execute([$email, $id]);
     }
@@ -122,8 +115,7 @@ class UserService
      *
      * @return list<array{id:int,username:string,email:?string,role:string,active:bool,position:int}>
      */
-    public function getAll(): array
-    {
+    public function getAll(): array {
         $stmt = $this->pdo->query('SELECT id,username,email,role,active,position FROM users ORDER BY position');
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -133,8 +125,7 @@ class UserService
      *
      * @param list<array{id?:int,username:string,email?:?string,role:string,password?:string,active?:bool,position?:int}> $users
      */
-    public function saveAll(array $users): void
-    {
+    public function saveAll(array $users): void {
         $this->pdo->beginTransaction();
         $existing = [];
         foreach ($this->pdo->query('SELECT id FROM users') as $row) {

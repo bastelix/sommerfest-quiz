@@ -14,8 +14,7 @@ use Tests\TestCase;
 
 class AdminCatalogControllerTest extends TestCase
 {
-    public function testCatalogsEndpointReturnsPagedJson(): void
-    {
+    public function testCatalogsEndpointReturnsPagedJson(): void {
         $db = tempnam(sys_get_temp_dir(), 'db');
         putenv('POSTGRES_DSN=sqlite:' . $db);
         putenv('POSTGRES_USER=');

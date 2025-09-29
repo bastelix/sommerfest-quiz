@@ -14,8 +14,7 @@ class StripeWebhookControllerTest extends TestCase
     /**
      * Create a signed Stripe webhook request for the given payload.
      */
-    private function createSignedRequest(string $payload): Request
-    {
+    private function createSignedRequest(string $payload): Request {
         $secret = getenv('STRIPE_WEBHOOK_SECRET') ?: '';
         $timestamp = (string) time();
         $signature = hash_hmac('sha256', $timestamp . '.' . $payload, $secret);
@@ -29,17 +28,14 @@ class StripeWebhookControllerTest extends TestCase
         return $request;
     }
 
-    public function testCheckoutSessionCompletedCreatesTenantFromOnboardingData(): void
-    {
+    public function testCheckoutSessionCompletedCreatesTenantFromOnboardingData(): void {
         putenv('STRIPE_WEBHOOK_SECRET=whsec_test');
         $pdo = new class ('sqlite::memory:') extends \PDO {
-            public function __construct(string $dsn)
-            {
+            public function __construct(string $dsn) {
                 parent::__construct($dsn);
             }
 
-            public function exec($statement): int|false
-            {
+            public function exec($statement): int|false {
                 if (
                     preg_match('/^(CREATE|DROP) SCHEMA/i', $statement)
                     || str_starts_with($statement, 'SET search_path')
@@ -104,8 +100,7 @@ class StripeWebhookControllerTest extends TestCase
         $this->assertSame(1, $count);
     }
 
-    public function testCheckoutSessionCompletedUpdatesCustomerId(): void
-    {
+    public function testCheckoutSessionCompletedUpdatesCustomerId(): void {
         putenv('STRIPE_WEBHOOK_SECRET=whsec_test');
         $app = $this->getAppInstance();
         $pdo = Database::connectFromEnv();
@@ -138,8 +133,7 @@ class StripeWebhookControllerTest extends TestCase
         $this->assertEquals('starter', $row['plan']);
     }
 
-    public function testCustomerSubscriptionUpdatedUpdatesDetails(): void
-    {
+    public function testCustomerSubscriptionUpdatedUpdatesDetails(): void {
         putenv('STRIPE_WEBHOOK_SECRET=whsec_test');
         $app = $this->getAppInstance();
         $pdo = Database::connectFromEnv();
@@ -179,8 +173,7 @@ class StripeWebhookControllerTest extends TestCase
         $this->assertSame('0', (string) $row['stripe_cancel_at_period_end']);
     }
 
-    public function testCustomerSubscriptionDeletedMarksStatusCanceled(): void
-    {
+    public function testCustomerSubscriptionDeletedMarksStatusCanceled(): void {
         putenv('STRIPE_WEBHOOK_SECRET=whsec_test');
         $app = $this->getAppInstance();
         $pdo = Database::connectFromEnv();
@@ -207,8 +200,7 @@ class StripeWebhookControllerTest extends TestCase
         $this->assertEquals('canceled', $row['stripe_status']);
     }
 
-    public function testInvoicePaidUpdatesStripeStatus(): void
-    {
+    public function testInvoicePaidUpdatesStripeStatus(): void {
         putenv('STRIPE_WEBHOOK_SECRET=whsec_test');
         $app = $this->getAppInstance();
         $pdo = Database::connectFromEnv();
@@ -234,8 +226,7 @@ class StripeWebhookControllerTest extends TestCase
         $this->assertEquals('paid', $row['stripe_status']);
     }
 
-    public function testInvoicePaymentFailedSetsStripeStatusPastDue(): void
-    {
+    public function testInvoicePaymentFailedSetsStripeStatusPastDue(): void {
         putenv('STRIPE_WEBHOOK_SECRET=whsec_test');
         $app = $this->getAppInstance();
         $pdo = Database::connectFromEnv();
@@ -261,8 +252,7 @@ class StripeWebhookControllerTest extends TestCase
         $this->assertEquals('past_due', $row['stripe_status']);
     }
 
-    public function testMissingSecretReturns500AndLogs(): void
-    {
+    public function testMissingSecretReturns500AndLogs(): void {
         putenv('STRIPE_WEBHOOK_SECRET=');
         $logFile = __DIR__ . '/../../logs/stripe.log';
         @unlink($logFile);

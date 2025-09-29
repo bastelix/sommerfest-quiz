@@ -36,8 +36,7 @@ class MediaLibraryService
     private ConfigService $config;
     private ImageUploadService $images;
 
-    public function __construct(ConfigService $config, ImageUploadService $images)
-    {
+    public function __construct(ConfigService $config, ImageUploadService $images) {
         $this->config = $config;
         $this->images = $images;
     }
@@ -47,8 +46,7 @@ class MediaLibraryService
      *
      * @return list<array<string, mixed>>
      */
-    public function listFiles(string $scope, ?string $eventUid = null): array
-    {
+    public function listFiles(string $scope, ?string $eventUid = null): array {
         [$dir, , $publicPath, $resolvedUid] = $this->resolveScope($scope, $eventUid);
         $metadata = $this->readMetadata($dir);
 
@@ -230,8 +228,7 @@ class MediaLibraryService
     /**
      * Convert an existing raster image to WebP and store it alongside the original file.
      */
-    public function convertFileToWebp(string $scope, string $name, ?string $eventUid = null): array
-    {
+    public function convertFileToWebp(string $scope, string $name, ?string $eventUid = null): array {
         $name = $this->sanitizeExistingName($name);
 
         [$dir, $relative, $publicPath, $resolvedUid] = $this->resolveScope($scope, $eventUid);
@@ -378,8 +375,7 @@ class MediaLibraryService
     /**
      * Delete a file within the given scope.
      */
-    public function deleteFile(string $scope, string $name, ?string $eventUid = null): void
-    {
+    public function deleteFile(string $scope, string $name, ?string $eventUid = null): void {
         $name = $this->sanitizeExistingName($name);
         [$dir] = $this->resolveScope($scope, $eventUid);
         $path = $dir . DIRECTORY_SEPARATOR . $name;
@@ -401,8 +397,7 @@ class MediaLibraryService
      *
      * @return array{maxSize:int, allowedExtensions:list<string>, allowedMimeTypes:list<string>}
      */
-    public function getLimits(): array
-    {
+    public function getLimits(): array {
         return [
             'maxSize' => self::MAX_UPLOAD_SIZE,
             'allowedExtensions' => self::ALLOWED_EXTENSIONS,
@@ -413,8 +408,7 @@ class MediaLibraryService
     /**
      * @return array{0:string,1:string,2:string,3:?string}
      */
-    private function resolveScope(string $scope, ?string $eventUid): array
-    {
+    private function resolveScope(string $scope, ?string $eventUid): array {
         if ($scope === self::SCOPE_EVENT) {
             $uid = $eventUid ?? $this->config->getActiveEventUid();
             if ($uid === '') {
@@ -437,8 +431,7 @@ class MediaLibraryService
         return [$dir, $relative, $public, null];
     }
 
-    private function sanitizeExistingName(string $name): string
-    {
+    private function sanitizeExistingName(string $name): string {
         $name = trim($name);
         if ($name === '' || str_contains($name, '/') || str_contains($name, '\\')) {
             throw new RuntimeException('invalid filename');
@@ -449,16 +442,14 @@ class MediaLibraryService
         return $name;
     }
 
-    private function sanitizeBaseName(string $base): string
-    {
+    private function sanitizeBaseName(string $base): string {
         $base = strtolower(trim($base));
         $base = preg_replace('/[^a-z0-9_-]+/i', '-', $base) ?? '';
         $base = trim($base, '-_');
         return $base;
     }
 
-    private function uniqueBaseName(string $dir, string $base, string $extension): string
-    {
+    private function uniqueBaseName(string $dir, string $base, string $extension): string {
         $candidate = $base;
         $suffix = 1;
         while (is_file($dir . DIRECTORY_SEPARATOR . $candidate . '.' . $extension)) {
@@ -529,8 +520,7 @@ class MediaLibraryService
     /**
      * @return array<string, array{tags:list<string>,folder:?string}>
      */
-    private function readMetadata(string $dir): array
-    {
+    private function readMetadata(string $dir): array {
         $path = $dir . DIRECTORY_SEPARATOR . self::METADATA_FILE;
         if (!is_file($path)) {
             return [];
@@ -560,8 +550,7 @@ class MediaLibraryService
     /**
      * @param array<string, array{tags:list<string>,folder:?string}> $metadata
      */
-    private function persistMetadata(string $dir, array $metadata): void
-    {
+    private function persistMetadata(string $dir, array $metadata): void {
         $path = $dir . DIRECTORY_SEPARATOR . self::METADATA_FILE;
         if ($metadata === []) {
             if (is_file($path)) {
@@ -629,8 +618,7 @@ class MediaLibraryService
      * @param array<string,mixed>|null $meta
      * @return array{tags:list<string>,folder:?string}
      */
-    private function normalizeMetadataEntry(?array $meta): array
-    {
+    private function normalizeMetadataEntry(?array $meta): array {
         $meta = $meta ?? [];
         $tags = $this->normalizeTags($meta['tags'] ?? []);
         $folder = $this->normalizeFolder($meta['folder'] ?? null);
@@ -645,8 +633,7 @@ class MediaLibraryService
      * @param mixed $value
      * @return list<string>
      */
-    private function normalizeTags($value): array
-    {
+    private function normalizeTags($value): array {
         $items = [];
         if (is_string($value)) {
             $items = preg_split('/[,;]/', $value) ?: [];
@@ -682,8 +669,7 @@ class MediaLibraryService
     /**
      * @param mixed $value
      */
-    private function normalizeFolder($value): ?string
-    {
+    private function normalizeFolder($value): ?string {
         if (!is_string($value)) {
             return null;
         }
@@ -711,4 +697,3 @@ class MediaLibraryService
         return implode('/', $clean);
     }
 }
-

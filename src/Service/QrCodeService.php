@@ -44,8 +44,7 @@ class QrCodeService
      * @param array{fg?:string,bg?:string} $options
      * @return array{mime:string,body:string}
      */
-    public function generateQrCode(string $data, string $format = 'svg', array $options = []): array
-    {
+    public function generateQrCode(string $data, string $format = 'svg', array $options = []): array {
         $fg = $this->parseHex($options['fg'] ?? '2E2E2E', '2E2E2E');
         $bg = $this->parseHex($options['bg'] ?? 'F9F9F9', 'F9F9F9');
 
@@ -67,8 +66,7 @@ class QrCodeService
     /**
      * @return array{mime:string,body:string}
      */
-    public function generateCatalog(array $q, array $cfg = []): array
-    {
+    public function generateCatalog(array $q, array $cfg = []): array {
         $defaults = [
             't' => 'https://quizrace.app/?katalog=station',
             'fg' => ltrim((string)($cfg['qrColorCatalog'] ?? 'dc0000'), '#'),
@@ -80,8 +78,7 @@ class QrCodeService
     /**
      * @return array{mime:string,body:string}
      */
-    public function generateTeam(array $q, array $cfg = []): array
-    {
+    public function generateTeam(array $q, array $cfg = []): array {
         $defaults = [
             't' => 'Team 1',
             'fg' => ltrim((string)($cfg['qrColorTeam'] ?? '004bc8'), '#'),
@@ -93,8 +90,7 @@ class QrCodeService
     /**
      * @return array{mime:string,body:string}
      */
-    public function generateEvent(array $q, array $cfg = []): array
-    {
+    public function generateEvent(array $q, array $cfg = []): array {
         $defaults = [
             't' => 'https://quizrace.app/?event=station',
             'fg' => ltrim((string)($cfg['qrColorEvent'] ?? '00a65a'), '#'),
@@ -114,8 +110,7 @@ class QrCodeService
      * } $defaults
      * @return array{mime:string,body:string}
      */
-    private function buildQrWithCenterLogoParam(array $q, array $defaults): array
-    {
+    private function buildQrWithCenterLogoParam(array $q, array $defaults): array {
         $data = (string)($q['t'] ?? $defaults['t']);
         $format = strtolower((string)($q['format'] ?? 'png'));
         if (!in_array($format, ['png', 'svg'], true)) {
@@ -185,8 +180,7 @@ class QrCodeService
      * } $p
      * @return array{mime:string,body:string}
      */
-    private function renderQr(string $data, array $p): array
-    {
+    private function renderQr(string $data, array $p): array {
         $scale = max(1, (int)round($p['size'] / 41));
         $marginModules = max(0, (int)round($p['margin'] / $scale));
 
@@ -330,8 +324,7 @@ class QrCodeService
      * @param array<string,mixed> $cfg
      * @return array<string,mixed>
      */
-    private function mergeDesignDefaults(array $defaults, array $cfg): array
-    {
+    private function mergeDesignDefaults(array $defaults, array $cfg): array {
         if (($cfg['qrLabelLine1'] ?? '') !== '') {
             $defaults['text1'] = (string)$cfg['qrLabelLine1'];
         }
@@ -353,8 +346,7 @@ class QrCodeService
     /**
      * @return array{0:int,1:int,2:int}
      */
-    private function parseHex(string $hex, string $fallback = '000000'): array
-    {
+    private function parseHex(string $hex, string $fallback = '000000'): array {
         $h = preg_replace('/[^0-9a-f]/i', '', $hex);
         if ($h === '') {
             $h = $fallback;
@@ -370,8 +362,7 @@ class QrCodeService
         ];
     }
 
-    private function clampInt(mixed $v, int $min, int $max, int $def): int
-    {
+    private function clampInt(mixed $v, int $min, int $max, int $def): int {
         $i = filter_var($v, FILTER_VALIDATE_INT);
         if ($i === false) {
             $i = $def;

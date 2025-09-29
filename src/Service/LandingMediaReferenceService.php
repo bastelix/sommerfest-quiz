@@ -25,8 +25,7 @@ class LandingMediaReferenceService
     private const TYPE_MARKUP = 'markup';
     private const TYPE_SEO = 'seo';
 
-    public function __construct(PageService $pages, PageSeoConfigService $seo, ConfigService $config)
-    {
+    public function __construct(PageService $pages, PageSeoConfigService $seo, ConfigService $config) {
         $this->pages = $pages;
         $this->seo = $seo;
         $this->config = $config;
@@ -37,8 +36,7 @@ class LandingMediaReferenceService
      *
      * @return list<array{slug:string,title:string}>
      */
-    public function getLandingSlugs(): array
-    {
+    public function getLandingSlugs(): array {
         $slugs = [];
         foreach ($this->getLandingPages() as $page) {
             $slugs[] = [
@@ -59,8 +57,7 @@ class LandingMediaReferenceService
      *     missing:list<array<string,mixed>>
      * }
      */
-    public function collect(): array
-    {
+    public function collect(): array {
         $landingPages = $this->getLandingPages();
         $slugs = [];
         $files = [];
@@ -113,8 +110,7 @@ class LandingMediaReferenceService
     /**
      * Normalize a public upload URL or path to the canonical internal representation.
      */
-    public function normalizeFilePath(?string $path): ?string
-    {
+    public function normalizeFilePath(?string $path): ?string {
         if ($path === null) {
             return null;
         }
@@ -126,8 +122,7 @@ class LandingMediaReferenceService
     /**
      * @return Page[]
      */
-    private function getLandingPages(): array
-    {
+    private function getLandingPages(): array {
         $pages = $this->pages->getAll();
 
         return array_values(array_filter(
@@ -145,8 +140,7 @@ class LandingMediaReferenceService
     /**
      * @return list<array<string,mixed>>
      */
-    private function collectFromMarkup(Page $page): array
-    {
+    private function collectFromMarkup(Page $page): array {
         $content = $page->getContent();
         if ($content === '') {
             return [];
@@ -186,8 +180,7 @@ class LandingMediaReferenceService
     /**
      * @return list<array<string,mixed>>
      */
-    private function collectFromSeo(Page $page, PageSeoConfig $config): array
-    {
+    private function collectFromSeo(Page $page, PageSeoConfig $config): array {
         $references = [];
         $fields = [
             'ogImage' => $config->getOgImage(),
@@ -218,8 +211,7 @@ class LandingMediaReferenceService
      * @param list<array<string,mixed>> $references
      * @return list<array<string,mixed>>
      */
-    private function deduplicateReferences(array $references): array
-    {
+    private function deduplicateReferences(array $references): array {
         $unique = [];
         $seen = [];
 
@@ -244,8 +236,7 @@ class LandingMediaReferenceService
      * @param list<array<string,mixed>> $existing
      * @param array<string,mixed> $candidate
      */
-    private function referenceExists(array $existing, array $candidate): bool
-    {
+    private function referenceExists(array $existing, array $candidate): bool {
         foreach ($existing as $reference) {
             if (
                 ($reference['slug'] ?? null) === ($candidate['slug'] ?? null)
@@ -259,8 +250,7 @@ class LandingMediaReferenceService
         return false;
     }
 
-    private function resolveAbsolutePath(string $normalized): string
-    {
+    private function resolveAbsolutePath(string $normalized): string {
         if (!str_starts_with($normalized, 'uploads/')) {
             throw new RuntimeException('invalid upload path: ' . $normalized);
         }
@@ -276,8 +266,7 @@ class LandingMediaReferenceService
      * @param array<string,mixed> $reference
      * @return array<string,mixed>
      */
-    private function buildMissingEntry(array $reference, string $path): array
-    {
+    private function buildMissingEntry(array $reference, string $path): array {
         $folder = $this->extractFolder($path);
         $name = pathinfo($path, PATHINFO_FILENAME);
         $extension = pathinfo($path, PATHINFO_EXTENSION);
@@ -296,8 +285,7 @@ class LandingMediaReferenceService
      *
      * @return array<string,string>
      */
-    private function collectImageAltMap(string $content): array
-    {
+    private function collectImageAltMap(string $content): array {
         if ($content === '') {
             return [];
         }
@@ -328,8 +316,7 @@ class LandingMediaReferenceService
         return $map;
     }
 
-    private function extractFolder(string $path): ?string
-    {
+    private function extractFolder(string $path): ?string {
         $segments = explode('/', trim($path, '/'));
         if (count($segments) <= 2) {
             return null;
@@ -342,8 +329,7 @@ class LandingMediaReferenceService
         return implode('/', $segments);
     }
 
-    private function sanitizeUploadPath(string $value): string
-    {
+    private function sanitizeUploadPath(string $value): string {
         $trimmed = trim($value);
         if ($trimmed === '') {
             return '';

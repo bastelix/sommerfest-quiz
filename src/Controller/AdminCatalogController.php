@@ -18,16 +18,14 @@ class AdminCatalogController
     /**
      * Inject dependencies.
      */
-    public function __construct(CatalogService $service)
-    {
+    public function __construct(CatalogService $service) {
         $this->service = $service;
     }
 
     /**
      * Provide paginated catalog data as JSON.
      */
-    public function catalogs(Request $request, Response $response): Response
-    {
+    public function catalogs(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $page = max(1, (int) ($params['page'] ?? 1));
         $perPage = max(1, (int) ($params['perPage'] ?? 50));
@@ -50,8 +48,7 @@ class AdminCatalogController
     /**
      * Return the first catalog (name and description only).
      */
-    public function sample(Request $request, Response $response): Response
-    {
+    public function sample(Request $request, Response $response): Response {
         $items = $this->service->fetchPagedCatalogs(0, 1, 'asc');
         $first = $items[0] ?? null;
         $payload = $first === null

@@ -9,8 +9,7 @@ use Tests\TestCase;
 
 class QrCodeServiceTest extends TestCase
 {
-    public function testPunchOutCanBeToggled(): void
-    {
+    public function testPunchOutCanBeToggled(): void {
         $svc = new QrCodeService();
 
         // create transparent logo for first call
@@ -47,8 +46,7 @@ class QrCodeServiceTest extends TestCase
         $this->assertNotSame($with['body'], $without['body']);
     }
 
-    public function testSvgPunchOutAddsRectBehindLogo(): void
-    {
+    public function testSvgPunchOutAddsRectBehindLogo(): void {
         $svc = new QrCodeService();
 
         $dir = dirname(__DIR__, 2) . '/data';
@@ -76,8 +74,7 @@ class QrCodeServiceTest extends TestCase
         $this->assertMatchesRegularExpression('/<rect[^>]*fill="#ffffff"/i', $svg);
     }
 
-    public function testSvgLogoKeepsAspectRatio(): void
-    {
+    public function testSvgLogoKeepsAspectRatio(): void {
         $svc = new QrCodeService();
 
         $dir = dirname(__DIR__, 2) . '/data';

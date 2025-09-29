@@ -21,8 +21,7 @@ use RuntimeException;
  */
 class ContactController
 {
-    public function __invoke(Request $request, Response $response): Response
-    {
+    public function __invoke(Request $request, Response $response): Response {
         $data = $request->getParsedBody();
         if (!is_array($data)) {
             $body = $request->getBody();

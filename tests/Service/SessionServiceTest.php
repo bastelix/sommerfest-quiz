@@ -9,8 +9,7 @@ use Tests\TestCase;
 
 class SessionServiceTest extends TestCase
 {
-    public function testInvalidateRemovesSessions(): void
-    {
+    public function testInvalidateRemovesSessions(): void {
         $pdo = $this->createDatabase();
         $pdo->exec('CREATE TABLE IF NOT EXISTS user_sessions(user_id INTEGER NOT NULL, session_id TEXT PRIMARY KEY)');
 

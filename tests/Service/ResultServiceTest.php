@@ -11,8 +11,7 @@ use Tests\TestCase;
 
 class ResultServiceTest extends TestCase
 {
-    public function testAddIncrementsAttemptForSameCatalog(): void
-    {
+    public function testAddIncrementsAttemptForSameCatalog(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -47,8 +46,7 @@ class ResultServiceTest extends TestCase
         $this->assertSame(2, $second['attempt']);
     }
 
-    public function testAddDoesNotIncrementAcrossCatalogs(): void
-    {
+    public function testAddDoesNotIncrementAcrossCatalogs(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -83,8 +81,7 @@ class ResultServiceTest extends TestCase
         $this->assertSame(1, $other['attempt']);
     }
 
-    public function testExistsChecksPlayerCatalogPair(): void
-    {
+    public function testExistsChecksPlayerCatalogPair(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -115,8 +112,7 @@ class ResultServiceTest extends TestCase
         $this->assertFalse($service->exists('TeamB', 'cat1'));
     }
 
-    public function testMarkPuzzleUpdatesEntry(): void
-    {
+    public function testMarkPuzzleUpdatesEntry(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -152,8 +148,7 @@ class ResultServiceTest extends TestCase
         $this->assertSame($ts, (int)$stmt->fetchColumn());
     }
 
-    public function testMarkPuzzleReturnsTrueIfAlreadySolved(): void
-    {
+    public function testMarkPuzzleReturnsTrueIfAlreadySolved(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -188,8 +183,7 @@ class ResultServiceTest extends TestCase
         $this->assertSame(123, (int)$stmt->fetchColumn());
     }
 
-    public function testSetPhotoUpdatesEntry(): void
-    {
+    public function testSetPhotoUpdatesEntry(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -223,8 +217,7 @@ class ResultServiceTest extends TestCase
         $this->assertSame('/photo/test.jpg', $stmt->fetchColumn());
     }
 
-    public function testAddStoresQuestionResults(): void
-    {
+    public function testAddStoresQuestionResults(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -300,8 +293,7 @@ class ResultServiceTest extends TestCase
         $this->assertSame('0', (string)$rows[1]['correct']);
     }
 
-    public function testClearRemovesResultsAndQuestionResults(): void
-    {
+    public function testClearRemovesResultsAndQuestionResults(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -352,8 +344,7 @@ class ResultServiceTest extends TestCase
         $this->assertSame(0, $qresCount);
     }
 
-    public function testPhotoAttachedAfterEventUidChange(): void
-    {
+    public function testPhotoAttachedAfterEventUidChange(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -437,8 +428,7 @@ class ResultServiceTest extends TestCase
         $this->assertSame('ev1', $row['event_uid']);
     }
 
-    public function testGetAllAssociatesCatalogNameWithEvent(): void
-    {
+    public function testGetAllAssociatesCatalogNameWithEvent(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -478,8 +468,7 @@ class ResultServiceTest extends TestCase
         $this->assertSame('Catalog 1', $rows[0]['catalogName']);
     }
 
-    public function testGetQuestionResultsAssociatesCatalogNameWithEvent(): void
-    {
+    public function testGetQuestionResultsAssociatesCatalogNameWithEvent(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -539,8 +528,7 @@ class ResultServiceTest extends TestCase
         $this->assertSame('Catalog 2', $rows[1]['catalogName']);
     }
 
-    public function testQueriesReturnEmptyWithoutActiveEvent(): void
-    {
+    public function testQueriesReturnEmptyWithoutActiveEvent(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(

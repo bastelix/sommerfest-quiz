@@ -8,8 +8,7 @@ use Tests\TestCase;
 
 class CalserverControllerTest extends TestCase
 {
-    protected function setUp(): void
-    {
+    protected function setUp(): void {
         parent::setUp();
         $pdo = $this->getDatabase();
         try {
@@ -19,8 +18,7 @@ class CalserverControllerTest extends TestCase
         }
     }
 
-    public function testCalserverPage(): void
-    {
+    public function testCalserverPage(): void {
         $old = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main.test');
         $app = $this->getAppInstance();
@@ -38,8 +36,7 @@ class CalserverControllerTest extends TestCase
         }
     }
 
-    public function testCalserverPageTenant(): void
-    {
+    public function testCalserverPageTenant(): void {
         $old = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main.test');
         $app = $this->getAppInstance();

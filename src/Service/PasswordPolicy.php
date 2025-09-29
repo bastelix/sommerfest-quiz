@@ -9,8 +9,7 @@ class PasswordPolicy
     /**
      * Validate the given password against security requirements.
      */
-    public function validate(string $pass): bool
-    {
+    public function validate(string $pass): bool {
         if (strlen($pass) < 8) {
             return false;
         }

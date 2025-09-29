@@ -20,8 +20,7 @@ class MediaLibraryServiceTest extends TestCase
 {
     private string $tempDir;
 
-    protected function setUp(): void
-    {
+    protected function setUp(): void {
         parent::setUp();
         $this->tempDir = sys_get_temp_dir() . '/media-lib-' . uniqid('', true);
         if (!is_dir($this->tempDir) && !mkdir($this->tempDir, 0775, true) && !is_dir($this->tempDir)) {
@@ -29,14 +28,12 @@ class MediaLibraryServiceTest extends TestCase
         }
     }
 
-    protected function tearDown(): void
-    {
+    protected function tearDown(): void {
         $this->removeDir($this->tempDir);
         parent::tearDown();
     }
 
-    public function testMetadataPersistenceRoundTrip(): void
-    {
+    public function testMetadataPersistenceRoundTrip(): void {
         [$service, $config, $images] = $this->createService();
 
         $tmp = tempnam($this->tempDir, 'img');
@@ -87,8 +84,7 @@ class MediaLibraryServiceTest extends TestCase
         $this->assertTrue($images->saveCalled, 'Raster uploads should be processed via ImageUploadService');
     }
 
-    public function testSvgUploadBypassesRasterProcessing(): void
-    {
+    public function testSvgUploadBypassesRasterProcessing(): void {
         [$service, $config, $images] = $this->createService();
 
         $svg = <<<SVG
@@ -111,8 +107,7 @@ SVG;
         $this->assertStringEqualsFile($storedPath, $svg);
     }
 
-    public function testPdfUploadBypassesRasterProcessing(): void
-    {
+    public function testPdfUploadBypassesRasterProcessing(): void {
         [$service, $config, $images] = $this->createService();
 
         $pdf = "%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF\n";
@@ -133,8 +128,7 @@ SVG;
         $this->assertStringEqualsFile($storedPath, $pdf);
     }
 
-    private function removeDir(string $dir): void
-    {
+    private function removeDir(string $dir): void {
         if (!is_dir($dir)) {
             return;
         }
@@ -158,37 +152,31 @@ SVG;
     /**
      * @return array{0:MediaLibraryService,1:ConfigService,2:ImageUploadService}
      */
-    private function createService(): array
-    {
+    private function createService(): array {
         $pdo = new PDO('sqlite::memory:');
 
         $config = new class ($pdo, $this->tempDir) extends ConfigService {
             private string $baseDir;
             private string $activeUid = 'event-test';
 
-            public function __construct(PDO $pdo, string $baseDir)
-            {
+            public function __construct(PDO $pdo, string $baseDir) {
                 $this->baseDir = $baseDir;
                 parent::__construct($pdo);
             }
 
-            public function setActiveEventUid(string $uid): void
-            {
+            public function setActiveEventUid(string $uid): void {
                 $this->activeUid = $uid;
             }
 
-            public function getActiveEventUid(): string
-            {
+            public function getActiveEventUid(): string {
                 return $this->activeUid;
             }
 
-            public function getGlobalUploadsPath(): string
-            {
+            public function getGlobalUploadsPath(): string {
                 return '/uploads';
             }
 
-            public function getGlobalUploadsDir(): string
-            {
+            public function getGlobalUploadsDir(): string {
                 $dir = $this->baseDir . '/uploads';
                 if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
                     throw new RuntimeException('unable to create uploads directory');
@@ -196,14 +184,12 @@ SVG;
                 return $dir;
             }
 
-            public function getEventImagesPath(?string $uid = null): string
-            {
+            public function getEventImagesPath(?string $uid = null): string {
                 $uid = $uid ?? $this->activeUid;
                 return '/events/' . $uid . '/images';
             }
 
-            public function getEventImagesDir(?string $uid = null): string
-            {
+            public function getEventImagesDir(?string $uid = null): string {
                 $uid = $uid ?? $this->activeUid;
                 $dir = $this->baseDir . '/events/' . $uid . '/images';
                 if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
@@ -217,8 +203,7 @@ SVG;
             public bool $saveCalled = false;
             private string $baseDir;
 
-            public function __construct(string $baseDir)
-            {
+            public function __construct(string $baseDir) {
                 $this->baseDir = rtrim($baseDir, '/');
             }
 

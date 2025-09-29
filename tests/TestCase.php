@@ -27,16 +27,14 @@ class TestCase extends PHPUnit_TestCase
     /**
      * Inject a custom PDO instance for tests that require a specific connection.
      */
-    public function setDatabase(PDO $pdo): void
-    {
+    public function setDatabase(PDO $pdo): void {
         $this->pdo = $pdo;
     }
 
     /**
      * Ensure a database connection is available and return it.
      */
-    protected function getDatabase(): PDO
-    {
+    protected function getDatabase(): PDO {
         if ($this->pdo === null) {
             $this->pdo = $this->createDatabase();
         }
@@ -48,8 +46,7 @@ class TestCase extends PHPUnit_TestCase
      * @return App
      * @throws Exception
      */
-    protected function getAppInstance(): App
-    {
+    protected function getAppInstance(): App {
         $this->getDatabase();
 
         // Load settings
@@ -136,8 +133,7 @@ class TestCase extends PHPUnit_TestCase
     /**
      * Create a database with the current schema applied.
      */
-    protected function createDatabase(): \PDO
-    {
+    protected function createDatabase(): \PDO {
         $dsn = getenv('POSTGRES_DSN') ?: '';
         $user = getenv('POSTGRES_USER') ?: 'postgres';
         $password = getenv('POSTGRES_PASSWORD') ?: 'postgres';
@@ -161,8 +157,7 @@ class TestCase extends PHPUnit_TestCase
         return $pdo;
     }
 
-    protected function tearDown(): void
-    {
+    protected function tearDown(): void {
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_unset();
             session_destroy();

@@ -14,8 +14,7 @@ use Tests\TestCase;
 
 class AdminControllerTest extends TestCase
 {
-    private function setupDb(): string
-    {
+    private function setupDb(): string {
         $db = tempnam(sys_get_temp_dir(), 'db');
         putenv('POSTGRES_DSN=sqlite:' . $db);
         putenv('POSTGRES_USER=');
@@ -25,8 +24,7 @@ class AdminControllerTest extends TestCase
         $_ENV['POSTGRES_PASSWORD'] = '';
         return $db;
     }
-    public function testRedirectWhenNotLoggedIn(): void
-    {
+    public function testRedirectWhenNotLoggedIn(): void {
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_unset();
             session_destroy();
@@ -45,8 +43,7 @@ class AdminControllerTest extends TestCase
         unlink($db);
     }
 
-    public function testAdminPageAfterLogin(): void
-    {
+    public function testAdminPageAfterLogin(): void {
         $db = $this->setupDb();
         $app = $this->getAppInstance();
         session_start();
@@ -60,8 +57,7 @@ class AdminControllerTest extends TestCase
         unlink($db);
     }
 
-    public function testDashboardShowsGreeting(): void
-    {
+    public function testDashboardShowsGreeting(): void {
         $db = $this->setupDb();
         $app = $this->getAppInstance();
         session_start();
@@ -74,8 +70,7 @@ class AdminControllerTest extends TestCase
         unlink($db);
     }
 
-    public function testRedirectForWrongRole(): void
-    {
+    public function testRedirectForWrongRole(): void {
         $db = $this->setupDb();
         $app = $this->getAppInstance();
         session_start();
@@ -88,8 +83,7 @@ class AdminControllerTest extends TestCase
         unlink($db);
     }
 
-    public function testProfileShowsMainDomainData(): void
-    {
+    public function testProfileShowsMainDomainData(): void {
         $db = $this->setupDb();
         putenv('MAIN_DOMAIN=example.com');
         $_ENV['MAIN_DOMAIN'] = 'example.com';
@@ -109,8 +103,7 @@ class AdminControllerTest extends TestCase
         unset($_ENV['MAIN_DOMAIN']);
     }
 
-    public function testPagesAndProfileDataLoadedOnEvents(): void
-    {
+    public function testPagesAndProfileDataLoadedOnEvents(): void {
         $db = $this->setupDb();
         $app = $this->getAppInstance();
         session_start();
@@ -125,8 +118,7 @@ class AdminControllerTest extends TestCase
         unlink($db);
     }
 
-    public function testEventsEmbeddedOnPage(): void
-    {
+    public function testEventsEmbeddedOnPage(): void {
         $db = $this->setupDb();
         $pdo = new PDO('sqlite:' . $db);
         Migrator::migrate($pdo, __DIR__ . '/../../migrations');
@@ -146,8 +138,7 @@ class AdminControllerTest extends TestCase
         unlink($db);
     }
 
-    public function testInvalidEventQueryReturns404(): void
-    {
+    public function testInvalidEventQueryReturns404(): void {
         $db = $this->setupDb();
         $pdo = new PDO('sqlite:' . $db);
         Migrator::migrate($pdo, __DIR__ . '/../../migrations');
@@ -169,8 +160,7 @@ class AdminControllerTest extends TestCase
      *
      * @runInSeparateProcess
      */
-    public function testStripeCustomerIdStoredOnMainDomain(): void
-    {
+    public function testStripeCustomerIdStoredOnMainDomain(): void {
         require_once __DIR__ . '/../Service/StripeServiceStub.php';
         $db = $this->setupDb();
         putenv('MAIN_DOMAIN=example.com');
@@ -197,8 +187,7 @@ class AdminControllerTest extends TestCase
      *
      * @runInSeparateProcess
      */
-    public function testSubscriptionPageShowsEmailInputWhenTenantMissing(): void
-    {
+    public function testSubscriptionPageShowsEmailInputWhenTenantMissing(): void {
         require_once __DIR__ . '/../Service/StripeServiceStub.php';
         $db = $this->setupDb();
         putenv('MAIN_DOMAIN=example.com');
@@ -218,8 +207,7 @@ class AdminControllerTest extends TestCase
         unset($_ENV['MAIN_DOMAIN']);
     }
 
-    public function testSetSubscriptionPlanAllowsDowngrade(): void
-    {
+    public function testSetSubscriptionPlanAllowsDowngrade(): void {
         $db = $this->setupDb();
         putenv('MAIN_DOMAIN=example.com');
         $_ENV['MAIN_DOMAIN'] = 'example.com';
@@ -259,8 +247,7 @@ class AdminControllerTest extends TestCase
         unset($_ENV['MAIN_DOMAIN']);
     }
 
-    public function testSubscriptionToggleAllowedForDemo(): void
-    {
+    public function testSubscriptionToggleAllowedForDemo(): void {
         $db = $this->setupDb();
         $pdo = new PDO('sqlite:' . $db);
         Migrator::migrate($pdo, __DIR__ . '/../../migrations');
@@ -297,8 +284,7 @@ class AdminControllerTest extends TestCase
      * @runInSeparateProcess
      * @preserveGlobalState disabled
      */
-    public function testStripeApiCalledOnPlanChange(): void
-    {
+    public function testStripeApiCalledOnPlanChange(): void {
         require_once __DIR__ . '/../Service/StripeServiceStub.php';
         \App\Service\StripeService::$calls = [];
 

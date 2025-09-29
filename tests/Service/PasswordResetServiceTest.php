@@ -10,8 +10,7 @@ use Tests\TestCase;
 
 class PasswordResetServiceTest extends TestCase
 {
-    public function testCreateAndConsumeToken(): void
-    {
+    public function testCreateAndConsumeToken(): void {
         $pdo = $this->createDatabase();
         $users = new UserService($pdo);
         $users->create('alice', 'secret', 'alice@example.com');
@@ -32,8 +31,7 @@ class PasswordResetServiceTest extends TestCase
         $this->assertTrue($logger->has('warning', 'Password reset token not found'));
     }
 
-    public function testTokenExpires(): void
-    {
+    public function testTokenExpires(): void {
         $pdo = $this->createDatabase();
         $users = new UserService($pdo);
         $users->create('bob', 'secret', 'bob@example.com');
@@ -50,8 +48,7 @@ class PasswordResetServiceTest extends TestCase
         );
     }
 
-    public function testOldTokenInvalidated(): void
-    {
+    public function testOldTokenInvalidated(): void {
         $pdo = $this->createDatabase();
         $users = new UserService($pdo);
         $users->create('carol', 'secret', 'carol@example.com');

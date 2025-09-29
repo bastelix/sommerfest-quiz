@@ -8,16 +8,14 @@ use Tests\TestCase;
 
 class ResultControllerTest extends TestCase
 {
-    public function testQuestionResultsEndpoint(): void
-    {
+    public function testQuestionResultsEndpoint(): void {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/question-results.json');
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testResultsPdfIsGenerated(): void
-    {
+    public function testResultsPdfIsGenerated(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -138,8 +136,7 @@ class ResultControllerTest extends TestCase
         $this->assertStringContainsString('Punkte: 0 von 0', $pdf);
     }
 
-    public function testPdfReflectsActiveEvent(): void
-    {
+    public function testPdfReflectsActiveEvent(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec(

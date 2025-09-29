@@ -11,8 +11,7 @@ use PDO;
 
 class ProfileControllerTest extends TestCase
 {
-    private function setupDb(): string
-    {
+    private function setupDb(): string {
         $db = tempnam(sys_get_temp_dir(), 'db');
         putenv('POSTGRES_DSN=sqlite:' . $db);
         putenv('POSTGRES_USER=');
@@ -23,8 +22,7 @@ class ProfileControllerTest extends TestCase
         return $db;
     }
 
-    public function testUpdateProfileMainDomain(): void
-    {
+    public function testUpdateProfileMainDomain(): void {
         $db = $this->setupDb();
         putenv('MAIN_DOMAIN=example.com');
         $_ENV['MAIN_DOMAIN'] = 'example.com';

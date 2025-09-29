@@ -41,8 +41,7 @@ class PasswordResetService
     /**
      * Generate and store a new token for the given user id.
      */
-    public function createToken(int $userId): string
-    {
+    public function createToken(int $userId): string {
         $this->cleanupExpired();
 
         $stmt = $this->pdo->prepare('DELETE FROM password_resets WHERE user_id=?');
@@ -69,8 +68,7 @@ class PasswordResetService
      *
      * The token is removed regardless of validity.
      */
-    public function consumeToken(string $token): ?int
-    {
+    public function consumeToken(string $token): ?int {
         $this->cleanupExpired();
 
         $hash = hash_hmac('sha256', $token, $this->secret);
@@ -101,8 +99,7 @@ class PasswordResetService
     /**
      * Remove a single token.
      */
-    public function deleteToken(int $userId, string $token): void
-    {
+    public function deleteToken(int $userId, string $token): void {
         $hash = hash_hmac('sha256', $token, $this->secret);
         $stmt = $this->pdo->prepare('DELETE FROM password_resets WHERE user_id=? AND token_hash=?');
         $stmt->execute([$userId, $hash]);
@@ -111,8 +108,7 @@ class PasswordResetService
     /**
      * Remove expired tokens.
      */
-    public function cleanupExpired(): void
-    {
+    public function cleanupExpired(): void {
         $stmt = $this->pdo->prepare('DELETE FROM password_resets WHERE expires_at <= ?');
         $stmt->execute([
             (new DateTimeImmutable('now', new DateTimeZone('UTC')))->format('Y-m-d H:i:sP')

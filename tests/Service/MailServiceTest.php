@@ -16,8 +16,7 @@ use PDO;
 
 class MailServiceTest extends TestCase
 {
-    protected function setUp(): void
-    {
+    protected function setUp(): void {
         $pdo = $this->createDatabase();
         $this->setDatabase($pdo);
         $pdo->exec(
@@ -29,8 +28,7 @@ class MailServiceTest extends TestCase
         unset($_ENV['MAILER_DSN']);
     }
 
-    public function testIsConfiguredTrue(): void
-    {
+    public function testIsConfiguredTrue(): void {
         putenv('SMTP_HOST=localhost');
         putenv('SMTP_USER=user@example.org');
         putenv('SMTP_PASS=secret');
@@ -41,8 +39,7 @@ class MailServiceTest extends TestCase
         $this->assertTrue(MailService::isConfigured());
     }
 
-    public function testIsConfiguredTrueWithMailerDsn(): void
-    {
+    public function testIsConfiguredTrueWithMailerDsn(): void {
         putenv('SMTP_HOST');
         putenv('SMTP_USER');
         putenv('SMTP_PASS');
@@ -57,8 +54,7 @@ class MailServiceTest extends TestCase
     /**
      * @dataProvider missingEnvProvider
      */
-    public function testIsConfiguredFalseIfMissing(string $var): void
-    {
+    public function testIsConfiguredFalseIfMissing(string $var): void {
         putenv('SMTP_HOST=localhost');
         putenv('SMTP_USER=user@example.org');
         putenv('SMTP_PASS=secret');
@@ -72,8 +68,7 @@ class MailServiceTest extends TestCase
         $this->assertFalse(MailService::isConfigured());
     }
 
-    public function testUsesSmtpUserAsFrom(): void
-    {
+    public function testUsesSmtpUserAsFrom(): void {
         putenv('SMTP_HOST=localhost');
         putenv('SMTP_USER=user@example.org');
         putenv('SMTP_PASS=secret');
@@ -97,8 +92,7 @@ class MailServiceTest extends TestCase
         $this->assertSame('Example Org <user@example.org>', $from);
     }
 
-    public function testUsesFromOverride(): void
-    {
+    public function testUsesFromOverride(): void {
         putenv('SMTP_HOST=localhost');
         putenv('SMTP_USER=user@example.org');
         putenv('SMTP_PASS=secret');
@@ -130,8 +124,7 @@ class MailServiceTest extends TestCase
     /**
      * @dataProvider missingEnvProvider
      */
-    public function testMissingEnvThrows(string $var): void
-    {
+    public function testMissingEnvThrows(string $var): void {
         putenv('SMTP_HOST=localhost');
         putenv('SMTP_USER=user@example.org');
         putenv('SMTP_PASS=secret');
@@ -155,8 +148,7 @@ class MailServiceTest extends TestCase
         new MailService($twig);
     }
 
-    public function testMissingMultipleEnvThrows(): void
-    {
+    public function testMissingMultipleEnvThrows(): void {
         putenv('SMTP_HOST');
         putenv('SMTP_USER');
         putenv('SMTP_PASS=secret');
@@ -178,8 +170,7 @@ class MailServiceTest extends TestCase
     /**
      * @return array<string[]>
      */
-    public function missingEnvProvider(): array
-    {
+    public function missingEnvProvider(): array {
         return [
             ['SMTP_HOST'],
             ['SMTP_USER'],
@@ -187,8 +178,7 @@ class MailServiceTest extends TestCase
         ];
     }
 
-    public function testDsnWithEncryption(): void
-    {
+    public function testDsnWithEncryption(): void {
         putenv('SMTP_HOST=localhost');
         putenv('SMTP_USER=user@example.org');
         putenv('SMTP_PASS=secret');
@@ -208,8 +198,7 @@ class MailServiceTest extends TestCase
         $svc = new class ($twig) extends MailService {
             public string $dsn = '';
 
-            protected function createTransport(string $dsn): MailerInterface
-            {
+            protected function createTransport(string $dsn): MailerInterface {
                 $this->dsn = $dsn;
 
                 return parent::createTransport($dsn);
@@ -228,8 +217,7 @@ class MailServiceTest extends TestCase
         unset($_ENV['SMTP_FROM'], $_ENV['SMTP_FROM_NAME']);
     }
 
-    public function testMailerDsnIsPassedThrough(): void
-    {
+    public function testMailerDsnIsPassedThrough(): void {
         putenv('SMTP_HOST');
         putenv('SMTP_USER');
         putenv('SMTP_PASS');
@@ -253,8 +241,7 @@ class MailServiceTest extends TestCase
         $svc = new class ($twig) extends MailService {
             public string $dsn = '';
 
-            protected function createTransport(string $dsn): MailerInterface
-            {
+            protected function createTransport(string $dsn): MailerInterface {
                 $this->dsn = $dsn;
 
                 return parent::createTransport($dsn);
@@ -269,8 +256,7 @@ class MailServiceTest extends TestCase
         unset($_ENV['SMTP_FROM']);
     }
 
-    public function testMailerDsnRequiresFrom(): void
-    {
+    public function testMailerDsnRequiresFrom(): void {
         putenv('SMTP_HOST');
         putenv('SMTP_USER');
         putenv('SMTP_PASS');
@@ -297,8 +283,7 @@ class MailServiceTest extends TestCase
         new MailService($twig);
     }
 
-    public function testSendContactSendsCopyToUser(): void
-    {
+    public function testSendContactSendsCopyToUser(): void {
         putenv('SMTP_HOST=localhost');
         putenv('SMTP_USER=user@example.org');
         putenv('SMTP_PASS=secret');
@@ -317,13 +302,11 @@ class MailServiceTest extends TestCase
             /** @var Email[] */
             public array $messages = [];
 
-            protected function createTransport(string $dsn): MailerInterface
-            {
+            protected function createTransport(string $dsn): MailerInterface {
                 return new class ($this) implements MailerInterface {
                     private $outer;
 
-                    public function __construct($outer)
-                    {
+                    public function __construct($outer) {
                         $this->outer = $outer;
                     }
 
@@ -346,8 +329,7 @@ class MailServiceTest extends TestCase
         $this->assertSame('john@example.org', $svc->messages[1]->getTo()[0]->getAddress());
     }
 
-    public function testSendContactUsesTemplates(): void
-    {
+    public function testSendContactUsesTemplates(): void {
         putenv('SMTP_HOST=localhost');
         putenv('SMTP_USER=user@example.org');
         putenv('SMTP_PASS=secret');
@@ -366,13 +348,11 @@ class MailServiceTest extends TestCase
             /** @var Email[] */
             public array $messages = [];
 
-            protected function createTransport(string $dsn): MailerInterface
-            {
+            protected function createTransport(string $dsn): MailerInterface {
                 return new class ($this) implements MailerInterface {
                     private $outer;
 
-                    public function __construct($outer)
-                    {
+                    public function __construct($outer) {
                         $this->outer = $outer;
                     }
 
@@ -417,8 +397,7 @@ class MailServiceTest extends TestCase
         $this->assertStringContainsString('Domain Team', (string) $copy->getHtmlBody());
     }
 
-    public function testSendWelcomeContainsCatalogAndPasswordLinks(): void
-    {
+    public function testSendWelcomeContainsCatalogAndPasswordLinks(): void {
         putenv('SMTP_HOST=localhost');
         putenv('SMTP_USER=user@example.org');
         putenv('SMTP_PASS=secret');
@@ -437,13 +416,11 @@ class MailServiceTest extends TestCase
             /** @var Email[] */
             public array $messages = [];
 
-            protected function createTransport(string $dsn): MailerInterface
-            {
+            protected function createTransport(string $dsn): MailerInterface {
                 return new class ($this) implements MailerInterface {
                     private $outer;
 
-                    public function __construct($outer)
-                    {
+                    public function __construct($outer) {
                         $this->outer = $outer;
                     }
 
@@ -468,8 +445,7 @@ class MailServiceTest extends TestCase
         $this->assertCount(1, $svc->messages);
     }
 
-    public function testSendContactUsesDomainDsnOverride(): void
-    {
+    public function testSendContactUsesDomainDsnOverride(): void {
         putenv('SMTP_HOST=localhost');
         putenv('SMTP_USER=user@example.org');
         putenv('SMTP_PASS=secret');
@@ -489,15 +465,13 @@ class MailServiceTest extends TestCase
             public array $messages = [];
             public array $dsns = [];
 
-            protected function createTransport(string $dsn): MailerInterface
-            {
+            protected function createTransport(string $dsn): MailerInterface {
                 $this->dsns[] = $dsn;
 
                 return new class ($this) implements MailerInterface {
                     private $outer;
 
-                    public function __construct($outer)
-                    {
+                    public function __construct($outer) {
                         $this->outer = $outer;
                     }
 
@@ -526,8 +500,7 @@ class MailServiceTest extends TestCase
         $this->assertSame('smtp://override-user:pass@custom-host:2525', $svc->dsns[1]);
     }
 
-    public function testSendContactUsesDomainSmtpSettings(): void
-    {
+    public function testSendContactUsesDomainSmtpSettings(): void {
         putenv('SMTP_HOST=localhost');
         putenv('SMTP_USER=user@example.org');
         putenv('SMTP_PASS=secret');
@@ -547,15 +520,13 @@ class MailServiceTest extends TestCase
             public array $messages = [];
             public array $dsns = [];
 
-            protected function createTransport(string $dsn): MailerInterface
-            {
+            protected function createTransport(string $dsn): MailerInterface {
                 $this->dsns[] = $dsn;
 
                 return new class ($this) implements MailerInterface {
                     private $outer;
 
-                    public function __construct($outer)
-                    {
+                    public function __construct($outer) {
                         $this->outer = $outer;
                     }
 

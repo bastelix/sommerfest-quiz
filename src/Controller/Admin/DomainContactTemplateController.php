@@ -19,14 +19,12 @@ class DomainContactTemplateController
     private DomainContactTemplateService $templates;
     private DomainStartPageService $domains;
 
-    public function __construct(DomainContactTemplateService $templates, DomainStartPageService $domains)
-    {
+    public function __construct(DomainContactTemplateService $templates, DomainStartPageService $domains) {
         $this->templates = $templates;
         $this->domains = $domains;
     }
 
-    public function show(Request $request, Response $response, array $args): Response
-    {
+    public function show(Request $request, Response $response, array $args): Response {
         $domain = isset($args['domain']) ? (string) $args['domain'] : '';
         $normalized = $this->domains->normalizeDomain($domain);
         if ($normalized === '' || !$this->isAllowedDomain($normalized)) {
@@ -56,8 +54,7 @@ class DomainContactTemplateController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
-    public function save(Request $request, Response $response): Response
-    {
+    public function save(Request $request, Response $response): Response {
         $translator = $request->getAttribute('translator');
         $translationService = $translator instanceof TranslationService ? $translator : null;
 
@@ -118,8 +115,7 @@ class DomainContactTemplateController
         return $response->withHeader('Content-Type', 'application/json');
     }
 
-    private function isAllowedDomain(string $normalized): bool
-    {
+    private function isAllowedDomain(string $normalized): bool {
         $mainDomain = getenv('MAIN_DOMAIN') ?: '';
         $marketing = getenv('MARKETING_DOMAINS') ?: '';
         $known = $this->domains->determineDomains($mainDomain, (string) $marketing);

@@ -18,8 +18,7 @@ class EmailConfirmationService
     private int $ttl;
     private LoggerInterface $logger;
 
-    public function __construct(PDO $pdo, int $ttlSeconds = 86400, ?LoggerInterface $logger = null)
-    {
+    public function __construct(PDO $pdo, int $ttlSeconds = 86400, ?LoggerInterface $logger = null) {
         $this->pdo = $pdo;
         $this->ttl = $ttlSeconds;
         $this->logger = $logger ?? new NullLogger();
@@ -28,8 +27,7 @@ class EmailConfirmationService
     /**
      * Generate token for email and store it.
      */
-    public function createToken(string $email): string
-    {
+    public function createToken(string $email): string {
         $this->cleanupExpired();
 
         $token = bin2hex(random_bytes(16));
@@ -53,8 +51,7 @@ class EmailConfirmationService
     /**
      * Verify token and mark email as confirmed.
      */
-    public function confirmToken(string $token): ?string
-    {
+    public function confirmToken(string $token): ?string {
         $this->cleanupExpired();
 
         $stmt = $this->pdo->prepare('SELECT email, expires_at FROM email_confirmations WHERE token = ?');
@@ -87,8 +84,7 @@ class EmailConfirmationService
     /**
      * Check whether given email is confirmed.
      */
-    public function isConfirmed(string $email): bool
-    {
+    public function isConfirmed(string $email): bool {
         $this->cleanupExpired();
 
         $stmt = $this->pdo->prepare('SELECT confirmed FROM email_confirmations WHERE email = ?');
@@ -97,8 +93,7 @@ class EmailConfirmationService
         return $row !== false && (int) $row['confirmed'] === 1;
     }
 
-    private function deleteToken(string $email): void
-    {
+    private function deleteToken(string $email): void {
         $stmt = $this->pdo->prepare('DELETE FROM email_confirmations WHERE email = ?');
         $stmt->execute([$email]);
     }
@@ -106,8 +101,7 @@ class EmailConfirmationService
     /**
      * Remove expired tokens.
      */
-    public function cleanupExpired(): void
-    {
+    public function cleanupExpired(): void {
         $stmt = $this->pdo->prepare('DELETE FROM email_confirmations WHERE expires_at <= ?');
         $stmt->execute([(new DateTimeImmutable())->format('Y-m-d H:i:s')]);
     }

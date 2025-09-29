@@ -12,16 +12,14 @@ class BasePathHelperTest extends TestCase
     /**
      * @dataProvider provideBasePaths
      */
-    public function testNormalize(?string $input, string $expected): void
-    {
+    public function testNormalize(?string $input, string $expected): void {
         self::assertSame($expected, BasePathHelper::normalize($input));
     }
 
     /**
      * @return iterable<string, array{?string, string}>
      */
-    public static function provideBasePaths(): iterable
-    {
+    public static function provideBasePaths(): iterable {
         yield 'null' => [null, ''];
         yield 'empty string' => ['', ''];
         yield 'single slash' => ['/', ''];

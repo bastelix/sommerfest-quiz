@@ -9,8 +9,7 @@ use Tests\TestCase;
 
 final class AdminSubscriptionCheckoutControllerTest extends TestCase
 {
-    public function testCheckoutUsesProfileOnMainDomain(): void
-    {
+    public function testCheckoutUsesProfileOnMainDomain(): void {
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];

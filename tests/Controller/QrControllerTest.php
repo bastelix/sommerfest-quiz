@@ -12,15 +12,13 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class QrControllerTest extends TestCase
 {
-    protected function setUp(): void
-    {
+    protected function setUp(): void {
         parent::setUp();
         putenv('MAIN_DOMAIN=example.com');
         $_ENV['MAIN_DOMAIN'] = 'example.com';
     }
 
-    protected function tearDown(): void
-    {
+    protected function tearDown(): void {
         putenv('MAIN_DOMAIN');
         unset($_ENV['MAIN_DOMAIN']);
         parent::tearDown();
@@ -38,8 +36,7 @@ class QrControllerTest extends TestCase
         return $request->withHeader('Host', 'example.com')->withUri($uri);
     }
 
-    public function testQrImageIsGenerated(): void
-    {
+    public function testQrImageIsGenerated(): void {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/qr.png')->withQueryParams(['t' => 'Test']);
         $response = $app->handle($request);
@@ -49,8 +46,7 @@ class QrControllerTest extends TestCase
         $this->assertNotEmpty((string) $response->getBody());
     }
 
-    public function testQrImageFallbackWhenTextMissing(): void
-    {
+    public function testQrImageFallbackWhenTextMissing(): void {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/qr.png');
         $response = $app->handle($request);
@@ -60,8 +56,7 @@ class QrControllerTest extends TestCase
         $this->assertNotEmpty((string) $response->getBody());
     }
 
-    public function testQrImageSvgFormat(): void
-    {
+    public function testQrImageSvgFormat(): void {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/qr.png')
             ->withQueryParams(['t' => 'Demo', 'format' => 'svg']);
@@ -72,8 +67,7 @@ class QrControllerTest extends TestCase
         $this->assertNotEmpty((string) $response->getBody());
     }
 
-    public function testQrImageAllowsCustomColors(): void
-    {
+    public function testQrImageAllowsCustomColors(): void {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/qr.png')
             ->withQueryParams([
@@ -88,8 +82,7 @@ class QrControllerTest extends TestCase
         $this->assertNotEmpty((string) $response->getBody());
     }
 
-    public function testCatalogQrDefaults(): void
-    {
+    public function testCatalogQrDefaults(): void {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/qr/catalog');
         $response = $app->handle($request);
@@ -99,8 +92,7 @@ class QrControllerTest extends TestCase
         $this->assertNotEmpty((string) $response->getBody());
     }
 
-    public function testEventQrDefaults(): void
-    {
+    public function testEventQrDefaults(): void {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/qr/event')->withQueryParams(['event' => '1']);
         $response = $app->handle($request);
@@ -110,8 +102,7 @@ class QrControllerTest extends TestCase
         $this->assertNotEmpty((string) $response->getBody());
     }
 
-    public function testTeamQrDefaults(): void
-    {
+    public function testTeamQrDefaults(): void {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/qr/team');
         $response = $app->handle($request);
@@ -121,8 +112,7 @@ class QrControllerTest extends TestCase
         $this->assertNotEmpty((string) $response->getBody());
     }
 
-    public function testTeamQrSvgFormat(): void
-    {
+    public function testTeamQrSvgFormat(): void {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/qr/team')
             ->withQueryParams(['format' => 'svg']);
@@ -133,8 +123,7 @@ class QrControllerTest extends TestCase
         $this->assertNotEmpty((string) $response->getBody());
     }
 
-    public function testTeamQrWebpLogo(): void
-    {
+    public function testTeamQrWebpLogo(): void {
         $logoFile = dirname(__DIR__, 2) . '/data/test-logo.webp';
         imagewebp(imagecreatetruecolor(10, 10), $logoFile);
 
@@ -152,8 +141,7 @@ class QrControllerTest extends TestCase
         @unlink($logoFile);
     }
 
-    public function testQrPdfIsGenerated(): void
-    {
+    public function testQrPdfIsGenerated(): void {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/qr.pdf')->withQueryParams(['t' => 'Test', 'event' => '1']);
         $response = $app->handle($request);
@@ -164,8 +152,7 @@ class QrControllerTest extends TestCase
         $this->assertNotEmpty($pdf);
     }
 
-    public function testPdfUsesUploadedLogo(): void
-    {
+    public function testPdfUsesUploadedLogo(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -242,8 +229,7 @@ class QrControllerTest extends TestCase
         unlink(sys_get_temp_dir() . '/uploads/logo.png');
     }
 
-    public function testInvitePlaceholderIsReplaced(): void
-    {
+    public function testInvitePlaceholderIsReplaced(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -309,8 +295,7 @@ class QrControllerTest extends TestCase
         $this->assertStringContainsString('Event', $pdf);
     }
 
-    public function testInviteTextIsSanitizedInPdf(): void
-    {
+    public function testInviteTextIsSanitizedInPdf(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -353,8 +338,7 @@ class QrControllerTest extends TestCase
         $this->assertStringNotContainsString('<script', $pdf);
     }
 
-    public function testAllInvitationsPdfIsGenerated(): void
-    {
+    public function testAllInvitationsPdfIsGenerated(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -421,8 +405,7 @@ class QrControllerTest extends TestCase
         $this->assertEquals(2, substr_count($pdf, 'Event'));
     }
 
-    public function testInvitesPdfUsesResultsWhenTeamsMissing(): void
-    {
+    public function testInvitesPdfUsesResultsWhenTeamsMissing(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -509,8 +492,7 @@ class QrControllerTest extends TestCase
         $this->assertEquals(2, substr_count($pdf, 'Event'));
     }
 
-    public function testInvitesPdfReturnsErrorWhenNoTeams(): void
-    {
+    public function testInvitesPdfReturnsErrorWhenNoTeams(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -540,8 +522,7 @@ class QrControllerTest extends TestCase
         $this->assertSame(404, $response->getStatusCode());
     }
 
-    public function testActiveEventSwitchUpdatesPdf(): void
-    {
+    public function testActiveEventSwitchUpdatesPdf(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec(

@@ -17,8 +17,7 @@ use PDO;
  */
 class EventListController
 {
-    public function __invoke(Request $request, Response $response): Response
-    {
+    public function __invoke(Request $request, Response $response): Response {
         $view = Twig::fromRequest($request);
         $pdo = $request->getAttribute('pdo');
         if (!$pdo instanceof PDO) {

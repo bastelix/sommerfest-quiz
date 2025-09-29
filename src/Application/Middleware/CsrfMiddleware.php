@@ -18,8 +18,7 @@ class CsrfMiddleware implements MiddlewareInterface
     /**
      * {@inheritDoc}
      */
-    public function process(Request $request, RequestHandler $handler): Response
-    {
+    public function process(Request $request, RequestHandler $handler): Response {
         $token = $_SESSION['csrf_token'] ?? null;
 
         if ($request->getMethod() === 'POST') {

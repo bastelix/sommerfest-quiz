@@ -12,8 +12,7 @@ use Tests\TestCase;
 
 class CatalogServiceTest extends TestCase
 {
-    private function createPdo(): PDO
-    {
+    private function createPdo(): PDO {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
@@ -72,8 +71,7 @@ class CatalogServiceTest extends TestCase
         return $pdo;
     }
 
-    private function createPdoNoComment(): PDO
-    {
+    private function createPdoNoComment(): PDO {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
@@ -131,8 +129,7 @@ class CatalogServiceTest extends TestCase
         return $pdo;
     }
 
-    private function createPdoNoOptionalColumns(): PDO
-    {
+    private function createPdoNoOptionalColumns(): PDO {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
@@ -189,8 +186,7 @@ class CatalogServiceTest extends TestCase
         return $pdo;
     }
 
-    public function testReadWrite(): void
-    {
+    public function testReadWrite(): void {
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
@@ -219,8 +215,7 @@ class CatalogServiceTest extends TestCase
         );
     }
 
-    public function testWriteWithoutCommentColumn(): void
-    {
+    public function testWriteWithoutCommentColumn(): void {
         $pdo = $this->createPdoNoComment();
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
@@ -237,8 +232,7 @@ class CatalogServiceTest extends TestCase
         $this->assertSame('ignored', $rows[0]['comment']);
     }
 
-    public function testWriteWithoutOptionalColumns(): void
-    {
+    public function testWriteWithoutOptionalColumns(): void {
         $pdo = $this->createPdoNoOptionalColumns();
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
@@ -257,8 +251,7 @@ class CatalogServiceTest extends TestCase
         $this->assertSame('d.svg', $rows[0]['design_path']);
     }
 
-    public function testReadReturnsNullIfMissing(): void
-    {
+    public function testReadReturnsNullIfMissing(): void {
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
@@ -266,8 +259,7 @@ class CatalogServiceTest extends TestCase
         $this->assertNull($service->read('missing.json'));
     }
 
-    public function testDelete(): void
-    {
+    public function testDelete(): void {
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
@@ -288,8 +280,7 @@ class CatalogServiceTest extends TestCase
         $this->assertSame(0, (int)$stmt->fetchColumn());
     }
 
-    public function testDeleteQuestion(): void
-    {
+    public function testDeleteQuestion(): void {
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
@@ -313,8 +304,7 @@ class CatalogServiceTest extends TestCase
         $this->assertCount(2, $remaining);
     }
 
-    public function testSlugChangeDoesNotDeleteQuestions(): void
-    {
+    public function testSlugChangeDoesNotDeleteQuestions(): void {
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
@@ -346,8 +336,7 @@ class CatalogServiceTest extends TestCase
         );
     }
 
-    public function testDuplicateSlugUsesExistingUid(): void
-    {
+    public function testDuplicateSlugUsesExistingUid(): void {
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
@@ -367,8 +356,7 @@ class CatalogServiceTest extends TestCase
         $this->assertSame('New', $rows[0]['name']);
     }
 
-    public function testReorderCatalogs(): void
-    {
+    public function testReorderCatalogs(): void {
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
@@ -388,8 +376,7 @@ class CatalogServiceTest extends TestCase
         $this->assertSame('a', $list[1]['slug']);
     }
 
-    public function testNamesRemainAfterReorder(): void
-    {
+    public function testNamesRemainAfterReorder(): void {
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
@@ -410,8 +397,7 @@ class CatalogServiceTest extends TestCase
         $this->assertSame(['Two', 'One', 'Three'], array_column($rows, 'name'));
     }
 
-    public function testWriteWithoutActiveEventUid(): void
-    {
+    public function testWriteWithoutActiveEventUid(): void {
         $pdo = $this->createPdo();
         $pdo->exec("INSERT INTO config(event_uid) VALUES(NULL)");
         $cfg = new ConfigService($pdo);
@@ -430,8 +416,7 @@ class CatalogServiceTest extends TestCase
         $this->assertSame('ev1', (string)$stmt->fetchColumn());
     }
 
-    public function testWriteAcceptsIdField(): void
-    {
+    public function testWriteAcceptsIdField(): void {
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $service = new CatalogService($pdo, $cfg);
@@ -448,8 +433,7 @@ class CatalogServiceTest extends TestCase
         $this->assertSame(4, $rows[0]['sort_order']);
     }
 
-    public function testSaveAllRespectsCatalogLimit(): void
-    {
+    public function testSaveAllRespectsCatalogLimit(): void {
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $cfg->setActiveEventUid('e1');
@@ -475,8 +459,7 @@ class CatalogServiceTest extends TestCase
         $service->write('catalogs.json', $catalogs);
     }
 
-    public function testSaveAllRespectsStandardCatalogLimit(): void
-    {
+    public function testSaveAllRespectsStandardCatalogLimit(): void {
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $cfg->setActiveEventUid('e1');
@@ -502,8 +485,7 @@ class CatalogServiceTest extends TestCase
         $service->write('catalogs.json', $catalogs);
     }
 
-    public function testWriteRespectsQuestionLimit(): void
-    {
+    public function testWriteRespectsQuestionLimit(): void {
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $cfg->setActiveEventUid('e1');
@@ -522,8 +504,7 @@ class CatalogServiceTest extends TestCase
         $service->write('c1.json', $questions);
     }
 
-    public function testWriteRespectsStandardQuestionLimit(): void
-    {
+    public function testWriteRespectsStandardQuestionLimit(): void {
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $cfg->setActiveEventUid('e1');
@@ -542,8 +523,7 @@ class CatalogServiceTest extends TestCase
         $service->write('c1.json', $questions);
     }
 
-    public function testCustomLimitOverridesCatalogLimit(): void
-    {
+    public function testCustomLimitOverridesCatalogLimit(): void {
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $cfg->setActiveEventUid('e1');
@@ -580,8 +560,7 @@ class CatalogServiceTest extends TestCase
         $service->write('catalogs.json', $catalogs);
     }
 
-    public function testCustomLimitOverridesQuestionLimit(): void
-    {
+    public function testCustomLimitOverridesQuestionLimit(): void {
         $pdo = $this->createPdo();
         $cfg = new ConfigService($pdo);
         $cfg->setActiveEventUid('e1');

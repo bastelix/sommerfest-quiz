@@ -8,8 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class DeleteTenantScriptTest extends TestCase
 {
-    public function testDeleteTenantRemovesSslArtifacts(): void
-    {
+    public function testDeleteTenantRemovesSslArtifacts(): void {
         $slug = 't' . bin2hex(random_bytes(3));
         $root = dirname(__DIR__);
         $domain = 'example.test';

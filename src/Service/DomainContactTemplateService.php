@@ -15,8 +15,7 @@ class DomainContactTemplateService
     private PDO $pdo;
     private DomainStartPageService $domainService;
 
-    public function __construct(PDO $pdo, ?DomainStartPageService $domainService = null)
-    {
+    public function __construct(PDO $pdo, ?DomainStartPageService $domainService = null) {
         $this->pdo = $pdo;
         $this->domainService = $domainService ?? new DomainStartPageService($pdo);
     }
@@ -26,8 +25,7 @@ class DomainContactTemplateService
      *
      * @return array{domain:string,sender_name:?string,recipient_html:?string,recipient_text:?string,sender_html:?string,sender_text:?string}|null
      */
-    public function get(string $domain): ?array
-    {
+    public function get(string $domain): ?array {
         $normalized = $this->normalizeDomain($domain);
         if ($normalized === '') {
             return null;
@@ -68,8 +66,7 @@ class DomainContactTemplateService
      *
      * @return array{domain:string,sender_name:?string,recipient_html:?string,recipient_text:?string,sender_html:?string,sender_text:?string}|null
      */
-    public function getForHost(string $host): ?array
-    {
+    public function getForHost(string $host): ?array {
         return $this->get($host);
     }
 
@@ -78,8 +75,7 @@ class DomainContactTemplateService
      *
      * @param array{sender_name:?string,recipient_html:?string,recipient_text:?string,sender_html:?string,sender_text:?string} $data
      */
-    public function save(string $domain, array $data): void
-    {
+    public function save(string $domain, array $data): void {
         $normalized = $this->normalizeDomain($domain);
         if ($normalized === '') {
             throw new PDOException('Invalid domain supplied');
@@ -108,13 +104,11 @@ class DomainContactTemplateService
         $stmt->execute($payload);
     }
 
-    private function normalizeDomain(string $domain): string
-    {
+    private function normalizeDomain(string $domain): string {
         return $this->domainService->normalizeDomain($domain);
     }
 
-    private function normalizeNullable(?string $value, bool $trimWhitespace = true): ?string
-    {
+    private function normalizeNullable(?string $value, bool $trimWhitespace = true): ?string {
         if ($value === null) {
             return null;
         }

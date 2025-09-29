@@ -10,8 +10,7 @@ use Tests\TestCase;
 
 final class LoginRedirectMainDomainTest extends TestCase
 {
-    public function testLoginRedirectsToMainDomainOnWrongHost(): void
-    {
+    public function testLoginRedirectsToMainDomainOnWrongHost(): void {
         $pdo = $this->getDatabase();
         $userService = new UserService($pdo);
         $userService->create('heidi', 'secret', 'heidi@example.com', Roles::ADMIN);

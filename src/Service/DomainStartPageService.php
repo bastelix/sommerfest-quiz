@@ -21,8 +21,7 @@ class DomainStartPageService
 
     private PDO $pdo;
 
-    public function __construct(PDO $pdo)
-    {
+    public function __construct(PDO $pdo) {
         $this->pdo = $pdo;
     }
 
@@ -31,8 +30,7 @@ class DomainStartPageService
      *
      * @return array<string,string> Map of slug => label
      */
-    public function getStartPageOptions(PageService $pageService): array
-    {
+    public function getStartPageOptions(PageService $pageService): array {
         $options = [];
 
         foreach (self::CORE_START_PAGES as $slug) {
@@ -52,8 +50,7 @@ class DomainStartPageService
         return $options;
     }
 
-    private function buildLabelFromSlug(string $slug): string
-    {
+    private function buildLabelFromSlug(string $slug): string {
         $parts = array_filter(explode('-', $slug), static fn ($part): bool => $part !== '');
         if ($parts === []) {
             return ucfirst($slug);
@@ -70,8 +67,7 @@ class DomainStartPageService
     /**
      * Determine the configured start page for the given host.
      */
-    public function getStartPage(string $host): ?string
-    {
+    public function getStartPage(string $host): ?string {
         $config = $this->getConfigForHost($host);
 
         if ($config === null) {
@@ -88,8 +84,7 @@ class DomainStartPageService
      *
      * @return array{domain:string,start_page:string,email:?string}|null
      */
-    public function getConfigForHost(string $host, bool $includeSensitive = false): ?array
-    {
+    public function getConfigForHost(string $host, bool $includeSensitive = false): ?array {
         $host = strtolower(trim($host));
         if ($host === '') {
             return null;
@@ -119,8 +114,7 @@ class DomainStartPageService
     /**
      * Persist or update the start page for a given domain.
      */
-    public function saveStartPage(string $domain, string $startPage): void
-    {
+    public function saveStartPage(string $domain, string $startPage): void {
         $this->saveDomainConfig($domain, $startPage, null);
     }
 
@@ -132,8 +126,7 @@ class DomainStartPageService
         string $startPage,
         ?string $email = null,
         array $smtpConfig = []
-    ): void
-    {
+    ): void {
         $normalized = $this->normalizeDomain($domain);
         if ($normalized === '') {
             throw new PDOException('Invalid domain supplied');
@@ -181,8 +174,7 @@ class DomainStartPageService
      *
      * @return array<string,array{start_page:string,email:?string,smtp_host:?string,smtp_user:?string,smtp_port:?int,smtp_encryption:?string,smtp_dsn:?string,has_smtp_pass:bool}> Associative array of domain => config
      */
-    public function getAllMappings(): array
-    {
+    public function getAllMappings(): array {
         $stmt = $this->pdo->query(
             "SELECT domain, start_page, email, smtp_host, smtp_user, smtp_port, smtp_encryption, smtp_dsn,
                 CASE WHEN smtp_pass IS NOT NULL AND smtp_pass <> '' THEN 1 ELSE 0 END AS has_smtp_pass
@@ -228,8 +220,7 @@ class DomainStartPageService
      *
      * @return array{domain:string,start_page:string,email:?string,smtp_host:?string,smtp_user:?string,smtp_port:?int,smtp_encryption:?string,smtp_dsn:?string,has_smtp_pass:bool,smtp_pass:?string}|null
      */
-    public function getDomainConfig(string $domain, bool $includeSensitive = false): ?array
-    {
+    public function getDomainConfig(string $domain, bool $includeSensitive = false): ?array {
         $normalized = $this->normalizeDomain($domain);
         if ($normalized === '') {
             return null;
@@ -292,8 +283,7 @@ class DomainStartPageService
      *
      * @return array<int,array{domain:string,normalized:string,type:string}>
      */
-    public function determineDomains(?string $mainDomain, string $marketingConfig, string $currentHost = ''): array
-    {
+    public function determineDomains(?string $mainDomain, string $marketingConfig, string $currentHost = ''): array {
         $domains = [];
 
         $normalizedMain = $this->normalizeDomain((string) $mainDomain);
@@ -346,8 +336,7 @@ class DomainStartPageService
     /**
      * Normalize a hostname by trimming and removing known prefixes.
      */
-    public function normalizeDomain(string $domain, bool $stripAdmin = true): string
-    {
+    public function normalizeDomain(string $domain, bool $stripAdmin = true): string {
         $domain = strtolower(trim($domain));
         if ($domain === '') {
             return '';
@@ -359,8 +348,7 @@ class DomainStartPageService
         return $normalized;
     }
 
-    private function normalizeEmail(?string $email): ?string
-    {
+    private function normalizeEmail(?string $email): ?string {
         if ($email === null) {
             return null;
         }
@@ -376,8 +364,7 @@ class DomainStartPageService
      *
      * @return array{smtp_host:?string,smtp_user:?string,smtp_pass:?string,smtp_port:?int,smtp_encryption:?string,smtp_dsn:?string,update_pass:bool}
      */
-    private function normalizeSmtpConfig(array $smtpConfig, ?array $existing): array
-    {
+    private function normalizeSmtpConfig(array $smtpConfig, ?array $existing): array {
         $host = isset($existing['smtp_host']) && $existing['smtp_host'] !== null ? (string) $existing['smtp_host'] : null;
         $user = isset($existing['smtp_user']) && $existing['smtp_user'] !== null ? (string) $existing['smtp_user'] : null;
         $port = isset($existing['smtp_port']) && $existing['smtp_port'] !== null ? (int) $existing['smtp_port'] : null;

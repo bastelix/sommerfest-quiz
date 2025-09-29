@@ -19,8 +19,7 @@ class LogService
     /**
      * Create a logger instance for the given channel.
      */
-    public static function create(string $channel = 'app'): LoggerInterface
-    {
+    public static function create(string $channel = 'app'): LoggerInterface {
         $root = dirname(__DIR__, 2);
         $logDir = $root . '/logs';
         if (!is_dir($logDir) && !mkdir($logDir, 0777, true) && !is_dir($logDir)) {
@@ -37,8 +36,7 @@ class LogService
     /**
      * Fetch the most recent log lines for the given channel.
      */
-    public static function tail(string $channel, int $lines = 20): string
-    {
+    public static function tail(string $channel, int $lines = 20): string {
         $root = dirname(__DIR__, 2);
         $file = $root . '/logs/' . $channel . '.log';
         if (!is_file($file)) {
@@ -54,8 +52,7 @@ class LogService
     /**
      * Fetch the most recent Docker log lines for the given container.
      */
-    public static function tailDocker(string $container, int $lines = 20): string
-    {
+    public static function tailDocker(string $container, int $lines = 20): string {
         $result = runSyncProcess('docker', ['logs', '--tail', (string) $lines, $container]);
         if ($result['stdout'] !== '') {
             return $result['stdout'];

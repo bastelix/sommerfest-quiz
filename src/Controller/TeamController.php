@@ -20,14 +20,12 @@ class TeamController
     /**
      * Inject team service dependency.
      */
-    public function __construct(TeamService $service, ConfigService $config)
-    {
+    public function __construct(TeamService $service, ConfigService $config) {
         $this->service = $service;
         $this->config = $config;
     }
 
-    private function setEventFromRequest(Request $request): void
-    {
+    private function setEventFromRequest(Request $request): void {
         $params = $request->getQueryParams();
         if (isset($params['event_uid'])) {
             $this->config->setActiveEventUid((string) $params['event_uid']);
@@ -37,8 +35,7 @@ class TeamController
     /**
      * Return the list of teams as JSON.
      */
-    public function get(Request $request, Response $response): Response
-    {
+    public function get(Request $request, Response $response): Response {
         $this->setEventFromRequest($request);
         $data = $this->service->getAll();
         $response->getBody()->write(json_encode($data));
@@ -48,8 +45,7 @@ class TeamController
     /**
      * Replace the entire list of teams with the provided data.
      */
-    public function post(Request $request, Response $response): Response
-    {
+    public function post(Request $request, Response $response): Response {
         $this->setEventFromRequest($request);
         $body = (string) $request->getBody();
         $data = json_decode($body, true);

@@ -27,8 +27,7 @@ class AdminMediaController
         MediaLibraryService $media,
         ConfigService $config,
         LandingMediaReferenceService $landing
-    )
-    {
+    ) {
         $this->media = $media;
         $this->config = $config;
         $this->landing = $landing;
@@ -37,8 +36,7 @@ class AdminMediaController
     /**
      * Render the media library page.
      */
-    public function index(Request $request, Response $response): Response
-    {
+    public function index(Request $request, Response $response): Response {
         $view = Twig::fromRequest($request);
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
         $_SESSION['csrf_token'] = $csrf;
@@ -64,8 +62,7 @@ class AdminMediaController
     /**
      * Return a paginated list of files as JSON.
      */
-    public function list(Request $request, Response $response): Response
-    {
+    public function list(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $scope = (string) ($params['scope'] ?? MediaLibraryService::SCOPE_GLOBAL);
         $page = max(1, (int) ($params['page'] ?? 1));
@@ -134,30 +131,35 @@ class AdminMediaController
         $availableFolders = $this->collectFolders($files);
 
         if ($search !== '') {
-            $files = array_values(array_filter(
-                $files,
-                static fn(array $file): bool => stripos((string) $file['name'], $search) !== false
-            ));
+            $files = array_values(
+                array_filter(
+                    $files,
+                    static fn(array $file): bool => stripos((string) $file['name'], $search) !== false
+                )
+            );
         }
 
         $rawTagFilters = $this->normalizeTags($params['tags'] ?? []);
         $activeTagFilters = array_map(static fn(string $tag): string => mb_strtolower($tag), $rawTagFilters);
         if ($activeTagFilters !== []) {
-            $files = array_values(array_filter(
-                $files,
-                static function (array $file) use ($activeTagFilters): bool {
-                    $fileTags = array_map(static fn(string $tag): string => mb_strtolower($tag),
-                        array_map('strval', $file['tags'] ?? [])
-                    );
-                    foreach ($activeTagFilters as $tag) {
-                        if (!in_array($tag, $fileTags, true)) {
-                            return false;
+            $files = array_values(
+                array_filter(
+                    $files,
+                    static function (array $file) use ($activeTagFilters): bool {
+                        $fileTags = array_map(
+                            static fn(string $tag): string => mb_strtolower($tag),
+                            array_map('strval', $file['tags'] ?? [])
+                        );
+                        foreach ($activeTagFilters as $tag) {
+                            if (!in_array($tag, $fileTags, true)) {
+                                return false;
+                            }
                         }
-                    }
 
-                    return true;
-                }
-            ));
+                        return true;
+                    }
+                )
+            );
         }
 
         $folderParam = $params['folder'] ?? null;
@@ -165,24 +167,28 @@ class AdminMediaController
             && mb_strtolower(trim($folderParam)) === self::FOLDER_NONE;
         $rawFolderFilter = $withoutFolder ? null : $this->normalizeFolder($folderParam);
         if ($withoutFolder) {
-            $files = array_values(array_filter(
-                $files,
-                static function (array $file): bool {
-                    $folder = $file['folder'] ?? null;
-                    return !is_string($folder) || $folder === '';
-                }
-            ));
-        } elseif ($rawFolderFilter !== null) {
-            $files = array_values(array_filter(
-                $files,
-                static function (array $file) use ($rawFolderFilter): bool {
-                    $folder = $file['folder'] ?? null;
-                    if (!is_string($folder) || $folder === '') {
-                        return false;
+            $files = array_values(
+                array_filter(
+                    $files,
+                    static function (array $file): bool {
+                        $folder = $file['folder'] ?? null;
+                        return !is_string($folder) || $folder === '';
                     }
-                    return mb_strtolower($folder) === $rawFolderFilter;
-                }
-            ));
+                )
+            );
+        } elseif ($rawFolderFilter !== null) {
+            $files = array_values(
+                array_filter(
+                    $files,
+                    static function (array $file) use ($rawFolderFilter): bool {
+                        $folder = $file['folder'] ?? null;
+                        if (!is_string($folder) || $folder === '') {
+                            return false;
+                        }
+                        return mb_strtolower($folder) === $rawFolderFilter;
+                    }
+                )
+            );
         }
 
         $total = count($files);
@@ -218,8 +224,7 @@ class AdminMediaController
     /**
      * Handle file uploads.
      */
-    public function upload(Request $request, Response $response): Response
-    {
+    public function upload(Request $request, Response $response): Response {
         $body = $request->getParsedBody();
         if (!is_array($body)) {
             $body = [];
@@ -268,8 +273,7 @@ class AdminMediaController
     /**
      * Replace an existing file with a new upload.
      */
-    public function replace(Request $request, Response $response): Response
-    {
+    public function replace(Request $request, Response $response): Response {
         $body = $request->getParsedBody();
         if (!is_array($body)) {
             $body = [];
@@ -309,8 +313,7 @@ class AdminMediaController
     /**
      * Convert an existing image to WebP.
      */
-    public function convert(Request $request, Response $response): Response
-    {
+    public function convert(Request $request, Response $response): Response {
         $data = $this->parseBody($request);
         $scope = (string) ($data['scope'] ?? MediaLibraryService::SCOPE_GLOBAL);
         $name = (string) ($data['name'] ?? '');
@@ -339,8 +342,7 @@ class AdminMediaController
     /**
      * Rename a file.
      */
-    public function rename(Request $request, Response $response): Response
-    {
+    public function rename(Request $request, Response $response): Response {
         $data = $this->parseBody($request);
         $scope = (string) ($data['scope'] ?? MediaLibraryService::SCOPE_GLOBAL);
         $old = (string) ($data['oldName'] ?? '');
@@ -385,8 +387,7 @@ class AdminMediaController
     /**
      * Delete a file from the library.
      */
-    public function delete(Request $request, Response $response): Response
-    {
+    public function delete(Request $request, Response $response): Response {
         $data = $this->parseBody($request);
         $scope = (string) ($data['scope'] ?? MediaLibraryService::SCOPE_GLOBAL);
         $name = (string) ($data['name'] ?? '');
@@ -415,8 +416,7 @@ class AdminMediaController
      * @param list<array<string,mixed>> $files
      * @return list<string>
      */
-    private function collectTags(array $files): array
-    {
+    private function collectTags(array $files): array {
         $tags = [];
         foreach ($files as $file) {
             $entries = $file['tags'] ?? [];
@@ -448,8 +448,7 @@ class AdminMediaController
      * @param list<array<string,mixed>> $files
      * @return list<string>
      */
-    private function collectFolders(array $files): array
-    {
+    private function collectFolders(array $files): array {
         $folders = [];
         foreach ($files as $file) {
             $folder = $file['folder'] ?? null;
@@ -472,8 +471,7 @@ class AdminMediaController
      * @param mixed $value
      * @return list<string>
      */
-    private function normalizeTags($value): array
-    {
+    private function normalizeTags($value): array {
         if (is_string($value)) {
             try {
                 $decoded = json_decode($value, true, 512, JSON_THROW_ON_ERROR);
@@ -517,8 +515,7 @@ class AdminMediaController
     /**
      * @param mixed $value
      */
-    private function normalizeFolder($value): ?string
-    {
+    private function normalizeFolder($value): ?string {
         if (is_array($value)) {
             $value = reset($value);
         }
@@ -554,8 +551,7 @@ class AdminMediaController
      * @param array<string,mixed> $input
      * @return array{tagsProvided:bool,tags:list<string>,folderProvided:bool,folder:?string}
      */
-    private function extractMetadata(array $input): array
-    {
+    private function extractMetadata(array $input): array {
         $result = [
             'tagsProvided' => false,
             'tags' => [],
@@ -579,8 +575,7 @@ class AdminMediaController
     /**
      * @param array<string,mixed> $payload
      */
-    private function json(Response $response, array $payload, int $status = 200): Response
-    {
+    private function json(Response $response, array $payload, int $status = 200): Response {
         try {
             $response->getBody()->write(json_encode($payload, JSON_THROW_ON_ERROR));
         } catch (JsonException $e) {
@@ -593,8 +588,7 @@ class AdminMediaController
             ->withStatus($status);
     }
 
-    private function jsonError(Response $response, string $message, int $status): Response
-    {
+    private function jsonError(Response $response, string $message, int $status): Response {
         $payload = [
             'error' => $message,
             'limits' => $this->media->getLimits(),
@@ -611,8 +605,7 @@ class AdminMediaController
     /**
      * @return array<string,mixed>
      */
-    private function parseBody(Request $request): array
-    {
+    private function parseBody(Request $request): array {
         if ($request->getHeaderLine('Content-Type') === 'application/json') {
             $raw = (string) $request->getBody();
             $data = json_decode($raw, true);
@@ -626,4 +619,3 @@ class AdminMediaController
         return is_array($data) ? $data : [];
     }
 }
-

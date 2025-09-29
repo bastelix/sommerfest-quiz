@@ -12,8 +12,7 @@ use App\Service\VersionService;
 
 class HealthzEndpointTest extends TestCase
 {
-    protected function getAppInstance(): \Slim\App
-    {
+    protected function getAppInstance(): \Slim\App {
         $app = AppFactory::create();
         $app->get('/healthz', function (Request $request, Response $response) {
             $version = getenv('APP_VERSION');
@@ -34,8 +33,7 @@ class HealthzEndpointTest extends TestCase
         return $app;
     }
 
-    public function testHealthzEndpointReturnsOkJson(): void
-    {
+    public function testHealthzEndpointReturnsOkJson(): void {
         $app = $this->getAppInstance();
         $res = $app->handle($this->createRequest('GET', '/healthz'));
         $this->assertSame(200, $res->getStatusCode());
@@ -49,8 +47,7 @@ class HealthzEndpointTest extends TestCase
         $this->assertSame($time, $dt->format(DATE_ATOM));
     }
 
-    public function testHealthzEndpointUsesAppVersionWhenSet(): void
-    {
+    public function testHealthzEndpointUsesAppVersionWhenSet(): void {
         putenv('APP_VERSION=1.2.3');
         $_ENV['APP_VERSION'] = '1.2.3';
 
@@ -64,8 +61,7 @@ class HealthzEndpointTest extends TestCase
         unset($_ENV['APP_VERSION']);
     }
 
-    public function testHealthzEndpointUsesVersionServiceWhenEnvMissing(): void
-    {
+    public function testHealthzEndpointUsesVersionServiceWhenEnvMissing(): void {
         putenv('APP_VERSION');
         unset($_ENV['APP_VERSION']);
 
@@ -77,8 +73,7 @@ class HealthzEndpointTest extends TestCase
         $this->assertSame($expected, $data['version'] ?? null);
     }
 
-    public function testHealthzEndpointAccessibleForTenantHost(): void
-    {
+    public function testHealthzEndpointAccessibleForTenantHost(): void {
         // Backup current env
         $old = getenv('MAIN_DOMAIN');
         $oldEnv = $_ENV['MAIN_DOMAIN'] ?? null;

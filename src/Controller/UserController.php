@@ -16,16 +16,14 @@ class UserController
 {
     private UserService $service;
 
-    public function __construct(UserService $service)
-    {
+    public function __construct(UserService $service) {
         $this->service = $service;
     }
 
     /**
      * Return all users as JSON.
      */
-    public function get(Request $request, Response $response): Response
-    {
+    public function get(Request $request, Response $response): Response {
         $list = $this->service->getAll();
         $response->getBody()->write(json_encode($list));
         return $response->withHeader('Content-Type', 'application/json');
@@ -34,8 +32,7 @@ class UserController
     /**
      * Replace the user list with the provided data.
      */
-    public function post(Request $request, Response $response): Response
-    {
+    public function post(Request $request, Response $response): Response {
         $data = json_decode((string) $request->getBody(), true);
         if (!is_array($data)) {
             return $response->withStatus(400);

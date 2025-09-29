@@ -9,8 +9,7 @@ use App\Service\PageService;
 
 class LandingController extends MarketingPageController
 {
-    public function __construct(?PageService $pages = null, ?PageSeoConfigService $seo = null)
-    {
+    public function __construct(?PageService $pages = null, ?PageSeoConfigService $seo = null) {
         parent::__construct('landing', $pages, $seo);
     }
 }

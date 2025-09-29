@@ -10,8 +10,7 @@ use Symfony\Component\Process\Process;
  * Run a shell script in the background.
  * Falls back to exec if the Symfony Process component is unavailable.
  */
-function runBackgroundProcess(string $script, array $args = []): void
-{
+function runBackgroundProcess(string $script, array $args = []): void {
     $cmd = array_merge([$script], $args);
 
     $logDir = dirname(__DIR__) . '/logs';
@@ -52,8 +51,7 @@ function runBackgroundProcess(string $script, array $args = []): void
  *
  * @return array{success: bool, stdout: string, stderr: string}
  */
-function runSyncProcess(string $script, array $args = [], bool $throwOnError = false): array
-{
+function runSyncProcess(string $script, array $args = [], bool $throwOnError = false): array {
     $cmd = array_merge([$script], $args);
 
     try {

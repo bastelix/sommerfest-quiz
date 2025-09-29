@@ -18,8 +18,7 @@ use Slim\Psr7\Response;
 
 class ExportControllerTest extends TestCase
 {
-    private function createServices(): array
-    {
+    private function createServices(): array {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('ev1','ev1','Event1')");
         $pdo->exec("INSERT INTO config(event_uid) VALUES('ev1')");
@@ -37,8 +36,7 @@ class ExportControllerTest extends TestCase
         ];
     }
 
-    public function testExportIncludesEvents(): void
-    {
+    public function testExportIncludesEvents(): void {
         [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
         $tmp = sys_get_temp_dir() . '/export_' . uniqid();
         mkdir($tmp, 0777, true);
@@ -71,8 +69,7 @@ class ExportControllerTest extends TestCase
         rmdir($tmp);
     }
 
-    public function testExportDefaultsCreatesDemoData(): void
-    {
+    public function testExportDefaultsCreatesDemoData(): void {
         [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
         $tmp = sys_get_temp_dir() . '/export_' . uniqid();
         mkdir($tmp, 0777, true);

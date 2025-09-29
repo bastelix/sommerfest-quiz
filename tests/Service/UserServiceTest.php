@@ -10,8 +10,7 @@ use Tests\TestCase;
 
 class UserServiceTest extends TestCase
 {
-    public function testSaveAllStoresPositionAndReturnsOrdered(): void
-    {
+    public function testSaveAllStoresPositionAndReturnsOrdered(): void {
         $pdo = $this->createDatabase();
         $svc = new UserService($pdo);
 

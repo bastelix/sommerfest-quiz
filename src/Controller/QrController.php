@@ -58,8 +58,7 @@ class QrController
     /**
      * Generate a catalog QR code with default styling.
      */
-    public function catalog(Request $request, Response $response): Response
-    {
+    public function catalog(Request $request, Response $response): Response {
         $cfg = $this->config->getConfig();
         try {
             $out = $this->qrService->generateCatalog($request->getQueryParams(), $cfg);
@@ -77,8 +76,7 @@ class QrController
     /**
      * Generate a team QR code with default styling using QrCodeService defaults.
      */
-    public function team(Request $request, Response $response): Response
-    {
+    public function team(Request $request, Response $response): Response {
         $cfg = $this->config->getConfig();
         try {
             $out = $this->qrService->generateTeam($request->getQueryParams(), $cfg);
@@ -96,8 +94,7 @@ class QrController
     /**
      * Generate an event QR code with default styling.
      */
-    public function event(Request $request, Response $response): Response
-    {
+    public function event(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $event = (string)($params['event'] ?? '');
         if ($event === '') {
@@ -124,8 +121,7 @@ class QrController
     /**
      * Render a QR code image based on query parameters.
      */
-    public function image(Request $request, Response $response): Response
-    {
+    public function image(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $text = (string)($params['t'] ?? '?');
         if ($text === '') {
@@ -161,8 +157,7 @@ class QrController
     /**
      * Render a PDF containing the QR code.
      */
-    public function pdf(Request $request, Response $response): Response
-    {
+    public function pdf(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $team   = (string)($params['t'] ?? '');
         if ($team === '') {
@@ -261,8 +256,7 @@ class QrController
     /**
      * Render a PDF with invitations for all teams.
      */
-    public function pdfAll(Request $request, Response $response): Response
-    {
+    public function pdfAll(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $teams = $this->teams->getAll();
         if ($teams === []) {
@@ -366,8 +360,7 @@ class QrController
             ->withHeader('Content-Disposition', 'inline; filename="invites.pdf"');
     }
 
-    private function errorResponse(Response $response): Response
-    {
+    private function errorResponse(Response $response): Response {
         $response->getBody()->write('Failed to generate QR code');
         return $response->withHeader('Content-Type', 'text/plain')->withStatus(500);
     }
@@ -376,8 +369,7 @@ class QrController
      * Convert a UTF-8 string to the Windows-1252 encoding used by FPDF.
      * Unsupported characters are approximated or omitted.
      */
-    private function sanitizePdfText(string $text): string
-    {
+    private function sanitizePdfText(string $text): string {
         $converted = @iconv('UTF-8', 'CP1252//TRANSLIT', $text);
         if ($converted === false) {
             // Fallback: replace any byte outside the ASCII range
@@ -406,8 +398,7 @@ class QrController
         $this->renderHtmlNode($pdf, $doc->documentElement);
     }
 
-    private function renderHtmlNode(FPDF $pdf, \DOMNode $node): void
-    {
+    private function renderHtmlNode(FPDF $pdf, \DOMNode $node): void {
         foreach ($node->childNodes as $child) {
             if ($child instanceof \DOMText) {
                 $text = $this->sanitizePdfText($child->nodeValue);

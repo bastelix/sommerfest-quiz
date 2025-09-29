@@ -13,8 +13,7 @@ use PDO;
 
 class TenantWelcomeRouteTest extends TestCase
 {
-    public function testSendWelcomeMail(): void
-    {
+    public function testSendWelcomeMail(): void {
         putenv('MAIN_DOMAIN=example.com');
         $_ENV['MAIN_DOMAIN'] = 'example.com';
         putenv('SMTP_HOST=localhost');
@@ -34,13 +33,11 @@ class TenantWelcomeRouteTest extends TestCase
         $mailer = new class ($twig) extends MailService {
             public array $messages = [];
 
-            protected function createTransport(string $dsn): \Symfony\Component\Mailer\MailerInterface
-            {
+            protected function createTransport(string $dsn): \Symfony\Component\Mailer\MailerInterface {
                 return new class ($this) implements \Symfony\Component\Mailer\MailerInterface {
                     private $outer;
 
-                    public function __construct($outer)
-                    {
+                    public function __construct($outer) {
                         $this->outer = $outer;
                     }
 

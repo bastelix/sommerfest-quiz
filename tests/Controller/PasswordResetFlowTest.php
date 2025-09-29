@@ -13,8 +13,7 @@ use Tests\TestCase;
 
 class PasswordResetFlowTest extends TestCase
 {
-    public function testFullResetFlow(): void
-    {
+    public function testFullResetFlow(): void {
         putenv('PASSWORD_RESET_SECRET=secret');
         $_ENV['PASSWORD_RESET_SECRET'] = 'secret';
         putenv('POSTGRES_DSN=');
@@ -45,12 +44,10 @@ class PasswordResetFlowTest extends TestCase
         {
             public array $sent = [];
 
-            public function __construct()
-            {
+            public function __construct() {
             }
 
-            public function sendPasswordReset(string $to, string $link): void
-            {
+            public function sendPasswordReset(string $to, string $link): void {
                 $this->sent[] = ['to' => $to, 'link' => $link];
             }
         };
@@ -98,8 +95,7 @@ class PasswordResetFlowTest extends TestCase
         $this->assertTrue(password_verify('Str0ngPass1', (string)$updated['password']));
     }
 
-    public function testRejectWeakPassword(): void
-    {
+    public function testRejectWeakPassword(): void {
         putenv('PASSWORD_RESET_SECRET=secret');
         $_ENV['PASSWORD_RESET_SECRET'] = 'secret';
         putenv('POSTGRES_DSN=');
@@ -123,12 +119,10 @@ class PasswordResetFlowTest extends TestCase
         {
             public array $sent = [];
 
-            public function __construct()
-            {
+            public function __construct() {
             }
 
-            public function sendPasswordReset(string $to, string $link): void
-            {
+            public function sendPasswordReset(string $to, string $link): void {
                 $this->sent[] = ['to' => $to, 'link' => $link];
             }
         };
@@ -166,8 +160,7 @@ class PasswordResetFlowTest extends TestCase
         $this->assertTrue(password_verify('oldpass', (string)$updated['password']));
     }
 
-    public function testRejectMismatchedPasswords(): void
-    {
+    public function testRejectMismatchedPasswords(): void {
         putenv('PASSWORD_RESET_SECRET=secret');
         $_ENV['PASSWORD_RESET_SECRET'] = 'secret';
         putenv('POSTGRES_DSN=');
@@ -191,12 +184,10 @@ class PasswordResetFlowTest extends TestCase
         {
             public array $sent = [];
 
-            public function __construct()
-            {
+            public function __construct() {
             }
 
-            public function sendPasswordReset(string $to, string $link): void
-            {
+            public function sendPasswordReset(string $to, string $link): void {
                 $this->sent[] = ['to' => $to, 'link' => $link];
             }
         };
@@ -234,8 +225,7 @@ class PasswordResetFlowTest extends TestCase
         $this->assertTrue(password_verify('oldpass', (string)$updated['password']));
     }
 
-    public function testRejectMissingPasswordRepeat(): void
-    {
+    public function testRejectMissingPasswordRepeat(): void {
         putenv('PASSWORD_RESET_SECRET=secret');
         $_ENV['PASSWORD_RESET_SECRET'] = 'secret';
         putenv('POSTGRES_DSN=');
@@ -259,12 +249,10 @@ class PasswordResetFlowTest extends TestCase
         {
             public array $sent = [];
 
-            public function __construct()
-            {
+            public function __construct() {
             }
 
-            public function sendPasswordReset(string $to, string $link): void
-            {
+            public function sendPasswordReset(string $to, string $link): void {
                 $this->sent[] = ['to' => $to, 'link' => $link];
             }
         };

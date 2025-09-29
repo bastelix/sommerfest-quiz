@@ -10,8 +10,7 @@ use Tests\TestCase;
 
 class OnboardingEmailControllerTest extends TestCase
 {
-    public function testPostRequiresCsrfToken(): void
-    {
+    public function testPostRequiresCsrfToken(): void {
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['csrf_token'] = 'tok';
@@ -25,12 +24,10 @@ class OnboardingEmailControllerTest extends TestCase
         $request = $request->withAttribute(
             'mailService',
             new class extends MailService {
-                public function __construct()
-                {
+                public function __construct() {
                 }
 
-                public function sendDoubleOptIn(string $to, string $link): void
-                {
+                public function sendDoubleOptIn(string $to, string $link): void {
                 }
             }
         );
@@ -40,8 +37,7 @@ class OnboardingEmailControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testPostRespectsRateLimitAndCsrf(): void
-    {
+    public function testPostRespectsRateLimitAndCsrf(): void {
         $app = $this->getAppInstance();
         $pdo = Database::connectFromEnv();
         $pdo->exec(
@@ -66,11 +62,9 @@ class OnboardingEmailControllerTest extends TestCase
 
         $mailer = new class extends MailService {
             public array $sent = [];
-            public function __construct()
-            {
+            public function __construct() {
             }
-            public function sendDoubleOptIn(string $to, string $link): void
-            {
+            public function sendDoubleOptIn(string $to, string $link): void {
                 $this->sent[] = [$to, $link];
             }
         };
@@ -97,8 +91,7 @@ class OnboardingEmailControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testPostRejectsInvalidEmailAddress(): void
-    {
+    public function testPostRejectsInvalidEmailAddress(): void {
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['csrf_token'] = 'tok';
@@ -118,8 +111,7 @@ class OnboardingEmailControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testPostAcceptsTrimmedValidEmail(): void
-    {
+    public function testPostAcceptsTrimmedValidEmail(): void {
         $app = $this->getAppInstance();
         $this->setupEmailConfirmations();
         session_start();
@@ -128,11 +120,9 @@ class OnboardingEmailControllerTest extends TestCase
 
         $mailer = new class extends MailService {
             public array $sent = [];
-            public function __construct()
-            {
+            public function __construct() {
             }
-            public function sendDoubleOptIn(string $to, string $link): void
-            {
+            public function sendDoubleOptIn(string $to, string $link): void {
                 $this->sent[] = [$to, $link];
             }
         };
@@ -154,8 +144,7 @@ class OnboardingEmailControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testTokenCreationStoresTokenAndSendsMail(): void
-    {
+    public function testTokenCreationStoresTokenAndSendsMail(): void {
         $app = $this->getAppInstance();
         $pdo = $this->setupEmailConfirmations();
         session_start();
@@ -164,11 +153,9 @@ class OnboardingEmailControllerTest extends TestCase
 
         $mailer = new class extends MailService {
             public array $sent = [];
-            public function __construct()
-            {
+            public function __construct() {
             }
-            public function sendDoubleOptIn(string $to, string $link): void
-            {
+            public function sendDoubleOptIn(string $to, string $link): void {
                 $this->sent[] = [$to, $link];
             }
         };
@@ -197,8 +184,7 @@ class OnboardingEmailControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testLinkUsesForwardedHeaders(): void
-    {
+    public function testLinkUsesForwardedHeaders(): void {
         $app = $this->getAppInstance();
         $pdo = $this->setupEmailConfirmations();
         session_start();
@@ -207,11 +193,9 @@ class OnboardingEmailControllerTest extends TestCase
 
         $mailer = new class extends MailService {
             public array $sent = [];
-            public function __construct()
-            {
+            public function __construct() {
             }
-            public function sendDoubleOptIn(string $to, string $link): void
-            {
+            public function sendDoubleOptIn(string $to, string $link): void {
                 $this->sent[] = [$to, $link];
             }
         };
@@ -238,8 +222,7 @@ class OnboardingEmailControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testLinkAndRedirectRespectBasePath(): void
-    {
+    public function testLinkAndRedirectRespectBasePath(): void {
         $oldBase = getenv('BASE_PATH');
         putenv('BASE_PATH=/base');
         $_ENV['BASE_PATH'] = '/base';
@@ -252,11 +235,9 @@ class OnboardingEmailControllerTest extends TestCase
 
         $mailer = new class extends MailService {
             public array $sent = [];
-            public function __construct()
-            {
+            public function __construct() {
             }
-            public function sendDoubleOptIn(string $to, string $link): void
-            {
+            public function sendDoubleOptIn(string $to, string $link): void {
                 $this->sent[] = [$to, $link];
             }
         };
@@ -297,8 +278,7 @@ class OnboardingEmailControllerTest extends TestCase
         }
     }
 
-    public function testConfirmValidAndInvalidTokens(): void
-    {
+    public function testConfirmValidAndInvalidTokens(): void {
         $app = $this->getAppInstance();
         $pdo = $this->setupEmailConfirmations();
         session_start();
@@ -306,11 +286,9 @@ class OnboardingEmailControllerTest extends TestCase
         unset($_SESSION['rate:/onboarding/email']);
 
         $mailer = new class extends MailService {
-            public function __construct()
-            {
+            public function __construct() {
             }
-            public function sendDoubleOptIn(string $to, string $link): void
-            {
+            public function sendDoubleOptIn(string $to, string $link): void {
             }
         };
         $request = $this->createRequest('POST', '/onboarding/email', [
@@ -343,19 +321,16 @@ class OnboardingEmailControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testStatusEndpointReturns404AfterTokenRemoval(): void
-    {
+    public function testStatusEndpointReturns404AfterTokenRemoval(): void {
         $app = $this->getAppInstance();
         $pdo = $this->setupEmailConfirmations();
         session_start();
         $_SESSION['csrf_token'] = 'tok';
 
         $mailer = new class extends MailService {
-            public function __construct()
-            {
+            public function __construct() {
             }
-            public function sendDoubleOptIn(string $to, string $link): void
-            {
+            public function sendDoubleOptIn(string $to, string $link): void {
             }
         };
         $request = $this->createRequest('POST', '/onboarding/email', [
@@ -383,8 +358,7 @@ class OnboardingEmailControllerTest extends TestCase
         session_destroy();
     }
 
-    private function setupEmailConfirmations(): \PDO
-    {
+    private function setupEmailConfirmations(): \PDO {
         $pdo = Database::connectFromEnv();
         $pdo->exec('DROP TABLE IF EXISTS email_confirmations');
         $pdo->exec(

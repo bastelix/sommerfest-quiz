@@ -12,8 +12,7 @@ use Slim\Psr7\Response;
 
 class CatalogControllerTest extends TestCase
 {
-    public function testGetNotFound(): void
-    {
+    public function testGetNotFound(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
@@ -62,8 +61,7 @@ class CatalogControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testRedirectIncludesEvent(): void
-    {
+    public function testRedirectIncludesEvent(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
@@ -116,8 +114,7 @@ class CatalogControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testPostAndGet(): void
-    {
+    public function testPostAndGet(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
@@ -190,8 +187,7 @@ class CatalogControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testCreateAndDelete(): void
-    {
+    public function testCreateAndDelete(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
@@ -269,8 +265,7 @@ class CatalogControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testDeleteQuestion(): void
-    {
+    public function testDeleteQuestion(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');
@@ -330,8 +325,7 @@ class CatalogControllerTest extends TestCase
         session_destroy();
     }
 
-    public function testPostInvalidJson(): void
-    {
+    public function testPostInvalidJson(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');

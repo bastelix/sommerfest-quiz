@@ -21,13 +21,11 @@ class RoleAuthMiddleware implements MiddlewareInterface
      */
     private array $roles;
 
-    public function __construct(string ...$roles)
-    {
+    public function __construct(string ...$roles) {
         $this->roles = $roles;
     }
 
-    public function process(Request $request, RequestHandler $handler): Response
-    {
+    public function process(Request $request, RequestHandler $handler): Response {
         if ($this->roles === []) {
             return $handler->handle($request);
         }

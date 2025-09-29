@@ -28,8 +28,7 @@ class TurnstileVerificationService
         $this->logger = $logger ?? new NullLogger();
     }
 
-    public function verify(?string $token, ?string $ip = null): bool
-    {
+    public function verify(?string $token, ?string $ip = null): bool {
         if (!$this->config->isEnabled()) {
             return true;
         }

@@ -15,13 +15,11 @@ class CatalogDesignController
 {
     private CatalogService $catalogs;
 
-    public function __construct(CatalogService $catalogs)
-    {
+    public function __construct(CatalogService $catalogs) {
         $this->catalogs = $catalogs;
     }
 
-    public function get(Request $request, Response $response): Response
-    {
+    public function get(Request $request, Response $response): Response {
         $slug = (string)$request->getAttribute('slug');
         $path = $this->catalogs->getDesignPath($slug);
         if ($path === null || $path === '') {
@@ -35,8 +33,7 @@ class CatalogDesignController
         return $response->withHeader('Content-Type', 'application/pdf');
     }
 
-    public function post(Request $request, Response $response): Response
-    {
+    public function post(Request $request, Response $response): Response {
         $slug = (string)$request->getAttribute('slug');
         $files = $request->getUploadedFiles();
         if (!isset($files['file'])) {

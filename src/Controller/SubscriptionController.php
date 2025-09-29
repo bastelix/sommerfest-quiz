@@ -16,8 +16,7 @@ use Stripe\StripeClient;
  */
 class SubscriptionController
 {
-    public function __invoke(Request $request, Response $response): Response
-    {
+    public function __invoke(Request $request, Response $response): Response {
         $host = $request->getUri()->getHost();
         $parts = explode('.', $host);
         $mainDomain = getenv('MAIN_DOMAIN') ?: $host;

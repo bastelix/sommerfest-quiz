@@ -11,8 +11,7 @@ use Tests\TestCase;
 
 class EventServiceTest extends TestCase
 {
-    private function createPdo(): PDO
-    {
+    private function createPdo(): PDO {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -47,8 +46,7 @@ class EventServiceTest extends TestCase
         return $pdo;
     }
 
-    public function testSaveAndGet(): void
-    {
+    public function testSaveAndGet(): void {
         $pdo = $this->createPdo();
         $service = new EventService($pdo);
         $data = [
@@ -71,8 +69,7 @@ class EventServiceTest extends TestCase
         $this->assertTrue($rows[0]['published']);
     }
 
-    public function testGetAllFormatsDates(): void
-    {
+    public function testGetAllFormatsDates(): void {
         $pdo = $this->createPdo();
         $pdo->exec(
             "INSERT INTO events(uid,slug,name,start_date,end_date) " .
@@ -84,8 +81,7 @@ class EventServiceTest extends TestCase
         $this->assertSame('2025-07-04T20:00', $rows[0]['end_date']);
     }
 
-    public function testGetByUid(): void
-    {
+    public function testGetByUid(): void {
         $pdo = $this->createPdo();
         $service = new EventService($pdo);
         $uid = 'uid123';
@@ -95,8 +91,7 @@ class EventServiceTest extends TestCase
         $this->assertSame('Eins', $row['name']);
     }
 
-    public function testActiveEventIsSetWhenSingleEvent(): void
-    {
+    public function testActiveEventIsSetWhenSingleEvent(): void {
         $pdo = $this->createPdo();
         $svc = new EventService($pdo);
         $svc->saveAll([[ 'uid' => 'e1', 'name' => 'Single' ]]);
@@ -104,8 +99,7 @@ class EventServiceTest extends TestCase
         $this->assertSame('e1', $uid);
     }
 
-    public function testActiveEventNotTouchedWithMultipleEvents(): void
-    {
+    public function testActiveEventNotTouchedWithMultipleEvents(): void {
         $pdo = $this->createPdo();
         $svc = new EventService($pdo);
         $svc->saveAll([
@@ -116,8 +110,7 @@ class EventServiceTest extends TestCase
         $this->assertSame(0, $count);
     }
 
-    public function testSaveAllRespectsStarterLimit(): void
-    {
+    public function testSaveAllRespectsStarterLimit(): void {
         $pdo = $this->createPdo();
         $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t1','sub1','starter')");
         $tenantSvc = new TenantService($pdo);
@@ -132,8 +125,7 @@ class EventServiceTest extends TestCase
         ]);
     }
 
-    public function testSaveAllRespectsStandardLimit(): void
-    {
+    public function testSaveAllRespectsStandardLimit(): void {
         $pdo = $this->createPdo();
         $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t2','sub2','standard')");
         $tenantSvc = new TenantService($pdo);
@@ -150,8 +142,7 @@ class EventServiceTest extends TestCase
         ]);
     }
 
-    public function testCustomLimitOverridesPlan(): void
-    {
+    public function testCustomLimitOverridesPlan(): void {
         $pdo = $this->createPdo();
         $pdo->exec(
             "INSERT INTO tenants(uid, subdomain, plan, custom_limits) " .
@@ -175,8 +166,7 @@ class EventServiceTest extends TestCase
         ]);
     }
 
-    public function testSaveAllAllowsReplacementAtLimit(): void
-    {
+    public function testSaveAllAllowsReplacementAtLimit(): void {
         $pdo = $this->createPdo();
         $pdo->exec("INSERT INTO tenants(uid, subdomain, plan) VALUES('t4','sub4','professional')");
         $tenantSvc = new TenantService($pdo);
@@ -197,8 +187,7 @@ class EventServiceTest extends TestCase
         $this->assertSame(20, $count);
     }
 
-    public function testDraftEventsAreIgnoredOnSave(): void
-    {
+    public function testDraftEventsAreIgnoredOnSave(): void {
         $pdo = $this->createPdo();
         $service = new EventService($pdo);
 
@@ -213,8 +202,7 @@ class EventServiceTest extends TestCase
         ], $rows);
     }
 
-    public function testDraftOnlyPayloadKeepsExistingEvents(): void
-    {
+    public function testDraftOnlyPayloadKeepsExistingEvents(): void {
         $pdo = $this->createPdo();
         $service = new EventService($pdo);
 
@@ -233,8 +221,7 @@ class EventServiceTest extends TestCase
         ], $rows);
     }
 
-    public function testGetBySlugAndUidBySlug(): void
-    {
+    public function testGetBySlugAndUidBySlug(): void {
         $pdo = $this->createPdo();
         $service = new EventService($pdo);
         $uid = str_repeat('a', 32);

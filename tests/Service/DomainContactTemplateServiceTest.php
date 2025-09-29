@@ -10,8 +10,7 @@ use Tests\TestCase;
 
 class DomainContactTemplateServiceTest extends TestCase
 {
-    public function testSaveAndRetrieveTemplates(): void
-    {
+    public function testSaveAndRetrieveTemplates(): void {
         $pdo = $this->createDatabase();
         $domainService = new DomainStartPageService($pdo);
         $service = new DomainContactTemplateService($pdo, $domainService);

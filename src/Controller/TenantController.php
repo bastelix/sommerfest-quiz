@@ -18,14 +18,12 @@ class TenantController
     private TenantService $service;
     private bool $displayErrors;
 
-    public function __construct(TenantService $service, bool $displayErrors = false)
-    {
+    public function __construct(TenantService $service, bool $displayErrors = false) {
         $this->service = $service;
         $this->displayErrors = $displayErrors;
     }
 
-    public function create(Request $request, Response $response): Response
-    {
+    public function create(Request $request, Response $response): Response {
         $data = json_decode((string) $request->getBody(), true);
         if (!is_array($data) || !isset($data['uid'], $data['schema'])) {
             return $response->withStatus(400);
@@ -87,8 +85,7 @@ class TenantController
         return $response->withStatus(201);
     }
 
-    public function delete(Request $request, Response $response): Response
-    {
+    public function delete(Request $request, Response $response): Response {
         $data = json_decode((string) $request->getBody(), true);
         if (!is_array($data) || !isset($data['uid'])) {
             return $response->withStatus(400);
@@ -100,8 +97,7 @@ class TenantController
     /**
      * Check if a tenant with the given subdomain already exists.
      */
-    public function exists(Request $request, Response $response, array $args): Response
-    {
+    public function exists(Request $request, Response $response, array $args): Response {
         $sub = (string) ($args['subdomain'] ?? '');
         return $this->service->exists($sub)
             ? $response->withStatus(200)
@@ -111,8 +107,7 @@ class TenantController
     /**
      * Import missing tenants by scanning available schemas.
      */
-    public function sync(Request $request, Response $response): Response
-    {
+    public function sync(Request $request, Response $response): Response {
         try {
             $count = $this->service->importMissing();
             $response->getBody()->write(json_encode(['imported' => $count]));
@@ -130,8 +125,7 @@ class TenantController
     /**
      * Export tenant list as CSV file.
      */
-    public function export(Request $request, Response $response): Response
-    {
+    public function export(Request $request, Response $response): Response {
         $tenants = $this->service->getAll();
         $handle = fopen('php://temp', 'r+');
         fputcsv($handle, ['subdomain', 'plan', 'billing', 'email', 'created_at']);
@@ -156,8 +150,7 @@ class TenantController
     /**
      * List all tenants as JSON.
      */
-    public function list(Request $request, Response $response): Response
-    {
+    public function list(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $query = isset($params['query']) ? (string) $params['query'] : '';
         $list = $this->service->getAll($query);
@@ -168,8 +161,7 @@ class TenantController
     /**
      * Render tenant list as HTML.
      */
-    public function listHtml(Request $request, Response $response): Response
-    {
+    public function listHtml(Request $request, Response $response): Response {
         $params = $request->getQueryParams();
         $status = isset($params['status']) ? (string) $params['status'] : '';
         $query = isset($params['query']) ? (string) $params['query'] : '';
@@ -200,8 +192,7 @@ class TenantController
     /**
      * Provide a simple tenant report as CSV with plan counts.
      */
-    public function report(Request $request, Response $response): Response
-    {
+    public function report(Request $request, Response $response): Response {
         $tenants = $this->service->getAll();
         $stats = [];
         foreach ($tenants as $row) {

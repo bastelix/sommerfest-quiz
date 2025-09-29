@@ -13,8 +13,7 @@ class SettingsService
 {
     private PDO $pdo;
 
-    public function __construct(PDO $pdo)
-    {
+    public function __construct(PDO $pdo) {
         $this->pdo = $pdo;
     }
 
@@ -23,8 +22,7 @@ class SettingsService
      *
      * @return array<string,string>
      */
-    public function getAll(): array
-    {
+    public function getAll(): array {
         $stmt = $this->pdo->query('SELECT key, value FROM settings');
         return $stmt->fetchAll(PDO::FETCH_KEY_PAIR) ?: [];
     }
@@ -32,8 +30,7 @@ class SettingsService
     /**
      * Get a single setting value or default if none exists.
      */
-    public function get(string $key, ?string $default = null): ?string
-    {
+    public function get(string $key, ?string $default = null): ?string {
         $stmt = $this->pdo->prepare('SELECT value FROM settings WHERE key=?');
         $stmt->execute([$key]);
         $val = $stmt->fetchColumn();
@@ -48,8 +45,7 @@ class SettingsService
      *
      * @param array<string,string> $data
      */
-    public function save(array $data): void
-    {
+    public function save(array $data): void {
         $this->pdo->beginTransaction();
         $stmt = $this->pdo->prepare(
             'INSERT INTO settings(key,value) VALUES(?,?) '

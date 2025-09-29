@@ -16,8 +16,7 @@ use Slim\Views\Twig;
  */
 class LizenzController
 {
-    public function __invoke(Request $request, Response $response): Response
-    {
+    public function __invoke(Request $request, Response $response): Response {
         $service = new PageService();
         $html = $service->get('lizenz');
         if ($html === null) {

@@ -13,8 +13,7 @@ class AuditLogger
 {
     private PDO $pdo;
 
-    public function __construct(PDO $pdo)
-    {
+    public function __construct(PDO $pdo) {
         $this->pdo = $pdo;
     }
 
@@ -24,8 +23,7 @@ class AuditLogger
      * @param string               $action  Name of the action.
      * @param array<string,mixed>  $context Additional context information.
      */
-    public function log(string $action, array $context = []): void
-    {
+    public function log(string $action, array $context = []): void {
         $json = json_encode($context);
         $driver = $this->pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
         $sql = $driver === 'pgsql'

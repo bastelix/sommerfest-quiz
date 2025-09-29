@@ -11,8 +11,7 @@ use Tests\TestCase;
 
 class PhotoConsentServiceTest extends TestCase
 {
-    public function testAddConsentAppendsEntry(): void
-    {
+    public function testAddConsentAppendsEntry(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -38,8 +37,7 @@ class PhotoConsentServiceTest extends TestCase
         $this->assertSame(456, (int)$data[1]['time']);
     }
 
-    public function testGetAllReturnsStoredConsents(): void
-    {
+    public function testGetAllReturnsStoredConsents(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -65,8 +63,7 @@ class PhotoConsentServiceTest extends TestCase
         $this->assertSame(2, (int)$data[1]['time']);
     }
 
-    public function testAddStoresEventUid(): void
-    {
+    public function testAddStoresEventUid(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -88,8 +85,7 @@ class PhotoConsentServiceTest extends TestCase
         $this->assertSame('ev1', $uid);
     }
 
-    public function testGetAllFiltersByEventUid(): void
-    {
+    public function testGetAllFiltersByEventUid(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(
@@ -113,8 +109,7 @@ class PhotoConsentServiceTest extends TestCase
         $this->assertSame('A', $rows[0]['team']);
     }
 
-    public function testSaveAllReplacesOnlyCurrentEvent(): void
-    {
+    public function testSaveAllReplacesOnlyCurrentEvent(): void {
         $pdo = new PDO('sqlite::memory:');
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->exec(

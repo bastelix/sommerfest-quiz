@@ -14,8 +14,7 @@ use Tests\TestCase;
 
 class TeamControllerTest extends TestCase
 {
-    public function testPostExceedingTeamLimitReturns402(): void
-    {
+    public function testPostExceedingTeamLimitReturns402(): void {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('e1','e1','Event1')");
         $pdo->exec("INSERT INTO config(event_uid) VALUES('e1')");

@@ -14,8 +14,7 @@ use Slim\Psr7\Response;
 
 class DomainMiddlewareTest extends TestCase
 {
-    public function testWwwHostTreatedAsMain(): void
-    {
+    public function testWwwHostTreatedAsMain(): void {
         $old = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main-domain.tld');
         $oldMarketing = getenv('MARKETING_DOMAINS');
@@ -28,8 +27,7 @@ class DomainMiddlewareTest extends TestCase
         $handler = new class implements RequestHandlerInterface {
             public ?Request $request = null;
 
-            public function handle(Request $request): ResponseInterface
-            {
+            public function handle(Request $request): ResponseInterface {
                 $this->request = $request;
                 return new Response();
             }
@@ -42,8 +40,7 @@ class DomainMiddlewareTest extends TestCase
         $this->restoreEnv('MARKETING_DOMAINS', $oldMarketing);
     }
 
-    public function testAdminHostTreatedAsMain(): void
-    {
+    public function testAdminHostTreatedAsMain(): void {
         $old = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main-domain.tld');
         $oldMarketing = getenv('MARKETING_DOMAINS');
@@ -56,8 +53,7 @@ class DomainMiddlewareTest extends TestCase
         $handler = new class implements RequestHandlerInterface {
             public ?Request $request = null;
 
-            public function handle(Request $request): ResponseInterface
-            {
+            public function handle(Request $request): ResponseInterface {
                 $this->request = $request;
                 return new Response();
             }
@@ -70,8 +66,7 @@ class DomainMiddlewareTest extends TestCase
         $this->restoreEnv('MARKETING_DOMAINS', $oldMarketing);
     }
 
-    public function testMissingMainDomainReturnsError(): void
-    {
+    public function testMissingMainDomainReturnsError(): void {
         $old = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN');
         $oldMarketing = getenv('MARKETING_DOMAINS');
@@ -85,8 +80,7 @@ class DomainMiddlewareTest extends TestCase
         $handler = new class implements RequestHandlerInterface {
             public bool $handled = false;
 
-            public function handle(Request $request): ResponseInterface
-            {
+            public function handle(Request $request): ResponseInterface {
                 $this->handled = true;
                 return new Response();
             }
@@ -106,8 +100,7 @@ class DomainMiddlewareTest extends TestCase
         $this->restoreEnv('MARKETING_DOMAINS', $oldMarketing);
     }
 
-    public function testInvalidMainDomainReturnsError(): void
-    {
+    public function testInvalidMainDomainReturnsError(): void {
         $old = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main-domain.tld');
         $oldMarketing = getenv('MARKETING_DOMAINS');
@@ -121,8 +114,7 @@ class DomainMiddlewareTest extends TestCase
         $handler = new class implements RequestHandlerInterface {
             public bool $handled = false;
 
-            public function handle(Request $request): ResponseInterface
-            {
+            public function handle(Request $request): ResponseInterface {
                 $this->handled = true;
                 return new Response();
             }
@@ -142,8 +134,7 @@ class DomainMiddlewareTest extends TestCase
         $this->restoreEnv('MARKETING_DOMAINS', $oldMarketing);
     }
 
-    public function testInvalidMainDomainReturnsHtmlError(): void
-    {
+    public function testInvalidMainDomainReturnsHtmlError(): void {
         $old = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main-domain.tld');
         $oldMarketing = getenv('MARKETING_DOMAINS');
@@ -156,8 +147,7 @@ class DomainMiddlewareTest extends TestCase
         $handler = new class implements RequestHandlerInterface {
             public bool $handled = false;
 
-            public function handle(Request $request): ResponseInterface
-            {
+            public function handle(Request $request): ResponseInterface {
                 $this->handled = true;
                 return new Response();
             }
@@ -174,8 +164,7 @@ class DomainMiddlewareTest extends TestCase
         $this->restoreEnv('MARKETING_DOMAINS', $oldMarketing);
     }
 
-    public function testMarketingDomainAllowed(): void
-    {
+    public function testMarketingDomainAllowed(): void {
         $oldMain = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main-domain.tld');
         $oldMarketing = getenv('MARKETING_DOMAINS');
@@ -188,8 +177,7 @@ class DomainMiddlewareTest extends TestCase
         $handler = new class implements RequestHandlerInterface {
             public ?Request $request = null;
 
-            public function handle(Request $request): ResponseInterface
-            {
+            public function handle(Request $request): ResponseInterface {
                 $this->request = $request;
                 return new Response();
             }
@@ -203,8 +191,7 @@ class DomainMiddlewareTest extends TestCase
         $this->restoreEnv('MARKETING_DOMAINS', $oldMarketing);
     }
 
-    public function testMarketingDomainWithWwwAllowed(): void
-    {
+    public function testMarketingDomainWithWwwAllowed(): void {
         $oldMain = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main-domain.tld');
         $oldMarketing = getenv('MARKETING_DOMAINS');
@@ -217,8 +204,7 @@ class DomainMiddlewareTest extends TestCase
         $handler = new class implements RequestHandlerInterface {
             public ?Request $request = null;
 
-            public function handle(Request $request): ResponseInterface
-            {
+            public function handle(Request $request): ResponseInterface {
                 $this->request = $request;
                 return new Response();
             }
@@ -232,8 +218,7 @@ class DomainMiddlewareTest extends TestCase
         $this->restoreEnv('MARKETING_DOMAINS', $oldMarketing);
     }
 
-    private function restoreEnv(string $variable, mixed $value): void
-    {
+    private function restoreEnv(string $variable, mixed $value): void {
         if ($value === false || $value === null) {
             putenv($variable);
             return;

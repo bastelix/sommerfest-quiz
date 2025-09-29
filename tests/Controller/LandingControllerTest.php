@@ -8,8 +8,7 @@ use Tests\TestCase;
 
 class LandingControllerTest extends TestCase
 {
-    protected function setUp(): void
-    {
+    protected function setUp(): void {
         parent::setUp();
         $pdo = $this->getDatabase();
         try {
@@ -24,16 +23,14 @@ HTML;
         }
     }
 
-    public function testLandingPage(): void
-    {
+    public function testLandingPage(): void {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/landing');
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
     }
 
-    public function testLandingPageTenant(): void
-    {
+    public function testLandingPageTenant(): void {
         $old = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main.test');
         $app = $this->getAppInstance();
@@ -48,8 +45,7 @@ HTML;
         }
     }
 
-    public function testContactFormHiddenWhenMailConfigMissing(): void
-    {
+    public function testContactFormHiddenWhenMailConfigMissing(): void {
         $host = getenv('SMTP_HOST');
         $user = getenv('SMTP_USER');
         $pass = getenv('SMTP_PASS');
@@ -81,8 +77,7 @@ HTML;
         }
     }
 
-    public function testContactFormVisibleWhenMailConfigured(): void
-    {
+    public function testContactFormVisibleWhenMailConfigured(): void {
         putenv('SMTP_HOST=localhost');
         putenv('SMTP_USER=user@example.org');
         putenv('SMTP_PASS=secret');
@@ -105,8 +100,7 @@ HTML;
         unset($_ENV['SMTP_HOST'], $_ENV['SMTP_USER'], $_ENV['SMTP_PASS']);
     }
 
-    public function testLandingPageIncludesTurnstileWidgetWhenConfigured(): void
-    {
+    public function testLandingPageIncludesTurnstileWidgetWhenConfigured(): void {
         putenv('SMTP_HOST=localhost');
         putenv('SMTP_USER=user@example.org');
         putenv('SMTP_PASS=secret');
@@ -137,8 +131,7 @@ HTML;
         unset($_ENV['TURNSTILE_SITE_KEY'], $_ENV['TURNSTILE_SECRET_KEY']);
     }
 
-    public function testLandingPageContainsFaqLink(): void
-    {
+    public function testLandingPageContainsFaqLink(): void {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/landing');
         $response = $app->handle($request);
@@ -146,8 +139,7 @@ HTML;
         $this->assertStringContainsString('href="/faq"', $body);
     }
 
-    public function testMarketingRouteAliasReturnsLandingPage(): void
-    {
+    public function testMarketingRouteAliasReturnsLandingPage(): void {
         $old = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main.test');
         $app = $this->getAppInstance();
@@ -164,8 +156,7 @@ HTML;
         }
     }
 
-    public function testUnknownMarketingSlugReturns404(): void
-    {
+    public function testUnknownMarketingSlugReturns404(): void {
         $old = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main.test');
         $app = $this->getAppInstance();

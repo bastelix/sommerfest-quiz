@@ -49,8 +49,7 @@ class ProvenExpertRatingService
     private string $cacheFile;
     private string $errorFile;
 
-    public function __construct(?string $apiId = null, ?string $apiKey = null, ?string $cacheDirectory = null)
-    {
+    public function __construct(?string $apiId = null, ?string $apiKey = null, ?string $cacheDirectory = null) {
         $this->apiId = $apiId ?? getenv('PROVENEXPERT_API_ID') ?: '1tmo5LmpmpQpmqGB1xGAiAmZ38zZmV3o';
         $this->apiKey = $apiKey ?? getenv('PROVENEXPERT_API_KEY') ?: 'AGyuLJEzAmx4BJV5LJDjLwEvMQMyLmxjBGuwAmRjBGp';
 
@@ -68,8 +67,7 @@ class ProvenExpertRatingService
         }
     }
 
-    public function getAggregateRatingMarkup(): string
-    {
+    public function getAggregateRatingMarkup(): string {
         $data = $this->loadData();
         if ($data === null) {
             return '';
@@ -88,8 +86,7 @@ class ProvenExpertRatingService
     /**
      * @return array<string,mixed>|null
      */
-    private function loadData(): ?array
-    {
+    private function loadData(): ?array {
         $cached = $this->readCache();
         $cacheFresh = $this->isCacheFresh();
 
@@ -122,8 +119,7 @@ class ProvenExpertRatingService
         return $fallback;
     }
 
-    private function fetch(): ?array
-    {
+    private function fetch(): ?array {
         if (!function_exists('curl_init')) {
             $this->logError('no curl package installed');
             return null;
@@ -163,8 +159,7 @@ class ProvenExpertRatingService
         return $data;
     }
 
-    private function readCache(): ?array
-    {
+    private function readCache(): ?array {
         if (!file_exists($this->cacheFile)) {
             return null;
         }
@@ -178,8 +173,7 @@ class ProvenExpertRatingService
         return is_array($decoded) ? $decoded : null;
     }
 
-    private function writeCache(array $data): void
-    {
+    private function writeCache(array $data): void {
         if (!is_writable($this->cacheFile) && !is_writable(dirname($this->cacheFile))) {
             return;
         }
@@ -192,13 +186,11 @@ class ProvenExpertRatingService
         @file_put_contents($this->cacheFile, $encoded);
     }
 
-    private function touchCache(): void
-    {
+    private function touchCache(): void {
         @touch($this->cacheFile, time() - (int) (self::CACHE_LIFETIME / 10));
     }
 
-    private function isCacheFresh(): bool
-    {
+    private function isCacheFresh(): bool {
         if (!file_exists($this->cacheFile)) {
             return false;
         }
@@ -211,8 +203,7 @@ class ProvenExpertRatingService
         return (time() - $mtime) <= self::CACHE_LIFETIME;
     }
 
-    private function logError(string $message): void
-    {
+    private function logError(string $message): void {
         $log = sprintf('%s [v%s]', $message, self::SCRIPT_VERSION);
         @file_put_contents($this->errorFile, $log);
     }
@@ -220,8 +211,7 @@ class ProvenExpertRatingService
     /**
      * @param resource $handler
      */
-    private function logCurlError($handler): void
-    {
+    private function logCurlError($handler): void {
         $errorMessage = 'curl error';
         $error = curl_error($handler);
         if ($error !== '') {

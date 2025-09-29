@@ -14,8 +14,7 @@ use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
  */
 class ProxyMiddleware implements MiddlewareInterface
 {
-    public function process(Request $request, RequestHandler $handler): Response
-    {
+    public function process(Request $request, RequestHandler $handler): Response {
         $uri = $request->getUri();
 
         $proto = $request->getHeaderLine('X-Forwarded-Proto');

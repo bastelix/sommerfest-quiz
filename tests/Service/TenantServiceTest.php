@@ -11,16 +11,13 @@ use App\Domain\Plan;
 
 class TenantServiceTest extends TestCase
 {
-    private function createService(string $dir, PDO &$pdo, ?\App\Service\NginxService $nginx = null): TenantService
-    {
+    private function createService(string $dir, PDO &$pdo, ?\App\Service\NginxService $nginx = null): TenantService {
         $pdo = new class ('sqlite::memory:') extends PDO {
-            public function __construct(string $dsn)
-            {
+            public function __construct(string $dsn) {
                 parent::__construct($dsn);
             }
 
-            public function exec($statement): int|false
-            {
+            public function exec($statement): int|false {
                 if (
                     preg_match('/^(CREATE|DROP) SCHEMA/i', $statement)
                     || str_starts_with($statement, 'SET search_path')
@@ -68,20 +65,17 @@ SQL;
         file_put_contents($dir . '/20240910_base_schema.sql', $sql);
         if ($nginx === null) {
             $nginx = new class extends \App\Service\NginxService {
-                public function __construct()
-                {
+                public function __construct() {
                 }
 
-                public function createVhost(string $sub): void
-                {
+                public function createVhost(string $sub): void {
                 }
             };
         }
         return new TenantService($pdo, $dir, $nginx);
     }
 
-    public function testCreateTenantInsertsRow(): void
-    {
+    public function testCreateTenantInsertsRow(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
@@ -92,8 +86,7 @@ SQL;
         $this->assertSame('u1@example.com', $email);
     }
 
-    public function testCreateTenantRunsMigrations(): void
-    {
+    public function testCreateTenantRunsMigrations(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
@@ -102,8 +95,7 @@ SQL;
         $this->assertContains('20240910_base_schema.sql', $applied);
     }
 
-    public function testDeleteTenantRemovesRow(): void
-    {
+    public function testDeleteTenantRemovesRow(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
@@ -113,8 +105,7 @@ SQL;
         $this->assertSame(0, $count);
     }
 
-    public function testCreateAndDeleteSequence(): void
-    {
+    public function testCreateAndDeleteSequence(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
@@ -124,8 +115,7 @@ SQL;
         $this->assertSame(0, (int) $pdo->query('SELECT COUNT(*) FROM tenants')->fetchColumn());
     }
 
-    public function testGetAllFiltersByQuery(): void
-    {
+    public function testGetAllFiltersByQuery(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
@@ -142,17 +132,14 @@ SQL;
         $this->assertSame('beta', $list[0]['subdomain']);
     }
 
-    public function testCreateTenantThrowsOnNginxFailure(): void
-    {
+    public function testCreateTenantThrowsOnNginxFailure(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $nginx = new class extends \App\Service\NginxService {
-            public function __construct()
-            {
+            public function __construct() {
             }
 
-            public function createVhost(string $sub): void
-            {
+            public function createVhost(string $sub): void {
                 throw new \RuntimeException('reload failed');
             }
         };
@@ -165,8 +152,7 @@ SQL;
         $service->createTenant('u4', 's4');
     }
 
-    public function testCreateTenantFailsOnDuplicate(): void
-    {
+    public function testCreateTenantFailsOnDuplicate(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
@@ -178,25 +164,21 @@ SQL;
         $service->createTenant('u5b', 'dup');
     }
 
-    public function testExistsReturnsTrueForReserved(): void
-    {
+    public function testExistsReturnsTrueForReserved(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
         $this->assertTrue($service->exists('www'));
     }
 
-    public function testExistsReturnsFalseIfOnlySchemaExists(): void
-    {
+    public function testExistsReturnsFalseIfOnlySchemaExists(): void {
         $pdo = new class ('sqlite::memory:') extends PDO
         {
-            public function __construct($dsn)
-            {
+            public function __construct($dsn) {
                 parent::__construct($dsn);
             }
 
-            public function getAttribute($attr): mixed
-            {
+            public function getAttribute($attr): mixed {
                 if ($attr === PDO::ATTR_DRIVER_NAME) {
                     return 'pgsql';
                 }
@@ -212,17 +194,14 @@ SQL;
         $this->assertFalse($service->exists('orphan'));
     }
 
-    public function testExistsReturnsTrueIfTablesExist(): void
-    {
+    public function testExistsReturnsTrueIfTablesExist(): void {
         $pdo = new class ('sqlite::memory:') extends PDO
         {
-            public function __construct($dsn)
-            {
+            public function __construct($dsn) {
                 parent::__construct($dsn);
             }
 
-            public function getAttribute($attr): mixed
-            {
+            public function getAttribute($attr): mixed {
                 if ($attr === PDO::ATTR_DRIVER_NAME) {
                     return 'pgsql';
                 }
@@ -238,8 +217,7 @@ SQL;
         $this->assertTrue($service->exists('busy'));
     }
 
-    public function testCreateTenantFailsOnReserved(): void
-    {
+    public function testCreateTenantFailsOnReserved(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
@@ -250,8 +228,7 @@ SQL;
         $service->createTenant('uid', 'www');
     }
 
-    public function testGetBySubdomainReturnsTenant(): void
-    {
+    public function testGetBySubdomainReturnsTenant(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
@@ -265,8 +242,7 @@ SQL;
         $this->assertSame('sub', $row['subdomain']);
     }
 
-    public function testCreateTenantRejectsInvalidPlan(): void
-    {
+    public function testCreateTenantRejectsInvalidPlan(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
@@ -277,8 +253,7 @@ SQL;
         $service->createTenant('u7', 'sub7', 'unknown');
     }
 
-    public function testUpdateProfileRejectsInvalidPlan(): void
-    {
+    public function testUpdateProfileRejectsInvalidPlan(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
@@ -290,8 +265,7 @@ SQL;
         $service->updateProfile('sub8', ['plan' => 'foo']);
     }
 
-    public function testGetPlanBySubdomainReturnsPlan(): void
-    {
+    public function testGetPlanBySubdomainReturnsPlan(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
@@ -301,8 +275,7 @@ SQL;
         $this->assertSame('starter', $plan);
     }
 
-    public function testCustomLimitsReadWrite(): void
-    {
+    public function testCustomLimitsReadWrite(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
@@ -314,8 +287,7 @@ SQL;
         $this->assertSame(['maxEvents' => 5], $limits2);
     }
 
-    public function testPlanAndLimitsReflectExternalUpdates(): void
-    {
+    public function testPlanAndLimitsReflectExternalUpdates(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
@@ -323,12 +295,10 @@ SQL;
         $this->assertSame(Plan::STARTER->value, $service->getPlanBySubdomain('sub12'));
 
         $webhook = new TenantService($pdo, $dir, new class extends \App\Service\NginxService {
-            public function __construct()
-            {
+            public function __construct() {
             }
 
-            public function createVhost(string $sub): void
-            {
+            public function createVhost(string $sub): void {
             }
         });
         $webhook->updateProfile('sub12', ['plan' => Plan::STANDARD->value]);
@@ -339,8 +309,7 @@ SQL;
         $this->assertSame(['maxEvents' => 4], $service->getLimitsBySubdomain('sub12'));
     }
 
-    public function testPlanDowngradeFailsWhenEventsExceedLimit(): void
-    {
+    public function testPlanDowngradeFailsWhenEventsExceedLimit(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
@@ -357,8 +326,7 @@ SQL;
         $service->updateProfile('sub13', ['plan' => Plan::STARTER->value]);
     }
 
-    public function testUpdateProfileRecalculatesExpiry(): void
-    {
+    public function testUpdateProfileRecalculatesExpiry(): void {
         $dir = sys_get_temp_dir() . '/mig' . uniqid();
         $pdo = new PDO('sqlite::memory:');
         $service = $this->createService($dir, $pdo);
@@ -371,16 +339,13 @@ SQL;
         $this->assertSame('2000-01-31 00:00:00+00:00', $row['plan_expires_at']);
     }
 
-    public function testImportMissingCreatesTenants(): void
-    {
+    public function testImportMissingCreatesTenants(): void {
         $pdo = new class extends PDO {
-            public function __construct()
-            {
+            public function __construct() {
                 parent::__construct('sqlite::memory:');
             }
 
-            public function getAttribute($attr): mixed
-            {
+            public function getAttribute($attr): mixed {
                 if ($attr === PDO::ATTR_DRIVER_NAME) {
                     return 'pgsql';
                 }
@@ -404,8 +369,7 @@ SQL;
         $this->assertSame(['main', 's1', 's2'], $subs);
     }
 
-    public function testImportMissingSyncsTenantsDirectory(): void
-    {
+    public function testImportMissingSyncsTenantsDirectory(): void {
         $root = dirname(__DIR__, 2);
         $tenantsDir = $root . '/tenants';
         $sub = 't' . uniqid();
@@ -417,21 +381,18 @@ SQL;
         mkdir($tenantsDir . '/' . $sub);
 
         $pdo = new class extends PDO {
-            public function __construct()
-            {
+            public function __construct() {
                 parent::__construct('sqlite::memory:');
             }
 
-            public function getAttribute($attr): mixed
-            {
+            public function getAttribute($attr): mixed {
                 if ($attr === PDO::ATTR_DRIVER_NAME) {
                     return 'pgsql';
                 }
                 return parent::getAttribute($attr);
             }
 
-            public function exec($statement): int|false
-            {
+            public function exec($statement): int|false {
                 if (str_starts_with($statement, 'CREATE SCHEMA')) {
                     if (preg_match('/CREATE SCHEMA "?([^" ]+)"?/i', $statement, $m)) {
                         parent::exec("INSERT INTO information_schema.schemata(schema_name) VALUES('{$m[1]}')");

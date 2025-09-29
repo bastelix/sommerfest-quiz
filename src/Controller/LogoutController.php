@@ -17,8 +17,7 @@ class LogoutController
     /**
      * Destroy the admin session and redirect to login.
      */
-    public function __invoke(Request $request, Response $response): Response
-    {
+    public function __invoke(Request $request, Response $response): Response {
         $_SESSION = [];
         session_destroy();
 

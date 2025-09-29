@@ -15,8 +15,7 @@ class PlayerSessionController
     /**
      * Handle the incoming request.
      */
-    public function __invoke(Request $request, Response $response): Response
-    {
+    public function __invoke(Request $request, Response $response): Response {
         $data = json_decode((string) $request->getBody(), true);
         $name = is_array($data) ? ($data['name'] ?? '') : '';
         if (!is_string($name) || trim($name) === '') {

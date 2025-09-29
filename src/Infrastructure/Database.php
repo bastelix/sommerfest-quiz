@@ -20,8 +20,7 @@ class Database
      * `POSTGRES_CONNECT_RETRY_DELAY` environment variables. The delay doubles
      * after each failed attempt to give the database more time to recover.
      */
-    public static function connectFromEnv(int $retries = 5, int $delay = 1): PDO
-    {
+    public static function connectFromEnv(int $retries = 5, int $delay = 1): PDO {
         $envRetries = getenv('POSTGRES_CONNECT_RETRIES');
         if ($envRetries !== false) {
             $retries = (int) $envRetries;
@@ -57,8 +56,7 @@ class Database
      * This method is intended for PostgreSQL databases and will always
      * execute a `SET search_path` statement to select the provided schema.
      */
-    public static function connectWithSchema(string $schema): PDO
-    {
+    public static function connectWithSchema(string $schema): PDO {
         $pdo = self::connectFromEnv();
         if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql') {
             $pdo->exec('SET search_path TO ' . $pdo->quote($schema));

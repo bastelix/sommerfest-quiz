@@ -11,8 +11,7 @@ class ViewUserAction extends UserAction
     /**
      * {@inheritdoc}
      */
-    protected function action(): Response
-    {
+    protected function action(): Response {
         $userId = (int) $this->resolveArg('id');
         $user = $this->userRepository->findUserOfId($userId);
 

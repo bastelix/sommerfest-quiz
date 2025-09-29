@@ -3,13 +3,11 @@
 declare(strict_types=1);
 
 namespace App\Controller {
-    function rmdir(string $dir): bool
-    {
+    function rmdir(string $dir): bool {
         return \Tests\Controller\BackupControllerTest::callRmdir($dir);
     }
 
-    function unlink(string $filename): bool
-    {
+    function unlink(string $filename): bool {
         return \Tests\Controller\BackupControllerTest::callUnlink($filename);
     }
 }
@@ -28,31 +26,27 @@ namespace Tests\Controller {
         /** @var callable|null */
         public static $unlinkCallback = null;
 
-        public static function callRmdir(string $dir): bool
-        {
+        public static function callRmdir(string $dir): bool {
             if (self::$rmdirCallback !== null) {
                 return (self::$rmdirCallback)($dir);
             }
             return \rmdir($dir);
         }
 
-        public static function callUnlink(string $file): bool
-        {
+        public static function callUnlink(string $file): bool {
             if (self::$unlinkCallback !== null) {
                 return (self::$unlinkCallback)($file);
             }
             return \unlink($file);
         }
 
-        protected function tearDown(): void
-        {
+        protected function tearDown(): void {
             self::$rmdirCallback = null;
             self::$unlinkCallback = null;
             parent::tearDown();
         }
 
-        public function testDeleteSuccess(): void
-        {
+        public function testDeleteSuccess(): void {
             $base = sys_get_temp_dir() . '/bct_' . uniqid();
             mkdir($base . '/ok', 0777, true);
             file_put_contents($base . '/ok/test.txt', 'a');
@@ -69,8 +63,7 @@ namespace Tests\Controller {
             \rmdir($base);
         }
 
-        public function testDeleteFailure(): void
-        {
+        public function testDeleteFailure(): void {
             $base = sys_get_temp_dir() . '/bct_' . uniqid();
             mkdir($base . '/fail', 0777, true);
             file_put_contents($base . '/fail/test.txt', 'a');
@@ -96,8 +89,7 @@ namespace Tests\Controller {
             \rmdir($base);
         }
 
-        public function testDeleteFileFailure(): void
-        {
+        public function testDeleteFileFailure(): void {
             $base = sys_get_temp_dir() . '/bct_' . uniqid();
             mkdir($base . '/fail', 0777, true);
             file_put_contents($base . '/fail/test.txt', 'a');
@@ -123,8 +115,7 @@ namespace Tests\Controller {
             \rmdir($base);
         }
 
-        public function testDeleteInvalidName(): void
-        {
+        public function testDeleteInvalidName(): void {
             $base = sys_get_temp_dir() . '/bct_' . uniqid();
             mkdir($base, 0777, true);
 

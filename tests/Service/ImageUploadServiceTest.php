@@ -11,8 +11,7 @@ use Tests\TestCase;
 
 class ImageUploadServiceTest extends TestCase
 {
-    public function testReadImageScalesDownLargeImages(): void
-    {
+    public function testReadImageScalesDownLargeImages(): void {
         $service = new ImageUploadService();
         $file = tempnam(sys_get_temp_dir(), 'img');
         $image = imagecreatetruecolor(6000, 4000);

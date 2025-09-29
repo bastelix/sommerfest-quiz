@@ -8,8 +8,7 @@ use Tests\TestCase;
 
 class RoleAccessTest extends TestCase
 {
-    public function testCatalogEditorCanEditCatalog(): void
-    {
+    public function testCatalogEditorCanEditCatalog(): void {
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
@@ -20,8 +19,7 @@ class RoleAccessTest extends TestCase
         session_destroy();
     }
 
-    public function testAnalystCannotEditCatalog(): void
-    {
+    public function testAnalystCannotEditCatalog(): void {
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'analyst'];
@@ -33,8 +31,7 @@ class RoleAccessTest extends TestCase
         session_destroy();
     }
 
-    public function testEventManagerCanUpdateConfig(): void
-    {
+    public function testEventManagerCanUpdateConfig(): void {
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'event-manager'];
@@ -45,8 +42,7 @@ class RoleAccessTest extends TestCase
         session_destroy();
     }
 
-    public function testTeamManagerCanPostTeams(): void
-    {
+    public function testTeamManagerCanPostTeams(): void {
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'team-manager'];
@@ -60,8 +56,7 @@ class RoleAccessTest extends TestCase
         session_destroy();
     }
 
-    public function testAnalystCanAccessResults(): void
-    {
+    public function testAnalystCanAccessResults(): void {
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'analyst'];
@@ -71,8 +66,7 @@ class RoleAccessTest extends TestCase
         session_destroy();
     }
 
-    public function testAdminCanAccessSeoForm(): void
-    {
+    public function testAdminCanAccessSeoForm(): void {
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
@@ -97,8 +91,7 @@ class RoleAccessTest extends TestCase
         session_destroy();
     }
 
-    public function testCatalogEditorCannotAccessSeoForm(): void
-    {
+    public function testCatalogEditorCannotAccessSeoForm(): void {
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];
@@ -113,8 +106,7 @@ class RoleAccessTest extends TestCase
         session_destroy();
     }
 
-    public function testAdminCanViewSeoForm(): void
-    {
+    public function testAdminCanViewSeoForm(): void {
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
@@ -124,8 +116,7 @@ class RoleAccessTest extends TestCase
         session_destroy();
     }
 
-    public function testCatalogEditorCannotViewSeoForm(): void
-    {
+    public function testCatalogEditorCannotViewSeoForm(): void {
         $app = $this->getAppInstance();
         session_start();
         $_SESSION['user'] = ['id' => 1, 'role' => 'catalog-editor'];

@@ -18,14 +18,12 @@ class ImageUploadService
     private string $dataDir;
     private ImageManager $manager;
 
-    public function __construct(?string $dataDir = null)
-    {
+    public function __construct(?string $dataDir = null) {
         $this->dataDir = $dataDir ?? dirname(__DIR__, 2) . '/data';
         $this->manager = extension_loaded('imagick') ? ImageManager::imagick() : ImageManager::gd();
     }
 
-    public function getDataDir(): string
-    {
+    public function getDataDir(): string {
         return $this->dataDir;
     }
 
@@ -52,16 +50,14 @@ class ImageUploadService
         }
     }
 
-    public function readImage(UploadedFileInterface $file, bool $autoOrient = false): ImageInterface
-    {
+    public function readImage(UploadedFileInterface $file, bool $autoOrient = false): ImageInterface {
         $stream = $file->getStream();
         $image = $this->manager->read($stream->detach());
 
         return $this->prepareImage($image, $autoOrient);
     }
 
-    public function readExistingImage(string $path, bool $autoOrient = false): ImageInterface
-    {
+    public function readExistingImage(string $path, bool $autoOrient = false): ImageInterface {
         if (!is_file($path)) {
             throw new \RuntimeException('file not found');
         }
@@ -71,8 +67,7 @@ class ImageUploadService
         return $this->prepareImage($image, $autoOrient);
     }
 
-    private function prepareImage(ImageInterface $image, bool $autoOrient): ImageInterface
-    {
+    private function prepareImage(ImageInterface $image, bool $autoOrient): ImageInterface {
         $width = $image->width();
         $height = $image->height();
         $pixelCount = $width * $height;

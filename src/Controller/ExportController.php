@@ -59,8 +59,7 @@ class ExportController
     /**
      * Export current data and create a timestamped backup directory.
      */
-    public function post(Request $request, Response $response): Response
-    {
+    public function post(Request $request, Response $response): Response {
         if (!is_dir($this->backupDir)) {
             if (!mkdir($this->backupDir, 0777, true)) {
                 $response->getBody()->write(json_encode([
@@ -91,8 +90,7 @@ class ExportController
     /**
      * Export current data to the default demo data directory.
      */
-    public function exportDefaults(Request $request, Response $response): Response
-    {
+    public function exportDefaults(Request $request, Response $response): Response {
         $this->exportToDir($this->defaultDir);
         return $response->withStatus(204);
     }
@@ -100,8 +98,7 @@ class ExportController
     /**
      * Write configuration, results, teams and catalogs to the given directory.
      */
-    private function exportToDir(string $dir): void
-    {
+    private function exportToDir(string $dir): void {
         if (!is_dir($dir)) {
             mkdir($dir . '/kataloge', 0777, true);
         } elseif (!is_dir($dir . '/kataloge')) {

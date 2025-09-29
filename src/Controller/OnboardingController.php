@@ -17,8 +17,7 @@ use PDO;
  */
 class OnboardingController
 {
-    public function __invoke(Request $request, Response $response): Response
-    {
+    public function __invoke(Request $request, Response $response): Response {
         $view = Twig::fromRequest($request);
         $mainDomain = getenv('MAIN_DOMAIN')
             ?: getenv('DOMAIN')

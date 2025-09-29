@@ -8,8 +8,7 @@ use Tests\TestCase;
 
 class ImpressumControllerTest extends TestCase
 {
-    public function testImpressumPage(): void
-    {
+    public function testImpressumPage(): void {
         $app = $this->getAppInstance();
         $request = $this->createRequest('GET', '/impressum');
         $response = $app->handle($request);

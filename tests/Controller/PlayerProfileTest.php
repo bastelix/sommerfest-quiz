@@ -9,8 +9,7 @@ use Slim\Psr7\Factory\StreamFactory;
 
 class PlayerProfileTest extends TestCase
 {
-    public function testProfilePageAndApiPlayers(): void
-    {
+    public function testProfilePageAndApiPlayers(): void {
         $pdo = $this->getDatabase();
         $pdo->exec("INSERT INTO events(uid, slug, name) VALUES('ev1','ev1','Test')");
 

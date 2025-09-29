@@ -19,25 +19,21 @@ class PageService
 {
     private PDO $pdo;
 
-    public function __construct(?PDO $pdo = null)
-    {
+    public function __construct(?PDO $pdo = null) {
         $this->pdo = $pdo ?? Database::connectFromEnv();
     }
 
-    public function get(string $slug): ?string
-    {
+    public function get(string $slug): ?string {
         $page = $this->findBySlug($slug);
         return $page?->getContent();
     }
 
-    public function save(string $slug, string $content): void
-    {
+    public function save(string $slug, string $content): void {
         $stmt = $this->pdo->prepare('UPDATE pages SET content = ?, updated_at = CURRENT_TIMESTAMP WHERE slug = ?');
         $stmt->execute([$content, $slug]);
     }
 
-    public function delete(string $slug): void
-    {
+    public function delete(string $slug): void {
         $normalized = trim($slug);
         if ($normalized === '') {
             return;
@@ -47,8 +43,7 @@ class PageService
         $stmt->execute([$normalized]);
     }
 
-    public function create(string $slug, string $title, string $content): Page
-    {
+    public function create(string $slug, string $title, string $content): Page {
         $normalizedSlug = strtolower(trim($slug));
         if ($normalizedSlug === '') {
             throw new InvalidArgumentException('Bitte gib einen Slug an.');
@@ -85,8 +80,7 @@ class PageService
      *
      * @return Page[]
      */
-    public function getAll(): array
-    {
+    public function getAll(): array {
         $stmt = $this->pdo->query('SELECT id, slug, title, content FROM pages ORDER BY title');
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
@@ -107,8 +101,7 @@ class PageService
         return $pages;
     }
 
-    public function findById(int $id): ?Page
-    {
+    public function findById(int $id): ?Page {
         if ($id <= 0) {
             return null;
         }
@@ -129,8 +122,7 @@ class PageService
         return new Page((int) $row['id'], $slug, $title, (string) ($row['content'] ?? ''));
     }
 
-    public function findBySlug(string $slug): ?Page
-    {
+    public function findBySlug(string $slug): ?Page {
         $normalized = trim($slug);
         if ($normalized === '') {
             return null;
@@ -152,8 +144,7 @@ class PageService
         return new Page((int) $row['id'], $pageSlug, $title, (string) ($row['content'] ?? ''));
     }
 
-    private function loadCreatedPage(string $slug): Page
-    {
+    private function loadCreatedPage(string $slug): Page {
         $page = $this->findBySlug($slug);
         if ($page === null) {
             throw new RuntimeException('Die neu angelegte Seite konnte nicht geladen werden.');

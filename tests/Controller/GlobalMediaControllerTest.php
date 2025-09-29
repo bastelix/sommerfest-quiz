@@ -8,8 +8,7 @@ use Tests\TestCase;
 
 class GlobalMediaControllerTest extends TestCase
 {
-    public function testServesGlobalUpload(): void
-    {
+    public function testServesGlobalUpload(): void {
         $dir = __DIR__ . '/../../data/uploads';
         $createdDir = false;
         if (!is_dir($dir)) {

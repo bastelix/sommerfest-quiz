@@ -19,16 +19,14 @@ class CatalogController
     /**
      * Inject catalog service dependency.
      */
-    public function __construct(CatalogService $service)
-    {
+    public function __construct(CatalogService $service) {
         $this->service = $service;
     }
 
     /**
      * Check if the current session has one of the given roles.
      */
-    private function hasRole(string ...$roles): bool
-    {
+    private function hasRole(string ...$roles): bool {
         $role = $_SESSION['user']['role'] ?? null;
         return $role !== null && in_array($role, $roles, true);
     }
@@ -36,8 +34,7 @@ class CatalogController
     /**
      * Retrieve a catalog JSON file or redirect to its public view.
      */
-    public function get(Request $request, Response $response, array $args): Response
-    {
+    public function get(Request $request, Response $response, array $args): Response {
         $file = basename($args['file']);
         $accept = strtolower($request->getHeaderLine('Accept'));
         $params = $request->getQueryParams();
@@ -67,8 +64,7 @@ class CatalogController
     /**
      * Retrieve catalog questions after validating session token and access.
      */
-    public function getQuestions(Request $request, Response $response, array $args): Response
-    {
+    public function getQuestions(Request $request, Response $response, array $args): Response {
         $headerToken = $request->getHeaderLine('X-CSRF-Token');
         $sessionToken = (string) ($_SESSION['csrf_token'] ?? '');
         if ($sessionToken === '' || $headerToken === '' || !hash_equals($sessionToken, $headerToken)) {
@@ -93,8 +89,7 @@ class CatalogController
     /**
      * Update the specified catalog file with the provided data.
      */
-    public function post(Request $request, Response $response, array $args): Response
-    {
+    public function post(Request $request, Response $response, array $args): Response {
         if (!$this->hasRole(Roles::ADMIN, Roles::CATALOG_EDITOR)) {
             return $response->withStatus(403);
         }
@@ -121,8 +116,7 @@ class CatalogController
     /**
      * Create a new catalog or overwrite the existing one.
      */
-    public function create(Request $request, Response $response, array $args): Response
-    {
+    public function create(Request $request, Response $response, array $args): Response {
         if (!$this->hasRole(Roles::ADMIN, Roles::CATALOG_EDITOR)) {
             return $response->withStatus(403);
         }
@@ -140,8 +134,7 @@ class CatalogController
     /**
      * Delete a catalog file and all its questions.
      */
-    public function delete(Request $request, Response $response, array $args): Response
-    {
+    public function delete(Request $request, Response $response, array $args): Response {
         if (!$this->hasRole(Roles::ADMIN, Roles::CATALOG_EDITOR)) {
             return $response->withStatus(403);
         }
@@ -154,8 +147,7 @@ class CatalogController
     /**
      * Remove a question from the specified catalog.
      */
-    public function deleteQuestion(Request $request, Response $response, array $args): Response
-    {
+    public function deleteQuestion(Request $request, Response $response, array $args): Response {
         if (!$this->hasRole(Roles::ADMIN, Roles::CATALOG_EDITOR)) {
             return $response->withStatus(403);
         }

@@ -17,8 +17,7 @@ class SessionMiddleware implements Middleware
     /**
      * {@inheritdoc}
      */
-    public function process(Request $request, RequestHandler $handler): Response
-    {
+    public function process(Request $request, RequestHandler $handler): Response {
         $cookies = $request->getCookieParams();
         $hasSessionCookie = isset($cookies[session_name()]);
 
@@ -85,8 +84,7 @@ class SessionMiddleware implements Middleware
         return $response;
     }
 
-    private function hostMatchesDomain(string $host, string $domain): bool
-    {
+    private function hostMatchesDomain(string $host, string $domain): bool {
         $domain = ltrim($domain, '.');
 
         return strcasecmp($host, $domain) === 0

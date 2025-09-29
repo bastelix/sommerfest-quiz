@@ -8,8 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class ProcessHelpersTest extends TestCase
 {
-    public function testRunSyncProcessHandlesSpacesInScriptPath(): void
-    {
+    public function testRunSyncProcessHandlesSpacesInScriptPath(): void {
         $dir = sys_get_temp_dir() . '/space dir ' . uniqid();
         mkdir($dir);
         $script = $dir . '/test script.sh';
@@ -23,8 +22,7 @@ class ProcessHelpersTest extends TestCase
         rmdir($dir);
     }
 
-    public function testRunSyncProcessReturnsErrorOutputOnFailure(): void
-    {
+    public function testRunSyncProcessReturnsErrorOutputOnFailure(): void {
         $dir = sys_get_temp_dir() . '/space dir ' . uniqid();
         mkdir($dir);
         $script = $dir . '/test script.sh';

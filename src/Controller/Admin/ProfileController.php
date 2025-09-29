@@ -12,8 +12,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class ProfileController
 {
-    public function update(Request $request, Response $response): Response
-    {
+    public function update(Request $request, Response $response): Response {
         $data = json_decode((string) $request->getBody(), true);
         if (!is_array($data)) {
             return $response->withStatus(400);

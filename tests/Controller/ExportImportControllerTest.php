@@ -19,8 +19,7 @@ use PDO;
 
 class ExportImportControllerTest extends TestCase
 {
-    private function createServices(): array
-    {
+    private function createServices(): array {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('ev1','ev1','Event1')");
         $pdo->exec("INSERT INTO config(event_uid) VALUES('ev1')");
@@ -38,8 +37,7 @@ class ExportImportControllerTest extends TestCase
         ];
     }
 
-    public function testQuestionResultsRoundTrip(): void
-    {
+    public function testQuestionResultsRoundTrip(): void {
         [$catalog, $config, $results, $teams, $consents, $summary, $events, $pdo] = $this->createServices();
         // prepare catalog and questions
         $pdo->exec("INSERT INTO catalogs(uid,sort_order,slug,file,name) VALUES('u1',1,'c1','c1.json','Cat')");

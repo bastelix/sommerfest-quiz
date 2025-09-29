@@ -35,8 +35,7 @@ class EventService
      *
      * @return list<array{uid:string,name:string,start_date:?string,end_date:?string,description:?string,published:bool}>
      */
-    public function getAll(): array
-    {
+    public function getAll(): array {
         $sql = 'SELECT uid,name,start_date,end_date,description,published,sort_order FROM events ORDER BY sort_order';
         $stmt = $this->pdo->query($sql);
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -77,8 +76,7 @@ class EventService
      *     draft?:bool
      * }> $events
      */
-    public function saveAll(array $events): void
-    {
+    public function saveAll(array $events): void {
         $existingStmt = $this->pdo->query('SELECT uid FROM events');
         $existing = $existingStmt->fetchAll(PDO::FETCH_COLUMN);
 
@@ -158,8 +156,7 @@ class EventService
      *
      * @return array{uid:string,name:string,start_date:?string,end_date:?string,description:?string}|null
      */
-    public function getFirst(): ?array
-    {
+    public function getFirst(): ?array {
         $stmt = $this->pdo->query('SELECT uid,name,start_date,end_date,description FROM events ORDER BY name LIMIT 1');
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
@@ -175,8 +172,7 @@ class EventService
      *
      * @return array{uid:string,slug:string,name:string,start_date:?string,end_date:?string,description:?string}|null
      */
-    public function getByUid(string $uid): ?array
-    {
+    public function getByUid(string $uid): ?array {
         $stmt = $this->pdo->prepare('SELECT uid,slug,name,start_date,end_date,description FROM events WHERE uid = ?');
         $stmt->execute([$uid]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -213,8 +209,7 @@ class EventService
      *
      * @return array{uid:string,slug:string,name:string,start_date:?string,end_date:?string,description:?string}|null
      */
-    public function getBySlug(string $slug): ?array
-    {
+    public function getBySlug(string $slug): ?array {
         $stmt = $this->pdo->prepare('SELECT uid,slug,name,start_date,end_date,description FROM events WHERE slug = ?');
         $stmt->execute([$slug]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -229,16 +224,14 @@ class EventService
     /**
      * Find the UID for the given event slug.
      */
-    public function uidBySlug(string $slug): ?string
-    {
+    public function uidBySlug(string $slug): ?string {
         $stmt = $this->pdo->prepare('SELECT uid FROM events WHERE slug = ?');
         $stmt->execute([$slug]);
         $uid = $stmt->fetchColumn();
         return $uid === false ? null : (string) $uid;
     }
 
-    private function formatDate(?string $value): ?string
-    {
+    private function formatDate(?string $value): ?string {
         if ($value === null || $value === '') {
             return $value;
         }

@@ -7,15 +7,13 @@ use Twig\TwigFilter;
 
 class UikitExtension extends AbstractExtension
 {
-    public function getFilters(): array
-    {
+    public function getFilters(): array {
         return [
             new TwigFilter('uikitify', [$this, 'uikitify'], ['is_safe' => ['html']]),
         ];
     }
 
-    public function uikitify(string $html): string
-    {
+    public function uikitify(string $html): string {
         $patterns = [
             '/<h([1-6])([^>]*)>/i',
             '/<\/h([1-6])>/i',

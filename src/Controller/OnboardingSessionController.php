@@ -15,8 +15,7 @@ class OnboardingSessionController
     /**
      * Return current onboarding data as JSON.
      */
-    public function get(Request $request, Response $response): Response
-    {
+    public function get(Request $request, Response $response): Response {
         $data = $_SESSION['onboarding'] ?? [];
         $payload = json_encode($data, JSON_THROW_ON_ERROR);
         $response->getBody()->write($payload);
@@ -26,8 +25,7 @@ class OnboardingSessionController
     /**
      * Merge provided data into the onboarding session.
      */
-    public function store(Request $request, Response $response): Response
-    {
+    public function store(Request $request, Response $response): Response {
         $data = json_decode((string) $request->getBody(), true);
         if (!is_array($data)) {
             return $response->withStatus(400);
@@ -40,8 +38,7 @@ class OnboardingSessionController
     /**
      * Clear onboarding data from the session.
      */
-    public function clear(Request $request, Response $response): Response
-    {
+    public function clear(Request $request, Response $response): Response {
         unset($_SESSION['onboarding']);
         return $response->withStatus(204);
     }

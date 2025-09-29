@@ -18,8 +18,7 @@ class InvitationService
     private int $ttl;
     private LoggerInterface $logger;
 
-    public function __construct(PDO $pdo, int $ttlSeconds = 86400, ?LoggerInterface $logger = null)
-    {
+    public function __construct(PDO $pdo, int $ttlSeconds = 86400, ?LoggerInterface $logger = null) {
         $this->pdo = $pdo;
         $this->ttl = $ttlSeconds;
         $this->logger = $logger ?? new NullLogger();
@@ -28,8 +27,7 @@ class InvitationService
     /**
      * Generate and store a token for the given email.
      */
-    public function createToken(string $email): string
-    {
+    public function createToken(string $email): string {
         $this->cleanupExpired();
 
         $token = bin2hex(random_bytes(16));
@@ -48,8 +46,7 @@ class InvitationService
     /**
      * Verify token and return associated email. Token is removed.
      */
-    public function consumeToken(string $token): ?string
-    {
+    public function consumeToken(string $token): ?string {
         $this->cleanupExpired();
 
         $stmt = $this->pdo->prepare('SELECT email, expires_at FROM invitations WHERE token = ?');
@@ -76,8 +73,7 @@ class InvitationService
         return $email;
     }
 
-    private function deleteToken(string $email): void
-    {
+    private function deleteToken(string $email): void {
         $stmt = $this->pdo->prepare('DELETE FROM invitations WHERE email = ?');
         $stmt->execute([$email]);
     }
@@ -85,8 +81,7 @@ class InvitationService
     /**
      * Remove expired tokens.
      */
-    public function cleanupExpired(): void
-    {
+    public function cleanupExpired(): void {
         $stmt = $this->pdo->prepare('DELETE FROM invitations WHERE expires_at <= ?');
         $stmt->execute([(new DateTimeImmutable())->format('Y-m-d H:i:s')]);
     }

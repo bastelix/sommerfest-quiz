@@ -12,8 +12,7 @@ use Slim\Psr7\Response;
 
 class CatalogQuestionsControllerTest extends TestCase
 {
-    public function testGetQuestionsRequiresValidTokenAndWhitelist(): void
-    {
+    public function testGetQuestionsRequiresValidTokenAndWhitelist(): void {
         $pdo = new \PDO('sqlite::memory:');
         $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         $pdo->exec('CREATE TABLE config(event_uid TEXT);');

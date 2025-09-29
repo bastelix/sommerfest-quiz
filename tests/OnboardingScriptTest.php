@@ -8,8 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class OnboardingScriptTest extends TestCase
 {
-    public function testOnboardTenantCreatesComposeFile(): void
-    {
+    public function testOnboardTenantCreatesComposeFile(): void {
         $slug = 't' . bin2hex(random_bytes(3));
         $root = dirname(__DIR__);
         $tenantDir = $root . '/tenants';
@@ -46,8 +45,7 @@ class OnboardingScriptTest extends TestCase
         rmdir(dirname($compose));
     }
 
-    public function testOnboardTenantUsesEnvFile(): void
-    {
+    public function testOnboardTenantUsesEnvFile(): void {
         $slug = 't' . bin2hex(random_bytes(3));
         $root = dirname(__DIR__);
         $tenantDir = $root . '/tenants';

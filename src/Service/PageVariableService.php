@@ -15,8 +15,7 @@ class PageVariableService
     /**
      * Apply profile-based replacements on the given HTML.
      */
-    public static function apply(string $html): string
-    {
+    public static function apply(string $html): string {
         try {
             $pdo = Database::connectFromEnv();
             $profile = (new TenantService($pdo))->getMainTenant();

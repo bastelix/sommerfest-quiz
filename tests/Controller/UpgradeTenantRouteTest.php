@@ -9,8 +9,7 @@ use Tests\TestCase;
 
 class UpgradeTenantRouteTest extends TestCase
 {
-    public function testUpgradeWorksWithoutTag(): void
-    {
+    public function testUpgradeWorksWithoutTag(): void {
         $script = __DIR__ . '/../../scripts/upgrade_tenant.sh';
         $backup = $script . '.bak';
         rename($script, $backup);

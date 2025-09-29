@@ -19,8 +19,7 @@ class AdminAuthMiddleware implements MiddlewareInterface
     /**
      * {@inheritdoc}
      */
-    public function process(Request $request, RequestHandler $handler): Response
-    {
+    public function process(Request $request, RequestHandler $handler): Response {
         $role = $_SESSION['user']['role'] ?? null;
         if ($role !== 'admin') {
             $accept = $request->getHeaderLine('Accept');

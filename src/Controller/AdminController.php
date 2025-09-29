@@ -39,8 +39,7 @@ class AdminController
     /**
      * Render the admin dashboard page.
      */
-    public function __invoke(Request $request, Response $response): Response
-    {
+    public function __invoke(Request $request, Response $response): Response {
         $view = Twig::fromRequest($request);
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
         $_SESSION['csrf_token'] = $csrf;
@@ -282,8 +281,7 @@ class AdminController
      * @param Page[] $pages
      * @return Page[]
      */
-    private function filterMarketingPages(array $pages): array
-    {
+    private function filterMarketingPages(array $pages): array {
         return array_values(array_filter(
             $pages,
             static fn (Page $page): bool => !in_array($page->getSlug(), LandingpageSeoController::EXCLUDED_SLUGS, true)
@@ -293,8 +291,7 @@ class AdminController
     /**
      * @param Page[] $pages
      */
-    private function selectSeoPage(array $pages, string $slug): ?Page
-    {
+    private function selectSeoPage(array $pages, string $slug): ?Page {
         if ($pages === []) {
             return null;
         }
@@ -317,8 +314,7 @@ class AdminController
         array $pages,
         DomainStartPageService $domainService,
         string $host
-    ): array
-    {
+    ): array {
         $mappings = $domainService->getAllMappings();
         $domainsBySlug = [];
         foreach ($mappings as $domain => $config) {

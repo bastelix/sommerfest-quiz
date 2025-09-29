@@ -18,8 +18,7 @@ use PDO;
 
 class ImportControllerTest extends TestCase
 {
-    private function createServices(): array
-    {
+    private function createServices(): array {
         $pdo = $this->createDatabase();
         $pdo->exec("INSERT INTO events(uid,slug,name) VALUES('ev1','ev1','Event1')");
         $pdo->exec("INSERT INTO config(event_uid) VALUES('ev1')");
@@ -37,8 +36,7 @@ class ImportControllerTest extends TestCase
         ];
     }
 
-    public function testImport(): void
-    {
+    public function testImport(): void {
         [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
         $tmp = sys_get_temp_dir() . '/import_' . uniqid();
         mkdir($tmp . '/kataloge', 0777, true);
@@ -87,8 +85,7 @@ class ImportControllerTest extends TestCase
         rmdir($tmp);
     }
 
-    public function testImportTwiceDoesNotDuplicateSummaryPhotos(): void
-    {
+    public function testImportTwiceDoesNotDuplicateSummaryPhotos(): void {
         [
             $catalog,
             $config,
@@ -138,8 +135,7 @@ class ImportControllerTest extends TestCase
         rmdir($tmp);
     }
 
-    public function testImportRejectsInvalidName(): void
-    {
+    public function testImportRejectsInvalidName(): void {
         [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
         $tmp = sys_get_temp_dir() . '/import_' . uniqid();
         mkdir($tmp, 0777, true);
@@ -164,8 +160,7 @@ class ImportControllerTest extends TestCase
         rmdir($tmp);
     }
 
-    public function testImportRejectsInvalidJsonFile(): void
-    {
+    public function testImportRejectsInvalidJsonFile(): void {
         [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
         $tmp = sys_get_temp_dir() . '/import_' . uniqid();
         mkdir($tmp . '/kataloge', 0777, true);
@@ -195,8 +190,7 @@ class ImportControllerTest extends TestCase
         rmdir($tmp);
     }
 
-    public function testRestoreDefaults(): void
-    {
+    public function testRestoreDefaults(): void {
         [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
         $base = sys_get_temp_dir() . '/import_' . uniqid();
         $default = dirname($base) . '/data-default';
@@ -238,8 +232,7 @@ class ImportControllerTest extends TestCase
         rmdir($default);
     }
 
-    public function testRestoreDefaultsRejectsInvalidJson(): void
-    {
+    public function testRestoreDefaultsRejectsInvalidJson(): void {
         [$catalog, $config, $results, $teams, $consents, $summary, $events] = $this->createServices();
         $base = sys_get_temp_dir() . '/import_' . uniqid();
         mkdir($base, 0777, true);
