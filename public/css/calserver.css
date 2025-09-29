@@ -1838,7 +1838,9 @@ body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual__image {
 body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-cookie-trigger,
 body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-cookie-trigger {
     color: #ffffff;
-    border-color: color-mix(in oklab, var(--calserver-primary) 46%, rgba(15, 23, 42, 0.16));
+    border-color: color-mix(in oklab, var(--calserver-primary) 52%, rgba(255, 255, 255, 0.24));
+    background: color-mix(in oklab, var(--calserver-primary) 22%, rgba(8, 13, 24, 0.94));
+    box-shadow: 0 20px 45px rgba(9, 15, 28, 0.32), 0 8px 18px rgba(9, 15, 28, 0.28);
 }
 
 body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-cookie-trigger svg,
