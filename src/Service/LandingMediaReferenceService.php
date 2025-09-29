@@ -12,6 +12,27 @@ use RuntimeException;
 
 /**
  * Aggregates landing page media references from markup and SEO configuration.
+ *
+ * @phpstan-type MediaReference array{
+ *     slug:string,
+ *     title:string,
+ *     path:string,
+ *     type:string,
+ *     field:string,
+ *     alt?:string
+ * }
+ * @phpstan-type MissingMediaReference array{
+ *     slug?:string,
+ *     title?:string,
+ *     type?:string,
+ *     field?:string,
+ *     alt?:string,
+ *     path:string,
+ *     displayPath:string,
+ *     suggestedName:?string,
+ *     suggestedFolder:?string,
+ *     extension:?string
+ * }
  */
 class LandingMediaReferenceService
 {
@@ -53,15 +74,19 @@ class LandingMediaReferenceService
      *
      * @return array{
      *     slugs:list<array{slug:string,title:string}>,
-     *     files:array<string,list<array<string,mixed>>>,
-     *     missing:list<array<string,mixed>>
+     *     files:array<string,list<MediaReference>>,
+     *     missing:list<MissingMediaReference>
      * }
      */
     public function collect(): array {
         $landingPages = $this->getLandingPages();
+        /** @var list<array{slug:string,title:string}> $slugs */
         $slugs = [];
+        /** @var array<string, list<MediaReference>> $files */
         $files = [];
+        /** @var list<MissingMediaReference> $missing */
         $missing = [];
+        /** @var array<string, true> $seenMissing */
         $seenMissing = [];
 
         foreach ($landingPages as $page) {
@@ -81,12 +106,15 @@ class LandingMediaReferenceService
                 if (!is_string($path) || $path === '') {
                     continue;
                 }
-                if (!isset($files[$path])) {
+                if (!array_key_exists($path, $files)) {
                     $files[$path] = [];
                 }
 
-                if (!$this->referenceExists($files[$path], $reference)) {
-                    $files[$path][] = $reference;
+                /** @var list<MediaReference> $pathReferences */
+                $pathReferences = $files[$path];
+                if (!$this->referenceExists($pathReferences, $reference)) {
+                    $pathReferences[] = $reference;
+                    $files[$path] = $pathReferences;
                 }
 
                 $absolute = $this->resolveAbsolutePath($path);
@@ -138,7 +166,7 @@ class LandingMediaReferenceService
     }
 
     /**
-     * @return list<array<string,mixed>>
+     * @return list<MediaReference>
      */
     private function collectFromMarkup(Page $page): array {
         $content = $page->getContent();
@@ -154,6 +182,7 @@ class LandingMediaReferenceService
             return [];
         }
 
+        /** @var list<MediaReference> $references */
         $references = [];
         foreach ($matches[0] as $raw) {
             $normalized = $this->sanitizeUploadPath((string) $raw);
@@ -178,9 +207,10 @@ class LandingMediaReferenceService
     }
 
     /**
-     * @return list<array<string,mixed>>
+     * @return list<MediaReference>
      */
     private function collectFromSeo(Page $page, PageSeoConfig $config): array {
+        /** @var list<MediaReference> $references */
         $references = [];
         $fields = [
             'ogImage' => $config->getOgImage(),
@@ -208,8 +238,8 @@ class LandingMediaReferenceService
     }
 
     /**
-     * @param list<array<string,mixed>> $references
-     * @return list<array<string,mixed>>
+     * @param list<MediaReference> $references
+     * @return list<MediaReference>
      */
     private function deduplicateReferences(array $references): array {
         $unique = [];
@@ -233,8 +263,8 @@ class LandingMediaReferenceService
     }
 
     /**
-     * @param list<array<string,mixed>> $existing
-     * @param array<string,mixed> $candidate
+     * @param list<MediaReference> $existing
+     * @param MediaReference $candidate
      */
     private function referenceExists(array $existing, array $candidate): bool {
         foreach ($existing as $reference) {
@@ -263,8 +293,8 @@ class LandingMediaReferenceService
     }
 
     /**
-     * @param array<string,mixed> $reference
-     * @return array<string,mixed>
+     * @param MediaReference $reference
+     * @return MissingMediaReference
      */
     private function buildMissingEntry(array $reference, string $path): array {
         $folder = $this->extractFolder($path);

@@ -12,6 +12,9 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 use Slim\Psr7\Response as SlimResponse;
 
+/**
+ * @phpstan-type RateLimitEntry array{count:int,start:int}
+ */
 class RateLimitMiddleware implements MiddlewareInterface
 {
     private int $maxRequests;
@@ -27,19 +30,20 @@ class RateLimitMiddleware implements MiddlewareInterface
     }
 
     public function process(Request $request, RequestHandler $handler): Response {
-        if (!isset($_SESSION) || !is_array($_SESSION)) {
-            $_SESSION = [];
-        }
+        /** @var array<string, RateLimitEntry> $session */
+        $session = isset($_SESSION) ? (array) $_SESSION : [];
 
         $key = 'rate:' . $request->getUri()->getPath();
-        $entry = $_SESSION[$key] ?? ['count' => 0, 'start' => time()];
+        /** @var RateLimitEntry $entry */
+        $entry = $session[$key] ?? ['count' => 0, 'start' => time()];
 
         if (time() - $entry['start'] > $this->windowSeconds) {
             $entry = ['count' => 0, 'start' => time()];
         }
 
         $entry['count']++;
-        $_SESSION[$key] = $entry;
+        $session[$key] = $entry;
+        $_SESSION = $session;
 
         if ($entry['count'] > $this->maxRequests) {
             return $this->tooManyRequestsResponse();

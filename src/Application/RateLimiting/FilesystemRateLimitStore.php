@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Application\RateLimiting;
 
+/**
+ * @phpstan-type RateLimitEntry array{count:int,start:int}
+ */
 class FilesystemRateLimitStore implements RateLimitStore
 {
     private string $directory;
@@ -17,13 +20,11 @@ class FilesystemRateLimitStore implements RateLimitStore
         $path = $this->pathFor($key);
         $now = time();
         $entry = $this->read($path, $now, $windowSeconds);
+        $entry['count']++;
 
-        $count = (int) ($entry['count'] ?? 0) + 1;
-        $start = (int) ($entry['start'] ?? $now);
+        $this->write($path, $entry);
 
-        $this->write($path, ['count' => $count, 'start' => $start]);
-
-        return $count;
+        return $entry['count'];
     }
 
     public function reset(): void {
@@ -41,7 +42,7 @@ class FilesystemRateLimitStore implements RateLimitStore
     }
 
     /**
-     * @return array{count:int,start:int}
+     * @return RateLimitEntry
      */
     private function read(string $path, int $now, int $windowSeconds): array {
         if (is_file($path)) {
@@ -64,7 +65,7 @@ class FilesystemRateLimitStore implements RateLimitStore
     }
 
     /**
-     * @param array{count:int,start:int} $data
+     * @param RateLimitEntry $data
      */
     private function write(string $path, array $data): void {
         $dir = dirname($path);

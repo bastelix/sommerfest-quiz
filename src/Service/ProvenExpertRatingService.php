@@ -36,6 +36,9 @@ use const CURLOPT_TIMEOUT;
 use const CURLOPT_URL;
 use const CURLOPT_USERPWD;
 
+/**
+ * @phpstan-type ProvenExpertCache array<string,mixed>
+ */
 class ProvenExpertRatingService
 {
     private const API_URL = 'https://www.provenexpert.com/api_rating_v2.json';
@@ -159,6 +162,9 @@ class ProvenExpertRatingService
         return $data;
     }
 
+    /**
+     * @return ProvenExpertCache|null
+     */
     private function readCache(): ?array {
         if (!file_exists($this->cacheFile)) {
             return null;
@@ -170,9 +176,17 @@ class ProvenExpertRatingService
         }
 
         $decoded = json_decode($contents, true);
-        return is_array($decoded) ? $decoded : null;
+        if (!is_array($decoded)) {
+            return null;
+        }
+
+        /** @var ProvenExpertCache $decoded */
+        return $decoded;
     }
 
+    /**
+     * @param ProvenExpertCache $data
+     */
     private function writeCache(array $data): void {
         if (!is_writable($this->cacheFile) && !is_writable(dirname($this->cacheFile))) {
             return;
