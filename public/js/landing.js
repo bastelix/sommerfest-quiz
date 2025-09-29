@@ -223,10 +223,10 @@ document.addEventListener('DOMContentLoaded', () => {
   langButtons.forEach(btn => btn.addEventListener('click', () => {
     const lang = btn.dataset.lang;
     const url = new URL(window.location.href);
-    if (lang === 'de') {
-      url.searchParams.delete('lang');
-    } else {
+    if (lang) {
       url.searchParams.set('lang', lang);
+    } else {
+      url.searchParams.delete('lang');
     }
     window.location.href = url.toString();
   }));
