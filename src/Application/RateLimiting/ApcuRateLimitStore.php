@@ -12,6 +12,9 @@ use function apcu_fetch;
 use function apcu_store;
 use function preg_quote;
 
+/**
+ * @phpstan-type RateLimitEntry array{count:int,start:int}
+ */
 class ApcuRateLimitStore implements RateLimitStore
 {
     private const PREFIX = 'rlm:';
@@ -31,17 +34,25 @@ class ApcuRateLimitStore implements RateLimitStore
         $now = time();
 
         $entry = apcu_fetch($namespacedKey, $success);
-        if (!$success || !is_array($entry) || $this->isExpired($entry, $now, $windowSeconds)) {
+        if (!$success || !is_array($entry)) {
             $entry = ['count' => 0, 'start' => $now];
+        } else {
+            $entry = [
+                'count' => (int) ($entry['count'] ?? 0),
+                'start' => (int) ($entry['start'] ?? $now),
+            ];
+
+            if ($this->isExpired($entry, $now, $windowSeconds)) {
+                $entry = ['count' => 0, 'start' => $now];
+            }
         }
 
-        $count = (int) ($entry['count'] ?? 0) + 1;
-        $start = (int) ($entry['start'] ?? $now);
+        $entry['count']++;
 
-        apcu_store($namespacedKey, ['count' => $count, 'start' => $start], $windowSeconds);
+        apcu_store($namespacedKey, $entry, $windowSeconds);
         $this->keys[$namespacedKey] = true;
 
-        return $count;
+        return $entry['count'];
     }
 
     public function reset(): void {
@@ -65,7 +76,7 @@ class ApcuRateLimitStore implements RateLimitStore
     }
 
     /**
-     * @param array<string, int> $entry
+     * @param RateLimitEntry $entry
      */
     private function isExpired(array $entry, int $now, int $windowSeconds): bool {
         $start = (int) ($entry['start'] ?? 0);

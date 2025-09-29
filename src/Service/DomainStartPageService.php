@@ -365,14 +365,12 @@ class DomainStartPageService
      * @return array{smtp_host:?string,smtp_user:?string,smtp_pass:?string,smtp_port:?int,smtp_encryption:?string,smtp_dsn:?string,update_pass:bool}
      */
     private function normalizeSmtpConfig(array $smtpConfig, ?array $existing): array {
-        $host = isset($existing['smtp_host']) && $existing['smtp_host'] !== null ? (string) $existing['smtp_host'] : null;
-        $user = isset($existing['smtp_user']) && $existing['smtp_user'] !== null ? (string) $existing['smtp_user'] : null;
-        $port = isset($existing['smtp_port']) && $existing['smtp_port'] !== null ? (int) $existing['smtp_port'] : null;
-        $encryption = isset($existing['smtp_encryption']) && $existing['smtp_encryption'] !== null
-            ? (string) $existing['smtp_encryption']
-            : null;
-        $dsn = isset($existing['smtp_dsn']) && $existing['smtp_dsn'] !== null ? (string) $existing['smtp_dsn'] : null;
-        $pass = isset($existing['smtp_pass']) && $existing['smtp_pass'] !== null ? (string) $existing['smtp_pass'] : null;
+        $host = $this->readExistingString($existing, 'smtp_host');
+        $user = $this->readExistingString($existing, 'smtp_user');
+        $port = $this->readExistingInt($existing, 'smtp_port');
+        $encryption = $this->readExistingString($existing, 'smtp_encryption');
+        $dsn = $this->readExistingString($existing, 'smtp_dsn');
+        $pass = $this->readExistingString($existing, 'smtp_pass');
 
         if (array_key_exists('smtp_host', $smtpConfig)) {
             $value = trim((string) $smtpConfig['smtp_host']);
@@ -465,5 +463,31 @@ class DomainStartPageService
             'smtp_dsn' => $dsn,
             'update_pass' => $updatePass,
         ];
+    }
+
+    /**
+     * @param array<string,mixed>|null $existing
+     */
+    private function readExistingString(?array $existing, string $key): ?string {
+        if ($existing === null || !array_key_exists($key, $existing)) {
+            return null;
+        }
+
+        $value = $existing[$key];
+
+        return $value === null ? null : (string) $value;
+    }
+
+    /**
+     * @param array<string,mixed>|null $existing
+     */
+    private function readExistingInt(?array $existing, string $key): ?int {
+        if ($existing === null || !array_key_exists($key, $existing)) {
+            return null;
+        }
+
+        $value = $existing[$key];
+
+        return $value === null ? null : (int) $value;
     }
 }
