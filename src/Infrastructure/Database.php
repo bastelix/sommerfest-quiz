@@ -40,6 +40,25 @@ class Database
             try {
                 return new PDO($dsn, $user, $pass, $options);
             } catch (PDOException $e) {
+                if (stripos($e->getMessage(), 'could not find driver') !== false) {
+                    $driver = strtolower($dsn !== '' ? explode(':', $dsn, 2)[0] : '');
+                    if ($driver === '') {
+                        $driver = 'unknown';
+                    }
+                    $hint = 'Enable the corresponding PDO extension for the "' . $driver . '" driver';
+                    if ($driver === 'pgsql') {
+                        $hint .= ' (for example: install the "pdo_pgsql" extension).';
+                    } else {
+                        $hint .= '.';
+                    }
+
+                    throw new PDOException(
+                        $hint . ' Current DSN: ' . ($dsn === '' ? '[empty]' : $dsn),
+                        (int) $e->getCode(),
+                        $e
+                    );
+                }
+
                 if ($retries-- <= 0) {
                     throw $e;
                 }
