@@ -33,7 +33,14 @@ class EventService
     /**
      * Retrieve all events ordered by name.
      *
-     * @return list<array{uid:string,name:string,start_date:?string,end_date:?string,description:?string,published:bool}>
+     * @return list<array{
+     *     uid:string,
+     *     name:string,
+     *     start_date:?string,
+     *     end_date:?string,
+     *     description:?string,
+     *     published:bool
+     * }>
      */
     public function getAll(): array {
         $sql = 'SELECT uid,name,start_date,end_date,description,published,sort_order FROM events ORDER BY sort_order';

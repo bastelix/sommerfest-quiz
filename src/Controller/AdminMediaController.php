@@ -262,7 +262,12 @@ class AdminMediaController
         }
 
         try {
-            $stored = $this->media->uploadFile($scope, $file, $eventUid !== '' ? $eventUid : null, $options !== [] ? $options : null);
+            $stored = $this->media->uploadFile(
+                $scope,
+                $file,
+                $eventUid !== '' ? $eventUid : null,
+                $options !== [] ? $options : null
+            );
         } catch (RuntimeException $e) {
             return $this->jsonError($response, $e->getMessage(), 400);
         }

@@ -50,7 +50,10 @@ class PageService
         }
 
         if (!preg_match('/^[a-z0-9][a-z0-9\-]{0,99}$/', $normalizedSlug)) {
-            throw new InvalidArgumentException('Der Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten (max. 100 Zeichen).');
+            throw new InvalidArgumentException(
+                'Der Slug darf nur Kleinbuchstaben, Zahlen und Bindestriche enthalten '
+                . '(max. 100 Zeichen).'
+            );
         }
 
         $normalizedTitle = trim($title);

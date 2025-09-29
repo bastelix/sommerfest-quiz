@@ -253,7 +253,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         $request = $request
             ->withAttribute('plan', $plan)
             ->withAttribute('configService', $configService)
-            ->withAttribute('configController', new ConfigController($configService, new ConfigValidator(), $eventService))
+            ->withAttribute(
+                'configController',
+                new ConfigController(
+                    $configService,
+                    new ConfigValidator(),
+                    $eventService
+                )
+            )
             ->withAttribute('catalogController', new CatalogController($catalogService))
             ->withAttribute('adminCatalogController', new AdminCatalogController($catalogService))
             ->withAttribute('resultController', new ResultController(
@@ -266,7 +273,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             ))
             ->withAttribute('teamController', new TeamController($teamService, $configService))
             ->withAttribute('eventController', new EventController($eventService))
-            ->withAttribute('eventConfigController', new EventConfigController($eventService, $configService, $imageUploadService))
+            ->withAttribute(
+                'eventConfigController',
+                new EventConfigController($eventService, $configService, $imageUploadService)
+            )
             ->withAttribute(
                 'tenantController',
                 new TenantController(
@@ -443,14 +453,17 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new MarketingPageController('calserver');
         return $controller($request, $response);
     });
-    $app->get('/m/{slug:[a-z0-9-]+}', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
-        [$request, $allowed] = $resolveMarketingAccess($request);
-        if (!$allowed) {
-            return $response->withStatus(404);
+    $app->get(
+        '/m/{slug:[a-z0-9-]+}',
+        function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+            [$request, $allowed] = $resolveMarketingAccess($request);
+            if (!$allowed) {
+                return $response->withStatus(404);
+            }
+            $controller = new MarketingPageController();
+            return $controller($request, $response, $args);
         }
-        $controller = new MarketingPageController();
-        return $controller($request, $response, $args);
-    });
+    );
     $app->post('/landing/contact', ContactController::class)
         ->add(new RateLimitMiddleware(3, 3600))
         ->add(new CsrfMiddleware());
@@ -1500,7 +1513,9 @@ return function (\Slim\App $app, TranslationService $translator) {
         if ($slug === '' || !preg_match('/^[a-z0-9-]+$/', $slug)) {
             $response->getBody()->write(json_encode(['error' => 'Invalid slug']));
 
-            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+            return $response
+                ->withHeader('Content-Type', 'application/json')
+                ->withStatus(400);
         }
         $script = realpath(__DIR__ . '/../scripts/onboard_tenant.sh');
 
@@ -1820,12 +1835,15 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $response->withHeader('Location', $location)->withStatus(302);
     })->add(new RoleAuthMiddleware('admin'));
 
-    $app->get('/{slug:[a-z0-9-]+}', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
-        [$request, $allowed] = $resolveMarketingAccess($request);
-        if (!$allowed || $request->getAttribute('domainType') !== 'marketing') {
-            return $response->withStatus(404);
+    $app->get(
+        '/{slug:[a-z0-9-]+}',
+        function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+            [$request, $allowed] = $resolveMarketingAccess($request);
+            if (!$allowed || $request->getAttribute('domainType') !== 'marketing') {
+                return $response->withStatus(404);
+            }
+            $controller = new MarketingPageController();
+            return $controller($request, $response, $args);
         }
-        $controller = new MarketingPageController();
-        return $controller($request, $response, $args);
-    });
+    );
 };

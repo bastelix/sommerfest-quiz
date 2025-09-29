@@ -113,7 +113,14 @@ class UserService
     /**
      * Retrieve all users ordered by their position.
      *
-     * @return list<array{id:int,username:string,email:?string,role:string,active:bool,position:int}>
+     * @return list<array{
+     *     id:int,
+     *     username:string,
+     *     email:?string,
+     *     role:string,
+     *     active:bool,
+     *     position:int
+     * }>
      */
     public function getAll(): array {
         $stmt = $this->pdo->query('SELECT id,username,email,role,active,position FROM users ORDER BY position');
@@ -123,7 +130,15 @@ class UserService
     /**
      * Replace the entire user list with the provided data.
      *
-     * @param list<array{id?:int,username:string,email?:?string,role:string,password?:string,active?:bool,position?:int}> $users
+     * @param list<array{
+     *     id?:int,
+     *     username:string,
+     *     email?:?string,
+     *     role:string,
+     *     password?:string,
+     *     active?:bool,
+     *     position?:int
+     * }> $users
      */
     public function saveAll(array $users): void {
         $this->pdo->beginTransaction();
@@ -132,7 +147,9 @@ class UserService
             $existing[(int) $row['id']] = true;
         }
 
-        $insert = $this->pdo->prepare('INSERT INTO users(username,password,email,role,active,position) VALUES(?,?,?,?,?,?)');
+        $insert = $this->pdo->prepare(
+            'INSERT INTO users(username,password,email,role,active,position) VALUES(?,?,?,?,?,?)'
+        );
         $update = $this->pdo->prepare('UPDATE users SET username=?,email=?,role=?,active=?,position=? WHERE id=?');
         $updatePass = $this->pdo->prepare('UPDATE users SET password=? WHERE id=?');
         $delete = $this->pdo->prepare('DELETE FROM users WHERE id=?');
@@ -153,7 +170,14 @@ class UserService
                 if ($pass === '') {
                     $pass = bin2hex(random_bytes(8));
                 }
-                $insert->execute([$username, password_hash($pass, PASSWORD_DEFAULT), $email, $role, $active, $position]);
+                $insert->execute([
+                    $username,
+                    password_hash($pass, PASSWORD_DEFAULT),
+                    $email,
+                    $role,
+                    $active,
+                    $position,
+                ]);
                 continue;
             }
 

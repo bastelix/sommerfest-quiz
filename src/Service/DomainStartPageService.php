@@ -149,7 +149,9 @@ class DomainStartPageService
                 email = excluded.email,
                 smtp_host = excluded.smtp_host,
                 smtp_user = excluded.smtp_user,
-                smtp_pass = CASE WHEN excluded.smtp_pass = ? THEN domain_start_pages.smtp_pass ELSE excluded.smtp_pass END,
+                smtp_pass = CASE WHEN excluded.smtp_pass = ? THEN domain_start_pages.smtp_pass ' .
+                "\n" .
+                '                ELSE excluded.smtp_pass END,
                 smtp_port = excluded.smtp_port,
                 smtp_encryption = excluded.smtp_encryption,
                 smtp_dsn = excluded.smtp_dsn'
@@ -172,7 +174,16 @@ class DomainStartPageService
     /**
      * Fetch all configured domain mappings.
      *
-     * @return array<string,array{start_page:string,email:?string,smtp_host:?string,smtp_user:?string,smtp_port:?int,smtp_encryption:?string,smtp_dsn:?string,has_smtp_pass:bool}> Associative array of domain => config
+     * @return array<string,array{
+     *     start_page:string,
+     *     email:?string,
+     *     smtp_host:?string,
+     *     smtp_user:?string,
+     *     smtp_port:?int,
+     *     smtp_encryption:?string,
+     *     smtp_dsn:?string,
+     *     has_smtp_pass:bool
+     * }> Associative array of domain => config
      */
     public function getAllMappings(): array {
         $stmt = $this->pdo->query(
@@ -236,7 +247,18 @@ class DomainStartPageService
     /**
      * Fetch the stored configuration for a domain.
      *
-     * @return array{domain:string,start_page:string,email:?string,smtp_host:?string,smtp_user:?string,smtp_port:?int,smtp_encryption:?string,smtp_dsn:?string,has_smtp_pass:bool,smtp_pass:?string}|null
+     * @return array{
+     *     domain:string,
+     *     start_page:string,
+     *     email:?string,
+     *     smtp_host:?string,
+     *     smtp_user:?string,
+     *     smtp_port:?int,
+     *     smtp_encryption:?string,
+     *     smtp_dsn:?string,
+     *     has_smtp_pass:bool,
+     *     smtp_pass:?string
+     * }|null
      */
     public function getDomainConfig(string $domain, bool $includeSensitive = false): ?array {
         $normalized = $this->normalizeDomain($domain);
@@ -398,7 +420,15 @@ class DomainStartPageService
      * @param array<string,mixed> $smtpConfig
      * @param array<string,mixed>|null $existing
      *
-     * @return array{smtp_host:?string,smtp_user:?string,smtp_pass:?string,smtp_port:?int,smtp_encryption:?string,smtp_dsn:?string,update_pass:bool}
+     * @return array{
+     *     smtp_host:?string,
+     *     smtp_user:?string,
+     *     smtp_pass:?string,
+     *     smtp_port:?int,
+     *     smtp_encryption:?string,
+     *     smtp_dsn:?string,
+     *     update_pass:bool
+     * }
      */
     private function normalizeSmtpConfig(array $smtpConfig, ?array $existing): array {
         $host = $this->readExistingString($existing, 'smtp_host');
