@@ -7,6 +7,7 @@ namespace App\Service;
 use Psr\Http\Message\UploadedFileInterface;
 use RuntimeException;
 
+use function App\runSyncProcess;
 use function str_starts_with;
 
 /**
@@ -20,10 +21,10 @@ class MediaLibraryService
     public const MAX_UPLOAD_SIZE = 5 * 1024 * 1024;
 
     /** @var list<string> */
-    public const ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'pdf', 'mp4', 'webm'];
+    public const ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'webp', 'svg', 'pdf', 'mp3', 'mp4', 'webm'];
 
     /** @var list<string> */
-    private const RAW_EXTENSIONS = ['svg', 'pdf', 'mp4', 'webm'];
+    private const RAW_EXTENSIONS = ['svg', 'pdf', 'mp3', 'mp4', 'webm'];
 
     /** @var list<string> */
     public const ALLOWED_MIME_TYPES = [
@@ -32,8 +33,11 @@ class MediaLibraryService
         'image/webp',
         'image/svg+xml',
         'application/pdf',
+        'audio/mpeg',
+        'audio/mp3',
         'video/mp4',
         'video/webm',
+        'audio/webm',
     ];
 
     private const METADATA_FILE = '.media-metadata.json';
@@ -231,9 +235,9 @@ class MediaLibraryService
     }
 
     /**
-     * Convert an existing raster image to WebP and store it alongside the original file.
+     * Convert an existing file to an alternative format supported by the media manager.
      */
-    public function convertFileToWebp(string $scope, string $name, ?string $eventUid = null): array {
+    public function convertFile(string $scope, string $name, ?string $eventUid = null): array {
         $name = $this->sanitizeExistingName($name);
 
         [$dir, $relative, $publicPath, $resolvedUid] = $this->resolveScope($scope, $eventUid);
@@ -247,10 +251,39 @@ class MediaLibraryService
             throw new RuntimeException('unsupported conversion');
         }
 
-        if (!in_array($extension, ['png', 'jpg', 'jpeg'], true)) {
+        $metadata = $this->readMetadata($dir);
+
+        if (in_array($extension, ['png', 'jpg', 'jpeg'], true)) {
+            $targetName = $this->convertImageToWebp($relative, $dir, $name, $sourcePath);
+        } elseif ($extension === 'mp4') {
+            $targetName = $this->convertVideoToWebm($dir, $name, $sourcePath);
+        } else {
             throw new RuntimeException('unsupported conversion');
         }
 
+        $targetPath = $dir . DIRECTORY_SEPARATOR . $targetName;
+        clearstatcache(true, $targetPath);
+
+        $metadata = $this->copyConversionMetadata($dir, $metadata, $name, $targetName);
+        $entryMeta = $metadata[$targetName] ?? ['tags' => [], 'folder' => null];
+
+        return $this->buildFileInfo($targetPath, $publicPath, $scope, $resolvedUid, $entryMeta);
+    }
+
+    /**
+     * @deprecated Use convertFile() instead.
+     */
+    public function convertFileToWebp(string $scope, string $name, ?string $eventUid = null): array
+    {
+        return $this->convertFile($scope, $name, $eventUid);
+    }
+
+    private function convertImageToWebp(
+        string $relative,
+        string $dir,
+        string $name,
+        string $sourcePath
+    ): string {
         $baseName = (string) pathinfo($name, PATHINFO_FILENAME);
         $baseName = $this->sanitizeBaseName($baseName);
         if ($baseName === '') {
@@ -271,30 +304,87 @@ class MediaLibraryService
             'webp'
         );
 
-        $targetPath = $dir . DIRECTORY_SEPARATOR . $targetName;
-        clearstatcache(true, $targetPath);
+        return $targetName;
+    }
 
-        $metadata = $this->readMetadata($dir);
-        $sourceMeta = $metadata[$name] ?? null;
-        if ($sourceMeta !== null) {
-            $tags = array_values(array_map('strval', $sourceMeta['tags'] ?? []));
-            $folderValue = $sourceMeta['folder'] ?? null;
-            $folder = is_string($folderValue) && $folderValue !== '' ? $folderValue : null;
-            $metadata = $this->applyMetadata(
-                $dir,
-                $metadata,
-                $targetName,
-                $tags,
-                $folder,
-                true,
-                true,
-                null
-            );
+    private function convertVideoToWebm(string $dir, string $name, string $sourcePath): string
+    {
+        $baseName = (string) pathinfo($name, PATHINFO_FILENAME);
+        $baseName = $this->sanitizeBaseName($baseName);
+        if ($baseName === '') {
+            $baseName = 'video';
         }
 
-        $entryMeta = $metadata[$targetName] ?? ['tags' => [], 'folder' => null];
+        $targetBase = $this->uniqueBaseName($dir, $baseName, 'webm');
+        $targetName = $targetBase . '.webm';
+        $targetPath = $dir . DIRECTORY_SEPARATOR . $targetName;
 
-        return $this->buildFileInfo($targetPath, $publicPath, $scope, $resolvedUid, $entryMeta);
+        $result = runSyncProcess('ffmpeg', [
+            '-y',
+            '-loglevel',
+            'error',
+            '-i',
+            $sourcePath,
+            '-c:v',
+            'libvpx-vp9',
+            '-b:v',
+            '2M',
+            '-pix_fmt',
+            'yuv420p',
+            '-c:a',
+            'libopus',
+            '-b:a',
+            '128k',
+            '-f',
+            'webm',
+            $targetPath,
+        ]);
+
+        if (!$result['success']) {
+            $message = trim($result['stderr'] !== '' ? $result['stderr'] : $result['stdout']);
+            throw new RuntimeException($message !== '' ? $message : 'conversion failed');
+        }
+
+        if (!is_file($targetPath)) {
+            throw new RuntimeException('conversion failed');
+        }
+
+        @chown($targetPath, 'www-data');
+        @chgrp($targetPath, 'www-data');
+        @chmod($targetPath, 0664);
+
+        return $targetName;
+    }
+
+    /**
+     * @param array<string, array{tags:list<string>,folder:?string}> $metadata
+     * @return array<string, array{tags:list<string>,folder:?string}>
+     */
+    private function copyConversionMetadata(
+        string $dir,
+        array $metadata,
+        string $sourceName,
+        string $targetName
+    ): array {
+        $sourceMeta = $metadata[$sourceName] ?? null;
+        if ($sourceMeta === null) {
+            return $metadata;
+        }
+
+        $tags = array_values(array_map('strval', $sourceMeta['tags'] ?? []));
+        $folderValue = $sourceMeta['folder'] ?? null;
+        $folder = is_string($folderValue) && $folderValue !== '' ? $folderValue : null;
+
+        return $this->applyMetadata(
+            $dir,
+            $metadata,
+            $targetName,
+            $tags,
+            $folder,
+            true,
+            true,
+            null
+        );
     }
 
     /**
