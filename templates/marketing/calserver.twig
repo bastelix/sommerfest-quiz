@@ -1,12 +1,12 @@
 {% extends 'layout.twig' %}
 
 {% set links = [
-    { 'href': '#features', 'label': 'Funktionen', 'icon': 'grid' },
-    { 'href': '#modules', 'label': 'Module', 'icon': 'database' },
-    { 'href': '#usecases', 'label': 'Anwendungsfälle', 'icon': 'users' },
-    { 'href': '#modes', 'label': 'Betriebsarten', 'icon': 'cog' },
-    { 'href': '#pricing', 'label': 'Preise', 'icon': 'credit-card' },
-    { 'href': '#faq', 'label': 'FAQ', 'icon': 'question' }
+    { 'href': '#features', 'label': t('calserver_nav_features'), 'icon': 'grid' },
+    { 'href': '#modules', 'label': t('calserver_nav_modules'), 'icon': 'database' },
+    { 'href': '#usecases', 'label': t('calserver_nav_usecases'), 'icon': 'users' },
+    { 'href': '#modes', 'label': t('calserver_nav_modes'), 'icon': 'cog' },
+    { 'href': '#pricing', 'label': t('calserver_nav_pricing'), 'icon': 'credit-card' },
+    { 'href': '#faq', 'label': t('calserver_nav_faq'), 'icon': 'question' }
 ] %}
 
 {% block title %}{{ metaTitle|default('calServer – Kalibrier- und Inventarverwaltung für Teams') }}{% endblock %}
@@ -160,11 +160,11 @@
            href="https://calendly.com/calhelp/calserver-vorstellung"
            target="_blank"
            rel="noopener">
-          <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>Demo buchen
+          <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>{{ t('calserver_nav_demo') }}
         </a>
         <a class="uk-button uk-button-primary git-btn uk-width-1-1 uk-margin-top offcanvas-cta"
            href="#trial">
-          <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Jetzt testen
+          <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>{{ t('calserver_nav_trial') }}
         </a>
       </div>
     </div>
