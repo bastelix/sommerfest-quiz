@@ -36,8 +36,20 @@ function runBackgroundProcess(string $script, array $args = []): void {
         $process->start();
         return;
     } catch (\Throwable $e) {
-        error_log('runBackgroundProcess failed: ' . $e->getMessage());
-        exec($commandLine . ' &');
+        $message = sprintf(
+            'runBackgroundProcess failed to start "%s": %s',
+            $escapedCommand,
+            $e->getMessage()
+        );
+
+        error_log($message);
+        file_put_contents(
+            $logFile,
+            '[' . date('c') . '] ERROR ' . $message . PHP_EOL,
+            FILE_APPEND
+        );
+
+        throw $e instanceof \RuntimeException ? $e : new \RuntimeException($message, 0, $e);
     }
 }
 
