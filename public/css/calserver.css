@@ -1823,6 +1823,10 @@ body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual__image {
     fill: none;
 }
 
+.calserver-cookie-trigger .uk-icon {
+    color: inherit !important;
+}
+
 .calserver-cookie-trigger:hover,
 .calserver-cookie-trigger:focus-visible {
     background: color-mix(in oklab, var(--calserver-primary) 30%, rgba(8, 13, 24, 0.9));
