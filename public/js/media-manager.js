@@ -371,6 +371,17 @@ ready(() => {
       if (!previewLanding || !previewLandingList) return;
       previewLandingList.innerHTML = '';
       const references = Array.isArray(file?.landing) ? file.landing : [];
+      const titleCounts = references.reduce((accumulator, reference) => {
+        if (!reference || typeof reference !== 'object') {
+          return accumulator;
+        }
+        const rawTitle = typeof reference.title === 'string' ? reference.title.trim() : '';
+        if (!rawTitle) {
+          return accumulator;
+        }
+        accumulator[rawTitle] = (accumulator[rawTitle] || 0) + 1;
+        return accumulator;
+      }, {});
       if (!references.length) {
         previewLanding.hidden = true;
         return;
@@ -384,8 +395,14 @@ ready(() => {
         item.className = 'media-landing-preview-item';
         const title = document.createElement('div');
         title.className = 'uk-text-small uk-text-bold';
-        const label = reference.title || reference.slug || '';
-        title.textContent = label || (reference.slug ? String(reference.slug) : '');
+        const rawTitle = typeof reference.title === 'string' ? reference.title.trim() : '';
+        const slug = typeof reference.slug === 'string' ? reference.slug : '';
+        const hasDuplicateTitle = rawTitle && titleCounts[rawTitle] > 1;
+        let label = rawTitle || slug || '';
+        if (hasDuplicateTitle && slug) {
+          label = `${rawTitle} (${slug})`;
+        }
+        title.textContent = label || (slug ? String(slug) : '');
         item.appendChild(title);
         const meta = document.createElement('div');
         meta.className = 'uk-text-meta';
