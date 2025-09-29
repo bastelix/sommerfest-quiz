@@ -140,7 +140,10 @@ class AdminMediaController
         }
 
         $rawTagFilters = $this->normalizeTags($params['tags'] ?? []);
-        $activeTagFilters = array_map(static fn(string $tag): string => mb_strtolower($tag), $rawTagFilters);
+        $activeTagFilters = array_map(
+            static fn(string $tag): string => mb_strtolower($tag),
+            $rawTagFilters
+        );
         if ($activeTagFilters !== []) {
             $files = array_values(
                 array_filter(
@@ -148,7 +151,10 @@ class AdminMediaController
                     static function (array $file) use ($activeTagFilters): bool {
                         $fileTags = array_map(
                             static fn(string $tag): string => mb_strtolower($tag),
-                            array_map('strval', $file['tags'] ?? [])
+                            array_map(
+                                'strval',
+                                $file['tags'] ?? []
+                            )
                         );
                         foreach ($activeTagFilters as $tag) {
                             if (!in_array($tag, $fileTags, true)) {
