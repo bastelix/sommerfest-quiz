@@ -38,12 +38,19 @@ class MarketingPageController
 
     public function __invoke(Request $request, Response $response, array $args = []): Response
     {
-        $slug = $this->slug ?? (string) ($args['slug'] ?? '');
-        if ($slug === '' || !preg_match('/^[a-z0-9-]+$/', $slug)) {
+        $templateSlug = $this->slug ?? (string) ($args['slug'] ?? '');
+        if ($templateSlug === '' || !preg_match('/^[a-z0-9-]+$/', $templateSlug)) {
             return $response->withStatus(404);
         }
 
-        $page = $this->pages->findBySlug($slug);
+        $locale = (string) $request->getAttribute('lang');
+        $contentSlug = $this->resolveLocalizedSlug($templateSlug, $locale);
+
+        $page = $this->pages->findBySlug($contentSlug);
+        if ($page === null && $contentSlug !== $templateSlug) {
+            $page = $this->pages->findBySlug($templateSlug);
+            $contentSlug = $templateSlug;
+        }
         if ($page === null) {
             return $response->withStatus(404);
         }
@@ -75,7 +82,7 @@ class MarketingPageController
         }
 
         $view = Twig::fromRequest($request);
-        $template = sprintf('marketing/%s.twig', $slug);
+        $template = sprintf('marketing/%s.twig', $templateSlug);
         $loader = $view->getEnvironment()->getLoader();
         if (!$loader->exists($template)) {
             return $response->withStatus(404);
@@ -174,5 +181,25 @@ class MarketingPageController
         }
 
         return $links;
+    }
+
+    private function resolveLocalizedSlug(string $baseSlug, string $locale): string
+    {
+        $locale = strtolower(trim($locale));
+        if ($locale === '' || $locale === 'de') {
+            return $baseSlug;
+        }
+
+        $map = [
+            'calserver' => [
+                'en' => 'calserver-en',
+            ],
+        ];
+
+        if (isset($map[$baseSlug][$locale])) {
+            return $map[$baseSlug][$locale];
+        }
+
+        return $baseSlug;
     }
 }
