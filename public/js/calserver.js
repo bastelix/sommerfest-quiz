@@ -4,9 +4,12 @@
   const STORAGE_KEY = (globalThis.STORAGE_KEYS && globalThis.STORAGE_KEYS.CALSERVER_COOKIE_CHOICES) || 'calserverCookieChoices';
   const PROSEAL_SCRIPT_SRC = 'https://s.provenexpert.net/seals/proseal-v2.js';
   const PROSEAL_SELECTOR = '[data-calserver-proseal]';
+  const MODULE_VIDEO_SELECTOR = '.calserver-module-figure__video';
   let proSealScriptLoading = false;
   let proSealScriptLoaded = false;
   const proSealQueue = [];
+  const moduleVideoControls = [];
+  let moduleFullscreenListenersAttached = false;
 
   function readPreferences() {
     if (globalThis.calserverCookie && typeof globalThis.calserverCookie.getPreferences === 'function') {
@@ -137,6 +140,216 @@
     container.appendChild(iframe);
     container.dataset.state = 'loaded';
     container.classList.add('is-loaded');
+  }
+
+  function getModuleVideoLabels() {
+    const language = (document.documentElement && document.documentElement.lang) || '';
+    const normalized = language.toLowerCase();
+
+    if (normalized.indexOf('en') === 0) {
+      return {
+        enter: 'Open video in fullscreen',
+        exit: 'Exit fullscreen mode'
+      };
+    }
+
+    return {
+      enter: 'Video im Vollbild anzeigen',
+      exit: 'Vollbildmodus verlassen'
+    };
+  }
+
+  function isModuleVideoFullscreen(video) {
+    if (!video || typeof document === 'undefined') {
+      return false;
+    }
+
+    if (document.fullscreenElement === video) {
+      return true;
+    }
+
+    if (document.webkitFullscreenElement === video) {
+      return true;
+    }
+
+    if (document.msFullscreenElement === video) {
+      return true;
+    }
+
+    if (typeof video.webkitDisplayingFullscreen === 'boolean' && video.webkitDisplayingFullscreen) {
+      return true;
+    }
+
+    return false;
+  }
+
+  function updateModuleVideoState(entry, isFullscreen) {
+    if (!entry || !entry.button) {
+      return;
+    }
+
+    const button = entry.button;
+    const icon = entry.icon;
+    const labels = entry.labels || getModuleVideoLabels();
+    const active = !!isFullscreen;
+    const label = active ? labels.exit : labels.enter;
+
+    button.dataset.state = active ? 'active' : 'idle';
+    button.setAttribute('aria-label', label);
+    button.title = label;
+
+    if (icon) {
+      icon.textContent = active ? '⤡' : '⤢';
+    }
+  }
+
+  function syncModuleVideoStates() {
+    moduleVideoControls.forEach(function (entry) {
+      updateModuleVideoState(entry, isModuleVideoFullscreen(entry.video));
+    });
+  }
+
+  function requestModuleVideoFullscreen(video) {
+    if (!video) {
+      return;
+    }
+
+    const request =
+      video.requestFullscreen ||
+      video.webkitRequestFullscreen ||
+      video.msRequestFullscreen;
+
+    if (typeof request === 'function') {
+      const result = request.call(video);
+      if (result && typeof result.catch === 'function') {
+        result.catch(function () {
+          /* empty */
+        });
+      }
+      return;
+    }
+
+    if (typeof video.webkitEnterFullscreen === 'function') {
+      try {
+        video.webkitEnterFullscreen();
+      } catch (error) {
+        /* empty */
+      }
+    }
+  }
+
+  function exitModuleVideoFullscreen(video) {
+    if (!video) {
+      return;
+    }
+
+    if (document.fullscreenElement === video && typeof document.exitFullscreen === 'function') {
+      const result = document.exitFullscreen();
+      if (result && typeof result.catch === 'function') {
+        result.catch(function () {
+          /* empty */
+        });
+      }
+      return;
+    }
+
+    if (document.webkitFullscreenElement === video && typeof document.webkitExitFullscreen === 'function') {
+      document.webkitExitFullscreen();
+      return;
+    }
+
+    if (document.msFullscreenElement === video && typeof document.msExitFullscreen === 'function') {
+      document.msExitFullscreen();
+      return;
+    }
+
+    if (typeof video.webkitExitFullscreen === 'function') {
+      try {
+        video.webkitExitFullscreen();
+      } catch (error) {
+        /* empty */
+      }
+    }
+  }
+
+  function registerModuleVideo(video, labels) {
+    if (!video || video.dataset.calserverFullscreen === 'ready') {
+      return;
+    }
+
+    const figure = video.closest('.calserver-module-figure');
+    if (!figure) {
+      return;
+    }
+
+    video.dataset.calserverFullscreen = 'ready';
+
+    let button = figure.querySelector('[data-calserver-video-fullscreen]');
+    if (!button) {
+      button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'calserver-module-figure__fullscreen-button';
+      button.setAttribute('data-calserver-video-fullscreen', '');
+
+      const icon = document.createElement('span');
+      icon.className = 'calserver-module-figure__fullscreen-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.textContent = '⤢';
+
+      button.appendChild(icon);
+      figure.appendChild(button);
+    }
+
+    const iconElement = button.querySelector('.calserver-module-figure__fullscreen-icon');
+
+    const entry = {
+      video: video,
+      button: button,
+      icon: iconElement,
+      labels: labels
+    };
+
+    moduleVideoControls.push(entry);
+    updateModuleVideoState(entry, false);
+
+    button.addEventListener('click', function () {
+      if (isModuleVideoFullscreen(video)) {
+        exitModuleVideoFullscreen(video);
+      } else {
+        requestModuleVideoFullscreen(video);
+      }
+    });
+
+    video.addEventListener('webkitbeginfullscreen', function () {
+      updateModuleVideoState(entry, true);
+    });
+
+    video.addEventListener('webkitendfullscreen', function () {
+      updateModuleVideoState(entry, false);
+    });
+  }
+
+  function initModuleVideoFullscreen() {
+    const videos = document.querySelectorAll(MODULE_VIDEO_SELECTOR);
+    if (!videos.length) {
+      return;
+    }
+
+    const labels = getModuleVideoLabels();
+
+    videos.forEach(function (video) {
+      registerModuleVideo(video, labels);
+    });
+
+    if (!moduleFullscreenListenersAttached) {
+      ['fullscreenchange', 'webkitfullscreenchange', 'msfullscreenchange'].forEach(function (eventName) {
+        document.addEventListener(eventName, syncModuleVideoStates);
+      });
+
+      moduleFullscreenListenersAttached = true;
+    }
+
+    syncModuleVideoStates();
   }
 
   function ensureProSealScript(callback) {
@@ -570,6 +783,7 @@
     }
   }
 
+  document.addEventListener('DOMContentLoaded', initModuleVideoFullscreen);
   document.addEventListener('DOMContentLoaded', initHeroBackground);
   document.addEventListener('DOMContentLoaded', initProSealWidgets);
 })();
