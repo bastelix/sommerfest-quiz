@@ -169,87 +169,142 @@
       </div>
     </div>
 
+    {% set heroLocale = locale() == 'en' ? 'en' : 'de' %}
+    {% set heroCopy = {
+      'de': {
+        'badge': 'Software gehostet in Deutschland',
+        'title': 'Mehr Überblick, weniger Aufwand mit calServer.',
+        'subtitle': 'Geräte, Termine und Dokumente – organisiert an einem Ort. calServer strukturiert die Kalibrier- und Inventarverwaltung für das ganze Team.',
+        'bullets': [
+          'Fälligkeiten kommen zu dir, nicht umgekehrt.',
+          'Transparente Workflows für Labor, Service und Verwaltung.',
+          'In Deutschland betrieben, DSGVO-konform.'
+        ],
+        'ctaPrimary': 'Jetzt testen',
+        'ctaSecondary': 'Demo buchen',
+        'proof': 'Unbegrenzte Nutzer:innen · Flexible Rollenmodelle · Tägliche Datensicherung',
+        'videoBadge': 'Live-Vorschau',
+        'videoAriaLabel': 'YouTube-Video',
+        'videoPreviewTitle': 'Video-Vorschau',
+        'videoPreviewSubtitle': 'calServer Vorstellung auf YouTube',
+        'videoHint': 'Lade die Vorstellung direkt hier. Mit deinem Klick erlaubst du, dass YouTube-Inhalte nachgeladen werden. Dabei können personenbezogene Daten durch Google verarbeitet werden.',
+        'videoButton': 'Video laden',
+        'videoPrivacy': 'Du kannst deine Einwilligung jederzeit in deinen Browser-Einstellungen widerrufen.',
+        'videoNoscript': 'JavaScript ist deaktiviert. Öffne das Video direkt auf',
+        'videoNoscriptLink': 'YouTube',
+        'videoNoscriptSuffix': '.',
+        'videoMetaTitle': 'calServer Vorstellung',
+        'videoMetaSubtitle': 'In 3 Minuten durch die wichtigsten Funktionen.',
+        'videoLinkLabel': 'Auf YouTube ansehen',
+        'videoFootnoteStrong': 'Schnelle Suche · Klare Tabellen · Intuitive Workflows · Smarte Analysen · Echtzeit-Insights · Nahtlose Integrationen',
+        'videoFootnoteSpan': 'Mehr Überblick, mehr Tempo, mehr Wow für dein Team.'
+      },
+      'en': {
+        'badge': 'Software hosted in Germany',
+        'title': 'More visibility, less effort with calServer.',
+        'subtitle': 'Instruments, schedules and documents—organized in one place. calServer streamlines calibration and inventory management for your entire team.',
+        'bullets': [
+          'Deadlines come to you, not the other way around.',
+          'Transparent workflows for lab, service and administration.',
+          'Hosted in Germany, GDPR-compliant.'
+        ],
+        'ctaPrimary': 'Start trial',
+        'ctaSecondary': 'Book demo',
+        'proof': 'Unlimited users · Flexible role models · Daily backups',
+        'videoBadge': 'Live preview',
+        'videoAriaLabel': 'YouTube video',
+        'videoPreviewTitle': 'Video preview',
+        'videoPreviewSubtitle': 'calServer introduction on YouTube',
+        'videoHint': 'Load the introduction right here. By clicking you allow YouTube content to be loaded. Google may process personal data in the process.',
+        'videoButton': 'Load video',
+        'videoPrivacy': 'You can withdraw your consent at any time in your browser settings.',
+        'videoNoscript': 'JavaScript is disabled. Open the video directly on',
+        'videoNoscriptLink': 'YouTube',
+        'videoNoscriptSuffix': '.',
+        'videoMetaTitle': 'calServer introduction',
+        'videoMetaSubtitle': 'Three-minute overview of the key features.',
+        'videoLinkLabel': 'Watch on YouTube',
+        'videoFootnoteStrong': 'Fast search · Clear tables · Intuitive workflows · Smart analytics · Real-time insights · Seamless integrations',
+        'videoFootnoteSpan': 'More visibility, more speed, more wow for your team.'
+      }
+    } %}
+    {% set hero = heroCopy[heroLocale] %}
+
     <section class="qr-hero uk-section uk-section-large">
       <div class="qr-hero-bg hero-bg-calserver" aria-hidden="true"></div>
       <div class="uk-container">
         <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle calserver-hero-grid" data-uk-grid>
           <div class="calserver-hero-grid__content" data-uk-scrollspy="cls: uk-animation-slide-left-small; repeat: true">
-            <span class="qr-badge pill pill--soft">Software Hosted in Germany</span>
-            <h1 class="qr-h1">Mehr Überblick, weniger Aufwand mit calServer.</h1>
-            <p class="qr-sub">Geräte, Termine und Dokumente – organisiert an einem Ort. calServer strukturiert die
-              Kalibrier- und Inventarverwaltung für das ganze Team.</p>
+            <span class="qr-badge pill pill--soft">{{ hero.badge }}</span>
+            <h1 class="qr-h1">{{ hero.title }}</h1>
+            <p class="qr-sub">{{ hero.subtitle }}</p>
             <ul class="uk-list uk-list-bullet hero-list">
-              <li>Fälligkeiten kommen zu dir, nicht umgekehrt.</li>
-              <li>Transparente Workflows für Labor, Service und Verwaltung.</li>
-              <li>In Deutschland betrieben, DSGVO-konform.</li>
+              {% for bullet in hero.bullets %}
+                <li>{{ bullet }}</li>
+              {% endfor %}
             </ul>
             <div class="uk-margin-medium-top uk-flex uk-flex-left uk-flex-wrap" style="gap:16px;">
               <a class="uk-button uk-button-primary cta-main" href="#trial">
-                <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Jetzt testen
+                <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>{{ hero.ctaPrimary }}
               </a>
               <a class="btn btn-transparent" href="https://calendly.com/calhelp/calserver-vorstellung"
                  target="_blank"
                  rel="noopener">
-                <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>Demo buchen
+                <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>{{ hero.ctaSecondary }}
               </a>
             </div>
             <div class="qr-proof uk-margin-top">
-              <span>Unbegrenzte Nutzer:innen · Flexible Rollenmodelle · Tägliche Datensicherung</span>
+              <span>{{ hero.proof }}</span>
             </div>
           </div>
           <div class="calserver-hero-grid__media" data-uk-scrollspy="cls: uk-animation-slide-right-small; repeat: true">
             <div class="calserver-hero-video">
-              <span class="pill pill--accent calserver-hero-video__badge">Live-Vorschau</span>
+              <span class="pill pill--accent calserver-hero-video__badge">{{ hero.videoBadge }}</span>
               <div class="calserver-hero-video__frame">
                 <div class="calserver-hero-video__embed"
                      data-calserver-video
                      data-video-id="ovHo2SF84u0"
-                     data-video-title="calServer Vorstellung"
+                     data-video-title="{{ hero.videoMetaTitle }}"
                      data-video-params="rel=0&playlist=ovHo2SF84u0&loop=1">
-                  <div class="calserver-hero-video__placeholder" role="group" aria-label="YouTube Video">
+                  <div class="calserver-hero-video__placeholder" role="group" aria-label="{{ hero.videoAriaLabel }}">
                     <div class="calserver-hero-video__preview" aria-hidden="true">
-                      <span class="calserver-hero-video__preview-title">Video-Vorschau</span>
-                      <span class="calserver-hero-video__preview-subtitle">calServer Vorstellung auf YouTube</span>
+                      <span class="calserver-hero-video__preview-title">{{ hero.videoPreviewTitle }}</span>
+                      <span class="calserver-hero-video__preview-subtitle">{{ hero.videoPreviewSubtitle }}</span>
                     </div>
-                    <p class="calserver-hero-video__hint">
-                      Lade die Vorstellung direkt hier. Mit deinem Klick erlaubst du, dass YouTube-Inhalte nachgeladen
-                      werden. Dabei können personenbezogene Daten durch Google verarbeitet werden.
-                    </p>
+                    <p class="calserver-hero-video__hint">{{ hero.videoHint }}</p>
                     <button class="uk-button uk-button-primary calserver-hero-video__consent-button"
                             type="button"
                             data-calserver-video-consent>
-                      Video laden
+                      {{ hero.videoButton }}
                     </button>
-                    <p class="calserver-hero-video__privacy-note">
-                      Du kannst deine Einwilligung jederzeit in deinen Browser-Einstellungen widerrufen.
-                    </p>
+                    <p class="calserver-hero-video__privacy-note">{{ hero.videoPrivacy }}</p>
                   </div>
                 </div>
                 <noscript>
                   <p class="calserver-hero-video__noscript-note">
-                    JavaScript ist deaktiviert. Öffne das Video direkt auf
+                    {{ hero.videoNoscript }}
                     <a href="https://www.youtube.com/watch?v=ovHo2SF84u0" target="_blank" rel="noopener">
-                      YouTube
-                    </a>.
+                      {{ hero.videoNoscriptLink }}
+                    </a>{{ hero.videoNoscriptSuffix }}
                   </p>
                 </noscript>
               </div>
               <div class="calserver-hero-video__meta">
                 <div class="calserver-hero-video__meta-text">
-                  <strong>calServer Vorstellung</strong>
-                  <span>In 3 Minuten durch die wichtigsten Funktionen.</span>
+                  <strong>{{ hero.videoMetaTitle }}</strong>
+                  <span>{{ hero.videoMetaSubtitle }}</span>
                 </div>
                 <a class="calserver-hero-video__link"
                    href="https://www.youtube.com/watch?v=ovHo2SF84u0"
                    target="_blank"
                    rel="noopener">
-                  <span class="uk-margin-small-right" data-uk-icon="icon: play-circle"></span>Auf YouTube ansehen
+                  <span class="uk-margin-small-right" data-uk-icon="icon: play-circle"></span>{{ hero.videoLinkLabel }}
                 </a>
               </div>
               <p class="calserver-hero-video__footnote">
-                <strong>Schnelle Suche · Klare Tabellen · Intuitive Workflows · Smarte Analysen · Echtzeit-Insights · Nahtlose Integrationen</strong>
+                <strong>{{ hero.videoFootnoteStrong }}</strong>
                 <br>
-                <span>Mehr Überblick, mehr Tempo, mehr Wow für dein Team.</span>
+                <span>{{ hero.videoFootnoteSpan }}</span>
               </p>
             </div>
           </div>
