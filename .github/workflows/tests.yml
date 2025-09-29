@@ -10,6 +10,20 @@ jobs:
         name: Tests PHP ${{ matrix.php }}
         runs-on: ubuntu-latest
         continue-on-error: ${{ matrix.experimental }}
+        services:
+            postgres:
+                image: postgres:16
+                env:
+                    POSTGRES_DB: quiz
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: postgres
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd "pg_isready -U postgres -d quiz"
+                    --health-interval 10s
+                    --health-timeout 5s
+                    --health-retries 5
         strategy:
             fail-fast: false
             matrix:
@@ -33,12 +47,20 @@ jobs:
               with:
                   php-version: ${{ matrix.php }}
                   coverage: xdebug
+                  extensions: pdo_pgsql
 
             - name: Configure Composer allow-plugins
               run: composer config allow-plugins.phpstan/extension-installer true
 
             - name: Install dependencies with Composer
               uses: ramsey/composer-install@1919f6c305aea6ab10e6181a8ddf72317ad77e0e
+
+            - name: Run database migrations
+              env:
+                  POSTGRES_DSN: pgsql:host=127.0.0.1;port=5432;dbname=quiz
+                  POSTGRES_USER: postgres
+                  POSTGRES_PASSWORD: postgres
+              run: php scripts/run_migrations.php
 
             - name: Debug Composer
               run: composer show --all
