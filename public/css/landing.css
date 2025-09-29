@@ -712,6 +712,47 @@ body.qr-landing:not([data-theme="dark"]) .contact-card span{
   color:#000;
 }
 
+.calserver-proseal{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.calserver-proseal__placeholder{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.calserver-proseal__placeholder p{
+  margin:0;
+}
+
+.calserver-proseal__embed{
+  min-height:120px;
+}
+
+.calserver-proseal__embed[hidden]{
+  display:none !important;
+}
+
+.calserver-proseal[data-state="loading"] .calserver-proseal__placeholder,
+.calserver-proseal[data-state="loaded"] .calserver-proseal__placeholder{
+  display:none;
+}
+
+.calserver-proseal__error[hidden]{
+  display:none !important;
+}
+
+.calserver-proseal[data-state="error"] .calserver-proseal__error{
+  color:var(--qr-muted);
+}
+
+body.qr-landing:not([data-theme="dark"]) .calserver-proseal[data-state="error"] .calserver-proseal__error{
+  color:#333;
+}
+
 /* Form & A11y */
 .qr-landing #contact-form .uk-input,
 .qr-landing #contact-form .uk-textarea{
