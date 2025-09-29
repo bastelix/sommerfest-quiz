@@ -830,6 +830,7 @@ VALUES (
 <section class="uk-section uk-section-primary uk-light calserver-highlight calserver-section-glow" id="modes">
 <div class="uk-container">
 <h2 class="uk-heading-line uk-light"><span>Operating modes that suit you</span></h2>
+<p class="muted uk-margin-small-top">Choose how calServer runs: as a secure cloud service or within your own infrastructure.</p>
 <ul class="uk-subnav uk-subnav-pill uk-margin" data-uk-switcher="">
 <li><a href="#">Cloud</a></li>
 <li><a href="#">On-premise</a></li>

@@ -948,6 +948,7 @@ VALUES (
     <section id="modes" class="uk-section uk-section-primary uk-light calserver-highlight calserver-section-glow">
       <div class="uk-container">
         <h2 class="uk-heading-line uk-light"><span>Betriebsarten, die zu Ihnen passen</span></h2>
+        <p class="muted uk-margin-small-top">Wählen Sie, wie calServer betrieben wird: als sichere Cloud-Lösung oder in Ihrer eigenen Umgebung.</p>
         <ul class="uk-subnav uk-subnav-pill uk-margin" data-uk-switcher>
           <li><a href="#">Cloud</a></li>
           <li><a href="#">On-Premise</a></li>
