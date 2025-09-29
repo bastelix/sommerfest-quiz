@@ -49,12 +49,20 @@ class DomainStartPageControllerTest extends TestCase
             $data = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
             $this->assertSame('ok', $data['status'] ?? null);
             $this->assertSame('fresh-marketing', $data['config']['start_page'] ?? null);
+            $this->assertArrayHasKey('has_smtp_pass', $data['config']);
+            $this->assertFalse($data['config']['has_smtp_pass']);
             $this->assertArrayHasKey('fresh-marketing', $data['options'] ?? []);
 
             $service = new DomainStartPageService($pdo);
             $config = $service->getDomainConfig('example.com');
             $this->assertNotNull($config);
             $this->assertSame('fresh-marketing', $config['start_page']);
+            $this->assertNull($config['smtp_host']);
+            $this->assertNull($config['smtp_user']);
+            $this->assertNull($config['smtp_dsn']);
+            $this->assertNull($config['smtp_encryption']);
+            $this->assertNull($config['smtp_pass']);
+            $this->assertFalse($config['has_smtp_pass']);
 
             $settingsValue = $pdo->query("SELECT value FROM settings WHERE key = 'home_page'")?->fetchColumn();
             $this->assertSame('fresh-marketing', $settingsValue);

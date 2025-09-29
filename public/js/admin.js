@@ -156,6 +156,14 @@ document.addEventListener('DOMContentLoaded', function () {
   const transDomainStartPageSaved = window.transDomainStartPageSaved || 'Startseite gespeichert';
   const transDomainStartPageError = window.transDomainStartPageError || 'Fehler beim Speichern';
   const transDomainStartPageInvalidEmail = window.transDomainStartPageInvalidEmail || transDomainStartPageError;
+  const transDomainSmtpTitle = window.transDomainSmtpTitle || 'SMTP-Einstellungen';
+  const transDomainSmtpSaved = window.transDomainSmtpSaved || transDomainStartPageSaved;
+  const transDomainSmtpError = window.transDomainSmtpError || transDomainStartPageError;
+  const transDomainSmtpInvalid = window.transDomainSmtpInvalid || transDomainSmtpError;
+  const transDomainSmtpDefault = window.transDomainSmtpDefault || 'Standard';
+  const transDomainSmtpSummaryDsn = window.transDomainSmtpSummaryDsn || 'DSN';
+  const transDomainSmtpPasswordSet = window.transDomainSmtpPasswordSet || 'Passwort gesetzt';
+  const secretPlaceholder = window.domainStartPageSecretPlaceholder || '__SECRET_KEEP__';
   const transDomainContactTemplateEdit = window.transDomainContactTemplateEdit || 'Template bearbeiten';
   const transDomainContactTemplateSaved = window.transDomainContactTemplateSaved || 'Template gespeichert';
   const transDomainContactTemplateError = window.transDomainContactTemplateError || 'Fehler beim Speichern';
@@ -176,10 +184,28 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     : null;
   const contactTemplateSubmit = contactTemplateForm?.querySelector('button[type="submit"]') || null;
+  const domainSmtpModalEl = document.getElementById('domainSmtpModal');
+  const domainSmtpModal = domainSmtpModalEl && window.UIkit ? UIkit.modal(domainSmtpModalEl) : null;
+  const domainSmtpForm = document.getElementById('domainSmtpForm');
+  const domainSmtpInfo = document.getElementById('domainSmtpInfo');
+  const domainSmtpFields = domainSmtpForm
+    ? {
+        domain: document.getElementById('domainSmtpDomain'),
+        host: document.getElementById('domainSmtpHost'),
+        user: document.getElementById('domainSmtpUser'),
+        port: document.getElementById('domainSmtpPort'),
+        encryption: document.getElementById('domainSmtpEncryption'),
+        pass: document.getElementById('domainSmtpPass'),
+        clear: document.getElementById('domainSmtpClearPass'),
+        dsn: document.getElementById('domainSmtpDsn'),
+      }
+    : null;
+  const domainSmtpSubmit = domainSmtpForm?.querySelector('button[type="submit"]') || null;
   let mainDomainNormalized = '';
   let domainStartPageData = [];
   let domainStartPageUpdater = null;
   let reloadDomainStartPages = null;
+  let currentSmtpItem = null;
   const trumbowygAvailable = () => !!(window.jQuery && window.jQuery.fn && typeof window.jQuery.fn.trumbowyg === 'function');
   const ensureTemplateEditor = element => {
     if (!element || element.dataset.templateEditor !== 'html' || !trumbowygAvailable()) {
@@ -307,6 +333,134 @@ document.addEventListener('DOMContentLoaded', function () {
       notify(err.message || transDomainContactTemplateLoadError, 'danger');
       contactTemplateModal.hide();
     });
+  };
+
+  const normalizeSmtpPortValue = value => {
+    if (value === null || value === undefined) {
+      return '';
+    }
+    if (typeof value === 'number') {
+      return Number.isFinite(value) ? value : '';
+    }
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (trimmed === '') {
+        return '';
+      }
+      const parsed = Number.parseInt(trimmed, 10);
+      return Number.isNaN(parsed) ? trimmed : parsed;
+    }
+
+    return '';
+  };
+
+  const applyDomainConfig = (item, config) => {
+    if (!item || !config) {
+      return;
+    }
+
+    if (typeof config.start_page === 'string' && config.start_page !== '') {
+      item.start_page = config.start_page;
+    }
+    item.email = typeof config.email === 'string' ? config.email : '';
+    item.smtp_host = typeof config.smtp_host === 'string' ? config.smtp_host : '';
+    item.smtp_user = typeof config.smtp_user === 'string' ? config.smtp_user : '';
+    const portValue = normalizeSmtpPortValue(config.smtp_port ?? '');
+    item.smtp_port = portValue === '' ? '' : portValue;
+    item.smtp_encryption = typeof config.smtp_encryption === 'string' ? config.smtp_encryption : '';
+    item.smtp_dsn = typeof config.smtp_dsn === 'string' ? config.smtp_dsn : '';
+    item.has_smtp_pass = Boolean(config.has_smtp_pass);
+  };
+
+  const buildDomainPayload = (item, overrides = {}) => {
+    if (!item) {
+      return {};
+    }
+
+    const resolve = (key, fallback) => (
+      Object.prototype.hasOwnProperty.call(overrides, key) ? overrides[key] : fallback
+    );
+
+    const portValue = resolve('smtp_port', item.smtp_port);
+
+    return {
+      domain: item.normalized,
+      start_page: resolve('start_page', item.start_page),
+      email: resolve('email', item.email || ''),
+      smtp_host: resolve('smtp_host', item.smtp_host || ''),
+      smtp_user: resolve('smtp_user', item.smtp_user || ''),
+      smtp_port: portValue === '' || portValue === null ? '' : portValue,
+      smtp_encryption: resolve('smtp_encryption', item.smtp_encryption || ''),
+      smtp_dsn: resolve('smtp_dsn', item.smtp_dsn || ''),
+      smtp_pass: resolve('smtp_pass', secretPlaceholder),
+    };
+  };
+
+  const describeSmtpConfig = item => {
+    if (!item) {
+      return transDomainSmtpDefault;
+    }
+    if (typeof item.smtp_dsn === 'string' && item.smtp_dsn !== '') {
+      try {
+        const parsed = new URL(item.smtp_dsn);
+        return `${transDomainSmtpSummaryDsn} (${parsed.protocol.replace(':', '')})`;
+      } catch (e) {
+        return transDomainSmtpSummaryDsn;
+      }
+    }
+    if (typeof item.smtp_host === 'string' && item.smtp_host !== '') {
+      let summary = item.smtp_host;
+      if (item.smtp_port !== '' && item.smtp_port !== null && item.smtp_port !== undefined) {
+        summary += `:${item.smtp_port}`;
+      }
+      if (typeof item.smtp_encryption === 'string' && item.smtp_encryption !== '' && item.smtp_encryption !== 'none') {
+        summary += ` (${item.smtp_encryption.toUpperCase()})`;
+      }
+      return summary;
+    }
+    if (item.has_smtp_pass) {
+      return transDomainSmtpPasswordSet;
+    }
+
+    return transDomainSmtpDefault;
+  };
+
+  const openSmtpEditor = item => {
+    if (!domainSmtpForm || !domainSmtpFields) {
+      return;
+    }
+    currentSmtpItem = item || null;
+    if (domainSmtpFields.domain) {
+      domainSmtpFields.domain.value = item?.normalized || '';
+    }
+    if (domainSmtpFields.host) {
+      domainSmtpFields.host.value = item?.smtp_host || '';
+    }
+    if (domainSmtpFields.user) {
+      domainSmtpFields.user.value = item?.smtp_user || '';
+    }
+    if (domainSmtpFields.port) {
+      const port = item?.smtp_port ?? '';
+      domainSmtpFields.port.value = port === '' || port === null ? '' : port;
+    }
+    if (domainSmtpFields.encryption) {
+      domainSmtpFields.encryption.value = item?.smtp_encryption || '';
+    }
+    if (domainSmtpFields.pass) {
+      domainSmtpFields.pass.value = '';
+    }
+    if (domainSmtpFields.clear) {
+      domainSmtpFields.clear.checked = false;
+    }
+    if (domainSmtpFields.dsn) {
+      domainSmtpFields.dsn.value = item?.smtp_dsn || '';
+    }
+    if (domainSmtpInfo) {
+      domainSmtpInfo.textContent = item?.domain || '';
+    }
+    if (domainSmtpModal) {
+      domainSmtpModal.show();
+    }
   };
 
   if (contactTemplateForm && contactTemplateFields) {
@@ -885,6 +1039,19 @@ document.addEventListener('DOMContentLoaded', function () {
         emailCell.appendChild(emailInput);
         tr.appendChild(emailCell);
 
+        const smtpCell = document.createElement('td');
+        const smtpSummary = document.createElement('div');
+        smtpSummary.className = 'uk-text-meta';
+        smtpSummary.textContent = describeSmtpConfig(item);
+        smtpCell.appendChild(smtpSummary);
+        const smtpButton = document.createElement('button');
+        smtpButton.type = 'button';
+        smtpButton.className = 'uk-button uk-button-default uk-button-small uk-margin-small-top';
+        smtpButton.textContent = transDomainSmtpTitle;
+        smtpButton.addEventListener('click', () => openSmtpEditor(item));
+        smtpCell.appendChild(smtpButton);
+        tr.appendChild(smtpCell);
+
         const templateCell = document.createElement('td');
         templateCell.className = 'uk-table-shrink';
         const templateButton = document.createElement('button');
@@ -903,22 +1070,22 @@ document.addEventListener('DOMContentLoaded', function () {
           const previous = item.start_page;
           const newValue = select.value;
           select.disabled = true;
-          const payload = {
-            domain: item.normalized,
+          const payload = buildDomainPayload(item, {
             start_page: newValue,
-            email: emailInput.value.trim()
-          };
+            email: emailInput.value.trim(),
+          });
           domainStartPageUpdater(payload)
             .then(data => {
               const config = data?.config || null;
               if (config) {
-                item.start_page = config.start_page || newValue;
-                item.email = typeof config.email === 'string' ? config.email : '';
-                emailInput.value = item.email || '';
+                applyDomainConfig(item, config);
               } else {
                 item.start_page = newValue;
+                item.email = emailInput.value.trim();
               }
               select.value = item.start_page;
+              emailInput.value = item.email || '';
+              smtpSummary.textContent = describeSmtpConfig(item);
               if (item.type === 'main') {
                 settingsInitial.home_page = item.start_page;
               }
@@ -942,22 +1109,20 @@ document.addEventListener('DOMContentLoaded', function () {
           }
 
           emailInput.disabled = true;
-          const payload = {
-            domain: item.normalized,
-            start_page: item.start_page,
-            email: newValue
-          };
+          const payload = buildDomainPayload(item, {
+            email: newValue,
+          });
           domainStartPageUpdater(payload)
             .then(data => {
               const config = data?.config || null;
               if (config) {
-                item.start_page = config.start_page || item.start_page;
-                item.email = typeof config.email === 'string' ? config.email : '';
+                applyDomainConfig(item, config);
               } else {
                 item.email = newValue;
               }
               select.value = item.start_page;
               emailInput.value = item.email || '';
+              smtpSummary.textContent = describeSmtpConfig(item);
               notify(transDomainStartPageSaved, 'success');
             })
             .catch(err => {
@@ -973,7 +1138,124 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     };
 
+    const toggleSmtpFormDisabled = disabled => {
+      if (!domainSmtpForm) {
+        return;
+      }
+      const elements = domainSmtpForm.querySelectorAll('input, select, button');
+      elements.forEach(el => {
+        if (el.classList.contains('uk-modal-close')) {
+          return;
+        }
+        el.disabled = disabled;
+      });
+    };
+
+    if (domainSmtpForm && domainSmtpFields) {
+      domainSmtpForm.addEventListener('submit', event => {
+        event.preventDefault();
+        if (!currentSmtpItem) {
+          notify(transDomainSmtpInvalid, 'danger');
+          return;
+        }
+
+        const hostValue = domainSmtpFields.host?.value?.trim() || '';
+        const userValue = domainSmtpFields.user?.value?.trim() || '';
+        const encryptionValue = domainSmtpFields.encryption?.value || '';
+        const dsnValue = domainSmtpFields.dsn?.value?.trim() || '';
+        const portInput = domainSmtpFields.port?.value ?? '';
+        const clearPass = !!domainSmtpFields.clear?.checked;
+        const passInput = domainSmtpFields.pass?.value || '';
+
+        let portPayload = '';
+        if (typeof portInput === 'string') {
+          const trimmed = portInput.trim();
+          if (trimmed !== '') {
+            const parsed = Number.parseInt(trimmed, 10);
+            portPayload = Number.isNaN(parsed) ? trimmed : parsed;
+          }
+        } else if (typeof portInput === 'number') {
+          portPayload = portInput;
+        }
+
+        let passPayload = secretPlaceholder;
+        if (clearPass) {
+          passPayload = '';
+        } else if (passInput !== '') {
+          passPayload = passInput;
+        }
+
+        const payload = buildDomainPayload(currentSmtpItem, {
+          smtp_host: hostValue,
+          smtp_user: userValue,
+          smtp_port: portPayload,
+          smtp_encryption: encryptionValue,
+          smtp_dsn: dsnValue,
+          smtp_pass: passPayload,
+        });
+
+        toggleSmtpFormDisabled(true);
+
+        domainStartPageUpdater(payload)
+          .then(data => {
+            const config = data?.config || null;
+            if (config) {
+              applyDomainConfig(currentSmtpItem, config);
+            } else {
+              currentSmtpItem.smtp_host = hostValue;
+              currentSmtpItem.smtp_user = userValue;
+              currentSmtpItem.smtp_port = normalizeSmtpPortValue(portPayload);
+              currentSmtpItem.smtp_encryption = encryptionValue;
+              currentSmtpItem.smtp_dsn = dsnValue;
+              if (clearPass) {
+                currentSmtpItem.has_smtp_pass = false;
+              } else if (passPayload !== secretPlaceholder) {
+                currentSmtpItem.has_smtp_pass = passPayload !== '';
+              }
+            }
+            renderDomainTable();
+            notify(transDomainSmtpSaved, 'success');
+            if (domainSmtpFields.pass) {
+              domainSmtpFields.pass.value = '';
+            }
+            if (domainSmtpFields.clear) {
+              domainSmtpFields.clear.checked = false;
+            }
+            if (domainSmtpModal) {
+              domainSmtpModal.hide();
+            }
+          })
+          .catch(err => {
+            notify(err.message || transDomainSmtpError, 'danger');
+          })
+          .finally(() => {
+            toggleSmtpFormDisabled(false);
+          });
+      });
+    }
+
+    if (domainSmtpModalEl && window.UIkit && UIkit.util) {
+      UIkit.util.on(domainSmtpModalEl, 'hidden', () => {
+        currentSmtpItem = null;
+        if (domainSmtpFields?.pass) {
+          domainSmtpFields.pass.value = '';
+        }
+        if (domainSmtpFields?.clear) {
+          domainSmtpFields.clear.checked = false;
+        }
+      });
+    }
+
     domainStartPageUpdater = payload => {
+      const hasSmtpFields = payload && typeof payload === 'object'
+        && (
+          Object.prototype.hasOwnProperty.call(payload, 'smtp_host')
+          || Object.prototype.hasOwnProperty.call(payload, 'smtp_user')
+          || Object.prototype.hasOwnProperty.call(payload, 'smtp_port')
+          || Object.prototype.hasOwnProperty.call(payload, 'smtp_encryption')
+          || Object.prototype.hasOwnProperty.call(payload, 'smtp_dsn')
+          || Object.prototype.hasOwnProperty.call(payload, 'smtp_pass')
+        );
       return apiFetch('/admin/domain-start-pages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -984,7 +1266,9 @@ document.addEventListener('DOMContentLoaded', function () {
           .catch(() => ({}))
           .then(data => {
             if (!res.ok) {
-              const fallback = res.status === 422 ? transDomainStartPageInvalidEmail : transDomainStartPageError;
+              const fallback = res.status === 422
+                ? (hasSmtpFields ? transDomainSmtpInvalid : transDomainStartPageInvalidEmail)
+                : transDomainStartPageError;
               throw new Error(data.error || fallback);
             }
             mergeDomainStartPageOptions(data?.options || {});
@@ -1016,7 +1300,13 @@ document.addEventListener('DOMContentLoaded', function () {
           domainStartPageData = Array.isArray(data?.domains) ? data.domains : [];
           domainStartPageData = domainStartPageData.map(item => ({
             ...item,
-            email: typeof item.email === 'string' ? item.email : ''
+            email: typeof item.email === 'string' ? item.email : '',
+            smtp_host: typeof item.smtp_host === 'string' ? item.smtp_host : '',
+            smtp_user: typeof item.smtp_user === 'string' ? item.smtp_user : '',
+            smtp_port: normalizeSmtpPortValue(item.smtp_port ?? ''),
+            smtp_encryption: typeof item.smtp_encryption === 'string' ? item.smtp_encryption : '',
+            smtp_dsn: typeof item.smtp_dsn === 'string' ? item.smtp_dsn : '',
+            has_smtp_pass: Boolean(item.has_smtp_pass),
           }));
           mainDomainNormalized = typeof data?.main === 'string' ? data.main : '';
           const mainEntry = domainStartPageData.find(it => it.type === 'main');

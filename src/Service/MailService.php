@@ -243,9 +243,18 @@ class MailService
         string $replyTo,
         string $message,
         ?array $templateData = null,
-        ?string $fromEmail = null
+        ?string $fromEmail = null,
+        ?array $smtpOverride = null
     ): void
     {
+        $activeMailer = $this->mailer;
+        if (is_array($smtpOverride)) {
+            $overrideMailer = $this->buildOverrideMailer($smtpOverride);
+            if ($overrideMailer !== null) {
+                $activeMailer = $overrideMailer;
+            }
+        }
+
         $context = $this->buildContactContext($name, $replyTo, $message);
         $templateArray = is_array($templateData) ? $templateData : [];
         $senderName = isset($templateArray['sender_name']) ? trim((string) $templateArray['sender_name']) : null;
@@ -289,7 +298,7 @@ class MailService
             ->html($recipientHtml)
             ->text($recipientText);
 
-        $this->mailer->send($email);
+        $activeMailer->send($email);
 
         $copyEmail = (new Email())
             ->from($fromOverride)
@@ -298,7 +307,7 @@ class MailService
             ->html($senderHtml)
             ->text($senderText);
 
-        $this->mailer->send($copyEmail);
+        $activeMailer->send($copyEmail);
 
         $this->audit?->log('contact_mail', ['from' => $replyTo]);
     }
@@ -360,5 +369,68 @@ class MailService
     private function buildDefaultSenderText(string $name, string $message): string
     {
         return sprintf("Hallo %s,\n\n%s\n\n%s", $name, 'vielen Dank für Ihre Nachricht. Hier ist eine Kopie Ihrer Anfrage:', $message);
+    }
+
+    /**
+     * @param array<string,mixed> $config
+     */
+    private function buildOverrideMailer(array $config): ?MailerInterface
+    {
+        $dsnValue = isset($config['smtp_dsn']) ? trim((string) $config['smtp_dsn']) : '';
+        if ($dsnValue !== '') {
+            try {
+                return $this->createTransport($dsnValue);
+            } catch (Throwable $e) {
+                error_log('Failed to create domain SMTP transport: ' . $e->getMessage());
+
+                return null;
+            }
+        }
+
+        $host = isset($config['smtp_host']) ? trim((string) $config['smtp_host']) : '';
+        $user = isset($config['smtp_user']) ? trim((string) $config['smtp_user']) : '';
+        $pass = isset($config['smtp_pass']) ? (string) $config['smtp_pass'] : '';
+        if ($host === '' || $user === '' || $pass === '') {
+            return null;
+        }
+
+        $port = $config['smtp_port'] ?? null;
+        if (is_string($port)) {
+            $port = trim($port);
+            if ($port === '') {
+                $port = null;
+            }
+        }
+        $portValue = null;
+        if ($port !== null) {
+            $portValue = (int) $port;
+            if ($portValue <= 0) {
+                $portValue = null;
+            }
+        }
+
+        $dsn = sprintf(
+            'smtp://%s:%s@%s',
+            rawurlencode($user),
+            rawurlencode($pass),
+            $host
+        );
+
+        if ($portValue !== null) {
+            $dsn .= ':' . $portValue;
+        }
+
+        $encryption = isset($config['smtp_encryption']) ? strtolower(trim((string) $config['smtp_encryption'])) : '';
+        if ($encryption !== '' && $encryption !== 'none') {
+            $dsn .= '?encryption=' . rawurlencode($encryption);
+        }
+
+        try {
+            return $this->createTransport($dsn);
+        } catch (Throwable $e) {
+            error_log('Failed to create domain SMTP transport: ' . $e->getMessage());
+        }
+
+        return null;
     }
 }

@@ -78,12 +78,31 @@ class ContactController
         $domainService = new DomainStartPageService($pdo);
         $templateService = new DomainContactTemplateService($pdo, $domainService);
         $host = strtolower($request->getUri()->getHost());
-        $domainConfig = $domainService->getDomainConfig($host);
+        $domainConfig = $domainService->getDomainConfig($host, includeSensitive: true);
         $domainEmail = null;
         if ($domainConfig !== null && $domainConfig['email'] !== null) {
             $domainEmail = trim((string) $domainConfig['email']);
             if ($domainEmail === '') {
                 $domainEmail = null;
+            }
+        }
+        $smtpOverride = null;
+        if ($domainConfig !== null) {
+            $override = [
+                'smtp_host' => $domainConfig['smtp_host'] ?? null,
+                'smtp_user' => $domainConfig['smtp_user'] ?? null,
+                'smtp_pass' => $domainConfig['smtp_pass'] ?? null,
+                'smtp_port' => $domainConfig['smtp_port'] ?? null,
+                'smtp_encryption' => $domainConfig['smtp_encryption'] ?? null,
+                'smtp_dsn' => $domainConfig['smtp_dsn'] ?? null,
+            ];
+            $hasDsn = is_string($override['smtp_dsn']) && $override['smtp_dsn'] !== '';
+            $hasCredentials =
+                is_string($override['smtp_host']) && $override['smtp_host'] !== '' &&
+                is_string($override['smtp_user']) && $override['smtp_user'] !== '' &&
+                is_string($override['smtp_pass']) && $override['smtp_pass'] !== '';
+            if ($hasDsn || $hasCredentials) {
+                $smtpOverride = $override;
             }
         }
         $template = $templateService->getForHost($host);
@@ -103,7 +122,7 @@ class ContactController
             $mailer = new MailService($twig);
         }
         try {
-            $mailer->sendContact($to, $name, $email, $message, $template, $domainEmail);
+            $mailer->sendContact($to, $name, $email, $message, $template, $domainEmail, $smtpOverride);
         } catch (RuntimeException $e) {
             error_log('Contact mail failed: ' . $e->getMessage());
             $response->getBody()->write('Mailversand fehlgeschlagen');
