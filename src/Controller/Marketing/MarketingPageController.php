@@ -15,6 +15,7 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 use Twig\Error\LoaderError;
+
 use function htmlspecialchars;
 
 class MarketingPageController
