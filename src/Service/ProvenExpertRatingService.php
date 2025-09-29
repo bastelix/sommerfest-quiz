@@ -26,6 +26,7 @@ use function sprintf;
 use function sys_get_temp_dir;
 use function touch;
 use function dirname;
+
 use const CURL_IPRESOLVE_V4;
 use const CURLOPT_CONNECTTIMEOUT;
 use const CURLOPT_IPRESOLVE;

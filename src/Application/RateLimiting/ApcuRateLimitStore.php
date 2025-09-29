@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Application\RateLimiting;
 
 use APCUIterator;
+
 use function apcu_delete;
 use function apcu_enabled;
 use function apcu_fetch;
