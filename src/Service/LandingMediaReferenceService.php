@@ -102,8 +102,8 @@ class LandingMediaReferenceService
             }
 
             foreach ($references as $reference) {
-                $path = $reference['path'] ?? null;
-                if (!is_string($path) || $path === '') {
+                $path = $reference['path'];
+                if ($path === '') {
                     continue;
                 }
                 if (!array_key_exists($path, $files)) {
@@ -119,7 +119,7 @@ class LandingMediaReferenceService
 
                 $absolute = $this->resolveAbsolutePath($path);
                 if (!is_file($absolute)) {
-                    $missingKey = sprintf('%s|%s|%s|%s', $reference['slug'] ?? '', $path, $reference['type'] ?? '', $reference['field'] ?? '');
+                    $missingKey = sprintf('%s|%s|%s|%s', $reference['slug'], $path, $reference['type'], $reference['field']);
                     if (!isset($seenMissing[$missingKey])) {
                         $missing[] = $this->buildMissingEntry($reference, $path);
                         $seenMissing[$missingKey] = true;
@@ -178,7 +178,7 @@ class LandingMediaReferenceService
 
         $matches = [];
         preg_match_all('~(?:\{\{\s*basePath\s*\}\}\s*)?/?uploads/[A-Za-z0-9_@./-]+~i', $content, $matches);
-        if (!isset($matches[0])) {
+        if ($matches[0] === []) {
             return [];
         }
 
@@ -247,10 +247,10 @@ class LandingMediaReferenceService
 
         foreach ($references as $reference) {
             $key = json_encode([
-                $reference['slug'] ?? '',
-                $reference['path'] ?? '',
-                $reference['type'] ?? '',
-                $reference['field'] ?? '',
+                $reference['slug'],
+                $reference['path'],
+                $reference['type'],
+                $reference['field'],
             ]);
             if ($key === false || isset($seen[$key])) {
                 continue;
@@ -269,9 +269,9 @@ class LandingMediaReferenceService
     private function referenceExists(array $existing, array $candidate): bool {
         foreach ($existing as $reference) {
             if (
-                ($reference['slug'] ?? null) === ($candidate['slug'] ?? null)
-                && ($reference['type'] ?? null) === ($candidate['type'] ?? null)
-                && ($reference['field'] ?? null) === ($candidate['field'] ?? null)
+                $reference['slug'] === $candidate['slug']
+                && $reference['type'] === $candidate['type']
+                && $reference['field'] === $candidate['field']
             ) {
                 return true;
             }
@@ -303,9 +303,9 @@ class LandingMediaReferenceService
 
         $reference['path'] = $path;
         $reference['displayPath'] = '/' . ltrim($path, '/');
-        $reference['suggestedName'] = is_string($name) ? $name : null;
+        $reference['suggestedName'] = $name !== '' ? $name : null;
         $reference['suggestedFolder'] = $folder;
-        $reference['extension'] = is_string($extension) ? strtolower($extension) : null;
+        $reference['extension'] = $extension !== '' ? strtolower($extension) : null;
 
         return $reference;
     }
@@ -376,8 +376,8 @@ class LandingMediaReferenceService
             return '';
         }
 
-        if (preg_match('~https?://[^/]+(/.*)$~i', $trimmed, $match)) {
-            $trimmed = (string) ($match[1] ?? '');
+        if (preg_match('~https?://[^/]+(/.*)$~i', $trimmed, $match) === 1) {
+            $trimmed = (string) $match[1];
         }
 
         $trimmed = ltrim($trimmed);
@@ -393,7 +393,10 @@ class LandingMediaReferenceService
             $trimmed = substr($trimmed, $pos);
         }
 
-        $trimmed = preg_split('/[?#]/', $trimmed)[0] ?? $trimmed;
+        $segments = preg_split('/[?#]/', $trimmed);
+        if (is_array($segments) && $segments !== []) {
+            $trimmed = (string) $segments[0];
+        }
         $trimmed = preg_replace('~/+~', '/', $trimmed) ?? $trimmed;
 
         return trim($trimmed);

@@ -198,16 +198,34 @@ class DomainStartPageService
                 $smtpPort = (int) $row['smtp_port'];
             }
 
+            $smtpHost = null;
+            if (array_key_exists('smtp_host', $row) && $row['smtp_host'] !== null) {
+                $smtpHost = (string) $row['smtp_host'];
+            }
+
+            $smtpUser = null;
+            if (array_key_exists('smtp_user', $row) && $row['smtp_user'] !== null) {
+                $smtpUser = (string) $row['smtp_user'];
+            }
+
+            $smtpEncryption = null;
+            if (array_key_exists('smtp_encryption', $row) && $row['smtp_encryption'] !== null) {
+                $smtpEncryption = (string) $row['smtp_encryption'];
+            }
+
+            $smtpDsn = null;
+            if (array_key_exists('smtp_dsn', $row) && $row['smtp_dsn'] !== null) {
+                $smtpDsn = (string) $row['smtp_dsn'];
+            }
+
             $mappings[$domain] = [
                 'start_page' => $page,
                 'email' => $email,
-                'smtp_host' => isset($row['smtp_host']) && $row['smtp_host'] !== null ? (string) $row['smtp_host'] : null,
-                'smtp_user' => isset($row['smtp_user']) && $row['smtp_user'] !== null ? (string) $row['smtp_user'] : null,
+                'smtp_host' => $smtpHost,
+                'smtp_user' => $smtpUser,
                 'smtp_port' => $smtpPort,
-                'smtp_encryption' => isset($row['smtp_encryption']) && $row['smtp_encryption'] !== null
-                    ? (string) $row['smtp_encryption']
-                    : null,
-                'smtp_dsn' => isset($row['smtp_dsn']) && $row['smtp_dsn'] !== null ? (string) $row['smtp_dsn'] : null,
+                'smtp_encryption' => $smtpEncryption,
+                'smtp_dsn' => $smtpDsn,
                 'has_smtp_pass' => ((int) ($row['has_smtp_pass'] ?? 0)) === 1,
             ];
         }
@@ -258,17 +276,35 @@ class DomainStartPageService
 
         $hasPass = $smtpPass !== null && $smtpPass !== '';
 
+        $smtpHost = null;
+        if (array_key_exists('smtp_host', $row) && $row['smtp_host'] !== null) {
+            $smtpHost = (string) $row['smtp_host'];
+        }
+
+        $smtpUser = null;
+        if (array_key_exists('smtp_user', $row) && $row['smtp_user'] !== null) {
+            $smtpUser = (string) $row['smtp_user'];
+        }
+
+        $smtpEncryption = null;
+        if (array_key_exists('smtp_encryption', $row) && $row['smtp_encryption'] !== null) {
+            $smtpEncryption = (string) $row['smtp_encryption'];
+        }
+
+        $smtpDsn = null;
+        if (array_key_exists('smtp_dsn', $row) && $row['smtp_dsn'] !== null) {
+            $smtpDsn = (string) $row['smtp_dsn'];
+        }
+
         return [
             'domain' => $normalized,
             'start_page' => $startPage,
             'email' => $email,
-            'smtp_host' => isset($row['smtp_host']) && $row['smtp_host'] !== null ? (string) $row['smtp_host'] : null,
-            'smtp_user' => isset($row['smtp_user']) && $row['smtp_user'] !== null ? (string) $row['smtp_user'] : null,
+            'smtp_host' => $smtpHost,
+            'smtp_user' => $smtpUser,
             'smtp_port' => $smtpPort,
-            'smtp_encryption' => isset($row['smtp_encryption']) && $row['smtp_encryption'] !== null
-                ? (string) $row['smtp_encryption']
-                : null,
-            'smtp_dsn' => isset($row['smtp_dsn']) && $row['smtp_dsn'] !== null ? (string) $row['smtp_dsn'] : null,
+            'smtp_encryption' => $smtpEncryption,
+            'smtp_dsn' => $smtpDsn,
             'has_smtp_pass' => $hasPass,
             'smtp_pass' => $includeSensitive ? $smtpPass : null,
         ];

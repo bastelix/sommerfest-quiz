@@ -348,5 +348,228 @@
     });
   });
 
+  function initHeroBackground() {
+    const container = document.querySelector('[data-calserver-hero-bg]');
+    if (!container) {
+      return;
+    }
+
+    const canvas = container.querySelector('[data-calserver-hero-canvas]');
+    if (!canvas) {
+      return;
+    }
+
+    const context = canvas.getContext('2d');
+    if (!context) {
+      container.classList.add('is-static');
+      return;
+    }
+
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const palette = [
+      'rgba(66, 132, 255, 0.45)',
+      'rgba(43, 214, 255, 0.35)',
+      'rgba(123, 92, 255, 0.4)',
+      'rgba(255, 255, 255, 0.12)'
+    ];
+    const blobCount = Math.max(5, Math.min(9, Math.round(window.innerWidth / 340)));
+    const blobs = Array.from({ length: blobCount }, function (_, index) {
+      return {
+        color: palette[index % palette.length],
+        anchorX: 0.12 + Math.random() * 0.76,
+        anchorY: 0.08 + Math.random() * 0.82,
+        ampX: 0.12 + Math.random() * 0.2,
+        ampY: 0.14 + Math.random() * 0.24,
+        baseRadius: 180 + Math.random() * 180,
+        speed: 0.08 + Math.random() * 0.18,
+        drift: 0.00012 + Math.random() * 0.0002,
+        phase: Math.random() * Math.PI * 2
+      };
+    });
+
+    let dpr = 1;
+    let width = 0;
+    let height = 0;
+    let animationFrame = null;
+    let needsResize = true;
+
+    function isHighContrast() {
+      if (!document.body) {
+        return false;
+      }
+
+      return (
+        document.body.classList.contains('high-contrast') ||
+        document.body.dataset.theme === 'high-contrast'
+      );
+    }
+
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = container.offsetWidth || container.clientWidth || window.innerWidth;
+      height = container.offsetHeight || container.clientHeight || window.innerHeight;
+
+      if (!width || !height) {
+        return;
+      }
+
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      canvas.style.width = width + 'px';
+      canvas.style.height = height + 'px';
+      context.setTransform(1, 0, 0, 1, 0, 0);
+      context.scale(dpr, dpr);
+    }
+
+    function clearCanvas() {
+      context.setTransform(1, 0, 0, 1, 0, 0);
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      context.scale(dpr, dpr);
+    }
+
+    function stop(makeStatic) {
+      if (animationFrame !== null) {
+        window.cancelAnimationFrame(animationFrame);
+        animationFrame = null;
+      }
+
+      if (makeStatic) {
+        clearCanvas();
+      }
+
+      container.classList.add('is-static');
+      needsResize = true;
+    }
+
+    function renderFrame(timestamp) {
+      animationFrame = window.requestAnimationFrame(renderFrame);
+
+      if (needsResize) {
+        resize();
+        needsResize = false;
+      }
+
+      if (!width || !height) {
+        return;
+      }
+
+      if (motionQuery.matches || isHighContrast()) {
+        stop(true);
+        return;
+      }
+
+      const time = timestamp * 0.001;
+
+      context.clearRect(0, 0, width, height);
+      context.globalCompositeOperation = 'lighter';
+      context.globalAlpha = 0.85;
+
+      blobs.forEach(function (blob, index) {
+        const angle = time * blob.speed + blob.phase;
+        const drift = time * blob.drift;
+        const x = (blob.anchorX + Math.cos(angle) * blob.ampX + Math.sin(drift + index) * 0.02) * width;
+        const y = (blob.anchorY + Math.sin(angle * 0.85) * blob.ampY + Math.cos(drift - index) * 0.02) * height;
+        const radius = blob.baseRadius * (0.75 + 0.25 * Math.sin(angle + drift));
+
+        const gradient = context.createRadialGradient(
+          x,
+          y,
+          Math.max(radius * 0.12, 12),
+          x,
+          y,
+          radius
+        );
+
+        gradient.addColorStop(0, blob.color);
+        gradient.addColorStop(1, 'rgba(6, 12, 24, 0)');
+
+        context.fillStyle = gradient;
+        context.beginPath();
+        context.arc(x, y, radius, 0, Math.PI * 2);
+        context.fill();
+      });
+
+      context.globalAlpha = 1;
+      context.globalCompositeOperation = 'source-over';
+    }
+
+    function start() {
+      if (motionQuery.matches || isHighContrast()) {
+        stop(true);
+        return;
+      }
+
+      if (needsResize) {
+        resize();
+        needsResize = false;
+      }
+
+      if (!width || !height) {
+        return;
+      }
+
+      container.classList.remove('is-static');
+
+      if (animationFrame === null) {
+        animationFrame = window.requestAnimationFrame(renderFrame);
+      }
+    }
+
+    const handleResize = function () {
+      needsResize = true;
+
+      if (animationFrame === null && !motionQuery.matches && !isHighContrast()) {
+        start();
+      }
+    };
+
+    const handleVisibility = function () {
+      if (document.hidden) {
+        if (animationFrame !== null) {
+          window.cancelAnimationFrame(animationFrame);
+          animationFrame = null;
+        }
+      } else {
+        start();
+      }
+    };
+
+    const handleMotionChange = function (event) {
+      if (event.matches) {
+        stop(true);
+      } else {
+        needsResize = true;
+        start();
+      }
+    };
+
+    start();
+
+    window.addEventListener('resize', handleResize);
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    if (typeof motionQuery.addEventListener === 'function') {
+      motionQuery.addEventListener('change', handleMotionChange);
+    } else if (typeof motionQuery.addListener === 'function') {
+      motionQuery.addListener(handleMotionChange);
+    }
+
+    if (document.body) {
+      const observer = new MutationObserver(function () {
+        if (isHighContrast()) {
+          stop(true);
+        } else {
+          start();
+        }
+      });
+
+      observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'data-theme']
+      });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', initHeroBackground);
   document.addEventListener('DOMContentLoaded', initProSealWidgets);
 })();

@@ -39,6 +39,47 @@ body.qr-landing.calserver-theme:not(.high-contrast) {
     --qr-landing-primary: var(--calserver-primary);
 }
 
+.qr-landing .hero-bg-calserver {
+    background:
+        radial-gradient(420px 320px at 12% 18%, color-mix(in oklab, var(--calserver-primary) 36%, rgba(12, 18, 33, 0.25)) 0%, transparent 68%),
+        radial-gradient(520px 360px at 88% 12%, color-mix(in oklab, #5ae1ff 32%, transparent) 0%, transparent 70%),
+        radial-gradient(540px 420px at 48% 108%, color-mix(in oklab, var(--calserver-primary) 28%, rgba(8, 14, 28, 0.8)) 0%, transparent 74%),
+        var(--qr-hero-gradient);
+    background-color: var(--qr-hero-grad-start);
+    overflow: hidden;
+}
+
+.qr-landing .hero-bg-calserver::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, var(--cs-hero-overlay-top) 0%, var(--cs-hero-overlay-bottom) 100%);
+    opacity: 0.82;
+}
+
+.qr-landing .calserver-hero-bg__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    mix-blend-mode: screen;
+    opacity: 0.82;
+    transition: opacity 0.3s ease;
+}
+
+.qr-landing .hero-bg-calserver.is-static .calserver-hero-bg__canvas {
+    opacity: 0;
+    display: none;
+}
+
+body.qr-landing.calserver-theme.high-contrast .calserver-hero-bg__canvas,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-hero-bg__canvas,
+body.high-contrast .calserver-hero-bg__canvas {
+    display: none !important;
+}
+
 body.qr-landing.calserver-theme.dark-mode:not(.high-contrast),
 body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) {
     --qr-hero-grad-start: #0b101a;
