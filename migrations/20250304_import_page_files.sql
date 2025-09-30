@@ -1,4 +1,9 @@
-INSERT INTO pages (slug, title, content) VALUES ('landing', 'Landing', '<!-- Social Proof -->
+INSERT INTO pages (slug, title, content)
+VALUES (
+    'landing',
+    'Landing',
+    $LANDING$
+<!-- Social Proof -->
 <section id="social-proof" class="uk-section">
   <div class="uk-container">
     <h2 class="uk-text-center uk-heading-medium">Vertrauen von Teams &amp; Events</h2>
@@ -25,7 +30,7 @@ INSERT INTO pages (slug, title, content) VALUES ('landing', 'Landing', '<!-- Soc
   </div>
 </section>
 
-<!-- So funktioniert''s -->
+<!-- So funktioniert's -->
 <section id="how-it-works" class="uk-section section section--alt">
   <div class="uk-container container-xl">
     <h2 class="uk-text-center uk-heading-medium">So funktioniert&rsquo;s</h2>
@@ -73,7 +78,7 @@ INSERT INTO pages (slug, title, content) VALUES ('landing', 'Landing', '<!-- Soc
     </div>
 
     <div class="uk-text-center uk-margin-large">
-      <a class="uk-button uk-button-primary uk-button-large" href="{{ basePath }}/onboarding">Event starten</a>
+      <a class="uk-button uk-button-primary uk-button-large onboarding-btn" href="{{ basePath }}/onboarding">Event starten</a>
       <a class="uk-button uk-button-default uk-button-large" href="https://demo.quizrace.app" target="_blank" rel="noopener">Demo ansehen</a>
     </div>
   </div>
@@ -319,21 +324,21 @@ INSERT INTO pages (slug, title, content) VALUES ('landing', 'Landing', '<!-- Soc
     </div>
 
     <script>
-      document.addEventListener(''DOMContentLoaded'', () => {
-        const slider = UIkit.slider(''#scenario-slider'');
-        const pills = Array.from(document.querySelectorAll(''#scenario-nav > li''));
-        const slides = Array.from(document.querySelectorAll(''.usecase-slider > li''));
+      document.addEventListener('DOMContentLoaded', () => {
+        const slider = UIkit.slider('#scenario-slider');
+        const pills = Array.from(document.querySelectorAll('#scenario-nav > li'));
+        const slides = Array.from(document.querySelectorAll('.usecase-slider > li'));
 
         function setActive(index) {
-          pills.forEach((li, i) => li.classList.toggle(''uk-active'', i === index));
+          pills.forEach((li, i) => li.classList.toggle('uk-active', i === index));
         }
 
         function setCurrent(index) {
-          slides.forEach((li, i) => li.classList.toggle(''uk-current'', i === index));
+          slides.forEach((li, i) => li.classList.toggle('uk-current', i === index));
         }
 
         pills.forEach((li, i) => {
-          li.addEventListener(''click'', (e) => {
+          li.addEventListener('click', (e) => {
             e.preventDefault();
             slider.show(i);
             setActive(i);
@@ -341,7 +346,7 @@ INSERT INTO pages (slug, title, content) VALUES ('landing', 'Landing', '<!-- Soc
           });
         });
 
-        UIkit.util.on(''#scenario-slider'', ''itemshown'', () => {
+        UIkit.util.on('#scenario-slider', 'itemshown', () => {
           setActive(slider.index);
           setCurrent(slider.index);
         });
@@ -352,7 +357,7 @@ INSERT INTO pages (slug, title, content) VALUES ('landing', 'Landing', '<!-- Soc
     </script>
 
     <div class="uk-text-center uk-margin-large">
-      <a class="cta-ghost uk-button uk-button-large" href="{{ basePath }}/onboarding">
+      <a class="cta-ghost uk-button uk-button-large onboarding-btn" href="{{ basePath }}/onboarding">
         Idee gefunden – los geht’s
       </a>
     </div>
@@ -379,7 +384,7 @@ INSERT INTO pages (slug, title, content) VALUES ('landing', 'Landing', '<!-- Soc
             <p class="uk-text-small uk-margin-remove">Sofort sehen, wie es für Teilnehmende aussieht.</p>
           </div>
         </div>
-        <a class="uk-button uk-button-primary uk-margin-medium-top" href="{{ basePath }}/onboarding">Editor testen</a>
+        <a class="uk-button uk-button-primary uk-margin-medium-top onboarding-btn" href="{{ basePath }}/onboarding">Editor testen</a>
       </div>
       <div>
         <div class="uk-card uk-card-quizrace uk-card-body">
@@ -466,7 +471,7 @@ INSERT INTO pages (slug, title, content) VALUES ('landing', 'Landing', '<!-- Soc
       <li>
         <a class="uk-accordion-title" href="#">Wie starte ich das Quiz?</a>
         <div class="uk-accordion-content">
-          <p>Scannen Sie den ersten QR-Code oder öffnen Sie den bereitgestellten Link. Teamnamen wählen und los geht''s.</p>
+          <p>Scannen Sie den ersten QR-Code oder öffnen Sie den bereitgestellten Link. Teamnamen wählen und los geht's.</p>
         </div>
       </li>
       <li>
@@ -595,9 +600,16 @@ INSERT INTO pages (slug, title, content) VALUES ('landing', 'Landing', '<!-- Soc
     <button class="uk-button uk-button-primary uk-modal-close" type="button">OK</button>
   </div>
 </div>
+$LANDING$
+)
+ON CONFLICT (slug) DO NOTHING;
 
-') ON CONFLICT(slug) DO NOTHING;
-INSERT INTO pages (slug, title, content) VALUES ('impressum', 'Impressum', '  <div class="uk-container uk-container-small legal-container">
+INSERT INTO pages (slug, title, content)
+VALUES (
+    'impressum',
+    'Impressum',
+    $IMPRESSUM$
+  <div class="uk-container uk-container-small legal-container">
     <h1 class="uk-heading-divider uk-hidden">Impressum</h1>
 
     <p>Angaben gemäß § 5 TMG</p>
@@ -623,8 +635,17 @@ INSERT INTO pages (slug, title, content) VALUES ('impressum', 'Impressum', '  <d
     <h2 class="uk-heading-bullet">Quellcode</h2>
     <p>Der Quellcode dieser Anwendung ist unter der MIT-Lizenz auf GitHub verfügbar:<br>
     <a href="https://github.com/bastelix/sommerfest-quiz">https://github.com/bastelix/sommerfest-quiz</a></p>
-  </div>') ON CONFLICT(slug) DO NOTHING;
-INSERT INTO pages (slug, title, content) VALUES ('datenschutz', 'Datenschutz', '  <div class="uk-container uk-container-small legal-container">
+  </div>
+$IMPRESSUM$
+)
+ON CONFLICT (slug) DO NOTHING;
+
+INSERT INTO pages (slug, title, content)
+VALUES (
+    'datenschutz',
+    'Datenschutz',
+    $DATENSCHUTZ$
+  <div class="uk-container uk-container-small legal-container">
     <h1 class="uk-heading-divider uk-hidden">Datenschutzerklärung</h1>
 
     <h2 class="uk-heading-bullet">1. Verantwortlicher</h2>
@@ -661,8 +682,16 @@ INSERT INTO pages (slug, title, content) VALUES ('datenschutz', 'Datenschutz', '
 
     <p class="uk-text-small"><strong>Hinweis:</strong> Diese Datenschutzerklärung basiert auf dem aktuellen Stand der Technik und des Projekts. <strong>CalHelp übernimmt keine Verantwortung</strong> für bereits durch Administrator:innen eingegebene personenbezogene Daten. Sollte sich der Funktionsumfang ändern oder die App personenbezogene Daten erheben, ist eine Anpassung dieser Datenschutzerklärung erforderlich.</p>
   </div>
-') ON CONFLICT(slug) DO NOTHING;
-INSERT INTO pages (slug, title, content) VALUES ('faq', 'FAQ', '<div class="uk-container uk-container-small">
+$DATENSCHUTZ$
+)
+ON CONFLICT (slug) DO NOTHING;
+
+INSERT INTO pages (slug, title, content)
+VALUES (
+    'faq',
+    'FAQ',
+    $FAQ_1$
+<div class="uk-container uk-container-small">
   <h1 class="uk-heading-divider uk-hidden">FAQ</h1>
   <p class="uk-text-lead">Hier beantworten wir häufige Fragen zur Nutzung des QuizRace.</p>
 
@@ -724,8 +753,16 @@ INSERT INTO pages (slug, title, content) VALUES ('faq', 'FAQ', '<div class="uk-c
     <li><strong>Offene Schnittstellen:</strong> Sie lässt sich leicht mit anderen Systemen verbinden.</li>
   </ul>
 </div>
-') ON CONFLICT(slug) DO NOTHING;
-INSERT INTO pages (slug, title, content) VALUES ('lizenz', 'Lizenz', '  <div class="uk-container uk-container-small legal-container">
+$FAQ_1$
+)
+ON CONFLICT (slug) DO NOTHING;
+
+INSERT INTO pages (slug, title, content)
+VALUES (
+    'lizenz',
+    'Lizenz',
+    $LIZENZ$
+  <div class="uk-container uk-container-small legal-container">
     <h1 class="uk-heading-divider uk-hidden">Lizenz</h1>
     <p>Diese Anwendung steht unter einer proprietären Lizenz. Den vollständigen Text finden Sie untenstehend sowie in der Datei <code>LICENSE</code>. Die kommerzielle Nutzung ist erlaubt, der Quellcode bleibt jedoch Eigentum von René Buske und darf nicht ohne vorherige schriftliche Genehmigung kopiert, verbreitet, verändert oder öffentlich zugänglich gemacht werden.</p>
     <div class="uk-card qr-card uk-card-body uk-margin">
@@ -763,4 +800,6 @@ The source code remains the property of René Buske and may not be copied, distr
 The Software is provided "as is" without warranty of any kind. René Buske shall not be liable for any damages arising from its use.
 </pre>
   </div>
-') ON CONFLICT(slug) DO NOTHING;
+$LIZENZ$
+)
+ON CONFLICT (slug) DO NOTHING;
