@@ -1,10 +1,15 @@
 /* global $, apiFetch, notify */
 
 // Define custom UIkit templates for Trumbowyg
+const DOMPURIFY_PAGE_EDITOR_CONFIG = {
+  ADD_TAGS: ['video', 'source'],
+  ADD_ATTR: ['autoplay', 'muted', 'loop', 'playsinline', 'preload', 'src', 'type', 'aria-label']
+};
+
 const sanitize = str => {
   const value = typeof str === 'string' ? str : String(str ?? '');
   if (window.DOMPurify && typeof window.DOMPurify.sanitize === 'function') {
-    return window.DOMPurify.sanitize(value);
+    return window.DOMPurify.sanitize(value, DOMPURIFY_PAGE_EDITOR_CONFIG);
   }
   if (window.console && typeof window.console.warn === 'function') {
     window.console.warn('DOMPurify not available, skipping HTML sanitization for page editor content.');
