@@ -98,7 +98,8 @@ function runSyncProcess(string $script, array $args = [], bool $throwOnError = f
             2 => ['pipe', 'w'],
         ];
 
-        $process = @proc_open(
+        $pipes = [];
+        $process = proc_open(
             $cmd,
             $descriptorSpec,
             $pipes,
@@ -110,6 +111,7 @@ function runSyncProcess(string $script, array $args = [], bool $throwOnError = f
         if (!\is_resource($process)) {
             $message = 'runSyncProcess proc_open fallback failed to start process';
             error_log($message);
+
             if ($throwOnError) {
                 throw new \RuntimeException($message, 0, $e);
             }
@@ -122,6 +124,7 @@ function runSyncProcess(string $script, array $args = [], bool $throwOnError = f
         }
 
         fclose($pipes[0]);
+
         $stdout = stream_get_contents($pipes[1]);
         fclose($pipes[1]);
         $stderr = stream_get_contents($pipes[2]);
@@ -135,7 +138,12 @@ function runSyncProcess(string $script, array $args = [], bool $throwOnError = f
 
         if (!$success) {
             $message = $stderr !== '' ? $stderr : $stdout;
-            error_log('runSyncProcess proc_open fallback failed: ' . $message);
+            $message = $message === ''
+                ? sprintf('Process exited with code %d', $exitCode)
+                : $message;
+
+            error_log(sprintf('runSyncProcess proc_open fallback failed (exit code %d): %s', $exitCode, $message));
+
             if ($throwOnError) {
                 throw new \RuntimeException($message, 0, $e);
             }
@@ -143,8 +151,8 @@ function runSyncProcess(string $script, array $args = [], bool $throwOnError = f
 
         return [
             'success' => $success,
-            'stdout' => $success ? $stdout : '',
-            'stderr' => $success ? '' : $stderr,
+            'stdout' => $stdout,
+            'stderr' => $stderr,
         ];
     }
 }
