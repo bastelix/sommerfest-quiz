@@ -81,4 +81,28 @@ class ProcessHelpersTest extends TestCase
             rmdir($dir);
         }
     }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testRunSyncProcessFallbackReturnsOutputsOnError(): void {
+        require_once __DIR__ . '/Stubs/FailingProcess.php';
+
+        $dir = sys_get_temp_dir() . '/proc_open dir ' . uniqid();
+        mkdir($dir);
+        $script = $dir . '/fallback_error_outputs.sh';
+        file_put_contents($script, "#!/bin/sh\necho 'fail out'\necho 'fail err' 1>&2\nexit 2\n");
+        chmod($script, 0755);
+
+        try {
+            $result = \App\runSyncProcess($script);
+
+            $this->assertFalse($result['success']);
+            $this->assertSame("fail out\n", $result['stdout']);
+            $this->assertSame("fail err\n", $result['stderr']);
+        } finally {
+            unlink($script);
+            rmdir($dir);
+        }
+    }
 }
