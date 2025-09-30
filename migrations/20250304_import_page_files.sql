@@ -414,7 +414,7 @@ INSERT INTO pages (slug, title, content) VALUES ('landing', 'Landing', '<!-- Soc
             <li>Alle Fragetypen &amp; QR-Codes</li>
             <li>Backup &amp; editierbare Texte³</li>
           </ul>
-          <a href="onboarding" class="cta-ghost uk-button uk-button-large uk-width-1-1 uk-text-center uk-margin-small-top">Jetzt starten</a>
+          <a href="{{ basePath }}/onboarding" class="cta-ghost uk-button uk-button-large uk-width-1-1 uk-text-center uk-margin-small-top">Jetzt starten</a>
         </div>
       </div>
       <!-- Standard -->
@@ -431,7 +431,7 @@ INSERT INTO pages (slug, title, content) VALUES ('landing', 'Landing', '<!-- Soc
             <li>Eigene Subdomain</li>
             <li>Vollständiger PDF-Export</li>
           </ul>
-          <a href="onboarding" class="cta-ghost uk-button uk-button-large uk-width-1-1 uk-text-center">Jetzt starten</a>
+          <a href="{{ basePath }}/onboarding" class="cta-ghost uk-button uk-button-large uk-width-1-1 uk-text-center">Jetzt starten</a>
         </div>
       </div>
       <!-- Professional -->
@@ -447,7 +447,7 @@ INSERT INTO pages (slug, title, content) VALUES ('landing', 'Landing', '<!-- Soc
             <li>100 Teams &amp; 50 Kataloge à 50 Fragen</li>
             <li>White-Label &amp; Rollenverwaltung</li>
           </ul>
-          <a href="onboarding" class="cta-ghost uk-button uk-button-large uk-width-1-1 uk-text-center">Jetzt starten</a>
+          <a href="{{ basePath }}/onboarding" class="cta-ghost uk-button uk-button-large uk-width-1-1 uk-text-center">Jetzt starten</a>
         </div>
       </div>
     </div>
