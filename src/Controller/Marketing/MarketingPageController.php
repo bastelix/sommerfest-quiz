@@ -66,6 +66,10 @@ class MarketingPageController
         $_SESSION['csrf_token'] = $csrf;
         $html = str_replace('{{ csrf_token }}', $csrf, $html);
 
+        $mailConfigured = MailService::isConfigured();
+        $placeholderToken = '{{ turnstile_widget }}';
+        $hadPlaceholder = str_contains($html, $placeholderToken);
+
         $widgetMarkup = '';
         if ($this->turnstileConfig->isEnabled()) {
             $siteKey = $this->turnstileConfig->getSiteKey() ?? '';
@@ -75,14 +79,16 @@ class MarketingPageController
                 htmlspecialchars($siteKey, ENT_QUOTES)
             );
         }
-        $html = str_replace('{{ turnstile_widget }}', $widgetMarkup, $html);
+        $html = str_replace($placeholderToken, $widgetMarkup, $html);
 
-        if (!MailService::isConfigured()) {
+        if (!$mailConfigured) {
             $html = preg_replace(
                 '/<form id="contact-form"[\s\S]*?<\/form>/',
                 '<p class="uk-text-center">Kontaktformular derzeit nicht verfügbar.</p>',
                 $html
             );
+        } else {
+            $html = $this->ensureTurnstileMarkup($html, $widgetMarkup, $hadPlaceholder);
         }
 
         $view = Twig::fromRequest($request);
@@ -126,6 +132,61 @@ class MarketingPageController
         } catch (LoaderError $e) {
             return $response->withStatus(404);
         }
+    }
+
+    /**
+     * Ensure the marketing contact form contains the Turnstile widget markup when enabled.
+     *
+     * @param string $html               Rendered page content
+     * @param string $widgetMarkup       Prepared Turnstile widget markup
+     * @param bool   $placeholderExisted True when the original template provided a placeholder
+     *
+     * @return string Updated page content with widget markup inserted when necessary
+     */
+    private function ensureTurnstileMarkup(string $html, string $widgetMarkup, bool $placeholderExisted): string
+    {
+        if ($widgetMarkup === '' || $placeholderExisted) {
+            return $html;
+        }
+
+        if (str_contains($html, 'cf-turnstile')) {
+            return $html;
+        }
+
+        $formPattern = '/(<form[^>]*id="contact-form"[^>]*>)(.*?)(<\/form>)/is';
+        if (!preg_match($formPattern, $html, $matches)) {
+            return $html;
+        }
+
+        $formContent = $matches[2];
+        if (str_contains($formContent, 'cf-turnstile')) {
+            return $html;
+        }
+
+        $containerPattern = '/(<div[^>]*data-turnstile-container[^>]*>)(.*?)(<\/div>)/is';
+        $updatedFormContent = $formContent;
+
+        if (preg_match($containerPattern, $formContent, $containerMatches)) {
+            if (!str_contains($containerMatches[2], 'cf-turnstile')) {
+                $containerReplacement = $containerMatches[1]
+                    . $containerMatches[2]
+                    . $widgetMarkup
+                    . $containerMatches[3];
+                $updatedFormContent = preg_replace(
+                    $containerPattern,
+                    $containerReplacement,
+                    $formContent,
+                    1
+                ) ?? $formContent;
+            }
+        } else {
+            $updatedFormContent .= '<div class="turnstile-widget">' . $widgetMarkup . '</div>';
+        }
+
+        $replacement = $matches[1] . $updatedFormContent . $matches[3];
+        $result = preg_replace($formPattern, $replacement, $html, 1);
+
+        return is_string($result) ? $result : $html;
     }
 
     /**
