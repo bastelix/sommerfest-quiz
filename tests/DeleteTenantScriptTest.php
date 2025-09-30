@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class DeleteTenantScriptTest extends TestCase
@@ -47,7 +48,19 @@ class DeleteTenantScriptTest extends TestCase
                 'PATH' => $envPath,
             ]
         );
-        $process->run();
+
+        try {
+            $process->mustRun();
+        } catch (ProcessFailedException $exception) {
+            $this->fail(
+                sprintf(
+                    'Process failed with exit code %d.%s%s',
+                    $process->getExitCode(),
+                    PHP_EOL . $process->getOutput(),
+                    $process->getErrorOutput() !== '' ? PHP_EOL . $process->getErrorOutput() : ''
+                )
+            );
+        }
 
         $this->assertSame(
             0,
@@ -64,7 +77,14 @@ class DeleteTenantScriptTest extends TestCase
         $this->assertDirectoryDoesNotExist($acmeDir);
         $this->assertDirectoryDoesNotExist($acmeDirEcc);
 
-        unlink($envFile);
-        @rmdir($stubDir);
+        if (file_exists($envFile)) {
+            unlink($envFile);
+        }
+        if (file_exists($stubDir . '/curl')) {
+            unlink($stubDir . '/curl');
+        }
+        if (is_dir($stubDir)) {
+            @rmdir($stubDir);
+        }
     }
 }
