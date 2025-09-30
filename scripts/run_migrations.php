@@ -19,11 +19,10 @@ if (is_readable($envFile)) {
 }
 
 use App\Infrastructure\Migrations\MigrationScriptRunner;
-use RuntimeException;
 
 try {
     $errors = MigrationScriptRunner::run(__DIR__ . '/../migrations');
-} catch (RuntimeException $e) {
+} catch (\RuntimeException $e) {
     fwrite(STDERR, '[ERROR] ' . $e->getMessage() . PHP_EOL);
     exit(1);
 }
