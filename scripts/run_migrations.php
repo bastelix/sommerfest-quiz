@@ -47,19 +47,41 @@ try {
 }
 Migrator::migrate($base, __DIR__ . '/../migrations');
 
-$host = getenv('SLIM_VIRTUAL_HOST') ?: getenv('DOMAIN');
-$schema = 'public';
-if ($host) {
-    $sub = explode('.', $host)[0];
-    if ($sub && $sub !== $host) {
-        $stmt = $base->prepare('SELECT subdomain FROM tenants WHERE subdomain = ?');
-        $stmt->execute([$sub]);
-        $found = $stmt->fetchColumn();
-        if ($found !== false) {
-            $schema = (string) $found;
-        }
+try {
+    $stmt = $base->query('SELECT subdomain FROM tenants');
+    if ($stmt === false) {
+        throw new RuntimeException('Unable to query tenant subdomains.');
+    }
+
+    $tenants = $stmt->fetchAll(PDO::FETCH_COLUMN);
+} catch (Throwable $e) {
+    fwrite(STDERR, '[ERROR] Failed to retrieve tenant schemas: ' . $e->getMessage() . PHP_EOL);
+    exit(1);
+}
+
+$schemas = [];
+foreach ($tenants as $subdomain) {
+    $schema = trim((string) $subdomain);
+    if ($schema === '' || $schema === 'public' || $schema === 'main') {
+        $schema = 'public';
+    }
+
+    $schemas[$schema] = true;
+}
+
+unset($schemas['public']);
+
+$hasErrors = false;
+foreach (array_keys($schemas) as $schema) {
+    try {
+        $tenant = Database::connectWithSchema($schema);
+        Migrator::migrate($tenant, __DIR__ . '/../migrations');
+    } catch (Throwable $e) {
+        $hasErrors = true;
+        fwrite(STDERR, sprintf('[ERROR] Migration failed for schema "%s": %s', $schema, $e->getMessage()) . PHP_EOL);
     }
 }
 
-$tenant = Database::connectWithSchema($schema);
-Migrator::migrate($tenant, __DIR__ . '/../migrations');
+if ($hasErrors) {
+    exit(1);
+}
