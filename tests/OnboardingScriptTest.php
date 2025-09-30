@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests;
 
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 
 class OnboardingScriptTest extends TestCase
@@ -38,7 +39,21 @@ class OnboardingScriptTest extends TestCase
                 'NETWORK' => 'webproxy',
             ]
         );
-        $process->run();
+
+        $compose = $root . '/tenants/' . $slug . '/docker-compose.yml';
+
+        try {
+            $process->mustRun();
+        } catch (ProcessFailedException $exception) {
+            $this->fail(
+                sprintf(
+                    'Process failed with exit code %d.%s%s',
+                    $process->getExitCode(),
+                    PHP_EOL . $process->getOutput(),
+                    $process->getErrorOutput() !== '' ? PHP_EOL . $process->getErrorOutput() : ''
+                )
+            );
+        }
 
         $this->assertSame(
             0,
@@ -50,7 +65,6 @@ class OnboardingScriptTest extends TestCase
             )
         );
 
-        $compose = $root . '/tenants/' . $slug . '/docker-compose.yml';
         $this->assertFileExists($compose);
 
         $outputLines = preg_split('/\r?\n/', trim($process->getOutput()));
@@ -61,8 +75,12 @@ class OnboardingScriptTest extends TestCase
         $this->assertSame('success', $json['status'] ?? '');
         $this->assertSame($slug, $json['slug'] ?? '');
 
-        unlink($compose);
-        rmdir(dirname($compose));
+        if (file_exists($compose)) {
+            unlink($compose);
+        }
+        if (is_dir(dirname($compose))) {
+            @rmdir(dirname($compose));
+        }
     }
 
     public function testOnboardTenantUsesEnvFile(): void {
@@ -81,7 +99,8 @@ class OnboardingScriptTest extends TestCase
         chmod($stubDir . '/curl', 0755);
 
         $envPath = $stubDir . ':' . getenv('PATH');
-        file_put_contents($root . '/.env', "DOMAIN=example.test\nAPP_IMAGE=image\n");
+        $envFile = $root . '/.env';
+        file_put_contents($envFile, "DOMAIN=example.test\nAPP_IMAGE=image\n");
         $process = new Process(
             [
                 $root . '/scripts/onboard_tenant.sh',
@@ -92,8 +111,21 @@ class OnboardingScriptTest extends TestCase
                 'PATH' => $envPath,
             ]
         );
-        $process->run();
-        unlink($root . '/.env');
+
+        $compose = $root . '/tenants/' . $slug . '/docker-compose.yml';
+
+        try {
+            $process->mustRun();
+        } catch (ProcessFailedException $exception) {
+            $this->fail(
+                sprintf(
+                    'Process failed with exit code %d.%s%s',
+                    $process->getExitCode(),
+                    PHP_EOL . $process->getOutput(),
+                    $process->getErrorOutput() !== '' ? PHP_EOL . $process->getErrorOutput() : ''
+                )
+            );
+        }
 
         $this->assertSame(
             0,
@@ -105,7 +137,6 @@ class OnboardingScriptTest extends TestCase
             )
         );
 
-        $compose = $root . '/tenants/' . $slug . '/docker-compose.yml';
         $this->assertFileExists($compose);
 
         $outputLines = preg_split('/\r?\n/', trim($process->getOutput()));
@@ -116,7 +147,14 @@ class OnboardingScriptTest extends TestCase
         $this->assertSame('success', $json['status'] ?? '');
         $this->assertSame($slug, $json['slug'] ?? '');
 
-        unlink($compose);
-        rmdir(dirname($compose));
+        if (file_exists($envFile)) {
+            unlink($envFile);
+        }
+        if (file_exists($compose)) {
+            unlink($compose);
+        }
+        if (is_dir(dirname($compose))) {
+            @rmdir(dirname($compose));
+        }
     }
 }
