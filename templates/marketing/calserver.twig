@@ -414,6 +414,33 @@
   <script src="{{ basePath }}/js/custom-icons.js" defer></script>
   <script src="{{ basePath }}/js/storage.js"></script>
   <script>
+    (function () {
+      try {
+        var hasStorageHelpers = typeof STORAGE_KEYS !== 'undefined' &&
+          typeof getStored === 'function' &&
+          typeof setStored === 'function';
+        var darkKey = hasStorageHelpers ? STORAGE_KEYS.DARK_MODE : 'darkMode';
+        var storedTheme = hasStorageHelpers ? getStored(darkKey) : (function () {
+          try {
+            return (typeof localStorage !== 'undefined') ? localStorage.getItem(darkKey) : null;
+          } catch (error) {
+            return null;
+          }
+        })();
+
+        if (storedTheme === null) {
+          if (hasStorageHelpers) {
+            setStored(darkKey, 'true');
+          } else if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(darkKey, 'true');
+          }
+        }
+      } catch (error) {
+        /* empty */
+      }
+    })();
+  </script>
+  <script>
     document.addEventListener('DOMContentLoaded', function () {
       document.querySelectorAll('.js-email-link').forEach(function (anchor) {
         var user = anchor.getAttribute('data-user');
