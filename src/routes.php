@@ -96,6 +96,7 @@ use App\Service\MediaLibraryService;
 use App\Service\LandingMediaReferenceService;
 use App\Service\LandingNewsService;
 use Slim\Views\Twig;
+use Slim\Psr7\Response as SlimResponse;
 use GuzzleHttp\Client;
 use Psr\Log\NullLogger;
 use App\Controller\BackupController;
@@ -378,6 +379,14 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('translator', $translator)
             ->withAttribute('lang', $translator->getLocale())
             ->withAttribute('playerService', $playerService);
+
+        return $handler->handle($request);
+    });
+
+    $app->add(static function (Request $request, RequestHandlerInterface $handler): Response {
+        if ($request->getMethod() === 'OPTIONS') {
+            return (new SlimResponse())->withStatus(204);
+        }
 
         return $handler->handle($request);
     });
