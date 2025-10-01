@@ -383,7 +383,7 @@ return function (\Slim\App $app, TranslationService $translator) {
     });
     $app->add(new LanguageMiddleware($translator));
 
-    $app->get('/healthz', function (Request $request, Response $response) {
+    $app->map(['GET', 'HEAD'], '/healthz', function (Request $request, Response $response) {
         $version = getenv('APP_VERSION');
         if ($version === false || $version === '') {
             $version = (new VersionService())->getCurrentVersion();
@@ -394,7 +394,11 @@ return function (\Slim\App $app, TranslationService $translator) {
             'version' => $version,
             'time'    => gmdate('c'),
         ];
-        $response->getBody()->write(json_encode($payload));
+        $payloadJson = json_encode($payload);
+
+        if (strtoupper($request->getMethod()) !== 'HEAD') {
+            $response->getBody()->write($payloadJson);
+        }
 
         $response = $response
             ->withHeader('Content-Type', 'application/json')

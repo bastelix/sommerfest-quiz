@@ -115,4 +115,14 @@ class HealthzEndpointTest extends TestCase
             }
         }
     }
+
+    public function testHealthzEndpointAllowsHeadRequests(): void {
+        $app = $this->getAppInstance();
+
+        $response = $app->handle($this->createRequest('HEAD', '/healthz'));
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        $this->assertSame('', (string) $response->getBody());
+    }
 }
