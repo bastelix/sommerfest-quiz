@@ -1401,7 +1401,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $request->getAttribute('catalogStickerController')->uploadBackground($request, $response);
     })->add(new RoleAuthMiddleware(...Roles::ALL));
 
-    $app->get('/uploads/{file}', function (Request $request, Response $response, array $args) {
+    $app->get('/uploads/{file:.+}', function (Request $request, Response $response, array $args) {
         $req = $request->withAttribute('file', $args['file']);
         return $request->getAttribute('globalMediaController')->get($req, $response);
     });

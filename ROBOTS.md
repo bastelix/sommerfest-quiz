@@ -10,6 +10,8 @@
 * **Kommentare und PHPDoc** sind Pflicht für alle **Funktionen, Methoden, Klassen und komplexe Logik**.
 * Der Code muss **vollständig PSR-12-konform** sein.
 * **Automatische Codeanalyse (z.\u202fB. mit PHP_CodeSniffer)** ist verpflichtend; alle Warnungen und Fehler müssen vor dem Commit behoben sein.
+* **Bestehende Migrationen dürfen niemals geändert werden.**
+  Stattdessen ist bei Anpassungen immer eine **neue Migration** anzulegen, da frühere Migrationen bereits eingespielt sind.
 
 ## 2. **Datei- und Namenskonventionen**
 

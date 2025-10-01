@@ -646,12 +646,12 @@ class MediaLibraryService
         $size = filesize($path);
         $modified = filemtime($path) ?: time();
         $mime = mime_content_type($path) ?: 'application/octet-stream';
-        $public = rtrim($publicPath, '/') . '/' . $name;
 
-        $meta = $metadata ?? ['tags' => [], 'folder' => null];
+        $meta = $this->normalizeMetadataEntry($metadata);
         $tags = $meta['tags'];
         $folder = $meta['folder'];
-        $folder = $folder !== null ? (string) $folder : null;
+
+        $public = $this->buildPublicPath($publicPath, $folder, $name);
 
         return [
             'name' => $name,
@@ -666,6 +666,19 @@ class MediaLibraryService
             'tags' => $tags,
             'folder' => $folder,
         ];
+    }
+
+    private function buildPublicPath(string $base, ?string $folder, string $file): string {
+        $normalizedBase = rtrim($base, '/');
+
+        if ($folder !== null && $folder !== '') {
+            $cleanFolder = trim($folder, '/');
+            if ($cleanFolder !== '') {
+                $normalizedBase .= '/' . $cleanFolder;
+            }
+        }
+
+        return $normalizedBase . '/' . $file;
     }
 
     /**
