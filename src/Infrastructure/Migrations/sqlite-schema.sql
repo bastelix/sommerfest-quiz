@@ -1237,7 +1237,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                 <p>Messwerte fließen über Microservices automatisiert ein; Geräte, Zertifikate und Auswertungen bleiben im Zugriff der berechtigten Teams. Single Sign-On vereinfacht den Zugang, die bidirektionale Synchronisation mit Fluke MET/TEAM und MET/CAL stellt durchgehend konsistente Kalibrierdaten sicher.</p>
                 <ul class="uk-list uk-list-bullet muted">
                   <li>API-Ingestion von Messwerten (Microservices/Kubernetes)</li>
-                  <li>SSO (z. B. EntraID/Google) für nahtlosen Zugriff</li>
+                  <li>SSO (EntraID/Active Directory) für nahtlosen Zugriff</li>
                   <li>Bidirektionale MET/TEAM- &amp; MET/CAL-Synchronisation</li>
                 </ul>
               </div>
