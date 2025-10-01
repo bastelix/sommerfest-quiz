@@ -1369,6 +1369,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
         <ul class="uk-switcher uk-margin"
             data-uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .anim; delay: 75; repeat: true">
           <li>
+            <p class="uk-text-lead uk-margin-remove-top uk-margin-medium-bottom">Die Cloud-Variante betreiben wir vollständig für Sie: Updates, Monitoring und Sicherheit bleiben bei uns, damit Ihr Team sich sofort auf die Arbeit mit calServer konzentrieren kann.</p>
             <div class="uk-grid-large uk-child-width-1-2@m uk-grid-match" data-uk-grid>
               <div class="anim">
                 <div class="uk-card uk-card-default uk-card-body uk-card-hover calserver-highlight-card">
@@ -1393,6 +1394,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
             </div>
           </li>
           <li>
+            <p class="uk-text-lead uk-margin-remove-top uk-margin-medium-bottom">Mit der On-Premise-Variante läuft calServer in Ihrer Infrastruktur: Sie behalten volle Datenhoheit, wir begleiten Installation, Updates und binden bestehende Systeme nahtlos an.</p>
             <div class="uk-grid-large uk-child-width-1-2@m uk-grid-match" data-uk-grid>
               <div class="anim">
                 <div class="uk-card uk-card-default uk-card-body uk-card-hover calserver-highlight-card">
