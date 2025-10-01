@@ -1,0 +1,71 @@
+{% extends 'layout.twig' %}
+
+{% block title %}{{ t('heading_landing_news') }}{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding{% endblock %}
+
+{% block body %}
+  <div class="uk-container uk-container-expand">
+    <div class="uk-flex uk-flex-between uk-flex-middle">
+      <h1 class="uk-heading-bullet">{{ t('heading_landing_news') }}</h1>
+      <a class="uk-button uk-button-primary" href="{{ basePath }}/admin/landing-news/create">{{ t('button_add_news') }}</a>
+    </div>
+
+    {% if status == 'created' %}
+      <div class="uk-alert-success" uk-alert>{{ t('message_news_created') }}</div>
+    {% elseif status == 'updated' %}
+      <div class="uk-alert-success" uk-alert>{{ t('message_news_updated') }}</div>
+    {% elseif status == 'deleted' %}
+      <div class="uk-alert-success" uk-alert>{{ t('message_news_deleted') }}</div>
+    {% endif %}
+
+    <div class="uk-overflow-auto">
+      <table class="uk-table uk-table-divider uk-table-striped">
+        <thead>
+          <tr>
+            <th>{{ t('column_title') }}</th>
+            <th>{{ t('column_page') }}</th>
+            <th>{{ t('column_status') }}</th>
+            <th>{{ t('column_published') }}</th>
+            <th>{{ t('column_actions') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in entries %}
+            <tr>
+              <td>{{ entry.title }}</td>
+              <td>{{ entry.pageTitle }}</td>
+              <td>
+                {% if entry.isPublished %}
+                  <span class="uk-label uk-label-success">{{ t('status_published') }}</span>
+                {% else %}
+                  <span class="uk-label">{{ t('status_draft') }}</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if entry.publishedAt %}
+                  {{ entry.publishedAt|date('d.m.Y H:i') }}
+                {% else %}
+                  &mdash;
+                {% endif %}
+              </td>
+              <td>
+                <div class="uk-flex uk-flex-middle" style="gap: 12px;">
+                  <a class="uk-button uk-button-text" href="{{ basePath }}/admin/landing-news/{{ entry.id }}">{{ t('action_edit') }}</a>
+                  <form method="post" action="{{ basePath }}/admin/landing-news/{{ entry.id }}/delete" onsubmit="return confirm('{{ t('confirm_news_delete') }}');">
+                    <input type="hidden" name="_token" value="{{ csrfToken }}">
+                    <button type="submit" class="uk-button uk-button-text uk-text-danger">{{ t('action_delete') }}</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr>
+              <td colspan="5" class="uk-text-center">{{ t('message_news_empty') }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

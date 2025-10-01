@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Application\Seo\PageSeoConfigService;
+use App\Domain\LandingNews;
 use App\Domain\Page;
 use App\Domain\PageSeoConfig;
 use DOMDocument;
@@ -40,16 +41,24 @@ class LandingMediaReferenceService
     private PageSeoConfigService $seo;
     private ConfigService $config;
 
+    private LandingNewsService $news;
+
     /** @var list<string> */
     private const EXCLUDED_SLUGS = ['impressum', 'datenschutz', 'faq', 'lizenz'];
 
     private const TYPE_MARKUP = 'markup';
     private const TYPE_SEO = 'seo';
 
-    public function __construct(PageService $pages, PageSeoConfigService $seo, ConfigService $config) {
+    public function __construct(
+        PageService $pages,
+        PageSeoConfigService $seo,
+        ConfigService $config,
+        ?LandingNewsService $news = null
+    ) {
         $this->pages = $pages;
         $this->seo = $seo;
         $this->config = $config;
+        $this->news = $news ?? new LandingNewsService();
     }
 
     /**
@@ -95,6 +104,11 @@ class LandingMediaReferenceService
             $slugs[] = ['slug' => $slug, 'title' => $title];
 
             $references = $this->collectFromMarkup($page);
+
+            $newsReferences = $this->collectFromNews($page);
+            if ($newsReferences !== []) {
+                $references = array_merge($references, $newsReferences);
+            }
 
             $seoConfig = $this->seo->load($page->getId());
             if ($seoConfig instanceof PageSeoConfig) {
@@ -175,7 +189,63 @@ class LandingMediaReferenceService
      * @return list<MediaReference>
      */
     private function collectFromMarkup(Page $page): array {
-        $content = $page->getContent();
+        return $this->collectMarkupReferences(
+            $page->getContent(),
+            $page->getSlug(),
+            $page->getTitle(),
+            'content'
+        );
+    }
+
+    /**
+     * @return list<MediaReference>
+     */
+    private function collectFromNews(Page $page): array {
+        $entries = $this->news->getAllForPage($page->getId());
+        if ($entries === []) {
+            return [];
+        }
+
+        /** @var list<MediaReference> $references */
+        $references = [];
+
+        foreach ($entries as $entry) {
+            if (!$entry instanceof LandingNews) {
+                continue;
+            }
+
+            $references = array_merge(
+                $references,
+                $this->collectMarkupReferences(
+                    $entry->getContent(),
+                    $page->getSlug(),
+                    $page->getTitle(),
+                    sprintf('news:%s:content', $entry->getSlug())
+                )
+            );
+
+            $excerpt = $entry->getExcerpt();
+            if ($excerpt !== null && $excerpt !== '') {
+                $references = array_merge(
+                    $references,
+                    $this->collectMarkupReferences(
+                        $excerpt,
+                        $page->getSlug(),
+                        $page->getTitle(),
+                        sprintf('news:%s:excerpt', $entry->getSlug())
+                    )
+                );
+            }
+        }
+
+        return $references;
+    }
+
+    /**
+     * @return list<MediaReference>
+     */
+    private function collectMarkupReferences(string $html, string $slug, string $title, string $field): array {
+        $content = trim($html);
         if ($content === '') {
             return [];
         }
@@ -196,11 +266,11 @@ class LandingMediaReferenceService
                 continue;
             }
             $reference = [
-                'slug' => $page->getSlug(),
-                'title' => $page->getTitle(),
+                'slug' => $slug,
+                'title' => $title,
                 'path' => $normalized,
                 'type' => self::TYPE_MARKUP,
-                'field' => 'content',
+                'field' => $field,
             ];
             $altText = $altMap[$normalized] ?? null;
             if (is_string($altText) && $altText !== '') {

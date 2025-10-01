@@ -309,6 +309,27 @@ CREATE TABLE IF NOT EXISTS pages (
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Landing page news
+CREATE TABLE IF NOT EXISTS landing_news (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    page_id INTEGER NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
+    slug TEXT NOT NULL,
+    title TEXT NOT NULL,
+    excerpt TEXT,
+    content TEXT NOT NULL,
+    published_at TEXT,
+    is_published INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS landing_news_page_slug_idx
+    ON landing_news(page_id, slug);
+CREATE INDEX IF NOT EXISTS landing_news_page_published_idx
+    ON landing_news(page_id, is_published, published_at DESC, id DESC);
+CREATE INDEX IF NOT EXISTS landing_news_published_idx
+    ON landing_news(is_published, published_at DESC, id DESC);
+
 -- Page SEO config
 CREATE TABLE IF NOT EXISTS page_seo_config (
     page_id INTEGER PRIMARY KEY REFERENCES pages(id) ON DELETE CASCADE,

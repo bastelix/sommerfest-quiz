@@ -71,9 +71,11 @@ use App\Controller\Admin\PageController;
 use App\Controller\Admin\LandingpageController;
 use App\Controller\Admin\DomainStartPageController;
 use App\Controller\Admin\DomainContactTemplateController;
+use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
 use App\Controller\TenantController;
 use App\Controller\Marketing\MarketingPageController;
 use App\Controller\Marketing\ContactController;
+use App\Controller\Marketing\LandingNewsController as MarketingLandingNewsController;
 use App\Controller\RegisterController;
 use App\Controller\OnboardingController;
 use App\Controller\OnboardingEmailController;
@@ -92,6 +94,7 @@ use App\Controller\GlobalMediaController;
 use App\Service\ImageUploadService;
 use App\Service\MediaLibraryService;
 use App\Service\LandingMediaReferenceService;
+use App\Service\LandingNewsService;
 use Slim\Views\Twig;
 use GuzzleHttp\Client;
 use Psr\Log\NullLogger;
@@ -121,6 +124,7 @@ require_once __DIR__ . '/Controller/AdminLogsController.php';
 require_once __DIR__ . '/Controller/AdminMediaController.php';
 require_once __DIR__ . '/Controller/Admin/PageController.php';
 require_once __DIR__ . '/Controller/Admin/LandingpageController.php';
+require_once __DIR__ . '/Controller/Admin/LandingNewsController.php';
 require_once __DIR__ . '/Controller/Admin/DomainStartPageController.php';
 require_once __DIR__ . '/Controller/QrController.php';
 require_once __DIR__ . '/Controller/LogoController.php';
@@ -139,6 +143,7 @@ require_once __DIR__ . '/Controller/Marketing/MarketingPageController.php';
 require_once __DIR__ . '/Controller/Marketing/LandingController.php';
 require_once __DIR__ . '/Controller/Marketing/CalserverController.php';
 require_once __DIR__ . '/Controller/Marketing/ContactController.php';
+require_once __DIR__ . '/Controller/Marketing/LandingNewsController.php';
 require_once __DIR__ . '/Controller/RegisterController.php';
 require_once __DIR__ . '/Controller/OnboardingController.php';
 require_once __DIR__ . '/Controller/OnboardingEmailController.php';
@@ -247,7 +252,8 @@ return function (\Slim\App $app, TranslationService $translator) {
         $landingReferenceService = new LandingMediaReferenceService(
             new PageService($pdo),
             new PageSeoConfigService($pdo),
-            $configService
+            $configService,
+            new LandingNewsService($pdo)
         );
 
         $request = $request
@@ -445,6 +451,23 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new MarketingPageController('landing');
         return $controller($request, $response);
     });
+    $app->get('/landing/news', function (Request $request, Response $response) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        return $controller->index($request, $response, ['landingSlug' => 'landing']);
+    });
+    $app->get('/landing/news/{newsSlug:[a-z0-9-]+}', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        $args['landingSlug'] = 'landing';
+        return $controller->show($request, $response, $args);
+    });
     $app->get('/calserver', function (Request $request, Response $response) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
@@ -452,6 +475,22 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $controller = new MarketingPageController('calserver');
         return $controller($request, $response);
+    });
+    $app->get('/m/{landingSlug:[a-z0-9-]+}/news', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        return $controller->index($request, $response, $args);
+    });
+    $app->get('/m/{landingSlug:[a-z0-9-]+}/news/{newsSlug:[a-z0-9-]+}', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        return $controller->show($request, $response, $args);
     });
     $app->get(
         '/m/{slug:[a-z0-9-]+}',
@@ -575,7 +614,8 @@ return function (\Slim\App $app, TranslationService $translator) {
                     $landing = new LandingMediaReferenceService(
                         new PageService($pdo),
                         new PageSeoConfigService($pdo),
-                        $config
+                        $config,
+                        new LandingNewsService($pdo)
                     );
                 }
                 $controller = new AdminMediaController($service, $config, $landing);
@@ -994,6 +1034,31 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/admin/pages', function (Request $request, Response $response) {
         $controller = new PageController();
         return $controller->create($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
+    $app->get('/admin/landing-news', function (Request $request, Response $response) {
+        $controller = new AdminLandingNewsController();
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->get('/admin/landing-news/create', function (Request $request, Response $response) {
+        $controller = new AdminLandingNewsController();
+        return $controller->create($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->post('/admin/landing-news', function (Request $request, Response $response) {
+        $controller = new AdminLandingNewsController();
+        return $controller->store($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+    $app->get('/admin/landing-news/{id:\d+}', function (Request $request, Response $response, array $args) {
+        $controller = new AdminLandingNewsController();
+        return $controller->edit($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->post('/admin/landing-news/{id:\d+}', function (Request $request, Response $response, array $args) {
+        $controller = new AdminLandingNewsController();
+        return $controller->update($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+    $app->post('/admin/landing-news/{id:\d+}/delete', function (Request $request, Response $response, array $args) {
+        $controller = new AdminLandingNewsController();
+        return $controller->delete($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
 
     $app->get('/admin/landingpage/seo', function (Request $request, Response $response) {
