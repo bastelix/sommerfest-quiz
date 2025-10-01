@@ -1,187 +1,99 @@
-# robots.md – Coding Guidelines für das Quiz-Projekt (PHP 8.x)
+# ROBOTS.md – Engineering Guidelines for QuizRace
 
-> Diese Datei definiert die verbindlichen Coding-Regeln für die Entwicklung und Erweiterung des Quiz-Modells.
-> Die Einhaltung wird regelmäßig durch Tools wie Codacy, PHP_CodeSniffer und statische Analyse überprüft.
-> **Alle Beiträge (auch Assistenten-generiert) müssen diese Standards erfüllen!**
+> These rules define the expected code quality for this repository. All contributors and assistants
+> must follow them when they add or modify code.
 
-## 1. **Allgemeines**
+## Scope
 
-* **Quellcode muss klar, verständlich, modular und wartbar sein.**
-* **Kommentare und PHPDoc** sind Pflicht für alle **Funktionen, Methoden, Klassen und komplexe Logik**.
-* Der Code muss **vollständig PSR-12-konform** sein.
-* **Automatische Codeanalyse (z.\u202fB. mit PHP_CodeSniffer)** ist verpflichtend; alle Warnungen und Fehler müssen vor dem Commit behoben sein.
-* **Bestehende Migrationen dürfen niemals geändert werden.**
-  Stattdessen ist bei Anpassungen immer eine **neue Migration** anzulegen, da frühere Migrationen bereits eingespielt sind.
+* The rules apply to the entire project unless a directory contains its own guidance file.
+* Write code, comments, commit messages, and documentation in English.
 
-## 2. **Datei- und Namenskonventionen**
+## 1. General principles
 
-* **Dateien**: UTF-8 (ohne BOM), `.php`-Endung, eine Klasse/Interface/Trait pro Datei.
-* **Klassennamen**: `UpperCamelCase` (PSR-0/4 Autoloading).
-* **Dateinamen**: Spiegeln den Klassennamen (z.\u202fB. `QuizService.php`).
-* **Namespaces**: Gemäß PSR-4, Vendor/Projekt-Struktur.
+* Optimise for readability, maintainability, and explicit behaviour over cleverness.
+* Keep functions and classes focused; extract reusable logic into dedicated services or helpers.
+* Avoid duplication—prefer shared abstractions in `src/Service/` or `src/Support/`.
+* Ensure new features degrade gracefully when optional integrations (e.g., SMTP or Stripe) are not
+  configured.
 
-## 3. **Struktur und Lesbarkeit**
+## 2. PHP coding standards
 
-* **Jede Zeile max. 120 Zeichen!**
-  (Keine Zeile, weder Code noch Kommentar, darf die 120-Zeichen-Grenze überschreiten.)
-* **Einrückung:** 4 Leerzeichen (KEIN Tab).
-* **Keine gemischten Leerzeichen/Tabs.**
-* **Codeblöcke** (if, foreach, etc.) **immer mit geschweiften Klammern**.
-* **Keine verschachtelten/ineinandergeschachtelten Schleifen oder ifs, wenn es vermieden werden kann.**
+* Every PHP file must start with `<?php` and `declare(strict_types=1);` followed by a blank line.
+* Follow PSR-12 as configured in `phpcs.xml`:
+  * 4 spaces per indentation level, no hard tabs.
+  * Maximum line length is 120 characters.
+  * One class, interface, or trait per file. The file name mirrors the class name.
+* Use typed properties and scalar/object type declarations for all parameters and return values.
+* Mark visibility (`public`, `protected`, `private`) explicitly on methods and properties.
+* Place opening braces on the same line as the declaration; place closing braces on their own line.
+* Prefer dependency injection and constructor arguments over accessing globals or superglobals inside
+  services. Limit direct use of `$_POST`, `$_GET`, and `$_SESSION` to controllers and middleware.
+* Do not use PHP short tags (`<?`). Avoid `eval()`, `var_dump()`, `print_r()` in committed code.
+* When you need to perform multi-step operations, wrap them in dedicated service methods so they can
+  be unit-tested independently.
 
-## 4. **Code-Stil & Syntax**
+## 3. PHPDoc and comments
 
-* **Variablen/Properties:** `camelCase`
-* **Methoden:** `camelCase`
-* **Klassen:** `UpperCamelCase`
-* **Konstanten:** `UPPER_CASE_SNAKE`
-* **Keine Kurzschreibweise für PHP-Tags** (`<?php` statt `<?`)
-* **Type Hints und Return Types** für alle Methoden (PHP 7.4+).
-* **Strikte Typisierung:**
-  Am Anfang jeder Datei:
+* Document public methods, controllers, and complex private helpers with PHPDoc blocks that describe
+  behaviour, important side effects, and noteworthy invariants.
+* Use `@param`, `@return`, and `@throws` annotations when type declarations are insufficient or when
+  additional context helps the reader.
+* Use `{@inheritdoc}` when implementing an interface that already documents its contract.
+* Avoid redundant comments. Focus on *why* a decision was made rather than what the code does.
 
-  ```php
-  declare(strict_types=1);
-  ```
-* **Vermeide Deprecated Features.**
-* **Verwende nur Features, die mit PHP 8.x kompatibel sind.**
+## 4. Error handling, security, and data integrity
 
-## 5. **Kommentare und Dokumentation**
+* Prefer exceptions over returning error codes. Catch exceptions only when you can add context or
+  handle the failure gracefully.
+* Never suppress errors with `@`. Log unexpected failures through the existing Monolog channels.
+* Validate external input and escape output in Twig templates. Avoid trusting request data even when
+  it comes from authenticated users.
+* Interact with databases through prepared statements or parameterised queries. Never concatenate
+  user input into SQL strings.
+* Protect secrets: do not hardcode credentials, API keys, or tokens in code or configuration files.
 
-* **Jede Funktion und Klasse erhält PHPDoc:**
+## 5. Database migrations
 
-  ```php
-  /**
-   * Fügt einen neuen Katalog hinzu.
-   *
-   * @param array $data Die Katalogdaten.
-   * @return bool Erfolg oder Fehler.
-   */
-  public function addCatalog(array $data): bool { ... }
-  ```
-* **Keine unnötigen Kommentare!**
-  (Kommentiere *was* und *warum*, nicht wie etwas funktioniert, wenn es selbsterklärend ist.)
-* **TODO/FIXME-Kommentare:**
-  Immer mit Jira-/Issue-Link o.ä.
+* Never modify an existing migration. If you need to change the schema, create a new SQL file in
+  `migrations/`.
+* Name migration files using the timestamped pattern already in use
+  (`YYYYMMDD_description.sql`). Document intent in comments at the top of the file when the migration
+  is non-trivial.
+* Provide downgrade instructions in the pull request description if rolling back is risky or manual
+  intervention is required.
 
-## 6. **Fehlerbehandlung**
+## 6. Testing and quality assurance
 
-* **Ausnahmen (Exceptions) bevorzugen statt Error Codes.**
-* **Kein Suppressing (`@`) von Fehlern.**
-* **Alle Fehlerfälle explizit behandeln oder dokumentieren.**
+* Keep the automated test suite green. Add PHPUnit, Python, or Node-based tests alongside new
+  features to prevent regressions.
+* Tests must be deterministic and runnable via `composer test`. Avoid relying on external services
+  or network calls; mock integrations instead.
+* Update fixtures under `tests/Support/` when data formats change.
+* Run `vendor/bin/phpstan analyse -c phpstan.neon.dist` and address all reported issues. Increase the
+  static analysis level only when the existing codebase passes.
 
-## 7. **Sicherheit und Clean Code**
+## 7. Frontend (Twig, JavaScript, assets)
 
-* **Kein unsicheres SQL!**
-  IMMER Prepared Statements (PDO, Doctrine, etc.).
-* **Keine eval()-Funktion.**
-* **Keine globalen Variablen.**
-* **Keine Suppression-Operatoren (`@`).**
-* **Saubere Trennung von Logik, Templates, Konfiguration und Datenhaltung.**
+* Keep Twig templates accessible: provide meaningful ARIA labels, preserve keyboard navigation, and
+  respect the existing light/dark theme switch (`data-theme` on `<body>`).
+* Do not introduce frontend dependencies that require a build step. The project intentionally uses
+  vanilla JavaScript and UIkit.
+* Avoid polluting the global namespace. Attach functionality to `window.quizConfig` or module
+  patterns already present in `public/js/`.
+* Document DOM expectations with inline comments or Node.js tests so behaviour remains verifiable in
+  the existing headless environment.
+* When handling images or media uploads, reuse `App\Service\ImageUploadService` and its quality
+  constants.
 
-## 8. **Tests und Qualitätssicherung**
+## 8. Logging, configuration, and operations
 
-* **Unit-Tests** für jede Kernkomponente (z.\u202fB. PHPUnit).
-* **Coverage-Threshold** mindestens 80% (Ziel).
-* **Kein Code ohne Tests in „main“ oder „release“-Branch!**
-* **Manuelle Tests auf allen unterstützten PHP 8.x-Versionen.**
+* Use the configured Monolog channels for observability. Avoid `echo`/`print` statements in runtime
+  code.
+* Guard optional integrations (Stripe, SMTP, webhook calls) behind configuration checks. Fail safe
+  when required environment variables are missing.
+* When adding environment variables, update `.env`, `sample.env`, relevant Docker compose files, and
+  document the change in `README.md`.
 
-## 9. **Versionskontrolle und Commits**
-
-* **Ein Commit pro Issue/Feature/Fix.**
-* **Aussagekräftige Commit-Messages (Konvention: [#Ticket] Kurze Beschreibung).**
-* **Keine sensiblen Daten/Keys ins Repository!**
-
-## 10. **Typische Fehler/Verbesserungshinweise (siehe Codacy/PHP_CodeSniffer)**
-
-* **Nie mehr als 120 Zeichen pro Zeile!**
-* **Jede Klammer auf neuer Zeile (außer Funktionsaufrufe).**
-* **Immer Type Hints nutzen.**
-* **Immer Sichtbarkeit (`public`, `private`, `protected`) angeben.**
-* **Keine leeren catch-Blöcke.**
-* **Keine mehrfachen, unnötigen Leerzeilen (>1).**
-* **Keine Funktionsdefinitionen im if/else/loop.**
-* **Keine gemischten String- und Array-Typen ohne explizite Typisierung.**
-* **Schleifen, die break/continue verwenden, müssen nachvollziehbar und dokumentiert sein.**
-* **Keine harte Codierung von Magic Numbers.**
-
-## 11. **Beispiel für einen sauberen Methodenblock**
-
-```php
-declare(strict_types=1);
-
-namespace App\Service;
-
-use App\Model\Catalog;
-
-/**
- * Verarbeitet Katalog-Daten.
- */
-class CatalogService
-{
-    /**
-     * Legt einen neuen Katalog an.
-     *
-     * @param string $name
-     * @param int $eventId
-     * @return Catalog
-     * @throws CatalogException
-     */
-    public function createCatalog(string $name, int $eventId): Catalog
-    {
-        // Validierung
-        if (empty($name)) {
-            throw new CatalogException('Katalogname darf nicht leer sein.');
-        }
-
-        // Speichern...
-        // (Prepared Statement Beispiel)
-        // ...
-
-        return new Catalog($name, $eventId);
-    }
-}
-```
-
-## 12. **Tools**
-
-* **Automatische Prüfung:**
-
-  * PHP_CodeSniffer (`phpcs`) mit PSR-12
-  * PHPStan (Level 5+)
-  * Codacy / SonarCloud
-  * PHPUnit
-
-* **Vor jedem Commit:**
-
-  * `phpcs src/`
-  * `phpstan analyse src/`
-  * Alle Tests grün
-
-## 13. **Review-Checkliste für Pull Requests**
-
-* [ ] Keine Zeile > 120 Zeichen?
-* [ ] Alle Methoden/Klassen mit PHPDoc?
-* [ ] Nur geprüfte Typen/Type Hints verwendet?
-* [ ] Keine Deprecated Features?
-* [ ] Fehlerbehandlung robust und sauber?
-* [ ] Keine sensiblen Daten im Code?
-* [ ] Ein Commit pro Feature/Fix?
-* [ ] Alle Tests laufen?
-
-## 14. **Zusätzliche Hinweise für Code-Assistenz**
-
-* **Kommentare im Stil von „// Kommentar“ sind nur als TODO/FIXME zulässig.**
-* **Für alle von der Coding-Guideline abweichenden Vorschläge:
-  Immer mit Hinweis und Link auf offizielle PHP-Standards (PSR, RFC, etc.)**
-
-## 15. **Fehlervermeidung bei Tests**
-
-* In Tests, die Rollen erfordern, muss stets `session_start()` aufgerufen und
-  `$_SESSION['user']` mit der passenden Rolle belegt werden.
-* Doppelte `session_start()`-Aufrufe innerhalb eines Tests sind zu vermeiden.
-* Vor jedem Commit sind alle PHPUnit-Tests mit `./vendor/bin/phpunit` auszuführen.
-
-# Ende robots.md
-
-**→ Diese Datei muss jedem Pull Request beigelegt und beachtet werden!**
+Adhering to these guidelines keeps the codebase consistent and makes reviews faster. If a situation
+requires an exception, document the rationale in the pull request so future maintainers understand
+the trade-off.
