@@ -373,7 +373,11 @@ Umgebungsvariable `SLIM_VIRTUAL_HOST` steuern. Starte mehrere Instanzen
 mit unterschiedlichen Werten, werden die Subdomains automatisch als
 eigene Mandanten behandelt. Der eingesetzte Proxy erzeugt dank
 `nginxproxy/acme-companion` für jede konfigurierte Domain ein
-Let's-Encrypt-Zertifikat, sobald der Container gestartet wird.
+Let's-Encrypt-Zertifikat, sobald der Container gestartet wird. Damit das
+Stamm-Domain-Zertifikat (`MAIN_DOMAIN`) nicht versehentlich fehlt,
+ergänzt `docker-compose.yml` diesen Host seit Version 4.16 automatisch in
+`VIRTUAL_HOST`/`LETSENCRYPT_HOST`. Zusätzliche Domains kannst du wie
+bisher über `MARKETING_DOMAINS` anhängen.
 
 Weitere nützliche Variablen in `.env` sind:
 

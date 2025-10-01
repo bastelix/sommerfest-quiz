@@ -94,7 +94,17 @@ class Database
     public static function connectWithSchema(string $schema): PDO {
         $pdo = self::connectFromEnv();
         if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'pgsql') {
-            $pdo->exec('SET search_path TO ' . $pdo->quote($schema));
+            $quotedSchema = $pdo->quote($schema);
+
+            if ($schema === 'public') {
+                $pdo->exec('SET search_path TO ' . $quotedSchema);
+            } else {
+                $pdo->exec(sprintf('SET search_path TO %s, public', $quotedSchema));
+            }
+        }
+
+        if (self::$connectHook !== null) {
+            (self::$connectHook)($schema, $pdo);
         }
 
         if (self::$connectHook !== null) {

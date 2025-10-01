@@ -600,9 +600,14 @@ VALUES (
     <button class="uk-button uk-button-primary uk-modal-close" type="button">OK</button>
   </div>
 </div>
+
+
 $LANDING$
 )
-ON CONFLICT (slug) DO NOTHING;
+ON CONFLICT (slug) DO UPDATE SET
+    title = EXCLUDED.title,
+    content = EXCLUDED.content,
+    updated_at = CURRENT_TIMESTAMP;
 
 INSERT INTO pages (slug, title, content)
 VALUES (
@@ -638,7 +643,10 @@ VALUES (
   </div>
 $IMPRESSUM$
 )
-ON CONFLICT (slug) DO NOTHING;
+ON CONFLICT (slug) DO UPDATE SET
+    title = EXCLUDED.title,
+    content = EXCLUDED.content,
+    updated_at = CURRENT_TIMESTAMP;
 
 INSERT INTO pages (slug, title, content)
 VALUES (
@@ -682,15 +690,19 @@ VALUES (
 
     <p class="uk-text-small"><strong>Hinweis:</strong> Diese Datenschutzerklärung basiert auf dem aktuellen Stand der Technik und des Projekts. <strong>CalHelp übernimmt keine Verantwortung</strong> für bereits durch Administrator:innen eingegebene personenbezogene Daten. Sollte sich der Funktionsumfang ändern oder die App personenbezogene Daten erheben, ist eine Anpassung dieser Datenschutzerklärung erforderlich.</p>
   </div>
+
 $DATENSCHUTZ$
 )
-ON CONFLICT (slug) DO NOTHING;
+ON CONFLICT (slug) DO UPDATE SET
+    title = EXCLUDED.title,
+    content = EXCLUDED.content,
+    updated_at = CURRENT_TIMESTAMP;
 
 INSERT INTO pages (slug, title, content)
 VALUES (
     'faq',
     'FAQ',
-    $FAQ_1$
+    $FAQ$
 <div class="uk-container uk-container-small">
   <h1 class="uk-heading-divider uk-hidden">FAQ</h1>
   <p class="uk-text-lead">Hier beantworten wir häufige Fragen zur Nutzung des QuizRace.</p>
@@ -753,9 +765,13 @@ VALUES (
     <li><strong>Offene Schnittstellen:</strong> Sie lässt sich leicht mit anderen Systemen verbinden.</li>
   </ul>
 </div>
-$FAQ_1$
+
+$FAQ$
 )
-ON CONFLICT (slug) DO NOTHING;
+ON CONFLICT (slug) DO UPDATE SET
+    title = EXCLUDED.title,
+    content = EXCLUDED.content,
+    updated_at = CURRENT_TIMESTAMP;
 
 INSERT INTO pages (slug, title, content)
 VALUES (
@@ -800,6 +816,10 @@ The source code remains the property of René Buske and may not be copied, distr
 The Software is provided "as is" without warranty of any kind. René Buske shall not be liable for any damages arising from its use.
 </pre>
   </div>
+
 $LIZENZ$
 )
-ON CONFLICT (slug) DO NOTHING;
+ON CONFLICT (slug) DO UPDATE SET
+    title = EXCLUDED.title,
+    content = EXCLUDED.content,
+    updated_at = CURRENT_TIMESTAMP;

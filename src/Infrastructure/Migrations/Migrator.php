@@ -73,7 +73,7 @@ class Migrator
         if ($driver === 'pgsql') {
             // Spalte qrremember hinzufügen, falls noch nicht vorhanden
             $pdo->exec(<<<'SQL'
-                ALTER TABLE public.config
+                ALTER TABLE config
                 ADD COLUMN IF NOT EXISTS qrremember BOOLEAN DEFAULT FALSE;
 SQL
             );
@@ -85,6 +85,7 @@ SQL
                     FROM information_schema.columns
                     WHERE table_name = 'config'
                       AND column_name = 'QRRemember'
+                      AND table_schema = current_schema()
                 )
 SQL
             )->fetchColumn();
@@ -92,11 +93,12 @@ SQL
             if ($hasOldColumn) {
                 // Werte übernehmen und alte Spalte entfernen
                 $pdo->exec(<<<'SQL'
-                    UPDATE public.config
-                    SET qrremember = COALESCE(qrremember, "QRRemember");
-                    ALTER TABLE public.config DROP COLUMN IF EXISTS "QRRemember";
+                    UPDATE config
+                    SET qrremember = COALESCE("QRRemember", qrremember);
 SQL
                 );
+
+                $pdo->exec('ALTER TABLE config DROP COLUMN IF EXISTS "QRRemember";');
             }
         }
 

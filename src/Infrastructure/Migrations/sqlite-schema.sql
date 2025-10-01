@@ -888,6 +888,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                            loop
                            playsinline
                            preload="auto"
+                           poster="{{ basePath }}/uploads/calserver-module-device-management.webp"
                            aria-label="Screenshot der calServer-Geräteverwaltung mit Geräteakte, Historie und Messwerten">
                       <source src="{{ basePath }}/uploads/calserver-module-device-management.mp4" type="video/mp4">
                       Ihr Browser unterstützt keine HTML5-Videos.
@@ -916,6 +917,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                            loop
                            playsinline
                            preload="auto"
+                           poster="{{ basePath }}/uploads/calserver-module-calendar-resources.webp"
                            aria-label="Screenshot des calServer-Kalenders mit Ressourcen- und Terminplanung">
                       <source src="{{ basePath }}/uploads/calserver-module-calendar-resources.mp4" type="video/mp4">
                       Ihr Browser unterstützt keine HTML5-Videos.
@@ -944,6 +946,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                            loop
                            playsinline
                            preload="auto"
+                           poster="{{ basePath }}/uploads/calserver-module-order-ticketing.webp"
                            aria-label="Screenshot der calServer-Auftrags- und Ticketverwaltung mit Workflow-Status">
                       <source src="{{ basePath }}/uploads/calserver-module-order-ticketing.mp4" type="video/mp4">
                       Ihr Browser unterstützt keine HTML5-Videos.
@@ -972,6 +975,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                            loop
                            playsinline
                            preload="auto"
+                           poster="{{ basePath }}/uploads/calserver-module-self-service.webp"
                            aria-label="Screenshot des calServer-Self-Service-Portals mit Kundenansicht und Zertifikaten">
                       <source src="{{ basePath }}/uploads/calserver-module-self-service.mp4" type="video/mp4">
                       Ihr Browser unterstützt keine HTML5-Videos.
@@ -1419,56 +1423,125 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
     <section id="pricing" class="uk-section uk-section-default">
       <div class="uk-container">
         <div class="uk-flex uk-flex-between uk-flex-middle uk-flex-wrap calserver-pricing__header">
-          <h2 class="uk-heading-line"><span>Abomodelle für Ihren Betrieb</span></h2>
-          <span class="muted">Alle Pakete inkl. persönlichem Kick-off und 7 Tagen Testphase.</span>
+          <h2 class="uk-heading-line"><span>Abomodelle</span></h2>
+          <span class="muted">Monatliche Laufzeit, transparente Bedingungen, DSGVO-konform.</span>
         </div>
         <div class="uk-child-width-1-1 uk-child-width-1-3@m uk-grid-large uk-grid-match"
              data-uk-grid
              data-uk-scrollspy="cls: uk-animation-slide-bottom-small; target: .anim; delay: 75; repeat: true">
           <div class="anim">
             <div class="uk-card uk-card-default uk-card-body uk-text-center uk-card-hover shadow-soft calserver-pricing-card">
-              <h3>Cloud Team</h3>
-              <p class="muted">Managed SaaS für kleinere Qualitäts-Teams.</p>
-              <p class="uk-text-large uk-text-bold">ab 390&nbsp;€/Monat</p>
+              <div class="uk-position-relative">
+                <span class="pill pill--badge uk-position-absolute uk-position-top-right uk-margin-small">Cloud in DE</span>
+                <h3>Standard-Hosting</h3>
+              </div>
+              <p class="muted">Für Teams, die schnell und zuverlässig starten wollen.</p>
               <ul class="uk-list uk-list-bullet uk-text-left muted">
-                <li>Bis 3 Mandanten &amp; 1.000 Geräte</li>
-                <li>Alle Kernmodule, Erinnerungen &amp; Workflows</li>
-                <li>Support per E-Mail innerhalb eines Werktags</li>
+                <li>Inventar-, Kalibrier- &amp; Auftragsverwaltung</li>
+                <li>Dokumentenmanagement (Basis-Kontingent)</li>
+                <li>Tägliche Backups, SSL &amp; Subdomain</li>
+                <li>Basis-Updateservice (Security &amp; regelmäßige Features)</li>
+                <li>Rollen &amp; Berechtigungen, Audit-fähige Historie</li>
               </ul>
-              <a class="uk-button uk-button-default" href="#offer">Paket anfragen</a>
+              <div class="uk-margin-top uk-text-small muted">
+                <p class="uk-margin-remove">Monatliche Abrechnung · Kündigungsfrist 30 Tage</p>
+                <p class="uk-margin-remove">Erweiterungen (z. B. Speicher, SSO) zubuchbar</p>
+              </div>
+              <div class="uk-margin-top">
+                <a class="uk-button uk-button-primary uk-width-1-1" href="#offer">Anfrage senden</a>
+                <button class="uk-button uk-button-text uk-width-1-1 uk-margin-small-top" type="button" data-uk-toggle="target: #modal-standard-hosting">Leistungsdetails</button>
+              </div>
             </div>
           </div>
           <div class="anim">
             <div class="uk-card uk-card-primary uk-card-primary--highlight uk-card-body uk-text-center uk-card-hover shadow-soft uk-position-relative calserver-pricing-card">
-              <span class="pill pill--badge uk-position-absolute uk-position-top-right uk-margin-small">Beliebtestes Paket</span>
-              <h3>Cloud Scale</h3>
-              <p>Für wachsende Organisationen mit mehreren Standorten.</p>
-              <p class="uk-text-large uk-text-bold">ab 690&nbsp;€/Monat</p>
+              <span class="pill pill--badge uk-position-absolute uk-position-top-right uk-margin-small">Beliebt</span>
+              <h3>Performance-Hosting</h3>
+              <p>Mehr Leistung und Spielraum für wachsende Anforderungen.</p>
               <ul class="uk-list uk-list-bullet uk-text-left">
-                <li>Unbegrenzte Nutzer:innen &amp; Mandanten</li>
-                <li>Automatisierungen, API &amp; Ticket-Workflows</li>
-                <li>Priorisierter Support mit festen Reaktionszeiten</li>
+                <li>Erhöhte Performance &amp; skalierbare Ressourcen</li>
+                <li>Mehr Speicher, keine Moduleinschränkungen</li>
+                <li>Priorisiertes Monitoring &amp; Stabilität</li>
+                <li>Tägliche Backups, SSL, Subdomain</li>
+                <li>Rollen &amp; Berechtigungen, Team-Workflows</li>
               </ul>
-              <a class="uk-button uk-button-default" href="#offer">Beratung vereinbaren</a>
+              <div class="uk-margin-top uk-text-small">
+                <p class="uk-margin-remove">Monatliche Abrechnung · Kündigungsfrist 30 Tage</p>
+                <p class="uk-margin-remove">Upgrade/Downgrade zwischen Plänen möglich</p>
+              </div>
+              <div class="uk-margin-top">
+                <a class="uk-button uk-button-primary uk-width-1-1" href="#offer">Anfrage senden</a>
+                <button class="uk-button uk-button-text uk-width-1-1 uk-margin-small-top" type="button" data-uk-toggle="target: #modal-performance-hosting">Leistungsdetails</button>
+              </div>
             </div>
           </div>
           <div class="anim">
             <div class="uk-card uk-card-default uk-card-body uk-text-center uk-card-hover shadow-soft calserver-pricing-card">
-              <h3>Enterprise</h3>
-              <p class="muted">Individuelle Projekte für On-Premise &amp; Hybrid.</p>
-              <p class="uk-text-large uk-text-bold">Projektangebot</p>
+              <div class="uk-position-relative">
+                <span class="pill pill--badge uk-position-absolute uk-position-top-right uk-margin-small">Max. Kontrolle</span>
+                <h3>Enterprise (On-Prem)</h3>
+              </div>
+              <p class="muted">Volle Datenhoheit und individuelle Compliance.</p>
               <ul class="uk-list uk-list-bullet uk-text-left muted">
-                <li>Dedizierte Umgebungen &amp; Sicherheitskonzepte</li>
-                <li>Integration in ERP, MES &amp; Identitätsmanagement</li>
-                <li>Begleitung durch Customer-Success &amp; SLA</li>
+                <li>On-Prem-Betrieb in Ihrer Infrastruktur</li>
+                <li>SSO (Azure/Google), erweiterte Integrationen</li>
+                <li>Erweiterte Compliance &amp; individuelle SLAs</li>
+                <li>Optionale Synchronisationen (z. B. METBASE/METTEAM)</li>
+                <li>Change-/Release-Management nach Vorgabe</li>
               </ul>
-              <a class="uk-button uk-button-default" href="#offer">Individuelles Angebot</a>
+              <div class="uk-margin-top uk-text-small muted">
+                <p class="uk-margin-remove">Monatliche Abrechnung · Kündigungsfrist 30 Tage</p>
+                <p class="uk-margin-remove">Rollout &amp; Betrieb nach gemeinsamem Migrationsplan</p>
+              </div>
+              <div class="uk-margin-top">
+                <a class="uk-button uk-button-primary uk-width-1-1" href="#offer">Anfrage senden</a>
+                <button class="uk-button uk-button-text uk-width-1-1 uk-margin-small-top" type="button" data-uk-toggle="target: #modal-enterprise-hosting">Leistungsdetails</button>
+              </div>
             </div>
           </div>
         </div>
-        <p class="muted uk-text-small uk-margin-top">Optional buchbar: Validierte Prozesse, Schulungen vor Ort sowie dedizierte Hotline. Wir erstellen Ihr Angebot im persönlichen Gespräch.</p>
+        <p class="muted uk-text-small uk-margin-top">Vollständige AGB, SLA und AVV auf Anfrage oder im Kundenportal einsehbar.</p>
       </div>
     </section>
+
+    <div id="modal-standard-hosting" data-uk-modal>
+      <div class="uk-modal-dialog uk-modal-body">
+        <h2 class="uk-modal-title">Standard-Hosting – Leistungsdetails</h2>
+        <ul class="uk-list uk-list-bullet">
+          <li>Funktionsumfang: Inventar, Kalibrierung, Aufträge, DMS (Basis)</li>
+          <li>Backups täglich, Datenstandort: Deutschland</li>
+          <li>Updates: Sicherheitsfixes laufend, Feature-Releases regelmäßig</li>
+          <li>Optional: Speichererweiterung, SSO-Anbindung, Integrationen</li>
+        </ul>
+        <button class="uk-button uk-button-primary uk-modal-close" type="button">Schließen</button>
+      </div>
+    </div>
+
+    <div id="modal-performance-hosting" data-uk-modal>
+      <div class="uk-modal-dialog uk-modal-body">
+        <h2 class="uk-modal-title">Performance-Hosting – Leistungsdetails</h2>
+        <ul class="uk-list uk-list-bullet">
+          <li>Skalierbare CPU/RAM-Kontingente &amp; priorisierte Ressourcen</li>
+          <li>Großzügige Speicheroptionen, keine Modullimits</li>
+          <li>Optional: SSO (Azure/Google), Integrationen (z. B. ERP/CRM)</li>
+          <li>Monitoring &amp; Benachrichtigungen nach Best-Practice</li>
+        </ul>
+        <button class="uk-button uk-button-primary uk-modal-close" type="button">Schließen</button>
+      </div>
+    </div>
+
+    <div id="modal-enterprise-hosting" data-uk-modal>
+      <div class="uk-modal-dialog uk-modal-body">
+        <h2 class="uk-modal-title">Enterprise (On-Prem) – Leistungsdetails</h2>
+        <ul class="uk-list uk-list-bullet">
+          <li>Einrichtung, Betrieb &amp; Wartung gemäß Projektvertrag</li>
+          <li>Individuelle SLAs/AVV, Compliance nach Ihren Vorgaben</li>
+          <li>Integration in vorhandene IdPs &amp; Systeme</li>
+          <li>Optional: Managed-Service, erweiterte Überwachung, Reporting</li>
+        </ul>
+        <button class="uk-button uk-button-primary uk-modal-close" type="button">Schließen</button>
+      </div>
+    </div>
 
     <section id="faq" class="uk-section uk-section-muted">
       <div class="uk-container">

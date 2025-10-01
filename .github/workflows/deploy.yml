@@ -24,4 +24,5 @@ jobs:
             docker build -t "$APP_IMAGE" -t "${BASE_IMAGE}:latest" .
             export COMPOSE_PROJECT_NAME=sommerfest-quiz
             docker compose -p sommerfest-quiz up -d --build --remove-orphans --wait
+            docker compose -p sommerfest-quiz exec -T slim php scripts/run_migrations.php
             docker compose -p sommerfest-quiz ps slim
