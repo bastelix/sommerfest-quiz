@@ -2,6 +2,12 @@
 
 {% block title %}{{ t('heading_landing_news') }}{% endblock %}
 
+{% block head %}
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+{% endblock %}
+
 {% block body_class %}uk-background-muted uk-padding admin-page{% endblock %}
 
 {% block body %}
@@ -108,4 +114,9 @@
       </div>
     </main>
   </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ basePath }}/js/storage.js"></script>
+  <script src="{{ basePath }}/js/app.js"></script>
 {% endblock %}
