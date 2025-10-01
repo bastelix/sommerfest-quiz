@@ -47,7 +47,7 @@ class LandingNewsService
     public function findPublished(string $pageSlug, string $newsSlug): ?LandingNews
     {
         $stmt = $this->pdo->prepare($this->baseSelect(
-            'WHERE p.slug = :pageSlug AND ln.slug = :slug AND ln.is_published = 1 LIMIT 1'
+            'WHERE p.slug = :pageSlug AND ln.slug = :slug AND ln.is_published = TRUE LIMIT 1'
         ));
         $stmt->execute([
             'pageSlug' => trim($pageSlug),
@@ -70,7 +70,7 @@ class LandingNewsService
         }
 
         $stmt = $this->pdo->prepare($this->baseSelect(
-            'WHERE ln.page_id = :pageId AND ln.is_published = 1 '
+            'WHERE ln.page_id = :pageId AND ln.is_published = TRUE '
             . 'ORDER BY CASE WHEN ln.published_at IS NULL THEN 1 ELSE 0 END, '
             . 'ln.published_at DESC, ln.id DESC '
             . 'LIMIT :limit'
