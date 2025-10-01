@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Marketing;
 
 use App\Application\Seo\PageSeoConfigService;
+use App\Service\LandingNewsService;
 use App\Service\MailService;
 use App\Service\PageService;
 use App\Service\ProvenExpertRatingService;
@@ -25,19 +26,22 @@ class MarketingPageController
     private ?string $slug;
     private TurnstileConfig $turnstileConfig;
     private ProvenExpertRatingService $provenExpert;
+    private LandingNewsService $landingNews;
 
     public function __construct(
         ?string $slug = null,
         ?PageService $pages = null,
         ?PageSeoConfigService $seo = null,
         ?TurnstileConfig $turnstileConfig = null,
-        ?ProvenExpertRatingService $provenExpert = null
+        ?ProvenExpertRatingService $provenExpert = null,
+        ?LandingNewsService $landingNews = null
     ) {
         $this->slug = $slug;
         $this->pages = $pages ?? new PageService();
         $this->seo = $seo ?? new PageSeoConfigService();
         $this->turnstileConfig = $turnstileConfig ?? TurnstileConfig::fromEnv();
         $this->provenExpert = $provenExpert ?? new ProvenExpertRatingService();
+        $this->landingNews = $landingNews ?? new LandingNewsService();
     }
 
     public function __invoke(Request $request, Response $response, array $args = []): Response {
@@ -65,6 +69,12 @@ class MarketingPageController
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
         $_SESSION['csrf_token'] = $csrf;
         $html = str_replace('{{ csrf_token }}', $csrf, $html);
+
+        $landingNews = $this->landingNews->getPublishedForPage($page->getId(), 3);
+        $landingNewsBasePath = null;
+        if ($landingNews !== []) {
+            $landingNewsBasePath = $this->buildNewsBasePath($request, $page->getSlug());
+        }
 
         $mailConfigured = MailService::isConfigured();
         $placeholderToken = '{{ turnstile_widget }}';
@@ -118,6 +128,12 @@ class MarketingPageController
             'turnstileSiteKey' => $this->turnstileConfig->isEnabled() ? $this->turnstileConfig->getSiteKey() : null,
             'turnstileEnabled' => $this->turnstileConfig->isEnabled(),
         ];
+
+        if ($landingNews !== []) {
+            $data['landingNews'] = $landingNews;
+            $data['landingNewsBasePath'] = $landingNewsBasePath;
+            $data['landingNewsIndexUrl'] = $landingNewsBasePath !== null ? $basePath . $landingNewsBasePath : null;
+        }
 
         if (in_array($templateSlug, ['calserver', 'landing'], true)) {
             $data['provenExpertRating'] = $this->provenExpert->getAggregateRatingMarkup();
@@ -227,9 +243,19 @@ class MarketingPageController
                 ];
             }
             if ($links !== []) {
-                return $links;
-            }
+        return $links;
+    }
+
+    private function buildNewsBasePath(Request $request, string $pageSlug): string
+    {
+        $path = $request->getUri()->getPath();
+        if (preg_match('~^/m/([a-z0-9-]+)~', $path) === 1) {
+            return sprintf('/m/%s/news', $pageSlug);
         }
+
+        return sprintf('/%s/news', $pageSlug);
+    }
+}
 
         $codes = preg_split('/[\s,;|]+/', $hreflang, -1, PREG_SPLIT_NO_EMPTY);
         if (!is_array($codes)) {

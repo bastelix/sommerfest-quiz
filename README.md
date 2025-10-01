@@ -584,7 +584,8 @@ Unter `/admin` stehen folgende Tabs zur Verfügung:
 5. **Teams/Personen** – Teilnehmerlisten pflegen, optional als Login-Beschränkung.
 6. **Ergebnisse** – Spielstände einsehen und herunterladen.
 7. **Statistik** – Einzelne Antworten analysieren und nach Teams filtern.
-8. **Administration** – Benutzer und Backups verwalten.
+8. **Landing-News** – News-Beiträge einzelnen Landingpages zuordnen, inklusive Veröffentlichungstermin und Sichtbarkeitsstatus.
+9. **Administration** – Benutzer und Backups verwalten.
 
 ### Fragenkataloge
 `data/kataloge/catalogs.json` listet verfügbare Kataloge mit `slug`, Name und optionaler QR-Code-Adresse. Die Reihenfolge wird durch das Feld `sort_order` bestimmt. Jede Frage speichert die zugehörige `catalog_uid`. Jeder Eintrag kann zusätzlich ein Feld `raetsel_buchstabe` enthalten, das den Buchstaben für das Rätselwort festlegt. Die API bietet hierzu folgende Endpunkte:

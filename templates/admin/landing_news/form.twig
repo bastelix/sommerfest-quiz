@@ -1,0 +1,112 @@
+{% extends 'layout.twig' %}
+
+{% set isEdit = entry is not null %}
+{% set formValues = override|default({}) %}
+{% set pageId = formValues.page_id|default(isEdit ? entry.pageId : '') %}
+{% set slug = formValues.slug|default(isEdit ? entry.slug : '') %}
+{% set titleValue = formValues.title|default(isEdit ? entry.title : '') %}
+{% set excerptValue = formValues.excerpt|default(isEdit ? entry.excerpt : '') %}
+{% set contentValue = formValues.content|default(isEdit ? entry.content : '') %}
+{% set published = formValues.is_published is defined ? formValues.is_published : (isEdit ? entry.isPublished : false) %}
+{% set publishedAt = formValues.published_at|default(isEdit and entry.publishedAt ? entry.publishedAt|date('Y-m-d\\TH:i') : '') %}
+
+{% block title %}{{ isEdit ? t('heading_news_edit') : t('heading_news_create') }}{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/ui/trumbowyg.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/trumbowyg@2/dist/trumbowyg.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding{% endblock %}
+
+{% block body %}
+  <div class="uk-container uk-container-expand">
+    <h1 class="uk-heading-bullet">{{ isEdit ? t('heading_news_edit') : t('heading_news_create') }}</h1>
+    <form method="post" class="uk-form-stacked uk-grid-small" uk-grid>
+      <input type="hidden" name="_token" value="{{ csrfToken }}">
+      <div class="uk-width-1-1 uk-width-1-2@m">
+        <label class="uk-form-label" for="landingPage">{{ t('label_news_page') }}</label>
+        <div class="uk-form-controls">
+          <select id="landingPage" name="page_id" class="uk-select" required>
+            <option value="">{{ t('placeholder_select_page') }}</option>
+            {% for page in pages %}
+              <option value="{{ page.id }}" {% if page.id == pageId %}selected{% endif %}>{{ page.title }} ({{ page.slug }})</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="uk-width-1-1 uk-width-1-2@m">
+        <label class="uk-form-label" for="newsSlug">{{ t('label_news_slug') }}</label>
+        <div class="uk-form-controls">
+          <input id="newsSlug" class="uk-input" type="text" name="slug" value="{{ slug|e }}" required pattern="[a-z0-9\-]+" maxlength="100">
+        </div>
+      </div>
+      <div class="uk-width-1-1">
+        <label class="uk-form-label" for="newsTitle">{{ t('label_news_title') }}</label>
+        <div class="uk-form-controls">
+          <input id="newsTitle" class="uk-input" type="text" name="title" value="{{ titleValue|e }}" required>
+        </div>
+      </div>
+      <div class="uk-width-1-1">
+        <label class="uk-form-label" for="newsExcerpt">{{ t('label_news_excerpt') }}</label>
+        <div class="uk-form-controls">
+          <textarea id="newsExcerpt" class="uk-textarea" name="excerpt" rows="4">{{ excerptValue|e }}</textarea>
+        </div>
+      </div>
+      <div class="uk-width-1-1">
+        <label class="uk-form-label" for="newsContent">{{ t('label_news_content') }}</label>
+        <div class="uk-form-controls">
+          <textarea id="newsContent" class="uk-textarea" name="content" rows="12" required>{{ contentValue|e }}</textarea>
+        </div>
+      </div>
+      <div class="uk-width-1-1 uk-width-1-3@m">
+        <label class="uk-form-label" for="newsPublishedAt">{{ t('label_news_published_at') }}</label>
+        <div class="uk-form-controls">
+          <input id="newsPublishedAt" class="uk-input" type="datetime-local" name="published_at" value="{{ publishedAt|e }}">
+        </div>
+      </div>
+      <div class="uk-width-1-1 uk-width-1-3@m uk-flex uk-flex-middle">
+        <label><input class="uk-checkbox" type="checkbox" name="is_published" value="1" {% if published %}checked{% endif %}> {{ t('label_news_is_published') }}</label>
+      </div>
+      <div class="uk-width-1-1 uk-margin-top">
+        <button type="submit" class="uk-button uk-button-primary">{{ t('button_save') }}</button>
+        <a class="uk-button uk-button-default" href="{{ basePath }}/admin/landing-news">{{ t('button_cancel') }}</a>
+      </div>
+      {% if error %}
+        <div class="uk-width-1-1">
+          <div class="uk-alert-danger" uk-alert>{{ error }}</div>
+        </div>
+      {% endif %}
+    </form>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    (function() {
+      const initEditor = function(selector) {
+        const el = document.querySelector(selector);
+        if (!el || !window.jQuery) {
+          return;
+        }
+        window.jQuery(selector).trumbowyg({
+          lang: 'de',
+          removeformatPasted: true,
+          autogrow: true,
+        }).on('tbwpaste', function(_, html) {
+          if (window.DOMPurify) {
+            return window.DOMPurify.sanitize(html);
+          }
+          return html;
+        });
+      };
+      initEditor('#newsContent');
+      initEditor('#newsExcerpt');
+    })();
+  </script>
+{% endblock %}
