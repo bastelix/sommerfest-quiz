@@ -49,6 +49,9 @@ class LandingNewsController
             'entries' => $entries,
             'status' => $status,
             'csrfToken' => $_SESSION['csrf_token'] ?? '',
+            'role' => $_SESSION['user']['role'] ?? '',
+            'currentPath' => $request->getUri()->getPath(),
+            'domainType' => $request->getAttribute('domainType'),
         ]);
     }
 
@@ -154,6 +157,9 @@ class LandingNewsController
             'pages' => $pages,
             'error' => $error,
             'csrfToken' => $_SESSION['csrf_token'] ?? '',
+            'role' => $_SESSION['user']['role'] ?? '',
+            'currentPath' => $request->getUri()->getPath(),
+            'domainType' => $request->getAttribute('domainType'),
         ];
 
         if ($override !== null) {
