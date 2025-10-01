@@ -574,6 +574,45 @@ body.dark-mode .qr-landing .qr-badge{
   overflow:hidden;
 }
 .qr-landing .qr-mockup img{ display:block; width:100%; height:auto; }
+.qr-landing .qr-hero-gallery{
+  position:relative;
+  width:100%;
+  overflow:hidden;
+  border-radius:inherit;
+}
+.qr-landing .qr-hero-gallery::before{
+  content:"";
+  display:block;
+  padding-bottom:56.25%;
+}
+.qr-landing .qr-hero-gallery__item{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  opacity:0;
+  animation:qrHeroGalleryFade 12s ease-in-out infinite;
+}
+.qr-landing .qr-hero-gallery__item:first-child{ opacity:1; }
+.qr-landing .qr-hero-gallery__item:nth-child(2){ animation-delay:6s; }
+.qr-landing .qr-hero-gallery img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+@keyframes qrHeroGalleryFade{
+  0%,40%{ opacity:1; }
+  50%,100%{ opacity:0; }
+}
+@media (prefers-reduced-motion: reduce){
+  .qr-landing .qr-hero-gallery__item{
+    animation:none;
+    opacity:1;
+  }
+  .qr-landing .qr-hero-gallery__item:nth-child(n+2){
+    display:none;
+  }
+}
 .qr-landing .marker-text::after{ /* vorhandene Unterstreichung beibehalten */ }
 
 /* Buttons, Links, Sections, Cards */

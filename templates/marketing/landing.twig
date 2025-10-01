@@ -161,10 +161,16 @@
           </div>
           <div>
             <div class="qr-mockup uk-card qr-card">
-              <picture>
-                <source srcset="{{ basePath }}/uploads/quizrace-shot.avif" type="image/avif">
-                <img src="{{ basePath }}/uploads/quizrace-shot.webp" width="960" height="540" loading="lazy" alt="Bildschirmfoto des QuizRace-Dashboards mit Live-Ranking und Aufgabenliste">
-              </picture>
+              <div class="qr-hero-gallery">
+                <picture class="qr-hero-gallery__item">
+                  <source srcset="{{ basePath }}/uploads/landing/quizrace-shot-backend.avif" type="image/avif">
+                  <img src="{{ basePath }}/uploads/landing/quizrace-shot-backend.webp" width="960" height="540" loading="lazy" alt="Screenshot des QuizRace-Backends mit Aufgabenverwaltung und Teamübersicht">
+                </picture>
+                <picture class="qr-hero-gallery__item">
+                  <source srcset="{{ basePath }}/uploads/landing/quizrace-shot-frontend.avif" type="image/avif">
+                  <img src="{{ basePath }}/uploads/landing/quizrace-shot-frontend.webp" width="960" height="540" loading="lazy" alt="Screenshot der QuizRace-Frontend-Ansicht für Teilnehmende mit Live-Ranking">
+                </picture>
+              </div>
             </div>
           </div>
         </div>
