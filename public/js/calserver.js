@@ -203,6 +203,58 @@
     }
   }
 
+  function disableModuleVideoAutoplay(video, figure) {
+    if (!video || video.dataset.calserverAutoplay === 'manual') {
+      return;
+    }
+
+    try {
+      video.pause();
+    } catch (error) {
+      /* empty */
+    }
+
+    video.dataset.calserverAutoplay = 'manual';
+    video.autoplay = false;
+    video.removeAttribute('autoplay');
+
+    video.muted = false;
+    video.removeAttribute('muted');
+
+    video.controls = true;
+    video.setAttribute('controls', '');
+    video.setAttribute('controlslist', 'nodownload');
+
+    if (video.classList) {
+      video.classList.add('calserver-module-figure__video--manual');
+    }
+
+    if (figure && figure.classList) {
+      figure.classList.add('calserver-module-figure--manual');
+    }
+  }
+
+  function attemptModuleVideoAutoplay(video, figure) {
+    if (!video || typeof video.play !== 'function') {
+      return;
+    }
+
+    let playResult = null;
+
+    try {
+      playResult = video.play();
+    } catch (error) {
+      disableModuleVideoAutoplay(video, figure);
+      return;
+    }
+
+    if (playResult && typeof playResult.catch === 'function') {
+      playResult.catch(function () {
+        disableModuleVideoAutoplay(video, figure);
+      });
+    }
+  }
+
   function syncModuleVideoStates() {
     moduleVideoControls.forEach(function (entry) {
       updateModuleVideoState(entry, isModuleVideoFullscreen(entry.video));
@@ -327,6 +379,8 @@
     video.addEventListener('webkitendfullscreen', function () {
       updateModuleVideoState(entry, false);
     });
+
+    attemptModuleVideoAutoplay(video, figure);
   }
 
   function initModuleVideoFullscreen() {
