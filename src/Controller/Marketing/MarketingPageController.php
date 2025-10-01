@@ -242,20 +242,11 @@ class MarketingPageController
                     'hreflang' => $lang,
                 ];
             }
+
             if ($links !== []) {
-        return $links;
-    }
-
-    private function buildNewsBasePath(Request $request, string $pageSlug): string
-    {
-        $path = $request->getUri()->getPath();
-        if (preg_match('~^/m/([a-z0-9-]+)~', $path) === 1) {
-            return sprintf('/m/%s/news', $pageSlug);
+                return $links;
+            }
         }
-
-        return sprintf('/%s/news', $pageSlug);
-    }
-}
 
         $codes = preg_split('/[\s,;|]+/', $hreflang, -1, PREG_SPLIT_NO_EMPTY);
         if (!is_array($codes)) {
@@ -275,6 +266,16 @@ class MarketingPageController
         }
 
         return $links;
+    }
+
+    private function buildNewsBasePath(Request $request, string $pageSlug): string
+    {
+        $path = $request->getUri()->getPath();
+        if (preg_match('~^/m/([a-z0-9-]+)~', $path) === 1) {
+            return sprintf('/m/%s/news', $pageSlug);
+        }
+
+        return sprintf('/%s/news', $pageSlug);
     }
 
     private function resolveLocalizedSlug(string $baseSlug, string $locale): string {
