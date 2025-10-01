@@ -1748,6 +1748,15 @@ body.qr-landing.calserver-theme .calserver-module-figure video {
     background: #000;
 }
 
+body.qr-landing.calserver-theme .calserver-module-figure__video--manual {
+    cursor: pointer;
+}
+
+body.qr-landing.calserver-theme .calserver-module-figure--manual .calserver-module-figure__fullscreen-button {
+    top: 14px;
+    right: 14px;
+}
+
 body.qr-landing.calserver-theme .calserver-module-figure__fullscreen-button {
     position: absolute;
     top: 18px;
