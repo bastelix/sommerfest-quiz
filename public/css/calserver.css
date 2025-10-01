@@ -1884,6 +1884,7 @@ body.qr-landing.calserver-theme .testimonial-card {
 }
 
 body.qr-landing.calserver-theme .usecase-card--visual {
+    display: none;
     padding: 0;
     overflow: hidden;
 }
