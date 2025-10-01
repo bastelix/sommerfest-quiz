@@ -55,6 +55,7 @@
 - Add domain configuration section
 - Clarify quiz start comment
 - Note management role redirect
+- Refresh contribution and coding guides
 
 ### Feat
 
