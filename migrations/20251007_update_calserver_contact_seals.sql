@@ -45,7 +45,7 @@ $$          <div>
                 <div class="calserver-proof-seals uk-margin-small-top">
                   <a class="calserver-proof-seals__badge-link" href="https://www.software-made-in-germany.org/produkt/calserver/?asp_highlight=calserver&amp;p_asid=10" target="_blank" rel="noopener">
                     <img
-                      src="https://www.software-made-in-germany.org/wp-content/uploads/2021/06/Software-Made-in-Germany-Siegel.webp"
+                      src="/uploads/software-made-in-germany-siegel.webp"
                       alt="Software Made in Germany Siegel"
                       loading="lazy"
                       decoding="async"
@@ -170,7 +170,7 @@ $$          <div>
                 <div class="calserver-proof-seals uk-margin-small-top">
                   <a class="calserver-proof-seals__badge-link" href="https://www.software-made-in-germany.org/produkt/calserver/?asp_highlight=calserver&amp;p_asid=10" target="_blank" rel="noopener">
                     <img
-                      src="https://www.software-made-in-germany.org/wp-content/uploads/2021/06/Software-Made-in-Germany-Siegel.webp"
+                      src="/uploads/software-made-in-germany-siegel.webp"
                       alt="Software Made in Germany Siegel"
                       loading="lazy"
                       decoding="async"
@@ -282,7 +282,7 @@ $$<div class="uk-grid uk-child-width-1-1 uk-grid-small">
 <div class="calserver-proof-seals uk-margin-small-top">
   <a class="calserver-proof-seals__badge-link" href="https://www.software-made-in-germany.org/produkt/calserver/?asp_highlight=calserver&amp;p_asid=10" target="_blank" rel="noopener">
     <img
-      src="https://www.software-made-in-germany.org/wp-content/uploads/2021/06/Software-Made-in-Germany-Siegel.webp"
+      src="/uploads/software-made-in-germany-siegel.webp"
       alt="Software Made in Germany seal"
       loading="lazy"
       decoding="async"
@@ -393,7 +393,7 @@ $$          <div class="uk-grid uk-child-width-1-1 uk-grid-small">
               <div class="calserver-proof-seals uk-margin-small-top">
                 <a class="calserver-proof-seals__badge-link" href="https://www.software-made-in-germany.org/produkt/calserver/?asp_highlight=calserver&amp;p_asid=10" target="_blank" rel="noopener">
                   <img
-                    src="https://www.software-made-in-germany.org/wp-content/uploads/2021/06/Software-Made-in-Germany-Siegel.webp"
+                    src="/uploads/software-made-in-germany-siegel.webp"
                     alt="Software Made in Germany seal"
                     loading="lazy"
                     decoding="async"
