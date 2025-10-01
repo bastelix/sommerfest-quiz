@@ -107,6 +107,10 @@ class Database
             (self::$connectHook)($schema, $pdo);
         }
 
+        if (self::$connectHook !== null) {
+            (self::$connectHook)($schema, $pdo);
+        }
+
         return $pdo;
     }
 
