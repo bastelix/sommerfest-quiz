@@ -93,6 +93,24 @@ body.qr-landing.future-is-green-theme .landing-content {
   color: var(--fig-text);
 }
 
+.future-is-green-theme .menu-explain {
+  border-left: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.future-is-green-theme .menu-explain .explain-pane.uk-hidden {
+  display: none !important;
+}
+
+.future-is-green-theme section[id] {
+  scroll-margin-top: 96px;
+}
+
+.future-is-green-theme .fig-scroll-anchor {
+  display: block;
+  height: 0;
+  scroll-margin-top: 96px;
+}
+
 
 .future-is-green-theme .fig-logo {
   display: inline-flex;
@@ -157,6 +175,10 @@ body.qr-landing.future-is-green-theme .landing-content {
   .future-is-green-theme .uk-navbar-nav > li > a {
     padding-left: 12px;
     padding-right: 12px;
+  }
+
+  .future-is-green-theme .uk-navbar-dropdown {
+    width: 720px;
   }
 }
 

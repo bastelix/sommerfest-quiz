@@ -1,18 +1,5 @@
 {% extends 'layout.twig' %}
 
-{% set links = [
-    { 'href': '#start', 'label': 'Start', 'icon': 'home' },
-    { 'href': '#benefits', 'label': 'Impact', 'icon': 'bolt' },
-    { 'href': '#how-it-works', 'label': 'So funktioniert’s', 'icon': 'settings' },
-    { 'href': '#offerings', 'label': 'Angebote', 'icon': 'thumbnails' },
-    { 'href': '#cases', 'label': 'Cases', 'icon': 'file-text' },
-    { 'href': '#technology', 'label': 'Technologie', 'icon': 'cloud' },
-    { 'href': '#pricing', 'label': 'Preise', 'icon': 'credit-card' },
-    { 'href': '#about', 'label': 'Über uns', 'icon': 'users' },
-    { 'href': '#faq', 'label': 'FAQ', 'icon': 'question' },
-    { 'href': '#contact', 'label': 'Kontakt', 'icon': 'mail' }
-] %}
-
 {% block title %}{{ metaTitle|default('Future is Green – Urbane Logistik für lebenswerte Städte') }}{% endblock %}
 
 {% block head %}
@@ -31,8 +18,8 @@
 
 {% block body %}
   <div class="landing-content">
-    <header class="qr-topbar" id="start">
-      <nav class="uk-navbar-container" data-uk-navbar>
+    <header class="qr-topbar uk-position-sticky uk-top" id="start" uk-sticky="animation: uk-animation-slide-top; sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky;">
+      <nav class="uk-navbar-container" uk-navbar>
         <div class="uk-navbar-left">
           <div class="uk-navbar-item">
             <button id="offcanvas-toggle"
@@ -54,19 +41,126 @@
             </a>
           </div>
         </div>
-        <div class="uk-navbar-right">
-          <ul class="uk-navbar-nav uk-visible@m">
-            {% for link in links %}
-              <li>
-                <a href="{{ link.href }}">
-                  <span class="uk-margin-small-right" data-uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
-                </a>
-              </li>
-            {% endfor %}
+        <div class="uk-navbar-center uk-visible@m">
+          <ul class="uk-navbar-nav fig-mega-nav">
+            <li>
+              <a href="#wirkung" uk-scroll>Wirkung</a>
+              <div class="uk-navbar-dropdown uk-padding-remove" uk-dropdown="offset: 20; delay-hide: 150">
+                <div class="uk-grid-collapse uk-child-width-1-2@s" uk-grid>
+                  <div>
+                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                      <li><a href="#wirkung" uk-scroll data-explain="kpi">KPIs im Quartier</a></li>
+                      <li><a href="#wirkung" uk-scroll data-explain="cases">Pilotgebiete &amp; Zahlen</a></li>
+                      <li><a href="#wirkung" uk-scroll data-explain="audit">CO₂-Bilanz &amp; Audit</a></li>
+                    </ul>
+                  </div>
+                  <div class="menu-explain uk-background-muted uk-padding">
+                    <div class="explain-pane" data-explain-pane="kpi">
+                      <h5 class="uk-margin-remove">Wirkung verstehen</h5>
+                      <p class="uk-text-small uk-margin-small">0 Emissionen, −60% Fahrten, +24% Zustelltempo: die 6 Punkte zeigen, wie Klimaschutz, Lebensqualität und Liefertempo zusammengehen.</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="cases">
+                      <h5 class="uk-margin-remove">Reale Ergebnisse</h5>
+                      <p class="uk-text-small uk-margin-small">Pilotgebiete nach Stadt/Branche filterbar – mit verifizierten Kennzahlen.</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="audit">
+                      <h5 class="uk-margin-remove">Transparenz &amp; Audit</h5>
+                      <p class="uk-text-small uk-margin-small">Dashboards, Messmethoden und Audit-Scopes für Kommunen &amp; Partner.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <a href="#loesungen" uk-scroll>Lösungen</a>
+              <div class="uk-navbar-dropdown uk-padding-remove" uk-dropdown="offset: 20; delay-hide: 150">
+                <div class="uk-grid-collapse uk-child-width-1-2@s" uk-grid>
+                  <div>
+                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                      <li><a href="#loesungen" uk-scroll data-explain="flow">So funktioniert’s</a></li>
+                      <li><a href="#loesungen" uk-scroll data-explain="pakete">Pakete &amp; Module</a></li>
+                      <li><a href="#loesungen" uk-scroll data-explain="tech">Technologie &amp; Integrationen</a></li>
+                    </ul>
+                  </div>
+                  <div class="menu-explain uk-background-muted uk-padding">
+                    <div class="explain-pane" data-explain-pane="flow">
+                      <h5 class="uk-margin-remove">Vom Mikrohub zur Haustür</h5>
+                      <p class="uk-text-small uk-margin-small">KI-Routen, gebündelte Stopps, Off-Peak-Lieferungen – effizient &amp; leise.</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="pakete">
+                      <h5 class="uk-margin-remove">Passend skalieren</h5>
+                      <p class="uk-text-small uk-margin-small">Start, Pro, City – kombinierbare Module für Quartiere jeder Größe.</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="tech">
+                      <h5 class="uk-margin-remove">API-first</h5>
+                      <p class="uk-text-small uk-margin-small">ERP/Shop-Anbindung, Live-Dashboards, auditierbare CO₂-Bilanz.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <a href="#referenzen" uk-scroll>Referenzen</a>
+              <div class="uk-navbar-dropdown uk-padding-remove" uk-dropdown="offset: 20; delay-hide: 150">
+                <div class="uk-grid-collapse uk-child-width-1-2@s" uk-grid>
+                  <div>
+                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                      <li><a href="#referenzen" uk-scroll data-explain="story">Case Stories</a></li>
+                      <li><a href="#referenzen" uk-scroll data-explain="branchen">Branchenfilter</a></li>
+                      <li><a href="#referenzen" uk-scroll data-explain="reports">Impact-Reports</a></li>
+                    </ul>
+                  </div>
+                  <div class="menu-explain uk-background-muted uk-padding">
+                    <div class="explain-pane" data-explain-pane="story">
+                      <h5 class="uk-margin-remove">Stimmen aus der Praxis</h5>
+                      <p class="uk-text-small uk-margin-small">Was Kommunen, Händler:innen und Rider über den Umbau berichten.</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="branchen">
+                      <h5 class="uk-margin-remove">Filter nach Branchen</h5>
+                      <p class="uk-text-small uk-margin-small">Von Lebensmitteln bis Pharma – passende Referenzen in Sekunden finden.</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="reports">
+                      <h5 class="uk-margin-remove">Zahlen zum Nachlesen</h5>
+                      <p class="uk-text-small uk-margin-small">PDF-Reports mit Kennzahlen, Lessons Learned und Zertifizierungen.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <a href="#preise" uk-scroll>Preise &amp; FAQ</a>
+              <div class="uk-navbar-dropdown uk-padding-remove" uk-dropdown="offset: 20; delay-hide: 150">
+                <div class="uk-grid-collapse uk-child-width-1-2@s" uk-grid>
+                  <div>
+                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                      <li><a href="#preise" uk-scroll data-explain="preise">Pakete &amp; Vergleich</a></li>
+                      <li><a href="#preise" uk-scroll data-explain="faq">Häufige Fragen</a></li>
+                      <li><a href="#preise" uk-scroll data-explain="service">Service-Level</a></li>
+                    </ul>
+                  </div>
+                  <div class="menu-explain uk-background-muted uk-padding">
+                    <div class="explain-pane" data-explain-pane="preise">
+                      <h5 class="uk-margin-remove">Transparente Pakete</h5>
+                      <p class="uk-text-small uk-margin-small">Vergleiche Start, Pro und City – monatlich kündbar, Förderfähig.</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="faq">
+                      <h5 class="uk-margin-remove">Antworten in Sekunden</h5>
+                      <p class="uk-text-small uk-margin-small">Finanzierung, Aufbauzeit, Zustellfenster – alles kompakt erklärt.</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="service">
+                      <h5 class="uk-margin-remove">Service &amp; Support</h5>
+                      <p class="uk-text-small uk-margin-small">SLA, Schulungen, Monitoring – abgestimmt auf Stadt &amp; Partner.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
           </ul>
+        </div>
+        <div class="uk-navbar-right">
           <div class="uk-navbar-item fig-cta uk-visible@m">
-            <a class="fig-primary-link" href="#contact">
-              <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Jetzt Pilot starten
+            <a class="fig-primary-link" href="#kontakt" uk-scroll>
+              <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Demo anfragen
             </a>
           </div>
           <div class="uk-navbar-item config-menu uk-inline">
@@ -164,17 +258,29 @@
     <div id="qr-offcanvas" data-uk-offcanvas="overlay: true; flip: true">
       <div class="uk-offcanvas-bar">
         <button class="uk-offcanvas-close git-btn" type="button" data-uk-close aria-label="Menü schließen"></button>
-        <ul class="uk-nav uk-nav-default">
-          {% for link in links %}
-            <li>
-              <a href="{{ link.href }}">
-                <span class="uk-margin-small-right" data-uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
-              </a>
-            </li>
-          {% endfor %}
+        <ul class="uk-nav uk-nav-default fig-offcanvas-nav">
+          <li class="uk-nav-header">Wirkung</li>
+          <li><a href="#wirkung" uk-scroll>KPIs im Quartier</a></li>
+          <li><a href="#wirkung" uk-scroll>Pilotgebiete &amp; Zahlen</a></li>
+          <li><a href="#wirkung" uk-scroll>CO₂-Bilanz &amp; Audit</a></li>
+          <li class="uk-nav-divider"></li>
+          <li class="uk-nav-header">Lösungen</li>
+          <li><a href="#loesungen" uk-scroll>So funktioniert’s</a></li>
+          <li><a href="#loesungen" uk-scroll>Pakete &amp; Module</a></li>
+          <li><a href="#loesungen" uk-scroll>Technologie &amp; Integrationen</a></li>
+          <li class="uk-nav-divider"></li>
+          <li class="uk-nav-header">Referenzen</li>
+          <li><a href="#referenzen" uk-scroll>Case Stories</a></li>
+          <li><a href="#referenzen" uk-scroll>Branchenfilter</a></li>
+          <li><a href="#referenzen" uk-scroll>Impact-Reports</a></li>
+          <li class="uk-nav-divider"></li>
+          <li class="uk-nav-header">Preise &amp; FAQ</li>
+          <li><a href="#preise" uk-scroll>Pakete &amp; Vergleich</a></li>
+          <li><a href="#preise" uk-scroll>Häufige Fragen</a></li>
+          <li><a href="#preise" uk-scroll>Service-Level</a></li>
         </ul>
-        <a class="uk-button uk-button-primary git-btn uk-width-1-1 uk-margin-top offcanvas-cta" href="#contact">
-          <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Jetzt Pilot starten
+        <a class="uk-button uk-button-primary git-btn uk-width-1-1 uk-margin-top offcanvas-cta" href="#kontakt" uk-scroll>
+          <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Demo anfragen
         </a>
       </div>
     </div>
@@ -308,10 +414,43 @@
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
   {% endif %}
   <script>
+    (function () {
+      function onChange(e) {
+        var link = e.target.closest('a[data-explain]');
+        if (!link) {
+          return;
+        }
+
+        var dropdown = link.closest('.uk-navbar-dropdown');
+        if (!dropdown) {
+          return;
+        }
+
+        var explainKey = link.getAttribute('data-explain');
+        var panes = dropdown.querySelectorAll('.menu-explain .explain-pane');
+        panes.forEach(function (pane) {
+          var key = pane.getAttribute('data-explain-pane');
+          pane.classList.toggle('uk-hidden', key !== explainKey);
+        });
+      }
+
+      document.addEventListener('mouseover', onChange, true);
+      document.addEventListener('focusin', onChange, true);
+    })();
+
     document.addEventListener('DOMContentLoaded', function () {
       var contactForm = document.getElementById('contact-form');
       if (contactForm && !contactForm.hasAttribute('data-contact-endpoint')) {
         contactForm.setAttribute('data-contact-endpoint', '{{ basePath }}/future-is-green/contact');
+      }
+
+      var contactSection = document.getElementById('contact');
+      if (contactSection && !document.getElementById('kontakt')) {
+        var anchor = document.createElement('div');
+        anchor.id = 'kontakt';
+        anchor.className = 'fig-scroll-anchor';
+        anchor.setAttribute('aria-hidden', 'true');
+        contactSection.insertAdjacentElement('afterbegin', anchor);
       }
 
       var topbar = document.querySelector('.future-is-green-theme .qr-topbar');
