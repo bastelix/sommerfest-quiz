@@ -134,6 +134,10 @@ body.qr-landing.future-is-green-theme .landing-content {
   color: var(--fig-text);
 }
 
+.future-is-green-theme:not([data-theme='dark']) #qr-offcanvas .uk-nav-header {
+  color: #000000;
+}
+
 .future-is-green-theme .uk-navbar-dropdown {
   width: 720px;
   padding: 16px 0;
