@@ -13,7 +13,7 @@ body.qr-landing.future-is-green-theme {
   --fig-accent: #9cd78f;
   --fig-border: rgba(19, 143, 82, 0.18);
   --fig-logo-size: clamp(56px, 8.4vw, 80px);
-  --fig-logo-expanded-scale: 1.14;
+  --fig-logo-expanded-scale: 1.35;
   --fig-logo-condensed-scale: 1;
   --fig-border-soft: rgba(19, 143, 82, 0.12);
   --fig-border-strong: rgba(19, 143, 82, 0.22);
@@ -216,7 +216,7 @@ body.qr-landing.future-is-green-theme .landing-content {
 
 .future-is-green-theme .fig-logo__wordmark-svg {
   display: block;
-  width: clamp(180px, 24vw, 288px);
+  width: clamp(168px, 22vw, 268px);
   height: auto;
   color: var(--fig-text);
 }
@@ -234,10 +234,6 @@ body.qr-landing.future-is-green-theme .landing-content {
   width: 100%;
   height: 100%;
   object-fit: contain;
-}
-
-.future-is-green-theme .qr-topbar.fig-topbar--condensed .fig-logo__wordmark-svg {
-  width: clamp(168px, 20vw, 260px);
 }
 
 @media (max-width: 960px) {
@@ -278,7 +274,7 @@ body.qr-landing.future-is-green-theme .landing-content {
 @media (max-width: 640px) {
   body.qr-landing.future-is-green-theme {
     --fig-logo-size: clamp(54px, 18vw, 68px);
-    --fig-logo-expanded-scale: 1.12;
+    --fig-logo-expanded-scale: 1.35;
   }
 }
 
