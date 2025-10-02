@@ -55,9 +55,15 @@ body:not(.dark-mode) .topbar .uk-navbar-nav>li>a{
   color: var(--qr-fg);
   border: 1px solid var(--drop-border, var(--qr-border));
 }
+.uk-offcanvas-bar .uk-nav-header,
+.uk-offcanvas-bar .uk-nav.uk-nav-divider{
+  color: var(--qr-fg);
+  border-color: var(--qr-border);
+}
 .uk-offcanvas-bar .uk-nav-default>li>a,
 .uk-offcanvas-bar .uk-nav-default .uk-nav-sub a {
   color: var(--qr-fg);
+  border-color: var(--qr-border);
 }
 .git-btn{
   width:40px;height:40px;padding:0;
