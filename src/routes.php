@@ -17,6 +17,7 @@ use App\Controller\LogoutController;
 use App\Controller\ConfigController;
 use App\Controller\CatalogController;
 use App\Application\Seo\PageSeoConfigService;
+use App\Application\Middleware\HeadRequestMiddleware;
 use App\Application\Middleware\RoleAuthMiddleware;
 use App\Service\ConfigService;
 use App\Service\ConfigValidator;
@@ -390,6 +391,7 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return $handler->handle($request);
     });
+    $app->add(new HeadRequestMiddleware());
     $app->add(new LanguageMiddleware($translator));
 
     $app->map(['GET', 'HEAD'], '/healthz', function (Request $request, Response $response) {
