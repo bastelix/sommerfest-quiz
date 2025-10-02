@@ -260,6 +260,38 @@ export function initSeoForm() {
       hreflang: `<link rel="alternate" href="${ctx.baseUrl}/" hreflang="de" />`,
       domain: ctx.domain
     }),
+    'future-is-green': ctx => ({
+      metaTitle: 'Future is Green – Urbane Logistik für lebenswerte Städte',
+      metaDescription:
+        'Future is Green orchestriert Mikro-Hubs, lokale Händler:innen und E-Cargobikes für emissionsfreie Same-Day-Lieferungen in deiner Stadt.',
+      slug: '/future-is-green',
+      canonical: `${ctx.baseUrl}/future-is-green`,
+      robots: 'index, follow',
+      ogTitle: 'Future is Green – Nachhaltige City-Logistik',
+      ogDescription:
+        'Mit Mikro-Hubs, E-Cargobikes und digitalem Routing reduziert Future is Green Verkehr, Lärm und CO₂ in Innenstädten.',
+      ogImage: `${ctx.baseUrl}/uploads/seo/social-preview.jpg`,
+      schema: `{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Future is Green",
+  "url": "${ctx.baseUrl}/future-is-green",
+  "description": "Future is Green verbindet Mikro-Hubs, lokale Händler:innen und E-Cargobikes zu einer emissionsfreien City-Logistik.",
+  "areaServed": "Stadtquartiere, urbane Regionen",
+  "offers": {
+    "@type": "Service",
+    "name": "Urbane Logistik",
+    "areaServed": "Innenstadt",
+    "description": "Letzte Meile mit Cargo-Bikes, Same-Day-Lieferfenster und transparente CO₂-Bilanzen für Kommunen und Händler:innen."
+  },
+  "sameAs": [
+    "https://www.linkedin.com/company/future-is-green",
+    "https://www.instagram.com/futureisgreen.city"
+  ]
+ }`,
+      hreflang: `<link rel="alternate" href="${ctx.baseUrl}/future-is-green" hreflang="de" />`,
+      domain: ctx.domain
+    }),
     calserver: ctx => ({
       metaTitle: 'calServer – Kalibrier- & Prüfmittelmanagement',
       metaDescription:
