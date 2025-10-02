@@ -436,24 +436,107 @@ body.qr-landing.future-is-green-theme .landing-content {
 
 .future-is-green-theme .fig-trust {
   margin-top: 48px;
-  padding: 20px 24px;
+  padding: 24px;
   border-radius: 16px;
   background: var(--fig-surface-muted);
   border: 1px solid var(--fig-border);
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 24px;
+  align-items: stretch;
+  position: relative;
+  overflow: hidden;
+}
+
+.future-is-green-theme .fig-trust__headline {
+  position: relative;
+  display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 20px;
+  padding: 12px 0;
 }
 
 .future-is-green-theme .fig-trust__label {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 24px;
+  border-radius: 999px;
+  background: var(--fig-surface-muted);
   font-weight: 600;
   color: var(--fig-text);
+  box-shadow: 0 12px 32px rgba(9, 45, 26, 0.12);
+}
+
+.future-is-green-theme .fig-trust__ticker {
+  position: absolute;
+  inset: 0;
+  margin: 0 8px;
+  border-radius: 999px;
+  background: var(--fig-surface);
+  border: 1px solid var(--fig-border-soft);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.future-is-green-theme .fig-trust__ticker::before,
+.future-is-green-theme .fig-trust__ticker::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 48px;
+  height: 100%;
+  z-index: 2;
+}
+
+.future-is-green-theme .fig-trust__ticker::before {
+  left: 0;
+  background: linear-gradient(90deg, var(--fig-surface) 0%, transparent 100%);
+}
+
+.future-is-green-theme .fig-trust__ticker::after {
+  right: 0;
+  background: linear-gradient(270deg, var(--fig-surface) 0%, transparent 100%);
+}
+
+.future-is-green-theme .fig-trust__ticker-track {
+  display: flex;
+  gap: 12px;
+  padding: 12px 24px;
+  width: max-content;
+  animation: fig-trust-marquee 26s linear infinite;
+}
+
+.future-is-green-theme .fig-trust__pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 18px;
+  border-radius: 999px;
+  background: var(--fig-surface-soft);
+  border: 1px solid var(--fig-border-soft);
+  color: var(--fig-muted);
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+@keyframes fig-trust-marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .future-is-green-theme .fig-trust__logos {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 12px;
 }
 

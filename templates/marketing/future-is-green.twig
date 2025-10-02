@@ -403,14 +403,35 @@
             </li>
           </ul>
         </div>
+        {% set trustLogos = [
+          'Stadtwerke',
+          'IHK',
+          'Hochschule&nbsp;XY',
+          'EU-Regionalfonds',
+          'Urbane Innovation&nbsp;2025',
+          'Logistiknetzwerk&nbsp;Nord',
+          'Bundesumweltamt',
+          'Förderinitiative&nbsp;Smart&nbsp;City',
+          'Mobilitätsrat&nbsp;Zukunft'
+        ] %}
         <div class="fig-trust" data-uk-scrollspy="cls: uk-animation-fade; delay: 200">
-          <span class="fig-trust__label">Gefördert &amp; unterstützt von</span>
+          <div class="fig-trust__headline">
+            <div class="fig-trust__ticker" aria-hidden="true">
+              <div class="fig-trust__ticker-track">
+                {% for logo in trustLogos %}
+                  <span class="fig-trust__pill">{{ logo|raw }}</span>
+                {% endfor %}
+                {% for logo in trustLogos %}
+                  <span class="fig-trust__pill">{{ logo|raw }}</span>
+                {% endfor %}
+              </div>
+            </div>
+            <span class="fig-trust__label">Gefördert &amp; unterstützt von</span>
+          </div>
           <div class="fig-trust__logos" role="list">
-            <span class="fig-trust__logo" role="listitem">Stadtwerke</span>
-            <span class="fig-trust__logo" role="listitem">IHK</span>
-            <span class="fig-trust__logo" role="listitem">Hochschule&nbsp;XY</span>
-            <span class="fig-trust__logo" role="listitem">EU-Regionalfonds</span>
-            <span class="fig-trust__logo" role="listitem">Urbane Innovation&nbsp;2025</span>
+            {% for logo in trustLogos %}
+              <span class="fig-trust__logo" role="listitem">{{ logo|raw }}</span>
+            {% endfor %}
           </div>
         </div>
       </div>
