@@ -481,6 +481,170 @@
       document.addEventListener('focusin', onChange, true);
     })();
 
+    function enhanceTechnologySection() {
+      var grid = document.querySelector('#technology .fig-technology-grid');
+      if (!grid || grid.classList.contains('fig-technology-grid--is-enhanced')) {
+        return;
+      }
+
+      if (grid.dataset.figTechnologyEnhanced === 'true') {
+        return;
+      }
+
+      var cards = Array.prototype.slice.call(grid.querySelectorAll('.fig-technology-card'));
+      if (cards.length === 0) {
+        return;
+      }
+
+      var interactive = document.createElement('div');
+      interactive.className = 'fig-technology-interactive';
+
+      var scrollspyConfig = grid.getAttribute('data-uk-scrollspy');
+      if (scrollspyConfig) {
+        interactive.setAttribute('data-uk-scrollspy', scrollspyConfig);
+      }
+
+      var navWrapper = document.createElement('div');
+      navWrapper.className = 'fig-technology-interactive__nav';
+
+      var navList = document.createElement('ul');
+      navList.className = 'fig-technology-nav';
+      navList.setAttribute('role', 'tablist');
+      navList.setAttribute('aria-orientation', 'vertical');
+      navWrapper.appendChild(navList);
+
+      var display = document.createElement('div');
+      display.className = 'fig-technology-interactive__display';
+
+      interactive.appendChild(navWrapper);
+      interactive.appendChild(display);
+
+      var buttons = [];
+      var panels = [];
+      var activeIndex = 0;
+
+      cards.forEach(function (card, index) {
+        var panel = card.cloneNode(true);
+        var panelId = 'fig-technology-panel-' + index;
+        var tabId = 'fig-technology-tab-' + index;
+
+        panel.id = panelId;
+        panel.classList.add('fig-technology-panel');
+        panel.setAttribute('role', 'tabpanel');
+        panel.setAttribute('aria-labelledby', tabId);
+        if (index !== 0) {
+          panel.setAttribute('hidden', 'true');
+        } else {
+          panel.classList.add('is-active');
+        }
+
+        display.appendChild(panel);
+        panels.push(panel);
+
+        var heading = panel.querySelector('h3');
+        var headingText = heading ? heading.textContent.trim() : 'Technologie ' + (index + 1);
+
+        var summaryText = '';
+        var summarySource = card.querySelector('.fig-feature-list li span:last-child');
+        if (summarySource) {
+          summaryText = summarySource.textContent.trim();
+        }
+
+        var item = document.createElement('li');
+        item.className = 'fig-technology-nav__item';
+        item.setAttribute('role', 'presentation');
+
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'fig-technology-nav__button';
+        button.id = tabId;
+        button.setAttribute('role', 'tab');
+        button.setAttribute('aria-controls', panelId);
+        button.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
+        button.setAttribute('tabindex', index === 0 ? '0' : '-1');
+
+        var titleSpan = document.createElement('span');
+        titleSpan.className = 'fig-technology-nav__title';
+        titleSpan.textContent = headingText;
+        button.appendChild(titleSpan);
+
+        if (summaryText !== '') {
+          var descSpan = document.createElement('span');
+          descSpan.className = 'fig-technology-nav__desc';
+          descSpan.textContent = summaryText;
+          button.appendChild(descSpan);
+        }
+
+        if (index === 0) {
+          button.classList.add('is-active');
+        }
+
+        item.appendChild(button);
+        navList.appendChild(item);
+        buttons.push(button);
+
+        button.addEventListener('click', function () {
+          activate(index, false);
+        });
+
+        button.addEventListener('keydown', function (event) {
+          var key = event.key || event.which;
+          var targetIndex = null;
+
+          if (key === 'ArrowDown' || key === 'ArrowRight' || key === 40 || key === 39) {
+            targetIndex = (index + 1) % buttons.length;
+          } else if (key === 'ArrowUp' || key === 'ArrowLeft' || key === 38 || key === 37) {
+            targetIndex = (index - 1 + buttons.length) % buttons.length;
+          } else if (key === 'Home' || key === 36) {
+            targetIndex = 0;
+          } else if (key === 'End' || key === 35) {
+            targetIndex = buttons.length - 1;
+          }
+
+          if (targetIndex !== null) {
+            event.preventDefault();
+            activate(targetIndex, true);
+          }
+        });
+      });
+
+      function activate(newIndex, focusTab) {
+        if (newIndex < 0 || newIndex >= panels.length) {
+          return;
+        }
+
+        activeIndex = newIndex;
+
+        buttons.forEach(function (btn, idx) {
+          var isActive = idx === newIndex;
+          btn.classList.toggle('is-active', isActive);
+          btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+          btn.setAttribute('tabindex', isActive ? '0' : '-1');
+          if (isActive && focusTab) {
+            btn.focus();
+          }
+        });
+
+        panels.forEach(function (panel, idx) {
+          var shouldShow = idx === newIndex;
+          if (shouldShow) {
+            panel.removeAttribute('hidden');
+            panel.classList.add('is-active');
+          } else {
+            panel.setAttribute('hidden', 'true');
+            panel.classList.remove('is-active');
+          }
+        });
+      }
+
+      activate(activeIndex, false);
+
+      grid.insertAdjacentElement('afterend', interactive);
+      grid.classList.add('fig-technology-grid--is-enhanced');
+      grid.setAttribute('aria-hidden', 'true');
+      grid.dataset.figTechnologyEnhanced = 'true';
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
       var contactForm = document.getElementById('contact-form');
       if (contactForm && !contactForm.hasAttribute('data-contact-endpoint')) {
@@ -509,6 +673,8 @@
         toggleTopbarState();
         window.addEventListener('scroll', toggleTopbarState, { passive: true });
       }
+
+      enhanceTechnologySection();
     });
   </script>
 {% endblock %}
