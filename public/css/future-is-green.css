@@ -878,3 +878,9 @@ body.qr-landing.future-is-green-theme .landing-content {
     padding: 72px 0;
   }
 }
+
+@media (max-width: 639px) {
+  .future-is-green-theme .fig-hero__stats {
+    grid-template-columns: 1fr;
+  }
+}
