@@ -159,9 +159,53 @@ body.qr-landing.future-is-green-theme .landing-content {
   background: rgba(255, 255, 255, 0.9);
   border-radius: 14px;
   border: 1px solid rgba(19, 143, 82, 0.16);
-  font-weight: 500;
   color: var(--fig-text);
   box-shadow: 0 12px 24px -20px rgba(16, 52, 36, 0.35);
+}
+
+.future-is-green-theme .fig-hero__stat {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.future-is-green-theme .fig-hero__stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(19, 143, 82, 0.12);
+  color: var(--fig-primary);
+  flex-shrink: 0;
+}
+
+.future-is-green-theme .fig-hero__stat-icon svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+}
+
+.future-is-green-theme .fig-hero__stat-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.future-is-green-theme .fig-hero__stat-label strong {
+  font-size: 1.1rem;
+  color: var(--fig-primary-dark);
+}
+
+.future-is-green-theme .fig-hero__stat-label span {
+  color: var(--fig-muted);
 }
 
 .future-is-green-theme .fig-hero__card {
