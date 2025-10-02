@@ -108,6 +108,10 @@ body.qr-landing.future-is-green-theme .landing-content {
   margin: 32px 0 28px;
 }
 
+.future-is-green-theme .fig-hero__stats-bar {
+  margin-top: 48px;
+}
+
 .future-is-green-theme .fig-button {
   display: inline-flex;
   align-items: center;
