@@ -215,7 +215,7 @@ body.qr-landing.future-is-green-theme .landing-content {
 
 .future-is-green-theme .fig-logo__wordmark-svg {
   display: block;
-  width: clamp(168px, 22vw, 268px);
+  width: clamp(109.2px, 14.3vw, 174.2px);
   height: auto;
   color: var(--fig-text);
 }
