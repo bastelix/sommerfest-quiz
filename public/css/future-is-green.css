@@ -1117,6 +1117,11 @@ body.qr-landing.future-is-green-theme .landing-content {
   color: var(--fig-muted);
 }
 
+.future-is-green-theme .fig-footer .footer-about strong,
+.future-is-green-theme .fig-footer .footer-about p {
+  color: #ffffff;
+}
+
 .future-is-green-theme .fig-footer a {
   color: var(--fig-primary);
   text-decoration: none;
