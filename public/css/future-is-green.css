@@ -806,15 +806,14 @@ body.qr-landing.future-is-green-theme .landing-content {
 
 @media (max-width: 959px) {
   .future-is-green-theme .fig-technology-nav {
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(240px, 1fr);
-    overflow-x: auto;
-    padding-bottom: 8px;
-    scroll-snap-type: x mandatory;
+    grid-auto-flow: row;
+    grid-auto-rows: auto;
+    overflow: visible;
+    padding-bottom: 0;
   }
 
   .future-is-green-theme .fig-technology-nav__item {
-    scroll-snap-align: start;
+    scroll-snap-align: unset;
   }
 }
 
