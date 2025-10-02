@@ -3651,7 +3651,7 @@ document.addEventListener('DOMContentLoaded', function () {
   let cardIndex = 0;
 
   // --------- Hilfe-Seitenleiste ---------
-  const helpBtn = document.getElementById('helpBtn');
+  const helpButtons = document.querySelectorAll('.help-toggle');
   const helpSidebar = document.getElementById('helpSidebar');
   const helpContent = document.getElementById('helpContent');
   const qrDesignModal = document.getElementById('qrDesignModal');
@@ -4076,15 +4076,19 @@ document.addEventListener('DOMContentLoaded', function () {
     return active ? active.getAttribute('data-help') || '' : '';
   }
 
-  helpBtn?.addEventListener('click', () => {
-    if (!helpSidebar || !helpContent) return;
-    let text = activeHelpText();
-    if (!text && window.location.pathname.endsWith('/admin/event/settings')) {
-      text = window.transEventSettingsHelp || '';
-    }
-    helpContent.innerHTML = text;
-    if (window.UIkit && UIkit.offcanvas) UIkit.offcanvas(helpSidebar).show();
-  });
+  if (helpButtons.length) {
+    helpButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        if (!helpSidebar || !helpContent) return;
+        let text = activeHelpText();
+        if (!text && window.location.pathname.endsWith('/admin/event/settings')) {
+          text = window.transEventSettingsHelp || '';
+        }
+        helpContent.innerHTML = text;
+        if (window.UIkit && UIkit.offcanvas) UIkit.offcanvas(helpSidebar).show();
+      });
+    });
+  }
 
   adminMenuToggle?.addEventListener('click', e => {
     e.preventDefault();

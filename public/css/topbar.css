@@ -115,6 +115,28 @@ body:not(.dark-mode) .topbar .uk-navbar-nav>li>a{
   color:var(--topbar-text);
 }
 
+#qr-offcanvas .offcanvas-switches{
+  margin-top:24px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding-left:0;
+}
+
+#qr-offcanvas .offcanvas-switches>li{
+  list-style:none;
+}
+
+#qr-offcanvas .offcanvas-switches .git-btn{
+  width:100%;
+  justify-content:flex-start;
+  gap:12px;
+}
+
+#qr-offcanvas .offcanvas-switches .git-btn span{
+  display:inline-flex;
+}
+
 @media (max-width: 640px) {
   .topbar .uk-navbar-right {
     position: absolute;
