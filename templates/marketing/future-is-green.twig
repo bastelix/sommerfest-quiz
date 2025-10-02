@@ -566,6 +566,24 @@
         return;
       }
 
+      function stripAnimationClasses(node) {
+        if (!node || !node.classList) {
+          return;
+        }
+
+        if (node.classList.contains('uk-invisible')) {
+          node.classList.remove('uk-invisible');
+        }
+
+        Array.prototype.slice.call(node.classList).forEach(function (className) {
+          if (className.indexOf('uk-animation-') === 0) {
+            node.classList.remove(className);
+          }
+        });
+
+        Array.prototype.forEach.call(node.children || [], stripAnimationClasses);
+      }
+
       var interactive = document.createElement('div');
       interactive.className = 'fig-technology-interactive';
 
@@ -595,6 +613,7 @@
 
       cards.forEach(function (card, index) {
         var panel = card.cloneNode(true);
+        stripAnimationClasses(panel);
         var panelId = 'fig-technology-panel-' + index;
         var tabId = 'fig-technology-tab-' + index;
 
