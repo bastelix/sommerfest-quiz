@@ -16,6 +16,30 @@ document.addEventListener('DOMContentLoaded', function () {
   const accessibilityIcon = document.getElementById('accessibilityIcon');
   const helpBtn = document.getElementById('helpBtn');
   const teamNameBtn = document.getElementById('teamNameBtn');
+  const storageKeys = (typeof STORAGE_KEYS !== 'undefined')
+    ? STORAGE_KEYS
+    : {
+        DARK_MODE: 'darkMode',
+        BARRIER_FREE: 'barrierFree',
+        PLAYER_NAME: 'quizUser',
+        ADMIN_SIDEBAR: 'adminSidebarCollapsed'
+      };
+  const readStored = (typeof getStored === 'function')
+    ? (key) => {
+        try {
+          return getStored(key);
+        } catch (error) {
+          return null;
+        }
+      }
+    : () => null;
+  const writeStored = (typeof setStored === 'function')
+    ? (key, value) => {
+        try {
+          setStored(key, value);
+        } catch (error) { /* empty */ }
+      }
+    : () => {};
 
   if (offcanvasToggle && !offcanvasHasItems) {
     offcanvasToggle.hidden = true;
@@ -25,23 +49,19 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!sidebarHasItems) {
       sidebarToggle.hidden = true;
     } else {
-      const collapsedKey = (typeof STORAGE_KEYS !== 'undefined' && STORAGE_KEYS.ADMIN_SIDEBAR)
-        ? STORAGE_KEYS.ADMIN_SIDEBAR
-        : 'adminSidebarCollapsed';
+      const collapsedKey = storageKeys.ADMIN_SIDEBAR || 'adminSidebarCollapsed';
       const setCollapsedState = (collapsed) => {
         document.body.classList.toggle('sidebar-collapsed', collapsed);
         sidebarToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
         sidebarToggle.setAttribute('aria-pressed', collapsed ? 'true' : 'false');
       };
-      const storedSidebar = (typeof getStored === 'function') ? getStored(collapsedKey) : null;
+      const storedSidebar = readStored(collapsedKey);
       const initialCollapsed = storedSidebar === 'true' || storedSidebar === '1';
       setCollapsedState(initialCollapsed);
       sidebarToggle.addEventListener('click', () => {
         const collapsed = !document.body.classList.contains('sidebar-collapsed');
         setCollapsedState(collapsed);
-        if (typeof setStored === 'function') {
-          setStored(collapsedKey, collapsed ? '1' : '0');
-        }
+        writeStored(collapsedKey, collapsed ? '1' : '0');
       });
     }
   }
@@ -49,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
   if (teamNameBtn) {
     const placeholder = teamNameBtn.textContent;
     const update = () => {
-      const name = getStored(STORAGE_KEYS.PLAYER_NAME);
+      const name = readStored(storageKeys.PLAYER_NAME);
       teamNameBtn.textContent = name || placeholder;
     };
     update();
@@ -59,8 +79,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  const storedTheme = getStored(STORAGE_KEYS.DARK_MODE);
-  let dark = storedTheme !== 'false';
+  const storedTheme = readStored(storageKeys.DARK_MODE);
+  const prefersDark = (typeof window.matchMedia === 'function')
+    ? window.matchMedia('(prefers-color-scheme: dark)').matches
+    : false;
+  let dark = storedTheme === null ? prefersDark : storedTheme !== 'false';
 
   if (darkStylesheet) {
     darkStylesheet.toggleAttribute('disabled', !dark);
@@ -104,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
     themeIcon.innerHTML = dark ? sunSVG : moonSVG;
   }
 
-  let accessible = getStored(STORAGE_KEYS.BARRIER_FREE) === 'true';
+  let accessible = readStored(storageKeys.BARRIER_FREE) === 'true';
   if (accessible) {
     document.body.classList.add('high-contrast');
   }
@@ -162,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (darkStylesheet) {
         darkStylesheet.toggleAttribute('disabled', !dark);
       }
-      setStored(STORAGE_KEYS.DARK_MODE, dark ? 'true' : 'false');
+      writeStored(storageKeys.DARK_MODE, dark ? 'true' : 'false');
       if (themeIcon) {
         themeIcon.innerHTML = dark ? sunSVG : moonSVG;
       }
@@ -175,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (accessibilityBtn) {
       event.preventDefault();
       accessible = document.body.classList.toggle('high-contrast');
-      setStored(STORAGE_KEYS.BARRIER_FREE, accessible ? 'true' : 'false');
+      writeStored(storageKeys.BARRIER_FREE, accessible ? 'true' : 'false');
       if (accessibilityIcon) {
         accessibilityIcon.innerHTML = accessible ? accessibilityOnSVG : accessibilityOffSVG;
       }
