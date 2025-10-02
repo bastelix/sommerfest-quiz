@@ -130,6 +130,10 @@ body.qr-landing.future-is-green-theme .landing-content {
   color: var(--fig-text);
 }
 
+.future-is-green-theme .qr-topbar .uk-navbar-toggle {
+  margin-right: 1mm;
+}
+
 .future-is-green-theme .uk-navbar a {
   color: var(--fig-text);
 }
