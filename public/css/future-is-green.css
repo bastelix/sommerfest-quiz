@@ -94,12 +94,79 @@ body.qr-landing.future-is-green-theme .landing-content {
   color: var(--fig-text);
 }
 
+.future-is-green-theme .uk-navbar-dropdown {
+  width: 720px;
+  padding: 16px 0;
+  box-sizing: border-box;
+}
+
+.future-is-green-theme .uk-navbar-dropdown .uk-nav {
+  padding: 8px 0;
+}
+
+.future-is-green-theme .uk-navbar-dropdown-nav > li > a {
+  padding: 10px 18px;
+  line-height: 1.35;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: background-color 0.18s ease;
+}
+
+.future-is-green-theme .uk-navbar-dropdown-nav > li + li {
+  margin-top: 2px;
+}
+
+.future-is-green-theme .uk-navbar-dropdown-nav > li > a:hover,
+.future-is-green-theme .uk-navbar-dropdown-nav > li > a:focus {
+  background: rgba(0, 0, 0, 0.035);
+}
+
+.future-is-green-theme .uk-navbar-dropdown-nav > li > a:focus-visible {
+  outline: 2px solid rgba(19, 143, 82, 0.5);
+  outline-offset: 2px;
+}
+
+.future-is-green-theme .nav-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
+  line-height: 1.35;
+  opacity: 0.8;
+}
+
 .future-is-green-theme .menu-explain {
+  padding: 18px;
   border-left: 1px solid rgba(0, 0, 0, 0.06);
+  background: #f7f8f9;
+  min-height: 220px;
+}
+
+.future-is-green-theme .menu-explain h5 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.future-is-green-theme .menu-explain p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0.92;
 }
 
 .future-is-green-theme .menu-explain .explain-pane.uk-hidden {
   display: none !important;
+}
+
+.future-is-green-theme .uk-navbar-dropdown h5,
+.future-is-green-theme .uk-navbar-dropdown h6 {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.future-is-green-theme .uk-navbar-dropdown h6 {
+  font-size: 13px;
+  opacity: 0.75;
 }
 
 .future-is-green-theme section[id] {
@@ -197,6 +264,17 @@ body.qr-landing.future-is-green-theme .landing-content {
   border: 0;
 }
 
+@media (max-width: 959px) {
+  .future-is-green-theme .uk-navbar-dropdown {
+    width: 100%;
+  }
+
+  .future-is-green-theme .menu-explain {
+    border-left: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+  }
+}
+
 @media (max-width: 640px) {
   body.qr-landing.future-is-green-theme {
     --fig-logo-size: clamp(54px, 18vw, 68px);
@@ -208,10 +286,6 @@ body.qr-landing.future-is-green-theme .landing-content {
   .future-is-green-theme .uk-navbar-nav > li > a {
     padding-left: 12px;
     padding-right: 12px;
-  }
-
-  .future-is-green-theme .uk-navbar-dropdown {
-    width: 720px;
   }
 }
 
