@@ -60,7 +60,14 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   const storedTheme = getStored(STORAGE_KEYS.DARK_MODE);
-  let dark = storedTheme !== 'false';
+  let dark;
+
+  if (storedTheme === null || storedTheme === undefined) {
+    dark = document.body.dataset.theme === 'dark' || document.body.classList.contains('dark-mode');
+  } else {
+    const normalizedTheme = String(storedTheme).toLowerCase();
+    dark = normalizedTheme === 'true' || normalizedTheme === '1';
+  }
 
   if (darkStylesheet) {
     darkStylesheet.toggleAttribute('disabled', !dark);
