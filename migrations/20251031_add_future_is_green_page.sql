@@ -12,27 +12,32 @@ VALUES (
       <article class="fig-benefit-card" role="listitem">
         <span class="fig-benefit-card__value">0</span>
         <p class="fig-benefit-card__label">Emissionen im Quartier</p>
-        <p class="fig-benefit-card__desc">Vollelektrische Flotten und Ökostrom senken lokale Emissionen auf null.</p>
+        <p class="fig-benefit-card__desc">Vollelektrische Flotten auf Ökostrom senken lokale Emissionen auf null – spürbar bessere Luft für alle.</p>
       </article>
       <article class="fig-benefit-card" role="listitem">
-        <span class="fig-benefit-card__value">60%</span>
+        <span class="fig-benefit-card__value">–60%</span>
         <p class="fig-benefit-card__label">weniger Lieferfahrten</p>
-        <p class="fig-benefit-card__desc">Mikrohubs bündeln Warenströme – weniger Staus, weniger doppelte Wege.</p>
+        <p class="fig-benefit-card__desc">Mikrohubs bündeln Warenströme: weniger Staus, weniger Leerfahrten, weniger Stress vor der Haustür.</p>
       </article>
       <article class="fig-benefit-card" role="listitem">
         <span class="fig-benefit-card__value">+24%</span>
         <p class="fig-benefit-card__label">schnellere Same-Day-Zustellung</p>
-        <p class="fig-benefit-card__desc">KI-gestützte Tourenplanung priorisiert Zeitfenster und sorgt für pünktliche Lieferungen.</p>
+        <p class="fig-benefit-card__desc">KI-Tourenplanung priorisiert Zeitfenster und Routen – zuverlässig pünktlich, auch in der Rushhour.</p>
       </article>
       <article class="fig-benefit-card" role="listitem">
         <span class="fig-benefit-card__value">100%</span>
         <p class="fig-benefit-card__label">lokal &amp; fair</p>
-        <p class="fig-benefit-card__desc">Faire Konditionen für Rider, lokale Händler:innen und urbane Wertschöpfung.</p>
+        <p class="fig-benefit-card__desc">Faire Jobs, kurze Wege, starke Partnerschaften: Wertschöpfung bleibt in der Stadt – bei Händler:innen und Ridern.</p>
       </article>
       <article class="fig-benefit-card" role="listitem">
         <span class="fig-benefit-card__value">CO₂</span>
-        <p class="fig-benefit-card__label">Transparente Bilanz</p>
-        <p class="fig-benefit-card__desc">Dashboards zeigen Einsparungen in Echtzeit – auditierbar für Kommunen und Partner.</p>
+        <p class="fig-benefit-card__label">transparente Bilanz</p>
+        <p class="fig-benefit-card__desc">Live-Dashboards zeigen Einsparungen in Echtzeit – auditierbar für Kommunen, Partner und Fördergeber.</p>
+      </article>
+      <article class="fig-benefit-card" role="listitem">
+        <span class="fig-benefit-card__value">–35%</span>
+        <p class="fig-benefit-card__label">weniger Lärm &amp; Parkdruck</p>
+        <p class="fig-benefit-card__desc">Leise E-Fahrzeuge, gebündelte Stopps und Off-Peak-Lieferungen beruhigen Straßen und schaffen Platz für Menschen.</p>
       </article>
     </div>
   </div>
