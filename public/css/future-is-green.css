@@ -13,7 +13,7 @@ body.qr-landing.future-is-green-theme {
   --fig-accent: #9cd78f;
   --fig-border: rgba(19, 143, 82, 0.18);
   --fig-logo-size: clamp(56px, 8.4vw, 80px);
-  --fig-logo-expanded-scale: 1.12;
+  --fig-logo-expanded-scale: 1.35;
   --fig-logo-condensed-scale: 1;
   --fig-border-soft: rgba(19, 143, 82, 0.12);
   --fig-border-strong: rgba(19, 143, 82, 0.22);
@@ -34,6 +34,7 @@ body.qr-landing.future-is-green-theme {
   --fig-shadow-button-hover: 0 20px 36px -18px rgba(12, 111, 63, 0.7);
   --fig-shadow-cta: 0 16px 36px -24px rgba(19, 143, 82, 0.85);
   --fig-shadow-cta-hover: 0 20px 36px -20px rgba(19, 143, 82, 0.9);
+  --fig-anchor-offset: calc(var(--fig-logo-size) * var(--fig-logo-expanded-scale) + 16px);
   background: var(--fig-background);
   color: var(--fig-text);
   font-family: 'Poppins', 'Helvetica Neue', Arial, sans-serif;
@@ -93,22 +94,88 @@ body.qr-landing.future-is-green-theme .landing-content {
   color: var(--fig-text);
 }
 
+.future-is-green-theme .uk-navbar-dropdown {
+  width: 720px;
+  padding: 16px 0;
+  box-sizing: border-box;
+}
+
+.future-is-green-theme .uk-navbar-dropdown .uk-nav {
+  padding: 8px 0;
+}
+
+.future-is-green-theme .uk-navbar-dropdown-nav > li > a {
+  padding: 10px 18px;
+  line-height: 1.35;
+  font-weight: 500;
+  border-radius: 6px;
+  transition: background-color 0.18s ease;
+}
+
+.future-is-green-theme .uk-navbar-dropdown-nav > li + li {
+  margin-top: 2px;
+}
+
+.future-is-green-theme .uk-navbar-dropdown-nav > li > a:hover,
+.future-is-green-theme .uk-navbar-dropdown-nav > li > a:focus {
+  background: rgba(0, 0, 0, 0.035);
+}
+
+.future-is-green-theme .uk-navbar-dropdown-nav > li > a:focus-visible {
+  outline: 2px solid rgba(19, 143, 82, 0.5);
+  outline-offset: 2px;
+}
+
 .future-is-green-theme .menu-explain {
+  padding: 18px;
   border-left: 1px solid rgba(0, 0, 0, 0.06);
+  background: #f7f8f9;
+  min-height: 220px;
+}
+
+.future-is-green-theme .menu-explain h5 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.future-is-green-theme .menu-explain p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0.92;
+}
+
+.future-is-green-theme .menu-explain p.menu-explain__subline {
+  margin-top: 8px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  opacity: 0.78;
 }
 
 .future-is-green-theme .menu-explain .explain-pane.uk-hidden {
   display: none !important;
 }
 
+.future-is-green-theme .uk-navbar-dropdown h5,
+.future-is-green-theme .uk-navbar-dropdown h6 {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.future-is-green-theme .uk-navbar-dropdown h6 {
+  font-size: 13px;
+  opacity: 0.75;
+}
+
 .future-is-green-theme section[id] {
-  scroll-margin-top: 96px;
+  scroll-margin-top: var(--fig-anchor-offset);
 }
 
 .future-is-green-theme .fig-scroll-anchor {
   display: block;
   height: 0;
-  scroll-margin-top: 96px;
+  scroll-margin-top: var(--fig-anchor-offset);
 }
 
 
@@ -126,10 +193,11 @@ body.qr-landing.future-is-green-theme .landing-content {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   width: var(--fig-logo-size);
   height: var(--fig-logo-size);
   padding: clamp(8px, 1.4vw, 14px);
-  border-radius: 16px;
+  border-radius: 0;
   border: 1px solid rgba(19, 143, 82, 0.08);
   background: var(--fig-secondary);
   box-shadow: 0 18px 36px -28px rgba(19, 143, 82, 0.65);
@@ -147,7 +215,7 @@ body.qr-landing.future-is-green-theme .landing-content {
 
 .future-is-green-theme .fig-logo__wordmark-svg {
   display: block;
-  width: clamp(180px, 24vw, 288px);
+  width: clamp(168px, 22vw, 268px);
   height: auto;
   color: var(--fig-text);
 }
@@ -167,10 +235,6 @@ body.qr-landing.future-is-green-theme .landing-content {
   object-fit: contain;
 }
 
-.future-is-green-theme .qr-topbar.fig-topbar--condensed .fig-logo__wordmark-svg {
-  width: clamp(168px, 20vw, 260px);
-}
-
 @media (max-width: 960px) {
   .future-is-green-theme .fig-logo__wordmark {
     display: none;
@@ -180,7 +244,7 @@ body.qr-landing.future-is-green-theme .landing-content {
 .future-is-green-theme .qr-topbar.fig-topbar--condensed .fig-logo__image {
   transform: scale(var(--fig-logo-condensed-scale));
   box-shadow: 0 14px 28px -26px rgba(19, 143, 82, 0.55);
-  border-radius: 14px;
+  border-radius: 0;
 }
 
 .future-is-green-theme .fig-visually-hidden {
@@ -195,10 +259,21 @@ body.qr-landing.future-is-green-theme .landing-content {
   border: 0;
 }
 
+@media (max-width: 959px) {
+  .future-is-green-theme .uk-navbar-dropdown {
+    width: 100%;
+  }
+
+  .future-is-green-theme .menu-explain {
+    border-left: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+  }
+}
+
 @media (max-width: 640px) {
   body.qr-landing.future-is-green-theme {
     --fig-logo-size: clamp(54px, 18vw, 68px);
-    --fig-logo-expanded-scale: 1.1;
+    --fig-logo-expanded-scale: 1.35;
   }
 }
 
@@ -206,10 +281,6 @@ body.qr-landing.future-is-green-theme .landing-content {
   .future-is-green-theme .uk-navbar-nav > li > a {
     padding-left: 12px;
     padding-right: 12px;
-  }
-
-  .future-is-green-theme .uk-navbar-dropdown {
-    width: 720px;
   }
 }
 
@@ -396,7 +467,7 @@ body.qr-landing.future-is-green-theme .landing-content {
 }
 
 .future-is-green-theme .fig-hero__card {
-  border-radius: 20px;
+  border-radius: 0;
   background: var(--fig-surface-strong);
   border: 1px solid var(--fig-border);
   box-shadow: var(--fig-shadow-card);
@@ -735,6 +806,10 @@ body.qr-landing.future-is-green-theme .landing-content {
   }
 }
 
+.future-is-green-theme .fig-technology-grid.fig-technology-grid--is-enhanced {
+  display: none;
+}
+
 .future-is-green-theme .fig-technology-card {
   padding: 30px;
   border-radius: 18px;
@@ -754,6 +829,128 @@ body.qr-landing.future-is-green-theme .landing-content {
 .future-is-green-theme .fig-technology-card p {
   margin: 0;
   color: var(--fig-muted);
+}
+
+.future-is-green-theme .fig-technology-interactive {
+  display: grid;
+  gap: 24px;
+}
+
+@media (min-width: 960px) {
+  .future-is-green-theme .fig-technology-interactive {
+    grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+    gap: 32px;
+    align-items: stretch;
+  }
+}
+
+.future-is-green-theme .fig-technology-interactive__nav {
+  position: relative;
+}
+
+.future-is-green-theme .fig-technology-nav {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (max-width: 959px) {
+  .future-is-green-theme .fig-technology-nav {
+    grid-auto-flow: row;
+    grid-auto-rows: auto;
+    overflow: visible;
+    padding-bottom: 0;
+  }
+
+  .future-is-green-theme .fig-technology-nav__item {
+    scroll-snap-align: unset;
+  }
+}
+
+.future-is-green-theme .fig-technology-nav__item {
+  display: block;
+}
+
+.future-is-green-theme .fig-technology-nav__button {
+  width: 100%;
+  text-align: left;
+  background: var(--fig-surface);
+  border: 1px solid var(--fig-border);
+  border-radius: 18px;
+  padding: 18px 20px;
+  font: inherit;
+  color: var(--fig-text);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: var(--fig-shadow-soft);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+.future-is-green-theme .fig-technology-nav__button:focus,
+.future-is-green-theme .fig-technology-nav__button:hover {
+  outline: none;
+  border-color: var(--fig-primary);
+  box-shadow: var(--fig-shadow-medium);
+  transform: translateY(-2px);
+}
+
+.future-is-green-theme .fig-technology-nav__button.is-active {
+  background: var(--fig-surface-soft);
+  border-color: var(--fig-primary);
+  box-shadow: var(--fig-shadow-strong);
+}
+
+.future-is-green-theme .fig-technology-nav__title {
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.future-is-green-theme .fig-technology-nav__desc {
+  color: var(--fig-muted);
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.future-is-green-theme .fig-technology-interactive__display {
+  position: relative;
+}
+
+.future-is-green-theme .fig-technology-panel {
+  height: 100%;
+  padding: 32px;
+  border-radius: 20px;
+  background: var(--fig-surface);
+  border: 1px solid var(--fig-border);
+  box-shadow: var(--fig-shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: fig-technology-fade 0.32s ease;
+}
+
+.future-is-green-theme .fig-technology-panel:not(.is-active) {
+  display: none;
+}
+
+.future-is-green-theme .fig-technology-panel .fig-feature-list {
+  gap: 16px;
+}
+
+@keyframes fig-technology-fade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .future-is-green-theme .fig-feature-list {
