@@ -42,6 +42,21 @@ class HomeControllerTest extends TestCase
         unlink($db);
     }
 
+    public function testHomePageAllowsHeadRequest(): void {
+        $db = $this->setupDb();
+
+        try {
+            $app = $this->getAppInstance();
+            $request = $this->createRequest('HEAD', '/');
+            $response = $app->handle($request);
+
+            $this->assertEquals(200, $response->getStatusCode());
+            $this->assertSame('', (string) $response->getBody());
+        } finally {
+            unlink($db);
+        }
+    }
+
     public function testEventCatalogOverview(): void {
         $db = $this->setupDb();
         $this->getAppInstance();
