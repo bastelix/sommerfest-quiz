@@ -483,6 +483,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         $args['landingSlug'] = 'landing';
         return $controller->show($request, $response, $args);
     });
+    $app->get('/future-is-green', function (Request $request, Response $response) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new \App\Controller\Marketing\FutureIsGreenController();
+        return $controller($request, $response);
+    });
     $app->get('/calserver', function (Request $request, Response $response) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
@@ -519,6 +527,9 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
     );
     $app->post('/landing/contact', ContactController::class)
+        ->add(new RateLimitMiddleware(3, 3600))
+        ->add(new CsrfMiddleware());
+    $app->post('/future-is-green/contact', ContactController::class)
         ->add(new RateLimitMiddleware(3, 3600))
         ->add(new CsrfMiddleware());
     $app->post('/calserver/contact', ContactController::class)

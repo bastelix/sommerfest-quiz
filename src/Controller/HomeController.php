@@ -96,6 +96,11 @@ class HomeController
                     $ctrl = new \App\Controller\Marketing\CalserverController();
                     return $ctrl($request, $response);
                 }
+            } elseif ($home === 'future-is-green') {
+                if ($catalogParam === '') {
+                    $ctrl = new \App\Controller\Marketing\FutureIsGreenController();
+                    return $ctrl($request, $response);
+                }
             }
         }
         if ($role !== 'admin') {
