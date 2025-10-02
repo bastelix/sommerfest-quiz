@@ -306,6 +306,20 @@ body.uk-padding {
   display: none;
 }
 .qr-nav-text { margin-left: 8px; }
+.qr-sidebar .uk-nav-header {
+  margin: 1.25rem 0 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--qr-fg, #1f2933);
+  background: var(--qr-bg-soft, #f3f4f6);
+  border-radius: 6px;
+}
+.qr-sidebar .uk-nav-header:first-child {
+  margin-top: 0;
+}
 .uk-nav-default > li.uk-active > a {
   background: var(--uk-background-muted, #f8f8f8);
   border-radius: 6px;
