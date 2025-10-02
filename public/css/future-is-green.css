@@ -139,11 +139,42 @@ body.qr-landing.future-is-green-theme .landing-content {
   transition: transform 0.28s ease, box-shadow 0.28s ease, border-radius 0.28s ease;
 }
 
+.future-is-green-theme .fig-logo__wordmark {
+  display: inline-flex;
+  align-items: center;
+  margin-left: clamp(12px, 2.4vw, 28px);
+}
+
+.future-is-green-theme .fig-logo__wordmark-svg {
+  display: block;
+  width: clamp(180px, 24vw, 288px);
+  height: auto;
+  color: var(--fig-text);
+}
+
+.future-is-green-theme .fig-logo__wordmark-svg .fig-wordmark__connector {
+  opacity: 0.6;
+}
+
+.future-is-green-theme .fig-logo__wordmark-svg .fig-wordmark__subtitle {
+  opacity: 0.58;
+}
+
 .future-is-green-theme .fig-logo__img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
+}
+
+.future-is-green-theme .qr-topbar.fig-topbar--condensed .fig-logo__wordmark-svg {
+  width: clamp(168px, 20vw, 260px);
+}
+
+@media (max-width: 960px) {
+  .future-is-green-theme .fig-logo__wordmark {
+    display: none;
+  }
 }
 
 .future-is-green-theme .qr-topbar.fig-topbar--condensed .fig-logo__image {
