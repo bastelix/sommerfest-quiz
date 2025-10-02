@@ -34,6 +34,7 @@ body.qr-landing.future-is-green-theme {
   --fig-shadow-button-hover: 0 20px 36px -18px rgba(12, 111, 63, 0.7);
   --fig-shadow-cta: 0 16px 36px -24px rgba(19, 143, 82, 0.85);
   --fig-shadow-cta-hover: 0 20px 36px -20px rgba(19, 143, 82, 0.9);
+  --fig-anchor-offset: calc(var(--fig-logo-size) * var(--fig-logo-expanded-scale) + 16px);
   background: var(--fig-background);
   color: var(--fig-text);
   font-family: 'Poppins', 'Helvetica Neue', Arial, sans-serif;
@@ -102,13 +103,13 @@ body.qr-landing.future-is-green-theme .landing-content {
 }
 
 .future-is-green-theme section[id] {
-  scroll-margin-top: 96px;
+  scroll-margin-top: var(--fig-anchor-offset);
 }
 
 .future-is-green-theme .fig-scroll-anchor {
   display: block;
   height: 0;
-  scroll-margin-top: 96px;
+  scroll-margin-top: var(--fig-anchor-offset);
 }
 
 
@@ -126,6 +127,7 @@ body.qr-landing.future-is-green-theme .landing-content {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   width: var(--fig-logo-size);
   height: var(--fig-logo-size);
   padding: clamp(8px, 1.4vw, 14px);
