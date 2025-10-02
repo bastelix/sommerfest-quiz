@@ -1136,6 +1136,28 @@ body.qr-landing.future-is-green-theme .landing-content {
   text-decoration: none;
 }
 
+.future-is-green-theme .fig-footer .footer-contact a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.future-is-green-theme .fig-footer .footer-contact a .uk-icon,
+.future-is-green-theme .fig-footer .footer-contact a [data-uk-icon] {
+  color: inherit;
+  display: inline-flex;
+}
+
+.future-is-green-theme .fig-footer .footer-contact a .uk-icon svg,
+.future-is-green-theme .fig-footer .footer-contact a [data-uk-icon] svg {
+  stroke: currentColor;
+  fill: currentColor;
+}
+
+.future-is-green-theme[data-theme='dark']:not(.high-contrast) .fig-footer a {
+  color: var(--fig-secondary);
+}
+
 .future-is-green-theme .fig-footer a:hover,
 .future-is-green-theme .fig-footer a:focus {
   text-decoration: underline;
