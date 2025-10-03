@@ -381,7 +381,7 @@ body.qr-landing .site-footer {
   backdrop-filter: blur(8px);
   color:var(--qr-text);
   min-height:64px;
-  padding:12px 0;
+  height:64px;
   border-bottom: 1px solid var(--qr-card-border);
   position: sticky;
   top: 0;
@@ -390,7 +390,7 @@ body.qr-landing .site-footer {
 @media (max-width: 959px) {
   .qr-landing .qr-topbar{
     min-height:56px;
-    padding:8px 0;
+    height:56px;
   }
 }
 body.dark-mode .qr-landing .qr-topbar{
