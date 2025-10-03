@@ -46,7 +46,20 @@ Ziele der zweiten Phase:
    `--min-term-length`) zu erzeugen.
 4. Neue Tests (`tests/test_rag_index.py`) prüfen Indexaufbau, Fehlerfälle und Retrieval-Relevanz.
 
-### Nächste Schritte (Ausblick)
+## Phase 3: Chat-Interface mit Kontextverwaltung
 
-- **Phase 3**: Anbindung eines Chat-Frontends inkl. Konversations- und Kontextverwaltung.
+Ziele der dritten Phase:
+
+- Eine Konversationsschicht ergänzen, die vorherige Nutzer- und Assistentenantworten verwaltet.
+- Kontext aus dem semantischen Index automatisch zum Prompt hinzufügen.
+- Ein CLI-Frontend bereitstellen, das die wichtigsten Parameter (Top-K, Mindestscore, Verlaufslänge) konfigurierbar macht.
+
+### Umsetzungsschritte
+
+1. Neues Modul `rag_chatbot/chat.py` mit `ChatSession`, `ChatPrompt` und `ChatTurn` implementiert. Die Klasse fasst Kontextpassagen
+   zusammen, verwaltet die Historie in einem begrenzten Fenster und liefert strukturierte Prompts für LLM-Aufrufe.
+2. CLI-Tool `scripts/rag_chat.py` ergänzt. Es lädt den Index, startet eine interaktive Konsole und generiert Antworten auf Basis
+   der gefundenen Kontext-Chunks. Parameter wie `--top-k`, `--min-score` und `--history-limit` steuern Verhalten und Trefferqualität.
+3. Automatisierter Test `tests/test_rag_chat.py` sichert das neue Verhalten ab (Prompt-Aufbau, Kontextintegration,
+   Historienbegrenzung und Fehlerfälle).
 
