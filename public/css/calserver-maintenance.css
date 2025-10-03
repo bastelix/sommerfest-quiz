@@ -375,6 +375,58 @@ body.qr-landing.calserver-maintenance-theme {
   border-bottom: 1px solid rgba(148, 163, 184, 0.2);
 }
 
+.calserver-maintenance-updates__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.calserver-maintenance-updates__item {
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.35);
+}
+
+.calserver-maintenance-updates__header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.calserver-maintenance-updates__date {
+  color: #93c5fd;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.calserver-maintenance-updates__link,
+.calserver-maintenance-updates__title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.calserver-maintenance-updates__link {
+  text-decoration: none;
+}
+
+.calserver-maintenance-updates__link:hover,
+.calserver-maintenance-updates__link:focus {
+  color: #bfdbfe;
+  text-decoration: underline;
+}
+
+.calserver-maintenance-updates__excerpt {
+  margin-top: 0.75rem;
+  color: #cbd5f5;
+  line-height: 1.6;
+}
+
 .calserver-maintenance-updates .uk-button-text {
   color: #60a5fa;
 }
@@ -417,6 +469,14 @@ body.qr-landing.calserver-maintenance-theme {
 
   .calserver-maintenance-section__header {
     margin-bottom: 2.5rem;
+  }
+
+  .calserver-maintenance-updates__item {
+    padding: 1.25rem;
+  }
+
+  .calserver-maintenance-updates__header {
+    gap: 0.25rem;
   }
 }
 
