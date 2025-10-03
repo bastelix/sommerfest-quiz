@@ -77,6 +77,7 @@ use App\Controller\TenantController;
 use App\Controller\Marketing\MarketingPageController;
 use App\Controller\Marketing\ContactController;
 use App\Controller\Marketing\LandingNewsController as MarketingLandingNewsController;
+use App\Controller\Marketing\CalserverChatController;
 use App\Controller\RegisterController;
 use App\Controller\OnboardingController;
 use App\Controller\OnboardingEmailController;
@@ -542,6 +543,9 @@ return function (\Slim\App $app, TranslationService $translator) {
         ->add(new CsrfMiddleware());
     $app->post('/calserver/contact', ContactController::class)
         ->add(new RateLimitMiddleware(3, 3600))
+        ->add(new CsrfMiddleware());
+    $app->post('/calserver/chat', CalserverChatController::class)
+        ->add(new RateLimitMiddleware(10, 60))
         ->add(new CsrfMiddleware());
     $app->get('/onboarding', OnboardingController::class);
     $app->post('/onboarding/email', function (Request $request, Response $response) {
