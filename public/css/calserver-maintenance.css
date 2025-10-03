@@ -21,7 +21,8 @@ body.qr-landing.calserver-maintenance-theme {
   .calserver-maintenance-theme .qr-topbar {
     height: auto;
     min-height: 72px;
-    padding-block: 16px;
+    padding-top: 0;
+    padding-bottom: 16px;
   }
 }
 
