@@ -2064,9 +2064,8 @@ body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual__image {
     z-index: 1050;
 }
 
-.calserver-cookie-trigger {
+.calserver-floating-button {
     position: fixed;
-    left: clamp(1rem, 4vw, 1.75rem);
     bottom: clamp(1rem, 4vw, 1.75rem);
     z-index: 1040;
     display: inline-flex;
@@ -2083,7 +2082,7 @@ body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual__image {
     transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.calserver-cookie-trigger svg {
+.calserver-floating-button svg {
     width: 1.45rem;
     height: 1.45rem;
     color: inherit;
@@ -2091,24 +2090,32 @@ body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual__image {
     fill: none;
 }
 
-.calserver-cookie-trigger .uk-icon {
+.calserver-floating-button .uk-icon {
     color: inherit !important;
 }
 
-.calserver-cookie-trigger:hover,
-.calserver-cookie-trigger:focus-visible {
+.calserver-floating-button:hover,
+.calserver-floating-button:focus-visible {
     background: color-mix(in oklab, var(--calserver-primary) 30%, rgba(8, 13, 24, 0.9));
     border-color: color-mix(in oklab, var(--calserver-primary) 64%, rgba(255, 255, 255, 0.28));
     box-shadow: 0 22px 48px rgba(9, 15, 28, 0.36), 0 10px 20px rgba(9, 15, 28, 0.3);
 }
 
-.calserver-cookie-trigger:focus-visible {
+.calserver-floating-button:focus-visible {
     outline: 3px solid color-mix(in oklab, var(--calserver-primary) 70%, #ffffff 30%);
     outline-offset: 3px;
 }
 
-.calserver-cookie-trigger:active {
+.calserver-floating-button:active {
     transform: scale(0.96);
+}
+
+.calserver-cookie-trigger {
+    left: clamp(1rem, 4vw, 1.75rem);
+}
+
+.calserver-chat-fab {
+    right: clamp(1rem, 4vw, 1.75rem);
 }
 
 .calserver-cookie-trigger--active {
@@ -2117,38 +2124,45 @@ body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual__image {
     box-shadow: 0 16px 36px rgba(9, 15, 28, 0.28), 0 6px 14px rgba(9, 15, 28, 0.24);
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-cookie-trigger,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-cookie-trigger {
+body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-floating-button,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-floating-button {
     color: #ffffff;
     border-color: color-mix(in oklab, var(--calserver-primary) 52%, rgba(255, 255, 255, 0.24));
     background: color-mix(in oklab, var(--calserver-primary) 22%, rgba(8, 13, 24, 0.94));
     box-shadow: 0 20px 45px rgba(9, 15, 28, 0.32), 0 8px 18px rgba(9, 15, 28, 0.28);
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-cookie-trigger svg,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-cookie-trigger svg {
+body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-floating-button svg,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-floating-button svg {
     color: inherit;
     stroke: currentColor;
 }
 
 @media (max-width: 640px) {
-    .calserver-cookie-trigger {
+    .calserver-floating-button {
         width: 3rem;
         height: 3rem;
-        left: clamp(0.85rem, 6vw, 1.25rem);
         bottom: clamp(0.85rem, 6vw, 1.25rem);
         box-shadow: 0 14px 28px rgba(9, 15, 28, 0.3), 0 6px 16px rgba(9, 15, 28, 0.28);
     }
 
-    .calserver-cookie-trigger svg {
+    .calserver-floating-button svg {
         width: 1.35rem;
         height: 1.35rem;
     }
+
+    .calserver-cookie-trigger {
+        left: clamp(0.85rem, 6vw, 1.25rem);
+    }
+
+    .calserver-chat-fab {
+        right: clamp(0.85rem, 6vw, 1.25rem);
+    }
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-cookie-trigger,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-cookie-trigger,
-body.high-contrast .calserver-cookie-trigger {
+body.qr-landing.calserver-theme.high-contrast .calserver-floating-button,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-floating-button,
+body.high-contrast .calserver-floating-button {
     background: #000000;
     color: #ffffff;
     box-shadow: none;
