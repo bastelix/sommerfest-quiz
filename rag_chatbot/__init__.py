@@ -4,6 +4,15 @@ from .chat import ChatMessage, ChatPrompt, ChatResponder, ChatSession, ChatTurn
 from .corpus_builder import BuildOptions, BuildResult, build_corpus
 from .index_builder import IndexOptions, IndexResult, build_index
 from .loader import Document
+from .report import (
+    SourceReport,
+    TranscriptReport,
+    build_report,
+    format_report,
+    load_report,
+    load_transcript,
+    report_from_json,
+)
 from .retrieval import SearchResult, SemanticIndex
 from .transcript import ChatTranscript, TranscriptContext, TranscriptStats, TranscriptTurn
 
@@ -22,8 +31,15 @@ __all__ = [
     "IndexResult",
     "SemanticIndex",
     "SearchResult",
+    "SourceReport",
+    "TranscriptReport",
     "ChatTranscript",
     "TranscriptContext",
     "TranscriptStats",
     "TranscriptTurn",
+    "build_report",
+    "format_report",
+    "load_report",
+    "load_transcript",
+    "report_from_json",
 ]
