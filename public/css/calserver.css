@@ -752,6 +752,149 @@ body.qr-landing.calserver-theme .calserver-highlight__intro p {
     color: color-mix(in oklab, rgba(255, 255, 255, 0.92) 92%, rgba(255, 255, 255, 0.62) 8%);
 }
 
+.calserver-chat-trigger {
+    white-space: nowrap;
+}
+
+.calserver-chat-modal .uk-modal-dialog {
+    max-width: 720px;
+}
+
+.calserver-chat__dialog {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border-radius: 12px;
+    box-shadow: 0 28px 64px -40px rgba(9, 20, 40, 0.55), 0 12px 32px -20px rgba(14, 30, 60, 0.35);
+}
+
+.calserver-chat__intro {
+    margin: 0;
+    color: color-mix(in oklab, var(--qr-text, #1c2131) 82%, rgba(28, 33, 49, 0.52));
+}
+
+.calserver-chat__messages {
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 12px 16px;
+    background: color-mix(in oklab, var(--qr-card, #f5f7fb) 92%, rgba(255, 255, 255, 0.82));
+    border: 1px solid color-mix(in oklab, var(--qr-border, #d8deeb) 90%, transparent);
+    border-radius: 10px;
+}
+
+.calserver-chat__system {
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    background: color-mix(in oklab, var(--calserver-primary, #1f63e6) 14%, rgba(255, 255, 255, 0.92));
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.calserver-chat__turn {
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid color-mix(in oklab, var(--qr-border, #d8deeb) 86%, transparent);
+}
+
+.calserver-chat__turn:last-child {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: 0;
+}
+
+.calserver-chat__question {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+}
+
+.calserver-chat__answer p {
+    margin: 0 0 8px;
+    line-height: 1.5;
+}
+
+.calserver-chat__answer p:last-child {
+    margin-bottom: 0;
+}
+
+.calserver-chat__context {
+    margin-top: 12px;
+}
+
+.calserver-chat__context-title {
+    margin: 0 0 8px;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: color-mix(in oklab, var(--qr-muted, #5c6580) 92%, rgba(92, 101, 128, 0.6));
+}
+
+.calserver-chat__context-list {
+    margin: 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.calserver-chat__context-label {
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+.calserver-chat__context-score {
+    margin-left: 8px;
+    font-size: 0.85rem;
+    color: color-mix(in oklab, var(--qr-muted, #5c6580) 88%, rgba(92, 101, 128, 0.5));
+}
+
+.calserver-chat__context-snippet {
+    margin: 0;
+    line-height: 1.45;
+}
+
+.calserver-chat__empty {
+    margin: 12px 0 0;
+    font-style: italic;
+    color: color-mix(in oklab, var(--qr-muted, #5c6580) 85%, rgba(92, 101, 128, 0.55));
+}
+
+.calserver-chat__status {
+    min-height: 1.25em;
+    margin: 0;
+    font-weight: 600;
+    color: color-mix(in oklab, var(--qr-muted, #5c6580) 92%, rgba(92, 101, 128, 0.5));
+}
+
+.calserver-chat__status--error {
+    color: #c53030;
+}
+
+.calserver-chat__form textarea {
+    resize: vertical;
+}
+
+.calserver-chat__form-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.calserver-chat__form--loading textarea {
+    opacity: 0.75;
+}
+
+@media (max-width: 640px) {
+    .calserver-chat__dialog {
+        padding: 20px 18px;
+    }
+
+    .calserver-chat__messages {
+        max-height: 240px;
+    }
+}
+
 body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast)
     .calserver-highlight__intro
     p,
