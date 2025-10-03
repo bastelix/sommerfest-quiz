@@ -499,6 +499,14 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new MarketingPageController('calserver');
         return $controller($request, $response);
     });
+    $app->get('/calserver-maintenance', function (Request $request, Response $response) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingPageController('calserver-maintenance');
+        return $controller($request, $response);
+    });
     $app->get('/m/{landingSlug:[a-z0-9-]+}/news', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {

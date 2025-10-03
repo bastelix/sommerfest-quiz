@@ -1,0 +1,318 @@
+{% extends 'layout.twig' %}
+
+{% set links = [
+    { 'href': '#status', 'label': t('calserver_maintenance_nav_status'), 'icon': 'warning' },
+    { 'href': '#timeline', 'label': t('calserver_maintenance_nav_timeline'), 'icon': 'clock' },
+    { 'href': '#support', 'label': t('calserver_maintenance_nav_support'), 'icon': 'lifesaver' }
+] %}
+
+{% block title %}{{ metaTitle|default('calServer – Wartungsmodus') }}{% endblock %}
+
+{% block head %}
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+  <link rel="preload" href="{{ basePath }}/css/landing.css" as="style">
+  <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/calserver.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/calserver-maintenance.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/onboarding.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/topbar.landing.css">
+  <meta name="page-name" content="calServer – Wartungshinweis">
+{% endblock %}
+
+{% block body_theme %}light{% endblock %}
+{% block body_class %}qr-landing calserver-theme calserver-maintenance-theme{% endblock %}
+
+{% block body %}
+  <div class="landing-content">
+    <header class="qr-topbar">
+      <nav class="uk-navbar-container" data-uk-navbar>
+        <div class="uk-navbar-left">
+          <div class="uk-navbar-item">
+            <button id="offcanvas-toggle"
+                    class="uk-navbar-toggle uk-hidden@m git-btn"
+                    data-uk-navbar-toggle-icon
+                    data-uk-toggle="target: #qr-offcanvas"
+                    aria-controls="qr-offcanvas"
+                    aria-expanded="false"
+                    aria-label="Menü"></button>
+            <a class="uk-logo" href="{{ basePath }}/calserver-maintenance">calServer</a>
+          </div>
+        </div>
+        <div class="uk-navbar-right">
+          <ul class="uk-navbar-nav uk-visible@m">
+            {% for link in links %}
+              <li>
+                <a href="{{ link.href }}">
+                  <span class="uk-margin-small-right" data-uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+          <div class="uk-navbar-item config-menu uk-inline">
+            <button id="configMenuToggle"
+                    type="button"
+                    class="uk-button uk-button-default git-btn"
+                    aria-label="Konfiguration"
+                    aria-expanded="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M19.14 12.94a7.5 7.5 0 0 0 .05-.94 7.5 7.5 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.33a.5.5 0 0 0-.6-.22l-2.39.96a7.6 7.6 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.43h-3.84a.5.5 0 0 0-.5.43l-.36 2.54c-.57.24-1.12.55-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.7 7.84a.5.5 0 0 0 .12.64l2.03 1.58c-.03.31-.05.63-.05.94s.02.63.05.94L2.82 13.5a.5.5 0 0 0-.12.64l1.92 3.33a.5.5 0 0 0 .6.22l2.39-.96c.51.39 1.06.7 1.63.94l.36 2.54a.5.5 0 0 0 .5.43h3.84a.5.5 0 0 0 .5-.43l.36-2.54c.57-.24 1.12-.55 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.33a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z"
+                      fill="currentColor"/>
+              </svg>
+            </button>
+            <div id="menuDrop"
+                 class="uk-dropdown"
+                 hidden
+                 data-uk-dropdown="mode: click; pos: bottom-right; flip: false; animation: uk-animation-slide-top-small">
+              <ul class="uk-nav uk-dropdown-nav" role="menu">
+                <li>
+                  <button id="themeToggle"
+                          class="uk-button uk-button-default git-btn theme-toggle"
+                          aria-label="Design umschalten"
+                          role="menuitem">
+                    <span id="themeIcon" class="theme-icon" aria-hidden="true"></span>
+                  </button>
+                </li>
+                <li>
+                  <button id="accessibilityToggle"
+                          class="uk-button uk-button-default git-btn accessibility-toggle"
+                          aria-label="Kontrast umschalten"
+                          role="menuitem">
+                    <span id="accessibilityIcon" class="accessibility-icon" aria-hidden="true"></span>
+                  </button>
+                </li>
+                <li>
+                  <div class="uk-inline">
+                    <button id="languageMenuToggle"
+                            type="button"
+                            class="uk-button uk-button-default git-btn"
+                            aria-label="{{ t('language_toggle') }}"
+                            aria-expanded="false"
+                            role="menuitem">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm6.93 6h-2.54c-.11-1.47-.43-2.87-.92-4.17 1.84.69 3.29 2.1 4.05 3.84zM12 4c.96 1.18 1.62 2.64 1.88 4H10.12c.26-1.36.92-2.82 1.88-4zM4.26 14c-.17-.64-.26-1.31-.26-2s.09-1.36.26-2h3.09c-.07.66-.11 1.32-.11 2s.04 1.34.11 2H4.26zm.81 2h2.54c.11 1.47.43 2.87.92 4.17-1.84-.69-3.29-2.1-4.05-3.84zm2.54-8H5.07c.76-1.74 2.21-3.15 4.05-3.84-.49 1.3-.81 2.7-.92 4.17zM12 20c-.96-1.18-1.62-2.64-1.88-4h3.76c-.26 1.36-.92 2.82-1.88 4zm2.62-6H9.38c-.08-.66-.12-1.32-.12-2s.04-1.34.12-2h5.24c.08.66.12 1.32.12 2s-.04 1.34-.12 2zm.81 6c.49-1.3.81-2.7.92-4.17h2.54c-.76 1.74-2.21 3.15-4.05 3.84zM16.65 14c.07-.66.11-1.32.11-2s-.04-1.34-.11-2h3.09c.17.64.26 1.31.26 2s-.09 1.36-.26 2h-3.09z"
+                              fill="currentColor"/>
+                      </svg>
+                    </button>
+                    <div id="languageDrop" class="uk-dropdown" hidden data-uk-dropdown="mode: click; pos: left-top; offset: 0">
+                      <ul class="uk-nav uk-dropdown-nav" role="menu">
+                        <li>
+                          <button class="uk-button uk-button-default git-btn lang-option"
+                                  data-lang="de"
+                                  role="menuitem">
+                            <span class="lang-option__icon" aria-hidden="true">
+                              <svg class="lang-option__svg" viewBox="0 0 24 16" role="img" focusable="false">
+                                <rect width="24" height="16" fill="#ffce00" />
+                                <rect width="24" height="10.6667" fill="#dd0000" />
+                                <rect width="24" height="5.3333" fill="#000000" />
+                              </svg>
+                            </span>
+                            <span class="lang-option__label">{{ t('german') }}</span>
+                          </button>
+                        </li>
+                        <li>
+                          <button class="uk-button uk-button-default git-btn lang-option"
+                                  data-lang="en"
+                                  role="menuitem">
+                            <span class="lang-option__icon" aria-hidden="true">
+                              <svg class="lang-option__svg" viewBox="0 0 24 16" role="img" focusable="false">
+                                <rect width="24" height="16" fill="#012169" />
+                                <path fill="#ffffff" d="M0 0h3.2L24 13.6V16h-3.2L0 2.4z" />
+                                <path fill="#ffffff" d="M24 0h-3.2L0 13.6V16h3.2L24 2.4z" />
+                                <path fill="#c8102e" d="M0 0h1.6L24 12.8V16h-1.6L0 3.2z" />
+                                <path fill="#c8102e" d="M24 0h-1.6L0 12.8V16h1.6L24 3.2z" />
+                                <rect x="10" width="4" height="16" fill="#ffffff" />
+                                <rect y="6" width="24" height="4" fill="#ffffff" />
+                                <rect x="10.8" width="2.4" height="16" fill="#c8102e" />
+                                <rect y="6.8" width="24" height="2.4" fill="#c8102e" />
+                              </svg>
+                            </span>
+                            <span class="lang-option__label">{{ t('english') }}</span>
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <div id="qr-offcanvas" data-uk-offcanvas="overlay: true; flip: true">
+      <div class="uk-offcanvas-bar">
+        <button class="uk-offcanvas-close git-btn" type="button" data-uk-close aria-label="Menü schließen"></button>
+        <ul class="uk-nav uk-nav-default">
+          {% for link in links %}
+            <li>
+              <a href="{{ link.href }}">
+                <span class="uk-margin-small-right" data-uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+        <a class="uk-button uk-button-default git-btn uk-width-1-1 uk-margin-top offcanvas-cta"
+           href="#support">
+          {{ t('calserver_maintenance_cta_secondary') }}
+        </a>
+      </div>
+    </div>
+
+    <section id="status" class="calserver-maintenance-hero uk-section uk-section-large">
+      <div class="uk-container">
+        <div class="calserver-maintenance-hero__grid" data-uk-grid>
+          <div class="uk-width-2-3@m">
+            <div class="calserver-maintenance-hero__copy" data-uk-scrollspy="cls: uk-animation-slide-left-small; repeat: true">
+              <span class="calserver-maintenance-hero__badge" aria-hidden="true" data-uk-icon="icon: warning"></span>
+              <h1 class="calserver-maintenance-hero__title">{{ t('calserver_maintenance_hero_title') }}</h1>
+              <p class="calserver-maintenance-hero__subtitle">{{ t('calserver_maintenance_hero_subtitle') }}</p>
+              <div class="calserver-maintenance-hero__actions" role="group" aria-label="{{ t('calserver_maintenance_actions_label') }}">
+                <a class="uk-button uk-button-primary git-btn"
+                   href="{{ basePath }}/status">
+                  <span class="uk-margin-small-right" data-uk-icon="icon: rss"></span>{{ t('calserver_maintenance_cta_primary') }}
+                </a>
+                <a class="uk-button uk-button-default git-btn"
+                   href="#support">
+                  <span class="uk-margin-small-right" data-uk-icon="icon: receiver"></span>{{ t('calserver_maintenance_cta_secondary') }}
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="uk-width-1-3@m">
+            <aside class="calserver-maintenance-status-card" data-uk-scrollspy="cls: uk-animation-slide-right-small; repeat: true">
+              <dl class="calserver-maintenance-status">
+                <div class="calserver-maintenance-status__item">
+                  <dt>{{ t('calserver_maintenance_status_label') }}</dt>
+                  <dd>{{ t('calserver_maintenance_status_value') }}</dd>
+                </div>
+                <div class="calserver-maintenance-status__item">
+                  <dt>{{ t('calserver_maintenance_status_window') }}</dt>
+                  <dd>{{ t('calserver_maintenance_status_window_value') }}</dd>
+                </div>
+              </dl>
+              <p class="calserver-maintenance-status__hint">{{ t('calserver_maintenance_status_hint') }}</p>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {% if landingNews is defined and landingNews %}
+      <section class="calserver-maintenance-updates uk-section uk-section-small">
+        <div class="uk-container">
+          <div class="uk-flex uk-flex-middle uk-flex-between uk-margin-bottom">
+            <h2 class="uk-h3 uk-margin-remove">{{ t('calserver_maintenance_updates_heading') }}</h2>
+            {% if landingNewsIndexUrl is defined and landingNewsIndexUrl %}
+              <a class="uk-button uk-button-text" href="{{ landingNewsIndexUrl }}">{{ t('calserver_maintenance_updates_link') }}</a>
+            {% endif %}
+          </div>
+          <div class="uk-grid-large" data-uk-grid>
+            {% for item in landingNews %}
+              <div class="uk-width-1-1 uk-width-1-3@m">
+                {% include 'marketing/_news_teaser.twig' with {
+                  news: item,
+                  newsBasePath: landingNewsBasePath
+                } %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+    {% endif %}
+
+    {{ content|raw }}
+  </div>
+{% endblock %}
+
+{% block footer %}
+  <div class="footer-columns">
+    <div class="footer-section footer-about">
+      <strong>calServer</strong>
+      <p>{{ t('calserver_footer_tagline') }}</p>
+    </div>
+    <div class="footer-section footer-contact">
+      <strong>Kontakt</strong>
+      <p>
+        René Buske<br>
+        <a
+          class="js-email-link"
+          data-user="office"
+          data-domain="calhelp.de"
+          href="#"
+        >office [at] calhelp.de</a><br>
+        <a href="tel:+4933203609080">+49&nbsp;33203&nbsp;609080</a>
+      </p>
+    </div>
+    <div class="footer-section footer-navigation">
+      <strong>Seiten</strong>
+      <ul>
+        {% for link in links %}
+          <li><a href="{{ link.href }}">{{ link.label }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="footer-section footer-legal">
+      <strong>Rechtliches</strong>
+      <ul>
+        <li><a href="{{ basePath }}/impressum">{{ t('imprint') }}</a></li>
+        <li><a href="{{ basePath }}/datenschutz">{{ t('privacy') }}</a></li>
+        <li><a href="{{ basePath }}/lizenz">{{ t('license') }}</a></li>
+      </ul>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  {% if turnstileSiteKey %}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
+  {% endif %}
+  <script src="{{ basePath }}/js/custom-icons.js" defer></script>
+  <script src="{{ basePath }}/js/storage.js"></script>
+  <script>
+    (function () {
+      try {
+        var hasStorageHelpers = typeof STORAGE_KEYS !== 'undefined' &&
+          typeof getStored === 'function' &&
+          typeof setStored === 'function';
+        var darkKey = hasStorageHelpers ? STORAGE_KEYS.DARK_MODE : 'darkMode';
+        var storedTheme = hasStorageHelpers ? getStored(darkKey) : (function () {
+          try {
+            return (typeof localStorage !== 'undefined') ? localStorage.getItem(darkKey) : null;
+          } catch (error) {
+            return null;
+          }
+        })();
+
+        if (storedTheme === null) {
+          if (hasStorageHelpers) {
+            setStored(darkKey, 'true');
+          } else if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(darkKey, 'true');
+          }
+        }
+      } catch (error) {
+        /* empty */
+      }
+    })();
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.js-email-link').forEach(function (anchor) {
+        var user = anchor.getAttribute('data-user');
+        var domain = anchor.getAttribute('data-domain');
+        if (user && domain) {
+          var email = user + '@' + domain;
+          anchor.href = 'mailto:' + email;
+          anchor.textContent = email;
+        }
+      });
+    });
+  </script>
+  <script src="{{ basePath }}/js/app.js"></script>
+  <script src="{{ basePath }}/js/calserver-cookie.js" defer></script>
+  <script src="{{ basePath }}/js/calserver.js" defer></script>
+  <script src="{{ basePath }}/js/landing.js" defer></script>
+{% endblock %}
