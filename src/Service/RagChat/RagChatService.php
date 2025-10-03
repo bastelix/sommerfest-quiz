@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\RagChat;
 
+use App\Support\DomainNameHelper;
 use RuntimeException;
 
 /**
@@ -28,26 +29,55 @@ final class RagChatService
 
     private string $indexPath;
 
-    public function __construct(?string $indexPath = null)
+    private string $domainIndexBase;
+
+    public function __construct(?string $indexPath = null, ?string $domainIndexBase = null)
     {
         $basePath = dirname(__DIR__, 3);
         $this->indexPath = $indexPath ?? $basePath . '/data/rag-chatbot/index.json';
+        $this->domainIndexBase = $domainIndexBase ?? $basePath . '/data/rag-chatbot/domains';
     }
 
-    public function answer(string $question, string $locale = self::DEFAULT_LOCALE): RagChatResponse
+    public function answer(string $question, string $locale = self::DEFAULT_LOCALE, ?string $domain = null): RagChatResponse
     {
         $question = trim($question);
         if ($question === '') {
             throw new RuntimeException('Question must not be empty.');
         }
 
-        $index = SemanticIndex::load($this->indexPath);
-        $results = $index->search($question, 4, 0.05);
+        $globalIndex = SemanticIndex::load($this->indexPath);
+        $contextResults = [];
+        $seenChunks = [];
+
+        $normalizedDomain = $domain !== null ? DomainNameHelper::normalize($domain) : '';
+        if ($normalizedDomain !== '') {
+            $domainIndexPath = $this->domainIndexBase . '/' . $normalizedDomain . '/index.json';
+            if (is_file($domainIndexPath)) {
+                try {
+                    $domainIndex = SemanticIndex::load($domainIndexPath);
+                    foreach ($domainIndex->search($question, 4, 0.05) as $result) {
+                        $contextResults[] = ['result' => $result, 'domain' => $normalizedDomain];
+                        $seenChunks[$result->getChunkId()] = true;
+                    }
+                } catch (RuntimeException $exception) {
+                    error_log('Failed to load domain-specific RAG index: ' . $exception->getMessage());
+                }
+            }
+        }
+
+        foreach ($globalIndex->search($question, 4, 0.05) as $result) {
+            if (isset($seenChunks[$result->getChunkId()])) {
+                continue;
+            }
+            $contextResults[] = ['result' => $result, 'domain' => null];
+        }
+
+        $contextResults = array_slice($contextResults, 0, 6);
         $messages = self::MESSAGE_TEMPLATES[$locale] ?? self::MESSAGE_TEMPLATES[self::DEFAULT_LOCALE];
 
         $contextItems = [];
-        foreach ($results as $result) {
-            $contextItems[] = $this->buildContextItem($result, $locale);
+        foreach ($contextResults as $entry) {
+            $contextItems[] = $this->buildContextItem($entry['result'], $locale, $entry['domain']);
         }
 
         $answer = $this->composeAnswer($question, $contextItems, $messages);
@@ -76,9 +106,12 @@ final class RagChatService
         return implode("\n", $lines);
     }
 
-    private function buildContextItem(SearchResult $result, string $locale): RagChatContextItem
+    private function buildContextItem(SearchResult $result, string $locale, ?string $originDomain = null): RagChatContextItem
     {
         $metadata = $result->getMetadata();
+        if ($originDomain !== null && $originDomain !== '') {
+            $metadata['domain'] = $originDomain;
+        }
         $label = $this->buildLabel($metadata, $result->getChunkId(), $locale);
         $snippet = $this->summariseText($result->getText());
 

@@ -6,6 +6,7 @@ namespace App\Controller\Marketing;
 
 use App\Service\RagChat\RagChatResponse;
 use App\Service\RagChat\RagChatService;
+use App\Support\DomainNameHelper;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use RuntimeException;
@@ -37,8 +38,11 @@ final class CalserverChatController
 
         $locale = (string) ($request->getAttribute('lang') ?? 'de');
 
+        $host = (string) $request->getUri()->getHost();
+        $domain = DomainNameHelper::normalize($host) ?: null;
+
         try {
-            $chatResponse = $this->service->answer($payload['question'], $locale);
+            $chatResponse = $this->service->answer($payload['question'], $locale, $domain);
         } catch (RuntimeException $exception) {
             error_log('Calserver chat validation failed: ' . $exception->getMessage());
 

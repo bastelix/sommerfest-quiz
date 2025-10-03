@@ -43,6 +43,8 @@ use App\Service\EmailConfirmationService;
 use App\Service\InvitationService;
 use App\Service\AuditLogger;
 use App\Service\QrCodeService;
+use App\Service\RagChat\DomainDocumentStorage;
+use App\Service\RagChat\DomainIndexManager;
 use App\Service\SessionService;
 use App\Service\StripeService;
 use App\Service\VersionService;
@@ -70,6 +72,7 @@ use App\Controller\EventConfigController;
 use App\Controller\SettingsController;
 use App\Controller\Admin\PageController;
 use App\Controller\Admin\LandingpageController;
+use App\Controller\Admin\DomainChatKnowledgeController;
 use App\Controller\Admin\DomainStartPageController;
 use App\Controller\Admin\DomainContactTemplateController;
 use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
@@ -258,6 +261,8 @@ return function (\Slim\App $app, TranslationService $translator) {
             $configService,
             new LandingNewsService($pdo)
         );
+        $domainDocumentStorage = new DomainDocumentStorage();
+        $domainIndexManager = new DomainIndexManager($domainDocumentStorage);
 
         $request = $request
             ->withAttribute('plan', $plan)
@@ -316,6 +321,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute(
                 'domainContactTemplateController',
                 new DomainContactTemplateController($domainContactTemplateService, $domainStartPageService)
+            )
+            ->withAttribute(
+                'domainChatController',
+                new DomainChatKnowledgeController($domainDocumentStorage, $domainIndexManager)
             )
             ->withAttribute('qrController', new QrController(
                 $configService,
@@ -1218,6 +1227,30 @@ return function (\Slim\App $app, TranslationService $translator) {
         /** @var DomainStartPageController $controller */
         $controller = $request->getAttribute('domainStartPageController');
         return $controller->save($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->get('/admin/domain-chat/documents', function (Request $request, Response $response) {
+        /** @var DomainChatKnowledgeController $controller */
+        $controller = $request->getAttribute('domainChatController');
+        return $controller->list($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->post('/admin/domain-chat/documents', function (Request $request, Response $response) {
+        /** @var DomainChatKnowledgeController $controller */
+        $controller = $request->getAttribute('domainChatController');
+        return $controller->upload($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->delete('/admin/domain-chat/documents/{id}', function (Request $request, Response $response, array $args) {
+        /** @var DomainChatKnowledgeController $controller */
+        $controller = $request->getAttribute('domainChatController');
+        return $controller->delete($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->post('/admin/domain-chat/rebuild', function (Request $request, Response $response) {
+        /** @var DomainChatKnowledgeController $controller */
+        $controller = $request->getAttribute('domainChatController');
+        return $controller->rebuild($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
     $app->get('/admin/domain-contact-template/{domain}', function (Request $request, Response $response, array $args) {
