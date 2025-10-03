@@ -210,10 +210,6 @@ class LandingMediaReferenceService
         $references = [];
 
         foreach ($entries as $entry) {
-            if (!$entry instanceof LandingNews) {
-                continue;
-            }
-
             $references = array_merge(
                 $references,
                 $this->collectMarkupReferences(

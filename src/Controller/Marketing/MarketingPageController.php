@@ -132,7 +132,7 @@ class MarketingPageController
         if ($landingNews !== []) {
             $data['landingNews'] = $landingNews;
             $data['landingNewsBasePath'] = $landingNewsBasePath;
-            $data['landingNewsIndexUrl'] = $landingNewsBasePath !== null ? $basePath . $landingNewsBasePath : null;
+            $data['landingNewsIndexUrl'] = $basePath . $landingNewsBasePath;
         }
 
         if (in_array($templateSlug, ['calserver', 'landing'], true)) {
