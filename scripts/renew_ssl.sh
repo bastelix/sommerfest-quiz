@@ -11,6 +11,7 @@ fi
 
 RELOADER_URL="${NGINX_RELOADER_URL:-http://nginx-reloader:8080/reload}"
 RELOAD_TOKEN="${NGINX_RELOAD_TOKEN:-changeme}"
+RELOADER_SERVICE="${NGINX_RELOADER_SERVICE:-nginx-reloader}"
 
 if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
   DOCKER_COMPOSE="docker compose"
@@ -38,8 +39,21 @@ else
 fi
 
 if ! curl -fs -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL" >/dev/null; then
-  echo "Failed to trigger nginx reload" >&2
-  exit 1
+  if [ -n "$DOCKER_COMPOSE" ] && [ -f "$COMPOSE_FILE" ]; then
+    echo "Direct nginx reload failed, retrying via $RELOADER_SERVICE container" >&2
+    COMPOSE_CMD="$DOCKER_COMPOSE -f \"$COMPOSE_FILE\""
+    if [ "$SLUG" != "main" ]; then
+      COMPOSE_CMD="$COMPOSE_CMD -p \"$SLUG\""
+    fi
+
+    if ! sh -c "$COMPOSE_CMD exec -T \"$RELOADER_SERVICE\" curl -fs -X POST -H \"X-Token: $RELOAD_TOKEN\" http://127.0.0.1:8080/reload" >/dev/null 2>&1; then
+      echo "Failed to trigger nginx reload" >&2
+      exit 1
+    fi
+  else
+    echo "Failed to trigger nginx reload" >&2
+    exit 1
+  fi
 fi
 
 if [ -z "$DOCKER_COMPOSE" ]; then
