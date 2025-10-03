@@ -157,10 +157,13 @@ class AdminController
         }
 
         $marketingPages = $this->filterMarketingPages($allPages);
-        $domainService = new DomainStartPageService($pdo);
         $translator = $request->getAttribute('translator');
         $translationService = $translator instanceof TranslationService ? $translator : null;
         $domainService = new DomainStartPageService($pdo);
+        $uri = $request->getUri();
+        $mainDomain = getenv('MAIN_DOMAIN')
+            ?: getenv('DOMAIN')
+            ?: $uri->getHost();
         $domainStartPageOptions = $domainService->getStartPageOptions($pageSvc);
         if ($translationService !== null) {
             $domainStartPageOptions['help'] = $translationService->translate('option_help_page');
@@ -177,7 +180,7 @@ class AdminController
         $domainStartPageOptions = $orderedDomainOptions + $domainStartPageOptions;
 
         $marketingConfig = getenv('MARKETING_DOMAINS') ?: '';
-        $domainChatDomains = $domainService->determineDomains($mainDomain, (string) $marketingConfig, $request->getUri()->getHost());
+        $domainChatDomains = $domainService->determineDomains($mainDomain, (string) $marketingConfig, $uri->getHost());
 
         $domainType = $request->getAttribute('domainType');
         if ($domainType === 'main') {
@@ -221,11 +224,6 @@ class AdminController
 
         $baseUrl = UrlService::determineBaseUrl($request);
         $eventUrl = $uid !== '' ? $baseUrl . '/?event=' . rawurlencode($uid) : $baseUrl;
-        $uri = $request->getUri();
-
-        $mainDomain = getenv('MAIN_DOMAIN')
-            ?: getenv('DOMAIN')
-            ?: $uri->getHost();
 
         $pageTab = $this->resolvePageTab($params);
         $landingNewsStatus = $this->normalizeLandingNewsStatus($params);
