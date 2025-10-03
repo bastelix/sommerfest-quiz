@@ -176,6 +176,9 @@ class AdminController
         }
         $domainStartPageOptions = $orderedDomainOptions + $domainStartPageOptions;
 
+        $marketingConfig = getenv('MARKETING_DOMAINS') ?: '';
+        $domainChatDomains = $domainService->determineDomains($mainDomain, (string) $marketingConfig, $request->getUri()->getHost());
+
         $domainType = $request->getAttribute('domainType');
         if ($domainType === 'main') {
             $base = Database::connectFromEnv();
@@ -279,6 +282,7 @@ class AdminController
               'landingNewsStatus' => $landingNewsStatus,
               'pageTab' => $pageTab,
               'domain_start_page_options' => $domainStartPageOptions,
+              'domain_chat_domains' => $domainChatDomains,
               'domainType' => $request->getAttribute('domainType'),
               'tenant' => $tenant,
               'stripe_configured' => StripeService::isConfigured()['ok'],

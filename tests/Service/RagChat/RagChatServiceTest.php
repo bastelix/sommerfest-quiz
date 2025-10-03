@@ -12,6 +12,23 @@ final class RagChatServiceTest extends TestCase
     /** @var list<string> */
     private array $files = [];
 
+    /**
+     * @var list<string>
+     */
+    private array $directories = [];
+
+    private string $domainBase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->domainBase = sys_get_temp_dir() . '/rag-domains-' . bin2hex(random_bytes(4));
+        if (!is_dir($this->domainBase)) {
+            mkdir($this->domainBase, 0775, true);
+        }
+        $this->directories[] = $this->domainBase;
+    }
+
     protected function tearDown(): void
     {
         foreach ($this->files as $path) {
@@ -20,12 +37,17 @@ final class RagChatServiceTest extends TestCase
             }
         }
         $this->files = [];
+
+        foreach (array_reverse($this->directories) as $path) {
+            $this->removeDirectory($path);
+        }
+        $this->directories = [];
     }
 
     public function testAnswerReturnsLocalizedSummary(): void
     {
         $path = $this->createIndexFile();
-        $service = new RagChatService($path);
+        $service = new RagChatService($path, $this->domainBase);
 
         $response = $service->answer('calserver inventar', 'de');
 
@@ -39,7 +61,7 @@ final class RagChatServiceTest extends TestCase
     public function testAnswerUsesEnglishMessages(): void
     {
         $path = $this->createIndexFile();
-        $service = new RagChatService($path);
+        $service = new RagChatService($path, $this->domainBase);
 
         $response = $service->answer('calserver inventar', 'en');
 
@@ -50,7 +72,7 @@ final class RagChatServiceTest extends TestCase
     public function testAnswerReturnsFallbackWhenNoContextFound(): void
     {
         $path = $this->createIndexFile();
-        $service = new RagChatService($path);
+        $service = new RagChatService($path, $this->domainBase);
 
         $response = $service->answer('unrelated', 'de');
 
@@ -60,10 +82,24 @@ final class RagChatServiceTest extends TestCase
 
     public function testAnswerRejectsEmptyQuestion(): void
     {
-        $service = new RagChatService($this->createIndexFile());
+        $service = new RagChatService($this->createIndexFile(), $this->domainBase);
 
         $this->expectExceptionMessage('Question must not be empty.');
         $service->answer('   ');
+    }
+
+    public function testAnswerPrefersDomainResults(): void
+    {
+        $path = $this->createIndexFile();
+        $service = new RagChatService($path, $this->domainBase);
+
+        $this->createDomainIndex('example.com');
+
+        $response = $service->answer('calserver inventar', 'de', 'example.com');
+
+        self::assertNotSame([], $response->getContext());
+        self::assertSame('Domain Knowledge (Abschnitt 1)', $response->getContext()[0]->getLabel());
+        self::assertSame('example.com', $response->getContext()[0]->getMetadata()['domain']);
     }
 
     private function createIndexFile(): string
@@ -99,5 +135,55 @@ final class RagChatServiceTest extends TestCase
         $this->files[] = $path;
 
         return $path;
+    }
+
+    private function createDomainIndex(string $domain): void
+    {
+        $payload = [
+            'vocabulary' => ['calserver', 'inventar'],
+            'idf' => [1.0, 1.0],
+            'chunks' => [
+                [
+                    'id' => 'domain-1',
+                    'text' => 'Calserver Inventar domain docs',
+                    'metadata' => [
+                        'title' => 'Domain Knowledge',
+                        'chunk_index' => 1,
+                    ],
+                    'vector' => [[0, 0.5], [1, 0.5]],
+                    'norm' => 0.707107,
+                ],
+            ],
+        ];
+
+        $dir = $this->domainBase . DIRECTORY_SEPARATOR . $domain;
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
+
+        $path = $dir . DIRECTORY_SEPARATOR . 'index.json';
+        file_put_contents($path, json_encode($payload));
+        $this->files[] = $path;
+    }
+
+    private function removeDirectory(string $path): void
+    {
+        if (!is_dir($path)) {
+            return;
+        }
+
+        $items = scandir($path) ?: [];
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+            $target = $path . DIRECTORY_SEPARATOR . $item;
+            if (is_dir($target)) {
+                $this->removeDirectory($target);
+            } elseif (is_file($target)) {
+                unlink($target);
+            }
+        }
+        rmdir($path);
     }
 }
