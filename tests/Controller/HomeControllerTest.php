@@ -241,7 +241,7 @@ class HomeControllerTest extends TestCase
         \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
         $pdo->exec(
             "INSERT INTO pages(slug,title,content) VALUES(" .
-            "'calserver-maintenance','calServer Wartung','<p>Wartungshinweis</p>')"
+            "'calserver-maintenance','calHelp Wartung','<p>Wartungshinweis</p>')"
         );
         (new \App\Service\DomainStartPageService($pdo))->saveStartPage('main.test', 'calserver-maintenance');
 

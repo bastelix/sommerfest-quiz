@@ -325,26 +325,26 @@ export function initSeoForm() {
       domain: ctx.domain
     }),
     'calserver-maintenance': ctx => ({
-      metaTitle: 'calServer – Wartungsarbeiten',
+      metaTitle: 'calHelp – Wartungsarbeiten',
       metaDescription:
-        'Wir führen geplante Wartungsarbeiten für calServer durch. Erfahre hier Status-Updates, Zeitplan und erreichbare Support-Kanäle.',
+        'Wir führen geplante Wartungsarbeiten für dein Webprojekt durch. Erfahre hier Status-Updates, den Wartungsfahrplan und erreichbare Support-Kanäle.',
       slug: '/calserver-maintenance',
       canonical: `${ctx.baseUrl}/calserver-maintenance`,
       robots: 'noindex, follow',
-      ogTitle: 'calServer – Wartung & Statusinformationen',
+      ogTitle: 'calHelp – Wartung & Statusinformationen',
       ogDescription:
-        'Geplante calServer-Wartung mit Live-Status, Zeitplan und Support-Kontakten. Melde dich für Updates an oder kontaktiere das Team.',
+        'Geplante Wartung von calHelp mit Live-Status, Fahrplan und Support-Kontakten. Melde dich für Updates an oder kontaktiere unser Team.',
       ogImage: `${ctx.baseUrl}/uploads/calserver-module-device-management.webp`,
       schema: `{
   "@context": "https://schema.org",
   "@type": "WebPage",
-  "name": "calServer Maintenance",
+  "name": "calHelp Maintenance",
   "url": "${ctx.baseUrl}/calserver-maintenance",
-  "description": "Aktueller Wartungsstatus, Zeitplan und Support-Kontakt für calServer.",
+  "description": "Aktueller Wartungsstatus, Wartungsfahrplan und Support-Kontakt von calHelp für dein Webprojekt.",
   "inLanguage": "de",
   "isPartOf": {
     "@type": "WebSite",
-    "name": "calServer",
+    "name": "calHelp",
     "url": "${ctx.baseUrl}/"
   }
  }`,

@@ -12,8 +12,8 @@ class CalserverMaintenanceControllerTest extends TestCase
         parent::setUp();
         $pdo = $this->getDatabase();
         foreach ([
-            ['calserver-maintenance', 'calServer Wartung'],
-            ['calserver-maintenance-en', 'calServer Maintenance'],
+            ['calserver-maintenance', 'calHelp Wartung'],
+            ['calserver-maintenance-en', 'calHelp Maintenance'],
         ] as [$slug, $title]) {
             try {
                 $pdo->exec(
@@ -72,7 +72,7 @@ class CalserverMaintenanceControllerTest extends TestCase
         $response = $app->handle($request);
         $this->assertEquals(200, $response->getStatusCode());
         $body = (string) $response->getBody();
-        $this->assertStringContainsString('calServer Maintenance', $body);
+        $this->assertStringContainsString('calHelp Maintenance', $body);
         if ($old === false) {
             putenv('MAIN_DOMAIN');
         } else {

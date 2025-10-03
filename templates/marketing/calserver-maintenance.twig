@@ -6,7 +6,7 @@
     { 'href': '#support', 'label': t('calserver_maintenance_nav_support'), 'icon': 'lifesaver' }
 ] %}
 
-{% block title %}{{ metaTitle|default('calServer – Wartungsmodus') }}{% endblock %}
+{% block title %}{{ metaTitle|default('calHelp – Wartungsmodus') }}{% endblock %}
 
 {% block head %}
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap"
@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   <link rel="stylesheet" href="{{ basePath }}/css/onboarding.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.landing.css">
-  <meta name="page-name" content="calServer – Wartungshinweis">
+  <meta name="page-name" content="calHelp – Wartungshinweis">
 {% endblock %}
 
 {% block body_theme %}light{% endblock %}
@@ -37,7 +37,7 @@
                     aria-controls="qr-offcanvas"
                     aria-expanded="false"
                     aria-label="Menü"></button>
-            <a class="uk-logo" href="{{ basePath }}/calserver-maintenance">calServer</a>
+            <a class="uk-logo" href="{{ basePath }}/calserver-maintenance">calHelp</a>
           </div>
         </div>
         <div class="uk-navbar-right">
@@ -230,7 +230,7 @@
 {% block footer %}
   <div class="footer-columns">
     <div class="footer-section footer-about">
-      <strong>calServer</strong>
+      <strong>calHelp</strong>
       <p>{{ t('calserver_footer_tagline') }}</p>
     </div>
     <div class="footer-section footer-contact">
