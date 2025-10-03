@@ -116,7 +116,7 @@ final class SemanticIndex
     }
 
     /**
-     * @param array<int, array{id:mixed,text:mixed,metadata?:mixed,vector?:mixed,norm?:mixed}> $items
+     * @param array<int, mixed> $items
      *
      * @return array<int, array{id:string,text:string,metadata:array<string,mixed>,vector:array<int,float>,norm:float}>
      */
@@ -171,14 +171,19 @@ final class SemanticIndex
             return [];
         }
 
-        $text = mb_strtolower($text, 'UTF-8');
-        if ($text === '') {
+        $lowercase = mb_strtolower($text, 'UTF-8');
+        if ($lowercase === '') {
             return [];
         }
 
         $matches = [];
-        preg_match_all(self::TOKEN_PATTERN, $text, $matches);
-        $tokens = $matches[0] ?? [];
+        $matchCount = preg_match_all(self::TOKEN_PATTERN, $lowercase, $matches);
+        if ($matchCount === false || $matchCount === 0) {
+            return [];
+        }
+
+        /** @var list<string> $tokens */
+        $tokens = $matches[0];
         if ($tokens === []) {
             return [];
         }
@@ -197,9 +202,6 @@ final class SemanticIndex
         }
 
         $total = array_sum($counts);
-        if ($total <= 0) {
-            return [];
-        }
 
         $vector = [];
         foreach ($counts as $index => $count) {
