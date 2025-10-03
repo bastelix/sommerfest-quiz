@@ -1,7 +1,7 @@
 FROM python:3.11-alpine
 
 # The reloader needs the Docker CLI to send reload commands
-RUN apk add --no-cache docker-cli \
+RUN apk add --no-cache docker-cli curl \
     && pip install flask
 
 WORKDIR /app
