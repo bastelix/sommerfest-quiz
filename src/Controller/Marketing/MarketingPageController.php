@@ -7,6 +7,7 @@ namespace App\Controller\Marketing;
 use App\Application\Seo\PageSeoConfigService;
 use App\Service\LandingNewsService;
 use App\Service\MailService;
+use App\Service\MarketingSlugResolver;
 use App\Service\PageService;
 use App\Service\ProvenExpertRatingService;
 use App\Service\TurnstileConfig;
@@ -279,24 +280,6 @@ class MarketingPageController
     }
 
     private function resolveLocalizedSlug(string $baseSlug, string $locale): string {
-        $locale = strtolower(trim($locale));
-        if ($locale === '' || $locale === 'de') {
-            return $baseSlug;
-        }
-
-        $map = [
-            'calserver' => [
-                'en' => 'calserver-en',
-            ],
-            'calserver-maintenance' => [
-                'en' => 'calserver-maintenance-en',
-            ],
-        ];
-
-        if (isset($map[$baseSlug][$locale])) {
-            return $map[$baseSlug][$locale];
-        }
-
-        return $baseSlug;
+        return MarketingSlugResolver::resolveLocalizedSlug($baseSlug, $locale);
     }
 }

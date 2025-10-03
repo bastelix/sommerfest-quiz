@@ -43,8 +43,13 @@ class DomainStartPageService
                 continue;
             }
 
+            $baseSlug = MarketingSlugResolver::resolveBaseSlug($slug);
             $title = trim($page->getTitle());
-            $options[$slug] = $title !== '' ? $title : $this->buildLabelFromSlug($slug);
+            $label = $title !== '' ? $title : $this->buildLabelFromSlug($baseSlug);
+
+            if (!isset($options[$baseSlug]) || $slug === $baseSlug) {
+                $options[$baseSlug] = $label;
+            }
         }
 
         return $options;
