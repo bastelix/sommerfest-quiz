@@ -172,9 +172,6 @@ final class SemanticIndex
         }
 
         $lowercase = mb_strtolower($text, 'UTF-8');
-        if ($lowercase === '') {
-            return [];
-        }
 
         $matches = [];
         $matchCount = preg_match_all(self::TOKEN_PATTERN, $lowercase, $matches);
