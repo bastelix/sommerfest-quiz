@@ -46,6 +46,12 @@ if ! curl -fs -X POST -H "X-Token: $RELOAD_TOKEN" "$RELOADER_URL" >/dev/null; th
       COMPOSE_CMD="$COMPOSE_CMD -p \"$SLUG\""
     fi
 
+    # Ensure the reload helper is running before we attempt to exec into it.
+    if ! sh -c "$COMPOSE_CMD up -d --no-deps \"$RELOADER_SERVICE\"" >/dev/null 2>&1; then
+      echo "Failed to start $RELOADER_SERVICE" >&2
+      exit 1
+    fi
+
     if ! sh -c "$COMPOSE_CMD exec -T \"$RELOADER_SERVICE\" curl -fs -X POST -H \"X-Token: $RELOAD_TOKEN\" http://127.0.0.1:8080/reload" >/dev/null 2>&1; then
       echo "Failed to trigger nginx reload" >&2
       exit 1
