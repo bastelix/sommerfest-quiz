@@ -656,6 +656,96 @@
       var buttons = [];
       var panels = [];
       var activeIndex = 0;
+      var observedPanel = null;
+      var raf = window.requestAnimationFrame || function (callback) {
+        return window.setTimeout(callback, 16);
+      };
+      var measurementScheduled = false;
+      var resizeObserver = typeof ResizeObserver === 'function'
+        ? new ResizeObserver(function () {
+            scheduleDisplayHeightMeasurement();
+          })
+        : null;
+
+      function measurePanelHeight(panel) {
+        if (!panel) {
+          return 0;
+        }
+
+        var isCurrentlyVisible = !panel.hasAttribute('hidden') && panel.classList.contains('is-active');
+        if (isCurrentlyVisible) {
+          return panel.offsetHeight;
+        }
+
+        var wasHidden = panel.hasAttribute('hidden');
+        var hadActiveClass = panel.classList.contains('is-active');
+
+        if (wasHidden) {
+          panel.removeAttribute('hidden');
+        }
+
+        if (!hadActiveClass) {
+          panel.classList.add('is-active');
+        }
+
+        var previousTransition = panel.style.transition;
+        var previousPosition = panel.style.position;
+        var previousVisibility = panel.style.visibility;
+        var previousPointerEvents = panel.style.pointerEvents;
+        var previousHeight = panel.style.height;
+        var previousWidth = panel.style.width;
+
+        panel.style.transition = 'none';
+        panel.style.position = 'absolute';
+        panel.style.visibility = 'hidden';
+        panel.style.pointerEvents = 'none';
+        panel.style.height = 'auto';
+        if (display.clientWidth) {
+          panel.style.width = display.clientWidth + 'px';
+        }
+
+        var measuredHeight = panel.offsetHeight;
+
+        panel.style.transition = previousTransition;
+        panel.style.position = previousPosition;
+        panel.style.visibility = previousVisibility;
+        panel.style.pointerEvents = previousPointerEvents;
+        panel.style.height = previousHeight;
+        panel.style.width = previousWidth;
+
+        if (!hadActiveClass) {
+          panel.classList.remove('is-active');
+        }
+
+        if (wasHidden) {
+          panel.setAttribute('hidden', 'true');
+        }
+
+        return measuredHeight;
+      }
+
+      function scheduleDisplayHeightMeasurement() {
+        if (measurementScheduled) {
+          return;
+        }
+
+        measurementScheduled = true;
+
+        raf(function () {
+          measurementScheduled = false;
+
+          var maxHeight = panels.reduce(function (acc, panel) {
+            var panelHeight = measurePanelHeight(panel);
+            return panelHeight > acc ? panelHeight : acc;
+          }, 0);
+
+          if (maxHeight > 0) {
+            display.style.minHeight = maxHeight + 'px';
+          } else {
+            display.style.minHeight = '';
+          }
+        });
+      }
 
       cards.forEach(function (card, index) {
         var panel = card.cloneNode(true);
@@ -770,6 +860,21 @@
             panel.classList.remove('is-active');
           }
         });
+
+        if (resizeObserver) {
+          if (observedPanel) {
+            resizeObserver.unobserve(observedPanel);
+          }
+
+          observedPanel = panels[newIndex];
+
+          if (observedPanel) {
+            resizeObserver.observe(observedPanel);
+          }
+        }
+
+        scheduleDisplayHeightMeasurement();
+        window.setTimeout(scheduleDisplayHeightMeasurement, 120);
       }
 
       activate(activeIndex, false);
@@ -778,6 +883,8 @@
       grid.classList.add('fig-technology-grid--is-enhanced');
       grid.setAttribute('aria-hidden', 'true');
       grid.dataset.figTechnologyEnhanced = 'true';
+
+      window.addEventListener('resize', scheduleDisplayHeightMeasurement);
     }
 
     document.addEventListener('DOMContentLoaded', function () {
