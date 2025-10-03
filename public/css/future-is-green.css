@@ -970,12 +970,12 @@ body.qr-landing.future-is-green-theme .landing-content {
 
 .future-is-green-theme .fig-technology-interactive__display {
   position: relative;
+  transition: min-height 0.3s ease;
 }
 
 @media (max-width: 768px) {
   .future-is-green-theme .fig-technology-interactive__display {
-    min-height: clamp(24rem, 60vh, 32rem);
-    transition: min-height 0.3s ease;
+    min-height: 0;
   }
 }
 
