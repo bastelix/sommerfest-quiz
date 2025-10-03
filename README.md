@@ -377,7 +377,10 @@ Let's-Encrypt-Zertifikat, sobald der Container gestartet wird. Damit das
 Stamm-Domain-Zertifikat (`MAIN_DOMAIN`) nicht versehentlich fehlt,
 ergänzt `docker-compose.yml` diesen Host seit Version 4.16 automatisch in
 `VIRTUAL_HOST`/`LETSENCRYPT_HOST`. Zusätzliche Domains kannst du wie
-bisher über `MARKETING_DOMAINS` anhängen.
+bisher über `MARKETING_DOMAINS` anhängen. Beim Start normalisiert der
+Container die Liste (Leerzeichen und Zeilenumbrüche werden entfernt) und
+löst einen Reload des Proxys über `NGINX_RELOADER_URL` aus, sodass der
+`acme-companion` direkt Zertifikate für neue Marketing-Domains anfordert.
 
 Weitere nützliche Variablen in `.env` sind:
 
