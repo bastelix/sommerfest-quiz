@@ -209,16 +209,28 @@
               <a class="uk-button uk-button-text" href="{{ landingNewsIndexUrl }}">{{ t('calserver_maintenance_updates_link') }}</a>
             {% endif %}
           </div>
-          <div class="uk-grid-large" data-uk-grid>
+          <ul class="calserver-maintenance-updates__list">
             {% for item in landingNews %}
-              <div class="uk-width-1-1 uk-width-1-3@m">
-                {% include 'marketing/_news_teaser.twig' with {
-                  news: item,
-                  newsBasePath: landingNewsBasePath
-                } %}
-              </div>
+              {% if item.isPublished %}
+                {% set detailPath = landingNewsBasePath is defined and landingNewsBasePath ? basePath ~ landingNewsBasePath ~ '/' ~ item.slug : null %}
+                <li class="calserver-maintenance-updates__item">
+                  <div class="calserver-maintenance-updates__header">
+                    {% if item.publishedAt %}
+                      <span class="calserver-maintenance-updates__date">{{ item.publishedAt|date('d.m.Y') }}</span>
+                    {% endif %}
+                    {% if detailPath %}
+                      <a class="calserver-maintenance-updates__link" href="{{ detailPath }}">{{ item.title }}</a>
+                    {% else %}
+                      <span class="calserver-maintenance-updates__title">{{ item.title }}</span>
+                    {% endif %}
+                  </div>
+                  {% if item.excerpt %}
+                    <div class="calserver-maintenance-updates__excerpt">{{ item.excerpt|raw }}</div>
+                  {% endif %}
+                </li>
+              {% endif %}
             {% endfor %}
-          </div>
+          </ul>
         </div>
       </section>
     {% endif %}
