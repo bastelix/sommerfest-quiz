@@ -1,7 +1,7 @@
 # RAG Chatbot – Implementation Journal
 
 Dieses Journal begleitet den Aufbau eines Retrieval-Augmented-Generation-Chatbots für die QuizRace-Dokumentation.
-Die Arbeit ist in vier Phasen gegliedert. Dieses Journal beschreibt die Umsetzung von **Phase 1** bis **Phase 4**.
+Die Arbeit ist in fünf Phasen gegliedert. Dieses Journal beschreibt die Umsetzung von **Phase 1** bis **Phase 5**.
 
 ## Phase 1: Wissensbasis vorbereiten
 
@@ -77,3 +77,18 @@ Ziele der vierten Phase:
 2. `ChatSession` akzeptiert optional ein `ChatTranscript` und protokolliert automatisch jede Anfrage mitsamt Prompt, Antwort und Kontexttreffern.
 3. CLI-Skript `scripts/rag_eval.py` ergänzt, um Fragenstapel aus einer Textdatei gegen den semantischen Index auszuführen und das erzeugte Transcript als JSON zu speichern.
 4. Neue Tests (`tests/test_rag_transcript.py`) prüfen die Aufzeichnung, Statistikberechnung und den JSON-Export der Gesprächsprotokolle.
+
+## Phase 5: Berichte und Qualitätsmetriken
+
+Ziele der fünften Phase:
+
+- Gesprächsprotokolle automatisiert auswerten und die wichtigsten Kennzahlen hervorheben.
+- Quellenabdeckung sichtbar machen, um blinde Flecken in der Wissensbasis aufzudecken.
+- Einen leicht nutzbaren CLI-Workflow schaffen, der vorhandene Transkripte zusammenfasst.
+
+### Umsetzungsschritte
+
+1. Neues Modul `rag_chatbot/report.py` implementiert. Es erzeugt strukturierte Berichte mit Trefferanzahl, Durchschnitts- und Maximal-Scores pro Quelle und stellt eine menschenlesbare Ausgabe bereit.
+2. `ChatTranscript` um Ladefunktionen (`from_dict`, `load`) erweitert, damit gespeicherte JSON-Dateien direkt wieder eingelesen werden können. `TranscriptContext` und `TranscriptTurn` besitzen nun passende `from_dict`-Hilfsfunktionen.
+3. CLI-Skript `scripts/rag_report.py` ergänzt. Es lädt ein Transcript, erzeugt den Bericht und gibt ihn als Text oder JSON aus. Parameter wie `--top` steuern die Anzahl der angezeigten Quellen.
+4. Neue Tests (`tests/test_rag_report.py`) prüfen Report-Erstellung, Formatierung und den Roundtrip zwischen Speichern und Laden eines Transkripts.
