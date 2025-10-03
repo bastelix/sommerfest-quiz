@@ -17,6 +17,12 @@ body.qr-landing.calserver-maintenance-theme {
   background: transparent;
 }
 
+.calserver-maintenance-theme .qr-topbar {
+  height: auto;
+  min-height: calc(48px + 16px);
+  padding: 8px 0;
+}
+
 @media (max-width: 959px) {
   .calserver-maintenance-theme .qr-topbar {
     height: auto;
