@@ -661,6 +661,17 @@
         return window.setTimeout(callback, 16);
       };
       var measurementScheduled = false;
+      var desktopMediaQuery = window.matchMedia
+        ? window.matchMedia('(min-width: 960px)')
+        : null;
+
+      function shouldLockDisplayHeight() {
+        if (!desktopMediaQuery) {
+          return true;
+        }
+
+        return desktopMediaQuery.matches;
+      }
       var resizeObserver = typeof ResizeObserver === 'function'
         ? new ResizeObserver(function () {
             scheduleDisplayHeightMeasurement();
@@ -733,6 +744,11 @@
 
         raf(function () {
           measurementScheduled = false;
+
+          if (!shouldLockDisplayHeight()) {
+            display.style.minHeight = '';
+            return;
+          }
 
           var maxHeight = panels.reduce(function (acc, panel) {
             var panelHeight = measurePanelHeight(panel);
@@ -883,6 +899,15 @@
       grid.classList.add('fig-technology-grid--is-enhanced');
       grid.setAttribute('aria-hidden', 'true');
       grid.dataset.figTechnologyEnhanced = 'true';
+
+      if (desktopMediaQuery) {
+        var mqListener = scheduleDisplayHeightMeasurement;
+        if (typeof desktopMediaQuery.addEventListener === 'function') {
+          desktopMediaQuery.addEventListener('change', mqListener);
+        } else if (typeof desktopMediaQuery.addListener === 'function') {
+          desktopMediaQuery.addListener(mqListener);
+        }
+      }
 
       window.addEventListener('resize', scheduleDisplayHeightMeasurement);
     }
