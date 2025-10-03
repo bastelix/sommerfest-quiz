@@ -92,3 +92,17 @@ Ziele der fünften Phase:
 2. `ChatTranscript` um Ladefunktionen (`from_dict`, `load`) erweitert, damit gespeicherte JSON-Dateien direkt wieder eingelesen werden können. `TranscriptContext` und `TranscriptTurn` besitzen nun passende `from_dict`-Hilfsfunktionen.
 3. CLI-Skript `scripts/rag_report.py` ergänzt. Es lädt ein Transcript, erzeugt den Bericht und gibt ihn als Text oder JSON aus. Parameter wie `--top` steuern die Anzahl der angezeigten Quellen.
 4. Neue Tests (`tests/test_rag_report.py`) prüfen Report-Erstellung, Formatierung und den Roundtrip zwischen Speichern und Laden eines Transkripts.
+
+## Phase 6: Automatisierter Pipeline-Workflow
+
+Ziele der sechsten Phase:
+
+- Wissensbasis und semantischen Index in einem wiederholbaren Schritt aktualisieren.
+- Änderungen an den Dokumentationsquellen automatisch erkennen und nur notwendige Schritte neu ausführen.
+- Den Workflow über ein CLI-Werkzeug ansteuerbar machen und durch Tests absichern.
+
+### Umsetzungsschritte
+
+1. Neues Modul `rag_chatbot/pipeline.py` entwickelt. Es bündelt Konfiguration (`PipelineOptions`), Ergebnisobjekte (`PipelineResult`) und die Funktion `run_pipeline()`, die auf Basis von Zeitstempeln entscheidet, ob Wissensbasis oder Index neu erzeugt werden müssen.
+2. Skript `scripts/rag_pipeline.py` hinzugefügt. Es kombiniert Corpus- und Indexaufbau in einer Kommandozeilenoberfläche, erlaubt optionale Parameter (Chunk-Größe, Vokabularbegrenzung, `--force`) und informiert, ob Schritte übersprungen wurden.
+3. Ergänzende Tests (`tests/test_rag_pipeline.py`) prüfen Neuaufbau, Überspringen unveränderter Artefakte, das Erzwingen von Rebuilds sowie Fehlerbehandlung bei fehlenden Quellen.
