@@ -131,6 +131,7 @@ class MarketingPageController
             'hreflang' => $config?->getHreflang(),
             'turnstileSiteKey' => $this->turnstileConfig->isEnabled() ? $this->turnstileConfig->getSiteKey() : null,
             'turnstileEnabled' => $this->turnstileConfig->isEnabled(),
+            'csrf_token' => $csrf,
         ];
 
         if ($landingNews !== []) {
