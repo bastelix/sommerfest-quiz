@@ -5,6 +5,7 @@ from .corpus_builder import BuildOptions, BuildResult, build_corpus
 from .index_builder import IndexOptions, IndexResult, build_index
 from .loader import Document
 from .retrieval import SearchResult, SemanticIndex
+from .transcript import ChatTranscript, TranscriptContext, TranscriptStats, TranscriptTurn
 
 __all__ = [
     "ChatMessage",
@@ -21,4 +22,8 @@ __all__ = [
     "IndexResult",
     "SemanticIndex",
     "SearchResult",
+    "ChatTranscript",
+    "TranscriptContext",
+    "TranscriptStats",
+    "TranscriptTurn",
 ]
