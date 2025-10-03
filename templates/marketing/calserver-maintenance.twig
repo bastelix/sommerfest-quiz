@@ -190,7 +190,12 @@
                 </div>
                 <div class="calserver-maintenance-status__item">
                   <dt>{{ t('calserver_maintenance_status_window') }}</dt>
-                  <dd>{{ t('calserver_maintenance_status_window_value') }}</dd>
+                  {% if maintenanceWindowLabel is defined and maintenanceWindowLabel %}
+                    {% set suffix = t('calserver_maintenance_status_window_suffix') %}
+                    <dd>{{ maintenanceWindowLabel }}{% if suffix %} {{ suffix }}{% endif %}</dd>
+                  {% else %}
+                    <dd>{{ t('calserver_maintenance_status_window_value') }}</dd>
+                  {% endif %}
                 </div>
               </dl>
               <p class="calserver-maintenance-status__hint">{{ t('calserver_maintenance_status_hint') }}</p>

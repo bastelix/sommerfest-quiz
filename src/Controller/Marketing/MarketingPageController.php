@@ -12,6 +12,9 @@ use App\Service\PageService;
 use App\Service\ProvenExpertRatingService;
 use App\Service\TurnstileConfig;
 use App\Support\BasePathHelper;
+use DateTimeImmutable;
+use DateTimeZone;
+use IntlDateFormatter;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
@@ -144,11 +147,70 @@ class MarketingPageController
             $data['hreflangLinks'] = $this->buildHreflangLinks($config?->getHreflang(), $canonicalUrl);
         }
 
+        if ($templateSlug === 'calserver-maintenance') {
+            $data['maintenanceWindowLabel'] = $this->buildMaintenanceWindowLabel($locale);
+        }
+
         try {
             return $view->render($response, $template, $data);
         } catch (LoaderError $e) {
             return $response->withStatus(404);
         }
+    }
+
+    private function buildMaintenanceWindowLabel(string $locale): string
+    {
+        $timezone = new DateTimeZone('Europe/Berlin');
+        $start = new DateTimeImmutable('today', $timezone);
+        $end = $start->modify('+2 days');
+
+        $intlLocale = $locale === 'en' ? 'en_GB' : 'de_DE';
+        $sameMonth = $start->format('mY') === $end->format('mY');
+
+        if ($locale === 'en') {
+            $startPattern = $sameMonth ? 'd' : 'd MMMM';
+            $startFallback = $sameMonth ? 'j' : 'j F';
+            $endPattern = 'd MMMM';
+            $endFallback = 'j F';
+        } else {
+            $startPattern = $sameMonth ? 'd.' : 'd. MMMM';
+            $startFallback = $sameMonth ? 'j.' : 'j. F';
+            $endPattern = 'd. MMMM';
+            $endFallback = 'j. F';
+        }
+
+        $startLabel = $this->formatWithIntl($start, $intlLocale, $timezone, $startPattern, $startFallback);
+        $endLabel = $this->formatWithIntl($end, $intlLocale, $timezone, $endPattern, $endFallback);
+
+        return sprintf('%s–%s', $startLabel, $endLabel);
+    }
+
+    private function formatWithIntl(
+        DateTimeImmutable $date,
+        string $locale,
+        DateTimeZone $timezone,
+        string $pattern,
+        string $fallbackPattern
+    ): string {
+        if (class_exists('\\IntlDateFormatter')) {
+            $formatter = new IntlDateFormatter(
+                $locale,
+                IntlDateFormatter::NONE,
+                IntlDateFormatter::NONE,
+                $timezone->getName(),
+                IntlDateFormatter::GREGORIAN,
+                $pattern
+            );
+
+            if ($formatter !== false) {
+                $formatted = $formatter->format($date);
+                if ($formatted !== false) {
+                    return $formatted;
+                }
+            }
+        }
+
+        return $date->format($fallbackPattern);
     }
 
     /**
