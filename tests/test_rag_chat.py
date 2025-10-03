@@ -42,14 +42,18 @@ def test_chat_session_builds_prompt_with_context() -> None:
     index = FakeIndex(results)
     captured: list = []
 
+    expected_response = "QuizRace ist eine Quiz-Plattform."
+
     def responder(prompt):
         captured.append(prompt)
-        return "QuizRace ist eine Quiz-Plattform."  # noqa: D401
+        return expected_response  # noqa: D401
 
     session = ChatSession(index, responder=responder, top_k=2)
     turn = session.send("Was ist QuizRace?")
 
-    assert turn.response == "QuizRace ist eine Quiz-Plattform."
+    assert turn.response == expected_response
+    assert "Basierend auf der Wissensbasis" not in turn.response
+    assert "\n1." not in turn.response
     assert captured[0].context == tuple(results)
     messages = captured[0].messages
     assert messages[0].role == "system"

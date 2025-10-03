@@ -2,35 +2,112 @@
 from __future__ import annotations
 
 import argparse
+import json
+import os
+import sys
+import urllib.error
+import urllib.request
 from pathlib import Path
-from typing import Iterable
+from typing import Any
 
-from rag_chatbot import ChatMessage, ChatPrompt, ChatSession, ChatTurn, SemanticIndex
+from rag_chatbot import ChatPrompt, ChatSession, ChatTurn, SemanticIndex
 
 
-class ContextResponder:
-    """Einfache Heuristik, die die gefundenen Chunks zusammenfasst."""
+class ChatServiceResponder:
+    """Reicht Prompts an den konfigurierten Chat-Service weiter."""
+
+    NO_CONTEXT_MESSAGE = (
+        "Ich konnte keine passenden Informationen in der Dokumentation finden. "
+        "Bitte stelle deine Frage anders oder schränke das Thema ein."
+    )
+
+    def __init__(
+        self,
+        endpoint: str | None = None,
+        *,
+        timeout: float = 30.0,
+        api_key: str | None = None,
+    ) -> None:
+        self._endpoint = endpoint or os.environ.get("RAG_CHAT_SERVICE_URL")
+        if not self._endpoint:
+            raise RuntimeError(
+                "Keine Chat-Service-URL konfiguriert. Setze die Umgebungsvariable "
+                "RAG_CHAT_SERVICE_URL oder übergib einen Endpunkt an den "
+                "ChatServiceResponder."
+            )
+        self._timeout = timeout
+        self._api_key = api_key or os.environ.get("RAG_CHAT_SERVICE_TOKEN")
 
     def __call__(self, prompt: ChatPrompt) -> str:
-        question = _extract_user_message(prompt.messages)
         if not prompt.context:
-            return (
-                "Ich konnte keine passenden Informationen in der Dokumentation finden. "
-                "Bitte stelle deine Frage anders oder schränke das Thema ein."
-            )
+            return self.NO_CONTEXT_MESSAGE
 
-        lines = [
-            "Basierend auf der Wissensbasis habe ich folgende Hinweise gefunden:",
-        ]
-        for index, item in enumerate(prompt.context, start=1):
-            source = _format_source(item.metadata)
-            snippet = _summarise(item.text)
-            lines.append(f"{index}. {source}: {snippet}")
+        payload = {
+            "messages": [
+                {"role": message.role, "content": message.content}
+                for message in prompt.messages
+            ],
+            "context": [self._normalise_context_item(item) for item in prompt.context],
+        }
 
-        if question:
-            lines.append("")
-            lines.append(f"Frage: {question}")
-        return "\n".join(lines)
+        request = urllib.request.Request(
+            self._endpoint,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+        )
+        if self._api_key:
+            request.add_header("Authorization", f"Bearer {self._api_key}")
+
+        try:
+            with urllib.request.urlopen(request, timeout=self._timeout) as response:
+                body = response.read()
+        except urllib.error.URLError as exc:  # pragma: no cover - Netzwerkausfälle sind schwer zu testen
+            raise RuntimeError(f"Chat-Service nicht erreichbar: {exc}") from exc
+
+        try:
+            data = json.loads(body.decode("utf-8"))
+        except json.JSONDecodeError as exc:  # pragma: no cover - Netzwerkdaten schwer zu simulieren
+            raise RuntimeError("Ungültige Antwort vom Chat-Service erhalten.") from exc
+
+        answer = self._extract_answer(data)
+        if not answer:
+            raise RuntimeError("Der Chat-Service hat keine Antwort geliefert.")
+        return answer.strip()
+
+    @staticmethod
+    def _normalise_context_item(item: Any) -> dict[str, Any]:
+        return {
+            "id": getattr(item, "chunk_id", ""),
+            "text": getattr(item, "text", ""),
+            "score": getattr(item, "score", 0.0),
+            "metadata": getattr(item, "metadata", {}),
+        }
+
+    @staticmethod
+    def _extract_answer(payload: Any) -> str | None:
+        if isinstance(payload, dict):
+            answer = payload.get("answer")
+            if isinstance(answer, str) and answer.strip():
+                return answer
+            message = payload.get("message")
+            if isinstance(message, dict):
+                content = message.get("content")
+                if isinstance(content, str) and content.strip():
+                    return content
+            choices = payload.get("choices")
+            if isinstance(choices, list):
+                for choice in choices:
+                    if not isinstance(choice, dict):
+                        continue
+                    message = choice.get("message")
+                    if isinstance(message, dict):
+                        content = message.get("content")
+                        if isinstance(content, str) and content.strip():
+                            return content
+                    text = choice.get("text")
+                    if isinstance(text, str) and text.strip():
+                        return text
+        return None
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -54,6 +131,30 @@ def build_parser() -> argparse.ArgumentParser:
         default=6,
         help="Anzahl der vorangegangenen Benutzer/Assistenten-Paare, die behalten werden",
     )
+    parser.add_argument(
+        "--chat-url",
+        type=str,
+        default=None,
+        help=(
+            "HTTP-Endpunkt des Chat-Services. Standard: Wert der Umgebungsvariable "
+            "RAG_CHAT_SERVICE_URL."
+        ),
+    )
+    parser.add_argument(
+        "--chat-timeout",
+        type=float,
+        default=30.0,
+        help="Zeitlimit für Anfragen an den Chat-Service (in Sekunden)",
+    )
+    parser.add_argument(
+        "--chat-token",
+        type=str,
+        default=None,
+        help=(
+            "Optionales API-Token für den Chat-Service. Standard: Wert der "
+            "Umgebungsvariable RAG_CHAT_SERVICE_TOKEN."
+        ),
+    )
     return parser
 
 
@@ -62,9 +163,18 @@ def main() -> None:
     args = parser.parse_args()
 
     index = SemanticIndex(args.index)
+    try:
+        responder = ChatServiceResponder(
+            endpoint=args.chat_url,
+            timeout=args.chat_timeout,
+            api_key=args.chat_token,
+        )
+    except RuntimeError as exc:
+        print(f"Fehler: {exc}", file=sys.stderr)
+        return
     session = ChatSession(
         index,
-        responder=ContextResponder(),
+        responder=responder,
         history_limit=args.history_limit,
         top_k=args.top_k,
         min_score=args.min_score,
@@ -82,47 +192,17 @@ def main() -> None:
         if not user_input.strip():
             continue
 
-        turn = session.send(user_input)
+        try:
+            turn = session.send(user_input)
+        except RuntimeError as exc:
+            print(f"Fehler beim Abruf der Antwort: {exc}")
+            continue
+
         print(_format_turn(turn))
 
 
 def _format_turn(turn: ChatTurn) -> str:
-    context_lines = []
-    for index, item in enumerate(turn.prompt.context, start=1):
-        source = _format_source(item.metadata)
-        context_lines.append(f"[{index}] {source} (Score: {item.score:.2f})")
-    formatted = []
-    if context_lines:
-        formatted.append("Kontext")
-        formatted.extend(context_lines)
-    formatted.append("")
-    formatted.append(f"Bot: {turn.response}")
-    return "\n".join(formatted)
-
-
-def _extract_user_message(messages: Iterable[ChatMessage]) -> str:
-    for message in reversed(tuple(messages)):
-        role = getattr(message, "role", None)
-        if role == "user":
-            return getattr(message, "content", "")
-    return ""
-
-
-def _format_source(metadata: dict[str, object]) -> str:
-    title = metadata.get("title")
-    if title:
-        return str(title)
-    source = metadata.get("source")
-    if source:
-        return str(source)
-    return metadata.get("id", "Unbekannte Quelle")
-
-
-def _summarise(text: str, limit: int = 320) -> str:
-    condensed = " ".join(text.split())
-    if len(condensed) <= limit:
-        return condensed
-    return condensed[: limit - 1] + "…"
+    return f"Bot: {turn.response}"
 
 
 if __name__ == "__main__":
