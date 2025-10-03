@@ -19,8 +19,10 @@ use Slim\Views\Twig;
 use Throwable;
 
 use function array_filter;
+use function http_build_query;
 use function in_array;
 use function is_array;
+use function is_string;
 use function trim;
 
 class LandingNewsController
@@ -40,19 +42,10 @@ class LandingNewsController
 
     public function index(Request $request, Response $response): Response
     {
-        $view = Twig::fromRequest($request);
-        $entries = $this->news->getAll();
         $params = $request->getQueryParams();
         $status = isset($params['status']) ? (string) $params['status'] : '';
 
-        return $view->render($response, 'admin/landing_news/index.twig', [
-            'entries' => $entries,
-            'status' => $status,
-            'csrfToken' => $_SESSION['csrf_token'] ?? '',
-            'role' => $_SESSION['user']['role'] ?? '',
-            'currentPath' => $request->getUri()->getPath(),
-            'domainType' => $request->getAttribute('domainType'),
-        ]);
+        return $this->redirectToPages($request, $response, $status, 302);
     }
 
     public function create(Request $request, Response $response): Response
@@ -81,10 +74,7 @@ class LandingNewsController
             return $this->renderForm($request, $response, null, $data, $exception->getMessage());
         }
 
-        $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
-        $location = sprintf('%s/admin/landing-news?status=created', $basePath);
-
-        return $response->withHeader('Location', $location)->withStatus(303);
+        return $this->redirectToPages($request, $response, 'created');
     }
 
     public function edit(Request $request, Response $response, array $args): Response
@@ -124,10 +114,7 @@ class LandingNewsController
             return $this->renderForm($request, $response, $entry, $data, $exception->getMessage());
         }
 
-        $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
-        $location = sprintf('%s/admin/landing-news?status=updated', $basePath);
-
-        return $response->withHeader('Location', $location)->withStatus(303);
+        return $this->redirectToPages($request, $response, 'updated');
     }
 
     public function delete(Request $request, Response $response, array $args): Response
@@ -137,10 +124,7 @@ class LandingNewsController
             $this->news->delete($entry->getId());
         }
 
-        $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
-        $location = sprintf('%s/admin/landing-news?status=deleted', $basePath);
-
-        return $response->withHeader('Location', $location)->withStatus(303);
+        return $this->redirectToPages($request, $response, 'deleted');
     }
 
     private function renderForm(
@@ -167,6 +151,48 @@ class LandingNewsController
         }
 
         return $view->render($response, 'admin/landing_news/form.twig', $payload);
+    }
+
+    private function redirectToPages(
+        Request $request,
+        Response $response,
+        ?string $status = null,
+        int $httpStatus = 303
+    ): Response {
+        $location = $this->buildPagesLocation($request, $status);
+
+        return $response->withHeader('Location', $location)->withStatus($httpStatus);
+    }
+
+    private function buildPagesLocation(Request $request, ?string $status = null): string
+    {
+        $normalizedStatus = $this->normalizeStatus($status);
+        $basePath = BasePathHelper::normalize(RouteContext::fromRequest($request)->getBasePath());
+        $params = $request->getQueryParams();
+        $query = ['pageTab' => 'landing-news'];
+        $event = $params['event'] ?? null;
+        if (is_string($event) && $event !== '') {
+            $query['event'] = (string) $event;
+        }
+        if ($normalizedStatus !== '') {
+            $query['landingNewsStatus'] = $normalizedStatus;
+        }
+
+        $queryString = http_build_query($query);
+
+        return $basePath . '/admin/pages' . ($queryString !== '' ? '?' . $queryString : '');
+    }
+
+    private function normalizeStatus(?string $status): string
+    {
+        if ($status === null) {
+            return '';
+        }
+
+        $value = trim($status);
+        $allowed = ['created', 'updated', 'deleted'];
+
+        return in_array($value, $allowed, true) ? $value : '';
     }
 
     /**
