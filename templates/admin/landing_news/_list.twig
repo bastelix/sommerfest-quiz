@@ -1,0 +1,60 @@
+{% set newsEntries = entries|default([]) %}
+{% set newsStatus = status|default('') %}
+{% set token = csrfToken|default('') %}
+
+{% if newsStatus == 'created' %}
+  <div class="uk-alert-success" uk-alert>{{ t('message_news_created') }}</div>
+{% elseif newsStatus == 'updated' %}
+  <div class="uk-alert-success" uk-alert>{{ t('message_news_updated') }}</div>
+{% elseif newsStatus == 'deleted' %}
+  <div class="uk-alert-success" uk-alert>{{ t('message_news_deleted') }}</div>
+{% endif %}
+
+<div class="uk-overflow-auto uk-margin-top">
+  <table class="uk-table uk-table-divider uk-table-striped">
+    <thead>
+      <tr>
+        <th>{{ t('column_title') }}</th>
+        <th>{{ t('column_page') }}</th>
+        <th>{{ t('column_status') }}</th>
+        <th>{{ t('column_published') }}</th>
+        <th>{{ t('column_actions') }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in newsEntries %}
+        <tr>
+          <td>{{ entry.title }}</td>
+          <td>{{ entry.pageTitle }}</td>
+          <td>
+            {% if entry.isPublished %}
+              <span class="uk-label uk-label-success">{{ t('status_published') }}</span>
+            {% else %}
+              <span class="uk-label">{{ t('status_draft') }}</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if entry.publishedAt %}
+              {{ entry.publishedAt|date('d.m.Y H:i') }}
+            {% else %}
+              &mdash;
+            {% endif %}
+          </td>
+          <td>
+            <div class="uk-flex uk-flex-middle" style="gap: 12px;">
+              <a class="uk-button uk-button-text" href="{{ basePath }}/admin/landing-news/{{ entry.id }}">{{ t('action_edit') }}</a>
+              <form method="post" action="{{ basePath }}/admin/landing-news/{{ entry.id }}/delete" onsubmit="return confirm('{{ t('confirm_news_delete') }}');">
+                <input type="hidden" name="_token" value="{{ token }}">
+                <button type="submit" class="uk-button uk-button-text uk-text-danger">{{ t('action_delete') }}</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="5" class="uk-text-center">{{ t('message_news_empty') }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

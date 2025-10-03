@@ -922,12 +922,14 @@
       <li class="{{ activeRoute == 'pages' ? 'uk-active' }}">
         <div class="uk-container uk-container-large">
           <h2 class="uk-heading-bullet">{{ t('heading_pages') }}</h2>
+          {% set currentPageTab = pageTab|default('seo') %}
           <ul id="pageTabs" class="uk-tab" uk-tab="connect: #pageSwitcher">
-            <li class="uk-active"><a href="#">{{ t('tab_landingpage_seo') }}</a></li>
-            <li><a href="#">{{ t('tab_landingpage_content') }}</a></li>
+            <li class="{{ currentPageTab == 'seo' ? 'uk-active' }}"><a href="#">{{ t('tab_landingpage_seo') }}</a></li>
+            <li class="{{ currentPageTab == 'content' ? 'uk-active' }}"><a href="#">{{ t('tab_landingpage_content') }}</a></li>
+            <li class="{{ currentPageTab == 'landing-news' ? 'uk-active' }}"><a href="#">{{ t('tab_landing_news') }}</a></li>
           </ul>
           <ul id="pageSwitcher" class="uk-switcher uk-margin">
-            <li>
+            <li class="{{ currentPageTab == 'seo' ? 'uk-active' }}">
               {% if seo_pages|default([]) is empty %}
                 <div class="uk-alert uk-alert-warning">{{ t('text_no_marketing_pages') }}</div>
               {% else %}
@@ -1015,7 +1017,7 @@
               </form>
               {% endif %}
             </li>
-            <li>
+            <li class="{{ currentPageTab == 'content' ? 'uk-active' }}">
               {% if pages|default([]) is empty %}
                 <div class="uk-alert uk-alert-warning">{{ t('text_no_marketing_pages') }}</div>
               {% else %}
@@ -1104,6 +1106,17 @@
                   </div>
                 </div>
               {% endif %}
+            </li>
+            <li class="{{ currentPageTab == 'landing-news' ? 'uk-active' }}">
+              <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom uk-flex-wrap">
+                <h3 class="uk-heading-bullet uk-margin-remove">{{ t('heading_landing_news') }}</h3>
+                <a class="uk-button uk-button-primary uk-margin-small-top uk-margin-remove-top@s" href="{{ basePath }}/admin/landing-news/create">{{ t('button_add_news') }}</a>
+              </div>
+              {% include 'admin/landing_news/_list.twig' with {
+                entries: landingNewsEntries|default([]),
+                status: landingNewsStatus|default(''),
+                csrfToken: csrf_token
+              } %}
             </li>
           </ul>
         </div>
