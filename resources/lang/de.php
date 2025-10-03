@@ -382,6 +382,7 @@ return [
     'calserver_maintenance_status_value' => 'Geplante Wartung',
     'calserver_maintenance_status_window' => 'Wartungszeitraum',
     'calserver_maintenance_status_window_value' => '12.–14. Juni (ganztägig)',
+    'calserver_maintenance_status_window_suffix' => '(ganztägig)',
     'calserver_maintenance_status_hint' => 'Wir haben vollständige Backups erstellt und überwachen alle Systeme. Deine Inhalte bleiben sicher erhalten.',
     'calserver_maintenance_cta_primary' => 'Status-Updates abonnieren',
     'calserver_maintenance_cta_secondary' => 'Support kontaktieren',

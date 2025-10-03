@@ -384,6 +384,7 @@ return [
     'calserver_maintenance_status_value' => 'Scheduled maintenance',
     'calserver_maintenance_status_window' => 'Maintenance period',
     'calserver_maintenance_status_window_value' => '12–14 June (all day)',
+    'calserver_maintenance_status_window_suffix' => '(all day)',
     'calserver_maintenance_status_hint' => 'Full backups are completed and systems are monitored throughout the window. Your content remains safe.',
     'calserver_maintenance_cta_primary' => 'Subscribe to status updates',
     'calserver_maintenance_cta_secondary' => 'Contact support',
