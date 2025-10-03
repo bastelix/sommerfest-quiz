@@ -323,6 +323,33 @@ export function initSeoForm() {
 }`,
       hreflang: `<link rel="alternate" href="${ctx.baseUrl}/calserver" hreflang="de" />\n<link rel="alternate" href="${ctx.baseUrl}/calserver?lang=en" hreflang="en" />`,
       domain: ctx.domain
+    }),
+    'calserver-maintenance': ctx => ({
+      metaTitle: 'calServer – Wartungsarbeiten',
+      metaDescription:
+        'Wir führen geplante Wartungsarbeiten für calServer durch. Erfahre hier Status-Updates, Zeitplan und erreichbare Support-Kanäle.',
+      slug: '/calserver-maintenance',
+      canonical: `${ctx.baseUrl}/calserver-maintenance`,
+      robots: 'noindex, follow',
+      ogTitle: 'calServer – Wartung & Statusinformationen',
+      ogDescription:
+        'Geplante calServer-Wartung mit Live-Status, Zeitplan und Support-Kontakten. Melde dich für Updates an oder kontaktiere das Team.',
+      ogImage: `${ctx.baseUrl}/uploads/calserver-module-device-management.webp`,
+      schema: `{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "calServer Maintenance",
+  "url": "${ctx.baseUrl}/calserver-maintenance",
+  "description": "Aktueller Wartungsstatus, Zeitplan und Support-Kontakt für calServer.",
+  "inLanguage": "de",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "calServer",
+    "url": "${ctx.baseUrl}/"
+  }
+ }`,
+      hreflang: `<link rel="alternate" href="${ctx.baseUrl}/calserver-maintenance" hreflang="de" />\n<link rel="alternate" href="${ctx.baseUrl}/calserver-maintenance?lang=en" hreflang="en" />`,
+      domain: ctx.domain
     })
   };
 

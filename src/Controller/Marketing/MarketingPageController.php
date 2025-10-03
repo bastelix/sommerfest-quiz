@@ -288,6 +288,9 @@ class MarketingPageController
             'calserver' => [
                 'en' => 'calserver-en',
             ],
+            'calserver-maintenance' => [
+                'en' => 'calserver-maintenance-en',
+            ],
         ];
 
         if (isset($map[$baseSlug][$locale])) {
