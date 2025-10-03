@@ -3,9 +3,13 @@ from __future__ import annotations
 """Chat-spezifische Komponenten für den RAG-Chatbot."""
 
 from dataclasses import dataclass
-from typing import Protocol, Sequence
+from typing import TYPE_CHECKING, Protocol, Sequence
 
 from .retrieval import SearchResult, SemanticIndex
+
+if TYPE_CHECKING:
+    from .transcript import ChatTranscript
+
 
 
 ChatRole = str
@@ -62,6 +66,7 @@ class ChatSession:
         history_limit: int = 6,
         top_k: int = 4,
         min_score: float = 0.05,
+        transcript: "ChatTranscript" | None = None,
     ) -> None:
         if history_limit < 0:
             raise ValueError("history_limit darf nicht negativ sein.")
@@ -74,6 +79,7 @@ class ChatSession:
         self._history_limit = history_limit
         self._top_k = top_k
         self._min_score = min_score
+        self._transcript = transcript
         self._history: list[ChatMessage] = []
 
     @property
@@ -100,10 +106,15 @@ class ChatSession:
         prompt = ChatPrompt(messages=tuple(messages), context=tuple(context))
         response = self._responder(prompt).strip()
 
+        turn = ChatTurn(response=response, prompt=prompt)
+
         self._history.extend((ChatMessage("user", user_message), ChatMessage("assistant", response)))
         self._truncate_history()
 
-        return ChatTurn(response=response, prompt=prompt)
+        if self._transcript is not None:
+            self._transcript.record(user_message, turn)
+
+        return turn
 
     def _truncate_history(self) -> None:
         if self._history_limit == 0:

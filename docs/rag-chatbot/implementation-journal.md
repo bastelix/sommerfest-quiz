@@ -1,7 +1,7 @@
 # RAG Chatbot – Implementation Journal
 
 Dieses Journal begleitet den Aufbau eines Retrieval-Augmented-Generation-Chatbots für die QuizRace-Dokumentation.
-Die Arbeit ist in drei Phasen gegliedert. Dieser Commit deckt **Phase 1** und **Phase 2** ab.
+Die Arbeit ist in vier Phasen gegliedert. Dieses Journal beschreibt die Umsetzung von **Phase 1** bis **Phase 4**.
 
 ## Phase 1: Wissensbasis vorbereiten
 
@@ -63,3 +63,17 @@ Ziele der dritten Phase:
 3. Automatisierter Test `tests/test_rag_chat.py` sichert das neue Verhalten ab (Prompt-Aufbau, Kontextintegration,
    Historienbegrenzung und Fehlerfälle).
 
+## Phase 4: Auswertung und Gesprächsprotokolle
+
+Ziele der vierten Phase:
+
+- Chatverläufe strukturiert erfassen, um Antwortqualität und Quellenabdeckung zu bewerten.
+- Eine Auswertung bereitstellen, die Statistiken über Kontexte und genutzte Quellen liefert.
+- Einen reproduzierbaren Batch-Workflow schaffen, der mehrere Fragen gegen den Index laufen lässt und die Ergebnisse speichert.
+
+### Umsetzungsschritte
+
+1. Neues Modul `rag_chatbot/transcript.py` implementiert. Es enthält `ChatTranscript` zur Aufzeichnung von Chat-Runden, inklusive Hilfsklassen für Kontextdaten und Statistikberechnung.
+2. `ChatSession` akzeptiert optional ein `ChatTranscript` und protokolliert automatisch jede Anfrage mitsamt Prompt, Antwort und Kontexttreffern.
+3. CLI-Skript `scripts/rag_eval.py` ergänzt, um Fragenstapel aus einer Textdatei gegen den semantischen Index auszuführen und das erzeugte Transcript als JSON zu speichern.
+4. Neue Tests (`tests/test_rag_transcript.py`) prüfen die Aufzeichnung, Statistikberechnung und den JSON-Export der Gesprächsprotokolle.
