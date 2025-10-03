@@ -209,28 +209,43 @@
               <a class="uk-button uk-button-text" href="{{ landingNewsIndexUrl }}">{{ t('calserver_maintenance_updates_link') }}</a>
             {% endif %}
           </div>
-          <ul class="calserver-maintenance-updates__list">
-            {% for item in landingNews %}
-              {% if item.isPublished %}
-                {% set detailPath = landingNewsBasePath is defined and landingNewsBasePath ? basePath ~ landingNewsBasePath ~ '/' ~ item.slug : null %}
-                <li class="calserver-maintenance-updates__item">
-                  <div class="calserver-maintenance-updates__header">
-                    {% if item.publishedAt %}
-                      <span class="calserver-maintenance-updates__date">{{ item.publishedAt|date('d.m.Y') }}</span>
-                    {% endif %}
-                    {% if detailPath %}
-                      <a class="calserver-maintenance-updates__link" href="{{ detailPath }}">{{ item.title }}</a>
-                    {% else %}
-                      <span class="calserver-maintenance-updates__title">{{ item.title }}</span>
-                    {% endif %}
-                  </div>
-                  {% if item.excerpt %}
-                    <div class="calserver-maintenance-updates__excerpt">{{ item.excerpt|raw }}</div>
+          <div class="calserver-maintenance-updates__table-wrapper">
+            <table class="calserver-maintenance-updates__table">
+              <thead>
+                <tr>
+                  <th scope="col">{{ t('calserver_maintenance_updates_column_date') }}</th>
+                  <th scope="col">{{ t('calserver_maintenance_updates_column_title') }}</th>
+                  <th scope="col">{{ t('calserver_maintenance_updates_column_excerpt') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in landingNews %}
+                  {% if item.isPublished %}
+                    {% set detailPath = landingNewsBasePath is defined and landingNewsBasePath ? basePath ~ landingNewsBasePath ~ '/' ~ item.slug : null %}
+                    <tr>
+                      <td class="calserver-maintenance-updates__date-cell">
+                        {% if item.publishedAt %}
+                          <span class="calserver-maintenance-updates__date">{{ item.publishedAt|date('d.m.Y') }}</span>
+                        {% endif %}
+                      </td>
+                      <td class="calserver-maintenance-updates__title-cell">
+                        {% if detailPath %}
+                          <a class="calserver-maintenance-updates__link" href="{{ detailPath }}">{{ item.title }}</a>
+                        {% else %}
+                          <span class="calserver-maintenance-updates__title">{{ item.title }}</span>
+                        {% endif %}
+                      </td>
+                      <td class="calserver-maintenance-updates__excerpt-cell">
+                        {% if item.excerpt %}
+                          <div class="calserver-maintenance-updates__excerpt">{{ item.excerpt|raw }}</div>
+                        {% endif %}
+                      </td>
+                    </tr>
                   {% endif %}
-                </li>
-              {% endif %}
-            {% endfor %}
-          </ul>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
     {% endif %}
