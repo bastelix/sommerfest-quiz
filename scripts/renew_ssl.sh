@@ -30,7 +30,19 @@ else
   TENANTS_DIR="${TENANTS_DIR:-$SCRIPT_DIR/../tenants}"
   TENANT_DIR="$TENANTS_DIR/$SLUG"
   COMPOSE_FILE="$TENANT_DIR/docker-compose.yml"
-  SERVICE="slim"
+  SERVICE="${TENANT_SERVICE:-app}"
+
+  if [ -f "$COMPOSE_FILE" ] && [ -n "$DOCKER_COMPOSE" ]; then
+    if DETECTED_SERVICES=$($DOCKER_COMPOSE -f "$COMPOSE_FILE" config --services 2>/dev/null); then
+      if echo "$DETECTED_SERVICES" | grep -qx "app"; then
+        SERVICE="app"
+      elif echo "$DETECTED_SERVICES" | grep -qx "slim"; then
+        SERVICE="slim"
+      else
+        SERVICE="$(echo "$DETECTED_SERVICES" | head -n1)"
+      fi
+    fi
+  fi
 
   # start tenant application container if compose file exists
   if [ -f "$COMPOSE_FILE" ] && [ -n "$DOCKER_COMPOSE" ]; then
