@@ -17,6 +17,14 @@ body.qr-landing.calserver-maintenance-theme {
   background: transparent;
 }
 
+@media (max-width: 959px) {
+  .calserver-maintenance-theme .qr-topbar {
+    height: auto;
+    min-height: 72px;
+    padding-block: 16px;
+  }
+}
+
 .calserver-maintenance-theme .uk-navbar-nav > li > a {
   color: #cbd5f5;
   font-weight: 500;
