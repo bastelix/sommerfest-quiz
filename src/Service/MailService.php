@@ -7,6 +7,7 @@ namespace App\Service;
 use App\Infrastructure\Database;
 use App\Service\AuditLogger;
 use App\Service\TenantService;
+use App\Support\EnvLoader;
 use RuntimeException;
 use Throwable;
 use Symfony\Component\Mailer\Mailer;
@@ -30,11 +31,7 @@ class MailService
     private static function loadEnvConfig(): array {
         $root = dirname(__DIR__, 2);
         $envFile = $root . '/.env';
-        $env = [];
-
-        if (is_readable($envFile)) {
-            $env = parse_ini_file($envFile, false, INI_SCANNER_RAW) ?: [];
-        }
+        $env = EnvLoader::load($envFile);
 
         return [
             'mailer_dsn' => (string) ($env['MAILER_DSN'] ?? getenv('MAILER_DSN') ?: ''),
