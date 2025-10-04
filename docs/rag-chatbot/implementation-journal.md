@@ -106,3 +106,18 @@ Ziele der sechsten Phase:
 1. Neues Modul `rag_chatbot/pipeline.py` entwickelt. Es bündelt Konfiguration (`PipelineOptions`), Ergebnisobjekte (`PipelineResult`) und die Funktion `run_pipeline()`, die auf Basis von Zeitstempeln entscheidet, ob Wissensbasis oder Index neu erzeugt werden müssen.
 2. Skript `scripts/rag_pipeline.py` hinzugefügt. Es kombiniert Corpus- und Indexaufbau in einer Kommandozeilenoberfläche, erlaubt optionale Parameter (Chunk-Größe, Vokabularbegrenzung, `--force`) und informiert, ob Schritte übersprungen wurden.
 3. Ergänzende Tests (`tests/test_rag_pipeline.py`) prüfen Neuaufbau, Überspringen unveränderter Artefakte, das Erzwingen von Rebuilds sowie Fehlerbehandlung bei fehlenden Quellen.
+
+## Betriebskonfiguration für OpenAI-kompatible Endpunkte
+
+Der Chat-Service kann sowohl direkt gegen die OpenAI-API als auch über eigene Proxy-Domains betrieben werden. Damit das Backend
+die passenden Responder und Payloads auswählt, stehen folgende Optionen zur Verfügung:
+
+- `RAG_CHAT_SERVICE_URL` zeigt auf den HTTP-Endpunkt. Für OpenAI-kompatible Gateways sollte der Pfad auf `/v1/chat/completions`
+  enden (z. B. `https://mein-proxy.example/v1/chat/completions`).
+- `RAG_CHAT_SERVICE_DRIVER=openai` erzwingt den OpenAI-spezifischen Responder – unabhängig vom Hostnamen. Das ist erforderlich,
+  wenn die API über eine eigene Domain läuft oder wenn neue Modelle wie `gpt-5-nano-2025-08-07` eingesetzt werden.
+- Alternativ kann in Legacy-Setups weiterhin `RAG_CHAT_SERVICE_FORCE_OPENAI=true` gesetzt werden. Die neue Driver-Variable hat
+  jedoch Vorrang und ist die empfohlene Variante.
+
+Weitere Parameter wie `RAG_CHAT_SERVICE_MODEL`, `RAG_CHAT_SERVICE_TOKEN` oder Temperatur-Settings werden unverändert verwendet.
+Beispiele für die vollständige Konfiguration finden sich in `sample.env`.
