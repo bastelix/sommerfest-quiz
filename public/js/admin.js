@@ -1438,6 +1438,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const uploadInput = domainChatContainer.querySelector('[data-domain-chat-upload]');
     const submitButton = domainChatContainer.querySelector('[data-domain-chat-submit]');
     const rebuildButton = domainChatContainer.querySelector('[data-domain-chat-rebuild]');
+    const downloadButton = domainChatContainer.querySelector('[data-domain-chat-download]');
     const tableBody = domainChatContainer.querySelector('[data-domain-chat-body]');
     const statusBox = domainChatContainer.querySelector('[data-domain-chat-status]');
     const maxUploadSize = Number(window.domainChatMaxSize || 0);
@@ -1490,6 +1491,22 @@ document.addEventListener('DOMContentLoaded', function () {
         statusBox.appendChild(pre);
       }
       statusBox.hidden = false;
+    };
+
+    const parseFileName = header => {
+      if (!header) {
+        return '';
+      }
+      const starMatch = header.match(/filename\*=UTF-8''([^;]+)/i);
+      if (starMatch && starMatch[1]) {
+        try {
+          return decodeURIComponent(starMatch[1]);
+        } catch (error) {
+          return starMatch[1];
+        }
+      }
+      const match = header.match(/filename="?([^";]+)"?/i);
+      return match && match[1] ? match[1] : '';
     };
 
     const renderDocuments = documents => {
@@ -1626,6 +1643,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (rebuildButton) {
           rebuildButton.disabled = true;
         }
+        if (downloadButton) {
+          downloadButton.disabled = true;
+        }
 
         apiFetch('/admin/domain-chat/documents', {
           method: 'POST',
@@ -1651,6 +1671,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (rebuildButton) {
               rebuildButton.disabled = false;
             }
+            if (downloadButton) {
+              downloadButton.disabled = false;
+            }
           });
       });
     }
@@ -1663,6 +1686,9 @@ document.addEventListener('DOMContentLoaded', function () {
           return;
         }
         rebuildButton.disabled = true;
+        if (downloadButton) {
+          downloadButton.disabled = true;
+        }
         apiFetch('/admin/domain-chat/rebuild', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1682,9 +1708,74 @@ document.addEventListener('DOMContentLoaded', function () {
           .catch(err => {
             showStatus(err.message || domainChatTranslations.rebuildError || 'Rebuild failed', 'danger');
             notify(err.message || domainChatTranslations.rebuildError || 'Rebuild failed', 'danger');
-          })
+        })
           .finally(() => {
             rebuildButton.disabled = false;
+            if (downloadButton) {
+              downloadButton.disabled = false;
+            }
+          });
+      });
+    }
+
+    if (downloadButton) {
+      downloadButton.addEventListener('click', () => {
+        const selectedDomain = domainSelect?.value?.trim() || currentDomain;
+        if (!selectedDomain) {
+          notify(domainChatTranslations.error || 'Keine Domain ausgewählt', 'danger');
+          return;
+        }
+
+        downloadButton.disabled = true;
+
+        apiFetch(`/admin/domain-chat/index?domain=${encodeURIComponent(selectedDomain)}`)
+          .then(res => {
+            if (!res.ok) {
+              return res.json().catch(() => ({})).then(data => {
+                const serverMessage = typeof data.error === 'string' ? data.error : '';
+                const fallbackMissing = domainChatTranslations.downloadMissing || '';
+                const fallbackGeneric = domainChatTranslations.downloadError
+                  || domainChatTranslations.error
+                  || 'Download failed';
+                const message = serverMessage === 'index-not-found'
+                  ? (fallbackMissing || fallbackGeneric)
+                  : (serverMessage || fallbackGeneric);
+                throw new Error(message);
+              });
+            }
+
+            return res.blob().then(blob => ({
+              blob,
+              disposition: res.headers.get('Content-Disposition') || '',
+            }));
+          })
+          .then(({ blob, disposition }) => {
+            if (!(blob instanceof Blob)) {
+              throw new Error(domainChatTranslations.downloadError
+                || domainChatTranslations.error
+                || 'Download failed');
+            }
+
+            const objectUrl = URL.createObjectURL(blob);
+            const suggestedName = parseFileName(disposition) || (() => {
+              const safeDomain = selectedDomain.replace(/[^a-z0-9._-]+/gi, '-');
+              return `domain-index-${safeDomain}.json`;
+            })();
+
+            const link = document.createElement('a');
+            link.href = objectUrl;
+            link.download = suggestedName;
+            link.rel = 'noopener';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(objectUrl);
+          })
+          .catch(err => {
+            notify(err.message || domainChatTranslations.downloadError || domainChatTranslations.error || 'Download failed', 'danger');
+          })
+          .finally(() => {
+            downloadButton.disabled = false;
           });
       });
     }

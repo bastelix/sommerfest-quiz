@@ -1205,6 +1205,11 @@
                     {{ t('button_domain_chat_rebuild') }}
                   </button>
                 </div>
+                <div class="uk-width-1-1 uk-width-auto@m uk-flex uk-flex-bottom">
+                  <button type="button" class="uk-button uk-button-default uk-width-1-1" data-domain-chat-download>
+                    {{ t('button_domain_chat_download') }}
+                  </button>
+                </div>
               </form>
               <div class="uk-margin-small" data-domain-chat-status aria-live="polite"></div>
               <div class="uk-overflow-auto uk-margin">
@@ -1943,6 +1948,8 @@
       'rebuild': t('notify_domain_chat_rebuild_success'),
       'rebuildCleared': t('notify_domain_chat_rebuild_cleared'),
       'rebuildError': t('notify_domain_chat_rebuild_error'),
+      'downloadError': t('notify_domain_chat_download_error'),
+      'downloadMissing': t('notify_domain_chat_download_missing'),
       'confirmDelete': t('confirm_domain_chat_delete')
     }|json_encode|raw }};
     window.domainChatMaxSize = {{ constant('App\\Service\\RagChat\\DomainDocumentStorage::MAX_FILE_SIZE') }};
