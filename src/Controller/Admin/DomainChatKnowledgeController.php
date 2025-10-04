@@ -89,6 +89,34 @@ final class DomainChatKnowledgeController
         return $this->json($response, ['success' => true]);
     }
 
+    public function download(Request $request, Response $response): Response
+    {
+        try {
+            $domain = $this->extractDomain($request);
+        } catch (InvalidArgumentException $exception) {
+            return $this->json($response, ['error' => $exception->getMessage()], 400);
+        }
+
+        $indexPath = $this->storage->getIndexPath($domain);
+        if (!is_file($indexPath)) {
+            return $this->json($response, ['error' => 'index-not-found'], 404);
+        }
+
+        $contents = file_get_contents($indexPath);
+        if ($contents === false) {
+            return $this->json($response, ['error' => 'Failed to read index file.'], 500);
+        }
+
+        $safeDomain = preg_replace('/[^a-z0-9._-]+/i', '-', $domain) ?? $domain;
+        $filename = sprintf('domain-index-%s.json', $safeDomain);
+
+        $response->getBody()->write($contents);
+
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Content-Disposition', sprintf('attachment; filename="%s"', $filename));
+    }
+
     public function rebuild(Request $request, Response $response): Response
     {
         try {

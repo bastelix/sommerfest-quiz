@@ -1247,6 +1247,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->list($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
+    $app->get('/admin/domain-chat/index', function (Request $request, Response $response) {
+        /** @var DomainChatKnowledgeController $controller */
+        $controller = $request->getAttribute('domainChatController');
+        return $controller->download($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
     $app->post('/admin/domain-chat/documents', function (Request $request, Response $response) {
         /** @var DomainChatKnowledgeController $controller */
         $controller = $request->getAttribute('domainChatController');
