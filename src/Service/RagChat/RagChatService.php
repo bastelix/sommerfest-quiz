@@ -280,6 +280,7 @@ final class RagChatService
         try {
             $endpoint = $this->detectEndpoint();
             if ($endpoint !== null && $this->isOpenAiEndpoint($endpoint)) {
+                $endpoint = $this->normaliseOpenAiEndpoint($endpoint);
                 $token = $this->getChatSettingValue('rag_chat_service_token');
                 $model = $this->getChatSettingValue('rag_chat_service_model');
                 $options = $this->buildOpenAiOptions();
@@ -344,6 +345,74 @@ final class RagChatService
         }
 
         return false;
+    }
+
+    private function normaliseOpenAiEndpoint(string $endpoint): string
+    {
+        $trimmed = trim($endpoint);
+        if ($trimmed === '') {
+            return $endpoint;
+        }
+
+        $parts = parse_url($trimmed);
+        if ($parts === false) {
+            return $endpoint;
+        }
+
+        $scheme = $parts['scheme'] ?? null;
+        $host = $parts['host'] ?? null;
+        if (!is_string($scheme) || $scheme === '' || !is_string($host) || $host === '') {
+            return $endpoint;
+        }
+
+        $path = isset($parts['path']) && is_string($parts['path']) ? $parts['path'] : '';
+        $normalizedPath = $this->normaliseOpenAiPath($path);
+
+        $userInfo = '';
+        if (isset($parts['user']) && is_string($parts['user']) && $parts['user'] !== '') {
+            $userInfo = $parts['user'];
+            if (isset($parts['pass']) && is_string($parts['pass'])) {
+                $userInfo .= ':' . $parts['pass'];
+            }
+            $userInfo .= '@';
+        }
+
+        $port = isset($parts['port']) ? ':' . $parts['port'] : '';
+
+        $rebuilt = $scheme . '://' . $userInfo . $host . $port . $normalizedPath;
+
+        if (isset($parts['query']) && is_string($parts['query']) && $parts['query'] !== '') {
+            $rebuilt .= '?' . $parts['query'];
+        }
+
+        if (isset($parts['fragment']) && is_string($parts['fragment']) && $parts['fragment'] !== '') {
+            $rebuilt .= '#' . $parts['fragment'];
+        }
+
+        return $rebuilt;
+    }
+
+    private function normaliseOpenAiPath(string $path): string
+    {
+        $normalized = rtrim($path, '/');
+
+        if ($normalized === '') {
+            return '/v1/chat/completions';
+        }
+
+        if ($normalized === '/v1') {
+            return '/v1/chat/completions';
+        }
+
+        if ($normalized === '/v1/models') {
+            return '/v1/chat/completions';
+        }
+
+        if (str_ends_with($normalized, '/v1/chat/completions')) {
+            return $normalized;
+        }
+
+        return $path === '' ? '/v1/chat/completions' : $path;
     }
 
     private function getChatSettingValue(string $key): ?string
