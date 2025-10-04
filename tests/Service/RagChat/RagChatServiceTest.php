@@ -189,6 +189,28 @@ final class RagChatServiceTest extends TestCase
         }
     }
 
+    public function testAnswerFallsBackToSubdomainAliasWhenHostIncludesParentDomain(): void
+    {
+        $path = $this->createIndexFile();
+        $responder = new class('Natürlich!') implements ChatResponderInterface {
+            public function respond(array $messages, array $context): string
+            {
+                return 'Natürlich!';
+            }
+        };
+
+        $service = new RagChatService($path, $this->domainBase, $responder);
+
+        $this->createDomainIndex('calserver');
+
+        $response = $service->answer('calserver inventar', 'de', 'calserver.quizrace.de');
+
+        $context = $response->getContext();
+        self::assertNotSame([], $context);
+        self::assertSame('Domain Knowledge (Abschnitt 1)', $context[0]->getLabel());
+        self::assertSame('calserver', $context[0]->getMetadata()['domain']);
+    }
+
     private function createIndexFile(): string
     {
         $payload = [
