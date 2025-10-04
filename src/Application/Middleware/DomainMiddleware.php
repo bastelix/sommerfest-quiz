@@ -6,6 +6,7 @@ namespace App\Application\Middleware;
 
 use App\Infrastructure\Database;
 use App\Service\DomainStartPageService;
+use App\Support\DomainNameHelper;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\MiddlewareInterface;
@@ -135,10 +136,6 @@ class DomainMiddleware implements MiddlewareInterface
     }
 
     private function normalizeHost(string $host, bool $stripAdmin = true): string {
-        $host = strtolower($host);
-
-        $pattern = $stripAdmin ? '/^(www|admin)\./' : '/^www\./';
-
-        return (string) preg_replace($pattern, '', $host);
+        return DomainNameHelper::normalize($host, $stripAdmin);
     }
 }
