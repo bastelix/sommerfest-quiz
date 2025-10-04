@@ -37,6 +37,8 @@ use Slim\Views\Twig;
  */
 class AdminController
 {
+    private const CHAT_SECRET_PLACEHOLDER = '__SECRET_PRESENT__';
+
     /**
      * Render the admin dashboard page.
      */
@@ -54,6 +56,14 @@ class AdminController
         $events = $eventSvc->getAll();
         $settingsSvc = new SettingsService($pdo);
         $settings = $settingsSvc->getAll();
+        $settingsForView = $settings;
+        $token = isset($settingsForView['rag_chat_service_token'])
+            ? trim((string) $settingsForView['rag_chat_service_token'])
+            : '';
+        $settingsForView['rag_chat_service_token_present'] = $token !== '' ? '1' : '0';
+        if ($token !== '') {
+            $settingsForView['rag_chat_service_token'] = self::CHAT_SECRET_PLACEHOLDER;
+        }
         $versionSvc = new VersionService();
         $version = $versionSvc->getCurrentVersion();
 
@@ -258,7 +268,7 @@ class AdminController
 
           return $view->render($response, 'admin.twig', [
               'config' => $cfg,
-              'settings' => $settings,
+              'settings' => $settingsForView,
               'results' => $results,
               'catalogs' => $catalogs,
               'teams' => $teams,
@@ -292,6 +302,7 @@ class AdminController
               'mediaLimits' => $mediaLimits,
               'mediaLandingSlugs' => $landingReferenceService->getLandingSlugs(),
               'mediaEventUid' => $uid,
+              'ragChatSecretPlaceholder' => self::CHAT_SECRET_PLACEHOLDER,
           ]);
     }
 

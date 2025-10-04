@@ -96,6 +96,12 @@ document.addEventListener('DOMContentLoaded', function () {
   const adminRoutes = Array.from(adminTabs ? adminTabs.querySelectorAll('li') : [])
     .map(tab => tab.getAttribute('data-route') || '');
   const settingsInitial = window.quizSettings || {};
+  const ragChatSecretPlaceholder = window.ragChatSecretPlaceholder || '__SECRET_PRESENT__';
+  const ragChatTokenPlaceholder = window.ragChatTokenPlaceholder || '••••••••';
+  const transRagChatSaved = window.transRagChatSaved || 'Einstellung gespeichert';
+  const transRagChatSaveError = window.transRagChatSaveError || 'Fehler beim Speichern';
+  const transRagChatTokenSaved = window.transRagChatTokenSaved || '';
+  const transRagChatTokenMissing = window.transRagChatTokenMissing || '';
   const pagesInitial = window.pagesContent || {};
   const profileForm = document.getElementById('profileForm');
   const profileSaveBtn = document.getElementById('profileSaveBtn');
@@ -790,6 +796,103 @@ document.addEventListener('DOMContentLoaded', function () {
     puzzleWrap: document.getElementById('cfgPuzzleWordWrap'),
     registrationEnabled: document.getElementById('cfgRegistrationEnabled')
   };
+  const ragChatFields = {
+    form: document.getElementById('ragChatForm'),
+    url: document.getElementById('ragChatUrl'),
+    driver: document.getElementById('ragChatDriver'),
+    forceOpenAi: document.getElementById('ragChatForceOpenAi'),
+    token: document.getElementById('ragChatToken'),
+    tokenClear: document.getElementById('ragChatTokenClear'),
+    tokenStatus: document.getElementById('ragChatTokenStatus'),
+    model: document.getElementById('ragChatModel'),
+    temperature: document.getElementById('ragChatTemperature'),
+    topP: document.getElementById('ragChatTopP'),
+    maxTokens: document.getElementById('ragChatMaxTokens'),
+    presencePenalty: document.getElementById('ragChatPresencePenalty'),
+    frequencyPenalty: document.getElementById('ragChatFrequencyPenalty')
+  };
+
+  function ragChatIsTruthy(value) {
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      return ['1', 'true', 'yes', 'on'].includes(normalized);
+    }
+    return value === true;
+  }
+
+  function updateRagChatTokenStatus() {
+    if (!ragChatFields.tokenStatus) return;
+    const hasToken = ragChatIsTruthy(settingsInitial.rag_chat_service_token_present);
+    ragChatFields.tokenStatus.textContent = hasToken
+      ? (transRagChatTokenSaved || '')
+      : (transRagChatTokenMissing || '');
+  }
+
+  function renderRagChatSettings() {
+    if (!ragChatFields.form) return;
+
+    if (ragChatFields.url) {
+      ragChatFields.url.value = settingsInitial.rag_chat_service_url || '';
+    }
+    if (ragChatFields.driver) {
+      ragChatFields.driver.value = settingsInitial.rag_chat_service_driver || '';
+    }
+    if (ragChatFields.forceOpenAi) {
+      ragChatFields.forceOpenAi.checked = ragChatIsTruthy(settingsInitial.rag_chat_service_force_openai);
+    }
+    if (ragChatFields.model) {
+      ragChatFields.model.value = settingsInitial.rag_chat_service_model || '';
+    }
+    if (ragChatFields.temperature) {
+      ragChatFields.temperature.value = settingsInitial.rag_chat_service_temperature || '';
+    }
+    if (ragChatFields.topP) {
+      ragChatFields.topP.value = settingsInitial.rag_chat_service_top_p || '';
+    }
+    if (ragChatFields.maxTokens) {
+      ragChatFields.maxTokens.value = settingsInitial.rag_chat_service_max_tokens || '';
+    }
+    if (ragChatFields.presencePenalty) {
+      ragChatFields.presencePenalty.value = settingsInitial.rag_chat_service_presence_penalty || '';
+    }
+    if (ragChatFields.frequencyPenalty) {
+      ragChatFields.frequencyPenalty.value = settingsInitial.rag_chat_service_frequency_penalty || '';
+    }
+
+    if (ragChatFields.token) {
+      ragChatFields.token.value = '';
+      const hasToken = ragChatIsTruthy(settingsInitial.rag_chat_service_token_present);
+      ragChatFields.token.placeholder = hasToken ? ragChatTokenPlaceholder : '';
+    }
+    if (ragChatFields.tokenClear) {
+      ragChatFields.tokenClear.checked = false;
+    }
+
+    updateRagChatTokenStatus();
+  }
+
+  function collectRagChatPayload() {
+    const payload = {
+      rag_chat_service_url: ragChatFields.url?.value?.trim() || '',
+      rag_chat_service_driver: ragChatFields.driver?.value?.trim() || '',
+      rag_chat_service_force_openai: ragChatFields.forceOpenAi?.checked ? '1' : '0',
+      rag_chat_service_model: ragChatFields.model?.value?.trim() || '',
+      rag_chat_service_temperature: ragChatFields.temperature?.value?.trim() || '',
+      rag_chat_service_top_p: ragChatFields.topP?.value?.trim() || '',
+      rag_chat_service_max_tokens: ragChatFields.maxTokens?.value?.trim() || '',
+      rag_chat_service_presence_penalty: ragChatFields.presencePenalty?.value?.trim() || '',
+      rag_chat_service_frequency_penalty: ragChatFields.frequencyPenalty?.value?.trim() || ''
+    };
+
+    const tokenValue = ragChatFields.token?.value?.trim() || '';
+    if (ragChatFields.tokenClear?.checked) {
+      payload.rag_chat_service_token = '';
+    } else if (tokenValue !== '') {
+      payload.rag_chat_service_token = tokenValue;
+    }
+
+    return payload;
+  }
   const puzzleFeedbackBtn = document.getElementById('puzzleFeedbackBtn');
   const puzzleIcon = document.getElementById('puzzleFeedbackIcon');
   const puzzleLabel = document.getElementById('puzzleFeedbackLabel');
@@ -976,6 +1079,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
   renderCfg(cfgInitial);
+  renderRagChatSettings();
 
   if (domainStartPageTable) {
     const tbody = domainStartPageTable.querySelector('tbody');
@@ -4567,3 +4671,50 @@ document.addEventListener('DOMContentLoaded', function () {
     syncTenants();
   }
 });
+  ragChatFields.token?.addEventListener('input', () => {
+    if (!ragChatFields.tokenClear) return;
+    if (ragChatFields.token.value.trim() !== '') {
+      ragChatFields.tokenClear.checked = false;
+    }
+  });
+
+  ragChatFields.tokenClear?.addEventListener('change', () => {
+    if (ragChatFields.tokenClear.checked && ragChatFields.token) {
+      ragChatFields.token.value = '';
+    }
+  });
+
+  ragChatFields.form?.addEventListener('submit', event => {
+    event.preventDefault();
+    const payload = collectRagChatPayload();
+
+    apiFetch('/settings.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('save-failed');
+        }
+      })
+      .then(() => {
+        Object.assign(settingsInitial, payload);
+        if (Object.prototype.hasOwnProperty.call(payload, 'rag_chat_service_token')) {
+          if (payload.rag_chat_service_token === '') {
+            settingsInitial.rag_chat_service_token_present = '0';
+            settingsInitial.rag_chat_service_token = '';
+          } else {
+            settingsInitial.rag_chat_service_token_present = '1';
+            settingsInitial.rag_chat_service_token = ragChatSecretPlaceholder;
+          }
+        }
+
+        renderRagChatSettings();
+        notify(transRagChatSaved, 'success');
+      })
+      .catch(err => {
+        console.error(err);
+        notify(transRagChatSaveError, 'danger');
+      });
+  });

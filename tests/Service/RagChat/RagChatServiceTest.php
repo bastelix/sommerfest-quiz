@@ -157,7 +157,7 @@ final class RagChatServiceTest extends TestCase
 
     public function testAnswerRejectsEmptyQuestion(): void
     {
-        $service = new RagChatService($this->createIndexFile(), $this->domainBase);
+        $service = new RagChatService($this->createIndexFile(), $this->domainBase, null, static fn (): array => []);
 
         $this->expectExceptionMessage('Question must not be empty.');
         $service->answer('   ');
