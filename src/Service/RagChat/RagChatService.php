@@ -129,11 +129,13 @@ final class RagChatService
             }
         }
 
-        foreach ($globalIndex->search($question, 4, 0.05) as $result) {
-            if (isset($seenChunks[$result->getChunkId()])) {
-                continue;
+        if ($contextResults === []) {
+            foreach ($globalIndex->search($question, 4, 0.05) as $result) {
+                if (isset($seenChunks[$result->getChunkId()])) {
+                    continue;
+                }
+                $contextResults[] = ['result' => $result, 'domain' => null];
             }
-            $contextResults[] = ['result' => $result, 'domain' => null];
         }
 
         $contextResults = array_slice($contextResults, 0, 6);
