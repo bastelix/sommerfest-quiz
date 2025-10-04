@@ -20,7 +20,7 @@ use function trim;
 /**
  * Sends chat prompts to the configured HTTP endpoint.
  */
-final class HttpChatResponder implements ChatResponderInterface
+class HttpChatResponder implements ChatResponderInterface
 {
     private const DEFAULT_TIMEOUT = 30.0;
 
@@ -57,16 +57,13 @@ final class HttpChatResponder implements ChatResponderInterface
      */
     public function respond(array $messages, array $context): string
     {
-        if ($context === []) {
+        if ($this->requiresContext() && $context === []) {
             throw new RuntimeException('Chat responder requires context to build an answer.');
         }
 
         try {
             $response = $this->httpClient->request('POST', $this->endpoint, [
-                'json' => [
-                    'messages' => $messages,
-                    'context' => $this->normaliseContext($context),
-                ],
+                'json' => $this->buildRequestPayload($messages, $context),
                 'headers' => $this->buildHeaders(),
                 'timeout' => $this->timeout,
             ]);
@@ -113,7 +110,7 @@ final class HttpChatResponder implements ChatResponderInterface
      * @param list<array<string,mixed>> $context
      * @return list<array{id:string,text:string,score:float,metadata:array<string,mixed>}>
      */
-    private function normaliseContext(array $context): array
+    protected function normaliseContext(array $context): array
     {
         $normalised = [];
         foreach ($context as $item) {
@@ -184,7 +181,7 @@ final class HttpChatResponder implements ChatResponderInterface
         return null;
     }
 
-    private function envOrNull(string $key): ?string
+    protected function envOrNull(string $key): ?string
     {
         $value = getenv($key);
         if ($value === false) {
@@ -193,5 +190,23 @@ final class HttpChatResponder implements ChatResponderInterface
 
         $value = trim((string) $value);
         return $value === '' ? null : $value;
+    }
+
+    /**
+     * @param list<array{role:string,content:string}> $messages
+     * @param list<array<string,mixed>> $context
+     * @return array<string,mixed>
+     */
+    protected function buildRequestPayload(array $messages, array $context): array
+    {
+        return [
+            'messages' => $messages,
+            'context' => $this->normaliseContext($context),
+        ];
+    }
+
+    protected function requiresContext(): bool
+    {
+        return true;
     }
 }

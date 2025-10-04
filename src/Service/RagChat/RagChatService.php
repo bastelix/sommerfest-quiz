@@ -7,6 +7,11 @@ namespace App\Service\RagChat;
 use App\Support\DomainNameHelper;
 use RuntimeException;
 
+use function getenv;
+use function is_string;
+use function parse_url;
+use function trim;
+
 /**
  * High-level facade that prepares responses for the marketing chat endpoint.
  */
@@ -213,7 +218,12 @@ final class RagChatService
     private function createDefaultResponder(): ?ChatResponderInterface
     {
         try {
-            $this->chatResponder = new HttpChatResponder();
+            $endpoint = $this->detectEndpoint();
+            if ($endpoint !== null && $this->isOpenAiEndpoint($endpoint)) {
+                $this->chatResponder = new OpenAiChatResponder($endpoint);
+            } else {
+                $this->chatResponder = new HttpChatResponder($endpoint);
+            }
         } catch (RuntimeException $exception) {
             error_log('Chat responder unavailable: ' . $exception->getMessage());
             $this->chatResponder = null;
@@ -222,6 +232,28 @@ final class RagChatService
         }
 
         return $this->chatResponder;
+    }
+
+    private function detectEndpoint(): ?string
+    {
+        $value = getenv('RAG_CHAT_SERVICE_URL');
+        if ($value === false) {
+            return null;
+        }
+
+        $value = trim((string) $value);
+
+        return $value === '' ? null : $value;
+    }
+
+    private function isOpenAiEndpoint(string $endpoint): bool
+    {
+        $host = parse_url($endpoint, PHP_URL_HOST);
+        if (!is_string($host)) {
+            return false;
+        }
+
+        return $host === 'api.openai.com';
     }
 
     /**
