@@ -8,8 +8,11 @@ use App\Support\DomainNameHelper;
 use RuntimeException;
 
 use function getenv;
+use function in_array;
 use function is_string;
 use function parse_url;
+use function str_contains;
+use function strtolower;
 use function trim;
 
 /**
@@ -249,11 +252,24 @@ final class RagChatService
     private function isOpenAiEndpoint(string $endpoint): bool
     {
         $host = parse_url($endpoint, PHP_URL_HOST);
-        if (!is_string($host)) {
-            return false;
+        if (is_string($host) && $host === 'api.openai.com') {
+            return true;
         }
 
-        return $host === 'api.openai.com';
+        $path = parse_url($endpoint, PHP_URL_PATH);
+        if (is_string($path) && str_contains($path, '/v1/chat/completions')) {
+            return true;
+        }
+
+        $forceOpenAi = getenv('RAG_CHAT_SERVICE_FORCE_OPENAI');
+        if ($forceOpenAi !== false) {
+            $value = strtolower(trim((string) $forceOpenAi));
+            if ($value !== '' && in_array($value, ['1', 'true', 'yes', 'on'], true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
