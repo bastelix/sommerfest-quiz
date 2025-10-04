@@ -46,6 +46,7 @@ use App\Service\QrCodeService;
 use App\Service\RagChat\DomainDocumentStorage;
 use App\Service\RagChat\DomainIndexManager;
 use App\Service\RagChat\RagChatService;
+use App\Service\RagChat\RagChatServiceInterface;
 use App\Service\SessionService;
 use App\Service\StripeService;
 use App\Service\VersionService;
@@ -573,7 +574,7 @@ return function (\Slim\App $app, TranslationService $translator) {
         ->add(new CsrfMiddleware());
     $app->post('/calserver/chat', function (Request $request, Response $response): Response {
         $service = $request->getAttribute('ragChatService');
-        if (!$service instanceof RagChatService) {
+        if (!$service instanceof RagChatServiceInterface) {
             $service = null;
         }
 
