@@ -124,7 +124,15 @@ final class HttpChatResponder implements ChatResponderInterface
             $id = isset($item['id']) ? (string) $item['id'] : '';
             $text = isset($item['text']) ? (string) $item['text'] : '';
             $score = isset($item['score']) ? (float) $item['score'] : 0.0;
-            $metadata = isset($item['metadata']) && is_array($item['metadata']) ? $item['metadata'] : [];
+            $metadata = [];
+            if (isset($item['metadata'])) {
+                /** @var mixed $rawMetadata */
+                $rawMetadata = $item['metadata'];
+                if (is_array($rawMetadata)) {
+                    /** @var array<string, mixed> $rawMetadata */
+                    $metadata = $rawMetadata;
+                }
+            }
 
             $normalised[] = [
                 'id' => $id,
