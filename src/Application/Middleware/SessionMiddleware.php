@@ -6,6 +6,7 @@ namespace App\Application\Middleware;
 
 use App\Service\SessionService;
 use App\Infrastructure\Database;
+use App\Support\DomainNameHelper;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -27,11 +28,9 @@ class SessionMiddleware implements Middleware
         }
 
         if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
-            $host = strtolower($request->getUri()->getHost());
-            $host = (string) preg_replace('/^(www|admin)\./', '', $host);
+            $host = DomainNameHelper::normalize($request->getUri()->getHost());
 
-            $domain = strtolower((string) getenv('MAIN_DOMAIN'));
-            $domain = (string) preg_replace('/^(www|admin)\./', '', $domain);
+            $domain = DomainNameHelper::normalize((string) getenv('MAIN_DOMAIN'));
 
             if ($domain === '' || !$this->hostMatchesDomain($host, $domain)) {
                 $domain = $host;

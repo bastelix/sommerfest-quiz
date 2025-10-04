@@ -67,6 +67,8 @@ class DomainStartPageServiceTest extends TestCase
         yield 'with scheme' => ['https://calserver.de', 'calserver.de', true];
         yield 'with uppercase and path' => ['HTTP://WWW.CALSERVER.DE/foo', 'calserver.de', true];
         yield 'admin subdomain stripped' => ['admin.calserver.de', 'calserver.de', true];
+        yield 'assistant subdomain stripped' => ['assistant.calserver.de', 'calserver.de', true];
         yield 'marketing subdomain kept when admin stripping disabled' => ['admin.calserver.de', 'admin.calserver.de', false];
+        yield 'assistant subdomain kept when admin stripping disabled' => ['assistant.calserver.de', 'assistant.calserver.de', false];
     }
 }

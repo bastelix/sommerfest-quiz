@@ -49,6 +49,7 @@ use App\Service\SessionService;
 use App\Service\StripeService;
 use App\Service\VersionService;
 use App\Infrastructure\Database;
+use App\Support\DomainNameHelper;
 use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
 use App\Application\Middleware\CsrfMiddleware;
@@ -183,10 +184,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             } else {
                 $marketingList = array_filter(preg_split('/[\s,]+/', strtolower($marketingDomains)) ?: []);
                 $marketingList = array_map(
-                    static fn (string $domain): string => (string) preg_replace('/^www\./', '', $domain),
+                    static fn (string $domain): string => DomainNameHelper::normalize($domain, stripAdmin: false),
                     $marketingList
                 );
-                $normalizedHost = (string) preg_replace('/^www\./', '', $host);
+                $normalizedHost = DomainNameHelper::normalize($host, stripAdmin: false);
                 if (in_array($normalizedHost, $marketingList, true)) {
                     $computed = 'marketing';
                 }

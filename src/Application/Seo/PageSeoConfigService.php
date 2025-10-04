@@ -12,6 +12,7 @@ use App\Domain\PageSeoConfig;
 use App\Infrastructure\Cache\PageSeoCache;
 use App\Infrastructure\Database;
 use App\Infrastructure\Event\EventDispatcher;
+use App\Support\DomainNameHelper;
 use PDO;
 
 /**
@@ -223,12 +224,7 @@ class PageSeoConfigService
             return null;
         }
 
-        $normalized = strtolower(trim($domain));
-        if ($normalized === '') {
-            return null;
-        }
-
-        $normalized = (string) preg_replace('/^(www|admin)\./', '', $normalized);
+        $normalized = DomainNameHelper::normalize($domain);
 
         return $normalized === '' ? null : $normalized;
     }
