@@ -23,8 +23,8 @@
   <meta name="page-name" content="calServer – Marketingseite">
 {% endblock %}
 
-{% block body_theme %}dark{% endblock %}
-{% block body_class %}qr-landing dark-mode calserver-theme{% endblock %}
+{% block body_theme %}light{% endblock %}
+{% block body_class %}qr-landing calserver-theme{% endblock %}
 
 {% block body %}
   <div class="landing-content">
@@ -73,7 +73,7 @@
                           class="uk-button uk-button-default git-btn theme-toggle"
                           aria-label="Design umschalten"
                           role="menuitem">
-                    <span id="themeIcon" aria-hidden="true"></span>
+                    <span id="themeIcon" class="theme-icon" aria-hidden="true"></span>
                   </button>
                 </li>
                 <li>
@@ -81,7 +81,7 @@
                           class="uk-button uk-button-default git-btn accessibility-toggle"
                           aria-label="Kontrast umschalten"
                           role="menuitem">
-                    <span id="accessibilityIcon" aria-hidden="true"></span>
+                    <span id="accessibilityIcon" class="accessibility-icon" aria-hidden="true"></span>
                   </button>
                 </li>
                 <li>
@@ -182,6 +182,7 @@
         ],
         'ctaPrimary': 'Jetzt testen',
         'ctaSecondary': 'Demo buchen',
+        'ctaChat': 'Assistent fragen',
         'proof': 'Unbegrenzte Nutzer:innen · Flexible Rollenmodelle · Tägliche Datensicherung',
         'videoBadge': 'Live-Vorschau',
         'videoAriaLabel': 'YouTube-Video',
@@ -210,6 +211,7 @@
         ],
         'ctaPrimary': 'Start trial',
         'ctaSecondary': 'Book demo',
+        'ctaChat': 'Ask assistant',
         'proof': 'Unlimited users · Flexible role models · Daily backups',
         'videoBadge': 'Live preview',
         'videoAriaLabel': 'YouTube video',
@@ -256,6 +258,13 @@
                  rel="noopener">
                 <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>{{ hero.ctaSecondary }}
               </a>
+              <button class="uk-button uk-button-default calserver-chat-trigger"
+                      type="button"
+                      data-calserver-chat-open
+                      aria-haspopup="dialog"
+                      aria-controls="calserver-chat-modal">
+                <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>{{ hero.ctaChat }}
+              </button>
             </div>
             <div class="qr-proof uk-margin-top">
               <span>{{ hero.proof }}</span>
@@ -321,6 +330,33 @@
       </div>
     </section>
 
+    <div id="calserver-chat-modal" class="uk-flex-top calserver-chat-modal" data-uk-modal>
+      <div class="uk-modal-dialog uk-modal-body calserver-chat__dialog" role="dialog" aria-modal="true" aria-label="{{ t('calserver_chat_title') }}">
+        <button class="uk-modal-close-default" type="button" data-uk-close aria-label="{{ t('calserver_chat_close') }}"></button>
+        <h2 class="uk-modal-title">{{ t('calserver_chat_title') }}</h2>
+        <p class="calserver-chat__intro">{{ t('calserver_chat_intro') }}</p>
+        <div class="calserver-chat__messages" data-calserver-chat-messages aria-live="polite"></div>
+        <p class="calserver-chat__status" data-calserver-chat-status aria-live="assertive"></p>
+        <form class="calserver-chat__form" data-calserver-chat-form>
+          <label class="uk-form-label" for="calserver-chat-question">{{ t('calserver_chat_question_label') }}</label>
+          <textarea class="uk-textarea"
+                    id="calserver-chat-question"
+                    name="question"
+                    rows="3"
+                    autocomplete="off"
+                    placeholder="{{ t('calserver_chat_placeholder') }}"
+                    data-calserver-chat-input
+                    required></textarea>
+          <div class="calserver-chat__form-actions">
+            <button type="submit" class="uk-button uk-button-primary">
+              <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>{{ t('calserver_chat_submit') }}
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-modal-close">{{ t('calserver_chat_close') }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     {{ content|raw }}
 
     <div class="calserver-cookie-banner uk-card uk-card-default uk-card-body"
@@ -357,7 +393,7 @@
         </button>
       </div>
     </div>
-    <button class="calserver-cookie-trigger"
+    <button class="calserver-floating-button calserver-cookie-trigger"
             type="button"
             aria-controls="calserver-cookie-banner"
             aria-expanded="false"
@@ -365,6 +401,14 @@
             data-calserver-cookie-open
             hidden>
       <span aria-hidden="true" data-uk-icon="icon: fingerprint"></span>
+    </button>
+    <button class="calserver-floating-button calserver-chat-fab"
+            type="button"
+            data-calserver-chat-open
+            aria-haspopup="dialog"
+            aria-controls="calserver-chat-modal"
+            aria-label="{{ t('calserver_chat_title') }}">
+      <span aria-hidden="true" data-uk-icon="icon: commenting"></span>
     </button>
   </div>
 {% endblock %}
@@ -457,8 +501,27 @@
       }
     });
   </script>
+  <script>
+    window.calserverChatConfig = {
+      endpoint: '{{ basePath }}/calserver/chat',
+      csrfToken: '{{ csrf_token|default('')|e('js') }}',
+      locale: '{{ locale() }}',
+      texts: {
+        intro: '{{ t('calserver_chat_intro_message')|e('js') }}',
+        loading: '{{ t('calserver_chat_loading')|e('js') }}',
+        errorGeneric: '{{ t('calserver_chat_error_generic')|e('js') }}',
+        errorValidation: '{{ t('calserver_chat_error_validation')|e('js') }}',
+        errorRateLimited: '{{ t('calserver_chat_error_rate_limited')|e('js') }}',
+        sources: '{{ t('calserver_chat_sources')|e('js') }}',
+        score: '{{ t('calserver_chat_score')|e('js') }}',
+        empty: '{{ t('calserver_chat_empty')|e('js') }}',
+        question: '{{ t('calserver_chat_question_label')|e('js') }}'
+      }
+    };
+  </script>
   <script src="{{ basePath }}/js/app.js"></script>
   <script src="{{ basePath }}/js/calserver-cookie.js" defer></script>
   <script src="{{ basePath }}/js/calserver.js" defer></script>
+  <script src="{{ basePath }}/js/calserver-chat.js" defer></script>
   <script src="{{ basePath }}/js/landing.js" defer></script>
 {% endblock %}

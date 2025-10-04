@@ -17,6 +17,7 @@ use App\Controller\LogoutController;
 use App\Controller\ConfigController;
 use App\Controller\CatalogController;
 use App\Application\Seo\PageSeoConfigService;
+use App\Application\Middleware\HeadRequestMiddleware;
 use App\Application\Middleware\RoleAuthMiddleware;
 use App\Service\ConfigService;
 use App\Service\ConfigValidator;
@@ -42,6 +43,8 @@ use App\Service\EmailConfirmationService;
 use App\Service\InvitationService;
 use App\Service\AuditLogger;
 use App\Service\QrCodeService;
+use App\Service\RagChat\DomainDocumentStorage;
+use App\Service\RagChat\DomainIndexManager;
 use App\Service\SessionService;
 use App\Service\StripeService;
 use App\Service\VersionService;
@@ -69,11 +72,15 @@ use App\Controller\EventConfigController;
 use App\Controller\SettingsController;
 use App\Controller\Admin\PageController;
 use App\Controller\Admin\LandingpageController;
+use App\Controller\Admin\DomainChatKnowledgeController;
 use App\Controller\Admin\DomainStartPageController;
 use App\Controller\Admin\DomainContactTemplateController;
+use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
 use App\Controller\TenantController;
 use App\Controller\Marketing\MarketingPageController;
 use App\Controller\Marketing\ContactController;
+use App\Controller\Marketing\LandingNewsController as MarketingLandingNewsController;
+use App\Controller\Marketing\CalserverChatController;
 use App\Controller\RegisterController;
 use App\Controller\OnboardingController;
 use App\Controller\OnboardingEmailController;
@@ -92,7 +99,9 @@ use App\Controller\GlobalMediaController;
 use App\Service\ImageUploadService;
 use App\Service\MediaLibraryService;
 use App\Service\LandingMediaReferenceService;
+use App\Service\LandingNewsService;
 use Slim\Views\Twig;
+use Slim\Psr7\Response as SlimResponse;
 use GuzzleHttp\Client;
 use Psr\Log\NullLogger;
 use App\Controller\BackupController;
@@ -121,6 +130,7 @@ require_once __DIR__ . '/Controller/AdminLogsController.php';
 require_once __DIR__ . '/Controller/AdminMediaController.php';
 require_once __DIR__ . '/Controller/Admin/PageController.php';
 require_once __DIR__ . '/Controller/Admin/LandingpageController.php';
+require_once __DIR__ . '/Controller/Admin/LandingNewsController.php';
 require_once __DIR__ . '/Controller/Admin/DomainStartPageController.php';
 require_once __DIR__ . '/Controller/QrController.php';
 require_once __DIR__ . '/Controller/LogoController.php';
@@ -139,6 +149,7 @@ require_once __DIR__ . '/Controller/Marketing/MarketingPageController.php';
 require_once __DIR__ . '/Controller/Marketing/LandingController.php';
 require_once __DIR__ . '/Controller/Marketing/CalserverController.php';
 require_once __DIR__ . '/Controller/Marketing/ContactController.php';
+require_once __DIR__ . '/Controller/Marketing/LandingNewsController.php';
 require_once __DIR__ . '/Controller/RegisterController.php';
 require_once __DIR__ . '/Controller/OnboardingController.php';
 require_once __DIR__ . '/Controller/OnboardingEmailController.php';
@@ -247,8 +258,11 @@ return function (\Slim\App $app, TranslationService $translator) {
         $landingReferenceService = new LandingMediaReferenceService(
             new PageService($pdo),
             new PageSeoConfigService($pdo),
-            $configService
+            $configService,
+            new LandingNewsService($pdo)
         );
+        $domainDocumentStorage = new DomainDocumentStorage();
+        $domainIndexManager = new DomainIndexManager($domainDocumentStorage);
 
         $request = $request
             ->withAttribute('plan', $plan)
@@ -307,6 +321,10 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute(
                 'domainContactTemplateController',
                 new DomainContactTemplateController($domainContactTemplateService, $domainStartPageService)
+            )
+            ->withAttribute(
+                'domainChatController',
+                new DomainChatKnowledgeController($domainDocumentStorage, $domainIndexManager)
             )
             ->withAttribute('qrController', new QrController(
                 $configService,
@@ -375,9 +393,18 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         return $handler->handle($request);
     });
+
+    $app->add(static function (Request $request, RequestHandlerInterface $handler): Response {
+        if ($request->getMethod() === 'OPTIONS') {
+            return (new SlimResponse())->withStatus(204);
+        }
+
+        return $handler->handle($request);
+    });
+    $app->add(new HeadRequestMiddleware());
     $app->add(new LanguageMiddleware($translator));
 
-    $app->get('/healthz', function (Request $request, Response $response) {
+    $app->map(['GET', 'HEAD'], '/healthz', function (Request $request, Response $response) {
         $version = getenv('APP_VERSION');
         if ($version === false || $version === '') {
             $version = (new VersionService())->getCurrentVersion();
@@ -388,7 +415,11 @@ return function (\Slim\App $app, TranslationService $translator) {
             'version' => $version,
             'time'    => gmdate('c'),
         ];
-        $response->getBody()->write(json_encode($payload));
+        $payloadJson = json_encode($payload);
+
+        if (strtoupper($request->getMethod()) !== 'HEAD') {
+            $response->getBody()->write($payloadJson);
+        }
 
         $response = $response
             ->withHeader('Content-Type', 'application/json')
@@ -445,6 +476,47 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new MarketingPageController('landing');
         return $controller($request, $response);
     });
+    $app->get('/landing/news', function (Request $request, Response $response) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        return $controller->index($request, $response, ['landingSlug' => 'landing']);
+    });
+    $app->get('/landing/news/{newsSlug:[a-z0-9-]+}', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        $args['landingSlug'] = 'landing';
+        return $controller->show($request, $response, $args);
+    });
+    $app->get('/{landingSlug:[a-z0-9-]+}/news', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        return $controller->index($request, $response, $args);
+    });
+    $app->get('/{landingSlug:[a-z0-9-]+}/news/{newsSlug:[a-z0-9-]+}', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        return $controller->show($request, $response, $args);
+    });
+    $app->get('/future-is-green', function (Request $request, Response $response) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new \App\Controller\Marketing\FutureIsGreenController();
+        return $controller($request, $response);
+    });
     $app->get('/calserver', function (Request $request, Response $response) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
@@ -452,6 +524,30 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $controller = new MarketingPageController('calserver');
         return $controller($request, $response);
+    });
+    $app->get('/calserver-maintenance', function (Request $request, Response $response) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingPageController('calserver-maintenance');
+        return $controller($request, $response);
+    });
+    $app->get('/m/{landingSlug:[a-z0-9-]+}/news', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        return $controller->index($request, $response, $args);
+    });
+    $app->get('/m/{landingSlug:[a-z0-9-]+}/news/{newsSlug:[a-z0-9-]+}', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingLandingNewsController();
+        return $controller->show($request, $response, $args);
     });
     $app->get(
         '/m/{slug:[a-z0-9-]+}',
@@ -467,8 +563,14 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/landing/contact', ContactController::class)
         ->add(new RateLimitMiddleware(3, 3600))
         ->add(new CsrfMiddleware());
+    $app->post('/future-is-green/contact', ContactController::class)
+        ->add(new RateLimitMiddleware(3, 3600))
+        ->add(new CsrfMiddleware());
     $app->post('/calserver/contact', ContactController::class)
         ->add(new RateLimitMiddleware(3, 3600))
+        ->add(new CsrfMiddleware());
+    $app->post('/calserver/chat', CalserverChatController::class)
+        ->add(new RateLimitMiddleware(10, 60))
         ->add(new CsrfMiddleware());
     $app->get('/onboarding', OnboardingController::class);
     $app->post('/onboarding/email', function (Request $request, Response $response) {
@@ -575,7 +677,8 @@ return function (\Slim\App $app, TranslationService $translator) {
                     $landing = new LandingMediaReferenceService(
                         new PageService($pdo),
                         new PageSeoConfigService($pdo),
-                        $config
+                        $config,
+                        new LandingNewsService($pdo)
                     );
                 }
                 $controller = new AdminMediaController($service, $config, $landing);
@@ -996,6 +1099,31 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->create($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
 
+    $app->get('/admin/landing-news', function (Request $request, Response $response) {
+        $controller = new AdminLandingNewsController();
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->get('/admin/landing-news/create', function (Request $request, Response $response) {
+        $controller = new AdminLandingNewsController();
+        return $controller->create($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->post('/admin/landing-news', function (Request $request, Response $response) {
+        $controller = new AdminLandingNewsController();
+        return $controller->store($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+    $app->get('/admin/landing-news/{id:\d+}', function (Request $request, Response $response, array $args) {
+        $controller = new AdminLandingNewsController();
+        return $controller->edit($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    $app->post('/admin/landing-news/{id:\d+}', function (Request $request, Response $response, array $args) {
+        $controller = new AdminLandingNewsController();
+        return $controller->update($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+    $app->post('/admin/landing-news/{id:\d+}/delete', function (Request $request, Response $response, array $args) {
+        $controller = new AdminLandingNewsController();
+        return $controller->delete($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
     $app->get('/admin/landingpage/seo', function (Request $request, Response $response) {
         if ($request->getAttribute('domainType') !== 'main') {
             return $response->withStatus(404);
@@ -1099,6 +1227,30 @@ return function (\Slim\App $app, TranslationService $translator) {
         /** @var DomainStartPageController $controller */
         $controller = $request->getAttribute('domainStartPageController');
         return $controller->save($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->get('/admin/domain-chat/documents', function (Request $request, Response $response) {
+        /** @var DomainChatKnowledgeController $controller */
+        $controller = $request->getAttribute('domainChatController');
+        return $controller->list($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->post('/admin/domain-chat/documents', function (Request $request, Response $response) {
+        /** @var DomainChatKnowledgeController $controller */
+        $controller = $request->getAttribute('domainChatController');
+        return $controller->upload($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->delete('/admin/domain-chat/documents/{id}', function (Request $request, Response $response, array $args) {
+        /** @var DomainChatKnowledgeController $controller */
+        $controller = $request->getAttribute('domainChatController');
+        return $controller->delete($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->post('/admin/domain-chat/rebuild', function (Request $request, Response $response) {
+        /** @var DomainChatKnowledgeController $controller */
+        $controller = $request->getAttribute('domainChatController');
+        return $controller->rebuild($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
 
     $app->get('/admin/domain-contact-template/{domain}', function (Request $request, Response $response, array $args) {

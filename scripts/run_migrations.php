@@ -5,18 +5,7 @@ declare(strict_types=1);
 require __DIR__ . '/../vendor/autoload.php';
 
 // Load environment variables from .env if available
-$envFile = __DIR__ . '/../.env';
-if (is_readable($envFile)) {
-    $vars = parse_ini_file($envFile, false, INI_SCANNER_RAW);
-    if (is_array($vars)) {
-        foreach ($vars as $key => $value) {
-            if (getenv($key) === false) {
-                putenv($key . '=' . $value);
-                $_ENV[$key] = $value;
-            }
-        }
-    }
-}
+\App\Support\EnvLoader::loadAndSet(__DIR__ . '/../.env');
 
 try {
     $errors = \App\Infrastructure\Migrations\MigrationScriptRunner::run(__DIR__ . '/../migrations');

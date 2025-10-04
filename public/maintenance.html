@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>Wartungsarbeiten – {{ AGENCY_NAME }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Kurzzeitige Wartung: Wir verbessern Sicherheit, Performance und Inhalte.">
+  <meta name="retry-after" content="{{ ETA_TAGE }} days">
+  <link rel="icon" href="/favicon.ico">
+  <style>
+    :root { --max: 64rem; --pad: 2rem; --radius: 12px; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #0f172a; color: #e5e7eb; }
+    a { color: inherit; }
+    .wrap { min-height: 100svh; display: grid; place-items: center; padding: var(--pad); }
+    .card { width: min(var(--max), 100%); background: #111827; border: 1px solid #1f2937; border-radius: var(--radius); padding: clamp(1.25rem, 2vw, 2rem); box-shadow: 0 20px 50px rgba(15, 23, 42, 0.45); }
+    header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+    header img { height: 48px; width: auto; max-width: 140px; }
+    header .agency { font-weight: 600; letter-spacing: .02em; }
+    header .tagline { font-size: .9rem; color: #9ca3af; }
+    h1 { font-size: clamp(1.75rem, 3vw, 2.5rem); margin: .25rem 0 .75rem; color: #f8fafc; }
+    .sub { color: #cbd5e1; margin: 0 0 1.25rem; font-size: 1.0625rem; }
+    .eta { display: flex; align-items: center; gap: .75rem; background: #0b3b20; border: 1px solid #14532d; color: #bbf7d0; padding: .875rem 1.25rem; border-radius: 10px; margin: 1.5rem 0; font-size: 1.05rem; }
+    .eta span.icon { font-size: 1.25rem; }
+    .eta strong { font-weight: 700; color: #f0fdf4; }
+    .eta [data-eta-fallback] { display: none; }
+    .cta { margin-top: 1rem; font-size: 1rem; color: #e2e8f0; }
+    .cta a { color: #93c5fd; text-decoration: underline; text-decoration-thickness: 0.12em; text-underline-offset: 0.18em; }
+    .cta a:focus-visible, .cta a:hover { color: #bfdbfe; }
+    .cta .status-link { display: inline; }
+    .cta .status-link a { color: #a5b4fc; }
+    .cta .status-link a:focus-visible, .cta .status-link a:hover { color: #c7d2fe; }
+    footer { margin-top: 2rem; display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; color: #94a3b8; font-size: .9375rem; }
+    footer a { color: #cbd5e1; text-decoration: underline; text-decoration-thickness: 0.12em; text-underline-offset: 0.18em; }
+    footer a:focus-visible, footer a:hover { color: #e2e8f0; }
+    @media (prefers-reduced-motion: reduce) {
+      * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <main class="card" role="main">
+      <header>
+        <img src="{{ LOGO_URL }}" width="140" height="48" alt="{{ AGENCY_NAME }} Logo">
+        <div>
+          <div class="agency">{{ AGENCY_NAME }}</div>
+          <div class="tagline">Webprojekte &amp; Aktualisierungen</div>
+        </div>
+      </header>
+
+      <h1>Wir machen Ihre Website fitter.</h1>
+      <p class="sub">Diese Seite befindet sich gerade in Wartung – wir verbessern Sicherheit, Performance und Inhalte.</p>
+
+      <div class="eta" role="status" aria-live="polite">
+        <span class="icon" aria-hidden="true">⏳</span>
+        <p class="eta-text" data-eta-text>
+          <span data-eta-default>Voraussichtlich wieder online in <strong data-eta-value>{{ ETA_TAGE }}</strong> Tagen.</span>
+          <span data-eta-fallback>Bald wieder da. Danke für Ihre Geduld.</span>
+        </p>
+      </div>
+
+      <p class="cta">
+        Fragen? Schreib uns an <a href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a>
+        oder ruf an <a href="tel:{{ CONTACT_PHONE }}">{{ CONTACT_PHONE }}</a>.
+        <span class="status-link" data-status-link>
+          <!-- Optional: Entferne diesen Kommentar und setze STATUS_LINK, um den Link anzuzeigen. -->
+          <span aria-hidden="true"> | </span><a href="{{ STATUS_LINK }}">Status ansehen</a>
+        </span>
+      </p>
+
+      <footer>
+        <span>© {{ AGENCY_NAME }}</span>
+        <span>·</span>
+        <span>calHelp – Webprojekte &amp; Updates für moderne Unternehmen.</span>
+        <span>·</span>
+        <a href="/impressum" rel="nofollow">Impressum</a>
+        <span>·</span>
+        <a href="/datenschutz" rel="nofollow">Datenschutz</a>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    (function () {
+      const etaContainer = document.querySelector('[data-eta-text]');
+      if (!etaContainer) {
+        return;
+      }
+      const etaValueEl = etaContainer.querySelector('[data-eta-value]');
+      const fallbackEl = etaContainer.querySelector('[data-eta-fallback]');
+      const defaultEl = etaContainer.querySelector('[data-eta-default]');
+      const etaValue = etaValueEl ? etaValueEl.textContent.trim() : '';
+      if (!/^\d+$/.test(etaValue)) {
+        if (fallbackEl) {
+          fallbackEl.style.display = 'inline';
+        }
+        if (defaultEl) {
+          defaultEl.style.display = 'none';
+        }
+      }
+      const statusLinkWrapper = document.querySelector('[data-status-link]');
+      if (statusLinkWrapper) {
+        const link = statusLinkWrapper.querySelector('a[href]');
+        if (!link || !link.getAttribute('href') || link.getAttribute('href') === '{{ STATUS_LINK }}') {
+          statusLinkWrapper.remove();
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

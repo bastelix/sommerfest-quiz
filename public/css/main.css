@@ -245,7 +245,6 @@ body.uk-padding {
   right: 0;
   min-height: 56px;
   padding: 0 0.5rem;
-  padding-top: env(safe-area-inset-top);
   box-sizing: border-box;
   z-index: 1000;
   display: flex;

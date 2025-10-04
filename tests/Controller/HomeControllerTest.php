@@ -42,6 +42,21 @@ class HomeControllerTest extends TestCase
         unlink($db);
     }
 
+    public function testHomePageAllowsHeadRequest(): void {
+        $db = $this->setupDb();
+
+        try {
+            $app = $this->getAppInstance();
+            $request = $this->createRequest('HEAD', '/');
+            $response = $app->handle($request);
+
+            $this->assertEquals(200, $response->getStatusCode());
+            $this->assertSame('', (string) $response->getBody());
+        } finally {
+            unlink($db);
+        }
+    }
+
     public function testEventCatalogOverview(): void {
         $db = $this->setupDb();
         $this->getAppInstance();
@@ -214,6 +229,28 @@ class HomeControllerTest extends TestCase
             $body = (string) $response->getBody();
             $this->assertStringContainsString('Trete gegen Freunde und Kollegen an', $body);
             $this->assertStringNotContainsString('Station 1', $body);
+        } finally {
+            unlink($db);
+        }
+    }
+
+    public function testCalserverMaintenanceDomainStartPage(): void {
+        $db = $this->setupDb();
+        $this->getAppInstance();
+        $pdo = \App\Infrastructure\Database::connectFromEnv();
+        \App\Infrastructure\Migrations\Migrator::migrate($pdo, dirname(__DIR__, 2) . '/migrations');
+        $pdo->exec(
+            "INSERT INTO pages(slug,title,content) VALUES(" .
+            "'calserver-maintenance','calHelp Wartung','<p>Wartungshinweis</p>')"
+        );
+        (new \App\Service\DomainStartPageService($pdo))->saveStartPage('main.test', 'calserver-maintenance');
+
+        try {
+            $app = $this->getAppInstance();
+            $request = $this->createRequest('GET', '/');
+            $response = $app->handle($request);
+            $this->assertEquals(200, $response->getStatusCode());
+            $this->assertStringContainsString('Wartungshinweis', (string) $response->getBody());
         } finally {
             unlink($db);
         }

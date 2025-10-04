@@ -236,6 +236,8 @@
 - Refine sticker QR size field
 - Allow marketing contact forms to define endpoint
 - Add animated calserver hero background
+- Implement future-is-green mega menu
+- Add domain-specific RAG management
 
 ### Fix
 

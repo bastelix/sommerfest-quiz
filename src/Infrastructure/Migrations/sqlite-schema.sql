@@ -309,6 +309,27 @@ CREATE TABLE IF NOT EXISTS pages (
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Landing page news
+CREATE TABLE IF NOT EXISTS landing_news (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    page_id INTEGER NOT NULL REFERENCES pages(id) ON DELETE CASCADE,
+    slug TEXT NOT NULL,
+    title TEXT NOT NULL,
+    excerpt TEXT,
+    content TEXT NOT NULL,
+    published_at TEXT,
+    is_published INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS landing_news_page_slug_idx
+    ON landing_news(page_id, slug);
+CREATE INDEX IF NOT EXISTS landing_news_page_published_idx
+    ON landing_news(page_id, is_published, published_at DESC, id DESC);
+CREATE INDEX IF NOT EXISTS landing_news_published_idx
+    ON landing_news(is_published, published_at DESC, id DESC);
+
 -- Page SEO config
 CREATE TABLE IF NOT EXISTS page_seo_config (
     page_id INTEGER PRIMARY KEY REFERENCES pages(id) ON DELETE CASCADE,
@@ -1237,7 +1258,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                 <p>Messwerte fließen über Microservices automatisiert ein; Geräte, Zertifikate und Auswertungen bleiben im Zugriff der berechtigten Teams. Single Sign-On vereinfacht den Zugang, die bidirektionale Synchronisation mit Fluke MET/TEAM und MET/CAL stellt durchgehend konsistente Kalibrierdaten sicher.</p>
                 <ul class="uk-list uk-list-bullet muted">
                   <li>API-Ingestion von Messwerten (Microservices/Kubernetes)</li>
-                  <li>SSO (z. B. EntraID/Google) für nahtlosen Zugriff</li>
+                  <li>SSO (EntraID/Active Directory) für nahtlosen Zugriff</li>
                   <li>Bidirektionale MET/TEAM- &amp; MET/CAL-Synchronisation</li>
                 </ul>
               </div>

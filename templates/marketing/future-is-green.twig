@@ -1,0 +1,947 @@
+{% extends 'layout.twig' %}
+
+{% block title %}{{ metaTitle|default('Future is Green – Urbane Logistik für lebenswerte Städte') }}{% endblock %}
+
+{% block head %}
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" href="{{ basePath }}/css/landing.css" as="style">
+  <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/onboarding.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/topbar.landing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/future-is-green.css">
+  <meta name="page-name" content="Future is Green – Landingpage">
+{% endblock %}
+
+{% block body_theme %}light{% endblock %}
+{% block body_class %}qr-landing future-is-green-theme{% endblock %}
+
+{% block body %}
+  <div class="landing-content">
+    <header class="qr-topbar uk-position-sticky uk-top" id="start" uk-sticky="animation: uk-animation-slide-top; sel-target: .uk-navbar-container; cls-active: uk-navbar-sticky;">
+      <nav class="uk-navbar-container" uk-navbar>
+        <div class="uk-navbar-left">
+          <div class="uk-navbar-item">
+            <button id="offcanvas-toggle"
+                    class="uk-navbar-toggle uk-hidden@m git-btn"
+                    data-uk-navbar-toggle-icon
+                    data-uk-toggle="target: #qr-offcanvas"
+                    aria-controls="qr-offcanvas"
+                    aria-expanded="false"
+                    aria-label="Menü"></button>
+            <a class="uk-logo fig-logo" href="{{ basePath }}/future-is-green">
+              <span class="fig-visually-hidden">Future is Green – Logistic Solutions</span>
+              <span class="fig-logo__image" aria-hidden="true">
+                <img class="fig-logo__img"
+                     src="{{ basePath }}/uploads/future-is-green-logo.webp"
+                     alt=""
+                     loading="eager"
+                     decoding="async">
+              </span>
+              <span class="fig-logo__wordmark" aria-hidden="true">
+                <svg class="fig-logo__wordmark-svg" viewBox="0 0 320 92" xmlns="http://www.w3.org/2000/svg" focusable="false">
+                  <text x="0"
+                        y="38"
+                        font-family="Poppins, 'Helvetica Neue', Arial, sans-serif"
+                        font-size="34"
+                        font-weight="700"
+                        letter-spacing="0.02em">
+                    <tspan class="fig-wordmark__strong" fill="currentColor">FUTURE</tspan>
+                    <tspan class="fig-wordmark__connector" fill="currentColor" font-weight="500"> is </tspan>
+                    <tspan class="fig-wordmark__strong" fill="currentColor">GREEN</tspan>
+                  </text>
+                  <text x="0"
+                        y="78"
+                        class="fig-wordmark__subtitle"
+                        font-family="Poppins, 'Helvetica Neue', Arial, sans-serif"
+                        font-size="18"
+                        letter-spacing="0.32em"
+                        font-weight="500"
+                        fill="currentColor">LOGISTIC SOLUTIONS</text>
+                </svg>
+              </span>
+            </a>
+          </div>
+        </div>
+        <div class="uk-navbar-center uk-visible@m">
+          <ul class="uk-navbar-nav fig-mega-nav">
+            <li>
+              <a href="#benefits" uk-scroll>Wirkung</a>
+              <div class="uk-navbar-dropdown uk-padding-remove" uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left">
+                <div class="uk-grid-divider uk-grid-small uk-child-width-1-2@s" uk-grid>
+                  <div>
+                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                      <li>
+                        <a href="#benefits" uk-scroll data-explain="kpi">
+                          KPIs im Quartier
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#benefits" uk-scroll data-explain="cases">
+                          Pilotgebiete &amp; Zahlen
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#benefits" uk-scroll data-explain="audit">
+                          CO₂-Bilanz &amp; Audit
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="menu-explain">
+                    <div class="explain-pane" data-explain-pane="kpi">
+                      <h5>Wirkung verstehen</h5>
+                      <p>Sechs Kennzahlen zeigen, wie Klimaschutz, Lebensqualität und Tempo zusammengehen.</p>
+                      <p class="menu-explain__subline">0 Emissionen, −60% Fahrten, +24% Tempo</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="cases">
+                      <h5>Reale Ergebnisse</h5>
+                      <p>Pilotquartiere mit verifizierten Kennzahlen und Lessons Learned.</p>
+                      <p class="menu-explain__subline">Filterbar nach Stadt/Branche</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="audit">
+                      <h5>Transparenz &amp; Audit</h5>
+                      <p>Live-Dashboards, Messmethoden und Audit-Scopes für Kommunen &amp; Partner.</p>
+                      <p class="menu-explain__subline">Methodik, Audit-Scopes, Reporting</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <a href="#how-it-works" uk-scroll>Lösungen</a>
+              <div class="uk-navbar-dropdown uk-padding-remove" uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left">
+                <div class="uk-grid-divider uk-grid-small uk-child-width-1-2@s" uk-grid>
+                  <div>
+                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                      <li>
+                        <a href="#how-it-works" uk-scroll data-explain="flow">
+                          So funktioniert’s
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#offerings" uk-scroll data-explain="pakete">
+                          Pakete &amp; Module
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#technology" uk-scroll data-explain="tech">
+                          Technologie &amp; Integrationen
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="menu-explain">
+                    <div class="explain-pane" data-explain-pane="flow">
+                      <h5>Vom Mikrohub zur Haustür</h5>
+                      <p>KI-Routen, gebündelte Stopps und Off-Peak-Lieferungen sorgen für Tempo ohne Lärm.</p>
+                      <p class="menu-explain__subline">KI-Routen, gebündelte Stopps, Off-Peak-Lieferungen</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="pakete">
+                      <h5>Passend skalieren</h5>
+                      <p>Start, Pro und City kombinieren Module für Quartiere jeder Größe.</p>
+                      <p class="menu-explain__subline">Start, Pro, City – kombinierbar</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="tech">
+                      <h5>API-first</h5>
+                      <p>ERP- &amp; Shop-Integrationen, Live-Dashboards und auditierbare CO₂-Bilanzen.</p>
+                      <p class="menu-explain__subline">ERP/Shop-Anbindung, Dashboards, CO₂-Bilanz</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <a href="#cases" uk-scroll>Referenzen</a>
+              <div class="uk-navbar-dropdown uk-padding-remove" uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left">
+                <div class="uk-grid-divider uk-grid-small uk-child-width-1-2@s" uk-grid>
+                  <div>
+                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                      <li>
+                        <a href="#cases" uk-scroll data-explain="story">
+                          Case Stories
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#cases" uk-scroll data-explain="branchen">
+                          Branchenfilter
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#cases" uk-scroll data-explain="reports">
+                          Impact-Reports
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="menu-explain">
+                    <div class="explain-pane" data-explain-pane="story">
+                      <h5>Stimmen aus der Praxis</h5>
+                      <p>Was Kommunen, Händler:innen und Rider über den Umbau berichten.</p>
+                      <p class="menu-explain__subline">Kommunen, Händler:innen &amp; Rider im O-Ton</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="branchen">
+                      <h5>Filter nach Branchen</h5>
+                      <p>Von Lebensmitteln bis Pharma – passende Referenzen in Sekunden finden.</p>
+                      <p class="menu-explain__subline">Von Lebensmittel bis Pharma – schnell gefunden</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="reports">
+                      <h5>Zahlen zum Nachlesen</h5>
+                      <p>PDF-Reports mit Kennzahlen, Lessons Learned und Zertifizierungen.</p>
+                      <p class="menu-explain__subline">Kennzahlen, Lessons Learned, Zertifizierungen</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <a href="#pricing" uk-scroll>Preise &amp; FAQ</a>
+              <div class="uk-navbar-dropdown uk-padding-remove" uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left">
+                <div class="uk-grid-divider uk-grid-small uk-child-width-1-2@s" uk-grid>
+                  <div>
+                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                      <li>
+                        <a href="#pricing" uk-scroll data-explain="preise">
+                          Pakete &amp; Vergleich
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#faq" uk-scroll data-explain="faq">
+                          Häufige Fragen
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#pricing" uk-scroll data-explain="service">
+                          Service-Level
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="menu-explain">
+                    <div class="explain-pane" data-explain-pane="preise">
+                      <h5>Transparente Pakete</h5>
+                      <p>Vergleiche Start, Pro und City – monatlich kündbar und förderfähig.</p>
+                      <p class="menu-explain__subline">Start, Pro, City im direkten Überblick</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="faq">
+                      <h5>Antworten in Sekunden</h5>
+                      <p>Finanzierung, Aufbauzeit und Zustellfenster sind kompakt erklärt.</p>
+                      <p class="menu-explain__subline">Finanzierung, Aufbauzeit, Zustellfenster</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="service">
+                      <h5>Service &amp; Support</h5>
+                      <p>SLA, Schulungen und Monitoring – abgestimmt auf Stadt &amp; Partner.</p>
+                      <p class="menu-explain__subline">SLA, Schulung, Monitoring auf einen Blick</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="uk-navbar-right">
+          <div class="uk-navbar-item fig-cta uk-visible@m">
+            <a class="fig-primary-link" href="#kontakt" uk-scroll>
+              <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Demo anfragen
+            </a>
+          </div>
+          <div class="uk-navbar-item config-menu uk-inline">
+            <button id="configMenuToggle"
+                    type="button"
+                    class="uk-button uk-button-default git-btn"
+                    aria-label="Konfiguration"
+                    aria-expanded="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M19.14 12.94a7.5 7.5 0 0 0 .05-.94 7.5 7.5 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.33a.5.5 0 0 0-.6-.22l-2.39.96a7.6 7.6 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.43h-3.84a.5.5 0 0 0-.5.43l-.36 2.54c-.57.24-1.12.55-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.7 7.84a.5.5 0 0 0 .12.64l2.03 1.58c-.03.31-.05.63-.05.94s.02.63.05.94L2.82 13.5a.5.5 0 0 0-.12.64l1.92 3.33a.5.5 0 0 0 .6.22l2.39-.96c.51.39 1.06.7 1.63.94l.36 2.54a.5.5 0 0 0 .5.43h3.84a.5.5 0 0 0 .5-.43l.36-2.54c.57-.24 1.12-.55 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.33a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z"
+                      fill="currentColor"/>
+              </svg>
+            </button>
+            <div id="menuDrop"
+                 class="uk-dropdown"
+                 hidden
+                 data-uk-dropdown="mode: click; pos: bottom-right; flip: false; animation: uk-animation-slide-top-small">
+              <ul class="uk-nav uk-dropdown-nav" role="menu">
+                <li>
+                  <button id="themeToggle"
+                          class="uk-button uk-button-default git-btn theme-toggle"
+                          aria-label="Design umschalten"
+                          role="menuitem">
+                    <span id="themeIcon" class="theme-icon" aria-hidden="true"></span>
+                  </button>
+                </li>
+                <li>
+                  <button id="accessibilityToggle"
+                          class="uk-button uk-button-default git-btn accessibility-toggle"
+                          aria-label="Kontrast umschalten"
+                          role="menuitem">
+                    <span id="accessibilityIcon" class="accessibility-icon" aria-hidden="true"></span>
+                  </button>
+                </li>
+                <li>
+                  <div class="uk-inline">
+                    <button id="languageMenuToggle"
+                            type="button"
+                            class="uk-button uk-button-default git-btn"
+                            aria-label="{{ t('language_toggle') }}"
+                            aria-expanded="false"
+                            role="menuitem">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm6.93 6h-2.54c-.11-1.47-.43-2.87-.92-4.17 1.84.69 3.29 2.1 4.05 3.84zM12 4c.96 1.18 1.62 2.64 1.88 4H10.12c.26-1.36.92-2.82 1.88-4zM4.26 14c-.17-.64-.26-1.31-.26-2s.09-1.36.26-2h3.09c-.07.66-.11 1.32-.11 2s.04 1.34.11 2H4.26zm.81 2h2.54c.11 1.47.43 2.87.92 4.17-1.84-.69-3.29-2.1-4.05-3.84zm2.54-8H5.07c.76-1.74 2.21-3.15 4.05-3.84-.49 1.3-.81 2.7-.92 4.17zM12 20c-.96-1.18-1.62-2.64-1.88-4h3.76c-.26 1.36-.92 2.82-1.88 4zm2.62-6H9.38c-.08-.66-.12-1.32-.12-2s.04-1.34.12-2h5.24c.08.66.12 1.32.12 2s-.04 1.34-.12 2zm.81 6c.49-1.3.81-2.7.92-4.17h2.54c-.76 1.74-2.21 3.15-4.05 3.84zM16.65 14c.07-.66.11-1.32.11-2s-.04-1.34-.11-2h3.09c.17.64.26 1.31.26 2s-.09 1.36-.26 2h-3.09z"
+                              fill="currentColor"/>
+                      </svg>
+                    </button>
+                    <div id="languageDrop" class="uk-dropdown" hidden data-uk-dropdown="mode: click; pos: left-top; offset: 0">
+                      <ul class="uk-nav uk-dropdown-nav" role="menu">
+                        <li>
+                          <button class="uk-button uk-button-default git-btn lang-option"
+                                  data-lang="de"
+                                  role="menuitem">
+                            <span class="lang-option__icon" aria-hidden="true">
+                              <svg class="lang-option__svg" viewBox="0 0 24 16" role="img" focusable="false">
+                                <rect width="24" height="16" fill="#ffce00" />
+                                <rect width="24" height="10.6667" fill="#dd0000" />
+                                <rect width="24" height="5.3333" fill="#000000" />
+                              </svg>
+                            </span>
+                            <span class="lang-option__label">{{ t('german') }}</span>
+                          </button>
+                        </li>
+                        <li>
+                          <button class="uk-button uk-button-default git-btn lang-option"
+                                  data-lang="en"
+                                  role="menuitem">
+                            <span class="lang-option__icon" aria-hidden="true">
+                              <svg class="lang-option__svg" viewBox="0 0 24 16" role="img" focusable="false">
+                                <rect width="24" height="16" fill="#012169" />
+                                <path fill="#ffffff" d="M0 0h3.2L24 13.6V16h-3.2L0 2.4z" />
+                                <path fill="#ffffff" d="M24 0h-3.2L0 13.6V16h3.2L24 2.4z" />
+                                <path fill="#c8102e" d="M0 0h1.6L24 12.8V16h-1.6L0 3.2z" />
+                                <path fill="#c8102e" d="M24 0h-1.6L0 12.8V16h1.6L24 3.2z" />
+                                <rect x="10" width="4" height="16" fill="#ffffff" />
+                                <rect y="6" width="24" height="4" fill="#ffffff" />
+                                <rect x="10.8" width="2.4" height="16" fill="#c8102e" />
+                                <rect y="6.8" width="24" height="2.4" fill="#c8102e" />
+                              </svg>
+                            </span>
+                            <span class="lang-option__label">{{ t('english') }}</span>
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <div id="qr-offcanvas" data-uk-offcanvas="overlay: true; flip: true">
+      <div class="uk-offcanvas-bar">
+        <button class="uk-offcanvas-close git-btn" type="button" data-uk-close aria-label="Menü schließen"></button>
+        <ul class="uk-nav uk-nav-default fig-offcanvas-nav">
+          <li class="uk-nav-header">Wirkung</li>
+          <li><a href="#benefits" uk-scroll>KPIs im Quartier</a></li>
+          <li><a href="#benefits" uk-scroll>Pilotgebiete &amp; Zahlen</a></li>
+          <li><a href="#benefits" uk-scroll>CO₂-Bilanz &amp; Audit</a></li>
+          <li class="uk-nav-divider"></li>
+          <li class="uk-nav-header">Lösungen</li>
+          <li><a href="#how-it-works" uk-scroll>So funktioniert’s</a></li>
+          <li><a href="#offerings" uk-scroll>Pakete &amp; Module</a></li>
+          <li><a href="#technology" uk-scroll>Technologie &amp; Integrationen</a></li>
+          <li class="uk-nav-divider"></li>
+          <li class="uk-nav-header">Referenzen</li>
+          <li><a href="#cases" uk-scroll>Case Stories</a></li>
+          <li><a href="#cases" uk-scroll>Branchenfilter</a></li>
+          <li><a href="#cases" uk-scroll>Impact-Reports</a></li>
+          <li class="uk-nav-divider"></li>
+          <li class="uk-nav-header">Preise &amp; FAQ</li>
+          <li><a href="#pricing" uk-scroll>Pakete &amp; Vergleich</a></li>
+          <li><a href="#faq" uk-scroll>Häufige Fragen</a></li>
+          <li><a href="#pricing" uk-scroll>Service-Level</a></li>
+        </ul>
+        <a class="uk-button uk-button-primary git-btn uk-width-1-1 uk-margin-top offcanvas-cta" href="#kontakt" uk-scroll>
+          <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Demo anfragen
+        </a>
+      </div>
+    </div>
+
+    <section class="fig-hero uk-section uk-section-large">
+      <div class="uk-container">
+        <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
+          <div class="fig-hero__copy" data-uk-scrollspy="cls: uk-animation-slide-left-small">
+            <span class="fig-hero__badge">Gemeinsam gestalten wir die letzte Meile</span>
+            <h1 class="fig-hero__title">Future is Green – die urbane Logistik von morgen: leise, lokal und nachhaltig.</h1>
+            <p class="fig-hero__subtitle">Die Stadt atmet auf: saubere Luft, weniger Lärm, effizientere Wege. Wir verbinden lokale Händler:innen, smarte Hubs und leise E-Cargobikes zu einer Logistikkette, die für Menschen, Umwelt und Wirtschaft funktioniert.</p>
+            <div class="fig-hero__actions">
+              <a class="fig-button fig-button--primary" href="#contact">
+                <span class="uk-margin-small-right" data-uk-icon="icon: cart"></span>Händler:in werden
+              </a>
+              <a class="fig-button fig-button--ghost" href="#contact">
+                <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>Pilot anfragen
+              </a>
+            </div>
+          </div>
+          <div class="fig-hero__visual" data-uk-scrollspy="cls: uk-animation-slide-right-small; delay: 150">
+            <div class="fig-hero__card uk-card uk-card-default uk-card-body">
+              <h2 class="fig-hero__card-title">Wir machen City-Logistik messbar nachhaltig.</h2>
+              <p>Von der Anlieferung im Mikrohub bis zur letzten Meile per Cargo-Bike: Future is Green reduziert Verkehr, Emissionen und Lieferzeiten in dicht besiedelten Quartieren.</p>
+              <div class="fig-hero__card-metric">
+                <span class="fig-hero__metric-value">7,4&nbsp;t</span>
+                <span class="fig-hero__metric-label">CO₂-Ersparnis pro Jahr in Pilotgebieten</span>
+              </div>
+              <p class="fig-hero__card-note">Live-Dashboards machen Fortschritt sichtbar – für Kommunen, Händler:innen und Bürger:innen.</p>
+            </div>
+          </div>
+        </div>
+        <div class="fig-hero__stats-bar" data-uk-scrollspy="cls: uk-animation-fade; delay: 200">
+          <ul class="fig-hero__stats" role="list">
+            <li class="fig-hero__stat" role="listitem">
+              <span class="fig-hero__stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M5 20V7.5L12 4l7 3.5V20"></path>
+                  <path d="M9 20v-6h6v6"></path>
+                </svg>
+              </span>
+              <span class="fig-hero__stat-label">
+                <strong>3</strong>
+                <span>Mikrohub-Piloten im Betrieb</span>
+              </span>
+            </li>
+            <li class="fig-hero__stat" role="listitem">
+              <span class="fig-hero__stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M4 12a8 8 0 1 1 16 0 8 8 0 0 1-16 0Z"></path>
+                  <path d="M12 7v6l3 2"></path>
+                </svg>
+              </span>
+              <span class="fig-hero__stat-label">
+                <strong>92%</strong>
+                <span>Same-Day-Lieferungen pünktlich</span>
+              </span>
+            </li>
+            <li class="fig-hero__stat" role="listitem">
+              <span class="fig-hero__stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M5 16.5 14.5 7"></path>
+                  <path d="M9 7h5V12"></path>
+                  <path d="M4 20h10"></path>
+                </svg>
+              </span>
+              <span class="fig-hero__stat-label">
+                <strong>15 km</strong>
+                <span>durch&shy;schnittliche Tour pro Rider</span>
+              </span>
+            </li>
+            <li class="fig-hero__stat" role="listitem">
+              <span class="fig-hero__stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M4 18V6h16v12"></path>
+                  <path d="M4 10h16"></path>
+                  <path d="M7 14h3"></path>
+                  <path d="M14 14h3"></path>
+                </svg>
+              </span>
+              <span class="fig-hero__stat-label">
+                <strong>45</strong>
+                <span>lokale Händler:innen an Bord</span>
+              </span>
+            </li>
+            <li class="fig-hero__stat" role="listitem">
+              <span class="fig-hero__stat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M12 6v12"></path>
+                  <path d="M6 10h12"></path>
+                  <circle cx="12" cy="12" r="8"></circle>
+                </svg>
+              </span>
+              <span class="fig-hero__stat-label">
+                <strong>Echtzeit</strong>
+                <span>Impact-Dashboards für Kommunen</span>
+              </span>
+            </li>
+          </ul>
+        </div>
+        {% set trustLogos = [
+          'Stadtwerke',
+          'IHK',
+          'Hochschule&nbsp;XY',
+          'EU-Regionalfonds',
+          'Urbane Innovation&nbsp;2025',
+          'Logistiknetzwerk&nbsp;Nord',
+          'Bundesumweltamt',
+          'Förderinitiative&nbsp;Smart&nbsp;City',
+          'Mobilitätsrat&nbsp;Zukunft'
+        ] %}
+        <div class="fig-trust" data-uk-scrollspy="cls: uk-animation-fade; delay: 200">
+          <div class="fig-trust__headline">
+            <span>Gefördert &amp; unterstützt von</span>
+            <div class="fig-trust__ticker" aria-hidden="true">
+              <div class="fig-trust__ticker-track">
+                {% for logo in trustLogos %}
+                  <span class="fig-trust__pill">{{ logo|raw }}</span>
+                {% endfor %}
+                {% for logo in trustLogos %}
+                  <span class="fig-trust__pill">{{ logo|raw }}</span>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {{ content|raw }}
+  </div>
+{% endblock %}
+
+{% block footer %}
+  <div class="fig-footer">
+    <div class="footer-columns">
+      <div class="footer-section footer-about">
+        <strong>Future is Green</strong>
+        <p>Urbane Logistik für lebenswerte Städte – leise, lokal und nachhaltig.</p>
+      </div>
+      <div class="footer-section footer-contact">
+        <strong>Kontakt</strong>
+        <p>
+          Future is Green Logistic Solutions<br>
+          <a
+            class="js-email-link"
+            data-user="hello"
+            data-domain="futureisgreen.city"
+            href="#"
+          >hello [at] futureisgreen.city</a>
+        </p>
+        <ul>
+          <li>
+            <a href="https://www.linkedin.com" rel="noopener" target="_blank">
+              <span class="uk-margin-small-right" data-uk-icon="icon: linkedin"></span>LinkedIn
+            </a>
+          </li>
+          <li>
+            <a href="https://mastodon.social" rel="noopener" target="_blank">
+              <span class="uk-margin-small-right" data-uk-icon="icon: world"></span>Mastodon
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="footer-section footer-navigation">
+        <strong>Bereiche</strong>
+        <ul>
+          <li><a href="#benefits">Wirkung</a></li>
+          <li><a href="#how-it-works">Lösungen</a></li>
+          <li><a href="#cases">Referenzen</a></li>
+          <li><a href="#pricing">Preise &amp; Vergleich</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#contact">Kontakt</a></li>
+        </ul>
+      </div>
+      <div class="footer-section footer-legal">
+        <strong>Rechtliches</strong>
+        <ul>
+          <li><a href="{{ basePath }}/impressum">{{ t('imprint') }}</a></li>
+          <li><a href="{{ basePath }}/datenschutz">{{ t('privacy') }}</a></li>
+          <li><a href="{{ basePath }}/lizenz">{{ t('license') }}</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ basePath }}/js/storage.js"></script>
+  <script src="{{ basePath }}/js/app.js" defer></script>
+  <script src="{{ basePath }}/js/landing.js" defer></script>
+  {% if turnstileSiteKey %}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
+  {% endif %}
+  <script>
+    (function () {
+      var hoverIntentTimer;
+
+      function scheduleSwap(e) {
+        var link = e.target.closest('a[data-explain]');
+        if (!link) {
+          return;
+        }
+
+        clearTimeout(hoverIntentTimer);
+
+        if (e.type === 'focusin') {
+          swapPane(link);
+          return;
+        }
+
+        hoverIntentTimer = setTimeout(function () {
+          swapPane(link);
+        }, 90);
+      }
+
+      function swapPane(link) {
+        var dropdown = link.closest('.uk-navbar-dropdown');
+        if (!dropdown) {
+          return;
+        }
+
+        var explainKey = link.getAttribute('data-explain');
+        var panes = dropdown.querySelectorAll('.menu-explain .explain-pane');
+        panes.forEach(function (pane) {
+          var key = pane.getAttribute('data-explain-pane');
+          pane.classList.toggle('uk-hidden', key !== explainKey);
+        });
+      }
+
+      document.addEventListener('mouseover', scheduleSwap, true);
+      document.addEventListener('focusin', scheduleSwap, true);
+    })();
+
+    function enhanceTechnologySection() {
+      var grid = document.querySelector('#technology .fig-technology-grid');
+      if (!grid || grid.classList.contains('fig-technology-grid--is-enhanced')) {
+        return;
+      }
+
+      if (grid.dataset.figTechnologyEnhanced === 'true') {
+        return;
+      }
+
+      var cards = Array.prototype.slice.call(grid.querySelectorAll('.fig-technology-card'));
+      if (cards.length === 0) {
+        return;
+      }
+
+      function stripAnimationClasses(node) {
+        if (!node || !node.classList) {
+          return;
+        }
+
+        if (node.classList.contains('uk-invisible')) {
+          node.classList.remove('uk-invisible');
+        }
+
+        Array.prototype.slice.call(node.classList).forEach(function (className) {
+          if (className.indexOf('uk-animation-') === 0) {
+            node.classList.remove(className);
+          }
+        });
+
+        Array.prototype.forEach.call(node.children || [], stripAnimationClasses);
+      }
+
+      var interactive = document.createElement('div');
+      interactive.className = 'fig-technology-interactive';
+
+      var scrollspyConfig = grid.getAttribute('data-uk-scrollspy');
+      if (scrollspyConfig) {
+        interactive.setAttribute('data-uk-scrollspy', scrollspyConfig);
+      }
+
+      var navWrapper = document.createElement('div');
+      navWrapper.className = 'fig-technology-interactive__nav';
+
+      var navList = document.createElement('ul');
+      navList.className = 'fig-technology-nav';
+      navList.setAttribute('role', 'tablist');
+      navList.setAttribute('aria-orientation', 'vertical');
+      navWrapper.appendChild(navList);
+
+      var display = document.createElement('div');
+      display.className = 'fig-technology-interactive__display';
+
+      interactive.appendChild(navWrapper);
+      interactive.appendChild(display);
+
+      var buttons = [];
+      var panels = [];
+      var activeIndex = 0;
+      var observedPanel = null;
+      var raf = window.requestAnimationFrame || function (callback) {
+        return window.setTimeout(callback, 16);
+      };
+      var measurementScheduled = false;
+      var desktopMediaQuery = window.matchMedia
+        ? window.matchMedia('(min-width: 960px)')
+        : null;
+
+      function shouldLockDisplayHeight() {
+        if (!desktopMediaQuery) {
+          return true;
+        }
+
+        return desktopMediaQuery.matches;
+      }
+      var resizeObserver = typeof ResizeObserver === 'function'
+        ? new ResizeObserver(function () {
+            scheduleDisplayHeightMeasurement();
+          })
+        : null;
+
+      function measurePanelHeight(panel) {
+        if (!panel) {
+          return 0;
+        }
+
+        var isCurrentlyVisible = !panel.hasAttribute('hidden') && panel.classList.contains('is-active');
+        if (isCurrentlyVisible) {
+          return panel.offsetHeight;
+        }
+
+        var wasHidden = panel.hasAttribute('hidden');
+        var hadActiveClass = panel.classList.contains('is-active');
+
+        if (wasHidden) {
+          panel.removeAttribute('hidden');
+        }
+
+        if (!hadActiveClass) {
+          panel.classList.add('is-active');
+        }
+
+        var previousTransition = panel.style.transition;
+        var previousPosition = panel.style.position;
+        var previousVisibility = panel.style.visibility;
+        var previousPointerEvents = panel.style.pointerEvents;
+        var previousHeight = panel.style.height;
+        var previousWidth = panel.style.width;
+
+        panel.style.transition = 'none';
+        panel.style.position = 'absolute';
+        panel.style.visibility = 'hidden';
+        panel.style.pointerEvents = 'none';
+        panel.style.height = 'auto';
+        if (display.clientWidth) {
+          panel.style.width = display.clientWidth + 'px';
+        }
+
+        var measuredHeight = panel.offsetHeight;
+
+        panel.style.transition = previousTransition;
+        panel.style.position = previousPosition;
+        panel.style.visibility = previousVisibility;
+        panel.style.pointerEvents = previousPointerEvents;
+        panel.style.height = previousHeight;
+        panel.style.width = previousWidth;
+
+        if (!hadActiveClass) {
+          panel.classList.remove('is-active');
+        }
+
+        if (wasHidden) {
+          panel.setAttribute('hidden', 'true');
+        }
+
+        return measuredHeight;
+      }
+
+      function scheduleDisplayHeightMeasurement() {
+        if (measurementScheduled) {
+          return;
+        }
+
+        measurementScheduled = true;
+
+        raf(function () {
+          measurementScheduled = false;
+
+          if (!shouldLockDisplayHeight()) {
+            display.style.minHeight = '';
+            return;
+          }
+
+          var maxHeight = panels.reduce(function (acc, panel) {
+            var panelHeight = measurePanelHeight(panel);
+            return panelHeight > acc ? panelHeight : acc;
+          }, 0);
+
+          if (maxHeight > 0) {
+            display.style.minHeight = maxHeight + 'px';
+          } else {
+            display.style.minHeight = '';
+          }
+        });
+      }
+
+      cards.forEach(function (card, index) {
+        var panel = card.cloneNode(true);
+        stripAnimationClasses(panel);
+        var panelId = 'fig-technology-panel-' + index;
+        var tabId = 'fig-technology-tab-' + index;
+
+        panel.id = panelId;
+        panel.classList.add('fig-technology-panel');
+        panel.setAttribute('role', 'tabpanel');
+        panel.setAttribute('aria-labelledby', tabId);
+        if (index !== 0) {
+          panel.setAttribute('hidden', 'true');
+        } else {
+          panel.classList.add('is-active');
+        }
+
+        display.appendChild(panel);
+        panels.push(panel);
+
+        var heading = panel.querySelector('h3');
+        var headingText = heading ? heading.textContent.trim() : 'Technologie ' + (index + 1);
+
+        var summaryText = '';
+        var summarySource = card.querySelector('.fig-feature-list li span:last-child');
+        if (summarySource) {
+          summaryText = summarySource.textContent.trim();
+        }
+
+        var item = document.createElement('li');
+        item.className = 'fig-technology-nav__item';
+        item.setAttribute('role', 'presentation');
+
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'fig-technology-nav__button';
+        button.id = tabId;
+        button.setAttribute('role', 'tab');
+        button.setAttribute('aria-controls', panelId);
+        button.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
+        button.setAttribute('tabindex', index === 0 ? '0' : '-1');
+
+        var titleSpan = document.createElement('span');
+        titleSpan.className = 'fig-technology-nav__title';
+        titleSpan.textContent = headingText;
+        button.appendChild(titleSpan);
+
+        if (summaryText !== '') {
+          var descSpan = document.createElement('span');
+          descSpan.className = 'fig-technology-nav__desc';
+          descSpan.textContent = summaryText;
+          button.appendChild(descSpan);
+        }
+
+        if (index === 0) {
+          button.classList.add('is-active');
+        }
+
+        item.appendChild(button);
+        navList.appendChild(item);
+        buttons.push(button);
+
+        button.addEventListener('click', function () {
+          activate(index, false);
+        });
+
+        button.addEventListener('keydown', function (event) {
+          var key = event.key || event.which;
+          var targetIndex = null;
+
+          if (key === 'ArrowDown' || key === 'ArrowRight' || key === 40 || key === 39) {
+            targetIndex = (index + 1) % buttons.length;
+          } else if (key === 'ArrowUp' || key === 'ArrowLeft' || key === 38 || key === 37) {
+            targetIndex = (index - 1 + buttons.length) % buttons.length;
+          } else if (key === 'Home' || key === 36) {
+            targetIndex = 0;
+          } else if (key === 'End' || key === 35) {
+            targetIndex = buttons.length - 1;
+          }
+
+          if (targetIndex !== null) {
+            event.preventDefault();
+            activate(targetIndex, true);
+          }
+        });
+      });
+
+      function activate(newIndex, focusTab) {
+        if (newIndex < 0 || newIndex >= panels.length) {
+          return;
+        }
+
+        activeIndex = newIndex;
+
+        buttons.forEach(function (btn, idx) {
+          var isActive = idx === newIndex;
+          btn.classList.toggle('is-active', isActive);
+          btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+          btn.setAttribute('tabindex', isActive ? '0' : '-1');
+          if (isActive && focusTab) {
+            btn.focus();
+          }
+        });
+
+        panels.forEach(function (panel, idx) {
+          var shouldShow = idx === newIndex;
+          if (shouldShow) {
+            panel.removeAttribute('hidden');
+            panel.classList.add('is-active');
+          } else {
+            panel.setAttribute('hidden', 'true');
+            panel.classList.remove('is-active');
+          }
+        });
+
+        if (resizeObserver) {
+          if (observedPanel) {
+            resizeObserver.unobserve(observedPanel);
+          }
+
+          observedPanel = panels[newIndex];
+
+          if (observedPanel) {
+            resizeObserver.observe(observedPanel);
+          }
+        }
+
+        scheduleDisplayHeightMeasurement();
+        window.setTimeout(scheduleDisplayHeightMeasurement, 120);
+      }
+
+      activate(activeIndex, false);
+
+      grid.insertAdjacentElement('afterend', interactive);
+      grid.classList.add('fig-technology-grid--is-enhanced');
+      grid.setAttribute('aria-hidden', 'true');
+      grid.dataset.figTechnologyEnhanced = 'true';
+
+      if (desktopMediaQuery) {
+        var mqListener = scheduleDisplayHeightMeasurement;
+        if (typeof desktopMediaQuery.addEventListener === 'function') {
+          desktopMediaQuery.addEventListener('change', mqListener);
+        } else if (typeof desktopMediaQuery.addListener === 'function') {
+          desktopMediaQuery.addListener(mqListener);
+        }
+      }
+
+      window.addEventListener('resize', scheduleDisplayHeightMeasurement);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var contactForm = document.getElementById('contact-form');
+      if (contactForm && !contactForm.hasAttribute('data-contact-endpoint')) {
+        contactForm.setAttribute('data-contact-endpoint', '{{ basePath }}/future-is-green/contact');
+      }
+
+      var contactSection = document.getElementById('contact');
+      if (contactSection && !document.getElementById('kontakt')) {
+        var anchor = document.createElement('div');
+        anchor.id = 'kontakt';
+        anchor.className = 'fig-scroll-anchor';
+        anchor.setAttribute('aria-hidden', 'true');
+        contactSection.insertAdjacentElement('afterbegin', anchor);
+      }
+
+      var topbar = document.querySelector('.future-is-green-theme .qr-topbar');
+      if (topbar) {
+        var toggleTopbarState = function () {
+          if (window.scrollY > 12) {
+            topbar.classList.add('fig-topbar--condensed');
+          } else {
+            topbar.classList.remove('fig-topbar--condensed');
+          }
+        };
+
+        toggleTopbarState();
+        window.addEventListener('scroll', toggleTopbarState, { passive: true });
+      }
+
+      enhanceTechnologySection();
+    });
+  </script>
+{% endblock %}

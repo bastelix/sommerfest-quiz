@@ -760,6 +760,45 @@ body.qr-landing:not([data-theme="dark"]) .contact-card span{
   margin-top:12px;
 }
 
+.calserver-contact-card__entry{
+  display:flex;
+  flex-direction:column;
+}
+
+.calserver-contact-card__entry + .calserver-contact-card__entry{
+  margin-top:12px;
+}
+
+.calserver-proof-seals__badge-link,
+.calserver-proof-seals__widget{
+  flex:1 1 240px;
+  max-width:320px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.calserver-proof-seals__badge-link img{
+  display:block;
+  max-width:100%;
+  height:auto;
+}
+
+.calserver-proof-seals__widget{
+  flex-direction:column;
+  gap:8px;
+  min-height:180px;
+}
+
+.calserver-proof-seals__widget noscript{
+  width:100%;
+  text-align:center;
+}
+
+.calserver-proof-seals__widget #proSealWidget{
+  width:100%;
+}
+
 @media (min-width: 960px){
   .calserver-proof-seals{
     justify-content:flex-start;
@@ -773,7 +812,7 @@ body.qr-landing:not([data-theme="dark"]) .contact-card span{
 
 .calserver-proof-seals__badge{
   display:block;
-  height:72px;
+  height:54px;
   width:auto;
 }
 

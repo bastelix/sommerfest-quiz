@@ -922,12 +922,14 @@
       <li class="{{ activeRoute == 'pages' ? 'uk-active' }}">
         <div class="uk-container uk-container-large">
           <h2 class="uk-heading-bullet">{{ t('heading_pages') }}</h2>
+          {% set currentPageTab = pageTab|default('seo') %}
           <ul id="pageTabs" class="uk-tab" uk-tab="connect: #pageSwitcher">
-            <li class="uk-active"><a href="#">{{ t('tab_landingpage_seo') }}</a></li>
-            <li><a href="#">{{ t('tab_landingpage_content') }}</a></li>
+            <li class="{{ currentPageTab == 'seo' ? 'uk-active' }}"><a href="#">{{ t('tab_landingpage_seo') }}</a></li>
+            <li class="{{ currentPageTab == 'content' ? 'uk-active' }}"><a href="#">{{ t('tab_landingpage_content') }}</a></li>
+            <li class="{{ currentPageTab == 'landing-news' ? 'uk-active' }}"><a href="#">{{ t('tab_landing_news') }}</a></li>
           </ul>
           <ul id="pageSwitcher" class="uk-switcher uk-margin">
-            <li>
+            <li class="{{ currentPageTab == 'seo' ? 'uk-active' }}">
               {% if seo_pages|default([]) is empty %}
                 <div class="uk-alert uk-alert-warning">{{ t('text_no_marketing_pages') }}</div>
               {% else %}
@@ -1015,7 +1017,7 @@
               </form>
               {% endif %}
             </li>
-            <li>
+            <li class="{{ currentPageTab == 'content' ? 'uk-active' }}">
               {% if pages|default([]) is empty %}
                 <div class="uk-alert uk-alert-warning">{{ t('text_no_marketing_pages') }}</div>
               {% else %}
@@ -1105,6 +1107,17 @@
                 </div>
               {% endif %}
             </li>
+            <li class="{{ currentPageTab == 'landing-news' ? 'uk-active' }}">
+              <div class="uk-flex uk-flex-between uk-flex-middle uk-margin-small-bottom uk-flex-wrap">
+                <h3 class="uk-heading-bullet uk-margin-remove">{{ t('heading_landing_news') }}</h3>
+                <a class="uk-button uk-button-primary uk-margin-small-top uk-margin-remove-top@s" href="{{ basePath }}/admin/landing-news/create">{{ t('button_add_news') }}</a>
+              </div>
+              {% include 'admin/landing_news/_list.twig' with {
+                entries: landingNewsEntries|default([]),
+                status: landingNewsStatus|default(''),
+                csrfToken: csrf_token
+              } %}
+            </li>
           </ul>
         </div>
       </li>
@@ -1141,6 +1154,79 @@
             </table>
           </div>
         </div>
+
+        {% set domainChatDomains = domain_chat_domains|default([]) %}
+        {% set domainChatMaxSize = (constant('App\\Service\\RagChat\\DomainDocumentStorage::MAX_FILE_SIZE') / 1048576)|number_format(1, '.', '') %}
+        <h3 class="uk-heading-bullet uk-margin-large-top">{{ t('heading_domain_chat') }}</h3>
+        {% if domainChatDomains is empty %}
+          <p class="uk-text-meta">{{ t('text_domain_chat_no_domains') }}</p>
+        {% else %}
+          <div
+            class="uk-card uk-card-default uk-card-small uk-margin"
+            data-domain-chat
+            data-empty="{{ t('text_domain_chat_empty') }}"
+            data-loading="{{ t('text_domain_chat_loading') }}"
+            data-error="{{ t('notify_domain_chat_error') }}"
+            data-confirm="{{ t('confirm_domain_chat_delete') }}"
+          >
+            <div class="uk-card-body">
+              <form class="uk-grid-small uk-flex-middle" uk-grid data-domain-chat-form>
+                <div class="uk-width-1-1 uk-width-1-3@m">
+                  <label class="uk-form-label" for="domainChatSelect">{{ t('label_domain_chat_domain') }}</label>
+                  <div class="uk-form-controls">
+                    <select id="domainChatSelect" class="uk-select" data-domain-chat-select>
+                      {% for item in domainChatDomains %}
+                        {% set optionValue = item.normalized|default(item.domain|default('')) %}
+                        <option value="{{ optionValue }}">{{ item.domain|default(optionValue) }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="uk-width-1-1 uk-width-expand@m">
+                  <label class="uk-form-label" for="domainChatFile">{{ t('label_domain_chat_upload') }}</label>
+                  <div class="uk-form-controls">
+                    <input
+                      id="domainChatFile"
+                      class="uk-input"
+                      type="file"
+                      accept=".md,.markdown,.html,.htm,.txt"
+                      data-domain-chat-upload
+                    >
+                  </div>
+                  <p class="uk-text-meta uk-margin-small-top">{{ t('text_domain_chat_file_hint')|format(domainChatMaxSize) }}</p>
+                </div>
+                <div class="uk-width-1-2 uk-width-auto@m uk-flex uk-flex-bottom">
+                  <button type="submit" class="uk-button uk-button-primary uk-width-1-1" data-domain-chat-submit>
+                    {{ t('button_domain_chat_upload') }}
+                  </button>
+                </div>
+                <div class="uk-width-1-2 uk-width-auto@m uk-flex uk-flex-bottom">
+                  <button type="button" class="uk-button uk-button-default uk-width-1-1" data-domain-chat-rebuild>
+                    {{ t('button_domain_chat_rebuild') }}
+                  </button>
+                </div>
+              </form>
+              <div class="uk-margin-small" data-domain-chat-status aria-live="polite"></div>
+              <div class="uk-overflow-auto uk-margin">
+                <table class="uk-table uk-table-divider uk-table-small" data-domain-chat-table>
+                  <thead>
+                    <tr>
+                      <th>{{ t('column_domain_chat_name') }}</th>
+                      <th class="uk-table-shrink">{{ t('column_domain_chat_size') }}</th>
+                      <th class="uk-table-shrink">{{ t('column_domain_chat_updated') }}</th>
+                      <th class="uk-table-shrink">{{ t('column_actions') }}</th>
+                    </tr>
+                  </thead>
+                  <tbody data-domain-chat-body>
+                    <tr>
+                      <td colspan="4">{{ t('text_domain_chat_loading') }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        {% endif %}
 
         <div id="domainContactTemplateModal" uk-modal>
           <div class="uk-modal-dialog uk-modal-body">
@@ -1616,6 +1702,29 @@
       <button class="uk-offcanvas-close" type="button" uk-close aria-label="{{ t('menu') }}"></button>
       <h3 class="uk-margin-small">QuizRace</h3>
       {% include 'admin/_nav.twig' %}
+      <ul class="uk-nav uk-nav-default offcanvas-switches" role="menu">
+        <li>
+          <button class="uk-button uk-button-default git-btn theme-toggle" aria-label="{{ t('design_toggle') }}" role="menuitem">
+            <span class="theme-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"></path></svg>
+            </span>
+          </button>
+        </li>
+        <li>
+          <button class="uk-button uk-button-default git-btn accessibility-toggle" aria-label="{{ t('contrast_toggle') }}" role="menuitem">
+            <span class="accessibility-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2a10 10 0 0 0 0 20z" fill="currentColor" /></svg>
+            </span>
+          </button>
+        </li>
+        <li>
+          <button class="uk-button uk-button-default git-btn help-toggle" aria-label="{{ t('help') }}" role="menuitem">
+            <span aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2Zm0 16a1.25 1.25 0 1 1 0 2.5A1.25 1.25 0 0 1 12 18Zm1.1-3.9v.65h-2.1V14c0-1.35.9-2.01 1.84-2.56.84-.5 1.66-.99 1.66-1.94 0-.86-.7-1.5-1.75-1.5-1.06 0-1.77.63-1.9 1.6H8.7C8.86 7.63 10.13 6 12.75 6c2.32 0 3.9 1.33 3.9 3.23 0 1.87-1.46 2.7-2.37 3.22-.87.5-1.18.76-1.18 1.65Z" fill="currentColor"/></svg>
+            </span>
+          </button>
+        </li>
+      </ul>
     </div>
   </div>
 {% endblock %}
@@ -1651,6 +1760,19 @@
     window.transDomainContactTemplateError = '{{ t('notify_domain_contact_template_error')|e('js') }}';
     window.transDomainContactTemplateLoadError = '{{ t('notify_domain_contact_template_load_error')|e('js') }}';
     window.transDomainContactTemplateInvalidDomain = '{{ t('notify_domain_contact_template_invalid_domain')|e('js') }}';
+    window.domainChatDomains = {{ domain_chat_domains|default([])|json_encode|raw }};
+    window.domainChatTranslations = {{ {
+      'loading': t('text_domain_chat_loading'),
+      'empty': t('text_domain_chat_empty'),
+      'error': t('notify_domain_chat_error'),
+      'uploaded': t('notify_domain_chat_uploaded'),
+      'deleted': t('notify_domain_chat_deleted'),
+      'rebuild': t('notify_domain_chat_rebuild_success'),
+      'rebuildCleared': t('notify_domain_chat_rebuild_cleared'),
+      'rebuildError': t('notify_domain_chat_rebuild_error'),
+      'confirmDelete': t('confirm_domain_chat_delete')
+    }|json_encode|raw }};
+    window.domainChatMaxSize = {{ constant('App\\Service\\RagChat\\DomainDocumentStorage::MAX_FILE_SIZE') }};
     window.pagesContent = {{ page_contents|json_encode|raw }};
     window.transUpgradeTitle = '{{ t('heading_limit_reached') }}';
     window.transUpgradeText = '{{ t('text_upgrade_required') }}';

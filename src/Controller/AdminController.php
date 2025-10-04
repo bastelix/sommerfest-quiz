@@ -26,6 +26,7 @@ use App\Service\VersionService;
 use App\Service\MediaLibraryService;
 use App\Service\ImageUploadService;
 use App\Service\LandingMediaReferenceService;
+use App\Service\LandingNewsService;
 use PDO;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -140,7 +141,8 @@ class AdminController
 
         $pageSvc = new PageService($pdo);
         $seoSvc = new PageSeoConfigService($pdo);
-        $landingReferenceService = new LandingMediaReferenceService($pageSvc, $seoSvc, $configSvc);
+        $landingNewsService = new LandingNewsService($pdo);
+        $landingReferenceService = new LandingMediaReferenceService($pageSvc, $seoSvc, $configSvc, $landingNewsService);
         $pages = [];
         $pageContents = [];
         $allPages = $pageSvc->getAll();
@@ -155,10 +157,13 @@ class AdminController
         }
 
         $marketingPages = $this->filterMarketingPages($allPages);
-        $domainService = new DomainStartPageService($pdo);
         $translator = $request->getAttribute('translator');
         $translationService = $translator instanceof TranslationService ? $translator : null;
         $domainService = new DomainStartPageService($pdo);
+        $uri = $request->getUri();
+        $mainDomain = getenv('MAIN_DOMAIN')
+            ?: getenv('DOMAIN')
+            ?: $uri->getHost();
         $domainStartPageOptions = $domainService->getStartPageOptions($pageSvc);
         if ($translationService !== null) {
             $domainStartPageOptions['help'] = $translationService->translate('option_help_page');
@@ -173,6 +178,9 @@ class AdminController
             }
         }
         $domainStartPageOptions = $orderedDomainOptions + $domainStartPageOptions;
+
+        $marketingConfig = getenv('MARKETING_DOMAINS') ?: '';
+        $domainChatDomains = $domainService->determineDomains($mainDomain, (string) $marketingConfig, $uri->getHost());
 
         $domainType = $request->getAttribute('domainType');
         if ($domainType === 'main') {
@@ -216,11 +224,17 @@ class AdminController
 
         $baseUrl = UrlService::determineBaseUrl($request);
         $eventUrl = $uid !== '' ? $baseUrl . '/?event=' . rawurlencode($uid) : $baseUrl;
-        $uri = $request->getUri();
 
-        $mainDomain = getenv('MAIN_DOMAIN')
-            ?: getenv('DOMAIN')
-            ?: $uri->getHost();
+        $pageTab = $this->resolvePageTab($params);
+        $landingNewsStatus = $this->normalizeLandingNewsStatus($params);
+        if ($landingNewsStatus !== '') {
+            $pageTab = 'landing-news';
+        }
+
+        $landingNewsEntries = [];
+        if ($section === 'pages' && $role === Roles::ADMIN) {
+            $landingNewsEntries = $landingNewsService->getAll();
+        }
 
         $selectedSeoSlug = isset($params['seoPage']) ? (string) $params['seoPage'] : '';
         $selectedSeoPage = $this->selectSeoPage($marketingPages, $selectedSeoSlug);
@@ -262,7 +276,11 @@ class AdminController
               'seo_pages' => array_values($seoPages),
               'selectedSeoPageId' => $selectedSeoPage?->getId(),
               'selectedPageSlug' => $selectedPageSlug,
+              'landingNewsEntries' => $landingNewsEntries,
+              'landingNewsStatus' => $landingNewsStatus,
+              'pageTab' => $pageTab,
               'domain_start_page_options' => $domainStartPageOptions,
+              'domain_chat_domains' => $domainChatDomains,
               'domainType' => $request->getAttribute('domainType'),
               'tenant' => $tenant,
               'stripe_configured' => StripeService::isConfigured()['ok'],
@@ -303,6 +321,37 @@ class AdminController
         }
 
         return $pages[0];
+    }
+
+    /**
+     * Determine the active tab within the pages section.
+     */
+    private function resolvePageTab(array $params): string
+    {
+        $default = 'seo';
+        if (!isset($params['pageTab'])) {
+            return $default;
+        }
+
+        $candidate = (string) $params['pageTab'];
+        $allowed = ['seo', 'content', 'landing-news'];
+
+        return in_array($candidate, $allowed, true) ? $candidate : $default;
+    }
+
+    /**
+     * Normalize the status flag for landing news operations.
+     */
+    private function normalizeLandingNewsStatus(array $params): string
+    {
+        if (!isset($params['landingNewsStatus'])) {
+            return '';
+        }
+
+        $status = (string) $params['landingNewsStatus'];
+        $allowed = ['created', 'updated', 'deleted'];
+
+        return in_array($status, $allowed, true) ? $status : '';
     }
 
     /**

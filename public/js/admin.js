@@ -1325,6 +1325,270 @@ document.addEventListener('DOMContentLoaded', function () {
     reloadDomainStartPages = loadDomainStartPages;
     loadDomainStartPages();
   }
+
+  const domainChatContainer = document.querySelector('[data-domain-chat]');
+  if (domainChatContainer) {
+    const domainChatTranslations = window.domainChatTranslations || {};
+    const domainSelect = domainChatContainer.querySelector('[data-domain-chat-select]');
+    const uploadForm = domainChatContainer.querySelector('[data-domain-chat-form]');
+    const uploadInput = domainChatContainer.querySelector('[data-domain-chat-upload]');
+    const submitButton = domainChatContainer.querySelector('[data-domain-chat-submit]');
+    const rebuildButton = domainChatContainer.querySelector('[data-domain-chat-rebuild]');
+    const tableBody = domainChatContainer.querySelector('[data-domain-chat-body]');
+    const statusBox = domainChatContainer.querySelector('[data-domain-chat-status]');
+    const maxUploadSize = Number(window.domainChatMaxSize || 0);
+    let currentDomain = domainSelect?.value?.trim() || '';
+
+    const formatBytes = bytes => {
+      const value = Number(bytes);
+      if (!Number.isFinite(value) || value <= 0) {
+        return '0 B';
+      }
+      const units = ['B', 'KB', 'MB', 'GB'];
+      let result = value;
+      let unitIndex = 0;
+      while (result >= 1024 && unitIndex < units.length - 1) {
+        result /= 1024;
+        unitIndex += 1;
+      }
+      const decimals = result >= 10 ? 0 : 1;
+      return `${result.toFixed(decimals)} ${units[unitIndex]}`;
+    };
+
+    const formatDate = value => {
+      if (!value) {
+        return '';
+      }
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return value;
+      }
+      return date.toLocaleString();
+    };
+
+    const showStatus = (message, status = 'primary', details = '') => {
+      if (!statusBox) {
+        return;
+      }
+      statusBox.innerHTML = '';
+      if (!message) {
+        statusBox.hidden = true;
+        return;
+      }
+      const paragraph = document.createElement('p');
+      paragraph.textContent = message;
+      paragraph.className = status === 'danger' ? 'uk-text-danger' : 'uk-text-success';
+      statusBox.appendChild(paragraph);
+      if (details) {
+        const pre = document.createElement('pre');
+        pre.className = 'uk-margin-small-top uk-text-small';
+        pre.textContent = details;
+        statusBox.appendChild(pre);
+      }
+      statusBox.hidden = false;
+    };
+
+    const renderDocuments = documents => {
+      if (!tableBody) {
+        return;
+      }
+      tableBody.innerHTML = '';
+      if (!documents.length) {
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        cell.colSpan = 4;
+        cell.textContent = domainChatTranslations.empty || 'Keine Dateien vorhanden';
+        row.appendChild(cell);
+        tableBody.appendChild(row);
+        return;
+      }
+
+      documents.forEach(doc => {
+        const row = document.createElement('tr');
+
+        const nameCell = document.createElement('td');
+        nameCell.textContent = doc.name || doc.filename || '';
+        row.appendChild(nameCell);
+
+        const sizeCell = document.createElement('td');
+        sizeCell.className = 'uk-text-nowrap';
+        sizeCell.textContent = formatBytes(doc.size || 0);
+        row.appendChild(sizeCell);
+
+        const updatedCell = document.createElement('td');
+        updatedCell.className = 'uk-text-nowrap';
+        updatedCell.textContent = formatDate(doc.updated_at || doc.uploaded_at || '');
+        row.appendChild(updatedCell);
+
+        const actionsCell = document.createElement('td');
+        actionsCell.className = 'uk-text-nowrap';
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'uk-button uk-button-link uk-text-danger';
+        deleteButton.textContent = window.transDelete || 'Delete';
+        deleteButton.addEventListener('click', () => {
+          if (!doc.id) {
+            return;
+          }
+          const confirmMessage = domainChatTranslations.confirmDelete || window.transDeletePageConfirm || 'Delete document?';
+          if (!window.confirm(confirmMessage)) {
+            return;
+          }
+          apiFetch(`/admin/domain-chat/documents/${encodeURIComponent(doc.id)}?domain=${encodeURIComponent(currentDomain)}`, {
+            method: 'DELETE'
+          })
+            .then(res => res.json().catch(() => ({})).then(data => {
+              if (!res.ok) {
+                throw new Error(data.error || domainChatTranslations.error || 'Delete failed');
+              }
+              notify(domainChatTranslations.deleted || 'Gelöscht', 'success');
+              return loadDocuments(currentDomain);
+            }))
+            .catch(err => {
+              notify(err.message || domainChatTranslations.error || 'Delete failed', 'danger');
+            });
+        });
+        actionsCell.appendChild(deleteButton);
+        row.appendChild(actionsCell);
+
+        tableBody.appendChild(row);
+      });
+    };
+
+    const loadDocuments = domain => {
+      if (!tableBody || domain === '') {
+        return Promise.resolve();
+      }
+      tableBody.innerHTML = '';
+      const loadingRow = document.createElement('tr');
+      const loadingCell = document.createElement('td');
+      loadingCell.colSpan = 4;
+      loadingCell.textContent = domainChatTranslations.loading || 'Lade …';
+      loadingRow.appendChild(loadingCell);
+      tableBody.appendChild(loadingRow);
+
+      return apiFetch(`/admin/domain-chat/documents?domain=${encodeURIComponent(domain)}`)
+        .then(res => res.json().catch(() => ({})).then(data => {
+          if (!res.ok) {
+            throw new Error(data.error || domainChatTranslations.error || 'Request failed');
+          }
+          currentDomain = typeof data.domain === 'string' && data.domain !== '' ? data.domain : domain;
+          const docs = Array.isArray(data.documents) ? data.documents : [];
+          renderDocuments(docs);
+          showStatus('', 'primary');
+        }))
+        .catch(err => {
+          tableBody.innerHTML = '';
+          const errorRow = document.createElement('tr');
+          const errorCell = document.createElement('td');
+          errorCell.colSpan = 4;
+          errorCell.textContent = err.message || domainChatTranslations.error || 'Fehler';
+          errorRow.appendChild(errorCell);
+          tableBody.appendChild(errorRow);
+          showStatus(err.message || domainChatTranslations.error || 'Fehler', 'danger');
+        });
+    };
+
+    if (domainSelect) {
+      domainSelect.addEventListener('change', () => {
+        currentDomain = domainSelect.value.trim();
+        loadDocuments(currentDomain);
+      });
+    }
+
+    if (uploadForm) {
+      uploadForm.addEventListener('submit', event => {
+        event.preventDefault();
+        const selectedDomain = domainSelect?.value?.trim() || currentDomain;
+        const files = uploadInput?.files;
+        const file = files && files.length ? files[0] : null;
+        if (!selectedDomain || !file) {
+          notify(domainChatTranslations.error || 'Keine Datei ausgewählt', 'danger');
+          return;
+        }
+        if (maxUploadSize > 0 && file.size > maxUploadSize) {
+          const sizeMb = (maxUploadSize / 1048576).toFixed(1);
+          notify(domainChatTranslations.error || `Datei zu groß (max. ${sizeMb} MB)`, 'danger');
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('domain', selectedDomain);
+        formData.append('document', file);
+
+        if (submitButton) {
+          submitButton.disabled = true;
+        }
+        if (rebuildButton) {
+          rebuildButton.disabled = true;
+        }
+
+        apiFetch('/admin/domain-chat/documents', {
+          method: 'POST',
+          body: formData,
+        })
+          .then(res => res.json().catch(() => ({})).then(data => {
+            if (!res.ok) {
+              throw new Error(data.error || domainChatTranslations.error || 'Upload failed');
+            }
+            notify(domainChatTranslations.uploaded || 'Dokument gespeichert', 'success');
+            if (uploadInput) {
+              uploadInput.value = '';
+            }
+            return loadDocuments(selectedDomain);
+          }))
+          .catch(err => {
+            notify(err.message || domainChatTranslations.error || 'Upload failed', 'danger');
+          })
+          .finally(() => {
+            if (submitButton) {
+              submitButton.disabled = false;
+            }
+            if (rebuildButton) {
+              rebuildButton.disabled = false;
+            }
+          });
+      });
+    }
+
+    if (rebuildButton) {
+      rebuildButton.addEventListener('click', () => {
+        const selectedDomain = domainSelect?.value?.trim() || currentDomain;
+        if (!selectedDomain) {
+          notify(domainChatTranslations.error || 'Keine Domain ausgewählt', 'danger');
+          return;
+        }
+        rebuildButton.disabled = true;
+        apiFetch('/admin/domain-chat/rebuild', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain: selectedDomain }),
+        })
+          .then(res => res.json().catch(() => ({})).then(data => {
+            if (!res.ok) {
+              throw new Error(data.error || domainChatTranslations.rebuildError || 'Rebuild failed');
+            }
+            const message = data.cleared
+              ? (domainChatTranslations.rebuildCleared || 'Index zurückgesetzt')
+              : (domainChatTranslations.rebuild || 'Index aktualisiert');
+            const stdout = typeof data.stdout === 'string' ? data.stdout.trim() : '';
+            showStatus(message, 'success', stdout);
+            return loadDocuments(selectedDomain);
+          }))
+          .catch(err => {
+            showStatus(err.message || domainChatTranslations.rebuildError || 'Rebuild failed', 'danger');
+            notify(err.message || domainChatTranslations.rebuildError || 'Rebuild failed', 'danger');
+          })
+          .finally(() => {
+            rebuildButton.disabled = false;
+          });
+      });
+    }
+
+    if (currentDomain !== '') {
+      loadDocuments(currentDomain);
+    }
+  }
   function collectCfgData() {
     const data = {
       pageTitle: cfgFields.pageTitle?.value || '',
@@ -3651,7 +3915,7 @@ document.addEventListener('DOMContentLoaded', function () {
   let cardIndex = 0;
 
   // --------- Hilfe-Seitenleiste ---------
-  const helpBtn = document.getElementById('helpBtn');
+  const helpButtons = document.querySelectorAll('.help-toggle');
   const helpSidebar = document.getElementById('helpSidebar');
   const helpContent = document.getElementById('helpContent');
   const qrDesignModal = document.getElementById('qrDesignModal');
@@ -4076,15 +4340,19 @@ document.addEventListener('DOMContentLoaded', function () {
     return active ? active.getAttribute('data-help') || '' : '';
   }
 
-  helpBtn?.addEventListener('click', () => {
-    if (!helpSidebar || !helpContent) return;
-    let text = activeHelpText();
-    if (!text && window.location.pathname.endsWith('/admin/event/settings')) {
-      text = window.transEventSettingsHelp || '';
-    }
-    helpContent.innerHTML = text;
-    if (window.UIkit && UIkit.offcanvas) UIkit.offcanvas(helpSidebar).show();
-  });
+  if (helpButtons.length) {
+    helpButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        if (!helpSidebar || !helpContent) return;
+        let text = activeHelpText();
+        if (!text && window.location.pathname.endsWith('/admin/event/settings')) {
+          text = window.transEventSettingsHelp || '';
+        }
+        helpContent.innerHTML = text;
+        if (window.UIkit && UIkit.offcanvas) UIkit.offcanvas(helpSidebar).show();
+      });
+    });
+  }
 
   adminMenuToggle?.addEventListener('click', e => {
     e.preventDefault();

@@ -752,6 +752,149 @@ body.qr-landing.calserver-theme .calserver-highlight__intro p {
     color: color-mix(in oklab, rgba(255, 255, 255, 0.92) 92%, rgba(255, 255, 255, 0.62) 8%);
 }
 
+.calserver-chat-trigger {
+    white-space: nowrap;
+}
+
+.calserver-chat-modal .uk-modal-dialog {
+    max-width: 720px;
+}
+
+.calserver-chat__dialog {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    border-radius: 12px;
+    box-shadow: 0 28px 64px -40px rgba(9, 20, 40, 0.55), 0 12px 32px -20px rgba(14, 30, 60, 0.35);
+}
+
+.calserver-chat__intro {
+    margin: 0;
+    color: color-mix(in oklab, var(--qr-text, #1c2131) 82%, rgba(28, 33, 49, 0.52));
+}
+
+.calserver-chat__messages {
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 12px 16px;
+    background: color-mix(in oklab, var(--qr-card, #f5f7fb) 92%, rgba(255, 255, 255, 0.82));
+    border: 1px solid color-mix(in oklab, var(--qr-border, #d8deeb) 90%, transparent);
+    border-radius: 10px;
+}
+
+.calserver-chat__system {
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    background: color-mix(in oklab, var(--calserver-primary, #1f63e6) 14%, rgba(255, 255, 255, 0.92));
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.calserver-chat__turn {
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid color-mix(in oklab, var(--qr-border, #d8deeb) 86%, transparent);
+}
+
+.calserver-chat__turn:last-child {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: 0;
+}
+
+.calserver-chat__question {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+}
+
+.calserver-chat__answer p {
+    margin: 0 0 8px;
+    line-height: 1.5;
+}
+
+.calserver-chat__answer p:last-child {
+    margin-bottom: 0;
+}
+
+.calserver-chat__context {
+    margin-top: 12px;
+}
+
+.calserver-chat__context-title {
+    margin: 0 0 8px;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: color-mix(in oklab, var(--qr-muted, #5c6580) 92%, rgba(92, 101, 128, 0.6));
+}
+
+.calserver-chat__context-list {
+    margin: 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.calserver-chat__context-label {
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+.calserver-chat__context-score {
+    margin-left: 8px;
+    font-size: 0.85rem;
+    color: color-mix(in oklab, var(--qr-muted, #5c6580) 88%, rgba(92, 101, 128, 0.5));
+}
+
+.calserver-chat__context-snippet {
+    margin: 0;
+    line-height: 1.45;
+}
+
+.calserver-chat__empty {
+    margin: 12px 0 0;
+    font-style: italic;
+    color: color-mix(in oklab, var(--qr-muted, #5c6580) 85%, rgba(92, 101, 128, 0.55));
+}
+
+.calserver-chat__status {
+    min-height: 1.25em;
+    margin: 0;
+    font-weight: 600;
+    color: color-mix(in oklab, var(--qr-muted, #5c6580) 92%, rgba(92, 101, 128, 0.5));
+}
+
+.calserver-chat__status--error {
+    color: #c53030;
+}
+
+.calserver-chat__form textarea {
+    resize: vertical;
+}
+
+.calserver-chat__form-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.calserver-chat__form--loading textarea {
+    opacity: 0.75;
+}
+
+@media (max-width: 640px) {
+    .calserver-chat__dialog {
+        padding: 20px 18px;
+    }
+
+    .calserver-chat__messages {
+        max-height: 240px;
+    }
+}
+
 body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast)
     .calserver-highlight__intro
     p,
@@ -1921,9 +2064,8 @@ body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual__image {
     z-index: 1050;
 }
 
-.calserver-cookie-trigger {
+.calserver-floating-button {
     position: fixed;
-    left: clamp(1rem, 4vw, 1.75rem);
     bottom: clamp(1rem, 4vw, 1.75rem);
     z-index: 1040;
     display: inline-flex;
@@ -1940,7 +2082,7 @@ body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual__image {
     transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.calserver-cookie-trigger svg {
+.calserver-floating-button svg {
     width: 1.45rem;
     height: 1.45rem;
     color: inherit;
@@ -1948,24 +2090,32 @@ body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual__image {
     fill: none;
 }
 
-.calserver-cookie-trigger .uk-icon {
+.calserver-floating-button .uk-icon {
     color: inherit !important;
 }
 
-.calserver-cookie-trigger:hover,
-.calserver-cookie-trigger:focus-visible {
+.calserver-floating-button:hover,
+.calserver-floating-button:focus-visible {
     background: color-mix(in oklab, var(--calserver-primary) 30%, rgba(8, 13, 24, 0.9));
     border-color: color-mix(in oklab, var(--calserver-primary) 64%, rgba(255, 255, 255, 0.28));
     box-shadow: 0 22px 48px rgba(9, 15, 28, 0.36), 0 10px 20px rgba(9, 15, 28, 0.3);
 }
 
-.calserver-cookie-trigger:focus-visible {
+.calserver-floating-button:focus-visible {
     outline: 3px solid color-mix(in oklab, var(--calserver-primary) 70%, #ffffff 30%);
     outline-offset: 3px;
 }
 
-.calserver-cookie-trigger:active {
+.calserver-floating-button:active {
     transform: scale(0.96);
+}
+
+.calserver-cookie-trigger {
+    left: clamp(1rem, 4vw, 1.75rem);
+}
+
+.calserver-chat-fab {
+    right: clamp(1rem, 4vw, 1.75rem);
 }
 
 .calserver-cookie-trigger--active {
@@ -1974,38 +2124,45 @@ body.qr-landing.calserver-theme .usecase-card--visual .usecase-visual__image {
     box-shadow: 0 16px 36px rgba(9, 15, 28, 0.28), 0 6px 14px rgba(9, 15, 28, 0.24);
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-cookie-trigger,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-cookie-trigger {
+body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-floating-button,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-floating-button {
     color: #ffffff;
     border-color: color-mix(in oklab, var(--calserver-primary) 52%, rgba(255, 255, 255, 0.24));
     background: color-mix(in oklab, var(--calserver-primary) 22%, rgba(8, 13, 24, 0.94));
     box-shadow: 0 20px 45px rgba(9, 15, 28, 0.32), 0 8px 18px rgba(9, 15, 28, 0.28);
 }
 
-body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-cookie-trigger svg,
-body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-cookie-trigger svg {
+body.qr-landing.calserver-theme:not(.dark-mode):not(.high-contrast) .calserver-floating-button svg,
+body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) .calserver-floating-button svg {
     color: inherit;
     stroke: currentColor;
 }
 
 @media (max-width: 640px) {
-    .calserver-cookie-trigger {
+    .calserver-floating-button {
         width: 3rem;
         height: 3rem;
-        left: clamp(0.85rem, 6vw, 1.25rem);
         bottom: clamp(0.85rem, 6vw, 1.25rem);
         box-shadow: 0 14px 28px rgba(9, 15, 28, 0.3), 0 6px 16px rgba(9, 15, 28, 0.28);
     }
 
-    .calserver-cookie-trigger svg {
+    .calserver-floating-button svg {
         width: 1.35rem;
         height: 1.35rem;
     }
+
+    .calserver-cookie-trigger {
+        left: clamp(0.85rem, 6vw, 1.25rem);
+    }
+
+    .calserver-chat-fab {
+        right: clamp(0.85rem, 6vw, 1.25rem);
+    }
 }
 
-body.qr-landing.calserver-theme.high-contrast .calserver-cookie-trigger,
-body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-cookie-trigger,
-body.high-contrast .calserver-cookie-trigger {
+body.qr-landing.calserver-theme.high-contrast .calserver-floating-button,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-floating-button,
+body.high-contrast .calserver-floating-button {
     background: #000000;
     color: #ffffff;
     box-shadow: none;

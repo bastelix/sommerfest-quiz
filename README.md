@@ -377,7 +377,10 @@ Let's-Encrypt-Zertifikat, sobald der Container gestartet wird. Damit das
 Stamm-Domain-Zertifikat (`MAIN_DOMAIN`) nicht versehentlich fehlt,
 ergänzt `docker-compose.yml` diesen Host seit Version 4.16 automatisch in
 `VIRTUAL_HOST`/`LETSENCRYPT_HOST`. Zusätzliche Domains kannst du wie
-bisher über `MARKETING_DOMAINS` anhängen.
+bisher über `MARKETING_DOMAINS` anhängen. Beim Start normalisiert der
+Container die Liste (Leerzeichen und Zeilenumbrüche werden entfernt) und
+löst einen Reload des Proxys über `NGINX_RELOADER_URL` aus, sodass der
+`acme-companion` direkt Zertifikate für neue Marketing-Domains anfordert.
 
 Weitere nützliche Variablen in `.env` sind:
 
@@ -584,7 +587,8 @@ Unter `/admin` stehen folgende Tabs zur Verfügung:
 5. **Teams/Personen** – Teilnehmerlisten pflegen, optional als Login-Beschränkung.
 6. **Ergebnisse** – Spielstände einsehen und herunterladen.
 7. **Statistik** – Einzelne Antworten analysieren und nach Teams filtern.
-8. **Administration** – Benutzer und Backups verwalten.
+8. **Landing-News** – News-Beiträge einzelnen Landingpages zuordnen, inklusive Veröffentlichungstermin und Sichtbarkeitsstatus.
+9. **Administration** – Benutzer und Backups verwalten.
 
 ### Fragenkataloge
 `data/kataloge/catalogs.json` listet verfügbare Kataloge mit `slug`, Name und optionaler QR-Code-Adresse. Die Reihenfolge wird durch das Feld `sort_order` bestimmt. Jede Frage speichert die zugehörige `catalog_uid`. Jeder Eintrag kann zusätzlich ein Feld `raetsel_buchstabe` enthalten, das den Buchstaben für das Rätselwort festlegt. Die API bietet hierzu folgende Endpunkte:

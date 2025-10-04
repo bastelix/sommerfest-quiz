@@ -12,9 +12,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const offcanvasHasItems = offcanvas && offcanvas.querySelector('li');
   const darkStylesheet = document.querySelector('link[href$="dark.css"]');
   const uikitStylesheet = document.querySelector('link[href*="uikit"]');
-  const themeIcon = document.getElementById('themeIcon');
-  const accessibilityIcon = document.getElementById('accessibilityIcon');
-  const helpBtn = document.getElementById('helpBtn');
+  const themeIcons = document.querySelectorAll('.theme-icon');
+  const accessibilityIcons = document.querySelectorAll('.accessibility-icon');
+  const helpButtons = document.querySelectorAll('.help-toggle');
   const teamNameBtn = document.getElementById('teamNameBtn');
 
   if (offcanvasToggle && !offcanvasHasItems) {
@@ -60,7 +60,14 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   const storedTheme = getStored(STORAGE_KEYS.DARK_MODE);
-  let dark = storedTheme !== 'false';
+  let dark;
+
+  if (storedTheme === null || storedTheme === undefined) {
+    dark = document.body.dataset.theme === 'dark' || document.body.classList.contains('dark-mode');
+  } else {
+    const normalizedTheme = String(storedTheme).toLowerCase();
+    dark = normalizedTheme === 'true' || normalizedTheme === '1';
+  }
 
   if (darkStylesheet) {
     darkStylesheet.toggleAttribute('disabled', !dark);
@@ -100,16 +107,20 @@ document.addEventListener('DOMContentLoaded', function () {
         <path d="M12 2a10 10 0 0 0 0 20z" fill="currentColor" opacity="0.4"/>
       </svg>`;
 
-  if (themeIcon) {
-    themeIcon.innerHTML = dark ? sunSVG : moonSVG;
+  if (themeIcons.length) {
+    themeIcons.forEach((icon) => {
+      icon.innerHTML = dark ? sunSVG : moonSVG;
+    });
   }
 
   let accessible = getStored(STORAGE_KEYS.BARRIER_FREE) === 'true';
   if (accessible) {
     document.body.classList.add('high-contrast');
   }
-  if (accessibilityIcon) {
-    accessibilityIcon.innerHTML = accessible ? accessibilityOnSVG : accessibilityOffSVG;
+  if (accessibilityIcons.length) {
+    accessibilityIcons.forEach((icon) => {
+      icon.innerHTML = accessible ? accessibilityOnSVG : accessibilityOffSVG;
+    });
   }
 
   function updateThemePressed () {
@@ -163,8 +174,10 @@ document.addEventListener('DOMContentLoaded', function () {
         darkStylesheet.toggleAttribute('disabled', !dark);
       }
       setStored(STORAGE_KEYS.DARK_MODE, dark ? 'true' : 'false');
-      if (themeIcon) {
-        themeIcon.innerHTML = dark ? sunSVG : moonSVG;
+      if (themeIcons.length) {
+        themeIcons.forEach((icon) => {
+          icon.innerHTML = dark ? sunSVG : moonSVG;
+        });
       }
       updateThemePressed();
       try { UIkit.dropdown('#menuDrop').hide(); } catch (e) {}
@@ -176,18 +189,22 @@ document.addEventListener('DOMContentLoaded', function () {
       event.preventDefault();
       accessible = document.body.classList.toggle('high-contrast');
       setStored(STORAGE_KEYS.BARRIER_FREE, accessible ? 'true' : 'false');
-      if (accessibilityIcon) {
-        accessibilityIcon.innerHTML = accessible ? accessibilityOnSVG : accessibilityOffSVG;
+      if (accessibilityIcons.length) {
+        accessibilityIcons.forEach((icon) => {
+          icon.innerHTML = accessible ? accessibilityOnSVG : accessibilityOffSVG;
+        });
       }
       updateAccessibilityPressed();
       try { UIkit.dropdown('#menuDrop').hide(); } catch (e) {}
     }
   });
 
-  if (helpBtn) {
-    helpBtn.addEventListener('click', function () {
-      try { UIkit.dropdown('#menuDrop').hide(); } catch (e) {}
-      UIkit.offcanvas('#helpDrawer').show();
+  if (helpButtons.length) {
+    helpButtons.forEach((button) => {
+      button.addEventListener('click', function () {
+        try { UIkit.dropdown('#menuDrop').hide(); } catch (e) {}
+        UIkit.offcanvas('#helpDrawer').show();
+      });
     });
   }
 
