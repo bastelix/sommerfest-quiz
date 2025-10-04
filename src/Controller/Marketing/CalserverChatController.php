@@ -7,6 +7,7 @@ namespace App\Controller\Marketing;
 use App\Service\MarketingSlugResolver;
 use App\Service\RagChat\RagChatResponse;
 use App\Service\RagChat\RagChatService;
+use App\Service\RagChat\RagChatServiceInterface;
 use App\Support\DomainNameHelper;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -19,11 +20,11 @@ use Slim\Routing\RouteContext;
  */
 final class CalserverChatController
 {
-    private RagChatService $service;
+    private RagChatServiceInterface $service;
 
     private ?string $slug;
 
-    public function __construct(?string $slug = null, ?RagChatService $service = null)
+    public function __construct(?string $slug = null, ?RagChatServiceInterface $service = null)
     {
         $this->slug = $slug;
         $this->service = $service ?? new RagChatService();

@@ -29,7 +29,7 @@ use function substr;
 /**
  * High-level facade that prepares responses for the marketing chat endpoint.
  */
-final class RagChatService
+final class RagChatService implements RagChatServiceInterface
 {
     private const MESSAGE_TEMPLATES = [
         'de' => [
