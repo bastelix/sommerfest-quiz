@@ -25,17 +25,30 @@ final class RagChatService
         ],
     ];
 
+    private const SYSTEM_PROMPTS = [
+        'de' => 'Du bist ein hilfreicher Assistent für die QuizRace-Dokumentation. Beantworte Fragen ausschließlich anhand der bereitgestellten Kontexte.',
+        'en' => 'You are a helpful assistant for the QuizRace documentation. Answer questions only by relying on the supplied context snippets.',
+    ];
+
+    private const CONTEXT_HEADERS = [
+        'de' => "Kontext aus der Wissensbasis:\n",
+        'en' => "Context from the knowledge base:\n",
+    ];
+
     private const DEFAULT_LOCALE = 'de';
 
     private string $indexPath;
 
     private string $domainIndexBase;
 
-    public function __construct(?string $indexPath = null, ?string $domainIndexBase = null)
+    private ?ChatResponderInterface $chatResponder;
+
+    public function __construct(?string $indexPath = null, ?string $domainIndexBase = null, ?ChatResponderInterface $chatResponder = null)
     {
         $basePath = dirname(__DIR__, 3);
         $this->indexPath = $indexPath ?? $basePath . '/data/rag-chatbot/index.json';
         $this->domainIndexBase = $domainIndexBase ?? $basePath . '/data/rag-chatbot/domains';
+        $this->chatResponder = $chatResponder;
     }
 
     public function answer(string $question, string $locale = self::DEFAULT_LOCALE, ?string $domain = null): RagChatResponse
@@ -75,12 +88,24 @@ final class RagChatService
         $contextResults = array_slice($contextResults, 0, 6);
         $messages = self::MESSAGE_TEMPLATES[$locale] ?? self::MESSAGE_TEMPLATES[self::DEFAULT_LOCALE];
 
-        $contextItems = [];
-        foreach ($contextResults as $entry) {
-            $contextItems[] = $this->buildContextItem($entry['result'], $locale, $entry['domain']);
+        if ($contextResults === []) {
+            return new RagChatResponse($question, $messages['no_results'], []);
         }
 
-        $answer = $this->composeAnswer($question, $contextItems, $messages);
+        $contextItems = [];
+        $contextPayload = [];
+        foreach ($contextResults as $entry) {
+            $prepared = $this->buildContextEntry($entry['result'], $locale, $entry['domain']);
+            $contextItems[] = $prepared['item'];
+            $contextPayload[] = $prepared['payload'];
+        }
+
+        $chatMessages = $this->buildChatMessages($question, $contextItems, $locale);
+        $answer = $this->requestChatAnswer($chatMessages, $contextPayload);
+
+        if ($answer === null) {
+            $answer = $this->composeFallbackAnswer($question, $contextItems, $messages);
+        }
 
         return new RagChatResponse($question, $answer, $contextItems);
     }
@@ -89,12 +114,8 @@ final class RagChatService
      * @param array{intro:string,no_results:string,question:string} $messages
      * @param list<RagChatContextItem> $context
      */
-    private function composeAnswer(string $question, array $context, array $messages): string
+    private function composeFallbackAnswer(string $question, array $context, array $messages): string
     {
-        if ($context === []) {
-            return $messages['no_results'];
-        }
-
         $lines = [$messages['intro']];
         foreach ($context as $index => $item) {
             $number = $index + 1;
@@ -106,16 +127,101 @@ final class RagChatService
         return implode("\n", $lines);
     }
 
-    private function buildContextItem(SearchResult $result, string $locale, ?string $originDomain = null): RagChatContextItem
+    /**
+     * @return array{item:RagChatContextItem,payload:array{id:string,text:string,score:float,metadata:array<string,mixed>}}
+     */
+    private function buildContextEntry(SearchResult $result, string $locale, ?string $originDomain = null): array
     {
         $metadata = $result->getMetadata();
         if ($originDomain !== null && $originDomain !== '') {
             $metadata['domain'] = $originDomain;
         }
+
         $label = $this->buildLabel($metadata, $result->getChunkId(), $locale);
         $snippet = $this->summariseText($result->getText());
+        $rawScore = $result->getScore();
 
-        return new RagChatContextItem($label, $snippet, round($result->getScore(), 4), $metadata);
+        $item = new RagChatContextItem($label, $snippet, round($rawScore, 4), $metadata);
+
+        return [
+            'item' => $item,
+            'payload' => [
+                'id' => $result->getChunkId(),
+                'text' => $result->getText(),
+                'score' => round($rawScore, 6),
+                'metadata' => $metadata,
+            ],
+        ];
+    }
+
+    /**
+     * @param list<RagChatContextItem> $context
+     * @return list<array{role:string,content:string}>
+     */
+    private function buildChatMessages(string $question, array $context, string $locale): array
+    {
+        $messages = [
+            ['role' => 'system', 'content' => $this->systemPrompt($locale)],
+        ];
+
+        if ($context !== []) {
+            $lines = [$this->contextHeader($locale)];
+            foreach ($context as $index => $item) {
+                $lines[] = sprintf('[%d] %s\n%s', $index + 1, $item->getLabel(), $item->getSnippet());
+            }
+            $messages[] = [
+                'role' => 'system',
+                'content' => implode("\n\n", $lines),
+            ];
+        }
+
+        $messages[] = ['role' => 'user', 'content' => $question];
+
+        return $messages;
+    }
+
+    private function systemPrompt(string $locale): string
+    {
+        return self::SYSTEM_PROMPTS[$locale] ?? self::SYSTEM_PROMPTS[self::DEFAULT_LOCALE];
+    }
+
+    private function contextHeader(string $locale): string
+    {
+        return self::CONTEXT_HEADERS[$locale] ?? self::CONTEXT_HEADERS[self::DEFAULT_LOCALE];
+    }
+
+    /**
+     * @param list<array{role:string,content:string}> $messages
+     * @param list<array<string,mixed>> $context
+     */
+    private function requestChatAnswer(array $messages, array $context): ?string
+    {
+        $responder = $this->chatResponder ?? $this->createDefaultResponder();
+        if ($responder === null) {
+            return null;
+        }
+
+        try {
+            return $responder->respond($messages, $context);
+        } catch (RuntimeException $exception) {
+            error_log('Chat responder failed: ' . $exception->getMessage());
+        }
+
+        return null;
+    }
+
+    private function createDefaultResponder(): ?ChatResponderInterface
+    {
+        try {
+            $this->chatResponder = new HttpChatResponder();
+        } catch (RuntimeException $exception) {
+            error_log('Chat responder unavailable: ' . $exception->getMessage());
+            $this->chatResponder = null;
+
+            return null;
+        }
+
+        return $this->chatResponder;
     }
 
     /**
