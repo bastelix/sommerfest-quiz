@@ -4664,13 +4664,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Page editors are handled in trumbowyg-pages.js
 
-  loadBackups();
-  const path = window.location.pathname.replace(basePath + '/admin', '');
-  const currentRoute = path.replace(/^\/|\/$/g, '') || 'dashboard';
-  if (currentRoute === 'tenants') {
-    syncTenants();
-  }
-});
   ragChatFields.token?.addEventListener('input', () => {
     if (!ragChatFields.tokenClear) return;
     if (ragChatFields.token.value.trim() !== '') {
@@ -4718,3 +4711,11 @@ document.addEventListener('DOMContentLoaded', function () {
         notify(transRagChatSaveError, 'danger');
       });
   });
+
+  loadBackups();
+  const path = window.location.pathname.replace(basePath + '/admin', '');
+  const currentRoute = path.replace(/^\/|\/$/g, '') || 'dashboard';
+  if (currentRoute === 'tenants') {
+    syncTenants();
+  }
+});
