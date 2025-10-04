@@ -20,6 +20,13 @@ final class DomainNameHelper
             return '';
         }
 
+        if (str_contains($domain, '://')) {
+            $host = parse_url($domain, PHP_URL_HOST);
+            if (is_string($host) && $host !== '') {
+                $domain = $host;
+            }
+        }
+
         $pattern = $stripAdmin ? '/^(www|admin)\./' : '/^www\./';
         $normalized = (string) preg_replace($pattern, '', $domain);
         $normalized = preg_replace('/[^a-z0-9\-.]/', '', $normalized) ?? '';

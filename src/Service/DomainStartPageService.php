@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Support\DomainNameHelper;
 use InvalidArgumentException;
 use PDO;
 use PDOException;
@@ -400,15 +401,7 @@ class DomainStartPageService
      * Normalize a hostname by trimming and removing known prefixes.
      */
     public function normalizeDomain(string $domain, bool $stripAdmin = true): string {
-        $domain = strtolower(trim($domain));
-        if ($domain === '') {
-            return '';
-        }
-
-        $pattern = $stripAdmin ? '/^(www|admin)\./' : '/^www\./';
-        $normalized = (string) preg_replace($pattern, '', $domain);
-
-        return $normalized;
+        return DomainNameHelper::normalize($domain, $stripAdmin);
     }
 
     private function normalizeEmail(?string $email): ?string {
