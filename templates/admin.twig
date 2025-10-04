@@ -1340,7 +1340,13 @@
           <div class="uk-margin">
             <label class="uk-form-label" for="ragChatUrl">{{ t('label_rag_chat_url') }}</label>
             <div class="uk-form-controls">
-              <input class="uk-input" type="url" id="ragChatUrl" placeholder="https://chat.example.com/v1/chat">
+              <input
+                class="uk-input"
+                type="url"
+                id="ragChatUrl"
+                value="{{ settings.rag_chat_service_url|default('') }}"
+                placeholder="https://chat.example.com/v1/chat"
+              >
             </div>
           </div>
           <div class="uk-grid-small" uk-grid>
@@ -1348,24 +1354,32 @@
               <div class="uk-margin">
                 <label class="uk-form-label" for="ragChatDriver">{{ t('label_rag_chat_driver') }}</label>
                 <div class="uk-form-controls">
+                  {% set driver = settings.rag_chat_service_driver|default('')|lower %}
                   <select class="uk-select" id="ragChatDriver">
-                    <option value="">{{ t('option_rag_chat_driver_auto') }}</option>
-                    <option value="openai">{{ t('option_rag_chat_driver_openai') }}</option>
-                    <option value="http">{{ t('option_rag_chat_driver_http') }}</option>
+                    <option value=""{% if driver == '' %} selected{% endif %}>{{ t('option_rag_chat_driver_auto') }}</option>
+                    <option value="openai"{% if driver == 'openai' %} selected{% endif %}>{{ t('option_rag_chat_driver_openai') }}</option>
+                    <option value="http"{% if driver == 'http' %} selected{% endif %}>{{ t('option_rag_chat_driver_http') }}</option>
                   </select>
                 </div>
               </div>
             </div>
             <div class="uk-width-1-1 uk-width-1-3@m">
               <div class="uk-margin uk-flex uk-flex-middle" style="min-height: 58px;">
-                <label class="uk-form-label uk-margin-remove"><input class="uk-checkbox" type="checkbox" id="ragChatForceOpenAi"> {{ t('label_rag_chat_force_openai') }}</label>
+                {% set forceOpenAi = settings.rag_chat_service_force_openai|default('')|lower %}
+                <label class="uk-form-label uk-margin-remove"><input class="uk-checkbox" type="checkbox" id="ragChatForceOpenAi"{% if forceOpenAi in ['1','true','yes','on'] %} checked{% endif %}> {{ t('label_rag_chat_force_openai') }}</label>
               </div>
             </div>
             <div class="uk-width-1-1 uk-width-1-3@m">
               <div class="uk-margin">
                 <label class="uk-form-label" for="ragChatModel">{{ t('label_rag_chat_model') }}</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" type="text" id="ragChatModel" placeholder="gpt-4o-mini">
+                  <input
+                    class="uk-input"
+                    type="text"
+                    id="ragChatModel"
+                    value="{{ settings.rag_chat_service_model|default('') }}"
+                    placeholder="gpt-4o-mini"
+                  >
                 </div>
               </div>
             </div>
@@ -1375,7 +1389,15 @@
               <div class="uk-margin">
                 <label class="uk-form-label" for="ragChatToken">{{ t('label_rag_chat_token') }}</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" type="password" id="ragChatToken" autocomplete="new-password">
+                  {% set tokenPlaceholder = settings.rag_chat_service_token_present|default('0') == '1' ? t('placeholder_rag_chat_token') : '' %}
+                  <input
+                    class="uk-input"
+                    type="password"
+                    id="ragChatToken"
+                    value=""
+                    autocomplete="new-password"
+                    placeholder="{{ tokenPlaceholder }}"
+                  >
                 </div>
                 <p id="ragChatTokenStatus" class="uk-text-meta uk-margin-small">{{ t('text_rag_chat_token_hint') }}</p>
               </div>
@@ -1391,7 +1413,16 @@
               <div class="uk-margin">
                 <label class="uk-form-label" for="ragChatTemperature">{{ t('label_rag_chat_temperature') }}</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" type="number" step="0.01" min="0" max="2" id="ragChatTemperature" placeholder="0.20">
+                  <input
+                    class="uk-input"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="2"
+                    id="ragChatTemperature"
+                    value="{{ settings.rag_chat_service_temperature|default('') }}"
+                    placeholder="0.20"
+                  >
                 </div>
               </div>
             </div>
@@ -1399,7 +1430,16 @@
               <div class="uk-margin">
                 <label class="uk-form-label" for="ragChatTopP">{{ t('label_rag_chat_top_p') }}</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" type="number" step="0.01" min="0" max="1" id="ragChatTopP" placeholder="1.00">
+                  <input
+                    class="uk-input"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="1"
+                    id="ragChatTopP"
+                    value="{{ settings.rag_chat_service_top_p|default('') }}"
+                    placeholder="1.00"
+                  >
                 </div>
               </div>
             </div>
@@ -1407,7 +1447,15 @@
               <div class="uk-margin">
                 <label class="uk-form-label" for="ragChatMaxTokens">{{ t('label_rag_chat_max_tokens') }}</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" type="number" step="1" min="1" id="ragChatMaxTokens" placeholder="300">
+                  <input
+                    class="uk-input"
+                    type="number"
+                    step="1"
+                    min="1"
+                    id="ragChatMaxTokens"
+                    value="{{ settings.rag_chat_service_max_tokens|default('') }}"
+                    placeholder="300"
+                  >
                 </div>
               </div>
             </div>
@@ -1417,7 +1465,16 @@
               <div class="uk-margin">
                 <label class="uk-form-label" for="ragChatPresencePenalty">{{ t('label_rag_chat_presence_penalty') }}</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" type="number" step="0.01" min="-2" max="2" id="ragChatPresencePenalty" placeholder="0.00">
+                  <input
+                    class="uk-input"
+                    type="number"
+                    step="0.01"
+                    min="-2"
+                    max="2"
+                    id="ragChatPresencePenalty"
+                    value="{{ settings.rag_chat_service_presence_penalty|default('') }}"
+                    placeholder="0.00"
+                  >
                 </div>
               </div>
             </div>
@@ -1425,7 +1482,16 @@
               <div class="uk-margin">
                 <label class="uk-form-label" for="ragChatFrequencyPenalty">{{ t('label_rag_chat_frequency_penalty') }}</label>
                 <div class="uk-form-controls">
-                  <input class="uk-input" type="number" step="0.01" min="-2" max="2" id="ragChatFrequencyPenalty" placeholder="0.00">
+                  <input
+                    class="uk-input"
+                    type="number"
+                    step="0.01"
+                    min="-2"
+                    max="2"
+                    id="ragChatFrequencyPenalty"
+                    value="{{ settings.rag_chat_service_frequency_penalty|default('') }}"
+                    placeholder="0.00"
+                  >
                 </div>
               </div>
             </div>

@@ -138,6 +138,38 @@ class AdminControllerTest extends TestCase
         unlink($db);
     }
 
+    public function testRagChatSettingsRenderedInAdmin(): void {
+        $db = $this->setupDb();
+        $pdo = new PDO('sqlite:' . $db);
+        Migrator::migrate($pdo, __DIR__ . '/../../migrations');
+        $stmt = $pdo->prepare('INSERT INTO settings(key, value) VALUES(?, ?)');
+        $stmt->execute(['rag_chat_service_url', 'https://chat.example.com/v1/chat']);
+        $stmt->execute(['rag_chat_service_driver', 'openai']);
+        $stmt->execute(['rag_chat_service_model', 'gpt-4o-mini']);
+        $stmt->execute(['rag_chat_service_temperature', '0.2']);
+        $stmt->execute(['rag_chat_service_force_openai', '1']);
+        $stmt->execute(['rag_chat_service_token', 'secret-token']);
+        session_start();
+        $_SESSION['user'] = ['id' => 1, 'role' => 'admin'];
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/admin/dashboard');
+        $response = $app->handle($request);
+        $this->assertSame(200, $response->getStatusCode());
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('"rag_chat_service_url":"https:\/\/chat.example.com\/v1\/chat"', $body);
+        $this->assertStringContainsString('"rag_chat_service_driver":"openai"', $body);
+        $this->assertStringContainsString('"rag_chat_service_model":"gpt-4o-mini"', $body);
+        $this->assertStringContainsString('"rag_chat_service_temperature":"0.2"', $body);
+        $this->assertMatchesRegularExpression('~id="ragChatUrl"[\s\S]*value="https://chat\\.example\\.com/v1/chat"~', $body);
+        $this->assertMatchesRegularExpression('~<option\s+value="openai"[\s\S]*selected~', $body);
+        $this->assertMatchesRegularExpression('~id="ragChatForceOpenAi"[\s\S]*checked~', $body);
+        $this->assertMatchesRegularExpression('~id="ragChatModel"[\s\S]*value="gpt-4o-mini"~', $body);
+        $this->assertMatchesRegularExpression('~id="ragChatTemperature"[\s\S]*value="0\.2"~', $body);
+        $this->assertMatchesRegularExpression('~id="ragChatToken"[\s\S]*placeholder="\*{8}"~', $body);
+        session_destroy();
+        unlink($db);
+    }
+
     public function testInvalidEventQueryReturns404(): void {
         $db = $this->setupDb();
         $pdo = new PDO('sqlite:' . $db);
