@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Service\RagChat;
 
+use App\Service\RagChat\HttpChatResponder;
 use App\Service\RagChat\OpenAiChatResponder;
 use App\Service\RagChat\RagChatService;
 use GuzzleHttp\Client;
@@ -13,6 +14,7 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
+use ReflectionProperty;
 
 use function array_key_last;
 use function bin2hex;
@@ -68,6 +70,7 @@ final class OpenAiChatResponderTest extends TestCase
         putenv('RAG_CHAT_SERVICE_TEMPERATURE');
         putenv('RAG_CHAT_SERVICE_URL');
         putenv('RAG_CHAT_SERVICE_FORCE_OPENAI');
+        putenv('RAG_CHAT_SERVICE_DRIVER');
 
         if (isset($this->indexPath) && is_file($this->indexPath)) {
             unlink($this->indexPath);
@@ -147,6 +150,62 @@ final class OpenAiChatResponderTest extends TestCase
             self::assertInstanceOf(OpenAiChatResponder::class, $responder);
         } finally {
             putenv('RAG_CHAT_SERVICE_URL');
+        }
+    }
+
+    public function testProxiedEndpointUsesOpenAiPayloadWithoutContext(): void
+    {
+        putenv('RAG_CHAT_SERVICE_URL=https://mein-proxy.example/v1/chat/completions');
+        putenv('RAG_CHAT_SERVICE_DRIVER=openai');
+
+        $history = [];
+
+        $mock = new MockHandler([
+            new Response(200, [], json_encode([
+                'choices' => [
+                    [
+                        'message' => ['content' => 'Natürlich!'],
+                    ],
+                ],
+            ])),
+        ]);
+
+        $stack = HandlerStack::create($mock);
+        $stack->push(Middleware::history($history));
+
+        $client = new Client(['handler' => $stack]);
+
+        try {
+            $service = new RagChatService($this->indexPath, $this->domainBase);
+
+            $method = new ReflectionMethod(RagChatService::class, 'createDefaultResponder');
+            $method->setAccessible(true);
+            $method->invoke($service);
+
+            $responderProperty = new ReflectionProperty(RagChatService::class, 'chatResponder');
+            $responderProperty->setAccessible(true);
+            $responder = $responderProperty->getValue($service);
+
+            self::assertInstanceOf(OpenAiChatResponder::class, $responder);
+
+            $clientProperty = new ReflectionProperty(HttpChatResponder::class, 'httpClient');
+            $clientProperty->setAccessible(true);
+            $clientProperty->setValue($responder, $client);
+
+            $response = $service->answer('calserver inventar', 'de');
+
+            self::assertSame('Natürlich!', $response->getAnswer());
+            self::assertNotSame([], $history);
+
+            $request = $history[0]['request'];
+            $payload = json_decode((string) $request->getBody(), true);
+
+            self::assertIsArray($payload);
+            self::assertArrayNotHasKey('context', $payload);
+            self::assertSame('gpt-4o-mini', $payload['model'] ?? null);
+        } finally {
+            putenv('RAG_CHAT_SERVICE_URL');
+            putenv('RAG_CHAT_SERVICE_DRIVER');
         }
     }
 

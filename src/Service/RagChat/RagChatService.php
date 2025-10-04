@@ -11,7 +11,8 @@ use function getenv;
 use function in_array;
 use function is_string;
 use function parse_url;
-use function str_contains;
+use function rtrim;
+use function str_ends_with;
 use function strtolower;
 use function trim;
 
@@ -251,14 +252,25 @@ final class RagChatService
 
     private function isOpenAiEndpoint(string $endpoint): bool
     {
+        $driver = getenv('RAG_CHAT_SERVICE_DRIVER');
+        if ($driver !== false) {
+            $value = strtolower(trim((string) $driver));
+            if ($value === 'openai') {
+                return true;
+            }
+        }
+
         $host = parse_url($endpoint, PHP_URL_HOST);
         if (is_string($host) && $host === 'api.openai.com') {
             return true;
         }
 
         $path = parse_url($endpoint, PHP_URL_PATH);
-        if (is_string($path) && str_contains($path, '/v1/chat/completions')) {
-            return true;
+        if (is_string($path)) {
+            $normalizedPath = rtrim($path, '/');
+            if ($normalizedPath !== '' && str_ends_with($normalizedPath, '/v1/chat/completions')) {
+                return true;
+            }
         }
 
         $forceOpenAi = getenv('RAG_CHAT_SERVICE_FORCE_OPENAI');
