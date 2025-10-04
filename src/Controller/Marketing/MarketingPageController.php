@@ -203,11 +203,9 @@ class MarketingPageController
                 $pattern
             );
 
-            if ($formatter !== false) {
-                $formatted = $formatter->format($date);
-                if ($formatted !== false) {
-                    return $formatted;
-                }
+            $formatted = $formatter->format($date);
+            if ($formatted !== false) {
+                return $formatted;
             }
         }
 

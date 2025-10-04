@@ -38,11 +38,11 @@ final class DomainDocumentStorage
         foreach ($metadata as $id => $entry) {
             $filename = $entry['filename'];
             $path = $uploadsDir . DIRECTORY_SEPARATOR . $filename;
-            $size = is_file($path) ? (int) filesize($path) : (int) ($entry['size'] ?? 0);
-            $uploadedAt = $entry['uploaded_at'] ?? date('c');
+            $size = is_file($path) ? (int) filesize($path) : (int) $entry['size'];
+            $uploadedAt = $entry['uploaded_at'];
             $updatedAt = is_file($path)
                 ? date('c', (int) filemtime($path))
-                : ($entry['updated_at'] ?? $uploadedAt);
+                : $entry['updated_at'];
 
             $documents[] = [
                 'id' => $id,
