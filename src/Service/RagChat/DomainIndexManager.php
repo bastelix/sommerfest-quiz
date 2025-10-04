@@ -32,7 +32,7 @@ final class DomainIndexManager
      */
     public function rebuild(string $domain): array
     {
-        $normalized = DomainNameHelper::normalize($domain);
+        $normalized = DomainNameHelper::canonicalizeSlug($domain);
         if ($normalized === '') {
             throw new RuntimeException('Invalid domain supplied.');
         }

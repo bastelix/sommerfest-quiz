@@ -48,6 +48,21 @@ final class DomainNameHelper
         return $normalized;
     }
 
+    public static function canonicalizeSlug(string $domain): string
+    {
+        $normalized = self::normalize($domain);
+        if ($normalized === '') {
+            return '';
+        }
+
+        $marketingDomains = self::getMarketingDomains();
+        if ($marketingDomains !== [] && isset($marketingDomains[$normalized])) {
+            return self::stripMarketingSuffix($normalized);
+        }
+
+        return $normalized;
+    }
+
     /**
      * @return list<string>
      */
@@ -67,6 +82,41 @@ final class DomainNameHelper
         }
 
         return array_values(array_unique(array_merge(['www'], $raw)));
+    }
+
+    /**
+     * @return array<string,true>
+     */
+    private static function getMarketingDomains(): array
+    {
+        $config = getenv('MARKETING_DOMAINS');
+        if ($config === false || trim((string) $config) === '') {
+            return [];
+        }
+
+        $entries = preg_split('/[\s,]+/', strtolower((string) $config)) ?: [];
+        $domains = [];
+
+        foreach ($entries as $entry) {
+            $normalized = self::normalize($entry);
+            if ($normalized === '') {
+                continue;
+            }
+
+            $domains[$normalized] = true;
+        }
+
+        return $domains;
+    }
+
+    private static function stripMarketingSuffix(string $domain): string
+    {
+        $parts = array_values(array_filter(explode('.', $domain), static fn (string $part): bool => $part !== ''));
+        if ($parts === []) {
+            return $domain;
+        }
+
+        return $parts[0];
     }
 }
 

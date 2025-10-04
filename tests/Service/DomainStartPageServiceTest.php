@@ -71,4 +71,41 @@ class DomainStartPageServiceTest extends TestCase
         yield 'marketing subdomain kept when admin stripping disabled' => ['admin.calserver.de', 'admin.calserver.de', false];
         yield 'assistant subdomain kept when admin stripping disabled' => ['assistant.calserver.de', 'assistant.calserver.de', false];
     }
+
+    public function testDetermineDomainsCanonicalisesMarketingEntries(): void
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $service = new DomainStartPageService($pdo);
+
+        $previous = getenv('MARKETING_DOMAINS');
+        putenv('MARKETING_DOMAINS=calserver.com');
+        $_ENV['MARKETING_DOMAINS'] = 'calserver.com';
+
+        try {
+            $domains = $service->determineDomains(null, 'calserver.com', 'legacy.example.com');
+
+            $this->assertTrue(
+                in_array(['domain' => 'calserver.com', 'normalized' => 'calserver', 'type' => 'marketing'], $domains, true)
+            );
+
+            $legacyEntry = null;
+            foreach ($domains as $entry) {
+                if ($entry['normalized'] === 'legacy.example.com') {
+                    $legacyEntry = $entry;
+                }
+            }
+
+            $this->assertNotNull($legacyEntry);
+            $this->assertSame('legacy.example.com', $legacyEntry['domain']);
+            $this->assertSame('custom', $legacyEntry['type']);
+        } finally {
+            if ($previous === false) {
+                putenv('MARKETING_DOMAINS');
+                unset($_ENV['MARKETING_DOMAINS']);
+            } else {
+                putenv('MARKETING_DOMAINS=' . $previous);
+                $_ENV['MARKETING_DOMAINS'] = $previous;
+            }
+        }
+    }
 }

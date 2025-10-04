@@ -129,7 +129,7 @@ final class DomainChatKnowledgeController
             }
         }
 
-        $normalized = DomainNameHelper::normalize($domain);
+        $normalized = DomainNameHelper::canonicalizeSlug($domain);
         if ($normalized === '') {
             throw new InvalidArgumentException('Invalid domain parameter.');
         }
