@@ -11,6 +11,9 @@ use RuntimeException;
 use Throwable;
 
 use function array_key_exists;
+use function array_merge;
+use function array_unique;
+use function array_values;
 use function getenv;
 use function in_array;
 use function is_array;
@@ -20,6 +23,8 @@ use function rtrim;
 use function str_ends_with;
 use function strtolower;
 use function trim;
+use function strpos;
+use function substr;
 
 /**
  * High-level facade that prepares responses for the marketing chat endpoint.
@@ -115,16 +120,32 @@ final class RagChatService
 
         $normalizedDomain = $domain !== null ? DomainNameHelper::normalize($domain) : '';
         if ($normalizedDomain !== '') {
-            $domainIndexPath = $this->domainIndexBase . '/' . $normalizedDomain . '/index.json';
-            if (is_file($domainIndexPath)) {
+            foreach ($this->buildDomainCandidates($normalizedDomain) as $candidate) {
+                $domainIndexPath = $this->domainIndexBase . '/' . $candidate . '/index.json';
+                if (!is_file($domainIndexPath)) {
+                    continue;
+                }
+
                 try {
                     $domainIndex = SemanticIndex::load($domainIndexPath);
-                    foreach ($domainIndex->search($question, 4, 0.05) as $result) {
-                        $contextResults[] = ['result' => $result, 'domain' => $normalizedDomain];
-                        $seenChunks[$result->getChunkId()] = true;
-                    }
                 } catch (RuntimeException $exception) {
                     error_log('Failed to load domain-specific RAG index: ' . $exception->getMessage());
+                    continue;
+                }
+
+                $candidateResults = [];
+                foreach ($domainIndex->search($question, 4, 0.05) as $result) {
+                    $chunkId = $result->getChunkId();
+                    if (isset($seenChunks[$chunkId])) {
+                        continue;
+                    }
+                    $seenChunks[$chunkId] = true;
+                    $candidateResults[] = ['result' => $result, 'domain' => $candidate];
+                }
+
+                if ($candidateResults !== []) {
+                    $contextResults = array_merge($contextResults, $candidateResults);
+                    break;
                 }
             }
         }
@@ -210,6 +231,23 @@ final class RagChatService
                 'metadata' => $metadata,
             ],
         ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function buildDomainCandidates(string $normalizedDomain): array
+    {
+        $candidates = [$normalizedDomain];
+        $dotPosition = strpos($normalizedDomain, '.');
+        if ($dotPosition !== false && $dotPosition > 0) {
+            $subdomain = substr($normalizedDomain, 0, $dotPosition);
+            if ($subdomain !== '' && $subdomain !== $normalizedDomain) {
+                $candidates[] = $subdomain;
+            }
+        }
+
+        return array_values(array_unique($candidates));
     }
 
     /**
