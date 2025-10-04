@@ -86,6 +86,8 @@ final class RagChatService
     /** @var callable|null */
     private $settingsLoader;
 
+    private ?string $lastResponderError = null;
+
     public function __construct(
         ?string $indexPath = null,
         ?string $domainIndexBase = null,
@@ -153,7 +155,7 @@ final class RagChatService
         $answer = $this->requestChatAnswer($chatMessages, $contextPayload);
 
         if ($answer === null) {
-            $answer = $this->composeFallbackAnswer($question, $contextItems, $messages);
+            $answer = $this->composeFallbackAnswer($question, $contextItems, $messages, $this->lastResponderError);
         }
 
         return new RagChatResponse($question, $answer, $contextItems);
@@ -163,7 +165,7 @@ final class RagChatService
      * @param array{intro:string,no_results:string,question:string} $messages
      * @param list<RagChatContextItem> $context
      */
-    private function composeFallbackAnswer(string $question, array $context, array $messages): string
+    private function composeFallbackAnswer(string $question, array $context, array $messages, ?string $logMessage = null): string
     {
         $lines = [$messages['intro']];
         foreach ($context as $index => $item) {
@@ -172,6 +174,11 @@ final class RagChatService
         }
         $lines[] = '';
         $lines[] = sprintf('%s: %s', $messages['question'], $question);
+
+        if ($logMessage !== null && $logMessage !== '') {
+            $lines[] = '';
+            $lines[] = sprintf('[Log] %s', $logMessage);
+        }
 
         return implode("\n", $lines);
     }
@@ -245,15 +252,22 @@ final class RagChatService
      */
     private function requestChatAnswer(array $messages, array $context): ?string
     {
+        $this->lastResponderError = null;
+
         $responder = $this->chatResponder ?? $this->createDefaultResponder();
         if ($responder === null) {
+            if ($this->lastResponderError === null) {
+                $this->lastResponderError = 'Chat responder unavailable: no endpoint configured.';
+            }
             return null;
         }
 
         try {
             return $responder->respond($messages, $context);
         } catch (RuntimeException $exception) {
-            error_log('Chat responder failed: ' . $exception->getMessage());
+            $message = 'Chat responder failed: ' . $exception->getMessage();
+            error_log($message);
+            $this->lastResponderError = $message;
         }
 
         return null;
@@ -281,7 +295,9 @@ final class RagChatService
                 $this->chatResponder = new HttpChatResponder($endpoint, null, $token);
             }
         } catch (RuntimeException $exception) {
-            error_log('Chat responder unavailable: ' . $exception->getMessage());
+            $message = 'Chat responder unavailable: ' . $exception->getMessage();
+            error_log($message);
+            $this->lastResponderError = $message;
             $this->chatResponder = null;
 
             return null;
