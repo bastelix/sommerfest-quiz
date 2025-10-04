@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Iterable, Iterator, Sequence
 
 
-SUPPORTED_EXTENSIONS: Sequence[str] = (".md", ".markdown", ".html", ".htm")
+SUPPORTED_EXTENSIONS: Sequence[str] = (".md", ".markdown", ".html", ".htm", ".txt")
 
 
 @dataclass(frozen=True)
