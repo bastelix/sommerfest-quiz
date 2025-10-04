@@ -151,6 +151,12 @@ final class RagChatService
         }
 
         if ($contextResults === []) {
+            if ($normalizedDomain !== '') {
+                $messages = self::MESSAGE_TEMPLATES[$locale] ?? self::MESSAGE_TEMPLATES[self::DEFAULT_LOCALE];
+
+                return new RagChatResponse($question, $messages['no_results'], []);
+            }
+
             foreach ($globalIndex->search($question, 4, 0.05) as $result) {
                 if (isset($seenChunks[$result->getChunkId()])) {
                     continue;
