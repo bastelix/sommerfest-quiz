@@ -47,4 +47,26 @@ class DomainStartPageServiceTest extends TestCase
         $this->assertSame('Special Offer', $options['special']);
         $this->assertCount(5, $options);
     }
+
+    /**
+     * @dataProvider provideDomains
+     */
+    public function testNormalizeDomainSanitizesInput(string $input, string $expected, bool $stripAdmin): void
+    {
+        $service = new DomainStartPageService(new PDO('sqlite::memory:'));
+
+        self::assertSame($expected, $service->normalizeDomain($input, $stripAdmin));
+    }
+
+    /**
+     * @return iterable<string,array{string,string,bool}>
+     */
+    public static function provideDomains(): iterable
+    {
+        yield 'plain domain' => ['calserver.de', 'calserver.de', true];
+        yield 'with scheme' => ['https://calserver.de', 'calserver.de', true];
+        yield 'with uppercase and path' => ['HTTP://WWW.CALSERVER.DE/foo', 'calserver.de', true];
+        yield 'admin subdomain stripped' => ['admin.calserver.de', 'calserver.de', true];
+        yield 'marketing subdomain kept when admin stripping disabled' => ['admin.calserver.de', 'admin.calserver.de', false];
+    }
 }

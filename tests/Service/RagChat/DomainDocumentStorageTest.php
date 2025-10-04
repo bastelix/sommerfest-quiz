@@ -61,6 +61,23 @@ final class DomainDocumentStorageTest extends TestCase
         $storage->storeDocument('example.com', $file);
     }
 
+    public function testProtocolPrefixedDomainsNormaliseToSameValue(): void
+    {
+        $storage = new DomainDocumentStorage($this->basePath);
+
+        $indexPath = $storage->getIndexPath('https://www.CalServer.de/path');
+        $expectedIndexPath = $this->basePath . DIRECTORY_SEPARATOR . 'calserver.de' . DIRECTORY_SEPARATOR . 'index.json';
+
+        self::assertSame($expectedIndexPath, $indexPath);
+        self::assertDirectoryExists(dirname($indexPath));
+
+        $document = $storage->storeDocument('https://calserver.de', $this->createUpload('Guide.md', '## Hello'));
+        $documents = $storage->listDocuments('calserver.de');
+
+        self::assertCount(1, $documents);
+        self::assertSame($document['id'], $documents[0]['id']);
+    }
+
     private function createUpload(string $name, string $content): UploadedFile
     {
         $tempFile = tempnam(sys_get_temp_dir(), 'upload');
