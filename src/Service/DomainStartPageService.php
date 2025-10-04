@@ -103,8 +103,13 @@ class DomainStartPageService
         }
 
         $marketingHost = $this->normalizeDomain($host, stripAdmin: false);
-        if ($marketingHost !== '' && $marketingHost !== $normalizedHost) {
+        if ($marketingHost !== '' && !in_array($marketingHost, $candidates, true)) {
             $candidates[] = $marketingHost;
+        }
+
+        $canonicalHost = DomainNameHelper::canonicalizeSlug($host);
+        if ($canonicalHost !== '' && !in_array($canonicalHost, $candidates, true)) {
+            $candidates[] = $canonicalHost;
         }
 
         foreach ($candidates as $candidate) {
@@ -366,22 +371,24 @@ class DomainStartPageService
                 continue;
             }
             $normalized = $this->normalizeDomain($domain);
-            if ($normalized === '') {
+            $canonical = DomainNameHelper::canonicalizeSlug($domain);
+            if ($normalized === '' || $canonical === '') {
                 continue;
             }
-            if (!isset($domains[$normalized])) {
-                $domains[$normalized] = [
+            if (!isset($domains[$canonical])) {
+                $domains[$canonical] = [
                     'domain' => $normalized,
-                    'normalized' => $normalized,
+                    'normalized' => $canonical,
                     'type' => 'marketing',
                 ];
             }
         }
 
-        $current = $this->normalizeDomain($currentHost);
+        $currentDisplay = $this->normalizeDomain($currentHost, stripAdmin: false);
+        $current = DomainNameHelper::canonicalizeSlug($currentHost);
         if ($current !== '' && !isset($domains[$current])) {
             $domains[$current] = [
-                'domain' => $current,
+                'domain' => $currentDisplay !== '' ? $currentDisplay : $current,
                 'normalized' => $current,
                 'type' => 'custom',
             ];

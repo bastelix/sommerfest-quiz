@@ -78,6 +78,83 @@ final class DomainDocumentStorageTest extends TestCase
         self::assertSame($document['id'], $documents[0]['id']);
     }
 
+    public function testMarketingDomainIsCanonicalisedToSlug(): void
+    {
+        $previous = getenv('MARKETING_DOMAINS');
+        putenv('MARKETING_DOMAINS=calserver.com');
+        $_ENV['MARKETING_DOMAINS'] = 'calserver.com';
+
+        try {
+            $storage = new DomainDocumentStorage($this->basePath);
+            $file = $this->createUpload('Guide.md', '## Calserver uptime');
+
+            $storage->storeDocument('calserver.com', $file);
+
+            $documents = $storage->listDocuments('calserver');
+
+            self::assertCount(1, $documents);
+            self::assertDirectoryExists($this->basePath . DIRECTORY_SEPARATOR . 'calserver');
+        } finally {
+            if ($previous === false) {
+                putenv('MARKETING_DOMAINS');
+                unset($_ENV['MARKETING_DOMAINS']);
+            } else {
+                putenv('MARKETING_DOMAINS=' . $previous);
+                $_ENV['MARKETING_DOMAINS'] = $previous;
+            }
+        }
+    }
+
+    public function testLegacyMarketingDirectoryMigratesToSlug(): void
+    {
+        $previous = getenv('MARKETING_DOMAINS');
+        putenv('MARKETING_DOMAINS=calserver.com');
+        $_ENV['MARKETING_DOMAINS'] = 'calserver.com';
+
+        $legacyDir = $this->basePath . DIRECTORY_SEPARATOR . 'calserver.com';
+        $uploadsDir = $legacyDir . DIRECTORY_SEPARATOR . 'uploads';
+        mkdir($uploadsDir, 0775, true);
+
+        $documentId = 'legacy1234';
+        file_put_contents($uploadsDir . DIRECTORY_SEPARATOR . $documentId . '-guide.md', '## Legacy content');
+
+        $metadata = [
+            $documentId => [
+                'name' => 'Guide.md',
+                'filename' => $documentId . '-guide.md',
+                'mime_type' => 'text/markdown',
+                'size' => 16,
+                'uploaded_at' => date('c'),
+                'updated_at' => date('c'),
+            ],
+        ];
+        file_put_contents(
+            $legacyDir . DIRECTORY_SEPARATOR . 'documents.json',
+            json_encode($metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+        );
+
+        try {
+            $storage = new DomainDocumentStorage($this->basePath);
+
+            $documents = $storage->listDocuments('calserver.com');
+
+            self::assertCount(1, $documents);
+            self::assertSame('Guide.md', $documents[0]['name']);
+            self::assertDirectoryExists($this->basePath . DIRECTORY_SEPARATOR . 'calserver');
+
+            $documentsBySlug = $storage->listDocuments('calserver');
+            self::assertCount(1, $documentsBySlug);
+        } finally {
+            if ($previous === false) {
+                putenv('MARKETING_DOMAINS');
+                unset($_ENV['MARKETING_DOMAINS']);
+            } else {
+                putenv('MARKETING_DOMAINS=' . $previous);
+                $_ENV['MARKETING_DOMAINS'] = $previous;
+            }
+        }
+    }
+
     private function createUpload(string $name, string $content): UploadedFile
     {
         $tempFile = tempnam(sys_get_temp_dir(), 'upload');

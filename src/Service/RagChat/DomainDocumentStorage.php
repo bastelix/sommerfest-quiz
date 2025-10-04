@@ -201,12 +201,64 @@ final class DomainDocumentStorage
 
     private function normaliseDomain(string $domain): string
     {
-        $normalized = DomainNameHelper::normalize($domain);
-        if ($normalized === '') {
+        $canonical = DomainNameHelper::canonicalizeSlug($domain);
+        if ($canonical === '') {
             throw new InvalidArgumentException('Invalid domain supplied.');
         }
 
-        return $normalized;
+        $legacy = DomainNameHelper::normalize($domain);
+        if ($legacy !== '' && $legacy !== $canonical) {
+            $this->migrateLegacyDirectory($legacy, $canonical);
+        }
+
+        return $canonical;
+    }
+
+    private function migrateLegacyDirectory(string $legacy, string $canonical): void
+    {
+        $legacyPath = $this->basePath . DIRECTORY_SEPARATOR . $legacy;
+        if (!is_dir($legacyPath)) {
+            return;
+        }
+
+        $canonicalPath = $this->basePath . DIRECTORY_SEPARATOR . $canonical;
+        $parent = dirname($canonicalPath);
+        if (!is_dir($parent)) {
+            $this->ensureDirectory($parent);
+        }
+
+        if (is_link($canonicalPath)) {
+            return;
+        }
+
+        if (!is_dir($canonicalPath)) {
+            if (rename($legacyPath, $canonicalPath)) {
+                return;
+            }
+
+            if ($this->createSymlink($legacyPath, $canonicalPath)) {
+                return;
+            }
+
+            $this->mirrorDirectory($legacyPath, $canonicalPath);
+
+            return;
+        }
+
+        $this->mirrorDirectory($legacyPath, $canonicalPath);
+    }
+
+    private function createSymlink(string $target, string $link): bool
+    {
+        if (function_exists('symlink')) {
+            try {
+                return symlink($target, $link);
+            } catch (\Throwable $exception) {
+                return false;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -280,6 +332,48 @@ final class DomainDocumentStorage
     {
         if (!is_dir($path) && !mkdir($path, 0775, true) && !is_dir($path)) {
             throw new RuntimeException(sprintf('Unable to create directory: %s', $path));
+        }
+    }
+
+    private function mirrorDirectory(string $source, string $destination): void
+    {
+        if (!is_dir($destination)) {
+            $this->ensureDirectory($destination);
+        }
+
+        $items = scandir($source);
+        if ($items === false) {
+            return;
+        }
+
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') {
+                continue;
+            }
+
+            $origin = $source . DIRECTORY_SEPARATOR . $item;
+            $target = $destination . DIRECTORY_SEPARATOR . $item;
+
+            if (is_dir($origin)) {
+                $originRealPath = realpath($origin);
+                $targetRealPath = realpath($target);
+                if ($originRealPath !== false && $originRealPath === $targetRealPath) {
+                    continue;
+                }
+                $this->mirrorDirectory($origin, $target);
+                continue;
+            }
+
+            if (is_file($target)) {
+                continue;
+            }
+
+            $contents = file_get_contents($origin);
+            if ($contents === false) {
+                continue;
+            }
+
+            file_put_contents($target, $contents);
         }
     }
 
