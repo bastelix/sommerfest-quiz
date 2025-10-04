@@ -179,9 +179,14 @@ final class RagChatServiceTest extends TestCase
 
         $response = $service->answer('calserver inventar', 'de', 'example.com');
 
-        self::assertNotSame([], $response->getContext());
-        self::assertSame('Domain Knowledge (Abschnitt 1)', $response->getContext()[0]->getLabel());
-        self::assertSame('example.com', $response->getContext()[0]->getMetadata()['domain']);
+        $context = $response->getContext();
+        self::assertNotSame([], $context);
+        self::assertSame('Domain Knowledge (Abschnitt 1)', $context[0]->getLabel());
+        foreach ($context as $item) {
+            $metadata = $item->getMetadata();
+            self::assertArrayHasKey('domain', $metadata);
+            self::assertSame('example.com', $metadata['domain']);
+        }
     }
 
     private function createIndexFile(): string
