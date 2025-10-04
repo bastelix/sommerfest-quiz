@@ -12,6 +12,7 @@ use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
 
 use function array_key_last;
 use function bin2hex;
@@ -65,6 +66,8 @@ final class OpenAiChatResponderTest extends TestCase
 
         putenv('RAG_CHAT_SERVICE_MODEL');
         putenv('RAG_CHAT_SERVICE_TEMPERATURE');
+        putenv('RAG_CHAT_SERVICE_URL');
+        putenv('RAG_CHAT_SERVICE_FORCE_OPENAI');
 
         if (isset($this->indexPath) && is_file($this->indexPath)) {
             unlink($this->indexPath);
@@ -127,6 +130,24 @@ final class OpenAiChatResponderTest extends TestCase
         self::assertSame('calserver inventar', $lastMessage['content'] ?? null);
 
         self::assertStringNotContainsString('Basierend auf der Wissensbasis', $response->getAnswer());
+    }
+
+    public function testServiceDetectsOpenAiResponderForProxyEndpoint(): void
+    {
+        putenv('RAG_CHAT_SERVICE_URL=https://openai-proxy.example/v1/chat/completions');
+
+        try {
+            $service = new RagChatService($this->indexPath, $this->domainBase);
+
+            $method = new ReflectionMethod(RagChatService::class, 'createDefaultResponder');
+            $method->setAccessible(true);
+
+            $responder = $method->invoke($service);
+
+            self::assertInstanceOf(OpenAiChatResponder::class, $responder);
+        } finally {
+            putenv('RAG_CHAT_SERVICE_URL');
+        }
     }
 
     private function createDirectory(string $path): void
