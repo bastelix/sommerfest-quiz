@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controller\Marketing;
 
+use App\Service\MarketingSlugResolver;
 use App\Service\RagChat\RagChatResponse;
 use App\Service\RagChat\RagChatService;
 use App\Support\DomainNameHelper;
@@ -11,6 +12,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use RuntimeException;
 use Throwable;
+use Slim\Routing\RouteContext;
 
 /**
  * JSON endpoint that exposes the RAG chatbot for the marketing site.
@@ -19,8 +21,11 @@ final class CalserverChatController
 {
     private RagChatService $service;
 
-    public function __construct(?RagChatService $service = null)
+    private ?string $slug;
+
+    public function __construct(?string $slug = null, ?RagChatService $service = null)
     {
+        $this->slug = $slug;
         $this->service = $service ?? new RagChatService();
     }
 
@@ -38,8 +43,7 @@ final class CalserverChatController
 
         $locale = (string) ($request->getAttribute('lang') ?? 'de');
 
-        $host = (string) $request->getUri()->getHost();
-        $domain = DomainNameHelper::normalize($host) ?: null;
+        $domain = $this->resolveDomain($request);
 
         try {
             $chatResponse = $this->service->answer($payload['question'], $locale, $domain);
@@ -116,5 +120,45 @@ final class CalserverChatController
             'answer' => $chatResponse->getAnswer(),
             'context' => $context,
         ];
+    }
+
+    private function resolveDomain(Request $request): ?string
+    {
+        $slug = $this->slug ?? $this->detectSlugFromRequest($request);
+        if ($slug !== null) {
+            $baseSlug = MarketingSlugResolver::resolveBaseSlug($slug);
+            $normalizedSlug = DomainNameHelper::normalize($baseSlug, false);
+            if ($normalizedSlug !== '') {
+                return $normalizedSlug;
+            }
+        }
+
+        $host = (string) $request->getUri()->getHost();
+        $normalizedHost = DomainNameHelper::normalize($host) ?: '';
+
+        return $normalizedHost === '' ? null : $normalizedHost;
+    }
+
+    private function detectSlugFromRequest(Request $request): ?string
+    {
+        try {
+            $route = RouteContext::fromRequest($request)->getRoute();
+        } catch (RuntimeException $exception) {
+            return null;
+        }
+
+        if ($route === null) {
+            return null;
+        }
+
+        $arguments = $route->getArguments();
+        foreach (['marketingSlug', 'landingSlug', 'slug'] as $key) {
+            $value = $arguments[$key] ?? null;
+            if (is_string($value) && $value !== '') {
+                return $value;
+            }
+        }
+
+        return null;
     }
 }

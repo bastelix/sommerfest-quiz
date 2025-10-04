@@ -45,6 +45,7 @@ use App\Service\AuditLogger;
 use App\Service\QrCodeService;
 use App\Service\RagChat\DomainDocumentStorage;
 use App\Service\RagChat\DomainIndexManager;
+use App\Service\RagChat\RagChatService;
 use App\Service\SessionService;
 use App\Service\StripeService;
 use App\Service\VersionService;
@@ -570,7 +571,16 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/calserver/contact', ContactController::class)
         ->add(new RateLimitMiddleware(3, 3600))
         ->add(new CsrfMiddleware());
-    $app->post('/calserver/chat', CalserverChatController::class)
+    $app->post('/calserver/chat', function (Request $request, Response $response): Response {
+        $service = $request->getAttribute('ragChatService');
+        if (!$service instanceof RagChatService) {
+            $service = null;
+        }
+
+        $controller = new CalserverChatController('calserver', $service);
+
+        return $controller($request, $response);
+    })
         ->add(new RateLimitMiddleware(10, 60))
         ->add(new CsrfMiddleware());
     $app->get('/onboarding', OnboardingController::class);
