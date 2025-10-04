@@ -11,7 +11,7 @@ interface ChatResponderInterface
 {
     /**
      * @param list<array{role:string,content:string}> $messages
-     * @param list<array<string,mixed>> $context
+     * @param list<array<string,mixed>|mixed> $context
      */
     public function respond(array $messages, array $context): string;
 }

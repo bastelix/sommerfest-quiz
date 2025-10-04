@@ -53,7 +53,7 @@ class HttpChatResponder implements ChatResponderInterface
 
     /**
      * @param list<array{role:string,content:string}> $messages
-     * @param list<array<string,mixed>> $context
+     * @param list<array<string,mixed>|mixed> $context
      */
     public function respond(array $messages, array $context): string
     {
@@ -107,7 +107,7 @@ class HttpChatResponder implements ChatResponderInterface
     }
 
     /**
-     * @param list<array<string,mixed>> $context
+     * @param list<array<string,mixed>|mixed> $context
      * @return list<array{id:string,text:string,score:float,metadata:array<string,mixed>}>
      */
     protected function normaliseContext(array $context): array
@@ -194,7 +194,7 @@ class HttpChatResponder implements ChatResponderInterface
 
     /**
      * @param list<array{role:string,content:string}> $messages
-     * @param list<array<string,mixed>> $context
+     * @param list<array<string,mixed>|mixed> $context
      * @return array<string,mixed>
      */
     protected function buildRequestPayload(array $messages, array $context): array
