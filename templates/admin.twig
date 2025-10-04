@@ -1334,6 +1334,107 @@
           </div>
         </div>
 
+        <h3 class="uk-heading-bullet">{{ t('heading_rag_chat') }}</h3>
+        <p class="uk-text-meta uk-margin-small">{{ t('text_rag_chat_hint') }}</p>
+        <form id="ragChatForm" class="uk-form-stacked uk-margin">
+          <div class="uk-margin">
+            <label class="uk-form-label" for="ragChatUrl">{{ t('label_rag_chat_url') }}</label>
+            <div class="uk-form-controls">
+              <input class="uk-input" type="url" id="ragChatUrl" placeholder="https://chat.example.com/v1/chat">
+            </div>
+          </div>
+          <div class="uk-grid-small" uk-grid>
+            <div class="uk-width-1-1 uk-width-1-3@m">
+              <div class="uk-margin">
+                <label class="uk-form-label" for="ragChatDriver">{{ t('label_rag_chat_driver') }}</label>
+                <div class="uk-form-controls">
+                  <select class="uk-select" id="ragChatDriver">
+                    <option value="">{{ t('option_rag_chat_driver_auto') }}</option>
+                    <option value="openai">{{ t('option_rag_chat_driver_openai') }}</option>
+                    <option value="http">{{ t('option_rag_chat_driver_http') }}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="uk-width-1-1 uk-width-1-3@m">
+              <div class="uk-margin uk-flex uk-flex-middle" style="min-height: 58px;">
+                <label class="uk-form-label uk-margin-remove"><input class="uk-checkbox" type="checkbox" id="ragChatForceOpenAi"> {{ t('label_rag_chat_force_openai') }}</label>
+              </div>
+            </div>
+            <div class="uk-width-1-1 uk-width-1-3@m">
+              <div class="uk-margin">
+                <label class="uk-form-label" for="ragChatModel">{{ t('label_rag_chat_model') }}</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" type="text" id="ragChatModel" placeholder="gpt-4o-mini">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uk-grid-small" uk-grid>
+            <div class="uk-width-1-1 uk-width-1-2@m">
+              <div class="uk-margin">
+                <label class="uk-form-label" for="ragChatToken">{{ t('label_rag_chat_token') }}</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" type="password" id="ragChatToken" autocomplete="new-password">
+                </div>
+                <p id="ragChatTokenStatus" class="uk-text-meta uk-margin-small">{{ t('text_rag_chat_token_hint') }}</p>
+              </div>
+            </div>
+            <div class="uk-width-1-1 uk-width-1-2@m">
+              <div class="uk-margin uk-flex uk-flex-middle" style="min-height: 58px;">
+                <label class="uk-form-label uk-margin-remove"><input class="uk-checkbox" type="checkbox" id="ragChatTokenClear"> {{ t('label_rag_chat_token_clear') }}</label>
+              </div>
+            </div>
+          </div>
+          <div class="uk-grid-small" uk-grid>
+            <div class="uk-width-1-1 uk-width-1-3@m">
+              <div class="uk-margin">
+                <label class="uk-form-label" for="ragChatTemperature">{{ t('label_rag_chat_temperature') }}</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" type="number" step="0.01" min="0" max="2" id="ragChatTemperature" placeholder="0.20">
+                </div>
+              </div>
+            </div>
+            <div class="uk-width-1-1 uk-width-1-3@m">
+              <div class="uk-margin">
+                <label class="uk-form-label" for="ragChatTopP">{{ t('label_rag_chat_top_p') }}</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" type="number" step="0.01" min="0" max="1" id="ragChatTopP" placeholder="1.00">
+                </div>
+              </div>
+            </div>
+            <div class="uk-width-1-1 uk-width-1-3@m">
+              <div class="uk-margin">
+                <label class="uk-form-label" for="ragChatMaxTokens">{{ t('label_rag_chat_max_tokens') }}</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" type="number" step="1" min="1" id="ragChatMaxTokens" placeholder="300">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uk-grid-small" uk-grid>
+            <div class="uk-width-1-1 uk-width-1-2@m">
+              <div class="uk-margin">
+                <label class="uk-form-label" for="ragChatPresencePenalty">{{ t('label_rag_chat_presence_penalty') }}</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" type="number" step="0.01" min="-2" max="2" id="ragChatPresencePenalty" placeholder="0.00">
+                </div>
+              </div>
+            </div>
+            <div class="uk-width-1-1 uk-width-1-2@m">
+              <div class="uk-margin">
+                <label class="uk-form-label" for="ragChatFrequencyPenalty">{{ t('label_rag_chat_frequency_penalty') }}</label>
+                <div class="uk-form-controls">
+                  <input class="uk-input" type="number" step="0.01" min="-2" max="2" id="ragChatFrequencyPenalty" placeholder="0.00">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="uk-flex uk-flex-right uk-margin-top">
+            <button type="submit" class="uk-button uk-button-primary">{{ t('action_save') }}</button>
+          </div>
+        </form>
+
         <h3 class="uk-heading-bullet">{{ t('heading_registration') }}</h3>
         <div class="uk-margin uk-flex uk-flex-middle">
           <label><input class="uk-checkbox" type="checkbox" id="cfgRegistrationEnabled" {% if settings.registration_enabled == '1' %}checked{% endif %}> {{ t('label_registration_enabled') }}</label>
@@ -1734,6 +1835,12 @@
   <script>
     window.quizConfig = {{ config|json_encode|raw }};
     window.quizSettings = {{ settings|json_encode|raw }};
+    window.ragChatSecretPlaceholder = '{{ ragChatSecretPlaceholder|e('js') }}';
+    window.transRagChatSaved = '{{ t('message_rag_chat_saved')|e('js') }}';
+    window.transRagChatSaveError = '{{ t('message_rag_chat_save_error')|e('js') }}';
+    window.transRagChatTokenSaved = '{{ t('text_rag_chat_token_saved')|e('js') }}';
+    window.transRagChatTokenMissing = '{{ t('text_rag_chat_token_missing')|e('js') }}';
+    window.ragChatTokenPlaceholder = '{{ t('placeholder_rag_chat_token')|e('js') }}';
     window.roles = {{ roles|json_encode|raw }};
     window.baseUrl = '{{ baseUrl }}';
     window.mainDomain = '{{ main_domain }}';

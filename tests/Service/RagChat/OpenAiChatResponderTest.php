@@ -140,7 +140,7 @@ final class OpenAiChatResponderTest extends TestCase
         putenv('RAG_CHAT_SERVICE_URL=https://openai-proxy.example/v1/chat/completions');
 
         try {
-            $service = new RagChatService($this->indexPath, $this->domainBase);
+            $service = new RagChatService($this->indexPath, $this->domainBase, null, static fn (): array => []);
 
             $method = new ReflectionMethod(RagChatService::class, 'createDefaultResponder');
             $method->setAccessible(true);
@@ -176,7 +176,7 @@ final class OpenAiChatResponderTest extends TestCase
         $client = new Client(['handler' => $stack]);
 
         try {
-            $service = new RagChatService($this->indexPath, $this->domainBase);
+            $service = new RagChatService($this->indexPath, $this->domainBase, null, static fn (): array => []);
 
             $method = new ReflectionMethod(RagChatService::class, 'createDefaultResponder');
             $method->setAccessible(true);
@@ -207,6 +207,36 @@ final class OpenAiChatResponderTest extends TestCase
             putenv('RAG_CHAT_SERVICE_URL');
             putenv('RAG_CHAT_SERVICE_DRIVER');
         }
+    }
+
+    public function testServiceUsesSettingsForHttpResponder(): void
+    {
+        $settings = [
+            'rag_chat_service_url' => 'https://settings.example/api/chat',
+            'rag_chat_service_driver' => 'http',
+            'rag_chat_service_token' => 'settings-token',
+        ];
+
+        $service = new RagChatService(
+            $this->indexPath,
+            $this->domainBase,
+            null,
+            static fn (): array => $settings
+        );
+
+        $method = new ReflectionMethod(RagChatService::class, 'createDefaultResponder');
+        $method->setAccessible(true);
+        $responder = $method->invoke($service);
+
+        self::assertInstanceOf(HttpChatResponder::class, $responder);
+
+        $endpointProperty = new ReflectionProperty(HttpChatResponder::class, 'endpoint');
+        $endpointProperty->setAccessible(true);
+        self::assertSame('https://settings.example/api/chat', $endpointProperty->getValue($responder));
+
+        $tokenProperty = new ReflectionProperty(HttpChatResponder::class, 'apiToken');
+        $tokenProperty->setAccessible(true);
+        self::assertSame('settings-token', $tokenProperty->getValue($responder));
     }
 
     private function createDirectory(string $path): void

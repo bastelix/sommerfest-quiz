@@ -4,11 +4,16 @@ declare(strict_types=1);
 
 namespace App\Service\RagChat;
 
+use App\Infrastructure\Database;
+use App\Service\SettingsService;
 use App\Support\DomainNameHelper;
 use RuntimeException;
+use Throwable;
 
+use function array_key_exists;
 use function getenv;
 use function in_array;
+use function is_array;
 use function is_string;
 use function parse_url;
 use function rtrim;
@@ -44,6 +49,27 @@ final class RagChatService
         'en' => "Context from the knowledge base:\n",
     ];
 
+    private const ENV_KEY_MAP = [
+        'rag_chat_service_url' => 'RAG_CHAT_SERVICE_URL',
+        'rag_chat_service_driver' => 'RAG_CHAT_SERVICE_DRIVER',
+        'rag_chat_service_force_openai' => 'RAG_CHAT_SERVICE_FORCE_OPENAI',
+        'rag_chat_service_token' => 'RAG_CHAT_SERVICE_TOKEN',
+        'rag_chat_service_model' => 'RAG_CHAT_SERVICE_MODEL',
+        'rag_chat_service_temperature' => 'RAG_CHAT_SERVICE_TEMPERATURE',
+        'rag_chat_service_top_p' => 'RAG_CHAT_SERVICE_TOP_P',
+        'rag_chat_service_max_tokens' => 'RAG_CHAT_SERVICE_MAX_TOKENS',
+        'rag_chat_service_presence_penalty' => 'RAG_CHAT_SERVICE_PRESENCE_PENALTY',
+        'rag_chat_service_frequency_penalty' => 'RAG_CHAT_SERVICE_FREQUENCY_PENALTY',
+    ];
+
+    private const OPENAI_OPTION_KEYS = [
+        'rag_chat_service_temperature' => 'temperature',
+        'rag_chat_service_top_p' => 'top_p',
+        'rag_chat_service_max_tokens' => 'max_tokens',
+        'rag_chat_service_presence_penalty' => 'presence_penalty',
+        'rag_chat_service_frequency_penalty' => 'frequency_penalty',
+    ];
+
     private const DEFAULT_LOCALE = 'de';
 
     private string $indexPath;
@@ -52,12 +78,26 @@ final class RagChatService
 
     private ?ChatResponderInterface $chatResponder;
 
-    public function __construct(?string $indexPath = null, ?string $domainIndexBase = null, ?ChatResponderInterface $chatResponder = null)
+    /** @var array<string,mixed>|null */
+    private ?array $chatSettings = null;
+
+    private bool $chatSettingsLoaded = false;
+
+    /** @var callable|null */
+    private $settingsLoader;
+
+    public function __construct(
+        ?string $indexPath = null,
+        ?string $domainIndexBase = null,
+        ?ChatResponderInterface $chatResponder = null,
+        ?callable $settingsLoader = null
+    )
     {
         $basePath = dirname(__DIR__, 3);
         $this->indexPath = $indexPath ?? $basePath . '/data/rag-chatbot/index.json';
         $this->domainIndexBase = $domainIndexBase ?? $basePath . '/data/rag-chatbot/domains';
         $this->chatResponder = $chatResponder;
+        $this->settingsLoader = $settingsLoader;
     }
 
     public function answer(string $question, string $locale = self::DEFAULT_LOCALE, ?string $domain = null): RagChatResponse
@@ -224,9 +264,21 @@ final class RagChatService
         try {
             $endpoint = $this->detectEndpoint();
             if ($endpoint !== null && $this->isOpenAiEndpoint($endpoint)) {
-                $this->chatResponder = new OpenAiChatResponder($endpoint);
+                $token = $this->getChatSettingValue('rag_chat_service_token');
+                $model = $this->getChatSettingValue('rag_chat_service_model');
+                $options = $this->buildOpenAiOptions();
+
+                $this->chatResponder = new OpenAiChatResponder(
+                    $endpoint,
+                    null,
+                    $token,
+                    null,
+                    $model,
+                    $options === [] ? null : $options
+                );
             } else {
-                $this->chatResponder = new HttpChatResponder($endpoint);
+                $token = $this->getChatSettingValue('rag_chat_service_token');
+                $this->chatResponder = new HttpChatResponder($endpoint, null, $token);
             }
         } catch (RuntimeException $exception) {
             error_log('Chat responder unavailable: ' . $exception->getMessage());
@@ -240,23 +292,19 @@ final class RagChatService
 
     private function detectEndpoint(): ?string
     {
-        $value = getenv('RAG_CHAT_SERVICE_URL');
-        if ($value === false) {
-            return null;
-        }
-
-        $value = trim((string) $value);
-
-        return $value === '' ? null : $value;
+        return $this->getChatSettingValue('rag_chat_service_url');
     }
 
     private function isOpenAiEndpoint(string $endpoint): bool
     {
-        $driver = getenv('RAG_CHAT_SERVICE_DRIVER');
-        if ($driver !== false) {
-            $value = strtolower(trim((string) $driver));
-            if ($value === 'openai') {
+        $driver = $this->getChatSettingValue('rag_chat_service_driver');
+        if ($driver !== null) {
+            $normalized = strtolower($driver);
+            if ($normalized === 'openai') {
                 return true;
+            }
+            if ($normalized !== '') {
+                return false;
             }
         }
 
@@ -273,15 +321,101 @@ final class RagChatService
             }
         }
 
-        $forceOpenAi = getenv('RAG_CHAT_SERVICE_FORCE_OPENAI');
-        if ($forceOpenAi !== false) {
-            $value = strtolower(trim((string) $forceOpenAi));
-            if ($value !== '' && in_array($value, ['1', 'true', 'yes', 'on'], true)) {
-                return true;
-            }
+        if ($this->isTruthySetting('rag_chat_service_force_openai')) {
+            return true;
         }
 
         return false;
+    }
+
+    private function getChatSettingValue(string $key): ?string
+    {
+        $settings = $this->loadChatSettings();
+        if (array_key_exists($key, $settings)) {
+            $value = trim((string) $settings[$key]);
+
+            return $value === '' ? null : $value;
+        }
+
+        $envKey = self::ENV_KEY_MAP[$key] ?? null;
+        if ($envKey === null) {
+            return null;
+        }
+
+        $env = getenv($envKey);
+        if ($env === false) {
+            return null;
+        }
+
+        $value = trim((string) $env);
+
+        return $value === '' ? null : $value;
+    }
+
+    private function isTruthySetting(string $key): bool
+    {
+        $value = $this->getChatSettingValue($key);
+        if ($value === null) {
+            return false;
+        }
+
+        $normalized = strtolower($value);
+
+        return $normalized !== '' && in_array($normalized, ['1', 'true', 'yes', 'on'], true);
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    private function loadChatSettings(): array
+    {
+        if ($this->chatSettingsLoaded) {
+            return $this->chatSettings ?? [];
+        }
+
+        $this->chatSettingsLoaded = true;
+
+        if ($this->settingsLoader !== null) {
+            $data = ($this->settingsLoader)();
+            if (is_array($data)) {
+                /** @var array<string,mixed> $data */
+                $this->chatSettings = $data;
+            } else {
+                $this->chatSettings = [];
+            }
+
+            return $this->chatSettings;
+        }
+
+        try {
+            $pdo = Database::connectFromEnv();
+            $service = new SettingsService($pdo);
+            $this->chatSettings = $service->getAll();
+        } catch (Throwable $exception) {
+            error_log('Failed to load chat configuration: ' . $exception->getMessage());
+            $this->chatSettings = [];
+        }
+
+        return $this->chatSettings;
+    }
+
+    /**
+     * @return array<string,mixed>
+     */
+    private function buildOpenAiOptions(): array
+    {
+        $options = [];
+
+        foreach (self::OPENAI_OPTION_KEYS as $settingKey => $payloadKey) {
+            $value = $this->getChatSettingValue($settingKey);
+            if ($value === null) {
+                continue;
+            }
+
+            $options[$payloadKey] = $value;
+        }
+
+        return $options;
     }
 
     /**
