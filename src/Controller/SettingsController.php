@@ -74,7 +74,7 @@ class SettingsController
         $filtered = [];
 
         foreach ($payload as $key => $value) {
-            if (!is_string($key) || $key === '') {
+            if ($key === '') {
                 continue;
             }
 

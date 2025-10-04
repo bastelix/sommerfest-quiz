@@ -218,7 +218,7 @@ final class RagChatService implements RagChatServiceInterface
     private function buildContextEntry(SearchResult $result, string $locale, ?string $originDomain = null): array
     {
         $metadata = $result->getMetadata();
-        if ($originDomain !== null && $originDomain !== '') {
+        if ($originDomain !== null) {
             $metadata['domain'] = $originDomain;
         }
 
@@ -248,7 +248,7 @@ final class RagChatService implements RagChatServiceInterface
         $dotPosition = strpos($normalizedDomain, '.');
         if ($dotPosition !== false && $dotPosition > 0) {
             $subdomain = substr($normalizedDomain, 0, $dotPosition);
-            if ($subdomain !== '' && $subdomain !== $normalizedDomain) {
+            if ($subdomain !== $normalizedDomain) {
                 $candidates[] = $subdomain;
             }
         }
@@ -302,9 +302,8 @@ final class RagChatService implements RagChatServiceInterface
 
         $responder = $this->chatResponder ?? $this->createDefaultResponder();
         if ($responder === null) {
-            if ($this->lastResponderError === null) {
-                $this->lastResponderError = 'Chat responder unavailable: no endpoint configured.';
-            }
+            $this->lastResponderError = $this->lastResponderError
+                ?? 'Chat responder unavailable: no endpoint configured.';
             return null;
         }
 
@@ -409,14 +408,17 @@ final class RagChatService implements RagChatServiceInterface
             return $endpoint;
         }
 
-        $path = isset($parts['path']) && is_string($parts['path']) ? $parts['path'] : '';
+        $pathValue = $parts['path'] ?? null;
+        $path = is_string($pathValue) ? $pathValue : '';
         $normalizedPath = $this->normaliseOpenAiPath($path);
 
         $userInfo = '';
-        if (isset($parts['user']) && is_string($parts['user']) && $parts['user'] !== '') {
-            $userInfo = $parts['user'];
-            if (isset($parts['pass']) && is_string($parts['pass'])) {
-                $userInfo .= ':' . $parts['pass'];
+        $user = $parts['user'] ?? null;
+        if (is_string($user) && $user !== '') {
+            $userInfo = $user;
+            $pass = $parts['pass'] ?? null;
+            if (is_string($pass)) {
+                $userInfo .= ':' . $pass;
             }
             $userInfo .= '@';
         }
@@ -425,12 +427,14 @@ final class RagChatService implements RagChatServiceInterface
 
         $rebuilt = $scheme . '://' . $userInfo . $host . $port . $normalizedPath;
 
-        if (isset($parts['query']) && is_string($parts['query']) && $parts['query'] !== '') {
-            $rebuilt .= '?' . $parts['query'];
+        $query = $parts['query'] ?? null;
+        if (is_string($query) && $query !== '') {
+            $rebuilt .= '?' . $query;
         }
 
-        if (isset($parts['fragment']) && is_string($parts['fragment']) && $parts['fragment'] !== '') {
-            $rebuilt .= '#' . $parts['fragment'];
+        $fragment = $parts['fragment'] ?? null;
+        if (is_string($fragment) && $fragment !== '') {
+            $rebuilt .= '#' . $fragment;
         }
 
         return $rebuilt;
