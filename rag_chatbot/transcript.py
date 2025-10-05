@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Mapping, Sequence
+from typing import Dict, Iterable, List, Mapping, Sequence, Set, Tuple
 
 from .chat import ChatMessage, ChatTurn
 from .retrieval import SearchResult
@@ -18,7 +18,7 @@ class TranscriptContext:
     chunk_id: str
     score: float
     text: str
-    metadata: dict[str, object]
+    metadata: Dict[str, object]
 
     @classmethod
     def from_search_result(cls, result: SearchResult) -> "TranscriptContext":
@@ -29,7 +29,7 @@ class TranscriptContext:
             metadata=dict(result.metadata),
         )
 
-    def to_dict(self) -> dict[str, object]:
+    def to_dict(self) -> Dict[str, object]:
         return {
             "chunk_id": self.chunk_id,
             "score": self.score,
@@ -59,8 +59,8 @@ class TranscriptTurn:
 
     question: str
     response: str
-    context: tuple[TranscriptContext, ...]
-    prompt_messages: tuple[ChatMessage, ...]
+    context: Tuple[TranscriptContext, ...]
+    prompt_messages: Tuple[ChatMessage, ...]
 
     @classmethod
     def from_prompt(cls, question: str, turn: ChatTurn) -> "TranscriptTurn":
@@ -77,7 +77,7 @@ class TranscriptTurn:
             prompt_messages=prompt_messages,
         )
 
-    def to_dict(self) -> dict[str, object]:
+    def to_dict(self) -> Dict[str, object]:
         return {
             "question": self.question,
             "response": self.response,
@@ -135,7 +135,7 @@ class TranscriptStats:
     average_score: float
     unique_sources: int
 
-    def to_dict(self) -> dict[str, object]:
+    def to_dict(self) -> Dict[str, object]:
         return {
             "turns": self.turns,
             "context_items": self.context_items,
@@ -148,10 +148,10 @@ class ChatTranscript:
     """Sammelt Chat-Durchläufe und speichert sie bei Bedarf als JSON."""
 
     def __init__(self) -> None:
-        self._turns: list[TranscriptTurn] = []
+        self._turns: List[TranscriptTurn] = []
 
     @property
-    def turns(self) -> tuple[TranscriptTurn, ...]:
+    def turns(self) -> Tuple[TranscriptTurn, ...]:
         return tuple(self._turns)
 
     def record(self, question: str, turn: ChatTurn) -> None:
@@ -168,8 +168,8 @@ class ChatTranscript:
         if not self._turns:
             return TranscriptStats(turns=0, context_items=0, average_score=0.0, unique_sources=0)
 
-        scores: list[float] = []
-        sources: set[str] = set()
+        scores: List[float] = []
+        sources: Set[str] = set()
         for turn in self._turns:
             for item in turn.context:
                 scores.append(item.score)
@@ -189,8 +189,8 @@ class ChatTranscript:
             unique_sources=len(sources),
         )
 
-    def to_dict(self, *, include_stats: bool = True) -> dict[str, object]:
-        payload: dict[str, object] = {
+    def to_dict(self, *, include_stats: bool = True) -> Dict[str, object]:
+        payload: Dict[str, object] = {
             "turns": [turn.to_dict() for turn in self._turns],
         }
         if include_stats:

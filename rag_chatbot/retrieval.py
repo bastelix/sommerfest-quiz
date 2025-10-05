@@ -4,7 +4,7 @@ import json
 import math
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Dict, Iterable, List, Tuple
 
 from .index_builder import TOKEN_RE
 
@@ -14,7 +14,7 @@ class SearchResult:
     chunk_id: str
     score: float
     text: str
-    metadata: dict[str, Any]
+    metadata: Dict[str, Any]
 
 
 class SemanticIndex:
@@ -24,19 +24,19 @@ class SemanticIndex:
         if not path.exists():
             raise FileNotFoundError(path)
         payload = json.loads(path.read_text(encoding="utf-8"))
-        self._vocabulary: list[str] = list(payload.get("vocabulary", []))
-        self._idf: list[float] = list(payload.get("idf", []))
+        self._vocabulary: List[str] = list(payload.get("vocabulary", []))
+        self._idf: List[float] = list(payload.get("idf", []))
         self._term_to_index = {term: index for index, term in enumerate(self._vocabulary)}
-        self._chunks = [
+        self._chunks: List[_IndexedChunk] = [
             _IndexedChunk.from_payload(item)
             for item in payload.get("chunks", [])
         ]
 
     @property
-    def vocabulary(self) -> tuple[str, ...]:
+    def vocabulary(self) -> Tuple[str, ...]:
         return tuple(self._vocabulary)
 
-    def search(self, query: str, *, top_k: int = 5, min_score: float = 0.0) -> list[SearchResult]:
+    def search(self, query: str, *, top_k: int = 5, min_score: float = 0.0) -> List[SearchResult]:
         query_vector = self._vectorise(query)
         if not query_vector:
             return []
@@ -45,7 +45,7 @@ class SemanticIndex:
         if query_norm == 0.0:
             return []
 
-        results: list[SearchResult] = []
+        results: List[SearchResult] = []
         for chunk in self._chunks:
             if chunk.norm == 0.0:
                 continue
@@ -66,9 +66,9 @@ class SemanticIndex:
         results.sort(key=lambda item: item.score, reverse=True)
         return results[:top_k]
 
-    def _vectorise(self, text: str) -> dict[int, float]:
+    def _vectorise(self, text: str) -> Dict[int, float]:
         tokens = [token.lower() for token in TOKEN_RE.findall(text)]
-        counts: dict[int, int] = {}
+        counts: Dict[int, int] = {}
         for token in tokens:
             index = self._term_to_index.get(token)
             if index is None:
@@ -77,7 +77,7 @@ class SemanticIndex:
         total = sum(counts.values())
         if total == 0:
             return {}
-        vector: dict[int, float] = {}
+        vector: Dict[int, float] = {}
         for index, count in counts.items():
             tf = count / total
             weight = tf * self._idf[index]
@@ -89,14 +89,14 @@ class SemanticIndex:
 class _IndexedChunk:
     chunk_id: str
     text: str
-    metadata: dict[str, Any]
-    vector: dict[int, float]
+    metadata: Dict[str, Any]
+    vector: Dict[int, float]
     norm: float
 
     @classmethod
-    def from_payload(cls, payload: dict[str, Any]) -> "_IndexedChunk":
+    def from_payload(cls, payload: Dict[str, Any]) -> "_IndexedChunk":
         vector_pairs: Iterable[Iterable[float]] = payload.get("vector", [])
-        vector: dict[int, float] = {}
+        vector: Dict[int, float] = {}
         for pair in vector_pairs:
             if not isinstance(pair, list) or len(pair) != 2:
                 continue
@@ -111,7 +111,7 @@ class _IndexedChunk:
             norm=float(payload.get("norm", 0.0)),
         )
 
-    def dot(self, other: dict[int, float]) -> float:
+    def dot(self, other: Dict[int, float]) -> float:
         score = 0.0
         for index, weight in other.items():
             if index in self.vector:

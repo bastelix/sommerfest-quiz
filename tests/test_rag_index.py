@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import sys
 from pathlib import Path
+from typing import Dict, List
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -12,7 +13,7 @@ from rag_chatbot import IndexOptions, build_index
 from rag_chatbot.retrieval import SemanticIndex
 
 
-def _write_corpus(path: Path, entries: list[dict[str, object]]) -> None:
+def _write_corpus(path: Path, entries: List[Dict[str, object]]) -> None:
     with path.open("w", encoding="utf-8") as handle:
         for entry in entries:
             json.dump(entry, handle, ensure_ascii=False)

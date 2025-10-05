@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Iterator
+from typing import Iterable, Iterator, List
 
 
 @dataclass(frozen=True)
@@ -10,7 +10,7 @@ class Chunk:
     word_count: int
 
 
-def split_into_paragraphs(text: str) -> list[str]:
+def split_into_paragraphs(text: str) -> List[str]:
     paragraphs = [paragraph.strip() for paragraph in text.split("\n\n")]
     return [paragraph for paragraph in paragraphs if paragraph]
 
@@ -20,7 +20,7 @@ def chunk_paragraphs(
     max_words: int = 180,
     overlap: int = 40,
 ) -> Iterator[Chunk]:
-    buffer_words: list[str] = []
+    buffer_words: List[str] = []
     for paragraph in paragraphs:
         words = paragraph.split()
         if not words:
@@ -38,7 +38,7 @@ def chunk_paragraphs(
         yield Chunk(text=" ".join(buffer_words), word_count=len(buffer_words))
 
 
-def _flush_buffer(buffer_words: list[str], max_words: int, overlap: int) -> Iterator[Chunk]:
+def _flush_buffer(buffer_words: List[str], max_words: int, overlap: int) -> Iterator[Chunk]:
     if not buffer_words:
         return
     chunk_words = buffer_words[:max_words]

@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from statistics import mean
+from typing import Dict, List, Tuple
 import json
 
 from .transcript import ChatTranscript, TranscriptStats
@@ -19,7 +20,7 @@ class SourceReport:
     average_score: float
     max_score: float
 
-    def to_dict(self) -> dict[str, object]:
+    def to_dict(self) -> Dict[str, object]:
         return {
             "source": self.source,
             "hits": self.hits,
@@ -33,9 +34,9 @@ class TranscriptReport:
     """Aggregierte Auswertung eines Gesprächsprotokolls."""
 
     stats: TranscriptStats
-    sources: tuple[SourceReport, ...]
+    sources: Tuple[SourceReport, ...]
 
-    def to_dict(self) -> dict[str, object]:
+    def to_dict(self) -> Dict[str, object]:
         return {
             "stats": self.stats.to_dict(),
             "sources": [source.to_dict() for source in self.sources],
@@ -49,7 +50,7 @@ def build_report(transcript: ChatTranscript) -> TranscriptReport:
     if stats.turns == 0:
         return TranscriptReport(stats=stats, sources=tuple())
 
-    buckets: dict[str, list[float]] = {}
+    buckets: Dict[str, List[float]] = {}
     for turn in transcript.turns:
         for idx, context in enumerate(turn.context):
             source = str(context.metadata.get("source") or context.metadata.get("title") or context.chunk_id)

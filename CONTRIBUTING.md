@@ -30,7 +30,7 @@ your host machine.
 
 ### Without Docker
 
-1. Install [Composer](https://getcomposer.org/), Node.js 20 LTS, and Python 3.11 or newer.
+1. Install [Composer](https://getcomposer.org/), Node.js 20 LTS, and Python 3.8 or newer.
 2. Install PHP extensions `pdo_pgsql`, `gd`, and `exif` (required for database access and image
    processing).
 3. Run `composer install` to fetch PHP dependencies.

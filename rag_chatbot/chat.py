@@ -3,7 +3,7 @@ from __future__ import annotations
 """Chat-spezifische Komponenten für den RAG-Chatbot."""
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Protocol, Sequence
+from typing import TYPE_CHECKING, List, Optional, Protocol, Sequence, Tuple
 
 from .retrieval import SearchResult, SemanticIndex
 
@@ -27,8 +27,8 @@ class ChatMessage:
 class ChatPrompt:
     """Eingabestruktur für LLM-Aufrufe."""
 
-    messages: tuple[ChatMessage, ...]
-    context: tuple[SearchResult, ...]
+    messages: Tuple[ChatMessage, ...]
+    context: Tuple[SearchResult, ...]
 
 
 @dataclass(frozen=True)
@@ -66,7 +66,7 @@ class ChatSession:
         history_limit: int = 6,
         top_k: int = 4,
         min_score: float = 0.05,
-        transcript: "ChatTranscript" | None = None,
+        transcript: Optional["ChatTranscript"] = None,
     ) -> None:
         if history_limit < 0:
             raise ValueError("history_limit darf nicht negativ sein.")
@@ -80,10 +80,10 @@ class ChatSession:
         self._top_k = top_k
         self._min_score = min_score
         self._transcript = transcript
-        self._history: list[ChatMessage] = []
+        self._history: List[ChatMessage] = []
 
     @property
-    def history(self) -> tuple[ChatMessage, ...]:
+    def history(self) -> Tuple[ChatMessage, ...]:
         """Gibt die bisherige Konversation ohne System-Prompt zurück."""
 
         return tuple(self._history)
@@ -96,7 +96,7 @@ class ChatSession:
         context = self._index.search(user_message, top_k=self._top_k, min_score=self._min_score)
         context_message = self._build_context_message(context)
 
-        messages: list[ChatMessage] = [ChatMessage("system", self._system_prompt)]
+        messages: List[ChatMessage] = [ChatMessage("system", self._system_prompt)]
         if self._history:
             messages.extend(self._history)
         if context_message:
@@ -125,7 +125,7 @@ class ChatSession:
         if excess > 0:
             del self._history[:excess]
 
-    def _build_context_message(self, context: Sequence[SearchResult]) -> ChatMessage | None:
+    def _build_context_message(self, context: Sequence[SearchResult]) -> Optional[ChatMessage]:
         if not context:
             return None
         lines = [DEFAULT_CONTEXT_HEADER]
