@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service\RagChat;
 
-use App\Support\DomainNameHelper;
+use InvalidArgumentException;
 use RuntimeException;
 
 use function App\runSyncProcess;
@@ -32,9 +32,10 @@ final class DomainIndexManager
      */
     public function rebuild(string $domain): array
     {
-        $normalized = DomainNameHelper::canonicalizeSlug($domain);
-        if ($normalized === '') {
-            throw new RuntimeException('Invalid domain supplied.');
+        try {
+            $normalized = $this->storage->normaliseDomain($domain);
+        } catch (InvalidArgumentException $exception) {
+            throw new RuntimeException('Invalid domain supplied.', 0, $exception);
         }
 
         $documents = $this->storage->getDocumentFiles($normalized);

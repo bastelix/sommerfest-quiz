@@ -370,14 +370,18 @@ class DomainStartPageService
             if ($domain === '') {
                 continue;
             }
-            $normalized = $this->normalizeDomain($domain);
-            $canonical = DomainNameHelper::canonicalizeSlug($domain);
-            if ($normalized === '' || $canonical === '') {
+            $display = $this->normalizeDomain($domain);
+            if ($display === '') {
+                continue;
+            }
+
+            $canonical = DomainNameHelper::canonicalizeSlug($display);
+            if ($canonical === '') {
                 continue;
             }
             if (!isset($domains[$canonical])) {
                 $domains[$canonical] = [
-                    'domain' => $normalized,
+                    'domain' => $display,
                     'normalized' => $canonical,
                     'type' => 'marketing',
                 ];

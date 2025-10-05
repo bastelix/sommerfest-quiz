@@ -139,6 +139,7 @@ PHP_SCRIPT;
 
             self::assertSame(201, $uploadResponse->getStatusCode());
             self::assertArrayHasKey('document', $payload);
+            self::assertDirectoryExists($domainsDir . '/calserver/uploads');
 
             if (file_exists($tempFile)) {
                 unlink($tempFile);
@@ -177,6 +178,7 @@ PHP_SCRIPT;
             self::assertNotSame([], $chatPayload['context']);
             self::assertSame('calserver', $chatPayload['context'][0]['metadata']['domain']);
             self::assertSame('doc', $chatPayload['context'][0]['metadata']['source']);
+            self::assertDirectoryExists($domainsDir . '/calserver');
         } finally {
             if ($previousMarketing === false) {
                 putenv('MARKETING_DOMAINS');
