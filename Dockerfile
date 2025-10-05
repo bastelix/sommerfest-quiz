@@ -5,6 +5,7 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN apk add --no-cache \
     libpng libjpeg-turbo freetype libwebp postgresql-client imagemagick \
+    python3 py3-pip \
     && apk add --no-cache --virtual .build-deps \
        libpng-dev libjpeg-turbo-dev freetype-dev libwebp-dev postgresql-dev imagemagick-dev $PHPIZE_DEPS \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
