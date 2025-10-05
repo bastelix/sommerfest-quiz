@@ -70,7 +70,7 @@ final class DomainIndexManager
             '--force',
         ];
 
-        $result = runSyncProcess($this->pythonBinary, $args);
+        $result = runSyncProcess($this->pythonBinary, $args, false, $this->projectRoot);
         $result['cleared'] = false;
 
         if ($result['success'] !== true) {
