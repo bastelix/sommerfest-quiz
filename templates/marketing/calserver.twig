@@ -467,9 +467,9 @@
 
         if (storedTheme === null) {
           if (hasStorageHelpers) {
-            setStored(darkKey, 'true');
+            setStored(darkKey, 'false');
           } else if (typeof localStorage !== 'undefined') {
-            localStorage.setItem(darkKey, 'true');
+            localStorage.setItem(darkKey, 'false');
           }
         }
       } catch (error) {
