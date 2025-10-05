@@ -74,8 +74,8 @@ final class DomainIndexManager
         $result['cleared'] = false;
 
         if ($result['success'] !== true) {
-            $stderr = isset($result['stderr']) ? trim($result['stderr']) : '';
-            $stdout = isset($result['stdout']) ? trim($result['stdout']) : '';
+            $stderr = trim($result['stderr']);
+            $stdout = trim($result['stdout']);
             $message = $stderr !== '' ? $stderr : $stdout;
             if ($message === '') {
                 $message = 'Domain index rebuild failed.';
