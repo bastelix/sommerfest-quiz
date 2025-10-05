@@ -60,10 +60,16 @@ function runBackgroundProcess(string $script, array $args = []): void {
  * @param string $script The script to run
  * @param array $args Arguments passed to the script
  * @param bool $throwOnError Throw an exception on failure instead of returning the error output
+ * @param string|null $workingDirectory Working directory passed to the process
  *
  * @return array{success: bool, stdout: string, stderr: string}
  */
-function runSyncProcess(string $script, array $args = [], bool $throwOnError = false): array {
+function runSyncProcess(
+    string $script,
+    array $args = [],
+    bool $throwOnError = false,
+    ?string $workingDirectory = null
+): array {
     $cmd = array_merge([$script], $args);
 
     try {
@@ -71,7 +77,7 @@ function runSyncProcess(string $script, array $args = [], bool $throwOnError = f
             throw new \RuntimeException('Symfony Process component is unavailable.');
         }
 
-        $process = new Process($cmd);
+        $process = new Process($cmd, $workingDirectory);
         $process->setTimeout(null);
         $process->setIdleTimeout(null);
         $process->run();
@@ -99,14 +105,7 @@ function runSyncProcess(string $script, array $args = [], bool $throwOnError = f
         ];
 
         $pipes = [];
-        $process = proc_open(
-            $cmd,
-            $descriptorSpec,
-            $pipes,
-            null,
-            null,
-            ['bypass_shell' => true]
-        );
+        $process = proc_open($cmd, $descriptorSpec, $pipes, $workingDirectory, null, ['bypass_shell' => true]);
 
         if (!\is_resource($process)) {
             $message = 'runSyncProcess proc_open fallback failed to start process';

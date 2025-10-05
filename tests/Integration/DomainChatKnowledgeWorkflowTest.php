@@ -14,7 +14,11 @@ use Slim\Psr7\UploadedFile;
 use Tests\TestCase;
 
 use function bin2hex;
+use function chdir;
+use function file_exists;
+use function file_get_contents;
 use function file_put_contents;
+use function getcwd;
 use function json_decode;
 use function json_encode;
 use function mkdir;
@@ -22,11 +26,10 @@ use function random_bytes;
 use function scandir;
 use function sys_get_temp_dir;
 use function tempnam;
-use function file_exists;
+use function unlink;
 use function is_dir;
 use function is_file;
 use function is_link;
-use function unlink;
 use function rmdir;
 
 final class DomainChatKnowledgeWorkflowTest extends TestCase
@@ -245,6 +248,137 @@ PHP_SCRIPT;
                 $_ENV['MARKETING_DOMAINS'] = $previousMarketing;
             }
 
+            $this->cleanupDirectory($baseDir);
+        }
+    }
+
+    public function testRebuildSucceedsWhenWorkingDirectoryIsEnforced(): void
+    {
+        $originalCwd = getcwd();
+        self::assertNotFalse($originalCwd);
+
+        $baseDir = sys_get_temp_dir() . '/rag-domain-' . bin2hex(random_bytes(4));
+        $domainsDir = $baseDir . '/domains';
+        $projectRoot = $baseDir . '/project';
+        $scriptsDir = $projectRoot . '/scripts';
+        $ragChatbotDir = $projectRoot . '/rag_chatbot';
+
+        mkdir($domainsDir, 0775, true);
+        mkdir($scriptsDir, 0775, true);
+        mkdir($ragChatbotDir, 0775, true);
+
+        $pipelineScript = <<<'PYTHON'
+import json
+import sys
+from pathlib import Path
+
+import rag_chatbot
+
+
+def main() -> None:
+    uploads_dir = Path(sys.argv[1])
+    args = sys.argv[2:]
+
+    corpus_path = None
+    index_path = None
+    i = 0
+    while i < len(args):
+        if args[i] == "--corpus" and i + 1 < len(args):
+            corpus_path = Path(args[i + 1])
+            i += 2
+            continue
+        if args[i] == "--index" and i + 1 < len(args):
+            index_path = Path(args[i + 1])
+            i += 2
+            continue
+        i += 1
+
+    if corpus_path is None or index_path is None:
+        print("missing paths", file=sys.stderr)
+        sys.exit(2)
+
+    corpus_path.parent.mkdir(parents=True, exist_ok=True)
+    index_path.parent.mkdir(parents=True, exist_ok=True)
+
+    payload = {"imported": rag_chatbot.MARKER}
+    corpus_path.write_text(json.dumps(payload))
+    index_path.write_text(json.dumps(payload))
+
+    print("stub pipeline finished")
+
+
+if __name__ == "__main__":
+    main()
+PYTHON;
+
+        $moduleStub = <<<'PYTHON'
+MARKER = "from-module"
+PYTHON;
+
+        file_put_contents($scriptsDir . '/rag_pipeline.py', $pipelineScript);
+        file_put_contents($ragChatbotDir . '/__init__.py', $moduleStub);
+
+        $storage = new DomainDocumentStorage($domainsDir);
+        $domain = 'importer';
+        $uploadsDir = $storage->getUploadsDirectory($domain);
+        mkdir($uploadsDir, 0775, true);
+
+        $documentName = 'doc-1.txt';
+        $documentPath = $uploadsDir . '/' . $documentName;
+        file_put_contents($documentPath, 'Doc content');
+
+        $metadata = [
+            'doc-1' => [
+                'name' => 'doc.txt',
+                'filename' => $documentName,
+                'mime_type' => 'text/plain',
+                'size' => strlen('Doc content'),
+                'uploaded_at' => date('c'),
+                'updated_at' => date('c'),
+            ],
+        ];
+
+        file_put_contents(
+            dirname($uploadsDir) . '/documents.json',
+            json_encode($metadata, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)
+        );
+
+        $corpusPath = $storage->getCorpusPath($domain);
+        $indexPath = $storage->getIndexPath($domain);
+
+        chdir(__DIR__ . '/../../public');
+
+        try {
+            $manualResult = \App\runSyncProcess(
+                'python3',
+                [
+                    $scriptsDir . '/rag_pipeline.py',
+                    $uploadsDir,
+                    '--corpus',
+                    $corpusPath,
+                    '--index',
+                    $indexPath,
+                    '--force',
+                ]
+            );
+
+            self::assertFalse($manualResult['success']);
+            $output = $manualResult['stderr'] !== '' ? $manualResult['stderr'] : $manualResult['stdout'];
+            self::assertStringContainsString('rag_chatbot', $output);
+
+            $manager = new DomainIndexManager($storage, $projectRoot, 'python3');
+            $result = $manager->rebuild($domain);
+
+            self::assertTrue($result['success']);
+            self::assertFileExists($corpusPath);
+            self::assertFileExists($indexPath);
+            self::assertStringContainsString(
+                'from-module',
+                (string) file_get_contents($corpusPath)
+            );
+            self::assertStringContainsString('stub pipeline finished', $result['stdout']);
+        } finally {
+            chdir($originalCwd);
             $this->cleanupDirectory($baseDir);
         }
     }
