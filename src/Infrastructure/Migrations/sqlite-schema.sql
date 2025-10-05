@@ -1471,7 +1471,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                 <p class="uk-margin-remove">Erweiterungen (z. B. Speicher, SSO) zubuchbar</p>
               </div>
               <div class="uk-margin-top">
-                <a class="uk-button uk-button-primary uk-width-1-1" href="#offer">Anfrage senden</a>
+                <a class="uk-button uk-button-primary uk-width-1-1" href="#contact-form">Anfrage senden</a>
                 <button class="uk-button uk-button-text uk-width-1-1 uk-margin-small-top" type="button" data-uk-toggle="target: #modal-standard-hosting">Leistungsdetails</button>
               </div>
             </div>
@@ -1493,7 +1493,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                 <p class="uk-margin-remove">Upgrade/Downgrade zwischen Plänen möglich</p>
               </div>
               <div class="uk-margin-top">
-                <a class="uk-button uk-button-primary uk-width-1-1" href="#offer">Anfrage senden</a>
+                <a class="uk-button uk-button-primary uk-width-1-1" href="#contact-form">Anfrage senden</a>
                 <button class="uk-button uk-button-text uk-width-1-1 uk-margin-small-top" type="button" data-uk-toggle="target: #modal-performance-hosting">Leistungsdetails</button>
               </div>
             </div>
@@ -1517,7 +1517,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                 <p class="uk-margin-remove">Rollout &amp; Betrieb nach gemeinsamem Migrationsplan</p>
               </div>
               <div class="uk-margin-top">
-                <a class="uk-button uk-button-primary uk-width-1-1" href="#offer">Anfrage senden</a>
+                <a class="uk-button uk-button-primary uk-width-1-1" href="#contact-form">Anfrage senden</a>
                 <button class="uk-button uk-button-text uk-width-1-1 uk-margin-small-top" type="button" data-uk-toggle="target: #modal-enterprise-hosting">Leistungsdetails</button>
               </div>
             </div>
@@ -1649,7 +1649,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                 </ul>
               </div>
               <div class="calserver-highlight-card__actions">
-                <a id="trial" class="uk-button uk-button-default" href="#offer">Jetzt testen</a>
+                <a id="trial" class="uk-button uk-button-default" href="#contact-form">Jetzt testen</a>
                 <span class="muted">Zugang &amp; Demo-Umgebung inklusive</span>
               </div>
             </div>
