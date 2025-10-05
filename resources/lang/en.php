@@ -392,6 +392,7 @@ return [
     'marketing_chat_error_validation' => 'Please enter a question.',
     'marketing_chat_error_rate_limited' => 'Too many requests. Please wait a moment.',
     'marketing_chat_sources' => 'Sources',
+    'marketing_chat_sources_toggle' => 'Show sources',
     'marketing_chat_score' => 'Relevance',
     'marketing_chat_empty' => 'No matching hints found.',
     'marketing_chat_close' => 'Close',

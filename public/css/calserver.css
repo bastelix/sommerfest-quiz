@@ -820,42 +820,57 @@ body.qr-landing.calserver-theme .calserver-highlight__intro p {
     margin-top: 12px;
 }
 
-.marketing-chat__context-title {
-    margin: 0 0 8px;
+.marketing-chat__context-toggle {
+    margin: 0;
     font-size: 0.95rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: color-mix(in oklab, var(--qr-muted, #5c6580) 92%, rgba(92, 101, 128, 0.6));
+    cursor: pointer;
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.marketing-chat__context-toggle::-webkit-details-marker {
+    display: none;
+}
+
+.marketing-chat__context-toggle::before {
+    content: '\25B8';
+    display: inline-block;
+    margin-right: 6px;
+    transition: transform 0.2s ease;
+}
+
+.marketing-chat__context[open] .marketing-chat__context-toggle::before {
+    transform: rotate(90deg);
 }
 
 .marketing-chat__context-list {
-    margin: 0;
+    margin: 8px 0 0;
     padding-left: 20px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
+}
+
+.marketing-chat__context-item {
+    font-size: 0.95rem;
+}
+
+.marketing-chat__context-link {
+    color: var(--calserver-primary, #1f63e6);
+    text-decoration: none;
+}
+
+.marketing-chat__context-link:hover,
+.marketing-chat__context-link:focus {
+    text-decoration: underline;
 }
 
 .marketing-chat__context-label {
-    display: inline-block;
-    margin-bottom: 4px;
-}
-
-.marketing-chat__context-score {
-    margin-left: 8px;
-    font-size: 0.85rem;
-    color: color-mix(in oklab, var(--qr-muted, #5c6580) 88%, rgba(92, 101, 128, 0.5));
-}
-
-.marketing-chat__context-snippet {
-    margin: 0;
-    line-height: 1.45;
-}
-
-.marketing-chat__empty {
-    margin: 12px 0 0;
-    font-style: italic;
-    color: color-mix(in oklab, var(--qr-muted, #5c6580) 85%, rgba(92, 101, 128, 0.55));
+    color: color-mix(in oklab, var(--qr-muted, #5c6580) 92%, rgba(92, 101, 128, 0.6));
 }
 
 .marketing-chat__status {

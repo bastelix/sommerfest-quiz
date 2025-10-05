@@ -79,54 +79,83 @@
 
     function renderContext(context) {
       if (!Array.isArray(context) || context.length === 0) {
-        var emptyText = (config.texts && config.texts.empty) || '';
-        if (!emptyText) {
-          return null;
-        }
-        var emptyParagraph = createParagraph(emptyText);
-        emptyParagraph.className = 'marketing-chat__empty';
-        return emptyParagraph;
+        return null;
       }
 
-      var wrapper = document.createElement('div');
-      wrapper.className = 'marketing-chat__context';
+      var validItems = [];
+      context.forEach(function (item) {
+        if (!item || typeof item !== 'object') {
+          return;
+        }
 
-      var heading = document.createElement('h3');
-      heading.className = 'marketing-chat__context-title';
-      heading.textContent = (config.texts && config.texts.sources) || 'Sources';
-      wrapper.appendChild(heading);
+        var label = item.label ? String(item.label) : '';
+        var metadata = item.metadata && typeof item.metadata === 'object' ? item.metadata : {};
+        var url = '';
+        if (metadata.url && typeof metadata.url === 'string') {
+          url = metadata.url.trim();
+        } else if (metadata.permalink && typeof metadata.permalink === 'string') {
+          url = metadata.permalink.trim();
+        } else if (metadata.source && typeof metadata.source === 'string') {
+          var source = metadata.source.trim();
+          if (/^https?:\/\//i.test(source)) {
+            url = source;
+          }
+        }
+
+        validItems.push({
+          label: label,
+          url: url
+        });
+      });
+
+      if (validItems.length === 0) {
+        return null;
+      }
+
+      var details = document.createElement('details');
+      details.className = 'marketing-chat__context';
+
+      var summary = document.createElement('summary');
+      summary.className = 'marketing-chat__context-toggle';
+      var toggleText = (config.texts && (config.texts.sourcesToggle || config.texts.sources)) || 'Sources';
+      summary.textContent = toggleText;
+      details.appendChild(summary);
 
       var list = document.createElement('ol');
       list.className = 'marketing-chat__context-list';
 
-      context.forEach(function (item) {
+      validItems.forEach(function (item) {
+        if (!item.label && !item.url) {
+          return;
+        }
+
         var li = document.createElement('li');
         li.className = 'marketing-chat__context-item';
 
-        var title = document.createElement('strong');
-        title.className = 'marketing-chat__context-label';
-        title.textContent = item && item.label ? String(item.label) : '';
-        li.appendChild(title);
-
-        if (item && typeof item.score === 'number') {
-          var scoreLabel = document.createElement('span');
-          scoreLabel.className = 'marketing-chat__context-score';
-          var scorePrefix = (config.texts && config.texts.score) || 'Score';
-          scoreLabel.textContent = scorePrefix + ': ' + item.score.toFixed(2);
-          li.appendChild(scoreLabel);
-        }
-
-        if (item && item.snippet) {
-          var snippet = createParagraph(String(item.snippet));
-          snippet.className = 'marketing-chat__context-snippet';
-          li.appendChild(snippet);
+        if (item.url) {
+          var link = document.createElement('a');
+          link.className = 'marketing-chat__context-link';
+          link.href = item.url;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = item.label || item.url;
+          li.appendChild(link);
+        } else {
+          var text = document.createElement('span');
+          text.className = 'marketing-chat__context-label';
+          text.textContent = item.label;
+          li.appendChild(text);
         }
 
         list.appendChild(li);
       });
 
-      wrapper.appendChild(list);
-      return wrapper;
+      if (!list.children.length) {
+        return null;
+      }
+
+      details.appendChild(list);
+      return details;
     }
 
     function appendTurn(question, answer, context) {

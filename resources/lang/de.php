@@ -390,6 +390,7 @@ return [
     'marketing_chat_error_validation' => 'Bitte gib eine Frage ein.',
     'marketing_chat_error_rate_limited' => 'Zu viele Anfragen. Bitte warte einen Moment.',
     'marketing_chat_sources' => 'Quellen',
+    'marketing_chat_sources_toggle' => 'Quellen anzeigen',
     'marketing_chat_score' => 'Relevanz',
     'marketing_chat_empty' => 'Keine passenden Hinweise gefunden.',
     'marketing_chat_close' => 'Schließen',
