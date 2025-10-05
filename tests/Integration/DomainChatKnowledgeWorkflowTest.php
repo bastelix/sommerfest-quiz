@@ -78,6 +78,63 @@ if ($uploadsDir !== '' && is_dir($uploadsDir)) {
             }
         }
     }
+
+    public function testRebuildFailureReturnsErrorResponse(): void
+    {
+        $baseDir = sys_get_temp_dir() . '/rag-domain-' . bin2hex(random_bytes(4));
+        $domainsDir = $baseDir . '/domains';
+        $projectRoot = $baseDir . '/project';
+        $scriptsDir = $projectRoot . '/scripts';
+
+        mkdir($domainsDir, 0775, true);
+        mkdir($scriptsDir, 0775, true);
+
+        $pipelineScript = <<<'PHP_SCRIPT'
+<?php
+declare(strict_types=1);
+
+fwrite(STDERR, "Simulated pipeline failure\n");
+exit(2);
+PHP_SCRIPT;
+        file_put_contents($scriptsDir . '/rag_pipeline.py', $pipelineScript);
+
+        try {
+            $storage = new DomainDocumentStorage($domainsDir);
+
+            $tempFile = tempnam(sys_get_temp_dir(), 'upload');
+            file_put_contents($tempFile, 'Domain knowledge');
+            $uploaded = new UploadedFile(
+                $tempFile,
+                'guide.md',
+                'text/markdown',
+                strlen('Domain knowledge'),
+                UPLOAD_ERR_OK
+            );
+            $storage->storeDocument('failure.test', $uploaded);
+
+            if (is_file($tempFile)) {
+                unlink($tempFile);
+            }
+
+            $indexManager = new DomainIndexManager($storage, $projectRoot, 'php');
+            $controller = new DomainChatKnowledgeController($storage, $indexManager);
+            $responseFactory = new ResponseFactory();
+
+            $request = $this->createRequest(
+                'POST',
+                '/admin/domain-chat/rebuild?domain=failure.test',
+                ['Accept' => 'application/json']
+            );
+
+            $response = $controller->rebuild($request, $responseFactory->createResponse());
+            $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+
+            self::assertSame(422, $response->getStatusCode());
+            self::assertSame('Simulated pipeline failure', $payload['error']);
+        } finally {
+            $this->cleanupDirectory($baseDir);
+        }
+    }
 }
 
 if ($corpusPath !== null) {

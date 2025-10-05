@@ -1695,8 +1695,24 @@ document.addEventListener('DOMContentLoaded', function () {
           body: JSON.stringify({ domain: selectedDomain }),
         })
           .then(res => res.json().catch(() => ({})).then(data => {
-            if (!res.ok) {
-              throw new Error(data.error || domainChatTranslations.rebuildError || 'Rebuild failed');
+            const success = data && data.success === true;
+            if (!res.ok || !success) {
+              const errorText = typeof data.error === 'string' ? data.error.trim() : '';
+              const stderrText = typeof data.stderr === 'string' ? data.stderr.trim() : '';
+              const stdoutText = typeof data.stdout === 'string' ? data.stdout.trim() : '';
+              const message = errorText
+                || stderrText
+                || stdoutText
+                || domainChatTranslations.rebuildError
+                || 'Rebuild failed';
+              const details = (stderrText && stderrText !== message)
+                ? stderrText
+                : (stdoutText && stdoutText !== message ? stdoutText : '');
+              const error = new Error(message);
+              if (details) {
+                error.details = details;
+              }
+              throw error;
             }
             const message = data.cleared
               ? (domainChatTranslations.rebuildCleared || 'Index zurückgesetzt')
@@ -1706,8 +1722,10 @@ document.addEventListener('DOMContentLoaded', function () {
             return loadDocuments(selectedDomain);
           }))
           .catch(err => {
-            showStatus(err.message || domainChatTranslations.rebuildError || 'Rebuild failed', 'danger');
-            notify(err.message || domainChatTranslations.rebuildError || 'Rebuild failed', 'danger');
+            const message = err.message || domainChatTranslations.rebuildError || 'Rebuild failed';
+            const details = typeof err.details === 'string' ? err.details : '';
+            showStatus(message, 'danger', details);
+            notify(message, 'danger');
         })
           .finally(() => {
             rebuildButton.disabled = false;

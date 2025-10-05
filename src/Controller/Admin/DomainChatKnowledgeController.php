@@ -128,7 +128,12 @@ final class DomainChatKnowledgeController
         try {
             $result = $this->indexManager->rebuild($domain);
         } catch (RuntimeException $exception) {
-            return $this->json($response, ['error' => $exception->getMessage()], 422);
+            $message = trim($exception->getMessage());
+            if ($message === '') {
+                $message = 'Domain index rebuild failed.';
+            }
+
+            return $this->json($response, ['error' => $message], 422);
         }
 
         return $this->json($response, $result);

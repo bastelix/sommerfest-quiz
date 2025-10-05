@@ -72,6 +72,17 @@ final class DomainIndexManager
         $result = runSyncProcess($this->pythonBinary, $args);
         $result['cleared'] = false;
 
+        if ($result['success'] !== true) {
+            $stderr = isset($result['stderr']) ? trim($result['stderr']) : '';
+            $stdout = isset($result['stdout']) ? trim($result['stdout']) : '';
+            $message = $stderr !== '' ? $stderr : $stdout;
+            if ($message === '') {
+                $message = 'Domain index rebuild failed.';
+            }
+
+            throw new RuntimeException($message);
+        }
+
         return $result;
     }
 
