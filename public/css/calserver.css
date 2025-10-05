@@ -143,9 +143,9 @@ body.qr-landing.calserver-theme[data-theme="high-contrast"] {
     width: var(--cs-logo-size);
     height: var(--cs-logo-size);
     border-radius: 18px;
-    border: 1px solid var(--cs-logo-border);
-    background: var(--cs-logo-bg);
-    box-shadow: var(--cs-logo-shadow);
+    border: none;
+    background: none;
+    box-shadow: none;
     overflow: hidden;
 }
 
