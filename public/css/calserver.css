@@ -20,6 +20,12 @@ body.qr-landing.calserver-theme {
     --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 12%, transparent);
     --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 30%, transparent);
     --cs-highlight-card-shadow: 0 18px 34px -28px rgba(15, 23, 42, 0.5);
+    --cs-logo-size: clamp(48px, 7vw, 72px);
+    --cs-logo-gap: clamp(12px, 2.6vw, 22px);
+    --cs-logo-bg: color-mix(in oklab, var(--calserver-primary) 8%, rgba(255, 255, 255, 0.94));
+    --cs-logo-border: color-mix(in oklab, var(--calserver-primary) 32%, rgba(15, 23, 42, 0.16));
+    --cs-logo-shadow: 0 20px 42px -30px rgba(10, 19, 38, 0.55);
+    --cs-logo-text: color-mix(in oklab, var(--calserver-primary) 24%, #0d172b 76%);
     --cs-mode-pill-bg: rgba(31, 99, 230, 0.18);
     --cs-mode-pill-hover-bg: rgba(31, 99, 230, 0.32);
     --cs-mode-pill-active-bg: color-mix(in oklab, var(--calserver-primary) 82%, rgba(12, 19, 35, 0.18));
@@ -104,6 +110,75 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) {
     --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 28%, rgba(6, 12, 26, 0.86));
     --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 60%, rgba(255, 255, 255, 0.18));
     --cs-highlight-card-shadow: 0 26px 46px -30px rgba(4, 10, 24, 0.72);
+    --cs-logo-bg: color-mix(in oklab, rgba(8, 14, 28, 0.88) 68%, var(--calserver-primary) 32%);
+    --cs-logo-border: color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.26));
+    --cs-logo-shadow: 0 24px 48px -32px rgba(3, 9, 22, 0.75);
+    --cs-logo-text: color-mix(in oklab, #ffffff 88%, var(--calserver-primary) 12%);
+}
+
+body.qr-landing.calserver-theme.high-contrast,
+body.qr-landing.calserver-theme[data-theme="high-contrast"] {
+    --cs-logo-bg: #ffffff;
+    --cs-logo-border: #000000;
+    --cs-logo-shadow: none;
+    --cs-logo-text: currentColor;
+}
+
+.calserver-theme .cs-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--cs-logo-gap);
+    color: var(--cs-logo-text);
+    font-size: clamp(20px, 2.8vw, 28px);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    line-height: 1;
+}
+
+.calserver-theme .cs-logo__image {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--cs-logo-size);
+    height: var(--cs-logo-size);
+    border-radius: 18px;
+    border: 1px solid var(--cs-logo-border);
+    background: var(--cs-logo-bg);
+    box-shadow: var(--cs-logo-shadow);
+    overflow: hidden;
+}
+
+.calserver-theme .cs-logo__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.calserver-theme .cs-logo__wordmark {
+    display: inline-flex;
+    align-items: center;
+    color: inherit;
+    text-transform: none;
+}
+
+.calserver-theme .cs-logo__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+@media (max-width: 960px) {
+    .calserver-theme .cs-logo__wordmark {
+        display: none;
+    }
 }
 
 body.qr-landing.calserver-theme.dark-mode:not(.high-contrast) .uk-card-primary,
