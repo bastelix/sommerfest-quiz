@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Controller;
 
-use App\Controller\Marketing\CalserverChatController;
+use App\Controller\Marketing\MarketingChatController;
 use Tests\TestCase;
 use App\Service\RagChat\RagChatResponse;
 use App\Service\RagChat\RagChatServiceInterface;
@@ -12,12 +12,12 @@ use Slim\Psr7\Factory\ResponseFactory;
 use function json_decode;
 use function json_encode;
 
-final class CalserverChatControllerTest extends TestCase
+final class MarketingChatControllerTest extends TestCase
 {
-    public function testCalserverChatPrefersSlugOverHost(): void
+    public function testChatPrefersSlugOverHost(): void
     {
         $service = new FakeRagChatService();
-        $controller = new CalserverChatController('calserver', $service);
+        $controller = new MarketingChatController('calserver', $service);
 
         $request = $this->createRequest(
             'POST',
@@ -45,10 +45,10 @@ final class CalserverChatControllerTest extends TestCase
         $this->assertSame('de', $service->lastLocale);
     }
 
-    public function testCalserverChatFallsBackToHostWhenSlugMissing(): void
+    public function testChatFallsBackToHostWhenSlugMissing(): void
     {
         $service = new FakeRagChatService();
-        $controller = new CalserverChatController(null, $service);
+        $controller = new MarketingChatController(null, $service);
 
         $request = $this->createRequest(
             'POST',

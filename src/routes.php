@@ -83,7 +83,7 @@ use App\Controller\TenantController;
 use App\Controller\Marketing\MarketingPageController;
 use App\Controller\Marketing\ContactController;
 use App\Controller\Marketing\LandingNewsController as MarketingLandingNewsController;
-use App\Controller\Marketing\CalserverChatController;
+use App\Controller\Marketing\MarketingChatController;
 use App\Controller\RegisterController;
 use App\Controller\OnboardingController;
 use App\Controller\OnboardingEmailController;
@@ -151,6 +151,7 @@ require_once __DIR__ . '/Controller/TenantController.php';
 require_once __DIR__ . '/Controller/Marketing/MarketingPageController.php';
 require_once __DIR__ . '/Controller/Marketing/LandingController.php';
 require_once __DIR__ . '/Controller/Marketing/CalserverController.php';
+require_once __DIR__ . '/Controller/Marketing/MarketingChatController.php';
 require_once __DIR__ . '/Controller/Marketing/ContactController.php';
 require_once __DIR__ . '/Controller/Marketing/LandingNewsController.php';
 require_once __DIR__ . '/Controller/RegisterController.php';
@@ -572,16 +573,36 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/calserver/contact', ContactController::class)
         ->add(new RateLimitMiddleware(3, 3600))
         ->add(new CsrfMiddleware());
-    $app->post('/calserver/chat', function (Request $request, Response $response): Response {
-        $service = $request->getAttribute('ragChatService');
-        if (!$service instanceof RagChatServiceInterface) {
-            $service = null;
+    $createChatHandler = static function (?string $slug = null) {
+        return static function (Request $request, Response $response) use ($slug): Response {
+            $service = $request->getAttribute('ragChatService');
+            if (!$service instanceof RagChatServiceInterface) {
+                $service = null;
+            }
+
+            $controller = new MarketingChatController($slug, $service);
+
+            return $controller($request, $response);
+        };
+    };
+
+    $app->post('/calserver/chat', $createChatHandler('calserver'))
+        ->add(new RateLimitMiddleware(10, 60))
+        ->add(new CsrfMiddleware());
+
+    $app->post(
+        '/m/{marketingSlug:[a-z0-9-]+}/chat',
+        function (Request $request, Response $response, array $args) use ($createChatHandler, $resolveMarketingAccess): Response {
+            [$request, $allowed] = $resolveMarketingAccess($request);
+            if (!$allowed) {
+                return $response->withStatus(404);
+            }
+
+            $slug = isset($args['marketingSlug']) ? (string) $args['marketingSlug'] : null;
+
+            return $createChatHandler($slug)($request, $response);
         }
-
-        $controller = new CalserverChatController('calserver', $service);
-
-        return $controller($request, $response);
-    })
+    )
         ->add(new RateLimitMiddleware(10, 60))
         ->add(new CsrfMiddleware());
     $app->get('/onboarding', OnboardingController::class);

@@ -16,8 +16,9 @@
   }
 
   ready(function () {
-    var config = globalThis.calserverChatConfig || {};
-    var modalElement = document.getElementById('calserver-chat-modal');
+    var config = globalThis.marketingChatConfig || {};
+    var modalElement = document.getElementById('marketing-chat-modal')
+      || document.getElementById('calserver-chat-modal');
     if (!modalElement) {
       return;
     }
@@ -27,11 +28,19 @@
       modal = UIkit.modal(modalElement);
     }
 
-    var openers = document.querySelectorAll('[data-calserver-chat-open]');
-    var messagesContainer = modalElement.querySelector('[data-calserver-chat-messages]');
-    var statusElement = modalElement.querySelector('[data-calserver-chat-status]');
-    var form = modalElement.querySelector('[data-calserver-chat-form]');
-    var input = modalElement.querySelector('[data-calserver-chat-input]');
+    var openers = document.querySelectorAll('[data-marketing-chat-open], [data-calserver-chat-open]');
+    var messagesContainer =
+      modalElement.querySelector('[data-marketing-chat-messages]')
+      || modalElement.querySelector('[data-calserver-chat-messages]');
+    var statusElement =
+      modalElement.querySelector('[data-marketing-chat-status]')
+      || modalElement.querySelector('[data-calserver-chat-status]');
+    var form =
+      modalElement.querySelector('[data-marketing-chat-form]')
+      || modalElement.querySelector('[data-calserver-chat-form]');
+    var input =
+      modalElement.querySelector('[data-marketing-chat-input]')
+      || modalElement.querySelector('[data-calserver-chat-input]');
     if (!messagesContainer || !form || !input) {
       return;
     }
@@ -45,7 +54,7 @@
         return;
       }
       statusElement.textContent = message || '';
-      statusElement.classList.toggle('calserver-chat__status--error', !!isError && message);
+      statusElement.classList.toggle('marketing-chat__status--error', !!isError && message);
     }
 
     function showIntroMessage() {
@@ -56,7 +65,7 @@
       var intro = (config.texts && config.texts.intro) || '';
       if (intro) {
         var introBlock = document.createElement('div');
-        introBlock.className = 'calserver-chat__system';
+        introBlock.className = 'marketing-chat__system';
         introBlock.appendChild(createParagraph(intro));
         messagesContainer.appendChild(introBlock);
       }
@@ -75,33 +84,33 @@
           return null;
         }
         var emptyParagraph = createParagraph(emptyText);
-        emptyParagraph.className = 'calserver-chat__empty';
+        emptyParagraph.className = 'marketing-chat__empty';
         return emptyParagraph;
       }
 
       var wrapper = document.createElement('div');
-      wrapper.className = 'calserver-chat__context';
+      wrapper.className = 'marketing-chat__context';
 
       var heading = document.createElement('h3');
-      heading.className = 'calserver-chat__context-title';
+      heading.className = 'marketing-chat__context-title';
       heading.textContent = (config.texts && config.texts.sources) || 'Sources';
       wrapper.appendChild(heading);
 
       var list = document.createElement('ol');
-      list.className = 'calserver-chat__context-list';
+      list.className = 'marketing-chat__context-list';
 
       context.forEach(function (item) {
         var li = document.createElement('li');
-        li.className = 'calserver-chat__context-item';
+        li.className = 'marketing-chat__context-item';
 
         var title = document.createElement('strong');
-        title.className = 'calserver-chat__context-label';
+        title.className = 'marketing-chat__context-label';
         title.textContent = item && item.label ? String(item.label) : '';
         li.appendChild(title);
 
         if (item && typeof item.score === 'number') {
           var scoreLabel = document.createElement('span');
-          scoreLabel.className = 'calserver-chat__context-score';
+          scoreLabel.className = 'marketing-chat__context-score';
           var scorePrefix = (config.texts && config.texts.score) || 'Score';
           scoreLabel.textContent = scorePrefix + ': ' + item.score.toFixed(2);
           li.appendChild(scoreLabel);
@@ -109,7 +118,7 @@
 
         if (item && item.snippet) {
           var snippet = createParagraph(String(item.snippet));
-          snippet.className = 'calserver-chat__context-snippet';
+          snippet.className = 'marketing-chat__context-snippet';
           li.appendChild(snippet);
         }
 
@@ -122,17 +131,17 @@
 
     function appendTurn(question, answer, context) {
       var turn = document.createElement('article');
-      turn.className = 'calserver-chat__turn';
+      turn.className = 'marketing-chat__turn';
 
       var questionHeading = document.createElement('h3');
-      questionHeading.className = 'calserver-chat__question';
+      questionHeading.className = 'marketing-chat__question';
       var questionLabel = (config.texts && config.texts.question) || '';
       questionHeading.textContent = questionLabel ? questionLabel + ': ' + question : question;
       turn.appendChild(questionHeading);
 
       if (answer) {
         var answerContainer = document.createElement('div');
-        answerContainer.className = 'calserver-chat__answer';
+        answerContainer.className = 'marketing-chat__answer';
         String(answer)
           .split(/\n+/)
           .filter(function (line) { return line.trim() !== ''; })
@@ -179,7 +188,7 @@
       if (submitButton) {
         submitButton.disabled = false;
       }
-      form.classList.remove('calserver-chat__form--loading');
+      form.classList.remove('marketing-chat__form--loading');
       pending = false;
       input.focus();
     }
@@ -207,7 +216,7 @@
       }
 
       pending = true;
-      form.classList.add('calserver-chat__form--loading');
+      form.classList.add('marketing-chat__form--loading');
       input.disabled = true;
       if (submitButton) {
         submitButton.disabled = true;
@@ -224,13 +233,13 @@
         headers['X-CSRF-Token'] = config.csrfToken;
       }
 
-      if (typeof fetch !== 'function') {
+      if (typeof fetch !== 'function' || !config.endpoint) {
         handleError(503);
         resetForm();
         return;
       }
 
-      fetch(config.endpoint || '/calserver/chat', {
+      fetch(config.endpoint, {
         method: 'POST',
         headers: headers,
         body: body,

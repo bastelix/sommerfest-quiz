@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Integration;
 
 use App\Controller\Admin\DomainChatKnowledgeController;
-use App\Controller\Marketing\CalserverChatController;
+use App\Controller\Marketing\MarketingChatController;
 use App\Service\RagChat\DomainDocumentStorage;
 use App\Service\RagChat\DomainIndexManager;
 use App\Service\RagChat\RagChatService;
@@ -214,7 +214,7 @@ PHP_SCRIPT;
             self::assertTrue($rebuildPayload['success']);
 
             $ragService = new RagChatService($globalIndexPath, $domainsDir, null, static fn (): array => []);
-            $chatController = new CalserverChatController('calserver', $ragService);
+            $chatController = new MarketingChatController('calserver', $ragService);
 
             $chatRequest = $this->createRequest(
                 'POST',
