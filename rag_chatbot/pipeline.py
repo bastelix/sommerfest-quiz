@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Sequence
+from typing import List, Optional, Sequence, Tuple
 
 from .corpus_builder import BuildOptions, BuildResult, build_corpus
 from .index_builder import IndexOptions, IndexResult, build_index
@@ -20,7 +20,7 @@ class PipelineOptions:
     index_path: Path
     max_words: int = 180
     overlap: int = 40
-    max_features: int | None = None
+    max_features: Optional[int] = None
     min_term_length: int = 2
     force: bool = False
 
@@ -29,18 +29,18 @@ class PipelineOptions:
 class PipelineResult:
     """Ergebnis des Pipeline-Durchlaufs."""
 
-    corpus: BuildResult | None
-    index: IndexResult | None
-    skipped: tuple[str, ...]
+    corpus: Optional[BuildResult]
+    index: Optional[IndexResult]
+    skipped: Tuple[str, ...]
 
 
 def run_pipeline(options: PipelineOptions) -> PipelineResult:
     """Führt den kompletten Aufbau inklusive Index aus."""
 
     source_files = _collect_source_files(options.sources)
-    skipped: list[str] = []
+    skipped: List[str] = []
 
-    corpus_result: BuildResult | None
+    corpus_result: Optional[BuildResult]
     if options.force or _needs_rebuild(options.corpus_path, source_files):
         corpus_options = BuildOptions(
             sources=options.sources,
@@ -53,8 +53,8 @@ def run_pipeline(options: PipelineOptions) -> PipelineResult:
         corpus_result = None
         skipped.append("corpus")
 
-    index_dependencies: list[Path] = [options.corpus_path]
-    index_result: IndexResult | None
+    index_dependencies: List[Path] = [options.corpus_path]
+    index_result: Optional[IndexResult]
     if options.force or corpus_result is not None or _needs_rebuild(options.index_path, index_dependencies):
         index_options = IndexOptions(
             corpus_path=options.corpus_path,
@@ -70,10 +70,10 @@ def run_pipeline(options: PipelineOptions) -> PipelineResult:
     return PipelineResult(corpus=corpus_result, index=index_result, skipped=tuple(skipped))
 
 
-def _collect_source_files(sources: Sequence[Path]) -> tuple[Path, ...]:
+def _collect_source_files(sources: Sequence[Path]) -> Tuple[Path, ...]:
     if not sources:
         raise ValueError("Es wurden keine Quellen übergeben.")
-    files: list[Path] = [Path(path) for path in iter_source_files(sources)]
+    files: List[Path] = [Path(path) for path in iter_source_files(sources)]
     if not files:
         raise ValueError("In den angegebenen Quellen wurden keine unterstützten Dateien gefunden.")
     return tuple(files)

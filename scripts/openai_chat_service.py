@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 import logging
 import os
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from fastapi import Depends, FastAPI, Header, HTTPException, status
 from fastapi.responses import JSONResponse
@@ -37,10 +37,10 @@ class ChatMessage(BaseModel):
 
 
 class ContextItem(BaseModel):
-    id: str | None = Field(default=None)
-    text: str | None = Field(default=None)
-    score: float | None = Field(default=None)
-    metadata: Dict[str, Any] | None = Field(default=None)
+    id: Optional[str] = Field(default=None)
+    text: Optional[str] = Field(default=None)
+    score: Optional[float] = Field(default=None)
+    metadata: Optional[Dict[str, Any]] = Field(default=None)
 
     class Config:
         extra = "allow"
@@ -51,7 +51,7 @@ class ChatRequest(BaseModel):
     context: List[ContextItem] = Field(default_factory=list)
 
 
-def require_authorisation(authorization: str | None = Header(default=None)) -> None:
+def require_authorisation(authorization: Optional[str] = Header(default=None)) -> None:
     expected_token = os.environ.get("RAG_CHAT_SERVICE_TOKEN")
     if not expected_token:
         return
@@ -59,7 +59,8 @@ def require_authorisation(authorization: str | None = Header(default=None)) -> N
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing bearer token")
 
-    supplied = authorization.removeprefix("Bearer ").strip()
+    prefix = "Bearer "
+    supplied = authorization[len(prefix):].strip() if authorization.startswith(prefix) else authorization.strip()
     if supplied != expected_token:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid bearer token")
 
@@ -86,7 +87,7 @@ def _load_int_option(env_key: str) -> Optional[int]:
         return None
 
 
-OPTION_MAP: Dict[str, tuple[str, Callable[[str], Optional[Any]]]] = {
+OPTION_MAP: Dict[str, Tuple[str, Callable[[str], Optional[Any]]]] = {
     "RAG_CHAT_SERVICE_TEMPERATURE": ("temperature", _load_float_option),
     "RAG_CHAT_SERVICE_TOP_P": ("top_p", _load_float_option),
     "RAG_CHAT_SERVICE_PRESENCE_PENALTY": ("presence_penalty", _load_float_option),

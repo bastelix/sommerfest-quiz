@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Iterator, Sequence
+from typing import Iterable, Iterator, List, Optional, Sequence, Tuple
 
 
 SUPPORTED_EXTENSIONS: Sequence[str] = (".md", ".markdown", ".html", ".htm", ".txt")
@@ -86,8 +86,11 @@ def parse_document(path: Path) -> Document:
     return Document(path=path, text=text, title=title)
 
 
-def iter_source_files(paths: Iterable[Path], extensions: Sequence[str] | None = None) -> Iterator[Path]:
-    selected_exts = tuple(ext.lower() for ext in (extensions or SUPPORTED_EXTENSIONS))
+def iter_source_files(
+    paths: Iterable[Path],
+    extensions: Optional[Sequence[str]] = None,
+) -> Iterator[Path]:
+    selected_exts: Tuple[str, ...] = tuple(ext.lower() for ext in (extensions or SUPPORTED_EXTENSIONS))
     for root in paths:
         root = root.resolve()
         if root.is_file():
@@ -100,8 +103,8 @@ def iter_source_files(paths: Iterable[Path], extensions: Sequence[str] | None = 
                     yield file
 
 
-def load_documents(paths: Iterable[Path]) -> list[Document]:
-    documents: list[Document] = []
+def load_documents(paths: Iterable[Path]) -> List[Document]:
+    documents: List[Document] = []
     for path in iter_source_files(paths):
         try:
             documents.append(parse_document(path))

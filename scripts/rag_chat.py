@@ -8,7 +8,7 @@ import sys
 import urllib.error
 import urllib.request
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, Optional
 
 from rag_chatbot import ChatPrompt, ChatSession, ChatTurn, SemanticIndex
 
@@ -23,10 +23,10 @@ class ChatServiceResponder:
 
     def __init__(
         self,
-        endpoint: str | None = None,
+        endpoint: Optional[str] = None,
         *,
         timeout: float = 30.0,
-        api_key: str | None = None,
+        api_key: Optional[str] = None,
     ) -> None:
         self._endpoint = endpoint or os.environ.get("RAG_CHAT_SERVICE_URL")
         if not self._endpoint:
@@ -75,7 +75,7 @@ class ChatServiceResponder:
         return answer.strip()
 
     @staticmethod
-    def _normalise_context_item(item: Any) -> dict[str, Any]:
+    def _normalise_context_item(item: Any) -> Dict[str, Any]:
         return {
             "id": getattr(item, "chunk_id", ""),
             "text": getattr(item, "text", ""),
@@ -84,7 +84,7 @@ class ChatServiceResponder:
         }
 
     @staticmethod
-    def _extract_answer(payload: Any) -> str | None:
+    def _extract_answer(payload: Any) -> Optional[str]:
         if isinstance(payload, dict):
             answer = payload.get("answer")
             if isinstance(answer, str) and answer.strip():

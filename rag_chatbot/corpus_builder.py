@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Sequence
+from typing import Dict, Iterable, List, Sequence
 
 from .chunker import Chunk, chunk_paragraphs, split_into_paragraphs
 from .loader import Document, load_documents
@@ -27,7 +27,7 @@ class BuildResult:
 
 def build_corpus(options: BuildOptions) -> BuildResult:
     documents = load_documents(options.sources)
-    chunks: list[dict[str, object]] = []
+    chunks: List[Dict[str, object]] = []
 
     for document in documents:
         paragraphs = split_into_paragraphs(document.text)
@@ -61,7 +61,7 @@ def _format_chunk_text(chunk: Chunk) -> str:
     return chunk.text.strip()
 
 
-def _write_jsonl(path: Path, chunks: Iterable[dict[str, object]]) -> None:
+def _write_jsonl(path: Path, chunks: Iterable[Dict[str, object]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8") as handle:
         for item in chunks:

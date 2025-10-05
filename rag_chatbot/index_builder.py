@@ -6,7 +6,7 @@ import re
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Sequence
+from typing import Dict, Iterable, List, Optional, Sequence
 
 
 TOKEN_RE = re.compile(r"\b\w+\b", re.UNICODE)
@@ -16,7 +16,7 @@ TOKEN_RE = re.compile(r"\b\w+\b", re.UNICODE)
 class IndexOptions:
     corpus_path: Path
     output_path: Path
-    max_features: int | None = None
+    max_features: Optional[int] = None
     min_term_length: int = 2
 
 
@@ -60,7 +60,7 @@ def build_index(options: IndexOptions) -> IndexResult:
     )
 
 
-def _load_corpus(path: Path) -> Iterable[dict[str, object]]:
+def _load_corpus(path: Path) -> Iterable[Dict[str, object]]:
     if not path.exists():
         raise FileNotFoundError(path)
     with path.open("r", encoding="utf-8") as handle:
@@ -71,7 +71,7 @@ def _load_corpus(path: Path) -> Iterable[dict[str, object]]:
             yield json.loads(line)
 
 
-def _tokenise(text: str) -> list[str]:
+def _tokenise(text: str) -> List[str]:
     tokens = [token.lower() for token in TOKEN_RE.findall(text)]
     return tokens
 
@@ -79,9 +79,9 @@ def _tokenise(text: str) -> list[str]:
 def _build_vocabulary(
     tokenised_texts: Sequence[Sequence[str]],
     *,
-    max_features: int | None,
+    max_features: Optional[int],
     min_term_length: int,
-) -> list[str]:
+) -> List[str]:
     term_counts: Counter[str] = Counter()
     for tokens in tokenised_texts:
         filtered = [token for token in tokens if len(token) >= min_term_length]
@@ -99,7 +99,7 @@ def _build_vocabulary(
     return [term for term, _ in sorted_terms]
 
 
-def _compute_idf(tokenised_texts: Sequence[Sequence[str]], vocabulary: Sequence[str]) -> list[float]:
+def _compute_idf(tokenised_texts: Sequence[Sequence[str]], vocabulary: Sequence[str]) -> List[float]:
     doc_freq: Counter[str] = Counter()
     for tokens in tokenised_texts:
         unique_tokens = {token for token in tokens if token in vocabulary}
@@ -115,18 +115,18 @@ def _compute_idf(tokenised_texts: Sequence[Sequence[str]], vocabulary: Sequence[
 
 
 def _vectorise_chunks(
-    chunks: Sequence[dict[str, object]],
+    chunks: Sequence[Dict[str, object]],
     tokenised_texts: Sequence[Sequence[str]],
     vocabulary: Sequence[str],
     idf: Sequence[float],
-) -> list[dict[str, object]]:
+) -> List[Dict[str, object]]:
     vocab_index = {term: index for index, term in enumerate(vocabulary)}
-    indexed_chunks: list[dict[str, object]] = []
+    indexed_chunks: List[Dict[str, object]] = []
 
     for chunk, tokens in zip(chunks, tokenised_texts, strict=True):
         counts = Counter(token for token in tokens if token in vocab_index)
         total = sum(counts.values())
-        vector: list[list[float]] = []
+        vector: List[List[float]] = []
         norm_sq = 0.0
         if total > 0:
             for term, count in counts.items():

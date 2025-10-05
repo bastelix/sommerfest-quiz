@@ -6,6 +6,8 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
+from typing import List
+
 from rag_chatbot.chat import ChatPrompt, ChatSession
 from rag_chatbot.retrieval import SemanticIndex
 from rag_chatbot.transcript import ChatTranscript
@@ -34,10 +36,10 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def load_questions(path: Path) -> list[str]:
+def load_questions(path: Path) -> List[str]:
     if not path.exists():
         raise FileNotFoundError(path)
-    questions: list[str] = []
+    questions: List[str] = []
     for line in path.read_text(encoding="utf-8").splitlines():
         line = line.strip()
         if not line or line.startswith("#"):

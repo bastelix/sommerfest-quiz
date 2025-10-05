@@ -4,6 +4,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 import sys
+from typing import List
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -16,7 +17,7 @@ from rag_chatbot.transcript import ChatTranscript
 
 @dataclass
 class FakeIndex:
-    results: list[SearchResult]
+    results: List[SearchResult]
 
     def search(self, query: str, *, top_k: int, min_score: float):
         return self.results[:top_k]
