@@ -16,9 +16,9 @@ use Throwable;
 use Slim\Routing\RouteContext;
 
 /**
- * JSON endpoint that exposes the RAG chatbot for the marketing site.
+ * JSON endpoint that exposes the RAG chatbot for marketing pages.
  */
-final class CalserverChatController
+final class MarketingChatController
 {
     private RagChatServiceInterface $service;
 
@@ -49,7 +49,7 @@ final class CalserverChatController
         try {
             $chatResponse = $this->service->answer($payload['question'], $locale, $domain);
         } catch (RuntimeException $exception) {
-            error_log('Calserver chat validation failed: ' . $exception->getMessage());
+            error_log('Marketing chat validation failed: ' . $exception->getMessage());
 
             $response->getBody()->write(json_encode(['error' => 'invalid'], JSON_THROW_ON_ERROR));
 
@@ -57,7 +57,7 @@ final class CalserverChatController
                 ->withStatus(422)
                 ->withHeader('Content-Type', 'application/json');
         } catch (Throwable $exception) {
-            error_log('Calserver chat failed: ' . $exception->getMessage());
+            error_log('Marketing chat failed: ' . $exception->getMessage());
 
             $response->getBody()->write(json_encode(['error' => 'unavailable'], JSON_THROW_ON_ERROR));
 

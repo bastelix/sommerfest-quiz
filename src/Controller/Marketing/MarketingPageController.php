@@ -73,6 +73,8 @@ class MarketingPageController
         $csrf = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(16));
         $_SESSION['csrf_token'] = $csrf;
         $html = str_replace('{{ csrf_token }}', $csrf, $html);
+        $html = str_replace('data-calserver-chat-open', 'data-marketing-chat-open', $html);
+        $html = str_replace('aria-controls="calserver-chat-modal"', 'aria-controls="marketing-chat-modal"', $html);
 
         $landingNews = $this->landingNews->getPublishedForPage($page->getId(), 3);
         $landingNewsBasePath = null;
@@ -117,6 +119,11 @@ class MarketingPageController
         $canonicalFallback = isset($globals['canonicalUrl']) ? (string) $globals['canonicalUrl'] : null;
         $canonicalUrl = $config?->getCanonicalUrl() ?? $canonicalFallback;
 
+        $chatPath = sprintf('/%s/chat', $templateSlug);
+        if (str_starts_with($request->getUri()->getPath(), '/m/')) {
+            $chatPath = sprintf('/m/%s/chat', $templateSlug);
+        }
+
         $data = [
             'content' => $html,
             'pageFavicon' => $config?->getFaviconPath(),
@@ -132,6 +139,8 @@ class MarketingPageController
             'turnstileSiteKey' => $this->turnstileConfig->isEnabled() ? $this->turnstileConfig->getSiteKey() : null,
             'turnstileEnabled' => $this->turnstileConfig->isEnabled(),
             'csrf_token' => $csrf,
+            'marketingSlug' => $templateSlug,
+            'marketingChatEndpoint' => $basePath . $chatPath,
         ];
 
         if ($landingNews !== []) {
