@@ -199,19 +199,88 @@ final class DomainDocumentStorage
         }
     }
 
-    private function normaliseDomain(string $domain): string
+    public function normaliseDomain(string $domain): string
     {
         $canonical = DomainNameHelper::canonicalizeSlug($domain);
         if ($canonical === '') {
             throw new InvalidArgumentException('Invalid domain supplied.');
         }
 
+        $aliases = DomainNameHelper::marketingAliases($domain);
+
         $legacy = DomainNameHelper::normalize($domain);
         if ($legacy !== '' && $legacy !== $canonical) {
-            $this->migrateLegacyDirectory($legacy, $canonical);
+            $aliases[] = $legacy;
+        }
+
+        foreach ($this->findLegacyDirectories($canonical) as $legacyDirectory) {
+            $aliases[] = $legacyDirectory;
+        }
+
+        if ($aliases !== []) {
+            $uniqueAliases = [];
+            foreach ($aliases as $alias) {
+                $alias = trim((string) $alias);
+                if ($alias === '') {
+                    continue;
+                }
+
+                $lower = strtolower($alias);
+                if ($lower === $canonical) {
+                    continue;
+                }
+
+                $uniqueAliases[$lower] = $alias;
+            }
+
+            foreach ($uniqueAliases as $alias) {
+                $this->migrateLegacyDirectory($alias, $canonical);
+            }
         }
 
         return $canonical;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function findLegacyDirectories(string $canonical): array
+    {
+        if (!is_dir($this->basePath)) {
+            return [];
+        }
+
+        $entries = scandir($this->basePath);
+        if ($entries === false) {
+            return [];
+        }
+
+        $candidates = [];
+        $prefix = $canonical . '.';
+
+        foreach ($entries as $entry) {
+            if ($entry === '.' || $entry === '..') {
+                continue;
+            }
+
+            $lower = strtolower($entry);
+            if ($lower === $canonical) {
+                continue;
+            }
+
+            if (!str_starts_with($lower, $prefix)) {
+                continue;
+            }
+
+            $path = $this->basePath . DIRECTORY_SEPARATOR . $entry;
+            if (!is_dir($path)) {
+                continue;
+            }
+
+            $candidates[] = $entry;
+        }
+
+        return $candidates;
     }
 
     private function migrateLegacyDirectory(string $legacy, string $canonical): void

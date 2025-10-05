@@ -64,6 +64,37 @@ final class DomainNameHelper
     }
 
     /**
+     * Determine additional hostnames that map to the same canonical slug.
+     *
+     * @return list<string>
+     */
+    public static function marketingAliases(string $domain): array
+    {
+        $canonical = self::canonicalizeSlug($domain);
+        if ($canonical === '') {
+            return [];
+        }
+
+        $aliases = [];
+        $marketingDomains = self::getMarketingDomains();
+        if ($marketingDomains === []) {
+            return $aliases;
+        }
+
+        foreach (array_keys($marketingDomains) as $entry) {
+            if ($entry === $canonical) {
+                continue;
+            }
+
+            if (self::stripMarketingSuffix($entry) === $canonical) {
+                $aliases[] = $entry;
+            }
+        }
+
+        return array_values(array_unique($aliases));
+    }
+
+    /**
      * @return list<string>
      */
     private static function getStrippablePrefixes(): array
