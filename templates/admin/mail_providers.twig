@@ -1,0 +1,429 @@
+{% set active = activeProvider|default('brevo') %}
+{% set providers = providers|default([]) %}
+{% set meta = providerMeta|default({}) %}
+{% set domainOverrides = domainOverrides|default([]) %}
+
+<div class="uk-section uk-section-small">
+  <div class="uk-container">
+    <h2 class="uk-heading-bullet">{{ t('heading_mail_providers') }}</h2>
+    <p class="uk-text-meta">{{ t('text_mail_provider_intro') }}</p>
+
+    {% if domainOverrides is not empty %}
+      <div class="uk-alert-primary" uk-alert>
+        <p class="uk-text-small uk-margin-small-bottom">{{ t('text_mail_provider_domain_hint') }}</p>
+        <ul class="uk-list uk-list-bullet uk-margin-remove">
+          {% for override in domainOverrides %}
+            <li>
+              <span class="uk-text-bold">{{ override.domain }}</span>
+              <span class="uk-text-meta">
+                {% if override.has_dsn and override.has_credentials %}
+                  {{ t('text_mail_provider_domain_override_both') }}
+                {% elseif override.has_dsn %}
+                  {{ t('text_mail_provider_domain_override_dsn') }}
+                {% else %}
+                  {{ t('text_mail_provider_domain_override_credentials') }}
+                {% endif %}
+              </span>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% else %}
+      <p class="uk-text-meta uk-margin-small">{{ t('text_mail_provider_domain_hint_empty') }}</p>
+    {% endif %}
+
+    {% if errorMessage is not empty %}
+      <div class="uk-alert-danger" uk-alert>
+        <p class="uk-text-small uk-margin-remove">{{ errorMessage }}</p>
+      </div>
+    {% endif %}
+
+    {% if providers is empty %}
+      <div class="uk-alert-warning" uk-alert>
+        <p class="uk-margin-remove">{{ t('text_mail_provider_missing_secret') }}</p>
+      </div>
+    {% else %}
+      <div class="uk-card uk-card-default uk-card-body uk-card-small">
+        <div class="uk-grid-small uk-flex-middle" uk-grid>
+          <div class="uk-width-expand">
+            <h3 class="uk-margin-remove">{{ t('label_mail_provider_select') }}</h3>
+            <p class="uk-text-meta uk-margin-remove">{{ t('text_mail_provider_select_hint') }}</p>
+          </div>
+          <div class="uk-width-auto">
+            <div class="uk-inline">
+              <button class="uk-button uk-button-default" type="button" data-mail-provider-toggle>
+                <span data-mail-provider-label>{{ meta[active].label|default(active|capitalize) }}</span>
+                <span uk-icon="icon: triangle-down"></span>
+              </button>
+              <div uk-dropdown="mode: click">
+                <ul class="uk-nav uk-dropdown-nav" data-mail-provider-nav>
+                  {% for provider in providers %}
+                    {% set name = provider.provider_name %}
+                    {% set label = meta[name].label|default(name|capitalize) %}
+                    <li class="{% if name == active %}uk-active{% endif %}">
+                      <a href="#" data-mail-provider-option data-provider="{{ name }}">{{ label }}</a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ul class="uk-switcher uk-margin" id="mail-provider-switcher" data-mail-provider-switcher>
+          {% for provider in providers %}
+            {% set name = provider.provider_name %}
+            {% set info = meta[name]|default({}) %}
+            {% set settings = provider.settings|default({}) %}
+            <li class="mail-provider-panel" data-mail-provider-panel data-provider="{{ name }}">
+              <form class="uk-form-stacked" data-mail-provider-form novalidate>
+                <input type="hidden" name="provider" value="{{ name }}">
+                <input type="hidden" name="_token" value="{{ csrfToken }}">
+                <fieldset class="uk-fieldset">
+                  <legend class="uk-legend">{{ info.label|default(name|capitalize) }}</legend>
+                  {% if info.description is defined %}
+                    <p class="uk-text-meta">{{ info.description }}</p>
+                  {% endif %}
+                  <div class="uk-grid-small" uk-grid>
+                    <div class="uk-width-1-2@s">
+                      <label class="uk-form-label" for="{{ name }}-from-email">{{ t('label_mail_provider_from_email') }}</label>
+                      <div class="uk-form-controls">
+                        <input
+                          id="{{ name }}-from-email"
+                          class="uk-input"
+                          type="email"
+                          name="from_email"
+                          value="{{ settings.from_email|default('') }}"
+                          placeholder="newsletter@example.com"
+                          data-mail-required
+                        >
+                      </div>
+                    </div>
+                    <div class="uk-width-1-2@s">
+                      <label class="uk-form-label" for="{{ name }}-from-name">{{ t('label_mail_provider_from_name') }}</label>
+                      <div class="uk-form-controls">
+                        <input
+                          id="{{ name }}-from-name"
+                          class="uk-input"
+                          type="text"
+                          name="from_name"
+                          value="{{ settings.from_name|default('') }}"
+                          placeholder="QuizRace"
+                        >
+                      </div>
+                    </div>
+                    <div class="uk-width-1-1">
+                      <label class="uk-form-label" for="{{ name }}-mailer-dsn">{{ t('label_mail_provider_mailer_dsn') }}</label>
+                      <div class="uk-form-controls">
+                        <input
+                          id="{{ name }}-mailer-dsn"
+                          class="uk-input"
+                          type="text"
+                          name="mailer_dsn"
+                          value="{{ settings.mailer_dsn|default('') }}"
+                          placeholder="smtp://user:pass@smtp.example.com:587?encryption=tls"
+                        >
+                      </div>
+                      <p class="uk-text-meta">{{ t('text_mail_provider_dsn_hint') }}</p>
+                    </div>
+                    <div class="uk-width-1-2@s">
+                      <label class="uk-form-label" for="{{ name }}-smtp-host">{{ t('label_mail_provider_smtp_host') }}</label>
+                      <div class="uk-form-controls">
+                        <input
+                          id="{{ name }}-smtp-host"
+                          class="uk-input"
+                          type="text"
+                          name="smtp_host"
+                          value="{{ provider.smtp_host|default('') }}"
+                          placeholder="smtp.example.com"
+                          data-mail-required
+                        >
+                      </div>
+                    </div>
+                    <div class="uk-width-1-4@s">
+                      <label class="uk-form-label" for="{{ name }}-smtp-port">{{ t('label_mail_provider_smtp_port') }}</label>
+                      <div class="uk-form-controls">
+                        <input
+                          id="{{ name }}-smtp-port"
+                          class="uk-input"
+                          type="number"
+                          min="1"
+                          name="smtp_port"
+                          value="{{ provider.smtp_port|default('') }}"
+                          placeholder="587"
+                          data-mail-required
+                        >
+                      </div>
+                    </div>
+                    <div class="uk-width-1-4@s">
+                      <label class="uk-form-label" for="{{ name }}-smtp-encryption">{{ t('label_mail_provider_smtp_encryption') }}</label>
+                      <div class="uk-form-controls">
+                        <select id="{{ name }}-smtp-encryption" class="uk-select" name="smtp_encryption">
+                          {% set encryption = provider.smtp_encryption|default('none') %}
+                          <option value="none"{% if encryption == 'none' %} selected{% endif %}>{{ t('option_mail_provider_encryption_none') }}</option>
+                          <option value="tls"{% if encryption == 'tls' %} selected{% endif %}>TLS</option>
+                          <option value="ssl"{% if encryption == 'ssl' %} selected{% endif %}>SSL</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="uk-width-1-2@s">
+                      <label class="uk-form-label" for="{{ name }}-smtp-user">{{ t('label_mail_provider_smtp_user') }}</label>
+                      <div class="uk-form-controls">
+                        <input
+                          id="{{ name }}-smtp-user"
+                          class="uk-input"
+                          type="text"
+                          name="smtp_user"
+                          value="{{ provider.smtp_user|default('') }}"
+                          placeholder="apikey"
+                          autocomplete="new-password"
+                          data-mail-required
+                        >
+                      </div>
+                    </div>
+                    <div class="uk-width-1-2@s">
+                      <label class="uk-form-label" for="{{ name }}-smtp-pass">{{ t('label_mail_provider_smtp_pass') }}</label>
+                      <div class="uk-form-controls">
+                        <input
+                          id="{{ name }}-smtp-pass"
+                          class="uk-input"
+                          type="password"
+                          name="smtp_pass"
+                          value="{{ provider.smtp_pass|default('') }}"
+                          placeholder="********"
+                          autocomplete="new-password"
+                          data-mail-required
+                        >
+                      </div>
+                    </div>
+                    <div class="uk-width-1-2@s">
+                      <label class="uk-form-label" for="{{ name }}-api-key">{{ t('label_mail_provider_api_key') }}</label>
+                      <div class="uk-form-controls">
+                        <input
+                          id="{{ name }}-api-key"
+                          class="uk-input"
+                          type="text"
+                          name="api_key"
+                          value="{{ provider.api_key|default('') }}"
+                          placeholder="API key"
+                        >
+                      </div>
+                    </div>
+                    <div class="uk-width-1-2@s">
+                      <label class="uk-form-label" for="{{ name }}-list-id">{{ t('label_mail_provider_list_id') }}</label>
+                      <div class="uk-form-controls">
+                        <input
+                          id="{{ name }}-list-id"
+                          class="uk-input"
+                          type="text"
+                          name="list_id"
+                          value="{{ provider.list_id|default('') }}"
+                          placeholder="List ID"
+                        >
+                      </div>
+                    </div>
+                    <div class="uk-width-1-1">
+                      <label class="uk-form-label" for="{{ name }}-active">{{ t('label_mail_provider_active') }}</label>
+                      <div class="uk-form-controls">
+                        <label class="uk-switch">
+                          <input
+                            id="{{ name }}-active"
+                            class="uk-switch-input"
+                            type="checkbox"
+                            name="active"
+                            value="1"
+                            {% if provider.active %}checked{% endif %}
+                          >
+                          <span class="uk-switch-slider"></span>
+                        </label>
+                        <span class="uk-text-meta uk-display-block">{{ t('text_mail_provider_active_hint') }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </fieldset>
+                <div class="uk-margin">
+                  <div class="uk-flex uk-flex-middle uk-flex-between">
+                    <button class="uk-button uk-button-primary" type="submit">{{ t('button_mail_provider_save') }}</button>
+                    <button class="uk-button uk-button-default" type="button" data-mail-provider-test>{{ t('button_mail_provider_test') }}</button>
+                  </div>
+                </div>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+        <div class="uk-alert" hidden data-mail-provider-feedback>
+          <p class="uk-margin-remove"></p>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  (() => {
+    const container = document.querySelector('[data-mail-provider-nav]');
+    const switcher = document.querySelector('#mail-provider-switcher');
+    const toggle = document.querySelector('[data-mail-provider-toggle]');
+    const toggleLabel = toggle?.querySelector('[data-mail-provider-label]') || null;
+    const feedback = document.querySelector('[data-mail-provider-feedback]');
+    const csrf = '{{ csrfToken|e('js') }}';
+
+    function showFeedback(message, type = 'success') {
+      if (!feedback) {
+        return;
+      }
+      const paragraph = feedback.querySelector('p');
+      if (paragraph) {
+        paragraph.textContent = message;
+      }
+      feedback.classList.remove('uk-alert-success', 'uk-alert-danger');
+      feedback.classList.add(type === 'success' ? 'uk-alert-success' : 'uk-alert-danger');
+      feedback.hidden = false;
+    }
+
+    function clearFeedback() {
+      if (!feedback) {
+        return;
+      }
+      feedback.hidden = true;
+    }
+
+    function selectProvider(name) {
+      if (!switcher || typeof UIkit === 'undefined' || !UIkit.switcher) {
+        return;
+      }
+      const panels = Array.from(switcher.children);
+      const index = panels.findIndex(panel => panel.dataset.provider === name);
+      if (index === -1) {
+        return;
+      }
+      UIkit.switcher(switcher).show(index);
+      if (toggleLabel) {
+        const item = container?.querySelector(`[data-provider="${CSS.escape(name)}"]`);
+        if (item) {
+          toggleLabel.textContent = item.textContent;
+        }
+      }
+    }
+
+    container?.addEventListener('click', event => {
+      const target = event.target.closest('[data-mail-provider-option]');
+      if (!target) {
+        return;
+      }
+      event.preventDefault();
+      const name = target.getAttribute('data-provider');
+      if (!name) {
+        return;
+      }
+      selectProvider(name);
+    });
+
+    function serialize(form) {
+      const data = new FormData(form);
+      const payload = {};
+      data.forEach((value, key) => {
+        if (key === 'active') {
+          payload[key] = true;
+        } else {
+          payload[key] = value;
+        }
+      });
+      payload['_token'] = csrf;
+      return payload;
+    }
+
+    function validate(form) {
+      const isActive = form.querySelector('[name="active"]')?.checked ?? false;
+      const dsnValue = (form.querySelector('[name="mailer_dsn"]')?.value || '').trim();
+      if (!isActive) {
+        return true;
+      }
+      const requiredFields = form.querySelectorAll('[data-mail-required]');
+      for (const field of requiredFields) {
+        const value = (field.value || '').trim();
+        if (value === '' && dsnValue === '') {
+          field.focus();
+          showFeedback('{{ t('error_mail_provider_required')|e('js') }}', 'danger');
+          return false;
+        }
+      }
+      if (dsnValue === '') {
+        const emailField = form.querySelector('[name="from_email"]');
+        if (emailField && (emailField.value || '').trim() === '') {
+          emailField.focus();
+          showFeedback('{{ t('error_mail_provider_sender_missing')|e('js') }}', 'danger');
+          return false;
+        }
+      }
+      return true;
+    }
+
+    async function submitForm(form) {
+      if (!validate(form)) {
+        return;
+      }
+      clearFeedback();
+      const payload = serialize(form);
+      try {
+        const response = await fetch('{{ basePath }}/admin/mail-providers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-Token': csrf,
+            'X-Requested-With': 'fetch'
+          },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (!response.ok || result.status === 'error') {
+          showFeedback(result.message || response.statusText, 'danger');
+          return;
+        }
+        showFeedback('{{ t('message_mail_provider_saved')|e('js') }}', 'success');
+      } catch (error) {
+        showFeedback(String(error), 'danger');
+      }
+    }
+
+    async function testConnection(form) {
+      clearFeedback();
+      const payload = serialize(form);
+      try {
+        const response = await fetch('{{ basePath }}/admin/mail-providers/test', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-Token': csrf,
+            'X-Requested-With': 'fetch'
+          },
+          body: JSON.stringify({ provider: payload.provider, _token: payload._token })
+        });
+        const result = await response.json();
+        if (!response.ok || result.status === 'error') {
+          showFeedback(result.message || response.statusText, 'danger');
+          return;
+        }
+        showFeedback('{{ t('message_mail_provider_test_success')|e('js') }}', 'success');
+      } catch (error) {
+        showFeedback(String(error), 'danger');
+      }
+    }
+
+    document.querySelectorAll('[data-mail-provider-form]').forEach(form => {
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        submitForm(form);
+      });
+      const testButton = form.querySelector('[data-mail-provider-test]');
+      if (testButton) {
+        testButton.addEventListener('click', () => {
+          testConnection(form);
+        });
+      }
+    });
+
+    selectProvider('{{ active|e('js') }}');
+  })();
+</script>

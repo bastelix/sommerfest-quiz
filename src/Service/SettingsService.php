@@ -17,6 +17,10 @@ class SettingsService
         $this->pdo = $pdo;
     }
 
+    public function getConnection(): PDO {
+        return $this->pdo;
+    }
+
     /**
      * Retrieve all settings as an associative array.
      *

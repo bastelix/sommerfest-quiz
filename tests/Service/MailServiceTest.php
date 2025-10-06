@@ -28,6 +28,8 @@ class MailServiceTest extends TestCase
 
         putenv('MAILER_DSN');
         unset($_ENV['MAILER_DSN']);
+        putenv('MAIL_PROVIDER_SECRET=test-secret');
+        $_ENV['MAIL_PROVIDER_SECRET'] = 'test-secret';
     }
 
     public function testIsConfiguredTrueWhenSmtpCredentialsPresent(): void
@@ -110,7 +112,7 @@ class MailServiceTest extends TestCase
         $provider ??= new CollectingProvider($configured);
 
         return new MailProviderManager($settings, [
-            'brevo' => static fn () => $provider,
+            'brevo' => static fn (array $config = []) => $provider,
         ]);
     }
 }

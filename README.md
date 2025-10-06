@@ -542,7 +542,11 @@ Die Übersetzungen befinden sich in `resources/lang/` sowie `public/js/i18n/`.
 Der Zugang zum Administrationsbereich erfolgt über `/login`. Benutzer und Rollen werden in der Tabelle `users` verwaltet. Nach erfolgreichem POST mit gültigen Zugangsdaten speichert das System die Benutzerinformationen inklusive Rolle in der Session und leitet Administratoren zur Route `/admin` weiter. Die Middleware `RoleAuthMiddleware` prüft die gespeicherte Rolle und leitet bei fehlenden Berechtigungen zum Login um.
 
 ### E-Mail-Versand
-Für Funktionen wie das Zurücksetzen von Passwörtern nutzt die Anwendung Symfony Mailer. Für die Anbindung stehen zwei Varianten zur Verfügung:
+Für Funktionen wie das Zurücksetzen von Passwörtern nutzt die Anwendung Symfony Mailer. Die bevorzugte Konfiguration erfolgt im Adminbereich unter **Administration → Mail-Anbieter**. Dort lassen sich pro Mandant Provider auswählen, SMTP-Zugangsdaten und optionale API-Schlüssel hinterlegen sowie per „Verbindung testen“ prüfen. Die Daten werden in der Tabelle `mail_providers` gespeichert und mit `MAIL_PROVIDER_SECRET` (Fallback `PASSWORD_RESET_SECRET`) verschlüsselt. Ist kein Geheimnis gesetzt, weist die Oberfläche darauf hin und verweigert das Speichern.
+
+Über den Bereich **Administration → Domains** können weiterhin domainspezifische SMTP-Overrides gepflegt werden (z. B. ein dedizierter Mailer-DSN oder eigene Zugangsdaten). Diese Einstellungen haben Vorrang vor der globalen Provider-Konfiguration, sobald für eine Domain ein Override hinterlegt ist.
+
+Die bisherigen `.env`-Variablen dienen als Fallback, solange noch keine Provider-Konfiguration hinterlegt ist oder einzelne Felder leer bleiben:
 
 1. **Klassisches SMTP** über folgende Variablen:
    - `SMTP_HOST` – Hostname des Servers
@@ -552,7 +556,7 @@ Für Funktionen wie das Zurücksetzen von Passwörtern nutzt die Anwendung Symfo
    - `SMTP_ENCRYPTION` – Verschlüsselung (`none`, `tls` oder `ssl`)
 2. **Direkter Mailer-DSN** über `MAILER_DSN`, falls ein Provider mit eigener API oder speziellen Parametern verwendet wird. In diesem Fall werden die Werte aus `SMTP_HOST` bis `SMTP_ENCRYPTION` ignoriert.
 
-Unabhängig von der Variante legen `SMTP_FROM` (Absenderadresse) und `SMTP_FROM_NAME` (Absendername) den sichtbaren Absender fest. Diese Variablen können in `.env` gesetzt werden.
+Unabhängig von der Variante legen `SMTP_FROM` (Absenderadresse) und `SMTP_FROM_NAME` (Absendername) den sichtbaren Absender fest. Diese Werte lassen sich entweder im Admin-Formular pflegen oder weiterhin in `.env` setzen.
 
 Beispiele für DSNs:
 
