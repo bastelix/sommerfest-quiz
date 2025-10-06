@@ -6,11 +6,13 @@ namespace App\Controller\Marketing;
 
 use App\Service\DomainContactTemplateService;
 use App\Service\DomainStartPageService;
+use App\Service\MailProvider\MailProviderManager;
 use App\Service\MailService;
 use App\Infrastructure\Database;
 use App\Service\TenantService;
 use App\Service\TurnstileConfig;
 use App\Service\TurnstileVerificationService;
+use App\Service\SettingsService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -130,14 +132,20 @@ class ContactController
             return $response->withStatus(500);
         }
 
+        $manager = $request->getAttribute('mailProviderManager');
+        if (!$manager instanceof MailProviderManager) {
+            $pdo = Database::connectFromEnv();
+            $manager = new MailProviderManager(new SettingsService($pdo));
+        }
+
         $mailer = $request->getAttribute('mailService');
         if (!$mailer instanceof MailService) {
-            if (!MailService::isConfigured()) {
+            if (!$manager->isConfigured()) {
                 $response->getBody()->write('Mailservice nicht konfiguriert');
                 return $response->withStatus(503)->withHeader('Content-Type', 'text/plain');
             }
             $twig = Twig::fromRequest($request)->getEnvironment();
-            $mailer = new MailService($twig);
+            $mailer = new MailService($twig, $manager);
         }
         try {
             $mailer->sendContact($to, $name, $email, $message, $template, $domainEmail, $smtpOverride);

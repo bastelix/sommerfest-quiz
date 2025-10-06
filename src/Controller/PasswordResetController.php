@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Infrastructure\Database;
+use App\Service\MailProvider\MailProviderManager;
 use App\Service\MailService;
 use App\Service\PasswordPolicy;
 use App\Service\PasswordResetService;
 use App\Service\UserService;
 use App\Service\SessionService;
+use App\Service\SettingsService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Views\Twig;
@@ -81,15 +84,21 @@ class PasswordResetController
             ->withPath('/password/reset')
             ->withQuery('token=' . urlencode($token));
 
+        $manager = $request->getAttribute('mailProviderManager');
+        if (!$manager instanceof MailProviderManager) {
+            $pdo = Database::connectFromEnv();
+            $manager = new MailProviderManager(new SettingsService($pdo));
+        }
+
         $mailer = $request->getAttribute('mailService');
         if (!$mailer instanceof MailService) {
-            if (!MailService::isConfigured()) {
+            if (!$manager->isConfigured()) {
                 return $response->withStatus(503);
             }
             $twig = Twig::fromRequest($request)->getEnvironment();
             $audit = $request->getAttribute('auditLogger');
             $logger = $audit instanceof AuditLogger ? $audit : null;
-            $mailer = new MailService($twig, $logger);
+            $mailer = new MailService($twig, $manager, $logger);
         }
         $mailer->sendPasswordReset((string) $user['email'], (string) $uri);
 

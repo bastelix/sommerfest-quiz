@@ -38,6 +38,7 @@ use App\Service\PageService;
 use App\Service\TranslationService;
 use App\Service\PasswordResetService;
 use App\Service\PasswordPolicy;
+use App\Service\MailProvider\MailProviderManager;
 use App\Service\MailService;
 use App\Service\EmailConfirmationService;
 use App\Service\InvitationService;
@@ -1079,13 +1080,19 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $resetService = new PasswordResetService($pdo);
         $token = $resetService->createToken((int) $admin['id']);
+
+        $providerManager = $request->getAttribute('mailProviderManager');
+        if (!$providerManager instanceof MailProviderManager) {
+            $providerManager = new MailProviderManager(new SettingsService(Database::connectFromEnv()));
+        }
+
         $mailer = $request->getAttribute('mailService');
         if (!$mailer instanceof MailService) {
-            if (!MailService::isConfigured()) {
+            if (!$providerManager->isConfigured()) {
                 return $response->withStatus(503);
             }
             $twig = Twig::fromRequest($request)->getEnvironment();
-            $mailer = new MailService($twig, $auditLogger);
+            $mailer = new MailService($twig, $providerManager, $auditLogger);
         }
         $mainDomain = getenv('MAIN_DOMAIN') ?: getenv('DOMAIN');
         $domain = $mainDomain ? sprintf('%s.%s', $sub, $mainDomain) : $uri->getHost();
@@ -1350,10 +1357,14 @@ return function (\Slim\App $app, TranslationService $translator) {
     $app->post('/invite', function (Request $request, Response $response) {
         $pdo = $request->getAttribute('pdo');
         $twig = Twig::fromRequest($request)->getEnvironment();
-        if (!MailService::isConfigured()) {
+        $providerManager = $request->getAttribute('mailProviderManager');
+        if (!$providerManager instanceof MailProviderManager) {
+            $providerManager = new MailProviderManager(new SettingsService(Database::connectFromEnv()));
+        }
+        if (!$providerManager->isConfigured()) {
             return $response->withStatus(503);
         }
-        $mailer = new MailService($twig);
+        $mailer = new MailService($twig, $providerManager);
         $service = new InvitationService($pdo);
         $controller = new InvitationController($service, $mailer);
         return $controller->send($request, $response);
@@ -1445,13 +1456,19 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $resetService = new PasswordResetService($pdo);
         $token = $resetService->createToken((int) $admin['id']);
+
+        $providerManager = $request->getAttribute('mailProviderManager');
+        if (!$providerManager instanceof MailProviderManager) {
+            $providerManager = new MailProviderManager(new SettingsService(Database::connectFromEnv()));
+        }
+
         $mailer = $request->getAttribute('mailService');
         if (!$mailer instanceof MailService) {
-            if (!MailService::isConfigured()) {
+            if (!$providerManager->isConfigured()) {
                 return $response->withStatus(503);
             }
             $twig = Twig::fromRequest($request)->getEnvironment();
-            $mailer = new MailService($twig, $auditLogger);
+            $mailer = new MailService($twig, $providerManager, $auditLogger);
         }
         $mainDomain = getenv('MAIN_DOMAIN') ?: getenv('DOMAIN');
         $domain = $mainDomain ? sprintf('%s.%s', $sub, $mainDomain) : $request->getUri()->getHost();
@@ -1528,10 +1545,14 @@ return function (\Slim\App $app, TranslationService $translator) {
 
         $mainDomain = getenv('MAIN_DOMAIN') ?: getenv('DOMAIN');
         $twig = Twig::fromRequest($request)->getEnvironment();
-        if (!MailService::isConfigured()) {
+        $providerManager = $request->getAttribute('mailProviderManager');
+        if (!$providerManager instanceof MailProviderManager) {
+            $providerManager = new MailProviderManager(new SettingsService(Database::connectFromEnv()));
+        }
+        if (!$providerManager->isConfigured()) {
             return $response->withStatus(503);
         }
-        $mailer = new MailService($twig, $auditLogger);
+        $mailer = new MailService($twig, $providerManager, $auditLogger);
         $domain = $mainDomain ? sprintf('%s.%s', $schema, $mainDomain) : $request->getUri()->getHost();
         $link = sprintf('https://%s/password/set?token=%s&next=%%2Fadmin', $domain, urlencode($token));
         $mailer->sendWelcome($email, $domain, $link);
