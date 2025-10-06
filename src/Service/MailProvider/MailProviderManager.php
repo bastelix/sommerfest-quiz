@@ -106,7 +106,6 @@ class MailProviderManager
         if (!$provider instanceof MailProviderInterface) {
             throw new RuntimeException('Invalid mail provider configuration.');
         }
-
         return $provider;
     }
 

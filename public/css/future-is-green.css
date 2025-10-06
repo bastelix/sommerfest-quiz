@@ -980,7 +980,6 @@ body.qr-landing.future-is-green-theme .landing-content {
 }
 
 .future-is-green-theme .fig-technology-panel {
-  height: 100%;
   padding: 32px;
   border-radius: 20px;
   background: var(--fig-surface);

@@ -5,6 +5,7 @@
   const PROSEAL_SCRIPT_SRC = 'https://s.provenexpert.net/seals/proseal-v2.js';
   const PROSEAL_SELECTOR = '[data-calserver-proseal]';
   const MODULE_VIDEO_SELECTOR = '.calserver-module-figure__video';
+  const MODULE_FIGURE_SELECTOR = '.calserver-module-figure';
   let proSealScriptLoading = false;
   let proSealScriptLoaded = false;
   const proSealQueue = [];
@@ -406,6 +407,78 @@
     syncModuleVideoStates();
   }
 
+  function getModuleDownloadLabel() {
+    if (typeof document === 'undefined') {
+      return 'Download module video (MP4)';
+    }
+
+    const html = document.documentElement;
+    if (!html) {
+      return 'Download module video (MP4)';
+    }
+
+    const lang = (html.getAttribute('lang') || '').toLowerCase();
+    if (lang.startsWith('de')) {
+      return 'Modul-Video herunterladen (MP4)';
+    }
+
+    return 'Download module video (MP4)';
+  }
+
+  function initModuleDownloadLinks() {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const figures = document.querySelectorAll(MODULE_FIGURE_SELECTOR);
+    if (!figures.length) {
+      return;
+    }
+
+    const label = getModuleDownloadLabel();
+
+    figures.forEach(function (figure) {
+      if (figure.querySelector('[data-calserver-module-download]')) {
+        return;
+      }
+
+      const video = figure.querySelector(MODULE_VIDEO_SELECTOR);
+      if (!video) {
+        return;
+      }
+
+      const source = video.querySelector('source[src]');
+      if (!source) {
+        return;
+      }
+
+      const href = source.getAttribute('src');
+      if (!href || href.toLowerCase().indexOf('.mp4') === -1) {
+        return;
+      }
+
+      const figcaption = figure.querySelector('figcaption');
+      if (!figcaption) {
+        return;
+      }
+
+      const paragraph = document.createElement('p');
+      paragraph.className = 'calserver-module-figure__download';
+
+      const link = document.createElement('a');
+      link.className = 'uk-link-text calserver-module-figure__download-link';
+      link.href = href;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      link.setAttribute('download', '');
+      link.setAttribute('data-calserver-module-download', '');
+      link.textContent = label;
+
+      paragraph.appendChild(link);
+      figcaption.appendChild(paragraph);
+    });
+  }
+
   function ensureProSealScript(callback) {
     if (proSealScriptLoaded) {
       if (typeof callback === 'function') {
@@ -643,6 +716,27 @@
     });
   });
 
+  function hideUsecasePdfLinks() {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const links = document.querySelectorAll('.usecase-card a');
+    if (!links.length) {
+      return;
+    }
+
+    Array.prototype.forEach.call(links, function (link) {
+      if (!link.querySelector('[data-uk-icon="icon: file-pdf"]')) {
+        return;
+      }
+
+      link.hidden = true;
+      link.setAttribute('aria-hidden', 'true');
+      link.setAttribute('tabindex', '-1');
+    });
+  }
+
   function initHeroBackground() {
     const container = document.querySelector('[data-calserver-hero-bg]');
     if (!container) {
@@ -866,6 +960,8 @@
   }
 
   document.addEventListener('DOMContentLoaded', initModuleVideoFullscreen);
+  document.addEventListener('DOMContentLoaded', initModuleDownloadLinks);
   document.addEventListener('DOMContentLoaded', initHeroBackground);
   document.addEventListener('DOMContentLoaded', initProSealWidgets);
+  document.addEventListener('DOMContentLoaded', hideUsecasePdfLinks);
 })();
