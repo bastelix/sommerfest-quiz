@@ -19,7 +19,9 @@ use Throwable;
  */
 class BrevoProvider implements MailProviderInterface
 {
-    /** @var array<string,string> */
+    /**
+     * @var array<string,string>
+     */
     private array $config;
 
     private ?MailerInterface $mailer = null;
@@ -31,9 +33,13 @@ class BrevoProvider implements MailProviderInterface
     /** @var string[] */
     private array $missingConfig = [];
 
-    public function __construct(?MailerInterface $mailer = null)
+    /**
+     * @param array<string,mixed> $configOverride
+     */
+    public function __construct(?MailerInterface $mailer = null, array $configOverride = [])
     {
         $this->config = self::loadEnvConfig();
+        $this->applyOverrides($configOverride);
         $this->configured = $this->determineConfiguration();
         $this->fromAddress = $this->resolveFromAddress();
 
@@ -99,7 +105,60 @@ class BrevoProvider implements MailProviderInterface
             'encryption' => (string) ($env['SMTP_ENCRYPTION'] ?? getenv('SMTP_ENCRYPTION') ?: 'none'),
             'from'       => (string) ($env['SMTP_FROM'] ?? getenv('SMTP_FROM') ?: ''),
             'from_name'  => (string) ($env['SMTP_FROM_NAME'] ?? getenv('SMTP_FROM_NAME') ?: ''),
+            'api_key'    => (string) ($env['MAILER_API_KEY'] ?? getenv('MAILER_API_KEY') ?: ''),
+            'list_id'    => (string) ($env['MAILER_LIST_ID'] ?? getenv('MAILER_LIST_ID') ?: ''),
         ];
+    }
+
+    /**
+     * @param array<string,mixed> $configOverride
+     */
+    private function applyOverrides(array $configOverride): void
+    {
+        $map = [
+            'mailer_dsn' => 'mailer_dsn',
+            'host' => 'host',
+            'user' => 'user',
+            'pass' => 'pass',
+            'port' => 'port',
+            'encryption' => 'encryption',
+            'from' => 'from',
+            'from_name' => 'from_name',
+            'api_key' => 'api_key',
+            'list_id' => 'list_id',
+        ];
+
+        foreach ($map as $source => $target) {
+            if (!array_key_exists($source, $configOverride)) {
+                continue;
+            }
+
+            $value = $configOverride[$source];
+            if ($value === null) {
+                continue;
+            }
+
+            $stringValue = (string) $value;
+            if ($stringValue === '') {
+                continue;
+            }
+
+            $this->config[$target] = $stringValue;
+        }
+
+        $settings = $configOverride['settings'] ?? [];
+        if (is_array($settings)) {
+            foreach (['mailer_dsn', 'from', 'from_name'] as $key) {
+                if (!array_key_exists($key, $settings)) {
+                    continue;
+                }
+
+                $value = (string) $settings[$key];
+                if ($value !== '') {
+                    $this->config[$key] = $value;
+                }
+            }
+        }
     }
 
     private function determineConfiguration(): bool

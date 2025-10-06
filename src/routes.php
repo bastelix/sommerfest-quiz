@@ -52,6 +52,7 @@ use App\Service\SessionService;
 use App\Service\StripeService;
 use App\Service\VersionService;
 use App\Infrastructure\Database;
+use App\Infrastructure\MailProviderRepository;
 use App\Support\DomainNameHelper;
 use App\Controller\Admin\ProfileController;
 use App\Application\Middleware\LanguageMiddleware;
@@ -78,6 +79,7 @@ use App\Controller\Admin\PageController;
 use App\Controller\Admin\LandingpageController;
 use App\Controller\Admin\DomainChatKnowledgeController;
 use App\Controller\Admin\DomainStartPageController;
+use App\Controller\Admin\MailProviderController;
 use App\Controller\Admin\DomainContactTemplateController;
 use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
 use App\Controller\TenantController;
@@ -136,6 +138,7 @@ require_once __DIR__ . '/Controller/Admin/PageController.php';
 require_once __DIR__ . '/Controller/Admin/LandingpageController.php';
 require_once __DIR__ . '/Controller/Admin/LandingNewsController.php';
 require_once __DIR__ . '/Controller/Admin/DomainStartPageController.php';
+require_once __DIR__ . '/Controller/Admin/MailProviderController.php';
 require_once __DIR__ . '/Controller/QrController.php';
 require_once __DIR__ . '/Controller/LogoController.php';
 require_once __DIR__ . '/Controller/CatalogDesignController.php';
@@ -268,6 +271,13 @@ return function (\Slim\App $app, TranslationService $translator) {
         );
         $domainDocumentStorage = new DomainDocumentStorage();
         $domainIndexManager = new DomainIndexManager($domainDocumentStorage);
+        $mailProviderRepository = null;
+        try {
+            $mailProviderRepository = new MailProviderRepository($pdo);
+        } catch (\RuntimeException $exception) {
+            $mailProviderRepository = null;
+        }
+        $mailProviderManager = new MailProviderManager($settingsService, [], $mailProviderRepository);
 
         $request = $request
             ->withAttribute('plan', $plan)
@@ -351,6 +361,12 @@ return function (\Slim\App $app, TranslationService $translator) {
             ->withAttribute('logoController', new LogoController($configService, $imageUploadService))
             ->withAttribute('qrLogoController', new QrLogoController($configService, $imageUploadService))
             ->withAttribute('summaryController', new SummaryController($configService, $eventService))
+            ->withAttribute('mailProviderController', new MailProviderController(
+                $mailProviderRepository,
+                $settingsService,
+                $mailProviderManager,
+                $domainStartPageService
+            ))
             ->withAttribute('catalogStickerController', new CatalogStickerController(
                 $configService,
                 $eventService,
@@ -1310,6 +1326,33 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = $request->getAttribute('domainContactTemplateController');
         return $controller->save($request, $response);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->get('/admin/mail-providers', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('mailProviderController');
+        if (!$controller instanceof MailProviderController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->index($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
+    $app->post('/admin/mail-providers', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('mailProviderController');
+        if (!$controller instanceof MailProviderController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->save($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
+    $app->post('/admin/mail-providers/test', function (Request $request, Response $response) {
+        $controller = $request->getAttribute('mailProviderController');
+        if (!$controller instanceof MailProviderController) {
+            return $response->withStatus(500);
+        }
+
+        return $controller->testConnection($request, $response);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
 
     $app->get('/catalog/questions/{file}', function (Request $request, Response $response, array $args) {
         $req = $request->withAttribute('file', $args['file']);
