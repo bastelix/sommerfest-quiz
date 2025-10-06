@@ -91,6 +91,11 @@ class HomeController
                         return $ctrl($request, $response);
                     }
                 }
+            } elseif ($home === 'calhelp') {
+                if ($catalogParam === '') {
+                    $ctrl = new \App\Controller\Marketing\MarketingPageController('calhelp');
+                    return $ctrl($request, $response);
+                }
             } elseif ($home === 'calserver') {
                 if ($catalogParam === '') {
                     $ctrl = new \App\Controller\Marketing\CalserverController();

@@ -1,0 +1,351 @@
+{% extends 'layout.twig' %}
+
+{% set links = [
+    { 'href': '#hero', 'label': 'Überblick', 'icon': 'home' },
+    { 'href': '#benefits', 'label': 'Nutzen', 'icon': 'star' },
+    { 'href': '#process', 'label': 'Prozess', 'icon': 'settings' },
+    { 'href': '#usecases', 'label': 'Use Cases', 'icon': 'users' },
+    { 'href': '#services', 'label': 'Services', 'icon': 'bag' },
+    { 'href': '#demo', 'label': 'Demo', 'icon': 'play' },
+    { 'href': '#news', 'label': 'News', 'icon': 'rss' },
+    { 'href': '#faq', 'label': 'FAQ', 'icon': 'question' },
+    { 'href': '#cta', 'label': 'Kontakt', 'icon': 'bolt' }
+] %}
+
+{% block title %}{{ metaTitle|default('Umstieg auf ein zentrales Kalibrier-System – konsistent, nachvollziehbar, auditfähig') }}{% endblock %}
+
+{% block head %}
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" href="{{ basePath }}/css/landing.css" as="style">
+  <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/onboarding.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/topbar.landing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/calhelp.css">
+  <meta name="page-name" content="calHelp – Marketingseite">
+{% endblock %}
+
+{% block body_theme %}light{% endblock %}
+{% block body_class %}qr-landing calhelp-theme{% endblock %}
+
+{% block body %}
+  <div class="landing-content">
+    <header class="qr-topbar topbar">
+      <nav class="uk-navbar-container" data-uk-navbar>
+        <div class="uk-navbar-left">
+          <div class="uk-navbar-item">
+            <button id="offcanvas-toggle"
+                    class="uk-navbar-toggle uk-hidden@m git-btn"
+                    data-uk-navbar-toggle-icon
+                    data-uk-toggle="target: #qr-offcanvas"
+                    aria-controls="qr-offcanvas"
+                    aria-expanded="false"
+                    aria-label="Menü"></button>
+            <a class="uk-logo calhelp-logo" href="{{ basePath }}/calhelp">
+              <span class="calhelp-logo__sr">calHelp – Zentrales Kalibrier- und Prüfmanagement</span>
+              <span aria-hidden="true">calHelp</span>
+            </a>
+          </div>
+        </div>
+        <div class="uk-navbar-right">
+          <ul class="uk-navbar-nav uk-visible@m">
+            {% for link in links %}
+              <li>
+                <a href="{{ link.href }}">
+                  <span class="uk-margin-small-right" data-uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+          <a class="uk-navbar-item uk-visible@m uk-button uk-button-primary calhelp-top-cta" href="#demo">
+            <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Demo anfragen
+          </a>
+          <div class="uk-navbar-item config-menu uk-inline">
+            <button id="configMenuToggle"
+                    type="button"
+                    class="uk-button uk-button-default git-btn"
+                    aria-label="Konfiguration"
+                    aria-expanded="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M19.14 12.94a7.5 7.5 0 0 0 .05-.94 7.5 7.5 0 0 0-.05-.94l2.03-1.58a.5.5 0 0 0 .12-.64l-1.92-3.33a.5.5 0 0 0-.6-.22l-2.39.96a7.6 7.6 0 0 0-1.63-.94l-.36-2.54a.5.5 0 0 0-.5-.43h-3.84a.5.5 0 0 0-.5.43l-.36 2.54c-.57.24-1.12.55-1.63.94l-2.39-.96a.5.5 0 0 0-.6.22L2.7 7.84a.5.5 0 0 0 .12.64l2.03 1.58c-.03.31-.05.63-.05.94s.02.63.05.94L2.82 13.5a.5.5 0 0 0-.12.64l1.92 3.33a.5.5 0 0 0 .6.22l2.39-.96c.51.39 1.06.7 1.63.94l.36 2.54a.5.5 0 0 0 .5.43h3.84a.5.5 0 0 0 .5-.43l.36-2.54c.57-.24 1.12-.55 1.63-.94l2.39.96a.5.5 0 0 0 .6-.22l1.92-3.33a.5.5 0 0 0-.12-.64l-2.03-1.58ZM12 15.5A3.5 3.5 0 1 1 12 8.5a3.5 3.5 0 0 1 0 7Z"
+                      fill="currentColor"/>
+              </svg>
+            </button>
+            <div id="menuDrop"
+                 class="uk-dropdown"
+                 hidden
+                 data-uk-dropdown="mode: click; pos: bottom-right; flip: false; animation: uk-animation-slide-top-small">
+              <ul class="uk-nav uk-dropdown-nav" role="menu">
+                <li>
+                  <button id="themeToggle"
+                          class="uk-button uk-button-default git-btn theme-toggle"
+                          aria-label="Design umschalten"
+                          role="menuitem">
+                    <span id="themeIcon" class="theme-icon" aria-hidden="true"></span>
+                  </button>
+                </li>
+                <li>
+                  <button id="accessibilityToggle"
+                          class="uk-button uk-button-default git-btn accessibility-toggle"
+                          aria-label="Kontrast umschalten"
+                          role="menuitem">
+                    <span id="accessibilityIcon" class="accessibility-icon" aria-hidden="true"></span>
+                  </button>
+                </li>
+                <li>
+                  <div class="uk-inline">
+                    <button id="languageMenuToggle"
+                            type="button"
+                            class="uk-button uk-button-default git-btn"
+                            aria-label="{{ t('language_toggle') }}"
+                            aria-expanded="false"
+                            role="menuitem">
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm6.93 6h-2.54c-.11-1.47-.43-2.87-.92-4.17 1.84.69 3.29 2.1 4.05 3.84zM12 4c.96 1.18 1.62 2.64 1.88 4H10.12c.26-1.36.92-2.82 1.88-4zM4.26 14c-.17-.64-.26-1.31-.26-2s.09-1.36.26-2h3.09c-.07.66-.11 1.32-.11 2s.04 1.34.11 2H4.26zm.81 2h2.54c.11 1.47.43 2.87.92 4.17-1.84-.69-3.29-2.1-4.05-3.84zm2.54-8H5.07c.76-1.74 2.21-3.15 4.05-3.84-.49 1.3-.81 2.7-.92 4.17zM12 20c-.96-1.18-1.62-2.64-1.88-4h3.76c-.26 1.36-.92 2.82-1.88 4zm2.62-6H9.38c-.08-.66-.12-1.32-.12-2s.04-1.34.12-2h5.24c.08.66.12 1.32.12 2s-.04 1.34-.12 2zm.81 6c.49-1.3.81-2.7.92-4.17h2.54c-.76 1.74-2.21 3.15-4.05 3.84zM16.65 14c.07-.66.11-1.32.11-2s-.04-1.34-.11-2h3.09c.17.64.26 1.31.26 2s-.09 1.36-.26 2h-3.09z"
+                              fill="currentColor"/>
+                      </svg>
+                    </button>
+                    <div id="languageDrop" class="uk-dropdown" hidden data-uk-dropdown="mode: click; pos: left-top; offset: 0">
+                      <ul class="uk-nav uk-dropdown-nav" role="menu">
+                        <li>
+                          <button class="uk-button uk-button-default git-btn lang-option"
+                                  data-lang="de"
+                                  role="menuitem">
+                            <span class="lang-option__icon" aria-hidden="true">
+                              <svg class="lang-option__svg" viewBox="0 0 24 16" role="img" focusable="false">
+                                <rect width="24" height="16" fill="#ffce00" />
+                                <rect width="24" height="10.6667" fill="#dd0000" />
+                                <rect width="24" height="5.3333" fill="#000000" />
+                              </svg>
+                            </span>
+                            <span class="lang-option__label">{{ t('german') }}</span>
+                          </button>
+                        </li>
+                        <li>
+                          <button class="uk-button uk-button-default git-btn lang-option"
+                                  data-lang="en"
+                                  role="menuitem">
+                            <span class="lang-option__icon" aria-hidden="true">
+                              <svg class="lang-option__svg" viewBox="0 0 24 16" role="img" focusable="false">
+                                <rect width="24" height="16" fill="#012169" />
+                                <path fill="#ffffff" d="M0 0h3.2L24 13.6V16h-3.2L0 2.4z" />
+                                <path fill="#ffffff" d="M24 0h-3.2L0 13.6V16h3.2L24 2.4z" />
+                                <path fill="#c8102e" d="M0 0h1.6L24 12.8V16h-1.6L0 3.2z" />
+                                <path fill="#c8102e" d="M24 0h-1.6L0 12.8V16h1.6L24 3.2z" />
+                                <rect x="10" width="4" height="16" fill="#ffffff" />
+                                <rect y="6" width="24" height="4" fill="#ffffff" />
+                                <rect x="10.8" width="2.4" height="16" fill="#c8102e" />
+                                <rect y="6.8" width="24" height="2.4" fill="#c8102e" />
+                              </svg>
+                            </span>
+                            <span class="lang-option__label">{{ t('english') }}</span>
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <div id="qr-offcanvas" data-uk-offcanvas="overlay: true; flip: true">
+      <div class="uk-offcanvas-bar">
+        <button class="uk-offcanvas-close git-btn" type="button" data-uk-close aria-label="Menü schließen"></button>
+        <ul class="uk-nav uk-nav-default">
+          {% for link in links %}
+            <li>
+              <a href="{{ link.href }}">
+                <span class="uk-margin-small-right" data-uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+        <a class="uk-button uk-button-primary uk-width-1-1 uk-margin-top" href="#demo">
+          <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Demo anfragen
+        </a>
+      </div>
+    </div>
+
+    <section id="hero" class="uk-section uk-section-large calhelp-hero">
+      <div class="uk-container">
+        <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
+          <div>
+            <span class="qr-badge pill pill--soft">Hosting in Deutschland · DSGVO-konform</span>
+            <h1 class="qr-h1">Ein System. Klare Prozesse.</h1>
+            <p class="qr-sub">calHelp sorgt dafür, dass Kalibrierdaten, Dokumente und Abläufe verlässlich in einem zentralen System zusammenfließen – konsistent, nachvollziehbar und auditfähig.</p>
+            <p class="uk-text-lead">Altdaten werden sauber migriert (z. B. aus MET/TRACK), MET/TEAM bleibt angebunden, und Ihr Team arbeitet in klar definierten Prozessen mit belastbaren Nachweisen.</p>
+            <div class="uk-margin-medium-top uk-flex uk-flex-left uk-flex-wrap" style="gap:16px;">
+              <a class="uk-button uk-button-primary" href="#demo">
+                <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Demo anfragen
+              </a>
+              <a class="uk-button uk-button-default" href="https://calhelp.notion.site/met-cal-handbuch" target="_blank" rel="noopener">
+                <span class="uk-margin-small-right" data-uk-icon="icon: file-text"></span>MET/CAL-Handbuch öffnen
+              </a>
+            </div>
+            <p class="calhelp-trust">Hosting in Deutschland · DSGVO-konform · &gt;15 Jahre Projekterfahrung</p>
+          </div>
+          <div>
+            <div class="calhelp-hero-card uk-card uk-card-default uk-card-body">
+              <h2 class="uk-card-title">Warum calHelp?</h2>
+              <ul class="uk-list uk-list-bullet">
+                <li>Konsistente Datenbasis für Labore, Service-Teams und Verwaltung.</li>
+                <li>Prozesssichere Migration mit klaren Gateways und Abnahmen.</li>
+                <li>Auditfähige Nachweise inklusive Report-Diffs und Protokollen.</li>
+              </ul>
+              <p class="uk-text-small uk-margin-top">Reports prüfen wir vorab mit Musterdaten.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {{ content|raw }}
+
+    <div id="marketing-chat-modal" class="uk-flex-top marketing-chat-modal" data-uk-modal>
+      <div class="uk-modal-dialog uk-modal-body marketing-chat__dialog" role="dialog" aria-modal="true" aria-label="{{ t('marketing_chat_title') }}">
+        <button class="uk-modal-close-default" type="button" data-uk-close aria-label="{{ t('marketing_chat_close') }}"></button>
+        <h2 class="uk-modal-title">{{ t('marketing_chat_title') }}</h2>
+        <p class="marketing-chat__intro">{{ t('marketing_chat_intro') }}</p>
+        <div class="marketing-chat__messages" data-marketing-chat-messages aria-live="polite"></div>
+        <p class="marketing-chat__status" data-marketing-chat-status aria-live="assertive"></p>
+        <form class="marketing-chat__form" data-marketing-chat-form>
+          <label class="uk-form-label" for="marketing-chat-question">{{ t('marketing_chat_question_label') }}</label>
+          <textarea class="uk-textarea"
+                    id="marketing-chat-question"
+                    name="question"
+                    rows="3"
+                    autocomplete="off"
+                    placeholder="{{ t('marketing_chat_placeholder') }}"
+                    data-marketing-chat-input
+                    required></textarea>
+          <div class="marketing-chat__form-actions">
+            <button type="submit" class="uk-button uk-button-primary">
+              <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>{{ t('marketing_chat_submit') }}
+            </button>
+            <button type="button" class="uk-button uk-button-default uk-modal-close">{{ t('marketing_chat_close') }}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <button class="calhelp-floating-button marketing-chat-fab"
+            type="button"
+            data-marketing-chat-open
+            aria-haspopup="dialog"
+            aria-controls="marketing-chat-modal"
+            aria-label="{{ t('marketing_chat_title') }}">
+      <span aria-hidden="true" data-uk-icon="icon: commenting"></span>
+    </button>
+  </div>
+{% endblock %}
+
+{% block footer %}
+  <div class="calhelp-footer">
+    <div class="calhelp-footer__brand">
+      <strong>calHelp</strong>
+      <p>Ein System. Klare Prozesse.</p>
+    </div>
+    <nav class="calhelp-footer__nav" aria-label="Footer-Navigation">
+      <strong>Links</strong>
+      <ul>
+        <li><a href="#hero">Start</a></li>
+        <li><a href="#news">Wissen</a></li>
+        <li><a href="#demo">Demo</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="{{ basePath }}/datenschutz">Datenschutz</a></li>
+        <li><a href="{{ basePath }}/impressum">Impressum</a></li>
+      </ul>
+    </nav>
+    <div class="calhelp-footer__contact">
+      <strong>Kontakt</strong>
+      <p>
+        René Buske<br>
+        <a class="js-email-link" data-user="office" data-domain="calhelp.de" href="#">office [at] calhelp.de</a><br>
+        <a href="tel:+4933203609080">+49&nbsp;33203&nbsp;609080</a>
+      </p>
+    </div>
+    <div class="calhelp-footer__meta">
+      <strong>Hosting</strong>
+      <p>In Deutschland oder On-Prem – auditfähig, skalierbar, sicher.</p>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  {% if turnstileSiteKey %}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer></script>
+  {% endif %}
+  <script src="{{ basePath }}/js/custom-icons.js" defer></script>
+  <script src="{{ basePath }}/js/storage.js"></script>
+  <script>
+    (function () {
+      try {
+        var hasStorageHelpers = typeof STORAGE_KEYS !== 'undefined' &&
+          typeof getStored === 'function' &&
+          typeof setStored === 'function';
+        var darkKey = hasStorageHelpers ? STORAGE_KEYS.DARK_MODE : 'darkMode';
+        var storedTheme = hasStorageHelpers ? getStored(darkKey) : (function () {
+          try {
+            return (typeof localStorage !== 'undefined') ? localStorage.getItem(darkKey) : null;
+          } catch (error) {
+            return null;
+          }
+        })();
+
+        if (storedTheme === null) {
+          if (hasStorageHelpers) {
+            setStored(darkKey, 'false');
+          } else if (typeof localStorage !== 'undefined') {
+            localStorage.setItem(darkKey, 'false');
+          }
+        }
+      } catch (error) {
+        /* empty */
+      }
+    })();
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.js-email-link').forEach(function (anchor) {
+        var user = anchor.getAttribute('data-user');
+        var domain = anchor.getAttribute('data-domain');
+        if (user && domain) {
+          var email = user + '@' + domain;
+          anchor.href = 'mailto:' + email;
+          anchor.textContent = email;
+        }
+      });
+      var contactForm = document.getElementById('contact-form');
+      if (contactForm && !contactForm.hasAttribute('data-contact-endpoint')) {
+        contactForm.setAttribute('data-contact-endpoint', '{{ basePath }}/calhelp/contact');
+      }
+    });
+  </script>
+  <script>
+    window.marketingChatConfig = {
+      endpoint: '{{ marketingChatEndpoint|e('js') }}',
+      slug: '{{ marketingSlug|e('js') }}',
+      csrfToken: '{{ csrf_token|default('')|e('js') }}',
+      locale: '{{ locale() }}',
+      texts: {
+        intro: '{{ t('marketing_chat_intro_message')|e('js') }}',
+        loading: '{{ t('marketing_chat_loading')|e('js') }}',
+        errorGeneric: '{{ t('marketing_chat_error_generic')|e('js') }}',
+        errorValidation: '{{ t('marketing_chat_error_validation')|e('js') }}',
+        errorRateLimited: '{{ t('marketing_chat_error_rate_limited')|e('js') }}',
+        sources: '{{ t('marketing_chat_sources')|e('js') }}',
+        sourcesToggle: '{{ t('marketing_chat_sources_toggle')|e('js') }}',
+        score: '{{ t('marketing_chat_score')|e('js') }}',
+        empty: '{{ t('marketing_chat_empty')|e('js') }}',
+        question: '{{ t('marketing_chat_question_label')|e('js') }}'
+      }
+    };
+  </script>
+  <script src="{{ basePath }}/js/app.js"></script>
+  <script src="{{ basePath }}/js/marketing-chat.js" defer></script>
+  <script src="{{ basePath }}/js/landing.js" defer></script>
+{% endblock %}

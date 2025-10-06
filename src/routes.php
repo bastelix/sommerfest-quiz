@@ -540,6 +540,15 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new \App\Controller\Marketing\FutureIsGreenController();
         return $controller($request, $response);
     });
+    $app->get('/calhelp', function (Request $request, Response $response) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingPageController('calhelp');
+        return $controller($request, $response);
+    });
+
     $app->get('/calserver', function (Request $request, Response $response) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
@@ -618,6 +627,9 @@ return function (\Slim\App $app, TranslationService $translator) {
     };
 
     $app->post('/calserver/chat', $createChatHandler('calserver'))
+        ->add(new RateLimitMiddleware(10, 60))
+        ->add(new CsrfMiddleware());
+    $app->post('/calhelp/chat', $createChatHandler('calhelp'))
         ->add(new RateLimitMiddleware(10, 60))
         ->add(new CsrfMiddleware());
 
