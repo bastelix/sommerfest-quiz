@@ -18,6 +18,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="preload" href="{{ basePath }}/css/landing.css" as="style">
   <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/calserver.css">
   <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
   <link rel="stylesheet" href="{{ basePath }}/css/onboarding.css">
   <link rel="stylesheet" href="{{ basePath }}/css/topbar.landing.css">
@@ -26,7 +27,7 @@
 {% endblock %}
 
 {% block body_theme %}light{% endblock %}
-{% block body_class %}qr-landing calhelp-theme{% endblock %}
+{% block body_class %}qr-landing calserver-theme calhelp-theme{% endblock %}
 
 {% block body %}
   <div class="landing-content">
@@ -43,7 +44,7 @@
                     aria-label="Menü"></button>
             <a class="uk-logo calhelp-logo" href="{{ basePath }}/calhelp">
               <span class="calhelp-logo__sr">calHelp – Zentrales Kalibrier- und Prüfmanagement</span>
-              <span aria-hidden="true">calHelp</span>
+              <span class="calhelp-logo__wordmark" aria-hidden="true">calHelp</span>
             </a>
           </div>
         </div>
@@ -170,10 +171,13 @@
       </div>
     </div>
 
-    <section id="hero" class="uk-section uk-section-large calhelp-hero">
+    <section id="hero" class="qr-hero uk-section uk-section-large calhelp-hero">
+      <div class="qr-hero-bg hero-bg-calserver" aria-hidden="true">
+        <canvas class="calserver-hero-bg__canvas"></canvas>
+      </div>
       <div class="uk-container">
-        <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
-          <div>
+        <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle calhelp-hero-grid" data-uk-grid>
+          <div class="calhelp-hero-grid__content">
             <span class="qr-badge pill pill--soft">Hosting in Deutschland · DSGVO-konform</span>
             <h1 class="qr-h1">Ein System. Klare Prozesse.</h1>
             <p class="qr-sub">calHelp sorgt dafür, dass Kalibrierdaten, Dokumente und Abläufe verlässlich in einem zentralen System zusammenfließen – konsistent, nachvollziehbar und auditfähig.</p>
@@ -188,10 +192,10 @@
             </div>
             <p class="calhelp-trust">Hosting in Deutschland · DSGVO-konform · &gt;15 Jahre Projekterfahrung</p>
           </div>
-          <div>
-            <div class="calhelp-hero-card uk-card uk-card-default uk-card-body">
+          <div class="calhelp-hero-grid__media">
+            <div class="calhelp-hero-card uk-card uk-card-primary uk-card-primary--highlight uk-card-body">
               <h2 class="uk-card-title">Warum calHelp?</h2>
-              <ul class="uk-list uk-list-bullet">
+              <ul class="uk-list uk-list-bullet hero-list">
                 <li>Konsistente Datenbasis für Labore, Service-Teams und Verwaltung.</li>
                 <li>Prozesssichere Migration mit klaren Gateways und Abnahmen.</li>
                 <li>Auditfähige Nachweise inklusive Report-Diffs und Protokollen.</li>
@@ -232,7 +236,7 @@
       </div>
     </div>
 
-    <button class="calhelp-floating-button marketing-chat-fab"
+    <button class="calserver-floating-button calhelp-floating-button marketing-chat-fab"
             type="button"
             data-marketing-chat-open
             aria-haspopup="dialog"
@@ -244,12 +248,25 @@
 {% endblock %}
 
 {% block footer %}
-  <div class="calhelp-footer">
-    <div class="calhelp-footer__brand">
+  <div class="footer-columns">
+    <div class="footer-section footer-about">
       <strong>calHelp</strong>
       <p>Ein System. Klare Prozesse.</p>
     </div>
-    <nav class="calhelp-footer__nav" aria-label="Footer-Navigation">
+    <div class="footer-section footer-contact">
+      <strong>Kontakt</strong>
+      <p>
+        René Buske<br>
+        <a
+          class="js-email-link"
+          data-user="office"
+          data-domain="calhelp.de"
+          href="#"
+        >office [at] calhelp.de</a><br>
+        <a href="tel:+4933203609080">+49&nbsp;33203&nbsp;609080</a>
+      </p>
+    </div>
+    <div class="footer-section footer-navigation">
       <strong>Links</strong>
       <ul>
         <li><a href="#hero">Start</a></li>
@@ -259,16 +276,8 @@
         <li><a href="{{ basePath }}/datenschutz">Datenschutz</a></li>
         <li><a href="{{ basePath }}/impressum">Impressum</a></li>
       </ul>
-    </nav>
-    <div class="calhelp-footer__contact">
-      <strong>Kontakt</strong>
-      <p>
-        René Buske<br>
-        <a class="js-email-link" data-user="office" data-domain="calhelp.de" href="#">office [at] calhelp.de</a><br>
-        <a href="tel:+4933203609080">+49&nbsp;33203&nbsp;609080</a>
-      </p>
     </div>
-    <div class="calhelp-footer__meta">
+    <div class="footer-section footer-legal">
       <strong>Hosting</strong>
       <p>In Deutschland oder On-Prem – auditfähig, skalierbar, sicher.</p>
     </div>
