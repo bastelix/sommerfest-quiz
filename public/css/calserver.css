@@ -2119,20 +2119,6 @@ body.qr-landing.calserver-theme .calserver-module-figure .uk-list {
     margin-bottom: 0;
 }
 
-body.qr-landing.calserver-theme .calserver-module-figure__download {
-    margin: 0;
-}
-
-body.qr-landing.calserver-theme .calserver-module-figure__download-link {
-    font-weight: 600;
-    text-decoration: none;
-}
-
-body.qr-landing.calserver-theme .calserver-module-figure__download-link:hover,
-body.qr-landing.calserver-theme .calserver-module-figure__download-link:focus {
-    text-decoration: underline;
-}
-
 @media (max-width: 1024px) {
     body.qr-landing.calserver-theme #modules .calserver-modules-grid {
         grid-template-columns: 1fr;
