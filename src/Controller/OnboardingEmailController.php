@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Infrastructure\Database;
 use App\Service\EmailConfirmationService;
+use App\Service\MailProvider\MailProviderManager;
 use App\Service\MailService;
+use App\Service\SettingsService;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 use Slim\Routing\RouteContext;
@@ -43,13 +46,19 @@ class OnboardingEmailController
             ->withPath($base . '/onboarding/email/confirm')
             ->withQuery('token=' . urlencode($token));
 
+        $manager = $request->getAttribute('mailProviderManager');
+        if (!$manager instanceof MailProviderManager) {
+            $pdo = Database::connectFromEnv();
+            $manager = new MailProviderManager(new SettingsService($pdo));
+        }
+
         $mailer = $request->getAttribute('mailService');
         if (!$mailer instanceof MailService) {
-            if (!MailService::isConfigured()) {
+            if (!$manager->isConfigured()) {
                 return $response->withStatus(503);
             }
             $twig = Twig::fromRequest($request)->getEnvironment();
-            $mailer = new MailService($twig);
+            $mailer = new MailService($twig, $manager);
         }
         $mailer->sendDoubleOptIn($email, (string) $uri);
 
