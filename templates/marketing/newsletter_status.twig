@@ -1,0 +1,34 @@
+{% extends 'layout.twig' %}
+
+{% block title %}
+  {% if success %}
+    Newsletter bestätigt
+  {% else %}
+    Newsletter-Bestätigung fehlgeschlagen
+  {% endif %}
+{% endblock %}
+
+{% block body %}
+  <div class="uk-section uk-section-default">
+    <div class="uk-container uk-container-small">
+      {% if mode == 'confirm' %}
+        {% if success %}
+          <h1 class="uk-heading-medium">Vielen Dank!</h1>
+          <p class="uk-text-lead">Deine Anmeldung zum QuizRace Newsletter wurde bestätigt.</p>
+          <p>Du erhältst künftig gelegentlich Neuigkeiten und Event-Tipps direkt in dein Postfach. Du kannst dich jederzeit wieder abmelden.</p>
+        {% else %}
+          <h1 class="uk-heading-medium">Bestätigung nicht möglich</h1>
+          <p class="uk-text-lead">Der Bestätigungslink ist ungültig oder wurde bereits verwendet.</p>
+          <p>Bitte fordere bei Bedarf eine neue Bestätigung an oder kontaktiere uns über das Formular auf der Startseite.</p>
+        {% endif %}
+      {% else %}
+        {% if success %}
+          <h1 class="uk-heading-medium">Status aktualisiert</h1>
+        {% else %}
+          <h1 class="uk-heading-medium">Aktion nicht möglich</h1>
+        {% endif %}
+      {% endif %}
+      <p><a class="uk-button uk-button-default" href="{{ basePath }}/landing">Zurück zur Startseite</a></p>
+    </div>
+  </div>
+{% endblock %}

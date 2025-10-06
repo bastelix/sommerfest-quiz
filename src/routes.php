@@ -87,6 +87,7 @@ use App\Controller\Marketing\MarketingPageController;
 use App\Controller\Marketing\ContactController;
 use App\Controller\Marketing\LandingNewsController as MarketingLandingNewsController;
 use App\Controller\Marketing\MarketingChatController;
+use App\Controller\Marketing\NewsletterController;
 use App\Controller\RegisterController;
 use App\Controller\OnboardingController;
 use App\Controller\OnboardingEmailController;
@@ -157,6 +158,7 @@ require_once __DIR__ . '/Controller/Marketing/LandingController.php';
 require_once __DIR__ . '/Controller/Marketing/CalserverController.php';
 require_once __DIR__ . '/Controller/Marketing/MarketingChatController.php';
 require_once __DIR__ . '/Controller/Marketing/ContactController.php';
+require_once __DIR__ . '/Controller/Marketing/NewsletterController.php';
 require_once __DIR__ . '/Controller/Marketing/LandingNewsController.php';
 require_once __DIR__ . '/Controller/RegisterController.php';
 require_once __DIR__ . '/Controller/OnboardingController.php';
@@ -589,6 +591,18 @@ return function (\Slim\App $app, TranslationService $translator) {
         ->add(new CsrfMiddleware());
     $app->post('/calserver/contact', ContactController::class)
         ->add(new RateLimitMiddleware(3, 3600))
+        ->add(new CsrfMiddleware());
+    $app->get('/newsletter/confirm', function (Request $request, Response $response): Response {
+        $controller = new NewsletterController();
+
+        return $controller->confirm($request, $response);
+    });
+    $app->post('/newsletter/unsubscribe', function (Request $request, Response $response): Response {
+        $controller = new NewsletterController();
+
+        return $controller->unsubscribe($request, $response);
+    })
+        ->add(new RateLimitMiddleware(5, 3600))
         ->add(new CsrfMiddleware());
     $createChatHandler = static function (?string $slug = null) {
         return static function (Request $request, Response $response) use ($slug): Response {

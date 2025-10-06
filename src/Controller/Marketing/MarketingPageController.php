@@ -105,6 +105,7 @@ class MarketingPageController
             );
         } else {
             $html = $this->ensureTurnstileMarkup($html, $widgetMarkup, $hadPlaceholder);
+            $html = $this->ensureNewsletterOptIn($html);
         }
 
         $view = Twig::fromRequest($request);
@@ -271,6 +272,60 @@ class MarketingPageController
         }
 
         $replacement = $matches[1] . $updatedFormContent . $matches[3];
+        $result = preg_replace($formPattern, $replacement, $html, 1);
+
+        return is_string($result) ? $result : $html;
+    }
+
+    private function ensureNewsletterOptIn(string $html): string
+    {
+        if (!str_contains($html, 'id="contact-form"')) {
+            return $html;
+        }
+
+        if (str_contains($html, 'name="newsletter_subscribe"') || str_contains($html, 'name="newsletter_action"')) {
+            return $html;
+        }
+
+        $formPattern = '/(<form[^>]*id="contact-form"[^>]*>)(.*?)(<\/form>)/is';
+        if (!preg_match($formPattern, $html, $matches)) {
+            return $html;
+        }
+
+        $formContent = $matches[2];
+        if (str_contains($formContent, 'newsletter_subscribe')) {
+            return $html;
+        }
+
+        $newsletterMarkup = <<<'HTML'
+          <div class="uk-margin">
+            <label><input class="uk-checkbox" type="checkbox" name="newsletter_subscribe" value="1"> Ich möchte den QuizRace Newsletter erhalten.</label>
+          </div>
+        HTML;
+
+        $privacyPattern = '/(<div[^>]*>\s*<label[^>]*><input[^>]*name="privacy"[^>]*>.*?<\/label>\s*<\/div>)/is';
+        $applied = false;
+        $updatedFormContent = preg_replace_callback(
+            $privacyPattern,
+            static function (array $innerMatches) use ($newsletterMarkup, &$applied): string {
+                if ($applied) {
+                    return $innerMatches[0];
+                }
+                $applied = true;
+
+                return $newsletterMarkup . "\n" . $innerMatches[0];
+            },
+            $formContent,
+            1
+        );
+
+        if (is_string($updatedFormContent) && $updatedFormContent !== $formContent) {
+            $formContent = $updatedFormContent;
+        } else {
+            $formContent = $newsletterMarkup . $formContent;
+        }
+
+        $replacement = $matches[1] . $formContent . $matches[3];
         $result = preg_replace($formPattern, $replacement, $html, 1);
 
         return is_string($result) ? $result : $html;
