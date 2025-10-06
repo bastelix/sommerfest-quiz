@@ -57,7 +57,8 @@ class BrevoProvider implements MailProviderInterface
             }
         }
 
-        if ($email->getFrom()->count() === 0 && $this->fromAddress !== '') {
+        $fromAddresses = $email->getFrom();
+        if ($fromAddresses === [] && $this->fromAddress !== '') {
             $email->from($this->fromAddress);
         }
 
@@ -148,16 +149,7 @@ class BrevoProvider implements MailProviderInterface
             $fromName = (string) ($profile['imprint_name'] ?? '');
         }
 
-        $result = $fromName !== '' ? sprintf('%s <%s>', $fromName, $fromEmail) : $fromEmail;
-
-        if ($result === '') {
-            if (!in_array('SMTP_FROM', $this->missingConfig, true)) {
-                $this->missingConfig[] = 'SMTP_FROM';
-            }
-            $this->configured = false;
-        }
-
-        return $result;
+        return $fromName !== '' ? sprintf('%s <%s>', $fromName, $fromEmail) : $fromEmail;
     }
 
     private function createDefaultMailer(): MailerInterface

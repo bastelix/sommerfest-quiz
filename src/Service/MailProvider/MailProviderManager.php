@@ -82,9 +82,6 @@ class MailProviderManager
 
         $factory = $this->factories[$name];
         $provider = $factory();
-        if (!$provider instanceof MailProviderInterface) {
-            throw new RuntimeException('Invalid mail provider configuration.');
-        }
 
         $this->activeProvider = $provider;
 
