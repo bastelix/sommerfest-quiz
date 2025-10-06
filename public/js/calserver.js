@@ -716,6 +716,27 @@
     });
   });
 
+  function hideUsecasePdfLinks() {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const links = document.querySelectorAll('.usecase-card a');
+    if (!links.length) {
+      return;
+    }
+
+    Array.prototype.forEach.call(links, function (link) {
+      if (!link.querySelector('[data-uk-icon="icon: file-pdf"]')) {
+        return;
+      }
+
+      link.hidden = true;
+      link.setAttribute('aria-hidden', 'true');
+      link.setAttribute('tabindex', '-1');
+    });
+  }
+
   function initHeroBackground() {
     const container = document.querySelector('[data-calserver-hero-bg]');
     if (!container) {
@@ -942,4 +963,5 @@
   document.addEventListener('DOMContentLoaded', initModuleDownloadLinks);
   document.addEventListener('DOMContentLoaded', initHeroBackground);
   document.addEventListener('DOMContentLoaded', initProSealWidgets);
+  document.addEventListener('DOMContentLoaded', hideUsecasePdfLinks);
 })();
