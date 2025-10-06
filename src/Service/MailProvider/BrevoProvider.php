@@ -7,6 +7,10 @@ namespace App\Service\MailProvider;
 use App\Infrastructure\Database;
 use App\Service\TenantService;
 use App\Support\EnvLoader;
+use GuzzleHttp\Client;
+use GuzzleHttp\ClientInterface;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\GuzzleException;
 use RuntimeException;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\MailerInterface;
@@ -33,10 +37,16 @@ class BrevoProvider implements MailProviderInterface
     /** @var string[] */
     private array $missingConfig = [];
 
+    private ?ClientInterface $httpClient = null;
+
     /**
      * @param array<string,mixed> $configOverride
      */
-    public function __construct(?MailerInterface $mailer = null, array $configOverride = [])
+    public function __construct(
+        ?MailerInterface $mailer = null,
+        array $configOverride = [],
+        ?ClientInterface $httpClient = null
+    )
     {
         $this->config = self::loadEnvConfig();
         $this->applyOverrides($configOverride);
@@ -45,6 +55,9 @@ class BrevoProvider implements MailProviderInterface
 
         if ($mailer !== null) {
             $this->mailer = $mailer;
+        }
+        if ($httpClient !== null) {
+            $this->httpClient = $httpClient;
         }
     }
 
@@ -73,12 +86,65 @@ class BrevoProvider implements MailProviderInterface
 
     public function subscribe(string $email, array $data = []): void
     {
-        // Brevo API integration is not implemented yet.
+        $client = $this->getHttpClient();
+        $headers = $this->buildApiHeaders();
+
+        $payload = [
+            'email' => $email,
+            'updateEnabled' => true,
+            'listIds' => $this->resolveListIds(),
+        ];
+
+        $attributes = $this->filterAttributes($data);
+        if ($attributes !== []) {
+            $payload['attributes'] = $attributes;
+        }
+
+        try {
+            $client->request('POST', 'contacts', [
+                'headers' => $headers,
+                'json' => $payload,
+                'timeout' => 5.0,
+            ]);
+        } catch (GuzzleException $exception) {
+            throw new RuntimeException(
+                'Failed to subscribe contact via Brevo: ' . $exception->getMessage(),
+                0,
+                $exception
+            );
+        }
     }
 
     public function unsubscribe(string $email): void
     {
-        // Brevo API integration is not implemented yet.
+        $client = $this->getHttpClient();
+        $headers = $this->buildApiHeaders();
+        $payload = [
+            'unlinkListIds' => $this->resolveListIds(),
+        ];
+
+        try {
+            $client->request('PUT', 'contacts/' . rawurlencode($email), [
+                'headers' => $headers,
+                'json' => $payload,
+                'timeout' => 5.0,
+            ]);
+        } catch (ClientException $exception) {
+            $response = $exception->getResponse();
+            if ($response === null || $response->getStatusCode() !== 404) {
+                throw new RuntimeException(
+                    'Failed to unsubscribe contact via Brevo: ' . $exception->getMessage(),
+                    0,
+                    $exception
+                );
+            }
+        } catch (GuzzleException $exception) {
+            throw new RuntimeException(
+                'Failed to unsubscribe contact via Brevo: ' . $exception->getMessage(),
+                0,
+                $exception
+            );
+        }
     }
 
     public function getStatus(): array
@@ -88,6 +154,7 @@ class BrevoProvider implements MailProviderInterface
             'configured' => $this->configured,
             'from_address' => $this->fromAddress,
             'missing' => $this->missingConfig,
+            'newsletter_configured' => $this->hasApiConfiguration(),
         ];
     }
 
@@ -250,6 +317,86 @@ class BrevoProvider implements MailProviderInterface
         $transport = Transport::fromDsn($dsn);
 
         return new Mailer($transport);
+    }
+
+    private function getHttpClient(): ClientInterface
+    {
+        if ($this->httpClient instanceof ClientInterface) {
+            return $this->httpClient;
+        }
+
+        $this->httpClient = new Client([
+            'base_uri' => 'https://api.brevo.com/v3/',
+        ]);
+
+        return $this->httpClient;
+    }
+
+    /**
+     * @return array<string,string>
+     */
+    private function buildApiHeaders(): array
+    {
+        $apiKey = $this->config['api_key'] ?? '';
+        if ($apiKey === '') {
+            throw new RuntimeException('Brevo API key is not configured.');
+        }
+
+        return [
+            'api-key' => $apiKey,
+            'accept' => 'application/json',
+            'content-type' => 'application/json',
+        ];
+    }
+
+    /**
+     * @return int[]
+     */
+    private function resolveListIds(): array
+    {
+        $raw = $this->config['list_id'] ?? '';
+        if ($raw === '') {
+            throw new RuntimeException('Brevo list ID is not configured.');
+        }
+
+        $parts = array_filter(array_map('trim', preg_split('/[\s,]+/', $raw) ?: []));
+        $ids = [];
+        foreach ($parts as $part) {
+            if ($part === '') {
+                continue;
+            }
+            $ids[] = (int) $part;
+        }
+
+        if ($ids === []) {
+            throw new RuntimeException('Brevo list ID is not configured.');
+        }
+
+        return $ids;
+    }
+
+    /**
+     * @param array<string,mixed> $data
+     * @return array<string,scalar>
+     */
+    private function filterAttributes(array $data): array
+    {
+        $attributes = [];
+        foreach ($data as $key => $value) {
+            if (!is_string($key)) {
+                continue;
+            }
+            if (is_scalar($value)) {
+                $attributes[$key] = $value;
+            }
+        }
+
+        return $attributes;
+    }
+
+    private function hasApiConfiguration(): bool
+    {
+        return ($this->config['api_key'] ?? '') !== '' && ($this->config['list_id'] ?? '') !== '';
     }
 
     /**

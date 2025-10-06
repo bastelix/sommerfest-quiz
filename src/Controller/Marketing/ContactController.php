@@ -6,8 +6,10 @@ namespace App\Controller\Marketing;
 
 use App\Service\DomainContactTemplateService;
 use App\Service\DomainStartPageService;
+use App\Service\EmailConfirmationService;
 use App\Service\MailProvider\MailProviderManager;
 use App\Service\MailService;
+use App\Service\NewsletterSubscriptionService;
 use App\Infrastructure\Database;
 use App\Service\TenantService;
 use App\Service\TurnstileConfig;
@@ -15,6 +17,7 @@ use App\Service\TurnstileVerificationService;
 use App\Service\SettingsService;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 use RuntimeException;
 
@@ -153,6 +156,52 @@ class ContactController
             error_log('Contact mail failed: ' . $e->getMessage());
             $response->getBody()->write('Mailversand fehlgeschlagen');
             return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
+        }
+
+        $newsletterAction = strtolower(trim((string) ($data['newsletter_action'] ?? '')));
+        $subscribeField = $data['newsletter_subscribe'] ?? null;
+        $shouldSubscribe = $newsletterAction === 'subscribe';
+        if (!$shouldSubscribe && $newsletterAction === '') {
+            if (is_string($subscribeField)) {
+                $normalized = strtolower(trim($subscribeField));
+                $shouldSubscribe = in_array($normalized, ['1', 'true', 'yes', 'on'], true);
+            } elseif (is_bool($subscribeField)) {
+                $shouldSubscribe = $subscribeField;
+            }
+        }
+        $shouldUnsubscribe = $newsletterAction === 'unsubscribe';
+
+        if ($shouldSubscribe || $shouldUnsubscribe) {
+            $confirmationService = new EmailConfirmationService($pdo);
+            $newsletterService = new NewsletterSubscriptionService($pdo, $confirmationService, $manager, $mailer);
+
+            $serverParams = $request->getServerParams();
+            $metadata = [
+                'ip' => isset($serverParams['REMOTE_ADDR']) ? (string) $serverParams['REMOTE_ADDR'] : null,
+                'user_agent' => isset($serverParams['HTTP_USER_AGENT']) ? (string) $serverParams['HTTP_USER_AGENT'] : null,
+                'referer' => $request->getHeaderLine('Referer') ?: null,
+                'landing' => $host,
+            ];
+
+            try {
+                if ($shouldSubscribe) {
+                    $attributes = [];
+                    if ($name !== '') {
+                        $attributes['FIRSTNAME'] = $name;
+                    }
+                    $attributes['SOURCE'] = 'marketing-contact';
+
+                    $base = rtrim(RouteContext::fromRequest($request)->getBasePath(), '/');
+                    $confirmUri = $request->getUri()->withPath($base . '/newsletter/confirm')->withQuery('');
+                    $newsletterService->requestSubscription($email, (string) $confirmUri, $metadata, $attributes);
+                } else {
+                    $newsletterService->unsubscribe($email, $metadata);
+                }
+            } catch (RuntimeException $exception) {
+                error_log('Newsletter processing failed: ' . $exception->getMessage());
+                $response->getBody()->write('Newsletter-Verarbeitung fehlgeschlagen');
+                return $response->withStatus(500)->withHeader('Content-Type', 'text/plain');
+            }
         }
 
         return $response->withStatus(204);
