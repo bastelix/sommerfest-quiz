@@ -8,6 +8,7 @@ use App\Service\DomainStartPageService;
 use App\Service\PageService;
 use App\Service\SettingsService;
 use App\Service\TranslationService;
+use App\Support\DomainNameHelper;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -64,31 +65,47 @@ class DomainStartPageController
         }
 
         foreach ($mappings as $domain => $config) {
-            if (!isset($combined[$domain])) {
-                $combined[$domain] = [
-                    'domain' => $domain,
-                    'normalized' => $domain,
-                    'type' => 'custom',
-                    'start_page' => $config['start_page'],
-                    'email' => $config['email'],
-                    'smtp_host' => $config['smtp_host'],
-                    'smtp_user' => $config['smtp_user'],
-                    'smtp_port' => $config['smtp_port'],
-                    'smtp_encryption' => $config['smtp_encryption'],
-                    'smtp_dsn' => $config['smtp_dsn'],
-                    'has_smtp_pass' => $config['has_smtp_pass'],
-                ];
-                continue;
+            $normalizedDomain = $this->domainService->normalizeDomain($domain);
+            $candidateKeys = array_values(array_unique(array_filter([
+                DomainNameHelper::canonicalizeSlug($normalizedDomain),
+                $normalizedDomain,
+            ], static fn ($value): bool => is_string($value) && $value !== '')));
+
+            $matchedKey = null;
+            foreach ($candidateKeys as $key) {
+                if (isset($combined[$key])) {
+                    $matchedKey = $key;
+                    break;
+                }
             }
 
-            $combined[$domain]['start_page'] = $config['start_page'];
-            $combined[$domain]['email'] = $config['email'];
-            $combined[$domain]['smtp_host'] = $config['smtp_host'];
-            $combined[$domain]['smtp_user'] = $config['smtp_user'];
-            $combined[$domain]['smtp_port'] = $config['smtp_port'];
-            $combined[$domain]['smtp_encryption'] = $config['smtp_encryption'];
-            $combined[$domain]['smtp_dsn'] = $config['smtp_dsn'];
-            $combined[$domain]['has_smtp_pass'] = $config['has_smtp_pass'];
+            if ($matchedKey === null) {
+                $matchedKey = $normalizedDomain !== '' ? $normalizedDomain : $domain;
+                if (!isset($combined[$matchedKey])) {
+                    $combined[$matchedKey] = [
+                        'domain' => $normalizedDomain !== '' ? $normalizedDomain : $domain,
+                        'normalized' => $matchedKey,
+                        'type' => 'custom',
+                        'start_page' => null,
+                        'email' => null,
+                        'smtp_host' => null,
+                        'smtp_user' => null,
+                        'smtp_port' => null,
+                        'smtp_encryption' => null,
+                        'smtp_dsn' => null,
+                        'has_smtp_pass' => false,
+                    ];
+                }
+            }
+
+            $combined[$matchedKey]['start_page'] = $config['start_page'];
+            $combined[$matchedKey]['email'] = $config['email'];
+            $combined[$matchedKey]['smtp_host'] = $config['smtp_host'];
+            $combined[$matchedKey]['smtp_user'] = $config['smtp_user'];
+            $combined[$matchedKey]['smtp_port'] = $config['smtp_port'];
+            $combined[$matchedKey]['smtp_encryption'] = $config['smtp_encryption'];
+            $combined[$matchedKey]['smtp_dsn'] = $config['smtp_dsn'];
+            $combined[$matchedKey]['has_smtp_pass'] = $config['has_smtp_pass'];
         }
 
         $ordered = [];
