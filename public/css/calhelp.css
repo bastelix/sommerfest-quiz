@@ -1,39 +1,32 @@
-:root {
-  --calhelp-primary: #1e87f0;
-  --calhelp-dark: #1b2333;
-  --calhelp-muted: #f4f6fb;
-  --calhelp-accent: #fbb040;
-}
-
-body.calhelp-theme,
-.calhelp-theme {
+body.qr-landing.calhelp-theme {
+  --calserver-primary: #1f63e6;
   font-family: 'Poppins', 'Roboto', sans-serif;
-  background-color: var(--calhelp-muted);
-  color: var(--calhelp-dark);
 }
 
-.topbar {
-  background: linear-gradient(90deg, #0f5fff, #1e87f0);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.topbar .uk-navbar-item,
-.topbar .uk-navbar-nav > li > a {
-  color: #ffffff;
-  font-weight: 500;
-}
-
-.topbar .uk-navbar-nav > li > a:hover,
-.topbar .uk-navbar-nav > li > a:focus {
-  color: #ffffff;
-  text-decoration: underline;
+body.qr-landing.calhelp-theme .landing-content {
+  position: relative;
 }
 
 .calhelp-logo {
-  font-size: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: var(--cs-logo-bg);
+  border: 1px solid var(--cs-logo-border);
+  color: var(--cs-logo-text);
   font-weight: 600;
-  letter-spacing: 0.04em;
-  color: #ffffff;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.calhelp-logo:hover,
+.calhelp-logo:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 34px -20px color-mix(in oklab, var(--calserver-primary) 54%, rgba(15, 23, 42, 0.85));
 }
 
 .calhelp-logo__sr {
@@ -47,46 +40,54 @@ body.calhelp-theme,
   border: 0;
 }
 
+.calhelp-logo__wordmark {
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+}
+
 .calhelp-top-cta {
-  font-weight: 600;
+  box-shadow: 0 22px 40px -26px color-mix(in oklab, var(--calserver-primary) 66%, rgba(15, 23, 42, 0.75));
 }
 
 .calhelp-hero {
-  background: linear-gradient(180deg, rgba(15, 95, 255, 0.08), rgba(30, 135, 240, 0));
-  padding-top: 96px;
-  padding-bottom: 96px;
+  position: relative;
+  overflow: hidden;
 }
 
-.calhelp-hero .qr-h1 {
-  font-size: 2.8rem;
-  line-height: 1.2;
-  margin-bottom: 16px;
+.calhelp-hero .qr-hero-bg {
+  inset: 0;
 }
 
-.calhelp-hero .qr-sub {
-  font-size: 1.25rem;
-  margin-bottom: 12px;
+.calhelp-hero-grid__content,
+.calhelp-hero-grid__media {
+  position: relative;
+  z-index: 2;
 }
 
 .calhelp-hero-card {
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(15, 95, 255, 0.15);
-  background-color: #ffffff;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 42px 72px -48px color-mix(in oklab, var(--calserver-primary) 52%, rgba(15, 23, 42, 0.82));
 }
 
-.calhelp-hero-card ul {
-  margin-bottom: 0;
+.calhelp-hero-card .uk-card-title {
+  font-weight: 600;
+}
+
+.calhelp-hero-card .hero-list > li::before {
+  color: var(--calserver-primary);
 }
 
 .calhelp-trust {
   margin-top: 24px;
   font-size: 0.95rem;
-  color: rgba(27, 35, 51, 0.75);
+  color: color-mix(in oklab, var(--qr-landing-text) 68%, rgba(15, 23, 42, 0.56));
 }
 
 .calhelp-section {
-  padding-top: 80px;
-  padding-bottom: 80px;
+  position: relative;
 }
 
 .calhelp-section__header {
@@ -96,279 +97,201 @@ body.calhelp-theme,
 }
 
 .calhelp-section__header h2 {
-  font-size: 2.4rem;
-  font-weight: 600;
   margin-bottom: 12px;
 }
 
 .calhelp-section__header p {
   margin: 0;
-  color: rgba(27, 35, 51, 0.75);
+  color: color-mix(in oklab, var(--qr-landing-text) 64%, rgba(15, 23, 42, 0.45));
 }
 
 .calhelp-card {
-  border-radius: 16px;
-  box-shadow: 0 16px 36px rgba(15, 95, 255, 0.08);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.calhelp-card:hover,
-.calhelp-card:focus-within {
-  transform: translateY(-6px);
-  box-shadow: 0 24px 48px rgba(15, 95, 255, 0.12);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .calhelp-card .uk-card-title {
-  font-size: 1.4rem;
   font-weight: 600;
 }
 
-.calhelp-card .uk-text-emphasis {
-  font-style: italic;
-  color: rgba(27, 35, 51, 0.8);
+.calhelp-card .uk-text-meta {
+  color: color-mix(in oklab, var(--qr-landing-text) 60%, rgba(15, 23, 42, 0.5));
+}
+
+.calhelp-card .uk-list-bullet > li::before,
+.calhelp-card .uk-list-decimal > li::marker {
+  color: var(--calserver-primary);
 }
 
 .calhelp-process {
   counter-reset: step;
   display: grid;
   gap: 24px;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.calhelp-process li {
+.calhelp-process__step {
   position: relative;
-  padding: 24px;
-  border-radius: 16px;
-  background: #ffffff;
-  box-shadow: 0 12px 32px rgba(15, 95, 255, 0.08);
+  padding-left: 72px;
+  min-height: 120px;
 }
 
-.calhelp-process li::before {
+.calhelp-process__step::before {
   counter-increment: step;
   content: counter(step);
   position: absolute;
-  top: -16px;
-  left: 24px;
+  top: 32px;
+  left: 28px;
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: var(--calhelp-primary);
-  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  background: color-mix(in oklab, var(--calserver-primary) 88%, rgba(255, 255, 255, 0.12));
+  color: #ffffff;
   font-weight: 600;
-  box-shadow: 0 12px 24px rgba(30, 135, 240, 0.35);
+  font-size: 1.15rem;
+  box-shadow: 0 20px 36px -26px color-mix(in oklab, var(--calserver-primary) 72%, rgba(15, 23, 42, 0.85));
 }
 
-.calhelp-note {
+.calhelp-note,
+.calhelp-microcopy,
+.calhelp-kpi,
+.calhelp-addons,
+.calhelp-editorial-calendar,
+.calhelp-seo-box {
   margin-top: 32px;
+}
+
+.calhelp-note p,
+.calhelp-microcopy p,
+.calhelp-kpi p {
+  color: color-mix(in oklab, var(--qr-landing-text) 72%, rgba(15, 23, 42, 0.45));
   text-align: center;
-  font-size: 0.95rem;
-  color: rgba(27, 35, 51, 0.7);
-}
-
-.calhelp-microcopy {
-  margin-top: 32px;
-  padding: 24px;
-  border-radius: 14px;
-  background: rgba(30, 135, 240, 0.08);
-  text-align: center;
-  font-weight: 500;
-}
-
-.calhelp-kpi {
-  margin-top: 32px;
-  text-align: center;
-  font-weight: 600;
-  color: var(--calhelp-dark);
-}
-
-.calhelp-addons {
-  margin-top: 48px;
-  padding: 32px;
-  border-radius: 16px;
-  background: #ffffff;
-  box-shadow: 0 12px 28px rgba(27, 35, 51, 0.08);
-}
-
-.calhelp-addons h3 {
-  margin-bottom: 16px;
-  font-size: 1.3rem;
-  font-weight: 600;
 }
 
 .calhelp-demo-steps {
+  list-style: decimal inside;
   margin: 0;
-  padding-left: 18px;
-  font-size: 1.05rem;
-  line-height: 1.6;
+  padding: 0;
+  counter-reset: none;
 }
 
-.calhelp-cta-list {
+.calhelp-demo-steps li + li {
   margin-top: 12px;
 }
 
+.calhelp-cta-list {
+  margin: 16px 0 0;
+}
+
+.calhelp-cta-list li + li {
+  margin-top: 8px;
+}
+
 .calhelp-values {
+  list-style: none;
   margin: 0;
   padding: 0;
-  list-style: none;
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 
-.calhelp-values li {
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(27, 35, 51, 0.15);
-}
-
-.calhelp-values li:last-child {
-  border-bottom: none;
-}
-
-.calhelp-newsletter {
-  margin-top: 48px;
-  border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(15, 95, 255, 0.2);
+.calhelp-values li strong {
+  display: inline-block;
+  margin-right: 6px;
 }
 
 .calhelp-editorial-calendar {
   margin-top: 48px;
-  padding: 32px;
-  border-radius: 16px;
-  background: rgba(27, 35, 51, 0.05);
 }
 
-.calhelp-editorial-calendar h3 {
-  margin-bottom: 16px;
-  font-weight: 600;
+.calhelp-editorial-calendar ol {
+  margin: 0;
+  padding-left: 20px;
 }
 
 .calhelp-faq {
   display: grid;
   gap: 24px;
-}
-
-.calhelp-faq dt {
-  font-weight: 600;
-  font-size: 1.2rem;
-  margin-bottom: 6px;
-}
-
-.calhelp-faq dd {
-  margin: 0;
-  color: rgba(27, 35, 51, 0.75);
-}
-
-.calhelp-cta {
-  text-align: center;
-  background: linear-gradient(135deg, rgba(15, 95, 255, 0.85), rgba(12, 68, 207, 0.9));
-  color: #ffffff;
-}
-
-.calhelp-cta .calhelp-section__header p {
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.calhelp-cta__actions {
-  margin-top: 32px;
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.calhelp-cta .uk-button-primary {
-  background-color: #ffffff;
-  color: var(--calhelp-dark);
-}
-
-.calhelp-cta .uk-button-default {
-  background-color: transparent;
-  border: 1px solid #ffffff;
-  color: #ffffff;
-}
-
-.calhelp-cta .uk-button-default:hover,
-.calhelp-cta .uk-button-default:focus {
-  background-color: rgba(255, 255, 255, 0.15);
-}
-
-.calhelp-seo-box {
-  padding: 32px;
-  border-radius: 16px;
-  background: #ffffff;
-  box-shadow: 0 16px 36px rgba(15, 95, 255, 0.08);
-}
-
-.calhelp-floating-button {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--calhelp-primary);
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 16px 40px rgba(15, 95, 255, 0.35);
-  z-index: 1200;
-}
-
-.calhelp-floating-button:hover,
-.calhelp-floating-button:focus {
-  background: #0f5fff;
-  color: #ffffff;
-}
-
-.calhelp-footer {
-  display: grid;
-  gap: 24px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  padding: 48px 24px;
-  background: #0b1633;
-  color: #ffffff;
-}
-
-.calhelp-footer strong {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 1.1rem;
-}
-
-.calhelp-footer a {
-  color: #ffffff;
-}
-
-.calhelp-footer__nav ul {
-  list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.calhelp-footer__nav li + li {
-  margin-top: 6px;
+.calhelp-faq__item {
+  margin: 0;
+}
+
+.calhelp-faq__item dt {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.calhelp-faq__item dd {
+  margin: 0;
+  color: color-mix(in oklab, var(--qr-landing-text) 72%, rgba(15, 23, 42, 0.45));
+}
+
+.calhelp-cta {
+  position: relative;
+}
+
+.calhelp-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.calhelp-floating-button {
+  bottom: 24px;
+  right: 24px;
 }
 
 @media (max-width: 959px) {
-  .calhelp-hero {
-    padding-top: 72px;
-    padding-bottom: 72px;
+  .calhelp-hero-card {
+    margin-top: 24px;
   }
 
-  .calhelp-section {
-    padding-top: 64px;
-    padding-bottom: 64px;
+  .calhelp-process__step {
+    padding-left: 64px;
+  }
+
+  .calhelp-process__step::before {
+    left: 20px;
+    top: 24px;
   }
 
   .calhelp-floating-button {
-    right: 16px;
     bottom: 16px;
+    right: 16px;
+  }
+}
+
+@media (max-width: 639px) {
+  .calhelp-section__header {
+    margin-bottom: 36px;
+  }
+
+  .calhelp-process {
+    gap: 16px;
+  }
+
+  .calhelp-process__step {
+    padding-left: 60px;
+  }
+
+  .calhelp-process__step::before {
+    left: 16px;
+    top: 20px;
+    width: 40px;
+    height: 40px;
   }
 }
