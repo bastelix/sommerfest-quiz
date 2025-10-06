@@ -750,13 +750,11 @@
             return;
           }
 
-          var maxHeight = panels.reduce(function (acc, panel) {
-            var panelHeight = measurePanelHeight(panel);
-            return panelHeight > acc ? panelHeight : acc;
-          }, 0);
+          var activePanel = panels[activeIndex];
+          var measuredHeight = measurePanelHeight(activePanel);
 
-          if (maxHeight > 0) {
-            display.style.minHeight = maxHeight + 'px';
+          if (measuredHeight > 0) {
+            display.style.minHeight = measuredHeight + 'px';
           } else {
             display.style.minHeight = '';
           }
