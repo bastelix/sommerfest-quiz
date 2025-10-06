@@ -402,6 +402,7 @@ return [
     'option_events_page' => 'Veranstaltungen',
     'option_landing_page' => 'Landing-Page',
     'option_calserver_page' => 'calServer-Seite',
+    'option_calhelp_page' => 'calHelp-Seite',
     'option_calserver_maintenance_page' => 'calHelp-Wartungsseite',
     'calserver_nav_features' => 'Funktionen',
     'calserver_nav_modules' => 'Module',

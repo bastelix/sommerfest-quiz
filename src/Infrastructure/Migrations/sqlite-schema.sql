@@ -1722,3 +1722,338 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
     </div>
 '
 );
+
+INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
+    'calhelp',
+    'calHelp',
+    '<section id="benefits" class="uk-section uk-section-muted calhelp-section" aria-labelledby="benefits-title">
+  <div class="uk-container">
+    <div class="calhelp-section__header">
+      <h2 id="benefits-title" class="uk-heading-medium">Warum jetzt handeln?</h2>
+      <p class="uk-text-lead">Drei starke Gründe, calHelp jetzt zu starten – strukturiert, auditfest, stabil.</p>
+    </div>
+    <div class="uk-grid-large uk-child-width-1-3@m uk-grid-match" data-uk-grid>
+      <article class="uk-card uk-card-default uk-card-body calhelp-card" aria-labelledby="benefit-migration-title">
+        <h3 id="benefit-migration-title" class="uk-card-title">Nahtlos umsteigen</h3>
+        <p>Historien aus Altsystemen verlustarm übernehmen, bestehende Tools weiter nutzen. Ohne Doppelerfassung, ohne Datenbruch.</p>
+      </article>
+      <article class="uk-card uk-card-default uk-card-body calhelp-card" aria-labelledby="benefit-audit-title">
+        <h3 id="benefit-audit-title" class="uk-card-title">Auditfest arbeiten</h3>
+        <p>DAkkS-konforme Reports, nachvollziehbare Konformitätslogik und klare Freigaben – Prüfungen bestehen statt diskutieren.</p>
+      </article>
+      <article class="uk-card uk-card-default uk-card-body calhelp-card" aria-labelledby="benefit-operations-title">
+        <h3 id="benefit-operations-title" class="uk-card-title">Einfach betreiben</h3>
+        <p>In Deutschland gehostet oder On-Prem – mit SSO, Rollen und API. Stabil im Alltag, skalierbar im Wachstum.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section id="process" class="uk-section calhelp-section" aria-labelledby="process-title">
+  <div class="uk-container">
+    <div class="calhelp-section__header">
+      <h2 id="process-title" class="uk-heading-medium">Von Altdaten zu stabilen Abläufen in 5 Schritten</h2>
+      <p class="uk-text-lead">Jede Phase ist klar dokumentiert – inklusive Abnahmen, KPIs und Verantwortlichkeiten.</p>
+    </div>
+    <ol class="calhelp-process" aria-label="Migrationsprozess in fünf Schritten">
+      <li>
+        <h3>Readiness-Check</h3>
+        <p>Systeminventar, Datenumfang, Besonderheiten (z. B. Anhänge, benutzerdefinierte Felder).</p>
+      </li>
+      <li>
+        <h3>Mapping &amp; Regeln</h3>
+        <p>Felder, SI-Präfixe, Status/Workflows, Rollen. Transparent dokumentiert.</p>
+      </li>
+      <li>
+        <h3>Pilot &amp; Validierung</h3>
+        <p>Teilmenge (Golden Samples), Checksummen, Abweichungsbericht. Freigabe als Gate.</p>
+      </li>
+      <li>
+        <h3>Delta-Sync &amp; Cutover</h3>
+        <p>Downtime-arm, sauber geplantes Übergabefenster, klarer Abnahmelauf.</p>
+      </li>
+      <li>
+        <h3>Go-Live &amp; Monitoring</h3>
+        <p>KPIs, Protokolle, Hypercare-Phase. Stabil in den Betrieb überführt.</p>
+      </li>
+    </ol>
+    <p class="calhelp-note">Abnahmekriterien sind vorab definiert (z. B. ≥ 99,5 % korrekte Migration, 0 kritische Abweichungen, Report-Abnahme mit Musterdaten).</p>
+  </div>
+</section>
+
+<section id="usecases" class="uk-section uk-section-muted calhelp-section" aria-labelledby="usecases-title">
+  <div class="uk-container">
+    <div class="calhelp-section__header">
+      <h2 id="usecases-title" class="uk-heading-medium">Anwendungsfälle – greifbare Szenarien</h2>
+      <p class="uk-text-lead">calHelp macht Abläufe nachvollziehbar: wer, was, wann.</p>
+    </div>
+    <div class="uk-grid-large uk-child-width-1-3@m uk-grid-match" data-uk-grid>
+      <article class="uk-card uk-card-default uk-card-body calhelp-card" aria-labelledby="usecase-lab-title">
+        <h3 id="usecase-lab-title" class="uk-card-title">Use Case A – Kalibrierlabor</h3>
+        <p class="uk-text-emphasis">„Wir müssen Zertifikate schneller und nachvollziehbar erzeugen.“</p>
+        <ul class="uk-list uk-list-bullet">
+          <li>Zentrale Stammdaten</li>
+          <li>Automatisierte Prüfaufträge</li>
+          <li>DAkkS-Bausteine</li>
+          <li>Zweisprachige Reports</li>
+        </ul>
+      </article>
+      <article class="uk-card uk-card-default uk-card-body calhelp-card" aria-labelledby="usecase-service-title">
+        <h3 id="usecase-service-title" class="uk-card-title">Use Case B – Instandhaltung/Service</h3>
+        <p class="uk-text-emphasis">„Wir wollen Wartungen planen, Nachweise sichern und Rückfragen reduzieren.“</p>
+        <ul class="uk-list uk-list-bullet">
+          <li>Erinnerungen</li>
+          <li>Checklisten</li>
+          <li>Statuslogs</li>
+          <li>Revisionssichere Dokumente</li>
+        </ul>
+      </article>
+      <article class="uk-card uk-card-default uk-card-body calhelp-card" aria-labelledby="usecase-public-title">
+        <h3 id="usecase-public-title" class="uk-card-title">Use Case C – Öffentliche Verwaltung/Versorger:innen</h3>
+        <p class="uk-text-emphasis">„Wir brauchen konsistente Prozesse, belastbare Nachweise und DSGVO-Konformität.“</p>
+        <ul class="uk-list uk-list-bullet">
+          <li>Rollen/Rechte</li>
+          <li>Protokollierung</li>
+          <li>SSO</li>
+          <li>Strukturierte Freigaben</li>
+        </ul>
+      </article>
+    </div>
+    <div class="calhelp-microcopy">
+      <p>Alles Wichtige an einem Ort – ohne Doppelerfassung. Migration in klaren Schritten – mit Testlauf und Abnahme.</p>
+    </div>
+  </div>
+</section>
+
+<section id="proof" class="uk-section calhelp-section" aria-labelledby="proof-title">
+  <div class="uk-container">
+    <div class="calhelp-section__header">
+      <h2 id="proof-title" class="uk-heading-medium">Beweis &amp; Sicherheit</h2>
+      <p class="uk-text-lead">Referenzen, Datenschutz und Qualitätsnachweise auf einen Blick.</p>
+    </div>
+    <div class="uk-grid-large uk-child-width-1-3@m uk-grid-match" data-uk-grid>
+      <article class="uk-card uk-card-default uk-card-body calhelp-card" aria-labelledby="proof-ref-title">
+        <h3 id="proof-ref-title" class="uk-card-title">Referenzen</h3>
+        <p>Produktiv eingesetzte Migrationen von MET/TRACK, fortlaufende MET/TEAM-Anbindung.</p>
+      </article>
+      <article class="uk-card uk-card-default uk-card-body calhelp-card" aria-labelledby="proof-security-title">
+        <h3 id="proof-security-title" class="uk-card-title">Sicherheit &amp; DSGVO</h3>
+        <p>Hosting in DE (oder On-Prem), rollenbasierte Zugriffe, Protokollierung, nachvollziehbare Lösch-/Aufbewahrungsregeln.</p>
+      </article>
+      <article class="uk-card uk-card-default uk-card-body calhelp-card" aria-labelledby="proof-quality-title">
+        <h3 id="proof-quality-title" class="uk-card-title">Qualitätscheck</h3>
+        <p>Musterzertifikate, visuelle Report-Diffs, dokumentierte Feld-Mappings.</p>
+      </article>
+    </div>
+    <p class="calhelp-kpi">15+ Jahre Projekterfahrung · 1.600+ umgesetzte Kund:innen-Wünsche · 99,9 % Betriebszeit (aktuell)</p>
+  </div>
+</section>
+
+<section id="services" class="uk-section uk-section-muted calhelp-section" aria-labelledby="services-title">
+  <div class="uk-container">
+    <div class="calhelp-section__header">
+      <h2 id="services-title" class="uk-heading-medium">Produktisierte Services – verständlich &amp; kaufbar</h2>
+      <p class="uk-text-lead">Vom ersten Check bis zum stabilen Betrieb – modular buchbar.</p>
+    </div>
+    <div class="uk-grid-large uk-child-width-1-3@m uk-grid-match" data-uk-grid>
+      <article class="uk-card uk-card-default uk-card-body calhelp-card" aria-labelledby="service-s-title">
+        <h3 id="service-s-title" class="uk-card-title">Paket S – Migration-Check (Fixpreis)</h3>
+        <p>Analyse, Feld-Mapping-Skizze, Risikoabschätzung, Zeitplan. Ergebnis: Entscheidungsgrundlage &amp; Angebot.</p>
+      </article>
+      <article class="uk-card uk-card-default uk-card-body calhelp-card" aria-labelledby="service-m-title">
+        <h3 id="service-m-title" class="uk-card-title">Paket M – Pilot &amp; Cutover-Plan</h3>
+        <p>Teilmenge migrieren, Validierung, Abweichungsbericht, Go-/No-Go-Empfehlung. Ergebnis: belastbarer Cutover-Plan.</p>
+      </article>
+      <article class="uk-card uk-card-default uk-card-body calhelp-card" aria-labelledby="service-l-title">
+        <h3 id="service-l-title" class="uk-card-title">Paket L – Vollmigration &amp; Hypercare</h3>
+        <p>Vollübernahme, Delta-Sync, Go-Live-Begleitung (30 Tage), Monitoring mit KPIs. Ergebnis: stabiler Betrieb.</p>
+      </article>
+    </div>
+    <aside class="calhelp-addons" aria-label="Add-ons">
+      <h3>Add-ons</h3>
+      <ul class="uk-list uk-list-bullet">
+        <li>DAkkS-Report-Bundle (zweisprachig)</li>
+        <li>SSO-Starter (EntraID/Google)</li>
+        <li>API-Starter (Integrationsrezepte)</li>
+      </ul>
+    </aside>
+  </div>
+</section>
+
+<section id="demo" class="uk-section calhelp-section" aria-labelledby="demo-title">
+  <div class="uk-container">
+    <div class="calhelp-section__header">
+      <h2 id="demo-title" class="uk-heading-medium">Demo – Micro-Onboarding statt Formular</h2>
+      <p class="uk-text-lead">In 60–90 Sekunden zur passenden Demo: ein kurzer Frage-Flow, damit wir Ihr Szenario vorbereiten können.</p>
+    </div>
+    <div class="uk-grid-large" data-uk-grid>
+      <div class="uk-width-1-2@m">
+        <ol class="calhelp-demo-steps" aria-label="Fragen für den Demo-Flow">
+          <li>Wofür möchten Sie das System nutzen? (Labor | Instandhaltung | Verwaltung | Sonstiges)</li>
+          <li>Datenbasis? (MET/TRACK | MET/TEAM | CSV/Excel | unklar)</li>
+          <li>Umfang? (&lt;1.000 | 1.000–10.000 | &gt;10.000 | unklar)</li>
+          <li>Zeitfenster? (ASAP | 1–3 Mon | 3–6 Mon | Evaluierung offen)</li>
+          <li>Abschluss (Kontaktfelder + freiwilliger Newsletter-Opt-in)</li>
+        </ol>
+      </div>
+      <div class="uk-width-1-2@m">
+        <div class="uk-card uk-card-default uk-card-body calhelp-card">
+          <h3 class="uk-card-title">Abschluss-Screen</h3>
+          <p>Zwei Optionen führen zum nächsten Schritt – individuell vorbereitet.</p>
+          <ul class="uk-list uk-list-divider calhelp-cta-list">
+            <li>Demo-Termin wählen</li>
+            <li>MET/CAL-Handbuch öffnen</li>
+          </ul>
+          <p class="uk-text-small uk-margin-top">Abläufe sind nachvollziehbar: wer, was, wann.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="about" class="uk-section uk-section-muted calhelp-section" aria-labelledby="about-title">
+  <div class="uk-container">
+    <div class="calhelp-section__header">
+      <h2 id="about-title" class="uk-heading-medium">Über calHelp</h2>
+      <p class="uk-text-lead">Wissen führt. Software liefert. – der Ansatz von René Buske.</p>
+    </div>
+    <div class="uk-grid-large" data-uk-grid>
+      <div class="uk-width-2-3@m">
+        <p>calHelp ist die Dachmarke von René Buske. Aus jahrelanger Projektarbeit im Kalibrierumfeld ist ein klarer Ansatz entstanden: <strong>Wissen führt. Software liefert.</strong> Wir migrieren Altdaten sauber, binden bestehende Systeme an (z. B. MET/TEAM) und stabilisieren Abläufe – <strong>konsistent, nachvollziehbar, auditfähig</strong>.</p>
+      </div>
+      <div class="uk-width-1-3@m">
+        <ul class="uk-list calhelp-values" aria-label="Werte von calHelp">
+          <li><strong>Präzision:</strong> Entscheidungen auf Datenbasis.</li>
+          <li><strong>Transparenz:</strong> Dokumentierte Regeln, prüfbare Schritte.</li>
+          <li><strong>Verlässlichkeit:</strong> Saubere Übergabe, stabiler Betrieb.</li>
+        </ul>
+        <p class="uk-text-small">Kontakt: Kurzes Kennenlernen (15–20 Min) – wir klären Ihr Zielbild und empfehlen den passenden Einstieg.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="news" class="uk-section calhelp-section" aria-labelledby="news-title">
+  <div class="uk-container">
+    <div class="calhelp-section__header">
+      <h2 id="news-title" class="uk-heading-medium">Aktuelles &amp; Fachbeiträge</h2>
+      <p class="uk-text-lead">Kurz, nützlich, selten: Updates zu Migration, Reports &amp; Best Practices.</p>
+    </div>
+    <div class="uk-grid-large uk-child-width-1-2@m" data-uk-grid>
+      <article class="uk-card uk-card-default uk-card-body calhelp-card" aria-labelledby="news-changelog-title">
+        <h3 id="news-changelog-title" class="uk-card-title">Changelog kompakt</h3>
+        <p class="uk-text-meta">Zuletzt aktualisiert am 04.10.2025</p>
+        <ul class="uk-list uk-list-bullet">
+          <li>Migration: Delta-Sync für MET/TRACK erweitert.</li>
+          <li>Reports: Konformitätslogik mit Guardband-Optionen ergänzt.</li>
+          <li>Integrationen: MET/TEAM-Connector mit zusätzlichen Webhooks.</li>
+        </ul>
+      </article>
+      <article class="uk-card uk-card-default uk-card-body calhelp-card" aria-labelledby="news-recipe-title">
+        <h3 id="news-recipe-title" class="uk-card-title">Praxisrezept in 3 Schritten</h3>
+        <p class="uk-text-meta">Zuletzt aktualisiert am 27.09.2025</p>
+        <p><strong>Thema:</strong> Konformitätslegende sauber integrieren.</p>
+        <ol class="uk-list uk-list-decimal">
+          <li>Legende zentral in calHelp pflegen.</li>
+          <li>Template-Varianten für Kund:innen definieren.</li>
+          <li>Report-Diffs mit Golden Samples gegenprüfen.</li>
+        </ol>
+      </article>
+      <article class="uk-card uk-card-default uk-card-body calhelp-card" aria-labelledby="news-usecase-title">
+        <h3 id="news-usecase-title" class="uk-card-title">Use-Case-Spotlight</h3>
+        <p class="uk-text-meta">Zuletzt aktualisiert am 18.09.2025</p>
+        <p><strong>Ausgangslage:</strong> Stark gewachsene Kalibrierabteilung mit Inseltools.</p>
+        <p><strong>Vorgehen:</strong> Migration aus MET/TRACK, Schnittstelle zu MET/TEAM, SSO.</p>
+        <p><strong>Ergebnis:</strong> Auditberichte in 30 % weniger Zeit, klare Verantwortlichkeiten.</p>
+        <p><strong>Learnings:</strong> Frühzeitig Rollenmodell definieren, Dokumentation als laufenden Prozess etablieren.</p>
+        <p><strong>Nächste Schritte:</strong> Automatisierte Erinnerungen für Prüfmittel und Lieferant:innen.</p>
+      </article>
+      <article class="uk-card uk-card-default uk-card-body calhelp-card" aria-labelledby="news-standards-title">
+        <h3 id="news-standards-title" class="uk-card-title">Standards verständlich</h3>
+        <p class="uk-text-meta">Zuletzt aktualisiert am 12.09.2025</p>
+        <p><strong>Thema:</strong> Guardband &amp; MU in 5 Minuten erklärt.</p>
+        <p>Beispiel: Messwert 10,0 mm mit MU 0,3 mm. Guardband reduziert die Toleranzgrenze auf 9,7–10,3 mm. calHelp dokumentiert automatisch, wie Entscheidung und Unsicherheit zusammenhängen.</p>
+      </article>
+      <article class="uk-card uk-card-default uk-card-body calhelp-card" aria-labelledby="news-roadmap-title">
+        <h3 id="news-roadmap-title" class="uk-card-title">Roadmap-Ausblick</h3>
+        <p class="uk-text-meta">Zuletzt aktualisiert am 05.09.2025</p>
+        <ul class="uk-list uk-list-bullet">
+          <li>Q1: Templates für Prüfaufträge &amp; Zertifikate.</li>
+          <li>Q2: SSO-Starter für EntraID und Google.</li>
+          <li>Q3: API-Rezepte für ERP- und MES-Anbindungen.</li>
+        </ul>
+      </article>
+    </div>
+    <aside class="calhelp-newsletter uk-card uk-card-primary uk-card-body uk-light" aria-label="Newsletter-Box">
+      <h3 class="uk-card-title">Newsletter</h3>
+      <p>„Kurz, nützlich, selten: Updates zu Migration, Reports &amp; Best Practices.“ (Double-Opt-In, freiwillig.)</p>
+      <a class="uk-button uk-button-default" href="#demo">Zum Demo-Flow</a>
+    </aside>
+    <section class="calhelp-editorial-calendar" aria-labelledby="calendar-title">
+      <h3 id="calendar-title">Redaktionskalender – 6 Wochen Ausblick</h3>
+      <ol class="uk-list uk-list-decimal">
+        <li>Woche 1: „Die 5 größten Stolperstellen bei MET/TRACK-Migrationen“ (Praxisbeitrag)</li>
+        <li>Woche 2: Changelog kompakt (Reports &amp; Konformitätslogik)</li>
+        <li>Woche 3: Use-Case-Spotlight (anonymisiert)</li>
+        <li>Woche 4: „Guardband in 5 Minuten – verständlich erklärt“</li>
+        <li>Woche 5: Praxisrezept „Validierung mit Golden Samples“</li>
+        <li>Woche 6: Roadmap-Ausblick + Mini-Q&amp;A (aus Newsletter-Fragen)</li>
+      </ol>
+    </section>
+  </div>
+</section>
+
+<section id="faq" class="uk-section uk-section-muted calhelp-section" aria-labelledby="faq-title">
+  <div class="uk-container">
+    <div class="calhelp-section__header">
+      <h2 id="faq-title" class="uk-heading-medium">FAQ – die typischen Fragen</h2>
+    </div>
+    <dl class="calhelp-faq" aria-label="Häufig gestellte Fragen">
+      <div>
+        <dt>Bleibt MET/TEAM nutzbar?</dt>
+        <dd>Ja. Bestehende Lösungen können angebunden bleiben (Fernsteuerung/Befüllen). Eine Ablösung ist optional und schrittweise.</dd>
+      </div>
+      <div>
+        <dt>Was wird übernommen?</dt>
+        <dd>Geräte, Historien, Zertifikate/PDFs, Kund:innen/Standorte, benutzerdefinierte Felder – soweit technisch verfügbar. Alles mit Mapping-Report und Abweichungsprotokoll.</dd>
+      </div>
+      <div>
+        <dt>Wie sicher ist der Betrieb?</dt>
+        <dd>Hosting in Deutschland oder On-Prem, Rollen/Rechte, Protokollierung. DSGVO-konform – inkl. transparentem Datenschutztext.</dd>
+      </div>
+      <div>
+        <dt>Wie lange dauert der Umstieg?</dt>
+        <dd>Abhängig von Datenumfang und Komplexität. Der Pilot liefert einen belastbaren Zeitplan für den Produktivlauf.</dd>
+      </div>
+    </dl>
+  </div>
+</section>
+
+<section id="cta" class="uk-section calhelp-section calhelp-cta" aria-labelledby="cta-title">
+  <div class="uk-container">
+    <div class="calhelp-section__header">
+      <h2 id="cta-title" class="uk-heading-medium">Der nächste Schritt ist klein – die Wirkung groß.</h2>
+      <p class="uk-text-lead">Starten Sie mit einem Migration-Check oder testen Sie unseren Demo-Flow. Wir melden uns mit einer passgenauen Empfehlung.</p>
+    </div>
+    <div class="calhelp-cta__actions" role="group" aria-label="Abschluss-CTAs">
+      <a class="uk-button uk-button-primary" href="#services">Migration prüfen lassen</a>
+      <a class="uk-button uk-button-default" href="#demo">Demo anfragen</a>
+    </div>
+    <p class="calhelp-note">Wir speichern nur, was für Rückmeldung und Terminfindung nötig ist. Details: <a href="{{ basePath }}/datenschutz">Datenschutz</a>.</p>
+  </div>
+</section>
+
+<section id="seo" class="uk-section uk-section-muted calhelp-section" aria-labelledby="seo-title">
+  <div class="uk-container">
+    <div class="calhelp-section__header">
+      <h2 id="seo-title" class="uk-heading-medium">SEO &amp; Snippets</h2>
+    </div>
+    <div class="calhelp-seo-box">
+      <p><strong>Seitentitel:</strong> Umstieg auf ein zentrales Kalibrier-System – konsistent, nachvollziehbar, auditfähig</p>
+      <p><strong>Beschreibung:</strong> calHelp migriert Altdaten, bindet MET/TEAM an und stabilisiert Abläufe – konsistent, nachvollziehbar, auditfähig.</p>
+      <p><strong>Open-Graph-Hinweis:</strong> „Ein System. Klare Prozesse.“</p>
+    </div>
+  </div>
+</section>
+'
+);

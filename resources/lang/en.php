@@ -404,6 +404,7 @@ return [
     'option_events_page' => 'Events',
     'option_landing_page' => 'Landing page',
     'option_calserver_page' => 'calServer page',
+    'option_calhelp_page' => 'calHelp page',
     'option_calserver_maintenance_page' => 'calHelp maintenance page',
     'calserver_nav_features' => 'Features',
     'calserver_nav_modules' => 'Modules',
