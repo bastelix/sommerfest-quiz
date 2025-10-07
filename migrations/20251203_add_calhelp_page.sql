@@ -349,7 +349,14 @@ VALUES (
                     data-calhelp-step-toggle
                     aria-expanded="true"
                     aria-controls="process-panel-readiness">
-              <span class="calhelp-process__toggle-label">Leistungen &amp; Abnahme ausblenden</span>
+              <span class="calhelp-process__toggle-label"
+                    data-calhelp-i18n
+                    data-i18n-de="Leistungen &amp; Abnahme ausblenden"
+                    data-i18n-en="Hide deliverables &amp; acceptance"
+                    data-calhelp-toggle-label-de-expanded="Leistungen &amp; Abnahme ausblenden"
+                    data-calhelp-toggle-label-de-collapsed="Leistungen &amp; Abnahme anzeigen"
+                    data-calhelp-toggle-label-en-expanded="Hide deliverables &amp; acceptance"
+                    data-calhelp-toggle-label-en-collapsed="Show deliverables &amp; acceptance">Leistungen &amp; Abnahme ausblenden</span>
               <span class="calhelp-process__toggle-icon" aria-hidden="true"></span>
             </button>
             <div id="process-panel-readiness"
@@ -376,7 +383,14 @@ VALUES (
                     data-calhelp-step-toggle
                     aria-expanded="true"
                     aria-controls="process-panel-mapping">
-              <span class="calhelp-process__toggle-label">Leistungen &amp; Abnahme ausblenden</span>
+              <span class="calhelp-process__toggle-label"
+                    data-calhelp-i18n
+                    data-i18n-de="Leistungen &amp; Abnahme ausblenden"
+                    data-i18n-en="Hide deliverables &amp; acceptance"
+                    data-calhelp-toggle-label-de-expanded="Leistungen &amp; Abnahme ausblenden"
+                    data-calhelp-toggle-label-de-collapsed="Leistungen &amp; Abnahme anzeigen"
+                    data-calhelp-toggle-label-en-expanded="Hide deliverables &amp; acceptance"
+                    data-calhelp-toggle-label-en-collapsed="Show deliverables &amp; acceptance">Leistungen &amp; Abnahme ausblenden</span>
               <span class="calhelp-process__toggle-icon" aria-hidden="true"></span>
             </button>
             <div id="process-panel-mapping"
@@ -403,7 +417,14 @@ VALUES (
                     data-calhelp-step-toggle
                     aria-expanded="true"
                     aria-controls="process-panel-pilot">
-              <span class="calhelp-process__toggle-label">Leistungen &amp; Abnahme ausblenden</span>
+              <span class="calhelp-process__toggle-label"
+                    data-calhelp-i18n
+                    data-i18n-de="Leistungen &amp; Abnahme ausblenden"
+                    data-i18n-en="Hide deliverables &amp; acceptance"
+                    data-calhelp-toggle-label-de-expanded="Leistungen &amp; Abnahme ausblenden"
+                    data-calhelp-toggle-label-de-collapsed="Leistungen &amp; Abnahme anzeigen"
+                    data-calhelp-toggle-label-en-expanded="Hide deliverables &amp; acceptance"
+                    data-calhelp-toggle-label-en-collapsed="Show deliverables &amp; acceptance">Leistungen &amp; Abnahme ausblenden</span>
               <span class="calhelp-process__toggle-icon" aria-hidden="true"></span>
             </button>
             <div id="process-panel-pilot"
@@ -430,7 +451,14 @@ VALUES (
                     data-calhelp-step-toggle
                     aria-expanded="true"
                     aria-controls="process-panel-cutover">
-              <span class="calhelp-process__toggle-label">Leistungen &amp; Abnahme ausblenden</span>
+              <span class="calhelp-process__toggle-label"
+                    data-calhelp-i18n
+                    data-i18n-de="Leistungen &amp; Abnahme ausblenden"
+                    data-i18n-en="Hide deliverables &amp; acceptance"
+                    data-calhelp-toggle-label-de-expanded="Leistungen &amp; Abnahme ausblenden"
+                    data-calhelp-toggle-label-de-collapsed="Leistungen &amp; Abnahme anzeigen"
+                    data-calhelp-toggle-label-en-expanded="Hide deliverables &amp; acceptance"
+                    data-calhelp-toggle-label-en-collapsed="Show deliverables &amp; acceptance">Leistungen &amp; Abnahme ausblenden</span>
               <span class="calhelp-process__toggle-icon" aria-hidden="true"></span>
             </button>
             <div id="process-panel-cutover"
@@ -457,7 +485,14 @@ VALUES (
                     data-calhelp-step-toggle
                     aria-expanded="true"
                     aria-controls="process-panel-golive">
-              <span class="calhelp-process__toggle-label">Leistungen &amp; Abnahme ausblenden</span>
+              <span class="calhelp-process__toggle-label"
+                    data-calhelp-i18n
+                    data-i18n-de="Leistungen &amp; Abnahme ausblenden"
+                    data-i18n-en="Hide deliverables &amp; acceptance"
+                    data-calhelp-toggle-label-de-expanded="Leistungen &amp; Abnahme ausblenden"
+                    data-calhelp-toggle-label-de-collapsed="Leistungen &amp; Abnahme anzeigen"
+                    data-calhelp-toggle-label-en-expanded="Hide deliverables &amp; acceptance"
+                    data-calhelp-toggle-label-en-collapsed="Show deliverables &amp; acceptance">Leistungen &amp; Abnahme ausblenden</span>
               <span class="calhelp-process__toggle-icon" aria-hidden="true"></span>
             </button>
             <div id="process-panel-golive"
