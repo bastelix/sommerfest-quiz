@@ -196,9 +196,19 @@ class MailProviderController
         }
 
         if (!(bool) ($status['configured'] ?? false)) {
-            $missing = $status['missing'] ?? [];
+            $missingRaw = $status['missing'] ?? [];
+            $missing = [];
+            if (is_array($missingRaw)) {
+                foreach ($missingRaw as $item) {
+                    $label = trim((string) $item);
+                    if ($label === '') {
+                        continue;
+                    }
+                    $missing[] = $label;
+                }
+            }
             $message = 'Provider is not fully configured.';
-            if (is_array($missing) && $missing !== []) {
+            if ($missing !== []) {
                 $message .= ' Missing: ' . implode(', ', $missing);
             }
 
@@ -288,7 +298,7 @@ class MailProviderController
             $host = $this->normalizeString($config['smtp_host'] ?? null);
             $user = $this->normalizeString($config['smtp_user'] ?? null);
             $encryption = $this->normalizeString($config['smtp_encryption'] ?? null);
-            $hasPassword = (bool) ($config['has_smtp_pass'] ?? false);
+            $hasPassword = array_key_exists('has_smtp_pass', $config) ? (bool) $config['has_smtp_pass'] : false;
             $port = $config['smtp_port'] ?? null;
             $hasPort = is_int($port) && $port > 0;
 

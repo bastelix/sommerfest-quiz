@@ -131,7 +131,8 @@ class BrevoProvider implements MailProviderInterface
             ]);
         } catch (ClientException $exception) {
             $response = $exception->getResponse();
-            if ($response === null || $response->getStatusCode() !== 404) {
+            $statusCode = $response?->getStatusCode();
+            if ($statusCode !== 404) {
                 throw new RuntimeException(
                     'Failed to unsubscribe contact via Brevo: ' . $exception->getMessage(),
                     0,
@@ -359,7 +360,9 @@ class BrevoProvider implements MailProviderInterface
             throw new RuntimeException('Brevo list ID is not configured.');
         }
 
-        $parts = array_filter(array_map('trim', preg_split('/[\s,]+/', $raw) ?: []));
+        $parts = preg_split('/[\s,]+/', $raw) ?: [];
+        $parts = array_map('trim', $parts);
+        $parts = array_filter($parts, static fn (string $part): bool => $part !== '');
         $ids = [];
         foreach ($parts as $part) {
             if ($part === '') {
@@ -376,7 +379,7 @@ class BrevoProvider implements MailProviderInterface
     }
 
     /**
-     * @param array<string,mixed> $data
+     * @param array<array-key,mixed> $data
      * @return array<string,scalar>
      */
     private function filterAttributes(array $data): array

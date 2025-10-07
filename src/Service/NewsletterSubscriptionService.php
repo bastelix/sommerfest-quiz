@@ -336,7 +336,7 @@ SQL;
     }
 
     /**
-     * @param array<string,mixed> $data
+     * @param array<array-key,mixed> $data
      * @return array<string,scalar>
      */
     private function normalizeScalarMap(array $data): array

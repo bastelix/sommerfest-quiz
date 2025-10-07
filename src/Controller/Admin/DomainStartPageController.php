@@ -69,7 +69,7 @@ class DomainStartPageController
             $candidateKeys = array_values(array_unique(array_filter([
                 DomainNameHelper::canonicalizeSlug($normalizedDomain),
                 $normalizedDomain,
-            ], static fn ($value): bool => is_string($value) && $value !== '')));
+            ], static fn (string $value): bool => $value !== '')));
 
             $matchedKey = null;
             foreach ($candidateKeys as $key) {

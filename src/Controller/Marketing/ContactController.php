@@ -185,10 +185,7 @@ class ContactController
 
             try {
                 if ($shouldSubscribe) {
-                    $attributes = [];
-                    if ($name !== '') {
-                        $attributes['FIRSTNAME'] = $name;
-                    }
+                    $attributes = ['FIRSTNAME' => $name];
                     $attributes['SOURCE'] = 'marketing-contact';
 
                     $base = rtrim(RouteContext::fromRequest($request)->getBasePath(), '/');
