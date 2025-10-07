@@ -208,6 +208,8 @@
     {% include 'marketing/partials/calhelp-modules.twig' %}
 
     {% set renderedContent = content %}
+    {% set proofGalleryMarkup = include('marketing/partials/calhelp-proof-gallery.twig') %}
+    {% set renderedContent = renderedContent|replace({'<div data-calhelp-proof-gallery></div>': proofGalleryMarkup}) %}
     {% if calhelpUsecases is defined and calhelpUsecases.usecases is iterable and calhelpUsecases.usecases|length > 0 %}
       {% set usecasesMarkup = include('marketing/partials/calhelp-usecases.twig', { calhelpUsecases: calhelpUsecases }) %}
       {% set renderedContent = renderedContent|replace({'<div data-calhelp-usecases></div>': usecasesMarkup}) %}

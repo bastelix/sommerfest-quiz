@@ -1,0 +1,111 @@
+{% set assetBase = (basePath is defined ? basePath : '') ~ '/img/calhelp' %}
+{% set galleryItems = [
+  {
+    id: 'jrxml-template',
+    title: 'JRXML Vorlage',
+    summary: 'Sofort einsatzbereite Report-Struktur mit Abschnittslogik, Tabellen und Kennzahlenplatzhaltern.',
+    image: assetBase ~ '/gallery-jrxml-vorlage.svg',
+    alt: 'Voransicht einer JRXML-Reportvorlage mit markierten Abschnittsbereichen.',
+    badge: 'Report-Layout'
+  },
+  {
+    id: 'compliance-legend',
+    title: 'Konformitätslegende',
+    summary: 'Farb- und Symbolcodierung für Status, Messunsicherheit und Zuweisung zu Akkreditierungsnormen.',
+    image: assetBase ~ '/gallery-konformitaetslegende.svg',
+    alt: 'Legende mit Symbolen für Konformitätsaussagen in Prüfberichten.',
+    badge: 'Visualisierung'
+  },
+  {
+    id: 'as-found-left',
+    title: 'As-Found/As-Left-Protokoll',
+    summary: 'Gegenüberstellung von Messwerten vor und nach Justage inklusive Toleranzprüfung.',
+    image: assetBase ~ '/gallery-as-found-left.svg',
+    alt: 'Protokoll mit As-Found- und As-Left-Messwerten samt Toleranzmarkierung.',
+    badge: 'Delta-Analyse'
+  },
+  {
+    id: 'audit-checklist',
+    title: 'Audit-Checkliste',
+    summary: 'Checkliste mit prüfbaren Nachweisen für Datenmigration, Rollenfreigaben und Archivierung.',
+    image: assetBase ~ '/gallery-audit-checkliste.svg',
+    alt: 'Audit-Checkliste mit auswählbaren Prüfschritten und Statusindikatoren.',
+    badge: 'Audit Trail'
+  },
+  {
+    id: 'risk-matrix',
+    title: 'Risiko-Matrix',
+    summary: 'Bewertung von Daten- und Prozessrisiken mit Maßnahmen und Fälligkeiten.',
+    image: assetBase ~ '/gallery-risiko-matrix.svg',
+    alt: 'Risiko-Matrix mit markierten Schweregraden und Maßnahmen.',
+    badge: 'Risikosteuerung'
+  },
+  {
+    id: 'validation-report',
+    title: 'Validierungsreport',
+    summary: 'Gegenüberstellung von Testfällen, erwarteten Ergebnissen und Statusmeldungen für den Go-Live.',
+    image: assetBase ~ '/gallery-validierungsreport.svg',
+    alt: 'Validierungsreport mit Testfällen und Statusindikatoren.',
+    badge: 'Qualitätssicherung'
+  }
+] %}
+<section class="calhelp-proof-gallery" aria-labelledby="proof-gallery-title" data-proof-gallery>
+  <div class="calhelp-proof-gallery__intro">
+    <h3 id="proof-gallery-title" class="calhelp-proof-gallery__title">Vorlagen &amp; Nachweise</h3>
+    <p class="calhelp-proof-gallery__lead">Revisionssichere Assets, die wir in Projekten einsetzen – als Vorschau und Downloadgrundlage.</p>
+  </div>
+  <div class="calhelp-proof-gallery__grid" role="list">
+    {% for item in galleryItems %}
+      <article class="calhelp-proof-gallery__card" role="listitem" aria-labelledby="{{ item.id }}-card-title">
+        <figure class="calhelp-proof-gallery__media">
+          <img src="{{ item.image }}"
+               alt="{{ item.alt }}"
+               loading="lazy"
+               width="320"
+               height="200"
+               class="calhelp-proof-gallery__image">
+        </figure>
+        <div class="calhelp-proof-gallery__body">
+          <p class="calhelp-proof-gallery__badge">{{ item.badge }}</p>
+          <h4 id="{{ item.id }}-card-title" class="calhelp-proof-gallery__card-title">{{ item.title }}</h4>
+          <p class="calhelp-proof-gallery__card-text">{{ item.summary }}</p>
+          <button type="button"
+                  class="calhelp-proof-gallery__preview"
+                  data-proof-gallery-open="{{ item.id }}"
+                  aria-haspopup="dialog"
+                  aria-controls="{{ item.id }}-modal">
+            Vorschau öffnen
+          </button>
+        </div>
+      </article>
+    {% endfor %}
+  </div>
+  {% for item in galleryItems %}
+    <div class="calhelp-proof-gallery__modal"
+         id="{{ item.id }}-modal"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="{{ item.id }}-title"
+         aria-describedby="{{ item.id }}-description"
+         aria-hidden="true"
+         hidden
+         data-proof-gallery-modal="{{ item.id }}"
+         tabindex="-1">
+      <div class="calhelp-proof-gallery__dialog" role="document">
+        <button type="button"
+                class="calhelp-proof-gallery__close"
+                data-proof-gallery-close
+                data-proof-gallery-initial
+                aria-label="Vorschau schließen">
+          <span aria-hidden="true">×</span>
+        </button>
+        <h4 id="{{ item.id }}-title" class="calhelp-proof-gallery__modal-title">{{ item.title }}</h4>
+        <p id="{{ item.id }}-description" class="calhelp-proof-gallery__modal-description">{{ item.summary }}</p>
+        <img src="{{ item.image }}"
+             alt="{{ item.alt }}"
+             loading="lazy"
+             class="calhelp-proof-gallery__modal-image">
+      </div>
+    </div>
+  {% endfor %}
+</section>

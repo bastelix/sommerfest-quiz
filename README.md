@@ -70,6 +70,7 @@ Dieses Projekt zeigt, wie Mensch und KI zusammen ganz neue digitale Möglichkeit
 ## Projektstruktur
 
 - **public/** – Einstiegspunkt `index.php`, alle UIkit-Assets sowie JavaScript-Dateien
+  - Mockups für die calHelp-Proof-Gallery liegen unter `public/img/calhelp/`
 - **templates/** – Twig-Vorlagen für Startseite und FAQ
 - **data/kataloge/** – Fragenkataloge im JSON-Format
 - **tenants**-Tabelle – Profildaten für die Main-Umgebung

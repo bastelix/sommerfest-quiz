@@ -304,3 +304,142 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const gallery = document.querySelector('[data-proof-gallery]');
+  if (!gallery) return;
+
+  const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+  let activeModal = null;
+  let restoreFocus = null;
+
+  const getFocusableElements = (modal) => {
+    const elements = Array.from(modal.querySelectorAll(focusableSelector));
+    return elements.filter((el) => {
+      const isDisabled = el.hasAttribute('disabled') || el.getAttribute('aria-hidden') === 'true';
+      if (isDisabled) return false;
+      if (el.tabIndex === -1) return false;
+      if (typeof el.getBoundingClientRect !== 'function') return true;
+      const rect = el.getBoundingClientRect();
+      return !(rect.width === 0 && rect.height === 0);
+    });
+  };
+
+  const focusFirstElement = (modal) => {
+    const initial = modal.querySelector('[data-proof-gallery-initial]');
+    if (initial instanceof HTMLElement) {
+      initial.focus();
+      return;
+    }
+    const focusable = getFocusableElements(modal);
+    if (focusable.length > 0) {
+      focusable[0].focus();
+    } else {
+      modal.focus();
+    }
+  };
+
+  const openModal = (modalId) => {
+    const modal = gallery.querySelector(`[data-proof-gallery-modal="${modalId}"]`);
+    if (!(modal instanceof HTMLElement)) return;
+
+    restoreFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    modal.hidden = false;
+    modal.setAttribute('aria-hidden', 'false');
+    modal.classList.add('is-visible');
+    document.body.classList.add('calhelp-proof-gallery--modal-open');
+    activeModal = modal;
+    window.requestAnimationFrame(() => focusFirstElement(modal));
+  };
+
+  const getMaxTransitionDuration = (element) => {
+    const style = window.getComputedStyle(element);
+    const durations = style.transitionDuration.split(',').map((value) => parseFloat(value) || 0);
+    const delays = style.transitionDelay.split(',').map((value) => parseFloat(value) || 0);
+    const pairs = durations.map((duration, index) => duration + (delays[index] || 0));
+    return Math.max(0, ...pairs);
+  };
+
+  const closeModal = () => {
+    if (!activeModal) return;
+
+    const modal = activeModal;
+    modal.classList.remove('is-visible');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('calhelp-proof-gallery--modal-open');
+
+    const duration = getMaxTransitionDuration(modal);
+    if (duration > 0) {
+      modal.addEventListener('transitionend', () => {
+        modal.hidden = true;
+      }, { once: true });
+    } else {
+      modal.hidden = true;
+    }
+
+    const focusTarget = restoreFocus;
+    activeModal = null;
+    restoreFocus = null;
+    if (focusTarget instanceof HTMLElement) {
+      focusTarget.focus();
+    }
+  };
+
+  const handleTabKey = (event) => {
+    if (!activeModal) return;
+    const focusable = getFocusableElements(activeModal);
+    if (focusable.length === 0) {
+      event.preventDefault();
+      activeModal.focus();
+      return;
+    }
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const current = document.activeElement;
+
+    if (event.shiftKey) {
+      if (current === first || !activeModal.contains(current)) {
+        event.preventDefault();
+        last.focus();
+      }
+    } else if (current === last || !activeModal.contains(current)) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+
+  gallery.querySelectorAll('[data-proof-gallery-open]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const target = button.getAttribute('data-proof-gallery-open');
+      if (target) {
+        openModal(target);
+      }
+    });
+  });
+
+  gallery.querySelectorAll('[data-proof-gallery-close]').forEach((button) => {
+    button.addEventListener('click', () => {
+      closeModal();
+    });
+  });
+
+  gallery.querySelectorAll('[data-proof-gallery-modal]').forEach((modal) => {
+    modal.addEventListener('pointerdown', (event) => {
+      if (event.target === modal) {
+        closeModal();
+      }
+    });
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (!activeModal) return;
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeModal();
+    } else if (event.key === 'Tab') {
+      handleTabKey(event);
+    }
+  });
+});
