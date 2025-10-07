@@ -410,7 +410,7 @@ return [
     'calhelp_cases_lab_sentence_1' => 'Ausgangslage: Ein Kalibrierlabor mit 18 Techniker:innen verwaltete 12.000 Messmittel in drei Insellösungen.',
     'calhelp_cases_lab_sentence_2' => 'Excel-Listen, manuelle Statuswechsel und papierbasierte Prüfprotokolle führten zu Medienbrüchen.',
     'calhelp_cases_lab_sentence_3' => 'Wir inventarisierten Stammdaten, modellierten Rollen & Freigaben und migrierten Golden Samples in MET/CAL.',
-    'calhelp_cases_lab_sentence_4' => 'Nach dem Pilot synchronisierten wir Altdaten per Delta-Läufen und führten ein auditfähiges Dashboard ein.',
+    'calhelp_cases_lab_sentence_4' => 'Nach dem Pilotlauf synchronisierten wir Altdaten über Delta-Läufe und führten ein auditfähiges Dashboard ein.',
     'calhelp_cases_lab_sentence_5' => 'Ergebnis: Freigaben erfolgen jetzt in unter 30 Minuten, Auditvorbereitung dauert statt Tagen nur noch Stunden.',
     'calhelp_cases_service_label' => 'Industrieservice · 5 Werke',
     'calhelp_cases_service_quote' => '„Wir wollten, dass Service und Planung endlich dieselben Daten sehen.“',
