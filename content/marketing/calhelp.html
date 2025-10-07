@@ -1167,17 +1167,60 @@
   <div class="uk-container">
     <div class="calhelp-section__header">
       <h2 id="cta-title" class="uk-heading-medium">Der nächste Schritt ist klein – die Wirkung groß.</h2>
-      <p class="uk-text-lead">Starten Sie mit einem Gespräch oder lassen Sie uns Ihre Lage klären. Wir liefern eine greifbare Empfehlung.</p>
+      <p class="uk-text-lead">Schicken Sie uns ein kurzes Briefing. Wir melden uns persönlich und schlagen den passenden Einstieg vor.</p>
     </div>
-    <div class="calhelp-cta__actions" role="group" aria-label="Abschluss-CTAs">
-      <a class="uk-button uk-button-primary" href="#conversation">Gespräch starten</a>
-      <a class="uk-button uk-button-default" href="#help">Lage klären</a>
-    </div>
-    <div class="calhelp-note uk-card uk-card-primary uk-card-body">
-      <p class="uk-margin-remove">Wir speichern nur, was für Rückmeldung und Terminfindung nötig ist. Details: <a href="{{ basePath }}/datenschutz">Datenschutz</a>.</p>
+    <div class="uk-grid uk-child-width-1-2@m uk-grid-large uk-flex-top" uk-grid>
+      <div>
+        <form id="contact-form"
+              class="uk-form-stacked uk-width-large uk-margin-auto"
+              data-contact-endpoint="{{ basePath }}/calhelp/contact">
+          <div class="uk-margin">
+            <label class="uk-form-label" for="form-name">Ihr Name</label>
+            <input class="uk-input" id="form-name" name="name" type="text" required>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="form-email">E-Mail</label>
+            <input class="uk-input" id="form-email" name="email" type="email" required>
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="form-msg">Worum geht es?</label>
+            <textarea class="uk-textarea" id="form-msg" name="message" rows="5" required></textarea>
+          </div>
+          <div class="uk-margin turnstile-field" data-turnstile-container>
+            <div class="turnstile-widget">{{ turnstile_widget }}</div>
+            <p class="uk-text-small turnstile-hint" data-turnstile-hint hidden>Bitte bestätigen Sie, dass Sie kein Roboter sind.</p>
+          </div>
+          <div class="uk-margin">
+            <label><input class="uk-checkbox" name="privacy" type="checkbox" required> Ich stimme der Speicherung meiner Daten zur Bearbeitung zu.</label>
+          </div>
+          <input type="text" name="company" autocomplete="off" tabindex="-1" class="uk-hidden" aria-hidden="true">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button class="btn btn-black uk-button uk-button-secondary uk-button-large uk-width-1-1" type="submit">Senden</button>
+        </form>
+      </div>
+      <div>
+        <div class="uk-card uk-card-default uk-card-body uk-text-left calhelp-cta__panel">
+          <p class="uk-text-large uk-margin-remove">Direkt einsteigen?</p>
+          <p class="uk-margin-small-top">Sie bevorzugen ein Gespräch oder möchten ein konkretes Szenario prüfen? Nutzen Sie die Schnellzugriffe.</p>
+          <div class="calhelp-cta__actions uk-margin-medium-top" role="group" aria-label="Abschluss-CTAs">
+            <a class="uk-button uk-button-primary uk-width-1-1" href="#conversation">Gespräch starten</a>
+            <a class="uk-button uk-button-default uk-width-1-1" href="#help">Lage klären</a>
+          </div>
+        </div>
+        <div class="calhelp-note uk-card uk-card-primary uk-card-body uk-margin-top">
+          <p class="uk-margin-remove">Wir speichern nur, was für Rückmeldung und Terminfindung nötig ist. Details: <a href="{{ basePath }}/datenschutz">Datenschutz</a>.</p>
+        </div>
+      </div>
     </div>
   </div>
 </section>
+
+<div id="contact-modal" uk-modal>
+  <div class="uk-modal-dialog uk-modal-body">
+    <p id="contact-modal-message" aria-live="polite"></p>
+    <button class="uk-button uk-button-primary uk-modal-close" type="button">OK</button>
+  </div>
+</div>
 
 <section id="seo" class="uk-section uk-section-muted calhelp-section" aria-labelledby="seo-title">
   <div class="uk-container">
