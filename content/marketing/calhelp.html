@@ -1150,6 +1150,70 @@
   </div>
 </section>
 
+<section id="cases" class="uk-section calhelp-section" aria-labelledby="cases-title">
+  <div class="uk-container">
+    <div class="calhelp-section__header">
+      <h2 id="cases-title" class="uk-heading-medium">{{ 'calhelp_cases_title'|trans }}</h2>
+      <p class="uk-text-lead">{{ 'calhelp_cases_subtitle'|trans }}</p>
+    </div>
+    {% set caseStories = [
+      {
+        id: 'lab-story',
+        icon: 'server',
+        labelKey: 'calhelp_cases_lab_label',
+        quoteKey: 'calhelp_cases_lab_quote',
+        sentencesKeys: [
+          'calhelp_cases_lab_sentence_1',
+          'calhelp_cases_lab_sentence_2',
+          'calhelp_cases_lab_sentence_3',
+          'calhelp_cases_lab_sentence_4',
+          'calhelp_cases_lab_sentence_5'
+        ]
+      },
+      {
+        id: 'service-story',
+        icon: 'users',
+        labelKey: 'calhelp_cases_service_label',
+        quoteKey: 'calhelp_cases_service_quote',
+        sentencesKeys: [
+          'calhelp_cases_service_sentence_1',
+          'calhelp_cases_service_sentence_2',
+          'calhelp_cases_service_sentence_3',
+          'calhelp_cases_service_sentence_4',
+          'calhelp_cases_service_sentence_5'
+        ]
+      }
+    ] %}
+    <div class="calhelp-cases" role="list">
+      {% for case in caseStories %}
+        {% set toneClass = cycle(['calhelp-case-strip--primary', 'calhelp-case-strip--muted'], loop.index0) %}
+        <article class="calhelp-case-strip {{ toneClass }}" role="listitem" id="{{ case.id }}">
+          <header class="calhelp-case-strip__header">
+            {% if case.logo is defined %}
+              <figure class="calhelp-case-strip__media" aria-hidden="true">
+                <img src="{{ case.logo }}" alt="" loading="lazy">
+              </figure>
+            {% elseif case.icon is defined %}
+              <span class="calhelp-case-strip__icon" aria-hidden="true" data-uk-icon="icon: {{ case.icon }}"></span>
+            {% endif %}
+            <div class="calhelp-case-strip__meta">
+              <p class="calhelp-case-strip__label">{{ case.labelKey|trans }}</p>
+              <p class="calhelp-case-strip__quote">{{ case.quoteKey|trans }}</p>
+            </div>
+          </header>
+          <div class="calhelp-case-strip__body">
+            <ol class="calhelp-case-strip__story">
+              {% for sentenceKey in case.sentencesKeys %}
+                <li>{{ sentenceKey|trans }}</li>
+              {% endfor %}
+            </ol>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
 <section id="demo" class="uk-section calhelp-section" aria-labelledby="demo-title">
   <div class="uk-container">
     <div class="calhelp-section__header">
