@@ -240,6 +240,7 @@
 - Add domain-specific RAG management
 - Manage RAG chat settings in admin
 - Expand calHelp case stories
+- Redesign calhelp news section
 
 ### Fix
 
