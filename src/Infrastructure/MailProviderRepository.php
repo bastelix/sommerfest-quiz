@@ -30,7 +30,7 @@ class MailProviderRepository
 
         $binaryKey = hash('sha256', $secret, true);
         $ivLength = openssl_cipher_iv_length(self::CIPHER);
-        if ($ivLength === false || $ivLength <= 0) {
+        if (!is_int($ivLength) || $ivLength <= 0) {
             throw new RuntimeException('Unable to determine IV length for mail provider encryption.');
         }
 
@@ -177,7 +177,7 @@ class MailProviderRepository
     private function mapRow(array $row): array
     {
         $settings = [];
-        if (isset($row['settings']) && $row['settings'] !== null) {
+        if (array_key_exists('settings', $row) && $row['settings'] !== null) {
             $decoded = json_decode((string) $row['settings'], true);
             if (is_array($decoded)) {
                 $settings = $decoded;
@@ -212,8 +212,15 @@ class MailProviderRepository
 
     private function normalizePort($value): ?int
     {
-        if ($value === null || $value === '') {
+        if ($value === null) {
             return null;
+        }
+
+        if (is_string($value)) {
+            $value = trim($value);
+            if ($value === '') {
+                return null;
+            }
         }
 
         $int = (int) $value;
@@ -255,7 +262,7 @@ class MailProviderRepository
         $iv = substr($decoded, 0, $this->ivLength);
         $tag = substr($decoded, $this->ivLength, 16);
         $cipher = substr($decoded, $this->ivLength + 16);
-        if ($iv === false || $tag === false) {
+        if ($iv === '' || $tag === '') {
             return null;
         }
 
