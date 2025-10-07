@@ -703,3 +703,56 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const megaRoot = document.querySelector('[data-calhelp-mega-root]');
+  if (!megaRoot) return;
+
+  const triggers = Array.from(megaRoot.querySelectorAll('[data-calhelp-explain]'));
+  const panes = Array.from(megaRoot.querySelectorAll('[data-calhelp-pane]'));
+  if (!triggers.length || !panes.length) return;
+
+  const getId = (element) => element.getAttribute('data-calhelp-explain');
+
+  const setActive = (id) => {
+    if (!id) return;
+
+    const activePane = panes.find((pane) => pane.getAttribute('data-calhelp-pane') === id);
+    if (!activePane) return;
+
+    panes.forEach((pane) => {
+      const isActive = pane === activePane;
+      pane.classList.toggle('is-active', isActive);
+      pane.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+    });
+
+    triggers.forEach((trigger) => {
+      const isActive = getId(trigger) === id;
+      trigger.classList.toggle('is-active', isActive);
+      trigger.setAttribute('aria-expanded', isActive ? 'true' : 'false');
+    });
+
+    megaRoot.setAttribute('data-calhelp-active', id);
+  };
+
+  const handleTrigger = (event) => {
+    const trigger = event.currentTarget;
+    const id = getId(trigger);
+    if (!id) return;
+    setActive(id);
+  };
+
+  triggers.forEach((trigger) => {
+    trigger.addEventListener('focus', handleTrigger);
+    trigger.addEventListener('mouseenter', handleTrigger);
+    trigger.addEventListener('pointerenter', handleTrigger);
+    trigger.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        handleTrigger(event);
+      }
+    });
+  });
+
+  const defaultId = megaRoot.getAttribute('data-calhelp-default') || (triggers[0] ? getId(triggers[0]) : '');
+  setActive(defaultId);
+});
