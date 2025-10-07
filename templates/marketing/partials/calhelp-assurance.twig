@@ -1,0 +1,39 @@
+<details class="calhelp-proof-details">
+  <summary class="calhelp-proof-details__summary">Details für Technik &amp; IT</summary>
+  <div class="calhelp-assurance" aria-labelledby="proof-accordion-title">
+    <h3 id="proof-accordion-title" class="calhelp-assurance__title">Trust Center – Details für IT &amp; Qualitätsmanagement</h3>
+    <p class="calhelp-assurance__intro">Vier Schwerpunktbereiche zeigen, wie calHelp Cloud, On-Premises und Compliance sicher umsetzt – inklusive konkreter IT-Hinweise.</p>
+    <ul class="uk-accordion calhelp-assurance__accordion" uk-accordion="multiple: true">
+      {% for panel in assurancePanels %}
+        <li class="calhelp-assurance__item">
+          <a class="uk-accordion-title" href="#proof-{{ panel.id }}">
+            <span class="calhelp-assurance__title-icon" aria-hidden="true" data-uk-icon="icon: {{ panel.icon }}"></span>
+            <span>{{ panel.title }}</span>
+          </a>
+          <div class="uk-accordion-content" id="proof-{{ panel.id }}">
+            <ul class="calhelp-assurance__facts" role="list">
+              {% for fact in panel.facts %}
+                <li class="calhelp-assurance__fact">
+                  <span class="calhelp-assurance__fact-icon" aria-hidden="true" data-uk-icon="icon: {{ fact.icon|default('check') }}"></span>
+                  <div class="calhelp-assurance__fact-body">
+                    {% if fact.badge is defined %}
+                      <span class="calhelp-assurance__badge">
+                        <span class="calhelp-assurance__badge-icon" aria-hidden="true" data-uk-icon="icon: {{ fact.badge.icon|default('check') }}"></span>
+                        <span>{{ fact.badge.label }}</span>
+                      </span>
+                    {% endif %}
+                    <p class="calhelp-assurance__fact-text">{{ fact.text }}</p>
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+            <p class="calhelp-assurance__hint">
+              <span class="calhelp-assurance__hint-icon" aria-hidden="true" data-uk-icon="icon: info"></span>
+              <span class="calhelp-assurance__hint-text"><strong>IT-Hinweis:</strong> {{ panel.hint }}</span>
+            </p>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</details>
