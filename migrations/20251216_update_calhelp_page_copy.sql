@@ -1,3 +1,6 @@
+-- Update calHelp page content to match refreshed marketing copy
+UPDATE pages
+SET content = $CALHELP$
 <script type="application/json" data-calhelp-modules>
 {
   "headline": {
@@ -1390,3 +1393,5 @@
     </div>
   </div>
 </section>
+$CALHELP$
+WHERE slug = 'calhelp';
