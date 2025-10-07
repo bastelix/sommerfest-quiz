@@ -2253,3 +2253,34 @@ body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process__nav-item.is-c
     font-size: 0.85rem;
   }
 }
+.calhelp-trust-summary__card {
+    text-align: left;
+}
+
+.calhelp-trust-summary__list {
+    list-style: none;
+    margin: 24px 0;
+    padding: 0;
+}
+
+.calhelp-trust-summary__item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.calhelp-trust-summary__icon {
+    color: var(--calserver-primary);
+}
+
+.calhelp-trust-summary__label {
+    font-weight: 600;
+}
+
+.calhelp-trust-summary__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+}
