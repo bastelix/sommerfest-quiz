@@ -30,7 +30,7 @@ class MailProviderRepository
 
         $binaryKey = hash('sha256', $secret, true);
         $ivLength = openssl_cipher_iv_length(self::CIPHER);
-        if (!is_int($ivLength) || $ivLength <= 0) {
+        if ($ivLength <= 0) {
             throw new RuntimeException('Unable to determine IV length for mail provider encryption.');
         }
 
