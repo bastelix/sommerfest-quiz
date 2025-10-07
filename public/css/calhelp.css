@@ -1,10 +1,149 @@
 body.qr-landing.calhelp-theme {
   --calserver-primary: #1f63e6;
+  --calhelp-topbar-bg: rgba(247, 250, 255, 0.92);
+  --calhelp-topbar-border: color-mix(in oklab, var(--calserver-primary) 18%, rgba(15, 23, 42, 0.12));
+  --calhelp-dropdown-surface: color-mix(in oklab, #ffffff 94%, rgba(31, 99, 230, 0.08));
+  --calhelp-dropdown-pane: color-mix(in oklab, #ffffff 96%, rgba(31, 99, 230, 0.06));
+  --calhelp-dropdown-muted: color-mix(in oklab, var(--qr-text, #0f172a) 70%, rgba(15, 23, 42, 0.36));
+  --calhelp-dropdown-subline: color-mix(in oklab, var(--calserver-primary) 52%, rgba(15, 23, 42, 0.28));
+  --calhelp-dropdown-border: color-mix(in oklab, var(--calserver-primary) 16%, rgba(15, 23, 42, 0.1));
+  --calhelp-dropdown-shadow: 0 28px 60px -34px rgba(15, 23, 42, 0.28);
   font-family: 'Poppins', 'Roboto', sans-serif;
+}
+
+body.qr-landing.calhelp-theme[data-theme='dark'] {
+  --calhelp-topbar-bg: rgba(8, 18, 38, 0.88);
+  --calhelp-topbar-border: rgba(98, 149, 255, 0.28);
+  --calhelp-dropdown-surface: color-mix(in oklab, rgba(14, 26, 56, 0.95) 88%, rgba(31, 99, 230, 0.22));
+  --calhelp-dropdown-pane: color-mix(in oklab, rgba(12, 24, 52, 0.9) 86%, rgba(31, 99, 230, 0.24));
+  --calhelp-dropdown-muted: color-mix(in oklab, #e4ecff 78%, rgba(8, 17, 38, 0.18));
+  --calhelp-dropdown-subline: color-mix(in oklab, #8fb4ff 72%, rgba(8, 17, 38, 0.24));
+  --calhelp-dropdown-border: rgba(76, 124, 233, 0.36);
+  --calhelp-dropdown-shadow: 0 32px 64px -36px rgba(3, 9, 24, 0.66);
+  color-scheme: dark;
 }
 
 body.qr-landing.calhelp-theme .landing-content {
   position: relative;
+}
+
+.calhelp-theme .qr-topbar,
+.calhelp-theme .uk-navbar,
+.calhelp-theme .uk-navbar-container {
+  background: var(--calhelp-topbar-bg);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--calhelp-topbar-border);
+}
+
+.calhelp-theme .calhelp-mega-nav > li > a {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.calhelp-theme .calhelp-mega-nav > li > a:hover,
+.calhelp-theme .calhelp-mega-nav > li > a:focus {
+  color: color-mix(in oklab, var(--calserver-primary) 60%, var(--qr-text, #0f172a) 40%);
+}
+
+.calhelp-theme .calhelp-mega-nav > li > a:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--calserver-primary) 62%, rgba(255, 255, 255, 0.4));
+  outline-offset: 2px;
+}
+
+.calhelp-theme .calhelp-mega-nav .uk-navbar-dropdown {
+  width: 720px;
+  padding: 16px 0;
+  border-radius: 14px;
+  background: var(--calhelp-dropdown-surface);
+  box-shadow: var(--calhelp-dropdown-shadow);
+  border: 1px solid var(--calhelp-dropdown-border);
+}
+
+.calhelp-theme .calhelp-mega-nav .uk-navbar-dropdown-nav > li > a {
+  padding: 10px 18px;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.calhelp-theme .calhelp-mega-nav .uk-navbar-dropdown-nav > li + li {
+  margin-top: 2px;
+}
+
+.calhelp-theme .calhelp-mega-nav .uk-navbar-dropdown-nav > li > a:hover,
+.calhelp-theme .calhelp-mega-nav .uk-navbar-dropdown-nav > li > a:focus {
+  background: color-mix(in oklab, var(--calserver-primary) 14%, rgba(255, 255, 255, 0.92));
+  color: color-mix(in oklab, var(--calserver-primary) 66%, var(--qr-text, #0f172a) 34%);
+}
+
+.calhelp-theme .calhelp-mega-nav .uk-navbar-dropdown-nav > li > a:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.36));
+  outline-offset: 2px;
+}
+
+.calhelp-theme .menu-explain {
+  padding: 18px;
+  background: var(--calhelp-dropdown-pane);
+  border-left: 1px solid var(--calhelp-dropdown-border);
+  min-height: 220px;
+}
+
+.calhelp-theme .menu-explain h5 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.calhelp-theme .menu-explain p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--calhelp-dropdown-muted);
+}
+
+.calhelp-theme .menu-explain p.menu-explain__subline {
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--calhelp-dropdown-subline);
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.calhelp-theme .menu-explain .explain-pane.uk-hidden {
+  display: none;
+}
+
+.calhelp-theme .calhelp-offcanvas-nav .uk-nav-header {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--calserver-primary) 62%, var(--qr-text, #0f172a) 38%);
+}
+
+.calhelp-theme .calhelp-offcanvas-nav .uk-nav-header + li {
+  margin-top: 4px;
+}
+
+.calhelp-theme .calhelp-offcanvas-nav .uk-nav-divider {
+  margin: 10px 0;
+}
+
+.calhelp-theme .calhelp-offcanvas-nav a {
+  font-weight: 500;
+}
+
+body.qr-landing.calhelp-theme[data-theme='dark'] .menu-explain {
+  background: var(--calhelp-dropdown-pane);
+}
+
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-offcanvas-nav .uk-nav-header {
+  color: color-mix(in oklab, #9abbff 84%, rgba(8, 17, 38, 0.2));
+}
+
+@media (max-width: 959px) {
+  .calhelp-theme .calhelp-mega-nav .uk-navbar-dropdown {
+    width: min(88vw, 640px);
+  }
 }
 
 .calhelp-logo {
