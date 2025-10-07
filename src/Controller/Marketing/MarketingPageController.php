@@ -80,6 +80,10 @@ class MarketingPageController
         $html = $moduleExtraction['html'];
         $calhelpModules = $moduleExtraction['data'];
 
+        $usecaseExtraction = $this->extractCalhelpUsecases($html);
+        $html = $usecaseExtraction['html'];
+        $calhelpUsecases = $usecaseExtraction['data'];
+
         $landingNews = $this->landingNews->getPublishedForPage($page->getId(), 3);
         $landingNewsBasePath = null;
         if ($landingNews !== []) {
@@ -150,6 +154,10 @@ class MarketingPageController
 
         if ($calhelpModules !== null && ($calhelpModules['modules'] ?? []) !== []) {
             $data['calhelpModules'] = $calhelpModules;
+        }
+
+        if ($calhelpUsecases !== null && ($calhelpUsecases['usecases'] ?? []) !== []) {
+            $data['calhelpUsecases'] = $calhelpUsecases;
         }
 
         if ($landingNews !== []) {
@@ -446,6 +454,39 @@ class MarketingPageController
         if (isset($decoded['eyebrow']) && is_array($decoded['eyebrow'])) {
             $data['eyebrow'] = $decoded['eyebrow'];
         }
+
+        return [
+            'html' => str_replace($matches[0], '', $html),
+            'data' => $data,
+        ];
+    }
+
+    /**
+     * @return array{html: string, data: array|null}
+     */
+    private function extractCalhelpUsecases(string $html): array
+    {
+        $pattern = '/<script[^>]*data-calhelp-usecases[^>]*>(.*?)<\/script>/si';
+        if (!preg_match($pattern, $html, $matches)) {
+            return ['html' => $html, 'data' => null];
+        }
+
+        $json = trim(html_entity_decode($matches[1], ENT_QUOTES));
+        $decoded = json_decode($json, true);
+        if (!is_array($decoded)) {
+            return ['html' => str_replace($matches[0], '', $html), 'data' => null];
+        }
+
+        $usecases = [];
+        if (isset($decoded['usecases']) && is_array($decoded['usecases'])) {
+            foreach ($decoded['usecases'] as $usecase) {
+                if (is_array($usecase)) {
+                    $usecases[] = $usecase;
+                }
+            }
+        }
+
+        $data = ['usecases' => $usecases];
 
         return [
             'html' => str_replace($matches[0], '', $html),

@@ -1,0 +1,78 @@
+{% set usecasePayload = calhelpUsecases is defined ? calhelpUsecases : null %}
+{% if usecasePayload and usecasePayload.usecases is iterable and usecasePayload.usecases|length > 0 %}
+  {% set localeKey = locale() == 'en' ? 'en' : 'de' %}
+  <section id="usecases" class="uk-section uk-section-muted calhelp-section calhelp-usecases-section" aria-labelledby="usecases-title">
+    <div class="uk-container">
+      <div class="calhelp-section__header">
+        <h2 id="usecases-title" class="uk-heading-medium">{{ t('marketing_usecases_title') }}</h2>
+        <p class="uk-text-lead">{{ t('marketing_usecases_intro') }}</p>
+      </div>
+      <div class="calhelp-usecases">
+        <ul class="uk-tab calhelp-usecases__tabs" data-uk-tab="connect: #calhelp-usecases-switcher; animation: uk-animation-fade" role="tablist">
+          {% for case in usecasePayload.usecases %}
+            {% set caseId = case.id|default('usecase-' ~ loop.index) %}
+            {% set title = case.title[localeKey]|default(case.title['de']|default('Use case ' ~ loop.index)) %}
+            {% set tabId = caseId ~ '-tab' %}
+            <li{% if loop.first %} class="uk-active"{% endif %} role="presentation">
+              <a href="#{{ caseId }}-panel" id="{{ tabId }}" role="tab" aria-controls="{{ caseId }}-panel" aria-selected="{{ loop.first ? 'true' : 'false' }}">{{ title }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+        <ul id="calhelp-usecases-switcher" class="uk-switcher calhelp-usecases__switcher" data-uk-switcher="animation: uk-animation-fade">
+          {% for case in usecasePayload.usecases %}
+            {% set caseId = case.id|default('usecase-' ~ loop.index) %}
+            {% set title = case.title[localeKey]|default(case.title['de']|default('Use case ' ~ loop.index)) %}
+            {% set statement = case.statement[localeKey]|default(case.statement['de']|default('')) %}
+            {% set tasksRaw = case.tasks[localeKey]|default(case.tasks['de']|default([])) %}
+            {% set tasks = tasksRaw is iterable ? tasksRaw : [] %}
+            {% set resultsRaw = case.results[localeKey]|default(case.results['de']|default([])) %}
+            {% set results = resultsRaw is iterable ? resultsRaw : [] %}
+            {% set snippet = case.snippet is iterable ? case.snippet : {} %}
+            {% set snippetUrl = snippet.url|default('#') %}
+            {% set snippetExternal = snippetUrl starts with 'http' %}
+            {% set snippetTarget = snippet.target|default(snippetExternal ? '_blank' : '_self') %}
+            {% set snippetRel = snippet.rel|default(snippetExternal ? 'noopener' : '') %}
+            <li id="{{ caseId }}-panel" role="tabpanel" aria-labelledby="{{ caseId }}-tab">
+              <article class="uk-card uk-card-primary uk-card-body calhelp-usecases__panel">
+                <div class="calhelp-usecases__panel-header">
+                  <h3 class="uk-card-title">{{ title }}</h3>
+                  {% if statement %}
+                    <p class="calhelp-usecases__quote uk-text-emphasis">{{ statement }}</p>
+                  {% endif %}
+                </div>
+                <div class="uk-grid-large calhelp-usecases__grid" data-uk-grid>
+                  <div class="uk-width-1-2@m calhelp-usecases__column">
+                    <h4 class="calhelp-usecases__column-title">{{ t('marketing_usecases_tasks_title') }}</h4>
+                    <ul class="uk-list uk-list-bullet calhelp-usecases__list">
+                      {% for task in tasks %}
+                        <li>{{ task }}</li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  <div class="uk-width-1-2@m calhelp-usecases__column">
+                    <h4 class="calhelp-usecases__column-title">{{ t('marketing_usecases_results_title') }}</h4>
+                    <ul class="uk-list uk-list-divider calhelp-usecases__results">
+                      {% for result in results %}
+                        {% set label = result.label|default('') %}
+                        {% set kpi = result.kpi|default('') %}
+                        <li>
+                          <span class="calhelp-usecases__result-label">{{ label }}</span>
+                          {% if kpi %}
+                            <span class="calhelp-kpi-badge">{{ kpi }}</span>
+                          {% endif %}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                    <a class="calhelp-usecases__snippet" href="{{ snippetUrl }}" target="{{ snippetTarget }}"{% if snippetRel %} rel="{{ snippetRel }}"{% endif %}>
+                      <span class="uk-margin-small-right" data-uk-icon="icon: file-text" aria-hidden="true"></span>{{ t('marketing_usecases_case_snippet') }}
+                    </a>
+                  </div>
+                </div>
+              </article>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </section>
+{% endif %}
