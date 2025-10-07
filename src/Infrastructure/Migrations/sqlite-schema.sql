@@ -909,7 +909,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                            loop
                            playsinline
                            preload="auto"
-                           poster="{{ basePath }}/uploads/calserver-module-device-management.mp4"
+                           poster="{{ basePath }}/uploads/calserver-module-device-management.webp"
                            aria-label="Screenshot der calServer-Geräteverwaltung mit Geräteakte, Historie und Messwerten">
                       <source src="{{ basePath }}/uploads/calserver-module-device-management.mp4" type="video/mp4">
                       Ihr Browser unterstützt keine HTML5-Videos.
@@ -938,7 +938,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                            loop
                            playsinline
                            preload="auto"
-                           poster="{{ basePath }}/uploads/calserver-module-calendar-resources.mp4"
+                           poster="{{ basePath }}/uploads/calserver-module-calendar-resources.webp"
                            aria-label="Screenshot des calServer-Kalenders mit Ressourcen- und Terminplanung">
                       <source src="{{ basePath }}/uploads/calserver-module-calendar-resources.mp4" type="video/mp4">
                       Ihr Browser unterstützt keine HTML5-Videos.
@@ -967,7 +967,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                            loop
                            playsinline
                            preload="auto"
-                           poster="{{ basePath }}/uploads/calserver-module-order-ticketing.mp4"
+                           poster="{{ basePath }}/uploads/calserver-module-order-ticketing.webp"
                            aria-label="Screenshot der calServer-Auftrags- und Ticketverwaltung mit Workflow-Status">
                       <source src="{{ basePath }}/uploads/calserver-module-order-ticketing.mp4" type="video/mp4">
                       Ihr Browser unterstützt keine HTML5-Videos.
@@ -996,7 +996,7 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                            loop
                            playsinline
                            preload="auto"
-                           poster="{{ basePath }}/uploads/calserver-module-self-service.mp4"
+                           poster="{{ basePath }}/uploads/calserver-module-self-service.webp"
                            aria-label="Screenshot des calServer-Self-Service-Portals mit Kundenansicht und Zertifikaten">
                       <source src="{{ basePath }}/uploads/calserver-module-self-service.mp4" type="video/mp4">
                       Ihr Browser unterstützt keine HTML5-Videos.
