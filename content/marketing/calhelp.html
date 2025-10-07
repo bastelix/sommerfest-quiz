@@ -306,49 +306,213 @@
   </div>
 </section>
 
-<section id="usecases" class="uk-section uk-section-muted calhelp-section" aria-labelledby="usecases-title">
-  <div class="uk-container">
-    <div class="calhelp-section__header">
-      <h2 id="usecases-title" class="uk-heading-medium">Anwendungsfälle – greifbare Szenarien</h2>
-      <p class="uk-text-lead">calHelp macht Abläufe nachvollziehbar: wer, was, wann.</p>
-    </div>
-    <div class="uk-grid-large uk-child-width-1-3@m uk-grid-match" data-uk-grid>
-      <article class="uk-card uk-card-primary uk-card-body calhelp-card" aria-labelledby="usecase-lab-title">
-        <h3 id="usecase-lab-title" class="uk-card-title">Use Case A – Kalibrierlabor</h3>
-        <p class="uk-text-emphasis">„Wir müssen Zertifikate schneller und nachvollziehbar erzeugen.“</p>
-        <ul class="uk-list uk-list-bullet">
-          <li>Zentrale Stammdaten</li>
-          <li>Automatisierte Prüfaufträge</li>
-          <li>DAkkS-Bausteine</li>
-          <li>Zweisprachige Reports</li>
-        </ul>
-      </article>
-      <article class="uk-card uk-card-primary uk-card-body calhelp-card" aria-labelledby="usecase-service-title">
-        <h3 id="usecase-service-title" class="uk-card-title">Use Case B – Instandhaltung/Service</h3>
-        <p class="uk-text-emphasis">„Wir wollen Wartungen planen, Nachweise sichern und Rückfragen reduzieren.“</p>
-        <ul class="uk-list uk-list-bullet">
-          <li>Erinnerungen</li>
-          <li>Checklisten</li>
-          <li>Statuslogs</li>
-          <li>Revisionssichere Dokumente</li>
-        </ul>
-      </article>
-      <article class="uk-card uk-card-primary uk-card-body calhelp-card" aria-labelledby="usecase-public-title">
-        <h3 id="usecase-public-title" class="uk-card-title">Use Case C – Öffentliche Verwaltung/Versorger:innen</h3>
-        <p class="uk-text-emphasis">„Wir brauchen konsistente Prozesse, belastbare Nachweise und DSGVO-Konformität.“</p>
-        <ul class="uk-list uk-list-bullet">
-          <li>Rollen/Rechte</li>
-          <li>Protokollierung</li>
-          <li>SSO</li>
-          <li>Strukturierte Freigaben</li>
-        </ul>
-      </article>
-    </div>
-    <div class="calhelp-microcopy uk-card uk-card-primary uk-card-body">
-      <p class="uk-margin-remove">Alles Wichtige an einem Ort – ohne Doppelerfassung. Migration in klaren Schritten – mit Testlauf und Abnahme.</p>
-    </div>
-  </div>
-</section>
+<script type="application/json" data-calhelp-usecases>
+{
+  "usecases": [
+    {
+      "id": "lab",
+      "title": {
+        "de": "Kalibrierlabor",
+        "en": "Calibration lab"
+      },
+      "statement": {
+        "de": "\u201eWir m\u00fcssen Zertifikate schneller und nachvollziehbar erzeugen.\u201c",
+        "en": "\u201cWe need to issue certificates faster with full traceability.\u201d"
+      },
+      "tasks": {
+        "de": [
+          "Pr\u00fcfmittel-Stammdaten konsolidieren",
+          "Kalibrierauftr\u00e4ge priorisieren",
+          "Zertifikatsvorlagen versionieren",
+          "Messmittel-Historie protokollieren"
+        ],
+        "en": [
+          "Consolidate calibration master data",
+          "Prioritise calibration orders",
+          "Version certificate templates",
+          "Track instrument history"
+        ]
+      },
+      "results": {
+        "de": [
+          { "label": "Zertifikatslaufzeit", "kpi": "\u2264 2 Minuten" },
+          { "label": "R\u00fcckverfolgbare Pr\u00fcfwege", "kpi": "100 %" },
+          { "label": "Auditfertige Reports", "kpi": "24/7" }
+        ],
+        "en": [
+          { "label": "Certificate lead time", "kpi": "\u2264 2 minutes" },
+          { "label": "Traceable calibration paths", "kpi": "100%" },
+          { "label": "Audit-ready reports", "kpi": "24/7" }
+        ]
+      },
+      "snippet": {
+        "url": "https://calhelp.notion.site/kalibrierlabor-snippet"
+      }
+    },
+    {
+      "id": "inspection",
+      "title": {
+        "de": "Pr\u00fcfstelle",
+        "en": "Test laboratory"
+      },
+      "statement": {
+        "de": "\u201eWir m\u00fcssen Au\u00dfentermine l\u00fcckenlos dokumentieren.\u201c",
+        "en": "\u201cWe have to document on-site inspections without gaps.\u201d"
+      },
+      "tasks": {
+        "de": [
+          "Checklisten f\u00fcr Vor-Ort-Pr\u00fcfungen",
+          "Beweissicherung per Foto",
+          "Messwerte offline erfassen",
+          "Abweichungen dokumentieren"
+        ],
+        "en": [
+          "Provide on-site inspection checklists",
+          "Capture evidence photos",
+          "Record measurements offline",
+          "Document deviations"
+        ]
+      },
+      "results": {
+        "de": [
+          { "label": "Vor-Ort-Zeit pro Auftrag", "kpi": "\u2212 18 %" },
+          { "label": "Abschlussquote Erstpr\u00fcfung", "kpi": "98 %" },
+          { "label": "Digitale Nachweise", "kpi": "100 %" }
+        ],
+        "en": [
+          { "label": "Field visit per job", "kpi": "\u2212 18%" },
+          { "label": "First-time completion rate", "kpi": "98%" },
+          { "label": "Digital evidence", "kpi": "100%" }
+        ]
+      },
+      "snippet": {
+        "url": "https://calhelp.notion.site/pruefstelle-snippet"
+      }
+    },
+    {
+      "id": "service",
+      "title": {
+        "de": "Instandhaltung/Service",
+        "en": "Maintenance/Service"
+      },
+      "statement": {
+        "de": "\u201eWir wollen Wartungen planen, Nachweise sichern und R\u00fcckfragen reduzieren.\u201c",
+        "en": "\u201cWe want predictable maintenance, reliable evidence and fewer call-backs.\u201d"
+      },
+      "tasks": {
+        "de": [
+          "Wartungspl\u00e4ne generieren",
+          "Ersatzteile disponieren",
+          "Serviceeins\u00e4tze tracken",
+          "SLAs \u00fcberwachen"
+        ],
+        "en": [
+          "Generate maintenance plans",
+          "Plan spare parts",
+          "Track service visits",
+          "Monitor SLAs"
+        ]
+      },
+      "results": {
+        "de": [
+          { "label": "Reaktionszeit St\u00f6rung", "kpi": "< 4 h" },
+          { "label": "Planerf\u00fcllung Wartung", "kpi": "95 %" },
+          { "label": "Ticketdurchlaufzeit", "kpi": "\u2212 22 %" }
+        ],
+        "en": [
+          { "label": "Incident response time", "kpi": "< 4 h" },
+          { "label": "Maintenance plan adherence", "kpi": "95%" },
+          { "label": "Ticket cycle time", "kpi": "\u2212 22%" }
+        ]
+      },
+      "snippet": {
+        "url": "https://calhelp.notion.site/instandhaltung-snippet"
+      }
+    },
+    {
+      "id": "public",
+      "title": {
+        "de": "\u00d6ffentliche Verwaltung",
+        "en": "Public administration"
+      },
+      "statement": {
+        "de": "\u201eWir brauchen konsistente Prozesse, belastbare Nachweise und DSGVO-Konformit\u00e4t.\u201c",
+        "en": "\u201cWe need consistent processes, solid evidence and GDPR compliance.\u201d"
+      },
+      "tasks": {
+        "de": [
+          "Rollen & Freigaben definieren",
+          "Verfahrensdokumentation pflegen",
+          "Aufbewahrungsfristen steuern",
+          "Vergaberegeln nachvollziehen"
+        ],
+        "en": [
+          "Define roles and approvals",
+          "Maintain procedure documentation",
+          "Control retention periods",
+          "Track procurement rules"
+        ]
+      },
+      "results": {
+        "de": [
+          { "label": "Revisionssichere Vorg\u00e4nge", "kpi": "100 %" },
+          { "label": "Bearbeitungszeit Bescheide", "kpi": "\u2212 15 %" },
+          { "label": "DSGVO-konforme Abl\u00e4ufe", "kpi": "100 %" }
+        ],
+        "en": [
+          { "label": "Audit-proof cases", "kpi": "100%" },
+          { "label": "Decision turnaround", "kpi": "\u2212 15%" },
+          { "label": "GDPR-compliant workflows", "kpi": "100%" }
+        ]
+      },
+      "snippet": {
+        "url": "https://calhelp.notion.site/oeffentliche-verwaltung-snippet"
+      }
+    },
+    {
+      "id": "inventory",
+      "title": {
+        "de": "Inventarverwaltung",
+        "en": "Asset management"
+      },
+      "statement": {
+        "de": "\u201eWir wollen Best\u00e4nde transparent halten und Verf\u00fcgbarkeit im Blick behalten.\u201c",
+        "en": "\u201cWe need transparent inventories and actionable availability data.\u201d"
+      },
+      "tasks": {
+        "de": [
+          "Asset-Lebenszyklen abbilden",
+          "Inventur per QR-Code",
+          "Statuswechsel automatisieren",
+          "Nutzungsberichte bereitstellen"
+        ],
+        "en": [
+          "Map asset life cycles",
+          "Run inventory with QR codes",
+          "Automate status transitions",
+          "Provide utilisation reports"
+        ]
+      },
+      "results": {
+        "de": [
+          { "label": "Inventur-Durchlauf", "kpi": "\u2264 48 h" },
+          { "label": "Datenkonsistenz", "kpi": "99,5 %" },
+          { "label": "Auslastungsreporting", "kpi": "W\u00f6chentlich" }
+        ],
+        "en": [
+          { "label": "Inventory cycle", "kpi": "\u2264 48 h" },
+          { "label": "Data consistency", "kpi": "99.5%" },
+          { "label": "Utilisation reporting", "kpi": "Weekly" }
+        ]
+      },
+      "snippet": {
+        "url": "https://calhelp.notion.site/inventar-snippet"
+      }
+    }
+  ]
+}
+</script>
+<div data-calhelp-usecases></div>
 
 <section id="proof" class="uk-section calhelp-section" aria-labelledby="proof-title">
   <div class="uk-container">
