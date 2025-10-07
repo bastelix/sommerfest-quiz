@@ -2,27 +2,13 @@
 
 body.qr-landing.calserver-theme {
     --calserver-primary: #1f63e6;
-    --cs-card-dark: color-mix(in oklab, var(--calserver-primary) 22%, #0f182d 78%);
-    --cs-card-dark-border: color-mix(in oklab, var(--calserver-primary) 34%, rgba(9, 15, 28, 0.42));
+    --cs-card-dark: #0f1625;
+    --cs-card-dark-border: #1b2437;
     --cs-text-on-dark: #ffffff;
-    --cs-card-surface: linear-gradient(
-        155deg,
-        color-mix(in oklab, var(--qr-card) 86%, var(--calserver-primary) 14%) 0%,
-        color-mix(in oklab, var(--qr-card) 72%, var(--calserver-primary) 28%) 100%
-    );
-    --cs-card-surface-border: color-mix(in oklab, var(--calserver-primary) 32%, var(--qr-card-border) 68%);
-    --cs-card-surface-outline: color-mix(in oklab, var(--calserver-primary) 18%, rgba(255, 255, 255, 0.38));
-    --cs-card-surface-glare: linear-gradient(140deg, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0) 55%);
-    --cs-card-surface-shadow: 0 28px 54px -32px rgba(15, 23, 42, 0.32),
-        0 18px 36px -26px rgba(31, 99, 230, 0.14);
-    --cs-card-focus-bg: linear-gradient(
-        160deg,
-        color-mix(in oklab, var(--calserver-primary) 24%, var(--qr-card) 76%) 0%,
-        color-mix(in oklab, var(--calserver-primary) 42%, var(--qr-card) 58%) 100%
-    );
-    --cs-card-focus-border: color-mix(in oklab, var(--calserver-primary) 45%, rgba(15, 23, 42, 0.16));
-    --cs-card-focus-shadow: 0 30px 56px -34px rgba(15, 23, 42, 0.32),
-        0 20px 36px -28px rgba(31, 99, 230, 0.18);
+    --cs-card-focus-bg: color-mix(in oklab, var(--calserver-primary) 18%, var(--qr-card) 82%);
+    --cs-card-focus-border: color-mix(in oklab, var(--calserver-primary) 35%, transparent);
+    --cs-card-focus-shadow: 0 22px 48px -32px rgba(15, 23, 42, 0.55),
+        0 14px 25px rgba(0, 0, 0, 0.16);
     --cs-hero-overlay-top: color-mix(in oklab, var(--calserver-primary) 16%, transparent);
     --cs-hero-overlay-bottom: color-mix(in oklab, var(--calserver-primary) 4%, transparent);
     --cs-hero-shadow: 0 42px 82px -58px rgba(15, 23, 42, 0.6);
@@ -112,24 +98,6 @@ body.qr-landing.calserver-theme[data-theme="dark"]:not(.high-contrast) {
     --cs-hero-overlay-top: color-mix(in oklab, var(--calserver-primary) 42%, rgba(7, 12, 26, 0.9));
     --cs-hero-overlay-bottom: color-mix(in oklab, var(--calserver-primary) 22%, rgba(5, 9, 19, 0.92));
     --cs-hero-shadow: 0 48px 90px -60px rgba(5, 10, 22, 0.85);
-    --cs-card-surface: linear-gradient(
-        160deg,
-        color-mix(in oklab, var(--calserver-primary) 26%, rgba(7, 12, 26, 0.96)) 0%,
-        color-mix(in oklab, var(--calserver-primary) 18%, rgba(5, 10, 22, 0.94)) 100%
-    );
-    --cs-card-surface-border: color-mix(in oklab, var(--calserver-primary) 48%, rgba(4, 9, 20, 0.88));
-    --cs-card-surface-outline: color-mix(in oklab, var(--calserver-primary) 30%, rgba(255, 255, 255, 0.18));
-    --cs-card-surface-glare: linear-gradient(155deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0) 60%);
-    --cs-card-surface-shadow: 0 30px 58px -34px rgba(3, 8, 20, 0.72),
-        0 20px 34px -26px rgba(10, 25, 60, 0.42);
-    --cs-card-focus-bg: linear-gradient(
-        160deg,
-        color-mix(in oklab, var(--calserver-primary) 38%, rgba(6, 12, 26, 0.92)) 0%,
-        color-mix(in oklab, var(--calserver-primary) 24%, rgba(5, 10, 22, 0.88)) 100%
-    );
-    --cs-card-focus-border: color-mix(in oklab, var(--calserver-primary) 66%, rgba(255, 255, 255, 0.16));
-    --cs-card-focus-shadow: 0 36px 70px -34px rgba(5, 10, 24, 0.78),
-        0 24px 36px -28px rgba(25, 86, 209, 0.3);
     --cs-highlight-bg: linear-gradient(
         180deg,
         color-mix(in oklab, var(--calserver-primary) 26%, rgba(7, 12, 26, 0.96)) 0%,
@@ -389,22 +357,8 @@ body.qr-landing.calserver-theme[data-theme="light"]:not(.high-contrast) {
         var(--qr-hero-grad-start) 0%,
         var(--qr-hero-grad-end) 100%
     );
-    --cs-card-surface: linear-gradient(
-        160deg,
-        color-mix(in oklab, var(--qr-card) 92%, var(--calserver-primary) 8%) 0%,
-        color-mix(in oklab, var(--qr-card) 76%, var(--calserver-primary) 24%) 100%
-    );
-    --cs-card-surface-border: color-mix(in oklab, var(--calserver-primary) 26%, var(--qr-card-border) 74%);
-    --cs-card-surface-outline: color-mix(in oklab, var(--calserver-primary) 18%, rgba(17, 49, 105, 0.28));
-    --cs-card-surface-glare: linear-gradient(145deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 60%);
-    --cs-card-surface-shadow: 0 30px 56px -32px rgba(38, 72, 150, 0.18),
-        0 18px 32px -26px rgba(15, 23, 42, 0.18);
-    --cs-card-focus-bg: linear-gradient(
-        160deg,
-        color-mix(in oklab, var(--calserver-primary) 22%, rgba(255, 255, 255, 0.98)) 0%,
-        color-mix(in oklab, var(--calserver-primary) 40%, rgba(244, 248, 255, 0.96)) 100%
-    );
-    --cs-card-focus-border: color-mix(in oklab, var(--calserver-primary) 52%, rgba(17, 49, 105, 0.16));
+    --cs-card-focus-bg: color-mix(in oklab, var(--calserver-primary) 62%, var(--cs-card-dark) 38%);
+    --cs-card-focus-border: color-mix(in oklab, var(--calserver-primary) 68%, transparent);
     --cs-hero-overlay-top: color-mix(in oklab, var(--calserver-primary) 18%, rgba(248, 251, 255, 0.94));
     --cs-hero-overlay-bottom: color-mix(in oklab, var(--calserver-primary) 8%, rgba(255, 255, 255, 0.96));
     --cs-hero-shadow: 0 34px 76px -54px rgba(38, 72, 150, 0.45);
@@ -735,62 +689,9 @@ body.qr-landing.calserver-theme .pill--badge {
 }
 
 body.qr-landing.calserver-theme .shadow-soft {
-    position: relative;
-    isolation: isolate;
-    border-radius: 22px;
-    padding: clamp(28px, 2.6vw, 36px);
-    overflow: hidden;
-}
-
-body.qr-landing.calserver-theme .shadow-soft:not(.uk-card-primary) {
-    background: var(--cs-card-surface) !important;
-    border: 1px solid var(--cs-card-surface-border) !important;
-    box-shadow: var(--cs-card-surface-shadow);
-    color: color-mix(in oklab, var(--qr-text) 88%, #ffffff 12%);
-}
-
-body.qr-landing.calserver-theme .shadow-soft.uk-card-primary {
-    border: 1px solid color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.24)) !important;
-    box-shadow: 0 32px 68px -30px rgba(17, 50, 106, 0.48),
-        0 20px 36px -26px rgba(15, 23, 42, 0.32);
-}
-
-body.qr-landing.calserver-theme .shadow-soft::after {
-    content: '';
-    position: absolute;
-    inset: 1px;
-    border-radius: inherit;
-    background: var(--cs-card-surface-glare);
-    opacity: 0.6;
-    pointer-events: none;
-    transition: opacity 250ms ease;
-}
-
-body.qr-landing.calserver-theme .shadow-soft.uk-card-primary::after {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.26) 0%, rgba(255, 255, 255, 0) 62%);
-}
-
-body.qr-landing.calserver-theme .shadow-soft:hover::after,
-body.qr-landing.calserver-theme .shadow-soft:focus-within::after {
-    opacity: 0.82;
-}
-
-body.qr-landing.calserver-theme .shadow-soft > * {
-    position: relative;
-    z-index: 1;
-}
-
-body.qr-landing.calserver-theme .shadow-soft:not(.uk-card-primary):hover,
-body.qr-landing.calserver-theme .shadow-soft:not(.uk-card-primary):focus-within {
-    border-color: color-mix(in oklab, var(--calserver-primary) 46%, rgba(15, 23, 42, 0.18)) !important;
-    box-shadow: 0 34px 68px -36px rgba(15, 23, 42, 0.36),
-        0 22px 40px -28px rgba(31, 99, 230, 0.18);
-}
-
-body.qr-landing.calserver-theme .shadow-soft.uk-card-primary:hover,
-body.qr-landing.calserver-theme .shadow-soft.uk-card-primary:focus-within {
-    box-shadow: 0 36px 78px -30px rgba(17, 50, 106, 0.58),
-        0 24px 40px -28px rgba(15, 23, 42, 0.36);
+    box-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.35),
+        0 12px 24px -18px rgba(15, 23, 42, 0.25);
+    border-radius: 18px;
 }
 
 body.qr-landing.calserver-theme .pricing-card--featured {
@@ -1985,102 +1886,43 @@ body.qr-landing.calserver-theme .feature-slider {
 body.qr-landing.calserver-theme .feature-slider__list > li {
     display: flex;
     position: relative;
-    align-items: stretch;
-    padding: clamp(14px, 2vw, 20px);
+    padding: 12px;
 }
 
 body.qr-landing.calserver-theme .feature-card {
-    position: relative;
-    isolation: isolate;
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    min-height: 100%;
-    padding: clamp(24px, 2.5vw, 32px);
-    background: var(--cs-card-surface);
-    border-radius: 22px;
-    border: 1px solid var(--cs-card-surface-border);
-    color: color-mix(in oklab, var(--qr-text) 88%, #ffffff 12%);
-    box-shadow: var(--cs-card-surface-shadow);
-    overflow: hidden;
-    transition: border-color 250ms ease, box-shadow 250ms ease, opacity 200ms ease;
-}
-
-body.qr-landing.calserver-theme .feature-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    border: 1px solid var(--cs-card-surface-outline);
-    opacity: 0.65;
-    pointer-events: none;
-    transition: opacity 250ms ease;
-}
-
-body.qr-landing.calserver-theme .feature-card::after {
-    content: '';
-    position: absolute;
-    inset: 1px;
-    border-radius: inherit;
-    background: var(--cs-card-surface-glare);
-    opacity: 0.6;
-    pointer-events: none;
-    transition: opacity 250ms ease;
-}
-
-body.qr-landing.calserver-theme .feature-card > * {
-    position: relative;
-    z-index: 1;
+    height: 100%;
+    background: var(--cs-card-dark);
+    border: 1px solid var(--cs-card-dark-border);
+    border-radius: 14px;
+    padding: 24px;
+    color: var(--cs-text-on-dark);
+    box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.35),
+        0 6px 12px -8px rgba(0, 0, 0, 0.25);
+    transition: background-color 250ms ease, border-color 250ms ease, box-shadow 250ms ease,
+        transform 250ms ease, opacity 200ms ease;
 }
 
 body.qr-landing.calserver-theme .feature-card__title,
 body.qr-landing.calserver-theme .feature-card p,
 body.qr-landing.calserver-theme .feature-card li {
-    color: inherit;
+    color: var(--cs-text-on-dark);
 }
 
 body.qr-landing.calserver-theme .feature-card .uk-list-bullet > li::before {
-    border-color: color-mix(in oklab, var(--calserver-primary) 55%, rgba(255, 255, 255, 0.4));
-}
-
-body.qr-landing.calserver-theme .feature-card:hover,
-body.qr-landing.calserver-theme .feature-card:focus-within {
-    border-color: color-mix(in oklab, var(--calserver-primary) 46%, rgba(15, 23, 42, 0.18));
-    box-shadow: var(--cs-card-focus-shadow);
-}
-
-body.qr-landing.calserver-theme .feature-card:hover::before,
-body.qr-landing.calserver-theme .feature-card:focus-within::before,
-body.qr-landing.calserver-theme .feature-card:hover::after,
-body.qr-landing.calserver-theme .feature-card:focus-within::after {
-    opacity: 0.85;
+    border-color: var(--cs-text-on-dark);
 }
 
 body.qr-landing.calserver-theme .feature-card--focus {
     background: var(--cs-card-focus-bg);
     border-color: var(--cs-card-focus-border);
     box-shadow: var(--cs-card-focus-shadow);
-    color: color-mix(in oklab, var(--cs-text-on-dark) 82%, var(--qr-text) 18%);
-}
-
-body.qr-landing.calserver-theme .feature-card--focus::before {
-    opacity: 0.9;
-}
-
-body.qr-landing.calserver-theme .feature-card--focus::after {
-    opacity: 0.95;
 }
 
 body.qr-landing.calserver-theme .feature-slider__list > li.is-center .feature-card {
     transform: scale(1.04);
-    border-color: color-mix(in oklab, var(--calserver-primary) 42%, rgba(15, 23, 42, 0.16));
-    box-shadow: var(--cs-card-focus-shadow);
-}
-
-body.qr-landing.calserver-theme .feature-slider__list > li.is-center .feature-card::before,
-body.qr-landing.calserver-theme .feature-slider__list > li.is-center .feature-card::after {
-    opacity: 0.82;
 }
 
 body.qr-landing.calserver-theme .feature-slider__list > li.is-center .feature-card.feature-card--focus {
