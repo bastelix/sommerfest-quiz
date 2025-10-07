@@ -1853,8 +1853,7 @@ body.calhelp-proof-gallery--modal-open {
 }
 
 .calhelp-faq {
-  display: grid;
-  gap: 24px;
+  list-style: none;
   margin: 0;
   padding: 0;
 }
@@ -1863,14 +1862,52 @@ body.calhelp-proof-gallery--modal-open {
   margin: 0;
 }
 
-.calhelp-faq__item dt {
-  font-weight: 600;
-  margin-bottom: 8px;
+.calhelp-faq__item + .calhelp-faq__item {
+  margin-top: 16px;
 }
 
-.calhelp-faq__item dd {
-  margin: 0;
+.calhelp-faq__item .uk-accordion-title {
+  border-radius: 12px;
+  padding: 16px 24px;
+  background: color-mix(in oklab, var(--qr-landing-card-bg, #ffffff) 92%, rgba(15, 23, 42, 0.04));
+  color: var(--qr-landing-text);
+  font-weight: 600;
+}
+
+.calhelp-faq__item .uk-accordion-title::before {
+  color: inherit;
+}
+
+.calhelp-faq__item .uk-accordion-content {
+  border-radius: 0 0 12px 12px;
+  background: color-mix(in oklab, var(--qr-landing-card-bg, #ffffff) 96%, rgba(15, 23, 42, 0.02));
+  padding: 0 24px 16px;
+  color: color-mix(in oklab, var(--qr-landing-text) 80%, rgba(15, 23, 42, 0.45));
+}
+
+.calhelp-faq__item .uk-open > .uk-accordion-title {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.calhelp-faq__footer {
+  margin-top: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.95rem;
   color: color-mix(in oklab, var(--qr-landing-text) 72%, rgba(15, 23, 42, 0.45));
+}
+
+.calhelp-faq__footer-link {
+  font-weight: 600;
+  color: var(--qr-landing-text);
+}
+
+.calhelp-faq__footer-link:hover,
+.calhelp-faq__footer-link:focus {
+  color: var(--qr-landing-accent, #1e87f0);
 }
 
 .calhelp-cta {
