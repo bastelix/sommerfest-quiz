@@ -204,6 +204,7 @@ body.qr-landing.calhelp-theme .landing-content {
   display: grid;
   gap: 12px;
   counter-reset: story-step;
+  max-width: 680px;
 }
 
 .calhelp-case-strip__story > li {
@@ -243,6 +244,7 @@ body.qr-landing.calhelp-theme .landing-content {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  max-width: 420px;
 }
 
 .calhelp-case-strip__media {
