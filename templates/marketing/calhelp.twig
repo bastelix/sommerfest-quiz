@@ -297,9 +297,6 @@
         'hint': 'Webhook- und Syslog-Forwarder ermöglichen das Streaming der Audit-Logs an bestehende SIEM-Lösungen.'
       }
     ] %}
-    {% set assuranceMarkup = include('marketing/partials/calhelp-assurance.twig', { assurancePanels: assurancePanels }) %}
-    {% set renderedContent = renderedContent|replace({'<div data-calhelp-assurance></div>': assuranceMarkup}) %}
-
     {% set caseStories = [
       {
         'id': 'lab-story',
@@ -341,14 +338,25 @@
         ]
       }
     ] %}
-    {% set casesMarkup = include('marketing/partials/calhelp-cases.twig', { caseStories: caseStories }) %}
-    {% set renderedContent = renderedContent|replace({'<div data-calhelp-cases></div>': casesMarkup}) %}
-    {% set proofGalleryMarkup = include('marketing/partials/calhelp-proof-gallery.twig') %}
-    {% set renderedContent = renderedContent|replace({'<div data-calhelp-proof-gallery></div>': proofGalleryMarkup}) %}
+    {% set placeholderReplacements = {
+      '<div data-calhelp-assurance></div>': include('marketing/partials/calhelp-assurance.twig', {
+        assurancePanels: assurancePanels
+      }),
+      '<div data-calhelp-cases></div>': include('marketing/partials/calhelp-cases.twig', {
+        caseStories: caseStories
+      }),
+      '<div data-calhelp-proof-gallery></div>': include('marketing/partials/calhelp-proof-gallery.twig')
+    } %}
     {% if calhelpUsecases is defined and calhelpUsecases.usecases is iterable and calhelpUsecases.usecases|length > 0 %}
-      {% set usecasesMarkup = include('marketing/partials/calhelp-usecases.twig', { calhelpUsecases: calhelpUsecases }) %}
-      {% set renderedContent = renderedContent|replace({'<div data-calhelp-usecases></div>': usecasesMarkup}) %}
+      {% set placeholderReplacements = placeholderReplacements|merge({
+        '<div data-calhelp-usecases></div>': include('marketing/partials/calhelp-usecases.twig', {
+          calhelpUsecases: calhelpUsecases
+        })
+      }) %}
     {% endif %}
+    {% for placeholder, markup in placeholderReplacements %}
+      {% set renderedContent = renderedContent|replace({ (placeholder): markup }) %}
+    {% endfor %}
 
     {% set calhelpNewsPlaceholderActive = calhelpNewsPlaceholderActive|default(false) %}
     {% set shouldRenderCalhelpNews = calhelpNewsPlaceholderActive or (landingNews is defined and landingNews) %}
