@@ -4,6 +4,7 @@ namespace App\Twig;
 
 use App\Service\TranslationService;
 use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class TranslationExtension extends AbstractExtension
@@ -18,6 +19,12 @@ class TranslationExtension extends AbstractExtension
         return [
             new TwigFunction('t', [$this->translator, 'translate']),
             new TwigFunction('locale', [$this->translator, 'getLocale']),
+        ];
+    }
+
+    public function getFilters(): array {
+        return [
+            new TwigFilter('trans', [$this->translator, 'translate']),
         ];
     }
 }
