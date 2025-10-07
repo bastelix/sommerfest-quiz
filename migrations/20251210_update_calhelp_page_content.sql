@@ -1,3 +1,5 @@
+UPDATE pages
+SET content = $$
 <section id="benefits" class="uk-section uk-section-muted calhelp-section" aria-labelledby="benefits-title">
   <div class="uk-container">
     <div class="calhelp-section__header">
@@ -291,3 +293,6 @@
     </div>
   </div>
 </section>
+$$,
+    updated_at = CURRENT_TIMESTAMP
+WHERE slug = 'calhelp';

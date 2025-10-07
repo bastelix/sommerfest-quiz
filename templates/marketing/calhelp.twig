@@ -2,14 +2,16 @@
 
 {% set links = [
     { 'href': '#hero', 'label': 'Überblick', 'icon': 'home' },
-    { 'href': '#benefits', 'label': 'Nutzen', 'icon': 'star' },
-    { 'href': '#process', 'label': 'Prozess', 'icon': 'settings' },
-    { 'href': '#usecases', 'label': 'Use Cases', 'icon': 'users' },
-    { 'href': '#services', 'label': 'Services', 'icon': 'bag' },
-    { 'href': '#demo', 'label': 'Demo', 'icon': 'play' },
-    { 'href': '#news', 'label': 'News', 'icon': 'rss' },
+    { 'href': '#benefits', 'label': 'Hero-Nachlauf', 'icon': 'star' },
+    { 'href': '#process', 'label': 'Wo stehst du?', 'icon': 'question' },
+    { 'href': '#usecases', 'label': 'Wendepunkt', 'icon': 'bolt' },
+    { 'href': '#proof', 'label': 'Alltag', 'icon': 'users' },
+    { 'href': '#services', 'label': 'Erwartungen', 'icon': 'check' },
+    { 'href': '#before-after', 'label': 'Vorher/Nachher', 'icon': 'grid' },
+    { 'href': '#next-steps', 'label': 'Nächste Schritte', 'icon': 'arrow-right' },
     { 'href': '#faq', 'label': 'FAQ', 'icon': 'question' },
-    { 'href': '#cta', 'label': 'Kontakt', 'icon': 'bolt' }
+    { 'href': '#cta', 'label': 'Kontakt', 'icon': 'bolt' },
+    { 'href': '#seo', 'label': 'SEO', 'icon': 'file-text' }
 ] %}
 
 {% block title %}{{ metaTitle|default('Umstieg auf ein zentrales Kalibrier-System – konsistent, nachvollziehbar, auditfähig') }}{% endblock %}
@@ -162,8 +164,8 @@
             </li>
           {% endfor %}
         </ul>
-        <a class="uk-button uk-button-primary uk-width-1-1 uk-margin-top" href="#demo">
-          <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Demo anfragen
+        <a class="uk-button uk-button-primary uk-width-1-1 uk-margin-top" href="#next-steps">
+          <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>Kurzgespräch sichern
         </a>
       </div>
     </div>
@@ -180,11 +182,11 @@
             <p class="qr-sub">calHelp sorgt dafür, dass Kalibrierdaten, Dokumente und Abläufe verlässlich in einem zentralen System zusammenfließen – konsistent, nachvollziehbar und auditfähig.</p>
             <p class="uk-text-lead">Altdaten werden sauber migriert (z. B. aus MET/TRACK), MET/TEAM bleibt angebunden, und Ihr Team arbeitet in klar definierten Prozessen mit belastbaren Nachweisen.</p>
             <div class="uk-margin-medium-top uk-flex uk-flex-left uk-flex-wrap" style="gap:16px;">
-              <a class="uk-button uk-button-primary" href="#demo">
-                <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Demo anfragen
+              <a class="uk-button uk-button-primary" href="#next-steps">
+                <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>Kurzgespräch sichern
               </a>
-              <a class="uk-button uk-button-default" href="https://calhelp.notion.site/met-cal-handbuch" target="_blank" rel="noopener">
-                <span class="uk-margin-small-right" data-uk-icon="icon: file-text"></span>MET/CAL-Handbuch öffnen
+              <a class="uk-button uk-button-default" href="https://calhelp.notion.site/checkliste-calhelp" target="_blank" rel="noopener">
+                <span class="uk-margin-small-right" data-uk-icon="icon: file-text"></span>Checkliste ansehen
               </a>
             </div>
             <p class="calhelp-trust">Hosting in Deutschland · DSGVO-konform · &gt;15 Jahre Projekterfahrung</p>
@@ -267,9 +269,9 @@
       <strong>Links</strong>
       <ul>
         <li><a href="#hero">Start</a></li>
-        <li><a href="#news">Wissen</a></li>
-        <li><a href="#demo">Demo</a></li>
-        <li><a href="#services">Services</a></li>
+        <li><a href="#benefits">Hero-Nachlauf</a></li>
+        <li><a href="#next-steps">Nächste Schritte</a></li>
+        <li><a href="#faq">FAQ</a></li>
         <li><a href="{{ basePath }}/datenschutz">Datenschutz</a></li>
         <li><a href="{{ basePath }}/impressum">Impressum</a></li>
       </ul>

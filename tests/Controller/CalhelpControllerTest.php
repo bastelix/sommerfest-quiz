@@ -29,6 +29,10 @@ class CalhelpControllerTest extends TestCase
         $body = (string) $response->getBody();
         $this->assertStringContainsString('calHelp – Marketingseite', $body);
         $this->assertStringContainsString('data-marketing-chat-open', $body);
+        $this->assertStringContainsString('Hero-Nachlauf – was nach dem ersten Gespräch passiert', $body);
+        $this->assertStringContainsString('Wo stehst du gerade?', $body);
+        $this->assertStringContainsString('Vorher/Nachher', $body);
+        $this->assertStringContainsString('Kurzgespräch sichern', $body);
         $this->assertStringNotContainsString("csrfToken: ''", $body);
         if ($old === false) {
             putenv('MAIN_DOMAIN');
