@@ -239,6 +239,7 @@
 - Implement future-is-green mega menu
 - Add domain-specific RAG management
 - Manage RAG chat settings in admin
+- Expand calHelp case stories
 
 ### Fix
 
