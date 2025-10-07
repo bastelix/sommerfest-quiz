@@ -1,13 +1,38 @@
 <?php
 
-$autoloader = __DIR__ . '/../vendor/autoload.php';
-if (!is_readable($autoloader)) {
+declare(strict_types=1);
+
+$autoload = null;
+$currentDir = __DIR__;
+while ($currentDir !== '' && $currentDir !== DIRECTORY_SEPARATOR) {
+    $candidate = $currentDir . '/vendor/autoload.php';
+    if (is_readable($candidate)) {
+        $autoload = $candidate;
+        break;
+    }
+
+    $candidate = $currentDir . '/autoload.php';
+    if (is_readable($candidate)) {
+        $autoload = $candidate;
+        break;
+    }
+
+    $parentDir = dirname($currentDir);
+    if ($parentDir === $currentDir) {
+        break;
+    }
+
+    $currentDir = $parentDir;
+}
+
+if ($autoload === null) {
     http_response_code(500);
     header('Content-Type: text/plain; charset=utf-8');
     echo "Autoloader not found. Please run 'composer install'.\n";
     exit(1);
 }
-require $autoloader;
+
+require $autoload;
 
 // Load environment variables from .env if available
 \App\Support\EnvLoader::loadAndSet(__DIR__ . '/../.env');
