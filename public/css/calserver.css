@@ -1398,6 +1398,7 @@ body.qr-landing.calserver-theme .calserver-pricing-card {
     flex-direction: column;
     gap: 16px;
     height: 100%;
+    padding: clamp(24px, 3vw, 32px);
 }
 
 body.qr-landing.calserver-theme .calserver-pricing-card .uk-list {
