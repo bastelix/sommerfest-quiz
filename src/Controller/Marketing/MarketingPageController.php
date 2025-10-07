@@ -22,9 +22,12 @@ use Slim\Views\Twig;
 use Twig\Error\LoaderError;
 
 use function htmlspecialchars;
+use function preg_replace;
 
 class MarketingPageController
 {
+    private const CALHELP_NEWS_PLACEHOLDER = '__CALHELP_NEWS_SECTION__';
+
     private PageService $pages;
     private PageSeoConfigService $seo;
     private ?string $slug;
@@ -76,6 +79,9 @@ class MarketingPageController
         $html = str_replace('data-calserver-chat-open', 'data-marketing-chat-open', $html);
         $html = str_replace('aria-controls="calserver-chat-modal"', 'aria-controls="marketing-chat-modal"', $html);
 
+        $newsReplacement = $this->replaceCalhelpNewsSection($html, self::CALHELP_NEWS_PLACEHOLDER);
+        $html = $newsReplacement['html'];
+
         $moduleExtraction = $this->extractCalhelpModules($html);
         $html = $moduleExtraction['html'];
         $calhelpModules = $moduleExtraction['data'];
@@ -83,6 +89,8 @@ class MarketingPageController
         $usecaseExtraction = $this->extractCalhelpUsecases($html);
         $html = $usecaseExtraction['html'];
         $calhelpUsecases = $usecaseExtraction['data'];
+
+        $calhelpNewsPlaceholderActive = $newsReplacement['replaced'];
 
         $landingNews = $this->landingNews->getPublishedForPage($page->getId(), 3);
         $landingNewsBasePath = null;
@@ -165,6 +173,9 @@ class MarketingPageController
             $data['landingNewsBasePath'] = $landingNewsBasePath;
             $data['landingNewsIndexUrl'] = $basePath . $landingNewsBasePath;
         }
+
+        $data['calhelpNewsPlaceholder'] = $calhelpNewsPlaceholderActive ? self::CALHELP_NEWS_PLACEHOLDER : null;
+        $data['calhelpNewsPlaceholderActive'] = $calhelpNewsPlaceholderActive;
 
         if (in_array($templateSlug, ['calserver', 'landing'], true)) {
             $data['provenExpertRating'] = $this->provenExpert->getAggregateRatingMarkup();
@@ -492,6 +503,24 @@ class MarketingPageController
             'html' => str_replace($matches[0], '', $html),
             'data' => $data,
         ];
+    }
+
+    /**
+     * Replace the static calHelp news section with a placeholder for dynamic rendering.
+     *
+     * @return array{html: string, replaced: bool}
+     */
+    private function replaceCalhelpNewsSection(string $html, string $placeholder): array
+    {
+        $pattern = '/<section id="news" class="uk-section calhelp-section" aria-labelledby="news-title">[\s\S]*?<\/section>/i';
+
+        $result = preg_replace($pattern, $placeholder, $html, 1, $count);
+
+        if (!is_string($result) || $count === 0) {
+            return ['html' => $html, 'replaced' => false];
+        }
+
+        return ['html' => $result, 'replaced' => true];
     }
 
     private function resolveLocalizedSlug(string $baseSlug, string $locale): string {
