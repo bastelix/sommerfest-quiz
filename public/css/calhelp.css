@@ -45,6 +45,11 @@ body.qr-landing.calhelp-theme .landing-content {
   letter-spacing: 0.12em;
 }
 
+.calhelp-nav > li > a {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
 body.qr-landing.calhelp-theme {
   --calhelp-nav-surface: color-mix(in oklab, #ffffff 96%, rgba(15, 23, 42, 0.04));
   --calhelp-nav-border: color-mix(in oklab, rgba(15, 23, 42, 0.12), rgba(255, 255, 255, 0.56));
@@ -269,6 +274,14 @@ body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) {
   margin-top: 32px;
 }
 
+.calhelp-offcanvas__nav > li > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  padding: 6px 0;
+}
+
 .calhelp-offcanvas__group {
   display: flex;
   flex-direction: column;
@@ -403,7 +416,10 @@ body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-of
   display: flex;
   flex-direction: column;
   gap: 12px;
-  box-shadow: 0 42px 72px -48px color-mix(in oklab, var(--calserver-primary) 52%, rgba(15, 23, 42, 0.82));
+  background: #ffffff;
+  border-radius: 24px;
+  border: 1px solid color-mix(in oklab, rgba(15, 23, 42, 0.08), rgba(255, 255, 255, 0.92));
+  box-shadow: 0 32px 56px -40px rgba(15, 23, 42, 0.18);
 }
 
 .calhelp-hero-card .uk-card-title {
@@ -418,6 +434,13 @@ body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-of
   margin-top: 24px;
   font-size: 0.95rem;
   color: color-mix(in oklab, var(--qr-landing-text) 68%, rgba(15, 23, 42, 0.56));
+}
+
+.calhelp-data-note {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: color-mix(in oklab, var(--qr-landing-text) 72%, rgba(15, 23, 42, 0.45));
 }
 
 .calhelp-section {
@@ -1684,7 +1707,7 @@ body.calhelp-proof-gallery--modal-open {
 }
 
 .calhelp-modules__grid {
-  row-gap: 0;
+  row-gap: 32px;
 }
 
 .calhelp-modules__grid.uk-grid {
@@ -1700,61 +1723,32 @@ body.calhelp-proof-gallery--modal-open {
   margin-top: 0 !important;
 }
 
+
 .calhelp-module-card {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 22px 20px;
-  border-radius: 0;
-  overflow: hidden;
-  background: color-mix(in oklab, rgba(15, 23, 42, 0.88) 88%, rgba(255, 255, 255, 0.06));
-  box-shadow: 0 26px 44px -36px color-mix(in oklab, var(--calserver-primary) 70%, rgba(15, 23, 42, 0.82));
-}
-
-.calhelp-module-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  border: 1px solid color-mix(in oklab, var(--calserver-primary) 74%, rgba(255, 255, 255, 0.7));
-  box-shadow: 0 0 18px -8px color-mix(in oklab, var(--calserver-primary) 88%, rgba(255, 255, 255, 0.7));
-  opacity: 0.7;
-  transition: opacity 0.3s ease, box-shadow 0.3s ease;
-}
-
-.calhelp-module-card:hover::before,
-.calhelp-module-card:focus-within::before {
-  opacity: 1;
-  box-shadow: 0 0 24px -6px color-mix(in oklab, var(--calserver-primary) 92%, rgba(255, 255, 255, 0.75));
+  gap: 16px;
+  padding: 26px 24px;
+  border-radius: 20px;
+  border: 1px solid color-mix(in oklab, rgba(15, 23, 42, 0.08), rgba(255, 255, 255, 0.92));
+  background: #ffffff;
+  box-shadow: 0 24px 48px -32px rgba(15, 23, 42, 0.18);
 }
 
 .calhelp-module-card--accent {
-  background: linear-gradient(135deg,
-      color-mix(in oklab, rgba(15, 23, 42, 0.9) 70%, var(--calserver-primary) 30%),
-      color-mix(in oklab, rgba(15, 23, 42, 0.86) 60%, var(--calserver-primary) 40%));
+  background: color-mix(in oklab, #ffffff 92%, var(--calserver-primary) 8%);
+  border-color: color-mix(in oklab, var(--calserver-primary) 20%, rgba(15, 23, 42, 0.08));
 }
 
 .calhelp-module-card--muted {
-  background: linear-gradient(135deg,
-      color-mix(in oklab, rgba(15, 23, 42, 0.88), rgba(255, 255, 255, 0.05)),
-      color-mix(in oklab, rgba(15, 23, 42, 0.92), rgba(255, 255, 255, 0.08)));
-}
-
-.calhelp-modules__grid.uk-grid > .uk-grid-margin .calhelp-module-card {
-  margin-top: -1px;
-}
-
-@media (min-width: 960px) {
-  .calhelp-modules__grid.uk-grid > *:not(.uk-first-column) .calhelp-module-card {
-    margin-left: -1px;
-  }
+  background: #ffffff;
 }
 
 .calhelp-module-card__header {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .calhelp-module-card__icon {
@@ -1764,10 +1758,10 @@ body.calhelp-proof-gallery--modal-open {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 12px;
-  background: linear-gradient(145deg, color-mix(in oklab, var(--calserver-primary) 92%, #ffffff 8%), var(--calserver-primary));
-  color: #ffffff;
-  box-shadow: 0 16px 24px -18px color-mix(in oklab, var(--calserver-primary) 84%, rgba(15, 23, 42, 0.6));
+  border-radius: 14px;
+  background: color-mix(in oklab, var(--calserver-primary) 18%, rgba(15, 23, 42, 0.04));
+  color: var(--calserver-primary);
+  box-shadow: none;
 }
 
 .calhelp-module-card__icon svg {
@@ -1776,43 +1770,39 @@ body.calhelp-proof-gallery--modal-open {
   stroke-width: 1.6px;
 }
 
-.calhelp-module-card--muted .calhelp-module-card__icon {
-  background: linear-gradient(145deg, color-mix(in oklab, var(--calserver-primary) 72%, #ffffff 18%), color-mix(in oklab, var(--calserver-primary) 54%, #111827 12%));
-}
-
 .calhelp-module-card__eyebrow {
   margin: 0;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: color-mix(in oklab, var(--qr-landing-text) 58%, rgba(255, 255, 255, 0.7));
+  color: color-mix(in oklab, var(--qr-landing-text) 58%, rgba(15, 23, 42, 0.4));
 }
 
 .calhelp-module-card__pitch {
-  margin-bottom: 2px;
-  color: color-mix(in oklab, var(--qr-landing-text) 78%, rgba(255, 255, 255, 0.88));
+  margin: 0;
+  color: color-mix(in oklab, var(--qr-landing-text) 85%, rgba(15, 23, 42, 0.12));
 }
 
 .calhelp-module-card__list {
   margin: 0;
   padding-left: 20px;
-  color: color-mix(in oklab, var(--qr-landing-text) 75%, rgba(255, 255, 255, 0.82));
+  color: color-mix(in oklab, var(--qr-landing-text) 80%, rgba(15, 23, 42, 0.16));
 }
 
 .calhelp-module-card__footer {
   margin-top: auto;
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
-  border-top: 1px solid color-mix(in oklab, rgba(255, 255, 255, 0.35) 35%, rgba(15, 23, 42, 0.3));
-  padding-top: 12px;
+  border-top: 1px solid color-mix(in oklab, rgba(15, 23, 42, 0.08), rgba(255, 255, 255, 0.9));
+  padding-top: 14px;
 }
 
 .calhelp-module-card__kpi {
   font-weight: 600;
   font-size: 0.95rem;
-  color: color-mix(in oklab, var(--qr-landing-text) 92%, rgba(255, 255, 255, 0.92));
+  color: color-mix(in oklab, var(--qr-landing-text) 92%, rgba(15, 23, 42, 0.08));
 }
 
 .calhelp-module-card__link {
@@ -1820,7 +1810,7 @@ body.calhelp-proof-gallery--modal-open {
   align-items: center;
   gap: 6px;
   font-weight: 600;
-  color: color-mix(in oklab, var(--calserver-primary) 86%, #ffffff 14%);
+  color: var(--calserver-primary);
   text-decoration: none;
 }
 
@@ -1835,7 +1825,7 @@ body.calhelp-proof-gallery--modal-open {
   }
 
   .calhelp-modules__grid {
-    row-gap: 0;
+    row-gap: 24px;
   }
 
   .calhelp-news-card {
@@ -1918,6 +1908,61 @@ body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-case-strip--muted {
 body.qr-landing.calhelp-theme.dark-mode .calhelp-case-strip--muted .calhelp-case-strip__label,
 body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-case-strip--muted .calhelp-case-strip__label {
   color: color-mix(in oklab, var(--calserver-primary) 48%, #0f172a 52%);
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-hero-card,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-hero-card {
+  background: color-mix(in oklab, rgba(24, 35, 58, 0.92), rgba(15, 23, 42, 0.82));
+  border-color: color-mix(in oklab, rgba(76, 94, 124, 0.38), rgba(15, 23, 42, 0.72));
+  box-shadow: 0 28px 48px -32px rgba(8, 13, 24, 0.6);
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-data-note,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-data-note {
+  color: color-mix(in oklab, rgba(203, 213, 225, 0.82), rgba(148, 163, 184, 0.68));
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-module-card,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-module-card {
+  background: color-mix(in oklab, rgba(20, 31, 52, 0.96), rgba(11, 17, 30, 0.92));
+  border-color: color-mix(in oklab, rgba(71, 85, 105, 0.32), rgba(15, 23, 42, 0.72));
+  box-shadow: 0 26px 44px -28px rgba(8, 13, 24, 0.7);
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-module-card--accent,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-module-card--accent {
+  background: color-mix(in oklab, rgba(37, 56, 112, 0.86), rgba(15, 23, 42, 0.78));
+  border-color: color-mix(in oklab, rgba(96, 123, 191, 0.45), rgba(15, 23, 42, 0.7));
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-module-card__icon,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-module-card__icon {
+  background: color-mix(in oklab, rgba(59, 130, 246, 0.42), rgba(15, 23, 42, 0.58));
+  color: #e2e8f0;
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-module-card__eyebrow,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-module-card__eyebrow {
+  color: color-mix(in oklab, rgba(203, 213, 225, 0.78), rgba(148, 163, 184, 0.6));
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-module-card__pitch,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-module-card__pitch,
+body.qr-landing.calhelp-theme.dark-mode .calhelp-module-card__list,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-module-card__list,
+body.qr-landing.calhelp-theme.dark-mode .calhelp-module-card__kpi,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-module-card__kpi {
+  color: color-mix(in oklab, rgba(226, 232, 240, 0.88), rgba(148, 163, 184, 0.48));
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-module-card__footer,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-module-card__footer {
+  border-top-color: color-mix(in oklab, rgba(96, 113, 141, 0.35), rgba(15, 23, 42, 0.7));
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-module-card__link,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-module-card__link {
+  color: color-mix(in oklab, rgba(125, 189, 255, 0.86), rgba(190, 227, 248, 0.68));
 }
 
 body.qr-landing.calhelp-theme.dark-mode .calhelp-section__header p,
