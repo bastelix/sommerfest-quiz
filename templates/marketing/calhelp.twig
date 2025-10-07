@@ -1,18 +1,176 @@
 {% extends 'layout.twig' %}
 
-{% set links = [
-    { 'href': '#hero', 'label': 'Überblick', 'icon': 'home' },
-    { 'href': '#modules', 'label': 'Module', 'icon': 'grid' },
-    { 'href': '#fit', 'label': 'Passung', 'icon': 'users' },
-    { 'href': '#benefits', 'label': 'Ergebnisse', 'icon': 'star' },
-    { 'href': '#process', 'label': 'Ablauf', 'icon': 'settings' },
-    { 'href': '#usecases', 'label': 'Situationen', 'icon': 'file-text' },
-    { 'href': '#help', 'label': 'Unterstützung', 'icon': 'lifesaver' },
-    { 'href': '#conversation', 'label': 'Gespräch', 'icon': 'commenting' },
-    { 'href': '#news', 'label': 'News', 'icon': 'rss' },
-    { 'href': '#faq', 'label': 'FAQ', 'icon': 'question' },
-    { 'href': '#cta', 'label': 'Kontakt', 'icon': 'bolt' }
+{% set navGroups = [
+    {
+      'id': 'intro',
+      'title': 'Einstieg & Überblick',
+      'description': 'Die wichtigsten Abschnitte für Entscheider:innen und Projektleitungen.',
+      'items': [
+        {
+          'href': '#hero',
+          'label': 'Überblick',
+          'icon': 'home',
+          'summary': 'Story, Nutzen und erste Angebote im Schnelldurchlauf.',
+          'pane': {
+            'id': 'intro-overview',
+            'title': 'Warum calHelp starten?',
+            'text': 'Zeigt, wie calHelp Audits beruhigt, Verantwortlichkeiten klärt und allen Teams einen gemeinsamen Status gibt.',
+            'meta': 'Intro · Nutzenversprechen · Vertrauensanker'
+          }
+        },
+        {
+          'href': '#modules',
+          'label': 'Module',
+          'icon': 'grid',
+          'summary': 'Welche Module und Integrationen standardmäßig enthalten sind.',
+          'pane': {
+            'id': 'intro-modules',
+            'title': 'Module & Integrationen',
+            'text': 'Erklärt das Modul-Set – vom Messmittelkataster bis zu Freigabeflows – inklusive Anbindungen wie MET/TEAM.',
+            'meta': 'Module · Integrationen · Automationen'
+          }
+        },
+        {
+          'href': '#benefits',
+          'label': 'Ergebnisse',
+          'icon': 'star',
+          'summary': 'Kennzahlen und Effekte aus Projekten mit calHelp.',
+          'pane': {
+            'id': 'intro-benefits',
+            'title': 'Welche Ergebnisse erreichbar sind',
+            'text': 'Zeigt messbare Resultate wie Audit-Sicherheit, Prozessgeschwindigkeit und dokumentierte Entscheidungen.',
+            'meta': 'KPIs · Erfahrungswerte · Kennzahlen'
+          }
+        }
+      ]
+    },
+    {
+      'id': 'collaboration',
+      'title': 'Zusammenarbeit & Ablauf',
+      'description': 'Wie wir gemeinsam starten, migrieren und langfristig betreuen.',
+      'items': [
+        {
+          'href': '#fit',
+          'label': 'Passung',
+          'icon': 'users',
+          'summary': 'Abgleich mit Rollen, Verantwortlichkeiten und IT-Landschaft.',
+          'pane': {
+            'id': 'collaboration-fit',
+            'title': 'Passt calHelp zu unserem Setup?',
+            'text': 'Hilft einzuschätzen, wie calHelp in bestehende Teams, Prozesse und Compliance-Richtlinien eingebettet wird.',
+            'meta': 'Rollen · Governance · IT-Umfeld'
+          }
+        },
+        {
+          'href': '#process',
+          'label': 'Ablauf',
+          'icon': 'settings',
+          'summary': 'Projektfahrplan von Erstaufnahme bis Rollout.',
+          'pane': {
+            'id': 'collaboration-process',
+            'title': 'Projektstruktur & Migration',
+            'text': 'Beschreibt die Phasen – Analyse, Datenmigration, Guardband-Validierung und Übergabe an das Team.',
+            'meta': 'Projektphasen · Migration · Betreuung'
+          }
+        },
+        {
+          'href': '#conversation',
+          'label': 'Gespräch',
+          'icon': 'commenting',
+          'summary': 'Direktes Gespräch, Demo und Unterlagen anfordern.',
+          'pane': {
+            'id': 'collaboration-conversation',
+            'title': 'Live ins Gespräch gehen',
+            'text': 'Öffnet den direkten Kanal: Termin vereinbaren, Use Cases besprechen und individuelle Unterlagen erhalten.',
+            'meta': 'Termin · Demo · Unterlagen'
+          }
+        }
+      ]
+    },
+    {
+      'id': 'practice',
+      'title': 'Anwendung & Inhalte',
+      'description': 'Echte Szenarien, Services und laufende Unterstützung.',
+      'items': [
+        {
+          'href': '#usecases',
+          'label': 'Situationen',
+          'icon': 'file-text',
+          'summary': 'Praxisbeispiele aus Labor, Produktion und Service.',
+          'pane': {
+            'id': 'practice-usecases',
+            'title': 'Szenarien aus dem Betrieb',
+            'text': 'Zeigt, wie calHelp Guardbands dokumentiert, Audits vorbereitet und Datenflüsse verbindet.',
+            'meta': 'Branchen · Szenarien · Guardbands'
+          }
+        },
+        {
+          'href': '#help',
+          'label': 'Unterstützung',
+          'icon': 'lifesaver',
+          'summary': 'Servicepakete, Schulung und Wissenstransfer.',
+          'pane': {
+            'id': 'practice-help',
+            'title': 'Begleitung im Alltag',
+            'text': 'Erklärt, wie wir Teams onboarden, Support leisten und Wissen dauerhaft zugänglich machen.',
+            'meta': 'Onboarding · Support · Enablement'
+          }
+        },
+        {
+          'href': '#news',
+          'label': 'News',
+          'icon': 'rss',
+          'summary': 'Aktuelle Releases, Termine und Einblicke.',
+          'pane': {
+            'id': 'practice-news',
+            'title': 'Was es Neues gibt',
+            'text': 'Bündelt Produkt-Updates, Webinare und Events mit Bezug zu calHelp.',
+            'meta': 'Releases · Termine · Highlights'
+          }
+        }
+      ]
+    },
+    {
+      'id': 'contact',
+      'title': 'Antworten & Kontakt',
+      'description': 'Alle Informationen für Sicherheit, Compliance und nächste Schritte.',
+      'items': [
+        {
+          'href': '#faq',
+          'label': 'FAQ',
+          'icon': 'question',
+          'summary': 'Klärt Datenschutz, Hosting und Betrieb.',
+          'pane': {
+            'id': 'contact-faq',
+            'title': 'Häufige Fragen vorab klären',
+            'text': 'Fasst Antworten zu Sicherheit, Hosting in Deutschland und Verantwortlichkeiten zusammen.',
+            'meta': 'Compliance · Hosting · Betrieb'
+          }
+        },
+        {
+          'href': '#cta',
+          'label': 'Kontakt',
+          'icon': 'bolt',
+          'summary': 'Kontaktformular und Angebot starten.',
+          'pane': {
+            'id': 'contact-cta',
+            'title': 'Kontakt aufnehmen',
+            'text': 'Der schnellste Weg zu Angebot, Projektsteckbrief und konkretem Starttermin.',
+            'meta': 'Kontakt · Angebot · Nächste Schritte'
+          }
+        }
+      ]
+    }
 ] %}
+
+{% set defaultExplain = '' %}
+{% set firstGroup = navGroups|first %}
+{% if firstGroup %}
+  {% set firstItem = firstGroup.items|first %}
+  {% if firstItem %}
+    {% set defaultExplain = firstItem.pane.id %}
+  {% endif %}
+{% endif %}
 
 {% block title %}{{ metaTitle|default('Umstieg auf ein zentrales Kalibrier-System – konsistent, nachvollziehbar, auditfähig') }}{% endblock %}
 
@@ -51,14 +209,61 @@
           </div>
         </div>
         <div class="uk-navbar-right">
-          <ul class="uk-navbar-nav uk-visible@m">
-            {% for link in links %}
-              <li>
-                <a href="{{ link.href }}">
-                  <span class="uk-margin-small-right" data-uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
-                </a>
-              </li>
-            {% endfor %}
+          <ul class="uk-navbar-nav uk-visible@m calhelp-mega-nav" data-calhelp-mega>
+            <li class="uk-parent calhelp-mega-nav__item">
+              <a href="#hero" class="calhelp-mega-nav__toggle" aria-haspopup="true" aria-expanded="false">
+                <span class="uk-margin-small-right" data-uk-icon="icon: menu"></span>
+                <span class="calhelp-mega-nav__label">Navigation</span>
+                <span class="calhelp-mega-nav__hint">Alle Bereiche</span>
+              </a>
+              <div class="uk-navbar-dropdown uk-padding-remove calhelp-mega-dropdown" data-uk-dropdown="mode: hover; pos: bottom-right; offset: 24; delay-hide: 120; animation: uk-animation-slide-top-small">
+                <div class="calhelp-mega" data-calhelp-mega-root data-calhelp-default="{{ defaultExplain }}">
+                  <div class="calhelp-mega__grid">
+                    {% for group in navGroups %}
+                      <section class="calhelp-mega__column">
+                        <header class="calhelp-mega__column-header">
+                          <h3 class="calhelp-mega__heading">{{ group.title }}</h3>
+                          <p class="calhelp-mega__description">{{ group.description }}</p>
+                        </header>
+                        <ul class="calhelp-mega__list">
+                          {% for item in group.items %}
+                            {% set isActive = loop.parent.first and loop.first %}
+                            <li class="calhelp-mega__item">
+                              <a href="{{ item.href }}"
+                                 class="calhelp-mega__link{% if isActive %} is-active{% endif %}"
+                                 data-calhelp-explain="{{ item.pane.id }}"
+                                 aria-controls="calhelp-pane-{{ item.pane.id }}"
+                                 aria-expanded="{{ isActive ? 'true' : 'false' }}">
+                                <span class="calhelp-mega__icon" aria-hidden="true" data-uk-icon="icon: {{ item.icon }}"></span>
+                                <span class="calhelp-mega__link-label">
+                                  {{ item.label }}
+                                  <span class="calhelp-mega__link-sub">{{ item.summary }}</span>
+                                </span>
+                              </a>
+                            </li>
+                          {% endfor %}
+                        </ul>
+                      </section>
+                    {% endfor %}
+                  </div>
+                  <div class="calhelp-mega__explain" aria-live="polite">
+                    {% for group in navGroups %}
+                      {% for item in group.items %}
+                        {% set paneActive = loop.parent.first and loop.first %}
+                        <article id="calhelp-pane-{{ item.pane.id }}"
+                                 class="calhelp-mega__pane{% if paneActive %} is-active{% endif %}"
+                                 data-calhelp-pane="{{ item.pane.id }}"
+                                 aria-hidden="{{ paneActive ? 'false' : 'true' }}">
+                          <h4 class="calhelp-mega__pane-title">{{ item.pane.title }}</h4>
+                          <p class="calhelp-mega__pane-text">{{ item.pane.text }}</p>
+                          <p class="calhelp-mega__pane-meta">{{ item.pane.meta }}</p>
+                        </article>
+                      {% endfor %}
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </li>
           </ul>
           <div class="uk-navbar-item config-menu uk-inline">
             <button id="configMenuToggle"
@@ -153,18 +358,30 @@
     </header>
 
     <div id="qr-offcanvas" data-uk-offcanvas="overlay: true; flip: true">
-      <div class="uk-offcanvas-bar">
+      <div class="uk-offcanvas-bar calhelp-offcanvas">
         <button class="uk-offcanvas-close git-btn" type="button" data-uk-close aria-label="Menü schließen"></button>
-        <ul class="uk-nav uk-nav-default">
-          {% for link in links %}
-            <li>
-              <a href="{{ link.href }}">
-                <span class="uk-margin-small-right" data-uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
-              </a>
-            </li>
+        <div class="calhelp-offcanvas__inner">
+          {% for group in navGroups %}
+            <section class="calhelp-offcanvas__group">
+              <h3 class="calhelp-offcanvas__heading">{{ group.title }}</h3>
+              <p class="calhelp-offcanvas__description">{{ group.description }}</p>
+              <ul class="calhelp-offcanvas__list">
+                {% for item in group.items %}
+                  <li class="calhelp-offcanvas__item">
+                    <a href="{{ item.href }}" class="calhelp-offcanvas__link">
+                      <span class="calhelp-offcanvas__icon" aria-hidden="true" data-uk-icon="icon: {{ item.icon }}"></span>
+                      <span class="calhelp-offcanvas__label">
+                        {{ item.label }}
+                        <span class="calhelp-offcanvas__summary">{{ item.summary }}</span>
+                      </span>
+                    </a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </section>
           {% endfor %}
-        </ul>
-        <a class="uk-button uk-button-primary uk-width-1-1 uk-margin-top" href="#cta">
+        </div>
+        <a class="uk-button uk-button-primary uk-width-1-1 uk-margin-top calhelp-offcanvas__cta" href="#cta">
           <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Gespräch starten
         </a>
       </div>
