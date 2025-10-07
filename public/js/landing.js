@@ -451,6 +451,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const prefersReducedMotion = () => reducedMotionQuery.matches;
 
+  const htmlLang = (document.documentElement?.lang || '').toLowerCase();
+  const currentLanguage = htmlLang.startsWith('en') ? 'en' : 'de';
+
   steppers.forEach((stepper) => {
     const stages = Array.from(stepper.querySelectorAll('[data-calhelp-step]'));
     if (!stages.length) return;
@@ -467,7 +470,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateToggleLabel = (button, expanded) => {
       const label = button.querySelector('.calhelp-process__toggle-label');
       if (label) {
-        label.textContent = expanded ? 'Leistungen & Abnahme ausblenden' : 'Leistungen & Abnahme anzeigen';
+        const stateKey = expanded ? 'Expanded' : 'Collapsed';
+        const preferredSuffix = currentLanguage === 'en' ? 'En' : 'De';
+        const fallbackSuffix = preferredSuffix === 'En' ? 'De' : 'En';
+        const datasetKeyPreferred = `calhelpToggleLabel${preferredSuffix}${stateKey}`;
+        const datasetKeyFallback = `calhelpToggleLabel${fallbackSuffix}${stateKey}`;
+        const translatedLabel = label.dataset[datasetKeyPreferred] || label.dataset[datasetKeyFallback];
+        if (translatedLabel) {
+          label.textContent = translatedLabel;
+        }
       }
     };
 
