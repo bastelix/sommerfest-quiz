@@ -377,6 +377,213 @@ body.qr-landing.calhelp-theme .landing-content {
   text-align: center;
 }
 
+.calhelp-assurance {
+  margin-top: 48px;
+  display: grid;
+  gap: 16px;
+}
+
+.calhelp-assurance__title {
+  margin: 0;
+  font-size: 1.55rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.calhelp-assurance__intro {
+  margin: 0;
+  color: color-mix(in oklab, var(--qr-landing-text) 70%, rgba(15, 23, 42, 0.42));
+}
+
+.calhelp-assurance__accordion {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+
+.calhelp-assurance__item {
+  border-radius: 16px;
+  border: 1px solid color-mix(in oklab, var(--qr-landing-text) 14%, rgba(15, 23, 42, 0.18));
+  background: color-mix(in oklab, rgba(255, 255, 255, 0.12) 80%, rgba(15, 23, 42, 0.08));
+  box-shadow: 0 22px 44px -36px color-mix(in oklab, var(--calserver-primary) 68%, rgba(15, 23, 42, 0.85));
+  overflow: hidden;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.calhelp-assurance__item:hover,
+.calhelp-assurance__item:focus-within {
+  border-color: color-mix(in oklab, var(--calserver-primary) 42%, rgba(15, 23, 42, 0.2));
+  box-shadow: 0 28px 52px -34px color-mix(in oklab, var(--calserver-primary) 76%, rgba(15, 23, 42, 0.9));
+  transform: translateY(-2px);
+}
+
+.calhelp-assurance__item .uk-accordion-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px;
+  font-weight: 600;
+  color: color-mix(in oklab, var(--qr-landing-text) 92%, rgba(15, 23, 42, 0.32));
+}
+
+.calhelp-assurance__title-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--calserver-primary) 22%, rgba(255, 255, 255, 0.12));
+  color: var(--calserver-primary);
+}
+
+.calhelp-assurance__title-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.calhelp-assurance__item .uk-open > .uk-accordion-title,
+.calhelp-assurance__item.uk-open > .uk-accordion-title {
+  color: color-mix(in oklab, var(--qr-landing-text) 98%, rgba(15, 23, 42, 0.18));
+}
+
+.calhelp-assurance__item .uk-accordion-content {
+  padding: 0 24px 24px;
+  display: grid;
+  gap: 18px;
+}
+
+.calhelp-assurance__facts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.calhelp-assurance__fact {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.calhelp-assurance__fact-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: color-mix(in oklab, var(--calserver-primary) 16%, rgba(255, 255, 255, 0.12));
+  color: var(--calserver-primary);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--calserver-primary) 32%, rgba(15, 23, 42, 0.18));
+}
+
+.calhelp-assurance__fact-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.calhelp-assurance__fact-body {
+  display: grid;
+  gap: 6px;
+}
+
+.calhelp-assurance__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--calserver-primary) 18%, rgba(255, 255, 255, 0.08));
+  color: color-mix(in oklab, var(--qr-landing-text) 96%, rgba(255, 255, 255, 0.06));
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.calhelp-assurance__badge-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--calserver-primary) 70%, rgba(255, 255, 255, 0.12));
+  color: #ffffff;
+}
+
+.calhelp-assurance__badge-icon svg {
+  width: 12px;
+  height: 12px;
+}
+
+.calhelp-assurance__fact-text {
+  margin: 0;
+  color: color-mix(in oklab, var(--qr-landing-text) 86%, rgba(15, 23, 42, 0.36));
+  line-height: 1.5;
+}
+
+.calhelp-assurance__hint {
+  margin: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border-left: 4px solid color-mix(in oklab, var(--calserver-primary) 74%, rgba(15, 23, 42, 0.24));
+  background: color-mix(in oklab, var(--calserver-primary) 12%, rgba(255, 255, 255, 0.1));
+  color: color-mix(in oklab, var(--qr-landing-text) 84%, rgba(15, 23, 42, 0.4));
+}
+
+.calhelp-assurance__hint-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: color-mix(in oklab, var(--calserver-primary) 30%, rgba(255, 255, 255, 0.18));
+  color: var(--calserver-primary);
+  flex-shrink: 0;
+}
+
+.calhelp-assurance__hint-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.calhelp-assurance__hint-text {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.calhelp-assurance__hint-text strong {
+  font-weight: 600;
+  color: color-mix(in oklab, var(--qr-landing-text) 96%, rgba(15, 23, 42, 0.24));
+}
+
+.calhelp-assurance__item.uk-open,
+.calhelp-assurance__item .uk-open {
+  border-color: color-mix(in oklab, var(--calserver-primary) 54%, rgba(15, 23, 42, 0.22));
+  box-shadow: 0 30px 60px -30px color-mix(in oklab, var(--calserver-primary) 82%, rgba(15, 23, 42, 0.92));
+}
+
+@media (max-width: 959px) {
+  .calhelp-assurance__item .uk-accordion-title {
+    padding: 18px 20px;
+  }
+
+  .calhelp-assurance__item .uk-accordion-content {
+    padding: 0 20px 20px;
+  }
+}
+
 .calhelp-demo-steps {
   list-style: decimal inside;
   margin: 0;
