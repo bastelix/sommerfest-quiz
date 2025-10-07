@@ -2,17 +2,14 @@
 
 {% set links = [
     { 'href': '#hero', 'label': 'Überblick', 'icon': 'home' },
-    { 'href': '#benefits', 'label': 'Nutzen', 'icon': 'star' },
-    { 'href': '#process', 'label': 'Prozess', 'icon': 'settings' },
-    { 'href': '#usecases', 'label': 'Use Cases', 'icon': 'users' },
-    { 'href': '#services', 'label': 'Services', 'icon': 'bag' },
-    { 'href': '#demo', 'label': 'Demo', 'icon': 'play' },
-    { 'href': '#news', 'label': 'News', 'icon': 'rss' },
-    { 'href': '#faq', 'label': 'FAQ', 'icon': 'question' },
-    { 'href': '#cta', 'label': 'Kontakt', 'icon': 'bolt' }
+    { 'href': '#stories', 'label': 'Einblicke', 'icon': 'file-text' },
+    { 'href': '#fit', 'label': 'Passt das?', 'icon': 'question' },
+    { 'href': '#feeling', 'label': 'Ergebnis', 'icon': 'check' },
+    { 'href': '#next-step', 'label': 'Nächster Schritt', 'icon': 'bolt' },
+    { 'href': '#why', 'label': 'Warum calHelp', 'icon': 'info' }
 ] %}
 
-{% block title %}{{ metaTitle|default('Umstieg auf ein zentrales Kalibrier-System – konsistent, nachvollziehbar, auditfähig') }}{% endblock %}
+{% block title %}{{ metaTitle|default('calHelp – Vom Flickenteppich zum klaren Kalibrier-Flow') }}{% endblock %}
 
 {% block head %}
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -162,8 +159,8 @@
             </li>
           {% endfor %}
         </ul>
-        <a class="uk-button uk-button-primary uk-width-1-1 uk-margin-top" href="#demo">
-          <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Demo anfragen
+        <a class="uk-button uk-button-primary uk-width-1-1 uk-margin-top" href="#next-step">
+          <span class="uk-margin-small-right" data-uk-icon="icon: receiver"></span>Gespräch starten
         </a>
       </div>
     </div>
@@ -175,29 +172,29 @@
       <div class="uk-container">
         <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle calhelp-hero-grid" data-uk-grid>
           <div class="calhelp-hero-grid__content">
-            <span class="qr-badge pill pill--soft">Hosting in Deutschland · DSGVO-konform</span>
-            <h1 class="qr-h1">Ein System. Klare Prozesse.</h1>
-            <p class="qr-sub">calHelp sorgt dafür, dass Kalibrierdaten, Dokumente und Abläufe verlässlich in einem zentralen System zusammenfließen – konsistent, nachvollziehbar und auditfähig.</p>
-            <p class="uk-text-lead">Altdaten werden sauber migriert (z. B. aus MET/TRACK), MET/TEAM bleibt angebunden, und Ihr Team arbeitet in klar definierten Prozessen mit belastbaren Nachweisen.</p>
+            <span class="qr-badge pill pill--soft">Praxisnah · Auditfähig · Ohne Technik-Overkill</span>
+            <h1 class="qr-h1">Ein Flow vom Erstkontakt bis zum Audit.</h1>
+            <p class="qr-sub">Ohne Pakete, ohne Technik-Overkill: calHelp ordnet Kalibrier-, Service- und Wartungsprozesse so, dass Teams wieder sehen, wer was wann getan hat.</p>
+            <p class="uk-text-lead">Wir verbinden bestehende Systeme, machen Altdaten nutzbar und schaffen einen nachvollziehbaren Ablauf – vom Angebot über Messwerte bis zur Rechnung.</p>
             <div class="uk-margin-medium-top uk-flex uk-flex-left uk-flex-wrap" style="gap:16px;">
-              <a class="uk-button uk-button-primary" href="#demo">
-                <span class="uk-margin-small-right" data-uk-icon="icon: play"></span>Demo anfragen
+              <a class="uk-button uk-button-primary" href="#next-step">
+                <span class="uk-margin-small-right" data-uk-icon="icon: receiver"></span>Gespräch starten
               </a>
               <a class="uk-button uk-button-default" href="https://calhelp.notion.site/met-cal-handbuch" target="_blank" rel="noopener">
-                <span class="uk-margin-small-right" data-uk-icon="icon: file-text"></span>MET/CAL-Handbuch öffnen
+                <span class="uk-margin-small-right" data-uk-icon="icon: book"></span>Handbuch ansehen
               </a>
             </div>
-            <p class="calhelp-trust">Hosting in Deutschland · DSGVO-konform · &gt;15 Jahre Projekterfahrung</p>
+            <p class="calhelp-trust">15+ Jahre Kalibrierpraxis · Hosting in Deutschland · Auditfeste Umsetzung</p>
           </div>
           <div class="calhelp-hero-grid__media">
             <div class="calhelp-hero-card uk-card uk-card-primary uk-card-primary--highlight uk-card-body">
-              <h2 class="uk-card-title">Warum calHelp?</h2>
+              <h2 class="uk-card-title">Was Kund:innen erleben</h2>
               <ul class="uk-list uk-list-bullet hero-list">
-                <li>Konsistente Datenbasis für Labore, Service-Teams und Verwaltung.</li>
-                <li>Prozesssichere Migration mit klaren Gateways und Abnahmen.</li>
-                <li>Auditfähige Nachweise inklusive Report-Diffs und Protokollen.</li>
+                <li>Ein Auftrag wandert ohne Lücken vom Angebot bis zur Rechnung.</li>
+                <li>Standorte sehen denselben Arbeitsstand und dieselben Freigaben.</li>
+                <li>Wartung, Nachweise und Dokumente laufen in einem Takt zusammen.</li>
               </ul>
-              <p class="uk-text-small uk-margin-top">Reports prüfen wir vorab mit Musterdaten.</p>
+              <p class="uk-text-small uk-margin-top">Wissen führt. Software liefert. So bleiben Audits planbar.</p>
             </div>
           </div>
         </div>
@@ -248,7 +245,7 @@
   <div class="footer-columns">
     <div class="footer-section footer-about">
       <strong>calHelp</strong>
-      <p>Ein System. Klare Prozesse.</p>
+      <p>Ein Flow vom Erstkontakt bis zum Audit.</p>
     </div>
     <div class="footer-section footer-contact">
       <strong>Kontakt</strong>
@@ -267,9 +264,9 @@
       <strong>Links</strong>
       <ul>
         <li><a href="#hero">Start</a></li>
-        <li><a href="#news">Wissen</a></li>
-        <li><a href="#demo">Demo</a></li>
-        <li><a href="#services">Services</a></li>
+        <li><a href="#stories">Einblicke</a></li>
+        <li><a href="#fit">Passt das?</a></li>
+        <li><a href="#next-step">Nächster Schritt</a></li>
         <li><a href="{{ basePath }}/datenschutz">Datenschutz</a></li>
         <li><a href="{{ basePath }}/impressum">Impressum</a></li>
       </ul>
