@@ -350,6 +350,21 @@
       {% set renderedContent = renderedContent|replace({'<div data-calhelp-usecases></div>': usecasesMarkup}) %}
     {% endif %}
 
+    {% set calhelpNewsPlaceholderActive = calhelpNewsPlaceholderActive|default(false) %}
+    {% set shouldRenderCalhelpNews = calhelpNewsPlaceholderActive or (landingNews is defined and landingNews) %}
+    {% if shouldRenderCalhelpNews %}
+      {% set calhelpNewsMarkup = include('marketing/partials/calhelp-news.twig', {
+        landingNews: landingNews|default([]),
+        landingNewsBasePath: landingNewsBasePath|default(null),
+        landingNewsIndexUrl: landingNewsIndexUrl|default(null)
+      }) %}
+      {% if calhelpNewsPlaceholderActive and calhelpNewsPlaceholder is defined and calhelpNewsPlaceholder %}
+        {% set renderedContent = renderedContent|replace({ (calhelpNewsPlaceholder): calhelpNewsMarkup }) %}
+      {% else %}
+        {% set renderedContent = renderedContent ~ calhelpNewsMarkup %}
+      {% endif %}
+    {% endif %}
+
     {{ renderedContent|raw }}
 
     <div id="marketing-chat-modal" class="uk-flex-top marketing-chat-modal" data-uk-modal>

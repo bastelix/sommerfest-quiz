@@ -1,0 +1,44 @@
+{% set newsEntry = entry|default(null) %}
+{% if newsEntry %}
+  {% set icons = ['refresh', 'file-text', 'users', 'info', 'calendar'] %}
+  {% set iconIndex = index|default(0) %}
+  {% set icon = icons[iconIndex % (icons|length)] %}
+  {% set slug = newsEntry.slug|default('') %}
+  {% set titleId = slug ? 'news-' ~ slug ~ '-title' : 'news-entry-' ~ iconIndex ~ '-title' %}
+  {% set hasBasePath = landingNewsBasePath is defined and landingNewsBasePath %}
+  {% set detailPath = hasBasePath and slug ? landingNewsBasePath ~ '/' ~ slug : null %}
+  {% set linkHref = detailPath ? basePath ~ detailPath : null %}
+  {% set published = newsEntry.publishedAt|default(null) %}
+  {% set excerpt = newsEntry.excerpt|default(null) %}
+  {% if not excerpt %}
+    {% set rawContent = newsEntry.content|default('')|striptags|trim %}
+    {% if rawContent %}
+      {% set truncated = rawContent|slice(0, 220) %}
+      {% set excerpt = truncated ~ (rawContent|length > 220 ? '…' : '') %}
+      {% set excerpt = '<p>' ~ excerpt ~ '</p>' %}
+    {% endif %}
+  {% endif %}
+  <article class="uk-card uk-card-primary uk-card-body calhelp-card calhelp-news-card" aria-labelledby="{{ titleId }}" role="listitem">
+    <header class="calhelp-news-card__header">
+      <span class="calhelp-news-card__icon" aria-hidden="true" data-uk-icon="icon: {{ icon }}"></span>
+      <div>
+        {% if linkHref %}
+          <a class="uk-link-reset" href="{{ linkHref }}">
+            <h3 id="{{ titleId }}" class="uk-card-title">{{ newsEntry.title }}</h3>
+          </a>
+        {% else %}
+          <h3 id="{{ titleId }}" class="uk-card-title">{{ newsEntry.title }}</h3>
+        {% endif %}
+        {% if published %}
+          <p class="uk-text-meta">{{ published|date('d.m.Y') }}</p>
+        {% endif %}
+      </div>
+    </header>
+    {% if excerpt %}
+      <div class="calhelp-news-card__body">{{ excerpt|raw }}</div>
+    {% endif %}
+    {% if linkHref %}
+      <p class="uk-margin-top"><a class="uk-button uk-button-text" href="{{ linkHref }}">Weiterlesen</a></p>
+    {% endif %}
+  </article>
+{% endif %}
