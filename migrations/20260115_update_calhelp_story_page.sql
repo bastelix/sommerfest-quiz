@@ -1,3 +1,6 @@
+-- Update calHelp page content to story-driven copy focusing on outcomes
+UPDATE pages
+SET content = $CALHELP$
 <script type="application/json" data-calhelp-modules>
 {
   "headline": {
@@ -1012,3 +1015,6 @@
     </div>
   </div>
 </section>
+
+$CALHELP$
+WHERE slug = 'calhelp';
