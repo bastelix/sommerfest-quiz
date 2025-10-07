@@ -241,6 +241,7 @@
 - Manage RAG chat settings in admin
 - Expand calHelp case stories
 - Redesign calhelp news section
+- Redesign calhelp news section
 
 ### Fix
 
