@@ -1,3 +1,6 @@
+-- Remove calHelp modules section from stored page content
+UPDATE pages
+SET content = $CALHELP$
 <section id="solutions" class="uk-section calhelp-section" aria-labelledby="solutions-title">
   <div class="uk-container">
     <div class="calhelp-section__header">
@@ -751,3 +754,6 @@
     </div>
   </div>
 </section>
+
+$CALHELP$
+WHERE slug = 'calhelp';
