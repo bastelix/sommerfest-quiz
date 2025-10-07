@@ -126,37 +126,239 @@ body.qr-landing.calhelp-theme .landing-content {
 }
 
 .calhelp-process {
-  counter-reset: step;
   display: grid;
-  gap: 24px;
+  gap: 32px;
+}
+
+.calhelp-process__nav {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.calhelp-process__step {
+.calhelp-process__nav-item {
   position: relative;
-  padding-left: 72px;
-  min-height: 120px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
 }
 
-.calhelp-process__step::before {
-  counter-increment: step;
-  content: counter(step);
-  position: absolute;
-  top: 32px;
-  left: 28px;
+.calhelp-process__nav-button {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 14px;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.calhelp-process__nav-button:focus-visible {
+  outline: 3px solid color-mix(in oklab, var(--calserver-primary) 60%, rgba(255, 255, 255, 0.2));
+  outline-offset: 2px;
+}
+
+.calhelp-process__nav-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: color-mix(in oklab, var(--calserver-primary) 88%, rgba(255, 255, 255, 0.12));
+  background: color-mix(in oklab, var(--calserver-primary) 85%, rgba(15, 23, 42, 0.1));
   color: #ffffff;
   font-weight: 600;
   font-size: 1.15rem;
   box-shadow: 0 20px 36px -26px color-mix(in oklab, var(--calserver-primary) 72%, rgba(15, 23, 42, 0.85));
+}
+
+.calhelp-process__nav-label {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 600;
+  color: color-mix(in oklab, var(--qr-landing-text) 86%, rgba(15, 23, 42, 0.48));
+}
+
+.calhelp-process__nav-connector {
+  flex: 1 1 0;
+  height: 2px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--qr-landing-text) 18%, rgba(15, 23, 42, 0.18));
+  transition: background-color 0.25s ease;
+}
+
+.calhelp-process__nav-item:last-child .calhelp-process__nav-connector {
+  display: none;
+}
+
+.calhelp-process__nav-item.is-active .calhelp-process__nav-button {
+  background: color-mix(in oklab, var(--calserver-primary) 14%, rgba(255, 255, 255, 0.12));
+  color: color-mix(in oklab, var(--qr-landing-text) 96%, rgba(15, 23, 42, 0.12));
+  box-shadow: 0 16px 32px -28px color-mix(in oklab, var(--calserver-primary) 70%, rgba(15, 23, 42, 0.7));
+}
+
+.calhelp-process__nav-item.is-active .calhelp-process__nav-label {
+  color: var(--qr-landing-text);
+}
+
+.calhelp-process__nav-item.is-active .calhelp-process__nav-index {
+  background: var(--calserver-primary);
+}
+
+.calhelp-process__nav-item.is-complete .calhelp-process__nav-index {
+  background: color-mix(in oklab, var(--calserver-primary) 70%, rgba(255, 255, 255, 0.12));
+  color: #ffffff;
+}
+
+.calhelp-process__nav-item.is-complete .calhelp-process__nav-label {
+  color: color-mix(in oklab, var(--qr-landing-text) 90%, rgba(15, 23, 42, 0.24));
+}
+
+.calhelp-process__nav-item.is-complete .calhelp-process__nav-connector {
+  background: color-mix(in oklab, var(--calserver-primary) 70%, rgba(255, 255, 255, 0.1));
+}
+
+.calhelp-process__stages {
+  display: grid;
+  gap: 24px;
+}
+
+.calhelp-process__stage {
+  position: relative;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.calhelp-process__stage-header > h3 {
+  margin-bottom: 8px;
+}
+
+.calhelp-process__stage-header > p {
+  margin: 0;
+}
+
+.calhelp-process__stage--active {
+  box-shadow: 0 30px 60px -40px color-mix(in oklab, var(--calserver-primary) 80%, rgba(15, 23, 42, 0.8));
+}
+
+.calhelp-process__toggle {
+  margin-top: 16px;
+  padding: 10px 14px;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid color-mix(in oklab, var(--qr-landing-text) 18%, rgba(15, 23, 42, 0.18));
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-weight: 500;
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+
+.calhelp-process__toggle:hover,
+.calhelp-process__toggle:focus-visible {
+  border-color: color-mix(in oklab, var(--calserver-primary) 46%, rgba(15, 23, 42, 0.24));
+  background: color-mix(in oklab, var(--calserver-primary) 10%, rgba(255, 255, 255, 0.12));
+}
+
+.calhelp-process__toggle:focus-visible {
+  outline: 3px solid color-mix(in oklab, var(--calserver-primary) 60%, rgba(255, 255, 255, 0.2));
+  outline-offset: 2px;
+}
+
+.calhelp-process__toggle-icon {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.calhelp-process__toggle-icon::before,
+.calhelp-process__toggle-icon::after {
+  content: '';
+  position: absolute;
+  background: currentColor;
+  border-radius: 999px;
+  transition: transform 0.25s ease;
+}
+
+.calhelp-process__toggle-icon::before {
+  width: 12px;
+  height: 2px;
+  top: 50%;
+  left: 2px;
+  transform: translateY(-50%);
+}
+
+.calhelp-process__toggle-icon::after {
+  width: 2px;
+  height: 12px;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.calhelp-process__toggle[aria-expanded='true'] .calhelp-process__toggle-icon::after {
+  transform: translateX(-50%) scaleY(0);
+}
+
+.calhelp-process__stage--panel-open .calhelp-process__toggle {
+  border-color: color-mix(in oklab, var(--calserver-primary) 50%, rgba(15, 23, 42, 0.24));
+  background: color-mix(in oklab, var(--calserver-primary) 12%, rgba(255, 255, 255, 0.12));
+}
+
+.calhelp-process__stage--panel-open .calhelp-process__toggle-label {
+  color: color-mix(in oklab, var(--qr-landing-text) 96%, rgba(15, 23, 42, 0.1));
+}
+
+.calhelp-process__panel {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid color-mix(in oklab, var(--qr-landing-text) 18%, rgba(15, 23, 42, 0.18));
+  display: grid;
+  gap: 12px;
+}
+
+.calhelp-process__panel[hidden] {
+  display: none;
+}
+
+.calhelp-process__panel h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.calhelp-process__panel ul {
+  margin: 0;
+}
+
+.calhelp-process__criteria {
+  margin: 0;
+  font-size: 0.95rem;
+  color: color-mix(in oklab, var(--qr-landing-text) 74%, rgba(15, 23, 42, 0.4));
+}
+
+.calhelp-process__criteria span {
+  font-weight: 600;
+  color: color-mix(in oklab, var(--qr-landing-text) 92%, rgba(15, 23, 42, 0.24));
+  display: inline-block;
+  margin-right: 6px;
 }
 
 .calhelp-note,
@@ -682,6 +884,18 @@ body.calhelp-proof-gallery--modal-open {
   right: 24px;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .calhelp-process__nav-button,
+  .calhelp-process__nav-connector,
+  .calhelp-process__stage,
+  .calhelp-process__toggle,
+  .calhelp-process__toggle-icon::before,
+  .calhelp-process__toggle-icon::after {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+  }
+}
+
 @media (max-width: 959px) {
   .calhelp-hero-card {
     margin-top: 24px;
@@ -709,13 +923,26 @@ body.calhelp-proof-gallery--modal-open {
     align-self: flex-start;
   }
 
-  .calhelp-process__step {
-    padding-left: 64px;
+  .calhelp-process__nav {
+    grid-auto-flow: row;
+    grid-auto-rows: auto;
+    gap: 12px;
   }
 
-  .calhelp-process__step::before {
-    left: 20px;
-    top: 24px;
+  .calhelp-process__nav-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .calhelp-process__nav-button {
+    padding: 12px 14px;
+  }
+
+  .calhelp-process__nav-connector {
+    width: 2px;
+    height: 24px;
+    align-self: center;
   }
 
   .calhelp-floating-button {
@@ -742,17 +969,19 @@ body.calhelp-proof-gallery--modal-open {
   }
 
   .calhelp-process {
-    gap: 16px;
+    gap: 24px;
   }
 
-  .calhelp-process__step {
-    padding-left: 60px;
+  .calhelp-process__nav-index {
+    width: 44px;
+    height: 44px;
   }
 
-  .calhelp-process__step::before {
-    left: 16px;
-    top: 20px;
-    width: 40px;
-    height: 40px;
+  .calhelp-process__toggle {
+    padding: 10px 12px;
+  }
+
+  .calhelp-process__panel {
+    padding-top: 12px;
   }
 }
