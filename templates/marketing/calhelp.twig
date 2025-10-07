@@ -1,18 +1,5 @@
 {% extends 'layout.twig' %}
 
-{% set links = [
-    { 'href': '#hero', 'label': 'Überblick', 'icon': 'home' },
-    { 'href': '#modules', 'label': 'Module', 'icon': 'grid' },
-    { 'href': '#benefits', 'label': 'Nutzen', 'icon': 'star' },
-    { 'href': '#process', 'label': 'Prozess', 'icon': 'settings' },
-    { 'href': '#usecases', 'label': 'Use Cases', 'icon': 'users' },
-    { 'href': '#services', 'label': 'Services', 'icon': 'bag' },
-    { 'href': '#demo', 'label': 'Demo', 'icon': 'play' },
-    { 'href': '#news', 'label': 'News', 'icon': 'rss' },
-    { 'href': '#faq', 'label': 'FAQ', 'icon': 'question' },
-    { 'href': '#cta', 'label': 'Kontakt', 'icon': 'bolt' }
-] %}
-
 {% block title %}{{ metaTitle|default('Umstieg auf ein zentrales Kalibrier-System – konsistent, nachvollziehbar, auditfähig') }}{% endblock %}
 
 {% block head %}
@@ -49,16 +36,198 @@
             </a>
           </div>
         </div>
-        <div class="uk-navbar-right">
-          <ul class="uk-navbar-nav uk-visible@m">
-            {% for link in links %}
-              <li>
-                <a href="{{ link.href }}">
-                  <span class="uk-margin-small-right" data-uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
-                </a>
-              </li>
-            {% endfor %}
+        <div class="uk-navbar-center uk-visible@m">
+          <ul class="uk-navbar-nav calhelp-mega-nav">
+            <li>
+              <a href="#modules" uk-scroll>Umstieg planen</a>
+              <div class="uk-navbar-dropdown uk-padding-remove" uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left">
+                <div class="uk-grid-divider uk-grid-small uk-child-width-1-2@s" uk-grid>
+                  <div>
+                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                      <li>
+                        <a href="#hero" uk-scroll data-explain="overview">
+                          Überblick &amp; Nutzen
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#modules" uk-scroll data-explain="modules">
+                          Module &amp; Deliverables
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#process" uk-scroll data-explain="process">
+                          Migrationsprozess
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#comparison" uk-scroll data-explain="comparison">
+                          Vorher-Nachher
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="menu-explain">
+                    <div class="explain-pane" data-explain-pane="overview">
+                      <h5>Projektstart verstehen</h5>
+                      <p>Vom Readiness-Check bis zu klaren Verantwortlichkeiten im Zielbild.</p>
+                      <p class="menu-explain__subline">Kick-off, Scope, Governance auf einen Blick</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="modules">
+                      <h5>Module kombinieren</h5>
+                      <p>Sechs Bausteine decken Migration, Integrationen und Betrieb ab.</p>
+                      <p class="menu-explain__subline">Inventar, Migration, Enablement</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="process">
+                      <h5>Migration strukturieren</h5>
+                      <p>Fünf Phasen mit Abnahmen, KPIs und dokumentierten Rollen.</p>
+                      <p class="menu-explain__subline">Readiness, Mapping, Pilot, Cutover, Go-Live</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="comparison">
+                      <h5>Vorher-Nachher vergleichen</h5>
+                      <p>Datenqualität, Freigaben und Audit-Readiness im direkten Vergleich.</p>
+                      <p class="menu-explain__subline">Inventar, Freigaben, Audit-Trail</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <a href="#proof" uk-scroll>Beweis &amp; Sicherheit</a>
+              <div class="uk-navbar-dropdown uk-padding-remove" uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left">
+                <div class="uk-grid-divider uk-grid-small uk-child-width-1-2@s" uk-grid>
+                  <div>
+                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                      <li>
+                        <a href="#benefits" uk-scroll data-explain="benefits">
+                          Nutzen &amp; KPIs
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#proof" uk-scroll data-explain="trust">
+                          Trust Center &amp; Audits
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#cases" uk-scroll data-explain="references">
+                          Referenzen &amp; Branchen
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="menu-explain">
+                    <div class="explain-pane" data-explain-pane="benefits">
+                      <h5>Nutzen belegen</h5>
+                      <p>Drei KPIs zeigen Effekte auf Migration, Audits und Betrieb.</p>
+                      <p class="menu-explain__subline">Nahtlos umsteigen, auditfest arbeiten, einfach betreiben</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="trust">
+                      <h5>Vertrauen schaffen</h5>
+                      <p>Referenzen, Sicherheitsnachweise und DSGVO-Dokumentation aufbereitet.</p>
+                      <p class="menu-explain__subline">Trust Center, Audit-Trail, Compliance</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="references">
+                      <h5>Branchenvielfalt zeigen</h5>
+                      <p>Use Cases und Branchenstories machen Qualitäts- und IT-Erfolge greifbar.</p>
+                      <p class="menu-explain__subline">Labor, Service, Produktion im Überblick</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <a href="#services" uk-scroll>Services &amp; Betrieb</a>
+              <div class="uk-navbar-dropdown uk-padding-remove" uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left">
+                <div class="uk-grid-divider uk-grid-small uk-child-width-1-2@s" uk-grid>
+                  <div>
+                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                      <li>
+                        <a href="#services" uk-scroll data-explain="services">
+                          Produktisierte Services
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#demo" uk-scroll data-explain="demo">
+                          Demo &amp; Onboarding
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#cta" uk-scroll data-explain="contact">
+                          Kontakt &amp; Beratung
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="menu-explain">
+                    <div class="explain-pane" data-explain-pane="services">
+                      <h5>Pakete verstehen</h5>
+                      <p>Fixpreis-Checks, Pilotierung und Hypercare klar gegliedert.</p>
+                      <p class="menu-explain__subline">Pakete S, M, L mit Deliverables</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="demo">
+                      <h5>Erlebnis testen</h5>
+                      <p>Micro-Onboarding zeigt Workflows, Rollenlogik und KPI-Tracking live.</p>
+                      <p class="menu-explain__subline">Geführte Demo statt Formular</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="contact">
+                      <h5>Nächste Schritte planen</h5>
+                      <p>Direkter Draht zum Projektteam für Scope, Zeitplan und Angebot.</p>
+                      <p class="menu-explain__subline">Kick-off, Aufwand, Ansprechpartner</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li>
+              <a href="#news" uk-scroll>Ressourcen</a>
+              <div class="uk-navbar-dropdown uk-padding-remove" uk-dropdown="offset: 20; delay-hide: 150; pos: bottom-left">
+                <div class="uk-grid-divider uk-grid-small uk-child-width-1-2@s" uk-grid>
+                  <div>
+                    <ul class="uk-nav uk-navbar-dropdown-nav">
+                      <li>
+                        <a href="#news" uk-scroll data-explain="news">
+                          Aktuelles &amp; Fachbeiträge
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#faq" uk-scroll data-explain="faq">
+                          FAQ &amp; Einwände
+                        </a>
+                      </li>
+                      <li>
+                        <a href="#seo" uk-scroll data-explain="seo">
+                          SEO &amp; Snippets
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="menu-explain">
+                    <div class="explain-pane" data-explain-pane="news">
+                      <h5>Wissen aufbereitet</h5>
+                      <p>Changelog, Praxisrezept und Redaktionsplan halten Stakeholder aktuell.</p>
+                      <p class="menu-explain__subline">Artikel, Spotlight, Kalender</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="faq">
+                      <h5>Antworten parat</h5>
+                      <p>Finanzierung, Timeline und Betrieb sind kompakt beantwortet.</p>
+                      <p class="menu-explain__subline">Rollen, Migration, Support</p>
+                    </div>
+                    <div class="explain-pane uk-hidden" data-explain-pane="seo">
+                      <h5>Marketing abstimmen</h5>
+                      <p>Snippets, Meta-Texte und strukturierte Daten für Kampagnen.</p>
+                      <p class="menu-explain__subline">Meta, OpenGraph, FAQ-Markup</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </li>
           </ul>
+        </div>
+        <div class="uk-navbar-right">
+          <div class="uk-navbar-item uk-visible@m">
+            <a class="uk-button uk-button-primary calhelp-top-cta" href="#cta" uk-scroll>
+              <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Gespräch starten
+            </a>
+          </div>
           <div class="uk-navbar-item config-menu uk-inline">
             <button id="configMenuToggle"
                     type="button"
@@ -154,14 +323,28 @@
     <div id="qr-offcanvas" data-uk-offcanvas="overlay: true; flip: true">
       <div class="uk-offcanvas-bar">
         <button class="uk-offcanvas-close git-btn" type="button" data-uk-close aria-label="Menü schließen"></button>
-        <ul class="uk-nav uk-nav-default">
-          {% for link in links %}
-            <li>
-              <a href="{{ link.href }}">
-                <span class="uk-margin-small-right" data-uk-icon="icon: {{ link.icon }}"></span>{{ link.label }}
-              </a>
-            </li>
-          {% endfor %}
+        <ul class="uk-nav uk-nav-default calhelp-offcanvas-nav">
+          <li class="uk-nav-header">Umstieg planen</li>
+          <li><a href="#hero" uk-scroll>Überblick &amp; Nutzen</a></li>
+          <li><a href="#modules" uk-scroll>Module &amp; Deliverables</a></li>
+          <li><a href="#process" uk-scroll>Migrationsprozess</a></li>
+          <li><a href="#comparison" uk-scroll>Vorher-Nachher</a></li>
+          <li class="uk-nav-divider"></li>
+          <li class="uk-nav-header">Beweis &amp; Sicherheit</li>
+          <li><a href="#benefits" uk-scroll>Nutzen &amp; KPIs</a></li>
+          <li><a href="#proof" uk-scroll>Trust Center &amp; Audits</a></li>
+          <li><a href="#cases" uk-scroll>Referenzen &amp; Branchen</a></li>
+          <li class="uk-nav-divider"></li>
+          <li class="uk-nav-header">Services &amp; Betrieb</li>
+          <li><a href="#services" uk-scroll>Produktisierte Services</a></li>
+          <li><a href="#demo" uk-scroll>Demo &amp; Onboarding</a></li>
+          <li><a href="#cta" uk-scroll>Kontakt &amp; Beratung</a></li>
+          <li class="uk-nav-divider"></li>
+          <li class="uk-nav-header">Ressourcen</li>
+          <li><a href="#news" uk-scroll>Aktuelles &amp; Fachbeiträge</a></li>
+          <li><a href="#faq" uk-scroll>FAQ &amp; Einwände</a></li>
+          <li><a href="#seo" uk-scroll>SEO &amp; Snippets</a></li>
+          <li><a href="#about" uk-scroll>Über calHelp</a></li>
         </ul>
         <a class="uk-button uk-button-primary uk-width-1-1 uk-margin-top" href="#cta">
           <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Gespräch starten
@@ -323,6 +506,46 @@
       } catch (error) {
         /* empty */
       }
+    })();
+  </script>
+  <script>
+    (function () {
+      var hoverIntentTimer;
+
+      function scheduleSwap(event) {
+        var link = event.target.closest('a[data-explain]');
+        if (!link) {
+          return;
+        }
+
+        clearTimeout(hoverIntentTimer);
+
+        if (event.type === 'focusin') {
+          swapPane(link);
+          return;
+        }
+
+        hoverIntentTimer = setTimeout(function () {
+          swapPane(link);
+        }, 90);
+      }
+
+      function swapPane(link) {
+        var dropdown = link.closest('.uk-navbar-dropdown');
+        if (!dropdown) {
+          return;
+        }
+
+        var explainKey = link.getAttribute('data-explain');
+        var panes = dropdown.querySelectorAll('.menu-explain .explain-pane');
+        panes.forEach(function (pane) {
+          var key = pane.getAttribute('data-explain-pane');
+          pane.classList.toggle('uk-hidden', key !== explainKey);
+        });
+      }
+
+      document.addEventListener('mouseover', scheduleSwap, true);
+      document.addEventListener('focusin', scheduleSwap, true);
     })();
   </script>
   <script>
