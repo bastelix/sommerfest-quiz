@@ -475,6 +475,293 @@
   </div>
 </section>
 
+<section id="comparison" class="uk-section uk-section-muted calhelp-section" aria-labelledby="comparison-title">
+  <div class="uk-container">
+    <div class="calhelp-section__header">
+      <h2 id="comparison-title"
+          class="uk-heading-medium"
+          data-calhelp-i18n
+          data-i18n-de="Alltag vorher vs. nachher"
+          data-i18n-en="Everyday work before vs. after">Alltag vorher vs. nachher</h2>
+      <p data-calhelp-i18n
+         data-i18n-de="Wie calHelp Abläufe verändert – drei Beispiele aus dem Betrieb."
+         data-i18n-en="How calHelp changes operations – three real-world examples.">Wie calHelp Abläufe verändert – drei Beispiele aus dem Betrieb.</p>
+    </div>
+    <div class="calhelp-comparison" data-calhelp-comparison>
+      <article class="uk-card uk-card-primary uk-card-body calhelp-comparison__card"
+               aria-labelledby="comparison-card-data-title"
+               data-calhelp-comparison-card="data"
+               data-calhelp-comparison-default="after">
+        <header class="calhelp-comparison__header">
+          <p id="comparison-card-data-title"
+             class="calhelp-comparison__eyebrow"
+             data-calhelp-i18n
+             data-i18n-de="Datenpflege"
+             data-i18n-en="Data upkeep">Datenpflege</p>
+          <div class="calhelp-comparison__toggle-group"
+               role="group"
+               data-calhelp-i18n
+               data-calhelp-i18n-attr="aria-label"
+               data-i18n-de="Zustand für Datenpflege wechseln"
+               data-i18n-en="Switch data upkeep state"
+               aria-label="Zustand für Datenpflege wechseln">
+            <button type="button"
+                    class="calhelp-comparison__toggle"
+                    data-comparison-toggle="before"
+                    aria-pressed="false"
+                    aria-controls="comparison-card-data-before"
+                    data-calhelp-i18n
+                    data-i18n-de="Vorher"
+                    data-i18n-en="Before">Vorher</button>
+            <button type="button"
+                    class="calhelp-comparison__toggle"
+                    data-comparison-toggle="after"
+                    aria-pressed="true"
+                    aria-controls="comparison-card-data-after"
+                    data-calhelp-i18n
+                    data-i18n-de="Nachher"
+                    data-i18n-en="After">Nachher</button>
+          </div>
+        </header>
+        <div class="calhelp-comparison__body" aria-live="polite">
+          <div id="comparison-card-data-before"
+               class="calhelp-comparison__state"
+               data-comparison-state="before"
+               aria-hidden="true"
+               hidden>
+            <p data-calhelp-i18n
+               data-i18n-de="Stammdaten in Excel, lokale Ablagen, Absprachen per E-Mail. Jede Korrektur kostet Zeit und erzeugt neue Versionen."
+               data-i18n-en="Master data lives in Excel and local folders, coordination happens via email. Every correction costs time and spawns another version.">Stammdaten in Excel, lokale Ablagen, Absprachen per E-Mail. Jede Korrektur kostet Zeit und erzeugt neue Versionen.</p>
+            <dl class="calhelp-comparison__metrics">
+              <div class="calhelp-comparison__metric">
+                <dt data-calhelp-i18n
+                    data-i18n-de="Parallel gepflegte Quellen"
+                    data-i18n-en="Sources maintained in parallel">Parallel gepflegte Quellen</dt>
+                <dd data-calhelp-i18n
+                    data-i18n-de="3 Systeme"
+                    data-i18n-en="3 systems">3 Systeme</dd>
+              </div>
+              <div class="calhelp-comparison__metric">
+                <dt data-calhelp-i18n
+                    data-i18n-de="Aktualisierung"
+                    data-i18n-en="Update cycle">Aktualisierung</dt>
+                <dd data-calhelp-i18n
+                    data-i18n-de="&gt; 48&nbsp;h Rückstand"
+                    data-i18n-en="&gt; 48&nbsp;h lag">&gt; 48&nbsp;h Rückstand</dd>
+              </div>
+            </dl>
+          </div>
+          <div id="comparison-card-data-after"
+               class="calhelp-comparison__state is-active"
+               data-comparison-state="after">
+            <p data-calhelp-i18n
+               data-i18n-de="Zentrale Stammdaten mit Validierungsregeln, Änderungen mit Pflichtfeldern dokumentiert. Teams pflegen direkt im System."
+               data-i18n-en="Central master data with validation rules, required fields document every change. Teams maintain records directly in the platform.">Zentrale Stammdaten mit Validierungsregeln, Änderungen mit Pflichtfeldern dokumentiert. Teams pflegen direkt im System.</p>
+            <dl class="calhelp-comparison__metrics">
+              <div class="calhelp-comparison__metric">
+                <dt data-calhelp-i18n
+                    data-i18n-de="Suchzeit"
+                    data-i18n-en="Search time">Suchzeit</dt>
+                <dd data-calhelp-i18n
+                    data-i18n-de="−35&nbsp;%"
+                    data-i18n-en="−35%">−35&nbsp;%</dd>
+              </div>
+              <div class="calhelp-comparison__metric">
+                <dt data-calhelp-i18n
+                    data-i18n-de="Datenquelle"
+                    data-i18n-en="Data source">Datenquelle</dt>
+                <dd data-calhelp-i18n
+                    data-i18n-de="1 konsolidiertes System"
+                    data-i18n-en="1 consolidated system">1 konsolidiertes System</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </article>
+      <article class="uk-card uk-card-primary uk-card-body calhelp-comparison__card"
+               aria-labelledby="comparison-card-approval-title"
+               data-calhelp-comparison-card="approval"
+               data-calhelp-comparison-default="after">
+        <header class="calhelp-comparison__header">
+          <p id="comparison-card-approval-title"
+             class="calhelp-comparison__eyebrow"
+             data-calhelp-i18n
+             data-i18n-de="Report-Freigabe"
+             data-i18n-en="Report approval">Report-Freigabe</p>
+          <div class="calhelp-comparison__toggle-group"
+               role="group"
+               data-calhelp-i18n
+               data-calhelp-i18n-attr="aria-label"
+               data-i18n-de="Zustand für Report-Freigabe wechseln"
+               data-i18n-en="Switch report approval state"
+               aria-label="Zustand für Report-Freigabe wechseln">
+            <button type="button"
+                    class="calhelp-comparison__toggle"
+                    data-comparison-toggle="before"
+                    aria-pressed="false"
+                    aria-controls="comparison-card-approval-before"
+                    data-calhelp-i18n
+                    data-i18n-de="Vorher"
+                    data-i18n-en="Before">Vorher</button>
+            <button type="button"
+                    class="calhelp-comparison__toggle"
+                    data-comparison-toggle="after"
+                    aria-pressed="true"
+                    aria-controls="comparison-card-approval-after"
+                    data-calhelp-i18n
+                    data-i18n-de="Nachher"
+                    data-i18n-en="After">Nachher</button>
+          </div>
+        </header>
+        <div class="calhelp-comparison__body" aria-live="polite">
+          <div id="comparison-card-approval-before"
+               class="calhelp-comparison__state"
+               data-comparison-state="before"
+               aria-hidden="true"
+               hidden>
+            <p data-calhelp-i18n
+               data-i18n-de="Freigaben per E-Mail oder Excel, unklare Versionen, jedes Audit verlangt Nachfragen. Feedbackschleifen dauern Tage."
+               data-i18n-en="Approvals travel via email or Excel, versions stay unclear and every audit triggers follow-up questions. Review loops take days.">Freigaben per E-Mail oder Excel, unklare Versionen, jedes Audit verlangt Nachfragen. Feedbackschleifen dauern Tage.</p>
+            <dl class="calhelp-comparison__metrics">
+              <div class="calhelp-comparison__metric">
+                <dt data-calhelp-i18n
+                    data-i18n-de="Feedbackschleifen"
+                    data-i18n-en="Review loops">Feedbackschleifen</dt>
+                <dd data-calhelp-i18n
+                    data-i18n-de="Ø 3 Runden"
+                    data-i18n-en="avg. 3 rounds">Ø 3 Runden</dd>
+              </div>
+              <div class="calhelp-comparison__metric">
+                <dt data-calhelp-i18n
+                    data-i18n-de="Nachvollziehbarkeit"
+                    data-i18n-en="Traceability">Nachvollziehbarkeit</dt>
+                <dd data-calhelp-i18n
+                    data-i18n-de="Audit-Trail nur manuell"
+                    data-i18n-en="Audit trail manual only">Audit-Trail nur manuell</dd>
+              </div>
+            </dl>
+          </div>
+          <div id="comparison-card-approval-after"
+               class="calhelp-comparison__state is-active"
+               data-comparison-state="after">
+            <p data-calhelp-i18n
+               data-i18n-de="Geführte Freigaben mit Rollen, Versionskontrolle und Pflichtkommentaren. Signaturen landen automatisch im Audit-Trail."
+               data-i18n-en="Guided approvals with roles, version control and required comments. Sign-offs land automatically in the audit trail.">Geführte Freigaben mit Rollen, Versionskontrolle und Pflichtkommentaren. Signaturen landen automatisch im Audit-Trail.</p>
+            <dl class="calhelp-comparison__metrics">
+              <div class="calhelp-comparison__metric">
+                <dt data-calhelp-i18n
+                    data-i18n-de="Feedbackschleifen"
+                    data-i18n-en="Review loops">Feedbackschleifen</dt>
+                <dd data-calhelp-i18n
+                    data-i18n-de="−50&nbsp;%"
+                    data-i18n-en="−50%">−50&nbsp;%</dd>
+              </div>
+              <div class="calhelp-comparison__metric">
+                <dt data-calhelp-i18n
+                    data-i18n-de="Signatur-Log"
+                    data-i18n-en="Signature log">Signatur-Log</dt>
+                <dd data-calhelp-i18n
+                    data-i18n-de="100&nbsp;% automatisch"
+                    data-i18n-en="100% automated">100&nbsp;% automatisch</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </article>
+      <article class="uk-card uk-card-primary uk-card-body calhelp-comparison__card"
+               aria-labelledby="comparison-card-audit-title"
+               data-calhelp-comparison-card="audit"
+               data-calhelp-comparison-default="after">
+        <header class="calhelp-comparison__header">
+          <p id="comparison-card-audit-title"
+             class="calhelp-comparison__eyebrow"
+             data-calhelp-i18n
+             data-i18n-de="Audit-Vorbereitung"
+             data-i18n-en="Audit preparation">Audit-Vorbereitung</p>
+          <div class="calhelp-comparison__toggle-group"
+               role="group"
+               data-calhelp-i18n
+               data-calhelp-i18n-attr="aria-label"
+               data-i18n-de="Zustand für Audit-Vorbereitung wechseln"
+               data-i18n-en="Switch audit preparation state"
+               aria-label="Zustand für Audit-Vorbereitung wechseln">
+            <button type="button"
+                    class="calhelp-comparison__toggle"
+                    data-comparison-toggle="before"
+                    aria-pressed="false"
+                    aria-controls="comparison-card-audit-before"
+                    data-calhelp-i18n
+                    data-i18n-de="Vorher"
+                    data-i18n-en="Before">Vorher</button>
+            <button type="button"
+                    class="calhelp-comparison__toggle"
+                    data-comparison-toggle="after"
+                    aria-pressed="true"
+                    aria-controls="comparison-card-audit-after"
+                    data-calhelp-i18n
+                    data-i18n-de="Nachher"
+                    data-i18n-en="After">Nachher</button>
+          </div>
+        </header>
+        <div class="calhelp-comparison__body" aria-live="polite">
+          <div id="comparison-card-audit-before"
+               class="calhelp-comparison__state"
+               data-comparison-state="before"
+               aria-hidden="true"
+               hidden>
+            <p data-calhelp-i18n
+               data-i18n-de="Nachweise liegen in Ordnern, Checklisten werden händisch gepflegt. Vor Audits werden Dokumente gesucht und Medien abgeglichen."
+               data-i18n-en="Evidence lives in folders, checklists stay manual. Before an audit the team hunts documents and reconciles media files.">Nachweise liegen in Ordnern, Checklisten werden händisch gepflegt. Vor Audits werden Dokumente gesucht und Medien abgeglichen.</p>
+            <dl class="calhelp-comparison__metrics">
+              <div class="calhelp-comparison__metric">
+                <dt data-calhelp-i18n
+                    data-i18n-de="Vorbereitungszeit"
+                    data-i18n-en="Preparation time">Vorbereitungszeit</dt>
+                <dd data-calhelp-i18n
+                    data-i18n-de="3 Tage"
+                    data-i18n-en="3 days">3 Tage</dd>
+              </div>
+              <div class="calhelp-comparison__metric">
+                <dt data-calhelp-i18n
+                    data-i18n-de="Ablage"
+                    data-i18n-en="Storage">Ablage</dt>
+                <dd data-calhelp-i18n
+                    data-i18n-de="5+ verstreute Ordner"
+                    data-i18n-en="5+ scattered folders">5+ verstreute Ordner</dd>
+              </div>
+            </dl>
+          </div>
+          <div id="comparison-card-audit-after"
+               class="calhelp-comparison__state is-active"
+               data-comparison-state="after">
+            <p data-calhelp-i18n
+               data-i18n-de="Audit-Workspace mit Checkliste, Report-Diffs und Messmittelhistorie. Nachweise stehen sortiert bereit, inklusive Ansprechpartner:in."
+               data-i18n-en="Audit workspace with checklist, report diffs and instrument history. Evidence is pre-sorted including the responsible contact.">Audit-Workspace mit Checkliste, Report-Diffs und Messmittelhistorie. Nachweise stehen sortiert bereit, inklusive Ansprechpartner:in.</p>
+            <dl class="calhelp-comparison__metrics">
+              <div class="calhelp-comparison__metric">
+                <dt data-calhelp-i18n
+                    data-i18n-de="Aufwand"
+                    data-i18n-en="Effort">Aufwand</dt>
+                <dd data-calhelp-i18n
+                    data-i18n-de="−60&nbsp;%"
+                    data-i18n-en="−60%">−60&nbsp;%</dd>
+              </div>
+              <div class="calhelp-comparison__metric">
+                <dt data-calhelp-i18n
+                    data-i18n-de="Bereitstellung"
+                    data-i18n-en="Preparation">Bereitstellung</dt>
+                <dd data-calhelp-i18n
+                    data-i18n-de="Audit-Ordner in 1 Tag"
+                    data-i18n-en="Audit binder in 1 day">Audit-Ordner in 1 Tag</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
 <script type="application/json" data-calhelp-usecases>
 {
   "usecases": [

@@ -588,3 +588,107 @@ document.addEventListener('DOMContentLoaded', () => {
     setActive(activeId, { force: true });
   });
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const lang = document.documentElement.lang?.toLowerCase().startsWith('en') ? 'en' : 'de';
+  const datasetKey = lang === 'en' ? 'i18nEn' : 'i18nDe';
+
+  document.querySelectorAll('[data-calhelp-i18n]').forEach((node) => {
+    const attrTarget = node.getAttribute('data-calhelp-i18n-attr');
+    const translation = datasetKey === 'i18nEn' ? node.dataset.i18nEn : node.dataset.i18nDe;
+    if (!translation) return;
+
+    if (attrTarget) {
+      node.setAttribute(attrTarget, translation);
+      return;
+    }
+
+    if (node instanceof HTMLInputElement || node instanceof HTMLTextAreaElement) {
+      node.value = translation;
+      return;
+    }
+
+    node.textContent = translation;
+  });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const containers = document.querySelectorAll('[data-calhelp-comparison]');
+  if (!containers.length) return;
+
+  const activateState = (card, state, { focusButton = false } = {}) => {
+    const toggles = Array.from(card.querySelectorAll('[data-comparison-toggle]'));
+    const states = Array.from(card.querySelectorAll('[data-comparison-state]'));
+    if (!toggles.length || !states.length) return;
+
+    const targetState = state || toggles[0].dataset.comparisonToggle;
+    if (!targetState) return;
+
+    toggles.forEach((button) => {
+      const isActive = button.dataset.comparisonToggle === targetState;
+      button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+      button.classList.toggle('is-active', isActive);
+      if (isActive && focusButton) {
+        button.focus();
+      }
+    });
+
+    states.forEach((panel) => {
+      const isActive = panel.dataset.comparisonState === targetState;
+      panel.hidden = !isActive;
+      panel.classList.toggle('is-active', isActive);
+      panel.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+    });
+  };
+
+  const handleKeyNavigation = (event, toggles) => {
+    const { key, target } = event;
+    if (!(target instanceof HTMLElement)) return;
+    const currentIndex = toggles.indexOf(target);
+    if (currentIndex === -1) return;
+
+    let nextIndex = currentIndex;
+    if (key === 'ArrowRight' || key === 'ArrowDown') {
+      nextIndex = (currentIndex + 1) % toggles.length;
+    } else if (key === 'ArrowLeft' || key === 'ArrowUp') {
+      nextIndex = (currentIndex - 1 + toggles.length) % toggles.length;
+    } else if (key === 'Home') {
+      nextIndex = 0;
+    } else if (key === 'End') {
+      nextIndex = toggles.length - 1;
+    } else {
+      return;
+    }
+
+    event.preventDefault();
+    const nextButton = toggles[nextIndex];
+    const state = nextButton.dataset.comparisonToggle;
+    if (state) {
+      activateState(nextButton.closest('[data-calhelp-comparison-card]'), state, { focusButton: true });
+    }
+  };
+
+  containers.forEach((container) => {
+    const cards = Array.from(container.querySelectorAll('[data-calhelp-comparison-card]'));
+    cards.forEach((card) => {
+      const toggles = Array.from(card.querySelectorAll('[data-comparison-toggle]'));
+      if (!toggles.length) return;
+
+      const defaultState = card.getAttribute('data-calhelp-comparison-default');
+      activateState(card, defaultState);
+
+      toggles.forEach((button) => {
+        button.addEventListener('click', () => {
+          const state = button.dataset.comparisonToggle;
+          if (state) {
+            activateState(card, state);
+          }
+        });
+
+        button.addEventListener('keydown', (event) => {
+          handleKeyNavigation(event, toggles);
+        });
+      });
+    });
+  });
+});
