@@ -1540,6 +1540,45 @@ body.calhelp-proof-gallery--modal-open {
   right: 24px;
 }
 
+/* -------------------------------------------------------------------------
+ * Dark theme adjustments
+ * ---------------------------------------------------------------------- */
+body.qr-landing.calhelp-theme.dark-mode .uk-section-muted,
+body.qr-landing.calhelp-theme[data-theme='dark'] .uk-section-muted,
+body.qr-landing.calhelp-theme.dark-mode.uk-section-muted,
+body.qr-landing.calhelp-theme[data-theme='dark'].uk-section-muted {
+  background: color-mix(in oklab, #0b1220 94%, rgba(15, 23, 42, 0.88));
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-case-strip--muted,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-case-strip--muted {
+  color: color-mix(in oklab, #0f172a 94%, rgba(255, 255, 255, 0.06));
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-case-strip--muted .calhelp-case-strip__label,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-case-strip--muted .calhelp-case-strip__label {
+  color: color-mix(in oklab, var(--calserver-primary) 48%, #0f172a 52%);
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-section__header p,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-section__header p,
+body.qr-landing.calhelp-theme.dark-mode .calhelp-card .uk-text-meta,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-card .uk-text-meta,
+body.qr-landing.calhelp-theme.dark-mode .calhelp-process__nav-label,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process__nav-label {
+  color: color-mix(in oklab, #0f172a 88%, rgba(255, 255, 255, 0.12));
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-process__nav-item.is-active .calhelp-process__nav-label,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process__nav-item.is-active .calhelp-process__nav-label {
+  color: color-mix(in oklab, #0f172a 92%, rgba(255, 255, 255, 0.08));
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-process__nav-item.is-complete .calhelp-process__nav-label,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process__nav-item.is-complete .calhelp-process__nav-label {
+  color: color-mix(in oklab, #0f172a 80%, rgba(255, 255, 255, 0.16));
+}
+
 @media (prefers-reduced-motion: reduce) {
   .calhelp-process__nav-button,
   .calhelp-process__nav-connector,
