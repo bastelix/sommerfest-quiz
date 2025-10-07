@@ -21,12 +21,23 @@ use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 use Twig\Error\LoaderError;
 
+use function html_entity_decode;
 use function htmlspecialchars;
 use function preg_replace;
 
 class MarketingPageController
 {
     private const CALHELP_NEWS_PLACEHOLDER = '__CALHELP_NEWS_SECTION__';
+
+    private const DEFAULT_NEWSLETTER_BRAND = 'QuizRace';
+
+    /** @var array<string, string> */
+    private const NEWSLETTER_BRANDS = [
+        'landing' => 'QuizRace',
+        'calserver' => 'calServer',
+        'calhelp' => 'calHelp',
+        'future-is-green' => 'Future is Green',
+    ];
 
     private PageService $pages;
     private PageSeoConfigService $seo;
@@ -121,7 +132,7 @@ class MarketingPageController
             );
         } else {
             $html = $this->ensureTurnstileMarkup($html, $widgetMarkup, $hadPlaceholder);
-            $html = $this->ensureNewsletterOptIn($html);
+            $html = $this->ensureNewsletterOptIn($html, $templateSlug, $locale);
         }
 
         $view = Twig::fromRequest($request);
@@ -304,7 +315,7 @@ class MarketingPageController
         return is_string($result) ? $result : $html;
     }
 
-    private function ensureNewsletterOptIn(string $html): string
+    private function ensureNewsletterOptIn(string $html, string $templateSlug, string $locale): string
     {
         if (!str_contains($html, 'id="contact-form"')) {
             return $html;
@@ -324,9 +335,12 @@ class MarketingPageController
             return $html;
         }
 
-        $newsletterMarkup = <<<'HTML'
+        $label = $this->determineNewsletterLabel($html, $templateSlug, $locale);
+        $escapedLabel = htmlspecialchars($label, ENT_QUOTES);
+
+        $newsletterMarkup = <<<HTML
           <div class="uk-margin">
-            <label><input class="uk-checkbox" type="checkbox" name="newsletter_subscribe" value="1"> Ich möchte den calServer Newsletter erhalten.</label>
+            <label><input class="uk-checkbox" type="checkbox" name="newsletter_subscribe" value="1"> {$escapedLabel}</label>
           </div>
         HTML;
 
@@ -356,6 +370,90 @@ class MarketingPageController
         $result = preg_replace($formPattern, $replacement, $html, 1);
 
         return is_string($result) ? $result : $html;
+    }
+
+    private function determineNewsletterLabel(string $html, string $templateSlug, string $locale): string
+    {
+        $formTag = null;
+        if (preg_match('/<form[^>]*id="contact-form"[^>]*>/i', $html, $formMatches)) {
+            $formTag = $formMatches[0];
+        }
+
+        if (is_string($formTag) && preg_match('/data-newsletter-label="([^\"]+)"/i', $formTag, $labelMatches)) {
+            return html_entity_decode($labelMatches[1], ENT_QUOTES);
+        }
+
+        $brand = null;
+        if (is_string($formTag) && preg_match('/data-newsletter-brand="([^\"]+)"/i', $formTag, $brandMatches)) {
+            $brand = html_entity_decode($brandMatches[1], ENT_QUOTES);
+        }
+
+        if ($brand === null) {
+            $brand = $this->resolveNewsletterBrand($html, $templateSlug);
+        }
+
+        return $this->buildNewsletterLabel($brand, $locale);
+    }
+
+    private function resolveNewsletterBrand(string $html, string $templateSlug): string
+    {
+        $identifier = $this->extractContactEndpointSlug($html);
+        if ($identifier === null) {
+            $identifier = $templateSlug;
+        }
+
+        $normalized = $this->normalizeNewsletterSlug($identifier);
+        if (isset(self::NEWSLETTER_BRANDS[$normalized])) {
+            return self::NEWSLETTER_BRANDS[$normalized];
+        }
+
+        if (str_contains($normalized, 'calserver')) {
+            return self::NEWSLETTER_BRANDS['calserver'];
+        }
+
+        if (str_contains($normalized, 'calhelp')) {
+            return self::NEWSLETTER_BRANDS['calhelp'];
+        }
+
+        if (str_contains($normalized, 'future-is-green') || str_contains($normalized, 'futureisgreen')) {
+            return self::NEWSLETTER_BRANDS['future-is-green'];
+        }
+
+        return self::DEFAULT_NEWSLETTER_BRAND;
+    }
+
+    private function extractContactEndpointSlug(string $html): ?string
+    {
+        if (preg_match('/data-contact-endpoint="[^"]*\/([a-z0-9-]+)\/contact"/i', $html, $matches)) {
+            return strtolower($matches[1]);
+        }
+
+        return null;
+    }
+
+    private function normalizeNewsletterSlug(string $slug): string
+    {
+        $normalized = strtolower($slug);
+        if (preg_match('/^(.*)-(de|en)$/', $normalized, $matches)) {
+            return $matches[1];
+        }
+
+        return $normalized;
+    }
+
+    private function buildNewsletterLabel(?string $brand, string $locale): string
+    {
+        $normalizedBrand = trim((string) $brand);
+        if ($normalizedBrand === '') {
+            $normalizedBrand = self::DEFAULT_NEWSLETTER_BRAND;
+        }
+
+        $language = strtolower(substr($locale, 0, 2));
+        if ($language === 'en') {
+            return sprintf('I would like to receive the %s newsletter.', $normalizedBrand);
+        }
+
+        return sprintf('Ich möchte den %s Newsletter erhalten.', $normalizedBrand);
     }
 
     /**
