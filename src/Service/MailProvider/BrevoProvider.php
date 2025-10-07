@@ -131,8 +131,7 @@ class BrevoProvider implements MailProviderInterface
             ]);
         } catch (ClientException $exception) {
             $response = $exception->getResponse();
-            $statusCode = $response?->getStatusCode();
-            if ($statusCode !== 404) {
+            if ($response->getStatusCode() !== 404) {
                 throw new RuntimeException(
                     'Failed to unsubscribe contact via Brevo: ' . $exception->getMessage(),
                     0,
@@ -365,9 +364,6 @@ class BrevoProvider implements MailProviderInterface
         $parts = array_filter($parts, static fn (string $part): bool => $part !== '');
         $ids = [];
         foreach ($parts as $part) {
-            if ($part === '') {
-                continue;
-            }
             $ids[] = (int) $part;
         }
 
