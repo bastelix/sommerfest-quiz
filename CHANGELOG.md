@@ -326,6 +326,7 @@
 - Add manual drag fallback
 - Replace sticker background upload
 - Add stage container for sticker editor
+- Centralize calhelp placeholder injection
 
 ### Style
 
