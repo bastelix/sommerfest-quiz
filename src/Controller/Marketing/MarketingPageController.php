@@ -76,6 +76,10 @@ class MarketingPageController
         $html = str_replace('data-calserver-chat-open', 'data-marketing-chat-open', $html);
         $html = str_replace('aria-controls="calserver-chat-modal"', 'aria-controls="marketing-chat-modal"', $html);
 
+        $moduleExtraction = $this->extractCalhelpModules($html);
+        $html = $moduleExtraction['html'];
+        $calhelpModules = $moduleExtraction['data'];
+
         $landingNews = $this->landingNews->getPublishedForPage($page->getId(), 3);
         $landingNewsBasePath = null;
         if ($landingNews !== []) {
@@ -143,6 +147,10 @@ class MarketingPageController
             'marketingSlug' => $templateSlug,
             'marketingChatEndpoint' => $basePath . $chatPath,
         ];
+
+        if ($calhelpModules !== null && ($calhelpModules['modules'] ?? []) !== []) {
+            $data['calhelpModules'] = $calhelpModules;
+        }
 
         if ($landingNews !== []) {
             $data['landingNews'] = $landingNews;
@@ -402,6 +410,47 @@ class MarketingPageController
         }
 
         return sprintf('/%s/news', $pageSlug);
+    }
+
+    /**
+     * @return array{html: string, data: array|null}
+     */
+    private function extractCalhelpModules(string $html): array
+    {
+        $pattern = '/<script[^>]*data-calhelp-modules[^>]*>(.*?)<\/script>/si';
+        if (!preg_match($pattern, $html, $matches)) {
+            return ['html' => $html, 'data' => null];
+        }
+
+        $json = trim(html_entity_decode($matches[1], ENT_QUOTES));
+        $decoded = json_decode($json, true);
+        if (!is_array($decoded)) {
+            return ['html' => str_replace($matches[0], '', $html), 'data' => null];
+        }
+
+        $modules = [];
+        if (isset($decoded['modules']) && is_array($decoded['modules'])) {
+            foreach ($decoded['modules'] as $module) {
+                if (is_array($module)) {
+                    $modules[] = $module;
+                }
+            }
+        }
+
+        $data = [
+            'headline' => isset($decoded['headline']) && is_array($decoded['headline']) ? $decoded['headline'] : [],
+            'subheadline' => isset($decoded['subheadline']) && is_array($decoded['subheadline']) ? $decoded['subheadline'] : [],
+            'modules' => $modules,
+        ];
+
+        if (isset($decoded['eyebrow']) && is_array($decoded['eyebrow'])) {
+            $data['eyebrow'] = $decoded['eyebrow'];
+        }
+
+        return [
+            'html' => str_replace($matches[0], '', $html),
+            'data' => $data,
+        ];
     }
 
     private function resolveLocalizedSlug(string $baseSlug, string $locale): string {

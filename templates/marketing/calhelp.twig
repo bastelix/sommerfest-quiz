@@ -2,6 +2,7 @@
 
 {% set links = [
     { 'href': '#hero', 'label': 'Überblick', 'icon': 'home' },
+    { 'href': '#modules', 'label': 'Module', 'icon': 'grid' },
     { 'href': '#benefits', 'label': 'Nutzen', 'icon': 'star' },
     { 'href': '#process', 'label': 'Prozess', 'icon': 'settings' },
     { 'href': '#usecases', 'label': 'Use Cases', 'icon': 'users' },
@@ -203,6 +204,8 @@
         </div>
       </div>
     </section>
+
+    {% include 'marketing/partials/calhelp-modules.twig' %}
 
     {{ content|raw }}
 
