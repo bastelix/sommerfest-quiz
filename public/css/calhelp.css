@@ -1350,70 +1350,96 @@ body.calhelp-proof-gallery--modal-open {
 }
 
 .calhelp-modules__grid {
-  row-gap: 28px;
+  row-gap: 0;
+}
+
+.calhelp-modules__grid.uk-grid {
+  margin-left: 0;
+  margin-top: 0;
+}
+
+.calhelp-modules__grid.uk-grid > * {
+  padding-left: 0;
+}
+
+.calhelp-modules__grid.uk-grid > .uk-grid-margin {
+  margin-top: 0 !important;
 }
 
 .calhelp-module-card {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  border-radius: 18px;
-  padding: 28px;
+  gap: 12px;
+  padding: 22px 20px;
+  border-radius: 0;
   overflow: hidden;
-  box-shadow: 0 32px 48px -32px color-mix(in oklab, var(--calserver-primary) 62%, rgba(15, 23, 42, 0.75));
+  background: color-mix(in oklab, rgba(15, 23, 42, 0.88) 88%, rgba(255, 255, 255, 0.06));
+  box-shadow: 0 26px 44px -36px color-mix(in oklab, var(--calserver-primary) 70%, rgba(15, 23, 42, 0.82));
 }
 
-.calhelp-module-card::after {
+.calhelp-module-card::before {
   content: '';
   position: absolute;
-  inset: auto -60px -60px auto;
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  background: color-mix(in oklab, #ffffff 12%, var(--calserver-primary) 28%);
-  opacity: 0.45;
-  filter: blur(0.5px);
-  transition: transform 0.35s ease, opacity 0.35s ease;
+  inset: 0;
+  pointer-events: none;
+  border: 1px solid color-mix(in oklab, var(--calserver-primary) 74%, rgba(255, 255, 255, 0.7));
+  box-shadow: 0 0 18px -8px color-mix(in oklab, var(--calserver-primary) 88%, rgba(255, 255, 255, 0.7));
+  opacity: 0.7;
+  transition: opacity 0.3s ease, box-shadow 0.3s ease;
 }
 
-.calhelp-module-card:hover::after,
-.calhelp-module-card:focus-within::after {
-  transform: translate(-12px, -12px);
-  opacity: 0.68;
+.calhelp-module-card:hover::before,
+.calhelp-module-card:focus-within::before {
+  opacity: 1;
+  box-shadow: 0 0 24px -6px color-mix(in oklab, var(--calserver-primary) 92%, rgba(255, 255, 255, 0.75));
 }
 
 .calhelp-module-card--accent {
-  background: color-mix(in oklab, var(--calserver-primary) 9%, rgba(255, 255, 255, 0.06));
+  background: linear-gradient(135deg,
+      color-mix(in oklab, rgba(15, 23, 42, 0.9) 70%, var(--calserver-primary) 30%),
+      color-mix(in oklab, rgba(15, 23, 42, 0.86) 60%, var(--calserver-primary) 40%));
 }
 
 .calhelp-module-card--muted {
-  background: color-mix(in oklab, var(--calserver-primary) 4%, rgba(255, 255, 255, 0.02));
+  background: linear-gradient(135deg,
+      color-mix(in oklab, rgba(15, 23, 42, 0.88), rgba(255, 255, 255, 0.05)),
+      color-mix(in oklab, rgba(15, 23, 42, 0.92), rgba(255, 255, 255, 0.08)));
+}
+
+.calhelp-modules__grid.uk-grid > .uk-grid-margin .calhelp-module-card {
+  margin-top: -1px;
+}
+
+@media (min-width: 960px) {
+  .calhelp-modules__grid.uk-grid > *:not(.uk-first-column) .calhelp-module-card {
+    margin-left: -1px;
+  }
 }
 
 .calhelp-module-card__header {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .calhelp-module-card__icon {
   flex: 0 0 auto;
-  width: 56px;
-  height: 56px;
+  width: 48px;
+  height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 18px;
+  border-radius: 12px;
   background: linear-gradient(145deg, color-mix(in oklab, var(--calserver-primary) 92%, #ffffff 8%), var(--calserver-primary));
   color: #ffffff;
-  box-shadow: 0 18px 26px -18px color-mix(in oklab, var(--calserver-primary) 86%, rgba(15, 23, 42, 0.68));
+  box-shadow: 0 16px 24px -18px color-mix(in oklab, var(--calserver-primary) 84%, rgba(15, 23, 42, 0.6));
 }
 
 .calhelp-module-card__icon svg {
-  width: 26px;
-  height: 26px;
-  stroke-width: 1.4px;
+  width: 22px;
+  height: 22px;
+  stroke-width: 1.6px;
 }
 
 .calhelp-module-card--muted .calhelp-module-card__icon {
@@ -1429,8 +1455,8 @@ body.calhelp-proof-gallery--modal-open {
 }
 
 .calhelp-module-card__pitch {
-  margin-bottom: 4px;
-  color: color-mix(in oklab, var(--qr-landing-text) 82%, rgba(255, 255, 255, 0.9));
+  margin-bottom: 2px;
+  color: color-mix(in oklab, var(--qr-landing-text) 78%, rgba(255, 255, 255, 0.88));
 }
 
 .calhelp-module-card__list {
@@ -1443,10 +1469,10 @@ body.calhelp-proof-gallery--modal-open {
   margin-top: auto;
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
-  border-top: 1px solid color-mix(in oklab, rgba(255, 255, 255, 0.4) 30%, rgba(15, 23, 42, 0.28));
-  padding-top: 16px;
+  border-top: 1px solid color-mix(in oklab, rgba(255, 255, 255, 0.35) 35%, rgba(15, 23, 42, 0.3));
+  padding-top: 12px;
 }
 
 .calhelp-module-card__kpi {
@@ -1471,11 +1497,11 @@ body.calhelp-proof-gallery--modal-open {
 
 @media (max-width: 1023px) {
   .calhelp-module-card {
-    padding: 24px;
+    padding: 20px 18px;
   }
 
   .calhelp-modules__grid {
-    row-gap: 20px;
+    row-gap: 0;
   }
 
   .calhelp-news-card {
