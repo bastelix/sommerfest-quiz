@@ -903,13 +903,32 @@ body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-of
 }
 
 .calhelp-process__stages {
-  display: grid;
-  gap: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.calhelp-process__track {
+  --calhelp-process-gap: 24px;
+  display: flex;
+  gap: var(--calhelp-process-gap);
+  width: 100%;
+  transform: translate3d(calc(-1 * (var(--calhelp-process-index, 0) * (100% + var(--calhelp-process-gap)))), 0, 0);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .calhelp-process__stage {
   position: relative;
-  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+  flex: 0 0 100%;
+  min-width: 0;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.45s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.calhelp-process__stage:focus-visible {
+  outline: 3px solid color-mix(in oklab, var(--calserver-primary) 60%, rgba(255, 255, 255, 0.2));
+  outline-offset: 4px;
 }
 
 .calhelp-process__stage-header > h3 {
@@ -922,6 +941,9 @@ body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-of
 
 .calhelp-process__stage--active {
   box-shadow: 0 30px 60px -40px color-mix(in oklab, var(--calserver-primary) 80%, rgba(15, 23, 42, 0.8));
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .calhelp-process__toggle {
@@ -1994,6 +2016,23 @@ body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process__nav-item.is-c
     transition-duration: 0.001ms !important;
     animation-duration: 0.001ms !important;
   }
+
+  .calhelp-process__stages {
+    overflow: visible;
+  }
+
+  .calhelp-process__track {
+    display: grid;
+    gap: 24px;
+    transform: none !important;
+  }
+
+  .calhelp-process__stage {
+    flex: none;
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 @media (max-width: 959px) {
@@ -2053,6 +2092,10 @@ body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process__nav-item.is-c
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
+  }
+
+  .calhelp-process__track {
+    --calhelp-process-gap: 16px;
   }
 
   .calhelp-process__nav-button {
