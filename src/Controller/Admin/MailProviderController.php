@@ -230,9 +230,6 @@ class MailProviderController
     {
         $byName = [];
         foreach ($stored as $row) {
-            if (!is_array($row)) {
-                continue;
-            }
             $name = strtolower((string) ($row['provider_name'] ?? ''));
             if ($name === '') {
                 continue;
@@ -298,7 +295,7 @@ class MailProviderController
             $host = $this->normalizeString($config['smtp_host'] ?? null);
             $user = $this->normalizeString($config['smtp_user'] ?? null);
             $encryption = $this->normalizeString($config['smtp_encryption'] ?? null);
-            $hasPassword = array_key_exists('has_smtp_pass', $config) ? (bool) $config['has_smtp_pass'] : false;
+            $hasPassword = (bool) $config['has_smtp_pass'];
             $port = $config['smtp_port'] ?? null;
             $hasPort = is_int($port) && $port > 0;
 
