@@ -1900,14 +1900,14 @@ body.calhelp-proof-gallery--modal-open {
   color: inherit;
 }
 
-.calhelp-faq__item .uk-accordion-content {
+.calhelp-faq__item > .uk-accordion-content {
   border-radius: 0 0 12px 12px;
   background: color-mix(in oklab, var(--qr-landing-card-bg, #ffffff) 96%, rgba(15, 23, 42, 0.02));
   padding: 0 24px 16px;
   color: color-mix(in oklab, var(--qr-landing-text) 80%, rgba(15, 23, 42, 0.45));
 }
 
-.calhelp-faq__item .uk-open > .uk-accordion-title {
+.calhelp-faq__item.uk-open > .uk-accordion-title {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
 }
