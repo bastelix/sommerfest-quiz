@@ -443,3 +443,148 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const steppers = document.querySelectorAll('[data-calhelp-stepper]');
+  if (!steppers.length) return;
+
+  const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const prefersReducedMotion = () => reducedMotionQuery.matches;
+
+  steppers.forEach((stepper) => {
+    const stages = Array.from(stepper.querySelectorAll('[data-calhelp-step]'));
+    if (!stages.length) return;
+
+    const triggers = Array.from(stepper.querySelectorAll('[data-calhelp-step-trigger]'));
+    const toggles = Array.from(stepper.querySelectorAll('[data-calhelp-step-toggle]'));
+    const navItems = triggers.map((button) => button.closest('.calhelp-process__nav-item'));
+    const stepIds = stages.map((stage) => stage.dataset.calhelpStep).filter(Boolean);
+    if (!stepIds.length) return;
+
+    let activeId = stepIds[0];
+    let ignoreObserverUntil = 0;
+
+    const updateToggleLabel = (button, expanded) => {
+      const label = button.querySelector('.calhelp-process__toggle-label');
+      if (label) {
+        label.textContent = expanded ? 'Leistungen & Abnahme ausblenden' : 'Leistungen & Abnahme anzeigen';
+      }
+    };
+
+    const applyPanelState = (button, expanded) => {
+      const panelId = button.getAttribute('aria-controls');
+      if (!panelId) return;
+      const panel = stepper.querySelector(`#${panelId}`);
+      if (!(panel instanceof HTMLElement)) return;
+
+      const shouldExpand = Boolean(expanded);
+      button.setAttribute('aria-expanded', shouldExpand ? 'true' : 'false');
+      panel.hidden = !shouldExpand;
+      panel.classList.toggle('is-open', shouldExpand);
+      updateToggleLabel(button, shouldExpand);
+
+      const stage = button.closest('[data-calhelp-step]');
+      if (stage) {
+        stage.classList.toggle('calhelp-process__stage--panel-open', shouldExpand);
+      }
+    };
+
+    const togglePanel = (button) => {
+      const isExpanded = button.getAttribute('aria-expanded') === 'true';
+      applyPanelState(button, !isExpanded);
+    };
+
+    const setActive = (id, { force = false } = {}) => {
+      if (!id) return;
+      const index = stepIds.indexOf(id);
+      if (index === -1) return;
+      if (activeId === id && !force) return;
+
+      activeId = id;
+
+      stages.forEach((stage, stageIndex) => {
+        const isActive = stageIndex === index;
+        stage.classList.toggle('calhelp-process__stage--active', isActive);
+      });
+
+      triggers.forEach((trigger, triggerIndex) => {
+        const isActive = triggerIndex === index;
+        trigger.classList.toggle('is-active', isActive);
+        if (isActive) {
+          trigger.setAttribute('aria-current', 'step');
+        } else {
+          trigger.removeAttribute('aria-current');
+        }
+
+        const navItem = navItems[triggerIndex];
+        if (navItem) {
+          navItem.classList.toggle('is-active', isActive);
+          navItem.classList.toggle('is-complete', triggerIndex < index);
+        }
+      });
+
+      toggles.forEach((toggle) => {
+        const stage = toggle.closest('[data-calhelp-step]');
+        if (!stage) return;
+        const shouldOpen = stage.dataset.calhelpStep === id;
+        applyPanelState(toggle, shouldOpen);
+      });
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      if (Date.now() < ignoreObserverUntil) return;
+
+      const visible = entries.filter((entry) => entry.isIntersecting);
+      if (!visible.length) return;
+
+      visible.sort((a, b) => {
+        const aIndex = stepIds.indexOf(a.target.dataset.calhelpStep || '');
+        const bIndex = stepIds.indexOf(b.target.dataset.calhelpStep || '');
+        return aIndex - bIndex;
+      });
+
+      const candidate = visible[0];
+      const id = candidate.target.dataset.calhelpStep;
+      if (id) {
+        setActive(id);
+      }
+    }, {
+      rootMargin: '-40% 0px -40% 0px',
+      threshold: [0.25, 0.5, 0.75]
+    });
+
+    stages.forEach((stage) => {
+      observer.observe(stage);
+    });
+
+    triggers.forEach((trigger) => {
+      trigger.addEventListener('click', (event) => {
+        event.preventDefault();
+        const id = trigger.getAttribute('data-calhelp-step-trigger');
+        if (!id) return;
+
+        const stage = stages.find((item) => item.dataset.calhelpStep === id);
+        setActive(id, { force: true });
+
+        ignoreObserverUntil = Date.now() + 600;
+
+        if (stage) {
+          const behavior = prefersReducedMotion() ? 'auto' : 'smooth';
+          stage.scrollIntoView({ behavior, block: 'start', inline: 'nearest' });
+          const toggle = stage.querySelector('[data-calhelp-step-toggle]');
+          if (toggle instanceof HTMLElement) {
+            applyPanelState(toggle, true);
+          }
+        }
+      });
+    });
+
+    toggles.forEach((toggle) => {
+      toggle.addEventListener('click', () => {
+        togglePanel(toggle);
+      });
+    });
+
+    setActive(activeId, { force: true });
+  });
+});
