@@ -356,6 +356,7 @@
 - Add admin config CSS with dark mode variables
 - Remove extra blank line
 - Add draggable sticker handle
+- Refresh calserver card styling
 
 ### Test
 
