@@ -326,7 +326,7 @@ class MarketingPageController
 
         $newsletterMarkup = <<<'HTML'
           <div class="uk-margin">
-            <label><input class="uk-checkbox" type="checkbox" name="newsletter_subscribe" value="1"> Ich möchte den QuizRace Newsletter erhalten.</label>
+            <label><input class="uk-checkbox" type="checkbox" name="newsletter_subscribe" value="1"> Ich möchte den calServer Newsletter erhalten.</label>
           </div>
         HTML;
 
