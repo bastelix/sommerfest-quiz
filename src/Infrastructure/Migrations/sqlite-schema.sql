@@ -901,22 +901,14 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
             <ul id="calserver-modules-switcher" class="uk-switcher calserver-modules-switcher">
                               <li>
                   <figure id="module-device-management" class="calserver-module-figure">
-                    <video class="calserver-module-figure__video"
-                           width="1200"
-                           height="675"
-                           autoplay
-                           muted
-                           loop
-                           playsinline
-                           preload="auto"
-                           poster="{{ basePath }}/uploads/calserver-module-device-management.mp4"
-                           aria-label="Screenshot der calServer-Geräteverwaltung mit Geräteakte, Historie und Messwerten">
-                      <source src="{{ basePath }}/uploads/calserver-module-device-management.mp4" type="video/mp4">
-                      Ihr Browser unterstützt keine HTML5-Videos.
-                      <a href="{{ basePath }}/uploads/calserver-module-device-management.mp4" target="_blank" rel="noopener">
-                        Video herunterladen
-                      </a>.
-                    </video>
+                    <div class="calserver-module-figure__visual"
+                         data-module="device-management"
+                         role="img"
+                         aria-label="Screenshot der calServer-Geräteverwaltung mit Geräteakte, Historie und Messwerten">
+                      <span class="calserver-module-figure__visual-label" aria-hidden="true">
+                        Geräteverwaltung &amp; Historie
+                      </span>
+                    </div>
                     <figcaption>
                       <h3 class="uk-h3">Geräteverwaltung & Historie</h3>
                       <p class="muted">Geräteakten, Anhänge und Historie in einer Oberfläche – inklusive Messwerten.</p>
@@ -930,22 +922,14 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                 </li>
                               <li>
                   <figure id="module-calendar-resources" class="calserver-module-figure">
-                    <video class="calserver-module-figure__video"
-                           width="1200"
-                           height="675"
-                           autoplay
-                           muted
-                           loop
-                           playsinline
-                           preload="auto"
-                           poster="{{ basePath }}/uploads/calserver-module-calendar-resources.mp4"
-                           aria-label="Screenshot des calServer-Kalenders mit Ressourcen- und Terminplanung">
-                      <source src="{{ basePath }}/uploads/calserver-module-calendar-resources.mp4" type="video/mp4">
-                      Ihr Browser unterstützt keine HTML5-Videos.
-                      <a href="{{ basePath }}/uploads/calserver-module-calendar-resources.mp4" target="_blank" rel="noopener">
-                        Video herunterladen
-                      </a>.
-                    </video>
+                    <div class="calserver-module-figure__visual"
+                         data-module="calendar-resources"
+                         role="img"
+                         aria-label="Screenshot des calServer-Kalenders mit Ressourcen- und Terminplanung">
+                      <span class="calserver-module-figure__visual-label" aria-hidden="true">
+                        Kalender &amp; Ressourcen
+                      </span>
+                    </div>
                     <figcaption>
                       <h3 class="uk-h3">Kalender & Ressourcen</h3>
                       <p class="muted">Planung von Terminen, Leihgeräten und Personal in einer Ansicht.</p>
@@ -959,22 +943,14 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                 </li>
                               <li>
                   <figure id="module-order-ticketing" class="calserver-module-figure">
-                    <video class="calserver-module-figure__video"
-                           width="1200"
-                           height="675"
-                           autoplay
-                           muted
-                           loop
-                           playsinline
-                           preload="auto"
-                           poster="{{ basePath }}/uploads/calserver-module-order-ticketing.mp4"
-                           aria-label="Screenshot der calServer-Auftrags- und Ticketverwaltung mit Workflow-Status">
-                      <source src="{{ basePath }}/uploads/calserver-module-order-ticketing.mp4" type="video/mp4">
-                      Ihr Browser unterstützt keine HTML5-Videos.
-                      <a href="{{ basePath }}/uploads/calserver-module-order-ticketing.mp4" target="_blank" rel="noopener">
-                        Video herunterladen
-                      </a>.
-                    </video>
+                    <div class="calserver-module-figure__visual"
+                         data-module="order-ticketing"
+                         role="img"
+                         aria-label="Screenshot der calServer-Auftrags- und Ticketverwaltung mit Workflow-Status">
+                      <span class="calserver-module-figure__visual-label" aria-hidden="true">
+                        Auftrags- &amp; Ticketverwaltung
+                      </span>
+                    </div>
                     <figcaption>
                       <h3 class="uk-h3">Auftrags- & Ticketverwaltung</h3>
                       <p class="muted">Vom Auftrag bis zur Rechnung – mit klaren Status, Workflows und Dokumenten.</p>
@@ -988,22 +964,14 @@ INSERT OR IGNORE INTO pages (slug, title, content) VALUES (
                 </li>
                               <li>
                   <figure id="module-self-service" class="calserver-module-figure">
-                    <video class="calserver-module-figure__video"
-                           width="1200"
-                           height="675"
-                           autoplay
-                           muted
-                           loop
-                           playsinline
-                           preload="auto"
-                           poster="{{ basePath }}/uploads/calserver-module-self-service.mp4"
-                           aria-label="Screenshot des calServer-Self-Service-Portals mit Kundenansicht und Zertifikaten">
-                      <source src="{{ basePath }}/uploads/calserver-module-self-service.mp4" type="video/mp4">
-                      Ihr Browser unterstützt keine HTML5-Videos.
-                      <a href="{{ basePath }}/uploads/calserver-module-self-service.mp4" target="_blank" rel="noopener">
-                        Video herunterladen
-                      </a>.
-                    </video>
+                    <div class="calserver-module-figure__visual"
+                         data-module="self-service"
+                         role="img"
+                         aria-label="Screenshot des calServer-Self-Service-Portals mit Kundenansicht und Zertifikaten">
+                      <span class="calserver-module-figure__visual-label" aria-hidden="true">
+                        Self-Service &amp; Extranet
+                      </span>
+                    </div>
                     <figcaption>
                       <h3 class="uk-h3">Self-Service & Extranet</h3>
                       <p class="muted">Stellen Sie Kunden & Partnern Geräteinfos, Zertifikate und Formulare bereit.</p>
