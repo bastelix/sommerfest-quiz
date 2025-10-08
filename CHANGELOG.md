@@ -34,6 +34,10 @@
 - Add migration for sticker text toggles
 - Normalize spacing before EOF docblocks
 
+### Fix
+
+- Restore calServer module videos on the marketing page
+
 ### Ci
 
 - Rebase changelog updates before push
