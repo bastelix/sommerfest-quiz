@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller\Marketing;
 
 use App\Application\Seo\PageSeoConfigService;
+use App\Domain\Page;
 use App\Service\LandingNewsService;
 use App\Service\MailService;
 use App\Service\MarketingSlugResolver;
@@ -21,9 +22,14 @@ use Slim\Routing\RouteContext;
 use Slim\Views\Twig;
 use Twig\Error\LoaderError;
 
+use function dirname;
+use function file_get_contents;
 use function html_entity_decode;
 use function htmlspecialchars;
+use function is_readable;
 use function preg_replace;
+use function str_replace;
+use function trim;
 
 class MarketingPageController
 {
@@ -78,6 +84,10 @@ class MarketingPageController
         }
         if ($page === null) {
             return $response->withStatus(404);
+        }
+
+        if ($page->getSlug() === 'calhelp') {
+            $page = $this->syncCalhelpContent($page);
         }
 
         $html = $page->getContent();
@@ -205,6 +215,37 @@ class MarketingPageController
         } catch (LoaderError $e) {
             return $response->withStatus(404);
         }
+    }
+
+    private function syncCalhelpContent(Page $page): Page
+    {
+        $filePath = dirname(__DIR__, 3) . '/content/marketing/calhelp.html';
+        if (!is_readable($filePath)) {
+            return $page;
+        }
+
+        $fileContent = file_get_contents($filePath);
+        if ($fileContent === false) {
+            return $page;
+        }
+
+        if ($this->normalizeCalhelpHtml($fileContent) === $this->normalizeCalhelpHtml($page->getContent())) {
+            return $page;
+        }
+
+        $this->pages->save($page->getSlug(), $fileContent);
+        $syncedPage = $this->pages->findBySlug($page->getSlug());
+
+        if ($syncedPage !== null) {
+            return $syncedPage;
+        }
+
+        return new Page($page->getId(), $page->getSlug(), $page->getTitle(), $fileContent);
+    }
+
+    private function normalizeCalhelpHtml(string $html): string
+    {
+        return trim(str_replace(["\r\n", "\r"], "\n", $html));
     }
 
     private function buildMaintenanceWindowLabel(string $locale): string
