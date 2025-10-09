@@ -99,7 +99,7 @@ class MarketingPageController
 
         $usecaseExtraction = $this->extractCalhelpUsecases($html);
         $html = $usecaseExtraction['html'];
-        $calhelpUsecases = $usecaseExtraction['data'];
+        $calhelpUsecasesPlaceholderActive = $usecaseExtraction['data'] !== null;
 
         $calhelpNewsPlaceholderActive = $newsReplacement['replaced'];
 
@@ -175,9 +175,7 @@ class MarketingPageController
             $data['calhelpModules'] = $calhelpModules;
         }
 
-        if ($calhelpUsecases !== null && ($calhelpUsecases['usecases'] ?? []) !== []) {
-            $data['calhelpUsecases'] = $calhelpUsecases;
-        }
+        $data['calhelpUsecasesPlaceholderActive'] = $calhelpUsecasesPlaceholderActive;
 
         if ($landingNews !== []) {
             $data['landingNews'] = $landingNews;
@@ -575,31 +573,17 @@ class MarketingPageController
      */
     private function extractCalhelpUsecases(string $html): array
     {
-        $pattern = '/<script[^>]*data-calhelp-usecases[^>]*>(.*?)<\/script>/si';
+        $pattern = '/<section id="usecases"[\s\S]*?<\/section>/i';
         if (!preg_match($pattern, $html, $matches)) {
             return ['html' => $html, 'data' => null];
         }
 
-        $json = trim(html_entity_decode($matches[1], ENT_QUOTES));
-        $decoded = json_decode($json, true);
-        if (!is_array($decoded)) {
-            return ['html' => str_replace($matches[0], '', $html), 'data' => null];
-        }
-
-        $usecases = [];
-        if (isset($decoded['usecases']) && is_array($decoded['usecases'])) {
-            foreach ($decoded['usecases'] as $usecase) {
-                if (is_array($usecase)) {
-                    $usecases[] = $usecase;
-                }
-            }
-        }
-
-        $data = ['usecases' => $usecases];
+        $placeholder = '<div data-calhelp-usecases></div>';
+        $updatedHtml = str_replace($matches[0], $placeholder, $html);
 
         return [
-            'html' => str_replace($matches[0], '', $html),
-            'data' => $data,
+            'html' => $updatedHtml,
+            'data' => ['placeholder' => true],
         ];
     }
 

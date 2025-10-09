@@ -352,78 +352,485 @@
   </div>
 </section>
 
-<script type="application/json" data-calhelp-usecases>
-{
-  "heading": {
-    "de": "Drei Situationen, in denen Kund:innen zu uns kommen",
-    "en": "Three situations that bring teams to us"
-  },
-  "intro": {
-    "de": "Kurz und konkret: Wo wir starten, wie es sich anfühlt, was bleibt.",
-    "en": "Short and concrete: where we start, how it feels, what remains."
-  },
-  "usecases": [
-    {
-      "id": "ksw",
-      "title": {
-        "de": "KSW",
-        "en": "KSW"
-      },
-      "tagline": {
-        "de": "Vom Flickenteppich zur Linie",
-        "en": "From patchwork to one line"
-      },
-      "story": {
-        "de": "Angebote, Lager, Messwerte, Rechnungen – ein Fluss statt vieler Inseln.",
-        "en": "Quotes, stock, measurements and invoicing become one flow instead of scattered islands."
-      },
-      "result": {
-        "de": "Ergebnis: kürzere Durchlaufzeiten, weniger Rückfragen.",
-        "en": "Result: shorter lead times and fewer follow-up questions."
-      }
-    },
-    {
-      "id": "ifm",
-      "title": {
-        "de": "i.f.m.",
-        "en": "i.f.m."
-      },
-      "tagline": {
-        "de": "Ein Verbund, ein Arbeitsstand",
-        "en": "One network, one shared status"
-      },
-      "story": {
-        "de": "Mehrere Labore arbeiten nach demselben Takt.",
-        "en": "Several labs work to the same rhythm."
-      },
-      "result": {
-        "de": "Ergebnis: planbare Auslastung, konsistente Berichte, Entspannung vor Audits.",
-        "en": "Result: predictable utilisation, consistent reports and calmer audits."
-      }
-    },
-    {
-      "id": "berliner-stadtwerke",
-      "title": {
-        "de": "Berliner Stadtwerke",
-        "en": "Berliner Stadtwerke"
-      },
-      "tagline": {
-        "de": "Projekte & Wartungen im Griff",
-        "en": "Projects and maintenance under control"
-      },
-      "story": {
-        "de": "Anlagen, Termine, Nachweise zentral geführt.",
-        "en": "Assets, schedules and evidence live in one place."
-      },
-      "result": {
-        "de": "Ergebnis: klare Zuständigkeiten, schnellere Reaktion, sauber dokumentiert.",
-        "en": "Result: clear ownership, faster responses and clean documentation."
-      }
-    }
-  ]
-}
-</script>
-<div data-calhelp-usecases></div>
+<section id="usecases"
+         class="uk-section uk-section-muted calhelp-section calhelp-usecases-section"
+         aria-labelledby="usecases-title">
+  <div class="uk-container">
+    <div class="calhelp-section__header">
+      <h2 id="usecases-title"
+          class="uk-heading-medium"
+          data-calhelp-i18n
+          data-i18n-de="Anwendungsfelder – fünf typische Einstiegspunkte"
+          data-i18n-en="Use cases – five typical entry points">Anwendungsfelder – fünf typische Einstiegspunkte</h2>
+      <p class="uk-text-lead"
+         data-calhelp-i18n
+         data-i18n-de="Wählen Sie Ihren Schwerpunkt: Aufgaben, Ergebnisse und Kennzahlen aus echten Projekten."
+         data-i18n-en="Pick your focus: tasks, results and KPIs from real customer projects.">Wählen Sie Ihren Schwerpunkt: Aufgaben, Ergebnisse und Kennzahlen aus echten Projekten.</p>
+    </div>
+    <div class="calhelp-usecases"
+         data-uk-switcher="connect: #calhelp-usecases-switcher; animation: uk-animation-fade">
+      <ul class="uk-subnav uk-subnav-pill calhelp-usecases__tabs" role="tablist">
+        <li class="uk-active" role="presentation">
+          <a href="#"
+             role="tab"
+             aria-controls="usecases-panel-calibration"
+             aria-selected="true"
+             data-calhelp-i18n
+             data-i18n-de="Kalibrierlabor"
+             data-i18n-en="Calibration lab">Kalibrierlabor</a>
+        </li>
+        <li role="presentation">
+          <a href="#"
+             role="tab"
+             aria-controls="usecases-panel-testing"
+             aria-selected="false"
+             data-calhelp-i18n
+             data-i18n-de="Prüfstelle"
+             data-i18n-en="Test agency">Prüfstelle</a>
+        </li>
+        <li role="presentation">
+          <a href="#"
+             role="tab"
+             aria-controls="usecases-panel-service"
+             aria-selected="false"
+             data-calhelp-i18n
+             data-i18n-de="Instandhaltung/Service"
+             data-i18n-en="Maintenance / service">Instandhaltung/Service</a>
+        </li>
+        <li role="presentation">
+          <a href="#"
+             role="tab"
+             aria-controls="usecases-panel-public"
+             aria-selected="false"
+             data-calhelp-i18n
+             data-i18n-de="Öffentliche Verwaltung"
+             data-i18n-en="Public administration">Öffentliche Verwaltung</a>
+        </li>
+        <li role="presentation">
+          <a href="#"
+             role="tab"
+             aria-controls="usecases-panel-inventory"
+             aria-selected="false"
+             data-calhelp-i18n
+             data-i18n-de="Inventarverwaltung"
+             data-i18n-en="Inventory management">Inventarverwaltung</a>
+        </li>
+      </ul>
+      <ul id="calhelp-usecases-switcher" class="uk-switcher calhelp-usecases__switcher">
+        <li id="usecases-panel-calibration" role="tabpanel">
+          <article class="uk-card uk-card-default uk-card-body calhelp-card calhelp-usecases__panel"
+                   aria-labelledby="usecases-panel-calibration-title">
+            <header class="calhelp-usecases__panel-header">
+              <h3 id="usecases-panel-calibration-title"
+                  class="uk-card-title"
+                  data-calhelp-i18n
+                  data-i18n-de="Kalibrierlabor"
+                  data-i18n-en="Calibration lab">Kalibrierlabor</h3>
+              <p class="calhelp-usecases__intro"
+                 data-calhelp-i18n
+                 data-i18n-de="Vom Eingang bis zum Zertifikat – Abläufe laufen in einem Takt."
+                 data-i18n-en="One cadence from intake to certificate.">Vom Eingang bis zum Zertifikat – Abläufe laufen in einem Takt.</p>
+            </header>
+            <div class="uk-grid-large uk-child-width-1-2@m calhelp-usecases__grid" data-uk-grid>
+              <div class="calhelp-usecases__column">
+                <h4 class="calhelp-usecases__column-title"
+                    data-calhelp-i18n
+                    data-i18n-de="Typische Aufgaben"
+                    data-i18n-en="Typical tasks">Typische Aufgaben</h4>
+                <ul class="uk-list uk-list-bullet calhelp-usecases__list">
+                  <li data-calhelp-i18n
+                      data-i18n-de="Kalibrieraufträge bündeln und priorisieren."
+                      data-i18n-en="Bundle and prioritise calibration orders.">Kalibrieraufträge bündeln und priorisieren.</li>
+                  <li data-calhelp-i18n
+                      data-i18n-de="Messmittel- und Kundenstammdaten aktuell halten."
+                      data-i18n-en="Keep instrument and customer master data current.">Messmittel- und Kundenstammdaten aktuell halten.</li>
+                  <li data-calhelp-i18n
+                      data-i18n-de="Prüfpläne und Normvorgaben versionieren."
+                      data-i18n-en="Version test plans and compliance requirements.">Prüfpläne und Normvorgaben versionieren.</li>
+                  <li data-calhelp-i18n
+                      data-i18n-de="Zertifikate und Prüfberichte bereitstellen."
+                      data-i18n-en="Provide certificates and inspection reports.">Zertifikate und Prüfberichte bereitstellen.</li>
+                </ul>
+              </div>
+              <div class="calhelp-usecases__column">
+                <h4 class="calhelp-usecases__column-title"
+                    data-calhelp-i18n
+                    data-i18n-de="Ergebnisse &amp; KPIs"
+                    data-i18n-en="Results &amp; KPIs">Ergebnisse &amp; KPIs</h4>
+                <ul class="calhelp-usecases__results" role="list">
+                  <li>
+                    <span class="calhelp-kpi-badge"
+                          data-calhelp-i18n
+                          data-i18n-de="−32&nbsp;% Suchzeit"
+                          data-i18n-en="−32% search time">−32&nbsp;% Suchzeit</span>
+                    <span class="calhelp-usecases__result-description"
+                          data-calhelp-i18n
+                          data-i18n-de="Status je Prüfmittel in unter 2&nbsp;Minuten gefunden."
+                          data-i18n-en="Find each instrument status in under 2 minutes.">Status je Prüfmittel in unter 2&nbsp;Minuten gefunden.</span>
+                  </li>
+                  <li>
+                    <span class="calhelp-kpi-badge"
+                          data-calhelp-i18n
+                          data-i18n-de="Auditmappe 1&nbsp;Tag"
+                          data-i18n-en="Audit pack 1 day">Auditmappe 1&nbsp;Tag</span>
+                    <span class="calhelp-usecases__result-description"
+                          data-calhelp-i18n
+                          data-i18n-de="Akkreditierte Nachweise als Paket exportiert."
+                          data-i18n-en="Accredited evidence exported as one package.">Akkreditierte Nachweise als Paket exportiert.</span>
+                  </li>
+                  <li>
+                    <span class="calhelp-kpi-badge"
+                          data-calhelp-i18n
+                          data-i18n-de="Fehlerquote −45&nbsp;%"
+                          data-i18n-en="Error rate −45%">Fehlerquote −45&nbsp;%</span>
+                    <span class="calhelp-usecases__result-description"
+                          data-calhelp-i18n
+                          data-i18n-de="Automatische Prüfplanprüfungen und Freigaben."
+                          data-i18n-en="Automatic plan checks and approvals.">Automatische Prüfplanprüfungen und Freigaben.</span>
+                  </li>
+                </ul>
+                <a class="calhelp-usecases__snippet"
+                   href="#marketing-chat-modal"
+                   data-uk-toggle
+                   data-calhelp-i18n
+                   data-i18n-de="Case-Snippet lesen"
+                   data-i18n-en="Read case snippet">Case-Snippet lesen<span class="uk-margin-small-left" data-uk-icon="icon: arrow-right"></span></a>
+              </div>
+            </div>
+          </article>
+        </li>
+        <li id="usecases-panel-testing" role="tabpanel">
+          <article class="uk-card uk-card-default uk-card-body calhelp-card calhelp-usecases__panel"
+                   aria-labelledby="usecases-panel-testing-title">
+            <header class="calhelp-usecases__panel-header">
+              <h3 id="usecases-panel-testing-title"
+                  class="uk-card-title"
+                  data-calhelp-i18n
+                  data-i18n-de="Prüfstelle"
+                  data-i18n-en="Test agency">Prüfstelle</h3>
+              <p class="calhelp-usecases__intro"
+                 data-calhelp-i18n
+                 data-i18n-de="Termine, Prüfergebnisse und Nachweise transparent steuern."
+                 data-i18n-en="Plan visits, test results and evidence transparently.">Termine, Prüfergebnisse und Nachweise transparent steuern.</p>
+            </header>
+            <div class="uk-grid-large uk-child-width-1-2@m calhelp-usecases__grid" data-uk-grid>
+              <div class="calhelp-usecases__column">
+                <h4 class="calhelp-usecases__column-title"
+                    data-calhelp-i18n
+                    data-i18n-de="Typische Aufgaben"
+                    data-i18n-en="Typical tasks">Typische Aufgaben</h4>
+                <ul class="uk-list uk-list-bullet calhelp-usecases__list">
+                  <li data-calhelp-i18n
+                      data-i18n-de="Einsatzplanung für mobile Teams abstimmen."
+                      data-i18n-en="Coordinate schedules for mobile teams.">Einsatzplanung für mobile Teams abstimmen.</li>
+                  <li data-calhelp-i18n
+                      data-i18n-de="Prüfprotokolle und Fotos direkt am Einsatz erfassen."
+                      data-i18n-en="Capture test reports and photos on site.">Prüfprotokolle und Fotos direkt am Einsatz erfassen.</li>
+                  <li data-calhelp-i18n
+                      data-i18n-de="Mängel und Folgemaßnahmen nachverfolgen."
+                      data-i18n-en="Track defects and follow-up actions.">Mängel und Folgemaßnahmen nachverfolgen.</li>
+                  <li data-calhelp-i18n
+                      data-i18n-de="Zugänge für Kund:innen und Auditor:innen verwalten."
+                      data-i18n-en="Manage access for clients and auditors.">Zugänge für Kund:innen und Auditor:innen verwalten.</li>
+                </ul>
+              </div>
+              <div class="calhelp-usecases__column">
+                <h4 class="calhelp-usecases__column-title"
+                    data-calhelp-i18n
+                    data-i18n-de="Ergebnisse &amp; KPIs"
+                    data-i18n-en="Results &amp; KPIs">Ergebnisse &amp; KPIs</h4>
+                <ul class="calhelp-usecases__results" role="list">
+                  <li>
+                    <span class="calhelp-kpi-badge"
+                          data-calhelp-i18n
+                          data-i18n-de="+18&nbsp;% Auslastung"
+                          data-i18n-en="+18% utilisation">+18&nbsp;% Auslastung</span>
+                    <span class="calhelp-usecases__result-description"
+                          data-calhelp-i18n
+                          data-i18n-de="Tourenplanung nutzt Ressourcen besser."
+                          data-i18n-en="Routing uses resources more effectively.">Tourenplanung nutzt Ressourcen besser.</span>
+                  </li>
+                  <li>
+                    <span class="calhelp-kpi-badge"
+                          data-calhelp-i18n
+                          data-i18n-de="Nacharbeit −40&nbsp;%"
+                          data-i18n-en="Rework −40%">Nacharbeit −40&nbsp;%</span>
+                    <span class="calhelp-usecases__result-description"
+                          data-calhelp-i18n
+                          data-i18n-de="Checklisten führen durch Freigaben und Dokumentation."
+                          data-i18n-en="Checklists guide approvals and documentation.">Checklisten führen durch Freigaben und Dokumentation.</span>
+                  </li>
+                  <li>
+                    <span class="calhelp-kpi-badge"
+                          data-calhelp-i18n
+                          data-i18n-de="Bericht &lt; 24&nbsp;h"
+                          data-i18n-en="Report &lt; 24h">Bericht &lt; 24&nbsp;h</span>
+                    <span class="calhelp-usecases__result-description"
+                          data-calhelp-i18n
+                          data-i18n-de="Abnahmeprotokoll am selben Tag verfügbar."
+                          data-i18n-en="Completion report ready the same day.">Abnahmeprotokoll am selben Tag verfügbar.</span>
+                  </li>
+                </ul>
+                <a class="calhelp-usecases__snippet"
+                   href="#marketing-chat-modal"
+                   data-uk-toggle
+                   data-calhelp-i18n
+                   data-i18n-de="Case-Snippet lesen"
+                   data-i18n-en="Read case snippet">Case-Snippet lesen<span class="uk-margin-small-left" data-uk-icon="icon: arrow-right"></span></a>
+              </div>
+            </div>
+          </article>
+        </li>
+        <li id="usecases-panel-service" role="tabpanel">
+          <article class="uk-card uk-card-default uk-card-body calhelp-card calhelp-usecases__panel"
+                   aria-labelledby="usecases-panel-service-title">
+            <header class="calhelp-usecases__panel-header">
+              <h3 id="usecases-panel-service-title"
+                  class="uk-card-title"
+                  data-calhelp-i18n
+                  data-i18n-de="Instandhaltung/Service"
+                  data-i18n-en="Maintenance / service">Instandhaltung/Service</h3>
+              <p class="calhelp-usecases__intro"
+                 data-calhelp-i18n
+                 data-i18n-de="Wartung, Ersatzteile und Tickets laufen über einen Datenstand."
+                 data-i18n-en="Maintenance, spare parts and tickets share one dataset.">Wartung, Ersatzteile und Tickets laufen über einen Datenstand.</p>
+            </header>
+            <div class="uk-grid-large uk-child-width-1-2@m calhelp-usecases__grid" data-uk-grid>
+              <div class="calhelp-usecases__column">
+                <h4 class="calhelp-usecases__column-title"
+                    data-calhelp-i18n
+                    data-i18n-de="Typische Aufgaben"
+                    data-i18n-en="Typical tasks">Typische Aufgaben</h4>
+                <ul class="uk-list uk-list-bullet calhelp-usecases__list">
+                  <li data-calhelp-i18n
+                      data-i18n-de="Wartungszyklen und Servicelevel synchronisieren."
+                      data-i18n-en="Synchronise maintenance cycles and service levels.">Wartungszyklen und Servicelevel synchronisieren.</li>
+                  <li data-calhelp-i18n
+                      data-i18n-de="Ersatzteilbestand mit Einsätzen abgleichen."
+                      data-i18n-en="Align spare parts inventory with jobs.">Ersatzteilbestand mit Einsätzen abgleichen.</li>
+                  <li data-calhelp-i18n
+                      data-i18n-de="Tickets priorisieren und eskalieren."
+                      data-i18n-en="Prioritise and escalate tickets.">Tickets priorisieren und eskalieren.</li>
+                  <li data-calhelp-i18n
+                      data-i18n-de="Übergaben zwischen Schichten dokumentieren."
+                      data-i18n-en="Document handovers between shifts.">Übergaben zwischen Schichten dokumentieren.</li>
+                </ul>
+              </div>
+              <div class="calhelp-usecases__column">
+                <h4 class="calhelp-usecases__column-title"
+                    data-calhelp-i18n
+                    data-i18n-de="Ergebnisse &amp; KPIs"
+                    data-i18n-en="Results &amp; KPIs">Ergebnisse &amp; KPIs</h4>
+                <ul class="calhelp-usecases__results" role="list">
+                  <li>
+                    <span class="calhelp-kpi-badge"
+                          data-calhelp-i18n
+                          data-i18n-de="SLA 96&nbsp;%"
+                          data-i18n-en="SLA 96%">SLA 96&nbsp;%</span>
+                    <span class="calhelp-usecases__result-description"
+                          data-calhelp-i18n
+                          data-i18n-de="Warnungen bei Fristüberschreitungen greifen früh."
+                          data-i18n-en="Early warnings when deadlines slip.">Warnungen bei Fristüberschreitungen greifen früh.</span>
+                  </li>
+                  <li>
+                    <span class="calhelp-kpi-badge"
+                          data-calhelp-i18n
+                          data-i18n-de="Stillstand −28&nbsp;%"
+                          data-i18n-en="Downtime −28%">Stillstand −28&nbsp;%</span>
+                    <span class="calhelp-usecases__result-description"
+                          data-calhelp-i18n
+                          data-i18n-de="Geplante Wartungen reduzieren ungeplante Ausfälle."
+                          data-i18n-en="Planned maintenance reduces unplanned outages.">Geplante Wartungen reduzieren ungeplante Ausfälle.</span>
+                  </li>
+                  <li>
+                    <span class="calhelp-kpi-badge"
+                          data-calhelp-i18n
+                          data-i18n-de="Übergabe 100&nbsp;%"
+                          data-i18n-en="Handover 100%">Übergabe 100&nbsp;%</span>
+                    <span class="calhelp-usecases__result-description"
+                          data-calhelp-i18n
+                          data-i18n-de="Checklisten quittieren Arbeit und offene Punkte."
+                          data-i18n-en="Checklists sign off work and open items.">Checklisten quittieren Arbeit und offene Punkte.</span>
+                  </li>
+                </ul>
+                <a class="calhelp-usecases__snippet"
+                   href="#marketing-chat-modal"
+                   data-uk-toggle
+                   data-calhelp-i18n
+                   data-i18n-de="Case-Snippet lesen"
+                   data-i18n-en="Read case snippet">Case-Snippet lesen<span class="uk-margin-small-left" data-uk-icon="icon: arrow-right"></span></a>
+              </div>
+            </div>
+          </article>
+        </li>
+        <li id="usecases-panel-public" role="tabpanel">
+          <article class="uk-card uk-card-default uk-card-body calhelp-card calhelp-usecases__panel"
+                   aria-labelledby="usecases-panel-public-title">
+            <header class="calhelp-usecases__panel-header">
+              <h3 id="usecases-panel-public-title"
+                  class="uk-card-title"
+                  data-calhelp-i18n
+                  data-i18n-de="Öffentliche Verwaltung"
+                  data-i18n-en="Public administration">Öffentliche Verwaltung</h3>
+              <p class="calhelp-usecases__intro"
+                 data-calhelp-i18n
+                 data-i18n-de="Inventare, Prüfpflichten und Budgets in einer Übersicht."
+                 data-i18n-en="Inventories, compliance and budgets in one overview.">Inventare, Prüfpflichten und Budgets in einer Übersicht.</p>
+            </header>
+            <div class="uk-grid-large uk-child-width-1-2@m calhelp-usecases__grid" data-uk-grid>
+              <div class="calhelp-usecases__column">
+                <h4 class="calhelp-usecases__column-title"
+                    data-calhelp-i18n
+                    data-i18n-de="Typische Aufgaben"
+                    data-i18n-en="Typical tasks">Typische Aufgaben</h4>
+                <ul class="uk-list uk-list-bullet calhelp-usecases__list">
+                  <li data-calhelp-i18n
+                      data-i18n-de="Inventar- und Anlagendaten zentral pflegen."
+                      data-i18n-en="Maintain asset and inventory data centrally.">Inventar- und Anlagendaten zentral pflegen.</li>
+                  <li data-calhelp-i18n
+                      data-i18n-de="Wiederkehrende Prüfungen terminieren und beauftragen."
+                      data-i18n-en="Schedule and commission recurring inspections.">Wiederkehrende Prüfungen terminieren und beauftragen.</li>
+                  <li data-calhelp-i18n
+                      data-i18n-de="Haushaltsmittel und Vergaben dokumentieren."
+                      data-i18n-en="Document budgets and procurement steps.">Haushaltsmittel und Vergaben dokumentieren.</li>
+                  <li data-calhelp-i18n
+                      data-i18n-de="Berichte für Gremien und Revision erstellen."
+                      data-i18n-en="Prepare reports for committees and auditors.">Berichte für Gremien und Revision erstellen.</li>
+                </ul>
+              </div>
+              <div class="calhelp-usecases__column">
+                <h4 class="calhelp-usecases__column-title"
+                    data-calhelp-i18n
+                    data-i18n-de="Ergebnisse &amp; KPIs"
+                    data-i18n-en="Results &amp; KPIs">Ergebnisse &amp; KPIs</h4>
+                <ul class="calhelp-usecases__results" role="list">
+                  <li>
+                    <span class="calhelp-kpi-badge"
+                          data-calhelp-i18n
+                          data-i18n-de="Transparenz 360°"
+                          data-i18n-en="Transparency 360°">Transparenz 360°</span>
+                    <span class="calhelp-usecases__result-description"
+                          data-calhelp-i18n
+                          data-i18n-de="Ampel zeigt fällige Prüfungen und Verantwortliche."
+                          data-i18n-en="Traffic lights show due inspections and owners.">Ampel zeigt fällige Prüfungen und Verantwortliche.</span>
+                  </li>
+                  <li>
+                    <span class="calhelp-kpi-badge"
+                          data-calhelp-i18n
+                          data-i18n-de="Bericht 2&nbsp;h"
+                          data-i18n-en="Report 2h">Bericht 2&nbsp;h</span>
+                    <span class="calhelp-usecases__result-description"
+                          data-calhelp-i18n
+                          data-i18n-de="Auswertungen für Ausschüsse per Klick."
+                          data-i18n-en="Committee reports generated in minutes.">Auswertungen für Ausschüsse per Klick.</span>
+                  </li>
+                  <li>
+                    <span class="calhelp-kpi-badge"
+                          data-calhelp-i18n
+                          data-i18n-de="Nachfragen −50&nbsp;%"
+                          data-i18n-en="Follow-ups −50%">Nachfragen −50&nbsp;%</span>
+                    <span class="calhelp-usecases__result-description"
+                          data-calhelp-i18n
+                          data-i18n-de="Dokumente und Beschlüsse sind hinterlegt."
+                          data-i18n-en="Documents and approvals stay attached.">Dokumente und Beschlüsse sind hinterlegt.</span>
+                  </li>
+                </ul>
+                <a class="calhelp-usecases__snippet"
+                   href="#marketing-chat-modal"
+                   data-uk-toggle
+                   data-calhelp-i18n
+                   data-i18n-de="Case-Snippet lesen"
+                   data-i18n-en="Read case snippet">Case-Snippet lesen<span class="uk-margin-small-left" data-uk-icon="icon: arrow-right"></span></a>
+              </div>
+            </div>
+          </article>
+        </li>
+        <li id="usecases-panel-inventory" role="tabpanel">
+          <article class="uk-card uk-card-default uk-card-body calhelp-card calhelp-usecases__panel"
+                   aria-labelledby="usecases-panel-inventory-title">
+            <header class="calhelp-usecases__panel-header">
+              <h3 id="usecases-panel-inventory-title"
+                  class="uk-card-title"
+                  data-calhelp-i18n
+                  data-i18n-de="Inventarverwaltung"
+                  data-i18n-en="Inventory management">Inventarverwaltung</h3>
+              <p class="calhelp-usecases__intro"
+                 data-calhelp-i18n
+                 data-i18n-de="Geräte, Prüfmittel und Zubehör behalten gemeinsam den Status."
+                 data-i18n-en="Devices, tools and accessories share one status view.">Geräte, Prüfmittel und Zubehör behalten gemeinsam den Status.</p>
+            </header>
+            <div class="uk-grid-large uk-child-width-1-2@m calhelp-usecases__grid" data-uk-grid>
+              <div class="calhelp-usecases__column">
+                <h4 class="calhelp-usecases__column-title"
+                    data-calhelp-i18n
+                    data-i18n-de="Typische Aufgaben"
+                    data-i18n-en="Typical tasks">Typische Aufgaben</h4>
+                <ul class="uk-list uk-list-bullet calhelp-usecases__list">
+                  <li data-calhelp-i18n
+                      data-i18n-de="Zugehörigkeiten und Standorte nachverfolgen."
+                      data-i18n-en="Track assignments and locations.">Zugehörigkeiten und Standorte nachverfolgen.</li>
+                  <li data-calhelp-i18n
+                      data-i18n-de="Ausgabe und Rücknahme digital dokumentieren."
+                      data-i18n-en="Record checkout and return digitally.">Ausgabe und Rücknahme digital dokumentieren.</li>
+                  <li data-calhelp-i18n
+                      data-i18n-de="Servicefenster und Garantien überwachen."
+                      data-i18n-en="Monitor service windows and warranties.">Servicefenster und Garantien überwachen.</li>
+                  <li data-calhelp-i18n
+                      data-i18n-de="Inventurlisten automatisch erzeugen."
+                      data-i18n-en="Generate inventory lists automatically.">Inventurlisten automatisch erzeugen.</li>
+                </ul>
+              </div>
+              <div class="calhelp-usecases__column">
+                <h4 class="calhelp-usecases__column-title"
+                    data-calhelp-i18n
+                    data-i18n-de="Ergebnisse &amp; KPIs"
+                    data-i18n-en="Results &amp; KPIs">Ergebnisse &amp; KPIs</h4>
+                <ul class="calhelp-usecases__results" role="list">
+                  <li>
+                    <span class="calhelp-kpi-badge"
+                          data-calhelp-i18n
+                          data-i18n-de="Verlustquote −35&nbsp;%"
+                          data-i18n-en="Loss rate −35%">Verlustquote −35&nbsp;%</span>
+                    <span class="calhelp-usecases__result-description"
+                          data-calhelp-i18n
+                          data-i18n-de="Jede Übergabe ist quittiert und nachvollziehbar."
+                          data-i18n-en="Every handover is signed off and traceable.">Jede Übergabe ist quittiert und nachvollziehbar.</span>
+                  </li>
+                  <li>
+                    <span class="calhelp-kpi-badge"
+                          data-calhelp-i18n
+                          data-i18n-de="Inventur 1&nbsp;Tag"
+                          data-i18n-en="Inventory 1 day">Inventur 1&nbsp;Tag</span>
+                    <span class="calhelp-usecases__result-description"
+                          data-calhelp-i18n
+                          data-i18n-de="Barcode-Checklisten verkürzen Inventuren."
+                          data-i18n-en="Barcode checklists shorten stocktakes.">Barcode-Checklisten verkürzen Inventuren.</span>
+                  </li>
+                  <li>
+                    <span class="calhelp-kpi-badge"
+                          data-calhelp-i18n
+                          data-i18n-de="Verfügbarkeit +22&nbsp;%"
+                          data-i18n-en="Availability +22%">Verfügbarkeit +22&nbsp;%</span>
+                    <span class="calhelp-usecases__result-description"
+                          data-calhelp-i18n
+                          data-i18n-de="Reservierungen und Wartung greifen ineinander."
+                          data-i18n-en="Reservations and maintenance align.">Reservierungen und Wartung greifen ineinander.</span>
+                  </li>
+                </ul>
+                <a class="calhelp-usecases__snippet"
+                   href="#marketing-chat-modal"
+                   data-uk-toggle
+                   data-calhelp-i18n
+                   data-i18n-de="Case-Snippet lesen"
+                   data-i18n-en="Read case snippet">Case-Snippet lesen<span class="uk-margin-small-left" data-uk-icon="icon: arrow-right"></span></a>
+              </div>
+            </div>
+          </article>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
 
 <section id="knowledge" class="uk-section calhelp-section" aria-labelledby="knowledge-title">
   <div class="uk-container">

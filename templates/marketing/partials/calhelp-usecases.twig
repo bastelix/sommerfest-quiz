@@ -1,34 +1,81 @@
-{% set usecasePayload = calhelpUsecases is defined ? calhelpUsecases : null %}
-{% if usecasePayload and usecasePayload.usecases is iterable and usecasePayload.usecases|length > 0 %}
-  {% set localeKey = locale() == 'en' ? 'en' : 'de' %}
-  {% set heading = usecasePayload.heading[localeKey]|default(usecasePayload.heading['de']|default('Use cases')) %}
-  {% set intro = usecasePayload.intro[localeKey]|default(usecasePayload.intro['de']|default('')) %}
+{% set tabs = calhelpUsecaseTabs is defined ? calhelpUsecaseTabs : [] %}
+{% if tabs is iterable and tabs|length > 0 %}
   <section id="usecases" class="uk-section uk-section-muted calhelp-section calhelp-usecases-section" aria-labelledby="usecases-title">
     <div class="uk-container">
       <div class="calhelp-section__header">
-        <h2 id="usecases-title" class="uk-heading-medium">{{ heading }}</h2>
-        {% if intro %}
-          <p class="uk-text-lead">{{ intro }}</p>
-        {% endif %}
+        <h2 id="usecases-title" class="uk-heading-medium">{{ t('calhelp_usecases_title') }}</h2>
+        <p class="uk-text-lead">{{ t('calhelp_usecases_intro') }}</p>
       </div>
-      <div class="uk-grid-large uk-child-width-1-3@m uk-grid-match" data-uk-grid>
-        {% for case in usecasePayload.usecases %}
-          {% set title = case.title[localeKey]|default(case.title['de']|default('')) %}
-          {% set tagline = case.tagline[localeKey]|default(case.tagline['de']|default('')) %}
-          {% set story = case.story[localeKey]|default(case.story['de']|default('')) %}
-          {% set result = case.result[localeKey]|default(case.result['de']|default('')) %}
-          <article class="uk-card uk-card-primary uk-card-body calhelp-card calhelp-usecase-card" aria-labelledby="usecase-{{ case.id|default(loop.index) }}-title">
-            <h3 id="usecase-{{ case.id|default(loop.index) }}-title" class="uk-card-title">
-              {{ title }}{% if tagline %} – {{ tagline }}{% endif %}
-            </h3>
-            {% if story %}
-              <p>{{ story }}</p>
-            {% endif %}
-            {% if result %}
-              <p class="uk-text-emphasis">{{ result }}</p>
-            {% endif %}
-          </article>
-        {% endfor %}
+      <div class="calhelp-usecases" data-uk-switcher="connect: #calhelp-usecases-switcher; animation: uk-animation-fade">
+        <ul class="uk-subnav uk-subnav-pill calhelp-usecases__tabs" role="tablist">
+          {% for tab in tabs %}
+            {% set isActive = loop.first %}
+            <li{% if isActive %} class="uk-active"{% endif %} role="presentation">
+              <a href="#"
+                 role="tab"
+                 aria-controls="usecases-panel-{{ tab.id }}"
+                 aria-selected="{{ isActive ? 'true' : 'false' }}">{{ t(tab.labelKey) }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+        <ul id="calhelp-usecases-switcher" class="uk-switcher calhelp-usecases__switcher">
+          {% for tab in tabs %}
+            <li id="usecases-panel-{{ tab.id }}" role="tabpanel">
+              <article class="uk-card uk-card-default uk-card-body calhelp-card calhelp-usecases__panel" aria-labelledby="usecases-panel-{{ tab.id }}-title">
+                <header class="calhelp-usecases__panel-header">
+                  <h3 id="usecases-panel-{{ tab.id }}-title" class="uk-card-title">{{ t(tab.labelKey) }}</h3>
+                  {% if tab.introKey is defined %}
+                    <p class="calhelp-usecases__intro">{{ t(tab.introKey) }}</p>
+                  {% endif %}
+                </header>
+                <div class="uk-grid-large uk-child-width-1-2@m calhelp-usecases__grid" data-uk-grid>
+                  <div class="calhelp-usecases__column">
+                    <h4 class="calhelp-usecases__column-title">{{ t('calhelp_usecases_tasks_heading') }}</h4>
+                    <ul class="uk-list uk-list-bullet calhelp-usecases__list">
+                      {% for taskKey in tab.tasksKeys|default([]) %}
+                        {% set taskLabel = t(taskKey) %}
+                        {% if taskLabel %}
+                          <li>{{ taskLabel }}</li>
+                        {% endif %}
+                      {% endfor %}
+                    </ul>
+                  </div>
+                  <div class="calhelp-usecases__column">
+                    <h4 class="calhelp-usecases__column-title">{{ t('calhelp_usecases_results_heading') }}</h4>
+                    <ul class="calhelp-usecases__results" role="list">
+                      {% for result in tab.results|default([]) %}
+                        {% set valueLabel = t(result.valueKey) %}
+                        {% set descriptionLabel = t(result.descriptionKey) %}
+                        {% if valueLabel or descriptionLabel %}
+                          <li>
+                            {% if valueLabel %}
+                              <span class="calhelp-kpi-badge">{{ valueLabel }}</span>
+                            {% endif %}
+                            {% if descriptionLabel %}
+                              <span class="calhelp-usecases__result-description">{{ descriptionLabel }}</span>
+                            {% endif %}
+                          </li>
+                        {% endif %}
+                      {% endfor %}
+                    </ul>
+                    {% set snippet = tab.snippet|default(null) %}
+                    {% if snippet %}
+                      {% set snippetLabel = t('calhelp_usecases_case_snippet') %}
+                      {% set snippetHref = snippet.href|default('#') %}
+                      {% set snippetTarget = snippet.target|default(snippetHref) %}
+                      <a class="calhelp-usecases__snippet"
+                         href="{{ snippetHref }}"
+                         {% if snippet.toggle|default(false) %}data-uk-toggle="target: {{ snippetTarget }}"{% endif %}
+                         aria-label="{{ t(tab.labelKey) ~ ' – ' ~ snippetLabel }}">
+                        {{ snippetLabel }}<span class="uk-margin-small-left" data-uk-icon="icon: arrow-right"></span>
+                      </a>
+                    {% endif %}
+                  </div>
+                </div>
+              </article>
+            </li>
+          {% endfor %}
+        </ul>
       </div>
     </div>
   </section>
