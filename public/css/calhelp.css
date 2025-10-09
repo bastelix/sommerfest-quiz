@@ -796,6 +796,83 @@ body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-of
   margin: 0;
 }
 
+.calhelp-process-summary {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: color-mix(in oklab, var(--qr-landing-text) 82%, rgba(15, 23, 42, 0.42));
+}
+
+.calhelp-process-summary > li {
+  margin-bottom: 8px;
+}
+
+.calhelp-process-summary > li:last-child {
+  margin-bottom: 0;
+}
+
+.calhelp-process-summary strong {
+  color: color-mix(in oklab, var(--qr-landing-text) 96%, rgba(15, 23, 42, 0.12));
+}
+
+.calhelp-process-details {
+  margin-top: 32px;
+  border: 1px solid color-mix(in oklab, var(--qr-landing-text) 18%, rgba(15, 23, 42, 0.18));
+  border-radius: 20px;
+  background: color-mix(in oklab, rgba(255, 255, 255, 0.92) 86%, rgba(15, 23, 42, 0.06));
+  box-shadow: 0 32px 64px -46px color-mix(in oklab, var(--calserver-primary) 68%, rgba(15, 23, 42, 0.85));
+  overflow: hidden;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.calhelp-process-details[open] {
+  border-color: color-mix(in oklab, var(--calserver-primary) 46%, rgba(15, 23, 42, 0.24));
+  box-shadow: 0 38px 76px -42px color-mix(in oklab, var(--calserver-primary) 78%, rgba(15, 23, 42, 0.9));
+  transform: translateY(-2px);
+}
+
+.calhelp-process-details__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0;
+  padding: 22px 28px;
+  list-style: none;
+  font-weight: 600;
+  cursor: pointer;
+  color: color-mix(in oklab, var(--qr-landing-text) 90%, rgba(15, 23, 42, 0.32));
+}
+
+.calhelp-process-details__summary::-webkit-details-marker {
+  display: none;
+}
+
+.calhelp-process-details__summary::after {
+  content: '';
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  border-radius: 2px;
+  transform: rotate(45deg);
+  transition: transform 0.25s ease;
+}
+
+.calhelp-process-details[open] .calhelp-process-details__summary::after {
+  transform: rotate(-135deg);
+}
+
+.calhelp-process-details__summary:focus-visible {
+  outline: 3px solid color-mix(in oklab, var(--calserver-primary) 60%, rgba(255, 255, 255, 0.2));
+  outline-offset: 2px;
+}
+
+.calhelp-process-details > .calhelp-process {
+  padding: 0 28px 32px;
+  border-top: 1px solid color-mix(in oklab, var(--qr-landing-text) 18%, rgba(15, 23, 42, 0.18));
+}
+
 .calhelp-process {
   display: grid;
   gap: 32px;
@@ -2043,13 +2120,48 @@ body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process__nav-item.is-c
   color: color-mix(in oklab, #0f172a 80%, rgba(255, 255, 255, 0.16));
 }
 
+body.qr-landing.calhelp-theme.dark-mode .calhelp-process-summary,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-summary {
+  color: color-mix(in oklab, rgba(229, 237, 255, 0.82), rgba(15, 23, 42, 0.46));
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-process-summary strong,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-summary strong {
+  color: color-mix(in oklab, rgba(255, 255, 255, 0.92), rgba(15, 23, 42, 0.22));
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-process-details,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-details {
+  background: color-mix(in oklab, rgba(17, 24, 39, 0.94), rgba(15, 23, 42, 0.78));
+  border-color: color-mix(in oklab, rgba(66, 86, 132, 0.5), rgba(15, 23, 42, 0.64));
+  box-shadow: 0 32px 64px -46px color-mix(in oklab, rgba(59, 130, 246, 0.42), rgba(15, 23, 42, 0.92));
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-process-details[open],
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-details[open] {
+  border-color: color-mix(in oklab, rgba(59, 130, 246, 0.64), rgba(15, 23, 42, 0.52));
+  box-shadow: 0 38px 76px -42px color-mix(in oklab, rgba(59, 130, 246, 0.58), rgba(15, 23, 42, 0.94));
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-process-details__summary,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-details__summary {
+  color: color-mix(in oklab, rgba(226, 235, 255, 0.88), rgba(162, 178, 212, 0.52));
+}
+
+body.qr-landing.calhelp-theme.dark-mode .calhelp-process-details > .calhelp-process,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-details > .calhelp-process {
+  border-top-color: color-mix(in oklab, rgba(66, 86, 132, 0.5), rgba(15, 23, 42, 0.64));
+}
+
 @media (prefers-reduced-motion: reduce) {
   .calhelp-process__nav-button,
   .calhelp-process__nav-connector,
   .calhelp-process__stage,
   .calhelp-process__toggle,
   .calhelp-process__toggle-icon::before,
-  .calhelp-process__toggle-icon::after {
+  .calhelp-process__toggle-icon::after,
+  .calhelp-process-details,
+  .calhelp-process-details__summary::after {
     transition-duration: 0.001ms !important;
     animation-duration: 0.001ms !important;
   }
@@ -2069,6 +2181,10 @@ body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process__nav-item.is-c
     visibility: visible;
     opacity: 1;
     pointer-events: auto;
+  }
+
+  .calhelp-process-details[open] {
+    transform: none;
   }
 }
 
@@ -2095,6 +2211,14 @@ body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process__nav-item.is-c
   .calhelp-comparison__toggle {
     flex: 1 1 0;
     padding: 6px 12px;
+  }
+
+  .calhelp-process-details__summary {
+    padding: 20px 24px;
+  }
+
+  .calhelp-process-details > .calhelp-process {
+    padding: 0 24px 28px;
   }
 
   .calhelp-usecases__tabs {
@@ -2169,6 +2293,18 @@ body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process__nav-item.is-c
 @media (max-width: 639px) {
   .calhelp-section__header {
     margin-bottom: 36px;
+  }
+
+  .calhelp-process-summary {
+    padding-left: 1.25rem;
+  }
+
+  .calhelp-process-details__summary {
+    padding: 18px 20px;
+  }
+
+  .calhelp-process-details > .calhelp-process {
+    padding: 0 20px 24px;
   }
 
   .calhelp-proof-gallery__modal {

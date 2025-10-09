@@ -465,6 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const stepIds = stages.map((stage) => stage.dataset.calhelpStep).filter(Boolean);
     if (!stepIds.length) return;
 
+    const details = stepper.closest('details');
     let activeId = stepIds[0];
     let ignoreObserverUntil = 0;
     let observer = null;
@@ -617,7 +618,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const motionPreferenceChanged = () => {
       if (prefersReducedMotion()) {
-        enableObserver();
+        if (!details || details.open) {
+          enableObserver();
+        } else {
+          disableObserver();
+        }
       } else {
         disableObserver();
       }
@@ -630,8 +635,21 @@ document.addEventListener('DOMContentLoaded', () => {
       reducedMotionQuery.addListener(motionPreferenceChanged);
     }
 
-    if (prefersReducedMotion()) {
+    if (prefersReducedMotion() && (!details || details.open)) {
       enableObserver();
+    }
+
+    if (details) {
+      details.addEventListener('toggle', () => {
+        if (details.open) {
+          setActive(activeId, { force: true });
+          if (prefersReducedMotion()) {
+            enableObserver();
+          }
+        } else {
+          disableObserver();
+        }
+      });
     }
 
     triggers.forEach((trigger) => {
