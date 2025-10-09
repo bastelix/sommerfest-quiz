@@ -283,6 +283,7 @@
 - Dark mode landing primary buttons
 - Verify sticker background path
 - Remove quoted identifiers in sticker migration
+- Allow automated commits to trigger ci
 
 ### Refactor
 
