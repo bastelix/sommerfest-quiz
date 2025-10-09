@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   update-changelog:
+    if: ${{ github.actor != 'github-actions[bot]' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -44,6 +45,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "Changelog unchanged" && exit 0
           fi
-          git commit -m "docs: update changelog [skip ci]"
+          git commit -m "docs: update changelog"
           git pull --rebase origin main
           git push https://x-access-token:${GH_PAT}@github.com/${GITHUB_REPOSITORY}.git HEAD:main
