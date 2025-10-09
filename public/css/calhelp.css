@@ -61,6 +61,14 @@ body.qr-landing.calhelp-theme {
   --calhelp-offcanvas-bg: #ffffff;
   --calhelp-offcanvas-border: color-mix(in oklab, rgba(15, 23, 42, 0.08), rgba(255, 255, 255, 0.5));
   --calhelp-offcanvas-muted: color-mix(in oklab, var(--qr-landing-text) 60%, rgba(15, 23, 42, 0.28));
+  --calhelp-card-primary-bg: color-mix(in oklab, var(--calserver-primary) 82%, rgba(15, 23, 42, 0.72));
+  --calhelp-card-primary-border: color-mix(in oklab, rgba(122, 166, 255, 0.62), rgba(15, 23, 42, 0.48));
+  --calhelp-card-primary-shadow: 0 32px 64px -36px color-mix(in oklab, var(--calserver-primary) 72%, rgba(15, 23, 42, 0.86));
+  --calhelp-card-primary-foreground: #f6f9ff;
+  --calhelp-card-primary-muted: color-mix(in oklab, rgba(246, 250, 255, 0.86), rgba(255, 255, 255, 0.58));
+  --calhelp-card-primary-divider: color-mix(in oklab, rgba(246, 250, 255, 0.52), rgba(255, 255, 255, 0.22));
+  --calhelp-card-primary-chip-bg: color-mix(in oklab, rgba(246, 250, 255, 0.22), rgba(255, 255, 255, 0.08));
+  --calhelp-card-primary-chip-border: color-mix(in oklab, rgba(246, 250, 255, 0.46), rgba(255, 255, 255, 0.16));
 }
 
 body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) {
@@ -74,6 +82,14 @@ body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) {
   --calhelp-offcanvas-bg: color-mix(in oklab, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.86));
   --calhelp-offcanvas-border: color-mix(in oklab, rgba(66, 86, 132, 0.48), rgba(15, 23, 42, 0.64));
   --calhelp-offcanvas-muted: color-mix(in oklab, rgba(198, 211, 238, 0.8), rgba(220, 230, 255, 0.68));
+  --calhelp-card-primary-bg: color-mix(in oklab, rgba(30, 52, 109, 0.92), rgba(15, 23, 42, 0.76));
+  --calhelp-card-primary-border: color-mix(in oklab, rgba(126, 176, 255, 0.55), rgba(28, 64, 140, 0.6));
+  --calhelp-card-primary-shadow: 0 32px 64px -34px color-mix(in oklab, rgba(13, 32, 82, 0.86), rgba(29, 83, 201, 0.7));
+  --calhelp-card-primary-foreground: rgba(246, 250, 255, 0.96);
+  --calhelp-card-primary-muted: color-mix(in oklab, rgba(246, 250, 255, 0.82), rgba(203, 222, 255, 0.68));
+  --calhelp-card-primary-divider: color-mix(in oklab, rgba(116, 150, 209, 0.52), rgba(74, 108, 182, 0.38));
+  --calhelp-card-primary-chip-bg: color-mix(in oklab, rgba(246, 250, 255, 0.2), rgba(36, 64, 135, 0.42));
+  --calhelp-card-primary-chip-border: color-mix(in oklab, rgba(190, 214, 255, 0.46), rgba(51, 82, 146, 0.5));
 }
 
 .calhelp-mega-nav {
@@ -627,6 +643,152 @@ body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-of
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+body.qr-landing.calhelp-theme .uk-card-primary,
+body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary {
+  background: var(--calhelp-card-primary-bg);
+  border: 1px solid var(--calhelp-card-primary-border);
+  color: var(--calhelp-card-primary-foreground);
+  box-shadow: var(--calhelp-card-primary-shadow);
+}
+
+body.qr-landing.calhelp-theme .uk-card-primary :is(.uk-card-title, h3, h4, h5),
+body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary :is(.uk-card-title, h3, h4, h5) {
+  color: var(--calhelp-card-primary-foreground);
+}
+
+body.qr-landing.calhelp-theme .uk-card-primary a,
+body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary a {
+  color: var(--calhelp-card-primary-foreground);
+  text-decoration-color: color-mix(in oklab, var(--calhelp-card-primary-foreground) 62%, transparent);
+}
+
+body.qr-landing.calhelp-theme .uk-card-primary a:hover,
+body.qr-landing.calhelp-theme .uk-card-primary a:focus-visible,
+body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary a:hover,
+body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary a:focus-visible {
+  color: #ffffff;
+  text-decoration-color: #ffffff;
+}
+
+body.qr-landing.calhelp-theme .uk-card-primary :is(
+    .uk-text-muted,
+    .uk-text-meta,
+    .uk-text-small,
+    .calhelp-news-card__intro,
+    .calhelp-news-step__label,
+    .calhelp-process__toggle-label,
+    .calhelp-process__criteria,
+    .calhelp-note p,
+    .calhelp-microcopy p,
+    .calhelp-kpi p
+  ),
+body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary :is(
+    .uk-text-muted,
+    .uk-text-meta,
+    .uk-text-small,
+    .calhelp-news-card__intro,
+    .calhelp-news-step__label,
+    .calhelp-process__toggle-label,
+    .calhelp-process__criteria,
+    .calhelp-note p,
+    .calhelp-microcopy p,
+    .calhelp-kpi p
+  ) {
+  color: var(--calhelp-card-primary-muted);
+}
+
+body.qr-landing.calhelp-theme .uk-card-primary .calhelp-news-card__intro strong,
+body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary .calhelp-news-card__intro strong {
+  color: var(--calhelp-card-primary-foreground);
+}
+
+body.qr-landing.calhelp-theme .uk-card-primary :is(
+    .calhelp-news-card__subheading,
+    .calhelp-news-step__text,
+    .calhelp-news-list > li,
+    .calhelp-news-list > li > strong,
+    .calhelp-news-kpi__value,
+    .calhelp-news-kpi__label,
+    .calhelp-values > li,
+    .calhelp-process__criteria span
+  ),
+body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary :is(
+    .calhelp-news-card__subheading,
+    .calhelp-news-step__text,
+    .calhelp-news-list > li,
+    .calhelp-news-list > li > strong,
+    .calhelp-news-kpi__value,
+    .calhelp-news-kpi__label,
+    .calhelp-values > li,
+    .calhelp-process__criteria span
+  ) {
+  color: var(--calhelp-card-primary-foreground);
+}
+
+body.qr-landing.calhelp-theme .uk-card-primary .uk-list-divider > li,
+body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary .uk-list-divider > li {
+  border-top-color: var(--calhelp-card-primary-divider);
+}
+
+body.qr-landing.calhelp-theme .uk-card-primary :is(
+    .calhelp-news-list > li,
+    .calhelp-news-kpi,
+    .calhelp-news-step__icon
+  ),
+body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary :is(
+    .calhelp-news-list > li,
+    .calhelp-news-kpi,
+    .calhelp-news-step__icon
+  ) {
+  background: color-mix(in oklab, var(--calhelp-card-primary-foreground) 22%, rgba(255, 255, 255, 0.08));
+  box-shadow: inset 0 0 0 1px var(--calhelp-card-primary-chip-border);
+}
+
+body.qr-landing.calhelp-theme .uk-card-primary :is(
+    .calhelp-news-card__icon,
+    .calhelp-news-kpi__icon
+  ),
+body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary :is(
+    .calhelp-news-card__icon,
+    .calhelp-news-kpi__icon
+  ) {
+  background: color-mix(in oklab, var(--calhelp-card-primary-foreground) 28%, rgba(255, 255, 255, 0.2));
+  color: var(--calhelp-card-primary-foreground);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--calhelp-card-primary-foreground) 46%, transparent);
+}
+
+body.qr-landing.calhelp-theme .uk-card-primary .calhelp-process__toggle,
+body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary .calhelp-process__toggle {
+  border-color: color-mix(in oklab, var(--calhelp-card-primary-foreground) 36%, rgba(255, 255, 255, 0.22));
+  background: color-mix(in oklab, rgba(255, 255, 255, 0.05), transparent);
+}
+
+body.qr-landing.calhelp-theme .uk-card-primary .calhelp-process__toggle:hover,
+body.qr-landing.calhelp-theme .uk-card-primary .calhelp-process__toggle:focus-visible,
+body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary .calhelp-process__toggle:hover,
+body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary .calhelp-process__toggle:focus-visible {
+  border-color: color-mix(in oklab, var(--calhelp-card-primary-foreground) 62%, rgba(255, 255, 255, 0.3));
+  background: color-mix(in oklab, var(--calhelp-card-primary-foreground) 18%, rgba(255, 255, 255, 0.08));
+}
+
+body.qr-landing.calhelp-theme .uk-card-primary.calhelp-process__stage--panel-open .calhelp-process__toggle,
+body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary.calhelp-process__stage--panel-open .calhelp-process__toggle {
+  border-color: color-mix(in oklab, var(--calhelp-card-primary-foreground) 68%, rgba(255, 255, 255, 0.34));
+  background: color-mix(in oklab, var(--calhelp-card-primary-foreground) 22%, rgba(255, 255, 255, 0.12));
+}
+
+body.qr-landing.calhelp-theme .uk-card-primary.calhelp-process__stage--panel-open .calhelp-process__toggle-label,
+body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary.calhelp-process__stage--panel-open .calhelp-process__toggle-label {
+  color: var(--calhelp-card-primary-foreground);
+}
+
+body.qr-landing.calhelp-theme .uk-card-primary .calhelp-process__toggle-icon::before,
+body.qr-landing.calhelp-theme .uk-card-primary .calhelp-process__toggle-icon::after,
+body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary .calhelp-process__toggle-icon::before,
+body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary .calhelp-process__toggle-icon::after {
+  background: var(--calhelp-card-primary-foreground);
 }
 
 .calhelp-card .uk-card-title {
