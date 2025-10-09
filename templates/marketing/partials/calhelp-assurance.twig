@@ -1,23 +1,44 @@
 {% set panels = assurancePanels|default([]) %}
 <section class="calhelp-trust-summary" aria-labelledby="trust-summary-title">
   <div class="uk-card uk-card-default uk-card-body calhelp-trust-summary__card">
-    <h3 id="trust-summary-title" class="uk-card-title">Trust Center – Details für IT &amp; Qualitätsmanagement</h3>
-    <p>Das Trust-Center bündelt technische Nachweise, Sicherheitsnachweise und Compliance-Checklisten – jederzeit abrufbar für IT und QM.</p>
+    <h3 id="trust-summary-title"
+        class="uk-card-title"
+        data-calhelp-i18n
+        data-i18n-de="Trust Center – Details für IT &amp; Qualitätsmanagement"
+        data-i18n-en="Trust centre – details for IT &amp; quality management">Trust Center – Details für IT &amp; Qualitätsmanagement</h3>
+    <p data-calhelp-i18n
+       data-i18n-de="Das Trust-Center bündelt technische Nachweise, Sicherheitsnachweise und Compliance-Checklisten – jederzeit abrufbar für IT und QM."
+       data-i18n-en="The trust centre combines technical evidence, security attestations and compliance checklists – always available for IT and QM.">Das Trust-Center bündelt technische Nachweise, Sicherheitsnachweise und Compliance-Checklisten – jederzeit abrufbar für IT und QM.</p>
     {% if panels is not empty %}
       <ul class="calhelp-trust-summary__list" role="list">
         {% for panel in panels %}
+          {% set panelTitleDe = panel.title.de|default(panel.title)|default('') %}
+          {% set panelTitleEn = panel.title.en|default(panelTitleDe) %}
           <li class="calhelp-trust-summary__item">
             <span class="calhelp-trust-summary__icon" aria-hidden="true" data-uk-icon="icon: {{ panel.icon|default('check') }}"></span>
-            <span class="calhelp-trust-summary__label">{{ panel.title }}</span>
+            <span class="calhelp-trust-summary__label"
+                  data-calhelp-i18n
+                  data-i18n-de="{{ panelTitleDe|e('html_attr') }}"
+                  data-i18n-en="{{ panelTitleEn|e('html_attr') }}">{{ panelTitleDe }}</span>
           </li>
         {% endfor %}
       </ul>
     {% endif %}
     <div class="calhelp-trust-summary__actions">
-      <a class="uk-button uk-button-secondary" href="https://calhelp.notion.site/Trust-Center" target="_blank" rel="noopener">
+      <a class="uk-button uk-button-secondary"
+         href="https://calhelp.notion.site/Trust-Center"
+         target="_blank"
+         rel="noopener"
+         data-calhelp-i18n
+         data-i18n-de="<span class=\"uk-margin-small-right\" data-uk-icon=\"icon: link\" aria-hidden=\"true\"></span>Trust-Center öffnen"
+         data-i18n-en="<span class=\"uk-margin-small-right\" data-uk-icon=\"icon: link\" aria-hidden=\"true\"></span>Open trust centre">
         <span class="uk-margin-small-right" data-uk-icon="icon: link" aria-hidden="true"></span>Trust-Center öffnen
       </a>
-      <a class="uk-button uk-button-text" href="#cta">Rückfragen klären</a>
+      <a class="uk-button uk-button-text"
+         href="#cta"
+         data-calhelp-i18n
+         data-i18n-de="Rückfragen klären"
+         data-i18n-en="Ask a question">Rückfragen klären</a>
     </div>
   </div>
 </section>

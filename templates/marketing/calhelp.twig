@@ -209,87 +209,171 @@
     {% set assurancePanels = [
       {
         'id': 'cloud-de',
-        'title': 'Cloud DE',
+        'title': {
+          'de': 'Cloud DE',
+          'en': 'Cloud DE'
+        },
         'icon': 'cloud',
         'facts': [
           {
             'icon': 'cloud',
-            'badge': { 'icon': 'location', 'label': 'Software hosted in Germany' },
-            'text': 'ISO 27001- und BSI C5-geprüfte Rechenzentren mit redundanten Standorten in Frankfurt & Berlin.'
+            'badge': {
+              'icon': 'location',
+              'label': {
+                'de': 'Software hosted in Germany',
+                'en': 'Software hosted in Germany'
+              }
+            },
+            'text': {
+              'de': 'ISO 27001- und BSI C5-geprüfte Rechenzentren mit redundanten Standorten in Frankfurt & Berlin.',
+              'en': 'ISO 27001 and BSI C5 audited data centres with redundant sites in Frankfurt and Berlin.'
+            }
           },
           {
             'icon': 'server',
-            'text': '24/7-Monitoring mit Alarmierung & Incident-Response in ≤ 15 Minuten.'
+            'text': {
+              'de': '24/7-Monitoring mit Alarmierung & Incident-Response in ≤ 15 Minuten.',
+              'en': '24/7 monitoring with alerting and incident response within ≤ 15 minutes.'
+            }
           },
           {
             'icon': 'lock',
-            'text': 'Backups verschlüsselt (AES-256) gespeichert und täglich auf Integrität geprüft.'
+            'text': {
+              'de': 'Backups verschlüsselt (AES-256) gespeichert und täglich auf Integrität geprüft.',
+              'en': 'Backups encrypted with AES-256 at rest and validated for integrity every day.'
+            }
           }
         ],
-        'hint': 'Zugriff kann auf Wunsch per IP-Allowlist oder mandantenbezogener VPN-Anbindung zusätzlich abgesichert werden.'
+        'hint': {
+          'de': 'Zugriff kann auf Wunsch per IP-Allowlist oder mandantenbezogener VPN-Anbindung zusätzlich abgesichert werden.',
+          'en': 'Access can be hardened with IP allow lists or tenant-specific VPN tunnels on request.'
+        }
       },
       {
         'id': 'on-prem',
-        'title': 'On-Prem',
+        'title': {
+          'de': 'On-Prem',
+          'en': 'On-Prem'
+        },
         'icon': 'database',
         'facts': [
           {
             'icon': 'bolt',
-            'badge': { 'icon': 'bolt', 'label': 'Setup in ≤ 4 Stunden' },
-            'text': 'Installationspaket für Windows Server & Linux inkl. automatischer Preflight-Checks.'
+            'badge': {
+              'icon': 'bolt',
+              'label': {
+                'de': 'Setup in ≤ 4 Stunden',
+                'en': 'Setup in ≤ 4 hours'
+              }
+            },
+            'text': {
+              'de': 'Installationspaket für Windows Server & Linux inkl. automatischer Preflight-Checks.',
+              'en': 'Installation package for Windows Server and Linux including automated preflight checks.'
+            }
           },
           {
             'icon': 'database',
-            'text': 'PostgreSQL oder SQL Server, optional im Cluster mit Failover-Testprotokoll.'
+            'text': {
+              'de': 'PostgreSQL oder SQL Server, optional im Cluster mit Failover-Testprotokoll.',
+              'en': 'PostgreSQL or SQL Server, optionally clustered with a documented failover test.'
+            }
           },
           {
             'icon': 'refresh',
-            'text': 'Signierte Update-Pakete mit Rollback-Plan und Dokumentation der Änderungen.'
+            'text': {
+              'de': 'Signierte Update-Pakete mit Rollback-Plan und Dokumentation der Änderungen.',
+              'en': 'Signed update bundles with a rollback plan and documented change log.'
+            }
           }
         ],
-        'hint': 'Konfigurations-Playbooks (Ansible/PowerShell) erleichtern das Patch-Management und erlauben reproduzierbare Deployments.'
+        'hint': {
+          'de': 'Konfigurations-Playbooks (Ansible/PowerShell) erleichtern das Patch-Management und erlauben reproduzierbare Deployments.',
+          'en': 'Configuration playbooks (Ansible/PowerShell) streamline patch management and keep deployments reproducible.'
+        }
       },
       {
         'id': 'dsgvo',
-        'title': 'DSGVO',
+        'title': {
+          'de': 'DSGVO',
+          'en': 'GDPR'
+        },
         'icon': 'shield',
         'facts': [
           {
             'icon': 'file-text',
-            'badge': { 'icon': 'file-text', 'label': 'AV-Vertrag & TOMs' },
-            'text': 'Aktualisierte ADV inklusive Technischer & Organisatorischer Maßnahmen, unterschriftsreif in Deutsch/Englisch.'
+            'badge': {
+              'icon': 'file-text',
+              'label': {
+                'de': 'AV-Vertrag & TOMs',
+                'en': 'DPA & TOMs'
+              }
+            },
+            'text': {
+              'de': 'Aktualisierte ADV inklusive Technischer & Organisatorischer Maßnahmen, unterschriftsreif in Deutsch/Englisch.',
+              'en': 'Updated data processing agreements incl. TOMs, ready to sign in German and English.'
+            }
           },
           {
             'icon': 'history',
-            'text': 'Protokollierte Datenflüsse und Verarbeitungstätigkeiten für Auskunfts- & Löschbegehren.'
+            'text': {
+              'de': 'Protokollierte Datenflüsse und Verarbeitungstätigkeiten für Auskunfts- & Löschbegehren.',
+              'en': 'Logged data flows and processing activities to answer access and erasure requests.'
+            }
           },
           {
             'icon': 'trash',
-            'text': 'Konfigurierbare Aufbewahrungsfristen mit revisionssicherer Löschbestätigung.'
+            'text': {
+              'de': 'Konfigurierbare Aufbewahrungsfristen mit revisionssicherer Löschbestätigung.',
+              'en': 'Configurable retention periods with tamper-proof deletion confirmation.'
+            }
           }
         ],
-        'hint': 'Auf Wunsch liefern wir ein Muster für Datenschutz-Folgenabschätzungen und Schnittstellen für Betroffenenanfragen (REST).'
+        'hint': {
+          'de': 'Auf Wunsch liefern wir ein Muster für Datenschutz-Folgenabschätzungen und Schnittstellen für Betroffenenanfragen (REST).',
+          'en': 'We provide DPIA templates and REST endpoints for data subject requests on request.'
+        }
       },
       {
         'id': 'rollen-protokolle',
-        'title': 'Rollen & Protokolle',
+        'title': {
+          'de': 'Rollen & Protokolle',
+          'en': 'Roles & audit trail'
+        },
         'icon': 'users',
         'facts': [
           {
             'icon': 'users',
-            'badge': { 'icon': 'users', 'label': '5+ Rollen vorkonfiguriert' },
-            'text': 'Feingranulare Berechtigungen für Labor, QS, IT, Service und externe Partner.'
+            'badge': {
+              'icon': 'users',
+              'label': {
+                'de': '5+ Rollen vorkonfiguriert',
+                'en': '5+ roles preconfigured'
+              }
+            },
+            'text': {
+              'de': 'Feingranulare Berechtigungen für Labor, QS, IT, Service und externe Partner.',
+              'en': 'Granular permissions for labs, QA, IT, service and external partners.'
+            }
           },
           {
             'icon': 'file-text',
-            'text': 'Objektbezogener Audit-Trail (wer/was/wann) mit Export nach CSV oder SIEM.'
+            'text': {
+              'de': 'Objektbezogener Audit-Trail (wer/was/wann) mit Export nach CSV oder SIEM.',
+              'en': 'Object-level audit trail (who/what/when) with CSV and SIEM export.'
+            }
           },
           {
             'icon': 'key',
-            'text': 'SSO-Anbindung via SAML/OIDC inklusive SCIM-Provisioning & Gruppen-Mapping.'
+            'text': {
+              'de': 'SSO-Anbindung via SAML/OIDC inklusive SCIM-Provisioning & Gruppen-Mapping.',
+              'en': 'SSO via SAML/OIDC including SCIM provisioning and group mapping.'
+            }
           }
         ],
-        'hint': 'Webhook- und Syslog-Forwarder ermöglichen das Streaming der Audit-Logs an bestehende SIEM-Lösungen.'
+        'hint': {
+          'de': 'Webhook- und Syslog-Forwarder ermöglichen das Streaming der Audit-Logs an bestehende SIEM-Lösungen.',
+          'en': 'Webhook and syslog forwarders stream audit logs into existing SIEM tools.'
+        }
       }
     ] %}
     {% set caseStories = [

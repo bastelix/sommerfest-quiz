@@ -445,14 +445,98 @@
         <p>Nachweise &amp; Vorlagen stehen auf Abruf bereit – ohne zusätzliche Nachtschichten.</p>
       </article>
     </div>
+  </div>
+</section>
+
+<section id="proof" class="uk-section uk-section-muted calhelp-section calhelp-proof" aria-labelledby="proof-title">
+  <div class="uk-container">
+    <div class="calhelp-section__header">
+      <h2 id="proof-title"
+          class="uk-heading-medium"
+          data-calhelp-i18n
+          data-i18n-de="Trust Center – technische Nachweise"
+          data-i18n-en="Trust Centre – technical evidence">Trust Center – technische Nachweise</h2>
+      <p class="uk-text-lead"
+         data-calhelp-i18n
+         data-i18n-de="Hosting, Deployment, Datenschutz und Rollenmodelle – aufbereitet für IT und Qualitätsmanagement."
+         data-i18n-en="Hosting, deployment, data protection and role models – prepared for IT and quality management.">Hosting, Deployment, Datenschutz und Rollenmodelle – aufbereitet für IT und Qualitätsmanagement.</p>
+    </div>
     <div class="uk-margin-large-top">
       <div data-calhelp-assurance></div>
+    </div>
+    <div class="uk-margin-large-top">
+      <div class="calhelp-assurance" aria-labelledby="proof-accordion-title">
+        <h3 id="proof-accordion-title"
+            class="calhelp-assurance__title"
+            data-calhelp-i18n
+            data-i18n-de="Vier Schwerpunkte im Detail"
+            data-i18n-en="Four focus areas in detail">Vier Schwerpunkte im Detail</h3>
+        <p class="calhelp-assurance__intro"
+           data-calhelp-i18n
+           data-i18n-de="Cloud-Betrieb, On-Premises-Option, DSGVO-Nachweise sowie Rollen- und Protokollierung – jeweils mit drei Fakten und einem IT-Hinweis."
+           data-i18n-en="Cloud operations, on-premises option, GDPR evidence plus roles and auditing – each with three facts and an IT tip.">Cloud-Betrieb, On-Premises-Option, DSGVO-Nachweise sowie Rollen- und Protokollierung – jeweils mit drei Fakten und einem IT-Hinweis.</p>
+        <ul class="uk-accordion calhelp-assurance__accordion" uk-accordion="multiple: true">
+          {% for panel in assurancePanels %}
+            {% set panelTitleDe = panel.title.de|default(panel.title)|default('') %}
+            {% set panelTitleEn = panel.title.en|default(panelTitleDe) %}
+            <li class="calhelp-assurance__item">
+              <a class="uk-accordion-title" href="#proof-{{ panel.id }}">
+                <span class="calhelp-assurance__title-icon" aria-hidden="true" data-uk-icon="icon: {{ panel.icon|default('check') }}"></span>
+                <span data-calhelp-i18n
+                      data-i18n-de="{{ panelTitleDe|e('html_attr') }}"
+                      data-i18n-en="{{ panelTitleEn|e('html_attr') }}">{{ panelTitleDe }}</span>
+              </a>
+              <div class="uk-accordion-content" id="proof-{{ panel.id }}">
+                <ul class="calhelp-assurance__facts" role="list">
+                  {% for fact in panel.facts %}
+                    {% set factTextDe = fact.text.de|default(fact.text)|default('') %}
+                    {% set factTextEn = fact.text.en|default(factTextDe) %}
+                    <li class="calhelp-assurance__fact">
+                      <span class="calhelp-assurance__fact-icon" aria-hidden="true" data-uk-icon="icon: {{ fact.icon|default('check') }}"></span>
+                      <div class="calhelp-assurance__fact-body">
+                        {% if fact.badge is defined %}
+                          {% set badgeLabelDe = fact.badge.label.de|default(fact.badge.label)|default('') %}
+                          {% set badgeLabelEn = fact.badge.label.en|default(badgeLabelDe) %}
+                          <span class="calhelp-assurance__badge">
+                            <span class="calhelp-assurance__badge-icon" aria-hidden="true" data-uk-icon="icon: {{ fact.badge.icon|default('check') }}"></span>
+                            <span data-calhelp-i18n
+                                  data-i18n-de="{{ badgeLabelDe|e('html_attr') }}"
+                                  data-i18n-en="{{ badgeLabelEn|e('html_attr') }}">{{ badgeLabelDe }}</span>
+                          </span>
+                        {% endif %}
+                        <p class="calhelp-assurance__fact-text"
+                           data-calhelp-i18n
+                           data-i18n-de="{{ factTextDe|e('html_attr') }}"
+                           data-i18n-en="{{ factTextEn|e('html_attr') }}">{{ factTextDe }}</p>
+                      </div>
+                    </li>
+                  {% endfor %}
+                </ul>
+                {% set hintTextDe = panel.hint.de|default(panel.hint)|default('') %}
+                {% set hintTextEn = panel.hint.en|default(hintTextDe) %}
+                <p class="calhelp-assurance__hint">
+                  <span class="calhelp-assurance__hint-icon" aria-hidden="true" data-uk-icon="icon: info"></span>
+                  <span class="calhelp-assurance__hint-text">
+                    <strong data-calhelp-i18n data-i18n-de="IT-Hinweis" data-i18n-en="IT tip">IT-Hinweis</strong>
+                    <span data-calhelp-i18n
+                          data-i18n-de="{{ hintTextDe|e('html_attr') }}"
+                          data-i18n-en="{{ hintTextEn|e('html_attr') }}">{{ hintTextDe }}</span>
+                  </span>
+                </p>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
     <div class="uk-margin-large-top">
       <div data-calhelp-proof-gallery></div>
     </div>
     <div class="calhelp-kpi uk-card uk-card-primary uk-card-body">
-      <p class="uk-margin-remove">Alle technischen Details, KPIs und Checklisten finden Sie im <a href="https://calhelp.notion.site/Trust-Center" target="_blank" rel="noopener">Trust-Center</a>. Für Fragen stehen wir jederzeit bereit.</p>
+      <p class="uk-margin-remove"
+         data-calhelp-i18n
+         data-i18n-de="Alle technischen Details, KPIs und Checklisten finden Sie im <a href=\"https://calhelp.notion.site/Trust-Center\" target=\"_blank\" rel=\"noopener\">Trust-Center</a>. Für Fragen stehen wir jederzeit bereit."
+         data-i18n-en="All technical details, KPIs and checklists live in the <a href=\"https://calhelp.notion.site/Trust-Center\" target=\"_blank\" rel=\"noopener\">trust centre</a>. We are happy to answer any questions.">Alle technischen Details, KPIs und Checklisten finden Sie im <a href="https://calhelp.notion.site/Trust-Center" target="_blank" rel="noopener">Trust-Center</a>. Für Fragen stehen wir jederzeit bereit.</p>
     </div>
   </div>
 </section>
