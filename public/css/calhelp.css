@@ -644,17 +644,18 @@ body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-of
 
 .calhelp-news-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 28px;
   align-items: stretch;
   grid-auto-flow: dense;
 }
 
 .calhelp-news-card {
-  gap: 18px;
+  gap: 20px;
   padding: 28px 30px;
   border-radius: 22px;
   box-shadow: 0 34px 68px -44px color-mix(in oklab, var(--calserver-primary) 60%, rgba(15, 23, 42, 0.65));
+  position: relative;
 }
 
 .calhelp-news-card__header {
@@ -677,12 +678,45 @@ body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-of
 
 .calhelp-news-card__intro {
   margin: 0;
+  display: grid;
+  gap: 10px;
   color: color-mix(in oklab, var(--qr-landing-text) 78%, rgba(15, 23, 42, 0.35));
 }
 
 .calhelp-news-card__body {
   display: grid;
   gap: 12px;
+}
+
+.calhelp-news-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.calhelp-news-list > li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: color-mix(in oklab, rgba(255, 255, 255, 0.14), rgba(15, 23, 42, 0.08));
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, rgba(255, 255, 255, 0.24), rgba(15, 23, 42, 0.08));
+  font-size: 0.95rem;
+}
+
+.calhelp-news-list > li > strong {
+  font-weight: 600;
+  color: color-mix(in oklab, var(--qr-landing-text) 92%, rgba(15, 23, 42, 0.12));
+}
+
+.calhelp-news-card__subheading {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.02rem;
+  color: color-mix(in oklab, var(--qr-landing-text) 94%, rgba(15, 23, 42, 0.08));
 }
 
 .calhelp-news-steps {
@@ -765,8 +799,18 @@ body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-of
   color: color-mix(in oklab, #ffffff 85%, rgba(15, 23, 42, 0.32));
 }
 
+
+.calhelp-news-card__cta {
+  margin-top: 12px;
+}
+
+.calhelp-news-card__cta .uk-button {
+  font-weight: 600;
+}
+
 .calhelp-news-card--praxis {
   grid-column: span 2;
+  grid-row: span 2;
   background: linear-gradient(140deg,
       color-mix(in oklab, var(--calserver-primary) 78%, rgba(15, 23, 42, 0.12)),
       color-mix(in oklab, var(--calserver-primary) 58%, rgba(15, 23, 42, 0.05)));
@@ -774,12 +818,27 @@ body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-of
 
 .calhelp-news-card--usecase {
   grid-column: span 2;
+  grid-row: span 2;
 }
 
 .calhelp-news-card--changelog,
 .calhelp-news-card--insight,
 .calhelp-news-card--roadmap {
   grid-column: span 1;
+}
+
+.calhelp-news-card[data-news-type='changelog']::after {
+  content: '';
+  position: absolute;
+  inset: auto 24px 24px auto;
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  background: radial-gradient(circle at 30% 30%,
+      color-mix(in oklab, var(--calserver-primary) 45%, rgba(255, 255, 255, 0.45)),
+      color-mix(in oklab, rgba(255, 255, 255, 0.22), rgba(15, 23, 42, 0.18)));
+  opacity: 0.3;
+  pointer-events: none;
 }
 
 .calhelp-news-card--usecase .calhelp-news-card__body {
@@ -1857,6 +1916,7 @@ body.calhelp-proof-gallery--modal-open {
   .calhelp-news-card--praxis,
   .calhelp-news-card--usecase {
     grid-column: span 1;
+    grid-row: span 1;
   }
 
   .calhelp-news-kpi {
