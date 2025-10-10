@@ -10,6 +10,7 @@ data/logo-*.webp
 data/admin_password.txt
 data/page-seo.json
 data/redirects.json
+data/sessions/
 resources/fonts/*.ttf
 
 data/config.json
