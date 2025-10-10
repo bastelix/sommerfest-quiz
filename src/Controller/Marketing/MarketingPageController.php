@@ -636,7 +636,11 @@ class MarketingPageController
             }
         }
 
-        $data = ['usecases' => $usecases];
+        $data = [
+            'heading' => isset($decoded['heading']) && is_array($decoded['heading']) ? $decoded['heading'] : [],
+            'intro' => isset($decoded['intro']) && is_array($decoded['intro']) ? $decoded['intro'] : [],
+            'usecases' => $usecases,
+        ];
 
         return [
             'html' => str_replace($matches[0], '', $html),

@@ -37,6 +37,28 @@ class CalhelpControllerTest extends TestCase
         }
     }
 
+    public function testCalhelpUsecaseSectionIncludesLocalizedCopy(): void {
+        $old = getenv('MAIN_DOMAIN');
+        putenv('MAIN_DOMAIN=main.test');
+
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/calhelp');
+        $request = $request->withUri($request->getUri()->withHost('main.test'));
+        $response = $app->handle($request);
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('Drei Situationen, in denen Kund:innen zu uns kommen', $body);
+        $this->assertStringContainsString('Kurz und konkret: Wo wir starten, wie es sich anfühlt, was bleibt.', $body);
+
+        if ($old === false) {
+            putenv('MAIN_DOMAIN');
+        } else {
+            putenv('MAIN_DOMAIN=' . $old);
+        }
+    }
+
     public function testCalhelpPageTenant(): void {
         $old = getenv('MAIN_DOMAIN');
         putenv('MAIN_DOMAIN=main.test');
