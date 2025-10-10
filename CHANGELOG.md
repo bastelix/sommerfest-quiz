@@ -242,6 +242,7 @@
 - Expand calHelp case stories
 - Redesign calhelp news section
 - Redesign calhelp news section
+- Add CalHelp section theming
 
 ### Fix
 
