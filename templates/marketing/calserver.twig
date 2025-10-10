@@ -8,6 +8,9 @@
     { 'href': '#pricing', 'label': t('calserver_nav_pricing'), 'icon': 'credit-card' },
     { 'href': '#faq', 'label': t('calserver_nav_faq'), 'icon': 'question' }
 ] %}
+{% if marketingWikiMenu is defined %}
+  {% set links = links|merge([{ 'href': marketingWikiMenu.url, 'label': marketingWikiMenu.label, 'icon': 'file-text' }]) %}
+{% endif %}
 
 {% block title %}{{ metaTitle|default('calServer – Kalibrier- und Inventarverwaltung für Teams') }}{% endblock %}
 

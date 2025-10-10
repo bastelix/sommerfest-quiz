@@ -12,6 +12,7 @@ use App\Controller\AdminController;
 use App\Controller\AdminCatalogController;
 use App\Controller\AdminMediaController;
 use App\Controller\AdminLogsController;
+use App\Controller\Admin\MarketingPageWikiController;
 use App\Controller\LoginController;
 use App\Controller\LogoutController;
 use App\Controller\ConfigController;
@@ -84,6 +85,8 @@ use App\Controller\Admin\DomainContactTemplateController;
 use App\Controller\Admin\LandingNewsController as AdminLandingNewsController;
 use App\Controller\TenantController;
 use App\Controller\Marketing\MarketingPageController;
+use App\Controller\Marketing\MarketingPageWikiArticleController;
+use App\Controller\Marketing\MarketingPageWikiListController;
 use App\Controller\Marketing\ContactController;
 use App\Controller\Marketing\LandingNewsController as MarketingLandingNewsController;
 use App\Controller\Marketing\MarketingChatController;
@@ -140,6 +143,7 @@ require_once __DIR__ . '/Controller/Admin/LandingpageController.php';
 require_once __DIR__ . '/Controller/Admin/LandingNewsController.php';
 require_once __DIR__ . '/Controller/Admin/DomainStartPageController.php';
 require_once __DIR__ . '/Controller/Admin/MailProviderController.php';
+require_once __DIR__ . '/Controller/Admin/MarketingPageWikiController.php';
 require_once __DIR__ . '/Controller/QrController.php';
 require_once __DIR__ . '/Controller/LogoController.php';
 require_once __DIR__ . '/Controller/CatalogDesignController.php';
@@ -156,6 +160,8 @@ require_once __DIR__ . '/Controller/TenantController.php';
 require_once __DIR__ . '/Controller/Marketing/MarketingPageController.php';
 require_once __DIR__ . '/Controller/Marketing/LandingController.php';
 require_once __DIR__ . '/Controller/Marketing/CalserverController.php';
+require_once __DIR__ . '/Controller/Marketing/MarketingPageWikiListController.php';
+require_once __DIR__ . '/Controller/Marketing/MarketingPageWikiArticleController.php';
 require_once __DIR__ . '/Controller/Marketing/MarketingChatController.php';
 require_once __DIR__ . '/Controller/Marketing/ContactController.php';
 require_once __DIR__ . '/Controller/Marketing/NewsletterController.php';
@@ -565,6 +571,26 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new MarketingPageController('calserver-maintenance');
         return $controller($request, $response);
     });
+    $app->get('/pages/{slug:[a-z0-9-]+}/wiki', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+
+        $controller = new MarketingPageWikiListController();
+
+        return $controller($request, $response, $args);
+    });
+    $app->get('/pages/{slug:[a-z0-9-]+}/wiki/{articleSlug:[a-z0-9-]+}', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+
+        $controller = new MarketingPageWikiArticleController();
+
+        return $controller($request, $response, $args);
+    });
     $app->get('/m/{landingSlug:[a-z0-9-]+}/news', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
@@ -572,6 +598,26 @@ return function (\Slim\App $app, TranslationService $translator) {
         }
         $controller = new MarketingLandingNewsController();
         return $controller->index($request, $response, $args);
+    });
+    $app->get('/m/{slug:[a-z0-9-]+}/wiki', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+
+        $controller = new MarketingPageWikiListController();
+
+        return $controller($request, $response, $args);
+    });
+    $app->get('/m/{slug:[a-z0-9-]+}/wiki/{articleSlug:[a-z0-9-]+}', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+
+        $controller = new MarketingPageWikiArticleController();
+
+        return $controller($request, $response, $args);
     });
     $app->get('/m/{landingSlug:[a-z0-9-]+}/news/{newsSlug:[a-z0-9-]+}', function (Request $request, Response $response, array $args) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
@@ -1165,6 +1211,48 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new PageController();
         return $controller->edit($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->get('/admin/pages/{pageId:[0-9]+}/wiki', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingPageWikiController();
+
+        return $controller->index($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->post('/admin/pages/{pageId:[0-9]+}/wiki/settings', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingPageWikiController();
+
+        return $controller->updateSettings($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
+    $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingPageWikiController();
+
+        return $controller->saveArticle($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
+    $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}/status', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingPageWikiController();
+
+        return $controller->updateStatus($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
+    $app->get('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingPageWikiController();
+
+        return $controller->showArticle($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->get('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}/download', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingPageWikiController();
+
+        return $controller->download($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+
+    $app->delete('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingPageWikiController();
+
+        return $controller->delete($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
 
     $app->post('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {
         $controller = new PageController();

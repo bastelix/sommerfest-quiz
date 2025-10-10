@@ -8,6 +8,9 @@
   { 'href': '#knowledge', 'label': 'Wissen', 'icon': 'bookmark' },
   { 'href': '#cta', 'label': 'Kontakt', 'icon': 'bolt' }
 ] %}
+{% if marketingWikiMenu is defined %}
+  {% set links = links|merge([{ 'href': marketingWikiMenu.url, 'label': marketingWikiMenu.label, 'icon': 'file-text' }]) %}
+{% endif %}
 
 {% block title %}{{ metaTitle|default('Umstieg auf ein zentrales Kalibrier-System – konsistent, nachvollziehbar, auditfähig') }}{% endblock %}
 

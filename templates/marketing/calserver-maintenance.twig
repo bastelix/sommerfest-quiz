@@ -5,6 +5,9 @@
     { 'href': '#timeline', 'label': t('calserver_maintenance_nav_timeline'), 'icon': 'clock' },
     { 'href': '#support', 'label': t('calserver_maintenance_nav_support'), 'icon': 'lifesaver' }
 ] %}
+{% if marketingWikiMenu is defined %}
+  {% set links = links|merge([{ 'href': marketingWikiMenu.url, 'label': marketingWikiMenu.label, 'icon': 'file-text' }]) %}
+{% endif %}
 
 {% block title %}{{ metaTitle|default('calHelp – Wartungsmodus') }}{% endblock %}
 
