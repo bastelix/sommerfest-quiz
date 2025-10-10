@@ -1,2771 +1,2503 @@
-body.qr-landing.calhelp-theme {
-  --calserver-primary: #1f63e6;
-  --calhelp-accent-sky: #1f63e6;
-  --calhelp-accent-iris: color-mix(in oklab, var(--calserver-primary) 72%, #6d7bff 28%);
-  --calhelp-accent-haze: color-mix(in oklab, var(--calserver-primary) 32%, rgba(15, 23, 42, 0.12));
-  --calhelp-section-radius: clamp(28px, 5vw, 44px);
-  --calhelp-section-offset: clamp(20px, 5vw, 36px);
-  --calhelp-section-offset-inline: clamp(0px, 3vw, 16px);
-  --calhelp-section-divider-width: min(calc(100% - 48px), 1120px);
-  --calhelp-section-divider: linear-gradient(
-    90deg,
-    rgba(31, 99, 230, 0),
-    color-mix(in oklab, var(--calhelp-accent-iris) 58%, var(--calhelp-accent-haze) 42%),
-    rgba(31, 99, 230, 0)
-  );
-  --calhelp-section-surface: color-mix(
-    in oklab,
-    #ffffff 96%,
-    color-mix(in oklab, var(--calhelp-accent-sky) 36%, rgba(15, 23, 42, 0.08))
-  );
-  --calhelp-section-border: color-mix(in oklab, var(--calhelp-accent-iris) 32%, rgba(15, 23, 42, 0.12));
-  --calhelp-section-shadow: 0 32px 68px -48px color-mix(in oklab, var(--calhelp-accent-iris) 52%, rgba(15, 23, 42, 0.55));
-  --calhelp-section-muted-surface: color-mix(
-    in oklab,
-    #ffffff 98%,
-    color-mix(in oklab, var(--calhelp-accent-haze) 68%, rgba(15, 23, 42, 0.04))
-  );
-  --calhelp-section-muted-border: color-mix(in oklab, var(--calhelp-accent-haze) 54%, rgba(15, 23, 42, 0.08));
-  --calhelp-section-muted-shadow: 0 28px 60px -46px color-mix(in oklab, var(--calhelp-accent-haze) 46%, rgba(15, 23, 42, 0.52));
-  --calhelp-section-container-padding: clamp(28px, 6vw, 52px);
-  --calhelp-section-divider-opacity: 0.75;
-  font-family: 'Poppins', 'Roboto', sans-serif;
-}
-
-body.qr-landing.calhelp-theme .landing-content {
-  position: relative;
-}
-
-.calhelp-logo {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  border-radius: 999px;
-  background: var(--cs-logo-bg);
-  border: 1px solid var(--cs-logo-border);
-  color: var(--cs-logo-text);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  line-height: 1;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.calhelp-logo:hover,
-.calhelp-logo:focus-visible {
-  transform: translateY(-1px);
-  box-shadow: 0 18px 34px -20px color-mix(in oklab, var(--calserver-primary) 54%, rgba(15, 23, 42, 0.85));
-}
-
-.calhelp-logo__sr {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-}
-
-.calhelp-logo__wordmark {
-  font-size: 1.1rem;
-  letter-spacing: 0.12em;
-}
-
-.calhelp-nav > li > a {
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
-
-body.qr-landing.calhelp-theme {
-  --calhelp-nav-surface: color-mix(in oklab, #ffffff 96%, rgba(15, 23, 42, 0.04));
-  --calhelp-nav-border: color-mix(in oklab, rgba(15, 23, 42, 0.12), rgba(255, 255, 255, 0.56));
-  --calhelp-nav-shadow: 0 28px 54px -34px color-mix(in oklab, var(--calserver-primary) 68%, rgba(15, 23, 42, 0.68));
-  --calhelp-pane-surface: color-mix(in oklab, #ffffff 90%, rgba(15, 23, 42, 0.08));
-  --calhelp-pane-border: color-mix(in oklab, rgba(15, 23, 42, 0.08), rgba(255, 255, 255, 0.6));
-  --calhelp-pane-meta: color-mix(in oklab, var(--qr-landing-text) 52%, rgba(15, 23, 42, 0.28));
-  --calhelp-link-hover: color-mix(in oklab, var(--calserver-primary) 16%, rgba(15, 23, 42, 0.04));
-  --calhelp-offcanvas-bg: #ffffff;
-  --calhelp-offcanvas-border: color-mix(in oklab, rgba(15, 23, 42, 0.08), rgba(255, 255, 255, 0.5));
-  --calhelp-offcanvas-muted: color-mix(in oklab, var(--qr-landing-text) 60%, rgba(15, 23, 42, 0.28));
-  --calhelp-card-proof-bg: color-mix(in oklab, var(--calserver-primary) 10%, rgba(15, 23, 42, 0.04));
-  --calhelp-card-proof-border: color-mix(in oklab, var(--calserver-primary) 22%, rgba(15, 23, 42, 0.08));
-  --calhelp-card-proof-shadow: 0 18px 42px -28px color-mix(in oklab, var(--calserver-primary) 62%, rgba(15, 23, 42, 0.8));
-  --calhelp-card-proof-foreground: color-mix(in oklab, var(--qr-landing-text) 96%, rgba(15, 23, 42, 0.88));
-  --calhelp-card-proof-muted: color-mix(in oklab, var(--qr-landing-text) 68%, rgba(15, 23, 42, 0.32));
-  --calhelp-card-proof-divider: color-mix(in oklab, rgba(31, 99, 230, 0.18), rgba(15, 23, 42, 0.1));
-  --calhelp-card-proof-chip-bg: color-mix(in oklab, rgba(31, 99, 230, 0.14), rgba(255, 255, 255, 0.9));
-  --calhelp-card-proof-chip-border: color-mix(in oklab, rgba(31, 99, 230, 0.26), rgba(15, 23, 42, 0.12));
-  --calhelp-card-trust-bg: color-mix(in oklab, #ffffff 98%, rgba(15, 23, 42, 0.02));
-  --calhelp-card-trust-border: color-mix(in oklab, rgba(31, 99, 230, 0.12), rgba(15, 23, 42, 0.08));
-  --calhelp-card-trust-shadow: 0 22px 48px -34px rgba(15, 23, 42, 0.16);
-  --calhelp-card-trust-foreground: color-mix(in oklab, var(--qr-landing-text) 95%, rgba(15, 23, 42, 0.88));
-  --calhelp-card-trust-muted: color-mix(in oklab, var(--qr-landing-text) 62%, rgba(15, 23, 42, 0.28));
-  --calhelp-card-trust-divider: color-mix(in oklab, rgba(15, 23, 42, 0.06), rgba(31, 99, 230, 0.14));
-  --calhelp-card-trust-chip-bg: color-mix(in oklab, rgba(31, 99, 230, 0.08), rgba(255, 255, 255, 0.92));
-  --calhelp-card-trust-chip-border: color-mix(in oklab, rgba(31, 99, 230, 0.16), rgba(15, 23, 42, 0.1));
-  --calhelp-card-primary-bg: var(--calhelp-card-proof-bg);
-  --calhelp-card-primary-border: var(--calhelp-card-proof-border);
-  --calhelp-card-primary-shadow: var(--calhelp-card-proof-shadow);
-  --calhelp-card-primary-foreground: var(--calhelp-card-proof-foreground);
-  --calhelp-card-primary-muted: var(--calhelp-card-proof-muted);
-  --calhelp-card-primary-divider: var(--calhelp-card-proof-divider);
-  --calhelp-card-primary-chip-bg: var(--calhelp-card-proof-chip-bg);
-  --calhelp-card-primary-chip-border: var(--calhelp-card-proof-chip-border);
-}
-
-body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) {
-  --calhelp-nav-surface: color-mix(in oklab, rgba(17, 24, 39, 0.92), rgba(15, 23, 42, 0.78));
-  --calhelp-nav-border: color-mix(in oklab, rgba(79, 97, 125, 0.48), rgba(15, 23, 42, 0.48));
-  --calhelp-nav-shadow: 0 28px 54px -28px color-mix(in oklab, rgba(9, 13, 24, 0.82), rgba(11, 96, 210, 0.54));
-  --calhelp-pane-surface: color-mix(in oklab, rgba(27, 36, 56, 0.94), rgba(15, 23, 42, 0.78));
-  --calhelp-pane-border: color-mix(in oklab, rgba(62, 86, 125, 0.45), rgba(15, 23, 42, 0.6));
-  --calhelp-pane-meta: color-mix(in oklab, rgba(198, 211, 238, 0.76), rgba(162, 178, 212, 0.48));
-  --calhelp-link-hover: color-mix(in oklab, rgba(30, 64, 175, 0.35), rgba(15, 23, 42, 0.55));
-  --calhelp-offcanvas-bg: color-mix(in oklab, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.86));
-  --calhelp-offcanvas-border: color-mix(in oklab, rgba(66, 86, 132, 0.48), rgba(15, 23, 42, 0.64));
-  --calhelp-offcanvas-muted: color-mix(in oklab, rgba(198, 211, 238, 0.8), rgba(220, 230, 255, 0.68));
-  --calhelp-section-surface: color-mix(
-    in oklab,
-    rgba(22, 33, 60, 0.94),
-    color-mix(in oklab, var(--calhelp-accent-haze) 28%, rgba(15, 23, 42, 0.84))
-  );
-  --calhelp-section-border: color-mix(
-    in oklab,
-    color-mix(in oklab, var(--calhelp-accent-iris) 64%, var(--calhelp-accent-haze) 36%),
-    rgba(15, 23, 42, 0.72)
-  );
-  --calhelp-section-shadow: 0 36px 70px -48px
-    color-mix(in oklab, var(--calhelp-accent-iris) 52%, rgba(11, 20, 42, 0.82));
-  --calhelp-section-muted-surface: color-mix(
-    in oklab,
-    rgba(20, 31, 56, 0.92),
-    color-mix(in oklab, var(--calhelp-accent-haze) 24%, rgba(15, 23, 42, 0.82))
-  );
-  --calhelp-section-muted-border: color-mix(
-    in oklab,
-    color-mix(in oklab, var(--calhelp-accent-haze) 58%, rgba(15, 23, 42, 0.78)),
-    rgba(15, 23, 42, 0.68)
-  );
-  --calhelp-section-muted-shadow: 0 32px 64px -48px
-    color-mix(in oklab, var(--calhelp-accent-haze) 44%, rgba(10, 18, 40, 0.86));
-  --calhelp-section-divider: linear-gradient(
-    90deg,
-    rgba(15, 23, 42, 0),
-    color-mix(in oklab, var(--calhelp-accent-iris) 64%, rgba(15, 23, 42, 0.5)),
-    rgba(15, 23, 42, 0)
-  );
-  --calhelp-card-primary-bg: color-mix(in oklab, rgba(30, 52, 109, 0.92), rgba(15, 23, 42, 0.76));
-  --calhelp-card-primary-border: color-mix(in oklab, rgba(126, 176, 255, 0.55), rgba(28, 64, 140, 0.6));
-  --calhelp-card-primary-shadow: 0 32px 64px -34px color-mix(in oklab, rgba(13, 32, 82, 0.86), rgba(29, 83, 201, 0.7));
-  --calhelp-card-primary-foreground: rgba(246, 250, 255, 0.96);
-  --calhelp-card-primary-muted: color-mix(in oklab, rgba(246, 250, 255, 0.82), rgba(203, 222, 255, 0.68));
-  --calhelp-card-primary-divider: color-mix(in oklab, rgba(116, 150, 209, 0.52), rgba(74, 108, 182, 0.38));
-  --calhelp-card-primary-chip-bg: color-mix(in oklab, rgba(246, 250, 255, 0.2), rgba(36, 64, 135, 0.42));
-  --calhelp-card-primary-chip-border: color-mix(in oklab, rgba(190, 214, 255, 0.46), rgba(51, 82, 146, 0.5));
-}
-
-.calhelp-mega-nav {
-  align-items: stretch;
-}
-
-.calhelp-mega-nav__item {
-  position: relative;
-}
-
-.calhelp-mega-nav__toggle {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto auto;
-  align-items: center;
-  column-gap: 8px;
-  padding: 0 12px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  line-height: 1.1;
-}
-
-.calhelp-mega-nav__toggle .uk-margin-small-right {
-  grid-row: 1 / span 2;
-}
-
-.calhelp-mega-nav__label {
-  font-size: 0.95rem;
-}
-
-.calhelp-mega-nav__hint {
-  grid-column: 2;
-  margin-top: 2px;
-  font-size: 0.65rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--qr-landing-text) 46%, rgba(15, 23, 42, 0.32));
-}
-
-.calhelp-mega-dropdown {
-  width: min(960px, calc(100vw - 96px));
-  background: var(--calhelp-nav-surface);
-  border-radius: 22px;
-  padding: 28px 32px 32px;
-  border: 1px solid var(--calhelp-nav-border);
-  box-shadow: var(--calhelp-nav-shadow);
-  color: inherit;
-}
-
-.calhelp-mega__grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 20px;
-}
-
-.calhelp-mega__column {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.calhelp-mega__heading {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.calhelp-mega__description {
-  margin: 4px 0 0;
-  font-size: 0.82rem;
-  line-height: 1.4;
-  color: color-mix(in oklab, var(--qr-landing-text) 58%, rgba(15, 23, 42, 0.3));
-}
-
-.calhelp-mega__list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.calhelp-mega__link {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  color: inherit;
-  text-decoration: none;
-  background: transparent;
-  transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
-}
-
-.calhelp-mega__link-sub {
-  display: block;
-  margin-top: 4px;
-  font-size: 0.78rem;
-  color: color-mix(in oklab, var(--qr-landing-text) 52%, rgba(15, 23, 42, 0.32));
-}
-
-.calhelp-mega__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 12px;
-  background: color-mix(in oklab, rgba(255, 255, 255, 0.72), rgba(15, 23, 42, 0.06));
-  color: var(--calserver-primary);
-  flex-shrink: 0;
-}
-
-.calhelp-mega__link:hover,
-.calhelp-mega__link:focus-visible {
-  background: var(--calhelp-link-hover);
-  color: color-mix(in oklab, var(--qr-landing-text) 92%, rgba(15, 23, 42, 0.08));
-  outline: none;
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--calserver-primary) 38%, rgba(15, 23, 42, 0.2));
-}
-
-.calhelp-mega__link.is-active {
-  background: color-mix(in oklab, var(--calserver-primary) 12%, rgba(255, 255, 255, 0.92));
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--calserver-primary) 48%, rgba(15, 23, 42, 0.18));
-}
-
-.calhelp-mega__link.is-active .calhelp-mega__link-sub {
-  color: color-mix(in oklab, var(--calserver-primary) 46%, rgba(15, 23, 42, 0.24));
-}
-
-.calhelp-mega__explain {
-  position: relative;
-  margin-top: 28px;
-  padding: 22px 26px;
-  border-radius: 20px;
-  background: var(--calhelp-pane-surface);
-  border: 1px solid var(--calhelp-pane-border);
-  min-height: 176px;
-  overflow: hidden;
-}
-
-.calhelp-mega__pane {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(8px);
-  transition: opacity 0.26s ease, transform 0.26s ease;
-}
-
-.calhelp-mega__pane.is-active {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateY(0);
-}
-
-.calhelp-mega__pane-title {
-  margin: 0 0 10px;
-  font-size: 1.05rem;
-  font-weight: 600;
-}
-
-.calhelp-mega__pane-text {
-  margin: 0 0 10px;
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-.calhelp-mega__pane-meta {
-  margin: 0;
-  font-size: 0.72rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--calhelp-pane-meta);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .calhelp-mega__link,
-  .calhelp-mega__pane {
-    transition-duration: 0.01ms !important;
-    transition-delay: 0.01ms !important;
-    transform: none !important;
-  }
-}
-
-.calhelp-offcanvas {
-  background: var(--calhelp-offcanvas-bg);
-  color: inherit;
-  padding: 32px 28px 40px;
-  border-left: 1px solid var(--calhelp-offcanvas-border);
-}
-
-.calhelp-offcanvas__inner {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-  margin-top: 32px;
-}
-
-.calhelp-offcanvas__nav > li > a {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  padding: 6px 0;
-}
-
-.calhelp-offcanvas__group {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.calhelp-offcanvas__heading {
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 600;
-}
-
-.calhelp-offcanvas__description {
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--calhelp-offcanvas-muted);
-}
-
-.calhelp-offcanvas__list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.calhelp-offcanvas__link {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 12px 0;
-  text-decoration: none;
-  color: inherit;
-  border-bottom: 1px solid color-mix(in oklab, var(--calhelp-offcanvas-border) 72%, rgba(255, 255, 255, 0.42));
-}
-
-.calhelp-offcanvas__item:last-child .calhelp-offcanvas__link {
-  border-bottom-color: transparent;
-}
-
-.calhelp-offcanvas__icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: color-mix(in oklab, var(--calserver-primary) 12%, rgba(255, 255, 255, 0.82));
-  color: var(--calserver-primary);
-  flex-shrink: 0;
-}
-
-.calhelp-offcanvas__label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-weight: 500;
-}
-
-.calhelp-offcanvas__summary {
-  font-size: 0.78rem;
-  color: var(--calhelp-offcanvas-muted);
-}
-
-.calhelp-offcanvas__link:focus-visible,
-.calhelp-offcanvas__link:hover {
-  color: color-mix(in oklab, var(--qr-landing-text) 92%, rgba(15, 23, 42, 0.12));
-}
-
-.calhelp-offcanvas__cta {
-  margin-top: 36px;
-  box-shadow: 0 24px 48px -28px color-mix(in oklab, var(--calserver-primary) 68%, rgba(15, 23, 42, 0.68));
-}
-
-body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-mega__icon {
-  background: color-mix(in oklab, rgba(37, 56, 94, 0.6), rgba(15, 23, 42, 0.42));
-  color: color-mix(in oklab, rgba(137, 180, 255, 0.88), rgba(53, 121, 255, 0.82));
-}
-
-body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-mega__link.is-active {
-  background: color-mix(in oklab, rgba(46, 81, 156, 0.28), rgba(15, 23, 42, 0.6));
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, rgba(102, 157, 255, 0.68), rgba(15, 23, 42, 0.4));
-}
-
-body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-mega__link-sub {
-  color: color-mix(in oklab, rgba(187, 204, 236, 0.72), rgba(114, 138, 181, 0.5));
-}
-
-body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-mega__pane-text {
-  color: color-mix(in oklab, rgba(221, 230, 250, 0.88), rgba(169, 184, 214, 0.68));
-}
-
-body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-offcanvas {
-  color: color-mix(in oklab, rgba(229, 238, 255, 0.92), rgba(196, 211, 242, 0.82));
-}
-
-body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-offcanvas__icon {
-  background: color-mix(in oklab, rgba(39, 64, 120, 0.58), rgba(15, 23, 42, 0.52));
-  color: color-mix(in oklab, rgba(134, 179, 255, 0.88), rgba(59, 122, 255, 0.78));
-}
-
-body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-offcanvas__link {
-  border-bottom-color: color-mix(in oklab, rgba(61, 85, 122, 0.52), rgba(22, 31, 52, 0.52));
-}
-
-body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-offcanvas__summary {
-  color: color-mix(in oklab, rgba(176, 196, 232, 0.8), rgba(119, 142, 187, 0.64));
-}
-
-.calhelp-top-cta {
-  box-shadow: 0 22px 40px -26px color-mix(in oklab, var(--calserver-primary) 66%, rgba(15, 23, 42, 0.75));
-}
-
-.calhelp-hero {
-  position: relative;
-  overflow: hidden;
-}
-
-.calhelp-hero .qr-hero-bg {
-  inset: 0;
-}
-
-.calhelp-hero-grid__content,
-.calhelp-hero-grid__media {
-  position: relative;
-  z-index: 2;
-}
-
-.calhelp-hero-card {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  background: #ffffff;
-  border-radius: 24px;
-  border: 1px solid color-mix(in oklab, rgba(15, 23, 42, 0.08), rgba(255, 255, 255, 0.92));
-  box-shadow: 0 32px 56px -40px rgba(15, 23, 42, 0.18);
-}
-
-.calhelp-hero-card .uk-card-title {
-  font-weight: 600;
-}
-
-.calhelp-hero-card .hero-list > li::before {
-  color: var(--calserver-primary);
-}
-
-.calhelp-trust {
-  margin-top: 24px;
-  font-size: 0.95rem;
-  color: color-mix(in oklab, var(--qr-landing-text) 68%, rgba(15, 23, 42, 0.56));
-}
-
-.calhelp-data-note {
-  margin-top: 12px;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: color-mix(in oklab, var(--qr-landing-text) 72%, rgba(15, 23, 42, 0.45));
-}
-
-.calhelp-section {
-  position: relative;
-}
-
-[data-calhelp-theme] {
-  position: relative;
-  isolation: isolate;
-  --calhelp-theme-surface: var(--calhelp-section-surface);
-  --calhelp-theme-border: var(--calhelp-section-border);
-  --calhelp-theme-shadow: var(--calhelp-section-shadow);
-  --calhelp-theme-divider: var(--calhelp-section-divider);
-  --calhelp-theme-divider-width: var(--calhelp-section-divider-width);
-  --calhelp-theme-container-radius: var(--calhelp-section-radius);
-  --calhelp-theme-container-offset: var(--calhelp-section-offset);
-  --calhelp-theme-container-offset-inline: var(--calhelp-section-offset-inline);
-  --calhelp-theme-container-padding: var(--calhelp-section-container-padding);
-}
-
-[data-calhelp-theme='muted'] {
-  --calhelp-theme-surface: var(--calhelp-section-muted-surface);
-  --calhelp-theme-border: var(--calhelp-section-muted-border);
-  --calhelp-theme-shadow: var(--calhelp-section-muted-shadow);
-}
-
-[data-calhelp-theme]::before,
-[data-calhelp-theme]::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  width: var(--calhelp-theme-divider-width);
-  height: 1px;
-  transform: translateX(-50%);
-  background: var(--calhelp-theme-divider);
-  opacity: var(--calhelp-section-divider-opacity);
-  pointer-events: none;
-  z-index: 0;
-}
-
-[data-calhelp-theme]::before {
-  top: calc(var(--calhelp-theme-container-offset) * 0.5);
-}
-
-[data-calhelp-theme]::after {
-  bottom: calc(var(--calhelp-theme-container-offset) * 0.5);
-}
-
-[data-calhelp-theme] > .uk-container {
-  position: relative;
-  z-index: 1;
-  padding-block: var(--calhelp-theme-container-padding);
-}
-
-[data-calhelp-theme] > .uk-container::before {
-  content: '';
-  position: absolute;
-  inset: calc(var(--calhelp-theme-container-offset) * -1)
-    calc(var(--calhelp-theme-container-offset-inline) * -1);
-  border-radius: var(--calhelp-theme-container-radius);
-  background: var(--calhelp-theme-surface);
-  border: 1px solid var(--calhelp-theme-border);
-  box-shadow: var(--calhelp-theme-shadow);
-  z-index: -1;
-}
-
-.calhelp-section__header {
-  max-width: 760px;
-  margin: 0 auto 48px;
-  text-align: center;
-}
-
-.calhelp-section__header h2 {
-  margin-bottom: 12px;
-}
-
-.calhelp-section__header p {
-  margin: 0;
-  color: color-mix(in oklab, var(--qr-landing-text) 64%, rgba(15, 23, 42, 0.45));
-}
-
-.calhelp-cases {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-
-.calhelp-case-strip {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 240px) minmax(0, 1fr);
-  gap: 32px;
-  padding: 32px 36px;
-  border-radius: 24px;
-  overflow: hidden;
-  box-shadow: 0 34px 72px -48px color-mix(in oklab, var(--calserver-primary) 52%, rgba(15, 23, 42, 0.68));
-}
-
-.calhelp-case-strip::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  opacity: 0.18;
-  mix-blend-mode: soft-light;
-  pointer-events: none;
-  background: radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.52), transparent 55%),
-              radial-gradient(circle at 82% 82%, rgba(255, 255, 255, 0.38), transparent 60%);
-}
-
-.calhelp-case-strip--primary {
-  background: linear-gradient(135deg, color-mix(in oklab, var(--calserver-primary) 86%, rgba(15, 23, 42, 0.28)),
-                              color-mix(in oklab, var(--calserver-primary) 64%, rgba(15, 23, 42, 0.08)));
-  color: #ffffff;
-}
-
-.calhelp-case-strip--muted {
-  background: linear-gradient(135deg,
-                              color-mix(in oklab, #ffffff 82%, rgba(15, 23, 42, 0.1)),
-                              color-mix(in oklab, #ffffff 96%, rgba(15, 23, 42, 0.04)));
-  color: color-mix(in oklab, var(--qr-landing-text) 90%, rgba(15, 23, 42, 0.4));
-}
-
-.calhelp-case-strip--muted .calhelp-case-strip__label {
-  color: color-mix(in oklab, var(--calserver-primary) 72%, rgba(15, 23, 42, 0.4));
-}
-
-.calhelp-case-strip__header {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.calhelp-case-strip__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: color-mix(in oklab, rgba(255, 255, 255, 0.24), rgba(15, 23, 42, 0.08));
-  color: currentColor;
-  font-size: 32px;
-}
-
-.calhelp-case-strip--muted .calhelp-case-strip__icon {
-  background: color-mix(in oklab, var(--calserver-primary) 12%, rgba(15, 23, 42, 0.04));
-  color: var(--calserver-primary);
-}
-
-.calhelp-case-strip__label {
-  margin: 0;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: color-mix(in oklab, rgba(255, 255, 255, 0.9), rgba(15, 23, 42, 0.24));
-}
-
-.calhelp-case-strip__quote {
-  margin: 0;
-  font-size: 1.1rem;
-  line-height: 1.5;
-  font-style: italic;
-}
-
-.calhelp-case-strip__body {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-}
-
-.calhelp-case-strip__story {
-  margin: 0;
-  padding-left: 20px;
-  display: grid;
-  gap: 12px;
-  counter-reset: story-step;
-  max-width: 680px;
-}
-
-.calhelp-case-strip__story > li {
-  position: relative;
-  list-style: none;
-  padding-left: 36px;
-  font-size: 0.98rem;
-  line-height: 1.6;
-  color: inherit;
-}
-
-.calhelp-case-strip__story > li::before {
-  counter-increment: story-step;
-  content: counter(story-step);
-  position: absolute;
-  left: 0;
-  top: 2px;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  font-weight: 600;
-  background: color-mix(in oklab, rgba(255, 255, 255, 0.88), rgba(15, 23, 42, 0.08));
-  color: color-mix(in oklab, var(--calserver-primary) 76%, rgba(15, 23, 42, 0.42));
-  box-shadow: 0 6px 16px -10px color-mix(in oklab, var(--calserver-primary) 70%, rgba(15, 23, 42, 0.68));
-}
-
-.calhelp-case-strip--primary .calhelp-case-strip__story > li::before {
-  background: color-mix(in oklab, rgba(255, 255, 255, 0.9), rgba(15, 23, 42, 0.12));
-  color: color-mix(in oklab, var(--calserver-primary) 26%, rgba(15, 23, 42, 0.86));
-}
-
-.calhelp-case-strip__meta {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-width: 420px;
-}
-
-.calhelp-case-strip__media {
-  margin: 0;
-  width: 84px;
-  height: 84px;
-  border-radius: 50%;
-  background: color-mix(in oklab, rgba(255, 255, 255, 0.85), rgba(15, 23, 42, 0.1));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.calhelp-case-strip__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.calhelp-card {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-body.qr-landing.calhelp-theme[data-theme='light'] .calhelp-card--accent,
-body.qr-landing.calhelp-theme[data-theme='light'] .calhelp-module-card--accent {
-  --calhelp-card-primary-bg: var(--calhelp-card-proof-bg);
-  --calhelp-card-primary-border: var(--calhelp-card-proof-border);
-  --calhelp-card-primary-shadow: var(--calhelp-card-proof-shadow);
-  --calhelp-card-primary-foreground: var(--calhelp-card-proof-foreground);
-  --calhelp-card-primary-muted: var(--calhelp-card-proof-muted);
-  --calhelp-card-primary-divider: var(--calhelp-card-proof-divider);
-  --calhelp-card-primary-chip-bg: var(--calhelp-card-proof-chip-bg);
-  --calhelp-card-primary-chip-border: var(--calhelp-card-proof-chip-border);
-}
-
-body.qr-landing.calhelp-theme[data-theme='light'] .calhelp-card--muted,
-body.qr-landing.calhelp-theme[data-theme='light'] .calhelp-module-card--muted {
-  --calhelp-card-primary-bg: var(--calhelp-card-trust-bg);
-  --calhelp-card-primary-border: var(--calhelp-card-trust-border);
-  --calhelp-card-primary-shadow: var(--calhelp-card-trust-shadow);
-  --calhelp-card-primary-foreground: var(--calhelp-card-trust-foreground);
-  --calhelp-card-primary-muted: var(--calhelp-card-trust-muted);
-  --calhelp-card-primary-divider: var(--calhelp-card-trust-divider);
-  --calhelp-card-primary-chip-bg: var(--calhelp-card-trust-chip-bg);
-  --calhelp-card-primary-chip-border: var(--calhelp-card-trust-chip-border);
-}
-
-body.qr-landing.calhelp-theme .uk-card-primary,
-body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary {
-  background: var(--calhelp-card-primary-bg);
-  border: 1px solid var(--calhelp-card-primary-border);
-  color: var(--calhelp-card-primary-foreground);
-  box-shadow: var(--calhelp-card-primary-shadow);
-}
-
-body.qr-landing.calhelp-theme .uk-card-primary :is(.uk-card-title, h3, h4, h5),
-body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary :is(.uk-card-title, h3, h4, h5) {
-  color: var(--calhelp-card-primary-foreground);
-}
-
-body.qr-landing.calhelp-theme .uk-card-primary a,
-body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary a {
-  color: var(--calhelp-card-primary-foreground);
-  text-decoration-color: color-mix(in oklab, var(--calhelp-card-primary-foreground) 62%, transparent);
-}
-
-body.qr-landing.calhelp-theme .uk-card-primary a:hover,
-body.qr-landing.calhelp-theme .uk-card-primary a:focus-visible,
-body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary a:hover,
-body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary a:focus-visible {
-  color: color-mix(in oklab, var(--calserver-primary) 75%, var(--calhelp-card-primary-foreground) 25%);
-  text-decoration-color: color-mix(in oklab, var(--calserver-primary) 75%, var(--calhelp-card-primary-foreground) 25%);
-}
-
-body.qr-landing.calhelp-theme .uk-card-primary :is(
-    .uk-text-muted,
-    .uk-text-meta,
-    .uk-text-small,
-    .calhelp-news-card__intro,
-    .calhelp-news-step__label,
-    .calhelp-process__toggle-label,
-    .calhelp-process__criteria,
-    .calhelp-note p,
-    .calhelp-microcopy p,
-    .calhelp-kpi p
-  ),
-body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary :is(
-    .uk-text-muted,
-    .uk-text-meta,
-    .uk-text-small,
-    .calhelp-news-card__intro,
-    .calhelp-news-step__label,
-    .calhelp-process__toggle-label,
-    .calhelp-process__criteria,
-    .calhelp-note p,
-    .calhelp-microcopy p,
-    .calhelp-kpi p
-  ) {
-  color: var(--calhelp-card-primary-muted);
-}
-
-body.qr-landing.calhelp-theme .uk-card-primary .calhelp-news-card__intro strong,
-body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary .calhelp-news-card__intro strong {
-  color: var(--calhelp-card-primary-foreground);
-}
-
-body.qr-landing.calhelp-theme .uk-card-primary :is(
-    .calhelp-news-card__subheading,
-    .calhelp-news-step__text,
-    .calhelp-news-list > li,
-    .calhelp-news-list > li > strong,
-    .calhelp-news-kpi__value,
-    .calhelp-news-kpi__label,
-    .calhelp-values > li,
-    .calhelp-process__criteria span
-  ),
-body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary :is(
-    .calhelp-news-card__subheading,
-    .calhelp-news-step__text,
-    .calhelp-news-list > li,
-    .calhelp-news-list > li > strong,
-    .calhelp-news-kpi__value,
-    .calhelp-news-kpi__label,
-    .calhelp-values > li,
-    .calhelp-process__criteria span
-  ) {
-  color: var(--calhelp-card-primary-foreground);
-}
-
-body.qr-landing.calhelp-theme .uk-card-primary .uk-list-divider > li,
-body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary .uk-list-divider > li {
-  border-top-color: var(--calhelp-card-primary-divider);
-}
-
-body.qr-landing.calhelp-theme .uk-card-primary :is(
-    .calhelp-news-list > li,
-    .calhelp-news-kpi,
-    .calhelp-news-step__icon
-  ),
-body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary :is(
-    .calhelp-news-list > li,
-    .calhelp-news-kpi,
-    .calhelp-news-step__icon
-  ) {
-  background: color-mix(in oklab, var(--calhelp-card-primary-foreground) 22%, rgba(255, 255, 255, 0.08));
-  box-shadow: inset 0 0 0 1px var(--calhelp-card-primary-chip-border);
-}
-
-body.qr-landing.calhelp-theme .uk-card-primary :is(
-    .calhelp-news-card__icon,
-    .calhelp-news-kpi__icon
-  ),
-body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary :is(
-    .calhelp-news-card__icon,
-    .calhelp-news-kpi__icon
-  ) {
-  background: color-mix(in oklab, var(--calhelp-card-primary-foreground) 28%, rgba(255, 255, 255, 0.2));
-  color: var(--calhelp-card-primary-foreground);
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--calhelp-card-primary-foreground) 46%, transparent);
-}
-
-body.qr-landing.calhelp-theme .uk-card-primary .calhelp-process__toggle,
-body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary .calhelp-process__toggle {
-  border-color: color-mix(in oklab, var(--calhelp-card-primary-foreground) 36%, rgba(255, 255, 255, 0.22));
-  background: color-mix(in oklab, rgba(255, 255, 255, 0.05), transparent);
-}
-
-body.qr-landing.calhelp-theme .uk-card-primary .calhelp-process__toggle:hover,
-body.qr-landing.calhelp-theme .uk-card-primary .calhelp-process__toggle:focus-visible,
-body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary .calhelp-process__toggle:hover,
-body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary .calhelp-process__toggle:focus-visible {
-  border-color: color-mix(in oklab, var(--calhelp-card-primary-foreground) 62%, rgba(255, 255, 255, 0.3));
-  background: color-mix(in oklab, var(--calhelp-card-primary-foreground) 18%, rgba(255, 255, 255, 0.08));
-}
-
-body.qr-landing.calhelp-theme .uk-card-primary.calhelp-process__stage--panel-open .calhelp-process__toggle,
-body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary.calhelp-process__stage--panel-open .calhelp-process__toggle {
-  border-color: color-mix(in oklab, var(--calhelp-card-primary-foreground) 68%, rgba(255, 255, 255, 0.34));
-  background: color-mix(in oklab, var(--calhelp-card-primary-foreground) 22%, rgba(255, 255, 255, 0.12));
-}
-
-body.qr-landing.calhelp-theme .uk-card-primary.calhelp-process__stage--panel-open .calhelp-process__toggle-label,
-body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary.calhelp-process__stage--panel-open .calhelp-process__toggle-label {
-  color: var(--calhelp-card-primary-foreground);
-}
-
-body.qr-landing.calhelp-theme .uk-card-primary .calhelp-process__toggle-icon::before,
-body.qr-landing.calhelp-theme .uk-card-primary .calhelp-process__toggle-icon::after,
-body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary .calhelp-process__toggle-icon::before,
-body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary .calhelp-process__toggle-icon::after {
-  background: var(--calhelp-card-primary-foreground);
-}
-
-.calhelp-card .uk-card-title {
-  font-weight: 600;
-}
-
-.calhelp-card .uk-text-meta {
-  color: color-mix(in oklab, var(--qr-landing-text) 60%, rgba(15, 23, 42, 0.5));
-}
-
-.calhelp-card .uk-list-bullet > li::before,
-.calhelp-card .uk-list-decimal > li::marker {
-  color: var(--calserver-primary);
-}
-
-.calhelp-news-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 28px;
-  align-items: stretch;
-  grid-auto-flow: dense;
-}
-
-.calhelp-news-card {
-  gap: 20px;
-  padding: 28px 30px;
-  border-radius: 22px;
-  box-shadow: 0 34px 68px -44px color-mix(in oklab, var(--calserver-primary) 60%, rgba(15, 23, 42, 0.65));
-  position: relative;
-}
-
-.calhelp-news-card__header {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-}
-
-.calhelp-news-card__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 52px;
-  height: 52px;
-  border-radius: 18px;
-  background: color-mix(in oklab, var(--calserver-primary) 82%, rgba(255, 255, 255, 0.12));
-  color: #ffffff;
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, rgba(255, 255, 255, 0.35), rgba(15, 23, 42, 0.1));
-}
-
-.calhelp-news-card__intro {
-  margin: 0;
-  display: grid;
-  gap: 10px;
-  color: color-mix(in oklab, var(--qr-landing-text) 78%, rgba(15, 23, 42, 0.35));
-}
-
-.calhelp-news-card__body {
-  display: grid;
-  gap: 12px;
-}
-
-.calhelp-news-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 8px;
-}
-
-.calhelp-news-list > li {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: color-mix(in oklab, rgba(255, 255, 255, 0.14), rgba(15, 23, 42, 0.08));
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, rgba(255, 255, 255, 0.24), rgba(15, 23, 42, 0.08));
-  font-size: 0.95rem;
-}
-
-.calhelp-news-list > li > strong {
-  font-weight: 600;
-  color: color-mix(in oklab, var(--qr-landing-text) 92%, rgba(15, 23, 42, 0.12));
-}
-
-.calhelp-news-card__subheading {
-  margin: 0;
-  font-weight: 600;
-  font-size: 1.02rem;
-  color: color-mix(in oklab, var(--qr-landing-text) 94%, rgba(15, 23, 42, 0.08));
-}
-
-.calhelp-news-steps {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 14px;
-}
-
-.calhelp-news-step {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 14px;
-  align-items: start;
-}
-
-.calhelp-news-step__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: color-mix(in oklab, rgba(255, 255, 255, 0.18), rgba(15, 23, 42, 0.08));
-  color: color-mix(in oklab, #ffffff 92%, rgba(15, 23, 42, 0.2));
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, rgba(255, 255, 255, 0.4), rgba(15, 23, 42, 0.08));
-}
-
-.calhelp-news-step__label {
-  display: inline-block;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  font-size: 0.78rem;
-  color: color-mix(in oklab, #ffffff 92%, rgba(15, 23, 42, 0.4));
-}
-
-.calhelp-news-step__text {
-  margin: 2px 0 0;
-}
-
-.calhelp-news-kpis {
-  list-style: none;
-  margin: 8px 0 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.calhelp-news-kpi {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border-radius: 999px;
-  background: color-mix(in oklab, rgba(255, 255, 255, 0.18), rgba(15, 23, 42, 0.12));
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, rgba(255, 255, 255, 0.4), rgba(15, 23, 42, 0.12));
-}
-
-.calhelp-news-kpi__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: color-mix(in oklab, var(--calserver-primary) 70%, rgba(255, 255, 255, 0.18));
-  color: #ffffff;
-}
-
-.calhelp-news-kpi__value {
-  font-weight: 600;
-  font-size: 1.05rem;
-}
-
-.calhelp-news-kpi__label {
-  font-size: 0.9rem;
-  color: color-mix(in oklab, #ffffff 85%, rgba(15, 23, 42, 0.32));
-}
-
-
-.calhelp-news-card__cta {
-  margin-top: 12px;
-}
-
-.calhelp-news-card__cta .uk-button {
-  font-weight: 600;
-}
-
-.calhelp-news-card--praxis {
-  grid-column: span 2;
-  grid-row: span 2;
-  background: linear-gradient(140deg,
-      color-mix(in oklab, var(--calserver-primary) 78%, rgba(15, 23, 42, 0.12)),
-      color-mix(in oklab, var(--calserver-primary) 58%, rgba(15, 23, 42, 0.05)));
-}
-
-.calhelp-news-card--usecase {
-  grid-column: span 2;
-  grid-row: span 2;
-}
-
-.calhelp-news-card--changelog,
-.calhelp-news-card--insight,
-.calhelp-news-card--roadmap {
-  grid-column: span 1;
-}
-
-.calhelp-news-card[data-news-type='changelog']::after {
-  content: '';
-  position: absolute;
-  inset: auto 24px 24px auto;
-  width: 46px;
-  height: 46px;
-  border-radius: 16px;
-  background: radial-gradient(circle at 30% 30%,
-      color-mix(in oklab, var(--calserver-primary) 45%, rgba(255, 255, 255, 0.45)),
-      color-mix(in oklab, rgba(255, 255, 255, 0.22), rgba(15, 23, 42, 0.18)));
-  opacity: 0.3;
-  pointer-events: none;
-}
-
-.calhelp-news-card--usecase .calhelp-news-card__body {
-  gap: 10px;
-}
-
-.calhelp-news-card--usecase .calhelp-news-kpi__label {
-  max-width: 180px;
-  line-height: 1.3;
-}
-
-.calhelp-news-card--roadmap ul,
-.calhelp-news-card--changelog ul {
-  margin: 0;
-}
-
-.calhelp-process-summary {
-  margin: 0;
-  padding-left: 1.5rem;
-  color: color-mix(in oklab, var(--qr-landing-text) 82%, rgba(15, 23, 42, 0.42));
-}
-
-.calhelp-process-summary > li {
-  margin-bottom: 8px;
-}
-
-.calhelp-process-summary > li:last-child {
-  margin-bottom: 0;
-}
-
-.calhelp-process-summary strong {
-  color: color-mix(in oklab, var(--qr-landing-text) 96%, rgba(15, 23, 42, 0.12));
-}
-
-.calhelp-process-details {
-  margin-top: 32px;
-  border: 1px solid color-mix(in oklab, var(--qr-landing-text) 18%, rgba(15, 23, 42, 0.18));
-  border-radius: 20px;
-  background: color-mix(in oklab, rgba(255, 255, 255, 0.92) 86%, rgba(15, 23, 42, 0.06));
-  box-shadow: 0 32px 64px -46px color-mix(in oklab, var(--calserver-primary) 68%, rgba(15, 23, 42, 0.85));
-  overflow: hidden;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
-}
-
-.calhelp-process-details__header {
-  padding: 22px 28px;
-  color: color-mix(in oklab, var(--qr-landing-text) 90%, rgba(15, 23, 42, 0.32));
-}
-
-.calhelp-process-details__title {
-  margin: 0;
-  font-weight: 600;
-}
-
-.calhelp-process-details > .calhelp-process {
-  padding: 0 28px 32px;
-  border-top: 1px solid color-mix(in oklab, var(--qr-landing-text) 18%, rgba(15, 23, 42, 0.18));
-}
-
-.calhelp-process {
-  display: grid;
-  gap: 32px;
-}
-
-.calhelp-process__nav {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
-  align-items: center;
-  gap: 16px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.calhelp-process__nav-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  min-width: 0;
-}
-
-.calhelp-process__nav-button {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  width: 100%;
-  padding: 12px 16px;
-  border: none;
-  border-radius: 14px;
-  background: transparent;
-  color: inherit;
-  text-align: left;
-  cursor: pointer;
-  transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
-}
-
-.calhelp-process__nav-button:focus-visible {
-  outline: 3px solid color-mix(in oklab, var(--calserver-primary) 60%, rgba(255, 255, 255, 0.2));
-  outline-offset: 2px;
-}
-
-.calhelp-process__nav-index {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: color-mix(in oklab, var(--calserver-primary) 85%, rgba(15, 23, 42, 0.1));
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 1.15rem;
-  box-shadow: 0 20px 36px -26px color-mix(in oklab, var(--calserver-primary) 72%, rgba(15, 23, 42, 0.85));
-}
-
-.calhelp-process__nav-label {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 4px;
-  font-weight: 600;
-  color: color-mix(in oklab, var(--qr-landing-text) 86%, rgba(15, 23, 42, 0.48));
-}
-
-.calhelp-process__nav-connector {
-  flex: 1 1 0;
-  height: 2px;
-  border-radius: 999px;
-  background: color-mix(in oklab, var(--qr-landing-text) 18%, rgba(15, 23, 42, 0.18));
-  transition: background-color 0.25s ease;
-}
-
-.calhelp-process__nav-item:last-child .calhelp-process__nav-connector {
-  display: none;
-}
-
-.calhelp-process__nav-item.is-active .calhelp-process__nav-button {
-  background: color-mix(in oklab, var(--calserver-primary) 14%, rgba(255, 255, 255, 0.12));
-  color: color-mix(in oklab, var(--qr-landing-text) 96%, rgba(15, 23, 42, 0.12));
-  box-shadow: 0 16px 32px -28px color-mix(in oklab, var(--calserver-primary) 70%, rgba(15, 23, 42, 0.7));
-}
-
-.calhelp-process__nav-item.is-active .calhelp-process__nav-label {
-  color: var(--qr-landing-text);
-}
-
-.calhelp-process__nav-item.is-active .calhelp-process__nav-index {
-  background: var(--calserver-primary);
-}
-
-.calhelp-process__nav-item.is-complete .calhelp-process__nav-index {
-  background: color-mix(in oklab, var(--calserver-primary) 70%, rgba(255, 255, 255, 0.12));
-  color: #ffffff;
-}
-
-.calhelp-process__nav-item.is-complete .calhelp-process__nav-label {
-  color: color-mix(in oklab, var(--qr-landing-text) 90%, rgba(15, 23, 42, 0.24));
-}
-
-.calhelp-process__nav-item.is-complete .calhelp-process__nav-connector {
-  background: color-mix(in oklab, var(--calserver-primary) 70%, rgba(255, 255, 255, 0.1));
-}
-
-.calhelp-process__stages {
-  position: relative;
-  overflow: hidden;
-}
-
-.calhelp-process__track {
-  --calhelp-process-gap: 24px;
-  display: flex;
-  gap: var(--calhelp-process-gap);
-  width: 100%;
-  transform: translate3d(calc(-1 * (var(--calhelp-process-index, 0) * (100% + var(--calhelp-process-gap)))), 0, 0);
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.calhelp-process__stage {
-  position: relative;
-  flex: 0 0 100%;
-  min-width: 0;
-  visibility: hidden;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.45s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-}
-
-.calhelp-process__stage:focus-visible {
-  outline: 3px solid color-mix(in oklab, var(--calserver-primary) 60%, rgba(255, 255, 255, 0.2));
-  outline-offset: 4px;
-}
-
-.calhelp-process__stage-header > h3 {
-  margin-bottom: 8px;
-}
-
-.calhelp-process__stage-header > p {
-  margin: 0;
-}
-
-.calhelp-process__stage--active {
-  box-shadow: 0 30px 60px -40px color-mix(in oklab, var(--calserver-primary) 80%, rgba(15, 23, 42, 0.8));
-  visibility: visible;
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.calhelp-process__toggle {
-  margin-top: 16px;
-  padding: 10px 14px;
-  width: 100%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  border: 1px solid color-mix(in oklab, var(--qr-landing-text) 18%, rgba(15, 23, 42, 0.18));
-  border-radius: 12px;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  font-weight: 500;
-  transition: border-color 0.25s ease, background-color 0.25s ease;
-}
-
-.calhelp-process__toggle:hover,
-.calhelp-process__toggle:focus-visible {
-  border-color: color-mix(in oklab, var(--calserver-primary) 46%, rgba(15, 23, 42, 0.24));
-  background: color-mix(in oklab, var(--calserver-primary) 10%, rgba(255, 255, 255, 0.12));
-}
-
-.calhelp-process__toggle:focus-visible {
-  outline: 3px solid color-mix(in oklab, var(--calserver-primary) 60%, rgba(255, 255, 255, 0.2));
-  outline-offset: 2px;
-}
-
-.calhelp-process__toggle-icon {
-  position: relative;
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-}
-
-.calhelp-process__toggle-icon::before,
-.calhelp-process__toggle-icon::after {
-  content: '';
-  position: absolute;
-  background: currentColor;
-  border-radius: 999px;
-  transition: transform 0.25s ease;
-}
-
-.calhelp-process__toggle-icon::before {
-  width: 12px;
-  height: 2px;
-  top: 50%;
-  left: 2px;
-  transform: translateY(-50%);
-}
-
-.calhelp-process__toggle-icon::after {
-  width: 2px;
-  height: 12px;
-  top: 2px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.calhelp-process__toggle[aria-expanded='true'] .calhelp-process__toggle-icon::after {
-  transform: translateX(-50%) scaleY(0);
-}
-
-.calhelp-process__stage--panel-open .calhelp-process__toggle {
-  border-color: color-mix(in oklab, var(--calserver-primary) 50%, rgba(15, 23, 42, 0.24));
-  background: color-mix(in oklab, var(--calserver-primary) 12%, rgba(255, 255, 255, 0.12));
-}
-
-.calhelp-process__stage--panel-open .calhelp-process__toggle-label {
-  color: color-mix(in oklab, var(--qr-landing-text) 96%, rgba(15, 23, 42, 0.1));
-}
-
-.calhelp-process__panel {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid color-mix(in oklab, var(--qr-landing-text) 18%, rgba(15, 23, 42, 0.18));
-  display: grid;
-  gap: 12px;
-}
-
-.calhelp-process__panel[hidden] {
-  display: none;
-}
-
-.calhelp-process__panel h4 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.calhelp-process__panel ul {
-  margin: 0;
-}
-
-.calhelp-process__criteria {
-  margin: 0;
-  font-size: 0.95rem;
-  color: color-mix(in oklab, var(--qr-landing-text) 74%, rgba(15, 23, 42, 0.4));
-}
-
-.calhelp-process__criteria span {
-  font-weight: 600;
-  color: color-mix(in oklab, var(--qr-landing-text) 92%, rgba(15, 23, 42, 0.24));
-  display: inline-block;
-  margin-right: 6px;
-}
-
-.calhelp-note,
-.calhelp-microcopy,
-.calhelp-kpi,
-.calhelp-addons,
-.calhelp-editorial-calendar,
-.calhelp-seo-box {
-  margin-top: 32px;
-}
-
-.calhelp-note p,
-.calhelp-microcopy p,
-.calhelp-kpi p {
-  color: color-mix(in oklab, var(--qr-landing-text) 72%, rgba(15, 23, 42, 0.45));
-  text-align: center;
-}
-
-.calhelp-assurance {
-  margin-top: 48px;
-  display: grid;
-  gap: 16px;
-}
-
-.calhelp-assurance__title {
-  margin: 0;
-  font-size: 1.55rem;
-  font-weight: 600;
-  text-align: left;
-}
-
-.calhelp-assurance__intro {
-  margin: 0;
-  color: color-mix(in oklab, var(--qr-landing-text) 70%, rgba(15, 23, 42, 0.42));
-}
-
-.calhelp-assurance__accordion {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 16px;
-}
-
-.calhelp-assurance__item {
-  border-radius: 16px;
-  border: 1px solid color-mix(in oklab, var(--qr-landing-text) 14%, rgba(15, 23, 42, 0.18));
-  background: color-mix(in oklab, rgba(255, 255, 255, 0.12) 80%, rgba(15, 23, 42, 0.08));
-  box-shadow: 0 22px 44px -36px color-mix(in oklab, var(--calserver-primary) 68%, rgba(15, 23, 42, 0.85));
-  overflow: hidden;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
-}
-
-.calhelp-assurance__item:hover,
-.calhelp-assurance__item:focus-within {
-  border-color: color-mix(in oklab, var(--calserver-primary) 42%, rgba(15, 23, 42, 0.2));
-  box-shadow: 0 28px 52px -34px color-mix(in oklab, var(--calserver-primary) 76%, rgba(15, 23, 42, 0.9));
-  transform: translateY(-2px);
-}
-
-.calhelp-assurance__item .uk-accordion-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 20px 24px;
-  font-weight: 600;
-  color: color-mix(in oklab, var(--qr-landing-text) 92%, rgba(15, 23, 42, 0.32));
-}
-
-.calhelp-assurance__title-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: color-mix(in oklab, var(--calserver-primary) 22%, rgba(255, 255, 255, 0.12));
-  color: var(--calserver-primary);
-}
-
-.calhelp-assurance__title-icon svg {
-  width: 22px;
-  height: 22px;
-}
-
-.calhelp-assurance__item .uk-open > .uk-accordion-title,
-.calhelp-assurance__item.uk-open > .uk-accordion-title {
-  color: color-mix(in oklab, var(--qr-landing-text) 98%, rgba(15, 23, 42, 0.18));
-}
-
-.calhelp-assurance__item .uk-accordion-content {
-  padding: 0 24px 24px;
-  display: grid;
-  gap: 18px;
-}
-
-.calhelp-assurance__facts {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 14px;
-}
-
-.calhelp-assurance__fact {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 14px;
-  align-items: flex-start;
-}
-
-.calhelp-assurance__fact-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  background: color-mix(in oklab, var(--calserver-primary) 16%, rgba(255, 255, 255, 0.12));
-  color: var(--calserver-primary);
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--calserver-primary) 32%, rgba(15, 23, 42, 0.18));
-}
-
-.calhelp-assurance__fact-icon svg {
-  width: 18px;
-  height: 18px;
-}
-
-.calhelp-assurance__fact-body {
-  display: grid;
-  gap: 6px;
-}
-
-.calhelp-assurance__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: color-mix(in oklab, var(--calserver-primary) 18%, rgba(255, 255, 255, 0.08));
-  color: color-mix(in oklab, var(--qr-landing-text) 96%, rgba(255, 255, 255, 0.06));
-  font-weight: 600;
-  font-size: 0.85rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.calhelp-assurance__badge-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: color-mix(in oklab, var(--calserver-primary) 70%, rgba(255, 255, 255, 0.12));
-  color: #ffffff;
-}
-
-.calhelp-assurance__badge-icon svg {
-  width: 12px;
-  height: 12px;
-}
-
-.calhelp-assurance__fact-text {
-  margin: 0;
-  color: color-mix(in oklab, var(--qr-landing-text) 86%, rgba(15, 23, 42, 0.36));
-  line-height: 1.5;
-}
-
-.calhelp-assurance__hint {
-  margin: 0;
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 14px 16px;
-  border-radius: 14px;
-  border-left: 4px solid color-mix(in oklab, var(--calserver-primary) 74%, rgba(15, 23, 42, 0.24));
-  background: color-mix(in oklab, var(--calserver-primary) 12%, rgba(255, 255, 255, 0.1));
-  color: color-mix(in oklab, var(--qr-landing-text) 84%, rgba(15, 23, 42, 0.4));
-}
-
-.calhelp-assurance__hint-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: color-mix(in oklab, var(--calserver-primary) 30%, rgba(255, 255, 255, 0.18));
-  color: var(--calserver-primary);
-  flex-shrink: 0;
-}
-
-.calhelp-assurance__hint-icon svg {
-  width: 16px;
-  height: 16px;
-}
-
-.calhelp-assurance__hint-text {
-  display: inline-flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.calhelp-assurance__hint-text strong {
-  font-weight: 600;
-  color: color-mix(in oklab, var(--qr-landing-text) 96%, rgba(15, 23, 42, 0.24));
-}
-
-.calhelp-assurance__item.uk-open,
-.calhelp-assurance__item .uk-open {
-  border-color: color-mix(in oklab, var(--calserver-primary) 54%, rgba(15, 23, 42, 0.22));
-  box-shadow: 0 30px 60px -30px color-mix(in oklab, var(--calserver-primary) 82%, rgba(15, 23, 42, 0.92));
-}
-
-@media (max-width: 959px) {
-  .calhelp-assurance__item .uk-accordion-title {
-    padding: 18px 20px;
-  }
-
-  .calhelp-assurance__item .uk-accordion-content {
-    padding: 0 20px 20px;
-  }
-}
-
-.calhelp-demo-steps {
-  list-style: decimal inside;
-  margin: 0;
-  padding: 0;
-  counter-reset: none;
-}
-
-.calhelp-demo-steps li + li {
-  margin-top: 12px;
-}
-
-.calhelp-cta-list {
-  margin: 16px 0 0;
-}
-
-.calhelp-cta-list li + li {
-  margin-top: 8px;
-}
-
-.calhelp-values {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.calhelp-comparison {
-  display: grid;
-  gap: 24px;
-}
-
-.calhelp-comparison__card {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  height: 100%;
-}
-
-.calhelp-comparison__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.calhelp-comparison__eyebrow {
-  margin: 0;
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--qr-landing-text) 68%, rgba(255, 255, 255, 0.76));
-}
-
-.calhelp-comparison__toggle-group {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in oklab, var(--calserver-primary) 48%, rgba(15, 23, 42, 0.32));
-  background: color-mix(in oklab, var(--calserver-primary) 10%, rgba(255, 255, 255, 0.12));
-}
-
-.calhelp-comparison__toggle {
-  border: none;
-  border-radius: 999px;
-  background: transparent;
-  color: color-mix(in oklab, var(--qr-landing-text) 92%, rgba(255, 255, 255, 0.9));
-  font-weight: 600;
-  font-size: 0.95rem;
-  padding: 6px 16px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.calhelp-comparison__toggle:hover,
-.calhelp-comparison__toggle:focus-visible {
-  color: color-mix(in oklab, var(--qr-landing-text) 98%, rgba(255, 255, 255, 0.96));
-}
-
-.calhelp-comparison__toggle:focus-visible {
-  outline: 3px solid color-mix(in oklab, var(--calserver-primary) 60%, rgba(255, 255, 255, 0.32));
-  outline-offset: 2px;
-}
-
-.calhelp-comparison__toggle[aria-pressed='true'],
-.calhelp-comparison__toggle.is-active {
-  background: color-mix(in oklab, var(--calserver-primary) 90%, rgba(15, 23, 42, 0.12));
-  color: #ffffff;
-  box-shadow: 0 16px 30px -20px color-mix(in oklab, var(--calserver-primary) 82%, rgba(15, 23, 42, 0.75));
-}
-
-.calhelp-comparison__toggle[aria-pressed='false']:hover,
-.calhelp-comparison__toggle[aria-pressed='false']:focus-visible {
-  background: color-mix(in oklab, var(--calserver-primary) 16%, rgba(255, 255, 255, 0.16));
-}
-
-.calhelp-comparison__body {
-  display: grid;
-}
-
-.calhelp-comparison__state {
-  display: grid;
-  gap: 16px;
-}
-
-.calhelp-comparison__state[hidden] {
-  display: none;
-}
-
-.calhelp-comparison__state p {
-  margin: 0;
-  color: color-mix(in oklab, var(--qr-landing-text) 88%, rgba(255, 255, 255, 0.9));
-}
-
-.calhelp-comparison__metrics {
-  margin: 0;
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-}
-
-.calhelp-comparison__metric {
-  padding: 12px;
-  border-radius: 12px;
-  background: color-mix(in oklab, rgba(255, 255, 255, 0.12) 70%, rgba(15, 23, 42, 0.32));
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, rgba(255, 255, 255, 0.25) 60%, rgba(15, 23, 42, 0.18));
-  display: grid;
-  gap: 4px;
-}
-
-.calhelp-comparison__metric dt {
-  margin: 0;
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--qr-landing-text) 72%, rgba(255, 255, 255, 0.78));
-}
-
-.calhelp-comparison__metric dd {
-  margin: 0;
-  font-weight: 600;
-  font-size: 1.1rem;
-  color: color-mix(in oklab, var(--qr-landing-text) 96%, rgba(255, 255, 255, 0.92));
-}
-
-.calhelp-proof-gallery {
-  margin-top: 48px;
-}
-
-.calhelp-proof-gallery__intro {
-  max-width: 720px;
-  margin: 0 auto 32px;
-  text-align: center;
-}
-
-.calhelp-proof-gallery__title {
-  margin-bottom: 12px;
-}
-
-.calhelp-proof-gallery__lead {
-  margin: 0;
-  color: color-mix(in oklab, var(--qr-landing-text) 68%, rgba(15, 23, 42, 0.45));
-}
-
-.calhelp-proof-gallery__grid {
-  display: grid;
-  gap: 32px;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-}
-
-.calhelp-proof-gallery__card {
-  display: flex;
-  flex-direction: column;
-  background: color-mix(in oklab, var(--calserver-primary) 10%, rgba(15, 23, 42, 0.04));
-  border: 1px solid color-mix(in oklab, var(--calserver-primary) 22%, rgba(15, 23, 42, 0.08));
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 18px 42px -28px color-mix(in oklab, var(--calserver-primary) 62%, rgba(15, 23, 42, 0.8));
-}
-
-.calhelp-proof-gallery__media {
-  margin: 0;
-  background: linear-gradient(135deg, rgba(31, 99, 230, 0.12), rgba(15, 23, 42, 0.08));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
-}
-
-.calhelp-proof-gallery__image {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.calhelp-proof-gallery__body {
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.calhelp-proof-gallery__badge {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: color-mix(in oklab, var(--qr-landing-text) 60%, rgba(15, 23, 42, 0.4));
-  margin: 0;
-}
-
-.calhelp-proof-gallery__card-title {
-  margin: 0;
-  font-size: 1.2rem;
-  font-weight: 600;
-}
-
-.calhelp-proof-gallery__card-text {
-  margin: 0;
-  color: color-mix(in oklab, var(--qr-landing-text) 70%, rgba(15, 23, 42, 0.48));
-}
-
-.calhelp-proof-gallery__preview {
-  align-self: flex-start;
-  padding: 10px 18px;
-  border-radius: 999px;
-  background: var(--calserver-primary);
-  color: #ffffff;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-}
-
-.calhelp-proof-gallery__preview:hover,
-.calhelp-proof-gallery__preview:focus-visible {
-  background: color-mix(in oklab, var(--calserver-primary) 92%, rgba(255, 255, 255, 0.2));
-  transform: translateY(-1px);
-  box-shadow: 0 16px 28px -22px color-mix(in oklab, var(--calserver-primary) 74%, rgba(15, 23, 42, 0.85));
-}
-
-.calhelp-proof-gallery__modal {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(3px);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  z-index: 2500;
-}
-
-.calhelp-proof-gallery__modal.is-visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.calhelp-proof-gallery__dialog {
-  background: #ffffff;
-  color: var(--qr-landing-text);
-  border-radius: 18px;
-  max-width: min(760px, 100%);
-  width: 100%;
-  padding: 32px;
-  position: relative;
-  box-shadow: 0 40px 72px -40px rgba(15, 23, 42, 0.72);
-}
-
-.calhelp-proof-gallery__close {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: none;
-  background: rgba(15, 23, 42, 0.06);
-  color: inherit;
-  font-size: 1.5rem;
-  line-height: 1;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s ease;
-}
-
-.calhelp-proof-gallery__close:hover,
-.calhelp-proof-gallery__close:focus-visible {
-  background: rgba(31, 99, 230, 0.18);
-}
-
-.calhelp-proof-gallery__modal-title {
-  margin: 0 0 12px;
-  font-size: 1.45rem;
-  font-weight: 600;
-}
-
-.calhelp-proof-gallery__modal-description {
-  margin: 0 0 20px;
-  color: color-mix(in oklab, var(--qr-landing-text) 74%, rgba(15, 23, 42, 0.42));
-}
-
-.calhelp-proof-gallery__modal-image {
-  width: 100%;
-  height: auto;
-  border-radius: 12px;
-  box-shadow: 0 22px 48px -28px rgba(15, 23, 42, 0.45);
-}
-
-body.calhelp-proof-gallery--modal-open {
-  overflow: hidden;
-}
-
-.calhelp-values li strong {
-  display: inline-block;
-  margin-right: 6px;
-}
-
-.calhelp-usecases__tabs {
-  margin: 0 auto 32px;
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.calhelp-usecases__tabs > li {
-  margin: 0;
-}
-
-.calhelp-usecases__tabs > li > a {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 20px;
-  border-radius: 999px;
-  border: 1px solid color-mix(in oklab, var(--calserver-primary) 30%, rgba(15, 23, 42, 0.12));
-  background: color-mix(in oklab, var(--calserver-primary) 12%, rgba(255, 255, 255, 0.05));
-  color: color-mix(in oklab, var(--qr-landing-text) 78%, rgba(15, 23, 42, 0.38));
-  font-weight: 600;
-  transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.calhelp-usecases__tabs > li > a:hover,
-.calhelp-usecases__tabs > li > a:focus-visible {
-  color: color-mix(in oklab, var(--qr-landing-text) 94%, #fff 6%);
-  border-color: color-mix(in oklab, var(--calserver-primary) 50%, rgba(15, 23, 42, 0.24));
-}
-
-.calhelp-usecases__tabs > li.uk-active > a {
-  background: var(--calserver-primary);
-  color: #ffffff;
-  border-color: color-mix(in oklab, var(--calserver-primary) 88%, rgba(15, 23, 42, 0.2));
-  box-shadow: 0 18px 30px -22px color-mix(in oklab, var(--calserver-primary) 66%, rgba(15, 23, 42, 0.85));
-}
-
-.calhelp-usecases__panel {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  box-shadow: 0 30px 56px -42px color-mix(in oklab, var(--calserver-primary) 58%, rgba(15, 23, 42, 0.8));
-}
-
-.calhelp-usecases__panel-header {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.calhelp-usecases__quote {
-  margin: 0;
-  color: color-mix(in oklab, var(--qr-landing-text) 86%, rgba(15, 23, 42, 0.36));
-}
-
-.calhelp-usecases__grid {
-  align-items: stretch;
-}
-
-.calhelp-usecases__column {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.calhelp-usecases__column-title {
-  margin: 0;
-  font-size: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: color-mix(in oklab, var(--qr-landing-text) 70%, rgba(15, 23, 42, 0.4));
-}
-
-.calhelp-usecases__list {
-  margin: 0;
-}
-
-.calhelp-usecases__results {
-  margin: 0;
-}
-
-.calhelp-usecases__results > li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 6px 0;
-}
-
-.calhelp-usecases__result-label {
-  font-weight: 500;
-}
-
-.calhelp-kpi-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 12px;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  background: color-mix(in oklab, var(--calserver-primary) 86%, rgba(15, 23, 42, 0.12));
-  color: #ffffff;
-  box-shadow: 0 14px 28px -22px color-mix(in oklab, var(--calserver-primary) 72%, rgba(15, 23, 42, 0.85));
-  white-space: nowrap;
-}
-
-.calhelp-usecases__snippet {
-  display: inline-flex;
-  align-items: center;
-  margin-top: 16px;
-  font-weight: 600;
-  color: var(--calserver-primary);
-}
-
-.calhelp-usecases__snippet:hover,
-.calhelp-usecases__snippet:focus-visible {
-  color: color-mix(in oklab, var(--calserver-primary) 88%, rgba(255, 255, 255, 0.05));
-}
-
-.calhelp-modules {
-  overflow: hidden;
-}
-
-.calhelp-modules__grid {
-  row-gap: 32px;
-}
-
-.calhelp-modules__grid.uk-grid {
-  margin-left: 0;
-  margin-top: 0;
-}
-
-.calhelp-modules__grid.uk-grid > * {
-  padding-left: 0;
-}
-
-.calhelp-modules__grid.uk-grid > .uk-grid-margin {
-  margin-top: 0 !important;
-}
-
-
-.calhelp-module-card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 26px 24px;
-  border-radius: 20px;
-  border: 1px solid var(--calhelp-card-primary-border);
-  background: var(--calhelp-card-primary-bg);
-  box-shadow: var(--calhelp-card-primary-shadow);
-  color: var(--calhelp-card-primary-foreground);
-}
-
-.calhelp-module-card__header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.calhelp-module-card__icon {
-  flex: 0 0 auto;
-  width: 48px;
-  height: 48px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 14px;
-  background: color-mix(in oklab, var(--calserver-primary) 18%, rgba(15, 23, 42, 0.04));
-  color: var(--calserver-primary);
-  box-shadow: none;
-}
-
-.calhelp-module-card__icon svg {
-  width: 22px;
-  height: 22px;
-  stroke-width: 1.6px;
-}
-
-.calhelp-module-card__eyebrow {
-  margin: 0;
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--qr-landing-text) 58%, rgba(15, 23, 42, 0.4));
-}
-
-.calhelp-module-card__pitch {
-  margin: 0;
-  color: color-mix(in oklab, var(--qr-landing-text) 85%, rgba(15, 23, 42, 0.12));
-}
-
-.calhelp-module-card__list {
-  margin: 0;
-  padding-left: 20px;
-  color: color-mix(in oklab, var(--qr-landing-text) 80%, rgba(15, 23, 42, 0.16));
-}
-
-.calhelp-module-card__footer {
-  margin-top: auto;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  border-top: 1px solid color-mix(in oklab, rgba(15, 23, 42, 0.08), rgba(255, 255, 255, 0.9));
-  padding-top: 14px;
-}
-
-.calhelp-module-card__kpi {
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: color-mix(in oklab, var(--qr-landing-text) 92%, rgba(15, 23, 42, 0.08));
-}
-
-.calhelp-module-card__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 600;
-  color: var(--calserver-primary);
-  text-decoration: none;
-}
-
-.calhelp-module-card__link:hover,
-.calhelp-module-card__link:focus {
-  text-decoration: underline;
-}
-
-@media (max-width: 1023px) {
-  .calhelp-module-card {
-    padding: 20px 18px;
-  }
-
-  .calhelp-modules__grid {
-    row-gap: 24px;
-  }
-
-  .calhelp-news-card {
-    padding: 24px;
-  }
-
-  .calhelp-news-card--praxis,
-  .calhelp-news-card--usecase {
-    grid-column: span 1;
-    grid-row: span 1;
-  }
-
-  .calhelp-news-kpi {
+/* calHelp marketing uses calServer styling via shared selectors. */
+
+/* calServer marketing overrides for landing layout */
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) {
+    --calserver-primary: #1f63e6;
+    --cs-card-dark: #0f1625;
+    --cs-card-dark-border: #1b2437;
+    --cs-text-on-dark: #ffffff;
+    --cs-card-focus-bg: color-mix(in oklab, var(--calserver-primary) 18%, var(--qr-card) 82%);
+    --cs-card-focus-border: color-mix(in oklab, var(--calserver-primary) 35%, transparent);
+    --cs-card-focus-shadow: 0 22px 48px -32px rgba(15, 23, 42, 0.55),
+        0 14px 25px rgba(0, 0, 0, 0.16);
+    --cs-hero-overlay-top: color-mix(in oklab, var(--calserver-primary) 16%, transparent);
+    --cs-hero-overlay-bottom: color-mix(in oklab, var(--calserver-primary) 4%, transparent);
+    --cs-hero-shadow: 0 42px 82px -58px rgba(15, 23, 42, 0.6);
+    --cs-highlight-bg: color-mix(in oklab, var(--calserver-primary) 12%, var(--qr-card) 88%);
+    --cs-highlight-border-top: color-mix(in oklab, var(--calserver-primary) 22%, transparent);
+    --cs-highlight-border-bottom: color-mix(in oklab, var(--calserver-primary) 14%, transparent);
+    --cs-highlight-shadow: 0 -18px 46px -38px rgba(15, 23, 42, 0.4),
+        0 24px 52px -40px rgba(15, 23, 42, 0.45);
+    --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 12%, transparent);
+    --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 30%, transparent);
+    --cs-highlight-card-shadow: 0 18px 34px -28px rgba(15, 23, 42, 0.5);
+    --cs-logo-size: clamp(48px, 7vw, 72px);
+    --cs-logo-gap: clamp(12px, 2.6vw, 22px);
+    --cs-logo-bg: color-mix(in oklab, var(--calserver-primary) 8%, rgba(255, 255, 255, 0.94));
+    --cs-logo-border: color-mix(in oklab, var(--calserver-primary) 32%, rgba(15, 23, 42, 0.16));
+    --cs-logo-shadow: 0 20px 42px -30px rgba(10, 19, 38, 0.55);
+    --cs-logo-text: color-mix(in oklab, var(--calserver-primary) 24%, #0d172b 76%);
+    --cs-mode-pill-bg: rgba(31, 99, 230, 0.18);
+    --cs-mode-pill-hover-bg: rgba(31, 99, 230, 0.32);
+    --cs-mode-pill-active-bg: color-mix(in oklab, var(--calserver-primary) 82%, rgba(12, 19, 35, 0.18));
+    --cs-mode-pill-text: color-mix(in oklab, #ffffff 92%, rgba(255, 255, 255, 0.7) 8%);
+    --cs-mode-pill-hover-text: #ffffff;
+    --cs-mode-pill-active-text: #ffffff;
+    --cs-mode-pill-border: color-mix(in oklab, var(--calserver-primary) 52%, rgba(255, 255, 255, 0.3));
+    --cs-mode-pill-hover-border: color-mix(in oklab, var(--calserver-primary) 68%, rgba(255, 255, 255, 0.34));
+    --cs-mode-pill-active-border: color-mix(in oklab, var(--calserver-primary) 82%, rgba(255, 255, 255, 0.4));
+    --cs-mode-pill-shadow: 0 16px 32px -28px rgba(9, 16, 32, 0.72);
+    --cs-mode-pill-hover-shadow: 0 20px 40px -30px rgba(9, 16, 32, 0.78);
+    --cs-mode-pill-focus-ring: color-mix(in oklab, var(--calserver-primary) 78%, #7eaaff 22%);
+    scroll-behavior: smooth;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.high-contrast) {
+    --qr-landing-primary: var(--calserver-primary);
+}
+
+.qr-landing .hero-bg-calserver {
+    background:
+        radial-gradient(420px 320px at 12% 18%, color-mix(in oklab, var(--calserver-primary) 36%, rgba(12, 18, 33, 0.25)) 0%, transparent 68%),
+        radial-gradient(520px 360px at 88% 12%, color-mix(in oklab, #5ae1ff 32%, transparent) 0%, transparent 70%),
+        radial-gradient(540px 420px at 48% 108%, color-mix(in oklab, var(--calserver-primary) 28%, rgba(8, 14, 28, 0.8)) 0%, transparent 74%),
+        var(--qr-hero-gradient);
+    background-color: var(--qr-hero-grad-start);
+    overflow: hidden;
+}
+
+.qr-landing .hero-bg-calserver::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, var(--cs-hero-overlay-top) 0%, var(--cs-hero-overlay-bottom) 100%);
+    opacity: 0.82;
+}
+
+.qr-landing :is(.calserver-hero-bg__canvas, .calhelp-hero-bg__canvas) {
+    position: absolute;
+    inset: 0;
     width: 100%;
-    justify-content: flex-start;
-  }
+    height: 100%;
+    display: block;
+    mix-blend-mode: screen;
+    opacity: 0.82;
+    transition: opacity 0.3s ease;
 }
 
-.calhelp-editorial-calendar {
-  margin-top: 48px;
+.qr-landing .hero-bg-calserver.is-static :is(.calserver-hero-bg__canvas, .calhelp-hero-bg__canvas) {
+    opacity: 0;
+    display: none;
 }
 
-.calhelp-editorial-calendar ol {
-  margin: 0;
-  padding-left: 20px;
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-hero-bg__canvas, .calhelp-hero-bg__canvas),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-hero-bg__canvas, .calhelp-hero-bg__canvas),
+body.high-contrast :is(.calserver-hero-bg__canvas, .calhelp-hero-bg__canvas) {
+    display: none !important;
 }
 
-.calhelp-faq {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) {
+    --qr-hero-grad-start: #0b101a;
+    --qr-hero-grad-end: color-mix(in oklab, var(--calserver-primary) 70%, #0b101a 30%);
+    --qr-hero-gradient: linear-gradient(
+        135deg,
+        var(--qr-hero-grad-start) 0%,
+        color-mix(in oklab, var(--calserver-primary) 55%, #111827 45%) 100%
+    );
+    --cs-hero-overlay-top: color-mix(in oklab, var(--calserver-primary) 42%, rgba(7, 12, 26, 0.9));
+    --cs-hero-overlay-bottom: color-mix(in oklab, var(--calserver-primary) 22%, rgba(5, 9, 19, 0.92));
+    --cs-hero-shadow: 0 48px 90px -60px rgba(5, 10, 22, 0.85);
+    --cs-highlight-bg: linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--calserver-primary) 26%, rgba(7, 12, 26, 0.96)) 0%,
+        color-mix(in oklab, var(--calserver-primary) 18%, rgba(5, 10, 21, 0.94)) 100%
+    );
+    --cs-highlight-border-top: color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.14));
+    --cs-highlight-border-bottom: color-mix(in oklab, var(--calserver-primary) 42%, rgba(255, 255, 255, 0.12));
+    --cs-highlight-shadow: 0 -28px 72px -54px rgba(5, 10, 20, 0.78),
+        0 36px 84px -52px rgba(6, 12, 28, 0.88);
+    --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 28%, rgba(6, 12, 26, 0.86));
+    --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 60%, rgba(255, 255, 255, 0.18));
+    --cs-highlight-card-shadow: 0 26px 46px -30px rgba(4, 10, 24, 0.72);
+    --cs-logo-bg: color-mix(in oklab, rgba(8, 14, 28, 0.88) 68%, var(--calserver-primary) 32%);
+    --cs-logo-border: color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.26));
+    --cs-logo-shadow: 0 24px 48px -32px rgba(3, 9, 22, 0.75);
+    --cs-logo-text: color-mix(in oklab, #ffffff 88%, var(--calserver-primary) 12%);
 }
 
-.calhelp-faq__item {
-  margin: 0;
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] {
+    --cs-logo-bg: #ffffff;
+    --cs-logo-border: #000000;
+    --cs-logo-shadow: none;
+    --cs-logo-text: currentColor;
 }
 
-.calhelp-faq__item + .calhelp-faq__item {
-  margin-top: 16px;
-}
-
-.calhelp-faq__item .uk-accordion-title {
-  border-radius: 12px;
-  padding: 16px 24px;
-  background: color-mix(in oklab, var(--qr-landing-card-bg, #ffffff) 92%, rgba(15, 23, 42, 0.04));
-  color: var(--qr-landing-text);
-  font-weight: 600;
-}
-
-.calhelp-faq__item .uk-accordion-title::before {
-  color: inherit;
-}
-
-.calhelp-faq__item > .uk-accordion-content {
-  border-radius: 0 0 12px 12px;
-  background: color-mix(in oklab, var(--qr-landing-card-bg, #ffffff) 96%, rgba(15, 23, 42, 0.02));
-  padding: 0 24px 16px;
-  color: color-mix(in oklab, var(--qr-landing-text) 80%, rgba(15, 23, 42, 0.45));
-}
-
-.calhelp-faq__item.uk-open > .uk-accordion-title {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
-.calhelp-faq__footer {
-  margin-top: 32px;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 12px;
-  font-size: 0.95rem;
-  color: color-mix(in oklab, var(--qr-landing-text) 72%, rgba(15, 23, 42, 0.45));
-}
-
-.calhelp-faq__footer-link {
-  font-weight: 600;
-  color: var(--qr-landing-text);
-}
-
-.calhelp-faq__footer-link:hover,
-.calhelp-faq__footer-link:focus {
-  color: var(--qr-landing-accent, #1e87f0);
-}
-
-.calhelp-cta {
-  position: relative;
-}
-
-.calhelp-cta__actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.calhelp-floating-button {
-  bottom: 24px;
-  right: 24px;
-}
-
-body.high-contrast [data-calhelp-theme] {
-  --calhelp-theme-surface: #ffffff;
-  --calhelp-theme-border: #000000;
-  --calhelp-theme-shadow: none;
-  --calhelp-theme-divider: linear-gradient(90deg, transparent, #000000, transparent);
-  --calhelp-theme-container-padding: clamp(24px, 6vw, 40px);
-  --calhelp-section-divider-opacity: 1;
-}
-
-body[data-theme='dark'].high-contrast [data-calhelp-theme] {
-  --calhelp-theme-surface: #000000;
-  --calhelp-theme-border: #ffffff;
-  --calhelp-theme-divider: linear-gradient(90deg, transparent, #ffffff, transparent);
-}
-
-body.high-contrast [data-calhelp-theme] > .uk-container::before,
-body[data-theme='dark'].high-contrast [data-calhelp-theme] > .uk-container::before {
-  box-shadow: none;
-}
-
-/* -------------------------------------------------------------------------
- * Dark theme adjustments
- * ---------------------------------------------------------------------- */
-body.qr-landing.calhelp-theme.dark-mode .uk-section-muted,
-body.qr-landing.calhelp-theme[data-theme='dark'] .uk-section-muted,
-body.qr-landing.calhelp-theme.dark-mode.uk-section-muted,
-body.qr-landing.calhelp-theme[data-theme='dark'].uk-section-muted {
-  background: color-mix(in oklab, #0b1220 94%, rgba(15, 23, 42, 0.88));
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-case-strip--muted,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-case-strip--muted {
-  color: color-mix(in oklab, #0f172a 94%, rgba(255, 255, 255, 0.06));
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-case-strip--muted .calhelp-case-strip__label,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-case-strip--muted .calhelp-case-strip__label {
-  color: color-mix(in oklab, var(--calserver-primary) 48%, #0f172a 52%);
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-hero-card,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-hero-card {
-  background: color-mix(in oklab, rgba(24, 35, 58, 0.92), rgba(15, 23, 42, 0.82));
-  border-color: color-mix(in oklab, rgba(76, 94, 124, 0.38), rgba(15, 23, 42, 0.72));
-  box-shadow: 0 28px 48px -32px rgba(8, 13, 24, 0.6);
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-data-note,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-data-note {
-  color: color-mix(in oklab, rgba(203, 213, 225, 0.82), rgba(148, 163, 184, 0.68));
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-module-card,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-module-card {
-  background: color-mix(in oklab, rgba(20, 31, 52, 0.96), rgba(11, 17, 30, 0.92));
-  border-color: color-mix(in oklab, rgba(71, 85, 105, 0.32), rgba(15, 23, 42, 0.72));
-  box-shadow: 0 26px 44px -28px rgba(8, 13, 24, 0.7);
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-module-card--accent,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-module-card--accent {
-  background: color-mix(in oklab, rgba(37, 56, 112, 0.86), rgba(15, 23, 42, 0.78));
-  border-color: color-mix(in oklab, rgba(96, 123, 191, 0.45), rgba(15, 23, 42, 0.7));
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-module-card__icon,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-module-card__icon {
-  background: color-mix(in oklab, rgba(59, 130, 246, 0.42), rgba(15, 23, 42, 0.58));
-  color: #e2e8f0;
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-module-card__eyebrow,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-module-card__eyebrow {
-  color: color-mix(in oklab, rgba(203, 213, 225, 0.78), rgba(148, 163, 184, 0.6));
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-module-card__pitch,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-module-card__pitch,
-body.qr-landing.calhelp-theme.dark-mode .calhelp-module-card__list,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-module-card__list,
-body.qr-landing.calhelp-theme.dark-mode .calhelp-module-card__kpi,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-module-card__kpi {
-  color: color-mix(in oklab, rgba(226, 232, 240, 0.88), rgba(148, 163, 184, 0.48));
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-module-card__footer,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-module-card__footer {
-  border-top-color: color-mix(in oklab, rgba(96, 113, 141, 0.35), rgba(15, 23, 42, 0.7));
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-module-card__link,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-module-card__link {
-  color: color-mix(in oklab, rgba(125, 189, 255, 0.86), rgba(190, 227, 248, 0.68));
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-section__header p,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-section__header p,
-body.qr-landing.calhelp-theme.dark-mode .calhelp-card .uk-text-meta,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-card .uk-text-meta,
-body.qr-landing.calhelp-theme.dark-mode .calhelp-process__nav-label,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process__nav-label {
-  color: color-mix(in oklab, #0f172a 88%, rgba(255, 255, 255, 0.12));
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-process__nav-item.is-active .calhelp-process__nav-label,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process__nav-item.is-active .calhelp-process__nav-label {
-  color: color-mix(in oklab, #0f172a 92%, rgba(255, 255, 255, 0.08));
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-process__nav-item.is-complete .calhelp-process__nav-label,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process__nav-item.is-complete .calhelp-process__nav-label {
-  color: color-mix(in oklab, #0f172a 80%, rgba(255, 255, 255, 0.16));
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-process-summary,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-summary {
-  color: color-mix(in oklab, rgba(229, 237, 255, 0.82), rgba(15, 23, 42, 0.46));
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-process-summary strong,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-summary strong {
-  color: color-mix(in oklab, rgba(255, 255, 255, 0.92), rgba(15, 23, 42, 0.22));
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-process-details,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-details {
-  background: color-mix(in oklab, rgba(17, 24, 39, 0.94), rgba(15, 23, 42, 0.78));
-  border-color: color-mix(in oklab, rgba(66, 86, 132, 0.5), rgba(15, 23, 42, 0.64));
-  box-shadow: 0 32px 64px -46px color-mix(in oklab, rgba(59, 130, 246, 0.42), rgba(15, 23, 42, 0.92));
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-process-details__header,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-details__header {
-  color: color-mix(in oklab, rgba(226, 235, 255, 0.88), rgba(162, 178, 212, 0.52));
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-process-details > .calhelp-process,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-details > .calhelp-process {
-  border-top-color: color-mix(in oklab, rgba(66, 86, 132, 0.5), rgba(15, 23, 42, 0.64));
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .calhelp-process__nav-button,
-  .calhelp-process__nav-connector,
-  .calhelp-process__stage,
-  .calhelp-process__toggle,
-  .calhelp-process__toggle-icon::before,
-  .calhelp-process__toggle-icon::after,
-  .calhelp-process-details {
-    transition-duration: 0.001ms !important;
-    animation-duration: 0.001ms !important;
-  }
-
-  .calhelp-process__stages {
-    overflow: visible;
-  }
-
-  .calhelp-process__track {
-    display: grid;
-    gap: 24px;
-    transform: none !important;
-  }
-
-  .calhelp-process__stage {
-    flex: none;
-    visibility: visible;
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-}
-
-@media (max-width: 959px) {
-  .calhelp-hero-card {
-    margin-top: 24px;
-  }
-
-  .calhelp-comparison {
-    gap: 16px;
-  }
-
-  .calhelp-comparison__header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  .calhelp-comparison__toggle-group {
-    width: 100%;
-    justify-content: space-between;
-  }
-
-  .calhelp-comparison__toggle {
-    flex: 1 1 0;
-    padding: 6px 12px;
-  }
-
-  .calhelp-process-details__header {
-    padding: 20px 24px;
-  }
-
-  .calhelp-process-details > .calhelp-process {
-    padding: 0 24px 28px;
-  }
-
-  .calhelp-usecases__tabs {
-    justify-content: flex-start;
-  }
-
-  .calhelp-usecases__results > li {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .calhelp-proof-gallery__grid {
-    gap: 24px;
-  }
-
-  .calhelp-proof-gallery__body {
-    padding: 20px;
-  }
-
-  .calhelp-kpi-badge {
-    align-self: flex-start;
-  }
-
-  .calhelp-process__nav {
-    grid-auto-flow: row;
-    grid-auto-rows: auto;
-    gap: 12px;
-  }
-
-  .calhelp-process__nav-item {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  .calhelp-process__track {
-    --calhelp-process-gap: 16px;
-  }
-
-  .calhelp-process__nav-button {
-    padding: 12px 14px;
-  }
-
-  .calhelp-process__nav-connector {
-    width: 2px;
-    height: 24px;
-    align-self: center;
-  }
-
-  .calhelp-floating-button {
-    bottom: 16px;
-    right: 16px;
-  }
-
-  .calhelp-case-strip {
-    grid-template-columns: minmax(0, 1fr);
-    padding: 28px;
-    gap: 24px;
-  }
-
-  .calhelp-case-strip__header {
-    flex-direction: row;
+:is(.calserver-theme, .calhelp-theme) .cs-logo {
+    display: inline-flex;
     align-items: center;
-  }
-
-  .calhelp-case-strip__quote {
-    font-size: 1rem;
-  }
+    gap: var(--cs-logo-gap);
+    color: var(--cs-logo-text);
+    font-size: clamp(20px, 2.8vw, 28px);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    line-height: 1;
 }
 
-@media (max-width: 639px) {
-  .calhelp-section__header {
-    margin-bottom: 36px;
-  }
-
-  .calhelp-process-summary {
-    padding-left: 1.25rem;
-  }
-
-  .calhelp-process-details__header {
-    padding: 18px 20px;
-  }
-
-  .calhelp-process-details > .calhelp-process {
-    padding: 0 20px 24px;
-  }
-
-  .calhelp-proof-gallery__modal {
-    padding: 16px;
-  }
-
-  .calhelp-proof-gallery__dialog {
-    padding: 24px;
-  }
-
-  .calhelp-proof-gallery__modal-title {
-    font-size: 1.25rem;
-  }
-
-  .calhelp-process {
-    gap: 24px;
-  }
-
-  .calhelp-process__nav-index {
-    width: 44px;
-    height: 44px;
-  }
-
-  .calhelp-process__toggle {
-    padding: 10px 12px;
-  }
-
-  .calhelp-process__panel {
-    padding-top: 12px;
-  }
-
-  .calhelp-case-strip {
-    padding: 24px;
+:is(.calserver-theme, .calhelp-theme) .cs-logo__image {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--cs-logo-size);
+    height: var(--cs-logo-size);
     border-radius: 18px;
-  }
-
-  .calhelp-case-strip__header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .calhelp-case-strip__icon {
-    width: 56px;
-    height: 56px;
-  }
-
-  .calhelp-case-strip__story {
-    padding-left: 12px;
-  }
-
-  .calhelp-case-strip__story > li {
-    padding-left: 32px;
-  }
-
-  .calhelp-news-grid {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 20px;
-  }
-
-  .calhelp-news-card {
-    padding: 22px;
-    border-radius: 18px;
-  }
-
-  .calhelp-news-card__icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 14px;
-  }
-
-  .calhelp-news-step__icon {
-    width: 36px;
-    height: 36px;
-  }
-
-  .calhelp-news-kpi {
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .calhelp-news-kpi__label {
-    font-size: 0.85rem;
-  }
-}
-.calhelp-trust-summary__card {
-    text-align: left;
+    border: none;
+    background: none;
+    box-shadow: none;
+    overflow: hidden;
 }
 
-.calhelp-trust-summary__list {
-    list-style: none;
-    margin: 24px 0;
+:is(.calserver-theme, .calhelp-theme) .cs-logo__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+:is(.calserver-theme, .calhelp-theme) .cs-logo__wordmark {
+    display: inline-flex;
+    align-items: center;
+    color: inherit;
+    text-transform: none;
+}
+
+:is(.calserver-theme, .calhelp-theme) .cs-logo__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
     padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }
 
-.calhelp-trust-summary__item {
+@media (max-width: 960px) {
+    :is(.calserver-theme, .calhelp-theme) .cs-logo__wordmark {
+        display: none;
+    }
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) .uk-card-primary,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) .uk-card-primary {
+    background: linear-gradient(
+            135deg,
+            color-mix(in oklab, var(--calserver-primary) 56%, #1c2f55 44%) 0%,
+            color-mix(in oklab, var(--calserver-primary) 82%, #0c1529 18%) 100%
+        ) !important;
+    border-color: color-mix(in oklab, var(--calserver-primary) 60%, rgba(255, 255, 255, 0.26)) !important;
+    color: var(--cs-text-on-dark);
+    box-shadow: 0 32px 58px -34px rgba(20, 66, 153, 0.65),
+        0 24px 44px -32px rgba(5, 13, 30, 0.72);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) .uk-card-primary.uk-card-primary--highlight,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) .uk-card-primary.uk-card-primary--highlight {
+    background: linear-gradient(
+            145deg,
+            color-mix(in oklab, var(--calserver-primary) 68%, #233a6b 32%) 0%,
+            color-mix(in oklab, var(--calserver-primary) 94%, #142348 6%) 100%
+        ) !important;
+    border-color: color-mix(in oklab, var(--calserver-primary) 78%, rgba(255, 255, 255, 0.38)) !important;
+    box-shadow: 0 42px 72px -36px color-mix(in oklab, var(--calserver-primary) 52%, rgba(28, 108, 255, 0.65)),
+        0 26px 52px -34px rgba(4, 10, 25, 0.82);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) .uk-card-primary p,
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) .uk-card-primary li,
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) .uk-card-primary .muted,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) .uk-card-primary p,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) .uk-card-primary li,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) .uk-card-primary .muted {
+    color: color-mix(in oklab, #ffffff 92%, rgba(255, 255, 255, 0.68) 8%) !important;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before {
+    border-color: color-mix(in oklab, #ffffff 80%, rgba(31, 99, 230, 0.36) 20%);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default {
+    background: color-mix(in oklab, #ffffff 88%, var(--calserver-primary) 12%);
+    color: color-mix(in oklab, var(--calserver-primary) 90%, #030a1c 10%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 42%, rgba(255, 255, 255, 0.45));
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--calserver-primary) 46%, rgba(255, 255, 255, 0.42)) inset,
+        0 16px 30px -20px rgba(19, 71, 179, 0.6);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary {
+    background: color-mix(in oklab, var(--calserver-primary) 82%, rgba(10, 16, 32, 0.92) 18%);
+    color: color-mix(in oklab, #ffffff 92%, var(--calserver-primary) 8%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 70%, rgba(255, 255, 255, 0.28));
+    box-shadow: 0 22px 46px -28px color-mix(in oklab, var(--calserver-primary) 72%, rgba(17, 37, 78, 0.85));
+    transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:hover,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:hover {
+    background: color-mix(in oklab, var(--calserver-primary) 94%, rgba(12, 22, 42, 0.9) 6%);
+    color: #ffffff;
+    box-shadow: 0 28px 52px -26px color-mix(in oklab, var(--calserver-primary) 82%, rgba(17, 37, 78, 0.92));
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:focus-visible,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) #contact-form .btn.btn-black.uk-button-secondary:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--calserver-primary) 78%, rgba(126, 170, 255, 0.45));
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 68%, rgba(255, 255, 255, 0.24)),
+        0 24px 48px -26px color-mix(in oklab, var(--calserver-primary) 78%, rgba(17, 37, 78, 0.88));
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default:hover,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default:hover {
+    background: color-mix(in oklab, #ffffff 74%, var(--calserver-primary) 26%);
+    color: color-mix(in oklab, var(--calserver-primary) 94%, #050b1e 6%);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.48)) inset,
+        0 22px 36px -22px rgba(31, 99, 230, 0.65);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) .uk-card-primary .uk-button-default:focus-visible,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) .uk-card-primary .uk-button-default:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--calserver-primary) 75%, #7eaaff 25%);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 54%, rgba(255, 255, 255, 0.4));
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) .uk-card-primary .pill--badge,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) .uk-card-primary .pill--badge {
+    background: color-mix(in oklab, #ffffff 90%, var(--calserver-primary) 10%);
+    color: color-mix(in oklab, var(--calserver-primary) 78%, #020817 22%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 46%, rgba(255, 255, 255, 0.6));
+    box-shadow: 0 18px 32px -22px rgba(31, 99, 230, 0.55);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) .uk-card .uk-card-title,
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) .uk-card h3,
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) .uk-card h4,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) .uk-card .uk-card-title,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) .uk-card h3,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) .uk-card h4 {
+    color: var(--cs-text-on-dark) !important;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast) .uk-card .uk-card-title,
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast) .uk-card h3,
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast) .uk-card h4,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast) .uk-card .uk-card-title,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast) .uk-card h3,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast) .uk-card h4 {
+    color: color-mix(in oklab, var(--calserver-primary) 22%, #0b1532 78%) !important;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast) .uk-card-default,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast) .uk-card-default {
+    background: #ffffff !important;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast) .uk-card-primary,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast) .uk-card-primary {
+    background: linear-gradient(
+            135deg,
+            color-mix(in oklab, var(--calserver-primary) 86%, #11326a 14%) 0%,
+            color-mix(in oklab, var(--calserver-primary) 70%, #0a1c4a 30%) 100%
+        ) !important;
+    border-color: color-mix(in oklab, var(--calserver-primary) 65%, transparent) !important;
+    color: #ffffff;
+    box-shadow: 0 26px 46px -30px rgba(17, 50, 106, 0.42);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast) .uk-card-primary h3,
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast) .uk-card-primary p,
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast) .uk-card-primary li,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast) .uk-card-primary h3,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast) .uk-card-primary p,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast) .uk-card-primary li {
+    color: color-mix(in oklab, #ffffff 92%, rgba(255, 255, 255, 0.72) 8%) !important;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast) .uk-card-primary .uk-button-default,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast) .uk-card-primary .uk-button-default {
+    background: #ffffff;
+    color: color-mix(in oklab, var(--calserver-primary) 82%, #0a1c4a 18%);
+    border-color: transparent;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.55) inset;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast) .uk-card-primary .uk-button-default:hover,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast) .uk-card-primary .uk-button-default:hover {
+    background: color-mix(in oklab, #ffffff 88%, var(--calserver-primary) 12%);
+    color: color-mix(in oklab, var(--calserver-primary) 88%, #071440 12%);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast) .uk-card-primary .uk-list-bullet > li::before {
+    border-color: rgba(255, 255, 255, 0.7);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.high-contrast) .site-footer,
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.high-contrast) .site-footer a,
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.high-contrast) .footer-section,
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.high-contrast) .footer-section p,
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.high-contrast) .footer-section li,
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.high-contrast) .footer-section strong {
+    color: #ffffff;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast) {
+    --qr-hero-grad-start: var(--qr-brand-50);
+    --qr-hero-grad-end: var(--qr-brand-300);
+    --qr-hero-gradient: linear-gradient(
+        135deg,
+        var(--qr-hero-grad-start) 0%,
+        var(--qr-hero-grad-end) 100%
+    );
+    --cs-card-focus-bg: color-mix(in oklab, var(--calserver-primary) 62%, var(--cs-card-dark) 38%);
+    --cs-card-focus-border: color-mix(in oklab, var(--calserver-primary) 68%, transparent);
+    --cs-hero-overlay-top: color-mix(in oklab, var(--calserver-primary) 18%, rgba(248, 251, 255, 0.94));
+    --cs-hero-overlay-bottom: color-mix(in oklab, var(--calserver-primary) 8%, rgba(255, 255, 255, 0.96));
+    --cs-hero-shadow: 0 34px 76px -54px rgba(38, 72, 150, 0.45);
+    --cs-highlight-bg: linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--calserver-primary) 10%, rgba(243, 247, 255, 0.96)) 0%,
+        color-mix(in oklab, var(--calserver-primary) 6%, rgba(255, 255, 255, 0.98)) 100%
+    );
+    --cs-highlight-border-top: color-mix(in oklab, var(--calserver-primary) 34%, rgba(17, 49, 105, 0.18));
+    --cs-highlight-border-bottom: color-mix(in oklab, var(--calserver-primary) 22%, rgba(17, 49, 105, 0.14));
+    --cs-highlight-shadow: 0 -20px 48px -36px rgba(58, 100, 200, 0.22),
+        0 26px 54px -38px rgba(34, 68, 140, 0.18);
+    --cs-highlight-card-bg: color-mix(in oklab, var(--calserver-primary) 9%, rgba(255, 255, 255, 0.96));
+    --cs-highlight-card-border: color-mix(in oklab, var(--calserver-primary) 26%, rgba(17, 49, 105, 0.12));
+    --cs-highlight-card-shadow: 0 22px 42px -28px rgba(31, 73, 160, 0.22);
+    --cs-mode-pill-bg: color-mix(in oklab, #ffffff 86%, var(--calserver-primary) 14%);
+    --cs-mode-pill-hover-bg: color-mix(in oklab, #ffffff 72%, var(--calserver-primary) 28%);
+    --cs-mode-pill-active-bg: color-mix(in oklab, var(--calserver-primary) 92%, #ffffff 8%);
+    --cs-mode-pill-text: color-mix(in oklab, var(--calserver-primary) 72%, #061440 28%);
+    --cs-mode-pill-hover-text: color-mix(in oklab, var(--calserver-primary) 94%, #061440 6%);
+    --cs-mode-pill-active-text: #ffffff;
+    --cs-mode-pill-border: color-mix(in oklab, var(--calserver-primary) 32%, rgba(17, 49, 105, 0.18));
+    --cs-mode-pill-hover-border: color-mix(in oklab, var(--calserver-primary) 48%, rgba(17, 49, 105, 0.2));
+    --cs-mode-pill-active-border: color-mix(in oklab, var(--calserver-primary) 68%, rgba(17, 49, 105, 0.24));
+    --cs-mode-pill-shadow: 0 16px 28px -24px rgba(34, 68, 140, 0.18);
+    --cs-mode-pill-hover-shadow: 0 20px 36px -26px rgba(34, 68, 140, 0.24);
+    --cs-mode-pill-focus-ring: color-mix(in oklab, var(--calserver-primary) 68%, #97b8ff 32%);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.high-contrast) .hero-bg-calserver {
+    background:
+        radial-gradient(
+            580px 360px at 0% 0%,
+            color-mix(in oklab, var(--calserver-primary) 40%, transparent),
+            transparent
+        ),
+        radial-gradient(
+            520px 320px at 100% 0%,
+            color-mix(in oklab, var(--calserver-primary) 30%, transparent),
+            transparent
+        ),
+        linear-gradient(180deg, var(--cs-hero-overlay-top) 0%, var(--cs-hero-overlay-bottom) 100%),
+        var(--qr-hero-gradient);
+    background-color: var(--qr-hero-grad-start);
+    box-shadow: var(--cs-hero-shadow);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-grid, .calhelp-hero-grid) {
+    align-items: stretch;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-grid__media, .calhelp-hero-grid__media) {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
 }
 
-.calhelp-trust-summary__icon {
-    color: var(--calserver-primary);
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-grid__media, .calhelp-hero-grid__media) > * {
+    width: 100%;
 }
 
-.calhelp-trust-summary__label {
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video, .calhelp-hero-video) {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 28px 32px 32px;
+    background: linear-gradient(
+            132deg,
+            color-mix(in oklab, var(--calserver-primary) 34%, #0c1734 66%) 0%,
+            color-mix(in oklab, var(--calserver-primary) 48%, #050b1f 52%) 100%
+        );
+    border-radius: 26px;
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 46%, transparent);
+    box-shadow: 0 26px 60px -32px rgba(9, 15, 32, 0.65);
+    overflow: hidden;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__badge, .calhelp-hero-video__badge) {
+    align-self: flex-start;
     font-weight: 600;
 }
 
-.calhelp-trust-summary__actions {
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__frame, .calhelp-hero-video__frame) {
+    position: relative;
+    border-radius: 22px;
+    overflow: hidden;
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 38%, transparent);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__frame, .calhelp-hero-video__frame)::before {
+    content: "";
+    display: block;
+    padding-top: 56.25%;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__embed, .calhelp-hero-video__embed) {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 24px 28px;
+    text-align: center;
+    background: linear-gradient(
+            144deg,
+            color-mix(in oklab, var(--calserver-primary) 28%, rgba(0, 10, 32, 0.86)) 0%,
+            color-mix(in oklab, var(--calserver-primary) 52%, rgba(1, 5, 18, 0.82)) 100%
+        );
+    color: rgba(255, 255, 255, 0.94);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__embed, .calhelp-hero-video__embed).is-loaded {
+    display: block;
+    padding: 0;
+    background: transparent;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__frame, .calhelp-hero-video__frame) iframe,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__embed, .calhelp-hero-video__embed) iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__preview, .calhelp-hero-video__preview) {
+    display: grid;
+    gap: 6px;
+    justify-items: center;
+    padding: 18px 24px;
+    width: 100%;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__preview-title, .calhelp-hero-video__preview-title) {
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: rgba(255, 255, 255, 0.94);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__preview-subtitle, .calhelp-hero-video__preview-subtitle) {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.72);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__hint, .calhelp-hero-video__hint),
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__privacy-note, .calhelp-hero-video__privacy-note),
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__noscript-note, .calhelp-hero-video__noscript-note) {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.86);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__hint, .calhelp-hero-video__hint) {
+    max-width: 420px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__privacy-note, .calhelp-hero-video__privacy-note) {
+    font-size: 0.78rem;
+    opacity: 0.9;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__noscript-note, .calhelp-hero-video__noscript-note) a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__meta, .calhelp-hero-video__meta) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px 18px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__meta-text, .calhelp-hero-video__meta-text) {
+    display: grid;
+    gap: 4px;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__meta-text, .calhelp-hero-video__meta-text) strong {
+    font-size: 1.12rem;
+    letter-spacing: 0.01em;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__meta-text, .calhelp-hero-video__meta-text) span {
+    font-size: 0.95rem;
+    color: color-mix(in oklab, #ffffff 86%, rgba(255, 255, 255, 0.4) 14%);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__link, .calhelp-hero-video__link) {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 68%, rgba(255, 255, 255, 0.45));
+    background: color-mix(in oklab, var(--calserver-primary) 38%, rgba(255, 255, 255, 0.05));
+    color: rgba(255, 255, 255, 0.96);
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease, border-color 180ms ease;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__link, .calhelp-hero-video__link):hover,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__link, .calhelp-hero-video__link):focus-visible {
+    background: color-mix(in oklab, var(--calserver-primary) 56%, rgba(255, 255, 255, 0.08));
+    border-color: color-mix(in oklab, var(--calserver-primary) 82%, rgba(255, 255, 255, 0.6));
+    box-shadow: 0 18px 36px -24px rgba(9, 15, 32, 0.45);
+    transform: translateY(-1px);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__footnote, .calhelp-hero-video__footnote) {
+    margin: 0;
+    font-size: 0.9rem;
+    color: color-mix(in oklab, #ffffff 78%, rgba(255, 255, 255, 0.4) 22%);
+}
+
+@media (max-width: 959px) {
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video, .calhelp-hero-video) {
+        padding: 24px;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__meta, .calhelp-hero-video__meta) {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-hero-video__link, .calhelp-hero-video__link) {
+        justify-content: center;
+    }
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-hero-video, .calhelp-hero-video),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-hero-video, .calhelp-hero-video) {
+    background: var(--qr-card);
+    border-color: currentColor;
+    box-shadow: none;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-hero-video__embed, .calhelp-hero-video__embed),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-hero-video__embed, .calhelp-hero-video__embed) {
+    background: var(--qr-card);
+    color: currentColor;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-hero-video__hint, .calhelp-hero-video__hint),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-hero-video__hint, .calhelp-hero-video__hint),
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-hero-video__privacy-note, .calhelp-hero-video__privacy-note),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-hero-video__privacy-note, .calhelp-hero-video__privacy-note),
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-hero-video__noscript-note, .calhelp-hero-video__noscript-note),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-hero-video__noscript-note, .calhelp-hero-video__noscript-note) {
+    color: currentColor;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-hero-video__preview, .calhelp-hero-video__preview),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-hero-video__preview, .calhelp-hero-video__preview) {
+    background: currentColor;
+    color: var(--qr-bg);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-hero-video__preview-title, .calhelp-hero-video__preview-title),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-hero-video__preview-title, .calhelp-hero-video__preview-title),
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-hero-video__preview-subtitle, .calhelp-hero-video__preview-subtitle),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-hero-video__preview-subtitle, .calhelp-hero-video__preview-subtitle) {
+    color: inherit;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-hero-video__meta-text, .calhelp-hero-video__meta-text),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-hero-video__meta-text, .calhelp-hero-video__meta-text),
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-hero-video__meta-text, .calhelp-hero-video__meta-text) span,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-hero-video__meta-text, .calhelp-hero-video__meta-text) span,
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-hero-video__footnote, .calhelp-hero-video__footnote),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-hero-video__footnote, .calhelp-hero-video__footnote) {
+    color: currentColor;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-hero-video__link, .calhelp-hero-video__link),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-hero-video__link, .calhelp-hero-video__link) {
+    color: currentColor;
+    background: transparent;
+    border-color: currentColor;
+    box-shadow: none;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-hero-video__link, .calhelp-hero-video__link):hover,
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-hero-video__link, .calhelp-hero-video__link):focus-visible,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-hero-video__link, .calhelp-hero-video__link):hover,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-hero-video__link, .calhelp-hero-video__link):focus-visible {
+    background: currentColor;
+    color: var(--qr-bg);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .hero-list li {
+    color: var(--qr-muted);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .pill {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .pill--soft {
+    background: color-mix(in oklab, var(--calserver-primary) 15%, transparent);
+    color: var(--qr-landing-primary);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .pill--accent {
+    background: var(--qr-card);
+    color: var(--qr-landing-primary);
+    box-shadow: 0 6px 18px -10px rgba(0, 0, 0, 0.45);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .pill--badge {
+    background: rgba(255, 255, 255, 0.86);
+    color: color-mix(in oklab, var(--calserver-primary) 70%, #0c1a3a 30%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .shadow-soft {
+    box-shadow: 0 18px 36px -24px rgba(15, 23, 42, 0.35),
+        0 12px 24px -18px rgba(15, 23, 42, 0.25);
+    border-radius: 18px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .pricing-card--featured {
+    position: relative;
+    z-index: 1;
+    padding: clamp(36px, 3vw, 52px);
+    border-radius: 22px;
+    box-shadow: 0 28px 64px -28px rgba(15, 30, 56, 0.55),
+        0 18px 38px -24px rgba(10, 22, 44, 0.4);
+    transform: none;
+    transform-origin: center top;
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .pricing-card--featured h3 {
+    font-size: clamp(1.7rem, 1.2vw + 1.2rem, 2.2rem);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .pricing-card--featured p,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .pricing-card--featured li {
+    font-size: 1.08rem;
+}
+
+@media (min-width: 960px) {
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) .pricing-card--featured {
+        transform: scale(1.06) translateY(-10px);
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) .pricing-card--featured:hover {
+        transform: scale(1.08) translateY(-14px);
+        box-shadow: 0 36px 78px -28px rgba(12, 25, 48, 0.6),
+            0 20px 42px -24px rgba(10, 22, 44, 0.45);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) .pricing-card--featured {
+        transition: none;
+        transform: none !important;
+    }
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-highlight, .calhelp-highlight) {
+    padding: 32px 0 28px;
+    background: var(--cs-highlight-bg);
+    border-top: 1px solid var(--cs-highlight-border-top);
+    border-bottom: 1px solid var(--cs-highlight-border-bottom);
+    box-shadow: var(--cs-highlight-shadow);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.high-contrast)
+    :is(.calserver-highlight, .calhelp-highlight)
+    .uk-subnav.uk-subnav-pill {
+    gap: 12px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.high-contrast)
+    :is(.calserver-highlight, .calhelp-highlight)
+    .uk-subnav.uk-subnav-pill
+    > *
+    > a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 10px 22px;
+    border-radius: 999px;
+    background: var(--cs-mode-pill-bg);
+    color: var(--cs-mode-pill-text);
+    border: 1px solid var(--cs-mode-pill-border);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    box-shadow: var(--cs-mode-pill-shadow);
+    transition: background-color 180ms ease, color 180ms ease,
+        border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.high-contrast)
+    :is(.calserver-highlight, .calhelp-highlight)
+    .uk-subnav.uk-subnav-pill
+    > *
+    > a:hover,
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.high-contrast)
+    :is(.calserver-highlight, .calhelp-highlight)
+    .uk-subnav.uk-subnav-pill
+    > *
+    > a:focus {
+    background: var(--cs-mode-pill-hover-bg);
+    color: var(--cs-mode-pill-hover-text);
+    border-color: var(--cs-mode-pill-hover-border);
+    box-shadow: var(--cs-mode-pill-hover-shadow);
+    transform: translateY(-1px);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.high-contrast)
+    :is(.calserver-highlight, .calhelp-highlight)
+    .uk-subnav.uk-subnav-pill
+    > *
+    > a:focus-visible {
+    outline: 3px solid var(--cs-mode-pill-focus-ring);
+    outline-offset: 3px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.high-contrast)
+    :is(.calserver-highlight, .calhelp-highlight)
+    .uk-subnav.uk-subnav-pill
+    > .uk-active
+    > a,
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.high-contrast)
+    :is(.calserver-highlight, .calhelp-highlight)
+    .uk-subnav.uk-subnav-pill
+    > .uk-active
+    > a:hover,
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.high-contrast)
+    :is(.calserver-highlight, .calhelp-highlight)
+    .uk-subnav.uk-subnav-pill
+    > .uk-active
+    > a:focus {
+    background: var(--cs-mode-pill-active-bg);
+    color: var(--cs-mode-pill-active-text);
+    border-color: var(--cs-mode-pill-active-border);
+    box-shadow: var(--cs-mode-pill-hover-shadow);
+    transform: translateY(-1px);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-highlight__intro, .calhelp-highlight__intro) {
+    max-width: 720px;
+    margin: 0 auto 42px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-highlight__intro, .calhelp-highlight__intro) p {
+    color: color-mix(in oklab, rgba(255, 255, 255, 0.92) 92%, rgba(255, 255, 255, 0.62) 8%);
+}
+
+:is(.calserver-chat-trigger, .calhelp-chat-trigger) {
+    white-space: nowrap;
+}
+
+.marketing-chat-modal .uk-modal-dialog {
+    max-width: 720px;
+}
+
+.marketing-chat__dialog {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    --marketing-chat-surface: color-mix(
+        in oklab,
+        var(--qr-card, #f5f7fb) 96%,
+        rgba(255, 255, 255, 0.94)
+    );
+    --marketing-chat-surface-alt: color-mix(
+        in oklab,
+        var(--qr-card, #f5f7fb) 92%,
+        rgba(255, 255, 255, 0.82)
+    );
+    --marketing-chat-emphasis: color-mix(
+        in oklab,
+        var(--calserver-primary, #1f63e6) 18%,
+        rgba(255, 255, 255, 0.94)
+    );
+    --marketing-chat-strong: color-mix(
+        in oklab,
+        var(--qr-text, #1c2131) 90%,
+        rgba(28, 33, 49, 0.1)
+    );
+    --marketing-chat-muted: color-mix(
+        in oklab,
+        var(--qr-muted, #5c6580) 92%,
+        rgba(92, 101, 128, 0.6)
+    );
+    --marketing-chat-border: color-mix(
+        in oklab,
+        var(--qr-card-border, #d8deeb) 85%,
+        transparent
+    );
+    background: var(--marketing-chat-surface);
+    color: var(--marketing-chat-strong);
+    border: 1px solid var(--marketing-chat-border);
+    border-radius: 12px;
+    box-shadow: 0 28px 64px -40px rgba(9, 20, 40, 0.55), 0 12px 32px -20px rgba(14, 30, 60, 0.35);
+}
+
+.marketing-chat__intro {
+    margin: 0;
+    color: var(--marketing-chat-muted);
+}
+
+.marketing-chat__messages {
+    max-height: 320px;
+    overflow-y: auto;
+    padding: 12px 16px;
+    background: var(--marketing-chat-surface-alt);
+    border: 1px solid color-mix(in oklab, var(--marketing-chat-border) 92%, transparent);
+    border-radius: 10px;
+}
+
+.marketing-chat__system {
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    background: var(--marketing-chat-emphasis);
+    border-radius: 8px;
+    font-weight: 600;
+    color: var(--marketing-chat-strong);
+}
+
+.marketing-chat__turn {
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid color-mix(in oklab, var(--marketing-chat-border) 78%, transparent);
+}
+
+.marketing-chat__turn:last-child {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: 0;
+}
+
+.marketing-chat__question {
+    margin: 0 0 8px;
+    font-size: 1.05rem;
+}
+
+.marketing-chat__answer p {
+    margin: 0 0 8px;
+    line-height: 1.5;
+}
+
+.marketing-chat__answer p:last-child {
+    margin-bottom: 0;
+}
+
+.marketing-chat__context {
+    margin-top: 12px;
+}
+
+.marketing-chat__context-toggle {
+    margin: 0;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--marketing-chat-muted);
+    cursor: pointer;
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.marketing-chat__context-toggle::-webkit-details-marker {
+    display: none;
+}
+
+.marketing-chat__context-toggle::before {
+    content: '\25B8';
+    display: inline-block;
+    margin-right: 6px;
+    transition: transform 0.2s ease;
+}
+
+.marketing-chat__context[open] .marketing-chat__context-toggle::before {
+    transform: rotate(90deg);
+}
+
+.marketing-chat__context-list {
+    margin: 8px 0 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.marketing-chat__context-item {
+    font-size: 0.95rem;
+}
+
+.marketing-chat__context-link {
+    color: var(--calserver-primary, #1f63e6);
+    text-decoration: none;
+}
+
+.marketing-chat__context-link:hover,
+.marketing-chat__context-link:focus {
+    text-decoration: underline;
+}
+
+.marketing-chat__context-label {
+    color: var(--marketing-chat-muted);
+}
+
+.marketing-chat__status {
+    min-height: 1.25em;
+    margin: 0;
+    font-weight: 600;
+    color: var(--marketing-chat-muted);
+}
+
+.marketing-chat__status--error {
+    color: #c53030;
+}
+
+.marketing-chat__form textarea {
+    resize: vertical;
+}
+
+.marketing-chat__form-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+.marketing-chat__form--loading textarea {
+    opacity: 0.75;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) .marketing-chat__dialog,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) .marketing-chat__dialog {
+    --marketing-chat-surface: color-mix(
+        in oklab,
+        var(--qr-card, #101a2d) 85%,
+        rgba(8, 14, 28, 0.92)
+    );
+    --marketing-chat-surface-alt: color-mix(
+        in oklab,
+        rgba(9, 16, 30, 0.94) 82%,
+        color-mix(in oklab, var(--calserver-primary, #1f63e6) 22%, transparent) 18%
+    );
+    --marketing-chat-emphasis: color-mix(
+        in oklab,
+        var(--calserver-primary, #1f63e6) 42%,
+        rgba(7, 13, 26, 0.88)
+    );
+    --marketing-chat-strong: color-mix(
+        in oklab,
+        #ffffff 94%,
+        rgba(255, 255, 255, 0.72) 6%
+    );
+    --marketing-chat-muted: color-mix(
+        in oklab,
+        rgba(198, 208, 232, 0.92) 88%,
+        rgba(255, 255, 255, 0.7) 12%
+    );
+    --marketing-chat-border: color-mix(
+        in oklab,
+        rgba(31, 99, 230, 0.45) 50%,
+        rgba(255, 255, 255, 0.18) 50%
+    );
+}
+
+@media (max-width: 640px) {
+    .marketing-chat__dialog {
+        padding: 20px 18px;
+    }
+
+    .marketing-chat__messages {
+        max-height: 240px;
+    }
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast)
+    :is(.calserver-highlight__intro, .calhelp-highlight__intro)
+    p,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast)
+    :is(.calserver-highlight__intro, .calhelp-highlight__intro)
+    p {
+    color: color-mix(in oklab, var(--qr-text) 92%, var(--qr-bg) 8%);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast) :is(.calserver-highlight, .calhelp-highlight).uk-light,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast) :is(.calserver-highlight, .calhelp-highlight).uk-light {
+    color: var(--qr-text);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast)
+    :is(.calserver-highlight, .calhelp-highlight).uk-light
+    :is(h1, h2, h3, h4, h5, h6, .uk-heading-small, .uk-heading-medium, .uk-heading-large, .uk-heading-xlarge,
+        .uk-heading-line > span, .uk-text-lead) {
+    color: inherit;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast)
+    :is(.calserver-highlight, .calhelp-highlight).uk-light
+    :is(h1, h2, h3, h4, h5, h6, .uk-heading-small, .uk-heading-medium, .uk-heading-large, .uk-heading-xlarge,
+        .uk-heading-line > span, .uk-text-lead) {
+    color: inherit;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-highlight-card, .calhelp-highlight-card) {
+    background: var(--cs-highlight-card-bg) !important;
+    border: 1px solid var(--cs-highlight-card-border) !important;
+    border-radius: 22px;
+    box-shadow: var(--cs-highlight-card-shadow);
+    padding: 32px 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    color: color-mix(in oklab, var(--qr-text) 88%, var(--qr-bg) 12%);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-highlight-card, .calhelp-highlight-card) .uk-card-title {
+    color: color-mix(in oklab, var(--calserver-primary) 32%, var(--qr-text) 68%);
+    letter-spacing: -0.01em;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-highlight-card, .calhelp-highlight-card) .uk-list-bullet > li::before {
+    border-color: color-mix(in oklab, var(--calserver-primary) 48%, transparent);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-highlight-card__actions, .calhelp-highlight-card__actions) {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 18px;
+    align-items: center;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-highlight-card__actions, .calhelp-highlight-card__actions) .muted {
+    font-size: 0.85rem;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast)
+    :is(.calserver-highlight-card__actions, .calhelp-highlight-card__actions)
+    .uk-button-primary,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast)
+    :is(.calserver-highlight-card__actions, .calhelp-highlight-card__actions)
+    .uk-button-primary {
+    background: color-mix(in oklab, var(--calserver-primary) 88%, #103b99 12%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 68%, rgba(15, 23, 42, 0.24));
+    color: #ffffff;
+    box-shadow: 0 18px 36px -24px
+        color-mix(in oklab, var(--calserver-primary) 68%, rgba(15, 23, 42, 0.7));
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast)
+    :is(.calserver-highlight-card__actions, .calhelp-highlight-card__actions)
+    .uk-button-primary:hover,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast)
+    :is(.calserver-highlight-card__actions, .calhelp-highlight-card__actions)
+    .uk-button-primary:hover {
+    background: color-mix(in oklab, var(--calserver-primary) 78%, #0a2d86 22%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 72%, rgba(15, 23, 42, 0.34));
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast)
+    :is(.calserver-highlight-card__actions, .calhelp-highlight-card__actions)
+    .uk-button-primary:focus-visible,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast)
+    :is(.calserver-highlight-card__actions, .calhelp-highlight-card__actions)
+    .uk-button-primary:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--calserver-primary) 75%, #8ab3ff 25%);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 54%, rgba(15, 23, 42, 0.18));
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast)
+    :is(.calserver-highlight-card__actions, .calhelp-highlight-card__actions)
+    .uk-button-default,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast)
+    :is(.calserver-highlight-card__actions, .calhelp-highlight-card__actions)
+    .uk-button-default {
+    background: #ffffff;
+    color: color-mix(in oklab, var(--calserver-primary) 82%, #071440 18%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 32%, rgba(15, 23, 42, 0.08));
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--calserver-primary) 26%, rgba(15, 23, 42, 0.16)) inset,
+        0 14px 28px -24px rgba(15, 23, 42, 0.32);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast)
+    :is(.calserver-highlight-card__actions, .calhelp-highlight-card__actions)
+    .uk-button-default:hover,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast)
+    :is(.calserver-highlight-card__actions, .calhelp-highlight-card__actions)
+    .uk-button-default:hover {
+    background: color-mix(in oklab, #ffffff 86%, var(--calserver-primary) 14%);
+    color: color-mix(in oklab, var(--calserver-primary) 88%, #041233 12%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 46%, rgba(15, 23, 42, 0.16));
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast)
+    :is(.calserver-highlight-card__actions, .calhelp-highlight-card__actions)
+    .uk-button-default:focus-visible,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast)
+    :is(.calserver-highlight-card__actions, .calhelp-highlight-card__actions)
+    .uk-button-default:focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--calserver-primary) 62%, #9bbdff 38%);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--calserver-primary) 32%, rgba(15, 23, 42, 0.22));
+}
+
+@media (max-width: 959px) {
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-highlight-card, .calhelp-highlight-card) {
+        padding: 28px;
+    }
+}
+
+@media (max-width: 639px) {
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-highlight-card__actions, .calhelp-highlight-card__actions) {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-highlight-card__actions, .calhelp-highlight-card__actions) .uk-button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-section-glow, .calhelp-section-glow) {
+    position: relative;
+    overflow: hidden;
+    z-index: 0;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-section-glow, .calhelp-section-glow) > * {
+    position: relative;
+    z-index: 1;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-section-glow, .calhelp-section-glow)::before,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-section-glow, .calhelp-section-glow)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 160px;
+    pointer-events: none;
+    background: linear-gradient(
+        90deg,
+        color-mix(in oklab, var(--calserver-primary) 16%, transparent) 0%,
+        transparent 100%
+    );
+    z-index: 0;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-section-glow, .calhelp-section-glow)::before {
+    left: 0;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-section-glow, .calhelp-section-glow)::after {
+    right: 0;
+    transform: scaleX(-1);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-stats-strip, .calhelp-stats-strip) {
+    display: grid;
+    gap: 18px;
+    position: relative;
+    z-index: 1;
+}
+
+@media (min-width: 640px) {
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-stats-strip, .calhelp-stats-strip) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-stats-strip__item, .calhelp-stats-strip__item) {
+    padding: 18px 20px;
+    border-radius: 18px;
+    background: var(--cs-highlight-card-bg);
+    border: 1px solid var(--cs-highlight-card-border);
+    box-shadow: var(--cs-highlight-card-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 120px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-stats-strip__header, .calhelp-stats-strip__header) {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-stats-strip__title-group, .calhelp-stats-strip__title-group) {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-stats-strip__value, .calhelp-stats-strip__value) {
+    font-size: clamp(2rem, 2.2vw + 1.2rem, 3rem);
+    font-weight: 700;
+    color: var(--qr-landing-primary);
+    letter-spacing: -0.01em;
+    flex-shrink: 0;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) :is(.calserver-stats-strip__value, .calhelp-stats-strip__value),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) :is(.calserver-stats-strip__value, .calhelp-stats-strip__value) {
+    color: var(--qr-text);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast) :is(.calserver-stats-strip__value, .calhelp-stats-strip__value),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast) :is(.calserver-stats-strip__value, .calhelp-stats-strip__value) {
+    color: color-mix(in oklab, var(--calserver-primary) 86%, #0c1a3a 14%);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-stats-strip__title, .calhelp-stats-strip__title) {
+    color: var(--qr-text);
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-stats-strip__label, .calhelp-stats-strip__label) {
+    color: var(--qr-muted);
+    font-size: 0.95rem;
+    line-height: 1.35;
+    display: block;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-stats-strip__benefit, .calhelp-stats-strip__benefit) {
+    margin: 8px 0 0;
+    color: var(--qr-text);
+    font-size: 0.95rem;
+    line-height: 1.45;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-stats-strip__tooltip, .calhelp-stats-strip__tooltip) {
+    color: var(--qr-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    cursor: help;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-stats-strip__tooltip, .calhelp-stats-strip__tooltip):focus-visible {
+    outline: 2px solid color-mix(in oklab, var(--calserver-primary) 65%, transparent);
+    outline-offset: 2px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-logo-marquee, .calhelp-logo-marquee) {
+    margin-top: 34px;
+    position: relative;
+    overflow: hidden;
+    padding: 6px 0;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-logo-marquee, .calhelp-logo-marquee)::before,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-logo-marquee, .calhelp-logo-marquee)::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    pointer-events: none;
+    z-index: 1;
+    background: linear-gradient(90deg, var(--qr-card), transparent);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-logo-marquee, .calhelp-logo-marquee)::before {
+    left: 0;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-logo-marquee, .calhelp-logo-marquee)::after {
+    right: 0;
+    transform: scaleX(-1);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-logo-marquee__track, .calhelp-logo-marquee__track) {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    animation: calserver-marquee 26s linear infinite;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-logo-marquee__item, .calhelp-logo-marquee__item) {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 130px;
+    padding: 10px 24px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--calserver-primary) 16%, transparent);
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 32%, transparent);
+    color: color-mix(in oklab, var(--calserver-primary) 85%, #f8fafc 15%);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-align: center;
+    opacity: 0.96;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-logo-marquee__item, .calhelp-logo-marquee__item) img {
+    max-height: 40px;
+    width: auto;
+    filter: drop-shadow(0 4px 10px rgba(15, 23, 42, 0.25));
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-pricing__header, .calhelp-pricing__header) {
+    gap: 12px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-pricing-card, .calhelp-pricing-card) {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    height: 100%;
+    padding: clamp(24px, 3vw, 32px);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-pricing-card, .calhelp-pricing-card) .uk-list {
+    margin-top: 4px;
+    flex-grow: 1;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-pricing-card, .calhelp-pricing-card) .uk-button {
+    margin-top: auto;
+    align-self: center;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-pricing-card, .calhelp-pricing-card) .uk-text-bold {
+    font-size: clamp(1.4rem, 1.1vw + 1.1rem, 2rem);
+}
+
+@keyframes calserver-marquee {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-logo-marquee__track, .calhelp-logo-marquee__track) {
+        animation: none;
+    }
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust {
+    --trust-step-accent: color-mix(in oklab, var(--calserver-primary) 72%, var(--qr-text) 28%);
+    --trust-axis-color: color-mix(in oklab, var(--trust-step-accent) 45%, var(--qr-bg) 55%);
+    --trust-step-marker-bg: color-mix(in oklab, var(--qr-bg) 78%, var(--trust-step-accent) 22%);
+    --trust-step-marker-icon: color-mix(in oklab, var(--trust-step-accent) 72%, var(--qr-text) 28%);
+    --trust-step-surface: color-mix(in oklab, var(--qr-card) 18%, transparent 82%);
+    --trust-step-surface-hover: color-mix(in oklab, var(--trust-step-marker-bg) 30%, var(--trust-step-surface) 70%);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story {
+    position: relative;
+    list-style: none;
+    margin: 44px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__lead {
+    margin: 12px 0 0;
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: color-mix(in oklab, var(--qr-text) 78%, var(--qr-bg) 22%);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__step {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 72px) minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+    padding: 8px 0;
+    border-radius: 20px;
+    outline: none;
+    scroll-margin: 96px;
+    transition: color 220ms ease;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    min-width: 64px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__connector {
+    width: 2px;
+    flex: 1 1 24px;
+    min-height: 24px;
+    background: var(--trust-axis-color);
+    border-radius: 999px;
+    transition: background 220ms ease;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__step:first-child .trust-story__connector--before,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__step:last-child .trust-story__connector--after {
+    display: none;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__badge {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 60px;
+    height: 60px;
+    border-radius: 999px;
+    background: var(--trust-step-marker-bg);
+    border: 2px solid color-mix(in oklab, var(--trust-step-accent) 80%, transparent);
+    color: var(--trust-step-marker-icon);
+    transition: transform 220ms ease, background 220ms ease, border-color 220ms ease, color 220ms ease;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__badge::after {
+    content: attr(data-step-index);
+    position: absolute;
+    inset-inline-end: -8px;
+    inset-block-end: -8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--trust-step-accent) 75%, var(--qr-bg) 25%);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 0 0 2px var(--qr-bg);
+    transition: background 220ms ease, color 220ms ease, box-shadow 220ms ease;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__badge-icon {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    color: inherit;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__badge-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__content {
+    background: var(--trust-step-surface);
+    border-radius: 18px;
+    padding: 18px 22px;
+    border: 1px solid color-mix(in oklab, var(--qr-text) 12%, transparent);
+    transition: background 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__title {
+    margin: 0 0 12px;
+    font-size: 1.35rem;
+    line-height: 1.35;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__text {
+    margin: 0;
+    color: color-mix(in oklab, var(--qr-text) 74%, var(--qr-bg) 26%);
+    line-height: 1.65;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__step:hover .trust-story__content,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__step:focus-visible .trust-story__content,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__step:focus-within .trust-story__content {
+    background: var(--trust-step-surface-hover);
+    border-color: color-mix(in oklab, var(--trust-step-accent) 65%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in oklab, var(--trust-step-accent) 45%, transparent);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__step:hover .trust-story__badge,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__step:focus-visible .trust-story__badge,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__step:focus-within .trust-story__badge {
+    background: color-mix(in oklab, var(--trust-step-marker-bg) 40%, var(--trust-step-accent) 60%);
+    border-color: color-mix(in oklab, var(--trust-step-accent) 80%, #ffffff 20%);
+    color: color-mix(in oklab, #ffffff 70%, var(--trust-step-marker-icon) 30%);
+    transform: translateY(-2px);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__step:hover .trust-story__badge::after,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__step:focus-visible .trust-story__badge::after,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__step:focus-within .trust-story__badge::after {
+    background: color-mix(in oklab, var(--trust-step-accent) 88%, var(--qr-bg) 12%);
+    box-shadow: 0 0 0 2px color-mix(in oklab, var(--qr-bg) 85%, transparent 15%);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__step:hover .trust-story__connector,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__step:focus-visible .trust-story__connector,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__step:focus-within .trust-story__connector {
+    background: color-mix(in oklab, var(--trust-step-accent) 65%, transparent);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__step:focus-visible {
+    outline: 3px solid color-mix(in oklab, var(--trust-step-accent) 68%, transparent);
+    outline-offset: 10px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__closing {
+    background: color-mix(in oklab, var(--qr-card) 88%, var(--calserver-primary) 12%);
+    border-radius: 24px;
+    padding: 36px 40px;
+    margin-top: 52px;
+    box-shadow: none;
+    border: 1px solid color-mix(in oklab, var(--trust-step-accent) 35%, transparent);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__closing-title {
+    margin: 0 0 12px;
+    font-size: 1.6rem;
+    line-height: 1.4;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__closing-text {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: color-mix(in oklab, var(--qr-text) 78%, var(--qr-bg) 22%);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__cta-group {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
-    margin-top: 16px;
+    justify-content: flex-start;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__cta-group .uk-button,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__cta-group .btn {
+    flex: 1 1 auto;
+    min-width: 180px;
+    text-align: center;
+}
+
+body.high-contrast #trust,
+body[data-theme="dark"].high-contrast #trust {
+    --trust-step-surface: transparent;
+    --trust-step-surface-hover: rgba(0, 0, 0, 0.08);
+    --trust-axis-color: currentColor;
+    --trust-step-marker-bg: transparent;
+    --trust-step-marker-icon: currentColor;
+}
+
+body[data-theme="dark"].high-contrast #trust {
+    --trust-step-surface-hover: rgba(255, 255, 255, 0.1);
+}
+
+body.high-contrast #trust .trust-story__badge,
+body[data-theme="dark"].high-contrast #trust .trust-story__badge {
+    border-color: currentColor;
+}
+
+body.high-contrast #trust .trust-story__badge::after {
+    background: #000000;
+    color: #ffffff;
+    box-shadow: none;
+}
+
+body[data-theme="dark"].high-contrast #trust .trust-story__badge::after {
+    background: #ffffff;
+    color: #000000;
+}
+
+body.high-contrast #trust .trust-story__connector,
+body[data-theme="dark"].high-contrast #trust .trust-story__connector {
+    background: currentColor;
+}
+
+body.high-contrast #trust .trust-story__step:focus-visible,
+body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-visible {
+    outline-color: currentColor;
+}
+
+body.high-contrast #trust .trust-story__content,
+body[data-theme="dark"].high-contrast #trust .trust-story__content {
+    border-color: currentColor;
+    box-shadow: none;
+}
+
+body.high-contrast #trust .trust-story__step:hover .trust-story__badge,
+body.high-contrast #trust .trust-story__step:focus-visible .trust-story__badge,
+body.high-contrast #trust .trust-story__step:focus-within .trust-story__badge,
+body[data-theme="dark"].high-contrast #trust .trust-story__step:hover .trust-story__badge,
+body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-visible .trust-story__badge,
+body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-within .trust-story__badge {
+    background: transparent;
+    color: currentColor;
+    transform: none;
+}
+
+body.high-contrast #trust .trust-story__step:hover .trust-story__badge::after,
+body.high-contrast #trust .trust-story__step:focus-visible .trust-story__badge::after,
+body.high-contrast #trust .trust-story__step:focus-within .trust-story__badge::after {
+    background: #000000;
+    color: #ffffff;
+}
+
+body[data-theme="dark"].high-contrast #trust .trust-story__step:hover .trust-story__badge::after,
+body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-visible .trust-story__badge::after,
+body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-within .trust-story__badge::after {
+    background: #ffffff;
+    color: #000000;
+}
+
+body.high-contrast #trust .trust-story__step:hover .trust-story__connector,
+body.high-contrast #trust .trust-story__step:focus-visible .trust-story__connector,
+body.high-contrast #trust .trust-story__step:focus-within .trust-story__connector,
+body[data-theme="dark"].high-contrast #trust .trust-story__step:hover .trust-story__connector,
+body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-visible .trust-story__connector,
+body[data-theme="dark"].high-contrast #trust .trust-story__step:focus-within .trust-story__connector {
+    background: currentColor;
+}
+
+@media (min-width: 960px) {
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story {
+        flex-direction: row;
+        align-items: stretch;
+        gap: 40px;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        text-align: center;
+        gap: 24px;
+        padding: 16px 12px 24px;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__marker {
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        gap: 18px;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__connector {
+        min-height: 2px;
+        height: 2px;
+        width: 100%;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__content {
+        max-width: 360px;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__title {
+        margin: 0 0 10px;
+    }
+}
+
+@media (max-width: 1200px) {
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__closing {
+        padding: 32px;
+    }
+}
+
+@media (max-width: 959px) {
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story {
+        margin-top: 36px;
+        gap: 32px;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__step {
+        grid-template-columns: minmax(0, 60px) minmax(0, 1fr);
+        gap: 18px;
+        padding: 4px 0;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__badge {
+        width: 54px;
+        height: 54px;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__badge::after {
+        width: 24px;
+        height: 24px;
+        font-size: 0.8rem;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__content {
+        padding: 16px 18px;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__closing {
+        margin-top: 44px;
+    }
+}
+
+@media (max-width: 640px) {
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__lead {
+        font-size: 1rem;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__title {
+        font-size: 1.2rem;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__text {
+        font-size: 1rem;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) #trust .trust-story__cta-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .muted {
+    color: color-mix(in oklab, var(--qr-text) 60%, var(--qr-bg) 40%);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .quick-cta {
+    border-radius: 18px;
+    background: color-mix(in oklab, var(--calserver-primary) 10%, transparent);
+    padding: 24px 32px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .uk-card-hover {
+    transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .uk-card-hover:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 22px 48px -28px rgba(15, 23, 42, 0.45);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-nav {
+    margin: 0 auto 12px;
+    max-width: 1024px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-nav__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-nav__pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--calserver-primary) 10%, transparent);
+    color: var(--qr-landing-primary);
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.3) inset,
+        0 14px 28px -24px rgba(31, 99, 230, 0.9);
+    transition: background-color 180ms ease, color 180ms ease,
+        transform 180ms ease, box-shadow 180ms ease;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-nav__pill.is-active {
+    background: var(--qr-landing-primary);
+    color: #fff;
+    box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.4) inset,
+        0 20px 34px -24px rgba(31, 99, 230, 0.95);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-nav__pill:hover,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-nav__pill:focus {
+    background: var(--qr-landing-primary);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 18px 32px -22px rgba(31, 99, 230, 0.9);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-slider {
+    margin-top: 40px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-slider__list > li {
+    display: flex;
+    position: relative;
+    padding: 12px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--cs-card-dark);
+    border: 1px solid var(--cs-card-dark-border);
+    border-radius: 14px;
+    padding: 24px;
+    color: var(--cs-text-on-dark);
+    box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.35),
+        0 6px 12px -8px rgba(0, 0, 0, 0.25);
+    transition: background-color 250ms ease, border-color 250ms ease, box-shadow 250ms ease,
+        transform 250ms ease, opacity 200ms ease;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-card__title,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-card p,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-card li {
+    color: var(--cs-text-on-dark);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-card .uk-list-bullet > li::before {
+    border-color: var(--cs-text-on-dark);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-card--focus {
+    background: var(--cs-card-focus-bg);
+    border-color: var(--cs-card-focus-border);
+    box-shadow: var(--cs-card-focus-shadow);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-slider__list > li.is-center .feature-card {
+    transform: scale(1.04);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-slider__list > li.is-center .feature-card.feature-card--focus {
+    transform: scale(1.04) translateY(-2px);
+    box-shadow: var(--cs-card-focus-shadow);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) #modules :is(.calserver-modules-grid, .calhelp-modules-grid) {
+    display: grid;
+    gap: 32px;
+    grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+    margin-top: 40px;
+    align-items: start;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-modules-nav, .calhelp-modules-nav) {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-bottom: none;
+    position: relative;
+    z-index: 2;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-modules-nav__link, .calhelp-modules-nav__link) {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 18px 20px;
+    border-radius: 18px;
+    background: color-mix(in oklab, var(--calserver-primary) 10%, transparent);
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 15%, var(--qr-card-border) 85%);
+    box-shadow: 0 18px 36px -28px rgba(15, 23, 42, 0.28);
+    color: var(--qr-text);
+    text-decoration: none;
+    transition: background-color 200ms ease, border-color 200ms ease, box-shadow 200ms ease,
+        transform 200ms ease;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-modules-nav__title, .calhelp-modules-nav__title) {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-modules-nav__desc, .calhelp-modules-nav__desc) {
+    color: color-mix(in oklab, var(--qr-text) 68%, var(--qr-bg) 32%);
+    font-size: 0.92rem;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-modules-nav, .calhelp-modules-nav) li.uk-active :is(.calserver-modules-nav__link, .calhelp-modules-nav__link),
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-modules-nav__link, .calhelp-modules-nav__link):hover {
+    background: color-mix(in oklab, var(--calserver-primary) 18%, var(--qr-card) 82%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 45%, transparent);
+    box-shadow: 0 24px 48px -30px rgba(15, 23, 42, 0.42);
+    transform: translateY(-2px);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-modules-nav__link, .calhelp-modules-nav__link):focus-visible {
+    outline: 3px solid color-mix(in oklab, var(--calserver-primary) 60%, #ffffff 40%);
+    outline-offset: 3px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-modules-nav, .calhelp-modules-nav) > li {
+    margin: 0;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-modules-switcher, .calhelp-modules-switcher) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-modules-switcher, .calhelp-modules-switcher) > li {
+    list-style: none;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure, .calhelp-module-figure) {
+    position: relative;
+    isolation: isolate;
+    margin: 0;
+    border-radius: 22px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    z-index: 0;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure, .calhelp-module-figure)::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--qr-card);
+    border: 1px solid var(--qr-card-border);
+    box-shadow: 0 22px 48px -28px rgba(15, 23, 42, 0.35);
+    pointer-events: none;
+    z-index: 0;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure, .calhelp-module-figure) img,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure, .calhelp-module-figure) video,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure, .calhelp-module-figure) :is(.calserver-module-figure__visual, .calhelp-module-figure__visual),
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure, .calhelp-module-figure) figcaption {
+    position: relative;
+    z-index: 1;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure, .calhelp-module-figure) img,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure, .calhelp-module-figure) video,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure, .calhelp-module-figure) :is(.calserver-module-figure__visual, .calhelp-module-figure__visual) {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 0;
+    box-shadow: 0 18px 32px -24px rgba(15, 23, 42, 0.45);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure, .calhelp-module-figure) video {
+    background: #000;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure__visual, .calhelp-module-figure__visual) {
+    aspect-ratio: 16 / 9;
+    background: radial-gradient(circle at 20% 20%, rgba(12, 96, 125, 0.6), rgba(6, 20, 37, 0.92));
+    border-radius: 22px 22px 0 0;
+    color: #fff;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding: 36px;
+    overflow: hidden;
+    position: relative;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure__visual, .calhelp-module-figure__visual)::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 80% 18%, rgba(255, 255, 255, 0.16), transparent 55%),
+        radial-gradient(circle at 12% 78%, rgba(255, 255, 255, 0.12), transparent 50%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent 60%);
+    mix-blend-mode: screen;
+    opacity: 0.85;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure__visual, .calhelp-module-figure__visual)[data-module="device-management"] {
+    background: radial-gradient(circle at 12% 18%, rgba(0, 148, 170, 0.7), rgba(5, 22, 39, 0.92)),
+        linear-gradient(145deg, rgba(6, 117, 138, 0.85), rgba(3, 35, 52, 0.95));
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure__visual, .calhelp-module-figure__visual)[data-module="calendar-resources"] {
+    background: radial-gradient(circle at 82% 22%, rgba(62, 173, 247, 0.6), rgba(12, 45, 84, 0.96)),
+        linear-gradient(135deg, rgba(9, 61, 133, 0.88), rgba(7, 24, 52, 0.95));
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure__visual, .calhelp-module-figure__visual)[data-module="order-ticketing"] {
+    background: radial-gradient(circle at 18% 78%, rgba(237, 127, 63, 0.68), rgba(54, 20, 6, 0.94)),
+        linear-gradient(140deg, rgba(191, 71, 34, 0.82), rgba(36, 16, 6, 0.92));
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure__visual, .calhelp-module-figure__visual)[data-module="self-service"] {
+    background: radial-gradient(circle at 78% 24%, rgba(154, 129, 255, 0.65), rgba(41, 10, 70, 0.93)),
+        linear-gradient(135deg, rgba(109, 74, 199, 0.84), rgba(31, 10, 53, 0.92));
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure__visual-label, .calhelp-module-figure__visual-label) {
+    font-size: clamp(1.4rem, 2vw + 1rem, 2.35rem);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    margin: 0;
+    max-width: 20ch;
+    position: relative;
+    z-index: 1;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure__video--manual, .calhelp-module-figure__video--manual) {
+    cursor: pointer;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure--manual, .calhelp-module-figure--manual) :is(.calserver-module-figure__fullscreen-button, .calhelp-module-figure__fullscreen-button) {
+    top: 14px;
+    right: 14px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure__fullscreen-button, .calhelp-module-figure__fullscreen-button) {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.24));
+    background: color-mix(in oklab, var(--calserver-primary) 46%, rgba(8, 13, 24, 0.92));
+    color: #fff;
+    cursor: pointer;
+    z-index: 2;
+    box-shadow: 0 16px 32px -22px rgba(15, 23, 42, 0.55);
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure__fullscreen-button, .calhelp-module-figure__fullscreen-button):hover,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure__fullscreen-button, .calhelp-module-figure__fullscreen-button):focus-visible {
+    background: color-mix(in oklab, var(--calserver-primary) 60%, rgba(8, 13, 24, 0.9));
+    border-color: color-mix(in oklab, var(--calserver-primary) 68%, rgba(255, 255, 255, 0.3));
+    box-shadow: 0 18px 36px -20px rgba(15, 23, 42, 0.62);
+    transform: translateY(-1px);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure__fullscreen-button, .calhelp-module-figure__fullscreen-button):focus-visible {
+    outline: 3px solid color-mix(in oklab, var(--calserver-primary) 68%, rgba(255, 255, 255, 0.28));
+    outline-offset: 2px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure__fullscreen-button, .calhelp-module-figure__fullscreen-button)[data-state="active"] {
+    background: color-mix(in oklab, var(--calserver-primary) 72%, rgba(8, 13, 24, 0.94));
+    border-color: color-mix(in oklab, var(--calserver-primary) 78%, rgba(255, 255, 255, 0.34));
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure__fullscreen-icon, .calhelp-module-figure__fullscreen-icon) {
+    font-size: 1.35rem;
+    line-height: 1;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure, .calhelp-module-figure) figcaption {
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    background: var(--qr-card);
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 22%, var(--qr-card-border) 78%);
+    border-top: 1px solid color-mix(in oklab, var(--calserver-primary) 28%, rgba(15, 23, 42, 0.32));
+    border-radius: 0 0 22px 22px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure, .calhelp-module-figure) h3 {
+    margin: 0;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure, .calhelp-module-figure) .uk-list {
+    margin-bottom: 0;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure__download, .calhelp-module-figure__download) {
+    margin: 0;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure__download-link, .calhelp-module-figure__download-link) {
+    font-weight: 600;
+    text-decoration: none;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure__download-link, .calhelp-module-figure__download-link):hover,
+body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure__download-link, .calhelp-module-figure__download-link):focus {
+    text-decoration: underline;
+}
+
+@media (max-width: 1024px) {
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) #modules :is(.calserver-modules-grid, .calhelp-modules-grid) {
+        grid-template-columns: 1fr;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-modules-nav, .calhelp-modules-nav) {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 8px;
+        margin-bottom: 12px;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-modules-nav, .calhelp-modules-nav) > li {
+        min-width: 240px;
+        flex: 0 0 auto;
+    }
+}
+
+@media (max-width: 640px) {
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-modules-nav, .calhelp-modules-nav) {
+        flex-direction: column;
+        align-items: center;
+        overflow-x: visible;
+        padding-bottom: 0;
+        margin-bottom: 0;
+        gap: 12px;
+        width: 100%;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-modules-nav, .calhelp-modules-nav) > li {
+        min-width: 0;
+        width: min(100%, 360px);
+        margin-inline: auto;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-modules-nav__link, .calhelp-modules-nav__link) {
+        padding: 16px;
+        padding-inline-start: 0;
+    }
+
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) :is(.calserver-module-figure, .calhelp-module-figure) figcaption {
+        padding: 22px;
+    }
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-slider__list > li.is-center .feature-card:not(.feature-card--focus) {
+    box-shadow: 0 22px 48px -32px rgba(15, 23, 42, 0.45);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-slider__list > li.is-center .feature-card:hover {
+    transform: scale(1.04) translateY(-2px);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-slider__list > li:not(.is-center) .feature-card {
+    opacity: 0.92;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .feature-slider__list > li:not(.is-center) .feature-card:hover {
+    transform: translateY(-4px);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .testimonial-card {
+    min-height: 240px;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .usecase-card--visual {
+    display: none;
+    padding: 0;
+    overflow: hidden;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .usecase-card--visual .usecase-visual {
+    margin: 0;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme) .usecase-card--visual .usecase-visual__image {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+@media (max-width: 959px) {
+    body.qr-landing:is(.calserver-theme, .calhelp-theme) .quick-cta {
+        padding: 20px;
+    }
+}
+
+:is(.calserver-cookie-banner, .calhelp-cookie-banner) {
+    position: fixed;
+    inset: auto 24px 24px auto;
+    width: min(360px, calc(100% - 48px));
+    border-radius: 16px;
+    box-shadow: 0 24px 58px -34px rgba(15, 23, 42, 0.65),
+        0 18px 32px -28px rgba(12, 18, 32, 0.35);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+    z-index: 1050;
+}
+
+:is(.calserver-floating-button, .calhelp-floating-button) {
+    position: fixed;
+    bottom: clamp(1rem, 4vw, 1.75rem);
+    z-index: 1040;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 52%, rgba(255, 255, 255, 0.24));
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--calserver-primary) 22%, rgba(8, 13, 24, 0.94));
+    color: #ffffff;
+    box-shadow: 0 20px 45px rgba(9, 15, 28, 0.32), 0 8px 18px rgba(9, 15, 28, 0.28);
+    cursor: pointer;
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+:is(.calserver-floating-button, .calhelp-floating-button) svg {
+    width: 1.45rem;
+    height: 1.45rem;
+    color: inherit;
+    stroke: currentColor;
+    fill: none;
+}
+
+:is(.calserver-floating-button, .calhelp-floating-button) .uk-icon {
+    color: inherit !important;
+}
+
+:is(.calserver-floating-button, .calhelp-floating-button):hover,
+:is(.calserver-floating-button, .calhelp-floating-button):focus-visible {
+    background: color-mix(in oklab, var(--calserver-primary) 30%, rgba(8, 13, 24, 0.9));
+    border-color: color-mix(in oklab, var(--calserver-primary) 64%, rgba(255, 255, 255, 0.28));
+    box-shadow: 0 22px 48px rgba(9, 15, 28, 0.36), 0 10px 20px rgba(9, 15, 28, 0.3);
+}
+
+:is(.calserver-floating-button, .calhelp-floating-button):focus-visible {
+    outline: 3px solid color-mix(in oklab, var(--calserver-primary) 70%, #ffffff 30%);
+    outline-offset: 3px;
+}
+
+:is(.calserver-floating-button, .calhelp-floating-button):active {
+    transform: scale(0.96);
+}
+
+:is(.calserver-cookie-trigger, .calhelp-cookie-trigger) {
+    left: clamp(1rem, 4vw, 1.75rem);
+}
+
+.marketing-chat-fab {
+    right: clamp(1rem, 4vw, 1.75rem);
+}
+
+:is(.calserver-cookie-trigger--active, .calhelp-cookie-trigger--active) {
+    background: color-mix(in oklab, var(--calserver-primary) 26%, rgba(8, 13, 24, 0.92));
+    border-color: color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.26));
+    box-shadow: 0 16px 36px rgba(9, 15, 28, 0.28), 0 6px 14px rgba(9, 15, 28, 0.24);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast) :is(.calserver-floating-button, .calhelp-floating-button),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast) :is(.calserver-floating-button, .calhelp-floating-button) {
+    color: #ffffff;
+    border-color: color-mix(in oklab, var(--calserver-primary) 52%, rgba(255, 255, 255, 0.24));
+    background: color-mix(in oklab, var(--calserver-primary) 22%, rgba(8, 13, 24, 0.94));
+    box-shadow: 0 20px 45px rgba(9, 15, 28, 0.32), 0 8px 18px rgba(9, 15, 28, 0.28);
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast) :is(.calserver-floating-button, .calhelp-floating-button) svg,
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast) :is(.calserver-floating-button, .calhelp-floating-button) svg {
+    color: inherit;
+    stroke: currentColor;
+}
+
+@media (max-width: 640px) {
+    :is(.calserver-floating-button, .calhelp-floating-button) {
+        width: 3rem;
+        height: 3rem;
+        bottom: clamp(0.85rem, 6vw, 1.25rem);
+        box-shadow: 0 14px 28px rgba(9, 15, 28, 0.3), 0 6px 16px rgba(9, 15, 28, 0.28);
+    }
+
+    :is(.calserver-floating-button, .calhelp-floating-button) svg {
+        width: 1.35rem;
+        height: 1.35rem;
+    }
+
+    :is(.calserver-cookie-trigger, .calhelp-cookie-trigger) {
+        left: clamp(0.85rem, 6vw, 1.25rem);
+    }
+
+    .marketing-chat-fab {
+        right: clamp(0.85rem, 6vw, 1.25rem);
+    }
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-floating-button, .calhelp-floating-button),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-floating-button, .calhelp-floating-button),
+body.high-contrast :is(.calserver-floating-button, .calhelp-floating-button) {
+    background: #000000;
+    color: #ffffff;
+    box-shadow: none;
+    border: 2px solid currentColor;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-cookie-trigger, .calhelp-cookie-trigger):is(.calserver-cookie-trigger--active, .calhelp-cookie-trigger--active),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-cookie-trigger, .calhelp-cookie-trigger):is(.calserver-cookie-trigger--active, .calhelp-cookie-trigger--active),
+body.high-contrast :is(.calserver-cookie-trigger, .calhelp-cookie-trigger):is(.calserver-cookie-trigger--active, .calhelp-cookie-trigger--active) {
+    background: #111111;
+}
+
+:is(.calserver-cookie-banner--visible, .calhelp-cookie-banner--visible) {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+}
+
+:is(.calserver-cookie-banner__headline, .calhelp-cookie-banner__headline) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 4px;
+}
+
+:is(.calserver-cookie-banner__icon, .calhelp-cookie-banner__icon) {
+    color: var(--calserver-primary);
+}
+
+:is(.calserver-cookie-banner__copy, .calhelp-cookie-banner__copy) {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.45;
+}
+
+:is(.calserver-cookie-banner__fineprint, .calhelp-cookie-banner__fineprint) {
+    margin: 0;
+    font-size: 0.85rem;
+    color: color-mix(in oklab, currentColor 72%, rgba(255, 255, 255, 0.4));
+}
+
+:is(.calserver-cookie-banner__link, .calhelp-cookie-banner__link) {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+}
+
+:is(.calserver-cookie-banner__link, .calhelp-cookie-banner__link):focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 3px;
+}
+
+:is(.calserver-cookie-banner__actions, .calhelp-cookie-banner__actions) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+:is(.calserver-cookie-banner__button, .calhelp-cookie-banner__button) {
+    flex: 1 1 140px;
+}
+
+@media (max-width: 640px) {
+    :is(.calserver-cookie-banner, .calhelp-cookie-banner) {
+        inset: auto 16px 16px 16px;
+        width: auto;
+    }
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).dark-mode:not(.high-contrast) :is(.calserver-cookie-banner, .calhelp-cookie-banner),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="dark"]:not(.high-contrast) :is(.calserver-cookie-banner, .calhelp-cookie-banner) {
+    background: linear-gradient(
+        160deg,
+        color-mix(in oklab, var(--calserver-primary) 28%, rgba(10, 16, 28, 0.95)) 0%,
+        color-mix(in oklab, var(--calserver-primary) 18%, rgba(6, 10, 22, 0.96)) 100%
+    ) !important;
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 48%, rgba(255, 255, 255, 0.18)) !important;
+    color: color-mix(in oklab, #ffffff 92%, rgba(255, 255, 255, 0.08)) !important;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme):not(.dark-mode):not(.high-contrast) :is(.calserver-cookie-banner, .calhelp-cookie-banner),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.high-contrast) :is(.calserver-cookie-banner, .calhelp-cookie-banner) {
+    background: linear-gradient(
+        160deg,
+        color-mix(in oklab, var(--calserver-primary) 12%, #ffffff 88%) 0%,
+        color-mix(in oklab, var(--calserver-primary) 8%, #f5f7fb 92%) 100%
+    ) !important;
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 26%, rgba(15, 23, 42, 0.1)) !important;
+    color: color-mix(in oklab, #0b1532 88%, var(--calserver-primary) 12%) !important;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-cookie-banner, .calhelp-cookie-banner),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-cookie-banner, .calhelp-cookie-banner),
+body.high-contrast :is(.calserver-cookie-banner, .calhelp-cookie-banner) {
+    background: var(--qr-card, #000000);
+    color: var(--qr-text, #ffffff);
+    border: 2px solid currentColor;
+    box-shadow: none;
+}
+
+body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-cookie-banner__link, .calhelp-cookie-banner__link),
+body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-cookie-banner__link, .calhelp-cookie-banner__link),
+body.high-contrast :is(.calserver-cookie-banner__link, .calhelp-cookie-banner__link) {
+    text-decoration-thickness: 2px;
 }
