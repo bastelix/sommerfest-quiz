@@ -1045,48 +1045,14 @@ body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-prima
   transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 
-.calhelp-process-details[open] {
-  border-color: color-mix(in oklab, var(--calserver-primary) 46%, rgba(15, 23, 42, 0.24));
-  box-shadow: 0 38px 76px -42px color-mix(in oklab, var(--calserver-primary) 78%, rgba(15, 23, 42, 0.9));
-  transform: translateY(-2px);
-}
-
-.calhelp-process-details__summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin: 0;
+.calhelp-process-details__header {
   padding: 22px 28px;
-  list-style: none;
-  font-weight: 600;
-  cursor: pointer;
   color: color-mix(in oklab, var(--qr-landing-text) 90%, rgba(15, 23, 42, 0.32));
 }
 
-.calhelp-process-details__summary::-webkit-details-marker {
-  display: none;
-}
-
-.calhelp-process-details__summary::after {
-  content: '';
-  flex-shrink: 0;
-  width: 18px;
-  height: 18px;
-  border-right: 2px solid currentColor;
-  border-bottom: 2px solid currentColor;
-  border-radius: 2px;
-  transform: rotate(45deg);
-  transition: transform 0.25s ease;
-}
-
-.calhelp-process-details[open] .calhelp-process-details__summary::after {
-  transform: rotate(-135deg);
-}
-
-.calhelp-process-details__summary:focus-visible {
-  outline: 3px solid color-mix(in oklab, var(--calserver-primary) 60%, rgba(255, 255, 255, 0.2));
-  outline-offset: 2px;
+.calhelp-process-details__title {
+  margin: 0;
+  font-weight: 600;
 }
 
 .calhelp-process-details > .calhelp-process {
@@ -2359,14 +2325,8 @@ body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-details {
   box-shadow: 0 32px 64px -46px color-mix(in oklab, rgba(59, 130, 246, 0.42), rgba(15, 23, 42, 0.92));
 }
 
-body.qr-landing.calhelp-theme.dark-mode .calhelp-process-details[open],
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-details[open] {
-  border-color: color-mix(in oklab, rgba(59, 130, 246, 0.64), rgba(15, 23, 42, 0.52));
-  box-shadow: 0 38px 76px -42px color-mix(in oklab, rgba(59, 130, 246, 0.58), rgba(15, 23, 42, 0.94));
-}
-
-body.qr-landing.calhelp-theme.dark-mode .calhelp-process-details__summary,
-body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-details__summary {
+body.qr-landing.calhelp-theme.dark-mode .calhelp-process-details__header,
+body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-details__header {
   color: color-mix(in oklab, rgba(226, 235, 255, 0.88), rgba(162, 178, 212, 0.52));
 }
 
@@ -2382,8 +2342,7 @@ body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-details > .cal
   .calhelp-process__toggle,
   .calhelp-process__toggle-icon::before,
   .calhelp-process__toggle-icon::after,
-  .calhelp-process-details,
-  .calhelp-process-details__summary::after {
+  .calhelp-process-details {
     transition-duration: 0.001ms !important;
     animation-duration: 0.001ms !important;
   }
@@ -2405,9 +2364,6 @@ body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-details > .cal
     pointer-events: auto;
   }
 
-  .calhelp-process-details[open] {
-    transform: none;
-  }
 }
 
 @media (max-width: 959px) {
@@ -2435,7 +2391,7 @@ body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-details > .cal
     padding: 6px 12px;
   }
 
-  .calhelp-process-details__summary {
+  .calhelp-process-details__header {
     padding: 20px 24px;
   }
 
@@ -2521,7 +2477,7 @@ body.qr-landing.calhelp-theme[data-theme='dark'] .calhelp-process-details > .cal
     padding-left: 1.25rem;
   }
 
-  .calhelp-process-details__summary {
+  .calhelp-process-details__header {
     padding: 18px 20px;
   }
 
