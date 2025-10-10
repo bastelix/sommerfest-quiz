@@ -61,14 +61,30 @@ body.qr-landing.calhelp-theme {
   --calhelp-offcanvas-bg: #ffffff;
   --calhelp-offcanvas-border: color-mix(in oklab, rgba(15, 23, 42, 0.08), rgba(255, 255, 255, 0.5));
   --calhelp-offcanvas-muted: color-mix(in oklab, var(--qr-landing-text) 60%, rgba(15, 23, 42, 0.28));
-  --calhelp-card-primary-bg: color-mix(in oklab, var(--calserver-primary) 82%, rgba(15, 23, 42, 0.72));
-  --calhelp-card-primary-border: color-mix(in oklab, rgba(122, 166, 255, 0.62), rgba(15, 23, 42, 0.48));
-  --calhelp-card-primary-shadow: 0 32px 64px -36px color-mix(in oklab, var(--calserver-primary) 72%, rgba(15, 23, 42, 0.86));
-  --calhelp-card-primary-foreground: #f6f9ff;
-  --calhelp-card-primary-muted: color-mix(in oklab, rgba(246, 250, 255, 0.86), rgba(255, 255, 255, 0.58));
-  --calhelp-card-primary-divider: color-mix(in oklab, rgba(246, 250, 255, 0.52), rgba(255, 255, 255, 0.22));
-  --calhelp-card-primary-chip-bg: color-mix(in oklab, rgba(246, 250, 255, 0.22), rgba(255, 255, 255, 0.08));
-  --calhelp-card-primary-chip-border: color-mix(in oklab, rgba(246, 250, 255, 0.46), rgba(255, 255, 255, 0.16));
+  --calhelp-card-proof-bg: color-mix(in oklab, var(--calserver-primary) 10%, rgba(15, 23, 42, 0.04));
+  --calhelp-card-proof-border: color-mix(in oklab, var(--calserver-primary) 22%, rgba(15, 23, 42, 0.08));
+  --calhelp-card-proof-shadow: 0 18px 42px -28px color-mix(in oklab, var(--calserver-primary) 62%, rgba(15, 23, 42, 0.8));
+  --calhelp-card-proof-foreground: color-mix(in oklab, var(--qr-landing-text) 96%, rgba(15, 23, 42, 0.88));
+  --calhelp-card-proof-muted: color-mix(in oklab, var(--qr-landing-text) 68%, rgba(15, 23, 42, 0.32));
+  --calhelp-card-proof-divider: color-mix(in oklab, rgba(31, 99, 230, 0.18), rgba(15, 23, 42, 0.1));
+  --calhelp-card-proof-chip-bg: color-mix(in oklab, rgba(31, 99, 230, 0.14), rgba(255, 255, 255, 0.9));
+  --calhelp-card-proof-chip-border: color-mix(in oklab, rgba(31, 99, 230, 0.26), rgba(15, 23, 42, 0.12));
+  --calhelp-card-trust-bg: color-mix(in oklab, #ffffff 98%, rgba(15, 23, 42, 0.02));
+  --calhelp-card-trust-border: color-mix(in oklab, rgba(31, 99, 230, 0.12), rgba(15, 23, 42, 0.08));
+  --calhelp-card-trust-shadow: 0 22px 48px -34px rgba(15, 23, 42, 0.16);
+  --calhelp-card-trust-foreground: color-mix(in oklab, var(--qr-landing-text) 95%, rgba(15, 23, 42, 0.88));
+  --calhelp-card-trust-muted: color-mix(in oklab, var(--qr-landing-text) 62%, rgba(15, 23, 42, 0.28));
+  --calhelp-card-trust-divider: color-mix(in oklab, rgba(15, 23, 42, 0.06), rgba(31, 99, 230, 0.14));
+  --calhelp-card-trust-chip-bg: color-mix(in oklab, rgba(31, 99, 230, 0.08), rgba(255, 255, 255, 0.92));
+  --calhelp-card-trust-chip-border: color-mix(in oklab, rgba(31, 99, 230, 0.16), rgba(15, 23, 42, 0.1));
+  --calhelp-card-primary-bg: var(--calhelp-card-proof-bg);
+  --calhelp-card-primary-border: var(--calhelp-card-proof-border);
+  --calhelp-card-primary-shadow: var(--calhelp-card-proof-shadow);
+  --calhelp-card-primary-foreground: var(--calhelp-card-proof-foreground);
+  --calhelp-card-primary-muted: var(--calhelp-card-proof-muted);
+  --calhelp-card-primary-divider: var(--calhelp-card-proof-divider);
+  --calhelp-card-primary-chip-bg: var(--calhelp-card-proof-chip-bg);
+  --calhelp-card-primary-chip-border: var(--calhelp-card-proof-chip-border);
 }
 
 body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) {
@@ -645,6 +661,30 @@ body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-of
   gap: 12px;
 }
 
+body.qr-landing.calhelp-theme[data-theme='light'] .calhelp-card--accent,
+body.qr-landing.calhelp-theme[data-theme='light'] .calhelp-module-card--accent {
+  --calhelp-card-primary-bg: var(--calhelp-card-proof-bg);
+  --calhelp-card-primary-border: var(--calhelp-card-proof-border);
+  --calhelp-card-primary-shadow: var(--calhelp-card-proof-shadow);
+  --calhelp-card-primary-foreground: var(--calhelp-card-proof-foreground);
+  --calhelp-card-primary-muted: var(--calhelp-card-proof-muted);
+  --calhelp-card-primary-divider: var(--calhelp-card-proof-divider);
+  --calhelp-card-primary-chip-bg: var(--calhelp-card-proof-chip-bg);
+  --calhelp-card-primary-chip-border: var(--calhelp-card-proof-chip-border);
+}
+
+body.qr-landing.calhelp-theme[data-theme='light'] .calhelp-card--muted,
+body.qr-landing.calhelp-theme[data-theme='light'] .calhelp-module-card--muted {
+  --calhelp-card-primary-bg: var(--calhelp-card-trust-bg);
+  --calhelp-card-primary-border: var(--calhelp-card-trust-border);
+  --calhelp-card-primary-shadow: var(--calhelp-card-trust-shadow);
+  --calhelp-card-primary-foreground: var(--calhelp-card-trust-foreground);
+  --calhelp-card-primary-muted: var(--calhelp-card-trust-muted);
+  --calhelp-card-primary-divider: var(--calhelp-card-trust-divider);
+  --calhelp-card-primary-chip-bg: var(--calhelp-card-trust-chip-bg);
+  --calhelp-card-primary-chip-border: var(--calhelp-card-trust-chip-border);
+}
+
 body.qr-landing.calhelp-theme .uk-card-primary,
 body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary {
   background: var(--calhelp-card-primary-bg);
@@ -668,8 +708,8 @@ body.qr-landing.calhelp-theme .uk-card-primary a:hover,
 body.qr-landing.calhelp-theme .uk-card-primary a:focus-visible,
 body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary a:hover,
 body.qr-landing.calhelp-theme:is(.dark-mode, [data-theme='dark']) .uk-card-primary a:focus-visible {
-  color: #ffffff;
-  text-decoration-color: #ffffff;
+  color: color-mix(in oklab, var(--calserver-primary) 75%, var(--calhelp-card-primary-foreground) 25%);
+  text-decoration-color: color-mix(in oklab, var(--calserver-primary) 75%, var(--calhelp-card-primary-foreground) 25%);
 }
 
 body.qr-landing.calhelp-theme .uk-card-primary :is(
@@ -2051,18 +2091,10 @@ body.calhelp-proof-gallery--modal-open {
   gap: 16px;
   padding: 26px 24px;
   border-radius: 20px;
-  border: 1px solid color-mix(in oklab, rgba(15, 23, 42, 0.08), rgba(255, 255, 255, 0.92));
-  background: #ffffff;
-  box-shadow: 0 24px 48px -32px rgba(15, 23, 42, 0.18);
-}
-
-.calhelp-module-card--accent {
-  background: color-mix(in oklab, #ffffff 92%, var(--calserver-primary) 8%);
-  border-color: color-mix(in oklab, var(--calserver-primary) 20%, rgba(15, 23, 42, 0.08));
-}
-
-.calhelp-module-card--muted {
-  background: #ffffff;
+  border: 1px solid var(--calhelp-card-primary-border);
+  background: var(--calhelp-card-primary-bg);
+  box-shadow: var(--calhelp-card-primary-shadow);
+  color: var(--calhelp-card-primary-foreground);
 }
 
 .calhelp-module-card__header {

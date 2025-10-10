@@ -17,7 +17,8 @@
           {% set tagline = case.tagline[localeKey]|default(case.tagline['de']|default('')) %}
           {% set story = case.story[localeKey]|default(case.story['de']|default('')) %}
           {% set result = case.result[localeKey]|default(case.result['de']|default('')) %}
-          <article class="uk-card uk-card-primary uk-card-body calhelp-card calhelp-usecase-card" aria-labelledby="usecase-{{ case.id|default(loop.index) }}-title">
+          {% set surfaceClass = loop.index is odd ? 'calhelp-card--accent' : 'calhelp-card--muted' %}
+          <article class="uk-card uk-card-primary uk-card-body calhelp-card calhelp-usecase-card {{ surfaceClass }}" aria-labelledby="usecase-{{ case.id|default(loop.index) }}-title">
             <h3 id="usecase-{{ case.id|default(loop.index) }}-title" class="uk-card-title">
               {{ title }}{% if tagline %} – {{ tagline }}{% endif %}
             </h3>
