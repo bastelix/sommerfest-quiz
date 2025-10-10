@@ -69,6 +69,13 @@ body.qr-landing.calhelp-theme {
   --calhelp-card-primary-divider: color-mix(in oklab, rgba(246, 250, 255, 0.52), rgba(255, 255, 255, 0.22));
   --calhelp-card-primary-chip-bg: color-mix(in oklab, rgba(246, 250, 255, 0.22), rgba(255, 255, 255, 0.08));
   --calhelp-card-primary-chip-border: color-mix(in oklab, rgba(246, 250, 255, 0.46), rgba(255, 255, 255, 0.16));
+  --calhelp-accent-operations: #1f63e6;
+  --calhelp-accent-evidence: #6f4ef5;
+  --calhelp-accent-assurance: #0f9d90;
+  --calhelp-accent-company: #f2872a;
+  --calhelp-accent-support: #be3bc9;
+  --calhelp-accent-cta: #1d7ddc;
+  --calhelp-accent-foundation: #475569;
 }
 
 body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) {
@@ -90,6 +97,13 @@ body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) {
   --calhelp-card-primary-divider: color-mix(in oklab, rgba(116, 150, 209, 0.52), rgba(74, 108, 182, 0.38));
   --calhelp-card-primary-chip-bg: color-mix(in oklab, rgba(246, 250, 255, 0.2), rgba(36, 64, 135, 0.42));
   --calhelp-card-primary-chip-border: color-mix(in oklab, rgba(190, 214, 255, 0.46), rgba(51, 82, 146, 0.5));
+  --calhelp-accent-operations: color-mix(in oklab, rgba(118, 168, 255, 0.88), rgba(32, 61, 140, 0.86));
+  --calhelp-accent-evidence: color-mix(in oklab, rgba(168, 146, 255, 0.92), rgba(96, 70, 216, 0.84));
+  --calhelp-accent-assurance: color-mix(in oklab, rgba(58, 211, 182, 0.92), rgba(18, 120, 104, 0.86));
+  --calhelp-accent-company: color-mix(in oklab, rgba(255, 181, 111, 0.9), rgba(190, 102, 28, 0.82));
+  --calhelp-accent-support: color-mix(in oklab, rgba(251, 140, 206, 0.9), rgba(163, 50, 185, 0.84));
+  --calhelp-accent-cta: color-mix(in oklab, rgba(126, 180, 255, 0.88), rgba(36, 86, 190, 0.86));
+  --calhelp-accent-foundation: color-mix(in oklab, rgba(148, 163, 184, 0.92), rgba(71, 85, 105, 0.84));
 }
 
 .calhelp-mega-nav {
@@ -461,6 +475,102 @@ body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-of
 
 .calhelp-section {
   position: relative;
+}
+
+.calhelp-section[data-calhelp-theme] {
+  --calhelp-section-accent: var(--calhelp-accent-operations);
+  isolation: isolate;
+}
+
+.calhelp-section[data-calhelp-theme]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(1100px, calc(100% - clamp(32px, 6vw, 96px)));
+  max-width: calc(100% - clamp(24px, 5vw, 72px));
+  height: 14px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--calhelp-section-accent) 80%, rgba(255, 255, 255, 0.35)),
+      color-mix(in oklab, var(--calhelp-section-accent) 60%, rgba(15, 23, 42, 0.18))
+    );
+  box-shadow: 0 22px 48px -32px color-mix(in oklab, var(--calhelp-section-accent) 45%, rgba(15, 23, 42, 0.68));
+  pointer-events: none;
+}
+
+.calhelp-section[data-calhelp-theme] > .uk-container {
+  position: relative;
+  z-index: 1;
+  padding: clamp(26px, 5vw, 48px) clamp(20px, 6vw, 38px);
+  border-radius: clamp(16px, 3vw, 28px);
+}
+
+.calhelp-section[data-calhelp-theme] > .uk-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--calhelp-section-accent) 12%, rgba(255, 255, 255, 0.98)) 0%,
+      color-mix(in oklab, var(--calhelp-section-accent) 4%, rgba(255, 255, 255, 0.98)) 100%
+    );
+  box-shadow: 0 32px 64px -46px color-mix(in oklab, var(--calhelp-section-accent) 48%, rgba(15, 23, 42, 0.62));
+  z-index: -1;
+}
+
+.calhelp-section[data-calhelp-theme='operations'] {
+  --calhelp-section-accent: var(--calhelp-accent-operations);
+}
+
+.calhelp-section[data-calhelp-theme='evidence'] {
+  --calhelp-section-accent: var(--calhelp-accent-evidence);
+}
+
+.calhelp-section[data-calhelp-theme='assurance'] {
+  --calhelp-section-accent: var(--calhelp-accent-assurance);
+}
+
+.calhelp-section[data-calhelp-theme='company'] {
+  --calhelp-section-accent: var(--calhelp-accent-company);
+}
+
+.calhelp-section[data-calhelp-theme='support'] {
+  --calhelp-section-accent: var(--calhelp-accent-support);
+}
+
+.calhelp-section[data-calhelp-theme='call'] {
+  --calhelp-section-accent: var(--calhelp-accent-cta);
+}
+
+.calhelp-section[data-calhelp-theme='foundation'] {
+  --calhelp-section-accent: var(--calhelp-accent-foundation);
+}
+
+body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-section[data-calhelp-theme]::before {
+  background: linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--calhelp-section-accent) 70%, rgba(203, 213, 225, 0.32)),
+      color-mix(in oklab, var(--calhelp-section-accent) 58%, rgba(15, 23, 42, 0.45))
+    );
+  box-shadow: 0 22px 48px -30px color-mix(in oklab, var(--calhelp-section-accent) 40%, rgba(4, 7, 18, 0.85));
+}
+
+body.qr-landing.calhelp-theme[data-theme='dark']:not(.high-contrast) .calhelp-section[data-calhelp-theme] > .uk-container::before {
+  background: linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--calhelp-section-accent) 26%, rgba(15, 23, 42, 0.9)) 0%,
+      color-mix(in oklab, var(--calhelp-section-accent) 16%, rgba(15, 23, 42, 0.86)) 100%
+    );
+  box-shadow: 0 30px 64px -44px color-mix(in oklab, var(--calhelp-section-accent) 48%, rgba(4, 9, 24, 0.82));
+}
+
+body.qr-landing.calhelp-theme.high-contrast .calhelp-section[data-calhelp-theme]::before,
+body.qr-landing.calhelp-theme.high-contrast .calhelp-section[data-calhelp-theme] > .uk-container::before {
+  display: none;
 }
 
 .calhelp-section__header {
