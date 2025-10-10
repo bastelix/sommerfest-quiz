@@ -62,6 +62,16 @@ class SessionMiddleware implements Middleware
             }
             session_set_cookie_params($params);
 
+            $sessionPath = $this->resolveSessionSavePath();
+            if ($sessionPath !== null) {
+                if (session_save_path() !== $sessionPath) {
+                    session_save_path($sessionPath);
+                }
+                if (ini_get('session.save_path') !== $sessionPath) {
+                    ini_set('session.save_path', $sessionPath);
+                }
+            }
+
             session_start();
         }
 
@@ -88,5 +98,65 @@ class SessionMiddleware implements Middleware
 
         return strcasecmp($host, $domain) === 0
             || str_ends_with($host, '.' . $domain);
+    }
+
+    private function resolveSessionSavePath(): ?string {
+        $candidates = [];
+
+        $envPath = getenv('SESSION_SAVE_PATH');
+        if ($envPath !== false && $envPath !== '') {
+            $candidates[] = $envPath;
+        }
+
+        $candidates[] = session_save_path();
+        $candidates[] = $this->defaultSessionDirectory();
+        $candidates[] = sys_get_temp_dir();
+
+        foreach ($candidates as $candidate) {
+            $path = $this->normalizeSessionSavePath($candidate);
+            if ($path === '') {
+                continue;
+            }
+            if ($this->ensureSessionDirectory($path)) {
+                return $path;
+            }
+        }
+
+        return null;
+    }
+
+    private function normalizeSessionSavePath(string $path): string {
+        $trimmed = trim($path);
+        if ($trimmed === '') {
+            return '';
+        }
+
+        if (str_contains($trimmed, ';')) {
+            $parts = array_filter(explode(';', $trimmed));
+            $last = end($parts);
+            if ($last !== false) {
+                $trimmed = (string) $last;
+            }
+        }
+
+        return $trimmed;
+    }
+
+    private function ensureSessionDirectory(string $path): bool {
+        if ($path === '') {
+            return false;
+        }
+
+        if (!is_dir($path)) {
+            if (!@mkdir($path, 0775, true) && !is_dir($path)) {
+                return false;
+            }
+        }
+
+        return is_writable($path);
+    }
+
+    private function defaultSessionDirectory(): string {
+        return dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'sessions';
     }
 }
