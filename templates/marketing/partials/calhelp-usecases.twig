@@ -6,8 +6,10 @@
         <h2 id="usecases-title" class="uk-heading-medium">{{ t('calhelp_usecases_title') }}</h2>
         <p class="uk-text-lead">{{ t('calhelp_usecases_intro') }}</p>
       </div>
-      <div class="calhelp-usecases" data-uk-switcher="connect: #calhelp-usecases-switcher; animation: uk-animation-fade">
-        <ul class="uk-subnav uk-subnav-pill calhelp-usecases__tabs" role="tablist">
+      <div class="calhelp-usecases">
+        <ul class="uk-subnav uk-subnav-pill calhelp-usecases__tabs"
+            role="tablist"
+            data-uk-switcher="connect: #calhelp-usecases-switcher; animation: uk-animation-fade">
           {% for tab in tabs %}
             {% set isActive = loop.first %}
             <li{% if isActive %} class="uk-active"{% endif %} role="presentation">
