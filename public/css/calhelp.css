@@ -2493,21 +2493,29 @@ body.qr-landing.calhelp-theme .calhelp-proof-strip {
 
 body.qr-landing.calhelp-theme .calhelp-proof-strip .calserver-stats-strip__item {
     min-height: 100%;
+    gap: 14px;
 }
 
-body.qr-landing.calhelp-theme .calhelp-proof-strip .calserver-stats-strip__value {
-    font-size: clamp(1.6rem, 1.5vw + 1rem, 2.4rem);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+body.qr-landing.calhelp-theme .calhelp-proof-strip .calhelp-proof-card__title {
+    margin: 0;
+    color: var(--qr-text);
+    font-size: clamp(1.35rem, 1.2vw + 1.1rem, 1.85rem);
+    font-weight: 700;
+    line-height: 1.25;
 }
 
-body.qr-landing.calhelp-theme .calhelp-proof-strip .calserver-stats-strip__label {
-    font-size: 0.9rem;
-    letter-spacing: 0.02em;
+body.qr-landing.calhelp-theme .calhelp-proof-strip .calhelp-proof-card__subhead {
+    margin: 0;
+    color: var(--qr-muted);
+    font-size: 1rem;
+    line-height: 1.5;
 }
 
 body.qr-landing.calhelp-theme .calhelp-proof-strip .calserver-stats-strip__benefit {
+    margin: 0;
+    color: var(--qr-text);
     font-size: 1rem;
+    line-height: 1.6;
 }
 
 body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-cookie-banner, .calhelp-cookie-banner),
