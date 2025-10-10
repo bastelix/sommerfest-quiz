@@ -7,6 +7,9 @@
   { 'href': '#faq', 'label': 'FAQ', 'icon': 'question' },
   { 'href': '#contact-us', 'label': 'Kontakt', 'icon': 'mail' }
 ] %}
+{% if marketingWikiMenu is defined %}
+  {% set links = links|merge([{ 'href': marketingWikiMenu.url, 'label': marketingWikiMenu.label, 'icon': 'file-text' }]) %}
+{% endif %}
 
 {% block title %}{{ metaTitle|default('QuizRace – Das interaktive Team-Quiz für Events') }}{% endblock %}
 

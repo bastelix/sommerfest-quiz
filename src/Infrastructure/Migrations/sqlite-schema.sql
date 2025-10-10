@@ -323,6 +323,47 @@ CREATE TABLE IF NOT EXISTS landing_news (
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (page_id) REFERENCES pages(id) ON DELETE CASCADE
 );
+
+-- Marketing page wiki
+CREATE TABLE IF NOT EXISTS marketing_page_wiki_settings (
+    page_id INTEGER PRIMARY KEY,
+    is_active INTEGER NOT NULL DEFAULT 0,
+    menu_label TEXT,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS marketing_page_wiki_articles (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    page_id INTEGER NOT NULL,
+    slug TEXT NOT NULL,
+    locale TEXT NOT NULL DEFAULT 'de',
+    title TEXT NOT NULL,
+    excerpt TEXT,
+    editor_json TEXT,
+    content_md TEXT NOT NULL,
+    content_html TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'draft',
+    sort_index INTEGER NOT NULL DEFAULT 0,
+    published_at TEXT,
+    updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(page_id, locale, slug)
+);
+
+CREATE INDEX IF NOT EXISTS marketing_page_wiki_articles_page_locale_status_idx
+    ON marketing_page_wiki_articles(page_id, locale, status, sort_index, published_at);
+
+CREATE TABLE IF NOT EXISTS marketing_page_wiki_versions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    article_id INTEGER NOT NULL,
+    editor_json TEXT,
+    content_md TEXT NOT NULL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    created_by TEXT,
+    FOREIGN KEY (article_id) REFERENCES marketing_page_wiki_articles(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS marketing_page_wiki_versions_article_idx
+    ON marketing_page_wiki_versions(article_id, created_at);
 CREATE UNIQUE INDEX IF NOT EXISTS landing_news_page_slug_idx
     ON landing_news(page_id, slug);
 CREATE INDEX IF NOT EXISTS landing_news_page_published_idx

@@ -1,0 +1,59 @@
+{% extends 'layout.twig' %}
+
+{% block title %}{{ article.getTitle() }} – {{ menuLabel }}{% endblock %}
+
+{% block body_class %}marketing-wiki marketing-wiki--detail{% endblock %}
+
+{% block head %}
+  <link rel="preload" href="{{ basePath }}/css/landing.css" as="style">
+  <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <style>
+    .marketing-wiki__header { background: linear-gradient(135deg, #0f172a, #1d4ed8); color: #fff; }
+    .marketing-wiki__content { max-width: 760px; margin: 0 auto; }
+    .marketing-wiki__article img { max-width: 100%; height: auto; }
+    .marketing-wiki__article table { width: 100%; border-collapse: collapse; margin: 24px 0; }
+    .marketing-wiki__article table th,
+    .marketing-wiki__article table td { border: 1px solid #e5e7eb; padding: 12px; text-align: left; }
+    .wiki-callout { border-left: 4px solid #3b82f6; padding: 16px; background: #f9fafb; margin: 24px 0; }
+    .wiki-callout strong { display: block; margin-bottom: 8px; }
+  </style>
+{% endblock %}
+
+{% block body %}
+  <div class="marketing-wiki__header uk-section uk-section-small">
+    <div class="uk-container uk-container-small">
+      <nav aria-label="Breadcrumb" class="marketing-wiki__breadcrumb uk-margin-small">
+        <ul class="uk-breadcrumb">
+          {% for crumb in breadcrumbs %}
+            <li{% if loop.last %} class="uk-active" aria-current="page"{% endif %}>
+              {% if not loop.last %}
+                <a href="{{ crumb.url }}">{{ crumb.label }}</a>
+              {% else %}
+                <span>{{ crumb.label }}</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </nav>
+      <h1 class="uk-heading-medium uk-margin-remove">{{ article.getTitle() }}</h1>
+      {% set displayDate = article.getUpdatedAt() ?? article.getPublishedAt() %}
+      {% if displayDate %}
+        <p class="uk-text-meta">Zuletzt aktualisiert am {{ displayDate|date('d.m.Y') }}</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="uk-section uk-section-default">
+    <div class="uk-container marketing-wiki__content">
+      <article class="marketing-wiki__article uk-article">
+        {{ article.getContentHtml()|raw }}
+      </article>
+      <hr class="uk-margin-large">
+      <div class="uk-flex uk-flex-between uk-flex-middle uk-margin">
+        <a class="uk-button uk-button-text" href="{{ basePath }}/pages/{{ page.getSlug() }}/wiki">&larr; Zurück zur Übersicht</a>
+        <a class="uk-button uk-button-default" href="{{ basePath }}/pages/{{ page.getSlug() }}">Zur Marketing-Seite</a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -8,6 +8,8 @@ use App\Application\Seo\PageSeoConfigService;
 use App\Domain\Page;
 use App\Service\LandingNewsService;
 use App\Service\MailService;
+use App\Service\MarketingPageWikiArticleService;
+use App\Service\MarketingPageWikiSettingsService;
 use App\Service\MarketingSlugResolver;
 use App\Service\PageService;
 use App\Service\ProvenExpertRatingService;
@@ -51,6 +53,8 @@ class MarketingPageController
     private TurnstileConfig $turnstileConfig;
     private ProvenExpertRatingService $provenExpert;
     private LandingNewsService $landingNews;
+    private MarketingPageWikiSettingsService $wikiSettings;
+    private MarketingPageWikiArticleService $wikiArticles;
 
     public function __construct(
         ?string $slug = null,
@@ -58,7 +62,9 @@ class MarketingPageController
         ?PageSeoConfigService $seo = null,
         ?TurnstileConfig $turnstileConfig = null,
         ?ProvenExpertRatingService $provenExpert = null,
-        ?LandingNewsService $landingNews = null
+        ?LandingNewsService $landingNews = null,
+        ?MarketingPageWikiSettingsService $wikiSettings = null,
+        ?MarketingPageWikiArticleService $wikiArticles = null
     ) {
         $this->slug = $slug;
         $this->pages = $pages ?? new PageService();
@@ -66,6 +72,8 @@ class MarketingPageController
         $this->turnstileConfig = $turnstileConfig ?? TurnstileConfig::fromEnv();
         $this->provenExpert = $provenExpert ?? new ProvenExpertRatingService();
         $this->landingNews = $landingNews ?? new LandingNewsService();
+        $this->wikiSettings = $wikiSettings ?? new MarketingPageWikiSettingsService();
+        $this->wikiArticles = $wikiArticles ?? new MarketingPageWikiArticleService();
     }
 
     public function __invoke(Request $request, Response $response, array $args = []): Response {
@@ -193,6 +201,20 @@ class MarketingPageController
             $data['landingNews'] = $landingNews;
             $data['landingNewsBasePath'] = $landingNewsBasePath;
             $data['landingNewsIndexUrl'] = $basePath . $landingNewsBasePath;
+        }
+
+        $wikiSettings = $this->wikiSettings->getSettingsForPage($page->getId());
+        if ($wikiSettings->isActive()) {
+            $wikiArticles = $this->wikiArticles->getPublishedArticles($page->getId(), $locale);
+            if ($wikiArticles !== []) {
+                $label = $wikiSettings->getMenuLabel() ?? 'Dokumentation';
+                $wikiUrl = sprintf('%s/pages/%s/wiki', $basePath, $page->getSlug());
+                $data['marketingWikiMenu'] = [
+                    'label' => $label,
+                    'url' => $wikiUrl,
+                ];
+                $data['marketingWikiArticles'] = $wikiArticles;
+            }
         }
 
         $data['calhelpNewsPlaceholder'] = $calhelpNewsPlaceholderActive ? self::CALHELP_NEWS_PLACEHOLDER : null;

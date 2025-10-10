@@ -1,0 +1,76 @@
+{% extends 'layout.twig' %}
+
+{% block title %}{{ menuLabel }} – {{ page.getTitle() }}{% endblock %}
+
+{% block body_class %}marketing-wiki{% endblock %}
+
+{% block head %}
+  <link rel="preload" href="{{ basePath }}/css/landing.css" as="style">
+  <link rel="stylesheet" href="{{ basePath }}/css/landing.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+  <style>
+    .marketing-wiki__header { background: linear-gradient(135deg, #111827, #1f2937); color: #fff; }
+    .marketing-wiki__breadcrumb a { color: inherit; }
+    .marketing-wiki__card { transition: transform .2s ease, box-shadow .2s ease; }
+    .marketing-wiki__card:hover { transform: translateY(-2px); box-shadow: 0 18px 35px rgba(15, 23, 42, .15); }
+    .marketing-wiki__search { max-width: 540px; margin: 0 auto; }
+    .marketing-wiki__list { margin-top: 40px; }
+    .marketing-wiki__excerpt { color: #4b5563; }
+  </style>
+{% endblock %}
+
+{% block body %}
+  <div class="marketing-wiki__header uk-section uk-section-medium">
+    <div class="uk-container uk-container-small">
+      <nav aria-label="Breadcrumb" class="marketing-wiki__breadcrumb uk-margin-small">
+        <ul class="uk-breadcrumb">
+          {% for crumb in breadcrumbs %}
+            <li{% if loop.last %} class="uk-active" aria-current="page"{% endif %}>
+              {% if not loop.last %}
+                <a href="{{ crumb.url }}">{{ crumb.label }}</a>
+              {% else %}
+                <span>{{ crumb.label }}</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </nav>
+      <h1 class="uk-heading-small uk-margin-remove">{{ menuLabel }}</h1>
+      <p class="uk-text-lead uk-margin-small-top">Antworten, Schritt-für-Schritt-Anleitungen und Hintergrundwissen zur {{ page.getTitle() }}.</p>
+      <form method="get" class="marketing-wiki__search uk-search uk-search-large uk-margin-top">
+        <label class="uk-hidden" for="wiki-search">Suche</label>
+        <input id="wiki-search"
+               name="q"
+               class="uk-search-input"
+               type="search"
+               placeholder="Artikel suchen"
+               value="{{ searchTerm }}">
+        <button type="submit" class="uk-search-icon-flip" uk-search-icon aria-label="Suchen"></button>
+      </form>
+    </div>
+  </div>
+
+  <div class="uk-section uk-section-default">
+    <div class="uk-container uk-container-small marketing-wiki__list">
+      <ul class="uk-list uk-list-divider">
+        {% for article in articles %}
+          <li>
+            <article class="marketing-wiki__card uk-card uk-card-default uk-card-body">
+              <h2 class="uk-card-title uk-margin-remove">
+                <a href="{{ basePath }}/pages/{{ page.getSlug() }}/wiki/{{ article.getSlug() }}" class="uk-link-heading">{{ article.getTitle() }}</a>
+              </h2>
+              {% if article.getExcerpt() %}
+                <p class="marketing-wiki__excerpt uk-margin-small-top">{{ article.getExcerpt() }}</p>
+              {% endif %}
+              {% set displayDate = article.getUpdatedAt() ?? article.getPublishedAt() %}
+              {% if displayDate %}
+                <p class="uk-text-meta uk-margin-remove">Aktualisiert am {{ displayDate|date('d.m.Y') }}</p>
+              {% endif %}
+              <a class="uk-button uk-button-text uk-margin-small-top" href="{{ basePath }}/pages/{{ page.getSlug() }}/wiki/{{ article.getSlug() }}" aria-label="{{ article.getTitle() }} lesen">Weiterlesen</a>
+            </article>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endblock %}
