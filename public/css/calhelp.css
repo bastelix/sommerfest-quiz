@@ -2487,6 +2487,29 @@ body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="light"]:not(.hi
     color: color-mix(in oklab, #0b1532 88%, var(--calserver-primary) 12%) !important;
 }
 
+body.qr-landing.calhelp-theme .calhelp-proof-strip {
+    gap: 22px;
+}
+
+body.qr-landing.calhelp-theme .calhelp-proof-strip .calserver-stats-strip__item {
+    min-height: 100%;
+}
+
+body.qr-landing.calhelp-theme .calhelp-proof-strip .calserver-stats-strip__value {
+    font-size: clamp(1.6rem, 1.5vw + 1rem, 2.4rem);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+body.qr-landing.calhelp-theme .calhelp-proof-strip .calserver-stats-strip__label {
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+}
+
+body.qr-landing.calhelp-theme .calhelp-proof-strip .calserver-stats-strip__benefit {
+    font-size: 1rem;
+}
+
 body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-cookie-banner, .calhelp-cookie-banner),
 body.qr-landing:is(.calserver-theme, .calhelp-theme)[data-theme="high-contrast"] :is(.calserver-cookie-banner, .calhelp-cookie-banner),
 body.high-contrast :is(.calserver-cookie-banner, .calhelp-cookie-banner) {
