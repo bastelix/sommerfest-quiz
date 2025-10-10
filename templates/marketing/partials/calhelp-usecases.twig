@@ -3,7 +3,10 @@
   {% set localeKey = locale() == 'en' ? 'en' : 'de' %}
   {% set heading = usecasePayload.heading[localeKey]|default(usecasePayload.heading['de']|default('Use cases')) %}
   {% set intro = usecasePayload.intro[localeKey]|default(usecasePayload.intro['de']|default('')) %}
-  <section id="usecases" class="uk-section uk-section-muted calhelp-section calhelp-usecases-section" aria-labelledby="usecases-title">
+  <section id="usecases"
+           class="uk-section uk-section-muted calhelp-section calhelp-usecases-section"
+           data-calhelp-theme="muted"
+           aria-labelledby="usecases-title">
     <div class="uk-container">
       <div class="calhelp-section__header">
         <h2 id="usecases-title" class="uk-heading-medium">{{ heading }}</h2>

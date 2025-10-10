@@ -3,7 +3,10 @@
   {% set localeKey = locale() == 'en' ? 'en' : 'de' %}
   {% set sectionHeading = modulePayload.headline[localeKey]|default(modulePayload.headline['de']|default('Module')) %}
   {% set sectionSubheading = modulePayload.subheadline[localeKey]|default(modulePayload.subheadline['de']|default('')) %}
-  <section id="modules" class="uk-section uk-section-muted calhelp-section calhelp-modules" aria-labelledby="modules-title">
+  <section id="modules"
+           class="uk-section uk-section-muted calhelp-section calhelp-modules"
+           data-calhelp-theme="muted"
+           aria-labelledby="modules-title">
     <div class="uk-container">
       <div class="calhelp-section__header">
         <h2 id="modules-title" class="uk-heading-medium">{{ sectionHeading }}</h2>
