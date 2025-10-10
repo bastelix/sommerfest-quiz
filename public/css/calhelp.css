@@ -2498,7 +2498,13 @@ body.qr-landing.calhelp-theme .calhelp-proof-strip .calserver-stats-strip__item 
 body.qr-landing.calhelp-theme .calhelp-proof-strip .calserver-stats-strip__value {
     font-size: clamp(1.6rem, 1.5vw + 1rem, 2.4rem);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
+    line-height: 1.15;
+}
+
+body.qr-landing.calhelp-theme .calhelp-proof-strip .calserver-stats-strip__header {
+    align-items: flex-start;
+    gap: 10px 18px;
 }
 
 body.qr-landing.calhelp-theme .calhelp-proof-strip .calserver-stats-strip__label {
@@ -2508,6 +2514,17 @@ body.qr-landing.calhelp-theme .calhelp-proof-strip .calserver-stats-strip__label
 
 body.qr-landing.calhelp-theme .calhelp-proof-strip .calserver-stats-strip__benefit {
     font-size: 1rem;
+    margin-top: 12px;
+    text-wrap: pretty;
+}
+
+body.qr-landing.calhelp-theme .calhelp-proof-strip .calserver-stats-strip__title-group {
+    gap: 4px;
+    align-items: flex-start;
+}
+
+body.qr-landing.calhelp-theme .calhelp-proof-strip :is(.calserver-stats-strip__title, .calserver-stats-strip__label) {
+    text-wrap: balance;
 }
 
 body.qr-landing:is(.calserver-theme, .calhelp-theme).high-contrast :is(.calserver-cookie-banner, .calhelp-cookie-banner),
