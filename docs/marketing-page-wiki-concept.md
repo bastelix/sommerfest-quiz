@@ -181,3 +181,46 @@ status: "published"
 ## Ergebnis
 
 Der neue Wiki-/Dokumentationsbereich erweitert Marketing-Pages modular, ohne den bestehenden Content-Workflow zu ersetzen. Redakteur:innen erhalten ein vertrautes UI (Editor.js + Tabs), das konsistente Markdown-Dateien produziert und sich in News- und Static-Site-Prozesse integriert. Besucher:innen finden strukturierte Zusatzinformationen, während die technische Umsetzung mit bestehenden Patterns (Services, Publisher, Filesystem) harmoniert.
+
+## Codeaufgaben
+
+### Datenbank & Domain-Logik
+
+1. Migrationen für `marketing_page_wiki_settings`, `marketing_page_wiki_articles` und `marketing_page_wiki_versions` inklusive Trigger für `updated_at`-Spalten anlegen.
+2. Doctrine/Atlas-Mapper (je nach Projektstandard) für die neuen Tabellen erstellen und in das bestehende Repository-Layer integrieren.
+3. Services implementieren:
+   * `WikiSettingsService` mit Methoden `enableForPage`, `disableForPage`, `updateMenuLabel`, `isActive`.
+   * `WikiArticleService` mit CRUD-Operationen, Statuswechsel, Sortierung (Drag&Drop-Index) und Markdown-/HTML-Konvertierung.
+   * `WikiPublisher`, der veröffentlichte Artikel als Markdown-Dateien schreibt (Feature-Flag beachten) und Caches invalidiert.
+4. Unit-Tests für Services inklusive Markdown-Konverter und Sortierlogik schreiben.
+
+### Admin-Backend (Slim)
+
+5. Routen und Controller-Actions für die Wiki-Verwaltung ergänzen (`GET/POST /admin/pages/{pageId}/wiki`, Artikel-CRUD, Statuswechsel, Export).
+6. Request-Validierungen und Berechtigungsprüfungen (nur Admin-Rolle) implementieren.
+7. Integrationstests für Controller (Happy Path, Fehlerfälle, Berechtigungen) hinzufügen.
+
+### Admin-UI
+
+8. Im bestehenden Marketing-Page-Detail zwei neue Tabs „Wiki“ und „Einstellungen“ implementieren, sichtbar wenn das Feature aktiviert ist.
+9. Artikel-Listing mit UIkit-Tabelle und Drag&Drop-Sortierung bauen, inklusive Aktionen (Bearbeiten, Duplizieren, Löschen, Exportieren).
+10. Editor-Modal mit Editor.js, Markdown-Tab und Vorschau-Tab einbinden; Autosave/Unsaved-Changes-Indikatoren ergänzen.
+11. UI-Tests (Cypress/Playwright) für das Erstellen, Bearbeiten und Veröffentlichen eines Artikels schreiben.
+
+### Öffentliches Frontend
+
+12. Routing für `/pages/{slug}/wiki` (Übersicht) und `/pages/{slug}/wiki/{articleSlug}` (Detail) hinzufügen; Middleware prüft `is_active` und Locale.
+13. Twig-Templates für Übersicht, Breadcrumbs, Artikeldetail inkl. SEO-Metadaten und optional JSON-LD erzeugen.
+14. Clientseitige Suche (z. B. Fuse.js) oder serverseitige Filterung integrieren; Konfigurierbar per Feature-Flag.
+15. Integrationstests für Public-Routen (404 bei inaktivem Wiki, richtige Locale-Filterung) ergänzen.
+
+### Filesystem & Infrastruktur
+
+16. Optionale Publisher-Logik, die Markdown-Dateien unter `content/pages/{locale}/{slug}/wiki/` ablegt, implementieren und mit Feature-Flag absichern.
+17. Monitoring-Hooks (Logging, Sentry-Kontext) für Fehlerszenarien beim Schreiben/Löschen der Dateien ergänzen.
+18. Dokumentation im Entwicklerhandbuch/README zu neuen Env-Variablen, Feature-Flags und Deploy-Schritten aktualisieren.
+
+### Rollout
+
+19. Feature-Flag `feature.wiki_enabled` einführen und Standardwerte in allen Environments setzen.
+20. Release-Checkliste erstellen (Migration, Backfill-Skript optional, Schulungsunterlagen verlinken).
