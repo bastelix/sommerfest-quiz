@@ -1236,6 +1236,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         return $controller->updateStatus($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
 
+    $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}/duplicate', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingPageWikiController();
+
+        return $controller->duplicate($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
     $app->get('/admin/pages/{pageId:[0-9]+}/wiki/articles/{articleId:[0-9]+}', function (Request $request, Response $response, array $args) {
         $controller = new MarketingPageWikiController();
 
@@ -1252,6 +1258,12 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new MarketingPageWikiController();
 
         return $controller->delete($request, $response, $args);
+    })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
+
+    $app->post('/admin/pages/{pageId:[0-9]+}/wiki/articles/sort', function (Request $request, Response $response, array $args) {
+        $controller = new MarketingPageWikiController();
+
+        return $controller->sort($request, $response, $args);
     })->add(new RoleAuthMiddleware(Roles::ADMIN))->add(new CsrfMiddleware());
 
     $app->post('/admin/pages/{slug}', function (Request $request, Response $response, array $args) {

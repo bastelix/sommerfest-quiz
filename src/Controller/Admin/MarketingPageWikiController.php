@@ -8,6 +8,7 @@ use App\Domain\MarketingPageWikiArticle;
 use App\Service\MarketingPageWikiArticleService;
 use App\Service\MarketingPageWikiSettingsService;
 use App\Service\PageService;
+use App\Support\FeatureFlags;
 use DateTimeImmutable;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -33,6 +34,10 @@ final class MarketingPageWikiController
 
     public function index(Request $request, Response $response, array $args): Response
     {
+        if (!FeatureFlags::wikiEnabled()) {
+            return $response->withStatus(404);
+        }
+
         $pageId = (int) ($args['pageId'] ?? 0);
         $page = $this->pageService->findById($pageId);
         if ($page === null) {
@@ -63,6 +68,10 @@ final class MarketingPageWikiController
 
     public function updateSettings(Request $request, Response $response, array $args): Response
     {
+        if (!FeatureFlags::wikiEnabled()) {
+            return $response->withStatus(404);
+        }
+
         $pageId = (int) ($args['pageId'] ?? 0);
         $body = $request->getParsedBody();
         if (!is_array($body)) {
@@ -86,6 +95,10 @@ final class MarketingPageWikiController
 
     public function saveArticle(Request $request, Response $response, array $args): Response
     {
+        if (!FeatureFlags::wikiEnabled()) {
+            return $response->withStatus(404);
+        }
+
         $pageId = (int) ($args['pageId'] ?? 0);
         $body = $request->getParsedBody();
         if (!is_array($body)) {
@@ -127,6 +140,10 @@ final class MarketingPageWikiController
 
     public function updateStatus(Request $request, Response $response, array $args): Response
     {
+        if (!FeatureFlags::wikiEnabled()) {
+            return $response->withStatus(404);
+        }
+
         $articleId = (int) ($args['articleId'] ?? 0);
         $body = $request->getParsedBody();
         if (!is_array($body)) {
@@ -149,6 +166,10 @@ final class MarketingPageWikiController
 
     public function showArticle(Request $request, Response $response, array $args): Response
     {
+        if (!FeatureFlags::wikiEnabled()) {
+            return $response->withStatus(404);
+        }
+
         $articleId = (int) ($args['articleId'] ?? 0);
         $article = $this->articleService->getArticleById($articleId);
         if ($article === null) {
@@ -162,7 +183,16 @@ final class MarketingPageWikiController
 
     public function download(Request $request, Response $response, array $args): Response
     {
+        if (!FeatureFlags::wikiEnabled()) {
+            return $response->withStatus(404);
+        }
+
         $articleId = (int) ($args['articleId'] ?? 0);
+        $article = $this->articleService->getArticleById($articleId);
+        if ($article === null) {
+            return $response->withStatus(404);
+        }
+
         try {
             $markdown = $this->articleService->exportMarkdown($articleId);
         } catch (RuntimeException $exception) {
@@ -175,13 +205,92 @@ final class MarketingPageWikiController
 
         return $response
             ->withHeader('Content-Type', 'text/markdown; charset=utf-8')
-            ->withHeader('Content-Disposition', 'attachment; filename="article.md"');
+            ->withHeader('Content-Disposition', sprintf('attachment; filename="%s.md"', $article->getSlug()));
     }
 
     public function delete(Request $request, Response $response, array $args): Response
     {
+        if (!FeatureFlags::wikiEnabled()) {
+            return $response->withStatus(404);
+        }
+
         $articleId = (int) ($args['articleId'] ?? 0);
         $this->articleService->deleteArticle($articleId);
+
+        return $response->withStatus(204);
+    }
+
+    public function duplicate(Request $request, Response $response, array $args): Response
+    {
+        if (!FeatureFlags::wikiEnabled()) {
+            return $response->withStatus(404);
+        }
+
+        $pageId = (int) ($args['pageId'] ?? 0);
+        $articleId = (int) ($args['articleId'] ?? 0);
+        $body = $request->getParsedBody();
+        if (!is_array($body)) {
+            $body = [];
+        }
+
+        $slug = isset($body['slug']) ? (string) $body['slug'] : null;
+        if ($slug !== null && trim($slug) === '') {
+            $slug = null;
+        }
+
+        $title = isset($body['title']) ? (string) $body['title'] : null;
+        if ($title !== null && trim($title) === '') {
+            $title = null;
+        }
+
+        try {
+            $duplicate = $this->articleService->duplicateArticle($pageId, $articleId, $slug, $title);
+        } catch (RuntimeException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()]));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
+
+        $response->getBody()->write(json_encode($duplicate->jsonSerialize()));
+
+        return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+    }
+
+    public function sort(Request $request, Response $response, array $args): Response
+    {
+        if (!FeatureFlags::wikiEnabled()) {
+            return $response->withStatus(404);
+        }
+
+        $pageId = (int) ($args['pageId'] ?? 0);
+        $body = $request->getParsedBody();
+        if (!is_array($body) || !isset($body['order']) || !is_array($body['order'])) {
+            return $response->withStatus(400);
+        }
+
+        $articleIds = [];
+        foreach ($body['order'] as $item) {
+            if (is_array($item) && isset($item['id'])) {
+                $articleIds[] = (int) $item['id'];
+                continue;
+            }
+
+            if (is_numeric($item)) {
+                $articleIds[] = (int) $item;
+            }
+        }
+
+        if ($articleIds === []) {
+            return $response->withStatus(400);
+        }
+
+        try {
+            $this->articleService->reorderArticles($pageId, $articleIds);
+        } catch (RuntimeException $exception) {
+            $response->getBody()->write(json_encode(['error' => $exception->getMessage()]));
+
+            return $response->withHeader('Content-Type', 'application/json')->withStatus(400);
+        }
 
         return $response->withStatus(204);
     }

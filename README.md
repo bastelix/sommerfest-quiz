@@ -575,6 +575,10 @@ Die Marketing-Kontaktformulare lassen sich zusätzlich mit einem Cloudflare-Turn
 
 Sind beide Werte gesetzt, blendet die Landingpage automatisch das Turnstile-Widget ein und der `ContactController` validiert eingehende Token serverseitig. Ohne Konfiguration bleibt das Formular wie bisher frei zugänglich.
 
+### Wiki-Feature-Flag
+
+Der optionale Wiki-Bereich der Marketing-Seiten lässt sich global über die Umgebungsvariable `FEATURE_WIKI_ENABLED` steuern. Der Standardwert ist `true`. Setzen Sie den Wert auf `false`, um alle öffentlichen und administrativen Wiki-Routen vollständig zu deaktivieren, ohne einzelne Seiteneinstellungen anpassen zu müssen.
+
 ### Passwort zurücksetzen
 Die API unterstützt ein zweistufiges Verfahren zum Zurücksetzen vergessener Passwörter:
 

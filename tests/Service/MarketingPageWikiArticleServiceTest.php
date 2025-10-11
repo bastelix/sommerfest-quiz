@@ -10,6 +10,7 @@ use App\Service\Marketing\Wiki\EditorJsToMarkdown;
 use App\Service\Marketing\Wiki\WikiPublisher;
 use PDO;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class MarketingPageWikiArticleServiceTest extends TestCase
 {
@@ -85,6 +86,71 @@ final class MarketingPageWikiArticleServiceTest extends TestCase
 
         $service->deleteArticle($article->getId());
         $this->assertNull($service->getArticleById($article->getId()));
+    }
+
+    public function testDuplicateArticleCreatesDraftWithUniqueSlug(): void
+    {
+        $pdo = $this->createDatabase();
+        $service = new MarketingPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
+
+        $pageId = $this->createPage($pdo, 'landing', 'Landing');
+        $editorState = ['blocks' => [['type' => 'paragraph', 'data' => ['text' => 'Original content.']]]];
+
+        $original = $service->saveArticle(
+            $pageId,
+            'de',
+            'handbuch',
+            'Handbuch',
+            null,
+            $editorState,
+            MarketingPageWikiArticle::STATUS_PUBLISHED
+        );
+
+        $duplicate = $service->duplicateArticle($pageId, $original->getId());
+
+        $this->assertSame(MarketingPageWikiArticle::STATUS_DRAFT, $duplicate->getStatus());
+        $this->assertSame('handbuch-copy', $duplicate->getSlug());
+        $this->assertSame('Handbuch', $duplicate->getTitle());
+        $this->assertGreaterThan($original->getSortIndex(), $duplicate->getSortIndex());
+
+        // Ensure slug uniqueness detection works when providing explicit slug.
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Slug already exists for this locale.');
+        $service->saveArticle(
+            $pageId,
+            'de',
+            'handbuch',
+            'Duplicate Slug',
+            null,
+            $editorState
+        );
+    }
+
+    public function testReorderArticlesUpdatesSortIndexes(): void
+    {
+        $pdo = $this->createDatabase();
+        $service = new MarketingPageWikiArticleService($pdo, new EditorJsToMarkdown(), null);
+
+        $pageId = $this->createPage($pdo, 'landing', 'Landing');
+        $editorState = ['blocks' => [['type' => 'paragraph', 'data' => ['text' => 'Text']]]];
+
+        $first = $service->saveArticle($pageId, 'de', 'eins', 'Eins', null, $editorState);
+        $second = $service->saveArticle($pageId, 'de', 'zwei', 'Zwei', null, $editorState);
+        $third = $service->saveArticle($pageId, 'de', 'drei', 'Drei', null, $editorState);
+
+        $service->reorderArticles($pageId, [$third->getId(), $first->getId()]);
+
+        $articles = $service->getArticlesForPage($pageId);
+        $this->assertCount(3, $articles);
+        $this->assertSame('drei', $articles[0]->getSlug());
+        $this->assertSame(0, $articles[0]->getSortIndex());
+        $this->assertSame('eins', $articles[1]->getSlug());
+        $this->assertSame(1, $articles[1]->getSortIndex());
+        $this->assertSame('zwei', $articles[2]->getSlug());
+        $this->assertSame(2, $articles[2]->getSortIndex());
+
+        $this->expectException(RuntimeException::class);
+        $service->reorderArticles($pageId, [9999]);
     }
 
     private function createDatabase(): PDO

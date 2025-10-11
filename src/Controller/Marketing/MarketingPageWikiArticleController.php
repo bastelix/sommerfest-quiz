@@ -8,6 +8,7 @@ use App\Service\MarketingPageWikiArticleService;
 use App\Service\MarketingPageWikiSettingsService;
 use App\Service\MarketingSlugResolver;
 use App\Service\PageService;
+use App\Support\FeatureFlags;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Routing\RouteContext;
@@ -36,6 +37,10 @@ final class MarketingPageWikiArticleController
         $slug = (string) ($args['slug'] ?? '');
         $articleSlug = (string) ($args['articleSlug'] ?? '');
         if (!preg_match('/^[a-z0-9-]+$/', $slug) || !preg_match('/^[a-z0-9-]+$/', $articleSlug)) {
+            return $response->withStatus(404);
+        }
+
+        if (!FeatureFlags::wikiEnabled()) {
             return $response->withStatus(404);
         }
 
