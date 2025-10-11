@@ -16,6 +16,16 @@ class CalserverControllerTest extends TestCase
         } catch (\PDOException $e) {
             // Ignore duplicates when running multiple tests with shared databases.
         }
+        try {
+            $pdo->exec("INSERT INTO pages(slug,title,content) VALUES('calserver-accessibility','calServer Accessibility','<h1>Accessibility</h1>')");
+        } catch (\PDOException $e) {
+            // Ignore duplicates when running multiple tests with shared databases.
+        }
+        try {
+            $pdo->exec("INSERT INTO pages(slug,title,content) VALUES('calserver-accessibility-en','calServer Accessibility','<h1>Accessibility</h1>')");
+        } catch (\PDOException $e) {
+            // Ignore duplicates when running multiple tests with shared databases.
+        }
     }
 
     public function testCalserverPage(): void {
@@ -45,6 +55,23 @@ class CalserverControllerTest extends TestCase
         $request = $request->withUri($request->getUri()->withHost('tenant.main.test'));
         $response = $app->handle($request);
         $this->assertEquals(404, $response->getStatusCode());
+        if ($old === false) {
+            putenv('MAIN_DOMAIN');
+        } else {
+            putenv('MAIN_DOMAIN=' . $old);
+        }
+    }
+
+    public function testCalserverAccessibilityPage(): void {
+        $old = getenv('MAIN_DOMAIN');
+        putenv('MAIN_DOMAIN=main.test');
+        $app = $this->getAppInstance();
+        $request = $this->createRequest('GET', '/calserver/barrierefreiheit');
+        $request = $request->withUri($request->getUri()->withHost('main.test'));
+        $response = $app->handle($request);
+        $this->assertEquals(200, $response->getStatusCode());
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('Accessibility', $body);
         if ($old === false) {
             putenv('MAIN_DOMAIN');
         } else {

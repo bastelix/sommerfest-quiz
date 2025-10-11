@@ -18,6 +18,9 @@ final class MarketingSlugResolver
         'calserver-maintenance' => [
             'en' => 'calserver-maintenance-en',
         ],
+        'calserver-accessibility' => [
+            'en' => 'calserver-accessibility-en',
+        ],
     ];
 
     private function __construct()

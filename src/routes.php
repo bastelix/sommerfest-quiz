@@ -563,6 +563,22 @@ return function (\Slim\App $app, TranslationService $translator) {
         $controller = new MarketingPageController('calserver');
         return $controller($request, $response);
     });
+    $app->get('/calserver/barrierefreiheit', function (Request $request, Response $response) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingPageController('calserver-accessibility');
+        return $controller($request, $response);
+    });
+    $app->get('/calserver/accessibility', function (Request $request, Response $response) use ($resolveMarketingAccess) {
+        [$request, $allowed] = $resolveMarketingAccess($request);
+        if (!$allowed) {
+            return $response->withStatus(404);
+        }
+        $controller = new MarketingPageController('calserver-accessibility');
+        return $controller($request, $response);
+    });
     $app->get('/calserver-maintenance', function (Request $request, Response $response) use ($resolveMarketingAccess) {
         [$request, $allowed] = $resolveMarketingAccess($request);
         if (!$allowed) {
