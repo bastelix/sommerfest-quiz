@@ -10,6 +10,7 @@ namespace App\Application\RateLimiting;
 class FilesystemRateLimitStore implements RateLimitStore
 {
     private string $directory;
+    private bool $isWritable = true;
 
     public function __construct(?string $directory = null) {
         $directory = $directory ?? sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'rate_limit';
@@ -28,6 +29,8 @@ class FilesystemRateLimitStore implements RateLimitStore
     }
 
     public function reset(): void {
+        $this->isWritable = true;
+
         if (!is_dir($this->directory)) {
             return;
         }
@@ -68,12 +71,34 @@ class FilesystemRateLimitStore implements RateLimitStore
      * @param RateLimitEntry $data
      */
     private function write(string $path, array $data): void {
-        $dir = dirname($path);
-        if (!is_dir($dir)) {
-            @mkdir($dir, 0777, true);
+        if (!$this->isWritable) {
+            return;
         }
 
-        file_put_contents($path, json_encode($data), LOCK_EX);
+        $dir = dirname($path);
+        if (is_file($dir)) {
+            $this->isWritable = false;
+
+            return;
+        }
+
+        if (!is_dir($dir)) {
+            if (!@mkdir($dir, 0777, true) && !is_dir($dir)) {
+                $this->isWritable = false;
+
+                return;
+            }
+        }
+
+        $payload = json_encode($data);
+        if ($payload === false) {
+            return;
+        }
+
+        $result = @file_put_contents($path, $payload, LOCK_EX);
+        if ($result === false) {
+            $this->isWritable = false;
+        }
     }
 
     private function pathFor(string $key): string {
