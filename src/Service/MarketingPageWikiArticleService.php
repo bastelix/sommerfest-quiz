@@ -122,6 +122,10 @@ final class MarketingPageWikiArticleService
             throw new RuntimeException('Invalid article status.');
         }
 
+        if ($this->slugExists($pageId, $normalizedLocale, $normalizedSlug, $articleId)) {
+            throw new RuntimeException('Slug already exists for this locale.');
+        }
+
         $conversion = $this->converter->convert($editorState);
         $markdown = $conversion['markdown'];
         $html = $conversion['html'];
@@ -131,6 +135,10 @@ final class MarketingPageWikiArticleService
         }
         if ($status !== MarketingPageWikiArticle::STATUS_PUBLISHED) {
             $publishedAt = null;
+        }
+
+        if ($sortIndex === null) {
+            $sortIndex = $this->determineNextSortIndex($pageId, $normalizedLocale);
         }
 
         $this->pdo->beginTransaction();
@@ -163,7 +171,7 @@ final class MarketingPageWikiArticleService
                     $markdown,
                     $html,
                     $status,
-                    $sortIndex ?? 0,
+                    $sortIndex,
                     $publishedAt?->format('c'),
                 ]);
                 $id = (int) $this->pdo->lastInsertId();
@@ -277,6 +285,87 @@ final class MarketingPageWikiArticleService
         return $article->getContentMarkdown();
     }
 
+    public function duplicateArticle(
+        int $pageId,
+        int $articleId,
+        ?string $desiredSlug = null,
+        ?string $titleOverride = null
+    ): MarketingPageWikiArticle {
+        $article = $this->getArticleById($articleId);
+        if ($article === null || $article->getPageId() !== $pageId) {
+            throw new RuntimeException('Article not found');
+        }
+
+        $locale = $article->getLocale();
+        $slug = $desiredSlug !== null && trim($desiredSlug) !== ''
+            ? strtolower(trim($desiredSlug))
+            : $this->generateDuplicateSlug($pageId, $locale, $article->getSlug());
+
+        $title = $titleOverride !== null && trim($titleOverride) !== ''
+            ? trim($titleOverride)
+            : $article->getTitle();
+
+        $editorState = $article->getEditorState() ?? ['blocks' => []];
+        $sortIndex = $this->determineNextSortIndex($pageId, $locale);
+
+        return $this->saveArticle(
+            $pageId,
+            $locale,
+            $slug,
+            $title,
+            $article->getExcerpt(),
+            $editorState,
+            MarketingPageWikiArticle::STATUS_DRAFT,
+            null,
+            null,
+            $sortIndex
+        );
+    }
+
+    /**
+     * @param int[] $orderedIds
+     */
+    public function reorderArticles(int $pageId, array $orderedIds): void
+    {
+        $orderedIds = array_values(array_unique(array_map('intval', $orderedIds)));
+
+        $existingIds = $this->getArticleIdsForPage($pageId);
+        if ($existingIds === []) {
+            return;
+        }
+
+        $missing = array_diff($orderedIds, $existingIds);
+        if ($missing !== []) {
+            throw new RuntimeException('Unknown article id(s) for page: ' . implode(', ', $missing));
+        }
+
+        $this->pdo->beginTransaction();
+
+        try {
+            $update = $this->pdo->prepare('UPDATE marketing_page_wiki_articles SET sort_index = ? WHERE page_id = ? AND id = ?');
+            $position = 0;
+
+            foreach ($orderedIds as $orderedId) {
+                $update->execute([$position, $pageId, $orderedId]);
+                $position++;
+            }
+
+            foreach ($existingIds as $articleId) {
+                if (in_array($articleId, $orderedIds, true)) {
+                    continue;
+                }
+
+                $update->execute([$position, $pageId, $articleId]);
+                $position++;
+            }
+
+            $this->pdo->commit();
+        } catch (PDOException $exception) {
+            $this->pdo->rollBack();
+            throw new RuntimeException('Updating article order failed: ' . $exception->getMessage(), 0, $exception);
+        }
+    }
+
     /**
      * @return MarketingPageWikiVersion[]
      */
@@ -289,6 +378,67 @@ final class MarketingPageWikiArticleService
         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
         return array_map([$this, 'hydrateVersion'], $rows);
+    }
+
+    private function determineNextSortIndex(int $pageId, string $locale): int
+    {
+        $stmt = $this->pdo->prepare('SELECT MAX(sort_index) FROM marketing_page_wiki_articles WHERE page_id = ? AND locale = ?');
+        $stmt->execute([$pageId, strtolower($locale)]);
+        $max = $stmt->fetchColumn();
+
+        if (!is_numeric($max)) {
+            return 0;
+        }
+
+        return ((int) $max) + 1;
+    }
+
+    private function generateDuplicateSlug(int $pageId, string $locale, string $baseSlug): string
+    {
+        $normalizedBase = strtolower(trim($baseSlug));
+        if ($normalizedBase === '') {
+            $normalizedBase = 'article';
+        }
+
+        $candidate = $normalizedBase . '-copy';
+        $suffix = 2;
+
+        while ($this->slugExists($pageId, $locale, $candidate)) {
+            $candidate = sprintf('%s-copy-%d', $normalizedBase, $suffix);
+            $suffix++;
+        }
+
+        return $candidate;
+    }
+
+    private function slugExists(int $pageId, string $locale, string $slug, ?int $ignoreId = null): bool
+    {
+        $sql = 'SELECT id FROM marketing_page_wiki_articles WHERE page_id = ? AND locale = ? AND slug = ?';
+        $params = [$pageId, strtolower($locale), strtolower($slug)];
+
+        if ($ignoreId !== null) {
+            $sql .= ' AND id <> ?';
+            $params[] = $ignoreId;
+        }
+
+        $sql .= ' LIMIT 1';
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchColumn() !== false;
+    }
+
+    /**
+     * @return int[]
+     */
+    private function getArticleIdsForPage(int $pageId): array
+    {
+        $stmt = $this->pdo->prepare('SELECT id FROM marketing_page_wiki_articles WHERE page_id = ? ORDER BY sort_index ASC, id ASC');
+        $stmt->execute([$pageId]);
+        $ids = $stmt->fetchAll(PDO::FETCH_COLUMN) ?: [];
+
+        return array_map(static fn ($id) => (int) $id, $ids);
     }
 
     /**

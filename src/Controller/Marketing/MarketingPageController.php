@@ -15,6 +15,7 @@ use App\Service\PageService;
 use App\Service\ProvenExpertRatingService;
 use App\Service\TurnstileConfig;
 use App\Support\BasePathHelper;
+use App\Support\FeatureFlags;
 use DateTimeImmutable;
 use DateTimeZone;
 use IntlDateFormatter;
@@ -204,7 +205,7 @@ class MarketingPageController
         }
 
         $wikiSettings = $this->wikiSettings->getSettingsForPage($page->getId());
-        if ($wikiSettings->isActive()) {
+        if (FeatureFlags::wikiEnabled() && $wikiSettings->isActive()) {
             $wikiArticles = $this->wikiArticles->getPublishedArticles($page->getId(), $locale);
             if ($wikiArticles !== []) {
                 $label = $wikiSettings->getMenuLabel() ?? 'Dokumentation';
