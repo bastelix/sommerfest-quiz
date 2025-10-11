@@ -1,0 +1,33 @@
+{% extends 'layout.twig' %}
+
+{% block title %}{{ t('calserver_accessibility_title') }}{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{{ basePath }}/css/main.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/dark.css">
+  <link rel="stylesheet" href="{{ basePath }}/css/highcontrast.css">
+{% endblock %}
+
+{% block body_class %}uk-background-muted uk-padding{% endblock %}
+
+{% block body %}
+  {% set backLabel = locale() == 'en' ? 'Back' : 'Zurück' %}
+  {% embed 'topbar.twig' %}
+    {% block left %}
+      <a href="{{ basePath }}/calserver"
+         class="uk-icon-button"
+         uk-icon="icon: arrow-left; ratio: 2"
+         title="{{ backLabel }}"
+         aria-label="{{ backLabel }}"></a>
+    {% endblock %}
+    {% block center %}
+      <span class="uk-navbar-title uk-text-center">{{ t('calserver_accessibility_title') }}</span>
+    {% endblock %}
+  {% endembed %}
+  {{ content|raw }}
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ basePath }}/js/custom-icons.js"></script>
+  <script src="{{ basePath }}/js/app.js"></script>
+{% endblock %}
