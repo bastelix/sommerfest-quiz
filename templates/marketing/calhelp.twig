@@ -1,18 +1,20 @@
 {% extends 'layout.twig' %}
 
 {% set links = [
-  { 'href': '#solutions', 'label': 'Lösungen', 'icon': 'grid' },
+  { 'href': '#hero', 'label': 'Start', 'icon': 'home' },
+  { 'href': '#why', 'label': 'Nutzen', 'icon': 'bolt' },
+  { 'href': '#vision', 'label': 'Vision', 'icon': 'lightbulb' },
+  { 'href': '#services', 'label': 'Leistungen', 'icon': 'grid' },
+  { 'href': '#process', 'label': 'Vorgehen', 'icon': 'settings' },
   { 'href': '#results', 'label': 'Ergebnisse', 'icon': 'check' },
-  { 'href': '#approach', 'label': 'Vorgehen', 'icon': 'settings' },
-  { 'href': '#cases', 'label': 'Kunden', 'icon': 'users' },
-  { 'href': '#knowledge', 'label': 'Wissen', 'icon': 'bookmark' },
+  { 'href': '#faq', 'label': 'FAQ', 'icon': 'question' },
   { 'href': '#cta', 'label': 'Kontakt', 'icon': 'bolt' }
 ] %}
 {% if marketingWikiMenu is defined %}
   {% set links = links|merge([{ 'href': marketingWikiMenu.url, 'label': marketingWikiMenu.label, 'icon': 'file-text' }]) %}
 {% endif %}
 
-{% block title %}{{ metaTitle|default('Umstieg auf ein zentrales Kalibrier-System – konsistent, nachvollziehbar, auditfähig') }}{% endblock %}
+{% block title %}{{ metaTitle|default('calHelp – Digitale Abläufe, die zu Ihrem Team passen') }}{% endblock %}
 
 {% block head %}
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -172,213 +174,292 @@
           </ul>
         </div>
         <a class="uk-button uk-button-primary uk-width-1-1 uk-margin-top calhelp-offcanvas__cta" href="#cta">
-          <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Gespräch starten
+          <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Kostenfreies Erstgespräch
         </a>
       </div>
     </div>
 
     <section id="hero" class="qr-hero uk-section uk-section-large calhelp-hero">
       <div class="qr-hero-bg hero-bg-calserver" aria-hidden="true">
-        <canvas class="calserver-hero-bg__canvas"></canvas>
+        <canvas class="calhelp-hero-bg__canvas"></canvas>
       </div>
       <div class="uk-container">
         <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle calhelp-hero-grid" data-uk-grid>
           <div class="calhelp-hero-grid__content">
-            <span class="qr-badge pill pill--soft">In Deutschland gehostet · DSGVO-konform · Audit-ready</span>
-            <h1 class="qr-h1">Ein System. Klare Prozesse. Entspannte Audits.</h1>
-            <p class="qr-sub">Wir bündeln Kalibrierdaten, Abläufe und Nachweise – so, dass jeder sofort sieht, wo ihr steht.</p>
-            <p class="uk-text-lead">Sie schildern Alltag und Stolpersteine. Wir sorgen dafür, dass Daten, Freigaben und Dokumente in einem Fluss zusammenkommen.</p>
+            <h1 class="qr-h1">Ein klarer Ablauf – so, wie Ihr Team ihn kennt.</h1>
+            <p class="qr-sub">Wir digitalisieren eingespielte Abläufe in Labor, Service und Verwaltung – nachvollziehbar, prüfbar, alltagstauglich.</p>
             <div class="uk-margin-medium-top uk-flex uk-flex-left uk-flex-wrap" style="gap:16px;">
               <a class="uk-button uk-button-primary" href="#cta">
-                <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Gespräch starten
+                <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Kostenfreies Erstgespräch vereinbaren
               </a>
-              <a class="uk-button uk-button-default" href="#cta">
-                <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>Kurzanalyse (15 Min)
+              <a class="uk-button uk-button-default" href="#results">
+                <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>Beispiel-Nachweis ansehen
               </a>
             </div>
-            <p class="calhelp-trust">Ein Blick – und alle wissen, was erledigt ist, was ansteht und wer verantwortlich ist.</p>
+            <p class="calhelp-trust">In Deutschland betreut • auditfähig • schrittweise Einführung ohne Stillstand</p>
           </div>
           <div class="calhelp-hero-grid__media">
             <div class="calhelp-hero-card uk-card uk-card-default uk-card-body">
-              <h2 class="uk-card-title">Worauf Sie sich verlassen können</h2>
+              <h2 class="uk-card-title">Worauf Sie setzen können</h2>
               <ul class="uk-list uk-list-bullet hero-list">
-                <li>Wir ordnen Daten und Rollen so, dass alle denselben Stand sehen.</li>
-                <li>Wir nehmen Doppelarbeiten raus – Arbeitswege werden klar und kurz.</li>
-                <li>Wir liefern Nachweise, die Audits beim ersten Durchlauf bestehen.</li>
+                <li>Routinen bleiben bestehen – wir schließen Medienbrüche sauber.</li>
+                <li>Nachweise sind nachvollziehbar, versioniert und auditbereit.</li>
+                <li>Erste Verbesserungen werden in wenigen Wochen sichtbar.</li>
               </ul>
-              <p class="uk-text-small uk-margin-top">Der Einstieg bleibt schlank, Ergebnisse lassen sich belegen.</p>
+              <p class="uk-text-small uk-margin-top">Wir planen den Umstieg so, dass der Alltag weiterläuft.</p>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    {% include 'marketing/partials/calhelp-modules.twig' %}
+    <section id="why" class="uk-section uk-section-default">
+      <div class="uk-container uk-container-small">
+        <div class="uk-text-center">
+          <span class="qr-badge pill pill--soft">Warum calHelp?</span>
+          <h2 class="qr-h2 uk-margin-small-top">Nutzen in 30 Sekunden</h2>
+          <p class="uk-text-lead">Wir bringen Struktur in tägliche Abläufe und schaffen die Grundlage für belastbare Nachweise.</p>
+        </div>
+        <div class="uk-grid uk-grid-match uk-child-width-1-2@m uk-margin-large-top" data-uk-grid>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body uk-height-1-1">
+              <ul class="uk-list uk-list-large uk-list-divider">
+                <li><strong>Weniger Reibung im Alltag:</strong> Ein klarer Ablauf statt „jeder macht es anders“.</li>
+                <li><strong>Sichere Nachweise:</strong> Berichte und Dokumente, die Prüfungen bestehen.</li>
+                <li><strong>Schnell greifbare Resultate:</strong> Sichtbare Verbesserungen in Wochen.</li>
+                <li><strong>Transparenz &amp; Verantwortung:</strong> Jeder weiß, wer was bis wann erledigt.</li>
+              </ul>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-primary uk-card-primary--highlight uk-card-body uk-height-1-1">
+              <h3 class="uk-card-title">Ihr Use-Case in Fokus</h3>
+              <p>Wir hören zu, priorisieren und zeigen, wie bestehende Abläufe digital funktionieren – ohne Big-Bang, ohne Risiko.</p>
+              <a class="uk-button uk-button-default uk-margin-small-top" href="#cta">
+                <span class="uk-margin-small-right" data-uk-icon="icon: search"></span>Ihren Use-Case prüfen
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    {% set renderedContent = content %}
-    {% set assurancePanels = [
-      {
-        'id': 'cloud-de',
-        'title': 'Cloud DE',
-        'icon': 'cloud',
-        'facts': [
-          {
-            'icon': 'cloud',
-            'badge': { 'icon': 'location', 'label': 'Software hosted in Germany' },
-            'text': 'ISO 27001- und BSI C5-geprüfte Rechenzentren mit redundanten Standorten in Frankfurt & Berlin.'
-          },
-          {
-            'icon': 'server',
-            'text': '24/7-Monitoring mit Alarmierung & Incident-Response in ≤ 15 Minuten.'
-          },
-          {
-            'icon': 'lock',
-            'text': 'Backups verschlüsselt (AES-256) gespeichert und täglich auf Integrität geprüft.'
-          }
-        ],
-        'hint': 'Zugriff kann auf Wunsch per IP-Allowlist oder mandantenbezogener VPN-Anbindung zusätzlich abgesichert werden.'
-      },
-      {
-        'id': 'on-prem',
-        'title': 'On-Prem',
-        'icon': 'database',
-        'facts': [
-          {
-            'icon': 'bolt',
-            'badge': { 'icon': 'bolt', 'label': 'Setup in ≤ 4 Stunden' },
-            'text': 'Installationspaket für Windows Server & Linux inkl. automatischer Preflight-Checks.'
-          },
-          {
-            'icon': 'database',
-            'text': 'PostgreSQL oder SQL Server, optional im Cluster mit Failover-Testprotokoll.'
-          },
-          {
-            'icon': 'refresh',
-            'text': 'Signierte Update-Pakete mit Rollback-Plan und Dokumentation der Änderungen.'
-          }
-        ],
-        'hint': 'Konfigurations-Playbooks (Ansible/PowerShell) erleichtern das Patch-Management und erlauben reproduzierbare Deployments.'
-      },
-      {
-        'id': 'dsgvo',
-        'title': 'DSGVO',
-        'icon': 'shield',
-        'facts': [
-          {
-            'icon': 'file-text',
-            'badge': { 'icon': 'file-text', 'label': 'AV-Vertrag & TOMs' },
-            'text': 'Aktualisierte ADV inklusive Technischer & Organisatorischer Maßnahmen, unterschriftsreif in Deutsch/Englisch.'
-          },
-          {
-            'icon': 'history',
-            'text': 'Protokollierte Datenflüsse und Verarbeitungstätigkeiten für Auskunfts- & Löschbegehren.'
-          },
-          {
-            'icon': 'trash',
-            'text': 'Konfigurierbare Aufbewahrungsfristen mit revisionssicherer Löschbestätigung.'
-          }
-        ],
-        'hint': 'Auf Wunsch liefern wir ein Muster für Datenschutz-Folgenabschätzungen und Schnittstellen für Betroffenenanfragen (REST).'
-      },
-      {
-        'id': 'rollen-protokolle',
-        'title': 'Rollen & Protokolle',
-        'icon': 'users',
-        'facts': [
-          {
-            'icon': 'users',
-            'badge': { 'icon': 'users', 'label': '5+ Rollen vorkonfiguriert' },
-            'text': 'Feingranulare Berechtigungen für Labor, QS, IT, Service und externe Partner.'
-          },
-          {
-            'icon': 'file-text',
-            'text': 'Objektbezogener Audit-Trail (wer/was/wann) mit Export nach CSV oder SIEM.'
-          },
-          {
-            'icon': 'key',
-            'text': 'SSO-Anbindung via SAML/OIDC inklusive SCIM-Provisioning & Gruppen-Mapping.'
-          }
-        ],
-        'hint': 'Webhook- und Syslog-Forwarder ermöglichen das Streaming der Audit-Logs an bestehende SIEM-Lösungen.'
-      }
-    ] %}
-    {% set caseStories = [
-      {
-        'id': 'lab-story',
-        'icon': 'server',
-        'labelKey': 'calhelp_cases_lab_label',
-        'quoteKey': 'calhelp_cases_lab_quote',
-        'sentencesKeys': [
-          'calhelp_cases_lab_sentence_1',
-          'calhelp_cases_lab_sentence_2',
-          'calhelp_cases_lab_sentence_3',
-          'calhelp_cases_lab_sentence_4',
-          'calhelp_cases_lab_sentence_5'
-        ]
-      },
-      {
-        'id': 'service-story',
-        'icon': 'users',
-        'labelKey': 'calhelp_cases_service_label',
-        'quoteKey': 'calhelp_cases_service_quote',
-        'sentencesKeys': [
-          'calhelp_cases_service_sentence_1',
-          'calhelp_cases_service_sentence_2',
-          'calhelp_cases_service_sentence_3',
-          'calhelp_cases_service_sentence_4',
-          'calhelp_cases_service_sentence_5'
-        ]
-      },
-      {
-        'id': 'manufacturing-story',
-        'icon': 'world',
-        'labelKey': 'calhelp_cases_manufacturing_label',
-        'quoteKey': 'calhelp_cases_manufacturing_quote',
-        'sentencesKeys': [
-          'calhelp_cases_manufacturing_sentence_1',
-          'calhelp_cases_manufacturing_sentence_2',
-          'calhelp_cases_manufacturing_sentence_3',
-          'calhelp_cases_manufacturing_sentence_4',
-          'calhelp_cases_manufacturing_sentence_5'
-        ]
-      }
-    ] %}
-    {% set placeholderReplacements = {
-      '<div data-calhelp-assurance></div>': include('marketing/partials/calhelp-assurance.twig', {
-        assurancePanels: assurancePanels
-      }),
-      '<div data-calhelp-cases></div>': include('marketing/partials/calhelp-cases.twig', {
-        caseStories: caseStories
-      }),
-      '<div data-calhelp-proof-gallery></div>': include('marketing/partials/calhelp-proof-gallery.twig')
-    } %}
-    {% if calhelpUsecases is defined and calhelpUsecases.usecases is iterable and calhelpUsecases.usecases|length > 0 %}
-      {% set placeholderReplacements = placeholderReplacements|merge({
-        '<div data-calhelp-usecases></div>': include('marketing/partials/calhelp-usecases.twig', {
-          calhelpUsecases: calhelpUsecases
-        })
-      }) %}
-    {% endif %}
-    {% for placeholder, markup in placeholderReplacements %}
-      {% set renderedContent = renderedContent|replace({ (placeholder): markup }) %}
-    {% endfor %}
+    <section id="vision" class="uk-section calhelp-section-glow">
+      <div class="uk-container uk-container-small">
+        <div class="uk-text-center uk-light">
+          <h2 class="qr-h2">Vision</h2>
+          <p class="uk-text-lead">calHelp sorgt dafür, dass Ihre bewährten Routinen digital, nachvollziehbar und auditfähig funktionieren.</p>
+          <p>Wir übernehmen, was sich bewährt hat, schließen Medienbrüche und machen Nachweise verlässlich – Schritt für Schritt, ohne Kulturbruch.</p>
+        </div>
+      </div>
+    </section>
 
-    {% set calhelpNewsPlaceholderActive = calhelpNewsPlaceholderActive|default(false) %}
-    {% set shouldRenderCalhelpNews = calhelpNewsPlaceholderActive or (landingNews is defined and landingNews) %}
-    {% if shouldRenderCalhelpNews %}
-      {% set calhelpNewsMarkup = include('marketing/partials/calhelp-news.twig', {
-        landingNews: landingNews|default([]),
-        landingNewsBasePath: landingNewsBasePath|default(null),
-        landingNewsIndexUrl: landingNewsIndexUrl|default(null)
-      }) %}
-      {% if calhelpNewsPlaceholderActive and calhelpNewsPlaceholder is defined and calhelpNewsPlaceholder %}
-        {% set renderedContent = renderedContent|replace({ (calhelpNewsPlaceholder): calhelpNewsMarkup }) %}
-      {% else %}
-        {% set renderedContent = renderedContent ~ calhelpNewsMarkup %}
-      {% endif %}
-    {% endif %}
+    <section id="services" class="uk-section uk-section-default">
+      <div class="uk-container">
+        <div class="uk-text-center">
+          <span class="qr-badge pill pill--soft">Leistungen</span>
+          <h2 class="qr-h2 uk-margin-small-top">Dienstleistungen – seriös, ohne Technikflut</h2>
+          <p class="uk-text-lead">Wir verbinden Strategie, Daten, Nachweise und Betreuung zu einem reibungslosen Ganzen.</p>
+        </div>
+        <div class="uk-grid uk-grid-match uk-child-width-1-3@l uk-child-width-1-2@m uk-child-width-1-1 uk-margin-large-top" data-uk-grid>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body">
+              <h3 class="uk-card-title">Strategie &amp; Prozess</h3>
+              <p>Ist-Aufnahme des echten Alltags, Prioritäten setzen, Entscheidungsvorlage mit 2–3 realistischen Wegen (Aufwand, Nutzen, Zeitplan).</p>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body">
+              <h3 class="uk-card-title">Daten &amp; Umstieg</h3>
+              <p>Sauberer Datenumzug inkl. Bereinigung und Testläufen – geplant, dokumentiert, ohne Stillstand.</p>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body">
+              <h3 class="uk-card-title">Verbindungen &amp; Zugriffe</h3>
+              <p>Sinnvolle System-Verknüpfungen und klare Zugriffsrechte für verlässliche Zuständigkeiten, Freigaben und Audits.</p>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body">
+              <h3 class="uk-card-title">Nachweise &amp; Berichte</h3>
+              <p>Prüffähige Berichte/Zertifikate mit Ihren Inhalten und Branding; zweisprachig möglich, mit Freigabe- und Versionsprozess.</p>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body">
+              <h3 class="uk-card-title">Betrieb &amp; Betreuung</h3>
+              <p>Aktualisierungen, Backups, Monitoring, unterstützender Support – für einen ruhigen, planbaren Alltag.</p>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body">
+              <h3 class="uk-card-title">Wissen &amp; Training</h3>
+              <p>Kompakte Trainings, Vorlagen und Handbücher – pro Rolle, damit Ihr Team schnell sicher arbeitet.</p>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body">
+              <h3 class="uk-card-title">(Optional) Webauftritt für Labore</h3>
+              <p>Moderne, klare Website mit Leistungen, Formularen, Downloads; auf Wunsch Frage-Antwort-Assistent aus Ihren Inhalten.</p>
+            </div>
+          </div>
+        </div>
+        <div class="uk-text-center uk-margin-large-top">
+          <a class="uk-button uk-button-primary" href="#cta">
+            <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Leistungen im Gespräch abklären
+          </a>
+        </div>
+      </div>
+    </section>
 
-    {{ renderedContent|raw }}
+    <section id="process" class="uk-section uk-section-muted">
+      <div class="uk-container">
+        <div class="uk-text-center">
+          <span class="qr-badge pill pill--soft">So arbeiten wir</span>
+          <h2 class="qr-h2 uk-margin-small-top">Vom Erstgespräch zur Einführung</h2>
+          <p class="uk-text-lead">Drei Etappen, klar dokumentiert und nachvollziehbar.</p>
+        </div>
+        <div class="uk-grid uk-grid-match uk-child-width-1-3@m uk-margin-large-top" data-uk-grid>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body calhelp-step-card">
+              <div class="calhelp-step-card__number">1</div>
+              <h3 class="uk-card-title">Erstgespräch (30–45 Min.)</h3>
+              <p>Ziele, Hürden, Quick-Wins. Wir hören zu und bringen Struktur in den Fahrplan.</p>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body calhelp-step-card">
+              <div class="calhelp-step-card__number">2</div>
+              <h3 class="uk-card-title">Mini-Beweis (1–2 Wochen)</h3>
+              <p>Ihr Prozess als Prototyp plus Beispiel-Nachweis – damit alle sehen, wie es funktioniert.</p>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body calhelp-step-card">
+              <div class="calhelp-step-card__number">3</div>
+              <h3 class="uk-card-title">Einführung in Etappen</h3>
+              <p>Live-Betrieb, Schulung, saubere Übergabe. Wir bleiben ansprechbar, bis alles sitzt.</p>
+            </div>
+          </div>
+        </div>
+        <p class="uk-text-center uk-margin-large-top uk-text-small">Dokumentiert • messbar • ohne Big-Bang</p>
+      </div>
+    </section>
+
+    <section id="results" class="uk-section uk-section-default">
+      <div class="uk-container">
+        <div class="uk-text-center">
+          <span class="qr-badge pill pill--soft">Ergebnisse aus Projekten</span>
+          <h2 class="qr-h2 uk-margin-small-top">Verlässliche Resultate aus der Praxis</h2>
+        </div>
+        <div class="uk-grid uk-grid-match uk-child-width-1-3@m uk-child-width-1-1 uk-margin-large-top" data-uk-grid>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body">
+              <h3 class="uk-card-title">Kalibrierdienst</h3>
+              <p>Medienbrüche reduziert, <strong>–30&nbsp;% Nacharbeit</strong>.</p>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body">
+              <h3 class="uk-card-title">Inhouse-Labor</h3>
+              <p>Zugriffe &amp; Verantwortlichkeiten klar, <strong>Audits souverän bestanden</strong>.</p>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body">
+              <h3 class="uk-card-title">Energie/Service</h3>
+              <p>Wartungen &amp; Nachweise zentral, <strong>schnellere Freigaben</strong>.</p>
+            </div>
+          </div>
+        </div>
+        <div class="uk-text-center uk-margin-large-top">
+          <a class="uk-button uk-button-default" href="#cta">
+            <span class="uk-margin-small-right" data-uk-icon="icon: users"></span>Case-Talk vereinbaren
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="uk-section uk-section-muted">
+      <div class="uk-container uk-container-small">
+        <div class="uk-text-center">
+          <span class="qr-badge pill pill--soft">FAQ</span>
+          <h2 class="qr-h2 uk-margin-small-top">Häufige Fragen, schnell beantwortet</h2>
+        </div>
+        <ul class="uk-margin-large-top" data-uk-accordion>
+          <li class="uk-open">
+            <a class="uk-accordion-title" href="#">Ersetzen Sie unsere Abläufe komplett?</a>
+            <div class="uk-accordion-content">
+              <p>Nein. Bewährtes bleibt. Wir digitalisieren und verbessern gezielt.</p>
+            </div>
+          </li>
+          <li>
+            <a class="uk-accordion-title" href="#">Wie schnell sehen wir Ergebnisse?</a>
+            <div class="uk-accordion-content">
+              <p>Innerhalb weniger Wochen – mit einem greifbaren Beispiel-Nachweis.</p>
+            </div>
+          </li>
+          <li>
+            <a class="uk-accordion-title" href="#">Müssen wir sofort alles umstellen?</a>
+            <div class="uk-accordion-content">
+              <p>Nein. Wir führen schrittweise ein, ohne den Alltag zu stören.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="cta" class="uk-section uk-section-large">
+      <div class="uk-container">
+        <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
+          <div>
+            <h2 class="qr-h2">Bereit für klarere Abläufe?</h2>
+            <p class="uk-text-lead">Wir planen mit Ihnen den nächsten Schritt – vom Erstgespräch bis zur sauberen Einführung.</p>
+            <div class="uk-flex uk-flex-left uk-flex-wrap uk-margin-medium-top" style="gap:16px;">
+              <a class="uk-button uk-button-primary" href="https://calendly.com/calhelp/erstgespraech" target="_blank" rel="noopener">
+                <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Kostenfreies Erstgespräch vereinbaren
+              </a>
+              <a class="uk-button uk-button-default" href="#results">
+                <span class="uk-margin-small-right" data-uk-icon="icon: file-text"></span>Beispiel-Nachweis &amp; Vorgehen ansehen
+              </a>
+            </div>
+            <div class="uk-margin-large-top">
+              <div class="uk-grid uk-grid-small uk-child-width-1-2@s" data-uk-grid>
+                <div>
+                  <div class="uk-card uk-card-default uk-card-body uk-padding-small">
+                    <h3 class="uk-card-title uk-margin-remove">Checkliste: Prüfsichere Nachweise</h3>
+                    <p class="uk-text-small">Sichern Sie sich die Checkliste als Ergänzung zum Erstgespräch.</p>
+                    <a class="uk-button uk-button-text" href="#cta">
+                      <span class="uk-margin-small-right" data-uk-icon="icon: download"></span>Checkliste anfordern
+                    </a>
+                  </div>
+                </div>
+                <div>
+                  <div class="uk-card uk-card-default uk-card-body uk-padding-small">
+                    <h3 class="uk-card-title uk-margin-remove">Ablauf-Poster: Vom Auftrag zum Bericht</h3>
+                    <p class="uk-text-small">Visualisieren Sie Ihre Schritte – wir bringen das Poster ins Team.</p>
+                    <a class="uk-button uk-button-text" href="#cta">
+                      <span class="uk-margin-small-right" data-uk-icon="icon: image"></span>Ablauf-Poster sichern
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body">
+              <h3 class="uk-card-title">Direkter Kontakt</h3>
+              <p>René Buske<br>
+                <a class="js-email-link" data-user="office" data-domain="calhelp.de" href="#">office [at] calhelp.de</a><br>
+                <a href="tel:+4933203609080">+49&nbsp;33203&nbsp;609080</a>
+              </p>
+              <p class="uk-text-small">Wir melden uns werktags innerhalb von 24 Stunden.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <div id="marketing-chat-modal" class="uk-flex-top marketing-chat-modal" data-uk-modal>
       <div class="uk-modal-dialog uk-modal-body marketing-chat__dialog" role="dialog" aria-modal="true" aria-label="{{ t('marketing_chat_title') }}">
@@ -422,7 +503,7 @@
   <div class="footer-columns">
     <div class="footer-section footer-about">
       <strong>calHelp</strong>
-      <p>Ein System. Klare Prozesse.</p>
+      <p>Beratung &amp; Umsetzung für klare, auditfähige Abläufe.</p>
     </div>
     <div class="footer-section footer-contact">
       <strong>Kontakt</strong>
@@ -438,20 +519,22 @@
       </p>
     </div>
     <div class="footer-section footer-navigation">
-      <strong>Links</strong>
+      <strong>Navigation</strong>
       <ul>
         <li><a href="#hero">Start</a></li>
-        <li><a href="#fit">Passung</a></li>
-        <li><a href="#news">Wissen</a></li>
-        <li><a href="#help">Unterstützung</a></li>
-        <li><a href="#conversation">Gespräch</a></li>
-        <li><a href="{{ basePath }}/datenschutz">Datenschutz</a></li>
-        <li><a href="{{ basePath }}/impressum">Impressum</a></li>
+        <li><a href="#services">Leistungen</a></li>
+        <li><a href="#process">Vorgehen</a></li>
+        <li><a href="#results">Ergebnisse</a></li>
+        <li><a href="#cta">Kontakt</a></li>
       </ul>
     </div>
     <div class="footer-section footer-legal">
-      <strong>Hosting</strong>
-      <p>In Deutschland oder On-Prem – auditfähig, skalierbar, sicher.</p>
+      <strong>Rechtliches</strong>
+      <ul>
+        <li><a href="{{ basePath }}/impressum">Impressum</a></li>
+        <li><a href="{{ basePath }}/datenschutz">Datenschutz</a></li>
+        <li><a href="{{ basePath }}/lizenz">Lizenz</a></li>
+      </ul>
     </div>
   </div>
 {% endblock %}
