@@ -24,6 +24,32 @@
       <span class="uk-navbar-title uk-text-center">{{ t('calserver_accessibility_title') }}</span>
     {% endblock %}
   {% endembed %}
+  {% set currentLocale = locale() ?: 'de' %}
+  {% set languages = [
+    {
+      code: 'de',
+      label: t('german'),
+      url: basePath ~ '/calserver/barrierefreiheit?lang=de'
+    },
+    {
+      code: 'en',
+      label: t('english'),
+      url: basePath ~ '/calserver/accessibility?lang=en'
+    }
+  ] %}
+  <nav class="language-switch uk-margin-medium-top" aria-label="{{ t('language_toggle') }}">
+    <ul class="uk-subnav uk-subnav-pill" role="list">
+      {% for language in languages %}
+        {% set isActive = language.code == currentLocale %}
+        <li{% if isActive %} class="uk-active"{% endif %}>
+          <a class="language-switch__link"
+             href="{{ language.url }}"
+             lang="{{ language.code }}"
+             {% if isActive %}aria-current="page"{% endif %}>{{ language.label }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
   {{ content|raw }}
 {% endblock %}
 
