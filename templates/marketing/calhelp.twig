@@ -403,6 +403,95 @@
       </div>
     </section>
 
+    <section id="roi-rechner" class="uk-section uk-section-default">
+      <div class="uk-container uk-container-small">
+        <div class="uk-text-center">
+          <span class="qr-badge pill pill--soft">ROI</span>
+          <h2 class="qr-h2 uk-margin-small-top">ROI-Rechner &amp; Audit-Ready-Score</h2>
+          <p class="uk-text-lead">Geben Sie Eckdaten Ihres Teams ein, um eine grobe Zeitersparnis und Audit-Fitness einzuschätzen.</p>
+        </div>
+        <form id="roi-form" class="uk-form-stacked uk-margin-large-top" novalidate>
+          <div class="uk-grid uk-grid-small" data-uk-grid>
+            <div class="uk-width-1-2@s">
+              <label class="uk-form-label" for="roi-team">Teamgröße</label>
+              <div class="uk-form-controls">
+                <input id="roi-team"
+                       class="uk-input"
+                       name="team"
+                       type="number"
+                       min="1"
+                       step="1"
+                       value="8"
+                       inputmode="numeric"
+                       data-roi-input>
+              </div>
+            </div>
+            <div class="uk-width-1-2@s">
+              <label class="uk-form-label" for="roi-assets">Aktive Assets</label>
+              <div class="uk-form-controls">
+                <input id="roi-assets"
+                       class="uk-input"
+                       name="assets"
+                       type="number"
+                       min="0"
+                       step="10"
+                       value="1200"
+                       inputmode="numeric"
+                       data-roi-input>
+              </div>
+            </div>
+            <div class="uk-width-1-2@s">
+              <label class="uk-form-label" for="roi-audits">Audits pro Jahr</label>
+              <div class="uk-form-controls">
+                <input id="roi-audits"
+                       class="uk-input"
+                       name="audits"
+                       type="number"
+                       min="0"
+                       step="1"
+                       value="6"
+                       inputmode="numeric"
+                       data-roi-input>
+              </div>
+            </div>
+            <div class="uk-width-1-2@s">
+              <label class="uk-form-label" for="roi-systeme">Verbundene Systeme</label>
+              <div class="uk-form-controls">
+                <input id="roi-systeme"
+                       class="uk-input"
+                       name="systeme"
+                       type="number"
+                       min="0"
+                       step="1"
+                       value="4"
+                       inputmode="numeric"
+                       data-roi-input>
+              </div>
+            </div>
+          </div>
+        </form>
+        <div class="uk-card uk-card-default uk-card-body uk-margin-large-top">
+          <h3 class="uk-card-title">Ihre Einschätzung</h3>
+          <dl class="uk-description-list uk-description-list-divider uk-margin-small-top">
+            <div class="uk-grid-small" data-uk-grid>
+              <dt class="uk-width-1-2@s">Geschätzte Zeitersparnis pro Monat</dt>
+              <dd class="uk-width-1-2@s uk-text-bold"><span id="roi-time">0</span>&nbsp;Stunden</dd>
+            </div>
+            <div class="uk-grid-small" data-uk-grid>
+              <dt class="uk-width-1-2@s">Audit-Ready-Score</dt>
+              <dd class="uk-width-1-2@s uk-text-bold"><span id="roi-score">0</span>&nbsp;/&nbsp;100</dd>
+            </div>
+          </dl>
+          <p id="roi-result-message" class="uk-margin-small-top" aria-live="polite"></p>
+          <div class="uk-margin-top">
+            <a class="uk-button uk-button-primary" href="#cta">
+              <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Lage kurz klären
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section id="framework" class="uk-section calhelp-section-glow">
       <div class="uk-container">
         <div class="uk-grid uk-grid-large uk-flex-middle" data-uk-grid>
@@ -742,6 +831,106 @@
 
       window.addEventListener('scroll', requestTick, { passive: true });
       window.addEventListener('resize', requestTick);
+    });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var form = document.getElementById('roi-form');
+      if (!form) {
+        return;
+      }
+
+      var resultTime = document.getElementById('roi-time');
+      var resultScore = document.getElementById('roi-score');
+      var resultMessage = document.getElementById('roi-result-message');
+      if (!resultTime || !resultScore || !resultMessage) {
+        return;
+      }
+
+      var inputs = Array.prototype.slice.call(form.querySelectorAll('input[data-roi-input]'));
+      if (!inputs.length) {
+        return;
+      }
+
+      var defaults = {};
+      inputs.forEach(function (input) {
+        var raw = parseFloat(input.value);
+        if (!isFinite(raw)) {
+          raw = 0;
+        }
+        var minAttr = input.getAttribute('min');
+        if (minAttr !== null && minAttr !== '') {
+          var minValue = parseFloat(minAttr);
+          if (isFinite(minValue) && raw < minValue) {
+            raw = minValue;
+          }
+        }
+        defaults[input.name] = raw;
+      });
+
+      var resolveValue = function (name) {
+        var input = form.elements.namedItem(name);
+        var fallback = Object.prototype.hasOwnProperty.call(defaults, name) ? defaults[name] : 0;
+        if (!input) {
+          return fallback;
+        }
+
+        var rawValue = parseFloat(input.value);
+        if (!isFinite(rawValue)) {
+          rawValue = fallback;
+        }
+        if (isNaN(rawValue)) {
+          rawValue = fallback;
+        }
+
+        var minAttr = input.getAttribute('min');
+        if (minAttr !== null && minAttr !== '') {
+          var minValue = parseFloat(minAttr);
+          if (isFinite(minValue) && rawValue < minValue) {
+            rawValue = minValue;
+          }
+        }
+
+        return Math.max(0, rawValue);
+      };
+
+      var formatNumber = function (value) {
+        try {
+          return value.toLocaleString('de-DE');
+        } catch (error) {
+          return String(value);
+        }
+      };
+
+      var updateResults = function () {
+        var team = resolveValue('team');
+        var assets = resolveValue('assets');
+        var audits = resolveValue('audits');
+        var systeme = resolveValue('systeme');
+
+        var baseEffekt = (assets / 25) + (audits * 6) + (systeme * 3);
+        var teamFactor = Math.max(1, team / 4);
+        var estimatedHours = Math.round(Math.max(0, baseEffekt * teamFactor));
+
+        var rawScore = 40 + (team * 2.5) + (audits * 5) + (systeme * 6);
+        var score = Math.max(10, Math.min(100, Math.round(rawScore)));
+
+        resultTime.textContent = formatNumber(estimatedHours);
+        resultScore.textContent = formatNumber(score);
+
+        var message = 'Bei ' + formatNumber(team) + ' Personen sparen Sie rund ' + formatNumber(estimatedHours) + ' Stunden pro Monat und erreichen einen Audit-Ready-Score von ' + formatNumber(score) + ' aus 100.';
+        resultMessage.textContent = message;
+      };
+
+      inputs.forEach(function (input) {
+        var handler = function () {
+          updateResults();
+        };
+        input.addEventListener('input', handler);
+        input.addEventListener('change', handler);
+      });
+
+      updateResults();
     });
   </script>
   <script>
