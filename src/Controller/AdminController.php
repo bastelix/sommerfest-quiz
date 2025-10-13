@@ -345,7 +345,7 @@ class AdminController
         }
 
         $candidate = (string) $params['pageTab'];
-        $allowed = ['seo', 'content', 'landing-news'];
+        $allowed = ['seo', 'content', 'landing-news', 'wiki'];
 
         return in_array($candidate, $allowed, true) ? $candidate : $default;
     }
