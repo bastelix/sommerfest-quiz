@@ -181,9 +181,10 @@ class MailService
         string $message,
         ?array $templateData = null,
         ?string $fromEmail = null,
-        ?array $smtpOverride = null
+        ?array $smtpOverride = null,
+        ?string $company = null
     ): void {
-        $context = $this->buildContactContext($name, $replyTo, $message);
+        $context = $this->buildContactContext($name, $replyTo, $message, $company);
         $templateArray = is_array($templateData) ? $templateData : [];
         $senderName = isset($templateArray['sender_name']) ? trim((string) $templateArray['sender_name']) : null;
         $context['sender_name'] = $senderName ?? '';
@@ -198,6 +199,7 @@ class MailService
                 'name'     => $name,
                 'email'    => $replyTo,
                 'message'  => $message,
+                'company'  => $company,
                 'base_url' => $this->baseUrl,
             ]);
         }
@@ -209,6 +211,7 @@ class MailService
             $senderHtml = $this->twig->render('emails/contact_copy.twig', [
                 'name'     => $name,
                 'message'  => $message,
+                'company'  => $company,
                 'base_url' => $this->baseUrl,
             ]);
         }
@@ -245,7 +248,7 @@ class MailService
         $this->audit?->log('contact_mail', ['from' => $replyTo]);
     }
 
-    private function buildContactContext(string $name, string $replyTo, string $message): array
+    private function buildContactContext(string $name, string $replyTo, string $message, ?string $company = null): array
     {
         $safeMessage = nl2br(htmlspecialchars($message, ENT_QUOTES, 'UTF-8'));
 
@@ -255,6 +258,7 @@ class MailService
             'message' => $message,
             'message_plain' => new Markup($message, 'UTF-8'),
             'message_html' => new Markup($safeMessage, 'UTF-8'),
+            'company' => $company ?? '',
             'base_url' => $this->baseUrl,
         ];
     }

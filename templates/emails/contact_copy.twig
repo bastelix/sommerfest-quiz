@@ -3,6 +3,9 @@
 {% block content %}
 <p>Hallo {{ name }},</p>
 <p>vielen Dank für Ihre Nachricht. Hier ist eine Kopie Ihrer Anfrage:</p>
+{% if company %}
+<p><strong>Unternehmen:</strong> {{ company }}</p>
+{% endif %}
 <p>{{ message|nl2br }}</p>
 <p>Wir melden uns in Kürze.</p>
 {% endblock %}

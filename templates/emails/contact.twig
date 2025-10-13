@@ -2,5 +2,8 @@
 
 {% block content %}
 <p>Kontaktanfrage von {{ name }} ({{ email }}):</p>
+{% if company %}
+<p>Unternehmen: {{ company }}</p>
+{% endif %}
 <p>{{ message|nl2br }}</p>
 {% endblock %}

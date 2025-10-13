@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
       body: data
     }).then(res => {
       if (res.ok) {
-        msg.textContent = 'Vielen Dank für Ihre Nachricht!';
+        msg.textContent = 'Danke! Wir melden uns mit Terminvorschlägen.';
         form.reset();
         if (hasTurnstile) {
           turnstileToken = '';

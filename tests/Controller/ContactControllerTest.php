@@ -46,9 +46,10 @@ class ContactControllerTest extends TestCase
                     string $message,
                     ?array $templateData = null,
                     ?string $fromEmail = null,
-                    ?array $smtpOverride = null
+                    ?array $smtpOverride = null,
+                    ?string $company = null
                 ): void {
-                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail, $smtpOverride];
+                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail, $smtpOverride, $company];
                 }
             };
 
@@ -82,6 +83,7 @@ class ContactControllerTest extends TestCase
                 'email' => 'john@example.com',
                 'message' => 'Hello',
                 'company' => '',
+                'company_name' => 'Doe Labs',
             ], JSON_THROW_ON_ERROR);
 
             $request = $this->createRequest(
@@ -118,6 +120,7 @@ class ContactControllerTest extends TestCase
                 ],
                 'contact@main.test',
                 null,
+                'Doe Labs',
             ], $mailer->args);
         } finally {
             if ($oldMainDomain === false) {
@@ -143,6 +146,47 @@ class ContactControllerTest extends TestCase
         ];
     }
 
+    public function testContactFormRejectsWhenMessageTooLong(): void {
+        RateLimitMiddleware::resetPersistentStorage();
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+        session_id('contacttoolong');
+        session_start();
+        $_SESSION['csrf_token'] = 'token';
+        $_COOKIE[session_name()] = session_id();
+
+        putenv('TURNSTILE_SITE_KEY');
+        putenv('TURNSTILE_SECRET_KEY');
+        unset($_ENV['TURNSTILE_SITE_KEY'], $_ENV['TURNSTILE_SECRET_KEY']);
+
+        $message = str_repeat('A', 161);
+        $body = json_encode([
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'message' => $message,
+            'company' => '',
+            'company_name' => 'Org Inc.',
+        ], JSON_THROW_ON_ERROR);
+
+        $request = $this->createRequest(
+            'POST',
+            '/landing/contact',
+            [
+                'Content-Type' => 'application/json',
+                'X-CSRF-Token' => 'token',
+            ],
+            [session_name() => session_id()]
+        );
+        $request->getBody()->write($body);
+        $request->getBody()->rewind();
+
+        $app = $this->getAppInstance();
+        $response = $app->handle($request);
+
+        $this->assertSame(400, $response->getStatusCode());
+    }
+
     public function testContactFormRequiresCaptchaWhenConfigured(): void {
         RateLimitMiddleware::resetPersistentStorage();
         if (session_status() === PHP_SESSION_ACTIVE) {
@@ -163,6 +207,7 @@ class ContactControllerTest extends TestCase
             'email' => 'john@example.com',
             'message' => 'Hello',
             'company' => '',
+            'company_name' => '',
         ], JSON_THROW_ON_ERROR);
 
         $request = $this->createRequest(
@@ -209,6 +254,7 @@ class ContactControllerTest extends TestCase
             'email' => 'jane@example.com',
             'message' => 'Test',
             'company' => '',
+            'company_name' => '',
             'cf-turnstile-response' => 'token-value',
         ], JSON_THROW_ON_ERROR);
 
@@ -269,9 +315,10 @@ class ContactControllerTest extends TestCase
                 string $message,
                 ?array $templateData = null,
                 ?string $fromEmail = null,
-                ?array $smtpOverride = null
+                ?array $smtpOverride = null,
+                ?string $company = null
             ): void {
-                $this->sent[] = [$to, $name, $replyTo, $message];
+                $this->sent[] = [$to, $name, $replyTo, $message, $company];
             }
         };
 
@@ -280,6 +327,7 @@ class ContactControllerTest extends TestCase
             'email' => 'jane@example.com',
             'message' => 'Valid',
             'company' => '',
+            'company_name' => '',
             'cf-turnstile-response' => 'token-value',
         ], JSON_THROW_ON_ERROR);
 
@@ -342,9 +390,10 @@ class ContactControllerTest extends TestCase
                     string $message,
                     ?array $templateData = null,
                     ?string $fromEmail = null,
-                    ?array $smtpOverride = null
+                    ?array $smtpOverride = null,
+                    ?string $company = null
                 ): void {
-                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail, $smtpOverride];
+                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail, $smtpOverride, $company];
                 }
             };
 
@@ -353,6 +402,7 @@ class ContactControllerTest extends TestCase
                 'email' => 'jane@example.com',
                 'message' => 'Hi there',
                 'company' => '',
+                'company_name' => '',
             ], JSON_THROW_ON_ERROR);
 
             $request = $this->createRequest(
@@ -381,6 +431,7 @@ class ContactControllerTest extends TestCase
                 'Hi there',
                 null,
                 'contact@domain.test',
+                null,
                 null,
             ], $mailer->args);
         } finally {
@@ -433,9 +484,10 @@ class ContactControllerTest extends TestCase
                     string $message,
                     ?array $templateData = null,
                     ?string $fromEmail = null,
-                    ?array $smtpOverride = null
+                    ?array $smtpOverride = null,
+                    ?string $company = null
                 ): void {
-                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail, $smtpOverride];
+                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail, $smtpOverride, $company];
                 }
             };
 
@@ -444,6 +496,7 @@ class ContactControllerTest extends TestCase
                 'email' => 'sam@example.com',
                 'message' => 'Hi override',
                 'company' => '',
+                'company_name' => '',
             ], JSON_THROW_ON_ERROR);
 
             $request = $this->createRequest(
@@ -515,7 +568,8 @@ class ContactControllerTest extends TestCase
                     string $message,
                     ?array $templateData = null,
                     ?string $fromEmail = null,
-                    ?array $smtpOverride = null
+                    ?array $smtpOverride = null,
+                    ?string $company = null
                 ): void {
                     $this->called = true;
                 }
@@ -526,6 +580,7 @@ class ContactControllerTest extends TestCase
                 'email' => 'bot@example.com',
                 'message' => 'Spam',
                 'company' => 'Malicious Inc.',
+                'company_name' => '',
             ], JSON_THROW_ON_ERROR);
 
             $request = $this->createRequest(
@@ -596,9 +651,10 @@ class ContactControllerTest extends TestCase
                     string $message,
                     ?array $templateData = null,
                     ?string $fromEmail = null,
-                    ?array $smtpOverride = null
+                    ?array $smtpOverride = null,
+                    ?string $company = null
                 ): void {
-                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail, $smtpOverride];
+                    $this->args = [$to, $name, $replyTo, $message, $templateData, $fromEmail, $smtpOverride, $company];
                 }
             };
 
@@ -607,6 +663,7 @@ class ContactControllerTest extends TestCase
                 'email' => 'valid@example.com',
                 'message' => 'Please ignore',
                 'company' => '',
+                'company_name' => '',
             ], JSON_THROW_ON_ERROR);
 
             $request = $this->createRequest(
@@ -635,6 +692,7 @@ class ContactControllerTest extends TestCase
                 'Please ignore',
                 null,
                 'not-an-email',
+                null,
                 null,
             ], $mailer->args);
         } finally {

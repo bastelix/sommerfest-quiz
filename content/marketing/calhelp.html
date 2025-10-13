@@ -764,7 +764,7 @@
       <div class="uk-width-1-2@m">
         <ol class="calhelp-demo-steps uk-card uk-card-primary uk-card-body" aria-label="Ablauf des Erstgesprächs">
           <li>Anlass schildern: Labor, Service oder Verwaltung – wir hören zu und fragen nach.</li>
-          <li>Lage klären: Datenstand, Prioritäten und Zeitfenster werden gemeinsam sortiert.</li>
+          <li>Lage kurz klären: Datenstand, Prioritäten und Zeitfenster werden gemeinsam sortiert.</li>
           <li>Nächsten Schritt vereinbaren: Check, Workshop oder Protokoll – passend zu Ihrer Situation.</li>
         </ol>
       </div>
@@ -924,7 +924,7 @@
     <aside class="calhelp-newsletter uk-card uk-card-primary uk-card-body uk-light" aria-label="Newsletter-Box">
       <h3 class="uk-card-title">Newsletter</h3>
       <p>„Kurz, nützlich, selten: Updates zu Migration, Reports &amp; Best Practices.“ (Double-Opt-In, freiwillig.)</p>
-      <a class="uk-button uk-button-default" href="#conversation">Gespräch vereinbaren</a>
+      <a class="uk-button uk-button-default" href="#conversation">Gespräch starten</a>
     </aside>
     <section class="calhelp-editorial-calendar uk-card uk-card-primary uk-card-body" aria-labelledby="calendar-title">
       <h3 id="calendar-title">Redaktionskalender – 6 Wochen Ausblick</h3>
@@ -976,7 +976,7 @@
     </ul>
     <div class="calhelp-faq__footer">
       <span class="calhelp-faq__footer-hint">Noch nicht fündig geworden?</span>
-      <a class="calhelp-faq__footer-link" href="#conversation">Weitere Fragen → Gespräch</a>
+      <a class="calhelp-faq__footer-link" href="#conversation">Weitere Fragen → Gespräch starten</a>
     </div>
   </div>
 </section>
@@ -996,27 +996,35 @@
               class="uk-form-stacked uk-width-large uk-margin-auto"
               data-contact-endpoint="{{ basePath }}/calhelp/contact">
           <div class="uk-margin">
-            <label class="uk-form-label" for="form-name">Ihr Name</label>
-            <input class="uk-input" id="form-name" name="name" type="text" required>
+            <label class="uk-form-label" for="form-name">Name</label>
+            <input class="uk-input" id="form-name" name="name" type="text" autocomplete="name" required>
           </div>
           <div class="uk-margin">
             <label class="uk-form-label" for="form-email">E-Mail</label>
-            <input class="uk-input" id="form-email" name="email" type="email" required>
+            <input class="uk-input" id="form-email" name="email" type="email" autocomplete="email" required>
           </div>
           <div class="uk-margin">
-            <label class="uk-form-label" for="form-msg">Worum geht es?</label>
-            <textarea class="uk-textarea" id="form-msg" name="message" rows="5" required></textarea>
+            <label class="uk-form-label" for="form-company">Unternehmen (optional)</label>
+            <input class="uk-input" id="form-company" name="company_name" type="text" autocomplete="organization">
+          </div>
+          <div class="uk-margin">
+            <label class="uk-form-label" for="form-msg">Wobei sollen wir helfen?</label>
+            <textarea class="uk-textarea" id="form-msg" name="message" rows="4" maxlength="160" required></textarea>
           </div>
           <div class="uk-margin turnstile-field" data-turnstile-container>
             <div class="turnstile-widget">{{ turnstile_widget }}</div>
             <p class="uk-text-small turnstile-hint" data-turnstile-hint hidden>Bitte bestätigen Sie, dass Sie kein Roboter sind.</p>
           </div>
           <div class="uk-margin">
-            <label><input class="uk-checkbox" name="privacy" type="checkbox" required> Ich stimme der Speicherung meiner Daten zur Bearbeitung zu.</label>
+            <label>
+              <input class="uk-checkbox" name="privacy" type="checkbox" required>
+              Wir nutzen Ihre Angaben ausschließlich zur Rückmeldung. Details:
+              <a href="{{ basePath }}/datenschutz">Datenschutz</a>.
+            </label>
           </div>
           <input type="text" name="company" autocomplete="off" tabindex="-1" class="uk-hidden" aria-hidden="true">
           <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-          <button class="btn btn-black uk-button uk-button-secondary uk-button-large uk-width-1-1" type="submit">Senden</button>
+          <button class="btn btn-black uk-button uk-button-secondary uk-button-large uk-width-1-1" type="submit">Gespräch starten</button>
         </form>
       </div>
       <div>
@@ -1025,7 +1033,7 @@
           <p class="uk-margin-small-top">Sie bevorzugen ein Gespräch oder möchten ein konkretes Szenario prüfen? Nutzen Sie die Schnellzugriffe.</p>
           <div class="calhelp-cta__actions uk-margin-medium-top" role="group" aria-label="Abschluss-CTAs">
             <a class="uk-button uk-button-primary uk-width-1-1" href="#conversation">Gespräch starten</a>
-            <a class="uk-button uk-button-default uk-width-1-1" href="#approach">Lage klären</a>
+            <a class="uk-button uk-button-default uk-width-1-1" href="#approach">Lage kurz klären</a>
           </div>
         </div>
         <div class="calhelp-note uk-card uk-card-primary uk-card-body uk-margin-top">

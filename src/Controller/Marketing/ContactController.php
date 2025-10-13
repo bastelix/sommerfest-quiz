@@ -71,11 +71,14 @@ class ContactController
         $name = trim((string) ($data['name'] ?? ''));
         $email = trim((string) ($data['email'] ?? ''));
         $message = trim((string) ($data['message'] ?? ''));
+        $companyName = trim((string) ($data['company_name'] ?? ''));
+        $messageLength = function_exists('mb_strlen') ? mb_strlen($message) : strlen($message);
         if (
             $name === '' ||
             $message === '' ||
             $email === '' ||
-            !filter_var($email, FILTER_VALIDATE_EMAIL)
+            !filter_var($email, FILTER_VALIDATE_EMAIL) ||
+            $messageLength > 160
         ) {
             return $response->withStatus(400);
         }
@@ -151,7 +154,7 @@ class ContactController
             $mailer = new MailService($twig, $manager);
         }
         try {
-            $mailer->sendContact($to, $name, $email, $message, $template, $domainEmail, $smtpOverride);
+            $mailer->sendContact($to, $name, $email, $message, $template, $domainEmail, $smtpOverride, $companyName ?: null);
         } catch (RuntimeException $e) {
             error_log('Contact mail failed: ' . $e->getMessage());
             $response->getBody()->write('Mailversand fehlgeschlagen');
