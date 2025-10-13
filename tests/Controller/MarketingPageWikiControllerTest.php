@@ -1,0 +1,218 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Controller;
+
+use App\Controller\Admin\MarketingPageWikiController;
+use App\Service\Marketing\Wiki\EditorJsToMarkdown;
+use App\Service\Marketing\Wiki\WikiPublisher;
+use App\Service\MarketingPageWikiArticleService;
+use App\Service\MarketingPageWikiSettingsService;
+use App\Service\PageService;
+use PDO;
+use PDOException;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use Slim\Psr7\Factory\StreamFactory;
+use Slim\Psr7\Response;
+use Tests\TestCase;
+
+final class MarketingPageWikiControllerTest extends TestCase
+{
+    public function testUpdateSettingsAcceptsJsonPayload(): void
+    {
+        $pdo = $this->createWikiDatabase();
+        $controller = $this->createController($pdo);
+
+        $request = $this->createRequest('POST', '/admin/pages/1/wiki/settings', [
+            'HTTP_CONTENT_TYPE' => 'application/json',
+        ]);
+        $stream = (new StreamFactory())->createStream(json_encode([
+            'active' => true,
+            'menuLabel' => 'Docs',
+        ], JSON_THROW_ON_ERROR));
+        $request = $request->withBody($stream);
+
+        $response = $controller->updateSettings($request, new Response(), ['pageId' => 1]);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+
+        $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame(true, $payload['active']);
+        $this->assertSame('Docs', $payload['menuLabel']);
+
+        $stored = $pdo->query('SELECT is_active, menu_label FROM marketing_page_wiki_settings WHERE page_id = 1')
+            ?->fetch(PDO::FETCH_ASSOC);
+        $this->assertSame(['is_active' => 1, 'menu_label' => 'Docs'], $stored);
+    }
+
+    public function testSaveArticleAcceptsJsonPayload(): void
+    {
+        $pdo = $this->createWikiDatabase();
+        $controller = $this->createController($pdo);
+
+        $request = $this->createRequest('POST', '/admin/pages/1/wiki/articles', [
+            'HTTP_CONTENT_TYPE' => 'application/json',
+        ]);
+        $stream = (new StreamFactory())->createStream(json_encode([
+            'locale' => 'de',
+            'slug' => 'introduction',
+            'title' => 'Introduction',
+            'excerpt' => 'Overview',
+            'editor' => [
+                'blocks' => [
+                    ['type' => 'paragraph', 'data' => ['text' => 'Welcome']],
+                ],
+            ],
+        ], JSON_THROW_ON_ERROR));
+        $request = $request->withBody($stream);
+
+        $response = $controller->saveArticle($request, new Response(), ['pageId' => 1]);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+
+        $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame('introduction', $payload['slug']);
+        $this->assertSame('Introduction', $payload['title']);
+
+        $row = $pdo->query('SELECT slug, title FROM marketing_page_wiki_articles WHERE page_id = 1')
+            ?->fetch(PDO::FETCH_ASSOC);
+        $this->assertSame(['slug' => 'introduction', 'title' => 'Introduction'], $row);
+    }
+
+    public function testUpdateStatusReturns400ForInvalidJson(): void
+    {
+        $pdo = $this->createWikiDatabase();
+        $controller = $this->createController($pdo);
+
+        $article = $controller->saveArticle(
+            $this->createJsonRequest([
+                'locale' => 'de',
+                'slug' => 'guide',
+                'title' => 'Guide',
+                'editor' => ['blocks' => [['type' => 'paragraph', 'data' => ['text' => 'Step']]]],
+            ]),
+            new Response(),
+            ['pageId' => 1]
+        );
+
+        $payload = json_decode((string) $article->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $articleId = $payload['id'];
+
+        $request = $this->createRequest('POST', '/admin/pages/1/wiki/articles/' . $articleId . '/status', [
+            'HTTP_CONTENT_TYPE' => 'application/json',
+        ]);
+        $stream = (new StreamFactory())->createStream('{invalid-json');
+        $request = $request->withBody($stream);
+
+        $response = $controller->updateStatus($request, new Response(), ['articleId' => $articleId]);
+
+        $this->assertSame(400, $response->getStatusCode());
+    }
+
+    private function createWikiDatabase(): PDO
+    {
+        $pdo = new PDO('sqlite::memory:');
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $pdo->exec('CREATE TABLE marketing_page_wiki_settings (
+            page_id INTEGER PRIMARY KEY,
+            is_active INTEGER NOT NULL DEFAULT 0,
+            menu_label TEXT NULL,
+            updated_at TEXT NULL
+        )');
+        $pdo->exec('CREATE TABLE marketing_page_wiki_articles (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            page_id INTEGER NOT NULL,
+            slug TEXT NOT NULL,
+            locale TEXT NOT NULL,
+            title TEXT NOT NULL,
+            excerpt TEXT NULL,
+            editor_json TEXT NULL,
+            content_md TEXT NOT NULL,
+            content_html TEXT NOT NULL,
+            status TEXT NOT NULL,
+            sort_index INTEGER NULL,
+            published_at TEXT NULL,
+            updated_at TEXT NULL
+        )');
+        $pdo->exec('CREATE TABLE marketing_page_wiki_versions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            article_id INTEGER NOT NULL,
+            editor_json TEXT NULL,
+            content_md TEXT NOT NULL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            created_by TEXT NULL
+        )');
+        $pdo->exec('CREATE TABLE pages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            slug TEXT NOT NULL,
+            title TEXT NOT NULL,
+            content TEXT NULL
+        )');
+        $pdo->exec("INSERT INTO pages (id, slug, title, content) VALUES (1, 'page', 'Page', '')");
+
+        return $pdo;
+    }
+
+    private function createController(PDO $pdo): MarketingPageWikiController
+    {
+        $contentRoot = $this->createPublisherRoot();
+
+        $settingsService = new MarketingPageWikiSettingsService($pdo);
+        $articleService = new MarketingPageWikiArticleService(
+            $pdo,
+            new EditorJsToMarkdown(),
+            new WikiPublisher($contentRoot)
+        );
+        $pageService = new PageService($pdo);
+
+        return new MarketingPageWikiController($settingsService, $articleService, $pageService);
+    }
+
+    private function createJsonRequest(array $payload): \Psr\Http\Message\ServerRequestInterface
+    {
+        $request = $this->createRequest('POST', '/admin/pages/1/wiki/articles', [
+            'HTTP_CONTENT_TYPE' => 'application/json',
+        ]);
+        $stream = (new StreamFactory())->createStream(json_encode($payload, JSON_THROW_ON_ERROR));
+        $request = $request->withBody($stream);
+
+        return $request;
+    }
+
+    private function createPublisherRoot(): string
+    {
+        $base = sys_get_temp_dir() . '/wiki_' . bin2hex(random_bytes(6));
+        if (!mkdir($base) && !is_dir($base)) {
+            throw new PDOException(sprintf('Failed to create temp directory: %s', $base));
+        }
+
+        register_shutdown_function(static function () use ($base): void {
+            if (!is_dir($base)) {
+                return;
+            }
+
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($base, RecursiveDirectoryIterator::SKIP_DOTS),
+                RecursiveIteratorIterator::CHILD_FIRST
+            );
+
+            foreach ($iterator as $file) {
+                if ($file->isDir()) {
+                    rmdir($file->getPathname());
+                    continue;
+                }
+
+                unlink($file->getPathname());
+            }
+
+            rmdir($base);
+        });
+
+        return $base;
+    }
+}
