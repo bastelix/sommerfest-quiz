@@ -2,19 +2,16 @@
 
 {% set links = [
   { 'href': '#hero', 'label': 'Start', 'icon': 'home' },
-  { 'href': '#why', 'label': 'Nutzen', 'icon': 'bolt' },
-  { 'href': '#vision', 'label': 'Vision', 'icon': 'lightbulb' },
   { 'href': '#services', 'label': 'Leistungen', 'icon': 'grid' },
-  { 'href': '#process', 'label': 'Vorgehen', 'icon': 'settings' },
-  { 'href': '#results', 'label': 'Ergebnisse', 'icon': 'check' },
-  { 'href': '#faq', 'label': 'FAQ', 'icon': 'question' },
+  { 'href': '#cases', 'label': 'Fälle', 'icon': 'users' },
+  { 'href': '#about', 'label': 'Über uns', 'icon': 'info' },
   { 'href': '#cta', 'label': 'Kontakt', 'icon': 'bolt' }
 ] %}
 {% if marketingWikiMenu is defined %}
   {% set links = links|merge([{ 'href': marketingWikiMenu.url, 'label': marketingWikiMenu.label, 'icon': 'file-text' }]) %}
 {% endif %}
 
-{% block title %}{{ metaTitle|default('calHelp – Digitale Abläufe, die zu Ihrem Team passen') }}{% endblock %}
+{% block title %}{{ metaTitle|default('calHelp – Ein System. Klare Prozesse. Beratung für Kalibrier-, Prüf- & Inventarprozesse') }}{% endblock %}
 
 {% block head %}
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -174,7 +171,7 @@
           </ul>
         </div>
         <a class="uk-button uk-button-primary uk-width-1-1 uk-margin-top calhelp-offcanvas__cta" href="#cta">
-          <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Kostenfreies Erstgespräch
+          <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Gespräch starten
         </a>
       </div>
     </div>
@@ -186,17 +183,17 @@
       <div class="uk-container">
         <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle calhelp-hero-grid" data-uk-grid>
           <div class="calhelp-hero-grid__content">
-            <h1 class="qr-h1">Ein klarer Ablauf – so, wie Ihr Team ihn kennt.</h1>
-            <p class="qr-sub">Wir digitalisieren eingespielte Abläufe in Labor, Service und Verwaltung – nachvollziehbar, prüfbar, alltagstauglich.</p>
+            <h1 class="qr-h1">calHelp – Ein System. Klare Prozesse. Beratung für Kalibrier-, Prüf- &amp; Inventarprozesse</h1>
+            <p class="qr-sub">Wir begleiten Labor-, Service- und Inventarteams von der Analyse bis zum auditfähigen Betrieb – mit klaren Zuständigkeiten, Nachweisen und Routinen.</p>
             <div class="uk-margin-medium-top uk-flex uk-flex-left uk-flex-wrap" style="gap:16px;">
               <a class="uk-button uk-button-primary" href="#cta">
-                <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Kostenfreies Erstgespräch vereinbaren
+                <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Gespräch starten
               </a>
-              <a class="uk-button uk-button-default" href="#results">
-                <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>Beispiel-Nachweis ansehen
+              <a class="uk-button uk-button-default" href="#quick-check">
+                <span class="uk-margin-small-right" data-uk-icon="icon: clock"></span>15-Min-Kurz-Check
               </a>
             </div>
-            <p class="calhelp-trust">In Deutschland betreut • auditfähig • schrittweise Einführung ohne Stillstand</p>
+            <p class="calhelp-trust">In Deutschland betreibbar &middot; DSGVO-konform &middot; &gt;15 Jahre Projekterfahrung</p>
           </div>
           <div class="calhelp-hero-grid__media">
             <div class="calhelp-hero-card uk-card uk-card-default uk-card-body">
@@ -212,6 +209,8 @@
         </div>
       </div>
     </section>
+
+    <div id="quick-check" class="calhelp-anchor-target" aria-hidden="true" tabindex="-1"></div>
 
     <section id="why" class="uk-section uk-section-default">
       <div class="uk-container uk-container-small">
@@ -244,12 +243,12 @@
       </div>
     </section>
 
-    <section id="vision" class="uk-section calhelp-section-glow">
+    <section id="about" class="uk-section calhelp-section-glow">
       <div class="uk-container uk-container-small">
         <div class="uk-text-center uk-light">
-          <h2 class="qr-h2">Vision</h2>
-          <p class="uk-text-lead">calHelp sorgt dafür, dass Ihre bewährten Routinen digital, nachvollziehbar und auditfähig funktionieren.</p>
-          <p>Wir übernehmen, was sich bewährt hat, schließen Medienbrüche und machen Nachweise verlässlich – Schritt für Schritt, ohne Kulturbruch.</p>
+          <h2 class="qr-h2">Über uns</h2>
+          <p class="uk-text-lead">Wir bündeln mehr als 15 Jahre Projekterfahrung rund um kalibrier-, prüf- und inventarpflichtige Abläufe.</p>
+          <p>Als interdisziplinäres Team aus Beratung, Entwicklung und Betrieb machen wir Ihre Prozesse messbar, auditfähig und für alle Beteiligten verständlich – mit klaren Verantwortlichkeiten und dokumentierten Entscheidungen.</p>
         </div>
       </div>
     </section>
@@ -347,10 +346,10 @@
       </div>
     </section>
 
-    <section id="results" class="uk-section uk-section-default">
+    <section id="cases" class="uk-section uk-section-default">
       <div class="uk-container">
         <div class="uk-text-center">
-          <span class="qr-badge pill pill--soft">Ergebnisse aus Projekten</span>
+          <span class="qr-badge pill pill--soft">Fälle aus Projekten</span>
           <h2 class="qr-h2 uk-margin-small-top">Verlässliche Resultate aus der Praxis</h2>
         </div>
         <div class="uk-grid uk-grid-match uk-child-width-1-3@m uk-child-width-1-1 uk-margin-large-top" data-uk-grid>
@@ -420,7 +419,7 @@
               <a class="uk-button uk-button-primary" href="https://calendly.com/calhelp/erstgespraech" target="_blank" rel="noopener">
                 <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Kostenfreies Erstgespräch vereinbaren
               </a>
-              <a class="uk-button uk-button-default" href="#results">
+              <a class="uk-button uk-button-default" href="#cases">
                 <span class="uk-margin-small-right" data-uk-icon="icon: file-text"></span>Beispiel-Nachweis &amp; Vorgehen ansehen
               </a>
             </div>
@@ -488,6 +487,14 @@
       </div>
     </div>
 
+    <a class="calserver-floating-button calhelp-floating-button calhelp-sticky-cta"
+       href="#cta"
+       data-sticky-cta
+       aria-label="Gespräch starten">
+      <span data-uk-icon="icon: commenting"></span>
+      <span class="calhelp-sticky-cta__label">Gespräch starten</span>
+    </a>
+
     <button class="calserver-floating-button calhelp-floating-button marketing-chat-fab"
             type="button"
             data-marketing-chat-open
@@ -523,8 +530,8 @@
       <ul>
         <li><a href="#hero">Start</a></li>
         <li><a href="#services">Leistungen</a></li>
-        <li><a href="#process">Vorgehen</a></li>
-        <li><a href="#results">Ergebnisse</a></li>
+        <li><a href="#cases">Fälle</a></li>
+        <li><a href="#about">Über uns</a></li>
         <li><a href="#cta">Kontakt</a></li>
       </ul>
     </div>
@@ -587,6 +594,46 @@
       if (contactForm && !contactForm.hasAttribute('data-contact-endpoint')) {
         contactForm.setAttribute('data-contact-endpoint', '{{ basePath }}/calhelp/contact');
       }
+    });
+  </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var stickyCta = document.querySelector('[data-sticky-cta]');
+      if (!stickyCta) {
+        return;
+      }
+
+      var revealThreshold = 0.5;
+      var ticking = false;
+
+      var updateVisibility = function () {
+        ticking = false;
+        var doc = document.documentElement;
+        var scrollTop = window.pageYOffset || doc.scrollTop || 0;
+        var scrollHeight = doc.scrollHeight || 0;
+        var viewportHeight = window.innerHeight || doc.clientHeight || 0;
+        var maxScroll = Math.max(scrollHeight - viewportHeight, 0);
+        var progress = maxScroll === 0 ? 0 : scrollTop / maxScroll;
+
+        if (progress >= revealThreshold) {
+          stickyCta.classList.add('is-visible');
+        } else {
+          stickyCta.classList.remove('is-visible');
+        }
+      };
+
+      var requestTick = function () {
+        if (ticking) {
+          return;
+        }
+        ticking = true;
+        window.requestAnimationFrame(updateVisibility);
+      };
+
+      updateVisibility();
+
+      window.addEventListener('scroll', requestTick, { passive: true });
+      window.addEventListener('resize', requestTick);
     });
   </script>
   <script>
