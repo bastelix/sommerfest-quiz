@@ -526,49 +526,38 @@
 
     <section id="cta" class="uk-section uk-section-large">
       <div class="uk-container">
-        <div class="uk-grid uk-grid-large uk-child-width-1-2@m uk-flex-middle" data-uk-grid>
-          <div>
-            <h2 class="qr-h2">Bereit für klarere Abläufe?</h2>
-            <p class="uk-text-lead">Wir planen mit Ihnen den nächsten Schritt – vom Erstgespräch bis zur sauberen Einführung.</p>
+        <div class="uk-grid" data-uk-grid>
+          <div class="uk-width-2-3@m">
+            <h2 class="qr-h2">Der nächste Schritt ist klein – die Wirkung groß.</h2>
+            <p class="uk-text-lead">Schicken Sie uns ein kurzes Briefing. Wir melden uns persönlich und schlagen den passenden Einstieg vor.</p>
             <div class="uk-flex uk-flex-left uk-flex-wrap uk-margin-medium-top" style="gap:16px;">
-              <a class="uk-button uk-button-primary" href="https://calendly.com/calhelp/erstgespraech" target="_blank" rel="noopener">
-                <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Kostenfreies Erstgespräch vereinbaren
+              <a class="uk-button uk-button-primary" href="#contact-info">
+                <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Gespräch starten
               </a>
-              <a class="uk-button uk-button-default" href="#stories">
-                <span class="uk-margin-small-right" data-uk-icon="icon: file-text"></span>Praxis-Stories ansehen
+              <a class="uk-button uk-button-default" href="#quick-check">
+                <span class="uk-margin-small-right" data-uk-icon="icon: clock"></span>15-Min-Kurz-Check
               </a>
             </div>
-            <div class="uk-margin-large-top">
-              <div class="uk-grid uk-grid-small uk-child-width-1-2@s" data-uk-grid>
-                <div>
-                  <div class="uk-card uk-card-default uk-card-body uk-padding-small">
-                    <h3 class="uk-card-title uk-margin-remove">Checkliste: Prüfsichere Nachweise</h3>
-                    <p class="uk-text-small">Sichern Sie sich die Checkliste als Ergänzung zum Erstgespräch.</p>
-                    <a class="uk-button uk-button-text" href="#cta">
-                      <span class="uk-margin-small-right" data-uk-icon="icon: download"></span>Checkliste anfordern
-                    </a>
-                  </div>
-                </div>
-                <div>
-                  <div class="uk-card uk-card-default uk-card-body uk-padding-small">
-                    <h3 class="uk-card-title uk-margin-remove">Ablauf-Poster: Vom Auftrag zum Bericht</h3>
-                    <p class="uk-text-small">Visualisieren Sie Ihre Schritte – wir bringen das Poster ins Team.</p>
-                    <a class="uk-button uk-button-text" href="#cta">
-                      <span class="uk-margin-small-right" data-uk-icon="icon: image"></span>Ablauf-Poster sichern
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <p class="uk-text-small uk-margin-medium-top">Wir führen das Gespräch entlang Ihrer Prioritäten – bitte kurz <a href="#contact-info">signalisieren, worum es geht</a>. Ohne Buzzwords, ohne Theater.</p>
           </div>
-          <div>
-            <div class="uk-card uk-card-default uk-card-body">
-              <h3 class="uk-card-title">Direkter Kontakt</h3>
-              <p>René Buske<br>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact-info" class="uk-section uk-section-small calhelp-contact-info">
+      <div class="uk-container">
+        <div class="uk-card uk-card-default uk-card-body">
+          <div class="uk-grid uk-grid-small uk-flex-middle" data-uk-grid>
+            <div class="uk-width-expand">
+              <h3 class="uk-card-title uk-margin-remove">Direkter Draht</h3>
+              <p class="uk-margin-small-top uk-margin-remove-bottom">René Buske</p>
+              <p class="uk-margin-small-top uk-margin-remove-bottom">
                 <a class="js-email-link" data-user="office" data-domain="calhelp.de" href="#">office [at] calhelp.de</a><br>
                 <a href="tel:+4933203609080">+49&nbsp;33203&nbsp;609080</a>
               </p>
-              <p class="uk-text-small">Wir melden uns werktags innerhalb von 24 Stunden.</p>
+            </div>
+            <div class="uk-width-auto@m">
+              <p class="uk-text-small uk-margin-remove">Wir melden uns werktags innerhalb von 24&nbsp;Stunden. Ohne Buzzwords, ohne Theater.</p>
             </div>
           </div>
         </div>
@@ -639,23 +628,16 @@
         >office [at] calhelp.de</a><br>
         <a href="tel:+4933203609080">+49&nbsp;33203&nbsp;609080</a>
       </p>
+      <p class="uk-text-small">Ohne Buzzwords, ohne Theater.</p>
     </div>
     <div class="footer-section footer-navigation">
       <strong>Navigation</strong>
       <ul>
-        <li><a href="#hero">Start</a></li>
-        <li><a href="#trust">Vertrauen</a></li>
-        <li><a href="#situationen">Situationen</a></li>
-        <li><a href="#stories">Praxis</a></li>
-        <li><a href="#wirkung">Wirkung</a></li>
-        <li><a href="#prozess">Prozess</a></li>
-        <li><a href="#framework">Framework</a></li>
-        <li><a href="#zielgruppen">Zielgruppen</a></li>
-        <li><a href="#news">News</a></li>
-        <li><a href="#faq">FAQ</a></li>
-        <li><a href="#cta">Kontakt</a></li>
+        {% for link in links %}
+          <li><a href="{{ link.href }}">{{ link.label }}</a></li>
+        {% endfor %}
         <li>
-          <a href="https://calhelp.de/go/framework?utm_source=calhelp&amp;medium=site&amp;campaign=crosslink&amp;content=framework-block"
+          <a href="https://calhelp.de/go/framework?utm_source=calhelp&amp;utm_medium=site&amp;utm_campaign=crosslink&amp;utm_content=framework-footer"
              target="_blank"
              rel="noreferrer noopener">Framework kennenlernen</a>
         </li>
