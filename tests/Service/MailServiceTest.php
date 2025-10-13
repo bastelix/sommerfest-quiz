@@ -96,13 +96,15 @@ class MailServiceTest extends TestCase
         $twig = new Environment(new FilesystemLoader(dirname(__DIR__, 2) . '/templates'));
         $service = new MailService($twig, $manager);
 
-        $service->sendContact('team@example.org', 'Jane', 'jane@example.org', 'Hello there');
+        $service->sendContact('team@example.org', 'Jane', 'jane@example.org', 'Hello there', null, null, null, 'Example Co');
 
         $this->assertCount(2, $provider->sentEmails);
         $this->assertSame('team@example.org', $provider->sentEmails[0]->getTo()[0]->getAddress());
         $this->assertSame('Kontaktanfrage', $provider->sentEmails[0]->getSubject());
         $this->assertSame('Ihre Kontaktanfrage', $provider->sentEmails[1]->getSubject());
         $this->assertSame('jane@example.org', $provider->sentEmails[1]->getTo()[0]->getAddress());
+        $this->assertStringContainsString('Example Co', (string) $provider->sentEmails[0]->getHtmlBody());
+        $this->assertStringContainsString('Example Co', (string) $provider->sentEmails[1]->getHtmlBody());
     }
 
     private function createCollectingManager(bool $configured, ?CollectingProvider $provider = null): MailProviderManager
