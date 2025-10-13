@@ -3,6 +3,7 @@
 {% set links = [
   { 'href': '#hero', 'label': 'Start', 'icon': 'home' },
   { 'href': '#trust', 'label': 'Vertrauen', 'icon': 'lock' },
+  { 'href': '#kennzahlen', 'label': 'Kennzahlen', 'icon': 'thumbnails' },
   { 'href': '#situationen', 'label': 'Situationen', 'icon': 'info' },
   { 'href': '#stories', 'label': 'Praxis', 'icon': 'users' },
   { 'href': '#wirkung', 'label': 'Wirkung', 'icon': 'grid' },
@@ -249,6 +250,56 @@
               <span class="qr-badge pill pill--soft">15+ Jahre</span>
               <p class="uk-margin-small-top uk-margin-remove-bottom">Erfahrung aus Industrie, Laboren und öffentlicher Hand.</p>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="kennzahlen" class="uk-section uk-section-muted">
+      <div class="uk-container">
+        <div class="uk-text-center uk-width-3-4@m uk-margin-auto">
+          <span class="qr-badge pill pill--soft">Kennzahlen</span>
+          <h2 class="qr-h2 uk-margin-small-top">Messbare Wirkung für Ihren Betrieb</h2>
+          <p class="uk-text-lead">Wir legen Ziele gemeinsam fest, messen kontinuierlich nach und übertragen Best Practices auf alle Standorte.</p>
+        </div>
+        <div class="uk-grid uk-grid-medium uk-child-width-1-1@s uk-child-width-1-3@m uk-margin-large-top" data-uk-grid>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body uk-text-center uk-height-1-1"
+                 data-uk-tooltip="title: So messen wir das: Vergleich der durchschnittlichen Suchzeit aus Ticket-Logs vor und nach dem Rollout in drei Service-Teams.; pos: bottom"
+                 aria-describedby="kennzahlen-suchzeit">
+              <span class="qr-badge pill pill--soft">-35% Suchzeit</span>
+              <p class="uk-margin-small-top uk-margin-remove-bottom">Digitale Suchpfade und Rollen sorgen für weniger Aufwand im Tagesgeschäft.</p>
+              <span id="kennzahlen-suchzeit" class="uk-hidden-visually">So messen wir das: Vergleich der durchschnittlichen Suchzeit aus Ticket-Logs vor und nach dem Rollout in drei Service-Teams.</span>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body uk-text-center uk-height-1-1"
+                 data-uk-tooltip="title: So messen wir das: Erfassung der Erstfreigaben in unserem QS-Modul über zwei Auditzyklen.; pos: bottom"
+                 aria-describedby="kennzahlen-erstabnahme">
+              <span class="qr-badge pill pill--soft">&gt;90% Erst-Abnahme</span>
+              <p class="uk-margin-small-top uk-margin-remove-bottom">Klare Prüfkataloge, Freigaben und Vorlagen reduzieren Schleifen.</p>
+              <span id="kennzahlen-erstabnahme" class="uk-hidden-visually">So messen wir das: Erfassung der Erstfreigaben in unserem QS-Modul über zwei Auditzyklen.</span>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body uk-text-center uk-height-1-1"
+                 data-uk-tooltip="title: So messen wir das: Abgleich der erfassten Datensätze zwischen ERP-Schnittstelle und Mobil-App über 6 Monate.; pos: bottom"
+                 aria-describedby="kennzahlen-dubletten">
+              <span class="qr-badge pill pill--soft">0 doppelte Eingaben</span>
+              <p class="uk-margin-small-top uk-margin-remove-bottom">Durchgängige Datenerfassung verbindet ERP, Labor und Einsatzteams.</p>
+              <span id="kennzahlen-dubletten" class="uk-hidden-visually">So messen wir das: Abgleich der erfassten Datensätze zwischen ERP-Schnittstelle und Mobil-App über 6 Monate.</span>
+            </div>
+          </div>
+        </div>
+        <div class="uk-grid uk-grid-small uk-child-width-auto uk-flex-center uk-margin-large-top" data-uk-grid>
+          <div>
+            <span class="qr-badge pill pill--soft">99,9% Uptime</span>
+          </div>
+          <div>
+            <span class="qr-badge pill pill--soft">17 Jahre Praxis</span>
+          </div>
+          <div>
+            <span class="qr-badge pill pill--soft">Community &gt;250 Fachleute</span>
           </div>
         </div>
       </div>
