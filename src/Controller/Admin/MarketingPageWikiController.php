@@ -74,6 +74,9 @@ final class MarketingPageWikiController
 
         $pageId = (int) ($args['pageId'] ?? 0);
         $body = $request->getParsedBody();
+        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+            $body = json_decode((string) $request->getBody(), true);
+        }
         if (!is_array($body)) {
             return $response->withStatus(400);
         }
@@ -101,6 +104,9 @@ final class MarketingPageWikiController
 
         $pageId = (int) ($args['pageId'] ?? 0);
         $body = $request->getParsedBody();
+        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+            $body = json_decode((string) $request->getBody(), true);
+        }
         if (!is_array($body)) {
             return $response->withStatus(400);
         }
@@ -146,6 +152,9 @@ final class MarketingPageWikiController
 
         $articleId = (int) ($args['articleId'] ?? 0);
         $body = $request->getParsedBody();
+        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+            $body = json_decode((string) $request->getBody(), true);
+        }
         if (!is_array($body)) {
             return $response->withStatus(400);
         }
@@ -229,6 +238,9 @@ final class MarketingPageWikiController
         $pageId = (int) ($args['pageId'] ?? 0);
         $articleId = (int) ($args['articleId'] ?? 0);
         $body = $request->getParsedBody();
+        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+            $body = json_decode((string) $request->getBody(), true);
+        }
         if (!is_array($body)) {
             $body = [];
         }
@@ -264,6 +276,9 @@ final class MarketingPageWikiController
 
         $pageId = (int) ($args['pageId'] ?? 0);
         $body = $request->getParsedBody();
+        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+            $body = json_decode((string) $request->getBody(), true);
+        }
         if (!is_array($body) || !isset($body['order']) || !is_array($body['order'])) {
             return $response->withStatus(400);
         }
