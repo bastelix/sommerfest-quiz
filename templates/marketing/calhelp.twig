@@ -2,9 +2,15 @@
 
 {% set links = [
   { 'href': '#hero', 'label': 'Start', 'icon': 'home' },
-  { 'href': '#services', 'label': 'Leistungen', 'icon': 'grid' },
-  { 'href': '#cases', 'label': 'Fälle', 'icon': 'users' },
-  { 'href': '#about', 'label': 'Über uns', 'icon': 'info' },
+  { 'href': '#trust', 'label': 'Vertrauen', 'icon': 'lock' },
+  { 'href': '#situationen', 'label': 'Situationen', 'icon': 'info' },
+  { 'href': '#stories', 'label': 'Praxis', 'icon': 'users' },
+  { 'href': '#wirkung', 'label': 'Wirkung', 'icon': 'grid' },
+  { 'href': '#prozess', 'label': 'Prozess', 'icon': 'clock' },
+  { 'href': '#framework', 'label': 'Framework', 'icon': 'cog' },
+  { 'href': '#zielgruppen', 'label': 'Zielgruppen', 'icon': 'world' },
+  { 'href': '#news', 'label': 'News', 'icon': 'rss' },
+  { 'href': '#faq', 'label': 'FAQ', 'icon': 'question' },
   { 'href': '#cta', 'label': 'Kontakt', 'icon': 'bolt' }
 ] %}
 {% if marketingWikiMenu is defined %}
@@ -212,197 +218,306 @@
 
     <div id="quick-check" class="calhelp-anchor-target" aria-hidden="true" tabindex="-1"></div>
 
-    <section id="why" class="uk-section uk-section-default">
+    <section id="trust" class="uk-section uk-section-default">
+      <div class="uk-container">
+        <div class="uk-text-center uk-width-2-3@m uk-margin-auto">
+          <span class="qr-badge pill pill--soft">Vertrauen</span>
+          <h2 class="qr-h2 uk-margin-small-top">Verlässliche Basis für regulierte Abläufe</h2>
+          <p class="uk-text-lead">Wir kombinieren Beratung, Betrieb und Dokumentation – auditfest, nachvollziehbar und datensicher.</p>
+        </div>
+        <div class="uk-grid uk-grid-small uk-child-width-1-2@s uk-child-width-1-4@m uk-margin-large-top" data-uk-grid>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body uk-text-center uk-height-1-1">
+              <span class="qr-badge pill pill--soft">Audit-ready</span>
+              <p class="uk-margin-small-top uk-margin-remove-bottom">Auditfähige Nachweise &amp; SOPs aus einer Quelle.</p>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body uk-text-center uk-height-1-1">
+              <span class="qr-badge pill pill--soft">Hosting DE</span>
+              <p class="uk-margin-small-top uk-margin-remove-bottom">DSGVO-konformer Betrieb mit deutschen Rechenzentren.</p>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body uk-text-center uk-height-1-1">
+              <span class="qr-badge pill pill--soft">Partnernetz</span>
+              <p class="uk-margin-small-top uk-margin-remove-bottom">Geprüfte Spezialisten für Kalibrier- &amp; Prüfprozesse.</p>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body uk-text-center uk-height-1-1">
+              <span class="qr-badge pill pill--soft">15+ Jahre</span>
+              <p class="uk-margin-small-top uk-margin-remove-bottom">Erfahrung aus Industrie, Laboren und öffentlicher Hand.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="situationen" class="uk-section uk-section-muted">
       <div class="uk-container uk-container-small">
         <div class="uk-text-center">
-          <span class="qr-badge pill pill--soft">Warum calHelp?</span>
-          <h2 class="qr-h2 uk-margin-small-top">Nutzen in 30 Sekunden</h2>
-          <p class="uk-text-lead">Wir bringen Struktur in tägliche Abläufe und schaffen die Grundlage für belastbare Nachweise.</p>
+          <span class="qr-badge pill pill--soft">Situationen</span>
+          <h2 class="qr-h2 uk-margin-small-top">Woran wir pragmatisch ansetzen</h2>
+          <p class="uk-text-lead">Wir priorisieren entlang Ihrer Engpässe – damit Verbesserungen schnell sichtbar werden.</p>
         </div>
-        <div class="uk-grid uk-grid-match uk-child-width-1-2@m uk-margin-large-top" data-uk-grid>
+        <ul class="uk-list uk-list-large uk-margin-large-top">
+          <li class="uk-flex uk-flex-middle">
+            <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>
+            <span><strong>Übervolle Prüffristen:</strong> Wir schaffen planbare Prüfkalender und automatisierte Erinnerungen.</span>
+          </li>
+          <li class="uk-flex uk-flex-middle">
+            <span class="uk-margin-small-right" data-uk-icon="icon: database"></span>
+            <span><strong>Insellösungen &amp; Excel:</strong> Wir führen Datenquellen zusammen und sichern Versionen.</span>
+          </li>
+          <li class="uk-flex uk-flex-middle">
+            <span class="uk-margin-small-right" data-uk-icon="icon: users"></span>
+            <span><strong>Unklare Zuständigkeiten:</strong> Wir definieren Rollen, Freigaben und Eskalationspfade.</span>
+          </li>
+        </ul>
+        <p class="uk-text-center uk-margin-medium-top">Direkt einsteigen? <a class="uk-link-heading" href="#quick-check">15-Min-Kurz-Check anfragen</a></p>
+      </div>
+    </section>
+
+    <section id="stories" class="uk-section uk-section-secondary uk-light">
+      <div class="uk-container">
+        <div class="uk-text-center">
+          <span class="qr-badge pill pill--soft">Praxis-Stories</span>
+          <h2 class="qr-h2 uk-margin-small-top">Erfahrungen aus Projekten</h2>
+          <p class="uk-text-lead">Drei Beispiele, wie Teams mit unserem Framework Ergebnisse liefern.</p>
+        </div>
+        <div class="uk-grid uk-child-width-1-3@m uk-child-width-1-1 uk-grid-match uk-margin-large-top" data-uk-grid>
           <div>
-            <div class="uk-card uk-card-default uk-card-body uk-height-1-1">
-              <ul class="uk-list uk-list-large uk-list-divider">
-                <li><strong>Weniger Reibung im Alltag:</strong> Ein klarer Ablauf statt „jeder macht es anders“.</li>
-                <li><strong>Sichere Nachweise:</strong> Berichte und Dokumente, die Prüfungen bestehen.</li>
-                <li><strong>Schnell greifbare Resultate:</strong> Sichtbare Verbesserungen in Wochen.</li>
-                <li><strong>Transparenz &amp; Verantwortung:</strong> Jeder weiß, wer was bis wann erledigt.</li>
+            <div class="uk-card uk-card-secondary uk-card-body uk-height-1-1">
+              <span class="qr-badge pill pill--soft">12 Standorte</span>
+              <h3 class="uk-card-title uk-margin-top">Kalibrierlabor</h3>
+              <p>Rollout eines zentralen Kalibrierprozesses inkl. digitalem Prüfmittelpass und rückverfolgbaren Freigaben.</p>
+              <ul class="uk-list uk-list-bullet">
+                <li>Medienbrüche eliminiert</li>
+                <li>Audit in 6 Wochen bestanden</li>
               </ul>
             </div>
           </div>
           <div>
-            <div class="uk-card uk-card-primary uk-card-primary--highlight uk-card-body uk-height-1-1">
-              <h3 class="uk-card-title">Ihr Use-Case in Fokus</h3>
-              <p>Wir hören zu, priorisieren und zeigen, wie bestehende Abläufe digital funktionieren – ohne Big-Bang, ohne Risiko.</p>
-              <a class="uk-button uk-button-default uk-margin-small-top" href="#cta">
-                <span class="uk-margin-small-right" data-uk-icon="icon: search"></span>Ihren Use-Case prüfen
+            <div class="uk-card uk-card-default uk-card-body uk-height-1-1">
+              <span class="qr-badge pill pill--soft">-35% Durchlaufzeit</span>
+              <h3 class="uk-card-title uk-margin-top">Servicebetrieb</h3>
+              <p>Automatisierte Einsatzplanung und mobile Nachweise für Techniker mit sofortigem Kunden-Feedback.</p>
+              <ul class="uk-list uk-list-bullet">
+                <li>Digitale Auftragsmappe eingeführt</li>
+                <li>Qualitätsreports im Kundenportal</li>
+              </ul>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-primary uk-card-body uk-height-1-1">
+              <span class="qr-badge pill pill--soft">100% Inventar sichtbar</span>
+              <h3 class="uk-card-title uk-margin-top">Öffentliche Einrichtung</h3>
+              <p>Transparente Inventur mit IoT-Erfassung, lückenlosen Übergaben und geschützten Zugriffsrechten.</p>
+              <ul class="uk-list uk-list-bullet">
+                <li>Live-Status pro Standort</li>
+                <li>Sofort verfügbare Prüfberichte</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="wirkung" class="uk-section uk-section-default">
+      <div class="uk-container">
+        <div class="uk-text-center">
+          <span class="qr-badge pill pill--soft">Nutzen</span>
+          <h2 class="qr-h2 uk-margin-small-top">Wirksamkeit für Ihr Team</h2>
+          <p class="uk-text-lead">Klar strukturierte Abläufe entlasten Fachkräfte und schaffen Vertrauen bei Prüfstellen.</p>
+        </div>
+        <div class="uk-grid uk-grid-match uk-child-width-1-2@m uk-child-width-1-1 uk-margin-large-top" data-uk-grid>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body uk-height-1-1">
+              <h3 class="uk-card-title">Schnell messbar</h3>
+              <p>Wir liefern erste Kennzahlen nach vier Wochen – mit Dashboard und dokumentierten Annahmen.</p>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body uk-height-1-1">
+              <h3 class="uk-card-title">Transparente Verantwortungen</h3>
+              <p>Rollenbasierte Aufgabenlisten halten Teams synchron und Nachweise vollständig.</p>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body uk-height-1-1">
+              <h3 class="uk-card-title">Risikofreie Migration</h3>
+              <p>Fallback-Pläne und Sandbox-Tests sichern produktionsnahe Einführungen ab.</p>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body uk-height-1-1">
+              <h3 class="uk-card-title">Nachhaltiger Betrieb</h3>
+              <p>Wir betreiben Updates, Monitoring und Support abgestimmt auf Ihre Compliance-Anforderungen.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="prozess" class="uk-section uk-section-muted">
+      <div class="uk-container">
+        <div class="uk-text-center">
+          <span class="qr-badge pill pill--soft">Prozess</span>
+          <h2 class="qr-h2 uk-margin-small-top">So läuft der Einstieg</h2>
+          <p class="uk-text-lead">Drei Schritte zum produktiven Betrieb – begleitet durch feste Ansprechpartner.</p>
+        </div>
+        <div class="uk-grid uk-child-width-1-3@m uk-child-width-1-1 uk-grid-match uk-margin-large-top" data-uk-grid>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body uk-height-1-1">
+              <span class="qr-badge pill pill--soft">Schritt 1</span>
+              <h3 class="uk-card-title uk-margin-top">Analyse &amp; Zielbild</h3>
+              <p>Workshops mit Fachbereichen, Aufnahme kritischer Nachweise und Definition eines realistischen Zielbildes.</p>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body uk-height-1-1">
+              <span class="qr-badge pill pill--soft">Schritt 2</span>
+              <h3 class="uk-card-title uk-margin-top">Pilot &amp; Proof</h3>
+              <p>Umsetzung eines priorisierten Use-Cases inklusive dokumentiertem Prüfpfad und Freigabekonzept.</p>
+            </div>
+          </div>
+          <div>
+            <div class="uk-card uk-card-default uk-card-body uk-height-1-1">
+              <span class="qr-badge pill pill--soft">Schritt 3</span>
+              <h3 class="uk-card-title uk-margin-top">Rollout &amp; Enablement</h3>
+              <p>Rollierender Ausbau, Schulungen pro Rolle und abgestimmte Betriebsübergabe.</p>
+            </div>
+          </div>
+        </div>
+        <details class="uk-margin-large-top">
+          <summary class="uk-text-bold">Details für IT</summary>
+          <div class="uk-margin-top">
+            <ul class="uk-list uk-list-bullet">
+              <li>API-Blueprints für ERP, LIMS und Asset-Management.</li>
+              <li>Technische Sicherheits- und Datenschutzkonzepte zur internen Freigabe.</li>
+              <li>Deployment-Optionen: Managed SaaS oder kundeneigene Infrastruktur.</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section id="framework" class="uk-section calhelp-section-glow">
+      <div class="uk-container">
+        <div class="uk-grid uk-grid-large uk-flex-middle" data-uk-grid>
+          <div class="uk-width-1-2@m">
+            <span class="qr-badge pill pill--soft">Framework</span>
+            <h2 class="qr-h2 uk-margin-small-top">Das calHelp Framework</h2>
+            <p class="uk-text-lead">Ein modularer Bauplan, der Strategie, Datenflüsse und Betrieb verbindet.</p>
+            <p>Wir übersetzen regulatorische Anforderungen in handhabbare Module – von der Auftragsannahme bis zum Archiv. Ihr Team erhält klare Spielregeln, Versionierung und Reporting inklusive.</p>
+            <div class="uk-margin-medium-top uk-flex uk-flex-left uk-flex-wrap" style="gap:16px;">
+              <a class="uk-button uk-button-primary" href="#cta">
+                <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Gespräch vereinbaren
+              </a>
+              <a class="uk-button uk-button-secondary" href="https://calhelp.de/go/framework?utm_source=calhelp&amp;medium=site&amp;campaign=crosslink&amp;content=framework-block" target="_blank" rel="noreferrer noopener">
+                <span class="uk-margin-small-right" data-uk-icon="icon: info"></span>Framework kennenlernen
               </a>
             </div>
           </div>
+          <div class="uk-width-1-2@m">
+            <div class="uk-card uk-card-default uk-card-body uk-height-1-1">
+              <h3 class="uk-card-title">Module im Überblick</h3>
+              <ul class="uk-list uk-list-divider">
+                <li><strong>Governance:</strong> Rollenmodelle, Freigabe-Workflows, Compliance-Checks.</li>
+                <li><strong>Operations:</strong> Prüfmittelverwaltung, Einsatzplanung, Ticketing.</li>
+                <li><strong>Insights:</strong> Dashboards, Audit-Trail, Reporting-Pakete.</li>
+                <li><strong>Enablement:</strong> Trainings, Vorlagen, Change-Kommunikation.</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <section id="about" class="uk-section calhelp-section-glow">
+    <section id="zielgruppen" class="uk-section uk-section-default">
       <div class="uk-container uk-container-small">
-        <div class="uk-text-center uk-light">
-          <h2 class="qr-h2">Über uns</h2>
-          <p class="uk-text-lead">Wir bündeln mehr als 15 Jahre Projekterfahrung rund um kalibrier-, prüf- und inventarpflichtige Abläufe.</p>
-          <p>Als interdisziplinäres Team aus Beratung, Entwicklung und Betrieb machen wir Ihre Prozesse messbar, auditfähig und für alle Beteiligten verständlich – mit klaren Verantwortlichkeiten und dokumentierten Entscheidungen.</p>
+        <div class="uk-text-center">
+          <span class="qr-badge pill pill--soft">Zielgruppen</span>
+          <h2 class="qr-h2 uk-margin-small-top">Für wen wir arbeiten</h2>
+          <p class="uk-text-lead">calHelp verbindet Fachbereiche, IT und Compliance – branchenübergreifend.</p>
+        </div>
+        <div class="uk-flex uk-flex-center uk-flex-wrap uk-margin-large-top" style="gap:12px;">
+          <span class="qr-badge pill pill--soft">Laborleitungen</span>
+          <span class="qr-badge pill pill--soft">Serviceorganisationen</span>
+          <span class="qr-badge pill pill--soft">Qualitätsmanagement</span>
+          <span class="qr-badge pill pill--soft">Regulatory Affairs</span>
+          <span class="qr-badge pill pill--soft">Technische Leiter:innen</span>
+          <span class="qr-badge pill pill--soft">Öffentliche Einrichtungen</span>
         </div>
       </div>
     </section>
 
-    <section id="services" class="uk-section uk-section-default">
+    <section id="news" class="uk-section uk-section-muted">
       <div class="uk-container">
         <div class="uk-text-center">
-          <span class="qr-badge pill pill--soft">Leistungen</span>
-          <h2 class="qr-h2 uk-margin-small-top">Dienstleistungen – seriös, ohne Technikflut</h2>
-          <p class="uk-text-lead">Wir verbinden Strategie, Daten, Nachweise und Betreuung zu einem reibungslosen Ganzen.</p>
+          <span class="qr-badge pill pill--soft">News</span>
+          <h2 class="qr-h2 uk-margin-small-top">Aus dem calHelp Briefing</h2>
+          <p class="uk-text-lead">Impulse aus Projekten, Studien und Formaten.</p>
         </div>
-        <div class="uk-grid uk-grid-match uk-child-width-1-3@l uk-child-width-1-2@m uk-child-width-1-1 uk-margin-large-top" data-uk-grid>
+        <div class="uk-grid uk-grid-match uk-child-width-1-2@s uk-child-width-1-1 uk-margin-large-top" data-uk-grid>
           <div>
-            <div class="uk-card uk-card-default uk-card-body">
-              <h3 class="uk-card-title">Strategie &amp; Prozess</h3>
-              <p>Ist-Aufnahme des echten Alltags, Prioritäten setzen, Entscheidungsvorlage mit 2–3 realistischen Wegen (Aufwand, Nutzen, Zeitplan).</p>
+            <div class="uk-card uk-card-default uk-card-body uk-height-1-1">
+              <h3 class="uk-card-title">Checkliste: Kalibrierpflicht sicher dokumentieren</h3>
+              <p>Wie Sie Prüfmittel-Nachweise revisionsfest strukturieren – inklusive Mustervorlage.</p>
             </div>
           </div>
           <div>
-            <div class="uk-card uk-card-default uk-card-body">
-              <h3 class="uk-card-title">Daten &amp; Umstieg</h3>
-              <p>Sauberer Datenumzug inkl. Bereinigung und Testläufen – geplant, dokumentiert, ohne Stillstand.</p>
+            <div class="uk-card uk-card-default uk-card-body uk-height-1-1">
+              <h3 class="uk-card-title">Studie: Zeitgewinn im Prüfalltag</h3>
+              <p>Benchmark-Daten aus 28 Laboren zeigen, wo Automatisierung am meisten entlastet.</p>
             </div>
           </div>
           <div>
-            <div class="uk-card uk-card-default uk-card-body">
-              <h3 class="uk-card-title">Verbindungen &amp; Zugriffe</h3>
-              <p>Sinnvolle System-Verknüpfungen und klare Zugriffsrechte für verlässliche Zuständigkeiten, Freigaben und Audits.</p>
+            <div class="uk-card uk-card-default uk-card-body uk-height-1-1">
+              <h3 class="uk-card-title">Webinar: Schnittstellen auditfest planen</h3>
+              <p>Live-Session mit Praxisbeispielen zur Integration von ERP, LIMS und Service-Tools.</p>
             </div>
           </div>
           <div>
-            <div class="uk-card uk-card-default uk-card-body">
-              <h3 class="uk-card-title">Nachweise &amp; Berichte</h3>
-              <p>Prüffähige Berichte/Zertifikate mit Ihren Inhalten und Branding; zweisprachig möglich, mit Freigabe- und Versionsprozess.</p>
+            <div class="uk-card uk-card-default uk-card-body uk-height-1-1">
+              <h3 class="uk-card-title">Leitfaden: Inventar in hybriden Teams</h3>
+              <p>Best Practices für die Zusammenarbeit von Außendienst, Labor und Verwaltung.</p>
             </div>
           </div>
-          <div>
-            <div class="uk-card uk-card-default uk-card-body">
-              <h3 class="uk-card-title">Betrieb &amp; Betreuung</h3>
-              <p>Aktualisierungen, Backups, Monitoring, unterstützender Support – für einen ruhigen, planbaren Alltag.</p>
-            </div>
-          </div>
-          <div>
-            <div class="uk-card uk-card-default uk-card-body">
-              <h3 class="uk-card-title">Wissen &amp; Training</h3>
-              <p>Kompakte Trainings, Vorlagen und Handbücher – pro Rolle, damit Ihr Team schnell sicher arbeitet.</p>
-            </div>
-          </div>
-          <div>
-            <div class="uk-card uk-card-default uk-card-body">
-              <h3 class="uk-card-title">(Optional) Webauftritt für Labore</h3>
-              <p>Moderne, klare Website mit Leistungen, Formularen, Downloads; auf Wunsch Frage-Antwort-Assistent aus Ihren Inhalten.</p>
-            </div>
-          </div>
-        </div>
-        <div class="uk-text-center uk-margin-large-top">
-          <a class="uk-button uk-button-primary" href="#cta">
-            <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Leistungen im Gespräch abklären
-          </a>
         </div>
       </div>
     </section>
 
-    <section id="process" class="uk-section uk-section-muted">
-      <div class="uk-container">
-        <div class="uk-text-center">
-          <span class="qr-badge pill pill--soft">So arbeiten wir</span>
-          <h2 class="qr-h2 uk-margin-small-top">Vom Erstgespräch zur Einführung</h2>
-          <p class="uk-text-lead">Drei Etappen, klar dokumentiert und nachvollziehbar.</p>
-        </div>
-        <div class="uk-grid uk-grid-match uk-child-width-1-3@m uk-margin-large-top" data-uk-grid>
-          <div>
-            <div class="uk-card uk-card-default uk-card-body calhelp-step-card">
-              <div class="calhelp-step-card__number">1</div>
-              <h3 class="uk-card-title">Erstgespräch (30–45 Min.)</h3>
-              <p>Ziele, Hürden, Quick-Wins. Wir hören zu und bringen Struktur in den Fahrplan.</p>
-            </div>
-          </div>
-          <div>
-            <div class="uk-card uk-card-default uk-card-body calhelp-step-card">
-              <div class="calhelp-step-card__number">2</div>
-              <h3 class="uk-card-title">Mini-Beweis (1–2 Wochen)</h3>
-              <p>Ihr Prozess als Prototyp plus Beispiel-Nachweis – damit alle sehen, wie es funktioniert.</p>
-            </div>
-          </div>
-          <div>
-            <div class="uk-card uk-card-default uk-card-body calhelp-step-card">
-              <div class="calhelp-step-card__number">3</div>
-              <h3 class="uk-card-title">Einführung in Etappen</h3>
-              <p>Live-Betrieb, Schulung, saubere Übergabe. Wir bleiben ansprechbar, bis alles sitzt.</p>
-            </div>
-          </div>
-        </div>
-        <p class="uk-text-center uk-margin-large-top uk-text-small">Dokumentiert • messbar • ohne Big-Bang</p>
-      </div>
-    </section>
-
-    <section id="cases" class="uk-section uk-section-default">
-      <div class="uk-container">
-        <div class="uk-text-center">
-          <span class="qr-badge pill pill--soft">Fälle aus Projekten</span>
-          <h2 class="qr-h2 uk-margin-small-top">Verlässliche Resultate aus der Praxis</h2>
-        </div>
-        <div class="uk-grid uk-grid-match uk-child-width-1-3@m uk-child-width-1-1 uk-margin-large-top" data-uk-grid>
-          <div>
-            <div class="uk-card uk-card-default uk-card-body">
-              <h3 class="uk-card-title">Kalibrierdienst</h3>
-              <p>Medienbrüche reduziert, <strong>–30&nbsp;% Nacharbeit</strong>.</p>
-            </div>
-          </div>
-          <div>
-            <div class="uk-card uk-card-default uk-card-body">
-              <h3 class="uk-card-title">Inhouse-Labor</h3>
-              <p>Zugriffe &amp; Verantwortlichkeiten klar, <strong>Audits souverän bestanden</strong>.</p>
-            </div>
-          </div>
-          <div>
-            <div class="uk-card uk-card-default uk-card-body">
-              <h3 class="uk-card-title">Energie/Service</h3>
-              <p>Wartungen &amp; Nachweise zentral, <strong>schnellere Freigaben</strong>.</p>
-            </div>
-          </div>
-        </div>
-        <div class="uk-text-center uk-margin-large-top">
-          <a class="uk-button uk-button-default" href="#cta">
-            <span class="uk-margin-small-right" data-uk-icon="icon: users"></span>Case-Talk vereinbaren
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <section id="faq" class="uk-section uk-section-muted">
+    <section id="faq" class="uk-section uk-section-secondary uk-light">
       <div class="uk-container uk-container-small">
         <div class="uk-text-center">
           <span class="qr-badge pill pill--soft">FAQ</span>
-          <h2 class="qr-h2 uk-margin-small-top">Häufige Fragen, schnell beantwortet</h2>
+          <h2 class="qr-h2 uk-margin-small-top">Antworten auf Ihre Fragen</h2>
         </div>
         <ul class="uk-margin-large-top" data-uk-accordion>
           <li class="uk-open">
-            <a class="uk-accordion-title" href="#">Ersetzen Sie unsere Abläufe komplett?</a>
+            <a class="uk-accordion-title" href="#">Wie starten wir ohne Risiko?</a>
             <div class="uk-accordion-content">
-              <p>Nein. Bewährtes bleibt. Wir digitalisieren und verbessern gezielt.</p>
+              <p>Wir definieren einen klar begrenzten Pilot mit Fallback und dokumentierten Freigaben – erst danach erweitern wir.</p>
             </div>
           </li>
           <li>
-            <a class="uk-accordion-title" href="#">Wie schnell sehen wir Ergebnisse?</a>
+            <a class="uk-accordion-title" href="#">Wer betreibt die Lösung?</a>
             <div class="uk-accordion-content">
-              <p>Innerhalb weniger Wochen – mit einem greifbaren Beispiel-Nachweis.</p>
+              <p>Sie wählen zwischen unserem Managed Service oder Betrieb in Ihrer Infrastruktur – inklusive Monitoring-Konzept.</p>
             </div>
           </li>
           <li>
-            <a class="uk-accordion-title" href="#">Müssen wir sofort alles umstellen?</a>
+            <a class="uk-accordion-title" href="#">Wie werden Teams befähigt?</a>
             <div class="uk-accordion-content">
-              <p>Nein. Wir führen schrittweise ein, ohne den Alltag zu stören.</p>
+              <p>Wir liefern rollenspezifische Trainings, Onboarding-Material und begleiten die ersten Live-Prozesse.</p>
+            </div>
+          </li>
+          <li>
+            <a class="uk-accordion-title" href="#">Was kostet das Framework?</a>
+            <div class="uk-accordion-content">
+              <p>Wir erstellen transparente Pakete je nach Umfang – inklusive Lizenzen, Beratung und Betrieb.</p>
             </div>
           </li>
         </ul>
@@ -419,8 +534,8 @@
               <a class="uk-button uk-button-primary" href="https://calendly.com/calhelp/erstgespraech" target="_blank" rel="noopener">
                 <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Kostenfreies Erstgespräch vereinbaren
               </a>
-              <a class="uk-button uk-button-default" href="#cases">
-                <span class="uk-margin-small-right" data-uk-icon="icon: file-text"></span>Beispiel-Nachweis &amp; Vorgehen ansehen
+              <a class="uk-button uk-button-default" href="#stories">
+                <span class="uk-margin-small-right" data-uk-icon="icon: file-text"></span>Praxis-Stories ansehen
               </a>
             </div>
             <div class="uk-margin-large-top">
@@ -529,10 +644,21 @@
       <strong>Navigation</strong>
       <ul>
         <li><a href="#hero">Start</a></li>
-        <li><a href="#services">Leistungen</a></li>
-        <li><a href="#cases">Fälle</a></li>
-        <li><a href="#about">Über uns</a></li>
+        <li><a href="#trust">Vertrauen</a></li>
+        <li><a href="#situationen">Situationen</a></li>
+        <li><a href="#stories">Praxis</a></li>
+        <li><a href="#wirkung">Wirkung</a></li>
+        <li><a href="#prozess">Prozess</a></li>
+        <li><a href="#framework">Framework</a></li>
+        <li><a href="#zielgruppen">Zielgruppen</a></li>
+        <li><a href="#news">News</a></li>
+        <li><a href="#faq">FAQ</a></li>
         <li><a href="#cta">Kontakt</a></li>
+        <li>
+          <a href="https://calhelp.de/go/framework?utm_source=calhelp&amp;medium=site&amp;campaign=crosslink&amp;content=framework-block"
+             target="_blank"
+             rel="noreferrer noopener">Framework kennenlernen</a>
+        </li>
       </ul>
     </div>
     <div class="footer-section footer-legal">
