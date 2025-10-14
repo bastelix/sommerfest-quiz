@@ -25,6 +25,7 @@ return [
     'tab_catalogs' => 'Catalogs',
     'tab_questions' => 'Edit questions',
     'tab_media' => 'Media',
+    'tab_rag_chat' => 'AI chatbot',
     'tab_teams' => 'Teams/People',
     'tab_summary' => 'Summary',
     'tab_results' => 'Results',

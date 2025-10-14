@@ -25,6 +25,7 @@ return [
     'tab_catalogs' => 'Fragenkataloge',
     'tab_questions' => 'Fragen bearbeiten',
     'tab_media' => 'Medien',
+    'tab_rag_chat' => 'KI-Chatbot',
     'tab_teams' => 'Teams/Personen',
     'tab_summary' => 'Übersicht',
     'tab_results' => 'Ergebnisse',
