@@ -2499,3 +2499,213 @@ body.qr-landing.calserver-theme[data-theme="high-contrast"] .calserver-cookie-ba
 body.high-contrast .calserver-cookie-banner__link {
     text-decoration-thickness: 2px;
 }
+
+.calserver-metcal {
+    position: relative;
+    overflow: hidden;
+}
+
+.calserver-metcal::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+            color-mix(in oklab, var(--calserver-primary) 18%, rgba(7, 12, 24, 0.94)) 0%,
+            color-mix(in oklab, var(--calserver-primary) 32%, rgba(9, 15, 28, 0.92)) 46%,
+            color-mix(in oklab, var(--calserver-primary) 56%, rgba(8, 14, 25, 0.92)) 100%);
+    opacity: 0.94;
+    pointer-events: none;
+}
+
+.calserver-metcal__inner {
+    position: relative;
+    z-index: 1;
+}
+
+.calserver-metcal__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--calserver-primary) 64%, rgba(255, 255, 255, 0.14) 36%);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.calserver-metcal__title {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-size: clamp(2rem, 2.8vw, 2.75rem);
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.calserver-metcal__lead {
+    max-width: 880px;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: color-mix(in oklab, #ffffff 88%, var(--calserver-primary) 12%);
+}
+
+.calserver-metcal__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 24px;
+    margin-top: 40px;
+}
+
+.calserver-metcal__card {
+    position: relative;
+    height: 100%;
+    padding: 24px;
+    border-radius: 20px;
+    background: color-mix(in oklab, rgba(9, 15, 28, 0.92) 68%, var(--calserver-primary) 32%);
+    border: 1px solid color-mix(in oklab, var(--calserver-primary) 48%, rgba(255, 255, 255, 0.16));
+    box-shadow: 0 24px 68px -32px color-mix(in oklab, var(--calserver-primary) 48%, rgba(12, 23, 46, 0.82));
+}
+
+.calserver-metcal__card h3 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.94);
+}
+
+.calserver-metcal__card p,
+.calserver-metcal__card ul {
+    margin: 0;
+    color: color-mix(in oklab, #ffffff 84%, var(--calserver-primary) 16%);
+    line-height: 1.6;
+}
+
+.calserver-metcal__card ul {
+    padding-left: 20px;
+    margin-top: 12px;
+    list-style: disc;
+}
+
+.calserver-metcal__card svg {
+    width: 24px;
+    height: 24px;
+    color: color-mix(in oklab, #ffffff 86%, var(--calserver-primary) 14%);
+}
+
+.calserver-metcal__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 36px;
+}
+
+.calserver-metcal__cta .uk-button {
+    border-radius: 999px;
+    padding: 10px 26px;
+}
+
+.calserver-metcal__cta .uk-button-primary {
+    background: color-mix(in oklab, var(--calserver-primary) 82%, rgba(255, 255, 255, 0.08) 18%);
+    border-color: color-mix(in oklab, var(--calserver-primary) 88%, rgba(255, 255, 255, 0.24) 12%);
+}
+
+.calserver-metcal__cta .uk-button-primary:hover,
+.calserver-metcal__cta .uk-button-primary:focus {
+    background: color-mix(in oklab, var(--calserver-primary) 92%, rgba(255, 255, 255, 0.16) 8%);
+    color: #fff;
+}
+
+.calserver-metcal__cta .uk-button-default {
+    color: rgba(255, 255, 255, 0.92);
+    border-color: color-mix(in oklab, var(--calserver-primary) 42%, rgba(255, 255, 255, 0.42) 58%);
+    background: transparent;
+}
+
+.calserver-metcal__cta .uk-button-default:hover,
+.calserver-metcal__cta .uk-button-default:focus {
+    color: #0b1532;
+    background: #fff;
+}
+
+.calserver-metcal__note {
+    margin-top: 16px;
+    font-size: 0.9rem;
+    color: color-mix(in oklab, #ffffff 76%, var(--calserver-primary) 24%);
+}
+
+.calserver-metcal__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: color-mix(in oklab, var(--calserver-primary) 78%, rgba(255, 255, 255, 0.18) 22%);
+    color: rgba(255, 255, 255, 0.92);
+    font-weight: 600;
+}
+
+.calserver-metcal__card strong {
+    display: block;
+    margin-bottom: 4px;
+    color: rgba(255, 255, 255, 0.96);
+}
+
+.calserver-metcal__card--dark {
+    background: color-mix(in oklab, rgba(8, 14, 28, 0.94) 86%, var(--calserver-primary) 14%);
+}
+
+.calserver-metcal__card--outline {
+    background: rgba(12, 18, 32, 0.72);
+}
+
+.calserver-metcal__icon-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: color-mix(in oklab, var(--calserver-primary) 58%, rgba(255, 255, 255, 0.12) 42%);
+    color: #fff;
+}
+
+.calserver-metcal__footnote {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: color-mix(in oklab, #ffffff 68%, var(--calserver-primary) 32%);
+}
+
+.calserver-metcal__cta .uk-button .uk-icon {
+    margin-right: 8px;
+}
+
+@media (max-width: 960px) {
+    .calserver-metcal__title {
+        font-size: 2.2rem;
+    }
+
+    .calserver-metcal__cta {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 640px) {
+    .calserver-metcal__card {
+        padding: 20px;
+    }
+
+    .calserver-metcal__grid {
+        gap: 16px;
+    }
+
+    .calserver-metcal__cta {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
