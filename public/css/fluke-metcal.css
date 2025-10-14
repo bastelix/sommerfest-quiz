@@ -32,6 +32,14 @@
     color: color-mix(in oklab, #ffffff 86%, var(--calserver-primary) 14%);
 }
 
+.metcal-hero__claim {
+    margin-top: 16px;
+    max-width: 600px;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: color-mix(in oklab, #ffffff 80%, var(--calserver-primary) 20%);
+}
+
 .metcal-hero__bullets {
     margin: 28px 0 0;
     padding: 0;
@@ -114,6 +122,19 @@
     margin: 0;
     list-style: disc;
     color: color-mix(in oklab, #ffffff 84%, var(--calserver-primary) 16%);
+}
+
+.metcal-hero__figure {
+    margin: 0 0 24px;
+    display: flex;
+    justify-content: center;
+}
+
+.metcal-hero__image {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 24px;
+    box-shadow: 0 32px 70px -42px rgba(9, 15, 28, 0.6);
 }
 
 .metcal-section {
@@ -318,6 +339,72 @@
 .metcal-feature-list li {
     margin-bottom: 12px;
     color: color-mix(in oklab, #20314d 74%, var(--calserver-primary) 26%);
+}
+
+.metcal-reports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+}
+
+.metcal-reports-card {
+    padding: 28px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(15, 25, 46, 0.08);
+    box-shadow: 0 26px 64px -48px rgba(12, 22, 40, 0.32);
+}
+
+.metcal-section--accent .metcal-reports-card {
+    background: rgba(12, 20, 36, 0.82);
+    border-color: color-mix(in oklab, var(--calserver-primary) 42%, rgba(255, 255, 255, 0.12));
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.metcal-reports-card__title {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: color-mix(in oklab, #0f1b37 76%, var(--calserver-primary) 24%);
+}
+
+.metcal-section--accent .metcal-reports-card__title {
+    color: rgba(255, 255, 255, 0.94);
+}
+
+.metcal-reports-card__text {
+    margin: 0 0 16px;
+    color: color-mix(in oklab, #1d2a45 72%, var(--calserver-primary) 28%);
+}
+
+.metcal-section--accent .metcal-reports-card__text {
+    color: rgba(255, 255, 255, 0.86);
+}
+
+.metcal-reports-card__list {
+    margin: 0;
+    padding-left: 20px;
+    color: color-mix(in oklab, #223351 72%, var(--calserver-primary) 28%);
+}
+
+.metcal-section--accent .metcal-reports-card__list {
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.metcal-reports-callout {
+    margin-top: 32px;
+    padding: 28px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(15, 25, 46, 0.1);
+    box-shadow: 0 26px 60px -46px rgba(12, 22, 40, 0.25);
+}
+
+.metcal-section--accent .metcal-reports-callout {
+    background: rgba(12, 20, 36, 0.84);
+    border-color: color-mix(in oklab, var(--calserver-primary) 38%, rgba(255, 255, 255, 0.12));
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .metcal-security-grid {

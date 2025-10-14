@@ -1818,12 +1818,13 @@ VALUES (
     'fluke-metcal',
     'FLUKE MET/CAL Integration',
     $$<!--
-kb_id: metcal-integration-v1
-kb_version: 1.0
-kb_tags: ["MET/CAL","MET/TRACK","METTEAM","Migration","Zertifikat","Guardband","DAkkS"]
-kb_synonyms: ["METCAL","MET TRACK","MET/TRACK","MU","Konformität"]
-updated_at: 2024-06-13
-summary: Diese Seite erklärt den sauberen Umstieg von MET/TRACK nach calServer, die Hybrid-Integration mit METTEAM und die Erstellung DAkkS-tauglicher Zertifikate – inklusive SSO, DSGVO und Audit-Trails.
+kb_id: metcal-integration-v2
+kb_version: 2.0
+kb_tags: ["MET/CAL","MET/TRACK","METTEAM","Migration","Zertifikat","Guardband","Berichte","DAkkS"]
+kb_synonyms: ["METCAL","MET TRACK","MET/TRACK","MU","Konformität","Guardbanding","Reports"]
+updated_at: 2025-02-21
+summary: Diese Seite erklärt Migration von MET/TRACK nach calServer, Hybridbetrieb mit METTEAM sowie Reporting und DAkkS-taugliche Zertifikate – inklusive SSO, DSGVO und Audit-Trails.
+section_summary: {"berichte": "Berichtszentrale für Freigaben, Guardband-Logik und Kennzahlenbereitstellung."}
 -->
 <div data-metcal-sticky-sentinel></div>
 
@@ -1955,6 +1956,47 @@ summary: Diese Seite erklärt den sauberen Umstieg von MET/TRACK nach calServer,
   </div>
 </section>
 
+<section id="berichte" class="uk-section metcal-section metcal-section--accent" aria-labelledby="metcal-reports-heading">
+  <div class="uk-container">
+    <span class="metcal-eyebrow">Berichte &amp; Nachweise</span>
+    <h2 class="metcal-section__title" id="metcal-reports-heading">Berichte ohne Nacharbeit – Kennzahlen, Claims und Audit-Trails.</h2>
+    <p class="metcal-section__lead">Die Report-Suite bündelt Prüfberichte, Guardband-Begründungen und KPIs: verständlich für Technik, QS und Auditor:innen.</p>
+    <div class="metcal-reports-grid" role="list">
+      <article class="metcal-reports-card" role="listitem" aria-labelledby="metcal-reports-status">
+        <h3 class="metcal-reports-card__title" id="metcal-reports-status">Status &amp; Freigaben</h3>
+        <p class="metcal-reports-card__text">Freigaben laufen über definierte Reviewer:innen – inklusive digitaler Signatur und Protokoll.</p>
+        <ul class="metcal-reports-card__list">
+          <li>Freigabe-Workflows mit Vier-Augen-Prinzip</li>
+          <li>Versionierung &amp; Änderungsjournal</li>
+          <li>Automatische Benachrichtigungen</li>
+        </ul>
+      </article>
+      <article class="metcal-reports-card" role="listitem" aria-labelledby="metcal-reports-guardband">
+        <h3 class="metcal-reports-card__title" id="metcal-reports-guardband">Guardband &amp; Konformität</h3>
+        <p class="metcal-reports-card__text">Guardband-Methoden, MU und Konformitätslegenden sind hinterlegt – zweisprachig und auditierbar.</p>
+        <ul class="metcal-reports-card__list">
+          <li>Konfigurierbare Standardtexte pro Norm</li>
+          <li>Berechnete MU mit Kennzeichnung</li>
+          <li>Legenden für Pass, Fail, Undetermined</li>
+        </ul>
+      </article>
+      <article class="metcal-reports-card" role="listitem" aria-labelledby="metcal-reports-delivery">
+        <h3 class="metcal-reports-card__title" id="metcal-reports-delivery">Bereitstellung &amp; Zugriff</h3>
+        <p class="metcal-reports-card__text">Reports werden als PDF/A, Portal-Link oder via REST-API bereitgestellt – inklusive Zugriffslogs.</p>
+        <ul class="metcal-reports-card__list">
+          <li>Portal, E-Mail oder API-Auslieferung</li>
+          <li>QR-/Barcode für Rückverfolgbarkeit</li>
+          <li>Zugriffsprotokolle &amp; SLA-Überwachung</li>
+        </ul>
+      </article>
+    </div>
+    <div class="metcal-reports-callout">
+      <h3 class="metcal-subheading">Claim</h3>
+      <p>Berichte, Nachweise und Kennzahlen in einem Flow – auditfähig, wiederholbar, ohne Excel-Rückfragen.</p>
+    </div>
+  </div>
+</section>
+
 <section id="sicherheit" class="uk-section metcal-section metcal-section--light" aria-labelledby="metcal-security-heading">
   <div class="uk-container">
     <span class="metcal-eyebrow">Sicherheit &amp; Betrieb</span>
@@ -2074,25 +2116,26 @@ summary: Diese Seite erklärt den sauberen Umstieg von MET/TRACK nach calServer,
   <div class="metcal-sticky-cta__inner">
     <div class="metcal-sticky-cta__copy">
       <strong>Bereit für den Wechsel?</strong>
-      <span>Wir planen Migration, Hybridbetrieb und Zertifikate gemeinsam – ohne Stillstand.</span>
+      <span>Wir planen Migration, Hybridbetrieb, Berichte und Zertifikate gemeinsam – ohne Stillstand.</span>
     </div>
     <div class="metcal-sticky-cta__actions" role="group" aria-label="Schnellzugriff">
       <a class="uk-button uk-button-primary"
-         href="https://calendly.com/calhelp/calserver-vorstellung"
-         target="_blank"
-         rel="noopener"
-         data-analytics-event="click_cta_demo"
+         href="#berichte"
+         data-analytics-event="click_cta_reports"
          data-analytics-context="sticky_metcal"
          data-analytics-page="/fluke-metcal"
-         data-analytics-lang="de">
-        <span class="uk-margin-small-right" data-uk-icon="icon: calendar"></span>Demo buchen
+         data-analytics-lang="de"
+         data-analytics-to="#berichte">
+        <span class="uk-margin-small-right" data-uk-icon="icon: list"></span>Berichte entdecken
       </a>
       <a class="uk-button uk-button-default"
-         href="{{ basePath }}/downloads/metcal-migrations-checkliste.pdf"
-         data-analytics-event="download_checkliste"
+         href="{{ basePath }}/kontakt"
+         data-analytics-event="click_cta_contact"
          data-analytics-context="sticky_metcal"
-         data-analytics-file="metcal-migrations-checkliste.pdf">
-        <span class="uk-margin-small-right" data-uk-icon="icon: cloud-download"></span>Migrations-Checkliste
+         data-analytics-page="/fluke-metcal"
+         data-analytics-lang="de"
+         data-analytics-to="/kontakt">
+        <span class="uk-margin-small-right" data-uk-icon="icon: commenting"></span>Kontakt aufnehmen
       </a>
     </div>
   </div>

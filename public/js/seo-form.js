@@ -327,20 +327,20 @@ export function initSeoForm() {
     'fluke-metcal': ctx => ({
       metaTitle: 'FLUKE MET/CAL mit calServer – MET/TRACK Migration & METTEAM-Integration',
       metaDescription:
-        'Sauberer Umstieg von MET/TRACK nach calServer, sinnvolle METTEAM-Anbindung und DAkkS-taugliche Zertifikate – inkl. SSO, DSGVO und Audit-Trails.',
+        'Sauberer Umstieg von MET/TRACK nach calServer, sinnvolle METTEAM-Anbindung plus Berichte und DAkkS-taugliche Zertifikate – inkl. SSO, DSGVO und Audit-Trails.',
       slug: '/fluke-metcal',
       canonical: `${ctx.baseUrl}/fluke-metcal`,
       robots: 'index, follow',
       ogTitle: 'FLUKE MET/CAL mit calServer',
       ogDescription:
-        'Migration ohne Stillstand, Hybridbetrieb mit METTEAM und auditfähige Zertifikate: calServer verbindet MET/CAL, MET/TRACK und METTEAM in einem System.',
+        'Migration ohne Stillstand, Hybridbetrieb mit METTEAM sowie Berichte und auditfähige Zertifikate: calServer verbindet MET/CAL, MET/TRACK und METTEAM in einem System.',
       ogImage: `${ctx.baseUrl}/uploads/calserver-module-device-management.webp`,
       schema: `{
   "@context": "https://schema.org",
   "@type": "WebPage",
   "name": "FLUKE MET/CAL Integration",
   "url": "${ctx.baseUrl}/fluke-metcal",
-  "description": "Sauberer Umstieg von MET/TRACK nach calServer, Hybridbetrieb mit METTEAM und DAkkS-taugliche Zertifikate inklusive Guardband.",
+  "description": "Sauberer Umstieg von MET/TRACK nach calServer, Hybridbetrieb mit METTEAM sowie Berichte und DAkkS-taugliche Zertifikate inklusive Guardband.",
   "about": ["FLUKE MET/CAL", "MET/TRACK", "METTEAM", "Migration"],
   "publisher": {
     "@type": "Organization",

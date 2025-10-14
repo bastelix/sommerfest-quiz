@@ -434,6 +434,7 @@ return [
     'metcal_nav_migration' => 'Migration',
     'metcal_nav_metteam' => 'METTEAM',
     'metcal_nav_zertifikate' => 'Zertifikate',
+    'metcal_nav_berichte' => 'Berichte',
     'metcal_nav_sicherheit' => 'Sicherheit',
     'metcal_nav_pakete' => 'Pakete',
     'metcal_nav_faq' => 'FAQ',
