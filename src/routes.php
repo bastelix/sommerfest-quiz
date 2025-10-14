@@ -1417,7 +1417,7 @@ return function (\Slim\App $app, TranslationService $translator) {
 
     $app->post('/settings.json', function (Request $request, Response $response) {
         return $request->getAttribute('settingsController')->post($request, $response);
-    })->add(new RoleAuthMiddleware(Roles::ADMIN));
+    })->add(new RoleAuthMiddleware(Roles::ADMIN, Roles::CATALOG_EDITOR));
 
     $app->get('/admin/domain-start-pages', function (Request $request, Response $response) {
         /** @var DomainStartPageController $controller */
