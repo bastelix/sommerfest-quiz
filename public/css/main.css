@@ -626,6 +626,11 @@ body.admin-page {
   padding-top: 0;
 }
 
+.admin-page .admin-table-wrapper {
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
 .admin-page .topbar {
   height: auto;
   flex-wrap: nowrap;
