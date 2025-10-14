@@ -12,6 +12,7 @@ use App\Support\FeatureFlags;
 use DateTimeImmutable;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\UploadedFileInterface;
 use RuntimeException;
 
 final class MarketingPageWikiController
@@ -73,6 +74,7 @@ final class MarketingPageWikiController
         }
 
         $pageId = (int) ($args['pageId'] ?? 0);
+
         $body = $request->getParsedBody();
         if ($request->getHeaderLine('Content-Type') === 'application/json') {
             $body = json_decode((string) $request->getBody(), true);
@@ -103,6 +105,11 @@ final class MarketingPageWikiController
         }
 
         $pageId = (int) ($args['pageId'] ?? 0);
+        $contentType = strtolower($request->getHeaderLine('Content-Type'));
+        if (str_contains($contentType, 'multipart/form-data')) {
+            return $this->saveUploadedArticle($request, $response, $pageId);
+        }
+
         $body = $request->getParsedBody();
         if ($request->getHeaderLine('Content-Type') === 'application/json') {
             $body = json_decode((string) $request->getBody(), true);
@@ -227,6 +234,194 @@ final class MarketingPageWikiController
         $this->articleService->deleteArticle($articleId);
 
         return $response->withStatus(204);
+    }
+
+    private function saveUploadedArticle(Request $request, Response $response, int $pageId): Response
+    {
+        $uploads = $request->getUploadedFiles();
+        $file = $uploads['markdown'] ?? $uploads['file'] ?? null;
+        if (!$file instanceof UploadedFileInterface) {
+            return $this->jsonError($response, 'Markdown-Datei fehlt.');
+        }
+
+        if ($file->getError() !== UPLOAD_ERR_OK) {
+            return $this->jsonError($response, 'Upload fehlgeschlagen.');
+        }
+
+        $clientFilename = (string) $file->getClientFilename();
+        $extension = strtolower((string) pathinfo($clientFilename, PATHINFO_EXTENSION));
+        if (!in_array($extension, ['md', 'markdown'], true)) {
+            return $this->jsonError($response, 'Nur Markdown-Dateien (.md) werden unterstützt.');
+        }
+
+        $stream = $file->getStream();
+        if ($stream->isSeekable()) {
+            $stream->rewind();
+        }
+        $markdown = trim((string) $stream->getContents());
+        if ($markdown === '') {
+            return $this->jsonError($response, 'Die Markdown-Datei ist leer.');
+        }
+
+        $body = $request->getParsedBody();
+        if (!is_array($body)) {
+            $body = [];
+        }
+
+        $locale = isset($body['locale']) && is_string($body['locale']) ? strtolower(trim($body['locale'])) : 'de';
+        if ($locale === '') {
+            $locale = 'de';
+        }
+        $status = isset($body['status']) && is_string($body['status']) ? trim($body['status']) : MarketingPageWikiArticle::STATUS_DRAFT;
+        if (!in_array($status, [
+            MarketingPageWikiArticle::STATUS_DRAFT,
+            MarketingPageWikiArticle::STATUS_PUBLISHED,
+            MarketingPageWikiArticle::STATUS_ARCHIVED,
+        ], true)) {
+            $status = MarketingPageWikiArticle::STATUS_DRAFT;
+        }
+
+        $slug = isset($body['slug']) && is_string($body['slug']) ? trim($body['slug']) : '';
+        if ($slug === '') {
+            $slug = $this->slugify((string) pathinfo($clientFilename, PATHINFO_FILENAME));
+        }
+        if ($slug === '') {
+            try {
+                $slug = 'article-' . bin2hex(random_bytes(4));
+            } catch (\Throwable $exception) {
+                $slug = 'article-' . time();
+            }
+        }
+
+        $title = isset($body['title']) && is_string($body['title']) ? trim($body['title']) : '';
+        if ($title === '') {
+            $extracted = $this->extractTitleFromMarkdown($markdown);
+            $title = $extracted ?? $this->titleFromSlug($slug);
+        }
+
+        $excerpt = isset($body['excerpt']) && is_string($body['excerpt']) ? trim($body['excerpt']) : null;
+        if ($excerpt === null || $excerpt === '') {
+            $excerpt = $this->extractExcerptFromMarkdown($markdown);
+        }
+
+        try {
+            $article = $this->articleService->saveArticleFromMarkdown(
+                $pageId,
+                $locale,
+                $slug,
+                $title,
+                $markdown,
+                $excerpt,
+                $status
+            );
+        } catch (RuntimeException $exception) {
+            return $this->jsonError($response, $exception->getMessage());
+        }
+
+        $response->getBody()->write(json_encode($article->jsonSerialize()));
+
+        return $response->withHeader('Content-Type', 'application/json');
+    }
+
+    private function jsonError(Response $response, string $message, int $status = 400): Response
+    {
+        $response->getBody()->write(json_encode(['error' => $message]));
+
+        return $response->withHeader('Content-Type', 'application/json')->withStatus($status);
+    }
+
+    private function slugify(string $value): string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return '';
+        }
+
+        if (function_exists('iconv')) {
+            $transliterated = @iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $value);
+            if (is_string($transliterated) && $transliterated !== '') {
+                $value = $transliterated;
+            }
+        }
+
+        $value = strtolower($value);
+        $value = preg_replace('/[^a-z0-9]+/', '-', $value) ?? '';
+        $value = trim($value, '-');
+        $value = preg_replace('/-+/', '-', $value) ?? '';
+
+        return $value;
+    }
+
+    private function titleFromSlug(string $slug): string
+    {
+        $normalized = str_replace('-', ' ', $slug);
+        $normalized = preg_replace('/\s+/', ' ', $normalized ?? '') ?? '';
+        $normalized = trim($normalized);
+
+        if ($normalized === '') {
+            return 'Artikel';
+        }
+
+        return ucwords($normalized);
+    }
+
+    private function extractTitleFromMarkdown(string $markdown): ?string
+    {
+        $lines = preg_split('/\r\n|\n|\r/', $markdown) ?: [];
+        foreach ($lines as $line) {
+            $trimmed = trim($line);
+            if ($trimmed === '') {
+                continue;
+            }
+            if (preg_match('/^#{1,6}\s+(.*)$/', $trimmed, $matches)) {
+                $title = trim((string) $matches[1]);
+                if ($title !== '') {
+                    return $title;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function extractExcerptFromMarkdown(string $markdown): ?string
+    {
+        $normalized = preg_replace('/\r\n?/', "\n", $markdown) ?? '';
+        $segments = preg_split('/\n{2,}/', $normalized) ?: [];
+        foreach ($segments as $segment) {
+            $trimmed = trim($segment);
+            if ($trimmed === '') {
+                continue;
+            }
+            if (preg_match('/^#{1,6}\s+/', $trimmed)) {
+                continue;
+            }
+            if (str_starts_with($trimmed, '```')) {
+                continue;
+            }
+            if (preg_match('/^[-*]\s+/', $trimmed) || preg_match('/^\d+\.\s+/', $trimmed)) {
+                continue;
+            }
+            if (preg_match('/^>\s?/', $trimmed)) {
+                continue;
+            }
+
+            $plain = preg_replace('/!\[[^\]]*\]\([^)]*\)/', '', $trimmed) ?? '';
+            $plain = preg_replace('/\[[^\]]*\]\([^)]*\)/', '$1', $plain) ?? '';
+            $plain = preg_replace('/[*_`>#-]+/', ' ', $plain) ?? '';
+            $plain = preg_replace('/\s+/', ' ', $plain) ?? '';
+            $plain = trim($plain);
+            if ($plain === '') {
+                continue;
+            }
+            if (mb_strlen($plain) > 280) {
+                $plain = rtrim(mb_substr($plain, 0, 280));
+            }
+
+            return $plain;
+        }
+
+        return null;
     }
 
     public function duplicate(Request $request, Response $response, array $args): Response

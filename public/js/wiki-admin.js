@@ -26,6 +26,8 @@ if (manager) {
     const articlesEmpty = manager.querySelector('[data-wiki-articles-empty]');
     const localeFilter = manager.querySelector('[data-wiki-locale-filter]');
     const createButton = manager.querySelector('[data-wiki-create]');
+    const uploadButton = manager.querySelector('[data-wiki-upload]');
+    const uploadInput = manager.querySelector('[data-wiki-upload-input]');
     const feedbackAlert = manager.querySelector('[data-wiki-feedback]');
     const loadingRow = manager.querySelector('[data-wiki-loading-row]');
 
@@ -57,6 +59,8 @@ if (manager) {
       !articlesEmpty ||
       !settingsCard ||
       !createButton ||
+      !uploadButton ||
+      !uploadInput ||
       !modal ||
       !modalTitle ||
       !modalError ||
@@ -92,7 +96,11 @@ if (manager) {
       sortSaved: window.transWikiSortSaved || 'Order saved.',
       sortError: window.transWikiSortError || 'Failed to save order.',
       loading: window.transWikiLoading || 'Loading…',
-      empty: window.transWikiEmpty || 'No articles available.'
+      empty: window.transWikiEmpty || 'No articles available.',
+      articleImport: window.transWikiArticleImport || 'Markdown importiert.',
+      articleImportError: window.transWikiArticleImportError || 'Markdown-Import fehlgeschlagen.',
+      articleImportInvalid: window.transWikiArticleImportInvalid || 'Bitte eine Markdown-Datei auswählen.',
+      articleImportNoPage: window.transWikiArticleImportNoPage || 'Bitte zuerst eine Marketing-Seite auswählen.'
     };
 
     const state = {
@@ -671,6 +679,105 @@ if (manager) {
       });
     }
 
+    function resetUploadInput() {
+      if (uploadInput) {
+        uploadInput.value = '';
+      }
+    }
+
+    function getUploadLocale() {
+      if (state.filterLocale && state.filterLocale !== 'all') {
+        return state.filterLocale;
+      }
+      return 'de';
+    }
+
+    function handleMarkdownUpload() {
+      if (!uploadInput) {
+        return;
+      }
+
+      const files = uploadInput.files;
+      if (!files || files.length === 0) {
+        return;
+      }
+
+      if (!state.pageId) {
+        notify(messages.articleImportNoPage, 'danger');
+        resetUploadInput();
+        return;
+      }
+
+      const file = files[0];
+      const name = typeof file.name === 'string' ? file.name : '';
+      const lower = name.toLowerCase();
+      if (!(lower.endsWith('.md') || lower.endsWith('.markdown'))) {
+        notify(messages.articleImportInvalid, 'danger');
+        resetUploadInput();
+        return;
+      }
+
+      if (uploadButton) {
+        uploadButton.disabled = true;
+      }
+
+      const formData = new FormData();
+      formData.append('markdown', file);
+      formData.append('locale', getUploadLocale());
+      formData.append('status', 'draft');
+
+      window
+        .apiFetch(`/admin/pages/${state.pageId}/wiki/articles`, {
+          method: 'POST',
+          body: formData
+        })
+        .then(async response => {
+          if (!response.ok) {
+            let message = messages.articleImportError;
+            try {
+              const data = await response.json();
+              if (data && typeof data.error === 'string' && data.error.trim() !== '') {
+                message = data.error;
+              }
+            } catch (parseError) {
+              // ignore json parse errors
+            }
+            const error = new Error(message);
+            error.status = response.status;
+            throw error;
+          }
+          return response.json();
+        })
+        .then(data => {
+          const article = normalizeArticle(data);
+          const index = state.articles.findIndex(item => item.id === article.id);
+          if (index >= 0) {
+            state.articles.splice(index, 1, article);
+          } else {
+            state.articles.push(article);
+          }
+          sortArticlesInState();
+          updateLocaleFilterOptions();
+          if (state.filterLocale !== 'all' && state.filterLocale !== article.locale) {
+            state.filterLocale = article.locale;
+            localeFilter.value = article.locale;
+          }
+          renderArticles();
+          notify(messages.articleImport, 'success');
+          openArticleModal(article);
+        })
+        .catch(error => {
+          console.error('Failed to import markdown', error);
+          notify(error.message || messages.articleImportError, 'danger');
+        })
+        .finally(() => {
+          if (uploadButton) {
+            uploadButton.disabled = false;
+          }
+          resetUploadInput();
+        });
+    }
+
     function deleteArticle(articleId) {
       if (!confirm(messages.articleDeleteConfirm)) {
         return;
@@ -791,6 +898,14 @@ if (manager) {
 
     settingsForm.addEventListener('submit', saveSettings);
     createButton.addEventListener('click', () => openArticleModal(null));
+    uploadButton.addEventListener('click', () => {
+      if (!state.pageId) {
+        notify(messages.articleImportNoPage, 'danger');
+        return;
+      }
+      uploadInput.click();
+    });
+    uploadInput.addEventListener('change', handleMarkdownUpload);
     articlesTableBody.addEventListener('click', handleArticleAction);
     localeFilter.addEventListener('change', event => {
       state.filterLocale = event.target.value;
