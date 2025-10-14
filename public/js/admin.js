@@ -2933,15 +2933,40 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventsListEl = document.getElementById('eventsList');
   const eventsCardsEl = document.getElementById('eventsCards');
   const eventAddBtn = document.getElementById('eventAddBtn');
-  const eventSelect = document.getElementById('eventSelect');
-  const eventSelectWrap = document.getElementById('eventSelectWrap');
-  const eventSearchInput = document.getElementById('eventSearchInput');
-  const eventOpenBtn = document.getElementById('eventOpenBtn');
+
+  function resolveEventControls() {
+    const activeRoot = document.querySelector('#adminSwitcher > li.uk-active [data-event-controls]');
+    const root = activeRoot || document.querySelector('[data-event-controls]');
+    if (!root) {
+      return { root: null, select: null, wrap: null, search: null, openBtn: null };
+    }
+    return {
+      root,
+      select: root.querySelector('#eventSelect'),
+      wrap: root.querySelector('#eventSelectWrap'),
+      search: root.querySelector('#eventSearchInput'),
+      openBtn: root.querySelector('#eventOpenBtn')
+    };
+  }
+
+  const {
+    select: eventSelect,
+    wrap: eventSelectWrap,
+    search: eventSearchInput,
+    openBtn: eventOpenBtn
+  } = resolveEventControls();
   const eventDependentSections = document.querySelectorAll('[data-event-dependent]');
   const eventSettingsHeading = document.getElementById('eventSettingsHeading');
   const catalogsHeading = document.getElementById('catalogsHeading');
   const questionsHeading = document.getElementById('questionsHeading');
   const langSelect = document.getElementById('langSelect');
+  const initialSelectValue = eventSelect?.dataset.currentEvent || '';
+  if (!currentEventUid) {
+    currentEventUid = initialSelectValue || cfgInitial.event_uid || '';
+  }
+  if (initialSelectValue && !cfgInitial.event_uid) {
+    cfgInitial.event_uid = initialSelectValue;
+  }
   let eventManager;
   let eventEditor;
 

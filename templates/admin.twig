@@ -48,16 +48,7 @@
         <div class="uk-text-meta uk-text-small">v{{ version }}</div>
       </a>
     {% endblock %}
-    {% block center %}
-      <div class="uk-flex uk-flex-middle">
-        <label for="eventSelect" class="uk-form-label uk-margin-small-right uk-visible@m">{{ t('label_event_select') }}</label>
-        <div id="eventSelectWrap" class="uk-flex-1 uk-visible@m">
-          <select id="eventSelect" class="uk-select" aria-label="{{ t('label_event_select') }}"></select>
-        </div>
-        <input id="eventSearchInput" class="uk-input uk-form-small uk-width-small uk-margin-small-left" type="search" placeholder="Suchen" hidden>
-        <button id="eventOpenBtn" class="uk-icon-button uk-margin-small-left uk-visible@m" uk-icon="icon: link-external" aria-label="{{ t('tip_event_open') }}" uk-tooltip="title: {{ t('tip_event_open') }}; pos: bottom" data-event-btn disabled></button>
-      </div>
-    {% endblock %}
+    {% block center %}{% endblock %}
     {% block right %}{% endblock %}
   {% endembed %}
   {% if not stripe_configured %}
@@ -177,6 +168,7 @@
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_events') }}</h2>
         <p class="uk-hidden">Professionelles Quiz-Hosting</p>
+        {% include 'admin/components/event_controls.twig' with { currentEventUid: config.event_uid|default('') } %}
         <div class="uk-overflow-auto uk-visible@m">
           <table class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive">
             <thead>
@@ -433,6 +425,7 @@
             class="uk-heading-bullet"
             data-title="{{ t('heading_catalogs') }}"
           >{{ eventName|e }}{% if eventName %} – {% endif %}{{ t('heading_catalogs') }}</h2>
+          {% include 'admin/components/event_controls.twig' with { currentEventUid: config.event_uid|default('') } %}
           {% from 'components/table.twig' import qr_rowcards %}
           <div class="uk-overflow-auto uk-visible@m">
             <table class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive">
@@ -473,6 +466,7 @@
           class="uk-heading-bullet"
           data-title="{{ t('heading_questions') }}"
         >{{ eventName|e }}{% if eventName %} – {% endif %}{{ t('heading_questions') }}</h2>
+        {% include 'admin/components/event_controls.twig' with { currentEventUid: config.event_uid|default('') } %}
         <div class="uk-margin">
           <label class="uk-form-label" for="catalogSelect">{{ t('label_catalog_select') }}
             <span class="uk-margin-small-left help-icon" uk-icon="icon: info" uk-tooltip="title: {{ t('tip_catalog_select') }}; pos: right" aria-label="{{ t('tip_catalog_select') }}" tabindex="0"></span>
@@ -499,6 +493,7 @@
     <li class="{{ activeRoute == 'teams' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
         <h2 class="uk-heading-bullet">{{ t('heading_teams') }}</h2>
+        {% include 'admin/components/event_controls.twig' with { currentEventUid: config.event_uid|default('') } %}
         {% from 'components/table.twig' import qr_rowcards %}
         <div class="uk-overflow-auto uk-visible@m">
           <table class="uk-table uk-table-divider uk-table-small uk-table-hover uk-table-responsive">
@@ -523,6 +518,7 @@
     </li>
     <li class="{{ activeRoute == 'summary' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
+        {% include 'admin/components/event_controls.twig' with { currentEventUid: config.event_uid|default('') } %}
         <div class="uk-flex uk-flex-between uk-flex-middle" id="summaryEvent">
           <div>
             <h2 class="uk-heading-bullet" id="summaryEventName">{{ event.name }}</h2>
@@ -817,6 +813,7 @@
       </li>
     <li class="{{ activeRoute == 'results' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
+        {% include 'admin/components/event_controls.twig' with { currentEventUid: config.event_uid|default('') } %}
         <div class="uk-flex uk-flex-between uk-flex-middle">
           <h2 class="uk-heading-bullet">{{ t('heading_results') }}</h2>
           <button id="resultsRefreshBtn" class="uk-icon-button" uk-icon="icon: refresh; ratio: 1.2" title="{{ t('action_refresh') }}" aria-label="{{ t('action_refresh') }}" data-event-btn disabled></button>
@@ -889,6 +886,7 @@
     </li>
     <li class="{{ activeRoute == 'statistics' ? 'uk-active' }}">
       <div class="uk-container uk-container-large">
+        {% include 'admin/components/event_controls.twig' with { currentEventUid: config.event_uid|default('') } %}
         <div class="uk-flex uk-flex-middle uk-flex-column uk-flex-row@s uk-flex-between@s">
           <h2 class="uk-heading-bullet">{{ t('heading_statistics') }}</h2>
           <div class="uk-flex uk-flex-middle uk-margin-small-top uk-margin-remove-top@s">
