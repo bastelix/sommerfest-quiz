@@ -308,7 +308,7 @@ if (manager) {
 
         const titleCell = document.createElement('td');
         const startBadge = article.isStartDocument
-          ? `<span class="uk-label uk-label-success uk-margin-small-left">${escapeHtml(messages.startBadge)}</span>`
+          ? `<span class="uk-label uk-label-success uk-margin-small-left" title="${escapeHtml(messages.startBadge)}"><span class="uk-margin-small-right" uk-icon="home" aria-hidden="true"></span>${escapeHtml(messages.startBadge)}</span>`
           : '';
         titleCell.innerHTML = `<strong>${escapeHtml(article.title)}</strong>${startBadge}<div class="uk-text-meta">${escapeHtml(article.slug)}</div>`;
         row.appendChild(titleCell);

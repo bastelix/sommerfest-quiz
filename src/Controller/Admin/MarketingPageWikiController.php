@@ -76,7 +76,8 @@ final class MarketingPageWikiController
         $pageId = (int) ($args['pageId'] ?? 0);
 
         $body = $request->getParsedBody();
-        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+        $contentType = strtolower($request->getHeaderLine('Content-Type'));
+        if (str_contains($contentType, 'application/json')) {
             $body = json_decode((string) $request->getBody(), true);
         }
         if (!is_array($body)) {
@@ -111,7 +112,7 @@ final class MarketingPageWikiController
         }
 
         $body = $request->getParsedBody();
-        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+        if (str_contains($contentType, 'application/json')) {
             $body = json_decode((string) $request->getBody(), true);
         }
         if (!is_array($body)) {
@@ -161,7 +162,8 @@ final class MarketingPageWikiController
 
         $articleId = (int) ($args['articleId'] ?? 0);
         $body = $request->getParsedBody();
-        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+        $contentType = strtolower($request->getHeaderLine('Content-Type'));
+        if (str_contains($contentType, 'application/json')) {
             $body = json_decode((string) $request->getBody(), true);
         }
         if (!is_array($body)) {
@@ -190,7 +192,8 @@ final class MarketingPageWikiController
 
         $articleId = (int) ($args['articleId'] ?? 0);
         $body = $request->getParsedBody();
-        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+        $contentType = strtolower($request->getHeaderLine('Content-Type'));
+        if (str_contains($contentType, 'application/json')) {
             $body = json_decode((string) $request->getBody(), true);
         }
         if (!is_array($body)) {
@@ -470,7 +473,8 @@ final class MarketingPageWikiController
         $pageId = (int) ($args['pageId'] ?? 0);
         $articleId = (int) ($args['articleId'] ?? 0);
         $body = $request->getParsedBody();
-        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+        $contentType = strtolower($request->getHeaderLine('Content-Type'));
+        if (str_contains($contentType, 'application/json')) {
             $body = json_decode((string) $request->getBody(), true);
         }
         if (!is_array($body)) {
@@ -508,7 +512,8 @@ final class MarketingPageWikiController
 
         $pageId = (int) ($args['pageId'] ?? 0);
         $body = $request->getParsedBody();
-        if ($request->getHeaderLine('Content-Type') === 'application/json') {
+        $contentType = strtolower($request->getHeaderLine('Content-Type'));
+        if (str_contains($contentType, 'application/json')) {
             $body = json_decode((string) $request->getBody(), true);
         }
         if (!is_array($body) || !isset($body['order']) || !is_array($body['order'])) {
