@@ -50,7 +50,7 @@
               >
                 <span class="uk-hidden">{{ t('column_actions') }}</span>
               </button>
-              <div uk-dropdown="mode: click; pos: bottom-right; offset: 0">
+              <div uk-dropdown="mode: click; pos: bottom-right; offset: 0; container: .admin-page">
                 <ul class="uk-nav uk-dropdown-nav">
                   <li>
                     <a href="{{ basePath }}/admin/landing-news/{{ entry.id }}" uk-dropdown-close>{{ t('action_edit') }}</a>
