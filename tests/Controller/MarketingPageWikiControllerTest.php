@@ -63,6 +63,7 @@ final class MarketingPageWikiControllerTest extends TestCase
             'slug' => 'introduction',
             'title' => 'Introduction',
             'excerpt' => 'Overview',
+            'isStartDocument' => true,
             'editor' => [
                 'blocks' => [
                     ['type' => 'paragraph', 'data' => ['text' => 'Welcome']],
@@ -79,10 +80,15 @@ final class MarketingPageWikiControllerTest extends TestCase
         $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertSame('introduction', $payload['slug']);
         $this->assertSame('Introduction', $payload['title']);
+        $this->assertTrue($payload['isStartDocument']);
 
-        $row = $pdo->query('SELECT slug, title FROM marketing_page_wiki_articles WHERE page_id = 1')
+        $row = $pdo->query('SELECT slug, title, is_start_document FROM marketing_page_wiki_articles WHERE page_id = 1')
             ?->fetch(PDO::FETCH_ASSOC);
-        $this->assertSame(['slug' => 'introduction', 'title' => 'Introduction'], $row);
+        $this->assertSame([
+            'slug' => 'introduction',
+            'title' => 'Introduction',
+            'is_start_document' => 1,
+        ], $row);
     }
 
     public function testSaveArticleAcceptsMarkdownUpload(): void
@@ -185,6 +191,64 @@ final class MarketingPageWikiControllerTest extends TestCase
         $this->assertSame(400, $response->getStatusCode());
     }
 
+    public function testUpdateStartDocumentReassignsFlag(): void
+    {
+        $pdo = $this->createWikiDatabase();
+        $controller = $this->createController($pdo);
+
+        $firstResponse = $controller->saveArticle(
+            $this->createJsonRequest([
+                'locale' => 'de',
+                'slug' => 'alpha',
+                'title' => 'Alpha',
+                'editor' => ['blocks' => [['type' => 'paragraph', 'data' => ['text' => 'Alpha']]]],
+                'isStartDocument' => true,
+            ]),
+            new Response(),
+            ['pageId' => 1]
+        );
+
+        $firstPayload = json_decode((string) $firstResponse->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $firstId = (int) $firstPayload['id'];
+
+        $secondResponse = $controller->saveArticle(
+            $this->createJsonRequest([
+                'locale' => 'de',
+                'slug' => 'beta',
+                'title' => 'Beta',
+                'editor' => ['blocks' => [['type' => 'paragraph', 'data' => ['text' => 'Beta']]]],
+            ]),
+            new Response(),
+            ['pageId' => 1]
+        );
+
+        $secondPayload = json_decode((string) $secondResponse->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $secondId = (int) $secondPayload['id'];
+
+        $request = $this->createRequest('POST', '/admin/pages/1/wiki/articles/' . $secondId . '/start', [
+            'HTTP_CONTENT_TYPE' => 'application/json',
+        ]);
+        $stream = (new StreamFactory())->createStream(json_encode(['isStartDocument' => true], JSON_THROW_ON_ERROR));
+        $request = $request->withBody($stream);
+
+        $response = $controller->updateStartDocument($request, new Response(), ['articleId' => $secondId]);
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+
+        $payload = json_decode((string) $response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame($secondId, $payload['id']);
+        $this->assertTrue($payload['isStartDocument']);
+
+        $rows = $pdo->query('SELECT id, is_start_document FROM marketing_page_wiki_articles ORDER BY id ASC')
+            ?->fetchAll(PDO::FETCH_ASSOC);
+
+        $this->assertSame([
+            ['id' => $firstId, 'is_start_document' => 0],
+            ['id' => $secondId, 'is_start_document' => 1],
+        ], $rows);
+    }
+
     private function createWikiDatabase(): PDO
     {
         $pdo = new PDO('sqlite::memory:');
@@ -208,9 +272,11 @@ final class MarketingPageWikiControllerTest extends TestCase
             content_html TEXT NOT NULL,
             status TEXT NOT NULL,
             sort_index INTEGER NULL,
+            is_start_document INTEGER NOT NULL DEFAULT 0,
             published_at TEXT NULL,
             updated_at TEXT NULL
         )');
+        $pdo->exec('CREATE UNIQUE INDEX marketing_page_wiki_start_doc_idx ON marketing_page_wiki_articles(page_id, locale) WHERE is_start_document = 1');
         $pdo->exec('CREATE TABLE marketing_page_wiki_versions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             article_id INTEGER NOT NULL,

@@ -1433,6 +1433,16 @@
                         </div>
                       </div>
                       <div class="uk-margin">
+                        <label class="uk-form-label" for="wikiArticleStart">Startdokument</label>
+                        <div class="uk-form-controls">
+                          <label class="uk-flex uk-flex-middle" style="gap: 8px;">
+                            <input class="uk-checkbox" id="wikiArticleStart" type="checkbox" data-wiki-article-start>
+                            <span>Als erstes Dokument anzeigen (z. B. Inhaltsverzeichnis)</span>
+                          </label>
+                          <p class="uk-text-meta uk-margin-small-top">Pro Locale kann nur ein Startdokument aktiv sein.</p>
+                        </div>
+                      </div>
+                      <div class="uk-margin">
                         <label class="uk-form-label" for="wikiArticleContent">Inhalt (Markdown)</label>
                         <div class="uk-form-controls">
                           <textarea class="uk-textarea" id="wikiArticleContent" rows="14" data-wiki-article-content placeholder="# Überschrift\nAbsätze werden durch Leerzeilen getrennt."></textarea>
@@ -2162,6 +2172,13 @@
     window.transWikiStatusArchived = 'Archiviert';
     window.transWikiLoading = 'Lädt…';
     window.transWikiEmpty = 'Keine Artikel vorhanden.';
+    window.transWikiArticleImport = 'Markdown importiert.';
+    window.transWikiArticleImportError = 'Markdown-Import fehlgeschlagen.';
+    window.transWikiArticleImportInvalid = 'Bitte eine Markdown-Datei auswählen.';
+    window.transWikiArticleImportNoPage = 'Bitte zuerst eine Marketing-Seite auswählen.';
+    window.transWikiArticleStartMarked = 'Startdokument gespeichert.';
+    window.transWikiArticleStartRemoved = 'Startdokument entfernt.';
+    window.transWikiArticleStartBadge = 'Start';
   </script>
   <script src="{{ basePath }}/js/dashboard.js"></script>
   <script type="module" src="{{ basePath }}/js/events.js"></script>

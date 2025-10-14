@@ -45,6 +45,7 @@ if (manager) {
     const modalContentInput = modalElement ? modalElement.querySelector('[data-wiki-article-content]') : null;
     const modalUpdatedLabel = modalElement ? modalElement.querySelector('[data-wiki-article-updated]') : null;
     const modalSubmit = modalElement ? modalElement.querySelector('[data-wiki-article-submit]') : null;
+    const modalStartInput = modalElement ? modalElement.querySelector('[data-wiki-article-start]') : null;
 
     if (
       !pageSelect ||
@@ -72,7 +73,8 @@ if (manager) {
       !modalExcerptInput ||
       !modalContentInput ||
       !modalUpdatedLabel ||
-      !modalSubmit
+      !modalSubmit ||
+      !modalStartInput
     ) {
       console.warn('Wiki manager requirements missing.');
       return;
@@ -100,7 +102,10 @@ if (manager) {
       articleImport: window.transWikiArticleImport || 'Markdown importiert.',
       articleImportError: window.transWikiArticleImportError || 'Markdown-Import fehlgeschlagen.',
       articleImportInvalid: window.transWikiArticleImportInvalid || 'Bitte eine Markdown-Datei auswählen.',
-      articleImportNoPage: window.transWikiArticleImportNoPage || 'Bitte zuerst eine Marketing-Seite auswählen.'
+      articleImportNoPage: window.transWikiArticleImportNoPage || 'Bitte zuerst eine Marketing-Seite auswählen.',
+      articleStartMarked: window.transWikiArticleStartMarked || 'Start document assigned.',
+      articleStartRemoved: window.transWikiArticleStartRemoved || 'Start document removed.',
+      startBadge: window.transWikiArticleStartBadge || 'Start'
     };
 
     const state = {
@@ -184,17 +189,58 @@ if (manager) {
         sortIndex: Number.isFinite(Number(raw.sortIndex)) ? Number(raw.sortIndex) : 0,
         publishedAt: typeof raw.publishedAt === 'string' ? raw.publishedAt : null,
         updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : null,
+        isStartDocument:
+          raw.isStartDocument === true ||
+          raw.isStartDocument === 1 ||
+          raw.isStartDocument === '1' ||
+          raw.isStartDocument === 'true',
         editorState: raw.editorState && typeof raw.editorState === 'object' ? raw.editorState : { blocks: [] }
       };
     }
 
     function sortArticlesInState() {
       state.articles.sort((a, b) => {
-        if (a.sortIndex === b.sortIndex) {
-          return a.id - b.id;
+        const localeCompare = (a.locale || '').localeCompare(b.locale || '', undefined, { sensitivity: 'base' });
+        if (localeCompare !== 0) {
+          return localeCompare;
         }
-        return a.sortIndex - b.sortIndex;
+        if (a.isStartDocument !== b.isStartDocument) {
+          return a.isStartDocument ? -1 : 1;
+        }
+        if (a.sortIndex !== b.sortIndex) {
+          return a.sortIndex - b.sortIndex;
+        }
+        return a.id - b.id;
       });
+    }
+
+    function upsertArticle(normalizedArticle) {
+      const sameLocale = normalizedArticle.locale;
+      let found = false;
+
+      state.articles = state.articles.map(item => {
+        if (item.id === normalizedArticle.id) {
+          found = true;
+          return normalizedArticle;
+        }
+
+        if (normalizedArticle.isStartDocument && item.locale === sameLocale) {
+          return { ...item, isStartDocument: false };
+        }
+
+        return item;
+      });
+
+      if (!found) {
+        if (normalizedArticle.isStartDocument) {
+          state.articles = state.articles.map(item =>
+            item.locale === sameLocale ? { ...item, isStartDocument: false } : item
+          );
+        }
+        state.articles.push(normalizedArticle);
+      }
+
+      sortArticlesInState();
     }
 
     function updateLocaleFilterOptions() {
@@ -239,6 +285,7 @@ if (manager) {
     }
 
     function renderArticles() {
+      sortArticlesInState();
       toggleLoadingRow(false);
       articlesTableBody.innerHTML = '';
       const filtered = state.articles.filter(article => state.filterLocale === 'all' || article.locale === state.filterLocale);
@@ -260,7 +307,10 @@ if (manager) {
         row.dataset.locale = article.locale;
 
         const titleCell = document.createElement('td');
-        titleCell.innerHTML = `<strong>${escapeHtml(article.title)}</strong><div class="uk-text-meta">${escapeHtml(article.slug)}</div>`;
+        const startBadge = article.isStartDocument
+          ? `<span class="uk-label uk-label-success uk-margin-small-left">${escapeHtml(messages.startBadge)}</span>`
+          : '';
+        titleCell.innerHTML = `<strong>${escapeHtml(article.title)}</strong>${startBadge}<div class="uk-text-meta">${escapeHtml(article.slug)}</div>`;
         row.appendChild(titleCell);
 
         const localeCell = document.createElement('td');
@@ -362,6 +412,12 @@ if (manager) {
           appendActionItem('Reaktivieren', 'restore');
         } else {
           appendActionItem('Archivieren', 'archive');
+        }
+
+        if (article.isStartDocument) {
+          appendActionItem('Startdokument entfernen', 'unset-start');
+        } else {
+          appendActionItem('Als Startdokument markieren', 'set-start', { className: 'uk-text-primary' });
         }
 
         appendActionItem('Duplizieren', 'duplicate');
@@ -552,6 +608,7 @@ if (manager) {
         modalExcerptInput.value = article.excerpt;
         modalContentInput.value = editorStateToMarkdown(article);
         modalUpdatedLabel.textContent = article.updatedAt ? `Aktualisiert: ${formatDate(article.updatedAt)}` : '';
+        modalStartInput.checked = Boolean(article.isStartDocument);
       } else {
         modalTitle.textContent = 'Artikel erstellen';
         modalIdInput.value = '';
@@ -562,6 +619,7 @@ if (manager) {
         modalExcerptInput.value = '';
         modalContentInput.value = '';
         modalUpdatedLabel.textContent = '';
+        modalStartInput.checked = false;
       }
       modal.show();
     }
@@ -605,7 +663,8 @@ if (manager) {
         title,
         excerpt: excerpt || null,
         status,
-        editor: markdownToEditorState(content)
+        editor: markdownToEditorState(content),
+        isStartDocument: modalStartInput.checked
       };
 
       if (id) {
@@ -621,13 +680,7 @@ if (manager) {
         body: JSON.stringify(payload)
       }).then(data => {
         const article = normalizeArticle(data);
-        const index = state.articles.findIndex(item => item.id === article.id);
-        if (index >= 0) {
-          state.articles.splice(index, 1, article);
-        } else {
-          state.articles.push(article);
-        }
-        sortArticlesInState();
+        upsertArticle(article);
         updateLocaleFilterOptions();
         renderArticles();
         notify(messages.articleSaved, 'success');
@@ -648,15 +701,27 @@ if (manager) {
         body: JSON.stringify({ status })
       }).then(data => {
         const updated = normalizeArticle(data);
-        const index = state.articles.findIndex(article => article.id === updated.id);
-        if (index >= 0) {
-          state.articles.splice(index, 1, updated);
-        }
-        sortArticlesInState();
+        upsertArticle(updated);
         renderArticles();
         notify(messages.articleSaved, 'success');
       }).catch(error => {
         console.error('Failed to update status', error);
+        notify(messages.articleError, 'danger');
+      });
+    }
+
+    function updateStartDocument(articleId, isStartDocument) {
+      fetchJson(`/admin/pages/${state.pageId}/wiki/articles/${articleId}/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isStartDocument })
+      }).then(data => {
+        const updated = normalizeArticle(data);
+        upsertArticle(updated);
+        renderArticles();
+        notify(isStartDocument ? messages.articleStartMarked : messages.articleStartRemoved, 'success');
+      }).catch(error => {
+        console.error('Failed to update start document', error);
         notify(messages.articleError, 'danger');
       });
     }
@@ -668,8 +733,7 @@ if (manager) {
         body: JSON.stringify({})
       }).then(data => {
         const duplicate = normalizeArticle(data);
-        state.articles.push(duplicate);
-        sortArticlesInState();
+        upsertArticle(duplicate);
         updateLocaleFilterOptions();
         renderArticles();
         notify(messages.articleDuplicate, 'success');
@@ -750,13 +814,7 @@ if (manager) {
         })
         .then(data => {
           const article = normalizeArticle(data);
-          const index = state.articles.findIndex(item => item.id === article.id);
-          if (index >= 0) {
-            state.articles.splice(index, 1, article);
-          } else {
-            state.articles.push(article);
-          }
-          sortArticlesInState();
+          upsertArticle(article);
           updateLocaleFilterOptions();
           if (state.filterLocale !== 'all' && state.filterLocale !== article.locale) {
             state.filterLocale = article.locale;
@@ -822,6 +880,7 @@ if (manager) {
         body: JSON.stringify({ order: orderPayload })
       }).then(() => {
         state.articles = reordered.map((item, position) => ({ ...item, sortIndex: position + 1 }));
+        sortArticlesInState();
         renderArticles();
         notify(messages.sortSaved, 'success');
       }).catch(error => {
@@ -860,6 +919,12 @@ if (manager) {
           break;
         case 'restore':
           updateArticleStatus(articleId, 'draft');
+          break;
+        case 'set-start':
+          updateStartDocument(articleId, true);
+          break;
+        case 'unset-start':
+          updateStartDocument(articleId, false);
           break;
         case 'duplicate':
           duplicateArticle(articleId);

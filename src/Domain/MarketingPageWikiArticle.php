@@ -36,6 +36,8 @@ final class MarketingPageWikiArticle implements JsonSerializable
 
     private int $sortIndex;
 
+    private bool $isStartDocument;
+
     private ?DateTimeImmutable $publishedAt;
 
     private ?DateTimeImmutable $updatedAt;
@@ -55,6 +57,7 @@ final class MarketingPageWikiArticle implements JsonSerializable
         string $contentHtml,
         string $status,
         int $sortIndex,
+        bool $isStartDocument,
         ?DateTimeImmutable $publishedAt,
         ?DateTimeImmutable $updatedAt
     ) {
@@ -69,6 +72,7 @@ final class MarketingPageWikiArticle implements JsonSerializable
         $this->contentHtml = $contentHtml;
         $this->status = $status;
         $this->sortIndex = $sortIndex;
+        $this->isStartDocument = $isStartDocument;
         $this->publishedAt = $publishedAt;
         $this->updatedAt = $updatedAt;
     }
@@ -131,6 +135,11 @@ final class MarketingPageWikiArticle implements JsonSerializable
         return $this->sortIndex;
     }
 
+    public function isStartDocument(): bool
+    {
+        return $this->isStartDocument;
+    }
+
     public function getPublishedAt(): ?DateTimeImmutable
     {
         return $this->publishedAt;
@@ -160,6 +169,7 @@ final class MarketingPageWikiArticle implements JsonSerializable
             $this->contentHtml,
             $status,
             $this->sortIndex,
+            $this->isStartDocument,
             $publishedAt,
             $this->updatedAt
         );
@@ -179,6 +189,7 @@ final class MarketingPageWikiArticle implements JsonSerializable
             'contentHtml' => $this->contentHtml,
             'status' => $this->status,
             'sortIndex' => $this->sortIndex,
+            'isStartDocument' => $this->isStartDocument,
             'publishedAt' => $this->publishedAt?->format(DateTimeImmutable::ATOM),
             'updatedAt' => $this->updatedAt?->format(DateTimeImmutable::ATOM),
         ];
